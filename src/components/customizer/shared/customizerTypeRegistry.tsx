@@ -319,7 +319,11 @@ function buildDescriptors(): CustomizerTypeDescriptor[] {
   };
 
   const aerospace: CustomizerTypeDescriptor = {
-    unitTypes: [UnitType.AEROSPACE, UnitType.CONVENTIONAL_FIGHTER],
+    unitTypes: [
+      UnitType.AEROSPACE,
+      UnitType.CONVENTIONAL_FIGHTER,
+      UnitType.SMALL_CRAFT,
+    ],
     label: 'Aerospace',
     tabs: getTabSpecsForUnitType(UnitType.AEROSPACE),
     Shell: createNonMechShell<AerospaceStore>({
@@ -331,6 +335,7 @@ function buildDescriptors(): CustomizerTypeDescriptor[] {
           tonnage: tab.tonnage,
           techBase: tab.techBase,
           isConventional: tab.unitType === UnitType.CONVENTIONAL_FIGHTER,
+          isSmallCraft: tab.unitType === UnitType.SMALL_CRAFT,
         }),
       StoreContext: AerospaceStoreContext,
       Customizer: AerospaceCustomizer,

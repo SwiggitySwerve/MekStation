@@ -86,6 +86,22 @@ const toGram = (tons: number): number =>
   Math.round(tons * 1_000_000) / 1_000_000;
 
 /**
+ * Armor tonnage of BAR support-vehicle armor points: the points' weight by
+ * armor tech rating, rounded up to a kilogram (units under 5 t) or a half ton
+ * (TestSupportVehicle armor weight; RoundWeight.java).
+ */
+export function getSupportVehicleBarArmorWeight(
+  points: number,
+  bar: number,
+  armorTechRating: number,
+  kilogramStandard: boolean,
+): number {
+  const perPoint = BAR_WEIGHT_PER_POINT[bar]?.[armorTechRating] ?? 0;
+  const step = kilogramStandard ? 1000 : 2;
+  return Math.ceil(toGram(points * perPoint) * step) / step;
+}
+
+/**
  * Armor points the armor tonnage of a BAR support vehicle buys
  * (`TestEntity.getArmorPoints`, TestEntity.java:1148-1152): the points' weight
  * rounded up to a kilogram (units under 5 t) or a half ton, divided by the
@@ -101,8 +117,12 @@ export function getSupportVehicleBarArmorPoints(
 ): number {
   const perPoint = BAR_WEIGHT_PER_POINT[bar]?.[armorTechRating] ?? 0;
   if (perPoint === 0) return 0; // Java: (int) NaN
-  const step = kilogramStandard ? 1000 : 2;
-  const weight = Math.ceil(toGram(allocated * perPoint) * step) / step;
+  const weight = getSupportVehicleBarArmorWeight(
+    allocated,
+    bar,
+    armorTechRating,
+    kilogramStandard,
+  );
   return Math.min(Math.floor(weight / perPoint), maxPoints);
 }
 

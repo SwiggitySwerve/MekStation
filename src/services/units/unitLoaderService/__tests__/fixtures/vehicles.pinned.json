@@ -1,0 +1,898 @@
+{
+  "pin": "50f7efef0c9f775b0258f8283525ed4f906e1985",
+  "rows": [
+    {
+      "kind": "Tank",
+      "path": "3075/Tamerlane Strike Sled (Flamer).blk",
+      "sha256": "7537203f8ef4bc26cef635aeadefd0c16adb48ba148b55bff3c5b933e94105f6",
+      "content": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-e633-71f6-bf75-143b013aa7bd\n</UUID>\n\n<UnitType>\nTank\n</UnitType>\n\n<Name>\nTamerlane Strike Sled\n</Name>\n\n<Model>\n(Flamer)\n</Model>\n\n<mul id:>\n3156\n</mul id:>\n\n<year>\n3074\n</year>\n\n<type>\nIS Level 2\n</type>\n\n<role>\nScout\n</role>\n\n<motion_type>\nHover\n</motion_type>\n\n<cruiseMP>\n12\n</cruiseMP>\n\n<engine_type>\n0\n</engine_type>\n\n<armor_type>\n0\n</armor_type>\n\n<armor_tech_rating>\n0\n</armor_tech_rating>\n\n<armor_tech_level>\n1\n</armor_tech_level>\n\n<internal_type>\n-1\n</internal_type>\n\n<armor>\n10\n10\n10\n8\n10\n</armor>\n\n<Body Equipment>\n</Body Equipment>\n\n<Front Equipment>\nFlamer\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<Turret Equipment>\nMedium Laser\nMedium Laser\n</Turret Equipment>\n\n<capabilities>\n<p>The Tamerlane is built around its Magna 155 fusion engine, which gives the twenty-ton hover sled a cruising speed of 129 kilometers per hour and a flank speed exceeding 190. That velocity is the design's primary defensive asset, allowing crews to make slashing attacks and withdraw before most opponents can effectively respond. The standard armament pairs a Diverse Optics Extended Range Medium Laser with a Marklin Mini SRM 2-pack, giving the Tamerlane both long-range reach and the ability to deliver short-range damage during a fast approach. The SRM ammunition bay mounts beneath the vehicle, making warhead swaps between standard and Inferno rounds quick and practical in the field.</p><p>The Maximillian 43 armor provides protection appropriate to the design's scout and raider role, though it will not sustain repeated hits from anything heavier than light weapons. The adapted bubble cockpit positions the pilot and gunner in tandem for good forward visibility, but the cramped two-man arrangement generated persistent complaints from taller crew members. Initial production runs caused back and leg problems after extended sorties, and a subsequent interior modification reduced but did not eliminate the issue. On hard or unpredictable terrain, the hover cushion is prone to side-slipping at high speed, a characteristic that has surprised more than one inexperienced pilot attempting high-velocity maneuvers over irregular ground.</p>\n</capabilities>\n\n<overview>\n<p>The Tamerlane Strike Sled was designed by Novis AT-H, Inc on Detroit as a low-cost, high-speed harasser drawing on the same flying-gun philosophy as the Savannah Master and the SM1. Introduced in 3071, it was conceived as an answer to the Magistracy of Canopus's need for a fast, maintainable raider that could threaten enemy formations without requiring the logistical overhead of heavier combat vehicles. Novis borrowed the bubble cockpit arrangement from Luthien Armor Work's SM1 design, adapting it to the LAW assemblage for ease of maintenance under Periphery field conditions. Though the Capellan Confederation initially dismissed the design as a Periphery novelty, small orders to bolster local militia units provided early operational credibility, and growing feedback led the CCAF to expand its commitment substantially. Novis responded by adding two production plants on Krimari and Palladix by 3075, and the company has since extended sales to Magistracy-employed mercenary units at competitive pricing.</p>\n</overview>\n\n<deployment>\n<p>Configured for sustained contact and anti-infantry operations, the Tamerlane Flamer variant mounts two medium lasers in the turret and a flamer in the front hull, eliminating dependence on ammunition entirely for extended sorties. The bubble cockpit receives a dark optical coating to protect the crew from the flamer's output at close range, which is sufficient to cause temporary blindness without the treatment. Used primarily for anti-infantry sweeps and long-duration patrol assignments where resupply is unavailable, the Flamer variant enters service primarily through official MAF procurement channels and sees more limited distribution in CCAF and mercenary formations.</p>\n</deployment>\n\n<history>\n<p>Novis AT-H, Inc developed the Tamerlane Strike Sled on Detroit in response to a Magistracy of Canopus military request for a fast, cheap harasser that could be maintained under Periphery field conditions with minimal specialized support. The design team drew heavily from the SM1 hover sled, borrowing its bubble cockpit and LAW assemblage to minimize parts incompatibility with vehicles already in MAF service. The first production vehicles reached MAF formations in 3071 and earned measured praise for their speed and low logistics burden.</p><p>Novis subsequently approached the Capellan Confederation, which initially hesitated to place significant orders, internally dismissing the Tamerlane as a Periphery rocket pile unsuited to CCAF standards. Small orders to bolster local militia formations provided the vehicle with an operational record, and favorable performance reports convinced CCAF procurement to expand its commitment substantially. By 3075, demand had outpaced the Detroit facility's capacity, and Novis commissioned two additional plants on Krimari and Palladix to fill the backlog. The company also extended pricing arrangements to Magistracy-employed mercenary units, building relationships with formations that would spread the design across the Periphery and into the Inner Sphere's outer regions.</p><p>Production at Detroit encountered a supply disruption between 3073 and 3074, when a shortage of Diverse Optics lasers forced the plant to substitute standard medium lasers for the extended-range model in outgoing vehicles. Output from Krimari and Palladix, which came online in 3075, continued using the extended-range variant from the start. Once Detroit resolved its supply chain issues, the ER-equipped version became the standard for MAF standing formations, while the simplified variant remained available for export and militia markets. Detroit's planetary ownership shifted from New Colony Region to Magistracy control during the Civil War period, and eventually to Capellan Confederation jurisdiction in the Dark Age, reflecting the broader political realignments of the era without interrupting production continuity at the Novis facility.</p>\n</history>\n\n<manufacturer>\nNovis AT-H, Inc|Novis AT-H, Inc|Novis AT-H, Inc\n</manufacturer>\n\n<primaryFactory>\nDetroit|Krimari|Palladix\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Unknown\nENGINE:Magna\nARMOR:Unknown\nCOMMUNICATIONS:Marconi\nTARGETING:Marconi\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nENGINE:155\nARMOR:Maximillian 43\nCOMMUNICATIONS:M-Pulse VI\nTARGETING:TTS series II\n</systemModels>\n\n<source>\nTR:3075\n</source>\n\n<published>\nRS:3075u-CE\n</published>\n\n<tonnage>\n20.0\n</tonnage>\n\n",
+      "definition": {
+        "id": "tamerlane-strike-sled-flamer",
+        "chassis": "Tamerlane Strike Sled",
+        "model": "(Flamer)",
+        "unitType": "Vehicle",
+        "techBase": "INNER_SPHERE",
+        "rulesLevel": "STANDARD",
+        "era": "CIVIL_WAR",
+        "year": 3074,
+        "tonnage": 20,
+        "weightClass": "LIGHT",
+        "motionType": "Hover",
+        "movement": {
+          "cruiseMP": 12,
+          "flankMP": 18,
+          "jumpMP": 0
+        },
+        "engine": {
+          "type": "FUSION",
+          "rating": 155
+        },
+        "armor": {
+          "type": "STANDARD",
+          "byLocation": {
+            "FRONT": 10,
+            "RIGHT": 10,
+            "LEFT": 10,
+            "REAR": 8,
+            "TURRET": 10
+          }
+        },
+        "equipment": [
+          {
+            "id": "flamer",
+            "name": "Flamer",
+            "location": "FRONT"
+          },
+          {
+            "id": "medium-laser",
+            "name": "Medium Laser",
+            "location": "TURRET"
+          },
+          {
+            "id": "medium-laser",
+            "name": "Medium Laser",
+            "location": "TURRET"
+          }
+        ],
+        "armorTechRating": 0,
+        "internalType": -1,
+        "mulId": 3156,
+        "role": "Scout",
+        "source": "TR:3075",
+        "fluff": {
+          "overview": "<p>The Tamerlane Strike Sled was designed by Novis AT-H, Inc on Detroit as a low-cost, high-speed harasser drawing on the same flying-gun philosophy as the Savannah Master and the SM1. Introduced in 3071, it was conceived as an answer to the Magistracy of Canopus's need for a fast, maintainable raider that could threaten enemy formations without requiring the logistical overhead of heavier combat vehicles. Novis borrowed the bubble cockpit arrangement from Luthien Armor Work's SM1 design, adapting it to the LAW assemblage for ease of maintenance under Periphery field conditions. Though the Capellan Confederation initially dismissed the design as a Periphery novelty, small orders to bolster local militia units provided early operational credibility, and growing feedback led the CCAF to expand its commitment substantially. Novis responded by adding two production plants on Krimari and Palladix by 3075, and the company has since extended sales to Magistracy-employed mercenary units at competitive pricing.</p>",
+          "capabilities": "<p>The Tamerlane is built around its Magna 155 fusion engine, which gives the twenty-ton hover sled a cruising speed of 129 kilometers per hour and a flank speed exceeding 190. That velocity is the design's primary defensive asset, allowing crews to make slashing attacks and withdraw before most opponents can effectively respond. The standard armament pairs a Diverse Optics Extended Range Medium Laser with a Marklin Mini SRM 2-pack, giving the Tamerlane both long-range reach and the ability to deliver short-range damage during a fast approach. The SRM ammunition bay mounts beneath the vehicle, making warhead swaps between standard and Inferno rounds quick and practical in the field.</p><p>The Maximillian 43 armor provides protection appropriate to the design's scout and raider role, though it will not sustain repeated hits from anything heavier than light weapons. The adapted bubble cockpit positions the pilot and gunner in tandem for good forward visibility, but the cramped two-man arrangement generated persistent complaints from taller crew members. Initial production runs caused back and leg problems after extended sorties, and a subsequent interior modification reduced but did not eliminate the issue. On hard or unpredictable terrain, the hover cushion is prone to side-slipping at high speed, a characteristic that has surprised more than one inexperienced pilot attempting high-velocity maneuvers over irregular ground.</p>",
+          "deployment": "<p>Configured for sustained contact and anti-infantry operations, the Tamerlane Flamer variant mounts two medium lasers in the turret and a flamer in the front hull, eliminating dependence on ammunition entirely for extended sorties. The bubble cockpit receives a dark optical coating to protect the crew from the flamer's output at close range, which is sufficient to cause temporary blindness without the treatment. Used primarily for anti-infantry sweeps and long-duration patrol assignments where resupply is unavailable, the Flamer variant enters service primarily through official MAF procurement channels and sees more limited distribution in CCAF and mercenary formations.</p>",
+          "history": "<p>Novis AT-H, Inc developed the Tamerlane Strike Sled on Detroit in response to a Magistracy of Canopus military request for a fast, cheap harasser that could be maintained under Periphery field conditions with minimal specialized support. The design team drew heavily from the SM1 hover sled, borrowing its bubble cockpit and LAW assemblage to minimize parts incompatibility with vehicles already in MAF service. The first production vehicles reached MAF formations in 3071 and earned measured praise for their speed and low logistics burden.</p><p>Novis subsequently approached the Capellan Confederation, which initially hesitated to place significant orders, internally dismissing the Tamerlane as a Periphery rocket pile unsuited to CCAF standards. Small orders to bolster local militia formations provided the vehicle with an operational record, and favorable performance reports convinced CCAF procurement to expand its commitment substantially. By 3075, demand had outpaced the Detroit facility's capacity, and Novis commissioned two additional plants on Krimari and Palladix to fill the backlog. The company also extended pricing arrangements to Magistracy-employed mercenary units, building relationships with formations that would spread the design across the Periphery and into the Inner Sphere's outer regions.</p><p>Production at Detroit encountered a supply disruption between 3073 and 3074, when a shortage of Diverse Optics lasers forced the plant to substitute standard medium lasers for the extended-range model in outgoing vehicles. Output from Krimari and Palladix, which came online in 3075, continued using the extended-range variant from the start. Once Detroit resolved its supply chain issues, the ER-equipped version became the standard for MAF standing formations, while the simplified variant remained available for export and militia markets. Detroit's planetary ownership shifted from New Colony Region to Magistracy control during the Civil War period, and eventually to Capellan Confederation jurisdiction in the Dark Age, reflecting the broader political realignments of the era without interrupting production continuity at the Novis facility.</p>",
+          "manufacturer": "Novis AT-H, Inc|Novis AT-H, Inc|Novis AT-H, Inc",
+          "primaryFactory": "Detroit|Krimari|Palladix",
+          "systemManufacturer": {
+            "CHASSIS": "Unknown",
+            "ENGINE": "Magna",
+            "ARMOR": "Unknown",
+            "COMMUNICATIONS": "Marconi",
+            "TARGETING": "Marconi"
+          }
+        }
+      }
+    },
+    {
+      "kind": "SuperHeavy",
+      "path": "XTRs/Republic I/Hexareme HQ Hovercraft.blk",
+      "sha256": "51c7e07f378254f50146f2b5a2a483684d3db24be00f309cc7e400808ee87a3b",
+      "content": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-ec62-7350-a95d-29fd46706bbc\n</UUID>\n\n<UnitType>\nTank\n</UnitType>\n\n<Name>\nHexareme HQ Hovercraft\n</Name>\n\n<Model>\n\n</Model>\n\n<mul id:>\n7306\n</mul id:>\n\n<year>\n3115\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<role>\nSkirmisher\n</role>\n\n<quirks>\npoor_performance\n</quirks>\n\n<motion_type>\nHover\n</motion_type>\n\n<transporters>\ntroopspace:4.0\n</transporters>\n\n<cruiseMP>\n7\n</cruiseMP>\n\n<engine_type>\n2\n</engine_type>\n\n<armor_type>\n6\n</armor_type>\n\n<armor_tech_rating>\n0\n</armor_tech_rating>\n\n<armor_tech_level>\n5\n</armor_tech_level>\n\n<armor>\n40\n34\n34\n34\n34\n30\n32\n</armor>\n\n<Body Equipment>\nISAMS Ammo\nISAMS Ammo\nIS Light Machine Gun Ammo - Half\nIS LB 2-X Cluster Ammo\nCommunications Equipment:SIZE:3.0\nISGuardianECMSuite\nISCASE\n</Body Equipment>\n\n<Front Equipment>\n</Front Equipment>\n\n<Front Right Equipment>\nLight Machine Gun(ST)\nISAntiMissileSystem(ST)\n</Front Right Equipment>\n\n<Front Left Equipment>\nLight Machine Gun(ST)\nISAntiMissileSystem(ST)\n</Front Left Equipment>\n\n<Rear Right Equipment>\n</Rear Right Equipment>\n\n<Rear Left Equipment>\n</Rear Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<Turret Equipment>\nISSNPPC\nISLBXAC2\n</Turret Equipment>\n\n<capabilities>\n<p>Powered by a 305-rated extralight fusion engine, the Hexareme achieves respectable speeds on both land and water, though its 90-ton mass makes it sluggish compared to lighter hovercraft. Heavy ferro-fibrous armor provides substantial protection across all facets. Three tons of communications equipment represents the minimum required for a functional mobile headquarters, providing satellite connectivity and a modest initiative advantage when linked to orbital assets.</p><p>Early proving ground tests demonstrated that the Hexareme was too heavy and unwieldy for traditional infantry fighting vehicle operations on land. Captain Dafydd Smythe, a former blue water navy officer on Michaelson's test team who had started his career on Chara III, suggested redirecting the vehicle toward naval engagements where its unlimited range and good electronic suite served well. Clan warrior volunteers have since deployed Undine battle armor directly into underwater combat from Hexareme platforms, combining the hovercraft's amphibious capability with infantry assault tactics. Sponson-mounted weapons provide defensive firepower, while the vehicle's primary value lies in command coordination rather than direct engagement.</p>\n</capabilities>\n\n<overview>\n<p>The Hexareme HQ Hovercraft is a super-heavy combat vehicle produced by Michaelson Heavy Industries on Ruchbah for the Republic of the Sphere. Originally conceived as a hovering main battle tank, the design was repurposed during development when its large flotation hull proved unsuited to direct ground combat but excelled in maritime operations. The Hexareme owes its existence to the success of the Trireme Infantry Transport, which rescued Michaelson Heavy Industries from insolvency and returned the company to the forefront of Republic vehicle manufacturing. Entering service in 3115, the Hexareme became the most advanced mobile headquarters platform built on a hovercraft chassis, capable of operating effectively on both land and water.</p>\n</overview>\n\n<deployment>\n<p>The Hexareme serves primarily in cavalry commands and SpecOps Command formations, with notable operators including the Leander IIs of Athenry and the Wyrms of Terra. Clan Sea Fox battle armor teams have paired with Hexareme platforms for ship-to-shore assault operations. As the Republic contracted, surviving vehicles were distributed among successor factions and in at least one case fell into pirate hands. The vehicle's niche role and limited production numbers ensure it remains uncommon on most battlefields.</p>\n</deployment>\n\n<history>\n<p>The Republic Armed Forces deployed the Hexareme sparingly, primarily assigning them to cavalry commands and various outfits of SpecOps Command. Notable operators included the Leander IIs of Athenry and the two Wyrms of Terra formations, each maintaining a lance of Hexaremes for coastal patrol duties. The most unlikely operational partnership proved to be with Clan Sea Fox battle armor, where matched pairs formed a formidable team for ship-to-shore assaults.</p><p>As the Republic contracted during the 3140s, Hexaremes fell into the hands of various parties. Pirates used at least one craft to raid maritime traffic on Connaught in the late 3140s. In 3149 on Addicks, a Hexareme assigned to the XII Hastati Sentinels was employed against units of the Draconis Combine's 4th Dieron Regulars, demonstrating that the vehicle retained combat value even in the Republic's final days. The vehicle serves as a sign of the RAF's willingness to find creative solutions, taking a design that initially seemed to have no viable role and discovering multiple applications where it could excel. Its poor acceleration, a consequence of mounting a relatively modest engine in a 90-ton hull, remains the vehicle's most persistent limitation.</p>\n</history>\n\n<systemManufacturers>\nENGINE:Unknown\nARMOR:Unknown\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemManufacturers>\n\n<systemModels>\nENGINE:305 XL Fusion\nARMOR:Heavy Ferro-Fibrous\nCOMMUNICATIONS:Standard Comms\nTARGETING:Standard\n</systemModels>\n\n<source>\nXTR:RotS 1,TR:3150\n</source>\n\n<published>\nXTR:RotS 1,TR:3150\n</published>\n\n<tonnage>\n90.0\n</tonnage>\n\n",
+      "definition": {
+        "id": "hexareme-hq-hovercraft",
+        "chassis": "Hexareme HQ Hovercraft",
+        "model": "",
+        "unitType": "Vehicle",
+        "techBase": "INNER_SPHERE",
+        "rulesLevel": "ADVANCED",
+        "era": "DARK_AGE",
+        "year": 3115,
+        "tonnage": 90,
+        "weightClass": "ASSAULT",
+        "motionType": "Hover",
+        "movement": {
+          "cruiseMP": 7,
+          "flankMP": 11,
+          "jumpMP": 0
+        },
+        "engine": {
+          "type": "XL",
+          "rating": 305
+        },
+        "armor": {
+          "type": "HEAVY_FERRO_FIBROUS",
+          "byLocation": {
+            "FRONT": 40,
+            "FRONT_RIGHT": 34,
+            "FRONT_LEFT": 34,
+            "REAR_RIGHT": 34,
+            "REAR_LEFT": 34,
+            "REAR": 30,
+            "TURRET": 32
+          }
+        },
+        "equipment": [
+          {
+            "id": "issnppc",
+            "name": "ISSNPPC",
+            "location": "TURRET"
+          },
+          {
+            "id": "islbxac2",
+            "name": "ISLBXAC2",
+            "location": "TURRET"
+          },
+          {
+            "id": "isams-ammo",
+            "name": "ISAMS Ammo",
+            "location": "BODY"
+          },
+          {
+            "id": "isams-ammo",
+            "name": "ISAMS Ammo",
+            "location": "BODY"
+          },
+          {
+            "id": "is-light-machine-gun-ammo-half",
+            "name": "IS Light Machine Gun Ammo - Half",
+            "location": "BODY"
+          },
+          {
+            "id": "is-lb-2-x-cluster-ammo",
+            "name": "IS LB 2-X Cluster Ammo",
+            "location": "BODY"
+          },
+          {
+            "id": "communications-equipment:size:3.0",
+            "name": "Communications Equipment:SIZE:3.0",
+            "location": "BODY"
+          },
+          {
+            "id": "isguardianecmsuite",
+            "name": "ISGuardianECMSuite",
+            "location": "BODY"
+          },
+          {
+            "id": "iscase",
+            "name": "ISCASE",
+            "location": "BODY"
+          },
+          {
+            "id": "light-machine-gunst",
+            "name": "Light Machine Gun(ST)",
+            "location": "FRONT_RIGHT"
+          },
+          {
+            "id": "isantimissilesystemst",
+            "name": "ISAntiMissileSystem(ST)",
+            "location": "FRONT_RIGHT"
+          },
+          {
+            "id": "light-machine-gunst",
+            "name": "Light Machine Gun(ST)",
+            "location": "FRONT_LEFT"
+          },
+          {
+            "id": "isantimissilesystemst",
+            "name": "ISAntiMissileSystem(ST)",
+            "location": "FRONT_LEFT"
+          }
+        ],
+        "armorTechRating": 0,
+        "transporters": ["troopspace:4.0"],
+        "mulId": 7306,
+        "role": "Skirmisher",
+        "source": "XTR:RotS 1,TR:3150",
+        "quirks": ["poor_performance"],
+        "fluff": {
+          "overview": "<p>The Hexareme HQ Hovercraft is a super-heavy combat vehicle produced by Michaelson Heavy Industries on Ruchbah for the Republic of the Sphere. Originally conceived as a hovering main battle tank, the design was repurposed during development when its large flotation hull proved unsuited to direct ground combat but excelled in maritime operations. The Hexareme owes its existence to the success of the Trireme Infantry Transport, which rescued Michaelson Heavy Industries from insolvency and returned the company to the forefront of Republic vehicle manufacturing. Entering service in 3115, the Hexareme became the most advanced mobile headquarters platform built on a hovercraft chassis, capable of operating effectively on both land and water.</p>",
+          "capabilities": "<p>Powered by a 305-rated extralight fusion engine, the Hexareme achieves respectable speeds on both land and water, though its 90-ton mass makes it sluggish compared to lighter hovercraft. Heavy ferro-fibrous armor provides substantial protection across all facets. Three tons of communications equipment represents the minimum required for a functional mobile headquarters, providing satellite connectivity and a modest initiative advantage when linked to orbital assets.</p><p>Early proving ground tests demonstrated that the Hexareme was too heavy and unwieldy for traditional infantry fighting vehicle operations on land. Captain Dafydd Smythe, a former blue water navy officer on Michaelson's test team who had started his career on Chara III, suggested redirecting the vehicle toward naval engagements where its unlimited range and good electronic suite served well. Clan warrior volunteers have since deployed Undine battle armor directly into underwater combat from Hexareme platforms, combining the hovercraft's amphibious capability with infantry assault tactics. Sponson-mounted weapons provide defensive firepower, while the vehicle's primary value lies in command coordination rather than direct engagement.</p>",
+          "deployment": "<p>The Hexareme serves primarily in cavalry commands and SpecOps Command formations, with notable operators including the Leander IIs of Athenry and the Wyrms of Terra. Clan Sea Fox battle armor teams have paired with Hexareme platforms for ship-to-shore assault operations. As the Republic contracted, surviving vehicles were distributed among successor factions and in at least one case fell into pirate hands. The vehicle's niche role and limited production numbers ensure it remains uncommon on most battlefields.</p>",
+          "history": "<p>The Republic Armed Forces deployed the Hexareme sparingly, primarily assigning them to cavalry commands and various outfits of SpecOps Command. Notable operators included the Leander IIs of Athenry and the two Wyrms of Terra formations, each maintaining a lance of Hexaremes for coastal patrol duties. The most unlikely operational partnership proved to be with Clan Sea Fox battle armor, where matched pairs formed a formidable team for ship-to-shore assaults.</p><p>As the Republic contracted during the 3140s, Hexaremes fell into the hands of various parties. Pirates used at least one craft to raid maritime traffic on Connaught in the late 3140s. In 3149 on Addicks, a Hexareme assigned to the XII Hastati Sentinels was employed against units of the Draconis Combine's 4th Dieron Regulars, demonstrating that the vehicle retained combat value even in the Republic's final days. The vehicle serves as a sign of the RAF's willingness to find creative solutions, taking a design that initially seemed to have no viable role and discovering multiple applications where it could excel. Its poor acceleration, a consequence of mounting a relatively modest engine in a 90-ton hull, remains the vehicle's most persistent limitation.</p>",
+          "systemManufacturer": {
+            "ENGINE": "Unknown",
+            "ARMOR": "Unknown",
+            "COMMUNICATIONS": "Unknown",
+            "TARGETING": "Unknown"
+          }
+        }
+      }
+    },
+    {
+      "kind": "dual turret",
+      "path": "3085u/Cutting Edge/Ranger Armored Fighting Vehicle VV22.blk",
+      "sha256": "e52ee3506ae33eae3092d386f2016844e0d476392e0d993431867112bc11ecd0",
+      "content": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-e720-7833-ac4b-48c5e07484c0\n</UUID>\n\n<UnitType>\nTank\n</UnitType>\n\n<Name>\nRanger Armored Fighting Vehicle\n</Name>\n\n<Model>\nVV22\n</Model>\n\n<mul id:>\n2641\n</mul id:>\n\n<year>\n3082\n</year>\n\n<type>\nIS Level 4\n</type>\n\n<role>\nStriker\n</role>\n\n<motion_type>\nWheeled\n</motion_type>\n\n<cruiseMP>\n6\n</cruiseMP>\n\n<engine_type>\n0\n</engine_type>\n\n<armor_type>\n1\n</armor_type>\n\n<armor_tech_rating>\n0\n</armor_tech_rating>\n\n<armor_tech_level>\n1\n</armor_tech_level>\n\n<armor>\n36\n32\n32\n28\n32\n19\n</armor>\n\n<Body Equipment>\nISMagshotGR Ammo\nISMagshotGR Ammo\nISMagshotGR Ammo\n</Body Equipment>\n\n<Front Equipment>\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<Rear Turret Equipment>\nISMagshotGR\nISMagshotGR\nISMagshotGR\nISMagshotGR\nISMagshotGR\nISMagshotGR\nISMagshotGR\nISMagshotGR\n</Rear Turret Equipment>\n\n<Front Turret Equipment>\nISERSmallLaser\nISERSmallLaser\n</Front Turret Equipment>\n\n<capabilities>\n<p>The Ranger is built on a widened three-axle derivative of the Striker hull, the added axle necessary to handle the vehicle's 45-ton combat weight. The GM 250 fusion engine drives it to a flank speed of ninety-seven kilometers per hour, allowing it to keep pace with lancemates and reposition rapidly within urban terrain.</p><p>Ten tons of Valiant Buckler standard armor provides approximately thirty percent more protection than comparable vehicles in its class. That margin is significant given the design's close-range combat doctrine, which regularly places crews within direct engagement distance of their targets.</p><p>The primary armament centers on two Johnston SlavTrack arrays, each combining a Johnston Minigun with a Johnston Light Minigun. The linked configuration delivers mixed machine gun fire out to 120 meters, effective against both conventional and battle-armored infantry. Two Exostar ER Small Lasers supplement the arrays for modest ranged capability and serve as backup when ammunition runs low.</p><p>The Ranger carries notable limitations. Its sub-120-meter effective range forces crews to close under fire before the main armament becomes useful, placing heavy demands on the driver and commander. The SlavTrack arrays are maintenance-intensive, and the absence of anti-armor capability limits the vehicle to a specialist role rather than general-purpose employment.</p>\n</capabilities>\n\n<overview>\n<p>The Ranger Armored Fighting Vehicle is a wheeled combat vehicle produced by Valiant Systems of Johnsondale, entering service with the Armed Forces of the Federated Suns in 3076. Built on an expanded derivative of the company's Striker chassis, the Ranger trades some of that design's economy for heavier armament and substantially greater armor protection. The result is a vehicle purpose-built for close-range urban combat and infantry support, occupying a niche that the lighter Striker cannot fill. The Ranger's limited engagement range and persistent naming confusion with the Fox Armored Car have kept sales modest, but its low acquisition and maintenance costs have earned it a loyal following among mercenary commands and planetary defense forces that value affordability over battlefield versatility.</p>\n</overview>\n\n<deployment>\n<p>The VV22 represents an experimental Valiant Systems effort to address the VV2's vulnerability to multi-bearing threats. A second turret ring is added to accommodate a battery of standard small lasers, replacing the ER variants of the base design. The hull armor is upgraded to ferro-fibrous to compensate for the structural demands of the second turret. The result is a vehicle capable of engaging separate targets on different bearings simultaneously, an asset in complex urban engagements and fixed-installation defense. The dual-turret system carries substantial maintenance and cost penalties that have kept production numbers low. The VV22 is most commonly found in garrison assignments on worlds with the depot infrastructure to support it.</p>\n</deployment>\n\n<history>\n<p>Valiant Systems developed the Ranger as a direct extension of their Striker product line, drawing on existing chassis architecture and supplier relationships to reduce development time and cost. The design brief called for a vehicle capable of supporting AFFS infantry formations in dense urban terrain, where the Striker's armament was judged insufficient against armored infantry concentrations encountered during the later Jihad period. Adding a third axle and scaling to 45 tons gave the design team enough margin to fit the dual SlavTrack arrays and substantially heavier armor.</p><p>The Ranger entered service in 3076 and was immediately committed to post-Jihad stabilization operations. At Achernar, pairs of Rangers working alongside Morningstar Command Tanks proved effective against Protectorate Locusts and Word of Blake battle armor in the confined fighting around the BattleMech factory complex. The machine gun batteries demonstrated their value against power-armored infantry in close terrain, and the additional armor allowed crews to survive engagements that would have destroyed lighter vehicles.</p><p>Despite these early successes, broader AFFS adoption was limited by the vehicle's narrow utility. The restricted engagement range drew criticism from formation commanders accustomed to vehicles with greater battlefield flexibility, and most Rangers that survived their initial deployments were transferred from armor regiments to infantry support assignments. There they were paired with APCs and heavy infantry units, a role that suited the design far better.</p><p>Sales outside the AFFS remained modest, compounded by persistent market confusion with the Fox Armored Car's similar designation. Mercenary commands and corporations showed more consistent interest than House armies, drawn by the vehicle's low purchase price and straightforward logistics. The Republic of the Sphere became a reliable if small-volume customer, purchasing Rangers for planetary militia contracts through the Dark Age period. Valiant Systems continued refining the design through successive variants, incrementally addressing the range and maintenance criticisms that limited the base model's appeal.</p>\n</history>\n\n<manufacturer>\nValiant Systems\n</manufacturer>\n\n<primaryFactory>\nJohnsondale\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Valiant Systems\nENGINE:GM\nARMOR:Valiant Systems\nCOMMUNICATIONS:Wunderland\nTARGETING:Salamander Systems\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nENGINE:250\nARMOR:Unknown\nCOMMUNICATIONS:XXI-3 series\nTARGETING:CommPhase Unit\n</systemModels>\n\n<source>\nTR:3085\n</source>\n\n<published>\nRS:3085u-CE\n</published>\n\n<tonnage>\n45.0\n</tonnage>\n\n",
+      "definition": {
+        "id": "ranger-armored-fighting-vehicle-vv22",
+        "chassis": "Ranger Armored Fighting Vehicle",
+        "model": "VV22",
+        "unitType": "Vehicle",
+        "techBase": "INNER_SPHERE",
+        "rulesLevel": "EXPERIMENTAL",
+        "era": "DARK_AGE",
+        "year": 3082,
+        "tonnage": 45,
+        "weightClass": "HEAVY",
+        "motionType": "Wheeled",
+        "movement": {
+          "cruiseMP": 6,
+          "flankMP": 9,
+          "jumpMP": 0
+        },
+        "engine": {
+          "type": "FUSION",
+          "rating": 250
+        },
+        "armor": {
+          "type": "FERRO_FIBROUS",
+          "byLocation": {
+            "FRONT": 36,
+            "RIGHT": 32,
+            "LEFT": 32,
+            "REAR": 28,
+            "TURRET": 32,
+            "TURRET_2": 19
+          }
+        },
+        "equipment": [
+          {
+            "id": "ismagshotgr-ammo",
+            "name": "ISMagshotGR Ammo",
+            "location": "BODY"
+          },
+          {
+            "id": "ismagshotgr-ammo",
+            "name": "ISMagshotGR Ammo",
+            "location": "BODY"
+          },
+          {
+            "id": "ismagshotgr-ammo",
+            "name": "ISMagshotGR Ammo",
+            "location": "BODY"
+          },
+          {
+            "id": "isersmalllaser",
+            "name": "ISERSmallLaser",
+            "location": "TURRET_2"
+          },
+          {
+            "id": "isersmalllaser",
+            "name": "ISERSmallLaser",
+            "location": "TURRET_2"
+          },
+          {
+            "id": "ismagshotgr",
+            "name": "ISMagshotGR",
+            "location": "TURRET"
+          },
+          {
+            "id": "ismagshotgr",
+            "name": "ISMagshotGR",
+            "location": "TURRET"
+          },
+          {
+            "id": "ismagshotgr",
+            "name": "ISMagshotGR",
+            "location": "TURRET"
+          },
+          {
+            "id": "ismagshotgr",
+            "name": "ISMagshotGR",
+            "location": "TURRET"
+          },
+          {
+            "id": "ismagshotgr",
+            "name": "ISMagshotGR",
+            "location": "TURRET"
+          },
+          {
+            "id": "ismagshotgr",
+            "name": "ISMagshotGR",
+            "location": "TURRET"
+          },
+          {
+            "id": "ismagshotgr",
+            "name": "ISMagshotGR",
+            "location": "TURRET"
+          },
+          {
+            "id": "ismagshotgr",
+            "name": "ISMagshotGR",
+            "location": "TURRET"
+          }
+        ],
+        "armorTechRating": 0,
+        "mulId": 2641,
+        "role": "Striker",
+        "source": "TR:3085",
+        "fluff": {
+          "overview": "<p>The Ranger Armored Fighting Vehicle is a wheeled combat vehicle produced by Valiant Systems of Johnsondale, entering service with the Armed Forces of the Federated Suns in 3076. Built on an expanded derivative of the company's Striker chassis, the Ranger trades some of that design's economy for heavier armament and substantially greater armor protection. The result is a vehicle purpose-built for close-range urban combat and infantry support, occupying a niche that the lighter Striker cannot fill. The Ranger's limited engagement range and persistent naming confusion with the Fox Armored Car have kept sales modest, but its low acquisition and maintenance costs have earned it a loyal following among mercenary commands and planetary defense forces that value affordability over battlefield versatility.</p>",
+          "capabilities": "<p>The Ranger is built on a widened three-axle derivative of the Striker hull, the added axle necessary to handle the vehicle's 45-ton combat weight. The GM 250 fusion engine drives it to a flank speed of ninety-seven kilometers per hour, allowing it to keep pace with lancemates and reposition rapidly within urban terrain.</p><p>Ten tons of Valiant Buckler standard armor provides approximately thirty percent more protection than comparable vehicles in its class. That margin is significant given the design's close-range combat doctrine, which regularly places crews within direct engagement distance of their targets.</p><p>The primary armament centers on two Johnston SlavTrack arrays, each combining a Johnston Minigun with a Johnston Light Minigun. The linked configuration delivers mixed machine gun fire out to 120 meters, effective against both conventional and battle-armored infantry. Two Exostar ER Small Lasers supplement the arrays for modest ranged capability and serve as backup when ammunition runs low.</p><p>The Ranger carries notable limitations. Its sub-120-meter effective range forces crews to close under fire before the main armament becomes useful, placing heavy demands on the driver and commander. The SlavTrack arrays are maintenance-intensive, and the absence of anti-armor capability limits the vehicle to a specialist role rather than general-purpose employment.</p>",
+          "deployment": "<p>The VV22 represents an experimental Valiant Systems effort to address the VV2's vulnerability to multi-bearing threats. A second turret ring is added to accommodate a battery of standard small lasers, replacing the ER variants of the base design. The hull armor is upgraded to ferro-fibrous to compensate for the structural demands of the second turret. The result is a vehicle capable of engaging separate targets on different bearings simultaneously, an asset in complex urban engagements and fixed-installation defense. The dual-turret system carries substantial maintenance and cost penalties that have kept production numbers low. The VV22 is most commonly found in garrison assignments on worlds with the depot infrastructure to support it.</p>",
+          "history": "<p>Valiant Systems developed the Ranger as a direct extension of their Striker product line, drawing on existing chassis architecture and supplier relationships to reduce development time and cost. The design brief called for a vehicle capable of supporting AFFS infantry formations in dense urban terrain, where the Striker's armament was judged insufficient against armored infantry concentrations encountered during the later Jihad period. Adding a third axle and scaling to 45 tons gave the design team enough margin to fit the dual SlavTrack arrays and substantially heavier armor.</p><p>The Ranger entered service in 3076 and was immediately committed to post-Jihad stabilization operations. At Achernar, pairs of Rangers working alongside Morningstar Command Tanks proved effective against Protectorate Locusts and Word of Blake battle armor in the confined fighting around the BattleMech factory complex. The machine gun batteries demonstrated their value against power-armored infantry in close terrain, and the additional armor allowed crews to survive engagements that would have destroyed lighter vehicles.</p><p>Despite these early successes, broader AFFS adoption was limited by the vehicle's narrow utility. The restricted engagement range drew criticism from formation commanders accustomed to vehicles with greater battlefield flexibility, and most Rangers that survived their initial deployments were transferred from armor regiments to infantry support assignments. There they were paired with APCs and heavy infantry units, a role that suited the design far better.</p><p>Sales outside the AFFS remained modest, compounded by persistent market confusion with the Fox Armored Car's similar designation. Mercenary commands and corporations showed more consistent interest than House armies, drawn by the vehicle's low purchase price and straightforward logistics. The Republic of the Sphere became a reliable if small-volume customer, purchasing Rangers for planetary militia contracts through the Dark Age period. Valiant Systems continued refining the design through successive variants, incrementally addressing the range and maintenance criticisms that limited the base model's appeal.</p>",
+          "manufacturer": "Valiant Systems",
+          "primaryFactory": "Johnsondale",
+          "systemManufacturer": {
+            "CHASSIS": "Valiant Systems",
+            "ENGINE": "GM",
+            "ARMOR": "Valiant Systems",
+            "COMMUNICATIONS": "Wunderland",
+            "TARGETING": "Salamander Systems"
+          }
+        }
+      }
+    },
+    {
+      "kind": "VTOL chin",
+      "path": "3145/Clans/Skadi Swift Attack VTOL.blk",
+      "sha256": "2888f30bb6981ac629a0e80e538ad09343597a32466b324e2df6361c6c5dfd17",
+      "content": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-e7a5-7566-94fa-45c62128c0ea\n</UUID>\n\n<UnitType>\nVTOL\n</UnitType>\n\n<Name>\nSkadi Swift Attack VTOL\n</Name>\n\n<Model>\n\n</Model>\n\n<mul id:>\n6246\n</mul id:>\n\n<year>\n3099\n</year>\n\n<type>\nClan Level 4\n</type>\n\n<role>\nStriker\n</role>\n\n<quirks>\nvtol_rotor_dual\n</quirks>\n\n<motion_type>\nVTOL\n</motion_type>\n\n<cruiseMP>\n10\n</cruiseMP>\n\n<engine_type>\n2\n</engine_type>\n\n<armor_type>\n1\n</armor_type>\n\n<armor_tech_rating>\n0\n</armor_tech_rating>\n\n<armor_tech_level>\n8\n</armor_tech_level>\n\n<armor>\n23\n16\n16\n16\n2\n13\n</armor>\n\n<Body Equipment>\nClan Ultra AC/10 Ammo\nClan Ultra AC/10 Ammo\n</Body Equipment>\n\n<Front Equipment>\nCLERMicroLaser\nCLERMicroLaser\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<Rotor Equipment>\n</Rotor Equipment>\n\n<Turret Equipment>\nCLUltraAC10\n</Turret Equipment>\n\n<capabilities>\n<p>The Skadi's most defining asset is its Light Force XL 160 engine, which drives the craft to a maximum speed of 162 km/h. Combined with VTOL flight capability, this speed allows the Skadi to bypass fortified terrain, cross water obstacles, and operate at treetop altitude to minimize detection. Falcon warriors have dubbed the design the \"swerving falcon\" for the evasive flight patterns its pilots employ to escape pursuit, threading between obstacles to break targeting locks.</p><p>The craft mounts 4.5 tons of Compound VM22 ferro-fibrous armor, providing just enough protection to absorb an initial volley without catastrophic structural failure. This represents the Skadi's primary limitation. Commanders plan missions knowing the craft cannot absorb sustained fire, relying on speed and terrain masking to compensate. The weapons fit is focused and effective within its parameters. A single Type 9 Ultra Autocannon 10 in a chin turret provides a broad field of fire against light vehicles and battle armor, while two Series 3c Micro Pulse Lasers handle close-in threats in a fixed forward mount. The combination makes the Skadi genuinely dangerous to the light and medium opponents it is most likely to encounter during deep reconnaissance operations.</p>\n</capabilities>\n\n<overview>\n<p>The Skadi Swift Attack VTOL was developed by Quikscell Company at their facility on Pandora, entering service in 3099 as one of the fastest combat vehicles the Lyran Commonwealth had fielded in decades. Designed as a dedicated forward scout and fast-attack platform, the Skadi combines impressive speed with VTOL maneuverability to operate across terrain types that defeat conventional ground scouts. Clan Jade Falcon's engineers shaped the design to support their aggressive reconnaissance doctrine, providing a platform capable of penetrating contested airspace and returning targeting data before the enemy can respond effectively. Though produced by one of the Inner Sphere's most ubiquitous vehicle manufacturers, the Skadi is a notable departure from Quikscell's usual mass-market designs, incorporating Clan-grade components and advanced electronics to serve the Falcon touman's demanding standards.</p>\n</overview>\n\n<deployment>\n<p>The Skadi serves in Clan Jade Falcon reconnaissance Stars as the primary fast-scout asset across the Dark Age and ilClan eras. Assigned at the Star level, Skadi flights operate well ahead of main combat elements to identify enemy unit dispositions, screen flanking approaches, and guide ground forces through contested terrain. The design is most effective when paired with heavier fire-support units that can exploit the targeting data the Skadis generate. Prior to the Jade Falcon recapture of Pandora, the type served in Lyran Commonwealth reconnaissance formations and with mercenary units operating across the Inner Sphere, where surviving examples continue to appear in second-line and garrison commands. The Skadi is deployed against light vehicles, battle armor, and infantry rather than heavier BattleMech threats, and is rarely committed to direct assaults.</p>\n</deployment>\n\n<history>\n<p>Quikscell Company opened the Skadi production line at their Pandora facility in 3099, initially under Lyran Commonwealth authority. The Commonwealth integrated the design into LCAF reconnaissance formations, where its speed and terrain-crossing ability proved well-suited to the deep-penetration roles required of light cavalry units. Quikscell's commercial traditions soon pushed the design into export, and for several decades the Skadi circulated across the Inner Sphere, appearing in mercenary commands, planetary militias, and the secondary forces of multiple Great Houses.</p><p>Clan Jade Falcon's recapture of Pandora closed that export market permanently. The Falcons seized the Quikscell facility and converted the line to exclusive Clan production, cutting off all sales outside the touman. Commanders who had observed the Skadi in Lyran and mercenary service recognized its value and expanded output. Existing Inner Sphere users were left with aging frames and no replacement source, ensuring the design grew steadily rarer outside Falcon-controlled space.</p><p>Combat use confirmed the design's operational value across multiple engagements. On Hartshill, a Skadi flight screened Jade Falcon ground forces during a clash with the Glorious Kensai mercenary company, operating through the streets of Trent at low altitude while the main force closed. In a separate action on Tharkad, Star Captain Elaine led her Skadi Star against Twentieth Arcturan Guard elements, pioneering extreme low-altitude flight patterns that limited sensor returns and complicated enemy targeting. Though her methods earned the formation a grim reputation as the Suicidal Skadis, the tactics demonstrated genuine advantages in close terrain. They were studied and adopted across the Falcon touman as the foundation for subsequent Skadi operational doctrine.</p>\n</history>\n\n<manufacturer>\nQuikscell Company\n</manufacturer>\n\n<primaryFactory>\nPandora\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Quikscell Company\nENGINE:Light Force\nARMOR:Unknown\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nENGINE:XL 160\nARMOR:Compound VM22\nCOMMUNICATIONS:K9 CommSys\nTARGETING:Hunter (2) Dedicated TTS\n</systemModels>\n\n<source>\nTR:3145:C,TR:3145\n</source>\n\n<published>\nRS:3145\n</published>\n\n<tonnage>\n30.0\n</tonnage>\n\n",
+      "definition": {
+        "id": "skadi-swift-attack-vtol",
+        "chassis": "Skadi Swift Attack VTOL",
+        "model": "",
+        "unitType": "VTOL",
+        "techBase": "INNER_SPHERE",
+        "rulesLevel": "UNOFFICIAL",
+        "era": "DARK_AGE",
+        "year": 3099,
+        "tonnage": 30,
+        "weightClass": "MEDIUM",
+        "motionType": "VTOL",
+        "movement": {
+          "cruiseMP": 10,
+          "flankMP": 15,
+          "jumpMP": 0
+        },
+        "engine": {
+          "type": "XL",
+          "rating": 160
+        },
+        "armor": {
+          "type": "FERRO_FIBROUS",
+          "byLocation": {
+            "FRONT": 23,
+            "RIGHT": 16,
+            "LEFT": 16,
+            "REAR": 16,
+            "ROTOR": 2,
+            "TURRET": 13
+          }
+        },
+        "equipment": [
+          {
+            "id": "clermicrolaser",
+            "name": "CLERMicroLaser",
+            "location": "FRONT"
+          },
+          {
+            "id": "clermicrolaser",
+            "name": "CLERMicroLaser",
+            "location": "FRONT"
+          },
+          {
+            "id": "clultraac10",
+            "name": "CLUltraAC10",
+            "location": "TURRET"
+          },
+          {
+            "id": "clan-ultra-ac-10-ammo",
+            "name": "Clan Ultra AC/10 Ammo",
+            "location": "BODY"
+          },
+          {
+            "id": "clan-ultra-ac-10-ammo",
+            "name": "Clan Ultra AC/10 Ammo",
+            "location": "BODY"
+          }
+        ],
+        "armorTechRating": 0,
+        "mulId": 6246,
+        "role": "Striker",
+        "source": "TR:3145:C,TR:3145",
+        "quirks": ["vtol_rotor_dual"],
+        "fluff": {
+          "overview": "<p>The Skadi Swift Attack VTOL was developed by Quikscell Company at their facility on Pandora, entering service in 3099 as one of the fastest combat vehicles the Lyran Commonwealth had fielded in decades. Designed as a dedicated forward scout and fast-attack platform, the Skadi combines impressive speed with VTOL maneuverability to operate across terrain types that defeat conventional ground scouts. Clan Jade Falcon's engineers shaped the design to support their aggressive reconnaissance doctrine, providing a platform capable of penetrating contested airspace and returning targeting data before the enemy can respond effectively. Though produced by one of the Inner Sphere's most ubiquitous vehicle manufacturers, the Skadi is a notable departure from Quikscell's usual mass-market designs, incorporating Clan-grade components and advanced electronics to serve the Falcon touman's demanding standards.</p>",
+          "capabilities": "<p>The Skadi's most defining asset is its Light Force XL 160 engine, which drives the craft to a maximum speed of 162 km/h. Combined with VTOL flight capability, this speed allows the Skadi to bypass fortified terrain, cross water obstacles, and operate at treetop altitude to minimize detection. Falcon warriors have dubbed the design the \"swerving falcon\" for the evasive flight patterns its pilots employ to escape pursuit, threading between obstacles to break targeting locks.</p><p>The craft mounts 4.5 tons of Compound VM22 ferro-fibrous armor, providing just enough protection to absorb an initial volley without catastrophic structural failure. This represents the Skadi's primary limitation. Commanders plan missions knowing the craft cannot absorb sustained fire, relying on speed and terrain masking to compensate. The weapons fit is focused and effective within its parameters. A single Type 9 Ultra Autocannon 10 in a chin turret provides a broad field of fire against light vehicles and battle armor, while two Series 3c Micro Pulse Lasers handle close-in threats in a fixed forward mount. The combination makes the Skadi genuinely dangerous to the light and medium opponents it is most likely to encounter during deep reconnaissance operations.</p>",
+          "deployment": "<p>The Skadi serves in Clan Jade Falcon reconnaissance Stars as the primary fast-scout asset across the Dark Age and ilClan eras. Assigned at the Star level, Skadi flights operate well ahead of main combat elements to identify enemy unit dispositions, screen flanking approaches, and guide ground forces through contested terrain. The design is most effective when paired with heavier fire-support units that can exploit the targeting data the Skadis generate. Prior to the Jade Falcon recapture of Pandora, the type served in Lyran Commonwealth reconnaissance formations and with mercenary units operating across the Inner Sphere, where surviving examples continue to appear in second-line and garrison commands. The Skadi is deployed against light vehicles, battle armor, and infantry rather than heavier BattleMech threats, and is rarely committed to direct assaults.</p>",
+          "history": "<p>Quikscell Company opened the Skadi production line at their Pandora facility in 3099, initially under Lyran Commonwealth authority. The Commonwealth integrated the design into LCAF reconnaissance formations, where its speed and terrain-crossing ability proved well-suited to the deep-penetration roles required of light cavalry units. Quikscell's commercial traditions soon pushed the design into export, and for several decades the Skadi circulated across the Inner Sphere, appearing in mercenary commands, planetary militias, and the secondary forces of multiple Great Houses.</p><p>Clan Jade Falcon's recapture of Pandora closed that export market permanently. The Falcons seized the Quikscell facility and converted the line to exclusive Clan production, cutting off all sales outside the touman. Commanders who had observed the Skadi in Lyran and mercenary service recognized its value and expanded output. Existing Inner Sphere users were left with aging frames and no replacement source, ensuring the design grew steadily rarer outside Falcon-controlled space.</p><p>Combat use confirmed the design's operational value across multiple engagements. On Hartshill, a Skadi flight screened Jade Falcon ground forces during a clash with the Glorious Kensai mercenary company, operating through the streets of Trent at low altitude while the main force closed. In a separate action on Tharkad, Star Captain Elaine led her Skadi Star against Twentieth Arcturan Guard elements, pioneering extreme low-altitude flight patterns that limited sensor returns and complicated enemy targeting. Though her methods earned the formation a grim reputation as the Suicidal Skadis, the tactics demonstrated genuine advantages in close terrain. They were studied and adopted across the Falcon touman as the foundation for subsequent Skadi operational doctrine.</p>",
+          "manufacturer": "Quikscell Company",
+          "primaryFactory": "Pandora",
+          "systemManufacturer": {
+            "CHASSIS": "Quikscell Company",
+            "ENGINE": "Light Force",
+            "ARMOR": "Unknown",
+            "COMMUNICATIONS": "Unknown",
+            "TARGETING": "Unknown"
+          }
+        }
+      }
+    },
+    {
+      "kind": "SupportTank",
+      "path": "AToW Companion/Hover/Boreas Cavalry Hovercraft Prime.blk",
+      "sha256": "2199481703fc4445a87c7765bece8c6a7ea93320bbf4819349089321a73295f9",
+      "content": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-e8cb-7c3a-9c9e-7a217b4325d3\n</UUID>\n\n<UnitType>\nSupportTank\n</UnitType>\n\n<Name>\nBoreas Cavalry Hovercraft\n</Name>\n\n<Model>\n(Prime)\n</Model>\n\n<mul id:>\n9217\n</mul id:>\n\n<year>\n3015\n</year>\n\n<type>\nClan Level 5\n</type>\n\n<role>\nNone\n</role>\n\n<motion_type>\nHover\n</motion_type>\n\n<transporters>\nstandardseats:1.0:0:-1::-1:0\nBattleArmorHandles - troopers:-1\n</transporters>\n\n<cruiseMP>\n14\n</cruiseMP>\n\n<engine_type>\n6\n</engine_type>\n\n<clan_engine>\nfalse\n</clan_engine>\n\n<armor_type>\n49\n</armor_type>\n\n<armor_tech_rating>\n5\n</armor_tech_rating>\n\n<armor_tech_level>\n2\n</armor_tech_level>\n\n<omni>\n1\n</omni>\n\n<armor>\n1\n1\n1\n1\n</armor>\n\n<Body Equipment>\nBicycleChassisMod\nOmniChassisMod\nAdvanced Fire Control\n</Body Equipment>\n\n<Front Equipment>\nLaser Rifle (Mauser IIC IAS):OMNI:SIZE:1.0\nLaser Rifle (Mauser IIC IAS):OMNI:SIZE:1.0\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<barrating>\n8\n</barrating>\n\n<structural_tech_rating>\n5\n</structural_tech_rating>\n\n<engine_tech_rating>\n5\n</engine_tech_rating>\n\n<overview>\n<p>Clan Hell's Horses upgraded their standard Clan hoverpods with Omni technology, adding a larger engine to improve versatility and speed. The result was the Boreas, which can swap weaponry based on battlefield needs. It has since become the premier covert operations support vehicle for infantry scout units in the Horses' touman, providing fast, flexible reconnaissance with a two-seat crew arrangement.</p>\n</overview>\n\n<manufacturer>\nUnknown\n</manufacturer>\n\n<primaryFactory>\nUnknown\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:Unknown\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:Unknown\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemModels>\n\n<source>\nAToW Companion\n</source>\n\n<tonnage>\n0.75\n</tonnage>\n\n<baseChassisFireConWeight>\n0.01\n</baseChassisFireConWeight>\n\n<fuel>\n0.029\n</fuel>\n\n",
+      "definition": {
+        "id": "boreas-cavalry-hovercraft-prime",
+        "chassis": "Boreas Cavalry Hovercraft",
+        "model": "(Prime)",
+        "unitType": "Support Vehicle",
+        "techBase": "INNER_SPHERE",
+        "rulesLevel": "STANDARD",
+        "era": "SUCCESSION_WARS",
+        "year": 3015,
+        "tonnage": 0.75,
+        "weightClass": "LIGHT",
+        "motionType": "Hover",
+        "movement": {
+          "cruiseMP": 14,
+          "flankMP": 21,
+          "jumpMP": 0
+        },
+        "engine": {
+          "type": "FUEL_CELL",
+          "rating": 10
+        },
+        "armor": {
+          "type": "BAR",
+          "barRating": 8,
+          "byLocation": {
+            "FRONT": 1,
+            "RIGHT": 1,
+            "LEFT": 1,
+            "REAR": 1
+          }
+        },
+        "equipment": [
+          {
+            "id": "laser-rifle-mauser-iic-ias:omni:size:1.0",
+            "name": "Laser Rifle (Mauser IIC IAS):OMNI:SIZE:1.0",
+            "location": "FRONT"
+          },
+          {
+            "id": "laser-rifle-mauser-iic-ias:omni:size:1.0",
+            "name": "Laser Rifle (Mauser IIC IAS):OMNI:SIZE:1.0",
+            "location": "FRONT"
+          },
+          {
+            "id": "bicyclechassismod",
+            "name": "BicycleChassisMod",
+            "location": "BODY"
+          },
+          {
+            "id": "omnichassismod",
+            "name": "OmniChassisMod",
+            "location": "BODY"
+          },
+          {
+            "id": "advanced-fire-control",
+            "name": "Advanced Fire Control",
+            "location": "BODY"
+          }
+        ],
+        "isOmni": true,
+        "clanEngine": false,
+        "baseChassisFireConWeight": 0.01,
+        "fuel": 0.029,
+        "structuralTechRating": 5,
+        "engineTechRating": 5,
+        "armorTechRating": 5,
+        "transporters": [
+          "standardseats:1.0:0:-1::-1:0",
+          "BattleArmorHandles - troopers:-1"
+        ],
+        "mulId": 9217,
+        "role": "None",
+        "source": "AToW Companion",
+        "fluff": {
+          "overview": "<p>Clan Hell's Horses upgraded their standard Clan hoverpods with Omni technology, adding a larger engine to improve versatility and speed. The result was the Boreas, which can swap weaponry based on battlefield needs. It has since become the premier covert operations support vehicle for infantry scout units in the Horses' touman, providing fast, flexible reconnaissance with a two-seat crew arrangement.</p>",
+          "manufacturer": "Unknown",
+          "primaryFactory": "Unknown",
+          "systemManufacturer": {
+            "CHASSIS": "Unknown",
+            "ENGINE": "Unknown",
+            "ARMOR": "Unknown",
+            "COMMUNICATIONS": "Unknown",
+            "TARGETING": "Unknown"
+          }
+        }
+      }
+    },
+    {
+      "kind": "trailer",
+      "path": "3085u/Supplemental/Bokkusu Support Trailer.blk",
+      "sha256": "38f786f4e71aeb3d5bfb665ff9483b7c88863987df3e6a22e9d0986d956766b0",
+      "content": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-e78e-73e7-a4cf-c9fac8b7e5cd\n</UUID>\n\n<UnitType>\nTank\n</UnitType>\n\n<Name>\nBokkusu Support Trailer\n</Name>\n\n<Model>\n\n</Model>\n\n<mul id:>\n3844\n</mul id:>\n\n<year>\n3086\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<role>\nJuggernaut\n</role>\n\n<motion_type>\nWheeled\n</motion_type>\n\n<transporters>\ntroopspace:4.0\ncargobay:18.0:1:1::-1:0\n</transporters>\n\n<cruiseMP>\n0\n</cruiseMP>\n\n<engine_type>\n0\n</engine_type>\n\n<armor_type>\n6\n</armor_type>\n\n<armor_tech_rating>\n0\n</armor_tech_rating>\n\n<armor_tech_level>\n5\n</armor_tech_level>\n\n<armor>\n60\n59\n59\n60\n</armor>\n\n<Body Equipment>\nISMobileFieldBase\nISCASE\nISAMS Ammo\nISAMS Ammo\nISAMS Ammo\n</Body Equipment>\n\n<Front Equipment>\nISAntiMissileSystem\nLift Hoist/Arresting Hoist\nHitch\n</Front Equipment>\n\n<Right Equipment>\nISAntiMissileSystem\n</Right Equipment>\n\n<Left Equipment>\nISAntiMissileSystem\n</Left Equipment>\n\n<Rear Equipment>\nISAntiMissileSystem\nHitch\n</Rear Equipment>\n\n<capabilities>\n<p>The Bokkusu is a purposefully straightforward cargo and repair platform, prioritizing internal volume and structural reliability over sophisticated weaponry or sensors. Its interior accommodates tools, spare components, and consumable supplies sufficient to support the Teppō during sustained field operations. This forward repair capability allows the Teppō system to address battle damage and mechanical wear without returning to a fixed support base, extending the combined arms package's effective operational range significantly.</p><p>The trailer's systems are kept deliberately simple to maximize available cargo capacity and minimize maintenance complexity in the field. Defensive systems are minimal compared to the Tenmaku, consistent with the Bokkusu's role as a logistics asset rather than a command node. Like the Tenmaku, the Bokkusu lacks independent mobility and relies entirely on the Teppō for repositioning. Both trailers are engineered to be towed simultaneously, allowing the Teppō to move the complete combined arms package as a single tactical unit.</p>\n</capabilities>\n\n<overview>\n<p>The Bokkusu is the logistics element of the Teppō combined arms system, a purpose-built seventy-five ton cargo and repair trailer designed to provide field maintenance and resupply capability for the Teppō artillery vehicle and attached formations. Developed alongside the Teppō and Tenmaku by Pesht Motors and assembled at the Unity facility, the Bokkusu reflects the DCMS's recognition that sustained combat effectiveness requires reliable forward support infrastructure. By towing a fully equipped repair platform directly with the artillery vehicle, the Teppō system achieves a degree of operational self-sufficiency uncommon in heavy support platforms, reducing dependence on rearward logistics chains during extended operations.</p>\n</overview>\n\n<deployment>\n<p>The Bokkusu is deployed exclusively as part of the Teppō combined arms system, towed alongside the Tenmaku command trailer during both strategic transport and field operations. It is not designed for independent operation or reassignment to other units. The first Bokkusu trailers were deployed to the Ryuken-san along with the initial Teppō systems. Broader distribution was planned contingent on the Teppō system's field evaluation results, with each assigned Teppō expected to receive both trailers as standard equipment.</p>\n</deployment>\n\n<history>\n<p>The Bokkusu was developed as the logistics complement to the Teppō system under the same DCMS development contract, addressing a practical dimension of the Ryuken regiments' operational review. The Ryuken's survival advantage during the Jihad stemmed not only from combined arms doctrine but from strong organic logistics practices that kept their vehicles functional longer than comparably engaged units. Without dedicated forward maintenance capability, even the most capable artillery system would eventually be reduced to inactivity by cumulative battle damage and mechanical attrition in sustained operations.</p><p>Pesht Motors designed the Bokkusu to translate this logistics discipline into dedicated hardware, providing a repair and resupply capability that travels with the artillery platform rather than remaining at a distant base. Initial deployment accompanied the Teppō to the Ryuken-san, placing the logistics trailer with the same formation whose history had shaped the entire system's doctrine. The Bokkusu was expected to accompany every Teppō assigned to DCMS formations, with its distribution planned to follow the same allocation model as the artillery vehicle and Tenmaku command trailer.</p>\n</history>\n\n<manufacturer>\nPesht Motors\n</manufacturer>\n\n<primaryFactory>\nUnity\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:New Samarkand Metals\nJUMP_JET:N/A\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:New Samarkand Royal Heavy Ferro-Fibrous\nJUMP_JET:N/A\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemModels>\n\n<source>\nTR:3085S\n</source>\n\n<tonnage>\n75.0\n</tonnage>\n\n<trailer>\n1\n</trailer>\n\n",
+      "definition": {
+        "id": "bokkusu-support-trailer",
+        "chassis": "Bokkusu Support Trailer",
+        "model": "",
+        "unitType": "Vehicle",
+        "techBase": "INNER_SPHERE",
+        "rulesLevel": "ADVANCED",
+        "era": "DARK_AGE",
+        "year": 3086,
+        "tonnage": 75,
+        "weightClass": "ASSAULT",
+        "motionType": "Wheeled",
+        "movement": {
+          "cruiseMP": 0,
+          "flankMP": 0,
+          "jumpMP": 0
+        },
+        "engine": {
+          "type": "FUSION",
+          "rating": 10
+        },
+        "armor": {
+          "type": "HEAVY_FERRO_FIBROUS",
+          "byLocation": {
+            "FRONT": 60,
+            "RIGHT": 59,
+            "LEFT": 59,
+            "REAR": 60
+          }
+        },
+        "equipment": [
+          {
+            "id": "isantimissilesystem",
+            "name": "ISAntiMissileSystem",
+            "location": "FRONT"
+          },
+          {
+            "id": "lift-hoist-arresting-hoist",
+            "name": "Lift Hoist/Arresting Hoist",
+            "location": "FRONT"
+          },
+          {
+            "id": "hitch",
+            "name": "Hitch",
+            "location": "FRONT"
+          },
+          {
+            "id": "isantimissilesystem",
+            "name": "ISAntiMissileSystem",
+            "location": "RIGHT"
+          },
+          {
+            "id": "isantimissilesystem",
+            "name": "ISAntiMissileSystem",
+            "location": "LEFT"
+          },
+          {
+            "id": "isantimissilesystem",
+            "name": "ISAntiMissileSystem",
+            "location": "REAR"
+          },
+          {
+            "id": "hitch",
+            "name": "Hitch",
+            "location": "REAR"
+          },
+          {
+            "id": "ismobilefieldbase",
+            "name": "ISMobileFieldBase",
+            "location": "BODY"
+          },
+          {
+            "id": "iscase",
+            "name": "ISCASE",
+            "location": "BODY"
+          },
+          {
+            "id": "isams-ammo",
+            "name": "ISAMS Ammo",
+            "location": "BODY"
+          },
+          {
+            "id": "isams-ammo",
+            "name": "ISAMS Ammo",
+            "location": "BODY"
+          },
+          {
+            "id": "isams-ammo",
+            "name": "ISAMS Ammo",
+            "location": "BODY"
+          }
+        ],
+        "isTrailer": true,
+        "armorTechRating": 0,
+        "transporters": ["troopspace:4.0", "cargobay:18.0:1:1::-1:0"],
+        "mulId": 3844,
+        "role": "Juggernaut",
+        "source": "TR:3085S",
+        "fluff": {
+          "overview": "<p>The Bokkusu is the logistics element of the Teppō combined arms system, a purpose-built seventy-five ton cargo and repair trailer designed to provide field maintenance and resupply capability for the Teppō artillery vehicle and attached formations. Developed alongside the Teppō and Tenmaku by Pesht Motors and assembled at the Unity facility, the Bokkusu reflects the DCMS's recognition that sustained combat effectiveness requires reliable forward support infrastructure. By towing a fully equipped repair platform directly with the artillery vehicle, the Teppō system achieves a degree of operational self-sufficiency uncommon in heavy support platforms, reducing dependence on rearward logistics chains during extended operations.</p>",
+          "capabilities": "<p>The Bokkusu is a purposefully straightforward cargo and repair platform, prioritizing internal volume and structural reliability over sophisticated weaponry or sensors. Its interior accommodates tools, spare components, and consumable supplies sufficient to support the Teppō during sustained field operations. This forward repair capability allows the Teppō system to address battle damage and mechanical wear without returning to a fixed support base, extending the combined arms package's effective operational range significantly.</p><p>The trailer's systems are kept deliberately simple to maximize available cargo capacity and minimize maintenance complexity in the field. Defensive systems are minimal compared to the Tenmaku, consistent with the Bokkusu's role as a logistics asset rather than a command node. Like the Tenmaku, the Bokkusu lacks independent mobility and relies entirely on the Teppō for repositioning. Both trailers are engineered to be towed simultaneously, allowing the Teppō to move the complete combined arms package as a single tactical unit.</p>",
+          "deployment": "<p>The Bokkusu is deployed exclusively as part of the Teppō combined arms system, towed alongside the Tenmaku command trailer during both strategic transport and field operations. It is not designed for independent operation or reassignment to other units. The first Bokkusu trailers were deployed to the Ryuken-san along with the initial Teppō systems. Broader distribution was planned contingent on the Teppō system's field evaluation results, with each assigned Teppō expected to receive both trailers as standard equipment.</p>",
+          "history": "<p>The Bokkusu was developed as the logistics complement to the Teppō system under the same DCMS development contract, addressing a practical dimension of the Ryuken regiments' operational review. The Ryuken's survival advantage during the Jihad stemmed not only from combined arms doctrine but from strong organic logistics practices that kept their vehicles functional longer than comparably engaged units. Without dedicated forward maintenance capability, even the most capable artillery system would eventually be reduced to inactivity by cumulative battle damage and mechanical attrition in sustained operations.</p><p>Pesht Motors designed the Bokkusu to translate this logistics discipline into dedicated hardware, providing a repair and resupply capability that travels with the artillery platform rather than remaining at a distant base. Initial deployment accompanied the Teppō to the Ryuken-san, placing the logistics trailer with the same formation whose history had shaped the entire system's doctrine. The Bokkusu was expected to accompany every Teppō assigned to DCMS formations, with its distribution planned to follow the same allocation model as the artillery vehicle and Tenmaku command trailer.</p>",
+          "manufacturer": "Pesht Motors",
+          "primaryFactory": "Unity",
+          "systemManufacturer": {
+            "CHASSIS": "Unknown",
+            "ENGINE": "Unknown",
+            "ARMOR": "New Samarkand Metals",
+            "JUMP_JET": "N/A",
+            "COMMUNICATIONS": "Unknown",
+            "TARGETING": "Unknown"
+          }
+        }
+      }
+    },
+    {
+      "kind": "LargeSupportTank",
+      "path": "3075 Support tanks/HMRV (Hazardous Materials Recovery Vehicle) Oppie O-65.blk",
+      "sha256": "9594d22b9e276ef27a01edb952968282e1611d63137a7946e84986b2f1683768",
+      "content": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-e656-7f3e-8c83-5133b1d91814\n</UUID>\n\n<UnitType>\nLargeSupportTank\n</UnitType>\n\n<Name>\nHMRV (Hazardous Materials Recovery Vehicle)\n</Name>\n\n<Model>\n'Oppie' O-65\n</Model>\n\n<mul id:>\n4739\n</mul id:>\n\n<year>\n2822\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<motion_type>\nTracked\n</motion_type>\n\n<transporters>\nLiquidCargoBay:22.91:1:1::-1:0\n</transporters>\n\n<cruiseMP>\n2\n</cruiseMP>\n\n<engine_type>\n0\n</engine_type>\n\n<armor_type>\n49\n</armor_type>\n\n<armor_tech_rating>\n4\n</armor_tech_rating>\n\n<armor_tech_level>\n1\n</armor_tech_level>\n\n<armor>\n100\n40\n40\n40\n40\n40\n</armor>\n\n<Body Equipment>\nParamedic Equipment\nEnvironmental Sealing\nSV Chassis Mod [Tractor]\n</Body Equipment>\n\n<Front Equipment>\nISMineSweeper\nBulldozer\nSearchlight\n</Front Equipment>\n\n<Front Right Equipment>\nManipulator (Non-Mech/Non-Battle Armor)\nSearchlight\n</Front Right Equipment>\n\n<Front Left Equipment>\nManipulator (Non-Mech/Non-Battle Armor)\nSearchlight\n</Front Left Equipment>\n\n<Rear Right Equipment>\nManipulator (Non-Mech/Non-Battle Armor)\nTank Sprayer\n</Rear Right Equipment>\n\n<Rear Left Equipment>\nManipulator (Non-Mech/Non-Battle Armor)\nTank Sprayer\n</Rear Left Equipment>\n\n<Rear Equipment>\nBackhoe\nSearchlight\n</Rear Equipment>\n\n<barrating>\n8\n</barrating>\n\n<structural_tech_rating>\n4\n</structural_tech_rating>\n\n<engine_tech_rating>\n4\n</engine_tech_rating>\n\n<capabilities>\n<p>The Oppie carries no conventional armament, relying entirely on its working equipment and environmental systems to fulfill its mission. The tractor unit mounts a minesweeper, bulldozer, and backhoe combination for clearing debris and performing earthmoving work without crew exposure, supplemented by four manipulator arms that provide reach and grip for extracting wreckage from unstable terrain. Two sprayers dispense decontaminants or suppression agents across work areas, and four searchlights provide illumination in smoke, fog, and night conditions. Twenty tons of liquid storage accommodate decontaminants, water, or other mission-critical fluids. The tractor also carries 250 kilograms of paramedic equipment, a practical inclusion given the conditions in which salvage crews typically operate.</p><p>The Oppie's fusion powerplant provides modest cruise speed suited to deliberate recovery work rather than rapid tactical movement. Its primary limitation is operational vulnerability: the vehicle carries no defensive systems, requiring escort or protected operating environments when threats are present. The working equipment demands skilled operators, and Brown-Corning recommended specialized training for all crew assigned to the vehicle.</p>\n</capabilities>\n\n<overview>\n<p>The Oppenheimer Hazardous Material Recovery Vehicle, universally shortened to \"Oppie,\" was developed by Brown-Corning, Limited on Caph in direct response to the catastrophic use of thermonuclear, chemical, and biological weapons during the First Succession War. Designed to support recovery teams operating in contaminated hot zones, the Oppie is a massive 150-ton environmentally sealed crawler built to work where unprotected personnel cannot survive. The design leveraged the existing Chieftain Mobile Headquarters chassis to accelerate development and production. Its combination of environmental sealing, specialized working equipment, and cargo capacity gave salvage units a platform capable of recovering BattleMech and vehicle wreckage from areas otherwise permanently inaccessible. The Oppie quickly became one of the most recognizable non-combat vehicles of the Succession War period, valued wherever NBC contamination required sustained recovery operations.</p>\n</overview>\n\n<deployment>\n<p>The O-65 entered service in 2822 as the initial production variant of the Oppie family. Distinguished from the later O-66 by the absence of a fully sealed infantry bay, the O-65 instead carries 18 tons of liquid storage capacity. It was suited to recovery operations where crew remained aboard during hazardous work rather than dismounting into contaminated areas. No O-65 units are known to have survived the Succession Wars, and the design represents an early chapter in the Oppie's history rather than an ongoing operational platform.</p>\n</deployment>\n\n<history>\n<p>Brown-Corning, Limited developed the Oppie in direct response to the NBC weapon use that marked the opening years of the First Succession War. Building on the proven chassis of the Chieftain Mobile Headquarters, the company produced the O-65 variant beginning in 2822 to meet immediate demand from forces engaged in cleanup operations across contaminated worlds. The O-65 lacked a sealed infantry bay, instead carrying 18 tons of liquid storage, reflecting the urgency of initial production over later refinements.</p><p>Production ended violently when a Draconis Combine raiding party struck the Brown-Corning facility on Caph. Mistaking the Oppie assembly complex for a BattleMech manufacturing facility, the raiders first deployed chemical weapons that killed the plant staff and residents of surrounding neighborhoods, then destroyed the physical facility. Without replacement production, existing Oppies declined through attrition across the subsequent decades.</p><p>The Word of Blake's interest in Caph as a Protectorate world revived both the planet and the company. Blakist forces spent two years decontaminating the Brown-Corning site and rebuilding its assembly lines, then presented Raymond Brown, a direct descendant of the company's last CEO, with the original engineering blueprints. Production resumed in 3068 as the upgraded O-66, incorporating a fully sealed infantry bay and other improvements over the original design.</p>\n</history>\n\n<manufacturer>\nBrown-Corning, Limited\n</manufacturer>\n\n<primaryFactory>\nCaph\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:Unknown\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:Unknown\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemModels>\n\n<source>\nTR:3075\n</source>\n\n<published>\nRS:3075u-CE\n</published>\n\n<tonnage>\n150.0\n</tonnage>\n\n<fuel>\n0.0\n</fuel>\n\n",
+      "definition": {
+        "id": "hmrv-hazardous-materials-recovery-vehicle-oppie-o-65",
+        "chassis": "HMRV (Hazardous Materials Recovery Vehicle)",
+        "model": "'Oppie' O-65",
+        "unitType": "Support Vehicle",
+        "techBase": "INNER_SPHERE",
+        "rulesLevel": "ADVANCED",
+        "era": "SUCCESSION_WARS",
+        "year": 2822,
+        "tonnage": 150,
+        "weightClass": "SUPERHEAVY",
+        "motionType": "Tracked",
+        "movement": {
+          "cruiseMP": 2,
+          "flankMP": 3,
+          "jumpMP": 0
+        },
+        "engine": {
+          "type": "FUSION",
+          "rating": 0
+        },
+        "armor": {
+          "type": "BAR",
+          "barRating": 8,
+          "byLocation": {
+            "FRONT": 100,
+            "FRONT_RIGHT": 40,
+            "FRONT_LEFT": 40,
+            "REAR_RIGHT": 40,
+            "REAR_LEFT": 40,
+            "REAR": 40
+          }
+        },
+        "equipment": [
+          {
+            "id": "isminesweeper",
+            "name": "ISMineSweeper",
+            "location": "FRONT"
+          },
+          {
+            "id": "bulldozer",
+            "name": "Bulldozer",
+            "location": "FRONT"
+          },
+          {
+            "id": "searchlight",
+            "name": "Searchlight",
+            "location": "FRONT"
+          },
+          {
+            "id": "backhoe",
+            "name": "Backhoe",
+            "location": "REAR"
+          },
+          {
+            "id": "searchlight",
+            "name": "Searchlight",
+            "location": "REAR"
+          },
+          {
+            "id": "paramedic-equipment",
+            "name": "Paramedic Equipment",
+            "location": "BODY"
+          },
+          {
+            "id": "environmental-sealing",
+            "name": "Environmental Sealing",
+            "location": "BODY"
+          },
+          {
+            "id": "sv-chassis-mod-[tractor]",
+            "name": "SV Chassis Mod [Tractor]",
+            "location": "BODY"
+          },
+          {
+            "id": "manipulator-non-mech-non-battle-armor",
+            "name": "Manipulator (Non-Mech/Non-Battle Armor)",
+            "location": "FRONT_RIGHT"
+          },
+          {
+            "id": "searchlight",
+            "name": "Searchlight",
+            "location": "FRONT_RIGHT"
+          },
+          {
+            "id": "manipulator-non-mech-non-battle-armor",
+            "name": "Manipulator (Non-Mech/Non-Battle Armor)",
+            "location": "FRONT_LEFT"
+          },
+          {
+            "id": "searchlight",
+            "name": "Searchlight",
+            "location": "FRONT_LEFT"
+          },
+          {
+            "id": "manipulator-non-mech-non-battle-armor",
+            "name": "Manipulator (Non-Mech/Non-Battle Armor)",
+            "location": "REAR_RIGHT"
+          },
+          {
+            "id": "tank-sprayer",
+            "name": "Tank Sprayer",
+            "location": "REAR_RIGHT"
+          },
+          {
+            "id": "manipulator-non-mech-non-battle-armor",
+            "name": "Manipulator (Non-Mech/Non-Battle Armor)",
+            "location": "REAR_LEFT"
+          },
+          {
+            "id": "tank-sprayer",
+            "name": "Tank Sprayer",
+            "location": "REAR_LEFT"
+          }
+        ],
+        "fuel": 0.0,
+        "structuralTechRating": 4,
+        "engineTechRating": 4,
+        "armorTechRating": 4,
+        "transporters": ["LiquidCargoBay:22.91:1:1::-1:0"],
+        "mulId": 4739,
+        "source": "TR:3075",
+        "fluff": {
+          "overview": "<p>The Oppenheimer Hazardous Material Recovery Vehicle, universally shortened to \"Oppie,\" was developed by Brown-Corning, Limited on Caph in direct response to the catastrophic use of thermonuclear, chemical, and biological weapons during the First Succession War. Designed to support recovery teams operating in contaminated hot zones, the Oppie is a massive 150-ton environmentally sealed crawler built to work where unprotected personnel cannot survive. The design leveraged the existing Chieftain Mobile Headquarters chassis to accelerate development and production. Its combination of environmental sealing, specialized working equipment, and cargo capacity gave salvage units a platform capable of recovering BattleMech and vehicle wreckage from areas otherwise permanently inaccessible. The Oppie quickly became one of the most recognizable non-combat vehicles of the Succession War period, valued wherever NBC contamination required sustained recovery operations.</p>",
+          "capabilities": "<p>The Oppie carries no conventional armament, relying entirely on its working equipment and environmental systems to fulfill its mission. The tractor unit mounts a minesweeper, bulldozer, and backhoe combination for clearing debris and performing earthmoving work without crew exposure, supplemented by four manipulator arms that provide reach and grip for extracting wreckage from unstable terrain. Two sprayers dispense decontaminants or suppression agents across work areas, and four searchlights provide illumination in smoke, fog, and night conditions. Twenty tons of liquid storage accommodate decontaminants, water, or other mission-critical fluids. The tractor also carries 250 kilograms of paramedic equipment, a practical inclusion given the conditions in which salvage crews typically operate.</p><p>The Oppie's fusion powerplant provides modest cruise speed suited to deliberate recovery work rather than rapid tactical movement. Its primary limitation is operational vulnerability: the vehicle carries no defensive systems, requiring escort or protected operating environments when threats are present. The working equipment demands skilled operators, and Brown-Corning recommended specialized training for all crew assigned to the vehicle.</p>",
+          "deployment": "<p>The O-65 entered service in 2822 as the initial production variant of the Oppie family. Distinguished from the later O-66 by the absence of a fully sealed infantry bay, the O-65 instead carries 18 tons of liquid storage capacity. It was suited to recovery operations where crew remained aboard during hazardous work rather than dismounting into contaminated areas. No O-65 units are known to have survived the Succession Wars, and the design represents an early chapter in the Oppie's history rather than an ongoing operational platform.</p>",
+          "history": "<p>Brown-Corning, Limited developed the Oppie in direct response to the NBC weapon use that marked the opening years of the First Succession War. Building on the proven chassis of the Chieftain Mobile Headquarters, the company produced the O-65 variant beginning in 2822 to meet immediate demand from forces engaged in cleanup operations across contaminated worlds. The O-65 lacked a sealed infantry bay, instead carrying 18 tons of liquid storage, reflecting the urgency of initial production over later refinements.</p><p>Production ended violently when a Draconis Combine raiding party struck the Brown-Corning facility on Caph. Mistaking the Oppie assembly complex for a BattleMech manufacturing facility, the raiders first deployed chemical weapons that killed the plant staff and residents of surrounding neighborhoods, then destroyed the physical facility. Without replacement production, existing Oppies declined through attrition across the subsequent decades.</p><p>The Word of Blake's interest in Caph as a Protectorate world revived both the planet and the company. Blakist forces spent two years decontaminating the Brown-Corning site and rebuilding its assembly lines, then presented Raymond Brown, a direct descendant of the company's last CEO, with the original engineering blueprints. Production resumed in 3068 as the upgraded O-66, incorporating a fully sealed infantry bay and other improvements over the original design.</p>",
+          "manufacturer": "Brown-Corning, Limited",
+          "primaryFactory": "Caph",
+          "systemManufacturer": {
+            "CHASSIS": "Unknown",
+            "ENGINE": "Unknown",
+            "ARMOR": "Unknown",
+            "COMMUNICATIONS": "Unknown",
+            "TARGETING": "Unknown"
+          }
+        }
+      }
+    },
+    {
+      "kind": "NONE",
+      "path": "3039u/J-27 Ordnance Transport (Trailer).blk",
+      "sha256": "b6dc188a2f64f399c232bdd4965ecbf68eee9108e0ec74343e9d93f28af3867c",
+      "content": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-e2aa-7bd7-8fd2-8438c1749840\n</UUID>\n\n<UnitType>\nTank\n</UnitType>\n\n<Name>\nJ-27 Ordnance Transport\n</Name>\n\n<Model>\n(Trailer)\n</Model>\n\n<mul id:>\n1646\n</mul id:>\n\n<year>\n2650\n</year>\n\n<type>\nIS Level 1\n</type>\n\n<role>\nNone\n</role>\n\n<motion_type>\nTracked\n</motion_type>\n\n<transporters>\ncargobay:8.0:1:1::-1:0\n</transporters>\n\n<cruiseMP>\n0\n</cruiseMP>\n\n<engine_type>\n8\n</engine_type>\n\n<armor_type>\n0\n</armor_type>\n\n<armor_tech_rating>\n0\n</armor_tech_rating>\n\n<armor_tech_level>\n1\n</armor_tech_level>\n\n<armor>\n4\n4\n4\n4\n</armor>\n\n<Body Equipment>\n</Body Equipment>\n\n<Front Equipment>\nHitch\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<capabilities>\n<p>The J-27 divides its eleven tons of cargo capacity between a three-ton internal bay in the tractor and eight tons carried on the open trailer. A half-ton of StarSlab armor protects the cab from small-arms fire and light weapons, though the exposed trailer offers no such protection to its volatile cargo. The tractor's 50-rated internal combustion engine provides a top speed of 86 kilometers per hour, though most forces have installed governors limiting it to around 50 kph for safety. Special authorization from a commander is required to deactivate these limiters.</p><p>A single turret-mounted SperryBrowning machine gun provides token self-defense, though critics note it adds little to the vehicle's survivability against anything heavier than hostile infantry. The trailer can only be manually detached from the cab, a task typically falling to the third crewmember. This design limitation means the J-27 cannot quickly jettison its explosive payload when threatened. Communications are handled through a Tandy A-100 system, while the vehicle lacks any dedicated targeting equipment. The J-27's greatest practical strength is its simplicity, as its low-technology design can be manufactured and maintained by virtually any industrial base.</p>\n</capabilities>\n\n<overview>\n<p>The J-27 Ordnance Transport is the most widely produced ammunition carrier in the history of modern warfare. Originally manufactured by Acme Widgets on Zollikofen for the Star League Defense Force, the small tracked vehicle entered service during the mid-twenty-seventh century as the SLDF's primary munitions transport unit. Consisting of a tractor and wheeled trailer operated by a three-person crew, each J-27 can carry eleven tons of munitions, enough to resupply a typical lance of BattleMechs. The design's extraordinarily low licensing fees ensured that every military in the Inner Sphere and much of the Periphery eventually adopted the vehicle. Cheap to build, easy to maintain, and universally available, the J-27 has served in every major conflict since the Star League. Its ubiquity is matched only by its notorious reputation among the crews unlucky enough to be assigned to it.</p>\n</overview>\n\n<deployment>\n<p>The standard J-27 Trailer is an unpowered, wheeled, lightly armored unit designed to carry eight tons of cargo behind the J-27 tractor. Its simple construction and lack of any onboard systems make it the most expendable component of the J-27 system. Easily replaced from local production, these trailers are treated as disposable by most military logistics commands.</p>\n</deployment>\n\n<history>\n<p>Acme Widgets began production of the J-27 on Zollikofen during the Star League era, selling tens of thousands of units primarily to the SLDF. The company's impossibly low licensing fees made illegal reverse-engineering economically pointless, and within decades every major military in the Inner Sphere operated large fleets of the vehicles. For reasons that remain unclear, Acme Widgets discontinued its Zollikofen manufacturing center in 2763, ending original production. By that point, however, the licensing terms had allowed virtually every arms manufacturer in the Inner Sphere to produce the J-27 independently, ensuring the design's survival long after its creator ceased operations.</p><p>The Succession Wars transformed the J-27 from a mundane logistics vehicle into a byword for misery. Ordnance transport is grueling, dangerous work under the best conditions, and the combination of explosive cargo, thin armor, and an exposed trailer made every mission a gamble with a crew's life. Stress levels among J-27 operators were enormous, with illness rates and mortality figures far exceeding those of any other military vehicle class. Studies confirmed that J-27 crew mortality was over triple that of comparable vehicle operators, a statistic that did nothing to improve morale.</p><p>The Draconis Combine became particularly notorious for staffing its J-27 fleets with criminals from penal units. Given the choice between a death sentence and J-27 duty, many convicts chose death. This was initially dismissed as hyperbole until studies confirmed the preference was genuine. The Free Worlds League adopted a similar penal assignment policy, a practice eventually emulated by most other Great Houses. Houses Steiner and Davion maintained that their munitions handlers should be more reliable than criminals, but both still used J-27 duty as punishment for soldiers who had fallen out of favor.</p><p>The most famous of these penal formations was the 125th Deadman Ordnance Carriers, serving the Capellan Confederation. During fighting on New Hessen, the unit carried over a thousand times its own mass in munitions to keep Capellan forces supplied in a defensive position. When convoys came under fire from Davion BattleMechs, the crews chose to fight rather than flee. They dismounted missiles from their cargo and improvised firing positions, driving off the attackers after several hours of combat. The surviving crews received pardons and promotions, though some elected to remain with the unit.</p><p>Despite its grim reputation, the J-27 remained in universal service through the Clan Invasion, the Civil War, and the Jihad. Its sheer simplicity guaranteed availability even on the most resource-starved worlds. Among smaller Periphery realms and lawless border regions, the vehicle was considered a rare commodity worth stealing, its cargo often more valuable than the transport itself. Frontline units frequently scavenged J-27 machine gun ammunition, a practice owners grudgingly accepted as useful enough to justify maintaining the full ammunition supply.</p><p>The Republic of the Sphere brought renewed interest to the aging platform when the Republic Institute of Strategic Combat selected the J-27's spacious chassis as a carrier for experimental viral jammer technology around 3142. The vehicle's ubiquity made it an ideal disguise for the jammers, which could be positioned at strategic bottlenecks to cripple enemy electronics. These modified transports and their powered trailers saw action during Operation Mercury, proving effective against Clan electronic systems. The J-27 endures into the ilClan era as it has for centuries, unchanged in its essential design and unenviable in its essential purpose.</p>\n</history>\n\n<manufacturer>\nAcme Widgets|Various\n</manufacturer>\n\n<primaryFactory>\nZollikofen (discontinued 2763)|Various\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Unknown\nARMOR:Unknown\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nARMOR:Unknown\n</systemModels>\n\n<source>\nTR:3039\n</source>\n\n<published>\nRS:3039u\n</published>\n\n<tonnage>\n10.0\n</tonnage>\n\n<hasNoControlSystems>\n1\n</hasNoControlSystems>\n\n<trailer>\n1\n</trailer>\n\n",
+      "definition": {
+        "id": "j-27-ordnance-transport-trailer",
+        "chassis": "J-27 Ordnance Transport",
+        "model": "(Trailer)",
+        "unitType": "Vehicle",
+        "techBase": "INNER_SPHERE",
+        "rulesLevel": "INTRODUCTORY",
+        "era": "STAR_LEAGUE",
+        "year": 2650,
+        "tonnage": 10,
+        "weightClass": "LIGHT",
+        "motionType": "Tracked",
+        "movement": {
+          "cruiseMP": 0,
+          "flankMP": 0,
+          "jumpMP": 0
+        },
+        "engine": {
+          "type": "NONE",
+          "rating": 0
+        },
+        "armor": {
+          "type": "STANDARD",
+          "byLocation": {
+            "FRONT": 4,
+            "RIGHT": 4,
+            "LEFT": 4,
+            "REAR": 4
+          }
+        },
+        "equipment": [
+          {
+            "id": "hitch",
+            "name": "Hitch",
+            "location": "FRONT"
+          }
+        ],
+        "isTrailer": true,
+        "armorTechRating": 0,
+        "transporters": ["cargobay:8.0:1:1::-1:0"],
+        "mulId": 1646,
+        "role": "None",
+        "source": "TR:3039",
+        "fluff": {
+          "overview": "<p>The J-27 Ordnance Transport is the most widely produced ammunition carrier in the history of modern warfare. Originally manufactured by Acme Widgets on Zollikofen for the Star League Defense Force, the small tracked vehicle entered service during the mid-twenty-seventh century as the SLDF's primary munitions transport unit. Consisting of a tractor and wheeled trailer operated by a three-person crew, each J-27 can carry eleven tons of munitions, enough to resupply a typical lance of BattleMechs. The design's extraordinarily low licensing fees ensured that every military in the Inner Sphere and much of the Periphery eventually adopted the vehicle. Cheap to build, easy to maintain, and universally available, the J-27 has served in every major conflict since the Star League. Its ubiquity is matched only by its notorious reputation among the crews unlucky enough to be assigned to it.</p>",
+          "capabilities": "<p>The J-27 divides its eleven tons of cargo capacity between a three-ton internal bay in the tractor and eight tons carried on the open trailer. A half-ton of StarSlab armor protects the cab from small-arms fire and light weapons, though the exposed trailer offers no such protection to its volatile cargo. The tractor's 50-rated internal combustion engine provides a top speed of 86 kilometers per hour, though most forces have installed governors limiting it to around 50 kph for safety. Special authorization from a commander is required to deactivate these limiters.</p><p>A single turret-mounted SperryBrowning machine gun provides token self-defense, though critics note it adds little to the vehicle's survivability against anything heavier than hostile infantry. The trailer can only be manually detached from the cab, a task typically falling to the third crewmember. This design limitation means the J-27 cannot quickly jettison its explosive payload when threatened. Communications are handled through a Tandy A-100 system, while the vehicle lacks any dedicated targeting equipment. The J-27's greatest practical strength is its simplicity, as its low-technology design can be manufactured and maintained by virtually any industrial base.</p>",
+          "deployment": "<p>The standard J-27 Trailer is an unpowered, wheeled, lightly armored unit designed to carry eight tons of cargo behind the J-27 tractor. Its simple construction and lack of any onboard systems make it the most expendable component of the J-27 system. Easily replaced from local production, these trailers are treated as disposable by most military logistics commands.</p>",
+          "history": "<p>Acme Widgets began production of the J-27 on Zollikofen during the Star League era, selling tens of thousands of units primarily to the SLDF. The company's impossibly low licensing fees made illegal reverse-engineering economically pointless, and within decades every major military in the Inner Sphere operated large fleets of the vehicles. For reasons that remain unclear, Acme Widgets discontinued its Zollikofen manufacturing center in 2763, ending original production. By that point, however, the licensing terms had allowed virtually every arms manufacturer in the Inner Sphere to produce the J-27 independently, ensuring the design's survival long after its creator ceased operations.</p><p>The Succession Wars transformed the J-27 from a mundane logistics vehicle into a byword for misery. Ordnance transport is grueling, dangerous work under the best conditions, and the combination of explosive cargo, thin armor, and an exposed trailer made every mission a gamble with a crew's life. Stress levels among J-27 operators were enormous, with illness rates and mortality figures far exceeding those of any other military vehicle class. Studies confirmed that J-27 crew mortality was over triple that of comparable vehicle operators, a statistic that did nothing to improve morale.</p><p>The Draconis Combine became particularly notorious for staffing its J-27 fleets with criminals from penal units. Given the choice between a death sentence and J-27 duty, many convicts chose death. This was initially dismissed as hyperbole until studies confirmed the preference was genuine. The Free Worlds League adopted a similar penal assignment policy, a practice eventually emulated by most other Great Houses. Houses Steiner and Davion maintained that their munitions handlers should be more reliable than criminals, but both still used J-27 duty as punishment for soldiers who had fallen out of favor.</p><p>The most famous of these penal formations was the 125th Deadman Ordnance Carriers, serving the Capellan Confederation. During fighting on New Hessen, the unit carried over a thousand times its own mass in munitions to keep Capellan forces supplied in a defensive position. When convoys came under fire from Davion BattleMechs, the crews chose to fight rather than flee. They dismounted missiles from their cargo and improvised firing positions, driving off the attackers after several hours of combat. The surviving crews received pardons and promotions, though some elected to remain with the unit.</p><p>Despite its grim reputation, the J-27 remained in universal service through the Clan Invasion, the Civil War, and the Jihad. Its sheer simplicity guaranteed availability even on the most resource-starved worlds. Among smaller Periphery realms and lawless border regions, the vehicle was considered a rare commodity worth stealing, its cargo often more valuable than the transport itself. Frontline units frequently scavenged J-27 machine gun ammunition, a practice owners grudgingly accepted as useful enough to justify maintaining the full ammunition supply.</p><p>The Republic of the Sphere brought renewed interest to the aging platform when the Republic Institute of Strategic Combat selected the J-27's spacious chassis as a carrier for experimental viral jammer technology around 3142. The vehicle's ubiquity made it an ideal disguise for the jammers, which could be positioned at strategic bottlenecks to cripple enemy electronics. These modified transports and their powered trailers saw action during Operation Mercury, proving effective against Clan electronic systems. The J-27 endures into the ilClan era as it has for centuries, unchanged in its essential design and unenviable in its essential purpose.</p>",
+          "manufacturer": "Acme Widgets|Various",
+          "primaryFactory": "Zollikofen (discontinued 2763)|Various",
+          "systemManufacturer": {
+            "CHASSIS": "Unknown",
+            "ARMOR": "Unknown"
+          }
+        }
+      }
+    },
+    {
+      "kind": "STEAM",
+      "path": "AToW Companion/Naval/Small Steamer.blk",
+      "sha256": "54a6204d2655219e4b6d7727e1844c829c6aaf4a8dbc8873b133b07959bd7c1b",
+      "content": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\n#\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\n# creating free software for the BattleTech community.\n#\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\n# of The Topps Company, Inc. All Rights Reserved.\n#\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\n# InMediaRes Productions, LLC.\n#\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\n# Microsoft's \"Game Content Usage Rules\"\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\n# affiliated with Microsoft.\n\n#Saved from version 0.51.01 on 2026-07-12\n<UUID>\n019f583e-e8d4-7f7c-9235-fa32872c784e\n</UUID>\n\n<UnitType>\nSupportTank\n</UnitType>\n\n<Name>\nSmall Steamer\n</Name>\n\n<Model>\n\n</Model>\n\n<mul id:>\n9231\n</mul id:>\n\n<year>\n2100\n</year>\n\n<type>\nIS Level 2\n</type>\n\n<role>\nNone\n</role>\n\n<motion_type>\nNaval\n</motion_type>\n\n<transporters>\ncargobay:0.7:1:1::-1:0\nstandardseats:1.0:0:-1::-1:0\npillionseats:21.0:0:-1::-1:0\n</transporters>\n\n<cruiseMP>\n2\n</cruiseMP>\n\n<engine_type>\n10\n</engine_type>\n\n<armor_type>\n43\n</armor_type>\n\n<armor_tech_rating>\n1\n</armor_tech_rating>\n\n<armor_tech_level>\n1\n</armor_tech_level>\n\n<internal_type>\n-1\n</internal_type>\n\n<armor>\n1\n1\n1\n1\n</armor>\n\n<Body Equipment>\n</Body Equipment>\n\n<Front Equipment>\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<barrating>\n2\n</barrating>\n\n<structural_tech_rating>\n1\n</structural_tech_rating>\n\n<engine_tech_rating>\n1\n</engine_tech_rating>\n\n<overview>\n<p>The small, steam-powered riverboat described here is not a military craft per se, but an example of an ultra low-tech vehicle that occasionally appears on many worlds either as a tour boat, light transport, or pleasure craft. Suitable for shallow waters, steamers have been pressed into military use over the centuries, often by scouts to covertly transport infantry troops and light gear through hostile waterways.</p>\n</overview>\n\n<manufacturer>\nUnknown\n</manufacturer>\n\n<primaryFactory>\nUnknown\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:Unknown\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:Unknown\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemModels>\n\n<source>\nAToW Companion\n</source>\n\n<tonnage>\n2.5\n</tonnage>\n\n<fuel>\n0.21\n</fuel>\n\n",
+      "definition": {
+        "id": "small-steamer",
+        "chassis": "Small Steamer",
+        "model": "",
+        "unitType": "Support Vehicle",
+        "techBase": "INNER_SPHERE",
+        "rulesLevel": "STANDARD",
+        "era": "AGE_OF_WAR",
+        "year": 2100,
+        "tonnage": 2.5,
+        "weightClass": "LIGHT",
+        "motionType": "Naval",
+        "movement": {
+          "cruiseMP": 2,
+          "flankMP": 3,
+          "jumpMP": 0
+        },
+        "engine": {
+          "type": "STEAM",
+          "rating": 5
+        },
+        "armor": {
+          "type": "BAR",
+          "barRating": 2,
+          "byLocation": {
+            "FRONT": 1,
+            "RIGHT": 1,
+            "LEFT": 1,
+            "REAR": 1
+          }
+        },
+        "equipment": [],
+        "fuel": 0.21,
+        "structuralTechRating": 1,
+        "engineTechRating": 1,
+        "armorTechRating": 1,
+        "internalType": -1,
+        "transporters": [
+          "cargobay:0.7:1:1::-1:0",
+          "standardseats:1.0:0:-1::-1:0",
+          "pillionseats:21.0:0:-1::-1:0"
+        ],
+        "mulId": 9231,
+        "role": "None",
+        "source": "AToW Companion",
+        "fluff": {
+          "overview": "<p>The small, steam-powered riverboat described here is not a military craft per se, but an example of an ultra low-tech vehicle that occasionally appears on many worlds either as a tour boat, light transport, or pleasure craft. Suitable for shallow waters, steamers have been pressed into military use over the centuries, often by scouts to covertly transport infantry troops and light gear through hostile waterways.</p>",
+          "manufacturer": "Unknown",
+          "primaryFactory": "Unknown",
+          "systemManufacturer": {
+            "CHASSIS": "Unknown",
+            "ENGINE": "Unknown",
+            "ARMOR": "Unknown",
+            "COMMUNICATIONS": "Unknown",
+            "TARGETING": "Unknown"
+          }
+        }
+      }
+    }
+  ]
+}

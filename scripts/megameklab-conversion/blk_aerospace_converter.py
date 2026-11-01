@@ -73,13 +73,13 @@ from blk_common import (
 
 # Sub-type classification
 
-# Armor arc order in BLK: Nose, Left Wing, Right Wing, Aft
+# Armor arc order in BLK: Nose, Right Wing, Left Wing, Aft
 
 # Equipment location tag → output key
 
 # Small craft use "side" instead of "wing"
 
-# Armor type code → string (same as vehicle converter)
+# Armor type code → string (pinned aerospace EquipmentType constants)
 
 # Cockpit code → string
 
@@ -226,7 +226,7 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     armor = parse_aerospace_armor(tags, reads_bar_rating=unit_type_raw == "FixedWingSupport")
     source_qualifiers = parse_aerospace_qualifiers(tags)
 
-    # Arc-based armor — ASF/CF use Nose/LW/RW/Aft; SmallCraft use Nose/LS/RS/Aft
+    # Arc-based armor — ASF/CF use Nose/RW/LW/Aft; SmallCraft use Nose/RS/LS/Aft
     is_small_craft = sub_type == "SmallCraft"
     arc_names = SC_ARMOR_ARCS if is_small_craft else AERO_ARMOR_ARCS
     armor_by_arc: Dict[str, int] = {}

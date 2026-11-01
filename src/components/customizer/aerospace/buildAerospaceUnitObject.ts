@@ -26,7 +26,10 @@ import {
 
 /** Store fields the aerospace unit-object builder reads. */
 export interface AerospaceUnitObjectInput extends RecordSheetUnitIdentityWithTonnageInput {
-  unitType: UnitType.AEROSPACE | UnitType.CONVENTIONAL_FIGHTER;
+  unitType:
+    | UnitType.AEROSPACE
+    | UnitType.CONVENTIONAL_FIGHTER
+    | UnitType.SMALL_CRAFT;
   structuralIntegrity: number;
   fuelPoints: number;
   safeThrust: number;
@@ -76,7 +79,11 @@ export function buildAerospaceUnitObject(
   return {
     ...buildRecordSheetUnitIdentity(input),
     // Dispatch hint — resolves to the 'aerospace' kind for both sub-types.
-    unitType: input.unitType,
+    // There is no small craft sheet yet; small craft use the aerospace sheet.
+    unitType:
+      input.unitType === UnitType.SMALL_CRAFT
+        ? UnitType.AEROSPACE
+        : input.unitType,
     structuralIntegrity: input.structuralIntegrity,
     fuelPoints: input.fuelPoints,
     safeThrust: input.safeThrust,

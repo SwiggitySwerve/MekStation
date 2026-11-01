@@ -55,6 +55,7 @@ const MAPPED_TYPES: UnitType[] = [
   UnitType.SUPPORT_VEHICLE,
   UnitType.AEROSPACE,
   UnitType.CONVENTIONAL_FIGHTER,
+  UnitType.SMALL_CRAFT,
   UnitType.BATTLE_ARMOR,
   UnitType.INFANTRY,
   UnitType.PROTOMECH,
@@ -62,7 +63,6 @@ const MAPPED_TYPES: UnitType[] = [
 
 // Capital craft etc. — intentionally unmapped, must fall back to mech.
 const UNMAPPED_TYPES: UnitType[] = [
-  UnitType.SMALL_CRAFT,
   UnitType.DROPSHIP,
   UnitType.JUMPSHIP,
   UnitType.WARSHIP,
@@ -135,7 +135,11 @@ describe('customizerTypeRegistry — component identity (no-behaviour-change gua
         VehicleOverviewTab,
       );
     }
-    for (const t of [UnitType.AEROSPACE, UnitType.CONVENTIONAL_FIGHTER]) {
+    for (const t of [
+      UnitType.AEROSPACE,
+      UnitType.CONVENTIONAL_FIGHTER,
+      UnitType.SMALL_CRAFT,
+    ]) {
       expect(getCustomizerDescriptor(t).OverviewComponent).toBe(
         AerospaceOverviewTab,
       );
