@@ -6,7 +6,14 @@
  * @spec openspec/specs/era-temporal-system/spec.md
  */
 
-import { Era, ERA_DEFINITIONS, EraDefinition } from '../../types/temporal/Era';
+import {
+  Era,
+  ERA_DEFINITIONS,
+  EraDefinition,
+  getEraForYear as getCanonicalEraForYear,
+  getEraDefinition,
+  isYearInEra as isCanonicalYearInEra,
+} from '../../types/temporal/Era';
 
 /**
  * Determine the era for a given year
@@ -19,13 +26,9 @@ export function getEraForYear(year: number): Era | undefined {
     return undefined;
   }
 
-  for (const def of ERA_DEFINITIONS) {
-    if (year >= def.startYear && year <= def.endYear) {
-      return def.era;
-    }
-  }
-
-  return undefined;
+  const era = getCanonicalEraForYear(year);
+  // Preserve this utility's out-of-range result instead of the owner's fallback.
+  return isCanonicalYearInEra(year, era) ? era : undefined;
 }
 
 /**
@@ -37,13 +40,8 @@ export function getEraForYear(year: number): Era | undefined {
 export function getEraDefinitionForYear(
   year: number,
 ): EraDefinition | undefined {
-  if (!Number.isFinite(year)) {
-    return undefined;
-  }
-
-  return ERA_DEFINITIONS.find(
-    (def) => year >= def.startYear && year <= def.endYear,
-  );
+  const era = getEraForYear(year);
+  return era === undefined ? undefined : getEraDefinition(era);
 }
 
 /**

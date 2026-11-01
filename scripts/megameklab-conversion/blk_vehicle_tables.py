@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from typing import Dict, Optional
 
+from blk_common import BAR_ARMOR_CODES
+from blk_common import BLK_ARMOR_CODE_MAP as ARMOR_CODE_MAP
+
 VEHICLE_UNIT_TYPES = {
     "Tank", "VTOL", "SupportTank", "LargeSupportTank", "SupportVTOL", "Naval",
     "Hover", "Wheeled", "Tracked", "Hydrofoil", "Submarine", "WiGE",
@@ -74,30 +77,4 @@ MOTION_TYPE_MAP: Dict[str, str] = {
     "Maglev": "Maglev",
     "Leg": "Tracked",
     "Jump": "VTOL",
-}
-
-# MegaMek 48fcb2f6 EquipmentType.java:128-136: T_ARMOR_SV_BAR_2 = 43 .. T_ARMOR_SV_BAR_10 = 51;
-# ArmorType.java:92-94 svArmor(bar) = T_ARMOR_SV_BAR_2 - 2 + bar.
-BAR_ARMOR_CODES = range(43, 52)
-
-ARMOR_CODE_MAP: Dict[int, str] = {
-    0: "STANDARD",
-    1: "FERRO_FIBROUS",
-    2: "REACTIVE",
-    3: "REFLECTIVE",
-    4: "HARDENED",
-    5: "LIGHT_FERRO_FIBROUS",
-    6: "HEAVY_FERRO_FIBROUS",
-    7: "PATCHWORK",
-    8: "STEALTH",
-    31: "COMMERCIAL",
-    32: "INDUSTRIAL",
-    33: "HEAVY_INDUSTRIAL",
-    34: "FERRO_FIBROUS_CLAN",
-    35: "REFLECTIVE_CLAN",
-    36: "REACTIVE_CLAN",
-    37: "FERRO_LAMELLOR",
-    38: "ANTI_PENETRATIVE_ABLATION",
-    39: "PRIMITIVE",
-    40: "IMPACT_RESISTANT",
 }

@@ -14,7 +14,10 @@
  * Each era has distinct technological and political characteristics.
  */
 export enum Era {
-  /** Early Spaceflight (pre-2005) - Before the Age of War */
+  /** Pre-Spaceflight (through 1950) */
+  PRE_SPACEFLIGHT = 'Pre-Spaceflight',
+
+  /** Early Spaceflight (1951-2004) - Before the Age of War */
   EARLY_SPACEFLIGHT = 'Early Spaceflight',
 
   /** Age of War (2005-2570) */
@@ -38,10 +41,16 @@ export enum Era {
   /** Civil War (3062-3067) - FedCom Civil War */
   CIVIL_WAR = 'Civil War',
 
-  /** Jihad (3068-3081) - Word of Blake Jihad */
+  /** Jihad (3068-3080) - Word of Blake Jihad */
   JIHAD = 'Jihad',
 
-  /** Dark Age (3082-3150) - Collapse of HPG network */
+  /** Early Republic (3081-3100) */
+  EARLY_REPUBLIC = 'Early Republic',
+
+  /** Late Republic (3101-3130) */
+  LATE_REPUBLIC = 'Late Republic',
+
+  /** Dark Age (3131-3150) - Collapse of HPG network */
   DARK_AGE = 'Dark Age',
 
   /** ilClan (3151+) - Era following ilClan Trial on Terra */
@@ -73,12 +82,22 @@ export interface EraRange {
  *
  * Year ranges are inclusive: a component introduced in 2439 is available
  * in the Age of War era (which ends in 2570).
+ * Source: mm-data 50f7efef0c9f775b0258f8283525ed4f906e1985,
+ * data/universe/eras.xml:34-135. Jihad ends at line 102; the Republic
+ * ranges end at lines 110 and 118. The final ilClan era has no end.
  */
 export const ERA_DEFINITIONS: readonly EraDefinition[] = [
   {
+    era: Era.PRE_SPACEFLIGHT,
+    name: 'Pre-Spaceflight',
+    startYear: -Infinity,
+    endYear: 1950,
+    description: 'The period before spaceflight.',
+  },
+  {
     era: Era.EARLY_SPACEFLIGHT,
     name: 'Early Spaceflight',
-    startYear: -Infinity,
+    startYear: 1951,
     endYear: 2004,
     description:
       'The period before widespread interstellar travel and the Age of War.',
@@ -139,13 +158,27 @@ export const ERA_DEFINITIONS: readonly EraDefinition[] = [
     era: Era.JIHAD,
     name: 'Jihad',
     startYear: 3068,
-    endYear: 3081,
+    endYear: 3080,
     description: 'The Word of Blake Jihad and its devastating consequences.',
+  },
+  {
+    era: Era.EARLY_REPUBLIC,
+    name: 'Early Republic',
+    startYear: 3081,
+    endYear: 3100,
+    description: 'The early years of the Republic of the Sphere.',
+  },
+  {
+    era: Era.LATE_REPUBLIC,
+    name: 'Late Republic',
+    startYear: 3101,
+    endYear: 3130,
+    description: 'The later years of the Republic before the HPG collapse.',
   },
   {
     era: Era.DARK_AGE,
     name: 'Dark Age',
-    startYear: 3082,
+    startYear: 3131,
     endYear: 3150,
     description: 'The collapse of the HPG network and rise of new powers.',
   },
@@ -153,7 +186,7 @@ export const ERA_DEFINITIONS: readonly EraDefinition[] = [
     era: Era.IL_CLAN,
     name: 'ilClan',
     startYear: 3151,
-    endYear: 9999, // Ongoing era
+    endYear: Infinity, // Ongoing era; eras.xml has no end date.
     description: 'The era following the ilClan Trial on Terra.',
   },
 ] as const;
