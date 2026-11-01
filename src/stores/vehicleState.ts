@@ -93,39 +93,8 @@ export function createEmptyVTOLArmorAllocation(): IVTOLArmorAllocation {
   };
 }
 
-/**
- * Calculate total allocated vehicle armor.
- *
- * Secondary turret armor (TURRET_2) is included only when `hasSecondaryTurret`
- * is true; callers using the legacy 1-arg or 2-arg form are unaffected because
- * the new parameter defaults to false.
- */
-export function getTotalVehicleArmor(
-  allocation: IVehicleArmorAllocation,
-  hasTurret: boolean = false,
-  hasSecondaryTurret: boolean = false,
-): number {
-  let total =
-    (allocation[VehicleLocation.FRONT] || 0) +
-    (allocation[VehicleLocation.LEFT] || 0) +
-    (allocation[VehicleLocation.RIGHT] || 0) +
-    (allocation[VehicleLocation.REAR] || 0);
-
-  if (hasTurret) {
-    total += allocation[VehicleLocation.TURRET] || 0;
-  }
-
-  if (hasSecondaryTurret) {
-    total += allocation[VehicleLocation.TURRET_2] || 0;
-  }
-
-  // Add rotor for VTOLs
-  if (VTOLLocation.ROTOR in allocation) {
-    total += (allocation as IVTOLArmorAllocation)[VTOLLocation.ROTOR] || 0;
-  }
-
-  return total;
-}
+// Compatibility export; construction owns installed-location arithmetic.
+export { getTotalVehicleArmor } from '@/utils/construction/vehicle/armor';
 
 // =============================================================================
 // Vehicle Mounted Equipment

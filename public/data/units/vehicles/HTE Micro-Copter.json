@@ -1,0 +1,64 @@
+{
+  "id": "hte-micro-copter",
+  "chassis": "HTE Micro-Copter",
+  "model": "",
+  "unitType": "Support Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "CLAN_INVASION",
+  "year": 3065,
+  "tonnage": 0.04,
+  "weightClass": "LIGHT",
+  "motionType": "VTOL",
+  "movement": {
+    "cruiseMP": 5,
+    "flankMP": 8,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "ICE",
+    "rating": 0
+  },
+  "armor": {
+    "type": "BAR",
+    "barRating": 2,
+    "byLocation": {
+      "FRONT": 0,
+      "RIGHT": 0,
+      "LEFT": 0,
+      "REAR": 0,
+      "ROTOR": 0
+    }
+  },
+  "equipment": [
+    {
+      "id": "ultralightchassismod",
+      "name": "UltraLightChassisMod",
+      "location": "BODY"
+    }
+  ],
+  "fuel": 0.004,
+  "structuralTechRating": 4,
+  "engineTechRating": 4,
+  "armorTechRating": 3,
+  "internalType": -1,
+  "fuelType": "PETROCHEMICALS",
+  "transporters": [
+    "pillionseats:1.0:0:-1::-1:0"
+  ],
+  "mulId": 9229,
+  "role": "None",
+  "source": "AToW Companion",
+  "fluff": {
+    "overview": "<p>The newest micro-copter from Hachiman Taro Enterprises is a marvel of high-quality construction. Unloaded and with an empty fuel tank, it weighs just shy of twenty kilograms, but is capable of carrying a grown person with heavy equipment. First used to equip HTE extraction teams during the Jihad, it is now available on the open market and becoming popular for recreational use as well.</p>",
+    "manufacturer": "Hachiman-Taro Enterprises",
+    "primaryFactory": "Hachiman",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  }
+}

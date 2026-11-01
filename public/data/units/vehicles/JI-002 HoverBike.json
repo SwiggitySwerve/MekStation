@@ -1,0 +1,67 @@
+{
+  "id": "ji-002-hoverbike",
+  "chassis": "JI-002 HoverBike",
+  "model": "",
+  "unitType": "Support Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CLAN_INVASION",
+  "year": 3050,
+  "tonnage": 0.66,
+  "weightClass": "LIGHT",
+  "motionType": "Hover",
+  "movement": {
+    "cruiseMP": 10,
+    "flankMP": 15,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "BATTERY",
+    "rating": 5
+  },
+  "armor": {
+    "type": "BAR",
+    "barRating": 8,
+    "byLocation": {
+      "FRONT": 1,
+      "RIGHT": 1,
+      "LEFT": 1,
+      "REAR": 1
+    }
+  },
+  "equipment": [
+    {
+      "id": "armored-chassis",
+      "name": "Armored Chassis",
+      "location": "BODY"
+    },
+    {
+      "id": "bicyclechassismod",
+      "name": "BicycleChassisMod",
+      "location": "BODY"
+    }
+  ],
+  "fuel": 0.03,
+  "structuralTechRating": 3,
+  "engineTechRating": 3,
+  "armorTechRating": 3,
+  "transporters": [
+    "cargobay:0.02:1:1::-1:0",
+    "pillionseats:2.0:0:-1::-1:0"
+  ],
+  "mulId": 9222,
+  "role": "None",
+  "source": "AToW Companion",
+  "fluff": {
+    "overview": "<p>Johnston Industries' military hoverbike was initially manufactured for the company's own security force and for the AFFS, which utilizes it in its mechanized infantry elements. It differs from other hoverbikes only in its extremely sturdy, reinforced structure, which allows for the becoming popular use of higher-grade military armor, giving it durability unusual for a vehicle of its size.</p>",
+    "manufacturer": "Johnston Industries",
+    "primaryFactory": "New Syrtis",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  }
+}

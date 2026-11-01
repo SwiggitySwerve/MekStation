@@ -271,7 +271,7 @@ describe('TestSupportVehicle.maxArmorFactor (TestSupportVehicle.java:585-617)', 
     expect(getSupportVehicleMaxTotalArmor(GroundMotionType.WIGE, 3.5)).toBe(5);
   });
 
-  it('a Large naval or airship support vehicle (over 300 t) uses 0.05 per ton', () => {
+  it('a Large naval support vehicle (over 300 t) uses 0.05 per ton', () => {
     expect(getSupportVehicleMaxTotalArmor(GroundMotionType.NAVAL, 300)).toBe(
       104,
     );
