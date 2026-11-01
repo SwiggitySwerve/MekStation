@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
 import { CompendiumLayout } from '@/components/compendium';
+import { ArmorAllocationCard } from '@/components/compendium/units/ArmorAllocationCard';
 import {
   PageLoading,
   PageError,
@@ -18,11 +19,7 @@ import {
   StatGrid,
 } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
-import {
-  IUnitDetails,
-  isArmorFrontRear,
-  calculateTotalArmor,
-} from '@/types/pages';
+import { IUnitDetails, calculateTotalArmor } from '@/types/pages';
 import { isUnitFamily } from '@/types/unit/UnitIndex';
 
 function unitDisplayName(unit: IUnitDetails): string {
@@ -163,47 +160,6 @@ function HeatArmorCard({
         )}
       </StatList>
     </StatCard>
-  );
-}
-
-function ArmorAllocationCard({
-  unit,
-}: {
-  readonly unit: IUnitDetails;
-}): React.ReactElement | null {
-  if (!unit.armor?.allocation) return null;
-
-  return (
-    <Card variant="dark" className="mb-6">
-      <CardSection title="Armor Allocation" />
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-        {Object.entries(unit.armor.allocation).map(([location, value]) => (
-          <div
-            key={location}
-            className="bg-surface-raised/30 rounded-lg p-3 text-center"
-          >
-            <div className="text-text-theme-secondary mb-1 text-xs uppercase">
-              {location.replace(/_/g, ' ')}
-            </div>
-            <div className="text-text-theme-primary font-mono">
-              {typeof value === 'number' ? (
-                value
-              ) : isArmorFrontRear(value) ? (
-                <>
-                  {value.front}
-                  {value.rear > 0 && (
-                    <span className="text-text-theme-muted text-sm">
-                      {' '}
-                      / {value.rear}
-                    </span>
-                  )}
-                </>
-              ) : null}
-            </div>
-          </div>
-        ))}
-      </div>
-    </Card>
   );
 }
 
@@ -356,7 +312,7 @@ export default function CanonicalUnitDetailPage(): React.ReactElement {
         <HeatArmorCard unit={unit} totalArmor={totalArmor} />
       </StatGrid>
 
-      <ArmorAllocationCard unit={unit} />
+      <ArmorAllocationCard armor={unit.armor} />
 
       <EquipmentCard unit={unit} />
 
