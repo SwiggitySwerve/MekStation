@@ -1,7 +1,8 @@
 """Run: python -B -m unittest discover -s scripts/__tests__ -p test_unit_index.py -v.
 
-UL-08: per-family ``index.json`` generator, cross-catalog id uniqueness, ``.gitignore``
-allow rules for the new family directories, and ``--units-dir`` on the schema harness.
+UL-08: per-family ``index.json`` generator, ``.gitignore`` allow rules for the new family
+directories, and ``--units-dir`` on the schema harness. UL-08b: ids are unique per family,
+not across families (owner ruling 2026-11-01: a unit's identity is (family, id)).
 Fixtures under ``fixtures/unit-index`` are converter output from pinned mm-data
 50f7efef (5 vehicles, 4 aerospace); the real ``public/data/units`` is never written.
 """
@@ -17,7 +18,7 @@ from pathlib import Path
 CONVERSION = Path(__file__).resolve().parents[1] / 'megameklab-conversion'
 sys.path.insert(0, str(CONVERSION))
 
-from unit_index import build_index_entry, find_id_collisions, generate_index, main  # noqa: E402
+from unit_index import build_index_entry, find_duplicate_ids, generate_index, main  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = Path(__file__).resolve().parent / 'fixtures' / 'unit-index'
@@ -90,29 +91,21 @@ class UnitIndexShapeTest(unittest.TestCase):
 
 
 class IdUniquenessTest(unittest.TestCase):
-    def test_tomahawk_c_collides_with_the_mech_index(self):
-        mech_ids = [u['id'] for u in json.loads(MECH_INDEX.read_text(encoding='utf-8'))['units']]
-        aero_ids = [u['id'] for u in generate_index(FIXTURES / 'aerospace', generated_at='x')['units']]
-        collisions = find_id_collisions({'battlemechs': mech_ids, 'aerospace': aero_ids})
-        self.assertEqual(collisions, {'tomahawk-c': ['battlemechs', 'aerospace']})
-
-    def test_duplicate_inside_one_family_is_reported(self):
-        self.assertEqual(find_id_collisions({'vehicles': ['a', 'b', 'a']}), {'a': ['vehicles', 'vehicles']})
+    def test_duplicate_inside_one_family_is_reported_once(self):
+        self.assertEqual(find_duplicate_ids(['a', 'b', 'a', 'c', 'a']), ['a'])
 
     def test_unique_ids_report_nothing(self):
-        self.assertEqual(find_id_collisions({'x': ['a'], 'y': ['b']}), {})
+        self.assertEqual(find_duplicate_ids(['a', 'b']), [])
 
 
 class UnitIndexCliTest(unittest.TestCase):
     def run_main(self, root, *extra):
-        return main(['--units-dir', str(root), '--reserved-index', str(self.reserved), *extra])
+        return main(['--units-dir', str(root), *extra])
 
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name) / 'units'
         shutil.copytree(FIXTURES, self.root)
-        self.reserved = Path(self.temp.name) / 'reserved.json'
-        self.reserved.write_text(json.dumps({'units': [{'id': 'some-mech'}]}), encoding='utf-8')
 
     def tearDown(self):
         self.temp.cleanup()
@@ -128,42 +121,81 @@ class UnitIndexCliTest(unittest.TestCase):
         self.assertEqual(self.run_main(self.root), 0)
         self.assertFalse((self.root / 'vehicles' / 'index.json').exists())
 
-    def test_collision_with_reserved_index_fails_and_writes_nothing(self):
-        self.reserved.write_text(json.dumps({'units': [{'id': 'tomahawk-c'}]}), encoding='utf-8')
-        self.assertEqual(self.run_main(self.root, '--write'), 1)
-        self.assertFalse((self.root / 'vehicles' / 'index.json').exists())
-        self.assertFalse((self.root / 'aerospace' / 'index.json').exists())
+    def test_id_shared_with_the_mech_catalog_is_allowed(self):
+        # tomahawk-c is a Clan OmniMech and, separately, a Clan aerospace fighter. Identity is
+        # (family, id), so the aerospace index keeps the id unchanged.
+        mech_ids = {u['id'] for u in json.loads(MECH_INDEX.read_text(encoding='utf-8'))['units']}
+        self.assertIn('tomahawk-c', mech_ids)
+        self.assertEqual(self.run_main(self.root, '--write'), 0)
+        aerospace = json.loads((self.root / 'aerospace' / 'index.json').read_text(encoding='utf-8'))
+        self.assertIn('tomahawk-c', [u['id'] for u in aerospace['units']])
 
-    def test_missing_reserved_index_fails_and_writes_nothing(self):
-        missing = Path(self.temp.name) / 'battlemech' / 'index.json'
-        self.assertEqual(main(['--units-dir', str(self.root), '--reserved-index', str(missing), '--write']), 1)
-        self.assertFalse((self.root / 'aerospace' / 'index.json').exists())
+    def test_no_reserved_index_option(self):
+        with self.assertRaises(SystemExit):
+            self.run_main(self.root, '--reserved-index', str(MECH_INDEX))
 
     def test_missing_units_dir_fails(self):
         self.assertEqual(self.run_main(Path(self.temp.name) / 'no-such-dir', '--write'), 1)
 
-    def test_duplicate_id_across_families_fails_and_writes_nothing(self):
+    def test_same_id_in_two_families_is_allowed(self):
         shutil.copy(self.root / 'vehicles' / 'Demolisher II Heavy Tank.json', self.root / 'aerospace' / 'Dup.json')
-        self.assertEqual(self.run_main(self.root, '--write'), 1)
-        self.assertFalse((self.root / 'vehicles' / 'index.json').exists())
+        self.assertEqual(self.run_main(self.root, '--write'), 0)
+        aerospace = json.loads((self.root / 'aerospace' / 'index.json').read_text(encoding='utf-8'))
+        self.assertEqual(aerospace['totalUnits'], 5)
 
-    def test_family_option_still_checks_sibling_families(self):
-        # A filtered write must not publish an id that a sibling family already has.
-        shutil.copy(self.root / 'vehicles' / 'Demolisher II Heavy Tank.json', self.root / 'aerospace' / 'Dup.json')
+    def test_duplicate_id_within_a_family_fails_and_writes_nothing(self):
+        nested = self.root / 'vehicles' / 'sub'
+        nested.mkdir()
+        shutil.copy(self.root / 'vehicles' / 'Demolisher II Heavy Tank.json', nested / 'Dup.json')
         sentinel = self.root / 'aerospace' / 'index.json'
         sentinel.write_text('{"units": []}', encoding='utf-8')
-        self.assertEqual(self.run_main(self.root, '--family', 'vehicles', '--write'), 1)
+        self.assertEqual(self.run_main(self.root, '--write'), 1)
         self.assertFalse((self.root / 'vehicles' / 'index.json').exists())
         self.assertEqual(sentinel.read_text(encoding='utf-8'), '{"units": []}')
+
+    def test_duplicate_in_a_later_family_fails_and_writes_nothing(self):
+        shutil.copy(self.root / 'aerospace' / 'Sabre SB-27b-EC.json', self.root / 'aerospace' / 'Dup.json')
+        self.assertEqual(self.run_main(self.root, '--write'), 1)
+        self.assertFalse((self.root / 'vehicles' / 'index.json').exists())
+        self.assertFalse((self.root / 'aerospace' / 'index.json').exists())
+
+    def test_family_option_is_not_blocked_by_a_sibling_family(self):
+        # A duplicate inside aerospace concerns aerospace only; a vehicles write goes ahead.
+        shutil.copy(self.root / 'aerospace' / 'Sabre SB-27b-EC.json', self.root / 'aerospace' / 'Dup.json')
+        self.assertEqual(self.run_main(self.root, '--family', 'vehicles', '--write'), 0)
+        self.assertTrue((self.root / 'vehicles' / 'index.json').exists())
+        self.assertFalse((self.root / 'aerospace' / 'index.json').exists())
+
+    def test_named_family_that_does_not_exist_fails_and_writes_nothing(self):
+        # Follow-up 31 L1: a named family that is absent must not exit 0 with nothing written.
+        self.assertEqual(self.run_main(self.root, '--family', 'aerospace', '--family', 'capital', '--write'), 1)
+        self.assertFalse((self.root / 'aerospace' / 'index.json').exists())
+
+    def test_only_converted_families_can_be_indexed(self):
+        # The BattleMech index belongs to mtf_converter and the shipped catalog; the owner ruling
+        # of 2026-11-01 does not allow editing it. Typos, path forms and the units root itself
+        # are refused too, before anything is written.
+        mechs = self.root / 'battlemechs'
+        mechs.mkdir()
+        shutil.copy(self.root / 'aerospace' / 'Sabre SB-27b-EC.json', mechs / 'Mech.json')
+        shipped = mechs / 'index.json'
+        shipped.write_text('{"units": []}', encoding='utf-8')
+        for family in ('battlemechs', '.', 'vehicles/', 'Vehicles', 'vehicle'):
+            with self.subTest(family=family):
+                (self.root / 'vehicles' / 'index.json').unlink(missing_ok=True)  # isolate subtests
+                shipped.write_text('{"units": []}', encoding='utf-8')
+                self.assertEqual(self.run_main(self.root, '--family', 'vehicles', '--family', family, '--write'), 1)
+                self.assertEqual(shipped.read_text(encoding='utf-8'), '{"units": []}')
+                self.assertFalse((self.root / 'vehicles' / 'index.json').exists())
+                self.assertFalse((self.root / 'index.json').exists())
 
     def test_family_option_indexes_only_that_family(self):
         self.assertEqual(self.run_main(self.root, '--family', 'vehicles', '--write'), 0)
         self.assertTrue((self.root / 'vehicles' / 'index.json').exists())
         self.assertFalse((self.root / 'aerospace' / 'index.json').exists())
 
-    def test_default_reserved_index_is_the_real_mech_index(self):
-        # The fixtures contain tomahawk-c, so the default reserved index must flag it.
-        self.assertEqual(main(['--units-dir', str(self.root)]), 1)
+    def test_absent_default_family_is_tolerated(self):
+        self.assertEqual(self.run_main(self.root), 0)  # no capital/ in the fixtures
 
 
 class SharedIndexShapeTest(unittest.TestCase):
@@ -236,6 +268,8 @@ class UnitsDirOptionTest(unittest.TestCase):
                 with self.subTest(units=units.name):
                     result = self.validate(units, Path(temp) / 'report.json')
                     self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                    # Follow-up 31 L2: the exit code alone would also pass on an import crash.
+                    self.assertIn('no unit files under', result.stdout)
 
     def test_invalid_unit_in_scratch_directory_fails_strict(self):
         with tempfile.TemporaryDirectory() as temp:
