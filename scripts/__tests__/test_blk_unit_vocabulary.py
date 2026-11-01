@@ -25,7 +25,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 VEHICLE_BASE = (
     '<year>3060</year>\n<tonnage>{tonnage}</tonnage>\n<cruiseMP>{cruise}</cruiseMP>\n'
     '<engine_type>{engine}</engine_type>\n<armor_type>{armor_type}</armor_type>\n'
-    '<armor>\n10\n10\n10\n10\n</armor>\n'
+    '<armor>\n{armor}\n</armor>\n'
 )
 
 
@@ -48,7 +48,8 @@ class BlkUnitVocabularyTest(unittest.TestCase):
         return self.convert(
             convert_vehicle_blk,
             f'<UnitType>{unit_type}</UnitType>\n<Name>{name}</Name>\n<motion_type>{motion}</motion_type>\n'
-            + VEHICLE_BASE.format(tonnage=tonnage, cruise=cruise, engine=engine, armor_type=armor_type) + extra,
+            + VEHICLE_BASE.format(tonnage=tonnage, cruise=cruise, engine=engine, armor_type=armor_type,
+                                  armor='10\n10\n10\n10\n2' if unit_type in ('VTOL', 'SupportVTOL') else '10\n10\n10\n10') + extra,
         )
 
     def aero(self, unit_type):
@@ -102,6 +103,17 @@ class BlkUnitVocabularyTest(unittest.TestCase):
         self.assertEqual(unit['armor']['type'], 'BAR')
         self.assertNotIn('barRating', unit['armor'])
         self.assert_schema_valid(unit)
+
+    def test_only_support_vehicles_read_barrating(self):
+        # Only the support loaders call loadSVArmor (BLKSupportTankFile, BLKLargeSupportTankFile,
+        # BLKSupportVTOLFile, BLKFixedWingSupportFile); BLKTankFile and BLKVTOLFile ignore the tag.
+        unit = self.vehicle('Tank', 'Tagged tank', armor_type=47,
+                            extra='<barrating>\n6\n</barrating>\n')
+        self.assertEqual(unit['armor']['type'], 'BAR')
+        self.assertNotIn('barRating', unit['armor'])
+        support = self.vehicle('SupportTank', 'Tagged support', armor_type=47,
+                               extra='<barrating>\n6\n</barrating>\n')
+        self.assertEqual(support['armor']['barRating'], 6)
 
     def test_non_bar_armor_has_no_rating(self):
         unit = self.vehicle('Tank', 'Standard fixture', armor_type=1)
