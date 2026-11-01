@@ -158,10 +158,17 @@ function contractVehicleToBVUnit(unit: IContractBVSource): IContractBVVehicle {
   });
 
   const hasTurretEquipment = equipment.some((e) => e.isTurretMounted);
+  const sourceArmor = requireFact(unit.armor.byLocation, 'armor.byLocation');
+  // Armor-entry presence, including 0, installs the turrets as in the handler
+  // (BLKTankFile.java:180-192).
   const primaryTurretType = getPrimaryVehicleTurretType(
     equipment.map((e) => e.location),
+    undefined,
+    {
+      hasTurret: sourceArmor.TURRET !== undefined,
+      hasSecondTurret: sourceArmor.TURRET_2 !== undefined,
+    },
   );
-  const sourceArmor = requireFact(unit.armor.byLocation, 'armor.byLocation');
   const armorByLocation = Object.fromEntries(
     Object.entries(sourceArmor).map(([tag, points]) => [
       lookup(VEHICLE_LOCATIONS, tag, 'armor location'),
