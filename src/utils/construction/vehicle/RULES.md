@@ -1,5 +1,17 @@
 # Combat-vehicle construction rules
 
+`equipmentMounts.ts` owns the combat-vehicle import mount flags and primary
+turret inference. Nonempty `Turret` / `Turret Equipment` blocks, a Turret armor
+value in the source layout, or an explicit turret type install a primary turret;
+a Turret 2 armor value makes it dual. `Rear Turret` equipment is turret-mounted,
+not rear-facing (`Tank.java:127-130`). Sponson and secondary-turret blocks carry
+mount flags independently; neither alone installs the primary turret. Explicit
+dual/chin and the existing fallback to single are preserved for BLK imports.
+The contract BV adapter uses this same owner, translating `SPONSON` to a
+sponson mount label while keeping its body location. Its boundary requires
+cruise/flank or safe/max thrust and the applicable armor allocation map;
+absence throws, while explicit zeros and empty maps remain valid source facts.
+
 `engine.ts` owns combat-vehicle rating and installed-weight derivation.
 `suspension.json` owns the suspension table facts consumed by TypeScript and
 `scripts/megameklab-conversion/combat_vehicle_engine.py`. Python is a conversion

@@ -21,6 +21,43 @@ import {
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 
+/** Combat-vehicle mount flags from a BLK location label, including sponsons. */
+export function getVehicleMountFlags(locationKey: string): {
+  isRearMounted: boolean;
+  isTurretMounted: boolean;
+  isSponsonMounted: boolean;
+} {
+  const label = locationKey.toLowerCase();
+  return {
+    // Rear Turret is the rear turret, not a rear-facing mount (Tank.java:127-130).
+    isRearMounted: label.includes('rear') && !label.includes('turret'),
+    isTurretMounted: label.includes('turret'),
+    isSponsonMounted: label.includes('sponson'),
+  };
+}
+
+/**
+ * Nonempty primary blocks, a Turret armor value in the source layout, or an
+ * explicit type install a primary turret; a Turret 2 armor value makes it dual
+ * (BLKTankFile.java:185-186,191-192).
+ */
+export function getPrimaryVehicleTurretType(
+  occupiedLocations: readonly string[],
+  explicitType?: string,
+  armorLayout?: { hasTurret: boolean; hasSecondTurret: boolean },
+): TurretType | undefined {
+  const hasPrimary =
+    armorLayout?.hasTurret === true ||
+    occupiedLocations.some(
+      (location) => location === 'Turret' || location === 'Turret Equipment',
+    );
+  if (!hasPrimary && !explicitType) return undefined;
+  if (armorLayout?.hasSecondTurret || explicitType?.toLowerCase() === 'dual')
+    return TurretType.DUAL;
+  if (explicitType?.toLowerCase() === 'chin') return TurretType.CHIN;
+  return TurretType.SINGLE;
+}
+
 // =============================================================================
 // Mount Result
 // =============================================================================

@@ -34,7 +34,6 @@ import {
   IVehicle,
   IVehicleMountedEquipment,
   ITurretConfiguration,
-  TurretType,
 } from '@/types/unit/VehicleInterfaces';
 import { getTankMaxTotalArmor } from '@/utils/construction/vehicle/armor';
 import {
@@ -43,6 +42,10 @@ import {
   computeVehicleEngineWeight,
   validateVehicleEngine,
 } from '@/utils/construction/vehicle/engine';
+import {
+  getPrimaryVehicleTurretType,
+  getVehicleMountFlags,
+} from '@/utils/construction/vehicle/equipmentMounts';
 
 import {
   AbstractUnitTypeHandler,
@@ -280,28 +283,18 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     // A turret exists when MegaMek's armor layout has a Turret value, a dual
     // turret when it also has Turret 2 (BLKTankFile.java:185-186,191-192);
     // turret equipment under a plain Turret block also counts.
-    const equipment = document.equipmentByLocation;
-    const isDual = layoutArmor?.[VehicleLocation.TURRET_2] !== undefined;
-    const hasTurretEquipment =
-      layoutArmor?.[VehicleLocation.TURRET] !== undefined ||
-      equipment['Turret']?.length > 0 ||
-      equipment['Turret Equipment']?.length > 0;
-
-    // Check raw tags for turret type
     const rawTags = document.rawTags || {};
-    const turretType = this.getStringFromRaw(rawTags, 'turrettype');
-
-    if (!hasTurretEquipment && !turretType) {
-      return undefined;
-    }
-
-    // Determine turret type
-    let type = TurretType.SINGLE;
-    if (isDual || turretType?.toLowerCase() === 'dual') {
-      type = TurretType.DUAL;
-    } else if (turretType?.toLowerCase() === 'chin') {
-      type = TurretType.CHIN;
-    }
+    const type = getPrimaryVehicleTurretType(
+      Object.keys(document.equipmentByLocation).filter(
+        (location) => document.equipmentByLocation[location]?.length > 0,
+      ),
+      this.getStringFromRaw(rawTags, 'turrettype'),
+      {
+        hasTurret: layoutArmor?.[VehicleLocation.TURRET] !== undefined,
+        hasSecondTurret: layoutArmor?.[VehicleLocation.TURRET_2] !== undefined,
+      },
+    );
+    if (type === undefined) return undefined;
 
     // Calculate turret weight (simplified - full calculation would need equipment data)
     const turretWeightFraction = 0.1; // 10% of weapons in turret typically
@@ -329,12 +322,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
         equipmentId: item,
         name: item,
         location,
-        // Rear Turret is the rear turret, not a rear-facing mount
-        isRearMounted:
-          locationKey.toLowerCase().includes('rear') &&
-          !locationKey.toLowerCase().includes('turret'),
-        isTurretMounted: locationKey.toLowerCase().includes('turret'),
-        isSponsonMounted: locationKey.toLowerCase().includes('sponson'),
+        ...getVehicleMountFlags(locationKey),
       }),
     );
   }
