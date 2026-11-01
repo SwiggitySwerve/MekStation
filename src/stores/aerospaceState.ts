@@ -1,7 +1,8 @@
 /**
  * Aerospace State Interface
  *
- * Defines the complete state for aerospace fighters and conventional fighters.
+ * Defines the complete state for aerospace fighters, conventional fighters
+ * and small craft.
  * Parallels VehicleState but with aerospace-specific properties.
  * Extended by add-aerospace-construction with fuel tonnage, fuel points,
  * heat sink pool, sub-type discriminant, and crew fields.
@@ -31,7 +32,16 @@ import {
 } from '@/types/unit/AerospaceInterfaces';
 import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { calculateFuelPoints } from '@/utils/construction/aerospace/fuelCalculations';
+import { ITransportBay } from '@/types/unit/CapitalShipInterfaces';
+import {
+  makeSmallCraftCrew,
+  minSmallCraftCrew,
+} from '@/utils/construction/aerospace/crewCalculations';
+import {
+  calculateFuelPoints,
+  minFuelTons,
+} from '@/utils/construction/aerospace/fuelCalculations';
+import { defaultSI } from '@/utils/construction/aerospace/siCalculations';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================
@@ -148,8 +158,11 @@ export interface AerospaceState {
   // Unit Type & Configuration
   // =========================================================================
 
-  /** Unit type (Aerospace or Conventional Fighter) */
-  readonly unitType: UnitType.AEROSPACE | UnitType.CONVENTIONAL_FIGHTER;
+  /** Unit type (Aerospace, Conventional Fighter or Small Craft) */
+  readonly unitType:
+    | UnitType.AEROSPACE
+    | UnitType.CONVENTIONAL_FIGHTER
+    | UnitType.SMALL_CRAFT;
 
   /**
    * Aerospace construction sub-type discriminant.
@@ -163,7 +176,7 @@ export interface AerospaceState {
    */
   isFixedWingSupport?: boolean;
 
-  /** Motion type (always Aerodyne for fighters) */
+  /** Motion type (Aerodyne for fighters; small craft may be Spheroid) */
   motionType: AerospaceMotionType;
 
   /** Is this an OmniFighter */
@@ -266,6 +279,9 @@ export interface AerospaceState {
    */
   crew: ISmallCraftCrew | null;
 
+  /** Transport bays (BLK transporters other than quarters) */
+  bays?: readonly ITransportBay[];
+
   // =========================================================================
   // Equipment
   // =========================================================================
@@ -361,6 +377,7 @@ export interface CreateAerospaceOptions {
   tonnage: number;
   techBase: TechBase;
   isConventional?: boolean;
+  isSmallCraft?: boolean;
 }
 
 /**
@@ -394,6 +411,7 @@ export function createDefaultAerospaceState(
   const id = options.id ?? generateAerospaceId();
   const now = Date.now();
   const isConventional = options.isConventional ?? false;
+  const isSmallCraft = options.isSmallCraft ?? false;
 
   // Default thrust: larger fighters have lower thrust
   const safeThrust = options.tonnage <= 30 ? 6 : options.tonnage <= 60 ? 5 : 4;
@@ -401,9 +419,14 @@ export function createDefaultAerospaceState(
   // Default engine rating: tonnage * safe thrust
   const engineRating = options.tonnage * safeThrust;
 
-  const aerospaceSubType = isConventional
-    ? AerospaceSubType.CONVENTIONAL_FIGHTER
-    : AerospaceSubType.AEROSPACE_FIGHTER;
+  const aerospaceSubType = isSmallCraft
+    ? AerospaceSubType.SMALL_CRAFT
+    : isConventional
+      ? AerospaceSubType.CONVENTIONAL_FIGHTER
+      : AerospaceSubType.AEROSPACE_FIGHTER;
+  const fuelEngine = isConventional
+    ? AerospaceEngineType.ICE
+    : AerospaceEngineType.FUSION;
 
   // Parse name into chassis and model
   const nameParts = options.name.split(' ');
@@ -424,32 +447,31 @@ export function createDefaultAerospaceState(
     techBase: options.techBase,
 
     // Unit Type & Configuration
-    unitType: isConventional
-      ? UnitType.CONVENTIONAL_FIGHTER
-      : UnitType.AEROSPACE,
+    unitType: isSmallCraft
+      ? UnitType.SMALL_CRAFT
+      : isConventional
+        ? UnitType.CONVENTIONAL_FIGHTER
+        : UnitType.AEROSPACE,
     aerospaceSubType,
     motionType: AerospaceMotionType.AERODYNE,
     isOmni: false,
 
     // Engine & Movement
     engineType: EngineType.STANDARD,
-    aerospaceEngineType: isConventional
-      ? AerospaceEngineType.ICE
-      : AerospaceEngineType.FUSION,
+    aerospaceEngineType: fuelEngine,
     engineRating,
     safeThrust,
     maxThrust: Math.floor(safeThrust * 1.5),
-    fuelTons: isConventional ? 2 : 5,
-    fuelPoints: calculateFuelPoints(
-      isConventional ? 2 : 5,
-      isConventional ? AerospaceEngineType.ICE : AerospaceEngineType.FUSION,
-    ),
+    fuelTons: minFuelTons(aerospaceSubType),
+    fuelPoints: calculateFuelPoints(minFuelTons(aerospaceSubType), fuelEngine),
 
     // Structure & Cockpit
+    // Small craft keep an explicit SI; a new one starts at the free value.
     structuralIntegrity: aerospaceStructuralIntegrity({
       aerospaceSubType,
       tonnage: options.tonnage,
       safeThrust,
+      structuralIntegrity: defaultSI(options.tonnage),
     }),
     cockpitType: AerospaceCockpitType.STANDARD,
     heatSinks: 10, // Default 10 heat sinks
@@ -466,7 +488,9 @@ export function createDefaultAerospaceState(
     bombCapacity: 0,
     hasReinforcedCockpit: false,
     hasEjectionSeat: true, // Most fighters have ejection seats
-    crew: null,
+    crew: isSmallCraft
+      ? makeSmallCraftCrew(minSmallCraftCrew(options.tonnage), 0, 0)
+      : null,
 
     // Equipment
     equipment: [],
