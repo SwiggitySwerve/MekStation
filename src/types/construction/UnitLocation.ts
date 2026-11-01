@@ -33,6 +33,23 @@ export enum VehicleLocation {
 }
 
 /**
+ * SuperHeavy tank and LargeSupportTank locations (six-side layout).
+ * MegaMek: SuperHeavyTank.java:66-74, LargeSupportTank.java:65-72. A dual
+ * turret pair is Turret (rear) and Turret 2 (front), as on ordinary tanks.
+ */
+export enum SuperHeavyVehicleLocation {
+  FRONT = 'Front',
+  FRONT_RIGHT = 'Front Right',
+  FRONT_LEFT = 'Front Left',
+  REAR_RIGHT = 'Rear Right',
+  REAR_LEFT = 'Rear Left',
+  REAR = 'Rear',
+  TURRET = 'Turret',
+  TURRET_2 = 'Turret 2',
+  BODY = 'Body',
+}
+
+/**
  * VTOL locations
  * Extends vehicle locations with rotor
  */
@@ -206,6 +223,7 @@ export type UnitLocation =
   | ProtoMechLocation
   | SmallCraftLocation
   | SupportVehicleLocation
+  | SuperHeavyVehicleLocation
   | VehicleLocation
   | VTOLLocation;
 
