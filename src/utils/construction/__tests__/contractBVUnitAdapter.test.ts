@@ -1,13 +1,15 @@
 /**
  * Contract JSON -> BV dispatcher input (UL-17). Small hand-written units pin the
- * mapping rules copied from the BLK handlers; the converter-output fixture is
+ * mapping rules shared with the Tank handler; the converter-output fixture is
  * exercised in `scripts/__tests__/vehicle-aero-bv-delta.test.ts`.
  */
+import { VehicleUnitHandler } from '@/services/units/handlers/VehicleUnitHandler';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 
+import fixture from '../../../../scripts/__tests__/fixtures/vehicle_aero_contract_bv.json';
 import { calculateBattleValueForUnit } from '../battleValueCalculations';
 import {
   contractUnitToBVUnit,
@@ -57,6 +59,65 @@ const fighter = (
 });
 
 describe('contractUnitToBVUnit (vehicles)', () => {
+  it('keeps a secondary turret mount independent of the primary turret', () => {
+    const unit = contractUnitToBVUnit(
+      vehicle({
+        equipment: [{ id: 'medium-laser', location: 'TURRET_2' }],
+      }),
+    ) as IContractBVVehicle;
+    expect(unit.turret).toBeUndefined();
+    expect(unit.equipment[0]).toMatchObject({
+      location: VehicleLocation.TURRET_2,
+      isTurretMounted: true,
+    });
+  });
+
+  it('matches the handler for a Tamerlane with one sponson Medium Laser', () => {
+    const source = fixture.units.find((row) =>
+      row.path.endsWith('Tamerlane Strike Sled (Flamer).blk'),
+    );
+    if (!source) throw new Error('Missing Tamerlane fixture');
+    const unit = source.unit;
+    const armorByLocation = unit.armor.byLocation as Readonly<
+      Record<string, number>
+    >;
+    const parsed = new VehicleUnitHandler().parse({
+      blockVersion: 1,
+      version: 'MAM0',
+      unitType: 'Tank',
+      mappedUnitType: UnitType.VEHICLE,
+      name: unit.chassis,
+      model: unit.model,
+      year: unit.year,
+      type: 'IS Level 2',
+      tonnage: unit.tonnage,
+      motionType: unit.motionType,
+      cruiseMP: unit.movement.cruiseMP,
+      armor: ['FRONT', 'RIGHT', 'LEFT', 'REAR', 'TURRET'].map(
+        (tag) => armorByLocation[tag] ?? 0,
+      ),
+      equipmentByLocation: { 'Sponson Turret Equipment': ['Medium Laser'] },
+      rawTags: {},
+    });
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) throw new Error('Tamerlane handler parse failed');
+    const adapted = contractUnitToBVUnit({
+      ...unit,
+      armor: { type: unit.armor.type, byLocation: armorByLocation },
+      equipment: [{ id: 'medium-laser', location: 'SPONSON' }],
+    }) as IContractBVVehicle;
+    expect(adapted.equipment[0]).toMatchObject({
+      location: VehicleLocation.BODY,
+      isTurretMounted: true,
+      isSponsonMounted: true,
+    });
+    const actual = calculateBattleValueForUnit(adapted);
+    const expected = calculateBattleValueForUnit(parsed.data.unit);
+    expect(actual?.breakdown.final).toBe(320);
+    expect(actual?.breakdown).toEqual(expected?.breakdown);
+    expect(adapted.turret).toBeUndefined();
+  });
+
   it('copies the Tank handler flags: rear, turret and a single turret', () => {
     const unit = contractUnitToBVUnit(vehicle()) as IContractBVVehicle;
     expect(unit.unitType).toBe(UnitType.VEHICLE);
@@ -129,6 +190,50 @@ describe('contractUnitToBVUnit (vehicles)', () => {
     expect(result?.kind).toBe('vehicle');
     expect(result?.breakdown.final).toBeGreaterThan(0);
   });
+});
+
+describe('required BV source facts', () => {
+  it.each([
+    ['cruiseMP', vehicle({ movement: { flankMP: 6 } })],
+    ['flankMP', vehicle({ movement: { cruiseMP: 4 } })],
+    ['armor.byLocation', vehicle({ armor: { type: 'STANDARD' } })],
+    ['safeThrust', fighter({ movement: { maxThrust: 9 } })],
+    ['maxThrust', fighter({ movement: { safeThrust: 6 } })],
+    ['armor.byArc', fighter({ armor: { type: 'STANDARD' } })],
+  ])('rejects absent %s', (fact, unit) => {
+    expect(() => contractUnitToBVUnit(unit)).toThrow(fact);
+  });
+
+  it.each(['Vehicle', 'VTOL', 'Support Vehicle'])(
+    'preserves explicit ground zeros and empty armor for %s',
+    (unitType) => {
+      const adapted = contractUnitToBVUnit(
+        vehicle({
+          unitType,
+          movement: { cruiseMP: 0, flankMP: 0 },
+          armor: { type: 'STANDARD', byLocation: {} },
+        }),
+      ) as IContractBVVehicle;
+      expect(adapted.movement).toEqual({ cruiseMP: 0, flankMP: 0, jumpMP: 0 });
+      expect(adapted.totalArmorPoints).toBe(0);
+      expect(adapted.armorByLocation).toEqual({});
+    },
+  );
+
+  it.each(['Aerospace', 'Conventional Fighter', 'Small Craft'])(
+    'preserves explicit thrust zeros and empty armor for %s',
+    (unitType) => {
+      const adapted = contractUnitToBVUnit(
+        fighter({
+          unitType,
+          movement: { safeThrust: 0, maxThrust: 0 },
+          armor: { type: 'STANDARD', byArc: {} },
+        }),
+      ) as IContractBVAerospace;
+      expect(adapted.movement).toEqual({ safeThrust: 0, maxThrust: 0 });
+      expect(adapted.totalArmorPoints).toBe(0);
+    },
+  );
 });
 
 describe('contractUnitToBVUnit (aerospace)', () => {

@@ -5,6 +5,10 @@ turret inference. Nonempty `Turret` / `Turret Equipment` blocks or an explicit
 turret type install a primary turret. Sponson and secondary-turret blocks carry
 mount flags independently; neither alone installs the primary turret. Explicit
 dual/chin and the existing fallback to single are preserved for BLK imports.
+The contract BV adapter uses this same owner, translating `SPONSON` to a
+sponson mount label while keeping its body location. Its boundary requires
+cruise/flank or safe/max thrust and the applicable armor allocation map;
+absence throws, while explicit zeros and empty maps remain valid source facts.
 
 `engine.ts` owns combat-vehicle rating and installed-weight derivation.
 `suspension.json` owns the suspension table facts consumed by TypeScript and

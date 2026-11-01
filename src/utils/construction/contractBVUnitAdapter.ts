@@ -3,10 +3,9 @@
  * converter output (`id`/`location` rows, `armor.byLocation` / `armor.byArc`) and the
  * domain shape `calculateBattleValueForUnit` reads. It decides no BV rule.
  *
- * Mount flags and turret presence copy the BLK handlers (`VehicleUnitHandler`,
- * `VTOLUnitHandler`, `SupportVehicleUnitHandler`): a Tank rear-mounts REAR items and gets
- * a single turret from turret equipment; a VTOL gets a chin turret and nothing is
- * rear-mounted; a Support Vehicle has no turret. Unknown spellings throw instead of
+ * Tank mount flags and primary turret presence use the vehicle construction owner.
+ * A sponson mount does not install a primary turret. A VTOL gets a chin turret
+ * and nothing is rear-mounted; a Support Vehicle has no turret. Unknown spellings throw instead of
  * defaulting (the handlers default to BODY / Tracked, hiding a converter fault).
  */
 import { VehicleLocation } from '@/types/construction/UnitLocation';
@@ -20,6 +19,10 @@ import {
   TurretType,
   type IVehicleMountedEquipment,
 } from '@/types/unit/VehicleInterfaces';
+import {
+  getPrimaryVehicleTurretType,
+  getVehicleMountFlags,
+} from '@/utils/construction/vehicle/equipmentMounts';
 
 /** The subset of a converter / `UnitContract` unit this adapter reads. */
 export interface IContractBVSource {
@@ -107,8 +110,13 @@ const AEROSPACE_ARCS: Readonly<Record<string, string>> = {
   WINGS: 'Wings',
 };
 
-function sumValues(values: Readonly<Record<string, number>> | undefined) {
-  return Object.values(values ?? {}).reduce((a, b) => a + b, 0);
+function requireFact<T>(value: T | undefined, name: string): T {
+  if (value === undefined) throw new Error(`Missing required BV fact: ${name}`);
+  return value;
+}
+
+function sumValues(values: Readonly<Record<string, number>>) {
+  return Object.values(values).reduce((a, b) => a + b, 0);
 }
 
 function lookup<T>(
@@ -129,20 +137,33 @@ function contractVehicleToBVUnit(unit: IContractBVSource): IContractBVVehicle {
   if (!motionType) throw new Error(`Unknown motionType: ${unit.motionType}`);
 
   const isTank = unitType === UnitType.VEHICLE;
-  const equipment = (unit.equipment ?? []).map((item, index) => ({
-    id: `mount-${index}`,
-    equipmentId: item.id,
-    name: item.id,
-    location: lookup(VEHICLE_LOCATIONS, item.location, 'vehicle location'),
-    isRearMounted: isTank && item.location === 'REAR',
-    isTurretMounted:
-      item.location.startsWith('TURRET') || item.location === 'SPONSON',
-    isSponsonMounted: isTank && item.location === 'SPONSON',
-  }));
+  const equipment = (unit.equipment ?? []).map((item, index) => {
+    const location = lookup(
+      VEHICLE_LOCATIONS,
+      item.location,
+      'vehicle location',
+    );
+    const flags = getVehicleMountFlags(
+      item.location === 'SPONSON' ? 'Sponson Turret' : location,
+    );
+    return {
+      id: `mount-${index}`,
+      equipmentId: item.id,
+      name: item.id,
+      location,
+      isRearMounted: isTank && flags.isRearMounted,
+      isTurretMounted: flags.isTurretMounted,
+      isSponsonMounted: isTank && flags.isSponsonMounted,
+    };
+  });
 
   const hasTurretEquipment = equipment.some((e) => e.isTurretMounted);
+  const primaryTurretType = getPrimaryVehicleTurretType(
+    equipment.map((e) => e.location),
+  );
+  const sourceArmor = requireFact(unit.armor.byLocation, 'armor.byLocation');
   const armorByLocation = Object.fromEntries(
-    Object.entries(unit.armor.byLocation ?? {}).map(([tag, points]) => [
+    Object.entries(sourceArmor).map(([tag, points]) => [
       lookup(VEHICLE_LOCATIONS, tag, 'armor location'),
       points,
     ]),
@@ -153,15 +174,15 @@ function contractVehicleToBVUnit(unit: IContractBVSource): IContractBVVehicle {
     tonnage: unit.tonnage,
     motionType,
     movement: {
-      cruiseMP: unit.movement.cruiseMP ?? 0,
-      flankMP: unit.movement.flankMP ?? 0,
+      cruiseMP: requireFact(unit.movement.cruiseMP, 'movement.cruiseMP'),
+      flankMP: requireFact(unit.movement.flankMP, 'movement.flankMP'),
       jumpMP: unit.movement.jumpMP ?? 0,
     },
-    totalArmorPoints: sumValues(unit.armor.byLocation),
+    totalArmorPoints: sumValues(sourceArmor),
     armorByLocation,
     equipment,
-    ...(isTank && hasTurretEquipment
-      ? { turret: { type: TurretType.SINGLE } }
+    ...(isTank && primaryTurretType !== undefined
+      ? { turret: { type: primaryTurretType } }
       : {}),
     ...(unitType === UnitType.VTOL && hasTurretEquipment
       ? { chinTurret: { type: TurretType.CHIN } }
@@ -183,11 +204,11 @@ function contractAerospaceToBVUnit(
     tonnage: unit.tonnage,
     structuralIntegrity: unit.structuralIntegrity,
     movement: {
-      safeThrust: unit.movement.safeThrust ?? 0,
-      maxThrust: unit.movement.maxThrust ?? 0,
+      safeThrust: requireFact(unit.movement.safeThrust, 'movement.safeThrust'),
+      maxThrust: requireFact(unit.movement.maxThrust, 'movement.maxThrust'),
     },
     armorType: unit.armor.type.toLowerCase().replace(/_/g, '-'),
-    totalArmorPoints: sumValues(unit.armor.byArc),
+    totalArmorPoints: sumValues(requireFact(unit.armor.byArc, 'armor.byArc')),
     equipment: (unit.equipment ?? []).map((item) => ({
       equipmentId: item.id,
       location: lookup(AEROSPACE_ARCS, item.location, 'aerospace arc'),

@@ -63,6 +63,30 @@ describe('vehicle/aerospace BV delta harness', () => {
     expect(result.rows[0].error).toContain('Unknown motionType');
     expect(result.total.throws).toBe(1);
   });
+
+  it.each([
+    ['Tamerlane Strike Sled (Flamer).blk', 'movement', 'cruiseMP'],
+    ['Tamerlane Strike Sled (Flamer).blk', 'armor', 'armor.byLocation'],
+    ['Sabre SB-27b-EC.blk', 'movement', 'safeThrust'],
+    ['Sabre SB-27b-EC.blk', 'armor', 'armor.byArc'],
+  ])('records %s without %s as a failure', (file, missing, fact) => {
+    const source = fixture.units.find((row) => row.path.endsWith(file));
+    if (!source) throw new Error(`Missing fixture: ${file}`);
+    const incomplete: IConvertedRow = {
+      ...source,
+      unit: {
+        ...source.unit,
+        ...(missing === 'movement'
+          ? { movement: {} }
+          : { armor: { type: source.unit.armor.type } }),
+      },
+    };
+    const result = buildDeltaReport([incomplete], fixture.reference);
+    expect(result.rows[0]).toMatchObject({ status: 'throw', ourTotal: null });
+    expect(result.rows[0].error).toContain(fact);
+    expect(result.total.numeric).toBe(0);
+    expect(result.total.throws).toBe(1);
+  });
 });
 
 describe('aggregate tolerance', () => {
