@@ -47,7 +47,13 @@ export const UnitContract = z
           .gte(1000)
           .lte(9999)
           .describe('Introduction year'),
-        tonnage: z.number().gte(0).lte(250).describe('Unit tonnage'),
+        tonnage: z
+          .number()
+          .gte(0)
+          .lte(250)
+          .describe(
+            'Unit tonnage; the anyOf rule retains a 250 t bound, with explicit Support Vehicle (600 t) and capital ship (2,400,000 t) exceptions.',
+          ),
         engine: z
           .object({
             type: z
@@ -511,7 +517,13 @@ export const UnitContract = z
           .lte(9999)
           .describe('Introduction year')
           .optional(),
-        tonnage: z.number().gte(0).lte(250).describe('Unit tonnage').optional(),
+        tonnage: z
+          .number()
+          .gte(0)
+          .describe(
+            'Unit tonnage; the anyOf rule retains a 250 t bound, with explicit Support Vehicle (600 t) and capital ship (2,400,000 t) exceptions.',
+          )
+          .optional(),
         engine: z
           .object({
             type: z
@@ -914,6 +926,24 @@ export const UnitContract = z
         source: z.string().describe('Source book/publication').optional(),
       })
       .catchall(z.any())
+      .and(
+        z.union([
+          z.object({ tonnage: z.number().lte(250).optional() }),
+          z.object({
+            unitType: z.enum(['Support Vehicle', 'SupportVehicle']),
+            tonnage: z.number().lte(600).optional(),
+          }),
+          z.object({
+            unitType: z.enum([
+              'DropShip',
+              'JumpShip',
+              'WarShip',
+              'Space Station',
+            ]),
+            tonnage: z.number().lte(2400000).optional(),
+          }),
+        ]),
+      )
       .describe(
         'Schema for serialized BattleTech unit definitions (BattleMechs, vehicles, etc.)',
       ),
