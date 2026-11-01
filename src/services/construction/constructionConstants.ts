@@ -3,6 +3,8 @@
  * @spec openspec/specs/phase-2-construction/
  */
 
+import { isSuperHeavyTank } from '@/services/conversion/blkVehicleArmorLayout';
+
 // Cockpit costs (C-Bills)
 export const COCKPIT_COST_STANDARD = 200000;
 export const COCKPIT_COST_SMALL = 175000;
@@ -93,8 +95,9 @@ export const PROTOMECH_TONNAGE = { min: 2, max: 15, step: 1 } as const;
 
 /**
  * Heaviest combat vehicle MegaMek accepts for a motion type, ordinary or
- * SuperHeavy (`TestTank.maxTonnage`, TestTank.java:132-141). The one owner of
- * these limits: the handlers' tonnage checks and the ranges below read it.
+ * SuperHeavy (`TestTank.maxTonnage`, TestTank.java:132-141). With
+ * `getSupportVehicleMaxTonnage` the one owner of vehicle maximum tonnage: the
+ * handlers, VAL-VEH-005 and the status bar read these two.
  */
 export function getTankMaxTonnage(
   motionType: string | undefined,
@@ -103,6 +106,7 @@ export function getTankMaxTonnage(
   switch ((motionType ?? '').toLowerCase()) {
     case 'wheeled':
     case 'wige':
+    case 'glider': // EntityMovementMode.parseFromString alias of WiGE
       return superHeavy ? 160 : 80;
     case 'hover':
       return superHeavy ? 100 : 50;
@@ -118,12 +122,53 @@ export function getTankMaxTonnage(
   }
 }
 
-/** Ground Vehicle tonnage range (1-100: an ordinary Tracked vehicle) */
-export const VEHICLE_TONNAGE = {
-  min: 1,
-  max: getTankMaxTonnage('Tracked', false),
-  step: 1,
-} as const;
+/**
+ * Heaviest support vehicle for a motion type: `SVType.maxTonnage`
+ * (TestSupportVehicle.java:87-107), SVType by movement mode (:146-166).
+ * Airship and fixed-wing are not ground motion types here.
+ */
+export function getSupportVehicleMaxTonnage(
+  motionType: string | undefined,
+): number {
+  switch ((motionType ?? '').toLowerCase()) {
+    case 'wheeled':
+      return 160;
+    case 'hover':
+      return 100;
+    case 'vtol':
+      return 60;
+    case 'wige':
+    case 'glider':
+      return 240;
+    case 'naval':
+    case 'submarine':
+    case 'hydrofoil':
+      return 300;
+    case 'rail':
+    case 'maglev':
+      return 600;
+    default:
+      return 200; // TRACKED
+  }
+}
+
+/**
+ * Heaviest vehicle of a motion type, for callers that know only the weight. A
+ * combat vehicle may reach the SuperHeavy limit when MegaMek's loader builds a
+ * SuperHeavyTank for that motion type at some weight (`isSuperHeavyTank`,
+ * BLKTankFile.java:94-123; any VTOL over 30 t, VTOL.java:729). Rail, Maglev
+ * and Hydrofoil tanks never load as SuperHeavy, so they keep the ordinary limit.
+ */
+export function getVehicleMaxTonnage(
+  motionType: string | undefined,
+  support: boolean,
+): number {
+  if (support) return getSupportVehicleMaxTonnage(motionType);
+  const canBeSuperHeavy =
+    (motionType ?? '').toLowerCase() === 'vtol' ||
+    isSuperHeavyTank(motionType, Number.POSITIVE_INFINITY);
+  return getTankMaxTonnage(motionType, canBeSuperHeavy);
+}
 
 /**
  * VTOL tonnage range (1-60). A VTOL over 30 t is SuperHeavy (VTOL.java:729)
@@ -134,9 +179,6 @@ export const VTOL_TONNAGE = {
   max: getTankMaxTonnage('VTOL', true),
   step: 1,
 } as const;
-
-/** Support Vehicle tonnage range (1-300) */
-export const SUPPORT_VEHICLE_TONNAGE = { min: 1, max: 300, step: 1 } as const;
 
 /** Aerospace Fighter tonnage range (5-100) */
 export const AEROSPACE_TONNAGE = { min: 5, max: 100, step: 5 } as const;

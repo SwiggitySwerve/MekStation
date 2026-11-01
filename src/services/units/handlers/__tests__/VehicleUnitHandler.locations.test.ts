@@ -11,7 +11,11 @@
 
 import type { IBlkDocument } from '@/types/formats/BlkFormat';
 
-import { getTankMaxTonnage } from '@/services/construction/constructionConstants';
+import {
+  getSupportVehicleMaxTonnage,
+  getTankMaxTonnage,
+  getVehicleMaxTonnage,
+} from '@/services/construction/constructionConstants';
 import { BlkParserService } from '@/services/conversion/BlkParserService';
 import { isSuperHeavyTank } from '@/services/conversion/blkVehicleArmorLayout';
 import { BLK_EQUIPMENT_BLOCK_TAGS } from '@/types/formats/BlkFormat';
@@ -360,6 +364,40 @@ describe('follow-up 34', () => {
       expect(
         validation.errors.some((e) => e.includes('tonnage cannot exceed')),
       ).toBe(!accepted);
+    });
+
+    it.each([
+      ['Wheeled', 160],
+      ['Tracked', 200],
+      ['Hover', 100],
+      ['VTOL', 60],
+      ['WiGE', 240],
+      ['Glider', 240],
+      ['Naval', 300],
+      ['Submarine', 300],
+      ['Hydrofoil', 300],
+      ['Rail', 600],
+      ['Maglev', 600],
+    ])(
+      'support %s is %d t (SVType, TestSupportVehicle.java:87-107)',
+      (m, t) => {
+        expect(getSupportVehicleMaxTonnage(m)).toBe(t);
+      },
+    );
+
+    // SuperHeavy only where the loader builds one (BLKTankFile.java:94-123,
+    // VTOL.java:729).
+    it.each([
+      ['Tracked', false, 200],
+      ['VTOL', false, 60],
+      ['Hover', false, 100],
+      ['Glider', false, 160],
+      ['Hydrofoil', false, 100],
+      ['Rail', false, 100],
+      ['Maglev', false, 100],
+      ['Rail', true, 600],
+    ])('%s, support=%s, is capped at %d t', (m, support, max) => {
+      expect(getVehicleMaxTonnage(m, support)).toBe(max);
     });
   });
 });
