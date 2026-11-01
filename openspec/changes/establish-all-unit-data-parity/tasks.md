@@ -67,6 +67,8 @@ small implementation PRs can discharge parts of a row without closing the rest.
 
 - [ ] 2.25 Round base BattleMech run MP upward in the construction calculation service that feeds customizer Battle Value, verified against pinned MegaMek and the catalog BV reference. MASC, supercharger, TSM, hardened-armor and shield movement in the customizer path (odd-walk hardened-armor BattleMechs now read run MP one above MegaMek), and the remaining floor text in the canonical movement-system, hardened-armor-combat and README specs, remain open. (`movement-system`: Walk/Run MP Calculation)
 
+- [ ] 2.26 Consolidate the aerospace max thrust derivation across BLK basics, handlers, defaults, store actions and templates without behavior change, then round it upward against pinned MegaMek `Entity.getRunMP` for every airborne aerospace family and propagate it to the aerospace BV adapter inputs. Compare actual Java walk/run MP over the aerospace sources first; the `BlkParserService` aerospace parse result, JumpShip/space-station station-keeping thrust, aerospace BV formula parity and catalogs remain open. (`aerospace-unit-system`: Aerospace max thrust ownership)
+
 ## 3. Complete typed data flows
 
 - [ ] 3.03 Share the existing ammunition-bin projection without changing its output, then forward live counts through the selector/forecast consumers and verify ammo-only updates; retain unknown-capacity readiness, active-composer and native ammunition gaps. (`to-hit-resolution`: Ammunition counts in preview consumers)
