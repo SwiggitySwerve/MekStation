@@ -1,0 +1,70 @@
+{
+  "id": "outrider",
+  "chassis": "Outrider",
+  "model": "",
+  "unitType": "Support Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "STAR_LEAGUE",
+  "year": 2710,
+  "tonnage": 1.5,
+  "weightClass": "LIGHT",
+  "motionType": "Wheeled",
+  "movement": {
+    "cruiseMP": 5,
+    "flankMP": 8,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "ICE",
+    "rating": 10
+  },
+  "armor": {
+    "type": "BAR",
+    "barRating": 2,
+    "byLocation": {
+      "FRONT": 2,
+      "RIGHT": 2,
+      "LEFT": 2,
+      "REAR": 0
+    }
+  },
+  "equipment": [
+    {
+      "id": "pintleturret",
+      "name": "PintleTurret",
+      "location": "RIGHT"
+    },
+    {
+      "id": "machine-gun-supportpt:size:1.0",
+      "name": "Machine Gun (Support)(PT):SIZE:1.0",
+      "location": "RIGHT"
+    },
+    {
+      "id": "pintleturret",
+      "name": "PintleTurret",
+      "location": "LEFT"
+    },
+    {
+      "id": "isoffroadchassis",
+      "name": "ISOffRoadChassis",
+      "location": "BODY"
+    }
+  ],
+  "fuel": 0.014,
+  "structuralTechRating": 1,
+  "engineTechRating": 1,
+  "armorTechRating": 1,
+  "internalType": -1,
+  "fuelType": "PETROCHEMICALS",
+  "transporters": [
+    "cargobay:0.234:1:1::-1:0",
+    "standardseats:2.0:0:-1::-1:0"
+  ],
+  "mulId": 7631,
+  "role": "Scout",
+  "source": "TtS:Tortuga",
+  "fluff": {
+    "overview": "Outrider represents over a thousand years of military tradition dating back to twentieth-century Terra, when personnel in the poorer nations would jury-rig a light truck with weaponry in its bed."
+  }
+}

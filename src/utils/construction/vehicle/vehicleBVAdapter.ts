@@ -268,8 +268,10 @@ export function toVehicleBVInputFromUnit(
   const flankMP = unit.movement.flankMP;
   const jumpMP = unit.movement.jumpMP;
 
-  // ISupportVehicle does not have an armorByLocation map, so fall back to the
-  // base IGroundUnit `totalArmorPoints` field on the unit shape.
+  // Every vehicle shape, ISupportVehicle included, has an armorByLocation map;
+  // `totalArmorPoints` is the backstop when it is missing or empty (legacy
+  // fixtures). The map holds only the layout's locations, so the extra values
+  // of an armor array MegaMek refuses are not summed.
   const armorByLocation = (unit as { armorByLocation?: Record<string, number> })
     .armorByLocation;
   const totalArmorPoints = sumUnitArmor(armorByLocation, unit.totalArmorPoints);

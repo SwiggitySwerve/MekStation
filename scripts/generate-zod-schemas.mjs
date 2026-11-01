@@ -30,6 +30,7 @@ import { fileURLToPath } from 'node:url';
 
 import { expandSourceProvenanceVariants } from './expand-source-provenance-variants.mjs';
 import { expandUnitTypeRequirements } from './expand-unit-type-requirements.mjs';
+import { prepareSchemaDefinitions } from './schema-local-definitions.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -90,7 +91,10 @@ const HEADER = (
 function generateOne(shape) {
   const sourcePath = join(SCHEMA_DIR, shape.file);
   const sourceRel = `public/data/equipment/_schema/${shape.file}`;
-  const json = JSON.parse(readFileSync(sourcePath, 'utf-8'));
+  const prepared = prepareSchemaDefinitions(
+    JSON.parse(readFileSync(sourcePath, 'utf-8')),
+  );
+  const json = prepared.schema;
   // Use ESM module output and emit a named export plus an inferred type.
   const schema =
     shape.stem === 'unit'
@@ -98,11 +102,17 @@ function generateOne(shape) {
       : shape.stem === 'source-provenance'
         ? expandSourceProvenanceVariants(json)
         : json;
-  const body = jsonSchemaToZod(schema, {
+  let body = jsonSchemaToZod(schema, {
     module: 'esm',
     name: shape.exportName,
     type: true,
+    parserOverride: prepared.parserOverride,
   });
+  if (prepared.declarations)
+    body = body.replace(
+      /(import[^\n]+\n)/,
+      '$1' + prepared.declarations + '\n',
+    );
   return HEADER(sourceRel) + '\n' + body;
 }
 

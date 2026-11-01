@@ -542,6 +542,10 @@ jobs:
         if: needs.detect-changes.outputs.code == 'true'
         run: npm run schema:gen-check
 
+      - name: Test schema generator fail-closed definitions
+        if: needs.detect-changes.outputs.code == 'true'
+        run: node --test scripts/__tests__/schema-local-definitions.test.mjs
+
       - name: Test source inventory and Python conversion boundaries
         if: needs.detect-changes.outputs.code == 'true'
         run: npm run test:conversion:python

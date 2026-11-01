@@ -2,7 +2,7 @@ import { calculateVehicleBV, calculateVehicleOffensiveBV } from '../vehicleBV';
 import { baseInput } from './vehicleBV.test.helpers';
 
 describe('Vehicle offensive BV - weapon modifiers', () => {
-  it('single weapon, no turret, no TC -> raw weapon BV x speed factor', () => {
+  it('single weapon, no turret, no TC -> weapon plus mass BV x speed factor', () => {
     const off = calculateVehicleOffensiveBV(
       baseInput({
         flankMP: 6,
@@ -10,7 +10,7 @@ describe('Vehicle offensive BV - weapon modifiers', () => {
       }),
     );
     expect(off.weaponBV).toBe(176);
-    expect(off.total).toBeCloseTo(176 * 1.12, 2);
+    expect(off.total).toBeCloseTo((176 + 30) * 1.12, 2);
     expect(off.turretModifier).toBe(1.0);
   });
 
@@ -139,7 +139,7 @@ describe('Vehicle final BV', () => {
       }),
     );
     expect(bv.pilotMultiplier).toBe(1.0);
-    expect(bv.final).toBe(Math.round(436.5));
+    expect(bv.final).toBe(Math.round(470.1));
   });
 
   it('3/4 pilot -> multiplier 1.32', () => {
@@ -154,7 +154,7 @@ describe('Vehicle final BV', () => {
       }),
     );
     expect(bv.pilotMultiplier).toBe(1.32);
-    expect(bv.final).toBe(Math.round(436.5 * 1.32));
+    expect(bv.final).toBe(Math.round(470.1 * 1.32));
   });
 
   it('breakdown contains required fields per spec', () => {
@@ -185,8 +185,8 @@ describe('Vehicle final BV', () => {
 
 describe('Clan LB-X catalog ammunition', () => {
   it.each([
-    ['CLLBXAC2', 'lb-2-x-ammo', 47, 6, 59.36],
-    ['CLLBXAC5', 'lb-5-x-ammo', 93, 12, 117.6],
+    ['CLLBXAC2', 'lb-2-x-ammo', 47, 6, 92.96],
+    ['CLLBXAC5', 'lb-5-x-ammo', 93, 12, 151.2],
   ])(
     'retains ordinary bins for %s without overrides',
     (id, ammoId, weaponBV, ammoBV, total) => {

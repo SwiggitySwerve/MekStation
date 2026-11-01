@@ -71,7 +71,11 @@ export async function loadUnitIntoTab({
               ? 'This library entry contains invalid unit data. Choose another entry or correct the saved definition.'
               : result.errorCode === 'unsupported-store-family'
                 ? 'This unit family cannot be opened in the BattleMech editor yet.'
-                : `Failed to load ${unit.chassis} ${unit.variant}. Please try again.`,
+                : result.errorCode === 'unknown-family'
+                  ? 'This library entry uses an unknown unit family. Choose another entry or correct the saved definition.'
+                  : result.errorCode === 'family-not-found'
+                    ? 'The catalog for this unit family is unavailable. Choose an entry from another family.'
+                    : `Failed to load ${unit.chassis} ${unit.variant}. Please try again.`,
         variant: 'error',
       });
       logger.error('Failed to load unit:', result.error);
