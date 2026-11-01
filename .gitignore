@@ -142,6 +142,13 @@ data/
 /public/data/equipment/_schema/*
 !/public/data/equipment/_schema/unit-schema.json
 
+# Converted vehicle, aerospace and capital-ship catalogs stage without `git add -f`.
+!/public/data/units/
+/public/data/units/*
+!/public/data/units/vehicles/
+!/public/data/units/aerospace/
+!/public/data/units/capital/
+
 # Electron / Desktop build artifacts
 desktop/dist/
 desktop/build/
