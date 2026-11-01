@@ -16,7 +16,7 @@
     "maxThrust": 14
   },
   "fuel": 320,
-  "structuralIntegrity": 0,
+  "structuralIntegrity": 9,
   "engine": {
     "type": "ICE"
   },

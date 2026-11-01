@@ -65,8 +65,9 @@ ALL_SHAPES = sorted(set(SHAPE_TO_CORPUS) | {"unit"})
 _WEAPON_EXCLUSIONS = {"physical.json"}
 
 # Files inside the units tree that are NOT individual units (e.g.
-# index.json catalogues per era directory). Skipped in the unit walk.
-_UNIT_FILE_EXCLUSIONS = {"index.json", "units-manifest.json"}
+# index.json catalogues per era directory). Skipped in the unit walk;
+# unit_index.py owns the list.
+from unit_index import NON_UNIT_FILES as _UNIT_FILE_EXCLUSIONS  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
@@ -326,6 +327,10 @@ def main() -> int:
     print(f"  failures: {total_failures}")
     print(f"  report:   {report_path}")
 
+    if args.strict and "unit" in shapes and not collect_unit_files(units_root):
+        # Fail closed: a mistyped or empty --units-dir would otherwise pass with 0 files.
+        print(f"\nschema-bridge: --strict mode triggered; no unit files under {units_root}.")
+        return 1
     if total_failures > 0 and args.strict:
         print(
             "\nschema-bridge: --strict mode triggered; corpus has "

@@ -134,6 +134,24 @@ class UnitIndexCliTest(unittest.TestCase):
         self.assertFalse((self.root / 'vehicles' / 'index.json').exists())
         self.assertFalse((self.root / 'aerospace' / 'index.json').exists())
 
+    def test_missing_reserved_index_fails_and_writes_nothing(self):
+        missing = Path(self.temp.name) / 'battlemech' / 'index.json'
+        self.assertEqual(main(['--units-dir', str(self.root), '--reserved-index', str(missing), '--write']), 1)
+        self.assertFalse((self.root / 'aerospace' / 'index.json').exists())
+
+    def test_missing_units_dir_fails(self):
+        self.assertEqual(self.run_main(Path(self.temp.name) / 'no-such-dir', '--write'), 1)
+
+    def test_duplicate_id_across_families_fails_and_writes_nothing(self):
+        shutil.copy(self.root / 'vehicles' / 'Demolisher II Heavy Tank.json', self.root / 'aerospace' / 'Dup.json')
+        self.assertEqual(self.run_main(self.root, '--write'), 1)
+        self.assertFalse((self.root / 'vehicles' / 'index.json').exists())
+
+    def test_family_option_indexes_only_that_family(self):
+        self.assertEqual(self.run_main(self.root, '--family', 'vehicles', '--write'), 0)
+        self.assertTrue((self.root / 'vehicles' / 'index.json').exists())
+        self.assertFalse((self.root / 'aerospace' / 'index.json').exists())
+
     def test_default_reserved_index_is_the_real_mech_index(self):
         # The fixtures contain tomahawk-c, so the default reserved index must flag it.
         self.assertEqual(main(['--units-dir', str(self.root)]), 1)
@@ -156,6 +174,9 @@ class GitignoreAllowRuleTest(unittest.TestCase):
     def test_the_rest_of_public_data_stays_ignored(self):
         for path in (
             'public/data/units/other/index.json',
+            'public/data/units/battlearmor/x.json',
+            'public/data/units/infantry/x.json',
+            'public/data/units/battlemechs/new.json',
             'public/data/units/index.json',
             'public/data/scratch.json',
             'public/data/equipment/official/weapons/x.json',
@@ -182,7 +203,16 @@ class UnitsDirOptionTest(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             totals = json.loads(report.read_text(encoding='utf-8'))['totals']
             self.assertEqual((totals['files'], totals['failures']), (9, 0))
-            self.assertIn(str(units), result.stdout)
+            self.assertIn(str(units.resolve()), result.stdout)
+
+    def test_missing_or_empty_units_dir_fails_strict(self):
+        with tempfile.TemporaryDirectory() as temp:
+            empty = Path(temp) / 'empty'
+            empty.mkdir()
+            for units in (Path(temp) / 'missing', empty):
+                with self.subTest(units=units.name):
+                    result = self.validate(units, Path(temp) / 'report.json')
+                    self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
 
     def test_invalid_unit_in_scratch_directory_fails_strict(self):
         with tempfile.TemporaryDirectory() as temp:

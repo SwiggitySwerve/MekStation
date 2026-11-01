@@ -16,7 +16,7 @@
     "maxThrust": 17
   },
   "fuel": 400,
-  "structuralIntegrity": 0,
+  "structuralIntegrity": 11,
   "engine": {
     "type": "XL"
   },

@@ -16,7 +16,7 @@
     "maxThrust": 12
   },
   "fuel": 400,
-  "structuralIntegrity": 0,
+  "structuralIntegrity": 8,
   "engine": {
     "type": "FUSION"
   },
