@@ -160,7 +160,15 @@ const familyContracts = [
       },
       {
         path: 'src/components/customizer/vehicle/VehiclePreviewTab.tsx',
-        tokens: ['buildVehicleUnitObject', 'VehicleRecordSheetPreview'],
+        tokens: ['useVehicleRecordSheetUnit', 'VehicleRecordSheetPreview'],
+      },
+      {
+        path: 'src/components/customizer/vehicle/VehicleRecordSheetPreview.tsx',
+        tokens: ['useVehicleRecordSheetUnit', 'useRecordSheetCanvasRenderer'],
+      },
+      {
+        path: 'src/components/customizer/vehicle/useVehicleRecordSheetUnit.ts',
+        tokens: ['useVehicleStore', 'buildVehicleUnitObject'],
       },
       {
         path: 'src/components/customizer/vehicle/__tests__/VehiclePreviewTab.test.tsx',
