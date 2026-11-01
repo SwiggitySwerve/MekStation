@@ -84,6 +84,20 @@ checks Java internals and structure BV, equality of every unrelated output,
 and explains each total moving farther from Java. Whole-unit parity remains
 separate.
 
+## Armor BV
+
+`vehicleBVDefensive.ts` owns original, undamaged armor BV. It reuses the shared
+armor multiplier table after normalizing native codes and converter names.
+Pinned `BVCalculator.java:359-463,1489-1510` values uniform armor or patchwork
+locations at 2.5 times type multiplier times BAR/10, without intermediate
+rounding. Turret and rotor armor count normally; missing patchwork types fail.
+Uniform support armor without a source BAR retains Java's zero BAR default.
+Blue Shield adds 0.2 before local HarJel II/III factors 1.1/1.2. Each undamaged
+modular mount adds 10 armor points. Adapters transport facts without pricing them.
+Patchwork conversion follows `BLKTankFile.java:284-325` and
+`BLKFile.java:484-529`, including support location BAR overriding its type tag.
+The existing uniform total/legacy fallback remains the adapter's contract.
+
 ## Turret armor lifecycle
 
 `armor.ts` owns the installed-turret armor projection and total. The state
@@ -126,15 +140,15 @@ which returns raw loaded tonnage.
 `vehicleBV.massParity.test.ts` enforces Tamerlane's Java offensive component,
 unarmed Ferret VTOL mass and fractional support mass. Other offensive terms,
 defense and final rounding retain their existing rules. Complete unit parity
-and the separate sponson multiplier remain unresolved.
+remains outside this term's parity claim.
 
 ## Turret weapon BV
 
 `vehicleBVOffensive.ts` owns the turret weapon BV modifier. Single, Dual and
-Chin turrets receive no rotating-turret bonus. Turret weapons remain exempt
+Chin and Sponson turrets receive no rotating-turret bonus. Turret weapons remain exempt
 from the rear-facing penalty. The BV dialog consumes `turretModifier`, so it
 remains a compatibility breakdown field with value 1 for these turret kinds.
-Sponson's separate 1.025 term is unchanged and is not covered by this parity claim.
+Sponson weapons also retain listed BV; pinned Java has no 1.025 factor.
 
 Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`:
 `CombatVehicleBVCalculator.java:123-125` excludes both turret locations from
