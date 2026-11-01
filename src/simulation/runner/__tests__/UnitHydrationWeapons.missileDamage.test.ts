@@ -21,7 +21,8 @@
  *     2 - handlers/srm/SRMHandler.java:78; AdvancedSRMHandler.java:48 extends it;
  *         primitive/ISSRM2Primitive.java builds an SRMHandler.
  *   Streak SRM (standard, prototype, OS, I-OS)
- *     2 - handlers/StreakHandler.java:80-89; handlers/prototype/PrototypeStreakHandler.java:88.
+ *     2 - handlers/StreakHandler.java:80-89; handlers/prototype/PrototypeStreakHandler.java:49
+ *         extends SRMHandler (handlers/srm/SRMHandler.java:78).
  *   ATM / iATM, standard ammunition
  *     2 - handlers/ATMHandler.java:87-88; handlers/CLIATMHandler.java:107-109.
  * Ammunition per ton and ranges come from the pinned runtime

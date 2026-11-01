@@ -14,7 +14,7 @@ Usage:
         --source /path/to/mm-data/data/mekfiles \\
         --output /path/to/public/data/units/aerospace
 
-Source directories scanned: fighters/, convfighter/, smallcraft/
+Source directories scanned: fighters/, convfighter/, smallcraft/, vehicles/
 Skips DropShips, JumpShips, WarShips with a log entry.
 """
 
@@ -146,7 +146,7 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
         sub_type = "AerospaceFighter"
         unit_type_out = "Aerospace"
     elif unit_type_raw in CF_TYPES:
-        sub_type = "ConventionalFighter"
+        sub_type = "FixedWingSupport" if unit_type_raw == "FixedWingSupport" else "ConventionalFighter"
         unit_type_out = "Conventional Fighter"
     else:
         sub_type = "SmallCraft"
@@ -224,7 +224,8 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     # --- Armor ---
     armor_raw = tags.get("armor") or tags.get("Armor")
     armor_values = parse_armor_array(armor_raw)
-    armor = parse_aerospace_armor(tags)
+    # Codes 43-51 are BAR for every aircraft; only BLKFixedWingSupportFile reads the rating.
+    armor = parse_aerospace_armor(tags, reads_bar_rating=unit_type_raw == "FixedWingSupport")
     source_qualifiers = parse_aerospace_qualifiers(tags)
 
     # Arc-based armor — ASF/CF use Nose/RW/LW/Aft; SmallCraft use Nose/RS/LS/Aft
@@ -315,7 +316,7 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     if sub_type == "AerospaceFighter":
         output["hasBombBay"] = has_bomb_bay
         output["bombCapacity"] = bomb_capacity
-    elif sub_type == "ConventionalFighter":
+    elif sub_type in ("ConventionalFighter", "FixedWingSupport"):
         output["hasBombBay"] = has_bomb_bay
         output["bombCapacity"] = bomb_capacity
     elif sub_type == "SmallCraft":
@@ -411,7 +412,7 @@ def main() -> int:
             converter="blk_aerospace_converter",
             description="Convert BLK aerospace files to MekStation JSON",
             source_default=str(Path(default_mm_data_root()) / "mekfiles"),
-            source_help="Path to mm-data mekfiles root (contains fighters/, convfighter/, smallcraft/)",
+            source_help="Path to mm-data mekfiles root (contains fighters/, convfighter/, smallcraft/, vehicles/)",
             output_default=str(Path(__file__).parent.parent.parent / "public/data/units/aerospace"),
             output_help="Output directory for aerospace JSON files",
             type_name="aerospace",
@@ -421,7 +422,7 @@ def main() -> int:
             build_manifest_entry=build_manifest_entry,
             run_parity_checks=run_parity_checks,
             collect_files=lambda source, logger: collect_subdir_blk_files(
-                source, logger, DEFAULT_SOURCE_SUBDIRS
+                source, logger, [*DEFAULT_SOURCE_SUBDIRS, "vehicles"]
             ),
             unsupported_unit_types=UNSUPPORTED_UNIT_TYPES,
         )

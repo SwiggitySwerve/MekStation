@@ -187,6 +187,18 @@ describe('BLK vehicle location model', () => {
     });
 
     it.each([
+      ['rear turret', 'Turret'],
+      ['REAR TURRET', 'Turret'],
+      ['front turret', 'Turret 2'],
+      ['Front TURRET', 'Turret 2'],
+    ])(
+      'finds the %s block in any letter case, as MegaMek does (BuildingBlock.java:148,184)',
+      (block, location) => {
+        expect(blkEquipmentBlockLocation(block)).toBe(location);
+      },
+    );
+
+    it.each([
       ['Hover', 50, false],
       ['Hover', 51, true],
       ['Tracked', 100, false],
@@ -207,6 +219,33 @@ describe('BLK vehicle location model', () => {
             ? BLK_SUPERHEAVY_ARMOR_LOCATIONS.slice(0, 6)
             : BLK_VEHICLE_ARMOR_LOCATIONS.slice(0, 4),
         );
+      },
+    );
+
+    it.each(['Hydrofoil', 'Surface'])(
+      'lays out a %s BLK like a Tank, as MegaMek loads it (MekFileParser.java:233)',
+      (unitType) => {
+        expect(
+          resolveBlkVehicleArmor(unitType, 'Hydrofoil', 40, [1, 2, 3, 4, 5, 6]),
+        ).toEqual({
+          Front: 1,
+          Right: 2,
+          Left: 3,
+          Rear: 4,
+          Turret: 5,
+          'Turret 2': 6,
+        });
+        // a Surface BLK scales to SuperHeavy by its motion type like any Tank
+        expect(
+          Object.keys(
+            resolveBlkVehicleArmor(
+              unitType,
+              'Wheeled',
+              90,
+              [1, 2, 3, 4, 5, 6],
+            ) ?? {},
+          ),
+        ).toEqual(BLK_SUPERHEAVY_ARMOR_LOCATIONS.slice(0, 6));
       },
     );
 

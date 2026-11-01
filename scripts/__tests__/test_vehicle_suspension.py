@@ -6,6 +6,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'megameklab-conversion'))
 from blk_vehicle_converter import convert_vehicle_blk
+from blk_vehicle_tables import SUPERHEAVY_ABOVE_TONS
 from combat_vehicle_engine import combat_engine_rating
 
 class SuspensionConversionTest(unittest.TestCase):
@@ -14,6 +15,11 @@ class SuspensionConversionTest(unittest.TestCase):
             source = Path(directory) / 'fixture.blk'
             engine_tag = '' if engine_code is None else f'<engine_type>\n{engine_code}\n</engine_type>\n'
             source.write_text(engine_tag + f'<UnitType>\n{unit_type}\n</UnitType>\n<Name>\nSuspension\n</Name>\n<year>\n3075\n</year>\n<tonnage>\n{tons}\n</tonnage>\n<motion_type>\n{motion}\n</motion_type>\n<cruiseMP>\n{cruise}\n</cruiseMP>\n', encoding='utf-8')
+            # A SuperHeavy Tank/Naval source carries the six-side layout (BLKTankFile.java:181-192).
+            limit = SUPERHEAVY_ABOVE_TONS.get(motion.lower())
+            sides = 6 if unit_type in ('Tank', 'Naval') and limit is not None and tons > limit else 4
+            with source.open('a', encoding='utf-8') as blk:
+                blk.write('<armor>\n' + '10\n' * sides + '</armor>\n')
             return convert_vehicle_blk(source, logging.getLogger(__name__))
 
     def test_tamerlane_rating(self):

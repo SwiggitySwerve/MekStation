@@ -3,7 +3,8 @@
  *
  * The `<armor>` array is positional and its meaning depends on the Java class
  * the loader builds, so the layout is chosen the way the loaders choose it:
- * - Tank and Naval (both loaded by BLKTankFile, `MekFileParser.java:233`):
+ * - Tank, Naval, Hydrofoil and Surface (all loaded by BLKTankFile,
+ *   `MekFileParser.java:233`):
  *   six-side SuperHeavyTank above the motion weight limit
  *   (`BLKTankFile.java:94-123`), otherwise Front, Right, Left, Rear and up to
  *   two turrets (4-6 values, `BLKTankFile.java:181-186`);
@@ -29,13 +30,17 @@ import {
  * 233-234` loads the blocks into them). Neither block is rear-facing.
  */
 const EQUIPMENT_BLOCK_TO_ARMOR_KEY: Readonly<Record<string, string>> = {
-  'Rear Turret': VehicleLocation.TURRET,
-  'Front Turret': VehicleLocation.TURRET_2,
+  'rear turret': VehicleLocation.TURRET,
+  'front turret': VehicleLocation.TURRET_2,
 };
 
-/** The armor location an equipment block name (`Rear Turret` from `<Rear Turret Equipment>`) loads into. */
+/**
+ * The armor location an equipment block name (`Rear Turret` from
+ * `<Rear Turret Equipment>`) loads into. MegaMek finds a block in any letter
+ * case (`BuildingBlock.java:148,184`), so the lookup does too.
+ */
 export function blkEquipmentBlockLocation(blockName: string): string {
-  return EQUIPMENT_BLOCK_TO_ARMOR_KEY[blockName] ?? blockName;
+  return EQUIPMENT_BLOCK_TO_ARMOR_KEY[blockName.toLowerCase()] ?? blockName;
 }
 
 /** Heaviest weight a motion type can carry before MegaMek builds a SuperHeavyTank. */
@@ -87,6 +92,8 @@ function layoutFor(
       return SIX_SIDE;
     case 'Tank':
     case 'Naval':
+    case 'Hydrofoil':
+    case 'Surface':
       return isSuperHeavyTank(motionType, tonnage) ? SIX_SIDE : STANDARD;
     case 'SupportTank':
       return STANDARD;
@@ -111,4 +118,32 @@ export function resolveBlkVehicleArmor(
   return Object.fromEntries(
     armor.map((value, index) => [layout.locations[index], value]),
   );
+}
+
+/**
+ * Armor from an array MegaMek refuses to load, placed in the unit type's
+ * layout order so the unit can still be inspected. Values past the layout's
+ * last location are named in the warning and left out; the caller keeps the
+ * whole source array.
+ */
+export function placeRejectedBlkVehicleArmor(
+  blkUnitType: string,
+  motionType: string | undefined,
+  tonnage: number,
+  armor: readonly number[],
+): { byLocation: Readonly<Record<string, number>>; warning: string } {
+  const locations = (layoutFor(blkUnitType, motionType, tonnage) ?? STANDARD)
+    .locations;
+  const extra = armor.slice(locations.length);
+  return {
+    byLocation: Object.fromEntries(
+      armor.slice(0, locations.length).map((v, i) => [locations[i], v]),
+    ),
+    warning:
+      `Incorrect armor array length (${armor.length} values): MegaMek refuses to load it, ` +
+      `so the values are placed ${locations.join(', ')} in order` +
+      (extra.length > 0
+        ? `; the extra values ${extra.join(', ')} are not placed (see armor)`
+        : ''),
+  };
 }

@@ -648,7 +648,7 @@
         "chassis": "Boomerang Spotter Plane",
         "model": "",
         "unitType": "Conventional Fighter",
-        "subType": "ConventionalFighter",
+        "subType": "FixedWingSupport",
         "techBase": "INNER_SPHERE",
         "rulesLevel": "STANDARD",
         "era": "SUCCESSION_WARS",

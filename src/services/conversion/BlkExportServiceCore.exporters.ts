@@ -5,7 +5,10 @@ import type { ProtoMechState } from '@/stores/protoMechState';
 import type { VehicleState } from '@/stores/vehicleState';
 
 import { EngineType } from '@/types/construction/EngineType';
-import { ProtoMechLocation } from '@/types/construction/UnitLocation';
+import {
+  ProtoMechLocation,
+  VehicleLocation,
+} from '@/types/construction/UnitLocation';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
 import { getProtoMainGunTopologyError } from '@/utils/construction/protomech';
@@ -87,7 +90,13 @@ export function exportVehicle(unit: VehicleState): IBlkExportResult {
     lines.push('');
 
     const isVTOL = unit.unitType === UnitType.VTOL;
-    lines.push(tag('armor', formatVehicleArmor(unit.armorAllocation, isVTOL)));
+    // Turret armor implies a turret even when the configuration is absent.
+    const hasTurret =
+      unit.turret !== null ||
+      (unit.armorAllocation[VehicleLocation.TURRET] ?? 0) > 0;
+    lines.push(
+      tag('armor', formatVehicleArmor(unit.armorAllocation, isVTOL, hasTurret)),
+    );
     lines.push('');
 
     writeVehicleEquipment(lines, unit);

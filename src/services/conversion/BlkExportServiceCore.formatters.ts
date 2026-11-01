@@ -2,7 +2,10 @@ import type { ProtoMechState } from '@/stores/protoMechState';
 
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { EngineType } from '@/types/construction/EngineType';
-import { AerospaceLocation } from '@/types/construction/UnitLocation';
+import {
+  AerospaceLocation,
+  VehicleLocation,
+} from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import {
@@ -103,14 +106,23 @@ export function formatArmorTechCode(techBase: TechBase): string {
   return techBase === TechBase.CLAN ? '2' : '1';
 }
 
+/**
+ * MegaMek reads the `<armor>` length to decide whether a vehicle has a turret
+ * (`BLKTankFile.java:185`, `BLKVTOLFile.java:132`), so a turretless vehicle
+ * stops before the Turret value: four values for a Tank, five for a VTOL.
+ */
 export function formatVehicleArmor(
   allocation: Record<string, number>,
   isVTOL: boolean,
+  hasTurret: boolean,
 ): string {
   const locations = isVTOL
     ? BLK_VTOL_ARMOR_LOCATIONS
     : BLK_VEHICLE_ARMOR_LOCATIONS;
-  return locations.map((location) => allocation[location] || 0).join('\n');
+  return locations
+    .filter((location) => hasTurret || location !== VehicleLocation.TURRET)
+    .map((location) => allocation[location] || 0)
+    .join('\n');
 }
 
 export function formatAerospaceArmor(

@@ -9,18 +9,17 @@ import { v4 as uuidv4 } from 'uuid';
  */
 
 import type { UnitState } from '@/stores/unitState';
+import type { UnitFamily } from '@/types/unit/UnitIndex';
 
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { createLibrarySaveReceipt } from '@/stores/unit/unitEditSnapshot';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import type { IUnitDefinitionReference } from './definitionTypes';
 
-import { getCanonicalUnitService } from '../CanonicalUnitService';
-import { customUnitApiService } from '../CustomUnitApiService';
 import { mapTechBase, mapTechBaseMode } from './componentMappers';
 import { createUnitSession } from './createUnitSession';
+import { UNIT_DEFINITION_FAMILIES } from './definitionTypes';
 import { mapEquipment } from './equipmentMapping';
 import { loadUnitDefinition } from './loadUnitDefinition';
 import { UnsupportedUnitConfigurationError } from './movementConfiguration';
@@ -70,43 +69,35 @@ export class UnitLoaderService {
     await registry.initialize();
   }
 
-  async loadCanonicalUnit(id: string): Promise<ILoadUnitResult> {
-    return this.loadSource(id, 'canonical');
+  async loadCanonicalUnit(
+    id: string,
+    family: UnitFamily = 'battlemechs',
+  ): Promise<ILoadUnitResult> {
+    return this.loadSource(id, 'canonical', family);
   }
 
-  async loadCustomUnit(id: string): Promise<ILoadUnitResult> {
-    return this.loadSource(id, 'custom');
+  async loadCustomUnit(
+    id: string,
+    family: UnitFamily = 'battlemechs',
+  ): Promise<ILoadUnitResult> {
+    return this.loadSource(id, 'custom', family);
   }
 
   private async loadSource(
     id: string,
     source: UnitSource,
+    family: UnitFamily,
   ): Promise<ILoadUnitResult> {
-    const loaded = await loadUnitDefinition(
-      {
-        read: ({ source: requestedSource, id: requestedId }) =>
-          requestedSource === 'canonical'
-            ? getCanonicalUnitService().getById(requestedId, { strict: true })
-            : customUnitApiService.getById(requestedId),
-      },
-      { source, id },
-    );
+    const loaded = await loadUnitDefinition(family, id, source);
     if (!loaded.success) {
-      if (source === 'canonical' && loaded.code === 'invalid-definition') {
-        getCanonicalUnitService().invalidateUnit(id);
-      }
       return { success: false, error: loaded.error, errorCode: loaded.code };
     }
 
-    if (
-      ![UnitType.BATTLEMECH, UnitType.OMNIMECH, UnitType.INDUSTRIALMECH].some(
-        (unitType) => unitType === loaded.definition.unitType,
-      )
-    ) {
+    if (UNIT_DEFINITION_FAMILIES[loaded.family].store !== 'battlemech') {
       return {
         success: false,
         error: `The BattleMech editor cannot load ${loaded.definition.unitType} definitions`,
-        errorCode: 'unsupported-family',
+        errorCode: 'unsupported-store-family',
       };
     }
 
@@ -137,11 +128,15 @@ export class UnitLoaderService {
   /**
    * Load a unit from either source
    */
-  async loadUnit(id: string, source: UnitSource): Promise<ILoadUnitResult> {
+  async loadUnit(
+    id: string,
+    source: UnitSource,
+    family: UnitFamily = 'battlemechs',
+  ): Promise<ILoadUnitResult> {
     if (source === 'canonical') {
-      return this.loadCanonicalUnit(id);
+      return this.loadCanonicalUnit(id, family);
     } else {
-      return this.loadCustomUnit(id);
+      return this.loadCustomUnit(id, family);
     }
   }
 
