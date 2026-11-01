@@ -39,7 +39,7 @@ describe('VTOLUnitHandler', () => {
   // ==========================================================================
 
   describe('parse - tonnage limit', () => {
-    it('should load tonnage over 30 and retain construction errors', () => {
+    it('should load tonnage over 60 and retain construction errors', () => {
       const doc = createOverweightVTOLDocument();
       const result = handler.parse(doc);
 
@@ -47,7 +47,7 @@ describe('VTOLUnitHandler', () => {
       if (!result.success) return;
       expect(result.data.unit.tonnage).toBe(doc.tonnage);
       expect(handler.validate(result.data.unit).errors).toContain(
-        'VTOL tonnage cannot exceed 30 tons',
+        'VTOL tonnage cannot exceed 60 tons',
       );
     });
 
@@ -192,20 +192,20 @@ describe('VTOLUnitHandler', () => {
       ).toBe(true);
     });
 
-    it('should fail validation for tonnage over 30', () => {
+    it('should fail validation for tonnage over 60', () => {
       const doc = createMockBlkDocument();
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
       const invalidUnit = {
         ...parseResult.data!.unit,
-        tonnage: 35,
+        tonnage: 65,
       } as IVTOL;
 
       const validateResult = handler.validate(invalidUnit);
       expect(validateResult.isValid).toBe(false);
       expect(
-        validateResult.errors.some((e) => e.includes('cannot exceed 30 tons')),
+        validateResult.errors.some((e) => e.includes('cannot exceed 60 tons')),
       ).toBe(true);
     });
 

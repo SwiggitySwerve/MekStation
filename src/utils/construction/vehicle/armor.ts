@@ -188,3 +188,11 @@ export function getVehicleLocationMaxArmor(
     isVTOL,
   );
 }
+
+/**
+ * Most armor points a combat vehicle (Tank, SuperHeavy, VTOL) may carry in
+ * total: `(int)(tonnage * 7 / 2 + 40)` (`TestTank.java:338`).
+ */
+export function getTankMaxTotalArmor(tonnage: number): number {
+  return Math.floor((tonnage * 7) / 2 + 40);
+}
