@@ -112,10 +112,10 @@
           "description": "Engine type"
         },
         "rating": {
-          "type": "integer",
+          "type": "number",
           "minimum": 0,
           "maximum": 1000,
-          "description": "Engine rating"
+          "description": "Effective engine rating; support vehicles retain fractional tonnage times cruise MP"
         }
       },
       "additionalProperties": false

@@ -34,7 +34,6 @@ import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
 import {
   IVehicle,
   IVehicleMountedEquipment,
-  ITurretConfiguration,
 } from '@/types/unit/VehicleInterfaces';
 import { getTankMaxTotalArmor } from '@/utils/construction/vehicle/armor';
 import {
@@ -44,7 +43,7 @@ import {
   validateVehicleEngine,
 } from '@/utils/construction/vehicle/engine';
 import {
-  getPrimaryVehicleTurretType,
+  getPrimaryVehicleTurretConfiguration,
   getVehicleMountFlags,
 } from '@/utils/construction/vehicle/equipmentMounts';
 
@@ -200,7 +199,11 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     const totalArmorPoints = armor.reduce((sum, val) => sum + val, 0);
 
     // Turret configuration
-    const turret = this.parseTurretConfiguration(document, layoutArmor);
+    const turret = getPrimaryVehicleTurretConfiguration(
+      document,
+      this.getStringFromRaw(document.rawTags || {}, 'turrettype'),
+      layoutArmor,
+    );
 
     // Equipment
     const equipment = this.parseEquipment(document);
@@ -279,41 +282,6 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     };
 
     return Object.assign(result, layoutArmor) as IVehicle['armorByLocation'];
-  }
-
-  /**
-   * Parse turret configuration from document
-   */
-  private parseTurretConfiguration(
-    document: IBlkDocument,
-    layoutArmor: Readonly<Record<string, number>> | undefined,
-  ): ITurretConfiguration | undefined {
-    // A turret exists when MegaMek's armor layout has a Turret value, a dual
-    // turret when it also has Turret 2 (BLKTankFile.java:185-186,191-192);
-    // turret equipment under a plain Turret block also counts.
-    const rawTags = document.rawTags || {};
-    const type = getPrimaryVehicleTurretType(
-      Object.keys(document.equipmentByLocation).filter(
-        (location) => document.equipmentByLocation[location]?.length > 0,
-      ),
-      this.getStringFromRaw(rawTags, 'turrettype'),
-      {
-        hasTurret: layoutArmor?.[VehicleLocation.TURRET] !== undefined,
-        hasSecondTurret: layoutArmor?.[VehicleLocation.TURRET_2] !== undefined,
-      },
-    );
-    if (type === undefined) return undefined;
-
-    // Calculate turret weight (simplified - full calculation would need equipment data)
-    const turretWeightFraction = 0.1; // 10% of weapons in turret typically
-    const maxWeight = document.tonnage * turretWeightFraction;
-
-    return {
-      type,
-      maxWeight,
-      currentWeight: 0, // Would be calculated from actual equipment
-      rotationArc: 360,
-    };
   }
 
   /**

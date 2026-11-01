@@ -126,10 +126,11 @@ export const UnitContract = z
               .describe('Engine type'),
             rating: z
               .number()
-              .int()
               .gte(0)
               .lte(1000)
-              .describe('Engine rating')
+              .describe(
+                'Effective engine rating; support vehicles retain fractional tonnage times cruise MP',
+              )
               .optional(),
           })
           .strict(),
@@ -592,10 +593,11 @@ export const UnitContract = z
               .describe('Engine type'),
             rating: z
               .number()
-              .int()
               .gte(0)
               .lte(1000)
-              .describe('Engine rating')
+              .describe(
+                'Effective engine rating; support vehicles retain fractional tonnage times cruise MP',
+              )
               .optional(),
           })
           .strict()

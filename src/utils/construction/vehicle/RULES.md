@@ -144,13 +144,27 @@ engine retains minimum rating 10. The tonnage-edit clamp remains unchanged.
 BLKVTOLFile lacks Tank's NONE exception: the generic converter's engine-less
 zero-cruise VTOL case remains a disclosed loader-family gap, not proven parity.
 
-Support store and converter outputs retain legacy rating behavior, including distinct converter
-rounding. This is compatibility, not support-construction parity. Support
-identity survives motion edits so later actions cannot accidentally apply combat
-suspension. Support UI and construction validation still contain combat-vehicle
-approximations and are not covered by this parity slice. Existing imported/saved catalog ratings are not migrated on load.
+`engine.ts:computeStoredVehicleEngineRating` owns effective support ratings:
+`min(maxRating, tonnage * cruiseMP)`, preserving fractional tonnage without
+suspension or rounding to five. `supportEngine.json` owns the limit; the Python
+`combat_vehicle_engine.py:support_engine_rating` adapter consumes it for all three support BLK families.
+The supplied Java oracle's 227 support rows agree with this formula, including
+the 500 cap. `engine.ownerAwareRating` is effective; `engine.rating` is the stored
+zero sentinel. The serialized engine rating is a number so this effective value
+can cross both schema boundaries. Handler parsing, approximate weight/cost and store derivations use
+the owner. Existing imported/saved catalog ratings are not migrated on load.
+Support identity survives motion edits. Other support UI and construction
+approximations remain outside this rating correction.
 The converter's support-VTOL discriminator and broader BLK engine ordinal
 semantics remain separate work; this slice adds no engine-code table.
+
+`equipmentMounts.ts` owns imported primary turret configuration; the shared BLK
+adapter supplies installed armor locations and occupied equipment blocks.
+SupportTank and LargeSupportTank retain single/dual turrets even with zero armor;
+SupportVTOL retains a chin turret with the existing 180-degree arc. The legacy
+10%-tonnage capacity remains a separate defect. VTOL handler weight classes use
+the existing shared unit classifier, whose thresholds are unchanged. Handler
+fidelity and Python support-engine regression tests enforce these boundaries.
 
 `controlsLift.ts` owns controls and lift/dive mass (standard combat construction
 ceilings): controls = upward-half-ton-rounded tonnage / 20, unless explicit
