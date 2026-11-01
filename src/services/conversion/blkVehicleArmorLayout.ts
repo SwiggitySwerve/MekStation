@@ -10,22 +10,33 @@
  * - SupportTank: ordinary layout (`BLKSupportTankFile.java:119-126`);
  * - LargeSupportTank: six-side layout (`BLKLargeSupportTankFile.java:122-129`);
  * - VTOL, SupportVTOL: Front, Right, Left, Rear, Rotor, optional chin Turret
- *   (`BLKVTOLFile.java:127-133`).
+ *   (`BLKVTOLFile.java:127-133`, `BLKSupportVTOLFile.java:119-125`).
  * A length the loader rejects ("Incorrect armor array length") or a unit type
  * with no layout here gives undefined.
  */
 
 import { VehicleLocation } from '@/types/construction/UnitLocation';
 import {
+  BLK_DUAL_TURRET_ARMOR_LOCATIONS,
   BLK_SUPERHEAVY_ARMOR_LOCATIONS,
-  BLK_VEHICLE_ARMOR_LOCATIONS,
   BLK_VTOL_ARMOR_LOCATIONS,
 } from '@/types/formats/BlkFormat';
 
-const STANDARD_ARMOR_LOCATIONS: readonly string[] = [
-  ...BLK_VEHICLE_ARMOR_LOCATIONS,
-  VehicleLocation.TURRET_2,
-];
+/**
+ * Armor names the dual-turret pair Turret / Turret 2; equipment blocks name the
+ * same two locations Rear Turret / Front Turret (`Tank.java:127-130`: LOC_TURRET
+ * is the rear turret, LOC_TURRET_2 the front one; `BLKTankFile.java:219-220,
+ * 233-234` loads the blocks into them). Neither block is rear-facing.
+ */
+const EQUIPMENT_BLOCK_TO_ARMOR_KEY: Readonly<Record<string, string>> = {
+  'Rear Turret': VehicleLocation.TURRET,
+  'Front Turret': VehicleLocation.TURRET_2,
+};
+
+/** The armor location an equipment block name (`Rear Turret` from `<Rear Turret Equipment>`) loads into. */
+export function blkEquipmentBlockLocation(blockName: string): string {
+  return EQUIPMENT_BLOCK_TO_ARMOR_KEY[blockName] ?? blockName;
+}
 
 /** Heaviest weight a motion type can carry before MegaMek builds a SuperHeavyTank. */
 const SUPERHEAVY_ABOVE_TONS: Readonly<Record<string, number>> = {
@@ -38,7 +49,8 @@ const SUPERHEAVY_ABOVE_TONS: Readonly<Record<string, number>> = {
   glider: 80, // EntityMovementMode.parseFromString alias of WiGE
 };
 
-function isSuperHeavyTank(
+/** MegaMek builds a SuperHeavyTank above these weights (`BLKTankFile.java:94-123`). */
+export function isSuperHeavyTank(
   motionType: string | undefined,
   tonnage: number,
 ): boolean {
@@ -53,7 +65,7 @@ interface ArmorLayout {
 }
 
 const STANDARD: ArmorLayout = {
-  locations: STANDARD_ARMOR_LOCATIONS,
+  locations: BLK_DUAL_TURRET_ARMOR_LOCATIONS,
   lengths: [4, 6],
 };
 const SIX_SIDE: ArmorLayout = {

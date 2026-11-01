@@ -174,8 +174,11 @@ describe('VehicleUnitHandler', () => {
         isTurretMounted,
         isSponsonMounted,
       ) => {
+        // Four armor values: no Turret in the layout, so only the equipment
+        // block or the explicit type can install a turret (BLKTankFile.java:185).
         const result = handler.parse(
           createMockBlkDocument({
+            armor: [16, 12, 12, 10],
             equipmentByLocation: { [location]: ['Medium Laser'] },
             rawTags: explicitType ? { turrettype: explicitType } : {},
           }),
@@ -192,7 +195,10 @@ describe('VehicleUnitHandler', () => {
 
     it('does not infer a primary turret from an empty equipment block', () => {
       const result = handler.parse(
-        createMockBlkDocument({ equipmentByLocation: { Turret: [] } }),
+        createMockBlkDocument({
+          armor: [16, 12, 12, 10],
+          equipmentByLocation: { Turret: [] },
+        }),
       );
       expect(result.success).toBe(true);
       expect(result.data?.unit.turret).toBeUndefined();

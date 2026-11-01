@@ -497,6 +497,24 @@
       "additionalProperties": false,
       "description": "Fluff/flavor text"
     },
+    "isOmni": { "type": "boolean" },
+    "baseChassisTurretWeight": { "type": "number", "minimum": 0 },
+    "baseChassisTurret2Weight": { "type": "number", "minimum": 0 },
+    "baseChassisSponsonPintleWeight": { "type": "number", "minimum": 0 },
+    "baseChassisFireConWeight": { "type": "number", "minimum": 0 },
+    "transporters": { "type": "array", "items": { "type": "string" } },
+    "fuel": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Source fuel quantity; support vehicles use tons, aerospace uses points."
+    },
+    "fuelType": { "type": "string", "minLength": 1 },
+    "isTrailer": { "type": "boolean" },
+    "clanEngine": { "type": "boolean" },
+    "structuralTechRating": { "type": "integer", "minimum": 0, "maximum": 5 },
+    "engineTechRating": { "type": "integer", "minimum": 0, "maximum": 5 },
+    "armorTechRating": { "type": "integer", "minimum": 0, "maximum": 5 },
+    "internalType": { "type": "integer", "minimum": -1 },
     "sourceDefinition": {
       "type": "object",
       "description": "Originating source definition, independent of editor or campaign instance identity",

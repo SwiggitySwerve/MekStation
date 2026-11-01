@@ -8,7 +8,11 @@
 
 import type { IUnitMountedEquipmentIdentity } from './MountedEquipmentInterfaces';
 
-import { VehicleLocation, VTOLLocation } from '../construction/UnitLocation';
+import {
+  SuperHeavyVehicleLocation,
+  VehicleLocation,
+  VTOLLocation,
+} from '../construction/UnitLocation';
 import { IGroundUnit, GroundMotionType } from './BaseUnitInterfaces';
 import { UnitType } from './BattleMechInterfaces';
 
@@ -51,7 +55,7 @@ export interface ITurretConfiguration {
  */
 export interface IVehicleMountedEquipment extends IUnitMountedEquipmentIdentity {
   /** Location where mounted */
-  readonly location: VehicleLocation | VTOLLocation;
+  readonly location: VehicleLocation | VTOLLocation | SuperHeavyVehicleLocation;
   /** Is this rear-facing */
   readonly isRearMounted: boolean;
   /** Is this turret-mounted */
@@ -86,8 +90,12 @@ export interface IVehicle extends IGroundUnit {
   /** Internal structure type code */
   readonly internalStructureType: number;
 
-  /** Armor per location */
-  readonly armorByLocation: Record<VehicleLocation, number>;
+  /**
+   * Armor per location. SuperHeavy tanks also carry the four extra sides
+   * (Front Right, Front Left, Rear Right, Rear Left); Left and Right are 0.
+   */
+  readonly armorByLocation: Record<VehicleLocation, number> &
+    Partial<Record<SuperHeavyVehicleLocation, number>>;
 
   /** Equipment mounted on this vehicle */
   readonly equipment: readonly IVehicleMountedEquipment[];

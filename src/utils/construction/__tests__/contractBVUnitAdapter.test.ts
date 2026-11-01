@@ -78,9 +78,11 @@ describe('contractUnitToBVUnit (vehicles)', () => {
     );
     if (!source) throw new Error('Missing Tamerlane fixture');
     const unit = source.unit;
-    const armorByLocation = unit.armor.byLocation as Readonly<
-      Record<string, number>
-    >;
+    // Drop the Turret armor value: MegaMek installs a turret from a Turret
+    // armor entry (BLKTankFile.java:185), and this case checks that a sponson
+    // alone does not.
+    const { TURRET: _turret, ...armorByLocation } = unit.armor
+      .byLocation as Readonly<Record<string, number>>;
     const parsed = new VehicleUnitHandler().parse({
       blockVersion: 1,
       version: 'MAM0',
@@ -93,7 +95,7 @@ describe('contractUnitToBVUnit (vehicles)', () => {
       tonnage: unit.tonnage,
       motionType: unit.motionType,
       cruiseMP: unit.movement.cruiseMP,
-      armor: ['FRONT', 'RIGHT', 'LEFT', 'REAR', 'TURRET'].map(
+      armor: ['FRONT', 'RIGHT', 'LEFT', 'REAR'].map(
         (tag) => armorByLocation[tag] ?? 0,
       ),
       equipmentByLocation: { 'Sponson Turret Equipment': ['Medium Laser'] },
@@ -113,7 +115,7 @@ describe('contractUnitToBVUnit (vehicles)', () => {
     });
     const actual = calculateBattleValueForUnit(adapted);
     const expected = calculateBattleValueForUnit(parsed.data.unit);
-    expect(actual?.breakdown.final).toBe(320);
+    expect(actual?.breakdown.final).toBe(289);
     expect(actual?.breakdown).toEqual(expected?.breakdown);
     expect(adapted.turret).toBeUndefined();
   });

@@ -11,9 +11,17 @@ import {
   decodeBlkConstructionEngine,
   isClanBlkEngine,
 } from '@/services/conversion/blkEngineIdentity';
-import { VehicleLocation } from '@/types/construction/UnitLocation';
 import {
-  BLK_VEHICLE_ARMOR_LOCATIONS,
+  blkEquipmentBlockLocation,
+  isSuperHeavyTank,
+  resolveBlkVehicleArmor,
+} from '@/services/conversion/blkVehicleArmorLayout';
+import {
+  SuperHeavyVehicleLocation,
+  VehicleLocation,
+} from '@/types/construction/UnitLocation';
+import {
+  BLK_DUAL_TURRET_ARMOR_LOCATIONS,
   IBlkDocument,
 } from '@/types/formats/BlkFormat';
 import {
@@ -28,6 +36,7 @@ import {
   IVehicleMountedEquipment,
   ITurretConfiguration,
 } from '@/types/unit/VehicleInterfaces';
+import { getTankMaxTotalArmor } from '@/utils/construction/vehicle/armor';
 import {
   computeEngineRating,
   computeFlankMP,
@@ -79,14 +88,22 @@ const MOTION_TYPE_MAP: Record<string, GroundMotionType> = {
   maglev: GroundMotionType.MAGLEV,
 };
 
-const VEHICLE_LOCATION_MAP: Record<string, VehicleLocation> = {
+const VEHICLE_LOCATION_MAP: Record<
+  string,
+  VehicleLocation | SuperHeavyVehicleLocation
+> = {
   front: VehicleLocation.FRONT,
+  'front right': SuperHeavyVehicleLocation.FRONT_RIGHT,
+  'front left': SuperHeavyVehicleLocation.FRONT_LEFT,
+  'rear right': SuperHeavyVehicleLocation.REAR_RIGHT,
+  'rear left': SuperHeavyVehicleLocation.REAR_LEFT,
   left: VehicleLocation.LEFT,
   'left side': VehicleLocation.LEFT,
   right: VehicleLocation.RIGHT,
   'right side': VehicleLocation.RIGHT,
   rear: VehicleLocation.REAR,
   turret: VehicleLocation.TURRET,
+  'turret 2': VehicleLocation.TURRET_2,
   body: VehicleLocation.BODY,
 };
 
@@ -158,17 +175,40 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     // Armor
     const armorType = document.armorType || 0;
     const armor = document.armor || [];
-    const armorByLocation = this.parseArmorByLocation(armor);
+    const layoutArmor = resolveBlkVehicleArmor(
+      document.unitType,
+      document.motionType || 'Tracked',
+      document.tonnage,
+      armor,
+    );
+    if (!layoutArmor) {
+      warnings.push(
+        `Incorrect armor array length (${armor.length} values): MegaMek refuses to load it, ` +
+          'so the values are placed Front, Right, Left, Rear, Turret, Turret 2 in order',
+      );
+    }
+    const armorByLocation = this.parseArmorByLocation(
+      layoutArmor ??
+        Object.fromEntries(
+          armor.map((value, index) => [
+            BLK_DUAL_TURRET_ARMOR_LOCATIONS[index],
+            value,
+          ]),
+        ),
+    );
     const totalArmorPoints = armor.reduce((sum, val) => sum + val, 0);
 
     // Turret configuration
-    const turret = this.parseTurretConfiguration(document);
+    const turret = this.parseTurretConfiguration(document, layoutArmor);
 
     // Equipment
     const equipment = this.parseEquipment(document);
 
     // Vehicle-specific flags
-    const isSuperheavy = document.tonnage > 100;
+    const isSuperheavy = isSuperHeavyTank(
+      document.motionType || 'Tracked',
+      document.tonnage,
+    );
 
     // Parse raw tags for additional fields
     const rawTags = document.rawTags || {};
@@ -220,12 +260,13 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
   }
 
   /**
-   * Parse armor values into location-keyed record
+   * Armor in MegaMek's layout for this chassis (six sides for SuperHeavy,
+   * Turret 2 for dual turrets), over zeroes for the standard locations
    */
   private parseArmorByLocation(
-    armor: readonly number[],
-  ): Record<VehicleLocation, number> {
-    const result: Record<VehicleLocation, number> = {
+    layoutArmor: Readonly<Record<string, number>>,
+  ): IVehicle['armorByLocation'] {
+    const result: Record<string, number> = {
       [VehicleLocation.FRONT]: 0,
       [VehicleLocation.LEFT]: 0,
       [VehicleLocation.RIGHT]: 0,
@@ -235,13 +276,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       [VehicleLocation.BODY]: 0,
     };
 
-    BLK_VEHICLE_ARMOR_LOCATIONS.forEach((loc, index) => {
-      if (index < armor.length) {
-        result[loc] = armor[index];
-      }
-    });
-
-    return result;
+    return Object.assign(result, layoutArmor) as IVehicle['armorByLocation'];
   }
 
   /**
@@ -249,13 +284,21 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
    */
   private parseTurretConfiguration(
     document: IBlkDocument,
+    layoutArmor: Readonly<Record<string, number>> | undefined,
   ): ITurretConfiguration | undefined {
+    // A turret exists when MegaMek's armor layout has a Turret value, a dual
+    // turret when it also has Turret 2 (BLKTankFile.java:185-186,191-192);
+    // turret equipment under a plain Turret block also counts.
     const rawTags = document.rawTags || {};
     const type = getPrimaryVehicleTurretType(
       Object.keys(document.equipmentByLocation).filter(
         (location) => document.equipmentByLocation[location]?.length > 0,
       ),
       this.getStringFromRaw(rawTags, 'turrettype'),
+      {
+        hasTurret: layoutArmor?.[VehicleLocation.TURRET] !== undefined,
+        hasSecondTurret: layoutArmor?.[VehicleLocation.TURRET_2] !== undefined,
+      },
     );
     if (type === undefined) return undefined;
 
@@ -293,17 +336,20 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
   /**
    * Normalize location string to VehicleLocation enum
    */
-  private normalizeLocation(locationKey: string): VehicleLocation {
-    const normalized = locationKey.toLowerCase().replace(' equipment', '');
+  private normalizeLocation(
+    locationKey: string,
+  ): VehicleLocation | SuperHeavyVehicleLocation {
+    const block = locationKey.replace(/ equipment$/i, '');
+    const normalized = blkEquipmentBlockLocation(block).toLowerCase();
     return VEHICLE_LOCATION_MAP[normalized] || VehicleLocation.BODY;
   }
 
   /**
    * Calculate maximum armor points for vehicle tonnage
-   * Vehicles: tonnage * 3.5 for standard armor (rounded down)
+   * (TestTank.java:338: tonnage * 7 / 2 + 40, rounded down)
    */
   private calculateMaxArmor(tonnage: number): number {
-    return Math.floor(tonnage * 3.5);
+    return getTankMaxTotalArmor(tonnage);
   }
 
   /**
@@ -370,9 +416,6 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       max: 200,
       minText: '1',
     });
-    if (unit.tonnage > 100 && !unit.isSuperheavy) {
-      errors.push('Vehicles over 100 tons must be marked as superheavy');
-    }
 
     // Movement validation
     if (unit.movement.cruiseMP < 1 && !unit.isTrailer) {
