@@ -52,7 +52,7 @@ export const UnitContract = z
           .gte(0)
           .lte(250)
           .describe(
-            'Unit tonnage; the anyOf rule retains a 250 t bound, with explicit Support Vehicle (600 t) and capital ship (2,400,000 t) exceptions.',
+            'Unit tonnage; the anyOf rule retains a 250 t bound, with explicit Support Vehicle (600 t) and capital ship (2,500,000 t) exceptions.',
           ),
         engine: z
           .object({
@@ -525,7 +525,7 @@ export const UnitContract = z
           .number()
           .gte(0)
           .describe(
-            'Unit tonnage; the anyOf rule retains a 250 t bound, with explicit Support Vehicle (600 t) and capital ship (2,400,000 t) exceptions.',
+            'Unit tonnage; the anyOf rule retains a 250 t bound, with explicit Support Vehicle (600 t) and capital ship (2,500,000 t) exceptions.',
           )
           .optional(),
         engine: z
@@ -948,7 +948,7 @@ export const UnitContract = z
               'WarShip',
               'Space Station',
             ]),
-            tonnage: z.number().lte(2400000).optional(),
+            tonnage: z.number().lte(2500000).optional(),
           }),
         ]),
       )

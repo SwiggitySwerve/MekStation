@@ -299,7 +299,7 @@ class CapitalConverterTest(unittest.TestCase):
             ('Aerospace', 250), ('ProtoMech', 250), ('VTOL', 250), ('Vehicle', 250),
             ('Conventional Fighter', 250), ('Small Craft', 250), ('Infantry', 250), ('Battle Armor', 250),
             ('Support Vehicle', 600), ('SupportVehicle', 600),
-            ('DropShip', 2400000), ('JumpShip', 2400000), ('WarShip', 2400000), ('Space Station', 2400000),
+            ('DropShip', 2500000), ('JumpShip', 2500000), ('WarShip', 2500000), ('Space Station', 2500000),
         ):
             with self.subTest(unit_type=unit_type):
                 unit = {'id': 'boundary', 'unitType': unit_type, 'tonnage': maximum}
