@@ -4,6 +4,9 @@ import path from 'node:path';
 import { UnitContract } from '@/types/contracts';
 
 describe('unit tonnage limits', () => {
+  // Capital families share one coarse bound: the largest TestAero.getMaxTonnage
+  // value at MegaMek 48fcb2f6 (TestAero.java:1234-1258), 2,500,000 t for Space
+  // Stations and WarShips. Construction rules narrow it per family.
   it.each([
     ['Aerospace', 250],
     ['ProtoMech', 250],
@@ -15,10 +18,10 @@ describe('unit tonnage limits', () => {
     ['Battle Armor', 250],
     ['Support Vehicle', 600],
     ['SupportVehicle', 600],
-    ['DropShip', 2400000],
-    ['JumpShip', 2400000],
-    ['WarShip', 2400000],
-    ['Space Station', 2400000],
+    ['DropShip', 2500000],
+    ['JumpShip', 2500000],
+    ['WarShip', 2500000],
+    ['Space Station', 2500000],
   ])(
     '%s accepts its limit and rejects one ton above it',
     (unitType, maximum) => {
