@@ -26,6 +26,8 @@ const KNOWN_CONFLICTS = new Set([
   'clplasmacannon',
   'clheavysmalllaser',
   'clmicropulselaser',
+  'clermediumpulselaser',
+  'clerlargepulselaser',
   'clerflamer',
 ]);
 
