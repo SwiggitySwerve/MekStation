@@ -25,6 +25,7 @@ import {
 } from './useVehicleStore.helpers';
 import {
   VehicleStore,
+  VehicleState,
   createEmptyVehicleArmorAllocation,
   createEmptyVTOLArmorAllocation,
 } from './vehicleState';
@@ -187,7 +188,7 @@ export function setTurretWeightLogic(
 }
 
 export function setTurretTypeLogic(
-  state: VehicleStore,
+  state: Pick<VehicleState, 'turret' | 'tonnage'>,
   type: TurretType,
 ): Partial<VehicleStore> {
   if (type === TurretType.NONE) {
