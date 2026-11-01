@@ -3,6 +3,7 @@ import React from 'react';
 import { UNIT_TEMPLATES, UnitTemplate } from '@/stores/useMultiUnitStore';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { calculateMaxThrust } from '@/utils/construction/aerospace/thrustCalculations';
 import { computeFlankMP } from '@/utils/construction/vehicle/engine';
 import { formatTons } from '@/utils/formatting';
 
@@ -160,7 +161,7 @@ export function NewTabModalNewMode({
                 </div>
                 <div className="text-text-theme-secondary text-xs">
                   {formatTons(template.tonnage)} • Thrust {template.safeThrust}/
-                  {Math.floor(template.safeThrust * 1.5)}
+                  {calculateMaxThrust(template.safeThrust)}
                 </div>
               </button>
             ))}

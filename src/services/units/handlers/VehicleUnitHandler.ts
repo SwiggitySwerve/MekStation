@@ -14,6 +14,7 @@ import {
 } from '@/services/conversion/blkEngineIdentity';
 import {
   blkEquipmentBlockLocation,
+  blkVehicleArmorLengthError,
   isSuperHeavyTank,
   placeRejectedBlkVehicleArmor,
   resolveBlkVehicleArmor,
@@ -189,6 +190,12 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
           armor,
         );
     if (placed.warning) warnings.push(placed.warning);
+    const armorLayoutError = blkVehicleArmorLengthError(
+      document.unitType,
+      document.motionType || 'Tracked',
+      document.tonnage,
+      armor,
+    );
     const armorByLocation = this.parseArmorByLocation(placed.byLocation);
     const totalArmorPoints = armor.reduce((sum, val) => sum + val, 0);
 
@@ -236,6 +243,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       armorType,
       armor,
       armorByLocation,
+      armorLayoutError,
       totalArmorPoints,
       maxArmorPoints: this.calculateMaxArmor(document.tonnage),
       turret,
@@ -428,6 +436,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     }
 
     // Armor validation
+    if (unit.armorLayoutError) errors.push(unit.armorLayoutError);
     if (unit.totalArmorPoints > unit.maxArmorPoints) {
       errors.push(
         `Total armor (${unit.totalArmorPoints}) exceeds maximum (${unit.maxArmorPoints})`,

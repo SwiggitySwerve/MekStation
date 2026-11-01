@@ -8,27 +8,28 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { SMALL_CRAFT_TONNAGE } from '@/services/construction/constructionConstants';
-import { blkEngineCode } from '@/services/conversion/blkEngineIdentity';
-import { SmallCraftLocation } from '@/types/construction/UnitLocation';
-import { IBlkDocument } from '@/types/formats/BlkFormat';
+import { SMALL_CRAFT_TONNAGE } from "@/services/construction/constructionConstants";
+import { blkEngineCode } from "@/services/conversion/blkEngineIdentity";
+import { SmallCraftLocation } from "@/types/construction/UnitLocation";
+import { IBlkDocument } from "@/types/formats/BlkFormat";
 import {
   ISmallCraft,
   ISmallCraftMountedEquipment,
-} from '@/types/unit/AerospaceInterfaces';
+} from "@/types/unit/AerospaceInterfaces";
 import {
   AerospaceMotionType,
   IAerospaceMovement,
-} from '@/types/unit/BaseUnitInterfaces';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { ISerializedUnit } from '@/types/unit/UnitSerialization';
-import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
-import { calculateAerospaceBVFromUnit } from '@/utils/construction/aerospace/aerospaceBVUnitAdapter';
+} from "@/types/unit/BaseUnitInterfaces";
+import { UnitType } from "@/types/unit/BattleMechInterfaces";
+import { ISerializedUnit } from "@/types/unit/UnitSerialization";
+import { IUnitParseResult } from "@/types/unit/UnitTypeHandler";
+import { calculateAerospaceBVFromUnit } from "@/utils/construction/aerospace/aerospaceBVUnitAdapter";
+import { calculateMaxThrust } from "@/utils/construction/aerospace/thrustCalculations";
 
 import {
   AbstractUnitTypeHandler,
   createFailureResult,
-} from './AbstractUnitTypeHandler';
+} from "./AbstractUnitTypeHandler";
 import {
   UnitFieldParseMessages,
   UnitValidationMessages,
@@ -42,7 +43,7 @@ import {
   pushSourceLoadNumberErrors,
   withConstructionDiagnostics,
   serializeConfigurationWithRulesLevel,
-} from './unitHandlerShared';
+} from "./unitHandlerShared";
 
 // ============================================================================
 // Constants
@@ -53,15 +54,15 @@ import {
  */
 const LOCATION_MAP: Record<string, SmallCraftLocation> = {
   nose: SmallCraftLocation.NOSE,
-  'nose equipment': SmallCraftLocation.NOSE,
-  'left side': SmallCraftLocation.LEFT_SIDE,
-  'left side equipment': SmallCraftLocation.LEFT_SIDE,
-  'right side': SmallCraftLocation.RIGHT_SIDE,
-  'right side equipment': SmallCraftLocation.RIGHT_SIDE,
+  "nose equipment": SmallCraftLocation.NOSE,
+  "left side": SmallCraftLocation.LEFT_SIDE,
+  "left side equipment": SmallCraftLocation.LEFT_SIDE,
+  "right side": SmallCraftLocation.RIGHT_SIDE,
+  "right side equipment": SmallCraftLocation.RIGHT_SIDE,
   aft: SmallCraftLocation.AFT,
-  'aft equipment': SmallCraftLocation.AFT,
+  "aft equipment": SmallCraftLocation.AFT,
   hull: SmallCraftLocation.HULL,
-  'hull equipment': SmallCraftLocation.HULL,
+  "hull equipment": SmallCraftLocation.HULL,
 };
 
 // ============================================================================
@@ -73,7 +74,7 @@ const LOCATION_MAP: Record<string, SmallCraftLocation> = {
  */
 export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> {
   readonly unitType = UnitType.SMALL_CRAFT;
-  readonly displayName = 'Small Craft';
+  readonly displayName = "Small Craft";
 
   /**
    * Get available locations for small craft
@@ -89,19 +90,19 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
     document: IBlkDocument,
   ): Partial<ISmallCraft> & UnitFieldParseMessages {
     const { errors, warnings } = createParseMessages();
-    pushSourceLoadNumberErrors(errors, document, 'safeThrust');
+    pushSourceLoadNumberErrors(errors, document, "safeThrust");
     if (errors.length > 0) return { errors, warnings };
 
     // Motion type (aerodyne or spheroid)
-    const motionTypeStr = document.motionType?.toLowerCase() || 'aerodyne';
+    const motionTypeStr = document.motionType?.toLowerCase() || "aerodyne";
     const motionType =
-      motionTypeStr === 'spheroid'
+      motionTypeStr === "spheroid"
         ? AerospaceMotionType.SPHEROID
         : AerospaceMotionType.AERODYNE;
 
     // Movement - thrust values
     const safeThrust = document.safeThrust || 0;
-    const maxThrust = Math.floor(safeThrust * 1.5);
+    const maxThrust = calculateMaxThrust(safeThrust);
     const movement: IAerospaceMovement = { safeThrust, maxThrust };
 
     // Fuel
@@ -116,7 +117,7 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
 
     // Engine and armor types
     // SmallCraft.java:129-130 uses an ICE runtime placeholder, not construction.
-    const engineType = blkEngineCode('ICE');
+    const engineType = blkEngineCode("ICE");
     warnings.push(
       `SmallCraft ICE runtime placeholder; ignored engine_type ${JSON.stringify(document.rawTags?.engine_type ?? document.engineType)}`,
     );
@@ -187,7 +188,7 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
    */
   private parseCargoCapacity(document: IBlkDocument): number {
     const rawTags = document.rawTags || {};
-    const cargoStr = rawTags['cargo'] || rawTags['cargocapacity'];
+    const cargoStr = rawTags["cargo"] || rawTags["cargocapacity"];
     if (Array.isArray(cargoStr)) {
       return parseFloat(cargoStr[0]) || 0;
     }
@@ -230,7 +231,7 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
     const unit = combineAssaultUnitFields<ISmallCraft>({
       commonFields,
       typeSpecificFields,
-      idPrefix: 'small-craft',
+      idPrefix: "small-craft",
       unitType: UnitType.SMALL_CRAFT,
       rulesLevelParser: parseRulesLevelThroughAdvancedFromType,
     });
@@ -254,7 +255,7 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
    */
   deserialize(_serialized: ISerializedUnit): IUnitParseResult<ISmallCraft> {
     return createFailureResult([
-      'Small Craft deserialization not yet implemented',
+      "Small Craft deserialization not yet implemented",
     ]);
   }
 
@@ -267,7 +268,7 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
     const { errors, warnings, infos } = createValidationMessages();
 
     pushTonnageRangeErrors(errors, unit.tonnage, {
-      label: 'Small craft',
+      label: "Small craft",
       min: SMALL_CRAFT_TONNAGE.min,
       max: SMALL_CRAFT_TONNAGE.max,
     });
@@ -275,13 +276,13 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
     pushSafeThrustAndStructureErrors(
       errors,
       unit,
-      'Small craft must have at least 1 safe thrust',
-      'Small craft must have at least 1 SI',
+      "Small craft must have at least 1 safe thrust",
+      "Small craft must have at least 1 SI",
     );
 
     // Crew validation
     if (unit.crew < 1) {
-      warnings.push('Small craft has no crew assigned');
+      warnings.push("Small craft has no crew assigned");
     }
 
     // Escape capacity check

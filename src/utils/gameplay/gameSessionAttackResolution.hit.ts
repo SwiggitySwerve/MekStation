@@ -9,7 +9,10 @@ import { resolveDamage as resolveDamagePipeline } from './damage';
 import { type D6Roller, type DiceRoller } from './diceTypes';
 import { calculateFiringArc } from './firingArc';
 import { createAttackResolvedEvent } from './gameEvents';
-import { resolveSelectedAMSCluster } from './gameSessionAttackResolution.ams';
+import {
+  resolveMissileClusterDamage,
+  resolveSelectedAMSCluster,
+} from './gameSessionAttackResolution.ams';
 import {
   emitDamageCriticalEvents,
   emitDamagePsrEvents,
@@ -67,6 +70,16 @@ export function resolveWeaponHit(input: {
       ...input.weaponData,
       damage: selectedAMSResult.damage,
     };
+  } else {
+    const clusterDamage = resolveMissileClusterDamage({
+      weaponId: input.weaponId,
+      weaponName: input.weaponName,
+      damage: input.weaponData.damage,
+      diceRoller: input.diceRoller,
+    });
+    if (clusterDamage !== undefined) {
+      resolvedWeaponData = { ...input.weaponData, damage: clusterDamage };
+    }
   }
 
   const vehicleResolved = tryResolveVehicleAttackHit({

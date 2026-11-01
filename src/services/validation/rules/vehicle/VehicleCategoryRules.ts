@@ -7,7 +7,10 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
-import { getVehicleMaxTonnage } from '@/services/construction/constructionConstants';
+import {
+  getVehicleMaxTonnage,
+  getVehicleMinTonnage,
+} from '@/services/construction/constructionConstants';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
@@ -47,8 +50,9 @@ function isVehicleUnit(unit: IValidatableUnit): unit is IVehicleUnit {
 }
 
 /**
- * Tonnage range for a vehicle: 1 t up to its motion type's maximum
- * (`getVehicleMaxTonnage`). A VTOL unit is always VTOL motion.
+ * Tonnage range for a vehicle: the minimum (`getVehicleMinTonnage`) up to its
+ * motion type's maximum (`getVehicleMaxTonnage`). A VTOL unit is always VTOL
+ * motion.
  */
 function getVehicleTonnageRange(unit: IValidatableUnit): {
   min: number;
@@ -60,12 +64,10 @@ function getVehicleTonnageRange(unit: IValidatableUnit): {
       : isVehicleUnit(unit)
         ? unit.motiveSystem?.type
         : undefined;
+  const support = unit.unitType === UnitType.SUPPORT_VEHICLE;
   return {
-    min: 1,
-    max: getVehicleMaxTonnage(
-      motionType,
-      unit.unitType === UnitType.SUPPORT_VEHICLE,
-    ),
+    min: getVehicleMinTonnage(support),
+    max: getVehicleMaxTonnage(motionType, support),
   };
 }
 
