@@ -600,7 +600,7 @@ describe('Vehicle Category Rules', () => {
       });
     });
 
-    describe('VTOL tonnage (1-30 tons)', () => {
+    describe('VTOL tonnage (1-60 tons: SuperHeavy VTOLs above 30 t are legal, VTOL.java:729, TestTank.java:136)', () => {
       it('should pass at minimum tonnage (1 ton)', () => {
         const unit = createVTOLUnit({ weight: 1 });
         const context = createTestContext(unit);
@@ -609,8 +609,8 @@ describe('Vehicle Category Rules', () => {
         expect(result.passed).toBe(true);
       });
 
-      it('should pass at maximum tonnage (30 tons)', () => {
-        const unit = createVTOLUnit({ weight: 30 });
+      it.each([30, 31, 60])('should pass at %d tons', (weight) => {
+        const unit = createVTOLUnit({ weight });
         const context = createTestContext(unit);
         const result = VehicleTonnageRange.validate(context);
 
@@ -631,18 +631,18 @@ describe('Vehicle Category Rules', () => {
         const result = VehicleTonnageRange.validate(context);
 
         expect(result.passed).toBe(false);
-        expect(result.errors[0].message).toContain('1-30');
+        expect(result.errors[0].message).toContain('1-60');
       });
 
       it('should fail above maximum tonnage', () => {
-        const unit = createVTOLUnit({ weight: 31 });
+        const unit = createVTOLUnit({ weight: 61 });
         const context = createTestContext(unit);
         const result = VehicleTonnageRange.validate(context);
 
         expect(result.passed).toBe(false);
-        expect(result.errors[0].message).toContain('1-30');
-        expect(result.errors[0].expected).toBe('1-30');
-        expect(result.errors[0].actual).toBe('31');
+        expect(result.errors[0].message).toContain('1-60');
+        expect(result.errors[0].expected).toBe('1-60');
+        expect(result.errors[0].actual).toBe('61');
       });
     });
 
