@@ -90,7 +90,7 @@ The system SHALL track structural integrity for aerospace fighters. Fighter SI S
 
 ### Requirement: Aerospace definition to editor state
 
-The system SHALL map a validated aerospace definition from `loadUnitDefinition('aerospace', id)` to the existing `AerospaceState` for aerospace fighters, conventional fighters and FixedWingSupport, and SHALL reject small craft definitions with an unsupported-configuration error.
+The system SHALL map a validated aerospace definition from `loadUnitDefinition('aerospace', id)` to the existing `AerospaceState` for aerospace fighters, conventional fighters, FixedWingSupport and small craft.
 
 #### Scenario: Fighter definition opens in the aerospace store
 
@@ -100,9 +100,18 @@ The system SHALL map a validated aerospace definition from `loadUnitDefinition('
 **AND** its structural integrity SHALL come from the shared SI rule, so it equals the pinned MegaMek value
 **AND** a FixedWingSupport definition SHALL be marked as FixedWingSupport so later SI derivations use safe thrust
 
+#### Scenario: Small craft definition opens in the aerospace store
+
+**GIVEN** a converted small craft definition, spheroid or aerodyne
+**WHEN** it is mapped
+**THEN** the state SHALL have unit type and sub-type Small Craft and carry its motion type, crew and passengers, transport bays other than quarters, fuel points, heat sinks and arc armor
+**AND** its Left Side and Right Side armor and equipment SHALL map to the shared side arcs
+**AND** a rear-mounted side weapon SHALL be marked rear-mounted, placing it in the aft-side arc, as `SmallCraft.java` does
+**AND** its structural integrity SHALL be the explicit value from the definition, kept through tonnage and thrust edits (`BLKSmallCraftFile.java:125-128`)
+
 #### Scenario: Unknown arcs are rejected
 
-**GIVEN** a definition whose equipment names an arc outside Nose, Left Wing, Right Wing, Aft and Fuselage
+**GIVEN** a definition whose equipment names an arc outside Nose, Left Wing, Right Wing, Aft and Fuselage, or for a small craft also Left Side and Right Side
 **WHEN** it is mapped
 **THEN** mapping SHALL fail with an unsupported-configuration error rather than guess an arc
 
