@@ -1,5 +1,43 @@
 ## ADDED Requirements
 
+### Requirement: Capital BLK source definitions
+
+The capital converter SHALL load pinned JumpShip, WarShip and SpaceStation
+sources in addition to DropShips. It SHALL preserve tonnage, structural
+integrity, original fuel, safe thrust, armor type and source armor by Java
+location, equipment lines including broadside locations, crew and grav decks.
+Recognized sources missing a Java-required tag or using an unknown armor code
+SHALL fail conversion. The command SHALL require an explicit output directory.
+Catalog publication, BV, construction weights and gameplay remain separate work.
+
+#### Scenario: Six armor arcs and broadside equipment
+
+- **GIVEN** a pinned WarShip BLK with six armor values and broadside equipment
+- **WHEN** the capital converter loads it
+- **THEN** armor SHALL follow nose, front left, front right, aft, aft left, aft right
+- **AND** broadside equipment SHALL retain separate left and right locations
+- **AND** Hull and broadsides SHALL NOT acquire invented armor values
+
+#### Scenario: Loader-specific defaults and primitive drive facts
+
+- **GIVEN** JumpShip, WarShip and SpaceStation sources
+- **WHEN** the capital converter loads them
+- **THEN** JumpShip and Station SHALL use zero safe thrust and civilian defaults
+- **AND** WarShip SHALL require SafeThrust and default to military
+- **AND** all three SHALL use AERODYNE motion and the Java ICE runtime placeholder
+- **AND** WarShip SHALL preserve explicit kf_core and jump_range, including primitive cores
+- **AND** sail, lithium-fusion, docking collars and legacy/explicit grav decks SHALL follow their pinned loaders
+
+#### Scenario: Existing DropShip output remains stable
+
+- **GIVEN** all 209 pinned DropShip sources
+- **WHEN** converted before and after this extension
+- **THEN** serialized definition bytes SHALL remain identical
+
+Authority: MegaMek `48fcb2f6` BLKJumpshipFile, BLKWarshipFile,
+BLKSpaceStationFile and Jumpship/Warship/SpaceStation constructors;
+mm-data `50f7efef`. Historical primitive JumpShips may load as Java Warship.
+
 ### Requirement: Portable versioned unit documents
 
 The system SHALL expose a documented application-independent unit document validated by the existing schema authority, with explicit schema/version, measurement units, stable identities, discriminated families and relationships. Source adapters SHALL isolate legacy syntax and enum ordinals from this model. The contract SHALL define migration, extension and compatibility rules and provide machine-readable schemas, examples and executable conformance cases.

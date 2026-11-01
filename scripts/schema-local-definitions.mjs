@@ -45,6 +45,17 @@ export function prepareSchemaDefinitions(input) {
   return {
     schema: resolve(input),
     declarations: declarations.join('\n'),
-    parserOverride: (schema) => names.get(JSON.stringify(schema)),
+    parserOverride: (schema) => {
+      const name = names.get(JSON.stringify(schema));
+      if (name) return name;
+      // The library emits z.any() for `not`; in an intersected branch that
+      // widens the inferred field to any. unknown keeps the other branch's type.
+      const negated =
+        Object.keys(schema).length === 1 &&
+        names.get(JSON.stringify(schema.not));
+      if (negated)
+        return `z.unknown().refine((value) => !${negated}.safeParse(value).success, "Invalid input: Should NOT be valid against schema")`;
+      return undefined;
+    },
   };
 }

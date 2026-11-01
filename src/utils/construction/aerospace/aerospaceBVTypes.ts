@@ -43,7 +43,7 @@ export interface IAerospaceBVInput {
   readonly totalArmorPoints: number;
   readonly equipment: readonly IAerospaceBVEquipment[];
   readonly ammo?: readonly IAerospaceBVAmmo[];
-  /** BV of defensive-only equipment (ECM, active probe, chaff pod, etc.) */
+  /** Additional defensive BV not represented in equipment (mounted items are resolved automatically). */
   readonly defensiveEquipmentBV?: number;
   /** BV of offensive-only non-weapon equipment (TAG, Targeting Computer, C3, etc.) */
   readonly offensiveEquipmentBV?: number;
