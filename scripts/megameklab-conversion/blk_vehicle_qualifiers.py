@@ -2,22 +2,22 @@
 
 from __future__ import annotations
 
-import math
 from typing import Any, Dict
+
+from blk_unit_fields import parse_qualifier_number, parse_source_qualifiers
 
 
 def parse_vehicle_qualifiers(tags: Dict[str, Any]) -> Dict[str, Any]:
     """Preserve explicit qualifiers without deriving construction defaults."""
+    shared = parse_source_qualifiers(tags)
+    # Writers preserve insertion order; retain the vehicle's established layout.
     result: Dict[str, Any] = {}
-    for tag, field in (('omni', 'isOmni'), ('trailer', 'isTrailer')):
-        if tag in tags:
-            result[field] = True  # Upstream uses exists(), not the tag's value.
-
-    if 'clan_engine' in tags:
-        raw = str(tags['clan_engine']).strip().lower()
-        if raw not in ('true', 'false'):
-            raise ValueError(f'Invalid BLK clan_engine: {tags["clan_engine"]!r}')
-        result['clanEngine'] = raw == 'true'
+    if 'isOmni' in shared:
+        result['isOmni'] = shared['isOmni']
+    if 'trailer' in tags:
+        result['isTrailer'] = True  # Upstream uses exists(), not the tag's value.
+    if 'clanEngine' in shared:
+        result['clanEngine'] = shared['clanEngine']
 
     for tag, field, integer in (
         ('baseChassisTurretWeight', 'baseChassisTurretWeight', False),
@@ -32,18 +32,10 @@ def parse_vehicle_qualifiers(tags: Dict[str, Any]) -> Dict[str, Any]:
     ):
         if tag not in tags:
             continue
-        try:
-            value = float(tags[tag])
-        except (TypeError, ValueError) as exc:
-            raise ValueError(f'Invalid BLK {tag}: {tags[tag]!r}') from exc
-        if not math.isfinite(value) or (integer and not value.is_integer()):
-            raise ValueError(f'Invalid BLK {tag}: {tags[tag]!r}')
-        result[field] = int(value) if integer else value
+        result[field] = parse_qualifier_number(tags, tag, integer=integer)
 
     if 'fuelType' in tags:
         result['fuelType'] = str(tags['fuelType']).strip()
-    if 'transporters' in tags:
-        result['transporters'] = [
-            line.strip() for line in str(tags['transporters']).splitlines() if line.strip()
-        ]
+    if 'transporters' in shared:
+        result['transporters'] = shared['transporters']
     return result
