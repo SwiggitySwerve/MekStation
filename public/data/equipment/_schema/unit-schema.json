@@ -181,7 +181,20 @@
       "type": "object",
       "required": ["type"],
       "properties": {
-        "type": { "$ref": "#/$defs/standardArmorType" },
+        "type": {
+          "anyOf": [
+            { "$ref": "#/$defs/standardArmorType" },
+            {
+              "type": "string",
+              "enum": [
+                "FERRO_CARBIDE",
+                "LAMELLOR_FERRO_CARBIDE",
+                "IMPROVED_FERRO_ALUMINUM"
+              ]
+            }
+          ],
+          "description": "Armor type"
+        },
         "barRating": {
           "type": "integer",
           "minimum": 2,
@@ -521,6 +534,11 @@
   "anyOf": [
     {
       "properties": {
+        "unitType": { "not": { "$ref": "#/$defs/capitalUnitType" } },
+        "armor": {
+          "type": "object",
+          "properties": { "type": { "$ref": "#/$defs/standardArmorType" } }
+        },
         "tonnage": { "type": "number", "maximum": 250 }
       }
     },
@@ -528,16 +546,30 @@
       "required": ["unitType"],
       "properties": {
         "unitType": { "enum": ["Support Vehicle", "SupportVehicle"] },
+        "armor": {
+          "type": "object",
+          "properties": { "type": { "$ref": "#/$defs/standardArmorType" } }
+        },
         "tonnage": { "type": "number", "maximum": 600 }
       }
     },
     {
       "required": ["unitType"],
       "properties": {
-        "unitType": {
-          "enum": ["DropShip", "JumpShip", "WarShip", "Space Station"]
+        "unitType": { "$ref": "#/$defs/capitalUnitType" },
+        "tonnage": { "type": "number", "maximum": 2500000 },
+        "otherCrew": { "type": "integer", "minimum": 0 },
+        "driveCoreType": { "type": "integer", "minimum": 0, "maximum": 4 },
+        "jumpRange": { "type": "integer", "minimum": 0 },
+        "hasSail": { "type": "boolean" },
+        "hasLFBattery": { "type": "boolean" },
+        "hasHPG": { "type": "boolean" },
+        "gravDecks": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 0 }
         },
-        "tonnage": { "type": "number", "maximum": 2500000 }
+        "dockingCollars": { "type": "integer", "minimum": 0 },
+        "isModular": { "type": "boolean" }
       }
     }
   ],
@@ -594,6 +626,9 @@
         "STANDARD_PROTOMEK"
       ],
       "description": "Armor type"
+    },
+    "capitalUnitType": {
+      "enum": ["DropShip", "JumpShip", "WarShip", "Space Station"]
     }
   },
   "allOf": [
