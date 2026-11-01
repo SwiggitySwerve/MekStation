@@ -71,11 +71,28 @@ describe('computeWeightBreakdown', () => {
     expect(bd.remaining).toBeCloseTo(50 - bd.totalUsed, 5);
   });
 
-  it('charges extra SI tonnage when above default', () => {
+  it('charges no SI tonnage for a fighter, whose SI is derived', () => {
     const bd = computeWeightBreakdown({
       tonnage: 100,
       subType: AerospaceSubType.AEROSPACE_FIGHTER,
       engineRating: 300, // 17.5 t fusion
+      engineType: AerospaceEngineType.FUSION,
+      structuralIntegrity: 12, // ceil-default pricing would charge 10 t
+      fuelTons: 5,
+      armorTons: 0,
+      totalHeatSinks: 10,
+      cockpitType: 'Standard',
+      equipmentTons: 0,
+      crew: null,
+    });
+    expect(bd.siTons).toBe(0);
+  });
+
+  it('charges small-craft SI above the default', () => {
+    const bd = computeWeightBreakdown({
+      tonnage: 100,
+      subType: AerospaceSubType.SMALL_CRAFT,
+      engineRating: 300,
       engineType: AerospaceEngineType.FUSION,
       structuralIntegrity: 12, // default 10 → +2 → 2 × (100/10) × 0.5 = 10 t
       fuelTons: 5,

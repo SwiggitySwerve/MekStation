@@ -160,6 +160,12 @@ export interface IGroundUnit extends IBaseUnit {
 
   /** Maximum armor points for this tonnage */
   readonly maxArmorPoints: number;
+
+  /**
+   * Set when the source `<armor>` array has a length MegaMek refuses to load.
+   * The unit still loads for inspection; validation reports this as an error.
+   */
+  readonly armorLayoutError?: string;
 }
 
 // ============================================================================

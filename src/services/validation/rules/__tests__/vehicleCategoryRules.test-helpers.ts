@@ -676,7 +676,7 @@ describe('Vehicle Category Rules', () => {
       });
     });
 
-    describe('Support Vehicle tonnage (1 t to the SVType maximum, TestSupportVehicle.java:87-107)', () => {
+    describe('Support Vehicle tonnage (0.001 t to the SVType maximum, TestSupportVehicle.java:87-107)', () => {
       it('should pass at minimum tonnage (1 ton)', () => {
         const unit = createSupportVehicleUnit({ weight: 1 });
         const context = createTestContext(unit);
@@ -714,7 +714,33 @@ describe('Vehicle Category Rules', () => {
         const result = VehicleTonnageRange.validate(context);
 
         expect(result.passed).toBe(false);
-        expect(result.errors[0].message).toContain('1-160');
+        expect(result.errors[0].message).toContain('0.001-160');
+      });
+
+      // TestSupportVehicle has no 1 t minimum; the corpus holds 18 valid
+      // sub-1 t support vehicles (0.04 t HTE Micro-Copter to 0.84 t Eagre ATV).
+      it.each([
+        ['Wheeled', 0.35],
+        ['Hover', 0.25],
+        ['Naval', 0.1],
+        ['VTOL', 0.04],
+      ])('%s support vehicle at %d t passes', (type, weight) => {
+        const unit = createSupportVehicleUnit({
+          weight,
+          motiveSystem: { type },
+        });
+
+        expect(
+          VehicleTonnageRange.validate(createTestContext(unit)).passed,
+        ).toBe(true);
+      });
+
+      it('keeps the 1 t minimum for combat vehicles', () => {
+        const unit = createVehicleUnit({ weight: 0.5 });
+
+        expect(
+          VehicleTonnageRange.validate(createTestContext(unit)).passed,
+        ).toBe(false);
       });
 
       it('should fail above maximum tonnage', () => {
@@ -726,8 +752,8 @@ describe('Vehicle Category Rules', () => {
         const result = VehicleTonnageRange.validate(context);
 
         expect(result.passed).toBe(false);
-        expect(result.errors[0].message).toContain('1-600');
-        expect(result.errors[0].expected).toBe('1-600');
+        expect(result.errors[0].message).toContain('0.001-600');
+        expect(result.errors[0].expected).toBe('0.001-600');
         expect(result.errors[0].actual).toBe('601');
       });
     });

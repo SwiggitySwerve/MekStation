@@ -18,8 +18,8 @@ import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import {
-  computeSupportVehicleArmorWeight,
   computeVehicleArmorWeight,
+  getSupportVehicleBarArmorWeight,
 } from '@/utils/construction/vehicle/armor';
 import {
   computeFlankMP,
@@ -160,7 +160,7 @@ export function normalizeVehicleConfiguration(
       ? (setTurretTypeLogic(defaults, TurretType.SINGLE).turret ?? null)
       : null;
   // The store's legacy action uses 360 degrees even for chin turrets; preserve
-  // the source arc while leaving its existing capacity derivation untouched.
+  // the source arc (there is no turret capacity cap, owner ruling 5).
   const configuredTurret =
     turret && type === TurretType.CHIN
       ? { ...turret, rotationArc: 180 }
@@ -195,7 +195,14 @@ export function normalizeVehicleConfiguration(
     armorType,
     armorTonnage:
       armor.type === 'BAR' && barRating !== null
-        ? computeSupportVehicleArmorWeight(totalArmor, barRating)
+        ? getSupportVehicleBarArmorWeight(
+            totalArmor,
+            barRating,
+            // Same fallback as SupportVehicleUnitHandler: armor, then
+            // structural tech rating, then F (index 5).
+            definition.armorTechRating ?? definition.structuralTechRating ?? 5,
+            tonnage < 5, // RoundWeight.usesKilogramStandard: small support
+          )
         : computeVehicleArmorWeight(totalArmor, armorType),
     barRating,
     turret: configuredTurret,

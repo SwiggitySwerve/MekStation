@@ -12,6 +12,7 @@ import { createContext, useContext } from 'react';
 import { create, StoreApi, useStore } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { aerospaceStructuralIntegrity } from '@/services/conversion/BlkParserService.helpers';
 import { getThresholdWeightClass } from '@/services/units/unitWeightClass';
 import {
   addGeneratedMountedEquipment,
@@ -32,6 +33,7 @@ import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { WeightClass } from '@/types/enums/WeightClass';
 import { IEquipmentItem } from '@/types/equipment';
 import { calculateFuelPoints } from '@/utils/construction/aerospace/fuelCalculations';
+import { calculateMaxThrust } from '@/utils/construction/aerospace/thrustCalculations';
 
 import {
   AerospaceState,
@@ -63,13 +65,6 @@ function getAerospaceWeightClass(tonnage: number): WeightClass {
     ],
     WeightClass.ASSAULT,
   );
-}
-
-/**
- * Calculate max thrust from safe thrust
- */
-function calculateMaxThrust(safeThrust: number): number {
-  return Math.floor(safeThrust * 1.5);
 }
 
 function allocateAerospaceArmorPoints(totalPoints: number) {
@@ -216,7 +211,10 @@ const createAerospaceChassisActions = (
         tonnage,
         weightClass: getAerospaceWeightClass(tonnage),
         engineRating: Math.max(10, Math.min(400, tonnage * state.safeThrust)),
-        structuralIntegrity: Math.ceil(tonnage / 10),
+        structuralIntegrity: aerospaceStructuralIntegrity({
+          ...state,
+          tonnage,
+        }),
       }),
     ),
   setIsOmni: (isOmni) => set(modifiedPatch({ isOmni })),
@@ -232,19 +230,28 @@ const createAerospaceEngineActions = (
 > => ({
   setEngineType: (engineType) => set(modifiedPatch({ engineType })),
   setEngineRating: (engineRating) =>
-    set((state) =>
-      modifiedPatch({
+    set((state) => {
+      const safeThrust = Math.floor(engineRating / state.tonnage);
+      return modifiedPatch({
         engineRating,
-        safeThrust: Math.floor(engineRating / state.tonnage),
-        maxThrust: calculateMaxThrust(Math.floor(engineRating / state.tonnage)),
-      }),
-    ),
+        safeThrust,
+        maxThrust: calculateMaxThrust(safeThrust),
+        structuralIntegrity: aerospaceStructuralIntegrity({
+          ...state,
+          safeThrust,
+        }),
+      });
+    }),
   setSafeThrust: (safeThrust) =>
     set((state) =>
       modifiedPatch({
         safeThrust,
         maxThrust: calculateMaxThrust(safeThrust),
         engineRating: state.tonnage * safeThrust,
+        structuralIntegrity: aerospaceStructuralIntegrity({
+          ...state,
+          safeThrust,
+        }),
       }),
     ),
 });
@@ -272,7 +279,7 @@ const createAerospaceFuelActions = (
 });
 
 const AEROSPACE_PERSIST_KEYS =
-  'tonnage techBase unitType aerospaceSubType motionType isOmni engineType aerospaceEngineType engineRating safeThrust fuelTons structuralIntegrity cockpitType heatSinks doubleHeatSinks armorType armorTonnage armorAllocation hasBombBay bombCapacity hasReinforcedCockpit hasEjectionSeat crew equipment isModified createdAt lastModifiedAt'.split(
+  'tonnage techBase unitType aerospaceSubType isFixedWingSupport motionType isOmni engineType aerospaceEngineType engineRating safeThrust fuelTons structuralIntegrity cockpitType heatSinks doubleHeatSinks armorType armorTonnage armorAllocation hasBombBay bombCapacity hasReinforcedCockpit hasEjectionSeat crew equipment isModified createdAt lastModifiedAt'.split(
     ' ',
   ) as ReadonlyArray<keyof AerospaceStore>;
 

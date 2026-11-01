@@ -116,7 +116,7 @@ describe('canonical index unitType', () => {
       variant: 'AS7-D',
       tonnage: 100,
       techBase: TechBase.INNER_SPHERE,
-      era: Era.LATE_SUCCESSION_WARS,
+      era: Era.STAR_LEAGUE,
       weightClass: WeightClass.ASSAULT,
       unitType: UnitType.BATTLEMECH,
       filePath:

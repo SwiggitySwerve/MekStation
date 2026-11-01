@@ -26,11 +26,14 @@ import { calculateAerospaceBV } from './aerospaceBVCalculator';
  * `IAerospaceUnit` shape too, so harnesses or test fixtures that build a
  * minimal aerospace-shaped value can call this directly.
  */
-export type AerospaceBVDispatchInput =
+export type AerospaceBVDispatchInput = (
   | IAerospace
   | IConventionalFighter
   | ISmallCraft
-  | IAerospaceUnit;
+  | IAerospaceUnit
+) & {
+  readonly isSupportVehicle?: boolean;
+};
 
 /**
  * Resolve a numeric or string `armorType` field into the lookup key used by
@@ -107,6 +110,7 @@ export function buildAerospaceBVInputFromUnit(
 
   return {
     subType: unitTypeToAerospaceSubType(unit.unitType),
+    isSupportVehicle: unit.isSupportVehicle,
     tonnage: unit.tonnage,
     structuralIntegrity: unit.structuralIntegrity,
     safeThrust: unit.movement.safeThrust,
