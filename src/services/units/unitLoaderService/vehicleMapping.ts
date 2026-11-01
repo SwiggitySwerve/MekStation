@@ -160,7 +160,7 @@ export function normalizeVehicleConfiguration(
       ? (setTurretTypeLogic(defaults, TurretType.SINGLE).turret ?? null)
       : null;
   // The store's legacy action uses 360 degrees even for chin turrets; preserve
-  // the source arc while leaving its existing capacity derivation untouched.
+  // the source arc (there is no turret capacity cap, owner ruling 5).
   const configuredTurret =
     turret && type === TurretType.CHIN
       ? { ...turret, rotationArc: 180 }

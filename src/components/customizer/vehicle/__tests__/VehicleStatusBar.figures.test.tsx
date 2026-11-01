@@ -86,7 +86,7 @@ const inTurret = (equipmentId: string, id: string) =>
   mounted(equipmentId, id, VehicleLocation.TURRET, true);
 
 function turretConfig(type: TurretType = TurretType.SINGLE) {
-  return { type, maxWeight: 5, currentWeight: 0, rotationArc: 360 };
+  return { type, currentWeight: 0, rotationArc: 360 };
 }
 
 // Rating 25 standard fusion installs at 1 t after vehicle shielding.
@@ -356,32 +356,34 @@ describe('VehicleStatusBar — turret weight', () => {
     ).toBe(29.5);
   });
 
-  it('shows the turret equipment mass against its capacity, not the structure weight', () => {
+  it('shows the turret equipment mass against the weight available to it', () => {
+    // 28 t free + 12 t AC/10 + 1.5 t turret = 41.5 t; no 10% cap applies.
     renderBar({
       turret: turretConfig(),
-      equipment: [
-        mounted('medium-laser', 'eq-1', VehicleLocation.TURRET, true),
-      ],
+      equipment: AC10_IN_TURRET,
+      ...SMALL_ENGINE,
     });
-    expect(item('Turret')).toEqual(['1.0', ' / 5.0 t']);
+    expect(item('Turret')).toEqual(['12.0', ' / 41.5 t']);
   });
 
-  it('shows turret overflow in the error state', () => {
-    // A 12 t AC/10 against a 5 t capacity
-    renderBar({ turret: turretConfig(), equipment: AC10_IN_TURRET });
-    expect(item('Turret')).toEqual(['12.0', ' / 5.0 t']);
-    const value = screen.getByText('12.0');
-    expect(value.className).toContain('text-red-400');
-  });
-
-  it('does not flag a turret within its capacity', () => {
+  it('does not flag a turret heavier than 10% of the tonnage', () => {
+    // 12 t on a 50 t vehicle is 24%, past the retired cap, within the weight.
     renderBar({
       turret: turretConfig(),
-      equipment: [
-        mounted('medium-laser', 'eq-1', VehicleLocation.TURRET, true),
-      ],
+      equipment: AC10_IN_TURRET,
+      ...SMALL_ENGINE,
     });
-    expect(screen.getByText('1.0').className).not.toContain('text-red-400');
+    expect(screen.getByText('12.0').className).not.toContain('text-red-400');
+  });
+
+  it('flags the turret only when the whole vehicle is overweight', () => {
+    // Five AC/10s (60 t) cannot fit a 50 t vehicle.
+    renderBar({
+      turret: turretConfig(),
+      equipment: [1, 2, 3, 4, 5].map((n) => inTurret('ac-10', `eq-${n}`)),
+      ...SMALL_ENGINE,
+    });
+    expect(screen.getByText('60.0').className).toContain('text-red-400');
   });
 });
 

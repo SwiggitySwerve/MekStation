@@ -40,8 +40,8 @@ registry owns their accepted contract discriminators and available store mapper.
 - Armor uses named `armor.byLocation` entries and the shared converter-location
   owner; no positional order is inferred. Zero-valued turret entries still
   install turrets. Turret presence and equipment flags use `equipmentMounts.ts`.
-- Turrets reuse the existing store action's capacity derivation. Its 10% cap
-  contradicts owner ruling 5 and awaits a separate slice. This mapper adds no cap.
+- Turrets reuse the existing store action. There is no turret capacity cap
+  (owner ruling 5; removed in #2479), and this mapper adds none.
 - Focused `vehicleMapping.test.ts` fixtures enforce this mapping and error
   contract. Full pinned-corpus comparison is external acceptance evidence, not a
   CI gate. Existing handlers and `vehicleValidation.ts` are unchanged.

@@ -202,7 +202,6 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     if (turretType?.toLowerCase() === 'chin') {
       return {
         type: TurretType.CHIN,
-        maxWeight: document.tonnage * 0.1,
         currentWeight: 0,
         rotationArc: 180, // Chin turrets have limited arc
       };
@@ -220,7 +219,6 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
 
     return {
       type: TurretType.CHIN,
-      maxWeight: document.tonnage * 0.1,
       currentWeight: 0,
       rotationArc: 180,
     };

@@ -71,11 +71,7 @@ it.each([
   const state = mapToVehicleState(row.definition);
   expect(state.turret?.type).toBe(type);
   expect(state.secondaryTurret !== null).toBe(secondary);
-  if (state.turret) {
-    const reference = createVehicleStore({ ...state, turret: null });
-    reference.getState().setTurretType(type!);
-    expect(state.turret.maxWeight).toBe(reference.getState().turret?.maxWeight);
-  }
+  // No turret capacity cap to compare: owner ruling 5, removed in #2479.
 });
 
 it.each(['NONE', 'STEAM'])(

@@ -33,13 +33,12 @@ export enum TurretType {
 }
 
 /**
- * Turret configuration
+ * Turret configuration. A turret has no capacity of its own: only the
+ * vehicle's total weight limits it (pinned MegaMek TestTank).
  */
 export interface ITurretConfiguration {
   /** Type of turret */
   readonly type: TurretType;
-  /** Maximum turret weight capacity */
-  readonly maxWeight: number;
   /** Current turret weight usage */
   readonly currentWeight: number;
   /** Turret rotation arc (degrees, 0 for fixed) */

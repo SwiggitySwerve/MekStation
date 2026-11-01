@@ -398,6 +398,51 @@ describe('VehicleUnitHandler', () => {
       ).toBe(true);
     });
 
+    describe('turret weight (owner ruling 5: no capacity cap)', () => {
+      const turretDoc = () =>
+        createMockBlkDocument({
+          tonnage: 25,
+          equipmentByLocation: { 'Turret Equipment': ['AC/5'] },
+        });
+
+      it('accepts a turret carrying more than 10% of tonnage', () => {
+        const unit = handler.parse(turretDoc()).data!.unit;
+        // 12 t on a 25 t chassis is 48%, far past the old 10% cap.
+        const heavyTurret = {
+          ...unit,
+          turret: { ...unit.turret!, currentWeight: 12 },
+        };
+
+        const result = handler.validate(heavyTurret);
+
+        expect(result.errors).toEqual([]);
+        expect(result.isValid).toBe(true);
+      });
+
+      it('still rejects an overweight vehicle through total weight', () => {
+        const unit = handler.parse(turretDoc()).data!.unit;
+        const overweight = {
+          ...unit,
+          totalWeight: unit.tonnage + 1,
+          turret: { ...unit.turret!, currentWeight: 12 },
+        };
+
+        const result = handler.validate(overweight);
+
+        expect(result.isValid).toBe(false);
+        expect(result.errors).toEqual([
+          'Total weight (26.00t) exceeds tonnage (25t)',
+        ]);
+      });
+
+      it('does not carry a per-turret capacity on the parsed turret', () => {
+        const unit = handler.parse(turretDoc()).data!.unit;
+
+        expect(unit.turret).toBeDefined();
+        expect(unit.turret).not.toHaveProperty('maxWeight');
+      });
+    });
+
     it('should warn about hover vehicles over 50 tons', () => {
       const baseDoc = createHoverTankDocument();
       const modifiedDoc: IBlkDocument = { ...baseDoc, tonnage: 55 };

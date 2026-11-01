@@ -272,7 +272,6 @@ The system SHALL enforce vehicle-specific validation rules.
   - Total armor SHALL NOT exceed max armor points (`(int)(tonnage × 7 / 2 + 40)`, `TestTank.java:338`)
   - An `<armor>` array of a length MegaMek refuses to load ("Incorrect armor array length")
     SHALL load for inspection and report that as an error (the VTOL handler does the same)
-  - Turret weight SHALL NOT exceed turret capacity
   - Hover vehicles over 50 tons generate a WARNING
 
 #### Scenario: Support vehicle handler validation
@@ -290,6 +289,116 @@ The system SHALL enforce vehicle-specific validation rules.
     capped by the armor limit, MUST be at least the allocated points
   - An `<armor>` array of a refused length reports "Incorrect armor array length" as an error
   - Cargo capacity generates an INFO message when > 0
+
+### Requirement: Turret System
+
+The system SHALL provide turret configuration unique to the Vehicle unit type.
+
+#### Scenario: Turret types
+
+- **WHEN** configuring a turret
+- **THEN** the available types SHALL be:
+  - None — no turret, fixed weapon mounts only
+  - Single — 360° rotation for weapons
+  - Dual — two independent turrets
+  - Chin — forward-facing VTOL turret (VTOL only)
+
+#### Scenario: Turret type filtering by motion type
+
+- **WHEN** the vehicle is a VTOL
+- **THEN** only None and Chin turret types SHALL be available
+- **WHEN** the vehicle is a ground vehicle (non-VTOL)
+- **THEN** only None, Single, and Dual turret types SHALL be available (Chin excluded)
+
+#### Scenario: Turret creation
+
+- **WHEN** selecting a turret type other than None
+- **THEN** the system SHALL create a turret configuration with:
+  - `currentWeight`: 0 (initially empty)
+  - `rotationArc`: 360°
+
+#### Scenario: Removing turret
+
+- **WHEN** setting turret type to None
+- **THEN** the turret configuration SHALL be set to `null`
+- **AND** any turret-mounted equipment SHALL be moved to Body location
+
+#### Scenario: Turret weight capacity validation
+
+- **WHEN** turret-mounted equipment weighs more than 10% of the vehicle's tonnage
+- **THEN** no turret capacity error SHALL be reported, because a turret has no capacity of its own
+  (pinned MegaMek `TestTank` and `TestSupportVehicle` define none)
+- **AND** the vehicle SHALL be invalid only when its total weight exceeds its tonnage
+
+### Requirement: Vehicle Equipment Management
+
+The system SHALL manage equipment mounting with vehicle-specific options.
+
+#### Scenario: Equipment mount properties
+
+- **WHEN** mounting equipment on a vehicle
+- **THEN** each mount SHALL track:
+  - `id`: unique mount identifier
+  - `equipmentId`: reference to equipment definition
+  - `name`: display name
+  - `location`: VehicleLocation or VTOLLocation
+  - `isRearMounted`: whether the equipment faces rear
+  - `isTurretMounted`: whether mounted in turret
+  - `isSponsonMounted`: whether in sponson mount
+  - `linkedAmmoId`: optional linked ammunition
+
+#### Scenario: Default equipment placement
+
+- **WHEN** adding equipment without specifying a location
+- **THEN** the equipment SHALL default to the Body location
+- **AND** `isTurretMounted` SHALL default to `false`
+
+#### Scenario: Moving equipment to turret
+
+- **WHEN** changing equipment location to Turret
+- **THEN** `isTurretMounted` SHALL be set to `true`
+- **AND** the equipment SHALL count toward the vehicle's total weight and toward the mass its turret
+  mechanism weighs (10% of the equipment it carries)
+
+#### Scenario: Removing equipment from turret
+
+- **WHEN** removing equipment from turret
+- **THEN** the equipment SHALL be moved to Body location
+- **AND** `isTurretMounted` SHALL be set to `false`
+
+#### Scenario: Equipment location options by vehicle type
+
+- **WHEN** displaying equipment location options for a ground vehicle
+- **THEN** options SHALL include: Front, Left, Right, Rear, Turret (if configured), Body
+- **WHEN** displaying equipment location options for a VTOL
+- **THEN** options SHALL include: Front, Left, Right, Rear, Chin Turret (if configured), Body, Rotor
+
+### Requirement: Customizer UI Workflow
+
+The system SHALL provide a tabbed customizer interface for vehicles.
+
+#### Scenario: Tab layout
+
+- **WHEN** opening the vehicle customizer
+- **THEN** the system SHALL display four tabs:
+  1. **Structure & Engine** — tonnage, motion type, engine, turret type, special features
+  2. **Armor Configuration** — armor type, tonnage, per-location allocation with diagram
+  3. **Equipment** — equipment browser with mounted equipment management
+  4. **Turret** — turret type config, turret weapon management, move-to/from-turret
+
+#### Scenario: Status bar
+
+- **WHEN** the vehicle customizer is open
+- **THEN** a status bar SHALL display: tonnage, weight free, movement (cruise/flank), armor allocated, turret equipment mass against the weight available to the turret (if applicable), equipment count
+- **AND** weight overages SHALL show in red
+- **AND** unallocated armor SHALL show in amber
+
+#### Scenario: Vehicle diagram sidebar
+
+- **WHEN** on large screens
+- **THEN** a vehicle diagram sidebar SHALL show an SVG top-down view
+- **AND** the diagram SHALL display armor values per location color-coded by fill percentage
+- **AND** the diagram SHALL show motion-type-specific visual indicators (tracks, wheels, rotors)
 
 ## ADDED Requirements
 

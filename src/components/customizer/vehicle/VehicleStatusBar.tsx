@@ -511,12 +511,15 @@ export function VehicleStatusBar({
         <StatusItem
           label="Turret"
           value={weightBreakdown.turretMounted.toFixed(1)}
-          subValue={` / ${formatTons(turret.maxWeight)}`}
-          status={
-            weightBreakdown.turretMounted > turret.maxWeight
-              ? 'error'
-              : 'normal'
-          }
+          // No turret cap: it may use whatever the vehicle has left, so show
+          // its mounted mass against turret-held plus free weight, and flag it
+          // only when the vehicle as a whole is overweight.
+          subValue={` / ${formatTons(
+            weightBreakdown.turretMounted +
+              weightBreakdown.turret +
+              weightBreakdown.remaining,
+          )}`}
+          status={weightBreakdown.remaining < 0 ? 'error' : 'normal'}
         />
       )}
 
