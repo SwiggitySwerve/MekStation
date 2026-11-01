@@ -86,7 +86,7 @@ export function calculateAerospaceAmmoBV(
 
  * armorBV = totalArmor × 2.5 × armorMultiplier
 
- * siBV = SI × 0.5 × tonnage
+ * siBV = SI × 2 (pinned MegaMek AeroBVCalculator.java:64-70)
 
  * defensiveFactor = 1 (no thrust multiplier)
 

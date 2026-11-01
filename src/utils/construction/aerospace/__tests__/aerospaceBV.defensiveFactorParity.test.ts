@@ -12,7 +12,7 @@ import { calculateAerospaceDefensiveBV } from '../aerospaceBV';
 describe('aerospace defensive thrust factor parity', () => {
   it('Boeing Jump Bomber (Java total 64) has no defensive thrust multiplier', () => {
     // Pinned mm-data convfighter/3039u/Boeing Jump Bomber.blk.
-    // Assert this term: other current SI/type terms still prevent total parity.
+    // Assert this term: remaining aircraft type terms prevent total parity.
     const result = calculateBattleValueForUnit(
       contractUnitToBVUnit({
         id: 'boeing-jump-bomber',
@@ -31,8 +31,8 @@ describe('aerospace defensive thrust factor parity', () => {
     if (result?.kind !== 'aerospace') throw new Error('Expected aerospace BV');
     expect(result.breakdown.defensiveFactor).toBe(1);
     expect(result.breakdown.armorBV).toBe(40);
-    expect(result.breakdown.siBV).toBe(90);
-    expect(result.breakdown.defensive).toBe(130);
+    expect(result.breakdown.siBV).toBe(18);
+    expect(result.breakdown.defensive).toBe(58);
   });
 
   it.each(Object.values(AerospaceSubType))(
