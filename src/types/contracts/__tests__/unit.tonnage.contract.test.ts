@@ -34,6 +34,16 @@ describe('unit tonnage limits', () => {
     },
   );
 
+  it('rejects negative tonnage', () => {
+    expect(
+      UnitContract.safeParse({
+        id: 'boundary',
+        unitType: 'Support Vehicle',
+        tonnage: -1,
+      }).success,
+    ).toBe(false);
+  });
+
   it('accepts a 100,000 ton DropShip', () => {
     expect(
       UnitContract.safeParse({
