@@ -53,6 +53,7 @@ type VehicleStatusStoreState = Pick<
   | 'cruiseMP'
   | 'engineType'
   | 'engineRating'
+  | 'engineTechRating'
   | 'armorType'
   | 'armorTonnage'
   | 'armorAllocation'
@@ -108,6 +109,8 @@ function calculateWeightBreakdown(
     | 'motionType'
     | 'engineRating'
     | 'engineType'
+    | 'engineTechRating'
+    | 'cruiseMP'
     | 'structureType'
     | 'armorTonnage'
     | 'equipment'
@@ -246,6 +249,7 @@ function useVehicleStatusStoreState(): VehicleStatusStoreState {
     cruiseMP: useVehicleStore((s) => s.cruiseMP),
     engineType: useVehicleStore((s) => s.engineType),
     engineRating: useVehicleStore((s) => s.engineRating),
+    engineTechRating: useVehicleStore((s) => s.engineTechRating),
     armorType: useVehicleStore((s) => s.armorType),
     armorTonnage: useVehicleStore((s) => s.armorTonnage),
     armorAllocation: useVehicleStore((s) => s.armorAllocation),
@@ -270,6 +274,7 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
     cruiseMP,
     engineType,
     engineRating,
+    engineTechRating,
     armorType,
     armorTonnage,
     armorAllocation,
@@ -295,6 +300,8 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
           motionType,
           engineRating,
           engineType,
+          engineTechRating,
+          cruiseMP,
           structureType,
           armorTonnage,
           equipment,
@@ -311,6 +318,8 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
       motionType,
       engineRating,
       engineType,
+      engineTechRating,
+      cruiseMP,
       structureType,
       armorTonnage,
       equipment,

@@ -1,4 +1,8 @@
-import { EngineType } from '@/types/construction/EngineType';
+import {
+  EngineType,
+  VehicleOnlyEngineType,
+  type VehicleEngineType,
+} from '@/types/construction/EngineType';
 import codes from '@/types/formats/blk-engine-codes.json';
 import { ConventionalFighterEngineType } from '@/types/unit/AerospaceInterfaces';
 
@@ -19,7 +23,7 @@ export function blkEngineCode(name: string): number {
   return Number(key);
 }
 
-const constructionNames: Readonly<Record<EngineType, string>> = {
+const constructionNames: Readonly<Record<VehicleEngineType, string>> = {
   [EngineType.STANDARD]: 'FUSION',
   [EngineType.ICE]: 'ICE',
   [EngineType.XL_IS]: 'XL',
@@ -29,9 +33,12 @@ const constructionNames: Readonly<Record<EngineType, string>> = {
   [EngineType.COMPACT]: 'COMPACT',
   [EngineType.FUEL_CELL]: 'FUEL_CELL',
   [EngineType.FISSION]: 'FISSION',
+  [VehicleOnlyEngineType.NONE]: 'NONE',
+  [VehicleOnlyEngineType.STEAM]: 'STEAM',
+  [VehicleOnlyEngineType.BATTERY]: 'BATTERY',
 };
 
-export function encodeBlkEngine(engineType: EngineType): string {
+export function encodeBlkEngine(engineType: VehicleEngineType): string {
   const name = constructionNames[engineType];
   if (!name) throw new Error(`Unsupported BLK engine identity: ${engineType}`);
   return String(blkEngineCode(name));
@@ -69,6 +76,22 @@ export function decodeBlkConstructionEngine(
       `BLK engine_type ${code} (${name}) has no construction EngineType`,
     );
   return engine;
+}
+
+/** Vehicle store identity: construction engines plus NONE, STEAM and BATTERY. */
+export function decodeBlkVehicleEngine(
+  code: number,
+  clan: boolean,
+): VehicleEngineType {
+  const name = blkEngineName(code);
+  const vehicleOnly = Object.values(VehicleOnlyEngineType).find(
+    (value) => constructionNames[value] === name,
+  );
+  return (
+    vehicleOnly ??
+    decodeBlkConstructionEngine(code, clan) ??
+    VehicleOnlyEngineType.NONE
+  );
 }
 
 const conventionalNames: Readonly<
