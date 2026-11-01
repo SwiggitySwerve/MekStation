@@ -32,11 +32,11 @@ from blk_aerospace_tables import (
     CF_TYPES,
     COCKPIT_CODE_MAP,
     DEFAULT_SOURCE_SUBDIRS,
-    MOTION_MAP,
     SC_ARMOR_ARCS,
     SC_LOCATION_MAP,
     SC_TYPES,
     UNSUPPORTED_UNIT_TYPES,
+    map_aerospace_motion,
 )
 from blk_conversion_runner import (
     BlkConversionConfig,
@@ -58,6 +58,7 @@ from blk_common import (
     map_rules_level,
     map_tech_base,
     map_year_to_era,
+    maximum_thrust,
     parse_armor_array,
     parse_blk_armor_type,
     parse_number,
@@ -181,11 +182,11 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
 
     # --- Motion type ---
     motion_raw = get_string(tags, "motion_type") or "Aerodyne"
-    motion_type = MOTION_MAP.get(motion_raw, "AERODYNE")
+    motion_type = map_aerospace_motion(motion_raw)
 
     # --- Thrust / movement ---
     safe_thrust = int(parse_number(get_string(tags, "SafeThrust", "safeThrust")) or 0)
-    max_thrust = math.ceil(safe_thrust * 1.5)
+    max_thrust = maximum_thrust(safe_thrust)
 
     # --- Fuel ---
     fuel = int(parse_number(get_string(tags, "fuel", "Fuel")) or 0)

@@ -45,6 +45,8 @@ class VehicleQualifierParsingTest(unittest.TestCase):
             {'fuel': 'nan'},
             {'fuel': 'inf'},
             {'fuel': 'ten'},
+            {'structural_tech_rating': '2.5'},
+            {'engine_tech_rating': '2.5'},
             {'armor_tech_rating': '2.5'},
             {'internal_type': 'x'},
         ):
@@ -53,11 +55,13 @@ class VehicleQualifierParsingTest(unittest.TestCase):
 
     def test_integer_qualifiers_are_ints_and_tons_stay_floats(self):
         result = parse_vehicle_qualifiers(
-            {'armor_tech_rating': '3', 'internal_type': '-1', 'fuel': '2', 'clan_engine': 'FALSE'}
+            {'structural_tech_rating': '2', 'engine_tech_rating': '4', 'armor_tech_rating': '3',
+             'internal_type': '-1', 'fuel': '2', 'clan_engine': 'FALSE'}
         )
-        self.assertEqual(result, {'armorTechRating': 3, 'internalType': -1, 'fuel': 2.0, 'clanEngine': False})
-        self.assertIs(type(result['armorTechRating']), int)
-        self.assertIs(type(result['internalType']), int)
+        self.assertEqual(result, {'structuralTechRating': 2, 'engineTechRating': 4, 'armorTechRating': 3,
+                                  'internalType': -1, 'fuel': 2.0, 'clanEngine': False})
+        for field in ('structuralTechRating', 'engineTechRating', 'armorTechRating', 'internalType'):
+            self.assertIs(type(result[field]), int, field)
         self.assertIs(type(result['fuel']), float)
 
 if __name__ == '__main__':

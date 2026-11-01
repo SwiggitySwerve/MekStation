@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import os
 import re
 import sys
@@ -127,6 +128,23 @@ except ImportError:  # pragma: no cover — defensive fallback only
 # ---------------------------------------------------------------------------
 # BLK parsing primitives and serialized engine decoding
 # ---------------------------------------------------------------------------
+
+def maximum_thrust(safe_thrust: int) -> int:
+    """Base aerospace maximum thrust; callers own parsing and missing-tag policy."""
+    return math.ceil(safe_thrust * 1.5)
+
+
+def validate_blk_tech_type(value: Optional[str]) -> str:
+    """Accept exactly BLKFile.setTechLevel's source spellings (not MTF aliases)."""
+    if value is None:
+        raise ValueError("missing required <type> tag")
+    if not re.fullmatch(
+        r"IS(?: Level [1-5])?|Clan(?: Level [2-5])?|"
+        r"Mixed \((?:IS|Clan) Chassis\)(?: (?:Advanced|Experimental|Unofficial))?", value
+    ):
+        raise ValueError(f"Unsupported BLK tech type: {value!r}")
+    return value
+
 
 def map_blk_engine_code(code: Any) -> str:
     """Decode BLK serialization, retaining the legacy default only for omission.
@@ -378,6 +396,8 @@ __all__ = [
     "map_armor_code",
     "parse_blk_armor_type",
     "map_blk_engine_code",
+    "maximum_thrust",
+    "validate_blk_tech_type",
     # Output helpers
     "MANIFEST_BUDGET_BYTES",
     "setup_logger",

@@ -86,8 +86,7 @@
     "tonnage": {
       "type": "number",
       "minimum": 0,
-      "maximum": 600,
-      "description": "Unit tonnage"
+      "description": "Unit tonnage; the anyOf rule retains a 250 t bound, with explicit Support Vehicle (600 t) and capital ship (2,500,000 t) exceptions."
     },
     "engine": {
       "type": "object",
@@ -545,14 +544,24 @@
   "additionalProperties": true,
   "anyOf": [
     {
-      "required": ["unitType"],
       "properties": {
-        "unitType": { "enum": ["Support Vehicle", "SupportVehicle"] }
+        "tonnage": { "type": "number", "maximum": 250 }
       }
     },
     {
+      "required": ["unitType"],
       "properties": {
-        "tonnage": { "type": "number", "maximum": 250 }
+        "unitType": { "enum": ["Support Vehicle", "SupportVehicle"] },
+        "tonnage": { "type": "number", "maximum": 600 }
+      }
+    },
+    {
+      "required": ["unitType"],
+      "properties": {
+        "unitType": {
+          "enum": ["DropShip", "JumpShip", "WarShip", "Space Station"]
+        },
+        "tonnage": { "type": "number", "maximum": 2500000 }
       }
     }
   ],
