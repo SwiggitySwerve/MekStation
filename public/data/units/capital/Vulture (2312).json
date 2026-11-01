@@ -1,0 +1,176 @@
+{
+  "id": "vulture-2312",
+  "chassis": "Vulture",
+  "model": "(2312)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2312,
+  "tonnage": 3500,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 3,
+    "maxThrust": 5
+  },
+  "fuel": 6923,
+  "structuralIntegrity": 9,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 35
+  },
+  "armor": {
+    "type": "PRIMITIVE_AERO",
+    "byArc": {
+      "NOSE": 95,
+      "RIGHT_SIDE": 77,
+      "LEFT_SIDE": 77,
+      "AFT": 65
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-autocannon-5",
+      "name": "(B) Autocannon/5",
+      "location": "NOSE"
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5",
+      "location": "NOSE"
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-ac-5:120",
+      "name": "IS Ammo AC/5:120",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-5",
+      "name": "(B) LRM 5",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-5",
+      "name": "LRM 5",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-5:72",
+      "name": "IS Ammo LRM-5:72",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-autocannon-5",
+      "name": "(B) Autocannon/5",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-ac-5:40",
+      "name": "IS Ammo AC/5:40",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-autocannon-5",
+      "name": "(R) (B) Autocannon/5",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-ac-5:40",
+      "name": "(R) IS Ammo AC/5:40",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-autocannon-5",
+      "name": "(B) Autocannon/5",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-ac-5:40",
+      "name": "IS Ammo AC/5:40",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-autocannon-5",
+      "name": "(R) (B) Autocannon/5",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-ac-5:40",
+      "name": "(R) IS Ammo AC/5:40",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-lrm-5",
+      "name": "(B) LRM 5",
+      "location": "AFT"
+    },
+    {
+      "id": "lrm-5",
+      "name": "LRM 5",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-lrm-5:72",
+      "name": "IS Ammo LRM-5:72",
+      "location": "AFT"
+    }
+  ],
+  "crew": 242,
+  "escapePods": 7,
+  "lifeBoats": 20,
+  "officers": 3,
+  "gunners": 3,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "infantrybay:6.0:1:1:Foot:-1:0",
+    "lightvehiclebay:12.0:2:2::-1:0",
+    "cargobay:1100.5:1:3::-1:0",
+    "steeragequarters:55.0:0:-1::-1:0",
+    "crewquarters:21.0:0:-1::-1:0"
+  ],
+  "mulId": 5369,
+  "role": "None",
+  "source": "TR:3075",
+  "fluff": {
+    "overview": "<p>The Vulture is an early military DropShip designed as a dedicated troop transport for the Alliance of Galedon, predating the formation of the Draconis Combine. First entering service in 2312, this 3,500-ton spheroid was built to support aggressive campaigns of territorial expansion, carrying infantry and light vehicles for rapid planetary assault operations. The design earned a reputation for exceptional reliability and low maintenance requirements despite its cramped and austere accommodations, which its passengers derisively dubbed cattle-class. Originally designed for internal carriage aboard pre-docking collar JumpShips, the Vulture served faithfully for centuries before being superseded by larger, more capable transports.</p>",
+    "capabilities": "<p>The original Vulture features primitive engine and armor technology reflecting its early production date. Compared to the later refitted versions, this variant provides roughly two-thirds the armor protection, carries a third less fuel, and can only reach eighty percent of the later model's top speed with a safe thrust of 3g. The nose mounts three AC/5 autocannons and two LRM-5 racks. Each broadside carries two AC/5s and a medium laser, while the aft arc mounts two medium lasers and two LRM-5 racks. Thirty-five single heat sinks manage the thermal load. The vessel carries six infantry platoons and twelve light vehicles along with approximately 1,100 tons of cargo and supplies. The interior is particularly cramped with minimal amenities, the accommodations earning their unflattering cattle-class reputation from generations of transported infantry.</p>",
+    "deployment": "<p>The original primitive Vulture served the Alliance of Galedon and early Draconis Combine during the initial campaigns of territorial expansion. These vessels carried infantry and light vehicles for rapid planetary assaults, though their limited capacity often forced commanders to divide companies across multiple ships. Many of these early models were refitted to the improved 2405 standard.</p>",
+    "history": "<p>Developed by the Alliance of Galedon to support its expansionist campaigns, the Vulture proved invaluable during the early conquests of the Ozawa Mercantile Association, the Principality of Rasalhague, and numerous independent worlds. The design's lightning assault capability helped advance the growing power base of the nascent Draconis Combine. However, the Vulture's limited capacity forced commanders to split infantry companies between multiple vessels, and reconstituting these divided units under fire proved costly, leading to several inglorious defeats where defending forces encircled landing zones and destroyed infantry battalions piecemeal.</p><p>As the Age of War escalated, the DCMS began to prefer higher-capacity transports designed for external JumpShip carriage. The Vulture's inability to transport the heavier combat vehicles increasingly favored by the Great Houses further diminished its utility. The introduction of the more flexible Seeker class marked the end of the Vulture's frontline military service. Large numbers of decommissioned vessels were sold to mercenary commands and Periphery powers, and some ancient examples continued operating as converted commercial cargo carriers well into the thirty-first and thirty-second centuries. Spare parts grew increasingly scarce, and most surviving Vultures were maintained with improvised replacement components.</p>",
+    "manufacturer": "DeHuego and Freshet DropShip Design|Rashpur-Owens Inc.|Salvatore Inc.",
+    "primaryFactory": "Galedon V|Capella|Layover"
+  }
+}

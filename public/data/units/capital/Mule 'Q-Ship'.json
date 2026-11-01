@@ -1,0 +1,230 @@
+{
+  "id": "mule-q-ship",
+  "chassis": "Mule",
+  "model": "'Q-Ship'",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CIVIL_WAR",
+  "year": 3068,
+  "tonnage": 11200,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 3,
+    "maxThrust": 5
+  },
+  "fuel": 9570,
+  "structuralIntegrity": 10,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 160
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 70,
+      "RIGHT_SIDE": 80,
+      "LEFT_SIDE": 80,
+      "AFT": 60
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-autocannon-5",
+      "name": "(B) Autocannon/5",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-ac-5:40",
+      "name": "IS Ammo AC/5:40",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-small-laser",
+      "name": "(B) Small Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:20",
+      "name": "Ammo AR10 Killer Whale:20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:20",
+      "name": "Ammo AR10 White Shark:20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:20",
+      "name": "Ammo AR10 Barracuda:20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-srm-6:15",
+      "name": "IS Ammo SRM-6:15",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-large-laser",
+      "name": "(R) (B) Large Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:20",
+      "name": "Ammo AR10 Killer Whale:20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:20",
+      "name": "Ammo AR10 White Shark:20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:20",
+      "name": "Ammo AR10 Barracuda:20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-srm-6:15",
+      "name": "IS Ammo SRM-6:15",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-large-laser",
+      "name": "(R) (B) Large Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    }
+  ],
+  "crew": 31,
+  "escapePods": 2,
+  "lifeBoats": 2,
+  "officers": 4,
+  "gunners": 11,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "asfbay:6.0:1:1::-1:0",
+    "1stclassquarters:40.0:0:-1::-1:0",
+    "crewquarters:126.0:0:-1::-1:0",
+    "cargobay:391.5:1:4::-1:0"
+  ],
+  "originalBuildYear": 3062,
+  "mulId": 6962,
+  "source": "TR:3075",
+  "fluff": {
+    "overview": "<p>The Mule class DropShip is one of the most common civilian vessels in known space, a ubiquitous spheroid cargo transport encountered on virtually every trade route across the Inner Sphere. Designed during the height of the Star League in 2737, the Mule has endured for centuries thanks to its practical and uncomplicated design, affordability, ease of maintenance, and surprisingly spacious crew accommodations. These qualities make the Mule highly attractive to independent traders and small shipping firms, ensuring its continued production long after more sophisticated Star League-era designs fell out of use.</p><p>At 11,200 tons, the Mule carries a generous amount of armor and weaponry for a merchant vessel, boasting an arsenal that rivals those of some small military DropShips. Its cargo capacity of nearly 8,500 tons and versatile interior layout have made it the standard by which all other civilian freighters are measured.</p>",
+    "capabilities": "<p>The Q-Ship variant carries the same four AR-10 launchers and twenty-missile loadout of Killer Whale, White Shark, and Barracuda munitions as the standard Pocket WarShip, along with provisions for six aerospace fighters and 391 tons of cargo. The critical distinction lies in its armor: the Q-Ship deliberately retains the civilian Mule's original 290 points of protection rather than the doubled armor of the overt combat variant. This deception allows the Q-Ship to pass sensor inspection as an ordinary merchant vessel until it reveals its capital missile launchers at close range, a tactic not seen since the Star League era. The trade-off is extreme vulnerability once the engagement begins, as the thin armor cannot sustain the return fire that capital weapons inevitably attract. The crew of 46 and 160 double heat sinks match the standard Pocket WarShip configuration.</p>",
+    "deployment": "<p>The Q-Ship variant was deployed by the Word of Blake specifically for ambush operations during the Jihad, relying on its civilian appearance to close with unsuspecting targets before unleashing capital missile salvoes at point-blank range. The tactic echoed Star League-era commerce raiding practices and proved devastatingly effective against convoy escorts unprepared for capital-grade fire from an apparent merchant vessel. The Q-Ship's deliberate vulnerability once unmasked meant that successful engagements depended entirely on achieving surprise with the opening salvo.</p>",
+    "history": "<p>The Mule entered production in 2737, during the final decades of the Star League when interstellar trade volume was at its historical peak. The design filled a critical niche between smaller cargo shuttles and the enormous Mammoth class, offering substantial hauling capacity at a price point accessible to independent operators and mid-sized shipping firms. The Mule quickly became the most popular civilian cargo carrier in the Inner Sphere, a status it would maintain through centuries of conflict and upheaval.</p><p>The Star League's collapse and the onset of the Succession Wars tested the Mule's durability in ways its designers never anticipated. While more complex military vessels became irreplaceable casualties of the conflicts, the Mule's straightforward engineering and widely available components ensured that production could continue even as the Inner Sphere's technological base deteriorated. The drive system proved so reliable and well-understood that it was adapted for use in the Excalibur class military transport when that vessel's original propulsion supply dwindled, further cementing the Mule's importance to the Inner Sphere's industrial base.</p><p>Plans for a comprehensive refit incorporating recovered Star League technology were under consideration by the early 3050s, but the arrival of the Clans and the resulting demand for military DropShip production delayed any upgrades indefinitely. The Mule continued in its original configuration, its proven reliability valued more than ever during a period of heightened military tension. Clan merchants adopted a variant designated the Mule C, incorporating minor modifications suited to Clan production methods while preserving the fundamental design.</p><p>The Word of Blake's Jihad saw the Mule pressed into an entirely new role when Blakist engineers converted several hulls into Pocket WarShip configurations, mounting capital missile launchers and fighter bays in place of cargo holds. These weaponized Mules, including the deceptive Q-Ship variant that retained civilian-grade armor to maintain the appearance of a harmless freighter, represented a dramatic departure from the vessel's peaceful origins. Following the Jihad, the Mule returned to its traditional role, remaining in production at facilities across the Inner Sphere well into the thirty-second century.</p>",
+    "manufacturer": "Alshain Naval Yards (Civilian)|Federated-Boeing Interstellar - Port Simon Shipyards|Kathil Shipworks - McKenna Shipyards|O'Neil Yards - Titan Yards|Tengo Aerospace|Tharkad Aerospace Group",
+    "primaryFactory": "Alshain|Galax|Kathil|Terra|Sarna|Tharkad"
+  }
+}

@@ -1,0 +1,427 @@
+{
+  "id": "isegrim-assault-dropship",
+  "chassis": "Isegrim Assault DropShip",
+  "model": "",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3083,
+  "tonnage": 8500,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 8,
+    "maxThrust": 12
+  },
+  "fuel": 9000,
+  "structuralIntegrity": 21,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 210
+  },
+  "armor": {
+    "type": "FERRO_ALUMINUM",
+    "byArc": {
+      "NOSE": 671,
+      "RIGHT_SIDE": 501,
+      "LEFT_SIDE": 501,
+      "AFT": 338
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-sub-capital-missile-launcher-piranha",
+      "name": "(B) Sub-Capital Missile Launcher (Piranha)",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-missile-launcher-piranha",
+      "name": "Sub-Capital Missile Launcher (Piranha)",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-missile-launcher-piranha",
+      "name": "Sub-Capital Missile Launcher (Piranha)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-piranha:30",
+      "name": "Ammo Piranha:30",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-sub-capital-missile-launcher-manta-ray",
+      "name": "(B) Sub-Capital Missile Launcher (Manta Ray)",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-missile-launcher-manta-ray",
+      "name": "Sub-Capital Missile Launcher (Manta Ray)",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-missile-launcher-manta-ray",
+      "name": "Sub-Capital Missile Launcher (Manta Ray)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-manta-ray:30",
+      "name": "Ammo Manta Ray:30",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clerppc",
+      "name": "(B) CLERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clhag40",
+      "name": "(B) CLHAG40",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clhag40",
+      "name": "CLHAG40",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clhag40",
+      "name": "CLHAG40",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "hyper-assault-gauss-rifle-40-ammo:60",
+      "name": "Hyper-Assault Gauss Rifle/40 Ammo:60",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-clatm12",
+      "name": "(B) CLATM12",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12:30",
+      "name": "Clan Ammo ATM-12:30",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12-er:30",
+      "name": "Clan Ammo ATM-12 ER:30",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12-he:30",
+      "name": "Clan Ammo ATM-12 HE:30",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clams-ammo:72",
+      "name": "CLAMS Ammo:72",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-clantimissilesystem",
+      "name": "(R) (B) CLAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-clantimissilesystem",
+      "name": "(R) CLAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-clantimissilesystem",
+      "name": "(R) CLAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-clams-ammo:72",
+      "name": "(R) CLAMS Ammo:72",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-clhag40",
+      "name": "(B) CLHAG40",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clhag40",
+      "name": "CLHAG40",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clhag40",
+      "name": "CLHAG40",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "hyper-assault-gauss-rifle-40-ammo:60",
+      "name": "Hyper-Assault Gauss Rifle/40 Ammo:60",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-clatm12",
+      "name": "(B) CLATM12",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12:30",
+      "name": "Clan Ammo ATM-12:30",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12-er:30",
+      "name": "Clan Ammo ATM-12 ER:30",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-12-he:30",
+      "name": "Clan Ammo ATM-12 HE:30",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clams-ammo:72",
+      "name": "CLAMS Ammo:72",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-clantimissilesystem",
+      "name": "(R) (B) CLAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-clantimissilesystem",
+      "name": "(R) CLAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-clantimissilesystem",
+      "name": "(R) CLAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-clams-ammo:72",
+      "name": "(R) CLAMS Ammo:72",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-clhag40",
+      "name": "(B) CLHAG40",
+      "location": "AFT"
+    },
+    {
+      "id": "clhag40",
+      "name": "CLHAG40",
+      "location": "AFT"
+    },
+    {
+      "id": "clhag40",
+      "name": "CLHAG40",
+      "location": "AFT"
+    },
+    {
+      "id": "hyper-assault-gauss-rifle-40-ammo:60",
+      "name": "Hyper-Assault Gauss Rifle/40 Ammo:60",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clerppc",
+      "name": "(B) CLERPPC",
+      "location": "AFT"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "AFT"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "AFT"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clatm12",
+      "name": "(B) CLATM12",
+      "location": "AFT"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT"
+    },
+    {
+      "id": "clatm12",
+      "name": "CLATM12",
+      "location": "AFT"
+    },
+    {
+      "id": "clan-ammo-atm-12:30",
+      "name": "Clan Ammo ATM-12:30",
+      "location": "AFT"
+    },
+    {
+      "id": "clan-ammo-atm-12-er:30",
+      "name": "Clan Ammo ATM-12 ER:30",
+      "location": "AFT"
+    },
+    {
+      "id": "clan-ammo-atm-12-he:30",
+      "name": "Clan Ammo ATM-12 HE:30",
+      "location": "AFT"
+    }
+  ],
+  "crew": 26,
+  "escapePods": 3,
+  "lifeBoats": 3,
+  "officers": 5,
+  "gunners": 13,
+  "passengers": 0,
+  "battleArmor": 10,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "smallcraftbay:1.0:1:2::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "steeragequarters:50.0:0:-1::-1:0",
+    "1stclassquarters:50.0:0:-1::-1:0",
+    "crewquarters:147.0:0:-1::-1:0",
+    "cargobay:418.0:2:6::-1:0"
+  ],
+  "mulId": 4376,
+  "role": "None",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Isegrim is an assault DropShip born from a secret collaboration between Clan Wolf and Clan Wolf-in-Exile during the Jihad. Scientists and technicians from both Clans, brought together by circumstance when Wolf vessels sought repairs at the Exile yards on Arc-Royal, covertly developed the design to counter the Word of Blake's Interdictor Pocket WarShip. Based on a modified Noruff hull, the Isegrim first launched from the WC Aerospace Annex on Arc-Royal in 3083. The design has since proliferated through both Wolf factions and their trading partners, becoming one of the more widely distributed Clan assault DropShips of the post-Jihad era.</p>",
+    "capabilities": "<p>The Isegrim is an 8,500-ton military aerodyne assault DropShip designed specifically to outperform the Blakist Interdictor. Its drive system provides acceleration superior to its intended opponent, allowing the Isegrim to dictate engagement range and pursue or disengage at will. Ninety-four and a half tons of Ferro-Aluminum armor concentrated on the nose and sides provides excellent protection against frontal attacks, though the aft arc remains the vessel's most vulnerable aspect. The weapons suite combines sub-capital missiles with a devastating conventional battery of HAG 40 autocannons, ER PPCs, Large Pulse Lasers, and ATM 12 launchers, giving the Isegrim overwhelming firepower against targets up to and including Pocket WarShips. Twelve anti-missile systems provide comprehensive point defense coverage. The vessel also carries Elemental marine squads for boarding operations, and its bays can accommodate Piranha and Manta Ray sub-capital missile reloads. The combination of speed, protection, and firepower makes the Isegrim a formidable opponent in any naval engagement, though its relatively small size limits its ability to absorb sustained fire from capital-class weapons.</p>",
+    "deployment": "<p>The standard Isegrim serves in its baseline assault configuration, providing anti-ship and escort capability for Clan Wolf and Clan Wolf-in-Exile naval formations. These vessels typically operate in pairs or small Stars, using their superior speed to run down enemy vessels or screen larger fleet assets from Pocket WarShip threats.</p>",
+    "history": "<p>The Isegrim's origins lie in the desperate circumstances of the Jihad, when Word of Blake space forces dealt severe blows to both Clan Wolf and Clan Wolf-in-Exile. When Wolf vessels were forced to use the Exile naval yards on Arc-Royal for repairs, scientists and technicians from both factions began collaborating without authorization on a design to counter the Blakist Interdictor. The resulting vessel, built on a proven Noruff hull, was engineered to outrun, outgun, and outlast the enemy that had been decimating Wolf shipping.</p><p>Both Clans began production separately, with the Exiles launching their first Isegrim from Arc-Royal in 3083 to considerable fanfare from the Lyran Alliance. The celebration turned to alarm within the year when Clan Wolf Isegrims appeared in orbit above Tamar, revealing that the main-line Wolves had established their own production facility on Dell. Archon demanded answers, and Khan Phelan Kell launched an investigation that included the execution of three Exile scientists, though the deliberate pace of the inquiry suggested political theater rather than genuine outrage.</p><p>Despite the controversy, the Isegrim proliferated rapidly. Within two years, the class was seen in large numbers throughout both Lyran space and the Wolf Occupation Zone. Clan Wolf proved willing to trade the design for scarce commodities, selling an entire year's production run to Clan Diamond Shark in exchange for HarJel supplies. Clan Hell's Horses and Clan Nova Cat also expressed interest, and the Exiled Wolves accommodated buyers as well. The Isegrim has since become one of the most widely distributed Clan assault DropShip designs of the post-Jihad era.</p>",
+    "manufacturer": "Dell Aerospace Industriplex|WC Aerospace Annex",
+    "primaryFactory": "Dell|Arc-Royal"
+  }
+}

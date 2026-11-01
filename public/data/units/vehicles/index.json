@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-11-01T13:30:02.424723",
+  "generatedAt": "2026-11-01T15:37:23.646368",
   "totalUnits": 1444,
   "units": [
     {
@@ -117,10 +117,10 @@
       "model": "",
       "unitType": "Vehicle",
       "tonnage": 100,
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "year": 3084,
       "role": "Missile Boat",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Aithon Assault Transport.json"
     },
     {
@@ -285,10 +285,10 @@
       "model": "(P-Stealth)",
       "unitType": "VTOL",
       "tonnage": 30,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3074,
       "role": "Missile Boat",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Anhur (P-Stealth).json"
     },
     {
@@ -705,10 +705,10 @@
       "model": "XR",
       "unitType": "Vehicle",
       "tonnage": 75,
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "year": 3068,
       "role": "Juggernaut",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Athena Combat Vehicle XR.json"
     },
     {
@@ -1377,10 +1377,10 @@
       "model": "C",
       "unitType": "Vehicle",
       "tonnage": 70,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3143,
       "role": "Missile Boat",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "ADVANCED",
       "path": "Bardiche Heavy Strike Tank C.json"
     },
     {
@@ -1545,10 +1545,10 @@
       "model": "(Kurita Upgrade)",
       "unitType": "Vehicle",
       "tonnage": 100,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3140,
       "role": "Juggernaut",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "ADVANCED",
       "path": "Behemoth Heavy Tank (Kurita Upgrade).json"
     },
     {
@@ -1821,10 +1821,10 @@
       "model": "D",
       "unitType": "Vehicle",
       "tonnage": 60,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3091,
       "role": "Brawler",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "ADVANCED",
       "path": "Bolla Stealth Tank (RotS) D.json"
     },
     {
@@ -1857,10 +1857,10 @@
       "model": "(Prime)",
       "unitType": "Support Vehicle",
       "tonnage": 0.75,
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "year": 3015,
       "role": "None",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "UNOFFICIAL",
       "path": "Boreas Cavalry Hovercraft (Prime).json"
     },
     {
@@ -1869,10 +1869,10 @@
       "model": "A",
       "unitType": "Support Vehicle",
       "tonnage": 0.75,
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "year": 3015,
       "role": "None",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "UNOFFICIAL",
       "path": "Boreas Cavalry Hovercraft A.json"
     },
     {
@@ -1881,10 +1881,10 @@
       "model": "B",
       "unitType": "Support Vehicle",
       "tonnage": 0.75,
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "year": 3062,
       "role": "None",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "UNOFFICIAL",
       "path": "Boreas Cavalry Hovercraft B.json"
     },
     {
@@ -2073,10 +2073,10 @@
       "model": "(Chemical)",
       "unitType": "Vehicle",
       "tonnage": 60,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3146,
       "role": "Brawler",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "ADVANCED",
       "path": "Bulldog Medium Tank (Chemical).json"
     },
     {
@@ -2325,10 +2325,10 @@
       "model": "(RAF)",
       "unitType": "VTOL",
       "tonnage": 50,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3112,
       "role": "Striker",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Cardinal Transport (RAF).json"
     },
     {
@@ -2577,10 +2577,10 @@
       "model": "(Bombast Laser)",
       "unitType": "Vehicle",
       "tonnage": 50,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3085,
       "role": "Brawler",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Chalchiuhtotolin Support Tank (Bombast Laser).json"
     },
     {
@@ -2589,10 +2589,10 @@
       "model": "(Chemical Laser)",
       "unitType": "Vehicle",
       "tonnage": 50,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3085,
       "role": "Brawler",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "ADVANCED",
       "path": "Chalchiuhtotolin Support Tank (Chemical Laser).json"
     },
     {
@@ -2601,10 +2601,10 @@
       "model": "(XL)",
       "unitType": "Vehicle",
       "tonnage": 50,
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "year": 3120,
       "role": "Brawler",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Chalchiuhtotolin Support Tank (XL).json"
     },
     {
@@ -3093,10 +3093,10 @@
       "model": "(Ultra)",
       "unitType": "Vehicle",
       "tonnage": 50,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3113,
       "role": "Striker",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "ADVANCED",
       "path": "Condor Heavy Hover Tank (Ultra).json"
     },
     {
@@ -3777,10 +3777,10 @@
       "model": "II-X",
       "unitType": "Vehicle",
       "tonnage": 100,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3077,
       "role": "Sniper",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Demolisher II Heavy Tank II-X.json"
     },
     {
@@ -4200,7 +4200,7 @@
       "techBase": "INNER_SPHERE",
       "year": 2010,
       "role": "None",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "UNOFFICIAL",
       "path": "Dune Buggy.json"
     },
     {
@@ -4269,10 +4269,10 @@
       "model": "(Streak)",
       "unitType": "Vehicle",
       "tonnage": 50,
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "year": 3085,
       "role": "Skirmisher",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Eldingar Hover Sled (Streak).json"
     },
     {
@@ -4329,10 +4329,10 @@
       "model": "(ER Pulse)",
       "unitType": "Vehicle",
       "tonnage": 55,
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "year": 3083,
       "role": "Skirmisher",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Enyo Strike Tank (ER Pulse).json"
     },
     {
@@ -4353,10 +4353,10 @@
       "model": "XR",
       "unitType": "Vehicle",
       "tonnage": 55,
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "year": 3075,
       "role": "Striker",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Enyo Strike Tank XR.json"
     },
     {
@@ -4569,10 +4569,10 @@
       "model": "(HAG)",
       "unitType": "Vehicle",
       "tonnage": 80,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3084,
       "role": "Skirmisher",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Fensalir Combat WiGE (HAG).json"
     },
     {
@@ -4629,10 +4629,10 @@
       "model": "'Fermi'",
       "unitType": "VTOL",
       "tonnage": 5,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3076,
       "role": "Scout",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Ferret Light Scout VTOL 'Fermi'.json"
     },
     {
@@ -4857,10 +4857,10 @@
       "model": "(Hybrid)",
       "unitType": "Vehicle",
       "tonnage": 50,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3084,
       "role": "Striker",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Fulcrum Heavy HoverTank (Hybrid).json"
     },
     {
@@ -4869,10 +4869,10 @@
       "model": "X",
       "unitType": "Vehicle",
       "tonnage": 50,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3075,
       "role": "Striker",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Fulcrum Heavy HoverTank X.json"
     },
     {
@@ -4989,10 +4989,10 @@
       "model": "(Fury III)",
       "unitType": "Vehicle",
       "tonnage": 80,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3114,
       "role": "Sniper",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "ADVANCED",
       "path": "Fury Command Tank (Fury III).json"
     },
     {
@@ -5001,10 +5001,10 @@
       "model": "(Fury IIIm)",
       "unitType": "Vehicle",
       "tonnage": 80,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3114,
       "role": "Sniper",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "ADVANCED",
       "path": "Fury Command Tank (Fury IIIm).json"
     },
     {
@@ -5673,10 +5673,10 @@
       "model": "(A)",
       "unitType": "Vehicle",
       "tonnage": 190,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3102,
       "role": "Missile Boat",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Gulltoppr OmniMonitor (A).json"
     },
     {
@@ -6168,7 +6168,7 @@
       "techBase": "INNER_SPHERE",
       "year": 2545,
       "role": "None",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "UNOFFICIAL",
       "path": "Harpoon ParaSub.json"
     },
     {
@@ -6729,10 +6729,10 @@
       "model": "(AP)",
       "unitType": "Vehicle",
       "tonnage": 35,
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "year": 3089,
       "role": "None",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Hephaestus Jump Tank (AP).json"
     },
     {
@@ -7884,7 +7884,7 @@
       "techBase": "INNER_SPHERE",
       "year": 3050,
       "role": "None",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "UNOFFICIAL",
       "path": "JI-002 HoverBike.json"
     },
     {
@@ -8217,10 +8217,10 @@
       "model": "",
       "unitType": "Vehicle",
       "tonnage": 50,
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "year": 3075,
       "role": "Striker",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Kanga-X Jump Tank.json"
     },
     {
@@ -9357,10 +9357,10 @@
       "model": "EC",
       "unitType": "Vehicle",
       "tonnage": 60,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 2823,
       "role": "Brawler",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "ADVANCED",
       "path": "Manticore Heavy Tank EC.json"
     },
     {
@@ -10041,10 +10041,10 @@
       "model": "'Silver Bullet'",
       "unitType": "Vehicle",
       "tonnage": 20,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3072,
       "role": "Scout",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Minion Advanced Tactical Vehicle 'Silver Bullet'.json"
     },
     {
@@ -10797,10 +10797,10 @@
       "model": "",
       "unitType": "Vehicle",
       "tonnage": 60,
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "year": 3083,
       "role": "Sniper",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Nuberu Anti Aircraft Tank.json"
     },
     {
@@ -10809,10 +10809,10 @@
       "model": "2 'Numantia'",
       "unitType": "Vehicle",
       "tonnage": 60,
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "year": 3083,
       "role": "None",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Nuberu Anti Aircraft Tank 2 'Numantia'.json"
     },
     {
@@ -12849,10 +12849,10 @@
       "model": "EC",
       "unitType": "Vehicle",
       "tonnage": 80,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 2824,
       "role": "Missile Boat",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Rhino Fire Support Tank EC.json"
     },
     {
@@ -13149,10 +13149,10 @@
       "model": "SM1B",
       "unitType": "Vehicle",
       "tonnage": 50,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3140,
       "role": "Striker",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "ADVANCED",
       "path": "SM Tank Destroyer SM1B.json"
     },
     {
@@ -13197,10 +13197,10 @@
       "model": "Prime",
       "unitType": "Vehicle",
       "tonnage": 50,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3151,
       "role": "Striker",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "SM5 Field Commander Prime.json"
     },
     {
@@ -14649,10 +14649,10 @@
       "model": "",
       "unitType": "VTOL",
       "tonnage": 30,
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "year": 3099,
       "role": "Striker",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Skadi Swift Attack VTOL.json"
     },
     {
@@ -14673,10 +14673,10 @@
       "model": "(TSEMP)",
       "unitType": "Vehicle",
       "tonnage": 35,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3119,
       "role": "Striker",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "ADVANCED",
       "path": "Skanda Light Tank (TSEMP).json"
     },
     {
@@ -15177,10 +15177,10 @@
       "model": "",
       "unitType": "VTOL",
       "tonnage": 30,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3117,
       "role": "Scout",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Strix Stealth VTOL.json"
     },
     {
@@ -15741,10 +15741,10 @@
       "model": "(Clan)",
       "unitType": "Vehicle",
       "tonnage": 55,
-      "techBase": "INNER_SPHERE",
+      "techBase": "CLAN",
       "year": 2870,
       "role": "Missile Boat",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Thor Artillery Vehicle (Clan).json"
     },
     {
@@ -15909,10 +15909,10 @@
       "model": "Yumi",
       "unitType": "Vehicle",
       "tonnage": 60,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3067,
       "role": "Missile Boat",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Tokugawa Heavy Tank Yumi.json"
     },
     {
@@ -15948,7 +15948,7 @@
       "techBase": "INNER_SPHERE",
       "year": 2469,
       "role": "None",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "UNOFFICIAL",
       "path": "Tracked Quad.json"
     },
     {
@@ -16893,10 +16893,10 @@
       "model": "(Support)",
       "unitType": "Vehicle",
       "tonnage": 70,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3107,
       "role": "Sniper",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "ADVANCED",
       "path": "Winston Combat Vehicle (Support).json"
     },
     {
@@ -16905,10 +16905,10 @@
       "model": "(TSEMP)",
       "unitType": "Vehicle",
       "tonnage": 70,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3114,
       "role": "Sniper",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Winston Combat Vehicle (TSEMP).json"
     },
     {
@@ -16917,10 +16917,10 @@
       "model": "(XXL)",
       "unitType": "Vehicle",
       "tonnage": 70,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 3133,
       "role": "Sniper",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Winston Combat Vehicle (XXL).json"
     },
     {
@@ -17157,10 +17157,10 @@
       "model": "EC",
       "unitType": "Vehicle",
       "tonnage": 40,
-      "techBase": "INNER_SPHERE",
+      "techBase": "MIXED",
       "year": 2820,
       "role": "Scout",
-      "rulesLevel": "STANDARD",
+      "rulesLevel": "EXPERIMENTAL",
       "path": "Zephyr Hovertank EC.json"
     },
     {

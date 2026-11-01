@@ -1,0 +1,456 @@
+{
+  "id": "mako-corvette-2692",
+  "chassis": "Mako Corvette",
+  "model": "(2692)",
+  "unitType": "WarShip",
+  "subType": "WarShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2692,
+  "tonnage": 200000,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "movement": {
+    "safeThrust": 6,
+    "maxThrust": 9
+  },
+  "fuel": 5000,
+  "structuralIntegrity": 50,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 600
+  },
+  "armor": {
+    "type": "IMPROVED_FERRO_ALUMINUM",
+    "byArc": {
+      "NOSE": 35,
+      "FRONT_LEFT_SIDE": 30,
+      "FRONT_RIGHT_SIDE": 30,
+      "AFT": 35,
+      "AFT_LEFT_SIDE": 30,
+      "AFT_RIGHT_SIDE": 30
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-naval-autocannon-nac-20",
+      "name": "(B) Naval Autocannon (NAC/20)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-nac-20:20",
+      "name": "Ammo NAC/20:20",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-ppc-light",
+      "name": "(B) Naval PPC (Light)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-ppc-light",
+      "name": "Naval PPC (Light)",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-autocannon-10",
+      "name": "(B) Autocannon/10",
+      "location": "NOSE"
+    },
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10",
+      "location": "NOSE"
+    },
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-ac-10:60",
+      "name": "IS Ammo AC/10:60",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:32",
+      "name": "IS Gauss Ammo:32",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:32",
+      "name": "IS Gauss Ammo:32",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-laser-35",
+      "name": "Naval Laser 35",
+      "location": "AFT"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "is-gauss-ammo:80",
+      "name": "IS Gauss Ammo:80",
+      "location": "AFT"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-25:30",
+      "name": "Ammo NAC/25:30",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "is-gauss-ammo:80",
+      "name": "IS Gauss Ammo:80",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-25:30",
+      "name": "Ammo NAC/25:30",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "is-gauss-ammo:80",
+      "name": "IS Gauss Ammo:80",
+      "location": "RIGHT_BROADSIDE"
+    }
+  ],
+  "crew": 155,
+  "escapePods": 10,
+  "lifeBoats": 10,
+  "officers": 25,
+  "gunners": 30,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 15,
+  "transporters": [
+    "smallcraftbay:2.0:1:1::-1:0",
+    "cargobay:940.0:1:2::-1:0",
+    "steeragequarters:75.0:0:-1::-1:0",
+    "1stclassquarters:250.0:0:-1::-1:0",
+    "crewquarters:840.0:0:-1::-1:0"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 1,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": false,
+  "hasHPG": false,
+  "gravDecks": [
+    55
+  ],
+  "dockingCollars": 0,
+  "mulId": 4572,
+  "role": "None",
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Mako-class corvette was a Lyran Commonwealth design commissioned in 2692 from Bolson Shipyards above New Kyoto. Named for the swift and aggressive shark species, the vessel was conceived as a fast escort and independent patrol craft, built to screen heavier fleet elements and patrol Commonwealth borders. The class broke sharply from traditional Lyran naval philosophy, which favored large, heavily armed capital ships, and Bolson Shipyards was an unconventional choice of builder for a combat vessel. Despite its compact hull and modest displacement, the Mako earned a reputation for aggressive performance, combining high acceleration with concentrated firepower that allowed it to punch above its weight in fleet engagements. The class proved popular with Commonwealth naval planners, who valued its ability to fill patrol and picket roles that larger vessels could not efficiently perform.</p>",
+    "capabilities": "<p>Displacing 200,000 tons and measuring 390 meters in length, the Mako-class is remarkably fast for a WarShip, capable of sustaining 3g acceleration with a maximum sprint of 4.5g, making it one of the swiftest capital vessels of its era. The ship's capital armament centers on a single Naval Autocannon/20 in the nose supplemented by four Naval Autocannon/25 batteries mounted on the broadsides, providing concentrated close-range firepower. Two Light Naval PPCs in the nose and two Medium Naval PPCs on the broadsides deliver energy strikes at longer ranges, while a pair of Naval Laser 35 batteries cover the aft arc.</p><p>The Mako's anti-fighter defenses are especially comprehensive for a vessel of its size, comprising thirty-five ER Large Lasers, twenty-two Gauss Rifles, and three Autocannon/10 batteries distributed across all arcs. Protection comes from 199.5 tons of Improved Ferro-Aluminum armor over a structural integrity rating of 50, backed by 600 double heat sinks to manage the thermal output of its energy-heavy conventional weapons suite. The decision to forgo aerospace fighter bays entirely left the vessel dependent on its own point defenses and escort support, carrying only two small craft. A single 55-meter gravity deck provides crew habitability during extended patrols, though the vessel proved cramped by contemporary standards with only 940 tons of cargo capacity.</p>",
+    "deployment": "<p>During Operation ELBOW JOINT at Bolan in March 2785, the LCS Aurelius, Nerva, Vespasian, and Vitellius advanced ahead of heavier cruisers but dispersed across too broad a front. League destroyers FWLS Talwar and Turk destroyed the Aurelius and Vitellius, while the damaged Nerva and Vespasian required two years of repair at Bolson Shipyards. The LCS Augustus was destroyed defending the Bolson yards themselves on February 14, 2787, flanked by League destroyers during a major Free Worlds League assault.</p><p>The LCS Anthemius and Heraclius joined the LCAF raid on Dieron in April 2787, where both were destroyed alongside their opponents, the Lola I-class destroyers DCS Akiko and Maja. The LCS Constantius and Hadrian served in Kommodore Sharae's squadron at Finmark in 2792, surviving an operation that saw concealed nuclear weapons destroy two Vincent corvettes before Sharae ordered retaliatory orbital bombardment.</p><p>Three Makos that accompanied the Exodus Fleet entered Clan Burrock service. The Fuchida fell to Bandit Caste control at Waypoint 531 before being destroyed by CGS Andromeda in November 3073. The Stone Crab fought at the Battles of Salonika in July 3072, devastating a Diamond Shark convoy before vanishing near Priori. The CBS Ingrid Bucharev arrived at Tanis in 3072 with irreparable jump drive damage, serving as a stationary platform until overwhelmed by Star Adder and Cloud Cobra forces in December 3074.</p>",
+    "history": "<p>The Mako-class corvette entered production at the Bolson Shipyards above New Kyoto in 2692. The design was a deliberate break from the Lyran Commonwealth's traditional preference for large, heavily armed WarShips. Bolson Shipyards, primarily a manufacturer of conventional JumpShips and civilian spacecraft, produced the Mako as their sole entry into the combat WarShip market. The class prioritized speed and maneuverability over raw firepower, intended to serve as a fast escort for heavier fleet elements, a border patrol vessel, and an independent picket ship for remote systems.</p><p>The Mako proved popular enough that over a hundred hulls were constructed during the class's production run, which continued until the Bolson yards were destroyed in 2787. The Lyran Commonwealth operated the largest fleet of Makos, fielding twenty-seven vessels by 2765, but the design was also exported to foreign powers. The Star League Defense Force purchased a small number for use as courier vessels, while the Rim Worlds Republic acquired five to supplement their fleet. This export history meant that when the Amaris Civil War erupted, Mako-class corvettes found themselves fighting on both sides of the conflict. All SLDF and Rim Worlds Makos are believed to have been destroyed during the war, and none are thought to have remained with any faction that would become the Clans, though at least three Makos did in fact join General Kerensky's Exodus Fleet.</p><p>The First Succession War proved devastating for the Lyran Mako fleet. Intense border clashes with the Free Worlds League in 2787 inflicted severe losses, and the destruction of the Bolson Shipyards during the Marik offensive that same year eliminated any possibility of building replacements or properly maintaining the surviving vessels. Attrition steadily reduced the fleet as Makos fell in combat engagements or were cannibalized for parts to keep their sisters operational. This gradual decline continued through the Second Succession War until the last Mako-class vessel was destroyed in 2841 while defending Caledonia against a Kurita invasion force.</p><p>Unknown to the Inner Sphere, three Makos that had accompanied the Exodus Fleet survived in Clan space, eventually falling under the control of Clan Burrock. When Clan Burrock was Absorbed by Clan Star Adder in 3059, remnants of the Burrock warrior caste fled into the Deep Periphery and established a Bandit Caste, taking these ancient corvettes with them. The three vessels saw their final service during the Wars of Reaving in the early 3070s, fighting in engagements across the Deep Periphery before being destroyed or stranded one by one. The last confirmed Mako action occurred at the Tanis system in December 3074, bringing the class's three-and-a-half-century service history to a close.</p>",
+    "manufacturer": "Bolson Shipyards",
+    "primaryFactory": "New Kyoto"
+  }
+}

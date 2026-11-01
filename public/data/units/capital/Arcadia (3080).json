@@ -1,0 +1,337 @@
+{
+  "id": "arcadia-3080",
+  "chassis": "Arcadia",
+  "model": "(3080)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "CLAN",
+  "rulesLevel": "STANDARD",
+  "era": "CIVIL_WAR",
+  "year": 3080,
+  "tonnage": 3000,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 6,
+    "maxThrust": 9
+  },
+  "fuel": 6000,
+  "structuralIntegrity": 11,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 214
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 351,
+      "RIGHT_SIDE": 211,
+      "LEFT_SIDE": 211,
+      "AFT": 261
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-sub-capital-missile-launcher-manta-ray",
+      "name": "(B) Sub-Capital Missile Launcher (Manta Ray)",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-missile-launcher-manta-ray",
+      "name": "Sub-Capital Missile Launcher (Manta Ray)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-manta-ray:20",
+      "name": "Ammo Manta Ray:20",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clheavylargelaser",
+      "name": "(B) CLHeavyLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clheavylargelaser",
+      "name": "CLHeavyLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clheavylargelaser",
+      "name": "CLHeavyLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clheavylargelaser",
+      "name": "CLHeavyLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clheavymediumlaser",
+      "name": "(B) CLHeavyMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clheavymediumlaser",
+      "name": "CLHeavyMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clheavymediumlaser",
+      "name": "CLHeavyMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clheavymediumlaser",
+      "name": "CLHeavyMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clheavymediumlaser",
+      "name": "CLHeavyMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clheavylargelaser",
+      "name": "(B) CLHeavyLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clheavylargelaser",
+      "name": "CLHeavyLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clheavylargelaser",
+      "name": "CLHeavyLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-clhag40",
+      "name": "(B) CLHAG40",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clhag40",
+      "name": "CLHAG40",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "hyper-assault-gauss-rifle-40-ammo:24",
+      "name": "Hyper-Assault Gauss Rifle/40 Ammo:24",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-clatm9",
+      "name": "(B) CLATM9",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clatm9",
+      "name": "CLATM9",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-9-er:14",
+      "name": "Clan Ammo ATM-9 ER:14",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-9-he:14",
+      "name": "Clan Ammo ATM-9 HE:14",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-9:14",
+      "name": "Clan Ammo ATM-9:14",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-clheavymediumlaser",
+      "name": "(B) CLHeavyMediumLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clheavymediumlaser",
+      "name": "CLHeavyMediumLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clheavymediumlaser",
+      "name": "CLHeavyMediumLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clheavymediumlaser",
+      "name": "CLHeavyMediumLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clheavymediumlaser",
+      "name": "CLHeavyMediumLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-clheavylargelaser",
+      "name": "(B) CLHeavyLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clheavylargelaser",
+      "name": "CLHeavyLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clheavylargelaser",
+      "name": "CLHeavyLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-clhag40",
+      "name": "(B) CLHAG40",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clhag40",
+      "name": "CLHAG40",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "hyper-assault-gauss-rifle-40-ammo:24",
+      "name": "Hyper-Assault Gauss Rifle/40 Ammo:24",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-clatm9",
+      "name": "(B) CLATM9",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clatm9",
+      "name": "CLATM9",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-9-er:14",
+      "name": "Clan Ammo ATM-9 ER:14",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-9-he:14",
+      "name": "Clan Ammo ATM-9 HE:14",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ammo-atm-9:14",
+      "name": "Clan Ammo ATM-9:14",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-clheavymediumlaser",
+      "name": "(B) CLHeavyMediumLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clheavymediumlaser",
+      "name": "CLHeavyMediumLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clheavymediumlaser",
+      "name": "CLHeavyMediumLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clheavymediumlaser",
+      "name": "CLHeavyMediumLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clheavymediumlaser",
+      "name": "CLHeavyMediumLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-clheavymediumlaser",
+      "name": "(B) CLHeavyMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clheavymediumlaser",
+      "name": "CLHeavyMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clheavymediumlaser",
+      "name": "CLHeavyMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clheavymediumlaser",
+      "name": "CLHeavyMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clheavymediumlaser",
+      "name": "CLHeavyMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clatm9",
+      "name": "(B) CLATM9",
+      "location": "AFT"
+    },
+    {
+      "id": "clatm9",
+      "name": "CLATM9",
+      "location": "AFT"
+    },
+    {
+      "id": "clan-ammo-atm-9-er:14",
+      "name": "Clan Ammo ATM-9 ER:14",
+      "location": "AFT"
+    },
+    {
+      "id": "clan-ammo-atm-9-he:14",
+      "name": "Clan Ammo ATM-9 HE:14",
+      "location": "AFT"
+    },
+    {
+      "id": "clan-ammo-atm-9:14",
+      "name": "Clan Ammo ATM-9:14",
+      "location": "AFT"
+    }
+  ],
+  "crew": 56,
+  "escapePods": 2,
+  "lifeBoats": 0,
+  "officers": 3,
+  "gunners": 9,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "ProtoMekBay:1.0:1:1::-1:0",
+    "1stclassquarters:30.0:0:-1::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:98.0:0:-1::-1:0",
+    "battlearmorbay:2.0:1:5::-1:2",
+    "cargobay:220.5:2:6::-1:0"
+  ],
+  "mulId": 5762,
+  "role": "None",
+  "source": "TR:3067",
+  "fluff": {
+    "overview": "<p>The Arcadia class assault DropShip is a dedicated ProtoMech transport developed through a rare cooperative venture between two Clans in the mid-3060s. Named after a recently reclaimed enclave on a Pentagon world, this 3,000-ton Aerodyne was purpose-built to deliver Clan forces for Trials of Possession rather than large-scale invasions. Exceptionally fast for its size, the Arcadia is one of the most agile DropShips in any Clan fleet, capable of outrunning most other DropShips and matching the speed of many aerospace fighter designs.</p><p>The design's compact size and devastating armament allow it to evade superior forces when safcon is denied while still possessing enough firepower to overwhelm anything that attempts to intercept it. This combination of speed, firepower, and specialized transport capability makes the Arcadia an ideal tool for a resource-limited Clan seeking to maximize the impact of every engagement.</p>",
+    "capabilities": "<p>The 3080 refit of the Arcadia reduces ProtoMech capacity to a single Point while adding two Battle Armor bays capable of carrying two Points of armored infantry. Cargo capacity increases to over two hundred twenty tons. The weapons array has been significantly reworked, replacing the Ultra AC/20s and ATM-12 launchers with four HAG/40 hyper-assault Gauss rifles distributed across the broadsides and six ATM-9 launchers covering the flanks and aft arcs. The most notable addition is a pair of Manta Ray sub-capital missile launchers mounted in the nose, giving the vessel limited anti-WarShip capability.</p><p>The refit retains ten Heavy Large Lasers and twenty Heavy Medium Lasers across all arcs. The crew complement drops substantially to sixty-eight, reflecting increased automation. Armor protection, thrust performance, and heat sink capacity remain identical to the original configuration.</p>",
+    "deployment": "<p>The 3080 refit emerged during the tumultuous Wars of Reaving that ravaged the Clan Homeworlds. The addition of sub-capital missile launchers and Battle Armor bays suggests a shift in operational doctrine toward anti-WarShip and boarding operations. The fate of any refitted Arcadia vessels, like that of their parent Clan, remains unknown following the isolation of the Homeworld Clans from the Inner Sphere.</p>",
+    "history": "<p>The Arcadia class originated from a proposal made in early 3064, when Clan Blood Spirit approached Clan Snow Raven with an unusual bargain. In exchange for full disclosure of the Blood Spirits' advanced ProtoMech expertise and pilot training program, the Snow Ravens would design and build a new DropShip tailored to Blood Spirit needs. The Blood Spirits had pursued ProtoMech technology with greater dedication than any other Clan, and their knowledge represented a significant prize. The Snow Ravens, aware of the Blood Spirits' chronically limited resources, ensured the design used components the Spirits already had on hand and could maintain independently.</p><p>The resulting vessel entered service in 3066, giving the Blood Spirits a uniquely capable platform for prosecuting their Trials of Possession. No other Clan had developed a dedicated ProtoMech transport DropShip, and the Arcadia gave the Blood Spirits a tactical advantage that partially offset their material shortcomings. Clan Blood Spirit remained the only known operator of the class, fielding them alongside their limited naval assets in the Clan Homeworlds.</p><p>Following the devastating Wars of Reaving that consumed the Homeworld Clans, no further information regarding the disposition of the Arcadia class or its operators became available to Inner Sphere intelligence agencies. The fate of both the Blood Spirits and their unique DropShip fleet remains unknown.</p>",
+    "manufacturer": "United Outworlders Corporation",
+    "primaryFactory": "Ramora"
+  }
+}

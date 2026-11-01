@@ -1,0 +1,209 @@
+{
+  "id": "merlin-r1",
+  "chassis": "Merlin",
+  "model": "R1",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3082,
+  "tonnage": 2500,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 6,
+    "maxThrust": 9
+  },
+  "fuel": 5600,
+  "structuralIntegrity": 20,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 140
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 250,
+      "RIGHT_SIDE": 200,
+      "LEFT_SIDE": 200,
+      "AFT": 230
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-sub-capital-laser-1",
+      "name": "(B) Sub-Capital Laser /1",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-laser-1",
+      "name": "Sub-Capital Laser /1",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-laser-1",
+      "name": "Sub-Capital Laser /1",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-laser-1",
+      "name": "Sub-Capital Laser /1",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islargexpulselaser",
+      "name": "(B) ISLargeXPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "islargexpulselaser",
+      "name": "ISLargeXPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "islargexpulselaser",
+      "name": "ISLargeXPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "islargexpulselaser",
+      "name": "ISLargeXPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-islaserantimissilesystem",
+      "name": "(B) ISLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-islargexpulselaser",
+      "name": "(R) (B) ISLargeXPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-islargexpulselaser",
+      "name": "(R) ISLargeXPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-islaserantimissilesystem",
+      "name": "(R) (B) ISLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-islaserantimissilesystem",
+      "name": "(R) ISLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-islargexpulselaser",
+      "name": "(B) ISLargeXPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "islargexpulselaser",
+      "name": "ISLargeXPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "islargexpulselaser",
+      "name": "ISLargeXPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "islargexpulselaser",
+      "name": "ISLargeXPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-islaserantimissilesystem",
+      "name": "(B) ISLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-islargexpulselaser",
+      "name": "(R) (B) ISLargeXPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-islargexpulselaser",
+      "name": "(R) ISLargeXPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-islaserantimissilesystem",
+      "name": "(R) (B) ISLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-islaserantimissilesystem",
+      "name": "(R) ISLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-islargexpulselaser",
+      "name": "(B) ISLargeXPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargexpulselaser",
+      "name": "ISLargeXPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-islaserantimissilesystem",
+      "name": "(B) ISLaserAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "AFT"
+    }
+  ],
+  "crew": 16,
+  "escapePods": 2,
+  "lifeBoats": 0,
+  "officers": 3,
+  "gunners": 9,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "1stclassquarters:30.0:0:-1::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:98.0:0:-1::-1:0",
+    "asfbay:1.0:1:4::-1:0",
+    "cargobay:149.0:3:5::-1:0"
+  ],
+  "mulId": 4630,
+  "role": "None",
+  "source": "TR:Proto",
+  "quirks": [
+    "non_standard"
+  ],
+  "fluff": {
+    "overview": "<p>The Merlin class assault DropShip is a combination WarShip escort and fast-attack craft developed through collaboration between the Free Worlds League and its allies in the early 3060s. This 2,500-ton Spheroid was created to fill a gap in the League's naval capabilities after the collapse of an alliance that had previously provided access to comparable assault craft production.</p><p>Rushed through design and testing, the Merlin proved surprisingly well-rounded despite its expedited development. Fast, well-armored, and carrying substantial firepower, the design earned rave reviews from crews and the vessels it was assigned to protect. Its primary limitations are minor heat management issues and a restricted fuel supply that demands careful planning during independent operations.</p>",
+    "capabilities": "<p>The R1 is the production version of the Ngake pocket WarShip, intended for orbital fire support of ground troops. The variant retains the four nose-mounted sub-capital laser class-1 weapons and fourteen Large X-Pulse Lasers but reduces Laser AMS coverage to ten systems. A single aerospace fighter bay is restored, providing limited organic fighter support that the Ngake lacked.</p><p>Fuel capacity is slightly reduced compared to the Ngake variant, and cargo space drops to 149 tons. The crew complement increases to twenty-eight. Heat management remains robust with 140 double heat sinks. The non-standard quirk designation reflects the vessel's hand-built nature, as the Principality of Regulus must acquire new or salvaged base Merlins and convert them individually rather than producing purpose-built R1 hulls.</p>",
+    "deployment": "<p>The R1 entered limited production for the Principality of Regulus beginning in 3082, intended to provide orbital fire support for ground operations. Production remains constrained by the need to acquire standard Merlins for hand conversion, keeping the number of operational R1 variants small within Regulan naval forces.</p>",
+    "history": "<p>The Merlin was born from the Word of Blake-Free Worlds League alliance, intended to replace the Capellan Lung Wang assault craft that had become unavailable following the collapse of the Marik-Liao pact. With Word of Blake technical assistance, the design process was expedited and the first Merlin entered service in 3063. Despite being rushed into production, the design exhibited remarkably few flaws.</p><p>Irian Technologies' Clipperton facility assembled more than a dozen Merlins by 3067, while the Brigadier Corporation's Gibson plant suffered a series of manufacturing accidents that limited its output to a single vessel and consumed excessive materials. Word of Blake security forces traced these problems to ComStar saboteurs and expected the plant to reach full efficiency shortly thereafter.</p><p>During the Jihad, a unique Merlin was captured from the Word of Blake and refitted into a pocket WarShip configuration by the Principality of Regulus. This success led to a limited production variant, though output remained low as the Principality had to acquire standard Merlins and convert them individually. The Merlin has remained in service with most of the former and reconstituted Free Worlds League powers and various mercenary forces into the thirty-second century.</p>",
+    "manufacturer": "Refit - Ngake Ducal Spaceport",
+    "primaryFactory": "Ngake"
+  }
+}
