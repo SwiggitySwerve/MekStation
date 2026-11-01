@@ -1,4 +1,440 @@
 {
+  "reference": [
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 141.75,
+          "offensiveValue": 293.76000000000005
+        },
+        "total": 436
+      },
+      "concreteFamily": "Tank",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/3075/Tamerlane Strike Sled (Flamer).blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 14.7,
+          "offensiveValue": 63.04725
+        },
+        "total": 78
+      },
+      "concreteFamily": "SupportTank",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/AToW Companion/Hover/Boreas Cavalry Hovercraft Prime.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 30.8,
+          "offensiveValue": 27.52
+        },
+        "total": 58
+      },
+      "concreteFamily": "VTOL",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/3039u/Ferret Light Scout VTOL.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 23.519999999999996,
+          "offensiveValue": 51.6
+        },
+        "total": 75
+      },
+      "concreteFamily": "SupportTank",
+      "construction": {
+        "valid": false
+      },
+      "path": "vehicles/3025 IS Land/Air Car.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 347.4,
+          "offensiveValue": 639.84
+        },
+        "total": 987
+      },
+      "concreteFamily": "AeroSpaceFighter",
+      "construction": {
+        "valid": true
+      },
+      "path": "fighters/Golden Century/Sabre SB-27b-EC.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 732.0,
+          "offensiveValue": 443.19500000000005
+        },
+        "total": 1175
+      },
+      "concreteFamily": "SmallCraft",
+      "construction": {
+        "valid": true
+      },
+      "path": "smallcraft/HBHK/Dragonstar Assault Transport (3060).blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 63.800000000000004,
+          "offensiveValue": 0.0
+        },
+        "total": 64
+      },
+      "concreteFamily": "ConvFighter",
+      "construction": {
+        "valid": true
+      },
+      "path": "convfighter/3039u/Boeing Jump Bomber.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 232.2,
+          "offensiveValue": 777.0
+        },
+        "total": 1009
+      },
+      "concreteFamily": "AeroSpaceFighter",
+      "construction": {
+        "valid": true
+      },
+      "path": "fighters/TRO3055U/Bashkir D.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 796.1999999999999,
+          "offensiveValue": 2145.0775000000003
+        },
+        "total": 2941
+      },
+      "concreteFamily": "AeroSpaceFighter",
+      "construction": {
+        "valid": true
+      },
+      "path": "fighters/TRO3055U/Jengiz D.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 103.4,
+          "offensiveValue": 443.88000000000005
+        },
+        "total": 547
+      },
+      "concreteFamily": "ConvFighter",
+      "construction": {
+        "valid": true
+      },
+      "path": "convfighter/3039u/Heavy Strike Fighter Meteor-G.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 88.0,
+          "offensiveValue": 309.62
+        },
+        "total": 398
+      },
+      "concreteFamily": "ConvFighter",
+      "construction": {
+        "valid": true
+      },
+      "path": "convfighter/3039u/Heavy Strike Fighter Inseki.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 71.5,
+          "offensiveValue": 0.0
+        },
+        "total": 72
+      },
+      "concreteFamily": "FixedWingSupport",
+      "construction": {
+        "valid": true
+      },
+      "path": "convfighter/TRO VAr/Chariot High-Speed Medevac.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 50.0,
+          "offensiveValue": 113.71000000000001
+        },
+        "total": 164
+      },
+      "concreteFamily": "FixedWingSupport",
+      "construction": {
+        "valid": true
+      },
+      "path": "convfighter/XTRs/Primitives V/Colt Medium Fighter (SRM).blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 1314.0,
+          "offensiveValue": 1172.25
+        },
+        "total": 2486
+      },
+      "concreteFamily": "SmallCraft",
+      "construction": {
+        "valid": true
+      },
+      "path": "smallcraft/TRO 3075/Lyonesse Escort M1.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 12.0,
+          "offensiveValue": 0.0
+        },
+        "total": 12
+      },
+      "concreteFamily": "SmallCraft",
+      "construction": {
+        "valid": true
+      },
+      "path": "smallcraft/TRO 3057r/Escape Pod.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 333.13500000000005,
+          "offensiveValue": 576.73
+        },
+        "total": 910
+      },
+      "concreteFamily": "SuperHeavyTank",
+      "construction": {
+        "valid": false
+      },
+      "path": "vehicles/XTRs/Corporations/SturmFeur Kalki Cruise Missile Launcher.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 2028.5100000000002,
+          "offensiveValue": 832.37
+        },
+        "total": 2861
+      },
+      "concreteFamily": "SuperHeavyTank",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/3145/Steiner/Gulltoppr OmniMonitor (B).blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 1903.7700000000002,
+          "offensiveValue": 646.8000000000001
+        },
+        "total": 2551
+      },
+      "concreteFamily": "SuperHeavyTank",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/3145/Davion/Destrier Siege Vehicle.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 18.0,
+          "offensiveValue": 2.25
+        },
+        "total": 20
+      },
+      "concreteFamily": "SupportTank",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/TRO Vehicle Annex/Wheeled/Saturnus V Grande Circuit Racer.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 109.72000000000001,
+          "offensiveValue": 22.5
+        },
+        "total": 132
+      },
+      "concreteFamily": "SupportTank",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/HB HD/Generic Expandable Services Vehicle (Command Post).blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 243.54000000000002,
+          "offensiveValue": 60.75300000000001
+        },
+        "total": 304
+      },
+      "concreteFamily": "SupportTank",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/TRO Vehicle Annex/Tracked/Croyle Systems Cortez Series N.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 272.48,
+          "offensiveValue": 126.04
+        },
+        "total": 399
+      },
+      "concreteFamily": "SupportTank",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/TRO Irregulars/Vehicles/Prime Mover (Original).blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 31.5,
+          "offensiveValue": 14.174999999999999
+        },
+        "total": 46
+      },
+      "concreteFamily": "SupportVTOL",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/TRO Vehicle Annex/VTOL/SOAR VTOL.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 7.35,
+          "offensiveValue": 0.027400000000000004
+        },
+        "total": 7
+      },
+      "concreteFamily": "SupportVTOL",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/AToW Companion/VTOL/HTE Micro-Copter.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 289.09999999999997,
+          "offensiveValue": 331.53000000000003
+        },
+        "total": 621
+      },
+      "concreteFamily": "Tank",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/Rec Guides ilClan/Vol 32/J. Edgar Light Hover Tank (X-Pulse).blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 278.0,
+          "offensiveValue": 2.7
+        },
+        "total": 281
+      },
+      "concreteFamily": "Tank",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/XTRs/RISC/J-27 Trailer (RISC) (Decoy).blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 480.59999999999997,
+          "offensiveValue": 541.5
+        },
+        "total": 1022
+      },
+      "concreteFamily": "Tank",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/3075/Mauna Kea Command Vessel (LRT).blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 84.0,
+          "offensiveValue": 22.5
+        },
+        "total": 107
+      },
+      "concreteFamily": "VTOL",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/3145/Davion/Marten Scout VTOL (Infantry).blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 306.81,
+          "offensiveValue": 178.5
+        },
+        "total": 485
+      },
+      "concreteFamily": "VTOL",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/XTRs/Davion/Cavalry Attack Helicopter Cadence Rain.blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 312.48,
+          "offensiveValue": 133.5
+        },
+        "total": 446
+      },
+      "concreteFamily": "VTOL",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/ProtoTypes/Cavalry (Infiltrator).blk"
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "defensiveValue": 324.97499999999997,
+          "offensiveValue": 217.08
+        },
+        "total": 542
+      },
+      "concreteFamily": "VTOL",
+      "construction": {
+        "valid": true
+      },
+      "path": "vehicles/3145/Steiner/DI Multipurpose VTOL.blk"
+    }
+  ],
   "units": [
     {
       "path": "vehicles/3075/Tamerlane Strike Sled (Flamer).blk",
@@ -53,6 +489,2318 @@
         "unitType": "Vehicle",
         "weightClass": "LIGHT",
         "year": 3074
+      }
+    },
+    {
+      "path": "vehicles/AToW Companion/Hover/Boreas Cavalry Hovercraft Prime.blk",
+      "unit": {
+        "armor": {
+          "barRating": 8,
+          "byLocation": {
+            "FRONT": 1,
+            "LEFT": 1,
+            "REAR": 1,
+            "RIGHT": 1
+          },
+          "type": "BAR"
+        },
+        "chassis": "Boreas Cavalry Hovercraft",
+        "engine": {
+          "rating": 10,
+          "type": "FUEL_CELL"
+        },
+        "equipment": [
+          {
+            "id": "laser-rifle-mauser-iic-ias:omni:size:1.0",
+            "location": "FRONT",
+            "name": "Laser Rifle (Mauser IIC IAS):OMNI:SIZE:1.0"
+          },
+          {
+            "id": "laser-rifle-mauser-iic-ias:omni:size:1.0",
+            "location": "FRONT",
+            "name": "Laser Rifle (Mauser IIC IAS):OMNI:SIZE:1.0"
+          },
+          {
+            "id": "bicyclechassismod",
+            "location": "BODY",
+            "name": "BicycleChassisMod"
+          },
+          {
+            "id": "omnichassismod",
+            "location": "BODY",
+            "name": "OmniChassisMod"
+          },
+          {
+            "id": "advanced-fire-control",
+            "location": "BODY",
+            "name": "Advanced Fire Control"
+          }
+        ],
+        "era": "SUCCESSION_WARS",
+        "id": "boreas-cavalry-hovercraft-prime",
+        "model": "(Prime)",
+        "motionType": "Hover",
+        "movement": {
+          "cruiseMP": 14,
+          "flankMP": 21,
+          "jumpMP": 0
+        },
+        "mulId": 9217,
+        "role": "None",
+        "rulesLevel": "STANDARD",
+        "source": "AToW Companion",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 0.75,
+        "unitType": "Support Vehicle",
+        "weightClass": "LIGHT",
+        "year": 3015
+      }
+    },
+    {
+      "path": "vehicles/3039u/Ferret Light Scout VTOL.blk",
+      "unit": {
+        "armor": {
+          "byLocation": {
+            "FRONT": 2,
+            "LEFT": 1,
+            "REAR": 2,
+            "RIGHT": 1,
+            "TURRET": 2
+          },
+          "type": "STANDARD"
+        },
+        "chassis": "Ferret Light Scout VTOL",
+        "engine": {
+          "rating": 25,
+          "type": "ICE"
+        },
+        "equipment": [
+          {
+            "id": "machine-gun",
+            "location": "FRONT",
+            "name": "Machine Gun"
+          },
+          {
+            "id": "is-machine-gun-ammo-half",
+            "location": "BODY",
+            "name": "IS Machine Gun Ammo - Half"
+          }
+        ],
+        "era": "SUCCESSION_WARS",
+        "id": "ferret-light-scout-vtol",
+        "model": "",
+        "motionType": "VTOL",
+        "movement": {
+          "cruiseMP": 15,
+          "flankMP": 23,
+          "jumpMP": 0
+        },
+        "mulId": 1060,
+        "role": "Scout",
+        "rulesLevel": "INTRODUCTORY",
+        "source": "TR:3039",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 5,
+        "unitType": "VTOL",
+        "weightClass": "LIGHT",
+        "year": 2904
+      }
+    },
+    {
+      "path": "vehicles/3025 IS Land/Air Car.blk",
+      "unit": {
+        "armor": {
+          "byLocation": {
+            "FRONT": 8,
+            "LEFT": 8,
+            "REAR": 8,
+            "RIGHT": 8
+          },
+          "type": "STANDARD"
+        },
+        "chassis": "Air Car",
+        "engine": {
+          "rating": 440,
+          "type": "ICE"
+        },
+        "equipment": [],
+        "era": "AGE_OF_WAR",
+        "id": "air-car",
+        "model": "",
+        "motionType": "Hover",
+        "movement": {
+          "cruiseMP": 11,
+          "flankMP": 17,
+          "jumpMP": 0
+        },
+        "mulId": 3684,
+        "role": "None",
+        "rulesLevel": "INTRODUCTORY",
+        "source": "TR:3025,MW1e",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 40,
+        "unitType": "Support Vehicle",
+        "weightClass": "MEDIUM",
+        "year": 2100
+      }
+    },
+    {
+      "path": "fighters/Golden Century/Sabre SB-27b-EC.blk",
+      "unit": {
+        "armor": {
+          "byArc": {
+            "AFT": 21,
+            "LEFT_WING": 28,
+            "NOSE": 30,
+            "RIGHT_WING": 28
+          },
+          "type": "STANDARD"
+        },
+        "bombCapacity": 0,
+        "chassis": "Sabre",
+        "cockpit": "STANDARD",
+        "engine": {
+          "type": "XL"
+        },
+        "equipment": [
+          {
+            "id": "clermediumlaserprototype",
+            "location": "LEFT_WING",
+            "name": "CLERMediumLaserPrototype"
+          },
+          {
+            "id": "clermediumlaserprototype",
+            "location": "LEFT_WING",
+            "name": "CLERMediumLaserPrototype"
+          },
+          {
+            "id": "clermediumlaserprototype",
+            "location": "RIGHT_WING",
+            "name": "CLERMediumLaserPrototype"
+          },
+          {
+            "id": "clermediumlaserprototype",
+            "location": "RIGHT_WING",
+            "name": "CLERMediumLaserPrototype"
+          }
+        ],
+        "era": "SUCCESSION_WARS",
+        "fuel": 400,
+        "hasBombBay": false,
+        "heatSinks": {
+          "count": 10,
+          "type": "DOUBLE"
+        },
+        "id": "sabre-sb-27b-ec",
+        "model": "SB-27b-EC",
+        "motionType": "AERODYNE",
+        "movement": {
+          "maxThrust": 17,
+          "safeThrust": 11
+        },
+        "mulId": 7687,
+        "role": "Interceptor",
+        "rulesLevel": "STANDARD",
+        "source": "TR:GC",
+        "structuralIntegrity": 11,
+        "subType": "AerospaceFighter",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 25,
+        "unitType": "Aerospace",
+        "weightClass": "LIGHT",
+        "year": 2819
+      }
+    },
+    {
+      "path": "smallcraft/HBHK/Dragonstar Assault Transport (3060).blk",
+      "unit": {
+        "armor": {
+          "byArc": {
+            "AFT": 56,
+            "LEFT_SIDE": 73,
+            "NOSE": 86,
+            "RIGHT_SIDE": 73
+          },
+          "type": "BAR_2"
+        },
+        "cargoCapacity": 4.5,
+        "chassis": "Dragonstar Assault Transport",
+        "cockpit": "STANDARD",
+        "crew": 22,
+        "engine": {
+          "type": "ICE"
+        },
+        "equipment": [
+          {
+            "id": "islargepulselaser",
+            "location": "NOSE",
+            "name": "ISLargePulseLaser"
+          },
+          {
+            "id": "isermediumlaser",
+            "location": "NOSE",
+            "name": "ISERMediumLaser"
+          },
+          {
+            "id": "ismediumpulselaser",
+            "location": "LEFT_SIDE",
+            "name": "ISMediumPulseLaser"
+          },
+          {
+            "id": "ismediumpulselaser",
+            "location": "RIGHT_SIDE",
+            "name": "ISMediumPulseLaser"
+          },
+          {
+            "id": "isermediumlaser",
+            "location": "AFT",
+            "name": "ISERMediumLaser"
+          },
+          {
+            "id": "isermediumlaser",
+            "location": "AFT",
+            "name": "ISERMediumLaser"
+          }
+        ],
+        "era": "CLAN_INVASION",
+        "escapePods": 0,
+        "fuel": 480,
+        "heatSinks": {
+          "count": 20,
+          "type": "SINGLE"
+        },
+        "id": "dragonstar-assault-transport-3060",
+        "lifeBoats": 0,
+        "model": "(3060)",
+        "motionType": "SPHEROID",
+        "movement": {
+          "maxThrust": 8,
+          "safeThrust": 5
+        },
+        "mulId": 7766,
+        "passengers": 0,
+        "role": "None",
+        "rulesLevel": "STANDARD",
+        "source": "HB:HK",
+        "structuralIntegrity": 6,
+        "subType": "SmallCraft",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 150,
+        "unitType": "Small Craft",
+        "weightClass": "ASSAULT",
+        "year": 3060
+      }
+    },
+    {
+      "path": "convfighter/3039u/Boeing Jump Bomber.blk",
+      "unit": {
+        "armor": {
+          "byArc": {
+            "AFT": 3,
+            "LEFT_WING": 3,
+            "NOSE": 7,
+            "RIGHT_WING": 3
+          },
+          "type": "STANDARD"
+        },
+        "bombCapacity": 0,
+        "chassis": "Boeing Jump Bomber",
+        "cockpit": "STANDARD",
+        "engine": {
+          "type": "ICE"
+        },
+        "equipment": [],
+        "era": "SUCCESSION_WARS",
+        "fuel": 320,
+        "hasBombBay": false,
+        "heatSinks": {
+          "count": 10,
+          "type": "SINGLE"
+        },
+        "id": "boeing-jump-bomber",
+        "model": "",
+        "motionType": "AERODYNE",
+        "movement": {
+          "maxThrust": 14,
+          "safeThrust": 9
+        },
+        "mulId": 409,
+        "role": "None",
+        "rulesLevel": "INTRODUCTORY",
+        "source": "TR:3039",
+        "structuralIntegrity": 9,
+        "subType": "ConventionalFighter",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 20,
+        "unitType": "Conventional Fighter",
+        "weightClass": "LIGHT",
+        "year": 3037
+      }
+    },
+    {
+      "path": "fighters/TRO3055U/Bashkir D.blk",
+      "unit": {
+        "armor": {
+          "byArc": {
+            "AFT": 14,
+            "LEFT_WING": 17,
+            "NOSE": 19,
+            "RIGHT_WING": 17
+          },
+          "type": "STANDARD"
+        },
+        "bombCapacity": 0,
+        "chassis": "Bashkir",
+        "cockpit": "STANDARD",
+        "engine": {
+          "type": "XL"
+        },
+        "equipment": [
+          {
+            "id": "clheavylargelaser:omni",
+            "location": "NOSE",
+            "name": "CLHeavyLargeLaser:OMNI"
+          },
+          {
+            "id": "clheavysmalllaser:omni",
+            "location": "NOSE",
+            "name": "CLHeavySmallLaser:OMNI"
+          }
+        ],
+        "era": "CLAN_INVASION",
+        "fuel": 240,
+        "hasBombBay": false,
+        "heatSinks": {
+          "count": 11,
+          "type": "DOUBLE"
+        },
+        "id": "bashkir-d",
+        "model": "D",
+        "motionType": "AERODYNE",
+        "movement": {
+          "maxThrust": 20,
+          "safeThrust": 13
+        },
+        "mulId": 259,
+        "role": "Interceptor",
+        "rulesLevel": "STANDARD",
+        "source": "TR:3055U",
+        "structuralIntegrity": 13,
+        "subType": "AerospaceFighter",
+        "techBase": "CLAN",
+        "tonnage": 20,
+        "unitType": "Aerospace",
+        "weightClass": "LIGHT",
+        "year": 3063
+      }
+    },
+    {
+      "path": "fighters/TRO3055U/Jengiz D.blk",
+      "unit": {
+        "armor": {
+          "byArc": {
+            "AFT": 48,
+            "LEFT_WING": 63,
+            "NOSE": 85,
+            "RIGHT_WING": 63
+          },
+          "type": "STANDARD"
+        },
+        "bombCapacity": 0,
+        "chassis": "Jengiz",
+        "cockpit": "STANDARD",
+        "engine": {
+          "type": "XL"
+        },
+        "equipment": [
+          {
+            "id": "clheavylargelaser:omni",
+            "location": "NOSE",
+            "name": "CLHeavyLargeLaser:OMNI"
+          },
+          {
+            "id": "clheavylargelaser:omni",
+            "location": "NOSE",
+            "name": "CLHeavyLargeLaser:OMNI"
+          },
+          {
+            "id": "cllrm20:omni",
+            "location": "NOSE",
+            "name": "CLLRM20:OMNI"
+          },
+          {
+            "id": "clartemisiv:omni",
+            "location": "NOSE",
+            "name": "CLArtemisIV:OMNI"
+          },
+          {
+            "id": "clerlargelaser:omni",
+            "location": "LEFT_WING",
+            "name": "CLERLargeLaser:OMNI"
+          },
+          {
+            "id": "clermediumlaser:omni",
+            "location": "LEFT_WING",
+            "name": "CLERMediumLaser:OMNI"
+          },
+          {
+            "id": "clstreaksrm6:omni",
+            "location": "LEFT_WING",
+            "name": "CLStreakSRM6:OMNI"
+          },
+          {
+            "id": "clerlargelaser:omni",
+            "location": "RIGHT_WING",
+            "name": "CLERLargeLaser:OMNI"
+          },
+          {
+            "id": "clermediumlaser:omni",
+            "location": "RIGHT_WING",
+            "name": "CLERMediumLaser:OMNI"
+          },
+          {
+            "id": "clstreaksrm6:omni",
+            "location": "RIGHT_WING",
+            "name": "CLStreakSRM6:OMNI"
+          },
+          {
+            "id": "clersmalllaser:omni",
+            "location": "AFT",
+            "name": "CLERSmallLaser:OMNI"
+          },
+          {
+            "id": "clan-ammo-lrm-20-clan-artemis-capable:omni",
+            "location": "FUSELAGE",
+            "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:OMNI"
+          },
+          {
+            "id": "clan-ammo-lrm-20-clan-artemis-capable:omni",
+            "location": "FUSELAGE",
+            "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:OMNI"
+          },
+          {
+            "id": "clan-streak-srm-6-ammo:omni",
+            "location": "FUSELAGE",
+            "name": "Clan Streak SRM 6 Ammo:OMNI"
+          },
+          {
+            "id": "clan-streak-srm-6-ammo:omni",
+            "location": "FUSELAGE",
+            "name": "Clan Streak SRM 6 Ammo:OMNI"
+          },
+          {
+            "id": "clcase",
+            "location": "FUSELAGE",
+            "name": "CLCASE"
+          }
+        ],
+        "era": "CLAN_INVASION",
+        "fuel": 320,
+        "hasBombBay": false,
+        "heatSinks": {
+          "count": 29,
+          "type": "DOUBLE"
+        },
+        "id": "jengiz-d",
+        "model": "D",
+        "motionType": "AERODYNE",
+        "movement": {
+          "maxThrust": 8,
+          "safeThrust": 5
+        },
+        "mulId": 1684,
+        "role": "Attack Fighter",
+        "rulesLevel": "STANDARD",
+        "source": "TR:3055U",
+        "structuralIntegrity": 8,
+        "subType": "AerospaceFighter",
+        "techBase": "CLAN",
+        "tonnage": 80,
+        "unitType": "Aerospace",
+        "weightClass": "ASSAULT",
+        "year": 3063
+      }
+    },
+    {
+      "path": "convfighter/3039u/Heavy Strike Fighter Meteor-G.blk",
+      "unit": {
+        "armor": {
+          "byArc": {
+            "AFT": 8,
+            "LEFT_WING": 10,
+            "NOSE": 12,
+            "RIGHT_WING": 10
+          },
+          "type": "STANDARD"
+        },
+        "bombCapacity": 0,
+        "chassis": "Heavy Strike Fighter",
+        "cockpit": "STANDARD",
+        "engine": {
+          "type": "FUSION"
+        },
+        "equipment": [
+          {
+            "id": "islightgaussrifle",
+            "location": "NOSE",
+            "name": "ISLightGaussRifle"
+          },
+          {
+            "id": "isstreaksrm4",
+            "location": "LEFT_WING",
+            "name": "ISStreakSRM4"
+          },
+          {
+            "id": "isstreaksrm4",
+            "location": "RIGHT_WING",
+            "name": "ISStreakSRM4"
+          },
+          {
+            "id": "is-light-gauss-ammo",
+            "location": "FUSELAGE",
+            "name": "IS Light Gauss Ammo"
+          },
+          {
+            "id": "is-light-gauss-ammo",
+            "location": "FUSELAGE",
+            "name": "IS Light Gauss Ammo"
+          },
+          {
+            "id": "is-streak-srm-4-ammo",
+            "location": "FUSELAGE",
+            "name": "IS Streak SRM 4 Ammo"
+          }
+        ],
+        "era": "CLAN_INVASION",
+        "fuel": 320,
+        "hasBombBay": false,
+        "heatSinks": {
+          "count": 10,
+          "type": "SINGLE"
+        },
+        "id": "heavy-strike-fighter-meteor-g",
+        "model": "Meteor-G",
+        "motionType": "AERODYNE",
+        "movement": {
+          "maxThrust": 8,
+          "safeThrust": 5
+        },
+        "mulId": 1447,
+        "role": "Attack Fighter",
+        "rulesLevel": "STANDARD",
+        "source": "TR:3039",
+        "structuralIntegrity": 5,
+        "subType": "ConventionalFighter",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 45,
+        "unitType": "Conventional Fighter",
+        "weightClass": "MEDIUM",
+        "year": 3060
+      }
+    },
+    {
+      "path": "convfighter/3039u/Heavy Strike Fighter Inseki.blk",
+      "unit": {
+        "armor": {
+          "byArc": {
+            "AFT": 8,
+            "LEFT_WING": 10,
+            "NOSE": 12,
+            "RIGHT_WING": 10
+          },
+          "type": "STANDARD"
+        },
+        "bombCapacity": 0,
+        "chassis": "Heavy Strike Fighter",
+        "cockpit": "STANDARD",
+        "engine": {
+          "type": "FUSION"
+        },
+        "equipment": [
+          {
+            "id": "autocannon-10",
+            "location": "NOSE",
+            "name": "Autocannon/10"
+          },
+          {
+            "id": "srm-4",
+            "location": "LEFT_WING",
+            "name": "SRM 4"
+          },
+          {
+            "id": "srm-4",
+            "location": "RIGHT_WING",
+            "name": "SRM 4"
+          },
+          {
+            "id": "is-ammo-ac-10",
+            "location": "FUSELAGE",
+            "name": "IS Ammo AC/10"
+          },
+          {
+            "id": "is-ammo-srm-4",
+            "location": "FUSELAGE",
+            "name": "IS Ammo SRM-4"
+          },
+          {
+            "id": "is-ammo-srm-4",
+            "location": "FUSELAGE",
+            "name": "IS Ammo SRM-4"
+          }
+        ],
+        "era": "STAR_LEAGUE",
+        "fuel": 480,
+        "hasBombBay": false,
+        "heatSinks": {
+          "count": 10,
+          "type": "SINGLE"
+        },
+        "id": "heavy-strike-fighter-inseki",
+        "model": "Inseki",
+        "motionType": "AERODYNE",
+        "movement": {
+          "maxThrust": 8,
+          "safeThrust": 5
+        },
+        "mulId": 1444,
+        "role": "Attack Fighter",
+        "rulesLevel": "INTRODUCTORY",
+        "source": "TR:3039",
+        "structuralIntegrity": 5,
+        "subType": "ConventionalFighter",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 45,
+        "unitType": "Conventional Fighter",
+        "weightClass": "MEDIUM",
+        "year": 2683
+      }
+    },
+    {
+      "path": "convfighter/TRO VAr/Chariot High-Speed Medevac.blk",
+      "unit": {
+        "armor": {
+          "byArc": {
+            "AFT": 10,
+            "LEFT_WING": 10,
+            "NOSE": 11,
+            "RIGHT_WING": 10
+          },
+          "type": "STANDARD"
+        },
+        "bombCapacity": 0,
+        "chassis": "Chariot High-Speed Medevac",
+        "cockpit": "STANDARD",
+        "engine": {
+          "type": "ICE"
+        },
+        "equipment": [
+          {
+            "id": "stolchassismod",
+            "location": "FUSELAGE",
+            "name": "STOLChassisMod"
+          },
+          {
+            "id": "mash-equipment:size:1.0",
+            "location": "FUSELAGE",
+            "name": "MASH Equipment:SIZE:1.0"
+          }
+        ],
+        "era": "SUCCESSION_WARS",
+        "fuel": 460,
+        "hasBombBay": false,
+        "heatSinks": {
+          "count": 0,
+          "type": "SINGLE"
+        },
+        "id": "chariot-high-speed-medevac",
+        "model": "",
+        "motionType": "AERODYNE",
+        "movement": {
+          "maxThrust": 8,
+          "safeThrust": 5
+        },
+        "mulId": 3945,
+        "role": "None",
+        "rulesLevel": "ADVANCED",
+        "source": "TR:VAr",
+        "structuralIntegrity": 5,
+        "subType": "ConventionalFighter",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 90,
+        "unitType": "Conventional Fighter",
+        "weightClass": "ASSAULT",
+        "year": 3031
+      }
+    },
+    {
+      "path": "convfighter/XTRs/Primitives V/Colt Medium Fighter (SRM).blk",
+      "unit": {
+        "armor": {
+          "byArc": {
+            "AFT": 8,
+            "LEFT_WING": 12,
+            "NOSE": 12,
+            "RIGHT_WING": 12
+          },
+          "type": "STANDARD"
+        },
+        "bombCapacity": 0,
+        "chassis": "Colt Medium Fighter",
+        "cockpit": "STANDARD",
+        "engine": {
+          "type": "ICE"
+        },
+        "equipment": [
+          {
+            "id": "srm-4",
+            "location": "NOSE",
+            "name": "SRM 4"
+          },
+          {
+            "id": "srm-4",
+            "location": "NOSE",
+            "name": "SRM 4"
+          },
+          {
+            "id": "advanced-fire-control",
+            "location": "FUSELAGE",
+            "name": "Advanced Fire Control"
+          },
+          {
+            "id": "external-stores-hardpoint",
+            "location": "FUSELAGE",
+            "name": "External Stores Hardpoint"
+          },
+          {
+            "id": "external-stores-hardpoint",
+            "location": "FUSELAGE",
+            "name": "External Stores Hardpoint"
+          },
+          {
+            "id": "external-stores-hardpoint",
+            "location": "FUSELAGE",
+            "name": "External Stores Hardpoint"
+          },
+          {
+            "id": "external-stores-hardpoint",
+            "location": "FUSELAGE",
+            "name": "External Stores Hardpoint"
+          },
+          {
+            "id": "is-ammo-srm-4",
+            "location": "FUSELAGE",
+            "name": "IS Ammo SRM-4"
+          }
+        ],
+        "era": "AGE_OF_WAR",
+        "fuel": 140,
+        "hasBombBay": false,
+        "heatSinks": {
+          "count": 0,
+          "type": "SINGLE"
+        },
+        "id": "colt-medium-fighter-srm",
+        "model": "(SRM)",
+        "motionType": "AERODYNE",
+        "movement": {
+          "maxThrust": 8,
+          "safeThrust": 5
+        },
+        "mulId": 7428,
+        "quirks": [
+          "difficult_eject",
+          "atmo_flyer",
+          "obsolete:2530",
+          "low_profile"
+        ],
+        "role": "Dogfighter",
+        "rulesLevel": "EXPERIMENTAL",
+        "source": "XTR:Primitives V",
+        "structuralIntegrity": 5,
+        "subType": "ConventionalFighter",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 40,
+        "unitType": "Conventional Fighter",
+        "weightClass": "MEDIUM",
+        "year": 2375
+      }
+    },
+    {
+      "path": "smallcraft/TRO 3075/Lyonesse Escort M1.blk",
+      "unit": {
+        "armor": {
+          "byArc": {
+            "AFT": 101,
+            "LEFT_SIDE": 133,
+            "NOSE": 165,
+            "RIGHT_SIDE": 133
+          },
+          "type": "BAR_2"
+        },
+        "cargoCapacity": 0.0,
+        "chassis": "Lyonesse Escort",
+        "cockpit": "STANDARD",
+        "crew": 6,
+        "engine": {
+          "type": "ICE"
+        },
+        "equipment": [
+          {
+            "id": "lrm-20",
+            "location": "NOSE",
+            "name": "LRM 20"
+          },
+          {
+            "id": "is-ammo-lrm-20",
+            "location": "NOSE",
+            "name": "IS Ammo LRM-20"
+          },
+          {
+            "id": "is-ammo-lrm-20",
+            "location": "NOSE",
+            "name": "IS Ammo LRM-20"
+          },
+          {
+            "id": "srm-6",
+            "location": "NOSE",
+            "name": "SRM 6"
+          },
+          {
+            "id": "is-ammo-srm-6",
+            "location": "NOSE",
+            "name": "IS Ammo SRM-6"
+          },
+          {
+            "id": "is-ammo-srm-6",
+            "location": "NOSE",
+            "name": "IS Ammo SRM-6"
+          },
+          {
+            "id": "heavy-ppc",
+            "location": "LEFT_SIDE",
+            "name": "Heavy PPC"
+          },
+          {
+            "id": "isermediumlaser",
+            "location": "LEFT_SIDE",
+            "name": "ISERMediumLaser"
+          },
+          {
+            "id": "isermediumlaser",
+            "location": "LEFT_SIDE",
+            "name": "ISERMediumLaser"
+          },
+          {
+            "id": "r-isermediumlaser",
+            "location": "LEFT_SIDE",
+            "name": "(R) ISERMediumLaser"
+          },
+          {
+            "id": "heavy-ppc",
+            "location": "RIGHT_SIDE",
+            "name": "Heavy PPC"
+          },
+          {
+            "id": "isermediumlaser",
+            "location": "RIGHT_SIDE",
+            "name": "ISERMediumLaser"
+          },
+          {
+            "id": "isermediumlaser",
+            "location": "RIGHT_SIDE",
+            "name": "ISERMediumLaser"
+          },
+          {
+            "id": "r-isermediumlaser",
+            "location": "RIGHT_SIDE",
+            "name": "(R) ISERMediumLaser"
+          },
+          {
+            "id": "isermediumlaser",
+            "location": "AFT",
+            "name": "ISERMediumLaser"
+          },
+          {
+            "id": "isermediumlaser",
+            "location": "AFT",
+            "name": "ISERMediumLaser"
+          },
+          {
+            "id": "isermediumlaser",
+            "location": "AFT",
+            "name": "ISERMediumLaser"
+          },
+          {
+            "id": "isersmalllaser",
+            "location": "AFT",
+            "name": "ISERSmallLaser"
+          }
+        ],
+        "era": "CIVIL_WAR",
+        "escapePods": 0,
+        "fuel": 400,
+        "heatSinks": {
+          "count": 19,
+          "type": "DOUBLE"
+        },
+        "id": "lyonesse-escort-m1",
+        "lifeBoats": 0,
+        "model": "M1",
+        "motionType": "AERODYNE",
+        "movement": {
+          "maxThrust": 5,
+          "safeThrust": 3
+        },
+        "mulId": 4552,
+        "passengers": 0,
+        "role": "None",
+        "rulesLevel": "STANDARD",
+        "source": "TR:3075",
+        "structuralIntegrity": 7,
+        "subType": "SmallCraft",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 175,
+        "unitType": "Small Craft",
+        "weightClass": "ASSAULT",
+        "year": 3073
+      }
+    },
+    {
+      "path": "smallcraft/TRO 3057r/Escape Pod.blk",
+      "unit": {
+        "armor": {
+          "byArc": {
+            "AFT": 1,
+            "LEFT_SIDE": 1,
+            "NOSE": 1,
+            "RIGHT_SIDE": 1
+          },
+          "type": "BAR_2"
+        },
+        "cargoCapacity": 0.48,
+        "chassis": "Escape Pod",
+        "cockpit": "STANDARD",
+        "crew": 1,
+        "engine": {
+          "type": "ICE"
+        },
+        "equipment": [],
+        "era": "STAR_LEAGUE",
+        "escapePods": 0,
+        "fuel": 10,
+        "heatSinks": {
+          "count": 0,
+          "type": "SINGLE"
+        },
+        "id": "escape-pod",
+        "lifeBoats": 0,
+        "model": "",
+        "motionType": "AERODYNE",
+        "movement": {
+          "maxThrust": 6,
+          "safeThrust": 4
+        },
+        "mulId": 4134,
+        "passengers": 0,
+        "role": "None",
+        "rulesLevel": "STANDARD",
+        "source": "TR:3057r",
+        "structuralIntegrity": 1,
+        "subType": "SmallCraft",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 5,
+        "unitType": "Small Craft",
+        "weightClass": "LIGHT",
+        "year": 2647
+      }
+    },
+    {
+      "path": "vehicles/XTRs/Corporations/SturmFeur Kalki Cruise Missile Launcher.blk",
+      "unit": {
+        "armor": {
+          "byLocation": {
+            "FRONT": 13,
+            "LEFT": 12,
+            "REAR": 12,
+            "RIGHT": 12,
+            "TURRET": 12
+          },
+          "type": "STANDARD"
+        },
+        "chassis": "SturmFeur 'Kalki' Cruise Missile Launcher",
+        "engine": {
+          "rating": 250,
+          "type": "FUSION"
+        },
+        "equipment": [
+          {
+            "id": "iscruisemissile50",
+            "location": "FRONT",
+            "name": "ISCruiseMissile50"
+          },
+          {
+            "id": "machine-gun",
+            "location": "TURRET",
+            "name": "Machine Gun"
+          },
+          {
+            "id": "machine-gun",
+            "location": "TURRET",
+            "name": "Machine Gun"
+          },
+          {
+            "id": "iscruisemissile50ammo",
+            "location": "BODY",
+            "name": "ISCruiseMissile50Ammo"
+          },
+          {
+            "id": "is-machine-gun-ammo-half",
+            "location": "BODY",
+            "name": "IS Machine Gun Ammo - Half"
+          }
+        ],
+        "era": "CIVIL_WAR",
+        "id": "sturmfeur-kalki-cruise-missile-launcher",
+        "model": "",
+        "motionType": "Tracked",
+        "movement": {
+          "cruiseMP": 2,
+          "flankMP": 3,
+          "jumpMP": 0
+        },
+        "mulId": 3112,
+        "role": "Missile Boat",
+        "rulesLevel": "EXPERIMENTAL",
+        "source": "XTR:Corps",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 125,
+        "unitType": "Vehicle",
+        "weightClass": "SUPERHEAVY",
+        "year": 3068
+      }
+    },
+    {
+      "path": "vehicles/3145/Steiner/Gulltoppr OmniMonitor (B).blk",
+      "unit": {
+        "armor": {
+          "byLocation": {
+            "FRONT": 136,
+            "LEFT": 104,
+            "REAR": 90,
+            "RIGHT": 104,
+            "TURRET": 90
+          },
+          "type": "STANDARD"
+        },
+        "chassis": "Gulltoppr OmniMonitor",
+        "engine": {
+          "rating": 380,
+          "type": "XL"
+        },
+        "equipment": [
+          {
+            "id": "isc3masterboostedsystemunit:omni",
+            "location": "BODY",
+            "name": "ISC3MasterBoostedSystemUnit:OMNI"
+          },
+          {
+            "id": "isc3masterboostedsystemunit:omni",
+            "location": "BODY",
+            "name": "ISC3MasterBoostedSystemUnit:OMNI"
+          },
+          {
+            "id": "isguardianecmsuite:omni",
+            "location": "BODY",
+            "name": "ISGuardianECMSuite:OMNI"
+          },
+          {
+            "id": "islongtomcannonammo:omni",
+            "location": "BODY",
+            "name": "ISLongTomCannonAmmo:OMNI"
+          },
+          {
+            "id": "islongtomcannonammo:omni",
+            "location": "BODY",
+            "name": "ISLongTomCannonAmmo:OMNI"
+          },
+          {
+            "id": "islongtomcannonammo:omni",
+            "location": "BODY",
+            "name": "ISLongTomCannonAmmo:OMNI"
+          },
+          {
+            "id": "islongtomcannonammo:omni",
+            "location": "BODY",
+            "name": "ISLongTomCannonAmmo:OMNI"
+          },
+          {
+            "id": "islongtomcannonammo:omni",
+            "location": "BODY",
+            "name": "ISLongTomCannonAmmo:OMNI"
+          },
+          {
+            "id": "islongtomcannonammo:omni",
+            "location": "BODY",
+            "name": "ISLongTomCannonAmmo:OMNI"
+          },
+          {
+            "id": "islongtomcannonammo:omni",
+            "location": "BODY",
+            "name": "ISLongTomCannonAmmo:OMNI"
+          },
+          {
+            "id": "islongtomcannonammo:omni",
+            "location": "BODY",
+            "name": "ISLongTomCannonAmmo:OMNI"
+          },
+          {
+            "id": "iscase",
+            "location": "BODY",
+            "name": "ISCASE"
+          },
+          {
+            "id": "islongtomcannon:omni",
+            "location": "TURRET",
+            "name": "ISLongTomCannon:OMNI"
+          }
+        ],
+        "era": "DARK_AGE",
+        "id": "gulltoppr-omnimonitor-b",
+        "model": "(B)",
+        "motionType": "Tracked",
+        "movement": {
+          "cruiseMP": 2,
+          "flankMP": 3,
+          "jumpMP": 0
+        },
+        "mulId": 6608,
+        "quirks": [
+          "oversized",
+          "difficult_maintain",
+          "non_standard",
+          "battle_computer",
+          "poor_performance"
+        ],
+        "role": "Sniper",
+        "rulesLevel": "ADVANCED",
+        "source": "TR:3145:LC,TR:3150",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 190,
+        "unitType": "Vehicle",
+        "weightClass": "SUPERHEAVY",
+        "year": 3102
+      }
+    },
+    {
+      "path": "vehicles/3145/Davion/Destrier Siege Vehicle.blk",
+      "unit": {
+        "armor": {
+          "byLocation": {
+            "FRONT": 60,
+            "LEFT": 45,
+            "REAR": 35,
+            "RIGHT": 45,
+            "TURRET": 35
+          },
+          "type": "HARDENED"
+        },
+        "chassis": "Destrier Siege Vehicle",
+        "engine": {
+          "rating": 400,
+          "type": "XL"
+        },
+        "equipment": [
+          {
+            "id": "light-machine-gun",
+            "location": "REAR",
+            "name": "Light Machine Gun"
+          },
+          {
+            "id": "light-machine-gun",
+            "location": "REAR",
+            "name": "Light Machine Gun"
+          },
+          {
+            "id": "hitch",
+            "location": "REAR",
+            "name": "Hitch"
+          },
+          {
+            "id": "isantimissilesystem",
+            "location": "REAR",
+            "name": "ISAntiMissileSystem"
+          },
+          {
+            "id": "islongtomcannon",
+            "location": "TURRET",
+            "name": "ISLongTomCannon"
+          },
+          {
+            "id": "islongtomcannon",
+            "location": "TURRET",
+            "name": "ISLongTomCannon"
+          },
+          {
+            "id": "isermediumlaser",
+            "location": "TURRET",
+            "name": "ISERMediumLaser"
+          },
+          {
+            "id": "isermediumlaser",
+            "location": "TURRET",
+            "name": "ISERMediumLaser"
+          },
+          {
+            "id": "isantimissilesystem",
+            "location": "TURRET",
+            "name": "ISAntiMissileSystem"
+          },
+          {
+            "id": "sponsonturret",
+            "location": "BODY",
+            "name": "SponsonTurret"
+          },
+          {
+            "id": "iscase",
+            "location": "BODY",
+            "name": "ISCASE"
+          },
+          {
+            "id": "communications-equipment:size:1.0",
+            "location": "BODY",
+            "name": "Communications Equipment:SIZE:1.0"
+          },
+          {
+            "id": "isguardianecmsuite",
+            "location": "BODY",
+            "name": "ISGuardianECMSuite"
+          },
+          {
+            "id": "isc3slaveunit",
+            "location": "BODY",
+            "name": "ISC3SlaveUnit"
+          },
+          {
+            "id": "isams-ammo",
+            "location": "BODY",
+            "name": "ISAMS Ammo"
+          },
+          {
+            "id": "isams-ammo",
+            "location": "BODY",
+            "name": "ISAMS Ammo"
+          },
+          {
+            "id": "isams-ammo",
+            "location": "BODY",
+            "name": "ISAMS Ammo"
+          },
+          {
+            "id": "isams-ammo",
+            "location": "BODY",
+            "name": "ISAMS Ammo"
+          },
+          {
+            "id": "islongtomcannonammo",
+            "location": "BODY",
+            "name": "ISLongTomCannonAmmo"
+          },
+          {
+            "id": "islongtomcannonammo",
+            "location": "BODY",
+            "name": "ISLongTomCannonAmmo"
+          },
+          {
+            "id": "islongtomcannonammo",
+            "location": "BODY",
+            "name": "ISLongTomCannonAmmo"
+          },
+          {
+            "id": "islongtomcannonammo",
+            "location": "BODY",
+            "name": "ISLongTomCannonAmmo"
+          },
+          {
+            "id": "islongtomcannonammo",
+            "location": "BODY",
+            "name": "ISLongTomCannonAmmo"
+          },
+          {
+            "id": "islongtomcannonammo",
+            "location": "BODY",
+            "name": "ISLongTomCannonAmmo"
+          },
+          {
+            "id": "islongtomcannonammo",
+            "location": "BODY",
+            "name": "ISLongTomCannonAmmo"
+          },
+          {
+            "id": "islongtomcannonammo",
+            "location": "BODY",
+            "name": "ISLongTomCannonAmmo"
+          },
+          {
+            "id": "is-light-machine-gun-ammo-full",
+            "location": "BODY",
+            "name": "IS Light Machine Gun Ammo - Full"
+          }
+        ],
+        "era": "DARK_AGE",
+        "id": "destrier-siege-vehicle",
+        "model": "",
+        "motionType": "Tracked",
+        "movement": {
+          "cruiseMP": 2,
+          "flankMP": 3,
+          "jumpMP": 0
+        },
+        "mulId": 6329,
+        "quirks": [
+          "imp_target_long",
+          "oversized",
+          "non_standard",
+          "poor_performance"
+        ],
+        "role": "Sniper",
+        "rulesLevel": "ADVANCED",
+        "source": "TR:3145:FS,TR:3150",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 200,
+        "unitType": "Vehicle",
+        "weightClass": "SUPERHEAVY",
+        "year": 3100
+      }
+    },
+    {
+      "path": "vehicles/TRO Vehicle Annex/Wheeled/Saturnus V Grande Circuit Racer.blk",
+      "unit": {
+        "armor": {
+          "barRating": 6,
+          "byLocation": {
+            "FRONT": 2,
+            "LEFT": 1,
+            "REAR": 2,
+            "RIGHT": 1
+          },
+          "type": "BAR"
+        },
+        "chassis": "Saturnus V Grande Circuit Racer",
+        "engine": {
+          "rating": 20,
+          "type": "ICE"
+        },
+        "equipment": [
+          {
+            "id": "ultralightchassismod",
+            "location": "BODY",
+            "name": "UltraLightChassisMod"
+          }
+        ],
+        "era": "CLAN_INVASION",
+        "id": "saturnus-v-grande-circuit-racer",
+        "model": "",
+        "motionType": "Wheeled",
+        "movement": {
+          "cruiseMP": 13,
+          "flankMP": 20,
+          "jumpMP": 0
+        },
+        "mulId": 4978,
+        "role": "None",
+        "rulesLevel": "STANDARD",
+        "source": "TR:VAr",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 1.5,
+        "unitType": "Support Vehicle",
+        "weightClass": "LIGHT",
+        "year": 3062
+      }
+    },
+    {
+      "path": "vehicles/HB HD/Generic Expandable Services Vehicle (Command Post).blk",
+      "unit": {
+        "armor": {
+          "barRating": 7,
+          "byLocation": {
+            "FRONT": 15,
+            "LEFT": 10,
+            "REAR": 15,
+            "RIGHT": 10
+          },
+          "type": "BAR"
+        },
+        "chassis": "Generic Expandable Services Vehicle",
+        "engine": {
+          "rating": 180,
+          "type": "FUEL_CELL"
+        },
+        "equipment": [
+          {
+            "id": "remotesensordispenser:omni",
+            "location": "REAR",
+            "name": "RemoteSensorDispenser:OMNI"
+          },
+          {
+            "id": "remotesensordispenser:omni",
+            "location": "REAR",
+            "name": "RemoteSensorDispenser:OMNI"
+          },
+          {
+            "id": "sv-chassis-mod-[tractor]",
+            "location": "BODY",
+            "name": "SV Chassis Mod [Tractor]"
+          },
+          {
+            "id": "communications-equipment:omni:size:7.0",
+            "location": "BODY",
+            "name": "Communications Equipment:OMNI:SIZE:7.0"
+          },
+          {
+            "id": "omnichassismod",
+            "location": "BODY",
+            "name": "OmniChassisMod"
+          }
+        ],
+        "era": "CLAN_INVASION",
+        "id": "generic-expandable-services-vehicle-command-post",
+        "model": "(Command Post)",
+        "motionType": "Wheeled",
+        "movement": {
+          "cruiseMP": 6,
+          "flankMP": 9,
+          "jumpMP": 0
+        },
+        "mulId": 9582,
+        "role": "None",
+        "rulesLevel": "STANDARD",
+        "source": "HB:HD",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 30,
+        "unitType": "Support Vehicle",
+        "weightClass": "MEDIUM",
+        "year": 3066
+      }
+    },
+    {
+      "path": "vehicles/TRO Vehicle Annex/Tracked/Croyle Systems Cortez Series N.blk",
+      "unit": {
+        "armor": {
+          "barRating": 8,
+          "byLocation": {
+            "FRONT": 21,
+            "LEFT": 18,
+            "REAR": 15,
+            "RIGHT": 18,
+            "TURRET": 16
+          },
+          "type": "BAR"
+        },
+        "chassis": "Croyle Systems Cortez Series N",
+        "engine": {
+          "rating": 150,
+          "type": "FUSION"
+        },
+        "equipment": [
+          {
+            "id": "beagleactiveprobe",
+            "location": "FRONT",
+            "name": "BeagleActiveProbe"
+          },
+          {
+            "id": "manipulator-non-mech-non-battle-armor",
+            "location": "FRONT",
+            "name": "Manipulator (Non-Mech/Non-Battle Armor)"
+          },
+          {
+            "id": "manipulator-non-mech-non-battle-armor",
+            "location": "FRONT",
+            "name": "Manipulator (Non-Mech/Non-Battle Armor)"
+          },
+          {
+            "id": "hhsearchlight",
+            "location": "FRONT",
+            "name": "HHSearchlight"
+          },
+          {
+            "id": "hhsearchlight",
+            "location": "FRONT",
+            "name": "HHSearchlight"
+          },
+          {
+            "id": "hhsearchlight",
+            "location": "FRONT",
+            "name": "HHSearchlight"
+          },
+          {
+            "id": "hhsearchlight",
+            "location": "RIGHT",
+            "name": "HHSearchlight"
+          },
+          {
+            "id": "hhsearchlight",
+            "location": "RIGHT",
+            "name": "HHSearchlight"
+          },
+          {
+            "id": "hhsearchlight",
+            "location": "RIGHT",
+            "name": "HHSearchlight"
+          },
+          {
+            "id": "hhsearchlight",
+            "location": "LEFT",
+            "name": "HHSearchlight"
+          },
+          {
+            "id": "hhsearchlight",
+            "location": "LEFT",
+            "name": "HHSearchlight"
+          },
+          {
+            "id": "hhsearchlight",
+            "location": "LEFT",
+            "name": "HHSearchlight"
+          },
+          {
+            "id": "cargo-container-10-tons",
+            "location": "REAR",
+            "name": "Cargo Container (10 tons)"
+          },
+          {
+            "id": "remotesensordispenser",
+            "location": "REAR",
+            "name": "RemoteSensorDispenser"
+          },
+          {
+            "id": "hhsearchlight",
+            "location": "REAR",
+            "name": "HHSearchlight"
+          },
+          {
+            "id": "hhsearchlight",
+            "location": "REAR",
+            "name": "HHSearchlight"
+          },
+          {
+            "id": "hhsearchlight",
+            "location": "REAR",
+            "name": "HHSearchlight"
+          },
+          {
+            "id": "medium-laser",
+            "location": "TURRET",
+            "name": "Medium Laser"
+          },
+          {
+            "id": "searchlight",
+            "location": "TURRET",
+            "name": "Searchlight"
+          },
+          {
+            "id": "amphibiouschassis",
+            "location": "BODY",
+            "name": "AmphibiousChassis"
+          },
+          {
+            "id": "basic-fire-control",
+            "location": "BODY",
+            "name": "Basic Fire Control"
+          },
+          {
+            "id": "environmental-sealing",
+            "location": "BODY",
+            "name": "Environmental Sealing"
+          }
+        ],
+        "era": "STAR_LEAGUE",
+        "id": "croyle-systems-cortez-series-n",
+        "model": "",
+        "motionType": "Tracked",
+        "movement": {
+          "cruiseMP": 2,
+          "flankMP": 3,
+          "jumpMP": 0
+        },
+        "mulId": 4027,
+        "role": "None",
+        "rulesLevel": "STANDARD",
+        "source": "TR:VAr",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 75,
+        "unitType": "Support Vehicle",
+        "weightClass": "ASSAULT",
+        "year": 2582
+      }
+    },
+    {
+      "path": "vehicles/TRO Irregulars/Vehicles/Prime Mover (Original).blk",
+      "unit": {
+        "armor": {
+          "barRating": 7,
+          "byLocation": {
+            "FRONT": 30,
+            "LEFT": 25,
+            "REAR": 20,
+            "RIGHT": 25,
+            "TURRET": 24
+          },
+          "type": "BAR"
+        },
+        "chassis": "Prime Mover",
+        "engine": {
+          "rating": 300,
+          "type": "FUSION"
+        },
+        "equipment": [
+          {
+            "id": "small-laser",
+            "location": "FRONT",
+            "name": "Small Laser"
+          },
+          {
+            "id": "small-laser",
+            "location": "FRONT",
+            "name": "Small Laser"
+          },
+          {
+            "id": "srm-4",
+            "location": "TURRET",
+            "name": "SRM 4"
+          },
+          {
+            "id": "isoffroadchassis",
+            "location": "BODY",
+            "name": "ISOffRoadChassis"
+          },
+          {
+            "id": "is-ammo-srm-4",
+            "location": "BODY",
+            "name": "IS Ammo SRM-4"
+          },
+          {
+            "id": "advanced-fire-control",
+            "location": "BODY",
+            "name": "Advanced Fire Control"
+          },
+          {
+            "id": "cargo-container-10-tons",
+            "location": "BODY",
+            "name": "Cargo Container (10 tons)"
+          },
+          {
+            "id": "cargo-container-10-tons",
+            "location": "BODY",
+            "name": "Cargo Container (10 tons)"
+          }
+        ],
+        "era": "AGE_OF_WAR",
+        "id": "prime-mover-original",
+        "model": "(Original)",
+        "motionType": "Wheeled",
+        "movement": {
+          "cruiseMP": 5,
+          "flankMP": 8,
+          "jumpMP": 0
+        },
+        "mulId": 7817,
+        "role": "None",
+        "rulesLevel": "STANDARD",
+        "source": "TR:I",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 60,
+        "unitType": "Support Vehicle",
+        "weightClass": "HEAVY",
+        "year": 2420
+      }
+    },
+    {
+      "path": "vehicles/TRO Vehicle Annex/VTOL/SOAR VTOL.blk",
+      "unit": {
+        "armor": {
+          "barRating": 4,
+          "byLocation": {
+            "FRONT": 5,
+            "LEFT": 3,
+            "REAR": 2,
+            "RIGHT": 3,
+            "TURRET": 2
+          },
+          "type": "BAR"
+        },
+        "chassis": "SOAR VTOL",
+        "engine": {
+          "rating": 120,
+          "type": "FUEL_CELL"
+        },
+        "equipment": [
+          {
+            "id": "paramedic-equipment",
+            "location": "RIGHT",
+            "name": "Paramedic Equipment"
+          },
+          {
+            "id": "paramedic-equipment",
+            "location": "LEFT",
+            "name": "Paramedic Equipment"
+          },
+          {
+            "id": "paramedic-equipment",
+            "location": "REAR",
+            "name": "Paramedic Equipment"
+          },
+          {
+            "id": "paramedic-equipment",
+            "location": "REAR",
+            "name": "Paramedic Equipment"
+          },
+          {
+            "id": "environmental-sealing",
+            "location": "BODY",
+            "name": "Environmental Sealing"
+          }
+        ],
+        "era": "SUCCESSION_WARS",
+        "id": "soar-vtol",
+        "model": "",
+        "motionType": "VTOL",
+        "movement": {
+          "cruiseMP": 8,
+          "flankMP": 12,
+          "jumpMP": 0
+        },
+        "mulId": 5095,
+        "role": "None",
+        "rulesLevel": "STANDARD",
+        "source": "TR:VAr",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 15,
+        "unitType": "Support Vehicle",
+        "weightClass": "LIGHT",
+        "year": 3018
+      }
+    },
+    {
+      "path": "vehicles/AToW Companion/VTOL/HTE Micro-Copter.blk",
+      "unit": {
+        "armor": {
+          "barRating": 2,
+          "byLocation": {
+            "FRONT": 0,
+            "LEFT": 0,
+            "REAR": 0,
+            "RIGHT": 0,
+            "TURRET": 0
+          },
+          "type": "BAR"
+        },
+        "chassis": "HTE Micro-Copter",
+        "engine": {
+          "rating": 0,
+          "type": "ICE"
+        },
+        "equipment": [
+          {
+            "id": "ultralightchassismod",
+            "location": "BODY",
+            "name": "UltraLightChassisMod"
+          }
+        ],
+        "era": "CLAN_INVASION",
+        "id": "hte-micro-copter",
+        "model": "",
+        "motionType": "VTOL",
+        "movement": {
+          "cruiseMP": 5,
+          "flankMP": 8,
+          "jumpMP": 0
+        },
+        "mulId": 9229,
+        "role": "None",
+        "rulesLevel": "EXPERIMENTAL",
+        "source": "AToW Companion",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 0.04,
+        "unitType": "Support Vehicle",
+        "weightClass": "LIGHT",
+        "year": 3065
+      }
+    },
+    {
+      "path": "vehicles/Rec Guides ilClan/Vol 32/J. Edgar Light Hover Tank (X-Pulse).blk",
+      "unit": {
+        "armor": {
+          "byLocation": {
+            "FRONT": 31,
+            "LEFT": 20,
+            "REAR": 14,
+            "RIGHT": 20,
+            "TURRET": 24
+          },
+          "type": "HEAVY_FERRO_FIBROUS"
+        },
+        "chassis": "J. Edgar Light Hover Tank",
+        "engine": {
+          "rating": 145,
+          "type": "FUSION"
+        },
+        "equipment": [
+          {
+            "id": "srm-2",
+            "location": "TURRET",
+            "name": "SRM 2"
+          },
+          {
+            "id": "srm-2",
+            "location": "TURRET",
+            "name": "SRM 2"
+          },
+          {
+            "id": "ismediumxpulselaser",
+            "location": "TURRET",
+            "name": "ISMediumXPulseLaser"
+          },
+          {
+            "id": "is-ammo-srm-2",
+            "location": "BODY",
+            "name": "IS Ammo SRM-2"
+          }
+        ],
+        "era": "DARK_AGE",
+        "id": "j-edgar-light-hover-tank-x-pulse",
+        "model": "(X-Pulse)",
+        "motionType": "Hover",
+        "movement": {
+          "cruiseMP": 11,
+          "flankMP": 17,
+          "jumpMP": 0
+        },
+        "mulId": 9476,
+        "role": "Scout",
+        "rulesLevel": "STANDARD",
+        "source": "RG32",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 25,
+        "unitType": "Vehicle",
+        "weightClass": "MEDIUM",
+        "year": 3144
+      }
+    },
+    {
+      "path": "vehicles/XTRs/RISC/J-27 Trailer (RISC) (Decoy).blk",
+      "unit": {
+        "armor": {
+          "byLocation": {
+            "FRONT": 5,
+            "LEFT": 5,
+            "REAR": 4,
+            "RIGHT": 5
+          },
+          "type": "HEAVY_FERRO_FIBROUS"
+        },
+        "chassis": "J-27 Trailer",
+        "engine": {
+          "rating": 10,
+          "type": "FUSION"
+        },
+        "equipment": [
+          {
+            "id": "ismpod",
+            "location": "RIGHT",
+            "name": "ISMPod"
+          },
+          {
+            "id": "ismpod",
+            "location": "LEFT",
+            "name": "ISMPod"
+          },
+          {
+            "id": "hitch",
+            "location": "REAR",
+            "name": "Hitch"
+          },
+          {
+            "id": "risc-viral-jammer-decoy",
+            "location": "BODY",
+            "name": "RISC Viral Jammer (Decoy)"
+          }
+        ],
+        "era": "DARK_AGE",
+        "id": "j-27-trailer-risc-decoy",
+        "model": "(RISC) (Decoy)",
+        "motionType": "Wheeled",
+        "movement": {
+          "cruiseMP": 0,
+          "flankMP": 0,
+          "jumpMP": 0
+        },
+        "quirks": ["non_standard"],
+        "role": "None",
+        "rulesLevel": "EXPERIMENTAL",
+        "source": "XTR:RISC",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 10,
+        "unitType": "Vehicle",
+        "weightClass": "LIGHT",
+        "year": 3136
+      }
+    },
+    {
+      "path": "vehicles/3075/Mauna Kea Command Vessel (LRT).blk",
+      "unit": {
+        "armor": {
+          "byLocation": {
+            "FRONT": 55,
+            "LEFT": 43,
+            "REAR": 44,
+            "RIGHT": 43,
+            "TURRET": 55
+          },
+          "type": "STANDARD"
+        },
+        "chassis": "Mauna Kea Command Vessel",
+        "engine": {
+          "rating": 225,
+          "type": "ICE"
+        },
+        "equipment": [
+          {
+            "id": "lrt-15",
+            "location": "FRONT",
+            "name": "LRT 15"
+          },
+          {
+            "id": "machine-gun",
+            "location": "RIGHT",
+            "name": "Machine Gun"
+          },
+          {
+            "id": "machine-gun",
+            "location": "RIGHT",
+            "name": "Machine Gun"
+          },
+          {
+            "id": "machine-gun",
+            "location": "LEFT",
+            "name": "Machine Gun"
+          },
+          {
+            "id": "machine-gun",
+            "location": "LEFT",
+            "name": "Machine Gun"
+          },
+          {
+            "id": "machine-gun",
+            "location": "REAR",
+            "name": "Machine Gun"
+          },
+          {
+            "id": "lrm-15",
+            "location": "TURRET",
+            "name": "LRM 15"
+          },
+          {
+            "id": "autocannon-10",
+            "location": "TURRET",
+            "name": "Autocannon/10"
+          },
+          {
+            "id": "is-ammo-lrm-15",
+            "location": "BODY",
+            "name": "IS Ammo LRM-15"
+          },
+          {
+            "id": "is-ammo-lrm-15",
+            "location": "BODY",
+            "name": "IS Ammo LRM-15"
+          },
+          {
+            "id": "is-ammo-lrtorpedo-15",
+            "location": "BODY",
+            "name": "IS Ammo LRTorpedo-15"
+          },
+          {
+            "id": "is-machine-gun-ammo-half",
+            "location": "BODY",
+            "name": "IS Machine Gun Ammo - Half"
+          },
+          {
+            "id": "is-ammo-ac-10",
+            "location": "BODY",
+            "name": "IS Ammo AC/10"
+          },
+          {
+            "id": "is-ammo-ac-10",
+            "location": "BODY",
+            "name": "IS Ammo AC/10"
+          },
+          {
+            "id": "communications-equipment:size:0.0",
+            "location": "BODY",
+            "name": "Communications Equipment:SIZE:0.0"
+          }
+        ],
+        "era": "AGE_OF_WAR",
+        "id": "mauna-kea-command-vessel-lrt",
+        "model": "(LRT)",
+        "motionType": "Naval",
+        "movement": {
+          "cruiseMP": 3,
+          "flankMP": 5,
+          "jumpMP": 0
+        },
+        "mulId": 2112,
+        "role": "Missile Boat",
+        "rulesLevel": "STANDARD",
+        "source": "TR:3075",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 85,
+        "unitType": "Vehicle",
+        "weightClass": "ASSAULT",
+        "year": 2515
+      }
+    },
+    {
+      "path": "vehicles/3145/Davion/Marten Scout VTOL (Infantry).blk",
+      "unit": {
+        "armor": {
+          "byLocation": {
+            "FRONT": 8,
+            "LEFT": 5,
+            "REAR": 4,
+            "RIGHT": 5,
+            "TURRET": 2
+          },
+          "type": "STANDARD"
+        },
+        "chassis": "Marten Scout VTOL",
+        "engine": {
+          "rating": 100,
+          "type": "ICE"
+        },
+        "equipment": [
+          {
+            "id": "remotesensordispenser",
+            "location": "REAR",
+            "name": "RemoteSensorDispenser"
+          }
+        ],
+        "era": "SUCCESSION_WARS",
+        "id": "marten-scout-vtol-infantry",
+        "model": "(Infantry)",
+        "motionType": "VTOL",
+        "movement": {
+          "cruiseMP": 13,
+          "flankMP": 20,
+          "jumpMP": 0
+        },
+        "mulId": 6314,
+        "quirks": ["difficult_maintain"],
+        "role": "Scout",
+        "rulesLevel": "STANDARD",
+        "source": "TR:3145:FS,TR:3150",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 15,
+        "unitType": "VTOL",
+        "weightClass": "LIGHT",
+        "year": 3024
+      }
+    },
+    {
+      "path": "vehicles/XTRs/Davion/Cavalry Attack Helicopter Cadence Rain.blk",
+      "unit": {
+        "armor": {
+          "byLocation": {
+            "FRONT": 23,
+            "LEFT": 15,
+            "REAR": 9,
+            "RIGHT": 15,
+            "TURRET": 2
+          },
+          "type": "STANDARD"
+        },
+        "chassis": "Cavalry Attack Helicopter",
+        "engine": {
+          "rating": 110,
+          "type": "FUSION"
+        },
+        "equipment": [
+          {
+            "id": "ismagshotgr",
+            "location": "FRONT",
+            "name": "ISMagshotGR"
+          },
+          {
+            "id": "ismagshotgr",
+            "location": "FRONT",
+            "name": "ISMagshotGR"
+          },
+          {
+            "id": "ismagshotgr",
+            "location": "FRONT",
+            "name": "ISMagshotGR"
+          },
+          {
+            "id": "ismagshotgr-ammo",
+            "location": "BODY",
+            "name": "ISMagshotGR Ammo"
+          },
+          {
+            "id": "isguardianecmsuite",
+            "location": "BODY",
+            "name": "ISGuardianECMSuite"
+          },
+          {
+            "id": "isvtoljetbooster",
+            "location": "BODY",
+            "name": "ISVTOLJetBooster"
+          }
+        ],
+        "era": "CIVIL_WAR",
+        "id": "cavalry-attack-helicopter-cadence-rain",
+        "model": "Cadence Rain",
+        "motionType": "VTOL",
+        "movement": {
+          "cruiseMP": 10,
+          "flankMP": 15,
+          "jumpMP": 0
+        },
+        "mulId": 508,
+        "role": "Scout",
+        "rulesLevel": "ADVANCED",
+        "source": "XTR:Davion",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 25,
+        "unitType": "VTOL",
+        "weightClass": "MEDIUM",
+        "year": 3075
+      }
+    },
+    {
+      "path": "vehicles/ProtoTypes/Cavalry (Infiltrator).blk",
+      "unit": {
+        "armor": {
+          "byLocation": {
+            "FRONT": 20,
+            "LEFT": 12,
+            "REAR": 10,
+            "RIGHT": 12,
+            "TURRET": 2
+          },
+          "type": "STANDARD"
+        },
+        "chassis": "Cavalry Attack Helicopter",
+        "engine": {
+          "rating": 110,
+          "type": "FUSION"
+        },
+        "equipment": [
+          {
+            "id": "isvtoljetbooster",
+            "location": "REAR",
+            "name": "ISVTOLJetBooster"
+          },
+          {
+            "id": "ismagshotgr",
+            "location": "TURRET",
+            "name": "ISMagshotGR"
+          },
+          {
+            "id": "ismagshotgr",
+            "location": "TURRET",
+            "name": "ISMagshotGR"
+          },
+          {
+            "id": "is-vehicular-stealth",
+            "location": "BODY",
+            "name": "IS Vehicular Stealth"
+          },
+          {
+            "id": "ismagshotgr-ammo",
+            "location": "BODY",
+            "name": "ISMagshotGR Ammo"
+          },
+          {
+            "id": "isguardianecmsuite",
+            "location": "BODY",
+            "name": "ISGuardianECMSuite"
+          }
+        ],
+        "era": "DARK_AGE",
+        "id": "cavalry-attack-helicopter-infiltrator",
+        "model": "(Infiltrator)",
+        "motionType": "VTOL",
+        "movement": {
+          "cruiseMP": 10,
+          "flankMP": 15,
+          "jumpMP": 0
+        },
+        "mulId": 3909,
+        "quirks": ["hard_pilot", "easy_maintain"],
+        "role": "Scout",
+        "rulesLevel": "STANDARD",
+        "source": "TR:Proto",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 25,
+        "unitType": "VTOL",
+        "weightClass": "MEDIUM",
+        "year": 3085
+      }
+    },
+    {
+      "path": "vehicles/3145/Steiner/DI Multipurpose VTOL.blk",
+      "unit": {
+        "armor": {
+          "byLocation": {
+            "FRONT": 28,
+            "LEFT": 22,
+            "REAR": 16,
+            "RIGHT": 22,
+            "TURRET": 2
+          },
+          "type": "HEAVY_FERRO_FIBROUS"
+        },
+        "chassis": "DI Multipurpose VTOL",
+        "engine": {
+          "rating": 85,
+          "type": "LIGHT"
+        },
+        "equipment": [
+          {
+            "id": "istag",
+            "location": "FRONT",
+            "name": "ISTAG"
+          },
+          {
+            "id": "light-ppc",
+            "location": "TURRET",
+            "name": "Light PPC"
+          },
+          {
+            "id": "beagleactiveprobe",
+            "location": "BODY",
+            "name": "BeagleActiveProbe"
+          }
+        ],
+        "era": "DARK_AGE",
+        "id": "di-multipurpose-vtol",
+        "model": "",
+        "motionType": "VTOL",
+        "movement": {
+          "cruiseMP": 9,
+          "flankMP": 14,
+          "jumpMP": 0
+        },
+        "mulId": 6595,
+        "quirks": ["vtol_rotor_coaxial", "imp_com"],
+        "role": "Scout",
+        "rulesLevel": "STANDARD",
+        "source": "TR:3145:LC,TR:3150",
+        "techBase": "INNER_SPHERE",
+        "tonnage": 25,
+        "unitType": "VTOL",
+        "weightClass": "MEDIUM",
+        "year": 3097
       }
     }
   ]
