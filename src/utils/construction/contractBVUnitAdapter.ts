@@ -41,6 +41,7 @@ export interface IContractBVSource {
     >
   >;
   readonly structuralIntegrity?: number;
+  readonly internalType?: number;
   readonly armor: {
     readonly type: string;
     readonly byLocation?: Readonly<Record<string, number>>;
@@ -52,6 +53,8 @@ export interface IContractBVSource {
 
 /** Domain-shaped vehicle value accepted by `calculateBattleValueForUnit`. */
 export interface IContractBVVehicle {
+  readonly structureLocations: readonly string[];
+  readonly internalStructureType: number;
   readonly hasStealth: boolean;
   readonly unitType:
     | UnitType.VEHICLE
@@ -172,6 +175,8 @@ function contractVehicleToBVUnit(unit: IContractBVSource): IContractBVVehicle {
 
   return {
     unitType,
+    structureLocations: Object.keys(armorByLocation),
+    internalStructureType: unit.internalType ?? 0,
     hasStealth: hasVehicleStealth(unit.armor.type),
     tonnage: unit.tonnage,
     motionType,

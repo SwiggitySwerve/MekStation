@@ -1,4 +1,7 @@
-import { getArmorBVMultiplier } from '@/types/validation/BattleValue';
+import {
+  getArmorBVMultiplier,
+  getStructureBVMultiplier,
+} from '@/types/validation/BattleValue';
 
 import type {
   VehicleBVInput,
@@ -8,29 +11,6 @@ import type {
 import { resolveEquipmentBV } from '../equipmentBVResolver';
 import { calculateVehicleBVDefensiveTMM } from './vehicleBVMovement';
 import { getVehicleDefensiveTypeModifier } from './vehicleBVTypeModifier';
-
-// =============================================================================
-// Structure Multiplier
-// =============================================================================
-
-/**
- * Structure-type BV multiplier for vehicles.
- * Same table as mechs for the overlapping types; vehicles have no industrial structure.
- */
-function getVehicleStructureBVMultiplier(structureType?: string): number {
-  const key = (structureType ?? 'standard').toLowerCase();
-  switch (key) {
-    case 'endo-steel':
-      return 1.0; // vehicles: Endo-Steel structure has no BV penalty
-    case 'composite':
-      return 0.5;
-    case 'reinforced':
-      return 2.0;
-    case 'standard':
-    default:
-      return 1.0;
-  }
-}
 
 /**
  * Compute defensive BV per the vehicle rules.
@@ -45,7 +25,17 @@ export function calculateVehicleDefensiveBV(
   input: VehicleBVInput,
 ): VehicleDefensiveBVBreakdown {
   const armorMult = getArmorBVMultiplier(input.armorType ?? 'standard');
-  const structureMult = getVehicleStructureBVMultiplier(input.structureType);
+  // BVCalculator.processStructure adds Blue Shield to the type multiplier.
+  const blueShield = input.chassisEquipment?.some(
+    (id) =>
+      id
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '')
+        .replace(/^is/, '') === 'blueshieldparticlefielddamper',
+  );
+  const structureMult =
+    getStructureBVMultiplier(input.structureType ?? 'standard') +
+    (blueShield ? 0.2 : 0);
 
   // Support vehicle BAR scaling: multiply armor BV by BAR/10 when BAR < 10.
   const bar = input.barRating;

@@ -183,12 +183,23 @@ armored motive mount. Support vehicles SHALL omit these equipment additions.
 
 #### Scenario: Tamerlane isolated defensive type term
 
-- **GIVEN** Tamerlane (Flamer) with existing TS armor BV 120, structure BV 36 and corrected TMM factor 1.5
+- **GIVEN** Tamerlane (Flamer) with armor BV 120, corrected structure BV 15 and corrected TMM factor 1.5
 - **WHEN** the hover type modifier is applied
-- **THEN** defense SHALL equal `(120 + 36) × 0.7 × 1.5 = 163.8`
-- **AND** armor, structure, equipment and offensive breakdown fields SHALL remain unchanged
+- **THEN** defense SHALL equal `(120 + 15) × 0.7 × 1.5 = 141.75`
+- **AND** applying the type modifier SHALL preserve armor, structure, equipment and offensive breakdown fields
 - **AND** every Tank, SuperHeavyTank and VTOL oracle row SHALL be compared before and after, with every away-moving row explained
 - **AND** this single-stage correction SHALL NOT establish complete vehicle BV parity
+
+#### Scenario: Installed-location vehicle structure
+
+- **GIVEN** a Tank, SuperHeavyTank, VTOL or support vehicle
+- **WHEN** its construction structure BV is computed
+- **THEN** each installed non-body location SHALL contribute `ceil(tonnage / 10)` internal points, including zero-armor turrets and the VTOL rotor
+- **AND** the hull SHALL have four locations, or six for a SuperHeavyTank or LargeSupportTank, plus installed turrets and the VTOL rotor
+- **AND** structure BV SHALL equal total internal points times 1.5 times the type multiplier: industrial/composite 0.5, reinforced 2, otherwise 1
+- **AND** installed Blue Shield SHALL add 0.2 to the structure multiplier
+- **AND** source layout and numeric structure type SHALL survive handler and contract adaptation
+- **AND** every one of the 1,419 vehicle oracle rows SHALL be compared before and after, preserving unrelated output fields and explaining every total that moves farther from Java
 
 #### Scenario: Vehicle running, airborne and jumping TMM
 
