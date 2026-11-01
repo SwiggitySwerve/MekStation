@@ -61,23 +61,39 @@ The per-arc map preserves explicit tags only, including Wings and Fuselage when
 present. Keys uppercase the source location and replace spaces with underscores;
 small craft retain LEFT_SIDE/RIGHT_SIDE. Codes remain source facts, like
 `internalType`, rather than an incomplete second enum interpretation. `armor.byArc`
-continues to contain armor points. This slice does not change point ordering.
+contains armor points in BLK order: NOSE, RIGHT_WING, LEFT_WING, AFT for
+fighters, conventional fighters and FixedWingSupport; small craft use RIGHT_SIDE
+then LEFT_SIDE. Named patchwork codes stay attached to their named arcs.
+
+`blk_aerospace_tables.py` owns these orders and the aerospace armor-code map.
+Its large-craft definitions are also consumed by the capital converter. The map
+uses pinned `EquipmentType` values: 19 FERRO_ALUMINUM, 20 HEAVY_FERRO_ALUMINUM,
+40 PRIMITIVE_AERO, 16 FERRO_LAMELLOR and 22 STEALTH. Commercial, industrial,
+heavy industrial and impact-resistant armor use 10, 14, 15 and 25 respectively;
+31 through 34 are Battle Armor codes, not aliases for those types. Small craft
+normalize missing or zero armor codes to AEROSPACE; fighters retain STANDARD.
+Codes 21 (light ferro-aluminum) and 27 (prototype ferro-aluminum) have no schema
+name and retain the existing STANDARD fallback. The one pinned code-27 source,
+Starfire SF-1X (Prototype), therefore remains an explicit armor-type parity gap.
 
 Armor code 7 is PATCHWORK; code 41 is AEROSPACE, never BAR. Support BAR codes
 43 through 51 use the existing shared code range and emit type BAR. Only an
 explicit `barrating` supplies `barRating`; absence remains absent. Its existing
 schema range is 2 through 10. The schema describes, but does not enforce, the
 relationship between BAR and barRating; consumers must not infer a rating from
-the armor code. The incorrect BAR alias for code 42 is also removed; other
-pre-existing armor mappings remain outside this correction.
+the armor code. The incorrect BAR alias for code 42 is also removed.
 
 Authority: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`, under
 `megamek/src/megamek/common/`:
 
 - `loaders/BLKAeroSpaceFighterFile.java:96-98,117-123,147-165,208-210`.
+- `loaders/BLKAeroSpaceFighterFile.java:63-66,186-189` (BLK right/left order).
+- `loaders/BLKConvFighterFile.java:146-149` and
+  `loaders/BLKFixedWingSupportFile.java:126-129` (same point order).
+- `loaders/BLKSmallCraftFile.java:154-161,180-183` (default and side order).
 - `loaders/BLKFile.java:484-523,1548-1742` (support armor and transporters).
 - `loaders/BLKFixedWingSupportFile.java:108-124,160-162`.
-- `equipment/EquipmentType.java:92,126-136` (patchwork, aerospace, BAR codes).
+- `equipment/EquipmentType.java:85-136` (armor codes).
 
 Tests embed eight BLKs from mm-data `50f7efef0c9f775b0258f8283525ed4f906e1985`
 as bytes of the pinned read-only export, which uses CRLF line endings. Their
