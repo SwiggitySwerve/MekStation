@@ -25,6 +25,20 @@ export enum EngineType {
 }
 
 /**
+ * Engines only vehicles carry: MegaMek 48fcb2f6 Engine.NONE (8), STEAM (10)
+ * and BATTERY (11) (Engine.java:100-103). Kept out of EngineType, which Mek
+ * construction tables index exhaustively.
+ */
+export enum VehicleOnlyEngineType {
+  NONE = 'None',
+  STEAM = 'Steam',
+  BATTERY = 'Battery',
+}
+
+/** Engine identity a vehicle can hold. */
+export type VehicleEngineType = EngineType | VehicleOnlyEngineType;
+
+/**
  * Engine definition with all characteristics
  */
 export interface EngineDefinition {

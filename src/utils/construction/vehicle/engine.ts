@@ -16,8 +16,10 @@
  */
 
 import {
+  ENGINE_DEFINITIONS,
   EngineType,
-  getEngineDefinition,
+  VehicleOnlyEngineType,
+  type VehicleEngineType,
 } from '@/types/construction/EngineType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
@@ -41,13 +43,17 @@ const FUSION_REQUIRED_MOTION_TYPES: ReadonlySet<GroundMotionType> = new Set([
 
 /**
  * Engine types considered non-fusion for engine classification and motion
- * restrictions. Power-amplifier requirements are decided separately by
+ * restrictions (MegaMek 48fcb2f6 Engine.isFusion, Engine.java:361-365).
+ * Power-amplifier requirements are decided separately by
  * requiresPowerAmplifiers; fission is exempt there.
  */
-export const NON_FUSION_ENGINE_TYPES: ReadonlySet<EngineType> = new Set([
+export const NON_FUSION_ENGINE_TYPES: ReadonlySet<VehicleEngineType> = new Set([
   EngineType.ICE,
   EngineType.FUEL_CELL,
   EngineType.FISSION,
+  VehicleOnlyEngineType.NONE,
+  VehicleOnlyEngineType.STEAM,
+  VehicleOnlyEngineType.BATTERY,
 ]);
 
 /**
@@ -60,7 +66,7 @@ export function requiresFusionEngine(motionType: GroundMotionType): boolean {
 /**
  * Check if an engine type is fusion-powered
  */
-export function isVehicleFusionEngine(engineType: EngineType): boolean {
+export function isVehicleFusionEngine(engineType: VehicleEngineType): boolean {
   return !NON_FUSION_ENGINE_TYPES.has(engineType);
 }
 
@@ -100,7 +106,7 @@ export function computeSuspensionFactor(
  * Combat engine rating; BLKTankFile.java:155-162 at the same pinned revision.
  * Fractional tonnage is truncated for propulsion, but not suspension lookup.
  * Tank callers with an explicit absent engine pass engineLess independently
- * of trailer identity. The current store EngineType cannot represent absence.
+ * of trailer identity; the store holds that absence as VehicleOnlyEngineType.NONE.
  */
 export function computeEngineRating(
   tonnage: number,
@@ -171,32 +177,134 @@ export interface CombatVehicleEngineContext {
  */
 export function computeVehicleEngineWeight(
   rating: number,
-  engineType: EngineType | null,
+  engineType: VehicleEngineType | null,
   context: CombatVehicleEngineContext,
 ): number {
   // Explicit absence bypasses installed-engine tables, shielding and minima.
-  if (engineType === null) return 0;
+  if (engineType === null || engineType === VehicleOnlyEngineType.NONE)
+    return 0;
   // The engine table has entries only at multiples of 5 (minimum 10); a
   // rating in between is looked up at the next entry up.
   const baseWeight = getBaseEngineWeight(
     Math.max(10, Math.ceil(rating / 5) * 5),
   );
-  const def = getEngineDefinition(engineType);
-  if (!def) return baseWeight;
-  const modifiedWeight = baseWeight * def.weightMultiplier;
+  // Steam and battery have no case in Java's switch: unmodified, unshielded.
+  const def = ENGINE_DEFINITIONS.find((entry) => entry.type === engineType);
+  const modifiedWeight = baseWeight * (def?.weightMultiplier ?? 1);
   const unshieldedWeight = ceilToHalfTon(
     engineType === EngineType.FISSION
       ? Math.max(5, modifiedWeight)
       : modifiedWeight,
   );
   const installedWeight = ceilToHalfTon(
-    def.isFusion || engineType === EngineType.FISSION
+    def?.isFusion || engineType === EngineType.FISSION
       ? unshieldedWeight * 1.5
       : unshieldedWeight,
   );
   return context.motionType === GroundMotionType.HOVER
     ? Math.max(installedWeight, ceilToHalfTon(context.tonnage / 5))
     : installedWeight;
+}
+
+/** Engine.SV_ENGINE_RATINGS by TechRating index A-F (Engine.java:118-181). */
+const SUPPORT_ENGINE_MULTIPLIERS: Readonly<
+  Partial<Record<VehicleEngineType, readonly number[]>>
+> = {
+  [EngineType.ICE]: [0, 3, 2, 1.5, 1.3, 1],
+  [EngineType.STANDARD]: [0, 0, 1.5, 1, 0.75, 0.5],
+  [EngineType.FUEL_CELL]: [0, 0, 1.2, 1, 0.9, 0.7],
+  [EngineType.FISSION]: [0, 0, 1.75, 1.5, 1.4, 1.3],
+  [VehicleOnlyEngineType.NONE]: [0, 0, 0, 0, 0, 0],
+  [VehicleOnlyEngineType.STEAM]: [4, 3.5, 3, 2.8, 2.6, 2.5],
+  [VehicleOnlyEngineType.BATTERY]: [0, 0, 1.5, 1.2, 1, 0.8],
+};
+
+/**
+ * Small, medium and large getBaseEngineValue: SupportTank.java:328-389 and
+ * SupportVTOL.java:122-131 (not SVType's table, which Engine does not read).
+ */
+const SUPPORT_BASE_ENGINE_VALUES: Readonly<
+  Partial<Record<GroundMotionType, readonly number[]>>
+> = {
+  [GroundMotionType.HOVER]: [0.0025, 0.004, 0.008],
+  [GroundMotionType.NAVAL]: [0.004, 0.007, 0.007],
+  [GroundMotionType.HYDROFOIL]: [0.004, 0.007, 0.007],
+  [GroundMotionType.SUBMARINE]: [0.004, 0.007, 0.007],
+  [GroundMotionType.TRACKED]: [0.006, 0.013, 0.025],
+  [GroundMotionType.WHEELED]: [0.0025, 0.0075, 0.015],
+  [GroundMotionType.WIGE]: [0.003, 0.005, 0.006],
+  [GroundMotionType.RAIL]: [0.003, 0.004, 0.005],
+  [GroundMotionType.MAGLEV]: [0.003, 0.004, 0.005],
+  [GroundMotionType.VTOL]: [0.002, 0.0025, 0.004],
+};
+
+/**
+ * Heaviest medium support vehicle (EntityWeightClass.java:80-97). Heavier ones
+ * are LargeSupportTank, or SuperHeavy VTOLs above 30 t (VTOL.java:729-731).
+ */
+const SUPPORT_MEDIUM_MAX_TONS: Readonly<
+  Partial<Record<GroundMotionType, number>>
+> = {
+  [GroundMotionType.WHEELED]: 80,
+  [GroundMotionType.TRACKED]: 100,
+  [GroundMotionType.HOVER]: 50,
+  [GroundMotionType.VTOL]: 30,
+  [GroundMotionType.WIGE]: 80,
+  [GroundMotionType.RAIL]: 300,
+  [GroundMotionType.MAGLEV]: 300,
+};
+
+/** D: MegaMekLab's new support vehicle (SVMainUI.java:307); engine follows. */
+export const DEFAULT_SUPPORT_ENGINE_TECH_RATING = 3;
+
+export interface SupportVehicleEngineContext extends CombatVehicleEngineContext {
+  readonly cruiseMP: number;
+  /** TechRating index, A = 0 to F = 5; omitted means the default D. */
+  readonly engineTechRating?: number;
+}
+
+/**
+ * Support-vehicle engine weight: Engine.getWeightEngine's support branch
+ * (Engine.java:396-404, getWeight :453-474), rounded by RoundWeight.SV_ENGINE
+ * (RoundWeight.java:70-76). Engines without a support multiplier fail
+ * isValidEngine and fall through to the combat formula, as in Java.
+ */
+export function computeSupportVehicleEngineWeight(
+  rating: number,
+  engineType: VehicleEngineType,
+  context: SupportVehicleEngineContext,
+): number {
+  const multipliers = SUPPORT_ENGINE_MULTIPLIERS[engineType];
+  if (!multipliers)
+    return computeVehicleEngineWeight(rating, engineType, context);
+  const { tonnage, motionType } = context;
+  const techRating =
+    context.engineTechRating ?? DEFAULT_SUPPORT_ENGINE_TECH_RATING;
+  const small = tonnage < 5;
+  const large = tonnage > (SUPPORT_MEDIUM_MAX_TONS[motionType] ?? Infinity);
+  const train =
+    motionType === GroundMotionType.RAIL ||
+    motionType === GroundMotionType.MAGLEV;
+  const mp = train ? Math.max(0, context.cruiseMP - 2) : context.cruiseMP;
+  const baseValue =
+    SUPPORT_BASE_ENGINE_VALUES[motionType]?.[small ? 0 : large ? 2 : 1] ?? 0;
+  let weight = baseValue * (4 + mp * mp) * multipliers[techRating] * tonnage;
+  if (engineType === EngineType.STANDARD && techRating >= 3) {
+    weight = Math.max(weight, 0.25);
+  } else if (
+    engineType === EngineType.STANDARD ||
+    engineType === EngineType.FISSION
+  ) {
+    weight = Math.max(weight, 5);
+  }
+  if (motionType === GroundMotionType.HOVER) {
+    weight = Math.max(weight, tonnage * 0.2);
+  }
+  // Small support vehicles use the kilogram standard; others truncate to the
+  // gram, then take the nearest half ton.
+  return small
+    ? Math.round(weight * 1000) / 1000
+    : Math.round((Math.round(weight * 1e6) / 1e6) * 2) / 2;
 }
 
 // =============================================================================
@@ -222,17 +330,19 @@ export interface VehicleEngineValidationResult {
 export function validateVehicleEngine(
   tonnage: number,
   cruiseMP: number,
-  engineType: EngineType | null,
+  engineType: VehicleEngineType | null,
   motionType: GroundMotionType,
 ): VehicleEngineValidationResult {
   const errors: Array<{ ruleId: string; message: string }> = [];
   const warnings: string[] = [];
+  const engineLess =
+    engineType === null || engineType === VehicleOnlyEngineType.NONE;
 
   const engineRating = computeEngineRating(
     tonnage,
     cruiseMP,
     motionType,
-    engineType === null,
+    engineLess,
   );
   const engineWeight = computeVehicleEngineWeight(engineRating, engineType, {
     tonnage,
@@ -240,7 +350,7 @@ export function validateVehicleEngine(
   });
   const flankMP = computeFlankMP(cruiseMP);
 
-  if (engineType === null && cruiseMP > 0) {
+  if (engineLess && cruiseMP > 0) {
     errors.push({
       ruleId: 'VAL-VEHICLE-ENGINE',
       message: 'An absent engine (NONE) cannot provide positive cruise MP',
@@ -258,6 +368,7 @@ export function validateVehicleEngine(
   // Rule: fusion engine required for certain motion types
   if (
     engineType !== null &&
+    !engineLess &&
     requiresFusionEngine(motionType) &&
     !isVehicleFusionEngine(engineType)
   ) {
