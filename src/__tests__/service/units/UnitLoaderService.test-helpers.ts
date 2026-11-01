@@ -42,7 +42,7 @@ jest.mock('@/services/equipment/EquipmentLookupService', () => {
     getById: jest.fn(),
     getAllWeapons: jest.fn(),
     getAllAmmunition: jest.fn(),
-    getAllEquipment: jest.fn(),
+    getAllEquipment: jest.fn(() => []),
     initialize: jest.fn(),
     query: jest.fn(),
     getDataSource: jest.fn(),
@@ -998,6 +998,10 @@ describe('UnitLoaderService', () => {
         }
         return undefined;
       });
+      const ammunition = mockEquipmentLookupService.getById('uac-5-ammo');
+      mockEquipmentLookupService.getAllEquipment.mockReturnValue(
+        ammunition ? [ammunition] : [],
+      );
 
       const serialized = createMockSerializedUnit({
         techBase: 'Inner Sphere',

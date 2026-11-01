@@ -13,10 +13,15 @@ import {
   type VehicleState,
 } from '@/stores/vehicleState';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { UnitContract } from '@/types/contracts';
+import { TechBase } from '@/types/enums/TechBase';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { TurretType } from '@/types/unit/VehicleInterfaces';
+import {
+  TurretType,
+  IVehicleMountedEquipment,
+} from '@/types/unit/VehicleInterfaces';
 import {
   computeVehicleArmorWeight,
   getSupportVehicleBarArmorWeight,
@@ -31,9 +36,15 @@ import {
 } from '@/utils/construction/vehicle/equipmentMounts';
 import { generateUnitId } from '@/utils/uuid';
 
-import { mapArmorType, mapRulesLevel, mapTechBase } from './componentMappers';
+import {
+  mapArmorType,
+  mapRulesLevel,
+  mapTechBase,
+  mapTechBaseMode,
+} from './componentMappers';
 import { createVehicleSession } from './createVehicleSession';
 import { isDefinitionForFamily } from './definitionTypes';
+import { resolveEquipmentId } from './equipmentResolution';
 import { UnsupportedUnitConfigurationError } from './movementConfiguration';
 
 export class UnsupportedVehicleConfigurationError extends UnsupportedUnitConfigurationError {
@@ -211,6 +222,12 @@ export function normalizeVehicleConfiguration(
       unitType === UnitType.VEHICLE && isSuperHeavyTank(motionType, tonnage),
     isTrailer: definition.isTrailer ?? false,
     isOmni: definition.isOmni ?? false,
+    equipment: mapVehicleEquipment(
+      definition.equipment,
+      techBase,
+      mapTechBaseMode(definition.techBase ?? 'INNER_SPHERE'),
+      motionType === GroundMotionType.VTOL,
+    ),
   };
 }
 
@@ -219,5 +236,51 @@ export function mapToVehicleState(input: unknown): VehicleState {
   return createVehicleSession(normalizeVehicleConfiguration(input), {
     id: generateUnitId(),
     createdAt: Date.now(),
+  });
+}
+
+type VehicleEquipmentSource = NonNullable<
+  z.input<typeof UnitContract>['equipment']
+>[number];
+
+/** Definition equipment to deterministic mounts; session creation assigns IDs. */
+export function mapVehicleEquipment(
+  equipment: readonly VehicleEquipmentSource[] | undefined,
+  techBase: TechBase,
+  techBaseMode: TechBaseMode,
+  chinTurret: boolean,
+): IVehicleMountedEquipment[] {
+  return (equipment ?? []).map((item, index) => {
+    const location = resolveVehicleContractLocation(item.location);
+    const flags = getVehicleMountFlags(
+      item.location === 'SPONSON' ? 'Sponson Turret' : item.location,
+      item.name ?? item.id,
+      chinTurret,
+    );
+    const { equipmentDef, resolvedId } = resolveEquipmentId(
+      item.id,
+      techBase,
+      techBaseMode,
+      undefined,
+    );
+    return {
+      id: `mount-${index}`,
+      equipmentId: equipmentDef?.id ?? item.id,
+      name: equipmentDef?.name ?? item.name ?? item.id,
+      location,
+      ...flags,
+      isRearMounted: item.isRearMounted || flags.isRearMounted,
+      isOmniPodMounted: item.isOmniPodMounted ?? flags.isOmniPodMounted,
+      linkedAmmoId: item.linkedAmmo,
+      ...(equipmentDef
+        ? {}
+        : {
+            resolutionWarning: {
+              code: 'unresolved-equipment' as const,
+              sourceId: item.id,
+              attemptedId: resolvedId,
+            },
+          }),
+    };
   });
 }
