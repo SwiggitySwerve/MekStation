@@ -151,6 +151,19 @@ export function loadAmmunitionCatalog(): Map<string, EquipmentCatalogEntry> {
   return catalog;
 }
 
+/** Ammo and weapons can share an ID (for example mrm-20) in the source files. */
+export function isAmmunitionEquipmentId(equipmentId: string): boolean {
+  return /ammo|pods/i.test(equipmentId);
+}
+
+export function loadCatalogForEquipmentId(
+  equipmentId: string,
+): Map<string, EquipmentCatalogEntry> {
+  return isAmmunitionEquipmentId(equipmentId)
+    ? loadAmmunitionCatalog()
+    : loadEquipmentCatalog();
+}
+
 export function getLoggedUnresolvable(): Set<string> {
   return loggedUnresolvable;
 }

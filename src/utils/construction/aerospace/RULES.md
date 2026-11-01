@@ -1,5 +1,36 @@
 # Aerospace construction rules
 
+## DropShip defensive slice
+
+`dropShipBV.ts` adapts DropShip domain mounts and calls the same defensive
+owner as fighters and small craft. `calculateBattleValueForUnit` returns
+`kind: 'dropship'` with `calculationScope: 'defensive-only'`. Offensive and
+final BV are explicitly undefined; defense is not a complete unit BV.
+The contract adapter transports only SI, total armor, armor identity and mounts.
+It requires SI and armor.byArc, accepts zero and preserves hull equipment.
+
+Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587` routes Dropship to
+DropShipBVCalculator (`BVCalculator.java:103-118`), which inherits
+LargeAeroBVCalculator and AeroBVCalculator. Armor uses the inherited factor
+2.5 and SI uses 2. Dropship extends SmallCraft, so its defensive type modifier
+is 1; stealth still adds 0.3. LargeAeroBVCalculator's empty explosive stage
+does not apply penalties or the heat-tracking minimum. Aero's defensive
+factor is neutral. No small-craft armor bonus applies to DropShips.
+Mounted defensive equipment uses the existing shared classification and cap.
+
+This is the UL-20 brief's size-capped defensive-half delivery. Six-arc weapon
+selection, cumulative heat, per-arc ammo caps/quantities, weapon-link modifiers,
+offensive speed and final crew/pilot/drone adjustments remain deferred.
+Existing equipment-ID gaps, screen/APDS coverage, variable equipment values,
+Blue Shield and mount working/destroyed state are not resolved here.
+Numeric armor codes retain the existing aerospace adapter's standard fallback.
+
+Enforcement: `dropShipBV.test.ts` covers the Union defense 1632 reference,
+contract transport, missing/zero facts, domain mounts and shared AMS caps.
+UL-20's external comparison checks every defensive component for all 209
+pinned DropShips and asserts every breakdown field is unchanged for the
+same 620 aerospace inputs. It reports missing totals as unavailable.
+
 ## Max thrust
 
 `thrustCalculations.ts:calculateMaxThrust` owns the max thrust derived from safe

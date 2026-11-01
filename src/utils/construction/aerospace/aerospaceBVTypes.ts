@@ -2,6 +2,7 @@ import type {
   AerospaceArc,
   AerospaceSubType,
 } from '../../../types/unit/AerospaceInterfaces';
+import type { UnitType } from '../../../types/unit/BattleMechInterfaces';
 
 /**
  * Single piece of aerospace-mounted equipment for BV purposes.
@@ -54,6 +55,18 @@ export interface IAerospaceBVInput {
   /** Pilot piloting skill (0-8, default 5 baseline) */
   readonly pilotPiloting?: number;
 }
+
+/** Defensive facts shared by aircraft and the large-aerospace calculators. */
+export type IAerospaceDefensiveBVInput = Pick<
+  IAerospaceBVInput,
+  | 'isSupportVehicle'
+  | 'armorType'
+  | 'totalArmorPoints'
+  | 'structuralIntegrity'
+  | 'equipment'
+  | 'defensiveEquipmentBV'
+  | 'explosivePenalties'
+> & { readonly subType: AerospaceSubType | UnitType.DROPSHIP };
 
 export type {
   IAerospaceArcContribution,

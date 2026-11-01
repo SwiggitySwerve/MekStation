@@ -5,16 +5,23 @@
  * pipeline uses, so the bar and the validator describe the same vehicle.
  */
 
-import type { EngineType } from '@/types/construction/EngineType';
 import type {
   IVehicleMountedEquipment,
   ITurretConfiguration,
 } from '@/types/unit/VehicleInterfaces';
 
+import {
+  VehicleOnlyEngineType,
+  type VehicleEngineType,
+} from '@/types/construction/EngineType';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { IEquipmentItem } from '@/types/equipment';
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
-import { computeVehicleEngineWeight } from '@/utils/construction/vehicle/engine';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import {
+  computeSupportVehicleEngineWeight,
+  computeVehicleEngineWeight,
+} from '@/utils/construction/vehicle/engine';
 import { computeTurretEquipmentWeight } from '@/utils/construction/vehicle/equipmentMounts';
 import {
   computePowerAmplifierWeight,
@@ -37,7 +44,9 @@ export type EquipmentResolver = (
 
 export interface VehicleWeightState extends VehicleControlsLiftContext {
   engineRating: number;
-  engineType: EngineType;
+  engineType: VehicleEngineType;
+  cruiseMP: number;
+  engineTechRating?: number;
   structureType: VehicleStructureType;
   armorTonnage: number;
   equipment: readonly IVehicleMountedEquipment[];
@@ -111,11 +120,27 @@ export function computeVehicleWeightBreakdown(
     .filter((m) => m.needsAmplifier)
     .reduce((sum, m) => sum + m.weight, 0);
 
-  const engine = computeVehicleEngineWeight(
-    state.engineRating,
-    state.engineType,
-    { tonnage: state.tonnage, motionType: state.motionType },
-  );
+  const engineContext = {
+    tonnage: state.tonnage,
+    motionType: state.motionType,
+    cruiseMP: state.cruiseMP,
+    engineTechRating: state.engineTechRating,
+  };
+  // Only the vehicle-only engines take Java's support table here; the other
+  // support engines keep the legacy combat derivation characterized in tests.
+  const engine =
+    state.unitType === UnitType.SUPPORT_VEHICLE &&
+    Object.values<string>(VehicleOnlyEngineType).includes(state.engineType)
+      ? computeSupportVehicleEngineWeight(
+          state.engineRating,
+          state.engineType,
+          engineContext,
+        )
+      : computeVehicleEngineWeight(
+          state.engineRating,
+          state.engineType,
+          engineContext,
+        );
   const structure = computeVehicleStructureWeight(
     state.tonnage,
     state.structureType,

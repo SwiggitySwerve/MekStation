@@ -15,6 +15,7 @@ import type {
 
 import {
   loadEquipmentCatalog,
+  loadCatalogForEquipmentId,
   loadAmmunitionCatalog,
   getLoggedUnresolvable,
 } from './catalogLoader';
@@ -61,9 +62,7 @@ function applyBVHeatOverride(
 }
 
 export function resolveEquipmentBV(equipmentId: string): EquipmentBVResult {
-  const catalog = loadEquipmentCatalog();
-  const normalizedId = normalizeEquipmentId(equipmentId);
-  const entry = catalog.get(normalizedId);
+  const entry = getEquipmentEntry(equipmentId);
 
   if (!entry) {
     const loggedUnresolvable = getLoggedUnresolvable();
@@ -71,7 +70,7 @@ export function resolveEquipmentBV(equipmentId: string): EquipmentBVResult {
       loggedUnresolvable.add(equipmentId);
       if (typeof console !== 'undefined' && process.env.NODE_ENV !== 'test') {
         logger.warn(
-          `[equipmentBVResolver] Unresolvable equipment ID: "${equipmentId}" (normalized: "${normalizedId}")`,
+          `[equipmentBVResolver] Unresolvable equipment ID: "${equipmentId}" (normalized: "${normalizeEquipmentId(equipmentId)}")`,
         );
       }
     }
@@ -91,20 +90,18 @@ export function resolveEquipmentBV(equipmentId: string): EquipmentBVResult {
 export function getEquipmentEntry(
   equipmentId: string,
 ): EquipmentCatalogEntry | undefined {
-  const catalog = loadEquipmentCatalog();
-  const normalizedId = normalizeEquipmentId(equipmentId);
+  const catalog = loadCatalogForEquipmentId(equipmentId);
+  const normalizedId = normalizeEquipmentId(equipmentId, catalog);
   return catalog.get(normalizedId);
 }
 
 export function isResolvable(equipmentId: string): boolean {
-  const catalog = loadEquipmentCatalog();
-  const normalizedId = normalizeEquipmentId(equipmentId);
-  return catalog.has(normalizedId);
+  return getEquipmentEntry(equipmentId) !== undefined;
 }
 
 export function resolveAmmoBV(ammoId: string): AmmoBVResult {
   const catalog = loadAmmunitionCatalog();
-  const normalizedId = normalizeEquipmentId(ammoId);
+  const normalizedId = normalizeEquipmentId(ammoId, catalog);
   const entry = catalog.get(normalizedId);
 
   if (!entry) {
