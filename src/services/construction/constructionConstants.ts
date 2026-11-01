@@ -171,6 +171,17 @@ export function getVehicleMaxTonnage(
 }
 
 /**
+ * Lightest vehicle: 1 t for a combat vehicle. A support vehicle has no 1 t
+ * floor in `TestSupportVehicle` (the corpus holds 18 valid ones under 1 t, down
+ * to the 0.04 t HTE Micro-Copter); weights are kept to the kilogram
+ * (`TestSupportVehicle.ceilWeight`, :756-765), so 0.001 t is the least a
+ * positive weight can be.
+ */
+export function getVehicleMinTonnage(support: boolean): number {
+  return support ? 0.001 : 1;
+}
+
+/**
  * VTOL tonnage range (1-60). A VTOL over 30 t is SuperHeavy (VTOL.java:729)
  * and may reach 60 t.
  */

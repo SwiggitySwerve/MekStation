@@ -23,7 +23,7 @@ SC_TYPES = {"SmallCraft"}
 # use the same BLK indices, distinct from Aero's runtime location indices.
 AERO_ARMOR_ARCS = ["NOSE", "RIGHT_WING", "LEFT_WING", "AFT"]
 
-# BLKDropshipFile.java:132-136 uses the same BLK order as small craft.
+# BLKDropshipFile.java:196-199 uses the same BLK order as small craft.
 LARGE_CRAFT_ARMOR_ARCS = ["NOSE", "RIGHT_SIDE", "LEFT_SIDE", "AFT"]
 SC_ARMOR_ARCS = LARGE_CRAFT_ARMOR_ARCS
 

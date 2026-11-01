@@ -2,8 +2,8 @@
 
 DropShip converter (UL-07a). MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587 BLKDropshipFile.java is the
 reference for which tags are read and how: BLK armor index 1 is the right side and index 2 the left
-(:132-136, via BLKAeroSpaceFighterFile.RW/LW); armor_type 0 is rewritten to aerospace armor (:120-125);
-engine_type is never read (SmallCraft ICE placeholder); structural_integrity is explicit (:92-96).
+(:196-199, via BLKAeroSpaceFighterFile.RW/LW); armor_type 0 is rewritten to aerospace armor (:165-173);
+engine_type is never read (SmallCraft ICE placeholder); structural_integrity is explicit (:131-135).
 The committed fixtures are real converter output for pinned mm-data 50f7efef.
 """
 
@@ -22,7 +22,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'megameklab-conversion'))
 
-from blk_capital_converter import convert_capital_blk
+from blk_capital_converter import REQUIRED_COUNT_TAGS, convert_capital_blk
 from schema_gate import validate_unit
 
 FIXTURES = Path(__file__).resolve().parents[2] / 'src/types/contracts/__tests__/fixtures'
@@ -187,7 +187,7 @@ class CapitalConverterTest(unittest.TestCase):
         self.assertEqual(unit['transporters'], ['mekbay:4.0:2:-1::-1:0', 'asfbay:2.0:2:3::-1:0', 'cargobay:75.0:1:6::-1:0'])
 
     def test_blk_armor_index_one_is_the_right_side(self):
-        # BLKDropshipFile.java:132-136: armor[RW=1] -> LOC_RIGHT_WING, armor[LW=2] -> LOC_LEFT_WING.
+        # BLKDropshipFile.java:196-199: armor[RW=1] -> LOC_RIGHT_WING, armor[LW=2] -> LOC_LEFT_WING.
         self.assertEqual(
             self.convert(UNION_BLK)['armor']['byArc'],
             {'NOSE': 180, 'RIGHT_SIDE': 170, 'LEFT_SIDE': 160, 'AFT': 120},
@@ -210,7 +210,7 @@ class CapitalConverterTest(unittest.TestCase):
 
     def test_armor_codes_map_to_their_large_craft_types(self):
         # EquipmentType.java T_ARMOR_ALUM=19, T_ARMOR_HEAVY_ALUM=20, T_ARMOR_PRIMITIVE_AERO=40, T_ARMOR_AEROSPACE=41;
-        # BLKDropshipFile.java:120-125 turns the legacy standard code 0 into aerospace armor.
+        # BLKDropshipFile.java:165-173 turns the legacy standard code 0 into aerospace armor.
         for code, expected in ((41, 'AEROSPACE'), (0, 'AEROSPACE'), (19, 'FERRO_ALUMINUM'), (20, 'HEAVY_FERRO_ALUMINUM'), (40, 'PRIMITIVE_AERO')):
             with self.subTest(code=code):
                 unit = self.convert(with_tag(UNION_BLK, 'armor_type', code))
@@ -278,6 +278,23 @@ class CapitalConverterTest(unittest.TestCase):
         self.assertEqual(self.convert(with_tag(UNION_BLK, 'SafeThrust', 0))['movement'], {'safeThrust': 0, 'maxThrust': 0})
         with self.assertRaisesRegex(ValueError, 'SafeThrust'):
             self.convert(re.sub(r'<SafeThrust>.*?</SafeThrust>\n', '', UNION_BLK, flags=re.S))
+
+    def test_missing_required_count_tags_are_rejected(self):
+        # BLKDropshipFile.java throws on each of these; a silent 0 would publish SI 0 or fuel 0.
+        for tag in (t for t in REQUIRED_COUNT_TAGS if t != 'SafeThrust'):
+            with self.subTest(tag=tag), self.assertRaisesRegex(ValueError, tag):
+                self.convert(re.sub(rf'<{tag}>.*?</{tag}>\n', '', UNION_BLK, flags=re.S))
+
+    def test_missing_motion_type_is_rejected(self):
+        # BLKDropshipFile.java:116-118 throws "Could not find movement block."; it does not default to aerodyne.
+        with self.assertRaisesRegex(ValueError, 'motion_type'):
+            self.convert(re.sub(r'<motion_type>.*?</motion_type>\n', '', UNION_BLK, flags=re.S))
+
+    def test_armor_array_must_have_exactly_four_values(self):
+        # BLKDropshipFile.java:192-194 throws "Incorrect armor array length".
+        for armor in ('180\n170\n160', '180\n170\n160\n120\n100'):
+            with self.subTest(values=armor.count('\n') + 1), self.assertRaisesRegex(ValueError, 'armor values'):
+                self.convert(with_tag(UNION_BLK, 'armor', armor))
 
     def test_damaged_source_rejects_the_batch_before_any_output_is_written(self):
         for tag in ('Name', 'year', 'tonnage', 'type'):

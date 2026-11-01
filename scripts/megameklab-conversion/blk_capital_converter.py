@@ -51,11 +51,11 @@ from blk_conversion_runner import (
 )
 from blk_unit_fields import parse_fluff, parse_location_equipment, parse_mul_id, parse_quirks
 
-# Tags BLKDropshipFile.java throws on when absent (:55-59, :68-77, :104-106, :113-117, :121-125, :134-135, :142-143).
+# Tags BLKDropshipFile.java throws on when absent (:71-74, :100-103, :105-108, :131-135, :141-143, :146-148, :152-154, :159-162).
 # A silent 0 would be a lie for these, so a missing one rejects the source like Java does.
 REQUIRED_COUNT_TAGS = ("crew", "life_boat", "escape_pod", "structural_integrity", "fuel", "heatsinks", "sink_type", "SafeThrust")
 
-# Optional crew-complement tags (BLKDropshipFile.java:58-95) -> output key.
+# Optional crew-complement tags (BLKDropshipFile.java:76-98) -> output key.
 OPTIONAL_COUNT_TAGS = {
     "officers": "officers",
     "gunners": "gunners",
@@ -75,7 +75,7 @@ def required_count(tags: Dict[str, Any], tag: str, blk_path: Path) -> int:
 
 def map_capital_armor(blk_path: Path, tags: Dict[str, Any]) -> str:
     code = get_string(tags, "armor_type")
-    code_value = parse_number(code) if code is not None else 41  # BLKDropshipFile.java:118 default
+    code_value = parse_number(code) if code is not None else 41  # BLKDropshipFile.java:166 default
     if code_value is None or int(code_value) not in CAPITAL_ARMOR_CODE_MAP:
         raise ValueError(f"{blk_path.name}: unsupported capital armor_type {code!r}")
     return CAPITAL_ARMOR_CODE_MAP[int(code_value)]
@@ -119,7 +119,7 @@ def convert_capital_blk(blk_path: Path, logger: logging.Logger) -> Any:
     safe_thrust = counts["SafeThrust"]
 
     armor_values = parse_armor_array(tags.get("armor"))
-    if len(armor_values) != len(DROPSHIP_ARMOR_ARCS):  # BLKDropshipFile.java:152-154
+    if len(armor_values) != len(DROPSHIP_ARMOR_ARCS):  # BLKDropshipFile.java:192-194
         raise ValueError(f"{blk_path.name}: expected {len(DROPSHIP_ARMOR_ARCS)} armor values, found {len(armor_values)}")
 
     tech_type_str = validate_blk_tech_type(get_string(tags, "type", "Type"))

@@ -197,6 +197,8 @@ SHALL read it rather than keep their own tables.
   Tracked 200, Hover 100, VTOL 60, WiGE 240, Naval, Hydrofoil and Submarine 300, Rail and
   Maglev 600 tons
 - **AND** a 600-ton Rail LargeSupportTank (the Adelante) SHALL be accepted
+- **AND** the minimum SHALL be 0.001 ton (`getVehicleMinTonnage`), not 1 ton: `TestSupportVehicle`
+  has no 1-ton floor, and a 0.04-ton support VTOL and a 0.35-ton Wheeled cycle are valid in MegaMek
 
 ### Requirement: Support Vehicle Size Classes
 
@@ -206,7 +208,7 @@ Support vehicles SHALL be classified by size based on tonnage.
 
 - **WHEN** determining support vehicle size class
 - **THEN** the system SHALL classify as:
-  - Small: 1–5 tons (max 5 tons)
+  - Small: 0.001–5 tons (max 5 tons)
   - Medium: 6–80 tons (max 80 tons)
   - Large: 81+ tons (max: the SVType maximum for the motion type)
 
@@ -250,12 +252,13 @@ The system SHALL enforce vehicle-specific validation rules.
 #### Scenario: VAL-VEH-005 — Vehicle Tonnage Range
 
 - **WHEN** validating vehicle tonnage
-- **THEN** tonnage MUST be between 1 ton and the maximum the Tonnage Ranges requirement gives
+- **THEN** tonnage MUST be between the minimum (1 ton, 0.001 ton for a support vehicle,
+  `getVehicleMinTonnage`) and the maximum the Tonnage Ranges requirement gives
   for the unit's motion type (`getVehicleMaxTonnage`):
   - VEHICLE: the superheavy maximum where MegaMek can load the motion type as superheavy,
     otherwise the ordinary maximum (Tracked 1–200, Hover 1–100, Rail 1–100 tons)
   - VTOL: 1–60 tons
-  - SUPPORT_VEHICLE: up to the SVType maximum (Rail 1–600 tons)
+  - SUPPORT_VEHICLE: up to the SVType maximum (Rail 0.001–600 tons)
 - **AND** violation SHALL be `CRITICAL_ERROR` severity
 
 #### Scenario: Combat vehicle handler validation
@@ -267,6 +270,8 @@ The system SHALL enforce vehicle-specific validation rules.
   - Tonnage SHALL NOT exceed `getTankMaxTonnage` for the motion type and superheavy flag
   - Non-trailer vehicles MUST have ≥ 1 cruise MP
   - Total armor SHALL NOT exceed max armor points (`(int)(tonnage × 7 / 2 + 40)`, `TestTank.java:338`)
+  - An `<armor>` array of a length MegaMek refuses to load ("Incorrect armor array length")
+    SHALL load for inspection and report that as an error (the VTOL handler does the same)
   - Turret weight SHALL NOT exceed turret capacity
   - Hover vehicles over 50 tons generate a WARNING
 
@@ -279,6 +284,11 @@ The system SHALL enforce vehicle-specific validation rules.
   - BAR rating between 1 and 10
   - Total armor SHALL NOT exceed max armor points (`4 + (int)(tonnage × factor)`, factor by
     SVType, `TestSupportVehicle.java:585-617`)
+  - Total armor SHALL fit the armor tonnage it weighs (`TestEntity.correctArmorOverAllocation`):
+    for BAR 2-10 armor, the points' weight rounded up to a kilogram (under 5 tons) or a half
+    ton, divided by the BAR weight per point at the source's `armor_tech_rating`, floored and
+    capped by the armor limit, MUST be at least the allocated points
+  - An `<armor>` array of a refused length reports "Incorrect armor array length" as an error
   - Cargo capacity generates an INFO message when > 0
 
 ## ADDED Requirements
