@@ -110,6 +110,7 @@ it('keeps BLK source qualifiers out of the recorded BattleMech snapshot', () => 
     ['baseChassisTurret2Weight', 1],
     ['baseChassisSponsonPintleWeight', 1],
     ['baseChassisFireConWeight', 1],
+    ['omniPodHeatSinks', 2],
   ] as const) {
     expect(
       customCombatSnapshotSchema.safeParse({ ...projected, [key]: value })
