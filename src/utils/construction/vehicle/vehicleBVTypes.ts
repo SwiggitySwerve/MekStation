@@ -79,6 +79,13 @@ export interface VehicleBVTurret {
 export interface VehicleBVInput {
   /** Motion type — Tracked, Wheeled, Hover, VTOL, Hydrofoil, WiGE, Naval, Submarine, Rail, Maglev. */
   motionType: GroundMotionType;
+  /** Support vehicles use the motion base without chassis-equipment additions. */
+  isSupportVehicle?: boolean;
+  /** All mounted IDs, including zero-BV chassis modifications. */
+  chassisEquipment?: readonly string[];
+  /** Store flags for installed chassis modifications, when not mounted as rows. */
+  hasEnvironmentalSealing?: boolean;
+  hasFlotationHull?: boolean;
   /** Cruise MP (walk equivalent). */
   cruiseMP: number;
   /** Flank MP — typically `ceil(cruise × 1.5)`. */

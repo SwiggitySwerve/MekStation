@@ -60,7 +60,7 @@ describe('Vehicle defensive BV', () => {
     expect(def.defensiveFactor).toBeCloseTo(1.1, 4);
   });
 
-  it('composes defensive total: (armor + structure + defEq - explosive) x factor', () => {
+  it('composes defensive total with tracked type modifier before the TMM factor', () => {
     const def = calculateVehicleDefensiveBV(
       baseInput({
         motionType: GroundMotionType.TRACKED,
@@ -74,7 +74,7 @@ describe('Vehicle defensive BV', () => {
       }),
     );
     const expectedBase = 250 + 45 + 10 - 5;
-    const expectedTotal = expectedBase * 1.1;
+    const expectedTotal = expectedBase * 0.9 * 1.1;
     expect(def.total).toBeCloseTo(expectedTotal, 4);
   });
 });

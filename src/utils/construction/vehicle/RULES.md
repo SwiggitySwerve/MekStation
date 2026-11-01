@@ -1,5 +1,29 @@
 # Combat-vehicle construction rules
 
+## Defensive BV type modifier
+
+`vehicleBVTypeModifier.ts` owns the motion-type defensive multiplier and its
+chassis-equipment additions. `vehicleBVDefensive.ts` applies it to the entire
+armor + structure + defensive equipment - explosive penalty pool, before the
+separate TMM factor: tracked 0.9, wheeled 0.8, hover/VTOL/WiGE 0.7, all others
+0.6. Non-support vehicles add 0.2 per fully amphibious mount or 0.1 per limited
+amphibious, dune buggy, flotation hull, environmental sealing or armored motive
+mount. Additions can exceed 1; support vehicles receive only the motion base.
+
+Pinned [CombatVehicleBVCalculator.java:83-108](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/battleValue/CombatVehicleBVCalculator.java#L83)
+defines the stage; inherited
+[BVCalculator.java:274-280](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/battleValue/BVCalculator.java#L274)
+orders it before TMM. Adapters carry all mounted IDs and support identity.
+The store's sealing/flotation flags represent the same installation as a
+matching mount and are counted once. Generic `isAmphibious` is insufficient
+to distinguish full/limited/SV equipment, so only identified mounts add BV.
+
+`vehicleBV.defenseParity.test.ts` enforces every motion base, mounted bonuses,
+support exclusion and store/contract transport. Tamerlane's isolated defense
+becomes 136.5, versus Java 141.75: structure and TMM still differ. Armor/BAR,
+structure, equipment partitioning, explosive penalties, TMM and all offensive
+rules remain separate terms; this correction does not establish whole-unit parity.
+
 ## Offensive BV mass contribution
 
 `vehicleBVOffensive.ts:calculateVehicleOffensiveBV` owns the offensive mass

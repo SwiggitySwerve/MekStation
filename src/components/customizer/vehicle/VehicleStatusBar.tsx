@@ -45,6 +45,8 @@ type VehicleValidation = ReturnType<typeof validateVehicleConstruction>;
 type VehicleStatusStoreState = Pick<
   VehicleStore,
   | 'unitType'
+  | 'hasEnvironmentalSealing'
+  | 'hasFlotationHull'
   | 'hasNoControlSystems'
   | 'tonnage'
   | 'motionType'
@@ -149,6 +151,9 @@ function calculateArmorStats(
 function computeBvBreakdown(
   state: Pick<
     VehicleStatusStoreState,
+    | 'unitType'
+    | 'hasEnvironmentalSealing'
+    | 'hasFlotationHull'
     | 'motionType'
     | 'tonnage'
     | 'cruiseMP'
@@ -163,6 +168,9 @@ function computeBvBreakdown(
 ): VehicleBvBreakdown | null {
   try {
     return computeVehicleBVFromState({
+      unitType: state.unitType,
+      hasEnvironmentalSealing: state.hasEnvironmentalSealing,
+      hasFlotationHull: state.hasFlotationHull,
       motionType: state.motionType,
       tonnage: state.tonnage,
       cruiseMP: state.cruiseMP,
@@ -230,6 +238,8 @@ function validateStatusBarState(
 function useVehicleStatusStoreState(): VehicleStatusStoreState {
   return {
     unitType: useVehicleStore((s) => s.unitType),
+    hasEnvironmentalSealing: useVehicleStore((s) => s.hasEnvironmentalSealing),
+    hasFlotationHull: useVehicleStore((s) => s.hasFlotationHull),
     hasNoControlSystems: useVehicleStore((s) => s.hasNoControlSystems),
     tonnage: useVehicleStore((s) => s.tonnage),
     motionType: useVehicleStore((s) => s.motionType),
@@ -252,6 +262,8 @@ function useVehicleStatusStoreState(): VehicleStatusStoreState {
 function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
   const {
     unitType,
+    hasEnvironmentalSealing,
+    hasFlotationHull,
     hasNoControlSystems,
     tonnage,
     motionType,
@@ -324,6 +336,9 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
   const bvBreakdown = useMemo(
     () =>
       computeBvBreakdown({
+        unitType,
+        hasEnvironmentalSealing,
+        hasFlotationHull,
         motionType,
         tonnage,
         cruiseMP,
@@ -336,6 +351,9 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
         equipment,
       }),
     [
+      unitType,
+      hasEnvironmentalSealing,
+      hasFlotationHull,
       motionType,
       tonnage,
       cruiseMP,

@@ -116,6 +116,52 @@ numeric output before native identity, quantity or grouping corrections.
 
 ## MODIFIED Requirements
 
+### Requirement: Vehicle Defensive BV
+
+Vehicle defensive BV SHALL combine armor, structure and defensive equipment,
+subtract explosive penalties, apply the motion-type modifier to that entire
+pool, then apply the separate motive-type TMM factor. The motion multiplier
+SHALL be 0.9 tracked, 0.8 wheeled, 0.7 hover/VTOL/WiGE and 0.6 otherwise.
+Non-support vehicles SHALL add 0.2 per fully amphibious mount or 0.1 per
+limited amphibious, dune buggy, flotation hull, environmental sealing or
+armored motive mount. Support vehicles SHALL omit these equipment additions.
+
+#### Scenario: Defensive BV formula
+
+- **WHEN** computing vehicle defensive BV
+- **THEN** base defensive BV SHALL equal `armor × 2.5 × armorMult + structure × 1.5 × structureMult + defEquipBV − explosivePenalty`
+- **AND** the existing defensive factor SHALL remain `1 + ((TMM × 0.5) / 10)` in this type-modifier slice
+- **AND** final defensive BV SHALL equal `base × type modifier × defensive factor`
+
+#### Scenario: VTOL TMM bonus
+
+- **GIVEN** a VTOL with flank MP 15
+- **WHEN** TMM is computed
+- **THEN** the TMM SHALL equal the 15-MP table value + 1 (altitude bonus)
+
+#### Scenario: BAR armor scaling
+
+- **GIVEN** a BAR-6 support vehicle with 40 armor points
+- **WHEN** armor BV is computed
+- **THEN** armor BV SHALL equal `40 × 2.5 × 1.0 × (6/10) = 60`
+
+#### Scenario: Chassis equipment and support exclusion
+
+- **GIVEN** a tracked vehicle with fully amphibious and armored motive mounts
+- **WHEN** the defensive type modifier is computed
+- **THEN** it SHALL equal `0.9 + 0.2 + 0.1 = 1.2` without clamping
+- **AND** a support vehicle with the same mounts SHALL retain 0.9
+- **AND** a store sealing or flotation flag and its matching mount SHALL count once
+
+#### Scenario: Tamerlane isolated defensive type term
+
+- **GIVEN** Tamerlane (Flamer) with existing TS armor BV 120, structure BV 36 and TMM factor 1.25
+- **WHEN** the hover type modifier is applied
+- **THEN** defense SHALL equal `(120 + 36) × 0.7 × 1.25 = 136.5`
+- **AND** armor, structure, equipment, TMM and offensive breakdown fields SHALL remain unchanged
+- **AND** every Tank, SuperHeavyTank and VTOL oracle row SHALL be compared before and after, with every away-moving row explained
+- **AND** this single-stage correction SHALL NOT establish complete vehicle BV parity
+
 ### Requirement: Aerospace Defensive BV
 
 Aerospace defensive BV SHALL use Structural Integrity in place of the mech gyro term,
