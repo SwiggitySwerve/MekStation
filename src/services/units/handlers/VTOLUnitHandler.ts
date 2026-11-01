@@ -143,6 +143,8 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
 
     return {
       unitType: UnitType.VTOL,
+      internalStructureType: document.internalType ?? 0,
+      structureLocations: BLK_VTOL_ARMOR_LOCATIONS.slice(0, armor.length),
       motionType,
       movement,
       engineType,

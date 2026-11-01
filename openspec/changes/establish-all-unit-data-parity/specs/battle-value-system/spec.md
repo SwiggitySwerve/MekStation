@@ -116,6 +116,34 @@ numeric output before native identity, quantity or grouping corrections.
 
 ## MODIFIED Requirements
 
+### Requirement: Aerospace BV Dispatch
+
+The BV calculator SHALL route `IAerospaceUnit` inputs to an aerospace-specific
+calculation path. Conventional fighters and FixedWingSupport SHALL use the sum
+of defensive and offensive BV before pilot adjustment, without a final 0.8
+subtype multiplier, matching pinned MegaMek `AeroBVCalculator.processSummarize`
+and `BVCalculator.processSummarize`.
+
+#### Scenario: ASF dispatch
+
+- **GIVEN** an aerospace fighter
+- **WHEN** `calculateBattleValue` is called
+- **THEN** the aerospace calculator SHALL be invoked
+- **AND** the return SHALL include an `IAerospaceBVBreakdown`
+
+#### Scenario: Conventional fighter multiplier
+
+- **GIVEN** a conventional fighter or FixedWingSupport
+- **WHEN** final BV is computed
+- **THEN** `(defensive + offensive)` SHALL receive pilot adjustment and rounding without a final subtype reduction
+- **AND** the compatibility breakdown field `subTypeMultiplier` SHALL equal 1
+
+#### Scenario: Boeing final BV
+
+- **GIVEN** Boeing Jump Bomber with defensive BV 63.8 and offensive BV zero
+- **WHEN** final BV is computed for the baseline pilot
+- **THEN** final BV SHALL equal 64, matching pinned Java
+
 ### Requirement: Vehicle Defensive BV
 
 Vehicle defensive BV SHALL combine armor, structure and defensive equipment,
@@ -155,12 +183,23 @@ armored motive mount. Support vehicles SHALL omit these equipment additions.
 
 #### Scenario: Tamerlane isolated defensive type term
 
-- **GIVEN** Tamerlane (Flamer) with existing TS armor BV 120, structure BV 36 and corrected TMM factor 1.5
+- **GIVEN** Tamerlane (Flamer) with armor BV 120, corrected structure BV 15 and corrected TMM factor 1.5
 - **WHEN** the hover type modifier is applied
-- **THEN** defense SHALL equal `(120 + 36) × 0.7 × 1.5 = 163.8`
-- **AND** armor, structure, equipment and offensive breakdown fields SHALL remain unchanged
+- **THEN** defense SHALL equal `(120 + 15) × 0.7 × 1.5 = 141.75`
+- **AND** applying the type modifier SHALL preserve armor, structure, equipment and offensive breakdown fields
 - **AND** every Tank, SuperHeavyTank and VTOL oracle row SHALL be compared before and after, with every away-moving row explained
 - **AND** this single-stage correction SHALL NOT establish complete vehicle BV parity
+
+#### Scenario: Installed-location vehicle structure
+
+- **GIVEN** a Tank, SuperHeavyTank, VTOL or support vehicle
+- **WHEN** its construction structure BV is computed
+- **THEN** each installed non-body location SHALL contribute `ceil(tonnage / 10)` internal points, including zero-armor turrets and the VTOL rotor
+- **AND** the hull SHALL have four locations, or six for a SuperHeavyTank or LargeSupportTank, plus installed turrets and the VTOL rotor
+- **AND** structure BV SHALL equal total internal points times 1.5 times the type multiplier: industrial/composite 0.5, reinforced 2, otherwise 1
+- **AND** installed Blue Shield SHALL add 0.2 to the structure multiplier
+- **AND** source layout and numeric structure type SHALL survive handler and contract adaptation
+- **AND** every one of the 1,419 vehicle oracle rows SHALL be compared before and after, preserving unrelated output fields and explaining every total that moves farther from Java
 
 #### Scenario: Vehicle running, airborne and jumping TMM
 
@@ -191,6 +230,37 @@ conventional fighters, and 1 for support vehicles (including FixedWingSupport)
 and small craft. Non-patchwork stealth armor SHALL add 0.3 to that modifier;
 patchwork armor SHALL receive no stealth bonus. This type stage SHALL precede
 the neutral defensive factor and SHALL NOT scale offensive BV.
+Represented mounted defensive equipment SHALL contribute its resolved BV once
+per mount before the type stage and SHALL be excluded from offensive arc pools
+and ammunition weapon caps. ECM, active probes, AMS, defensive pods and the
+represented miscellaneous identities flagged defensive by pinned Java SHALL
+use this rule. Represented AMS ammunition SHALL be capped at installed
+ammunition-using AMS BV; laser AMS SHALL NOT increase that cap. Unsupported
+native identities, quantities and variable equipment BV remain explicit gaps.
+
+#### Scenario: Saroyan defensive equipment
+
+- **GIVEN** Saroyan Jump Bomber with armor BV 60, SI BV 16, stealth and Guardian ECM BV 61
+- **WHEN** its contract passes through BV dispatch
+- **THEN** defense SHALL equal `(60 + 16 + 61) × 1.4 = 191.8`
+- **AND** its ECM SHALL contribute zero offensive BV
+- **AND** its baseline pilot final BV SHALL equal 192, matching pinned Java
+
+#### Scenario: Defensive ammunition caps
+
+- **GIVEN** one 32 BV AMS and four represented 11 BV ammunition bins
+- **WHEN** defensive equipment BV is computed
+- **THEN** it SHALL equal `32 + min(32, 44) = 64`
+- **AND** orphan ammunition SHALL contribute zero
+- **AND** laser AMS SHALL contribute its own BV without supporting ammunition
+
+#### Scenario: Bounded equipment and final-sum evidence
+
+- **WHEN** these terms are checked against pinned Java
+- **THEN** all 620 aerospace oracle rows SHALL be compared before and after by family
+- **AND** every farther-moving row SHALL be explained
+- **AND** unrelated breakdown fields SHALL remain identical
+- **AND** these corrections SHALL NOT establish complete aerospace BV parity
 
 #### Scenario: SI BV
 
