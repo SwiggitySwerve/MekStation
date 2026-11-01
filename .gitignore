@@ -45,6 +45,7 @@ scripts/**
 !scripts/expand-unit-type-requirements.mjs
 !scripts/expand-source-provenance-variants.mjs
 !scripts/print-combat-validation-gaps.ts
+!scripts/vehicle-aero-bv-delta.ts
 !scripts/campaign-authority-cutover.ts
 !scripts/maintenance/
 !scripts/maintenance/scan-maintenance.mjs
@@ -74,6 +75,7 @@ scripts/**
 !scripts/megameklab-conversion/mtf_parser.py
 !scripts/megameklab-conversion/mtf_parser_builders.py
 !scripts/megameklab-conversion/java_reference_exporter.py
+!scripts/megameklab-conversion/export_vehicle_aero_json.py
 !scripts/megameklab-conversion/java-reference/
 !scripts/megameklab-conversion/java-reference/*.java
 !scripts/megameklab-conversion/java-reference/README.md
