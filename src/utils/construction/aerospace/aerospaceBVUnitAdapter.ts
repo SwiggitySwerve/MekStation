@@ -43,7 +43,7 @@ export type AerospaceBVDispatchInput = (
  * `"standard"` (multiplier 1.0) — the same behavior `getArmorBVMultiplier`
  * provides for unknown strings.
  */
-function resolveAerospaceArmorTypeKey(
+export function resolveAerospaceArmorTypeKey(
   armorType: string | number | undefined,
 ): string {
   if (typeof armorType === 'string' && armorType.length > 0) return armorType;
