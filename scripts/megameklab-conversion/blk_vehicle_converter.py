@@ -194,7 +194,9 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
     # --- Armor ---
     armor_raw = tags.get("armor") or tags.get("Armor")
     armor_values = parse_armor_array(armor_raw)
-    armor_type = parse_blk_armor_type(tags, ARMOR_CODE_MAP)
+    armor_type = parse_blk_armor_type(
+        tags, ARMOR_CODE_MAP, unit_type_raw in ("SupportTank", "LargeSupportTank", "SupportVTOL")
+    )
 
     # Build per-location armor dict
     try:

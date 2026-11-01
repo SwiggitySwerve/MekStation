@@ -306,7 +306,7 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
         },
         "cockpit": cockpit_type_str,
         "armor": {
-            **(parse_blk_armor_type(tags, ARMOR_CODE_MAP) if unit_type_raw == "FixedWingSupport" else {"type": armor_type_str}),
+            **(parse_blk_armor_type(tags, ARMOR_CODE_MAP, True) if unit_type_raw == "FixedWingSupport" else {"type": armor_type_str}),
             "byArc": armor_by_arc,
         },
         "equipment": equipment,

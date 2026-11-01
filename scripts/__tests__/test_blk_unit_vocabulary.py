@@ -90,6 +90,31 @@ class BlkUnitVocabularyTest(unittest.TestCase):
                 self.assertEqual((unit['armor']['type'], unit['armor']['barRating']), ('BAR', rating))
                 self.assert_schema_valid(unit)
 
+    def test_barrating_tag_wins_over_the_armor_code(self):
+        # BLKFile.java:501-513 takes the rating from `barrating` only; the code just marks BAR.
+        unit = self.vehicle('SupportTank', 'Tag fixture', armor_type=43,
+                            extra='<barrating>\n7\n</barrating>\n')
+        self.assertEqual((unit['armor']['type'], unit['armor']['barRating']), ('BAR', 7))
+
+    def test_bar_code_without_barrating_has_no_rating(self):
+        # Without the tag MegaMek never calls setBARRating, so a support vehicle's rating stays 0
+        # (SupportTank.java:63,80), which is no valid BAR rating: emit BAR with no barRating.
+        unit = self.vehicle('SupportTank', 'Untagged fixture', armor_type=47)
+        self.assertEqual(unit['armor']['type'], 'BAR')
+        self.assertNotIn('barRating', unit['armor'])
+        self.assert_schema_valid(unit)
+
+    def test_only_support_vehicles_read_barrating(self):
+        # Only the support loaders call loadSVArmor (BLKSupportTankFile, BLKLargeSupportTankFile,
+        # BLKSupportVTOLFile, BLKFixedWingSupportFile); BLKTankFile and BLKVTOLFile ignore the tag.
+        unit = self.vehicle('Tank', 'Tagged tank', armor_type=47,
+                            extra='<barrating>\n6\n</barrating>\n')
+        self.assertEqual(unit['armor']['type'], 'BAR')
+        self.assertNotIn('barRating', unit['armor'])
+        support = self.vehicle('SupportTank', 'Tagged support', armor_type=47,
+                               extra='<barrating>\n6\n</barrating>\n')
+        self.assertEqual(support['armor']['barRating'], 6)
+
     def test_non_bar_armor_has_no_rating(self):
         unit = self.vehicle('Tank', 'Standard fixture', armor_type=1)
         self.assertEqual(unit['armor']['type'], 'FERRO_FIBROUS')
