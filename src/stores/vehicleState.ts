@@ -10,7 +10,10 @@ import type { StoreEquipmentActions } from '@/stores/equipmentStoreActions';
 import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
 
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { EngineType } from '@/types/construction/EngineType';
+import {
+  EngineType,
+  type VehicleEngineType,
+} from '@/types/construction/EngineType';
 import {
   VehicleLocation,
   VTOLLocation,
@@ -187,7 +190,10 @@ export interface VehicleState {
   // =========================================================================
 
   /** Engine type */
-  engineType: EngineType;
+  engineType: VehicleEngineType;
+
+  /** Support-vehicle engine TechRating index (A = 0 to F = 5); omitted means D. */
+  engineTechRating?: number;
 
   /** Engine rating */
   engineRating: number;
@@ -305,7 +311,7 @@ export interface VehicleActions
   setHasNoControlSystems: (hasNoControlSystems: boolean) => void;
 
   // Engine & Movement
-  setEngineType: (type: EngineType) => void;
+  setEngineType: (type: VehicleEngineType) => void;
   setEngineRating: (rating: number) => void;
   setCruiseMP: (cruiseMP: number) => void;
 

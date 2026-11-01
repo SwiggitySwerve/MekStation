@@ -11,12 +11,13 @@
  *   VAL-VEHICLE-POWER-AMP — power amps present when required
  */
 
+import type { VehicleEngineType } from '@/types/construction/EngineType';
+
 import {
   getVehicleMaxTonnage,
   getVehicleMinTonnage,
 } from '@/services/construction/constructionConstants';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { EngineType } from '@/types/construction/EngineType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
@@ -58,7 +59,7 @@ export type VehicleValidationRuleId =
 
 export interface VehicleValidationInput extends VehicleControlsLiftContext {
   /** Engine type */
-  engineType: EngineType;
+  engineType: VehicleEngineType;
   /** Cruise MP */
   cruiseMP: number;
   /** Turret configuration */

@@ -1,7 +1,7 @@
 import type { ProtoMechState } from '@/stores/protoMechState';
+import type { VehicleEngineType } from '@/types/construction/EngineType';
 
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { EngineType } from '@/types/construction/EngineType';
 import {
   AerospaceLocation,
   VehicleLocation,
@@ -83,7 +83,7 @@ export function formatTechType(
   return `${base} ${levelMap[rulesLevel] || 'Level 2'}`;
 }
 
-export function formatEngineTypeCode(engineType: EngineType): string {
+export function formatEngineTypeCode(engineType: VehicleEngineType): string {
   return encodeBlkEngine(engineType);
 }
 
