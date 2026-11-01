@@ -9,7 +9,61 @@
  * - Structure points per location come from the vehicle tonnage table
  */
 
+import { isSuperHeavyTank } from '@/services/conversion/blkVehicleArmorLayout';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
+
+import type { VehicleTurretKind } from './vehicleBVTypes';
+
+/** Installed layout facts, before fixed-key armor maps add absent locations. */
+export interface VehicleBVStructureLayout {
+  tonnage: number;
+  motionType: GroundMotionType;
+  isSupportVehicle?: boolean;
+  structureLocations?: readonly string[];
+  turretKind?: VehicleTurretKind;
+  secondaryTurretKind?: VehicleTurretKind;
+}
+
+/** Tank.autoSetInternal; SuperHeavyTank changes the layout, not points per location. */
+export function computeVehicleBVStructurePoints(
+  layout: VehicleBVStructureLayout,
+): number {
+  const locations = layout.structureLocations;
+  const installed = (kind?: VehicleTurretKind) =>
+    kind !== undefined && kind !== 'sponson';
+  const turrets =
+    layout.turretKind === 'dual' || installed(layout.secondaryTurretKind)
+      ? 2
+      : installed(layout.turretKind)
+        ? 1
+        : 0;
+  const count = locations
+    ? new Set(locations.filter((location) => location.toLowerCase() !== 'body'))
+        .size
+    : (layout.motionType === GroundMotionType.VTOL
+        ? 5
+        : !layout.isSupportVehicle &&
+            isSuperHeavyTank(layout.motionType, layout.tonnage)
+          ? 6
+          : 4) + turrets;
+  return Math.ceil(layout.tonnage / 10) * count;
+}
+
+/** Normalize the pinned EquipmentType structure codes for the shared BV table. */
+export function vehicleStructureBVType(type?: string | number): string {
+  if (typeof type === 'string') return type.toLowerCase();
+  switch (type) {
+    case 1:
+      return 'industrial';
+    case 4:
+      return 'reinforced';
+    case 5:
+      return 'composite';
+    default:
+      return 'standard';
+  }
+}
 
 // =============================================================================
 // Structure Types
