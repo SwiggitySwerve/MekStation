@@ -304,6 +304,8 @@ function createAerospaceStoreState(
 ): AerospaceStore {
   return {
     ...initialState,
+    // Registry duplication and reopened drafts supply safe thrust; max is derived.
+    maxThrust: calculateMaxThrust(initialState.safeThrust),
     ...createUnitIdentityActions<AerospaceStore>(set),
     ...createAerospaceChassisActions(set),
     ...createAerospaceEngineActions(set),

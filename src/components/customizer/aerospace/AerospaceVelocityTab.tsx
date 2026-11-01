@@ -3,7 +3,7 @@
  *
  * Will be wired by the `add-aerospace-construction` change to expose:
  *   - Safe Thrust (safeThrust)
- *   - Maximum Thrust (maxThrust, derived as floor(safeThrust × 1.5))
+ *   - Maximum Thrust (maxThrust, derived as ceil(safeThrust × 1.5))
  *   - Structural Integrity (SI)
  *   - Fuel Points (fuelPoints)
  *

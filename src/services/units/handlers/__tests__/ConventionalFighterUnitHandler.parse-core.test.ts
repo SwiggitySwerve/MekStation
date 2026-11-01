@@ -89,7 +89,7 @@ describe('ConventionalFighterUnitHandler', () => {
         expect(result.data?.unit?.movement.safeThrust).toBe(8);
       });
 
-      it('should calculate maxThrust as floor(safeThrust * 1.5)', () => {
+      it('should calculate maxThrust as ceil(safeThrust * 1.5)', () => {
         const doc = createMockBlkDocument({ safeThrust: 6 });
         const result = handler.parse(doc);
 
@@ -102,7 +102,7 @@ describe('ConventionalFighterUnitHandler', () => {
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.movement.maxThrust).toBe(10); // floor(7 * 1.5) = 10
+        expect(result.data?.unit?.movement.maxThrust).toBe(11); // ceil(7 * 1.5) = 11
       });
 
       it('should fail validation when safeThrust is less than 1', () => {

@@ -189,7 +189,7 @@ export interface AerospaceState {
   /** Safe thrust */
   safeThrust: number;
 
-  /** Max thrust (floor(safeThrust × 1.5)) */
+  /** Max thrust (ceil(safeThrust × 1.5)) */
   readonly maxThrust: number;
 
   /**

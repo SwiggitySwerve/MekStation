@@ -400,6 +400,17 @@ continue through their owning calculations.
 - **THEN** final BV SHALL remain 280 or 600 respectively
 - **AND** Biped and Quad SHALL also use the neutral summary multiplier
 
+### Requirement: Aerospace Speed Factor
+
+Aerospace speed factor SHALL use the average of Safe and Max Thrust.
+
+#### Scenario: Speed factor calculation
+
+- **GIVEN** an ASF with safeThrust 5, maxThrust 8
+- **WHEN** speed factor is computed
+- **THEN** avgThrust SHALL equal 6.5
+- **AND** speed factor SHALL equal `round(pow(1 + (6.5 − 5) / 10, 1.2) × 100) / 100 = 1.18`
+
 ### Requirement: Vehicle Offensive BV
 
 Vehicle offensive BV SHALL combine weapon BV, ammo BV, offensive equipment BV,
