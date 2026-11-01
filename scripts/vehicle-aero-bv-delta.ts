@@ -129,6 +129,8 @@ export interface IGroupSummary {
   numeric: number;
   throws: number;
   undefinedResults: number;
+  /** Units with a total but no Java row: a path mismatch shows here. */
+  noJavaRow: number;
   exactTotal: number;
   within1Pct: number;
   over1Pct: number;
@@ -137,7 +139,7 @@ export interface IGroupSummary {
   meanDeltaPct: number | null;
 }
 
-function summarizeGroup(rows: readonly IDeltaRow[]): IGroupSummary {
+export function summarizeGroup(rows: readonly IDeltaRow[]): IGroupSummary {
   const compared = rows.filter((r) => r.status === 'number');
   const count = (test: (r: IDeltaRow) => boolean | undefined) =>
     compared.filter(test).length;
@@ -150,6 +152,7 @@ function summarizeGroup(rows: readonly IDeltaRow[]): IGroupSummary {
     numeric: rows.filter((r) => r.ourTotal !== null).length,
     throws: rows.filter((r) => r.status === 'throw').length,
     undefinedResults: rows.filter((r) => r.status === 'undefined').length,
+    noJavaRow: rows.filter((r) => r.status === 'no-java-row').length,
     exactTotal: count((r) => r.delta === 0),
     within1Pct: count((r) => pct(r) <= 1),
     over1Pct: count((r) => pct(r) > 1),

@@ -1,7 +1,8 @@
 """Write what the vehicle and aerospace converters produce as NDJSON rows `{path, unit}`.
 
 `path` is relative to mekfiles (the join key to the UL-16 Java reference rows); skipped sources are
-listed in `export-summary.json`. Output goes to the scratch directory named, never `public/data`.
+listed in `export-summary.json`. Output goes to the scratch directory named, never this checkout's `public/data`
+(the guard cannot know about other checkouts' catalogs).
 
 Usage: python -B export_vehicle_aero_json.py <mekfiles> <out-dir>
 """
