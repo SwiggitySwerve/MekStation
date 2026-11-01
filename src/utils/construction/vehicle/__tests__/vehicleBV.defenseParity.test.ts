@@ -16,12 +16,12 @@ describe('Pinned MegaMek vehicle defensive type modifier', () => {
       contractUnitToBVUnit(fixture.units[0].unit as IContractBVSource),
     );
     if (result?.kind !== 'vehicle') throw new Error('Expected vehicle BV');
-    // Java defense is (120 + 15) * 0.7 * 1.5 = 141.75. Structure and TMM
-    // remain separate discrepancies; this slice changes only the type stage.
+    // Java defense is (120 + 15) * 0.7 * 1.5 = 141.75. The existing TS
+    // structure remains unchanged by the type and TMM corrections.
     expect(result.breakdown.armorBV).toBe(120);
     expect(result.breakdown.structureBV).toBe(36);
-    expect(result.breakdown.defensiveFactor).toBe(1.25);
-    expect(result.breakdown.defensive).toBeCloseTo(136.5, 8);
+    expect(result.breakdown.defensiveFactor).toBe(1.5);
+    expect(result.breakdown.defensive).toBeCloseTo(163.8, 8);
     expect(result.breakdown.offensive).toBeCloseTo(293.76, 8);
   });
 

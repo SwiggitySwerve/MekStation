@@ -43,8 +43,10 @@ The inverse helper returns the exact matching bracket minimum or the final
 minimum for an unmatched value. This adapter only produces integer TMM 0–7.
 
 Shared construction `calculateTMM` compares running TMM plus a caller-supplied
-bonus against positive-jump TMM plus one. Vehicle callers retain effective MP,
-submarine nullish overrides and the VTOL running bonus. Gameplay to-hit reads
+bonus against positive-jump TMM plus one. Vehicle defensive TMM uses flank MP,
+guards zero movement and adds one for moving VTOL/WiGE and two for represented
+uniform stealth. The submarine override remains only in offensive selection.
+Gameplay to-hit reads
 the same table through its constants facade, with explicit lower and upper
 bounds and stationary/zero guards. These different input contracts remain
 separate. The legacy gameplay `movement/modifiers.ts` ceil(distance/5)

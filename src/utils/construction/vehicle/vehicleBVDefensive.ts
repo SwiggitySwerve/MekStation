@@ -38,7 +38,7 @@ function getVehicleStructureBVMultiplier(structureType?: string): number {
  * armorBV = totalArmor × 2.5 × armorMult × barScale
  * structureBV = totalStructure × 1.5 × structureMult
  * baseDef = armorBV + structureBV + defEquipBV − explosivePenalty
- * defensiveFactor = 1 + ((TMM × 0.5) / 10)
+ * defensiveFactor = 1 + TMM / 10
  * defensiveBV = baseDef × typeModifier × defensiveFactor
  */
 export function calculateVehicleDefensiveBV(
@@ -65,9 +65,9 @@ export function calculateVehicleDefensiveBV(
 
   const explosivePenalty = input.explosivePenalty ?? 0;
 
-  // TMM and defensive factor — vehicles use TMM × 0.5 / 10 (not the mech TMM/10).
+  // BVCalculator.processDefensiveFactor retains full precision at this stage.
   const tmm = calculateVehicleTMM(input);
-  const defensiveFactor = 1 + (tmm * 0.5) / 10;
+  const defensiveFactor = 1 + tmm / 10;
 
   const baseDef =
     armorBV + structureBV + defensiveEquipmentBV - explosivePenalty;

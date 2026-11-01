@@ -19,10 +19,38 @@ matching mount and are counted once. Generic `isAmphibious` is insufficient
 to distinguish full/limited/SV equipment, so only identified mounts add BV.
 
 `vehicleBV.defenseParity.test.ts` enforces every motion base, mounted bonuses,
-support exclusion and store/contract transport. Tamerlane's isolated defense
-becomes 136.5, versus Java 141.75: structure and TMM still differ. Armor/BAR,
-structure, equipment partitioning, explosive penalties, TMM and all offensive
+support exclusion and store/contract transport. Tamerlane's defense with the
+corrected TMM factor is 163.8, versus Java 141.75: structure still differs. Armor/BAR,
+structure, equipment partitioning, explosive penalties and all offensive
 rules remain separate terms; this correction does not establish whole-unit parity.
+
+## Defensive BV movement factor
+
+`vehicleBVMovement.ts` owns vehicle TMM selection; the shared
+`constants/movement.ts` owns the standard brackets. Assembled `flankMP` is
+Java's run MP, not cruise or submarine depth MP. Positive run adds one for
+VTOL or WiGE (exactly one for VTOL); positive jump adds one independently.
+Zero run/jump contributes zero, including stealth/airborne bonuses. Uniform
+stealth adds two to each nonzero mode; patchwork does not. The represented
+armor name or pinned numeric codes are classified once by `hasVehicleStealth`;
+adapters transport that fact without changing armor valuation. Converter
+armor-name losses and assembled MP adjustments (MASC, hardened armor and
+mechanical jump boosters) remain upstream input-fidelity limits.
+
+`vehicleBVDefensive.ts` applies `1 + max(run TMM, jump TMM, 0) / 10` to the
+type-modified defensive pool without rounding. Only the existing final BV
+rounding follows the sum with offense. Submarine depth MP still feeds the
+existing offensive speed rule, which is outside this correction.
+
+Pinned sources: `CombatVehicleBVCalculator.java:56-80`,
+`BVCalculator.java:324-334,650-687`, `Compute.java:3099-3147` and
+`Entity.java:16132-16136` at the MegaMek pin above. Java's base run is
+`ceil(cruise * 1.5)` (`Entity.java:4004-4016`), with an armed-MASC override in
+`Tank.java:1570-1575`; TMM consumes supplied assembled run rather than deriving
+it again. `vehicleBV.tmmParity.test.ts` covers brackets, airborne/zero guards,
+jump comparison, represented stealth and fractional defense. The acceptance
+comparison asserts equality outside TMM, factor, defense and final across all
+1,419 combat/support rows and explains each total moving away from Java.
 
 ## Offensive BV mass contribution
 

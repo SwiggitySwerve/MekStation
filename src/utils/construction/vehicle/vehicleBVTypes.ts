@@ -86,13 +86,15 @@ export interface VehicleBVInput {
   /** Store flags for installed chassis modifications, when not mounted as rows. */
   hasEnvironmentalSealing?: boolean;
   hasFlotationHull?: boolean;
+  /** Uniform stealth installation; omitted inputs may use armorType instead. */
+  hasStealth?: boolean;
   /** Cruise MP (walk equivalent). */
   cruiseMP: number;
   /** Flank MP — typically `ceil(cruise × 1.5)`. */
   flankMP: number;
   /** Jump MP (0 for tracked/wheeled/naval/rail). */
   jumpMP?: number;
-  /** Submarine depth MP — overrides cruise for TMM when relevant. */
+  /** Legacy submarine depth MP override for offensive speed only. */
   submarineMP?: number;
   /** Raw tonnage; half contributes to offensive BV before the speed factor. */
   tonnage: number;
@@ -150,9 +152,9 @@ export interface IVehicleBVBreakdown {
   structureBV: number;
   /** Resolved defensive equipment BV. */
   defensiveEquipmentBV: number;
-  /** Defensive factor = 1 + (TMM × 0.5 / 10). */
+  /** Defensive factor = 1 + TMM / 10. */
   defensiveFactor: number;
-  /** Effective TMM used for the defensive factor and speed factor. */
+  /** Maximum movement TMM used for the defensive factor. */
   tmm: number;
 
   /** Weapon BV (turret-adjusted, rear-adjusted, TC-adjusted). */

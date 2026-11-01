@@ -213,7 +213,7 @@ describe('contractUnitToBVUnit (vehicles)', () => {
     });
     const actual = calculateBattleValueForUnit(adapted);
     const expected = calculateBattleValueForUnit(parsed.data.unit);
-    expect(actual?.breakdown.final).toBe(267);
+    expect(actual?.breakdown.final).toBe(290);
     expect(actual?.breakdown).toEqual(expected?.breakdown);
     expect(adapted.turret).toBeUndefined();
   });
