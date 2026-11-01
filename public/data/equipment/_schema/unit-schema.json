@@ -213,6 +213,7 @@
             "BAR_9",
             "BAR",
             "AEROSPACE",
+            "PATCHWORK",
             "FERRO_ALUMINUM",
             "HEAVY_FERRO_ALUMINUM",
             "PRIMITIVE_AERO"
@@ -266,6 +267,14 @@
           "additionalProperties": {
             "type": "integer",
             "minimum": 0
+          }
+        },
+        "typeByArc": {
+          "type": "object",
+          "description": "Explicit BLK armor type codes per normalized source arc; includes sentinel -1. Distinct from armor points in byArc.",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": -1
           }
         },
         "perTrooper": {
@@ -500,6 +509,25 @@
       "additionalProperties": false,
       "description": "Fluff/flavor text"
     },
+    "isOmni": { "type": "boolean" },
+    "omniPodHeatSinks": { "type": "integer", "minimum": 0 },
+    "baseChassisTurretWeight": { "type": "number", "minimum": 0 },
+    "baseChassisTurret2Weight": { "type": "number", "minimum": 0 },
+    "baseChassisSponsonPintleWeight": { "type": "number", "minimum": 0 },
+    "baseChassisFireConWeight": { "type": "number", "minimum": 0 },
+    "transporters": { "type": "array", "items": { "type": "string" } },
+    "fuel": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Source fuel quantity; support vehicles use tons, aerospace uses points."
+    },
+    "fuelType": { "type": "string", "minLength": 1 },
+    "isTrailer": { "type": "boolean" },
+    "clanEngine": { "type": "boolean" },
+    "structuralTechRating": { "type": "integer", "minimum": 0, "maximum": 5 },
+    "engineTechRating": { "type": "integer", "minimum": 0, "maximum": 5 },
+    "armorTechRating": { "type": "integer", "minimum": 0, "maximum": 5 },
+    "internalType": { "type": "integer", "minimum": -1 },
     "sourceDefinition": {
       "type": "object",
       "description": "Originating source definition, independent of editor or campaign instance identity",

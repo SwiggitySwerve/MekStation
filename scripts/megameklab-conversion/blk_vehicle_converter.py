@@ -29,10 +29,10 @@ from blk_conversion_runner import (
     run_manifest_range_parity,
     strict_safe_unit_filename,
 )
-from blk_unit_fields import parse_fluff, parse_location_equipment, parse_mul_id, parse_quirks
+from blk_unit_fields import bar_armor_fields, parse_fluff, parse_location_equipment, parse_mul_id, parse_quirks
+from blk_vehicle_qualifiers import parse_vehicle_qualifiers
 from blk_vehicle_tables import (
     ARMOR_CODE_MAP,
-    BAR_ARMOR_CODES,
     MOTION_TYPE_MAP,
     UNSUPPORTED_UNIT_TYPES,
     VEHICLE_ARMOR_LOCATIONS,
@@ -192,15 +192,9 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
     armor_raw = tags.get("armor") or tags.get("Armor")
     armor_values = parse_armor_array(armor_raw)
     armor_code = get_string(tags, "armor_type")
-    armor_type_str = map_armor_code(armor_code, ARMOR_CODE_MAP)
-    bar_rating = None
-    if parse_number(armor_code) in BAR_ARMOR_CODES:
-        # BLKFile.java:501-513 reads the rating only from `barrating`. Without the
-        # tag a support vehicle's rating stays 0 (SupportTank.java:63,80), which is
-        # no valid BAR rating, so none is emitted.
-        armor_type_str = "BAR"
-        if parse_number(get_string(tags, "barrating")):
-            bar_rating = int(parse_number(get_string(tags, "barrating")))
+    bar_armor = bar_armor_fields(tags, parse_number(armor_code))
+    armor_type_str = bar_armor.get("type") or map_armor_code(armor_code, ARMOR_CODE_MAP)
+    bar_rating = bar_armor.get("barRating")
 
     # Build per-location armor dict
     armor_by_location: Dict[str, int] = {}
@@ -254,6 +248,8 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
 
     if bar_rating is not None:
         output["armor"]["barRating"] = bar_rating
+
+    output.update(parse_vehicle_qualifiers(tags))
 
     if mul_id is not None:
         output["mulId"] = mul_id

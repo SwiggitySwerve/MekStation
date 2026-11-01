@@ -16,7 +16,11 @@ import {
   getBlkParserService,
   resetBlkParserService,
 } from '../BlkParserService';
-import { resolveBlkVehicleArmor } from '../blkVehicleArmorLayout';
+import {
+  blkEquipmentBlockLocation,
+  isSuperHeavyTank,
+  resolveBlkVehicleArmor,
+} from '../blkVehicleArmorLayout';
 import fixtures from './BlkVehicleLocations.pinned-sources.json';
 
 /** MegaMek names the dual-turret pair Rear Turret / Front Turret (Tank.java). */
@@ -126,6 +130,61 @@ describe('BLK vehicle location model', () => {
         });
       },
     );
+
+    it('lays out a 4-value Tank without turrets and a 5-value VTOL without a chin turret', () => {
+      expect(
+        resolveBlkVehicleArmor('Tank', 'Tracked', 50, [1, 2, 3, 4]),
+      ).toEqual({ Front: 1, Right: 2, Left: 3, Rear: 4 });
+      expect(
+        resolveBlkVehicleArmor('VTOL', 'VTOL', 20, [1, 2, 3, 4, 5]),
+      ).toEqual({ Front: 1, Right: 2, Left: 3, Rear: 4, Rotor: 5 });
+    });
+
+    it('rejects an armor length above the maximum MegaMek accepts', () => {
+      // BLKTankFile.java:182,188 (4-6 / 6-8), BLKLargeSupportTankFile.java:124,
+      // BLKVTOLFile.java:129.
+      expect(
+        resolveBlkVehicleArmor('Tank', 'Tracked', 50, [1, 2, 3, 4, 5, 6, 7]),
+      ).toBeUndefined();
+      expect(
+        resolveBlkVehicleArmor(
+          'Tank',
+          'Tracked',
+          150,
+          [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        ),
+      ).toBeUndefined();
+      expect(
+        resolveBlkVehicleArmor(
+          'LargeSupportTank',
+          'Tracked',
+          150,
+          [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        ),
+      ).toBeUndefined();
+      expect(
+        resolveBlkVehicleArmor('VTOL', 'VTOL', 20, [1, 2, 3, 4, 5, 6, 7]),
+      ).toBeUndefined();
+    });
+
+    it.each([
+      ['WiGE', 80, false],
+      ['Glider', 81, true],
+      ['Submarine', 300, false],
+      ['Hydrofoil', 150, false],
+    ])(
+      'isSuperHeavyTank(%s, %d t) is %s (BLKTankFile.java:94-123)',
+      (motion, tons, expected) => {
+        expect(isSuperHeavyTank(motion, tons)).toBe(expected);
+      },
+    );
+
+    it('names the dual-turret pair Turret / Turret 2 in armor and Rear Turret / Front Turret in equipment (Tank.java:127-130)', () => {
+      expect(blkEquipmentBlockLocation('Rear Turret')).toBe('Turret');
+      expect(blkEquipmentBlockLocation('Front Turret')).toBe('Turret 2');
+      expect(blkEquipmentBlockLocation('Rear')).toBe('Rear');
+      expect(blkEquipmentBlockLocation('Front Right')).toBe('Front Right');
+    });
 
     it.each([
       ['Hover', 50, false],

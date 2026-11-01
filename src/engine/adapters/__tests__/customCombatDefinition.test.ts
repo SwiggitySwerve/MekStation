@@ -83,6 +83,71 @@ it('refuses the vehicle-only engine types on the recorded snapshot', () => {
   }
 });
 
+it('keeps BLK source qualifiers out of the recorded BattleMech snapshot', () => {
+  // UL-06a declares vehicle/aerospace source qualifiers on the shared unit
+  // schema. A recorded custom BattleMech must not start carrying them: older
+  // builds reject unknown keys in GameCreated (`.strict()`).
+  const projected = parseCustomCombatDefinition(
+    { ...saved, isOmni: false },
+    saved.id,
+  );
+  if (!projected) {
+    throw new Error('expected a valid custom combat snapshot');
+  }
+  expect('isOmni' in projected).toBe(false);
+  for (const [key, value] of [
+    ['isOmni', false],
+    ['fuel', 10],
+    ['fuelType', 'PETROCHEMICALS'],
+    ['isTrailer', true],
+    ['clanEngine', false],
+    ['transporters', ['troopspace:2.0']],
+    ['internalType', -1],
+    ['structuralTechRating', 3],
+    ['engineTechRating', 3],
+    ['armorTechRating', 3],
+    ['baseChassisTurretWeight', 1],
+    ['baseChassisTurret2Weight', 1],
+    ['baseChassisSponsonPintleWeight', 1],
+    ['baseChassisFireConWeight', 1],
+    ['omniPodHeatSinks', 2],
+  ] as const) {
+    expect(
+      customCombatSnapshotSchema.safeParse({ ...projected, [key]: value })
+        .success,
+    ).toBe(false);
+  }
+});
+
+it('records exactly the 21 BattleMech construction keys', () => {
+  // The snapshot omits shared-schema fields by name (BLK source qualifiers and
+  // library metadata). Pin the resulting key set so a new shared-schema field
+  // cannot widen recorded GameCreated snapshots without a deliberate change.
+  expect(Object.keys(customCombatSnapshotSchema.shape).sort()).toEqual([
+    'armor',
+    'chassis',
+    'cockpit',
+    'configuration',
+    'criticalSlots',
+    'engine',
+    'equipment',
+    'era',
+    'gyro',
+    'heatSinks',
+    'id',
+    'model',
+    'movement',
+    'quirks',
+    'rulesLevel',
+    'structure',
+    'techBase',
+    'tonnage',
+    'unitType',
+    'variant',
+    'year',
+  ]);
+});
+
 it('allows exactly the eleven BattleMech engine types on the recorded snapshot', () => {
   // The snapshot narrows the shared engine enum with a denylist; pin the result
   // so a new vehicle engine in the shared enum cannot widen it unnoticed.
