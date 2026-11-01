@@ -54,6 +54,16 @@ export const BLK_VEHICLE_ARMOR_LOCATIONS = [
 ] as const;
 
 /**
+ * `<armor>` order for ordinary Tanks and SupportTanks that may carry a second
+ * turret: the five values above, then Turret 2 (`Tank.java:122-130`;
+ * `BLKTankFile.java:182-186` accepts 4 to 6 values).
+ */
+export const BLK_DUAL_TURRET_ARMOR_LOCATIONS = [
+  ...BLK_VEHICLE_ARMOR_LOCATIONS,
+  VehicleLocation.TURRET_2,
+] as const;
+
+/**
  * Shared `<armor>` order for VTOL BLK import and export: the Tank sides, then
  * Rotor and chin Turret (`VTOL.java:79-80`, `BLKVTOLFile.java:134-139`).
  */
@@ -545,8 +555,10 @@ export const BLK_EQUIPMENT_BLOCK_TAGS: readonly string[] = [
   'Rear Equipment',
   'Turret Equipment',
   'Body Equipment',
+  // VTOL rotor mounts (BLKVTOLFile.java:169, BLKSupportVTOLFile.java:160)
+  'Rotor Equipment',
   // SuperHeavy / LargeSupport six-side and dual-turret blocks
-  // (BLKTankFile.java:206-228)
+  // (BLKTankFile.java:207-221,233-234; BLKLargeSupportTankFile.java:160-169)
   'Front Right Equipment',
   'Front Left Equipment',
   'Rear Right Equipment',
