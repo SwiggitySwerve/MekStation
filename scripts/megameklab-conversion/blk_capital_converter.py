@@ -80,9 +80,9 @@ def required_count(tags: Dict[str, Any], tag: str, blk_path: Path) -> int:
 def map_capital_armor(blk_path: Path, tags: Dict[str, Any]) -> str:
     code = get_string(tags, "armor_type")
     code_value = parse_number(code) if code is not None else 41  # BLKDropshipFile.java:166 default
-    if code_value is None or int(code_value) not in CAPITAL_ARMOR_CODE_MAP:
+    if code_value is None or code_value not in CAPITAL_ARMOR_CODE_MAP:
         raise ValueError(f"{blk_path.name}: unsupported capital armor_type {code!r}")
-    return CAPITAL_ARMOR_CODE_MAP[int(code_value)]
+    return CAPITAL_ARMOR_CODE_MAP[code_value]
 
 
 def convert_capital_blk(blk_path: Path, logger: logging.Logger) -> Any:

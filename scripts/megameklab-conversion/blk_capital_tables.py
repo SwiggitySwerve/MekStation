@@ -4,6 +4,11 @@ from __future__ import annotations
 
 from typing import Dict
 
+from blk_aerospace_tables import (
+    LARGE_CRAFT_ARMOR_ARCS as DROPSHIP_ARMOR_ARCS,
+    LARGE_CRAFT_ARMOR_CODE_MAP,
+)
+
 DROPSHIP_UNIT_TYPES = {"Dropship", "DropShip"}
 CAPITAL_UNIT_TYPES = {
     **dict.fromkeys(DROPSHIP_UNIT_TYPES, "DropShip"),
@@ -20,10 +25,6 @@ DROPSHIP_LOCATION_MAP: Dict[str, str] = {
     "Hull Equipment": "HULL",
 }
 
-# BLKDropshipFile.java:196-199: armor[NOSE=0] nose, armor[RW=1] right, armor[LW=2] left, armor[AFT=3] aft.
-# Order matters: the aerospace and small-craft converters list the wings left first.
-DROPSHIP_ARMOR_ARCS = ["NOSE", "RIGHT_SIDE", "LEFT_SIDE", "AFT"]
-
 # Jumpship.java LOCATION_NAMES: all three larger classes load these six armor entries.
 # Warship broadsides (indexes 7/8) and Hull (6) receive ARMOR_NA, never source armor.
 JUMPSHIP_ARMOR_ARCS = ["NOSE", "FRONT_LEFT_SIDE", "FRONT_RIGHT_SIDE", "AFT", "AFT_LEFT_SIDE", "AFT_RIGHT_SIDE"]
@@ -35,17 +36,13 @@ JUMPSHIP_LOCATION_ALIASES = {"Front Right Side Equipment": "FRONT_RIGHT_SIDE", "
 WARSHIP_BROADSIDES = {"Left Broadsides Equipment": "LEFT_BROADSIDE", "Right Broadsides Equipment": "RIGHT_BROADSIDE"}
 WARSHIP_BROADSIDE_ALIASES = {"Right Broadside Equipment": "RIGHT_BROADSIDE", "Left Broadside Equipment": "LEFT_BROADSIDE"}
 
-# EquipmentType.java:104-105,125-126 (T_ARMOR_ALUM, T_ARMOR_HEAVY_ALUM, T_ARMOR_PRIMITIVE_AERO,
-# T_ARMOR_AEROSPACE). BLKDropshipFile.java:165-173 rewrites the legacy standard code 0 to aerospace.
+# Large-craft codes (blk_aerospace_tables.py) plus the capital ferro-carbide family
+# (EquipmentType.java T_ARMOR_LC_FERRO_CARBIDE/LC_LAMELLOR_FERRO_CARBIDE/LC_FERRO_IMP).
 CAPITAL_ARMOR_CODE_MAP: Dict[int, str] = {
-    0: "AEROSPACE",
+    **LARGE_CRAFT_ARMOR_CODE_MAP,
     11: "FERRO_CARBIDE",
     12: "LAMELLOR_FERRO_CARBIDE",
     13: "IMPROVED_FERRO_ALUMINUM",
-    19: "FERRO_ALUMINUM",
-    20: "HEAVY_FERRO_ALUMINUM",
-    40: "PRIMITIVE_AERO",
-    41: "AEROSPACE",
 }
 
 # BLKFile `designtype` (Aero.java:437-438): CIVILIAN = 0, MILITARY = 1 (the default).

@@ -19,8 +19,23 @@ ASF_TYPES = {"Aero", "AeroSpaceFighter"}
 CF_TYPES = {"ConvFighter", "FixedWingSupport"}
 SC_TYPES = {"SmallCraft"}
 
-AERO_ARMOR_ARCS = ["NOSE", "LEFT_WING", "RIGHT_WING", "AFT"]
-SC_ARMOR_ARCS = ["NOSE", "LEFT_SIDE", "RIGHT_SIDE", "AFT"]
+# BLKAeroSpaceFighterFile.java:63-66,186-189; ConvFighter and FixedWingSupport
+# use the same BLK indices, distinct from Aero's runtime location indices.
+AERO_ARMOR_ARCS = ["NOSE", "RIGHT_WING", "LEFT_WING", "AFT"]
+
+# BLKDropshipFile.java:196-199 uses the same BLK order as small craft.
+LARGE_CRAFT_ARMOR_ARCS = ["NOSE", "RIGHT_SIDE", "LEFT_SIDE", "AFT"]
+SC_ARMOR_ARCS = LARGE_CRAFT_ARMOR_ARCS
+
+# EquipmentType.java:104-105,125-126. Large-craft loaders normalize legacy
+# standard armor (0) to aerospace; fighter loaders keep standard armor.
+LARGE_CRAFT_ARMOR_CODE_MAP: Dict[int, str] = {
+    0: "AEROSPACE",
+    19: "FERRO_ALUMINUM",
+    20: "HEAVY_FERRO_ALUMINUM",
+    40: "PRIMITIVE_AERO",
+    41: "AEROSPACE",
+}
 
 AERO_LOCATION_MAP: Dict[str, str] = {
     "Nose Equipment": "NOSE",
@@ -47,15 +62,22 @@ SC_LOCATION_MAP: Dict[str, str] = {
     "Body Equipment": "FUSELAGE",
 }
 
+# EquipmentType.java:85-126 at 48fcb2f6, using armor names present in the schema.
+# Prototype/light ferro-aluminum (27/21) have no schema name; keep the existing
+# unknown-code fallback rather than misclassifying them as production armor.
 ARMOR_CODE_MAP: Dict[int, str] = {
+    **LARGE_CRAFT_ARMOR_CODE_MAP,
     0: "STANDARD", 1: "FERRO_FIBROUS", 2: "REACTIVE", 3: "REFLECTIVE",
     4: "HARDENED", 5: "LIGHT_FERRO_FIBROUS", 6: "HEAVY_FERRO_FIBROUS",
     7: "PATCHWORK",
     # Both native stealth codes share the contract's STEALTH identity.
-    8: "STEALTH", 22: "STEALTH", 31: "COMMERCIAL", 32: "INDUSTRIAL", 33: "HEAVY_INDUSTRIAL",
-    34: "FERRO_FIBROUS_CLAN", 39: "PRIMITIVE", 40: "IMPACT_RESISTANT",
-    41: "AEROSPACE",
+    8: "STEALTH", 10: "COMMERCIAL", 14: "INDUSTRIAL", 15: "HEAVY_INDUSTRIAL",
+    16: "FERRO_LAMELLOR", 17: "PRIMITIVE", 22: "STEALTH",
+    25: "IMPACT_RESISTANT", 39: "PRIMITIVE",
 }
+
+# BLKSmallCraftFile.java:154-161 also normalizes missing/zero codes to aerospace.
+SC_ARMOR_CODE_MAP: Dict[int, str] = {**ARMOR_CODE_MAP, **LARGE_CRAFT_ARMOR_CODE_MAP}
 
 COCKPIT_CODE_MAP: Dict[int, str] = {
     0: "STANDARD",

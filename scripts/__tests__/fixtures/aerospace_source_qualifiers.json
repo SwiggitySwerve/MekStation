@@ -730,7 +730,7 @@
         "omniPodHeatSinks": 7
       },
       "armor": {
-        "type": "STANDARD",
+        "type": "FERRO_ALUMINUM",
         "byArc": {
           "NOSE": 85,
           "LEFT_WING": 63,
@@ -766,7 +766,7 @@
         },
         "cockpit": "STANDARD",
         "armor": {
-          "type": "STANDARD",
+          "type": "FERRO_ALUMINUM",
           "byArc": {
             "NOSE": 85,
             "LEFT_WING": 63,
