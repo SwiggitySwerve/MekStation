@@ -10,6 +10,8 @@ The committed fixtures are real converter output for pinned mm-data 50f7efef.
 import json
 import logging
 import os
+import re
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -241,9 +243,77 @@ class CapitalConverterTest(unittest.TestCase):
                 self.assertTrue(any('tonnage' in e for e in validate_unit({'id': 'x', 'unitType': unit_type, 'tonnage': 251})))
                 self.assertFalse(any('tonnage' in e for e in validate_unit({'id': 'x', 'unitType': unit_type, 'tonnage': 250})))
 
-    def test_other_unit_types_and_missing_names_are_skipped(self):
+    def test_other_unit_types_are_skipped(self):
         self.assertIsNone(self.convert(UNION_BLK.replace('Dropship', 'SmallCraft')))
-        self.assertIsNone(self.convert(UNION_BLK.replace('<Name>\nUnion\n</Name>\n', '')))
+
+    def test_missing_mandatory_identity_tags_are_rejected(self):
+        for tag in ('Name', 'year', 'tonnage', 'type'):
+            with self.subTest(tag=tag), self.assertRaisesRegex(ValueError, tag):
+                self.convert(re.sub(rf'<{tag}>.*?</{tag}>\n', '', UNION_BLK, flags=re.S))
+
+    def test_unknown_technology_is_rejected(self):
+        for tech in ('Unknown', 'Mixed', 'IS Level 99', 'Clan Level 1'):
+            with self.subTest(tech=tech), self.assertRaisesRegex(ValueError, 'tech'):
+                self.convert(with_tag(UNION_BLK, 'type', tech))
+
+    def test_all_java_technology_strings_are_accepted(self):
+        technologies = ['IS', 'Clan'] + [f'IS Level {level}' for level in range(1, 6)]
+        technologies += [f'Clan Level {level}' for level in range(2, 6)]
+        technologies += [f'Mixed ({chassis} Chassis){suffix}' for chassis in ('IS', 'Clan')
+                         for suffix in ('', ' Advanced', ' Experimental', ' Unofficial')]
+        for tech in technologies:
+            with self.subTest(tech=tech):
+                self.assertIsNotNone(self.convert(with_tag(UNION_BLK, 'type', tech)))
+
+    def test_spheroid_motion_is_case_insensitive_with_aerodyne_fallback(self):
+        for motion in ('Spheroid', 'spheroid', 'SPHEROID', 'Aerodyne', 'unknown'):
+            with self.subTest(motion=motion):
+                self.assertEqual(self.convert(with_tag(UNION_BLK, 'motion_type', motion))['motionType'],
+                                 'SPHEROID' if motion.lower() == 'spheroid' else 'AERODYNE')
+
+    def test_thrust_requires_a_source_value_but_accepts_zero(self):
+        self.assertEqual(self.convert(with_tag(UNION_BLK, 'SafeThrust', 0))['movement'], {'safeThrust': 0, 'maxThrust': 0})
+        with self.assertRaisesRegex(ValueError, 'SafeThrust'):
+            self.convert(re.sub(r'<SafeThrust>.*?</SafeThrust>\n', '', UNION_BLK, flags=re.S))
+
+    def test_damaged_source_rejects_the_batch_before_any_output_is_written(self):
+        for tag in ('Name', 'year', 'tonnage', 'type'):
+            with self.subTest(tag=tag), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                source = root / 'source' / 'dropships'
+                source.mkdir(parents=True)
+                for name in ('Union', 'Leopard', 'Overlord', 'Behemoth'):
+                    (source / f'{name}.blk').write_text(with_tag(UNION_BLK, 'Name', name), encoding='utf-8')
+                damaged = re.sub(rf'<{tag}>.*?</{tag}>\n', '', UNION_BLK, flags=re.S)
+                (source / 'damaged.blk').write_text(damaged, encoding='utf-8')
+                output = root / 'output'
+                result = subprocess.run(
+                    [sys.executable, '-B', str(Path(__file__).resolve().parents[1] / 'megameklab-conversion/blk_capital_converter.py'),
+                     '--source', str(source.parent), '--output', str(output)], capture_output=True, text=True,
+                )
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertEqual(list(output.rglob('*')), [], result.stdout + result.stderr)
+
+    def test_family_tonnage_boundaries(self):
+        for unit_type, maximum in (
+            ('Aerospace', 250), ('ProtoMech', 250), ('VTOL', 250), ('Vehicle', 250),
+            ('Conventional Fighter', 250), ('Small Craft', 250), ('Infantry', 250), ('Battle Armor', 250),
+            ('Support Vehicle', 600), ('SupportVehicle', 600),
+            ('DropShip', 2400000), ('JumpShip', 2400000), ('WarShip', 2400000), ('Space Station', 2400000),
+        ):
+            with self.subTest(unit_type=unit_type):
+                unit = {'id': 'boundary', 'unitType': unit_type, 'tonnage': maximum}
+                self.assertEqual(validate_unit(unit), [])
+                self.assertTrue(validate_unit({**unit, 'tonnage': maximum + 1}))
+
+    def test_existing_catalog_still_validates(self):
+        catalog = Path(__file__).resolve().parents[2] / 'public/data/units'
+        files = [path for path in sorted(catalog.rglob('*.json'))
+                 if path.name not in ('index.json', 'units-manifest.json')]
+        self.assertGreater(len(files), 0)
+        for path in files:
+            with self.subTest(path=path.relative_to(catalog)):
+                self.assertEqual(validate_unit(json.loads(path.read_text(encoding='utf-8'))), [])
 
 
 class CommittedFixturesTest(unittest.TestCase):

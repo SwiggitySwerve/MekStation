@@ -66,8 +66,14 @@ COCKPIT_CODE_MAP: Dict[int, str] = {
 }
 
 MOTION_MAP: Dict[str, str] = {
-    "Aerodyne": "AERODYNE",
-    "Spheroid": "SPHEROID",
+    "aerodyne": "AERODYNE",
+    "spheroid": "SPHEROID",
 }
+
+
+def map_aerospace_motion(raw: str) -> str:
+    """BLK small/capital craft recognize spheroid without case sensitivity."""
+    return MOTION_MAP.get(raw.casefold(), "AERODYNE")
+
 
 DEFAULT_SOURCE_SUBDIRS = ["fighters", "convfighter", "smallcraft"]

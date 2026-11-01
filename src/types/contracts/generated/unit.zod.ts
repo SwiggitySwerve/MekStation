@@ -52,7 +52,7 @@ export const UnitContract = z
           .gte(0)
           .lte(250)
           .describe(
-            'Unit tonnage; BattleMech, OmniMech and IndustrialMech are capped at 250 by the allOf rules. Capital ships reach 2,400,000 t.',
+            'Unit tonnage; the anyOf rule retains a 250 t bound, with explicit Support Vehicle (600 t) and capital ship (2,400,000 t) exceptions.',
           ),
         engine: z
           .object({
@@ -525,7 +525,7 @@ export const UnitContract = z
           .number()
           .gte(0)
           .describe(
-            'Unit tonnage; BattleMech, OmniMech and IndustrialMech are capped at 250 by the allOf rules. Capital ships reach 2,400,000 t.',
+            'Unit tonnage; the anyOf rule retains a 250 t bound, with explicit Support Vehicle (600 t) and capital ship (2,400,000 t) exceptions.',
           )
           .optional(),
         engine: z
@@ -934,6 +934,24 @@ export const UnitContract = z
         source: z.string().describe('Source book/publication').optional(),
       })
       .catchall(z.any())
+      .and(
+        z.union([
+          z.object({ tonnage: z.number().lte(250).optional() }),
+          z.object({
+            unitType: z.enum(['Support Vehicle', 'SupportVehicle']),
+            tonnage: z.number().lte(600).optional(),
+          }),
+          z.object({
+            unitType: z.enum([
+              'DropShip',
+              'JumpShip',
+              'WarShip',
+              'Space Station',
+            ]),
+            tonnage: z.number().lte(2400000).optional(),
+          }),
+        ]),
+      )
       .describe(
         'Schema for serialized BattleTech unit definitions (BattleMechs, vehicles, etc.)',
       ),

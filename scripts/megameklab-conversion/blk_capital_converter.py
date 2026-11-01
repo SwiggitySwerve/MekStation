@@ -16,11 +16,10 @@ Source directories scanned: dropships/. Field semantics follow MegaMek BLKDropsh
 """
 
 import logging
-import math
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-from blk_aerospace_tables import MOTION_MAP
+from blk_aerospace_tables import map_aerospace_motion
 from blk_capital_tables import (
     CAPITAL_ARMOR_CODE_MAP,
     DEFAULT_SOURCE_SUBDIRS,
@@ -38,9 +37,11 @@ from blk_common import (
     map_rules_level,
     map_tech_base,
     map_year_to_era,
+    maximum_thrust,
     parse_armor_array,
     parse_number,
     remove_comments,
+    validate_blk_tech_type,
 )
 from blk_conversion_runner import (
     BlkConversionConfig,
@@ -102,15 +103,15 @@ def convert_capital_blk(blk_path: Path, logger: logging.Logger) -> Any:
 
     name = get_string(tags, "Name")
     if not name:
-        logger.warning(f"Skipping {blk_path.name}: missing Name tag")
-        return None
+        raise ValueError(f"{blk_path.name}: missing required <Name> tag")
     model = get_string(tags, "Model", "model") or ""
 
     year_raw = parse_number(get_string(tags, "year", "Year"))
     tonnage_raw = parse_number(get_string(tags, "tonnage", "Tonnage"))
-    if year_raw is None or tonnage_raw is None:
-        logger.warning(f"Skipping {blk_path.name}: missing year or tonnage tag")
-        return None
+    if year_raw is None:
+        raise ValueError(f"{blk_path.name}: missing required <year> tag")
+    if tonnage_raw is None:
+        raise ValueError(f"{blk_path.name}: missing required <tonnage> tag")
     year = int(year_raw)
     tonnage = int(tonnage_raw) if tonnage_raw == int(tonnage_raw) else tonnage_raw
 
@@ -121,7 +122,7 @@ def convert_capital_blk(blk_path: Path, logger: logging.Logger) -> Any:
     if len(armor_values) != len(DROPSHIP_ARMOR_ARCS):  # BLKDropshipFile.java:152-154
         raise ValueError(f"{blk_path.name}: expected {len(DROPSHIP_ARMOR_ARCS)} armor values, found {len(armor_values)}")
 
-    tech_type_str = get_string(tags, "type", "Type") or "IS Level 2"
+    tech_type_str = validate_blk_tech_type(get_string(tags, "type", "Type"))
     motion_raw = get_string(tags, "motion_type")
     if motion_raw is None:
         raise ValueError(f"{blk_path.name}: missing required <motion_type> tag")
@@ -147,10 +148,10 @@ def convert_capital_blk(blk_path: Path, logger: logging.Logger) -> Any:
         "era": map_year_to_era(year),
         "year": year,
         "tonnage": tonnage,
-        "motionType": MOTION_MAP.get(motion_raw, "AERODYNE"),
+        "motionType": map_aerospace_motion(motion_raw),
         "designType": DESIGN_TYPE_MAP[design_code],
         "collarType": int(parse_number(get_string(tags, "collartype")) or 0),  # Dropship.java:134 COLLAR_STANDARD
-        "movement": {"safeThrust": safe_thrust, "maxThrust": math.ceil(safe_thrust * 1.5)},
+        "movement": {"safeThrust": safe_thrust, "maxThrust": maximum_thrust(safe_thrust)},
         "fuel": counts["fuel"],
         "structuralIntegrity": counts["structural_integrity"],
         "engine": {"type": "ICE"},

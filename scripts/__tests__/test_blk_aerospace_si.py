@@ -63,6 +63,12 @@ class AerospaceStructuralIntegrityTest(unittest.TestCase):
             with self.subTest(thrust=thrust):
                 self.assertEqual(blk_common.maximum_thrust(thrust), expected)
 
+    def test_aerospace_uses_shared_case_insensitive_motion_mapping(self):
+        for motion in ('Spheroid', 'spheroid', 'SPHEROID', 'Aerodyne', 'unknown'):
+            with self.subTest(motion=motion):
+                unit = self.convert('SmallCraft', '200.0', 3, f'<motion_type>{motion}</motion_type>')
+                self.assertEqual(unit['motionType'], 'SPHEROID' if motion.lower() == 'spheroid' else 'AERODYNE')
+
 
 if __name__ == '__main__':
     unittest.main()

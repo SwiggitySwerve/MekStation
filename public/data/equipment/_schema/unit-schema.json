@@ -86,7 +86,7 @@
     "tonnage": {
       "type": "number",
       "minimum": 0,
-      "description": "Unit tonnage; BattleMech, OmniMech and IndustrialMech are capped at 250 by the allOf rules. Capital ships reach 2,400,000 t."
+      "description": "Unit tonnage; the anyOf rule retains a 250 t bound, with explicit Support Vehicle (600 t) and capital ship (2,400,000 t) exceptions."
     },
     "engine": {
       "type": "object",
@@ -528,6 +528,29 @@
     }
   },
   "additionalProperties": true,
+  "anyOf": [
+    {
+      "properties": {
+        "tonnage": { "type": "number", "maximum": 250 }
+      }
+    },
+    {
+      "required": ["unitType"],
+      "properties": {
+        "unitType": { "enum": ["Support Vehicle", "SupportVehicle"] },
+        "tonnage": { "type": "number", "maximum": 600 }
+      }
+    },
+    {
+      "required": ["unitType"],
+      "properties": {
+        "unitType": {
+          "enum": ["DropShip", "JumpShip", "WarShip", "Space Station"]
+        },
+        "tonnage": { "type": "number", "maximum": 2400000 }
+      }
+    }
+  ],
   "allOf": [
     {
       "if": {
@@ -575,9 +598,6 @@
         "properties": {
           "movement": {
             "required": ["walk", "jump"]
-          },
-          "tonnage": {
-            "maximum": 250
           }
         }
       }
