@@ -209,7 +209,8 @@ describe('ConventionalFighterUnitHandler', () => {
       const result = handler.parse(minimalDoc);
       expect(result.success).toBe(true);
       expect(result.data?.unit?.fuel).toBe(0);
-      expect(result.data?.unit?.structuralIntegrity).toBe(0);
+      // No SI tag: Aero.java:804-808 derives max(50 / 10, safe thrust 5).
+      expect(result.data?.unit?.structuralIntegrity).toBe(5);
     });
 
     it('should generate IDs with conv-fighter prefix', () => {

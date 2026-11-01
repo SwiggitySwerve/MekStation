@@ -5,6 +5,7 @@ import {
   IAerospaceMountedEquipment,
 } from '@/types/unit/AerospaceInterfaces';
 
+import { resolveAerospaceStructuralIntegrity } from '../../conversion/BlkParserService.helpers';
 import {
   mapLocationEquipment,
   type AerospaceUnitCoreFields,
@@ -66,7 +67,7 @@ export function parseAerospaceBasics(
   return {
     movement: { safeThrust, maxThrust: Math.floor(safeThrust * 1.5) },
     fuel: document.fuel || 0,
-    structuralIntegrity: document.structuralIntegrity || 0,
+    structuralIntegrity: resolveAerospaceStructuralIntegrity(document),
     heatSinks: document.heatsinks || defaultHeatSinks,
     heatSinkType: document.sinkType || 0,
     engineType: document.engineType || 0,
