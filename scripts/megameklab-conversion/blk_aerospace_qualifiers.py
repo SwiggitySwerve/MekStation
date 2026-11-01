@@ -6,8 +6,7 @@ from typing import Any, Dict
 
 from blk_aerospace_tables import ARMOR_CODE_MAP
 from blk_common import map_armor_code
-from blk_unit_fields import parse_qualifier_number, parse_source_qualifiers
-from blk_vehicle_tables import BAR_ARMOR_CODES
+from blk_unit_fields import bar_armor_fields, parse_qualifier_number, parse_source_qualifiers
 
 
 def parse_aerospace_qualifiers(tags: Dict[str, Any]) -> Dict[str, Any]:
@@ -21,11 +20,7 @@ def parse_aerospace_qualifiers(tags: Dict[str, Any]) -> Dict[str, Any]:
 def parse_aerospace_armor(tags: Dict[str, Any]) -> Dict[str, Any]:
     """Keep armor classification separate from original per-arc source codes."""
     code = parse_qualifier_number(tags, 'armor_type', integer=True) if 'armor_type' in tags else 0
-    result: Dict[str, Any] = {'type': map_armor_code(code, ARMOR_CODE_MAP)}
-    if code in BAR_ARMOR_CODES:
-        result['type'] = 'BAR'
-        if 'barrating' in tags:
-            result['barRating'] = parse_qualifier_number(tags, 'barrating', integer=True)
+    result: Dict[str, Any] = {'type': map_armor_code(code, ARMOR_CODE_MAP), **bar_armor_fields(tags, code)}
     type_by_arc = {
         tag[:-11].upper().replace(' ', '_'): parse_qualifier_number(tags, tag, integer=True)
         for tag in tags if tag.endswith('_armor_type')

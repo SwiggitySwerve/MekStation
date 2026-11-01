@@ -6,6 +6,7 @@ import math
 from typing import Any, Dict, List, Optional
 
 from blk_common import get_string, normalize_equipment_id, parse_number
+from blk_vehicle_tables import BAR_ARMOR_CODES
 
 STANDARD_FLUFF_FIELDS = (
     "overview",
@@ -83,6 +84,26 @@ def parse_source_qualifiers(tags: Dict[str, Any]) -> Dict[str, Any]:
             line.strip() for line in str(tags['transporters']).splitlines() if line.strip()
         ]
     return result
+
+
+def bar_armor_fields(
+    tags: Dict[str, Any], code: Optional[float], reads_bar_rating: bool = True
+) -> Dict[str, Any]:
+    """The one BAR armor rule for BLK converters (vehicles and aerospace).
+
+    EquipmentType.java:128-136: codes 43..51 are BAR armor. The rating comes only from
+    an explicit positive `barrating` tag (BLKFile.java:501-513). Without one a support
+    vehicle's rating stays 0 (SupportTank.java:63,80), which is no valid rating, so none
+    is emitted and none is inferred from the code. `reads_bar_rating=False` is for
+    loaders that never read the tag.
+    """
+    if code not in BAR_ARMOR_CODES:
+        return {}
+    fields: Dict[str, Any] = {"type": "BAR"}
+    rating = parse_number(get_string(tags, "barrating")) if reads_bar_rating else None
+    if rating:
+        fields["barRating"] = int(rating)
+    return fields
 
 
 def parse_qualifier_number(tags: Dict[str, Any], tag: str, *, integer: bool = False) -> float:

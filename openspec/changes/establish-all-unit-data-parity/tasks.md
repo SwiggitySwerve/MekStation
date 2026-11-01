@@ -19,10 +19,6 @@ small implementation PRs can discharge parts of a row without closing the rest.
   contract, with six pinned source fixtures. Family discovery for the 25
   LargeSupportTanks and 9 FixedWingSupport sources remains UL-05; complete
   hydration, equipment qualifiers and row 3.1 remain open.
-  UL-06b extends the catalog contract with aerospace Omni/pod heat-sink facts,
-  shared transporter and Clan-engine fields, and per-arc source armor codes.
-  It corrects aerospace code 41 and support BAR codes 43-51 without regenerating
-  catalogs. App hydration, construction, BV and the all-family rows remain open.
 - [ ] 2.2 Implement installed vehicle engine rules and suspension in the owning modules and conversion/store callers; run affected BV and construction regressions and produce an in-memory data-impact report. (`battle-value-system`: Strict all-family numerical parity)
 - [ ] 2.3 Implement controls, lift/dive and engine-specific heat sinks; make the true Tamerlane reference pass with independently correct terms. (`battle-value-system`: Strict all-family numerical parity)
   - Controls/lift slice: construction owner, explicit no-controls store context, validation quantities and reactive component accounting implemented; see `.omo/evidence/controls-lift/`. Heat-sink rules and source-tag-to-store propagation remain open; this row stays unchecked.

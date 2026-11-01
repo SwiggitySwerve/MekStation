@@ -82,5 +82,56 @@ class AerospaceSourceQualifiersTest(unittest.TestCase):
         self.assertEqual(parse_aerospace_armor({'armor_type': '41'}), {'type': 'AEROSPACE'})
 
 
+    def test_pod_heat_sink_count_is_an_int(self):
+        from blk_aerospace_qualifiers import parse_aerospace_qualifiers
+
+        result = parse_aerospace_qualifiers({'omnipodheatsinks': '8'})
+        self.assertIs(type(result['omniPodHeatSinks']), int)
+
+    def test_transporters_drop_blank_lines_inside_the_block(self):
+        from blk_aerospace_qualifiers import parse_aerospace_qualifiers
+
+        result = parse_aerospace_qualifiers({'transporters': 'troopspace:2.0\n\n   \ncargobay:10.0:1'})
+        self.assertEqual(result['transporters'], ['troopspace:2.0', 'cargobay:10.0:1'])
+
+
+class SharedBarArmorTest(unittest.TestCase):
+    """One owner for the BAR rule: codes 43-51 are BAR (EquipmentType.java:128-136), and a
+    rating comes only from an explicit positive `barrating` (BLKFile.java:501-513)."""
+
+    def vehicle(self, extra):
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp) / 'support.blk'
+            source.write_text(
+                '<UnitType>SupportTank</UnitType>\n<Name>Bar fixture</Name>\n<year>3060</year>\n'
+                '<tonnage>20</tonnage>\n<cruiseMP>4</cruiseMP>\n<motion_type>Tracked</motion_type>\n'
+                '<engine_type>0</engine_type>\n<armor_type>47</armor_type>\n'
+                '<armor>\n10\n10\n10\n10\n</armor>\n' + extra, encoding='utf-8')
+            return convert_vehicle_blk(source, logging.getLogger(__name__))['armor']
+
+    def test_vehicle_and_aerospace_agree_on_every_barrating_form(self):
+        from blk_aerospace_qualifiers import parse_aerospace_armor
+
+        for tag, expected in ((None, None), ('7', 7), ('0', None)):
+            with self.subTest(barrating=tag):
+                extra = '' if tag is None else f'<barrating>\n{tag}\n</barrating>\n'
+                aero_tags = {'armor_type': '47', **({} if tag is None else {'barrating': tag})}
+                vehicle_armor = self.vehicle(extra)
+                aero_armor = parse_aerospace_armor(aero_tags)
+                self.assertEqual(vehicle_armor['type'], 'BAR')
+                self.assertEqual(aero_armor['type'], 'BAR')
+                self.assertEqual(vehicle_armor.get('barRating'), expected)
+                self.assertEqual(aero_armor.get('barRating'), expected)
+
+    def test_the_rule_has_one_owner(self):
+        import blk_aerospace_qualifiers
+        import blk_unit_fields
+        import blk_vehicle_converter
+
+        for module in (blk_aerospace_qualifiers, blk_vehicle_converter):
+            with self.subTest(module=module.__name__):
+                self.assertIs(module.bar_armor_fields, blk_unit_fields.bar_armor_fields)
+                self.assertNotIn('barrating', Path(module.__file__).read_text(encoding='utf-8'))
+
 if __name__ == '__main__':
     unittest.main()
