@@ -9,8 +9,8 @@ registry owns their accepted contract discriminators and available store mapper.
   definitions. A third source argument selects custom definitions. The existing
   reader/reference overload remains available for import and validation callers.
 - The legacy reader/reference overload validates supplied data without looking
-  up a catalog. Its existing unqualified calls retain that behavior; an explicit
-  family additionally checks the definition's discriminator.
+  up a catalog. An omitted family means `battlemechs`; every call checks the
+  definition's discriminator against its family.
 - Successful definitions retain their family and contract type. Non-mech source
   references include family; BattleMech references retain their existing shape.
 - Unknown family, absent catalog, absent unit, source failure, invalid contract,
@@ -19,8 +19,9 @@ registry owns their accepted contract discriminators and available store mapper.
   initialize equipment or create store state. Only registered store mappers may
   create an editor session; other families return `unsupported-store-family`.
 - BattleMech equipment mapping, normalization and session creation stay unchanged.
-  Library UI expansion belongs to a later slice. No fallback creates a BattleMech
-  from a different family.
+  Aerospace store hydration and library UI expansion belong to later slices.
+  No fallback creates a BattleMech from a different family.
+- Custom library entries are BattleMech-only until UL-25a records their family.
 
 ## Vehicle definition mapping
 

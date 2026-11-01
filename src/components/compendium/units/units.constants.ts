@@ -1,6 +1,17 @@
+import type { UnitFamily } from '@/types/unit/UnitIndex';
+
 import { RulesLevel, ALL_RULES_LEVELS } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
+
+export const UNIT_FAMILY_LABELS: Record<UnitFamily, string> = {
+  battlemechs: 'BattleMechs',
+  vehicles: 'Vehicles',
+  aerospace: 'Aerospace',
+  capital: 'Capital Ships',
+  battlearmor: 'Battle Armor',
+  infantry: 'Infantry',
+};
 
 export const ITEMS_PER_PAGE = 50;
 
