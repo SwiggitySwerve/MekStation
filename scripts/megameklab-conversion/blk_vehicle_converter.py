@@ -16,7 +16,7 @@ Usage:
 Skips WarShip / DropShip / JumpShip unit types with a warning log.
 """
 
-from combat_vehicle_engine import combat_engine_rating
+from combat_vehicle_engine import combat_engine_rating, support_engine_rating
 
 import logging
 import math
@@ -49,8 +49,7 @@ from blk_common import (
     get_string,
     map_armor_code,
     map_blk_engine_code as map_engine_code,
-    map_rules_level,
-    map_tech_base,
+    map_blk_tech_type,
     map_year_to_era,
     parse_armor_array,
     parse_number,
@@ -153,9 +152,8 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
     tonnage = int(tonnage_raw) if tonnage_raw == int(tonnage_raw) else tonnage_raw
 
     # --- Classification ---
-    tech_type_str = get_string(tags, "type", "Type") or "IS Level 1"
-    tech_base = map_tech_base(tech_type_str)
-    rules_level = map_rules_level(tech_type_str)
+    tech_type_str = tags.get("type", tags.get("Type", "IS Level 1"))
+    tech_base, rules_level = map_blk_tech_type(tech_type_str, year)
     era = map_year_to_era(year)
 
     motion_raw = get_string(tags, "motion_type")
@@ -182,23 +180,20 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
     # --- Engine ---
     engine_code = tags.get("engine_type")
     engine_type_str = map_engine_code(engine_code)
-    # Support propulsion remains a separate, unverified construction family.
-    if unit_type_raw == "LargeSupportTank":
-        # BLKLargeSupportTankFile.java:107: support engines have no rated size.
-        engine_rating = 0
-    elif unit_type_raw in ("SupportTank", "SupportVTOL"):
-        engine_rating = round(tonnage * cruise_mp / 5) * 5 if tonnage and cruise_mp else 0
+    # Export the owning unit's effective rating, not the engine's stored sentinel 0.
+    if unit_type_raw in ("SupportTank", "SupportVTOL", "LargeSupportTank"):
+        engine_rating = support_engine_rating(tonnage, cruise_mp)
     else:
         engine_rating = combat_engine_rating(tonnage, cruise_mp, motion_type, engine_less=engine_type_str == "NONE")
 
     # --- Armor ---
     armor_raw = tags.get("armor") or tags.get("Armor")
     armor_values = parse_armor_array(armor_raw)
-    armor_code = get_string(tags, "armor_type")
+    armor_code = tags.get("armor_type")
     # Only the support loaders read the BAR rating (loadSVArmor in BLKSupportTankFile,
     # BLKLargeSupportTankFile and BLKSupportVTOLFile); BLKTankFile and BLKVTOLFile do not.
     armor_type = {
-        "type": map_armor_code(armor_code, ARMOR_CODE_MAP),
+        "type": map_armor_code(armor_code, ARMOR_CODE_MAP, strict=True),
         **bar_armor_fields(
             tags, parse_number(armor_code), unit_type_raw in ("SupportTank", "LargeSupportTank", "SupportVTOL")
         ),

@@ -1,0 +1,147 @@
+{
+  "id": "oo-suzumebachi",
+  "chassis": "Oo-Suzumebachi",
+  "model": "",
+  "unitType": "Small Craft",
+  "subType": "SmallCraft",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3118,
+  "tonnage": 170,
+  "weightClass": "ASSAULT",
+  "motionType": "AERODYNE",
+  "movement": {
+    "safeThrust": 6,
+    "maxThrust": 9
+  },
+  "fuel": 800,
+  "structuralIntegrity": 9,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 8
+  },
+  "cockpit": "STANDARD",
+  "armor": {
+    "type": "FERRO_ALUMINUM",
+    "byArc": {
+      "NOSE": 131,
+      "RIGHT_SIDE": 95,
+      "LEFT_SIDE": 95,
+      "AFT": 64
+    }
+  },
+  "equipment": [
+    {
+      "id": "mrm-40",
+      "name": "MRM 40",
+      "location": "NOSE"
+    },
+    {
+      "id": "isapollo",
+      "name": "ISApollo",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-mrm-40-ammo",
+      "name": "IS MRM 40 Ammo",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-mrm-40-ammo",
+      "name": "IS MRM 40 Ammo",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isams-ammo",
+      "name": "ISAMS Ammo",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isams-ammo",
+      "name": "ISAMS Ammo",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isams-ammo",
+      "name": "ISAMS Ammo",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isams-ammo",
+      "name": "ISAMS Ammo",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "AFT"
+    }
+  ],
+  "transporters": [
+    "cargobay:1.0:1:1::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "1stclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:0.0:0:-1::-1:0",
+    "steeragequarters:20.0:0:-1::-1:0",
+    "troopspace:12.0"
+  ],
+  "crew": 4,
+  "passengers": 0,
+  "cargoCapacity": 1.0,
+  "escapePods": 0,
+  "lifeBoats": 0,
+  "mulId": 6426,
+  "role": "None",
+  "source": "TR:3145:DC,TR:3150",
+  "quirks": [
+    "atmo_flyer",
+    "fragile_fuel"
+  ],
+  "fluff": {
+    "overview": "<p>The Oo-Suzumebachi, whose name translates to \"giant hornet\" from Japanese, is a purpose-built assault craft developed by the Draconis Combine following the Second Combine-Dominion War. Designed to deliver battle armor directly into hot landing zones, the first prototype cleared trials at Dover in 3117. Production models quickly became the preferred transport of small-unit battlesuit commanders across the DCMS, earning the nickname \"Ooze\" from the crews who fly them.</p>",
+    "capabilities": "<p>The Oo-Suzumebachi takes a straightforward approach to its mission, prioritizing protection and firepower over technological sophistication. Its most notable feature is its heavy Ferro-Aluminum armor, with the majority of that protection concentrated on the nose and sides to shield troops during assault approaches. Six anti-missile systems across its wing sections provide layered defense against missile fire, allowing the craft to push through defended airspace that would stop more lightly armored transports.</p><p>A powerful main weapon is fitted to clear the landing zone ahead of disembarking troops, and the design handles both atmospheric and space flight, giving commanders flexibility in how and where it is deployed. Its brute-force philosophy means the Ooze will never outperform a dedicated aerospace fighter in a straight engagement, and it carries no pretense of being a high-technology platform. Crew accommodations are basic, with steerage-class sleeping quarters reflecting the craft's utilitarian focus.</p>",
+    "deployment": "<p>The Oo-Suzumebachi serves the Draconis Combine's special operations and assault infantry forces as a dedicated battle armor transport. It is typically assigned to small-unit battlesuit commanders requiring a rugged, well-armed craft capable of delivering troops under fire. The design pairs effectively with conventional aerospace escort and operates from both DropShip bays and forward ground bases.</p>",
+    "history": "<p>The Oo-Suzumebachi was developed in the years following the Second Combine-Dominion War, as the DCMS reconsidered how best to deliver battle armor in contested environments. The first prototype flew at Dover in 3117, and the design entered production the following year.</p><p>The craft saw early operational use during the Draconis Reach campaigns of 3139, where several Oozes supported Ryuken-go operations against Davion installations. At Wapakoneta, four craft fought through fixed defenses to prevent a Davion counterattack from striking a Dragoon column. Using their anti-missile systems to suppress defending LRM batteries, the Oozes delivered troops directly onto fortified positions and held the bridgehead long enough to secure the Dragoon withdrawal.</p><p>By 3144, the design had become a recognized tool of the DCMS's assault infantry doctrine. During the conquest of Cimeron against the Fifth Robinson Strikers, elements of the Twenty-second New Samarkand Regulars used a small force of Oozes to insert battlesuit infantry onto an enemy air base while the regiment's fighters and DropShips staged a diversion. The operation eliminated the LCT's aerospace assets and forced the Fifth to withdraw off-world.</p>",
+    "manufacturer": "Unknown",
+    "primaryFactory": "Dover"
+  }
+}

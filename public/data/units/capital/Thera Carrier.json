@@ -1,0 +1,2455 @@
+{
+  "id": "thera-carrier",
+  "chassis": "Thera Carrier",
+  "model": "",
+  "unitType": "WarShip",
+  "subType": "WarShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3060,
+  "tonnage": 960000,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "movement": {
+    "safeThrust": 3,
+    "maxThrust": 5
+  },
+  "fuel": 3500,
+  "structuralIntegrity": 90,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 5633
+  },
+  "armor": {
+    "type": "LAMELLOR_FERRO_CARBIDE",
+    "byArc": {
+      "NOSE": 300,
+      "FRONT_LEFT_SIDE": 297,
+      "FRONT_RIGHT_SIDE": 297,
+      "AFT": 292,
+      "AFT_LEFT_SIDE": 284,
+      "AFT_RIGHT_SIDE": 284
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-nac-30:25",
+      "name": "Ammo NAC/30:25",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:96",
+      "name": "IS Ammo LRM-20 Artemis-capable:96",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "NOSE"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:240",
+      "name": "IS Ammo SRM-6 Artemis-capable:240",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islbxac10",
+      "name": "(B) ISLBXAC10",
+      "location": "NOSE"
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo:60",
+      "name": "IS LB 10-X Cluster Ammo:60",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-lb-10-x-ac-ammo:60",
+      "name": "IS LB 10-X AC Ammo:60",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isams-ammo:300",
+      "name": "ISAMS Ammo:300",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-barracuda",
+      "name": "(B) Capital Missile Launcher (Barracuda)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-barracuda:10",
+      "name": "Ammo Barracuda:10",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:96",
+      "name": "IS Ammo LRM-20 Artemis-capable:96",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:240",
+      "name": "IS Ammo SRM-6 Artemis-capable:240",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-islbxac10",
+      "name": "(B) ISLBXAC10",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo:60",
+      "name": "IS LB 10-X Cluster Ammo:60",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "is-lb-10-x-ac-ammo:60",
+      "name": "IS LB 10-X AC Ammo:60",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isams-ammo:300",
+      "name": "ISAMS Ammo:300",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-barracuda",
+      "name": "(B) Capital Missile Launcher (Barracuda)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-barracuda:10",
+      "name": "Ammo Barracuda:10",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:96",
+      "name": "IS Ammo LRM-20 Artemis-capable:96",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:240",
+      "name": "IS Ammo SRM-6 Artemis-capable:240",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-islbxac10",
+      "name": "(B) ISLBXAC10",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo:60",
+      "name": "IS LB 10-X Cluster Ammo:60",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-lb-10-x-ac-ammo:60",
+      "name": "IS LB 10-X AC Ammo:60",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isams-ammo:300",
+      "name": "ISAMS Ammo:300",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-nac-30:25",
+      "name": "Ammo NAC/30:25",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "AFT"
+    },
+    {
+      "id": "b-capital-missile-launcher-barracuda",
+      "name": "(B) Capital Missile Launcher (Barracuda)",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-barracuda:10",
+      "name": "Ammo Barracuda:10",
+      "location": "AFT"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "AFT"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:96",
+      "name": "IS Ammo LRM-20 Artemis-capable:96",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "AFT"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:240",
+      "name": "IS Ammo SRM-6 Artemis-capable:240",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "b-islbxac10",
+      "name": "(B) ISLBXAC10",
+      "location": "AFT"
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "AFT"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo:60",
+      "name": "IS LB 10-X Cluster Ammo:60",
+      "location": "AFT"
+    },
+    {
+      "id": "is-lb-10-x-ac-ammo:60",
+      "name": "IS LB 10-X AC Ammo:60",
+      "location": "AFT"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isams-ammo:300",
+      "name": "ISAMS Ammo:300",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-barracuda",
+      "name": "(B) Capital Missile Launcher (Barracuda)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-barracuda:10",
+      "name": "Ammo Barracuda:10",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:96",
+      "name": "IS Ammo LRM-20 Artemis-capable:96",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:240",
+      "name": "IS Ammo SRM-6 Artemis-capable:240",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-islbxac10",
+      "name": "(B) ISLBXAC10",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo:60",
+      "name": "IS LB 10-X Cluster Ammo:60",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "is-lb-10-x-ac-ammo:60",
+      "name": "IS LB 10-X AC Ammo:60",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isams-ammo:300",
+      "name": "ISAMS Ammo:300",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-barracuda",
+      "name": "(B) Capital Missile Launcher (Barracuda)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-barracuda:10",
+      "name": "Ammo Barracuda:10",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:96",
+      "name": "IS Ammo LRM-20 Artemis-capable:96",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:240",
+      "name": "IS Ammo SRM-6 Artemis-capable:240",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-islbxac10",
+      "name": "(B) ISLBXAC10",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo:60",
+      "name": "IS LB 10-X Cluster Ammo:60",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-lb-10-x-ac-ammo:60",
+      "name": "IS LB 10-X AC Ammo:60",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isams-ammo:300",
+      "name": "ISAMS Ammo:300",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismobilehpg",
+      "name": "ISMobileHPG",
+      "location": "HULL"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-30:25",
+      "name": "Ammo NAC/30:25",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-40",
+      "name": "(B) Naval Autocannon (NAC/40)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-40:25",
+      "name": "Ammo NAC/40:25",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-40",
+      "name": "(B) Naval Autocannon (NAC/40)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-40:25",
+      "name": "Ammo NAC/40:25",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-gauss-heavy",
+      "name": "(B) Naval Gauss (Heavy)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-heavy-n-gauss:50",
+      "name": "Ammo Heavy N-Gauss:50",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:96",
+      "name": "IS Ammo LRM-20 Artemis-capable:96",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:240",
+      "name": "IS Ammo SRM-6 Artemis-capable:240",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-islbxac10",
+      "name": "(B) ISLBXAC10",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo:60",
+      "name": "IS LB 10-X Cluster Ammo:60",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "is-lb-10-x-ac-ammo:60",
+      "name": "IS LB 10-X AC Ammo:60",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isams-ammo:300",
+      "name": "ISAMS Ammo:300",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-30:25",
+      "name": "Ammo NAC/30:25",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-40",
+      "name": "(B) Naval Autocannon (NAC/40)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-40:25",
+      "name": "Ammo NAC/40:25",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-40",
+      "name": "(B) Naval Autocannon (NAC/40)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-40:25",
+      "name": "Ammo NAC/40:25",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-gauss-heavy",
+      "name": "(B) Naval Gauss (Heavy)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-heavy-n-gauss:50",
+      "name": "Ammo Heavy N-Gauss:50",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:96",
+      "name": "IS Ammo LRM-20 Artemis-capable:96",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:240",
+      "name": "IS Ammo SRM-6 Artemis-capable:240",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-islbxac10",
+      "name": "(B) ISLBXAC10",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo:60",
+      "name": "IS LB 10-X Cluster Ammo:60",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "is-lb-10-x-ac-ammo:60",
+      "name": "IS LB 10-X AC Ammo:60",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isams-ammo:300",
+      "name": "ISAMS Ammo:300",
+      "location": "RIGHT_BROADSIDE"
+    }
+  ],
+  "crew": 1912,
+  "escapePods": 70,
+  "lifeBoats": 70,
+  "officers": 240,
+  "gunners": 100,
+  "passengers": 0,
+  "battleArmor": 100,
+  "marines": 0,
+  "transporters": [
+    "asfbay:108.0:4:1::-1:0",
+    "smallcraftbay:4.0:1:4::-1:0",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "asfbay:108.0:4:7::-1:0",
+    "smallcraftbay:4.0:1:8::-1:0",
+    "crewquarters:8400.0:0:-1::-1:0",
+    "1stclassquarters:4640.0:0:-1::-1:0",
+    "2ndclassquarters:2268.0:0:-1::-1:0",
+    "cargobay:61699.0:1:12::-1:0"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 1,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": true,
+  "hasHPG": false,
+  "gravDecks": [
+    130,
+    130,
+    110
+  ],
+  "dockingCollars": 4,
+  "mulId": 5221,
+  "role": "None",
+  "source": "TR:3067,JTP:AtreusBC",
+  "fluff": {
+    "overview": "<p>The Thera-class super-carrier is the most powerful WarShip ever produced by the Free Worlds League, designed from the ground up to establish total aerospace fighter superiority over any star system it enters. Constructed at the Illium Naval Yard above Ionus by Illium Naval Engineering, the vessel carried an unmatched fighter complement that dwarfed every other carrier design of the modern era. Commissioned in 3060, the Thera gave the League a capital ship capability that no Successor State had fielded since the fall of the Star League. Its sheer scale forced neighboring powers to reassess their own naval strategies, and the carrier quickly earned a reputation as the centerpiece of Free Worlds League naval doctrine. Few WarShip classes have inspired as much strategic anxiety among rival nations as the Thera, a vessel whose presence in a system could tip the balance of an entire campaign.</p>",
+    "capabilities": "<p>Displacing 960,000 tons across 1,130 meters of hull, the Thera was built around its enormous fighter capacity rather than ship-to-ship firepower. Two massive bays each housed 108 aerospace fighters organized into four regiments of fifty-four, with eight additional small craft providing utility transport. One hundred battle armor marines served as the final line of anti-boarding defense, while three gravity decks and personal staterooms for all officers provided crew comfort on extended deployments.</p><p>Every arc carried an identical conventional weapons battery of eight ER large lasers, eight large pulse lasers, eight medium pulse lasers, eight small pulse lasers, four anti-missile systems, paired LRM-20 and SRM-6 launchers with Artemis IV guidance, and two LB 10-X autocannons, providing layered anti-fighter and anti-DropShip defense. Capital weapons varied by arc: the broadsides were heaviest with two NAC/40s, two NAC/30s, and a Heavy Naval Gauss Rifle alongside NL35 and NL55 naval lasers. Forward and aft quarters mounted NAC/25s and Barracuda missile launchers.</p><p>Nearly 1,700 tons of lamellor ferro-carbide armor and 5,633 double heat sinks protected the vessel. A lithium-fusion battery enabled rapid successive jumps, while a mobile HPG provided independent communications. For all its strengths, the Thera paid for its fighter capacity with relatively modest capital armament compared to dedicated battlecruisers of similar tonnage, leaving it dependent on its escorts and fighter wings to engage peer-class combatants.</p>",
+    "deployment": "<p>The Free Worlds League organized its Thera carriers into battle groups, each escorted by two Eagle-class frigates and flotillas of Hamilcar, Achilles, and Merlin-class attack DropShips. The FWLS Santorini, first of class, was stationed at Oriente with escorts Galahad and Lancelot. The FWLS Sardis, the first Thera to see combat, deployed to Arcadia in 3063 to rescue survivors of Kristen's Krushers, achieving aerospace superiority with minimal losses. The FWLS Corinth guarded Atreus with escorts Gawain and Mordred, while the FWLS Delphi covered Andurien with Bors and Kay.</p><p>The Jihad devastated the fleet. The Delphi was destroyed outright. The Corinth and its escort Mordred sided with the Word of Blake during the naval battle at Atreus in October 3068, while the Sardis defected from Tamarind shortly after, firing on colleagues as it fled. Loyalist forces scuttled the unfinished Thessaly in dock to prevent its capture. Only the Santorini remained loyal, successfully defending Oriente against a Regulan invasion in April 3071. A Word of Blake raid in March 3079 crippled the Santorini's jump drive, leaving the carrier stranded in orbit around Oriente as a permanent system defense platform.</p><p>The Sardis was captured by Clan Snow Raven at the Battle of Dieron in 3077 and renamed SRS Raven's Nest, serving in the Conqueror Naval Star through the 3140s. The Corinth continued operating under Blakist control, last confirmed at Jouques in 3079, and was likely the vessel that destroyed an Interstellar Expeditions group near McEvedy's Folly in 3095. The fifth hull, FWLS Delos, escaped Blakist capture and fell under Regulan control; as RPS Delos it led the task force responsible for the cobalt nuclear destruction of Poulsbo and Circinus before vanishing with the entire Regulan fleet.</p>",
+    "history": "<p>The Thera-class super-carrier traced its origins to the 3040s, when the Free Worlds League Military and SAFE created a covert shell corporation called Illium Naval Engineering to develop a secret shipyard at the L1 point of the Ionus system. Though legally independent, the firm was owned almost entirely by the Free Worlds government, its corporate structure designed to circumvent Parliamentary budgetary oversight. Word of Blake technical assistance proved instrumental in accelerating the program, and Ionus hosted the largest Blakist population in the League outside Gibson. The yard began by renovating recovered Star League WarShips in 3054 before turning to original construction.</p><p>Six hulls were planned, and the first five reached various stages of completion. The FWLS Santorini entered service in 3060 as the first of class, followed by the Sardis in 3062, the Corinth in 3063, and the Delphi around 3067. The Delos and Thessaly were still under construction when the Jihad erupted. Each carrier was organized into a battle group with two Eagle-class frigate escorts and a flotilla of attack DropShips, giving the Free Worlds League a power projection capability unmatched among the Successor States.</p><p>The Word of Blake's intimate involvement with the Ionus shipyard proved catastrophic when the Jihad began. Two carriers defected to the Blakists, one was destroyed outright, and loyalist forces scuttled one unfinished hull to prevent its capture. Only a single vessel remained under loyal Free Worlds control, while the fifth escaped to fall under Regulan authority. The class that had promised the League naval supremacy instead scattered across multiple successor factions and rogue states, each vessel following its own divergent path through the chaos of the Jihad and its aftermath.</p><p>By the mid-thirty-second century, at least three Theras survived in various states of operational capability, proof of both the soundness of the design and the fractured state of the former Free Worlds League. The Ionus shipyard itself continued to operate at a fraction of its former capacity, remaining one of the few Successor State facilities still capable of WarShip-scale work.</p>",
+    "manufacturer": "Illium Naval Engineering",
+    "primaryFactory": "Ionus"
+  }
+}

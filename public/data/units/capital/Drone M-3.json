@@ -1,0 +1,423 @@
+{
+  "id": "drone-m-3",
+  "chassis": "Drone",
+  "model": "M-3",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "STAR_LEAGUE",
+  "year": 2698,
+  "tonnage": 4000,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 7,
+    "maxThrust": 11
+  },
+  "fuel": 18000,
+  "structuralIntegrity": 21,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 200
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 368,
+      "RIGHT_SIDE": 323,
+      "LEFT_SIDE": 323,
+      "AFT": 278
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-gauss-ammo:96",
+      "name": "IS Gauss Ammo:96",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:96",
+      "name": "IS Ammo LRM-20 Artemis-capable:96",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:24",
+      "name": "IS Gauss Ammo:24",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:48",
+      "name": "IS Ammo LRM-20 Artemis-capable:48",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-ppc",
+      "name": "(R) (B) PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-iserlargelaser",
+      "name": "(R) (B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-iserlargelaser",
+      "name": "(R) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-20",
+      "name": "(R) (B) LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-20-artemis-capable:18",
+      "name": "(R) IS Ammo LRM-20 Artemis-capable:18",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:24",
+      "name": "IS Gauss Ammo:24",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:48",
+      "name": "IS Ammo LRM-20 Artemis-capable:48",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-ppc",
+      "name": "(R) (B) PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-iserlargelaser",
+      "name": "(R) (B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-iserlargelaser",
+      "name": "(R) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-20",
+      "name": "(R) (B) LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-20-artemis-capable:18",
+      "name": "(R) IS Ammo LRM-20 Artemis-capable:18",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "AFT"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "improvedcaspardronecontrolsystem",
+      "name": "ImprovedCasparDroneControlSystem",
+      "location": "HULL"
+    },
+    {
+      "id": "sdsselfdestructsystem",
+      "name": "SDSSelfDestructSystem",
+      "location": "HULL"
+    }
+  ],
+  "crew": 14,
+  "escapePods": 0,
+  "lifeBoats": 0,
+  "officers": 3,
+  "gunners": 9,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "cargobay:28.0:1:4::-1:0"
+  ],
+  "mulId": 7147,
+  "role": "None",
+  "source": "His:LoT1",
+  "fluff": {
+    "overview": "<p>The M-3 Drone was the first purpose-built autonomous combat DropShip produced for the Terran Hegemony's Space Defense System. Entering production in 2698 at the O'Neil Shipyards, this 4,000-ton Spheroid was designed from the keel up as an unmanned weapons platform rather than a conversion of existing crewed designs. Building on lessons learned from the earlier M-1 small craft drone and the Hector-based M-2 conversion program, the M-3 represented a significant leap in autonomous warship capability.</p><p>Carrying no crew, the M-3 matched the exceptional combat performance of its Pentagon-class basis hull while mounting substantially heavier forward armament. The design was a credible threat to corvette and destroyer class WarShips and capable of devastating alpha strikes that could destroy any DropShip in a single engagement.</p>",
+    "capabilities": "<p>The M-3 is built on a new-construction hull based on the Pentagon class assault DropShip, sharing its general dimensions and structural layout but optimized for unmanned operation. With no crew quarters, life support, or personnel facilities required, the M-3 dedicates its entire internal volume to combat systems and propulsion. The vessel achieves a remarkable safe thrust of seven, giving it exceptional speed and maneuverability for a 4,000-ton hull.</p><p>The M-3 carries 1,292 points of armor protection across its hull, providing substantial survivability against concentrated fire. Two hundred double heat sinks manage the thermal output from its weapons systems, allowing sustained high-intensity fire without degradation. The nose arc mounts double the firepower of a crewed Pentagon, enabling devastating head-on attack runs. A minimal twenty-six person crew complement is listed for maintenance and pre-deployment operations, though the vessel operates autonomously in combat. Only twenty-eight tons of cargo space is allocated, sufficient for onboard maintenance equipment and spare parts.</p>",
+    "deployment": "<p>M-3 drones were deployed across the majority of Terran Hegemony star systems as a core component of the Space Defense System, providing autonomous system defense alongside the larger M-5 Caspar drones. The M-3 was found in far greater numbers than its successor and formed the bulk of the SDS combat drone fleet. During the Amaris Crisis and the subsequent liberation campaign, M-3 squadrons contested SLDF forces at multiple points throughout Hegemony space, with the final engagement occurring above Terra itself.</p>",
+    "history": "<p>The M-3 entered production in 2698 as part of the Terran Hegemony's massive Space Defense System buildup. Produced initially at O'Neil Shipyards, the program eventually expanded to at least six different manufacturing locations across the Hegemony. Despite being one of the most numerous SDS assets deployed, the M-3 was frequently overshadowed by its much larger and more dramatic M-5 Caspar successor, which captured greater public attention and strategic focus.</p><p>During the Terran Campaign to liberate Terra from the Amaris Empire, squadrons of M-3 drones proved to be credible threats to the forces of General Kerensky. Many were either overlooked in favor of the more prominent M-5 drones or confused with crewed Pentagon class vessels, leading to their omission from numerous after-action reports. In the final stages of the campaign, a hidden lunar base launched the last eighteen drones of the SDS network in a desperate counterattack. These M-3s inflicted heartbreaking losses, destroying several assault DropShips, two Vincent class corvettes, and the last Luxor class heavy cruiser before the invasion of Terra could begin.</p>",
+    "manufacturer": "Nicholas Spacecraft/Ulsop Robotics|Refit - Ulsop Robotics|Ulsop Robotics/O'Neil Shipyards",
+    "primaryFactory": "New Earth|Various|Terra"
+  }
+}

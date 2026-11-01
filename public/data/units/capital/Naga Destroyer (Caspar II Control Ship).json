@@ -1,0 +1,951 @@
+{
+  "id": "naga-destroyer-caspar-ii-control-ship",
+  "chassis": "Naga Destroyer",
+  "model": "(Caspar II Control Ship)",
+  "unitType": "WarShip",
+  "subType": "WarShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "tonnage": 540000,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "movement": {
+    "safeThrust": 2,
+    "maxThrust": 3
+  },
+  "fuel": 5000,
+  "structuralIntegrity": 68,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 1300
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 28,
+      "FRONT_LEFT_SIDE": 32,
+      "FRONT_RIGHT_SIDE": 32,
+      "AFT": 28,
+      "AFT_LEFT_SIDE": 32,
+      "AFT_RIGHT_SIDE": 32
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-naval-autocannon-nac-10",
+      "name": "(B) Naval Autocannon (NAC/10)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-autocannon-nac-10",
+      "name": "Naval Autocannon (NAC/10)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-autocannon-nac-10",
+      "name": "Naval Autocannon (NAC/10)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-nac-10:45",
+      "name": "Ammo NAC/10:45",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-sub-capital-laser-1",
+      "name": "(B) Sub-Capital Laser /1",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-laser-1",
+      "name": "Sub-Capital Laser /1",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-laser-1",
+      "name": "Sub-Capital Laser /1",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-ismml9",
+      "name": "(B) ISMML9",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-mml-9-lrm-artemis-capable:208",
+      "name": "IS Ammo MML-9 LRM Artemis-capable:208",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-mml-9-srm-artemis-capable:176",
+      "name": "IS Ammo MML-9 SRM Artemis-capable:176",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-screen-launcher",
+      "name": "(B) Screen Launcher",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-screen:40",
+      "name": "Ammo Screen:40",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-10",
+      "name": "(B) Naval Autocannon (NAC/10)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-10",
+      "name": "Naval Autocannon (NAC/10)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-10:40",
+      "name": "Ammo NAC/10:40",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-sub-capital-laser-2",
+      "name": "(B) Sub-Capital Laser /2",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-2",
+      "name": "Sub-Capital Laser /2",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-2",
+      "name": "Sub-Capital Laser /2",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-ismml9",
+      "name": "(B) ISMML9",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-lrm-artemis-capable:208",
+      "name": "IS Ammo MML-9 LRM Artemis-capable:208",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-srm-artemis-capable:176",
+      "name": "IS Ammo MML-9 SRM Artemis-capable:176",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-white-shark",
+      "name": "(B) Capital Missile Launcher (White Shark)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-white-shark:20",
+      "name": "Ammo White Shark:20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-10",
+      "name": "(B) Naval Autocannon (NAC/10)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-10",
+      "name": "Naval Autocannon (NAC/10)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-10:40",
+      "name": "Ammo NAC/10:40",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-sub-capital-laser-2",
+      "name": "(B) Sub-Capital Laser /2",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-2",
+      "name": "Sub-Capital Laser /2",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-2",
+      "name": "Sub-Capital Laser /2",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-ismml9",
+      "name": "(B) ISMML9",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-lrm-artemis-capable:208",
+      "name": "IS Ammo MML-9 LRM Artemis-capable:208",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-srm-artemis-capable:176",
+      "name": "IS Ammo MML-9 SRM Artemis-capable:176",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-white-shark",
+      "name": "(B) Capital Missile Launcher (White Shark)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-white-shark:20",
+      "name": "Ammo White Shark:20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-barracuda",
+      "name": "(B) Capital Missile Launcher (Barracuda)",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-barracuda:10",
+      "name": "Ammo Barracuda:10",
+      "location": "AFT"
+    },
+    {
+      "id": "b-sub-capital-laser-1",
+      "name": "(B) Sub-Capital Laser /1",
+      "location": "AFT"
+    },
+    {
+      "id": "sub-capital-laser-1",
+      "name": "Sub-Capital Laser /1",
+      "location": "AFT"
+    },
+    {
+      "id": "sub-capital-laser-1",
+      "name": "Sub-Capital Laser /1",
+      "location": "AFT"
+    },
+    {
+      "id": "sub-capital-laser-1",
+      "name": "Sub-Capital Laser /1",
+      "location": "AFT"
+    },
+    {
+      "id": "sub-capital-laser-1",
+      "name": "Sub-Capital Laser /1",
+      "location": "AFT"
+    },
+    {
+      "id": "sub-capital-laser-1",
+      "name": "Sub-Capital Laser /1",
+      "location": "AFT"
+    },
+    {
+      "id": "b-ismml9",
+      "name": "(B) ISMML9",
+      "location": "AFT"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "AFT"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "AFT"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-mml-9-lrm-artemis-capable:208",
+      "name": "IS Ammo MML-9 LRM Artemis-capable:208",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-mml-9-srm-artemis-capable:176",
+      "name": "IS Ammo MML-9 SRM Artemis-capable:176",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isams-ammo:72",
+      "name": "ISAMS Ammo:72",
+      "location": "AFT"
+    },
+    {
+      "id": "b-screen-launcher",
+      "name": "(B) Screen Launcher",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-screen:20",
+      "name": "Ammo Screen:20",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-laser-55",
+      "name": "(B) Naval Laser 55",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-ppc-light",
+      "name": "(B) Naval PPC (Light)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-ppc-light",
+      "name": "Naval PPC (Light)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-ismml9",
+      "name": "(B) ISMML9",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-lrm-artemis-capable:208",
+      "name": "IS Ammo MML-9 LRM Artemis-capable:208",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-srm-artemis-capable:176",
+      "name": "IS Ammo MML-9 SRM Artemis-capable:176",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-sub-capital-laser-2",
+      "name": "(B) Sub-Capital Laser /2",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-2",
+      "name": "Sub-Capital Laser /2",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-55",
+      "name": "(B) Naval Laser 55",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-ppc-light",
+      "name": "(B) Naval PPC (Light)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-ppc-light",
+      "name": "Naval PPC (Light)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-ismml9",
+      "name": "(B) ISMML9",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-lrm-artemis-capable:208",
+      "name": "IS Ammo MML-9 LRM Artemis-capable:208",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-srm-artemis-capable:176",
+      "name": "IS Ammo MML-9 SRM Artemis-capable:176",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-sub-capital-laser-2",
+      "name": "(B) Sub-Capital Laser /2",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-2",
+      "name": "Sub-Capital Laser /2",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargenavalcommscannersuite",
+      "name": "ISLargeNavalCommScannerSuite",
+      "location": "HULL"
+    },
+    {
+      "id": "ismobilehpg",
+      "name": "ISMobileHPG",
+      "location": "HULL"
+    },
+    {
+      "id": "directtacticalanalysissystem:size:36.0",
+      "name": "DirectTacticalAnalysisSystem:SIZE:36.0",
+      "location": "HULL"
+    },
+    {
+      "id": "b-naval-autocannon-nac-10",
+      "name": "(B) Naval Autocannon (NAC/10)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-10",
+      "name": "Naval Autocannon (NAC/10)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-10:40",
+      "name": "Ammo NAC/10:40",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-35",
+      "name": "Naval Laser 35",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-35",
+      "name": "Naval Laser 35",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-ppc-light",
+      "name": "(B) Naval PPC (Light)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-ppc-light",
+      "name": "Naval PPC (Light)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-sub-capital-laser-3",
+      "name": "(B) Sub-Capital Laser /3",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-ismml9",
+      "name": "(B) ISMML9",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-lrm-artemis-capable:208",
+      "name": "IS Ammo MML-9 LRM Artemis-capable:208",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-srm-artemis-capable:176",
+      "name": "IS Ammo MML-9 SRM Artemis-capable:176",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isams-ammo:72",
+      "name": "ISAMS Ammo:72",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-screen-launcher",
+      "name": "(B) Screen Launcher",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-screen:10",
+      "name": "Ammo Screen:10",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-10",
+      "name": "(B) Naval Autocannon (NAC/10)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-10",
+      "name": "Naval Autocannon (NAC/10)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-10:40",
+      "name": "Ammo NAC/10:40",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-35",
+      "name": "Naval Laser 35",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-35",
+      "name": "Naval Laser 35",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-ppc-light",
+      "name": "(B) Naval PPC (Light)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-ppc-light",
+      "name": "Naval PPC (Light)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-sub-capital-laser-3",
+      "name": "(B) Sub-Capital Laser /3",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-ismml9",
+      "name": "(B) ISMML9",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-lrm-artemis-capable:208",
+      "name": "IS Ammo MML-9 LRM Artemis-capable:208",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-srm-artemis-capable:176",
+      "name": "IS Ammo MML-9 SRM Artemis-capable:176",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isams-ammo:72",
+      "name": "ISAMS Ammo:72",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-screen-launcher",
+      "name": "(B) Screen Launcher",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-screen:10",
+      "name": "Ammo Screen:10",
+      "location": "RIGHT_BROADSIDE"
+    }
+  ],
+  "crew": 483,
+  "escapePods": 10,
+  "lifeBoats": 22,
+  "officers": 51,
+  "gunners": 80,
+  "passengers": 0,
+  "battleArmor": 36,
+  "marines": 0,
+  "transporters": [
+    "asfbay:36.0:3:1::-1:0",
+    "smallcraftbay:6.0:1:2::-1:0",
+    "navalrepairpressurized:75000.0:1:3:f3",
+    "navalrepairpressurized:75000.0:1:4:f4",
+    "navalrepairpressurized:75000.0:1:5:f5",
+    "navalrepairpressurized:7500.0:1:6:f0",
+    "navalrepairpressurized:7500.0:1:7:f1",
+    "navalrepairpressurized:7500.0:1:8:f2",
+    "navalrepairpressurized:7500.0:1:9:f4",
+    "navalrepairpressurized:7500.0:1:10:f5",
+    "navalrepairpressurized:7500.0:1:11:f3",
+    "1stclassquarters:510.0:0:-1::-1:0",
+    "2ndclassquarters:252.0:0:-1::-1:0",
+    "crewquarters:2310.0:0:-1::-1:0",
+    "cargobay:83005.0:1:15::-1:0"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 1,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": false,
+  "hasHPG": false,
+  "gravDecks": [
+    55
+  ],
+  "dockingCollars": 0,
+  "mulId": 4692,
+  "role": "None",
+  "source": "JHS:Terra",
+  "fluff": {
+    "overview": "<p>Commissioned in the mid-twenty-seventh century by the Terran Hegemony, the Naga was designed as a heavy destroyer that prioritized raw firepower and cargo capacity over the speed that had characterized its predecessor. Riga Interstellar Shipyards of Dyev constructed the class as a direct replacement for the aging Essex-class vessels that had formed the backbone of the Hegemony's destroyer screen for over a century. The Naga was intended to fill a broad operational niche, capable of independent patrol duty in remote systems as readily as fleet screening and escort work alongside heavier capital vessels.</p><p>The class earned a reputation as a dependable fleet workhorse, its generous internal volume and heavy armament making it well-suited to the variety of missions demanded of Hegemony destroyer formations. Though not the fastest vessel in the SLDF order of battle, the Naga's combination of endurance and firepower made it a valued asset in any task force composition.</p>",
+    "capabilities": "<p>Displacing 540,000 tons, the Naga carried a substantial armament centered on eleven naval autocannons distributed across multiple firing arcs, supplemented by naval lasers, particle projector cannons, and a modest capital missile loadout of one White Shark launcher forward and one Barracuda launcher aft. This weapons suite gave the vessel credible engagement capability at multiple ranges, though the design clearly favored sustained gunnery exchanges over long-range missile duels. The class mounted 656 tons of primitive armor across a structural integrity rating of 68, providing reasonable protection for a vessel of its era.</p><p>The Naga's acceleration profile of two gravities standard and three gravities maximum was respectable for a destroyer of its tonnage, though the design's emphasis on internal volume over raw speed meant it could not match lighter escorts in a sprint. The vessel carried twelve aerospace fighters and two small craft but had no docking collars, limiting its ability to serve as a transport hub. A crew complement of 235 operated the vessel, supported by a single fifty-meter gravity deck. The most distinctive feature of the original design was its enormous cargo capacity of over 142,000 tons, suggesting the class was intended as much for extended independent patrol operations as for fleet engagements.</p>",
+    "deployment": "<p>The Word of Blake converted three Naga-class hulls into Caspar II drone control ships at the O'Neil and Titan Yards facilities orbiting Terra, designating them as a critical component of their Space Defense System network. The conversion was extensive, tripling the fighter bay capacity to thirty-six craft, adding nine pressurized naval repair facilities for maintaining drone WarShips, and installing a Mobile HPG, Large Naval Communications Scanner Suite, and Direct Tactical Analysis System to coordinate automated naval forces across an entire star system. The trade-off was severe: the conversion rendered each vessel's Kearny-Fuchida drive inoperable, permanently tethering all three ships to the Terra system.</p><p>The WoBS Celestial Threads, WoBS Divine Command, and WoBS Enlightened Direction formed the nerve center of the Blakist drone fleet defending Terra during the Jihad. Sub-capital laser batteries, missile launchers with advanced targeting systems, and screen launchers augmented the original capital weapons suite, while a company of battle armor marines provided boarding defense. All three vessels were destroyed during Operation SCOUR in 3078, when the allied coalition fought its way through the formidable automated defenses to liberate humanity's homeworld.</p>",
+    "history": "<p>The Naga-class destroyer entered service in 2645 as a direct replacement for the venerable Essex-class destroyers that had served the Terran Hegemony since the Age of War. Designed and constructed at Riga Interstellar Shipyards on Dyev, the class represented the Hegemony Armed Forces' effort to modernize its destroyer screen with a heavier, more capable platform. The Naga quickly established itself as a reliable fleet asset, its combination of substantial firepower and generous internal volume making it well-suited to the screening, escort, and independent patrol missions that defined destroyer operations.</p><p>The class's tenure as the Hegemony's premier destroyer proved relatively brief. The introduction of the Essex II-class in the early twenty-eighth century offered a more refined and capable design that gradually supplanted the Naga in front-line fleet assignments. Still, the Naga continued to serve in secondary roles, and a number of vessels remained in active service through the fall of the Star League. The chaos of the Succession Wars scattered surviving Nagas across the Successor States, where they served various navies until attrition and the loss of maintenance infrastructure took their inevitable toll. The Rim Worlds Republic also operated at least one vessel, the Dystopia, whose wreck was discovered centuries after the Republic's destruction.</p><p>The most remarkable chapter in the class's history came during the Jihad, when the Word of Blake selected three surviving Naga hulls for conversion into Caspar II drone control ships. The extensive refit, carried out at facilities in the Terra system around 3065, transformed the aging destroyers into command platforms for the Blakist Space Defense System at the cost of their jump capability.</p><p>The three converted vessels formed the backbone of Terra's automated naval defense during the final years of the Jihad. When Operation SCOUR brought a massive allied coalition to liberate Terra in 3078, all three were destroyed in the fighting. Their loss marked the effective extinction of the Naga class, ending a service history that had spanned over four centuries and carried the design from the height of Star League naval power through the darkest years of the Succession Wars to a final, unexpected role as the nerve center of the most sophisticated automated naval defense network the Inner Sphere had ever seen.</p>",
+    "manufacturer": "O'Neil Yards / Titan Yards",
+    "primaryFactory": "Terra"
+  }
+}

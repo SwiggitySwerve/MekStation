@@ -54,8 +54,7 @@ from blk_common import (
     generate_id_from_name,
     get_string,
     map_blk_engine_code,
-    map_rules_level,
-    map_tech_base,
+    map_blk_tech_type,
     map_year_to_era,
     maximum_thrust,
     parse_armor_array,
@@ -74,13 +73,13 @@ from blk_common import (
 
 # Sub-type classification
 
-# Armor arc order in BLK: Nose, Left Wing, Right Wing, Aft
+# Armor arc order in BLK: Nose, Right Wing, Left Wing, Aft
 
 # Equipment location tag → output key
 
 # Small craft use "side" instead of "wing"
 
-# Armor type code → string (same as vehicle converter)
+# Armor type code → string (pinned aerospace EquipmentType constants)
 
 # Cockpit code → string
 
@@ -173,9 +172,8 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     tonnage = int(tonnage_raw) if tonnage_raw == int(tonnage_raw) else tonnage_raw
 
     # --- Classification ---
-    tech_type_str = get_string(tags, "type", "Type") or "IS Level 2"
-    tech_base = map_tech_base(tech_type_str)
-    rules_level = map_rules_level(tech_type_str)
+    tech_type_str = tags.get("type", tags.get("Type", "IS Level 2"))
+    tech_base, rules_level = map_blk_tech_type(tech_type_str, year)
     era = map_year_to_era(year)
 
     # --- Motion type ---
@@ -228,7 +226,7 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     armor = parse_aerospace_armor(tags, reads_bar_rating=unit_type_raw == "FixedWingSupport")
     source_qualifiers = parse_aerospace_qualifiers(tags)
 
-    # Arc-based armor — ASF/CF use Nose/LW/RW/Aft; SmallCraft use Nose/LS/RS/Aft
+    # Arc-based armor — ASF/CF use Nose/RW/LW/Aft; SmallCraft use Nose/RS/LS/Aft
     is_small_craft = sub_type == "SmallCraft"
     arc_names = SC_ARMOR_ARCS if is_small_craft else AERO_ARMOR_ARCS
     armor_by_arc: Dict[str, int] = {}
@@ -240,10 +238,10 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     loc_map = SC_LOCATION_MAP if is_small_craft else AERO_LOCATION_MAP
     equipment = parse_location_equipment(tags, loc_map)
 
-    # Detect bomb bay — BLK marks it via "Bomb Bay" equipment or bombcount tag
-    bomb_bay_items = [e for e in equipment if "bomb" in e["id"].lower() or "bomb" in e["name"].lower()]
-    has_bomb_bay = len(bomb_bay_items) > 0 or bool(get_string(tags, "bombcount", "bombs"))
-    bomb_capacity = int(parse_number(get_string(tags, "bombcount")) or 0)
+    # MiscType.createLAMBombBay registers exactly "Bomb Bay" (F_BOMB_BAY).
+    # Bomb weapons and Bombast Lasers are separate equipment; Java ignores bombcount/bombs tags.
+    bomb_capacity = sum(e["name"].casefold() == "bomb bay" for e in equipment)
+    has_bomb_bay = bomb_capacity > 0
 
     # --- Small craft extras ---
     crew = int(parse_number(get_string(tags, "crew")) or 0)

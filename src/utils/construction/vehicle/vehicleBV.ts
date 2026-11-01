@@ -8,7 +8,7 @@
  *
  *  - Defensive BV uses armor × 2.5 × armorMult + structure × 1.5 × structureMult
  *    + defensive equipment BV − explosive penalty, then multiplied by a
- *    defensive factor derived from the motion-type TMM.
+ *    motion-type modifier and a separate defensive factor derived from TMM.
  *  - Offensive BV sums weapon BV (with turret / sponson / rear-arc modifiers),
  *    ammo BV (capped per weapon family), and offensive equipment BV, then
  *    multiplied by the vehicle speed factor.

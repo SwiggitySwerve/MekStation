@@ -37,7 +37,11 @@ import {
   getSupportVehicleBarArmorPoints,
   getSupportVehicleMaxTotalArmor,
 } from '@/utils/construction/vehicle/armor';
-import { computeFlankMP } from '@/utils/construction/vehicle/engine';
+import {
+  computeFlankMP,
+  computeStoredVehicleEngineRating,
+} from '@/utils/construction/vehicle/engine';
+import { getPrimaryVehicleTurretConfiguration } from '@/utils/construction/vehicle/equipmentMounts';
 
 import {
   AbstractUnitTypeHandler,
@@ -140,7 +144,12 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
 
     // Engine
     const engineType = document.engineType || 0;
-    const engineRating = cruiseMP * document.tonnage;
+    const engineRating = computeStoredVehicleEngineRating(
+      document.tonnage,
+      cruiseMP,
+      motionType,
+      true,
+    );
 
     // Armor (support vehicles use BAR - Barrier Armor Rating)
     const armorType = document.armorType || 0;
@@ -198,6 +207,8 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
 
     return {
       unitType: UnitType.SUPPORT_VEHICLE,
+      internalStructureType: document.internalType ?? 0,
+      structureLocations: Object.keys(placed.byLocation),
       motionType,
       movement,
       engineType,
@@ -212,6 +223,12 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
         document.tonnage,
       ),
       equipment,
+      turret: getPrimaryVehicleTurretConfiguration(
+        document,
+        getRawTagString(rawTags, 'turrettype'),
+        layoutArmor,
+        motionType === GroundMotionType.VTOL,
+      ),
       sizeClass,
       barRating,
       cargoCapacity,
@@ -459,7 +476,12 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
 
     // Engine weight (support vehicles use ICE typically)
     if (unit.movement.cruiseMP > 0) {
-      const engineRating = unit.movement.cruiseMP * unit.tonnage;
+      const engineRating = computeStoredVehicleEngineRating(
+        unit.tonnage,
+        unit.movement.cruiseMP,
+        unit.motionType,
+        true,
+      );
       weight += engineRating * 0.08; // ICE engines are heavier
     }
 
@@ -503,7 +525,12 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
 
     // Engine cost (if mobile)
     if (unit.movement.cruiseMP > 0) {
-      const engineRating = unit.movement.cruiseMP * unit.tonnage;
+      const engineRating = computeStoredVehicleEngineRating(
+        unit.tonnage,
+        unit.movement.cruiseMP,
+        unit.motionType,
+        true,
+      );
       cost += engineRating * 2000;
     }
 

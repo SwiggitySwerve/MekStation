@@ -3,8 +3,8 @@
   "chassis": "Anhur",
   "model": "(P-Stealth)",
   "unitType": "VTOL",
-  "techBase": "INNER_SPHERE",
-  "rulesLevel": "STANDARD",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
   "era": "CIVIL_WAR",
   "year": 3074,
   "tonnage": 30,
@@ -20,7 +20,7 @@
     "rating": 100
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "STEALTH",
     "byLocation": {
       "FRONT": 12,
       "RIGHT": 12,

@@ -3,8 +3,8 @@
   "chassis": "SM5 Field Commander",
   "model": "Prime",
   "unitType": "Vehicle",
-  "techBase": "INNER_SPHERE",
-  "rulesLevel": "STANDARD",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
   "era": "DARK_AGE",
   "year": 3151,
   "tonnage": 50,
@@ -20,7 +20,7 @@
     "rating": 215
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "BALLISTIC_REINFORCED",
     "byLocation": {
       "FRONT": 24,
       "RIGHT": 19,

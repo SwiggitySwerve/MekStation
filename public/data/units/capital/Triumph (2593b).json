@@ -1,0 +1,192 @@
+{
+  "id": "triumph-2593b",
+  "chassis": "Triumph",
+  "model": "(2593b)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "STAR_LEAGUE",
+  "year": 2593,
+  "tonnage": 8000,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 3,
+    "maxThrust": 5
+  },
+  "fuel": 7500,
+  "structuralIntegrity": 11,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 112
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 150,
+      "RIGHT_SIDE": 140,
+      "LEFT_SIDE": 140,
+      "AFT": 125
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-autocannon-10",
+      "name": "(B) Autocannon/10",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-ac-10:20",
+      "name": "IS Ammo AC/10:20",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-20:18",
+      "name": "IS Ammo LRM-20:18",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-autocannon-5",
+      "name": "(B) Autocannon/5",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-ac-5:20",
+      "name": "IS Ammo AC/5:20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-15",
+      "name": "(B) LRM 15",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-15:16",
+      "name": "IS Ammo LRM-15:16",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-autocannon-5",
+      "name": "(B) Autocannon/5",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-ac-5:20",
+      "name": "IS Ammo AC/5:20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-15",
+      "name": "(B) LRM 15",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-15:16",
+      "name": "IS Ammo LRM-15:16",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-lrm-10",
+      "name": "(B) LRM 10",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-lrm-10:12",
+      "name": "IS Ammo LRM-10:12",
+      "location": "AFT"
+    }
+  ],
+  "crew": 558,
+  "escapePods": 4,
+  "lifeBoats": 3,
+  "officers": 3,
+  "gunners": 3,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "heavyvehiclebay:30.0:1:1::-1:0",
+    "heavyvehiclebay:15.0:1:2::-1:0",
+    "infantrybay:5.0:1:3:Foot:-1:0",
+    "lightvehiclebay:8.0:1:4::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "1stclassquarters:30.0:0:-1::-1:0",
+    "crewquarters:105.0:0:-1::-1:0",
+    "cargobay:411.5:1:8::-1:0"
+  ],
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Triumph class DropShip stands as one of the largest aerodyne military transports ever produced and among the most common still in active service across the Inner Sphere. First launched in 2593, this venerable design was purpose-built to deliver an entire armor battalion onto the battlefield, and its remarkable versatility has kept it in continuous production for over four and a half centuries. Though lacking the glamour of dedicated Mek carriers such as the Union or Overlord, the Triumph earned its reputation through sheer reliability and adaptability, with large numbers remaining in the fleets of every Great House.</p><p>The vessel's distinctive squat profile was born of a deliberate effort to balance aerodynamic maneuverability with rapid vehicle offloading, and its highly adaptable cargo bays have seen Triumphs modified to carry everything from aerospace fighters and BattleMeks to surface naval craft. Few aerodyne designs have achieved such universal adoption or demonstrated such longevity in continuous front-line service.</p>",
+    "capabilities": "<p>The 2593b configuration is a minor reallocation of the standard Triumph's internal volume, expanding the infantry transport capacity from four to five platoon bays while reducing cargo space to approximately 411 tons. All other systems remain identical to the base model, including the same weapons array, armor protection, and drive system. The additional infantry bay enables the Triumph to deliver a more balanced combined-arms force, with a full vehicle battalion supported by a larger infantry contingent. The slightly increased crew complement of 564 reflects the additional life support and berthing requirements for the expanded troop capacity. This configuration saw widespread use among commanders who valued infantry support for their armored formations during planetary assaults.</p>",
+    "deployment": "<p>The expanded infantry variant saw service alongside the standard model in SLDF and Successor State fleets, favored by commanders who needed integrated infantry support for their vehicle battalions during planetary assault operations. This configuration proved particularly useful during garrison campaigns and urban warfare where dismounted troops were essential for holding captured territory alongside armored forces. The additional infantry bay allowed battalion commanders to deploy a more self-sufficient ground force without requiring a separate infantry transport, simplifying logistics during multi-drop planetary assaults and reducing the number of docking collars needed to deliver a balanced combined-arms formation.</p>",
+    "history": "<p>The Triumph class entered service in 2593 during the height of the Star League era, designed to meet the Star League Defense Force's need for a large-capacity aerodyne vehicle transport. The design proved immediately successful, offering rapid vehicle deployment capabilities that no spheroid transport could match. The SLDF adopted the Triumph in significant numbers, and its production spread to multiple facilities across the Inner Sphere. When the Star League collapsed, the Triumph's relatively simple construction and robust engineering ensured that production continued even as technological capabilities declined.</p><p>Throughout the Succession Wars, the Triumph remained the primary aerodyne vehicle carrier for all five Great Houses. The design's large, adaptable cargo bays proved invaluable during this period, as commanders frequently modified their Triumphs to carry aerospace fighters, BattleMeks, and even surface naval craft when the mission demanded it. However, the class suffered heavily in contested landings, where its thin armor and modest weaponry left it vulnerable to concentrated fire. Countless Triumphs were lost attempting to reach their landing zones under hostile conditions, reinforcing the conventional wisdom that the design required substantial escort support.</p><p>By the mid-3050s, production had slowed dramatically, with Rashpur-Owens Incorporated on Capella managing only a single new hull per year. This scarcity prompted BBP Industries of Luthien to unveil a comprehensive redesign in 3057 that reduced total mass to 6,000 tons while incorporating recovered Star League technology. The redesigned interior featured improved bay access and added Mek transport capability alongside the traditional vehicle bays, representing a significant evolution beyond a simple weapons upgrade.</p><p>The Word of Blake's capture of the Titan Yards on Terra in 3062 led to the development of the Assault Triumph, a heavily armed and armored variant that transformed the venerable transport into a combined-arms assault platform. This radical departure from the original concept carried Meks, vehicles, aerospace fighters, and battle armor in a single hull, backed by firepower that could suppress ground defenses during contested landings. A further refinement in 3082 expanded the Assault Triumph's Mek capacity and added improved defensive systems, ensuring the class would continue to serve well into the post-Jihad era.</p>",
+    "manufacturer": "BBP Industries|Rashpur-Owens Inc.",
+    "primaryFactory": "Luthien|Capella"
+  }
+}

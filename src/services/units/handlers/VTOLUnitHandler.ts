@@ -10,7 +10,6 @@
 import { VTOL_TONNAGE } from '@/services/construction/constructionConstants';
 import { blkVehicleArmorLengthError } from '@/services/conversion/blkVehicleArmorLayout';
 import { VTOLLocation } from '@/types/construction/UnitLocation';
-import { WeightClass } from '@/types/enums';
 import {
   BLK_VTOL_ARMOR_LOCATIONS,
   IBlkDocument,
@@ -45,6 +44,7 @@ import {
   createParseMessages,
   createValidationMessages,
   getRawTagString,
+  getVehicleWeightClass,
   mapLocationEquipment,
   pushTonnageRangeErrors,
   pushSourceLoadNumberErrors,
@@ -143,6 +143,8 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
 
     return {
       unitType: UnitType.VTOL,
+      internalStructureType: document.internalType ?? 0,
+      structureLocations: BLK_VTOL_ARMOR_LOCATIONS.slice(0, armor.length),
       motionType,
       movement,
       engineType,
@@ -278,7 +280,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     commonFields: ReturnType<typeof this.parseCommonFields>,
     typeSpecificFields: Partial<IVTOL>,
   ): IVTOL {
-    const weightClass = this.getWeightClass(commonFields.tonnage);
+    const weightClass = getVehicleWeightClass(commonFields.tonnage);
 
     const unit = combineCommonUnitFields<IVTOL>({
       commonFields,
@@ -288,14 +290,6 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
       weightClass,
     });
     return withConstructionDiagnostics(unit, this.validate(unit));
-  }
-
-  /**
-   * Determine weight class from tonnage
-   * VTOLs are always light (max 30 tons)
-   */
-  private getWeightClass(_tonnage: number): WeightClass {
-    return WeightClass.LIGHT;
   }
 
   /**

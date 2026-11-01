@@ -1,5 +1,89 @@
 # Combat-vehicle construction rules
 
+## Defensive BV type modifier
+
+`vehicleBVTypeModifier.ts` owns the motion-type defensive multiplier and its
+chassis-equipment additions. `vehicleBVDefensive.ts` applies it to the entire
+armor + structure + defensive equipment - explosive penalty pool, before the
+separate TMM factor: tracked 0.9, wheeled 0.8, hover/VTOL/WiGE 0.7, all others
+0.6. Non-support vehicles add 0.2 per fully amphibious mount or 0.1 per limited
+amphibious, dune buggy, flotation hull, environmental sealing or armored motive
+mount. Additions can exceed 1; support vehicles receive only the motion base.
+
+Pinned [CombatVehicleBVCalculator.java:83-108](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/battleValue/CombatVehicleBVCalculator.java#L83)
+defines the stage; inherited
+[BVCalculator.java:274-280](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/battleValue/BVCalculator.java#L274)
+orders it before TMM. Adapters carry all mounted IDs and support identity.
+The store's sealing/flotation flags represent the same installation as a
+matching mount and are counted once. Generic `isAmphibious` is insufficient
+to distinguish full/limited/SV equipment, so only identified mounts add BV.
+
+`vehicleBV.defenseParity.test.ts` enforces every motion base, mounted bonuses,
+support exclusion and store/contract transport. Tamerlane's defense with the
+corrected structure and TMM factor is 141.75, equal to Java. Armor/BAR,
+structure, equipment partitioning, explosive penalties and all offensive
+rules remain separate terms; this correction does not establish whole-unit parity.
+
+## Defensive BV movement factor
+
+`vehicleBVMovement.ts:calculateVehicleBVDefensiveTMM` owns defensive BV TMM selection; the shared
+`constants/movement.ts` owns the standard brackets. Assembled `flankMP` is
+Java's run MP, not cruise or submarine depth MP. Positive run adds one for
+VTOL or WiGE (exactly one for VTOL); positive jump adds one independently.
+Zero run/jump contributes zero, including stealth/airborne bonuses. Uniform
+stealth adds two to each nonzero mode; patchwork does not. The represented
+armor name or pinned numeric codes are classified once by `hasVehicleStealth`;
+adapters transport that fact without changing armor valuation. Converter
+armor-name losses and assembled MP adjustments (MASC, hardened armor and
+mechanical jump boosters) remain upstream input-fidelity limits.
+
+`vehicleBVDefensive.ts` applies `1 + max(run TMM, jump TMM, 0) / 10` to the
+type-modified defensive pool without rounding. Only the existing final BV
+rounding follows the sum with offense. Submarine depth MP still feeds the
+existing offensive speed rule, which is outside this correction.
+
+Pinned sources: `CombatVehicleBVCalculator.java:56-80`,
+`BVCalculator.java:324-334,650-687`, `Compute.java:3099-3147` and
+`Entity.java:16132-16136` at the MegaMek pin above. Java's base run is
+`ceil(cruise * 1.5)` (`Entity.java:4004-4016`), with an armed-MASC override in
+`Tank.java:1570-1575`; TMM consumes supplied assembled run rather than deriving
+it again. `vehicleBV.tmmParity.test.ts` covers brackets, airborne/zero guards,
+jump comparison, represented stealth and fractional defense. The acceptance
+comparison asserts equality outside TMM, factor, defense and final across all
+1,419 combat/support rows and explains each total moving away from Java.
+
+The public `calculateVehicleTMM` compatibility helper retains its existing
+effective-MP/submarine override, unconditional VTOL running bonus and shared
+positive-only jump guard (including NaN rejection). Its facade exports and the
+shared construction, validation and gameplay entry points remain unchanged.
+`battleValueMovement.test.ts` pins those contracts independently of defensive BV.
+
+## Structure BV
+
+`structure.ts:computeVehicleBVStructurePoints` owns installed-location internals
+for BV. Each non-body location has `ceil(tonnage / 10)` points: four hull
+locations for Tank, six for SuperHeavyTank/LargeSupportTank, plus installed
+turrets and a VTOL rotor. Zero armor does not remove a location. Handlers and
+the contract adapter preserve the source layout before fixed-key armor maps
+add placeholder locations; legacy inputs fall back to chassis/turret metadata.
+The construction weight/maximum-armor table has a separate contract.
+
+`vehicleStructureBVType` transports numeric structure codes to the existing
+shared `getStructureBVMultiplier` table: industrial/composite 0.5, reinforced
+2, otherwise 1. `vehicleBVDefensive.ts` multiplies total points by 1.5 and this
+multiplier, adding 0.2 to the multiplier for installed Blue Shield. Construction
+inputs describe working equipment; runtime damage is outside this contract.
+
+Pinned MegaMek sources: `Tank.java:537-542,1607-1616`,
+`SuperHeavyTank.java:333-338`, `VTOL.java:734-736`, `Entity.java:4724-4732`,
+and `BVCalculator.java:492-512` at the pin above. CombatVehicleBVCalculator
+inherits processStructure. `vehicleBV.structureParity.test.ts` enforces
+Tamerlane's 15 structure BV and 141.75 defense, installed layouts, fractional
+tonnage, source types, store fallback and Blue Shield. The 1,419-row comparison
+checks Java internals and structure BV, equality of every unrelated output,
+and explains each total moving farther from Java. Whole-unit parity remains
+separate.
+
 ## Turret armor lifecycle
 
 `armor.ts` owns the installed-turret armor projection and total. The state
@@ -120,13 +204,27 @@ engine retains minimum rating 10. The tonnage-edit clamp remains unchanged.
 BLKVTOLFile lacks Tank's NONE exception: the generic converter's engine-less
 zero-cruise VTOL case remains a disclosed loader-family gap, not proven parity.
 
-Support store and converter outputs retain legacy rating behavior, including distinct converter
-rounding. This is compatibility, not support-construction parity. Support
-identity survives motion edits so later actions cannot accidentally apply combat
-suspension. Support UI and construction validation still contain combat-vehicle
-approximations and are not covered by this parity slice. Existing imported/saved catalog ratings are not migrated on load.
+`engine.ts:computeStoredVehicleEngineRating` owns effective support ratings:
+`min(maxRating, tonnage * cruiseMP)`, preserving fractional tonnage without
+suspension or rounding to five. `supportEngine.json` owns the limit; the Python
+`combat_vehicle_engine.py:support_engine_rating` adapter consumes it for all three support BLK families.
+The supplied Java oracle's 227 support rows agree with this formula, including
+the 500 cap. `engine.ownerAwareRating` is effective; `engine.rating` is the stored
+zero sentinel. The serialized engine rating is a number so this effective value
+can cross both schema boundaries. Handler parsing, approximate weight/cost and store derivations use
+the owner. Existing imported/saved catalog ratings are not migrated on load.
+Support identity survives motion edits. Other support UI and construction
+approximations remain outside this rating correction.
 The converter's support-VTOL discriminator and broader BLK engine ordinal
 semantics remain separate work; this slice adds no engine-code table.
+
+`equipmentMounts.ts` owns imported primary turret configuration; the shared BLK
+adapter supplies installed armor locations and occupied equipment blocks.
+SupportTank and LargeSupportTank retain single/dual turrets even with zero armor;
+SupportVTOL retains a chin turret with the existing 180-degree arc. The legacy
+10%-tonnage capacity remains a separate defect. VTOL handler weight classes use
+the existing shared unit classifier, whose thresholds are unchanged. Handler
+fidelity and Python support-engine regression tests enforce these boundaries.
 
 `controlsLift.ts` owns controls and lift/dive mass (standard combat construction
 ceilings): controls = upward-half-ton-rounded tonnage / 20, unless explicit

@@ -116,6 +116,104 @@ numeric output before native identity, quantity or grouping corrections.
 
 ## MODIFIED Requirements
 
+### Requirement: Aerospace BV Dispatch
+
+The BV calculator SHALL route `IAerospaceUnit` inputs to an aerospace-specific
+calculation path. Conventional fighters and FixedWingSupport SHALL use the sum
+of defensive and offensive BV before pilot adjustment, without a final 0.8
+subtype multiplier, matching pinned MegaMek `AeroBVCalculator.processSummarize`
+and `BVCalculator.processSummarize`.
+
+#### Scenario: ASF dispatch
+
+- **GIVEN** an aerospace fighter
+- **WHEN** `calculateBattleValue` is called
+- **THEN** the aerospace calculator SHALL be invoked
+- **AND** the return SHALL include an `IAerospaceBVBreakdown`
+
+#### Scenario: Conventional fighter multiplier
+
+- **GIVEN** a conventional fighter or FixedWingSupport
+- **WHEN** final BV is computed
+- **THEN** `(defensive + offensive)` SHALL receive pilot adjustment and rounding without a final subtype reduction
+- **AND** the compatibility breakdown field `subTypeMultiplier` SHALL equal 1
+
+#### Scenario: Boeing final BV
+
+- **GIVEN** Boeing Jump Bomber with defensive BV 63.8 and offensive BV zero
+- **WHEN** final BV is computed for the baseline pilot
+- **THEN** final BV SHALL equal 64, matching pinned Java
+
+### Requirement: Vehicle Defensive BV
+
+Vehicle defensive BV SHALL combine armor, structure and defensive equipment,
+subtract explosive penalties, apply the motion-type modifier to that entire
+pool, then apply the separate motive-type TMM factor. The motion multiplier
+SHALL be 0.9 tracked, 0.8 wheeled, 0.7 hover/VTOL/WiGE and 0.6 otherwise.
+Non-support vehicles SHALL add 0.2 per fully amphibious mount or 0.1 per
+limited amphibious, dune buggy, flotation hull, environmental sealing or
+armored motive mount. Support vehicles SHALL omit these equipment additions.
+
+#### Scenario: Defensive BV formula
+
+- **WHEN** computing vehicle defensive BV
+- **THEN** base defensive BV SHALL equal `armor × 2.5 × armorMult + structure × 1.5 × structureMult + defEquipBV − explosivePenalty`
+- **AND** the defensive factor SHALL equal `1 + max(running TMM, jumping TMM, 0) / 10` without intermediate rounding
+- **AND** final defensive BV SHALL equal `base × type modifier × defensive factor`
+
+#### Scenario: VTOL TMM bonus
+
+- **GIVEN** a VTOL with flank MP 15
+- **WHEN** TMM is computed
+- **THEN** the TMM SHALL equal the 15-MP table value + 1 (altitude bonus)
+
+#### Scenario: BAR armor scaling
+
+- **GIVEN** a BAR-6 support vehicle with 40 armor points
+- **WHEN** armor BV is computed
+- **THEN** armor BV SHALL equal `40 × 2.5 × 1.0 × (6/10) = 60`
+
+#### Scenario: Chassis equipment and support exclusion
+
+- **GIVEN** a tracked vehicle with fully amphibious and armored motive mounts
+- **WHEN** the defensive type modifier is computed
+- **THEN** it SHALL equal `0.9 + 0.2 + 0.1 = 1.2` without clamping
+- **AND** a support vehicle with the same mounts SHALL retain 0.9
+- **AND** a store sealing or flotation flag and its matching mount SHALL count once
+
+#### Scenario: Tamerlane isolated defensive type term
+
+- **GIVEN** Tamerlane (Flamer) with armor BV 120, corrected structure BV 15 and corrected TMM factor 1.5
+- **WHEN** the hover type modifier is applied
+- **THEN** defense SHALL equal `(120 + 15) × 0.7 × 1.5 = 141.75`
+- **AND** applying the type modifier SHALL preserve armor, structure, equipment and offensive breakdown fields
+- **AND** every Tank, SuperHeavyTank and VTOL oracle row SHALL be compared before and after, with every away-moving row explained
+- **AND** this single-stage correction SHALL NOT establish complete vehicle BV parity
+
+#### Scenario: Installed-location vehicle structure
+
+- **GIVEN** a Tank, SuperHeavyTank, VTOL or support vehicle
+- **WHEN** its construction structure BV is computed
+- **THEN** each installed non-body location SHALL contribute `ceil(tonnage / 10)` internal points, including zero-armor turrets and the VTOL rotor
+- **AND** the hull SHALL have four locations, or six for a SuperHeavyTank or LargeSupportTank, plus installed turrets and the VTOL rotor
+- **AND** structure BV SHALL equal total internal points times 1.5 times the type multiplier: industrial/composite 0.5, reinforced 2, otherwise 1
+- **AND** installed Blue Shield SHALL add 0.2 to the structure multiplier
+- **AND** source layout and numeric structure type SHALL survive handler and contract adaptation
+- **AND** every one of the 1,419 vehicle oracle rows SHALL be compared before and after, preserving unrelated output fields and explaining every total that moves farther from Java
+
+#### Scenario: Vehicle running, airborne and jumping TMM
+
+- **GIVEN** assembled flank MP and jump MP for a combat or support vehicle
+- **WHEN** defensive TMM is computed using the shared standard movement brackets
+- **THEN** running TMM SHALL use flank MP, without substituting cruise or submarine depth MP
+- **AND** positive running MP SHALL add exactly one for VTOL or WiGE; zero running MP SHALL return zero
+- **AND** positive jump MP SHALL add one to its own bracket value; zero jump MP SHALL return zero
+- **AND** represented uniform stealth SHALL add two to each nonzero movement mode before taking the maximum
+- **AND** defense SHALL retain fractional precision until the existing final BV rounding
+- **AND** all 1,419 combat and support oracle rows SHALL be compared before and after, with every away-moving row explained
+- **AND** fields other than TMM, defensive factor, defense and final SHALL remain exactly equal
+- **AND** these rules SHALL apply only to the vehicle defensive BV path; the public `calculateVehicleTMM` compatibility helper SHALL preserve its effective-MP/submarine overrides, unconditional VTOL running bonus and positive-only jump guard
+
 ### Requirement: Aerospace Defensive BV
 
 Aerospace defensive BV SHALL use Structural Integrity in place of the mech gyro term,
@@ -132,6 +230,37 @@ conventional fighters, and 1 for support vehicles (including FixedWingSupport)
 and small craft. Non-patchwork stealth armor SHALL add 0.3 to that modifier;
 patchwork armor SHALL receive no stealth bonus. This type stage SHALL precede
 the neutral defensive factor and SHALL NOT scale offensive BV.
+Represented mounted defensive equipment SHALL contribute its resolved BV once
+per mount before the type stage and SHALL be excluded from offensive arc pools
+and ammunition weapon caps. ECM, active probes, AMS, defensive pods and the
+represented miscellaneous identities flagged defensive by pinned Java SHALL
+use this rule. Represented AMS ammunition SHALL be capped at installed
+ammunition-using AMS BV; laser AMS SHALL NOT increase that cap. Unsupported
+native identities, quantities and variable equipment BV remain explicit gaps.
+
+#### Scenario: Saroyan defensive equipment
+
+- **GIVEN** Saroyan Jump Bomber with armor BV 60, SI BV 16, stealth and Guardian ECM BV 61
+- **WHEN** its contract passes through BV dispatch
+- **THEN** defense SHALL equal `(60 + 16 + 61) × 1.4 = 191.8`
+- **AND** its ECM SHALL contribute zero offensive BV
+- **AND** its baseline pilot final BV SHALL equal 192, matching pinned Java
+
+#### Scenario: Defensive ammunition caps
+
+- **GIVEN** one 32 BV AMS and four represented 11 BV ammunition bins
+- **WHEN** defensive equipment BV is computed
+- **THEN** it SHALL equal `32 + min(32, 44) = 64`
+- **AND** orphan ammunition SHALL contribute zero
+- **AND** laser AMS SHALL contribute its own BV without supporting ammunition
+
+#### Scenario: Bounded equipment and final-sum evidence
+
+- **WHEN** these terms are checked against pinned Java
+- **THEN** all 620 aerospace oracle rows SHALL be compared before and after by family
+- **AND** every farther-moving row SHALL be explained
+- **AND** unrelated breakdown fields SHALL remain identical
+- **AND** these corrections SHALL NOT establish complete aerospace BV parity
 
 #### Scenario: SI BV
 
@@ -340,6 +469,17 @@ continue through their owning calculations.
 - **WHEN** baseline-skill final BV is calculated
 - **THEN** final BV SHALL remain 280 or 600 respectively
 - **AND** Biped and Quad SHALL also use the neutral summary multiplier
+
+### Requirement: Aerospace Speed Factor
+
+Aerospace speed factor SHALL use the average of Safe and Max Thrust.
+
+#### Scenario: Speed factor calculation
+
+- **GIVEN** an ASF with safeThrust 5, maxThrust 8
+- **WHEN** speed factor is computed
+- **THEN** avgThrust SHALL equal 6.5
+- **AND** speed factor SHALL equal `round(pow(1 + (6.5 − 5) / 10, 1.2) × 100) / 100 = 1.18`
 
 ### Requirement: Vehicle Offensive BV
 

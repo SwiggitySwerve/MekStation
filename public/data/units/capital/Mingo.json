@@ -1,0 +1,165 @@
+{
+  "id": "mingo",
+  "chassis": "Mingo",
+  "model": "",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2315,
+  "tonnage": 5000,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 2,
+  "movement": {
+    "safeThrust": 3,
+    "maxThrust": 5
+  },
+  "fuel": 8571,
+  "structuralIntegrity": 8,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 45
+  },
+  "armor": {
+    "type": "PRIMITIVE_AERO",
+    "byArc": {
+      "NOSE": 92,
+      "RIGHT_SIDE": 80,
+      "LEFT_SIDE": 80,
+      "AFT": 65
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-autocannon-5",
+      "name": "(B) Autocannon/5",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-ac-5:20",
+      "name": "IS Ammo AC/5:20",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-autocannon-5",
+      "name": "(B) Autocannon/5",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-ac-5:20",
+      "name": "IS Ammo AC/5:20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-autocannon-5",
+      "name": "(R) (B) Autocannon/5",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-ac-5:20",
+      "name": "(R) IS Ammo AC/5:20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-medium-laser",
+      "name": "(R) (B) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-autocannon-5",
+      "name": "(B) Autocannon/5",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-ac-5:20",
+      "name": "IS Ammo AC/5:20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-autocannon-5",
+      "name": "(R) (B) Autocannon/5",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-ac-5:20",
+      "name": "(R) IS Ammo AC/5:20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-medium-laser",
+      "name": "(R) (B) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    }
+  ],
+  "crew": 8,
+  "escapePods": 6,
+  "lifeBoats": 0,
+  "officers": 2,
+  "gunners": 3,
+  "passengers": 10,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "crewquarters:42.0:0:-1::-1:0",
+    "1stclassquarters:20.0:0:-1::-1:0",
+    "steeragequarters:50.0:0:-1::-1:0",
+    "cargobay:2855.0:4:4::-1:0"
+  ],
+  "mulId": 7473,
+  "role": "None",
+  "source": "TtS:Valencia",
+  "fluff": {
+    "overview": "<p>The Mingo is a primitive DropShuttle designed by Boeing Interstellar during the later years of the Terran Alliance as a companion vessel for the Conestoga-class JumpShip. Built in 2315, the Mingo predates the invention of the K-F Boom and Docking Collar that would define the modern DropShip, instead relying on specialized DropShuttle bays for transit aboard its parent JumpShip. Boeing designed the Mingo to dominate the emerging market for sub-light cargo vessels larger than Small Craft that could service the needs of newly established colonies, creating a practical if unrefined workhorse for the colonization era.</p>",
+    "capabilities": "<p>The Mingo is a 5,000-ton civilian spheroid DropShuttle built to primitive construction standards reflecting the technological limitations of its era. Its cargo bays provide meaningful transport capacity for colonial supplies and raw materials, filling the gap between Small Craft and the larger vessels that would eventually succeed it. Armament consists of autocannons and medium lasers, adequate for deterring the modest pirate threats of the early colonization period but wholly insufficient against the military vessels of later centuries. Primitive armor provides basic protection consistent with the construction standards of the twenty-fourth century. The drive system, while fusion-powered, reflects early engineering that prioritized reliability over performance, providing modest acceleration typical of the period's cargo vessels. The Mingo's most significant design limitation is its reliance on DropShuttle bay docking rather than the collar system that would later become universal, a feature that ultimately sealed its obsolescence as JumpShip designs evolved to standardize on the more versatile Docking Collar technology. Fuel capacity provides excellent operational endurance for a vessel of its era, allowing extended operations in systems lacking developed infrastructure.</p>",
+    "deployment": "<p>The standard Mingo serves in its baseline cargo carrier configuration, transporting supplies and materials between the colonies of the early Terran Alliance. These ancient DropShuttles were designed to operate exclusively alongside Conestoga-class JumpShips, docking via specialized shuttle bays rather than the docking collars that would later become standard.</p>",
+    "history": "<p>The Mingo was a product of Boeing Interstellar's strategy to dominate the emerging market for colonial support vessels during the Terran Alliance's great expansion. Recognizing that new colonies needed cargo ships larger than Small Craft but compatible with the JumpShips of the era, Boeing designed the Mingo specifically as a companion to their Conestoga-class, creating an integrated transport system for colonial operations.</p><p>During its operational heyday in the twenty-fourth century, the Mingo served as a reliable if unremarkable cargo hauler, delivering the supplies and equipment that sustained humanity's spread across the stars. Boeing's market strategy proved successful, and the Mingo saw wide distribution among colonial ventures operating in the expanding sphere of human settlement.</p><p>The Mingo's obsolescence came gradually but inevitably. The invention of the K-F Boom and Docking Collar technology revolutionized interstellar logistics, and the newer DropShip designs that utilized this system offered superior versatility and compatibility with modern JumpShips. As the Conestoga-class JumpShips were retired in favor of newer designs, the Mingo lost its operational niche. By 2600, the class had been completely supplanted, with surviving examples found only in the most remote corners of the Deep Periphery where newer vessels had not yet penetrated.</p>",
+    "manufacturer": "Boeing Interstellar",
+    "primaryFactory": "Terra"
+  }
+}

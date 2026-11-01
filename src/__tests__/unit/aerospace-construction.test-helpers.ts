@@ -206,16 +206,16 @@ describe('thrustCalculations', () => {
   });
 
   describe('calculateMaxThrust', () => {
-    it('safeThrust 5 → maxThrust 7 (floor(5×1.5))', () => {
-      expect(calculateMaxThrust(5)).toBe(7);
+    it('safeThrust 5 → maxThrust 8 (ceil(5×1.5))', () => {
+      expect(calculateMaxThrust(5)).toBe(8);
     });
 
     it('safeThrust 4 → maxThrust 6', () => {
       expect(calculateMaxThrust(4)).toBe(6);
     });
 
-    it('safeThrust 7 → maxThrust 10', () => {
-      expect(calculateMaxThrust(7)).toBe(10);
+    it('safeThrust 7 → maxThrust 11', () => {
+      expect(calculateMaxThrust(7)).toBe(11);
     });
   });
 

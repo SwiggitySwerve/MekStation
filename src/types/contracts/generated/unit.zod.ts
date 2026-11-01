@@ -42,8 +42,28 @@ const SchemaDef_standardArmorType = z
     'FERRO_ALUMINUM',
     'HEAVY_FERRO_ALUMINUM',
     'PRIMITIVE_AERO',
+    'ANTI_PENETRATIVE_ABLATION',
+    'BALLISTIC_REINFORCED',
+    'BA_STANDARD_ADVANCED',
+    'BA_STANDARD_PROTOTYPE',
+    'BA_STEALTH_BASIC',
+    'ELECTRIC_DISCHARGE',
+    'FERRO_ALUMINUM_PROTO',
+    'FERRO_CARBIDE',
+    'FERRO_FIBROUS_PROTO',
+    'HEAT_DISSIPATING',
+    'IMPROVED_FERRO_ALUMINUM',
+    'LAMELLOR_FERRO_CARBIDE',
+    'LIGHT_FERRO_ALUMINUM',
+    'STANDARD_PROTOMEK',
   ])
   .describe('Armor type');
+const SchemaDef_capitalUnitType = z.enum([
+  'DropShip',
+  'JumpShip',
+  'WarShip',
+  'Space Station',
+]);
 
 export const UnitContract = z
   .union([
@@ -112,10 +132,11 @@ export const UnitContract = z
               .describe('Engine type'),
             rating: z
               .number()
-              .int()
               .gte(0)
               .lte(1000)
-              .describe('Engine rating')
+              .describe(
+                'Effective engine rating; support vehicles retain fractional tonnage times cruise MP',
+              )
               .optional(),
           })
           .strict(),
@@ -578,10 +599,11 @@ export const UnitContract = z
               .describe('Engine type'),
             rating: z
               .number()
-              .int()
               .gte(0)
               .lte(1000)
-              .describe('Engine rating')
+              .describe(
+                'Effective engine rating; support vehicles retain fractional tonnage times cruise MP',
+              )
               .optional(),
           })
           .strict()
@@ -636,7 +658,16 @@ export const UnitContract = z
           .optional(),
         armor: z
           .object({
-            type: SchemaDef_standardArmorType,
+            type: z
+              .union([
+                SchemaDef_standardArmorType,
+                z.enum([
+                  'FERRO_CARBIDE',
+                  'LAMELLOR_FERRO_CARBIDE',
+                  'IMPROVED_FERRO_ALUMINUM',
+                ]),
+              ])
+              .describe('Armor type'),
             barRating: z
               .number()
               .int()
@@ -957,19 +988,38 @@ export const UnitContract = z
       .catchall(z.any())
       .and(
         z.union([
-          z.object({ tonnage: z.number().lte(250).optional() }),
+          z.object({
+            unitType: z
+              .unknown()
+              .refine(
+                (value) => !SchemaDef_capitalUnitType.safeParse(value).success,
+                'Invalid input: Should NOT be valid against schema',
+              )
+              .optional(),
+            armor: z
+              .object({ type: SchemaDef_standardArmorType.optional() })
+              .optional(),
+            tonnage: z.number().lte(250).optional(),
+          }),
           z.object({
             unitType: z.enum(['Support Vehicle', 'SupportVehicle']),
+            armor: z
+              .object({ type: SchemaDef_standardArmorType.optional() })
+              .optional(),
             tonnage: z.number().lte(600).optional(),
           }),
           z.object({
-            unitType: z.enum([
-              'DropShip',
-              'JumpShip',
-              'WarShip',
-              'Space Station',
-            ]),
+            unitType: SchemaDef_capitalUnitType,
             tonnage: z.number().lte(2500000).optional(),
+            otherCrew: z.number().int().gte(0).optional(),
+            driveCoreType: z.number().int().gte(0).lte(4).optional(),
+            jumpRange: z.number().int().gte(0).optional(),
+            hasSail: z.boolean().optional(),
+            hasLFBattery: z.boolean().optional(),
+            hasHPG: z.boolean().optional(),
+            gravDecks: z.array(z.number().int().gte(0)).optional(),
+            dockingCollars: z.number().int().gte(0).optional(),
+            isModular: z.boolean().optional(),
           }),
         ]),
       )

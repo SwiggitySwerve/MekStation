@@ -139,7 +139,7 @@ describe('Vehicle final BV', () => {
       }),
     );
     expect(bv.pilotMultiplier).toBe(1.0);
-    expect(bv.final).toBe(Math.round(470.1));
+    expect(bv.final).toBe(Math.round(464.2));
   });
 
   it('3/4 pilot -> multiplier 1.32', () => {
@@ -154,7 +154,7 @@ describe('Vehicle final BV', () => {
       }),
     );
     expect(bv.pilotMultiplier).toBe(1.32);
-    expect(bv.final).toBe(Math.round(470.1 * 1.32));
+    expect(bv.final).toBe(Math.round(464.2 * 1.32));
   });
 
   it('breakdown contains required fields per spec', () => {

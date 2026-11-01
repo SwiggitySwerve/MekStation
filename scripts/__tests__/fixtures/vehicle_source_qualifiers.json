@@ -17,8 +17,8 @@
         "chassis": "Gulltoppr OmniMonitor",
         "model": "(A)",
         "unitType": "Vehicle",
-        "techBase": "INNER_SPHERE",
-        "rulesLevel": "STANDARD",
+        "techBase": "MIXED",
+        "rulesLevel": "EXPERIMENTAL",
         "era": "DARK_AGE",
         "year": 3102,
         "tonnage": 190,
@@ -217,8 +217,8 @@
         "chassis": "Boreas Cavalry Hovercraft",
         "model": "(Prime)",
         "unitType": "Support Vehicle",
-        "techBase": "INNER_SPHERE",
-        "rulesLevel": "STANDARD",
+        "techBase": "CLAN",
+        "rulesLevel": "UNOFFICIAL",
         "era": "SUCCESSION_WARS",
         "year": 3015,
         "tonnage": 0.75,
@@ -231,7 +231,7 @@
         },
         "engine": {
           "type": "FUEL_CELL",
-          "rating": 10
+          "rating": 10.5
         },
         "armor": {
           "type": "BAR",
@@ -394,7 +394,7 @@
         },
         "engine": {
           "type": "FUSION",
-          "rating": 335
+          "rating": 336
         },
         "armor": {
           "type": "BAR",
@@ -482,8 +482,8 @@
         "chassis": "Thor Artillery Vehicle",
         "model": "(Clan)",
         "unitType": "Vehicle",
-        "techBase": "INNER_SPHERE",
-        "rulesLevel": "UNOFFICIAL",
+        "techBase": "CLAN",
+        "rulesLevel": "EXPERIMENTAL",
         "era": "SUCCESSION_WARS",
         "year": 2870,
         "tonnage": 55,
@@ -599,7 +599,7 @@
         },
         "engine": {
           "type": "ICE",
-          "rating": 0
+          "rating": 2
         },
         "armor": {
           "type": "BAR",
