@@ -1,3 +1,4 @@
+import { VehicleOnlyEngineType } from '@/types/construction/EngineType';
 import {
   VehicleLocation,
   VTOLLocation,
@@ -62,6 +63,7 @@ export function setCruiseMPLogic(
       cruiseMP,
       state.motionType,
       state.unitType === UnitType.SUPPORT_VEHICLE,
+      state.engineType === VehicleOnlyEngineType.NONE,
     ),
     isModified: true,
     lastModifiedAt: Date.now(),
@@ -72,13 +74,18 @@ export function setTonnageLogic(
   state: VehicleStore,
   tonnage: number,
 ): Partial<VehicleStore> {
+  const engineLess = state.engineType === VehicleOnlyEngineType.NONE;
   const newEngineRating = computeStoredVehicleEngineRating(
     tonnage,
     state.cruiseMP,
     state.motionType,
     state.unitType === UnitType.SUPPORT_VEHICLE,
+    engineLess,
   );
-  const clampedRating = Math.max(10, Math.min(400, newEngineRating));
+  const clampedRating =
+    engineLess && newEngineRating === 0
+      ? 0
+      : Math.max(10, Math.min(400, newEngineRating));
 
   return {
     tonnage,
@@ -116,6 +123,7 @@ export function setMotionTypeLogic(
       state.cruiseMP,
       motionType,
       state.unitType === UnitType.SUPPORT_VEHICLE,
+      state.engineType === VehicleOnlyEngineType.NONE,
     ),
     unitType:
       state.unitType === UnitType.SUPPORT_VEHICLE ? state.unitType : unitType,

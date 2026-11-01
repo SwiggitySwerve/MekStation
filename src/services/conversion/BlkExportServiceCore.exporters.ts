@@ -4,7 +4,10 @@ import type { InfantryState } from '@/stores/infantryState';
 import type { ProtoMechState } from '@/stores/protoMechState';
 import type { VehicleState } from '@/stores/vehicleState';
 
-import { EngineType } from '@/types/construction/EngineType';
+import {
+  EngineType,
+  type VehicleEngineType,
+} from '@/types/construction/EngineType';
 import {
   ProtoMechLocation,
   VehicleLocation,
@@ -47,7 +50,7 @@ function getVehicleUnitTypeString(unit: VehicleState): string {
   return 'Tank';
 }
 
-function writeEngineTags(lines: string[], engineType: EngineType): void {
+function writeEngineTags(lines: string[], engineType: VehicleEngineType): void {
   lines.push(tag('engine_type', formatEngineTypeCode(engineType)));
   if (engineType === EngineType.XL_IS || engineType === EngineType.XL_CLAN) {
     lines.push(tag('clan_engine', String(engineType === EngineType.XL_CLAN)));
@@ -125,9 +128,12 @@ export function exportAerospace(unit: AerospaceState): IBlkExportResult {
     lines.push(
       tag(
         'UnitType',
-        unit.unitType === UnitType.CONVENTIONAL_FIGHTER
-          ? 'ConvFighter'
-          : 'Aero',
+        // BLKFile.java:768-771 tests FixedWingSupport before ConvFighter.
+        unit.isFixedWingSupport
+          ? 'FixedWingSupport'
+          : unit.unitType === UnitType.CONVENTIONAL_FIGHTER
+            ? 'ConvFighter'
+            : 'Aero',
       ),
     );
     lines.push(tag('Name', unit.chassis));
