@@ -62,6 +62,16 @@ class VehicleLocationsTest(unittest.TestCase):
         self.assertEqual(list(self.convert('SupportTank', 'Tracked', 150, 6)['armor']['byLocation']), standard)
         self.assertEqual(list(self.convert('LargeSupportTank', 'Hover', 40, 8)['armor']['byLocation']), six_side)
 
+    def test_hydrofoil_source_type_uses_the_tank_layout(self):
+        # MekFileParser.java:233 loads UnitType Tank, Naval, Surface and Hydrofoil through
+        # BLKTankFile, so a Hydrofoil source converts with the Tank layout instead of failing.
+        for count, keys in ((4, ['FRONT', 'RIGHT', 'LEFT', 'REAR']),
+                            (5, ['FRONT', 'RIGHT', 'LEFT', 'REAR', 'TURRET'])):
+            with self.subTest(count=count):
+                unit = self.convert('Hydrofoil', 'Hydrofoil', 50, count, '<cruiseMP>5</cruiseMP>\n')
+                self.assertEqual(unit['armor']['byLocation'], dict(zip(keys, range(1, count + 1))))
+                self.assertEqual(validate_unit(unit), [])
+
     def test_loader_array_lengths_are_rejected_instead_of_truncated(self):
         for unit_type, motion, tons, minimum, maximum in (
             ('Tank', 'Tracked', 50, 4, 6), ('Tank', 'Hover', 51, 6, 8),

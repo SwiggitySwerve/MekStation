@@ -200,7 +200,10 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
 
     # Build per-location armor dict
     try:
-        armor_by_location = resolve_vehicle_armor(unit_type_raw, motion_raw, tonnage, armor_values)
+        # MekFileParser.java:233 loads Hydrofoil (like Tank, Naval and Surface) through
+        # BLKTankFile, so it takes the Tank layout; the resolver mirrors the TS owner.
+        layout_type = "Tank" if unit_type_raw == "Hydrofoil" else unit_type_raw
+        armor_by_location = resolve_vehicle_armor(layout_type, motion_raw, tonnage, armor_values)
     except ValueError as exc:
         raise ValueError(f"{blk_path}: {exc}") from exc
 
