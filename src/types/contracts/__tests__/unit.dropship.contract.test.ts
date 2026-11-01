@@ -75,7 +75,9 @@ describe('converter DropShip output against UnitContract', () => {
 });
 
 it.each(['FERRO_CARBIDE', 'LAMELLOR_FERRO_CARBIDE', 'IMPROVED_FERRO_ALUMINUM'])(
-  'scopes %s to capital units',
+  // #2478 decodes the exact EquipmentType table for every BLK family; MegaMek's
+  // loaders accept any armor code, and legality belongs to construction checks.
+  'accepts %s on capital and other BLK families',
   (type) => {
     for (const unitType of [
       'DropShip',
@@ -105,7 +107,7 @@ it.each(['FERRO_CARBIDE', 'LAMELLOR_FERRO_CARBIDE', 'IMPROVED_FERRO_ALUMINUM'])(
           tonnage: 100,
           armor: { type, byArc: { NOSE: 1 } },
         }).success,
-      ).toBe(false);
+      ).toBe(true);
     }
   },
 );

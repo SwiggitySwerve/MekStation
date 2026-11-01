@@ -34,12 +34,15 @@ class ExtendedCapitalTest(unittest.TestCase):
         for fixture in FIXTURES.values():
             self.assertEqual((pin / fixture['source']).read_text(encoding='utf-8'), fixture['content'])
 
-    def test_new_armor_types_stay_capital_only(self):
-        for family in ('Vehicle', 'Support Vehicle', 'Aerospace', 'Small Craft'):
+    def test_capital_armor_types_load_for_every_blk_family(self):
+        # #2478 decodes the exact EquipmentType table for every BLK family:
+        # MegaMek's loaders accept any armor code (EquipmentType.java:85-136),
+        # and construction legality belongs to TestEntity, not the source schema.
+        for family in ('Vehicle', 'Support Vehicle', 'Aerospace', 'Small Craft', 'WarShip'):
             valid = {'id': 'scope', 'unitType': family, 'tonnage': 100, 'armor': {'type': 'STANDARD', 'byArc': {'NOSE': 1}}}
             self.assertEqual(validate_unit(valid), [])
             for armor in ('FERRO_CARBIDE', 'LAMELLOR_FERRO_CARBIDE', 'IMPROVED_FERRO_ALUMINUM'):
-                self.assertTrue(validate_unit({**valid, 'armor': {**valid['armor'], 'type': armor}}))
+                self.assertEqual(validate_unit({**valid, 'armor': {**valid['armor'], 'type': armor}}), [])
 
     def test_pinned_families_convert_and_validate(self):
         for name, family in [('comitatus', 'JumpShip'), ('liberty', 'JumpShip'),

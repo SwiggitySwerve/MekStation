@@ -18,7 +18,7 @@ Regression coverage: `scripts/__tests__/test_blk_aerospace_si.py`.
 
 After family recognition, missing identity, year, tonnage or type is an error.
 `validate_blk_tech_type` accepts the source spellings in `BLKFile.java:664-740`.
-It validates membership; existing technology-to-output mappings are unchanged.
+It validates membership in the shared BLK type table.
 The shared motion owner is `blk_aerospace_tables.map_aerospace_motion`:
 case-insensitive spheroid, otherwise aerodyne (`BLKDropshipFile.java:119-126`).
 
@@ -65,3 +65,43 @@ and construction weights remain outside this serialized source-fact slice.
 Authority: MegaMek 48fcb2f6 BLKJumpshipFile, BLKWarshipFile,
 BLKSpaceStationFile and Jumpship/Warship/SpaceStation constructors.
 Regression coverage: `test_blk_capital_extended.py` and pinned BLK fixtures.
+
+## Vehicle and aerospace type and armor fidelity
+
+`blk_common.py` owns `BLK_TECH_TYPES`, `map_blk_tech_type`, and
+`BLK_ARMOR_CODE_MAP`. The vehicle and aerospace tables re-export the same armor
+table. Their converters use these BLK mappings instead of MTF aliases.
+
+`BLKFile.java:669-735` at the pin above maps levels 1/2/3/4/5 to
+Introductory/Standard/Advanced/Experimental/Unofficial (Clan starts at 2).
+Bare `IS` is Introductory only for year 3025. Mixed chassis spellings retain
+`MIXED` and use their explicit suffix for rules level. Unknown or empty type
+text raises `ValueError`. Existing omitted-type policies remain with the callers
+(vehicle: IS Level 1; aerospace: IS Level 2); required-tag policy is unchanged.
+
+`EquipmentType.java:85-136` defines armor codes 0..51. In particular, 16 is
+ferro-lamellor, 19/20/21 are ferro-aluminum variants, 22 is vehicle stealth,
+26 is ballistic-reinforced, 27 is prototype ferro-aluminum, and 40 is primitive
+aerospace. Codes 31..38 are battle armor, not Clan or industrial variants.
+Armor technology remains separate from these codes. Strict decoding rejects
+unknown, empty, malformed, and fractional codes; omitted armor retains STANDARD.
+`typeByArc` preserves raw codes, including the unused fuselage's -1 sentinel;
+`BLKAeroSpaceFighterFile.java:160-164` skips that last location. BAR rating
+policies remain in `bar_armor_fields` and are unchanged.
+
+Bomb bay identity follows `MiscType.java:12413-12419` and
+`EquipmentTypeLookup.LAM_BOMB_BAY`: the registered name is `Bomb Bay`, with
+case-insensitive lookup (`EquipmentType.java:880`). Count those equipment items;
+Bombast Lasers and bomb weapons are not bays. Java's loaders do not read the
+invented `bombcount`/`bombs` tags, so these do not create bays or capacity.
+
+Small craft preserve `Hull Equipment` as location `HULL`:
+`SmallCraft.java:75-78` names that location and `BLKSmallCraftFile.java:190-192`
+loads equipment for every location. The six pinned craft contain 11 explicit
+Hull entries. Side armor order is owned by follow-up 30 and is unchanged here.
+
+Regression coverage: `test_blk_converter_fidelity.py`, including 21 pinned
+source texts and synthetic boundary mutations of them. The unit schema owns
+serialized enum values; generated Zod is refreshed through `npm run schema:gen`.
+MTF aliases and the BA/ProtoMek converters retain their existing policies; capital
+armor keeps its separate loader-specific standard-to-aerospace rewrite.

@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from typing import Dict
 
+# The shared table retains #2474's native vehicle-stealth code 22 -> STEALTH.
+from blk_common import BLK_ARMOR_CODE_MAP as ARMOR_CODE_MAP
+
 AEROSPACE_UNIT_TYPES = {
     "Aero", "AeroSpaceFighter",
     "ConvFighter", "FixedWingSupport",
@@ -60,20 +63,7 @@ SC_LOCATION_MAP: Dict[str, str] = {
     "Aft Equipment": "AFT",
     "Fuselage Equipment": "FUSELAGE",
     "Body Equipment": "FUSELAGE",
-}
-
-# EquipmentType.java:85-126 at 48fcb2f6, using armor names present in the schema.
-# Prototype/light ferro-aluminum (27/21) have no schema name; keep the existing
-# unknown-code fallback rather than misclassifying them as production armor.
-ARMOR_CODE_MAP: Dict[int, str] = {
-    **LARGE_CRAFT_ARMOR_CODE_MAP,
-    0: "STANDARD", 1: "FERRO_FIBROUS", 2: "REACTIVE", 3: "REFLECTIVE",
-    4: "HARDENED", 5: "LIGHT_FERRO_FIBROUS", 6: "HEAVY_FERRO_FIBROUS",
-    7: "PATCHWORK",
-    # Both native stealth codes share the contract's STEALTH identity.
-    8: "STEALTH", 10: "COMMERCIAL", 14: "INDUSTRIAL", 15: "HEAVY_INDUSTRIAL",
-    16: "FERRO_LAMELLOR", 17: "PRIMITIVE", 22: "STEALTH",
-    25: "IMPACT_RESISTANT", 39: "PRIMITIVE",
+    "Hull Equipment": "HULL",
 }
 
 # BLKSmallCraftFile.java:154-161 also normalizes missing/zero codes to aerospace.

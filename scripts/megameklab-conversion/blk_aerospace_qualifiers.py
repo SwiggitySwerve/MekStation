@@ -21,11 +21,16 @@ def parse_aerospace_armor(tags: Dict[str, Any], reads_bar_rating: bool = True) -
     """Keep armor classification separate from original per-arc source codes."""
     code = parse_qualifier_number(tags, 'armor_type', integer=True) if 'armor_type' in tags else 0
     armor_map = SC_ARMOR_CODE_MAP if get_string(tags, 'UnitType') in SC_TYPES else ARMOR_CODE_MAP
-    result: Dict[str, Any] = {'type': map_armor_code(code, armor_map), **bar_armor_fields(tags, code, reads_bar_rating)}
+    result: Dict[str, Any] = {'type': map_armor_code(code, armor_map, strict=True), **bar_armor_fields(tags, code, reads_bar_rating)}
     type_by_arc = {
         tag[:-11].upper().replace(' ', '_'): parse_qualifier_number(tags, tag, integer=True)
         for tag in tags if tag.endswith('_armor_type')
     }
     if type_by_arc:
+        # BLKAeroSpaceFighterFile.java:160-164 excludes the unarmored fuselage;
+        # its raw -1 sentinel is preserved, not decoded as a usable armor type.
+        for arc, arc_code in type_by_arc.items():
+            if arc != 'FUSELAGE':
+                map_armor_code(arc_code, ARMOR_CODE_MAP, strict=True)
         result['typeByArc'] = type_by_arc
     return result
