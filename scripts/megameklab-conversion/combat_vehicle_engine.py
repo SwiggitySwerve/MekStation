@@ -1,13 +1,20 @@
-"""Combat-vehicle engine rules; table facts are owned by construction/vehicle.
+"""Vehicle engine adapters; table facts are owned by construction/vehicle.
 
 Source: MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
-Tank.java:1678-1773 and BLKTankFile.java:155-162. Not support construction.
+Tank.java:1678-1773 and BLKTankFile.java:155-162 cover combat ratings.
+Support ratings mirror the supplied Java oracle's Engine.getRating(Entity).
 """
 import json
 import math
 from pathlib import Path
 
 _TABLE = json.loads((Path(__file__).resolve().parents[2] / 'src/utils/construction/vehicle/suspension.json').read_text(encoding='utf-8-sig'))
+_SUPPORT = json.loads((Path(__file__).resolve().parents[2] / 'src/utils/construction/vehicle/supportEngine.json').read_text(encoding='utf-8-sig'))
+
+
+def support_engine_rating(tonnage: float, cruise_mp: int) -> float:
+    """Adapter for engine.ts: effective owner-aware rating, not stored zero."""
+    return min(_SUPPORT['maxRating'], tonnage * cruise_mp)
 
 
 def suspension_factor(tonnage: float, motion_type: str) -> int:

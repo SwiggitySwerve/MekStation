@@ -23,6 +23,7 @@ import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import { getBaseEngineWeight } from '../engineCalculations';
+import supportEngine from './supportEngine.json';
 import suspensionTable from './suspension.json';
 
 // Maximum engine rating for combat vehicles (TechManual rule)
@@ -114,7 +115,7 @@ export function computeEngineRating(
   return Math.ceil(Math.max(10, required) / 5) * 5;
 }
 
-/** Legacy support derivation is retained, not a support construction claim. */
+/** Effective support rating: Java Engine.getRating(Entity), not stored sentinel 0. */
 export function computeStoredVehicleEngineRating(
   tonnage: number,
   cruiseMP: number,
@@ -123,7 +124,7 @@ export function computeStoredVehicleEngineRating(
   engineLess = false,
 ): number {
   return supportVehicle
-    ? tonnage * cruiseMP
+    ? Math.min(supportEngine.maxRating, tonnage * cruiseMP)
     : computeEngineRating(tonnage, cruiseMP, motionType, engineLess);
 }
 

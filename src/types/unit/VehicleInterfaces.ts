@@ -200,6 +200,9 @@ export interface ISupportVehicle extends IGroundUnit {
   readonly internalStructureType?: number;
   readonly unitType: UnitType.SUPPORT_VEHICLE;
 
+  /** Installed primary turret, including dual and support-VTOL chin types. */
+  readonly turret?: ITurretConfiguration;
+
   /** Motion type */
   readonly motionType: GroundMotionType;
 
