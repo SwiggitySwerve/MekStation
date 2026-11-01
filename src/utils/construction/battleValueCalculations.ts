@@ -31,6 +31,11 @@ import {
   isAerospaceUnitType as _isAerospaceUnitType,
   type IAerospaceBVBreakdown,
 } from './aerospace/aerospaceBV';
+import {
+  calculateDropShipDefensiveBV,
+  type IDropShipBVUnit,
+  type IDropShipDefensiveBVBreakdown,
+} from './aerospace/dropShipBV';
 import { calculateInfantryBVFromUnit as _calculateInfantryBVFromUnit } from './infantry/infantryBVAdapter';
 import {
   calculateProtoMechBV as _calculateProtoMechBV,
@@ -161,6 +166,11 @@ export {
   getAerospacePilotMultiplier,
   isAerospaceUnitType,
 } from './aerospace/aerospaceBV';
+export { calculateDropShipDefensiveBV } from './aerospace/dropShipBV';
+export type {
+  IDropShipBVUnit,
+  IDropShipDefensiveBVBreakdown,
+} from './aerospace/dropShipBV';
 export type {
   IAerospaceBVBreakdown,
   IAerospaceBVInput,
@@ -200,6 +210,10 @@ export interface IUnitBVOptions extends IProtoMechBVOptions {
  */
 export type UnitBVResult =
   | {
+      readonly kind: 'dropship';
+      readonly breakdown: IDropShipDefensiveBVBreakdown;
+    }
+  | {
       readonly kind: 'protomech';
       readonly breakdown: IProtoMechBVBreakdown;
     }
@@ -238,6 +252,10 @@ type AerospaceDispatchUnit =
  * @param options Optional per-type overrides (skill, etc.).
  */
 export function calculateBattleValueForUnit(
+  unit: IDropShipBVUnit,
+  options?: IUnitBVOptions,
+): UnitBVResult;
+export function calculateBattleValueForUnit(
   unit: IProtoMechUnit,
   options?: IUnitBVOptions,
 ): UnitBVResult;
@@ -259,6 +277,7 @@ export function calculateBattleValueForUnit(
     | IProtoMechUnit
     | IInfantry
     | IVehicleUnit
+    | IDropShipBVUnit
     | AerospaceDispatchUnit,
   options?: IUnitBVOptions,
 ): UnitBVResult | undefined;
@@ -268,9 +287,17 @@ export function calculateBattleValueForUnit(
     | IProtoMechUnit
     | IInfantry
     | IVehicleUnit
+    | IDropShipBVUnit
     | AerospaceDispatchUnit,
   options?: IUnitBVOptions,
 ): UnitBVResult | undefined {
+  // DropShip defense is available; offensive and final BV remain undefined.
+  if (unit?.unitType === UnitType.DROPSHIP) {
+    return {
+      kind: 'dropship',
+      breakdown: calculateDropShipDefensiveBV(unit as IDropShipBVUnit),
+    };
+  }
   if (unit && (unit as IProtoMechUnit).unitType === UnitType.PROTOMECH) {
     const breakdown = _calculateProtoMechBV(
       unit as IProtoMechUnit,

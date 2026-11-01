@@ -3,12 +3,14 @@ import type {
   IAerospaceBVBreakdown,
   IAerospaceBVEquipment,
   IAerospaceBVInput,
+  IAerospaceDefensiveBVInput,
 } from './aerospaceBVTypes';
 
 import {
   AerospaceArc,
   AerospaceSubType,
 } from '../../../types/unit/AerospaceInterfaces';
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import {
   getArmorBVMultiplier,
   getPilotSkillModifier,
@@ -31,7 +33,9 @@ import { calculateMountedAerospaceDefensiveBV } from './aerospaceBVEquipment';
  * empty. Its separate aircraft type modifier scales the complete pool first.
  * @spec establish-all-unit-data-parity: Aerospace Defensive BV
  */
-export function calculateAerospaceDefensiveBV(input: IAerospaceBVInput): {
+export function calculateAerospaceDefensiveBV(
+  input: IAerospaceBVInput | IAerospaceDefensiveBVInput,
+): {
   armorBV: number;
   siBV: number;
   defensiveEquipmentBV: number;
@@ -52,13 +56,16 @@ export function calculateAerospaceDefensiveBV(input: IAerospaceBVInput): {
   const defensiveEquipmentBV =
     (input.defensiveEquipmentBV ?? 0) +
     calculateMountedAerospaceDefensiveBV(input.equipment);
-  const explosivePenalties = input.explosivePenalties ?? 0;
+  // LargeAeroBVCalculator.processExplosiveEquipment is empty (no minimum).
+  const explosivePenalties =
+    input.subType === UnitType.DROPSHIP ? 0 : (input.explosivePenalties ?? 0);
 
   // AeroBVCalculator.java:118-134; support classification precedes ConvFighter.
   let typeModifier = 1.2;
   if (
     input.isSupportVehicle ||
-    input.subType === AerospaceSubType.SMALL_CRAFT
+    input.subType === AerospaceSubType.SMALL_CRAFT ||
+    input.subType === UnitType.DROPSHIP
   ) {
     typeModifier = 1;
   } else if (input.subType === AerospaceSubType.CONVENTIONAL_FIGHTER) {

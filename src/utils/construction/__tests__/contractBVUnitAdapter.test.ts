@@ -389,7 +389,7 @@ describe('contractUnitToBVUnit (aerospace)', () => {
 
   it('rejects unit types it does not adapt', () => {
     expect(() =>
-      contractUnitToBVUnit(fighter({ unitType: 'DropShip' })),
+      contractUnitToBVUnit(fighter({ unitType: 'JumpShip' })),
     ).toThrow();
   });
 });
