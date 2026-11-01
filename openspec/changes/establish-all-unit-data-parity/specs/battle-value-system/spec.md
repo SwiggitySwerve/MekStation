@@ -268,6 +268,12 @@ remain available and equal 1 for these turret kinds.
 - **WHEN** offensive BV is computed without other weapon modifiers
 - **THEN** the turret weapons SHALL contribute 100 BV before the speed factor
 
+#### Scenario: Rear-arc weapon penalty
+
+- **GIVEN** a combat vehicle with a rear-mounted AC/10 (no turret)
+- **WHEN** offensive BV is computed
+- **THEN** the rear-only weapon BV SHALL be multiplied by 0.5
+
 #### Scenario: Turret weapons avoid the rear penalty
 
 - **GIVEN** a turret-mounted weapon also carrying a rear-mounted flag
