@@ -20,7 +20,7 @@ to distinguish full/limited/SV equipment, so only identified mounts add BV.
 
 `vehicleBV.defenseParity.test.ts` enforces every motion base, mounted bonuses,
 support exclusion and store/contract transport. Tamerlane's defense with the
-corrected TMM factor is 163.8, versus Java 141.75: structure still differs. Armor/BAR,
+corrected structure and TMM factor is 141.75, equal to Java. Armor/BAR,
 structure, equipment partitioning, explosive penalties and all offensive
 rules remain separate terms; this correction does not establish whole-unit parity.
 
@@ -57,6 +57,32 @@ effective-MP/submarine override, unconditional VTOL running bonus and shared
 positive-only jump guard (including NaN rejection). Its facade exports and the
 shared construction, validation and gameplay entry points remain unchanged.
 `battleValueMovement.test.ts` pins those contracts independently of defensive BV.
+
+## Structure BV
+
+`structure.ts:computeVehicleBVStructurePoints` owns installed-location internals
+for BV. Each non-body location has `ceil(tonnage / 10)` points: four hull
+locations for Tank, six for SuperHeavyTank/LargeSupportTank, plus installed
+turrets and a VTOL rotor. Zero armor does not remove a location. Handlers and
+the contract adapter preserve the source layout before fixed-key armor maps
+add placeholder locations; legacy inputs fall back to chassis/turret metadata.
+The construction weight/maximum-armor table has a separate contract.
+
+`vehicleStructureBVType` transports numeric structure codes to the existing
+shared `getStructureBVMultiplier` table: industrial/composite 0.5, reinforced
+2, otherwise 1. `vehicleBVDefensive.ts` multiplies total points by 1.5 and this
+multiplier, adding 0.2 to the multiplier for installed Blue Shield. Construction
+inputs describe working equipment; runtime damage is outside this contract.
+
+Pinned MegaMek sources: `Tank.java:537-542,1607-1616`,
+`SuperHeavyTank.java:333-338`, `VTOL.java:734-736`, `Entity.java:4724-4732`,
+and `BVCalculator.java:492-512` at the pin above. CombatVehicleBVCalculator
+inherits processStructure. `vehicleBV.structureParity.test.ts` enforces
+Tamerlane's 15 structure BV and 141.75 defense, installed layouts, fractional
+tonnage, source types, store fallback and Blue Shield. The 1,419-row comparison
+checks Java internals and structure BV, equality of every unrelated output,
+and explains each total moving farther from Java. Whole-unit parity remains
+separate.
 
 ## Turret armor lifecycle
 

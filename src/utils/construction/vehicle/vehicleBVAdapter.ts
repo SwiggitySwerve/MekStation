@@ -20,7 +20,10 @@ import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType, isSupportVehicle } from '@/types/unit/VehicleInterfaces';
 
 import { computeFlankMP } from './engine';
-import { computeVehicleStructurePoints } from './structure';
+import {
+  computeVehicleBVStructurePoints,
+  vehicleStructureBVType,
+} from './structure';
 import {
   calculateVehicleBV,
   type IVehicleBVBreakdown,
@@ -125,14 +128,6 @@ function sumArmorAllocation(
   );
 }
 
-/**
- * Sum structure points per location into a single total.
- */
-function sumStructurePoints(tonnage: number): number {
-  const sp = computeVehicleStructurePoints(tonnage);
-  return sp.front + sp.left + sp.right + sp.rear + sp.turret + sp.rotor;
-}
-
 // -----------------------------------------------------------------------------
 // Store-state subset for BV computation
 // -----------------------------------------------------------------------------
@@ -165,7 +160,13 @@ export interface VehicleBVStateSubset {
 export function toVehicleBVInput(state: VehicleBVStateSubset): VehicleBVInput {
   const flankMP = computeFlankMP(state.cruiseMP);
   const totalArmorPoints = sumArmorAllocation(state.armorAllocation);
-  const totalStructurePoints = sumStructurePoints(state.tonnage);
+  const totalStructurePoints = computeVehicleBVStructurePoints({
+    tonnage: state.tonnage,
+    motionType: state.motionType,
+    isSupportVehicle: state.unitType === UnitType.SUPPORT_VEHICLE,
+    turretKind: toTurretConfig(state.turret?.type)?.kind,
+    secondaryTurretKind: toTurretConfig(state.secondaryTurret?.type)?.kind,
+  });
 
   const weapons: VehicleWeaponMount[] = [];
   const ammo: VehicleBVInput['ammo'] = [];
@@ -285,7 +286,6 @@ export function toVehicleBVInputFromUnit(
   const armorByLocation = (unit as { armorByLocation?: Record<string, number> })
     .armorByLocation;
   const totalArmorPoints = sumUnitArmor(armorByLocation, unit.totalArmorPoints);
-  const totalStructurePoints = sumStructurePoints(unit.tonnage);
 
   // BAR rating is only meaningful for support vehicles. Combat vehicles and
   // VTOLs pass `null` so the calculator skips BAR scaling.
@@ -327,6 +327,14 @@ export function toVehicleBVInputFromUnit(
   const turret =
     toTurretConfig(primaryTurret?.type) ?? toTurretConfig(chinTurret?.type);
   const secondaryTurret = toTurretConfig(secondary?.type);
+  const totalStructurePoints = computeVehicleBVStructurePoints({
+    tonnage: unit.tonnage,
+    motionType: unit.motionType,
+    isSupportVehicle: isSupportVehicle(unit),
+    structureLocations: unit.structureLocations,
+    turretKind: turret?.kind,
+    secondaryTurretKind: secondaryTurret?.kind,
+  });
 
   return {
     motionType: unit.motionType as GroundMotionType,
@@ -349,7 +357,7 @@ export function toVehicleBVInputFromUnit(
     totalArmorPoints,
     totalStructurePoints,
     armorType: undefined,
-    structureType: undefined,
+    structureType: vehicleStructureBVType(unit.internalStructureType),
     barRating,
     weapons,
     ammo,
