@@ -1,0 +1,62 @@
+{
+  "id": "hover-tank",
+  "chassis": "Hover Tank",
+  "model": "",
+  "unitType": "Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "INTRODUCTORY",
+  "era": "SUCCESSION_WARS",
+  "year": 2910,
+  "tonnage": 50,
+  "weightClass": "HEAVY",
+  "motionType": "Hover",
+  "movement": {
+    "cruiseMP": 9,
+    "flankMP": 14,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "FUSION",
+    "rating": 215
+  },
+  "armor": {
+    "type": "STANDARD",
+    "byLocation": {
+      "FRONT": 24,
+      "RIGHT": 16,
+      "LEFT": 16,
+      "REAR": 16,
+      "TURRET": 16
+    }
+  },
+  "equipment": [
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "TURRET"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "TURRET"
+    },
+    {
+      "id": "is-ammo-srm-6",
+      "name": "IS Ammo SRM-6",
+      "location": "BODY"
+    },
+    {
+      "id": "is-ammo-srm-6",
+      "name": "IS Ammo SRM-6",
+      "location": "BODY"
+    }
+  ],
+  "armorTechRating": 0,
+  "transporters": [
+    "troopspace:4.5"
+  ],
+  "source": "TR:3025",
+  "fluff": {
+    "overview": "<p>No current information available for this unit.</p>"
+  }
+}

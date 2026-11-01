@@ -1,4 +1,3 @@
-import { getTankMaxTonnage } from '@/services/construction/constructionConstants';
 /**
  * Vehicle Unit Handler
  *
@@ -7,6 +6,7 @@ import { getTankMaxTonnage } from '@/services/construction/constructionConstants
  *
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.2
  */
+import { getTankMaxTonnage } from '@/services/construction/constructionConstants';
 import {
   blkEngineName,
   decodeBlkConstructionEngine,

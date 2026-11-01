@@ -1,0 +1,123 @@
+{
+  "id": "ajax-assault-tank-c",
+  "chassis": "Ajax Assault Tank",
+  "model": "C",
+  "unitType": "Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CIVIL_WAR",
+  "year": 3068,
+  "tonnage": 90,
+  "weightClass": "ASSAULT",
+  "motionType": "Tracked",
+  "movement": {
+    "cruiseMP": 3,
+    "flankMP": 5,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "XL",
+    "rating": 270
+  },
+  "armor": {
+    "type": "STANDARD",
+    "byLocation": {
+      "FRONT": 76,
+      "RIGHT": 60,
+      "LEFT": 60,
+      "REAR": 40,
+      "TURRET": 68
+    }
+  },
+  "equipment": [
+    {
+      "id": "isstreaksrm6:omni",
+      "name": "ISStreakSRM6:OMNI",
+      "location": "FRONT"
+    },
+    {
+      "id": "isstreaksrm6:omni",
+      "name": "ISStreakSRM6:OMNI",
+      "location": "FRONT"
+    },
+    {
+      "id": "isstreaksrm6:omni",
+      "name": "ISStreakSRM6:OMNI",
+      "location": "FRONT"
+    },
+    {
+      "id": "mrm-40:omni",
+      "name": "MRM 40:OMNI",
+      "location": "FRONT"
+    },
+    {
+      "id": "ppc:omni",
+      "name": "PPC:OMNI",
+      "location": "TURRET"
+    },
+    {
+      "id": "isstreaksrm6:omni",
+      "name": "ISStreakSRM6:OMNI",
+      "location": "TURRET"
+    },
+    {
+      "id": "iscase",
+      "name": "ISCASE",
+      "location": "BODY"
+    },
+    {
+      "id": "istargeting-computer:omni",
+      "name": "ISTargeting Computer:OMNI",
+      "location": "BODY"
+    },
+    {
+      "id": "isguardianecmsuite:omni",
+      "name": "ISGuardianECMSuite:OMNI",
+      "location": "BODY"
+    },
+    {
+      "id": "is-streak-srm-6-ammo:omni",
+      "name": "IS Streak SRM 6 Ammo:OMNI",
+      "location": "BODY"
+    },
+    {
+      "id": "is-streak-srm-6-ammo:omni",
+      "name": "IS Streak SRM 6 Ammo:OMNI",
+      "location": "BODY"
+    },
+    {
+      "id": "is-mrm-40-ammo:omni",
+      "name": "IS MRM 40 Ammo:OMNI",
+      "location": "BODY"
+    },
+    {
+      "id": "is-mrm-40-ammo:omni",
+      "name": "IS MRM 40 Ammo:OMNI",
+      "location": "BODY"
+    }
+  ],
+  "isOmni": true,
+  "baseChassisTurretWeight": 3.5,
+  "armorTechRating": 0,
+  "transporters": [
+    "BattleArmorHandles - troopers:-1"
+  ],
+  "mulId": 5740,
+  "role": "Juggernaut",
+  "source": "TR:3067",
+  "fluff": {
+    "overview": "<p>The Ajax Assault Tank is a ninety-ton tracked OmniVehicle developed by General Motors as a successor to its popular Challenger X main battle tank. Introduced in 3065 during the turbulent FedCom Civil War era, the Ajax was designed to capitalize on the growing demand for flexible conventional military vehicles within the Armed Forces of the Federated Commonwealth. Drawing on the proven success of Star Corps' Manteuffel Attack Tank, GM's engineers chose the OmniVehicle concept to give commanders the ability to rapidly reconfigure their heaviest armor assets for shifting battlefield requirements. Produced at GM facilities on Kathil and Salem as well as the joint GM/Blackwell Industries plant on New Valencia, the Ajax quickly earned a reputation as one of the most formidable assault tanks in the Inner Sphere. Its combination of heavy protection, substantial pod space, and network-capable electronics made it a cornerstone of Federated Suns armored formations for decades.</p>",
+    "capabilities": "<p>The Ajax rides on a GM 270 XL fusion engine, providing a top speed of 54 km/h. While this makes the tank relatively slow for its weight class, the space savings from the extralight powerplant allow it to carry an impressive nineteen tons of ArcShield Maxi II armor, giving it protection rivaling many assault BattleMechs. The chassis provides forty-two tons of pod space, with a maximum of thirty-five tons mountable in the turret.</p><p>In its Prime configuration, the Ajax pairs a Gauss rifle with an Ultra Autocannon/10, both turret-mounted, supported by twin medium pulse lasers and a Streak SRM-4 launcher. A C3 slave unit ties the tank into battlefield networks, significantly improving fire accuracy when operating alongside equipped lancemates. The turret mounting of all primary weapons gives the crew full 360-degree engagement capability regardless of the hull's facing.</p><p>The Ajax's primary weakness is its limited speed, which leaves it vulnerable to flanking by faster units. The reliance on an XL engine also means that critical engine hits can prove catastrophic, a tradeoff accepted in exchange for the vehicle's exceptional armor and firepower capacity.</p>",
+    "deployment": "<p>Introduced during the opening stages of the Jihad in 3068, the C configuration emphasizes close-range lethality. A targeting computer enhances its turret-mounted PPC, while four Streak SRM launchers and a bow-mounted MRM launcher deliver punishing short-range salvos. A Guardian ECM suite rounds out the electronics package.</p>",
+    "history": "<p>The Ajax entered service in 3065, arriving at a key moment during the FedCom Civil War. General Motors developed the design following the success of its Challenger X main battle tank, recognizing that the OmniVehicle concept pioneered by Star Corps' Manteuffel could be applied to heavier platforms. Production was established across three Federated Suns worlds, with General Motors facilities on Kathil and Salem joined by the GM/Blackwell Industries partnership on New Valencia.</p><p>The first Ajax tanks off the production lines on Kathil were assigned to the Fifth Davion Guards and Sixth Syrtis Fusiliers RCTs, units that put them to immediate use in their fight against the Eighth FedCom RCT and the Eighth Donegal Guards on New Syrtis. The Ajax proved its worth in these engagements, demonstrating the flexibility that the OmniVehicle concept promised. After the Fifth Davion Guards was officially deactivated following their victory, Leftenant General Seth Varnay led a mixed force that included a significant number of Ajax tanks to New Avalon, where their firepower was again put to effective use.</p><p>By the end of the Civil War, the Ajax had become a fixture in Federated Suns armored units. Nearly every surviving armored formation that fought with an RCT in the war retained Ajax tanks in its inventory. Production continued through the Jihad and into the Dark Age, with all three factory lines maintaining active output. The Kathil facility later expanded its production to include the environmentally sealed variant designed for amphibious assault missions, broadening the Ajax's operational envelope considerably. The design's enduring popularity reflected both its robust construction and the practical advantages of OmniVehicle technology for logistics-conscious commanders.</p>",
+    "manufacturer": "General Motors Annex|General Motors|General Motors/Blackwell Corporation",
+    "primaryFactory": "Kathil|Salem|New Valencia",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "GM",
+      "ARMOR": "ArcShield",
+      "COMMUNICATIONS": "Neil",
+      "TARGETING": "Sync Tracker"
+    }
+  }
+}
