@@ -23,6 +23,7 @@ import {
   getPrimaryVehicleTurretType,
   getVehicleMountFlags,
 } from '@/utils/construction/vehicle/equipmentMounts';
+import { hasVehicleStealth } from '@/utils/construction/vehicle/vehicleBVMovement';
 
 /** The subset of a converter / `UnitContract` unit this adapter reads. */
 export interface IContractBVSource {
@@ -51,6 +52,7 @@ export interface IContractBVSource {
 
 /** Domain-shaped vehicle value accepted by `calculateBattleValueForUnit`. */
 export interface IContractBVVehicle {
+  readonly hasStealth: boolean;
   readonly unitType:
     | UnitType.VEHICLE
     | UnitType.VTOL
@@ -170,6 +172,7 @@ function contractVehicleToBVUnit(unit: IContractBVSource): IContractBVVehicle {
 
   return {
     unitType,
+    hasStealth: hasVehicleStealth(unit.armor.type),
     tonnage: unit.tonnage,
     motionType,
     movement: {

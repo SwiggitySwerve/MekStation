@@ -130,7 +130,7 @@ armored motive mount. Support vehicles SHALL omit these equipment additions.
 
 - **WHEN** computing vehicle defensive BV
 - **THEN** base defensive BV SHALL equal `armor × 2.5 × armorMult + structure × 1.5 × structureMult + defEquipBV − explosivePenalty`
-- **AND** the existing defensive factor SHALL remain `1 + ((TMM × 0.5) / 10)` in this type-modifier slice
+- **AND** the defensive factor SHALL equal `1 + max(running TMM, jumping TMM, 0) / 10` without intermediate rounding
 - **AND** final defensive BV SHALL equal `base × type modifier × defensive factor`
 
 #### Scenario: VTOL TMM bonus
@@ -155,12 +155,25 @@ armored motive mount. Support vehicles SHALL omit these equipment additions.
 
 #### Scenario: Tamerlane isolated defensive type term
 
-- **GIVEN** Tamerlane (Flamer) with existing TS armor BV 120, structure BV 36 and TMM factor 1.25
+- **GIVEN** Tamerlane (Flamer) with existing TS armor BV 120, structure BV 36 and corrected TMM factor 1.5
 - **WHEN** the hover type modifier is applied
-- **THEN** defense SHALL equal `(120 + 36) × 0.7 × 1.25 = 136.5`
-- **AND** armor, structure, equipment, TMM and offensive breakdown fields SHALL remain unchanged
+- **THEN** defense SHALL equal `(120 + 36) × 0.7 × 1.5 = 163.8`
+- **AND** armor, structure, equipment and offensive breakdown fields SHALL remain unchanged
 - **AND** every Tank, SuperHeavyTank and VTOL oracle row SHALL be compared before and after, with every away-moving row explained
 - **AND** this single-stage correction SHALL NOT establish complete vehicle BV parity
+
+#### Scenario: Vehicle running, airborne and jumping TMM
+
+- **GIVEN** assembled flank MP and jump MP for a combat or support vehicle
+- **WHEN** defensive TMM is computed using the shared standard movement brackets
+- **THEN** running TMM SHALL use flank MP, without substituting cruise or submarine depth MP
+- **AND** positive running MP SHALL add exactly one for VTOL or WiGE; zero running MP SHALL return zero
+- **AND** positive jump MP SHALL add one to its own bracket value; zero jump MP SHALL return zero
+- **AND** represented uniform stealth SHALL add two to each nonzero movement mode before taking the maximum
+- **AND** defense SHALL retain fractional precision until the existing final BV rounding
+- **AND** all 1,419 combat and support oracle rows SHALL be compared before and after, with every away-moving row explained
+- **AND** fields other than TMM, defensive factor, defense and final SHALL remain exactly equal
+- **AND** these rules SHALL apply only to the vehicle defensive BV path; the public `calculateVehicleTMM` compatibility helper SHALL preserve its effective-MP/submarine overrides, unconditional VTOL running bonus and positive-only jump guard
 
 ### Requirement: Aerospace Defensive BV
 

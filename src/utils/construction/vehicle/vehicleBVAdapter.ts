@@ -29,6 +29,7 @@ import {
   type VehicleTurretKind,
   type VehicleWeaponMount,
 } from './vehicleBV';
+import { hasVehicleStealth } from './vehicleBVMovement';
 
 // -----------------------------------------------------------------------------
 // Turret mapping
@@ -192,6 +193,7 @@ export function toVehicleBVInput(state: VehicleBVStateSubset): VehicleBVInput {
     chassisEquipment: state.equipment.map((item) => item.equipmentId),
     hasEnvironmentalSealing: state.hasEnvironmentalSealing,
     hasFlotationHull: state.hasFlotationHull,
+    hasStealth: hasVehicleStealth(state.armorType),
     cruiseMP: state.cruiseMP,
     flankMP,
     jumpMP: 0,
@@ -330,6 +332,10 @@ export function toVehicleBVInputFromUnit(
     motionType: unit.motionType as GroundMotionType,
     isSupportVehicle: isSupportVehicle(unit),
     chassisEquipment: rawEquipment.map((item) => item.equipmentId),
+    hasStealth:
+      'hasStealth' in unit
+        ? unit.hasStealth === true
+        : hasVehicleStealth(unit.armorType),
     ...(unit.unitType === UnitType.VEHICLE
       ? {
           hasEnvironmentalSealing: unit.hasEnvironmentalSealing,
