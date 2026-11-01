@@ -18,3 +18,10 @@ openspec/
 .worktrees/
 dist/
 public/record-sheets/
+
+# Converter-written unit catalogs (allowed by .gitignore for UL-C1). Kept
+# formatter-exempt like the mech catalog, so committed bytes equal converter
+# output and a regeneration diffs cleanly.
+public/data/units/vehicles/
+public/data/units/aerospace/
+public/data/units/capital/
