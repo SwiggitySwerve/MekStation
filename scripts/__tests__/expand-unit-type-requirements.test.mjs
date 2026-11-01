@@ -61,3 +61,48 @@ test('unsupported conditional rules still fail rather than disappear', () => {
     /Unsupported conditional/,
   );
 });
+
+test('folding preserves a normal armor constraint and excludes capital alternatives', () => {
+  const input = schema(1000);
+  const normal = { type: 'string', enum: ['STANDARD'] };
+  input.properties.armor = {
+    type: 'object',
+    properties: { type: { anyOf: [normal, { enum: ['CAPITAL'] }] } },
+  };
+  input.anyOf = [
+    {
+      properties: {
+        unitType: { not: { enum: ['Capital'] } },
+        tonnage: { type: 'number', maximum: 250 },
+        armor: { type: 'object', properties: { type: normal } },
+      },
+    },
+    {
+      required: ['unitType'],
+      properties: {
+        unitType: { enum: ['Capital'] },
+        tonnage: { type: 'number', maximum: 900 },
+      },
+    },
+  ];
+  const result = expandUnitTypeRequirements(input);
+  assert.deepEqual(result.anyOf[0].properties.armor.properties.type, normal);
+  assert.equal(result.anyOf[0].anyOf, undefined);
+  assert.equal(result.anyOf[1].anyOf.length, 2);
+});
+
+test('an unsupported discriminator guard remains enforced by its alternative', () => {
+  const input = schema(1000);
+  input.anyOf = [
+    {
+      properties: {
+        unitType: { pattern: '^M' },
+        tonnage: { type: 'number', maximum: 15 },
+      },
+    },
+  ];
+  assert.deepEqual(
+    expandUnitTypeRequirements(input).anyOf[0].anyOf,
+    input.anyOf,
+  );
+});
