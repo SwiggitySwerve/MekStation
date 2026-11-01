@@ -17,6 +17,7 @@ import {
   type ApiDataResponse,
 } from '@/pages-modules/api/routeHelpers';
 import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
+import { isUnitFamily } from '@/types/unit/UnitIndex';
 
 type CatalogApiResponse = ApiDataResponse;
 
@@ -25,10 +26,15 @@ export default async function handler(
   res: NextApiResponse<CatalogApiResponse>,
 ): Promise<void> {
   if (rejectCatalogNonGet(req, res)) return;
+  const family = req.query.family ?? 'battlemechs';
+  if (!isUnitFamily(family))
+    return res
+      .status(400)
+      .json({ success: false, error: 'Invalid unit family' });
 
   try {
     // Get the full unit index
-    const index = await getCanonicalUnitService().getIndex();
+    const index = await getCanonicalUnitService().getIndex({ family });
 
     const { search } = req.query;
 
