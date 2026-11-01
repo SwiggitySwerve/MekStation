@@ -6,6 +6,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'megameklab-conversion'))
 from blk_aerospace_converter import convert_aerospace_blk
+import blk_common
 
 
 class AerospaceStructuralIntegrityTest(unittest.TestCase):
@@ -51,6 +52,22 @@ class AerospaceStructuralIntegrityTest(unittest.TestCase):
     def test_small_craft_keeps_explicit_si(self):
         unit = self.convert('SmallCraft', '200.0', 3, '<structural_integrity>\n11\n</structural_integrity>\n')
         self.assertEqual(unit['structuralIntegrity'], 11)
+
+    def test_maximum_thrust_preserves_rounding_and_input_defaults(self):
+        for thrust, expected in ((0, 0), (1, 2), (2, 3), (3, 5), (9, 14), (-1, -1), ('bad', 0), ('', 0)):
+            with self.subTest(thrust=thrust):
+                self.assertEqual(self.convert('AeroSpaceFighter', '45.0', thrust)['movement']['maxThrust'], expected)
+
+    def test_shared_maximum_thrust_rule(self):
+        for thrust, expected in ((0, 0), (1, 2), (2, 3), (3, 5), (9, 14), (-1, -1)):
+            with self.subTest(thrust=thrust):
+                self.assertEqual(blk_common.maximum_thrust(thrust), expected)
+
+    def test_aerospace_uses_shared_case_insensitive_motion_mapping(self):
+        for motion in ('Spheroid', 'spheroid', 'SPHEROID', 'Aerodyne', 'unknown'):
+            with self.subTest(motion=motion):
+                unit = self.convert('SmallCraft', '200.0', 3, f'<motion_type>{motion}</motion_type>')
+                self.assertEqual(unit['motionType'], 'SPHEROID' if motion.lower() == 'spheroid' else 'AERODYNE')
 
 
 if __name__ == '__main__':

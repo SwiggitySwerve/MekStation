@@ -1,3 +1,4 @@
+import { getTankMaxTonnage } from '@/services/construction/constructionConstants';
 /**
  * Vehicle Unit Handler
  *
@@ -14,16 +15,14 @@ import {
 import {
   blkEquipmentBlockLocation,
   isSuperHeavyTank,
+  placeRejectedBlkVehicleArmor,
   resolveBlkVehicleArmor,
 } from '@/services/conversion/blkVehicleArmorLayout';
 import {
   SuperHeavyVehicleLocation,
   VehicleLocation,
 } from '@/types/construction/UnitLocation';
-import {
-  BLK_DUAL_TURRET_ARMOR_LOCATIONS,
-  IBlkDocument,
-} from '@/types/formats/BlkFormat';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   GroundMotionType,
   IGroundMovement,
@@ -181,21 +180,16 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       document.tonnage,
       armor,
     );
-    if (!layoutArmor) {
-      warnings.push(
-        `Incorrect armor array length (${armor.length} values): MegaMek refuses to load it, ` +
-          'so the values are placed Front, Right, Left, Rear, Turret, Turret 2 in order',
-      );
-    }
-    const armorByLocation = this.parseArmorByLocation(
-      layoutArmor ??
-        Object.fromEntries(
-          armor.map((value, index) => [
-            BLK_DUAL_TURRET_ARMOR_LOCATIONS[index],
-            value,
-          ]),
-        ),
-    );
+    const placed = layoutArmor
+      ? { byLocation: layoutArmor, warning: undefined }
+      : placeRejectedBlkVehicleArmor(
+          document.unitType,
+          document.motionType || 'Tracked',
+          document.tonnage,
+          armor,
+        );
+    if (placed.warning) warnings.push(placed.warning);
+    const armorByLocation = this.parseArmorByLocation(placed.byLocation);
     const totalArmorPoints = armor.reduce((sum, val) => sum + val, 0);
 
     // Turret configuration
@@ -413,7 +407,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     pushTonnageRangeErrors(errors, unit.tonnage, {
       label: 'Vehicle',
       min: 1,
-      max: 200,
+      max: getTankMaxTonnage(unit.motionType, unit.isSuperheavy),
       minText: '1',
     });
 

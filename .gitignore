@@ -64,6 +64,7 @@ scripts/**
 !scripts/qc/**
 !scripts/megameklab-conversion/
 !scripts/megameklab-conversion/blk_aerospace_tables.py
+!scripts/megameklab-conversion/BLK_RULES.md
 !scripts/megameklab-conversion/blk_battlearmor_fields.py
 !scripts/megameklab-conversion/blk_conversion_runner.py
 !scripts/megameklab-conversion/blk_schema_writers.py

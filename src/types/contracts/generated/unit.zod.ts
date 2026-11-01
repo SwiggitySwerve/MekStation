@@ -47,7 +47,13 @@ export const UnitContract = z
           .gte(1000)
           .lte(9999)
           .describe('Introduction year'),
-        tonnage: z.number().gte(0).lte(250).describe('Unit tonnage'),
+        tonnage: z
+          .number()
+          .gte(0)
+          .lte(250)
+          .describe(
+            'Unit tonnage; the anyOf rule retains a 250 t bound, with explicit Support Vehicle (600 t) and capital ship (2,500,000 t) exceptions.',
+          ),
         engine: z
           .object({
             type: z
@@ -153,6 +159,8 @@ export const UnitContract = z
                 'BAR_7',
                 'BAR_9',
                 'BAR',
+                'AEROSPACE',
+                'PATCHWORK',
               ])
               .describe('Armor type'),
             barRating: z
@@ -222,6 +230,12 @@ export const UnitContract = z
             byArc: z
               .record(z.string(), z.number().int().gte(0))
               .describe('Armor points per aerospace arc')
+              .optional(),
+            typeByArc: z
+              .record(z.string(), z.number().int().gte(-1))
+              .describe(
+                'Explicit BLK armor type codes per normalized source arc; includes sentinel -1. Distinct from armor points in byArc.',
+              )
               .optional(),
             perTrooper: z
               .number()
@@ -421,6 +435,7 @@ export const UnitContract = z
           .describe('Fluff/flavor text')
           .optional(),
         isOmni: z.boolean().optional(),
+        omniPodHeatSinks: z.number().int().gte(0).optional(),
         baseChassisTurretWeight: z.number().gte(0).optional(),
         baseChassisTurret2Weight: z.number().gte(0).optional(),
         baseChassisSponsonPintleWeight: z.number().gte(0).optional(),
@@ -531,7 +546,13 @@ export const UnitContract = z
           .lte(9999)
           .describe('Introduction year')
           .optional(),
-        tonnage: z.number().gte(0).lte(250).describe('Unit tonnage').optional(),
+        tonnage: z
+          .number()
+          .gte(0)
+          .describe(
+            'Unit tonnage; the anyOf rule retains a 250 t bound, with explicit Support Vehicle (600 t) and capital ship (2,500,000 t) exceptions.',
+          )
+          .optional(),
         engine: z
           .object({
             type: z
@@ -641,6 +662,8 @@ export const UnitContract = z
                 'BAR_7',
                 'BAR_9',
                 'BAR',
+                'AEROSPACE',
+                'PATCHWORK',
               ])
               .describe('Armor type'),
             barRating: z
@@ -710,6 +733,12 @@ export const UnitContract = z
             byArc: z
               .record(z.string(), z.number().int().gte(0))
               .describe('Armor points per aerospace arc')
+              .optional(),
+            typeByArc: z
+              .record(z.string(), z.number().int().gte(-1))
+              .describe(
+                'Explicit BLK armor type codes per normalized source arc; includes sentinel -1. Distinct from armor points in byArc.',
+              )
               .optional(),
             perTrooper: z
               .number()
@@ -914,6 +943,7 @@ export const UnitContract = z
           .describe('Fluff/flavor text')
           .optional(),
         isOmni: z.boolean().optional(),
+        omniPodHeatSinks: z.number().int().gte(0).optional(),
         baseChassisTurretWeight: z.number().gte(0).optional(),
         baseChassisTurret2Weight: z.number().gte(0).optional(),
         baseChassisSponsonPintleWeight: z.number().gte(0).optional(),
@@ -954,6 +984,24 @@ export const UnitContract = z
         source: z.string().describe('Source book/publication').optional(),
       })
       .catchall(z.any())
+      .and(
+        z.union([
+          z.object({ tonnage: z.number().lte(250).optional() }),
+          z.object({
+            unitType: z.enum(['Support Vehicle', 'SupportVehicle']),
+            tonnage: z.number().lte(600).optional(),
+          }),
+          z.object({
+            unitType: z.enum([
+              'DropShip',
+              'JumpShip',
+              'WarShip',
+              'Space Station',
+            ]),
+            tonnage: z.number().lte(2500000).optional(),
+          }),
+        ]),
+      )
       .describe(
         'Schema for serialized BattleTech unit definitions (BattleMechs, vehicles, etc.)',
       ),

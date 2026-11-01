@@ -110,12 +110,42 @@ it('keeps BLK source qualifiers out of the recorded BattleMech snapshot', () => 
     ['baseChassisTurret2Weight', 1],
     ['baseChassisSponsonPintleWeight', 1],
     ['baseChassisFireConWeight', 1],
+    ['omniPodHeatSinks', 2],
   ] as const) {
     expect(
       customCombatSnapshotSchema.safeParse({ ...projected, [key]: value })
         .success,
     ).toBe(false);
   }
+});
+
+it('records exactly the 21 BattleMech construction keys', () => {
+  // The snapshot omits shared-schema fields by name (BLK source qualifiers and
+  // library metadata). Pin the resulting key set so a new shared-schema field
+  // cannot widen recorded GameCreated snapshots without a deliberate change.
+  expect(Object.keys(customCombatSnapshotSchema.shape).sort()).toEqual([
+    'armor',
+    'chassis',
+    'cockpit',
+    'configuration',
+    'criticalSlots',
+    'engine',
+    'equipment',
+    'era',
+    'gyro',
+    'heatSinks',
+    'id',
+    'model',
+    'movement',
+    'quirks',
+    'rulesLevel',
+    'structure',
+    'techBase',
+    'tonnage',
+    'unitType',
+    'variant',
+    'year',
+  ]);
 });
 
 it('allows exactly the eleven BattleMech engine types on the recorded snapshot', () => {

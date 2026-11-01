@@ -78,6 +78,7 @@ export const customCombatSnapshotSchema = mech
     engineTechRating: true,
     armorTechRating: true,
     internalType: true,
+    omniPodHeatSinks: true,
   })
   .extend({
     unitType: z.literal('BattleMech'),
