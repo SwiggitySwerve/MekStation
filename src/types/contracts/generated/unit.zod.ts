@@ -420,6 +420,26 @@ export const UnitContract = z
           .strict()
           .describe('Fluff/flavor text')
           .optional(),
+        isOmni: z.boolean().optional(),
+        baseChassisTurretWeight: z.number().gte(0).optional(),
+        baseChassisTurret2Weight: z.number().gte(0).optional(),
+        baseChassisSponsonPintleWeight: z.number().gte(0).optional(),
+        baseChassisFireConWeight: z.number().gte(0).optional(),
+        transporters: z.array(z.string()).optional(),
+        fuel: z
+          .number()
+          .gte(0)
+          .describe(
+            'Source fuel quantity; support vehicles use tons, aerospace uses points.',
+          )
+          .optional(),
+        fuelType: z.string().min(1).optional(),
+        isTrailer: z.boolean().optional(),
+        clanEngine: z.boolean().optional(),
+        structuralTechRating: z.number().int().gte(0).lte(5).optional(),
+        engineTechRating: z.number().int().gte(0).lte(5).optional(),
+        armorTechRating: z.number().int().gte(0).lte(5).optional(),
+        internalType: z.number().int().gte(-1).optional(),
         sourceDefinition: z
           .object({
             source: z.enum(['canonical', 'custom']),
@@ -893,6 +913,26 @@ export const UnitContract = z
           .strict()
           .describe('Fluff/flavor text')
           .optional(),
+        isOmni: z.boolean().optional(),
+        baseChassisTurretWeight: z.number().gte(0).optional(),
+        baseChassisTurret2Weight: z.number().gte(0).optional(),
+        baseChassisSponsonPintleWeight: z.number().gte(0).optional(),
+        baseChassisFireConWeight: z.number().gte(0).optional(),
+        transporters: z.array(z.string()).optional(),
+        fuel: z
+          .number()
+          .gte(0)
+          .describe(
+            'Source fuel quantity; support vehicles use tons, aerospace uses points.',
+          )
+          .optional(),
+        fuelType: z.string().min(1).optional(),
+        isTrailer: z.boolean().optional(),
+        clanEngine: z.boolean().optional(),
+        structuralTechRating: z.number().int().gte(0).lte(5).optional(),
+        engineTechRating: z.number().int().gte(0).lte(5).optional(),
+        armorTechRating: z.number().int().gte(0).lte(5).optional(),
+        internalType: z.number().int().gte(-1).optional(),
         sourceDefinition: z
           .object({
             source: z.enum(['canonical', 'custom']),
