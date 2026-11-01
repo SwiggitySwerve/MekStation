@@ -30,6 +30,7 @@ from blk_conversion_runner import (
     strict_safe_unit_filename,
 )
 from blk_unit_fields import parse_fluff, parse_location_equipment, parse_mul_id, parse_quirks
+from blk_vehicle_qualifiers import parse_vehicle_qualifiers
 from blk_vehicle_tables import (
     ARMOR_CODE_MAP,
     BAR_ARMOR_CODE_OFFSET,
@@ -256,6 +257,8 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
 
     if bar_rating is not None:
         output["armor"]["barRating"] = bar_rating
+
+    output.update(parse_vehicle_qualifiers(tags))
 
     if mul_id is not None:
         output["mulId"] = mul_id
