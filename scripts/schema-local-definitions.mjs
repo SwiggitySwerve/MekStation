@@ -11,6 +11,8 @@ export function prepareSchemaDefinitions(input) {
       !Array.isArray(value.enum) ||
       !value.enum?.length ||
       value.enum.some((item) => typeof item !== 'string') ||
+      // A Zod literal drops `type`, so only the matching string type is safe.
+      ('type' in value && value.type !== 'string') ||
       Object.keys(value).some(
         (keyword) => !['type', 'enum', 'description'].includes(keyword),
       )
