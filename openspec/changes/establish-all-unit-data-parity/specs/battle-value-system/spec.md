@@ -252,8 +252,6 @@ continue through their owning calculations.
 - **THEN** final BV SHALL remain 280 or 600 respectively
 - **AND** Biped and Quad SHALL also use the neutral summary multiplier
 
-## MODIFIED Requirements
-
 ### Requirement: Vehicle Offensive BV
 
 Vehicle offensive BV SHALL combine weapon BV, ammo BV, offensive equipment BV,
