@@ -1,3 +1,5 @@
+import type { UnitFamily } from '@/types/unit/UnitIndex';
+
 import { Era } from '@/types/enums/Era';
 /**
  * Shared Types for Unit Pages
@@ -12,6 +14,7 @@ import { WeightClass } from '@/types/enums/WeightClass';
  * Lightweight unit entry for lists and search results
  */
 export interface IUnitEntry {
+  family?: UnitFamily;
   id: string;
   name: string;
   chassis: string;

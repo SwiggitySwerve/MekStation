@@ -23,6 +23,7 @@ import {
   isArmorFrontRear,
   calculateTotalArmor,
 } from '@/types/pages';
+import { isUnitFamily } from '@/types/unit/UnitIndex';
 
 function unitDisplayName(unit: IUnitDetails): string {
   return (
@@ -272,6 +273,8 @@ function QuirksCard({
 export default function CanonicalUnitDetailPage(): React.ReactElement {
   const router = useRouter();
   const { id } = router.query;
+  const family = router.query.family ?? 'battlemechs';
+  const listHref = `/compendium/units${isUnitFamily(family) && family !== 'battlemechs' ? `?family=${family}` : ''}`;
 
   const [unit, setUnit] = useState<IUnitDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -279,11 +282,21 @@ export default function CanonicalUnitDetailPage(): React.ReactElement {
 
   useEffect(() => {
     if (!id || typeof id !== 'string') return;
+    if (!isUnitFamily(family)) {
+      setError('Invalid unit family');
+      setLoading(false);
+      return;
+    }
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+    setUnit(null);
 
     async function fetchUnit() {
       try {
         const response = await fetch(
-          `/api/units?id=${encodeURIComponent(id as string)}`,
+          `/api/units?id=${encodeURIComponent(id as string)}${family === 'battlemechs' ? '' : `&family=${family}`}`,
+          { signal: controller.signal },
         );
         const data = (await response.json()) as {
           success: boolean;
@@ -291,20 +304,22 @@ export default function CanonicalUnitDetailPage(): React.ReactElement {
           error?: string;
         };
 
+        if (controller.signal.aborted) return;
         if (data.success && data.data) {
           setUnit(data.data);
         } else {
           setError(data.error || 'Unit not found');
         }
       } catch {
-        setError('Failed to load unit');
+        if (!controller.signal.aborted) setError('Failed to load unit');
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     }
 
     fetchUnit();
-  }, [id]);
+    return () => controller.abort();
+  }, [id, family]);
 
   if (loading) {
     return <PageLoading message="Loading unit data..." />;
@@ -315,7 +330,7 @@ export default function CanonicalUnitDetailPage(): React.ReactElement {
       <PageError
         title="Unit Not Found"
         message={error || 'The requested unit could not be found.'}
-        backLink="/compendium/units"
+        backLink={listHref}
         backLabel="Back to Unit Database"
       />
     );
@@ -328,10 +343,7 @@ export default function CanonicalUnitDetailPage(): React.ReactElement {
     <CompendiumLayout
       title={displayName}
       subtitle={`${unit.tonnage} tons • ${unit.techBase?.replace(/_/g, ' ') || 'Unknown Tech'}`}
-      breadcrumbs={[
-        { label: 'Units', href: '/compendium/units' },
-        { label: displayName },
-      ]}
+      breadcrumbs={[{ label: 'Units', href: listHref }, { label: displayName }]}
     >
       <UnitHeaderCard unit={unit} displayName={displayName} />
 

@@ -22,6 +22,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+import {
+  indexFamilies,
+  unitFamilyKey,
+  type UnitFamily,
+  type UnitIndexOptions,
+  type UnitLookupOptions,
+} from '@/types/unit/UnitIndex';
+
 import type { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
 
 import {
@@ -74,7 +82,7 @@ export interface NodeCanonicalUnitServiceOptions {
   readonly bvReportPath?: string;
 }
 
-export interface GetIndexWithBVOptions {
+export interface GetIndexWithBVOptions extends UnitIndexOptions {
   readonly bvReportPath?: string;
 }
 
@@ -108,14 +116,8 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
 
   private readonly defaultBVReportPath?: string;
 
-  /** Absolute path to the index JSON file. */
-  private readonly indexFilePath: string;
-
   /** Cached parsed index entries (null = not yet loaded). */
-  private indexCache: IUnitIndexEntry[] | null = null;
-
-  /** Map from raw RawIndexUnit entries keyed by unit id (for path lookups). */
-  private rawIndexCache: Map<string, RawIndexUnit> | null = null;
+  private indexCache = new Map<UnitFamily, IUnitIndexEntry[]>();
 
   /** Cached version stamp from the index file (populated when index loads). */
   private indexVersionCache: string | null = null;
@@ -141,11 +143,7 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
     this.projectRoot = path.resolve(
       /* turbopackIgnore: true */ baseDir ?? process.cwd(),
     );
-    this.baseDir = path.resolve(
-      this.projectRoot,
-      'public/data/units/battlemechs',
-    );
-    this.indexFilePath = path.resolve(this.baseDir, 'index.json');
+    this.baseDir = path.resolve(this.projectRoot, 'public/data/units');
     this.defaultBVReportPath = options.bvReportPath;
   }
 
@@ -158,39 +156,27 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
    * Called lazily by the first public method that needs index data.
    * Subsequent calls return the cached version immediately.
    */
-  private loadRawIndex(): {
-    entries: IUnitIndexEntry[];
-    raw: Map<string, RawIndexUnit>;
-  } {
-    if (this.indexCache !== null && this.rawIndexCache !== null) {
-      return { entries: this.indexCache, raw: this.rawIndexCache };
-    }
-
-    let rawFile: RawIndexFile;
+  private loadRawIndex(family: UnitFamily): IUnitIndexEntry[] {
+    const cached = this.indexCache.get(family);
+    if (cached) return cached;
+    let contents: string;
     try {
-      rawFile = JSON.parse(
-        fs.readFileSync(this.indexFilePath, 'utf-8'),
-      ) as RawIndexFile;
-    } catch (_err) {
-      // Return empty gracefully so callers can propagate null / empty rather
-      // than crashing the whole batch runner on a missing index.
-      this.indexCache = [];
-      this.rawIndexCache = new Map();
-      return { entries: this.indexCache, raw: this.rawIndexCache };
+      contents = fs.readFileSync(
+        path.join(this.baseDir, family, 'index.json'),
+        'utf-8',
+      );
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return [];
+      throw error;
     }
-
-    // Skipped rows (logged by the mapper) are neither listed nor loadable by
-    // id, as in the browser service.
-    const entries = mapRawIndexRows(rawFile.units);
-    const mappedIds = new Set(entries.map((entry) => entry.id));
-    const rawMap = new Map<string, RawIndexUnit>();
-    for (const unit of rawFile.units) {
-      if (unit && mappedIds.has(unit.id)) rawMap.set(unit.id, unit);
-    }
-    this.indexCache = entries;
-    this.rawIndexCache = rawMap;
-    this.indexVersionCache = rawFile.version ?? 'unknown';
-    return { entries: this.indexCache, raw: this.rawIndexCache };
+    const rawFile = JSON.parse(contents) as RawIndexFile;
+    if (!rawFile || !Array.isArray(rawFile.units))
+      throw new Error('Canonical source index is invalid');
+    const entries = mapRawIndexRows(rawFile.units, family);
+    this.indexCache.set(family, entries);
+    if (family === 'battlemechs')
+      this.indexVersionCache = rawFile.version ?? 'unknown';
+    return entries;
   }
 
   private resolveBVSource(overridePath?: string): {
@@ -271,15 +257,27 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
   // ICanonicalUnitService implementation
   // ---------------------------------------------------------------------------
 
-  getIndexSync = (): readonly IUnitIndexEntry[] => {
-    return this.loadRawIndex().entries;
+  getIndexSync = (
+    options: UnitIndexOptions = {},
+  ): readonly IUnitIndexEntry[] => {
+    const indexes = indexFamilies(options).map((family) => {
+      try {
+        return this.loadRawIndex(family);
+      } catch (error) {
+        if (options.strict) throw error;
+        return [];
+      }
+    });
+    return indexes.length === 1 ? indexes[0] : indexes.flat();
   };
 
   getIndexSyncWithBV = (
     options: GetIndexWithBVOptions = {},
   ): readonly IUnitIndexEntry[] => {
+    const index = this.getIndexSync(options);
+    if (index.length === 0) return index;
     const source = this.resolveBVSource(options.bvReportPath);
-    const cacheKey = `${source.kind}:${source.path}`;
+    const cacheKey = `${options.family ?? 'battlemechs'}:${source.kind}:${source.path}`;
     const cached = this.indexWithBVCache.get(cacheKey);
     if (cached) return cached;
 
@@ -287,10 +285,13 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
       source.kind === 'megamek-cache'
         ? this.loadMegaMekBVLookup(source.path)
         : this.loadBVReportLookup(source.path);
-    const enriched = this.getIndexSync().map(
+    const enriched = index.map(
       (entry): IUnitIndexEntry => ({
         ...entry,
-        bv: bvByUnitId.get(entry.id) ?? entry.bv,
+        bv:
+          (entry.family === undefined || entry.family === 'battlemechs'
+            ? bvByUnitId.get(entry.id)
+            : undefined) ?? entry.bv,
       }),
     );
 
@@ -301,8 +302,10 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
   /**
    * Return all index entries. Loads and caches the index on first call.
    */
-  getIndex = async (): Promise<readonly IUnitIndexEntry[]> => {
-    return this.getIndexSync();
+  getIndex = async (
+    options: UnitIndexOptions = {},
+  ): Promise<readonly IUnitIndexEntry[]> => {
+    return this.getIndexSync(options);
   };
 
   /**
@@ -312,7 +315,7 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
    */
   getCatalogVersion = (): string => {
     if (this.indexVersionCache === null) {
-      this.loadRawIndex();
+      this.loadRawIndex('battlemechs');
     }
     return this.indexVersionCache ?? 'unknown';
   };
@@ -334,22 +337,25 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
    * naming the offending field path, failing loud at the loader boundary
    * instead of corrupting downstream domain code with a malformed unit.
    */
-  getByIdSync = (id: string): IFullUnit | null => {
+  getByIdSync = (
+    id: string,
+    options: UnitLookupOptions = {},
+  ): IFullUnit | null => {
     // Return cached reference immediately — this also satisfies Task 2.8's
     // requirement that two calls for the same id return the same object.
-    if (this.unitCache.has(id)) {
-      return this.unitCache.get(id)!;
+    const key = unitFamilyKey(id, options.family);
+    if (this.unitCache.has(key)) {
+      return this.unitCache.get(key)!;
     }
 
-    const { raw } = this.loadRawIndex();
-    const entry = raw.get(id);
+    const entry = this.getIndexSync(options).find((row) => row.id === id);
     if (!entry) {
       return null;
     }
 
     // Resolve the file path against the catalog base directory.
     // pattern: scripts/validate-bv.ts:5173 `path.join(basePath, iu.path)`
-    const unitFilePath = path.join(this.baseDir, entry.path);
+    const unitFilePath = path.join(this.projectRoot, 'public', entry.filePath);
 
     // A missing / unreadable file or malformed JSON is a "not found" — return
     // null so batch loops skip it. A *schema* violation is handled separately
@@ -364,7 +370,7 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
     // Validate the on-disk shape against `UnitContract`. `parseUnit` throws a
     // `UnitContractParseError` naming the offending field path on a schema
     // mismatch — the bundled-data "fail loud" boundary behaviour.
-    parseUnit(parsedJson, entry.path);
+    parseUnit(parsedJson, entry.filePath);
 
     // The validated value is structurally an `IFullUnit` (the contract is a
     // permissive superset of the index shape, and `IFullUnit` carries a
@@ -373,21 +379,27 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
     const unit = parsedJson as IFullUnit;
 
     // Cache and return the parsed unit.
-    this.unitCache.set(id, unit);
+    this.unitCache.set(key, unit);
     return unit;
   };
 
-  getById = async (id: string): Promise<IFullUnit | null> => {
-    return this.getByIdSync(id);
+  getById = async (
+    id: string,
+    options: UnitLookupOptions = {},
+  ): Promise<IFullUnit | null> => {
+    return this.getByIdSync(id, options);
   };
 
   /**
    * Bulk load units by id list. Returns only those that resolved successfully.
    */
-  getByIds = async (ids: string[]): Promise<IFullUnit[]> => {
+  getByIds = async (
+    ids: string[],
+    options: UnitLookupOptions = {},
+  ): Promise<IFullUnit[]> => {
     const results: IFullUnit[] = [];
     for (const id of ids) {
-      const unit = await this.getById(id);
+      const unit = await this.getById(id, options);
       if (unit !== null) {
         results.push(unit);
       }
@@ -402,7 +414,7 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
   query = async (
     criteria: IUnitQueryCriteria,
   ): Promise<readonly IUnitIndexEntry[]> => {
-    let results = await this.getIndex();
+    let results = await this.getIndex({ family: criteria.family });
 
     if (criteria.techBase !== undefined) {
       results = results.filter((e) => e.techBase === criteria.techBase);
@@ -430,8 +442,7 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
    * Clear all caches. Useful in tests that need fresh disk reads.
    */
   clearCache = (): void => {
-    this.indexCache = null;
-    this.rawIndexCache = null;
+    this.indexCache.clear();
     this.indexVersionCache = null;
     this.bvLookupCache.clear();
     this.indexWithBVCache.clear();
