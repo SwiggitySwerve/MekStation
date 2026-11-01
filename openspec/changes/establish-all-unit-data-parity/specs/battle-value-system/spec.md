@@ -1,27 +1,5 @@
 ## ADDED Requirements
 
-### Requirement: Aerospace Defensive Thrust Factor
-
-Aerospace BV SHALL apply no thrust-based multiplier to the defensive pool,
-matching pinned MegaMek `AeroBVCalculator.processDefensiveFactor`. The exposed
-`defensiveFactor` SHALL equal 1 for fighters, conventional fighters and small
-craft. Aircraft type scaling is a separate term and is deferred by this slice.
-
-#### Scenario: Boeing defensive pool
-
-- **GIVEN** Boeing Jump Bomber with safe thrust 9 and maximum thrust 14
-- **WHEN** its defensive BV is computed
-- **THEN** the defensive factor SHALL equal 1
-- **AND** the existing armor and SI pool of 130 SHALL remain 130
-- **AND** this term correction SHALL NOT imply total BV parity with Java's 64
-
-#### Scenario: Thrust does not scale defense
-
-- **GIVEN** otherwise identical defensive inputs for each supported aerospace subtype
-- **WHEN** maximum thrust changes
-- **THEN** the defensive pool SHALL remain unchanged
-- **AND** armor, SI, equipment, explosive penalties and offensive terms SHALL retain their existing rules
-
 ### Requirement: Runtime parity term validation
 
 The comparator SHALL reject malformed runtime terms with a structured failed
@@ -260,3 +238,32 @@ continue through their owning calculations.
 - **WHEN** baseline-skill final BV is calculated
 - **THEN** final BV SHALL remain 280 or 600 respectively
 - **AND** Biped and Quad SHALL also use the neutral summary multiplier
+
+### Requirement: Aerospace Defensive BV
+
+Aerospace defensive BV SHALL use Structural Integrity in place of the mech gyro term.
+It SHALL apply no thrust-based multiplier to the defensive pool, matching pinned
+MegaMek `AeroBVCalculator.processDefensiveFactor`. The exposed `defensiveFactor`
+SHALL equal 1 for aerospace fighters, conventional fighters, FixedWingSupport and
+small craft. Aircraft type scaling is a separate term and is deferred by this slice.
+
+#### Scenario: SI BV
+
+- **GIVEN** a 50-ton ASF with SI 5
+- **WHEN** SI BV is computed
+- **THEN** siBV SHALL equal `5 × 0.5 × 50 = 125`
+
+#### Scenario: Boeing defensive pool
+
+- **GIVEN** Boeing Jump Bomber with safe thrust 9 and maximum thrust 14
+- **WHEN** its defensive BV is computed
+- **THEN** the defensive factor SHALL equal 1
+- **AND** the existing armor and SI pool of 130 SHALL remain 130
+- **AND** this term correction SHALL NOT imply total BV parity with Java's 64
+
+#### Scenario: Thrust does not scale defense
+
+- **GIVEN** otherwise identical defensive inputs for each supported aerospace subtype
+- **WHEN** maximum thrust changes
+- **THEN** the defensive pool SHALL remain unchanged
+- **AND** armor, SI, equipment, explosive penalties and offensive terms SHALL retain their existing rules
