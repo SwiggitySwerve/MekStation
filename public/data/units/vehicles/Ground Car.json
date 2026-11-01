@@ -1,0 +1,42 @@
+{
+  "id": "ground-car",
+  "chassis": "Ground Car",
+  "model": "",
+  "unitType": "Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "INTRODUCTORY",
+  "era": "EARLY_SPACEFLIGHT",
+  "year": 1950,
+  "tonnage": 3,
+  "weightClass": "LIGHT",
+  "motionType": "Wheeled",
+  "movement": {
+    "cruiseMP": 10,
+    "flankMP": 15,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "FUSION",
+    "rating": 10
+  },
+  "armor": {
+    "type": "STANDARD",
+    "byLocation": {
+      "FRONT": 2,
+      "RIGHT": 2,
+      "LEFT": 2,
+      "REAR": 2
+    }
+  },
+  "equipment": [],
+  "armorTechRating": 0,
+  "transporters": [
+    "troopspace:0.5"
+  ],
+  "mulId": 4251,
+  "role": "None",
+  "source": "TR:3025,MW1e",
+  "fluff": {
+    "overview": "<p>No current information available for this unit.</p>"
+  }
+}

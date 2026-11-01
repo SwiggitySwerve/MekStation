@@ -6,13 +6,13 @@ import { calculateAerospaceDefensiveBV } from '../aerospaceBV';
 
 /**
  * MegaMek 48fcb2f64, AeroBVCalculator.java:137-138: no defensive thrust factor.
- * Aircraft type scaling is a separate Java stage and a later parity term.
+ * Aircraft type scaling is a separate Java stage before the neutral factor.
  * @spec establish-all-unit-data-parity: Aerospace Defensive BV
  */
 describe('aerospace defensive thrust factor parity', () => {
   it('Boeing Jump Bomber (Java total 64) has no defensive thrust multiplier', () => {
     // Pinned mm-data convfighter/3039u/Boeing Jump Bomber.blk.
-    // Assert this term: remaining aircraft type terms prevent total parity.
+    // Assert this term: separate final subtype scaling still prevents parity.
     const result = calculateBattleValueForUnit(
       contractUnitToBVUnit({
         id: 'boeing-jump-bomber',
@@ -32,7 +32,7 @@ describe('aerospace defensive thrust factor parity', () => {
     expect(result.breakdown.defensiveFactor).toBe(1);
     expect(result.breakdown.armorBV).toBe(40);
     expect(result.breakdown.siBV).toBe(18);
-    expect(result.breakdown.defensive).toBe(58);
+    expect(result.breakdown.defensive).toBeCloseTo(63.8, 10);
   });
 
   it.each(Object.values(AerospaceSubType))(
@@ -54,12 +54,6 @@ describe('aerospace defensive thrust factor parity', () => {
       const slow = calculateAerospaceDefensiveBV({ ...input, maxThrust: 2 });
       expect(fast.defensiveFactor).toBe(1);
       expect(fast).toEqual(slow);
-      expect(fast.defensive).toBe(
-        fast.armorBV +
-          fast.siBV +
-          fast.defensiveEquipmentBV -
-          fast.explosivePenalties,
-      );
     },
   );
 });

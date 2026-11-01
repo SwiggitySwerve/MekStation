@@ -163,7 +163,170 @@ Vehicle units SHALL carry a motive-damage state struct updated by combat resolut
 - **THEN** penalty SHALL become −5
 - **AND** effective cruise MP SHALL not go below 0
 
+### Requirement: Tonnage Ranges
+
+The system SHALL enforce tonnage ranges per vehicle sub-type. One owner holds the
+maximum tonnage per motion type (`getTankMaxTonnage` for combat vehicles,
+`TestTank.java:132-141`; `getSupportVehicleMaxTonnage` for support vehicles,
+`TestSupportVehicle.java:87-107`). The handlers, VAL-VEH-005 and VAL-VEHICLE-TONNAGE
+SHALL read it rather than keep their own tables.
+
+#### Scenario: Combat vehicle tonnage
+
+- **WHEN** setting tonnage for a combat vehicle
+- **THEN** tonnage MUST be between 1 ton and the motion type's maximum
+- **AND** the vehicle SHALL be superheavy above the weight at which MegaMek's loader builds a
+  SuperHeavyTank (Tracked 100, Wheeled and WiGE 80, Hover 50, Naval and Submarine 300 tons;
+  `BLKTankFile.java:94-123`)
+- **AND** the maximum SHALL be Tracked 200, Wheeled and WiGE 160, Hover 100, Naval and
+  Submarine 555 tons when superheavy, and Tracked 100, Wheeled and WiGE 80, Hover 50, Naval
+  and Submarine 300 tons otherwise
+- **AND** Hydrofoil, Rail and Maglev vehicles, which never load as superheavy, SHALL NOT
+  exceed 100 tons
+
+#### Scenario: VTOL tonnage
+
+- **WHEN** setting tonnage for a VTOL
+- **THEN** tonnage MUST be between 1 and 60 tons (inclusive)
+- **AND** a VTOL over 30 tons SHALL be superheavy (`VTOL.java:729`)
+
+#### Scenario: Support vehicle tonnage
+
+- **WHEN** setting tonnage for a support vehicle
+- **THEN** tonnage MUST NOT exceed the SVType maximum for its motion type: Wheeled 160,
+  Tracked 200, Hover 100, VTOL 60, WiGE 240, Naval, Hydrofoil and Submarine 300, Rail and
+  Maglev 600 tons
+- **AND** a 600-ton Rail LargeSupportTank (the Adelante) SHALL be accepted
+- **AND** the minimum SHALL be 0.001 ton (`getVehicleMinTonnage`), not 1 ton: `TestSupportVehicle`
+  has no 1-ton floor, and a 0.04-ton support VTOL and a 0.35-ton Wheeled cycle are valid in MegaMek
+
+### Requirement: Support Vehicle Size Classes
+
+Support vehicles SHALL be classified by size based on tonnage.
+
+#### Scenario: Size class determination
+
+- **WHEN** determining support vehicle size class
+- **THEN** the system SHALL classify as:
+  - Small: 0.001–5 tons (max 5 tons)
+  - Medium: 6–80 tons (max 80 tons)
+  - Large: 81+ tons (max: the SVType maximum for the motion type)
+
+#### Scenario: Size class tonnage limits in validation
+
+- **WHEN** validating a support vehicle's tonnage against its size class
+- **THEN** Small vehicles SHALL NOT exceed 5 tons
+- **AND** Medium vehicles SHALL NOT exceed 80 tons
+- **AND** no support vehicle SHALL exceed the SVType maximum for its motion type, reported as
+  "{motion type} support vehicles cannot exceed {max} tons"
+
+### Requirement: Validation Rules
+
+The system SHALL enforce vehicle-specific validation rules.
+
+#### Scenario: VAL-VEH-001 — Engine Required
+
+- **WHEN** validating any vehicle category unit
+- **THEN** the unit MUST have an engine
+- **AND** violation SHALL be `CRITICAL_ERROR` severity
+
+#### Scenario: VAL-VEH-002 — Motive System Required
+
+- **WHEN** validating any vehicle category unit
+- **THEN** the unit MUST have a motive system type selected
+- **AND** violation SHALL be `CRITICAL_ERROR` severity
+
+#### Scenario: VAL-VEH-003 — Turret Capacity Limits
+
+- **WHEN** validating a vehicle with a turret (VEHICLE or SUPPORT_VEHICLE, not VTOL)
+- **THEN** turret equipment weight MUST NOT exceed turret capacity
+- **AND** violation SHALL be `ERROR` severity
+- **AND** the error SHALL report the overflow amount
+
+#### Scenario: VAL-VEH-004 — VTOL Rotor Required
+
+- **WHEN** validating a VTOL unit
+- **THEN** the VTOL MUST have a rotor system
+- **AND** violation SHALL be `CRITICAL_ERROR` severity
+
+#### Scenario: VAL-VEH-005 — Vehicle Tonnage Range
+
+- **WHEN** validating vehicle tonnage
+- **THEN** tonnage MUST be between the minimum (1 ton, 0.001 ton for a support vehicle,
+  `getVehicleMinTonnage`) and the maximum the Tonnage Ranges requirement gives
+  for the unit's motion type (`getVehicleMaxTonnage`):
+  - VEHICLE: the superheavy maximum where MegaMek can load the motion type as superheavy,
+    otherwise the ordinary maximum (Tracked 1–200, Hover 1–100, Rail 1–100 tons)
+  - VTOL: 1–60 tons
+  - SUPPORT_VEHICLE: up to the SVType maximum (Rail 0.001–600 tons)
+- **AND** violation SHALL be `CRITICAL_ERROR` severity
+
+#### Scenario: Combat vehicle handler validation
+
+- **WHEN** the VehicleUnitHandler validates a combat vehicle
+- **THEN** it SHALL additionally check:
+  - Tonnage ≥ 1 ton
+  - Vehicles are marked superheavy when MegaMek's loader builds a SuperHeavyTank
+  - Tonnage SHALL NOT exceed `getTankMaxTonnage` for the motion type and superheavy flag
+  - Non-trailer vehicles MUST have ≥ 1 cruise MP
+  - Total armor SHALL NOT exceed max armor points (`(int)(tonnage × 7 / 2 + 40)`, `TestTank.java:338`)
+  - An `<armor>` array of a length MegaMek refuses to load ("Incorrect armor array length")
+    SHALL load for inspection and report that as an error (the VTOL handler does the same)
+  - Turret weight SHALL NOT exceed turret capacity
+  - Hover vehicles over 50 tons generate a WARNING
+
+#### Scenario: Support vehicle handler validation
+
+- **WHEN** the SupportVehicleUnitHandler validates a support vehicle
+- **THEN** it SHALL additionally check:
+  - Size class tonnage limits (Small ≤ 5, Medium ≤ 80) and the SVType maximum for the motion
+    type (Rail ≤ 600)
+  - BAR rating between 1 and 10
+  - Total armor SHALL NOT exceed max armor points (`4 + (int)(tonnage × factor)`, factor by
+    SVType, `TestSupportVehicle.java:585-617`)
+  - Total armor SHALL fit the armor tonnage it weighs (`TestEntity.correctArmorOverAllocation`):
+    for BAR 2-10 armor, the points' weight rounded up to a kilogram (under 5 tons) or a half
+    ton, divided by the BAR weight per point at the source's `armor_tech_rating`, floored and
+    capped by the armor limit, MUST be at least the allocated points
+  - An `<armor>` array of a refused length reports "Incorrect armor array length" as an error
+  - Cargo capacity generates an INFO message when > 0
+
 ## ADDED Requirements
+
+### Requirement: Vehicle turret armor lifecycle
+
+Selecting no turret SHALL remove both turret configurations and zero both
+turret armor allocations while retaining hull, body and rotor allocations.
+Installing a previously absent primary or secondary turret SHALL begin with
+zero armor; editing an already installed turret SHALL retain its armor.
+The actual store persistence and registry reopening SHALL preserve removal.
+Armor totals and BV armor inputs SHALL exclude the removed allocations.
+
+Source: MegaMekLab `62bf19360382049e2e6a1e8f24e859e27bdc5878`,
+`CVStructureTab.java:272-292,769-793`. Upstream removes both turret locations
+for None and initializes reinstalled armor to zero. Clearing stored values
+implements that lifecycle for MekStation's fixed-key allocation map.
+
+#### Scenario: Removing a dual turret and reopening
+
+- **GIVEN** installed primary and secondary turrets with unequal armor
+- **WHEN** no turret is selected, saved and reopened through the registry
+- **THEN** both configurations SHALL be null and both armor values SHALL be zero
+- **AND** unrelated allocations SHALL remain unchanged
+- **AND** armor totals and BV armor inputs SHALL contain only remaining armor
+
+#### Scenario: Installation does not revive stale armor
+
+- **GIVEN** an absent turret with stale armor in a legacy allocation
+- **WHEN** that primary or secondary turret is installed
+- **THEN** its armor SHALL be zero
+- **AND** editing an already installed turret SHALL preserve its armor
+
+This bounded correction does not implement equipment unallocation. Upstream
+keeps removed mounts at `Entity.LOC_NONE`; the canonical Turret System scenario
+currently says Body. That obsolete relocation scenario must be replaced when
+the mount model can preserve unallocated identity. This slice changes neither
+equipment identities nor locations and establishes no equipment/BV parity claim.
 
 ### Requirement: Ordinary combat turret mechanism mass
 

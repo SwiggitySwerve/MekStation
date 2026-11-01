@@ -547,7 +547,7 @@ describe('Vehicle Category Rules', () => {
       );
     });
 
-    describe('Vehicle tonnage (1-100 tons)', () => {
+    describe('Vehicle tonnage (Tracked 1-200 tons, SuperHeavy above 100)', () => {
       it('should pass at minimum tonnage (1 ton)', () => {
         const unit = createVehicleUnit({ weight: 1 });
         const context = createTestContext(unit);
@@ -584,19 +584,41 @@ describe('Vehicle Category Rules', () => {
         expect(result.errors[0].severity).toBe(
           UnitValidationSeverity.CRITICAL_ERROR,
         );
-        expect(result.errors[0].message).toContain('1-100');
-        expect(result.errors[0].expected).toBe('1-100');
+        expect(result.errors[0].message).toContain('1-200');
+        expect(result.errors[0].expected).toBe('1-200');
         expect(result.errors[0].actual).toBe('0');
       });
 
       it('should fail above maximum tonnage', () => {
-        const unit = createVehicleUnit({ weight: 101 });
+        const unit = createVehicleUnit({ weight: 201 });
         const context = createTestContext(unit);
         const result = VehicleTonnageRange.validate(context);
 
         expect(result.passed).toBe(false);
         expect(result.errors.length).toBe(1);
-        expect(result.errors[0].message).toContain('1-100');
+        expect(result.errors[0].message).toContain('1-200');
+      });
+
+      // The loader builds a SuperHeavyTank above the motion's weight
+      // (BLKTankFile.java:94-123), then TestTank.maxTonnage applies
+      // (TestTank.java:132-141, :564).
+      it.each([
+        ['Tracked', 140, true],
+        ['Tracked', 200, true],
+        ['Wheeled', 160, true],
+        ['Wheeled', 161, false],
+        ['Hover', 100, true],
+        ['Hover', 101, false],
+        ['Submarine', 140, true],
+        ['Naval', 555, true],
+        ['Hydrofoil', 101, false],
+        ['Rail', 100, true],
+        ['Rail', 250, false],
+      ])('%s at %d t passes: %s', (type, weight, passes) => {
+        const unit = createVehicleUnit({ weight, motiveSystem: { type } });
+        const result = VehicleTonnageRange.validate(createTestContext(unit));
+
+        expect(result.passed).toBe(passes);
       });
     });
 
@@ -609,7 +631,15 @@ describe('Vehicle Category Rules', () => {
         expect(result.passed).toBe(true);
       });
 
-      it.each([30, 31, 60])('should pass at %d tons', (weight) => {
+      it('uses the VTOL limit without a motive system', () => {
+        const unit = createVTOLUnit({ weight: 61, motiveSystem: undefined });
+        const result = VehicleTonnageRange.validate(createTestContext(unit));
+
+        expect(result.passed).toBe(false);
+        expect(result.errors[0].expected).toBe('1-60');
+      });
+
+      it.each([30, 31, 45, 60])('should pass at %d tons', (weight) => {
         const unit = createVTOLUnit({ weight });
         const context = createTestContext(unit);
         const result = VehicleTonnageRange.validate(context);
@@ -646,7 +676,7 @@ describe('Vehicle Category Rules', () => {
       });
     });
 
-    describe('Support Vehicle tonnage (1-300 tons)', () => {
+    describe('Support Vehicle tonnage (0.001 t to the SVType maximum, TestSupportVehicle.java:87-107)', () => {
       it('should pass at minimum tonnage (1 ton)', () => {
         const unit = createSupportVehicleUnit({ weight: 1 });
         const context = createTestContext(unit);
@@ -655,20 +685,27 @@ describe('Vehicle Category Rules', () => {
         expect(result.passed).toBe(true);
       });
 
-      it('should pass at maximum tonnage (300 tons)', () => {
-        const unit = createSupportVehicleUnit({ weight: 300 });
-        const context = createTestContext(unit);
-        const result = VehicleTonnageRange.validate(context);
+      it.each([
+        ['Wheeled', 160, true],
+        ['Wheeled', 161, false],
+        ['Tracked', 200, true],
+        ['Hover', 100, true],
+        ['Hover', 101, false],
+        ['VTOL', 60, true],
+        ['WiGE', 240, true],
+        ['Naval', 300, true],
+        ['Hydrofoil', 300, true],
+        ['Rail', 600, true],
+        ['Maglev', 600, true],
+        ['Rail', 601, false],
+      ])('%s at %d t passes: %s', (type, weight, passes) => {
+        const unit = createSupportVehicleUnit({
+          weight,
+          motiveSystem: { type },
+        });
+        const result = VehicleTonnageRange.validate(createTestContext(unit));
 
-        expect(result.passed).toBe(true);
-      });
-
-      it('should pass at typical tonnage (100 tons)', () => {
-        const unit = createSupportVehicleUnit({ weight: 100 });
-        const context = createTestContext(unit);
-        const result = VehicleTonnageRange.validate(context);
-
-        expect(result.passed).toBe(true);
+        expect(result.passed).toBe(passes);
       });
 
       it('should fail below minimum tonnage', () => {
@@ -677,18 +714,47 @@ describe('Vehicle Category Rules', () => {
         const result = VehicleTonnageRange.validate(context);
 
         expect(result.passed).toBe(false);
-        expect(result.errors[0].message).toContain('1-300');
+        expect(result.errors[0].message).toContain('0.001-160');
+      });
+
+      // TestSupportVehicle has no 1 t minimum; the corpus holds 18 valid
+      // sub-1 t support vehicles (0.04 t HTE Micro-Copter to 0.84 t Eagre ATV).
+      it.each([
+        ['Wheeled', 0.35],
+        ['Hover', 0.25],
+        ['Naval', 0.1],
+        ['VTOL', 0.04],
+      ])('%s support vehicle at %d t passes', (type, weight) => {
+        const unit = createSupportVehicleUnit({
+          weight,
+          motiveSystem: { type },
+        });
+
+        expect(
+          VehicleTonnageRange.validate(createTestContext(unit)).passed,
+        ).toBe(true);
+      });
+
+      it('keeps the 1 t minimum for combat vehicles', () => {
+        const unit = createVehicleUnit({ weight: 0.5 });
+
+        expect(
+          VehicleTonnageRange.validate(createTestContext(unit)).passed,
+        ).toBe(false);
       });
 
       it('should fail above maximum tonnage', () => {
-        const unit = createSupportVehicleUnit({ weight: 301 });
+        const unit = createSupportVehicleUnit({
+          weight: 601,
+          motiveSystem: { type: 'Rail' },
+        });
         const context = createTestContext(unit);
         const result = VehicleTonnageRange.validate(context);
 
         expect(result.passed).toBe(false);
-        expect(result.errors[0].message).toContain('1-300');
-        expect(result.errors[0].expected).toBe('1-300');
-        expect(result.errors[0].actual).toBe('301');
+        expect(result.errors[0].message).toContain('0.001-600');
+        expect(result.errors[0].expected).toBe('0.001-600');
+        expect(result.errors[0].actual).toBe('601');
       });
     });
 

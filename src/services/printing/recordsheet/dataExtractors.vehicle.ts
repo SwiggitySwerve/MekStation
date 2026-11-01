@@ -14,6 +14,7 @@ import {
   RecordSheetVehicleMotionType,
   RecordSheetVehicleTurretConfig,
 } from '@/types/printing';
+import { RECORD_SHEET_VEHICLE_ARMOR_LOCATIONS } from '@/types/printing/RecordSheetVehicleTypes';
 
 import type { IBaseRecordSheetUnitConfig } from './types';
 
@@ -53,18 +54,6 @@ export interface IVehicleUnitConfig extends IBaseRecordSheetUnitConfig {
   barRating?: number;
 }
 
-/** Standard vehicle armor location order for consistent rendering. */
-const VEHICLE_LOCATION_ORDER: IVehicleLocationArmor['location'][] = [
-  'Front',
-  'Left Side',
-  'Right Side',
-  'Rear',
-  'Turret',
-  'Rotor',
-  'Chin',
-  'Body',
-];
-
 function inferTurretConfig(
   unit: IVehicleUnitConfig,
 ): RecordSheetVehicleTurretConfig {
@@ -88,14 +77,15 @@ export function extractVehicleData(
 ): IVehicleRecordSheetData {
   // Build armor locations in canonical order, skipping absent locations
   const armorAlloc = unit.armorAllocation ?? {};
-  const armorLocations: IVehicleLocationArmor[] = VEHICLE_LOCATION_ORDER.filter(
-    (loc) => armorAlloc[loc] !== undefined,
-  ).map((loc) => ({
-    location: loc,
-    current: armorAlloc[loc]?.current ?? 0,
-    maximum: armorAlloc[loc]?.maximum ?? 0,
-    bar: armorAlloc[loc]?.bar,
-  }));
+  const armorLocations: IVehicleLocationArmor[] =
+    RECORD_SHEET_VEHICLE_ARMOR_LOCATIONS.filter(
+      (loc) => armorAlloc[loc] !== undefined,
+    ).map((loc) => ({
+      location: loc,
+      current: armorAlloc[loc]?.current ?? 0,
+      maximum: armorAlloc[loc]?.maximum ?? 0,
+      bar: armorAlloc[loc]?.bar,
+    }));
 
   // If no allocation provided, emit a placeholder Front location so the
   // renderer always has at least one bar to draw.

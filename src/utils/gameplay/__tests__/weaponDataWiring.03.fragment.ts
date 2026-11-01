@@ -330,7 +330,8 @@ describe('Weapon Data Wiring', () => {
 
       const rolls = [
         createDiceRoll(6, 6), // attack hits
-        createDiceRoll(4, 3), // hit location; no AMS cluster roll consumed
+        createDiceRoll(4, 3), // cluster roll 7: LRM 10 lands 6 missiles, no AMS applies
+        createDiceRoll(4, 3), // hit location
       ];
       let rollIndex = 0;
       session = resolveAllAttacks(session, () => rolls[rollIndex++]);
@@ -358,7 +359,7 @@ describe('Weapon Data Wiring', () => {
       const resolved = session.events.find(
         (event) => event.type === GameEventType.AttackResolved,
       );
-      expect((resolved!.payload as IAttackResolvedPayload).damage).toBe(10);
+      expect((resolved!.payload as IAttackResolvedPayload).damage).toBe(6);
     });
   });
 });

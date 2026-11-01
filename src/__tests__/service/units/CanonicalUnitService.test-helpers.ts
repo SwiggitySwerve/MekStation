@@ -214,24 +214,24 @@ describe('CanonicalUnitService', () => {
       );
     });
 
-    it('should map era from file path', async () => {
+    it('should map era from year regardless of file path', async () => {
       const eraCases = [
-        ['1-age-of-war/test.json', Era.AGE_OF_WAR],
-        ['2-star-league/test.json', Era.STAR_LEAGUE],
-        ['3-succession-wars/test.json', Era.LATE_SUCCESSION_WARS],
-        ['4-clan-invasion/test.json', Era.CLAN_INVASION],
-        ['5-civil-war/test.json', Era.CIVIL_WAR],
-        ['6-dark-age/test.json', Era.DARK_AGE],
-        ['7-ilclan/test.json', Era.IL_CLAN],
+        ['1-age-of-war/test.json', 3069, Era.JIHAD],
+        ['2-star-league/test.json', 3081, Era.EARLY_REPUBLIC],
+        ['3-succession-wars/test.json', 2750, Era.STAR_LEAGUE],
+        ['4-clan-invasion/test.json', 3101, Era.LATE_REPUBLIC],
+        ['5-civil-war/test.json', 3131, Era.DARK_AGE],
+        ['6-dark-age/test.json', 3151, Era.IL_CLAN],
+        ['7-ilclan/test.json', 3025, Era.RENAISSANCE],
       ] as const;
       const mockIndex = {
-        units: eraCases.map(([path], index) => ({
+        units: eraCases.map(([path, year], index) => ({
           id: `test-${index}`,
           chassis: 'Test',
           model: `Mech-${index}`,
           tonnage: 50,
           techBase: 'INNER_SPHERE',
-          year: 2750,
+          year,
           path,
         })),
       };
@@ -244,7 +244,7 @@ describe('CanonicalUnitService', () => {
       const index = await service.getIndex();
 
       expect(index.map((entry) => entry.era)).toEqual(
-        eraCases.map(([, era]) => era),
+        eraCases.map(([, , era]) => era),
       );
     });
 
@@ -273,7 +273,7 @@ describe('CanonicalUnitService', () => {
       expect(index[0].techBase).toBe(TechBase.INNER_SPHERE);
     });
 
-    it('should fallback era to Late Succession Wars when path is unknown', async () => {
+    it('should use the year when the folder is unknown', async () => {
       const mockIndex = {
         units: [
           {
@@ -295,7 +295,7 @@ describe('CanonicalUnitService', () => {
 
       const index = await service.getIndex();
 
-      expect(index[0].era).toBe(Era.LATE_SUCCESSION_WARS);
+      expect(index[0].era).toBe(Era.RENAISSANCE);
     });
   });
 

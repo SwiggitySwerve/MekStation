@@ -8,6 +8,7 @@
  */
 
 import { VTOL_TONNAGE } from '@/services/construction/constructionConstants';
+import { blkVehicleArmorLengthError } from '@/services/conversion/blkVehicleArmorLayout';
 import { VTOLLocation } from '@/types/construction/UnitLocation';
 import { WeightClass } from '@/types/enums';
 import {
@@ -120,6 +121,12 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     const armor = document.armor || [];
     const armorByLocation = this.parseArmorByLocation(armor);
     const totalArmorPoints = armor.reduce((sum, val) => sum + val, 0);
+    const armorLayoutError = blkVehicleArmorLengthError(
+      'VTOL',
+      document.motionType,
+      document.tonnage,
+      armor,
+    );
 
     // Chin turret configuration
     const chinTurret = this.parseChinTurret(document);
@@ -143,6 +150,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
       armorType,
       armor,
       armorByLocation,
+      armorLayoutError,
       totalArmorPoints,
       maxArmorPoints: this.calculateMaxArmor(document.tonnage),
       chinTurret,
@@ -327,6 +335,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     }
 
     // Armor validation
+    if (unit.armorLayoutError) errors.push(unit.armorLayoutError);
     if (unit.totalArmorPoints > unit.maxArmorPoints) {
       errors.push(
         `Total armor (${unit.totalArmorPoints}) exceeds maximum (${unit.maxArmorPoints})`,

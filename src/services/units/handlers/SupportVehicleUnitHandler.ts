@@ -8,8 +8,10 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
+import { getSupportVehicleMaxTonnage } from '@/services/construction/constructionConstants';
 import {
   blkEquipmentBlockLocation,
+  blkVehicleArmorLengthError,
   placeRejectedBlkVehicleArmor,
   resolveBlkVehicleArmor,
 } from '@/services/conversion/blkVehicleArmorLayout';
@@ -31,7 +33,10 @@ import {
   IVehicleMountedEquipment,
   SupportVehicleSizeClass,
 } from '@/types/unit/VehicleInterfaces';
-import { getSupportVehicleMaxTotalArmor } from '@/utils/construction/vehicle/armor';
+import {
+  getSupportVehicleBarArmorPoints,
+  getSupportVehicleMaxTotalArmor,
+} from '@/utils/construction/vehicle/armor';
 import { computeFlankMP } from '@/utils/construction/vehicle/engine';
 
 import {
@@ -45,6 +50,7 @@ import {
   createParseMessages,
   createValidationMessages,
   getRawTagNumber,
+  getRawTagString,
   getVehicleWeightClass,
   serializeConfigurationWithRulesLevel,
 } from './unitHandlerShared';
@@ -65,6 +71,7 @@ const MOTION_TYPE_MAP: Record<string, GroundMotionType> = {
   hydrofoil: GroundMotionType.HYDROFOIL,
   submarine: GroundMotionType.SUBMARINE,
   wige: GroundMotionType.WIGE,
+  glider: GroundMotionType.WIGE, // EntityMovementMode.parseFromString alias
   rail: GroundMotionType.RAIL,
   maglev: GroundMotionType.MAGLEV,
   airship: GroundMotionType.HOVER, // Airships use hover movement
@@ -153,6 +160,12 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
           armor,
         );
     if (placed.warning) warnings.push(placed.warning);
+    const armorLayoutError = blkVehicleArmorLengthError(
+      document.unitType,
+      document.motionType,
+      document.tonnage,
+      armor,
+    );
     const armorByLocation = this.parseArmorByLocation(placed.byLocation);
     const totalArmorPoints = armor.reduce((sum, val) => sum + val, 0);
 
@@ -177,7 +190,9 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
     const structuralTechRating =
       this.parseNumericRaw(rawTags, 'structuraltechrating') || 5;
     const armorTechRating =
-      this.parseNumericRaw(rawTags, 'armortechrating') || 5;
+      this.parseBlkRating(rawTags, 'armor_tech_rating') ??
+      this.parseBlkRating(rawTags, 'structural_tech_rating') ??
+      (this.parseNumericRaw(rawTags, 'armortechrating') || 5);
     const engineTechRating =
       this.parseNumericRaw(rawTags, 'enginetechrating') || 5;
 
@@ -190,6 +205,7 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
       armorType,
       armor,
       armorByLocation,
+      armorLayoutError,
       totalArmorPoints,
       maxArmorPoints: getSupportVehicleMaxTotalArmor(
         motionType,
@@ -242,6 +258,18 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
       return parseInt(barStr[0], 10) || 5;
     }
     return parseInt(String(barStr), 10) || 5;
+  }
+
+  /**
+   * A tech rating index from its BLK tag, undefined when the source has none
+   * (`BLKSupportTankFile.java:144-146`; rating A is 0)
+   */
+  private parseBlkRating(
+    rawTags: Record<string, string | string[]>,
+    key: string,
+  ): number | undefined {
+    const value = parseInt(getRawTagString(rawTags, key) ?? '', 10);
+    return Number.isNaN(value) ? undefined : value;
   }
 
   /**
@@ -374,11 +402,11 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
     ) {
       errors.push('Medium support vehicles cannot exceed 80 tons');
     }
-    if (
-      unit.sizeClass === SupportVehicleSizeClass.LARGE &&
-      unit.tonnage > 300
-    ) {
-      errors.push('Large support vehicles cannot exceed 300 tons');
+    const maxTonnage = getSupportVehicleMaxTonnage(unit.motionType);
+    if (unit.tonnage > maxTonnage) {
+      errors.push(
+        `${unit.motionType} support vehicles cannot exceed ${maxTonnage} tons`,
+      );
     }
 
     // BAR rating validation
@@ -387,10 +415,32 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
     }
 
     // Armor validation
+    if (unit.armorLayoutError) errors.push(unit.armorLayoutError);
     if (unit.totalArmorPoints > unit.maxArmorPoints) {
       errors.push(
         `Total armor (${unit.totalArmorPoints}) exceeds maximum (${unit.maxArmorPoints})`,
       );
+    }
+    // TestEntity.correctArmorOverAllocation: the points must fit the armor
+    // tonnage they weigh (BAR armor types 43-51 are BAR 2-10); points over the
+    // limit are already reported above
+    if (
+      unit.armorType >= 43 &&
+      unit.armorType <= 51 &&
+      unit.totalArmorPoints <= unit.maxArmorPoints
+    ) {
+      const available = getSupportVehicleBarArmorPoints(
+        unit.totalArmorPoints,
+        unit.barRating,
+        unit.armorTechRating,
+        unit.tonnage < 5, // RoundWeight.usesKilogramStandard: Small support
+        unit.maxArmorPoints,
+      );
+      if (unit.totalArmorPoints > available) {
+        errors.push(
+          `Armor allocated (${unit.totalArmorPoints}) exceeds the ${available} points its armor tonnage provides`,
+        );
+      }
     }
 
     // Cargo capacity info

@@ -1,0 +1,50 @@
+{
+  "id": "flatbed-railcar",
+  "chassis": "Flatbed Railcar",
+  "model": "",
+  "unitType": "Support Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2899,
+  "tonnage": 120,
+  "weightClass": "SUPERHEAVY",
+  "motionType": "Rail",
+  "movement": {
+    "cruiseMP": 0,
+    "flankMP": 0,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "NONE",
+    "rating": 0
+  },
+  "armor": {
+    "type": "BAR",
+    "barRating": 3,
+    "byLocation": {
+      "FRONT": 16,
+      "RIGHT": 16,
+      "LEFT": 16,
+      "REAR": 16
+    }
+  },
+  "equipment": [
+    {
+      "id": "sv-chassis-mod-[trailer]",
+      "name": "SV Chassis Mod [Trailer]",
+      "location": "BODY"
+    }
+  ],
+  "fuel": 0.0,
+  "structuralTechRating": 3,
+  "engineTechRating": 3,
+  "armorTechRating": 3,
+  "transporters": [
+    "cargobay:99.0:1:1::-1:0"
+  ],
+  "source": "TP:39V",
+  "fluff": {
+    "overview": "<p>A flatbed railcar (or flatcar) is a type of open-deck freight car designed without sides, roofs, or ends, featuring a simple, flat platform for carrying large, heavy, or irregularly shaped cargo. They are essentially flat, versatile platforms used for transporting goods that do not require protection from the weather.</p>"
+  }
+}

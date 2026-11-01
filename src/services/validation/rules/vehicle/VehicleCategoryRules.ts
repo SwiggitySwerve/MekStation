@@ -8,9 +8,8 @@
  */
 
 import {
-  VEHICLE_TONNAGE,
-  VTOL_TONNAGE,
-  SUPPORT_VEHICLE_TONNAGE,
+  getVehicleMaxTonnage,
+  getVehicleMinTonnage,
 } from '@/services/construction/constructionConstants';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
@@ -51,22 +50,25 @@ function isVehicleUnit(unit: IValidatableUnit): unit is IVehicleUnit {
 }
 
 /**
- * Get tonnage range for a vehicle unit type
+ * Tonnage range for a vehicle: the minimum (`getVehicleMinTonnage`) up to its
+ * motion type's maximum (`getVehicleMaxTonnage`). A VTOL unit is always VTOL
+ * motion.
  */
-function getVehicleTonnageRange(unitType: UnitType): {
+function getVehicleTonnageRange(unit: IValidatableUnit): {
   min: number;
   max: number;
 } {
-  switch (unitType) {
-    case UnitType.VEHICLE:
-      return VEHICLE_TONNAGE;
-    case UnitType.VTOL:
-      return VTOL_TONNAGE;
-    case UnitType.SUPPORT_VEHICLE:
-      return SUPPORT_VEHICLE_TONNAGE;
-    default:
-      return { min: 1, max: 100 };
-  }
+  const motionType =
+    unit.unitType === UnitType.VTOL
+      ? 'VTOL'
+      : isVehicleUnit(unit)
+        ? unit.motiveSystem?.type
+        : undefined;
+  const support = unit.unitType === UnitType.SUPPORT_VEHICLE;
+  return {
+    min: getVehicleMinTonnage(support),
+    max: getVehicleMaxTonnage(motionType, support),
+  };
 }
 
 /**
@@ -239,7 +241,7 @@ export const VehicleTonnageRange: IUnitValidationRuleDefinition = {
     const errors: IUnitValidationError[] = [];
 
     if (isVehicleType(unit.unitType)) {
-      const range = getVehicleTonnageRange(unit.unitType);
+      const range = getVehicleTonnageRange(unit);
       if (unit.weight < range.min || unit.weight > range.max) {
         addRuleDiagnostic(
           errors,

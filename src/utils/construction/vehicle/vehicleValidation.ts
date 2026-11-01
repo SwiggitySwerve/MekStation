@@ -11,9 +11,14 @@
  *   VAL-VEHICLE-POWER-AMP — power amps present when required
  */
 
+import {
+  getVehicleMaxTonnage,
+  getVehicleMinTonnage,
+} from '@/services/construction/constructionConstants';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { EngineType } from '@/types/construction/EngineType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 
 import { validateVehicleArmorLocations } from './armor';
@@ -46,28 +51,6 @@ export const VEHICLE_VALIDATION_RULE_IDS = [
 
 export type VehicleValidationRuleId =
   (typeof VEHICLE_VALIDATION_RULE_IDS)[number];
-
-// =============================================================================
-// Motion-type tonnage caps
-// =============================================================================
-
-/** Maximum tonnage per motion type (TechManual) */
-const MOTION_TYPE_MAX_TONNAGE: Record<GroundMotionType, number> = {
-  [GroundMotionType.TRACKED]: 200,
-  [GroundMotionType.WHEELED]: 80,
-  [GroundMotionType.HOVER]: 50,
-  [GroundMotionType.VTOL]: 30,
-  [GroundMotionType.NAVAL]: 300,
-  [GroundMotionType.HYDROFOIL]: 100,
-  [GroundMotionType.SUBMARINE]: 300,
-  [GroundMotionType.WIGE]: 80,
-  [GroundMotionType.RAIL]: 300,
-  [GroundMotionType.MAGLEV]: 300,
-};
-
-export function getMotionTypeMaxTonnage(motionType: GroundMotionType): number {
-  return MOTION_TYPE_MAX_TONNAGE[motionType] ?? 200;
-}
 
 // =============================================================================
 // Validation Input
@@ -140,11 +123,13 @@ export function validateVehicleConstruction(
   const warnings: string[] = [];
 
   // ── VAL-VEHICLE-TONNAGE ─────────────────────────────────────────────────
-  const maxTonnage = getMotionTypeMaxTonnage(input.motionType);
-  if (input.tonnage < 1) {
+  const support = input.unitType === UnitType.SUPPORT_VEHICLE;
+  const maxTonnage = getVehicleMaxTonnage(input.motionType, support);
+  const minTonnage = getVehicleMinTonnage(support);
+  if (input.tonnage < minTonnage) {
     errors.push({
       ruleId: 'VAL-VEHICLE-TONNAGE',
-      message: `Tonnage must be at least 1 ton`,
+      message: `Tonnage must be at least ${minTonnage} ton`,
     });
   } else if (input.tonnage > maxTonnage) {
     errors.push({

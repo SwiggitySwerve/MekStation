@@ -15,6 +15,7 @@ import { describe, it, expect } from '@jest/globals';
 
 import { EngineType } from '@/types/construction/EngineType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { computeMinimumCrew } from '@/utils/construction/vehicle/crew';
 import {
@@ -320,9 +321,9 @@ describe('VAL-VEHICLE-TONNAGE', () => {
     expect(tonnageErrors).toHaveLength(0);
   });
 
-  it('error: Hover vehicle over 50t exceeds motion-type limit', () => {
+  it('error: Hover vehicle over 100t (SuperHeavy) exceeds motion-type limit', () => {
     const result = validateVehicleConstruction(
-      savannahMasterInput({ tonnage: 55 }),
+      savannahMasterInput({ tonnage: 101 }),
     );
     const tonnageErrors = result.errors.filter(
       (e) => e.ruleId === 'VAL-VEHICLE-TONNAGE',
@@ -330,14 +331,86 @@ describe('VAL-VEHICLE-TONNAGE', () => {
     expect(tonnageErrors.length).toBeGreaterThan(0);
   });
 
-  it('error: VTOL over 30t exceeds limit', () => {
+  it('error: VTOL over 60t (SuperHeavy) exceeds limit', () => {
     const result = validateVehicleConstruction(
-      vtolWarriorInput({ tonnage: 35 }),
+      vtolWarriorInput({ tonnage: 61 }),
     );
     const tonnageErrors = result.errors.filter(
       (e) => e.ruleId === 'VAL-VEHICLE-TONNAGE',
     );
     expect(tonnageErrors.length).toBeGreaterThan(0);
+  });
+
+  // Same owner as the handlers: getVehicleMaxTonnage (TestTank.java:132-141,
+  // TestSupportVehicle.java:87-107).
+  it.each([
+    ['140t SuperHeavy tracked', manticoreInput({ tonnage: 140 }), []],
+    [
+      '201t tracked',
+      manticoreInput({ tonnage: 201 }),
+      ['Tracked vehicles cannot exceed 200 tons — this vehicle is 201t'],
+    ],
+    ['45t SuperHeavy VTOL', vtolWarriorInput({ tonnage: 45 }), []],
+    ['55t SuperHeavy hover', savannahMasterInput({ tonnage: 55 }), []],
+    [
+      '250t rail',
+      manticoreInput({ tonnage: 250, motionType: GroundMotionType.RAIL }),
+      ['Rail vehicles cannot exceed 100 tons — this vehicle is 250t'],
+    ],
+    [
+      '600t rail Large support',
+      manticoreInput({
+        tonnage: 600,
+        motionType: GroundMotionType.RAIL,
+        unitType: UnitType.SUPPORT_VEHICLE,
+      }),
+      [],
+    ],
+    [
+      '0.35t wheeled support (Java has no 1 t minimum)',
+      manticoreInput({
+        tonnage: 0.35,
+        motionType: GroundMotionType.WHEELED,
+        unitType: UnitType.SUPPORT_VEHICLE,
+      }),
+      [],
+    ],
+    [
+      '0.04t support VTOL',
+      manticoreInput({
+        tonnage: 0.04,
+        motionType: GroundMotionType.VTOL,
+        unitType: UnitType.SUPPORT_VEHICLE,
+      }),
+      [],
+    ],
+    [
+      '0.5t combat vehicle keeps the 1 t minimum',
+      manticoreInput({ tonnage: 0.5 }),
+      ['Tonnage must be at least 1 ton'],
+    ],
+    [
+      '0t support vehicle',
+      manticoreInput({
+        tonnage: 0,
+        unitType: UnitType.SUPPORT_VEHICLE,
+      }),
+      ['Tonnage must be at least 0.001 ton'],
+    ],
+    [
+      '161t wheeled support',
+      manticoreInput({
+        tonnage: 161,
+        motionType: GroundMotionType.WHEELED,
+        unitType: UnitType.SUPPORT_VEHICLE,
+      }),
+      ['Wheeled vehicles cannot exceed 160 tons — this vehicle is 161t'],
+    ],
+  ])('%s', (_label, input, expected) => {
+    const messages = validateVehicleConstruction(input)
+      .errors.filter((e) => e.ruleId === 'VAL-VEHICLE-TONNAGE')
+      .map((e) => e.message);
+    expect(messages).toEqual(expected);
   });
 });
 

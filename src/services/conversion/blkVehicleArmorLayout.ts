@@ -105,6 +105,9 @@ function layoutFor(
   }
 }
 
+const accepts = (layout: ArmorLayout, length: number) =>
+  length >= layout.lengths[0] && length <= layout.lengths[1];
+
 export function resolveBlkVehicleArmor(
   blkUnitType: string,
   motionType: string | undefined,
@@ -112,12 +115,29 @@ export function resolveBlkVehicleArmor(
   armor: readonly number[],
 ): Readonly<Record<string, number>> | undefined {
   const layout = layoutFor(blkUnitType, motionType, tonnage);
-  if (!layout) return undefined;
-  const [min, max] = layout.lengths;
-  if (armor.length < min || armor.length > max) return undefined;
+  if (!layout || !accepts(layout, armor.length)) return undefined;
   return Object.fromEntries(
     armor.map((value, index) => [layout.locations[index], value]),
   );
+}
+
+const lengthMessage = (length: number) =>
+  `Incorrect armor array length (${length} values): MegaMek refuses to load it`;
+
+/**
+ * The error for an `<armor>` array the loader refuses, undefined when it is
+ * accepted. The unit still loads for inspection; its validation reports this.
+ */
+export function blkVehicleArmorLengthError(
+  blkUnitType: string,
+  motionType: string | undefined,
+  tonnage: number,
+  armor: readonly number[],
+): string | undefined {
+  const layout = layoutFor(blkUnitType, motionType, tonnage);
+  return layout && !accepts(layout, armor.length)
+    ? lengthMessage(armor.length)
+    : undefined;
 }
 
 /**
@@ -140,7 +160,7 @@ export function placeRejectedBlkVehicleArmor(
       armor.slice(0, locations.length).map((v, i) => [locations[i], v]),
     ),
     warning:
-      `Incorrect armor array length (${armor.length} values): MegaMek refuses to load it, ` +
+      `${lengthMessage(armor.length)}, ` +
       `so the values are placed ${locations.join(', ')} in order` +
       (extra.length > 0
         ? `; the extra values ${extra.join(', ')} are not placed (see armor)`

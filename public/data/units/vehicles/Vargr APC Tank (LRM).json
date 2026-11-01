@@ -1,0 +1,82 @@
+{
+  "id": "vargr-apc-tank-lrm",
+  "chassis": "Vargr APC Tank",
+  "model": "(LRM)",
+  "unitType": "Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "INTRODUCTORY",
+  "era": "SUCCESSION_WARS",
+  "year": 2945,
+  "tonnage": 65,
+  "weightClass": "ASSAULT",
+  "motionType": "Wheeled",
+  "movement": {
+    "cruiseMP": 4,
+    "flankMP": 6,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "ICE",
+    "rating": 240
+  },
+  "armor": {
+    "type": "STANDARD",
+    "byLocation": {
+      "FRONT": 50,
+      "RIGHT": 46,
+      "LEFT": 46,
+      "REAR": 44,
+      "TURRET": 46
+    }
+  },
+  "equipment": [
+    {
+      "id": "machine-gun",
+      "name": "Machine Gun",
+      "location": "TURRET"
+    },
+    {
+      "id": "machine-gun",
+      "name": "Machine Gun",
+      "location": "TURRET"
+    },
+    {
+      "id": "lrm-15",
+      "name": "LRM 15",
+      "location": "TURRET"
+    },
+    {
+      "id": "is-machine-gun-ammo-half",
+      "name": "IS Machine Gun Ammo - Half",
+      "location": "BODY"
+    },
+    {
+      "id": "is-ammo-lrm-15",
+      "name": "IS Ammo LRM-15",
+      "location": "BODY"
+    }
+  ],
+  "armorTechRating": 0,
+  "fuelType": "PETROCHEMICALS",
+  "transporters": [
+    "troopspace:7.0"
+  ],
+  "mulId": 7616,
+  "role": "Skirmisher",
+  "source": "Arano",
+  "fluff": {
+    "overview": "<p>The Vargr is a 65-ton wheeled armored personnel carrier developed for the Aurigan Coalition in 2944. Its name derives from the Old Norse word for wolf. Produced on Mechdur, the Coalition's principal industrial world, the Vargr serves as the primary means of moving infantry across contested terrain. Large for its class, it emphasizes protection and carrying capacity over firepower.</p>",
+    "capabilities": "<p>The Vargr carries a seven-ton infantry bay capable of transporting a full infantry complement to the battlefield. A 240 ICE engine propels the vehicle to 65 km/h on suitable terrain. Its turret mounts two machine guns and two medium lasers, providing adequate suppressive fire once infantry has been delivered to the objective.</p><p>Armor protection is substantial for a vehicle of its class, improving the likelihood of delivering its payload intact. The use of an ICE engine, while well-suited to the limited industrial base of the Aurigan Periphery, reduces endurance compared to fusion-powered alternatives. The vehicle's armament is light relative to its mass, reflecting its purpose as a carrier rather than a dedicated combat unit.</p>",
+    "deployment": "<p>The LRM variant replaces the medium lasers with a single turret-mounted LRM-15 and eight rounds of ammunition, trading close-range laser capability for indirect fire support. This allows the vehicle to engage at longer ranges alongside its machine guns, and provides a fire support option when infantry is not embarked. Introduced in 2945, one year after the base model.</p>",
+    "history": "<p>The Vargr first appeared among forces operating in the Aurigan Reach before being formally documented in House Arano: The Aurigan Coalition. Production was centered on Mechdur, the Coalition's sole significant industrial world during the period.</p><p>The vehicle appears exclusively in Aurigan Coalition unit availability lists from the era, absent even from mercenary rosters, indicating that production output was reserved entirely for Coalition forces. Active manufacturing spanned the Late Succession Wars period through the early Renaissance era. The design's tight association with Aurigan Coalition supply chains limited its spread to other factions, and it remains a distinctly regional vehicle.</p>",
+    "manufacturer": "Aspero-Dinton Mining",
+    "primaryFactory": "Mechdur",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  }
+}

@@ -23,6 +23,7 @@ import {
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
+import { calculateMaxThrust } from '@/utils/construction/aerospace/thrustCalculations';
 
 import {
   AbstractUnitTypeHandler,
@@ -100,7 +101,7 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
 
     // Movement - thrust values
     const safeThrust = document.safeThrust || 0;
-    const maxThrust = Math.floor(safeThrust * 1.5);
+    const maxThrust = calculateMaxThrust(safeThrust);
     const movement: IAerospaceMovement = { safeThrust, maxThrust };
 
     // Fuel

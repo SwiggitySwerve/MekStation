@@ -11,38 +11,39 @@
  * @spec openspec/changes/add-aerospace-construction/specs/aerospace-unit-system/spec.md
  */
 
-import type { StoreEquipmentCollectionActions } from '@/stores/equipmentStoreActions';
-import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
+import type { StoreEquipmentCollectionActions } from "@/stores/equipmentStoreActions";
+import type { UnitIdentityActions } from "@/stores/unitStoreIdentityActions";
 
-import { aerospaceStructuralIntegrity } from '@/services/conversion/BlkParserService.helpers';
-import { getThresholdWeightClass } from '@/services/units/unitWeightClass';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { EngineType } from '@/types/construction/EngineType';
-import { AerospaceLocation } from '@/types/construction/UnitLocation';
-import { RulesLevel } from '@/types/enums/RulesLevel';
-import { TechBase } from '@/types/enums/TechBase';
-import { WeightClass } from '@/types/enums/WeightClass';
-import { IEquipmentItem } from '@/types/equipment';
+import { aerospaceStructuralIntegrity } from "@/services/conversion/BlkParserService.helpers";
+import { getThresholdWeightClass } from "@/services/units/unitWeightClass";
+import { ArmorTypeEnum } from "@/types/construction/ArmorType";
+import { EngineType } from "@/types/construction/EngineType";
+import { AerospaceLocation } from "@/types/construction/UnitLocation";
+import { RulesLevel } from "@/types/enums/RulesLevel";
+import { TechBase } from "@/types/enums/TechBase";
+import { WeightClass } from "@/types/enums/WeightClass";
+import { IEquipmentItem } from "@/types/equipment";
 import {
   AerospaceCockpitType,
   AerospaceEngineType,
   AerospaceSubType,
   IAerospaceMountedEquipment,
   ISmallCraftCrew,
-} from '@/types/unit/AerospaceInterfaces';
-import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { ITransportBay } from '@/types/unit/CapitalShipInterfaces';
+} from "@/types/unit/AerospaceInterfaces";
+import { AerospaceMotionType } from "@/types/unit/BaseUnitInterfaces";
+import { UnitType } from "@/types/unit/BattleMechInterfaces";
+import { ITransportBay } from "@/types/unit/CapitalShipInterfaces";
 import {
   makeSmallCraftCrew,
   minSmallCraftCrew,
-} from '@/utils/construction/aerospace/crewCalculations';
+} from "@/utils/construction/aerospace/crewCalculations";
 import {
   calculateFuelPoints,
   minFuelTons,
-} from '@/utils/construction/aerospace/fuelCalculations';
-import { defaultSI } from '@/utils/construction/aerospace/siCalculations';
-import { generateUnitId as generateUUID } from '@/utils/uuid';
+} from "@/utils/construction/aerospace/fuelCalculations";
+import { defaultSI } from "@/utils/construction/aerospace/siCalculations";
+import { calculateMaxThrust } from "@/utils/construction/aerospace/thrustCalculations";
+import { generateUnitId as generateUUID } from "@/utils/uuid";
 
 // =============================================================================
 // Aerospace Armor Allocation
@@ -160,9 +161,7 @@ export interface AerospaceState {
 
   /** Unit type (Aerospace, Conventional Fighter or Small Craft) */
   readonly unitType:
-    | UnitType.AEROSPACE
-    | UnitType.CONVENTIONAL_FIGHTER
-    | UnitType.SMALL_CRAFT;
+    UnitType.AEROSPACE | UnitType.CONVENTIONAL_FIGHTER | UnitType.SMALL_CRAFT;
 
   /**
    * Aerospace construction sub-type discriminant.
@@ -429,9 +428,9 @@ export function createDefaultAerospaceState(
     : AerospaceEngineType.FUSION;
 
   // Parse name into chassis and model
-  const nameParts = options.name.split(' ');
-  const defaultChassis = nameParts[0] || 'New Fighter';
-  const defaultModel = nameParts.slice(1).join(' ') || '';
+  const nameParts = options.name.split(" ");
+  const defaultChassis = nameParts[0] || "New Fighter";
+  const defaultModel = nameParts.slice(1).join(" ") || "";
 
   return {
     // Identity
@@ -439,7 +438,7 @@ export function createDefaultAerospaceState(
     name: options.name,
     chassis: defaultChassis,
     model: defaultModel,
-    mulId: '-1',
+    mulId: "-1",
     year: 3025,
     rulesLevel: RulesLevel.STANDARD,
     tonnage: options.tonnage,
@@ -461,7 +460,7 @@ export function createDefaultAerospaceState(
     aerospaceEngineType: fuelEngine,
     engineRating,
     safeThrust,
-    maxThrust: Math.floor(safeThrust * 1.5),
+    maxThrust: calculateMaxThrust(safeThrust),
     fuelTons: minFuelTons(aerospaceSubType),
     fuelPoints: calculateFuelPoints(minFuelTons(aerospaceSubType), fuelEngine),
 
