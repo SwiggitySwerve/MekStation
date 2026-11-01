@@ -37,6 +37,7 @@ import {
   parseBlkLineList,
   parseBlkNumber,
   parseBlkWeaponQuirks,
+  resolveAerospaceStructuralIntegrity,
 } from './BlkParserService.helpers';
 
 /**
@@ -233,9 +234,16 @@ export class BlkParserService {
       };
     }
 
-    // Aerospace family: Aero, AeroSpaceFighter, ConvFighter, SmallCraft
+    // Aerospace family: Aero, AeroSpaceFighter, ConvFighter, FixedWingSupport,
+    // SmallCraft
     if (
-      ['Aero', 'AeroSpaceFighter', 'ConvFighter', 'SmallCraft'].includes(ut)
+      [
+        'Aero',
+        'AeroSpaceFighter',
+        'ConvFighter',
+        'FixedWingSupport',
+        'SmallCraft',
+      ].includes(ut)
     ) {
       return {
         success: true,
@@ -318,7 +326,7 @@ export class BlkParserService {
 
   /**
    * Extract aerospace-specific fields from a generic BLK document.
-   * Handles Aero, AeroSpaceFighter, ConvFighter, SmallCraft.
+   * Handles Aero, AeroSpaceFighter, ConvFighter, FixedWingSupport, SmallCraft.
    *
    * maxThrust is always 2 × safeThrust for aerospace fighters per TW rules.
    */
@@ -334,7 +342,7 @@ export class BlkParserService {
       safeThrust,
       maxThrust: safeThrust * 2,
       fuelPoints: doc.fuel ?? 0,
-      structuralIntegrity: doc.structuralIntegrity ?? 0,
+      structuralIntegrity: resolveAerospaceStructuralIntegrity(doc),
       heatsinks: doc.heatsinks ?? 10,
       sinkType: doc.sinkType ?? 0,
       cockpitType: doc.cockpitType ?? 0,
@@ -447,6 +455,7 @@ export class BlkParserService {
       Aero: 'Aerospace Fighter',
       AeroSpaceFighter: 'Aerospace Fighter',
       ConvFighter: 'Conventional Fighter',
+      FixedWingSupport: 'Conventional Fighter',
       Dropship: 'DropShip',
       Jumpship: 'JumpShip',
       Warship: 'WarShip',

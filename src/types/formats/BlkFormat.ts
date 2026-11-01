@@ -292,7 +292,7 @@ export interface IVehicleBlkResult {
 
 /**
  * Parsed aerospace-specific data from a BLK document.
- * Covers Aero / AeroSpaceFighter, ConvFighter, and SmallCraft.
+ * Covers Aero / AeroSpaceFighter, ConvFighter, FixedWingSupport, and SmallCraft.
  */
 export interface IAerospaceBlkResult {
   readonly name: string;
@@ -322,7 +322,7 @@ export interface IAerospaceBlkResult {
   readonly role?: string;
   readonly source?: string;
   readonly quirks?: readonly string[];
-  /** Raw BLK unit type (Aero | AeroSpaceFighter | ConvFighter | SmallCraft) */
+  /** Raw BLK unit type (Aero | AeroSpaceFighter | ConvFighter | FixedWingSupport | SmallCraft) */
   readonly blkUnitType: string;
 }
 
@@ -467,6 +467,8 @@ export const BLK_UNIT_TYPE_MAP: Record<string, UnitType> = {
   Aero: UnitType.AEROSPACE,
   AeroSpaceFighter: UnitType.AEROSPACE,
   ConvFighter: UnitType.CONVENTIONAL_FIGHTER,
+  // A support-vehicle aircraft; modelled as a conventional-fighter subtype
+  FixedWingSupport: UnitType.CONVENTIONAL_FIGHTER,
   // Capital ships
   Dropship: UnitType.DROPSHIP,
   Jumpship: UnitType.JUMPSHIP,
