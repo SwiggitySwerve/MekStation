@@ -33,6 +33,9 @@ test('unhandled references and definitions fail closed', () => {
     { $ref: '#/$defs/Missing' },
     { $defs: { A: { enum: [1] } } },
     { $defs: { A: { type: 'string' } } },
+    // A non-string type would be dropped by the Zod literal while JSON Schema keeps it (#2458 review).
+    { $defs: { A: { type: 'number', enum: ['STANDARD'] } } },
+    { $defs: { A: { type: ['string', 'null'], enum: ['STANDARD'] } } },
     {
       $defs: { A: { enum: ['x'] } },
       $ref: '#/$defs/A',
