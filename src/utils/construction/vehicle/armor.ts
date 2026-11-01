@@ -15,6 +15,7 @@ import {
   ArmorTypeEnum,
   getArmorDefinition,
 } from '@/types/construction/ArmorType';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import { computeVehicleMaxArmorByLocation } from './structure';
@@ -195,4 +196,46 @@ export function getVehicleLocationMaxArmor(
  */
 export function getTankMaxTotalArmor(tonnage: number): number {
   return Math.floor((tonnage * 7) / 2 + 40);
+}
+
+/**
+ * Armor per ton of weight by motion type (`TestSupportVehicle.maxArmorFactor`,
+ * TestSupportVehicle.java:585-617; SVType by movement mode, :146-166). Naval,
+ * Submarine and Hydrofoil are the NAVAL type; Maglev is RAIL.
+ */
+const SUPPORT_ARMOR_PER_TON: Readonly<Record<GroundMotionType, number>> = {
+  [GroundMotionType.TRACKED]: 2,
+  [GroundMotionType.WHEELED]: 2,
+  [GroundMotionType.HOVER]: 1,
+  [GroundMotionType.VTOL]: 1,
+  [GroundMotionType.WIGE]: 0.5,
+  [GroundMotionType.RAIL]: 0.5,
+  [GroundMotionType.MAGLEV]: 0.5,
+  [GroundMotionType.NAVAL]: 0.334,
+  [GroundMotionType.SUBMARINE]: 0.334,
+  [GroundMotionType.HYDROFOIL]: 0.334,
+};
+
+/** A naval support vehicle over this weight is Large (`EntityWeightClass.java:94-95,371-377`: 300 t). */
+const NAVAL_MEDIUM_SUPPORT_MAX_TONS = 300;
+const LARGE_NAVAL_SUPPORT_ARMOR_PER_TON = 0.05;
+
+/**
+ * Most armor points a support vehicle (SupportTank, LargeSupportTank,
+ * SupportVTOL) may carry in total: `4 + (int)(tonnage * factor)`
+ * (`TestSupportVehicle.java:585-617`). BAR does not enter the limit.
+ */
+export function getSupportVehicleMaxTotalArmor(
+  motionType: GroundMotionType,
+  tonnage: number,
+): number {
+  const isNaval =
+    motionType === GroundMotionType.NAVAL ||
+    motionType === GroundMotionType.SUBMARINE ||
+    motionType === GroundMotionType.HYDROFOIL;
+  const factor =
+    isNaval && tonnage > NAVAL_MEDIUM_SUPPORT_MAX_TONS
+      ? LARGE_NAVAL_SUPPORT_ARMOR_PER_TON
+      : SUPPORT_ARMOR_PER_TON[motionType];
+  return 4 + Math.trunc(tonnage * factor);
 }
