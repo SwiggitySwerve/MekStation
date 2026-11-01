@@ -123,14 +123,14 @@ describe('motiveDamage', () => {
   });
 
   describe('effective MP (spec scenario "motive penalty applies to flank MP")', () => {
-    it('cruise 5, penalty 2 -> cruise 3, flank floor(3 * 1.5) = 4', () => {
+    it('cruise 5, penalty 2 -> cruise 3, flank ceil(3 * 1.5) = 5', () => {
       const state = applyMotiveDamageToState(
         createMotiveDamageState(5),
         motiveDamageFromRoll([4, 5]),
       );
       const eff = computeEffectiveMP(state);
       expect(eff.cruiseMP).toBe(3);
-      expect(eff.flankMP).toBe(4);
+      expect(eff.flankMP).toBe(5);
       expect(eff.immobilized).toBe(false);
     });
 

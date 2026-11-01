@@ -107,3 +107,43 @@ describe('pending source requests', () => {
     },
   );
 });
+
+it.each(['canonical', 'custom'] as const)(
+  'UL-10 forwards family for %s and preserves the failed dialog',
+  async (source) => {
+    jest.clearAllMocks();
+    const loadUnit = jest.mocked(unitLoaderService.loadUnit);
+    loadUnit.mockResolvedValue({
+      success: false,
+      errorCode: 'unsupported-store-family',
+    });
+    const params = {
+      unit: {
+        id: 'tomahawk-c',
+        family: 'aerospace',
+        chassis: 'Tomahawk',
+        variant: 'C',
+      } as IUnitIndexEntry,
+      source,
+      createTab: jest.fn(),
+      navigateToTab: jest.fn(),
+      setIsLoadDialogOpen: jest.fn(),
+      setIsLoadingUnit: jest.fn(),
+      showToast: jest.fn(),
+    };
+    await loadUnitIntoTab(params);
+    expect(unitLoaderService.loadUnit).toHaveBeenCalledWith(
+      'tomahawk-c',
+      source,
+      'aerospace',
+    );
+    expect(params.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variant: 'error',
+        message: expect.stringMatching(/cannot be opened/i),
+      }),
+    );
+    expect(params.setIsLoadDialogOpen).not.toHaveBeenCalledWith(false);
+    expect(createUnitFromFullState).not.toHaveBeenCalled();
+  },
+);

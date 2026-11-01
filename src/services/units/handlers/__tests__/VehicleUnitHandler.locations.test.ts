@@ -11,6 +11,7 @@
 
 import type { IBlkDocument } from '@/types/formats/BlkFormat';
 
+import { getTankMaxTonnage } from '@/services/construction/constructionConstants';
 import { BlkParserService } from '@/services/conversion/BlkParserService';
 import { isSuperHeavyTank } from '@/services/conversion/blkVehicleArmorLayout';
 import { BLK_EQUIPMENT_BLOCK_TAGS } from '@/types/formats/BlkFormat';
@@ -273,5 +274,92 @@ describe('VTOL', () => {
     expect(over.validation.errors).toEqual([
       'Total armor (146) exceeds maximum (145)',
     ]);
+  });
+});
+
+describe('follow-up 34', () => {
+  const ranger = () => documentOf(row('Ranger Armored Fighting Vehicle VV22'));
+
+  it('L1: a Rear Turret or Front Turret block in another letter case still loads into the turret', () => {
+    const document = ranger();
+    const lowered: IBlkDocument = {
+      ...document,
+      equipmentByLocation: Object.fromEntries(
+        Object.entries(document.equipmentByLocation).map(([block, items]) => [
+          /turret/i.test(block) ? block.toLowerCase() : block,
+          items,
+        ]),
+      ),
+    };
+    const { unit } = loadTank(lowered);
+    const magshots = unit.equipment.filter(
+      (m) => m.equipmentId === 'ISMagshotGR',
+    );
+    expect(magshots).toHaveLength(8);
+    expect(magshots.every((m) => m.location === 'Turret')).toBe(true);
+    expect(
+      unit.equipment
+        .filter((m) => m.equipmentId === 'ISERSmallLaser')
+        .map((m) => m.location),
+    ).toEqual(['Turret 2', 'Turret 2']);
+  });
+
+  it('N1: an armor array MegaMek refuses creates no "undefined" location and is kept whole', () => {
+    const document = ranger();
+    const armor = [...document.armor, 7, 8, 9];
+    const handler = new VehicleUnitHandler();
+    const loaded = handler.parse({ ...document, armor });
+    if (!loaded.success) throw new Error('parse failed');
+    expect(Object.keys(loaded.data.unit.armorByLocation)).not.toContain(
+      'undefined',
+    );
+    expect(loaded.data.unit.armor).toEqual(armor);
+    expect(loaded.data.warnings.join('\n')).toContain(
+      `Incorrect armor array length (${armor.length} values)`,
+    );
+    expect(loaded.data.warnings.join('\n')).toMatch(/7, 8, 9/);
+  });
+
+  describe('L2: one owner for the maximum tonnage (TestTank.java:132-141)', () => {
+    it.each([
+      ['Wheeled', false, 80],
+      ['Wheeled', true, 160],
+      ['WiGE', true, 160],
+      ['Hover', false, 50],
+      ['Hover', true, 100],
+      ['VTOL', false, 30],
+      ['VTOL', true, 60],
+      ['Naval', false, 300],
+      ['Submarine', true, 555],
+      ['Hydrofoil', false, 100],
+      ['Hydrofoil', true, 100],
+      ['Tracked', false, 100],
+      ['Tracked', true, 200],
+      ['Rail', false, 100],
+    ])('%s superheavy=%s is %d t', (motion, superHeavy, expected) => {
+      expect(getTankMaxTonnage(motion, superHeavy)).toBe(expected);
+    });
+
+    const heavy = (motionType: string, tonnage: number) => ({
+      ...documentOf(row('Puma Assault Tank PAT-001')),
+      motionType,
+      tonnage,
+      armor: [10, 10, 10, 10, 10, 10],
+    });
+
+    it.each([
+      ['Hover', 100, true],
+      ['Hover', 101, false],
+      ['Wheeled', 160, true],
+      ['Wheeled', 161, false],
+      ['Hydrofoil', 100, true],
+      ['Hydrofoil', 101, false],
+      ['Rail', 101, false],
+    ])('a %s tank of %d t is accepted=%s', (motion, tonnage, accepted) => {
+      const { validation } = loadTank(heavy(motion, tonnage));
+      expect(
+        validation.errors.some((e) => e.includes('tonnage cannot exceed')),
+      ).toBe(!accepted);
+    });
   });
 });

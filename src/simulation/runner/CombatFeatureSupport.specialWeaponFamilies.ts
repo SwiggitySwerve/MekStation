@@ -63,7 +63,7 @@ export const SPECIAL_WEAPON_FAMILY_COMBAT_SUPPORT = {
   ),
   'streak-srm': integrated(
     'streak-srm',
-    'Exact damage-capable official Streak SRM ids feed shouldSpendAmmoAndHeatOnMiss + resolveSpecialProjectileHit rack-size derivation while zero-damage Streak LRM/OS/prototype catalog rows stay pinned as data gaps',
+    'Exact damage-capable official Streak SRM and LRM ids, including one-shot and prototype launchers, resolve through the Streak path via shouldSpendAmmoAndHeatOnMiss + resolveSpecialProjectileHit rack-size derivation',
     MEGAMEK_STREAK_SRM_SOURCE_REFS,
   ),
   mml: integrated(

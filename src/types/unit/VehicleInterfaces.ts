@@ -221,6 +221,14 @@ export interface ISupportVehicle extends IGroundUnit {
   /** Passenger capacity */
   readonly passengerCapacity: number;
 
+  /**
+   * Armor per location in MegaMek's layout for the chassis: six sides for a
+   * LargeSupportTank, Turret 2 for a dual-turret SupportTank, Rotor for a
+   * SupportVTOL.
+   */
+  readonly armorByLocation: Record<VehicleLocation, number> &
+    Partial<Record<SuperHeavyVehicleLocation | VTOLLocation, number>>;
+
   /** Equipment mounted on this vehicle */
   readonly equipment: readonly IVehicleMountedEquipment[];
 

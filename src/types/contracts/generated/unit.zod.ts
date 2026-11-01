@@ -974,7 +974,7 @@ export const UnitContract = z
         z.union([
           z.object({
             unitType: z
-              .any()
+              .unknown()
               .refine(
                 (value) => !SchemaDef_capitalUnitType.safeParse(value).success,
                 'Invalid input: Should NOT be valid against schema',

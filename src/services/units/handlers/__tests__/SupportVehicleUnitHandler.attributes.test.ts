@@ -162,29 +162,20 @@ describe('SupportVehicleUnitHandler', () => {
       expect(result.data?.unit?.totalArmorPoints).toBe(32);
     });
 
-    it('should calculate max armor based on tonnage and BAR', () => {
-      const doc = createMockBlkDocument({
-        tonnage: 20,
-        rawTags: { bar: '10' },
-      });
-      const result = handler.parse(doc);
+    it.each(['10', '5'])(
+      'should limit armor by tonnage and movement type, not BAR (BAR %s)',
+      (bar) => {
+        const doc = createMockBlkDocument({
+          tonnage: 20,
+          rawTags: { bar },
+        });
+        const result = handler.parse(doc);
 
-      expect(result.success).toBe(true);
-      // Max = floor(20 * 3.5 * (10/10)) = floor(70) = 70
-      expect(result.data?.unit?.maxArmorPoints).toBe(70);
-    });
-
-    it('should calculate reduced max armor for lower BAR', () => {
-      const doc = createMockBlkDocument({
-        tonnage: 20,
-        rawTags: { bar: '5' },
-      });
-      const result = handler.parse(doc);
-
-      expect(result.success).toBe(true);
-      // Max = floor(20 * 3.5 * (5/10)) = floor(35) = 35
-      expect(result.data?.unit?.maxArmorPoints).toBe(35);
-    });
+        expect(result.success).toBe(true);
+        // TestSupportVehicle.java:585-617: 4 + (int)(20 t * 2.0) for a wheeled vehicle
+        expect(result.data?.unit?.maxArmorPoints).toBe(44);
+      },
+    );
   });
 
   // ==========================================================================

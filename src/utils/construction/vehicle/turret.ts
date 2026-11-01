@@ -146,7 +146,7 @@ export function getEligibleTurretTypes(
  * Validate the 10% turret weight rule for a turret configuration.
  *
  * @param turretType - Type of turret
- * @param equipmentWeight - Total equipment weight in turret (tons)
+ * @param equipmentWeight - Turret equipment weight in tons, excluding ammunition
  * @param currentTurretWeight - Declared turret weight (must equal computed)
  */
 export function validateTurretWeight(

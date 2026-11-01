@@ -16,13 +16,14 @@ small implementation PRs can discharge parts of a row without closing the rest.
 - [ ] 2.1 Add focused source-format deltas and failing fixtures for serialized engine/armor codes, technology flags, real subtypes, armor ordering and equipment qualifiers. Consolidate duplicate schema facts before changing output. (`unit-entity-model`: Faithful source-unit semantics)
 
   UL-06a covers vehicle source qualifiers in the converter and generated catalog
-  contract, with six pinned source fixtures. Family discovery for the 25
-  LargeSupportTanks and 9 FixedWingSupport sources remains UL-05; complete
-  hydration, equipment qualifiers and row 3.1 remain open.
+  contract, with six pinned source fixtures. UL-05 mirrors UL-04a's vehicle
+  armor layouts, rejects invalid array lengths, includes 25 LargeSupportTanks
+  and hands the 9 vehicle-directory FixedWingSupport sources to aerospace.
+  Complete hydration, equipment qualifiers and row 3.1 remain open.
 - [ ] 2.2 Implement installed vehicle engine rules and suspension in the owning modules and conversion/store callers; run affected BV and construction regressions and produce an in-memory data-impact report. (`battle-value-system`: Strict all-family numerical parity)
 - [ ] 2.3 Implement controls, lift/dive and engine-specific heat sinks; make the true Tamerlane reference pass with independently correct terms. (`battle-value-system`: Strict all-family numerical parity)
   - Controls/lift slice: construction owner, explicit no-controls store context, validation quantities and reactive component accounting implemented; see `.omo/evidence/controls-lift/`. Heat-sink rules and source-tag-to-store propagation remain open; this row stays unchecked.
-- [ ] 2.4 Correct shared flank rounding, turret removal/armor, dual-turret sheet mapping, placeholder mechanism weights and genuine Omni allowances. Resolve the obsolete generic turret-capacity spec with a focused delta. Base construction flank now rounds upward; the same rule's motive-damage, aerospace max-thrust and BattleMech run-MP floors and the canonical overview table's floor text remain open. (`unit-entity-model`: Faithful source-unit semantics)
+- [ ] 2.4 Correct shared flank rounding, turret removal/armor, dual-turret sheet mapping, placeholder mechanism weights and genuine Omni allowances. Resolve the obsolete generic turret-capacity spec with a focused delta. Base construction and post-motive-damage flank now round upward; the same rule's aerospace max-thrust and BattleMech run-MP floors and the canonical overview table's floor text remain open. (`unit-entity-model`: Faithful source-unit semantics)
   - Chin mechanism slice: the ordinary turret owner uses 10% for combat VTOL chin mass; test-first boundaries, validation and real-catalog budget composition are covered by the carried tests. Fresh pinned Java observations independently distinguish the former 5% rule. Generic capacity (the 10%-tonnage `maxWeight` rule), placeholder display/handler weights, explicit Omni allowances and publication gates remain open; this row stays unchecked.
 
 - [ ] 2.5 Correct ProtoMech rating through the existing owner after separately verified consolidation; prove stages against pinned Java and cover chassis/reactive edits, exact inverse and movement aliases without claiming native loading or whole-unit parity. (`protomech-unit-system`: Engine Rating)

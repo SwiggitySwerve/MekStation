@@ -19,6 +19,7 @@ import {
   MotiveDamageSeverity,
 } from '@/types/gameplay';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { computeFlankMP } from '@/utils/construction/vehicle/engine';
 
 import { D6Roller, defaultD6Roller, roll2d6 } from './diceTypes';
 
@@ -191,7 +192,8 @@ export function createMotiveDamageState(
 /**
  * Effective cruise/flank MP after motive penalties.
  *  - Cruise MP = max(0, original - penalty)
- *  - Flank MP = floor(cruise × 1.5)
+ *  - Flank MP = ceil(cruise × 1.5), from the construction flank owner
+ *    (MegaMek Tank.getWalkMP subtracts motive damage, Entity.getRunMP rounds up)
  *  - Both clamp to 0 when immobilized.
  */
 export function computeEffectiveMP(
@@ -202,7 +204,7 @@ export function computeEffectiveMP(
   }
 
   const cruiseMP = Math.max(0, state.originalCruiseMP - state.penaltyMP);
-  const flankMP = Math.floor(cruiseMP * 1.5);
+  const flankMP = computeFlankMP(cruiseMP);
 
   return { cruiseMP, flankMP, immobilized: false };
 }

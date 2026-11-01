@@ -8,7 +8,9 @@
  * @spec openspec/specs/unit-services/spec.md
  */
 
-import { Era } from '@/types/enums/Era';
+import type { UnitFamily } from '@/types/unit/UnitIndex';
+
+import { Era, getEraForYear } from '@/types/enums/Era';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { logger } from '@/utils/logger';
@@ -38,9 +40,6 @@ export interface RawUnitIndexEntry {
   bv?: number;
   path: string;
 }
-
-/** Directory (under the site root) of the BattleMech catalog. */
-const BATTLEMECH_DATA_DIRECTORY = '/data/units/battlemechs';
 
 const TECH_BASE_BY_RAW_VALUE: Readonly<Record<string, TechBase>> = {
   CLAN: TechBase.CLAN,
@@ -83,21 +82,30 @@ function unitTypeFromRaw(raw: RawUnitIndexEntry): UnitType {
 
 /**
  * Map a raw index row to IUnitIndexEntry. Throws on an unknown `unitType`
- * rather than defaulting to BattleMech. `filePath` is under the BattleMech
- * catalog until per-family directories exist (UL-09b).
+ * rather than defaulting to BattleMech. Mech output retains its legacy shape.
  */
-export function mapRawIndexEntry(raw: RawUnitIndexEntry): IUnitIndexEntry {
+export function mapRawIndexEntry(
+  raw: RawUnitIndexEntry,
+  family: UnitFamily = 'battlemechs',
+): IUnitIndexEntry {
+  if (!raw || typeof raw.id !== 'string' || typeof raw.path !== 'string') {
+    throw new Error('Invalid unit index row');
+  }
   return {
+    ...(family !== 'battlemechs' && { family }),
     id: raw.id,
     name: `${raw.chassis} ${raw.model}`,
     chassis: raw.chassis,
     variant: raw.model,
     tonnage: raw.tonnage,
     techBase: techBaseFromRawValue(raw.techBase),
-    era: eraFromPath(raw.path),
+    era:
+      family === 'battlemechs'
+        ? eraFromPath(raw.path)
+        : getEraForYear(raw.year),
     weightClass: getUnitIndexWeightClass(raw.tonnage),
     unitType: unitTypeFromRaw(raw),
-    filePath: `${BATTLEMECH_DATA_DIRECTORY}/${raw.path}`,
+    filePath: `/data/units/${family}/${raw.path}`,
     year: raw.year,
     role: raw.role,
     rulesLevel: raw.rulesLevel,
@@ -113,16 +121,19 @@ export function mapRawIndexEntry(raw: RawUnitIndexEntry): IUnitIndexEntry {
  */
 export function mapRawIndexRows(
   rows: readonly RawUnitIndexEntry[],
+  family: UnitFamily = 'battlemechs',
 ): IUnitIndexEntry[] {
   const entries: IUnitIndexEntry[] = [];
   rows.forEach((raw, position) => {
     try {
-      entries.push(mapRawIndexEntry(raw));
+      entries.push(mapRawIndexEntry(raw, family));
     } catch (error) {
       const id = (raw as Partial<RawUnitIndexEntry> | null)?.id ?? '?';
       const reason = error instanceof Error ? error.message : String(error);
       logger.warn(`Skipping unit index row ${position} "${id}": ${reason}`);
     }
   });
+  if (rows.length > 0 && entries.length === 0)
+    throw new Error(`Canonical ${family} index has no usable rows`);
   return entries;
 }

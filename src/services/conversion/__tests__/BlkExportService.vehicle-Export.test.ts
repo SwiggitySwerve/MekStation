@@ -51,6 +51,7 @@ import {
   ProtoChassis,
   ProtoWeightClass,
 } from '@/types/unit/ProtoMechInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 
 import {
@@ -312,6 +313,68 @@ describe('BlkExportService', () => {
 
       expect(result.content).toContain('<armor>');
       expect(result.content).toContain('15\n10\n10\n8\n3\n5');
+    });
+
+    // MegaMek reads one value more than this as a turret (BLKTankFile.java:185,
+    // BLKVTOLFile.java:132), so a turretless vehicle must not get a Turret value.
+    const armorBlock = (content: string | undefined) =>
+      content?.match(/<armor>\n([\s\S]*?)\n<\/armor>/)?.[1];
+
+    it('should write four armor values for a turretless Tank', () => {
+      const tank = createMockVehicleState({
+        armorAllocation: {
+          [VehicleLocation.FRONT]: 25,
+          [VehicleLocation.LEFT]: 18,
+          [VehicleLocation.RIGHT]: 19,
+          [VehicleLocation.REAR]: 12,
+          [VehicleLocation.TURRET]: 0,
+          [VehicleLocation.TURRET_2]: 0,
+          [VehicleLocation.BODY]: 0,
+        },
+      });
+
+      expect(armorBlock(service.export(tank).content)).toBe('25\n19\n18\n12');
+    });
+
+    it('should write five armor values for a turretless VTOL', () => {
+      const vtol = createMockVTOLState({
+        armorAllocation: {
+          [VehicleLocation.FRONT]: 15,
+          [VehicleLocation.LEFT]: 9,
+          [VehicleLocation.RIGHT]: 11,
+          [VehicleLocation.REAR]: 8,
+          [VehicleLocation.TURRET]: 0,
+          [VehicleLocation.TURRET_2]: 0,
+          [VehicleLocation.BODY]: 0,
+          [VTOLLocation.ROTOR]: 3,
+        },
+      });
+
+      expect(armorBlock(service.export(vtol).content)).toBe('15\n11\n9\n8\n3');
+    });
+
+    it('should keep the Turret value of a Tank whose turret has no armor', () => {
+      const tank = createMockVehicleState({
+        turret: {
+          type: TurretType.SINGLE,
+          maxWeight: 5,
+          currentWeight: 0,
+          rotationArc: 360,
+        },
+        armorAllocation: {
+          [VehicleLocation.FRONT]: 25,
+          [VehicleLocation.LEFT]: 18,
+          [VehicleLocation.RIGHT]: 19,
+          [VehicleLocation.REAR]: 12,
+          [VehicleLocation.TURRET]: 0,
+          [VehicleLocation.TURRET_2]: 0,
+          [VehicleLocation.BODY]: 0,
+        },
+      });
+
+      expect(armorBlock(service.export(tank).content)).toBe(
+        '25\n19\n18\n12\n0',
+      );
     });
 
     it('should format motion types correctly', () => {
