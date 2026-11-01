@@ -149,12 +149,13 @@ describe('ConventionalFighterUnitHandler', () => {
     });
 
     describe('structural integrity parsing', () => {
-      it('should parse structural integrity correctly', () => {
+      it('ignores a structural_integrity tag and derives SI, as MegaMek does', () => {
+        // BLKConvFighterFile.java:153 calls autoSetSI: 50 t, thrust 6 gives 6.
         const doc = createMockBlkDocument({ structuralIntegrity: 10 });
         const result = handler.parse(doc);
 
         expect(result.success).toBe(true);
-        expect(result.data?.unit?.structuralIntegrity).toBe(10);
+        expect(result.data?.unit?.structuralIntegrity).toBe(6);
       });
 
       it('should default missing structural integrity to max(tonnage / 10, safe thrust)', () => {
