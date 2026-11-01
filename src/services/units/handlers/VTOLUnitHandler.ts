@@ -54,9 +54,6 @@ import {
 // Constants
 // ============================================================================
 
-/** A VTOL over 30 t is SuperHeavy (VTOL.java:729) and may reach 60 t (TestTank.java:136) */
-const SUPERHEAVY_VTOL_MAX_TONNAGE = 60;
-
 const VTOL_LOCATION_MAP: Record<string, VTOLLocation> = {
   front: VTOLLocation.FRONT,
   left: VTOLLocation.LEFT,
@@ -321,7 +318,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     pushTonnageRangeErrors(errors, unit.tonnage, {
       label: 'VTOL',
       min: VTOL_TONNAGE.min,
-      max: SUPERHEAVY_VTOL_MAX_TONNAGE,
+      max: VTOL_TONNAGE.max,
     });
 
     // Movement validation

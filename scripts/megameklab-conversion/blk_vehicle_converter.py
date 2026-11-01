@@ -35,9 +35,9 @@ from blk_vehicle_tables import (
     ARMOR_CODE_MAP,
     MOTION_TYPE_MAP,
     UNSUPPORTED_UNIT_TYPES,
-    VEHICLE_ARMOR_LOCATIONS,
     VEHICLE_LOCATION_MAP,
     VEHICLE_UNIT_TYPES,
+    resolve_vehicle_armor,
 )
 
 # Shared BLK helpers + enum_mappings re-exports — see blk_common.py for the
@@ -66,7 +66,7 @@ from blk_common import (
 
 # BLK unit types to skip
 
-# Vehicle armor location order in BLK files: Front, Right, Left, Rear, Turret (optional)
+# Armor layout authority: blk_vehicle_tables.py mirrors blkVehicleArmorLayout.ts.
 
 # BLK equipment section tag → canonical location key
 
@@ -166,7 +166,7 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
 
     # Override unit_type discriminator for VTOL vs Tank. Spellings are the
     # app's UnitType values; SupportVTOL stays a Support Vehicle (VTOL motion).
-    if unit_type_raw in ("SupportTank", "SupportVTOL"):
+    if unit_type_raw in ("SupportTank", "LargeSupportTank", "SupportVTOL"):
         unit_type_out = "Support Vehicle"
     elif unit_type_raw == "VTOL" or motion_type == "VTOL":
         unit_type_out = "VTOL"
@@ -183,7 +183,10 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
     engine_code = tags.get("engine_type")
     engine_type_str = map_engine_code(engine_code)
     # Support propulsion remains a separate, unverified construction family.
-    if unit_type_raw in ("SupportTank", "SupportVTOL"):
+    if unit_type_raw == "LargeSupportTank":
+        # BLKLargeSupportTankFile.java:107: support engines have no rated size.
+        engine_rating = 0
+    elif unit_type_raw in ("SupportTank", "SupportVTOL"):
         engine_rating = round(tonnage * cruise_mp / 5) * 5 if tonnage and cruise_mp else 0
     else:
         engine_rating = combat_engine_rating(tonnage, cruise_mp, motion_type, engine_less=engine_type_str == "NONE")
@@ -192,15 +195,23 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
     armor_raw = tags.get("armor") or tags.get("Armor")
     armor_values = parse_armor_array(armor_raw)
     armor_code = get_string(tags, "armor_type")
-    bar_armor = bar_armor_fields(tags, parse_number(armor_code))
-    armor_type_str = bar_armor.get("type") or map_armor_code(armor_code, ARMOR_CODE_MAP)
-    bar_rating = bar_armor.get("barRating")
+    # Only the support loaders read the BAR rating (loadSVArmor in BLKSupportTankFile,
+    # BLKLargeSupportTankFile and BLKSupportVTOLFile); BLKTankFile and BLKVTOLFile do not.
+    armor_type = {
+        "type": map_armor_code(armor_code, ARMOR_CODE_MAP),
+        **bar_armor_fields(
+            tags, parse_number(armor_code), unit_type_raw in ("SupportTank", "LargeSupportTank", "SupportVTOL")
+        ),
+    }
 
     # Build per-location armor dict
-    armor_by_location: Dict[str, int] = {}
-    for i, loc in enumerate(VEHICLE_ARMOR_LOCATIONS):
-        if i < len(armor_values):
-            armor_by_location[loc] = armor_values[i]
+    try:
+        # MekFileParser.java:233 loads Hydrofoil (like Tank, Naval and Surface) through
+        # BLKTankFile, so it takes the Tank layout; the resolver mirrors the TS owner.
+        layout_type = "Tank" if unit_type_raw == "Hydrofoil" else unit_type_raw
+        armor_by_location = resolve_vehicle_armor(layout_type, motion_raw, tonnage, armor_values)
+    except ValueError as exc:
+        raise ValueError(f"{blk_path}: {exc}") from exc
 
     # --- Equipment ---
     equipment = parse_location_equipment(tags, VEHICLE_LOCATION_MAP)
@@ -240,14 +251,11 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
             "rating": engine_rating,
         },
         "armor": {
-            "type": armor_type_str,
+            **armor_type,
             "byLocation": armor_by_location,
         },
         "equipment": equipment,
     }
-
-    if bar_rating is not None:
-        output["armor"]["barRating"] = bar_rating
 
     output.update(parse_vehicle_qualifiers(tags))
 

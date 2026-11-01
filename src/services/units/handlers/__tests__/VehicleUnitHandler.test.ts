@@ -155,6 +155,55 @@ describe('VehicleUnitHandler', () => {
   });
 
   describe('parse', () => {
+    it.each([
+      ['Turret', undefined, TurretType.SINGLE, false, true, false],
+      ['Turret Equipment', undefined, TurretType.SINGLE, false, true, false],
+      ['Sponson Turret Equipment', undefined, undefined, false, true, true],
+      ['Rear Equipment', undefined, undefined, true, false, false],
+      ['Turret 2 Equipment', undefined, undefined, false, true, false],
+      ['Body', 'dual', TurretType.DUAL, false, false, false],
+      ['Body', 'chin', TurretType.CHIN, false, false, false],
+      ['Body', 'unknown', TurretType.SINGLE, false, false, false],
+    ])(
+      'preserves mount and primary-turret policy for %s / %s',
+      (
+        location,
+        explicitType,
+        turretType,
+        isRearMounted,
+        isTurretMounted,
+        isSponsonMounted,
+      ) => {
+        // Four armor values: no Turret in the layout, so only the equipment
+        // block or the explicit type can install a turret (BLKTankFile.java:185).
+        const result = handler.parse(
+          createMockBlkDocument({
+            armor: [16, 12, 12, 10],
+            equipmentByLocation: { [location]: ['Medium Laser'] },
+            rawTags: explicitType ? { turrettype: explicitType } : {},
+          }),
+        );
+        expect(result.success).toBe(true);
+        expect(result.data?.unit.turret?.type).toBe(turretType);
+        expect(result.data?.unit.equipment[0]).toMatchObject({
+          isRearMounted,
+          isTurretMounted,
+          isSponsonMounted,
+        });
+      },
+    );
+
+    it('does not infer a primary turret from an empty equipment block', () => {
+      const result = handler.parse(
+        createMockBlkDocument({
+          armor: [16, 12, 12, 10],
+          equipmentByLocation: { Turret: [] },
+        }),
+      );
+      expect(result.success).toBe(true);
+      expect(result.data?.unit.turret).toBeUndefined();
+    });
+
     it('should parse basic tank successfully', () => {
       const doc = createMockBlkDocument();
       const result = handler.parse(doc);

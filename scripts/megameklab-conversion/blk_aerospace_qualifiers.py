@@ -17,10 +17,10 @@ def parse_aerospace_qualifiers(tags: Dict[str, Any]) -> Dict[str, Any]:
     return result
 
 
-def parse_aerospace_armor(tags: Dict[str, Any]) -> Dict[str, Any]:
+def parse_aerospace_armor(tags: Dict[str, Any], reads_bar_rating: bool = True) -> Dict[str, Any]:
     """Keep armor classification separate from original per-arc source codes."""
     code = parse_qualifier_number(tags, 'armor_type', integer=True) if 'armor_type' in tags else 0
-    result: Dict[str, Any] = {'type': map_armor_code(code, ARMOR_CODE_MAP), **bar_armor_fields(tags, code)}
+    result: Dict[str, Any] = {'type': map_armor_code(code, ARMOR_CODE_MAP), **bar_armor_fields(tags, code, reads_bar_rating)}
     type_by_arc = {
         tag[:-11].upper().replace(' ', '_'): parse_qualifier_number(tags, tag, integer=True)
         for tag in tags if tag.endswith('_armor_type')
