@@ -88,7 +88,7 @@ export function calculateAerospaceAmmoBV(
 
  * siBV = SI × 0.5 × tonnage
 
- * defensiveFactor = 1 + maxThrust / 10
+ * defensiveFactor = 1 (no thrust multiplier)
 
  * defensive = (armorBV × smallCraftBonus + siBV + defEquipBV − explosive) × defensiveFactor
 

@@ -1,5 +1,27 @@
 ## ADDED Requirements
 
+### Requirement: Aerospace Defensive Thrust Factor
+
+Aerospace BV SHALL apply no thrust-based multiplier to the defensive pool,
+matching pinned MegaMek `AeroBVCalculator.processDefensiveFactor`. The exposed
+`defensiveFactor` SHALL equal 1 for fighters, conventional fighters and small
+craft. Aircraft type scaling is a separate term and is deferred by this slice.
+
+#### Scenario: Boeing defensive pool
+
+- **GIVEN** Boeing Jump Bomber with safe thrust 9 and maximum thrust 14
+- **WHEN** its defensive BV is computed
+- **THEN** the defensive factor SHALL equal 1
+- **AND** the existing armor and SI pool of 130 SHALL remain 130
+- **AND** this term correction SHALL NOT imply total BV parity with Java's 64
+
+#### Scenario: Thrust does not scale defense
+
+- **GIVEN** otherwise identical defensive inputs for each supported aerospace subtype
+- **WHEN** maximum thrust changes
+- **THEN** the defensive pool SHALL remain unchanged
+- **AND** armor, SI, equipment, explosive penalties and offensive terms SHALL retain their existing rules
+
 ### Requirement: Runtime parity term validation
 
 The comparator SHALL reject malformed runtime terms with a structured failed
