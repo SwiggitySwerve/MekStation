@@ -62,6 +62,22 @@ export const customCombatSnapshotSchema = mech
     mulId: true,
     role: true,
     sourceDefinition: true,
+    // BLK source qualifiers (UL-06a) share the unit schema but are not part of
+    // a recorded BattleMech construction; keep recorded snapshots unchanged.
+    isOmni: true,
+    baseChassisTurretWeight: true,
+    baseChassisTurret2Weight: true,
+    baseChassisSponsonPintleWeight: true,
+    baseChassisFireConWeight: true,
+    transporters: true,
+    fuel: true,
+    fuelType: true,
+    isTrailer: true,
+    clanEngine: true,
+    structuralTechRating: true,
+    engineTechRating: true,
+    armorTechRating: true,
+    internalType: true,
   })
   .extend({
     unitType: z.literal('BattleMech'),

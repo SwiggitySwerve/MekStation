@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'megameklab-convers
 
 from blk_schema_writers import write_unit_json
 from blk_vehicle_converter import convert_vehicle_blk
+from blk_vehicle_qualifiers import parse_vehicle_qualifiers
 
 FIXTURES = Path(__file__).parent / 'fixtures' / 'vehicle_source_qualifiers.json'
 
@@ -35,6 +36,29 @@ class VehicleSourceQualifiersTest(unittest.TestCase):
                 write_unit_json(destination, unit)
                 self.assertEqual(json.loads(destination.read_text(encoding='utf-8')), unit)
 
+
+
+class VehicleQualifierParsingTest(unittest.TestCase):
+    def test_invalid_values_fail_closed(self):
+        for tags in (
+            {'clan_engine': 'maybe'},
+            {'fuel': 'nan'},
+            {'fuel': 'inf'},
+            {'fuel': 'ten'},
+            {'armor_tech_rating': '2.5'},
+            {'internal_type': 'x'},
+        ):
+            with self.subTest(tags=tags), self.assertRaises(ValueError):
+                parse_vehicle_qualifiers(tags)
+
+    def test_integer_qualifiers_are_ints_and_tons_stay_floats(self):
+        result = parse_vehicle_qualifiers(
+            {'armor_tech_rating': '3', 'internal_type': '-1', 'fuel': '2', 'clan_engine': 'FALSE'}
+        )
+        self.assertEqual(result, {'armorTechRating': 3, 'internalType': -1, 'fuel': 2.0, 'clanEngine': False})
+        self.assertIs(type(result['armorTechRating']), int)
+        self.assertIs(type(result['internalType']), int)
+        self.assertIs(type(result['fuel']), float)
 
 if __name__ == '__main__':
     unittest.main()
