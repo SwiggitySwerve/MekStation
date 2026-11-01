@@ -4,7 +4,11 @@
  * exercised in `scripts/__tests__/vehicle-aero-bv-delta.test.ts`.
  */
 import { VehicleUnitHandler } from '@/services/units/handlers/VehicleUnitHandler';
-import { VehicleLocation } from '@/types/construction/UnitLocation';
+import {
+  SuperHeavyVehicleLocation,
+  VehicleLocation,
+  VTOLLocation,
+} from '@/types/construction/UnitLocation';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
@@ -56,6 +60,26 @@ const fighter = (
     { id: 'medium-laser', location: 'LEFT_WING' },
   ],
   ...overrides,
+});
+
+describe('Converted vehicle location vocabulary', () => {
+  it.each([
+    ['FRONT_LEFT', SuperHeavyVehicleLocation.FRONT_LEFT],
+    ['FRONT_RIGHT', SuperHeavyVehicleLocation.FRONT_RIGHT],
+    ['REAR_LEFT', SuperHeavyVehicleLocation.REAR_LEFT],
+    ['REAR_RIGHT', SuperHeavyVehicleLocation.REAR_RIGHT],
+    ['ROTOR', VTOLLocation.ROTOR],
+  ])('preserves %s in both armor and equipment', (tag, location) => {
+    const unit = contractUnitToBVUnit(
+      vehicle({
+        armor: { type: 'STANDARD', byLocation: { [tag]: 7 } },
+        equipment: [{ id: 'medium-laser', location: tag }],
+      }),
+    ) as IContractBVVehicle;
+    expect(unit.armorByLocation).toEqual({ [location]: 7 });
+    expect(unit.equipment[0].location).toBe(location);
+    expect(unit.totalArmorPoints).toBe(7);
+  });
 });
 
 describe('contractUnitToBVUnit (vehicles)', () => {
@@ -249,12 +273,12 @@ describe('contractUnitToBVUnit (vehicles)', () => {
     ],
     [
       'unknown equipment location',
-      vehicle({ equipment: [{ id: 'medium-laser', location: 'ROTOR' }] }),
+      vehicle({ equipment: [{ id: 'medium-laser', location: 'UNKNOWN' }] }),
       'Unknown vehicle location',
     ],
     [
       'unknown armor location',
-      vehicle({ armor: { type: 'STANDARD', byLocation: { ROTOR: 2 } } }),
+      vehicle({ armor: { type: 'STANDARD', byLocation: { UNKNOWN: 2 } } }),
       'Unknown armor location',
     ],
   ])('throws on %s instead of defaulting', (_name, unit, message) => {

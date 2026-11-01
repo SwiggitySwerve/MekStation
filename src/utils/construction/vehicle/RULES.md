@@ -1,5 +1,25 @@
 # Combat-vehicle construction rules
 
+## Turret weapon BV
+
+`vehicleBVOffensive.ts` owns the turret weapon BV modifier. Single, Dual and
+Chin turrets receive no rotating-turret bonus. Turret weapons remain exempt
+from the rear-facing penalty. The BV dialog consumes `turretModifier`, so it
+remains a compatibility breakdown field with value 1 for these turret kinds.
+Sponson's separate 1.025 term is unchanged and is not covered by this parity claim.
+
+Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`:
+`CombatVehicleBVCalculator.java:123-125` excludes both turret locations from
+the nominal rear filter. Inherited `BVCalculator.java:803-907` applies weapon
+modifiers without a turret bonus; its `arcFactor` at lines 779-781 returns 1.
+`vehicleBV.turretParity.test.ts` checks the Tamerlane (Flamer) contract fixture
+(UL-16 Java total 436) and each ordinary turret kind. Other vehicle BV terms
+still differ; a neutral turret factor does not establish whole-unit parity.
+
+The contract BV adapter preserves the existing Vehicle, SuperHeavyVehicle and
+VTOL location enums for armor and equipment, including six-side and Rotor keys.
+This vocabulary mapping changes no BV arithmetic.
+
 `equipmentMounts.ts` owns the combat-vehicle import mount flags and primary
 turret inference. Nonempty `Turret` / `Turret Equipment` blocks, a Turret armor
 value in the source layout, or an explicit turret type install a primary turret;
