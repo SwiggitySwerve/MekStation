@@ -8,9 +8,11 @@
  * standard-munition ammunition for the launcher's ammo type and rack. One-shot
  * (OS, I-OS) launchers carry no ammunition bin in MegaMek, so their
  * ammoPerTon is null (the catalog leaves the field out).
- * Battle armor missile launchers must use battle-armor ammunition (the `BA-...`
- * rows, 1 shot per ton): `AmmoType.isNotValidBattleArmorMunition`
- * (AmmoType.java:2490) rejects every other ammunition for them.
+ * Battle armor missile launchers require ammunition flagged `F_BATTLEARMOR`:
+ * `AmmoType.isNotValidBattleArmorMunition` (AmmoType.java:2490-2493) rejects
+ * unflagged ammunition. Internal names include `BACL Ammo LRM-n` and
+ * `IS MRM n Ammo`; these rows use per-shot `kgPerShot`, not ton-sized bins
+ * (AmmoType.java:14583-14592, 15098-15107).
  */
 export type MissileOracleRow = readonly [
   megamekName: string,
