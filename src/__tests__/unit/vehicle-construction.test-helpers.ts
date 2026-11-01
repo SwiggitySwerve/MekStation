@@ -367,6 +367,37 @@ describe('VAL-VEHICLE-TONNAGE', () => {
       [],
     ],
     [
+      '0.35t wheeled support (Java has no 1 t minimum)',
+      manticoreInput({
+        tonnage: 0.35,
+        motionType: GroundMotionType.WHEELED,
+        unitType: UnitType.SUPPORT_VEHICLE,
+      }),
+      [],
+    ],
+    [
+      '0.04t support VTOL',
+      manticoreInput({
+        tonnage: 0.04,
+        motionType: GroundMotionType.VTOL,
+        unitType: UnitType.SUPPORT_VEHICLE,
+      }),
+      [],
+    ],
+    [
+      '0.5t combat vehicle keeps the 1 t minimum',
+      manticoreInput({ tonnage: 0.5 }),
+      ['Tonnage must be at least 1 ton'],
+    ],
+    [
+      '0t support vehicle',
+      manticoreInput({
+        tonnage: 0,
+        unitType: UnitType.SUPPORT_VEHICLE,
+      }),
+      ['Tonnage must be at least 0.001 ton'],
+    ],
+    [
       '161t wheeled support',
       manticoreInput({
         tonnage: 161,

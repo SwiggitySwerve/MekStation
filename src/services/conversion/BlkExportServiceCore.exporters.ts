@@ -9,6 +9,7 @@ import {
   ProtoMechLocation,
   VehicleLocation,
 } from '@/types/construction/UnitLocation';
+import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
 import { getProtoMainGunTopologyError } from '@/utils/construction/protomech';
@@ -156,9 +157,13 @@ export function exportAerospace(unit: AerospaceState): IBlkExportResult {
     // removed from AerospaceState. The BLK `<fuel>` tag is now sourced
     // from the computed `fuelPoints` value (fuelTons × points/ton).
     lines.push(tag('fuel', unit.fuelPoints.toString()));
-    lines.push(
-      tag('structural_integrity', unit.structuralIntegrity.toString()),
-    );
+    // MegaMek writes SI only for small craft and JumpShips; fighters derive
+    // it on load (BLKFile.java:1070-1072).
+    if (unit.aerospaceSubType === AerospaceSubType.SMALL_CRAFT) {
+      lines.push(
+        tag('structural_integrity', unit.structuralIntegrity.toString()),
+      );
+    }
     lines.push('');
 
     lines.push(tag('armor_type', formatArmorTypeCode(unit.armorType)));

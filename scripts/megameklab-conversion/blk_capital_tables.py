@@ -20,7 +20,7 @@ DROPSHIP_LOCATION_MAP: Dict[str, str] = {
     "Hull Equipment": "HULL",
 }
 
-# BLKDropshipFile.java:132-136: armor[NOSE=0] nose, armor[RW=1] right, armor[LW=2] left, armor[AFT=3] aft.
+# BLKDropshipFile.java:196-199: armor[NOSE=0] nose, armor[RW=1] right, armor[LW=2] left, armor[AFT=3] aft.
 # Order matters: the aerospace and small-craft converters list the wings left first.
 DROPSHIP_ARMOR_ARCS = ["NOSE", "RIGHT_SIDE", "LEFT_SIDE", "AFT"]
 
@@ -36,7 +36,7 @@ WARSHIP_BROADSIDES = {"Left Broadsides Equipment": "LEFT_BROADSIDE", "Right Broa
 WARSHIP_BROADSIDE_ALIASES = {"Right Broadside Equipment": "RIGHT_BROADSIDE", "Left Broadside Equipment": "LEFT_BROADSIDE"}
 
 # EquipmentType.java:104-105,125-126 (T_ARMOR_ALUM, T_ARMOR_HEAVY_ALUM, T_ARMOR_PRIMITIVE_AERO,
-# T_ARMOR_AEROSPACE). BLKDropshipFile.java:120-125 rewrites the legacy standard code 0 to aerospace.
+# T_ARMOR_AEROSPACE). BLKDropshipFile.java:165-173 rewrites the legacy standard code 0 to aerospace.
 CAPITAL_ARMOR_CODE_MAP: Dict[int, str] = {
     0: "AEROSPACE",
     11: "FERRO_CARBIDE",

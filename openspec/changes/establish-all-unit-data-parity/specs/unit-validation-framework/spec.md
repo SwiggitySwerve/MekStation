@@ -38,8 +38,9 @@ The system SHALL provide validation rules for Vehicle category units (Vehicle, V
 - **THEN** tonnage SHALL be within valid range for the vehicle type and motion type
 - **AND** the maximum SHALL come from `getVehicleMaxTonnage`, the owner the vehicle handlers use
   (`TestTank.java:132-141`, `TestSupportVehicle.java:87-107`)
-- **AND** Vehicle: 1 ton to the superheavy maximum where MegaMek loads the motion type as
+- **AND** Vehicle: 1 ton (`getVehicleMinTonnage`) to the superheavy maximum where MegaMek loads the motion type as
   superheavy, otherwise the ordinary maximum (Tracked 1-200, Hover 1-100, Rail 1-100 tons)
 - **AND** VTOL: 1-60 tons
-- **AND** SupportVehicle: 1 ton to the SVType maximum (Wheeled 1-160, Rail 1-600 tons)
+- **AND** SupportVehicle: 0.001 ton (`getVehicleMinTonnage`; `TestSupportVehicle` has no 1-ton
+  floor) to the SVType maximum (Wheeled 0.001-160, Rail 0.001-600 tons)
 - **AND** invalid tonnage SHALL produce CRITICAL_ERROR

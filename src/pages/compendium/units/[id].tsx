@@ -79,6 +79,9 @@ function MovementCard({
 }): React.ReactElement {
   return (
     <StatCard title="Movement" icon={<MovementIcon />} variant="amber">
+      {stats?.length === 0 && (
+        <p className="text-text-theme-secondary text-sm">Not Yet Available</p>
+      )}
       <StatList>
         {stats ? (
           stats.map(({ label, value }) => (
@@ -124,12 +127,17 @@ function MovementCard({
 
 function CoreSystemsCard({
   unit,
+  structuralIntegrity,
 }: {
   readonly unit: IUnitDetails;
+  readonly structuralIntegrity?: number;
 }): React.ReactElement {
   return (
     <StatCard title="Core Systems" icon={<GearIcon />} variant="cyan">
       <StatList>
+        {structuralIntegrity !== undefined && (
+          <StatRow label="SI" value={structuralIntegrity} />
+        )}
         {unit.engine && (
           <>
             <StatRow label="Engine" value={unit.engine.type} mono={false} />
@@ -307,10 +315,8 @@ export default function CanonicalUnitDetailPage(): React.ReactElement {
   }
 
   const displayName = unitDisplayName(unit);
-  const { armor, movementStats } = getCompendiumDetailPresentation(
-    unit,
-    family,
-  );
+  const { armor, movementStats, structuralIntegrity } =
+    getCompendiumDetailPresentation(unit, family);
   const totalArmor = calculateTotalArmor(armor);
 
   return (
@@ -325,7 +331,10 @@ export default function CanonicalUnitDetailPage(): React.ReactElement {
       <StatGrid cols={3} className="mb-6">
         <MovementCard unit={unit} stats={movementStats} />
 
-        <CoreSystemsCard unit={unit} />
+        <CoreSystemsCard
+          unit={unit}
+          structuralIntegrity={structuralIntegrity}
+        />
 
         <HeatArmorCard unit={unit} totalArmor={totalArmor} />
       </StatGrid>
