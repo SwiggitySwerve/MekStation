@@ -88,9 +88,8 @@ const ARCS: { arc: AerospaceLocation; label: string }[] = [
 /**
  * Aerospace armor diagram showing 4 arcs + SI bar.
  *
- * The SI bar uses a placeholder value (Math.ceil(tonnage / 10)) until the
- * add-aerospace-construction proposal adds SI as a first-class store field.
- * Deferred(add-aerospace-construction): replace placeholder SI with store value.
+ * The SI bar shows the store's structural integrity: derived for fighters,
+ * explicit for small craft.
  */
 export function AerospaceArmorDiagram({
   className = '',
@@ -108,9 +107,8 @@ export function AerospaceArmorDiagram({
   const armorAllocation = useAerospaceStore((s) => s.armorAllocation);
   const setArcArmor = useAerospaceStore((s) => s.setArcArmor);
 
-  // Deferred(add-aerospace-construction): read SI from store when available.
-  const si = Math.ceil(tonnage / 10);
-  const siMax = Math.ceil(tonnage / 10); // structural integrity equals SI rating
+  const si = useAerospaceStore((s) => s.structuralIntegrity);
+  const siMax = si; // structural integrity equals SI rating
 
   // Resolve points-per-ton for the configured armor type (defaults to 16).
   // Retained for availablePoints display below; per-arc cap math no longer
@@ -212,9 +210,6 @@ export function AerospaceArmorDiagram({
             }}
           />
         </div>
-        <p className="text-text-theme-secondary text-[9px] italic">
-          SI placeholder — add-aerospace-construction will populate this field.
-        </p>
       </div>
 
       {/* Fighter silhouette */}
