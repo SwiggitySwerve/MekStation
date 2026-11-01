@@ -29,6 +29,7 @@ import {
   type UnitIndexOptions,
   type UnitLookupOptions,
 } from '@/types/unit/UnitIndex';
+import { logger } from '@/utils/logger';
 
 import type { IUnitIndexEntry, IUnitQueryCriteria } from '../common/types';
 
@@ -119,6 +120,15 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
   /** Cached parsed index entries (null = not yet loaded). */
   private indexCache = new Map<UnitFamily, IUnitIndexEntry[]>();
 
+  /** First entry per id for each loaded family, built with `indexCache`. */
+  private readonly entryIndex = new Map<
+    UnitFamily,
+    ReadonlyMap<string, IUnitIndexEntry>
+  >();
+
+  /** Families whose index file is absent (ENOENT); cleared by `clearCache`. */
+  private readonly missingFamilies = new Set<UnitFamily>();
+
   /** Cached version stamp from the index file (populated when index loads). */
   private indexVersionCache: string | null = null;
 
@@ -159,6 +169,7 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
   private loadRawIndex(family: UnitFamily): IUnitIndexEntry[] {
     const cached = this.indexCache.get(family);
     if (cached) return cached;
+    if (this.missingFamilies.has(family)) return [];
     let contents: string;
     try {
       contents = fs.readFileSync(
@@ -166,7 +177,10 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
         'utf-8',
       );
     } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return [];
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+        this.missingFamilies.add(family);
+        return [];
+      }
       throw error;
     }
     const rawFile = JSON.parse(contents) as RawIndexFile;
@@ -174,6 +188,11 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
       throw new Error('Canonical source index is invalid');
     const entries = mapRawIndexRows(rawFile.units, family);
     this.indexCache.set(family, entries);
+    const byId = new Map<string, IUnitIndexEntry>();
+    for (const entry of entries) {
+      if (!byId.has(entry.id)) byId.set(entry.id, entry);
+    }
+    this.entryIndex.set(family, byId);
     if (family === 'battlemechs')
       this.indexVersionCache = rawFile.version ?? 'unknown';
     return entries;
@@ -315,7 +334,14 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
    */
   getCatalogVersion = (): string => {
     if (this.indexVersionCache === null) {
-      this.loadRawIndex('battlemechs');
+      try {
+        this.loadRawIndex('battlemechs');
+      } catch (error) {
+        logger.warn(
+          'Canonical mech index is unreadable; version unknown',
+          error,
+        );
+      }
     }
     return this.indexVersionCache ?? 'unknown';
   };
@@ -348,7 +374,13 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
       return this.unitCache.get(key)!;
     }
 
-    const entry = this.getIndexSync(options).find((row) => row.id === id);
+    const family = options.family ?? 'battlemechs';
+    try {
+      this.loadRawIndex(family);
+    } catch (error) {
+      if (options.strict) throw error;
+    }
+    const entry = this.entryIndex.get(family)?.get(id);
     if (!entry) {
       return null;
     }
@@ -443,6 +475,8 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
    */
   clearCache = (): void => {
     this.indexCache.clear();
+    this.entryIndex.clear();
+    this.missingFamilies.clear();
     this.indexVersionCache = null;
     this.bvLookupCache.clear();
     this.indexWithBVCache.clear();

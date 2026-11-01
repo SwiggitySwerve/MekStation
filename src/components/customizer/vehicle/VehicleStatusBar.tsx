@@ -14,9 +14,9 @@ import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupS
 import { useVehicleStore, type VehicleStore } from '@/stores/useVehicleStore';
 import { getTotalVehicleArmor } from '@/stores/vehicleState';
 import { getArmorDefinition } from '@/types/construction/ArmorType';
-import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { getInstalledArmorAllocation } from '@/utils/construction/vehicle/armor';
 import { computeFlankMP } from '@/utils/construction/vehicle/engine';
 import { computeVehicleBVFromState } from '@/utils/construction/vehicle/vehicleBVAdapter';
 import { validateVehicleConstruction } from '@/utils/construction/vehicle/vehicleValidation';
@@ -143,22 +143,6 @@ function calculateArmorStats(
   return {
     allocated,
     unallocated: available - allocated,
-  };
-}
-
-/**
- * Armor left on a turret that has been removed is not on the vehicle: drop it
- * so BV counts the same armor points as the Armor item.
- */
-function getInstalledArmorAllocation(
-  allocation: VehicleStatusStoreState['armorAllocation'],
-  hasTurret: boolean,
-  hasSecondaryTurret: boolean,
-): VehicleStatusStoreState['armorAllocation'] {
-  return {
-    ...allocation,
-    ...(hasTurret ? {} : { [VehicleLocation.TURRET]: 0 }),
-    ...(hasSecondaryTurret ? {} : { [VehicleLocation.TURRET_2]: 0 }),
   };
 }
 

@@ -7,6 +7,43 @@
 // these files match the JSON Schema source via `--check` mode.
 
 import { z } from 'zod';
+const SchemaDef_standardArmorType = z
+  .enum([
+    'STANDARD',
+    'FERRO_FIBROUS',
+    'FERRO_FIBROUS_CLAN',
+    'LIGHT_FERRO_FIBROUS',
+    'HEAVY_FERRO_FIBROUS',
+    'STEALTH',
+    'REACTIVE',
+    'REFLECTIVE',
+    'HARDENED',
+    'PRIMITIVE',
+    'INDUSTRIAL',
+    'HEAVY_INDUSTRIAL',
+    'COMMERCIAL',
+    'IMPACT_RESISTANT',
+    'FERRO_LAMELLOR',
+    'FIRE_RESISTANT',
+    'MIMETIC',
+    'STEALTH_IMPROVED',
+    'STEALTH_PROTOTYPE',
+    'REACTIVE_CLAN',
+    'REFLECTIVE_CLAN',
+    'BAR_2',
+    'BAR_4',
+    'BAR_5',
+    'BAR_6',
+    'BAR_7',
+    'BAR_9',
+    'BAR',
+    'AEROSPACE',
+    'PATCHWORK',
+    'FERRO_ALUMINUM',
+    'HEAVY_FERRO_ALUMINUM',
+    'PRIMITIVE_AERO',
+  ])
+  .describe('Armor type');
 
 export const UnitContract = z
   .union([
@@ -129,43 +166,7 @@ export const UnitContract = z
           .strict(),
         armor: z
           .object({
-            type: z
-              .enum([
-                'STANDARD',
-                'FERRO_FIBROUS',
-                'FERRO_FIBROUS_CLAN',
-                'LIGHT_FERRO_FIBROUS',
-                'HEAVY_FERRO_FIBROUS',
-                'STEALTH',
-                'REACTIVE',
-                'REFLECTIVE',
-                'HARDENED',
-                'PRIMITIVE',
-                'INDUSTRIAL',
-                'HEAVY_INDUSTRIAL',
-                'COMMERCIAL',
-                'IMPACT_RESISTANT',
-                'FERRO_LAMELLOR',
-                'FIRE_RESISTANT',
-                'MIMETIC',
-                'STEALTH_IMPROVED',
-                'STEALTH_PROTOTYPE',
-                'REACTIVE_CLAN',
-                'REFLECTIVE_CLAN',
-                'BAR_2',
-                'BAR_4',
-                'BAR_5',
-                'BAR_6',
-                'BAR_7',
-                'BAR_9',
-                'BAR',
-                'AEROSPACE',
-                'PATCHWORK',
-                'FERRO_ALUMINUM',
-                'HEAVY_FERRO_ALUMINUM',
-                'PRIMITIVE_AERO',
-              ])
-              .describe('Armor type'),
+            type: SchemaDef_standardArmorType,
             barRating: z
               .number()
               .int()
@@ -635,43 +636,7 @@ export const UnitContract = z
           .optional(),
         armor: z
           .object({
-            type: z
-              .enum([
-                'STANDARD',
-                'FERRO_FIBROUS',
-                'FERRO_FIBROUS_CLAN',
-                'LIGHT_FERRO_FIBROUS',
-                'HEAVY_FERRO_FIBROUS',
-                'STEALTH',
-                'REACTIVE',
-                'REFLECTIVE',
-                'HARDENED',
-                'PRIMITIVE',
-                'INDUSTRIAL',
-                'HEAVY_INDUSTRIAL',
-                'COMMERCIAL',
-                'IMPACT_RESISTANT',
-                'FERRO_LAMELLOR',
-                'FIRE_RESISTANT',
-                'MIMETIC',
-                'STEALTH_IMPROVED',
-                'STEALTH_PROTOTYPE',
-                'REACTIVE_CLAN',
-                'REFLECTIVE_CLAN',
-                'BAR_2',
-                'BAR_4',
-                'BAR_5',
-                'BAR_6',
-                'BAR_7',
-                'BAR_9',
-                'BAR',
-                'AEROSPACE',
-                'PATCHWORK',
-                'FERRO_ALUMINUM',
-                'HEAVY_FERRO_ALUMINUM',
-                'PRIMITIVE_AERO',
-              ])
-              .describe('Armor type'),
+            type: SchemaDef_standardArmorType,
             barRating: z
               .number()
               .int()

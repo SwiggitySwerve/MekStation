@@ -85,6 +85,8 @@ function getBaseUrl(): string {
  */
 export class CanonicalUnitService implements ICanonicalUnitService {
   private indexCache = new Map<UnitFamily, IUnitIndexEntry[]>();
+  /** Families whose index 404'd; cleared by `clearCache`. */
+  private missingFamilies = new Set<UnitFamily>();
   private indexLoads = new Map<UnitFamily, Promise<IUnitIndexEntry[]>>();
   private unitCache: Map<string, IFullUnit> = new Map();
 
@@ -123,6 +125,7 @@ export class CanonicalUnitService implements ICanonicalUnitService {
   ): Promise<IUnitIndexEntry[]> {
     const cached = this.indexCache.get(family);
     if (cached) return cached;
+    if (this.missingFamilies.has(family)) return [];
     const pending = this.indexLoads.get(family);
     if (pending) return pending;
     const load = (async () => {
@@ -131,7 +134,10 @@ export class CanonicalUnitService implements ICanonicalUnitService {
         true,
         true,
       );
-      if (data === undefined) return [];
+      if (data === undefined) {
+        this.missingFamilies.add(family);
+        return [];
+      }
       if (!data || !Array.isArray(data.units))
         throw new Error('Canonical source index is invalid');
       const entries = mapRawIndexRows(data.units, family);
@@ -263,6 +269,7 @@ export class CanonicalUnitService implements ICanonicalUnitService {
   clearCache = (): void => {
     this.indexCache.clear();
     this.indexLoads.clear();
+    this.missingFamilies.clear();
     this.unitCache.clear();
   };
 }

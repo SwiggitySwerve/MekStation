@@ -2,7 +2,10 @@ import type { VehicleTurretKind } from '../vehicleBV';
 
 import fixture from '../../../../../scripts/__tests__/fixtures/vehicle_aero_contract_bv.json';
 import { calculateBattleValueForUnit } from '../../battleValueCalculations';
-import { contractUnitToBVUnit } from '../../contractBVUnitAdapter';
+import {
+  contractUnitToBVUnit,
+  type IContractBVSource,
+} from '../../contractBVUnitAdapter';
 import { calculateVehicleOffensiveBV } from '../vehicleBV';
 import { baseInput } from './vehicleBV.test.helpers';
 
@@ -13,7 +16,8 @@ describe('Pinned MegaMek combat-vehicle turret weapon BV', () => {
     // (Flamer).blk: Java defense 141.75, offense 293.76, total 436.
     // Only the turret term is asserted; other TS BV terms still differ.
     const result = calculateBattleValueForUnit(
-      contractUnitToBVUnit(fixture.units[0].unit),
+      // The fixture's inferred JSON union is wider than the adapter input type.
+      contractUnitToBVUnit(fixture.units[0].unit as IContractBVSource),
     );
     if (result?.kind !== 'vehicle') throw new Error('Expected vehicle BV');
     expect(result.breakdown.weaponBV).toBe(98); // Flamer 6 + 2 medium lasers at 46.

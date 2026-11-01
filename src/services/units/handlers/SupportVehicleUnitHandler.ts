@@ -8,6 +8,7 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
+import { getSupportVehicleMaxTonnage } from '@/services/construction/constructionConstants';
 import {
   blkEquipmentBlockLocation,
   placeRejectedBlkVehicleArmor,
@@ -65,6 +66,7 @@ const MOTION_TYPE_MAP: Record<string, GroundMotionType> = {
   hydrofoil: GroundMotionType.HYDROFOIL,
   submarine: GroundMotionType.SUBMARINE,
   wige: GroundMotionType.WIGE,
+  glider: GroundMotionType.WIGE, // EntityMovementMode.parseFromString alias
   rail: GroundMotionType.RAIL,
   maglev: GroundMotionType.MAGLEV,
   airship: GroundMotionType.HOVER, // Airships use hover movement
@@ -374,11 +376,11 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
     ) {
       errors.push('Medium support vehicles cannot exceed 80 tons');
     }
-    if (
-      unit.sizeClass === SupportVehicleSizeClass.LARGE &&
-      unit.tonnage > 300
-    ) {
-      errors.push('Large support vehicles cannot exceed 300 tons');
+    const maxTonnage = getSupportVehicleMaxTonnage(unit.motionType);
+    if (unit.tonnage > maxTonnage) {
+      errors.push(
+        `${unit.motionType} support vehicles cannot exceed ${maxTonnage} tons`,
+      );
     }
 
     // BAR rating validation

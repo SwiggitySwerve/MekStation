@@ -300,6 +300,14 @@ describe('SupportVehicleUnitHandler', () => {
       expect(result.data?.unit?.motionType).toBe(GroundMotionType.HOVER);
     });
 
+    it('should map glider to WiGE motion type (EntityMovementMode alias)', () => {
+      const doc = createMockBlkDocument({ motionType: 'Glider' });
+      const result = handler.parse(doc);
+
+      expect(result.success).toBe(true);
+      expect(result.data?.unit?.motionType).toBe(GroundMotionType.WIGE);
+    });
+
     it('should map fixed to tracked motion type', () => {
       const doc = createStationarySupportVehicleDocument();
       const result = handler.parse(doc);

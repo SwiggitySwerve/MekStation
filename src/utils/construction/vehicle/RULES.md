@@ -1,5 +1,26 @@
 # Combat-vehicle construction rules
 
+## Offensive BV mass contribution
+
+`vehicleBVOffensive.ts:calculateVehicleOffensiveBV` owns the offensive mass
+contribution: add raw tonnage / 2 to weapon, capped ammunition and offensive
+equipment BV, then apply the speed factor. Do not round tonnage or require
+weapons. Tank, SuperHeavyTank, VTOL and support vehicles use this same term;
+BAR and defensive type modifiers do not scale the mass contribution.
+
+Pinned MegaMek [CombatVehicleBVCalculator.java:139-144](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/battleValue/CombatVehicleBVCalculator.java#L139)
+adds `entity.getWeight() / 2`.
+[BVCalculator.java:283-291](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/battleValue/BVCalculator.java#L283)
+places it before speed. Its factory selects the same calculator for these
+Tank subclasses. None overrides
+[Entity.java:2033-2035](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/Entity.java#L2033),
+which returns raw loaded tonnage.
+
+`vehicleBV.massParity.test.ts` enforces Tamerlane's Java offensive component,
+unarmed Ferret VTOL mass and fractional support mass. Other offensive terms,
+defense and final rounding retain their existing rules. Complete unit parity
+and the separate sponson multiplier remain unresolved.
+
 ## Turret weapon BV
 
 `vehicleBVOffensive.ts` owns the turret weapon BV modifier. Single, Dual and

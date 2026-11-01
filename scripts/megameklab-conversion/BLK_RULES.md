@@ -37,3 +37,7 @@ The same rule supersedes UL-05's support-only alternative; retain one copy of
 
 Regression coverage: `unit.tonnage.contract.test.ts` and
 `expand-unit-type-requirements.test.mjs` (the DropShip converter tests arrive with #2444).
+
+The unit schema owns enum facts through local definitions. The generator
+resolves those references and emits one shared declaration per enum.
+Definitions are limited to string enums; unsupported references fail closed.
