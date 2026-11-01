@@ -27,7 +27,6 @@ import {
   IVehicle,
   IVehicleMountedEquipment,
   ITurretConfiguration,
-  TurretType,
 } from '@/types/unit/VehicleInterfaces';
 import {
   computeEngineRating,
@@ -35,6 +34,10 @@ import {
   computeVehicleEngineWeight,
   validateVehicleEngine,
 } from '@/utils/construction/vehicle/engine';
+import {
+  getPrimaryVehicleTurretType,
+  getVehicleMountFlags,
+} from '@/utils/construction/vehicle/equipmentMounts';
 
 import {
   AbstractUnitTypeHandler,
@@ -247,26 +250,14 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
   private parseTurretConfiguration(
     document: IBlkDocument,
   ): ITurretConfiguration | undefined {
-    // Check if vehicle has a turret by looking for turret equipment
-    const hasTurretEquipment =
-      document.equipmentByLocation['Turret']?.length > 0 ||
-      document.equipmentByLocation['Turret Equipment']?.length > 0;
-
-    // Check raw tags for turret type
     const rawTags = document.rawTags || {};
-    const turretType = this.getStringFromRaw(rawTags, 'turrettype');
-
-    if (!hasTurretEquipment && !turretType) {
-      return undefined;
-    }
-
-    // Determine turret type
-    let type = TurretType.SINGLE;
-    if (turretType?.toLowerCase() === 'dual') {
-      type = TurretType.DUAL;
-    } else if (turretType?.toLowerCase() === 'chin') {
-      type = TurretType.CHIN;
-    }
+    const type = getPrimaryVehicleTurretType(
+      Object.keys(document.equipmentByLocation).filter(
+        (location) => document.equipmentByLocation[location]?.length > 0,
+      ),
+      this.getStringFromRaw(rawTags, 'turrettype'),
+    );
+    if (type === undefined) return undefined;
 
     // Calculate turret weight (simplified - full calculation would need equipment data)
     const turretWeightFraction = 0.1; // 10% of weapons in turret typically
@@ -294,9 +285,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
         equipmentId: item,
         name: item,
         location,
-        isRearMounted: locationKey.toLowerCase().includes('rear'),
-        isTurretMounted: locationKey.toLowerCase().includes('turret'),
-        isSponsonMounted: locationKey.toLowerCase().includes('sponson'),
+        ...getVehicleMountFlags(locationKey),
       }),
     );
   }

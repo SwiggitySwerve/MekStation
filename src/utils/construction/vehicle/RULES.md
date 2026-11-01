@@ -1,5 +1,11 @@
 # Combat-vehicle construction rules
 
+`equipmentMounts.ts` owns the combat-vehicle import mount flags and primary
+turret inference. Nonempty `Turret` / `Turret Equipment` blocks or an explicit
+turret type install a primary turret. Sponson and secondary-turret blocks carry
+mount flags independently; neither alone installs the primary turret. Explicit
+dual/chin and the existing fallback to single are preserved for BLK imports.
+
 `engine.ts` owns combat-vehicle rating and installed-weight derivation.
 `suspension.json` owns the suspension table facts consumed by TypeScript and
 `scripts/megameklab-conversion/combat_vehicle_engine.py`. Python is a conversion
