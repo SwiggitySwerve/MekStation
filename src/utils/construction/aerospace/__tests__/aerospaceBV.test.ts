@@ -4,7 +4,7 @@
  * Coverage matrix:
  *  - Speed factor formula (spec scenario: "Speed factor calculation")
  *  - Defensive BV: SI term (spec scenario: "SI BV")
- *  - Defensive BV: defensiveFactor = 1 + maxThrust/10 (spec scenario: "Defensive factor uses Max Thrust")
+ *  - Defensive BV: no thrust multiplier (parity delta: "Thrust does not scale defense")
  *  - Arc fire-pool primary/opposite/side weighting (spec scenarios: "Primary arc contributes 100%", "Primary arc not Nose")
  *  - Fuselage weapons always contribute at 100%
  *  - Conventional fighter 0.8 final multiplier (spec scenario: "Conventional fighter multiplier")
@@ -70,16 +70,16 @@ describe('calculateAerospaceSpeedFactor', () => {
 // ============================================================================
 
 describe('calculateAerospaceDefensiveBV', () => {
-  it('SI term matches spec scenario: 50-ton ASF with SI 5 = 125', () => {
+  it('SI term matches pinned Java: 50-ton ASF with SI 5 = 10', () => {
     const result = calculateAerospaceDefensiveBV(
       baseInput({ tonnage: 50, structuralIntegrity: 5 }),
     );
-    expect(result.siBV).toBe(125);
+    expect(result.siBV).toBe(10);
   });
 
-  it('defensive factor uses Max Thrust: maxThrust 9 yields 1.9', () => {
+  it('maximum thrust 9 does not multiply the defensive pool', () => {
     const result = calculateAerospaceDefensiveBV(baseInput({ maxThrust: 9 }));
-    expect(result.defensiveFactor).toBeCloseTo(1.9, 4);
+    expect(result.defensiveFactor).toBe(1);
   });
 
   it('armor BV uses × 2.5 × multiplier baseline', () => {
@@ -116,8 +116,8 @@ describe('calculateAerospaceDefensiveBV', () => {
         explosivePenalties: 20,
       }),
     );
-    // armor 250 + si 125 - explosive 20 = 355; × 1.8 = 639
-    expect(result.defensive).toBeCloseTo(639, 1);
+    // armor 250 + si 10 - explosive 20 = 240; no thrust multiplier
+    expect(result.defensive).toBeCloseTo(240, 1);
   });
 });
 

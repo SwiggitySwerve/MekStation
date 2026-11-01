@@ -7,6 +7,43 @@
 // these files match the JSON Schema source via `--check` mode.
 
 import { z } from 'zod';
+const SchemaDef_standardArmorType = z
+  .enum([
+    'STANDARD',
+    'FERRO_FIBROUS',
+    'FERRO_FIBROUS_CLAN',
+    'LIGHT_FERRO_FIBROUS',
+    'HEAVY_FERRO_FIBROUS',
+    'STEALTH',
+    'REACTIVE',
+    'REFLECTIVE',
+    'HARDENED',
+    'PRIMITIVE',
+    'INDUSTRIAL',
+    'HEAVY_INDUSTRIAL',
+    'COMMERCIAL',
+    'IMPACT_RESISTANT',
+    'FERRO_LAMELLOR',
+    'FIRE_RESISTANT',
+    'MIMETIC',
+    'STEALTH_IMPROVED',
+    'STEALTH_PROTOTYPE',
+    'REACTIVE_CLAN',
+    'REFLECTIVE_CLAN',
+    'BAR_2',
+    'BAR_4',
+    'BAR_5',
+    'BAR_6',
+    'BAR_7',
+    'BAR_9',
+    'BAR',
+    'AEROSPACE',
+    'PATCHWORK',
+    'FERRO_ALUMINUM',
+    'HEAVY_FERRO_ALUMINUM',
+    'PRIMITIVE_AERO',
+  ])
+  .describe('Armor type');
 
 export const UnitContract = z
   .union([
@@ -47,7 +84,13 @@ export const UnitContract = z
           .gte(1000)
           .lte(9999)
           .describe('Introduction year'),
-        tonnage: z.number().gte(0).lte(250).describe('Unit tonnage'),
+        tonnage: z
+          .number()
+          .gte(0)
+          .lte(250)
+          .describe(
+            'Unit tonnage; the anyOf rule retains a 250 t bound, with explicit Support Vehicle (600 t) and capital ship (2,500,000 t) exceptions.',
+          ),
         engine: z
           .object({
             type: z
@@ -63,6 +106,8 @@ export const UnitContract = z
                 'FISSION',
                 'FLYWHEEL',
                 'BATTERY',
+                'NONE',
+                'STEAM',
               ])
               .describe('Engine type'),
             rating: z
@@ -121,37 +166,14 @@ export const UnitContract = z
           .strict(),
         armor: z
           .object({
-            type: z
-              .enum([
-                'STANDARD',
-                'FERRO_FIBROUS',
-                'FERRO_FIBROUS_CLAN',
-                'LIGHT_FERRO_FIBROUS',
-                'HEAVY_FERRO_FIBROUS',
-                'STEALTH',
-                'REACTIVE',
-                'REFLECTIVE',
-                'HARDENED',
-                'PRIMITIVE',
-                'INDUSTRIAL',
-                'HEAVY_INDUSTRIAL',
-                'COMMERCIAL',
-                'IMPACT_RESISTANT',
-                'FERRO_LAMELLOR',
-                'FIRE_RESISTANT',
-                'MIMETIC',
-                'STEALTH_IMPROVED',
-                'STEALTH_PROTOTYPE',
-                'REACTIVE_CLAN',
-                'REFLECTIVE_CLAN',
-                'BAR_2',
-                'BAR_4',
-                'BAR_5',
-                'BAR_6',
-                'BAR_7',
-                'BAR_9',
-              ])
-              .describe('Armor type'),
+            type: SchemaDef_standardArmorType,
+            barRating: z
+              .number()
+              .int()
+              .gte(2)
+              .lte(10)
+              .describe('Support vehicle BAR rating when armor type is BAR')
+              .optional(),
             allocation: z
               .record(
                 z.string(),
@@ -212,6 +234,12 @@ export const UnitContract = z
             byArc: z
               .record(z.string(), z.number().int().gte(0))
               .describe('Armor points per aerospace arc')
+              .optional(),
+            typeByArc: z
+              .record(z.string(), z.number().int().gte(-1))
+              .describe(
+                'Explicit BLK armor type codes per normalized source arc; includes sentinel -1. Distinct from armor points in byArc.',
+              )
               .optional(),
             perTrooper: z
               .number()
@@ -410,6 +438,27 @@ export const UnitContract = z
           .strict()
           .describe('Fluff/flavor text')
           .optional(),
+        isOmni: z.boolean().optional(),
+        omniPodHeatSinks: z.number().int().gte(0).optional(),
+        baseChassisTurretWeight: z.number().gte(0).optional(),
+        baseChassisTurret2Weight: z.number().gte(0).optional(),
+        baseChassisSponsonPintleWeight: z.number().gte(0).optional(),
+        baseChassisFireConWeight: z.number().gte(0).optional(),
+        transporters: z.array(z.string()).optional(),
+        fuel: z
+          .number()
+          .gte(0)
+          .describe(
+            'Source fuel quantity; support vehicles use tons, aerospace uses points.',
+          )
+          .optional(),
+        fuelType: z.string().min(1).optional(),
+        isTrailer: z.boolean().optional(),
+        clanEngine: z.boolean().optional(),
+        structuralTechRating: z.number().int().gte(0).lte(5).optional(),
+        engineTechRating: z.number().int().gte(0).lte(5).optional(),
+        armorTechRating: z.number().int().gte(0).lte(5).optional(),
+        internalType: z.number().int().gte(-1).optional(),
         sourceDefinition: z
           .object({
             source: z.enum(['canonical', 'custom']),
@@ -501,7 +550,13 @@ export const UnitContract = z
           .lte(9999)
           .describe('Introduction year')
           .optional(),
-        tonnage: z.number().gte(0).lte(250).describe('Unit tonnage').optional(),
+        tonnage: z
+          .number()
+          .gte(0)
+          .describe(
+            'Unit tonnage; the anyOf rule retains a 250 t bound, with explicit Support Vehicle (600 t) and capital ship (2,500,000 t) exceptions.',
+          )
+          .optional(),
         engine: z
           .object({
             type: z
@@ -517,6 +572,8 @@ export const UnitContract = z
                 'FISSION',
                 'FLYWHEEL',
                 'BATTERY',
+                'NONE',
+                'STEAM',
               ])
               .describe('Engine type'),
             rating: z
@@ -579,37 +636,14 @@ export const UnitContract = z
           .optional(),
         armor: z
           .object({
-            type: z
-              .enum([
-                'STANDARD',
-                'FERRO_FIBROUS',
-                'FERRO_FIBROUS_CLAN',
-                'LIGHT_FERRO_FIBROUS',
-                'HEAVY_FERRO_FIBROUS',
-                'STEALTH',
-                'REACTIVE',
-                'REFLECTIVE',
-                'HARDENED',
-                'PRIMITIVE',
-                'INDUSTRIAL',
-                'HEAVY_INDUSTRIAL',
-                'COMMERCIAL',
-                'IMPACT_RESISTANT',
-                'FERRO_LAMELLOR',
-                'FIRE_RESISTANT',
-                'MIMETIC',
-                'STEALTH_IMPROVED',
-                'STEALTH_PROTOTYPE',
-                'REACTIVE_CLAN',
-                'REFLECTIVE_CLAN',
-                'BAR_2',
-                'BAR_4',
-                'BAR_5',
-                'BAR_6',
-                'BAR_7',
-                'BAR_9',
-              ])
-              .describe('Armor type'),
+            type: SchemaDef_standardArmorType,
+            barRating: z
+              .number()
+              .int()
+              .gte(2)
+              .lte(10)
+              .describe('Support vehicle BAR rating when armor type is BAR')
+              .optional(),
             allocation: z
               .record(
                 z.string(),
@@ -670,6 +704,12 @@ export const UnitContract = z
             byArc: z
               .record(z.string(), z.number().int().gte(0))
               .describe('Armor points per aerospace arc')
+              .optional(),
+            typeByArc: z
+              .record(z.string(), z.number().int().gte(-1))
+              .describe(
+                'Explicit BLK armor type codes per normalized source arc; includes sentinel -1. Distinct from armor points in byArc.',
+              )
               .optional(),
             perTrooper: z
               .number()
@@ -873,6 +913,27 @@ export const UnitContract = z
           .strict()
           .describe('Fluff/flavor text')
           .optional(),
+        isOmni: z.boolean().optional(),
+        omniPodHeatSinks: z.number().int().gte(0).optional(),
+        baseChassisTurretWeight: z.number().gte(0).optional(),
+        baseChassisTurret2Weight: z.number().gte(0).optional(),
+        baseChassisSponsonPintleWeight: z.number().gte(0).optional(),
+        baseChassisFireConWeight: z.number().gte(0).optional(),
+        transporters: z.array(z.string()).optional(),
+        fuel: z
+          .number()
+          .gte(0)
+          .describe(
+            'Source fuel quantity; support vehicles use tons, aerospace uses points.',
+          )
+          .optional(),
+        fuelType: z.string().min(1).optional(),
+        isTrailer: z.boolean().optional(),
+        clanEngine: z.boolean().optional(),
+        structuralTechRating: z.number().int().gte(0).lte(5).optional(),
+        engineTechRating: z.number().int().gte(0).lte(5).optional(),
+        armorTechRating: z.number().int().gte(0).lte(5).optional(),
+        internalType: z.number().int().gte(-1).optional(),
         sourceDefinition: z
           .object({
             source: z.enum(['canonical', 'custom']),
@@ -894,6 +955,24 @@ export const UnitContract = z
         source: z.string().describe('Source book/publication').optional(),
       })
       .catchall(z.any())
+      .and(
+        z.union([
+          z.object({ tonnage: z.number().lte(250).optional() }),
+          z.object({
+            unitType: z.enum(['Support Vehicle', 'SupportVehicle']),
+            tonnage: z.number().lte(600).optional(),
+          }),
+          z.object({
+            unitType: z.enum([
+              'DropShip',
+              'JumpShip',
+              'WarShip',
+              'Space Station',
+            ]),
+            tonnage: z.number().lte(2500000).optional(),
+          }),
+        ]),
+      )
       .describe(
         'Schema for serialized BattleTech unit definitions (BattleMechs, vehicles, etc.)',
       ),

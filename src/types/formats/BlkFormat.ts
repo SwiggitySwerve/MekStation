@@ -21,6 +21,7 @@ import type { ResultType } from '@/types/common/result';
 
 import {
   ProtoMechLocation,
+  SuperHeavyVehicleLocation,
   VehicleLocation,
   VTOLLocation,
 } from '../construction/UnitLocation';
@@ -42,7 +43,7 @@ export const BLK_PROTOMECH_ARMOR_LOCATIONS = [
  * and export. MegaMek numbers the sides Front, Right, Left, Rear
  * (`Tank.java:123-130`) and `BLKTankFile.java:195-200` copies the array to those
  * locations in order. Superheavy tanks use a six-side layout that is not
- * modelled here.
+ * modelled here (see `BLK_SUPERHEAVY_ARMOR_LOCATIONS`).
  */
 export const BLK_VEHICLE_ARMOR_LOCATIONS = [
   VehicleLocation.FRONT,
@@ -50,6 +51,16 @@ export const BLK_VEHICLE_ARMOR_LOCATIONS = [
   VehicleLocation.LEFT,
   VehicleLocation.REAR,
   VehicleLocation.TURRET,
+] as const;
+
+/**
+ * `<armor>` order for ordinary Tanks and SupportTanks that may carry a second
+ * turret: the five values above, then Turret 2 (`Tank.java:122-130`;
+ * `BLKTankFile.java:182-186` accepts 4 to 6 values).
+ */
+export const BLK_DUAL_TURRET_ARMOR_LOCATIONS = [
+  ...BLK_VEHICLE_ARMOR_LOCATIONS,
+  VehicleLocation.TURRET_2,
 ] as const;
 
 /**
@@ -63,6 +74,22 @@ export const BLK_VTOL_ARMOR_LOCATIONS = [
   VTOLLocation.REAR,
   VTOLLocation.ROTOR,
   VTOLLocation.TURRET,
+] as const;
+
+/**
+ * `<armor>` order for SuperHeavy tanks and LargeSupportTanks: six sides, then
+ * Turret and Turret 2 (`SuperHeavyTank.java:66-74`; `BLKTankFile.java:188-192`
+ * accepts 6 to 8 values, `BLKLargeSupportTankFile.java:124-129` likewise).
+ */
+export const BLK_SUPERHEAVY_ARMOR_LOCATIONS = [
+  SuperHeavyVehicleLocation.FRONT,
+  SuperHeavyVehicleLocation.FRONT_RIGHT,
+  SuperHeavyVehicleLocation.FRONT_LEFT,
+  SuperHeavyVehicleLocation.REAR_RIGHT,
+  SuperHeavyVehicleLocation.REAR_LEFT,
+  SuperHeavyVehicleLocation.REAR,
+  SuperHeavyVehicleLocation.TURRET,
+  SuperHeavyVehicleLocation.TURRET_2,
 ] as const;
 
 /** Native BLK movement vocabulary; Ultraheavy is a weight category, not motion. */
@@ -272,6 +299,12 @@ export interface IVehicleBlkResult {
   readonly jumpingMP: number;
   /** Armor values: [Front, Right, Left, Rear, Turret?] */
   readonly armor: readonly number[];
+  /**
+   * Armor per location in MegaMek's layout for this chassis (six-side for
+   * SuperHeavy and LargeSupport, Turret 2 for dual turrets, Rotor for VTOLs).
+   * Absent when MegaMek would refuse the armor array length.
+   */
+  readonly armorByLocation?: Readonly<Record<string, number>>;
   /** BAR rating for support vehicles (0 for standard combat vehicles) */
   readonly barRating: number;
   /** Engine type code */
@@ -292,7 +325,7 @@ export interface IVehicleBlkResult {
 
 /**
  * Parsed aerospace-specific data from a BLK document.
- * Covers Aero / AeroSpaceFighter, ConvFighter, and SmallCraft.
+ * Covers Aero / AeroSpaceFighter, ConvFighter, FixedWingSupport, and SmallCraft.
  */
 export interface IAerospaceBlkResult {
   readonly name: string;
@@ -322,7 +355,7 @@ export interface IAerospaceBlkResult {
   readonly role?: string;
   readonly source?: string;
   readonly quirks?: readonly string[];
-  /** Raw BLK unit type (Aero | AeroSpaceFighter | ConvFighter | SmallCraft) */
+  /** Raw BLK unit type (Aero | AeroSpaceFighter | ConvFighter | FixedWingSupport | SmallCraft) */
   readonly blkUnitType: string;
 }
 
@@ -460,6 +493,7 @@ export const BLK_UNIT_TYPE_MAP: Record<string, UnitType> = {
   // Vehicles
   Tank: UnitType.VEHICLE,
   SupportTank: UnitType.SUPPORT_VEHICLE,
+  LargeSupportTank: UnitType.SUPPORT_VEHICLE,
   SupportVTOL: UnitType.SUPPORT_VEHICLE,
   VTOL: UnitType.VTOL,
   Naval: UnitType.VEHICLE,
@@ -467,6 +501,8 @@ export const BLK_UNIT_TYPE_MAP: Record<string, UnitType> = {
   Aero: UnitType.AEROSPACE,
   AeroSpaceFighter: UnitType.AEROSPACE,
   ConvFighter: UnitType.CONVENTIONAL_FIGHTER,
+  // A support-vehicle aircraft; modelled as a conventional-fighter subtype
+  FixedWingSupport: UnitType.CONVENTIONAL_FIGHTER,
   // Capital ships
   Dropship: UnitType.DROPSHIP,
   Jumpship: UnitType.JUMPSHIP,
@@ -519,6 +555,16 @@ export const BLK_EQUIPMENT_BLOCK_TAGS: readonly string[] = [
   'Rear Equipment',
   'Turret Equipment',
   'Body Equipment',
+  // VTOL rotor mounts (BLKVTOLFile.java:169, BLKSupportVTOLFile.java:160)
+  'Rotor Equipment',
+  // SuperHeavy / LargeSupport six-side and dual-turret blocks
+  // (BLKTankFile.java:207-221,233-234; BLKLargeSupportTankFile.java:160-169)
+  'Front Right Equipment',
+  'Front Left Equipment',
+  'Rear Right Equipment',
+  'Rear Left Equipment',
+  'Rear Turret Equipment',
+  'Front Turret Equipment',
   // Aerospace
   'Nose Equipment',
   'Left Wing Equipment',

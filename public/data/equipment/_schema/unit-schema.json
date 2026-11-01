@@ -86,8 +86,7 @@
     "tonnage": {
       "type": "number",
       "minimum": 0,
-      "maximum": 250,
-      "description": "Unit tonnage"
+      "description": "Unit tonnage; the anyOf rule retains a 250 t bound, with explicit Support Vehicle (600 t) and capital ship (2,500,000 t) exceptions."
     },
     "engine": {
       "type": "object",
@@ -106,7 +105,9 @@
             "FUEL_CELL",
             "FISSION",
             "FLYWHEEL",
-            "BATTERY"
+            "BATTERY",
+            "NONE",
+            "STEAM"
           ],
           "description": "Engine type"
         },
@@ -180,38 +181,12 @@
       "type": "object",
       "required": ["type"],
       "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "STANDARD",
-            "FERRO_FIBROUS",
-            "FERRO_FIBROUS_CLAN",
-            "LIGHT_FERRO_FIBROUS",
-            "HEAVY_FERRO_FIBROUS",
-            "STEALTH",
-            "REACTIVE",
-            "REFLECTIVE",
-            "HARDENED",
-            "PRIMITIVE",
-            "INDUSTRIAL",
-            "HEAVY_INDUSTRIAL",
-            "COMMERCIAL",
-            "IMPACT_RESISTANT",
-            "FERRO_LAMELLOR",
-            "FIRE_RESISTANT",
-            "MIMETIC",
-            "STEALTH_IMPROVED",
-            "STEALTH_PROTOTYPE",
-            "REACTIVE_CLAN",
-            "REFLECTIVE_CLAN",
-            "BAR_2",
-            "BAR_4",
-            "BAR_5",
-            "BAR_6",
-            "BAR_7",
-            "BAR_9"
-          ],
-          "description": "Armor type"
+        "type": { "$ref": "#/$defs/standardArmorType" },
+        "barRating": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 10,
+          "description": "Support vehicle BAR rating when armor type is BAR"
         },
         "allocation": {
           "type": "object",
@@ -254,6 +229,14 @@
           "additionalProperties": {
             "type": "integer",
             "minimum": 0
+          }
+        },
+        "typeByArc": {
+          "type": "object",
+          "description": "Explicit BLK armor type codes per normalized source arc; includes sentinel -1. Distinct from armor points in byArc.",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": -1
           }
         },
         "perTrooper": {
@@ -488,6 +471,25 @@
       "additionalProperties": false,
       "description": "Fluff/flavor text"
     },
+    "isOmni": { "type": "boolean" },
+    "omniPodHeatSinks": { "type": "integer", "minimum": 0 },
+    "baseChassisTurretWeight": { "type": "number", "minimum": 0 },
+    "baseChassisTurret2Weight": { "type": "number", "minimum": 0 },
+    "baseChassisSponsonPintleWeight": { "type": "number", "minimum": 0 },
+    "baseChassisFireConWeight": { "type": "number", "minimum": 0 },
+    "transporters": { "type": "array", "items": { "type": "string" } },
+    "fuel": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Source fuel quantity; support vehicles use tons, aerospace uses points."
+    },
+    "fuelType": { "type": "string", "minLength": 1 },
+    "isTrailer": { "type": "boolean" },
+    "clanEngine": { "type": "boolean" },
+    "structuralTechRating": { "type": "integer", "minimum": 0, "maximum": 5 },
+    "engineTechRating": { "type": "integer", "minimum": 0, "maximum": 5 },
+    "armorTechRating": { "type": "integer", "minimum": 0, "maximum": 5 },
+    "internalType": { "type": "integer", "minimum": -1 },
     "sourceDefinition": {
       "type": "object",
       "description": "Originating source definition, independent of editor or campaign instance identity",
@@ -516,6 +518,70 @@
     }
   },
   "additionalProperties": true,
+  "anyOf": [
+    {
+      "properties": {
+        "tonnage": { "type": "number", "maximum": 250 }
+      }
+    },
+    {
+      "required": ["unitType"],
+      "properties": {
+        "unitType": { "enum": ["Support Vehicle", "SupportVehicle"] },
+        "tonnage": { "type": "number", "maximum": 600 }
+      }
+    },
+    {
+      "required": ["unitType"],
+      "properties": {
+        "unitType": {
+          "enum": ["DropShip", "JumpShip", "WarShip", "Space Station"]
+        },
+        "tonnage": { "type": "number", "maximum": 2500000 }
+      }
+    }
+  ],
+  "$defs": {
+    "standardArmorType": {
+      "type": "string",
+      "enum": [
+        "STANDARD",
+        "FERRO_FIBROUS",
+        "FERRO_FIBROUS_CLAN",
+        "LIGHT_FERRO_FIBROUS",
+        "HEAVY_FERRO_FIBROUS",
+        "STEALTH",
+        "REACTIVE",
+        "REFLECTIVE",
+        "HARDENED",
+        "PRIMITIVE",
+        "INDUSTRIAL",
+        "HEAVY_INDUSTRIAL",
+        "COMMERCIAL",
+        "IMPACT_RESISTANT",
+        "FERRO_LAMELLOR",
+        "FIRE_RESISTANT",
+        "MIMETIC",
+        "STEALTH_IMPROVED",
+        "STEALTH_PROTOTYPE",
+        "REACTIVE_CLAN",
+        "REFLECTIVE_CLAN",
+        "BAR_2",
+        "BAR_4",
+        "BAR_5",
+        "BAR_6",
+        "BAR_7",
+        "BAR_9",
+        "BAR",
+        "AEROSPACE",
+        "PATCHWORK",
+        "FERRO_ALUMINUM",
+        "HEAVY_FERRO_ALUMINUM",
+        "PRIMITIVE_AERO"
+      ],
+      "description": "Armor type"
+    }
+  },
   "allOf": [
     {
       "if": {

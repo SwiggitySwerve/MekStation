@@ -169,3 +169,57 @@ including explicit overrides opposite to chassis technology.
 - **WHEN** loaded through the BLK handler
 - **THEN** the loader-derived rating is retained, installed engine mass is zero,
   and construction validation separately reports the absent propulsion engine
+
+### Requirement: Vehicle catalog source qualifiers
+
+The Python vehicle converter and generated unit contract SHALL preserve explicit
+Omni identity, base-chassis turret, second-turret, sponson/pintle and fire-control
+weights, transporter records, fuel quantity and type, trailer identity, independent
+Clan-engine context, structural/engine/armor tech-rating indices and internal type.
+Omitted qualifiers SHALL remain omitted. Zero quantities, false Clan-engine flags
+and internal-type sentinel -1 SHALL survive schema validation and JSON round trips.
+These are source facts; their presence SHALL NOT imply construction validity.
+
+#### Scenario: Qualifier-bearing vehicle crosses the catalog boundary
+
+- **GIVEN** one of the six pinned vehicle qualifier fixtures
+- **WHEN** it is converted, written through the schema gate and read through UnitContract
+- **THEN** every explicit qualifier SHALL retain its value and transporter order
+- **AND** transport capacity, doors, bay identity and other colon-delimited qualifiers SHALL remain intact
+
+#### Scenario: Source presence and units remain explicit
+
+- **GIVEN** BLK omni/trailer presence markers and explicit clan_engine false
+- **WHEN** vehicle qualifiers are converted
+- **THEN** isOmni/isTrailer SHALL indicate tag presence and clanEngine SHALL remain false
+- **AND** support fuel and base-chassis weights SHALL retain source tons without rounding
+- **AND** absent tags SHALL NOT acquire inferred chassis-tech defaults
+
+LargeSupportTank and FixedWingSupport discovery remains in UL-05. Qualifier
+extraction covers their source tags without claiming complete converted documents.
+
+### Requirement: Aerospace catalog source qualifiers
+
+The Python aerospace converter and generated unit contract SHALL preserve explicit
+Omni identity, pod heat-sink counts, ordered transporter records, independent
+Clan-engine flags and per-arc armor source codes. Common vehicle/aerospace fields
+SHALL have one extraction rule and one schema definition. Missing qualifiers SHALL
+remain absent; zero, false and empty transporter lists SHALL survive round trips.
+
+#### Scenario: Aerospace qualifiers cross the catalog boundary
+
+- **GIVEN** one of the eight pinned aerospace qualifier fixtures
+- **WHEN** converted, written through the schema gate and read through UnitContract
+- **THEN** explicit qualifiers and transporter order SHALL survive unchanged
+- **AND** armor.typeByArc SHALL preserve integer source codes, including -1, keyed by normalized source location
+- **AND** armor.byArc SHALL continue to carry armor points separately
+
+#### Scenario: Aerospace armor is distinguished from support BAR armor
+
+- **GIVEN** armor code 41 or a support BAR code 43 through 51
+- **WHEN** the aerospace converter creates its catalog document
+- **THEN** code 41 SHALL become AEROSPACE, and support BAR codes SHALL become BAR
+- **AND** barRating SHALL come only from an explicit barrating tag
+- **AND** code 7 SHALL retain PATCHWORK alongside its explicit per-arc codes
+
+Catalog hydration, construction validity, equipment/export and BV remain open.

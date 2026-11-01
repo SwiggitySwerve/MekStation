@@ -1,4 +1,5 @@
 import atlas from '../../../../../public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json';
+import { resetCanonicalUnitService } from '../../CanonicalUnitService';
 import { loadUnitDefinition } from '../loadUnitDefinition';
 
 it('returns a validated definition with its source identity and custom revision', async () => {
@@ -70,6 +71,40 @@ it('loads a non-mech definition without pretending it is BattleMech configuratio
   ).toMatchObject({ success: true, definition });
 });
 
+it('UL-10 retains family and revision on explicitly qualified custom references', async () => {
+  const reference = {
+    source: 'custom' as const,
+    family: 'infantry' as const,
+    id: 'saved-squad',
+  };
+  const read = jest.fn();
+  read.mockResolvedValue({
+    id: 'squad',
+    unitType: 'Infantry',
+    currentVersion: 4,
+  });
+  expect(await loadUnitDefinition({ read }, reference)).toMatchObject({
+    success: true,
+    family: 'infantry',
+    reference: { ...reference, version: 4 },
+    definition: { unitType: 'Infantry' },
+  });
+  expect(read).toHaveBeenCalledWith(reference);
+});
+
+it('UL-10 rejects a definition whose type disagrees with the requested family', async () => {
+  expect(
+    await loadUnitDefinition(
+      { read: async () => atlas },
+      { source: 'canonical', family: 'aerospace', id: atlas.id },
+    ),
+  ).toMatchObject({
+    success: false,
+    code: 'invalid-definition',
+    issues: [{ path: 'unitType', message: expect.any(String) }],
+  });
+});
+
 it.each([
   'chassis',
   'configuration',
@@ -95,4 +130,45 @@ it('requires both movement values for a BattleMech', async () => {
       { source: 'canonical', id: atlas.id },
     ),
   ).toMatchObject({ success: false, code: 'invalid-definition' });
+});
+
+describe('canonical definition retry after an invalid definition (#2457 review)', () => {
+  const originalFetch = global.fetch;
+  afterEach(() => {
+    global.fetch = originalFetch;
+    resetCanonicalUnitService();
+  });
+
+  it('re-reads a corrected canonical definition without any explicit invalidation', async () => {
+    const row = {
+      id: 'squad',
+      chassis: 'Squad',
+      model: '',
+      tonnage: 1,
+      techBase: 'INNER_SPHERE',
+      year: 3050,
+      unitType: 'Infantry',
+      path: 'squad.json',
+    };
+    global.fetch = jest
+      .fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ units: [row] }) })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'squad', unitType: 'Aerospace' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ id: 'squad', unitType: 'Infantry' }),
+      }) as unknown as typeof fetch;
+    expect(await loadUnitDefinition('infantry', 'squad')).toMatchObject({
+      success: false,
+      code: 'invalid-definition',
+    });
+    expect(await loadUnitDefinition('infantry', 'squad')).toMatchObject({
+      success: true,
+      family: 'infantry',
+      definition: { unitType: 'Infantry' },
+    });
+  });
 });

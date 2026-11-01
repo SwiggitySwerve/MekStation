@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
 import { CompendiumLayout } from '@/components/compendium';
+import { ArmorAllocationCard } from '@/components/compendium/units/ArmorAllocationCard';
 import {
   PageLoading,
   PageError,
@@ -19,10 +20,11 @@ import {
 } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
 import {
-  IUnitDetails,
-  isArmorFrontRear,
-  calculateTotalArmor,
-} from '@/types/pages';
+  getCompendiumDetailPresentation,
+  type IDetailMovementStat,
+} from '@/pages-modules/units/compendiumDetail.presentation';
+import { IUnitDetails, calculateTotalArmor } from '@/types/pages';
+import { isUnitFamily } from '@/types/unit/UnitIndex';
 
 function unitDisplayName(unit: IUnitDetails): string {
   return (
@@ -70,26 +72,36 @@ function UnitHeaderCard({
 
 function MovementCard({
   unit,
+  stats,
 }: {
   readonly unit: IUnitDetails;
+  readonly stats?: readonly IDetailMovementStat[];
 }): React.ReactElement {
   return (
     <StatCard title="Movement" icon={<MovementIcon />} variant="amber">
       <StatList>
-        <StatRow label="Walk MP" value={unit.movement?.walk || '—'} />
-        <StatRow
-          label="Run MP"
-          value={
-            unit.movement?.walk ? Math.ceil(unit.movement.walk * 1.5) : '—'
-          }
-        />
-        <StatRow label="Jump MP" value={unit.movement?.jump || 0} />
-        {unit.movement?.jumpJetType && (
-          <StatRow
-            label="Jump Jets"
-            value={unit.movement.jumpJetType}
-            mono={false}
-          />
+        {stats ? (
+          stats.map(({ label, value }) => (
+            <StatRow key={label} label={label} value={value ?? '—'} />
+          ))
+        ) : (
+          <>
+            <StatRow label="Walk MP" value={unit.movement?.walk || '—'} />
+            <StatRow
+              label="Run MP"
+              value={
+                unit.movement?.walk ? Math.ceil(unit.movement.walk * 1.5) : '—'
+              }
+            />
+            <StatRow label="Jump MP" value={unit.movement?.jump || 0} />
+            {unit.movement?.jumpJetType && (
+              <StatRow
+                label="Jump Jets"
+                value={unit.movement.jumpJetType}
+                mono={false}
+              />
+            )}
+          </>
         )}
       </StatList>
       {unit.movement?.enhancements && unit.movement.enhancements.length > 0 && (
@@ -165,47 +177,6 @@ function HeatArmorCard({
   );
 }
 
-function ArmorAllocationCard({
-  unit,
-}: {
-  readonly unit: IUnitDetails;
-}): React.ReactElement | null {
-  if (!unit.armor?.allocation) return null;
-
-  return (
-    <Card variant="dark" className="mb-6">
-      <CardSection title="Armor Allocation" />
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-        {Object.entries(unit.armor.allocation).map(([location, value]) => (
-          <div
-            key={location}
-            className="bg-surface-raised/30 rounded-lg p-3 text-center"
-          >
-            <div className="text-text-theme-secondary mb-1 text-xs uppercase">
-              {location.replace(/_/g, ' ')}
-            </div>
-            <div className="text-text-theme-primary font-mono">
-              {typeof value === 'number' ? (
-                value
-              ) : isArmorFrontRear(value) ? (
-                <>
-                  {value.front}
-                  {value.rear > 0 && (
-                    <span className="text-text-theme-muted text-sm">
-                      {' '}
-                      / {value.rear}
-                    </span>
-                  )}
-                </>
-              ) : null}
-            </div>
-          </div>
-        ))}
-      </div>
-    </Card>
-  );
-}
-
 function EquipmentCard({
   unit,
 }: {
@@ -272,6 +243,8 @@ function QuirksCard({
 export default function CanonicalUnitDetailPage(): React.ReactElement {
   const router = useRouter();
   const { id } = router.query;
+  const family = router.query.family ?? 'battlemechs';
+  const listHref = `/compendium/units${isUnitFamily(family) && family !== 'battlemechs' ? `?family=${family}` : ''}`;
 
   const [unit, setUnit] = useState<IUnitDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -279,11 +252,21 @@ export default function CanonicalUnitDetailPage(): React.ReactElement {
 
   useEffect(() => {
     if (!id || typeof id !== 'string') return;
+    if (!isUnitFamily(family)) {
+      setError('Invalid unit family');
+      setLoading(false);
+      return;
+    }
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+    setUnit(null);
 
     async function fetchUnit() {
       try {
         const response = await fetch(
-          `/api/units?id=${encodeURIComponent(id as string)}`,
+          `/api/units?id=${encodeURIComponent(id as string)}${family === 'battlemechs' ? '' : `&family=${family}`}`,
+          { signal: controller.signal },
         );
         const data = (await response.json()) as {
           success: boolean;
@@ -291,60 +274,63 @@ export default function CanonicalUnitDetailPage(): React.ReactElement {
           error?: string;
         };
 
+        if (controller.signal.aborted) return;
         if (data.success && data.data) {
           setUnit(data.data);
         } else {
           setError(data.error || 'Unit not found');
         }
       } catch {
-        setError('Failed to load unit');
+        if (!controller.signal.aborted) setError('Failed to load unit');
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     }
 
     fetchUnit();
-  }, [id]);
+    return () => controller.abort();
+  }, [id, family]);
 
   if (loading) {
     return <PageLoading message="Loading unit data..." />;
   }
 
-  if (error || !unit) {
+  if (error || !unit || !isUnitFamily(family)) {
     return (
       <PageError
         title="Unit Not Found"
         message={error || 'The requested unit could not be found.'}
-        backLink="/compendium/units"
+        backLink={listHref}
         backLabel="Back to Unit Database"
       />
     );
   }
 
   const displayName = unitDisplayName(unit);
-  const totalArmor = calculateTotalArmor(unit.armor);
+  const { armor, movementStats } = getCompendiumDetailPresentation(
+    unit,
+    family,
+  );
+  const totalArmor = calculateTotalArmor(armor);
 
   return (
     <CompendiumLayout
       title={displayName}
       subtitle={`${unit.tonnage} tons • ${unit.techBase?.replace(/_/g, ' ') || 'Unknown Tech'}`}
-      breadcrumbs={[
-        { label: 'Units', href: '/compendium/units' },
-        { label: displayName },
-      ]}
+      breadcrumbs={[{ label: 'Units', href: listHref }, { label: displayName }]}
     >
       <UnitHeaderCard unit={unit} displayName={displayName} />
 
       {/* Stats Grid */}
       <StatGrid cols={3} className="mb-6">
-        <MovementCard unit={unit} />
+        <MovementCard unit={unit} stats={movementStats} />
 
         <CoreSystemsCard unit={unit} />
 
         <HeatArmorCard unit={unit} totalArmor={totalArmor} />
       </StatGrid>
 
-      <ArmorAllocationCard unit={unit} />
+      <ArmorAllocationCard armor={armor} />
 
       <EquipmentCard unit={unit} />
 

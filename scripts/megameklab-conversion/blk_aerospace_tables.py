@@ -50,9 +50,10 @@ SC_LOCATION_MAP: Dict[str, str] = {
 ARMOR_CODE_MAP: Dict[int, str] = {
     0: "STANDARD", 1: "FERRO_FIBROUS", 2: "REACTIVE", 3: "REFLECTIVE",
     4: "HARDENED", 5: "LIGHT_FERRO_FIBROUS", 6: "HEAVY_FERRO_FIBROUS",
+    7: "PATCHWORK",
     8: "STEALTH", 31: "COMMERCIAL", 32: "INDUSTRIAL", 33: "HEAVY_INDUSTRIAL",
     34: "FERRO_FIBROUS_CLAN", 39: "PRIMITIVE", 40: "IMPACT_RESISTANT",
-    41: "BAR_2", 42: "BAR_3", 43: "BAR_4", 44: "BAR_5",
+    41: "AEROSPACE",
 }
 
 COCKPIT_CODE_MAP: Dict[int, str] = {
@@ -66,8 +67,14 @@ COCKPIT_CODE_MAP: Dict[int, str] = {
 }
 
 MOTION_MAP: Dict[str, str] = {
-    "Aerodyne": "AERODYNE",
-    "Spheroid": "SPHEROID",
+    "aerodyne": "AERODYNE",
+    "spheroid": "SPHEROID",
 }
+
+
+def map_aerospace_motion(raw: str) -> str:
+    """BLK small/capital craft recognize spheroid without case sensitivity."""
+    return MOTION_MAP.get(raw.casefold(), "AERODYNE")
+
 
 DEFAULT_SOURCE_SUBDIRS = ["fighters", "convfighter", "smallcraft"]

@@ -83,7 +83,7 @@ describe('UnitSearchService', () => {
       // @ts-expect-error - Including remove method for testing compatibility
       remove: jest.fn(),
       discard: jest.fn(),
-      search: jest.fn().mockReturnValue([{ id: 'atlas-as7-d' }]),
+      search: jest.fn().mockReturnValue([{ id: 'battlemechs:atlas-as7-d' }]),
     };
 
     // @ts-expect-error - Mocking MiniSearch constructor for testing
@@ -229,8 +229,8 @@ describe('UnitSearchService', () => {
 
     it('should limit results when maxResults is provided', () => {
       mockSearchIndex.search.mockReturnValue([
-        { id: 'atlas-as7-d' },
-        { id: 'custom-1' },
+        { id: 'battlemechs:atlas-as7-d' },
+        { id: 'battlemechs:custom-1' },
       ]);
 
       const results = service.search('Atlas', { limit: 1 });
@@ -242,7 +242,7 @@ describe('UnitSearchService', () => {
     it('should drop unknown ids returned by index', () => {
       mockSearchIndex.search.mockReturnValue([
         { id: 'missing' },
-        { id: 'atlas-as7-d' },
+        { id: 'battlemechs:atlas-as7-d' },
       ]);
 
       const results = service.search('Atlas');
@@ -283,7 +283,9 @@ describe('UnitSearchService', () => {
       // @ts-expect-error - Partial mock of IUnitIndexEntry for testing
       service.addToIndex({ ...mockCanonicalUnit, name: 'Updated Atlas' });
 
-      expect(mockSearchIndex.discard).toHaveBeenCalledWith('atlas-as7-d');
+      expect(mockSearchIndex.discard).toHaveBeenCalledWith(
+        'battlemechs:atlas-as7-d',
+      );
       expect(mockSearchIndex.add).toHaveBeenCalledTimes(2);
     });
 

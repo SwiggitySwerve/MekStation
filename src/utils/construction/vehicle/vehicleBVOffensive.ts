@@ -24,7 +24,7 @@ import { calculateVehicleSpeedFactor } from './vehicleBVMovement';
 /**
  * Multiplier for a turret-mounted weapon.
  *
- *   - Single / Dual / Chin: 1.05 (+5% rotating turret bonus)
+ *   - Single / Dual / Chin: 1.0 (no rotating turret bonus)
  *   - Sponson: 1.025 (+2.5% sponson bonus)
  *   - None: 1.0
  */
@@ -34,7 +34,9 @@ function turretMultiplier(turret?: VehicleBVTurret): number {
     case 'single':
     case 'dual':
     case 'chin':
-      return 1.05;
+      // CombatVehicleBVCalculator.isNominalRear excludes turret weapons from
+      // the rear penalty; BVCalculator.processWeapon adds no turret bonus.
+      return 1.0;
     case 'sponson':
       return 1.025;
     default:
@@ -151,8 +153,8 @@ function calculateVehicleOffensiveEquipmentBV(
  *   weaponBV  = sum of (per-weapon BV × turretMult × rearMult × artemisMult × tcMult)
  *   ammoBV    = capped-per-weapon-family sum (delegates to mech ammo cap)
  *   offEquipBV = targeting-computer and misc equipment BV
- *   turretModifier = weighted-average multiplier (for the breakdown only)
- *   offensiveBV = (weaponBV + ammoBV + offEquipBV) × speedFactor
+ *   turretModifier = configured turret multiplier (for the breakdown only)
+ *   offensiveBV = (weaponBV + ammoBV + offEquipBV + tonnage / 2) × speedFactor
  */
 export function calculateVehicleOffensiveBV(
   input: VehicleBVInput,
@@ -183,7 +185,10 @@ export function calculateVehicleOffensiveBV(
   );
 
   const speedFactor = calculateVehicleSpeedFactor(input);
-  const total = (weaponBV + ammoBV + offensiveEquipmentBV) * speedFactor;
+  // CombatVehicleBVCalculator.processWeight adds half raw tonnage for every vehicle family.
+  const weightBV = input.tonnage / 2;
+  const total =
+    (weaponBV + ammoBV + offensiveEquipmentBV + weightBV) * speedFactor;
   const turretModifier = input.turret
     ? primaryTurretMult
     : input.secondaryTurret

@@ -14,7 +14,7 @@ Usage:
         --source /path/to/mm-data/data/mekfiles \\
         --output /path/to/public/data/units/aerospace
 
-Source directories scanned: fighters/, convfighter/, smallcraft/
+Source directories scanned: fighters/, convfighter/, smallcraft/, vehicles/
 Skips DropShips, JumpShips, WarShips with a log entry.
 """
 
@@ -23,20 +23,20 @@ import math
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from blk_aerospace_qualifiers import parse_aerospace_armor, parse_aerospace_qualifiers
 from blk_aerospace_tables import (
     AERO_ARMOR_ARCS,
     AERO_LOCATION_MAP,
     AEROSPACE_UNIT_TYPES,
-    ARMOR_CODE_MAP,
     ASF_TYPES,
     CF_TYPES,
     COCKPIT_CODE_MAP,
     DEFAULT_SOURCE_SUBDIRS,
-    MOTION_MAP,
     SC_ARMOR_ARCS,
     SC_LOCATION_MAP,
     SC_TYPES,
     UNSUPPORTED_UNIT_TYPES,
+    map_aerospace_motion,
 )
 from blk_conversion_runner import (
     BlkConversionConfig,
@@ -53,11 +53,11 @@ from blk_common import (
     extract_tags,
     generate_id_from_name,
     get_string,
-    map_armor_code,
     map_blk_engine_code,
     map_rules_level,
     map_tech_base,
     map_year_to_era,
+    maximum_thrust,
     parse_armor_array,
     parse_number,
     remove_comments,
@@ -146,11 +146,11 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
         sub_type = "AerospaceFighter"
         unit_type_out = "Aerospace"
     elif unit_type_raw in CF_TYPES:
-        sub_type = "ConventionalFighter"
-        unit_type_out = "ConventionalFighter"
+        sub_type = "FixedWingSupport" if unit_type_raw == "FixedWingSupport" else "ConventionalFighter"
+        unit_type_out = "Conventional Fighter"
     else:
         sub_type = "SmallCraft"
-        unit_type_out = "SmallCraft"
+        unit_type_out = "Small Craft"
 
     # --- Required fields ---
     name = get_string(tags, "Name")
@@ -180,17 +180,26 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
 
     # --- Motion type ---
     motion_raw = get_string(tags, "motion_type") or "Aerodyne"
-    motion_type = MOTION_MAP.get(motion_raw, "AERODYNE")
+    motion_type = map_aerospace_motion(motion_raw)
 
     # --- Thrust / movement ---
     safe_thrust = int(parse_number(get_string(tags, "SafeThrust", "safeThrust")) or 0)
-    max_thrust = math.ceil(safe_thrust * 1.5)
+    max_thrust = maximum_thrust(safe_thrust)
 
     # --- Fuel ---
     fuel = int(parse_number(get_string(tags, "fuel", "Fuel")) or 0)
 
-    # --- Structural integrity (from BLK si tag) ---
-    si = int(parse_number(get_string(tags, "SI", "si", "structural_integrity")) or 0)
+    # --- Structural integrity ---
+    # Fighters and conventional fighters carry no SI tag: MegaMek derives it
+    # (Aero.autoSetSI, Aero.java:804-808) from tonnage and safe thrust.
+    # FixedWingSupport overrides that to walk MP only (FixedWingSupport.java:135-138).
+    # Small craft read structural_integrity (BLKSmallCraftFile.java:125-128).
+    if unit_type_raw == "FixedWingSupport":
+        si = safe_thrust
+    elif sub_type in ("AerospaceFighter", "ConventionalFighter"):
+        si = max(math.floor(float(tonnage) / 10), safe_thrust)
+    else:
+        si = int(parse_number(get_string(tags, "SI", "si", "structural_integrity")) or 0)
 
     # --- Heat sinks ---
     heatsinks = int(parse_number(get_string(tags, "heatsinks", "Heatsinks")) or 0)
@@ -215,8 +224,9 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     # --- Armor ---
     armor_raw = tags.get("armor") or tags.get("Armor")
     armor_values = parse_armor_array(armor_raw)
-    armor_code = get_string(tags, "armor_type")
-    armor_type_str = map_armor_code(armor_code, ARMOR_CODE_MAP)
+    # Codes 43-51 are BAR for every aircraft; only BLKFixedWingSupportFile reads the rating.
+    armor = parse_aerospace_armor(tags, reads_bar_rating=unit_type_raw == "FixedWingSupport")
+    source_qualifiers = parse_aerospace_qualifiers(tags)
 
     # Arc-based armor — ASF/CF use Nose/LW/RW/Aft; SmallCraft use Nose/LS/RS/Aft
     is_small_craft = sub_type == "SmallCraft"
@@ -243,10 +253,9 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     life_boats = int(parse_number(get_string(tags, "lifeboats", "life_boats")) or 0)
 
     # Parse cargo from transporters tag
-    transporters_raw = get_string(tags, "transporters")
-    if transporters_raw:
-        for tline in transporters_raw.splitlines():
-            tline = tline.strip()
+    transporters = source_qualifiers.get("transporters", [])
+    if transporters:
+        for tline in transporters:
             if tline.startswith("cargobay:"):
                 parts = tline.split(":")
                 if len(parts) >= 2:
@@ -296,17 +305,18 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
         },
         "cockpit": cockpit_type_str,
         "armor": {
-            "type": armor_type_str,
+            **armor,
             "byArc": armor_by_arc,
         },
         "equipment": equipment,
     }
+    output.update(source_qualifiers)
 
     # Sub-type specific fields
     if sub_type == "AerospaceFighter":
         output["hasBombBay"] = has_bomb_bay
         output["bombCapacity"] = bomb_capacity
-    elif sub_type == "ConventionalFighter":
+    elif sub_type in ("ConventionalFighter", "FixedWingSupport"):
         output["hasBombBay"] = has_bomb_bay
         output["bombCapacity"] = bomb_capacity
     elif sub_type == "SmallCraft":
@@ -402,7 +412,7 @@ def main() -> int:
             converter="blk_aerospace_converter",
             description="Convert BLK aerospace files to MekStation JSON",
             source_default=str(Path(default_mm_data_root()) / "mekfiles"),
-            source_help="Path to mm-data mekfiles root (contains fighters/, convfighter/, smallcraft/)",
+            source_help="Path to mm-data mekfiles root (contains fighters/, convfighter/, smallcraft/, vehicles/)",
             output_default=str(Path(__file__).parent.parent.parent / "public/data/units/aerospace"),
             output_help="Output directory for aerospace JSON files",
             type_name="aerospace",
@@ -412,7 +422,7 @@ def main() -> int:
             build_manifest_entry=build_manifest_entry,
             run_parity_checks=run_parity_checks,
             collect_files=lambda source, logger: collect_subdir_blk_files(
-                source, logger, DEFAULT_SOURCE_SUBDIRS
+                source, logger, [*DEFAULT_SOURCE_SUBDIRS, "vehicles"]
             ),
             unsupported_unit_types=UNSUPPORTED_UNIT_TYPES,
         )

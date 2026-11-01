@@ -130,7 +130,7 @@ export function createOverweightVTOLDocument(): IBlkDocument {
   return createMockBlkDocument({
     name: 'Invalid',
     model: 'Heavy',
-    tonnage: 35, // Over 30 ton limit
+    tonnage: 65, // Over the 60 ton SuperHeavy VTOL limit
     cruiseMP: 5,
     armor: [40, 30, 30, 20, 2],
     equipmentByLocation: {},
