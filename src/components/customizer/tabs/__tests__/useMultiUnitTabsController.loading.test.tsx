@@ -141,3 +141,34 @@ it('keeps the newer load busy when an older request returns', async () => {
   ]);
   expect(result.current.isLoadingUnit).toBe(false);
 });
+
+it('UL-10 treats the same id in different families as separate requests', async () => {
+  const oldDone = deferredLoad();
+  const newDone = deferredLoad();
+  const { result } = renderHook(() => useMultiUnitTabsController());
+  let old!: Promise<void>;
+  let next!: Promise<void>;
+  act(() => {
+    old = result.current.handleLoadUnit(
+      { ...unit, id: 'tomahawk-c' },
+      'canonical',
+    );
+    next = result.current.handleLoadUnit(
+      { ...unit, id: 'tomahawk-c', family: 'aerospace' },
+      'canonical',
+    );
+  });
+  expect(unitLoaderService.loadUnit).toHaveBeenCalledTimes(2);
+  await act(async () => {
+    oldDone('old-editor');
+    await old;
+  });
+  expect(createUnitFromFullState).not.toHaveBeenCalled();
+  await act(async () => {
+    newDone('new-editor');
+    await next;
+  });
+  expect(useTabManagerStore.getState().tabs.map((tab) => tab.id)).toEqual([
+    'new-editor',
+  ]);
+});

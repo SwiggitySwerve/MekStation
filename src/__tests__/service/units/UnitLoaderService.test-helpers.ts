@@ -30,6 +30,7 @@ jest.mock('@/services/units/CanonicalUnitService', () => {
   const _mock_canonicalUnitService = {
     getIndex: jest.fn(),
     getById: jest.fn(),
+    hasFamily: jest.fn().mockResolvedValue(true),
     invalidateUnit: jest.fn(),
     query: jest.fn(),
   };
@@ -261,10 +262,13 @@ describe('UnitLoaderService', () => {
       id: 'infantry-squad',
       unitType: 'Infantry',
     } as IFullUnit);
-    const result = await service.loadCanonicalUnit('infantry-squad');
+    const result = await service.loadCanonicalUnit(
+      'infantry-squad',
+      'infantry',
+    );
     expect(result).toMatchObject({
       success: false,
-      errorCode: 'unsupported-family',
+      errorCode: 'unsupported-store-family',
     });
     expect(result.state).toBeUndefined();
     expect(mockEquipmentLookupService.initialize).not.toHaveBeenCalled();
@@ -289,6 +293,7 @@ describe('UnitLoaderService', () => {
 
       expect(result).toEqual(expect.objectContaining({ success: true }));
       expect(mockCanonicalUnitService.getById).toHaveBeenCalledWith('canon-1', {
+        family: 'battlemechs',
         strict: true,
       });
     });
