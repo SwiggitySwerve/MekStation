@@ -25,9 +25,10 @@ Legacy Secondary Turret tags retain `TURRET_2`.
 
 LargeSupportTank emits `Support Vehicle`. Its engine rating is zero, as
 loaded by Java; existing support propulsion calculations remain separate.
-The document schema accepts support tonnage through 600 t (the pinned
-Adelante source), retaining the existing 250 t bound for other families.
-These are document storage bounds, not construction legality rules.
+The document schema's per-family tonnage rule (#2449) accepts support tonnage
+through 600 t (the pinned Adelante source) and capital ships through 2,500,000 t,
+and keeps 250 t for the other families. These are document storage bounds, not
+construction legality rules.
 
 The aerospace runner also scans `vehicles/`; its existing type gate selects
 FixedWingSupport and leaves ground sources to the vehicle runner. All 33

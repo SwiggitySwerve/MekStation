@@ -115,6 +115,31 @@ class BlkUnitVocabularyTest(unittest.TestCase):
                                extra='<barrating>\n6\n</barrating>\n')
         self.assertEqual(support['armor']['barRating'], 6)
 
+    def test_large_support_tank_reads_barrating(self):
+        # Follow-up 42: BLKLargeSupportTankFile also calls loadSVArmor; 22 pinned units rely on it.
+        large = self.convert(
+            convert_vehicle_blk,
+            '<UnitType>LargeSupportTank</UnitType>\n<Name>Large tagged</Name>\n<motion_type>Tracked</motion_type>\n'
+            + VEHICLE_BASE.format(tonnage=200, cruise=2, engine=0, armor_type=47,
+                                  armor='10\n10\n10\n10\n10\n10') + '<barrating>\n6\n</barrating>\n',
+        )
+        self.assertEqual((large['armor']['type'], large['armor']['barRating']), ('BAR', 6))
+
+    def test_only_fixed_wing_support_aircraft_read_barrating(self):
+        # Follow-up 42: codes 43-51 are BAR for every aircraft, but only BLKFixedWingSupportFile
+        # calls loadSVArmor; a fighter's barrating tag is ignored.
+        def aircraft(unit_type):
+            return self.convert(
+                convert_aerospace_blk,
+                f'<UnitType>{unit_type}</UnitType>\n<Name>{unit_type} bar</Name>\n<year>3060</year>\n'
+                '<tonnage>50</tonnage>\n<SafeThrust>5</SafeThrust>\n<structural_integrity>5</structural_integrity>\n'
+                '<armor_type>47</armor_type>\n<barrating>\n6\n</barrating>\n<armor>\n10\n10\n10\n10\n</armor>\n',
+            )['armor']
+        fighter = aircraft('AeroSpaceFighter')
+        self.assertEqual(fighter['type'], 'BAR')
+        self.assertNotIn('barRating', fighter)
+        self.assertEqual(aircraft('FixedWingSupport')['barRating'], 6)
+
     def test_non_bar_armor_has_no_rating(self):
         unit = self.vehicle('Tank', 'Standard fixture', armor_type=1)
         self.assertEqual(unit['armor']['type'], 'FERRO_FIBROUS')
