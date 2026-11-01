@@ -58,6 +58,7 @@ from blk_common import (
     map_rules_level,
     map_tech_base,
     map_year_to_era,
+    maximum_thrust,
     parse_armor_array,
     parse_number,
     remove_comments,
@@ -184,7 +185,7 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
 
     # --- Thrust / movement ---
     safe_thrust = int(parse_number(get_string(tags, "SafeThrust", "safeThrust")) or 0)
-    max_thrust = math.ceil(safe_thrust * 1.5)
+    max_thrust = maximum_thrust(safe_thrust)
 
     # --- Fuel ---
     fuel = int(parse_number(get_string(tags, "fuel", "Fuel")) or 0)

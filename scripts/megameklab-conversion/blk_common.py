@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import os
 import re
 import sys
@@ -127,6 +128,11 @@ except ImportError:  # pragma: no cover — defensive fallback only
 # ---------------------------------------------------------------------------
 # BLK parsing primitives and serialized engine decoding
 # ---------------------------------------------------------------------------
+
+def maximum_thrust(safe_thrust: int) -> int:
+    """Base aerospace maximum thrust; callers own parsing and missing-tag policy."""
+    return math.ceil(safe_thrust * 1.5)
+
 
 def map_blk_engine_code(code: Any) -> str:
     """Decode BLK serialization, retaining the legacy default only for omission.
@@ -355,6 +361,7 @@ __all__ = [
     "parse_armor_array",
     "map_armor_code",
     "map_blk_engine_code",
+    "maximum_thrust",
     # Output helpers
     "MANIFEST_BUDGET_BYTES",
     "setup_logger",
