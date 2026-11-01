@@ -7,7 +7,7 @@
  * Rules:
  * - Per-location max = 2 × internal structure at that location
  * - Combat vehicle armor types: Standard (16pts/t), FF (17.92pts/t), etc.
- * - Support vehicles use BAR 1-10 table for points-per-ton
+ * - Support vehicles use the BAR 2-10 weight-per-point table
  * - Body location can only receive armor on support vehicles with BAR >= 6
  */
 
@@ -62,32 +62,48 @@ export function getTotalVehicleArmor(
 }
 
 // =============================================================================
-// BAR Armor Table (TechManual support vehicle rules)
+// BAR Armor Table (ArmorType.java:1840-2100, TM p.134)
 // =============================================================================
 
 /**
- * Points per ton for each BAR rating level.
- * BAR 10 = same as Standard armor (16 pts/t).
+ * Tons per armor point of BAR 2-10 support vehicle armor by armor tech rating
+ * A-F (index 0-5); 0 where the BAR does not exist at that rating.
  */
-const BAR_POINTS_PER_TON: Record<number, number> = {
-  1: 2,
-  2: 4,
-  3: 6,
-  4: 8,
-  5: 10,
-  6: 12,
-  7: 14,
-  8: 16,
-  9: 16,
-  10: 16,
+const BAR_WEIGHT_PER_POINT: Record<number, readonly number[]> = {
+  2: [0.04, 0.025, 0.016, 0.013, 0.012, 0.011],
+  3: [0.06, 0.038, 0.024, 0.019, 0.017, 0.016],
+  4: [0, 0.05, 0.032, 0.026, 0.023, 0.021],
+  5: [0, 0.063, 0.04, 0.032, 0.028, 0.026],
+  6: [0, 0, 0.048, 0.038, 0.034, 0.032],
+  7: [0, 0, 0.056, 0.045, 0.04, 0.037],
+  8: [0, 0, 0, 0.051, 0.045, 0.042],
+  9: [0, 0, 0, 0.057, 0.051, 0.047],
+  10: [0, 0, 0, 0.063, 0.056, 0.052],
 };
 
+/** Weight to the gram, as `RoundWeight.truncate` (RoundWeight.java:118). */
+const toGram = (tons: number): number =>
+  Math.round(tons * 1_000_000) / 1_000_000;
+
 /**
- * Get armor points per ton for a BAR rating (support vehicles)
+ * Armor points the armor tonnage of a BAR support vehicle buys
+ * (`TestEntity.getArmorPoints`, TestEntity.java:1148-1152): the points' weight
+ * rounded up to a kilogram (units under 5 t) or a half ton, divided by the
+ * weight per point, floored and capped by the armor limit. Division stays in
+ * IEEE doubles as in Java, so 6 points of BAR 2 tech B (0.15 t / 0.025) are 5.
  */
-export function getBarPointsPerTon(barRating: number): number {
-  const clamped = Math.max(1, Math.min(10, Math.round(barRating)));
-  return BAR_POINTS_PER_TON[clamped] ?? 16;
+export function getSupportVehicleBarArmorPoints(
+  allocated: number,
+  bar: number,
+  armorTechRating: number,
+  kilogramStandard: boolean,
+  maxPoints: number,
+): number {
+  const perPoint = BAR_WEIGHT_PER_POINT[bar]?.[armorTechRating] ?? 0;
+  if (perPoint === 0) return 0; // Java: (int) NaN
+  const step = kilogramStandard ? 1000 : 2;
+  const weight = Math.ceil(toGram(allocated * perPoint) * step) / step;
+  return Math.min(Math.floor(weight / perPoint), maxPoints);
 }
 
 // =============================================================================
@@ -105,17 +121,6 @@ export function computeVehicleArmorWeight(
 ): number {
   const def = getArmorDefinition(armorType);
   const pointsPerTon = def?.pointsPerTon ?? 16;
-  return ceilToHalfTon(totalArmorPoints / pointsPerTon);
-}
-
-/**
- * Compute armor weight for a support vehicle using BAR rating
- */
-export function computeSupportVehicleArmorWeight(
-  totalArmorPoints: number,
-  barRating: number,
-): number {
-  const pointsPerTon = getBarPointsPerTon(barRating);
   return ceilToHalfTon(totalArmorPoints / pointsPerTon);
 }
 

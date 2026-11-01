@@ -1,7 +1,9 @@
 import type { IUnitContract } from '@/types/contracts';
 import type {
   IAerospaceMovement,
+  IAerospaceUnit,
   IGroundMovement,
+  ISquadMovement,
 } from '@/types/unit/BaseUnitInterfaces';
 import type { UnitFamily } from '@/types/unit/UnitIndex';
 
@@ -44,7 +46,9 @@ export interface IUnitEntry {
 /**
  * Full unit details for detail pages
  */
-export interface IUnitDetails {
+export interface IUnitDetails extends Partial<
+  ISquadMovement & Pick<IAerospaceUnit, 'structuralIntegrity'>
+> {
   id: string;
   name?: string;
   chassis?: string;
@@ -122,7 +126,7 @@ export interface IHeatSinkConfig {
  * Movement configuration
  */
 export interface IMovementConfig extends Partial<
-  IGroundMovement & IAerospaceMovement
+  IGroundMovement & IAerospaceMovement & ISquadMovement
 > {
   walk?: number;
   jump?: number;
