@@ -27,7 +27,7 @@ import {
 /**
  * Compute the aerospace defensive pool without a thrust multiplier.
  * Pinned MegaMek AeroBVCalculator.java:137-138 leaves processDefensiveFactor
- * empty. Its aircraft type modifier is a separate, deferred parity term.
+ * empty. Its separate aircraft type modifier scales the complete pool first.
  * @spec establish-all-unit-data-parity: Aerospace Defensive BV
  */
 export function calculateAerospaceDefensiveBV(input: IAerospaceBVInput): {
@@ -51,9 +51,26 @@ export function calculateAerospaceDefensiveBV(input: IAerospaceBVInput): {
   const defensiveEquipmentBV = input.defensiveEquipmentBV ?? 0;
   const explosivePenalties = input.explosivePenalties ?? 0;
 
+  // AeroBVCalculator.java:118-134; support classification precedes ConvFighter.
+  let typeModifier = 1.2;
+  if (
+    input.isSupportVehicle ||
+    input.subType === AerospaceSubType.SMALL_CRAFT
+  ) {
+    typeModifier = 1;
+  } else if (input.subType === AerospaceSubType.CONVENTIONAL_FIGHTER) {
+    typeModifier = 1.1;
+  }
+  // Entity.java:16132-16136 excludes patchwork; no active-mode/ECM condition.
+  const armorType = input.armorType.toLowerCase();
+  if (armorType === 'stealth' || armorType === 'stealth-vehicle') {
+    typeModifier += 0.3;
+  }
+
   const defensiveFactor = 1;
   const defensive =
     (armorBV + siBV + defensiveEquipmentBV - explosivePenalties) *
+    typeModifier *
     defensiveFactor;
 
   return {
@@ -156,7 +173,7 @@ export function getAerospaceSubTypeMultiplier(
  * Compute the complete aerospace BV breakdown for a unit.
  *
  * Dispatch order:
- *  1. Defensive BV (armor + SI + def equip − explosive) × defensiveFactor
+ *  1. Defensive BV (armor + SI + def equip − explosive) × type modifier × defensiveFactor
  *  2. Offensive BV ((arc pool + fuselage + ammo + off equip) × speedFactor)
  *  3. Sub-type multiplier (Conventional Fighter 0.8, otherwise 1.0)
  *  4. Pilot skill multiplier (shared 9×9 gunnery×piloting table)
