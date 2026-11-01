@@ -33,3 +33,25 @@ it does not establish complete ProtoMech combat support.
 - **WHEN** the duplicate resolution lookup is replaced with the existing owner's export
 - **THEN** a separately verified refactor SHALL preserve outputs before table values change
 - **AND** all existing public lookup exports SHALL remain available
+
+### Requirement: Streak family support wording after catalog damage repair
+
+The special weapon family support description SHALL reflect the repaired
+catalog: official Streak SRM and LRM launchers, including one-shot and prototype
+variants, resolve through the runner's existing Streak path. This documents
+existing behavior after #2430 and does not establish complete Streak parity.
+Pinned MegaMek `StreakLRMHandler.java:56` extends `StreakHandler` at commit
+`48fcb2f64a1b3f2d575707ce5653dad64927b587`.
+
+#### Scenario: Replace the obsolete Streak data-gap description
+
+- **GIVEN** the repaired official catalog has 61 damage-capable Streak launchers and no zero-damage Streak launcher rows
+- **WHEN** the special weapon family support description is read
+- **THEN** it SHALL describe Streak LRM, one-shot and prototype launchers as resolving through the existing Streak path
+- **AND** it SHALL NOT describe those variants as current zero-damage catalog data gaps
+- **AND** the contract SHALL retain its empty data-gap bucket to detect regressions
+
+On canonical synchronization, this wording replaces the two obsolete Streak
+bullets in `Diff-Area Outcome Traceability` / `Special weapon family rows stay
+source-backed` in `openspec/specs/combat-resolution/spec.md`. The canonical spec
+remains unchanged in this text-only follow-up pending that synchronization.

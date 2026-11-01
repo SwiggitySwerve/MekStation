@@ -161,6 +161,9 @@ export const UnitContract = z
                 'BAR',
                 'AEROSPACE',
                 'PATCHWORK',
+                'FERRO_ALUMINUM',
+                'HEAVY_FERRO_ALUMINUM',
+                'PRIMITIVE_AERO',
               ])
               .describe('Armor type'),
             barRating: z
@@ -664,6 +667,9 @@ export const UnitContract = z
                 'BAR',
                 'AEROSPACE',
                 'PATCHWORK',
+                'FERRO_ALUMINUM',
+                'HEAVY_FERRO_ALUMINUM',
+                'PRIMITIVE_AERO',
               ])
               .describe('Armor type'),
             barRating: z

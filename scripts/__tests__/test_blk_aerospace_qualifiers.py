@@ -123,6 +123,17 @@ class SharedBarArmorTest(unittest.TestCase):
                 self.assertEqual(vehicle_armor.get('barRating'), expected)
                 self.assertEqual(aero_armor.get('barRating'), expected)
 
+    def test_rating_is_an_int_and_only_positive_ratings_are_emitted(self):
+        # Follow-up 40: a "7" rating is the int 7, not 7.0; -1 and 0 are no valid rating.
+        from blk_unit_fields import bar_armor_fields
+
+        fields = bar_armor_fields({'barrating': '7'}, 47)
+        self.assertEqual(fields, {'type': 'BAR', 'barRating': 7})
+        self.assertIs(type(fields['barRating']), int)
+        for rating in ('-1', '0'):
+            with self.subTest(barrating=rating):
+                self.assertEqual(bar_armor_fields({'barrating': rating}, 47), {'type': 'BAR'})
+
     def test_the_rule_has_one_owner(self):
         import blk_aerospace_qualifiers
         import blk_unit_fields

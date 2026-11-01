@@ -27,8 +27,9 @@ FIGHTER = (
     '<UnitType>AeroSpaceFighter</UnitType>\n<Name>Export Fighter</Name>\n<year>3060</year>\n'
     '<tonnage>50</tonnage>\n<SafeThrust>5</SafeThrust>\n<armor>\n10\n10\n10\n10\n</armor>\n'
 )
-# LargeSupportTank has no vehicle converter (UL-05 adds it): the exporter must list it, not drop it.
-LARGE_SUPPORT = TANK.replace('Tank</UnitType>', 'LargeSupportTank</UnitType>', 1)
+# The vehicle converter hands a FixedWingSupport under vehicles/ to another converter (9 pinned
+# sources): the exporter must list it as skipped, not drop it silently.
+VEHICLE_FOLDER_FWS = TANK.replace('Tank</UnitType>', 'FixedWingSupport</UnitType>', 1)
 
 
 class ExportVehicleAeroJsonTest(unittest.TestCase):
@@ -37,7 +38,7 @@ class ExportVehicleAeroJsonTest(unittest.TestCase):
             mekfiles = Path(temp) / 'mekfiles'
             for rel, body in (
                 ('vehicles/3060/Export Tank.blk', TANK),
-                ('vehicles/3060/Export Large.blk', LARGE_SUPPORT),
+                ('vehicles/3060/Export Wing.blk', VEHICLE_FOLDER_FWS),
                 ('fighters/Export Fighter.blk', FIGHTER),
             ):
                 (mekfiles / rel).parent.mkdir(parents=True, exist_ok=True)
@@ -51,7 +52,7 @@ class ExportVehicleAeroJsonTest(unittest.TestCase):
             self.assertEqual(vehicles[0]['unit']['unitType'], 'Vehicle')
             self.assertEqual([row['path'] for row in aerospace], ['fighters/Export Fighter.blk'])
             self.assertEqual(aerospace[0]['unit']['unitType'], 'Aerospace')
-            self.assertEqual(summary['vehicles']['skipped'], ['vehicles/3060/Export Large.blk'])
+            self.assertEqual(summary['vehicles']['skipped'], ['vehicles/3060/Export Wing.blk'])
             self.assertEqual(summary['aerospace']['skipped'], [])
             self.assertEqual(json.loads((out / 'export-summary.json').read_text(encoding='utf-8')), summary)
 

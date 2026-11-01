@@ -213,7 +213,10 @@
             "BAR_9",
             "BAR",
             "AEROSPACE",
-            "PATCHWORK"
+            "PATCHWORK",
+            "FERRO_ALUMINUM",
+            "HEAVY_FERRO_ALUMINUM",
+            "PRIMITIVE_AERO"
           ],
           "description": "Armor type"
         },

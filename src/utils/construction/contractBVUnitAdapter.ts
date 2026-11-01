@@ -8,7 +8,11 @@
  * and nothing is rear-mounted; a Support Vehicle has no turret. Unknown spellings throw instead of
  * defaulting (the handlers default to BODY / Tracked, hiding a converter fault).
  */
-import { VehicleLocation } from '@/types/construction/UnitLocation';
+import {
+  SuperHeavyVehicleLocation,
+  VehicleLocation,
+  VTOLLocation,
+} from '@/types/construction/UnitLocation';
 import {
   GroundMotionType,
   type IAerospaceMovement,
@@ -93,8 +97,12 @@ const AEROSPACE_UNIT_TYPES: ReadonlySet<string> = new Set([
 ]);
 
 /** Converter location tags (`VEHICLE_LOCATION_MAP`, `blk_vehicle_tables.py`). */
-const VEHICLE_LOCATIONS: Readonly<Record<string, VehicleLocation>> = {
-  ...VehicleLocation, // FRONT, LEFT, RIGHT, REAR, TURRET, TURRET_2, BODY
+const VEHICLE_LOCATIONS: Readonly<
+  Record<string, IVehicleMountedEquipment['location']>
+> = {
+  ...VehicleLocation,
+  ...SuperHeavyVehicleLocation,
+  ...VTOLLocation,
   SPONSON: VehicleLocation.BODY,
 };
 

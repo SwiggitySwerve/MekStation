@@ -101,7 +101,7 @@ def bar_armor_fields(
         return {}
     fields: Dict[str, Any] = {"type": "BAR"}
     rating = parse_number(get_string(tags, "barrating")) if reads_bar_rating else None
-    if rating:
+    if rating and rating > 0:
         fields["barRating"] = int(rating)
     return fields
 

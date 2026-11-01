@@ -65,7 +65,8 @@ continues to contain armor points. This slice does not change point ordering.
 
 Armor code 7 is PATCHWORK; code 41 is AEROSPACE, never BAR. Support BAR codes
 43 through 51 use the existing shared code range and emit type BAR. Only an
-explicit `barrating` supplies `barRating`; absence remains absent. Its existing
+explicit positive `barrating` supplies `barRating`; absence remains absent. One owner,
+`blk_unit_fields.bar_armor_fields`, implements this for vehicles and aerospace. Its existing
 schema range is 2 through 10. The schema describes, but does not enforce, the
 relationship between BAR and barRating; consumers must not infer a rating from
 the armor code. The incorrect BAR alias for code 42 is also removed; other
