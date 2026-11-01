@@ -1,0 +1,82 @@
+{
+  "id": "assuan-armored-bike",
+  "chassis": "Assuan Armored Bike",
+  "model": "",
+  "unitType": "Support Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "STAR_LEAGUE",
+  "year": 2610,
+  "tonnage": 1,
+  "weightClass": "LIGHT",
+  "motionType": "Wheeled",
+  "movement": {
+    "cruiseMP": 6,
+    "flankMP": 9,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "ICE",
+    "rating": 5
+  },
+  "armor": {
+    "type": "BAR",
+    "barRating": 10,
+    "byLocation": {
+      "FRONT": 1,
+      "RIGHT": 1,
+      "LEFT": 1,
+      "REAR": 1
+    }
+  },
+  "equipment": [
+    {
+      "id": "infantrytag:size:1.0",
+      "name": "InfantryTAG:SIZE:1.0",
+      "location": "FRONT"
+    },
+    {
+      "id": "armored-chassis",
+      "name": "Armored Chassis",
+      "location": "BODY"
+    },
+    {
+      "id": "isoffroadchassis",
+      "name": "ISOffRoadChassis",
+      "location": "BODY"
+    },
+    {
+      "id": "advanced-fire-control",
+      "name": "Advanced Fire Control",
+      "location": "BODY"
+    },
+    {
+      "id": "bicyclechassismod",
+      "name": "BicycleChassisMod",
+      "location": "BODY"
+    }
+  ],
+  "fuel": 0.022,
+  "structuralTechRating": 3,
+  "engineTechRating": 3,
+  "armorTechRating": 3,
+  "fuelType": "PETROCHEMICALS",
+  "transporters": [
+    "standardseats:1.0:0:-1::-1:0"
+  ],
+  "mulId": 9223,
+  "role": "None",
+  "source": "AToW Companion",
+  "fluff": {
+    "overview": "<p>Capellan infantry forces field the Assuan, a small off-road bike fitted with Luxor mobile artillery batteries. Its armored shell was made not so much to protect the rider as the extremely valuable light TAG mounted in a spherical casing on the front. The Assuan is a successful spotter, presenting a very small target that can reach places inaccessible to larger vehicles.</p>",
+    "manufacturer": "Unknown",
+    "primaryFactory": "Unknown",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  }
+}

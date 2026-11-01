@@ -1,0 +1,77 @@
+{
+  "id": "eagre-firefighting-atv",
+  "chassis": "Eagre Firefighting ATV",
+  "model": "",
+  "unitType": "Support Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "AGE_OF_WAR",
+  "year": 2469,
+  "tonnage": 0.84,
+  "weightClass": "LIGHT",
+  "motionType": "Wheeled",
+  "movement": {
+    "cruiseMP": 5,
+    "flankMP": 8,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "BATTERY",
+    "rating": 5
+  },
+  "armor": {
+    "type": "BAR",
+    "barRating": 7,
+    "byLocation": {
+      "FRONT": 1,
+      "RIGHT": 1,
+      "LEFT": 1,
+      "REAR": 1
+    }
+  },
+  "equipment": [
+    {
+      "id": "hhsearchlight",
+      "name": "HHSearchlight",
+      "location": "FRONT"
+    },
+    {
+      "id": "hhsearchlight",
+      "name": "HHSearchlight",
+      "location": "FRONT"
+    },
+    {
+      "id": "tank-sprayer",
+      "name": "Tank Sprayer",
+      "location": "REAR"
+    },
+    {
+      "id": "isoffroadchassis",
+      "name": "ISOffRoadChassis",
+      "location": "BODY"
+    }
+  ],
+  "fuel": 0.032,
+  "structuralTechRating": 3,
+  "engineTechRating": 3,
+  "armorTechRating": 3,
+  "transporters": [
+    "cargobay:0.3:1:1::-1:0",
+    "standardseats:1.0:0:-1::-1:0"
+  ],
+  "mulId": 9227,
+  "role": "None",
+  "source": "AToW Companion",
+  "fluff": {
+    "overview": "<p>The Eagre is truly an all-purpose vehicle. Nominally developed as a fire engine employed by specialized infantry in the Avalon Hussars, it is also a very sturdy, general-use all-terrain vehicle. Battery-powered, it eschews volatile fuels, and is generously armored to address its potential combat support duties, making it a true boon to the support elements of FedSuns RCTs.</p>",
+    "manufacturer": "Unknown",
+    "primaryFactory": "Unknown",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  }
+}
