@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Dict
 
+# The shared table retains #2474's native vehicle-stealth code 22 -> STEALTH.
 from blk_common import BLK_ARMOR_CODE_MAP as ARMOR_CODE_MAP
 
 AEROSPACE_UNIT_TYPES = {
@@ -49,7 +50,6 @@ SC_LOCATION_MAP: Dict[str, str] = {
     "Body Equipment": "FUSELAGE",
     "Hull Equipment": "HULL",
 }
-
 
 COCKPIT_CODE_MAP: Dict[int, str] = {
     0: "STANDARD",

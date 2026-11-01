@@ -126,7 +126,12 @@ until the BV input can express its working state.
 It SHALL apply no thrust-based multiplier to the defensive pool, matching pinned
 MegaMek `AeroBVCalculator.processDefensiveFactor`. The exposed `defensiveFactor`
 SHALL equal 1 for aerospace fighters, conventional fighters, FixedWingSupport and
-small craft. Aircraft type scaling is a separate term and is deferred by this slice.
+small craft. After armor, SI, defensive equipment and explosive penalties, the
+defensive pool SHALL be multiplied by 1.2 for aerospace fighters, 1.1 for
+conventional fighters, and 1 for support vehicles (including FixedWingSupport)
+and small craft. Non-patchwork stealth armor SHALL add 0.3 to that modifier;
+patchwork armor SHALL receive no stealth bonus. This type stage SHALL precede
+the neutral defensive factor and SHALL NOT scale offensive BV.
 
 #### Scenario: SI BV
 
@@ -153,8 +158,45 @@ small craft. Aircraft type scaling is a separate term and is deferred by this sl
 - **GIVEN** Boeing Jump Bomber with safe thrust 9 and maximum thrust 14
 - **WHEN** its defensive BV is computed
 - **THEN** the defensive factor SHALL equal 1
-- **AND** armor BV 40 plus SI BV 18 SHALL produce a defensive pool of 58
+- **AND** armor BV 40 plus SI BV 18 SHALL produce a pool of 58 before the type stage
+- **AND** the type modifier 1.1 SHALL produce defensive BV 63.8
 - **AND** this term correction SHALL NOT imply total BV parity with Java's 64
+
+#### Scenario: Defensive factor uses Max Thrust
+
+- **GIVEN** an ASF with maxThrust 9
+- **WHEN** defensive factor is computed
+- **THEN** defensiveFactor SHALL equal 1 regardless of maximum thrust
+- **AND** the separate aircraft type modifier SHALL equal 1.2 with standard armor
+
+#### Scenario: Sabre aircraft type contribution
+
+- **GIVEN** Sabre SB-27b-EC with armor BV 267.5 and SI BV 22
+- **WHEN** its defensive BV is computed
+- **THEN** defense SHALL equal `(267.5 + 22) × 1.2 = 347.4`
+- **AND** this defensive agreement SHALL NOT imply total parity with Java's 987
+
+#### Scenario: FixedWingSupport classification takes precedence
+
+- **GIVEN** a conventional-fighter contract with subType FixedWingSupport
+- **WHEN** it passes through the BV adapters
+- **THEN** its support-vehicle identity SHALL reach the defensive calculation
+- **AND** it SHALL receive the type modifier 1 instead of 1.1
+
+#### Scenario: Stealth adds to the aircraft modifier
+
+- **GIVEN** non-patchwork stealth armor on an ASF, conventional fighter, support aircraft or small craft
+- **WHEN** its defensive type modifier is applied
+- **THEN** the modifiers SHALL equal 1.5, 1.4, 1.3 and 1.3 respectively
+- **AND** the modifier SHALL apply after defensive equipment and explosive penalties
+- **AND** patchwork SHALL retain the base type modifier without a stealth bonus
+
+#### Scenario: Preserve native vehicle stealth armor on aircraft
+
+- **GIVEN** an aircraft BLK with native armor code 22 (vehicle stealth)
+- **WHEN** its armor is converted to the unit contract
+- **THEN** armor.type SHALL be STEALTH, as for native code 8
+- **AND** Saroyan Jump Bomber's armor BV 60 and SI BV 16 SHALL contribute `(60 + 16) × 1.4 = 106.4` before additional defensive equipment
 
 #### Scenario: Thrust does not scale defense
 
