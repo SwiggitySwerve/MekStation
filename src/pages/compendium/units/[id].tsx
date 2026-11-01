@@ -19,6 +19,10 @@ import {
   StatGrid,
 } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
+import {
+  getCompendiumDetailPresentation,
+  type IDetailMovementStat,
+} from '@/pages-modules/units/compendiumDetail.presentation';
 import { IUnitDetails, calculateTotalArmor } from '@/types/pages';
 import { isUnitFamily } from '@/types/unit/UnitIndex';
 
@@ -68,26 +72,36 @@ function UnitHeaderCard({
 
 function MovementCard({
   unit,
+  stats,
 }: {
   readonly unit: IUnitDetails;
+  readonly stats?: readonly IDetailMovementStat[];
 }): React.ReactElement {
   return (
     <StatCard title="Movement" icon={<MovementIcon />} variant="amber">
       <StatList>
-        <StatRow label="Walk MP" value={unit.movement?.walk || '—'} />
-        <StatRow
-          label="Run MP"
-          value={
-            unit.movement?.walk ? Math.ceil(unit.movement.walk * 1.5) : '—'
-          }
-        />
-        <StatRow label="Jump MP" value={unit.movement?.jump || 0} />
-        {unit.movement?.jumpJetType && (
-          <StatRow
-            label="Jump Jets"
-            value={unit.movement.jumpJetType}
-            mono={false}
-          />
+        {stats ? (
+          stats.map(({ label, value }) => (
+            <StatRow key={label} label={label} value={value ?? '—'} />
+          ))
+        ) : (
+          <>
+            <StatRow label="Walk MP" value={unit.movement?.walk || '—'} />
+            <StatRow
+              label="Run MP"
+              value={
+                unit.movement?.walk ? Math.ceil(unit.movement.walk * 1.5) : '—'
+              }
+            />
+            <StatRow label="Jump MP" value={unit.movement?.jump || 0} />
+            {unit.movement?.jumpJetType && (
+              <StatRow
+                label="Jump Jets"
+                value={unit.movement.jumpJetType}
+                mono={false}
+              />
+            )}
+          </>
         )}
       </StatList>
       {unit.movement?.enhancements && unit.movement.enhancements.length > 0 && (
@@ -281,7 +295,7 @@ export default function CanonicalUnitDetailPage(): React.ReactElement {
     return <PageLoading message="Loading unit data..." />;
   }
 
-  if (error || !unit) {
+  if (error || !unit || !isUnitFamily(family)) {
     return (
       <PageError
         title="Unit Not Found"
@@ -293,7 +307,11 @@ export default function CanonicalUnitDetailPage(): React.ReactElement {
   }
 
   const displayName = unitDisplayName(unit);
-  const totalArmor = calculateTotalArmor(unit.armor);
+  const { armor, movementStats } = getCompendiumDetailPresentation(
+    unit,
+    family,
+  );
+  const totalArmor = calculateTotalArmor(armor);
 
   return (
     <CompendiumLayout
@@ -305,14 +323,14 @@ export default function CanonicalUnitDetailPage(): React.ReactElement {
 
       {/* Stats Grid */}
       <StatGrid cols={3} className="mb-6">
-        <MovementCard unit={unit} />
+        <MovementCard unit={unit} stats={movementStats} />
 
         <CoreSystemsCard unit={unit} />
 
         <HeatArmorCard unit={unit} totalArmor={totalArmor} />
       </StatGrid>
 
-      <ArmorAllocationCard armor={unit.armor} />
+      <ArmorAllocationCard armor={armor} />
 
       <EquipmentCard unit={unit} />
 

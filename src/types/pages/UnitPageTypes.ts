@@ -1,3 +1,8 @@
+import type { IUnitContract } from '@/types/contracts';
+import type {
+  IAerospaceMovement,
+  IGroundMovement,
+} from '@/types/unit/BaseUnitInterfaces';
 import type { UnitFamily } from '@/types/unit/UnitIndex';
 
 import { Era } from '@/types/enums/Era';
@@ -89,9 +94,12 @@ export interface IStructureConfig {
 /**
  * Armor configuration with allocation
  */
-export interface IArmorConfig {
+export interface IArmorConfig extends Pick<
+  NonNullable<IUnitContract['armor']>,
+  'byLocation' | 'byArc'
+> {
   type: string;
-  allocation: Record<string, number | IArmorFrontRear>;
+  allocation?: Record<string, number | IArmorFrontRear>;
 }
 
 /**
@@ -113,9 +121,11 @@ export interface IHeatSinkConfig {
 /**
  * Movement configuration
  */
-export interface IMovementConfig {
-  walk: number;
-  jump: number;
+export interface IMovementConfig extends Partial<
+  IGroundMovement & IAerospaceMovement
+> {
+  walk?: number;
+  jump?: number;
   jumpJetType?: string;
   enhancements?: string[];
 }
