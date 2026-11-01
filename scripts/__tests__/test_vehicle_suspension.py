@@ -14,6 +14,8 @@ class SuspensionConversionTest(unittest.TestCase):
             source = Path(directory) / 'fixture.blk'
             engine_tag = '' if engine_code is None else f'<engine_type>\n{engine_code}\n</engine_type>\n'
             source.write_text(engine_tag + f'<UnitType>\n{unit_type}\n</UnitType>\n<Name>\nSuspension\n</Name>\n<year>\n3075\n</year>\n<tonnage>\n{tons}\n</tonnage>\n<motion_type>\n{motion}\n</motion_type>\n<cruiseMP>\n{cruise}\n</cruiseMP>\n', encoding='utf-8')
+            with source.open('a', encoding='utf-8') as blk:
+                blk.write('<armor>\n10\n10\n10\n10\n</armor>\n')
             return convert_vehicle_blk(source, logging.getLogger(__name__))
 
     def test_tamerlane_rating(self):

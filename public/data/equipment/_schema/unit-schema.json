@@ -86,7 +86,7 @@
     "tonnage": {
       "type": "number",
       "minimum": 0,
-      "maximum": 250,
+      "maximum": 600,
       "description": "Unit tonnage"
     },
     "engine": {
@@ -543,6 +543,19 @@
     }
   },
   "additionalProperties": true,
+  "anyOf": [
+    {
+      "required": ["unitType"],
+      "properties": {
+        "unitType": { "enum": ["Support Vehicle", "SupportVehicle"] }
+      }
+    },
+    {
+      "properties": {
+        "tonnage": { "type": "number", "maximum": 250 }
+      }
+    }
+  ],
   "allOf": [
     {
       "if": {

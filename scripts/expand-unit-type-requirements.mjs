@@ -42,6 +42,7 @@ export function expandUnitTypeRequirements(schema) {
     delete branch.allOf;
     branch.properties.unitType.enum = group.unitTypes;
     for (const rule of group.rules) applyRequirements(branch, rule.then);
+    foldNumericAlternative(branch);
     return branch;
   });
   return {
@@ -50,6 +51,40 @@ export function expandUnitTypeRequirements(schema) {
     description: schema.description,
     anyOf: branches,
   };
+}
+
+/** Preserve the generated object's public shape when its discriminator rules out alternatives. */
+function foldNumericAlternative(branch) {
+  if (!branch.anyOf) return;
+  const alternatives = branch.anyOf.filter((clause) => {
+    const types = clause.properties?.unitType?.enum;
+    return (
+      !types ||
+      types.some((type) => branch.properties.unitType.enum.includes(type))
+    );
+  });
+  if (alternatives.length !== 1) return;
+  const clause = alternatives[0];
+  if (Object.keys(clause).some((key) => key !== 'properties')) return;
+  const entries = Object.entries(clause.properties ?? {});
+  if (
+    !entries.length ||
+    entries.some(
+      ([key, constraint]) =>
+        Object.keys(constraint).some(
+          (keyword) => !['type', 'maximum'].includes(keyword),
+        ) ||
+        constraint.type !== 'number' ||
+        typeof constraint.maximum !== 'number' ||
+        branch.properties[key]?.type !== 'number',
+    )
+  )
+    return;
+  for (const [key, constraint] of entries) {
+    const target = branch.properties[key];
+    target.maximum = Math.min(target.maximum ?? Infinity, constraint.maximum);
+  }
+  delete branch.anyOf;
 }
 
 function applyRequirements(target, clause) {

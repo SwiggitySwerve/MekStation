@@ -531,7 +531,7 @@ export const UnitContract = z
           .lte(9999)
           .describe('Introduction year')
           .optional(),
-        tonnage: z.number().gte(0).lte(250).describe('Unit tonnage').optional(),
+        tonnage: z.number().gte(0).lte(600).describe('Unit tonnage').optional(),
         engine: z
           .object({
             type: z
@@ -954,6 +954,12 @@ export const UnitContract = z
         source: z.string().describe('Source book/publication').optional(),
       })
       .catchall(z.any())
+      .and(
+        z.union([
+          z.object({ unitType: z.enum(['Support Vehicle', 'SupportVehicle']) }),
+          z.object({ tonnage: z.number().lte(250).optional() }),
+        ]),
+      )
       .describe(
         'Schema for serialized BattleTech unit definitions (BattleMechs, vehicles, etc.)',
       ),
