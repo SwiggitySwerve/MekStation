@@ -2,22 +2,16 @@
 
 from __future__ import annotations
 
-import math
 from typing import Any, Dict
+
+from blk_unit_fields import parse_qualifier_number, parse_source_qualifiers
 
 
 def parse_vehicle_qualifiers(tags: Dict[str, Any]) -> Dict[str, Any]:
     """Preserve explicit qualifiers without deriving construction defaults."""
-    result: Dict[str, Any] = {}
-    for tag, field in (('omni', 'isOmni'), ('trailer', 'isTrailer')):
-        if tag in tags:
-            result[field] = True  # Upstream uses exists(), not the tag's value.
-
-    if 'clan_engine' in tags:
-        raw = str(tags['clan_engine']).strip().lower()
-        if raw not in ('true', 'false'):
-            raise ValueError(f'Invalid BLK clan_engine: {tags["clan_engine"]!r}')
-        result['clanEngine'] = raw == 'true'
+    result = parse_source_qualifiers(tags)
+    if 'trailer' in tags:
+        result['isTrailer'] = True  # Upstream uses exists(), not the tag's value.
 
     for tag, field, integer in (
         ('baseChassisTurretWeight', 'baseChassisTurretWeight', False),
@@ -32,18 +26,8 @@ def parse_vehicle_qualifiers(tags: Dict[str, Any]) -> Dict[str, Any]:
     ):
         if tag not in tags:
             continue
-        try:
-            value = float(tags[tag])
-        except (TypeError, ValueError) as exc:
-            raise ValueError(f'Invalid BLK {tag}: {tags[tag]!r}') from exc
-        if not math.isfinite(value) or (integer and not value.is_integer()):
-            raise ValueError(f'Invalid BLK {tag}: {tags[tag]!r}')
-        result[field] = int(value) if integer else value
+        result[field] = parse_qualifier_number(tags, tag, integer=integer)
 
     if 'fuelType' in tags:
         result['fuelType'] = str(tags['fuelType']).strip()
-    if 'transporters' in tags:
-        result['transporters'] = [
-            line.strip() for line in str(tags['transporters']).splitlines() if line.strip()
-        ]
     return result

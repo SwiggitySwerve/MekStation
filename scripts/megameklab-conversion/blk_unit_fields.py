@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from typing import Any, Dict, List, Optional
 
 from blk_common import get_string, normalize_equipment_id, parse_number
@@ -63,3 +64,32 @@ def parse_location_equipment(
                     "location": location,
                 })
     return equipment
+
+def parse_source_qualifiers(tags: Dict[str, Any]) -> Dict[str, Any]:
+    """Shared explicit Omni, engine-tech and transporter source facts."""
+    result: Dict[str, Any] = {}
+    if 'omni' in tags:
+        result['isOmni'] = True
+
+    if 'clan_engine' in tags:
+        raw = str(tags['clan_engine']).strip().lower()
+        if raw not in ('true', 'false'):
+            raise ValueError(f'Invalid BLK clan_engine: {tags["clan_engine"]!r}')
+        result['clanEngine'] = raw == 'true'
+
+    if 'transporters' in tags:
+        result['transporters'] = [
+            line.strip() for line in str(tags['transporters']).splitlines() if line.strip()
+        ]
+    return result
+
+
+def parse_qualifier_number(tags: Dict[str, Any], tag: str, *, integer: bool = False) -> float:
+    """Parse a finite explicit numeric fact; do not default malformed tags."""
+    try:
+        value = float(tags[tag])
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f'Invalid BLK {tag}: {tags[tag]!r}') from exc
+    if not math.isfinite(value) or (integer and not value.is_integer()):
+        raise ValueError(f'Invalid BLK {tag}: {tags[tag]!r}')
+    return int(value) if integer else value

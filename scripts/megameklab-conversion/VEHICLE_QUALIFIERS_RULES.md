@@ -1,6 +1,8 @@
 # Vehicle source qualifiers (UL-06a)
 
-`blk_vehicle_qualifiers.py` owns source-tag extraction. `unit-schema.json` owns
+`blk_vehicle_qualifiers.py` owns vehicle-only source extraction and calls the
+shared `parse_source_qualifiers` owner in `blk_unit_fields.py` for Omni, Clan-engine
+and transporter facts. `unit-schema.json` owns
 the JSON contract; regenerate its TypeScript reader with `npm run schema:gen`.
 The converter calls this owner once. Hydration and construction rules are separate.
 
