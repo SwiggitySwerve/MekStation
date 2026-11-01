@@ -257,7 +257,10 @@ continue through their owning calculations.
 ### Requirement: Vehicle Offensive BV
 
 Vehicle offensive BV SHALL combine weapon BV, ammo BV, offensive equipment BV,
-mount modifiers and speed factor. Single, Dual and Chin turret weapons SHALL
+mount modifiers and half the unit's raw tonnage before applying the speed
+factor. The mass contribution SHALL apply to Tank, SuperHeavyTank, VTOL and
+support vehicles, including unarmed vehicles, without rounding the tonnage.
+Single, Dual and Chin turret weapons SHALL
 retain their listed BV before other applicable modifiers and SHALL NOT receive
 a rotating-turret bonus. The consumed `turretModifier` breakdown field SHALL
 remain available and equal 1 for these turret kinds.
@@ -286,3 +289,27 @@ remain available and equal 1 for these turret kinds.
 - **THEN** every Tank, SuperHeavyTank and VTOL oracle row SHALL be compared before and after
 - **AND** units moving away SHALL be listed with their component differences
 - **AND** correcting this term SHALL NOT establish complete vehicle BV parity
+
+#### Scenario: Tamerlane offensive mass contribution
+
+- **GIVEN** the 20-ton Tamerlane Strike Sled (Flamer) with weapon BV 98, no ammunition or offensive equipment BV and speed factor 2.72
+- **WHEN** offensive BV is computed
+- **THEN** it SHALL equal `(98 + 20 / 2) × 2.72 = 293.76`, matching pinned MegaMek
+- **AND** the existing defensive terms SHALL remain unchanged
+
+#### Scenario: Unarmed VTOL and fractional support mass
+
+- **GIVEN** the unarmed 5-ton Ferret Light Scout VTOL (Cargo) with speed factor 3.44
+- **WHEN** offensive BV is computed
+- **THEN** it SHALL equal `5 / 2 × 3.44 = 8.6`
+- **GIVEN** a 0.06-ton support vehicle without weapons and with speed factor 1
+- **WHEN** offensive BV is computed
+- **THEN** it SHALL equal 0.03 regardless of its BAR rating
+
+#### Scenario: Isolate mass parity evidence
+
+- **WHEN** the mass contribution is checked against pinned MegaMek 48fcb2f6
+- **THEN** every Tank, SuperHeavyTank, VTOL, SupportTank and SupportVTOL oracle row emitted by the converter SHALL be compared before and after
+- **AND** defense, weapon BV, ammo BV, offensive equipment BV, mount modifiers, speed factor and pilot multiplier SHALL remain unchanged
+- **AND** every unit moving away SHALL be explained with its component values
+- **AND** the mass correction SHALL NOT establish complete vehicle BV parity
