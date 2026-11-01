@@ -10,7 +10,10 @@
 import { VTOL_TONNAGE } from '@/services/construction/constructionConstants';
 import { VTOLLocation } from '@/types/construction/UnitLocation';
 import { WeightClass } from '@/types/enums';
-import { IBlkDocument } from '@/types/formats/BlkFormat';
+import {
+  BLK_VTOL_ARMOR_LOCATIONS,
+  IBlkDocument,
+} from '@/types/formats/BlkFormat';
 import {
   GroundMotionType,
   IGroundMovement,
@@ -24,6 +27,7 @@ import {
   ITurretConfiguration,
   TurretType,
 } from '@/types/unit/VehicleInterfaces';
+import { getTankMaxTotalArmor } from '@/utils/construction/vehicle/armor';
 import {
   computeEngineRating,
   computeFlankMP,
@@ -50,18 +54,6 @@ import {
 // Constants
 // ============================================================================
 
-/**
- * VTOL armor location order for array parsing
- * VTOLs have: Front, Left, Right, Rear, Rotor
- */
-const VTOL_ARMOR_LOCATIONS = [
-  VTOLLocation.FRONT,
-  VTOLLocation.LEFT,
-  VTOLLocation.RIGHT,
-  VTOLLocation.REAR,
-  VTOLLocation.ROTOR,
-] as const;
-
 const VTOL_LOCATION_MAP: Record<string, VTOLLocation> = {
   front: VTOLLocation.FRONT,
   left: VTOLLocation.LEFT,
@@ -70,8 +62,8 @@ const VTOL_LOCATION_MAP: Record<string, VTOLLocation> = {
   'right side': VTOLLocation.RIGHT,
   rear: VTOLLocation.REAR,
   rotor: VTOLLocation.ROTOR,
-  turret: VTOLLocation.BODY,
-  chin: VTOLLocation.BODY,
+  turret: VTOLLocation.TURRET,
+  chin: VTOLLocation.TURRET,
   body: VTOLLocation.BODY,
 };
 
@@ -178,7 +170,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
       [VTOLLocation.BODY]: 0,
     };
 
-    VTOL_ARMOR_LOCATIONS.forEach((loc, index) => {
+    BLK_VTOL_ARMOR_LOCATIONS.forEach((loc, index) => {
       if (index < armor.length) {
         result[loc] = armor[index];
       }
@@ -257,9 +249,10 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
 
   /**
    * Calculate maximum armor points for VTOL tonnage
+   * (TestTank.java:338: tonnage * 7 / 2 + 40, rounded down)
    */
   private calculateMaxArmor(tonnage: number): number {
-    return Math.floor(tonnage * 3.5);
+    return getTankMaxTotalArmor(tonnage);
   }
 
   /**

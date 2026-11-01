@@ -327,8 +327,9 @@ it('classifies zero-damage official ranged weapons as explicit non-damage behavi
     .filter((id): id is string => typeof id === 'string')
     .sort();
 
-  // Twelve native ProtoMek LRM records now use 1/missile instead of zero.
-  expect(zeroDamageItems).toHaveLength(268);
+  // 268 -> 129: the 139 missile launchers that carried a numeric damage 0
+  // placeholder now use N/missile (pinned MegaMek per-missile damage).
+  expect(zeroDamageItems).toHaveLength(129);
   expect(unclassified).toEqual([]);
   expect(
     ids(

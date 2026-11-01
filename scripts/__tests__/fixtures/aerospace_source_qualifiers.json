@@ -1,0 +1,832 @@
+{
+  "pin": "50f7efef0c9f775b0258f8283525ed4f906e1985",
+  "fixtures": [
+    {
+      "source": "fighters/XTRs/Phantoms/Battle Taxi NL-43.blk",
+      "sha256": "611c24857d2500c600aa42feae663ab12a96c707b17073727b9dee5946481b83",
+      "blk": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\r\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\r\n#\r\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\r\n# creating free software for the BattleTech community.\r\n#\r\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\r\n# of The Topps Company, Inc. All Rights Reserved.\r\n#\r\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\r\n# InMediaRes Productions, LLC.\r\n#\r\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\r\n# Microsoft's \"Game Content Usage Rules\"\r\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\r\n# affiliated with Microsoft.\r\n\r\n#Saved from version 0.51.01 on 2026-07-12\r\n<UUID>\r\n019f583e-b02f-725f-afa4-f34984b1353c\r\n</UUID>\r\n\r\n<UnitType>\r\nAeroSpaceFighter\r\n</UnitType>\r\n\r\n<Name>\r\nBattle Taxi\r\n</Name>\r\n\r\n<Model>\r\nNL-43\r\n</Model>\r\n\r\n<mul id:>\r\n5610\r\n</mul id:>\r\n\r\n<year>\r\n3074\r\n</year>\r\n\r\n<type>\r\nIS Level 4\r\n</type>\r\n\r\n<role>\r\nDogfighter\r\n</role>\r\n\r\n<quirks>\r\nnon_standard\r\n</quirks>\r\n\r\n<motion_type>\r\nAerodyne\r\n</motion_type>\r\n\r\n<transporters>\r\ntroopspace:16.0\r\ncargobay:2.0:1:1::-1:0\r\n</transporters>\r\n\r\n<SafeThrust>\r\n6\r\n</SafeThrust>\r\n\r\n<cockpit_type>\r\n0\r\n</cockpit_type>\r\n\r\n<heatsinks>\r\n18\r\n</heatsinks>\r\n\r\n<sink_type>\r\n1\r\n</sink_type>\r\n\r\n<omnipodheatsinks>\r\n8\r\n</omnipodheatsinks>\r\n\r\n<fuel>\r\n880\r\n</fuel>\r\n\r\n<engine_type>\r\n2\r\n</engine_type>\r\n\r\n<armor_type>\r\n22\r\n</armor_type>\r\n\r\n<armor_tech_rating>\r\n0\r\n</armor_tech_rating>\r\n\r\n<armor_tech_level>\r\n1\r\n</armor_tech_level>\r\n\r\n<armor>\r\n105\r\n55\r\n55\r\n105\r\n</armor>\r\n\r\n<Nose Equipment>\r\nISMediumXPulseLaser\r\nISMediumXPulseLaser\r\nISGuardianECMSuite\r\n</Nose Equipment>\r\n\r\n<Left Wing Equipment>\r\nISMediumXPulseLaser\r\nISMediumXPulseLaser\r\n</Left Wing Equipment>\r\n\r\n<Right Wing Equipment>\r\nISMediumXPulseLaser\r\nISMediumXPulseLaser\r\n</Right Wing Equipment>\r\n\r\n<Aft Equipment>\r\nIS Vehicular Stealth\r\n</Aft Equipment>\r\n\r\n<Wings Equipment>\r\n</Wings Equipment>\r\n\r\n<Fuselage Equipment>\r\n</Fuselage Equipment>\r\n\r\n<capabilities>\r\n<p>The NL-43 employs a four-hundred-rated extra-light engine driving it to a safe thrust of six gravities, with a peak acceleration of nine gravities. Stub lifting wings and substantial atmospheric thrust give the craft extended flight performance in atmosphere, enabling planetary infantry deployments that the space-focused NL-42 could never achieve. The aerodyne configuration sacrifices the older design's VTOL capability but gains the ability to carry external ordnance.</p><p>Stealth armor is the NL-43's most distinctive feature, allowing the craft to approach targets with a significantly reduced sensor signature. A Guardian ECM suite mounted in the aft section supplements the stealth systems. Armament is modest by fighter standards, consisting of six medium X-pulse lasers distributed across the wings and aft arc, weapons suited more for strafing landing zones and suppressing defenders than for sustained dogfighting. The infantry compartment accommodates sixteen battle armored troopers or nearly six platoons of conventional foot infantry, with an additional two tons of cargo space for munitions and supplies to support deployed forces. The primary drawback is protection. Despite impressive total armor mass, actual coverage is a fraction of the NL-42's, with the stealth coating expected to compensate for the thinner plating.</p>\r\n</capabilities>\r\n\r\n<overview>\r\n<p>The NL-43 Battle Taxi is a one-hundred-ton experimental aerospace fighter developed by Andurien AeroTech on Lopez for the Duchy of Andurien. Introduced in 3074, the craft is described as only a spiritual successor to the larger NL-42 small craft, representing a fundamentally different approach to the battle taxi concept. Where the NL-42 was designed for ship-to-ship boarding operations in space, the NL-43 was built as a stealthy atmospheric troop transport capable of delivering infantry directly to planetary surfaces. The shift from small craft to aerospace fighter format reflected both industrial limitations at the Lopez facility and new tactical requirements emerging from the Jihad.</p>\r\n</overview>\r\n\r\n<deployment>\r\n<p>The NL-43 exists solely as an experimental prototype configuration. Its combination of stealth armor, X-pulse laser technology, and Guardian ECM represents cutting-edge Duchy of Andurien engineering adapted from technologies that were still maturing during the Jihad period. Production at the Lopez facility was extremely limited, with the craft's massive XL engine proving particularly troublesome to manufacture reliably.</p>\r\n</deployment>\r\n\r\n<history>\r\n<p>The NL-43 emerged from a convergence of industrial realities and shifting tactical needs within the Duchy of Andurien during the Jihad. Andurien AeroTech's Lopez facility found it considerably easier to construct an aerospace fighter than a small craft, and new requirements for delivering troops directly to planetary surfaces favored an aerodyne format over the NL-42's spheroid hull. The availability of stealth armor technology, which could not be mounted on a small craft, provided the final impetus for the redesign.</p><p>The Duchy rolled out the first NL-43 in tandem with computer-generated graphics of the XF-78, suggesting a greater strategic plan linking the two stealthy craft. The exact nature of this plan remains obscure, though intelligence assessments suggest the two vehicles were intended to operate together in combined boarding and planetary assault scenarios. More charitable analysts noted the pairing made tactical sense, as the NL-43's stealth approach capabilities complemented the XF-78's own role in ways that conventional transports could not match.</p><p>Production proved difficult from the outset. The four-hundred-rated XL engine, described ironically as a proven design plagued by manufacturing problems, severely limited output at the Lopez plant. The NL-43 became the rarer of the two craft in the Andurien stealthy vehicle program, with most examples remaining concentrated within Duchy forces. The experimental nature of the design, combined with the political isolation of the newly independent Duchy during the final years of the Jihad, meant that the NL-43 saw only limited distribution beyond Andurien space. Production records indicate the Lopez line was active only during the Jihad era, with no continuation into the post-war Republic period.</p>\r\n</history>\r\n\r\n<manufacturer>\r\nAndurien AeroTech (A Division of Free Worlds Defense Industries)\r\n</manufacturer>\r\n\r\n<primaryFactory>\r\nLopez\r\n</primaryFactory>\r\n\r\n<systemManufacturers>\r\nCHASSIS:Unknown\r\nENGINE:Unknown\r\nARMOR:Unknown\r\nCOMMUNICATIONS:Unknown\r\nTARGETING:Unknown\r\n</systemManufacturers>\r\n\r\n<systemModels>\r\nCHASSIS:Unknown\r\nENGINE:400 XL\r\nARMOR:Stealth\r\nCOMMUNICATIONS:Unknown\r\nTARGETING:Unknown\r\n</systemModels>\r\n\r\n<source>\r\nXTR:Phantoms\r\n</source>\r\n\r\n<published>\r\nXTR:Phantoms\r\n</published>\r\n\r\n<tonnage>\r\n100.0\r\n</tonnage>\r\n\r\n",
+      "qualifiers": {
+        "omniPodHeatSinks": 8,
+        "transporters": ["troopspace:16.0", "cargobay:2.0:1:1::-1:0"]
+      },
+      "armor": {
+        "type": "STANDARD",
+        "byArc": {
+          "NOSE": 105,
+          "LEFT_WING": 55,
+          "RIGHT_WING": 55,
+          "AFT": 105
+        }
+      },
+      "unit": {
+        "id": "battle-taxi-nl-43",
+        "chassis": "Battle Taxi",
+        "model": "NL-43",
+        "unitType": "Aerospace",
+        "subType": "AerospaceFighter",
+        "techBase": "INNER_SPHERE",
+        "rulesLevel": "EXPERIMENTAL",
+        "era": "CIVIL_WAR",
+        "year": 3074,
+        "tonnage": 100,
+        "weightClass": "ASSAULT",
+        "motionType": "AERODYNE",
+        "movement": {
+          "safeThrust": 6,
+          "maxThrust": 9
+        },
+        "fuel": 880,
+        "structuralIntegrity": 10,
+        "engine": {
+          "type": "XL"
+        },
+        "heatSinks": {
+          "type": "DOUBLE",
+          "count": 18
+        },
+        "cockpit": "STANDARD",
+        "armor": {
+          "type": "STANDARD",
+          "byArc": {
+            "NOSE": 105,
+            "LEFT_WING": 55,
+            "RIGHT_WING": 55,
+            "AFT": 105
+          }
+        },
+        "equipment": [
+          {
+            "id": "ismediumxpulselaser",
+            "name": "ISMediumXPulseLaser",
+            "location": "NOSE"
+          },
+          {
+            "id": "ismediumxpulselaser",
+            "name": "ISMediumXPulseLaser",
+            "location": "NOSE"
+          },
+          {
+            "id": "isguardianecmsuite",
+            "name": "ISGuardianECMSuite",
+            "location": "NOSE"
+          },
+          {
+            "id": "ismediumxpulselaser",
+            "name": "ISMediumXPulseLaser",
+            "location": "LEFT_WING"
+          },
+          {
+            "id": "ismediumxpulselaser",
+            "name": "ISMediumXPulseLaser",
+            "location": "LEFT_WING"
+          },
+          {
+            "id": "ismediumxpulselaser",
+            "name": "ISMediumXPulseLaser",
+            "location": "RIGHT_WING"
+          },
+          {
+            "id": "ismediumxpulselaser",
+            "name": "ISMediumXPulseLaser",
+            "location": "RIGHT_WING"
+          },
+          {
+            "id": "is-vehicular-stealth",
+            "name": "IS Vehicular Stealth",
+            "location": "AFT"
+          }
+        ],
+        "hasBombBay": false,
+        "bombCapacity": 0,
+        "mulId": 5610,
+        "role": "Dogfighter",
+        "source": "XTR:Phantoms",
+        "quirks": ["non_standard"],
+        "fluff": {
+          "overview": "<p>The NL-43 Battle Taxi is a one-hundred-ton experimental aerospace fighter developed by Andurien AeroTech on Lopez for the Duchy of Andurien. Introduced in 3074, the craft is described as only a spiritual successor to the larger NL-42 small craft, representing a fundamentally different approach to the battle taxi concept. Where the NL-42 was designed for ship-to-ship boarding operations in space, the NL-43 was built as a stealthy atmospheric troop transport capable of delivering infantry directly to planetary surfaces. The shift from small craft to aerospace fighter format reflected both industrial limitations at the Lopez facility and new tactical requirements emerging from the Jihad.</p>",
+          "capabilities": "<p>The NL-43 employs a four-hundred-rated extra-light engine driving it to a safe thrust of six gravities, with a peak acceleration of nine gravities. Stub lifting wings and substantial atmospheric thrust give the craft extended flight performance in atmosphere, enabling planetary infantry deployments that the space-focused NL-42 could never achieve. The aerodyne configuration sacrifices the older design's VTOL capability but gains the ability to carry external ordnance.</p><p>Stealth armor is the NL-43's most distinctive feature, allowing the craft to approach targets with a significantly reduced sensor signature. A Guardian ECM suite mounted in the aft section supplements the stealth systems. Armament is modest by fighter standards, consisting of six medium X-pulse lasers distributed across the wings and aft arc, weapons suited more for strafing landing zones and suppressing defenders than for sustained dogfighting. The infantry compartment accommodates sixteen battle armored troopers or nearly six platoons of conventional foot infantry, with an additional two tons of cargo space for munitions and supplies to support deployed forces. The primary drawback is protection. Despite impressive total armor mass, actual coverage is a fraction of the NL-42's, with the stealth coating expected to compensate for the thinner plating.</p>",
+          "deployment": "<p>The NL-43 exists solely as an experimental prototype configuration. Its combination of stealth armor, X-pulse laser technology, and Guardian ECM represents cutting-edge Duchy of Andurien engineering adapted from technologies that were still maturing during the Jihad period. Production at the Lopez facility was extremely limited, with the craft's massive XL engine proving particularly troublesome to manufacture reliably.</p>",
+          "history": "<p>The NL-43 emerged from a convergence of industrial realities and shifting tactical needs within the Duchy of Andurien during the Jihad. Andurien AeroTech's Lopez facility found it considerably easier to construct an aerospace fighter than a small craft, and new requirements for delivering troops directly to planetary surfaces favored an aerodyne format over the NL-42's spheroid hull. The availability of stealth armor technology, which could not be mounted on a small craft, provided the final impetus for the redesign.</p><p>The Duchy rolled out the first NL-43 in tandem with computer-generated graphics of the XF-78, suggesting a greater strategic plan linking the two stealthy craft. The exact nature of this plan remains obscure, though intelligence assessments suggest the two vehicles were intended to operate together in combined boarding and planetary assault scenarios. More charitable analysts noted the pairing made tactical sense, as the NL-43's stealth approach capabilities complemented the XF-78's own role in ways that conventional transports could not match.</p><p>Production proved difficult from the outset. The four-hundred-rated XL engine, described ironically as a proven design plagued by manufacturing problems, severely limited output at the Lopez plant. The NL-43 became the rarer of the two craft in the Andurien stealthy vehicle program, with most examples remaining concentrated within Duchy forces. The experimental nature of the design, combined with the political isolation of the newly independent Duchy during the final years of the Jihad, meant that the NL-43 saw only limited distribution beyond Andurien space. Production records indicate the Lopez line was active only during the Jihad era, with no continuation into the post-war Republic period.</p>",
+          "manufacturer": "Andurien AeroTech (A Division of Free Worlds Defense Industries)",
+          "primaryFactory": "Lopez"
+        },
+        "omniPodHeatSinks": 8,
+        "transporters": ["troopspace:16.0", "cargobay:2.0:1:1::-1:0"]
+      }
+    },
+    {
+      "source": "fighters/RSUniqueFighters/Tyre Michiko.blk",
+      "sha256": "b5b562e18a9eee935723ff50ec6f823450ba45ceff8e0d484689d245420db3f0",
+      "blk": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\r\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\r\n#\r\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\r\n# creating free software for the BattleTech community.\r\n#\r\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\r\n# of The Topps Company, Inc. All Rights Reserved.\r\n#\r\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\r\n# InMediaRes Productions, LLC.\r\n#\r\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\r\n# Microsoft's \"Game Content Usage Rules\"\r\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\r\n# affiliated with Microsoft.\r\n\r\n#Saved from version 0.51.01 on 2026-07-12\r\n<UUID>\r\n019f583e-ad00-7dce-9cdd-f73865284fa7\r\n</UUID>\r\n\r\n<UnitType>\r\nAeroSpaceFighter\r\n</UnitType>\r\n\r\n<Name>\r\nTyre\r\n</Name>\r\n\r\n<Model>\r\n(Michiko)\r\n</Model>\r\n\r\n<mul id:>\r\n3339\r\n</mul id:>\r\n\r\n<year>\r\n3064\r\n</year>\r\n\r\n<type>\r\nClan Level 2\r\n</type>\r\n\r\n<role>\r\nFast Dogfighter\r\n</role>\r\n\r\n<motion_type>\r\nAerodyne\r\n</motion_type>\r\n\r\n<SafeThrust>\r\n7\r\n</SafeThrust>\r\n\r\n<cockpit_type>\r\n0\r\n</cockpit_type>\r\n\r\n<heatsinks>\r\n16\r\n</heatsinks>\r\n\r\n<sink_type>\r\n1\r\n</sink_type>\r\n\r\n<fuel>\r\n400\r\n</fuel>\r\n\r\n<engine_type>\r\n0\r\n</engine_type>\r\n\r\n<clan_engine>\r\nfalse\r\n</clan_engine>\r\n\r\n<armor_type>\r\n0\r\n</armor_type>\r\n\r\n<armor_tech_rating>\r\n0\r\n</armor_tech_rating>\r\n\r\n<armor_tech_level>\r\n2\r\n</armor_tech_level>\r\n\r\n<armor>\r\n60\r\n35\r\n35\r\n30\r\n</armor>\r\n\r\n<Nose Equipment>\r\nCLHeavyMediumLaser\r\nCLHeavyMediumLaser\r\nCLStreakSRM6\r\n</Nose Equipment>\r\n\r\n<Left Wing Equipment>\r\nCLMediumPulseLaser\r\nCLMediumPulseLaser\r\n</Left Wing Equipment>\r\n\r\n<Right Wing Equipment>\r\nCLMediumPulseLaser\r\nCLMediumPulseLaser\r\n</Right Wing Equipment>\r\n\r\n<Aft Equipment>\r\nCLERSmallLaser\r\n</Aft Equipment>\r\n\r\n<Wings Equipment>\r\n</Wings Equipment>\r\n\r\n<Fuselage Equipment>\r\nClan Streak SRM 6 Ammo\r\nClan Streak SRM 6 Ammo\r\nCLCASE\r\n</Fuselage Equipment>\r\n\r\n<capabilities>\r\n<p>Built around economy and durability rather than raw performance, the Tyre mounts a standard fusion powerplant that limits it to a top acceleration of four Gs, average by the standards of heavier craft but deliberately matched to the pace of the DropShips it was designed to escort. The design philosophy treats this modest speed as a feature, keeping the fighter close to its assigned convoy rather than being lured away by enemy interceptors seeking to draw off the screen.</p><p>Seven and a half tons of Formula TSF Standard armor protects the airframe, with additional mass concentrated in the nose and forward fuselage to survive frontal engagement. The primary armament pairs a Type 9-A Ultra autocannon with seven Series AP7 medium pulse lasers, a combination that emphasizes concentrated close-range firepower over standoff reach. All weapons may be fired simultaneously without overtaxing the heat sinks, making the Tyre an exceptionally reliable strafing platform against surface targets and an unforgiving opponent at close quarters.</p><p>The trade-off is a significant lack of reach, and opposing fighters who maintain their distance hold a clear tactical advantage. Heat dissipation is matched tightly to the weapons load with little surplus, leaving pilots minimal margin during extended engagements. Both weaknesses are well-understood among Clan aerospace pilots, and the Tyre's tactical reputation reflects a design that punishes the enemy hardest when it can close the range.</p>\r\n</capabilities>\r\n\r\n<overview>\r\n<p>The Tyre is a medium-weight aerospace fighter developed by Clan Steel Viper in 2907, conceived as a homegrown successor to the Corsair class fighter that had nearly vanished among the Clans' ancestors during the long journey from the Inner Sphere. After years of iterative development and numerous proposed enhancements, Viper designers settled on a design that deliberately traded maximum speed for resilience and concentrated firepower, producing a craft ideally suited to the DropShip escort role the Clan urgently needed to fill. Economical to operate and straightforward to maintain by Clan standards, the Tyre found a ready home not only in Steel Viper aerospace forces but across much of the Clan homeworld complex. While newer OmniFighters eventually displaced it from front-line duty among wealthier Clans, the Tyre remained a fixture of second-line forces throughout the Clan universe, valued for dependability and sustained combat effectiveness against both aerospace and ground targets.</p>\r\n</overview>\r\n\r\n<deployment>\r\n<p>This unique variant was developed by Clan Blood Spirit during their conflict with Clan Star Adder over York, configured to address the specific tactical challenges of that engagement. The modified armament replaces the standard close-range weapons suite with a long-range missile array and heavy energy weapons, dramatically expanding effective engagement range at the cost of increased heat output that the installed heat sinks cannot fully manage. As a named warrior's variant, examples outside Blood Spirit service are unknown, and the design serves as a field development rather than a standard production model.</p>\r\n</deployment>\r\n\r\n<history>\r\n<p>The Tyre traces its lineage back to the Corsair, the capable medium fighter that served as a backbone of Star League aerospace forces before Operation Exodus. The Corsair had seen heavy attrition during the liberation of Terra and the years of conflict that followed, and by the time Kerensky's forces departed the Inner Sphere the design was already declining in availability. The journey across the void further reduced their numbers, and when the Clans were formed from the survivors of the Exodus fleet, functioning Corsairs had become scarce, leaving the warrior caste dependent on whatever craft had survived the long passage.</p><p>Clan Steel Viper aerospace engineers undertook a deliberate program to fill this gap, studying the Corsair's operational strengths and the particular demands of the nascent Clan military. Numerous design proposals were advanced, tested, and revised over the course of several years. Performance characteristics were adjusted, weapons configurations evaluated, and structural details refined through the iterative process common to early Clan engineering efforts. Viper designers finally declared success in 2907, fielding what they named the Tyre. The new fighter quickly became the foundation of the Clan's aerospace fleet, serving primarily as the premier escort for DropShips moving through potentially hostile space.</p><p>Through the Trials and trading that shaped Clan interactions during the homeworld period, the Tyre spread widely among the other Clans. Production facilities were established on New Kent, Albion, Bearclaw, Babylon, Homer, Roche, and York, giving nearly every Clan access to domestically produced examples at various points during the early centuries. As OmniFighters were developed and proliferated among the wealthier Clans during the later Golden Century and into the Clan Invasion era, the Tyre was progressively shifted to second-line assignments. Clans historically short on resources for OmniFighters continued using Tyres in front-line roles, and all Clans maintained some quantity in their reserve aerospace forces.</p><p>The Steel Vipers maintained the most concentrated production at their New Kent orbital facility, which became the definitive source of later production runs as other homeworld facilities scaled back or ceased operations. The Vipers' eventual Annihilation following the Wars of Reaving brought New Kent production to an end, but the design found an unexpected second life in the Inner Sphere when Janesek Industries on Orestes began producing modified variants under Ghost Bear occupation during the Dark Age, later continuing under Republic Dominion sponsorship and extending the Tyre's service well into the ilClan era.</p>\r\n</history>\r\n\r\n<manufacturer>\r\nAeroyard Gargain|Complex 19|Complex H-3 CCC|Janesek Industries|Marron Aerospace Plant|New Kent Orbiter D7|Roche AeroPlex Beta|York Aerospace Y4 Facility\r\n</manufacturer>\r\n\r\n<primaryFactory>\r\nBearclaw|Albion (New Bergan)|Homer|Orestes|Babylon (Corsen)|New Kent (Celebes)|Roche|York\r\n</primaryFactory>\r\n\r\n<systemManufacturers>\r\nCHASSIS:Unknown\r\nENGINE:Unknown\r\nARMOR:Unknown\r\nJUMP_JET:N/A\r\nCOMMUNICATIONS:Unknown\r\nTARGETING:Unknown\r\n</systemManufacturers>\r\n\r\n<systemModels>\r\nCHASSIS:Model LV-3\r\nENGINE:Standard 165 Fusion\r\nARMOR:Ferro-Aluminum\r\nJUMP_JET:N/A\r\nCOMMUNICATIONS:Masters 400\r\nTARGETING:DST Model 316/4\r\n</systemModels>\r\n\r\n<published>\r\nRS:UF\r\n</published>\r\n\r\n<tonnage>\r\n55.0\r\n</tonnage>\r\n\r\n",
+      "qualifiers": {
+        "clanEngine": false
+      },
+      "armor": {
+        "type": "STANDARD",
+        "byArc": {
+          "NOSE": 60,
+          "LEFT_WING": 35,
+          "RIGHT_WING": 35,
+          "AFT": 30
+        }
+      },
+      "unit": {
+        "id": "tyre-michiko",
+        "chassis": "Tyre",
+        "model": "(Michiko)",
+        "unitType": "Aerospace",
+        "subType": "AerospaceFighter",
+        "techBase": "CLAN",
+        "rulesLevel": "STANDARD",
+        "era": "CLAN_INVASION",
+        "year": 3064,
+        "tonnage": 55,
+        "weightClass": "MEDIUM",
+        "motionType": "AERODYNE",
+        "movement": {
+          "safeThrust": 7,
+          "maxThrust": 11
+        },
+        "fuel": 400,
+        "structuralIntegrity": 7,
+        "engine": {
+          "type": "FUSION"
+        },
+        "heatSinks": {
+          "type": "DOUBLE",
+          "count": 16
+        },
+        "cockpit": "STANDARD",
+        "armor": {
+          "type": "STANDARD",
+          "byArc": {
+            "NOSE": 60,
+            "LEFT_WING": 35,
+            "RIGHT_WING": 35,
+            "AFT": 30
+          }
+        },
+        "equipment": [
+          {
+            "id": "clheavymediumlaser",
+            "name": "CLHeavyMediumLaser",
+            "location": "NOSE"
+          },
+          {
+            "id": "clheavymediumlaser",
+            "name": "CLHeavyMediumLaser",
+            "location": "NOSE"
+          },
+          {
+            "id": "clstreaksrm6",
+            "name": "CLStreakSRM6",
+            "location": "NOSE"
+          },
+          {
+            "id": "clmediumpulselaser",
+            "name": "CLMediumPulseLaser",
+            "location": "LEFT_WING"
+          },
+          {
+            "id": "clmediumpulselaser",
+            "name": "CLMediumPulseLaser",
+            "location": "LEFT_WING"
+          },
+          {
+            "id": "clmediumpulselaser",
+            "name": "CLMediumPulseLaser",
+            "location": "RIGHT_WING"
+          },
+          {
+            "id": "clmediumpulselaser",
+            "name": "CLMediumPulseLaser",
+            "location": "RIGHT_WING"
+          },
+          {
+            "id": "clersmalllaser",
+            "name": "CLERSmallLaser",
+            "location": "AFT"
+          },
+          {
+            "id": "clan-streak-srm-6-ammo",
+            "name": "Clan Streak SRM 6 Ammo",
+            "location": "FUSELAGE"
+          },
+          {
+            "id": "clan-streak-srm-6-ammo",
+            "name": "Clan Streak SRM 6 Ammo",
+            "location": "FUSELAGE"
+          },
+          {
+            "id": "clcase",
+            "name": "CLCASE",
+            "location": "FUSELAGE"
+          }
+        ],
+        "hasBombBay": false,
+        "bombCapacity": 0,
+        "mulId": 3339,
+        "role": "Fast Dogfighter",
+        "fluff": {
+          "overview": "<p>The Tyre is a medium-weight aerospace fighter developed by Clan Steel Viper in 2907, conceived as a homegrown successor to the Corsair class fighter that had nearly vanished among the Clans' ancestors during the long journey from the Inner Sphere. After years of iterative development and numerous proposed enhancements, Viper designers settled on a design that deliberately traded maximum speed for resilience and concentrated firepower, producing a craft ideally suited to the DropShip escort role the Clan urgently needed to fill. Economical to operate and straightforward to maintain by Clan standards, the Tyre found a ready home not only in Steel Viper aerospace forces but across much of the Clan homeworld complex. While newer OmniFighters eventually displaced it from front-line duty among wealthier Clans, the Tyre remained a fixture of second-line forces throughout the Clan universe, valued for dependability and sustained combat effectiveness against both aerospace and ground targets.</p>",
+          "capabilities": "<p>Built around economy and durability rather than raw performance, the Tyre mounts a standard fusion powerplant that limits it to a top acceleration of four Gs, average by the standards of heavier craft but deliberately matched to the pace of the DropShips it was designed to escort. The design philosophy treats this modest speed as a feature, keeping the fighter close to its assigned convoy rather than being lured away by enemy interceptors seeking to draw off the screen.</p><p>Seven and a half tons of Formula TSF Standard armor protects the airframe, with additional mass concentrated in the nose and forward fuselage to survive frontal engagement. The primary armament pairs a Type 9-A Ultra autocannon with seven Series AP7 medium pulse lasers, a combination that emphasizes concentrated close-range firepower over standoff reach. All weapons may be fired simultaneously without overtaxing the heat sinks, making the Tyre an exceptionally reliable strafing platform against surface targets and an unforgiving opponent at close quarters.</p><p>The trade-off is a significant lack of reach, and opposing fighters who maintain their distance hold a clear tactical advantage. Heat dissipation is matched tightly to the weapons load with little surplus, leaving pilots minimal margin during extended engagements. Both weaknesses are well-understood among Clan aerospace pilots, and the Tyre's tactical reputation reflects a design that punishes the enemy hardest when it can close the range.</p>",
+          "deployment": "<p>This unique variant was developed by Clan Blood Spirit during their conflict with Clan Star Adder over York, configured to address the specific tactical challenges of that engagement. The modified armament replaces the standard close-range weapons suite with a long-range missile array and heavy energy weapons, dramatically expanding effective engagement range at the cost of increased heat output that the installed heat sinks cannot fully manage. As a named warrior's variant, examples outside Blood Spirit service are unknown, and the design serves as a field development rather than a standard production model.</p>",
+          "history": "<p>The Tyre traces its lineage back to the Corsair, the capable medium fighter that served as a backbone of Star League aerospace forces before Operation Exodus. The Corsair had seen heavy attrition during the liberation of Terra and the years of conflict that followed, and by the time Kerensky's forces departed the Inner Sphere the design was already declining in availability. The journey across the void further reduced their numbers, and when the Clans were formed from the survivors of the Exodus fleet, functioning Corsairs had become scarce, leaving the warrior caste dependent on whatever craft had survived the long passage.</p><p>Clan Steel Viper aerospace engineers undertook a deliberate program to fill this gap, studying the Corsair's operational strengths and the particular demands of the nascent Clan military. Numerous design proposals were advanced, tested, and revised over the course of several years. Performance characteristics were adjusted, weapons configurations evaluated, and structural details refined through the iterative process common to early Clan engineering efforts. Viper designers finally declared success in 2907, fielding what they named the Tyre. The new fighter quickly became the foundation of the Clan's aerospace fleet, serving primarily as the premier escort for DropShips moving through potentially hostile space.</p><p>Through the Trials and trading that shaped Clan interactions during the homeworld period, the Tyre spread widely among the other Clans. Production facilities were established on New Kent, Albion, Bearclaw, Babylon, Homer, Roche, and York, giving nearly every Clan access to domestically produced examples at various points during the early centuries. As OmniFighters were developed and proliferated among the wealthier Clans during the later Golden Century and into the Clan Invasion era, the Tyre was progressively shifted to second-line assignments. Clans historically short on resources for OmniFighters continued using Tyres in front-line roles, and all Clans maintained some quantity in their reserve aerospace forces.</p><p>The Steel Vipers maintained the most concentrated production at their New Kent orbital facility, which became the definitive source of later production runs as other homeworld facilities scaled back or ceased operations. The Vipers' eventual Annihilation following the Wars of Reaving brought New Kent production to an end, but the design found an unexpected second life in the Inner Sphere when Janesek Industries on Orestes began producing modified variants under Ghost Bear occupation during the Dark Age, later continuing under Republic Dominion sponsorship and extending the Tyre's service well into the ilClan era.</p>",
+          "manufacturer": "Aeroyard Gargain|Complex 19|Complex H-3 CCC|Janesek Industries|Marron Aerospace Plant|New Kent Orbiter D7|Roche AeroPlex Beta|York Aerospace Y4 Facility",
+          "primaryFactory": "Bearclaw|Albion (New Bergan)|Homer|Orestes|Babylon (Corsen)|New Kent (Celebes)|Roche|York"
+        },
+        "clanEngine": false
+      }
+    },
+    {
+      "source": "fighters/XTRs/Boondocks/Sangihe Shrike-Thrush Nanook.blk",
+      "sha256": "19ec63592b9307958fee9db4302ec6c8d11261728b9caf4c05ddcddd1f6bf225",
+      "blk": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\r\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\r\n#\r\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\r\n# creating free software for the BattleTech community.\r\n#\r\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\r\n# of The Topps Company, Inc. All Rights Reserved.\r\n#\r\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\r\n# InMediaRes Productions, LLC.\r\n#\r\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\r\n# Microsoft's \"Game Content Usage Rules\"\r\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\r\n# affiliated with Microsoft.\r\n\r\n#Saved from version 0.51.01 on 2026-07-12\r\n<UUID>\r\n019f583e-afd5-7dc9-8ece-4572d360943c\r\n</UUID>\r\n\r\n<UnitType>\r\nAeroSpaceFighter\r\n</UnitType>\r\n\r\n<Name>\r\nSangihe Shrike-Thrush 'Nanook'\r\n</Name>\r\n\r\n<Model>\r\n\r\n</Model>\r\n\r\n<mul id:>\r\n2794\r\n</mul id:>\r\n\r\n<year>\r\n3068\r\n</year>\r\n\r\n<type>\r\nMixed (IS Chassis) Experimental\r\n</type>\r\n\r\n<role>\r\nInterceptor\r\n</role>\r\n\r\n<motion_type>\r\nAerodyne\r\n</motion_type>\r\n\r\n<SafeThrust>\r\n12\r\n</SafeThrust>\r\n\r\n<cockpit_type>\r\n0\r\n</cockpit_type>\r\n\r\n<heatsinks>\r\n10\r\n</heatsinks>\r\n\r\n<sink_type>\r\n1\r\n</sink_type>\r\n\r\n<fuel>\r\n400\r\n</fuel>\r\n\r\n<engine_type>\r\n3\r\n</engine_type>\r\n\r\n<armor_type>\r\n7\r\n</armor_type>\r\n\r\n<Nose_armor_type>\r\n0\r\n</Nose_armor_type>\r\n\r\n<Nose_armor_tech>\r\nInner Sphere\r\n</Nose_armor_tech>\r\n\r\n<Nose_armor_tech_rating>\r\n3\r\n</Nose_armor_tech_rating>\r\n\r\n<Left Wing_armor_type>\r\n3\r\n</Left Wing_armor_type>\r\n\r\n<Left Wing_armor_tech>\r\n(Unknown Technology Base)\r\n</Left Wing_armor_tech>\r\n\r\n<Left Wing_armor_tech_rating>\r\n4\r\n</Left Wing_armor_tech_rating>\r\n\r\n<Right Wing_armor_type>\r\n3\r\n</Right Wing_armor_type>\r\n\r\n<Right Wing_armor_tech>\r\n(Unknown Technology Base)\r\n</Right Wing_armor_tech>\r\n\r\n<Right Wing_armor_tech_rating>\r\n4\r\n</Right Wing_armor_tech_rating>\r\n\r\n<Aft_armor_type>\r\n2\r\n</Aft_armor_type>\r\n\r\n<Aft_armor_tech>\r\nClan\r\n</Aft_armor_tech>\r\n\r\n<Aft_armor_tech_rating>\r\n5\r\n</Aft_armor_tech_rating>\r\n\r\n<Wings_armor_type>\r\n0\r\n</Wings_armor_type>\r\n\r\n<Wings_armor_tech>\r\nInner Sphere\r\n</Wings_armor_tech>\r\n\r\n<Wings_armor_tech_rating>\r\n3\r\n</Wings_armor_tech_rating>\r\n\r\n<Fuselage_armor_type>\r\n-1\r\n</Fuselage_armor_type>\r\n\r\n<Fuselage_armor_tech>\r\n(Unknown Technology Base)\r\n</Fuselage_armor_tech>\r\n\r\n<Fuselage_armor_tech_rating>\r\n2\r\n</Fuselage_armor_tech_rating>\r\n\r\n<armor>\r\n32\r\n20\r\n20\r\n14\r\n</armor>\r\n\r\n<Nose Equipment>\r\nCLMediumPulseLaser\r\nCLMediumPulseLaser\r\n</Nose Equipment>\r\n\r\n<Left Wing Equipment>\r\nCLERMediumLaser\r\n</Left Wing Equipment>\r\n\r\n<Right Wing Equipment>\r\nCLERMediumLaser\r\n</Right Wing Equipment>\r\n\r\n<Aft Equipment>\r\nSmall Laser\r\n</Aft Equipment>\r\n\r\n<Wings Equipment>\r\n</Wings Equipment>\r\n\r\n<Fuselage Equipment>\r\n</Fuselage Equipment>\r\n\r\n<capabilities>\r\n<p>The Nanook's defining modification is a Magna 250 XXL engine that reduces propulsion mass dramatically compared to the standard airframe, freeing weight for heavier weapons and armor. The engine supports acceleration to six gravities under normal thrust and a theoretical maximum of nine, though the FrontierTech agreement governing reactor access formally limits operations to five gravities to protect the modified airframe. Under combat thrust the fighter's five-ton fuel supply is consumed in little more than twenty minutes, imposing a strict operational endurance ceiling regardless of other capabilities.</p><p>Offensive armament uses Clan technology throughout: a pair of ER medium lasers in the nose, a Clan medium pulse laser in each wing, and a small laser defending the rear arc. The Clan weapons deliver superior accuracy and output compared to equivalent Inner Sphere equipment without requiring ammunition. Ten double heat sinks handle the weapon load comfortably under standard thrust. Patchwork protection combines laser reflective armor on the wings with reactive armor on the nose and aft fuselage, giving the fighter meaningful resistance against both energy weapons and ballistic or explosive threats. The mixed armor approach reflects the materials available to an independent salvage team rather than a planned design choice.</p>\r\n</capabilities>\r\n\r\n<overview>\r\n<p>The Sangihe Shrike-Thrush \"Nanook\" is a unique experimental modification of the TR-7 Thrush assembled on Solaris VII in the years surrounding the Jihad. Built by Vining Engineering and Salvage Team for a pilot known only as Nanook, the aircraft represents independent engineering work drawing on Clan-surplus components available through informal channels in the post-Tukayyid Inner Sphere. Project records indicate work began sometime after 3052 and continued until at least the Jihad's outbreak in 3068, when the Solaris VII fighting disrupted operations across the planet. The result is a one-of-a-kind fighter with capabilities substantially exceeding any production Thrush variant, though at considerable expense and complexity. The craft has been seen at air shows and aerospace events throughout the Inner Sphere periphery in the years following the Jihad.</p>\r\n</overview>\r\n\r\n<deployment>\r\n<p>The Nanook is a non-production, one-of-a-kind aircraft with no formal military affiliation or operational doctrine. It has appeared at air shows and aerospace events throughout the Inner Sphere periphery following the Jihad, drawing attention for its unusual Clan-technology armament and modified performance profile. The craft's Clan energy weapons and mixed armor give it capabilities substantially exceeding any production Thrush, but its extreme fuel consumption under combat thrust limits tactical endurance, and its unique status makes component replacement and maintenance demanding. The FrontierTech-imposed thrust limit and ongoing maintenance requirements constrain operational deployment, leaving the aircraft primarily a demonstration piece and personal transport for its owner rather than a combat asset.</p>\r\n</deployment>\r\n\r\n<history>\r\n<p>Little is documented about the pilot known as Nanook. He appeared on Solaris VII sometime after the Battle of Tukayyid in 3052 and established a working relationship with Vining Engineering and Salvage Team before the Jihad destroyed much of the planet's independent engineering community in 3068. VEST project records give a start date somewhere between 3052 and 3068, suggesting an extended development and modification period. Nanook participated in the Wings over Donegal air show in 3072, the first documented postwar appearance of the aircraft, and has since been seen at smaller events across the Inner Sphere periphery.</p><p>The fighter reflects the Solaris VII engineering ecosystem of the post-Tukayyid era, when salvage from Clan engagements and official technology exchanges made advanced Clan components accessible to independent operators outside normal procurement channels. VEST engineers mated the established Thrush airframe with a Magna 250 XXL engine and Clan-sourced weapons to produce a craft well beyond production specifications without access to formal manufacturing infrastructure. The Jihad's devastation of Solaris VII in 3068 ended the project and scattered the engineering community responsible for the modification, though the fighter and its pilot appear to have survived the conflict intact. Whether VEST continued operations elsewhere after 3068 is unknown.</p>\r\n</history>\r\n\r\n<manufacturer>\r\nVining Engineering and Salvage Team (VEST)\r\n</manufacturer>\r\n\r\n<primaryFactory>\r\nSolaris VII\r\n</primaryFactory>\r\n\r\n<systemManufacturers>\r\nCHASSIS:Mujika Aerospace Technologies\r\nENGINE:Unknown\r\nARMOR:Unknown\r\nJUMP_JET:N/A\r\nCOMMUNICATIONS:Unknown\r\nTARGETING:Unknown\r\n</systemManufacturers>\r\n\r\n<systemModels>\r\nCHASSIS:Mujika Aerospace Type 12\r\nENGINE:Magna 250 XXL\r\nARMOR:Patchwork (Laser Reflective/Reactive)\r\nJUMP_JET:N/A\r\nCOMMUNICATIONS:Unknown\r\nTARGETING:Unknown\r\n</systemModels>\r\n\r\n<source>\r\nXTR:Boondocks\r\n</source>\r\n\r\n<published>\r\nXTR:Boondocks\r\n</published>\r\n\r\n<tonnage>\r\n25.0\r\n</tonnage>\r\n\r\n",
+      "qualifiers": {},
+      "armor": {
+        "type": "PATCHWORK",
+        "byArc": {
+          "NOSE": 32,
+          "LEFT_WING": 20,
+          "RIGHT_WING": 20,
+          "AFT": 14
+        },
+        "typeByArc": {
+          "NOSE": 0,
+          "LEFT_WING": 3,
+          "RIGHT_WING": 3,
+          "AFT": 2,
+          "WINGS": 0,
+          "FUSELAGE": -1
+        }
+      },
+      "unit": {
+        "id": "sangihe-shrike-thrush-nanook",
+        "chassis": "Sangihe Shrike-Thrush 'Nanook'",
+        "model": "",
+        "unitType": "Aerospace",
+        "subType": "AerospaceFighter",
+        "techBase": "INNER_SPHERE",
+        "rulesLevel": "STANDARD",
+        "era": "CIVIL_WAR",
+        "year": 3068,
+        "tonnage": 25,
+        "weightClass": "LIGHT",
+        "motionType": "AERODYNE",
+        "movement": {
+          "safeThrust": 12,
+          "maxThrust": 18
+        },
+        "fuel": 400,
+        "structuralIntegrity": 12,
+        "engine": {
+          "type": "XXL"
+        },
+        "heatSinks": {
+          "type": "DOUBLE",
+          "count": 10
+        },
+        "cockpit": "STANDARD",
+        "armor": {
+          "type": "PATCHWORK",
+          "byArc": {
+            "NOSE": 32,
+            "LEFT_WING": 20,
+            "RIGHT_WING": 20,
+            "AFT": 14
+          },
+          "typeByArc": {
+            "NOSE": 0,
+            "LEFT_WING": 3,
+            "RIGHT_WING": 3,
+            "AFT": 2,
+            "WINGS": 0,
+            "FUSELAGE": -1
+          }
+        },
+        "equipment": [
+          {
+            "id": "clmediumpulselaser",
+            "name": "CLMediumPulseLaser",
+            "location": "NOSE"
+          },
+          {
+            "id": "clmediumpulselaser",
+            "name": "CLMediumPulseLaser",
+            "location": "NOSE"
+          },
+          {
+            "id": "clermediumlaser",
+            "name": "CLERMediumLaser",
+            "location": "LEFT_WING"
+          },
+          {
+            "id": "clermediumlaser",
+            "name": "CLERMediumLaser",
+            "location": "RIGHT_WING"
+          },
+          {
+            "id": "small-laser",
+            "name": "Small Laser",
+            "location": "AFT"
+          }
+        ],
+        "hasBombBay": false,
+        "bombCapacity": 0,
+        "mulId": 2794,
+        "role": "Interceptor",
+        "source": "XTR:Boondocks",
+        "fluff": {
+          "overview": "<p>The Sangihe Shrike-Thrush \"Nanook\" is a unique experimental modification of the TR-7 Thrush assembled on Solaris VII in the years surrounding the Jihad. Built by Vining Engineering and Salvage Team for a pilot known only as Nanook, the aircraft represents independent engineering work drawing on Clan-surplus components available through informal channels in the post-Tukayyid Inner Sphere. Project records indicate work began sometime after 3052 and continued until at least the Jihad's outbreak in 3068, when the Solaris VII fighting disrupted operations across the planet. The result is a one-of-a-kind fighter with capabilities substantially exceeding any production Thrush variant, though at considerable expense and complexity. The craft has been seen at air shows and aerospace events throughout the Inner Sphere periphery in the years following the Jihad.</p>",
+          "capabilities": "<p>The Nanook's defining modification is a Magna 250 XXL engine that reduces propulsion mass dramatically compared to the standard airframe, freeing weight for heavier weapons and armor. The engine supports acceleration to six gravities under normal thrust and a theoretical maximum of nine, though the FrontierTech agreement governing reactor access formally limits operations to five gravities to protect the modified airframe. Under combat thrust the fighter's five-ton fuel supply is consumed in little more than twenty minutes, imposing a strict operational endurance ceiling regardless of other capabilities.</p><p>Offensive armament uses Clan technology throughout: a pair of ER medium lasers in the nose, a Clan medium pulse laser in each wing, and a small laser defending the rear arc. The Clan weapons deliver superior accuracy and output compared to equivalent Inner Sphere equipment without requiring ammunition. Ten double heat sinks handle the weapon load comfortably under standard thrust. Patchwork protection combines laser reflective armor on the wings with reactive armor on the nose and aft fuselage, giving the fighter meaningful resistance against both energy weapons and ballistic or explosive threats. The mixed armor approach reflects the materials available to an independent salvage team rather than a planned design choice.</p>",
+          "deployment": "<p>The Nanook is a non-production, one-of-a-kind aircraft with no formal military affiliation or operational doctrine. It has appeared at air shows and aerospace events throughout the Inner Sphere periphery following the Jihad, drawing attention for its unusual Clan-technology armament and modified performance profile. The craft's Clan energy weapons and mixed armor give it capabilities substantially exceeding any production Thrush, but its extreme fuel consumption under combat thrust limits tactical endurance, and its unique status makes component replacement and maintenance demanding. The FrontierTech-imposed thrust limit and ongoing maintenance requirements constrain operational deployment, leaving the aircraft primarily a demonstration piece and personal transport for its owner rather than a combat asset.</p>",
+          "history": "<p>Little is documented about the pilot known as Nanook. He appeared on Solaris VII sometime after the Battle of Tukayyid in 3052 and established a working relationship with Vining Engineering and Salvage Team before the Jihad destroyed much of the planet's independent engineering community in 3068. VEST project records give a start date somewhere between 3052 and 3068, suggesting an extended development and modification period. Nanook participated in the Wings over Donegal air show in 3072, the first documented postwar appearance of the aircraft, and has since been seen at smaller events across the Inner Sphere periphery.</p><p>The fighter reflects the Solaris VII engineering ecosystem of the post-Tukayyid era, when salvage from Clan engagements and official technology exchanges made advanced Clan components accessible to independent operators outside normal procurement channels. VEST engineers mated the established Thrush airframe with a Magna 250 XXL engine and Clan-sourced weapons to produce a craft well beyond production specifications without access to formal manufacturing infrastructure. The Jihad's devastation of Solaris VII in 3068 ended the project and scattered the engineering community responsible for the modification, though the fighter and its pilot appear to have survived the conflict intact. Whether VEST continued operations elsewhere after 3068 is unknown.</p>",
+          "manufacturer": "Vining Engineering and Salvage Team (VEST)",
+          "primaryFactory": "Solaris VII"
+        }
+      }
+    },
+    {
+      "source": "fighters/RSUniqueFighters/Thrush Maximillian.blk",
+      "sha256": "f0bc791b9d0a35e90e427c954e7dd945a0d71b9b671c16e2f3ba3557b99089f7",
+      "blk": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\r\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\r\n#\r\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\r\n# creating free software for the BattleTech community.\r\n#\r\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\r\n# of The Topps Company, Inc. All Rights Reserved.\r\n#\r\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\r\n# InMediaRes Productions, LLC.\r\n#\r\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\r\n# Microsoft's \"Game Content Usage Rules\"\r\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\r\n# affiliated with Microsoft.\r\n\r\n#Saved from version 0.51.01 on 2026-07-12\r\n<UUID>\r\n019f583e-acff-73ea-b484-c6f88d36aa68\r\n</UUID>\r\n\r\n<UnitType>\r\nAeroSpaceFighter\r\n</UnitType>\r\n\r\n<Name>\r\nThrush\r\n</Name>\r\n\r\n<Model>\r\n(Maximilian)'C-1247'\r\n</Model>\r\n\r\n<mul id:>\r\n3200\r\n</mul id:>\r\n\r\n<year>\r\n3067\r\n</year>\r\n\r\n<type>\r\nIS Level 2\r\n</type>\r\n\r\n<role>\r\nInterceptor\r\n</role>\r\n\r\n<motion_type>\r\nAerodyne\r\n</motion_type>\r\n\r\n<transporters>\r\ncargobay:1.0:0:1::-1:0\r\n</transporters>\r\n\r\n<SafeThrust>\r\n15\r\n</SafeThrust>\r\n\r\n<cockpit_type>\r\n0\r\n</cockpit_type>\r\n\r\n<heatsinks>\r\n10\r\n</heatsinks>\r\n\r\n<sink_type>\r\n0\r\n</sink_type>\r\n\r\n<fuel>\r\n480\r\n</fuel>\r\n\r\n<engine_type>\r\n2\r\n</engine_type>\r\n\r\n<armor_type>\r\n0\r\n</armor_type>\r\n\r\n<armor_tech_rating>\r\n0\r\n</armor_tech_rating>\r\n\r\n<armor_tech_level>\r\n1\r\n</armor_tech_level>\r\n\r\n<armor>\r\n11\r\n8\r\n8\r\n5\r\n</armor>\r\n\r\n<Nose Equipment>\r\nISERMediumLaser\r\n</Nose Equipment>\r\n\r\n<Left Wing Equipment>\r\n</Left Wing Equipment>\r\n\r\n<Right Wing Equipment>\r\n</Right Wing Equipment>\r\n\r\n<Aft Equipment>\r\n</Aft Equipment>\r\n\r\n<Wings Equipment>\r\n</Wings Equipment>\r\n\r\n<Fuselage Equipment>\r\n</Fuselage Equipment>\r\n\r\n<capabilities>\r\n<p>The Thrush is one of the fastest light fighters in any Successor State aerospace force. Its Rawlings 250 fusion engine delivers thrust figures that let the fighter outrun virtually any opponent it cannot outgun, and the Mujika Aerospace Type 12 airframe handles the stress of most combat maneuvers without difficulty. Three Kajuka Type 2 \"Bright Blossom\" medium lasers are distributed across the nose and wings, providing adequate firepower for escort and scouting assignments. Heat management requires some discipline with ten single heat sinks, but the loadout is generally adequate for the design's intended role.</p><p>StarShield armor coverage is deliberately thin, a trade-off that purchases the fighter's impressive speed. Against lighter or less numerous opponents this arrangement works well, but the Thrush is at serious risk against heavier interceptors or multiple enemies simultaneously. The standard response is immediate disengagement, relying on thrust advantage to withdraw to supporting units.</p><p>The circular wing design introduces a significant handling hazard during atmospheric entry. The airframe tends to enter uncontrolled spins at the atmospheric interface, a flaw it shares with the Draconis Combine's Sholagar. Where the Combine phased the Sholagar out of service, Capellan flight doctrine took the opposite approach. CCAF instructors developed the \"Frisbee Flip,\" training pilots to lean into the instability and execute a sudden 180-degree reversal, catching pursuing enemies off guard. Capellan pilots used this technique to good effect in orbital engagements against FedCom and Canopian opponents throughout the Succession Wars.</p>\r\n</capabilities>\r\n\r\n<overview>\r\n<p>Designed and manufactured by Mujika Aerospace Technologies on St. Ives, the Thrush entered service in 2798 as a light escort and screening fighter for Capellan DropShip detachments and garrison forces throughout the Confederation. An earlier variant had served the CCAF since the mid-twenty-fifth century, but the TR-7 became the definitive model and the backbone of Capellan light aerospace strength for generations. Inexpensive to produce and easy to maintain, the design spread to licensed manufacturing facilities across the Confederation, ensuring broad availability despite the toll the Succession Wars took on industrial capacity. Pilots throughout the Confederation know it as \"the Frisbee,\" a nickname drawn from the fighter's distinctive circular wing planform. The Thrush trades armor protection for exceptional speed and agility, making it most effective in screening, scouting, and escort roles rather than as a front-line interceptor. Despite its limitations against heavier opponents, the design's combination of low cost and high performance has kept it relevant across multiple centuries of continuous production.</p>\r\n</overview>\r\n\r\n<deployment>\r\n<p>Operated by the Maskirovka for clandestine high-speed insertions and extractions, the Maximilian removes two of the standard medium lasers and replaces the baseline engine with a 325-rated XL power plant, enabling acceleration approaching twelve gravities. Additional armor and fuel tankage, along with a small cargo bay, equip the variant for agent delivery and recovery missions rather than air combat. The fighter carries sufficient armament for self-defense but is not intended for sustained engagement. The number of airframes produced is unknown; surviving examples are almost certainly unregistered and operated outside standard military logistics chains under Maskirovka coordination.</p>\r\n</deployment>\r\n\r\n<history>\r\n<p>The Thrush traces its lineage to Mujika Aerospace Technologies' earlier TR-5 design, which served the Capellan Confederation as a frontline fighter during the Star League era. When the Star League dissolved and the First Succession War erupted, Mujika rushed the redesigned TR-7 into production in 2798 to replace aging fighter stocks. Recognizing that a single production site would leave Capellan forces vulnerable to interdiction, the Confederation licensed the design to Tengo Aerospace on Sarna and Earthwerks Ltd. on Tikonov, spreading manufacturing across multiple systems and ensuring the CCAF's aerospace formations would not lack for interceptors through the brutal decades of the Succession Wars.</p><p>The Thrush saw combat across multiple Capellan frontier campaigns during the early Succession Wars. In 2812, a pair of Thrushes screening the DropShip Panohai during a raid on the Davion-held world of Demeter were overwhelmed by a full Davion fighter squadron, and only one survived to escape with the damaged vessel. In 2876, a force of ten Thrushes provided screening and close air support during the reclamation of Sax, losing only a single aircraft to surface-to-air fire in an otherwise successful operation. Later analysis noted that Capellan history framed the Sax action as liberation rather than occupation, given the world had been seized from the Confederation by an insurgent lance the previous year.</p><p>The St. Ives Compact's secession from the Confederation in 3029 brought Mujika's primary production plant under Compact control. The company continued operations under its new political masters, and during the St. Ives Civil War era developed the TR-7p upgrade for Compact aerospace formations. When the Confederation reclaimed St. Ives circa 3061, Mujika returned to Capellan oversight, and production shifted toward more capable successors. The TR-8 entered service around 3065 with updated heat management and weapons technology, serving actively through the Jihad. A Mujika INN news item from 3072 reported a fatal crash during an atmospheric test flight, indicating that production and testing continued through the conflict despite reported losses of personnel and infrastructure. The TR-9 followed in the ilClan era, employing an XL engine and a mix of re-engineered and extended-range medium lasers with reflective armor, with production established at both St. Ives and a new Mujika line on Tikonov. HDF Manufacturing on Falsterbo entered the picture in the late Republic era, fielding TR-7s initially under Hanseatic League oversight before Escorpión Imperio assumed control of the line during the Dark Age.</p>\r\n</history>\r\n\r\n<manufacturer>\r\nMujika Aerospace Technologies\r\n</manufacturer>\r\n\r\n<primaryFactory>\r\nSt. Ives\r\n</primaryFactory>\r\n\r\n<systemManufacturers>\r\nCHASSIS:Mujika Aerospace Technologies\r\nENGINE:VOX\r\nARMOR:Unknown\r\nJUMP_JET:N/A\r\nCOMMUNICATIONS:Unknown\r\nTARGETING:Dwyerson\r\n</systemManufacturers>\r\n\r\n<systemModels>\r\nCHASSIS:Mujika Aerospace Type 12\r\nENGINE:VOX 325 XL\r\nARMOR:StarShield\r\nJUMP_JET:N/A\r\nCOMMUNICATIONS:Endicott Type 22 Master\r\nTARGETING:Dwyerson Mark XI\r\n</systemModels>\r\n\r\n<published>\r\nRS:UF\r\n</published>\r\n\r\n<tonnage>\r\n25.0\r\n</tonnage>\r\n\r\n",
+      "qualifiers": {
+        "transporters": ["cargobay:1.0:0:1::-1:0"]
+      },
+      "armor": {
+        "type": "STANDARD",
+        "byArc": {
+          "NOSE": 11,
+          "LEFT_WING": 8,
+          "RIGHT_WING": 8,
+          "AFT": 5
+        }
+      },
+      "unit": {
+        "id": "thrush-maximilianc-1247",
+        "chassis": "Thrush",
+        "model": "(Maximilian)'C-1247'",
+        "unitType": "Aerospace",
+        "subType": "AerospaceFighter",
+        "techBase": "INNER_SPHERE",
+        "rulesLevel": "STANDARD",
+        "era": "CLAN_INVASION",
+        "year": 3067,
+        "tonnage": 25,
+        "weightClass": "LIGHT",
+        "motionType": "AERODYNE",
+        "movement": {
+          "safeThrust": 15,
+          "maxThrust": 23
+        },
+        "fuel": 480,
+        "structuralIntegrity": 15,
+        "engine": {
+          "type": "XL"
+        },
+        "heatSinks": {
+          "type": "SINGLE",
+          "count": 10
+        },
+        "cockpit": "STANDARD",
+        "armor": {
+          "type": "STANDARD",
+          "byArc": {
+            "NOSE": 11,
+            "LEFT_WING": 8,
+            "RIGHT_WING": 8,
+            "AFT": 5
+          }
+        },
+        "equipment": [
+          {
+            "id": "isermediumlaser",
+            "name": "ISERMediumLaser",
+            "location": "NOSE"
+          }
+        ],
+        "hasBombBay": false,
+        "bombCapacity": 0,
+        "mulId": 3200,
+        "role": "Interceptor",
+        "fluff": {
+          "overview": "<p>Designed and manufactured by Mujika Aerospace Technologies on St. Ives, the Thrush entered service in 2798 as a light escort and screening fighter for Capellan DropShip detachments and garrison forces throughout the Confederation. An earlier variant had served the CCAF since the mid-twenty-fifth century, but the TR-7 became the definitive model and the backbone of Capellan light aerospace strength for generations. Inexpensive to produce and easy to maintain, the design spread to licensed manufacturing facilities across the Confederation, ensuring broad availability despite the toll the Succession Wars took on industrial capacity. Pilots throughout the Confederation know it as \"the Frisbee,\" a nickname drawn from the fighter's distinctive circular wing planform. The Thrush trades armor protection for exceptional speed and agility, making it most effective in screening, scouting, and escort roles rather than as a front-line interceptor. Despite its limitations against heavier opponents, the design's combination of low cost and high performance has kept it relevant across multiple centuries of continuous production.</p>",
+          "capabilities": "<p>The Thrush is one of the fastest light fighters in any Successor State aerospace force. Its Rawlings 250 fusion engine delivers thrust figures that let the fighter outrun virtually any opponent it cannot outgun, and the Mujika Aerospace Type 12 airframe handles the stress of most combat maneuvers without difficulty. Three Kajuka Type 2 \"Bright Blossom\" medium lasers are distributed across the nose and wings, providing adequate firepower for escort and scouting assignments. Heat management requires some discipline with ten single heat sinks, but the loadout is generally adequate for the design's intended role.</p><p>StarShield armor coverage is deliberately thin, a trade-off that purchases the fighter's impressive speed. Against lighter or less numerous opponents this arrangement works well, but the Thrush is at serious risk against heavier interceptors or multiple enemies simultaneously. The standard response is immediate disengagement, relying on thrust advantage to withdraw to supporting units.</p><p>The circular wing design introduces a significant handling hazard during atmospheric entry. The airframe tends to enter uncontrolled spins at the atmospheric interface, a flaw it shares with the Draconis Combine's Sholagar. Where the Combine phased the Sholagar out of service, Capellan flight doctrine took the opposite approach. CCAF instructors developed the \"Frisbee Flip,\" training pilots to lean into the instability and execute a sudden 180-degree reversal, catching pursuing enemies off guard. Capellan pilots used this technique to good effect in orbital engagements against FedCom and Canopian opponents throughout the Succession Wars.</p>",
+          "deployment": "<p>Operated by the Maskirovka for clandestine high-speed insertions and extractions, the Maximilian removes two of the standard medium lasers and replaces the baseline engine with a 325-rated XL power plant, enabling acceleration approaching twelve gravities. Additional armor and fuel tankage, along with a small cargo bay, equip the variant for agent delivery and recovery missions rather than air combat. The fighter carries sufficient armament for self-defense but is not intended for sustained engagement. The number of airframes produced is unknown; surviving examples are almost certainly unregistered and operated outside standard military logistics chains under Maskirovka coordination.</p>",
+          "history": "<p>The Thrush traces its lineage to Mujika Aerospace Technologies' earlier TR-5 design, which served the Capellan Confederation as a frontline fighter during the Star League era. When the Star League dissolved and the First Succession War erupted, Mujika rushed the redesigned TR-7 into production in 2798 to replace aging fighter stocks. Recognizing that a single production site would leave Capellan forces vulnerable to interdiction, the Confederation licensed the design to Tengo Aerospace on Sarna and Earthwerks Ltd. on Tikonov, spreading manufacturing across multiple systems and ensuring the CCAF's aerospace formations would not lack for interceptors through the brutal decades of the Succession Wars.</p><p>The Thrush saw combat across multiple Capellan frontier campaigns during the early Succession Wars. In 2812, a pair of Thrushes screening the DropShip Panohai during a raid on the Davion-held world of Demeter were overwhelmed by a full Davion fighter squadron, and only one survived to escape with the damaged vessel. In 2876, a force of ten Thrushes provided screening and close air support during the reclamation of Sax, losing only a single aircraft to surface-to-air fire in an otherwise successful operation. Later analysis noted that Capellan history framed the Sax action as liberation rather than occupation, given the world had been seized from the Confederation by an insurgent lance the previous year.</p><p>The St. Ives Compact's secession from the Confederation in 3029 brought Mujika's primary production plant under Compact control. The company continued operations under its new political masters, and during the St. Ives Civil War era developed the TR-7p upgrade for Compact aerospace formations. When the Confederation reclaimed St. Ives circa 3061, Mujika returned to Capellan oversight, and production shifted toward more capable successors. The TR-8 entered service around 3065 with updated heat management and weapons technology, serving actively through the Jihad. A Mujika INN news item from 3072 reported a fatal crash during an atmospheric test flight, indicating that production and testing continued through the conflict despite reported losses of personnel and infrastructure. The TR-9 followed in the ilClan era, employing an XL engine and a mix of re-engineered and extended-range medium lasers with reflective armor, with production established at both St. Ives and a new Mujika line on Tikonov. HDF Manufacturing on Falsterbo entered the picture in the late Republic era, fielding TR-7s initially under Hanseatic League oversight before Escorpión Imperio assumed control of the line during the Dark Age.</p>",
+          "manufacturer": "Mujika Aerospace Technologies",
+          "primaryFactory": "St. Ives"
+        },
+        "transporters": ["cargobay:1.0:0:1::-1:0"]
+      }
+    },
+    {
+      "source": "smallcraft/TRO 3057r/Bus S-7AC.blk",
+      "sha256": "517d3ecc079abcc9f92f04808b5c20dc972359e9bf85bff7930953a3d5a9cb03",
+      "blk": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\r\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\r\n#\r\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\r\n# creating free software for the BattleTech community.\r\n#\r\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\r\n# of The Topps Company, Inc. All Rights Reserved.\r\n#\r\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\r\n# InMediaRes Productions, LLC.\r\n#\r\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\r\n# Microsoft's \"Game Content Usage Rules\"\r\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\r\n# affiliated with Microsoft.\r\n\r\n#Saved from version 0.51.01 on 2026-07-12\r\n<UUID>\r\n019f583e-e146-7884-a669-ad0234491440\r\n</UUID>\r\n\r\n<UnitType>\r\nSmallCraft\r\n</UnitType>\r\n\r\n<Name>\r\nBus\r\n</Name>\r\n\r\n<Model>\r\nS-7AC\r\n</Model>\r\n\r\n<mul id:>\r\n3880\r\n</mul id:>\r\n\r\n<year>\r\n2843\r\n</year>\r\n\r\n<type>\r\nClan Level 2\r\n</type>\r\n\r\n<role>\r\nNone\r\n</role>\r\n\r\n<motion_type>\r\nAerodyne\r\n</motion_type>\r\n\r\n<transporters>\r\ncargobay:32.0:0:1::-1:0\r\n2ndclassquarters:0.0:0:-1::-1:0\r\ncrewquarters:0.0:0:-1::-1:0\r\n1stclassquarters:0.0:0:-1::-1:0\r\nsteeragequarters:15.0:0:-1::-1:0\r\n</transporters>\r\n\r\n<SafeThrust>\r\n3\r\n</SafeThrust>\r\n\r\n<heatsinks>\r\n0\r\n</heatsinks>\r\n\r\n<sink_type>\r\n0\r\n</sink_type>\r\n\r\n<fuel>\r\n160\r\n</fuel>\r\n\r\n<engine_type>\r\n1\r\n</engine_type>\r\n\r\n<clan_engine>\r\nfalse\r\n</clan_engine>\r\n\r\n<armor_type>\r\n41\r\n</armor_type>\r\n\r\n<armor_tech_rating>\r\n0\r\n</armor_tech_rating>\r\n\r\n<armor_tech_level>\r\n1\r\n</armor_tech_level>\r\n\r\n<armor>\r\n96\r\n30\r\n30\r\n40\r\n</armor>\r\n\r\n<Nose Equipment>\r\n</Nose Equipment>\r\n\r\n<Left Side Equipment>\r\n</Left Side Equipment>\r\n\r\n<Right Side Equipment>\r\n</Right Side Equipment>\r\n\r\n<Aft Equipment>\r\n</Aft Equipment>\r\n\r\n<Hull Equipment>\r\n</Hull Equipment>\r\n\r\n<structural_integrity>\r\n5\r\n</structural_integrity>\r\n\r\n<capabilities>\r\n<p>The S-7A is built around three separable modules linked by explosive bolts: a forward passenger section accommodating ten occupants and a pilot, a central cargo section with two pressurized bays totaling 31.5 tons of capacity, and an aft engineering module housing the fusion drive. The modular architecture allows any single section to be jettisoned in an emergency, with a surrounding framework ensuring the remaining two sections stay functional. The secondary cargo bay maintains independent pressurization, serving as an airlock for the main hold.</p><p>With a safe thrust of 3G and no weapons, the Bus prioritizes capacity and reliability over performance. It depends entirely on its host vessel or installation for any defensive capability, making independent operation outside protected environments impractical.</p>\r\n</capabilities>\r\n\r\n<overview>\r\n<p>The S-7A Bus is a civilian aerodyne Small Craft produced by Shipil Company of Skye beginning in 2602, designed for personnel and cargo transport in the vacuum of space. Its non-aerodynamic hull prevents atmospheric operations, but this limitation was accepted in exchange for greater cargo volume than comparable aerodyne designs. The type became one of the most widely distributed Small Craft in the Inner Sphere, serving a broad range of operators across multiple states.</p>\r\n</overview>\r\n\r\n<deployment>\r\n<p>The S-7AC fills the same logistical role as the S-7A but aboard Clan vessels and installations. Production was established at Clan-controlled orbital facilities, and the S-7AC became a standard Small Craft complement for WarShip crews across multiple Clans.</p>\r\n</deployment>\r\n\r\n<history>\r\n<p>Shipil Company introduced the S-7A Bus in 2602, and broad licensing during the Star League era spread production to manufacturers across the Inner Sphere, including Earthwerks Ltd. in the Capellan Confederation, Tomori Trans Industrial in the Draconis Combine, and Vandenberg Mechanized Industries in the Taurian Concordat. This wide distribution gave the design remarkable survivability through the Succession Wars, with multiple independent production lines maintaining output despite conflict and industrial disruption.</p><p>Clan forces adapted the platform in 2843, producing the S-7AC variant with Clan-specification armor for use aboard their WarShips and orbital installations. Both Inner Sphere and Clan versions remained in active production into the Dark Age period.</p>\r\n</history>\r\n\r\n<manufacturer>\r\nFalcon's Roost Orbital Assembly Plant|Tseng Facility|Unknown|United Outworlders Corporation\r\n</manufacturer>\r\n\r\n<primaryFactory>\r\nSudeten|Alshain|Unknown|Ramora\r\n</primaryFactory>\r\n\r\n<systemManufacturers>\r\nCHASSIS:Unknown\r\nENGINE:Unknown\r\nARMOR:Unknown\r\nCOMMUNICATIONS:Unknown\r\nTARGETING:Unknown\r\n</systemManufacturers>\r\n\r\n<systemModels>\r\nCHASSIS:Unknown\r\nENGINE:Unknown\r\nARMOR:Standard\r\nCOMMUNICATIONS:Unknown\r\nTARGETING:Unknown\r\n</systemModels>\r\n\r\n<source>\r\nTR:3057r\r\n</source>\r\n\r\n<published>\r\nRS:Aero2\r\n</published>\r\n\r\n<tonnage>\r\n100.0\r\n</tonnage>\r\n\r\n<designtype>\r\n1\r\n</designtype>\r\n\r\n<crew>\r\n3\r\n</crew>\r\n\r\n<officers>\r\n1\r\n</officers>\r\n\r\n<gunners>\r\n0\r\n</gunners>\r\n\r\n<passengers>\r\n0\r\n</passengers>\r\n\r\n<marines>\r\n0\r\n</marines>\r\n\r\n<battlearmor>\r\n0\r\n</battlearmor>\r\n\r\n<otherpassenger>\r\n0\r\n</otherpassenger>\r\n\r\n<life_boat>\r\n0\r\n</life_boat>\r\n\r\n<escape_pod>\r\n0\r\n</escape_pod>\r\n\r\n",
+      "qualifiers": {
+        "clanEngine": false,
+        "transporters": [
+          "cargobay:32.0:0:1::-1:0",
+          "2ndclassquarters:0.0:0:-1::-1:0",
+          "crewquarters:0.0:0:-1::-1:0",
+          "1stclassquarters:0.0:0:-1::-1:0",
+          "steeragequarters:15.0:0:-1::-1:0"
+        ]
+      },
+      "armor": {
+        "type": "AEROSPACE",
+        "byArc": {
+          "NOSE": 96,
+          "LEFT_SIDE": 30,
+          "RIGHT_SIDE": 30,
+          "AFT": 40
+        }
+      },
+      "unit": {
+        "id": "bus-s-7ac",
+        "chassis": "Bus",
+        "model": "S-7AC",
+        "unitType": "Small Craft",
+        "subType": "SmallCraft",
+        "techBase": "CLAN",
+        "rulesLevel": "STANDARD",
+        "era": "SUCCESSION_WARS",
+        "year": 2843,
+        "tonnage": 100,
+        "weightClass": "ASSAULT",
+        "motionType": "AERODYNE",
+        "movement": {
+          "safeThrust": 3,
+          "maxThrust": 5
+        },
+        "fuel": 160,
+        "structuralIntegrity": 5,
+        "engine": {
+          "type": "ICE"
+        },
+        "heatSinks": {
+          "type": "SINGLE",
+          "count": 0
+        },
+        "cockpit": "STANDARD",
+        "armor": {
+          "type": "AEROSPACE",
+          "byArc": {
+            "NOSE": 96,
+            "LEFT_SIDE": 30,
+            "RIGHT_SIDE": 30,
+            "AFT": 40
+          }
+        },
+        "equipment": [],
+        "crew": 3,
+        "passengers": 0,
+        "cargoCapacity": 32.0,
+        "escapePods": 0,
+        "lifeBoats": 0,
+        "mulId": 3880,
+        "role": "None",
+        "source": "TR:3057r",
+        "fluff": {
+          "overview": "<p>The S-7A Bus is a civilian aerodyne Small Craft produced by Shipil Company of Skye beginning in 2602, designed for personnel and cargo transport in the vacuum of space. Its non-aerodynamic hull prevents atmospheric operations, but this limitation was accepted in exchange for greater cargo volume than comparable aerodyne designs. The type became one of the most widely distributed Small Craft in the Inner Sphere, serving a broad range of operators across multiple states.</p>",
+          "capabilities": "<p>The S-7A is built around three separable modules linked by explosive bolts: a forward passenger section accommodating ten occupants and a pilot, a central cargo section with two pressurized bays totaling 31.5 tons of capacity, and an aft engineering module housing the fusion drive. The modular architecture allows any single section to be jettisoned in an emergency, with a surrounding framework ensuring the remaining two sections stay functional. The secondary cargo bay maintains independent pressurization, serving as an airlock for the main hold.</p><p>With a safe thrust of 3G and no weapons, the Bus prioritizes capacity and reliability over performance. It depends entirely on its host vessel or installation for any defensive capability, making independent operation outside protected environments impractical.</p>",
+          "deployment": "<p>The S-7AC fills the same logistical role as the S-7A but aboard Clan vessels and installations. Production was established at Clan-controlled orbital facilities, and the S-7AC became a standard Small Craft complement for WarShip crews across multiple Clans.</p>",
+          "history": "<p>Shipil Company introduced the S-7A Bus in 2602, and broad licensing during the Star League era spread production to manufacturers across the Inner Sphere, including Earthwerks Ltd. in the Capellan Confederation, Tomori Trans Industrial in the Draconis Combine, and Vandenberg Mechanized Industries in the Taurian Concordat. This wide distribution gave the design remarkable survivability through the Succession Wars, with multiple independent production lines maintaining output despite conflict and industrial disruption.</p><p>Clan forces adapted the platform in 2843, producing the S-7AC variant with Clan-specification armor for use aboard their WarShips and orbital installations. Both Inner Sphere and Clan versions remained in active production into the Dark Age period.</p>",
+          "manufacturer": "Falcon's Roost Orbital Assembly Plant|Tseng Facility|Unknown|United Outworlders Corporation",
+          "primaryFactory": "Sudeten|Alshain|Unknown|Ramora"
+        },
+        "clanEngine": false,
+        "transporters": [
+          "cargobay:32.0:0:1::-1:0",
+          "2ndclassquarters:0.0:0:-1::-1:0",
+          "crewquarters:0.0:0:-1::-1:0",
+          "1stclassquarters:0.0:0:-1::-1:0",
+          "steeragequarters:15.0:0:-1::-1:0"
+        ]
+      }
+    },
+    {
+      "source": "smallcraft/HBHK/Dragonstar Assault Transport (3060).blk",
+      "sha256": "01e80e7aa5990ea5e907c9f5fa3710daba939258246c5824c68fe7849e7bf38e",
+      "blk": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\r\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\r\n#\r\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\r\n# creating free software for the BattleTech community.\r\n#\r\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\r\n# of The Topps Company, Inc. All Rights Reserved.\r\n#\r\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\r\n# InMediaRes Productions, LLC.\r\n#\r\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\r\n# Microsoft's \"Game Content Usage Rules\"\r\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\r\n# affiliated with Microsoft.\r\n\r\n#Saved from version 0.51.01 on 2026-07-12\r\n<UUID>\r\n019f583e-e134-7d49-91c9-665c9a7f507c\r\n</UUID>\r\n\r\n<UnitType>\r\nSmallCraft\r\n</UnitType>\r\n\r\n<Name>\r\nDragonstar Assault Transport\r\n</Name>\r\n\r\n<Model>\r\n(3060)\r\n</Model>\r\n\r\n<mul id:>\r\n7766\r\n</mul id:>\r\n\r\n<year>\r\n3060\r\n</year>\r\n\r\n<type>\r\nIS Level 2\r\n</type>\r\n\r\n<role>\r\nNone\r\n</role>\r\n\r\n<motion_type>\r\nSpheroid\r\n</motion_type>\r\n\r\n<transporters>\r\nbattlearmorbay:3.0:2:1::-1:0\r\n2ndclassquarters:0.0:0:-1::-1:0\r\ncrewquarters:0.0:0:-1::-1:0\r\n1stclassquarters:0.0:0:-1::-1:0\r\nsteeragequarters:20.0:0:-1::-1:0\r\ncargobay:4.5:0:6::-1:0\r\n</transporters>\r\n\r\n<SafeThrust>\r\n5\r\n</SafeThrust>\r\n\r\n<heatsinks>\r\n20\r\n</heatsinks>\r\n\r\n<sink_type>\r\n0\r\n</sink_type>\r\n\r\n<fuel>\r\n480\r\n</fuel>\r\n\r\n<engine_type>\r\n1\r\n</engine_type>\r\n\r\n<armor_type>\r\n41\r\n</armor_type>\r\n\r\n<armor_tech_rating>\r\n0\r\n</armor_tech_rating>\r\n\r\n<armor_tech_level>\r\n1\r\n</armor_tech_level>\r\n\r\n<armor>\r\n86\r\n73\r\n73\r\n56\r\n</armor>\r\n\r\n<Nose Equipment>\r\nISLargePulseLaser\r\nISERMediumLaser\r\n</Nose Equipment>\r\n\r\n<Left Side Equipment>\r\nISMediumPulseLaser\r\n</Left Side Equipment>\r\n\r\n<Right Side Equipment>\r\nISMediumPulseLaser\r\n</Right Side Equipment>\r\n\r\n<Aft Equipment>\r\nISERMediumLaser\r\nISERMediumLaser\r\n</Aft Equipment>\r\n\r\n<Hull Equipment>\r\n</Hull Equipment>\r\n\r\n<structural_integrity>\r\n6\r\n</structural_integrity>\r\n\r\n<capabilities>\r\n<p>The Dragonstar PT is a 150-ton civilian spheroid built to basic construction standards, with a fusion engine providing safe thrust of 2.5g and a maximum of 4g. This performance is adequate for intersystem runs but leaves little margin against faster military vessels. The hull carries standard armor, offering modest protection sufficient to deter casual piracy or discourage a boarding attempt, though the vessel is clearly not designed for sustained combat. Crew quarters consist of Steerage Compartments throughout, reflecting the design's budget construction philosophy.</p><p>The PT's armament is light but practical for its role. Two Large Lasers cover the nose and aft arcs, while four Medium Lasers are distributed to cover all remaining firing directions. This arrangement can discourage opportunistic attack without transforming the vessel into a true combat platform. The Jump Infantry Bay accommodates forty troopers or an equivalent load of civilian passengers. A small secondary cargo bay handles additional supplies. The overall balance favors capacity and cost over combat effectiveness, and the Dragonstar offers little resistance to a determined military opponent.</p>\r\n</capabilities>\r\n\r\n<overview>\r\n<p>The Dragonstar Passenger Transport is the backbone of the Draconis Combine's intersystem transit network, introduced in 2610 by Yakima Enterprises, a division of the Stellar Trek conglomerate. Designed as a low-cost, easy-to-produce spheroid shuttle, the Dragonstar has ferried government officials, DCMS troops, and civilian passengers between planetary surfaces and vessels waiting in orbit or at jump points for centuries. Despite a reputation for mechanical fragility and poor cost-effectiveness for repairs, the design has embedded itself so thoroughly in Combine logistics that most operators display near-fanatical loyalty to the product line. Its enduring commercial success rests not on technical excellence but on availability, affordability, and the cultural weight of its ancestry.</p>\r\n</overview>\r\n\r\n<deployment>\r\n<p>The Dragonstar Assault Transport is assigned to DCA naval formations and ground-attack support elements tasked with delivering battle armor to contested objectives. Its battle armor compartment accommodates twelve squads, making it a practical assault insertion platform for short-range operations within a system. The updated extended-range weapon systems provide improved engagement capability against light escorts and aerospace fighters, giving the AT better survivability than the passenger variant in contested space. The trade-off is a significantly reduced cargo capacity, limiting the AT to assault operations rather than general resupply. It is typically deployed from larger DropShips or from orbital stations during contested system operations rather than operating independently.</p>\r\n</deployment>\r\n\r\n<history>\r\n<p>The Dragonstar's origins lie in the Dragon's Stars vessels of the early Draconis Combine expansion era. Those older craft served as transports for Combine diplomats and dignitaries, shuttling officials to worlds being drawn into the growing realm. Over time they became symbols of the Dragon's diplomatic reach. When Yakima Enterprises developed the modern Dragonstar design in 2610, the company deliberately preserved the aesthetic lineage of its predecessor. Updated avionics and modernized systems gave the new vessel genuine utility, while the visual connection to the original helped position it as the natural continuation of Combine interstellar culture.</p><p>The vessel's commercial model is unusual. Dragonstars are cheap to build and notoriously prone to breakdown, with most transportation firms retiring examples after roughly 1,000 AU of service rather than paying escalating repair costs. Yakima is fully aware of this pattern and has built its business around it, combining heavy government subsidies with an active secondary market in salvaged parts stripped from retired hulls. Those recovered components frequently reappear in newly manufactured vessels, raising questions about quality but doing little to diminish the near-fanatical operator loyalty the design commands.</p><p>The vessel's military evolution came in 3059, when the Draconis Combine Admiralty approached Yakima to develop an assault transport variant. The proliferation of battle armor following the Clan Invasion and a renewed emphasis on naval operations revealed a gap in the Combine's assault transport inventory. With minimal changes to the existing platform, including updated weapon systems but retained armor protection and hull layout, Yakima delivered the Dragonstar Assault Transport to DCA installations barely a year later. The AT's rapid development cycle reflected both Yakima's familiarity with the base design and the Combine's characteristic tendency to militarize commercial platforms rather than develop purpose-built military craft from scratch.</p>\r\n</history>\r\n\r\n<manufacturer>\r\nYakima Enterprises\r\n</manufacturer>\r\n\r\n<primaryFactory>\r\nChatham\r\n</primaryFactory>\r\n\r\n<systemManufacturers>\r\nCHASSIS:Unknown\r\nENGINE:Unknown\r\nARMOR:Unknown\r\nCOMMUNICATIONS:Unknown\r\nTARGETING:Unknown\r\n</systemManufacturers>\r\n\r\n<systemModels>\r\nCHASSIS:Unknown\r\nENGINE:Unknown\r\nARMOR:Unknown\r\nCOMMUNICATIONS:Unknown\r\nTARGETING:Unknown\r\n</systemModels>\r\n\r\n<source>\r\nHB:HK\r\n</source>\r\n\r\n<published>\r\nHB:HK\r\n</published>\r\n\r\n<tonnage>\r\n150.0\r\n</tonnage>\r\n\r\n<designtype>\r\n1\r\n</designtype>\r\n\r\n<crew>\r\n22\r\n</crew>\r\n\r\n<officers>\r\n1\r\n</officers>\r\n\r\n<gunners>\r\n1\r\n</gunners>\r\n\r\n<passengers>\r\n0\r\n</passengers>\r\n\r\n<marines>\r\n0\r\n</marines>\r\n\r\n<battlearmor>\r\n0\r\n</battlearmor>\r\n\r\n<otherpassenger>\r\n0\r\n</otherpassenger>\r\n\r\n<life_boat>\r\n0\r\n</life_boat>\r\n\r\n<escape_pod>\r\n0\r\n</escape_pod>\r\n\r\n",
+      "qualifiers": {
+        "transporters": [
+          "battlearmorbay:3.0:2:1::-1:0",
+          "2ndclassquarters:0.0:0:-1::-1:0",
+          "crewquarters:0.0:0:-1::-1:0",
+          "1stclassquarters:0.0:0:-1::-1:0",
+          "steeragequarters:20.0:0:-1::-1:0",
+          "cargobay:4.5:0:6::-1:0"
+        ]
+      },
+      "armor": {
+        "type": "AEROSPACE",
+        "byArc": {
+          "NOSE": 86,
+          "LEFT_SIDE": 73,
+          "RIGHT_SIDE": 73,
+          "AFT": 56
+        }
+      },
+      "unit": {
+        "id": "dragonstar-assault-transport-3060",
+        "chassis": "Dragonstar Assault Transport",
+        "model": "(3060)",
+        "unitType": "Small Craft",
+        "subType": "SmallCraft",
+        "techBase": "INNER_SPHERE",
+        "rulesLevel": "STANDARD",
+        "era": "CLAN_INVASION",
+        "year": 3060,
+        "tonnage": 150,
+        "weightClass": "ASSAULT",
+        "motionType": "SPHEROID",
+        "movement": {
+          "safeThrust": 5,
+          "maxThrust": 8
+        },
+        "fuel": 480,
+        "structuralIntegrity": 6,
+        "engine": {
+          "type": "ICE"
+        },
+        "heatSinks": {
+          "type": "SINGLE",
+          "count": 20
+        },
+        "cockpit": "STANDARD",
+        "armor": {
+          "type": "AEROSPACE",
+          "byArc": {
+            "NOSE": 86,
+            "LEFT_SIDE": 73,
+            "RIGHT_SIDE": 73,
+            "AFT": 56
+          }
+        },
+        "equipment": [
+          {
+            "id": "islargepulselaser",
+            "name": "ISLargePulseLaser",
+            "location": "NOSE"
+          },
+          {
+            "id": "isermediumlaser",
+            "name": "ISERMediumLaser",
+            "location": "NOSE"
+          },
+          {
+            "id": "ismediumpulselaser",
+            "name": "ISMediumPulseLaser",
+            "location": "LEFT_SIDE"
+          },
+          {
+            "id": "ismediumpulselaser",
+            "name": "ISMediumPulseLaser",
+            "location": "RIGHT_SIDE"
+          },
+          {
+            "id": "isermediumlaser",
+            "name": "ISERMediumLaser",
+            "location": "AFT"
+          },
+          {
+            "id": "isermediumlaser",
+            "name": "ISERMediumLaser",
+            "location": "AFT"
+          }
+        ],
+        "crew": 22,
+        "passengers": 0,
+        "cargoCapacity": 4.5,
+        "escapePods": 0,
+        "lifeBoats": 0,
+        "mulId": 7766,
+        "role": "None",
+        "source": "HB:HK",
+        "fluff": {
+          "overview": "<p>The Dragonstar Passenger Transport is the backbone of the Draconis Combine's intersystem transit network, introduced in 2610 by Yakima Enterprises, a division of the Stellar Trek conglomerate. Designed as a low-cost, easy-to-produce spheroid shuttle, the Dragonstar has ferried government officials, DCMS troops, and civilian passengers between planetary surfaces and vessels waiting in orbit or at jump points for centuries. Despite a reputation for mechanical fragility and poor cost-effectiveness for repairs, the design has embedded itself so thoroughly in Combine logistics that most operators display near-fanatical loyalty to the product line. Its enduring commercial success rests not on technical excellence but on availability, affordability, and the cultural weight of its ancestry.</p>",
+          "capabilities": "<p>The Dragonstar PT is a 150-ton civilian spheroid built to basic construction standards, with a fusion engine providing safe thrust of 2.5g and a maximum of 4g. This performance is adequate for intersystem runs but leaves little margin against faster military vessels. The hull carries standard armor, offering modest protection sufficient to deter casual piracy or discourage a boarding attempt, though the vessel is clearly not designed for sustained combat. Crew quarters consist of Steerage Compartments throughout, reflecting the design's budget construction philosophy.</p><p>The PT's armament is light but practical for its role. Two Large Lasers cover the nose and aft arcs, while four Medium Lasers are distributed to cover all remaining firing directions. This arrangement can discourage opportunistic attack without transforming the vessel into a true combat platform. The Jump Infantry Bay accommodates forty troopers or an equivalent load of civilian passengers. A small secondary cargo bay handles additional supplies. The overall balance favors capacity and cost over combat effectiveness, and the Dragonstar offers little resistance to a determined military opponent.</p>",
+          "deployment": "<p>The Dragonstar Assault Transport is assigned to DCA naval formations and ground-attack support elements tasked with delivering battle armor to contested objectives. Its battle armor compartment accommodates twelve squads, making it a practical assault insertion platform for short-range operations within a system. The updated extended-range weapon systems provide improved engagement capability against light escorts and aerospace fighters, giving the AT better survivability than the passenger variant in contested space. The trade-off is a significantly reduced cargo capacity, limiting the AT to assault operations rather than general resupply. It is typically deployed from larger DropShips or from orbital stations during contested system operations rather than operating independently.</p>",
+          "history": "<p>The Dragonstar's origins lie in the Dragon's Stars vessels of the early Draconis Combine expansion era. Those older craft served as transports for Combine diplomats and dignitaries, shuttling officials to worlds being drawn into the growing realm. Over time they became symbols of the Dragon's diplomatic reach. When Yakima Enterprises developed the modern Dragonstar design in 2610, the company deliberately preserved the aesthetic lineage of its predecessor. Updated avionics and modernized systems gave the new vessel genuine utility, while the visual connection to the original helped position it as the natural continuation of Combine interstellar culture.</p><p>The vessel's commercial model is unusual. Dragonstars are cheap to build and notoriously prone to breakdown, with most transportation firms retiring examples after roughly 1,000 AU of service rather than paying escalating repair costs. Yakima is fully aware of this pattern and has built its business around it, combining heavy government subsidies with an active secondary market in salvaged parts stripped from retired hulls. Those recovered components frequently reappear in newly manufactured vessels, raising questions about quality but doing little to diminish the near-fanatical operator loyalty the design commands.</p><p>The vessel's military evolution came in 3059, when the Draconis Combine Admiralty approached Yakima to develop an assault transport variant. The proliferation of battle armor following the Clan Invasion and a renewed emphasis on naval operations revealed a gap in the Combine's assault transport inventory. With minimal changes to the existing platform, including updated weapon systems but retained armor protection and hull layout, Yakima delivered the Dragonstar Assault Transport to DCA installations barely a year later. The AT's rapid development cycle reflected both Yakima's familiarity with the base design and the Combine's characteristic tendency to militarize commercial platforms rather than develop purpose-built military craft from scratch.</p>",
+          "manufacturer": "Yakima Enterprises",
+          "primaryFactory": "Chatham"
+        },
+        "transporters": [
+          "battlearmorbay:3.0:2:1::-1:0",
+          "2ndclassquarters:0.0:0:-1::-1:0",
+          "crewquarters:0.0:0:-1::-1:0",
+          "1stclassquarters:0.0:0:-1::-1:0",
+          "steeragequarters:20.0:0:-1::-1:0",
+          "cargobay:4.5:0:6::-1:0"
+        ]
+      }
+    },
+    {
+      "source": "convfighter/3039u/Boomerang Spotter Plane.blk",
+      "sha256": "0cc44ecaf52a757eb04ab9359fd980f72f58ce07aa83a82c158988f3466521c6",
+      "blk": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\r\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\r\n#\r\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\r\n# creating free software for the BattleTech community.\r\n#\r\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\r\n# of The Topps Company, Inc. All Rights Reserved.\r\n#\r\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\r\n# InMediaRes Productions, LLC.\r\n#\r\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\r\n# Microsoft's \"Game Content Usage Rules\"\r\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\r\n# affiliated with Microsoft.\r\n\r\n#Saved from version 0.51.01 on 2026-07-12\r\n<UUID>\r\n019f583e-a9d9-7554-bc1d-24dbcc83ef80\r\n</UUID>\r\n\r\n<UnitType>\r\nFixedWingSupport\r\n</UnitType>\r\n\r\n<Name>\r\nBoomerang Spotter Plane\r\n</Name>\r\n\r\n<Model>\r\n\r\n</Model>\r\n\r\n<mul id:>\r\n3854\r\n</mul id:>\r\n\r\n<year>\r\n2888\r\n</year>\r\n\r\n<type>\r\nIS Level 2\r\n</type>\r\n\r\n<role>\r\nAttack Fighter\r\n</role>\r\n\r\n<motion_type>\r\nAerodyne\r\n</motion_type>\r\n\r\n<transporters>\r\nejectionseats:1.0:0:-1::-1:0\r\ncargobay:0.013:1:2::-1:0\r\n</transporters>\r\n\r\n<SafeThrust>\r\n4\r\n</SafeThrust>\r\n\r\n<cockpit_type>\r\n0\r\n</cockpit_type>\r\n\r\n<heatsinks>\r\n0\r\n</heatsinks>\r\n\r\n<sink_type>\r\n0\r\n</sink_type>\r\n\r\n<fuel>\r\n273\r\n</fuel>\r\n\r\n<engine_type>\r\n1\r\n</engine_type>\r\n\r\n<armor_type>\r\n43\r\n</armor_type>\r\n\r\n<armor_tech_rating>\r\n3\r\n</armor_tech_rating>\r\n\r\n<armor_tech_level>\r\n1\r\n</armor_tech_level>\r\n\r\n<armor>\r\n0\r\n0\r\n0\r\n0\r\n</armor>\r\n\r\n<Nose Equipment>\r\nISReconCamera\r\n</Nose Equipment>\r\n\r\n<Left Wing Equipment>\r\n</Left Wing Equipment>\r\n\r\n<Right Wing Equipment>\r\n</Right Wing Equipment>\r\n\r\n<Aft Equipment>\r\n</Aft Equipment>\r\n\r\n<Wings Equipment>\r\n</Wings Equipment>\r\n\r\n<Body Equipment>\r\nPropChassisMod\r\nUltraLightChassisMod\r\nSTOLChassisMod\r\n</Body Equipment>\r\n\r\n<barrating>\r\n2\r\n</barrating>\r\n\r\n<structural_tech_rating>\r\n3\r\n</structural_tech_rating>\r\n\r\n<engine_tech_rating>\r\n3\r\n</engine_tech_rating>\r\n\r\n<capabilities>\r\n<p>The Boomerang's most obvious feature is its long wingspan. The tapering wings make it fuel-efficient and an excellent glide platform. Two forewings perched on thin spars of foamed aluminum promote control and stability, making the craft almost impervious to stalls. Two vertical stabilizers sit to either side of the cockpit; when in use, the entire stabilizer pivots rather than just the trailing edge, making the Boomerang extremely maneuverable.</p><p>The engine, a standard electric turbofan mounted below the cockpit floor, is highly efficient and quiet. Using over three thousand kilograms of fuel stored in the wings, the Boomerang achieves a range of almost five thousand kilometers, or more if the pilot glides. An unusual heat-bleeding system channels waste heat through slits on the upper wing edge, with the variable-pitched propeller dispersing it further, making the plane difficult to trace via infrared. The propeller can be feathered for virtually silent glide mode, and maximum ceiling with engine running is almost eighteen thousand meters.</p><p>The Boomerang carries over five hundred kilograms of reconnaissance gear, usually a pair of cameras with infrared and low-light capabilities that can work independently, locking on separate targets and relaying information to trailing radar planes or DropShips. The craft's major weakness is its complete lack of armament and armor, and pilots typically fly at three hundred meters or higher to stay out of danger.</p>\r\n</capabilities>\r\n\r\n<overview>\r\n<p>Named for its distinctive V-shape, the Boomerang is representative of the spy planes used by the armed forces of the five Successor States. Designed by Cal-Boeing of Dorwinion on Filtvelt, the Boomerang was introduced in 2888 as the Federated Suns' standard reconnaissance plane and the first aircraft designed expressly for aerial reconnaissance in the Succession States era. Until then, civilian planes and their pilots were pressed into military service with mixed results. The Boomerang serves as a mobile spotter for artillery units and as a forward observer for advancing BattleMek formations, filling a critical intelligence-gathering role that no ground asset can match.</p>\r\n</overview>\r\n\r\n<deployment>\r\n<p>The Boomerang has performed long and well in service to the Federated Suns. Built with lightweight, low-maintenance materials, the plane has an excellent repair history. Most active duty regiments and planetary militias have at least one Boomerang in operational condition. Heavy-action units such as the Davion Brigade of Guards typically deploy up to fifteen Boomerangs during operational engagements. The Boomerang and most of its House counterparts can be easily disassembled and stowed in the holds of even the smallest DropShip. The only common complaint from technicians is the delicacy of the camera sensors, as heavily ionized or irradiated atmospheres tend to corrode them faster and degrade performance.</p>\r\n</deployment>\r\n\r\n<history>\r\n<p>The lightweight Boomerang lacks many of the computer-guided systems common to larger aircraft, requiring its pilots to possess a natural flair for flying. The craft's unusual proportions posed challenges for its designers, particularly in developing suitable landing gear. Cal-Boeing chose to stow the nose gear below the fuselage and the long, thin landing wheels beneath the wings. Thanks to its large wingspan, the Boomerang requires only forty-four meters of landing space on a dry, level surface and seventy-five meters to take off.</p><p>As many variants exist as there are House militaries, with key differences lying mainly in silhouette and optics quality. The Capellan Dragonfly uses a knockoff Eo electric engine prone to shorting out after sustained G-force application. The Kuritan Shuriken has a smaller wingspan, necessitating longer runways. The Lyran Warbler mounts radio interception gear in place of one camera system, though without proper counterbalancing in the nose it tends to stall more easily. The Marik Hyperion forces the pilot to lie horizontally inside the wing-like fuselage, allowing rest during extremely long sorties but mandating complete reliance on instruments and sensors to fly the craft.</p>\r\n</history>\r\n\r\n<manufacturer>\r\nCal-Boeing of Dorwinion|Cal-Boeing of Dorwinion\r\n</manufacturer>\r\n\r\n<primaryFactory>\r\nBelladonna|Filtvelt\r\n</primaryFactory>\r\n\r\n<systemManufacturers>\r\nENGINE:GM\r\nCOMMUNICATIONS:Achernar\r\n</systemManufacturers>\r\n\r\n<systemModels>\r\nENGINE:AeroProp Turbine\r\nCOMMUNICATIONS:Air Whistler\r\n</systemModels>\r\n\r\n<source>\r\nTR:3039\r\n</source>\r\n\r\n<published>\r\nRS:Aero2\r\n</published>\r\n\r\n<tonnage>\r\n4.999\r\n</tonnage>\r\n\r\n",
+      "qualifiers": {
+        "transporters": [
+          "ejectionseats:1.0:0:-1::-1:0",
+          "cargobay:0.013:1:2::-1:0"
+        ]
+      },
+      "armor": {
+        "type": "BAR",
+        "byArc": {
+          "NOSE": 0,
+          "LEFT_WING": 0,
+          "RIGHT_WING": 0,
+          "AFT": 0
+        },
+        "barRating": 2
+      },
+      "unit": {
+        "id": "boomerang-spotter-plane",
+        "chassis": "Boomerang Spotter Plane",
+        "model": "",
+        "unitType": "Conventional Fighter",
+        "subType": "FixedWingSupport",
+        "techBase": "INNER_SPHERE",
+        "rulesLevel": "STANDARD",
+        "era": "SUCCESSION_WARS",
+        "year": 2888,
+        "tonnage": 4.999,
+        "weightClass": "LIGHT",
+        "motionType": "AERODYNE",
+        "movement": {
+          "safeThrust": 4,
+          "maxThrust": 6
+        },
+        "fuel": 273,
+        "structuralIntegrity": 4,
+        "engine": {
+          "type": "ICE"
+        },
+        "heatSinks": {
+          "type": "SINGLE",
+          "count": 0
+        },
+        "cockpit": "STANDARD",
+        "armor": {
+          "type": "BAR",
+          "byArc": {
+            "NOSE": 0,
+            "LEFT_WING": 0,
+            "RIGHT_WING": 0,
+            "AFT": 0
+          },
+          "barRating": 2
+        },
+        "equipment": [
+          {
+            "id": "isreconcamera",
+            "name": "ISReconCamera",
+            "location": "NOSE"
+          },
+          {
+            "id": "propchassismod",
+            "name": "PropChassisMod",
+            "location": "FUSELAGE"
+          },
+          {
+            "id": "ultralightchassismod",
+            "name": "UltraLightChassisMod",
+            "location": "FUSELAGE"
+          },
+          {
+            "id": "stolchassismod",
+            "name": "STOLChassisMod",
+            "location": "FUSELAGE"
+          }
+        ],
+        "hasBombBay": false,
+        "bombCapacity": 0,
+        "mulId": 3854,
+        "role": "Attack Fighter",
+        "source": "TR:3039",
+        "fluff": {
+          "overview": "<p>Named for its distinctive V-shape, the Boomerang is representative of the spy planes used by the armed forces of the five Successor States. Designed by Cal-Boeing of Dorwinion on Filtvelt, the Boomerang was introduced in 2888 as the Federated Suns' standard reconnaissance plane and the first aircraft designed expressly for aerial reconnaissance in the Succession States era. Until then, civilian planes and their pilots were pressed into military service with mixed results. The Boomerang serves as a mobile spotter for artillery units and as a forward observer for advancing BattleMek formations, filling a critical intelligence-gathering role that no ground asset can match.</p>",
+          "capabilities": "<p>The Boomerang's most obvious feature is its long wingspan. The tapering wings make it fuel-efficient and an excellent glide platform. Two forewings perched on thin spars of foamed aluminum promote control and stability, making the craft almost impervious to stalls. Two vertical stabilizers sit to either side of the cockpit; when in use, the entire stabilizer pivots rather than just the trailing edge, making the Boomerang extremely maneuverable.</p><p>The engine, a standard electric turbofan mounted below the cockpit floor, is highly efficient and quiet. Using over three thousand kilograms of fuel stored in the wings, the Boomerang achieves a range of almost five thousand kilometers, or more if the pilot glides. An unusual heat-bleeding system channels waste heat through slits on the upper wing edge, with the variable-pitched propeller dispersing it further, making the plane difficult to trace via infrared. The propeller can be feathered for virtually silent glide mode, and maximum ceiling with engine running is almost eighteen thousand meters.</p><p>The Boomerang carries over five hundred kilograms of reconnaissance gear, usually a pair of cameras with infrared and low-light capabilities that can work independently, locking on separate targets and relaying information to trailing radar planes or DropShips. The craft's major weakness is its complete lack of armament and armor, and pilots typically fly at three hundred meters or higher to stay out of danger.</p>",
+          "deployment": "<p>The Boomerang has performed long and well in service to the Federated Suns. Built with lightweight, low-maintenance materials, the plane has an excellent repair history. Most active duty regiments and planetary militias have at least one Boomerang in operational condition. Heavy-action units such as the Davion Brigade of Guards typically deploy up to fifteen Boomerangs during operational engagements. The Boomerang and most of its House counterparts can be easily disassembled and stowed in the holds of even the smallest DropShip. The only common complaint from technicians is the delicacy of the camera sensors, as heavily ionized or irradiated atmospheres tend to corrode them faster and degrade performance.</p>",
+          "history": "<p>The lightweight Boomerang lacks many of the computer-guided systems common to larger aircraft, requiring its pilots to possess a natural flair for flying. The craft's unusual proportions posed challenges for its designers, particularly in developing suitable landing gear. Cal-Boeing chose to stow the nose gear below the fuselage and the long, thin landing wheels beneath the wings. Thanks to its large wingspan, the Boomerang requires only forty-four meters of landing space on a dry, level surface and seventy-five meters to take off.</p><p>As many variants exist as there are House militaries, with key differences lying mainly in silhouette and optics quality. The Capellan Dragonfly uses a knockoff Eo electric engine prone to shorting out after sustained G-force application. The Kuritan Shuriken has a smaller wingspan, necessitating longer runways. The Lyran Warbler mounts radio interception gear in place of one camera system, though without proper counterbalancing in the nose it tends to stall more easily. The Marik Hyperion forces the pilot to lie horizontally inside the wing-like fuselage, allowing rest during extremely long sorties but mandating complete reliance on instruments and sensors to fly the craft.</p>",
+          "manufacturer": "Cal-Boeing of Dorwinion|Cal-Boeing of Dorwinion",
+          "primaryFactory": "Belladonna|Filtvelt"
+        },
+        "transporters": [
+          "ejectionseats:1.0:0:-1::-1:0",
+          "cargobay:0.013:1:2::-1:0"
+        ]
+      }
+    },
+    {
+      "source": "fighters/TRO3055U/Jengiz A.blk",
+      "sha256": "7494b3c232235812418d4df9e5879195b26cec884d84e634e57fd1de5d3b42b6",
+      "blk": "# MegaMek Data (C) 2025-2026 by The MegaMek Team is licensed under CC BY-NC-SA 4.0.\r\n# To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/4.0/\r\n#\r\n# NOTICE: The MegaMek organization is a non-profit group of volunteers\r\n# creating free software for the BattleTech community.\r\n#\r\n# MechWarrior, BattleMech, `Mech and AeroTech are registered trademarks\r\n# of The Topps Company, Inc. All Rights Reserved.\r\n#\r\n# Catalyst Game Labs and the Catalyst Game Labs logo are trademarks of\r\n# InMediaRes Productions, LLC.\r\n#\r\n# MechWarrior Copyright Microsoft Corporation. MegaMek Data was created under\r\n# Microsoft's \"Game Content Usage Rules\"\r\n# <https://www.xbox.com/en-US/developers/rules> and it is not endorsed by or\r\n# affiliated with Microsoft.\r\n\r\n#Saved from version 0.51.01 on 2026-07-12\r\n<UUID>\r\n019f583e-ae10-7204-ab73-522560d92412\r\n</UUID>\r\n\r\n<UnitType>\r\nAeroSpaceFighter\r\n</UnitType>\r\n\r\n<Name>\r\nJengiz\r\n</Name>\r\n\r\n<Model>\r\nA\r\n</Model>\r\n\r\n<mul id:>\r\n1681\r\n</mul id:>\r\n\r\n<year>\r\n3032\r\n</year>\r\n\r\n<type>\r\nClan Level 2\r\n</type>\r\n\r\n<role>\r\nAttack Fighter\r\n</role>\r\n\r\n<motion_type>\r\nAerodyne\r\n</motion_type>\r\n\r\n<SafeThrust>\r\n5\r\n</SafeThrust>\r\n\r\n<cockpit_type>\r\n0\r\n</cockpit_type>\r\n\r\n<heatsinks>\r\n27\r\n</heatsinks>\r\n\r\n<sink_type>\r\n1\r\n</sink_type>\r\n\r\n<omnipodheatsinks>\r\n7\r\n</omnipodheatsinks>\r\n\r\n<fuel>\r\n320\r\n</fuel>\r\n\r\n<engine_type>\r\n2\r\n</engine_type>\r\n\r\n<armor_type>\r\n19\r\n</armor_type>\r\n\r\n<armor_tech_rating>\r\n0\r\n</armor_tech_rating>\r\n\r\n<armor_tech_level>\r\n2\r\n</armor_tech_level>\r\n\r\n<omni>\r\n1\r\n</omni>\r\n\r\n<armor>\r\n85\r\n63\r\n63\r\n48\r\n</armor>\r\n\r\n<Nose Equipment>\r\nCLERPPC:OMNI\r\nCLERPPC:OMNI\r\n</Nose Equipment>\r\n\r\n<Left Wing Equipment>\r\nCLLargePulseLaser:OMNI\r\nCLLargePulseLaser:OMNI\r\n</Left Wing Equipment>\r\n\r\n<Right Wing Equipment>\r\nCLLargePulseLaser:OMNI\r\nCLLargePulseLaser:OMNI\r\n</Right Wing Equipment>\r\n\r\n<Aft Equipment>\r\nCLERSmallLaser:OMNI\r\n</Aft Equipment>\r\n\r\n<Wings Equipment>\r\n</Wings Equipment>\r\n\r\n<Fuselage Equipment>\r\n</Fuselage Equipment>\r\n\r\n<capabilities>\r\n<p>The Jengiz earns its fearsome reputation through a combination of base chassis features that persist across all configurations. Thirteen and a half tons of Bruin Heavy ferro-aluminum armor provide protection comparable to many assault BattleMechs, and twenty double heat sinks on the base chassis deliver exceptional thermal dissipation capacity before a single weapon pod is loaded. With forty-three and a half tons of available pod space, the Jengiz can mount weapons suites competitive with designs considerably heavier than its eighty-ton airframe. A permanently integrated ECM suite degrades enemy fire-control computers in both atmospheric and space combat, complicating targeting solutions for any opponent attempting to coordinate fire against it.</p><p>Poor atmospheric maneuverability is the design's primary limitation, restricting its combat effectiveness in high-density atmospheric engagements where agility determines survival. In near-space and orbital environments, however, the Jengiz excels, where the ability to absorb punishment and deliver sustained firepower outweighs the value of raw speed. The primary configuration demonstrates this philosophy with a mixed loadout of a cluster-capable autocannon, ER PPC, large and medium pulse lasers, and short-range missile launchers, capable of engaging targets across all combat ranges while the ECM suite complicates enemy targeting solutions. Subsequent configurations leverage the design's enormous pod capacity to deliver specialized armament packages ranging from long-range Gauss and missile combinations to close-range ballistic and Streak missile loadouts that can strip the armor from even the most heavily protected targets.</p>\r\n</capabilities>\r\n\r\n<overview>\r\n<p>The Jengiz is one of the heaviest and most capable OmniFighters in Clan service, developed in 3032 by Clan Ghost Bear as a dedicated near-space combat platform. Where most fighters balance firepower against maneuverability, the Jengiz inverts this philosophy, sacrificing atmospheric agility for an extraordinary combination of armor and weapons capacity. The design attracted immediate and widespread interest across all Clans, but only Clan Wolf succeeded in the Trials of Possession required to secure the design through legitimate means. All other Clans that field the Jengiz have done so through battlefield capture, earning it a gradual but steady presence across Clan aerospace inventories far beyond its original Ghost Bear origins.</p>\r\n</overview>\r\n\r\n<deployment>\r\n<p>The A configuration transforms the Jengiz into a dedicated ground-attack and strafing platform. Twin ER PPCs in the nose and large pulse lasers under each wing create a pure energy loadout optimized for repeated attack runs, while seven additional double heat sinks manage the considerable thermal output. A single aft-mounted small laser provides minimal defensive coverage against pursuit. Ghost Bear aerospace Stars deploy the A configuration against surface targets, large DropShips, and fortified positions where sustained energy fire is more valuable than ammunition logistics.</p>\r\n</deployment>\r\n\r\n<history>\r\n<p>Bear's Den began producing the Jengiz at its Strana Mechty facility in 3032, fulfilling a Ghost Bear requirement for a heavy near-space superiority fighter that combined the tactical flexibility of OmniPod technology with the raw destructive potential to dominate orbital engagements. The design's capability generated immediate demand across Clan space, with multiple Clans initiating Trials of Possession almost as soon as field reports reached the Grand Council. Only Clan Wolf possessed the combination of warrior skill and negotiating leverage to win the design through legitimate means, securing the Jengiz through hard-fought Trials that underscored Ghost Bear's determination to limit access to their most capable aerospace asset. Clans unable to win formal Trials began accumulating captured examples from Wolf and Ghost Bear engagements, seeding the type across aerospace inventories that would otherwise never have fielded it.</p><p>The Clan Invasion of the Inner Sphere altered the Jengiz's production and distribution calculus considerably. As Ghost Bear aerospace units pressed deep into the Rasalhague Occupation Zone, the Strana Mechty production line continued supplying front-line warriors, but the logistical demands of sustaining an occupation force thousands of light years from the homeworlds created pressure to establish nearer supply sources. Ghost Bear's distinctive migration pattern, gradually relocating its entire population and touman to the Occupation Zone, eventually produced a second Jengiz production requirement in the Inner Sphere. The Tseng Facility on Alshain was brought online during the Civil War era to manufacture Jengiz airframes closer to the front, reducing Ghost Bear's dependence on homeworld supply chains and providing a more responsive production base for the rapidly evolving Dominion. Production at Strana Mechty continued under Ghost Bear ownership throughout the Invasion and Civil War periods, eventually transferring to Clan Stone Lion during the Wars of Reaving as that conflict consumed the homeworlds and reshaped their political environment.</p><p>The Alshain line proved its value during the Jihad, when Ghost Bear's aerospace forces played a significant role in the coalition campaign against the Word of Blake Protectorate. Jengiz fighters were paired with more maneuverable designs from the Ghost Bear touman, using their heavy armor and sustained firepower to anchor engagements while faster wingmates handled the flanking work that the Jengiz's atmospheric performance could not. The Tseng Facility transitioned to Rasalhague Dominion control as Ghost Bear completed its political transformation in the post-Jihad era, continuing to supply the Dominion's aerospace forces through the Dark Age under its new national designation. The Wolf Armor Works facility on Eden, maintained by Clan Wolf throughout the Civil War and Jihad periods, provided a third production source that supplemented Wolf aerospace requirements before disappearing from available records as the Wars of Reaving disrupted homeworld manufacturing infrastructure.</p><p>New configurations continued to emerge throughout the design's service life. The E configuration, introduced during the Jihad, reflected growing Clan awareness of the electronic warfare threat posed by the Blakists and created a specialist variant focused on disrupting enemy command and control. The experimental X configuration tested rotary autocannon and next-generation electronics that informed later Ghost Bear aerospace design work. The Dark Age F configuration, combining a Long Tom cannon with heavy ultraclass ballistics under a targeting computer, reflected the Rasalhague Dominion's preference for maximizing alpha-strike damage potential in an era defined by shorter, more decisive engagements.</p>\r\n</history>\r\n\r\n<manufacturer>\r\nBear's Den|Tseng Facility|Wolf Armor Works\r\n</manufacturer>\r\n\r\n<primaryFactory>\r\nStrana Mechty (Bear Enclave)|Alshain|Eden (Abaddon)\r\n</primaryFactory>\r\n\r\n<systemManufacturers>\r\nCHASSIS:Unknown\r\nENGINE:Unknown\r\nARMOR:Unknown\r\nCOMMUNICATIONS:Unknown\r\nTARGETING:Unknown\r\n</systemManufacturers>\r\n\r\n<systemModels>\r\nCHASSIS:Ursa Major Type III\r\nENGINE:240 XL\r\nARMOR:Bruin Heavy Ferro-Aluminum\r\nCOMMUNICATIONS:Vox 91\r\nTARGETING:Hunter 62B\r\n</systemModels>\r\n\r\n<source>\r\nTR:3055U\r\n</source>\r\n\r\n<published>\r\nRS:3055Uu\r\n</published>\r\n\r\n<tonnage>\r\n80.0\r\n</tonnage>\r\n\r\n",
+      "qualifiers": {
+        "isOmni": true,
+        "omniPodHeatSinks": 7
+      },
+      "armor": {
+        "type": "STANDARD",
+        "byArc": {
+          "NOSE": 85,
+          "LEFT_WING": 63,
+          "RIGHT_WING": 63,
+          "AFT": 48
+        }
+      },
+      "unit": {
+        "id": "jengiz-a",
+        "chassis": "Jengiz",
+        "model": "A",
+        "unitType": "Aerospace",
+        "subType": "AerospaceFighter",
+        "techBase": "CLAN",
+        "rulesLevel": "STANDARD",
+        "era": "SUCCESSION_WARS",
+        "year": 3032,
+        "tonnage": 80,
+        "weightClass": "ASSAULT",
+        "motionType": "AERODYNE",
+        "movement": {
+          "safeThrust": 5,
+          "maxThrust": 8
+        },
+        "fuel": 320,
+        "structuralIntegrity": 8,
+        "engine": {
+          "type": "XL"
+        },
+        "heatSinks": {
+          "type": "DOUBLE",
+          "count": 27
+        },
+        "cockpit": "STANDARD",
+        "armor": {
+          "type": "STANDARD",
+          "byArc": {
+            "NOSE": 85,
+            "LEFT_WING": 63,
+            "RIGHT_WING": 63,
+            "AFT": 48
+          }
+        },
+        "equipment": [
+          {
+            "id": "clerppc:omni",
+            "name": "CLERPPC:OMNI",
+            "location": "NOSE"
+          },
+          {
+            "id": "clerppc:omni",
+            "name": "CLERPPC:OMNI",
+            "location": "NOSE"
+          },
+          {
+            "id": "cllargepulselaser:omni",
+            "name": "CLLargePulseLaser:OMNI",
+            "location": "LEFT_WING"
+          },
+          {
+            "id": "cllargepulselaser:omni",
+            "name": "CLLargePulseLaser:OMNI",
+            "location": "LEFT_WING"
+          },
+          {
+            "id": "cllargepulselaser:omni",
+            "name": "CLLargePulseLaser:OMNI",
+            "location": "RIGHT_WING"
+          },
+          {
+            "id": "cllargepulselaser:omni",
+            "name": "CLLargePulseLaser:OMNI",
+            "location": "RIGHT_WING"
+          },
+          {
+            "id": "clersmalllaser:omni",
+            "name": "CLERSmallLaser:OMNI",
+            "location": "AFT"
+          }
+        ],
+        "hasBombBay": false,
+        "bombCapacity": 0,
+        "mulId": 1681,
+        "role": "Attack Fighter",
+        "source": "TR:3055U",
+        "fluff": {
+          "overview": "<p>The Jengiz is one of the heaviest and most capable OmniFighters in Clan service, developed in 3032 by Clan Ghost Bear as a dedicated near-space combat platform. Where most fighters balance firepower against maneuverability, the Jengiz inverts this philosophy, sacrificing atmospheric agility for an extraordinary combination of armor and weapons capacity. The design attracted immediate and widespread interest across all Clans, but only Clan Wolf succeeded in the Trials of Possession required to secure the design through legitimate means. All other Clans that field the Jengiz have done so through battlefield capture, earning it a gradual but steady presence across Clan aerospace inventories far beyond its original Ghost Bear origins.</p>",
+          "capabilities": "<p>The Jengiz earns its fearsome reputation through a combination of base chassis features that persist across all configurations. Thirteen and a half tons of Bruin Heavy ferro-aluminum armor provide protection comparable to many assault BattleMechs, and twenty double heat sinks on the base chassis deliver exceptional thermal dissipation capacity before a single weapon pod is loaded. With forty-three and a half tons of available pod space, the Jengiz can mount weapons suites competitive with designs considerably heavier than its eighty-ton airframe. A permanently integrated ECM suite degrades enemy fire-control computers in both atmospheric and space combat, complicating targeting solutions for any opponent attempting to coordinate fire against it.</p><p>Poor atmospheric maneuverability is the design's primary limitation, restricting its combat effectiveness in high-density atmospheric engagements where agility determines survival. In near-space and orbital environments, however, the Jengiz excels, where the ability to absorb punishment and deliver sustained firepower outweighs the value of raw speed. The primary configuration demonstrates this philosophy with a mixed loadout of a cluster-capable autocannon, ER PPC, large and medium pulse lasers, and short-range missile launchers, capable of engaging targets across all combat ranges while the ECM suite complicates enemy targeting solutions. Subsequent configurations leverage the design's enormous pod capacity to deliver specialized armament packages ranging from long-range Gauss and missile combinations to close-range ballistic and Streak missile loadouts that can strip the armor from even the most heavily protected targets.</p>",
+          "deployment": "<p>The A configuration transforms the Jengiz into a dedicated ground-attack and strafing platform. Twin ER PPCs in the nose and large pulse lasers under each wing create a pure energy loadout optimized for repeated attack runs, while seven additional double heat sinks manage the considerable thermal output. A single aft-mounted small laser provides minimal defensive coverage against pursuit. Ghost Bear aerospace Stars deploy the A configuration against surface targets, large DropShips, and fortified positions where sustained energy fire is more valuable than ammunition logistics.</p>",
+          "history": "<p>Bear's Den began producing the Jengiz at its Strana Mechty facility in 3032, fulfilling a Ghost Bear requirement for a heavy near-space superiority fighter that combined the tactical flexibility of OmniPod technology with the raw destructive potential to dominate orbital engagements. The design's capability generated immediate demand across Clan space, with multiple Clans initiating Trials of Possession almost as soon as field reports reached the Grand Council. Only Clan Wolf possessed the combination of warrior skill and negotiating leverage to win the design through legitimate means, securing the Jengiz through hard-fought Trials that underscored Ghost Bear's determination to limit access to their most capable aerospace asset. Clans unable to win formal Trials began accumulating captured examples from Wolf and Ghost Bear engagements, seeding the type across aerospace inventories that would otherwise never have fielded it.</p><p>The Clan Invasion of the Inner Sphere altered the Jengiz's production and distribution calculus considerably. As Ghost Bear aerospace units pressed deep into the Rasalhague Occupation Zone, the Strana Mechty production line continued supplying front-line warriors, but the logistical demands of sustaining an occupation force thousands of light years from the homeworlds created pressure to establish nearer supply sources. Ghost Bear's distinctive migration pattern, gradually relocating its entire population and touman to the Occupation Zone, eventually produced a second Jengiz production requirement in the Inner Sphere. The Tseng Facility on Alshain was brought online during the Civil War era to manufacture Jengiz airframes closer to the front, reducing Ghost Bear's dependence on homeworld supply chains and providing a more responsive production base for the rapidly evolving Dominion. Production at Strana Mechty continued under Ghost Bear ownership throughout the Invasion and Civil War periods, eventually transferring to Clan Stone Lion during the Wars of Reaving as that conflict consumed the homeworlds and reshaped their political environment.</p><p>The Alshain line proved its value during the Jihad, when Ghost Bear's aerospace forces played a significant role in the coalition campaign against the Word of Blake Protectorate. Jengiz fighters were paired with more maneuverable designs from the Ghost Bear touman, using their heavy armor and sustained firepower to anchor engagements while faster wingmates handled the flanking work that the Jengiz's atmospheric performance could not. The Tseng Facility transitioned to Rasalhague Dominion control as Ghost Bear completed its political transformation in the post-Jihad era, continuing to supply the Dominion's aerospace forces through the Dark Age under its new national designation. The Wolf Armor Works facility on Eden, maintained by Clan Wolf throughout the Civil War and Jihad periods, provided a third production source that supplemented Wolf aerospace requirements before disappearing from available records as the Wars of Reaving disrupted homeworld manufacturing infrastructure.</p><p>New configurations continued to emerge throughout the design's service life. The E configuration, introduced during the Jihad, reflected growing Clan awareness of the electronic warfare threat posed by the Blakists and created a specialist variant focused on disrupting enemy command and control. The experimental X configuration tested rotary autocannon and next-generation electronics that informed later Ghost Bear aerospace design work. The Dark Age F configuration, combining a Long Tom cannon with heavy ultraclass ballistics under a targeting computer, reflected the Rasalhague Dominion's preference for maximizing alpha-strike damage potential in an era defined by shorter, more decisive engagements.</p>",
+          "manufacturer": "Bear's Den|Tseng Facility|Wolf Armor Works",
+          "primaryFactory": "Strana Mechty (Bear Enclave)|Alshain|Eden (Abaddon)"
+        },
+        "isOmni": true,
+        "omniPodHeatSinks": 7
+      }
+    }
+  ]
+}

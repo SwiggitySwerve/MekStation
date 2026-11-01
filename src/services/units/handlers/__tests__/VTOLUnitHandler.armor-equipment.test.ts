@@ -39,18 +39,19 @@ describe('VTOLUnitHandler', () => {
   // ==========================================================================
 
   describe('parse - armor', () => {
-    it('should parse armor array by location', () => {
+    it('should parse armor array by location in BLK order (Front, Right, Left, Rear, Rotor, Turret)', () => {
       const doc = createMockBlkDocument({
-        armor: [16, 10, 10, 8, 2],
+        armor: [16, 11, 9, 8, 2, 5],
       });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
       expect(result.data?.unit?.armorByLocation[VTOLLocation.FRONT]).toBe(16);
-      expect(result.data?.unit?.armorByLocation[VTOLLocation.LEFT]).toBe(10);
-      expect(result.data?.unit?.armorByLocation[VTOLLocation.RIGHT]).toBe(10);
+      expect(result.data?.unit?.armorByLocation[VTOLLocation.RIGHT]).toBe(11);
+      expect(result.data?.unit?.armorByLocation[VTOLLocation.LEFT]).toBe(9);
       expect(result.data?.unit?.armorByLocation[VTOLLocation.REAR]).toBe(8);
       expect(result.data?.unit?.armorByLocation[VTOLLocation.ROTOR]).toBe(2);
+      expect(result.data?.unit?.armorByLocation[VTOLLocation.TURRET]).toBe(5);
     });
 
     it('should calculate total armor points', () => {
@@ -63,12 +64,12 @@ describe('VTOLUnitHandler', () => {
       expect(result.data?.unit?.totalArmorPoints).toBe(46);
     });
 
-    it('should calculate max armor points as tonnage * 3.5', () => {
+    it('should calculate max armor points as tonnage * 3.5 + 40 (TestTank.java:338)', () => {
       const doc = createMockBlkDocument({ tonnage: 20 });
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.maxArmorPoints).toBe(70); // 20 * 3.5 = 70
+      expect(result.data?.unit?.maxArmorPoints).toBe(110); // 20 * 3.5 + 40
     });
 
     it('should floor max armor for odd tonnages', () => {
@@ -76,7 +77,7 @@ describe('VTOLUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.maxArmorPoints).toBe(73); // floor(21 * 3.5) = 73
+      expect(result.data?.unit?.maxArmorPoints).toBe(113); // floor(21 * 3.5 + 40) = 113
     });
 
     it('should parse armor type', () => {

@@ -45,7 +45,10 @@ describe('existing source-family construction tonnage diagnostics', () => {
     [0.5, ['VTOL tonnage must be at least 1 tons']],
     [1, []],
     [30, []],
-    [31, ['VTOL tonnage cannot exceed 30 tons']],
+    // SuperHeavy VTOLs (VTOL.isSuperHeavy: weight > 30) reach 60 t (TestTank.maxTonnage)
+    [31, []],
+    [60, []],
+    [61, ['VTOL tonnage cannot exceed 60 tons']],
   ] as const)('preserves VTOL diagnostics at %s tons', (tonnage, errors) => {
     const parsed = vtol.parse(vtolDocument({ armor: [0, 0, 0, 0, 0] }));
     if (!parsed.success) throw new Error('Expected valid reference VTOL');

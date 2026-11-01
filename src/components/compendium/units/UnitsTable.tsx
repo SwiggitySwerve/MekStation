@@ -1,8 +1,9 @@
 import Link from 'next/link';
 
-import { Card, TechBaseBadge, WeightClassBadge } from '@/components/ui';
+import { Badge, Card, TechBaseBadge, WeightClassBadge } from '@/components/ui';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { IUnitEntry } from '@/types/pages';
+import { unitFamilyKey } from '@/types/unit/UnitIndex';
 
 import { RULES_LEVEL_LABELS } from './units.constants';
 import { SortColumn, SortDirection } from './units.helpers';
@@ -117,7 +118,7 @@ export function UnitsTable({
             ) : (
               units.map((unit) => (
                 <tr
-                  key={unit.id}
+                  key={unitFamilyKey(unit.id, unit.family)}
                   className="hover:bg-surface-raised/30 transition-colors"
                 >
                   <td className="px-3 py-2">
@@ -139,7 +140,9 @@ export function UnitsTable({
                     <TechBaseBadge techBase={unit.techBase} />
                   </td>
                   <td className="text-text-theme-secondary px-3 py-2 text-sm whitespace-nowrap">
-                    {unit.unitType === 'BattleMech' ? 'Mek' : unit.unitType}
+                    <Badge variant="muted">
+                      {unit.unitType === 'BattleMech' ? 'Mek' : unit.unitType}
+                    </Badge>
                   </td>
                   <td className="text-text-theme-secondary px-3 py-2 font-mono text-xs whitespace-nowrap">
                     {RULES_LEVEL_LABELS[unit.rulesLevel ?? ''] ??
@@ -169,7 +172,7 @@ function UnitDetailLink({
 }: {
   readonly unit: IUnitEntry;
 }): React.ReactElement {
-  const href = `/compendium/units/${unit.id}`;
+  const href = `/compendium/units/${encodeURIComponent(unit.id)}${unit.family && unit.family !== 'battlemechs' ? `?family=${unit.family}` : ''}`;
 
   return (
     <Link

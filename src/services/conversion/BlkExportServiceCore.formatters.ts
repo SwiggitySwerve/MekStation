@@ -3,15 +3,16 @@ import type { ProtoMechState } from '@/stores/protoMechState';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { EngineType } from '@/types/construction/EngineType';
 import {
-  VehicleLocation,
-  VTOLLocation,
   AerospaceLocation,
+  VehicleLocation,
 } from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import {
   BLK_PROTOMECH_ARMOR_LOCATIONS,
   BLK_PROTOMECH_CHASSIS,
+  BLK_VEHICLE_ARMOR_LOCATIONS,
+  BLK_VTOL_ARMOR_LOCATIONS,
 } from '@/types/formats/BlkFormat';
 import {
   GroundMotionType,
@@ -105,23 +106,23 @@ export function formatArmorTechCode(techBase: TechBase): string {
   return techBase === TechBase.CLAN ? '2' : '1';
 }
 
+/**
+ * MegaMek reads the `<armor>` length to decide whether a vehicle has a turret
+ * (`BLKTankFile.java:185`, `BLKVTOLFile.java:132`), so a turretless vehicle
+ * stops before the Turret value: four values for a Tank, five for a VTOL.
+ */
 export function formatVehicleArmor(
   allocation: Record<string, number>,
   isVTOL: boolean,
+  hasTurret: boolean,
 ): string {
-  const values: number[] = [
-    allocation[VehicleLocation.FRONT] || 0,
-    allocation[VehicleLocation.LEFT] || 0,
-    allocation[VehicleLocation.RIGHT] || 0,
-    allocation[VehicleLocation.REAR] || 0,
-    allocation[VehicleLocation.TURRET] || 0,
-  ];
-
-  if (isVTOL) {
-    values.push(allocation[VTOLLocation.ROTOR] || 0);
-  }
-
-  return values.join('\n');
+  const locations = isVTOL
+    ? BLK_VTOL_ARMOR_LOCATIONS
+    : BLK_VEHICLE_ARMOR_LOCATIONS;
+  return locations
+    .filter((location) => hasTurret || location !== VehicleLocation.TURRET)
+    .map((location) => allocation[location] || 0)
+    .join('\n');
 }
 
 export function formatAerospaceArmor(

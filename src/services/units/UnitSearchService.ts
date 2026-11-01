@@ -8,6 +8,12 @@
 
 import MiniSearch from 'minisearch';
 
+import {
+  matchesUnitFamily,
+  unitFamilyKey,
+  type UnitFamily,
+} from '@/types/unit/UnitIndex';
+
 import { IUnitIndexEntry, ISearchOptions } from '../common/types';
 import { getCanonicalUnitService } from './CanonicalUnitService';
 import { customUnitApiService } from './CustomUnitApiService';
@@ -17,11 +23,11 @@ import { customUnitApiService } from './CustomUnitApiService';
  */
 export interface IUnitSearchService {
   initialize(): Promise<void>;
-  getAllUnits(): readonly IUnitIndexEntry[];
-  getUnitById(id: string): IUnitIndexEntry | undefined;
+  getAllUnits(family?: UnitFamily | 'all'): readonly IUnitIndexEntry[];
+  getUnitById(id: string, family?: UnitFamily): IUnitIndexEntry | undefined;
   search(query: string, options?: ISearchOptions): IUnitIndexEntry[];
   addToIndex(unit: IUnitIndexEntry): void;
-  removeFromIndex(id: string): void;
+  removeFromIndex(id: string, family?: UnitFamily): void;
   rebuildIndex(): Promise<void>;
 }
 
@@ -66,9 +72,12 @@ export class UnitSearchService implements IUnitSearchService {
   private async doInitialize(): Promise<void> {
     // Create MiniSearch instance
     this.searchIndex = new MiniSearch<IUnitIndexEntry>({
+      extractField: (unit, field) =>
+        field === 'id'
+          ? unitFamilyKey(unit.id, unit.family)
+          : unit[field as keyof IUnitIndexEntry],
       fields: ['name', 'chassis', 'variant'],
       storeFields: [
-        'id',
         'name',
         'chassis',
         'variant',
@@ -87,9 +96,11 @@ export class UnitSearchService implements IUnitSearchService {
     });
 
     // Load canonical units
-    const canonicalUnits = await getCanonicalUnitService().getIndex();
+    const canonicalUnits = await getCanonicalUnitService().getIndex({
+      family: 'all',
+    });
     for (const unit of canonicalUnits) {
-      this.allUnits.set(unit.id, unit);
+      this.allUnits.set(unitFamilyKey(unit.id, unit.family), unit);
     }
 
     // Load custom units from API
@@ -108,7 +119,7 @@ export class UnitSearchService implements IUnitSearchService {
         unitType: customUnit.unitType as IUnitIndexEntry['unitType'],
         filePath: '', // Custom units don't have file paths
       };
-      this.allUnits.set(unit.id, unit);
+      this.allUnits.set(unitFamilyKey(unit.id, unit.family), unit);
     }
 
     // Add all to search index
@@ -121,23 +132,28 @@ export class UnitSearchService implements IUnitSearchService {
    * The map is populated incrementally while initialization runs, so callers
    * must not observe it until the full merged index is ready.
    */
-  getAllUnits = (): readonly IUnitIndexEntry[] => {
+  getAllUnits = (family?: UnitFamily | 'all'): readonly IUnitIndexEntry[] => {
     if (!this.initialized) {
       return [];
     }
 
-    return Array.from(this.allUnits.values());
+    return Array.from(this.allUnits.values()).filter((unit) =>
+      matchesUnitFamily(unit, family),
+    );
   };
 
   /**
    * Resolve one entry from the complete canonical and custom unit index.
    */
-  getUnitById = (id: string): IUnitIndexEntry | undefined => {
+  getUnitById = (
+    id: string,
+    family?: UnitFamily,
+  ): IUnitIndexEntry | undefined => {
     if (!this.initialized) {
       return undefined;
     }
 
-    return this.allUnits.get(id);
+    return this.allUnits.get(unitFamilyKey(id, family));
   };
 
   /**
@@ -158,7 +174,10 @@ export class UnitSearchService implements IUnitSearchService {
 
     let units = results
       .map((result) => this.allUnits.get(result.id))
-      .filter((unit): unit is IUnitIndexEntry => unit !== undefined);
+      .filter(
+        (unit): unit is IUnitIndexEntry =>
+          unit !== undefined && matchesUnitFamily(unit, options?.family),
+      );
 
     if (options?.limit !== undefined) {
       units = units.slice(0, options.limit);
@@ -176,24 +195,26 @@ export class UnitSearchService implements IUnitSearchService {
     }
 
     // Remove if exists (for updates)
-    if (this.allUnits.has(unit.id)) {
-      this.searchIndex.discard(unit.id);
+    const key = unitFamilyKey(unit.id, unit.family);
+    if (this.allUnits.has(key)) {
+      this.searchIndex.discard(key);
     }
 
-    this.allUnits.set(unit.id, unit);
+    this.allUnits.set(key, unit);
     this.searchIndex.add(unit);
   };
 
   /**
    * Remove a unit from the search index
    */
-  removeFromIndex = (id: string): void => {
-    if (!this.searchIndex || !this.allUnits.has(id)) {
+  removeFromIndex = (id: string, family?: UnitFamily): void => {
+    const key = unitFamilyKey(id, family);
+    if (!this.searchIndex || !this.allUnits.has(key)) {
       return;
     }
 
-    this.searchIndex.discard(id);
-    this.allUnits.delete(id);
+    this.searchIndex.discard(key);
+    this.allUnits.delete(key);
   };
 
   /**

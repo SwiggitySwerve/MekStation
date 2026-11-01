@@ -25,10 +25,10 @@ import {
 // ============================================================================
 
 /**
- * Sum the resolved weapon BV for a list of mounted items.
- * Non-weapon equipment (heat sinks, crew gear) resolves to 0 and is silently
- * skipped — callers pass separate defensive/offensive equipment BV totals
- * through the dedicated input fields.
+ * Compute the aerospace defensive pool without a thrust multiplier.
+ * Pinned MegaMek AeroBVCalculator.java:137-138 leaves processDefensiveFactor
+ * empty. Its aircraft type modifier is a separate, deferred parity term.
+ * @spec establish-all-unit-data-parity: Aerospace Defensive BV
  */
 export function calculateAerospaceDefensiveBV(input: IAerospaceBVInput): {
   armorBV: number;
@@ -44,12 +44,14 @@ export function calculateAerospaceDefensiveBV(input: IAerospaceBVInput): {
   const armorBV =
     input.totalArmorPoints * 2.5 * armorMultiplier * smallCraftArmorBonus;
 
-  const siBV = input.structuralIntegrity * 0.5 * input.tonnage;
+  // AeroBVCalculator.java:64-70; all supported families share this SI rule.
+  // @spec establish-all-unit-data-parity: Aerospace Defensive BV
+  const siBV = input.structuralIntegrity * 2;
 
   const defensiveEquipmentBV = input.defensiveEquipmentBV ?? 0;
   const explosivePenalties = input.explosivePenalties ?? 0;
 
-  const defensiveFactor = 1 + input.maxThrust / 10;
+  const defensiveFactor = 1;
   const defensive =
     (armorBV + siBV + defensiveEquipmentBV - explosivePenalties) *
     defensiveFactor;

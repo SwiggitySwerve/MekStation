@@ -58,6 +58,23 @@ The Python producer SHALL build the existing immutable inventory from a local re
 
 Browser and Node unit services SHALL load every upstream-loadable source family through a shared validated domain contract, preserve provenance, and save/reload custom designs with unchanged subtype and mount semantics. Canonical protection SHALL apply to every family. Unsupported local data SHALL produce diagnostics.
 
+#### Scenario: Family-qualified definition loading
+
+- **WHEN** a caller loads a canonical definition by family and id
+- **THEN** the loader SHALL resolve that family through the shared family registry and return its validated, family-typed definition without creating editor state
+- **AND** an omitted family SHALL mean `battlemechs`, preserving existing BattleMech definition and editor output
+- **AND** `tomahawk-c` in `battlemechs` and `aerospace` SHALL resolve independently without renaming either id
+- **AND** non-BattleMech source references SHALL retain family
+
+#### Scenario: Definition and editor admission diagnostics
+
+- **WHEN** loading encounters an unregistered family, absent family catalog, absent unit, unavailable source or invalid definition
+- **THEN** it SHALL return `unknown-family`, `family-not-found`, `not-found`, `read-failed` or `invalid-definition`, respectively
+- **AND** a definition whose unit type disagrees with its requested family SHALL fail as `invalid-definition`
+- **WHEN** a valid definition has no registered store mapper
+- **THEN** editor loading SHALL return `unsupported-store-family` without initializing equipment or creating a BattleMech store
+- **AND** the customizer SHALL preserve the requested family and keep the load dialog open on failure
+
 #### Scenario: Load and clone a support aircraft
 
 - **GIVEN** a FixedWingSupport definition with known equipment

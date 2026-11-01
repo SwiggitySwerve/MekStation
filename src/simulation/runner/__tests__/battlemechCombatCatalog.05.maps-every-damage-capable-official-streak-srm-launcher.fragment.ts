@@ -205,7 +205,9 @@ it('maps every damage-capable official Streak SRM launcher to runner all-or-none
   expect(failures).toEqual([]);
 });
 
-it('keeps zero-damage Streak variants as catalog-visible data gaps', () => {
+// Every Streak launcher now carries pinned per-missile damage, so the data-gap
+// bucket is empty; this keeps any Streak record that regresses to zero visible.
+it('keeps any zero-damage Streak variant visible as a catalog data gap', () => {
   const zeroDamageStreakLaunchers = familyItems(/\bStreak\b/i).filter(
     (item) => item.damage === 0,
   );

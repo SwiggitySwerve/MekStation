@@ -5,7 +5,7 @@
  *
  * - Single turret: 10% of turret-mounted equipment weight, ceil to half-ton
  * - Dual turret: each turret weighs 10% of its own equipment; requires ≥ 50t
- * - Chin turret (VTOL only): 5% of chin-mounted equipment weight
+ * - Chin turret (VTOL only): same 10% rule as an ordinary combat turret
  * - Sponson turret: 5% of equipment weight per sponson (pair = 10%)
  * - None: no turret weight
  */
@@ -25,7 +25,7 @@ export const DUAL_TURRET_MIN_TONNAGE = 50;
  * Compute turret structure weight from the weight of equipment mounted in it.
  *
  * @param turretType - Type of turret
- * @param equipmentWeightInTurret - Total tons of weapons/ammo in the turret
+ * @param equipmentWeightInTurret - Resolved qualifying equipment tons, excluding ammo
  * @returns Turret structure weight in tons (rounded up to nearest half-ton)
  */
 export function computeTurretWeight(
@@ -40,13 +40,10 @@ export function computeTurretWeight(
 
     case TurretType.SINGLE:
     case TurretType.DUAL:
+    case TurretType.CHIN:
       // Each turret: 10% of its own equipment, rounded independently.
       // This function handles one turret at a time; the caller sums both.
       return ceilToHalfTon(equipmentWeightInTurret * 0.1);
-
-    case TurretType.CHIN:
-      // VTOL chin turret: 5% of equipment weight
-      return ceilToHalfTon(equipmentWeightInTurret * 0.05);
 
     case TurretType.SPONSON_LEFT:
     case TurretType.SPONSON_RIGHT:
@@ -149,7 +146,7 @@ export function getEligibleTurretTypes(
  * Validate the 10% turret weight rule for a turret configuration.
  *
  * @param turretType - Type of turret
- * @param equipmentWeight - Total equipment weight in turret (tons)
+ * @param equipmentWeight - Turret equipment weight in tons, excluding ammunition
  * @param currentTurretWeight - Declared turret weight (must equal computed)
  */
 export function validateTurretWeight(
