@@ -12,8 +12,34 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'megameklab-convers
 
 from blk_aerospace_converter import convert_aerospace_blk
 from blk_schema_writers import write_unit_json
+from blk_vehicle_converter import convert_vehicle_blk
 
 FIXTURES = Path(__file__).parent / 'fixtures' / 'aerospace_source_qualifiers.json'
+
+
+class SharedQualifierVehicleCompatibilityTest(unittest.TestCase):
+    def test_vehicle_writer_preserves_qualifier_key_order(self):
+        fixtures = json.loads((FIXTURES.parent / 'vehicle_source_qualifiers.json').read_text(encoding='utf-8'))['fixtures']
+        trailer = next(fixture for fixture in fixtures if fixture['qualifiers'].get('isTrailer'))
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp) / 'trailer.blk'
+            source.write_text(trailer['blk'] + '\n<omni>\nfalse\n</omni>\n<clan_engine>\nfalse\n</clan_engine>\n', encoding='utf-8')
+            unit = convert_vehicle_blk(source, logging.getLogger('vehicle-writer-order'))
+            self.assertIsNotNone(unit)
+            self.assertIs(unit['isOmni'], True)
+            self.assertIs(unit['isTrailer'], True)
+            self.assertIs(unit['clanEngine'], False)
+            self.assertEqual(unit['transporters'], trailer['qualifiers']['transporters'])
+            destination = Path(temp) / 'trailer.json'
+            write_unit_json(destination, unit)
+            written = destination.read_text(encoding='utf-8')
+            self.assertEqual(list(json.loads(written)), [
+                'id', 'chassis', 'model', 'unitType', 'techBase', 'rulesLevel',
+                'era', 'year', 'tonnage', 'weightClass', 'motionType', 'movement',
+                'engine', 'armor', 'equipment', 'isOmni', 'isTrailer', 'clanEngine',
+                'armorTechRating', 'transporters', 'mulId', 'role', 'source', 'fluff',
+            ])
+            self.assertEqual(written, json.dumps(unit, indent=2, ensure_ascii=False))
 
 
 class AerospaceSourceQualifiersTest(unittest.TestCase):

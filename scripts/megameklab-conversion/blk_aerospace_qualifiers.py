@@ -1,4 +1,4 @@
-"""Aerospace source facts; see AEROSPACE_QUALIFIERS_RULES.md for authority."""
+"""Aerospace source facts; see VEHICLE_QUALIFIERS_RULES.md's aerospace section."""
 
 from __future__ import annotations
 
