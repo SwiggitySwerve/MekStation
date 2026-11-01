@@ -49,8 +49,7 @@ from blk_common import (
     get_string,
     map_armor_code,
     map_blk_engine_code as map_engine_code,
-    map_rules_level,
-    map_tech_base,
+    map_blk_tech_type,
     map_year_to_era,
     parse_armor_array,
     parse_number,
@@ -153,9 +152,8 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
     tonnage = int(tonnage_raw) if tonnage_raw == int(tonnage_raw) else tonnage_raw
 
     # --- Classification ---
-    tech_type_str = get_string(tags, "type", "Type") or "IS Level 1"
-    tech_base = map_tech_base(tech_type_str)
-    rules_level = map_rules_level(tech_type_str)
+    tech_type_str = tags.get("type", tags.get("Type", "IS Level 1"))
+    tech_base, rules_level = map_blk_tech_type(tech_type_str, year)
     era = map_year_to_era(year)
 
     motion_raw = get_string(tags, "motion_type")
@@ -194,11 +192,11 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
     # --- Armor ---
     armor_raw = tags.get("armor") or tags.get("Armor")
     armor_values = parse_armor_array(armor_raw)
-    armor_code = get_string(tags, "armor_type")
+    armor_code = tags.get("armor_type")
     # Only the support loaders read the BAR rating (loadSVArmor in BLKSupportTankFile,
     # BLKLargeSupportTankFile and BLKSupportVTOLFile); BLKTankFile and BLKVTOLFile do not.
     armor_type = {
-        "type": map_armor_code(armor_code, ARMOR_CODE_MAP),
+        "type": map_armor_code(armor_code, ARMOR_CODE_MAP, strict=True),
         **bar_armor_fields(
             tags, parse_number(armor_code), unit_type_raw in ("SupportTank", "LargeSupportTank", "SupportVTOL")
         ),

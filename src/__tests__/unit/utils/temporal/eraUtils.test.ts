@@ -29,6 +29,11 @@ describe('eraUtils', () => {
       expect(getEraForYear(-Infinity)).toBeUndefined();
     });
 
+    it('keeps ilClan open-ended like the pinned table', () => {
+      expect(getEraForYear(10000)).toBe(Era.IL_CLAN);
+      expect(getEraDefinitionForYear(10000)?.era).toBe(Era.IL_CLAN);
+    });
+
     it('should return Age of War for early years', () => {
       expect(getEraForYear(2200)).toBe(Era.AGE_OF_WAR);
       expect(getEraForYear(2400)).toBe(Era.AGE_OF_WAR);
@@ -74,12 +79,18 @@ describe('eraUtils', () => {
     it('should return Jihad for its era', () => {
       expect(getEraForYear(3068)).toBe(Era.JIHAD);
       expect(getEraForYear(3075)).toBe(Era.JIHAD);
-      expect(getEraForYear(3081)).toBe(Era.JIHAD);
+      expect(getEraForYear(3080)).toBe(Era.JIHAD);
+    });
+
+    it('should distinguish the Republic eras', () => {
+      expect(getEraForYear(3081)).toBe(Era.EARLY_REPUBLIC);
+      expect(getEraForYear(3100)).toBe(Era.EARLY_REPUBLIC);
+      expect(getEraForYear(3101)).toBe(Era.LATE_REPUBLIC);
+      expect(getEraForYear(3130)).toBe(Era.LATE_REPUBLIC);
     });
 
     it('should return Dark Age for its era', () => {
-      expect(getEraForYear(3082)).toBe(Era.DARK_AGE);
-      expect(getEraForYear(3100)).toBe(Era.DARK_AGE);
+      expect(getEraForYear(3131)).toBe(Era.DARK_AGE);
       expect(getEraForYear(3150)).toBe(Era.DARK_AGE);
     });
 
@@ -88,8 +99,8 @@ describe('eraUtils', () => {
       expect(getEraForYear(3160)).toBe(Era.IL_CLAN);
     });
 
-    it('should return Early Spaceflight for year 1500', () => {
-      expect(getEraForYear(1500)).toBe(Era.EARLY_SPACEFLIGHT);
+    it('should return Pre-Spaceflight for year 1500', () => {
+      expect(getEraForYear(1500)).toBe(Era.PRE_SPACEFLIGHT);
     });
   });
 
@@ -112,10 +123,10 @@ describe('eraUtils', () => {
       expect(def?.description).toBeDefined();
     });
 
-    it('should return Early Spaceflight for year 1000', () => {
+    it('should return Pre-Spaceflight for year 1000', () => {
       const def = getEraDefinitionForYear(1000);
       expect(def).toBeDefined();
-      expect(def?.era).toBe(Era.EARLY_SPACEFLIGHT);
+      expect(def?.era).toBe(Era.PRE_SPACEFLIGHT);
     });
   });
 
@@ -160,7 +171,7 @@ describe('eraUtils', () => {
     it('should return start year for valid era', () => {
       expect(getEraStartYear(Era.STAR_LEAGUE)).toBe(2571);
       expect(getEraStartYear(Era.CLAN_INVASION)).toBe(3050);
-      expect(getEraStartYear(Era.DARK_AGE)).toBe(3082);
+      expect(getEraStartYear(Era.DARK_AGE)).toBe(3131);
     });
 
     it('should return undefined for unknown era', () => {
@@ -249,15 +260,15 @@ describe('eraUtils', () => {
     });
 
     it('should return all eras for early year', () => {
-      const eras = getErasFromYear(2000);
+      const eras = getErasFromYear(1000);
 
       expect(eras.length).toBe(ERA_DEFINITIONS.length);
     });
 
-    it('should return empty array for year after all eras', () => {
+    it('should keep ilClan available without an upper boundary', () => {
       const eras = getErasFromYear(10000);
 
-      expect(eras).toHaveLength(0);
+      expect(eras).toEqual([Era.IL_CLAN]);
     });
   });
 
@@ -292,11 +303,11 @@ describe('eraUtils', () => {
       expect(eras.length).toBe(ERA_DEFINITIONS.length);
     });
 
-    it('should return Early Spaceflight for year 1000', () => {
+    it('should return Pre-Spaceflight for year 1000', () => {
       const eras = getErasUntilYear(1000);
 
       expect(eras).toHaveLength(1);
-      expect(eras).toContain(Era.EARLY_SPACEFLIGHT);
+      expect(eras).toContain(Era.PRE_SPACEFLIGHT);
     });
   });
 

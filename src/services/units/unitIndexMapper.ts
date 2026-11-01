@@ -10,7 +10,7 @@
 
 import type { UnitFamily } from '@/types/unit/UnitIndex';
 
-import { Era, getEraForYear } from '@/types/enums/Era';
+import { getEraForYear } from '@/types/enums/Era';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { logger } from '@/utils/logger';
@@ -32,7 +32,7 @@ export interface RawUnitIndexEntry {
   model: string; // This is 'variant' in our system
   tonnage: number;
   techBase: string;
-  year: number;
+  year?: number;
   unitType?: string;
   role?: string;
   rulesLevel?: string;
@@ -47,27 +47,10 @@ const TECH_BASE_BY_RAW_VALUE: Readonly<Record<string, TechBase>> = {
   MIXED: TechBase.INNER_SPHERE,
 };
 
-const ERA_BY_PATH_SEGMENT = [
-  { segment: '1-age-of-war', era: Era.AGE_OF_WAR },
-  { segment: '2-star-league', era: Era.STAR_LEAGUE },
-  { segment: '3-succession-wars', era: Era.LATE_SUCCESSION_WARS },
-  { segment: '4-clan-invasion', era: Era.CLAN_INVASION },
-  { segment: '5-civil-war', era: Era.CIVIL_WAR },
-  { segment: '6-dark-age', era: Era.DARK_AGE },
-  { segment: '7-ilclan', era: Era.IL_CLAN },
-] as const;
-
 function techBaseFromRawValue(rawTechBase: string): TechBase {
   return Object.hasOwn(TECH_BASE_BY_RAW_VALUE, rawTechBase)
     ? TECH_BASE_BY_RAW_VALUE[rawTechBase]
     : TechBase.INNER_SPHERE;
-}
-
-function eraFromPath(filePath: string): Era {
-  return (
-    ERA_BY_PATH_SEGMENT.find(({ segment }) => filePath.includes(segment))
-      ?.era ?? Era.LATE_SUCCESSION_WARS
-  );
 }
 
 function unitTypeFromRaw(raw: RawUnitIndexEntry): UnitType {
@@ -82,7 +65,7 @@ function unitTypeFromRaw(raw: RawUnitIndexEntry): UnitType {
 
 /**
  * Map a raw index row to IUnitIndexEntry. Throws on an unknown `unitType`
- * rather than defaulting to BattleMech. Mech output retains its legacy shape.
+ * rather than defaulting to BattleMech. Undated rows retain no era label.
  */
 export function mapRawIndexEntry(
   raw: RawUnitIndexEntry,
@@ -100,9 +83,9 @@ export function mapRawIndexEntry(
     tonnage: raw.tonnage,
     techBase: techBaseFromRawValue(raw.techBase),
     era:
-      family === 'battlemechs'
-        ? eraFromPath(raw.path)
-        : getEraForYear(raw.year),
+      typeof raw.year === 'number' && Number.isInteger(raw.year) && raw.year > 0
+        ? getEraForYear(raw.year)
+        : undefined,
     weightClass: getUnitIndexWeightClass(raw.tonnage),
     unitType: unitTypeFromRaw(raw),
     filePath: `/data/units/${family}/${raw.path}`,
