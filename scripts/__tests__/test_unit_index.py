@@ -178,6 +178,10 @@ class UnitIndexCliTest(unittest.TestCase):
         mechs = self.root / 'battlemechs'
         mechs.mkdir()
         shutil.copy(self.root / 'aerospace' / 'Sabre SB-27b-EC.json', mechs / 'Mech.json')
+        planted = mechs / 'Mech.json'
+        unit = json.loads(planted.read_text(encoding='utf-8'))
+        unit['id'] = 'allowlist-only-mech'
+        planted.write_text(json.dumps(unit), encoding='utf-8')
         shipped = mechs / 'index.json'
         shipped.write_text('{"units": []}', encoding='utf-8')
         for family in ('battlemechs', '.', 'vehicles/', 'Vehicles', 'vehicle'):
