@@ -32,5 +32,8 @@ Authority: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 `megamek/src/megamek/common/loaders/BLKTankFile.java:139-170,240-273`,
 `BLKSupportTankFile.java:95-100,137-157,167-199`,
 `BLKFile.java:1257-1302,1548-1742` (writer and transporters), and
-`enums/TechRating.java:42-48`. Tests embed six original BLKs and their hashes
-from mm-data `50f7efef0c9f775b0258f8283525ed4f906e1985`.
+`enums/TechRating.java:42-48`. Tests embed six BLKs from mm-data
+`50f7efef0c9f775b0258f8283525ed4f906e1985` as bytes of the pinned read-only
+export, which uses CRLF line endings. Their SHA-256 values identify those
+export bytes, not the LF Git blobs; the content is identical after line-ending
+normalisation.
