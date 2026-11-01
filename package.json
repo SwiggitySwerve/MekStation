@@ -58,6 +58,7 @@
     "convert:blk:battlearmor": "python scripts/megameklab-conversion/blk_battlearmor_converter.py",
     "convert:blk:infantry": "python scripts/megameklab-conversion/blk_infantry_converter.py",
     "convert:blk:protomech": "python scripts/megameklab-conversion/blk_protomech_converter.py",
+    "convert:blk:capital": "python scripts/megameklab-conversion/blk_capital_converter.py",
     "sync:mm-data-config": "node scripts/mm-data/sync-browser-config.mjs",
     "fetch:assets": "npx tsx scripts/mm-data/fetch-assets.ts",
     "fetch:assets:local": "npx tsx scripts/mm-data/fetch-assets.ts --prefer-local",

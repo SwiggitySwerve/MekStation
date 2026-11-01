@@ -34,7 +34,7 @@ class BlkConversionConfig:
     description: str
     source_default: str
     source_help: str
-    output_default: str
+    output_default: Optional[str]  # None: --output is required
     output_help: str
     type_name: str
     parity_report_filename: str
@@ -155,7 +155,10 @@ def run_manifest_range_parity(
 def run_blk_conversion(config: BlkConversionConfig) -> int:
     parser = argparse.ArgumentParser(description=config.description)
     parser.add_argument("--source", default=config.source_default, help=config.source_help)
-    parser.add_argument("--output", default=config.output_default, help=config.output_help)
+    if config.output_default is None:
+        parser.add_argument("--output", required=True, help=config.output_help)
+    else:
+        parser.add_argument("--output", default=config.output_default, help=config.output_help)
     parser.add_argument("--verbose", "-v", action="store_true", help=config.verbose_help)
     args = parser.parse_args()
 
