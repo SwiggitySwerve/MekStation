@@ -337,6 +337,20 @@ describe('required BV source facts', () => {
 });
 
 describe('contractUnitToBVUnit (aerospace)', () => {
+  it.each([
+    ['FixedWingSupport', true],
+    ['ConventionalFighter', false],
+    [undefined, false],
+  ] as const)(
+    'preserves the support-aircraft fact for %s',
+    (subType, expected) => {
+      const unit = contractUnitToBVUnit(
+        fighter({ unitType: 'Conventional Fighter', subType }),
+      ) as IContractBVAerospace;
+      expect(unit.isSupportVehicle).toBe(expected);
+    },
+  );
+
   it('maps arcs to calculator arc strings and the armor type to a lookup key', () => {
     const unit = contractUnitToBVUnit(fighter()) as IContractBVAerospace;
     expect(unit.unitType).toBe(UnitType.AEROSPACE);

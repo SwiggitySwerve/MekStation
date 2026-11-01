@@ -10,7 +10,7 @@
         "transporters": ["troopspace:16.0", "cargobay:2.0:1:1::-1:0"]
       },
       "armor": {
-        "type": "STANDARD",
+        "type": "STEALTH",
         "byArc": {
           "NOSE": 105,
           "LEFT_WING": 55,
@@ -46,7 +46,7 @@
         },
         "cockpit": "STANDARD",
         "armor": {
-          "type": "STANDARD",
+          "type": "STEALTH",
           "byArc": {
             "NOSE": 105,
             "LEFT_WING": 55,

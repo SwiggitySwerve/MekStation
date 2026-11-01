@@ -43,6 +43,15 @@ class SharedQualifierVehicleCompatibilityTest(unittest.TestCase):
 
 
 class AerospaceSourceQualifiersTest(unittest.TestCase):
+    def test_vehicle_stealth_armor_keeps_aircraft_stealth_identity(self):
+        # MegaMek EquipmentType.java:107: T_ARMOR_STEALTH_VEHICLE = 22.
+        # Saroyan Jump Bomber and Drake Medium Stealth Fighter use this code.
+        from blk_aerospace_qualifiers import parse_aerospace_armor
+
+        for code in (8, 22):
+            with self.subTest(code=code):
+                self.assertEqual(parse_aerospace_armor({'armor_type': str(code)}), {'type': 'STEALTH'})
+
     def test_eight_pinned_sources_round_trip(self):
         fixtures = json.loads(FIXTURES.read_text(encoding='utf-8'))['fixtures']
         self.assertEqual(len(fixtures), 8)

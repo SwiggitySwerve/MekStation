@@ -3,6 +3,7 @@ import {
   BLK_UNIT_TYPE_MAP,
   type IBlkDocument,
 } from '../../types/formats/BlkFormat';
+import { AerospaceSubType } from '../../types/unit/AerospaceInterfaces';
 import { UnitType } from '../../types/unit/BattleMechInterfaces';
 
 export type BlkRawTags = Record<string, string | string[]>;
@@ -81,15 +82,16 @@ export function mapBlkUnitType(unitTypeStr: string): UnitType | undefined {
 }
 
 /**
- * Structural integrity for a fighter-class BLK document.
+ * Structural integrity for an aerospace unit: the single SI rule owner.
+ * The BLK parser and the aerospace handlers call it directly; the aerospace
+ * store and the definition mapper call it through
+ * aerospaceStructuralIntegrity.
  *
- * Fighter, conventional fighter and FixedWingSupport sources carry no
- * structural_integrity tag; MegaMek derives it on load. An explicit tag on a
- * fighter is kept (even 0) so MekStation's own exports round-trip. That is a
- * MekStation choice, not MegaMek's: MegaMek's fighter loaders never read the
- * tag, and its writer emits it only for small craft and JumpShips
- * (BLKFile.java:1070-1072). UL-12a owns that decision. Every other aerospace
- * family (small craft, capital ships) reads its tag as-is.
+ * Fighters, conventional fighters and FixedWingSupport always derive SI and
+ * ignore any structural_integrity tag, as MegaMek does: its fighter loaders
+ * never read the tag, and its writer emits it only for small craft and
+ * JumpShips (BLKFile.java:1070-1072). Every other aerospace family (small
+ * craft, capital ships) keeps its explicit value, or 0 without one.
  *
  * MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
  * - Aero.java:804-808: max(floor(weight / 10), walk MP), walk MP = SafeThrust
@@ -103,9 +105,6 @@ export function resolveAerospaceStructuralIntegrity(
     'unitType' | 'tonnage' | 'safeThrust' | 'structuralIntegrity'
   >,
 ): number {
-  if (document.structuralIntegrity !== undefined) {
-    return document.structuralIntegrity;
-  }
   const walkMP = document.safeThrust ?? 0;
   switch (document.unitType.toLowerCase()) {
     case 'fixedwingsupport':
@@ -115,8 +114,37 @@ export function resolveAerospaceStructuralIntegrity(
     case 'convfighter':
       return Math.max(Math.floor(document.tonnage / 10), walkMP);
     default:
-      return 0;
+      return document.structuralIntegrity ?? 0;
   }
+}
+
+/** BLK unit type the SI owner keys on, per construction sub-type. */
+const BLK_UNIT_TYPE_BY_AEROSPACE_SUBTYPE: Record<AerospaceSubType, string> = {
+  [AerospaceSubType.AEROSPACE_FIGHTER]: 'AeroSpaceFighter',
+  [AerospaceSubType.CONVENTIONAL_FIGHTER]: 'ConvFighter',
+  [AerospaceSubType.SMALL_CRAFT]: 'SmallCraft',
+};
+
+/**
+ * resolveAerospaceStructuralIntegrity for editor state: ASF and conventional
+ * fighters max(floor(t / 10), safe thrust), FixedWingSupport safe thrust,
+ * small craft the explicit value.
+ */
+export function aerospaceStructuralIntegrity(unit: {
+  readonly aerospaceSubType: AerospaceSubType;
+  readonly isFixedWingSupport?: boolean;
+  readonly tonnage: number;
+  readonly safeThrust: number;
+  readonly structuralIntegrity?: number;
+}): number {
+  return resolveAerospaceStructuralIntegrity({
+    unitType: unit.isFixedWingSupport
+      ? 'FixedWingSupport'
+      : BLK_UNIT_TYPE_BY_AEROSPACE_SUBTYPE[unit.aerospaceSubType],
+    tonnage: unit.tonnage,
+    safeThrust: unit.safeThrust,
+    structuralIntegrity: unit.structuralIntegrity,
+  });
 }
 
 export function getBlkString(

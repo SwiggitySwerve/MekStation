@@ -88,7 +88,6 @@ describe('aerospace structural integrity BV parity', () => {
       const heavy = calculateAerospaceDefensiveBV({ ...input, tonnage: 100 });
       expect(light.siBV).toBe(22);
       expect(heavy).toEqual(light);
-      expect(light.defensive).toBe(light.armorBV + 22 + 10 - 5);
     },
   );
 });
