@@ -125,9 +125,12 @@ export function exportAerospace(unit: AerospaceState): IBlkExportResult {
     lines.push(
       tag(
         'UnitType',
-        unit.unitType === UnitType.CONVENTIONAL_FIGHTER
-          ? 'ConvFighter'
-          : 'Aero',
+        // BLKFile.java:768-771 tests FixedWingSupport before ConvFighter.
+        unit.isFixedWingSupport
+          ? 'FixedWingSupport'
+          : unit.unitType === UnitType.CONVENTIONAL_FIGHTER
+            ? 'ConvFighter'
+            : 'Aero',
       ),
     );
     lines.push(tag('Name', unit.chassis));

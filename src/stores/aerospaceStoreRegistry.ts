@@ -9,6 +9,8 @@
 
 import { StoreApi } from 'zustand';
 
+import { aerospaceStructuralIntegrity } from '@/services/conversion/BlkParserService.helpers';
+import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { logger } from '@/utils/logger';
 
@@ -95,15 +97,25 @@ export function duplicateAerospace(
   }
 
   const sourceState = sourceStore.getState();
+  const isSmallCraft =
+    sourceState.aerospaceSubType === AerospaceSubType.SMALL_CRAFT;
   const newState = createDefaultAerospaceState({
     name: newName ?? `${sourceState.name} (Copy)`,
     tonnage: sourceState.tonnage,
     techBase: sourceState.techBase,
     isConventional: sourceState.unitType === UnitType.CONVENTIONAL_FIGHTER,
+    isSmallCraft,
   });
 
   const mergedState: AerospaceState = {
     ...newState,
+    isFixedWingSupport: sourceState.isFixedWingSupport,
+    // SI follows the copied thrust for fighters and keeps the explicit value
+    // for small craft; the defaults above were derived from default thrust.
+    structuralIntegrity: aerospaceStructuralIntegrity(sourceState),
+    motionType: sourceState.motionType,
+    crew: sourceState.crew,
+    bays: sourceState.bays,
     engineType: sourceState.engineType,
     engineRating: sourceState.engineRating,
     safeThrust: sourceState.safeThrust,

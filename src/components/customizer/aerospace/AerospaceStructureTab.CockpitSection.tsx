@@ -10,7 +10,10 @@
 import React, { useCallback } from 'react';
 
 import { useAerospaceStore } from '@/stores/useAerospaceStore';
-import { AerospaceCockpitType } from '@/types/unit/AerospaceInterfaces';
+import {
+  AerospaceCockpitType,
+  AerospaceSubType,
+} from '@/types/unit/AerospaceInterfaces';
 
 import { customizerStyles as cs } from '../styles';
 import { SelectOptions } from '../tabs/SelectOptions';
@@ -24,6 +27,12 @@ export function CockpitSection({
   readOnly,
 }: CockpitSectionProps): React.ReactElement {
   const structuralIntegrity = useAerospaceStore((s) => s.structuralIntegrity);
+  // Fighter SI is derived (Aero.java:804-808); only small craft keep an
+  // explicit value, so only they get an editable stepper.
+  const siDerived = useAerospaceStore(
+    (s) => s.aerospaceSubType !== AerospaceSubType.SMALL_CRAFT,
+  );
+  const siLocked = readOnly || siDerived;
   const cockpitType = useAerospaceStore((s) => s.cockpitType);
   const hasReinforcedCockpit = useAerospaceStore((s) => s.hasReinforcedCockpit);
   const hasEjectionSeat = useAerospaceStore((s) => s.hasEjectionSeat);
@@ -52,7 +61,7 @@ export function CockpitSection({
         <div className="mt-1 flex items-center gap-2">
           <button
             onClick={() => setStructuralIntegrity(structuralIntegrity - 1)}
-            disabled={readOnly || structuralIntegrity <= 1}
+            disabled={siLocked || structuralIntegrity <= 1}
             className={cs.button.stepperLeft}
             data-testid="aerospace-si-decrease"
           >
@@ -67,13 +76,21 @@ export function CockpitSection({
           />
           <button
             onClick={() => setStructuralIntegrity(structuralIntegrity + 1)}
-            disabled={readOnly}
+            disabled={siLocked}
             className={cs.button.stepperRight}
             data-testid="aerospace-si-increase"
           >
             +
           </button>
         </div>
+        {siDerived && (
+          <p
+            className="text-text-theme-secondary mt-1 text-xs"
+            data-testid="aerospace-si-derived-note"
+          >
+            Derived from the chassis and thrust.
+          </p>
+        )}
       </div>
 
       {/* Cockpit Type */}
