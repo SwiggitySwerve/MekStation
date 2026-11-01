@@ -12,7 +12,7 @@ craft. Aircraft type scaling is a separate term and is deferred by this slice.
 - **GIVEN** Boeing Jump Bomber with safe thrust 9 and maximum thrust 14
 - **WHEN** its defensive BV is computed
 - **THEN** the defensive factor SHALL equal 1
-- **AND** the existing armor and SI pool of 130 SHALL remain 130
+- **AND** armor BV 40 plus SI BV 18 SHALL produce a defensive pool of 58
 - **AND** this term correction SHALL NOT imply total BV parity with Java's 64
 
 #### Scenario: Thrust does not scale defense
@@ -21,6 +21,28 @@ craft. Aircraft type scaling is a separate term and is deferred by this slice.
 - **WHEN** maximum thrust changes
 - **THEN** the defensive pool SHALL remain unchanged
 - **AND** armor, SI, equipment, explosive penalties and offensive terms SHALL retain their existing rules
+
+### Requirement: Aerospace Structural Integrity BV
+
+Aerospace BV SHALL value structural integrity at twice the input SI for
+aerospace fighters, conventional fighters, FixedWingSupport and small craft,
+independently of tonnage, matching pinned MegaMek `AeroBVCalculator.processStructure`. This
+correction SHALL preserve all other component rules and SI inputs. Blue Shield
+valuation is deferred until the BV input can express its working state.
+
+#### Scenario: Fighter SI contributions
+
+- **GIVEN** Boeing Jump Bomber with SI 9 and Sabre SB-27b-EC with SI 11
+- **WHEN** their defensive BV is computed
+- **THEN** their SI contributions SHALL equal 18 and 22 respectively
+- **AND** this term SHALL NOT imply parity with their Java totals of 64 and 987
+
+#### Scenario: Support aircraft and small craft share SI valuation
+
+- **GIVEN** Mosquito Light Fighter or Dragonstar Assault Transport (3060) with SI 6
+- **WHEN** its defensive BV is computed
+- **THEN** its SI contribution SHALL equal 12
+- **AND** changing tonnage alone SHALL NOT change the SI contribution
 
 ### Requirement: Runtime parity term validation
 

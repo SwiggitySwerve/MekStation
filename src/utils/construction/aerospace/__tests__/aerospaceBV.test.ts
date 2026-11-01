@@ -70,11 +70,11 @@ describe('calculateAerospaceSpeedFactor', () => {
 // ============================================================================
 
 describe('calculateAerospaceDefensiveBV', () => {
-  it('SI term matches spec scenario: 50-ton ASF with SI 5 = 125', () => {
+  it('SI term matches pinned Java: 50-ton ASF with SI 5 = 10', () => {
     const result = calculateAerospaceDefensiveBV(
       baseInput({ tonnage: 50, structuralIntegrity: 5 }),
     );
-    expect(result.siBV).toBe(125);
+    expect(result.siBV).toBe(10);
   });
 
   it('maximum thrust 9 does not multiply the defensive pool', () => {
@@ -116,8 +116,8 @@ describe('calculateAerospaceDefensiveBV', () => {
         explosivePenalties: 20,
       }),
     );
-    // armor 250 + si 125 - explosive 20 = 355; no thrust multiplier
-    expect(result.defensive).toBeCloseTo(355, 1);
+    // armor 250 + si 10 - explosive 20 = 240; no thrust multiplier
+    expect(result.defensive).toBeCloseTo(240, 1);
   });
 });
 

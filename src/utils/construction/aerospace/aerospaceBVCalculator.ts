@@ -44,7 +44,9 @@ export function calculateAerospaceDefensiveBV(input: IAerospaceBVInput): {
   const armorBV =
     input.totalArmorPoints * 2.5 * armorMultiplier * smallCraftArmorBonus;
 
-  const siBV = input.structuralIntegrity * 0.5 * input.tonnage;
+  // AeroBVCalculator.java:64-70; all supported families share this SI rule.
+  // @spec establish-all-unit-data-parity: Aerospace Structural Integrity BV
+  const siBV = input.structuralIntegrity * 2;
 
   const defensiveEquipmentBV = input.defensiveEquipmentBV ?? 0;
   const explosivePenalties = input.explosivePenalties ?? 0;
