@@ -30,20 +30,33 @@ DEFAULT_FAMILIES = ("vehicles", "aerospace", "capital")
 # run_schema_validation_only.py imports it.
 NON_UNIT_FILES = frozenset({"index.json", "units-manifest.json"})
 
+# The one owner of the index file shape. mtf_converter.generate_index (the
+# BattleMech index) uses these too; family indexes add `unitType` after `model`.
+INDEX_VERSION = "1.0.0"
+INDEX_COLUMNS = ("id", "chassis", "model", "tonnage", "techBase", "year", "role", "rulesLevel", "path")
+
+
+def index_envelope(units: List[Dict[str, Any]], generated_at: Optional[str] = None) -> Dict[str, Any]:
+    return {
+        "version": INDEX_VERSION,
+        "generatedAt": generated_at or datetime.now().isoformat(),
+        "totalUnits": len(units),
+        "units": units,
+    }
+
 
 def build_index_entry(unit: Dict[str, Any], path: str) -> Dict[str, Any]:
-    return {
-        "id": unit["id"],
-        "chassis": unit["chassis"],
-        "model": unit["model"],
-        "unitType": unit["unitType"],
-        "tonnage": unit["tonnage"],
-        "techBase": unit["techBase"],
-        "year": unit["year"],
-        "role": unit.get("role") or "",
-        "rulesLevel": unit["rulesLevel"],
-        "path": path,
-    }
+    entry: Dict[str, Any] = {}
+    for column in INDEX_COLUMNS:
+        if column == "path":
+            entry["path"] = path
+        elif column == "role":
+            entry["role"] = unit.get("role") or ""
+        else:
+            entry[column] = unit[column]
+        if column == "model":
+            entry["unitType"] = unit["unitType"]
+    return entry
 
 
 def generate_index(family_dir: Path, generated_at: Optional[str] = None) -> Dict[str, Any]:
@@ -55,12 +68,7 @@ def generate_index(family_dir: Path, generated_at: Optional[str] = None) -> Dict
         rel = unit_file.relative_to(family_dir).as_posix()
         units.append(build_index_entry(unit, rel))
     units.sort(key=lambda u: (u["chassis"], u["model"], u["id"]))
-    return {
-        "version": "1.0.0",
-        "generatedAt": generated_at or datetime.now().isoformat(),
-        "totalUnits": len(units),
-        "units": units,
-    }
+    return index_envelope(units, generated_at)
 
 
 def find_id_collisions(ids_by_catalog: Dict[str, List[str]]) -> Dict[str, List[str]]:
@@ -91,12 +99,15 @@ def main(argv: Optional[List[str]] = None) -> int:
     if not units_dir.is_dir():
         print(f"unit_index: units dir {units_dir} not found; nothing indexed")
         return 1
+    # Index every present family for the uniqueness check, even with --family:
+    # a filtered write must not publish an id a sibling family already holds.
+    selected = list(args.family or DEFAULT_FAMILIES)
     indexes: Dict[str, Dict[str, Any]] = {}
-    for family in args.family or DEFAULT_FAMILIES:
+    for family in dict.fromkeys([*DEFAULT_FAMILIES, *selected]):
         family_dir = units_dir / family
         if family_dir.is_dir():
             indexes[family] = generate_index(family_dir)
-        else:
+        elif family in selected:
             print(f"  skip {family}: {family_dir} not found")
 
     ids_by_catalog: Dict[str, List[str]] = {}
@@ -121,11 +132,12 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 1
 
     if args.write:
-        for family, index in indexes.items():
+        written = [family for family in indexes if family in selected]
+        for family in written:
             (units_dir / family / "index.json").write_text(
-                json.dumps(index, indent=2, ensure_ascii=False), encoding="utf-8"
+                json.dumps(indexes[family], indent=2, ensure_ascii=False), encoding="utf-8"
             )
-        print(f"unit_index: wrote {len(indexes)} index file(s) under {units_dir}")
+        print(f"unit_index: wrote {len(written)} index file(s) under {units_dir}")
     else:
         print("unit_index: dry run, nothing written (use --write)")
     return 0

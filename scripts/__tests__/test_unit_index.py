@@ -147,6 +147,15 @@ class UnitIndexCliTest(unittest.TestCase):
         self.assertEqual(self.run_main(self.root, '--write'), 1)
         self.assertFalse((self.root / 'vehicles' / 'index.json').exists())
 
+    def test_family_option_still_checks_sibling_families(self):
+        # A filtered write must not publish an id that a sibling family already has.
+        shutil.copy(self.root / 'vehicles' / 'Demolisher II Heavy Tank.json', self.root / 'aerospace' / 'Dup.json')
+        sentinel = self.root / 'aerospace' / 'index.json'
+        sentinel.write_text('{"units": []}', encoding='utf-8')
+        self.assertEqual(self.run_main(self.root, '--family', 'vehicles', '--write'), 1)
+        self.assertFalse((self.root / 'vehicles' / 'index.json').exists())
+        self.assertEqual(sentinel.read_text(encoding='utf-8'), '{"units": []}')
+
     def test_family_option_indexes_only_that_family(self):
         self.assertEqual(self.run_main(self.root, '--family', 'vehicles', '--write'), 0)
         self.assertTrue((self.root / 'vehicles' / 'index.json').exists())
@@ -155,6 +164,20 @@ class UnitIndexCliTest(unittest.TestCase):
     def test_default_reserved_index_is_the_real_mech_index(self):
         # The fixtures contain tomahawk-c, so the default reserved index must flag it.
         self.assertEqual(main(['--units-dir', str(self.root)]), 1)
+
+
+class SharedIndexShapeTest(unittest.TestCase):
+    def test_mtf_generator_uses_the_shared_columns_and_envelope(self):
+        from mtf_converter import generate_index as generate_mech_index
+        from unit_index import INDEX_COLUMNS
+        with tempfile.TemporaryDirectory() as temp:
+            unit = {'id': 'm', 'chassis': 'C', 'model': 'M', 'tonnage': 50, 'techBase': 'CLAN',
+                    'year': 3050, 'rulesLevel': 'STANDARD'}  # no role: the MTF default is ''
+            (Path(temp) / 'm.json').write_text(json.dumps(unit), encoding='utf-8')
+            index = generate_mech_index(temp)
+        self.assertEqual(list(index), ['version', 'generatedAt', 'totalUnits', 'units'])
+        self.assertEqual(list(index['units'][0]), list(INDEX_COLUMNS))
+        self.assertEqual(index['units'][0]['role'], '')
 
 
 class GitignoreAllowRuleTest(unittest.TestCase):
