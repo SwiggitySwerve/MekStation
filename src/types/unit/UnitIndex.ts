@@ -59,7 +59,8 @@ export interface IUnitIndexEntry {
   readonly variant: string;
   readonly tonnage: number;
   readonly techBase: TechBase;
-  readonly era: Era;
+  /** Absent when the catalog has no usable introduction year. */
+  readonly era?: Era;
   readonly weightClass: WeightClass;
   readonly unitType: UnitType;
   readonly filePath: string;

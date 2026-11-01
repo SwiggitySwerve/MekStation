@@ -296,10 +296,10 @@ describe('availabilityUtils', () => {
       expect(getIntroductionEra(entity)).toBe(Era.CLAN_INVASION);
     });
 
-    it('should return Early Spaceflight for year 1000', () => {
+    it('should return Pre-Spaceflight for year 1000', () => {
       const entity = createEntity(1000);
 
-      expect(getIntroductionEra(entity)).toBe(Era.EARLY_SPACEFLIGHT);
+      expect(getIntroductionEra(entity)).toBe(Era.PRE_SPACEFLIGHT);
     });
   });
 
@@ -326,10 +326,10 @@ describe('availabilityUtils', () => {
       expect(getExtinctionEra(entity)).toBe(Era.IL_CLAN);
     });
 
-    it('should return undefined for extinction year outside all eras', () => {
+    it('should keep ilClan open-ended for an extinction year', () => {
       const entity = createEntity(2750, 10000);
 
-      expect(getExtinctionEra(entity)).toBeUndefined();
+      expect(getExtinctionEra(entity)).toBe(Era.IL_CLAN);
     });
   });
 
@@ -344,10 +344,10 @@ describe('availabilityUtils', () => {
       expect(getAvailableEras(entity)).toContain(Era.IL_CLAN);
     });
 
-    it('should return empty array for entity introduced after all eras', () => {
+    it('should keep ilClan available for a far-future introduction year', () => {
       const entity = createEntity(10000);
 
-      expect(getAvailableEras(entity)).toEqual([]);
+      expect(getAvailableEras(entity)).toEqual([Era.IL_CLAN]);
     });
 
     it('should return all eras from introduction onward', () => {
