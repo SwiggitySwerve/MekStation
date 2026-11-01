@@ -53,14 +53,16 @@ describe('BLK vehicle armor order (Front, Right, Left, Rear, ...)', () => {
     expect(armor[VehicleLocation.LEFT]).toBe(4);
   });
 
-  // The trailing 0 is a known export gap, not parity: MegaMek writes four values
-  // for a turretless vehicle, and a fifth value makes it add a turret.
-  it('exports Maxim Flanker back in BLK order', () => {
+  // MegaMek writes four values for a turretless Tank (BLKFile.java:947-965); a
+  // fifth makes it add a turret when the file is reloaded.
+  it('exports turretless Maxim Flanker back in BLK order, four values', () => {
     const loaded = new VehicleUnitHandler().parse(source('Maxim Flanker.blk'));
     if (!loaded.success) throw new Error(JSON.stringify(loaded.error));
     expect(
-      formatVehicleArmor(loaded.data.unit.armorByLocation, false).split('\n'),
-    ).toEqual(['20', '46', '10', '12', '0']);
+      formatVehicleArmor(loaded.data.unit.armorByLocation, false, false).split(
+        '\n',
+      ),
+    ).toEqual(['20', '46', '10', '12']);
   });
 
   it('loads Red Kite with the rotor before the chin turret', () => {
@@ -84,6 +86,7 @@ describe('BLK vehicle armor order (Front, Right, Left, Rear, ...)', () => {
     if (!loaded.success) throw new Error(JSON.stringify(loaded.error));
     const exported = formatVehicleArmor(
       loaded.data.unit.armorByLocation,
+      true,
       true,
     ).split('\n');
     expect(exported).toEqual(document.armor?.map(String));
