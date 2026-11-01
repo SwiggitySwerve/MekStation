@@ -81,5 +81,26 @@ class ExportOutputGuardTest(unittest.TestCase):
         other = next(d for d in ('E:', 'D:', 'Z:') if d != repo_drive)
         _require_scratch(Path(other + '/scratch/ul17-export'))  # must not raise
 
+    @unittest.skipUnless(os.name == 'nt', 'Windows namespace prefixes and junctions')
+    def test_windows_aliases_of_the_data_tree_are_refused(self):
+        # Path.resolve() keeps an explicit \\?\ prefix, and a junction is a second name
+        # for the same directory; identity, not spelling, must decide (#2443 r5).
+        import subprocess
+        data = REPO_ROOT / 'public' / 'data'
+        with tempfile.TemporaryDirectory() as temp:
+            junction = Path(temp) / 'data-alias'
+            subprocess.run(['cmd', '/c', 'mklink', '/J', str(junction), str(data)],
+                           check=True, capture_output=True)
+            try:
+                for out_dir in (Path('\\\\?\\' + str(data)), Path('\\\\?\\' + str(data / 'units' / 'x')),
+                                junction, junction / 'units', Path('\\\\?\\' + str(junction))):
+                    with self.subTest(out_dir=str(out_dir)), \
+                            patch.object(Path, 'mkdir', side_effect=AssertionError('mkdir reached')), \
+                            patch('builtins.open', side_effect=AssertionError('open reached')), \
+                            self.assertRaisesRegex(ValueError, 'public/data'):
+                        export(Path('unused-mekfiles'), out_dir)
+            finally:
+                subprocess.run(['cmd', '/c', 'rmdir', str(junction)], check=True, capture_output=True)
+
 if __name__ == '__main__':
     unittest.main()
