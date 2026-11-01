@@ -69,7 +69,7 @@ export interface VehicleOffensiveEquipmentMount {
  * Turret configuration used for multiplier calculation.
  */
 export interface VehicleBVTurret {
-  /** Kind of turret — controls +5% / +2.5% multipliers. */
+  /** Ordinary turrets are neutral; sponsons retain their separate modifier. */
   kind: VehicleTurretKind;
 }
 

@@ -1,5 +1,18 @@
 ## ADDED Requirements
 
+### Requirement: Contract vehicle BV location coverage
+
+The contract BV adapter SHALL preserve the existing vehicle, SuperHeavy tank
+and VTOL location vocabulary in armor and equipment inputs without changing
+points or deriving a BV rule.
+
+#### Scenario: Convert six-side armor and rotor equipment
+
+- **GIVEN** converter output carrying FRONT_LEFT, FRONT_RIGHT, REAR_LEFT, REAR_RIGHT or ROTOR
+- **WHEN** the contract BV adapter maps armor and equipment
+- **THEN** it SHALL preserve the corresponding domain location and armor points
+
+
 ### Requirement: Runtime parity term validation
 
 The comparator SHALL reject malformed runtime terms with a structured failed
@@ -238,3 +251,42 @@ continue through their owning calculations.
 - **WHEN** baseline-skill final BV is calculated
 - **THEN** final BV SHALL remain 280 or 600 respectively
 - **AND** Biped and Quad SHALL also use the neutral summary multiplier
+
+### Requirement: Vehicle Offensive BV
+
+Vehicle offensive BV SHALL combine weapon BV, ammo BV, offensive equipment BV,
+mount modifiers and speed factor. Single, Dual and Chin turret weapons SHALL
+retain their listed BV before other applicable modifiers and SHALL NOT receive
+a rotating-turret bonus. The consumed `turretModifier` breakdown field SHALL
+remain available and equal 1 for these turret kinds.
+
+#### Scenario: Ordinary turret weapons
+
+- **GIVEN** a Single, Dual or Chin turret containing 100 BV of weapons
+- **WHEN** offensive BV is computed without other weapon modifiers
+- **THEN** the turret weapons SHALL contribute 100 BV before the speed factor
+
+#### Scenario: Rear-arc weapon penalty
+
+- **GIVEN** a combat vehicle with a rear-mounted AC/10 (no turret)
+- **WHEN** offensive BV is computed
+- **THEN** the rear-only weapon BV SHALL be multiplied by 0.5
+
+#### Scenario: Turret weapons avoid the rear penalty
+
+- **GIVEN** a turret-mounted weapon also carrying a rear-mounted flag
+- **WHEN** offensive BV is computed
+- **THEN** it SHALL receive neither the 0.5 rear penalty nor a turret bonus
+
+#### Scenario: Preserve the separate sponson term
+
+- **GIVEN** a sponson-mounted weapon containing 100 BV
+- **WHEN** offensive BV is computed without other weapon modifiers
+- **THEN** its existing 1.025 modifier SHALL remain unchanged in this slice
+
+#### Scenario: Bound the parity claim
+
+- **WHEN** this turret term is checked against pinned MegaMek 48fcb2f6
+- **THEN** every Tank, SuperHeavyTank and VTOL oracle row SHALL be compared before and after
+- **AND** units moving away SHALL be listed with their component differences
+- **AND** correcting this term SHALL NOT establish complete vehicle BV parity
