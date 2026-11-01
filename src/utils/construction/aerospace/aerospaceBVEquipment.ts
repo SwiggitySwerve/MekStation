@@ -1,5 +1,6 @@
 import type { IAerospaceBVEquipment } from './aerospaceBVTypes';
 
+import { sumCappedAmmoBV } from '../battleValueAmmo';
 import { getEquipmentEntry, resolveAmmoBV } from '../equipmentBVResolver';
 
 // Canonical catalog identities corresponding to MiscType flags in pinned
@@ -65,5 +66,5 @@ export function calculateMountedAerospaceDefensiveBV(
       if (kind === 'ams') amsBV += bv;
     }
   }
-  return equipmentBV + Math.min(amsBV, amsAmmoBV);
+  return equipmentBV + sumCappedAmmoBV({ ams: amsAmmoBV }, () => amsBV);
 }
