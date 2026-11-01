@@ -7,6 +7,7 @@ engine_type is never read (SmallCraft ICE placeholder); structural_integrity is 
 The committed fixtures are real converter output for pinned mm-data 50f7efef.
 """
 
+import io
 import json
 import logging
 import os
@@ -15,7 +16,9 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stderr
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'megameklab-conversion'))
 
@@ -293,6 +296,38 @@ class CapitalConverterTest(unittest.TestCase):
                 )
                 self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
                 self.assertEqual(list(output.rglob('*')), [], result.stdout + result.stderr)
+
+    def test_capital_command_has_no_default_output(self):
+        # The capital catalog is published only by the UL-C1 step, so the command must not
+        # default to public/data/units/capital. Inspect the config instead of running it.
+        import blk_capital_converter
+        captured = {}
+        with patch.object(blk_capital_converter, 'run_blk_conversion',
+                          side_effect=lambda config: captured.setdefault('config', config) and 0):
+            blk_capital_converter.main()
+        self.assertIsNone(captured['config'].output_default)
+
+    def test_runner_requires_output_when_there_is_no_default(self):
+        import blk_capital_converter
+        from blk_conversion_runner import run_blk_conversion
+        captured = {}
+        with patch.object(blk_capital_converter, 'run_blk_conversion',
+                          side_effect=lambda config: captured.setdefault('config', config) and 0):
+            blk_capital_converter.main()
+        config = captured['config']
+        if config.output_default is not None:
+            self.fail('capital command still has a default output directory')
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp) / 'source' / 'dropships'
+            source.mkdir(parents=True)
+            (source / 'Union.blk').write_text(UNION_BLK, encoding='utf-8')
+            stderr = io.StringIO()
+            with patch.object(sys, 'argv', ['blk_capital_converter.py', '--source', str(source.parent)]), \
+                    redirect_stderr(stderr), self.assertRaises(SystemExit) as raised:
+                run_blk_conversion(config)
+            self.assertEqual(raised.exception.code, 2)
+            self.assertIn('--output', stderr.getvalue())
+            self.assertEqual(sorted(p.name for p in Path(temp).rglob('*')), ['Union.blk', 'dropships', 'source'])
 
     def test_family_tonnage_boundaries(self):
         for unit_type, maximum in (

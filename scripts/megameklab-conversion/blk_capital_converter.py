@@ -249,8 +249,10 @@ def main() -> int:
             description="Convert BLK capital-ship files to MekStation JSON",
             source_default=str(Path(default_mm_data_root()) / "mekfiles"),
             source_help="Path to mm-data mekfiles root (contains dropships/)",
-            output_default=str(Path(__file__).parent.parent.parent / "public/data/units/capital"),
-            output_help="Output directory for capital-ship JSON files",
+            # No default: the capital catalog is published only by the UL-C1 step,
+            # which passes --output public/data/units/capital explicitly.
+            output_default=None,
+            output_help="Output directory for capital-ship JSON files (required)",
             type_name="capital",
             parity_report_filename="blk-capital-parity.json",
             run_log_filename="blk-capital-run-log.json",
