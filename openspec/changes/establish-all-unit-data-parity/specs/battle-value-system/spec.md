@@ -1,5 +1,34 @@
 ## ADDED Requirements
 
+### Requirement: Large aerospace offensive fire pool
+
+The aerospace BV owner SHALL provide a separate six-arc offensive stage for
+already-valued native weapon and ammunition facts. It SHALL select the highest
+weapon-BV arc in nose, left, left-aft, aft, right-aft, right order, then the
+stronger adjacent arc (clockwise on ties). It SHALL apply cumulative heat to
+the adjacent arc weights, cap ammunition within each native type/rack and arc,
+and apply the existing speed factor to maximum thrust. Offensive equipment
+SHALL be added outside arc weights. Ungrouped selection values and grouped
+weapon additions after arc weighting SHALL remain distinct. This stage SHALL NOT imply complete
+DropShip dispatch: source mount valuation, links and final adjustments remain
+required before changing the defensive-only calculation scope.
+
+#### Scenario: Union offensive stage from native facts
+
+- **GIVEN** independently valued Union (2708) weapons, ammo, heat capacity 90 and maximum thrust 5
+- **WHEN** the six-arc stage runs
+- **THEN** weapon BV SHALL be 2101.25, ammunition BV 238.5 and offensive BV 2339.75
+- **AND** the dispatcher SHALL continue withholding the unported complete total 3972
+
+#### Scenario: Strict cumulative heat and local ammunition caps
+
+- **GIVEN** primary-arc heat exactly equal to heat capacity
+- **WHEN** the adjacent arcs are processed
+- **THEN** the stronger adjacent arc SHALL retain full value
+- **AND** the weaker adjacent arc SHALL use 0.25 if cumulative heat exceeds capacity
+- **AND** ammo SHALL NOT borrow a matching weapon cap from another arc
+- **AND** missing, duplicate, unsupported or nonfinite stage facts SHALL be rejected
+
 ### Requirement: DropShip defensive BV dispatch
 
 The unified BV dispatcher SHALL return a defensive-only DropShip breakdown
