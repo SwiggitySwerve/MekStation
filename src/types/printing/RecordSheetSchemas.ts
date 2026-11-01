@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { RECORD_SHEET_VEHICLE_ARMOR_LOCATIONS } from './RecordSheetVehicleTypes';
+
 // =============================================================================
 // Zod schemas — runtime boundary for extractor -> renderer payloads
 // =============================================================================
@@ -139,16 +141,7 @@ export const VehicleCrewMemberSchema = z.object({
 });
 
 export const VehicleLocationArmorSchema = z.object({
-  location: z.enum([
-    'Front',
-    'Left Side',
-    'Right Side',
-    'Rear',
-    'Turret',
-    'Rotor',
-    'Chin',
-    'Body',
-  ]),
+  location: z.enum(RECORD_SHEET_VEHICLE_ARMOR_LOCATIONS),
   current: z.number(),
   maximum: z.number(),
   bar: z.number().optional(),

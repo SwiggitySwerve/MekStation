@@ -1,0 +1,79 @@
+{
+  "id": "tracked-quad",
+  "chassis": "Tracked Quad",
+  "model": "",
+  "unitType": "Support Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2469,
+  "tonnage": 2.263,
+  "weightClass": "LIGHT",
+  "motionType": "Tracked",
+  "movement": {
+    "cruiseMP": 4,
+    "flankMP": 6,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "ICE",
+    "rating": 10
+  },
+  "armor": {
+    "type": "BAR",
+    "barRating": 2,
+    "byLocation": {
+      "FRONT": 2,
+      "RIGHT": 1,
+      "LEFT": 1,
+      "REAR": 1
+    }
+  },
+  "equipment": [
+    {
+      "id": "hhsearchlight",
+      "name": "HHSearchlight",
+      "location": "FRONT"
+    },
+    {
+      "id": "hhsearchlight",
+      "name": "HHSearchlight",
+      "location": "FRONT"
+    },
+    {
+      "id": "hhsearchlight",
+      "name": "HHSearchlight",
+      "location": "FRONT"
+    },
+    {
+      "id": "sv-chassis-mod-[tractor]",
+      "name": "SV Chassis Mod [Tractor]",
+      "location": "BODY"
+    }
+  ],
+  "fuel": 0.049,
+  "structuralTechRating": 1,
+  "engineTechRating": 1,
+  "armorTechRating": 1,
+  "fuelType": "PETROCHEMICALS",
+  "transporters": [
+    "cargobay:0.7:1:1::-1:0",
+    "standardseats:1.0:0:-1::-1:0",
+    "pillionseats:1.0:0:-1::-1:0"
+  ],
+  "mulId": 9228,
+  "role": "None",
+  "source": "AToW Companion",
+  "fluff": {
+    "overview": "<p>Small, open, tracked cargo vehicles have been a mainstay of everyday military logistics since the invention of the combustion engine. They are capable of carrying respectable cargo, pulling small trailers, assisting with salvage operations, providing support on airstrips, and are truly irreplaceable in their versatility. The Tracked Quad represents this humble but essential class of utility vehicle.</p>",
+    "manufacturer": "Unknown",
+    "primaryFactory": "Unknown",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  }
+}

@@ -7,6 +7,7 @@ import type {
   IRecordSheetSPAEntry,
 } from './RecordSheetTypes';
 import type {
+  RecordSheetVehicleArmorLocation,
   RecordSheetVehicleMotionType,
   RecordSheetVehicleTurretConfig,
 } from './RecordSheetVehicleTypes';
@@ -26,15 +27,7 @@ export interface IVehicleCrewMember {
  * Armor for a single vehicle location.
  */
 export interface IVehicleLocationArmor {
-  readonly location:
-    | 'Front'
-    | 'Left Side'
-    | 'Right Side'
-    | 'Rear'
-    | 'Turret'
-    | 'Rotor'
-    | 'Chin'
-    | 'Body';
+  readonly location: RecordSheetVehicleArmorLocation;
   readonly current: number;
   readonly maximum: number;
   /** BAR (Barrier Armor Rating) for support vehicles — omitted for standard tanks. */

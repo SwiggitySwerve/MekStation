@@ -1,0 +1,83 @@
+{
+  "id": "death-trike",
+  "chassis": "Death Trike",
+  "model": "",
+  "unitType": "Support Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "AGE_OF_WAR",
+  "year": 2469,
+  "tonnage": 0.56,
+  "weightClass": "LIGHT",
+  "motionType": "Wheeled",
+  "movement": {
+    "cruiseMP": 10,
+    "flankMP": 15,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "ICE",
+    "rating": 5
+  },
+  "armor": {
+    "type": "BAR",
+    "barRating": 2,
+    "byLocation": {
+      "FRONT": 0,
+      "RIGHT": 0,
+      "LEFT": 0,
+      "REAR": 0
+    }
+  },
+  "equipment": [
+    {
+      "id": "infantrystandardsrm:size:1.0",
+      "name": "InfantryStandardSRM:SIZE:1.0",
+      "location": "FRONT"
+    },
+    {
+      "id": "advanced-fire-control",
+      "name": "Advanced Fire Control",
+      "location": "BODY"
+    },
+    {
+      "id": "bicyclechassismod",
+      "name": "BicycleChassisMod",
+      "location": "BODY"
+    },
+    {
+      "id": "isoffroadchassis",
+      "name": "ISOffRoadChassis",
+      "location": "BODY"
+    },
+    {
+      "id": "supercharger",
+      "name": "Supercharger",
+      "location": "BODY"
+    }
+  ],
+  "fuel": 0.03,
+  "structuralTechRating": 4,
+  "engineTechRating": 4,
+  "armorTechRating": 4,
+  "fuelType": "ALCOHOL",
+  "transporters": [
+    "cargobay:0.04:1:1::-1:0",
+    "standardseats:1.0:0:-1::-1:0"
+  ],
+  "mulId": 9225,
+  "role": "None",
+  "source": "AToW Companion",
+  "fluff": {
+    "overview": "<p>Death Trikes are handmade off-road vehicles designed only to propel weapon systems toward enemies at ludicrous speeds. Often the only advanced weapons available to pirates, the targeting system is the sole truly advanced component on these custom-kit vehicles. Considering their volatile superchargers, weapons, and complete lack of armor, Death Trikes are generally more dangerous to the pilot than anyone else.</p>",
+    "manufacturer": "Unknown",
+    "primaryFactory": "Unknown",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  }
+}

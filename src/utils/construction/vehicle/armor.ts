@@ -15,10 +15,51 @@ import {
   ArmorTypeEnum,
   getArmorDefinition,
 } from '@/types/construction/ArmorType';
+import {
+  VehicleLocation,
+  VTOLLocation,
+} from '@/types/construction/UnitLocation';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import { computeVehicleMaxArmorByLocation } from './structure';
+
+/** Exclude armor belonging to turrets that are not installed. */
+export function getInstalledArmorAllocation<T extends Record<string, number>>(
+  allocation: T,
+  hasTurret: boolean,
+  hasSecondaryTurret: boolean,
+): T {
+  return {
+    ...allocation,
+    ...(hasTurret ? {} : { [VehicleLocation.TURRET]: 0 }),
+    ...(hasSecondaryTurret ? {} : { [VehicleLocation.TURRET_2]: 0 }),
+  };
+}
+
+/** Sum installed armor; preserve the legacy default of neither turret. */
+export function getTotalVehicleArmor(
+  allocation: Record<string, number>,
+  hasTurret: boolean = false,
+  hasSecondaryTurret: boolean = false,
+): number {
+  const installed = getInstalledArmorAllocation(
+    allocation,
+    hasTurret,
+    hasSecondaryTurret,
+  );
+  let total =
+    (installed[VehicleLocation.FRONT] || 0) +
+    (installed[VehicleLocation.LEFT] || 0) +
+    (installed[VehicleLocation.RIGHT] || 0) +
+    (installed[VehicleLocation.REAR] || 0);
+  if (hasTurret) total += installed[VehicleLocation.TURRET] || 0;
+  if (hasSecondaryTurret) total += installed[VehicleLocation.TURRET_2] || 0;
+  if (VTOLLocation.ROTOR in installed) {
+    total += installed[VTOLLocation.ROTOR] || 0;
+  }
+  return total;
+}
 
 // =============================================================================
 // BAR Armor Table (TechManual support vehicle rules)
