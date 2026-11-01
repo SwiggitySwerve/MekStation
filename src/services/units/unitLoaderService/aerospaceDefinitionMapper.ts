@@ -3,13 +3,17 @@
  *
  * Maps a validated aerospace definition, from
  * loadUnitDefinition('aerospace', id), to the existing AerospaceState for
- * aerospace fighters, conventional fighters and FixedWingSupport. Small
- * craft need their own state and are rejected here.
+ * aerospace fighters, conventional fighters, FixedWingSupport and small craft.
  *
  * @spec openspec/changes/establish-all-unit-data-parity/specs/aerospace-unit-system/spec.md
  */
 
 import { aerospaceStructuralIntegrity } from '@/services/conversion/BlkParserService.helpers';
+import {
+  DEFAULT_CAPITAL_TRANSPORT_BAY_RULES,
+  parseCapitalTransporterString,
+  type ITransportBayTypeRule,
+} from '@/services/units/handlers/transportBayParsing';
 import {
   AerospaceState,
   IAerospaceArmorAllocation,
@@ -23,6 +27,9 @@ import {
   AerospaceEngineType,
   IAerospaceMountedEquipment,
 } from '@/types/unit/AerospaceInterfaces';
+import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { BayType, ITransportBay } from '@/types/unit/CapitalShipInterfaces';
+import { makeSmallCraftCrew } from '@/utils/construction/aerospace/crewCalculations';
 import { FUEL_POINTS_PER_TON } from '@/utils/construction/aerospace/fuelCalculations';
 import { calculateMaxThrust } from '@/utils/construction/aerospace/thrustCalculations';
 
@@ -38,11 +45,31 @@ import { UnsupportedUnitConfigurationError } from './movementConfiguration';
 
 export type AerospaceDefinition = UnitDefinitionForFamily<'aerospace'>;
 
-const FIGHTER_SUBTYPES = new Set([
+const SUPPORTED_SUBTYPES = new Set([
   'AerospaceFighter',
   'ConventionalFighter',
   'FixedWingSupport',
+  'SmallCraft',
 ]);
+
+/**
+ * Small craft sides are Aero's wing locations under another name
+ * (SmallCraft.java:77-78: "Left Side", "Right Side").
+ */
+const SMALL_CRAFT_SIDES: Readonly<Record<string, AerospaceLocation>> = {
+  LEFT_SIDE: AerospaceLocation.LEFT_WING,
+  RIGHT_SIDE: AerospaceLocation.RIGHT_WING,
+};
+
+/** The converter keeps BLK's "(R) " rear-mount prefix in name and id. */
+const REAR_PREFIX = '(R) ';
+
+/** Small craft carry infantry and battle armor bays the capital rules miss. */
+const SMALL_CRAFT_BAY_RULES: readonly ITransportBayTypeRule[] = [
+  { tokens: ['battlearmor'], type: BayType.BATTLE_ARMOR },
+  { tokens: ['infantry', 'troopspace'], type: BayType.INFANTRY },
+  ...DEFAULT_CAPITAL_TRANSPORT_BAY_RULES,
+];
 
 /**
  * Contract engine type to the construction engine type. LIGHT, XXL and
@@ -68,8 +95,10 @@ const COCKPIT_BY_CONTRACT: Readonly<Record<string, AerospaceCockpitType>> = {
 };
 
 /** Converter arc keys are the AerospaceLocation member names. */
-function mapArc(key: string): AerospaceLocation {
-  const location = AerospaceLocation[key as keyof typeof AerospaceLocation];
+function mapArc(key: string, isSmallCraft: boolean): AerospaceLocation {
+  const location =
+    (isSmallCraft ? SMALL_CRAFT_SIDES[key] : undefined) ??
+    AerospaceLocation[key as keyof typeof AerospaceLocation];
   if (!location) {
     throw new UnsupportedUnitConfigurationError(
       `Unknown aerospace location "${key}"`,
@@ -80,12 +109,41 @@ function mapArc(key: string): AerospaceLocation {
 
 function mapArmorAllocation(
   byArc: Readonly<Record<string, number>> = {},
+  isSmallCraft: boolean,
 ): IAerospaceArmorAllocation {
   const allocation = createEmptyAerospaceArmorAllocation();
   for (const [arc, points] of Object.entries(byArc)) {
-    allocation[mapArc(arc)] = points;
+    allocation[mapArc(arc, isSmallCraft)] = points;
   }
   return allocation;
+}
+
+function mapEquipment(
+  definition: AerospaceDefinition,
+  isSmallCraft: boolean,
+): IAerospaceMountedEquipment[] {
+  return (definition.equipment ?? []).map((item, index) => {
+    const sourceName = item.name ?? item.id;
+    const prefixed = sourceName.startsWith(REAR_PREFIX);
+    return {
+      id: `mount-${index}`,
+      equipmentId: prefixed ? item.id.replace(/^r-/, '') : item.id,
+      name: prefixed ? sourceName.slice(REAR_PREFIX.length) : sourceName,
+      location: mapArc(item.location, isSmallCraft),
+      ...(item.isRearMounted || prefixed ? { isRearMounted: true } : {}),
+    };
+  });
+}
+
+/** Transport bays; quarters lines are crew and passengers, not bays. */
+function mapBays(transporters: readonly string[] = []): ITransportBay[] {
+  return transporters
+    .filter((line) => !line.split(':')[0].toLowerCase().includes('quarters'))
+    .flatMap(
+      (line, index) =>
+        parseCapitalTransporterString(line, index + 1, SMALL_CRAFT_BAY_RULES) ??
+        [],
+    );
 }
 
 /** Definition subtype; older definitions only carry the unit type. */
@@ -101,12 +159,13 @@ export function mapAerospaceDefinitionToState(
   session: { readonly id?: string; readonly createdAt?: number } = {},
 ): AerospaceState {
   const subType = definitionSubType(definition);
-  if (!FIGHTER_SUBTYPES.has(subType)) {
+  if (!SUPPORTED_SUBTYPES.has(subType)) {
     throw new UnsupportedUnitConfigurationError(
       `The aerospace editor cannot load ${subType} definitions`,
     );
   }
-  const isConventional = subType !== 'AerospaceFighter';
+  const isSmallCraft = subType === 'SmallCraft';
+  const isConventional = subType !== 'AerospaceFighter' && !isSmallCraft;
   const isFixedWingSupport = subType === 'FixedWingSupport';
   const chassis = definition.chassis ?? '';
   const model = definition.model ?? '';
@@ -118,11 +177,18 @@ export function mapAerospaceDefinitionToState(
     tonnage,
     techBase,
     isConventional,
+    isSmallCraft,
   });
 
-  const engineTypeName = definition.engine?.type ?? 'FUSION';
-  const aerospaceEngineType =
-    AEROSPACE_ENGINE_BY_CONTRACT[engineTypeName] ?? AerospaceEngineType.FUSION;
+  // Small craft ICE is a runtime placeholder (SmallCraft.java:128-130), not a
+  // construction engine, so they keep the default engine.
+  const engineTypeName = isSmallCraft
+    ? undefined
+    : (definition.engine?.type ?? 'FUSION');
+  const aerospaceEngineType = engineTypeName
+    ? (AEROSPACE_ENGINE_BY_CONTRACT[engineTypeName] ??
+      AerospaceEngineType.FUSION)
+    : base.aerospaceEngineType;
   const safeThrust = Number(definition.movement?.safeThrust ?? 0);
   const fuelPoints = definition.fuel ?? 0;
   const heatSinks = definition.heatSinks?.count ?? 0;
@@ -131,17 +197,12 @@ export function mapAerospaceDefinitionToState(
     definition.armor?.type ?? 'STANDARD',
     techBase,
   );
-  const armorAllocation = mapArmorAllocation(definition.armor?.byArc);
+  const armorAllocation = mapArmorAllocation(
+    definition.armor?.byArc,
+    isSmallCraft,
+  );
   const armorPoints = Object.values(armorAllocation).reduce((a, b) => a + b, 0);
   const pointsPerTon = getArmorDefinition(armorType)?.pointsPerTon ?? 16;
-  const equipment = (definition.equipment ?? []).map(
-    (item, index): IAerospaceMountedEquipment => ({
-      id: `mount-${index}`,
-      equipmentId: item.id,
-      name: item.name ?? item.id,
-      location: mapArc(item.location),
-    }),
-  );
   const createdAt = session.createdAt ?? base.createdAt;
 
   return {
@@ -152,8 +213,14 @@ export function mapAerospaceDefinitionToState(
     year: definition.year ?? base.year,
     rulesLevel: mapRulesLevel(definition.rulesLevel ?? 'STANDARD'),
     isFixedWingSupport,
+    motionType:
+      definition.motionType === 'SPHEROID'
+        ? AerospaceMotionType.SPHEROID
+        : AerospaceMotionType.AERODYNE,
     isOmni: definition.isOmni ?? false,
-    engineType: mapEngineType(engineTypeName, techBase),
+    engineType: engineTypeName
+      ? mapEngineType(engineTypeName, techBase)
+      : base.engineType,
     aerospaceEngineType,
     engineRating: definition.engine?.rating ?? tonnage * safeThrust,
     safeThrust,
@@ -167,6 +234,7 @@ export function mapAerospaceDefinitionToState(
       isFixedWingSupport,
       tonnage,
       safeThrust,
+      structuralIntegrity: Number(definition.structuralIntegrity ?? 0),
     }),
     cockpitType:
       COCKPIT_BY_CONTRACT[definition.cockpit ?? 'STANDARD'] ??
@@ -179,7 +247,15 @@ export function mapAerospaceDefinitionToState(
     armorAllocation,
     hasBombBay: definition.hasBombBay === true,
     bombCapacity: Number(definition.bombCapacity ?? 0),
-    equipment,
+    crew: isSmallCraft
+      ? makeSmallCraftCrew(
+          Number(definition.crew ?? 0),
+          Number(definition.passengers ?? 0),
+          Number(definition.marines ?? 0),
+        )
+      : null,
+    bays: mapBays(definition.transporters),
+    equipment: mapEquipment(definition, isSmallCraft),
     isModified: false,
     createdAt,
     lastModifiedAt: createdAt,
