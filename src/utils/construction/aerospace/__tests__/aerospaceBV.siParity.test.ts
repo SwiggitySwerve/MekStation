@@ -7,7 +7,7 @@ import { calculateAerospaceDefensiveBV } from '../aerospaceBV';
 /**
  * MegaMek 48fcb2f64, AeroBVCalculator.java:64-70: SI contributes twice its value.
  * All four families use that calculator (BVCalculator.java:103-118).
- * @spec establish-all-unit-data-parity: Aerospace Structural Integrity BV
+ * @spec establish-all-unit-data-parity: Aerospace Defensive BV
  */
 describe('aerospace structural integrity BV parity', () => {
   // Pinned mm-data inputs; weapons omitted to isolate SI, not total-unit BV.

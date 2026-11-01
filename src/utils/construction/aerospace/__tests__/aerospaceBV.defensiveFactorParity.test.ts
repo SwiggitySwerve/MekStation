@@ -7,7 +7,7 @@ import { calculateAerospaceDefensiveBV } from '../aerospaceBV';
 /**
  * MegaMek 48fcb2f64, AeroBVCalculator.java:137-138: no defensive thrust factor.
  * Aircraft type scaling is a separate Java stage and a later parity term.
- * @spec establish-all-unit-data-parity: Aerospace Defensive Thrust Factor
+ * @spec establish-all-unit-data-parity: Aerospace Defensive BV
  */
 describe('aerospace defensive thrust factor parity', () => {
   it('Boeing Jump Bomber (Java total 64) has no defensive thrust multiplier', () => {
