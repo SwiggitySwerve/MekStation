@@ -25,6 +25,8 @@ import {
 } from '@/utils/construction/vehicle/equipmentMounts';
 import { hasVehicleStealth } from '@/utils/construction/vehicle/vehicleBVMovement';
 
+import type { IDropShipBVUnit } from './aerospace/dropShipBV';
+
 /** The subset of a converter / `UnitContract` unit this adapter reads. */
 export interface IContractBVSource {
   readonly id: string;
@@ -200,6 +202,13 @@ function contractVehicleToBVUnit(unit: IContractBVSource): IContractBVVehicle {
   };
 }
 
+function contractAerospaceArmorFacts(unit: IContractBVSource) {
+  return {
+    armorType: unit.armor.type.toLowerCase().replace(/_/g, '-'),
+    totalArmorPoints: sumValues(requireFact(unit.armor.byArc, 'armor.byArc')),
+  };
+}
+
 function contractAerospaceToBVUnit(
   unit: IContractBVSource,
 ): IContractBVAerospace {
@@ -215,8 +224,7 @@ function contractAerospaceToBVUnit(
       safeThrust: requireFact(unit.movement.safeThrust, 'movement.safeThrust'),
       maxThrust: requireFact(unit.movement.maxThrust, 'movement.maxThrust'),
     },
-    armorType: unit.armor.type.toLowerCase().replace(/_/g, '-'),
-    totalArmorPoints: sumValues(requireFact(unit.armor.byArc, 'armor.byArc')),
+    ...contractAerospaceArmorFacts(unit),
     equipment: (unit.equipment ?? []).map((item) => ({
       equipmentId: item.id,
       location: lookup(AEROSPACE_ARCS, item.location, 'aerospace arc'),
@@ -227,7 +235,21 @@ function contractAerospaceToBVUnit(
 /** Route a contract unit to its adapter; throws for any other unitType. */
 export function contractUnitToBVUnit(
   unit: IContractBVSource,
-): IContractBVVehicle | IContractBVAerospace {
+): IContractBVVehicle | IContractBVAerospace | IDropShipBVUnit {
+  if (unit.unitType === UnitType.DROPSHIP) {
+    return {
+      unitType: UnitType.DROPSHIP,
+      structuralIntegrity: requireFact(
+        unit.structuralIntegrity,
+        'structuralIntegrity',
+      ),
+      ...contractAerospaceArmorFacts(unit),
+      equipment: (unit.equipment ?? []).map((item) => ({
+        equipmentId: item.id,
+        location: item.location,
+      })),
+    };
+  }
   if (VEHICLE_UNIT_TYPES.has(unit.unitType))
     return contractVehicleToBVUnit(unit);
   if (AEROSPACE_UNIT_TYPES.has(unit.unitType))

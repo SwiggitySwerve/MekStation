@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import {
   blkEngineCode,
-  decodeBlkConstructionEngine,
+  decodeBlkVehicleEngine,
 } from '@/services/conversion/blkEngineIdentity';
 import { isSuperHeavyTank } from '@/services/conversion/blkVehicleArmorLayout';
 import { resolveVehicleContractLocation } from '@/services/conversion/vehicleContractLocations';
@@ -111,13 +111,11 @@ export function normalizeVehicleConfiguration(
   const techBase = mapTechBase(definition.techBase ?? 'INNER_SPHERE');
   let engineType: VehicleState['engineType'];
   try {
-    const decoded = decodeBlkConstructionEngine(
+    engineType = decodeBlkVehicleEngine(
       blkEngineCode(engine.type === 'CLAN_XL' ? 'XL' : engine.type),
       engine.type === 'CLAN_XL' ||
         (definition.clanEngine ?? definition.techBase === 'CLAN'),
     );
-    if (decoded === null) throw new Error('Absent engine');
-    engineType = decoded;
   } catch {
     throw new UnsupportedVehicleConfigurationError('engine.type', engine.type);
   }
@@ -192,6 +190,11 @@ export function normalizeVehicleConfiguration(
     year: definition.year ?? defaults.year,
     rulesLevel: mapRulesLevel(definition.rulesLevel ?? 'STANDARD'),
     engineType,
+    // Entity.getEngineTechRating falls back to structure (Entity.java:17870-17875).
+    engineTechRating:
+      unitType === UnitType.SUPPORT_VEHICLE
+        ? (definition.engineTechRating ?? definition.structuralTechRating)
+        : undefined,
     engineRating:
       engine.rating ??
       computeStoredVehicleEngineRating(

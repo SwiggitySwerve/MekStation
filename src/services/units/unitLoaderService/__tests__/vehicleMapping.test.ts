@@ -1,14 +1,18 @@
+import type { VehicleStore } from '@/stores/vehicleState';
+
+import { exportVehicle } from '@/services/conversion/BlkExportServiceCore.exporters';
 import { BlkParserService } from '@/services/conversion/BlkParserService';
 import { SupportVehicleUnitHandler } from '@/services/units/handlers/SupportVehicleUnitHandler';
 import { VehicleUnitHandler } from '@/services/units/handlers/VehicleUnitHandler';
 import { VTOLUnitHandler } from '@/services/units/handlers/VTOLUnitHandler';
 import { createVehicleStore } from '@/stores/useVehicleStore';
+import { VehicleOnlyEngineType } from '@/types/construction/EngineType';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { computeVehicleWeightBreakdown } from '@/utils/construction/vehicle/weightComposition';
 
 import { createVehicleSession } from '../createVehicleSession';
 import { loadUnitDefinition } from '../loadUnitDefinition';
-import { UnsupportedUnitConfigurationError } from '../movementConfiguration';
 import {
   mapToVehicleState,
   normalizeVehicleConfiguration,
@@ -16,9 +20,7 @@ import {
 } from '../vehicleMapping';
 import fixtures from './fixtures/vehicles.pinned.json';
 
-const supported = fixtures.rows.filter(
-  (row) => !['NONE', 'STEAM'].includes(row.kind),
-);
+const supported = fixtures.rows;
 
 it.each(supported)(
   'maps pinned $kind into the existing vehicle store',
@@ -80,26 +82,56 @@ it.each([
   }
 });
 
-it.each(['NONE', 'STEAM'])(
-  'rejects %s with a typed configuration error',
-  (kind) => {
+it.each([
+  // MegaMek 48fcb2f6 getWeightEngine from the UL-16 coord-r3 oracle.
+  ['NONE', VehicleOnlyEngineType.NONE, 8, 0],
+  ['STEAM', VehicleOnlyEngineType.STEAM, 10, 0.28],
+] as const)(
+  'maps pinned %s engines with Java weight, rating and BLK code',
+  (kind, engineType, code, javaEngineTons) => {
     const row = fixtures.rows.find((row) => row.kind === kind)!;
-    expect(() => mapToVehicleState(row.definition)).toThrow(
-      UnsupportedUnitConfigurationError,
+    const state = mapToVehicleState(row.definition);
+    expect(state.engineType).toBe(engineType);
+    expect(state.engineTechRating).toBe(row.definition.engineTechRating);
+    expect(computeVehicleWeightBreakdown(state, () => undefined).engine).toBe(
+      javaEngineTons,
     );
-    try {
-      mapToVehicleState(row.definition);
-      throw new Error('Expected unsupported engine');
-    } catch (error) {
-      expect(error).toBeInstanceOf(UnsupportedVehicleConfigurationError);
-      expect(error).toMatchObject({
-        code: 'unsupported-configuration',
-        field: 'engine.type',
-        value: kind,
-      });
+    const store = createVehicleStore(state);
+    for (const edit of [
+      () => store.getState().setCruiseMP(state.cruiseMP),
+      () => store.getState().setMotionType(state.motionType),
+      // setTonnage still clamps every support rating to 10 or more.
+      () => kind === 'NONE' && store.getState().setTonnage(state.tonnage),
+    ]) {
+      edit();
+      expect(store.getState().engineRating).toBe(row.definition.engine.rating);
     }
+    // createVehicleStore wraps persist but returns a plain StoreApi type.
+    const { persist } = store as typeof store & {
+      persist: {
+        getOptions: () => {
+          partialize: (state: VehicleStore) => Partial<VehicleStore>;
+        };
+      };
+    };
+    expect(
+      persist.getOptions().partialize(store.getState()).engineTechRating,
+    ).toBe(row.definition.engineTechRating);
+    expect(exportVehicle(state).content).toContain(
+      `<engine_type>\n${code}\n</engine_type>`,
+    );
   },
 );
+
+it('falls back from engine to structural tech rating (Entity.java:17870-17875)', () => {
+  const { engineTechRating: _omitted, ...definition } = fixtures.rows.find(
+    (row) => row.kind === 'STEAM',
+  )!.definition;
+  expect(
+    mapToVehicleState({ ...definition, structuralTechRating: 2 })
+      .engineTechRating,
+  ).toBe(2);
+});
 
 it('keeps explicit engine technology independent of chassis technology', () => {
   const source = supported[0].definition;
@@ -117,8 +149,11 @@ it('keeps explicit engine technology independent of chassis technology', () => {
   });
   expect(innerSphere.engineType).toBe('XL Engine (IS)');
   expect(clan.engineType).toBe('XL Engine (Clan)');
+  expect(
+    mapToVehicleState({ ...source, engine: { type: 'BATTERY' } }).engineType,
+  ).toBe(VehicleOnlyEngineType.BATTERY);
   expect(() =>
-    mapToVehicleState({ ...source, engine: { type: 'BATTERY' } }),
+    mapToVehicleState({ ...source, engine: { type: 'FLYWHEEL' } }),
   ).toThrow(UnsupportedVehicleConfigurationError);
 });
 

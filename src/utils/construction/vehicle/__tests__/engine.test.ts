@@ -5,10 +5,19 @@
  * These fixtures are combat vehicles, not support vehicles.
  */
 
-import { EngineType } from '@/types/construction/EngineType';
+import {
+  EngineType,
+  VehicleOnlyEngineType,
+} from '@/types/construction/EngineType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 
-import { computeVehicleEngineWeight, validateVehicleEngine } from '../engine';
+import {
+  computeSupportVehicleEngineWeight,
+  computeVehicleEngineWeight,
+  isVehicleFusionEngine,
+  validateVehicleEngine,
+} from '../engine';
+import { requiresPowerAmplifiers } from '../powerAmplifier';
 
 const TRACKED = { tonnage: 50, motionType: GroundMotionType.TRACKED };
 
@@ -23,6 +32,10 @@ describe('computeVehicleEngineWeight', () => {
     [EngineType.ICE, 17],
     [EngineType.FUEL_CELL, 10.5],
     [EngineType.FISSION, 22.5],
+    // No case in Java's combat switch: base weight, unshielded.
+    [VehicleOnlyEngineType.STEAM, 8.5],
+    [VehicleOnlyEngineType.BATTERY, 8.5],
+    [VehicleOnlyEngineType.NONE, 0],
   ])('installs rating 200 %s at %s tons', (engineType, expected) => {
     expect(computeVehicleEngineWeight(200, engineType, TRACKED)).toBe(expected);
   });
@@ -106,4 +119,99 @@ describe('computeVehicleEngineWeight', () => {
         .engineWeight,
     ).toBe(10);
   });
+});
+
+describe('computeSupportVehicleEngineWeight', () => {
+  const M = GroundMotionType;
+  it.each([
+    // [unit, engine, tech, tons, motion, cruise MP, Java getWeightEngine]
+    ['Small Steamer', VehicleOnlyEngineType.STEAM, 1, 2.5, M.NAVAL, 2, 0.28],
+    ['Hoverpod', VehicleOnlyEngineType.BATTERY, 2, 0.25, M.HOVER, 5, 0.05],
+    [
+      'Lesseps Dump Truck',
+      VehicleOnlyEngineType.BATTERY,
+      3,
+      50,
+      M.WHEELED,
+      3,
+      6,
+    ],
+    ['Beast Riot Car', EngineType.STANDARD, 3, 4.054, M.WHEELED, 3, 0.25],
+    ['Adelante train', EngineType.STANDARD, 3, 600, M.RAIL, 12, 312],
+    ['TGV railcar', VehicleOnlyEngineType.NONE, 5, 120, M.RAIL, 0, 0],
+  ] as const)(
+    'matches the pinned Java oracle for %s',
+    (
+      _unit,
+      engineType,
+      engineTechRating,
+      tonnage,
+      motionType,
+      cruiseMP,
+      java,
+    ) => {
+      expect(
+        computeSupportVehicleEngineWeight(0, engineType, {
+          tonnage,
+          motionType,
+          cruiseMP,
+          engineTechRating,
+        }),
+      ).toBe(java);
+    },
+  );
+
+  it.each([
+    // 0.013 * (4 + 1) * multiplier * 20 t, before minima (Engine.java:464-468)
+    [EngineType.STANDARD, 2, 5],
+    [EngineType.FISSION, 2, 5],
+    [EngineType.STANDARD, 3, 1.5],
+  ] as const)(
+    'applies the %s minimum at tech rating %s',
+    (engine, tech, tons) => {
+      const context = { tonnage: 20, motionType: M.TRACKED, cruiseMP: 1 };
+      expect(
+        computeSupportVehicleEngineWeight(0, engine, {
+          ...context,
+          engineTechRating: tech,
+        }),
+      ).toBe(tons);
+    },
+  );
+
+  it('defaults to tech rating D and sends non-support engines to the combat formula', () => {
+    const context = { tonnage: 50, motionType: M.WHEELED, cruiseMP: 3 };
+    expect(
+      computeSupportVehicleEngineWeight(
+        0,
+        VehicleOnlyEngineType.BATTERY,
+        context,
+      ),
+    ).toBe(6);
+    expect(
+      computeSupportVehicleEngineWeight(150, EngineType.XL_IS, context),
+    ).toBe(computeVehicleEngineWeight(150, EngineType.XL_IS, context));
+  });
+});
+
+it.each(Object.values(VehicleOnlyEngineType))(
+  'treats %s as non-fusion, needing power amplifiers (Engine.isFusion)',
+  (engineType) => {
+    expect(isVehicleFusionEngine(engineType)).toBe(false);
+    expect(requiresPowerAmplifiers(engineType)).toBe(true);
+  },
+);
+
+it('validates a NONE engine as engineless (TestSupportVehicle.java:1015)', () => {
+  const none = VehicleOnlyEngineType.NONE;
+  expect(
+    validateVehicleEngine(10, 0, none, GroundMotionType.HOVER),
+  ).toMatchObject({ isValid: true, engineRating: 0, engineWeight: 0 });
+  expect(
+    validateVehicleEngine(10, 1, none, GroundMotionType.TRACKED).errors,
+  ).toEqual([
+    expect.objectContaining({
+      message: 'An absent engine (NONE) cannot provide positive cruise MP',
+    }),
+  ]);
 });

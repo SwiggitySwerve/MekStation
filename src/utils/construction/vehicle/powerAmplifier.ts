@@ -11,7 +11,10 @@
 
 import type { IEquipmentItem } from '@/types/equipment';
 
-import { EngineType } from '@/types/construction/EngineType';
+import {
+  EngineType,
+  type VehicleEngineType,
+} from '@/types/construction/EngineType';
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
@@ -42,7 +45,9 @@ export function computePowerAmplifierWeight(
  * @param engineType - The vehicle's engine type
  * @returns true if power amps are needed for any energy weapons
  */
-export function requiresPowerAmplifiers(engineType: EngineType): boolean {
+export function requiresPowerAmplifiers(
+  engineType: VehicleEngineType,
+): boolean {
   return (
     NON_FUSION_ENGINE_TYPES.has(engineType) && engineType !== EngineType.FISSION
   );
@@ -85,7 +90,7 @@ export interface PowerAmpValidationResult {
  * @param declaredPowerAmpWeight - The power amp weight declared in the build (0 if absent)
  */
 export function validatePowerAmplifiers(
-  engineType: EngineType,
+  engineType: VehicleEngineType,
   totalEnergyWeaponWeight: number,
   declaredPowerAmpWeight: number,
 ): PowerAmpValidationResult {
