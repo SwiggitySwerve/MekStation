@@ -84,19 +84,45 @@ describe('SupportVehicleUnitHandler', () => {
       expect(validation.isValid).toBe(true);
     });
 
-    it('should fail validation for large support vehicle over 300 tons', () => {
-      const doc = createMockBlkDocument({ tonnage: 350 });
+    it('should fail validation for a wheeled support vehicle over 160 tons', () => {
+      const doc = createMockBlkDocument({ tonnage: 161 });
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
-      expect(
-        validation.errors.some((e) =>
-          e.includes('Large support vehicles cannot exceed 300 tons'),
-        ),
-      ).toBe(true);
+      expect(validation.errors).toContain(
+        'Wheeled support vehicles cannot exceed 160 tons',
+      );
     });
+
+    // SVType maximum by movement mode (TestSupportVehicle.java:87-107): the
+    // Adelante train is a 600 t rail LargeSupportTank.
+    it.each([
+      ['Rail', 600, true],
+      ['Rail', 601, false],
+      ['Maglev', 600, true],
+      ['Naval', 300, true],
+      ['Tracked', 200, true],
+      ['Tracked', 201, false],
+      ['Hover', 101, false],
+    ])(
+      'a %s LargeSupportTank at %d t is valid: %s',
+      (motionType, tonnage, ok) => {
+        const doc = createRailSupportVehicleDocument();
+        const result = handler.parse({
+          ...doc,
+          unitType: 'LargeSupportTank',
+          motionType,
+          tonnage,
+          armor: [10, 10, 10, 10, 10, 10],
+        });
+        if (!result.success) throw new Error('parse failed');
+
+        const errors = handler.validate(result.data.unit).errors;
+        expect(errors.some((e) => e.includes('cannot exceed'))).toBe(!ok);
+      },
+    );
   });
 
   describe('validate - BAR rating rules', () => {

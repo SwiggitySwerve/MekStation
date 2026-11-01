@@ -1,0 +1,87 @@
+{
+  "id": "condor-hoverball",
+  "chassis": "Condor HoverBall",
+  "model": "",
+  "unitType": "Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2564,
+  "tonnage": 50,
+  "weightClass": "HEAVY",
+  "motionType": "Hover",
+  "movement": {
+    "cruiseMP": 9,
+    "flankMP": 14,
+    "jumpMP": 0
+  },
+  "engine": {
+    "type": "FUEL_CELL",
+    "rating": 215
+  },
+  "armor": {
+    "type": "STANDARD",
+    "byLocation": {
+      "FRONT": 42,
+      "RIGHT": 42,
+      "LEFT": 42,
+      "REAR": 42,
+      "TURRET": 40
+    }
+  },
+  "equipment": [
+    {
+      "id": "machine-gun",
+      "name": "Machine Gun",
+      "location": "TURRET"
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5",
+      "location": "TURRET"
+    },
+    {
+      "id": "machine-gun",
+      "name": "Machine Gun",
+      "location": "TURRET"
+    },
+    {
+      "id": "machine-gun",
+      "name": "Machine Gun",
+      "location": "TURRET"
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5",
+      "location": "BODY"
+    },
+    {
+      "id": "iscase",
+      "name": "ISCASE",
+      "location": "BODY"
+    },
+    {
+      "id": "is-ammo-mg-full",
+      "name": "IS Ammo MG - Full",
+      "location": "BODY"
+    }
+  ],
+  "armorTechRating": 0,
+  "role": "Striker",
+  "source": "PS:AO-UrbanFest",
+  "quirks": [
+    "hard_pilot"
+  ],
+  "fluff": {
+    "overview": "<p>Honestly, this would be a nice, cheap variant for the classic Condor hovertank. It cuts out all the excesses like lasers, heat sinks, and power amplifiers in favor of a more powerful engine that gives it a serious boost in speed, as well as a few extra tons of armor. It's just unfortunate that the techs also cut corners when it came to intuitive control systems and, apparently, effective braking systems.</p>",
+    "manufacturer": "Red Devil Industries|Jalastar Aerospace",
+    "primaryFactory": "Pandora|Panpour",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Jones 165 ICE",
+      "ARMOR": "StarSlab/9.5 Mk II",
+      "COMMUNICATIONS": "TharHes KR-A P/Comm",
+      "TARGETING": "TharHes Mars 1"
+    }
+  }
+}
