@@ -8,11 +8,7 @@
  * and nothing is rear-mounted; a Support Vehicle has no turret. Unknown spellings throw instead of
  * defaulting (the handlers default to BODY / Tracked, hiding a converter fault).
  */
-import {
-  SuperHeavyVehicleLocation,
-  VehicleLocation,
-  VTOLLocation,
-} from '@/types/construction/UnitLocation';
+import { resolveVehicleContractLocation } from '@/services/conversion/vehicleContractLocations';
 import {
   GroundMotionType,
   type IAerospaceMovement,
@@ -96,16 +92,6 @@ const AEROSPACE_UNIT_TYPES: ReadonlySet<string> = new Set([
   UnitType.SMALL_CRAFT,
 ]);
 
-/** Converter location tags (`VEHICLE_LOCATION_MAP`, `blk_vehicle_tables.py`). */
-const VEHICLE_LOCATIONS: Readonly<
-  Record<string, IVehicleMountedEquipment['location']>
-> = {
-  ...VehicleLocation,
-  ...SuperHeavyVehicleLocation,
-  ...VTOLLocation,
-  SPONSON: VehicleLocation.BODY,
-};
-
 /** Converter arc tags (`AERO_LOCATION_MAP` / `SC_LOCATION_MAP`) -> calculator arc strings. */
 const AEROSPACE_ARCS: Readonly<Record<string, string>> = {
   NOSE: 'Nose',
@@ -146,11 +132,7 @@ function contractVehicleToBVUnit(unit: IContractBVSource): IContractBVVehicle {
 
   const isTank = unitType === UnitType.VEHICLE;
   const equipment = (unit.equipment ?? []).map((item, index) => {
-    const location = lookup(
-      VEHICLE_LOCATIONS,
-      item.location,
-      'vehicle location',
-    );
+    const location = resolveVehicleContractLocation(item.location);
     const flags = getVehicleMountFlags(
       item.location === 'SPONSON' ? 'Sponson Turret' : location,
     );
@@ -179,7 +161,7 @@ function contractVehicleToBVUnit(unit: IContractBVSource): IContractBVVehicle {
   );
   const armorByLocation = Object.fromEntries(
     Object.entries(sourceArmor).map(([tag, points]) => [
-      lookup(VEHICLE_LOCATIONS, tag, 'armor location'),
+      resolveVehicleContractLocation(tag, 'armor location'),
       points,
     ]),
   );
