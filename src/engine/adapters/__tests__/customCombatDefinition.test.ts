@@ -118,6 +118,28 @@ it('keeps BLK source qualifiers out of the recorded BattleMech snapshot', () => 
   }
 });
 
+it('allows exactly the eleven BattleMech engine types on the recorded snapshot', () => {
+  // The snapshot narrows the shared engine enum with a denylist; pin the result
+  // so a new vehicle engine in the shared enum cannot widen it unnoticed.
+  expect(
+    [...customCombatSnapshotSchema.shape.engine.shape.type.options].sort(),
+  ).toEqual(
+    [
+      'BATTERY',
+      'CLAN_XL',
+      'COMPACT',
+      'FISSION',
+      'FLYWHEEL',
+      'FUEL_CELL',
+      'FUSION',
+      'ICE',
+      'LIGHT',
+      'XL',
+      'XXL',
+    ].sort(),
+  );
+});
+
 it('rejects unknown nested construction keys on the recorded snapshot', () => {
   const projected = parseCustomCombatDefinition(saved, saved.id);
   if (!projected) {

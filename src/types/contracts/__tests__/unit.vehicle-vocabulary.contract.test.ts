@@ -124,7 +124,21 @@ describe('BattleMech branch and the shared engine enum', () => {
       ),
       'utf-8',
     ),
-  ) as { engine: Record<string, unknown> };
+  ) as { engine: Record<string, unknown>; armor: Record<string, unknown> };
+
+  it('admits BAR armor with a rating on a BattleMech through UnitContract', () => {
+    // Same shared-enum limit, for armor; the loader maps an unknown armor
+    // type to STANDARD, so this admission is pinned rather than silent.
+    const unit = {
+      ...atlas,
+      armor: {
+        ...atlas.armor,
+        type: 'BAR',
+        barRating: 5,
+      },
+    };
+    expect(UnitContract.safeParse(unit).success).toBe(true);
+  });
 
   it.each(['NONE', 'STEAM'])(
     'admits engine %s on a BattleMech through UnitContract',
