@@ -46,6 +46,7 @@ const mockUseAerospaceStore = useAerospaceStore as jest.MockedFunction<
 function makeState(overrides: Record<string, unknown> = {}) {
   return {
     tonnage: 50,
+    structuralIntegrity: 7,
     armorAllocation: {
       [AerospaceLocation.NOSE]: 8,
       [AerospaceLocation.LEFT_WING]: 6,
@@ -75,6 +76,15 @@ describe('AerospaceArmorDiagram', () => {
   it('renders the SI bar element', () => {
     render(<AerospaceArmorDiagram />);
     expect(screen.getByTestId('aerospace-si-bar')).toBeInTheDocument();
+  });
+
+  it('shows the store SI, not a tonnage placeholder', () => {
+    // 50 t gives the old placeholder ceil(50 / 10) = 5; the store says 7.
+    render(<AerospaceArmorDiagram />);
+    const bar = screen.getByTestId('aerospace-si-bar');
+    expect(bar).toHaveAttribute('aria-label', 'Structural Integrity: 7 of 7');
+    expect(bar).toHaveTextContent('7/7');
+    expect(bar).not.toHaveTextContent(/placeholder/i);
   });
 
   it('renders SI bar above arc sections', () => {
