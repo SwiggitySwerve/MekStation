@@ -70,6 +70,40 @@ it('loads a non-mech definition without pretending it is BattleMech configuratio
   ).toMatchObject({ success: true, definition });
 });
 
+it('UL-10 retains family and revision on explicitly qualified custom references', async () => {
+  const reference = {
+    source: 'custom' as const,
+    family: 'infantry' as const,
+    id: 'saved-squad',
+  };
+  const read = jest.fn();
+  read.mockResolvedValue({
+    id: 'squad',
+    unitType: 'Infantry',
+    currentVersion: 4,
+  });
+  expect(await loadUnitDefinition({ read }, reference)).toMatchObject({
+    success: true,
+    family: 'infantry',
+    reference: { ...reference, version: 4 },
+    definition: { unitType: 'Infantry' },
+  });
+  expect(read).toHaveBeenCalledWith(reference);
+});
+
+it('UL-10 rejects a definition whose type disagrees with the requested family', async () => {
+  expect(
+    await loadUnitDefinition(
+      { read: async () => atlas },
+      { source: 'canonical', family: 'aerospace', id: atlas.id },
+    ),
+  ).toMatchObject({
+    success: false,
+    code: 'invalid-definition',
+    issues: [{ path: 'unitType', message: expect.any(String) }],
+  });
+});
+
 it.each([
   'chassis',
   'configuration',

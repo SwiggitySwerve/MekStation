@@ -9,7 +9,10 @@ import type { ISerializedFluff } from '@/types/unit/UnitSerialization';
 
 import { UnitState } from '@/stores/unitState';
 
-import type { IUnitDefinitionReference } from './definitionTypes';
+import type {
+  IUnitDefinitionReference,
+  UnitDefinitionLoadErrorCode,
+} from './definitionTypes';
 
 /**
  * Source of a unit (canonical or custom)
@@ -98,10 +101,8 @@ export interface IRawSerializedUnit {
  */
 export interface ILoadUnitResult {
   readonly errorCode?:
-    | 'not-found'
-    | 'read-failed'
-    | 'invalid-definition'
-    | 'unsupported-family'
+    | UnitDefinitionLoadErrorCode
+    | 'unsupported-store-family'
     | 'unsupported-configuration'
     | 'session-failed';
   readonly sourceDefinition?: IUnitDefinitionReference;

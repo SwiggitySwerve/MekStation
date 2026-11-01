@@ -2,7 +2,9 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
+import { UnitContract } from '@/types/contracts';
 import { Era } from '@/types/enums/Era';
+import { UNIT_FAMILIES } from '@/types/unit/UnitIndex';
 import { logger } from '@/utils/logger';
 
 import {
@@ -10,12 +12,25 @@ import {
   getCanonicalUnitService,
   resetCanonicalUnitService,
 } from '../CanonicalUnitService';
+import { customUnitApiService } from '../CustomUnitApiService';
 import { NodeCanonicalUnitService } from '../NodeCanonicalUnitService';
 import { mapRawIndexRows, type RawUnitIndexEntry } from '../unitIndexMapper';
+import { loadUnitDefinition } from '../unitLoaderService/loadUnitDefinition';
+import { UnitLoaderService } from '../unitLoaderService/unitLoader';
 import { UnitSearchService } from '../UnitSearchService';
 
 jest.mock('../CustomUnitApiService', () => ({
-  customUnitApiService: { list: async () => [] },
+  customUnitApiService: { list: async () => [], getById: jest.fn() },
+}));
+jest.mock('uuid', () => ({ v4: () => 'ul-10-fixed-editor' }));
+jest.mock('@/services/equipment/EquipmentFileReader', () => ({
+  readJsonFile: async (file: string) =>
+    JSON.parse(
+      fs.readFileSync(
+        path.join(process.cwd(), 'public/data/equipment/official', file),
+        'utf8',
+      ),
+    ),
 }));
 
 const shipped = JSON.parse(
@@ -115,6 +130,144 @@ it('loads both Tomahawks independently and defaults family-less ids to the mech'
       await service.getByIds(['tomahawk-c'], { family: 'aerospace' }),
     ).toEqual([fighter]);
   }
+});
+
+it('captures unchanged BattleMech editor bytes', async () => {
+  jest.spyOn(Date, 'now').mockReturnValue(123456789);
+  jest.spyOn(logger, 'warn').mockImplementation(() => {});
+  const result = await new UnitLoaderService().loadCanonicalUnit('tomahawk-c');
+  expect(result).toMatchObject({ success: true });
+  if (process.env.UL10_CAPTURE_FILE)
+    fs.writeFileSync(process.env.UL10_CAPTURE_FILE, JSON.stringify(result));
+});
+
+it('UL-10 resolves the family-less mech and explicit aerospace Tomahawks independently', async () => {
+  const mech = await loadUnitDefinition('tomahawk-c');
+  const fighter = await loadUnitDefinition('aerospace', 'tomahawk-c');
+  expect(mech).toMatchObject({
+    success: true,
+    definition: { unitType: 'BattleMech', tonnage: 100 },
+  });
+  expect(fighter).toMatchObject({
+    success: true,
+    definition: { unitType: 'Aerospace', tonnage: 45 },
+    reference: { family: 'aerospace' },
+  });
+  if (mech.success) {
+    const configuration: string = mech.definition.configuration;
+    expect(configuration).toBe('Biped');
+  }
+  if (fighter.success) {
+    const type:
+      | 'Aerospace'
+      | 'Conventional Fighter'
+      | 'ConventionalFighter'
+      | 'Small Craft'
+      | 'SmallCraft' = fighter.definition.unitType;
+    expect(type).toBe('Aerospace');
+  }
+});
+
+it('UL-10 loads every fixture definition without creating non-mech stores', async () => {
+  for (const [family, unitType] of [
+    ['capital', 'DropShip'],
+    ['battlearmor', 'Battle Armor'],
+    ['infantry', 'Infantry'],
+  ] as const) {
+    const definition = { id: `${family}-fixture`, unitType };
+    fs.mkdirSync(path.join(root, 'public/data/units', family), {
+      recursive: true,
+    });
+    fs.writeFileSync(
+      path.join(root, 'public/data/units', family, 'unit.json'),
+      JSON.stringify(definition),
+    );
+    writeIndex(family, [
+      { ...shipped.units[0], ...definition, path: 'unit.json' },
+    ]);
+  }
+  const loader = new UnitLoaderService();
+  const map = jest.spyOn(loader, 'mapToUnitState');
+  for (const family of UNIT_FAMILIES) {
+    for (const entry of await browser.getIndex({ family, strict: true })) {
+      const result = await loadUnitDefinition(family, entry.id);
+      expect(result).toMatchObject({
+        success: true,
+        definition: UnitContract.parse(
+          await browser.getById(entry.id, { family }),
+        ),
+      });
+      if (family !== 'battlemechs') {
+        expect(
+          await loader.loadUnit(entry.id, 'canonical', family),
+        ).toMatchObject({
+          success: false,
+          errorCode: 'unsupported-store-family',
+        });
+      }
+    }
+  }
+  expect(map).not.toHaveBeenCalled();
+});
+
+it('UL-10 distinguishes unknown families, missing family catalogs and missing ids', async () => {
+  expect(await loadUnitDefinition('unknown', 'tomahawk-c')).toMatchObject({
+    success: false,
+    code: 'unknown-family',
+  });
+  expect(fetchMock).not.toHaveBeenCalled();
+  expect(await loadUnitDefinition('capital', 'missing')).toMatchObject({
+    success: false,
+    code: 'family-not-found',
+  });
+  writeIndex('capital', []);
+  expect(await loadUnitDefinition('capital', 'missing')).toMatchObject({
+    success: false,
+    code: 'not-found',
+  });
+  expect(await loadUnitDefinition('vehicles', 'missing')).toMatchObject({
+    success: false,
+    code: 'not-found',
+  });
+});
+
+it('UL-10 distinguishes a vehicle definition from its unavailable store mapper', async () => {
+  const [entry] = await browser.getIndex({ family: 'vehicles', strict: true });
+  const vehicle = await browser.getById(entry.id, {
+    family: 'vehicles',
+    strict: true,
+  });
+  jest.spyOn(browser, 'getById').mockResolvedValue(vehicle);
+  expect(
+    await new UnitLoaderService().loadCanonicalUnit(entry.id, 'vehicles'),
+  ).toMatchObject({ success: false, errorCode: 'unsupported-store-family' });
+});
+
+it('loads a family-qualified custom definition without requiring a canonical catalog', async () => {
+  const [entry] = await browser.getIndex({ family: 'vehicles', strict: true });
+  const vehicle = await browser.getById(entry.id, { family: 'vehicles' });
+  if (!vehicle) throw new Error('Missing vehicle fixture');
+  jest
+    .mocked(customUnitApiService.getById)
+    .mockResolvedValue({ ...vehicle, currentVersion: 7 });
+  fetchMock.mockClear();
+  expect(
+    await loadUnitDefinition('vehicles', 'saved-vehicle', 'custom'),
+  ).toMatchObject({
+    success: true,
+    family: 'vehicles',
+    definition: { id: vehicle.id },
+    reference: {
+      source: 'custom',
+      id: 'saved-vehicle',
+      family: 'vehicles',
+      version: 7,
+    },
+  });
+  expect(
+    await new UnitLoaderService().loadCustomUnit('saved-vehicle', 'vehicles'),
+  ).toMatchObject({ success: false, errorCode: 'unsupported-store-family' });
+  expect(fetchMock).not.toHaveBeenCalled();
 });
 
 it('searches, updates and removes by family without hiding the other Tomahawk', async () => {

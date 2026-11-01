@@ -162,6 +162,12 @@ export class CanonicalUnitService implements ICanonicalUnitService {
     return indexes.length === 1 ? indexes[0] : indexes.flat();
   };
 
+  /** Distinguishes an absent catalog from a present, empty family index. */
+  async hasFamily(family: UnitFamily): Promise<boolean> {
+    await this.loadFamilyIndex(family);
+    return this.indexCache.has(family);
+  }
+
   /**
    * Get full unit data by ID (lazy loads from static JSON)
    */
