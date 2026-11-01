@@ -62,6 +62,10 @@ describe('contractUnitToBVUnit (vehicles)', () => {
   it('keeps a secondary turret mount independent of the primary turret', () => {
     const unit = contractUnitToBVUnit(
       vehicle({
+        armor: {
+          type: 'STANDARD',
+          byLocation: { FRONT: 40, RIGHT: 30, LEFT: 30, REAR: 20 },
+        },
         equipment: [{ id: 'medium-laser', location: 'TURRET_2' }],
       }),
     ) as IContractBVVehicle;
@@ -70,6 +74,76 @@ describe('contractUnitToBVUnit (vehicles)', () => {
       location: VehicleLocation.TURRET_2,
       isTurretMounted: true,
     });
+  });
+
+  // MegaMek installs turrets from the armor layout, not from equipment: a
+  // Turret armor entry (even 0) is a turret, Turret 2 makes it dual
+  // (BLKTankFile.java:180-192). The adapter must pass that fact on.
+  it.each([
+    ['armor-only turret', { TURRET: 25 }, TurretType.SINGLE],
+    ['explicit zero turret armor', { TURRET: 0 }, TurretType.SINGLE],
+    ['dual-turret layout', { TURRET: 25, TURRET_2: 0 }, TurretType.DUAL],
+    ['no turret armor', {}, undefined],
+  ])(
+    'takes the turret from the armor layout: %s',
+    (_label, turretArmor, type) => {
+      const unit = contractUnitToBVUnit(
+        vehicle({
+          armor: {
+            type: 'STANDARD',
+            byLocation: {
+              FRONT: 40,
+              RIGHT: 30,
+              LEFT: 30,
+              REAR: 20,
+              ...turretArmor,
+            },
+          },
+          equipment: [{ id: 'medium-laser', location: 'FRONT' }],
+        }),
+      ) as IContractBVVehicle;
+      expect(unit.turret?.type).toBe(type);
+    },
+  );
+
+  it('matches the handler for a Tamerlane that keeps its Turret armor and has a sponson laser', () => {
+    const source = fixture.units.find((row) =>
+      row.path.endsWith('Tamerlane Strike Sled (Flamer).blk'),
+    );
+    if (!source) throw new Error('Missing Tamerlane fixture');
+    const unit = source.unit;
+    const armorByLocation = unit.armor.byLocation as Readonly<
+      Record<string, number>
+    >;
+    const parsed = new VehicleUnitHandler().parse({
+      blockVersion: 1,
+      version: 'MAM0',
+      unitType: 'Tank',
+      mappedUnitType: UnitType.VEHICLE,
+      name: unit.chassis,
+      model: unit.model,
+      year: unit.year,
+      type: 'IS Level 2',
+      tonnage: unit.tonnage,
+      motionType: unit.motionType,
+      cruiseMP: unit.movement.cruiseMP,
+      armor: ['FRONT', 'RIGHT', 'LEFT', 'REAR', 'TURRET'].map(
+        (tag) => armorByLocation[tag] ?? 0,
+      ),
+      equipmentByLocation: { 'Sponson Turret Equipment': ['Medium Laser'] },
+      rawTags: {},
+    });
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) throw new Error('Tamerlane handler parse failed');
+    const adapted = contractUnitToBVUnit({
+      ...unit,
+      armor: { type: unit.armor.type, byLocation: armorByLocation },
+      equipment: [{ id: 'medium-laser', location: 'SPONSON' }],
+    }) as IContractBVVehicle;
+    expect(adapted.turret).toEqual({ type: TurretType.SINGLE });
+    expect(calculateBattleValueForUnit(adapted)?.breakdown).toEqual(
+      calculateBattleValueForUnit(parsed.data.unit)?.breakdown,
+    );
   });
 
   it('matches the handler for a Tamerlane with one sponson Medium Laser', () => {
