@@ -86,8 +86,7 @@
     "tonnage": {
       "type": "number",
       "minimum": 0,
-      "maximum": 250,
-      "description": "Unit tonnage"
+      "description": "Unit tonnage; BattleMech, OmniMech and IndustrialMech are capped at 250 by the allOf rules. Capital ships reach 2,400,000 t."
     },
     "engine": {
       "type": "object",
@@ -212,7 +211,11 @@
             "BAR_6",
             "BAR_7",
             "BAR_9",
-            "BAR"
+            "BAR",
+            "AEROSPACE",
+            "FERRO_ALUMINUM",
+            "HEAVY_FERRO_ALUMINUM",
+            "PRIMITIVE_AERO"
           ],
           "description": "Armor type"
         },
@@ -572,6 +575,9 @@
         "properties": {
           "movement": {
             "required": ["walk", "jump"]
+          },
+          "tonnage": {
+            "maximum": 250
           }
         }
       }

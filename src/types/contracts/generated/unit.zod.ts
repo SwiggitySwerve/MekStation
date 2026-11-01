@@ -47,7 +47,13 @@ export const UnitContract = z
           .gte(1000)
           .lte(9999)
           .describe('Introduction year'),
-        tonnage: z.number().gte(0).lte(250).describe('Unit tonnage'),
+        tonnage: z
+          .number()
+          .gte(0)
+          .lte(250)
+          .describe(
+            'Unit tonnage; BattleMech, OmniMech and IndustrialMech are capped at 250 by the allOf rules. Capital ships reach 2,400,000 t.',
+          ),
         engine: z
           .object({
             type: z
@@ -153,6 +159,10 @@ export const UnitContract = z
                 'BAR_7',
                 'BAR_9',
                 'BAR',
+                'AEROSPACE',
+                'FERRO_ALUMINUM',
+                'HEAVY_FERRO_ALUMINUM',
+                'PRIMITIVE_AERO',
               ])
               .describe('Armor type'),
             barRating: z
@@ -511,7 +521,13 @@ export const UnitContract = z
           .lte(9999)
           .describe('Introduction year')
           .optional(),
-        tonnage: z.number().gte(0).lte(250).describe('Unit tonnage').optional(),
+        tonnage: z
+          .number()
+          .gte(0)
+          .describe(
+            'Unit tonnage; BattleMech, OmniMech and IndustrialMech are capped at 250 by the allOf rules. Capital ships reach 2,400,000 t.',
+          )
+          .optional(),
         engine: z
           .object({
             type: z
@@ -621,6 +637,10 @@ export const UnitContract = z
                 'BAR_7',
                 'BAR_9',
                 'BAR',
+                'AEROSPACE',
+                'FERRO_ALUMINUM',
+                'HEAVY_FERRO_ALUMINUM',
+                'PRIMITIVE_AERO',
               ])
               .describe('Armor type'),
             barRating: z

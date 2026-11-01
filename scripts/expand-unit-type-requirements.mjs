@@ -54,10 +54,13 @@ export function expandUnitTypeRequirements(schema) {
 
 function applyRequirements(target, clause) {
   if (
-    Object.keys(clause).some((key) => !['required', 'properties'].includes(key))
+    Object.keys(clause).some(
+      (key) => !['required', 'properties', 'maximum'].includes(key),
+    )
   ) {
     throw new Error('Unsupported conditional constraint in unit schema');
   }
+  if (clause.maximum !== undefined) target.maximum = clause.maximum;
   if (clause.required) {
     if (
       !Array.isArray(clause.required) ||
