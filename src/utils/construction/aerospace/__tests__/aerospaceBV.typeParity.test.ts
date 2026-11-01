@@ -54,7 +54,7 @@ describe('aerospace aircraft type defensive modifier', () => {
   it('Saroyan Jump Bomber applies stealth to its armor and SI pool', () => {
     // Pinned convfighter/3145/Liao/Saroyan Jump Bomber.blk: vehicle stealth
     // armor code 22, 24 points, SI 8. Java defense 191.8 also includes 61 BV
-    // of defensive equipment, which this contract adapter does not yet value.
+    // of defensive equipment, omitted here to isolate the stealth type term.
     const result = calculateBattleValueForUnit(
       contractUnitToBVUnit({
         id: 'saroyan-jump-bomber',

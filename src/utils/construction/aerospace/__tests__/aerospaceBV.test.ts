@@ -7,7 +7,7 @@
  *  - Defensive BV: no thrust multiplier (parity delta: "Thrust does not scale defense")
  *  - Arc fire-pool primary/opposite/side weighting (spec scenarios: "Primary arc contributes 100%", "Primary arc not Nose")
  *  - Fuselage weapons always contribute at 100%
- *  - Conventional fighter 0.8 final multiplier (spec scenario: "Conventional fighter multiplier")
+ *  - Conventional fighter neutral final multiplier (spec scenario: "Conventional fighter multiplier")
  *  - Small Craft 1.2× armor bonus inside defensive block
  *  - Breakdown shape (spec scenario: "Breakdown shape")
  *  - Arc contributions exposed (spec scenario: "Arc contributions exposed")
@@ -212,10 +212,10 @@ describe('calculateAerospaceOffensiveBV arc fire pool', () => {
 // ============================================================================
 
 describe('getAerospaceSubTypeMultiplier', () => {
-  it('Conventional Fighter = 0.8', () => {
+  it('Conventional Fighter = 1.0', () => {
     expect(
       getAerospaceSubTypeMultiplier(AerospaceSubType.CONVENTIONAL_FIGHTER),
-    ).toBe(0.8);
+    ).toBe(1.0);
   });
 
   it('ASF baseline = 1.0', () => {
@@ -314,7 +314,7 @@ describe('calculateAerospaceBV breakdown shape', () => {
     expect(breakdown.final).toBeGreaterThan(0);
   });
 
-  it('Conventional Fighter final BV = (defensive + offensive) × 0.8 × pilot', () => {
+  it('Conventional Fighter final BV = (defensive + offensive) × pilot', () => {
     const cf = calculateAerospaceBV(
       baseInput({
         subType: AerospaceSubType.CONVENTIONAL_FIGHTER,
@@ -332,7 +332,7 @@ describe('calculateAerospaceBV breakdown shape', () => {
     expect(cf.offensive).toBe(asf.offensive);
     expect(cf.defensive / 1.1).toBeCloseTo(asf.defensive / 1.2, 10);
     expect(cf.final).toBe(
-      Math.round((cf.defensive + cf.offensive) * 0.8 * cf.pilotMultiplier),
+      Math.round((cf.defensive + cf.offensive) * cf.pilotMultiplier),
     );
   });
 

@@ -1,0 +1,72 @@
+{
+  "id": "quetzalcoatl-scout-jumpship",
+  "chassis": "Quetzalcoatl-Scout JumpShip",
+  "model": "",
+  "unitType": "JumpShip",
+  "subType": "JumpShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2876,
+  "tonnage": 90000,
+  "motionType": "AERODYNE",
+  "designType": "CIVILIAN",
+  "movement": {
+    "safeThrust": 0,
+    "maxThrust": 0
+  },
+  "fuel": 460,
+  "structuralIntegrity": 1,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 158
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 6,
+      "FRONT_LEFT_SIDE": 6,
+      "FRONT_RIGHT_SIDE": 6,
+      "AFT": 6,
+      "AFT_LEFT_SIDE": 6,
+      "AFT_RIGHT_SIDE": 3
+    }
+  },
+  "equipment": [],
+  "crew": 42,
+  "escapePods": 4,
+  "lifeBoats": 0,
+  "officers": 2,
+  "gunners": 0,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "transporters": [
+    "1stclassquarters:20.0:0:-1::-1:0",
+    "crewquarters:112.0:0:-1::-1:0",
+    "asfbay:12.0:1:3::-1:0",
+    "cargobay:437.5:1:4::-1:0"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 0,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": false,
+  "hasHPG": false,
+  "gravDecks": [],
+  "dockingCollars": 0,
+  "originalBuildYear": 2712,
+  "mulId": 4885,
+  "role": "None",
+  "source": "TR:3057r,TR:3026r",
+  "fluff": {
+    "overview": "<p>Developed for independent operations, the Scout-class JumpShip is a specialized, military-grade vessel that prioritizes speed and stealth over raw transport capacity. It is the smallest JumpShip found travelling the stars, with a low mass and negligible jump signature, while sporting extensive facilities for its small crew. The Quetzalcoatl modification replaces the single docking collar of the master design, with a sizeable fighter capacity.</p>",
+    "capabilities": "<p>Scout-class JumpShips are equipped with a large and modern bridge, and an extensive computer network for complex navigational calculations. Its shortened Kearny-Fuchida drive allows for 80% shorter charging, while its small size additionally means its damage resistant jump sail unfolds more rapidly than is the case in other JumpShips. The reduced drive and its comperatively small mass of 87000 tons allows the Scout-class a difficult to detect jump signature. As the design prioritises independent operation, its 18 strong crew has access to extensive recreation facilities, as well as a highly equipped medbay for up to four emergency cases and life support systems featuring backup generators. A necessary concession due to its size does mean the Scout-class lacks a grav deck, being limited to gravity maneuvring to sustain the crew its health. The most famous modification is the Capellan Quetzalcoatl. This variant removes the docking collar entirely and replaces it with a specialized fighter bay capable of launching and recovering up to 20 heavy AeroSpace Fighters, effectively turning the tiny Scout into a pocket carrier.</p>",
+    "history": "<p>The Quetzalcoatl is a fighter-carrier variant of the Scout JumpShip, first devised in 2876. It trades its DropShip docking collar for fighter cubicles, a design choice first implemented by the Capellan Confederation after a boarding attempt crippled the original ship's docking ports. Because the refit proved so efficient at providing aerospace support, it has since been adopted for multiple ships and is now classified as its own standalone subclass.</p>",
+    "manufacturer": "Field Refit",
+    "primaryFactory": "Various"
+  }
+}

@@ -22,6 +22,7 @@ import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
+import { calculateAerospaceBVFromUnit } from '@/utils/construction/aerospace/aerospaceBVUnitAdapter';
 
 import {
   AbstractUnitTypeHandler,
@@ -221,22 +222,11 @@ export class ConventionalFighterUnitHandler extends AbstractUnitTypeHandler<ICon
   }
 
   /**
-   * Calculate conventional fighter BV
+   * Calculate BV through the aerospace BV calculator, the single owner of
+   * the SI, armor and thrust rules.
    */
   protected calculateTypeSpecificBV(unit: IConventionalFighter): number {
-    let bv = 0;
-
-    // Armor BV (reduced compared to ASF)
-    bv += unit.totalArmorPoints * 1.5;
-
-    // SI contributes
-    bv += unit.structuralIntegrity * 5;
-
-    // Thrust modifier
-    const thrustMod = 1 + (unit.movement.safeThrust - 5) * 0.03;
-    bv *= thrustMod;
-
-    return Math.round(bv);
+    return calculateAerospaceBVFromUnit(unit).final;
   }
 
   /**

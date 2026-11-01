@@ -1,0 +1,532 @@
+{
+  "id": "lion-2835",
+  "chassis": "Lion",
+  "model": "(2835)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "CLAN",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2835,
+  "tonnage": 7300,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 4,
+    "maxThrust": 6
+  },
+  "fuel": 6300,
+  "structuralIntegrity": 14,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 110
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 300,
+      "RIGHT_SIDE": 200,
+      "LEFT_SIDE": 200,
+      "AFT": 246
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "NOSE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "NOSE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:48",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:48",
+      "location": "NOSE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "clams-ammo:96",
+      "name": "CLAMS Ammo:96",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:48",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:48",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clams-ammo:96",
+      "name": "CLAMS Ammo:96",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-cllrm15",
+      "name": "(R) (B) CLLRM15",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-cllrm15",
+      "name": "(R) CLLRM15",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-clan-ammo-lrm-15-clan-artemis-capable:64",
+      "name": "(R) Clan Ammo LRM-15 (Clan) Artemis-capable:64",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-clartemisiv",
+      "name": "(R) CLArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-clartemisiv",
+      "name": "(R) CLArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-cllargepulselaser",
+      "name": "(R) (B) CLLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-cllargepulselaser",
+      "name": "(R) CLLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-clmediumpulselaser",
+      "name": "(R) CLMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-clmediumpulselaser",
+      "name": "(R) CLMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-clstreaksrm6",
+      "name": "(R) (B) CLStreakSRM6",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-clstreaksrm6",
+      "name": "(R) CLStreakSRM6",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-clan-streak-srm-6-ammo:60",
+      "name": "(R) Clan Streak SRM 6 Ammo:60",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-clantimissilesystem",
+      "name": "(R) (B) CLAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-clantimissilesystem",
+      "name": "(R) CLAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-clams-ammo:96",
+      "name": "(R) CLAMS Ammo:96",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:48",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:48",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clams-ammo:96",
+      "name": "CLAMS Ammo:96",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-cllrm15",
+      "name": "(R) (B) CLLRM15",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-cllrm15",
+      "name": "(R) CLLRM15",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-clan-ammo-lrm-15-clan-artemis-capable:64",
+      "name": "(R) Clan Ammo LRM-15 (Clan) Artemis-capable:64",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-clartemisiv",
+      "name": "(R) CLArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-clartemisiv",
+      "name": "(R) CLArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-cllargepulselaser",
+      "name": "(R) (B) CLLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-cllargepulselaser",
+      "name": "(R) CLLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-clmediumpulselaser",
+      "name": "(R) CLMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-clmediumpulselaser",
+      "name": "(R) CLMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-clstreaksrm6",
+      "name": "(R) (B) CLStreakSRM6",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-clstreaksrm6",
+      "name": "(R) CLStreakSRM6",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-clan-streak-srm-6-ammo:60",
+      "name": "(R) Clan Streak SRM 6 Ammo:60",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-clantimissilesystem",
+      "name": "(R) (B) CLAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-clantimissilesystem",
+      "name": "(R) CLAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-clams-ammo:96",
+      "name": "(R) CLAMS Ammo:96",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-cllrm15",
+      "name": "(B) CLLRM15",
+      "location": "AFT"
+    },
+    {
+      "id": "cllrm15",
+      "name": "CLLRM15",
+      "location": "AFT"
+    },
+    {
+      "id": "clan-ammo-lrm-15-clan-artemis-capable:64",
+      "name": "Clan Ammo LRM-15 (Clan) Artemis-capable:64",
+      "location": "AFT"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clstreaksrm6",
+      "name": "(B) CLStreakSRM6",
+      "location": "AFT"
+    },
+    {
+      "id": "clstreaksrm6",
+      "name": "CLStreakSRM6",
+      "location": "AFT"
+    },
+    {
+      "id": "clan-streak-srm-6-ammo:64",
+      "name": "Clan Streak SRM 6 Ammo:64",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "clams-ammo:96",
+      "name": "CLAMS Ammo:96",
+      "location": "AFT"
+    }
+  ],
+  "crew": 320,
+  "escapePods": 10,
+  "lifeBoats": 0,
+  "officers": 9,
+  "gunners": 9,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "mekbay:10.0:2:-1::-1:0",
+    "infantrybay:10.0:0:2:Foot:-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "1stclassquarters:90.0:0:-1::-1:0",
+    "crewquarters:287.0:0:-1::-1:0",
+    "cargobay:2711.0:1:6::-1:0"
+  ],
+  "mulId": 4525,
+  "role": "None",
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Lion class DropShip is one of the oldest designs still in active service, originally introduced in 2595 as a Star League combined-arms transport. This 7,300-ton Spheroid was designed from the outset to carry BattleMechs, vehicles, and cargo in a single hull, making it a true multi-role transport capable of deploying balanced ground forces.</p><p>Unlike the Clan Union and Overlord vessels, which are essentially new craft sharing a name with Inner Sphere designs, all surviving Lion class vessels are refitted originals constructed during the twenty-seventh century. No new Lions have ever been built, making each surviving example an irreplaceable relic of the Star League era.</p>",
+    "capabilities": "<p>The Clan refit expands the Mech bays to accommodate two Stars of OmniMechs and converts the vehicle bay to carry an infantry Binary of ten Points. All weapons were replaced with Clan technology: ER large lasers, large pulse lasers, medium pulse lasers, Artemis IV-enhanced LRM-20s, Artemis-enhanced LRM-15s, Streak SRM-6 launchers, and anti-missile systems cover all arcs. Armor protection increases to 946 points, and the crew complement expands to 338 to accommodate the infantry Binary's needs. The cargo capacity increases to over 2,700 tons. One hundred ten single heat sinks remain from the original design.</p>",
+    "deployment": "<p>The Clan refit serves with freeborn and dezgra units across multiple Clans, who use the Lion in its intended combined-arms role. Clan Smoke Jaguar possessed the largest concentration of Lions, while Clans Jade Falcon and Wolf operated the fewest during the Clan Invasion era.</p>",
+    "history": "<p>The Lion entered service in 2595 as a combined-arms transport for the Star League Defense Force. The design served throughout the Inner Sphere until the Amaris Civil War, when many were destroyed or damaged. The surviving Lions were divided between those that accompanied the Exodus Fleet and the handful that remained in the Inner Sphere, where centuries of Succession War fighting reduced their numbers to a mere fraction of the original production run.</p><p>The Clans extensively refitted their Lions to match their revised military organization, expanding the Mech bays from two lances to two Stars and replacing all weapons with advanced Clan technology. An attempt to convert the vehicle bay for battle armor proved unfeasible, and the space was instead configured for an infantry Binary. This compromise relegated the Lion to service with freeborn and dezgra units, who continued to use it in its intended combined-arms role.</p><p>When Wolf's Dragoons returned to the Inner Sphere in 3005, they brought several Lion class vessels, which they expected would be inconspicuous. They did not realize that only a handful of Lions remained in Successor State fleets, and their presence immediately aroused suspicion. The Dragoons stripped most advanced technology from their Lions before arriving and restricted them to carrying eight BattleMechs to avoid further scrutiny. After the Fourth Succession War, the Dragoons adopted the five-unit Clan organization openly, and following the Battle of Luthien in 3052, most of their Lions are believed to have been returned to full Clan specifications.</p>",
+    "manufacturer": "Field Refit",
+    "primaryFactory": "Various"
+  }
+}

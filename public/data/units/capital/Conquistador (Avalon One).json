@@ -1,0 +1,869 @@
+{
+  "id": "conquistador-avalon-one",
+  "chassis": "Conquistador",
+  "model": "(Avalon One)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CLAN_INVASION",
+  "year": 3064,
+  "tonnage": 17400,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 3,
+    "maxThrust": 5
+  },
+  "fuel": 15000,
+  "structuralIntegrity": 30,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 259
+  },
+  "armor": {
+    "type": "HEAVY_FERRO_ALUMINUM",
+    "byArc": {
+      "NOSE": 490,
+      "RIGHT_SIDE": 446,
+      "LEFT_SIDE": 446,
+      "AFT": 412
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isrotaryac5",
+      "name": "ISRotaryAC5",
+      "location": "NOSE"
+    },
+    {
+      "id": "isrotaryac5",
+      "name": "ISRotaryAC5",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-gauss-ammo:80",
+      "name": "IS Gauss Ammo:80",
+      "location": "NOSE"
+    },
+    {
+      "id": "isrotaryac5-ammo:480",
+      "name": "ISRotaryAC5 Ammo:480",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:144",
+      "name": "IS Ammo LRM-20 Artemis-capable:144",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islbxac10",
+      "name": "(B) ISLBXAC10",
+      "location": "NOSE"
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "NOSE"
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "NOSE"
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo:160",
+      "name": "IS LB 10-X Cluster Ammo:160",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isams-ammo:504",
+      "name": "ISAMS Ammo:504",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-screen-launcher",
+      "name": "(B) Screen Launcher",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-screen:20",
+      "name": "Ammo Screen:20",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isrotaryac5",
+      "name": "ISRotaryAC5",
+      "location": "NOSE"
+    },
+    {
+      "id": "isrotaryac5",
+      "name": "ISRotaryAC5",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-gauss-ammo:80",
+      "name": "IS Gauss Ammo:80",
+      "location": "NOSE"
+    },
+    {
+      "id": "isrotaryac5-ammo:480",
+      "name": "ISRotaryAC5 Ammo:480",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isrotaryac5",
+      "name": "ISRotaryAC5",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:80",
+      "name": "IS Gauss Ammo:80",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isrotaryac5-ammo:240",
+      "name": "ISRotaryAC5 Ammo:240",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:72",
+      "name": "IS Ammo LRM-20 Artemis-capable:72",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-islbxac20",
+      "name": "(B) ISLBXAC20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-lb-20-x-cluster-ammo:40",
+      "name": "IS LB 20-X Cluster Ammo:40",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isams-ammo:336",
+      "name": "ISAMS Ammo:336",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-isgaussrifle",
+      "name": "(R) (B) ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isrotaryac5",
+      "name": "(R) ISRotaryAC5",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-gauss-ammo:40",
+      "name": "(R) IS Gauss Ammo:40",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isrotaryac5-ammo:240",
+      "name": "(R) ISRotaryAC5 Ammo:240",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-islbxac10",
+      "name": "(R) (B) ISLBXAC10",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-lb-10-x-cluster-ammo:40",
+      "name": "(R) IS LB 10-X Cluster Ammo:40",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-islargepulselaser",
+      "name": "(R) (B) ISLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-islargepulselaser",
+      "name": "(R) ISLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-isantimissilesystem",
+      "name": "(R) (B) ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isantimissilesystem",
+      "name": "(R) ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isantimissilesystem",
+      "name": "(R) ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isantimissilesystem",
+      "name": "(R) ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isantimissilesystem",
+      "name": "(R) ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isantimissilesystem",
+      "name": "(R) ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isams-ammo:504",
+      "name": "(R) ISAMS Ammo:504",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isrotaryac5",
+      "name": "ISRotaryAC5",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:80",
+      "name": "IS Gauss Ammo:80",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isrotaryac5-ammo:240",
+      "name": "ISRotaryAC5 Ammo:240",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isrotaryac5",
+      "name": "ISRotaryAC5",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:80",
+      "name": "IS Gauss Ammo:80",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isrotaryac5-ammo:240",
+      "name": "ISRotaryAC5 Ammo:240",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:72",
+      "name": "IS Ammo LRM-20 Artemis-capable:72",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-islbxac20",
+      "name": "(B) ISLBXAC20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-lb-20-x-cluster-ammo:40",
+      "name": "IS LB 20-X Cluster Ammo:40",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isams-ammo:336",
+      "name": "ISAMS Ammo:336",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-isgaussrifle",
+      "name": "(R) (B) ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isrotaryac5",
+      "name": "(R) ISRotaryAC5",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-gauss-ammo:40",
+      "name": "(R) IS Gauss Ammo:40",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isrotaryac5-ammo:240",
+      "name": "(R) ISRotaryAC5 Ammo:240",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-islbxac10",
+      "name": "(R) (B) ISLBXAC10",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-lb-10-x-cluster-ammo:40",
+      "name": "(R) IS LB 10-X Cluster Ammo:40",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-islargepulselaser",
+      "name": "(R) (B) ISLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-islargepulselaser",
+      "name": "(R) ISLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-isantimissilesystem",
+      "name": "(R) (B) ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isantimissilesystem",
+      "name": "(R) ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isantimissilesystem",
+      "name": "(R) ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isantimissilesystem",
+      "name": "(R) ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isantimissilesystem",
+      "name": "(R) ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isantimissilesystem",
+      "name": "(R) ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isams-ammo:504",
+      "name": "(R) ISAMS Ammo:504",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isrotaryac5",
+      "name": "ISRotaryAC5",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:80",
+      "name": "IS Gauss Ammo:80",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isrotaryac5-ammo:240",
+      "name": "ISRotaryAC5 Ammo:240",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "is-gauss-ammo:80",
+      "name": "IS Gauss Ammo:80",
+      "location": "AFT"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "AFT"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isams-ammo:156",
+      "name": "ISAMS Ammo:156",
+      "location": "AFT"
+    },
+    {
+      "id": "b-screen-launcher",
+      "name": "(B) Screen Launcher",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-screen:20",
+      "name": "Ammo Screen:20",
+      "location": "AFT"
+    },
+    {
+      "id": "issmallnavalcommscannersuite",
+      "name": "ISSmallNavalCommScannerSuite",
+      "location": "HULL"
+    }
+  ],
+  "crew": 167,
+  "escapePods": 12,
+  "lifeBoats": 12,
+  "officers": 15,
+  "gunners": 17,
+  "passengers": 0,
+  "battleArmor": 48,
+  "marines": 56,
+  "otherPassengers": 0,
+  "transporters": [
+    "asfbay:18.0:2:1::-1:0",
+    "asfbay:18.0:2:2::-1:0",
+    "smallcraftbay:4.0:1:3::-1:0",
+    "1stclassquarters:150.0:0:-1::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:525.0:0:-1::-1:0",
+    "steeragequarters:520.0:0:-1::-1:0",
+    "cargobay:1032.0:1:8::-1:0"
+  ],
+  "mulId": 5767,
+  "role": "None",
+  "source": "TR:3067",
+  "fluff": {
+    "overview": "<p>The Conquistador class command DropShip was developed to provide the Armed Forces of the Federated Commonwealth with a next-generation command platform capable of directing planet-wide assault operations. At 17,400 tons, this massive Aerodyne was designed to replace aging command vessels that had become outmoded in the face of evolving battlefield requirements. Built by one of the Inner Sphere's most established aerospace manufacturers, the Conquistador combines enormous transport capacity with sophisticated command and control facilities.</p><p>The vessel's highly automated systems allow a relatively small crew to operate what is effectively a mobile military headquarters. Its advanced combination drive system stands as a significant engineering achievement, vectoring thrust differently for maneuvering versus interplanetary transit. The Conquistador's versatility extends beyond its primary command role, as its cargo bays and troop quarters can be rapidly converted into field hospitals after delivering their primary cargo.</p>",
+    "capabilities": "<p>The Avalon One variant reconfigures the Conquistador as a dedicated aerospace carrier and fleet command ship. BattleMech, vehicle, Battle Armor, and infantry bays are replaced with capacity for thirty-six aerospace fighters and four small craft, along with over one thousand tons of cargo. The crew drops from over eight hundred to three hundred three, reflecting the elimination of ground force support personnel.</p><p>The weapons array is modified to suit the carrier role. Screen launchers join the nose armament alongside Gauss rifles, Rotary AC/5s, LB-X AC/10s, ER PPCs, pulse lasers, and Artemis-equipped LRM-20s. Each broadside carries LB-X AC/20s in addition to the standard mix of Gauss rifles, Rotary AC/5s, ER PPCs, and pulse lasers. A naval communications scanner suite enhances fleet coordination. Armor protection increases to 1,794 points, providing additional survivability for the high-value carrier asset. Anti-missile system coverage is expanded across all arcs.</p>",
+    "deployment": "<p>The Avalon One carrier variant was developed to provide dedicated aerospace superiority support to fleet operations. With capacity for thirty-six fighters and four small craft, these vessels served as the centerpiece of Federated Suns aerospace task groups, directing fighter operations through their enhanced communications suites while providing substantial organic firepower to the formation.</p>",
+    "history": "<p>For years, the Armed Forces of the Federated Commonwealth had sought a more capable class of command DropShip to assign to their key Regimental Combat Teams. While vessels such as the Fortress and Command Overlord had served admirably in previous decades, advances in technology and changes in battlefield doctrine had rendered them increasingly outdated. The AFFC turned to Federated-Boeing, a company that had supplied DropShips to the Federated Suns for centuries, to develop a replacement.</p><p>The resulting Conquistador entered service in 3063, immediately becoming one of the most capable command platforms in the Inner Sphere. The design incorporated the latest available technologies, including an innovative combination drive system and extensive automation. Its ability to carry an entire RCT command group while simultaneously serving as a planetary assault coordination center made it invaluable to Federated Commonwealth military planners.</p><p>The class saw several specialized configurations developed to meet specific operational requirements. A carrier variant optimized for aerospace operations was produced, while the chaos of the Jihad era prompted development of a high-speed configuration designed to punch through hostile blockades. These variants demonstrated the fundamental soundness of the Conquistador platform and its adaptability to diverse mission profiles.</p>",
+    "manufacturer": "Field Refit",
+    "primaryFactory": "Various"
+  }
+}

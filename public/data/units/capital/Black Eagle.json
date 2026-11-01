@@ -1,0 +1,238 @@
+{
+  "id": "black-eagle",
+  "chassis": "Black Eagle",
+  "model": "",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2453,
+  "tonnage": 4500,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 4,
+    "maxThrust": 6
+  },
+  "fuel": 6819,
+  "structuralIntegrity": 16,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 156
+  },
+  "armor": {
+    "type": "PRIMITIVE_AERO",
+    "byArc": {
+      "NOSE": 188,
+      "RIGHT_SIDE": 168,
+      "LEFT_SIDE": 168,
+      "AFT": 120
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-20:36",
+      "name": "IS Ammo LRM-20:36",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20:36",
+      "name": "IS Ammo LRM-20:36",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-20",
+      "name": "(R) (B) LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-20:18",
+      "name": "(R) IS Ammo LRM-20:18",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-large-laser",
+      "name": "(R) (B) Large Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20:36",
+      "name": "IS Ammo LRM-20:36",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-20",
+      "name": "(R) (B) LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-20:18",
+      "name": "(R) IS Ammo LRM-20:18",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-large-laser",
+      "name": "(R) (B) Large Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    }
+  ],
+  "crew": 52,
+  "escapePods": 8,
+  "lifeBoats": 1,
+  "officers": 5,
+  "gunners": 5,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "mekbay:12.0:2:-1::-1:0",
+    "cargobay:430.0:1:4::-1:0",
+    "steeragequarters:140.0:0:-1::-1:0"
+  ],
+  "mulId": 5593,
+  "role": "None",
+  "source": "XTR:Primitives II",
+  "quirks": [
+    "easy_maintain",
+    "obsolete:2545"
+  ],
+  "fluff": {
+    "overview": "<p>The Black Eagle is a military DropShip that has served in various capacities across the Inner Sphere. Originally designed as a versatile combat transport, the Black Eagle combines respectable firepower with meaningful troop capacity, allowing it to fulfill multiple roles within a naval formation. The design saw production from several manufacturers over its service life, adapting to the changing needs of its operators through incremental upgrades to weapons and systems. While never achieving the iconic status of designs like the Union or Leopard, the Black Eagle has maintained a steady presence in military fleets where its balanced capabilities fill gaps between dedicated assault ships and pure transports.</p>",
+    "capabilities": "<p>The Black Eagle is a military DropShip that balances offensive firepower, defensive protection, and transport capacity in a single hull. Its weapons suite provides credible combat capability against both aerospace and ground targets, allowing the vessel to support landing operations with direct fire while its embarked forces deploy. Armor protection is adequate for a vessel of its class, sufficient to survive contested orbital insertions when operating with proper fighter escort but not heavy enough to sustain prolonged engagements against dedicated assault DropShips. The drive system provides standard military-grade acceleration, giving the Black Eagle enough speed to maintain formation with most combat fleets. Internal bay configurations allow the vessel to carry a mixed force of combat units, giving commanders flexibility in tailoring their landing force composition to mission requirements. The design's primary tactical limitation is that its attempt to balance multiple capabilities means it does not excel in any single role, making it most effective as part of a larger naval task force rather than operating independently.</p>",
+    "deployment": "<p>The standard Black Eagle serves in its baseline combat transport configuration, carrying mixed ground forces while providing fire support during orbital insertion and landing operations. These vessels typically operate as part of larger task forces where their balanced capabilities complement more specialized assault ships and dedicated transports.</p>",
+    "history": "<p>The Black Eagle has maintained a consistent if unspectacular presence in Inner Sphere naval forces throughout its production history. Designed to fill the gap between pure transports and dedicated assault ships, the class found ready buyers among military forces that needed versatile vessels capable of performing multiple mission profiles without the expense of maintaining separate specialized hulls.</p><p>During the Succession Wars, the Black Eagle's balanced design proved both an asset and a liability. Its ability to perform multiple roles made it valuable to forces that could not afford dedicated vessels for each mission type, but its lack of specialization meant it was outperformed by purpose-built ships in any single role. Many Black Eagles were pressed into service as front-line assault transports during periods when losses depleted fleets of more capable vessels.</p><p>The design has seen continued service into the modern era, with surviving examples serving primarily in second-line formations and garrison fleets where their versatility remains an asset. Several smaller states and mercenary commands have found the Black Eagle well-suited to their needs, as a single vessel can serve as transport, fire support platform, and orbital patrol craft as circumstances demand.</p>",
+    "manufacturer": "Mikoyan Aerospace Consortium",
+    "primaryFactory": "Terra"
+  }
+}

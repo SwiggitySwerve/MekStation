@@ -3,8 +3,8 @@
   "chassis": "Strix Stealth VTOL",
   "model": "",
   "unitType": "VTOL",
-  "techBase": "INNER_SPHERE",
-  "rulesLevel": "STANDARD",
+  "techBase": "MIXED",
+  "rulesLevel": "EXPERIMENTAL",
   "era": "DARK_AGE",
   "year": 3117,
   "tonnage": 30,
@@ -20,7 +20,7 @@
     "rating": 70
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "STEALTH",
     "byLocation": {
       "FRONT": 18,
       "RIGHT": 13,

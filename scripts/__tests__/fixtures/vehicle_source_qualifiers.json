@@ -231,7 +231,7 @@
         },
         "engine": {
           "type": "FUEL_CELL",
-          "rating": 10
+          "rating": 10.5
         },
         "armor": {
           "type": "BAR",
@@ -394,7 +394,7 @@
         },
         "engine": {
           "type": "FUSION",
-          "rating": 335
+          "rating": 336
         },
         "armor": {
           "type": "BAR",
@@ -599,7 +599,7 @@
         },
         "engine": {
           "type": "ICE",
-          "rating": 0
+          "rating": 2
         },
         "armor": {
           "type": "BAR",

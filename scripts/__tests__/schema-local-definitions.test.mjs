@@ -45,6 +45,23 @@ test('unhandled references and definitions fail closed', () => {
     assert.throws(() => prepareSchemaDefinitions(input), /Unsupported/);
 });
 
+test('a negated local definition generates unknown, not any', () => {
+  // z.any() in an intersected branch widens the inferred unitType to any, so
+  // family narrowing (Extract on unitType) stops excluding that branch.
+  const input = {
+    $defs: { Capital: { type: 'string', enum: ['DropShip'] } },
+    type: 'object',
+    properties: { unitType: { not: { $ref: '#/$defs/Capital' } } },
+  };
+  const prepared = prepareSchemaDefinitions(input);
+  const code = jsonSchemaToZod(prepared.schema, {
+    parserOverride: prepared.parserOverride,
+  });
+  assert.match(code, /z\.unknown\(\)\.refine\(/);
+  assert.doesNotMatch(code, /z\.any\(\)/);
+  assert.match(code, /SchemaDef_Capital\.safeParse\(value\)/);
+});
+
 test('schemas without definitions keep identical generated output', () => {
   const input = { type: 'object', properties: { id: { type: 'string' } } };
   const prepared = prepareSchemaDefinitions(input);

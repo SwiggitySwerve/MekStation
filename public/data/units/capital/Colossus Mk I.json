@@ -1,0 +1,388 @@
+{
+  "id": "colossus-mk-i",
+  "chassis": "Colossus",
+  "model": "Mk I",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2660,
+  "tonnage": 20000,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 3,
+    "maxThrust": 5
+  },
+  "fuel": 7500,
+  "structuralIntegrity": 20,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 255
+  },
+  "armor": {
+    "type": "FERRO_ALUMINUM",
+    "byArc": {
+      "NOSE": 252,
+      "RIGHT_SIDE": 221,
+      "LEFT_SIDE": 221,
+      "AFT": 192
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-gauss-ammo:96",
+      "name": "IS Gauss Ammo:96",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isarrowiv",
+      "name": "(B) ISArrowIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isarrowivammo:15",
+      "name": "ISArrowIVAmmo:15",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isarrowiv",
+      "name": "(B) ISArrowIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isarrowivammo:15",
+      "name": "ISArrowIVAmmo:15",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:48",
+      "name": "IS Ammo LRM-20 Artemis-capable:48",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-ppc",
+      "name": "(R) (B) PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-20",
+      "name": "(R) (B) LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-lrm-20",
+      "name": "(R) LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-20-artemis-capable:48",
+      "name": "(R) IS Ammo LRM-20 Artemis-capable:48",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-iserlargelaser",
+      "name": "(R) (B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:48",
+      "name": "IS Ammo LRM-20 Artemis-capable:48",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-ppc",
+      "name": "(R) (B) PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-20",
+      "name": "(R) (B) LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-lrm-20",
+      "name": "(R) LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-20-artemis-capable:48",
+      "name": "(R) IS Ammo LRM-20 Artemis-capable:48",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-iserlargelaser",
+      "name": "(R) (B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    }
+  ],
+  "crew": 1030,
+  "escapePods": 25,
+  "lifeBoats": 4,
+  "officers": 9,
+  "gunners": 9,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "heavyvehiclebay:72.0:2:1::-1:0",
+    "mekbay:36.0:4:-1::-1:0",
+    "infantrybay:12.0:2:3:Foot:-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:322.0:0:-1::-1:0",
+    "1stclassquarters:90.0:0:-1::-1:0",
+    "cargobay:1040.5:0:7::-1:0"
+  ],
+  "mulId": 3973,
+  "role": "None",
+  "source": "TR:3075",
+  "fluff": {
+    "overview": "<p>The Colossus is the largest assault DropShip constructed during the Star League era, massing 20,000 tons in a Spheroid configuration. Commissioned by the Star League Defense Force in the mid-twenty-seventh century, the vessel was designed to transport and support an entire combined-arms Regimental Combat Team in a single hull. Mitchell Vehicles Interstellar delivered a design that fulfilled this ambitious requirement, creating a vessel capable of carrying BattleMechs, heavy vehicles, and infantry simultaneously.</p><p>Built for durability above all else, the Colossus features numerous redundant systems that make it exceptionally robust and reliable in the field. However, this capability comes at an equally impressive cost, making the vessel too expensive for most military organizations to risk in routine operations.</p>",
+    "capabilities": "<p>The Colossus Mk I carries a full combined-arms regiment: thirty-six BattleMechs, seventy-two heavy vehicles, and twelve infantry platoons, along with over 1,040 tons of cargo for supplies and spare parts. A crew of over one thousand personnel operates the massive vessel and supports the embarked combat forces. The ship's weapons array covers all firing arcs with a diverse mix of armament. The nose mounts two Gauss rifles, an ER large laser, four medium lasers, two PPCs, and two Arrow IV launchers for long-range indirect fire support.</p><p>Each broadside carries two batteries of paired PPCs backed by four LRM-20 racks with Artemis IV fire control, two ER large lasers, and eight medium lasers. The aft arc mounts two ER large lasers and four medium lasers for rear defense. Two hundred fifty-five single heat sinks manage the thermal load from this extensive arsenal. Sixty tons of advanced armor provide exceptional protection for a vessel of any size, and the Colossus's design emphasis on redundancy and field repairability means it can sustain significant combat damage and remain operational.</p>",
+    "deployment": "<p>The Colossus served exclusively with the Star League Defense Force's elite Regimental Combat Teams during the Star League era, reserved for the most critical operations where a full combined-arms regiment needed to deploy from a single vessel. The design was thought extinct after the fall of the Star League until individual hulls were recovered from hidden caches. Following the Jihad, newly built Colossus vessels from Clyde Spaceyards entered service with the Federated Suns and select mercenary commands.</p>",
+    "history": "<p>The Colossus was born from an embarrassing series of SLDF war games in 2651, when five regiments operating in the conquered Periphery territories revealed a critical lack of coordination between different combat arms. The resulting reorganization created the Regimental Combat Teams, fully integrated combined-arms formations that demanded suitable transportation. Mitchell Vehicles Interstellar answered the call with the Colossus, delivering the first hulls in 2660.</p><p>At over 700 million Star League dollars per vessel, the Colossus was prohibitively expensive for the SLDF to risk in normal operations. Despite receiving periodic upgrades over the decades, all but a handful of the class were lost during the Amaris Coup, and the SLDF chose to replace them with the smaller and less expensive Excalibur class rather than resume production.</p><p>In 3024, Snord's Irregulars discovered a buried Colossus on the Lyran world of Phecda. Though its structural integrity remained sound after centuries underground, the ship was ultimately cannibalized by Lyran forces after the Irregulars salvaged its cargo of BattleMechs and parts. A second Colossus was unearthed on Epsilon Eridani in 3067, sparking a violent contest between mercenary commands. Following the Jihad, Clyde Spaceyards orbiting Firgrove began producing a small number of Colossus-class vessels annually, restoring the design to active production for the first time in centuries.</p>",
+    "manufacturer": "Mitchell Vehicles",
+    "primaryFactory": "Graham IV"
+  }
+}

@@ -14,6 +14,7 @@ import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
+import { calculateAerospaceBVFromUnit } from '@/utils/construction/aerospace/aerospaceBVUnitAdapter';
 
 import {
   AbstractUnitTypeHandler,
@@ -223,24 +224,11 @@ export class AerospaceUnitHandler extends AbstractUnitTypeHandler<IAerospace> {
   }
 
   /**
-   * Calculate aerospace BV
+   * Calculate BV through the aerospace BV calculator, the single owner of
+   * the SI, armor and thrust rules.
    */
   protected calculateTypeSpecificBV(unit: IAerospace): number {
-    let bv = 0;
-
-    // Base armor BV (2 points per armor point for aerospace)
-    bv += unit.totalArmorPoints * 2;
-
-    // SI contributes to BV
-    bv += unit.structuralIntegrity * 10;
-
-    // Thrust modifier (higher thrust = higher BV)
-    const thrustMod = 1 + (unit.movement.safeThrust - 5) * 0.05;
-    bv *= thrustMod;
-
-    // Equipment BV would be added here
-
-    return Math.round(bv);
+    return calculateAerospaceBVFromUnit(unit).final;
   }
 
   /**

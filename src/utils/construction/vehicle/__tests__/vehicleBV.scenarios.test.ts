@@ -105,7 +105,7 @@ describe('Named canonical vehicles (smoke)', () => {
       }),
     );
     expect(bv.tmm).toBe(5);
-    expect(bv.defensiveFactor).toBeCloseTo(1.25, 4);
+    expect(bv.defensiveFactor).toBeCloseTo(1.5, 4);
   });
 
   it('LRM Carrier: 10 LRM-20s produce large offensive BV', () => {

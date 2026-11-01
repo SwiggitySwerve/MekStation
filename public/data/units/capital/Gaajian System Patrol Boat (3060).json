@@ -1,0 +1,207 @@
+{
+  "id": "gaajian-system-patrol-boat-3060",
+  "chassis": "Gaajian System Patrol Boat",
+  "model": "(3060)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CLAN_INVASION",
+  "year": 3060,
+  "tonnage": 1500,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 4,
+    "maxThrust": 6
+  },
+  "fuel": 5000,
+  "structuralIntegrity": 12,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 54
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 206,
+      "RIGHT_SIDE": 180,
+      "LEFT_SIDE": 180,
+      "AFT": 170
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isermediumlaser",
+      "name": "(B) ISERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isams-ammo:48",
+      "name": "ISAMS Ammo:48",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-isermediumlaser",
+      "name": "(B) ISERMediumLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-ismediumpulselaser",
+      "name": "(R) (B) ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-isermediumlaser",
+      "name": "(B) ISERMediumLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-ismediumpulselaser",
+      "name": "(R) (B) ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-isermediumlaser",
+      "name": "(B) ISERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isams-ammo:48",
+      "name": "ISAMS Ammo:48",
+      "location": "AFT"
+    },
+    {
+      "id": "islookdownradar",
+      "name": "ISLookDownRadar",
+      "location": "HULL"
+    },
+    {
+      "id": "ishighresimager",
+      "name": "ISHighResImager",
+      "location": "HULL"
+    }
+  ],
+  "crew": 19,
+  "escapePods": 4,
+  "lifeBoats": 0,
+  "officers": 2,
+  "gunners": 4,
+  "passengers": 0,
+  "battleArmor": 12,
+  "marines": 21,
+  "otherPassengers": 0,
+  "transporters": [
+    "smallcraftbay:2.0:2:1::-1:0",
+    "1stclassquarters:20.0:0:-1::-1:0",
+    "steeragequarters:165.0:0:-1::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:63.0:0:-1::-1:0",
+    "cargobay:135.5:1:6::-1:0"
+  ],
+  "mulId": 7770,
+  "role": "None",
+  "source": "HB:HK",
+  "fluff": {
+    "overview": "<p>The Gaajian is a small military DropShip that has served as an armed escort and system patrol vessel since before the formation of the Draconis Combine as a nation. Originally designed for the Alliance of Galedon, this 1,500-ton Spheroid was intended to safeguard merchant traffic within star systems, escorting vessels between space stations, JumpShips, and orbital facilities.</p><p>Remarkably long-lived in service, the Gaajian has performed its designed function for centuries with minimal changes to its core configuration. Many individual vessels have accumulated generations of service history, and their crews traditionally record these histories in the form of painted color murals decorating the ship's interior spaces. The Gaajian remains a familiar sight across Combine space, enforcing trade laws and providing early warning of hostile incursions.</p>",
+    "capabilities": "<p>The 3060 upgrade replaces the entire weapons suite with advanced technology equivalents while maintaining the same energy-focused philosophy. The nose now carries two ER PPCs, two large pulse lasers, two ER medium lasers, and an anti-missile system. Each broadside mounts two large pulse lasers, two ER medium lasers, and two medium pulse lasers. The aft arc carries two large pulse lasers, two ER medium lasers, and an anti-missile system. The switch to fifty-four double heat sinks provides superior thermal management compared to the original's sixty-eight single sinks.</p><p>The upgraded variant retains the look-down radar and high-resolution imager for orbital surveillance duties. Small craft capacity remains at two bays, while cargo space increases to over one hundred thirty-five tons. The crew complement drops to fifty-eight personnel thanks to improved automation. Armor protection and structural integrity remain identical to the original configuration.</p>",
+    "deployment": "<p>The modernized Gaajian entered service in 3060 and began supplementing the original configuration in patrol duties across Combine space. The improved weapons and point defenses made the upgraded variant better suited to the heightened threat environment of the post-Clan Invasion era, where patrol vessels might encounter more capable adversaries than the pirates and smugglers the original was designed to counter.</p>",
+    "history": "<p>The Gaajian entered service in 2485 with the Alliance of Galedon, predating the formal establishment of the Draconis Combine. When the Combine absorbed the Alliance, the Gaajian fleet transferred seamlessly into the new state's naval forces and continued performing its original mission of system patrol and merchant escort. The Draconis Combine Admiralty Port Authority operated many of these vessels for centuries, with some individual ships accumulating remarkable service records.</p><p>The design proved so effective in its role that it remained in continuous service virtually unchanged through the Age of War, the Star League era, and the Succession Wars. It was not until 3060, with the advent of recovered Star League technology becoming widely available, that the Draconis Combine Admiralty authorized an updated configuration. The modernized variant emerged from the shipyards as a slightly more compact vessel with upgraded weapons and improved point defenses, ensuring the venerable design would remain relevant into the new century.</p>",
+    "manufacturer": "BBP Industries",
+    "primaryFactory": "New Samarkand"
+  }
+}

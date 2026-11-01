@@ -1,0 +1,117 @@
+{
+  "id": "chimeisho-jumpship-3056",
+  "chassis": "Chimeisho JumpShip",
+  "model": "(3056)",
+  "unitType": "JumpShip",
+  "subType": "JumpShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3056,
+  "tonnage": 245000,
+  "motionType": "AERODYNE",
+  "designType": "CIVILIAN",
+  "movement": {
+    "safeThrust": 0,
+    "maxThrust": 0
+  },
+  "fuel": 3000,
+  "structuralIntegrity": 1,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 122
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 7,
+      "FRONT_LEFT_SIDE": 5,
+      "FRONT_RIGHT_SIDE": 5,
+      "AFT": 6,
+      "AFT_LEFT_SIDE": 5,
+      "AFT_RIGHT_SIDE": 5
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    }
+  ],
+  "crew": 50,
+  "escapePods": 0,
+  "lifeBoats": 5,
+  "officers": 5,
+  "gunners": 2,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "transporters": [
+    "smallcraftbay:4.0:2:1::-1:0",
+    "cargobay:362.5:1:2::-1:0",
+    "cargobay:362.0:1:3::-1:0",
+    "1stclassquarters:50.0:0:-1::-1:0",
+    "crewquarters:175.0:0:-1::-1:0",
+    "dockingcollar",
+    "dockingcollar"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 0,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": true,
+  "hasHPG": false,
+  "gravDecks": [
+    50
+  ],
+  "dockingCollars": 2,
+  "mulId": 3949,
+  "role": "None",
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Chimeisho-class JumpShip is a product of the Draconis Combines technological renaissance, marking the reactivation of the Izumi JumpShip yards at Altair by the Kurita Combine Munitions Corporation. Operated by a crew of thirty who live in cramped yet technologically advanced quarters, the Chimeisho was initially produced exclusively for the Draconis Combine Mustered Soldiery (DCMS) to bolster their strategic interstellar capabilities in the mid-3050s.</p>",
+    "capabilities": "<p>The Chimeisho-class has a traditional needle-like shape featurings a spherical command section at one end, a blocky drive at the other, with twin docking collars located midway along the body. Unlike most Inner Sphere JumpShips, it carries offensive weapons comparable to a middling aerospace fighter, primarily pulse lasers and extended-range lasers. Despite its weapons, it is lightly armored compared to a DropShip and cannot sustain heavy damage. The 30 crew members live in cramped, well-equipped dual-occupancy cabins located below the bridge. Only senior officers have private shower and toilet facilities. A spacious recreation area with modern entertainment systems is provided to compensate for the small cabins. A spacious hangar in the command section provides facilities for up to four small craft, typically two light aerospace fighters and two ST-46 shuttles. Technicians and pilots have staterooms directly above the hangar, on the same deck as the life-support system.</p>",
+    "history": "<p>The Chimeisho is produced following the reactivation of the Izumi JumpShip yards at Altair, which had been derelict since the start of the Succession Wars. After the War of 3039, the Kurita Combine Munitions Corporation (KCMC) used state grants to reconstruct the yard. Only two have been produced to date, both purchased by the DCMS. The DCMS has also purchased all units scheduled through 3062, with KCMC taking new orders for 3063.</p>",
+    "manufacturer": "Kurita Combine Munitions Corporation",
+    "primaryFactory": "Izumi JumpShip yards|Altair"
+  }
+}

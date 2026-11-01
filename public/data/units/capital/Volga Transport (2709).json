@@ -1,0 +1,576 @@
+{
+  "id": "volga-transport-2709",
+  "chassis": "Volga Transport",
+  "model": "(2709)",
+  "unitType": "WarShip",
+  "subType": "WarShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2709,
+  "tonnage": 780000,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "movement": {
+    "safeThrust": 2,
+    "maxThrust": 3
+  },
+  "fuel": 4750,
+  "structuralIntegrity": 75,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 477
+  },
+  "armor": {
+    "type": "IMPROVED_FERRO_ALUMINUM",
+    "byArc": {
+      "NOSE": 120,
+      "FRONT_LEFT_SIDE": 106,
+      "FRONT_RIGHT_SIDE": 106,
+      "AFT": 112,
+      "AFT_LEFT_SIDE": 106,
+      "AFT_RIGHT_SIDE": 106
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-ismediumpulselaser",
+      "name": "(B) ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-20",
+      "name": "(B) Naval Autocannon (NAC/20)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-autocannon-nac-20",
+      "name": "Naval Autocannon (NAC/20)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-nac-20:200",
+      "name": "Ammo NAC/20:200",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-laser-45",
+      "name": "(B) Naval Laser 45",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-30:270",
+      "name": "Ammo NAC/30:270",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-45",
+      "name": "(B) Naval Laser 45",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-30:270",
+      "name": "Ammo NAC/30:270",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-45",
+      "name": "(B) Naval Laser 45",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-ismediumpulselaser",
+      "name": "(B) ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-autocannon-nac-20",
+      "name": "(B) Naval Autocannon (NAC/20)",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-autocannon-nac-20",
+      "name": "Naval Autocannon (NAC/20)",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-nac-20:200",
+      "name": "Ammo NAC/20:200",
+      "location": "AFT"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-45",
+      "name": "(B) Naval Laser 45",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-45",
+      "name": "(B) Naval Laser 45",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-ismediumpulselaser",
+      "name": "(B) ISMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-35",
+      "name": "Naval Laser 35",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-gauss-heavy",
+      "name": "(B) Naval Gauss (Heavy)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-heavy-n-gauss:100",
+      "name": "Ammo Heavy N-Gauss:100",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-ismediumpulselaser",
+      "name": "(B) ISMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-35",
+      "name": "Naval Laser 35",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-gauss-heavy",
+      "name": "(B) Naval Gauss (Heavy)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-heavy-n-gauss:100",
+      "name": "Ammo Heavy N-Gauss:100",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "RIGHT_BROADSIDE"
+    }
+  ],
+  "crew": 304,
+  "escapePods": 20,
+  "lifeBoats": 20,
+  "officers": 47,
+  "gunners": 33,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "transporters": [
+    "asfbay:6.0:2:1::-1:0",
+    "asfbay:6.0:2:2::-1:0",
+    "cargobay:213510.5:1:3::-1:0",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "1stclassquarters:470.0:0:-1::-1:0",
+    "crewquarters:1631.0:0:-1::-1:0"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 1,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": false,
+  "hasHPG": false,
+  "gravDecks": [
+    145,
+    120
+  ],
+  "dockingCollars": 4,
+  "mulId": 5361,
+  "role": "None",
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Volga-class transport was an armored cargo hauler commissioned by the Star League Defense Force in 2703 and first completed by Eaton AeroSpace on Inglesmond in 2709. Rather than constructing new hulls, Eaton engineers converted mothballed Quixote-class frigate frames, exploiting the older design's undersized drive to free a substantial portion of the hull's mass for cargo capacity. The resulting vessel carried armament unusual for a logistics platform, earning a reputation as one of the most heavily defended transports in the SLDF fleet. Designed to sustain supply convoys through hostile space along the Periphery frontier, the Volga filled a critical gap in the Star League's naval logistics chain. Its combination of considerable firepower, cavernous cargo holds, and DropShip docking capability made it a prized fleet asset, though the conversion process introduced engineering compromises that tempered the class's overall combat effectiveness.</p>",
+    "capabilities": "<p>At 780,000 tons and 715 meters, the Volga is a massive transport armed far more heavily than most logistics vessels. Two NAC/20 naval autocannons and an NL45 naval laser anchor the nose battery, supported by four extended-range large lasers and eight conventional lasers. The forward quarters each mount two NAC/30 naval autocannons and an NL45, while the broadsides carry paired NL35 naval lasers alongside a Heavy Naval Gauss rifle, providing devastating broadside firepower. The aft quarters and direct stern carry additional naval lasers and autocannons. Four hundred and seventy-seven double heat sinks manage the thermal load, though a poorly designed coolant system limits the ship to operating only forty-five percent of its weapons simultaneously, a significant tactical constraint for a vessel of this tonnage. One thousand and thirteen tons of improved ferro-aluminum armor protect the hull. Four docking collars support attached DropShips, while two gravity decks measuring 145 and 120 meters in diameter provide comfortable habitation for extended voyages. Twelve aerospace fighters in two bays offer screening capability, and the cavernous main cargo hold carries over 213,000 tons of supplies. The Clan refit increases armor to nearly 1,100 tons, expands fighter capacity to twenty craft, adds a lithium-fusion battery for double-jump capability, and installs a mobile HPG for independent interstellar communication. Clan-spec extended-range and pulse lasers replace the original conventional weapons across all arcs.</p>",
+    "deployment": "<p>The SLS Richardson served in the SLDF fleet during Operation LIBERATION, the final assault on Terra in January 2777. During the massive fleet arrival in the Terran system, the Richardson was destroyed when the Mako-class corvette SLS Mississippi Queen materialized partially inside the transport's stern during a jump emergence. The resulting explosion crippled the corvette and destroyed the transport, though quick thinking by the Richardson's captain allowed her contingent of DropShips to escape before the vessel was lost. The Richardson's fate exemplified the catastrophic risks of massed fleet jumps into contested systems, where even minor navigational errors could produce interpenetration events with devastating consequences.</p>",
+    "history": "<p>The Volga-class transport originated from a 2703 SLDF commission to Eaton AeroSpace on Inglesmond for an armored cargo vessel capable of sustaining Periphery supply operations through hostile space. Rather than designing a hull from scratch, Eaton engineers recognized that the Quixote-class frigate's drive, originally inherited from the smaller Lola-class destroyer, left the frame with substantial unused mass. By converting mothballed Quixote hulls and repurposing this excess capacity for cargo space, the first Volga entered service in 2709.</p><p>Eaton AeroSpace converted over two hundred and fifty Quixote frames into Volgas, creating one of the SLDF's largest transport classes. Despite impressive armament, the Volga suffered from cooling system deficiencies that prevented the vessel from bringing its full firepower to bear simultaneously, a constraint that reduced its effectiveness in sustained engagements. Production eventually ceased as the supply of available Quixote hulls was exhausted, and the Inglesmond facility passed to Draconis Combine control.</p><p>The Volga formed the armored logistics backbone of the SLDF fleet and saw its heaviest action during Operation LIBERATION in 2777. Over two hundred Volgas were destroyed during the Liberation of Terra campaign, a staggering attrition rate that reflected both the ferocity of the fighting and the class's role at the center of fleet supply convoys. Losses included vessels destroyed by direct combat and the inherent hazards of massed fleet jumps into contested systems.</p><p>Roughly two dozen Volgas accompanied Kerensky's Exodus fleet. In 2836, Clan engineers substantially upgraded the surviving vessels, improving their armor protection, weapons systems, jump capability, and strategic communications. These upgraded transports served Clan navies for centuries. Multiple Clans operated Volgas, including Ghost Bear, Star Adder, Diamond Shark, Snow Raven, Hell's Horses, and Goliath Scorpion. Following the Battle of Tukayyid, Clan Volgas began appearing in the Inner Sphere transporting personnel and materiel to and from occupation zones.</p><p>The Wars of Reaving and the Jihad claimed several Volgas in rapid succession. The Cho Polu was destroyed at the Battle of Lum in December 3068, the Bold Venture at Salonika, and the Mount Olympus at Vantaa during Operation ICE STORM. The Ursine Boatman fell at New Earth in February 3078 during Operation SCOUR. The Tenacity survived both conflicts, and in 3091 the CSR Scavenger was traded to Clan Sea Fox, carrying the class into the Dark Age.</p>",
+    "manufacturer": "Eaton AeroSpace",
+    "primaryFactory": "Inglesmond"
+  }
+}

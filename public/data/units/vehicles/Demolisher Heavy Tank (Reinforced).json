@@ -20,7 +20,7 @@
     "rating": 240
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "BALLISTIC_REINFORCED",
     "byLocation": {
       "FRONT": 46,
       "RIGHT": 40,

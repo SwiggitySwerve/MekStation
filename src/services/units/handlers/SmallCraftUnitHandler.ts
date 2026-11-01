@@ -23,6 +23,7 @@ import {
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
+import { calculateAerospaceBVFromUnit } from '@/utils/construction/aerospace/aerospaceBVUnitAdapter';
 import { calculateMaxThrust } from '@/utils/construction/aerospace/thrustCalculations';
 
 import {
@@ -305,21 +306,11 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
   }
 
   /**
-   * Calculate small craft BV
+   * Calculate BV through the aerospace BV calculator, the single owner of
+   * the SI, armor and thrust rules.
    */
   protected calculateTypeSpecificBV(unit: ISmallCraft): number {
-    let bv = 0;
-
-    // Armor BV
-    bv += unit.totalArmorPoints * 2;
-
-    // SI contributes
-    bv += unit.structuralIntegrity * 15;
-
-    // Thrust modifier
-    bv *= 1 + unit.movement.safeThrust * 0.1;
-
-    return Math.round(bv);
+    return calculateAerospaceBVFromUnit(unit).final;
   }
 
   /**

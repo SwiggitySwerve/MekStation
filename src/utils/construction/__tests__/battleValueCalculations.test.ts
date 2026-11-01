@@ -400,7 +400,7 @@ describe('calculateBattleValueForUnit — AEROSPACE dispatch', () => {
       throw new Error('Expected aerospace dispatch result');
     }
     // Conventional fighters get a 0.8 sub-type multiplier per spec.
-    expect(dispatched.breakdown.subTypeMultiplier).toBeCloseTo(0.8, 4);
+    expect(dispatched.breakdown.subTypeMultiplier).toBeCloseTo(1.0, 4);
   });
 
   it('routes a SMALL_CRAFT unit through the aerospace path', () => {

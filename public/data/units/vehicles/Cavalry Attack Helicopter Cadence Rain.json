@@ -20,7 +20,7 @@
     "rating": 110
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "STEALTH",
     "byLocation": {
       "FRONT": 23,
       "RIGHT": 15,

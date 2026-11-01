@@ -1,0 +1,159 @@
+{
+  "id": "hunter-jumpship-2948-lf",
+  "chassis": "Hunter JumpShip",
+  "model": "(2948) (LF)",
+  "unitType": "JumpShip",
+  "subType": "JumpShip",
+  "techBase": "CLAN",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2948,
+  "tonnage": 113000,
+  "motionType": "AERODYNE",
+  "designType": "CIVILIAN",
+  "movement": {
+    "safeThrust": 0,
+    "maxThrust": 0
+  },
+  "fuel": 2000,
+  "structuralIntegrity": 1,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 97
+  },
+  "armor": {
+    "type": "LAMELLOR_FERRO_CARBIDE",
+    "byArc": {
+      "NOSE": 8,
+      "FRONT_LEFT_SIDE": 6,
+      "FRONT_RIGHT_SIDE": 6,
+      "AFT": 8,
+      "AFT_LEFT_SIDE": 6,
+      "AFT_RIGHT_SIDE": 6
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clstreaksrm4",
+      "name": "(B) CLStreakSRM4",
+      "location": "NOSE"
+    },
+    {
+      "id": "clan-streak-srm-4-ammo:25",
+      "name": "Clan Streak SRM 4 Ammo:25",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "clams-ammo:96",
+      "name": "CLAMS Ammo:96",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clstreaksrm4",
+      "name": "(B) CLStreakSRM4",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clstreaksrm4",
+      "name": "CLStreakSRM4",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-streak-srm-4-ammo:50",
+      "name": "Clan Streak SRM 4 Ammo:50",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clstreaksrm4",
+      "name": "(B) CLStreakSRM4",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clstreaksrm4",
+      "name": "CLStreakSRM4",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-streak-srm-4-ammo:50",
+      "name": "Clan Streak SRM 4 Ammo:50",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismobilehpg",
+      "name": "ISMobileHPG",
+      "location": "HULL"
+    }
+  ],
+  "crew": 24,
+  "escapePods": 0,
+  "lifeBoats": 4,
+  "officers": 4,
+  "gunners": 2,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "transporters": [
+    "cargobay:113.5:1:1::-1:0",
+    "cargobay:113.5:1:2::-1:0",
+    "cargobay:113.5:1:3::-1:0",
+    "1stclassquarters:40.0:0:-1::-1:0",
+    "crewquarters:140.0:0:-1::-1:0",
+    "dockingcollar"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 0,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": true,
+  "hasHPG": false,
+  "gravDecks": [],
+  "dockingCollars": 1,
+  "mulId": 4339,
+  "role": "None",
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Hunter is a specialized scout JumpShip originally developed by Clan Ghost Bear for reconnaissance and deep-space exploration. Slightly larger than the standard Scout-class vessel, it is specifically designed to operate with a weak jump signature, allowing it to slip into hostile systems with a lower chance of detection. While it lacks a grav deck for crew comfort, its exceptional fuel endurance makes it a staple for long-range scouting missions.</p>",
+    "capabilities": "<p>Much like the Inner Spheres Magellan, the Hunter carries enough fuel for over a year of operations. However, the installation of lithium-fusion batteries significantly reduced cargo space; most modern Hunters are now limited to six-month missions due to supply constraints rather than fuel limits. Its primary tactical advantage is its \"weak jump signature,\" which makes it the ideal first-in vessel for scouting enemy fleet movements. Lacking a gravitational deck, the ship must use constant acceleration maneuvering to provide artificial gravity. While this consumes extra fuel, captains consider it a necessary expense to prevent the rapid deterioration of crew morale and health. The ship is lightly armed, for a Clan vessel, carrying only a few pulse lasers and Streak SRM systems. While it features an anti-missile system, the sensors and launchers are nose-mounted; this leaves the vital engineering module and Kearny-Fuchida drive completely exposed to missile fire from the rear.</p>",
+    "history": "<p>The Hunter was commissioned shortly after the founding of the Clans. Early models were hindered by the absence of lithium-fusion batteries, a deficiency that was largely corrected by the mid-30th century when most of the fleet was refitted with the advanced tech. Today, the few remaining unmodified vessels are typically relegated to freebirth units. Outside of the Clans, several Hunters are known to operate within the Wolfs Dragoons aerospace fleet, though their exact technical specifications remain unconfirmed.</p>",
+    "manufacturer": "Alshain Naval Yards",
+    "primaryFactory": "Alshain Naval Yards"
+  }
+}

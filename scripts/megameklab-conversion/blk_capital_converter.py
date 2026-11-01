@@ -1,8 +1,7 @@
 """
 BLK Capital Converter
 
-Converts MegaMek BLK files for capital units. This slice (UL-07a) handles DropShips; JumpShip, WarShip
-and SpaceStation follow in UL-07b through the same tables.
+Converts MegaMek BLK files for DropShips, JumpShips, WarShips and Space Stations.
 
 Output: public/data/units/capital/<name>.json
 Manifest: public/data/units/capital/units-manifest.json
@@ -12,7 +11,7 @@ Usage:
         --source /path/to/mm-data/data/mekfiles \\
         --output /path/to/public/data/units/capital
 
-Source directories scanned: dropships/. Field semantics follow MegaMek BLKDropshipFile.java.
+Field semantics follow the pinned MegaMek BLK capital loaders (48fcb2f6).
 """
 
 import logging
@@ -22,11 +21,16 @@ from typing import Any, Dict, List, Tuple
 from blk_aerospace_tables import map_aerospace_motion
 from blk_capital_tables import (
     CAPITAL_ARMOR_CODE_MAP,
+    CAPITAL_UNIT_TYPES,
     DEFAULT_SOURCE_SUBDIRS,
     DESIGN_TYPE_MAP,
     DROPSHIP_ARMOR_ARCS,
     DROPSHIP_LOCATION_MAP,
-    DROPSHIP_UNIT_TYPES,
+    JUMPSHIP_ARMOR_ARCS,
+    JUMPSHIP_LOCATION_MAP,
+    JUMPSHIP_LOCATION_ALIASES,
+    WARSHIP_BROADSIDES,
+    WARSHIP_BROADSIDE_ALIASES,
     UNSUPPORTED_UNIT_TYPES,
 )
 from blk_common import (
@@ -76,13 +80,13 @@ def required_count(tags: Dict[str, Any], tag: str, blk_path: Path) -> int:
 def map_capital_armor(blk_path: Path, tags: Dict[str, Any]) -> str:
     code = get_string(tags, "armor_type")
     code_value = parse_number(code) if code is not None else 41  # BLKDropshipFile.java:166 default
-    if code_value is None or int(code_value) not in CAPITAL_ARMOR_CODE_MAP:
+    if code_value is None or code_value not in CAPITAL_ARMOR_CODE_MAP:
         raise ValueError(f"{blk_path.name}: unsupported capital armor_type {code!r}")
-    return CAPITAL_ARMOR_CODE_MAP[int(code_value)]
+    return CAPITAL_ARMOR_CODE_MAP[code_value]
 
 
 def convert_capital_blk(blk_path: Path, logger: logging.Logger) -> Any:
-    """Parse one BLK file and return a DropShip unit JSON dict, or None to skip it."""
+    """Parse one capital BLK, rejecting damaged recognized sources; skip other families."""
     try:
         content = blk_path.read_text(encoding="utf-8", errors="replace")
     except OSError as e:
@@ -97,9 +101,21 @@ def convert_capital_blk(blk_path: Path, logger: logging.Logger) -> Any:
     if unit_type_raw in UNSUPPORTED_UNIT_TYPES:
         logger.info(f"Skipping {blk_path.name}: unsupported type '{unit_type_raw}'")
         return None
-    if unit_type_raw not in DROPSHIP_UNIT_TYPES:
+    if unit_type_raw not in CAPITAL_UNIT_TYPES:
         logger.debug(f"Skipping {blk_path.name}: not a capital type ('{unit_type_raw}')")
         return None
+
+    unit_type = CAPITAL_UNIT_TYPES[unit_type_raw]
+    dropship = unit_type == "DropShip"
+    warship = unit_type == "WarShip"
+    armor_arcs = DROPSHIP_ARMOR_ARCS if dropship else JUMPSHIP_ARMOR_ARCS
+    location_map = dict(DROPSHIP_LOCATION_MAP if dropship else JUMPSHIP_LOCATION_MAP)
+    if not dropship:
+        if warship:
+            location_map.update(WARSHIP_BROADSIDES)
+        location_map.update(JUMPSHIP_LOCATION_ALIASES)
+        if warship:
+            location_map.update(WARSHIP_BROADSIDE_ALIASES)
 
     name = get_string(tags, "Name")
     if not name:
@@ -115,25 +131,28 @@ def convert_capital_blk(blk_path: Path, logger: logging.Logger) -> Any:
     year = int(year_raw)
     tonnage = int(tonnage_raw) if tonnage_raw == int(tonnage_raw) else tonnage_raw
 
-    counts = {tag: required_count(tags, tag, blk_path) for tag in REQUIRED_COUNT_TAGS}
-    safe_thrust = counts["SafeThrust"]
+    required_tags = REQUIRED_COUNT_TAGS if dropship else tuple(tag for tag in REQUIRED_COUNT_TAGS if tag != "SafeThrust") + ("passengers",)
+    if warship:
+        required_tags += ("SafeThrust",)
+    counts = {tag: required_count(tags, tag, blk_path) for tag in required_tags}
+    safe_thrust = counts.get("SafeThrust", 0)  # JumpShip/Station loaders force zero, even if tagged.
 
     armor_values = parse_armor_array(tags.get("armor"))
-    if len(armor_values) != len(DROPSHIP_ARMOR_ARCS):  # BLKDropshipFile.java:192-194
-        raise ValueError(f"{blk_path.name}: expected {len(DROPSHIP_ARMOR_ARCS)} armor values, found {len(armor_values)}")
+    if len(armor_values) != len(armor_arcs):
+        raise ValueError(f"{blk_path.name}: expected {len(armor_arcs)} armor values, found {len(armor_values)}")
 
     tech_type_str = validate_blk_tech_type(get_string(tags, "type", "Type"))
     motion_raw = get_string(tags, "motion_type")
-    if motion_raw is None:
+    if dropship and motion_raw is None:
         raise ValueError(f"{blk_path.name}: missing required <motion_type> tag")
 
-    # engine_type is never read (BLKDropshipFile.java); Dropship extends SmallCraft, which keeps ICE as a runtime
-    # placeholder (SmallCraft.java:128-130). Same treatment as blk_aerospace_converter's small craft.
+    # DropShip inherits the SmallCraft ICE placeholder; the larger loaders explicitly set Engine(400, 0, 0).
+    # None of these loaders decodes the BLK engine_type as a construction engine.
     if tags.get("engine_type") is not None:
-        logger.info(f"{blk_path}: ignored raw engine_type={tags['engine_type']!r}; upstream SmallCraft ICE placeholder")
+        logger.info(f"{blk_path}: ignored raw engine_type={tags['engine_type']!r}; upstream capital ICE placeholder")
 
     design_raw = parse_number(get_string(tags, "designtype"))
-    design_code = 1 if design_raw is None else int(design_raw)  # Aero.java:439 default MILITARY
+    design_code = (1 if dropship or warship else 0) if design_raw is None else int(design_raw)
     if design_code not in DESIGN_TYPE_MAP:
         raise ValueError(f"{blk_path.name}: unsupported designtype {design_code}")
 
@@ -141,16 +160,16 @@ def convert_capital_blk(blk_path: Path, logger: logging.Logger) -> Any:
         "id": generate_id_from_name(name, model),
         "chassis": name,
         "model": model,
-        "unitType": "DropShip",
-        "subType": "DropShip",
+        "unitType": unit_type,
+        "subType": unit_type,
         "techBase": map_tech_base(tech_type_str),
         "rulesLevel": map_rules_level(tech_type_str),
         "era": map_year_to_era(year),
         "year": year,
         "tonnage": tonnage,
-        "motionType": map_aerospace_motion(motion_raw),
+        "motionType": map_aerospace_motion(motion_raw) if dropship else "AERODYNE",
         "designType": DESIGN_TYPE_MAP[design_code],
-        "collarType": int(parse_number(get_string(tags, "collartype")) or 0),  # Dropship.java:134 COLLAR_STANDARD
+        **({"collarType": int(parse_number(get_string(tags, "collartype")) or 0)} if dropship else {}),
         "movement": {"safeThrust": safe_thrust, "maxThrust": maximum_thrust(safe_thrust)},
         "fuel": counts["fuel"],
         "structuralIntegrity": counts["structural_integrity"],
@@ -158,20 +177,23 @@ def convert_capital_blk(blk_path: Path, logger: logging.Logger) -> Any:
         "heatSinks": {"type": "DOUBLE" if counts["sink_type"] == 1 else "SINGLE", "count": counts["heatsinks"]},
         "armor": {
             "type": map_capital_armor(blk_path, tags),
-            "byArc": dict(zip(DROPSHIP_ARMOR_ARCS, armor_values)),
+            "byArc": dict(zip(armor_arcs, armor_values)),
         },
-        "equipment": parse_location_equipment(tags, DROPSHIP_LOCATION_MAP),
+        "equipment": parse_location_equipment(tags, location_map),
         "crew": counts["crew"],
         "escapePods": counts["escape_pod"],
         "lifeBoats": counts["life_boat"],
     }
     for tag, key in OPTIONAL_COUNT_TAGS.items():
-        output[key] = int(parse_number(get_string(tags, tag)) or 0)
+        if dropship or tag != "otherpassenger":
+            output[key] = int(parse_number(get_string(tags, tag)) or 0)
 
     # Bay and quarters lines are kept verbatim; the read-only viewer (UL-14) interprets them.
     transporters = [line.strip() for line in (get_string(tags, "transporters") or "").splitlines() if line.strip()]
     if transporters:
         output["transporters"] = transporters
+    if not dropship:
+        output.update(parse_jump_ship_fields(tags, unit_type, transporters, blk_path))
 
     original_build_year = parse_number(get_string(tags, "originalBuildYear"))
     if original_build_year is not None:
@@ -189,6 +211,33 @@ def convert_capital_blk(blk_path: Path, logger: logging.Logger) -> Any:
     if fluff:
         output["fluff"] = fluff
     return output
+
+
+def parse_jump_ship_fields(tags: Dict[str, Any], unit_type: str, transporters: List[str], blk_path: Path) -> Dict[str, Any]:
+    """Source facts and constructor defaults shared by the three Jumpship-derived Java loaders."""
+    station = unit_type == "Space Station"
+    warship = unit_type == "WarShip"
+    decks = []
+    # Jumpship.setGravDeck{,Large,Huge}: append legacy representative diameters, then explicit decks.
+    for tag, diameter in (("grav_deck", 50), ("grav_deck_large", 175), ("grav_deck_huge", 375)):
+        if tag in tags:
+            decks.extend([diameter] * required_count(tags, tag, blk_path))
+    for value in (get_string(tags, "grav_decks") or "").splitlines():
+        decks.append(int(value))
+    legacy_docks = int(parse_number(get_string(tags, "docking_collar")) or 0) if not station else 0
+    fields = {
+        "otherCrew": int(parse_number(get_string(tags, "other_crew")) or 0),
+        "driveCoreType": required_count(tags, "kf_core", blk_path) if warship and "kf_core" in tags else (3 if station else 1 if warship else 0),
+        "jumpRange": required_count(tags, "jump_range", blk_path) if warship and "jump_range" in tags else 30,
+        "hasSail": required_count(tags, "sail", blk_path) != 0 if "sail" in tags else not station,
+        "hasLFBattery": not station and "lithium-fusion" in tags,
+        "hasHPG": "hpg" in tags,
+        "gravDecks": decks,
+        "dockingCollars": max(0, legacy_docks) + sum(line.split(":", 1)[0].lower() == "dockingcollar" for line in transporters),
+    }
+    if station:
+        fields["isModular"] = "modular" in tags
+    return fields
 
 
 # ---------------------------------------------------------------------------
@@ -248,7 +297,7 @@ def main() -> int:
             converter="blk_capital_converter",
             description="Convert BLK capital-ship files to MekStation JSON",
             source_default=str(Path(default_mm_data_root()) / "mekfiles"),
-            source_help="Path to mm-data mekfiles root (contains dropships/)",
+            source_help="Path to mm-data mekfiles root (dropships/, jumpships/, warship/, spacestation/)",
             # No default: the capital catalog is published only by the UL-C1 step,
             # which passes --output public/data/units/capital explicitly.
             output_default=None,

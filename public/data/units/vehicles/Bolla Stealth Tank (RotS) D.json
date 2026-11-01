@@ -3,8 +3,8 @@
   "chassis": "Bolla Stealth Tank (RotS)",
   "model": "D",
   "unitType": "Vehicle",
-  "techBase": "INNER_SPHERE",
-  "rulesLevel": "STANDARD",
+  "techBase": "MIXED",
+  "rulesLevel": "ADVANCED",
   "era": "DARK_AGE",
   "year": 3091,
   "tonnage": 60,
@@ -20,7 +20,7 @@
     "rating": 280
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "STEALTH",
     "byLocation": {
       "FRONT": 34,
       "RIGHT": 32,

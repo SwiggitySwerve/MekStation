@@ -117,6 +117,8 @@ export interface IAerospaceBreakdown {
 export interface IAerospaceMountedEquipment extends IUnitMountedEquipmentIdentity {
   /** Firing arc/location */
   readonly location: AerospaceLocation;
+  /** Rear-mounted; a rear side mount fires into the aft-side arc */
+  readonly isRearMounted?: boolean;
   /** Linked ammunition ID */
   readonly linkedAmmoId?: string;
 }

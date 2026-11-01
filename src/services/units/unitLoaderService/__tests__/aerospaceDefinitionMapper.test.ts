@@ -532,15 +532,14 @@ describe('mapAerospaceDefinitionToState', () => {
     },
   );
 
-  it('rejects small craft, which need their own state', async () => {
-    const definition = {
-      ...(await load('sabre-sb-27b-ec')),
-      unitType: 'Small Craft',
-      subType: 'SmallCraft',
-    } as AerospaceDefinition;
-    expect(() => mapAerospaceDefinitionToState(definition)).toThrow(
-      UnsupportedUnitConfigurationError,
-    );
+  it('rejects a small craft side arc on a fighter', async () => {
+    const definition = await load('sabre-sb-27b-ec');
+    expect(() =>
+      mapAerospaceDefinitionToState({
+        ...definition,
+        equipment: [{ id: 'x', location: 'LEFT_SIDE', isRearMounted: false }],
+      }),
+    ).toThrow(UnsupportedUnitConfigurationError);
   });
 
   it('rejects an unknown arc instead of guessing one', async () => {

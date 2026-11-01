@@ -90,26 +90,6 @@ describe('AerospaceUnitHandler Tier 1 Invariants', () => {
     };
   }
 
-  it('locks down BV golden value for canonical Stuka', () => {
-    // armor=96, thrust=5; the SI tag is ignored and SI derives to
-    // max(floor(100/10), 5) = 10 (Aero.java:804-808)
-    // base = 96*2 + 10*10 = 192 + 100 = 292
-    // thrustMod = 1 + (5-5)*0.05 = 1.0
-    // bv = round(292 * 1) = 292
-    const result = handler.parse(makeDoc());
-    expect(result.success).toBe(true);
-    expect(handler.calculateBV(result.data!.unit)).toBe(292);
-  });
-
-  it('BV scales with thrust per documented thrust modifier', () => {
-    const t5 = handler.parse(makeDoc({ safeThrust: 5 }));
-    const t9 = handler.parse(makeDoc({ safeThrust: 9 }));
-    const bv5 = handler.calculateBV(t5.data!.unit);
-    const bv9 = handler.calculateBV(t9.data!.unit);
-    // base*1.0 vs base*1.20 — exactly 20% more for thrust=9
-    expect(bv9).toBe(Math.round(bv5 * 1.2));
-  });
-
   it('BV invariants hold for canonical fixture', () => {
     const result = handler.parse(makeDoc());
     assertBVInvariants(handler.calculateBV(result.data!.unit), 'Aerospace');
@@ -127,8 +107,8 @@ describe('AerospaceUnitHandler Tier 1 Invariants', () => {
 // ConventionalFighterUnitHandler — invariants
 // ============================================================================
 //
-// Formula:
-//   bv = round((armor*1.5 + SI*5) * (1 + (thrust - 5) * 0.03))
+// BV delegates to the aerospace BV calculator (see
+// AerospaceHandlerBV.singleOwner.test.ts); the rules are not restated here.
 //
 
 describe('ConventionalFighterUnitHandler Tier 1 Invariants', () => {
@@ -159,16 +139,6 @@ describe('ConventionalFighterUnitHandler Tier 1 Invariants', () => {
       ...overrides,
     };
   }
-
-  it('locks down BV golden value for canonical Stingray', () => {
-    // armor=48, SI=6, thrust=6
-    // base = 48*1.5 + 6*5 = 72 + 30 = 102
-    // mod = 1 + (6-5)*0.03 = 1.03
-    // bv = round(102 * 1.03) = round(105.06) = 105
-    const result = handler.parse(makeDoc());
-    expect(result.success).toBe(true);
-    expect(handler.calculateBV(result.data!.unit)).toBe(105);
-  });
 
   it('BV invariants hold for canonical fixture', () => {
     const result = handler.parse(makeDoc());
@@ -202,8 +172,8 @@ describe('ConventionalFighterUnitHandler Tier 1 Invariants', () => {
 // VTOLUnitHandler — invariants
 // ============================================================================
 //
-// Formula:
-//   bv = round(armor * 2 * (1 + (cruiseMP - 1) * 0.15))
+// BV delegates to the aerospace BV calculator (see
+// AerospaceHandlerBV.singleOwner.test.ts); the rules are not restated here.
 //
 
 describe('SmallCraftUnitHandler Tier 1 Invariants', () => {
@@ -239,27 +209,9 @@ describe('SmallCraftUnitHandler Tier 1 Invariants', () => {
     };
   }
 
-  it('locks down BV golden value for canonical K-1 Shuttle', () => {
-    // armor=120, SI=5, thrust=5
-    // base = 120*2 + 5*15 = 240 + 75 = 315
-    // mod = 1 + 5*0.1 = 1.5
-    // bv = round(315 * 1.5) = round(472.5) = 473 (banker's rounding => 472? — Math.round in JS rounds half to +inf so 472.5 -> 473)
-    const result = handler.parse(makeDoc());
-    expect(result.success).toBe(true);
-    expect(handler.calculateBV(result.data!.unit)).toBe(473);
-  });
-
   it('BV invariants hold for canonical fixture', () => {
     const result = handler.parse(makeDoc());
     assertBVInvariants(handler.calculateBV(result.data!.unit), 'SmallCraft');
-  });
-
-  it('BV scales monotonically with safeThrust', () => {
-    const slow = handler.parse(makeDoc({ safeThrust: 2 }));
-    const fast = handler.parse(makeDoc({ safeThrust: 8 }));
-    expect(handler.calculateBV(fast.data!.unit)).toBeGreaterThan(
-      handler.calculateBV(slow.data!.unit),
-    );
   });
 });
 

@@ -57,16 +57,41 @@ export function expandUnitTypeRequirements(schema) {
 function foldNumericAlternative(branch) {
   if (!branch.anyOf) return;
   const alternatives = branch.anyOf.filter((clause) => {
-    const types = clause.properties?.unitType?.enum;
-    return (
-      !types ||
-      types.some((type) => branch.properties.unitType.enum.includes(type))
+    const discriminator = clause.properties?.unitType;
+    return branch.properties.unitType.enum.some(
+      (type) =>
+        (!discriminator?.enum || discriminator.enum.includes(type)) &&
+        (!discriminator?.not?.enum || !discriminator.not.enum.includes(type)),
     );
   });
   if (alternatives.length !== 1) return;
   const clause = alternatives[0];
   if (Object.keys(clause).some((key) => key !== 'properties')) return;
-  const entries = Object.entries(clause.properties ?? {});
+  const discriminator = clause.properties?.unitType;
+  if (
+    Object.keys(discriminator ?? {}).some(
+      (key) => !['enum', 'not'].includes(key),
+    ) ||
+    (discriminator?.not && Object.keys(discriminator.not).join() !== 'enum')
+  )
+    return;
+  const armorType = clause.properties?.armor?.properties?.type;
+  if (
+    clause.properties?.armor &&
+    (Object.keys(clause.properties.armor).some(
+      (key) => !['type', 'properties'].includes(key),
+    ) ||
+      (clause.properties.armor.type !== undefined &&
+        clause.properties.armor.type !== 'object') ||
+      Object.keys(clause.properties.armor.properties).join() !== 'type' ||
+      !branch.properties.armor?.properties?.type?.anyOf?.some(
+        (type) => JSON.stringify(type) === JSON.stringify(armorType),
+      ))
+  )
+    return;
+  const entries = Object.entries(clause.properties ?? {}).filter(
+    ([key]) => key !== 'unitType' && key !== 'armor',
+  );
   if (
     !entries.length ||
     entries.some(
@@ -84,6 +109,8 @@ function foldNumericAlternative(branch) {
     const target = branch.properties[key];
     target.maximum = Math.min(target.maximum ?? Infinity, constraint.maximum);
   }
+  if (armorType)
+    branch.properties.armor.properties.type = structuredClone(armorType);
   delete branch.anyOf;
 }
 

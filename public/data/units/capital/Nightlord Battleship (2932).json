@@ -1,0 +1,587 @@
+{
+  "id": "nightlord-battleship-2932",
+  "chassis": "Nightlord Battleship",
+  "model": "(2932)",
+  "unitType": "WarShip",
+  "subType": "WarShip",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2932,
+  "tonnage": 1200000,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "movement": {
+    "safeThrust": 3,
+    "maxThrust": 5
+  },
+  "fuel": 5000,
+  "structuralIntegrity": 85,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 2702
+  },
+  "armor": {
+    "type": "LAMELLOR_FERRO_CARBIDE",
+    "byArc": {
+      "NOSE": 350,
+      "FRONT_LEFT_SIDE": 320,
+      "FRONT_RIGHT_SIDE": 320,
+      "AFT": 298,
+      "AFT_LEFT_SIDE": 290,
+      "AFT_RIGHT_SIDE": 290
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-nac-25:40",
+      "name": "Ammo NAC/25:40",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-laser-55",
+      "name": "(B) Naval Laser 55",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-gauss-medium",
+      "name": "(B) Naval Gauss (Medium)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-medium-n-gauss:30",
+      "name": "Ammo Medium N-Gauss:30",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clerppc",
+      "name": "(B) CLERPPC",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-10",
+      "name": "(B) Naval Autocannon (NAC/10)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-10:20",
+      "name": "Ammo NAC/10:20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-gauss-medium",
+      "name": "(B) Naval Gauss (Medium)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-medium-n-gauss:30",
+      "name": "Ammo Medium N-Gauss:30",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clerppc",
+      "name": "(B) CLERPPC",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-10",
+      "name": "(B) Naval Autocannon (NAC/10)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-10:20",
+      "name": "Ammo NAC/10:20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-gauss-medium",
+      "name": "(B) Naval Gauss (Medium)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-medium-n-gauss:30",
+      "name": "Ammo Medium N-Gauss:30",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-nac-25:40",
+      "name": "Ammo NAC/25:40",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-laser-55",
+      "name": "(B) Naval Laser 55",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-gauss-medium",
+      "name": "(B) Naval Gauss (Medium)",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-medium-n-gauss:30",
+      "name": "Ammo Medium N-Gauss:30",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clerppc",
+      "name": "(B) CLERPPC",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-10",
+      "name": "(B) Naval Autocannon (NAC/10)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-10:20",
+      "name": "Ammo NAC/10:20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-gauss-medium",
+      "name": "(B) Naval Gauss (Medium)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-medium-n-gauss:30",
+      "name": "Ammo Medium N-Gauss:30",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clerppc",
+      "name": "(B) CLERPPC",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-10",
+      "name": "(B) Naval Autocannon (NAC/10)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-10:20",
+      "name": "Ammo NAC/10:20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-gauss-medium",
+      "name": "(B) Naval Gauss (Medium)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-medium-n-gauss:30",
+      "name": "Ammo Medium N-Gauss:30",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismobilehpg",
+      "name": "ISMobileHPG",
+      "location": "HULL"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-10",
+      "name": "(B) Naval Autocannon (NAC/10)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-40",
+      "name": "Naval Autocannon (NAC/40)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-10:20",
+      "name": "Ammo NAC/10:20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-40:40",
+      "name": "Ammo NAC/40:40",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-10",
+      "name": "(B) Naval Autocannon (NAC/10)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-40",
+      "name": "Naval Autocannon (NAC/40)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-10:20",
+      "name": "Ammo NAC/10:20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-40:40",
+      "name": "Ammo NAC/40:40",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-gauss-medium",
+      "name": "(B) Naval Gauss (Medium)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-medium-n-gauss:30",
+      "name": "Ammo Medium N-Gauss:30",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-10",
+      "name": "(B) Naval Autocannon (NAC/10)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-40",
+      "name": "Naval Autocannon (NAC/40)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-10:20",
+      "name": "Ammo NAC/10:20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-40:40",
+      "name": "Ammo NAC/40:40",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-10",
+      "name": "(B) Naval Autocannon (NAC/10)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-40",
+      "name": "Naval Autocannon (NAC/40)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-10:20",
+      "name": "Ammo NAC/10:20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-40:40",
+      "name": "Ammo NAC/40:40",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-gauss-medium",
+      "name": "(B) Naval Gauss (Medium)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-medium-n-gauss:30",
+      "name": "Ammo Medium N-Gauss:30",
+      "location": "RIGHT_BROADSIDE"
+    }
+  ],
+  "crew": 1073,
+  "escapePods": 160,
+  "lifeBoats": 0,
+  "officers": 139,
+  "gunners": 57,
+  "passengers": 0,
+  "battleArmor": 500,
+  "marines": 0,
+  "transporters": [
+    "asfbay:20.0:4:1::-1:0",
+    "mekbay:100.0:3:-1::-1:0",
+    "cargobay:159174.5:0:3::-1:0",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "1stclassquarters:1390.0:0:-1::-1:0",
+    "crewquarters:4858.0:0:-1::-1:0",
+    "2ndclassquarters:3500.0:0:-1::-1:0"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 1,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": true,
+  "hasHPG": false,
+  "gravDecks": [
+    140,
+    140
+  ],
+  "dockingCollars": 4,
+  "mulId": 4722,
+  "role": "None",
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Nightlord-class battleship is the pinnacle of Clan-built naval power. Commissioned by Clan Snow Raven at their yards on Lum in 2932, the design was conceived as a self-contained task force command vessel capable of deploying and supporting ground forces on a massive scale while engaging hostile WarShips on equal or superior terms. The Nightlord earned a fearsome reputation across Clan space, with multiple Clans acquiring examples through Trials of Possession to serve as fleet flagships.</p><p>Among the largest and most heavily protected WarShips ever constructed by the Clans, the class carried enough firepower and embarked forces to subdue a world without support. This capability came at extraordinary cost, making each vessel an irreplaceable strategic asset. The Nightlord shaped Clan naval doctrine for over two centuries, and its presence in a fleet signaled a Clan's commitment to projecting power across interstellar distances.</p>",
+    "capabilities": "<p>Displacing 1,200,000 tons across 1,100 meters of hull, the Nightlord carries more than 1,600 tons of lamellor ferro-carbide armor, providing nearly three times the protection of conventional plating and backed by a structural integrity rating of 85. A lithium-fusion battery system enables rapid successive jumps, while a mobile HPG provides independent interstellar communication. Propulsion delivers a safe thrust of three and maximum of five, giving the massive battleship respectable tactical mobility for its displacement.</p><p>The offensive arsenal centers on naval autocannons across multiple weight classes, supplemented by naval lasers, naval PPCs, and naval Gauss rifles distributed across all firing arcs. Extended-range large lasers and PPCs provide conventional-scale defense against fighters and small craft, while 2,702 double heat sinks manage the thermal output. The vessel carries two Stars of OmniFighters, a combined Galaxy of one hundred OmniMechs and five hundred Elemental marines, and over 174,000 tons of cargo through four docking collars. Two 140-meter gravity decks serve the crew of over 1,500 personnel.</p><p>The Nightlord pays for this capability with extreme construction cost, limiting the number that could be built at any one time. Its massive crew requirement strains the manpower resources of all but the largest Clans, and the loss of a single vessel leaves a gap in fleet strength that cannot be quickly replaced. The concentration of so many ground assets aboard a single hull also creates risk, as a crippled Nightlord could take an entire Galaxy down with it.</p>",
+    "deployment": "<p>The CGB Ursa Major participated in the Ghost Bear invasion of Rasalhague in 3050 and in 3062 destroyed the DCS Dragon's Last Tear near the Alshain Naval Yards, triggering the First Dominion-Combine War. The vessel fought extensively during the Jihad at Luthien, Dyev, Dieron, and the Titan Yards before being destroyed at Rasalhague on 29 April 3100 during the Second Combine-Dominion War.</p><p>The CJF Emerald Talon served as the Jade Falcon flagship from Operation REVIVAL onward. The vessel fought the Lyran battlecruiser LCS Yggdrasil at Skye in December 3134 before being crippled during the Jade Falcon Civil War and deliberately crashed into Hammarr, Sudeten's capital, on Khan Malvina Hazen's orders.</p><p>The CSR Snow Raven was destroyed at Dante in 3071 when a JumpShip emerged directly above it. The CSV Dark Asp led the Steel Viper assault on Ironhold in 3069 before being lost during the Wars of Reaving. The CGS Atropos fought at Brim, Foster, and Glory before being destroyed during the Annihilation of Clan Steel Viper in December 3075. The CSA Absolute Truth survived the Wars of Reaving, fighting at Nouveaux Paris, York, and Strana Mechty before leading the bombardment of Blood Spirit remnants at Colleen in 3084.</p><p>The CDS Terror of the Deep served as the Diamond Shark aerospace flagship and participated in Task Force EARTHBOUND at Terra in 3078. Traded to Clan Snow Raven in 3091 and renamed Lynn McKenna, the vessel served with the Raven Alliance Naval Star through 3145 as one of only two operational Alliance WarShips.</p>",
+    "history": "<p>Clan Snow Raven launched the first Nightlord from their yards at Lum in 2932, drawing upon experience gained from the smaller Corone-class destroyer. Where the Corone proved effective as a light raider, the Snow Ravens envisioned a vessel capable of matching the legendary McKenna-class in combat power while incorporating advances in Clan construction techniques, protective plating, and weapons technology. The resulting design became one of only three entirely new WarShip classes the Clans ever produced, alongside the Fredasa corvette and the Leviathan transport. The remaining Corone-class vessels were retired to mothball by 2946, their role fully superseded.</p><p>The class proved formidable enough that it spread across Clan space through Trials of Possession. By the mid-thirty-first century, nearly half of all extant Clans maintained at least one Nightlord in their touman. Clan Jade Falcon, Clan Ghost Bear, Clan Diamond Shark, Clan Steel Viper, Clan Star Adder, Clan Coyote, and Clan Goliath Scorpion all fielded examples alongside the Snow Ravens themselves. These vessels typically served as fleet or touman flagships, their combination of firepower and troop transport capacity making them natural command platforms for entire Galaxies.</p><p>The high cost of construction and the continued serviceability of captured Star League-era WarShips limited production numbers. Snow Raven Yards at Lum remained the sole construction facility, and the total built never approached the hundreds common among Star League-era designs. Each vessel was a strategic asset whose loss could reshape the balance of power between rival Clans.</p><p>The Nightlord saw action in nearly every major Clan conflict from Operation REVIVAL through the Wars of Reaving. Multiple vessels fought during the Jihad era, with engagements spanning from the Clan homeworlds to the Inner Sphere. The Wars of Reaving proved devastating, claiming vessels belonging to Clan Coyote, Clan Steel Viper, and Clan Goliath Scorpion during the savage fighting in the Pentagon Worlds. The battle at Tamaron in December 3074, where the Coyote flagship fell, marked the largest naval engagement in the Pentagon Worlds since Operation KLONDIKE. Clan Snow Raven lost their own namesake vessel at Dante in 3071 when a hostile JumpShip deliberately jumped into close proximity, destroying both vessels through transit effects.</p><p>Among the Inner Sphere Clans, the Ghost Bear Nightlord compiled decades of combat service before being destroyed in the Second Combine-Dominion War in 3100. The Jade Falcon flagship survived numerous engagements from the initial Clan Invasion through the thirty-second century before being lost during the Jade Falcon Civil War. The Diamond Shark vessel participated in the liberation of Terra in 3078 before being traded to Clan Snow Raven in 3091, subsequently serving with the Raven Alliance through the Dark Age.</p><p>By the mid-thirty-second century, the Nightlord had become exceedingly rare. The Raven Alliance operated what was likely the last example in Inner Sphere service as late as 3145, while the status of any surviving homeworld vessels remained unknown following the loss of contact with the Pentagon Worlds. From a single production line at Lum, the class had shaped Clan naval doctrine for over two centuries.</p>",
+    "manufacturer": "Snow Raven Yards",
+    "primaryFactory": "Lum"
+  }
+}

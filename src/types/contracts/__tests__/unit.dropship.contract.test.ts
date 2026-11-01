@@ -73,3 +73,61 @@ describe('converter DropShip output against UnitContract', () => {
     });
   }
 });
+
+it.each(['FERRO_CARBIDE', 'LAMELLOR_FERRO_CARBIDE', 'IMPROVED_FERRO_ALUMINUM'])(
+  // #2478 decodes the exact EquipmentType table for every BLK family; MegaMek's
+  // loaders accept any armor code, and legality belongs to construction checks.
+  'accepts %s on capital and other BLK families',
+  (type) => {
+    for (const unitType of [
+      'DropShip',
+      'JumpShip',
+      'WarShip',
+      'Space Station',
+    ]) {
+      expect(
+        UnitContract.safeParse({
+          id: 'scope',
+          unitType,
+          tonnage: 100,
+          armor: { type, byArc: { NOSE: 1 } },
+        }).success,
+      ).toBe(true);
+    }
+    for (const unitType of [
+      'Vehicle',
+      'Support Vehicle',
+      'Aerospace',
+      'Small Craft',
+    ]) {
+      expect(
+        UnitContract.safeParse({
+          id: 'scope',
+          unitType,
+          tonnage: 100,
+          armor: { type, byArc: { NOSE: 1 } },
+        }).success,
+      ).toBe(true);
+    }
+  },
+);
+
+it('validates capital drive and deck facts even below 250 tons', () => {
+  const unit = {
+    id: 'drive',
+    unitType: 'WarShip',
+    tonnage: 100,
+    gravDecks: [45],
+    driveCoreType: 4,
+    hasSail: false,
+  };
+  expect(UnitContract.safeParse(unit).success).toBe(true);
+  for (const invalid of [
+    { gravDecks: [-1] },
+    { gravDecks: ['45'] },
+    { driveCoreType: 5 },
+    { hasSail: 1 },
+  ]) {
+    expect(UnitContract.safeParse({ ...unit, ...invalid }).success).toBe(false);
+  }
+});

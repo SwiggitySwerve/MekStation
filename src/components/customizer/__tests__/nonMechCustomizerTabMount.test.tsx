@@ -49,6 +49,7 @@ import { InfantryCustomizer } from '@/components/customizer/infantry/InfantryCus
 import { ProtoMechCustomizer } from '@/components/customizer/protomech/ProtoMechCustomizer';
 import { getCustomizerDescriptor } from '@/components/customizer/shared/customizerTypeRegistry';
 import { VehicleCustomizer } from '@/components/customizer/vehicle/VehicleCustomizer';
+import { getAerospaceStore } from '@/stores/aerospaceStoreRegistry';
 import {
   AerospaceStoreContext,
   createNewAerospaceStore,
@@ -75,6 +76,7 @@ import {
   type VehicleStore,
 } from '@/stores/useVehicleStore';
 import { TechBase } from '@/types/enums/TechBase';
+import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 // ---------------------------------------------------------------------------
@@ -114,6 +116,20 @@ function wrapAerospace(children: React.ReactNode): React.ReactElement {
     name: 'Test Fighter',
     tonnage: 50,
     techBase: TechBase.INNER_SPHERE,
+  });
+  return (
+    <AerospaceStoreContext.Provider value={store}>
+      {children}
+    </AerospaceStoreContext.Provider>
+  );
+}
+
+function wrapSmallCraft(children: React.ReactNode): React.ReactElement {
+  const store: StoreApi<AerospaceStore> = createNewAerospaceStore({
+    name: 'Test Shuttle',
+    tonnage: 150,
+    techBase: TechBase.INNER_SPHERE,
+    isSmallCraft: true,
   });
   return (
     <AerospaceStoreContext.Provider value={store}>
@@ -166,6 +182,11 @@ const FIXTURES: TypeFixture[] = [
     label: 'Conventional Fighter',
     unitType: UnitType.CONVENTIONAL_FIGHTER,
     wrap: wrapAerospace,
+  },
+  {
+    label: 'Small Craft',
+    unitType: UnitType.SMALL_CRAFT,
+    wrap: wrapSmallCraft,
   },
   {
     label: 'Battle Armor',
@@ -240,6 +261,31 @@ describe('shipped-crash reproductions', () => {
       caught = e;
     }
     expect(String(caught ?? '')).not.toMatch(/UnitStoreProvider/);
+  });
+
+  const SMALL_CRAFT_TAB_ID = '3f6c1b2a-9d4e-4f7a-8b5c-1e2d3c4b5a69';
+
+  it('a Small Craft tab opens the aerospace shell with small craft state, not the mech shell', () => {
+    const { Shell } = getCustomizerDescriptor(UnitType.SMALL_CRAFT);
+    const { getByTestId, queryByText } = render(
+      <Shell
+        activeTab={{
+          id: SMALL_CRAFT_TAB_ID,
+          name: 'Test Shuttle',
+          tonnage: 150,
+          techBase: TechBase.INNER_SPHERE,
+          unitType: UnitType.SMALL_CRAFT,
+        }}
+        activeTabId="structure"
+        onTabChange={() => undefined}
+      />,
+    );
+    expect(queryByText('Loading unit...')).toBeNull();
+    expect(getByTestId('aerospace-crew-section')).toBeInTheDocument();
+    expect(getAerospaceStore(SMALL_CRAFT_TAB_ID)?.getState()).toMatchObject({
+      unitType: UnitType.SMALL_CRAFT,
+      aerospaceSubType: AerospaceSubType.SMALL_CRAFT,
+    });
   });
 
   it('every non-mech Overview tab renders the shared identity editor', () => {

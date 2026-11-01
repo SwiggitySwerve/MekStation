@@ -35,13 +35,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import type {
-  IVehicleUnit,
-  IVehicle,
-} from '../src/types/unit/VehicleInterfaces';
+import type { IVehicle } from '../src/types/unit/VehicleInterfaces';
 import type { IVehicleBVBreakdown } from '../src/utils/construction/vehicle/vehicleBV';
 
 import { calculateBattleValueForUnit } from '../src/utils/construction/battleValueCalculations';
+import {
+  contractUnitToBVUnit,
+  type IContractBVSource,
+} from '../src/utils/construction/contractBVUnitAdapter';
 
 // =============================================================================
 // Report types
@@ -136,7 +137,13 @@ const VEHICLE_DATA_DIR = path.resolve(
  * subdirectories, and tolerates the directory being absent. Returns a sorted
  * list so report ordering is stable across runs.
  */
-function gatherVehicleFixtureFiles(dir: string): string[] {
+/** Catalog bookkeeping files that sit beside the designs and are not designs. */
+const NON_DESIGN_FILES: ReadonlySet<string> = new Set([
+  'index.json',
+  'units-manifest.json',
+]);
+
+export function gatherVehicleFixtureFiles(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];
   const out: string[] = [];
   const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -145,7 +152,11 @@ function gatherVehicleFixtureFiles(dir: string): string[] {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       out.push(...gatherVehicleFixtureFiles(full));
-    } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.json')) {
+    } else if (
+      entry.isFile() &&
+      entry.name.toLowerCase().endsWith('.json') &&
+      !NON_DESIGN_FILES.has(entry.name.toLowerCase())
+    ) {
       out.push(full);
     }
   }
@@ -162,15 +173,15 @@ interface VehicleFixtureFile extends Partial<IVehicle> {
 }
 
 /**
- * Load and minimally normalize a fixture JSON into an `IVehicleUnit` shape.
- *
- * The BV dispatcher narrows on `unitType`; all the calculator reads beyond
- * that is `tonnage`, `motionType`, `movement.{cruise,flank,jump}MP`,
- * `armor*`, `equipment[]`, and the turret slots. Anything else is preserved
- * but not consulted, so the structural cast is safe.
+ * Load a catalog contract JSON and map it to the dispatcher's domain shape
+ * through `contractUnitToBVUnit`. The raw contract (`byLocation` armor, `id` /
+ * `location` equipment rows) is not a dispatcher input; the adapter throws on
+ * a missing or unknown fact, which is reported as an error.
  */
 function loadFixture(filePath: string): {
-  unit: IVehicleUnit;
+  unit: ReturnType<typeof contractUnitToBVUnit>;
+  id: string;
+  unitName: string;
   mulBV: number | null;
   source: string;
 } {
@@ -183,9 +194,7 @@ function loadFixture(filePath: string): {
     );
   }
 
-  // Cast through unknown — the calculator tolerates partial fixtures and the
-  // adapter's IVehicleUnit narrowing only requires unitType + the BV fields.
-  const unit = data as unknown as IVehicleUnit;
+  const unit = contractUnitToBVUnit(data as unknown as IContractBVSource);
 
   const mulBV =
     typeof data.mulBV === 'number' && Number.isFinite(data.mulBV)
@@ -194,6 +203,8 @@ function loadFixture(filePath: string): {
 
   return {
     unit,
+    id: data.id,
+    unitName: [data.chassis, data.model].filter(Boolean).join(' ') || data.id,
     mulBV,
     source: path.relative(process.cwd(), filePath),
   };
@@ -208,7 +219,7 @@ function loadFixture(filePath: string): {
  * return a `vehicle`-tagged result — fixtures under
  * `public/data/units/vehicles/` are always expected to be vehicle-class.
  */
-function computeEntry(filePath: string): {
+export function computeEntry(filePath: string): {
   entry?: VehicleReportEntry;
   error?: { source: string; message: string };
 } {
@@ -250,6 +261,11 @@ function computeEntry(filePath: string): {
   }
 
   const computedBV = breakdown.final;
+  if (!Number.isFinite(computedBV)) {
+    return {
+      error: { source, message: `Non-finite BV (${computedBV}).` },
+    };
+  }
   const delta = mulBV !== null ? computedBV - mulBV : null;
   // Guard against div-by-zero. When mulBV is exactly 0, deltaPct is 0 if the
   // calculator also produced 0 (otherwise undefined parity — emit null).
@@ -262,17 +278,8 @@ function computeEntry(filePath: string): {
 
   return {
     entry: {
-      id: String(unit.id ?? path.basename(filePath, '.json')),
-      unitName: String(
-        (unit as { name?: string; chassis?: string; model?: string }).name ??
-          [
-            (unit as { chassis?: string }).chassis,
-            (unit as { model?: string }).model,
-          ]
-            .filter(Boolean)
-            .join(' ') ??
-          path.basename(filePath, '.json'),
-      ),
+      id: loaded.id,
+      unitName: loaded.unitName,
       source,
       computedBV,
       mulBV,
@@ -296,8 +303,10 @@ const TRACKED_BY =
 /**
  * Build the parity report object from every fixture on disk.
  */
-function buildReport(): VehicleBVReport {
-  const files = gatherVehicleFixtureFiles(VEHICLE_DATA_DIR);
+export function buildReport(
+  dataDir: string = VEHICLE_DATA_DIR,
+): VehicleBVReport {
+  const files = gatherVehicleFixtureFiles(dataDir);
 
   const units: VehicleReportEntry[] = [];
   const errors: Array<{ source: string; message: string }> = [];
@@ -347,6 +356,14 @@ function buildReport(): VehicleBVReport {
 }
 
 /**
+ * Exit code: non-zero when any file failed to load, adapt, or calculate a
+ * finite BV. BV accuracy against MUL stays a measurement, not a gate (UL-18).
+ */
+export function exitCodeForReport(report: VehicleBVReport): number {
+  return report.errors.length > 0 ? 1 : 0;
+}
+
+/**
  * Entry point — writes the report to
  * `validation-output/vehicle-bv-validation-report.json`.
  */
@@ -390,6 +407,7 @@ function main(): void {
       '[validate-vehicle-bv] Errors: ' + report.errors.length + ' fixture(s)',
     );
   }
+  process.exitCode = exitCodeForReport(report);
 }
 
 if (require.main === module) {

@@ -1,0 +1,300 @@
+{
+  "id": "okinawa-3056",
+  "chassis": "Okinawa",
+  "model": "(3056)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CLAN_INVASION",
+  "year": 3056,
+  "tonnage": 4500,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 3,
+    "maxThrust": 5
+  },
+  "fuel": 4050,
+  "structuralIntegrity": 12,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 77
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 200,
+      "RIGHT_SIDE": 150,
+      "LEFT_SIDE": 150,
+      "AFT": 140
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:12",
+      "name": "IS Ammo LRM-20 Artemis-capable:12",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:15",
+      "name": "IS Ammo SRM-6 Artemis-capable:15",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:12",
+      "name": "IS Ammo LRM-20 Artemis-capable:12",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-ismediumpulselaser",
+      "name": "(B) ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:15",
+      "name": "IS Ammo SRM-6 Artemis-capable:15",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-iserlargelaser",
+      "name": "(R) (B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-10",
+      "name": "(R) (B) LRM 10",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-10-artemis-capable:12",
+      "name": "(R) IS Ammo LRM-10 Artemis-capable:12",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isartemisiv",
+      "name": "(R) ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-islargepulselaser",
+      "name": "(R) (B) ISLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:12",
+      "name": "IS Ammo LRM-20 Artemis-capable:12",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-ismediumpulselaser",
+      "name": "(B) ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:15",
+      "name": "IS Ammo SRM-6 Artemis-capable:15",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-iserlargelaser",
+      "name": "(R) (B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-10",
+      "name": "(R) (B) LRM 10",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-10-artemis-capable:12",
+      "name": "(R) IS Ammo LRM-10 Artemis-capable:12",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isartemisiv",
+      "name": "(R) ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-islargepulselaser",
+      "name": "(R) (B) ISLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-10",
+      "name": "(B) LRM 10",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-lrm-10-artemis-capable:12",
+      "name": "IS Ammo LRM-10 Artemis-capable:12",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-isstreaksrm2",
+      "name": "(B) ISStreakSRM2",
+      "location": "AFT"
+    },
+    {
+      "id": "isstreaksrm2",
+      "name": "ISStreakSRM2",
+      "location": "AFT"
+    },
+    {
+      "id": "is-streak-srm-2-ammo:100",
+      "name": "IS Streak SRM 2 Ammo:100",
+      "location": "AFT"
+    }
+  ],
+  "crew": 46,
+  "escapePods": 0,
+  "lifeBoats": 4,
+  "officers": 5,
+  "gunners": 5,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "asfbay:6.0:2:1::-1:0",
+    "asfbay:12.0:4:2::-1:0",
+    "cargobay:325.5:2:3::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "1stclassquarters:50.0:0:-1::-1:0",
+    "crewquarters:35.0:0:-1::-1:0"
+  ],
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Okinawa class DropShip is a medium aerospace fighter carrier designed and built for the Draconis Combine Mustered Soldiery. Weighing 4,500 tons, this Spheroid carrier transports eighteen aerospace fighters, filling the gap between the small Leopard CV and the massive Vengeance class carriers. The Okinawa serves as a significant investment in the Combine's carrier capability.</p><p>Unlike most carriers, which use Aerodyne hulls, the Okinawa employs a Spheroid design with a distinctive ring of dual-purpose fighter bays arranged around its midsection. This unusual configuration provides efficient launch and recovery operations while keeping the vessel's fighter complement well protected within the hull.</p>",
+    "capabilities": "<p>The revised Okinawa launched after April 3056 features redistributed armor protection based on combat experience. Nose armor is significantly reinforced at the expense of side and aft coverage, reflecting the operational reality that carrier commanders keep their vessel's nose oriented toward threats to protect the vulnerable engine section. All other systems remain identical to the original variant.</p><p>The weapons array is unchanged: two ER large lasers, an Artemis-enhanced LRM-20, an ER PPC, a large pulse laser, two medium pulse lasers, and an Artemis-enhanced SRM-6 in the nose. Each broadside carries the same complement of energy weapons and missile systems, and the aft arc retains its LRM-10, large pulse laser, and Streak SRM-2 launchers. The fighter complement of eighteen aerospace craft, 325 tons of cargo, and seventy-seven double heat sinks remain unchanged.</p>",
+    "deployment": "<p>The revised armor configuration entered production in April 3056, replacing the original on the BBP Industries production line at Luthien. This variant serves in the same fleet carrier role as its predecessor, with the improved survivability from reinforced nose armor making it better suited for the close-in engagements that carrier operations frequently demand.</p>",
+    "history": "<p>The first Okinawa class DropShip slipped its moorings at the BBP Industries yard at Luthien in early 3055 after an exhaustive series of trials. The design was conceived to address a gap in the Draconis Combine's carrier fleet between the small Leopard CV and the much larger Vengeance class vessels. Production at Luthien provided a steady stream of new carriers to the DCMS fleet.</p><p>The first Okinawa to see combat participated in the 3055 raid on Luzerne, where the vessel took heavy damage during the rear-guard action and returned with less than half its fighter complement. The fighters that did return inflicted significant damage on a Clan WarShip during the engagement, contributing to the enemy vessel's withdrawal from the battle. Operational experience from this and subsequent engagements revealed that the majority of damage inflicted on Okinawa class vessels occurred around the nose, a result of the standard practice of keeping a DropShip's nose pointed toward hostile craft to minimize engine damage risk. Consequently, vessels launched after April 3056 received reinforced nose armor at the expense of side and aft protection.</p>",
+    "manufacturer": "BBP Industries",
+    "primaryFactory": "Luthien"
+  }
+}

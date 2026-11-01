@@ -1,0 +1,809 @@
+{
+  "id": "atreus-battleship-2552",
+  "chassis": "Atreus Battleship",
+  "model": "(2552)",
+  "unitType": "WarShip",
+  "subType": "WarShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2552,
+  "tonnage": 1100000,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "movement": {
+    "safeThrust": 3,
+    "maxThrust": 5
+  },
+  "fuel": 6630,
+  "structuralIntegrity": 80,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 3500
+  },
+  "armor": {
+    "type": "IMPROVED_FERRO_ALUMINUM",
+    "byArc": {
+      "NOSE": 203,
+      "FRONT_LEFT_SIDE": 183,
+      "FRONT_RIGHT_SIDE": 183,
+      "AFT": 165,
+      "AFT_LEFT_SIDE": 183,
+      "AFT_RIGHT_SIDE": 183
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-ppc-heavy",
+      "name": "(B) Naval PPC (Heavy)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-small-laser",
+      "name": "(B) Small Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-ppc-heavy",
+      "name": "(B) Naval PPC (Heavy)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-35",
+      "name": "(B) Naval Autocannon (NAC/35)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-35",
+      "name": "Naval Autocannon (NAC/35)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-35:20",
+      "name": "Ammo NAC/35:20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-20",
+      "name": "(B) Naval Autocannon (NAC/20)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-20",
+      "name": "Naval Autocannon (NAC/20)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-20:20",
+      "name": "Ammo NAC/20:20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-small-laser",
+      "name": "(B) Small Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-ppc-heavy",
+      "name": "(B) Naval PPC (Heavy)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-35",
+      "name": "(B) Naval Autocannon (NAC/35)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-35",
+      "name": "Naval Autocannon (NAC/35)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-35:20",
+      "name": "Ammo NAC/35:20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-20",
+      "name": "(B) Naval Autocannon (NAC/20)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-20",
+      "name": "Naval Autocannon (NAC/20)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-20:20",
+      "name": "Ammo NAC/20:20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-small-laser",
+      "name": "(B) Small Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-20",
+      "name": "(B) Naval Autocannon (NAC/20)",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-autocannon-nac-20",
+      "name": "Naval Autocannon (NAC/20)",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-nac-20:20",
+      "name": "Ammo NAC/20:20",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-laser-35",
+      "name": "Naval Laser 35",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-laser-35",
+      "name": "Naval Laser 35",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-laser-35",
+      "name": "Naval Laser 35",
+      "location": "AFT"
+    },
+    {
+      "id": "b-small-laser",
+      "name": "(B) Small Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-small-laser",
+      "name": "(B) Small Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-small-laser",
+      "name": "(B) Small Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-35",
+      "name": "(B) Naval Autocannon (NAC/35)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-35",
+      "name": "Naval Autocannon (NAC/35)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-35:20",
+      "name": "Ammo NAC/35:20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-ppc-heavy",
+      "name": "(B) Naval PPC (Heavy)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-laser-45",
+      "name": "(B) Naval Laser 45",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-small-laser",
+      "name": "(B) Small Laser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-35",
+      "name": "(B) Naval Autocannon (NAC/35)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-35",
+      "name": "Naval Autocannon (NAC/35)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-35:20",
+      "name": "Ammo NAC/35:20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-25",
+      "name": "Naval Autocannon (NAC/25)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-25:20",
+      "name": "Ammo NAC/25:20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-ppc-heavy",
+      "name": "(B) Naval PPC (Heavy)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-laser-45",
+      "name": "(B) Naval Laser 45",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-small-laser",
+      "name": "(B) Small Laser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "RIGHT_BROADSIDE"
+    }
+  ],
+  "crew": 533,
+  "escapePods": 25,
+  "lifeBoats": 25,
+  "officers": 100,
+  "gunners": 87,
+  "passengers": 24,
+  "battleArmor": 0,
+  "marines": 50,
+  "transporters": [
+    "asfbay:24.0:6:1::-1:0",
+    "cargobay:166634.5:10:2::-1:0",
+    "dockingcollar",
+    "dockingcollar",
+    "steeragequarters:250.0:0:-1::-1:0",
+    "1stclassquarters:1240.0:0:-1::-1:0",
+    "crewquarters:2695.0:0:-1::-1:0"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 1,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": false,
+  "hasHPG": false,
+  "gravDecks": [
+    95,
+    55
+  ],
+  "dockingCollars": 2,
+  "mulId": 3751,
+  "role": "None",
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Atreus-class battleship was designed and constructed by Technicron Manufacturing at its Tamarind Yards for the Free Worlds League, entering service in 2552 during the final decades of the Age of War. Conceived as a statement of the League's naval ambition and industrial capability, the Atreus was the heaviest WarShip class operated exclusively by the Free Worlds League, serving as the backbone of League battlegroups for over two centuries.</p><p>The class anchored fleet formations with raw firepower and considerable displacement, earning respect as a credible deterrent along the League's extensive borders. Crew opinion of the vessel was more divided, as certain design compromises left those who served aboard with strong reservations about life at the posting, but the Atreus-class remained a significant achievement in League shipbuilding.</p>",
+    "capabilities": "<p>Displacing 1.1 million tons, the Atreus was a formidably armed vessel whose broadside batteries combined naval autocannon, naval lasers, and heavy naval particle projection cannon across multiple firing arcs. The class relied heavily on naval autocannon for its primary striking power, supplemented by laser batteries and a substantial number of heavy capital particle weapons that provided devastating close-range firepower. This weapons mix gave the Atreus considerable punch in fleet engagements, though the magazines carried an especially limited supply of only ten rounds per autocannon, a recognized constraint that demanded quick resolution of any engagement before the vessel's primary armament ran dry.</p><p>The hull carried approximately seventeen hundred and fifty tons of ferro-aluminum armor, providing respectable but not exceptional protection for a vessel of battleship tonnage. Acceleration was noteworthy for a capital vessel of this displacement, with the class capable of sustained thrust well above that of many contemporaries, lending it a degree of tactical agility unusual for a battleship. The Atreus carried four squadrons of fighters and mounted two docking collars for DropShip attachment, complemented by an enormous cargo capacity exceeding one hundred and sixty thousand tons. Two gravity decks of unequal size provided simulated gravity for the crew, though living conditions aboard were widely regarded as cramped and uncomfortable, with even officer quarters offering minimal privacy, making Atreus postings among the least sought-after assignments in the League fleet.</p>",
+    "deployment": "<p>The FWLS Atreus served as the flagship of the First Fleet in 2765, based at the Dieudonne system with anchorage at the Technicron Manufacturing shipyards at Savannah. As the likely lead vessel of her class, the vessel occupied a position of considerable prestige within the fleet hierarchy, though relatively little combat was recorded along the First Fleet's patrol route near the Hegemony border during this period.</p><p>The FWLS Sorunda, assigned to the Second Fleet, distinguished herself during the invasion of the Second Chance system in February 2787. Engaging the Capellan Du Shi Wang-class battleship Mica Liao, the Sorunda employed her forward batteries and broadside armament to devastating effect, while nuclear-armed fighters from her bays inflicted the killing blows on the enemy capital vessel. The vessel subsequently conducted a seven-minute orbital bombardment of Sweethaven spaceport, destroying ground forces and DropShips in a demonstration of the class's power projection capability.</p><p>The FWLS Majestic participated alongside her sister vessel FWLS Kanata in retaliatory operations against the Capellan Confederation in August 2788, conducting firebombing operations over New Canton. The Majestic met her end during the defense of Andurien in October 2838, engaging a Capellan invasion fleet alongside other League WarShips. Though the defending force claimed significant enemy losses, the Majestic was destroyed in the engagement, her wreckage remaining in orbit until atmospheric decay consumed it in 2843. Additional vessels including the FWLS Agrippa and FWLS Ragusa were lost in separate actions at Corey and Wazan during the First Succession War, confirming the relentless attrition that consumed the class.</p>",
+    "history": "<p>Technicron Manufacturing laid down the first Atreus-class keels at the Tamarind Yards in the mid-twenty-sixth century, with the class entering service in 2552 as the Free Worlds League sought to establish a credible naval force during the closing decades of the Age of War. The design matched or exceeded contemporary battleships fielded by rival states including the Lyran Commonwealth and Capellan Confederation, ceding supremacy only to the Terran Hegemony's largest capital vessels introduced in the following century. Production continued through 2681, establishing a substantial fleet of capital WarShips that formed the foundation of the League's naval power for generations.</p><p>By 2765, at least twenty Atreus-class battleships remained in active service, distributed across the Free Worlds League Navy's five standing fleets with four battleships assigned to each fleet group. The class served as the nucleus around which each fleet's order of battle was constructed, supported by heavy cruisers, destroyers, and provincial naval squadrons. This organizational structure gave the League one of the most powerful and evenly distributed naval forces among the Successor States, enabling the FWLN to project credible force along its extensive borders with the Lyran Commonwealth and Capellan Confederation.</p><p>The Succession Wars exacted a devastating toll on the class. During the First Succession War, Atreus-class vessels championed League offensive operations against the Capellan Confederation, engaging enemy capital ships in several decisive naval actions and supporting ground campaigns through orbital bombardment operations. The attrition proved severe on both sides, with multiple vessels lost in engagements where Capellan forces counterattacked League positions with their own capital WarShips. The inability to replace losses at the Tamarind Yards, where production had ceased nearly a century earlier, gradually eroded the League's battleship strength beyond recovery.</p><p>Surviving vessels continued to serve through the Second Succession War, participating in defensive operations against continued Capellan incursions into League territory. The last Atreus-class battleship fell to Lyran aerospace fighters in 2809, marking the extinction of the class and ending the Free Worlds League's indigenous battleship capability. Approximately two-thirds of all vessels constructed had survived to the beginning of the Succession Wars, a figure that spoke to both the durability of the design and the relative restraint of the Star League era, but sustained warfare without replacement proved insurmountable. The loss of the Atreus class left a void in the League's naval order of battle that would endure for centuries.</p>",
+    "manufacturer": "Technicron Manufacturing Corp. Tamarind Yards",
+    "primaryFactory": "Tamarind"
+  }
+}
