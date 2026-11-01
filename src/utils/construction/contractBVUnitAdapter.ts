@@ -47,6 +47,8 @@ export interface IContractBVSource {
     readonly byLocation?: Readonly<Record<string, number>>;
     readonly byArc?: Readonly<Record<string, number>>;
     readonly barRating?: number;
+    readonly typeByLocation?: Readonly<Record<string, number>>;
+    readonly barRatingByLocation?: Readonly<Record<string, number>>;
   };
   readonly equipment?: readonly { id: string; location: string }[];
 }
@@ -65,6 +67,9 @@ export interface IContractBVVehicle {
   readonly movement: IGroundMovement;
   readonly totalArmorPoints: number;
   readonly armorByLocation: Readonly<Record<string, number>>;
+  readonly armorType: string;
+  readonly armorTypeByLocation: Readonly<Record<string, number>>;
+  readonly barRatingByLocation: Readonly<Record<string, number>>;
   readonly equipment: readonly IVehicleMountedEquipment[];
   readonly turret?: { readonly type: TurretType };
   readonly chinTurret?: { readonly type: TurretType };
@@ -166,11 +171,17 @@ function contractVehicleToBVUnit(unit: IContractBVSource): IContractBVVehicle {
       hasSecondTurret: sourceArmor.TURRET_2 !== undefined,
     },
   );
+  const armorTypeByLocation: Record<string, number> = {};
+  const barRatingByLocation: Record<string, number> = {};
   const armorByLocation = Object.fromEntries(
-    Object.entries(sourceArmor).map(([tag, points]) => [
-      resolveVehicleContractLocation(tag, 'armor location'),
-      points,
-    ]),
+    Object.entries(sourceArmor).map(([tag, points]) => {
+      const location = resolveVehicleContractLocation(tag, 'armor location');
+      if (unit.armor.typeByLocation?.[tag] !== undefined)
+        armorTypeByLocation[location] = unit.armor.typeByLocation[tag];
+      if (unit.armor.barRatingByLocation?.[tag] !== undefined)
+        barRatingByLocation[location] = unit.armor.barRatingByLocation[tag];
+      return [location, points];
+    }),
   );
 
   return {
@@ -187,6 +198,9 @@ function contractVehicleToBVUnit(unit: IContractBVSource): IContractBVVehicle {
     },
     totalArmorPoints: sumValues(sourceArmor),
     armorByLocation,
+    armorType: unit.armor.type,
+    armorTypeByLocation,
+    barRatingByLocation,
     equipment,
     ...(isTank && primaryTurretType !== undefined
       ? { turret: { type: primaryTurretType } }
