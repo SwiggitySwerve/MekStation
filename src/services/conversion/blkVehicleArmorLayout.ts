@@ -3,14 +3,16 @@
  *
  * The `<armor>` array is positional and its meaning depends on the Java class
  * the loader builds, so the layout is chosen the way the loaders choose it:
- * - Tank: six-side SuperHeavyTank above the motion weight limit
- *   (`BLKTankFile.java:107-132`), otherwise Front, Right, Left, Rear and up to
- *   two turrets (4-6 values, `BLKTankFile.java:171-176`);
+ * - Tank and Naval (both loaded by BLKTankFile, `MekFileParser.java:233`):
+ *   six-side SuperHeavyTank above the motion weight limit
+ *   (`BLKTankFile.java:94-123`), otherwise Front, Right, Left, Rear and up to
+ *   two turrets (4-6 values, `BLKTankFile.java:181-186`);
  * - SupportTank: ordinary layout (`BLKSupportTankFile.java:119-126`);
  * - LargeSupportTank: six-side layout (`BLKLargeSupportTankFile.java:122-129`);
  * - VTOL, SupportVTOL: Front, Right, Left, Rear, Rotor, optional chin Turret
  *   (`BLKVTOLFile.java:127-133`).
- * A length the loader rejects ("Incorrect armor array length") gives undefined.
+ * A length the loader rejects ("Incorrect armor array length") or a unit type
+ * with no layout here gives undefined.
  */
 
 import { VehicleLocation } from '@/types/construction/UnitLocation';
@@ -72,6 +74,7 @@ function layoutFor(
     case 'LargeSupportTank':
       return SIX_SIDE;
     case 'Tank':
+    case 'Naval':
       return isSuperHeavyTank(motionType, tonnage) ? SIX_SIDE : STANDARD;
     case 'SupportTank':
       return STANDARD;

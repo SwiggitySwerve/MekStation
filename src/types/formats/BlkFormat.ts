@@ -68,7 +68,7 @@ export const BLK_VTOL_ARMOR_LOCATIONS = [
 
 /**
  * `<armor>` order for SuperHeavy tanks and LargeSupportTanks: six sides, then
- * Turret and Turret 2 (`SuperHeavyTank.java:66-74`; `BLKTankFile.java:177-190`
+ * Turret and Turret 2 (`SuperHeavyTank.java:66-74`; `BLKTankFile.java:188-192`
  * accepts 6 to 8 values, `BLKLargeSupportTankFile.java:124-129` likewise).
  */
 export const BLK_SUPERHEAVY_ARMOR_LOCATIONS = [

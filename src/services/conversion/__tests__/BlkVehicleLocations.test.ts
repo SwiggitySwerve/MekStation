@@ -8,6 +8,11 @@
  */
 
 import {
+  BLK_SUPERHEAVY_ARMOR_LOCATIONS,
+  BLK_VEHICLE_ARMOR_LOCATIONS,
+} from '@/types/formats/BlkFormat';
+
+import {
   getBlkParserService,
   resetBlkParserService,
 } from '../BlkParserService';
@@ -95,6 +100,33 @@ describe('BLK vehicle location model', () => {
       ).toBeUndefined();
     });
 
+    it.each(['LargeSupportTank', 'Tank'])(
+      'maps a %s six-side array position by position (armor[i] is location i + 1)',
+      (unitType) => {
+        // Distinct values pin the left/right order, which no corpus unit can:
+        // every pinned six-side source has equal left and right armor.
+        // SuperHeavyTank.java:66-70 / LargeSupportTank.java:65-69: Front Right
+        // 2, Front Left 3, Rear Right 4, Rear Left 5.
+        expect(
+          resolveBlkVehicleArmor(
+            unitType,
+            'Tracked',
+            150,
+            [1, 2, 3, 4, 5, 6, 7, 8],
+          ),
+        ).toEqual({
+          Front: 1,
+          'Front Right': 2,
+          'Front Left': 3,
+          'Rear Right': 4,
+          'Rear Left': 5,
+          Rear: 6,
+          Turret: 7,
+          'Turret 2': 8,
+        });
+      },
+    );
+
     it.each([
       ['Hover', 50, false],
       ['Hover', 51, true],
@@ -107,12 +139,24 @@ describe('BLK vehicle location model', () => {
       ['Naval', 301, true],
       ['Submarine', 301, true],
     ])(
-      'Tank %s at %d t is six-side=%s (BLKTankFile.java:107-132)',
+      'Tank %s at %d t is six-side=%s (BLKTankFile.java:94-123)',
       (motion, tons, six) => {
         const armor = six ? [1, 2, 3, 4, 5, 6] : [1, 2, 3, 4];
         const layout = resolveBlkVehicleArmor('Tank', motion, tons, armor);
-        expect(Object.keys(layout ?? {}).includes('Front Right')).toBe(six);
+        expect(Object.keys(layout ?? {})).toEqual(
+          six
+            ? BLK_SUPERHEAVY_ARMOR_LOCATIONS.slice(0, 6)
+            : BLK_VEHICLE_ARMOR_LOCATIONS.slice(0, 4),
+        );
       },
     );
+
+    it('lays out a Naval BLK like a Tank, as MegaMek loads it (MekFileParser.java:233)', () => {
+      expect(
+        Object.keys(
+          resolveBlkVehicleArmor('Naval', 'Naval', 100, [1, 2, 3, 4]) ?? {},
+        ),
+      ).toEqual(BLK_VEHICLE_ARMOR_LOCATIONS.slice(0, 4));
+    });
   });
 });
