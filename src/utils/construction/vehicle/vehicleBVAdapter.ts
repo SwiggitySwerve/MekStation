@@ -16,6 +16,7 @@ import type {
   ISupportVehicle,
 } from '@/types/unit/VehicleInterfaces';
 
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType, isSupportVehicle } from '@/types/unit/VehicleInterfaces';
 
 import { computeFlankMP } from './engine';
@@ -140,6 +141,9 @@ function sumStructurePoints(tonnage: number): number {
  * avoids coupling the BV adapter to the full store schema.
  */
 export interface VehicleBVStateSubset {
+  unitType?: UnitType;
+  hasEnvironmentalSealing?: boolean;
+  hasFlotationHull?: boolean;
   motionType: GroundMotionType;
   tonnage: number;
   cruiseMP: number;
@@ -184,6 +188,10 @@ export function toVehicleBVInput(state: VehicleBVStateSubset): VehicleBVInput {
 
   return {
     motionType: state.motionType,
+    isSupportVehicle: state.unitType === UnitType.SUPPORT_VEHICLE,
+    chassisEquipment: state.equipment.map((item) => item.equipmentId),
+    hasEnvironmentalSealing: state.hasEnvironmentalSealing,
+    hasFlotationHull: state.hasFlotationHull,
     cruiseMP: state.cruiseMP,
     flankMP,
     jumpMP: 0,
@@ -320,6 +328,14 @@ export function toVehicleBVInputFromUnit(
 
   return {
     motionType: unit.motionType as GroundMotionType,
+    isSupportVehicle: isSupportVehicle(unit),
+    chassisEquipment: rawEquipment.map((item) => item.equipmentId),
+    ...(unit.unitType === UnitType.VEHICLE
+      ? {
+          hasEnvironmentalSealing: unit.hasEnvironmentalSealing,
+          hasFlotationHull: unit.hasFlotationHull,
+        }
+      : {}),
     cruiseMP,
     flankMP,
     jumpMP,

@@ -7,6 +7,7 @@ import type {
 
 import { resolveEquipmentBV } from '../equipmentBVResolver';
 import { calculateVehicleTMM } from './vehicleBVMovement';
+import { getVehicleDefensiveTypeModifier } from './vehicleBVTypeModifier';
 
 // =============================================================================
 // Structure Multiplier
@@ -38,7 +39,7 @@ function getVehicleStructureBVMultiplier(structureType?: string): number {
  * structureBV = totalStructure × 1.5 × structureMult
  * baseDef = armorBV + structureBV + defEquipBV − explosivePenalty
  * defensiveFactor = 1 + ((TMM × 0.5) / 10)
- * defensiveBV = baseDef × defensiveFactor
+ * defensiveBV = baseDef × typeModifier × defensiveFactor
  */
 export function calculateVehicleDefensiveBV(
   input: VehicleBVInput,
@@ -70,7 +71,8 @@ export function calculateVehicleDefensiveBV(
 
   const baseDef =
     armorBV + structureBV + defensiveEquipmentBV - explosivePenalty;
-  const total = baseDef * defensiveFactor;
+  const total =
+    baseDef * getVehicleDefensiveTypeModifier(input) * defensiveFactor;
 
   return {
     armorBV,
