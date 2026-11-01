@@ -28,7 +28,7 @@ import {
  * Compute the aerospace defensive pool without a thrust multiplier.
  * Pinned MegaMek AeroBVCalculator.java:137-138 leaves processDefensiveFactor
  * empty. Its aircraft type modifier is a separate, deferred parity term.
- * @spec establish-all-unit-data-parity: Aerospace Defensive Thrust Factor
+ * @spec establish-all-unit-data-parity: Aerospace Defensive BV
  */
 export function calculateAerospaceDefensiveBV(input: IAerospaceBVInput): {
   armorBV: number;
