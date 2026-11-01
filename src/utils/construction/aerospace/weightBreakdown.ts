@@ -81,7 +81,12 @@ export function computeWeightBreakdown(
     input.engineRating,
     input.engineType,
   );
-  const siTons = siExtraWeightTons(input.structuralIntegrity, input.tonnage);
+  // Fighter SI is derived and weighs nothing in MegaMek; only small craft
+  // pay for SI above the default.
+  const siTons =
+    input.subType === AerospaceSubType.SMALL_CRAFT
+      ? siExtraWeightTons(input.structuralIntegrity, input.tonnage)
+      : 0;
   const heatSinkTons = heatSinkExtraTons(input.totalHeatSinks);
   const cpTons = cockpitTons(input.cockpitType);
   const quartersTons = input.crew ? input.crew.quartersTons : 0;

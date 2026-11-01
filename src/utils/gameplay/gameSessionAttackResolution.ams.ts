@@ -55,6 +55,10 @@ function mountBaseId(weaponId: string): string {
   return match ? match[1] : weaponId;
 }
 
+function isStreakMissile(weaponId: string, weaponName: string): boolean {
+  return isStreakWeapon(mountBaseId(weaponId)) || /streak/i.test(weaponName);
+}
+
 function canSelectedAMSIntercept(input: {
   readonly mount: ISelectedAMSWeaponMountData;
   readonly targetState: IGameSession['currentState']['units'][string];
@@ -129,9 +133,7 @@ export function resolveSelectedAMSCluster(input: {
   const rackSize = missileRackSize(input.weaponId, input.weaponName);
   if (rackSize === undefined) return undefined;
 
-  const streakClusterRoll =
-    isStreakWeapon(mountBaseId(input.weaponId)) ||
-    /streak/i.test(input.weaponName);
+  const streakClusterRoll = isStreakMissile(input.weaponId, input.weaponName);
   const clusterDice = streakClusterRoll
     ? ([11] as const)
     : diceRollToArray(input.diceRoller());
@@ -207,4 +209,32 @@ export function resolveSelectedAMSCluster(input: {
     session: currentSession,
     damage: damageForProjectiles(input.damage, rackSize, projectilesRemaining),
   };
+}
+
+/**
+ * A committed missile attack with no selected AMS: the cluster roll picks how
+ * many missiles land, and the launcher total becomes the damage of that many
+ * missiles. Streak lands every missile on a hit and rolls nothing.
+ */
+export function resolveMissileClusterDamage(input: {
+  readonly weaponId: string;
+  readonly weaponName: string;
+  readonly damage: number;
+  readonly diceRoller: DiceRoller;
+}): number | undefined {
+  if (
+    !isMissileClusterWeapon(input.weaponId, input.weaponName) ||
+    isStreakMissile(input.weaponId, input.weaponName)
+  ) {
+    return undefined;
+  }
+
+  const rackSize = missileRackSize(input.weaponId, input.weaponName);
+  if (rackSize === undefined) return undefined;
+
+  return damageForProjectiles(
+    input.damage,
+    rackSize,
+    lookupClusterHits(input.diceRoller().total, rackSize),
+  );
 }

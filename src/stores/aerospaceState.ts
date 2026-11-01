@@ -13,6 +13,7 @@
 import type { StoreEquipmentCollectionActions } from '@/stores/equipmentStoreActions';
 import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
 
+import { aerospaceStructuralIntegrity } from '@/services/conversion/BlkParserService.helpers';
 import { getThresholdWeightClass } from '@/services/units/unitWeightClass';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { EngineType } from '@/types/construction/EngineType';
@@ -31,6 +32,7 @@ import {
 import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { calculateFuelPoints } from '@/utils/construction/aerospace/fuelCalculations';
+import { calculateMaxThrust } from '@/utils/construction/aerospace/thrustCalculations';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================
@@ -156,6 +158,12 @@ export interface AerospaceState {
    */
   aerospaceSubType: AerospaceSubType;
 
+  /**
+   * FixedWingSupport source (a conventional-fighter sub-type here). Its SI is
+   * safe thrust alone (FixedWingSupport.java:135-138).
+   */
+  isFixedWingSupport?: boolean;
+
   /** Motion type (always Aerodyne for fighters) */
   motionType: AerospaceMotionType;
 
@@ -200,7 +208,10 @@ export interface AerospaceState {
   // Structure & Cockpit
   // =========================================================================
 
-  /** Structural integrity */
+  /**
+   * Structural integrity. Fighters derive it from tonnage and safe thrust
+   * (aerospaceStructuralIntegrity); small craft keep an explicit value.
+   */
   structuralIntegrity: number;
 
   /** Cockpit type */
@@ -391,6 +402,10 @@ export function createDefaultAerospaceState(
   // Default engine rating: tonnage * safe thrust
   const engineRating = options.tonnage * safeThrust;
 
+  const aerospaceSubType = isConventional
+    ? AerospaceSubType.CONVENTIONAL_FIGHTER
+    : AerospaceSubType.AEROSPACE_FIGHTER;
+
   // Parse name into chassis and model
   const nameParts = options.name.split(' ');
   const defaultChassis = nameParts[0] || 'New Fighter';
@@ -413,9 +428,7 @@ export function createDefaultAerospaceState(
     unitType: isConventional
       ? UnitType.CONVENTIONAL_FIGHTER
       : UnitType.AEROSPACE,
-    aerospaceSubType: isConventional
-      ? AerospaceSubType.CONVENTIONAL_FIGHTER
-      : AerospaceSubType.AEROSPACE_FIGHTER,
+    aerospaceSubType,
     motionType: AerospaceMotionType.AERODYNE,
     isOmni: false,
 
@@ -426,7 +439,7 @@ export function createDefaultAerospaceState(
       : AerospaceEngineType.FUSION,
     engineRating,
     safeThrust,
-    maxThrust: Math.floor(safeThrust * 1.5),
+    maxThrust: calculateMaxThrust(safeThrust),
     fuelTons: isConventional ? 2 : 5,
     fuelPoints: calculateFuelPoints(
       isConventional ? 2 : 5,
@@ -434,7 +447,11 @@ export function createDefaultAerospaceState(
     ),
 
     // Structure & Cockpit
-    structuralIntegrity: Math.ceil(options.tonnage / 10),
+    structuralIntegrity: aerospaceStructuralIntegrity({
+      aerospaceSubType,
+      tonnage: options.tonnage,
+      safeThrust,
+    }),
     cockpitType: AerospaceCockpitType.STANDARD,
     heatSinks: 10, // Default 10 heat sinks
     heatSinkPool: 10,

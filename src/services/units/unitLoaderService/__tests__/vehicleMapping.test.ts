@@ -170,6 +170,17 @@ it('creates independent clean sessions from a validated vehicle definition', asy
   );
 });
 
+it.each([
+  // TestSupportVehicle BAR weight per point (ArmorType.java:1840-2100): BAR 8
+  // tech F is 0.042 t, tech E 0.045 t; small support (< 5 t) rounds to a
+  // kilogram, others to a half ton.
+  ['SupportTank', 0.168],
+  ['LargeSupportTank', 13.5],
+])('weighs %s BAR armor by its armor tech rating', (kind, tons) => {
+  const row = supported.find((candidate) => candidate.kind === kind)!;
+  expect(normalizeVehicleConfiguration(row.definition).armorTonnage).toBe(tons);
+});
+
 it('derives missing engine rating and ignores a stale flank value through the movement owner', () => {
   const row = supported[0];
   expect(

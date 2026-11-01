@@ -9,6 +9,7 @@ import {
   TurretType,
   ITurretConfiguration,
 } from '@/types/unit/VehicleInterfaces';
+import { getInstalledArmorAllocation } from '@/utils/construction/vehicle/armor';
 import {
   computeStoredVehicleEngineRating,
   computeCruiseMPFromRating,
@@ -188,12 +189,18 @@ export function setTurretWeightLogic(
 }
 
 export function setTurretTypeLogic(
-  state: Pick<VehicleState, 'turret' | 'tonnage'>,
+  state: Pick<VehicleState, 'turret' | 'tonnage' | 'armorAllocation'>,
   type: TurretType,
 ): Partial<VehicleStore> {
   if (type === TurretType.NONE) {
     return {
       turret: null,
+      secondaryTurret: null,
+      armorAllocation: getInstalledArmorAllocation(
+        state.armorAllocation,
+        false,
+        false,
+      ),
       isModified: true,
       lastModifiedAt: Date.now(),
     };
@@ -210,6 +217,10 @@ export function setTurretTypeLogic(
 
   return {
     turret,
+    // Reinstalling a location starts at zero; edits retain installed armor.
+    armorAllocation: state.turret
+      ? state.armorAllocation
+      : getInstalledArmorAllocation(state.armorAllocation, false, true),
     isModified: true,
     lastModifiedAt: Date.now(),
   };
@@ -228,10 +239,11 @@ export function setHasSecondaryTurretLogic(
 ): Partial<VehicleStore> {
   if (!enabled) {
     // Zero TURRET_2 armor while preserving the rest of the allocation.
-    const nextAllocation = {
-      ...state.armorAllocation,
-      [VehicleLocation.TURRET_2]: 0,
-    };
+    const nextAllocation = getInstalledArmorAllocation(
+      state.armorAllocation,
+      true,
+      false,
+    );
     return {
       secondaryTurret: null,
       armorAllocation: nextAllocation,
@@ -251,6 +263,11 @@ export function setHasSecondaryTurretLogic(
   };
   return {
     secondaryTurret,
+    armorAllocation: getInstalledArmorAllocation(
+      state.armorAllocation,
+      true,
+      false,
+    ),
     isModified: true,
     lastModifiedAt: Date.now(),
   };
