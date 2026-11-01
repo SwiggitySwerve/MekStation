@@ -159,17 +159,16 @@ describe('ConventionalFighterUnitHandler', () => {
       });
 
       it('should include SI BV contribution', () => {
-        const lowSIDoc = createMockBlkDocument({ structuralIntegrity: 2 });
-        const highSIDoc = createMockBlkDocument({ structuralIntegrity: 10 });
+        // Parsed fighter SI is derived, so vary it on the parsed unit.
+        const result = handler.parse(createMockBlkDocument());
+        expect(result.success).toBe(true);
+        const unit = result.data!.unit;
 
-        const lowResult = handler.parse(lowSIDoc);
-        const highResult = handler.parse(highSIDoc);
-
-        expect(lowResult.success).toBe(true);
-        expect(highResult.success).toBe(true);
-
-        const lowBV = handler.calculateBV(lowResult.data!.unit);
-        const highBV = handler.calculateBV(highResult.data!.unit);
+        const lowBV = handler.calculateBV({ ...unit, structuralIntegrity: 2 });
+        const highBV = handler.calculateBV({
+          ...unit,
+          structuralIntegrity: 10,
+        });
 
         expect(highBV).toBeGreaterThan(lowBV);
       });

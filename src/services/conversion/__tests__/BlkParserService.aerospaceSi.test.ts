@@ -10,6 +10,7 @@
  * - FixedWingSupport.java:135-138 autoSetSI: SI = walk MP
  * - BLKConvFighterFile.java:153, AeroSpaceFighter.java:127 call autoSetSI
  * - BLKSmallCraftFile.java:125-128 reads the explicit structural_integrity tag
+ * - fighter loaders never read the tag, so an explicit one is ignored
  */
 
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
@@ -110,28 +111,35 @@ describe('BLK aerospace structural integrity default', () => {
       ).toBe(4);
     });
 
-    it('keeps an explicit structural_integrity tag', () => {
-      expect(
-        si({
-          unitType: 'Aero',
-          name: 'Tagged',
-          tonnage: 45,
-          safeThrust: 5,
-          structuralIntegrity: 9,
-        }),
-      ).toBe(9);
-    });
+    it.each([
+      ['Aero', 9],
+      ['AeroSpaceFighter', 0],
+      ['ConvFighter', 9],
+    ])(
+      'ignores an explicit structural_integrity tag on %s (tag %d) and derives 5',
+      (unitType, structuralIntegrity) => {
+        expect(
+          si({
+            unitType,
+            name: 'Tagged',
+            tonnage: 45,
+            safeThrust: 5,
+            structuralIntegrity,
+          }),
+        ).toBe(5);
+      },
+    );
 
-    it('keeps an explicit 0 tag rather than deriving (MekStation choice; MegaMek ignores the tag on fighters)', () => {
+    it('ignores an explicit tag on FixedWingSupport and uses the walk MP', () => {
       expect(
         si({
-          unitType: 'Aero',
-          name: 'Zero Tagged',
-          tonnage: 45,
-          safeThrust: 5,
-          structuralIntegrity: 0,
+          unitType: 'FixedWingSupport',
+          name: 'Tagged FWS',
+          tonnage: 75,
+          safeThrust: 4,
+          structuralIntegrity: 8,
         }),
-      ).toBe(0);
+      ).toBe(4);
     });
 
     it('does not derive SI for small craft, which carry an explicit tag', () => {

@@ -70,6 +70,21 @@ const cases = [
       ['TURRET', '59'],
     ],
   },
+  {
+    family: 'capital',
+    fixture: 'src/types/contracts/__tests__/fixtures/dropship-union-3070.json',
+    total: '660 pts',
+    movement: [
+      ['Safe Thrust', '3'],
+      ['Max Thrust', '5'],
+    ],
+    armor: [
+      ['NOSE', '180'],
+      ['RIGHT SIDE', '180'],
+      ['LEFT SIDE', '180'],
+      ['AFT', '120'],
+    ],
+  },
 ];
 
 it.each(cases)(
@@ -101,11 +116,36 @@ it.each(cases)(
   },
 );
 
-it('preserves the complete real mech detail rendering', async () => {
+it.each([
+  [
+    'tomahawk-c',
+    'a21aa7b85ba35a979b7ff2bda15b43c26be62365babe6c563f4b8fadf6a8edc9',
+  ],
+  [
+    'battle-tripod-r-h3l-2x',
+    '349c380f3087aefe9f40a3968cecbb4639923ff2867979f6213bf87be8b426e3',
+  ],
+  [
+    'archer-arc-6w',
+    'a9cfea8a129f042f01140da09844de1c9bbf0e6d338bbcc1114fc6d675a8902d',
+  ],
+  [
+    'dervish-dv-1s',
+    '35a9963b19a2804aecb40e8f58fb4e7effdcf59e634212659ae7bbad8e7c2166',
+  ],
+  [
+    'kintaro-kto-21',
+    '0fc25c2d5644d83eab107636b990dbfa41c5b8b2b53c27be630b06db671e4006',
+  ],
+  [
+    'zeus-x-zeu-x4',
+    'c07f67fe6263bd226642abb61bfc07230da8a933d9e98e4ffd05d1ff6f9096e8',
+  ],
+])('preserves the complete shipped %s mech rendering', async (id, hash) => {
   const rows = JSON.parse(
     fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
   ).units as { id: string; path: string }[];
-  const mech = rows.find(({ id }) => id === 'tomahawk-c')!;
+  const mech = rows.find((row) => row.id === id)!;
   const view = await showUnit(
     'battlemechs',
     path.join('public/data/units/battlemechs', mech.path),
@@ -114,7 +154,45 @@ it('preserves the complete real mech detail rendering', async () => {
   const dom = format(view.container, {
     plugins: [plugins.DOMElement, plugins.DOMCollection],
   });
-  expect(createHash('sha256').update(dom).digest('hex')).toBe(
-    'a21aa7b85ba35a979b7ff2bda15b43c26be62365babe6c563f4b8fadf6a8edc9',
-  );
+  expect(createHash('sha256').update(dom).digest('hex')).toBe(hash);
 });
+
+it('shows capital structural integrity', async () => {
+  await showUnit('capital', cases[2].fixture);
+  expectStat('SI', '11');
+  expect(screen.queryByText('Jump MP')).not.toBeInTheDocument();
+});
+
+it.each([
+  [
+    'battlearmor',
+    'public/data/units/battlearmor/elemental-standard-sqd5.json',
+    '3',
+  ],
+  ['infantry', 'public/data/units/infantry/foot-rifle-platoon.json', '0'],
+])('shows only supplied %s movement', async (family, fixture, jump) => {
+  await showUnit(family, fixture);
+  expectStat('Ground MP', '1');
+  expectStat('Jump MP', jump);
+  expectStat('UMU MP', '0');
+  expect(screen.queryByText('Walk MP')).not.toBeInTheDocument();
+  expect(screen.queryByText('Run MP')).not.toBeInTheDocument();
+});
+
+it.each(['battlearmor', 'infantry', 'capital'])(
+  'shows unavailable movement for a sparse %s definition',
+  async (family) => {
+    mockRouter.query = { family, id: 'sparse' };
+    global.fetch = jest.fn().mockResolvedValue({
+      json: async () => ({
+        success: true,
+        data: { id: 'sparse', name: 'Sparse unit', tonnage: 1 },
+      }),
+    });
+    render(<DetailPage />);
+    expect(await screen.findByText('Not Yet Available')).toBeVisible();
+    for (const label of ['Walk MP', 'Run MP', 'Jump MP']) {
+      expect(screen.queryByText(label)).not.toBeInTheDocument();
+    }
+  },
+);

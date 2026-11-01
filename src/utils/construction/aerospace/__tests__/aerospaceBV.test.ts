@@ -116,8 +116,8 @@ describe('calculateAerospaceDefensiveBV', () => {
         explosivePenalties: 20,
       }),
     );
-    // armor 250 + si 10 - explosive 20 = 240; no thrust multiplier
-    expect(result.defensive).toBeCloseTo(240, 1);
+    // (armor 250 + si 10 - explosive 20) × ASF type 1.2 = 288
+    expect(result.defensive).toBeCloseTo(288, 1);
   });
 });
 
@@ -329,8 +329,11 @@ describe('calculateAerospaceBV breakdown shape', () => {
         equipment: [{ id: 'medium-laser', location: AerospaceArc.NOSE }],
       }),
     );
-    // Same inputs except sub-type -> CF should equal ASF × 0.8, then rounded
-    expect(cf.final).toBeCloseTo(Math.round(asf.final * 0.8), -1);
+    expect(cf.offensive).toBe(asf.offensive);
+    expect(cf.defensive / 1.1).toBeCloseTo(asf.defensive / 1.2, 10);
+    expect(cf.final).toBe(
+      Math.round((cf.defensive + cf.offensive) * 0.8 * cf.pilotMultiplier),
+    );
   });
 
   it('per-arc contributions include weight and weighted BV', () => {

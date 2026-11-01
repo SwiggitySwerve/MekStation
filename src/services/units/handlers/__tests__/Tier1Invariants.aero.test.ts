@@ -91,13 +91,14 @@ describe('AerospaceUnitHandler Tier 1 Invariants', () => {
   }
 
   it('locks down BV golden value for canonical Stuka', () => {
-    // armor=96, SI=8, thrust=5
-    // base = 96*2 + 8*10 = 192 + 80 = 272
+    // armor=96, thrust=5; the SI tag is ignored and SI derives to
+    // max(floor(100/10), 5) = 10 (Aero.java:804-808)
+    // base = 96*2 + 10*10 = 192 + 100 = 292
     // thrustMod = 1 + (5-5)*0.05 = 1.0
-    // bv = round(272 * 1) = 272
+    // bv = round(292 * 1) = 292
     const result = handler.parse(makeDoc());
     expect(result.success).toBe(true);
-    expect(handler.calculateBV(result.data!.unit)).toBe(272);
+    expect(handler.calculateBV(result.data!.unit)).toBe(292);
   });
 
   it('BV scales with thrust per documented thrust modifier', () => {

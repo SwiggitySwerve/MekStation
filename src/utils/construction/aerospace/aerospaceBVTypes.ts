@@ -33,6 +33,8 @@ export interface IAerospaceBVAmmo {
  */
 export interface IAerospaceBVInput {
   readonly subType: AerospaceSubType;
+  /** Fixed-wing support aircraft use the support-vehicle defensive type rule. */
+  readonly isSupportVehicle?: boolean;
   readonly tonnage: number;
   readonly structuralIntegrity: number;
   readonly safeThrust: number;

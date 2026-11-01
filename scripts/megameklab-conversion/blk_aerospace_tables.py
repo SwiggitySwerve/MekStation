@@ -70,6 +70,7 @@ ARMOR_CODE_MAP: Dict[int, str] = {
     0: "STANDARD", 1: "FERRO_FIBROUS", 2: "REACTIVE", 3: "REFLECTIVE",
     4: "HARDENED", 5: "LIGHT_FERRO_FIBROUS", 6: "HEAVY_FERRO_FIBROUS",
     7: "PATCHWORK",
+    # Both native stealth codes share the contract's STEALTH identity.
     8: "STEALTH", 10: "COMMERCIAL", 14: "INDUSTRIAL", 15: "HEAVY_INDUSTRIAL",
     16: "FERRO_LAMELLOR", 17: "PRIMITIVE", 22: "STEALTH",
     25: "IMPACT_RESISTANT", 39: "PRIMITIVE",
