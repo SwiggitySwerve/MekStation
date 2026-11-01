@@ -14,7 +14,11 @@ export const AMMUNITION_NORMALIZATION_PATTERNS: Array<[RegExp, string]> = [
   ],
   [/^is-ammo-(ac-\d+)$/, '$1-ammo'],
   [/^is-(ammo-ac-\d+-primitive)$/, '$1'],
-  [/^is(?:-ammo-mg-full|ammomg-full)$/, 'ammo-mg-full'],
+  [
+    /^(?:(?:is|clan)-(?:ammo-mg|machine-gun-ammo)|isammomg)-full$/,
+    'ammo-mg-full',
+  ],
+  [/^(?:is|clan)-ammo-mg-half$/, 'machine-gun-ammo-half'],
   [/^is(lrm|srm)(\d+)-ammo$/, 'ammo-$1-$2'],
   [/^isac(\d+)-ammo$/, 'ac-$1-ammo'],
   [/^is-ultra-ac-(\d+)-ammo$/, 'uac-$1-ammo'],

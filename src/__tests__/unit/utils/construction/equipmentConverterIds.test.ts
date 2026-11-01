@@ -1,3 +1,4 @@
+import { defaultCatalogAmmoLookup } from '@/simulation/runner/UnitHydrationAmmo';
 import {
   getEquipmentEntry,
   normalizeEquipmentId,
@@ -6,6 +7,27 @@ import {
 } from '@/utils/construction/equipmentBV';
 
 describe('converted vehicle and aerospace equipment identities', () => {
+  // AmmoType.createISMGAmmo / createCLMGAmmo and their Half factories.
+  it.each([
+    ['IS Ammo MG - Full', 'ammo-mg-full', 200],
+    ['ISAmmoMG - Full', 'ammo-mg-full', 200],
+    ['IS Machine Gun Ammo - Full', 'ammo-mg-full', 200],
+    ['Clan Ammo MG - Full', 'ammo-mg-full', 200],
+    ['Clan Machine Gun Ammo - Full', 'ammo-mg-full', 200],
+    ['IS Ammo MG - Half', 'machine-gun-ammo-half', 100],
+    ['IS Machine Gun Ammo - Half', 'machine-gun-ammo-half', 100],
+    ['Clan Ammo MG - Half', 'machine-gun-ammo-half', 100],
+    ['Clan Machine Gun Ammo - Half', 'machine-gun-ammo-half', 100],
+  ] as const)('preserves the native MG bin %s', (input, id, shotsPerTon) => {
+    for (const token of [input, input.toLowerCase(), input.toUpperCase()]) {
+      expect(normalizeEquipmentId(token)).toBe(id);
+      expect(defaultCatalogAmmoLookup()(token)).toMatchObject({
+        id,
+        shotsPerTon,
+      });
+    }
+  });
+
   it.each([
     ['is-ammo-srm-6', 'ammo-srm-6', 7],
     ['is-ammo-lrm-15', 'ammo-lrm-15', 17],

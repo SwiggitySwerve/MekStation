@@ -272,3 +272,11 @@ Source: pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 `AmmoType.java` factory identities. The focused `equipmentConverterIds` tests
 enforce aliases, mount suffixes, namespace collisions and missing variants.
 These rules do not change ammo quantities, offensive caps or BV formulas.
+
+Canonical critical-slot names such as `IS Ammo MG - Full` keep their explicit
+packaging identity. Normalize whitespace around existing separators before
+joining words; otherwise that source spelling produces three hyphens and
+misses the full bin. Native IS/Clan MG full and half names resolve to the
+represented full/half records with 200/100 rounds. Generic MG aliases must not
+replace those explicit bins. Engine launch and canonical loader tests enforce
+the real Warhammer inventory and its retained 70-ton construction.

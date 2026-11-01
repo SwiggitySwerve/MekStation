@@ -106,7 +106,7 @@ export function normalizeEquipmentId(
   // Preserve rack numbers and tech/munition variants before general instance-ID
   // stripping. A failed ammo lookup must never become a weapon lookup.
   if (isAmmunitionEquipmentId(lower)) {
-    const ammoToken = lower.replace(/[\s/]+/g, '-');
+    const ammoToken = lower.replace(/\s*-\s*/g, '-').replace(/[\s/]+/g, '-');
     const resolved =
       firstCatalogMatch(catalog, [lower]) ??
       firstCatalogMatch(catalog, [ammoToken]) ??
