@@ -200,6 +200,13 @@ function contractVehicleToBVUnit(unit: IContractBVSource): IContractBVVehicle {
   };
 }
 
+function contractAerospaceArmorFacts(unit: IContractBVSource) {
+  return {
+    armorType: unit.armor.type.toLowerCase().replace(/_/g, '-'),
+    totalArmorPoints: sumValues(requireFact(unit.armor.byArc, 'armor.byArc')),
+  };
+}
+
 function contractAerospaceToBVUnit(
   unit: IContractBVSource,
 ): IContractBVAerospace {
@@ -215,8 +222,7 @@ function contractAerospaceToBVUnit(
       safeThrust: requireFact(unit.movement.safeThrust, 'movement.safeThrust'),
       maxThrust: requireFact(unit.movement.maxThrust, 'movement.maxThrust'),
     },
-    armorType: unit.armor.type.toLowerCase().replace(/_/g, '-'),
-    totalArmorPoints: sumValues(requireFact(unit.armor.byArc, 'armor.byArc')),
+    ...contractAerospaceArmorFacts(unit),
     equipment: (unit.equipment ?? []).map((item) => ({
       equipmentId: item.id,
       location: lookup(AEROSPACE_ARCS, item.location, 'aerospace arc'),
