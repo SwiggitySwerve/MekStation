@@ -7,9 +7,12 @@ import {
   type IContractBVSource,
   type IContractBVVehicle,
 } from '../../contractBVUnitAdapter';
-import { calculateVehicleBV, calculateVehicleTMM } from '../vehicleBV';
+import { calculateVehicleBV } from '../vehicleBV';
 import { toVehicleBVInput } from '../vehicleBVAdapter';
-import { hasVehicleStealth } from '../vehicleBVMovement';
+import {
+  calculateVehicleBVDefensiveTMM,
+  hasVehicleStealth,
+} from '../vehicleBVMovement';
 import { baseInput } from './vehicleBV.test.helpers';
 
 /** @spec establish-all-unit-data-parity/battle-value-system */
@@ -39,15 +42,15 @@ describe('Pinned MegaMek vehicle defensive TMM', () => {
   it.each([GroundMotionType.VTOL, GroundMotionType.WIGE])(
     '%s gets one airborne point only while moving',
     (motionType) => {
-      expect(calculateVehicleTMM(baseInput({ motionType, flankMP: 0 }))).toBe(
-        0,
-      );
-      expect(calculateVehicleTMM(baseInput({ motionType, flankMP: 1 }))).toBe(
-        1,
-      );
-      expect(calculateVehicleTMM(baseInput({ motionType, flankMP: 15 }))).toBe(
-        5,
-      );
+      expect(
+        calculateVehicleBVDefensiveTMM(baseInput({ motionType, flankMP: 0 })),
+      ).toBe(0);
+      expect(
+        calculateVehicleBVDefensiveTMM(baseInput({ motionType, flankMP: 1 })),
+      ).toBe(1);
+      expect(
+        calculateVehicleBVDefensiveTMM(baseInput({ motionType, flankMP: 15 })),
+      ).toBe(5);
     },
   );
 
@@ -62,7 +65,9 @@ describe('Pinned MegaMek vehicle defensive TMM', () => {
   ])(
     'compares run %s against jump %s including its bonus',
     (flankMP, jumpMP, tmm) => {
-      expect(calculateVehicleTMM(baseInput({ flankMP, jumpMP }))).toBe(tmm);
+      expect(
+        calculateVehicleBVDefensiveTMM(baseInput({ flankMP, jumpMP })),
+      ).toBe(tmm);
     },
   );
 
@@ -87,7 +92,9 @@ describe('Pinned MegaMek vehicle defensive TMM', () => {
     'adds stealth only to nonzero run %s / jump %s',
     (flankMP, jumpMP, tmm) => {
       expect(
-        calculateVehicleTMM(baseInput({ flankMP, jumpMP, hasStealth: true })),
+        calculateVehicleBVDefensiveTMM(
+          baseInput({ flankMP, jumpMP, hasStealth: true }),
+        ),
       ).toBe(tmm);
     },
   );
@@ -143,7 +150,7 @@ describe('Pinned MegaMek vehicle defensive TMM', () => {
       barRating: null,
       equipment: [],
     });
-    expect(calculateVehicleTMM(input)).toBe(4);
+    expect(calculateVehicleBVDefensiveTMM(input)).toBe(4);
   });
 
   it('keeps fractional defense until final BV rounding', () => {

@@ -6,7 +6,7 @@ import type {
 } from './vehicleBVTypes';
 
 import { resolveEquipmentBV } from '../equipmentBVResolver';
-import { calculateVehicleTMM } from './vehicleBVMovement';
+import { calculateVehicleBVDefensiveTMM } from './vehicleBVMovement';
 import { getVehicleDefensiveTypeModifier } from './vehicleBVTypeModifier';
 
 // =============================================================================
@@ -66,7 +66,7 @@ export function calculateVehicleDefensiveBV(
   const explosivePenalty = input.explosivePenalty ?? 0;
 
   // BVCalculator.processDefensiveFactor retains full precision at this stage.
-  const tmm = calculateVehicleTMM(input);
+  const tmm = calculateVehicleBVDefensiveTMM(input);
   const defensiveFactor = 1 + tmm / 10;
 
   const baseDef =

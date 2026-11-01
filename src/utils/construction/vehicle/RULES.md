@@ -26,7 +26,7 @@ rules remain separate terms; this correction does not establish whole-unit parit
 
 ## Defensive BV movement factor
 
-`vehicleBVMovement.ts` owns vehicle TMM selection; the shared
+`vehicleBVMovement.ts:calculateVehicleBVDefensiveTMM` owns defensive BV TMM selection; the shared
 `constants/movement.ts` owns the standard brackets. Assembled `flankMP` is
 Java's run MP, not cruise or submarine depth MP. Positive run adds one for
 VTOL or WiGE (exactly one for VTOL); positive jump adds one independently.
@@ -51,6 +51,12 @@ it again. `vehicleBV.tmmParity.test.ts` covers brackets, airborne/zero guards,
 jump comparison, represented stealth and fractional defense. The acceptance
 comparison asserts equality outside TMM, factor, defense and final across all
 1,419 combat/support rows and explains each total moving away from Java.
+
+The public `calculateVehicleTMM` compatibility helper retains its existing
+effective-MP/submarine override, unconditional VTOL running bonus and shared
+positive-only jump guard (including NaN rejection). Its facade exports and the
+shared construction, validation and gameplay entry points remain unchanged.
+`battleValueMovement.test.ts` pins those contracts independently of defensive BV.
 
 ## Turret armor lifecycle
 

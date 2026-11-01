@@ -3,7 +3,10 @@ import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 
 import type { VehicleBVInput } from './vehicleBVTypes';
 
-import { calculateOffensiveSpeedFactor } from '../battleValueMovement';
+import {
+  calculateOffensiveSpeedFactor,
+  calculateTMM,
+} from '../battleValueMovement';
 
 // =============================================================================
 // Movement Helpers
@@ -26,6 +29,19 @@ export function getVehicleEffectiveMP(input: VehicleBVInput): number {
 }
 
 /**
+ * Public compatibility helper: preserve effective MP, the unconditional VTOL
+ * running bonus and the shared positive-only jump guard for existing callers.
+ * Defensive BV uses calculateVehicleBVDefensiveTMM instead.
+ */
+export function calculateVehicleTMM(input: VehicleBVInput): number {
+  return calculateTMM(
+    getVehicleEffectiveMP(input),
+    input.jumpMP ?? 0,
+    input.motionType === GroundMotionType.VTOL ? 1 : 0,
+  );
+}
+
+/**
  * Entity.hasStealth: uniform stealth armor only; patchwork is excluded.
  * Numeric values are the pinned MegaMek armor codes, not local enum ordinals.
  */
@@ -40,7 +56,7 @@ export function hasVehicleStealth(armorType?: string | number): boolean {
  * flankMP is assembled run MP; submarine depth MP does not replace it.
  * Compute adds airborne OR jumped, so a VTOL gets exactly one running point.
  */
-export function calculateVehicleTMM(input: VehicleBVInput): number {
+export function calculateVehicleBVDefensiveTMM(input: VehicleBVInput): number {
   const airborne =
     input.motionType === GroundMotionType.VTOL ||
     input.motionType === GroundMotionType.WIGE;

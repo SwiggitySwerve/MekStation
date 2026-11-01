@@ -173,6 +173,7 @@ armored motive mount. Support vehicles SHALL omit these equipment additions.
 - **AND** defense SHALL retain fractional precision until the existing final BV rounding
 - **AND** all 1,419 combat and support oracle rows SHALL be compared before and after, with every away-moving row explained
 - **AND** fields other than TMM, defensive factor, defense and final SHALL remain exactly equal
+- **AND** these rules SHALL apply only to the vehicle defensive BV path; the public `calculateVehicleTMM` compatibility helper SHALL preserve its effective-MP/submarine overrides, unconditional VTOL running bonus and positive-only jump guard
 
 ### Requirement: Aerospace Defensive BV
 
