@@ -126,15 +126,15 @@ which returns raw loaded tonnage.
 `vehicleBV.massParity.test.ts` enforces Tamerlane's Java offensive component,
 unarmed Ferret VTOL mass and fractional support mass. Other offensive terms,
 defense and final rounding retain their existing rules. Complete unit parity
-and the separate sponson multiplier remain unresolved.
+remains outside this term's parity claim.
 
 ## Turret weapon BV
 
 `vehicleBVOffensive.ts` owns the turret weapon BV modifier. Single, Dual and
-Chin turrets receive no rotating-turret bonus. Turret weapons remain exempt
+Chin and Sponson turrets receive no rotating-turret bonus. Turret weapons remain exempt
 from the rear-facing penalty. The BV dialog consumes `turretModifier`, so it
 remains a compatibility breakdown field with value 1 for these turret kinds.
-Sponson's separate 1.025 term is unchanged and is not covered by this parity claim.
+Sponson weapons also retain listed BV; pinned Java has no 1.025 factor.
 
 Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`:
 `CombatVehicleBVCalculator.java:123-125` excludes both turret locations from

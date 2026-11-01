@@ -428,7 +428,7 @@ Vehicle offensive BV SHALL combine weapon BV, ammo BV, offensive equipment BV,
 mount modifiers and half the unit's raw tonnage before applying the speed
 factor. The mass contribution SHALL apply to Tank, SuperHeavyTank, VTOL and
 support vehicles, including unarmed vehicles, without rounding the tonnage.
-Single, Dual and Chin turret weapons SHALL
+Single, Dual, Chin and Sponson turret weapons SHALL
 retain their listed BV before other applicable modifiers and SHALL NOT receive
 a rotating-turret bonus. The consumed `turretModifier` breakdown field SHALL
 remain available and equal 1 for these turret kinds.
@@ -451,11 +451,11 @@ remain available and equal 1 for these turret kinds.
 - **WHEN** offensive BV is computed
 - **THEN** it SHALL receive neither the 0.5 rear penalty nor a turret bonus
 
-#### Scenario: Preserve the separate sponson term
+#### Scenario: Sponson weapons retain listed BV
 
 - **GIVEN** a sponson-mounted weapon containing 100 BV
 - **WHEN** offensive BV is computed without other weapon modifiers
-- **THEN** its existing 1.025 modifier SHALL remain unchanged in this slice
+- **THEN** it SHALL contribute 100 BV and turretModifier SHALL equal 1
 
 #### Scenario: Bound the parity claim
 
