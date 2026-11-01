@@ -243,3 +243,32 @@ ammo type and rack size for both ammunition and weapons. This bounded local
 compatibility repair does not establish full native ammunition parity: the
 existing exact-match precedence on mixed-tech weapons is retained, and native
 ammo quantity, all equipment identities and full BV remain open.
+
+## Converted vehicle and aerospace identities
+
+`normalization.ts` owns normalization for the BV resolver, conversion adapter,
+unit loader and simulation hydration. Extend its alias/pattern tables rather
+than adding lookup rules in callers. Lookup is case insensitive, including
+MegaMek internal names. A terminal `:omni`, converted `(ST)` suffix (`st`) or
+converted `(R)` prefix (`r-`) describes the mount, not its item. Direct catalog
+IDs retain precedence. See pinned `BLKFile.java` mount parsing.
+
+`catalogLoader.ts` keeps ammunition separate when an input identifies ammo or
+pods. Catalog IDs are not globally unique: `mrm-20`, `clan-streak-srm-6` and
+`clan-lb-10-x-ac` identify both weapons and ammo in their respective files.
+`resolveAmmoBV` always uses the ammunition namespace; generic resolution uses
+the original input to select it. A bare overlapping ID retains weapon priority.
+Consumers must retain ammunition context when storing such identities.
+
+Ammunition patterns preserve rack size, tech base and munition variant. Do not
+strip Artemis/Narc, prototype or other variant markers to force a match. Clan
+LRM/SRM and Ultra ammunition cannot use IS entries: their BV can differ. Only
+explicit shared identities (such as Gauss ammunition) cross tech prefixes.
+An absent catalog item stays unresolved with zero BV; the catalog owner must
+add its actual data. A prototype laser must not become a production laser.
+
+Source: pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`EquipmentType.java` (`get`, `setInternalName`, `addLookupName`) and
+`AmmoType.java` factory identities. The focused `equipmentConverterIds` tests
+enforce aliases, mount suffixes, namespace collisions and missing variants.
+These rules do not change ammo quantities, offensive caps or BV formulas.
