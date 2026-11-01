@@ -221,6 +221,7 @@ it('UL-10 distinguishes unknown families, missing family catalogs and missing id
     code: 'family-not-found',
   });
   writeIndex('capital', []);
+  browser.clearCache();
   expect(await loadUnitDefinition('capital', 'missing')).toMatchObject({
     success: false,
     code: 'not-found',
@@ -407,4 +408,102 @@ it('maps every shipped mech row with zero skips and opens all eight non-ASCII in
     expect(unit?.chassis).toBe(row.chassis);
     expect(await realBrowser.getById(row.id)).toEqual(unit);
   }
+});
+
+describe('follow-up 43: unit service lows from the #2454 review', () => {
+  const absentFetches = (family: string) =>
+    fetchMock.mock.calls.filter(
+      ([url]: [string]) => url === `/data/units/${family}/index.json`,
+    );
+
+  it('looks a unit up by (family, id) without scanning the index', () => {
+    const mech = shipped.units.find((row) => row.id === 'tomahawk-c')!;
+    writeIndex(
+      'battlemechs',
+      Array.from({ length: 2000 }, (_, i) => ({
+        ...mech,
+        id: `synthetic-${i}`,
+      })),
+    );
+    const service = new NodeCanonicalUnitService(root);
+    const rows = service.getIndexSync();
+    let idReads = 0;
+    for (const row of rows) {
+      const id = row.id;
+      Object.defineProperty(row, 'id', {
+        get: () => {
+          idReads += 1;
+          return id;
+        },
+      });
+    }
+    expect(service.getByIdSync('synthetic-1999')).not.toBeNull();
+    expect(idReads).toBeLessThan(10);
+  });
+
+  it('keeps the strict and missing-family lookup behaviour', () => {
+    expect(node.getByIdSync('tomahawk-c', { family: 'capital' })).toBeNull();
+    expect(
+      node.getByIdSync('tomahawk-c', { family: 'capital', strict: true }),
+    ).toBeNull();
+    expect(node.getByIdSync('no-such-id', { strict: true })).toBeNull();
+    fs.writeFileSync(
+      path.join(root, 'public/data/units/vehicles/index.json'),
+      '{not json',
+    );
+    const corrupt = new NodeCanonicalUnitService(root);
+    expect(corrupt.getByIdSync('x', { family: 'vehicles' })).toBeNull();
+    expect(() =>
+      corrupt.getByIdSync('x', { family: 'vehicles', strict: true }),
+    ).toThrow();
+  });
+
+  it('fetches an absent family index once per session until an explicit reload', async () => {
+    await new UnitSearchService().initialize();
+    await new UnitSearchService().initialize();
+    await browser.getIndex({ family: 'capital' });
+    for (const family of ['capital', 'battlearmor', 'infantry']) {
+      expect(absentFetches(family)).toHaveLength(1);
+    }
+    expect(await browser.hasFamily('capital')).toBe(false);
+
+    writeIndex('capital', []);
+    browser.clearCache();
+    expect(await browser.hasFamily('capital')).toBe(true);
+    expect(absentFetches('capital')).toHaveLength(2);
+  });
+
+  it('remembers an absent family index in Node until clearCache', () => {
+    expect(node.getIndexSync({ family: 'capital' })).toEqual([]);
+    writeIndex('capital', [
+      { ...shipped.units[0], id: 'late', path: 'flat.json' },
+    ]);
+    expect(node.getIndexSync({ family: 'capital' })).toEqual([]);
+    expect(node.getIndexSync({ family: 'all' })).toHaveLength(10);
+
+    node.clearCache();
+    expect(node.getIndexSync({ family: 'capital' })).toHaveLength(1);
+  });
+
+  it.each([
+    ['malformed JSON', '{not json'],
+    ['a non-array units field', JSON.stringify({ version: 'v', units: {} })],
+  ])(
+    'getCatalogVersion falls back to unknown and logs for %s',
+    (_label, contents) => {
+      const warn = jest.spyOn(logger, 'warn').mockImplementation(() => {});
+      fs.writeFileSync(
+        path.join(root, 'public/data/units/battlemechs/index.json'),
+        contents,
+      );
+      expect(new NodeCanonicalUnitService(root).getCatalogVersion()).toBe(
+        'unknown',
+      );
+      expect(warn).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it('getCatalogVersion still returns the index version', () => {
+    expect(node.getCatalogVersion()).toBe('fixture');
+  });
 });
