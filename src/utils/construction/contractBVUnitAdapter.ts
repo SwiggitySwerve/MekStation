@@ -32,6 +32,7 @@ import {
 export interface IContractBVSource {
   readonly id: string;
   readonly unitType: string;
+  readonly subType?: string;
   readonly tonnage: number;
   readonly motionType?: string;
   readonly movement: Readonly<
@@ -72,6 +73,7 @@ export interface IContractBVVehicle {
 
 /** Domain-shaped aerospace value accepted by `calculateBattleValueForUnit`. */
 export interface IContractBVAerospace {
+  readonly isSupportVehicle: boolean;
   readonly unitType:
     | UnitType.AEROSPACE
     | UnitType.CONVENTIONAL_FIGHTER
@@ -216,6 +218,7 @@ function contractAerospaceToBVUnit(
   }
   return {
     unitType: unit.unitType as IContractBVAerospace['unitType'],
+    isSupportVehicle: unit.subType === 'FixedWingSupport',
     tonnage: unit.tonnage,
     structuralIntegrity: unit.structuralIntegrity,
     movement: {

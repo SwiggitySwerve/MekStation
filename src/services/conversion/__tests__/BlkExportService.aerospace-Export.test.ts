@@ -170,12 +170,33 @@ describe('BlkExportService', () => {
       expect(result.content).toContain('480');
     });
 
-    it('should include structural integrity', () => {
-      const aero = createMockAerospaceState({ structuralIntegrity: 8 });
+    it.each([
+      AerospaceSubType.AEROSPACE_FIGHTER,
+      AerospaceSubType.CONVENTIONAL_FIGHTER,
+    ])(
+      'omits structural integrity for %s, which MegaMek derives on load',
+      (aerospaceSubType) => {
+        const aero = createMockAerospaceState({
+          aerospaceSubType,
+          structuralIntegrity: 8,
+        });
+        const result = service.export(aero);
+
+        expect(result.success).toBe(true);
+        expect(result.content).not.toContain('structural_integrity');
+      },
+    );
+
+    it('keeps structural integrity for small craft (BLKFile.java:1070-1072)', () => {
+      const aero = createMockAerospaceState({
+        aerospaceSubType: AerospaceSubType.SMALL_CRAFT,
+        structuralIntegrity: 8,
+      });
       const result = service.export(aero);
 
-      expect(result.content).toContain('<structural_integrity>');
-      expect(result.content).toContain('8');
+      expect(result.content).toContain(
+        '<structural_integrity>\n8\n</structural_integrity>',
+      );
     });
 
     it('should format aerospace armor allocation correctly', () => {

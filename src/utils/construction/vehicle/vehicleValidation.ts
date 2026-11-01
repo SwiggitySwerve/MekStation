@@ -11,7 +11,10 @@
  *   VAL-VEHICLE-POWER-AMP — power amps present when required
  */
 
-import { getVehicleMaxTonnage } from '@/services/construction/constructionConstants';
+import {
+  getVehicleMaxTonnage,
+  getVehicleMinTonnage,
+} from '@/services/construction/constructionConstants';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { EngineType } from '@/types/construction/EngineType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
@@ -120,14 +123,13 @@ export function validateVehicleConstruction(
   const warnings: string[] = [];
 
   // ── VAL-VEHICLE-TONNAGE ─────────────────────────────────────────────────
-  const maxTonnage = getVehicleMaxTonnage(
-    input.motionType,
-    input.unitType === UnitType.SUPPORT_VEHICLE,
-  );
-  if (input.tonnage < 1) {
+  const support = input.unitType === UnitType.SUPPORT_VEHICLE;
+  const maxTonnage = getVehicleMaxTonnage(input.motionType, support);
+  const minTonnage = getVehicleMinTonnage(support);
+  if (input.tonnage < minTonnage) {
     errors.push({
       ruleId: 'VAL-VEHICLE-TONNAGE',
-      message: `Tonnage must be at least 1 ton`,
+      message: `Tonnage must be at least ${minTonnage} ton`,
     });
   } else if (input.tonnage > maxTonnage) {
     errors.push({

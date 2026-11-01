@@ -34,6 +34,32 @@ it does not establish complete ProtoMech combat support.
 - **THEN** a separately verified refactor SHALL preserve outputs before table values change
 - **AND** all existing public lookup exports SHALL remain available
 
+### Requirement: Committed missile attacks resolve through the cluster table
+
+The interactive session and multiplayer host SHALL roll the existing
+cluster-table owner once for a committed attack with a represented missile
+launcher and no selected AMS, and apply the damage of the missiles that land,
+using the existing total-to-projectile conversion, rather than the whole
+launcher total. This does not add grouped location rolls.
+
+#### Scenario: Landed missiles set the damage
+
+- **GIVEN** a hydrated LRM 20, SRM 6, MRM 20 or ATM 12 hit with no selected AMS
+- **WHEN** the cluster roll is any integer from 2 through 12
+- **THEN** the applied damage SHALL equal the pinned MegaMek hit count for that roll times the damage per missile
+- **AND** the cluster roll SHALL be drawn after the to-hit roll and before the hit-location roll
+
+#### Scenario: Streak and non-missile weapons keep their damage
+
+- **GIVEN** a Streak launcher that hits, or a non-missile weapon
+- **WHEN** the attack resolves
+- **THEN** no cluster roll SHALL be drawn and the full hydrated damage SHALL apply
+
+#### Scenario: Remaining gaps stay open
+
+- **WHEN** the figures are used as parity evidence
+- **THEN** grouped location rolls, cluster modifiers, LB-X cluster mode and UAC/RAC rates SHALL remain unclaimed
+
 ### Requirement: Streak family support wording after catalog damage repair
 
 The special weapon family support description SHALL reflect the repaired

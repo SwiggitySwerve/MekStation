@@ -61,15 +61,45 @@ it('reports invalid fields without handing malformed data to an editor', async (
   expect(result).not.toHaveProperty('definition');
 });
 
-it('loads a non-mech definition without pretending it is BattleMech configuration', async () => {
-  const definition = { id: 'infantry-squad', unitType: 'Infantry' };
-  expect(
-    await loadUnitDefinition(
+it.each(['canonical', 'custom'] as const)(
+  'rejects a non-mech definition under a family-less %s reference',
+  async (source) => {
+    const definition = { id: 'infantry-squad', unitType: 'Infantry' };
+    const reference = { source, id: definition.id };
+    const result = await loadUnitDefinition(
       { read: async () => definition },
-      { source: 'canonical', id: definition.id },
-    ),
-  ).toMatchObject({ success: true, definition });
-});
+      reference,
+    );
+    expect(result).toMatchObject({
+      success: false,
+      reference,
+      code: 'invalid-definition',
+      issues: [
+        {
+          path: 'unitType',
+          message: 'Unit type Infantry does not belong to family battlemechs',
+        },
+      ],
+    });
+    expect(result).not.toHaveProperty('definition');
+  },
+);
+
+it.each(['BattleMech', 'OmniMech', 'IndustrialMech'])(
+  'accepts %s under a family-less reference',
+  async (unitType) => {
+    const result = await loadUnitDefinition(
+      { read: async () => ({ ...atlas, unitType }) },
+      { source: 'canonical', id: atlas.id },
+    );
+    expect(result).toMatchObject({
+      success: true,
+      reference: { source: 'canonical', id: atlas.id },
+      definition: { unitType },
+    });
+    expect(result.reference).not.toHaveProperty('family');
+  },
+);
 
 it('UL-10 retains family and revision on explicitly qualified custom references', async () => {
   const reference = {

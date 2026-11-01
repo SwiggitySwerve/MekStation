@@ -92,9 +92,9 @@ export async function loadUnitDefinition(
 async function validateUnitDefinition(
   reader: IUnitDefinitionReader,
   reference: IUnitDefinitionReference,
-  family?: string,
+  family: string = 'battlemechs',
 ): Promise<UnitDefinitionLoadResult> {
-  if (family !== undefined && !isUnitFamily(family)) {
+  if (!isUnitFamily(family)) {
     return {
       success: false,
       reference,
@@ -128,10 +128,7 @@ async function validateUnitDefinition(
     };
   }
   const parsed = UnitContract.safeParse(payload);
-  if (
-    !parsed.success ||
-    (family !== undefined && !isDefinitionForFamily(family, parsed.data))
-  ) {
+  if (!parsed.success || !isDefinitionForFamily(family, parsed.data)) {
     const issues = parsed.success
       ? [
           {
@@ -155,11 +152,11 @@ async function validateUnitDefinition(
   return {
     success: true,
     definition: parsed.data,
-    ...(family !== undefined ? { family } : {}),
+    family,
     reference: {
       source: reference.source,
       id: reference.id,
-      ...(family !== undefined && family !== 'battlemechs' ? { family } : {}),
+      ...(family !== 'battlemechs' ? { family } : {}),
       ...(reference.source === 'custom' &&
       typeof version === 'number' &&
       Number.isSafeInteger(version) &&
