@@ -127,6 +127,20 @@ describe('BlkExportService', () => {
       expect(result.content).toContain('ConvFighter');
     });
 
+    it('writes a FixedWingSupport as FixedWingSupport, not ConvFighter', () => {
+      const support = createMockAerospaceState({
+        unitType: UnitType.CONVENTIONAL_FIGHTER,
+        aerospaceSubType: AerospaceSubType.CONVENTIONAL_FIGHTER,
+        isFixedWingSupport: true,
+      });
+      const result = service.export(support);
+
+      expect(result.content).toContain(
+        '<UnitType>\nFixedWingSupport\n</UnitType>',
+      );
+      expect(result.content).not.toContain('ConvFighter');
+    });
+
     it('should include safe thrust', () => {
       const aero = createMockAerospaceState({ safeThrust: 7 });
       const result = service.export(aero);

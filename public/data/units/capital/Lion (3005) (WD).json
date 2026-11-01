@@ -1,0 +1,547 @@
+{
+  "id": "lion-3005-wd",
+  "chassis": "Lion",
+  "model": "(3005) (WD)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 3005,
+  "tonnage": 7300,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 4,
+    "maxThrust": 6
+  },
+  "fuel": 6300,
+  "structuralIntegrity": 14,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 110
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 300,
+      "RIGHT_SIDE": 200,
+      "LEFT_SIDE": 200,
+      "AFT": 246
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:48",
+      "name": "IS Ammo LRM-20 Artemis-capable:48",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isams-ammo:96",
+      "name": "ISAMS Ammo:96",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:48",
+      "name": "IS Ammo LRM-20 Artemis-capable:48",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isams-ammo:96",
+      "name": "ISAMS Ammo:96",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-15",
+      "name": "(R) (B) LRM 15",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-lrm-15",
+      "name": "(R) LRM 15",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-15-artemis-capable:64",
+      "name": "(R) IS Ammo LRM-15 Artemis-capable:64",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isartemisiv",
+      "name": "(R) ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isartemisiv",
+      "name": "(R) ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-islargepulselaser",
+      "name": "(R) (B) ISLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-islargepulselaser",
+      "name": "(R) ISLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-isstreaksrm2",
+      "name": "(R) (B) ISStreakSRM2",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isstreaksrm2",
+      "name": "(R) ISStreakSRM2",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isstreaksrm2",
+      "name": "(R) ISStreakSRM2",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-streak-srm-2-ammo:50",
+      "name": "(R) IS Streak SRM 2 Ammo:50",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-isantimissilesystem",
+      "name": "(R) (B) ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isantimissilesystem",
+      "name": "(R) ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isams-ammo:96",
+      "name": "(R) ISAMS Ammo:96",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:48",
+      "name": "IS Ammo LRM-20 Artemis-capable:48",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isams-ammo:96",
+      "name": "ISAMS Ammo:96",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-15",
+      "name": "(R) (B) LRM 15",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-lrm-15",
+      "name": "(R) LRM 15",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-15-artemis-capable:64",
+      "name": "(R) IS Ammo LRM-15 Artemis-capable:64",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isartemisiv",
+      "name": "(R) ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isartemisiv",
+      "name": "(R) ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-islargepulselaser",
+      "name": "(R) (B) ISLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-islargepulselaser",
+      "name": "(R) ISLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-ismediumpulselaser",
+      "name": "(R) ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-isstreaksrm2",
+      "name": "(R) (B) ISStreakSRM2",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isstreaksrm2",
+      "name": "(R) ISStreakSRM2",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isstreaksrm2",
+      "name": "(R) ISStreakSRM2",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-streak-srm-2-ammo:50",
+      "name": "(R) IS Streak SRM 2 Ammo:50",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-isantimissilesystem",
+      "name": "(R) (B) ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isantimissilesystem",
+      "name": "(R) ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isams-ammo:96",
+      "name": "(R) ISAMS Ammo:96",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-15",
+      "name": "(B) LRM 15",
+      "location": "AFT"
+    },
+    {
+      "id": "lrm-15",
+      "name": "LRM 15",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-lrm-15-artemis-capable:64",
+      "name": "IS Ammo LRM-15 Artemis-capable:64",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-isstreaksrm2",
+      "name": "(B) ISStreakSRM2",
+      "location": "AFT"
+    },
+    {
+      "id": "isstreaksrm2",
+      "name": "ISStreakSRM2",
+      "location": "AFT"
+    },
+    {
+      "id": "isstreaksrm2",
+      "name": "ISStreakSRM2",
+      "location": "AFT"
+    },
+    {
+      "id": "is-streak-srm-2-ammo:50",
+      "name": "IS Streak SRM 2 Ammo:50",
+      "location": "AFT"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isams-ammo:96",
+      "name": "ISAMS Ammo:96",
+      "location": "AFT"
+    }
+  ],
+  "crew": 150,
+  "escapePods": 10,
+  "lifeBoats": 0,
+  "officers": 8,
+  "gunners": 10,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "mekbay:10.0:2:-1::-1:0",
+    "heavyvehiclebay:10.0:2:2::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "1stclassquarters:80.0:0:-1::-1:0",
+    "crewquarters:294.0:0:-1::-1:0",
+    "cargobay:1679.5:1:6::-1:0"
+  ],
+  "mulId": 4526,
+  "role": "None",
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Lion class DropShip is one of the oldest designs still in active service, originally introduced in 2595 as a Star League combined-arms transport. This 7,300-ton Spheroid was designed from the outset to carry BattleMechs, vehicles, and cargo in a single hull, making it a true multi-role transport capable of deploying balanced ground forces.</p><p>Unlike the Clan Union and Overlord vessels, which are essentially new craft sharing a name with Inner Sphere designs, all surviving Lion class vessels are refitted originals constructed during the twenty-seventh century. No new Lions have ever been built, making each surviving example an irreplaceable relic of the Star League era.</p>",
+    "capabilities": "<p>The Wolf's Dragoons variant uses Inner Sphere technology replacements for the Clan systems stripped before the unit's arrival in the Inner Sphere. The Mech bay retains the Clan-standard two-Star capacity of ten BattleMechs, but the infantry bay is replaced with space for ten heavy vehicles. ER large lasers, large pulse lasers, medium pulse lasers, Artemis IV-enhanced LRM-20s and LRM-15s, Streak SRM-2 launchers, and anti-missile systems provide firepower across all arcs using Inner Sphere equivalents. Armor remains at 946 points, and cargo capacity is reduced to approximately 1,680 tons to accommodate the heavier vehicle bays. The crew numbers 168.</p>",
+    "deployment": "<p>This downgraded variant was used exclusively by Wolf's Dragoons from their arrival in the Inner Sphere in 3005 through the Fourth Succession War. The Dragoons deliberately restricted their Lions to carrying only eight BattleMechs during this period to avoid drawing attention to the vessels' true capabilities and unusual origin.</p>",
+    "history": "<p>The Lion entered service in 2595 as a combined-arms transport for the Star League Defense Force. The design served throughout the Inner Sphere until the Amaris Civil War, when many were destroyed or damaged. The surviving Lions were divided between those that accompanied the Exodus Fleet and the handful that remained in the Inner Sphere, where centuries of Succession War fighting reduced their numbers to a mere fraction of the original production run.</p><p>The Clans extensively refitted their Lions to match their revised military organization, expanding the Mech bays from two lances to two Stars and replacing all weapons with advanced Clan technology. An attempt to convert the vehicle bay for battle armor proved unfeasible, and the space was instead configured for an infantry Binary. This compromise relegated the Lion to service with freeborn and dezgra units, who continued to use it in its intended combined-arms role.</p><p>When Wolf's Dragoons returned to the Inner Sphere in 3005, they brought several Lion class vessels, which they expected would be inconspicuous. They did not realize that only a handful of Lions remained in Successor State fleets, and their presence immediately aroused suspicion. The Dragoons stripped most advanced technology from their Lions before arriving and restricted them to carrying eight BattleMechs to avoid further scrutiny. After the Fourth Succession War, the Dragoons adopted the five-unit Clan organization openly, and following the Battle of Luthien in 3052, most of their Lions are believed to have been returned to full Clan specifications.</p>",
+    "manufacturer": "Field Refit",
+    "primaryFactory": "Various"
+  }
+}

@@ -1,0 +1,225 @@
+{
+  "id": "claymore-interceptor",
+  "chassis": "Claymore",
+  "model": "Interceptor",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CIVIL_WAR",
+  "year": 3075,
+  "tonnage": 1400,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 6,
+    "maxThrust": 9
+  },
+  "fuel": 4000,
+  "structuralIntegrity": 12,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 110
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 250,
+      "RIGHT_SIDE": 200,
+      "LEFT_SIDE": 200,
+      "AFT": 150
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-bombast-laser",
+      "name": "(B) Bombast Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "bombast-laser",
+      "name": "Bombast Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "bombast-laser",
+      "name": "Bombast Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-issbgr",
+      "name": "(B) ISSBGR",
+      "location": "NOSE"
+    },
+    {
+      "id": "issbgr",
+      "name": "ISSBGR",
+      "location": "NOSE"
+    },
+    {
+      "id": "silver-bullet-gauss-ammo:24",
+      "name": "Silver Bullet Gauss Ammo:24",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islaserantimissilesystem",
+      "name": "(B) ISLaserAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-extended-lrm-15",
+      "name": "(B) Extended LRM 15",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "extended-lrm-15",
+      "name": "Extended LRM 15",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-extended-lrm-15:24",
+      "name": "IS Ammo Extended LRM-15:24",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-islaserantimissilesystem",
+      "name": "(R) (B) ISLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-islaserantimissilesystem",
+      "name": "(R) ISLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-extended-lrm-15",
+      "name": "(B) Extended LRM 15",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "extended-lrm-15",
+      "name": "Extended LRM 15",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-extended-lrm-15:24",
+      "name": "IS Ammo Extended LRM-15:24",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-islaserantimissilesystem",
+      "name": "(R) (B) ISLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-islaserantimissilesystem",
+      "name": "(R) ISLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "cllargepulselaser",
+      "name": "CLLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clermediumlaser",
+      "name": "(B) CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    }
+  ],
+  "crew": 15,
+  "escapePods": 0,
+  "lifeBoats": 2,
+  "officers": 3,
+  "gunners": 5,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "cargobay:263.5:2:1::-1:0",
+    "1stclassquarters:30.0:0:-1::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:84.0:0:-1::-1:0"
+  ],
+  "mulId": 3959,
+  "role": "None",
+  "source": "XTR:Steiner",
+  "fluff": {
+    "overview": "<p>The Claymore class assault DropShip is a compact Aerodyne combat vessel built at the orbital shipyards above Skye. Weighing 1,400 tons, the Claymore was designed to fill the need for a fast, heavily armed assault platform capable of independent raiding operations and fleet escort duties. Its distinctive swanlike silhouette sets it apart from other assault DropShips, and its combination of speed and firepower makes it a dangerous opponent in close engagements.</p><p>Though small for an assault vessel, the Claymore carries armor protection rivaling much larger designs and mounts a formidable weapons array concentrated in its forward arcs. Critics have noted that its broadside and rear firepower could be stronger, but the design's speed and maneuverability compensate for this perceived shortcoming.</p>",
+    "capabilities": "<p>The Interceptor variant serves as a radical overhaul of the Claymore's weapons systems using a mix of Inner Sphere and Clan technology. The nose mounts three Bombast lasers, three Clan ER medium lasers, two Silver Bullet Gauss rifles, and three laser anti-missile systems. Each wing carries two Clan ER large lasers, two extended LRM-15 racks, and two laser anti-missile systems. The aft arc mounts two Clan large pulse lasers and four Clan ER medium lasers. One hundred ten double heat sinks manage the immense thermal output of this weapons array, more than double the base model's capacity.</p><p>The mixed-technology approach provides engagement capability at extreme ranges while the extensive anti-missile coverage offers strong defense against incoming fire. Cargo capacity is reduced to 263 tons to accommodate the additional weaponry and heat management systems.</p>",
+    "deployment": "<p>The Interceptor variant was developed for the Lyran Alliance as an experimental combat platform incorporating salvaged Clan technology. Its mixed-technology weapons suite and extensive anti-missile defenses make it well suited for engaging Clan aerospace assets at long range, a role that reflects hard-won tactical lessons from the Clan Invasion and subsequent border conflicts.</p>",
+    "history": "<p>The Claymore project began in 3047 at the Shipil yards orbiting Skye amid great secrecy. Within two years, production of a prototype was set to begin, but the arrival of the Clans in 3049 prompted the AFFC to redirect resources toward new BattleMech designs, and the Claymore project was suspended. In late 3050, the battle at Radstadt demonstrated the relative vulnerability of Clan aerospace assets, leading the AFFC to reassess its priorities. Prince Hanse Davion instigated a number of projects to bolster Federated Commonwealth aerospace forces and reactivated the Claymore project.</p><p>The prototype took on its trademark swanlike appearance by August of 3053, and the FCS Claymore made its maiden flight by year's end. Six months later, the Sixth Lyran Guards were testing the new vessel on combat raids. The Claymore received AFFC approval the following year and entered full-scale production, with Shipil producing one vessel approximately every nine months. Three of the early production craft were stationed along the edge of the Clan occupation zone, where the design's speed and firepower proved valuable for reconnaissance-in-force missions and raiding operations.</p>",
+    "manufacturer": "Refit - Shipil Refit Base",
+    "primaryFactory": "Skye"
+  }
+}

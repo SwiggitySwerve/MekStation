@@ -1,0 +1,237 @@
+{
+  "id": "rose-bara-no-ryu-3054",
+  "chassis": "Rose (Bara no Ryu)",
+  "model": "(3054)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CLAN_INVASION",
+  "year": 3054,
+  "tonnage": 16000,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 4,
+    "maxThrust": 6
+  },
+  "fuel": 1800,
+  "structuralIntegrity": 10,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 168
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 150,
+      "RIGHT_SIDE": 120,
+      "LEFT_SIDE": 120,
+      "AFT": 105
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-gauss-ammo:16",
+      "name": "IS Gauss Ammo:16",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-15",
+      "name": "(B) LRM 15",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-15-artemis-capable:16",
+      "name": "IS Ammo LRM-15 Artemis-capable:16",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-medium-laser",
+      "name": "(R) (B) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-15",
+      "name": "(R) (B) LRM 15",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-15-artemis-capable:16",
+      "name": "(R) IS Ammo LRM-15 Artemis-capable:16",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isartemisiv",
+      "name": "(R) ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ismediumpulselaser",
+      "name": "ISMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-medium-laser",
+      "name": "(R) (B) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-15",
+      "name": "(R) (B) LRM 15",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-15-artemis-capable:16",
+      "name": "(R) IS Ammo LRM-15 Artemis-capable:16",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isartemisiv",
+      "name": "(R) ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-lrm-15",
+      "name": "(B) LRM 15",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-lrm-15-artemis-capable:16",
+      "name": "IS Ammo LRM-15 Artemis-capable:16",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "AFT"
+    },
+    {
+      "id": "b-ismediumpulselaser",
+      "name": "(B) ISMediumPulseLaser",
+      "location": "AFT"
+    }
+  ],
+  "crew": 96,
+  "escapePods": 6,
+  "lifeBoats": 0,
+  "officers": 8,
+  "gunners": 5,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "smallcraftbay:4.0:4:1::-1:0",
+    "infantrybay:1.0:1:2:Foot:-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "1stclassquarters:80.0:0:-1::-1:0",
+    "crewquarters:280.0:0:-1::-1:0",
+    "cargobay:9969.0:3:6::-1:0"
+  ],
+  "mulId": 4938,
+  "role": "None",
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Bara no Ryu, or Rose as it is more commonly known, is a sophisticated military transport disguised as a civilian merchantman. Developed for the Draconis Combine Mustered Soldiery, this 16,000-ton spheroid vessel was designed to appear as an innocuous cargo hauler while concealing advanced military hardware beneath its harmless exterior. First entering service in 3054, the Rose's deceptive appearance has proven a decisive tactical advantage, allowing it to operate in sensitive areas without drawing unwanted attention. The design's resemblance to common merchant vessels such as the Mule makes it virtually indistinguishable from legitimate commercial traffic until its concealed weapons are brought to bear on unsuspecting adversaries.</p>",
+    "capabilities": "<p>The Rose conceals a formidable military arsenal beneath its merchant vessel exterior. The nose mounts a Gauss rifle, an ER large laser, two ER PPCs, a large pulse laser, two medium pulse lasers, a standard medium laser, and an Artemis IV-equipped LRM-15. Each broadside carries an ER large laser, a large pulse laser, a medium pulse laser, two standard medium lasers, and an Artemis IV-equipped LRM-15. The aft arc mounts an ER PPC, a medium pulse laser, a standard medium laser, and an Artemis IV-equipped LRM-15. One hundred sixty-eight single heat sinks manage the thermal load.</p><p>The vessel's primary function is cargo transport, with nearly 10,000 tons of cargo capacity for foodstuffs, construction materials, and military equipment. Quarters for one infantry platoon are provided in spartan but comfortable accommodations. Four small craft bays support fighter operations. However, the Rose is deliberately lightly armored to maintain its merchant disguise, carrying only 32 tons of protection. Captains are trained to rely on the vessel's superior maneuverability at safe thrust 4g to escape contact, reserving its weapons for desperate situations where flight is not an option.</p>",
+    "deployment": "<p>All nine original Rose class vessels serve exclusively within the DCMS, primarily as covert supply ships for the Explorer Corps. These vessels transport equipment, personnel, and supplies to facilities in the Periphery, disguising their military cargo as routine commercial shipments. The Rose's merchant appearance allows it to operate in sensitive regions without attracting the suspicion that a conventional military transport would invite.</p>",
+    "history": "<p>The Rose was developed by the DCMS as a covert military transport to support the ComStar Explorer Corps' search for the Clan Homeworlds during the mid-3050s, operations largely staged from the world of Wolcott. All nine initial Rose class vessels were purchased by the DCMS, with outbound cargo first shipped to Wolcott through conventional logistics channels where it was hidden in the massive volume of routine military traffic. Equipment was then secretly loaded onto Rose class vessels at the new Anson facility. Returning vessels carried out similar deceptions, unloading military cargo at the facility and collecting innocuous raw materials that could be sold on the open market as produce from new mining colonies.</p><p>The Rose's combat capability was dramatically demonstrated when a Clan Broadsword class vessel encountered a Rose and its JumpShip at the uninhabited system LM-52 9366 in the Draconis Drift. The Rose was transporting BattleMechs when the Clan vessel initiated contact and, believing it had found a mere merchant, announced its intention to send a boarding party. When the unsuspecting Clan vessel maneuvered to dock, the Rose unleashed its concealed nose-bay weapons at close range. The first volley destroyed the Broadsword's BattleMech bay door, causing a catastrophic atmosphere breach that sent the Clan vessel spinning out of control. The Rose's four small craft swiftly dispatched the crippled ship.</p>",
+    "manufacturer": "BBP Industries",
+    "primaryFactory": "Luthien"
+  }
+}

@@ -1,0 +1,1048 @@
+{
+  "id": "dante-frigate",
+  "chassis": "Dante Frigate",
+  "model": "",
+  "unitType": "WarShip",
+  "subType": "WarShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2941,
+  "tonnage": 610000,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "movement": {
+    "safeThrust": 5,
+    "maxThrust": 8
+  },
+  "fuel": 7500,
+  "structuralIntegrity": 50,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 650
+  },
+  "armor": {
+    "type": "FERRO_CARBIDE",
+    "byArc": {
+      "NOSE": 100,
+      "FRONT_LEFT_SIDE": 90,
+      "FRONT_RIGHT_SIDE": 90,
+      "AFT": 70,
+      "AFT_LEFT_SIDE": 80,
+      "AFT_RIGHT_SIDE": 80
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-20:120",
+      "name": "IS Ammo LRM-20:120",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isams-ammo:228",
+      "name": "ISAMS Ammo:228",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-nac-30:20",
+      "name": "Ammo NAC/30:20",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20:120",
+      "name": "IS Ammo LRM-20:120",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isams-ammo:228",
+      "name": "ISAMS Ammo:228",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-30:20",
+      "name": "Ammo NAC/30:20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20:120",
+      "name": "IS Ammo LRM-20:120",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isams-ammo:228",
+      "name": "ISAMS Ammo:228",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-30:20",
+      "name": "Ammo NAC/30:20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "AFT"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-lrm-20:120",
+      "name": "IS Ammo LRM-20:120",
+      "location": "AFT"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isams-ammo:228",
+      "name": "ISAMS Ammo:228",
+      "location": "AFT"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20:120",
+      "name": "IS Ammo LRM-20:120",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isams-ammo:228",
+      "name": "ISAMS Ammo:228",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-30:20",
+      "name": "Ammo NAC/30:20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20:120",
+      "name": "IS Ammo LRM-20:120",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isams-ammo:228",
+      "name": "ISAMS Ammo:228",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-30:20",
+      "name": "Ammo NAC/30:20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismobilehpg",
+      "name": "ISMobileHPG",
+      "location": "HULL"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20:120",
+      "name": "IS Ammo LRM-20:120",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isams-ammo:228",
+      "name": "ISAMS Ammo:228",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-30:20",
+      "name": "Ammo NAC/30:20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-35",
+      "name": "(B) Naval Autocannon (NAC/35)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-35",
+      "name": "Naval Autocannon (NAC/35)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-35:50",
+      "name": "Ammo NAC/35:50",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20:120",
+      "name": "IS Ammo LRM-20:120",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-issmallpulselaser",
+      "name": "(B) ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "issmallpulselaser",
+      "name": "ISSmallPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isams-ammo:228",
+      "name": "ISAMS Ammo:228",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-30:20",
+      "name": "Ammo NAC/30:20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-35",
+      "name": "(B) Naval Autocannon (NAC/35)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-35",
+      "name": "Naval Autocannon (NAC/35)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-35:50",
+      "name": "Ammo NAC/35:50",
+      "location": "RIGHT_BROADSIDE"
+    }
+  ],
+  "crew": 240,
+  "escapePods": 24,
+  "lifeBoats": 0,
+  "officers": 36,
+  "gunners": 39,
+  "passengers": 24,
+  "battleArmor": 0,
+  "marines": 0,
+  "transporters": [
+    "dockingcollar",
+    "dockingcollar",
+    "crewquarters:1267.0:0:-1::-1:0",
+    "1stclassquarters:590.0:0:-1::-1:0",
+    "asfbay:12.0:4:5::-1:0",
+    "cargobay:15550.5:1:6::-1:0",
+    "cargobay:15550.5:1:7::-1:0"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 1,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": true,
+  "hasHPG": false,
+  "gravDecks": [
+    135
+  ],
+  "dockingCollars": 2,
+  "mulId": 4047,
+  "role": "None",
+  "source": "TR:3067",
+  "fluff": {
+    "overview": "<p>The Dante-class frigate was the first WarShip designed and constructed under ComStar's secretive military buildup, conceived as a heavily automated stopgap vessel while the order's considerable stockpile of mothballed Star League-era WarShips were refurbished and qualified crews trained to operate them. Commissioned at the Titan Yards in the Sol system, the class drew upon the facility's established shipbuilding expertise to produce a warfighting vessel capable of meaningful naval operations with a fraction of the crew complement required by comparable designs of similar displacement. Armed with a potent mix of capital and conventional weaponry, the Dante earned a reputation as a capable and surprisingly fast combatant for its tonnage, and its heavy automation made it particularly well suited to an organization that possessed far more hulls than trained naval personnel to crew them.</p>",
+    "capabilities": "<p>Despite massing six hundred ten thousand tons, the Dante achieves frigate-grade speed with a thrust profile of five points safe and eight maximum, making it one of the fastest capital ships in its weight class. The vessel's primary armament centers on naval autocannons, with NAC/30 batteries distributed across the nose, forward quarter, broadside, and aft quarter arcs, supplemented by paired NAC/35 batteries in both broadside arcs for concentrated close-range firepower. Conventional defense is remarkably extensive for a vessel of frigate designation, with each arc mounting four LRM-20 racks, four Large Pulse Lasers, six Small Pulse Lasers, and three Anti-Missile Systems, creating overlapping fields of anti-fighter and anti-missile coverage that make the Dante exceptionally difficult to approach with small craft or missile salvos.</p><p>A lithium-fusion battery system enables rapid redeployment between star systems, while an onboard Mobile HPG provides independent interstellar communications capability critical to ComStar's operational requirements. Twelve aerospace fighter cubicles and two DropShip collars provide reasonable force projection for escort and raiding missions, though the design's limited cargo capacity and fuel bunkerage restrict extended independent operations. Six hundred tons of Ferro-Carbide armor provide substantial protection for the hull.</p>",
+    "deployment": "<p>The first Dante, CSV Narbonne, entered service in 2941, followed by the CSV Bordeaux in 2944 and the CSV Montpellier in 2948. The spiraling costs of renovating the remainder of ComStar's mothballed fleet, combined with the difficulty of concealing both the vessels and their large naval crews, led to the program being frozen in 2949. All three vessels served with ComStar's nascent naval forces for decades before the Jihad consumed them. The Narbonne was destroyed during the Word of Blake's Case White assault on ComStar in 3068, and the Montpellier was lost at Columbus. The Bordeaux mounted a particularly distinguished resistance, running the Blakist blockade at Tukayyid in August 3068 to rescue Primus Sharilar Mori and senior ComStar leadership, then defending Orestes against a Blakist attack before participating in the liberation of Chara. The Bordeaux was ultimately destroyed at the Luyten system by Word of Blake forces.</p><p>Following their seizure of the Sol system shipyards, the Word of Blake constructed two additional Dantes: the WoBS Perdition, which participated in the invasion of St. Ives in September 3070 and helped destroy the Capellan WarShip CCS Elias Jung, and the WoBS Salvation. Both were destroyed during the defense of Sol against Devlin Stone's coalition during Operation SCOUR in 3078. In a final chapter, the Republic of the Sphere secretly salvaged and restored the wreck of the Bordeaux at Luyten, renaming it RSS Flatus. The vessel served until Clan Wolf's invasion, when its crew activated the self-destruct at Dubhe rather than allow the ship to be captured.</p>",
+    "history": "<p>The Dante-class emerged from ComStar's growing recognition that its fleet of mothballed Star League-era WarShips could not be rapidly reactivated without sufficient qualified crews to operate them. Primus Hollings York championed the creation of a heavily automated design that could serve as both an escort for DropShip flotillas and a command vessel for the nascent Com Guards naval arm. Construction began at the renovated Titan Yards facility in the Sol system, where the venerable O'Neil shipbuilding infrastructure provided the foundation for ComStar's first new-build naval program since the fall of the Star League.</p><p>Three hulls were completed between 2941 and 2948 before fiscal pressures and security concerns halted further construction. The cost of simultaneously renovating the larger mothballed vessels while building Dantes proved unsustainable, and the increasing number of naval personnel required threatened to expose ComStar's military capabilities to outside observers. The program was formally frozen in 2949, and the death of Primus York shortly after removed its most prominent advocate. Despite plans by the Precentor Martial to commission additional units, the Word of Blake schism and the subsequent Blakist invasion of Terra permanently ended ComStar's expansion of the class.</p><p>The Dante's combat record proved the soundness of its design despite the small class size. All three ComStar vessels served capably through decades of clandestine operations before being drawn into the catastrophic fighting of the Jihad. The Word of Blake, recognizing the design's value, constructed two additional hulls at the captured Titan Yards to supplement their own growing naval forces during the conflict. The class thus served on both sides of the war, with ComStar and later Republic vessels fighting against Blakist-built sisters. The last surviving hull was ultimately lost during Clan Wolf's drive toward Terra, ending a class history that spanned over a century of continuous service across four different operators.</p>",
+    "manufacturer": "O'Neil Yards - Titan Yards",
+    "primaryFactory": "Terra"
+  }
+}

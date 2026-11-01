@@ -1,0 +1,280 @@
+{
+  "id": "dragau-assault-interceptor-caspar-ii-drone",
+  "chassis": "Dragau Assault Interceptor",
+  "model": "(CASPAR II Drone)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "CLAN_INVASION",
+  "year": 3065,
+  "tonnage": 2500,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 9,
+    "maxThrust": 14
+  },
+  "fuel": 6900,
+  "structuralIntegrity": 15,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 120
+  },
+  "armor": {
+    "type": "HEAVY_FERRO_ALUMINUM",
+    "byArc": {
+      "NOSE": 429,
+      "RIGHT_SIDE": 334,
+      "LEFT_SIDE": 334,
+      "AFT": 262
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-isheavygaussrifle",
+      "name": "(B) ISHeavyGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isheavygaussrifle",
+      "name": "ISHeavyGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isheavygauss-ammo:36",
+      "name": "ISHeavyGauss Ammo:36",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-heavy-ppc",
+      "name": "(B) Heavy PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-heavy-ppc",
+      "name": "(B) Heavy PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isams-ammo:48",
+      "name": "ISAMS Ammo:48",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-15",
+      "name": "(B) LRM 15",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "lrm-15",
+      "name": "LRM 15",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-15-artemis-capable:56",
+      "name": "IS Ammo LRM-15 Artemis-capable:56",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-islargevsplaser",
+      "name": "(B) ISLargeVSPLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "islargevsplaser",
+      "name": "ISLargeVSPLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-islargevsplaser",
+      "name": "(R) (B) ISLargeVSPLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-15",
+      "name": "(B) LRM 15",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-15",
+      "name": "LRM 15",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-15-artemis-capable:56",
+      "name": "IS Ammo LRM-15 Artemis-capable:56",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-islargevsplaser",
+      "name": "(B) ISLargeVSPLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "islargevsplaser",
+      "name": "ISLargeVSPLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-islargevsplaser",
+      "name": "(R) (B) ISLargeVSPLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-islargevsplaser",
+      "name": "(B) ISLargeVSPLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargevsplaser",
+      "name": "ISLargeVSPLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isams-ammo:72",
+      "name": "ISAMS Ammo:72",
+      "location": "AFT"
+    },
+    {
+      "id": "caspariidronecontrolsystem",
+      "name": "CasparIIDroneControlSystem",
+      "location": "HULL"
+    }
+  ],
+  "crew": 10,
+  "escapePods": 0,
+  "lifeBoats": 0,
+  "officers": 2,
+  "gunners": 5,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:0.0:0:-1::-1:0",
+    "1stclassquarters:0.0:0:-1::-1:0",
+    "steeragequarters:60.0:0:-1::-1:0"
+  ],
+  "mulId": 907,
+  "role": "None",
+  "source": "JHS:Terra",
+  "fluff": {
+    "overview": "<p>The Dragau is a 2,500-ton Aerodyne assault interceptor originally developed by the Word of Blake as a testbed for automated drone control systems. Based on an existing DropShip hull, the design was conceived to evaluate whether unmanned combat vessels could match or exceed the performance of crewed interceptors in high-intensity naval engagements. The results exceeded expectations, producing a weapons platform of extraordinary lethality.</p><p>Without a crew to protect, the Dragau can maintain acceleration rates and execute maneuvers that would kill human occupants, giving it a decisive edge in close-quarters combat. The combination of heavy armor, devastating forward firepower, and extreme agility made the Dragau one of the most feared DropShip-scale combatants of its era, and its successors have continued to serve in naval forces well into the thirty-second century.</p>",
+    "capabilities": "<p>The original Dragau concentrates overwhelming firepower in its nose arc, mounting two heavy Gauss rifles and six heavy PPCs as its primary armament. Each wing carries two LRM-15 racks with Artemis IV fire control, two ER PPCs, and four large variable-speed pulse lasers. The aft arc mounts two additional large variable-speed pulse lasers and three anti-missile systems to discourage pursuit. Four nose-mounted anti-missile systems supplement the forward defenses. One hundred and twenty double heat sinks manage the immense thermal output.</p><p>Protected by sixty-six tons of heavy ferro-aluminum armor weighing as much as a heavy BattleMech, the Dragau can absorb punishment that would cripple conventional DropShips. The CASPAR II Advanced Smart Robotic Control System serves as the vessel's brain, coordinating attacks through command ships and providing an inherent ECM effect that further enhances survivability. Safe thrust of nine Gs makes the Dragau extraordinarily agile for a vessel of its tonnage, enabling maneuvers impossible for crewed interceptors.</p>",
+    "deployment": "<p>Dragau drones were deployed exclusively by the Word of Blake as autonomous interceptors coordinated through SDS command networks. These unmanned vessels proved devastatingly effective in the defense of Blakist holdings during the Jihad, engaging Coalition naval forces with tactics no crewed vessel could replicate. Their deployment at Mars and Terra demonstrated that massed drone interceptors posed a mortal threat to even WarShip-class opponents.</p>",
+    "history": "<p>The original Dragau entered service in 3065 as the Word of Blake's primary evaluation platform for their advanced drone control technology. Live-fire testing during the assault on Mars demonstrated the concept's viability in devastating fashion, as Dragau drones destroyed the majority of the attacking force's aerospace and WarShip support. The success of these initial engagements led to full-scale production and deployment across Blakist-controlled space.</p><p>During the final battle for Terra, a damaged Dragau destroyed a major Coalition WarShip, further cementing the design's fearsome reputation. Following the defeat of the Word of Blake, surviving Dragau hulls and their underlying technology were studied extensively. The Republic of the Sphere subsequently commissioned a crewed successor design, the Dragau II, which entered production in 3085. This variant retained the original's devastating weapons configuration while replacing the drone control system with conventional crew facilities. Further refinements in 3097 incorporated advanced networking systems to improve coordination within larger fleet formations.</p>",
+    "manufacturer": "Boeing Interstellar",
+    "primaryFactory": "New Earth"
+  }
+}

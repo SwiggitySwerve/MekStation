@@ -1,0 +1,81 @@
+{
+  "id": "merchant-jumpship-2901",
+  "chassis": "Merchant JumpShip",
+  "model": "(2901)",
+  "unitType": "JumpShip",
+  "subType": "JumpShip",
+  "techBase": "CLAN",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2901,
+  "tonnage": 120000,
+  "motionType": "AERODYNE",
+  "designType": "CIVILIAN",
+  "movement": {
+    "safeThrust": 0,
+    "maxThrust": 0
+  },
+  "fuel": 425,
+  "structuralIntegrity": 1,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 99
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 4,
+      "FRONT_LEFT_SIDE": 5,
+      "FRONT_RIGHT_SIDE": 5,
+      "AFT": 4,
+      "AFT_LEFT_SIDE": 4,
+      "AFT_RIGHT_SIDE": 4
+    }
+  },
+  "equipment": [
+    {
+      "id": "ismobilehpg",
+      "name": "ISMobileHPG",
+      "location": "HULL"
+    }
+  ],
+  "crew": 32,
+  "escapePods": 4,
+  "lifeBoats": 0,
+  "officers": 4,
+  "gunners": 0,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "transporters": [
+    "smallcraftbay:2.0:2:1::-1:0",
+    "cargobay:303.0:1:2::-1:0",
+    "cargobay:303.0:1:3::-1:0",
+    "1stclassquarters:40.0:0:-1::-1:0",
+    "crewquarters:126.0:0:-1::-1:0",
+    "dockingcollar",
+    "dockingcollar"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 0,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": false,
+  "hasHPG": false,
+  "gravDecks": [
+    40
+  ],
+  "dockingCollars": 2,
+  "mulId": 4622,
+  "role": "None",
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Merchant-class JumpShip is the smallest JumpShip commonly utilized by independent traders, corporations, and mercenary units, and stands as the second smallest JumpShip still in active service. Originally designed with its name reflecting its intended commercial market, the vessel masses 120,000 tons and measures just over 320 meters in length. The Clans maintain a cache of their own Merchants, though it is not detailed anywhere whether they are new builds, Star League remnants, or indeed if they differ from the Inner Sphere version in any meaningful way.</p>",
+    "capabilities": "<p>The Merchant-Class is designed to carry up to two DropShips via docking hard points located midway along a reinforced cylindrical cargo section. The cargo section itself is split into independent sections totalling over 600 tons of capacity, flanked by two small craft bays. The original design features a 40-meter diameter centrifugal grav deck functioning as a recreation center and lounge. As this class is mostly privately owned and operated, the actual onboard facilities are highly diverse. Common variations include airtight modules (20 to 100 tons) fitted into cargo bays to serve as extra living quarters, lounges, or controlled environments with independent life-support and power. The vessel features a spacious, dome-shaped bridge with large viewports and a raised central command platform. While originally designed for a larger crew of six, over the centuries the bridge design has shifted to be operated by just two people. A persistent issue since the First Succession War is a lack of replacement parts for power converters, which increases the average recharge time by 10 to 20 percent compared to other JumpShips.</p>",
+    "history": "<p>The Merchant-class, designed in 2503, is one of the oldest JumpShip designs still in common use this day. In its 550 years of service it has operated throughout the Successor States, though the greatest concentration is found within the Lyran Commonwealth, where an estimated 40 percent of all Merchant ships currently operate. The Clans operate their own Merchants, likely a mix of upgraded Star League remnants and Clan built ships.</p>",
+    "manufacturer": "Dover Shipyards, Ioto Galactic Enterprises, Kathil Shipworks, Rashpur-Owens Incorporated, Stellar Trek"
+  }
+}

@@ -1,0 +1,1435 @@
+{
+  "id": "enterprise-super-carrier",
+  "chassis": "Enterprise Super Carrier",
+  "model": "",
+  "unitType": "WarShip",
+  "subType": "WarShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "STAR_LEAGUE",
+  "year": 2745,
+  "tonnage": 1600000,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "movement": {
+    "safeThrust": 2,
+    "maxThrust": 3
+  },
+  "fuel": 10000,
+  "structuralIntegrity": 50,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 2988
+  },
+  "armor": {
+    "type": "FERRO_CARBIDE",
+    "byArc": {
+      "NOSE": 235,
+      "FRONT_LEFT_SIDE": 210,
+      "FRONT_RIGHT_SIDE": 210,
+      "AFT": 188,
+      "AFT_LEFT_SIDE": 208,
+      "AFT_RIGHT_SIDE": 208
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-naval-laser-45",
+      "name": "(B) Naval Laser 45",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "NOSE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "NOSE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "NOSE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "NOSE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:17",
+      "name": "Ammo AR10 Barracuda:17",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:17",
+      "name": "Ammo AR10 Killer Whale:17",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:17",
+      "name": "Ammo AR10 White Shark:17",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isams-ammo:120",
+      "name": "ISAMS Ammo:120",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-laser-55",
+      "name": "(B) Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:10",
+      "name": "Ammo AR10 Barracuda:10",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:10",
+      "name": "Ammo AR10 Killer Whale:10",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:10",
+      "name": "Ammo AR10 White Shark:10",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isams-ammo:120",
+      "name": "ISAMS Ammo:120",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-55",
+      "name": "(B) Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:10",
+      "name": "Ammo AR10 Barracuda:10",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:10",
+      "name": "Ammo AR10 Killer Whale:10",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:10",
+      "name": "Ammo AR10 White Shark:10",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isams-ammo:120",
+      "name": "ISAMS Ammo:120",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-45",
+      "name": "(B) Naval Laser 45",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-ppc-heavy",
+      "name": "(B) Naval PPC (Heavy)",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-autocannon-nac-25",
+      "name": "(B) Naval Autocannon (NAC/25)",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-nac-25:10",
+      "name": "Ammo NAC/25:10",
+      "location": "AFT"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isams-ammo:120",
+      "name": "ISAMS Ammo:120",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-laser-45",
+      "name": "(B) Naval Laser 45",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:10",
+      "name": "Ammo AR10 Barracuda:10",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:10",
+      "name": "Ammo AR10 Killer Whale:10",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:10",
+      "name": "Ammo AR10 White Shark:10",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isams-ammo:120",
+      "name": "ISAMS Ammo:120",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-45",
+      "name": "(B) Naval Laser 45",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:10",
+      "name": "Ammo AR10 Barracuda:10",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:10",
+      "name": "Ammo AR10 Killer Whale:10",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:10",
+      "name": "Ammo AR10 White Shark:10",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isams-ammo:120",
+      "name": "ISAMS Ammo:120",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-55",
+      "name": "(B) Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-ppc-heavy",
+      "name": "(B) Naval PPC (Heavy)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-30:30",
+      "name": "Ammo NAC/30:30",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-35",
+      "name": "(B) Naval Autocannon (NAC/35)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-35",
+      "name": "Naval Autocannon (NAC/35)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-35:20",
+      "name": "Ammo NAC/35:20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:10",
+      "name": "Ammo AR10 Barracuda:10",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:10",
+      "name": "Ammo AR10 Killer Whale:10",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:10",
+      "name": "Ammo AR10 White Shark:10",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isams-ammo:120",
+      "name": "ISAMS Ammo:120",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-laser-55",
+      "name": "(B) Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-laser-55",
+      "name": "Naval Laser 55",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-ppc-heavy",
+      "name": "(B) Naval PPC (Heavy)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-30:30",
+      "name": "Ammo NAC/30:30",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-35",
+      "name": "(B) Naval Autocannon (NAC/35)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-35",
+      "name": "Naval Autocannon (NAC/35)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-35:20",
+      "name": "Ammo NAC/35:20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:10",
+      "name": "Ammo AR10 Barracuda:10",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:10",
+      "name": "Ammo AR10 Killer Whale:10",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:10",
+      "name": "Ammo AR10 White Shark:10",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-islargepulselaser",
+      "name": "(B) ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "islargepulselaser",
+      "name": "ISLargePulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isams-ammo:120",
+      "name": "ISAMS Ammo:120",
+      "location": "RIGHT_BROADSIDE"
+    }
+  ],
+  "crew": 2439,
+  "escapePods": 640,
+  "lifeBoats": 435,
+  "officers": 115,
+  "gunners": 100,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "transporters": [
+    "asfbay:648.0:11:1::-1:0",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "asfbay:324.0:11:7::-1:0",
+    "crewquarters:805.0:0:-1::-1:0",
+    "2ndclassquarters:2660.0:0:-1::-1:0",
+    "cargobay:288117.5:2:9::-1:0"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 1,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": true,
+  "hasHPG": false,
+  "gravDecks": [
+    150,
+    150
+  ],
+  "dockingCollars": 4,
+  "mulId": 5858,
+  "source": "XTR:Boondoggles",
+  "fluff": {
+    "overview": "<p>The Enterprise-class super carrier was the most ambitious WarShip project ever undertaken by the Star League Defense Force. Commissioned through the SLDF's black navy in 2745 and assigned to Daussault-Shimmon Enterprises on New Earth, the design called for a vessel capable of carrying an unprecedented number of aerospace fighters into battle while serving as a mobile command platform that could project overwhelming force across entire star systems. Its architects envisioned a warfighting capability so comprehensive that no rival naval force could hope to contest the Star League's dominance of deep-space combat for generations to come. The completed vessel never achieved powered flight, making the Enterprise one of the most costly and embarrassing failures in the history of interstellar naval construction. The program's collapse became a cautionary reference point for naval procurement authorities across the Inner Sphere.</p>",
+    "capabilities": "<p>On paper, the Enterprise was a terrifying instrument of war. Its internal hangars could accommodate nine hundred and seventy-two aerospace fighters organized into eighteen full wings, with fifty-four fighter bay doors enabling the launch of an entire wing every ten seconds at peak combat performance. The most complex command and control system ever designed for a Star League vessel occupied the ship's core, capable of simultaneously tracking up to twenty-five hundred objects during combat. A formidable array of capital weapons provided both striking power and defensive reach, with Heavy and Medium Naval PPCs complemented by naval lasers, naval autocannons, and AR-10 launchers capable of firing multiple missile types. Eighty large pulse lasers and eighty anti-missile systems provided comprehensive layered protection against massed fighter attacks and incoming missile salvos.</p><p>The design carried significant vulnerabilities alongside its ambition. At 1.6 million tons, the Enterprise's ferro-carbide armor protection of just over fifteen hundred tons was thin relative to its enormous displacement, leaving large sections of the hull inadequately shielded against concentrated capital weapon fire. A safe thrust of two gravities and maximum of three made the vessel sluggish for a capital asset of such strategic importance, and the sheer complexity of integrating so many disparate systems created risks that no amount of testing could fully mitigate. The carrier was entirely dependent on its fighter wings for offensive projection at range, and any sustained degradation of launch capability would have left the vessel dangerously exposed.</p>",
+    "deployment": "<p>The Enterprise never achieved operational status. When the vessel launched from its construction dock near Saturn in 2749, the assembled observers watched anticipation turn to dismay. The hull could not generate sufficient thrust to leave the construction berth under its own power, and tugs were forced to drag it clear of dry dock. After four hours of waiting for the propulsion problem to be rectified, the viewing audience dispersed. Test runs were rescheduled for a date that would never arrive. Investigators determined that the main engines were fundamentally incompatible with the thruster network, each system having been designed to conflicting specifications by separate contractors. Even if the main engines could somehow be made functional, the vessel would never be able to maneuver. The failure prompted the early retirement of the project's supervising officer, Admiral Ursula Verlander. The Enterprise was towed to the asteroid belt, stripped of salvageable components, and left as scrap.</p>",
+    "history": "<p>The Enterprise program originated in the black navy's conviction that aerospace fighters would eventually do to WarShips what aircraft carriers had done to surface battleships in the mid-twentieth century on Terra. Rather than leave matters to chance, the SLDF's head of naval architecture received orders to design a carrier that would decisively tip the balance in the Star League's favor. The concept called for a vessel large enough to carry multiple fighter wings, serve as a mobile command platform for deep-space operations, and project enough firepower to discourage any attempt to close within engagement range. The first draft of specifications was ambitious but arguably achievable, calling for a million-ton vessel carrying three fighter wings.</p><p>The project fell victim to the scope creep and bureaucratic dysfunction that plagued many late Star League military programs. Specifications changed repeatedly, and each major revision brought in a new set of engineers from different firms. Over a dozen separate companies ultimately received payment for complete sets of schematics, each building on or contradicting the work of their predecessors. By the time construction began at the Daussault-Shimmon Enterprises yards, the design had ballooned by sixty percent in mass and tripled in fighter capacity. The resulting vessel was an engineering marvel on paper but an organizational catastrophe in practice, with critical systems designed by teams that had never coordinated with one another.</p><p>The vessel's catastrophic propulsion failure at its 2749 launch exposed the fundamental dysfunction at the heart of the project. The SLDF quietly canceled the program, and the political fallout contributed to a much broader reassessment of the black navy's procurement practices. The Enterprise became a byword for the dangers of unchecked military ambition, and the debacle exposed the institutional overreach that increasingly characterized the Star League's troubled twilight years. The class name itself, borrowed from a storied line of Terran aircraft carriers, took on an ironic quality that persisted in naval circles for centuries afterward.</p>",
+    "manufacturer": "Daussault-Shimmon Enterprises",
+    "primaryFactory": "New Earth"
+  }
+}

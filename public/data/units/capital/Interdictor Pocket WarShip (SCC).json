@@ -1,0 +1,512 @@
+{
+  "id": "interdictor-pocket-warship-scc",
+  "chassis": "Interdictor Pocket WarShip",
+  "model": "(SCC)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3078,
+  "tonnage": 9400,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 7,
+    "maxThrust": 11
+  },
+  "fuel": 12000,
+  "structuralIntegrity": 25,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 244
+  },
+  "armor": {
+    "type": "HEAVY_FERRO_ALUMINUM",
+    "byArc": {
+      "NOSE": 685,
+      "RIGHT_SIDE": 513,
+      "LEFT_SIDE": 513,
+      "AFT": 342
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-heavy-ppc",
+      "name": "(B) Heavy PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "isams-ammo:48",
+      "name": "ISAMS Ammo:48",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-sub-capital-cannon-medium",
+      "name": "(B) Sub-Capital Cannon (Medium)",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-cannon-medium",
+      "name": "Sub-Capital Cannon (Medium)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-medium-scc:30",
+      "name": "Ammo Medium SCC:30",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-ismml9",
+      "name": "(B) ISMML9",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-mml-9-lrm-artemis-capable:78",
+      "name": "IS Ammo MML-9 LRM Artemis-capable:78",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-mml-9-srm-artemis-capable:66",
+      "name": "IS Ammo MML-9 SRM Artemis-capable:66",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islargevsplaser",
+      "name": "(B) ISLargeVSPLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargevsplaser",
+      "name": "ISLargeVSPLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "islargevsplaser",
+      "name": "ISLargeVSPLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-sub-capital-laser-1",
+      "name": "(B) Sub-Capital Laser /1",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-heavy-ppc",
+      "name": "(B) Heavy PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-islargevsplaser",
+      "name": "(B) ISLargeVSPLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "islargevsplaser",
+      "name": "ISLargeVSPLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "islargevsplaser",
+      "name": "ISLargeVSPLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-heavy-ppc",
+      "name": "(R) (B) Heavy PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-islargevsplaser",
+      "name": "(R) (B) ISLargeVSPLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-isantimissilesystem",
+      "name": "(R) (B) ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isams-ammo:36",
+      "name": "(R) ISAMS Ammo:36",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isams-ammo:48",
+      "name": "ISAMS Ammo:48",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-ismml9",
+      "name": "(B) ISMML9",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-lrm-artemis-capable:78",
+      "name": "IS Ammo MML-9 LRM Artemis-capable:78",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-srm-artemis-capable:66",
+      "name": "IS Ammo MML-9 SRM Artemis-capable:66",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-sub-capital-laser-1",
+      "name": "(B) Sub-Capital Laser /1",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-heavy-ppc",
+      "name": "(B) Heavy PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-islargevsplaser",
+      "name": "(B) ISLargeVSPLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "islargevsplaser",
+      "name": "ISLargeVSPLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "islargevsplaser",
+      "name": "ISLargeVSPLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-heavy-ppc",
+      "name": "(R) (B) Heavy PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-islargevsplaser",
+      "name": "(R) (B) ISLargeVSPLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-isantimissilesystem",
+      "name": "(R) (B) ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isams-ammo:36",
+      "name": "(R) ISAMS Ammo:36",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isantimissilesystem",
+      "name": "ISAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isams-ammo:48",
+      "name": "ISAMS Ammo:48",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-ismml9",
+      "name": "(B) ISMML9",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-lrm-artemis-capable:78",
+      "name": "IS Ammo MML-9 LRM Artemis-capable:78",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-srm-artemis-capable:66",
+      "name": "IS Ammo MML-9 SRM Artemis-capable:66",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-heavy-ppc",
+      "name": "(B) Heavy PPC",
+      "location": "AFT"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "AFT"
+    },
+    {
+      "id": "b-islargevsplaser",
+      "name": "(B) ISLargeVSPLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargevsplaser",
+      "name": "ISLargeVSPLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargevsplaser",
+      "name": "ISLargeVSPLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-isantimissilesystem",
+      "name": "(B) ISAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "isams-ammo:24",
+      "name": "ISAMS Ammo:24",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "b-ismml9",
+      "name": "(B) ISMML9",
+      "location": "AFT"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "AFT"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-mml-9-lrm-artemis-capable:78",
+      "name": "IS Ammo MML-9 LRM Artemis-capable:78",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-mml-9-srm-artemis-capable:66",
+      "name": "IS Ammo MML-9 SRM Artemis-capable:66",
+      "location": "AFT"
+    }
+  ],
+  "crew": 32,
+  "escapePods": 6,
+  "lifeBoats": 0,
+  "officers": 5,
+  "gunners": 13,
+  "passengers": 0,
+  "battleArmor": 36,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "steeragequarters:180.0:0:-1::-1:0",
+    "crewquarters:154.0:0:-1::-1:0",
+    "1stclassquarters:50.0:0:-1::-1:0",
+    "smallcraftbay:2.0:1:5::-1:0",
+    "cargobay:509.0:2:6::-1:0"
+  ],
+  "mulId": 4366,
+  "role": "None",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Interdictor class Pocket WarShip is a 9,400-ton Aerodyne assault vessel developed by the Word of Blake Protectorate in 3074. Designed after the Blakists suffered significant WarShip losses, the Interdictor was engineered to fill the gap using newly available sub-capital weapon technologies mounted on a DropShip-scale hull. The design uses the Achilles class assault DropShip as its structural basis, adapted to carry weapons capable of threatening true WarShip targets.</p><p>Built for speed and overwhelming firepower, the Interdictor was conceived as an interceptor capable of running down and engaging inbound or outbound vessels. Its combination of sub-capital grade armament, heavy armor protection, and exceptional thrust performance makes it one of the most dangerous DropShip-class combatants ever fielded, capable of engaging targets far above its weight class.</p>",
+    "capabilities": "<p>The Republic of the Sphere's SCC variant removes the capital and sub-capital missile launchers in favor of two nose-mounted medium sub-capital cannons and a sub-capital laser in each wing. The nose is further reinforced with three heavy PPCs, three MML-9 racks with Artemis IV guidance, and three large variable-speed pulse lasers. Each broadside mounts a sub-capital laser, four heavy PPCs, seven large variable-speed pulse lasers, two ER PPCs, three MML-9 racks with Artemis IV, and three anti-missile systems.</p><p>The aft arc carries two heavy PPCs, three large variable-speed pulse lasers, three Artemis-guided MML-9 racks, and an anti-missile system. Two hundred forty-four double heat sinks handle the thermal load. Two small craft bays and 509 tons of cargo are carried. The 2,053 points of heavy ferro-aluminum armor and safe thrust of seven are retained from the original design. A crew of eighty-six operates the vessel.</p>",
+    "deployment": "<p>The SCC variant became the standard Interdictor configuration for the Republic of the Sphere's naval forces from 3078 onward. Republic commanders deployed these vessels extensively as system patrol craft and rapid-response interceptors, leveraging their speed and heavy armament to dominate contested space lanes during the post-Jihad reconstruction period and into the early Dark Age.</p>",
+    "history": "<p>The Interdictor emerged from the Word of Blake's urgent need to replace WarShip losses sustained during the Jihad. Blakist engineers adapted the proven Achilles assault DropShip hull to mount sub-capital weapons, creating a vessel that could threaten WarShip-class targets at a fraction of the cost and construction time. The original 3074 design was optimized for vessel interdiction and capture, carrying marine complements and boarding equipment alongside its heavy armament. An anti-shipping variant followed in 3075, trading marine capacity for capital-grade missile launchers.</p><p>Following the defeat of the Word of Blake, the Republic of the Sphere acquired Interdictor production capability and developed its own variant in 3078. Republic engineers refined the weapons loadout based on combat experience during the Jihad, emphasizing sub-capital cannons and expanded missile systems over capital launchers. The Republic continued to develop the design, introducing a further refined variant in 3115 that incorporated networking systems to enhance coordination with allied vessels. The Interdictor remained a key element of Republic naval doctrine throughout the Dark Age.</p>",
+    "manufacturer": "Boeing Interstellar",
+    "primaryFactory": "Terra"
+  }
+}

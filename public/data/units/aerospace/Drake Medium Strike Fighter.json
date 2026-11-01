@@ -1,0 +1,107 @@
+{
+  "id": "drake-medium-strike-fighter",
+  "chassis": "Drake Medium Strike Fighter",
+  "model": "",
+  "unitType": "Conventional Fighter",
+  "subType": "ConventionalFighter",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "CIVIL_WAR",
+  "year": 3073,
+  "tonnage": 35,
+  "weightClass": "LIGHT",
+  "motionType": "AERODYNE",
+  "movement": {
+    "safeThrust": 6,
+    "maxThrust": 9
+  },
+  "fuel": 480,
+  "structuralIntegrity": 6,
+  "engine": {
+    "type": "FUSION"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 12
+  },
+  "cockpit": "STANDARD",
+  "armor": {
+    "type": "STEALTH",
+    "byArc": {
+      "NOSE": 10,
+      "RIGHT_WING": 8,
+      "LEFT_WING": 8,
+      "AFT": 6
+    }
+  },
+  "equipment": [
+    {
+      "id": "isersmalllaser",
+      "name": "ISERSmallLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismml3",
+      "name": "ISMML3",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismml3",
+      "name": "ISMML3",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismodulararmor",
+      "name": "ISModularArmor",
+      "location": "NOSE"
+    },
+    {
+      "id": "ismodulararmor",
+      "name": "ISModularArmor",
+      "location": "LEFT_WING"
+    },
+    {
+      "id": "ismodulararmor",
+      "name": "ISModularArmor",
+      "location": "RIGHT_WING"
+    },
+    {
+      "id": "is-vehicular-stealth",
+      "name": "IS Vehicular Stealth",
+      "location": "AFT"
+    },
+    {
+      "id": "isguardianecmsuite",
+      "name": "ISGuardianECMSuite",
+      "location": "AFT"
+    },
+    {
+      "id": "ismodulararmor",
+      "name": "ISModularArmor",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-mml-3-lrm",
+      "name": "IS Ammo MML-3 LRM",
+      "location": "FUSELAGE"
+    },
+    {
+      "id": "is-ammo-mml-3-srm",
+      "name": "IS Ammo MML-3 SRM",
+      "location": "FUSELAGE"
+    }
+  ],
+  "hasBombBay": false,
+  "bombCapacity": 0,
+  "mulId": 928,
+  "role": "Attack Fighter",
+  "source": "XTR:Boondocks",
+  "fluff": {
+    "overview": "<p>The Drake Medium Strike Fighter is a 35-ton experimental conventional fighter refit developed by Basantapur Fine Metals at their aerospace testing range on Colorado. First assembled in 3073, the design emerged from BFM's prototype program and served as the testbed for technologies later incorporated into the production Drake Medium Stealth Fighter. Built on the same basic airframe as Imstar Aerospace's popular Defender, the Drake is heavier than its progenitor, sacrificing some maneuverability for exceptional armor protection far beyond what conventional aircraft typically carry. The experimental design layers multiple advanced armor systems on all facings, giving the fighter a distinctive thick, scaled appearance. Though never intended for mass production in its prototype configuration, the Drake Medium Strike Fighter proved the viability of advanced protection technologies on conventional airframes and established BFM's credentials as a defense innovator.</p>",
+    "capabilities": "<p>The Drake Medium Strike Fighter carries two distinct armor systems that define its combat role. One and a half tons of vehicular stealth armor work in concert with a Guardian ECM suite to confound enemy targeting systems, making the fighter exceptionally difficult to lock onto. Layered over this is experimental modular armor reinforcing all facings, providing protection levels that approach those of a true aerospace fighter. This modular armor gives the Drake its characteristic heavy, scaled profile but adds significant mass, reducing speed and agility until the panels are ejected in combat.</p><p>The fighter's offensive suite is modest by comparison, centered on a pair of nose-mounted MML-3 launchers fed by two tons of ammunition, offering flexibility between short and long-range missile loads. A single Exostar ER Small Laser serves as a backup weapon. Powered by a 210-rated fusion engine, an unusual powerplant choice for a conventional fighter, the Drake achieves adequate thrust despite its increased weight. The design prioritizes survivability over raw firepower, making it a poor dogfighter compared to the standard Defender but remarkably difficult to bring down. Pilots who exploit the stealth systems to control engagement distance can offset the Drake's limited offensive output.</p>",
+    "deployment": "<p>As an experimental prototype, the Drake Medium Strike Fighter saw only limited deployment from BFM's aerospace testing range on Colorado. The handful of airframes produced served primarily as technology demonstrators, proving the viability of advanced armor systems on conventional fighter platforms. Public demonstrations generated enough interest to justify continued development, though the prototype configuration was never adopted for mass production. Individual airframes remained in BFM's inventory for continued testing and evaluation throughout the Jihad and into the early Republic era.</p>",
+    "history": "<p>BFM initially marketed the design as the \"Defender II,\" capitalizing on the well-known Imstar Aerospace airframe at its core. The campaign proved predictable and unimaginative, failing to distinguish the heavier, armor-laden refit from its ubiquitous progenitor. Critics were particularly harsh, likening the fighter to a flying gray brick and denigrating its lines, colors, and added mass in a single dismissive phrase. Public interest fell flat, and rumors began circulating that the project would be scrapped entirely.</p><p>The program's fortunes changed when Minnie Tadlock, the Drake's chief developer, took an unconventional approach to reviving interest. Tadlock arranged for demonstrations at the annual Matarn air show, cladding BFM's two showpiece fighters in a green paint scheme with dragon-themed accents. An engineer with an unusual gift for marketing and sales, Tadlock rebranded the fighter and sold BFM's leadership on the new identity. The air show performance captivated crowds and breathed new life into the program.</p><p>The \"Drake\" name proved more marketable than its predecessor, though reception varied by region. Federated Suns fringe worlders, for whom conventional fighters offered an affordable air defense option, saw little offense in the dragon imagery. The Draconis March border worlds remained a tougher sell, where the name carried less favorable cultural connotations. Regardless of regional preferences, the prototype program validated BFM's core concept, demonstrating that advanced armor technologies could transform a conventional fighter's survivability profile. This proof of concept directly enabled the development of the production stealth fighter variant, which entered service over a decade later.</p>",
+    "manufacturer": "Refit - Basantapur Fine Metals Aerospace Range",
+    "primaryFactory": "Colorado"
+  }
+}

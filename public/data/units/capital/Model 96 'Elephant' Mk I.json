@@ -1,0 +1,385 @@
+{
+  "id": "model-96-elephant-mk-i",
+  "chassis": "Model 96 'Elephant'",
+  "model": "Mk I",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2600,
+  "tonnage": 15000,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 5,
+    "maxThrust": 8
+  },
+  "fuel": 21000,
+  "structuralIntegrity": 25,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 200
+  },
+  "armor": {
+    "type": "FERRO_ALUMINUM",
+    "byArc": {
+      "NOSE": 371,
+      "RIGHT_SIDE": 325,
+      "LEFT_SIDE": 325,
+      "AFT": 278
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-gauss-ammo:48",
+      "name": "IS Gauss Ammo:48",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-10",
+      "name": "(B) LRM 10",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-10-artemis-capable:24",
+      "name": "IS Ammo LRM-10 Artemis-capable:24",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:48",
+      "name": "IS Gauss Ammo:48",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-10",
+      "name": "(B) LRM 10",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-10-artemis-capable:24",
+      "name": "IS Ammo LRM-10 Artemis-capable:24",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-isgaussrifle",
+      "name": "(R) (B) ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isgaussrifle",
+      "name": "(R) ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-gauss-ammo:48",
+      "name": "(R) IS Gauss Ammo:48",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-ppc",
+      "name": "(R) (B) PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-ppc",
+      "name": "(R) PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-medium-laser",
+      "name": "(R) (B) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-large-laser",
+      "name": "(R) Large Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-large-laser",
+      "name": "(R) Large Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:48",
+      "name": "IS Gauss Ammo:48",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-10",
+      "name": "(B) LRM 10",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-10-artemis-capable:24",
+      "name": "IS Ammo LRM-10 Artemis-capable:24",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-isgaussrifle",
+      "name": "(R) (B) ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isgaussrifle",
+      "name": "(R) ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-gauss-ammo:48",
+      "name": "(R) IS Gauss Ammo:48",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-ppc",
+      "name": "(R) (B) PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-ppc",
+      "name": "(R) PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-medium-laser",
+      "name": "(R) (B) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-large-laser",
+      "name": "(R) Large Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-large-laser",
+      "name": "(R) Large Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-lrm-10",
+      "name": "(B) LRM 10",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-lrm-10-artemis-capable:24",
+      "name": "IS Ammo LRM-10 Artemis-capable:24",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "isnavaltugadaptor",
+      "name": "ISNavalTugAdaptor",
+      "location": "HULL"
+    }
+  ],
+  "crew": 229,
+  "escapePods": 10,
+  "lifeBoats": 2,
+  "officers": 7,
+  "gunners": 9,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 25,
+  "otherPassengers": 0,
+  "transporters": [
+    "cargobay:2528.5:1:1::-1:0",
+    "smallcraftbay:4.0:2:2::-1:0",
+    "mekbay:12.0:2:-1::-1:0",
+    "heavyvehiclebay:8.0:2:4::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "steeragequarters:125.0:0:-1::-1:0",
+    "crewquarters:259.0:0:-1::-1:0",
+    "1stclassquarters:70.0:0:-1::-1:0",
+    "infantrybay:4.0:1:9:Jump:-1:0"
+  ],
+  "mulId": 4650,
+  "role": "None",
+  "source": "TR:3075",
+  "fluff": {
+    "overview": "<p>The Model 96, commonly known as the Elephant, is a Star League era heavy tug class DropShip built to serve a dual role: moving large craft around orbital shipyards and acting as an assault DropShip in support of invasion task forces. Weighing 15,000 tons, this massive Spheroid vessel was developed to meet a dual requirement from the Star League Navy's Department of Procurement, driven by the growing number of WarShips requiring orbital maneuvering support.</p><p>The vessel's distinctive appearance comes from powerful retractable magnetic locks at each point of its reinforced bow, which give the ship the silhouette of an elephant's head. Capable of pushing even the largest WarShips, the Elephant also carries enough firepower and armor for its secondary assault role, along with cargo space for a combined-arms battalion.</p>",
+    "capabilities": "<p>The Mk I Elephant mounts a formidable weapons array across all arcs, complementing its tug role with substantial combat capability. The nose carries two Gauss rifles, an Artemis IV-enhanced LRM-10, four PPCs, two medium lasers, and a large laser. Each broadside mounts four Gauss rifles, an Artemis-enhanced LRM-10, four PPCs, four medium lasers, and three large lasers. The aft arc provides two medium lasers, four large lasers, and an Artemis-enhanced LRM-10. Two hundred double heat sinks manage the enormous thermal output of this weapons array.</p><p>The vessel's reinforced bow and massive drive system deliver 4g of thrust, sufficient to push even the largest WarShips into position. A naval tug adaptor allows the Elephant to lock onto and maneuver capital ships. The hull carries 1,299 points of armor, and the interior accommodates twelve BattleMechs, four small craft, eight heavy vehicles, four infantry platoons, and over 2,500 tons of cargo. A crew of 270 operates this multirole vessel.</p>",
+    "deployment": "<p>The Mk I served primarily at major Star League naval bases and shipyards, where its tug capability was essential for maneuvering WarShips during construction and maintenance. In its assault role, the Elephant deployed as part of invasion task forces, using its heavy armor and weapons to support planetary assault operations while carrying a combined-arms battalion as its ground contingent.</p>",
+    "history": "<p>Nimakachi Fusion Products Limited began production of the Model 96 in May of 2652, being the only manufacturer able to meet the Star League Navy's demanding dual-role requirements. Just over one hundred Elephants were produced in total, with most attached to major naval fleets and shipyards across the Star League.</p><p>The Elephant's most notable action came during the Amaris Civil War, when fifty of the class were stationed in defense of the shipyards above Titan, Mars, and Venus in the Terra system. Two squadrons of the SLDF's 23rd Wing fought against Rim Worlds Republic forces in the opening days of the conflict, destroying a Republic light cruiser above Mars before being destroyed themselves. The heavy losses during the liberation of the Terran Hegemony severely reduced the number of surviving Elephants.</p><p>During the Succession Wars, ComStar produced a limited number of new Elephants between 2882 and 2994, deploying them to secret fleet bases in the Ross 248 and Luyten 68-28 star systems to assist their Faslane Yardships. Several of these vessels defected to the Word of Blake during the ComStar Schism of 3052. The Word of Blake subsequently expanded their navy, requiring the production of additional Model 96s to meet their growing needs. Intelligence reports indicate that Elephants have been sighted in the Deep Periphery near the Hanseatic League, tied to a project codenamed Erinyes.</p>",
+    "manufacturer": "Nimakachi Fusion Products Ltd.",
+    "primaryFactory": "Dalton"
+  }
+}

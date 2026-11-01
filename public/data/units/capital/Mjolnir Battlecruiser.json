@@ -1,0 +1,1101 @@
+{
+  "id": "mjolnir-battlecruiser",
+  "chassis": "Mjolnir Battlecruiser",
+  "model": "",
+  "unitType": "WarShip",
+  "subType": "WarShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3061,
+  "tonnage": 1350000,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "movement": {
+    "safeThrust": 4,
+    "maxThrust": 6
+  },
+  "fuel": 5940,
+  "structuralIntegrity": 140,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 1319
+  },
+  "armor": {
+    "type": "FERRO_CARBIDE",
+    "byArc": {
+      "NOSE": 504,
+      "FRONT_LEFT_SIDE": 479,
+      "FRONT_RIGHT_SIDE": 479,
+      "AFT": 474,
+      "AFT_LEFT_SIDE": 474,
+      "AFT_RIGHT_SIDE": 474
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-nac-30:50",
+      "name": "Ammo NAC/30:50",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-40",
+      "name": "(B) Naval Autocannon (NAC/40)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-nac-40:12",
+      "name": "Ammo NAC/40:12",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-40",
+      "name": "(B) Naval Autocannon (NAC/40)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-nac-40:12",
+      "name": "Ammo NAC/40:12",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-ppc-heavy",
+      "name": "(B) Naval PPC (Heavy)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-gauss-heavy",
+      "name": "(B) Naval Gauss (Heavy)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-gauss-heavy",
+      "name": "Naval Gauss (Heavy)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-heavy-n-gauss:50",
+      "name": "Ammo Heavy N-Gauss:50",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "NOSE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:9",
+      "name": "Ammo AR10 Killer Whale:9",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:9",
+      "name": "Ammo AR10 White Shark:9",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:9",
+      "name": "Ammo AR10 Barracuda:9",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:24",
+      "name": "IS Ammo LRM-20 Artemis-capable:24",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "NOSE"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:30",
+      "name": "IS Ammo SRM-6 Artemis-capable:30",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-35",
+      "name": "(B) Naval Autocannon (NAC/35)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-35",
+      "name": "Naval Autocannon (NAC/35)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-35:50",
+      "name": "Ammo NAC/35:50",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:8",
+      "name": "Ammo AR10 Killer Whale:8",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:8",
+      "name": "Ammo AR10 White Shark:8",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:8",
+      "name": "Ammo AR10 Barracuda:8",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:24",
+      "name": "IS Ammo LRM-20 Artemis-capable:24",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:30",
+      "name": "IS Ammo SRM-6 Artemis-capable:30",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-35",
+      "name": "(B) Naval Autocannon (NAC/35)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-35",
+      "name": "Naval Autocannon (NAC/35)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-35:50",
+      "name": "Ammo NAC/35:50",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:8",
+      "name": "Ammo AR10 Killer Whale:8",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:8",
+      "name": "Ammo AR10 White Shark:8",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:8",
+      "name": "Ammo AR10 Barracuda:8",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:24",
+      "name": "IS Ammo LRM-20 Artemis-capable:24",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:30",
+      "name": "IS Ammo SRM-6 Artemis-capable:30",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-nac-30:50",
+      "name": "Ammo NAC/30:50",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-ppc-heavy",
+      "name": "(B) Naval PPC (Heavy)",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-gauss-heavy",
+      "name": "(B) Naval Gauss (Heavy)",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-gauss-heavy",
+      "name": "Naval Gauss (Heavy)",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-heavy-n-gauss:50",
+      "name": "Ammo Heavy N-Gauss:50",
+      "location": "AFT"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "AFT"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:9",
+      "name": "Ammo AR10 Killer Whale:9",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-ar10-white-shark:9",
+      "name": "Ammo AR10 White Shark:9",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-ar10-barracuda:9",
+      "name": "Ammo AR10 Barracuda:9",
+      "location": "AFT"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "AFT"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:24",
+      "name": "IS Ammo LRM-20 Artemis-capable:24",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "AFT"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:30",
+      "name": "IS Ammo SRM-6 Artemis-capable:30",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-autocannon-nac-35",
+      "name": "(B) Naval Autocannon (NAC/35)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-35",
+      "name": "Naval Autocannon (NAC/35)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-nac-35:50",
+      "name": "Ammo NAC/35:50",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:8",
+      "name": "Ammo AR10 Killer Whale:8",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:8",
+      "name": "Ammo AR10 White Shark:8",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:8",
+      "name": "Ammo AR10 Barracuda:8",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:24",
+      "name": "IS Ammo LRM-20 Artemis-capable:24",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:30",
+      "name": "IS Ammo SRM-6 Artemis-capable:30",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-35",
+      "name": "(B) Naval Autocannon (NAC/35)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-35",
+      "name": "Naval Autocannon (NAC/35)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-nac-35:50",
+      "name": "Ammo NAC/35:50",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:8",
+      "name": "Ammo AR10 Killer Whale:8",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-white-shark:8",
+      "name": "Ammo AR10 White Shark:8",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:8",
+      "name": "Ammo AR10 Barracuda:8",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:24",
+      "name": "IS Ammo LRM-20 Artemis-capable:24",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:30",
+      "name": "IS Ammo SRM-6 Artemis-capable:30",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-30:50",
+      "name": "Ammo NAC/30:50",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-40",
+      "name": "(B) Naval Autocannon (NAC/40)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-40:13",
+      "name": "Ammo NAC/40:13",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-40",
+      "name": "(B) Naval Autocannon (NAC/40)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-40:13",
+      "name": "Ammo NAC/40:13",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-40",
+      "name": "(B) Naval Autocannon (NAC/40)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-40:12",
+      "name": "Ammo NAC/40:12",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-ppc-heavy",
+      "name": "(B) Naval PPC (Heavy)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:24",
+      "name": "IS Ammo LRM-20 Artemis-capable:24",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:30",
+      "name": "IS Ammo SRM-6 Artemis-capable:30",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-30:50",
+      "name": "Ammo NAC/30:50",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-40",
+      "name": "(B) Naval Autocannon (NAC/40)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-40:13",
+      "name": "Ammo NAC/40:13",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-40",
+      "name": "(B) Naval Autocannon (NAC/40)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-40:13",
+      "name": "Ammo NAC/40:13",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-40",
+      "name": "(B) Naval Autocannon (NAC/40)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-40:12",
+      "name": "Ammo NAC/40:12",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-ppc-heavy",
+      "name": "(B) Naval PPC (Heavy)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-ppc-heavy",
+      "name": "Naval PPC (Heavy)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:24",
+      "name": "IS Ammo LRM-20 Artemis-capable:24",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-srm-6",
+      "name": "(B) SRM 6",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "is-ammo-srm-6-artemis-capable:30",
+      "name": "IS Ammo SRM-6 Artemis-capable:30",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    }
+  ],
+  "crew": 454,
+  "escapePods": 35,
+  "lifeBoats": 10,
+  "officers": 65,
+  "gunners": 67,
+  "passengers": 0,
+  "battleArmor": 40,
+  "marines": 0,
+  "transporters": [
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "asfbay:18.0:4:5::-1:0",
+    "asfbay:18.0:4:6::-1:0",
+    "1stclassquarters:650.0:0:-1::-1:0",
+    "crewquarters:2219.0:0:-1::-1:0",
+    "2ndclassquarters:280.0:0:-1::-1:0",
+    "cargobay:30914.0:1:10::-1:0"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 1,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": false,
+  "hasHPG": false,
+  "gravDecks": [
+    135
+  ],
+  "dockingCollars": 4,
+  "mulId": 4647,
+  "role": "None",
+  "source": "TR:3067",
+  "fluff": {
+    "overview": "<p>The Mjolnir-class battlecruiser was designed and constructed at Port Sydney Naval Shipyards on Alarion through a joint venture between Bowie Industries and Ioto Galactic Enterprises. Commissioned during the early thirty-first century, the vessel represented the Lyran Alliance's most ambitious naval construction effort since the fall of the original Star League. Drawing its name from the legendary hammer of Norse mythology, the class embodied a design philosophy centered on overwhelming firepower and exceptional protection, intended to anchor Lyran fleet operations as an independent capital combatant.</p><p>The class earned a formidable reputation among both allies and adversaries, regarded by many naval analysts as the most capable capital combatant fielded by any Successor State. Its combination of raw striking power and exceptional survivability made the Mjolnir a vessel that fleet commanders on either side of a conflict could not afford to ignore.</p>",
+    "capabilities": "<p>Displacing 1,350,000 tons, the Mjolnir mounts one of the most devastating weapons suites ever fitted to an Inner Sphere WarShip. The vessel's primary striking power comes from four Heavy Naval Gauss rifles, the largest and most destructive capital weapons produced in the modern era, positioned to deliver punishing fire from both fore and aft arcs. Twenty-four naval autocannons of varying caliber provide the backbone of the broadside armament, complemented by sixteen naval particle projector cannons and twelve AR-10 missile launchers capable of delivering multiple ordnance types. Point defense is handled by thirty-two extended-range large lasers alongside Artemis-guided missile batteries distributed across all firing arcs.</p><p>Protection matches the offensive capability. Three thousand five hundred tons of Ferro-Carbide armor give the Mjolnir the heaviest protection of any Inner Sphere WarShip, with a structural integrity rating of 140 providing exceptional resilience against concentrated fire. The vessel accelerates at two gravities safe thrust despite its enormous mass, evidence of the engineering invested in its distributed engine assembly.</p><p>A crew complement of over four hundred fifty personnel operates the vessel, supported by forty battle armor marines for boarding defense. Thirty-six aerospace fighters across two bays provide substantial screening capability, and four docking collars support attached DropShip operations. A single 135-meter grav deck accommodates crew habitation during extended deployments. However, the absence of a lithium-fusion battery limits the vessel's strategic mobility, and its dependence on specialized maintenance facilities constrains operational range during prolonged campaigns.</p>",
+    "deployment": "<p>The lead vessel, LAS Yggdrasil, was commissioned in July 3062 following expedited trials at the Archon's direction. Early service revealed issues with the sensor suite and jumpsail reefing systems that cast doubt on the vessel's reliability. During the Battle of Tharkad in August 3066, Yggdrasil engaged an Allied task force that included Clan Wolf-in-Exile WarShips and was crippled in the fighting. Captured as isorla and briefly renamed CWS Winter Wolf, the vessel was later returned to Lyran service under the Arc-Royal Protocols. A subsequent misjump rendered the K-F drive and transit engines inoperative, and the derelict was discovered drifting several light-years from a jump point with its crew lost. Recovered and repaired at Gibbs under tight security, Yggdrasil participated in the liberation of Tharkad in January 3072 and continued operations through the Jihad, including the assault on the Ruins of Gabriel facility. Mothballed at Hesperus II during the Republic era, the vessel was reactivated to engage Clan Jade Falcon during the conquest of Skye. Refurbished and returned to active duty, Yggdrasil remained the sole operational WarShip available to the Lyran Commonwealth.</p><p>The second vessel, LAS Fylgia, launched in April 3069 under duress when Word of Blake forces attacked Alarion with nuclear and biological weapons, escaping before the shipyard was destroyed. Fylgia saw action at Skye, surviving nuclear missile attacks directed at the vessel, and participated alongside Yggdrasil in the Tharkad liberation and the capture of a Newgrange-class yardship at Coventry. The vessel was destroyed in 3077 at Chara III by nuclear-armed Word of Blake automated defense systems during Operation SCOUR.</p>",
+    "history": "<p>The Mjolnir-class traces its origins to a Lyran Alliance naval initiative that underwent substantial transformation during the political upheavals of the late thirtieth century. Initially conceived as a light cruiser to supplement existing fleet assets, the design was fundamentally redesigned following the Lyran secession from the Federated Commonwealth, with the new requirement calling for a vessel capable of confronting the Federated Suns' Avalon-class cruisers in fleet actions. The resulting battlecruiser bore little resemblance to the original light cruiser concept, having grown enormously in displacement and armament during the redesign process.</p><p>Construction took place at Port Sydney Naval Shipyards on Alarion, operated jointly by Bowie Industries and Ioto Galactic Enterprises. Port Sydney's heritage traced back to 2371, when Di Tron Heavy Industries and Lyran Commonwealth investors established Ioto Galactic at the facility. The shipyard had produced other cruisers and corvettes before undertaking the Mjolnir program. Engine production presented the single greatest challenge. When the Word of Blake seized Terra in 3058 and ComStar subsequently ceased supplying WarShip engines to the Successor States, the Lyran Alliance was forced to commission multiple factories within its borders to manufacture engine components piecemeal. Final assembly occurred at Port Sydney, and despite the difficulties, the resulting propulsion system delivered an exceptional thrust-to-weight ratio that enabled the massive vessel to achieve accelerations comparable to WarShips half its displacement.</p><p>Only two vessels of the class were ever completed. The lead vessel entered service in 3062, followed by the second hull seven years later in 3069. The second vessel's launch occurred under emergency conditions when Word of Blake forces attacked Alarion with nuclear and biological weapons, devastating the planet's population and destroying Port Sydney Naval Shipyards. The loss of the shipyard ensured that no additional Mjolnir-class vessels could be laid down, reducing the class to an irreplaceable pair.</p><p>Both vessels served during the Jihad, participating in key operations across the Inner Sphere against Word of Blake forces and their allies. The class lost one vessel in 3077 during the coalition's final push toward Terra. The sole surviving vessel continued in Lyran Commonwealth service through the Republic era and beyond, experiencing periods of mothballing and reactivation as strategic circumstances demanded.</p><p>The Mjolnir represented a singular achievement in post-Star League naval engineering. As the largest WarShip constructed by any Inner Sphere power since the original Star League, its completion demonstrated that modern Successor State shipyards retained the capability to produce capital vessels of considerable power, even without access to the full industrial base that earlier construction had relied upon. The class's legacy extended beyond its combat record, serving as proof that a single Great House could independently develop and construct a vessel of battlecruiser displacement. The surviving vessel remained the only WarShip available to the Lyran Commonwealth, a strategic asset whose irreplaceability constrained Lyran naval doctrine throughout the Dark Age.</p>",
+    "manufacturer": "Bowie Industries|Ioto Galactic Enterprises",
+    "primaryFactory": "Alarion|Alarion"
+  }
+}
