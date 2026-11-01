@@ -1,0 +1,757 @@
+{
+  "id": "tiamat-pocket-warship-caspar-ii-drone",
+  "chassis": "Tiamat Pocket WarShip",
+  "model": "(CASPAR II Drone)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "CIVIL_WAR",
+  "year": 3079,
+  "tonnage": 36000,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 5,
+    "maxThrust": 8
+  },
+  "fuel": 10000,
+  "structuralIntegrity": 75,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 415
+  },
+  "armor": {
+    "type": "HEAVY_FERRO_ALUMINUM",
+    "byArc": {
+      "NOSE": 810,
+      "RIGHT_SIDE": 750,
+      "LEFT_SIDE": 750,
+      "AFT": 705
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-sub-capital-laser-3",
+      "name": "(B) Sub-Capital Laser /3",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-sub-capital-cannon-heavy",
+      "name": "(B) Sub-Capital Cannon (Heavy)",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-cannon-heavy",
+      "name": "Sub-Capital Cannon (Heavy)",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-cannon-heavy",
+      "name": "Sub-Capital Cannon (Heavy)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-heavy-scc:60",
+      "name": "Ammo Heavy SCC:60",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isheavygaussrifle",
+      "name": "(B) ISHeavyGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isheavygaussrifle",
+      "name": "ISHeavyGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isheavygaussrifle",
+      "name": "ISHeavyGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isheavygaussrifle",
+      "name": "ISHeavyGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isheavygauss-ammo:80",
+      "name": "ISHeavyGauss Ammo:80",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-islaserantimissilesystem",
+      "name": "(B) ISLaserAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:15",
+      "name": "Ammo AR10 Barracuda:15",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:15",
+      "name": "Ammo AR10 Killer Whale:15",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-sub-capital-laser-3",
+      "name": "(B) Sub-Capital Laser /3",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-heavy-ppc",
+      "name": "(B) Heavy PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-islaserantimissilesystem",
+      "name": "(B) ISLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-islargevsplaser",
+      "name": "(R) (B) ISLargeVSPLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-islaserantimissilesystem",
+      "name": "(R) (B) ISLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-islaserantimissilesystem",
+      "name": "(R) ISLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-islaserantimissilesystem",
+      "name": "(R) ISLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-islaserantimissilesystem",
+      "name": "(R) ISLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-ismml9",
+      "name": "(B) ISMML9",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-lrm-artemis-capable:104",
+      "name": "IS Ammo MML-9 LRM Artemis-capable:104",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-srm-artemis-capable:88",
+      "name": "IS Ammo MML-9 SRM Artemis-capable:88",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-iserlargelaser",
+      "name": "(R) (B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-iserlargelaser",
+      "name": "(R) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:15",
+      "name": "Ammo AR10 Barracuda:15",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:15",
+      "name": "Ammo AR10 Killer Whale:15",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-sub-capital-laser-3",
+      "name": "(B) Sub-Capital Laser /3",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-3",
+      "name": "Sub-Capital Laser /3",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-heavy-ppc",
+      "name": "(B) Heavy PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "heavy-ppc",
+      "name": "Heavy PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-islaserantimissilesystem",
+      "name": "(B) ISLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-islargevsplaser",
+      "name": "(R) (B) ISLargeVSPLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-islargevsplaser",
+      "name": "(R) ISLargeVSPLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-islaserantimissilesystem",
+      "name": "(R) (B) ISLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-islaserantimissilesystem",
+      "name": "(R) ISLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-islaserantimissilesystem",
+      "name": "(R) ISLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-islaserantimissilesystem",
+      "name": "(R) ISLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-ismml9",
+      "name": "(B) ISMML9",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-lrm-artemis-capable:104",
+      "name": "IS Ammo MML-9 LRM Artemis-capable:104",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-mml-9-srm-artemis-capable:88",
+      "name": "IS Ammo MML-9 SRM Artemis-capable:88",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-iserlargelaser",
+      "name": "(R) (B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-iserlargelaser",
+      "name": "(R) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-capital-missile-launcher-ar10-launcher",
+      "name": "(B) Capital Missile Launcher (AR10 Launcher)",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-barracuda:15",
+      "name": "Ammo AR10 Barracuda:15",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ammo-ar10-killer-whale:15",
+      "name": "Ammo AR10 Killer Whale:15",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-islargevsplaser",
+      "name": "(B) ISLargeVSPLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargevsplaser",
+      "name": "ISLargeVSPLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargevsplaser",
+      "name": "ISLargeVSPLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargevsplaser",
+      "name": "ISLargeVSPLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargevsplaser",
+      "name": "ISLargeVSPLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "islargevsplaser",
+      "name": "ISLargeVSPLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-islaserantimissilesystem",
+      "name": "(B) ISLaserAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "islaserantimissilesystem",
+      "name": "ISLaserAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "b-screen-launcher",
+      "name": "(B) Screen Launcher",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-screen:20",
+      "name": "Ammo Screen:20",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "b-ismml9",
+      "name": "(B) ISMML9",
+      "location": "AFT"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "AFT"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "AFT"
+    },
+    {
+      "id": "ismml9",
+      "name": "ISMML9",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-mml-9-lrm-artemis-capable:104",
+      "name": "IS Ammo MML-9 LRM Artemis-capable:104",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-mml-9-srm-artemis-capable:88",
+      "name": "IS Ammo MML-9 SRM Artemis-capable:88",
+      "location": "AFT"
+    },
+    {
+      "id": "b-sub-capital-missile-launcher-piranha",
+      "name": "(B) Sub-Capital Missile Launcher (Piranha)",
+      "location": "AFT"
+    },
+    {
+      "id": "sub-capital-missile-launcher-piranha",
+      "name": "Sub-Capital Missile Launcher (Piranha)",
+      "location": "AFT"
+    },
+    {
+      "id": "ammo-piranha:30",
+      "name": "Ammo Piranha:30",
+      "location": "AFT"
+    },
+    {
+      "id": "caspariidronecontrolsystem",
+      "name": "CasparIIDroneControlSystem",
+      "location": "HULL"
+    }
+  ],
+  "crew": 51,
+  "escapePods": 0,
+  "lifeBoats": 0,
+  "officers": 10,
+  "gunners": 39,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "cargobay:258.0:1:1::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:0.0:0:-1::-1:0",
+    "steeragequarters:285.0:0:-1::-1:0",
+    "1stclassquarters:0.0:0:-1::-1:0",
+    "artsasfbay:5.0:6:6::-1:0"
+  ],
+  "mulId": 3256,
+  "role": "None",
+  "source": "JHS:Terra",
+  "fluff": {
+    "overview": "<p>The Tiamat is a massive 36,000-ton Spheroid pocket warship originally conceived during the Jihad as a command and control vessel capable of engaging and destroying multiple Star League era WarShips in a single engagement. Designed to withstand tremendous punishment while delivering devastating firepower at both capital and conventional scales, the Tiamat represents one of the most ambitious DropShip designs ever attempted.</p><p>Following the Jihad, the design was adapted for conventional manned operation and entered production for a new generation of naval forces. The Tiamat's combination of sub-capital and capital weaponry, heavy armor protection, and substantial cargo capacity makes it one of the most powerful non-WarShip combatants in known space.</p>",
+    "capabilities": "<p>The CASPAR II Drone variant replaces the manned crew with an Advanced Smart Robotic Control System, enabling autonomous operation with a maximum thrust of 5g. The drone shares the same 219 tons of Heavy Ferro-Aluminum armor as the manned version, providing 3,015 points of protection. However, the drone mounts considerably less weaponry than its manned counterpart, lacking the capital-grade AR-10 launchers, MML-9 batteries, and Laser Anti-Missile Systems found on the Republic's crewed variant.</p><p>The drone retains a formidable array of sub-capital weapons including Sub-Capital Laser/3 batteries across all arcs, Heavy Sub-Capital Cannons in the nose, Heavy Gauss Rifles, ER PPCs, Heavy PPCs on the broadsides, and Large Variable Speed Pulse Lasers for anti-fighter defense. Screen launchers and Piranha sub-capital missiles cover the aft arc. Cargo capacity is limited to 258 tons. The CASPAR II system provides competent robotic gunnery sufficient to operate the vessel's weapons effectively in combat without human oversight.</p>",
+    "deployment": "<p>The CASPAR II Drone Tiamats were deployed exclusively by Word of Blake forces during the final years of the Jihad, operating in defense of the last Protectorate worlds and during the Liberation of Terra. These autonomous vessels fought without human crews, controlled entirely by their robotic systems in accordance with Apollyon's dictate that unaugmented humans should not command the design.</p>",
+    "history": "<p>The Tiamat was originally conceived in 3066 by order of Apollyon, commanding officer of the Manei Domini, who demanded a vessel capable of challenging WarShips without being one itself. The resulting design was intended exclusively for Manei Domini use, with the first operational vessel completed by 3076. As the pressures of the Jihad escalated, Precentor Martial Cameron St. Jamais convinced Apollyon to release the design for regular Word of Blake forces, though Apollyon insisted that no unaugmented human should control the vessels. This restriction led to the development of a variant equipped with CASPAR II drone technology, allowing autonomous operation without a human crew.</p><p>These drone-operated Tiamats proved effective in the defense of the last Word of Blake Protectorate worlds, including the final battle for Terra. After the Jihad, the newly formed Republic of the Sphere, desperate to build a viable navy from the wreckage of the conflict, seized upon the Tiamat design. The Republic put a manned version into production at Terra's badly damaged O'Neil Shipyards by 3085, and later introduced the Tiamat II upgrade in 3112 with improved coordination systems for squadron-level operations.</p>",
+    "manufacturer": "O'Neil Yards - Titan Yards",
+    "primaryFactory": "Terra"
+  }
+}

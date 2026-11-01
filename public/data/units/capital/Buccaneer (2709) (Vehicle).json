@@ -1,0 +1,113 @@
+{
+  "id": "buccaneer-2709-vehicle",
+  "chassis": "Buccaneer",
+  "model": "(2709) (Vehicle)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "STAR_LEAGUE",
+  "year": 2709,
+  "tonnage": 3500,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 3,
+    "maxThrust": 5
+  },
+  "fuel": 4800,
+  "structuralIntegrity": 8,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 58
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 70,
+      "RIGHT_SIDE": 60,
+      "LEFT_SIDE": 60,
+      "AFT": 50
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-large-laser",
+      "name": "(B) Large Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-5",
+      "name": "(B) LRM 5",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-5:24",
+      "name": "IS Ammo LRM-5:24",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-medium-laser",
+      "name": "(B) Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    }
+  ],
+  "crew": 192,
+  "escapePods": 2,
+  "lifeBoats": 0,
+  "officers": 3,
+  "gunners": 2,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "lightvehiclebay:18.0:1:1::-1:0",
+    "cargobay:100.0:0:2::-1:0",
+    "lightvehiclebay:18.0:1:3::-1:0",
+    "cargobay:100.0:0:4::-1:0",
+    "1stclassquarters:30.0:0:-1::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:63.0:0:-1::-1:0",
+    "cargobay:329.0:1:8::-1:0"
+  ],
+  "mulId": 3867,
+  "source": "TR:3057r,D&J",
+  "fluff": {
+    "overview": "<p>The Buccaneer is one of the most widely used cargo haulers in the Inner Sphere. Originally designed in the early twenty-eighth century as a military transport, the 3,500-ton Aerodyne failed to secure a Star League Defense Force contract for a BattleMech carrier and was subsequently redesigned as a civilian merchant vessel. This commercial conversion proved far more successful than its military origins, and the Buccaneer quickly became a staple of interstellar commerce.</p><p>Known for its spacious crew accommodations and generous cargo capacity, the Buccaneer has earned a reputation as one of the most desirable postings in any merchant fleet. The vessel's robust construction and straightforward maintenance requirements have kept it in continuous service for centuries, a sign of the enduring quality of its fundamental design.</p>",
+    "capabilities": "<p>The vehicle carrier variant modifies the Buccaneer's two main 1,000-ton cargo bays to accommodate up to thirty-six light vehicles, with 529 tons of remaining cargo capacity. This conversion retains the same hull and drive system as the standard model but removes all weapons to maximize transport efficiency. The crew complement expands dramatically to 197 personnel to support the embarked vehicle crews and maintenance staff. This unarmed configuration relies entirely on escort vessels for protection during transit, limiting its deployment to secure trade routes or well-defended convoy operations.</p>",
+    "deployment": "<p>The vehicle carrier variant sees service primarily with military logistics commands and large mercenary organizations that need to transport light vehicle formations between deployment zones. Its lack of armament restricts operations to secure corridors or convoy formations with dedicated escort vessels.</p>",
+    "history": "<p>The Buccaneer was designed in the early 2700s to compete for a Star League Defense Force contract for a dedicated BattleMech transport. When the vessel failed to win the military bid, its designers pivoted to the civilian market, making modifications to optimize the hull for merchant cargo operations. This commercial variant proved immensely popular, establishing the Buccaneer as one of the most common cargo haulers in the Inner Sphere within a generation of its introduction.</p><p>The Buccaneer's popularity endured through the Succession Wars, as its rugged construction and ease of maintenance allowed even war-torn Successor States to keep their merchant fleets operational. The vessel's ubiquity made it a frequent target for pirates and raiders, but also ensured that spare parts and experienced crews remained readily available across known space. Despite the design's enduring success, no manufacturer launched an upgraded version incorporating recovered Star League technology for many years, a fact attributed to the Buccaneer's primarily civilian role and the low priority given to merchant vessel modernization during the post-Clan Invasion military buildup.</p>",
+    "manufacturer": "Brigadier Corporation|Dynamico Ltd.|Semier Data Tron",
+    "primaryFactory": "Gibson|Delavan|Tharkad"
+  }
+}

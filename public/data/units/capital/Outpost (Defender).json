@@ -1,0 +1,407 @@
+{
+  "id": "outpost-defender",
+  "chassis": "Outpost",
+  "model": "(Defender)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3080,
+  "tonnage": 7000,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 5,
+    "maxThrust": 8
+  },
+  "fuel": 4500,
+  "structuralIntegrity": 20,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 195
+  },
+  "armor": {
+    "type": "FERRO_ALUMINUM",
+    "byArc": {
+      "NOSE": 360,
+      "RIGHT_SIDE": 357,
+      "LEFT_SIDE": 357,
+      "AFT": 350
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-capital-missile-launcher-killer-whale",
+      "name": "(B) Capital Missile Launcher (Killer Whale)",
+      "location": "NOSE"
+    },
+    {
+      "id": "capital-missile-launcher-killer-whale",
+      "name": "Capital Missile Launcher (Killer Whale)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-killer-whale:20",
+      "name": "Ammo Killer Whale:20",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clarrowiv",
+      "name": "(B) CLArrowIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "clarrowivammo:20",
+      "name": "CLArrowIVAmmo:20",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clmediumpulselaser",
+      "name": "(B) CLMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clarrowiv",
+      "name": "(B) CLArrowIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "clarrowivammo:20",
+      "name": "CLArrowIVAmmo:20",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clarrowiv",
+      "name": "(B) CLArrowIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "clarrowivammo:20",
+      "name": "CLArrowIVAmmo:20",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clarrowiv",
+      "name": "(B) CLArrowIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "clarrowivammo:20",
+      "name": "CLArrowIVAmmo:20",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clarrowiv",
+      "name": "(B) CLArrowIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "clarrowivammo:20",
+      "name": "CLArrowIVAmmo:20",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-cllaserantimissilesystem",
+      "name": "(B) CLLaserAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "cllaserantimissilesystem",
+      "name": "CLLaserAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-clmediumpulselaser",
+      "name": "(B) CLMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-clerlargelaser",
+      "name": "(R) (B) CLERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-clerlargelaser",
+      "name": "(R) CLERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-clmediumpulselaser",
+      "name": "(R) (B) CLMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-clmediumpulselaser",
+      "name": "(R) CLMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-clmediumpulselaser",
+      "name": "(R) CLMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-clmediumpulselaser",
+      "name": "(R) CLMediumPulseLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-cllaserantimissilesystem",
+      "name": "(B) CLLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "cllaserantimissilesystem",
+      "name": "CLLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-cllaserantimissilesystem",
+      "name": "(R) (B) CLLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-cllaserantimissilesystem",
+      "name": "(R) CLLaserAntiMissileSystem",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-clmediumpulselaser",
+      "name": "(B) CLMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-clerlargelaser",
+      "name": "(R) (B) CLERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-clerlargelaser",
+      "name": "(R) CLERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-clmediumpulselaser",
+      "name": "(R) (B) CLMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-clmediumpulselaser",
+      "name": "(R) CLMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-clmediumpulselaser",
+      "name": "(R) CLMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-clmediumpulselaser",
+      "name": "(R) CLMediumPulseLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-cllaserantimissilesystem",
+      "name": "(B) CLLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "cllaserantimissilesystem",
+      "name": "CLLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-cllaserantimissilesystem",
+      "name": "(R) (B) CLLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-cllaserantimissilesystem",
+      "name": "(R) CLLaserAntiMissileSystem",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clmediumpulselaser",
+      "name": "(B) CLMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-cllaserantimissilesystem",
+      "name": "(B) CLLaserAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "cllaserantimissilesystem",
+      "name": "CLLaserAntiMissileSystem",
+      "location": "AFT"
+    }
+  ],
+  "crew": 66,
+  "escapePods": 10,
+  "lifeBoats": 5,
+  "officers": 4,
+  "gunners": 10,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "asfbay:10.0:4:1::-1:0",
+    "battlearmorbay:5.0:1:2::-1:2",
+    "1stclassquarters:40.0:0:-1::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:112.0:0:-1::-1:0",
+    "cargobay:892.0:1:6::-1:0"
+  ],
+  "mulId": 4771,
+  "role": "None",
+  "source": "TR:Proto",
+  "fluff": {
+    "overview": "<p>The Outpost is a seven-thousand-ton Spheroid assault DropShip designed from the ground up by Clan Hell's Horses to carry a truly mixed military force of BattleMechs, armor, infantry, aerospace fighters, and battle armor. Commissioned in 3061, the design addressed the Clan's long-standing dissatisfaction with the patchwork conversions of existing Union-C and Overlord-C transports that had been individually modified for combined-arms use.</p><p>Falling between the Union and Overlord classes in size, the Outpost can attain nearly double the acceleration of either vessel, allowing it to outmaneuver or outrun the most common DropShips encountered during planetary assault missions. Protected by heavier armor than even the Overlord-C and mounting formidable weaponry, the design gives its operators a powerful advantage during contested landings.</p>",
+    "capabilities": "<p>The Defender configuration transforms the Outpost into a fleet defense platform by replacing ground transport capacity with anti-ship weaponry and expanded aerospace facilities. The nose mounts two Killer Whale capital missile launchers, five Arrow IV artillery systems, four ER large lasers, five medium pulse lasers, and two laser anti-missile systems. Each side carries five ER large lasers, seven medium pulse lasers, and four laser anti-missile systems. The aft mounts two ER large lasers, four medium pulse lasers, and two laser anti-missile systems.</p><p>Ten aerospace fighter bays replace the vehicle and Mech transport capacity, with five battle armor Points retained for boarding defense. The 892 tons of remaining cargo space supports extended operations. One hundred and ninety-five double heat sinks and slightly increased armor at 1,424 points complete the defensive refit.</p>",
+    "deployment": "<p>The Defender configuration was developed for fleet defense and orbital superiority missions, leveraging the Outpost hull's speed and armor to create a credible anti-ship platform. Capital missile systems and expanded aerospace fighter capacity allow these vessels to engage threats well beyond the reach of conventional DropShip armament, providing a screening force for larger transport formations.</p>",
+    "history": "<p>The Outpost class was born from Clan Hell's Horses' recognition in the early 3060s that their naval transport fleet was an unsatisfactory collection of individually converted DropShips. Rather than continue modifying existing designs, saKhan Tanya DeLaurel commissioned a complete ground-up design in 3061, requesting a vessel faster and sturdier than the standard Mech carriers used throughout Clan space, capable of serving as an effective mobile command and coordination center during major operations.</p><p>The Clan's aerospace engineers used the rare Fortress class DropShip as a baseline, upgrading nearly every positive aspect of that venerable design while adding improvements of their own. The resulting Outpost class entered service in 3063, and its ability to carry a balanced combined-arms force in a single hull quickly proved its worth during operations where the Horses' integrated doctrine demanded seamless cooperation between Mech, armor, and infantry elements.</p><p>Subsequent variants expanded the design's capabilities. A 3070 refit incorporated hyper-assault Gauss weapons and facilities for ProtoMech and expanded battle armor contingents, while a Defender configuration introduced capital missile systems and dedicated aerospace fighter capacity for a fleet defense role.</p>",
+    "manufacturer": "Field Refit",
+    "primaryFactory": "Various"
+  }
+}

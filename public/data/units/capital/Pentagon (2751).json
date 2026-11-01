@@ -1,0 +1,356 @@
+{
+  "id": "pentagon-2751",
+  "chassis": "Pentagon",
+  "model": "(2751)",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "STAR_LEAGUE",
+  "year": 2751,
+  "tonnage": 4000,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 7,
+    "maxThrust": 11
+  },
+  "fuel": 18000,
+  "structuralIntegrity": 21,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 170
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 368,
+      "RIGHT_SIDE": 323,
+      "LEFT_SIDE": 323,
+      "AFT": 278
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-gauss-ammo:48",
+      "name": "IS Gauss Ammo:48",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:24",
+      "name": "IS Ammo LRM-20 Artemis-capable:24",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:16",
+      "name": "IS Gauss Ammo:16",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:48",
+      "name": "IS Ammo LRM-20 Artemis-capable:48",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-iserlargelaser",
+      "name": "(R) (B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-iserppc",
+      "name": "(R) (B) ISERPPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-20",
+      "name": "(R) (B) LRM 20",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-20-artemis-capable:30",
+      "name": "(R) IS Ammo LRM-20 Artemis-capable:30",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:16",
+      "name": "IS Gauss Ammo:16",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-20",
+      "name": "(B) LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "lrm-20",
+      "name": "LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-20-artemis-capable:48",
+      "name": "IS Ammo LRM-20 Artemis-capable:48",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-iserlargelaser",
+      "name": "(R) (B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-iserppc",
+      "name": "(R) (B) ISERPPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-lrm-20",
+      "name": "(R) (B) LRM 20",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-ammo-lrm-20-artemis-capable:30",
+      "name": "(R) IS Ammo LRM-20 Artemis-capable:30",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "AFT"
+    }
+  ],
+  "crew": 18,
+  "escapePods": 8,
+  "lifeBoats": 1,
+  "officers": 4,
+  "gunners": 8,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 25,
+  "otherPassengers": 0,
+  "transporters": [
+    "cargobay:573.5:1:1::-1:0",
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "steeragequarters:125.0:0:-1::-1:0",
+    "crewquarters:126.0:0:-1::-1:0",
+    "1stclassquarters:40.0:0:-1::-1:0"
+  ],
+  "mulId": 7339,
+  "role": "None",
+  "source": "TR:3075",
+  "fluff": {
+    "overview": "<p>The Pentagon is a 4,000-ton Spheroid assault DropShip originally designed for the Terran Hegemony Navy as a dedicated anti-fighter escort for capital warships. First introduced in the mid-twenty-sixth century, the vessel was designed to generate acceleration exceeding five gravities, making it faster than virtually any other DropShip of its era and capable of matching the pace of most aerospace fighters over extended distances.</p><p>Heavily armed and exceptionally well-armored for its size, the Pentagon earned a fearsome reputation as one of the most dangerous combat DropShips ever fielded. Its weapons were regularly updated with the best technology available, ensuring the design remained lethal across multiple centuries of service with the Star League Defense Force and its successors.</p>",
+    "capabilities": "<p>The 2751 Royal upgrade was available exclusively to Terran Hegemony units. This variant replaces the standard PPCs of the regular Star League version with ER PPCs, extending engagement range significantly while retaining the same Gauss rifles, ER large lasers, and Artemis IV-equipped LRM-20 launchers. Double heat sinks replace the single models, dramatically improving sustained fire capability. Armor protection, drive performance, and structural integrity remain identical to the standard Star League variant. Cargo capacity holds at 573 tons.</p>",
+    "deployment": "<p>The Royal Pentagon served exclusively with Terran Hegemony units, operating alongside the elite formations of the SLDF's most prestigious commands. These vessels shared the same fate as other Royal equipment, with surviving examples taken by General Kerensky into exile following the fall of the Star League.</p>",
+    "history": "<p>The Pentagon was first designed for the Terran Hegemony Navy in the twenty-sixth century to provide anti-fighter escort for Congress-class Frigates. In the years following the Reunification War, SLDF WarShips were rarely called into action against other capital vessels, and with growing demand for convoy escorts, the Congress-class and their attached Pentagons often saw more action than the SLDF's battlecruiser and battleship squadrons combined.</p><p>During the Second Periphery Uprising, the SLS Star Devil, a Congress-class frigate, stumbled into four aging Taurian Lola II destroyers screening a force bound for Brisbane. Far from any support, the Star Devil launched both her Pentagons with orders to concentrate on the Taurian troop transports. Fighting through the enemy fighter screen, the DropShips inflicted crippling damage on four JumpShips before being destroyed. The Star Devil was also lost, but not before taking three enemy destroyers with her.</p><p>The automated Caspar defense drones protecting the Terran Hegemony treated Pentagons as high-priority targets, and none are recorded as surviving the campaign to retake Terra from the Usurper. The design was thought extinct until 3068, when ComStar's Case White assault on Terra encountered previously unknown Word of Blake naval units including several squadrons of Pentagons. The Word of Blake had secretly developed a modified variant mounting capital-grade missile launchers, transforming the already dangerous escort into a pocket warship capable of engaging capital vessels directly.</p>",
+    "manufacturer": "Nicholas Spacecraft",
+    "primaryFactory": "New Earth"
+  }
+}

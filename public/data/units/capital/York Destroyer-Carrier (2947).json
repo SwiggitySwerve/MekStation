@@ -1,0 +1,589 @@
+{
+  "id": "york-destroyer-carrier-2947",
+  "chassis": "York Destroyer-Carrier",
+  "model": "(2947)",
+  "unitType": "WarShip",
+  "subType": "WarShip",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2947,
+  "tonnage": 600000,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "movement": {
+    "safeThrust": 4,
+    "maxThrust": 6
+  },
+  "fuel": 22500,
+  "structuralIntegrity": 60,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 581
+  },
+  "armor": {
+    "type": "LAMELLOR_FERRO_CARBIDE",
+    "byArc": {
+      "NOSE": 120,
+      "FRONT_LEFT_SIDE": 100,
+      "FRONT_RIGHT_SIDE": 100,
+      "AFT": 120,
+      "AFT_LEFT_SIDE": 100,
+      "AFT_RIGHT_SIDE": 100
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-clultraac10",
+      "name": "(B) CLUltraAC10",
+      "location": "NOSE"
+    },
+    {
+      "id": "clultraac10",
+      "name": "CLUltraAC10",
+      "location": "NOSE"
+    },
+    {
+      "id": "clan-ultra-ac-10-ammo:10",
+      "name": "Clan Ultra AC/10 Ammo:10",
+      "location": "NOSE"
+    },
+    {
+      "id": "clan-ultra-ac-10-ammo:10",
+      "name": "Clan Ultra AC/10 Ammo:10",
+      "location": "NOSE"
+    },
+    {
+      "id": "clan-ultra-ac-10-ammo:10",
+      "name": "Clan Ultra AC/10 Ammo:10",
+      "location": "NOSE"
+    },
+    {
+      "id": "clan-ultra-ac-10-ammo:10",
+      "name": "Clan Ultra AC/10 Ammo:10",
+      "location": "NOSE"
+    },
+    {
+      "id": "clan-ultra-ac-10-ammo:10",
+      "name": "Clan Ultra AC/10 Ammo:10",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clersmalllaser",
+      "name": "(B) CLERSmallLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-40",
+      "name": "(B) Naval Autocannon (NAC/40)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-nac-40:100",
+      "name": "Ammo NAC/40:100",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-40",
+      "name": "(B) Naval Autocannon (NAC/40)",
+      "location": "NOSE"
+    },
+    {
+      "id": "ammo-nac-40:100",
+      "name": "Ammo NAC/40:100",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-naval-ppc-medium",
+      "name": "(B) Naval PPC (Medium)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "NOSE"
+    },
+    {
+      "id": "naval-ppc-medium",
+      "name": "Naval PPC (Medium)",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clersmalllaser",
+      "name": "(B) CLERSmallLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-35",
+      "name": "Naval Laser 35",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clersmalllaser",
+      "name": "(B) CLERSmallLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-35",
+      "name": "Naval Laser 35",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clersmalllaser",
+      "name": "(B) CLERSmallLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-laser-35",
+      "name": "Naval Laser 35",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-laser-35",
+      "name": "Naval Laser 35",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-laser-35",
+      "name": "Naval Laser 35",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clersmalllaser",
+      "name": "(B) CLERSmallLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-35",
+      "name": "Naval Laser 35",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clersmalllaser",
+      "name": "(B) CLERSmallLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-naval-laser-35",
+      "name": "(B) Naval Laser 35",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-35",
+      "name": "Naval Laser 35",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "naval-laser-45",
+      "name": "Naval Laser 45",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismobilehpg",
+      "name": "ISMobileHPG",
+      "location": "HULL"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:6",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:6",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:6",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:6",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:6",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:6",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:6",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:6",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-clmediumpulselaser",
+      "name": "(B) CLMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-30:200",
+      "name": "Ammo NAC/30:200",
+      "location": "LEFT_BROADSIDE"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:6",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:6",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:6",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:6",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:6",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:6",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:6",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:6",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-clmediumpulselaser",
+      "name": "(B) CLMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "b-naval-autocannon-nac-30",
+      "name": "(B) Naval Autocannon (NAC/30)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "naval-autocannon-nac-30",
+      "name": "Naval Autocannon (NAC/30)",
+      "location": "RIGHT_BROADSIDE"
+    },
+    {
+      "id": "ammo-nac-30:200",
+      "name": "Ammo NAC/30:200",
+      "location": "RIGHT_BROADSIDE"
+    }
+  ],
+  "crew": 365,
+  "escapePods": 20,
+  "lifeBoats": 30,
+  "officers": 40,
+  "gunners": 42,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "transporters": [
+    "smallcraftbay:5.0:1:1::-1:0",
+    "asfbay:25.0:4:2::-1:0",
+    "asfbay:25.0:4:3::-1:0",
+    "dockingcollar",
+    "dockingcollar",
+    "1stclassquarters:400.0:0:-1::-1:0",
+    "crewquarters:1400.0:0:-1::-1:0",
+    "cargobay:68293.5:0:8::-1:0"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 1,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": true,
+  "hasHPG": false,
+  "gravDecks": [
+    140,
+    65
+  ],
+  "dockingCollars": 2,
+  "mulId": 5430,
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The York-class destroyer-carrier entered Clan service in 2947, born from an extensive engineering effort that transformed aging Star League-era hull designs into a capable modern WarShip. Conceived as a hybrid capital combatant and fighter carrier, the York filled a tactical niche that few other Clan vessels could match, pairing heavy broadside armament with the ability to deploy and recover a substantial OmniFighter complement. The design earned a strong reputation for durability and flexibility across multiple Clan toumans, with the class seeing active service for well over a century after its introduction. In an era when WarShip construction demanded enormous investment in shipyard infrastructure, skilled labor, and rare materials, the York's long operational life and proven combat record ensured it remained one of the more valued destroyer-class assets available to Clan naval commanders.</p>",
+    "capabilities": "<p>At 600,000 tons, the York is a hybrid destroyer-carrier combining heavy capital weaponry with an impressive fighter complement. The nose mounts two NAC/40 naval autocannons and four medium naval PPCs for devastating forward firepower, supported by Ultra AC/10 autocannons and extended-range lasers for anti-fighter defense. Twenty-four ER small lasers distributed across all arcs provide comprehensive point-defense coverage, directly addressing a vulnerability that plagued the original Riga II. The broadsides each carry two NAC/30 naval autocannons alongside Artemis-guided LRM-20 racks and medium pulse lasers, while paired NL35 and NL45 naval lasers cover the forward and aft quarter arcs. A heavy stern battery ensures the York can engage effectively even during withdrawal.</p><p>Five hundred and forty-nine tons of lamellor ferro-carbide armor provide strong protection, though this is modest relative to the vessel's displacement, a deliberate trade-off to accommodate the extensive weapons suite and fighter facilities. The York's defining feature is its fifty-fighter capacity spread across five hangar decks, each holding a full Star of OmniFighters. A lithium-fusion battery enables rapid redeployment through double-jump capability, while a mobile HPG provides independent interstellar communication. Two docking collars support attached DropShips, though this limited capacity constrains the York's ability to sustain extended ground support operations without fleet logistical assistance. Five hundred and eighty-one double heat sinks manage the considerable thermal load. Two gravity decks of 140 and 65 meters diameter serve the crew of 240 officers, enlisted, and gunners, plus 125 bay personnel.</p>",
+    "deployment": "<p>The CSR Corvidae was the first York built in Clan Snow Raven shipyards at Lum. In 2966, the Corvidae was the only Snow Raven WarShip to fight in a Trial of Possession launched by Clan Wolf for a factory, defeating four Molniya-class corvettes. The Corvidae served in the Lum Garrison Fleet and later escorted the final Snow Raven convoy from the Homeworlds during the Wars of Reaving, where only twenty-two of fifty JumpShips survived to reach Quatre Belle. The vessel was destroyed in 3078 by Caspar drone swarms during the battle for the Titan Yards as part of Task Force CRONUS.</p><p>The CSA Star Fire served in Clan Star Adder's Beta Naval Reserve Star alongside sister ships Exodus Avenger, Exodus Crusader, Exodus Ranger, and Exodus Sentinel. The Star Fire was destroyed on 13 May 3060 above the planet Hoard after attacking the Nova Cat Aegis-class heavy cruiser NCS Chronicle during the multi-Clan strikes following the Nova Cat Abjuration, an engagement that violated zellbrigen and proved costly for the Star Adders. The CSA Exodus Avenger, also assigned to the Beta Naval Reserve Star, survived the Wars of Reaving and remained in Star Adder service through the post-Reaving period, one of thirteen WarShips in the Adder touman.</p><p>The CIH Pack Leader served in Clan Ice Hellion's Alpha Naval Star and participated in the Ice Hellion invasion of the Jade Falcon Occupation Zone in 3071, destroying Jade Falcon naval forces at the Dark Nebula facility. Damaged at the Battle of Vantaa in 3072 by the Volga-class CHH Mount Olympus, the Pack Leader was captured as isorla by Clan Hell's Horses and renamed CHH Stampede. The Stampede defended against a Clan Wolf Trial at Kirchbach in January 3081, inflicting substantial damage on the Wolf Congress-class frigate Rogue, and remained operational through at least the mid-thirty-second century.</p>",
+    "history": "<p>The York's lineage traces to the Riga II-class destroyer-carrier, rushed into production in 2747 after the death of First Lord Simon Cameron. With Aleksandr Kerensky serving as regent for the young Richard Cameron and conflict between the member states appearing increasingly likely, sixty Riga IIs were deployed before the Amaris Coup of 2766. Most served in the Periphery, though a few remained in the Hegemony, where two became the first victims of Jonathan Cameron's Reagan Space Defense System near Geneva.</p><p>Twenty-six Riga IIs survived the ensuing war, evidence of the hull's considerable durability. All but four badly damaged vessels departed with the Exodus fleet, forming the largest single WarShip contingent in Kerensky's armada and serving as its primary patrol vessels. The brutal conflicts of the early Clan period claimed many, however, and only six of the vessels that accompanied Nicholas Kerensky to Strana Mechty survived to see another century of service.</p><p>By the late 2900s, newer Clan designs had begun to outclass the aging Riga IIs. Rather than scrap them, Clan engineers undertook extensive refits that effectively produced a new WarShip class. The York entered service in 2947, addressing the Riga II's known vulnerability to massed fighter attack by dramatically expanding its aerospace capacity while retaining the predecessor's proven capital armament and heavy armor protection. The new class quickly proved its worth: Clan Star Adder used a York to win a Trial of Possession for a BattleMech factory on Brim. Twelve additional new-construction vessels followed during the Political Century.</p><p>Multiple Clans operated the York throughout the Golden Century and beyond. Clan Star Adder maintained the largest fleet with five vessels assigned to their Naval Reserve Stars. Clan Snow Raven built Yorks at their shipyard on Lum, while Clan Smoke Jaguar, Clan Ice Hellion, Clan Nova Cat, and Clan Coyote all fielded the class. By the early 3060s, persistent rumors circulated that Clan Coyote had commissioned Snow Raven to construct a new York, the first in over a century. The Coyote vessel CCS Broken Sea had entered service by 3067.</p><p>The Wars of Reaving and the Jihad inflicted severe losses on the class. Vessels were destroyed in fleet actions, lost to Caspar drone swarms during operations against the Word of Blake, and captured as isorla in inter-Clan conflicts. Few Yorks survived the combined attrition. At least one vessel remained in service with the Inner Sphere Clans, while the Home Clans may have retained others before contact with the Inner Sphere was severed.</p>",
+    "manufacturer": "Unknown",
+    "primaryFactory": "Lum"
+  }
+}

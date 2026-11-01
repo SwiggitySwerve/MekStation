@@ -20,7 +20,7 @@
     "rating": 320
   },
   "armor": {
-    "type": "STANDARD",
+    "type": "FERRO_LAMELLOR",
     "byLocation": {
       "FRONT": 41,
       "RIGHT": 34,

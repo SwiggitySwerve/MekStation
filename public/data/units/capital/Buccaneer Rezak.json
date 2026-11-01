@@ -1,0 +1,200 @@
+{
+  "id": "buccaneer-rezak",
+  "chassis": "Buccaneer",
+  "model": "Rezak",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CLAN_INVASION",
+  "year": 3065,
+  "tonnage": 3500,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 4,
+    "maxThrust": 6
+  },
+  "fuel": 4800,
+  "structuralIntegrity": 8,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 100
+  },
+  "armor": {
+    "type": "HEAVY_FERRO_ALUMINUM",
+    "byArc": {
+      "NOSE": 211,
+      "RIGHT_SIDE": 156,
+      "LEFT_SIDE": 156,
+      "AFT": 104
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserppc",
+      "name": "(B) ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "iserppc",
+      "name": "ISERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-15",
+      "name": "(B) LRM 15",
+      "location": "NOSE"
+    },
+    {
+      "id": "lrm-15",
+      "name": "LRM 15",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-15:24",
+      "name": "IS Ammo LRM-15:24",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:24",
+      "name": "IS Gauss Ammo:24",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:24",
+      "name": "IS Gauss Ammo:24",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-isermediumlaser",
+      "name": "(B) ISERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "isermediumlaser",
+      "name": "ISERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-isstreaksrm6",
+      "name": "(B) ISStreakSRM6",
+      "location": "AFT"
+    },
+    {
+      "id": "is-streak-srm-6-ammo:15",
+      "name": "IS Streak SRM 6 Ammo:15",
+      "location": "AFT"
+    }
+  ],
+  "crew": 30,
+  "escapePods": 2,
+  "lifeBoats": 0,
+  "officers": 3,
+  "gunners": 4,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "2ndclassquarters:0.0:0:-1::-1:0",
+    "crewquarters:21.0:0:-1::-1:0",
+    "steeragequarters:135.0:0:-1::-1:0",
+    "cargobay:1844.0:1:4::-1:0"
+  ],
+  "originalBuildYear": 2708,
+  "mulId": 7143,
+  "source": "HTP:Antallos",
+  "fluff": {
+    "overview": "<p>The Buccaneer is one of the most widely used cargo haulers in the Inner Sphere. Originally designed in the early twenty-eighth century as a military transport, the 3,500-ton Aerodyne failed to secure a Star League Defense Force contract for a BattleMech carrier and was subsequently redesigned as a civilian merchant vessel. This commercial conversion proved far more successful than its military origins, and the Buccaneer quickly became a staple of interstellar commerce.</p><p>Known for its spacious crew accommodations and generous cargo capacity, the Buccaneer has earned a reputation as one of the most desirable postings in any merchant fleet. The vessel's robust construction and straightforward maintenance requirements have kept it in continuous service for centuries, evidence of the enduring quality of its fundamental design.</p>",
+    "capabilities": "<p>The Rezak is a radical departure from the standard Buccaneer design, converting the humble cargo hauler into a heavily armed combat vessel. The nose concentrates five ER large lasers, two ER PPCs, and two LRM-15 racks, delivering devastating forward firepower. Each wing mounts three ER large lasers and two Gauss rifles, while the aft arc carries three ER medium lasers and a Streak SRM-6. One hundred double heat sinks manage the substantial thermal output. Safe thrust increases to 4g compared to the standard model's 3g. Armor protection more than doubles to 627 points. Cargo capacity drops to 1,844 tons but remains substantial for a vessel of this combat capability. The crew expands to thirty-seven to support the extensive weapons systems.</p>",
+    "deployment": "<p>The Rezak variant emerged from the lawless Antallos system, where pirate bands and freebooters converted captured Buccaneers into combat-capable raiders. These vessels operate primarily in the Periphery, preying on merchant convoys and poorly defended worlds. The Rezak's combination of meaningful cargo capacity and heavy armament makes it particularly suited to the hit-and-run tactics favored by pirate fleets.</p>",
+    "history": "<p>The Buccaneer was designed in the early 2700s to compete for a Star League Defense Force contract for a dedicated BattleMech transport. When the vessel failed to win the military bid, its designers pivoted to the civilian market, making modifications to optimize the hull for merchant cargo operations. This commercial variant proved immensely popular, establishing the Buccaneer as one of the most common cargo haulers in the Inner Sphere within a generation of its introduction.</p><p>The Buccaneer's popularity endured through the Succession Wars, as its rugged construction and ease of maintenance allowed even war-torn Successor States to keep their merchant fleets operational. The vessel's ubiquity made it a frequent target for pirates and raiders, but also ensured that spare parts and experienced crews remained readily available across known space. Despite the design's enduring success, no manufacturer launched an upgraded version incorporating recovered Star League technology for many years, a fact attributed to the Buccaneer's primarily civilian role and the low priority given to merchant vessel modernization during the post-Clan Invasion military buildup.</p>",
+    "manufacturer": "Brigadier Corporation|Dynamico Ltd.|Semier Data Tron",
+    "primaryFactory": "Gibson|Delavan|Tharkad"
+  }
+}

@@ -1,0 +1,1112 @@
+{
+  "id": "bastion-system-defense-station-3091",
+  "chassis": "Bastion System Defense Station",
+  "model": "(3091)",
+  "unitType": "Space Station",
+  "subType": "Space Station",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3091,
+  "tonnage": 150000,
+  "motionType": "AERODYNE",
+  "designType": "MILITARY",
+  "movement": {
+    "safeThrust": 0,
+    "maxThrust": 0
+  },
+  "fuel": 10000,
+  "structuralIntegrity": 1,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 500
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 20,
+      "FRONT_LEFT_SIDE": 20,
+      "FRONT_RIGHT_SIDE": 20,
+      "AFT": 20,
+      "AFT_LEFT_SIDE": 20,
+      "AFT_RIGHT_SIDE": 20
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-sub-capital-laser-1",
+      "name": "(B) Sub-Capital Laser /1",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-laser-1",
+      "name": "Sub-Capital Laser /1",
+      "location": "NOSE"
+    },
+    {
+      "id": "sub-capital-laser-1",
+      "name": "Sub-Capital Laser /1",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clerppc",
+      "name": "(B) CLERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "NOSE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "NOSE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:24",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:24",
+      "location": "NOSE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clgaussrifle",
+      "name": "(B) CLGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "clan-gauss-ammo:24",
+      "name": "Clan Gauss Ammo:24",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clersmalllaser",
+      "name": "(B) CLERSmallLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clerppc",
+      "name": "(B) CLERPPC",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:24",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:24",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clgaussrifle",
+      "name": "(B) CLGaussRifle",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-gauss-ammo:24",
+      "name": "Clan Gauss Ammo:24",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clersmalllaser",
+      "name": "(B) CLERSmallLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clerppc",
+      "name": "(B) CLERPPC",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:24",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:24",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clgaussrifle",
+      "name": "(B) CLGaussRifle",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-gauss-ammo:24",
+      "name": "Clan Gauss Ammo:24",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clersmalllaser",
+      "name": "(B) CLERSmallLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clerppc",
+      "name": "(B) CLERPPC",
+      "location": "AFT"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "AFT"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "AFT"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "AFT"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:24",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:24",
+      "location": "AFT"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clgaussrifle",
+      "name": "(B) CLGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "clan-gauss-ammo:24",
+      "name": "Clan Gauss Ammo:24",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clersmalllaser",
+      "name": "(B) CLERSmallLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-sub-capital-laser-1",
+      "name": "(B) Sub-Capital Laser /1",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-1",
+      "name": "Sub-Capital Laser /1",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-1",
+      "name": "Sub-Capital Laser /1",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clerppc",
+      "name": "(B) CLERPPC",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:24",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:24",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clgaussrifle",
+      "name": "(B) CLGaussRifle",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-gauss-ammo:24",
+      "name": "Clan Gauss Ammo:24",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clersmalllaser",
+      "name": "(B) CLERSmallLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-sub-capital-laser-1",
+      "name": "(B) Sub-Capital Laser /1",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-1",
+      "name": "Sub-Capital Laser /1",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "sub-capital-laser-1",
+      "name": "Sub-Capital Laser /1",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clerppc",
+      "name": "(B) CLERPPC",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clerppc",
+      "name": "CLERPPC",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:24",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:24",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clgaussrifle",
+      "name": "(B) CLGaussRifle",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-gauss-ammo:24",
+      "name": "Clan Gauss Ammo:24",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clersmalllaser",
+      "name": "(B) CLERSmallLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clersmalllaser",
+      "name": "CLERSmallLaser",
+      "location": "AFT_RIGHT_SIDE"
+    }
+  ],
+  "crew": 690,
+  "escapePods": 35,
+  "lifeBoats": 35,
+  "officers": 67,
+  "gunners": 38,
+  "passengers": 25,
+  "battleArmor": 0,
+  "marines": 0,
+  "transporters": [
+    "smallcraftbay:12.0:2:1::-1:0",
+    "asfbay:30.0:5:2::-1:0",
+    "crewquarters:3521.0:0:-1::-1:0",
+    "1stclassquarters:920.0:0:-1::-1:0",
+    "navalrepairpressurized:30000.0:1:5:f0",
+    "navalrepairpressurized:30000.0:1:6:f3",
+    "cargobay:125589.5:1:7::-1:0"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 3,
+  "jumpRange": 30,
+  "hasSail": false,
+  "hasLFBattery": false,
+  "hasHPG": false,
+  "gravDecks": [
+    250
+  ],
+  "dockingCollars": 0,
+  "isModular": false,
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Bastion-class space station served as the backbone of the Star League Defense Force's orbital security network from the mid-twenty-sixth century onward, representing the most widely deployed system-defense platform in human history. Designed by Nicholas Spacecraft and introduced in 2584, the Bastion was built from the outset as the primary manned fortress component of the Space Defense Systems, intended to guard the jump points of inhabited worlds against hostile incursion. Weighing 150,000 tons and measuring 345 meters across, the Bastion combined formidable anti-aerospace firepower with substantial DropShip repair capacity, making it as much a logistics hub as a combat installation. At the Star League's height, these stations were a familiar and reassuring presence at the jump points of major worlds across the Inner Sphere, their spherical hulls a visible expression of the League's reach and its commitment to the defense of its member states.</p>",
+    "capabilities": "<p>The Bastion's defensive armament is organized across six arcs to provide all-aspect coverage against aerospace threats. The original configuration mounts a particle projector cannon battery, a mixed long-range missile battery, an autocannon battery, a heavy laser battery, and close-in small lasers in each arc, providing layered engagement from extreme range through knife-fight distances. One thousand single heat sinks accommodate sustained fire across multiple arcs. An onboard sensor suite provides vessel detection at ranges up to 200,000 kilometers, giving station commanders early warning well before any attacker reaches weapon range. Armor coverage of 199.5 tons of standard naval plating applies twenty points evenly across all six arcs.</p><p>The station's logistics systems are equally formidable. Two pressurized naval repair bays, each rated for vessels up to 30,000 tons, enable simultaneous DropShip servicing in fully enclosed facilities. The main repair bay hatch opens the top third of the station's hull, and once sealed around a docked vessel, makes that DropShip undetectable to external sensors; an advantage that has surprised more than one attacker. Up to thirty-six aerospace fighters sortie from a dedicated bay with multiple access doors, and twelve small craft operate from a separate bay. Approximately 125,000 tons of cargo capacity enables stockpiling of spare parts, ammunition, and consumables for sustained independent operations. A single 250-meter diameter grav deck supports over 700 operational crew across all configurations, with accommodation for 25 first-class passengers.</p>",
+    "deployment": "<p>The (3091) configuration incorporates Clan-technology weaponry throughout, representing a post-Jihad upgrade reflecting access to Clan production systems in the Inner Sphere. Sub-capital lasers appear in the nose and aft-side arcs, providing a limited capital-scale engagement capability absent from all earlier Bastion configurations. The remaining batteries throughout all arcs use Clan-specification extended-range PPCs, Clan LRM-20 launchers with Artemis guidance, Clan Gauss rifles, and Clan extended-range laser suites. Five hundred double heat sinks replace the earlier single-sink arrangement. The fighter complement is reduced to thirty aerospace frames, and the structural frame with both pressurized repair bays is retained unchanged.</p>",
+    "history": "<p>The Bastion class originated in the early Star League period, with Nicholas Spacecraft delivering the first examples to the SLDF in 2584. From the beginning, the design addressed a practical challenge facing any power seeking to defend dozens of systems with capable orbital platforms: most inhabited worlds lacked the construction infrastructure to assemble large space assets locally. The Bastion's answer was a modular design built as two 75,000-ton sections, each compatible with JumpShip hardpoints and capable of independent transport, then assembled on arrival at the destination system. This K-F adapter approach influenced later orbital construction programs, including the Hughes-class mobile yard and the Hephaestus Station derivative that followed. At the Star League's peak, Bastion stations guarded the jump points of every major world, combining defensive firepower with fighter capacity and DropShip repair facilities to project SLDF logistics infrastructure across the breadth of the Inner Sphere.</p><p>The Amaris Civil War and the collapse of the Star League placed Bastion stations in an increasingly precarious position. Passing into the hands of whoever controlled the worlds they orbited, these installations became contested assets almost immediately, as each Successor State recognized their value for maintaining aging DropShip fleets and defending high-value systems. Unable to maneuver or withdraw from combat, each station could only be held or destroyed. Border systems lost their Bastions in the opening campaigns of the Succession Wars, and few were ever replaced. The surviving examples retreated progressively inward, concentrated at Successor State capitals and other heavily defended core worlds. With no WarShips left to contend with, the anti-fighter orientation of surviving weaponry became an advantage rather than a limitation, and garrison commanders adapted to using them as secure fighter launch platforms and jump point sentinels rather than frontline combat installations.</p><p>By the thirty-first century, fewer than two dozen Star League-era Bastions remained operational across the entire Inner Sphere. Those that survived had done so on improvised maintenance, cannibalizing components from destroyed stations and relying on technicians who had learned the systems through institutional memory rather than formal documentation. Their capabilities were frequently well below original specifications, but their value as repair facilities, fighter bases, and the last surviving examples of a class once found everywhere meant that even diminished examples were carefully preserved by whatever faction held them.</p>",
+    "manufacturer": "Nicholas Spacecraft",
+    "primaryFactory": "Various"
+  }
+}

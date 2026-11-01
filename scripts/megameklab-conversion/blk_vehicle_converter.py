@@ -16,7 +16,7 @@ Usage:
 Skips WarShip / DropShip / JumpShip unit types with a warning log.
 """
 
-from combat_vehicle_engine import combat_engine_rating
+from combat_vehicle_engine import combat_engine_rating, support_engine_rating
 
 import logging
 import math
@@ -180,12 +180,9 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
     # --- Engine ---
     engine_code = tags.get("engine_type")
     engine_type_str = map_engine_code(engine_code)
-    # Support propulsion remains a separate, unverified construction family.
-    if unit_type_raw == "LargeSupportTank":
-        # BLKLargeSupportTankFile.java:107: support engines have no rated size.
-        engine_rating = 0
-    elif unit_type_raw in ("SupportTank", "SupportVTOL"):
-        engine_rating = round(tonnage * cruise_mp / 5) * 5 if tonnage and cruise_mp else 0
+    # Export the owning unit's effective rating, not the engine's stored sentinel 0.
+    if unit_type_raw in ("SupportTank", "SupportVTOL", "LargeSupportTank"):
+        engine_rating = support_engine_rating(tonnage, cruise_mp)
     else:
         engine_rating = combat_engine_rating(tonnage, cruise_mp, motion_type, engine_less=engine_type_str == "NONE")
 

@@ -1,0 +1,544 @@
+{
+  "id": "comitatus-jumpship-2995",
+  "chassis": "Comitatus JumpShip",
+  "model": "(2995)",
+  "unitType": "JumpShip",
+  "subType": "JumpShip",
+  "techBase": "CLAN",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2995,
+  "tonnage": 250000,
+  "motionType": "AERODYNE",
+  "designType": "CIVILIAN",
+  "movement": {
+    "safeThrust": 0,
+    "maxThrust": 0
+  },
+  "fuel": 1150,
+  "structuralIntegrity": 1,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 122
+  },
+  "armor": {
+    "type": "IMPROVED_FERRO_ALUMINUM",
+    "byArc": {
+      "NOSE": 15,
+      "FRONT_LEFT_SIDE": 14,
+      "FRONT_RIGHT_SIDE": 14,
+      "AFT": 13,
+      "AFT_LEFT_SIDE": 14,
+      "AFT_RIGHT_SIDE": 14
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-clgaussrifle",
+      "name": "(B) CLGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "clan-gauss-ammo:32",
+      "name": "Clan Gauss Ammo:32",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clerppc",
+      "name": "(B) CLERPPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clerlargelaser",
+      "name": "CLERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "NOSE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "NOSE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:24",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:24",
+      "location": "NOSE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clstreaksrm6",
+      "name": "(B) CLStreakSRM6",
+      "location": "NOSE"
+    },
+    {
+      "id": "clan-streak-srm-6-ammo:15",
+      "name": "Clan Streak SRM 6 Ammo:15",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "NOSE"
+    },
+    {
+      "id": "clams-ammo:144",
+      "name": "CLAMS Ammo:144",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-clultraac20",
+      "name": "(B) CLUltraAC20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-ultra-ac-20-ammo:25",
+      "name": "Clan Ultra AC/20 Ammo:25",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:24",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:24",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clstreaksrm6",
+      "name": "(B) CLStreakSRM6",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-streak-srm-6-ammo:15",
+      "name": "Clan Streak SRM 6 Ammo:15",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "clams-ammo:48",
+      "name": "CLAMS Ammo:48",
+      "location": "FRONT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clultraac20",
+      "name": "(B) CLUltraAC20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ultra-ac-20-ammo:25",
+      "name": "Clan Ultra AC/20 Ammo:25",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:24",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:24",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clstreaksrm6",
+      "name": "(B) CLStreakSRM6",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-streak-srm-6-ammo:15",
+      "name": "Clan Streak SRM 6 Ammo:15",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "clams-ammo:48",
+      "name": "CLAMS Ammo:48",
+      "location": "FRONT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clgaussrifle",
+      "name": "(B) CLGaussRifle",
+      "location": "AFT"
+    },
+    {
+      "id": "clan-gauss-ammo:32",
+      "name": "Clan Gauss Ammo:32",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clerppc",
+      "name": "(B) CLERPPC",
+      "location": "AFT"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "AFT"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "AFT"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:24",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:24",
+      "location": "AFT"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clstreaksrm6",
+      "name": "(B) CLStreakSRM6",
+      "location": "AFT"
+    },
+    {
+      "id": "clan-streak-srm-6-ammo:15",
+      "name": "Clan Streak SRM 6 Ammo:15",
+      "location": "AFT"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "clmediumpulselaser",
+      "name": "CLMediumPulseLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "AFT"
+    },
+    {
+      "id": "clams-ammo:48",
+      "name": "CLAMS Ammo:48",
+      "location": "AFT"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:24",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:24",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clstreaksrm6",
+      "name": "(B) CLStreakSRM6",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clan-streak-srm-6-ammo:15",
+      "name": "Clan Streak SRM 6 Ammo:15",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "clams-ammo:48",
+      "name": "CLAMS Ammo:48",
+      "location": "AFT_LEFT_SIDE"
+    },
+    {
+      "id": "b-clerlargelaser",
+      "name": "(B) CLERLargeLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clermediumlaser",
+      "name": "CLERMediumLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-cllrm20",
+      "name": "(B) CLLRM20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "cllrm20",
+      "name": "CLLRM20",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-ammo-lrm-20-clan-artemis-capable:24",
+      "name": "Clan Ammo LRM-20 (Clan) Artemis-capable:24",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clartemisiv",
+      "name": "CLArtemisIV",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clstreaksrm6",
+      "name": "(B) CLStreakSRM6",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clan-streak-srm-6-ammo:15",
+      "name": "Clan Streak SRM 6 Ammo:15",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-cllargepulselaser",
+      "name": "(B) CLLargePulseLaser",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "b-clantimissilesystem",
+      "name": "(B) CLAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clantimissilesystem",
+      "name": "CLAntiMissileSystem",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "clams-ammo:48",
+      "name": "CLAMS Ammo:48",
+      "location": "AFT_RIGHT_SIDE"
+    },
+    {
+      "id": "ismobilehpg",
+      "name": "ISMobileHPG",
+      "location": "HULL"
+    }
+  ],
+  "crew": 100,
+  "escapePods": 0,
+  "lifeBoats": 4,
+  "officers": 8,
+  "gunners": 10,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "transporters": [
+    "battlearmorbay:5.0:1:1::-1:2",
+    "smallcraftbay:5.0:1:2::-1:0",
+    "1stclassquarters:80.0:0:-1::-1:0",
+    "crewquarters:259.0:0:-1::-1:0",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "cargobay:737.0:0:9::-1:0"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 0,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": false,
+  "hasHPG": false,
+  "gravDecks": [
+    95
+  ],
+  "dockingCollars": 4,
+  "mulId": 3974,
+  "role": "None",
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>Designed in the late 30th century by Clan Snow Raven, the Comitatus-class JumpShip originally served as a straightforward if well armed, transport vessel. Over sixty years of service, it underwent a radical transformation from a cargo-hauler into one of the most effective mobile fighter carriers in existence. Despite its utility, the ship is notorious for its cramped living conditions and a lack of adequate space for technical support staff, making long-term maintenance of its fighter complement difficult.</p>",
+    "capabilities": "<p>While the original design supported four DropShips, the modern Comitatus has had its capacity reduced to a single DropShip hardpoint to maximize its internal bay space. Its primary strength lies in its massive small-craft complement, which has been increased to 25. The standard deployment includes: two Stars of OmniFighters, providing significant aerospace superiority, one Star of Elementals, and for boarding actions five Assault Shuttles housed in a dedicated small-craft bay.</p>",
+    "history": "<p>The transition to a carrier role was born out of necessity. A serious flaw in the ship's hydraulics system forced Clan engineers to remove two of its aft DropShip hardpoints, initially using the vacant space for cargo. In 3035, Jade Falcon pilot Vishnu Folkner proposed converting this space into fighter bays, a move supported by Khan Elias Critchell. The first modified Comitatus entered service in 3036 and proved its lethality in 3038 when the Bright Katama destroyed a Dark Caste vessel near Tokasha. Following this success, the other Clans quickly adopted the configuration. Ironically, while the Jade Falcons pioneered the design, they currently field the fewest and none within the Inner Sphere, while their rivals, the Steel Vipers, use them extensively to defend their occupation zone.</p>",
+    "manufacturer": "Clans",
+    "primaryFactory": "Unknown"
+  }
+}

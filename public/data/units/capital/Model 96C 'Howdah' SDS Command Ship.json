@@ -1,0 +1,385 @@
+{
+  "id": "model-96c-howdah-sds-command-ship",
+  "chassis": "Model 96C",
+  "model": "'Howdah' SDS Command Ship",
+  "unitType": "DropShip",
+  "subType": "DropShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "STAR_LEAGUE",
+  "year": 2695,
+  "tonnage": 15000,
+  "motionType": "SPHEROID",
+  "designType": "MILITARY",
+  "collarType": 0,
+  "movement": {
+    "safeThrust": 5,
+    "maxThrust": 8
+  },
+  "fuel": 21000,
+  "structuralIntegrity": 25,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 200
+  },
+  "armor": {
+    "type": "FERRO_ALUMINUM",
+    "byArc": {
+      "NOSE": 373,
+      "RIGHT_SIDE": 327,
+      "LEFT_SIDE": 327,
+      "AFT": 280
+    }
+  },
+  "equipment": [
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-gauss-ammo:48",
+      "name": "IS Gauss Ammo:48",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-lrm-10",
+      "name": "(B) LRM 10",
+      "location": "NOSE"
+    },
+    {
+      "id": "is-ammo-lrm-10-artemis-capable:24",
+      "name": "IS Ammo LRM-10 Artemis-capable:24",
+      "location": "NOSE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "NOSE"
+    },
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:48",
+      "name": "IS Gauss Ammo:48",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-lrm-10",
+      "name": "(B) LRM 10",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-10-artemis-capable:24",
+      "name": "IS Ammo LRM-10 Artemis-capable:24",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-ppc",
+      "name": "(R) (B) PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-ppc",
+      "name": "(R) PPC",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-iserlargelaser",
+      "name": "(R) (B) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-iserlargelaser",
+      "name": "(R) ISERLargeLaser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-b-isgaussrifle",
+      "name": "(R) (B) ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-isgaussrifle",
+      "name": "(R) ISGaussRifle",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "r-is-gauss-ammo:48",
+      "name": "(R) IS Gauss Ammo:48",
+      "location": "LEFT_SIDE"
+    },
+    {
+      "id": "b-ppc",
+      "name": "(B) PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "ppc",
+      "name": "PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-isgaussrifle",
+      "name": "(B) ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-gauss-ammo:48",
+      "name": "IS Gauss Ammo:48",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-lrm-10",
+      "name": "(B) LRM 10",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "is-ammo-lrm-10-artemis-capable:24",
+      "name": "IS Ammo LRM-10 Artemis-capable:24",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-ppc",
+      "name": "(R) (B) PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-ppc",
+      "name": "(R) PPC",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-iserlargelaser",
+      "name": "(R) (B) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-iserlargelaser",
+      "name": "(R) ISERLargeLaser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-medium-laser",
+      "name": "(R) Medium Laser",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-b-isgaussrifle",
+      "name": "(R) (B) ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-isgaussrifle",
+      "name": "(R) ISGaussRifle",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "r-is-gauss-ammo:48",
+      "name": "(R) IS Gauss Ammo:48",
+      "location": "RIGHT_SIDE"
+    },
+    {
+      "id": "b-iserlargelaser",
+      "name": "(B) ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "iserlargelaser",
+      "name": "ISERLargeLaser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "AFT"
+    },
+    {
+      "id": "b-lrm-10",
+      "name": "(B) LRM 10",
+      "location": "AFT"
+    },
+    {
+      "id": "is-ammo-lrm-10-artemis-capable:24",
+      "name": "IS Ammo LRM-10 Artemis-capable:24",
+      "location": "AFT"
+    },
+    {
+      "id": "isartemisiv",
+      "name": "ISArtemisIV",
+      "location": "AFT"
+    },
+    {
+      "id": "isnavaltugadaptor",
+      "name": "ISNavalTugAdaptor",
+      "location": "HULL"
+    },
+    {
+      "id": "autotacticalanalysiscomputer:size:20.0",
+      "name": "AutoTacticalAnalysisComputer:SIZE:20.0",
+      "location": "HULL"
+    }
+  ],
+  "crew": 57,
+  "escapePods": 10,
+  "lifeBoats": 2,
+  "officers": 9,
+  "gunners": 9,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "otherPassengers": 0,
+  "transporters": [
+    "smallcraftbay:2.0:2:2::-1:0",
+    "artsasfbay:6.0:4:3::-1:0",
+    "cargobay:1283.0:2:1::-1:0",
+    "steeragequarters:235.0:0:-1::-1:0",
+    "2ndclassquarters:63.0:0:-1::-1:0"
+  ],
+  "mulId": 7149,
+  "source": "His:LoT1",
+  "fluff": {
+    "overview": "<p>The Model 96, commonly known as the Elephant, is a Star League era heavy tug class DropShip built to serve a dual role: moving large craft around orbital shipyards and acting as an assault DropShip in support of invasion task forces. Weighing 15,000 tons, this massive Spheroid vessel was developed to meet a dual requirement from the Star League Navy's Department of Procurement, driven by the growing number of WarShips requiring orbital maneuvering support.</p><p>The vessel's distinctive appearance comes from powerful retractable magnetic locks at each point of its reinforced bow, which give the ship the silhouette of an elephant's head. Capable of pushing even the largest WarShips, the Elephant also carries enough firepower and armor for its secondary assault role, along with cargo space for a combined-arms battalion.</p>",
+    "capabilities": "<p>The Model 96C Howdah is a specialized SDS drone control vessel based on an early version of the Elephant. Introduced in 2695, the Howdah strips nearly all of the standard Elephant's combat capability and cargo bays, replacing them with sophisticated command and control systems for directing Space Defense System drone networks. The vessel retains two small craft bays and 1,283 tons of cargo capacity, but carries no conventional weapons. Armor protection increases slightly to 1,307 points, and the crew is reduced to just 75 personnel. Two hundred double heat sinks remain from the base design to support the vessel's extensive electronics suite.</p>",
+    "deployment": "<p>The Howdah served exclusively within the Star League's Space Defense System infrastructure, directing automated drone networks from orbital positions. These vessels were among the most closely guarded assets of the Star League Navy, and their fate following the fall of the Star League remains largely unknown.</p>",
+    "history": "<p>Nimakachi Fusion Products Limited began production of the Model 96 in May of 2652, being the only manufacturer able to meet the Star League Navy's demanding dual-role requirements. Just over one hundred Elephants were produced in total, with most attached to major naval fleets and shipyards across the Star League.</p><p>The Elephant's most notable action came during the Amaris Civil War, when fifty of the class were stationed in defense of the shipyards above Titan, Mars, and Venus in the Terra system. Two squadrons of the SLDF's 23rd Wing fought against Rim Worlds Republic forces in the opening days of the conflict, destroying a Republic light cruiser above Mars before being destroyed themselves. The heavy losses during the liberation of the Terran Hegemony severely reduced the number of surviving Elephants.</p><p>During the Succession Wars, ComStar produced a limited number of new Elephants between 2882 and 2994, deploying them to secret fleet bases in the Ross 248 and Luyten 68-28 star systems to assist their Faslane Yardships. Several of these vessels defected to the Word of Blake during the ComStar Schism of 3052. The Word of Blake subsequently expanded their navy, requiring the production of additional Model 96s to meet their growing needs. Intelligence reports indicate that Elephants have been sighted in the Deep Periphery near the Hanseatic League, tied to a project codenamed Erinyes.</p>",
+    "manufacturer": "Nicholas Spacecraft/Ulsop Robotics",
+    "primaryFactory": "New Earth"
+  }
+}

@@ -18,8 +18,12 @@ import {
   VehicleLocation,
   VTOLLocation,
 } from '@/types/construction/UnitLocation';
+import { IBlkDocument } from '@/types/formats/BlkFormat';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { TurretType } from '@/types/unit/VehicleInterfaces';
+import {
+  ITurretConfiguration,
+  TurretType,
+} from '@/types/unit/VehicleInterfaces';
 
 /** Combat-vehicle mount flags from a BLK location label, including sponsons. */
 export function getVehicleMountFlags(locationKey: string): {
@@ -56,6 +60,32 @@ export function getPrimaryVehicleTurretType(
     return TurretType.DUAL;
   if (explicitType?.toLowerCase() === 'chin') return TurretType.CHIN;
   return TurretType.SINGLE;
+}
+
+/** Shared imported configuration; capacity retains the existing handler rule. */
+export function getPrimaryVehicleTurretConfiguration(
+  source: Pick<IBlkDocument, 'tonnage' | 'equipmentByLocation'>,
+  explicitType?: string,
+  layoutArmor?: Readonly<Record<string, number>>,
+  chinTurret = false,
+): ITurretConfiguration | undefined {
+  const type = getPrimaryVehicleTurretType(
+    Object.keys(source.equipmentByLocation).filter(
+      (location) => source.equipmentByLocation[location]?.length > 0,
+    ),
+    explicitType,
+    {
+      hasTurret: layoutArmor?.[VehicleLocation.TURRET] !== undefined,
+      hasSecondTurret: layoutArmor?.[VehicleLocation.TURRET_2] !== undefined,
+    },
+  );
+  if (type === undefined) return undefined;
+  return {
+    type: chinTurret ? TurretType.CHIN : type,
+    maxWeight: source.tonnage * 0.1,
+    currentWeight: 0,
+    rotationArc: chinTurret ? 180 : 360,
+  };
 }
 
 // =============================================================================

@@ -1,0 +1,83 @@
+{
+  "id": "monolith-jumpship-2776",
+  "chassis": "Monolith JumpShip",
+  "model": "(2776)",
+  "unitType": "JumpShip",
+  "subType": "JumpShip",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "STAR_LEAGUE",
+  "year": 2776,
+  "tonnage": 430000,
+  "motionType": "AERODYNE",
+  "designType": "CIVILIAN",
+  "movement": {
+    "safeThrust": 0,
+    "maxThrust": 0
+  },
+  "fuel": 170,
+  "structuralIntegrity": 1,
+  "engine": {
+    "type": "ICE"
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 148
+  },
+  "armor": {
+    "type": "AEROSPACE",
+    "byArc": {
+      "NOSE": 11,
+      "FRONT_LEFT_SIDE": 10,
+      "FRONT_RIGHT_SIDE": 10,
+      "AFT": 8,
+      "AFT_LEFT_SIDE": 11,
+      "AFT_RIGHT_SIDE": 11
+    }
+  },
+  "equipment": [],
+  "crew": 60,
+  "escapePods": 5,
+  "lifeBoats": 0,
+  "officers": 5,
+  "gunners": 0,
+  "passengers": 0,
+  "battleArmor": 0,
+  "marines": 0,
+  "transporters": [
+    "smallcraftbay:6.0:2:1::-1:0",
+    "cargobay:713.0:1:2::-1:0",
+    "cargobay:712.5:1:3::-1:0",
+    "1stclassquarters:50.0:0:-1::-1:0",
+    "crewquarters:175.0:0:-1::-1:0",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar",
+    "dockingcollar"
+  ],
+  "otherCrew": 0,
+  "driveCoreType": 0,
+  "jumpRange": 30,
+  "hasSail": true,
+  "hasLFBattery": false,
+  "hasHPG": false,
+  "gravDecks": [
+    105,
+    105
+  ],
+  "dockingCollars": 9,
+  "mulId": 4658,
+  "role": "None",
+  "source": "TR:3057r",
+  "fluff": {
+    "overview": "<p>The Monolith is the largest extant JumpShip class within the Successor States. Equipped with a massive Kearny-Fuchida drive, the vessel is capable of transporting over 7,000 tons of cargo and up to nine DropShips. Due to the high costs of construction and maintenance, these tremendous vessels are found exclusively within the armies of the Successor States. While only a small number of Monoliths remain in operation, an abundance of spare parts ensures they will likely remain in service for a considerable time.</p>",
+    "capabilities": "<p>The vast Monolith-class its distinctive trait is a unique system of docking collars mounted on heavy structural arms, arranged in three rings around the cargo section. This system allows even the largest DropShip to dock and be carried on one of the vessel its nine docking collars. Located in the crew module at the bow, the integral combat operations control center contains communication stations, strategic display wall maps, and plotting tables. It includes a pressure-proof commander�s control booth with monitors to track operations staff, troops, and enemy movements. Designed for major military operations, the ship carries extra fuel tanks specifically for refueling DropShips during extended-range combat missions. The Monolith-class finds itself protected by armor that is relatively heavy for a JumpShip at 150 tons. Its vulnerability is further reduced by an unusually large onboard store of spare components, ranging from entire jump sails to engine shielding and electronic parts.</p>",
+    "history": "<p>Among the Great Houses nearly half of all known Monoliths are operated by the Draconis Combine, with the remainder split among the armies of Houses Davion, Marik, Steiner, and Liao. While the Draconis Combine and House Marik can no longer manufacture these vessels, production continues in the Federated Suns at a rate of approximately two ships every three years. The Monolith-class has been less vulnerable to the tooth of time than other JumpShips due to their large on-board store of spare parts. During the initial construction of the Monolith in the 28th century, an exceptionally high volume of replacement parts was manufactured alongside the vessels. This extensive inventory of surplus components includes everything from complete jump sails and engine shielding to electronic systems, station-keeping thruster parts, and armor patches.</p>",
+    "manufacturer": "Challenge Systems, Ioto Galactic Enterprises, Rashpur-Owens Incorporated, Stellar Trek"
+  }
+}
