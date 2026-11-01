@@ -296,13 +296,8 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     );
     if (type === undefined) return undefined;
 
-    // Calculate turret weight (simplified - full calculation would need equipment data)
-    const turretWeightFraction = 0.1; // 10% of weapons in turret typically
-    const maxWeight = document.tonnage * turretWeightFraction;
-
     return {
       type,
-      maxWeight,
       currentWeight: 0, // Would be calculated from actual equipment
       rotationArc: 360,
     };
@@ -432,11 +427,6 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       errors.push(
         `Total armor (${unit.totalArmorPoints}) exceeds maximum (${unit.maxArmorPoints})`,
       );
-    }
-
-    // Turret validation
-    if (unit.turret && unit.turret.currentWeight > unit.turret.maxWeight) {
-      errors.push('Turret weight exceeds maximum capacity');
     }
 
     // Motion type specific validations

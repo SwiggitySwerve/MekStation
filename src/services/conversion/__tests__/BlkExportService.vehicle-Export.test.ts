@@ -357,7 +357,6 @@ describe('BlkExportService', () => {
       const tank = createMockVehicleState({
         turret: {
           type: TurretType.SINGLE,
-          maxWeight: 5,
           currentWeight: 0,
           rotationArc: 360,
         },
