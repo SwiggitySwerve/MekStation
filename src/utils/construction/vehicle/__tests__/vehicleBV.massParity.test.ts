@@ -16,6 +16,7 @@ describe('Pinned MegaMek vehicle offensive mass contribution', () => {
     // UL-16 coord-r3/oracle/full.jsonl: Java defense 141.75, offense 293.76.
     // The remaining TS defense difference is outside this mass term.
     const result = calculateBattleValueForUnit(
+      // The fixture's inferred JSON union is wider than the adapter input type.
       contractUnitToBVUnit(fixture.units[0].unit as IContractBVSource),
     );
     if (result?.kind !== 'vehicle') throw new Error('Expected vehicle BV');
