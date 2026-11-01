@@ -8,7 +8,12 @@
  */
 
 // Type definitions
-export type { UnitSource, IRawSerializedUnit, ILoadUnitResult } from './types';
+export type {
+  UnitSource,
+  IRawSerializedUnit,
+  ILoadUnitResult,
+  FamilyEditorState,
+} from './types';
 
 // Type guards
 export { hasSerializedUnitStructure } from './typeGuards';
