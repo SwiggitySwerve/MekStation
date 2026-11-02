@@ -25,6 +25,11 @@ import {
 } from '@/utils/construction/vehicle/equipmentMounts';
 import { hasVehicleStealth } from '@/utils/construction/vehicle/vehicleBVMovement';
 
+import type { ICapitalShipBVUnit } from './aerospace/capitalShipBV';
+import type { IDropShipBVUnit } from './aerospace/dropShipBV';
+
+import { isCapitalShipBVType } from './aerospace/aerospaceBVTypes';
+
 /** The subset of a converter / `UnitContract` unit this adapter reads. */
 export interface IContractBVSource {
   readonly id: string;
@@ -47,6 +52,8 @@ export interface IContractBVSource {
     readonly byLocation?: Readonly<Record<string, number>>;
     readonly byArc?: Readonly<Record<string, number>>;
     readonly barRating?: number;
+    readonly typeByLocation?: Readonly<Record<string, number>>;
+    readonly barRatingByLocation?: Readonly<Record<string, number>>;
   };
   readonly equipment?: readonly { id: string; location: string }[];
 }
@@ -65,6 +72,9 @@ export interface IContractBVVehicle {
   readonly movement: IGroundMovement;
   readonly totalArmorPoints: number;
   readonly armorByLocation: Readonly<Record<string, number>>;
+  readonly armorType: string;
+  readonly armorTypeByLocation: Readonly<Record<string, number>>;
+  readonly barRatingByLocation: Readonly<Record<string, number>>;
   readonly equipment: readonly IVehicleMountedEquipment[];
   readonly turret?: { readonly type: TurretType };
   readonly chinTurret?: { readonly type: TurretType };
@@ -166,11 +176,17 @@ function contractVehicleToBVUnit(unit: IContractBVSource): IContractBVVehicle {
       hasSecondTurret: sourceArmor.TURRET_2 !== undefined,
     },
   );
+  const armorTypeByLocation: Record<string, number> = {};
+  const barRatingByLocation: Record<string, number> = {};
   const armorByLocation = Object.fromEntries(
-    Object.entries(sourceArmor).map(([tag, points]) => [
-      resolveVehicleContractLocation(tag, 'armor location'),
-      points,
-    ]),
+    Object.entries(sourceArmor).map(([tag, points]) => {
+      const location = resolveVehicleContractLocation(tag, 'armor location');
+      if (unit.armor.typeByLocation?.[tag] !== undefined)
+        armorTypeByLocation[location] = unit.armor.typeByLocation[tag];
+      if (unit.armor.barRatingByLocation?.[tag] !== undefined)
+        barRatingByLocation[location] = unit.armor.barRatingByLocation[tag];
+      return [location, points];
+    }),
   );
 
   return {
@@ -187,6 +203,9 @@ function contractVehicleToBVUnit(unit: IContractBVSource): IContractBVVehicle {
     },
     totalArmorPoints: sumValues(sourceArmor),
     armorByLocation,
+    armorType: unit.armor.type,
+    armorTypeByLocation,
+    barRatingByLocation,
     equipment,
     ...(isTank && primaryTurretType !== undefined
       ? { turret: { type: primaryTurretType } }
@@ -197,6 +216,13 @@ function contractVehicleToBVUnit(unit: IContractBVSource): IContractBVVehicle {
     ...(unit.armor.barRating !== undefined
       ? { barRating: unit.armor.barRating }
       : {}),
+  };
+}
+
+function contractAerospaceArmorFacts(unit: IContractBVSource) {
+  return {
+    armorType: unit.armor.type.toLowerCase().replace(/_/g, '-'),
+    totalArmorPoints: sumValues(requireFact(unit.armor.byArc, 'armor.byArc')),
   };
 }
 
@@ -215,8 +241,7 @@ function contractAerospaceToBVUnit(
       safeThrust: requireFact(unit.movement.safeThrust, 'movement.safeThrust'),
       maxThrust: requireFact(unit.movement.maxThrust, 'movement.maxThrust'),
     },
-    armorType: unit.armor.type.toLowerCase().replace(/_/g, '-'),
-    totalArmorPoints: sumValues(requireFact(unit.armor.byArc, 'armor.byArc')),
+    ...contractAerospaceArmorFacts(unit),
     equipment: (unit.equipment ?? []).map((item) => ({
       equipmentId: item.id,
       location: lookup(AEROSPACE_ARCS, item.location, 'aerospace arc'),
@@ -227,7 +252,39 @@ function contractAerospaceToBVUnit(
 /** Route a contract unit to its adapter; throws for any other unitType. */
 export function contractUnitToBVUnit(
   unit: IContractBVSource,
-): IContractBVVehicle | IContractBVAerospace {
+):
+  | IContractBVVehicle
+  | IContractBVAerospace
+  | IDropShipBVUnit
+  | ICapitalShipBVUnit {
+  if (isCapitalShipBVType(unit.unitType)) {
+    return {
+      unitType: unit.unitType,
+      structuralIntegrity: requireFact(
+        unit.structuralIntegrity,
+        'structuralIntegrity',
+      ),
+      ...contractAerospaceArmorFacts(unit),
+      equipment: (unit.equipment ?? []).map((item) => ({
+        equipmentId: item.id,
+        location: item.location,
+      })),
+    };
+  }
+  if (unit.unitType === UnitType.DROPSHIP) {
+    return {
+      unitType: UnitType.DROPSHIP,
+      structuralIntegrity: requireFact(
+        unit.structuralIntegrity,
+        'structuralIntegrity',
+      ),
+      ...contractAerospaceArmorFacts(unit),
+      equipment: (unit.equipment ?? []).map((item) => ({
+        equipmentId: item.id,
+        location: item.location,
+      })),
+    };
+  }
   if (VEHICLE_UNIT_TYPES.has(unit.unitType))
     return contractVehicleToBVUnit(unit);
   if (AEROSPACE_UNIT_TYPES.has(unit.unitType))

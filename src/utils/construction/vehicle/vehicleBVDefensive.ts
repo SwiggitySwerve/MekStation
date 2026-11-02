@@ -24,7 +24,6 @@ import { getVehicleDefensiveTypeModifier } from './vehicleBVTypeModifier';
 export function calculateVehicleDefensiveBV(
   input: VehicleBVInput,
 ): VehicleDefensiveBVBreakdown {
-  const armorMult = getArmorBVMultiplier(input.armorType ?? 'standard');
   // BVCalculator.processStructure adds Blue Shield to the type multiplier.
   const blueShield = input.chassisEquipment?.some(
     (id) =>
@@ -37,11 +36,7 @@ export function calculateVehicleDefensiveBV(
     getStructureBVMultiplier(input.structureType ?? 'standard') +
     (blueShield ? 0.2 : 0);
 
-  // Support vehicle BAR scaling: multiply armor BV by BAR/10 when BAR < 10.
-  const bar = input.barRating;
-  const barScale = bar !== null && bar !== undefined && bar < 10 ? bar / 10 : 1;
-
-  const armorBV = input.totalArmorPoints * 2.5 * armorMult * barScale;
+  const armorBV = calculateArmorBV(input, blueShield === true);
   const structureBV = input.totalStructurePoints * 1.5 * structureMult;
 
   let defensiveEquipmentBV = 0;
@@ -73,4 +68,80 @@ export function calculateVehicleDefensiveBV(
     tmm,
     total,
   };
+}
+
+/** Native MegaMek codes are not local ArmorType enum ordinals. */
+function armorMultiplier(type: string | number): number {
+  const names: Readonly<Record<number, string>> = {
+    2: 'reactive',
+    3: 'reflective',
+    4: 'hardened',
+    16: 'ferro-lamellor',
+    23: 'anti-penetrative',
+    24: 'heat-dissipating',
+    26: 'ballistic-reinforced',
+  };
+  const name =
+    typeof type === 'number'
+      ? (names[type] ?? 'standard')
+      : type
+          .toLowerCase()
+          .replace(/_/g, '-')
+          .replace(/^anti-penetrative-ablation$/, 'anti-penetrative');
+  return getArmorBVMultiplier(name);
+}
+
+/** BVCalculator.processArmor for original, undamaged construction inputs. */
+function calculateArmorBV(input: VehicleBVInput, blueShield: boolean): number {
+  const patchwork =
+    input.armorType === 7 ||
+    input.armorType?.toString().toLowerCase() === 'patchwork';
+  const equipment = (input.armorEquipment ?? []).map((e) => ({
+    ...e,
+    id: e.id
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '')
+      .replace(/^(clan|is|cl)/, ''),
+  }));
+  const modular = (location?: string) =>
+    equipment.filter(
+      (e) =>
+        e.id === 'modulararmor' &&
+        (location === undefined || e.location === location),
+    ).length * 10;
+  const multiplier = (type: string | number) =>
+    armorMultiplier(type) + (blueShield ? 0.2 : 0);
+  // SupportTank's BAR array starts at zero when loadSVArmor has no rating.
+  const bar = (input.barRating ?? (input.isSupportVehicle ? 0 : 10)) / 10;
+  const hasHarJel = equipment.some((e) => e.id.includes('harjelii'));
+  if (!patchwork && !hasHarJel) {
+    const points = Math.max(0, input.totalArmorPoints);
+    return (
+      (points + modular()) *
+      multiplier(input.armorType ?? 'standard') *
+      bar *
+      2.5
+    );
+  }
+  if (!input.armorByLocation)
+    throw new Error(
+      'Vehicle location armor is required for patchwork or HarJel',
+    );
+  let total = 0;
+  for (const [location, points] of Object.entries(input.armorByLocation)) {
+    const type = patchwork
+      ? input.armorTypeByLocation?.[location]
+      : (input.armorType ?? 'standard');
+    if (type === undefined)
+      throw new Error(`Missing patchwork armor type: ${location}`);
+    let mult = multiplier(type);
+    const mounted = equipment.filter((e) => e.location === location);
+    if (mounted.some((e) => /harjelii(?!i)/.test(e.id))) mult *= 1.1;
+    if (mounted.some((e) => e.id.includes('harjeliii'))) mult *= 1.2;
+    total +=
+      (Math.max(0, points) + modular(location)) *
+      mult *
+      ((input.barRatingByLocation?.[location] ?? input.barRating ?? 10) / 10);
+  }
+  return total * 2.5;
 }

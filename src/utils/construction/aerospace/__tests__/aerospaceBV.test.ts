@@ -5,8 +5,8 @@
  *  - Speed factor formula (spec scenario: "Speed factor calculation")
  *  - Defensive BV: SI term (spec scenario: "SI BV")
  *  - Defensive BV: no thrust multiplier (parity delta: "Thrust does not scale defense")
- *  - Arc fire-pool primary/opposite/side weighting (spec scenarios: "Primary arc contributes 100%", "Primary arc not Nose")
- *  - Fuselage weapons always contribute at 100%
+ *  - Forward/rear group weighting (spec scenarios: "Primary arc contributes 100%", "Primary arc not Nose")
+ *  - Fuselage weapons participate in the forward group
  *  - Conventional fighter neutral final multiplier (spec scenario: "Conventional fighter multiplier")
  *  - Small Craft 1.2× armor bonus inside defensive block
  *  - Breakdown shape (spec scenario: "Breakdown shape")
@@ -53,15 +53,15 @@ function baseInput(
 // ============================================================================
 
 describe('calculateAerospaceSpeedFactor', () => {
-  it('matches spec scenario: safe 5 / max 7 yields 1.12', () => {
+  it('uses supplied max thrust and keeps the mean as a compatibility field', () => {
     const { avgThrust, speedFactor } = calculateAerospaceSpeedFactor(5, 7);
     expect(avgThrust).toBe(6);
-    expect(speedFactor).toBeCloseTo(1.12, 2);
+    expect(speedFactor).toBe(1.24);
   });
 
-  it('returns baseline 1.0 for avg 5', () => {
-    const { speedFactor } = calculateAerospaceSpeedFactor(4, 6);
-    expect(speedFactor).toBeCloseTo(1.0, 2);
+  it('returns baseline 1.0 for max thrust 5', () => {
+    const { speedFactor } = calculateAerospaceSpeedFactor(3, 5);
+    expect(speedFactor).toBe(1.0);
   });
 });
 
@@ -126,7 +126,7 @@ describe('calculateAerospaceDefensiveBV', () => {
 // ============================================================================
 
 describe('calculateAerospaceOffensiveBV arc fire pool', () => {
-  it('primary arc contributes 100%, opposite 25%, sides 50%', () => {
+  it('forward arcs contribute 100%, Aft contributes 50%', () => {
     // Use hypothetical weapon BV via the equipment resolver is not possible
     // without catalog; instead fake the arc totals by computing contributions
     // with real catalog items. We use simple known weapons here.
@@ -163,12 +163,12 @@ describe('calculateAerospaceOffensiveBV arc fire pool', () => {
     );
 
     expect(nose?.weight).toBe(1.0);
-    expect(aft?.weight).toBe(0.25);
-    expect(lw?.weight).toBe(0.5);
-    expect(rw?.weight).toBe(0.5);
+    expect(aft?.weight).toBe(0.5);
+    expect(lw?.weight).toBe(1);
+    expect(rw?.weight).toBe(1);
   });
 
-  it('shifts opposite arc weight when LeftWing is primary', () => {
+  it('keeps all forward arcs full when LeftWing is primary', () => {
     const result = calculateAerospaceOffensiveBV(
       baseInput({
         equipment: [
@@ -188,12 +188,12 @@ describe('calculateAerospaceOffensiveBV arc fire pool', () => {
       (c) => c.arc === AerospaceArc.NOSE,
     );
     const aft = result.arcContributions.find((c) => c.arc === AerospaceArc.AFT);
-    expect(rw?.weight).toBe(0.25); // opposite
-    expect(nose?.weight).toBe(0.5); // side
-    expect(aft?.weight).toBe(0.5); // side
+    expect(rw?.weight).toBe(1);
+    expect(nose?.weight).toBe(1);
+    expect(aft?.weight).toBe(0.5);
   });
 
-  it('fuselage weapons always contribute at 100%', () => {
+  it('fuselage weapons contribute fully when forward is stronger', () => {
     const result = calculateAerospaceOffensiveBV(
       baseInput({
         equipment: [

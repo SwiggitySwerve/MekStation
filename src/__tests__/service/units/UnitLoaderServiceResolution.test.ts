@@ -191,6 +191,60 @@ describe('UnitLoaderService Equipment Resolution', () => {
       mockGetEquipmentRegistry.mockReturnValue(mockRegistry);
     });
 
+    it('resolves ammunition sharing a weapon ID from the ammunition category', () => {
+      const weapon = createMockEquipment(
+        'mrm-20',
+        'MRM 20',
+        TechBase.INNER_SPHERE,
+      );
+      const ammo = {
+        ...weapon,
+        name: 'MRM 20 Ammo',
+        category: EquipmentCategory.AMMUNITION,
+      };
+      mockEquipmentLookupService.getById.mockReturnValue(weapon);
+      mockEquipmentLookupService.getAllEquipment.mockReturnValue([
+        weapon,
+        ammo,
+      ]);
+      expect(
+        resolveEquipmentId(
+          'IS MRM 20 Ammo',
+          TechBase.INNER_SPHERE,
+          TechBaseMode.INNER_SPHERE,
+          undefined,
+        ).equipmentDef,
+      ).toBe(ammo);
+    });
+
+    it('keeps unknown ammunition unresolved instead of accepting a registry weapon', () => {
+      const weapon = createMockEquipment(
+        'medium-laser',
+        'Medium Laser',
+        TechBase.INNER_SPHERE,
+      );
+      mockEquipmentLookupService.getById.mockReturnValue(weapon);
+      mockEquipmentLookupService.getAllEquipment.mockReturnValue([weapon]);
+      mockRegistry.isReady.mockReturnValue(true);
+      mockRegistry.lookup.mockReturnValue({
+        found: true,
+        equipment: createMockRegistryWeapon(
+          'medium-laser',
+          'Medium Laser',
+          TechBase.INNER_SPHERE,
+        ),
+        category: EquipmentType.WEAPON,
+      });
+      expect(
+        resolveEquipmentId(
+          'Missing Special Ammo',
+          TechBase.INNER_SPHERE,
+          TechBaseMode.INNER_SPHERE,
+          undefined,
+        ).equipmentDef,
+      ).toBeUndefined();
+    });
+
     it('should resolve standard IDs', () => {
       mockEquipmentLookupService.getById.mockImplementation((id: string) => {
         if (id === 'medium-laser') {

@@ -3,6 +3,23 @@ import type {
   AerospaceSubType,
 } from '../../../types/unit/AerospaceInterfaces';
 
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+
+export type CapitalShipBVType =
+  | UnitType.JUMPSHIP
+  | UnitType.WARSHIP
+  | UnitType.SPACE_STATION;
+
+export function isCapitalShipBVType(
+  value: unknown,
+): value is CapitalShipBVType {
+  return (
+    value === UnitType.JUMPSHIP ||
+    value === UnitType.WARSHIP ||
+    value === UnitType.SPACE_STATION
+  );
+}
+
 /**
  * Single piece of aerospace-mounted equipment for BV purposes.
  * Uses raw location strings so both ASF/CF (NOSE/LEFT_WING/RIGHT_WING/AFT/FUSELAGE)
@@ -54,6 +71,20 @@ export interface IAerospaceBVInput {
   /** Pilot piloting skill (0-8, default 5 baseline) */
   readonly pilotPiloting?: number;
 }
+
+/** Defensive facts shared by aircraft and the large-aerospace calculators. */
+export type IAerospaceDefensiveBVInput = Pick<
+  IAerospaceBVInput,
+  | 'isSupportVehicle'
+  | 'armorType'
+  | 'totalArmorPoints'
+  | 'structuralIntegrity'
+  | 'equipment'
+  | 'defensiveEquipmentBV'
+  | 'explosivePenalties'
+> & {
+  readonly subType: AerospaceSubType | UnitType.DROPSHIP | CapitalShipBVType;
+};
 
 export type {
   IAerospaceArcContribution,

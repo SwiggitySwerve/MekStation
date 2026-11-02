@@ -3,12 +3,14 @@ import type {
   IAerospaceBVBreakdown,
   IAerospaceBVEquipment,
   IAerospaceBVInput,
+  IAerospaceDefensiveBVInput,
 } from './aerospaceBVTypes';
 
 import {
   AerospaceArc,
   AerospaceSubType,
 } from '../../../types/unit/AerospaceInterfaces';
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import {
   getArmorBVMultiplier,
   getPilotSkillModifier,
@@ -20,6 +22,7 @@ import {
   sumWeaponBV,
 } from './aerospaceBVCalculations';
 import { calculateMountedAerospaceDefensiveBV } from './aerospaceBVEquipment';
+import { isCapitalShipBVType } from './aerospaceBVTypes';
 
 // ============================================================================
 // BV Helpers
@@ -31,7 +34,9 @@ import { calculateMountedAerospaceDefensiveBV } from './aerospaceBVEquipment';
  * empty. Its separate aircraft type modifier scales the complete pool first.
  * @spec establish-all-unit-data-parity: Aerospace Defensive BV
  */
-export function calculateAerospaceDefensiveBV(input: IAerospaceBVInput): {
+export function calculateAerospaceDefensiveBV(
+  input: IAerospaceBVInput | IAerospaceDefensiveBVInput,
+): {
   armorBV: number;
   siBV: number;
   defensiveEquipmentBV: number;
@@ -40,25 +45,35 @@ export function calculateAerospaceDefensiveBV(input: IAerospaceBVInput): {
   defensive: number;
 } {
   const armorMultiplier = getArmorBVMultiplier(input.armorType);
+  const capital = isCapitalShipBVType(input.subType);
   const smallCraftArmorBonus =
     input.subType === AerospaceSubType.SMALL_CRAFT ? 1.2 : 1.0;
   const armorBV =
-    input.totalArmorPoints * 2.5 * armorMultiplier * smallCraftArmorBonus;
+    input.totalArmorPoints *
+    (capital ? 25 : 2.5) *
+    armorMultiplier *
+    smallCraftArmorBonus;
 
-  // AeroBVCalculator.java:64-70; all supported families share this SI rule.
+  // AeroBVCalculator.java:64-70; aircraft and DropShips use SI x 2.
   // @spec establish-all-unit-data-parity: Aerospace Defensive BV
-  const siBV = input.structuralIntegrity * 2;
+  // JumpShipBVCalculator overrides SI without adding KF or sail integrity.
+  const siBV = input.structuralIntegrity * (capital ? 20 : 2);
 
   const defensiveEquipmentBV =
     (input.defensiveEquipmentBV ?? 0) +
     calculateMountedAerospaceDefensiveBV(input.equipment);
-  const explosivePenalties = input.explosivePenalties ?? 0;
+  // LargeAeroBVCalculator.processExplosiveEquipment is empty (no minimum).
+  const explosivePenalties =
+    capital || input.subType === UnitType.DROPSHIP
+      ? 0
+      : (input.explosivePenalties ?? 0);
 
   // AeroBVCalculator.java:118-134; support classification precedes ConvFighter.
   let typeModifier = 1.2;
   if (
     input.isSupportVehicle ||
-    input.subType === AerospaceSubType.SMALL_CRAFT
+    input.subType === AerospaceSubType.SMALL_CRAFT ||
+    input.subType === UnitType.DROPSHIP
   ) {
     typeModifier = 1;
   } else if (input.subType === AerospaceSubType.CONVENTIONAL_FIGHTER) {
@@ -68,6 +83,16 @@ export function calculateAerospaceDefensiveBV(input: IAerospaceBVInput): {
   const armorType = input.armorType.toLowerCase();
   if (armorType === 'stealth' || armorType === 'stealth-vehicle') {
     typeModifier += 0.3;
+  }
+
+  // JumpShip/WarShip replace Aero's entire type stage, including stealth.
+  if (capital) {
+    typeModifier =
+      input.subType === UnitType.WARSHIP
+        ? 0.8
+        : input.subType === UnitType.SPACE_STATION
+          ? 0.7
+          : 0.75;
   }
 
   const defensiveFactor = 1;
@@ -87,9 +112,9 @@ export function calculateAerospaceDefensiveBV(input: IAerospaceBVInput): {
 }
 
 /**
- * Compute the aerospace speed factor.
- * avgThrust = (safeThrust + maxThrust) / 2
- * sf = round(pow(1 + (avgThrust − 5) / 10, 1.2) × 100) / 100
+ * Compute speed from maximum thrust (airborne run MP), already rounded up
+ * by the thrust owner. Keep avgThrust as a compatibility-only diagnostic.
+ * Pinned AeroBVCalculator.java:183-186; BVCalculator.java:1129-1132.
  *
  * @spec battle-value-system spec: Aerospace Speed Factor
  */
@@ -98,7 +123,7 @@ export function calculateAerospaceSpeedFactor(
   maxThrust: number,
 ): { avgThrust: number; speedFactor: number } {
   const avgThrust = (safeThrust + maxThrust) / 2;
-  const speedFactor = calculateOffensiveSpeedFactorForMP(avgThrust);
+  const speedFactor = calculateOffensiveSpeedFactorForMP(maxThrust);
   return { avgThrust, speedFactor };
 }
 

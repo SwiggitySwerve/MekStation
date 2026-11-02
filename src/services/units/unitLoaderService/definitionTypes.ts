@@ -25,7 +25,7 @@ export const UNIT_DEFINITION_FAMILIES = {
       UnitType.SUPPORT_VEHICLE,
       'SupportVehicle',
     ],
-    store: null,
+    store: 'vehicle',
   },
   aerospace: {
     unitTypes: [
@@ -35,7 +35,7 @@ export const UNIT_DEFINITION_FAMILIES = {
       'ConventionalFighter',
       'SmallCraft',
     ],
-    store: null,
+    store: 'aerospace',
   },
   capital: {
     unitTypes: [
@@ -55,7 +55,7 @@ export const UNIT_DEFINITION_FAMILIES = {
   UnitFamily,
   {
     readonly unitTypes: readonly IUnitContract['unitType'][];
-    readonly store: 'battlemech' | null;
+    readonly store: 'battlemech' | 'vehicle' | 'aerospace' | null;
   }
 >;
 

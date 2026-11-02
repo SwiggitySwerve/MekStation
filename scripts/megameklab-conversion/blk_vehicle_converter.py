@@ -29,7 +29,7 @@ from blk_conversion_runner import (
     run_manifest_range_parity,
     strict_safe_unit_filename,
 )
-from blk_unit_fields import bar_armor_fields, parse_fluff, parse_location_equipment, parse_mul_id, parse_quirks
+from blk_unit_fields import bar_armor_fields, parse_fluff, parse_location_equipment, parse_mul_id, parse_quirks, vehicle_patchwork_armor_fields
 from blk_vehicle_qualifiers import parse_vehicle_qualifiers
 from blk_vehicle_tables import (
     ARMOR_CODE_MAP,
@@ -207,6 +207,10 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
         armor_by_location = resolve_vehicle_armor(layout_type, motion_raw, tonnage, armor_values)
     except ValueError as exc:
         raise ValueError(f"{blk_path}: {exc}") from exc
+
+    # BLKTankFile.setupArmorTypeAndTechLevel / BLKFile.loadSVArmor.
+    if parse_number(armor_code) == 7:
+        armor_type.update(vehicle_patchwork_armor_fields(tags, armor_by_location, unit_type_raw in ("SupportTank", "LargeSupportTank", "SupportVTOL")))
 
     # --- Equipment ---
     equipment = parse_location_equipment(tags, VEHICLE_LOCATION_MAP)

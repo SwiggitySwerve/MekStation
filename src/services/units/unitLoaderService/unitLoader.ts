@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
  */
 
 import type { UnitState } from '@/stores/unitState';
+import type { IUnitContract } from '@/types/contracts';
 import type { UnitFamily } from '@/types/unit/UnitIndex';
 
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
@@ -17,17 +18,49 @@ import { createLibrarySaveReceipt } from '@/stores/unit/unitEditSnapshot';
 
 import type { IUnitDefinitionReference } from './definitionTypes';
 
+import { mapAerospaceDefinitionToState } from './aerospaceDefinitionMapper';
 import { mapTechBase, mapTechBaseMode } from './componentMappers';
 import { createUnitSession } from './createUnitSession';
-import { UNIT_DEFINITION_FAMILIES } from './definitionTypes';
+import {
+  isDefinitionForFamily,
+  UNIT_DEFINITION_FAMILIES,
+} from './definitionTypes';
 import { mapEquipment } from './equipmentMapping';
 import { loadUnitDefinition } from './loadUnitDefinition';
 import { UnsupportedUnitConfigurationError } from './movementConfiguration';
 import { normalizeUnitConfiguration } from './normalizeUnitConfiguration';
-import { IRawSerializedUnit, UnitSource, ILoadUnitResult } from './types';
+import {
+  FamilyEditorState,
+  IRawSerializedUnit,
+  UnitSource,
+  ILoadUnitResult,
+} from './types';
+import { mapToVehicleState } from './vehicleMapping';
 
 function unitLoadErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
+}
+
+/** Route a validated vehicle or aerospace definition to its store mapper. */
+function mapFamilyState(
+  store: 'vehicle' | 'aerospace',
+  definition: IUnitContract,
+): FamilyEditorState {
+  if (store === 'vehicle') {
+    return { store, state: mapToVehicleState(definition) };
+  }
+  if (!isDefinitionForFamily('aerospace', definition)) {
+    throw new UnsupportedUnitConfigurationError(
+      `The aerospace editor cannot load ${definition.unitType} definitions`,
+    );
+  }
+  return {
+    store,
+    state: mapAerospaceDefinitionToState(definition, {
+      id: uuidv4(),
+      createdAt: Date.now(),
+    }),
+  };
 }
 
 function withLoadedLibrarySave(
@@ -93,7 +126,8 @@ export class UnitLoaderService {
       return { success: false, error: loaded.error, errorCode: loaded.code };
     }
 
-    if (UNIT_DEFINITION_FAMILIES[loaded.family].store !== 'battlemech') {
+    const store = UNIT_DEFINITION_FAMILIES[loaded.family].store;
+    if (store === null) {
       return {
         success: false,
         error: `The BattleMech editor cannot load ${loaded.definition.unitType} definitions`,
@@ -102,6 +136,13 @@ export class UnitLoaderService {
     }
 
     try {
+      if (store !== 'battlemech') {
+        return {
+          success: true,
+          familyState: mapFamilyState(store, loaded.definition),
+          sourceDefinition: loaded.reference,
+        };
+      }
       await this.ensureEquipmentInitialized();
       const state = this.mapToUnitState(
         loaded.definition as IRawSerializedUnit,

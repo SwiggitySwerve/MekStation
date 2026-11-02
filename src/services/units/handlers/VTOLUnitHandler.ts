@@ -32,6 +32,7 @@ import {
   computeEngineRating,
   computeFlankMP,
 } from '@/utils/construction/vehicle/engine';
+import { getVehicleMountFlags } from '@/utils/construction/vehicle/equipmentMounts';
 
 import {
   AbstractUnitTypeHandler,
@@ -238,11 +239,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
         equipmentId: item,
         name: item,
         location,
-        isRearMounted: false,
-        isTurretMounted:
-          locationKey.toLowerCase().includes('turret') ||
-          locationKey.toLowerCase().includes('chin'),
-        isSponsonMounted: false,
+        ...getVehicleMountFlags(locationKey, item, true),
       }),
     );
   }
