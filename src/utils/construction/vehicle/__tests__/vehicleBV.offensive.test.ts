@@ -68,7 +68,7 @@ describe('Vehicle offensive BV - weapon modifiers', () => {
     expect(off.turretModifier).toBe(1);
   });
 
-  it('rear-mounted, non-turret weapon -> 0.5x BV', () => {
+  it('rear-only weapon selects the stronger rear direction', () => {
     const off = calculateVehicleOffensiveBV(
       baseInput({
         flankMP: 5,
@@ -82,7 +82,7 @@ describe('Vehicle offensive BV - weapon modifiers', () => {
         ],
       }),
     );
-    expect(off.weaponBV).toBeCloseTo(46 * 0.5, 4);
+    expect(off.weaponBV).toBeCloseTo(46, 4);
   });
 
   it('rear-mounted turret weapon does NOT get the 0.5x rear penalty', () => {

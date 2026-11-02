@@ -10,15 +10,22 @@ import type {
 import {
   extractWeaponTypeFromAmmoId,
   getCatalogAmmoBVGroup,
+  getNativeAmmoBVGroup,
 } from '../battleValueAmmo';
-import { getDefensiveEquipmentOffensiveBV } from '../battleValueEquipment';
+import { getOffensiveBVRole, hasBVDroneOS } from '../battleValueEquipment';
 import {
   calculateAmmoBVWithExcessiveCap,
   type OffensiveBVConfig,
 } from '../battleValueOffensive';
 import { isDirectFireBVWeapon } from '../battleValueWeapons';
+import { isOneShotBVWeapon } from '../equipmentBV/weaponHeat';
+import {
+  isArtemisCompatibleBVWeapon,
+  linkArtemisBVWeapons,
+} from '../equipmentBV/weaponLinks';
 import {
   getEquipmentEntry,
+  getLargeAerospaceAmmoEntry,
   getArtemisBVMultiplier,
   normalizeEquipmentId,
   resolveEquipmentBV,
@@ -80,19 +87,20 @@ function calculateWeaponBVEntry(
   fireControlFactor: number,
   primaryTurretMult: number,
   secondaryTurretMult: number,
+  nominalRear = weapon.isRearMounted === true,
+  drone = false,
 ) {
   const listedBV = resolveMountBattleValue(weapon);
-  const entry = getEquipmentEntry(weapon.id);
-  const isWeaponType =
-    !entry ||
-    ['Energy', 'Ballistic', 'Missile', 'TAG'].includes(entry.category);
+  const isWeaponType = getOffensiveBVRole(weapon.id) === 'weapon';
   let adjustedBV = listedBV;
 
   adjustedBV *= getArtemisBVMultiplier(weapon.artemisType);
 
-  if (weapon.isRearMounted && !weapon.isTurretMounted) {
+  if (nominalRear && !weapon.isTurretMounted) {
     adjustedBV *= 0.5;
   }
+
+  if (drone) adjustedBV *= 0.8;
 
   if (
     isWeaponType &&
@@ -123,21 +131,25 @@ function calculateWeaponBVEntry(
  */
 function vehicleAmmoGroup(id: string): string {
   const family = extractWeaponTypeFromAmmoId(normalizeEquipmentId(id));
+  const native = getNativeAmmoBVGroup(id) ?? getNativeAmmoBVGroup(family);
+  if (native) return native;
   return getCatalogAmmoBVGroup(family) ?? family;
-}
-
-function getAmmoWeaponType(ammo: VehicleAmmoMount): string {
-  return ammo.weaponTypeOverride ?? vehicleAmmoGroup(ammo.id);
 }
 
 function buildVehicleAmmoEntries(
   ammo: VehicleAmmoMount[] = [],
 ): VehicleAmmoBVEntries {
-  return ammo.map((entry) => ({
-    id: entry.id,
-    bv: resolveMountBattleValue(entry),
-    weaponType: getAmmoWeaponType(entry),
-  }));
+  return ammo.map((entry) => {
+    const bin = getLargeAerospaceAmmoEntry(normalizeEquipmentId(entry.id));
+    return {
+      id: entry.id,
+      bv:
+        entry.bvOverride ?? bin?.battleValue ?? resolveMountBattleValue(entry),
+      weaponType: vehicleAmmoGroup(
+        entry.weaponTypeOverride ?? bin?.id ?? entry.id,
+      ),
+    };
+  });
 }
 
 function calculateVehicleOffensiveEquipmentBV(
@@ -178,31 +190,65 @@ export function calculateVehicleOffensiveBV(
     );
   const primaryTurretMult = turretMultiplier(input.turret);
   const secondaryTurretMult = turretMultiplier(input.secondaryTurret);
-  const weaponEntries = input.weapons.map((weapon) =>
+  const drone = hasBVDroneOS(input.chassisEquipment);
+  const mounts = input.weapons.map((w) => ({
+    ...w,
+    compatible: isArtemisCompatibleBVWeapon(
+      getEquipmentEntry(w.id)?.id ?? w.id,
+    ),
+    isTurretMounted: w.isTurretMounted || /turret|chin/i.test(w.location),
+  }));
+  const links = (input.armorEquipment ?? input.weapons).flatMap((m) => {
+    const id = getEquipmentEntry(m.id)?.id;
+    return id === 'artemisiv' || id === 'artemisv'
+      ? [
+          {
+            location: m.location,
+            type: (id === 'artemisiv' ? 'iv' : 'v') as 'iv' | 'v',
+          },
+        ]
+      : [];
+  });
+  linkArtemisBVWeapons(mounts, links);
+  const value = (w: VehicleWeaponMount, rear: boolean) =>
     calculateWeaponBVEntry(
-      weapon,
+      w,
       targetingComputerMounted,
       fireControlFactor,
       primaryTurretMult,
       secondaryTurretMult,
+      rear,
+      drone,
+    );
+  const directional = (location: string) =>
+    mounts
+      .filter(
+        (w) => w.location.toLowerCase() === location && !w.isTurretMounted,
+      )
+      .reduce((sum, w) => sum + value(w, false).finalBV, 0);
+  const reverse = directional('front') < directional('rear');
+  const weaponEntries = mounts.map((w) =>
+    value(
+      w,
+      reverse !==
+        (w.location.toLowerCase() === 'rear' || w.isRearMounted === true),
     ),
   );
 
   const weaponBV = weaponEntries.reduce((sum, entry) => sum + entry.finalBV, 0);
-  const perWeaponBVs = weaponEntries.map((entry) => ({
-    id: vehicleAmmoGroup(entry.id),
-    bv: entry.listedBV,
-  }));
+  const perWeaponBVs = weaponEntries
+    .filter((entry) => !isOneShotBVWeapon(entry.id))
+    .map((entry) => ({
+      id: vehicleAmmoGroup(entry.id),
+      bv: entry.listedBV,
+    }));
   const ammoEntries = buildVehicleAmmoEntries(input.ammo);
   const ammoBV =
     calculateAmmoBVWithExcessiveCap(perWeaponBVs, ammoEntries) *
     fireControlFactor;
-  const offensiveEquipmentBV =
-    calculateVehicleOffensiveEquipmentBV(input.offensiveEquipment) +
-    (input.defensiveEquipment ?? []).reduce(
-      (sum, mount) => sum + getDefensiveEquipmentOffensiveBV(mount.id),
-      0,
-    );
+  const offensiveEquipmentBV = calculateVehicleOffensiveEquipmentBV(
+    input.offensiveEquipment,
+  );
 
   const speedFactor = calculateVehicleSpeedFactor(input);
   // CombatVehicleBVCalculator.processWeight adds half raw tonnage for every vehicle family.
