@@ -35,10 +35,11 @@ export interface BattleMechPreviewProjection {
 export function getMovementProfile(
   engineRating: number,
   tonnage: number,
+  cockpitType = '',
 ): { walkMP: number; runMP: number } {
   const walkMP =
     engineRating > 0 && tonnage > 0
-      ? calculateRatedWalkMP(engineRating, tonnage)
+      ? calculateRatedWalkMP(engineRating, tonnage, cockpitType)
       : 0;
   return {
     walkMP,
@@ -76,6 +77,7 @@ export function buildBattleMechPreviewProjection(
   const { walkMP, runMP } = getMovementProfile(
     state.engineRating,
     state.tonnage,
+    state.cockpitType,
   );
   const editableMech = buildEditableMech(state, walkMP);
   const { battleValue, cost } = calculateBattleValueAndCost(editableMech);

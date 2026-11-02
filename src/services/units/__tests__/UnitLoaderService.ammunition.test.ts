@@ -2,7 +2,10 @@ import { renderHook } from '@testing-library/react';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { getMovementProfile } from '@/components/customizer/preview/recordSheetPreview.logic';
+import {
+  getMovementProfile,
+  buildBattleMechPreviewProjection,
+} from '@/components/customizer/preview/recordSheetPreview.logic';
 import { buildEditableMech } from '@/components/customizer/tabs/PreviewTab.builders';
 import { useUnitCalculations } from '@/hooks/useUnitCalculations';
 import { getCalculationService } from '@/services/construction/CalculationService';
@@ -282,6 +285,29 @@ describe('BattleMech BV source parity', () => {
     const raw: UnitData = JSON.parse(JSON.stringify(state.bvContext?.source));
     expect(bv(state)).toBe(calculateUnitBV(raw, raw.id).bv);
   });
+
+  it.each([
+    'commando-com-1a',
+    'commando-com-1ak',
+    'wasp-wsp-1',
+    'firebee-frb-1e-wam-b',
+    'trooper-tp-1r',
+    'pathfinder-pff-2',
+    'pathfinder-pff-2t',
+  ])(
+    '%s primitive movement agrees across editor projections and gate',
+    async (id) => {
+      const state = await load(id);
+      const raw: UnitData = JSON.parse(JSON.stringify(state.bvContext?.source));
+      const preview = buildBattleMechPreviewProjection(state);
+      const { result } = renderHook(() =>
+        useUnitCalculations(state.tonnage, state),
+      );
+      expect(preview.walkMP).toBe(raw.movement.walk);
+      expect(result.current.walkMP).toBe(raw.movement.walk);
+      expect(preview.battleValue).toBe(calculateUnitBV(raw, id).bv);
+    },
+  );
 
   it.each(['armor', 'weapon', 'ammo', 'CASE'] as const)(
     '%s edits agree with independently edited gate inputs',

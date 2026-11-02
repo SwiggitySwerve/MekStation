@@ -215,7 +215,11 @@ export function useUnitCalculations(
     // Movement Calculations
     // =========================================================================
 
-    const walkMP = calculateRatedWalkMP(selections.engineRating, tonnage);
+    const walkMP = calculateRatedWalkMP(
+      selections.engineRating,
+      tonnage,
+      selections.cockpitType,
+    );
     const runMP = Math.ceil(walkMP * 1.5);
 
     return {
