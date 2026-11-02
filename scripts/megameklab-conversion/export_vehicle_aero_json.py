@@ -63,6 +63,48 @@ def export(mekfiles: Path, out_dir: Path) -> dict:
     return summary
 
 
+
+def export_strict(mekfiles: Path, out_dir: Path) -> None:
+    """All in-scope MTF/BLK sources, hashed independently of the oracle."""
+    import hashlib
+    import blk_capital_converter as capital
+    from mtf_converter import MTFParser, dataclass_to_dict
+
+    _require_scratch(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    logger = logging.getLogger("strict_bv_export")
+    parser = MTFParser()
+    folders = ("meks", "vehicles", "fighters", "convfighter", "smallcraft",
+               "dropships", "jumpships", "warship", "spacestation",
+               "battlearmor", "infantry", "protomeks")
+    with (out_dir / "sources.ndjson").open("w", encoding="utf-8", newline="\n") as handle:
+        for folder in folders:
+            extension = "*.mtf" if folder == "meks" else "*.blk"
+            for source in sorted((mekfiles / folder).rglob(extension)):
+                row = {"path": source.relative_to(mekfiles).as_posix(),
+                       "sha256": hashlib.sha256(source.read_bytes().replace(b"\r\n", b"\n")).hexdigest(), "unit": None}
+                try:
+                    if folder == "meks":
+                        row["unit"] = dataclass_to_dict(parser.parse_file(str(source)))
+                    elif folder in ("battlearmor", "infantry", "protomeks"):
+                        row["sourceText"] = source.read_bytes().decode("utf-8")
+                    elif folder in ("dropships", "jumpships", "warship", "spacestation"):
+                        row["unit"] = capital.convert_capital_blk(source, logger)
+                    elif folder == "vehicles":
+                        row["unit"] = vehicle.convert_vehicle_blk(source, logger)
+                        if row["unit"] is None:
+                            row["unit"] = aerospace.convert_aerospace_blk(source, logger)
+                    else:
+                        row["unit"] = aerospace.convert_aerospace_blk(source, logger)
+                    if row["unit"] is None and "reason" not in row and "sourceText" not in row:
+                        row["reason"] = "Converter produced no unit"
+                except Exception as error:
+                    row["reason"] = str(error)
+                handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+
 if __name__ == "__main__":
-    result = export(Path(sys.argv[1]), Path(sys.argv[2]))
-    print({family: (info["converted"], len(info["skipped"])) for family, info in result.items()})
+    if len(sys.argv) > 3 and sys.argv[3] == "--strict":
+        export_strict(Path(sys.argv[1]), Path(sys.argv[2]))
+    else:
+        result = export(Path(sys.argv[1]), Path(sys.argv[2]))
+        print({family: (info["converted"], len(info["skipped"])) for family, info in result.items()})
