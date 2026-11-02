@@ -432,6 +432,30 @@ The system SHALL provide a tabbed customizer interface for vehicles.
 - **AND** known overweight budgets SHALL retain error colour and a real balanced zero SHALL retain success status
 - **AND** mounted turret mass SHALL keep units and SHALL NOT regain a capacity denominator
 
+#### Scenario: Independent resolved turret figures
+
+- **WHEN** viewing the decomposed Turret tab
+- **THEN** primary and secondary panels SHALL display mounted equipment, qualifying non-ammunition equipment and charged mechanism weight from the existing construction owner
+- **AND** VTOLs SHALL display the chin panel without a secondary panel
+- **AND** each Omni allowance SHALL retain its explicit raw value, including zero, fractional and negative source values, independently of installation
+- **AND** absent installed turrets SHALL NOT hide known assigned charges
+- **AND** no capacity bar or denominator SHALL be displayed
+
+#### Scenario: Unavailable independent turret figures
+
+- **WHEN** an individual mounted or qualifying figure awaits catalog readiness
+- **THEN** that dependent unavailable figure SHALL show Loading, then Unknown if unresolved after readiness
+- **AND** independently known figures, empty-load zero and known assigned charges SHALL remain numeric
+- **AND** invalid source allowances SHALL show Unknown rather than a numeric fallback
+- **AND** editing source context or equipment SHALL recompute the displayed figures
+
+#### Scenario: Turret figure colours and responsive rendering
+
+- **WHEN** turret figures render at narrow or wide widths
+- **THEN** labels SHALL use Title Case and sentences SHALL use sentence case
+- **AND** unavailable figures SHALL keep warning colour and independent known allowance overloads SHALL keep error colour
+- **AND** panels SHALL remain readable without horizontal overflow
+
 ## ADDED Requirements
 
 ### Requirement: Vehicle turret armor lifecycle
