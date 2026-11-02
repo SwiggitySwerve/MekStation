@@ -412,11 +412,6 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       );
     }
 
-    // Turret validation
-    if (unit.turret && unit.turret.currentWeight > unit.turret.maxWeight) {
-      errors.push('Turret weight exceeds maximum capacity');
-    }
-
     // Motion type specific validations
     if (unit.motionType === GroundMotionType.HOVER && unit.tonnage > 50) {
       warnings.push('Hover vehicles over 50 tons are rare');
