@@ -30,6 +30,7 @@ import {
   getBAManipulatorMeleeBV,
   getBAMoveClassMultiplier,
 } from '../battleArmorBV';
+import { buildBattleArmorBVInputFromUnit } from '../battleArmorBVAdapter';
 import { baseInput } from './battleArmorBV.test.helpers';
 
 describe('getBAArmorBVMultiplier', () => {
@@ -57,14 +58,14 @@ describe('getBAMoveClassMultiplier', () => {
 
 describe('getBAManipulatorMeleeBV', () => {
   it('maps melee manipulators to BV and ignores utility manipulators', () => {
-    expect(getBAManipulatorMeleeBV(BAManipulator.VIBRO_CLAW)).toBe(3);
-    expect(getBAManipulatorMeleeBV(BAManipulator.HEAVY_CLAW)).toBe(2);
-    expect(getBAManipulatorMeleeBV(BAManipulator.BATTLE_CLAW)).toBe(1);
+    expect(getBAManipulatorMeleeBV(BAManipulator.VIBRO_CLAW)).toBe(1);
+    expect(getBAManipulatorMeleeBV(BAManipulator.HEAVY_CLAW)).toBe(0);
+    expect(getBAManipulatorMeleeBV(BAManipulator.BATTLE_CLAW)).toBe(0);
     expect(getBAManipulatorMeleeBV(BAManipulator.BASIC_CLAW)).toBe(0);
     expect(getBAManipulatorMeleeBV(BAManipulator.NONE)).toBe(0);
     expect(getBAManipulatorMeleeBV(BAManipulator.CARGO_LIFTER)).toBe(0);
     expect(getBAManipulatorMeleeBV(BAManipulator.INDUSTRIAL_DRILL)).toBe(0);
-    expect(getBAManipulatorMeleeBV(BAManipulator.MAGNET)).toBe(0);
+    expect(getBAManipulatorMeleeBV(BAManipulator.MAGNET)).toBe(1);
     expect(getBAManipulatorMeleeBV(BAManipulator.MINE_CLEARANCE)).toBe(0);
   });
 });
@@ -99,24 +100,26 @@ describe('calculateBAOffensiveBV', () => {
     expect(
       calculateBAOffensiveBV(
         baseInput({
+          canAntiMek: true,
           manipulators: {
             left: BAManipulator.VIBRO_CLAW,
             right: BAManipulator.VIBRO_CLAW,
           },
         }),
       ).manipulatorBV,
-    ).toBe(6);
+    ).toBe(2);
 
     expect(
       calculateBAOffensiveBV(
         baseInput({
+          canAntiMek: true,
           manipulators: {
             left: BAManipulator.BATTLE_CLAW,
             right: BAManipulator.HEAVY_CLAW,
           },
         }),
       ).manipulatorBV,
-    ).toBe(3);
+    ).toBe(0);
   });
 
   it('sums weapon, ammo, and manipulator BV', () => {
@@ -148,13 +151,13 @@ describe('calculateBAOffensiveBV', () => {
     );
     expect(total.weaponBV).toBe(27);
     expect(total.ammoBV).toBe(3);
-    expect(total.manipulatorBV).toBe(2);
-    expect(total.total).toBe(32);
+    expect(total.manipulatorBV).toBe(0);
+    expect(total.total).toBeCloseTo(16.2, 10);
   });
 });
 
 describe('calculateBattleArmorBV squad metadata', () => {
-  it('preserves pilot and squad metadata while full totals await part 2', () => {
+  it('preserves pilot and squad metadata independently of valuation', () => {
     const elite = calculateBattleArmorBV(
       baseInput({ squadSize: 5, gunnery: 3, piloting: 4 }),
     );
@@ -164,9 +167,6 @@ describe('calculateBattleArmorBV squad metadata', () => {
       1,
     );
   });
-  it.todo(
-    'BA BV part 2: Java strength factors 5.2 / 7 replace linear 4 / 5 scaling',
-  );
 });
 
 describe('IBABreakdown shape', () => {
@@ -189,7 +189,7 @@ describe('IBABreakdown shape', () => {
       baseInput({ weapons: [{ id: 'srm-2', bvOverride: 21 }] }),
     ).perTrooper.offensive.total;
     expect(after).toBeGreaterThan(before);
-    expect(after - before).toBe(21);
+    expect(after - before).toBeCloseTo(11.34, 10); // 21 * speed factor 0.54 at MP 1.
   });
 });
 
@@ -325,5 +325,207 @@ const oracle = process.env.BA_BV_ORACLE;
       expect(Number.isFinite(bv)).toBe(true);
       expect(bv).toBeGreaterThan(0);
     }
+  },
+);
+
+// MegaMek 48fcb2f64 BattleArmorBVCalculator.java:193-204.
+it.each([
+  [1, 10.25],
+  [4, 53.3],
+  [5, 71.75],
+  [6, 92.25],
+])(
+  'uses shooting-strength scaling for %s troopers without intermediate rounding',
+  (squadSize, expected) => {
+    // At ground MP 5 the zero-armor defense is 1.3 and offensive speed is 1.
+    const b = calculateBattleArmorBV(
+      baseInput({
+        squadSize,
+        armorPointsPerTrooper: 0,
+        groundMP: 5,
+        jumpMP: 0,
+        weapons: [{ id: 'fixture', bvOverride: 8.95 }],
+      }),
+    );
+    expect(b.perTrooper.total).toBeCloseTo(10.25, 10);
+    expect(b.squadTotal).toBeCloseTo(expected, 10);
+    expect(b.final).toBe(Math.round(expected));
+  },
+);
+
+function armedAchileus(weapon: string, extra = ''): string {
+  return (
+    achileus +
+    `
+<Squad Equipment>
+BABasicManipulator:LA
+BABasicManipulator:RA
+${weapon}
+</Squad Equipment>
+${extra}`
+  );
+}
+
+// MegaMek 48fcb2f64 BattleArmorBVCalculator.java:133-160,334-337;
+// real Achileus [David] oracle: 7 BV weapon, doubled anti-Mek, speed .77.
+it.each([
+  ['BADavidLightGaussRifle:RA', 10.78, 189],
+  ['BADavidLightGaussRifle:Body', 5.39, 161],
+  ['BADavidLightGaussRifle:RA:SSWM', 2.695, 147],
+])(
+  'values native BA mount %s through the existing resolver',
+  (weapon, offense, total) => {
+    const unit = load(armedAchileus(String(weapon)));
+    const b = calculateBattleValueForUnit(unit);
+    if (b?.kind !== 'battlearmor') throw new Error('Missing BA dispatch');
+    expect(b.breakdown.offensive).toBeCloseTo(Number(offense), 10);
+    expect(b.breakdown.final).toBe(total);
+    expect(handler.calculateBV(unit)).toBe(total);
+  },
+);
+
+it('averages a weapon carried by only one trooper without copying it to the squad', () => {
+  const unit = load(
+    armedAchileus(
+      '',
+      '<Trooper 2 Equipment>\nBADavidLightGaussRifle:RA\n</Trooper 2 Equipment>',
+    ),
+  );
+  const b = calculateBattleValueForUnit(unit);
+  if (b?.kind !== 'battlearmor') throw new Error('Missing BA dispatch');
+  expect(b.breakdown.offensive).toBeCloseTo(2.695, 10);
+  expect(b.breakdown.final).toBe(147);
+});
+
+it.each(['quad', 'heavy', 'umu'])(
+  'disallows anti-Mek offense for %s',
+  (caseName) => {
+    let source = armedAchileus('BADavidLightGaussRifle:RA');
+    if (caseName === 'quad') source = source.replace('biped', 'quad');
+    if (caseName === 'heavy')
+      source = source.replace('<weightclass>\n1', '<weightclass>\n3');
+    if (caseName === 'umu')
+      source = source.replace('<motion_type>\nJump', '<motion_type>\nUMU');
+    const b = calculateBattleValueForUnit(load(source));
+    if (b?.kind !== 'battlearmor') throw new Error('Missing BA dispatch');
+    expect(b.breakdown.offensive).toBeCloseTo(5.39, 10);
+  },
+);
+
+it('keeps native ammo without per-shot mass and unknown identities explicit', () => {
+  const input = buildBattleArmorBVInputFromUnit(
+    load(armedAchileus('IS MRM 1 Ammo:Shots10#\nUnknown BA Fixture:RA')),
+  );
+  expect(input.unresolvedEquipment).toEqual(
+    expect.arrayContaining([
+      expect.stringContaining('kgPerShot'),
+      expect.stringContaining('Unknown BA Fixture'),
+    ]),
+  );
+  expect(calculateBAOffensiveBV(input).ammoBV).toBe(0);
+});
+
+it.each([
+  [0, 0, 4.4],
+  [1, 3, 7.7],
+  [5, 0, 10],
+])(
+  'uses max movement for the BA offensive speed factor (%s/%s)',
+  (groundMP, jumpMP, expected) => {
+    expect(
+      calculateBAOffensiveBV(
+        baseInput({
+          groundMP,
+          jumpMP,
+          weapons: [{ id: 'valued-fixture', bvOverride: 10 }],
+        }),
+      ).total,
+    ).toBeCloseTo(expected, 10);
+  },
+);
+
+it('counts native vibro claws only in eligible anti-Mek offense', () => {
+  const source =
+    achileus + '\n<Squad Equipment>\nBABattleClawVibro:LA\n</Squad Equipment>';
+  const b = calculateBattleValueForUnit(load(source));
+  if (b?.kind !== 'battlearmor') throw new Error('Missing BA dispatch');
+  expect(b.breakdown.perTrooper.offensive.weaponBV).toBe(0);
+  expect(b.breakdown.perTrooper.offensive.manipulatorBV).toBe(1);
+  expect(b.breakdown.offensive).toBeCloseTo(0.77, 10);
+});
+
+it('applies fresh IS body-missile burden without burdening Clan suits', () => {
+  const source = armedAchileus(
+    'BADavidLightGaussRifle:RA\nISBASRM1:Body\nBA-SRM1 Ammo:Body:Shots10#',
+  );
+  expect(load(source).canAntiMech).toBe(false);
+  const clan = source
+    .replace('<type>\nIS Level 2', '<type>\nClan Level 2')
+    .replaceAll('Squad Equipment', 'Point Equipment');
+  expect(load(clan).canAntiMech).toBe(true);
+});
+
+it('does not duplicate missile or APM weapons in the anti-Mek pool', () => {
+  const missile = calculateBattleValueForUnit(
+    load(armedAchileus('CLBASRM1:RA')),
+  );
+  if (missile?.kind !== 'battlearmor') throw new Error('Missing BA dispatch');
+  expect(missile.breakdown.perTrooper.offensive.weaponBV).toBe(15);
+  const apm = buildBattleArmorBVInputFromUnit(
+    load(armedAchileus('Machine Gun (Bearhunter AC):RA:APM')),
+  );
+  expect(apm.weapons[0].antiMek).toBe(false);
+  expect(
+    buildBattleArmorBVInputFromUnit(
+      load(armedAchileus('InfantryAssaultRifle:APM')),
+    ).unresolvedEquipment,
+  ).toEqual([]);
+});
+
+it('requires a mechanized-BA grip for anti-Mek attacks', () => {
+  const unit = load(
+    achileus +
+      '\n<Squad Equipment>\nBADavidLightGaussRifle:RA\n</Squad Equipment>',
+  );
+  expect(unit.canAntiMech).toBe(false);
+});
+
+it('reports unsupported mount qualifiers and never treats native ammo as a ton bin', () => {
+  const input = buildBattleArmorBVInputFromUnit(
+    load(armedAchileus('BADavidLightGaussRifle:UNKNOWN')),
+  );
+  expect(input.weapons).toHaveLength(0);
+  expect(input.unresolvedEquipment).toEqual(
+    expect.arrayContaining([expect.stringContaining('unsupported qualifier')]),
+  );
+  expect(
+    calculateBAOffensiveBV(baseInput({ ammo: [{ id: 'IS MRM 1 Ammo' }] }))
+      .ammoBV,
+  ).toBe(0);
+});
+
+it('uses two armored gloves only for light or PA(L) anti-Mek grips', () => {
+  const one =
+    achileus + '\n<Squad Equipment>\nBAArmoredGlove:LA\n</Squad Equipment>';
+  const two = one.replace(
+    'BAArmoredGlove:LA',
+    'BAArmoredGlove:LA\nBAArmoredGlove:RA',
+  );
+  expect(load(one).canAntiMech).toBe(false);
+  expect(load(two).canAntiMech).toBe(true);
+  expect(
+    load(two.replace('<weightclass>\n1', '<weightclass>\n2')).canAntiMech,
+  ).toBe(false);
+});
+
+it.each(['Trooper 2', 'Squad'])(
+  'excludes infantry weapons from the personal/support section at %s',
+  (location) => {
+    const source =
+      achileus +
+      `\n<${location} Equipment>\nMachine Gun (Bearhunter AC):RA:APM${location === 'Squad' ? ':SSWM' : ''}\n</${location} Equipment>`;
+    const b = calculateBattleValueForUnit(load(source));
+    if (b?.kind !== 'battlearmor') throw new Error('Missing BA dispatch');
+    expect(b.breakdown.offensive).toBe(0);
   },
 );

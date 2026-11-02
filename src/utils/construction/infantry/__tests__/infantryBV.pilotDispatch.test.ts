@@ -108,7 +108,9 @@ describe('pinned infantry defensive structure (InfantryBVCalculator.java:65-80)'
       expect(result?.kind).toBe('infantry');
       if (result?.kind !== 'infantry')
         throw new Error('Missing infantry dispatch');
-      expect(result.breakdown).toMatchObject({ defensiveBV: structure });
+      // This motorized fixture has running TMM one; its DEST case adds 0.2.
+      const defense = structure * (tags.includes('<dest>') ? 1.3 : 1.1);
+      expect(result.breakdown.defensiveBV).toBeCloseTo(defense, 10);
       expect(
         gameUnitSchema.shape.infantryInit
           .unwrap()
@@ -117,7 +119,7 @@ describe('pinned infantry defensive structure (InfantryBVCalculator.java:65-80)'
       ).toBe(true);
       expect(result.breakdown.final).toBe(
         Math.round(
-          (structure + result.breakdown.platoonBV) *
+          (defense + result.breakdown.platoonBV) *
             result.breakdown.pilotMultiplier,
         ),
       );

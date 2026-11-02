@@ -25,6 +25,7 @@ import {
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
 import { calculateBattleArmorBVFromUnit } from '@/utils/construction/battlearmor/battleArmorBVAdapter';
+import { canMakeBAAntiMekAttacks } from '@/utils/construction/battlearmor/battleArmorMounts';
 
 import {
   AbstractUnitTypeHandler,
@@ -156,7 +157,6 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
     const canSwarm = baWeightClass !== BattleArmorWeightClass.ASSAULT;
     const canLegAttack = true;
     const canMountOmni = baWeightClass !== BattleArmorWeightClass.ASSAULT;
-    const canAntiMech = true;
 
     return {
       unitType: UnitType.BATTLE_ARMOR,
@@ -183,7 +183,6 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
       canSwarm,
       canLegAttack,
       canMountOmni,
-      canAntiMech,
       errors,
       warnings,
     };
@@ -247,6 +246,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
       ({ mountId, item, location, locationKey }) => ({
         id: `mount-${mountId}`,
         equipmentId: item,
+        unitLocation: locationKey,
         name: item,
         location,
         isAPMount: locationKey.toLowerCase().includes('ap'),
@@ -284,7 +284,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
     commonFields: ReturnType<typeof this.parseCommonFields>,
     typeSpecificFields: Partial<IBattleArmor>,
   ): IBattleArmor {
-    return combineCommonUnitFields<IBattleArmor>({
+    const unit = combineCommonUnitFields<IBattleArmor>({
       commonFields,
       typeSpecificFields,
       idPrefix: 'battlearmor',
@@ -292,6 +292,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
       weightClass: WeightClass.LIGHT,
       rulesLevelParser: parseRulesLevelThroughAdvancedFromType,
     });
+    return { ...unit, canAntiMech: canMakeBAAntiMekAttacks(unit) };
   }
 
   /**
