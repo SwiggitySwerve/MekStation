@@ -1,0 +1,104 @@
+{
+  "id": "resgate-pal-interdictorsqd6",
+  "chassis": "Resgate PA(L)",
+  "model": "(Interdictor)(Sqd6)",
+  "unitType": "BattleArmor",
+  "techBase": "CLAN",
+  "rulesLevel": "STANDARD",
+  "era": "DARK_AGE",
+  "year": 3083,
+  "weightClass": "PAL",
+  "chassisType": "BIPED",
+  "motionType": "JUMP",
+  "movement": {
+    "groundMP": 3,
+    "jumpMP": 3,
+    "umuMP": 0,
+    "vtolMP": 0
+  },
+  "tonnage": 6,
+  "squadSize": 6,
+  "armorPerTrooper": 2,
+  "armor": {
+    "type": "FIRE_RESISTANT",
+    "perTrooper": 2,
+    "sourceTechLevel": 2
+  },
+  "manipulators": {
+    "rightArm": "BAArmoredGlove",
+    "leftArm": "BAArmoredGlove"
+  },
+  "hasAntiPersonnelMount": true,
+  "hasModularWeaponMount": false,
+  "abilities": [],
+  "equipment": [
+    {
+      "id": "baarmoredglove",
+      "name": "BAArmoredGlove",
+      "location": "LEFT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "baarmoredglove",
+      "name": "BAArmoredGlove",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "cl-ba-ecm",
+      "name": "CL BA ECM",
+      "location": "BODY",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-fire-resistant",
+      "name": "Clan BA Fire Resistant",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-fire-resistant",
+      "name": "Clan BA Fire Resistant",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-fire-resistant",
+      "name": "Clan BA Fire Resistant",
+      "location": "BODY",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-fire-resistant",
+      "name": "Clan BA Fire Resistant",
+      "location": "LEFT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-fire-resistant",
+      "name": "Clan BA Fire Resistant",
+      "location": "LEFT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "bajumpjet",
+      "name": "BAJumpJet",
+      "location": "NONE",
+      "unitLocation": "NONE"
+    }
+  ],
+  "clanChassis": true,
+  "isExoskeleton": false,
+  "clanExoWithoutHarJel": false,
+  "mulId": 9167,
+  "role": "Ambusher",
+  "source": "TR:VAr",
+  "fluff": {
+    "overview": "<p>The Resgate is a Clan-manufactured light exoskeleton designed exclusively for search and rescue operations. Developed by Clan Cloud Cobra's scientist caste in the early thirtieth century, the suit was built to improve emergency response capabilities across Cobra-held worlds. Carrying no weapons, the Resgate prioritized sensor capability, debris-clearing tools, and operator protection over any form of combat effectiveness. The design earned a strong reputation among emergency services personnel for its reliability under harsh and dangerous field conditions.</p>",
+    "capabilities": "<p>The Interdictor configuration replaces the Resgate's sensor suite and salvage arm with an electronic countermeasures package and a pair of armored gloves. Developed during the Jihad, this variant shifts the exoskeleton's role from rescue operations to electronic warfare support. The ECM suite disrupts enemy targeting systems and communications within its effective radius, providing valuable cover for friendly forces operating nearby.</p><p>Armored gloves replace the specialized manipulators of the base model, sacrificing debris-clearing capability for improved manual dexterity in field conditions. The suit retains its fire-resistant armor and jump jets, maintaining the mobility and thermal protection of the original design. Without sensors or salvage equipment, the Interdictor cannot perform rescue operations. It fills a niche role as a lightweight, mobile ECM platform that can accompany infantry formations into terrain too restrictive for larger electronic warfare vehicles.</p>",
+    "deployment": "<p>ComStar and Word of Blake Level I formations fielding the Interdictor configuration leveraged their six-operator strength to establish overlapping ECM coverage zones. The additional operators extended the effective disruption radius beyond what smaller formations could achieve in contested environments.</p>",
+    "history": "<p>In the late thirtieth century, a massive earthquake struck the Cloud Cobra enclave on Homer, killing over eight hundred merchant and laborer caste members and devastating a quarter of the settlement. The Warrior Council, shaken by the scale of the disaster, directed the scientist caste to develop improved emergency response tools. Working from castoff battle armor prototypes, Cloud Cobra scientists produced a compact light exoskeleton stripped down to the essentials needed for locating and extracting trapped or injured civilians.</p><p>The suit's protective capabilities expanded following a trial between Cloud Cobra and Clan Fire Mandrill scientists. Scientist Carl of the Cloud Cobras won access to fire-resistant armor technology through a magnetic belt experiment, and the material was quickly integrated into the Resgate design. The 849th Fire Response Unit validated the upgrade when the DropShip Dresden crashed on Babylon. Resgate operators pulled nearly the entire crew from the burning wreckage, losing only a single life.</p><p>During the Jihad, Cloud Cobra engineers developed four specialized variants that expanded the exoskeleton's role beyond rescue operations into electronic warfare, reconnaissance, target designation, and fire support. Production later spread to Olivetti Weaponry on Sudeten under Clan Jade Falcon control.</p>",
+    "manufacturer": "Clan Cloud Cobra|Olivetti Weapons",
+    "primaryFactory": "Homer|Sudeten"
+  }
+}

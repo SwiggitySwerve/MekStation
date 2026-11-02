@@ -1,0 +1,110 @@
+{
+  "id": "afreet-medium-battle-armor-jade-falconsqd4",
+  "chassis": "Afreet Medium Battle Armor",
+  "model": "(Jade Falcon)(Sqd4)",
+  "unitType": "BattleArmor",
+  "techBase": "CLAN",
+  "rulesLevel": "STANDARD",
+  "era": "CIVIL_WAR",
+  "year": 3072,
+  "weightClass": "MEDIUM",
+  "chassisType": "BIPED",
+  "motionType": "JUMP",
+  "movement": {
+    "groundMP": 1,
+    "jumpMP": 3,
+    "umuMP": 0,
+    "vtolMP": 0
+  },
+  "tonnage": 4,
+  "squadSize": 4,
+  "armorPerTrooper": 5,
+  "armor": {
+    "type": "FIRE_RESISTANT",
+    "perTrooper": 5,
+    "sourceTechLevel": 2
+  },
+  "manipulators": {
+    "rightArm": "BABattleClawVibro",
+    "leftArm": "BABattleClawVibro"
+  },
+  "hasAntiPersonnelMount": false,
+  "hasModularWeaponMount": false,
+  "abilities": [],
+  "equipment": [
+    {
+      "id": "clbaapgaussrifle",
+      "name": "CLBAAPGaussRifle",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "babattleclawvibro",
+      "name": "BABattleClawVibro",
+      "location": "LEFT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "babattleclawvibro",
+      "name": "BABattleClawVibro",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "bajumpbooster",
+      "name": "BAJumpBooster",
+      "location": "BODY",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-fire-resistant",
+      "name": "Clan BA Fire Resistant",
+      "location": "LEFT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-fire-resistant",
+      "name": "Clan BA Fire Resistant",
+      "location": "LEFT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-fire-resistant",
+      "name": "Clan BA Fire Resistant",
+      "location": "LEFT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-fire-resistant",
+      "name": "Clan BA Fire Resistant",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-fire-resistant",
+      "name": "Clan BA Fire Resistant",
+      "location": "BODY",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "bajumpjet",
+      "name": "BAJumpJet",
+      "location": "NONE",
+      "unitLocation": "NONE"
+    }
+  ],
+  "clanChassis": true,
+  "isExoskeleton": false,
+  "clanExoWithoutHarJel": false,
+  "mulId": 3678,
+  "role": "Scout",
+  "source": "TR:3075",
+  "fluff": {
+    "overview": "<p>The Afreet is a medium-weight Clan battle armor suit designed by Clan Ice Hellion. Born from the merger of two separate development programs, the suit embodies the Ice Hellion conviction that speed conquers all. The Afreet ranks among the fastest Clan-designed battle armor available, prioritizing mobility and agility over heavy protection. Its light armor and modest armament define it as a raider and scout rather than a frontline assault platform. Once exclusive to the Ice Hellions, the design entered service with several other Clans, each fielding modified configurations tailored to their own tactical doctrines.</p>",
+    "capabilities": "<p>The Jade Falcon configuration replaces the base model's recoilless rifle and improved sensors with an AP Gauss Rifle and fire-resistant armor plating. The AP Gauss Rifle delivers superior lethality against infantry and lightly armored targets, giving Falcon Elementals a sharper edge in direct engagements. Fire-resistant armor provides meaningful protection against flamers and inferno munitions, a practical upgrade given the prevalence of such weapons in Inner Sphere defensive positions. The loss of improved sensors reduces the suit's reconnaissance value, shifting its role from scout toward a more aggressive combatant profile.</p><p>Jump capability and vibro-claws carry over unchanged from the base chassis, preserving the Afreet's speed advantage and close-quarters lethality. The trade-off favors survivability and firepower over situational awareness, reflecting the Jade Falcon preference for decisive action over cautious observation.</p>",
+    "deployment": "<p>Inner Sphere forces encountering the Jade Falcon Afreet organized captured suits into four-trooper squads. The fire-resistant armor and AP Gauss Rifle combination proved effective even in smaller formations, though IS commanders struggled to maintain the suits without access to Clan-grade replacement parts.</p>",
+    "history": "<p>Khan Raina Montose of Clan Ice Hellion ordered her scientists to develop new battle armor as part of a broader effort to restore Clan morale. Two separate projects were already underway: one pursuing high-speed reconnaissance with VTOL capability, the other focused on anti-infantry combat. Neither fully satisfied the Khan, so she directed both teams to merge their efforts into a single design. The collaboration proved contentious, with rival staffs resorting to heated debate and, on occasion, Circles of Equals to resolve disagreements. The finished Afreet earned Khan Montose's immediate approval when both teams presented it just before her deadline.</p><p>The Ice Hellions guarded their new suit with great zeal, going to considerable lengths to keep it out of rival hands. This exclusivity held until Clan Jade Falcon acquired Afreet suits through unknown channels, confirmed when Falcon Elementals wearing the armor appeared alongside a delegation on Arc-Royal. Following the Ice Hellion invasion of the Inner Sphere, both the Jade Falcons and Clan Hell's Horses captured large quantities during fighting across the Occupation Zones. Both Clans modified the design extensively to match their own tactical requirements. The Jade Falcons began production at Olivetti Weapons on Sudeten, while the Hell's Horses were believed to have established their own manufacturing lines.</p>",
+    "manufacturer": "Olivetti Weapons",
+    "primaryFactory": "Sudeten"
+  }
+}
