@@ -1,4 +1,6 @@
 import { CapitalArc } from '@/types/unit/CapitalShipInterfaces';
+import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
+import { contractUnitToBVUnit } from '@/utils/construction/contractBVUnitAdapter';
 
 import { resolveDropShipMountBV } from '../dropShipMountBV';
 import { calculateLargeAerospaceFirePool } from '../largeAerospaceFirePool';
@@ -33,6 +35,30 @@ describe('DropShip raw mount valuation (MegaMek 48fcb2f64)', () => {
         (equipmentId) => ({ equipmentId, location: 'AFT' }),
       ),
     );
+    const complete = calculateBattleValueForUnit(
+      contractUnitToBVUnit({
+        id: 'union-2708',
+        unitType: 'DropShip',
+        tonnage: 3600,
+        structuralIntegrity: 11,
+        movement: { safeThrust: 3, maxThrust: 5 },
+        heatSinks: { type: 'SINGLE', count: 90 },
+        armor: {
+          type: 'AEROSPACE',
+          byArc: { NOSE: 180, LEFT_SIDE: 180, RIGHT_SIDE: 180, AFT: 104 },
+        },
+        equipment: mounts.map((m) => ({
+          id: m.equipmentId,
+          location: m.location,
+        })),
+      }),
+    );
+    expect(complete?.breakdown).toMatchObject({
+      calculationScope: 'complete',
+      defensive: 1632,
+      offensive: 2339.75,
+      final: 3972,
+    });
     const result = resolveDropShipMountBV(mounts);
     expect(result.unresolved).toEqual([]);
     expect(

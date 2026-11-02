@@ -1,3 +1,5 @@
+import type { HeatSinkType } from '@/types/construction/HeatSinkType';
+
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import { calculateAerospaceDefensiveBV } from './aerospaceBVCalculator';
@@ -9,6 +11,9 @@ export interface IDropShipBVUnit {
   readonly structuralIntegrity: number;
   readonly totalArmorPoints: number;
   readonly armorType?: string | number;
+  readonly maxThrust?: number;
+  readonly heatSinks?: { readonly type: HeatSinkType; readonly count: number };
+  readonly cockpit?: string;
   readonly equipment?: readonly {
     readonly equipmentId: string;
     readonly location?: string;
@@ -25,8 +30,8 @@ export type IDropShipDefensiveBVBreakdown = ReturnType<
 };
 
 /**
- * Size-capped defensive slice of DropShip -> LargeAero -> Aero BV.
- * Unported offensive/final stages stay unavailable, never a defense-only total.
+ * Defensive component of DropShip -> LargeAero -> Aero BV.
+ * Complete composition lives in dropShipComplete.ts.
  * @spec establish-all-unit-data-parity: DropShip defensive BV dispatch
  */
 export function calculateDropShipDefensiveBV(
