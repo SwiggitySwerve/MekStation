@@ -15,7 +15,13 @@ export function createVehicleSession(
     secondaryTurret: configuration.secondaryTurret
       ? { ...configuration.secondaryTurret }
       : null,
-    equipment: configuration.equipment.map((item) => ({ ...item })),
+    equipment: configuration.equipment.map((item) => ({
+      ...item,
+      id: `${identity.id}-${item.id}`,
+      ...(item.resolutionWarning
+        ? { resolutionWarning: { ...item.resolutionWarning } }
+        : {}),
+    })),
     id: identity.id,
     createdAt: identity.createdAt,
     lastModifiedAt: identity.createdAt,

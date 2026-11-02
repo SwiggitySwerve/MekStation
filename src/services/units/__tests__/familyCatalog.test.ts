@@ -197,13 +197,17 @@ it('UL-10 loads every fixture definition without creating non-mech stores', asyn
           await browser.getById(entry.id, { family }),
         ),
       });
+      const store = { vehicles: 'vehicle', aerospace: 'aerospace' }[
+        family as string
+      ];
       if (family !== 'battlemechs') {
         expect(
           await loader.loadUnit(entry.id, 'canonical', family),
-        ).toMatchObject({
-          success: false,
-          errorCode: 'unsupported-store-family',
-        });
+        ).toMatchObject(
+          store
+            ? { success: true, familyState: { store } }
+            : { success: false, errorCode: 'unsupported-store-family' },
+        );
       }
     }
   }
@@ -232,7 +236,7 @@ it('UL-10 distinguishes unknown families, missing family catalogs and missing id
   });
 });
 
-it('UL-10 distinguishes a vehicle definition from its unavailable store mapper', async () => {
+it('UL-13 maps a vehicle definition to vehicle editor state', async () => {
   const [entry] = await browser.getIndex({ family: 'vehicles', strict: true });
   const vehicle = await browser.getById(entry.id, {
     family: 'vehicles',
@@ -241,7 +245,11 @@ it('UL-10 distinguishes a vehicle definition from its unavailable store mapper',
   jest.spyOn(browser, 'getById').mockResolvedValue(vehicle);
   expect(
     await new UnitLoaderService().loadCanonicalUnit(entry.id, 'vehicles'),
-  ).toMatchObject({ success: false, errorCode: 'unsupported-store-family' });
+  ).toMatchObject({
+    success: true,
+    familyState: { store: 'vehicle', state: { chassis: entry.chassis } },
+    sourceDefinition: { family: 'vehicles', id: entry.id },
+  });
 });
 
 it('loads a family-qualified custom definition without requiring a canonical catalog', async () => {
@@ -267,7 +275,7 @@ it('loads a family-qualified custom definition without requiring a canonical cat
   });
   expect(
     await new UnitLoaderService().loadCustomUnit('saved-vehicle', 'vehicles'),
-  ).toMatchObject({ success: false, errorCode: 'unsupported-store-family' });
+  ).toMatchObject({ success: true, familyState: { store: 'vehicle' } });
   expect(fetchMock).not.toHaveBeenCalled();
 });
 

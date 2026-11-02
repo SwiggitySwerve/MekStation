@@ -30,6 +30,7 @@ import { customizerStyles as cs } from '../styles';
 import { DialogCloseButton } from './dialogPresentation';
 import { ModalOverlay } from './ModalOverlay';
 import {
+  isSameLibraryUnit,
   UnitSearchFilters,
   UnitTableState,
   type UnitSource,
@@ -183,7 +184,7 @@ export function UnitLoadDialog({
     setSearchQuery('');
 
     Promise.all([
-      getCanonicalUnitService().getIndex({ strict: true }),
+      getCanonicalUnitService().getIndex({ strict: true, family: 'all' }),
       customUnitApiService.list(),
     ])
       .then(([canonical, custom]) => {
@@ -236,10 +237,7 @@ export function UnitLoadDialog({
   useEffect(() => {
     if (
       selectedUnit &&
-      !filteredUnits.some(
-        (unit) =>
-          unit.id === selectedUnit.id && unit.source === selectedUnit.source,
-      )
+      !filteredUnits.some((unit) => isSameLibraryUnit(unit, selectedUnit))
     ) {
       setSelectedUnit(null);
       onSelectionChange?.();
@@ -248,10 +246,7 @@ export function UnitLoadDialog({
 
   const handleSelection = useCallback(
     (unit: UnitWithSource) => {
-      if (
-        unit.id !== selectedUnit?.id ||
-        unit.source !== selectedUnit?.source
-      ) {
+      if (!isSameLibraryUnit(unit, selectedUnit)) {
         onSelectionChange?.();
       }
       setSelectedUnit(unit);

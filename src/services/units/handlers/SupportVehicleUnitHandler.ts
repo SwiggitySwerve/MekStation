@@ -41,7 +41,10 @@ import {
   computeFlankMP,
   computeStoredVehicleEngineRating,
 } from '@/utils/construction/vehicle/engine';
-import { getPrimaryVehicleTurretConfiguration } from '@/utils/construction/vehicle/equipmentMounts';
+import {
+  getPrimaryVehicleTurretConfiguration,
+  getVehicleMountFlags,
+} from '@/utils/construction/vehicle/equipmentMounts';
 
 import {
   AbstractUnitTypeHandler,
@@ -321,7 +324,6 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
       document.equipmentByLocation,
     )) {
       const location = this.normalizeLocation(locationKey);
-      const isTurretMounted = locationKey.toLowerCase().includes('turret');
 
       for (const item of items) {
         equipment.push({
@@ -329,9 +331,11 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
           equipmentId: item,
           name: item,
           location,
-          isRearMounted: false,
-          isTurretMounted,
-          isSponsonMounted: false,
+          ...getVehicleMountFlags(
+            locationKey,
+            item,
+            document.motionType?.toLowerCase() === 'vtol',
+          ),
         });
       }
     }
