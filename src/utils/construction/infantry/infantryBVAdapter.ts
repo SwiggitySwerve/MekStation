@@ -33,12 +33,11 @@ import {
   InfantryFieldGunMount,
   InfantryWeaponRef,
 } from './infantryBV';
+import { infantryBVArmorFlags } from './infantryBVFactors';
 import { totalTroopers } from './platoonComposition';
 import { findWeaponById, INFANTRY_WEAPON_TABLE } from './weaponTable';
 
-// =============================================================================
 // Store-shape contract
-// =============================================================================
 
 /**
  * Minimal subset of the infantry store state required to compute BV.
@@ -48,6 +47,8 @@ import { findWeaponById, INFANTRY_WEAPON_TABLE } from './weaponTable';
  * dependency. Any state that conforms to this shape can feed the calculator.
  */
 export interface InfantryStateLike {
+  hasArmorKit?: boolean;
+  bvArmorFlags?: IInfantry['bvArmorFlags'];
   bvOffense?: IInfantry['bvOffense'];
   /** Effective incoming protection from the source boundary, when available. */
   damageDivisor?: number;
@@ -74,9 +75,7 @@ export interface InfantryStateLike {
   fieldGuns: readonly IInfantryFieldGun[];
 }
 
-// =============================================================================
 // Primary weapon resolution
-// =============================================================================
 
 /**
  * Resolve a trooper weapon spec by id or name.
@@ -137,9 +136,7 @@ function findWeaponTableEntryByName(
   );
 }
 
-// =============================================================================
 // Field gun ammo synthesis
-// =============================================================================
 
 /**
  * Infer the ammo id for a field gun.
@@ -207,9 +204,7 @@ function adaptFieldGuns(
   });
 }
 
-// =============================================================================
 // Main adapter
-// =============================================================================
 
 /**
  * Compute the infantry BV breakdown from a store-shaped state.
@@ -248,6 +243,8 @@ export function computeInfantryBVFromState(
   }
 
   const input: InfantryBVInput = {
+    armorFlags: state.bvArmorFlags,
+    hasArmorKit: state.hasArmorKit,
     sourceOffense: state.bvOffense,
     damageDivisor: state.damageDivisor,
     hasPheromoneEffuser: state.hasPheromoneEffuser,
@@ -269,9 +266,7 @@ export function computeInfantryBVFromState(
   return calculateInfantryBV(input);
 }
 
-// =============================================================================
 // IInfantry (handler-shape) adapter
-// =============================================================================
 
 /**
  * Map a handler-layer `SquadMotionType` to the BV-layer `InfantryMotive`.
@@ -342,6 +337,8 @@ export function calculateInfantryBVFromUnit(
   }));
 
   const state: InfantryStateLike = {
+    bvArmorFlags: unit.bvArmorFlags,
+    hasArmorKit: unit.hasArmorKit,
     bvOffense: unit.bvOffense,
     damageDivisor: unit.damageDivisor,
     hasPheromoneEffuser: unit.hasPheromoneEffuser,
@@ -422,6 +419,8 @@ export function resolveInfantryProtection(tags: SourceTags): {
   damageDivisor: number;
   hasPheromoneEffuser: boolean;
   isArmorEncumbering: boolean;
+  hasArmorKit: boolean;
+  bvArmorFlags: readonly string[];
 } {
   const custom = Number(tags.armordivisor ?? tags.InfantryArmor ?? 1);
   if (!Number.isFinite(custom) || custom <= 0)
@@ -477,6 +476,8 @@ export function resolveInfantryProtection(tags: SourceTags): {
   }
   return {
     damageDivisor: divisor,
+    hasArmorKit: kitName !== undefined,
+    bvArmorFlags: infantryBVArmorFlags(tags, kitName),
     hasPheromoneEffuser: augmentations.includes('gas_effuser_pheromone'),
     isArmorEncumbering: kitName
       ? ENCUMBERING_KITS.has(kitName.toLowerCase())
