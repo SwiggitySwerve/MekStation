@@ -320,3 +320,38 @@ it.each([
     expect((error as Error).message).toBe(message);
   },
 );
+
+it('maps independent normalized Omni allowances without changing installed geometry', () => {
+  const row = fixtures.rows.find((entry) => entry.kind === 'dual turret');
+  if (!row) throw new Error('missing pinned dual-turret fixture');
+  const state = mapToVehicleState({
+    ...row.definition,
+    isOmni: true,
+    baseChassisTurretWeight: 0.5,
+    baseChassisTurret2Weight: 0,
+  });
+  expect(state).toMatchObject({
+    isOmni: true,
+    baseChassisTurretWeight: 0.5,
+    baseChassisSecondaryTurretWeight: 0,
+  });
+  expect(state.turret?.type).toBe(TurretType.DUAL);
+  expect(state.secondaryTurret).not.toBeNull();
+});
+
+it('does not materialize a normalized VTOL secondary allowance', () => {
+  const row = fixtures.rows.find((entry) => entry.kind === 'VTOL chin');
+  if (!row) throw new Error('missing pinned VTOL fixture');
+  const state = mapToVehicleState({
+    ...row.definition,
+    isOmni: true,
+    baseChassisTurretWeight: 0,
+    baseChassisTurret2Weight: 5,
+  });
+  expect(state).toMatchObject({
+    isOmni: true,
+    baseChassisTurretWeight: 0,
+    baseChassisSecondaryTurretWeight: undefined,
+    secondaryTurret: null,
+  });
+});
