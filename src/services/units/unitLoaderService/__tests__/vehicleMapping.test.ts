@@ -1,3 +1,6 @@
+import * as fs from 'fs';
+import * as path from 'path';
+
 import type { VehicleStore } from '@/stores/vehicleState';
 
 import { exportVehicle } from '@/services/conversion/BlkExportServiceCore.exporters';
@@ -6,6 +9,7 @@ import { SupportVehicleUnitHandler } from '@/services/units/handlers/SupportVehi
 import { VehicleUnitHandler } from '@/services/units/handlers/VehicleUnitHandler';
 import { VTOLUnitHandler } from '@/services/units/handlers/VTOLUnitHandler';
 import { createVehicleStore } from '@/stores/useVehicleStore';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { VehicleOnlyEngineType } from '@/types/construction/EngineType';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
@@ -234,3 +238,85 @@ it('rejects another family, missing movement, and unknown armor locations', () =
   ])
     expect(() => mapToVehicleState(invalid)).toThrow();
 });
+
+// MegaMek 48fcb2f6 getWeightArmor from the UL-16 coord-r3 oracle. Points per
+// ton are 16 x pptMultiplier (ArmorType.java:301-303): Ferro-Lamellor 0.875
+// (ArmorType.java:1043), Ballistic-Reinforced 0.75 (ArmorType.java:1163).
+const JAVA_ARMOR_TONS: Readonly<Record<string, [ArmorTypeEnum, number]>> = {
+  'aithon-assault-transport': [ArmorTypeEnum.FERRO_LAMELLOR, 12.5],
+  'chalchiuhtotolin-support-tank-xl': [ArmorTypeEnum.FERRO_LAMELLOR, 9],
+  'eurus-mbt-a': [ArmorTypeEnum.FERRO_LAMELLOR, 11.5],
+  'eurus-mbt-b': [ArmorTypeEnum.FERRO_LAMELLOR, 11.5],
+  'eurus-mbt-c': [ArmorTypeEnum.FERRO_LAMELLOR, 11.5],
+  'eurus-mbt-d': [ArmorTypeEnum.FERRO_LAMELLOR, 11.5],
+  'eurus-mbt-prime': [ArmorTypeEnum.FERRO_LAMELLOR, 11.5],
+  'gurzil-support-tank': [ArmorTypeEnum.FERRO_LAMELLOR, 12.5],
+  'behemoth-heavy-tank-kurita-upgrade': [
+    ArmorTypeEnum.BALLISTIC_REINFORCED,
+    17,
+  ],
+  'demolisher-heavy-tank-reinforced': [
+    ArmorTypeEnum.BALLISTIC_REINFORCED,
+    15.5,
+  ],
+  'sm-tank-destroyer-sm1b': [ArmorTypeEnum.BALLISTIC_REINFORCED, 8],
+  'sm5-field-commander-prime': [ArmorTypeEnum.BALLISTIC_REINFORCED, 8],
+};
+
+it('maps every committed Ferro-Lamellor and Ballistic-Reinforced vehicle with Java armor weight', () => {
+  const directory = path.join(process.cwd(), 'public/data/units/vehicles');
+  const index = JSON.parse(
+    fs.readFileSync(path.join(directory, 'index.json'), 'utf8'),
+  ) as { units: { id: string; path: string }[] };
+  const mapped: Record<string, [ArmorTypeEnum, number]> = {};
+  for (const row of index.units) {
+    const definition = JSON.parse(
+      fs.readFileSync(path.join(directory, row.path), 'utf8'),
+    );
+    if (
+      ['FERRO_LAMELLOR', 'BALLISTIC_REINFORCED'].includes(
+        definition.armor?.type,
+      )
+    ) {
+      const state = normalizeVehicleConfiguration(definition);
+      mapped[row.id] = [state.armorType, state.armorTonnage];
+    }
+  }
+  expect(mapped).toEqual(JAVA_ARMOR_TONS);
+});
+
+it.each([
+  [
+    'armor',
+    { armor: { type: 'HEAVY_INDUSTRIAL', byLocation: { FRONT: 1 } } },
+    'The vehicle editor cannot open vehicles with heavy industrial armor yet.',
+  ],
+  [
+    'motion',
+    { motionType: 'Aerodyne' },
+    'The vehicle editor cannot open vehicles with aerodyne motion yet.',
+  ],
+  [
+    'engine',
+    { engine: { type: 'FLYWHEEL', rating: 100 } },
+    'The vehicle editor cannot open vehicles with flywheel engines yet.',
+  ],
+  [
+    'unit type',
+    { unitType: 'Aerospace' },
+    'The vehicle editor cannot open Aerospace units.',
+  ],
+] as const)(
+  'explains an unsupported %s in plain words',
+  (_label, change, message) => {
+    const error = (() => {
+      try {
+        mapToVehicleState({ ...supported[0].definition, ...change });
+      } catch (caught) {
+        return caught;
+      }
+    })();
+    expect(error).toBeInstanceOf(UnsupportedVehicleConfigurationError);
+    expect((error as Error).message).toBe(message);
+  },
+);
