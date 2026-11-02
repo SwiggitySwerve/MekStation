@@ -1,0 +1,1420 @@
+{
+  "pins": {
+    "megamek": "48fcb2f64a1b3f2d575707ce5653dad64927b587",
+    "mmData": "50f7efef0c9f775b0258f8283525ed4f906e1985"
+  },
+  "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+  "rows": [
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 189.0,
+          "baseBV": 189.17600000000002,
+          "defensiveValue": 25.6,
+          "offensiveValue": 10.780000000000001,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.BattleArmorBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 189
+      },
+      "chassis": "Achileus Light Battle Armor",
+      "concreteFamily": "BattleArmor",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestBattleArmor",
+        "weightMethods": {
+          "calculateWeight": 2.56,
+          "calculateWeightExact": 2.56,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 3.0,
+          "getWeightAllocatedArmor": 1.5,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 0.36,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightChassis": 0.1,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 0.0,
+          "getWeightGroundMP": 0.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.005,
+          "getWeightPowerAmp": 0.0,
+          "getWeightSecondaryMotiveSystem": 0.07500000000000001,
+          "getWeightStructure": 0.17500000000000002,
+          "getWeightTurret": 0.0,
+          "getWeightWeapon": 0.10400000000000001
+        }
+      },
+      "entityClass": "megamek.common.battleArmor.BattleArmor",
+      "failedEquipment": [],
+      "familyFacts": {
+        "antiMek": true,
+        "bvJumpMP": 3,
+        "bvRunMP": 1,
+        "bvWalkMP": 1,
+        "camoSystem": false,
+        "fireResistant": false,
+        "mimetic": false,
+        "originalJumpMP": 3,
+        "reactive": false,
+        "reflective": false,
+        "shootingStrength": 4,
+        "squadCount": 1,
+        "squadSize": 4,
+        "stealth": true,
+        "stealthName": "BA Stealth (Improved)"
+      },
+      "locations": [
+        {
+          "armorType": 33,
+          "barRating": 10,
+          "index": 0,
+          "name": "Squad",
+          "originalArmor": -1,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 33,
+          "barRating": 10,
+          "index": 1,
+          "name": "Trooper 1",
+          "originalArmor": 6,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 33,
+          "barRating": 10,
+          "index": 2,
+          "name": "Trooper 2",
+          "originalArmor": 6,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 33,
+          "barRating": 10,
+          "index": 3,
+          "name": "Trooper 3",
+          "originalArmor": 6,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 33,
+          "barRating": 10,
+          "index": 4,
+          "name": "Trooper 4",
+          "originalArmor": 6,
+          "originalInternal": 1
+        }
+      ],
+      "model": "[David](Sqd4)",
+      "mountCount": 15,
+      "movementMode": "Jump Infantry",
+      "originalWalkMP": 1,
+      "path": "battlearmor/3058Uu/Achileus BA (Sqd 4) [David].blk",
+      "sha256": "15c04915ccd68cf444a4b01a9b46b3889be1743a64aacd8226ade7d91b09c85f",
+      "status": "loaded",
+      "tonnage": 4.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 348.0,
+          "baseBV": 347.56800000000004,
+          "defensiveValue": 47.400000000000006,
+          "offensiveValue": 19.44,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.BattleArmorBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 348
+      },
+      "chassis": "Black Wolf Battle Armor",
+      "concreteFamily": "BattleArmor",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestBattleArmor",
+        "weightMethods": {
+          "calculateWeight": 5.92,
+          "calculateWeightExact": 5.92,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 6.0,
+          "getWeightAllocatedArmor": 3.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 0.385,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightChassis": 0.4,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 0.0,
+          "getWeightGroundMP": 0.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.02,
+          "getWeightPowerAmp": 0.0,
+          "getWeightSecondaryMotiveSystem": 0.125,
+          "getWeightStructure": 0.525,
+          "getWeightTurret": 0.0,
+          "getWeightWeapon": 0.55
+        }
+      },
+      "entityClass": "megamek.common.battleArmor.BattleArmor",
+      "failedEquipment": [],
+      "familyFacts": {
+        "antiMek": false,
+        "bvJumpMP": 1,
+        "bvRunMP": 1,
+        "bvWalkMP": 1,
+        "camoSystem": false,
+        "fireResistant": false,
+        "mimetic": false,
+        "originalJumpMP": 1,
+        "reactive": true,
+        "reflective": false,
+        "shootingStrength": 4,
+        "squadCount": 1,
+        "squadSize": 4,
+        "stealth": false,
+        "stealthName": null
+      },
+      "locations": [
+        {
+          "armorType": 38,
+          "barRating": 10,
+          "index": 0,
+          "name": "Point",
+          "originalArmor": -1,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 38,
+          "barRating": 10,
+          "index": 1,
+          "name": "Trooper 1",
+          "originalArmor": 11,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 38,
+          "barRating": 10,
+          "index": 2,
+          "name": "Trooper 2",
+          "originalArmor": 11,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 38,
+          "barRating": 10,
+          "index": 3,
+          "name": "Trooper 3",
+          "originalArmor": 11,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 38,
+          "barRating": 10,
+          "index": 4,
+          "name": "Trooper 4",
+          "originalArmor": 11,
+          "originalInternal": 1
+        }
+      ],
+      "model": "[ERSPL](Sqd4)",
+      "mountCount": 10,
+      "movementMode": "Jump Infantry",
+      "originalWalkMP": 1,
+      "path": "battlearmor/3145/Clans/Black Wolf BA (ER Pulse) (Sqd4).blk",
+      "sha256": "bdfb38dbfe6133d1eed740c9264805a102c09933a8051fa9634e37a3f321b716",
+      "status": "loaded",
+      "tonnage": 4.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 569.0,
+          "baseBV": 569.3922,
+          "defensiveValue": 28.200000000000003,
+          "offensiveValue": 35.0658,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.BattleArmorBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 569
+      },
+      "chassis": "Gray Death Strike Suit",
+      "concreteFamily": "BattleArmor",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestBattleArmor",
+        "weightMethods": {
+          "calculateWeight": 5.91,
+          "calculateWeightExact": 5.91,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 6.0,
+          "getWeightAllocatedArmor": 3.5,
+          "getWeightAmmo": 1.0,
+          "getWeightArmor": 0.45,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightChassis": 0.175,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 0.0,
+          "getWeightGroundMP": 0.08,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.034999999999999996,
+          "getWeightPowerAmp": 0.0,
+          "getWeightSecondaryMotiveSystem": 0.0,
+          "getWeightStructure": 0.255,
+          "getWeightTurret": 0.0,
+          "getWeightWeapon": 0.159
+        }
+      },
+      "entityClass": "megamek.common.battleArmor.BattleArmor",
+      "failedEquipment": [],
+      "familyFacts": {
+        "antiMek": false,
+        "bvJumpMP": 0,
+        "bvRunMP": 3,
+        "bvWalkMP": 3,
+        "camoSystem": false,
+        "fireResistant": false,
+        "mimetic": false,
+        "originalJumpMP": 0,
+        "reactive": false,
+        "reflective": false,
+        "shootingStrength": 6,
+        "squadCount": 1,
+        "squadSize": 6,
+        "stealth": false,
+        "stealthName": null
+      },
+      "locations": [
+        {
+          "armorType": 28,
+          "barRating": 10,
+          "index": 0,
+          "name": "Squad",
+          "originalArmor": -1,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 28,
+          "barRating": 10,
+          "index": 1,
+          "name": "Trooper 1",
+          "originalArmor": 9,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 28,
+          "barRating": 10,
+          "index": 2,
+          "name": "Trooper 2",
+          "originalArmor": 9,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 28,
+          "barRating": 10,
+          "index": 3,
+          "name": "Trooper 3",
+          "originalArmor": 9,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 28,
+          "barRating": 10,
+          "index": 4,
+          "name": "Trooper 4",
+          "originalArmor": 9,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 28,
+          "barRating": 10,
+          "index": 5,
+          "name": "Trooper 5",
+          "originalArmor": 9,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 28,
+          "barRating": 10,
+          "index": 6,
+          "name": "Trooper 6",
+          "originalArmor": 9,
+          "originalInternal": 1
+        }
+      ],
+      "model": "(Prototype)(Sqd6)",
+      "mountCount": 11,
+      "movementMode": "Foot Infantry",
+      "originalWalkMP": 3,
+      "path": "battlearmor/XTRs/Steiner/Gray Death SA Prototype (Sqd6).blk",
+      "sha256": "7b80e77953a3f479517402090eef49b43373e3cdde830e05666959a6829903fd",
+      "status": "loaded",
+      "tonnage": 6.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 70.0,
+          "baseBV": 70.0832,
+          "defensiveValue": 66.0,
+          "offensiveValue": 4.0832,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.InfantryBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 70
+      },
+      "chassis": "Clan Anti-Infantry",
+      "concreteFamily": "ConvInfantry",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestInfantry",
+        "weightMethods": {
+          "calculateWeight": 20.0,
+          "calculateWeightExact": 20.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 20.0,
+          "getWeightAllocatedArmor": 0.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 0.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 0.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.0,
+          "getWeightWeapon": 0.0015
+        }
+      },
+      "entityClass": "megamek.common.units.ConvInfantry",
+      "failedEquipment": [],
+      "familyFacts": {
+        "antiMek": false,
+        "bvJumpMP": 0,
+        "bvRunMP": 4,
+        "bvWalkMP": 4,
+        "damageDivisor": 2.0,
+        "dest": false,
+        "originalJumpMP": 0,
+        "primaryWeapon": "Shotgun (Avenger CCW)",
+        "secondaryWeapon": "Tranq Gun",
+        "secondaryWeaponsPerSquad": 2,
+        "shootingStrength": 20,
+        "sneakCamo": false,
+        "sneakECM": false,
+        "sneakIR": false,
+        "specializations": 0,
+        "squadCount": 4,
+        "squadSize": 5
+      },
+      "locations": [
+        {
+          "armorType": -1,
+          "barRating": 10,
+          "index": 0,
+          "name": "Troopers",
+          "originalArmor": 0,
+          "originalInternal": 20
+        },
+        {
+          "armorType": -1,
+          "barRating": 10,
+          "index": 1,
+          "name": "Field Guns",
+          "originalArmor": 0,
+          "originalInternal": 0
+        }
+      ],
+      "model": "Clan Jade Falcon Police",
+      "mountCount": 2,
+      "movementMode": "Wheeled",
+      "originalWalkMP": 4,
+      "path": "infantry/3085/Clan/Clan Anti-Infantry Clan Jade Falcon Police.blk",
+      "sha256": "abf0436a98f9e81a2f9db2004bfcc4cfbe0a4b6f447b5ab1fd76ca19831573f5",
+      "status": "loaded",
+      "tonnage": 20.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 65.0,
+          "baseBV": 64.6,
+          "defensiveValue": 36.0,
+          "offensiveValue": 28.599999999999998,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.InfantryBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 65
+      },
+      "chassis": "Clan Mechanized Hover Point",
+      "concreteFamily": "ConvInfantry",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestInfantry",
+        "weightMethods": {
+          "calculateWeight": 20.0,
+          "calculateWeightExact": 20.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 20.0,
+          "getWeightAllocatedArmor": 0.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 0.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 0.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.0,
+          "getWeightWeapon": 0.005
+        }
+      },
+      "entityClass": "megamek.common.units.ConvInfantry",
+      "failedEquipment": [],
+      "familyFacts": {
+        "antiMek": false,
+        "bvJumpMP": 0,
+        "bvRunMP": 5,
+        "bvWalkMP": 5,
+        "damageDivisor": 1.0,
+        "dest": false,
+        "originalJumpMP": 0,
+        "primaryWeapon": "Laser Rifle",
+        "secondaryWeapon": null,
+        "secondaryWeaponsPerSquad": 0,
+        "shootingStrength": 20,
+        "sneakCamo": false,
+        "sneakECM": false,
+        "sneakIR": false,
+        "specializations": 0,
+        "squadCount": 4,
+        "squadSize": 5
+      },
+      "locations": [
+        {
+          "armorType": -1,
+          "barRating": 10,
+          "index": 0,
+          "name": "Troopers",
+          "originalArmor": 0,
+          "originalInternal": 20
+        },
+        {
+          "armorType": -1,
+          "barRating": 10,
+          "index": 1,
+          "name": "Field Guns",
+          "originalArmor": 0,
+          "originalInternal": 0
+        }
+      ],
+      "model": "(Laser Basic)",
+      "mountCount": 2,
+      "movementMode": "Hover",
+      "originalWalkMP": 5,
+      "path": "infantry/Clan/Clan Mechanized Hover Point (Laser Basic).blk",
+      "sha256": "cef67d6421841bcba57d4ee056a0537e16fd076505d3a054c8b99798deb62233",
+      "status": "loaded",
+      "tonnage": 20.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 117.0,
+          "baseBV": 117.30600000000001,
+          "defensiveValue": 45.0,
+          "offensiveValue": 72.30600000000001,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.InfantryBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 117
+      },
+      "chassis": "Motorized Platoon (Taurian 3047+)",
+      "concreteFamily": "ConvInfantry",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestInfantry",
+        "weightMethods": {
+          "calculateWeight": 6.5,
+          "calculateWeightExact": 6.300000000000001,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 6.5,
+          "getWeightAllocatedArmor": 0.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 0.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 0.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.015,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.0,
+          "getWeightWeapon": 0.02
+        }
+      },
+      "entityClass": "megamek.common.units.ConvInfantry",
+      "failedEquipment": [],
+      "familyFacts": {
+        "antiMek": true,
+        "bvJumpMP": 0,
+        "bvRunMP": 2,
+        "bvWalkMP": 2,
+        "damageDivisor": 1.0,
+        "dest": false,
+        "originalJumpMP": 0,
+        "primaryWeapon": "InfantryAssaultRifle",
+        "secondaryWeapon": "InfantryHeavySRM",
+        "secondaryWeaponsPerSquad": 2,
+        "shootingStrength": 30,
+        "sneakCamo": false,
+        "sneakECM": false,
+        "sneakIR": false,
+        "specializations": 0,
+        "squadCount": 3,
+        "squadSize": 10
+      },
+      "locations": [
+        {
+          "armorType": -1,
+          "barRating": 10,
+          "index": 0,
+          "name": "Troopers",
+          "originalArmor": 0,
+          "originalInternal": 30
+        },
+        {
+          "armorType": -1,
+          "barRating": 10,
+          "index": 1,
+          "name": "Field Guns",
+          "originalArmor": 0,
+          "originalInternal": 0
+        }
+      ],
+      "model": "(SRM)",
+      "mountCount": 6,
+      "movementMode": "Motorized Infantry",
+      "originalWalkMP": 3,
+      "path": "infantry/Taurian Infantry/Motorized Platoon TC 3047+ (SRM).blk",
+      "sha256": "ef785f60125914798c4e737a129aa5cc64c4bf76d1dd5cb1ff96acbebb09d244",
+      "status": "loaded",
+      "tonnage": 6.5
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 1897.0,
+          "baseBV": 1897.1,
+          "defensiveValue": 1155.6,
+          "offensiveValue": 741.5,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.MekBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 1897
+      },
+      "chassis": "Atlas",
+      "concreteFamily": "BipedMek",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestMek",
+        "weightMethods": {
+          "calculateWeight": 100.0,
+          "calculateWeightExact": 100.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 100.0,
+          "getWeightAllocatedArmor": 19.0,
+          "getWeightAmmo": 5.0,
+          "getWeightArmor": 19.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightCockpit": 3.0,
+          "getWeightControls": 6.0,
+          "getWeightEngine": 19.0,
+          "getWeightGyro": 3.0,
+          "getWeightHeatSinks": 10.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 10.0,
+          "getWeightWeapon": 31.0
+        }
+      },
+      "engine": {
+        "engineType": 1,
+        "name": "300 Fusion",
+        "ownerAwareRating": 300.0,
+        "rating": 300
+      },
+      "entityClass": "megamek.common.units.BipedMek",
+      "failedEquipment": [],
+      "familyFacts": {
+        "armoredComponentBV": 0.0,
+        "bvJumpMP": 0,
+        "bvRunMP": 5,
+        "bvWalkMP": 3,
+        "chameleonShield": false,
+        "cockpitType": 0,
+        "gyroMultiplier": 0.5,
+        "gyroType": 0,
+        "heatCapacity": 20,
+        "heatSinks": 20,
+        "industrial": false,
+        "industrialTSM": false,
+        "nullSignature": false,
+        "originalJumpMP": 0,
+        "structureType": 0,
+        "tsm": false,
+        "voidSignature": false
+      },
+      "locations": [
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 0,
+          "name": "Head",
+          "originalArmor": 9,
+          "originalInternal": 3
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 1,
+          "name": "Center Torso",
+          "originalArmor": 47,
+          "originalInternal": 31,
+          "originalRearArmor": 14
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Torso",
+          "originalArmor": 32,
+          "originalInternal": 21,
+          "originalRearArmor": 10
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 3,
+          "name": "Left Torso",
+          "originalArmor": 32,
+          "originalInternal": 21,
+          "originalRearArmor": 10
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 4,
+          "name": "Right Arm",
+          "originalArmor": 34,
+          "originalInternal": 17
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 5,
+          "name": "Left Arm",
+          "originalArmor": 34,
+          "originalInternal": 17
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 6,
+          "name": "Right Leg",
+          "originalArmor": 41,
+          "originalInternal": 21
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 7,
+          "name": "Left Leg",
+          "originalArmor": 41,
+          "originalInternal": 21
+        }
+      ],
+      "model": "AS7-D",
+      "mountCount": 33,
+      "movementMode": "Biped",
+      "originalWalkMP": 3,
+      "path": "meks/3039u/Atlas AS7-D.mtf",
+      "sha256": "afed270108038d93c33b2537ac1efc6c95c532ab6012eab25e6c3a266c1474cb",
+      "status": "loaded",
+      "tonnage": 100.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 1019.0,
+          "baseBV": 1018.8000000000001,
+          "defensiveValue": 573.3000000000001,
+          "offensiveValue": 445.5,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.MekBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 1019
+      },
+      "chassis": "Scorpion",
+      "concreteFamily": "QuadMek",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestMek",
+        "weightMethods": {
+          "calculateWeight": 55.0,
+          "calculateWeightExact": 55.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 55.0,
+          "getWeightAllocatedArmor": 7.0,
+          "getWeightAmmo": 1.0,
+          "getWeightArmor": 7.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightCockpit": 3.0,
+          "getWeightControls": 7.0,
+          "getWeightEngine": 24.5,
+          "getWeightGyro": 4.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 5.5,
+          "getWeightWeapon": 10.0
+        }
+      },
+      "engine": {
+        "engineType": 1,
+        "name": "330 Fusion",
+        "ownerAwareRating": 330.0,
+        "rating": 330
+      },
+      "entityClass": "megamek.common.units.QuadMek",
+      "failedEquipment": [],
+      "familyFacts": {
+        "armoredComponentBV": 0.0,
+        "bvJumpMP": 0,
+        "bvRunMP": 9,
+        "bvWalkMP": 6,
+        "chameleonShield": false,
+        "cockpitType": 0,
+        "gyroMultiplier": 0.5,
+        "gyroType": 0,
+        "heatCapacity": 10,
+        "heatSinks": 10,
+        "industrial": false,
+        "industrialTSM": false,
+        "nullSignature": false,
+        "originalJumpMP": 0,
+        "structureType": 0,
+        "tsm": false,
+        "voidSignature": false
+      },
+      "locations": [
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 0,
+          "name": "Head",
+          "originalArmor": 8,
+          "originalInternal": 3
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 1,
+          "name": "Center Torso",
+          "originalArmor": 24,
+          "originalInternal": 18,
+          "originalRearArmor": 8
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Torso",
+          "originalArmor": 11,
+          "originalInternal": 13,
+          "originalRearArmor": 5
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 3,
+          "name": "Left Torso",
+          "originalArmor": 11,
+          "originalInternal": 13,
+          "originalRearArmor": 5
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 4,
+          "name": "Front Right Leg",
+          "originalArmor": 10,
+          "originalInternal": 13
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 5,
+          "name": "Front Left Leg",
+          "originalArmor": 10,
+          "originalInternal": 13
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 6,
+          "name": "Rear Right Leg",
+          "originalArmor": 10,
+          "originalInternal": 13
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 7,
+          "name": "Rear Left Leg",
+          "originalArmor": 10,
+          "originalInternal": 13
+        }
+      ],
+      "model": "SCP-1N",
+      "mountCount": 14,
+      "movementMode": "Quad",
+      "originalWalkMP": 6,
+      "path": "meks/3039u/Scorpion SCP-1N.mtf",
+      "sha256": "53780b2d4fa31e7f44c23be6476e2d92823f234d6afc68ef7d4600e10314988c",
+      "status": "loaded",
+      "tonnage": 55.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 3247.0,
+          "baseBV": 3247.02125,
+          "defensiveValue": 1712.7,
+          "offensiveValue": 1534.32125,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.MekBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 3247
+      },
+      "chassis": "Ares",
+      "concreteFamily": "TripodMek",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestMek",
+        "weightMethods": {
+          "calculateWeight": 135.0,
+          "calculateWeightExact": 135.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 135.0,
+          "getWeightAllocatedArmor": 28.5,
+          "getWeightAmmo": 6.0,
+          "getWeightArmor": 28.5,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightCockpit": 5.0,
+          "getWeightControls": 11.0,
+          "getWeightEngine": 14.5,
+          "getWeightGyro": 6.0,
+          "getWeightHeatSinks": 11.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 10.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 22.5,
+          "getWeightWeapon": 31.5
+        }
+      },
+      "engine": {
+        "engineType": 1,
+        "name": "270 Fusion",
+        "ownerAwareRating": 270.0,
+        "rating": 270
+      },
+      "entityClass": "megamek.common.units.TripodMek",
+      "failedEquipment": [],
+      "familyFacts": {
+        "armoredComponentBV": 0.0,
+        "bvJumpMP": 0,
+        "bvRunMP": 3,
+        "bvWalkMP": 2,
+        "chameleonShield": false,
+        "cockpitType": 9,
+        "gyroMultiplier": 0.5,
+        "gyroType": 5,
+        "heatCapacity": 42,
+        "heatSinks": 21,
+        "industrial": false,
+        "industrialTSM": false,
+        "nullSignature": false,
+        "originalJumpMP": 0,
+        "structureType": 6,
+        "tsm": false,
+        "voidSignature": false
+      },
+      "locations": [
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 0,
+          "name": "Head",
+          "originalArmor": 12,
+          "originalInternal": 4
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 1,
+          "name": "Center Torso",
+          "originalArmor": 60,
+          "originalInternal": 41,
+          "originalRearArmor": 22
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 2,
+          "name": "Right Torso",
+          "originalArmor": 40,
+          "originalInternal": 28,
+          "originalRearArmor": 16
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 3,
+          "name": "Left Torso",
+          "originalArmor": 40,
+          "originalInternal": 28,
+          "originalRearArmor": 16
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 4,
+          "name": "Right Arm",
+          "originalArmor": 41,
+          "originalInternal": 22
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 5,
+          "name": "Left Arm",
+          "originalArmor": 41,
+          "originalInternal": 22
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 6,
+          "name": "Right Leg",
+          "originalArmor": 56,
+          "originalInternal": 28
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 7,
+          "name": "Left Leg",
+          "originalArmor": 56,
+          "originalInternal": 28
+        },
+        {
+          "armorType": 0,
+          "barRating": 10,
+          "index": 8,
+          "name": "Center Leg",
+          "originalArmor": 56,
+          "originalInternal": 28
+        }
+      ],
+      "model": "ARS-V1 Zeus",
+      "mountCount": 54,
+      "movementMode": "Tripod",
+      "originalWalkMP": 2,
+      "path": "meks/3145/Republic/Ares ARS-V1 Zeus.mtf",
+      "sha256": "9efe9ccd8726c04344ed162badbe7d9fb4e53c1d5e8237aec0c38af66db5a0c3",
+      "status": "loaded",
+      "tonnage": 135.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 154.0,
+          "baseBV": 153.60000000000002,
+          "defensiveValue": 98.7,
+          "offensiveValue": 54.900000000000006,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.ProtoMekBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 154
+      },
+      "chassis": "Centaur",
+      "concreteFamily": "ProtoMek",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestProtoMek",
+        "weightMethods": {
+          "calculateWeight": 5.0,
+          "calculateWeightExact": 5.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 5.0,
+          "getWeightAllocatedArmor": 1.05,
+          "getWeightAmmo": 0.2,
+          "getWeightArmor": 1.05,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.5,
+          "getWeightEngine": 1.0,
+          "getWeightHeatSinks": 0.75,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.5,
+          "getWeightWeapon": 1.0
+        }
+      },
+      "engine": {
+        "engineType": 1,
+        "name": "45 Fusion",
+        "ownerAwareRating": 45.0,
+        "rating": 45
+      },
+      "entityClass": "megamek.common.units.ProtoMek",
+      "failedEquipment": [],
+      "familyFacts": {
+        "bvJumpMP": 0,
+        "bvRunMP": 9,
+        "bvWalkMP": 6,
+        "glider": false,
+        "mainGun": true,
+        "originalJumpMP": 0,
+        "quad": false
+      },
+      "locations": [
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 1,
+          "name": "Head",
+          "originalArmor": 3,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 2,
+          "name": "Torso",
+          "originalArmor": 7,
+          "originalInternal": 5
+        },
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 3,
+          "name": "Right Arm",
+          "originalArmor": 2,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 4,
+          "name": "Left Arm",
+          "originalArmor": 2,
+          "originalInternal": 1
+        },
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 5,
+          "name": "Legs",
+          "originalArmor": 4,
+          "originalInternal": 3
+        },
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 6,
+          "name": "Main Gun",
+          "originalArmor": 3,
+          "originalInternal": 1
+        }
+      ],
+      "model": "2",
+      "mountCount": 4,
+      "movementMode": "Biped",
+      "originalWalkMP": 6,
+      "path": "protomeks/3060/Centaur 2.blk",
+      "sha256": "2084acd9f401295367487f2b3c55521ac793081132beb833fc4ad28ca0acc1f1",
+      "status": "loaded",
+      "tonnage": 5.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 400.0,
+          "baseBV": 400.20000000000005,
+          "defensiveValue": 189.00000000000003,
+          "offensiveValue": 211.2,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.ProtoMekBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 400
+      },
+      "chassis": "Delphyne",
+      "concreteFamily": "ProtoMek",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestProtoMek",
+        "weightMethods": {
+          "calculateWeight": 9.0,
+          "calculateWeightExact": 9.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 9.0,
+          "getWeightAllocatedArmor": 2.1,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 2.1,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.5,
+          "getWeightEngine": 2.0,
+          "getWeightHeatSinks": 1.5,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.5,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.9,
+          "getWeightWeapon": 1.5
+        }
+      },
+      "engine": {
+        "engineType": 1,
+        "name": "75 Fusion",
+        "ownerAwareRating": 75.0,
+        "rating": 75
+      },
+      "entityClass": "megamek.common.units.ProtoMek",
+      "failedEquipment": [],
+      "familyFacts": {
+        "bvJumpMP": 5,
+        "bvRunMP": 8,
+        "bvWalkMP": 5,
+        "glider": false,
+        "mainGun": false,
+        "originalJumpMP": 5,
+        "quad": false
+      },
+      "locations": [
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 1,
+          "name": "Head",
+          "originalArmor": 6,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 2,
+          "name": "Torso",
+          "originalArmor": 18,
+          "originalInternal": 9
+        },
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 3,
+          "name": "Right Arm",
+          "originalArmor": 4,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 4,
+          "name": "Left Arm",
+          "originalArmor": 4,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 5,
+          "name": "Legs",
+          "originalArmor": 10,
+          "originalInternal": 5
+        }
+      ],
+      "model": "3",
+      "mountCount": 8,
+      "movementMode": "Biped",
+      "originalWalkMP": 5,
+      "path": "protomeks/3075/Delphyne 3.blk",
+      "sha256": "039dcf6184b0fe0333d07d471f3b7821820fb516cfc0dae02400ecbeb4c94f8b",
+      "status": "loaded",
+      "tonnage": 9.0
+    },
+    {
+      "battleValue": {
+        "aggregates": {
+          "adjustedBV": 276.0,
+          "baseBV": 275.8,
+          "defensiveValue": 187.20000000000002,
+          "offensiveValue": 88.6,
+          "tagBV": -1.0
+        },
+        "calculatorClass": "megamek.common.battleValue.ProtoMekBVCalculator",
+        "mode": "ignoreC3=true,ignoreSkill=true,ignoreTAG=true",
+        "total": 276
+      },
+      "chassis": "Minotaur",
+      "concreteFamily": "ProtoMek",
+      "construction": {
+        "diagnostics": "",
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestProtoMek",
+        "weightMethods": {
+          "calculateWeight": 9.0,
+          "calculateWeightExact": 9.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 9.0,
+          "getWeightAllocatedArmor": 2.25,
+          "getWeightAmmo": 0.6,
+          "getWeightArmor": 2.25,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.5,
+          "getWeightEngine": 1.0,
+          "getWeightHeatSinks": 1.5,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.9,
+          "getWeightWeapon": 2.25
+        }
+      },
+      "engine": {
+        "engineType": 1,
+        "name": "45 Fusion",
+        "ownerAwareRating": 45.0,
+        "rating": 45
+      },
+      "entityClass": "megamek.common.units.ProtoMek",
+      "failedEquipment": [],
+      "familyFacts": {
+        "bvJumpMP": 0,
+        "bvRunMP": 5,
+        "bvWalkMP": 3,
+        "glider": false,
+        "mainGun": true,
+        "originalJumpMP": 0,
+        "quad": false
+      },
+      "locations": [
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 0,
+          "name": "Body",
+          "originalArmor": 0,
+          "originalInternal": -1
+        },
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 1,
+          "name": "Head",
+          "originalArmor": 6,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 2,
+          "name": "Torso",
+          "originalArmor": 18,
+          "originalInternal": 9
+        },
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 3,
+          "name": "Right Arm",
+          "originalArmor": 4,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 4,
+          "name": "Left Arm",
+          "originalArmor": 4,
+          "originalInternal": 2
+        },
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 5,
+          "name": "Legs",
+          "originalArmor": 10,
+          "originalInternal": 5
+        },
+        {
+          "armorType": 42,
+          "barRating": 10,
+          "index": 6,
+          "name": "Main Gun",
+          "originalArmor": 3,
+          "originalInternal": 1
+        }
+      ],
+      "model": "XP",
+      "mountCount": 5,
+      "movementMode": "Biped",
+      "originalWalkMP": 3,
+      "path": "protomeks/XTR Clans/Minotaur-XP.blk",
+      "sha256": "25e1229a9802ea0e551044e7b6b233a2acb89212575ac0f6b34725e9390e3f6c",
+      "status": "loaded",
+      "tonnage": 9.0
+    }
+  ]
+}

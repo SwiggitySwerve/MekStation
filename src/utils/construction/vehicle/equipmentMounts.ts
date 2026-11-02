@@ -80,7 +80,7 @@ export function getPrimaryVehicleTurretType(
   return TurretType.SINGLE;
 }
 
-/** Shared imported configuration; capacity retains the existing handler rule. */
+/** Shared imported turret configuration; no capacity cap (owner ruling 5). */
 export function getPrimaryVehicleTurretConfiguration(
   source: Pick<IBlkDocument, 'tonnage' | 'equipmentByLocation'>,
   explicitType?: string,
@@ -100,7 +100,6 @@ export function getPrimaryVehicleTurretConfiguration(
   if (type === undefined) return undefined;
   return {
     type: chinTurret ? TurretType.CHIN : type,
-    maxWeight: source.tonnage * 0.1,
     currentWeight: 0,
     rotationArc: chinTurret ? 180 : 360,
   };

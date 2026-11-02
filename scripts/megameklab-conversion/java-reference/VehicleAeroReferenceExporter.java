@@ -8,18 +8,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import megamek.client.ui.clientGUI.calculationReport.TextCalculationReport;
 import megamek.common.Configuration;
+import megamek.common.MPCalculationSetting;
+import megamek.common.battleArmor.BattleArmor;
 import megamek.common.battleValue.BVCalculator;
 import megamek.common.equipment.EquipmentType;
 import megamek.common.loaders.MekFileParser;
 import megamek.common.units.Aero;
 import megamek.common.units.Entity;
+import megamek.common.units.Infantry;
+import megamek.common.units.ConvInfantry;
+import megamek.common.units.Mek;
+import megamek.common.units.ProtoMek;
 import megamek.common.verifier.TestEntity;
 
 /**
- * Pinned-MegaMek reference exporter for vehicle, aerospace and capital-ship sources.
+ * Pinned-MegaMek reference exporter for all in-scope unit families.
  * One compact JSONL row per source: BV aggregate, construction weight terms, SI, armor and engine facts.
  * Extends LoadedEntityProbe/CorpusLoadProbe (same loader entry, same BV mode, same weight-method capture).
- * Args: mekfilesRoot, listFile (one relative .blk path per line), outJsonl.
+ * Args: mekfilesRoot, listFile (one relative .blk/.mtf path per line), outJsonl.
  */
 public class VehicleAeroReferenceExporter {
     // Map.of iterates in a per-JVM order; sorted keys keep the output byte-reproducible.
@@ -85,6 +91,61 @@ public class VehicleAeroReferenceExporter {
         return construction;
     }
 
+    static Map<String, Object> familyFacts(Entity entity) {
+        Map<String, Object> facts = new LinkedHashMap<>();
+        facts.put("originalJumpMP", entity.getOriginalJumpMP());
+        facts.put("bvWalkMP", entity.getWalkMP(MPCalculationSetting.BV_CALCULATION));
+        facts.put("bvRunMP", entity.getRunMP(MPCalculationSetting.BV_CALCULATION));
+        facts.put("bvJumpMP", entity.getJumpMP(MPCalculationSetting.BV_CALCULATION));
+        if (entity instanceof Mek mek) {
+            facts.put("structureType", mek.getStructureType());
+            facts.put("cockpitType", mek.getCockpitType());
+            facts.put("gyroType", mek.getGyroType());
+            facts.put("gyroMultiplier", mek.getGyroMultiplier());
+            facts.put("armoredComponentBV", mek.getArmoredComponentBV());
+            facts.put("heatCapacity", mek.getHeatCapacity());
+            facts.put("heatSinks", mek.getNumberOfSinks());
+            facts.put("industrial", mek.isIndustrial());
+            facts.put("tsm", mek.hasTSM(true));
+            facts.put("industrialTSM", mek.hasIndustrialTSM());
+            facts.put("nullSignature", mek.hasNullSig());
+            facts.put("voidSignature", mek.hasVoidSig());
+            facts.put("chameleonShield", mek.hasChameleonShield());
+        }
+        if (entity instanceof Infantry infantry) {
+            facts.put("squadSize", infantry.getSquadSize());
+            facts.put("squadCount", infantry.getSquadCount());
+            facts.put("shootingStrength", infantry.getShootingStrength());
+            facts.put("antiMek", infantry.canMakeAntiMekAttacks());
+        }
+        if (entity instanceof BattleArmor armor) {
+            facts.put("camoSystem", armor.hasCamoSystem());
+            facts.put("stealth", armor.isStealthy());
+            facts.put("stealthName", armor.getStealthName());
+            facts.put("mimetic", armor.isMimetic());
+            facts.put("fireResistant", armor.isFireResistant());
+            facts.put("reflective", armor.isReflective());
+            facts.put("reactive", armor.isReactive());
+        }
+        if (entity instanceof ConvInfantry infantry) {
+            facts.put("damageDivisor", infantry.calcDamageDivisor());
+            facts.put("specializations", infantry.getSpecializations());
+            facts.put("secondaryWeaponsPerSquad", infantry.getSecondaryWeaponsPerSquad());
+            facts.put("primaryWeapon", infantry.getPrimaryWeapon() == null ? null : infantry.getPrimaryWeapon().getInternalName());
+            facts.put("secondaryWeapon", infantry.getSecondaryWeapon() == null ? null : infantry.getSecondaryWeapon().getInternalName());
+            facts.put("dest", infantry.hasDEST());
+            facts.put("sneakCamo", infantry.hasSneakCamo());
+            facts.put("sneakIR", infantry.hasSneakIR());
+            facts.put("sneakECM", infantry.hasSneakECM());
+        }
+        if (entity instanceof ProtoMek proto) {
+            facts.put("glider", proto.isGlider());
+            facts.put("quad", proto.isQuad());
+            facts.put("mainGun", proto.hasMainGun());
+        }
+        return facts;
+    }
+
     static Map<String, Object> battleValue(Entity entity) throws Exception {
         BVCalculator calculator = BVCalculator.getBVCalculator(entity);
         int total = calculator.calculateBV(true, true, true, new TextCalculationReport());
@@ -123,6 +184,9 @@ public class VehicleAeroReferenceExporter {
                     row.put("tonnage", entity.getWeight());
                     row.put("originalWalkMP", entity.getOriginalWalkMP());
                     row.put("movementMode", entity.getMovementMode().toString());
+                    if (entity instanceof Mek || entity instanceof Infantry || entity instanceof ProtoMek) {
+                        row.put("familyFacts", familyFacts(entity));
+                    }
                     if (entity instanceof Aero aero) {
                         row.put("structuralIntegrity", aero.getOSI());
                         row.put("originalFuel", aero.getOriginalFuel());
