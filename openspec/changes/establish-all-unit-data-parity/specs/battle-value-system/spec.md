@@ -547,8 +547,9 @@ Aerospace offensive BV SHALL use forward/rear groups for fighters, support aircr
 Nose, wing/side and Fuselage mounts form one forward BV group and Aft mounts
 form the rear group. The larger group SHALL contribute at 100%
 and the smaller at 50%; a tie SHALL keep forward at 100%. Per-arc raw values
-and the separate Fuselage subtotal SHALL remain available. This correction
-SHALL leave heat, ammo, equipment classification and speed rules unchanged.
+and the separate Fuselage subtotal SHALL remain available. Arc weighting
+SHALL preserve the independently defined heat, ammo, equipment classification
+and speed rules.
 
 #### Scenario: Primary arc contributes 100%
 
@@ -584,19 +585,45 @@ SHALL leave heat, ammo, equipment classification and speed rules unchanged.
 - **GIVEN** Sabre SB-27b-EC with four native prototype lasers of 62 BV, two per wing
 - **WHEN** those weapon facts are supplied at the catalog boundary
 - **THEN** the forward pool SHALL equal 248 BV
-- **AND** at the unchanged current speed factor 2.16, offensive BV SHALL equal 535.68
-- **AND** native offense 639.84 SHALL remain a separate max-thrust/catalog parity target
+- **AND** at the max-thrust speed factor 2.58, offensive BV SHALL equal 639.84
+- **AND** unresolved production catalog IDs SHALL remain a separate parity gap
 
 ### Requirement: Aerospace Speed Factor
 
-Aerospace speed factor SHALL use the average of Safe and Max Thrust.
+Aerospace speed factor SHALL use maximum thrust (airborne run MP) for ASF,
+conventional fighters, fixed-wing support and small craft. The existing
+max-thrust owner SHALL derive this input as `ceil(safeThrust * 1.5)`.
+The shared speed-factor owner SHALL apply
+`round(pow(1 + (maxThrust - 5) / 10, 1.2) * 100) / 100`.
+The public `avgThrust` field SHALL retain the arithmetic mean for compatibility
+without affecting speed. Defense, arc pools, ammo and pilot modifiers SHALL
+remain independent of this speed-input correction.
 
 #### Scenario: Speed factor calculation
 
 - **GIVEN** an ASF with safeThrust 5, maxThrust 8
 - **WHEN** speed factor is computed
 - **THEN** avgThrust SHALL equal 6.5
-- **AND** speed factor SHALL equal `round(pow(1 + (6.5 − 5) / 10, 1.2) × 100) / 100 = 1.18`
+- **AND** speed factor SHALL equal 1.37 using maximum thrust 8
+
+#### Scenario: Legacy maximum thrust input
+
+- **GIVEN** an ASF with safeThrust 5 and supplied maxThrust 7
+- **WHEN** speed factor is computed
+- **THEN** avgThrust SHALL equal 6 and speed factor SHALL equal 1.24
+
+#### Scenario: Sabre and conventional fighter speed
+
+- **GIVEN** Sabre safe/max thrust 11/17 and a native forward pool of 248 BV
+- **WHEN** offensive BV is computed
+- **THEN** speed factor SHALL equal 2.58 and offense SHALL equal 639.84
+- **AND** a conventional fighter with thrust 5/8 SHALL use speed factor 1.37
+
+#### Scenario: Upward-rounded and zero thrust
+
+- **GIVEN** any supported family with safe thrust 3 or 0
+- **WHEN** maximum thrust is derived and speed is computed
+- **THEN** max thrust SHALL equal 5 or 0, with speed factor 1 or 0.44 respectively
 
 ### Requirement: Vehicle Offensive BV
 

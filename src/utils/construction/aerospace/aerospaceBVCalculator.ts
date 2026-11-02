@@ -94,9 +94,9 @@ export function calculateAerospaceDefensiveBV(
 }
 
 /**
- * Compute the aerospace speed factor.
- * avgThrust = (safeThrust + maxThrust) / 2
- * sf = round(pow(1 + (avgThrust − 5) / 10, 1.2) × 100) / 100
+ * Compute speed from maximum thrust (airborne run MP), already rounded up
+ * by the thrust owner. Keep avgThrust as a compatibility-only diagnostic.
+ * Pinned AeroBVCalculator.java:183-186; BVCalculator.java:1129-1132.
  *
  * @spec battle-value-system spec: Aerospace Speed Factor
  */
@@ -105,7 +105,7 @@ export function calculateAerospaceSpeedFactor(
   maxThrust: number,
 ): { avgThrust: number; speedFactor: number } {
   const avgThrust = (safeThrust + maxThrust) / 2;
-  const speedFactor = calculateOffensiveSpeedFactorForMP(avgThrust);
+  const speedFactor = calculateOffensiveSpeedFactorForMP(maxThrust);
   return { avgThrust, speedFactor };
 }
 
