@@ -39,8 +39,6 @@ export enum TurretType {
 export interface ITurretConfiguration {
   /** Type of turret */
   readonly type: TurretType;
-  /** @deprecated Compatibility data; construction derives mechanism mass. */
-  readonly currentWeight?: number;
   /** Turret rotation arc (degrees, 0 for fixed) */
   readonly rotationArc: number;
 }

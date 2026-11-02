@@ -35,12 +35,12 @@ describe('installed combat turret source facts', () => {
     const unit = result.data!.unit;
     expect(unit.turret).toEqual({
       type: TurretType.DUAL,
-      currentWeight: 0,
+
       rotationArc: 360,
     });
     expect(unit.secondaryTurret).toEqual({
       type: TurretType.SINGLE,
-      currentWeight: 0,
+
       rotationArc: 360,
     });
     expect(unit.secondaryTurret).not.toBe(unit.turret);
@@ -97,7 +97,7 @@ describe('installed combat turret source facts', () => {
       ).data!.unit;
       expect(unit.chinTurret).toEqual({
         type: TurretType.CHIN,
-        currentWeight: 0,
+
         rotationArc: 180,
       });
     }

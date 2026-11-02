@@ -102,7 +102,6 @@ export function getPrimaryVehicleTurretConfiguration(
   if (type === undefined) return undefined;
   return {
     type: chinTurret ? TurretType.CHIN : type,
-    currentWeight: 0,
     rotationArc: chinTurret ? 180 : 360,
   };
 }
@@ -113,7 +112,7 @@ export function getSecondaryVehicleTurretConfiguration(
   layoutArmor?: Readonly<Record<string, number>>,
 ): ITurretConfiguration | undefined {
   return primary && layoutArmor?.[VehicleLocation.TURRET_2] !== undefined
-    ? { ...primary, type: TurretType.SINGLE }
+    ? { type: TurretType.SINGLE, rotationArc: primary.rotationArc }
     : undefined;
 }
 

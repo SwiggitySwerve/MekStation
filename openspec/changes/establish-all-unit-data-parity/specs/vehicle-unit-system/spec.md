@@ -336,6 +336,15 @@ The system SHALL provide turret configuration unique to the Vehicle unit type.
 - **AND** independent installation and explicit Omni allowances SHALL remain intact
 - **AND** invalid live turret types or rotation arcs SHALL still be rejected
 
+#### Scenario: Retired cached turret mass API
+
+- **WHEN** creating, loading or editing a vehicle turret configuration
+- **THEN** its public configuration contract SHALL expose type and rotation arc without declaring currentWeight
+- **AND** neither the vehicle store nor its action module SHALL expose setTurretWeight or its implementation
+- **AND** obsolete cached weight in saved editor data SHALL be ignored without changing live turret facts or independent Omni allowances
+- **AND** type edits and imported secondary projection SHALL copy only live configuration facts, preserving rotation arc without carrying obsolete cached mass
+- **AND** resolved construction owners SHALL remain authoritative for mechanism and mounted mass
+
 ### Requirement: Vehicle Equipment Management
 
 The system SHALL manage equipment mounting with vehicle-specific options.

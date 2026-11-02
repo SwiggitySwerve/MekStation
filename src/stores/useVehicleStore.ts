@@ -52,7 +52,6 @@ import {
   setSecondaryTurretTypeLogic,
   setTonnageLogic,
   setTurretTypeLogic,
-  setTurretWeightLogic,
   updateEquipmentLocationLogic,
 } from './useVehicleStore.actions';
 
@@ -122,9 +121,6 @@ export function createVehicleStore(
 
         setTurretType: (type) =>
           set((state) => setTurretTypeLogic(state, type)),
-
-        setTurretWeight: (weight) =>
-          set((state) => setTurretWeightLogic(state, weight)),
 
         setHasSecondaryTurret: (enabled) =>
           set((state) => setHasSecondaryTurretLogic(state, enabled)),
