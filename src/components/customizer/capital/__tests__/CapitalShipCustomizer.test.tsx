@@ -168,6 +168,15 @@ it('shows a complete DropShip BV as the total', async () => {
   expect(within(bvPanel()).queryByText(/not available/)).toBeNull();
 });
 
+it('shows a complete capital-ship BV (Space Station) as the total', async () => {
+  const tab = await openCapital('crucible-station');
+  mount(tab);
+  expect(getCapitalShipView(tab.id)?.bv.scope).toBe('complete');
+  expect(bvTerms()).toEqual(['Battle Value', 'Defensive', 'Offensive']);
+  expect(row('Battle Value')).toBe('2,004');
+  expect(within(bvPanel()).queryByText(/not available/)).toBeNull();
+});
+
 it('labels a defensive-only BV and never shows it as the total', async () => {
   const tab = await openCapital('aegis-heavy-cruiser-2372');
   mount(tab);

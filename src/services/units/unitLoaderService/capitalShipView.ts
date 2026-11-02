@@ -169,20 +169,18 @@ function capitalBV(definition: IUnitContract): CapitalShipBV {
       reason: error instanceof Error ? error.message : String(error),
     };
   }
-  if (
-    result?.kind === 'dropship' &&
-    result.breakdown.calculationScope === 'complete'
-  ) {
-    const { final, defensive, offensive } = result.breakdown;
+  if (result?.kind !== 'dropship' && result?.kind !== 'capital-ship') {
+    return {
+      scope: 'unavailable',
+      reason: `No BV calculator for ${definition.unitType}`,
+    };
+  }
+  const { breakdown } = result;
+  if (breakdown.calculationScope === 'complete') {
+    const { final, defensive, offensive } = breakdown;
     return { scope: 'complete', total: final, defensive, offensive };
   }
-  if (result?.kind === 'dropship' || result?.kind === 'capital-ship') {
-    return { scope: 'defensive-only', defensive: result.breakdown.defensive };
-  }
-  return {
-    scope: 'unavailable',
-    reason: `No BV calculator for ${definition.unitType}`,
-  };
+  return { scope: 'defensive-only', defensive: breakdown.defensive };
 }
 
 function deepFreeze<T>(value: T): T {
