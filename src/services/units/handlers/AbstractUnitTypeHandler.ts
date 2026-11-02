@@ -19,6 +19,7 @@ import {
   UnitCategory,
   getUnitCategory,
 } from '@/types/unit/UnitTypeHandler';
+import { validateAerospaceSource } from '@/utils/construction/aerospace/sourceValidation';
 
 import {
   UnitValidationMessages,
@@ -146,7 +147,20 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit> {
     }
 
     // Combine into unit
+    const constructionSource =
+      this.category === UnitCategory.AEROSPACE &&
+      Object.keys(document.rawTags).some((k) => k.toLowerCase() === 'tonnage')
+        ? document
+        : undefined;
     const unit = this.combineFields(commonFields, typeSpecificFields);
+    if (constructionSource) {
+      Object.assign(unit, { nativeAerospaceConstruction: constructionSource });
+      const validity = this.validate(unit);
+      Object.assign(unit, {
+        isValid: validity.isValid,
+        validationErrors: validity.errors,
+      });
+    }
 
     return {
       success: true,
@@ -329,6 +343,8 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit> {
     const { errors, warnings, infos } = createValidationMessages();
 
     // Tonnage validation
+    if (unit.nativeAerospaceConstruction)
+      errors.push(...validateAerospaceSource(unit.nativeAerospaceConstruction));
     if (this.requiresUnitTonnage && unit.tonnage <= 0) {
       errors.push('Tonnage must be greater than 0');
     }

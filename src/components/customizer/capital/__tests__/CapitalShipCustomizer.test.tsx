@@ -44,6 +44,7 @@ const IDS = [
   'comitatus-jumpship-2995',
   'aegis-heavy-cruiser-2372',
   'crucible-station',
+  'czar-dropship',
 ];
 const read = (relative: string) =>
   JSON.parse(fs.readFileSync(path.join('public', relative), 'utf8'));
@@ -262,4 +263,22 @@ it('says plainly when no BV can be calculated, and rejects a ship without tonnag
   expect(() => mapCapitalDefinitionToView(noTonnage, 'x')).toThrow(
     UnsupportedUnitConfigurationError,
   );
+});
+
+it('opens an invalid ship and displays its construction diagnostics without editing controls', async () => {
+  const { container } = mount(await openCapital('czar-dropship'));
+  expect(
+    screen.getByRole('heading', { name: 'Construction diagnostics' }),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText(
+      'Total armor,26.5 tons, is greater than the maximum: 25.0',
+    ),
+  ).toBeInTheDocument();
+  expect(
+    screen.getByText(
+      'More armor allocated than is available according to armor tonnage.',
+    ),
+  ).toBeInTheDocument();
+  expectNoEditControls(container);
 });

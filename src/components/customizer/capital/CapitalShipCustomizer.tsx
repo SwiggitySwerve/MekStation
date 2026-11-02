@@ -157,6 +157,15 @@ export function CapitalOverviewPanel({
         />
       </Section>
       <CapitalBattleValue />
+      {!!view.constructionErrors?.length && (
+        <Section title="Construction diagnostics">
+          <ul className="text-text-theme-secondary min-w-0 list-inside list-disc text-sm break-words">
+            {view.constructionErrors.map((error, index) => (
+              <li key={`${index}:${error}`}>{error}</li>
+            ))}
+          </ul>
+        </Section>
+      )}
       <Section title="Crew">
         <Rows rows={view.crew} />
       </Section>
