@@ -16,6 +16,7 @@ import {
   resolveWeaponForUnit,
 } from '../../../../scripts/validate-bv-weapon-resolution';
 import { normalizeWeaponKey } from '../battleValueAmmo';
+import { isDirectFireBVWeapon } from '../battleValueWeapons';
 import { normalizeEquipmentId } from '../equipmentBVResolver';
 
 /** Builds mounted weapon BV inputs without changing the source critical grid. */
@@ -189,31 +190,7 @@ export function buildMechBVWeapons(
         rear: thisRear,
         isTurret: thisTurret,
         hasAES: weaponHasAES,
-        isDirectFire:
-          !wid.includes('lrm') &&
-          !wid.includes('srm') &&
-          !wid.includes('mrm') &&
-          !wid.includes('atm') &&
-          !wid.includes('mml') &&
-          !wid.includes('narc') &&
-          !wid.includes('inarc') &&
-          !wid.includes('lrt') &&
-          !wid.includes('srt') &&
-          !wid.includes('thunderbolt') &&
-          !wid.includes('rocket') &&
-          !wid.includes('arrow') &&
-          !wid.includes('mortar') &&
-          !wid.includes('sniper') &&
-          !wid.includes('thumper') &&
-          !wid.includes('long-tom') &&
-          // Per MegaMek: MGs, Flamers, AMS and TAG do NOT have F_DIRECT_FIRE
-          !wid.includes('machine-gun') &&
-          !wid.includes('flamer') &&
-          !wid.includes('anti-missile') &&
-          !wid.includes('ams') &&
-          wid !== 'tag' &&
-          !wid.includes('light-tag') &&
-          !wid.includes('clan-tag'),
+        isDirectFire: isDirectFireBVWeapon(wid),
         location: eq.location,
       });
     }

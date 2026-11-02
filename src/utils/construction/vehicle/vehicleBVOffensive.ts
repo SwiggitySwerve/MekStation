@@ -15,7 +15,9 @@ import {
   calculateAmmoBVWithExcessiveCap,
   type OffensiveBVConfig,
 } from '../battleValueOffensive';
+import { isDirectFireBVWeapon } from '../battleValueWeapons';
 import {
+  getEquipmentEntry,
   getArtemisBVMultiplier,
   normalizeEquipmentId,
   resolveEquipmentBV,
@@ -49,24 +51,17 @@ function turretMultiplier(turret?: VehicleBVTurret): number {
   }
 }
 
-/**
- * Determine whether a weapon mount is direct-fire for TC bonus.
- * Mirrors the mech-side rule: LRM/SRM/MRM/Machine-Gun/Flamer/AMS/TAG do NOT get TC.
- */
-function isDirectFireWeapon(id: string): boolean {
-  const n = id.toLowerCase();
-  return (
-    !n.includes('lrm') &&
-    !n.includes('srm') &&
-    !n.includes('mrm') &&
-    !n.includes('machine-gun') &&
-    !n.includes('machinegun') &&
-    !n.includes('mg-') &&
-    !n.includes('flamer') &&
-    !n.includes('ams') &&
-    !n.includes('tag') &&
-    !n.includes('narc')
+/** BVCalculator.java:966-976: basic takes precedence if both are mounted. */
+function supportFireControlFactor(input: VehicleBVInput): number {
+  if (!input.isSupportVehicle) return 1;
+  const ids = (input.chassisEquipment ?? []).map((id) =>
+    normalizeEquipmentId(id),
   );
+  return ids.includes('basic-fire-control')
+    ? 0.9
+    : ids.includes('advanced-fire-control')
+      ? 1
+      : 0.8;
 }
 
 type VehicleAmmoBVEntries = NonNullable<OffensiveBVConfig['ammo']>;
@@ -81,10 +76,15 @@ function resolveMountBattleValue(mount: {
 function calculateWeaponBVEntry(
   weapon: VehicleWeaponMount,
   targetingComputerMounted: boolean,
+  fireControlFactor: number,
   primaryTurretMult: number,
   secondaryTurretMult: number,
 ) {
   const listedBV = resolveMountBattleValue(weapon);
+  const entry = getEquipmentEntry(weapon.id);
+  const isWeaponType =
+    !entry ||
+    ['Energy', 'Ballistic', 'Missile', 'TAG'].includes(entry.category);
   let adjustedBV = listedBV;
 
   adjustedBV *= getArtemisBVMultiplier(weapon.artemisType);
@@ -93,8 +93,14 @@ function calculateWeaponBVEntry(
     adjustedBV *= 0.5;
   }
 
-  if (targetingComputerMounted && isDirectFireWeapon(weapon.id)) {
+  if (
+    isWeaponType &&
+    targetingComputerMounted &&
+    isDirectFireBVWeapon(normalizeEquipmentId(weapon.id))
+  ) {
     adjustedBV *= 1.25;
+  } else if (isWeaponType && !weapon.isInfantry) {
+    adjustedBV *= fireControlFactor;
   }
 
   let locationMult = 1.0;
@@ -161,15 +167,21 @@ function calculateVehicleOffensiveEquipmentBV(
 export function calculateVehicleOffensiveBV(
   input: VehicleBVInput,
 ): VehicleOffensiveBVBreakdown {
-  const targetingComputerMounted = (input.offensiveEquipment ?? []).some(
-    (entry) => entry.isTargetingComputer === true,
-  );
+  const fireControlFactor = supportFireControlFactor(input);
+  const targetingComputerMounted =
+    (input.chassisEquipment ?? []).some(
+      (id) => getEquipmentEntry(id)?.category === 'Targeting',
+    ) ||
+    (input.offensiveEquipment ?? []).some(
+      (entry) => entry.isTargetingComputer === true,
+    );
   const primaryTurretMult = turretMultiplier(input.turret);
   const secondaryTurretMult = turretMultiplier(input.secondaryTurret);
   const weaponEntries = input.weapons.map((weapon) =>
     calculateWeaponBVEntry(
       weapon,
       targetingComputerMounted,
+      fireControlFactor,
       primaryTurretMult,
       secondaryTurretMult,
     ),
@@ -181,7 +193,9 @@ export function calculateVehicleOffensiveBV(
     bv: entry.listedBV,
   }));
   const ammoEntries = buildVehicleAmmoEntries(input.ammo);
-  const ammoBV = calculateAmmoBVWithExcessiveCap(perWeaponBVs, ammoEntries);
+  const ammoBV =
+    calculateAmmoBVWithExcessiveCap(perWeaponBVs, ammoEntries) *
+    fireControlFactor;
   const offensiveEquipmentBV = calculateVehicleOffensiveEquipmentBV(
     input.offensiveEquipment,
   );
