@@ -7,7 +7,10 @@ import {
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
 import { resolveProtoAmmoBV } from './protoMechAmmo';
-import { classifyEquipment } from './protoMechBVEquipment';
+import {
+  classifyEquipment,
+  resolveProtoOffensiveEquipmentBV,
+} from './protoMechBVEquipment';
 
 /**
  * Compute the proto offensive speed factor.
@@ -39,6 +42,14 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
   const ammoForCap: Array<{ id: string; bv: number; weaponType: string }> = [];
 
   for (const mount of unit.equipment) {
+    const nativeBV = resolveProtoOffensiveEquipmentBV(
+      mount.equipmentId,
+      unit.tonnage,
+    );
+    if (nativeBV !== undefined) {
+      offensiveEquipmentBV += nativeBV;
+      continue;
+    }
     const kind = classifyEquipment(mount);
 
     if (kind === 'weapon') {
