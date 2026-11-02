@@ -82,7 +82,8 @@ Browser and Node unit services SHALL load every upstream-loadable source family 
 - **THEN** editor loading SHALL map the definition through its family's registered store mapper
 - **AND** the customizer SHALL register the result in the vehicle or aerospace store and open one tab of the unit's type, adding no tab type
 - **AND** library save SHALL remain unavailable for that tab
-- **AND** a capital ship, battle armor or infantry unit SHALL keep the dialog open with copy that says why it cannot open, without suggesting a retry
+- **AND** a DropShip, JumpShip, WarShip or Space Station SHALL map to a frozen read-only view and open one tab of its unit type without creating a store
+- **AND** a battle armor or infantry unit SHALL keep the dialog open with copy that says why it cannot open, without suggesting a retry
 - **AND** a BattleMech SHALL open exactly as before
 
 #### Scenario: Load and clone a support aircraft
