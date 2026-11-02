@@ -91,6 +91,8 @@ export interface IBattleArmorMountedEquipment extends IUnitMountedEquipmentIdent
  */
 export interface IBattleArmor extends ISquadUnit {
   readonly unitType: UnitType.BATTLE_ARMOR;
+  /** Native armor tech level, independent of a mixed-tech chassis. */
+  readonly sourceArmorTech?: number;
 
   /** Chassis type (biped or quad) */
   readonly chassisType: BattleArmorChassisType;
@@ -246,6 +248,9 @@ export interface IInfantryFieldGun {
  */
 export interface IInfantry extends ISquadUnit {
   readonly unitType: UnitType.INFANTRY;
+  /** Native motive/equipment declarations absent from legacy editor records. */
+  readonly constructionSource?: Readonly<Record<string, string | string[]>>;
+  readonly armorKitCount?: number;
 
   /** Effective incoming-damage divisor, including armor, implants and mount. */
   readonly damageDivisor?: number;

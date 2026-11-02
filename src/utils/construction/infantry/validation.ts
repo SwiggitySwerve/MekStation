@@ -15,6 +15,7 @@
  * @spec openspec/changes/add-infantry-construction/specs/infantry-unit-system/spec.md
  */
 
+import { STANDARD_ARTILLERY } from '@/types/equipment/ArtilleryTypes';
 import {
   ANTI_MECH_ELIGIBLE_MOTIVES,
   InfantryArmorKitType,
@@ -27,7 +28,9 @@ import {
   SNEAK_ELIGIBLE_MOTIVES,
   VTOL_MAX_TROOPERS,
 } from '@/types/unit/InfantryInterfaces';
+import { type IInfantry } from '@/types/unit/PersonnelInterfaces';
 
+import { getEquipmentEntry } from '../equipmentBVResolver';
 import {
   deriveFieldGunCrewCount,
   findFieldGunById,
@@ -261,4 +264,91 @@ export function validateInfantryConstruction(
   );
 
   return { isValid: errors.length === 0, errors, warnings };
+}
+
+/** Native source rules: TestInfantry:189-273,364-529 at MegaMek 48fcb2f64.
+ * Live squad/weapon fields take precedence over source declarations. The source
+ * retains motives and field guns which the legacy editor projection cannot express.
+ * Secondary crew and prosthetic combinations require additional catalog metadata.
+ */
+export function validateInfantrySource(unit: IInfantry): string[] {
+  const tags = unit.constructionSource ?? {};
+  const values = (key: string) => [tags[key] ?? []].flat();
+  const mode = String(tags.motion_type ?? unit.motionType).toLowerCase();
+  const spec = unit.bvOffense?.specializations ?? 0;
+  const augment = unit.bvOffense?.augmentations ?? [];
+  const mounted = mode.startsWith('beast:');
+  const vtol = /^(vtol|microcopter|microlite)$/.test(mode);
+  const scuba = mode.includes('scuba');
+  const alt = mode === 'microlite' || mode === 'motorized scuba';
+  const motiveLimits: Record<
+    string,
+    readonly [number, number, number, number]
+  > = {
+    hover: [5, 4, 20, 2],
+    submarine: [5, 4, 20, 2],
+    wheeled: [6, 4, 24, 2],
+    tracked: [7, 4, 28, 2],
+  };
+  // Squad size/count, platoon strength, secondary weapons per squad.
+  const [squad, ...limits] = mounted
+    ? /hipposaur/.test(mode)
+      ? [4, 2, 8, 3]
+      : /elephant|orca/.test(mode)
+        ? [2, 7, 14, 2]
+        : [10, 5, 21, 0]
+    : vtol
+      ? [alt ? 2 : 4, 4, alt ? 8 : 16, alt ? 0 : 1]
+      : scuba
+        ? [alt ? 6 : 10, alt ? 2 : 4, alt ? 12 : 30, alt ? 2 : 1]
+        : (motiveLimits[mode] ?? [10, 5, 30, 2]);
+  let [count, strength, weapons] = limits;
+  if (!mounted) {
+    if (spec & 191) count = Math.min(count, 2); // combat engineers | mountain
+    if (spec & 512) count = Math.min(count, 3); // paratroops
+    if (spec & 64) count = Math.min(count, 4); // marines
+  }
+  if (spec & 191) strength = Math.min(strength, 20);
+  if (spec & 63) weapons = 0;
+  if (spec & 384) weapons = 1; // mountain | paramedics
+  weapons += ['dermal_armor', 'tsm_implant'].filter((a) =>
+    augment.includes(a),
+  ).length;
+  const errors: string[] = [];
+  if (unit.squadSize < 1 || unit.squadSize > squad)
+    errors.push(`Maximum squad size is ${squad}`);
+  if (unit.numberOfSquads > count)
+    errors.push(`Maximum squad count is ${count}`);
+  if (unit.platoonStrength > strength)
+    errors.push(`Maximum platoon size is ${strength}`);
+  if (unit.secondaryWeaponCount > weapons)
+    errors.push(`Number of secondary weapons exceeds maximum of ${weapons}`);
+  if ((unit.armorKitCount ?? 0) > 1)
+    errors.push('Infantry may not have more than one armor kit!');
+  const guns = values('Field Guns Equipment').filter(
+    (name) => name && !/ammo/i.test(name),
+  );
+  let crew = 0;
+  for (const name of guns) {
+    // Legacy catalog cannon IDs contain full-artillery stats. Keep source cannon
+    // masses distinct (LongTomCannon:71, SniperCannon:76, ThumperCannon:76).
+    const cannon: Record<string, number> = {
+      ISLongTomCannon: 20,
+      ISSniperCannon: 15,
+      ISThumperCannon: 10,
+    };
+    const artillery = STANDARD_ARTILLERY.find(
+      (gun) =>
+        gun.id ===
+        name.replace(/^IS/, '').toLowerCase().replace('longtom', 'long-tom'),
+    );
+    const weight =
+      cannon[name] ?? artillery?.weight ?? getEquipmentEntry(name)?.weight;
+    if (weight === undefined)
+      errors.push(`Unresolved field gun construction weight: ${name}`);
+    else crew += Math.max(2, Math.ceil(weight));
+  }
+  if (crew > unit.platoonStrength)
+    errors.push('Insufficient troopers to operate the field guns!');
+  return errors;
 }
