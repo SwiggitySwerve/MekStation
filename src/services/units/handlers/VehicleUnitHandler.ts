@@ -9,7 +9,7 @@
 import { getTankMaxTonnage } from '@/services/construction/constructionConstants';
 import {
   blkEngineName,
-  decodeBlkConstructionEngine,
+  decodeBlkVehicleEngine,
   isClanBlkEngine,
 } from '@/services/conversion/blkEngineIdentity';
 import {
@@ -157,7 +157,8 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       document.rawTags?.clan_engine,
     );
     try {
-      decodeBlkConstructionEngine(engineType, clanEngine);
+      // BLKTankFile accepts STEAM and BATTERY (BLKFile.java:538-570).
+      decodeBlkVehicleEngine(engineType, clanEngine);
     } catch (error) {
       errors.push(String(error));
     }
@@ -431,7 +432,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
   protected calculateTypeSpecificWeight(unit: IVehicle): number {
     let weight = 0;
 
-    const engineType = decodeBlkConstructionEngine(
+    const engineType = decodeBlkVehicleEngine(
       unit.engineType,
       unit.clanEngine ?? isClanBlkEngine(String(unit.techBase)),
     );
