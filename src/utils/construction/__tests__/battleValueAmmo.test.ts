@@ -137,11 +137,12 @@ describe('Clan weapon ammunition aliases', () => {
   });
 });
 
-// Catalog BV remains authoritative, including explicit zero and known discrepancies.
+// Catalog BV remains authoritative. Values follow pinned Java (owner ruling 2026-11-02 question 1):
+// half-ton MG 0.5 (AmmoType.java:6665) and IS Ultra AC/5 14 (AmmoType.java:5660).
 describe('ammunition resolution compatibility', () => {
   it.each([
-    ['IS Machine Gun Ammo - Half', 0, 'machine-gun'],
-    ['IS Ultra AC/5 Ammo', 15, 'uac-5'],
+    ['IS Machine Gun Ammo - Half', 0.5, 'machine-gun'],
+    ['IS Ultra AC/5 Ammo', 14, 'uac-5'],
     ['Clan Ammo LRM-15', 21, 'lrm-15'],
     ['Clan Heavy Machine Gun Ammo - Full', 1, 'heavy-machine-gun'],
   ])('retains %s catalog BV and derived family', (name, bv, weaponType) => {

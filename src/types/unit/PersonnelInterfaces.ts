@@ -261,6 +261,7 @@ export interface IInfantry extends ISquadUnit {
   readonly bvArmorFlags?: readonly string[];
   /** Pinned source facts; absent on legacy editor/store records. */
   readonly bvOffense?: {
+    fieldGunEquipment?: readonly string[];
     runMP?: number;
     jumpMP?: number;
     umuMP?: number;

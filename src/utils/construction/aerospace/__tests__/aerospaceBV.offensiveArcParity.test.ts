@@ -88,9 +88,10 @@ describe('aerospace forward/rear weapon pool parity', () => {
     );
     if (result?.kind !== 'aerospace') throw new Error('Expected aerospace BV');
     expect(result.breakdown.weaponFirePoolBV).toBe(176 + 90 + 90 + 5 * 0.5);
-    expect(result.breakdown.fuselageWeaponBV).toBe(22);
-    expect(result.breakdown.offensive).toBeCloseTo(521.285, 8);
-    // Native offense 521.97 retains other valuation differences.
+    // Half-ton MG ammo is 0.5 BV (pinned AmmoType.java:6665, owner ruling 2026-11-02 question 1).
+    expect(result.breakdown.fuselageWeaponBV).toBe(22.5);
+    // Native offense is 521.97: this fixture matches pinned Java once the half-ton MG bin counts.
+    expect(result.breakdown.offensive).toBeCloseTo(521.97, 8);
     expect(result.breakdown.speedFactor).toBe(1.37);
   });
 

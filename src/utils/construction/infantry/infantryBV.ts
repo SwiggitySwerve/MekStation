@@ -27,7 +27,7 @@ import { getPilotSkillModifier } from '@/types/validation/BattleValue';
 
 import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
 import { calculateAmmoBVWithExcessiveCap } from '../battleValueOffensive';
-import { resolveEquipmentBV } from '../equipmentBVResolver';
+import { resolveAmmoBV, resolveEquipmentBV } from '../equipmentBVResolver';
 import {
   infantryDefensiveFactor,
   infantrySpecializationModifier,
@@ -241,8 +241,8 @@ export function getInfantryMotiveMultiplier(motive: InfantryMotive): number {
  * The ammo cap reuses the mech "excessive ammo" rule:
  *   ammoBV contribution per weapon family ≤ matching weapon BV.
  *
- * Field guns do NOT receive any speed factor — they are stationary platforms
- * crewed by troopers. The spec calls this out explicitly as "speed factor 1.0".
+ * Source guns and ammunition receive the platoon speed factor in the caller.
+ * InfantryBVCalculator.java:233-240, 316-318 (48fcb2f64).
  */
 export function calculateInfantryFieldGunBV(
   fieldGuns: readonly InfantryFieldGunMount[] | undefined,
@@ -264,16 +264,17 @@ export function calculateInfantryFieldGunBV(
     weapons.push({ id: gun.id, bv: gunBV });
 
     for (const bin of gun.ammo ?? []) {
+      const resolved = resolveAmmoBV(bin.id);
       const binBV =
         typeof bin.bvOverride === 'number'
           ? bin.bvOverride
-          : resolveEquipmentBV(bin.id).battleValue;
+          : resolved.battleValue;
       ammoEntries.push({
         id: bin.id,
         bv: binBV,
         // weaponTypeOverride lets callers route e.g. `isammo-lrm-15` to the LRM-15 weapon family.
         // When absent, we pass the ammo id itself — the helper normalizes via the resolver.
-        weaponType: bin.weaponTypeOverride ?? bin.id,
+        weaponType: bin.weaponTypeOverride ?? (resolved.weaponType || bin.id),
       });
     }
   }
@@ -343,7 +344,7 @@ export function calculateInfantryBV(
     ? calculateOffensiveSpeedFactorForMP(source.mp)
     : getInfantryMotiveMultiplier(input.motive);
   const antiMechMultiplier = source
-    ? source.antiMek
+    ? source.antiMek && !input.fieldGuns?.length
       ? 1 + (source.prostheticAntiMek ? 1.2 : 1)
       : 1
     : input.hasAntiMechTraining
@@ -368,7 +369,10 @@ export function calculateInfantryBV(
   }
 
   const fieldGunResult = calculateInfantryFieldGunBV(input.fieldGuns);
-  const platoonBV = platoonCore + fieldGunResult.total;
+  // ConvInfantry.java:288-290: active guns block anti-mek, never subtract crew
+  // from original shooters. InfantryBVCalculator.java:117-158, 233-240, 316-318.
+  const platoonBV =
+    platoonCore + fieldGunResult.total * (source ? motiveMultiplier : 1);
 
   const pilotMultiplier = getInfantryPilotMultiplier(
     input.gunnery,

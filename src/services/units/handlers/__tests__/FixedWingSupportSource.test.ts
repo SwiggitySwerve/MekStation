@@ -859,6 +859,12 @@ it('routes FWS only while the aerospace handler family is registered', () => {
   expect(registry.getHandlerForDocument(nativeDocument())).toBeUndefined();
 });
 
+// Hurricane Conventional Fighter main-before pins 85 (was 84): owner ruling 2026-11-02 question 1 corrects the
+// half-ton MG bin from BV 0 to 0.5 (pinned AmmoType.java:6665 `createISMGAmmoHalf`, bv = 0.5f). It is the
+// only CAT-Q1 term that moved: fuselageWeaponBV 0 -> 0.5, offense 7.5 -> 8.25 (speed 1.5), 83.95 -> 84.70.
+// Java's own per-term trace has the same bin (`ammo.available.MG:2` = 0.5). The total still differs from
+// Java's 65 (UL-16b) before this slice: armorBV 72.5 vs 36.25, unresolved CLRocketLauncher15Prototype,
+// and the 0.9 fire-control factor. Correct BAR/FCS now expose the missing prototype rather than offsetting it.
 it.each(fixtures.legacyRows)(
   'uses Java BV for available small/medium FWS equipment: $path',
   (row) => {
