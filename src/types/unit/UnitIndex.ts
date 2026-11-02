@@ -18,6 +18,7 @@ export const UNIT_FAMILIES = [
   'capital',
   'battlearmor',
   'infantry',
+  'protomechs',
 ] as const;
 export type UnitFamily = (typeof UNIT_FAMILIES)[number];
 export interface UnitLookupOptions {

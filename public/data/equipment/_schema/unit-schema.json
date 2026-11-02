@@ -195,6 +195,11 @@
           ],
           "description": "Armor type"
         },
+        "sourceTechLevel": {
+          "type": "integer",
+          "minimum": -1,
+          "description": "Explicit BLK armor technology before Java normalization"
+        },
         "barRating": {
           "type": "integer",
           "minimum": 2,

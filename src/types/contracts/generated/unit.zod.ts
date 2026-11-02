@@ -188,6 +188,14 @@ export const UnitContract = z
         armor: z
           .object({
             type: SchemaDef_standardArmorType,
+            sourceTechLevel: z
+              .number()
+              .int()
+              .gte(-1)
+              .describe(
+                'Explicit BLK armor technology before Java normalization',
+              )
+              .optional(),
             barRating: z
               .number()
               .int()
@@ -676,6 +684,14 @@ export const UnitContract = z
                 ]),
               ])
               .describe('Armor type'),
+            sourceTechLevel: z
+              .number()
+              .int()
+              .gte(-1)
+              .describe(
+                'Explicit BLK armor technology before Java normalization',
+              )
+              .optional(),
             barRating: z
               .number()
               .int()

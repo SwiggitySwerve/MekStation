@@ -27,6 +27,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _UNITS_ROOT = _REPO_ROOT / "public" / "data" / "units"
 
 DEFAULT_FAMILIES = ("vehicles", "aerospace", "capital")
+ALLOWED_FAMILIES = (*DEFAULT_FAMILIES, "protomechs")
 # Files in a units tree that are not units. The one owner of this list;
 # run_schema_validation_only.py imports it.
 NON_UNIT_FILES = frozenset({"index.json", "units-manifest.json"})
@@ -86,7 +87,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument(
         "--family",
         action="append",
-        help=f"Converted family to index (repeatable), one of {list(DEFAULT_FAMILIES)}; default all of them.",
+        help=f"Converted family to index (repeatable), one of {list(ALLOWED_FAMILIES)}; default {list(DEFAULT_FAMILIES)}.",
     )
     parser.add_argument("--write", action="store_true", help="Write the index files. Default is a dry run.")
     args = parser.parse_args(argv)
@@ -99,9 +100,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     # Only the converted families. The BattleMech index belongs to mtf_converter and the shipped
     # catalog, which the owner ruling of 2026-11-01 does not allow editing; typos, path forms
     # and the units root itself are refused too, before anything is written.
-    unknown = [family for family in families if family not in DEFAULT_FAMILIES]
+    unknown = [family for family in families if family not in ALLOWED_FAMILIES]
     if unknown:
-        print(f"unit_index: {unknown} not in {list(DEFAULT_FAMILIES)}; no index written")
+        print(f"unit_index: {unknown} not in {list(ALLOWED_FAMILIES)}; no index written")
         return 1
     indexes: Dict[str, Dict[str, Any]] = {}
     for family in families:

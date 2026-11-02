@@ -51,6 +51,7 @@ export const UNIT_DEFINITION_FAMILIES = {
     store: null,
   },
   infantry: { unitTypes: [UnitType.INFANTRY], store: null },
+  protomechs: { unitTypes: [UnitType.PROTOMECH], store: null },
 } as const satisfies Record<
   UnitFamily,
   {
