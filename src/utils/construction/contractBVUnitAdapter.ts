@@ -252,7 +252,9 @@ function contractAerospaceToBVUnit(
   };
 }
 
-function contractLargeAerospaceStageFacts(unit: IContractBVSource) {
+function contractLargeAerospaceStageFacts(
+  unit: IContractBVSource,
+): Pick<IDropShipBVUnit, 'maxThrust' | 'heatSinks' | 'cockpit'> {
   return {
     ...(unit.movement.maxThrust === undefined
       ? {}
@@ -285,6 +287,7 @@ export function contractUnitToBVUnit(
         'structuralIntegrity',
       ),
       ...contractAerospaceArmorFacts(unit),
+      ...contractLargeAerospaceStageFacts(unit),
       equipment: (unit.equipment ?? []).map((item) => ({
         equipmentId: item.id,
         location: item.location,
