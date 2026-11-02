@@ -231,6 +231,7 @@ export function buildEditableMechBVInput(mech: IEditableMech): UnitData {
     model: mech.variant,
     unitType: source?.unitType ?? 'BattleMech',
     configuration: mech.configuration ?? 'Biped',
+    lamType: typeof source?.lamType === 'string' ? source.lamType : undefined,
     techBase:
       source?.techBase ??
       String(mech.techBase).toUpperCase().replace(/ /g, '_'),
