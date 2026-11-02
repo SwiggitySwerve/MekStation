@@ -1,0 +1,56 @@
+[
+  {
+    "path": "vehicles/3039u/Hi-Scout Drone (PathTrak).blk",
+    "sha256": "e2184aba97c4d925458bb234555a23cb5bd12bbb1fbcd0c674f8cebee6b58812",
+    "content": "<UUID>\n019f583e-e29d-70e8-b0f6-cd3ba2e9a13f\n</UUID>\n\n<UnitType>\nSupportTank\n</UnitType>\n\n<Name>\nHi-Scout Drone\n</Name>\n\n<Model>\n(PathTrak)\n</Model>\n\n<mul id:>\n1531\n</mul id:>\n\n<year>\n3000\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<role>\nScout\n</role>\n\n<motion_type>\nTracked\n</motion_type>\n\n<transporters>\nstandardseats:1.0:0:-1::-1:0\n</transporters>\n\n<cruiseMP>\n8\n</cruiseMP>\n\n<engine_type>\n1\n</engine_type>\n\n<armor_type>\n43\n</armor_type>\n\n<armor_tech_rating>\n3\n</armor_tech_rating>\n\n<armor_tech_level>\n1\n</armor_tech_level>\n\n<internal_type>\n-1\n</internal_type>\n\n<armor>\n2\n2\n2\n2\n</armor>\n\n<Body Equipment>\nISDroneOperatingSystem\nUltraLightChassisMod\n</Body Equipment>\n\n<Front Equipment>\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<barrating>\n2\n</barrating>\n\n<structural_tech_rating>\n3\n</structural_tech_rating>\n\n<engine_tech_rating>\n3\n</engine_tech_rating>\n\n<primaryFactory>\nInarcs\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:Unknown\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:Unknown\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemModels>\n\n<source>\nTR:3039\n</source>\n\n<published>\nRS:3039u\n</published>\n\n<tonnage>\n3.0\n</tonnage>\n\n<bv>\n36\n</bv>\n\n<fuel>\n0.065\n</fuel>\n\n<fuelType>\nPETROCHEMICALS\n</fuelType>",
+    "expected": {
+      "controls": 0.075,
+      "miscEquipment": 0.8
+    }
+  },
+  {
+    "path": "vehicles/3075 Support tanks/HMRV (Hazardous Materials Recovery Vehicle) Salvage Bed.blk",
+    "sha256": "16b9f6cb3cc05bca1fbab6764bad3005ee7c74d8818e7a0a5665c5c1b0fda87b",
+    "content": "<UUID>\n019f583e-e65c-7589-805d-1f76e53fc17c\n</UUID>\n\n<UnitType>\nLargeSupportTank\n</UnitType>\n\n<Name>\nHMRV (Hazardous Materials Recovery Vehicle)\n</Name>\n\n<Model>\nSalvage Bed\n</Model>\n\n<mul id:>\n6960\n</mul id:>\n\n<year>\n2822\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<role>\nJuggernaut\n</role>\n\n<motion_type>\nTracked\n</motion_type>\n\n<transporters>\ncargobay:100.0:1:1::-1:0\n</transporters>\n\n<cruiseMP>\n0\n</cruiseMP>\n\n<engine_type>\n8\n</engine_type>\n\n<armor_type>\n0\n</armor_type>\n\n<armor_tech_rating>\n4\n</armor_tech_rating>\n\n<armor_tech_level>\n1\n</armor_tech_level>\n\n<armor>\n30\n40\n40\n40\n40\n54\n</armor>\n\n<Body Equipment>\nSV Chassis Mod [Trailer]\n</Body Equipment>\n\n<Front Equipment>\nSearchlight\n</Front Equipment>\n\n<Front Right Equipment>\nLift Hoist/Arresting Hoist\nSearchlight\n</Front Right Equipment>\n\n<Front Left Equipment>\nLift Hoist/Arresting Hoist\nSearchlight\n</Front Left Equipment>\n\n<Rear Right Equipment>\n</Rear Right Equipment>\n\n<Rear Left Equipment>\n</Rear Left Equipment>\n\n<Rear Equipment>\nBackhoe\nSearchlight\nSearchlight\n</Rear Equipment>\n\n<structural_tech_rating>\n4\n</structural_tech_rating>\n\n<engine_tech_rating>\n4\n</engine_tech_rating>\n\n<primaryFactory>\nCaph\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Unknown\nARMOR:Unknown\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nARMOR:Unknown\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemModels>\n\n<source>\nTR:3075\n</source>\n\n<published>\nRS:3075u-CE\n</published>\n\n<tonnage>\n150.0\n</tonnage>\n\n<fuel>\n0.0\n</fuel>",
+    "expected": {
+      "carryingSpace": 100.0,
+      "miscEquipment": 13.5
+    }
+  },
+  {
+    "path": "vehicles/3085u/Cutting Edge/J-37 Ordnance Transport.blk",
+    "sha256": "b4b0c8ffd298b9d0becfa35c72f969f8af3b49d7c67844372d46950e43dada50",
+    "content": "<UUID>\n019f583e-e6e2-7e3e-99a0-16496db45d28\n</UUID>\n\n<UnitType>\nSupportTank\n</UnitType>\n\n<Name>\nJ-37 Ordnance Transport\n</Name>\n\n<Model>\n\n</Model>\n\n<mul id:>\n1649\n</mul id:>\n\n<year>\n3079\n</year>\n\n<type>\nIS Level 2\n</type>\n\n<motion_type>\nWheeled\n</motion_type>\n\n<transporters>\ntroopspace:1.0\ncargobay:17.0:1:1::-1:0\n</transporters>\n\n<cruiseMP>\n5\n</cruiseMP>\n\n<engine_type>\n0\n</engine_type>\n\n<armor_type>\n0\n</armor_type>\n\n<armor_tech_rating>\n4\n</armor_tech_rating>\n\n<armor_tech_level>\n1\n</armor_tech_level>\n\n<armor>\n25\n25\n25\n11\n12\n</armor>\n\n<Body Equipment>\nAdvanced Fire Control\nArmored Chassis\nISOffRoadChassis\n</Body Equipment>\n\n<Front Equipment>\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<Turret Equipment>\nISERSmallLaser\n</Turret Equipment>\n\n<structural_tech_rating>\n4\n</structural_tech_rating>\n\n<engine_tech_rating>\n4\n</engine_tech_rating>\n\n<primaryFactory>\nUnknown\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Unknown\nENGINE:Ceres Motors\nARMOR:Unknown\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nENGINE:Fusion\nARMOR:Unknown\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemModels>\n\n<source>\nTR:3085\n</source>\n\n<published>\nRS:3085u-CE\n</published>\n\n<tonnage>\n50.0\n</tonnage>\n\n<fuel>\n0.0\n</fuel>",
+    "expected": {
+      "carryingSpace": 18.0,
+      "weapons": 0.5,
+      "miscEquipment": 0.5,
+      "heatSinks": 2.0,
+      "misc": 0.5
+    }
+  },
+  {
+    "path": "vehicles/Era Digests/Age of War/Estevez AA.blk",
+    "sha256": "9b68ac320f5758b30ef9b4010e2bf9380256c28b21707e98aeb87eb172a8662d",
+    "content": "<UUID>\n019f583e-e8e1-7dce-aea0-a3d6b48c0c03\n</UUID>\n\n<UnitType>\nSupportTank\n</UnitType>\n\n<Name>\nEstevez MBT\n</Name>\n\n<Model>\n(Anti-Aircraft)\n</Model>\n\n<mul id:>\n4138\n</mul id:>\n\n<year>\n2360\n</year>\n\n<type>\nIS Level 4\n</type>\n\n<role>\nSniper\n</role>\n\n<quirks>\nobsolete:2400\ngas_hog\n</quirks>\n\n<motion_type>\nTracked\n</motion_type>\n\n<cruiseMP>\n3\n</cruiseMP>\n\n<engine_type>\n1\n</engine_type>\n\n<armor_type>\n0\n</armor_type>\n\n<armor_tech_rating>\n2\n</armor_tech_rating>\n\n<armor_tech_level>\n1\n</armor_tech_level>\n\n<armor>\n35\n32\n32\n30\n35\n</armor>\n\n<Body Equipment>\nIS Ammo AC/2\nIS Ammo AC/2\nIS Ammo AC/2\nIS Machine Gun Ammo - Half\nArmored Chassis\nBasic Fire Control\n</Body Equipment>\n\n<Front Equipment>\n</Front Equipment>\n\n<Right Equipment>\nISVehicularGrenadeLauncher\n</Right Equipment>\n\n<Left Equipment>\nISVehicularGrenadeLauncher\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<Turret Equipment>\nAutocannon/2\nAutocannon/2\nMachine Gun\n</Turret Equipment>\n\n<structural_tech_rating>\n2\n</structural_tech_rating>\n\n<engine_tech_rating>\n2\n</engine_tech_rating>\n\n<primaryFactory>\nNew Avalon\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Unknown\nENGINE:Novais Motors\nARMOR:Unknown\nJUMP_JET:N/A\nCOMMUNICATIONS:Valiant\nTARGETING:Thermoscan\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nENGINE:NM/750 Combat Diesel\nARMOR:Nova-IV Hyper-Composite with Diamond Flex\nJUMP_JET:N/A\nCOMMUNICATIONS:Echo Mk. II\nTARGETING:Optics FCS\n</systemModels>\n\n<source>\nED:AoW\n</source>\n\n<published>\nED:AoW\n</published>\n\n<tonnage>\n80.0\n</tonnage>\n\n<fuel>\n2.5\n</fuel>\n\n<fuelType>\nPETROCHEMICALS\n</fuelType>",
+    "expected": {
+      "weapons": 13.5,
+      "ammo": 3.5,
+      "miscEquipment": 1.0,
+      "misc": 1.5
+    }
+  },
+  {
+    "path": "vehicles/TRO Vehicle Annex/Tracked/Raptor.blk",
+    "sha256": "7607ea292c6d06e84d56ee616dc03776b7d53a1072fd093983e5414e06b70f6e",
+    "content": "<UUID>\n019f583e-eb19-70e7-944f-06e94c2fb2b5\n</UUID>\n\n<UnitType>\nSupportTank\n</UnitType>\n\n<Name>\nRaptor RRV\n</Name>\n\n<Model>\n\n</Model>\n\n<mul id:>\n4900\n</mul id:>\n\n<year>\n3059\n</year>\n\n<type>\nIS Level 2\n</type>\n\n<role>\nNone\n</role>\n\n<motion_type>\nTracked\n</motion_type>\n\n<transporters>\ntroopspace:3.0\n</transporters>\n\n<cruiseMP>\n4\n</cruiseMP>\n\n<engine_type>\n6\n</engine_type>\n\n<armor_type>\n49\n</armor_type>\n\n<armor_tech_rating>\n4\n</armor_tech_rating>\n\n<armor_tech_level>\n1\n</armor_tech_level>\n\n<armor>\n10\n6\n6\n5\n6\n</armor>\n\n<Body Equipment>\nBasic Fire Control\n</Body Equipment>\n\n<Front Equipment>\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<Turret Equipment>\nISERSmallLaser\n</Turret Equipment>\n\n<barrating>\n8\n</barrating>\n\n<structural_tech_rating>\n4\n</structural_tech_rating>\n\n<engine_tech_rating>\n4\n</engine_tech_rating>\n\n<primaryFactory>\nUnknown\n</primaryFactory>\n\n<systemManufacturers>\nCHASSIS:Unknown\nENGINE:Unknown\nARMOR:Unknown\nJUMP_JET:N/A\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemManufacturers>\n\n<systemModels>\nCHASSIS:Unknown\nENGINE:Fuel Cell (Electric)\nARMOR:Unknown\nJUMP_JET:N/A\nCOMMUNICATIONS:Unknown\nTARGETING:Unknown\n</systemModels>\n\n<source>\nTR:VAr\n</source>\n\n<tonnage>\n15.0\n</tonnage>\n\n<fuel>\n0.5\n</fuel>",
+    "expected": {
+      "carryingSpace": 3.0,
+      "weapons": 0.5,
+      "miscEquipment": 0.5,
+      "heatSinks": 2.0,
+      "powerAmplifiers": 0.5,
+      "misc": 0.5
+    }
+  }
+]

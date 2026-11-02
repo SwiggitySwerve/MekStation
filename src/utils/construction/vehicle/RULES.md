@@ -345,14 +345,16 @@ Boosters, modified cruise, rail/zero-MP BV special cases and complete BV parity
 remain separate work. This correction establishes only base movement and its
 propagation. It does not regenerate or migrate unit catalogs.
 
-## Support chassis, fuel and represented subtotal
+## Support construction weight
 
-`supportWeight.ts` owns support structure, upward rounding and the handler's
-subtotal of engine + chassis + armor + source fuel. Crew accommodations,
-bays, equipment, ammunition, heat sinks, turrets and amplifiers are pending;
-this subtotal does not establish full construction-weight parity. The handler
-stores the subtotal in `totalWeight` for the existing overweight validator.
-The status bar shares the chassis owner; its other terms remain independent.
+`supportWeight.ts` composes structure, engine, armor, source fuel, payload and
+transport terms. `supportPayload.ts` reuses equipment/ammo owners; its citations
+cover weapons, misc, ammo, heat sinks, turrets and amplifiers. `supportTransport.ts`
+owns bays and crew accommodations (controls). `supportRounding.ts` owns rounding.
+The handler stores the total and warns about unresolved mounts/bays, including
+missing small-SV infantry/clip metadata. Physical ammo aliases reuse the registry's
+half-bin guard; legacy BV resolution stays unchanged. The status bar shares the
+chassis owner; its remaining terms are independent.
 
 MegaMek pin above: TestSupportVehicle.java:102-121 (base chassis), 258-294
 (modifiers), 539-545 (tech), 754-797 (rounding, fuel and structure);

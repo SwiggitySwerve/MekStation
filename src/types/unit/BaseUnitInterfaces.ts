@@ -341,7 +341,7 @@ export function isSquadUnit(unit: IBaseUnit): unit is ISquadUnit {
 /**
  * Check if unit is a mech (BattleMech, OmniMech, IndustrialMech)
  */
-export function isMechUnit(unit: IBaseUnit): boolean {
+export function isMechUnit(unit: { readonly unitType: string }): boolean {
   return (
     unit.unitType === UnitType.BATTLEMECH ||
     unit.unitType === UnitType.OMNIMECH ||
