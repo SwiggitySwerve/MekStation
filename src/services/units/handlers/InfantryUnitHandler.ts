@@ -27,6 +27,7 @@ import {
 } from '@/utils/construction/infantry';
 import { resolveInfantryProtection } from '@/utils/construction/infantry/infantryBVAdapter';
 import { resolveInfantryOffenseSource } from '@/utils/construction/infantry/platoonComposition';
+import { validateInfantrySource } from '@/utils/construction/infantry/validation';
 
 import {
   AbstractUnitTypeHandler,
@@ -42,6 +43,7 @@ import {
   getRawTagString,
   parseInnerSphereOrClan,
   parseRulesLevelThroughAdvancedFromType,
+  withConstructionDiagnostics,
 } from './unitHandlerShared';
 
 // ============================================================================
@@ -168,6 +170,10 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
 
     return {
       unitType: UnitType.INFANTRY,
+      constructionSource: {
+        motion_type: document.motionType ?? 'foot',
+        'Field Guns Equipment': rawTags['Field Guns Equipment'] ?? [],
+      },
       ...protection,
       squadSize,
       numberOfSquads,
@@ -248,7 +254,7 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
       RulesLevel.INTRODUCTORY,
     );
 
-    return {
+    const unit = {
       ...buildCommonUnitFields({
         commonFields,
         idPrefix: 'infantry',
@@ -261,6 +267,7 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
       }),
       ...typeSpecificFields,
     } as IInfantry;
+    return withConstructionDiagnostics(unit, this.validate(unit));
   }
 
   /**
@@ -289,11 +296,7 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
    */
   protected validateTypeSpecificRules(unit: IInfantry): UnitValidationMessages {
     const { errors, warnings, infos } = createValidationMessages();
-
-    // Squad size validation (typically 7-10)
-    if (unit.squadSize < 1 || unit.squadSize > 10) {
-      errors.push('Infantry squad size must be between 1 and 10');
-    }
+    errors.push(...validateInfantrySource(unit));
 
     // Number of squads validation (typically 2-4)
     if (unit.numberOfSquads < 1 || unit.numberOfSquads > 4) {
