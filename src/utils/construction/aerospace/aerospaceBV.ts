@@ -5,8 +5,8 @@
  * and Small Craft) per TechManual pp. 302-304.
  *
  * Defensive BV uses Structural Integrity (SI) in place of the mech gyro term.
- * Offensive BV combines an arc-weighted fire pool (primary arc 100%,
- * opposite arc 25%, side arcs 50%) with full-contribution Fuselage weapons.
+ * Offensive BV combines forward and rear weapon groups; the weaker group
+ * contributes at 50%, with Fuselage mounts included in the forward group.
  * Speed factor uses the average of Safe and Max Thrust rather than ground MP.
  *
  * @spec openspec/changes/add-aerospace-battle-value/specs/battle-value-system/spec.md
