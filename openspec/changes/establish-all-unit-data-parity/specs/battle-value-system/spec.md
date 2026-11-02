@@ -1,5 +1,29 @@
 ## ADDED Requirements
 
+### Requirement: DropShip mount valuation
+
+The aerospace BV owner SHALL resolve represented DropShip mounts into six-arc
+weapon BV, heat and arc-local ammo facts using the existing equipment resolver.
+A bay-start marker SHALL count its weapon once; rear side mounts SHALL use the
+corresponding aft-side arc. Supported ammo SHALL use its catalog bin shot count
+and native integer multi-ton ratio, with depleted bins contributing zero.
+Unsupported identities, capital weapons, links, quantities and arcs SHALL be
+reported with mount indices and reasons, never silently valued at zero.
+Partial arc facts SHALL NOT authorize complete DropShip dispatch.
+
+#### Scenario: Supported mounts and native quantities
+
+- **GIVEN** a bay-start PPC, a rear left-side laser and AC/5 ammo with 39 shots
+- **WHEN** mount facts are resolved
+- **THEN** the PPC SHALL count once, the laser SHALL use the left-aft arc and the ammo SHALL count one native bin
+- **AND** a matching weapon in another arc SHALL NOT supply an ammo cap
+
+#### Scenario: Unrepresented mounts remain explicit
+
+- **GIVEN** a capital weapon, an unrepresented link or malformed mount facts
+- **WHEN** mount facts are resolved
+- **THEN** each unsupported mount SHALL be reported and complete BV SHALL remain unavailable
+
 ### Requirement: Large aerospace offensive fire pool
 
 The aerospace BV owner SHALL provide a separate six-arc offensive stage for

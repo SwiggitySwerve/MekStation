@@ -41,6 +41,8 @@ function toCatalogEntry(
     battleValue: typeof item.battleValue === 'number' ? item.battleValue : 0,
     heat: typeof item.heat === 'number' ? item.heat : undefined,
     subType: typeof item.subType === 'string' ? item.subType : undefined,
+    shotsPerTon:
+      typeof item.shotsPerTon === 'number' ? item.shotsPerTon : undefined,
     damage:
       typeof item.damage === 'number' || typeof item.damage === 'string'
         ? item.damage
