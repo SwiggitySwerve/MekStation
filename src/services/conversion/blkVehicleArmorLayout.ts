@@ -40,7 +40,10 @@ const EQUIPMENT_BLOCK_TO_ARMOR_KEY: Readonly<Record<string, string>> = {
  * case (`BuildingBlock.java:148,184`), so the lookup does too.
  */
 export function blkEquipmentBlockLocation(blockName: string): string {
-  return EQUIPMENT_BLOCK_TO_ARMOR_KEY[blockName.toLowerCase()] ?? blockName;
+  const key = blockName.toLowerCase();
+  return Object.hasOwn(EQUIPMENT_BLOCK_TO_ARMOR_KEY, key)
+    ? EQUIPMENT_BLOCK_TO_ARMOR_KEY[key]
+    : blockName;
 }
 
 /** Heaviest weight a motion type can carry before MegaMek builds a SuperHeavyTank. */
