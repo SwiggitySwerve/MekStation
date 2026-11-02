@@ -56,7 +56,7 @@ import {
  */
 export class ConventionalFighterUnitHandler extends AbstractUnitTypeHandler<IConventionalFighter> {
   readonly unitType = UnitType.CONVENTIONAL_FIGHTER;
-  readonly displayName = 'Conventional Fighter';
+  readonly displayName: string = 'Conventional Fighter';
 
   /**
    * Get available locations for conventional fighters
@@ -107,9 +107,7 @@ export class ConventionalFighterUnitHandler extends AbstractUnitTypeHandler<ICon
     const bombCapacity = hasBombBay ? Math.floor(document.tonnage * 0.1) : 0;
 
     // Tonnage limits for conventional fighters
-    if (document.tonnage > 100) {
-      errors.push('Conventional fighters cannot exceed 100 tons');
-    }
+    errors.push(...this.sourceSizeErrors(document.tonnage));
 
     return {
       unitType: UnitType.CONVENTIONAL_FIGHTER,
@@ -125,6 +123,12 @@ export class ConventionalFighterUnitHandler extends AbstractUnitTypeHandler<ICon
       errors,
       warnings,
     } satisfies Partial<IConventionalFighter> & UnitFieldParseMessages;
+  }
+
+  protected sourceSizeErrors(tonnage: number): string[] {
+    return tonnage > 100
+      ? ['Conventional fighters cannot exceed 100 tons']
+      : [];
   }
 
   /**
@@ -179,10 +183,7 @@ export class ConventionalFighterUnitHandler extends AbstractUnitTypeHandler<ICon
 
     pushTonnageRangeErrors(errors, unit.tonnage, {
       label: 'Conventional fighter',
-      min:
-        unit.nativeAerospaceConstruction?.unitType === 'FixedWingSupport'
-          ? 0
-          : 5,
+      min: 5,
       max: 100,
     });
 

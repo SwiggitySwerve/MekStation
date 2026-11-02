@@ -25,6 +25,7 @@ export interface EquipmentCatalogEntry {
   techBase: string;
   heat?: number;
   weight?: number;
+  criticalSlots?: number;
   special?: readonly string[];
   variableEquipmentId?: string;
   battleValue: number;
