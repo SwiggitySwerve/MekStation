@@ -16,7 +16,7 @@ import type {
   ISmallCraft,
 } from '@/types/unit/AerospaceInterfaces';
 import type { IAerospaceUnit } from '@/types/unit/BaseUnitInterfaces';
-import type { IInfantry } from '@/types/unit/PersonnelInterfaces';
+import type { IInfantry, IProtoMech } from '@/types/unit/PersonnelInterfaces';
 import type { IProtoMechUnit } from '@/types/unit/ProtoMechInterfaces';
 import type { IVehicleUnit } from '@/types/unit/VehicleInterfaces';
 
@@ -43,6 +43,7 @@ import {
 import { calculateInfantryBVFromUnit as _calculateInfantryBVFromUnit } from './infantry/infantryBVAdapter';
 import {
   calculateProtoMechBV as _calculateProtoMechBV,
+  toBVProtoMech as _toBVProtoMech,
   type IProtoMechBVBreakdown,
   type IProtoMechBVOptions,
 } from './protomech/protoMechBV';
@@ -325,7 +326,7 @@ export function calculateBattleValueForUnit(
   }
   if (unit && (unit as IProtoMechUnit).unitType === UnitType.PROTOMECH) {
     const breakdown = _calculateProtoMechBV(
-      unit as IProtoMechUnit,
+      _toBVProtoMech(unit as IProtoMechUnit | IProtoMech),
       options ?? {},
     );
     return { kind: 'protomech', breakdown };
