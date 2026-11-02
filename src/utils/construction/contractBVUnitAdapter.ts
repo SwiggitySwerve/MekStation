@@ -25,7 +25,10 @@ import {
 } from '@/utils/construction/vehicle/equipmentMounts';
 import { hasVehicleStealth } from '@/utils/construction/vehicle/vehicleBVMovement';
 
+import type { ICapitalShipBVUnit } from './aerospace/capitalShipBV';
 import type { IDropShipBVUnit } from './aerospace/dropShipBV';
+
+import { isCapitalShipBVType } from './aerospace/aerospaceBVTypes';
 
 /** The subset of a converter / `UnitContract` unit this adapter reads. */
 export interface IContractBVSource {
@@ -249,7 +252,25 @@ function contractAerospaceToBVUnit(
 /** Route a contract unit to its adapter; throws for any other unitType. */
 export function contractUnitToBVUnit(
   unit: IContractBVSource,
-): IContractBVVehicle | IContractBVAerospace | IDropShipBVUnit {
+):
+  | IContractBVVehicle
+  | IContractBVAerospace
+  | IDropShipBVUnit
+  | ICapitalShipBVUnit {
+  if (isCapitalShipBVType(unit.unitType)) {
+    return {
+      unitType: unit.unitType,
+      structuralIntegrity: requireFact(
+        unit.structuralIntegrity,
+        'structuralIntegrity',
+      ),
+      ...contractAerospaceArmorFacts(unit),
+      equipment: (unit.equipment ?? []).map((item) => ({
+        equipmentId: item.id,
+        location: item.location,
+      })),
+    };
+  }
   if (unit.unitType === UnitType.DROPSHIP) {
     return {
       unitType: UnitType.DROPSHIP,

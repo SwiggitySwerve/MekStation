@@ -1,4 +1,4 @@
-import type { ISerializedFluff } from '@/types/unit/UnitSerialization';
+import type { AerospaceState } from '@/stores/aerospaceState';
 /**
  * Unit Loader Service - Type Definitions
  *
@@ -6,6 +6,8 @@ import type { ISerializedFluff } from '@/types/unit/UnitSerialization';
  *
  * @spec openspec/specs/unit-services/spec.md
  */
+import type { VehicleState } from '@/stores/vehicleState';
+import type { ISerializedFluff } from '@/types/unit/UnitSerialization';
 
 import { UnitState } from '@/stores/unitState';
 
@@ -107,6 +109,13 @@ export interface ILoadUnitResult {
     | 'session-failed';
   readonly sourceDefinition?: IUnitDefinitionReference;
   readonly success: boolean;
+  /** BattleMech editor state. */
   readonly state?: UnitState;
+  /** Editor state for a family with its own store (vehicles, aerospace). */
+  readonly familyState?: FamilyEditorState;
   readonly error?: string;
 }
+
+export type FamilyEditorState =
+  | { readonly store: 'vehicle'; readonly state: VehicleState }
+  | { readonly store: 'aerospace'; readonly state: AerospaceState };

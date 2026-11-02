@@ -29,6 +29,31 @@ required before changing the defensive-only calculation scope.
 - **AND** ammo SHALL NOT borrow a matching weapon cap from another arc
 - **AND** missing, duplicate, unsupported or nonfinite stage facts SHALL be rejected
 
+### Requirement: Capital ship defensive BV dispatch
+
+JumpShips, WarShips and Space Stations SHALL use the aerospace defensive owner
+with armor factor 25, SI factor 20 and type modifiers 0.75, 0.8 and 0.7,
+respectively, matching pinned MegaMek 48fcb2f6. Defensive equipment and ammo
+caps SHALL use the inherited owner. KF drive and sail integrity SHALL add no
+BV. Explosive penalties SHALL be zero and the defensive factor SHALL be 1.
+The capital type override SHALL NOT inherit the aircraft stealth addition.
+
+#### Scenario: Capital defense without an invented total
+
+- **GIVEN** Comitatus (2995), Aegis (2582) or Crucible with native defensive equipment facts
+- **WHEN** domain or contract input reaches BV dispatch
+- **THEN** defense SHALL be 2142, 12920 or 1064, respectively
+- **AND** calculationScope SHALL be defensive-only with offensive and final BV undefined
+- **AND** DropShip, fighter and small-craft results SHALL remain unchanged
+
+#### Scenario: Required capital defense facts
+
+- **GIVEN** capital contract JSON without SI or armor.byArc
+- **WHEN** the BV adapter runs
+- **THEN** it SHALL reject the missing fact and preserve explicit zero values
+- **AND** hull and broadside mounts SHALL retain their identities and locations
+- **AND** all 185 pinned units SHALL be compared against the Java defensive aggregate with every miss explained by component
+
 ### Requirement: DropShip defensive BV dispatch
 
 The unified BV dispatcher SHALL return a defensive-only DropShip breakdown
