@@ -127,7 +127,7 @@
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 1000,
-      "battleValue": 8,
+      "battleValue": 7,
       "isExplosive": true,
       "introductionYear": 3057
     },
@@ -143,7 +143,7 @@
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 9000,
-      "battleValue": 15,
+      "battleValue": 14,
       "isExplosive": true,
       "introductionYear": 2640,
       "extinctionYear": 2915,
@@ -193,7 +193,7 @@
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 2000,
-      "battleValue": 6,
+      "battleValue": 5,
       "isExplosive": true,
       "introductionYear": 3058
     },
@@ -209,7 +209,7 @@
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 9000,
-      "battleValue": 12,
+      "battleValue": 10,
       "isExplosive": true,
       "introductionYear": 3058
     },
