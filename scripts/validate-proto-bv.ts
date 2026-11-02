@@ -5,8 +5,8 @@
  * Emits a parity report comparing MekStation's proto BV calculator against
  * canonical MegaMekLab / MUL proto BV values.
  *
- * Status: DEFERRED until a proto MUL cache lands under
- *   public/data/units/protomechs/ (or equivalent).
+ * Status: DEFERRED until a proto MUL reference cache is available.
+ * The indexed construction catalog is not a MUL reference cache.
  *
  * When the cache is absent, this script still emits a well-formed
  * `validation-output/protomech-bv-validation-report.json` with
@@ -30,6 +30,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+const DEFAULT_PROTO_CACHE_PATH = path.resolve('public/data/units/protomechs');
+
 // =============================================================================
 // CLI arg parsing
 // =============================================================================
@@ -43,7 +45,7 @@ interface CLIOptions {
 function parseArgs(): CLIOptions {
   const args = process.argv.slice(2);
   const options: CLIOptions = {
-    protoCachePath: path.resolve(process.cwd(), 'public/data/units/protomechs'),
+    protoCachePath: DEFAULT_PROTO_CACHE_PATH,
     outputPath: path.resolve(
       process.cwd(),
       'validation-output/protomech-bv-validation-report.json',
@@ -56,7 +58,7 @@ function parseArgs(): CLIOptions {
     switch (arg) {
       case '--proto-cache':
         options.protoCachePath = path.resolve(
-          args[++i] || 'public/data/units/protomechs',
+          args[++i] || DEFAULT_PROTO_CACHE_PATH,
         );
         break;
       case '--output':
@@ -156,6 +158,12 @@ function loadProtoCache(cachePath: string): unknown[] | undefined {
   // we still treat this as "deferred" so the harness doesn't silently
   // report 0 matches as success.
   if (stat.isDirectory()) {
+    // Publishing the indexed construction catalog supplies no MUL BV references.
+    if (
+      cachePath === DEFAULT_PROTO_CACHE_PATH &&
+      fs.existsSync(path.join(cachePath, 'index.json'))
+    )
+      return undefined;
     const entries = fs
       .readdirSync(cachePath)
       .filter((f) => f.toLowerCase().endsWith('.json'));

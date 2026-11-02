@@ -445,6 +445,10 @@ const infantryInitSchema = z
     damageDivisor: finiteNumber.positive().optional(),
     hasPheromoneEffuser: z.boolean().optional(),
     isArmorEncumbering: z.boolean().optional(),
+    hasArmorKit: z.boolean().optional(),
+    bvArmorFlags: z
+      .array(z.enum(['dest', 'sneakcamo', 'sneakir', 'sneakecm']))
+      .optional(),
     bvOffense: z
       .strictObject({
         secondaryShooters: finiteNumber,
@@ -452,6 +456,12 @@ const infantryInitSchema = z
         antiMek: z.boolean(),
         augmentations: z.array(z.string()),
         prostheticAntiMek: z.boolean(),
+        runMP: finiteNumber.optional(),
+        jumpMP: finiteNumber.optional(),
+        umuMP: finiteNumber.optional(),
+        specializations: finiteNumber.optional(),
+        dermalCamoEligible: z.boolean().optional(),
+        prostheticDamage: finiteNumber.optional(),
       })
       .optional(),
     numberOfSquads: finiteNumber,

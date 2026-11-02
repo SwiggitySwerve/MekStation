@@ -3,8 +3,8 @@
  * BattleArmorBVCalculator.java:84-111,257-278 and BVCalculator.java:650-683.
  * Per trooper: (1 + armor * rate) * (1.1 + maxTMM/10 + stealth + camo).
  * Rate is 3.5 for reactive/reflective/fire-resistant armor, otherwise 2.5.
- * Defensive equipment, offense and squad-size parity remain separate work.
- * The existing offensive and linear squad calculations are retained here.
+ * Native mount projection supplies represented offense; catalog/ammo gaps
+ * stay explicit. Squad strength follows BattleArmorBVCalculator.java:193-204.
  * @spec openspec/specs/battle-value-system/spec.md
  */
 
@@ -22,8 +22,11 @@ import {
 } from '@/types/unit/BattleArmorInterfaces';
 import { getPilotSkillModifier } from '@/types/validation/BattleValue';
 
-import { calculateTMM } from '../battleValueMovement';
-import { resolveAmmoBV, resolveEquipmentBV } from '../equipmentBVResolver';
+import {
+  calculateTMM,
+  calculateOffensiveSpeedFactorForMP,
+} from '../battleValueMovement';
+import { resolveEquipmentBV } from '../equipmentBVResolver';
 
 const BA_ARMOR_BV_MULTIPLIERS: Readonly<Record<BAArmorType, number>> = {
   [BAArmorType.STANDARD]: 1.0,
@@ -49,6 +52,10 @@ export interface BAWeaponBVMount {
   id: string;
   /** Optional BV override — if omitted the resolver supplies the value. */
   bvOverride?: number;
+  quantity?: number;
+  antiMek?: boolean;
+  antiMekOnly?: boolean;
+  antiMekQuantity?: number;
 }
 
 /**
@@ -86,7 +93,7 @@ export interface IBattleArmorBVInput {
   groundMP: number;
   /** Jump MP per trooper (0 if none). */
   jumpMP: number;
-  /** UMU MP per trooper (0 if none). UMU and Jump share the /2 slot. */
+  /** Active UMU MP per trooper (0 if none). */
   umuMP?: number;
 
   /** Armor points per trooper. */
@@ -106,6 +113,8 @@ export interface IBattleArmorBVInput {
   hasMagneticClamp?: boolean;
   /** Camouflage adds 0.2 to the defensive factor, independently of armor. */
   hasCamoSystem?: boolean;
+  canAntiMek?: boolean;
+  unresolvedEquipment?: readonly string[];
 
   /** Pilot gunnery skill (default 4). */
   gunnery?: number;
@@ -162,25 +171,11 @@ export function getBAMoveClassMultiplier(weightClass: BAWeightClass): number {
 // Manipulator Melee BV
 // =============================================================================
 
-/**
- * Melee BV contribution for a single manipulator.
- *
- *   Vibro-Claw                  = 3
- *   Heavy Claw / Heavy Battle   = 2
- *   Battle Claw / Battle        = 1
- *   everything else (Basic,
- *   Armored Glove, Cargo Lifter, …) = 0
- *
- * Both arms contribute independently — a Biped with Vibro-Claws on both
- * arms gets 3 + 3 = 6 melee BV.
- */
+/** Anti-Mek claw BV only; MiscType.java:11768-11783 (pin 48fcb2f64). */
 export function getBAManipulatorMeleeBV(manipulator: BAManipulator): number {
   switch (manipulator) {
     case BAManipulator.VIBRO_CLAW:
-      return 3;
-    case BAManipulator.HEAVY_CLAW:
-      return 2;
-    case BAManipulator.BATTLE_CLAW:
+    case BAManipulator.MAGNET:
       return 1;
     default:
       return 0;
@@ -246,23 +241,32 @@ function resolveWeaponBV(mount: BAWeaponBVMount): number {
  */
 function resolveAmmoMountBV(mount: BAAmmoBVMount): number {
   if (mount.bvOverride !== undefined) return mount.bvOverride;
-  return resolveAmmoBV(mount.id).battleValue;
+  // AmmoType.java:17103-17105 requires kgPerShot, absent from this catalog.
+  // Pre-valued inputs remain supported; native gaps are reported by projection.
+  return 0;
 }
 
 /**
  * Compute per-trooper offensive BV.
  *
- *   weaponBV      = sum of resolved weapon BVs
- *   ammoBV        = sum of resolved ammo BVs
- *   manipulatorBV = left + right melee BV
- *   total         = weaponBV + ammoBV + manipulatorBV
+ *   weaponBV      = resolved per-trooper mounts plus eligible anti-Mek attacks
+ *   ammoBV        = represented pre-valued bins; native gaps stay explicit
+ *   manipulatorBV = eligible vibro/magnetic claws
+ *   total         = (weaponBV + ammoBV + manipulatorBV) * offensiveSpeedFactor
  */
 export function calculateBAOffensiveBV(
   input: IBattleArmorBVInput,
 ): BAOffensiveBVBreakdown {
   let weaponBV = 0;
+  let clawBV = 0;
   for (const w of input.weapons) {
-    weaponBV += resolveWeaponBV(w);
+    const bv = resolveWeaponBV(w);
+    const anti =
+      input.canAntiMek && w.antiMek
+        ? bv * (w.antiMekQuantity ?? w.quantity ?? 1)
+        : 0;
+    if (w.antiMekOnly) clawBV += anti;
+    else weaponBV += bv * (w.quantity ?? 1) + anti;
   }
 
   let ammoBV = 0;
@@ -270,11 +274,18 @@ export function calculateBAOffensiveBV(
     ammoBV += resolveAmmoMountBV(a);
   }
 
+  // Raw claw mounts take precedence over editor manipulator selections.
   const manipulatorBV =
-    getBAManipulatorMeleeBV(input.manipulators.left) +
-    getBAManipulatorMeleeBV(input.manipulators.right);
-
-  const total = weaponBV + ammoBV + manipulatorBV;
+    clawBV +
+    (input.canAntiMek && !input.weapons.some((w) => w.antiMekOnly)
+      ? getBAManipulatorMeleeBV(input.manipulators.left) +
+        getBAManipulatorMeleeBV(input.manipulators.right)
+      : 0);
+  // BattleArmorBVCalculator.java:334-337; BVCalculator.java:1113-1118.
+  const speed = calculateOffensiveSpeedFactorForMP(
+    Math.max(input.groundMP, input.jumpMP, input.umuMP ?? 0),
+  );
+  const total = (weaponBV + ammoBV + manipulatorBV) * speed;
 
   return { weaponBV, ammoBV, manipulatorBV, total };
 }
@@ -302,7 +313,9 @@ export function calculateBattleArmorBV(
   };
 
   const squadSize = Math.max(1, Math.floor(input.squadSize));
-  const squadTotal = perTrooper.total * squadSize;
+  // MegaMek 48fcb2f64 BattleArmorBVCalculator.java:193-204.
+  const squadFactor = (0.9 + 0.1 * squadSize) * squadSize;
+  const squadTotal = perTrooper.total * squadFactor;
 
   const gunnery = input.gunnery ?? 4;
   const piloting = input.piloting ?? 5;
