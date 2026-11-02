@@ -14,7 +14,10 @@ import {
   RecordSheetVehicleMotionType,
   RecordSheetVehicleTurretConfig,
 } from '@/types/printing';
-import { RECORD_SHEET_VEHICLE_ARMOR_LOCATIONS } from '@/types/printing/RecordSheetVehicleTypes';
+import {
+  assertSupportedVehicleTurretLayout,
+  RECORD_SHEET_VEHICLE_ARMOR_LOCATIONS,
+} from '@/types/printing/RecordSheetVehicleTypes';
 
 import type { IBaseRecordSheetUnitConfig } from './types';
 
@@ -31,7 +34,7 @@ import {
 export interface IVehicleUnitConfig extends IBaseRecordSheetUnitConfig {
   /** Combat vehicle motion type — defaults to 'Tracked' when absent. */
   motionType?: RecordSheetVehicleMotionType;
-  /** Turret layout — defaults to Single when turret armor/equipment exists. */
+  /** Explicit installed turret layout — defaults to None when absent. */
   turretConfig?: RecordSheetVehicleTurretConfig;
   /** Cruise MP (walk equivalent). */
   cruiseMP?: number;
@@ -54,17 +57,6 @@ export interface IVehicleUnitConfig extends IBaseRecordSheetUnitConfig {
   barRating?: number;
 }
 
-function inferTurretConfig(
-  unit: IVehicleUnitConfig,
-): RecordSheetVehicleTurretConfig {
-  if (unit.turretConfig) return unit.turretConfig;
-  const hasTurretArmor = unit.armorAllocation?.Turret !== undefined;
-  const hasTurretEquipment = (unit.equipment ?? []).some((eq) =>
-    eq.location.toLowerCase().includes('turret'),
-  );
-  return hasTurretArmor || hasTurretEquipment ? 'Single' : 'None';
-}
-
 /**
  * Extract vehicle record sheet data from a vehicle unit configuration.
  *
@@ -75,11 +67,18 @@ export function extractVehicleData(
   unit: IVehicleUnitConfig,
   specialAbilities?: readonly IRecordSheetSPAEntry[],
 ): IVehicleRecordSheetData {
+  const motionType = unit.motionType ?? 'Tracked';
+  const turretConfig = unit.turretConfig ?? 'None';
+  assertSupportedVehicleTurretLayout(motionType, turretConfig);
+
   // Build armor locations in canonical order, skipping absent locations
   const armorAlloc = unit.armorAllocation ?? {};
   const armorLocations: IVehicleLocationArmor[] =
     RECORD_SHEET_VEHICLE_ARMOR_LOCATIONS.filter(
-      (loc) => armorAlloc[loc] !== undefined,
+      (loc) =>
+        armorAlloc[loc] !== undefined &&
+        (loc !== 'Turret 2' || turretConfig === 'Dual') &&
+        ((loc !== 'Turret' && loc !== 'Chin') || turretConfig !== 'None'),
     ).map((loc) => ({
       location: loc,
       current: armorAlloc[loc]?.current ?? 0,
@@ -107,8 +106,8 @@ export function extractVehicleData(
   return {
     unitType: 'vehicle',
     header: extractHeader(unit),
-    motionType: unit.motionType ?? 'Tracked',
-    turretConfig: inferTurretConfig(unit),
+    motionType,
+    turretConfig,
     cruiseMP: unit.cruiseMP ?? 0,
     flankMP: unit.flankMP ?? 0,
     armorType: unit.armorType ?? 'Standard',

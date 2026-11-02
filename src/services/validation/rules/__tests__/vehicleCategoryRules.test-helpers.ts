@@ -2,7 +2,7 @@
  * Vehicle Category Validation Rules Tests
  *
  * Tests for vehicle category validation rules including
- * engine, motive system, turret capacity, VTOL rotor, and tonnage validation.
+ * engine, motive system, VTOL rotor, and tonnage validation.
  */
 
 import { TechBase, RulesLevel, Era } from '@/types/enums';
@@ -17,7 +17,6 @@ import {
 import {
   VehicleEngineRequired,
   VehicleMotiveSystemRequired,
-  VehicleTurretCapacity,
   VTOLRotorRequired,
   VehicleTonnageRange,
   VEHICLE_CATEGORY_RULES,
@@ -31,10 +30,6 @@ interface IVehicleTestUnit extends IValidatableUnit {
   engine?: { type: string; rating: number };
   motiveSystem?: { type: string };
   rotor?: { type: string };
-  turret?: {
-    capacity: number;
-    usedWeight: number;
-  };
 }
 
 function createVehicleUnit(
@@ -120,14 +115,14 @@ describe('Vehicle Category Rules', () => {
   describe('VEHICLE_CATEGORY_RULES export', () => {
     it('should export all vehicle rules', () => {
       expect(VEHICLE_CATEGORY_RULES).toBeDefined();
-      expect(VEHICLE_CATEGORY_RULES.length).toBe(5);
+      expect(VEHICLE_CATEGORY_RULES.length).toBe(4);
     });
 
     it('should contain all expected rule IDs', () => {
       const ruleIds = VEHICLE_CATEGORY_RULES.map((r) => r.id);
       expect(ruleIds).toContain('VAL-VEH-001');
       expect(ruleIds).toContain('VAL-VEH-002');
-      expect(ruleIds).toContain('VAL-VEH-003');
+      expect(ruleIds).not.toContain('VAL-VEH-003');
       expect(ruleIds).toContain('VAL-VEH-004');
       expect(ruleIds).toContain('VAL-VEH-005');
     });
@@ -135,9 +130,8 @@ describe('Vehicle Category Rules', () => {
     it('should have rules in correct order', () => {
       expect(VEHICLE_CATEGORY_RULES[0].id).toBe('VAL-VEH-001');
       expect(VEHICLE_CATEGORY_RULES[1].id).toBe('VAL-VEH-002');
-      expect(VEHICLE_CATEGORY_RULES[2].id).toBe('VAL-VEH-003');
-      expect(VEHICLE_CATEGORY_RULES[3].id).toBe('VAL-VEH-004');
-      expect(VEHICLE_CATEGORY_RULES[4].id).toBe('VAL-VEH-005');
+      expect(VEHICLE_CATEGORY_RULES[2].id).toBe('VAL-VEH-004');
+      expect(VEHICLE_CATEGORY_RULES[3].id).toBe('VAL-VEH-005');
     });
   });
 
@@ -338,130 +332,6 @@ describe('Vehicle Category Rules', () => {
         const unit = createSupportVehicleUnit({ motiveSystem: undefined });
         const context = createTestContext(unit);
         const result = VehicleMotiveSystemRequired.validate(context);
-
-        expect(result.passed).toBe(false);
-        expect(result.errors.length).toBe(1);
-      });
-    });
-  });
-
-  // =============================================================================
-  // VAL-VEH-003: Turret Capacity Limits
-  // =============================================================================
-
-  describe('VAL-VEH-003: Turret Capacity Limits', () => {
-    it('should have correct metadata', () => {
-      expect(VehicleTurretCapacity.id).toBe('VAL-VEH-003');
-      expect(VehicleTurretCapacity.name).toBe('Turret Capacity Limits');
-      expect(VehicleTurretCapacity.priority).toBe(32);
-      expect(VehicleTurretCapacity.applicableUnitTypes).toContain(
-        UnitType.VEHICLE,
-      );
-      expect(VehicleTurretCapacity.applicableUnitTypes).toContain(
-        UnitType.SUPPORT_VEHICLE,
-      );
-      // VTOLs should not be in applicableUnitTypes for turret capacity
-      expect(VehicleTurretCapacity.applicableUnitTypes).not.toContain(
-        UnitType.VTOL,
-      );
-    });
-
-    describe('canValidate', () => {
-      it('should return true when turret is present', () => {
-        const unit = createVehicleUnit({
-          turret: { capacity: 10, usedWeight: 5 },
-        });
-        const context = createTestContext(unit);
-        const result = VehicleTurretCapacity.canValidate!(context);
-
-        expect(result).toBe(true);
-      });
-
-      it('should return false when turret is not present', () => {
-        const unit = createVehicleUnit({ turret: undefined });
-        const context = createTestContext(unit);
-        const result = VehicleTurretCapacity.canValidate!(context);
-
-        expect(result).toBe(false);
-      });
-
-      it('should return false for non-vehicle types', () => {
-        const unit = createVehicleUnit({
-          unitType: UnitType.BATTLEMECH,
-          turret: { capacity: 10, usedWeight: 5 },
-        });
-        const context = createTestContext(unit, UnitCategory.MECH);
-        const result = VehicleTurretCapacity.canValidate!(context);
-
-        expect(result).toBe(false);
-      });
-    });
-
-    describe('validate', () => {
-      it('should pass when turret weight is within capacity', () => {
-        const unit = createVehicleUnit({
-          turret: { capacity: 10, usedWeight: 5 },
-        });
-        const context = createTestContext(unit);
-        const result = VehicleTurretCapacity.validate(context);
-
-        expect(result.passed).toBe(true);
-        expect(result.errors.length).toBe(0);
-      });
-
-      it('should pass when turret weight equals capacity', () => {
-        const unit = createVehicleUnit({
-          turret: { capacity: 10, usedWeight: 10 },
-        });
-        const context = createTestContext(unit);
-        const result = VehicleTurretCapacity.validate(context);
-
-        expect(result.passed).toBe(true);
-        expect(result.errors.length).toBe(0);
-      });
-
-      it('should fail when turret weight exceeds capacity', () => {
-        const unit = createVehicleUnit({
-          turret: { capacity: 10, usedWeight: 15 },
-        });
-        const context = createTestContext(unit);
-        const result = VehicleTurretCapacity.validate(context);
-
-        expect(result.passed).toBe(false);
-        expect(result.errors.length).toBe(1);
-        expect(result.errors[0].severity).toBe(UnitValidationSeverity.ERROR);
-        expect(result.errors[0].message).toContain('5.00');
-        expect(result.errors[0].field).toBe('turret.usedWeight');
-        expect(result.errors[0].expected).toBe('<= 10');
-        expect(result.errors[0].actual).toBe('15');
-      });
-
-      it('should calculate correct overflow amount', () => {
-        const unit = createVehicleUnit({
-          turret: { capacity: 8.5, usedWeight: 12.75 },
-        });
-        const context = createTestContext(unit);
-        const result = VehicleTurretCapacity.validate(context);
-
-        expect(result.passed).toBe(false);
-        expect(result.errors[0].message).toContain('4.25');
-      });
-
-      it('should pass when no turret is present', () => {
-        const unit = createVehicleUnit({ turret: undefined });
-        const context = createTestContext(unit);
-        const result = VehicleTurretCapacity.validate(context);
-
-        expect(result.passed).toBe(true);
-        expect(result.errors.length).toBe(0);
-      });
-
-      it('should work with Support Vehicle', () => {
-        const unit = createSupportVehicleUnit({
-          turret: { capacity: 20, usedWeight: 25 },
-        });
-        const context = createTestContext(unit);
-        const result = VehicleTurretCapacity.validate(context);
 
         expect(result.passed).toBe(false);
         expect(result.errors.length).toBe(1);
@@ -784,7 +654,6 @@ describe('Vehicle Category Rules', () => {
         weight: 50,
         engine: { type: 'Fusion', rating: 200 },
         motiveSystem: { type: 'Tracked' },
-        turret: { capacity: 10, usedWeight: 8 },
       });
       const context = createTestContext(unit);
 
@@ -828,7 +697,6 @@ describe('Vehicle Category Rules', () => {
         weight: 150, // Invalid: exceeds max 100 tons
         engine: undefined, // Invalid: no engine
         motiveSystem: undefined, // Invalid: no motive system
-        turret: { capacity: 5, usedWeight: 10 }, // Invalid: over capacity
       });
       const context = createTestContext(unit);
 
@@ -842,7 +710,6 @@ describe('Vehicle Category Rules', () => {
 
       expect(failedRules).toContain('VAL-VEH-001'); // Engine
       expect(failedRules).toContain('VAL-VEH-002'); // Motive System
-      expect(failedRules).toContain('VAL-VEH-003'); // Turret Capacity
       expect(failedRules).toContain('VAL-VEH-005'); // Tonnage Range
     });
   });

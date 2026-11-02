@@ -179,6 +179,24 @@ sponson mount label while keeping its body location. Its boundary requires
 cruise/flank or safe/max thrust and the applicable armor allocation map;
 absence throws, while explicit zeros and empty maps remain valid source facts.
 
+`turret.ts:getInstalledVehicleTurretType` projects the explicitly installed
+primary/secondary configurations into a layout. A primary DUAL label without
+an installed secondary projects as Single; an orphan secondary does not invent
+a primary. These compatibility projections do not certify saved-state validity.
+Both preview paths share a reactive store projection that passes the explicit
+layout and distinct armor keys to printing; zero armor never removes a turret.
+The printing location tuple owns its union, schema membership and ordering.
+
+Pinned MegaMek [Tank.java:120-130](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/Tank.java#L120)
+defines primary as rear and secondary as front on dual-turret tanks. Printing
+therefore binds `Turret` to TU and `Turret 2` to FT in the supported assets,
+independently of array order. The checked mm-data asset revision is
+`b67baa5ecc765435425fd8cb703a6da909478b7a`, separate from the unit-source pin;
+these templates retain TU for rear while newer MegaMek code calls it RT.
+Chin/primary VTOL armor uses TU independently of rotor RO. Extraction and
+template selection reject dual VTOLs. Existing renderer fallback behavior,
+font/raster fidelity and physical printing are outside this correction.
+
 `engine.ts` owns combat-vehicle rating and installed-weight derivation.
 `suspension.json` owns the suspension table facts consumed by TypeScript and
 `scripts/megameklab-conversion/combat_vehicle_engine.py`. Python is a conversion

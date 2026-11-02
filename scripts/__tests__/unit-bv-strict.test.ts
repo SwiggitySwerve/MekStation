@@ -35,6 +35,13 @@ const java = (family = 'vehicles'): IJavaReferenceRow => ({
     aggregates: { defensiveValue: 60, offensiveValue: 40 },
   },
 });
+const java0 = (): IJavaReferenceRow => ({
+  ...java(),
+  battleValue: {
+    total: 100,
+    aggregates: { defensiveValue: 60, offensiveValue: 0 },
+  },
+});
 const computed = (family = 'vehicles'): IComputedRow => ({
   path: java(family).path,
   sha256,
@@ -167,6 +174,7 @@ it.each([0, NaN, Infinity, -Infinity, -1])(
   'rejects invalid values on either side: %s',
   (bad) => {
     for (const key of ['total', 'defensive', 'offensive'] as const) {
+      if (bad === 0 && key !== 'total') continue; // a real zero aggregate; see below
       expect(compareFigures({ ...figure(), [key]: bad }, figure()).status).toBe(
         'invalid',
       );
@@ -176,6 +184,40 @@ it.each([0, NaN, Infinity, -Infinity, -1])(
     }
   },
 );
+
+describe('a zero aggregate is a real value, a zero total is not', () => {
+  const unarmed = { ...figure(), offensive: 0 };
+
+  it('compares normally when Java and ours are both zero', () => {
+    const result = compareFigures(unarmed, unarmed);
+    expect(result.status).toBe('exact');
+    expect(result.offensive?.withinTolerance).toBe(true);
+    expect(report([{ ...computed(), figure: unarmed }], [java0()]).ok).toBe(
+      true,
+    );
+  });
+
+  it.each([
+    ['Java', unarmed, figure()],
+    ['ours', figure(), unarmed],
+  ])('is a mismatch, not invalid, when only %s is zero', (_, a, b) => {
+    const result = compareFigures(a, b);
+    expect(result.status).toBe('exact');
+    expect(result.offensive?.withinTolerance).toBe(false);
+  });
+
+  it('still rejects a NaN aggregate or a zero total beside a zero aggregate', () => {
+    expect(compareFigures(unarmed, { ...unarmed, offensive: NaN }).status).toBe(
+      'invalid',
+    );
+    expect(compareFigures({ ...unarmed, total: 0 }, unarmed).status).toBe(
+      'invalid',
+    );
+    expect(compareFigures(unarmed, { ...unarmed, total: 0 }).status).toBe(
+      'invalid',
+    );
+  });
+});
 
 it('uses tolerance only for aggregates and rejects fractional totals', () => {
   expect(

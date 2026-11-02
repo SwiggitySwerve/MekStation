@@ -25,6 +25,8 @@ export function useVehicleRecordSheetUnit(): IVehicleRecordSheetUnitInput {
   const armorAllocation = useVehicleStore((s) => s.armorAllocation);
   const barRating = useVehicleStore((s) => s.barRating);
   const equipment = useVehicleStore((s) => s.equipment);
+  const turret = useVehicleStore((s) => s.turret);
+  const secondaryTurret = useVehicleStore((s) => s.secondaryTurret);
 
   // Build the discriminated vehicle unit object for the record-sheet service.
   return useMemo(
@@ -46,6 +48,8 @@ export function useVehicleRecordSheetUnit(): IVehicleRecordSheetUnitInput {
         armorAllocation,
         barRating,
         equipment,
+        turret,
+        secondaryTurret,
       }),
     [
       id,
@@ -64,6 +68,8 @@ export function useVehicleRecordSheetUnit(): IVehicleRecordSheetUnitInput {
       armorAllocation,
       barRating,
       equipment,
+      turret,
+      secondaryTurret,
     ],
   );
 }

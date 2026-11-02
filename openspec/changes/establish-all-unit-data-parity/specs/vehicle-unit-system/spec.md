@@ -236,12 +236,11 @@ The system SHALL enforce vehicle-specific validation rules.
 - **THEN** the unit MUST have a motive system type selected
 - **AND** violation SHALL be `CRITICAL_ERROR` severity
 
-#### Scenario: VAL-VEH-003 — Turret Capacity Limits
+#### Scenario: Retired VAL-VEH-003 turret capacity rule
 
-- **WHEN** validating a vehicle with a turret (VEHICLE or SUPPORT_VEHICLE, not VTOL)
-- **THEN** turret equipment weight MUST NOT exceed turret capacity
-- **AND** violation SHALL be `ERROR` severity
-- **AND** the error SHALL report the overflow amount
+- **WHEN** validating any vehicle category unit, including one with legacy turret `capacity` and `usedWeight` values
+- **THEN** `VAL-VEH-003` SHALL NOT be registered or exported and no generic turret-capacity error SHALL be reported
+- **AND** total vehicle weight validation SHALL continue to reject allocated weight above the vehicle tonnage
 
 #### Scenario: VAL-VEH-004 — VTOL Rotor Required
 
