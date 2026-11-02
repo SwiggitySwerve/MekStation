@@ -21,6 +21,11 @@ import {
 } from './catalogLoader';
 import { normalizeEquipmentId } from './normalization';
 
+/** BVCalculator.processWeapon: apply only to the launcher linked by Artemis. */
+export function getArtemisBVMultiplier(type?: 'iv' | 'v'): number {
+  return type === 'iv' ? 1.2 : type === 'v' ? 1.3 : 1;
+}
+
 function applyBVHeatOverride(
   baseHeat: number,
   entry: EquipmentCatalogEntry,
