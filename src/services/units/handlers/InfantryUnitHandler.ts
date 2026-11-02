@@ -329,8 +329,10 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
       errors.push('Swarm attacks require anti-mech training');
     }
 
-    // Field gun crew check
-    for (const gun of unit.fieldGuns) {
+    // Field gun crew check. Source-declared guns are checked against the whole
+    // platoon by validateInfantrySource (TestInfantry.java:295-299, 48fcb2f64).
+    const sourceGuns = unit.constructionSource?.['Field Guns Equipment'];
+    for (const gun of sourceGuns?.length ? [] : unit.fieldGuns) {
       if (gun.crew > unit.squadSize) {
         errors.push(`Field gun ${gun.name} requires more crew than squad size`);
       }
