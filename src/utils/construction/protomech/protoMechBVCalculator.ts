@@ -14,6 +14,7 @@ import type { IProtoMechBVBreakdown } from '@/types/unit/BVBreakdownTypes';
 import { IProtoMechUnit, ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import { getPilotSkillModifier } from '@/types/validation/BattleValue';
 
+import { calculateBaseBV } from '../battleValueTotals';
 import { calculateProtoDefensive } from './protoMechBVDefensive';
 import { calculateProtoOffensive } from './protoMechBVOffensive';
 
@@ -58,7 +59,7 @@ export function calculateProtoMechBV(
   const defensive = calculateProtoDefensive(unit);
   const offensive = calculateProtoOffensive(unit);
 
-  const baseBV = Math.round(defensive.defensiveBV + offensive.offensiveBV);
+  const baseBV = calculateBaseBV(defensive.defensiveBV, offensive.offensiveBV);
 
   const chassisMultiplier = getProtoChassisMultiplier(unit.chassisType);
 
