@@ -19,6 +19,7 @@ import { createLibrarySaveReceipt } from '@/stores/unit/unitEditSnapshot';
 import type { IUnitDefinitionReference } from './definitionTypes';
 
 import { mapAerospaceDefinitionToState } from './aerospaceDefinitionMapper';
+import { mapCapitalDefinitionToView } from './capitalShipView';
 import { mapTechBase, mapTechBaseMode } from './componentMappers';
 import { createUnitSession } from './createUnitSession';
 import {
@@ -41,11 +42,14 @@ function unitLoadErrorMessage(error: unknown, fallback: string): string {
   return error instanceof Error ? error.message : fallback;
 }
 
-/** Route a validated vehicle or aerospace definition to its store mapper. */
+/** Route a validated non-mech definition to its store mapper or read-only view. */
 function mapFamilyState(
-  store: 'vehicle' | 'aerospace',
+  store: 'vehicle' | 'aerospace' | 'capital',
   definition: IUnitContract,
 ): FamilyEditorState {
+  if (store === 'capital') {
+    return { store, state: mapCapitalDefinitionToView(definition, uuidv4()) };
+  }
   if (store === 'vehicle') {
     return { store, state: mapToVehicleState(definition) };
   }

@@ -18,6 +18,7 @@ import {
   resetCanonicalUnitService,
 } from '@/services/units/CanonicalUnitService';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
+import { getCapitalShipView } from '@/services/units/unitLoaderService/capitalShipView';
 import { getAerospaceStore } from '@/stores/aerospaceStoreRegistry';
 import { createUnitFromFullState } from '@/stores/unitStoreRegistry';
 import { useTabManagerStore } from '@/stores/useTabManagerStore';
@@ -253,12 +254,22 @@ it.each([
   },
 );
 
+it('opens a capital ship into a read-only tab without creating a store', async () => {
+  const unit = await indexEntry('capital', 'achilles-2582');
+  const params = await open(unit);
+  const [tab] = useTabManagerStore.getState().tabs;
+  expect(tab).toMatchObject({ unitType: UnitType.DROPSHIP, tonnage: 4500 });
+  expect(params.navigateToTab).toHaveBeenCalledWith(tab.id);
+  expect(getCapitalShipView(tab.id)).toMatchObject({
+    sourceId: 'achilles-2582',
+    structuralIntegrity: 16,
+  });
+  expect(getAerospaceStore(tab.id)).toBeUndefined();
+  expect(createUnitFromFullState).not.toHaveBeenCalled();
+  expect(getLibrarySaveDisabledReason(tab)).toMatch(/not available/);
+});
+
 it.each([
-  [
-    'capital',
-    'achilles-2582',
-    'Capital ships cannot be opened yet because the editor has no capital ship view.',
-  ],
   [
     'battlearmor',
     'elemental-standard',
