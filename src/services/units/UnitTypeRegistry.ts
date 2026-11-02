@@ -22,6 +22,7 @@ import {
   createSingleton,
   type SingletonFactory,
 } from '../core/createSingleton';
+import { FixedWingSupportUnitHandler } from './handlers/FixedWingSupportUnitHandler';
 
 /**
  * Unit Type Registry Singleton
@@ -30,6 +31,7 @@ import {
  * Use getUnitTypeRegistry() to access the singleton instance.
  */
 class UnitTypeRegistry implements IUnitTypeRegistry {
+  private readonly fixedWingSupport = new FixedWingSupportUnitHandler();
   private readonly handlers: Map<UnitType, IUnitTypeHandler> = new Map();
 
   constructor() {}
@@ -59,6 +61,11 @@ class UnitTypeRegistry implements IUnitTypeRegistry {
   getHandlerForDocument = (
     document: IBlkDocument,
   ): IUnitTypeHandler | undefined => {
+    if (
+      this.fixedWingSupport.canHandle(document) &&
+      this.handlers.has(UnitType.CONVENTIONAL_FIGHTER)
+    )
+      return this.fixedWingSupport;
     // First try the mapped unit type
     const handler = this.handlers.get(document.mappedUnitType);
     if (handler) {
