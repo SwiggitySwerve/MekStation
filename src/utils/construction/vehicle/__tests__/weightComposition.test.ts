@@ -55,6 +55,12 @@ it('preserves the facade and every support composition output', () => {
     turretMounted: 0,
     energyWeapons: 0,
     remaining: 29.5,
+    secondaryTurretMounted: 0,
+    primaryAllowanceOverloaded: false,
+    secondaryAllowanceOverloaded: false,
+    unresolvedMountIds: [],
+    issues: [],
+    isComplete: true,
   });
 });
 
