@@ -154,7 +154,7 @@ function createVehicleData(overrides: Partial<IFullUnit> = {}): IFullUnit {
     tonnage: 60,
     techBase: 'INNER_SPHERE',
     era: 'SUCCESSION_WARS',
-    unitType: 'Vehicle',
+    unitType: 'VEHICLE', // Legacy represented-unit view; catalog contracts have separate fixtures.
     engine: { type: 'FUSION', rating: 240 },
     armor: {
       type: 'STANDARD',
@@ -797,7 +797,7 @@ describe('CompendiumAdapter', () => {
     it('should derive represented non-super-heavy VTOL entity height', () => {
       const result = adaptUnitFromData({
         ...createAtlasData(),
-        unitType: 'VTOL',
+        unitType: 'VEHICLE',
         motionType: 'VTOL',
         tonnage: 25,
       } as unknown as IFullUnit);

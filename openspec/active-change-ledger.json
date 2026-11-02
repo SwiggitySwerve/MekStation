@@ -61,10 +61,22 @@
       "lastReviewed": "2026-10-28"
     },
     {
+      "name": "reject-incomplete-combat-vehicle-handler-weight",
+      "status": "in-progress",
+      "reason": "Documents the S11 (#2549) explicit combat-handler incomplete-weight boundary. The existing parity requirement is moved unchanged, not duplicated. Parsing and support-weight ownership are preserved. Complete authoritative combat total calculation and full numerical parity remain outside this slice; canonical sync/archive is not claimed.",
+      "lastReviewed": "2026-11-02"
+    },
+    {
       "name": "repair-mtf-adapter-vocabulary",
       "status": "in-progress",
       "reason": "Owner-authorized source fidelity work under establish-all-unit-data-parity. Parser vocabulary and compatibility for its changed export identities are pending PR #2383. The broader export validation package is local and unpublished. Contextual chassis identity, editor persistence, complete semantic round trips and numerical parity remain open. This entry accounts for the active change without claiming completion or release readiness.",
       "lastReviewed": "2026-10-29"
+    },
+    {
+      "name": "validate-combat-omni-turret-mechanisms",
+      "status": "in-progress",
+      "reason": "Bounded S12 explicit combat Omni mechanism charges, raw allowance overload checks and nullable dependent validation; current geometry, support totals and ruling 5 remain with their owners. Composition and UI follow separately.",
+      "lastReviewed": "2026-11-02"
     },
     {
       "name": "preserve-combat-vehicle-turret-source-facts",

@@ -47,7 +47,12 @@ export function computeVehicleBVStructurePoints(
             isSuperHeavyTank(layout.motionType, layout.tonnage)
           ? 6
           : 4) + turrets;
-  return Math.ceil(layout.tonnage / 10) * count;
+  return computeVehicleLocationStructurePoints(layout.tonnage) * count;
+}
+
+/** Tank.autoSetInternal assigns this to each installed non-body location. */
+export function computeVehicleLocationStructurePoints(tonnage: number): number {
+  return Math.ceil(tonnage / 10);
 }
 
 /** Normalize the pinned EquipmentType structure codes for the shared BV table. */
