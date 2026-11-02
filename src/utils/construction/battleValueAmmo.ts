@@ -1,5 +1,23 @@
 import { normalizeEquipmentId } from './equipmentBVResolver';
 
+/** Closed subset whose catalog identity supplies a native type/rack cap group. */
+export function getCatalogAmmoBVGroup(id: string): string | undefined {
+  const key = id
+    .replace(/^ammo-/, '')
+    .replace(/-ammo$/, '')
+    .replace(/^clan-/, '');
+  if (/^lb-\d+-x(?:-ac|-cluster)?$/.test(key))
+    return key.replace(/-(?:ac|cluster)$/, '');
+  if (/^(?:(?:light|heavy)-)?gauss(?:-rifle)?$/.test(key))
+    return key.replace(/-rifle$/, '');
+  if (/^improvedheavygauss(?:rifle)?$/.test(key)) return 'improvedheavygauss';
+  return /^(?:ac|uac|rac|lac|lrm|srm|mrm|mml|streak-srm|streak-lrm)-\d+$/.test(
+    key,
+  )
+    ? key
+    : undefined;
+}
+
 const AMMO_WEAPON_TYPE_ALIASES: Record<string, string[]> = {
   'arrow-iv-launcher': [
     'isarrowivsystem',

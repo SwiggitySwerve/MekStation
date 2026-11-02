@@ -362,3 +362,23 @@ TestEntity.java:1011-1033 (sum); BLKSupportTankFile.java:96-97 (fuel tons),
 Entity.java:13145-13167 (armor). Engine weight reuses `engine.ts`, including
 shared size-class thresholds (EntityWeightClass.java:80-97). BAR weight reuses
 `armor.ts`. Source fixtures and boundary tests enforce these rules.
+
+## Offensive ammunition groups
+
+`vehicleBVOffensive.ts` selects matching catalog-derived weapon and bin groups
+before calling the shared `calculateAmmoBVWithExcessiveCap` owner. Its common
+LB-X/Gauss/missile rules are shared with large craft in `battleValueAmmo.ts`;
+the large-craft supported subset is unchanged. Vehicle keys additionally pair
+compact Arrow IV, rotary AC and Gauss ammo identities with their launchers,
+MG full/half packaging with the corresponding MG weight class, and ATM/iATM
+standard/ER/HE bins with the same rack. LB-X slug and cluster bins share one cap.
+The cap uses listed weapon BV, before rear/guidance/TC modifiers. Explicit ammo
+family/BV overrides and the existing fallback matching policy remain available.
+
+Pinned MegaMek `BVCalculator.java:1045-1096,1190-1240` defines grouping and the
+cap. `AmmoType.java:4117-4131,6183-6333,6582-6702,7051-7072,7182-7204,7311-7333`
+defines the represented identities. The source-parity tests cover native Alacorn,
+MG APC, Chaparral and Bandit E inputs, plus mixed-bin caps and overrides.
+Catalog BV values, missing bins, shot quantities, support fire-control factors
+and the deferred vehicle-flamer mapping remain separate concerns. No bin value
+is inferred from its packaging or substituted for missing catalog data.
