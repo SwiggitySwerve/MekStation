@@ -7,6 +7,7 @@ import type { IUnitContract } from '@/types/contracts';
 import type { TechBase } from '@/types/enums/TechBase';
 
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { validateAerospaceSource } from '@/utils/construction/aerospace/sourceValidation';
 import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
 import {
   contractUnitToBVUnit,
@@ -63,6 +64,7 @@ export interface ICapitalShipView {
     readonly items: readonly ICapitalShipRow[];
   }[];
   readonly bv: CapitalShipBV;
+  readonly constructionErrors?: readonly string[];
 }
 
 const ARCS: Record<string, string> = {
@@ -120,6 +122,12 @@ const CREW: ReadonlyArray<readonly [string, string]> = [
 
 /** Jumpship.java:89-93 DRIVE_CORE_* at the pinned MegaMek commit. */
 const DRIVE_CORES = ['Standard', 'Compact', 'Subcompact', 'None', 'Primitive'];
+const ARMOR_CODES: Readonly<Record<string, number>> = {
+  STANDARD: 0,
+  FERRO_ALUMINUM: 19,
+  PRIMITIVE_AERO: 40,
+  AEROSPACE: 41,
+};
 
 const titleCase = (key: string): string =>
   key
@@ -218,6 +226,45 @@ export function mapCapitalDefinitionToView(
       'The capital ship view cannot open a ship without a tonnage.',
     );
   }
+  const construction =
+    typeof raw.crew === 'number' && Array.isArray(raw.transporters)
+      ? {
+          crew: raw.crew,
+          officers: num(raw.officers),
+          passengers: num(raw.passengers),
+          marines: num(raw.marines),
+          unitType: String(definition.unitType),
+          tonnage,
+          year: num(raw.originalBuildYear) ?? num(raw.year) ?? 2500,
+          type: String(raw.sourceTechType ?? definition.techBase),
+          motionType: String(raw.motionType),
+          safeThrust: num(movement.safeThrust),
+          structuralIntegrity: num(raw.structuralIntegrity),
+          fuel: num(raw.fuel),
+          heatsinks: sinks?.count,
+          armorType: ARMOR_CODES[armor.type ?? ''] ?? -1,
+          armor: Object.values(armor.byArc ?? {}),
+          battlearmor: num(raw.battleArmor),
+          designType: raw.designType === 'MILITARY' ? 1 : 0,
+          transporters: raw.transporters as string[],
+          lifeBoat: num(raw.lifeBoats),
+          escapePod: num(raw.escapePods),
+          rawTags: {
+            ...Object.fromEntries(
+              arcs.map((arc) => [
+                arc + ' Equipment',
+                equipment
+                  .filter((m) => m.location === arc)
+                  .map((m) => m.name ?? m.id),
+              ]),
+            ),
+            kf_core: String(core ?? 0),
+            sail: String(Number(raw.hasSail !== false)),
+            lfbattery: String(Number(raw.hasLFBattery === true)),
+            grav_decks: ((raw.gravDecks as number[]) ?? []).map(String),
+          },
+        }
+      : undefined;
   return deepFreeze({
     id,
     sourceId: definition.id,
@@ -282,6 +329,9 @@ export function mapCapitalDefinitionToView(
       ),
     })),
     bv: capitalBV(definition),
+    constructionErrors: construction
+      ? validateAerospaceSource(construction)
+      : undefined,
   });
 }
 
