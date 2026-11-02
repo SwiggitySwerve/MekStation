@@ -38,7 +38,6 @@ import {
   calculateOffensiveBVWithHeatTracking,
   calculateExplosivePenalties,
   getCockpitModifier,
-  type CockpitType,
   type MechLocation,
 } from '../../../utils/construction/battleValueCalculations';
 import { resolveEquipmentBV } from '../../../utils/construction/equipmentBVResolver';
@@ -214,10 +213,6 @@ export function calculateUnitBV(
     cs.umuMP,
   );
 
-  // BAR (Barrier Armor Rating): Commercial armor = BAR 5, all others = BAR 10
-  // Per MegaMek Mek.getBARRating() and BVCalculator.processArmor()
-  const bar = getArmorBAR(armorType);
-
   // Armored gyro correction: MegaMek uses weight × gyroMultiplier × 0.05 per slot
   // instead of flat 5 per slot. Apply the difference as a correction.
   let correctedArmoredBV = cs.armoredComponentBV;
@@ -236,9 +231,7 @@ export function calculateUnitBV(
   if (cs.armoredPPCCapLocs.length > 0 && unit.criticalSlots) {
     for (const capLoc of cs.armoredPPCCapLocs) {
       // Find armored PPC crit slots in the same location
-      const locSlots = (unit.criticalSlots as Record<string, unknown[]>)[
-        capLoc
-      ];
+      const locSlots = unit.criticalSlots[capLoc];
       if (!locSlots) continue;
       const armoredPPCSlots = locSlots.filter(
         (s) =>
@@ -319,7 +312,8 @@ export function calculateUnitBV(
     structureType,
     gyroType,
     engineType,
-    bar,
+    // Commercial armor uses BAR 5; other types use 10 (Mek.getBARRating).
+    bar: getArmorBAR(armorType),
     defensiveEquipmentBV: defEquipBV + harjelArmorBonus + correctedArmoredBV,
     explosivePenalties: totalExplosivePenalty,
     hasStealthArmor: hasStealth,
@@ -344,12 +338,9 @@ export function calculateUnitBV(
     physicalWeaponBV += bv;
   }
 
-  const isXXLEngine = engineType === EngineType.XXL;
-  let offensiveEquipBV = 0;
   // Mine Dispensers: BV=8 each, offensive equipment per MegaMek
-  offensiveEquipBV += cs.mineDispenserCount * 8;
   // Misc equipment with offensive BV (Bridge Layers, etc.)
-  offensiveEquipBV += cs.miscEquipBV;
+  let offensiveEquipBV = cs.mineDispenserCount * 8 + cs.miscEquipBV;
   if (cs.hasRamPlate) {
     const ramDamage = Math.floor(unit.tonnage * runMP * 0.1) / 2;
     const ramPlateBV = Math.floor(ramDamage) * 1.1;
@@ -401,7 +392,7 @@ export function calculateUnitBV(
       offensiveEquipmentBV: offensiveEquipBV,
       hasImprovedJJ: cs.hasImprovedJJ,
       hasPrototypeIJJ: cs.hasPrototypeIJJ,
-      isXXLEngine,
+      isXXLEngine: engineType === EngineType.XXL,
       engineType,
       coolantPods: cs.coolantPods,
       heatSinkCount: effectiveHSCount,
@@ -440,17 +431,16 @@ export function calculateUnitBV(
     effectiveCockpit === 'small-command-console' ||
     effectiveCockpit === 'interface';
   const finalCockpitMod = cockpitHasModifier
-    ? getCockpitModifier(effectiveCockpit as CockpitType)
+    ? getCockpitModifier(effectiveCockpit)
     : cs.detectedDroneOS
       ? 0.95
-      : getCockpitModifier(effectiveCockpit as CockpitType);
+      : getCockpitModifier(effectiveCockpit);
   // RISC Heat Sink Override Kit: 1.01x multiplier to base BV
   // Per MekBVCalculator.processSummarize() lines 479-501
   const riscKitMod =
     unitId && KNOWN_RISC_OVERRIDE_KIT_UNITS.has(unitId) ? 1.01 : 1.0;
   const totalBV = Math.round(baseBV * finalCockpitMod * riscKitMod);
 
-  const cockpitMod = finalCockpitMod;
   const totalDefEquipBV = defEquipBV + harjelArmorBonus + correctedArmoredBV;
   return {
     bv: totalBV,
@@ -481,7 +471,7 @@ export function calculateUnitBV(
       speedFactor: offResult.speedFactor,
       offensiveBV: offResult.totalOffensiveBV,
       // Modifiers
-      cockpitModifier: cockpitMod,
+      cockpitModifier: finalCockpitMod,
       cockpitType: effectiveCockpit,
       // Context
       techBase: unit.techBase,
