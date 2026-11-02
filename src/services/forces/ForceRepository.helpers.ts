@@ -6,6 +6,7 @@ import {
   ForceStatus,
   ForcePosition,
 } from '@/types/force';
+import { parseUnitReference } from '@/types/unit/UnitIndex';
 import { calculateUnitBV as calculateBV } from '@/utils/construction/bvAdapter';
 
 import { getSQLiteService } from '../persistence/SQLiteService';
@@ -48,9 +49,25 @@ export interface CalculatedUnitStats {
   readonly tonnage: number;
 }
 
+type MissingUnitStats = {
+  readonly missingUnit: NonNullable<IForceStats['missingUnits']>[number];
+  readonly bv?: never;
+  readonly tonnage?: never;
+};
+
+export function missingUnitStats(unitId: string): MissingUnitStats {
+  const reference = parseUnitReference(unitId);
+  return {
+    missingUnit: {
+      family: reference.family ?? ('battlemechs' as const),
+      id: reference.id,
+    },
+  };
+}
+
 export type CanonicalUnitStatsResolver = (
   unitId: string,
-) => CalculatedUnitStats | null | undefined;
+) => CalculatedUnitStats | MissingUnitStats | null | undefined;
 
 export interface ForceStatsResolutionOptions {
   readonly canonicalUnitStatsResolver?: CanonicalUnitStatsResolver;
@@ -68,15 +85,22 @@ export function calculateStats(
 
   let totalBV = 0;
   let totalTonnage = 0;
+  const missingUnits: NonNullable<IForceStats['missingUnits']>[number][] = [];
   for (const assignment of assignments) {
     if (assignment.unitId) {
       const unitStats = calculateUnitStats(assignment.unitId, options);
+      if ('missingUnit' in unitStats) {
+        missingUnits.push(unitStats.missingUnit);
+        continue;
+      }
       totalBV += unitStats.bv;
       totalTonnage += unitStats.tonnage;
     }
   }
 
   return {
+    complete: missingUnits.length === 0,
+    missingUnits,
     totalBV,
     totalTonnage,
     assignedPilots,
@@ -90,19 +114,22 @@ export function calculateUnitBV(
   unitId: string,
   options: ForceStatsResolutionOptions = {},
 ): number {
-  return calculateUnitStats(unitId, options).bv;
+  const stats = calculateUnitStats(unitId, options);
+  if ('missingUnit' in stats)
+    throw new Error(
+      `Unit not found: (${stats.missingUnit.family}, ${stats.missingUnit.id})`,
+    );
+  return stats.bv;
 }
 
 export function calculateUnitStats(
   unitId: string,
   options: ForceStatsResolutionOptions = {},
-): CalculatedUnitStats {
+): CalculatedUnitStats | MissingUnitStats {
   return (
     calculateCustomUnitStats(unitId) ??
-    calculateCanonicalUnitStats(unitId, options.canonicalUnitStatsResolver) ?? {
-      bv: 0,
-      tonnage: 0,
-    }
+    calculateCanonicalUnitStats(unitId, options.canonicalUnitStatsResolver) ??
+    missingUnitStats(unitId)
   );
 }
 
@@ -131,7 +158,7 @@ function calculateCustomUnitStats(unitId: string): CalculatedUnitStats | null {
 function calculateCanonicalUnitStats(
   unitId: string,
   resolver: CanonicalUnitStatsResolver | undefined,
-): CalculatedUnitStats | null {
+): CalculatedUnitStats | MissingUnitStats | null {
   if (!resolver) {
     return null;
   }

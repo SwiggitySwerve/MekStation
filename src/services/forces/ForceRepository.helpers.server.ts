@@ -5,8 +5,8 @@ import { calculateUnitBV } from '@/utils/construction/bvAdapter';
 import { getNodeCanonicalUnitService } from '../units/NodeCanonicalUnitService';
 import { setForceRepositoryCanonicalStatsResolver } from './ForceRepository';
 import {
-  type CalculatedUnitStats,
   type CanonicalUnitStatsResolver,
+  missingUnitStats,
 } from './ForceRepository.helpers';
 
 function assertServerRuntime(): void {
@@ -24,7 +24,7 @@ function assertServerRuntime(): void {
 
 export const resolveNodeCanonicalUnitStats: CanonicalUnitStatsResolver = (
   unitId: string,
-): CalculatedUnitStats | null => {
+) => {
   assertServerRuntime();
   const reference = parseUnitReference(unitId);
   const catalog = getNodeCanonicalUnitService();
@@ -34,11 +34,11 @@ export const resolveNodeCanonicalUnitStats: CanonicalUnitStatsResolver = (
   const entry = index.find((unit) => unit.id === reference.id);
 
   if (!entry) {
-    return null;
+    return missingUnitStats(unitId);
   }
 
   const unit = getNodeCanonicalUnitService().getByIdSync(unitId);
-  if (!unit) throw new Error(`Cannot load canonical unit for BV: ${unitId}`);
+  if (!unit) return missingUnitStats(unitId);
 
   // Non-mech contracts need the same construction projection as combat.
   const bv =

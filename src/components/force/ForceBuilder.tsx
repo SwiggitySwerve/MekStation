@@ -21,6 +21,7 @@ import {
 import { IPilot } from '@/types/pilot';
 
 import { AssignmentSlot } from './AssignmentSlot';
+import { ForceStatsCompleteness } from './ForceStatsCompleteness';
 
 // =============================================================================
 // Types
@@ -203,6 +204,7 @@ export function ForceBuilder({
 
           {/* Stats */}
           <div className="text-right">
+            <ForceStatsCompleteness stats={force.stats} />
             <div className="flex items-center gap-4 text-sm">
               <div>
                 <span className="text-text-theme-muted">BV Total: </span>

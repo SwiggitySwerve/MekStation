@@ -156,7 +156,7 @@ describe('ForceRepository.helpers unit stat resolution', () => {
     expect(resolver).not.toHaveBeenCalled();
   });
 
-  it('defaults canonical unit refs to zero stats without an injected resolver', () => {
+  it('marks unresolved canonical references incomplete without an injected resolver', () => {
     mockCustomUnitGet.mockReturnValue(undefined);
 
     const stats = calculateStats([assignment('atlas-as7-d', 1)]);
@@ -164,6 +164,13 @@ describe('ForceRepository.helpers unit stat resolution', () => {
     expect(stats.totalBV).toBe(0);
     expect(stats.totalTonnage).toBe(0);
     expect(stats.assignedUnits).toBe(1);
+    expect(stats.complete).toBe(false);
+    expect(stats.missingUnits).toEqual([
+      { family: 'battlemechs', id: 'atlas-as7-d' },
+    ]);
+    expect(() => calculateUnitBV('atlas-as7-d')).toThrow(
+      'Unit not found: (battlemechs, atlas-as7-d)',
+    );
   });
 
   it('surfaces saved-unit BV failures instead of substituting zero', () => {
