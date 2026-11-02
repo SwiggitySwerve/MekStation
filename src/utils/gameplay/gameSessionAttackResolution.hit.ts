@@ -9,6 +9,7 @@ import { resolveDamage as resolveDamagePipeline } from './damage';
 import { type D6Roller, type DiceRoller } from './diceTypes';
 import { calculateFiringArc } from './firingArc';
 import { createAttackResolvedEvent } from './gameEvents';
+import { tryResolveAerospaceAttackHit } from './gameSessionAerospaceAttackResolution';
 import {
   resolveMissileClusterDamage,
   resolveSelectedAMSCluster,
@@ -32,7 +33,7 @@ import {
   isLowProfileGlancingBlow,
 } from './quirkModifiers';
 
-export function resolveWeaponHit(input: {
+export interface IResolveWeaponHitInput {
   readonly session: IGameSession;
   readonly payload: IAttackDeclaredPayload;
   readonly attackerId: string;
@@ -49,7 +50,9 @@ export function resolveWeaponHit(input: {
   readonly turn: number;
   readonly diceRoller: DiceRoller;
   readonly criticalD6Roller?: D6Roller;
-}): IGameSession {
+}
+
+export function resolveWeaponHit(input: IResolveWeaponHitInput): IGameSession {
   let currentSession = input.session;
   let resolvedWeaponData = input.weaponData;
   const selectedAMSResult = resolveSelectedAMSCluster({
@@ -82,6 +85,12 @@ export function resolveWeaponHit(input: {
     }
   }
 
+  const aerospaceResolved = tryResolveAerospaceAttackHit({
+    ...input,
+    session: currentSession,
+    weaponData: resolvedWeaponData,
+  });
+  if (aerospaceResolved) return aerospaceResolved;
   const vehicleResolved = tryResolveVehicleAttackHit({
     session: currentSession,
     attackerId: input.attackerId,

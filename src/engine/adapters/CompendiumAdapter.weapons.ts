@@ -4,7 +4,12 @@ import {
   VehicleLocation,
   VTOLLocation,
 } from '@/types/construction/UnitLocation';
+import { FiringArc } from '@/types/gameplay/HexGridInterfaces';
+import { AerospaceArc } from '@/types/unit/AerospaceInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { normalizeArcLocation } from '@/utils/construction/aerospace/aerospaceBVArcs';
+import { isAerospaceUnitType } from '@/utils/construction/aerospace/aerospaceBVUnitAdapter';
+import { resolveAerospaceContractArc } from '@/utils/construction/contractBVUnitAdapter';
 export { ammoFromWeapons } from '@/utils/gameplay/ammoTracking/weapons';
 import { getVehicleWeaponArcs } from '@/utils/gameplay/vehicleFiringArc';
 import { logger } from '@/utils/logger';
@@ -103,6 +108,33 @@ function weaponMountArcsFromEquipment(
   | 'vehicleMountLocation'
   | 'vehicleIsTurretMounted'
 > {
+  if (isAerospaceUnitType({ unitType: stringField(unitData, 'unitType') })) {
+    const location = stringField(
+      item,
+      'location',
+      'mountLocation',
+      'locationKey',
+    );
+    if (!location) throw new TypeError('Missing aerospace weapon location');
+    const arc =
+      normalizeArcLocation(location) ??
+      normalizeArcLocation(resolveAerospaceContractArc(location));
+    if (!arc) throw new TypeError(`Unknown aerospace weapon arc: ${location}`);
+    const mapping: Record<AerospaceArc, readonly FiringArc[]> = {
+      [AerospaceArc.NOSE]: [FiringArc.Front],
+      [AerospaceArc.AFT]: [FiringArc.Rear],
+      [AerospaceArc.LEFT_WING]: [FiringArc.Left],
+      [AerospaceArc.LEFT_SIDE]: [FiringArc.Left],
+      [AerospaceArc.RIGHT_WING]: [FiringArc.Right],
+      [AerospaceArc.RIGHT_SIDE]: [FiringArc.Right],
+      [AerospaceArc.FUSELAGE]: Object.values(FiringArc),
+    };
+    const mountingArcs = mapping[arc];
+    return {
+      ...(mountingArcs.length === 1 ? { mountingArc: mountingArcs[0] } : {}),
+      mountingArcs,
+    };
+  }
   if (!isVehicleLikeUnitData(unitData)) return {};
 
   const mountLocation = vehicleMountLocationFromEquipment(item);
