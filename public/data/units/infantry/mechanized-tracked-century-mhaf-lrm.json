@@ -1,0 +1,42 @@
+{
+  "id": "mechanized-tracked-century-mhaf-lrm",
+  "chassis": "Mechanized Tracked Century (MHAF)",
+  "model": "(LRM)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CLAN_INVASION",
+  "year": 3057,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": null,
+  "motiveType": "Tracked",
+  "equipment": [],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrylrm",
+    "name": "InfantryLRM",
+    "count": 2
+  },
+  "mulId": 7277,
+  "role": "Ambusher",
+  "source": "TW,TO:AUE",
+  "fluff": {
+    "overview": "<p>The Marian military tradition places infantry at the foundation of its legionary system, with conventional soldiers organized into units bearing Latin designations that reflect the Hegemony's deliberate cultivation of Roman imperial identity. A centuria, or century, is the Marian equivalent of a company-sized formation. Mechanized tracked centuries ride armored personnel carriers that trade speed for all-terrain capability, providing reliable transport across the rough ground common to many Hegemony garrison worlds. Support troops operate man-portable long-range missile launchers capable of engaging targets at distances well beyond personal weapon range, providing indirect fire capability against vehicles and fortified positions.</p>"
+  }
+}

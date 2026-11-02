@@ -1,0 +1,53 @@
+{
+  "id": "beast-infantry-elephant-laser-refile-mrr",
+  "chassis": "Beast Infantry (Elephant)",
+  "model": "(Laser Refile/MRR)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2230,
+  "motionType": "BEAST",
+  "platoon": {
+    "squadSize": 2,
+    "squadCount": 5,
+    "totalTroopers": 10
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle",
+    "name": "Laser Rifle"
+  },
+  "armorKit": "Clothing, Fatigues/Civilian/Non-Armored",
+  "motiveType": "Beast:Elephant",
+  "equipment": [
+    {
+      "id": "clothing,-fatigues-civilian-non-armored",
+      "name": "Clothing, Fatigues/Civilian/Non-Armored",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrymrr",
+    "name": "InfantryMRR",
+    "count": 1
+  },
+  "beastMount": "Beast:Elephant",
+  "fluff": {
+    "overview": "<p>Terran elephants have been employed as beasts of war for millennia, and their role has continued on colonized worlds where their immense strength and carrying capacity offer tactical advantages no smaller mount can match. An elephant can carry multiple riders along with crew-served weapons, effectively creating a mobile firing platform that requires no fuel, spare parts, or technical support. Elephant-mounted infantry platoons field heavier weapons than any other beast-mounted formation, pairing personal arms with support weapons that would normally require a vehicle mount. The animals' thick hides provide modest protection against small arms fire, and their sheer mass can intimidate opponents and clear obstacles. These formations are slow compared to mechanized units but operate independently of supply chains, making them valuable on isolated worlds or in prolonged campaigns where logistics have broken down.</p>"
+  }
+}

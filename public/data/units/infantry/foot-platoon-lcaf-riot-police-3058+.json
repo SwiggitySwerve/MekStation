@@ -1,0 +1,47 @@
+{
+  "id": "foot-platoon-lcaf-riot-police-3058+",
+  "chassis": "Foot Platoon (LCAF)",
+  "model": "(Riot Police 3058+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3058,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "sonic-stunner",
+    "name": "Sonic Stunner"
+  },
+  "armorKit": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "lyran-alliance-lyran-commonwealth-3060+-infantry-kit",
+      "name": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "auto-pistol-m&g",
+    "name": "Auto-Pistol (M&G)",
+    "count": 2
+  },
+  "role": "None",
+  "fluff": {
+    "overview": "<p>The Lyran Commonwealth's industrial wealth ensures its infantry are among the best-equipped in the Inner Sphere, fielding hardware that most armies reserve for elite formations as standard issue. Foot infantry platoons form the backbone of the LCAF's garrison forces, deploying on foot to hold positions, patrol perimeters, and secure urban areas where vehicles cannot easily operate. Configured for civil disturbance management rather than conventional combat, these platoons carry sonic stunners for crowd suppression backed by auto-pistols as a lethal escalation option.</p>"
+  }
+}

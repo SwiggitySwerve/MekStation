@@ -1,0 +1,49 @@
+{
+  "id": "mechanized-hover-platoon-taurian-3047+-mg",
+  "chassis": "Mechanized Hover Platoon (Taurian 3047+)",
+  "model": "(MG)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3047,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Taurian Concordat/Calderon Infantry Kit",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "taurian-concordat-calderon-infantry-kit",
+      "name": "Taurian Concordat/Calderon Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "machine-gun-portable",
+    "name": "Machine Gun (Portable)",
+    "count": 2
+  },
+  "mulId": 9292,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Every Concordat world maintains infantry formations as the first line of planetary defense, drawn from a population whose fierce independence and hatred of foreign aggression run deep. Mechanized hover platoons are among the fastest ground infantry in the TDF, riding hovercraft that can traverse both land and water at speeds that let them cover the vast distances between Taurian population centers. The Concordat has historically favored hovercraft for its armor forces, and that preference extends to mechanized infantry as well.</p><p>Support squads operate portable or crew-served machine guns that deliver sustained automatic fire, providing suppression capability that can pin down enemy infantry and threaten light vehicles.</p>"
+  }
+}

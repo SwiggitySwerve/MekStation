@@ -1,0 +1,49 @@
+{
+  "id": "tag-spotter-infantry-stalwart-support-spotter-infantry",
+  "chassis": "TAG Spotter Infantry",
+  "model": "Stalwart Support - Spotter Infantry",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3055,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-marx-xx",
+    "name": "Laser Rifle (Marx XX)"
+  },
+  "armorKit": "Flak, Standard",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "flak,-standard",
+      "name": "Flak, Standard",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 1024,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrytag",
+    "name": "InfantryTAG",
+    "count": 2
+  },
+  "mulId": 3149,
+  "role": "Ambusher",
+  "source": "TR:3085S",
+  "fluff": {
+    "overview": "<p>Stalwart Support is a mercenary infantry regiment formed by Colonel Harry Sanders for garrison and security contracts. The command spent over a decade in the employ of the Saiph Triumvirate, fighting insurgents and rebels on behalf of Count Balantine's regime. That prolonged counterinsurgency campaign transformed what had been a simple garrison outfit into a combat-experienced formation with hard-won expertise in urban warfare and precision fire support. The regiment's TAG spotter platoons carry Mark XX laser rifles alongside infantry-scale Target Acquisition Gear, designating targets for guided munitions delivered by the regiment's own artillery and air assets. Stalwart Support became known for calling down precision strikes in dense urban terrain with minimal collateral damage, a reputation built through years of fighting in the cities and settlements of the Chaos March.</p>"
+  }
+}

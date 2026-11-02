@@ -1,0 +1,47 @@
+{
+  "id": "motorized-platoon-laser-xct",
+  "chassis": "Motorized Platoon",
+  "model": "(Laser XCT)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3058,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 3,
+    "totalTroopers": 18
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-mauser-960",
+    "name": "Laser Rifle (Mauser 960)"
+  },
+  "armorKit": "Environment Suit, Hostile",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "environment-suit,-hostile",
+      "name": "Environment Suit, Hostile",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 2.0,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor", "spacesuit"],
+  "effectiveArmorFlags": ["encumberingarmor", "spacesuit"],
+  "specializations": 2048,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "laser-hellbore-assault",
+    "name": "Laser (Hellbore Assault)",
+    "count": 1
+  },
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Motorized XCT platoons transport Xenoplanetary Condition Troops on light vehicles with Mauser 960 laser rifles and Hellbore assault lasers for heavy energy firepower. Trained for hostile environment combat, these platoons carry sealed survival gear that allows fighting in extreme temperatures, toxic atmospheres, and unusual gravity conditions. The Hellbore assault lasers are among the most powerful infantry-portable energy weapons available, giving these XCT platoons firepower that compensates for the mobility restrictions of environmental equipment.</p>"
+  }
+}

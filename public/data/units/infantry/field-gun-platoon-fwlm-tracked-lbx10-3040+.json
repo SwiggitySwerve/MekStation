@@ -1,0 +1,84 @@
+{
+  "id": "field-gun-platoon-fwlm-tracked-lbx10-3040+",
+  "chassis": "Field Gun Platoon (FWLM)",
+  "model": "(Tracked LBX10 3040+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3040,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Free Worlds League Infantry Kit (3035+)",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "free-worlds-league-infantry-kit-3035+",
+      "name": "Free Worlds League Infantry Kit (3035+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo",
+      "name": "IS LB 10-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo",
+      "name": "IS LB 10-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo",
+      "name": "IS LB 10-X Cluster Ammo"
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo",
+      "name": "IS LB 10-X Cluster Ammo"
+    }
+  ],
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Conventional infantry within the FWLM serve as the backbone of provincial defense across a patchwork of semi-autonomous states, each maintaining its own military traditions and equipment preferences. Towing crew-served LB 10-X autocannon, these platoons deploy one of the most tactically flexible field guns available, switching between armor-piercing slugs and cluster munitions depending on the target.</p>"
+  }
+}

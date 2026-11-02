@@ -1,0 +1,53 @@
+{
+  "id": "foot-platoon-fwlm-specops-fireteam-3050+",
+  "chassis": "Foot Platoon (FWLM)",
+  "model": "(SpecOps Fireteam 3050+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3050,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 8,
+    "squadCount": 2,
+    "totalTroopers": 16
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Sneak Suit (Camo/IR/ECM)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "sneak-suit-camo-ir-ecm",
+      "name": "Sneak Suit (Camo/IR/ECM)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": ["sneakcamo", "sneakir", "sneakecm"],
+  "effectiveArmorFlags": ["sneakcamo", "sneakir", "sneakecm"],
+  "specializations": 512,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "laser-rifle-er-[sunbeam-starfire]",
+    "name": "Laser Rifle (ER [Sunbeam Starfire])",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>New technology and creative tactical thinking have long featured in FWLM infantry deployment, with varied unit types and specialized formations treated as the norm rather than the exception. Foot infantry platoons form the garrison backbone of the League's provincial militaries, assigned to hold ground on worlds that BattleMech forces cannot permanently occupy. Quality varies with provincial investment, but even modest foot platoons benefit from the FWLM's tradition of equipping infantry with reliable, standardized kit. These special operations fireteams are small, highly trained units configured for reconnaissance, sabotage, and direct action missions operating independently behind enemy lines, relying on stealth and precise execution rather than conventional firepower.</p>"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "id": "motorized-demi-i-comguards-mg",
+  "chassis": "Motorized demi-I (ComGuards)",
+  "model": "(MG)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2933,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 3,
+    "totalTroopers": 18
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "ComStar Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "comstar-infantry-kit",
+      "name": "ComStar Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "machine-gun-portable",
+    "name": "Machine Gun (Portable)",
+    "count": 2
+  },
+  "mulId": 7122,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>The Com Guards field conventional infantry as a core component of their combined-arms formations, with Level I infantry units integrated into the same command structure alongside BattleMech, armor, and aerospace elements at every organizational level. Motorized Level I formations use light vehicles to achieve rapid redeployment between positions, trading the armor protection of mechanized transports for greater speed and lower logistical burden. These formations excel at screening operations and can cover more ground than foot infantry during extended patrol assignments. Carrying infantry-portable machine guns that provide sustained suppressive fire, these troops anchor defensive positions with a volume of fire that discourages enemy movement in the open.</p>"
+  }
+}

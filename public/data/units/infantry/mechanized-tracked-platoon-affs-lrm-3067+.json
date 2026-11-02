@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-tracked-platoon-affs-lrm-3067+",
+  "chassis": "Mechanized Tracked Platoon (AFFS)",
+  "model": "(LRM 3067+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "rifle-federated-long",
+    "name": "Rifle (Federated Long)"
+  },
+  "armorKit": "Fed Suns Infantry Kit (3067+)",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "fed-suns-infantry-kit-3067+",
+      "name": "Fed Suns Infantry Kit (3067+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrylrm",
+    "name": "InfantryLRM",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Federated Suns infantry benefit from one of the strongest industrial bases in the Inner Sphere, with AFFS quartermasters able to supply platoons with standardized equipment and ammunition from a logistics network that few rival states can match. Mechanized tracked platoons ride armored personnel carriers that provide both protection and all-terrain mobility, allowing these troops to keep pace with armored advances across open ground and survive the indirect fire that scatters lighter formations. Carrying man-portable long-range missile launchers alongside their primary weapons, these platoons can engage armored targets at distances well beyond normal infantry range, providing organic fire support that reduces dependence on dedicated armor or artillery assets.</p>"
+  }
+}

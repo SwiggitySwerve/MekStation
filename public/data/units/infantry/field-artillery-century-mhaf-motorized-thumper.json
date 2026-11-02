@@ -1,0 +1,64 @@
+{
+  "id": "field-artillery-century-mhaf-motorized-thumper",
+  "chassis": "Field Artillery Century (MHAF)",
+  "model": "(Motorized Thumper)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2920,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 10,
+    "squadCount": 3,
+    "totalTroopers": 30
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isthumper",
+      "name": "ISThumper",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isthumperammo",
+      "name": "ISThumperAmmo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "isthumper",
+      "name": "ISThumper"
+    },
+    {
+      "id": "isthumperammo",
+      "name": "ISThumperAmmo"
+    }
+  ],
+  "role": "Missile Boat",
+  "fluff": {
+    "overview": "<p>Infantry within the Legiones Marianes form the backbone of planetary garrison and territorial defense, freeing the Hegemony's limited BattleMech assets for offensive operations and prestige assignments. Marian field artillery centuries operate indirect fire weapons that deliver area bombardment at ranges measured in kilometers, providing the Legiones Marianes with fire support capability independent of their scarce aerospace assets. The century operates a Thumper artillery piece, the lightest class of field artillery, capable of delivering area-effect rounds at ranges measured in kilometers.</p>"
+  }
+}

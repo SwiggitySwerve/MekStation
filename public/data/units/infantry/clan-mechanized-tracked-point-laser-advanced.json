@@ -1,0 +1,44 @@
+{
+  "id": "clan-mechanized-tracked-point-laser-advanced",
+  "chassis": "Clan Mechanized Tracked Point",
+  "model": "(Laser Advanced)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2845,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle",
+    "name": "Laser Rifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 624,
+  "role": "Ambusher",
+  "source": "TO:AUE",
+  "fluff": {
+    "overview": "<p>Conventional infantry within the Clan touman fills the garrison and screening roles that battle armor and BattleMech forces cannot efficiently sustain across dozens of occupied worlds. Mechanized Tracked Points travel in tracked armored personnel carriers that offer all-terrain capability at the cost of speed. Tracked vehicles handle rough ground, mud, and snow better than wheeled alternatives, making these Points reliable in difficult terrain where faster formations would bog down. Equipped with laser rifles that offer superior range and armor penetration compared to ballistic weapons, these Points field one of the most effective personal arms available to conventional infantry, though the weapons are significantly more expensive and require warriors to carry additional power packs.</p>"
+  }
+}

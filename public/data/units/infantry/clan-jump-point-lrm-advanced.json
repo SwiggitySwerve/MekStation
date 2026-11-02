@@ -1,0 +1,49 @@
+{
+  "id": "clan-jump-point-lrm-advanced",
+  "chassis": "Clan Jump Point",
+  "model": "(LRM Advanced)",
+  "unitType": "Infantry",
+  "techBase": "MIXED",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3064,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrylrm",
+    "name": "InfantryLRM",
+    "count": 2
+  },
+  "mulId": 612,
+  "role": "Ambusher",
+  "source": "TO:AUE",
+  "fluff": {
+    "overview": "<p>Most Clan infantry are solahma warriors at the end of their careers or who have failed their Trials, assigned to duties the warrior caste considers beneath notice. Jump Points are equipped with jump packs that grant vertical mobility and the ability to traverse rough terrain that would slow or stop foot and mechanized formations. This makes them valuable in urban fighting, mountainous terrain, and any environment where the ability to bypass obstacles matters more than sustained speed. Support troops operate man-portable long-range missile launchers capable of engaging targets at distances well beyond personal weapon range, providing the Point with indirect fire capability against vehicles and fortified positions.</p>"
+  }
+}

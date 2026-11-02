@@ -1,0 +1,49 @@
+{
+  "id": "motorized-infantry-dark-caste-bandits",
+  "chassis": "Motorized Infantry",
+  "model": "Dark Caste Bandits",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2830,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 5,
+    "totalTroopers": 25
+  },
+  "primaryWeapon": {
+    "id": "rifle-bolt-action",
+    "name": "Rifle (Bolt-Action)"
+  },
+  "armorKit": "Clothing, Leather/Synthetic Hide",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "clothing,-leather-synthetic-hide",
+      "name": "Clothing, Leather/Synthetic Hide",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrystandardsrm",
+    "name": "InfantryStandardSRM",
+    "count": 1
+  },
+  "mulId": 2233,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Dark Caste is a mystery to nearly everybody, including the Clans themselves. Living under harsh conditions beyond the boundaries of legitimate Clan society, these outcasts limit their weaponry to whatever they can build on their own, steal, or salvage from raids. Protection for Dark Caste fighters is little better than safety equipment, with clothing, leather, and synthetic hides replacing the advanced armor kits issued to legitimate Clan warriors. Their ramshackle light vehicles are motorized transport at best. Outmatched by all but the weakest of Clan forces, Dark Caste bandits pose little direct military threat. Yet they persist, and the fear they inspire among the regimented Clans is not about what they can do on the battlefield. For warriors bound by rigid caste structures and absolute obedience, the mere existence of people who have chosen freedom over duty is deeply unsettling.</p>"
+  }
+}

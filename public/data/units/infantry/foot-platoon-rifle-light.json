@@ -1,0 +1,47 @@
+{
+  "id": "foot-platoon-rifle-light",
+  "chassis": "Foot Platoon",
+  "model": "(Rifle Light)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2500,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "rifle-zeus-heavy",
+    "name": "Rifle (Zeus Heavy)"
+  },
+  "armorKit": "Clothing, Fatigues/Civilian/Non-Armored",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "clothing,-fatigues-civilian-non-armored",
+      "name": "Clothing, Fatigues/Civilian/Non-Armored",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrysrmlight",
+    "name": "InfantrySRMLight",
+    "count": 1
+  },
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Light rifle platoons arm their troops with Zeus heavy rifles and light SRM launchers, combining heavier personal weapons with disposable anti-armor capability. The Zeus rifles deliver greater stopping power than standard assault rifles at the cost of additional weight and recoil, while the light SRM launchers give the platoon a limited anti-vehicle option without the bulk of full-sized missile systems.</p>"
+  }
+}

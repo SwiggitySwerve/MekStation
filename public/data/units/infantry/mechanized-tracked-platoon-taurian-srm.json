@@ -1,0 +1,49 @@
+{
+  "id": "mechanized-tracked-platoon-taurian-srm",
+  "chassis": "Mechanized Tracked Platoon (Taurian)",
+  "model": "(SRM)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2370,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryheavysrm",
+    "name": "InfantryHeavySRM",
+    "count": 2
+  },
+  "mulId": 9299,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>The Taurian Defense Force assigns conventional infantry to garrison and planetary defense roles across the Concordat, where citizen-soldiers serve out of patriotic duty rather than mere obligation. Mechanized tracked platoons trade speed for the all-terrain capability that Taurian commanders need on worlds with rough or undeveloped terrain. Their tracked transports can cross ground that would stop wheeled vehicles, making them reliable assets for garrison duty on frontier worlds where road networks are sparse.</p><p>Support elements carry man-portable short-range missile launchers firing the same warheads used by BattleMechs and combat vehicles, giving the platoon a potent anti-armor punch at close range.</p>"
+  }
+}

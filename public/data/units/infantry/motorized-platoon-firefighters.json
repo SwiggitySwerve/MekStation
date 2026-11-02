@@ -1,0 +1,48 @@
+{
+  "id": "motorized-platoon-firefighters",
+  "chassis": "Motorized Platoon",
+  "model": "(Firefighters)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3060,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 2,
+    "totalTroopers": 14
+  },
+  "primaryWeapon": {
+    "id": "gauss-rifle-thunderstroke-ii",
+    "name": "Gauss Rifle (Thunderstroke II)"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "fire-extinguisher",
+      "name": "Fire Extinguisher",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 4,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Motorized firefighting platoons carry portable fire-suppression gear aboard light vehicles for rapid response to battlefield fires. Armed with Thunderstroke gauss rifles for self-defense, these engineers combat fires ignited by inferno munitions, fuel explosions, and energy weapon strikes that threaten friendly positions or civilian infrastructure. Their motorized transport allows fast deployment to fire sites, and the gauss rifles provide effective protection without the risk of ammunition detonation in fire-prone environments.</p>"
+  }
+}

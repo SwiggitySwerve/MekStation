@@ -1,0 +1,47 @@
+{
+  "id": "foot-platoon-lrm-heavy",
+  "chassis": "Foot Platoon",
+  "model": "(LRM Heavy)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3057,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Ballistic Plate, Standard",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "ballistic-plate,-standard",
+      "name": "Ballistic Plate, Standard",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 2.0,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrylrm",
+    "name": "InfantryLRM",
+    "count": 2
+  },
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Heavy LRM foot platoons supplement standard assault rifles with man-portable Corean FarShot long-range missile launchers distributed across the formation in greater numbers than a standard support weapon allocation. The additional LRM launchers extend the platoon's engagement range well beyond personal weapon distance, providing organic indirect fire capability against vehicles and fortified positions. The extra missile weight limits infantry mobility and increases ammunition demands.</p>"
+  }
+}

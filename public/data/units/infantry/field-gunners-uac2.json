@@ -1,0 +1,123 @@
+{
+  "id": "field-gunners-uac2",
+  "chassis": "Field Gunners",
+  "model": "(UAC2)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3057,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isultraac2",
+      "name": "ISUltraAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ultra-ac-2-ammo",
+      "name": "IS Ultra AC/2 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isultraac2",
+      "name": "ISUltraAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ultra-ac-2-ammo",
+      "name": "IS Ultra AC/2 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isultraac2",
+      "name": "ISUltraAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ultra-ac-2-ammo",
+      "name": "IS Ultra AC/2 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isultraac2",
+      "name": "ISUltraAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ultra-ac-2-ammo",
+      "name": "IS Ultra AC/2 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "isultraac2",
+      "name": "ISUltraAC2"
+    },
+    {
+      "id": "is-ultra-ac-2-ammo",
+      "name": "IS Ultra AC/2 Ammo"
+    },
+    {
+      "id": "isultraac2",
+      "name": "ISUltraAC2"
+    },
+    {
+      "id": "is-ultra-ac-2-ammo",
+      "name": "IS Ultra AC/2 Ammo"
+    },
+    {
+      "id": "isultraac2",
+      "name": "ISUltraAC2"
+    },
+    {
+      "id": "is-ultra-ac-2-ammo",
+      "name": "IS Ultra AC/2 Ammo"
+    },
+    {
+      "id": "isultraac2",
+      "name": "ISUltraAC2"
+    },
+    {
+      "id": "is-ultra-ac-2-ammo",
+      "name": "IS Ultra AC/2 Ammo"
+    }
+  ],
+  "fluff": {
+    "overview": "<p>Field gun platoons crew light ultra autocannons capable of firing at double the rate of standard weapons of the same caliber. The rapid-fire capability delivers sustained suppressive fire at long range, making these platoons effective at denying ground and pinning enemy formations. The ultra mechanism risks jamming under rapid fire, a known hazard that crews train to clear quickly but cannot entirely prevent in sustained engagements.</p>"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "id": "jump-duplus-contubernium-mhaf-srm-3049+",
+  "chassis": "Jump Duplus Contubernium (MHAF)",
+  "model": "(SRM 3049+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3049,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 10,
+    "squadCount": 2,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Marian Hegemony Infantry Kit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "marian-hegemony-infantry-kit",
+      "name": "Marian Hegemony Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryheavysrm",
+    "name": "InfantryHeavySRM",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Caesar's ongoing program to modernize the Legiones Marianes has extended to conventional infantry formations, with improved equipment and weapons gradually replacing older stockpiles across the Hegemony's auxiliary legions. A duplus contubernium, or double tent-group, fields two squads of ten soldiers. Jump-equipped duplus contubernia provide the Legiones Marianes with mobile infantry capable of seizing elevated positions and conducting rapid flanking maneuvers that exploit terrain inaccessible to foot troops. Support elements carry man-portable short-range missile launchers firing the same warheads used by BattleMechs, giving the formation a potent anti-armor punch at close range.</p>"
+  }
+}

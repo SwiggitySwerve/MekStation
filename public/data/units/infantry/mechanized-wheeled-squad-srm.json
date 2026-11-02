@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-wheeled-squad-srm",
+  "chassis": "Mechanized Wheeled Squad",
+  "model": "(SRM)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2370,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 1,
+    "totalTroopers": 5
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryheavysrm",
+    "name": "InfantryHeavySRM",
+    "count": 2
+  },
+  "source": "TW",
+  "fluff": {
+    "overview": "<p>Mechanized wheeled squads transport a squad-strength infantry element in wheeled APCs, optimized for speed on roads and developed surfaces. These small, mobile formations handle checkpoint security, convoy escort, highway patrol, and urban rapid-response duties where road speed matters more than off-road capability. Cheaper to operate than tracked alternatives and faster on pavement, wheeled squads trade rough-terrain performance for economical, high-speed coverage of garrison zones with good infrastructure.</p>"
+  }
+}

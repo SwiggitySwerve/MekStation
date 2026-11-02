@@ -1,0 +1,49 @@
+{
+  "id": "clan-assault-infantry-ghost-bear-heavy-solahma-infantry",
+  "chassis": "Clan Assault Infantry",
+  "model": "Ghost Bear Heavy Solahma Infantry",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3015,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-mauser-iic-ias",
+    "name": "Laser Rifle (Mauser IIC IAS)"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "support-laser-er,-semi-portable",
+    "name": "Support Laser (ER, Semi-Portable)",
+    "count": 2
+  },
+  "mulId": 600,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Ghost Bear Dominion is not widely known for its unarmored infantry, as the popular image of the Clan remains the giant Elemental riding a BattleMech into battle. The Dominion's Heavy Points draw from a continual supply of retired or failed Elementals whose massive physical bulk allows them to carry the heaviest personal weapons and armor available. Equipped with Clan-manufactured Mauser IIC assault systems and extended-range support lasers, these warriors combine a lifetime of infantry training with firepower that surpasses most Inner Sphere formations of comparable size. Though they are solahma, assigned to garrison and internal security duties that offer little chance for an honorable death, their combat effectiveness should not be underestimated. Few conventional infantry formations in the Inner Sphere can match their combination of individual skill and advanced weaponry.</p>"
+  }
+}

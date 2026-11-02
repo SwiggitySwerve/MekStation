@@ -1,0 +1,44 @@
+{
+  "id": "clan-mechanized-wheeled-point-laser-advanced",
+  "chassis": "Clan Mechanized Wheeled Point",
+  "model": "(Laser Advanced)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2845,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle",
+    "name": "Laser Rifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 630,
+  "role": "Ambusher",
+  "source": "TO:AUE",
+  "fluff": {
+    "overview": "<p>Most Clan infantry are solahma warriors at the end of their careers or who have failed their Trials, assigned to duties the warrior caste considers beneath notice. Mechanized Wheeled Points use wheeled armored vehicles that balance speed and protection better than hovercraft or motorcycles. Effective on developed road networks and open terrain, they sacrifice the all-terrain capability of tracked vehicles for better sustained speed on firm ground. Equipped with laser rifles that offer superior range and armor penetration compared to ballistic weapons, these Points field one of the most effective personal arms available to conventional infantry, though the weapons are significantly more expensive and require warriors to carry additional power packs.</p>"
+  }
+}

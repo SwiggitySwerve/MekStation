@@ -1,0 +1,49 @@
+{
+  "id": "jump-support-infantry-starcorps-jump-assault-infantry",
+  "chassis": "Jump Support Infantry",
+  "model": "StarCorps Jump Assault Infantry",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2500,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryheavygrenadelauncherinferno",
+    "name": "InfantryHeavyGrenadeLauncherInferno",
+    "count": 2
+  },
+  "mulId": 1724,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>StarCorps Industries fields its jump assault infantry as a middle ground between fast but lightly armed rapid response forces and heavily equipped but slow static security teams. Equipped with reinforced jump packs capable of carrying a full combat load, StarCorps troopers can operate across any urban or industrial battlefield with vertical mobility that ground-bound security forces cannot match. Armed with auto-rifles and heavy grenade launchers loaded with inferno rounds, these platoons bring both conventional firepower and incendiary capability that can threaten even BattleMechs. As the Jihad intensified and StarCorps facilities on worlds like Son Hoa came under repeated attack, the company expanded its use of inferno-equipped jump infantry to counter armored threats that corporate security had not previously faced. The grenade launchers add significant weight, but the jump packs compensate by allowing troopers to bypass obstacles and engage from unexpected angles.</p>"
+  }
+}

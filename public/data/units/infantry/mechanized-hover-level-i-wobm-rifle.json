@@ -1,0 +1,44 @@
+{
+  "id": "mechanized-hover-level-i-wobm-rifle",
+  "chassis": "Mechanized Hover Level I (WOBM)",
+  "model": "(Rifle)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3053,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Word of Blake Infantry Kit",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "word-of-blake-infantry-kit",
+      "name": "Word of Blake Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 7046,
+  "role": "Scout",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Word of Blake Militia infantry served as the backbone of Protectorate garrison forces across dozens of conquered worlds, providing the manpower for territorial control that the Militia's BattleMech and armor assets could not sustain alone. Mechanized hover Level I formations gave the Word of Blake Militia its fastest ground-mobile infantry, capable of crossing water obstacles and open terrain at speeds that outpaced wheeled or tracked alternatives. Their speed made them effective pursuit forces when Protectorate populations attempted to flee contested areas. Armed with standard ballistic assault rifles, the most common and affordable infantry weapon in the Inner Sphere, these troops deliver reliable short-range firepower and can be equipped and resupplied from almost any garrison stockpile.</p>"
+  }
+}

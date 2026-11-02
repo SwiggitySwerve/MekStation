@@ -1,0 +1,48 @@
+{
+  "id": "mechanized-tracked-platoon-bridging",
+  "chassis": "Mechanized Tracked Platoon",
+  "model": "(Bridging)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2830,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 2,
+    "totalTroopers": 12
+  },
+  "primaryWeapon": {
+    "id": "pulse-laser-rifle-is",
+    "name": "Pulse Laser Rifle (Inner Sphere)"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "infantry-bridge-kit",
+      "name": "Infantry Bridge Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 1,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Tracked bridging platoons carry prefabricated bridge assembly components aboard their APCs, enabling them to construct field bridges across gaps and waterways that would otherwise halt an advance. Armed with pulse laser rifles for self-defense, these combat engineers focus on enabling mobility for heavier forces rather than direct combat. The tracked carriers handle the rough terrain typically found at river crossings and ravines where bridges are most needed.</p>"
+  }
+}

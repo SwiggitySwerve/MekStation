@@ -1,0 +1,47 @@
+{
+  "id": "foot-contubernium-mhaf-command-3049+",
+  "chassis": "Foot Contubernium (MHAF)",
+  "model": "(Command 3049+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3049,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 10,
+    "squadCount": 1,
+    "totalTroopers": 10
+  },
+  "primaryWeapon": {
+    "id": "auto-pistol",
+    "name": "Auto-Pistol"
+  },
+  "armorKit": "Marian Hegemony Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "marian-hegemony-infantry-kit",
+      "name": "Marian Hegemony Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle",
+    "count": 1
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Caesar's ongoing program to modernize the Legiones Marianes has extended to conventional infantry formations, with improved equipment and weapons gradually replacing older stockpiles across the Hegemony's auxiliary legions. A contubernium is the smallest tactical unit in the Marian system, equivalent to a single reinforced squad of ten soldiers. Foot contubernia serve as sentries, checkpoint garrisons, and building-clearing teams in urban operations where larger formations cannot maneuver effectively. Command personnel carry sidearms and rifles suited to personal defense rather than front-line engagement, reflecting their primary role as coordinators rather than riflemen.</p>"
+  }
+}

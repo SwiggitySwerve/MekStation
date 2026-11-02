@@ -1,0 +1,63 @@
+{
+  "id": "clan-field-artillery-arrow-iv",
+  "chassis": "Clan Field Artillery",
+  "model": "(Arrow IV)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2844,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 5,
+    "totalTroopers": 25
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clarrowiv",
+      "name": "CLArrowIV",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clarrowivammo",
+      "name": "CLArrowIVAmmo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "clarrowiv",
+      "name": "CLArrowIV"
+    },
+    {
+      "id": "clarrowivammo",
+      "name": "CLArrowIVAmmo"
+    }
+  ],
+  "fluff": {
+    "overview": "<p>Clan field artillery Points operate indirect-fire weapons for area bombardment and terrain denial at extreme range. Clan crews benefit from superior targeting systems and ammunition quality, achieving tighter shot groupings than most Inner Sphere artillery formations. Within the Touman, artillery assignments carry low prestige but high tactical value, as a well-positioned Point can shape engagements across an entire garrison sector. Forward observers coordinating with Clan communications networks can deliver responsive fire that compensates for the artillery Point fixed emplacement limitations.</p>"
+  }
+}

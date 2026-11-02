@@ -1,0 +1,124 @@
+{
+  "id": "clan-field-gun-point-motorized-ac2-basic",
+  "chassis": "Clan Field Gun Point",
+  "model": "(Motorized AC2 Basic)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2807,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 5,
+    "totalTroopers": 25
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2"
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2"
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2"
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2"
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2"
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2"
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2"
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>Despite the low regard most Clans hold for conventional infantry, these formations benefit from incidental access to Clan technology that makes even a disaffected garrison Point a match for its Inner Sphere equivalent. Field Gun Points are crew-served weapon teams that bring heavier firepower to the infantry level, towing weapons too large for individual soldiers to carry. The gun itself defines the Point's role, with lighter autocannons providing anti-infantry and anti-vehicle fire while heavier weapons can threaten even armored targets. The Point's field gun is a light-caliber autocannon that provides long-range direct fire against armored targets, trading raw stopping power for accuracy and sustained engagement capability.</p>"
+  }
+}

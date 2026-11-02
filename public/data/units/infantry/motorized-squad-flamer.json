@@ -1,0 +1,53 @@
+{
+  "id": "motorized-squad-flamer",
+  "chassis": "Motorized Squad",
+  "model": "(Flamer)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2025,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 1,
+    "totalTroopers": 7
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "flamer-man-portable",
+    "name": "Flamer (Man-Portable)",
+    "count": 2
+  },
+  "source": "TW",
+  "fluff": {
+    "overview": "<p>Motorized infantry squads mount their troops on light vehicles for rapid repositioning at squad strength. These small, fast elements serve as scouts, couriers, checkpoint crews, and quick-reaction teams that can reach trouble spots faster than foot infantry without requiring the heavy logistics of a full mechanized formation. Their light vehicles offer minimal protection, and the squad must dismount to engage effectively, but for patrol and screening duties on developed worlds, motorized squads provide responsive coverage at low cost.</p>"
+  }
+}

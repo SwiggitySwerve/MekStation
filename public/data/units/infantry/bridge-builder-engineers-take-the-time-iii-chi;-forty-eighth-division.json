@@ -1,0 +1,50 @@
+{
+  "id": "bridge-builder-engineers-take-the-time-iii-chi;-forty-eighth-division",
+  "chassis": "Bridge-builder Engineers",
+  "model": "Take the Time III-chi; Forty-eighth Division",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2830,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 2,
+    "totalTroopers": 12
+  },
+  "primaryWeapon": {
+    "id": "pulse-laser-rifle-is",
+    "name": "Pulse Laser Rifle (Inner Sphere)"
+  },
+  "armorKit": "ComStar Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "comstar-infantry-kit",
+      "name": "ComStar Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "infantry-bridge-kit",
+      "name": "Infantry Bridge Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 1,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 428,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The bridge-building engineers of Take the Time III-chi earned their reputation during the Jihad as part of the Forty-eighth Division. Assigned to the Eleventh Army, these combat engineers became experts at moving the division's heavier combat units across rivers, streams, and chasms that blocked their path. Operating under Word of Blake fire, the bridging troops often worked under direct enemy observation, quickly digging fighting positions along riverbanks while assembling their spans. Armed with pulse laser rifles, the engineers could defend their bridgehead while construction proceeded. Their tracked mechanized transport gave them the carrying capacity for bridge-building equipment and the cross-country mobility to reach remote crossing points that wheeled vehicles could not access.</p>"
+  }
+}

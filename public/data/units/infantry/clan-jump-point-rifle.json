@@ -1,0 +1,50 @@
+{
+  "id": "clan-jump-point-rifle",
+  "chassis": "Clan Jump Point",
+  "model": "(Rifle)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2815,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 614,
+  "role": "Ambusher",
+  "source": "TW,TO:AUE",
+  "fluff": {
+    "overview": "<p>Clan jump Points equip five warriors with personal jump packs for vertical mobility across broken terrain. Jump-capable Points offer Clan garrison commanders a flexible response element that can access elevated positions, clear multi-story structures, and exploit terrain features that foot infantry cannot reach. Within the Touman, jump-qualified warriors carry marginally more prestige than standard foot garrison troops, though conventional infantry of any type remains far below BattleMech and battle armor assignments in the warrior caste hierarchy.</p>"
+  }
+}

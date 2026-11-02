@@ -1,0 +1,49 @@
+{
+  "id": "foot-demi-i-wobm-lrm",
+  "chassis": "Foot demi-I (WOBM)",
+  "model": "(LRM)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3057,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 3,
+    "totalTroopers": 18
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Word of Blake Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "word-of-blake-infantry-kit",
+      "name": "Word of Blake Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrylrm",
+    "name": "InfantryLRM",
+    "count": 2
+  },
+  "mulId": 6999,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Word of Blake Militia infantry served as the backbone of Protectorate garrison forces across dozens of conquered worlds, providing the manpower for territorial control that the Militia's BattleMech and armor assets could not sustain alone. Foot infantry Level I formations provided the bulk of Protectorate garrison manpower, assigned to hold ground that the Militia's BattleMech forces had already taken. On occupied worlds, these platoons maintained checkpoints, patrolled population centers, and enforced curfews as the visible face of Blakist territorial control. Carrying infantry-portable long-range missile systems that extend the platoon's engagement envelope well beyond personal weapon range, these troops provide indirect fire support that can suppress enemy positions from distances where return fire is difficult.</p>"
+  }
+}

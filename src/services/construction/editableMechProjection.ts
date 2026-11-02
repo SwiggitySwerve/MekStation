@@ -1,14 +1,22 @@
+import type { IRawSerializedUnit } from '@/services/units/unitLoaderService/types';
+import type { UnitState } from '@/stores/unitState';
 import type { IArmorAllocation } from '@/types/construction/ArmorAllocation';
 import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { EngineType } from '@/types/construction/EngineType';
 import { TechBase } from '@/types/enums/TechBase';
+import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 
+import type { UnitData } from '../../../scripts/validate-bv-types';
 import type {
   IEditableMech,
   IArmorAllocation as IEditableArmorAllocation,
 } from './MechBuilderService';
+
+import { toMechLoc } from '../../../scripts/validate-bv-normalizers';
+import { extractJumpMP } from './CalculationService.calculations';
 
 export function buildEditableArmorAllocation(
   armorAllocation: IArmorAllocation,
@@ -34,6 +42,8 @@ export function buildEditableArmorAllocation(
 }
 
 export interface IEditableMechProjectionInput {
+  readonly bvContext?: IMechBVContext;
+  readonly jumpMP?: number;
   readonly name: string;
   readonly chassis: string;
   readonly model: string;
@@ -60,6 +70,8 @@ export function projectEditableMech(
 ): IEditableMech {
   return {
     id,
+    bvContext: state.bvContext,
+    jumpMP: state.jumpMP,
     chassis: state.chassis || state.name.split(' ')[0] || 'Unknown',
     variant:
       state.model || state.name.split(' ').slice(1).join(' ') || 'Custom',
@@ -77,10 +89,190 @@ export function projectEditableMech(
     heatSinkType: state.heatSinkType,
     heatSinkCount: state.heatSinkCount,
     equipment: state.equipment.map((item) => ({
+      instanceId: item.instanceId,
+      name: item.name,
+      category: item.category,
+      slots: item.slots,
+      criticalSlots: item.criticalSlots,
+      isRearMounted: item.isRearMounted,
       equipmentId: item.equipmentId,
       location: item.location ?? '',
       slotIndex: item.slots?.[0] ?? 0,
     })),
     isDirty: false,
+  };
+}
+
+/** Source details that normalization cannot represent; never a cached BV. */
+export interface IMechBVContext {
+  readonly source: IRawSerializedUnit;
+  readonly equipment: readonly IMountedEquipmentInstance[];
+  readonly types: Pick<
+    UnitState,
+    | 'engineType'
+    | 'gyroType'
+    | 'internalStructureType'
+    | 'cockpitType'
+    | 'armorType'
+    | 'heatSinkType'
+  >;
+}
+
+/** @spec openspec/specs/battle-value-system/spec.md */
+export function buildEditableMechBVInput(mech: IEditableMech): UnitData {
+  const context = mech.bvContext;
+  const source = context?.source;
+  const types = context?.types;
+  const sourceType = (
+    live: string,
+    baseline: string | undefined,
+    original: string | undefined,
+  ) => (live === baseline && original ? original : live);
+  const criticalSlots = Object.fromEntries(
+    Object.entries(source?.criticalSlots ?? {}).map(([loc, slots]) => [
+      loc,
+      [...slots],
+    ]),
+  );
+  const critLocation = (location: string) => {
+    const short = toMechLoc(location);
+    return (
+      (short &&
+        Object.keys(criticalSlots).find((key) => toMechLoc(key) === short)) ||
+      location.toUpperCase().replace(/ /g, '_')
+    );
+  };
+  const equipment: UnitData['equipment'] = [];
+  const current = new Map(
+    mech.equipment.map((item, index) => [
+      item.instanceId ?? String(index),
+      item,
+    ]),
+  );
+  context?.equipment.forEach((original, index) => {
+    const live = current.get(original.instanceId);
+    const unchanged =
+      live &&
+      live.equipmentId === original.equipmentId &&
+      live.location === (original.location ?? '') &&
+      live.isRearMounted === original.isRearMounted &&
+      JSON.stringify(live.slots) === JSON.stringify(original.slots);
+    if (unchanged) {
+      const raw = source?.equipment?.[index];
+      // Recovered ammo/sinks already exist in the critical grid. Some ammo IDs
+      // are also weapon IDs, so adding them here would invent extra weapons.
+      if (raw) equipment.push({ id: raw.id, location: raw.location });
+      current.delete(original.instanceId);
+    } else if (original.location) {
+      const loc = critLocation(original.location);
+      for (const slot of original.slots ?? []) {
+        if (criticalSlots[loc]) criticalSlots[loc][slot] = null;
+      }
+    }
+  });
+  for (const item of current.values()) {
+    const loc = critLocation(item.location);
+    if (item.category !== EquipmentCategory.AMMUNITION)
+      equipment.push({
+        id: item.equipmentId,
+        location: loc + (item.isRearMounted ? ' (R)' : ''),
+      });
+    if (!loc) continue;
+    const slots = (criticalSlots[loc] ??= []);
+    const name =
+      (item.name ?? item.equipmentId) + (item.isRearMounted ? ' (R)' : '');
+    for (
+      let i = 0;
+      i < Math.max(1, item.slots?.length ?? item.criticalSlots ?? 1);
+      i++
+    ) {
+      const slot = item.slots?.[i];
+      if (slot === undefined) slots.push(name);
+      else slots[slot] = name;
+    }
+  }
+  const a = mech.armorAllocation;
+  const quad =
+    mech.configuration === MechConfiguration.QUAD ||
+    mech.configuration === MechConfiguration.QUADVEE;
+  const allocation: UnitData['armor']['allocation'] = {
+    HEAD: a.head,
+    CENTER_TORSO: { front: a.centerTorso, rear: a.centerTorsoRear },
+    LEFT_TORSO: { front: a.leftTorso, rear: a.leftTorsoRear },
+    RIGHT_TORSO: { front: a.rightTorso, rear: a.rightTorsoRear },
+    ...(quad
+      ? {
+          FRONT_LEFT_LEG: a.frontLeftLeg ?? 0,
+          FRONT_RIGHT_LEG: a.frontRightLeg ?? 0,
+          REAR_LEFT_LEG: a.rearLeftLeg ?? 0,
+          REAR_RIGHT_LEG: a.rearRightLeg ?? 0,
+        }
+      : {
+          LEFT_ARM: a.leftArm,
+          RIGHT_ARM: a.rightArm,
+          LEFT_LEG: a.leftLeg,
+          RIGHT_LEG: a.rightLeg,
+          // The shared owner also recognizes legacy Biped-labeled tripods.
+          ...(mech.configuration === MechConfiguration.TRIPOD || a.centerLeg
+            ? { CENTER_LEG: a.centerLeg ?? 0 }
+            : {}),
+        }),
+  };
+  let engine = sourceType(
+    String(mech.engineType),
+    types?.engineType,
+    source?.engine?.type,
+  );
+  if (engine === EngineType.XL_IS) engine = 'XL';
+  if (engine === EngineType.XL_CLAN) engine = 'CLAN_XL';
+  return {
+    id: source?.id ?? mech.id,
+    chassis: mech.chassis,
+    model: mech.variant,
+    unitType: source?.unitType ?? 'BattleMech',
+    configuration: mech.configuration ?? 'Biped',
+    techBase:
+      source?.techBase ??
+      String(mech.techBase).toUpperCase().replace(/ /g, '_'),
+    tonnage: mech.tonnage,
+    engine: { type: engine, rating: mech.engineRating },
+    gyro: {
+      type: sourceType(
+        String(mech.gyroType),
+        types?.gyroType,
+        source?.gyro?.type,
+      ),
+    },
+    cockpit: sourceType(
+      String(mech.cockpitType),
+      types?.cockpitType,
+      source?.cockpit,
+    ),
+    structure: {
+      type: sourceType(
+        String(mech.structureType),
+        types?.internalStructureType,
+        source?.structure?.type,
+      ),
+    },
+    armor: {
+      type: sourceType(
+        String(mech.armorType),
+        types?.armorType,
+        source?.armor?.type,
+      ),
+      allocation,
+    },
+    heatSinks: {
+      type: sourceType(
+        String(mech.heatSinkType),
+        types?.heatSinkType,
+        source?.heatSinks?.type,
+      ),
+      count: mech.heatSinkCount,
+    },
+    movement: { walk: mech.walkMP, jump: mech.jumpMP ?? extractJumpMP(mech) },
+    equipment,
+    criticalSlots,
   };
 }

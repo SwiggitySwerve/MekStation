@@ -1,0 +1,40 @@
+{
+  "id": "mob-huge",
+  "chassis": "Mob",
+  "model": "(Huge)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2400,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 6,
+    "totalTroopers": 30
+  },
+  "primaryWeapon": {
+    "id": "rifle-makeshift",
+    "name": "Rifle (Makeshift)"
+  },
+  "armorKit": null,
+  "motiveType": "Leg",
+  "equipment": [],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryminigrenadeinferno",
+    "name": "InfantryMiniGrenadeInferno",
+    "count": 1
+  },
+  "source": "Apocryphal",
+  "fluff": {
+    "overview": "<p>A huge mob is a crisis, not an incident. Numbering in the many hundreds or more, these formations of armed civilians can effectively seize control of entire city districts, overwhelm garrison forces, and bring planetary infrastructure to a halt. Armed with whatever weapons are at hand, from makeshift rifles to looted military equipment and incendiary grenades, a mob of this scale operates with a collective momentum that is extraordinarily difficult to stop without deploying BattleMechs or armored vehicles. Even then, the political consequences of using heavy weapons against civilians can be worse than the mob itself. Huge mobs have toppled planetary governments, triggered full-scale military interventions, and altered the course of wars by forcing commanders to divert front-line units to restore order on supposedly secure worlds.</p>"
+  }
+}

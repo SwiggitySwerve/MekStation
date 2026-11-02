@@ -1,0 +1,69 @@
+{
+  "id": "clan-field-artillery-point-tracked-thumper",
+  "chassis": "Clan Field Artillery Point",
+  "model": "(Tracked Thumper)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2807,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isthumper",
+      "name": "ISThumper",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isthumperammo",
+      "name": "ISThumperAmmo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle",
+    "count": 1
+  },
+  "fieldGuns": [
+    {
+      "id": "isthumper",
+      "name": "ISThumper"
+    },
+    {
+      "id": "isthumperammo",
+      "name": "ISThumperAmmo"
+    }
+  ],
+  "role": "Missile Boat",
+  "fluff": {
+    "overview": "<p>Despite the low regard most Clans hold for conventional infantry, these formations benefit from incidental access to Clan technology that makes even a disaffected garrison Point a match for its Inner Sphere equivalent. Field Artillery Points provide indirect fire support that allows infantry formations to engage targets beyond visual range. Operating from concealed positions behind the front line, these crews deliver area-effect fire that can disrupt enemy formations, destroy fixed positions, and support advancing friendly units without exposing themselves to direct engagement. The Point operates a Thumper artillery piece, the lightest class of field artillery available, capable of delivering area-effect explosive rounds at ranges measured in kilometers.</p>"
+  }
+}

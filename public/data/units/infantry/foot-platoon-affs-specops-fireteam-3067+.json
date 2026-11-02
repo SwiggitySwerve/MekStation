@@ -1,0 +1,53 @@
+{
+  "id": "foot-platoon-affs-specops-fireteam-3067+",
+  "chassis": "Foot Platoon (AFFS)",
+  "model": "(SpecOps Fireteam 3067+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 8,
+    "squadCount": 2,
+    "totalTroopers": 16
+  },
+  "primaryWeapon": {
+    "id": "infantryfederatedbarrettm42b",
+    "name": "InfantryFederatedBarrettM42B"
+  },
+  "armorKit": "Sneak Suit (Camo/IR/ECM)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "sneak-suit-camo-ir-ecm",
+      "name": "Sneak Suit (Camo/IR/ECM)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": ["sneakcamo", "sneakir", "sneakecm"],
+  "effectiveArmorFlags": ["sneakcamo", "sneakir", "sneakecm"],
+  "specializations": 512,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryfederatedbarrettm42b",
+    "name": "InfantryFederatedBarrettM42B",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The AFFS treats its infantry as professionals rather than expendable garrison filler, drawing soldiers from single worlds or neighboring systems to build the unit cohesion that the Federated Suns considers essential to effective combined-arms operations. Foot infantry remain the backbone of AFFS planetary garrisons, cheap enough to deploy in numbers across the Federated Suns' vast territory and reliable enough to hold ground that BattleMech forces cannot permanently occupy. These special operations fireteams are small, highly trained units configured for reconnaissance, sabotage, and direct action missions operating independently behind enemy lines, relying on stealth and precise execution rather than conventional firepower.</p>"
+  }
+}
