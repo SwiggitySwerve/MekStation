@@ -32,15 +32,13 @@ import {
   type IAerospaceBVBreakdown,
 } from './aerospace/aerospaceBV';
 import { isCapitalShipBVType } from './aerospace/aerospaceBVTypes';
-import {
-  calculateCapitalShipDefensiveBV,
-  type ICapitalShipBVUnit,
-  type ICapitalShipDefensiveBVBreakdown,
-} from './aerospace/capitalShipBV';
+import { type ICapitalShipBVUnit } from './aerospace/capitalShipBV';
 import { type IDropShipBVUnit } from './aerospace/dropShipBV';
 import {
   calculateDropShipBV,
+  calculateLargeAerospaceBV,
   type IDropShipBVBreakdown,
+  type ILargeAerospaceBVBreakdown,
 } from './aerospace/dropShipComplete';
 import { calculateInfantryBVFromUnit as _calculateInfantryBVFromUnit } from './infantry/infantryBVAdapter';
 import {
@@ -222,7 +220,7 @@ export interface IUnitBVOptions extends IProtoMechBVOptions {
 export type UnitBVResult =
   | {
       readonly kind: 'capital-ship';
-      readonly breakdown: ICapitalShipDefensiveBVBreakdown;
+      readonly breakdown: ILargeAerospaceBVBreakdown;
     }
   | {
       readonly kind: 'dropship';
@@ -315,7 +313,7 @@ export function calculateBattleValueForUnit(
   if (isCapitalShipBVType(unit?.unitType)) {
     return {
       kind: 'capital-ship',
-      breakdown: calculateCapitalShipDefensiveBV(unit as ICapitalShipBVUnit),
+      breakdown: calculateLargeAerospaceBV(unit as ICapitalShipBVUnit, options),
     };
   }
   // Complete DropShip BV requires resolved mounts and represented stage facts.
