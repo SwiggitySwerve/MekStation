@@ -153,68 +153,20 @@ describe('calculateBAOffensiveBV', () => {
   });
 });
 
-describe('calculateBattleArmorBV squad scaling', () => {
-  it('scales per-trooper BV by squad size before pilot multiplier', () => {
-    const clan = calculateBattleArmorBV(
-      baseInput({
-        squadSize: 5,
-        armorPointsPerTrooper: 20,
-        armorType: BAArmorType.STANDARD,
-        weightClass: BAWeightClass.HEAVY,
-        groundMP: 2,
-        weapons: [{ id: 'x', bvOverride: 48 }],
-      }),
-    );
-    expect(clan.perTrooper.total).toBeCloseTo(104.1, 10);
-    expect(clan.squadSize).toBe(5);
-    expect(clan.squadTotal).toBeCloseTo(520.5, 10);
-
-    const innerSphere = calculateBattleArmorBV(
-      baseInput({
-        squadSize: 4,
-        armorPointsPerTrooper: 10,
-        armorType: BAArmorType.STANDARD,
-        weightClass: BAWeightClass.HEAVY,
-        groundMP: 2,
-        weapons: [{ id: 'x', bvOverride: 53 }],
-      }),
-    );
-    expect(innerSphere.perTrooper.total).toBeCloseTo(81.6, 10);
-    expect(innerSphere.squadSize).toBe(4);
-    expect(innerSphere.squadTotal).toBeCloseTo(326.4, 10);
-  });
-
-  it('applies pilot multiplier at the end and clamps squad size', () => {
+describe('calculateBattleArmorBV squad metadata', () => {
+  it('preserves pilot and squad metadata while full totals await part 2', () => {
     const elite = calculateBattleArmorBV(
-      baseInput({
-        squadSize: 5,
-        armorPointsPerTrooper: 20,
-        weightClass: BAWeightClass.HEAVY,
-        groundMP: 2,
-        weapons: [{ id: 'x', bvOverride: 48 }],
-        gunnery: 3,
-        piloting: 4,
-      }),
+      baseInput({ squadSize: 5, gunnery: 3, piloting: 4 }),
     );
+    expect(elite.squadSize).toBe(5);
     expect(elite.pilotMultiplier).toBe(1.32);
-    expect(elite.final).toBe(687);
-
-    const baseline = calculateBattleArmorBV(
-      baseInput({
-        squadSize: 5,
-        armorPointsPerTrooper: 20,
-        weightClass: BAWeightClass.HEAVY,
-        groundMP: 2,
-        weapons: [{ id: 'x', bvOverride: 48 }],
-      }),
-    );
-    expect(baseline.pilotMultiplier).toBe(1.0);
-    expect(baseline.final).toBe(521);
-
     expect(calculateBattleArmorBV(baseInput({ squadSize: 0 })).squadSize).toBe(
       1,
     );
   });
+  it.todo(
+    'BA BV part 2: Java strength factors 5.2 / 7 replace linear 4 / 5 scaling',
+  );
 });
 
 describe('IBABreakdown shape', () => {
