@@ -216,6 +216,10 @@ export function normalizeVehicleConfiguration(
       unitType === UnitType.SUPPORT_VEHICLE
         ? (definition.engineTechRating ?? definition.structuralTechRating)
         : undefined,
+    structuralTechRating:
+      unitType === UnitType.SUPPORT_VEHICLE
+        ? definition.structuralTechRating
+        : undefined,
     engineRating:
       engine.rating ??
       computeStoredVehicleEngineRating(

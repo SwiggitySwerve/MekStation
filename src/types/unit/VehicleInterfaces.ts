@@ -229,6 +229,9 @@ export interface ISupportVehicle extends IGroundUnit {
   /** Engine tech rating */
   readonly engineTechRating: number;
 
+  /** Source fuel in tons; BLKSupportTankFile.java:96-97. */
+  readonly fuelTonnage?: number;
+
   /** Cargo capacity (tons) */
   readonly cargoCapacity: number;
 

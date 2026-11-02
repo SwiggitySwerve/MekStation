@@ -194,6 +194,7 @@ export interface VehicleState {
 
   /** Support-vehicle engine TechRating index (A = 0 to F = 5); omitted means D. */
   engineTechRating?: number;
+  structuralTechRating?: number;
 
   /** Engine rating */
   engineRating: number;

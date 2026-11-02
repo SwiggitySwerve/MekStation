@@ -45,6 +45,7 @@ import {
   getPrimaryVehicleTurretConfiguration,
   getVehicleMountFlags,
 } from '@/utils/construction/vehicle/equipmentMounts';
+import { computeSupportVehicleWeight } from '@/utils/construction/vehicle/supportWeight';
 
 import {
   AbstractUnitTypeHandler,
@@ -200,7 +201,9 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
 
     // Tech ratings
     const structuralTechRating =
-      this.parseNumericRaw(rawTags, 'structuraltechrating') || 5;
+      this.parseBlkRating(rawTags, 'structural_tech_rating') ??
+      this.parseBlkRating(rawTags, 'structuraltechrating') ??
+      5;
     const armorTechRating =
       this.parseBlkRating(rawTags, 'armor_tech_rating') ??
       this.parseBlkRating(rawTags, 'structural_tech_rating') ??
@@ -238,6 +241,7 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
       sizeClass,
       barRating,
       cargoCapacity,
+      fuelTonnage: document.fuel ?? 0,
       crewSize,
       passengerCapacity,
       structuralTechRating,
@@ -378,13 +382,14 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
   ): ISupportVehicle {
     const weightClass = getVehicleWeightClass(commonFields.tonnage);
 
-    return combineCommonUnitFields<ISupportVehicle>({
+    const unit = combineCommonUnitFields<ISupportVehicle>({
       commonFields,
       typeSpecificFields,
       idPrefix: 'support-vehicle',
       unitType: UnitType.SUPPORT_VEHICLE,
       weightClass,
     });
+    return { ...unit, totalWeight: this.calculateWeight(unit) };
   }
 
   /**
@@ -479,27 +484,7 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
    * Calculate support vehicle weight
    */
   protected calculateTypeSpecificWeight(unit: ISupportVehicle): number {
-    let weight = 0;
-
-    // Engine weight (support vehicles use ICE typically)
-    if (unit.movement.cruiseMP > 0) {
-      const engineRating = computeStoredVehicleEngineRating(
-        unit.tonnage,
-        unit.movement.cruiseMP,
-        unit.motionType,
-        true,
-      );
-      weight += engineRating * 0.08; // ICE engines are heavier
-    }
-
-    // Structural weight (less than combat vehicles)
-    weight += unit.tonnage * 0.08;
-
-    // Armor weight (BAR armor weighs less)
-    const armorWeightPerPoint = 0.0625 * (unit.barRating / 10);
-    weight += unit.totalArmorPoints * armorWeightPerPoint;
-
-    return weight;
+    return computeSupportVehicleWeight(unit).total;
   }
 
   /**
