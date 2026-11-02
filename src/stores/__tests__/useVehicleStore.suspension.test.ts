@@ -37,7 +37,7 @@ describe('combat vehicle suspension callers', () => {
         cruiseMP: 0,
         motionType: 'Tracked',
         engineType,
-        armor: [],
+        armor: [0, 0, 0, 0],
         equipmentByLocation: {},
         rawTags: { trailer: [String(isTrailer)] },
       };
@@ -48,11 +48,13 @@ describe('combat vehicle suspension callers', () => {
       expect(unit.engineType).toBe(engineType);
       expect(unit.isTrailer).toBe(isTrailer);
       expect(unit.engineRating).toBe(rating);
-      // Existing handler approximations must consume the same source distinction;
-      // these assertions do not establish weight or cost parity with MegaMek.
-      expect(handler.calculateWeight(unit)).toBe(
-        handler.calculateWeight({ ...unit, isTrailer: !isTrailer }),
+      // The handler cannot return a complete weight without resolved mount facts.
+      expect(() => handler.calculateWeight(unit)).toThrow(
+        /weight is incomplete/,
       );
+      expect(() =>
+        handler.calculateWeight({ ...unit, isTrailer: !isTrailer }),
+      ).toThrow(/weight is incomplete/);
       expect(handler.calculateCost(unit)).toBe(200000 + rating * 5000);
     },
   );
@@ -237,7 +239,7 @@ it('agrees with actual Python converter output and direct BLK import', () => {
     tonnage: 20,
     cruiseMP: 12,
     motionType: 'Hover',
-    armor: [],
+    armor: [0, 0, 0, 0],
     equipmentByLocation: {},
     rawTags: {},
   };
