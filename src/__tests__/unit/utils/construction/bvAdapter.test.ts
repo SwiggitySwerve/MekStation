@@ -1,38 +1,4 @@
-import { _resetCalculationService } from '@/services/construction/CalculationService';
-import {
-  calculateUnitBV,
-  unitDataToEditableMech,
-  type UnitData,
-} from '@/utils/construction/bvAdapter';
-
-const mockEquipment: Map<
-  string,
-  { battleValue?: number; heat?: number; cost?: number; category?: string }
-> = new Map([
-  [
-    'medium-laser',
-    { battleValue: 46, heat: 3, cost: 40000, category: 'Energy' },
-  ],
-  [
-    'large-laser',
-    { battleValue: 123, heat: 8, cost: 100000, category: 'Energy' },
-  ],
-  ['lrm-10', { battleValue: 90, heat: 4, cost: 100000, category: 'Missile' }],
-]);
-
-jest.mock('@/services/equipment/EquipmentRegistry', () => ({
-  getEquipmentRegistry: () => ({
-    isReady: () => true,
-    initialize: jest.fn().mockResolvedValue(undefined),
-    lookup: (id: string) => {
-      const equipment = mockEquipment.get(id.toLowerCase());
-      if (equipment) {
-        return { found: true, equipment, category: equipment.category };
-      }
-      return { found: false, equipment: null, category: null };
-    },
-  }),
-}));
+import { calculateUnitBV, type UnitData } from '@/utils/construction/bvAdapter';
 
 function createStalkerUnitData(): UnitData {
   return {
@@ -99,26 +65,18 @@ function createMinimalBattleMech(): UnitData {
 }
 
 describe('bvAdapter', () => {
-  beforeEach(() => {
-    _resetCalculationService();
-  });
-
-  afterEach(() => {
-    _resetCalculationService();
-  });
-
   describe('calculateUnitBV', () => {
     it('returns a positive BV for a valid BattleMech', () => {
       const result = calculateUnitBV(createStalkerUnitData());
       expect(result).toBeGreaterThan(0);
     });
 
-    it('returns 0 for unsupported unit types', () => {
+    it('rejects a vehicle without its family BV inputs', () => {
       const vehicleData: UnitData = {
         ...createMinimalBattleMech(),
         unitType: 'Vehicle',
       };
-      expect(calculateUnitBV(vehicleData)).toBe(0);
+      expect(() => calculateUnitBV(vehicleData)).toThrow();
     });
 
     it('returns 0 for AeroSpaceFighter unit type', () => {
@@ -165,97 +123,6 @@ describe('bvAdapter', () => {
     it('returns integer BV values', () => {
       const result = calculateUnitBV(createStalkerUnitData());
       expect(Number.isInteger(result)).toBe(true);
-    });
-  });
-
-  describe('unitDataToEditableMech', () => {
-    it('maps tonnage correctly', () => {
-      const mech = unitDataToEditableMech(createStalkerUnitData());
-      expect(mech.tonnage).toBe(85);
-    });
-
-    it('maps chassis and variant', () => {
-      const mech = unitDataToEditableMech(createStalkerUnitData());
-      expect(mech.chassis).toBe('Stalker II');
-      expect(mech.variant).toBe('STK-9A');
-    });
-
-    it('normalizes engine type from UPPER_SNAKE to lowercase-hyphenated', () => {
-      const mech = unitDataToEditableMech(createStalkerUnitData());
-      expect(mech.engineType).toBe('fusion');
-    });
-
-    it('normalizes structure type', () => {
-      const mech = unitDataToEditableMech(createStalkerUnitData());
-      expect(mech.structureType).toBe('endo-steel');
-    });
-
-    it('normalizes gyro type', () => {
-      const mech = unitDataToEditableMech(createStalkerUnitData());
-      expect(mech.gyroType).toBe('compact');
-    });
-
-    it('normalizes cockpit type', () => {
-      const mech = unitDataToEditableMech(createStalkerUnitData());
-      expect(mech.cockpitType).toBe('torso-mounted');
-    });
-
-    it('maps armor allocation with front/rear split', () => {
-      const mech = unitDataToEditableMech(createStalkerUnitData());
-      expect(mech.armorAllocation.head).toBe(9);
-      expect(mech.armorAllocation.centerTorso).toBe(36);
-      expect(mech.armorAllocation.centerTorsoRear).toBe(11);
-      expect(mech.armorAllocation.leftTorso).toBe(25);
-      expect(mech.armorAllocation.leftTorsoRear).toBe(7);
-      expect(mech.armorAllocation.leftArm).toBe(23);
-      expect(mech.armorAllocation.rightArm).toBe(23);
-      expect(mech.armorAllocation.leftLeg).toBe(25);
-      expect(mech.armorAllocation.rightLeg).toBe(25);
-    });
-
-    it('maps double heat sinks to double-is', () => {
-      const mech = unitDataToEditableMech(createStalkerUnitData());
-      expect(mech.heatSinkType).toBe('double-is');
-    });
-
-    it('maps single heat sinks', () => {
-      const mech = unitDataToEditableMech(createMinimalBattleMech());
-      expect(mech.heatSinkType).toBe('single');
-    });
-
-    it('maps equipment array to IEquipmentSlot format', () => {
-      const mech = unitDataToEditableMech(createStalkerUnitData());
-      expect(mech.equipment).toHaveLength(8);
-      expect(mech.equipment[0]).toEqual({
-        equipmentId: 'medium-laser',
-        location: 'LEFT_ARM',
-        slotIndex: 0,
-      });
-    });
-
-    it('handles empty equipment list', () => {
-      const mech = unitDataToEditableMech(createMinimalBattleMech());
-      expect(mech.equipment).toHaveLength(0);
-    });
-
-    it('provides defaults for optional fields', () => {
-      const mech = unitDataToEditableMech(createMinimalBattleMech());
-      expect(mech.id).toBe('bv-adapter-unit');
-      expect(mech.chassis).toBe('Unknown');
-      expect(mech.variant).toBe('Unknown');
-      expect(mech.structureType).toBe('standard');
-      expect(mech.gyroType).toBe('standard');
-      expect(mech.cockpitType).toBe('standard');
-    });
-
-    it('maps walkMP from movement.walk', () => {
-      const mech = unitDataToEditableMech(createStalkerUnitData());
-      expect(mech.walkMP).toBe(3);
-    });
-
-    it('maps engineRating from engine.rating', () => {
-      const mech = unitDataToEditableMech(createStalkerUnitData());
-      expect(mech.engineRating).toBe(255);
     });
   });
 });

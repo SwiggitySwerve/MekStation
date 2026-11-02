@@ -15,6 +15,7 @@ import {
 } from '@/types/force';
 import { GameSide } from '@/types/gameplay';
 import { PilotStatus, PilotType, type IPilot } from '@/types/pilot';
+import { calculateUnitBV } from '@/utils/construction/bvAdapter';
 
 import {
   buildForceSummary,
@@ -36,8 +37,10 @@ const fullUnit = (
     bv: 432,
     heatSinks: { type: 'SINGLE', count: 10 },
     movement: { walk: 8, jump: 0 },
+    engine: { type: 'FUSION', rating: 160 },
     equipment: [{ id: 'medium-laser', location: 'CT' }],
     armor: {
+      type: 'STANDARD',
       allocation: {
         LEFT_ARM: 4,
         RIGHT_ARM: 4,
@@ -51,6 +54,8 @@ const fullUnit = (
     },
     ...overrides,
   }) as IFullUnit;
+
+const fixtureBV = calculateUnitBV(fullUnit('locust'));
 
 const pilot = (
   id: string,
@@ -100,6 +105,18 @@ const force = (
 });
 
 describe('buildForceSummaryInput', () => {
+  it.each([undefined, 1])(
+    'uses shared mech BV instead of a stale stored figure (%s)',
+    async (bv) => {
+      const input = await buildForceSummaryInput({
+        side: GameSide.Player,
+        force: force([{ unitId: 'locust', pilotId: null }]),
+        pilots: [],
+        preloadedUnits: new Map([['locust', fullUnit('locust', { bv })]]),
+      });
+      expect(input.units[0].battleValue).toBe(fixtureBV);
+    },
+  );
   it('returns empty units when force is undefined', async () => {
     const input = await buildForceSummaryInput({
       side: GameSide.Player,
@@ -137,8 +154,8 @@ describe('buildForceSummaryInput', () => {
     });
 
     expect(input.units).toHaveLength(2);
-    expect(input.units[0].battleValue).toBe(432);
-    expect(input.units[1].battleValue).toBe(580);
+    expect(input.units[0].battleValue).toBe(fixtureBV);
+    expect(input.units[1].battleValue).toBe(fixtureBV);
     expect(input.units[0].tonnage).toBe(20);
     expect(input.units[0].gunnery).toBe(4);
     expect(input.units[0].piloting).toBe(5);
@@ -248,7 +265,7 @@ describe('onForcesChange callback contract (pre-battle useEffect)', () => {
       preloadedUnits: baseUnits,
     });
     expect(before.unitCount).toBe(1);
-    expect(before.totalBV).toBe(432);
+    expect(before.totalBV).toBe(fixtureBV);
 
     const after = await buildForceSummary({
       side: GameSide.Player,
@@ -260,7 +277,7 @@ describe('onForcesChange callback contract (pre-battle useEffect)', () => {
       preloadedUnits: baseUnits,
     });
     expect(after.unitCount).toBe(2);
-    expect(after.totalBV).toBe(432 + 580);
+    expect(after.totalBV).toBe(fixtureBV * 2);
     // Snapshot must be a NEW object (useEffect should trigger a
     // re-render with the changed reference).
     expect(after).not.toBe(before);
@@ -314,7 +331,7 @@ describe('onForcesChange callback contract (pre-battle useEffect)', () => {
       preloadedUnits: baseUnits,
     });
     expect(after.unitCount).toBe(1);
-    expect(after.totalBV).toBe(432);
+    expect(after.totalBV).toBe(fixtureBV);
   });
 
   it('produces deeply-equal snapshots when the inputs are unchanged (map radius / mode unchanged)', async () => {
