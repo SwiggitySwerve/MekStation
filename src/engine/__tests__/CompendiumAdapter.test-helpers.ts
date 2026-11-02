@@ -1,8 +1,15 @@
 import type { IFullUnit } from '@/services/units/CanonicalUnitService';
+import type { IGameUnit, IDamageAppliedPayload } from '@/types/gameplay';
 
 import { VehicleLocation } from '@/types/construction/UnitLocation';
-import { FiringArc } from '@/types/gameplay';
+import { UnitContract } from '@/types/contracts';
+import { GameSide, GameEventType, FiringArc } from '@/types/gameplay';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
+import { contractUnitToBVUnit } from '@/utils/construction/contractBVUnitAdapter';
+import { resolveWeaponHit } from '@/utils/gameplay/gameSessionAttackResolution.hit';
+import { deriveState } from '@/utils/gameplay/gameState';
 
 import {
   adaptUnit,
@@ -11,16 +18,23 @@ import {
   getWeaponData,
 } from '../adapters/CompendiumAdapter';
 import { WEAPON_DATABASE } from '../adapters/CompendiumWeaponData';
+import { GameEngine } from '../GameEngine';
 import { toMovementCapability } from '../GameEngine.helpers';
+import { gameUnitsWithAdaptedCombatSeeds } from '../InteractiveSession.setup';
 
 jest.mock('@/services/units/CanonicalUnitService', () => {
   const unitStore: Record<string, IFullUnit> = {};
+  let lookupOptions: unknown;
 
   return {
     getCanonicalUnitService: () => ({
-      getById: jest.fn(async (id: string) => unitStore[id] ?? null),
+      getById: jest.fn(async (id: string, options?: unknown) => {
+        lookupOptions = options;
+        return unitStore[id] ?? null;
+      }),
       getIndex: jest.fn(async () => []),
     }),
+    __lookupOptions: () => lookupOptions,
     __setUnit: (id: string, data: IFullUnit) => {
       unitStore[id] = data;
     },
@@ -35,6 +49,7 @@ jest.mock('@/services/units/CanonicalUnitService', () => {
 const mockModule = jest.requireMock(
   '@/services/units/CanonicalUnitService',
 ) as {
+  __lookupOptions: () => unknown;
   __setUnit: (id: string, data: IFullUnit) => void;
   __clearUnits: () => void;
 };
@@ -860,7 +875,9 @@ describe('CompendiumAdapter', () => {
       'should derive represented %s aerospace entity height',
       (unitType, overrides, height) => {
         const result = adaptUnitFromData({
-          ...createAtlasData(),
+          ...(unitType === 'Small Craft' || unitType === 'SmallCraft'
+            ? aerospaceFixture(3)
+            : createAtlasData()),
           unitType,
           motionType: 'Tracked',
           ...(overrides ?? {}),
@@ -1418,4 +1435,299 @@ describe('CompendiumAdapter', () => {
       expect(result!.walkMP).toBe(3);
     });
   });
+});
+
+const cases = [
+  ['AerospaceFighter', UnitType.AEROSPACE, 55, 7, 7],
+  ['ConventionalFighter', UnitType.CONVENTIONAL_FIGHTER, 45, 5, 5],
+  ['FixedWingSupport', UnitType.CONVENTIONAL_FIGHTER, 220, 3, 3],
+  ['SmallCraft', UnitType.SMALL_CRAFT, 200, 5, 9],
+] as const;
+function aerospaceFixture(index: number, id = 'aero'): IFullUnit {
+  const [subType, unitType, tonnage, safeThrust] = cases[index];
+  const unit: IFullUnit = {
+    id,
+    chassis: 'UL23',
+    variant: 'A',
+    tonnage,
+    unitType,
+    techBase: 'INNER_SPHERE',
+    era: 'SUCCESSION_WARS',
+  };
+  return Object.assign(unit, {
+    subType,
+    model: 'A',
+    year: 3025,
+    rulesLevel: 'STANDARD',
+    movement: { safeThrust, maxThrust: 999 },
+    structuralIntegrity: index === 3 ? 9 : 99,
+    fuel: 600,
+    heatSinks: { type: 'DOUBLE', count: 10 },
+    armor: {
+      type: 'STANDARD',
+      byArc:
+        index === 3
+          ? { NOSE: 10, LEFT_SIDE: 20, RIGHT_SIDE: 30, AFT: 40 }
+          : { NOSE: 10, LEFT_WING: 20, RIGHT_WING: 30, AFT: 40 },
+    },
+    equipment: [
+      { id: 'ppc', location: 'NOSE' },
+      { id: 'ppc', location: 'AFT' },
+      { id: 'ppc', location: index === 3 ? 'LEFT_SIDE' : 'LEFT_WING' },
+      { id: 'ppc', location: index === 3 ? 'RIGHT_SIDE' : 'RIGHT_WING' },
+    ],
+  });
+}
+const roster = (units: ReturnType<typeof adaptUnitFromData>[]): IGameUnit[] =>
+  units.map((u) => ({
+    id: u.id,
+    name: u.id,
+    unitRef: u.id,
+    pilotRef: 'pilot',
+    gunnery: 0,
+    piloting: 5,
+    side: u.side,
+  }));
+
+it('preserves scenario armor damage and explicit combat initialization', () => {
+  const adapted = adaptUnitFromData(aerospaceFixture(0), {
+    initialDamage: { nose: 3 },
+  });
+  expect(adapted.armor.nose).toBe(7);
+  expect(adapted.aerospaceInit?.armorByArc.nose).toBe(7);
+  const explicit = { ...adapted.aerospaceInit!, fuelPoints: 123 };
+  expect(
+    gameUnitsWithAdaptedCombatSeeds(
+      [
+        {
+          ...roster([adapted])[0],
+          unitType: UnitType.AEROSPACE,
+          aerospaceInit: explicit,
+        },
+      ],
+      [adapted],
+      [],
+    )[0].aerospaceInit,
+  ).toEqual(explicit);
+});
+
+it('rejects missing aerospace construction facts at admission', () => {
+  expect(() =>
+    adaptUnitFromData(Object.assign(aerospaceFixture(0), { fuel: undefined })),
+  ).toThrow();
+});
+
+it('transports fuselage mounts through every declared firing arc', () => {
+  const unit = Object.assign(aerospaceFixture(0), {
+    equipment: [{ id: 'ppc', location: 'FUSELAGE' }],
+  });
+  expect(adaptUnitFromData(unit).weapons[0].mountingArcs).toEqual(
+    Object.values(FiringArc),
+  );
+});
+
+it.each(cases.map((c, index) => [c[0], index, c[4]] as const))(
+  '%s seeds aerospace facts, not Mech locations',
+  (_name, index, si) => {
+    const adapted = adaptUnitFromData(aerospaceFixture(index));
+    expect(adapted.structure).toEqual({ si });
+    expect(adapted.armor).toMatchObject({ nose: 10, aft: 40 });
+    expect(adapted.aerospaceInit).toMatchObject({
+      maxSI: si,
+      fuelPoints: 600,
+      heatSinks: 20,
+    });
+    expect(adapted.aerospaceInit?.maxThrust).not.toBe(999);
+    expect(adapted.walkMP).toBe(cases[index][3]);
+    expect(adapted.runMP).toBe([11, 8, 5, 8][index]);
+    expect(adapted.armor).toEqual(
+      index === 3
+        ? { nose: 10, leftSide: 20, rightSide: 30, aft: 40 }
+        : { nose: 10, leftWing: 20, rightWing: 30, aft: 40 },
+    );
+    expect(adapted.heat).toBe(0);
+    expect(adapted.heatSinks).toBe(10);
+    expect(adapted.heatSinkType).toBe('double');
+    expect(adapted.weapons.map((w) => w.mountingArc)).toEqual([
+      'front',
+      'rear',
+      'left',
+      'right',
+    ]);
+    expect(adapted.bv).toBeGreaterThan(0);
+    const source = UnitContract.parse(aerospaceFixture(index));
+    if (!source.armor) throw new Error('Missing fixture armor');
+    const expectedBV = calculateBattleValueForUnit(
+      contractUnitToBVUnit({
+        ...source,
+        armor: source.armor,
+        tonnage: cases[index][2],
+        unitType: cases[index][1],
+        structuralIntegrity: si,
+        movement: {
+          safeThrust: cases[index][3],
+          maxThrust: [11, 8, 5, 8][index],
+        },
+      }),
+    );
+    if (expectedBV?.kind !== 'aerospace')
+      throw new Error('Expected aerospace BV');
+    expect(adapted.bv).toBe(expectedBV.breakdown.final);
+    expect(
+      adaptUnitFromData(Object.assign(aerospaceFixture(index), { bv: -1 })).bv,
+    ).toBe(adapted.bv);
+    const seeded = gameUnitsWithAdaptedCombatSeeds(
+      roster([adapted]),
+      [adapted],
+      [],
+    )[0];
+    expect(seeded.aerospaceInit).toEqual(adapted.aerospaceInit);
+  },
+);
+
+it.each([0, 1, 2, 3])(
+  'seeded engagement %s resolves aerospace damage and replays to completion',
+  (index) => {
+    const source = aerospaceFixture(index);
+    const player = adaptUnitFromData(source);
+    const opponent = adaptUnitFromData(
+      { ...source, id: 'target' },
+      { side: GameSide.Opponent },
+    );
+    const session = new GameEngine({
+      seed: 123,
+      mapRadius: 7,
+      turnLimit: 20,
+    }).runToCompletion([player], [opponent], roster([player, opponent]));
+    expect(session.events.some((e) => e.type === GameEventType.GameEnded)).toBe(
+      true,
+    );
+    expect(
+      session.events
+        .filter((e) => e.type === GameEventType.DamageApplied)
+        .some((e) => 'aerospaceState' in e.payload),
+    ).toBe(true);
+    expect(session.currentState.units.target.combatState?.kind).toBe('aero');
+    const damage = session.events
+      .filter((e) => e.type === GameEventType.DamageApplied)
+      .map((e) => e.payload as IDamageAppliedPayload)
+      .filter((p) => p.unitId === 'target' && p.aerospaceState);
+    const last = damage.at(-1)!.aerospaceState!;
+    expect(last.currentSI).toBeLessThan(last.maxSI);
+    expect(session.currentState.units.target.structure).toEqual({
+      si: last.currentSI,
+    });
+    expect(session.currentState.units.target.armor).toEqual(last.armorByArc);
+    const combat = session.currentState.units.target.combatState;
+    if (combat?.kind !== 'aero') throw new Error('Expected aerospace state');
+    expect(combat.state.currentSI).toBe(last.currentSI);
+    expect(combat.state.heat).toBe(session.currentState.units.target.heat);
+    expect(deriveState(session.id, session.events)).toEqual(
+      session.currentState,
+    );
+    console.info(
+      'UL23_ENGAGEMENT',
+      JSON.stringify({
+        subType: cases[index][0],
+        seed: 123,
+        turn: session.currentState.turn,
+        events: session.events.length,
+        aerospaceDamage: session.events.filter(
+          (e) =>
+            e.type === GameEventType.DamageApplied &&
+            'aerospaceState' in e.payload,
+        ).length,
+        end: session.events.find((e) => e.type === GameEventType.GameEnded)
+          ?.payload,
+        finalState: session.currentState.units.target.combatState,
+      }),
+    );
+  },
+);
+
+it.each(
+  [0, 3].flatMap((index) =>
+    Object.values(FiringArc).map((arc) => [index, arc] as const),
+  ),
+)(
+  'interactive aerospace %s routes %s hits through native damage and replay',
+  (index, arc) => {
+    const unit = adaptUnitFromData(aerospaceFixture(index));
+    const initial = new GameEngine({ seed: 123 })
+      .createInteractiveSession([unit], [], roster([unit]))
+      .getSession();
+    expect(initial.currentState.units.aero.combatState?.kind).toBe('aero');
+    const resolved = resolveWeaponHit({
+      session: initial,
+      payload: {
+        attackerId: 'attacker',
+        targetId: unit.id,
+        weapons: ['ppc'],
+        toHitNumber: 2,
+        modifiers: [],
+      },
+      attackerId: 'attacker',
+      targetId: unit.id,
+      weaponId: 'ppc',
+      weaponName: 'PPC',
+      weaponData: { weaponId: 'ppc', weaponName: 'PPC', damage: 200, heat: 10 },
+      attackRollTotal: 12,
+      weaponToHitNumber: 2,
+      firingArc: arc,
+      arcString: arc,
+      ammoBinIdForResolved: null,
+      targetState: initial.currentState.units.aero,
+      turn: initial.currentState.turn,
+      criticalD6Roller: () => 3,
+      diceRoller: () => ({
+        dice: [3, 3],
+        total: 6,
+        isSnakeEyes: false,
+        isBoxcars: false,
+      }),
+    });
+    const hit = resolved.events.find(
+      (e) => e.type === GameEventType.DamageApplied,
+    )!.payload as IDamageAppliedPayload;
+    expect(hit.location).toBe(
+      arc === FiringArc.Front
+        ? 'Nose'
+        : arc === FiringArc.Rear
+          ? 'Aft'
+          : `${arc === FiringArc.Left ? 'Left' : 'Right'}${index === 3 ? 'Side' : 'Wing'}`,
+    );
+    expect(hit.aerospaceEvents?.length).toBeGreaterThan(0);
+    expect(resolved.currentState.units.aero.destroyed).toBe(true);
+    expect(resolved.currentState.units.aero.structure).toEqual({ si: 0 });
+    expect(
+      deriveState(resolved.id, JSON.parse(JSON.stringify(resolved.events))),
+    ).toEqual(resolved.currentState);
+  },
+);
+
+it('family-scoped aerospace lookup reaches canonical aerospace adaptation', async () => {
+  mockModule.__setUnit('aero', aerospaceFixture(0));
+  const adapted = await adaptUnit('aero', { family: 'aerospace' });
+  expect(adapted?.structure).toEqual({ si: 7 });
+  expect(mockModule.__lookupOptions()).toEqual({ family: 'aerospace' });
+});
+it('family-scoped aerospace rejects a Mech source', () => {
+  expect(() =>
+    adaptUnitFromData(createAtlasData(), { family: 'aerospace' }),
+  ).toThrow();
+});
+it.each(['vehicles', 'battlemechs'] as const)(
+  'family-scoped aerospace rejects requested %s',
+  (family) => {
+    expect(() => adaptUnitFromData(aerospaceFixture(0), { family })).toThrow();
+  },
+);
+
+it('seeds the aerospace discriminator alongside explicit scenario initialization', () => {
+  const adapted = adaptUnitFromData(aerospaceFixture(0));
+  const explicit = { ...adapted.aerospaceInit!, fuelPoints: 123 };
+  const units = [{ ...roster([adapted])[0], aerospaceInit: explicit }];
+  const seeded = gameUnitsWithAdaptedCombatSeeds(units, [adapted], [])[0];
+  expect(seeded.unitType).toBe(UnitType.AEROSPACE);
+  expect(seeded.aerospaceInit).toEqual(explicit);
 });
