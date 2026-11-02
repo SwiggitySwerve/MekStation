@@ -2,6 +2,22 @@ import { calculateVehicleBV, calculateVehicleOffensiveBV } from '../vehicleBV';
 import { baseInput } from './vehicleBV.test.helpers';
 
 describe('Vehicle offensive BV - weapon modifiers', () => {
+  it('Ballista sponson light machine guns retain their listed BV', () => {
+    // Four Light Machine Gun(ST) mounts in pinned mm-data 50f7efef's Ballista.
+    const result = calculateVehicleOffensiveBV(
+      baseInput({
+        secondaryTurret: { kind: 'sponson' },
+        weapons: Array.from({ length: 4 }, () => ({
+          id: 'light-machine-gun',
+          location: 'right',
+          isSponsonMounted: true,
+          bvOverride: 5,
+        })),
+      }),
+    );
+    expect(result.weaponBV).toBe(20);
+    expect(result.turretModifier).toBe(1);
+  });
   it('single weapon, no turret, no TC -> weapon plus mass BV x speed factor', () => {
     const off = calculateVehicleOffensiveBV(
       baseInput({
@@ -33,7 +49,7 @@ describe('Vehicle offensive BV - weapon modifiers', () => {
     expect(off.turretModifier).toBe(1);
   });
 
-  it('sponson-mounted weapon gets +2.5% bonus', () => {
+  it('sponson-mounted weapon retains listed BV', () => {
     const off = calculateVehicleOffensiveBV(
       baseInput({
         flankMP: 5,
@@ -48,8 +64,8 @@ describe('Vehicle offensive BV - weapon modifiers', () => {
         ],
       }),
     );
-    expect(off.weaponBV).toBeCloseTo(46 * 1.025, 4);
-    expect(off.turretModifier).toBe(1.025);
+    expect(off.weaponBV).toBe(46);
+    expect(off.turretModifier).toBe(1);
   });
 
   it('rear-mounted, non-turret weapon -> 0.5x BV', () => {

@@ -25,7 +25,7 @@ import { calculateVehicleSpeedFactor } from './vehicleBVMovement';
  * Multiplier for a turret-mounted weapon.
  *
  *   - Single / Dual / Chin: 1.0 (no rotating turret bonus)
- *   - Sponson: 1.025 (+2.5% sponson bonus)
+ *   - Sponson: 1.0 (no sponson bonus)
  *   - None: 1.0
  */
 function turretMultiplier(turret?: VehicleBVTurret): number {
@@ -38,7 +38,7 @@ function turretMultiplier(turret?: VehicleBVTurret): number {
       // the rear penalty; BVCalculator.processWeapon adds no turret bonus.
       return 1.0;
     case 'sponson':
-      return 1.025;
+      return 1.0;
     default:
       return 1.0;
   }
@@ -100,7 +100,7 @@ function calculateWeaponBVEntry(
   if (weapon.isTurretMounted) {
     locationMult = primaryTurretMult;
   } else if (weapon.isSponsonMounted) {
-    locationMult = secondaryTurretMult || 1.025;
+    locationMult = secondaryTurretMult;
   }
 
   return {
