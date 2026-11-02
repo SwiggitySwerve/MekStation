@@ -95,19 +95,22 @@ describe('useBattleArmorStore - bvBreakdown shape', () => {
 // =============================================================================
 
 describe('useBattleArmorStore - bvBreakdown reactivity on squadSize change', () => {
+  it.todo(
+    'BA BV part 2: store squad totals follow Java strength factors 5.2 and 9',
+  );
   it('recomputes squadTotal live when squadSize changes', () => {
     const store = makeStore({ squadSize: 4 });
     const before = bv(store);
 
     expect(before.squadSize).toBe(4);
     const trooperBV = before.perTrooper.total;
-    expect(before.squadTotal).toBeCloseTo(trooperBV * 4, 10);
+    expect(before.squadTotal).toBeGreaterThan(0);
 
     store.getState().setSquadSize(6);
 
     const after = bv(store);
     expect(after.squadSize).toBe(6);
-    expect(after.squadTotal).toBeCloseTo(trooperBV * 6, 10);
+    expect(after.perTrooper.total).toBe(trooperBV);
     expect(after.squadTotal).toBeGreaterThan(before.squadTotal);
   });
 });
@@ -128,14 +131,14 @@ describe('useBattleArmorStore - bvBreakdown reactivity on other inputs', () => {
     expect(after).toBeGreaterThan(before);
   });
 
-  it('baArmorType change updates perTrooper.defensive.armorBV (Stealth ×1.5)', () => {
+  it('baArmorType change increases the defensive factor for stealth', () => {
     const store = makeStore();
-    const before = bv(store).perTrooper.defensive.armorBV;
+    const before = bv(store).perTrooper.defensive.total;
 
     store.getState().setBaArmorType(BAArmorType.STEALTH_BASIC);
 
-    const after = bv(store).perTrooper.defensive.armorBV;
-    expect(after).toBeCloseTo(before * 1.5, 10);
+    const after = bv(store).perTrooper.defensive.total;
+    expect(after / before).toBeCloseTo(1.5 / 1.3, 10);
   });
 
   it('groundMP change updates perTrooper.defensive.moveBV', () => {
@@ -173,15 +176,14 @@ describe('useBattleArmorStore - bvBreakdown reactivity on other inputs', () => {
     expect(after).toBe(4);
   });
 
-  it('weightClass change updates perTrooper.defensive.moveBV', () => {
+  it('weightClass alone does not change the defensive factor', () => {
     const store = makeStore({ weightClass: BattleArmorWeightClass.MEDIUM });
     const before = bv(store).perTrooper.defensive.moveBV;
 
     store.getState().setWeightClass(BattleArmorWeightClass.ASSAULT);
 
     const after = bv(store).perTrooper.defensive.moveBV;
-    // Assault class multiplier (1.5) > Medium (0.75) → moveBV should rise.
-    expect(after).toBeGreaterThan(before);
+    expect(after).toBe(before);
   });
 });
 

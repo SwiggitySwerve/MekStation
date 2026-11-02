@@ -227,12 +227,15 @@ describe('BattleArmorUnitHandler', () => {
       const doc = createMockBlkDocument({
         tonnage: 8, // 2000kg per trooper - Assault weight
         trooperCount: 4,
-        weightClass: 1, // Light class (mismatch!)
+        weightClass: 1, // Loaded trooper weight is the light class limit.
       });
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const validation = handler.validate(result.data!.unit);
+      const validation = handler.validate({
+        ...result.data!.unit,
+        weightPerTrooper: 2000, // An invalid edited/imported trooper weight.
+      });
       expect(
         validation.warnings.some((w) => w.includes('Weight per trooper')),
       ).toBe(true);
