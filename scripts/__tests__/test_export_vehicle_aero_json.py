@@ -33,6 +33,34 @@ VEHICLE_FOLDER_FWS = TANK.replace('Tank</UnitType>', 'FixedWingSupport</UnitType
 
 
 class ExportVehicleAeroJsonTest(unittest.TestCase):
+    def test_strict_sources_are_independent_hashed_and_unsupported_rows_are_retained(self):
+        import hashlib
+        from export_vehicle_aero_json import export_strict
+
+        with tempfile.TemporaryDirectory() as temp:
+            mekfiles, out = Path(temp) / 'mekfiles', Path(temp) / 'out'
+            sources = {
+                'vehicles/tank.blk': TANK,
+                'vehicles/wing.blk': VEHICLE_FOLDER_FWS,
+                'battlearmor/unsupported.blk': 'unsupported\r\n',
+                'protomeks/source.blk': 'native\r\n',
+                'ge/excluded.blk': TANK,
+                'vehicles/excluded.bfs': 'excluded',
+            }
+            for rel, body in sources.items():
+                target = mekfiles / rel
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(body.encode('utf-8'))
+            export_strict(mekfiles, out)
+            rows = [json.loads(line) for line in (out / 'sources.ndjson').read_text(encoding='utf-8').splitlines()]
+            by_path = {row['path']: row for row in rows}
+            self.assertEqual(set(by_path), set(sources) - {'ge/excluded.blk', 'vehicles/excluded.bfs'})
+            for rel, row in by_path.items():
+                self.assertEqual(row['sha256'], hashlib.sha256(sources[rel].replace('\r\n', '\n').encode('utf-8')).hexdigest())
+            self.assertIsNotNone(by_path['vehicles/wing.blk']['unit'])
+            self.assertIn('TypeScript BV adapter', by_path['battlearmor/unsupported.blk']['reason'])
+            self.assertEqual(by_path['protomeks/source.blk']['sourceText'], 'native\r\n')
+
     def test_rows_are_keyed_by_source_path_and_skips_are_listed(self):
         with tempfile.TemporaryDirectory() as temp:
             mekfiles = Path(temp) / 'mekfiles'

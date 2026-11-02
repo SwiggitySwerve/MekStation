@@ -1,0 +1,218 @@
+/** One strict pinned-source BV comparator. See unit-bv-parity.md for the contract. */
+import { z } from 'zod';
+
+export const FAMILIES = [
+  'battlemechs',
+  'vehicles',
+  'aerospace',
+  'capital',
+  'battlearmor',
+  'infantry',
+  'protomeks',
+] as const;
+export const sourceKey = {
+  path: z.string().regex(/^[^\\]+\.(blk|mtf)$/),
+  sha256: z.string().regex(/^[a-f0-9]{64}$/),
+};
+export const JavaReference = z.object({
+  ...sourceKey,
+  concreteFamily: z.string(),
+  battleValue: z.object({
+    total: z.number(),
+    aggregates: z.object({
+      defensiveValue: z.number(),
+      offensiveValue: z.number(),
+    }),
+  }),
+});
+export type IJavaReferenceRow = z.infer<typeof JavaReference>;
+export interface IFigure {
+  total?: number;
+  defensive: number;
+  offensive?: number;
+  calculationScope?: 'defensive-only';
+}
+export interface IComputedRow {
+  path: string;
+  sha256: string;
+  figure?: IFigure;
+  reason?: string;
+  runtimeTotal?: number;
+}
+export const AGGREGATE_REL_TOLERANCE = 1e-9;
+export function aggregateDelta(java: number, ours: number) {
+  const delta = ours - java;
+  return {
+    java,
+    ours,
+    delta,
+    withinTolerance:
+      Math.abs(delta) <=
+      AGGREGATE_REL_TOLERANCE * Math.max(1, Math.abs(java), Math.abs(ours)),
+  };
+}
+const positive = (value: number | undefined): value is number =>
+  value !== undefined && Number.isFinite(value) && value > 0;
+export function compareFigures(java: IFigure, ours: IFigure) {
+  const partial = ours.calculationScope === 'defensive-only';
+  const javaTotal = java.total ?? NaN,
+    ourTotal = ours.total ?? NaN;
+  const valid =
+    positive(java.defensive) &&
+    positive(ours.defensive) &&
+    (partial ||
+      (positive(javaTotal) &&
+        Number.isInteger(javaTotal) &&
+        positive(java.offensive) &&
+        positive(ourTotal) &&
+        Number.isInteger(ourTotal) &&
+        positive(ours.offensive)));
+  const delta = valid && !partial ? ourTotal - javaTotal : null;
+  const deltaPct = delta === null ? null : (delta / javaTotal) * 100;
+  return {
+    status: !valid
+      ? 'invalid'
+      : partial
+        ? 'not-complete'
+        : delta === 0
+          ? 'exact'
+          : Math.abs(delta ?? NaN) * 100 <= javaTotal
+            ? 'within1Pct'
+            : 'farther',
+    delta,
+    deltaPct,
+    defensive: valid ? aggregateDelta(java.defensive, ours.defensive) : null,
+    offensive:
+      valid && !partial
+        ? aggregateDelta(java.offensive ?? NaN, ours.offensive ?? NaN)
+        : null,
+  };
+}
+export function familyOf(
+  row: Pick<IJavaReferenceRow, 'path' | 'concreteFamily'>,
+): string {
+  const folder = row.path.split('/')[0];
+  if (folder === 'meks') return 'battlemechs';
+  if (['dropships', 'jumpships', 'warship', 'spacestation'].includes(folder))
+    return 'capital';
+  if (
+    ['fighters', 'convfighter', 'smallcraft'].includes(folder) ||
+    row.concreteFamily === 'FixedWingSupport'
+  )
+    return 'aerospace';
+  return folder;
+}
+export function buildDeltaReport(
+  converted: readonly IComputedRow[],
+  javaRows: readonly IJavaReferenceRow[],
+  expectedFamilies: readonly string[] = FAMILIES,
+) {
+  const errors: string[] = [];
+  const index = <T extends { path: string }>(list: readonly T[]) => {
+    const map = new Map<string, T>();
+    for (const row of list) {
+      if (map.has(row.path)) errors.push(`duplicate: ${row.path}`);
+      map.set(row.path, row);
+    }
+    return map;
+  };
+  const ours = index(converted),
+    refs = index(javaRows);
+  const rows = [...new Set([...ours.keys(), ...refs.keys()])]
+    .sort()
+    .map((path) => {
+      const input = ours.get(path),
+        java = refs.get(path);
+      const family = java
+        ? familyOf(java)
+        : familyOf({ path, concreteFamily: '' });
+      const joined = !!input && !!java && input.sha256 === java.sha256;
+      const comparison =
+        java && input?.figure && joined
+          ? compareFigures(
+              {
+                total: java.battleValue.total,
+                defensive: java.battleValue.aggregates.defensiveValue,
+                offensive: java.battleValue.aggregates.offensiveValue,
+              },
+              input.figure,
+            )
+          : null;
+      const status = !java
+        ? 'noJavaRow'
+        : !input
+          ? 'unjoined-oracle'
+          : !joined
+            ? 'hash-mismatch'
+            : (comparison?.status ?? 'not-computable');
+      if (!expectedFamilies.includes(family))
+        errors.push(`unexpected-family: ${path}`);
+      if (
+        status !== 'exact' ||
+        !comparison?.defensive?.withinTolerance ||
+        !comparison?.offensive?.withinTolerance
+      )
+        errors.push(
+          `${status === 'exact' ? 'aggregate-mismatch' : status}: ${path}`,
+        );
+      return {
+        path,
+        sha256: java?.sha256 ?? input?.sha256,
+        sourceSha256: input?.sha256 ?? null,
+        family,
+        joined,
+        status,
+        reason: input?.reason ?? null,
+        java: java?.battleValue ?? null,
+        ours: input?.figure ?? null,
+        runtimeTotal: input?.runtimeTotal ?? null,
+        comparison,
+      };
+    });
+  const byFamily = Object.fromEntries(
+    [...expectedFamilies].sort().map((family) => {
+      const group = rows.filter((row) => row.family === family);
+      const oracleRows = javaRows.filter(
+        (row) => familyOf(row) === family,
+      ).length;
+      const joined = group.filter((row) => row.joined).length;
+      const count = (status: string) =>
+        group.filter((row) => row.status === status).length;
+      if (!oracleRows) errors.push(`missing-family: ${family}`);
+      if (joined < oracleRows)
+        errors.push(`coverage: ${family} ${joined}/${oracleRows}`);
+      return [
+        family,
+        {
+          rows: oracleRows,
+          joined,
+          exact: count('exact'),
+          within1Pct: count('exact') + count('within1Pct'),
+          farther: count('farther'),
+          notComputable: count('not-computable'),
+          notComplete: count('not-complete'),
+          invalid: count('invalid'),
+          defensiveWithinTolerance: group.filter(
+            (row) => row.comparison?.defensive?.withinTolerance,
+          ).length,
+          offensiveWithinTolerance: group.filter(
+            (row) => row.comparison?.offensive?.withinTolerance,
+          ).length,
+          runtimeExact: group.filter(
+            (row) =>
+              row.runtimeTotal === row.java?.total &&
+              positive(row.runtimeTotal),
+          ).length,
+        },
+      ] as const;
+    }),
+  );
+  return {
+    ok: errors.length === 0,
+    aggregateRelativeTolerance: AGGREGATE_REL_TOLERANCE,
+    exclusions: [],
+    errors: errors.sort(),
+    byFamily,
+    rows,
+  };
+}

@@ -47,6 +47,8 @@ scripts/**
 !scripts/expand-source-provenance-variants.mjs
 !scripts/print-combat-validation-gaps.ts
 !scripts/vehicle-aero-bv-delta.ts
+!scripts/unit-bv-parity.ts
+!scripts/unit-bv-parity.md
 !scripts/campaign-authority-cutover.ts
 !scripts/maintenance/
 !scripts/maintenance/scan-maintenance.mjs

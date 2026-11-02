@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "es2020",
-    "lib": ["es2020", "dom"],
+    "lib": ["es2022", "dom"],
     "module": "esnext",
     "moduleResolution": "bundler",
     "strict": true,
@@ -17,7 +17,13 @@
     },
     "types": ["node"]
   },
-  "include": ["validate-bv.ts", "validate-parity.ts", "data-migration/**/*.ts"],
+  "include": [
+    "validate-bv.ts",
+    "validate-parity.ts",
+    "data-migration/**/*.ts",
+    "vehicle-aero-bv-delta.ts",
+    "unit-bv-parity.ts"
+  ],
   "exclude": [
     "node_modules",
     "../src/**/__tests__/**",
