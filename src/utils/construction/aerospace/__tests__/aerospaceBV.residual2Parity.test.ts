@@ -123,6 +123,12 @@ describe('aircraft heat residuals', () => {
           ...aircraft(0, 'SINGLE', 0),
           unitType: 'Conventional Fighter',
           subType,
+          // BVCalculator.java:966-976: advanced FCS keeps FWS weapons at 1.0,
+          // so this fixture isolates the heat bypass from fire-control effects.
+          equipment: [
+            ...aircraft(0).equipment,
+            { id: 'advanced-fire-control', location: 'FUSELAGE' },
+          ],
         }),
       ).toBe(476);
     },

@@ -13,6 +13,9 @@ import type {
 import { HeatSinkType } from '../../../types/construction/HeatSinkType';
 import { AerospaceSubType } from '../../../types/unit/AerospaceInterfaces';
 import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { extractWeaponTypeFromAmmoId } from '../battleValueAmmo';
+import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
+import { getAmmunitionEntry } from '../equipmentBVResolver';
 import { calculateHeatDissipation } from '../heatSinkCalculations';
 import { calculateAerospaceBV } from './aerospaceBVCalculator';
 
@@ -35,6 +38,8 @@ export type AerospaceBVDispatchInput = (
   | IAerospaceUnit
 ) & {
   readonly isSupportVehicle?: boolean;
+  readonly isFixedWingSupport?: boolean;
+  readonly barRating?: number;
   readonly heatCapacity?: number;
   readonly sourceTechType?: string;
   readonly year?: number;
@@ -100,6 +105,9 @@ export function buildAerospaceBVInputFromUnit(
   const rawEquipment =
     (unit as { readonly equipment?: ReadonlyArray<unknown> }).equipment ?? [];
   const equipment: IAerospaceBVEquipment[] = [];
+  // FU57/61's persisted family marker covers every FWS weight class.
+  const supportVehicle =
+    unit.isSupportVehicle || unit.isFixedWingSupport === true;
   for (const raw of rawEquipment) {
     if (!raw || typeof raw !== 'object') continue;
     const item = raw as {
@@ -110,12 +118,23 @@ export function buildAerospaceBVInputFromUnit(
     const id = item.equipmentId ?? item.id;
     const location = item.location;
     if (typeof id !== 'string' || typeof location !== 'string') continue;
-    equipment.push({ id, location });
+    // Retain source tokens for defensive/explosive equipment consumers.
+    const ammo = isAmmunitionEquipmentId(id);
+    equipment.push({
+      id,
+      location,
+      ...(supportVehicle && ammo ? { isAmmo: true } : {}),
+    });
   }
 
   return {
     subType: unitTypeToAerospaceSubType(unit.unitType),
-    isSupportVehicle: unit.isSupportVehicle,
+    isSupportVehicle: supportVehicle,
+    barRating:
+      unit.barRating ??
+      (supportVehicle && unit.nativeAerospaceConstruction
+        ? Number(unit.nativeAerospaceConstruction.rawTags.barrating ?? 10)
+        : undefined),
     techBase: unit.techBase,
     sourceTechType: unit.sourceTechType,
     year: unit.year ?? unit.metadata?.year,
@@ -138,6 +157,19 @@ export function buildAerospaceBVInputFromUnit(
     ),
     totalArmorPoints: unit.totalArmorPoints,
     equipment,
+    // BVCalculator.java:1190-1247: each bin contributes its own catalog value.
+    ammo: supportVehicle
+      ? equipment
+          .filter((item) => item.isAmmo)
+          .map((item) => {
+            const entry = getAmmunitionEntry(item.id.replace(/:OMNI$/i, ''));
+            return {
+              id: item.id,
+              bv: entry?.battleValue ?? 0,
+              weaponType: entry?.name ?? extractWeaponTypeFromAmmoId(item.id),
+            };
+          })
+      : undefined,
     pilotGunnery: options.gunnery,
     pilotPiloting: options.piloting,
   };
