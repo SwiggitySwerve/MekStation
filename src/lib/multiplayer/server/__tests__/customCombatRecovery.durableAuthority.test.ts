@@ -28,7 +28,6 @@ import {
   GameEventType,
   type IGameCreatedPayload,
   type IGameEvent,
-  type IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 
 import type { IMatchMeta } from '../IMatchStore';

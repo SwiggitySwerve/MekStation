@@ -400,7 +400,6 @@ it('keeps the recorded BattleMech construction bytes and 21-key shape unchanged'
   expect(sha).toBe(
     'fa737db6b6115b87357f02375c313b152a2ff7aa7a1af63f978c82872f806fa5',
   );
-  console.info('UL24_MECH_BYTES', sha);
   const runner = await SimulationRunner.fromSession(
     123,
     session,
@@ -545,16 +544,6 @@ it.each(['catalog', 'saved'] as const)(
       rerun.events.map((event) => [event.type, event.turn, event.payload]),
     ).toEqual(
       result.events.map((event) => [event.type, event.turn, event.payload]),
-    );
-    console.info(
-      'UL24_RUNNER',
-      JSON.stringify({
-        source,
-        turns: result.turns,
-        events: result.events.length,
-        damage: damage.length,
-        nativeReplayEqual: true,
-      }),
     );
   },
 );
