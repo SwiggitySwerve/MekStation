@@ -218,7 +218,6 @@ export function setTurretTypeLogic(
     ? { ...state.turret, type }
     : {
         type,
-        maxWeight: state.tonnage * 0.1,
         currentWeight: 0,
         rotationArc: 360,
       };
@@ -265,7 +264,6 @@ export function setHasSecondaryTurretLogic(
 
   const secondaryTurret: ITurretConfiguration = {
     type: TurretType.SINGLE,
-    maxWeight: state.tonnage * 0.1,
     currentWeight: 0,
     rotationArc: 360,
   };
