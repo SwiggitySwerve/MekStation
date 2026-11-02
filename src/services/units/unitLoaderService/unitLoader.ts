@@ -31,6 +31,10 @@ import { loadUnitDefinition } from './loadUnitDefinition';
 import { UnsupportedUnitConfigurationError } from './movementConfiguration';
 import { normalizeUnitConfiguration } from './normalizeUnitConfiguration';
 import {
+  mapProtoMechDefinitionToState,
+  mapBattleArmorDefinitionToState,
+} from './smallUnitDefinitionMapper';
+import {
   FamilyEditorState,
   IRawSerializedUnit,
   UnitSource,
@@ -44,9 +48,13 @@ function unitLoadErrorMessage(error: unknown, fallback: string): string {
 
 /** Route a validated non-mech definition to its store mapper or read-only view. */
 function mapFamilyState(
-  store: 'vehicle' | 'aerospace' | 'capital',
+  store: FamilyEditorState['store'],
   definition: IUnitContract,
 ): FamilyEditorState {
+  if (store === 'protomech')
+    return { store, state: mapProtoMechDefinitionToState(definition) };
+  if (store === 'battlearmor')
+    return { store, state: mapBattleArmorDefinitionToState(definition) };
   if (store === 'capital') {
     return { store, state: mapCapitalDefinitionToView(definition, uuidv4()) };
   }

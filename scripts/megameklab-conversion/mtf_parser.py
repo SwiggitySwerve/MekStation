@@ -200,6 +200,8 @@ class MTFParser:
                 pass
         elif key == 'config':
             data['config'] = value
+        elif key == 'lam':
+            data['lam_type'] = value
         elif key == 'techbase':
             data['techbase'] = value
         elif key == 'era':
@@ -363,6 +365,7 @@ class MTFParser:
             model=model,
             unitType=map_unit_type(data.get('config', 'Biped')),
             configuration=map_mech_config(data.get('config', 'Biped')),
+            lamType=data.get('lam_type'),
             techBase=map_tech_base(data.get('techbase', 'Inner Sphere')),
             rulesLevel=map_rules_level(data.get('rules_level', '1')),
             era=era,

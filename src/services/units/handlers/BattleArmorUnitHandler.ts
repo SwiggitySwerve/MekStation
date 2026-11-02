@@ -26,6 +26,7 @@ import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
 import { calculateBattleArmorBVFromUnit } from '@/utils/construction/battlearmor/battleArmorBVAdapter';
 import { canMakeBAAntiMekAttacks } from '@/utils/construction/battlearmor/battleArmorMounts';
+import { parseBattleArmorManipulator } from '@/utils/construction/battlearmor/manipulators';
 
 import {
   AbstractUnitTypeHandler,
@@ -215,23 +216,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
     rawTags: Record<string, string | string[]>,
     key: string,
   ): ManipulatorType {
-    const value = getRawTagString(rawTags, key)?.toLowerCase();
-    if (!value) return ManipulatorType.NONE;
-
-    if (value.includes('armored glove')) return ManipulatorType.ARMORED_GLOVE;
-    if (value.includes('heavy battle vibro'))
-      return ManipulatorType.HEAVY_BATTLE_VIBRO;
-    if (value.includes('heavy battle')) return ManipulatorType.HEAVY_BATTLE;
-    if (value.includes('battle vibro')) return ManipulatorType.BATTLE_VIBRO;
-    if (value.includes('battle')) return ManipulatorType.BATTLE;
-    if (value.includes('basic mine'))
-      return ManipulatorType.BASIC_MINE_CLEARANCE;
-    if (value.includes('basic')) return ManipulatorType.BASIC;
-    if (value.includes('cargo')) return ManipulatorType.CARGO_LIFTER;
-    if (value.includes('drill')) return ManipulatorType.INDUSTRIAL_DRILL;
-    if (value.includes('salvage')) return ManipulatorType.SALVAGE_ARM;
-
-    return ManipulatorType.NONE;
+    return parseBattleArmorManipulator(getRawTagString(rawTags, key));
   }
 
   /**

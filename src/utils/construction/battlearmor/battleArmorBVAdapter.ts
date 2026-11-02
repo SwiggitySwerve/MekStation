@@ -192,3 +192,29 @@ export function calculateBattleArmorBVFromState(
 ): IBABreakdown {
   return calculateBattleArmorBV(buildBattleArmorBVInput(state, options));
 }
+
+/** Catalog names and native numeric codes project onto the same typed armor. */
+export function mapBattleArmorContractArmor(source: string): {
+  armorType: number;
+  baArmorType: BAArmorType;
+} {
+  const aliases: Readonly<Record<string, number>> = {
+    STANDARD: 28,
+    BA_STANDARD_PROTOTYPE: 29,
+    BA_STANDARD_ADVANCED: 30,
+    STEALTH: 32,
+  };
+  const key = source.replace(/^BA_/, '');
+  const typed = Object.entries(BAArmorType).find(([name]) => name === key)?.[1];
+  const code =
+    aliases[source] ??
+    Number(
+      Object.entries(BLK_BA_ARMOR).find(([, value]) => value === typed)?.[0],
+    );
+  if (!Number.isFinite(code))
+    throw new Error('The battle armor editor cannot open this armor type yet.');
+  return {
+    armorType: code,
+    baArmorType: BLK_BA_ARMOR[code] ?? BAArmorType.STANDARD,
+  };
+}

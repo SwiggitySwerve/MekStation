@@ -15,6 +15,8 @@ import {
 } from '@/services/units/unitLoaderService';
 import { registerCapitalShipView } from '@/services/units/unitLoaderService/capitalShipView';
 import { createAerospaceFromFullState } from '@/stores/aerospaceStoreRegistry';
+import { createBattleArmorFromFullState } from '@/stores/battleArmorStoreRegistry';
+import { createProtoMechFromFullState } from '@/stores/protoMechStoreRegistry';
 import {
   createUnitFromFullState,
   getUnitStore,
@@ -55,8 +57,6 @@ type LoadedTab = Parameters<TabManagerState['addTab']>[0];
 
 /** Families that have no library-open route yet; retrying cannot help. */
 const UNSUPPORTED_FAMILY_MESSAGES: Partial<Record<UnitFamily, string>> = {
-  battlearmor:
-    'Battle armor cannot be opened yet because the editor cannot load battle armor from the library.',
   infantry:
     'Infantry cannot be opened yet because the editor cannot load infantry from the library.',
 };
@@ -71,7 +71,7 @@ function openBattleMechState(state: UnitState): LoadedTab {
   };
 }
 
-/** Register a vehicle or aerospace session, or a capital read-only view; the tab type picks the shell. */
+/** Register the admitted family session or capital view; the tab type picks the shell. */
 function registerFamilyState(familyState: FamilyEditorState): LoadedTab {
   if (familyState.store === 'capital') {
     const { id, name, tonnage, techBase, unitType } = registerCapitalShipView(
@@ -79,11 +79,17 @@ function registerFamilyState(familyState: FamilyEditorState): LoadedTab {
     );
     return { id, name, tonnage, techBase, unitType };
   }
-  const { id, name, tonnage, techBase, unitType } = (
-    familyState.store === 'vehicle'
-      ? createVehicleFromFullState(familyState.state)
-      : createAerospaceFromFullState(familyState.state)
+  const state = (
+    familyState.store === 'protomech'
+      ? createProtoMechFromFullState(familyState.state)
+      : familyState.store === 'battlearmor'
+        ? createBattleArmorFromFullState(familyState.state)
+        : familyState.store === 'vehicle'
+          ? createVehicleFromFullState(familyState.state)
+          : createAerospaceFromFullState(familyState.state)
   ).getState();
+  const { id, name, techBase, unitType } = state;
+  const tonnage = 'tonnage' in state ? state.tonnage : state.squadSize;
   return { id, name, tonnage, techBase, unitType };
 }
 
