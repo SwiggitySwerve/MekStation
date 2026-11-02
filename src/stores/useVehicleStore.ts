@@ -307,6 +307,7 @@ export function createVehicleStore(
           engineType: state.engineType,
           engineRating: state.engineRating,
           engineTechRating: state.engineTechRating,
+          structuralTechRating: state.structuralTechRating,
           cruiseMP: state.cruiseMP,
           turret: state.turret,
           secondaryTurret: state.secondaryTurret,

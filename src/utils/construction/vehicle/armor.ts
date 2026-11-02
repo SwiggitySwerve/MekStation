@@ -20,7 +20,10 @@ import {
   VTOLLocation,
 } from '@/types/construction/UnitLocation';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { ceilToHalfTon } from '@/utils/physical/weightUtils';
+import {
+  ceilToHalfTon,
+  roundWeightToGrams,
+} from '@/utils/physical/weightUtils';
 
 import { computeVehicleMaxArmorByLocation } from './structure';
 
@@ -81,10 +84,6 @@ const BAR_WEIGHT_PER_POINT: Record<number, readonly number[]> = {
   10: [0, 0, 0, 0.063, 0.056, 0.052],
 };
 
-/** Weight to the gram, as `RoundWeight.truncate` (RoundWeight.java:118). */
-const toGram = (tons: number): number =>
-  Math.round(tons * 1_000_000) / 1_000_000;
-
 /**
  * Armor tonnage of BAR support-vehicle armor points: the points' weight by
  * armor tech rating, rounded up to a kilogram (units under 5 t) or a half ton
@@ -98,7 +97,9 @@ export function getSupportVehicleBarArmorWeight(
 ): number {
   const perPoint = BAR_WEIGHT_PER_POINT[bar]?.[armorTechRating] ?? 0;
   const step = kilogramStandard ? 1000 : 2;
-  return Math.ceil(toGram(points * perPoint) * step) / step;
+  return (
+    Math.ceil((roundWeightToGrams(points * perPoint) / 1_000_000) * step) / step
+  );
 }
 
 /**
