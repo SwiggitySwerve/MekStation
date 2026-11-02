@@ -11,6 +11,7 @@ import {
   extractWeaponTypeFromAmmoId,
   getCatalogAmmoBVGroup,
 } from '../battleValueAmmo';
+import { getDefensiveEquipmentOffensiveBV } from '../battleValueEquipment';
 import {
   calculateAmmoBVWithExcessiveCap,
   type OffensiveBVConfig,
@@ -196,9 +197,12 @@ export function calculateVehicleOffensiveBV(
   const ammoBV =
     calculateAmmoBVWithExcessiveCap(perWeaponBVs, ammoEntries) *
     fireControlFactor;
-  const offensiveEquipmentBV = calculateVehicleOffensiveEquipmentBV(
-    input.offensiveEquipment,
-  );
+  const offensiveEquipmentBV =
+    calculateVehicleOffensiveEquipmentBV(input.offensiveEquipment) +
+    (input.defensiveEquipment ?? []).reduce(
+      (sum, mount) => sum + getDefensiveEquipmentOffensiveBV(mount.id),
+      0,
+    );
 
   const speedFactor = calculateVehicleSpeedFactor(input);
   // CombatVehicleBVCalculator.processWeight adds half raw tonnage for every vehicle family.

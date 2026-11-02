@@ -1,13 +1,24 @@
-import type { IAerospaceBVInput } from './aerospaceBVTypes';
+import type {
+  IAerospaceBVInput,
+  IAerospaceBVEquipment,
+} from './aerospaceBVTypes';
 
+import {
+  getDefensiveEquipmentKind,
+  calculateMountedDefensiveEquipmentBV,
+} from '../battleValueEquipment';
 import { isNonExplosiveAmmo } from '../battleValueExplosivePenalties';
 import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
 import { getEquipmentEntry, getAmmunitionEntry } from '../equipmentBVResolver';
+export { getDefensiveEquipmentKind as getAerospaceDefensiveEquipmentKind };
 
-export {
-  getDefensiveEquipmentKind as getAerospaceDefensiveEquipmentKind,
-  calculateMountedDefensiveEquipmentBV as calculateMountedAerospaceDefensiveBV,
-} from '../battleValueEquipment';
+export function calculateMountedAerospaceDefensiveBV(
+  equipment: readonly IAerospaceBVEquipment[],
+): number {
+  return calculateMountedDefensiveEquipmentBV(
+    equipment.filter((item) => getDefensiveEquipmentKind(item.id)),
+  );
+}
 
 /** AeroBVCalculator.java:78-115; HeatTrackingBVCalculator.java:65-70,229-247. */
 export function calculateMountedAerospaceExplosivePenalty(
