@@ -70,6 +70,8 @@ export enum ManipulatorType {
  * Battle Armor-mounted equipment item
  */
 export interface IBattleArmorMountedEquipment extends IUnitMountedEquipmentIdentity {
+  /** Native entity location (Squad/Point/Trooper N), distinct from suit mount. */
+  readonly unitLocation?: string;
   /** Location (Squad, Body, Left Arm, Right Arm, Turret) */
   readonly location: BattleArmorLocation;
   /** Is this anti-personnel mount equipment */

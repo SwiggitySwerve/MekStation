@@ -113,9 +113,10 @@ describe('BattleArmorUnitHandler Tier 1 Invariants', () => {
 
   // BattleArmorBVCalculator.java:193-204 applies strength factor 7, not 5.
   // Its full unarmed total is round(33.8*7)=237, not the partial port's 169.
-  it.todo(
-    'BA BV part 2: unarmed heavy fixture total matches Java 237 with strength factor 7',
-  );
+  it('matches the unarmed heavy Java total 237 with strength factor 7', () => {
+    const parsed = handler.parse(makeDoc());
+    expect(handler.calculateBV(parsed.data!.unit)).toBe(237);
+  });
 
   it('applies jump TMM brackets to the Java defensive factor', () => {
     // BVCalculator.java:650-683: jumps 1/2 have TMM 1; jump 3 has TMM 2.
