@@ -215,3 +215,26 @@ it('validates a NONE engine as engineless (TestSupportVehicle.java:1015)', () =>
     }),
   ]);
 });
+
+// Java has no motion-type engine rule (Engine.isValidEngine, TestTank,
+// CVChassisView.getAvailableEngines); the corpus has ICE, Fuel Cell and
+// Fission hovers, ICE VTOLs and ICE WiGEs. Support vehicles are checked by
+// SVEngine.isValidFor, which is not about fusion either.
+it.each([
+  GroundMotionType.HOVER,
+  GroundMotionType.VTOL,
+  GroundMotionType.WIGE,
+  GroundMotionType.HYDROFOIL,
+])('reports no fusion error for non-fusion engines on %s', (motionType) => {
+  for (const engineType of [
+    EngineType.ICE,
+    EngineType.FUEL_CELL,
+    EngineType.FISSION,
+    VehicleOnlyEngineType.BATTERY,
+    VehicleOnlyEngineType.STEAM,
+  ]) {
+    expect(validateVehicleEngine(20, 4, engineType, motionType).errors).toEqual(
+      [],
+    );
+  }
+});

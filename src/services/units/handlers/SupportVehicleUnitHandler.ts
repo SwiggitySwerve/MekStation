@@ -205,8 +205,11 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
       this.parseBlkRating(rawTags, 'armor_tech_rating') ??
       this.parseBlkRating(rawTags, 'structural_tech_rating') ??
       (this.parseNumericRaw(rawTags, 'armortechrating') || 5);
+    // Entity.getEngineTechRating falls back to the structural rating.
     const engineTechRating =
-      this.parseNumericRaw(rawTags, 'enginetechrating') || 5;
+      this.parseBlkRating(rawTags, 'engine_tech_rating') ??
+      this.parseBlkRating(rawTags, 'structural_tech_rating') ??
+      structuralTechRating;
 
     return {
       unitType: UnitType.SUPPORT_VEHICLE,
