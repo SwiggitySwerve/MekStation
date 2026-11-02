@@ -1,4 +1,11 @@
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { hash as hashBytes } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import routing from '../../public/data/equipment/registry-routing.json' with { type: 'json' };
 
 export const revision = '48fcb2f64a1b3f2d575707ce5653dad64927b587';
 const techBases = { IS: 'INNER_SPHERE', CLAN: 'CLAN', ALL: 'BOTH' };
@@ -24,44 +31,41 @@ export function assertAdditive(before, after) {
   }
 }
 
-export function generateEntries(
-  registry,
-  gaps,
-  facts,
-  lookups,
-  existing,
-  mappings,
-) {
+export function generateEntries(java, gaps, facts, lookups, before, mappings) {
   const selected = new Set(gaps.map((gap) => gap.java.internalName));
   for (const [name, fact] of Object.entries(facts))
     if (fact.damageDivisor !== undefined || fact.usedByProto)
       selected.add(name);
-  const types = new Map(registry.map((row) => [row.internalName, row]));
-  assert.equal(types.size, registry.length, 'Duplicate Java internal name');
-  const ids = new Set(existing.map((entry) => entry.id));
+  const types = new Map(java.map((row) => [row.internalName, row]));
+  assert.equal(types.size, java.length, 'Duplicate Java internal name');
+  for (const name of Object.keys(routing.reroute))
+    if (types.has(name)) selected.add(name);
+  const ids = new Set(before.map((entry) => entry.id));
   const identities = new Map();
   for (const name of [...selected].sort()) {
     assert(types.has(name), `Unregistered gap ${name}`);
-    const id = `${slug(name)}-registry`;
+    const id =
+      routing.reroute[name] ??
+      routing.canonicalIds[name] ??
+      `${slug(name)}-registry`;
     assert(id && !ids.has(id), `Catalog id collision: ${name} -> ${id}`);
     ids.add(id);
     identities.set(name, id);
   }
   const known = new Map(identities);
-  for (const type of registry) {
+  for (const type of java) {
     if (known.has(type.internalName)) continue;
     const id = [type.internalName, ...type.aliases]
       .map((alias) => mappings[alias])
-      .find((id) =>
-        existing.some(
-          (entry) =>
-            entry.id === id &&
-            entry.battleValue === type.bv &&
-            entry.weight === type.tons &&
-            (entry.techBase === 'BOTH' ||
-              entry.techBase === techBases[type.tech]),
-        ),
-      );
+      .find((id) => {
+        const entry = before.find((entry) => entry.id === id);
+        return (
+          entry &&
+          entry.battleValue === type.bv &&
+          entry.weight === type.tons &&
+          [techBases[type.tech], 'BOTH'].includes(entry.techBase)
+        );
+      });
     if (id) known.set(type.internalName, id);
   }
   const items = [];
@@ -94,10 +98,7 @@ export function generateEntries(
       weight: fixed(type.tons, 'weight'),
       criticalSlots: fixed(fact.criticalSlots, 'criticalSlots'),
       battleValue: fixed(type.bv, 'battleValue'),
-      introductionYear: number(
-        fact.introductionYear,
-        `${name}.introductionYear`,
-      ),
+      introductionYear: number(fact.introductionYear, 'introductionYear'),
     };
     assert(entry.techBase, `Unknown tech base: ${type.tech}`);
     if (fact.allowedUnitTypes?.length)
@@ -152,8 +153,12 @@ export function generateEntries(
     items.push({ kind: fact.kind, entry, internalName: name });
     const gap = gaps.find((gap) => gap.java.internalName === name);
     const inputs = gap?.inputs?.map((input) => input.id) ?? [];
-    for (const alias of new Set([name, ...type.aliases, ...inputs])) {
-      // The frozen lookup oracle resolves duplicate lookup names; existing mappings win.
+    for (const alias of new Set([
+      name,
+      type.name,
+      ...type.aliases,
+      ...inputs,
+    ])) {
       const sourceName = [name, ...type.aliases].find(
         (native) => slug(native) === alias,
       );
@@ -169,15 +174,99 @@ export function generateEntries(
                 gap.java.internalName !== name &&
                 gap.inputs?.some((input) => input.id === alias),
             )) ||
-        existingAliases.has(alias.toLowerCase())
+        (existingAliases.has(alias.toLowerCase()) &&
+          !(
+            Object.hasOwn(routing.reroute, name) &&
+            (type.tech !== 'IS' || alias.toLowerCase().startsWith('is'))
+          ))
       )
         continue;
-      assert(
-        !aliases[alias] || aliases[alias] === id,
-        `Alias collision: ${alias}`,
-      );
       aliases[alias] = id;
     }
   }
   return { items, aliases };
 }
+
+function runGenerator() {
+  const read = (file) => JSON.parse(readFileSync(file, 'utf8'));
+  const write = (file, value) =>
+    writeFileSync(file, JSON.stringify(value, null, 2) + '\n');
+  const hash = (file) => hashBytes('sha256', readFileSync(file));
+  const [registryFile, gapsFile, factsFile] = process.argv.slice(2);
+  if (!factsFile)
+    throw Error(
+      'Usage: node scripts/equipment-catalog/generate.mjs <java-registry.json> <catalog-gaps-by-java.json> <java-facts.json>',
+    );
+  const inputs = [...process.argv.slice(2), `${registryFile}.lookups.json`];
+  const hashes = read(new URL('./source-pins.json', import.meta.url));
+  for (const file of inputs) {
+    const name = file.replaceAll('\\', '/').split('/').at(-1);
+    if (hash(file) !== hashes[name])
+      throw Error(`Pinned input changed: ${name}`);
+  }
+  const root = resolve('public/data/equipment'),
+    index = read(`${root}/official/index.json`);
+  const originals = Object.values(index.files)
+    .flatMap(Object.values)
+    .filter((file) => !file.endsWith('/java-registry.json'));
+  const before = originals.flatMap(
+    (file) => read(`${root}/official/${file}`).items,
+  );
+  const mappings = read(`${root}/name-mappings.json`);
+  const result = generateEntries(
+    read(registryFile),
+    read(gapsFile),
+    read(factsFile),
+    read(`${registryFile}.lookups.json`),
+    before,
+    {
+      ...read(new URL('./protected-aliases.json', import.meta.url)),
+      ...mappings,
+    },
+  );
+  for (const kind of ['weapons', 'ammunition', 'miscellaneous']) {
+    const items = result.items
+      .filter((item) => item.kind === kind)
+      .map((item) => item.entry);
+    const schema = {
+      weapons: 'weapon',
+      ammunition: 'ammunition',
+      miscellaneous: 'misc-equipment',
+    }[kind];
+    write(`${root}/official/${kind}/java-registry.json`, {
+      $schema: `../../_schema/${schema}-schema.json`,
+      items,
+    });
+    index.files[kind]['java-registry'] = `${kind}/java-registry.json`;
+    index.totalItems[kind] = originals
+      .filter((file) => file.startsWith(`${kind}/`))
+      .reduce(
+        (total, file) => total + read(`${root}/official/${file}`).items.length,
+        items.length,
+      );
+  }
+  write(`${root}/name-mappings.json`, { ...mappings, ...result.aliases });
+  write(`${root}/official/index.json`, index);
+  write(new URL('./provenance.json', import.meta.url), {
+    revision,
+    inputs: hashes,
+    identities: result.items.map(({ internalName, entry }) => ({
+      internalName,
+      id: entry.id,
+    })),
+  });
+  const format = spawnSync(
+    process.execPath,
+    [
+      'node_modules/oxfmt/bin/oxfmt',
+      '--write',
+      `${root}/official/index.json`,
+      `${root}/name-mappings.json`,
+      `${root}/official/**/java-registry.json`,
+      'scripts/equipment-catalog/*.json',
+    ],
+    { stdio: 'inherit', windowsHide: true },
+  );
+  if (format.status !== 0) throw Error(`oxfmt failed: ${format.status}`);
+}
+if (process.argv[1] === fileURLToPath(import.meta.url)) runGenerator();

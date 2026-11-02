@@ -2721,7 +2721,30 @@
       ]
     },
     {
-      "id": "is-lb-2-x-cluster-ammo-registry",
+      "id": "is-lb-2-x-ac-ammo",
+      "name": "LB 2-X AC Ammo",
+      "category": "Autocannon",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "battleValue": 5,
+      "introductionYear": 3050,
+      "variant": "Standard",
+      "shotsPerTon": 45,
+      "kgPerShot": 22.22222222222222,
+      "compatibleWeaponIds": ["lb-2-x-ac", "clan-lb-2-x-ac"],
+      "costPerTon": 2000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS LB 2-X AC Ammo",
+        "Java ammoType:rackSize AC_LBX:2",
+        "Java munitions: M_STANDARD",
+        "Unrepresented compatible Java weapons: CLLBXAC2Prototype"
+      ]
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
       "name": "LB 2-X Cluster Ammo",
       "category": "Autocannon",
       "techBase": "INNER_SPHERE",
@@ -2744,7 +2767,30 @@
       ]
     },
     {
-      "id": "is-lb-5-x-cluster-ammo-registry",
+      "id": "is-lb-5-x-ac-ammo",
+      "name": "LB 5-X AC Ammo",
+      "category": "Autocannon",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "battleValue": 10,
+      "introductionYear": 3050,
+      "variant": "Standard",
+      "shotsPerTon": 20,
+      "kgPerShot": 50,
+      "compatibleWeaponIds": ["lb-5-x-ac", "clan-lb-5-x-ac"],
+      "costPerTon": 9000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS LB 5-X AC Ammo",
+        "Java ammoType:rackSize AC_LBX:5",
+        "Java munitions: M_STANDARD",
+        "Unrepresented compatible Java weapons: CLLBXAC5Prototype"
+      ]
+    },
+    {
+      "id": "is-lb-5-x-cluster-ammo",
       "name": "LB 5-X Cluster Ammo",
       "category": "Autocannon",
       "techBase": "INNER_SPHERE",

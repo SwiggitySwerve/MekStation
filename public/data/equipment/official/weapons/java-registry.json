@@ -2764,7 +2764,7 @@
       ]
     },
     {
-      "id": "islongtomcannon-registry",
+      "id": "long-tom-cannon",
       "name": "Long Tom Cannon",
       "category": "Artillery",
       "techBase": "BOTH",
@@ -3050,7 +3050,7 @@
       ]
     },
     {
-      "id": "issniper-registry",
+      "id": "sniper",
       "name": "Sniper",
       "category": "Artillery",
       "techBase": "BOTH",
@@ -3090,7 +3090,7 @@
       ]
     },
     {
-      "id": "isthumper-registry",
+      "id": "thumper",
       "name": "Thumper",
       "category": "Artillery",
       "techBase": "BOTH",

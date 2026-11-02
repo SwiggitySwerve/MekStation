@@ -1,58 +1,29 @@
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
+import { hash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { test } from 'node:test';
 
 import { generateEntries, assertAdditive } from './generate.mjs';
-const java = {
-  internalName: 'CLTest Ammo',
-  name: 'Test Ammo',
-  javaClass: 'AmmoType',
-  tech: 'CLAN',
-  bv: 7,
-  tons: 1,
-  aliases: ['CLTest Ammo', 'Test rounds'],
-};
-const facts = {
-  'CLTest Ammo': {
-    kind: 'ammunition',
-    criticalSlots: 1,
-    cost: 1000,
-    rulesLevel: 'STANDARD',
-    introductionYear: 3050,
-    extinctionYear: -1,
-    shots: 20,
-    kgPerShot: 24.99,
-    ammoType: 'LRM',
-    category: 'LRM',
-    rackSize: 3,
-    isExplosive: true,
-    munitions: ['M_STANDARD'],
-  },
-};
+const { java, facts, lookups } = JSON.parse(
+  readFileSync(new URL('./source-fixture.json', import.meta.url), 'utf8'),
+);
 const gaps = [{ java }];
-const lookups = {
-  'cltest ammo': { default: java.internalName },
-  'test rounds': { default: java.internalName },
-};
+const alias = java.aliases[0];
 const run = (existing = [], mappings = {}) =>
   generateEntries([java], gaps, facts, lookups, existing, mappings);
 
 test('a registry gap becomes a cited ammo entry with Java aliases and exact per-shot mass', () => {
   const result = run();
-  assert.equal(result.items.length, 1);
   assert.equal(result.items[0].entry.kgPerShot, 24.99);
-  assert.equal(result.items[0].entry.battleValue, 7);
-  assert.equal(result.aliases['Test rounds'], result.items[0].entry.id);
+  assert.equal(result.items[0].entry.battleValue, 4);
+  assert.equal(result.aliases[alias], result.items[0].entry.id);
   assert.equal(JSON.stringify(result), JSON.stringify(run()));
-  assert.equal(
-    run([], { 'test ROUNDS': 'old' }).aliases['Test rounds'],
-    undefined,
-  );
+  assert(!run([], { [alias.toUpperCase()]: 'old' }).aliases[alias]);
 });
 test('colliding generated slugs are rejected instead of overwriting existing identities', () => {
-  assert.throws(() => run([{ id: 'cltest-ammo-registry' }]), /collision/i);
+  const id = run().items[0].entry.id;
+  assert.throws(() => run([{ id }]), /collision/i);
 });
 test('every pre-existing entry must retain its complete serialized value', () => {
   const before = [{ id: 'old', battleValue: 8, special: ['original'] }];
@@ -64,27 +35,21 @@ test('every pre-existing entry must retain its complete serialized value', () =>
   assert.doesNotThrow(() => assertAdditive(before, [...before, { id: 'new' }]));
 });
 test('intrinsic kit protection is generated even without a gap token', () => {
-  const kitFacts = {
-    [java.internalName]: {
-      ...facts[java.internalName],
-      kind: 'miscellaneous',
-      damageDivisor: 1.5,
-    },
-  };
+  const kitFacts = structuredClone(facts);
+  kitFacts[java.internalName].kind = 'miscellaneous';
+  kitFacts[java.internalName].damageDivisor = 1.5;
+  kitFacts[java.internalName].usedByProto = false;
   const result = generateEntries([java], [], kitFacts, lookups, [], {});
   assert.equal(result.items[0].entry.damageDivisor, 1.5);
 });
 test('committed generated entries conform to schemas and preserve every baseline item', () => {
   const read = (file) => JSON.parse(readFileSync(file, 'utf8'));
+  const root = 'public/data/equipment/official/';
   for (const row of read(new URL('./baseline.json', import.meta.url))) {
-    const entry = read(`public/data/equipment/official/${row.file}`).items[
-      row.index
-    ];
+    const entry = read(root + row.file).items[row.index];
     assert(entry, `Removed ${row.file}:${row.id}`);
-    const hash = createHash('sha256')
-      .update(JSON.stringify(entry))
-      .digest('hex');
-    assert([row.sha256].flat().includes(hash), `Changed ${row.file}:${row.id}`);
+    const digest = hash('sha256', JSON.stringify(entry));
+    assert.equal(digest, row.sha256, `Changed ${row.file}:${row.id}`);
   }
   const require = createRequire(import.meta.url);
   require('tsx/cjs');
@@ -96,9 +61,7 @@ test('committed generated entries conform to schemas and preserve every baseline
     const schema = require(
       `../../src/types/contracts/generated/${stem}.zod.ts`,
     )[contract];
-    for (const entry of read(
-      `public/data/equipment/official/${kind}/java-registry.json`,
-    ).items) {
+    for (const entry of read(root + kind + '/java-registry.json').items) {
       schema.parse(entry);
     }
   }

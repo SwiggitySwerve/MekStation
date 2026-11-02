@@ -98,20 +98,25 @@ it('resolves every ammunition record including IDs shared with weapons', () => {
 
 it.each([
   ['LB 2-X AC Ammo', 'clan-lb-2-x-ac', 6],
+  ['IS LB 2-X AC Ammo', 'is-lb-2-x-ac-ammo', 5],
+  ['IS LB 5-X AC Ammo', 'is-lb-5-x-ac-ammo', 10],
+  ['IS LB 2-X Cluster Ammo', 'is-lb-2-x-cluster-ammo', 5],
+  ['IS LB 5-X Cluster Ammo', 'is-lb-5-x-cluster-ammo', 10],
+  ['Clan LB 2-X AC Ammo', 'clan-lb-2-x-ac', 6],
+  ['Clan LB 5-X AC Ammo', 'clan-lb-5-x-ac', 12],
+  ['Clan LB 2-X Cluster Ammo', 'clan-lb-2-x-cluster', 6],
+  ['Clan LB 5-X Cluster Ammo', 'clan-lb-5-x-cluster', 12],
   ['Streak SRM 2 Ammo', 'clan-streak-srm-2', 5],
-] as const)(
-  'uses existing aliases for %s without changing normalization',
-  (name, id, bv) => {
-    for (const spelling of [name, name.toLowerCase(), name.toUpperCase()]) {
-      expect(normalizeEquipmentId(spelling)).toBe(id);
-      expect(resolveAmmoBV(spelling)).toEqual({
-        resolved: true,
-        battleValue: bv,
-        weaponType: id,
-      });
-    }
-  },
-);
+] as const)('resolves tech-specific ammo aliases: %s', (name, id, bv) => {
+  for (const spelling of [name, name.toLowerCase(), name.toUpperCase()]) {
+    expect(normalizeEquipmentId(spelling)).toBe(id);
+    expect(resolveAmmoBV(spelling)).toEqual({
+      resolved: true,
+      battleValue: bv,
+      weaponType: id.replace(/-ammo$/, ''),
+    });
+  }
+});
 
 it.each([
   'medium-laser',

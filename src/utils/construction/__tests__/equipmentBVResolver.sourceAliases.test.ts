@@ -109,6 +109,8 @@ describe('pinned native lookup identities', () => {
     ['(B) Naval Laser 55', 'naval-laser-55-registry'],
     ['ISBAERMediumLaser:LA', 'isbaermediumlaser-registry'],
     ['Clan Ammo LRM-15 (10)', 'clan-ammo-lrm-15-registry'],
+    ['Sniper', 'sniper'],
+    ['ISSniper', 'sniper'],
   ])('parses mount metadata in %s', (native, canonical) => {
     expect(getEquipmentEntry(native)?.id).toBe(canonical);
   });

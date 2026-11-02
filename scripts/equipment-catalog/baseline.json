@@ -735,19 +735,13 @@
     "file": "weapons/ballistic-other.json",
     "index": 58,
     "id": "sniper-cannon",
-    "sha256": [
-      "9e4a394f72e33bd7e44f322269b38b25020cd00c113863710a1b2f2d07f87bfd",
-      "bf26455ad49787bd01bbd942da57482304522598dd10221bc1ecee878b64b5ce"
-    ]
+    "sha256": "bf26455ad49787bd01bbd942da57482304522598dd10221bc1ecee878b64b5ce"
   },
   {
     "file": "weapons/ballistic-other.json",
     "index": 59,
     "id": "thumper-cannon",
-    "sha256": [
-      "2a5d6fa71b43069a1f2f74a270f904ad9c2721ad5adb15a965d2dbb7c562a35b",
-      "6d71b17eee68c75c8c6de83b02ca168eca45e26e20dcd8e54efa681f8de23bbd"
-    ]
+    "sha256": "6d71b17eee68c75c8c6de83b02ca168eca45e26e20dcd8e54efa681f8de23bbd"
   },
   {
     "file": "weapons/ballistic-other.json",
@@ -3177,19 +3171,13 @@
     "file": "ammunition/autocannon.json",
     "index": 7,
     "id": "uac-2-ammo",
-    "sha256": [
-      "d2ac98fb1fef67303971a8cb7d1866af9cc532012dbef4c02fde27b4e8cd6325",
-      "9e616d6ce49e2b94776546e3d929028dd2bda5635c29a4cd3fef236ef68fd66e"
-    ]
+    "sha256": "9e616d6ce49e2b94776546e3d929028dd2bda5635c29a4cd3fef236ef68fd66e"
   },
   {
     "file": "ammunition/autocannon.json",
     "index": 8,
     "id": "uac-5-ammo",
-    "sha256": [
-      "790f737f5bd7e062f648260abc9f0f4ddbf8c6ffcaf01f1ba193a0683a54e747",
-      "b0dd1053d9394cedeeaf54b7723d0c350516977b5f513ec4ced7cc569a9448d9"
-    ]
+    "sha256": "b0dd1053d9394cedeeaf54b7723d0c350516977b5f513ec4ced7cc569a9448d9"
   },
   {
     "file": "ammunition/autocannon.json",
@@ -3207,19 +3195,13 @@
     "file": "ammunition/autocannon.json",
     "index": 11,
     "id": "lb-2-x-ammo",
-    "sha256": [
-      "79d613c494dbea70ecf89e7c3c064008df8e31f7e770f562675a5af88864a296",
-      "c3bd24656c63df712e9702e72b65a214e58c2e1c6826789f9ceb381c21042b95"
-    ]
+    "sha256": "c3bd24656c63df712e9702e72b65a214e58c2e1c6826789f9ceb381c21042b95"
   },
   {
     "file": "ammunition/autocannon.json",
     "index": 12,
     "id": "lb-5-x-ammo",
-    "sha256": [
-      "937ca175922e0ca50b4fa4f4f135bc36b71750471d5bd814f883615cf81a4983",
-      "56a08c0c9da9d292390ffce4b2c482daee78cc6e3ec8263f24b048d4664e923d"
-    ]
+    "sha256": "56a08c0c9da9d292390ffce4b2c482daee78cc6e3ec8263f24b048d4664e923d"
   },
   {
     "file": "ammunition/autocannon.json",
@@ -4041,10 +4023,7 @@
     "file": "ammunition/machinegun.json",
     "index": 5,
     "id": "machine-gun-ammo-half",
-    "sha256": [
-      "dcf56399ba8a9626fbb919aa10a9b21281f214850979b560076102ab71b730c4",
-      "b0649d37ea308424a612d8cb8bd1962ccdadaa78ede86fab4253618cf97238c6"
-    ]
+    "sha256": "b0649d37ea308424a612d8cb8bd1962ccdadaa78ede86fab4253618cf97238c6"
   },
   {
     "file": "ammunition/machinegun.json",
@@ -4056,10 +4035,7 @@
     "file": "ammunition/machinegun.json",
     "index": 7,
     "id": "light-machine-gun-ammo-half",
-    "sha256": [
-      "12e13eb98b162a90fc0c0cd7a6bad62319e269ed6d6c7a4efacef1a59250c0fa",
-      "07b324d1f76c93e3b827853b2ba80e68ad8d9af3d6c2b5347cfbae98e03f25e7"
-    ]
+    "sha256": "07b324d1f76c93e3b827853b2ba80e68ad8d9af3d6c2b5347cfbae98e03f25e7"
   },
   {
     "file": "ammunition/machinegun.json",
@@ -4071,10 +4047,7 @@
     "file": "ammunition/machinegun.json",
     "index": 9,
     "id": "heavy-machine-gun-ammo-half",
-    "sha256": [
-      "32b6f3a78c0148ae343d38479cb4cb66a59e21220a7d81638ad423b10c375cc8",
-      "3a1c3e749d87e4861a0fe5ef8963008c7c5653a37693646659cbbd5ffd21170d"
-    ]
+    "sha256": "3a1c3e749d87e4861a0fe5ef8963008c7c5653a37693646659cbbd5ffd21170d"
   },
   {
     "file": "ammunition/machinegun.json",
@@ -4218,10 +4191,7 @@
     "file": "ammunition/other.json",
     "index": 1,
     "id": "clan-ams-ammo",
-    "sha256": [
-      "c61acfc5bb7a95d51b1ef06f914d1b685ea645d7f871f3c37148136d649a9d99",
-      "833cdc26604914766317ab537557570679503a6709c5162134ca91fd4822c6c8"
-    ]
+    "sha256": "833cdc26604914766317ab537557570679503a6709c5162134ca91fd4822c6c8"
   },
   {
     "file": "ammunition/other.json",

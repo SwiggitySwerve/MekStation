@@ -988,12 +988,20 @@
       "id": "is-heavy-flamer-ammo-registry"
     },
     {
+      "internalName": "IS LB 2-X AC Ammo",
+      "id": "is-lb-2-x-ac-ammo"
+    },
+    {
       "internalName": "IS LB 2-X Cluster Ammo",
-      "id": "is-lb-2-x-cluster-ammo-registry"
+      "id": "is-lb-2-x-cluster-ammo"
+    },
+    {
+      "internalName": "IS LB 5-X AC Ammo",
+      "id": "is-lb-5-x-ac-ammo"
     },
     {
       "internalName": "IS LB 5-X Cluster Ammo",
-      "id": "is-lb-5-x-cluster-ammo-registry"
+      "id": "is-lb-5-x-cluster-ammo"
     },
     {
       "internalName": "IS Mech Mortar-1",
@@ -1181,7 +1189,7 @@
     },
     {
       "internalName": "ISLongTomCannon",
-      "id": "islongtomcannon-registry"
+      "id": "long-tom-cannon"
     },
     {
       "internalName": "ISMagshotGR Ammo",
@@ -1213,7 +1221,7 @@
     },
     {
       "internalName": "ISSniper",
-      "id": "issniper-registry"
+      "id": "sniper"
     },
     {
       "internalName": "ISTargeting Computer",
@@ -1221,7 +1229,7 @@
     },
     {
       "internalName": "ISThumper",
-      "id": "isthumper-registry"
+      "id": "thumper"
     },
     {
       "internalName": "ISUltraAC5Prototype",
@@ -1769,7 +1777,7 @@
     },
     {
       "internalName": "VehicleJumpJet",
-      "id": "vehiclejumpjet-registry"
+      "id": "vehiclejumpjet"
     },
     {
       "internalName": "Wire-Guided Missile Launcher",

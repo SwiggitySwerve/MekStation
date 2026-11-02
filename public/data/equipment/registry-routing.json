@@ -1,0 +1,14 @@
+{
+  "canonicalIds": {
+    "VehicleJumpJet": "vehiclejumpjet",
+    "ISLongTomCannon": "long-tom-cannon",
+    "ISThumper": "thumper"
+  },
+  "reroute": {
+    "IS LB 2-X AC Ammo": "is-lb-2-x-ac-ammo",
+    "IS LB 5-X AC Ammo": "is-lb-5-x-ac-ammo",
+    "IS LB 2-X Cluster Ammo": "is-lb-2-x-cluster-ammo",
+    "IS LB 5-X Cluster Ammo": "is-lb-5-x-cluster-ammo",
+    "ISSniper": "sniper"
+  }
+}

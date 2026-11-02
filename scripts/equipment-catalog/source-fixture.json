@@ -1,0 +1,81 @@
+{
+  "revision": "48fcb2f64a1b3f2d575707ce5653dad64927b587",
+  "java": {
+    "javaClass": "megamek.common.equipment.AmmoType",
+    "internalName": "Clan Ammo ProtoMech LRM-3",
+    "name": "LRM 3 Ammo",
+    "aliases": [
+      "Clan Ammo ProtoMech LRM-3",
+      "Clan Ammo LRM-3",
+      "CLLRM3 Ammo",
+      "Clan LRM 3 Ammo"
+    ],
+    "tech": "CLAN",
+    "bv": 4,
+    "tons": 1
+  },
+  "facts": {
+    "Clan Ammo ProtoMech LRM-3": {
+      "criticalSlots": 1,
+      "cost": 0,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": true,
+      "kind": "ammunition",
+      "shots": 100,
+      "kgPerShot": 24.99,
+      "usedByProto": true,
+      "ammoType": "LRM",
+      "category": "LRM",
+      "munitions": ["M_STANDARD"],
+      "rackSize": 3,
+      "compatible": [
+        "CLLRM3",
+        "CLLRM3OS",
+        "CLBALRM3",
+        "CLBALRM3OS",
+        "ISBALRM3",
+        "ISBALRM3OS"
+      ]
+    }
+  },
+  "lookups": {
+    "clan ammo protomech lrm-3": {
+      "UNKNOWN": "Clan Ammo ProtoMech LRM-3",
+      "ALL": "Clan Ammo ProtoMech LRM-3",
+      "IS": "Clan Ammo ProtoMech LRM-3",
+      "CLAN": "Clan Ammo ProtoMech LRM-3",
+      "default": "Clan Ammo ProtoMech LRM-3"
+    },
+    "lrm 3 ammo": {
+      "UNKNOWN": "Clan Ammo ProtoMech LRM-3",
+      "ALL": "Clan Ammo ProtoMech LRM-3",
+      "IS": "Clan Ammo ProtoMech LRM-3",
+      "CLAN": "Clan Ammo ProtoMech LRM-3",
+      "default": "Clan Ammo ProtoMech LRM-3"
+    },
+    "clan ammo lrm-3": {
+      "UNKNOWN": "Clan Ammo ProtoMech LRM-3",
+      "ALL": "Clan Ammo ProtoMech LRM-3",
+      "IS": "Clan Ammo ProtoMech LRM-3",
+      "CLAN": "Clan Ammo ProtoMech LRM-3",
+      "default": "Clan Ammo ProtoMech LRM-3"
+    },
+    "cllrm3 ammo": {
+      "UNKNOWN": "Clan Ammo ProtoMech LRM-3",
+      "ALL": "Clan Ammo ProtoMech LRM-3",
+      "IS": "Clan Ammo ProtoMech LRM-3",
+      "CLAN": "Clan Ammo ProtoMech LRM-3",
+      "default": "Clan Ammo ProtoMech LRM-3"
+    },
+    "clan lrm 3 ammo": {
+      "UNKNOWN": "Clan Ammo ProtoMech LRM-3",
+      "ALL": "Clan Ammo ProtoMech LRM-3",
+      "IS": "Clan Ammo ProtoMech LRM-3",
+      "CLAN": "Clan Ammo ProtoMech LRM-3",
+      "default": "Clan Ammo ProtoMech LRM-3"
+    }
+  }
+}

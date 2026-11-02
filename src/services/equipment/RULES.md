@@ -2,9 +2,12 @@
 
 `scripts/equipment-catalog/` adds pinned Java registry identities with the
 lowercase kebab-case internal name plus `-registry`. It rejects ID collisions and
-preserves every existing catalog item and alias value. Java lookup results
+preserves every existing catalog item. Java lookup results
 decide shared alias ownership. Both registry lookup and BV use the catalog's
-existing name-mappings owner. Identity resolution does not establish legality.
+existing name-mappings owner. The five approved Q1 reroutes are declared in
+`public/data/equipment/registry-routing.json`; other aliases retain their values.
+That file also preserves canonical IDs required by existing consumers. Identity
+resolution does not establish legality.
 The generator records variable Java sentinels in `special`; numeric zero is
 the catalog's existing variable-value convention, not a calculated mass/BV.
 `kgPerShot` and infantry kit `damageDivisor` are intrinsic Java facts; the

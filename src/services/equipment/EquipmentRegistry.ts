@@ -20,6 +20,7 @@ import {
 import { IWeapon, WeaponCategory } from '@/types/equipment/weapons/interfaces';
 import { NAME_MAPPINGS_DATA } from '@/utils/construction/equipmentBVCatalogData';
 
+import registryRouting from '../../../public/data/equipment/registry-routing.json';
 import {
   createSingleton,
   type SingletonFactory,
@@ -203,7 +204,11 @@ export class EquipmentRegistry {
     for (const [alias, id] of Object.entries(NAME_MAPPINGS_DATA)) {
       if (!id || !this.idToTypeMap.has(id)) continue;
       for (const key of [alias, this.normalizeName(alias)]) {
-        if (!this.nameToIdMap.has(key)) this.nameToIdMap.set(key, id);
+        if (
+          !this.nameToIdMap.has(key) ||
+          Object.values(registryRouting.reroute).includes(id)
+        )
+          this.nameToIdMap.set(key, id);
       }
     }
   }
