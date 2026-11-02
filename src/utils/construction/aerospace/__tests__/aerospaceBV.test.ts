@@ -8,7 +8,7 @@
  *  - Forward/rear group weighting (spec scenarios: "Primary arc contributes 100%", "Primary arc not Nose")
  *  - Fuselage weapons participate in the forward group
  *  - Conventional fighter neutral final multiplier (spec scenario: "Conventional fighter multiplier")
- *  - Small Craft 1.2× armor bonus inside defensive block
+ *  - Small Craft inherited armor factor
  *  - Breakdown shape (spec scenario: "Breakdown shape")
  *  - Arc contributions exposed (spec scenario: "Arc contributions exposed")
  *
@@ -90,7 +90,7 @@ describe('calculateAerospaceDefensiveBV', () => {
     expect(result.armorBV).toBeCloseTo(250, 1);
   });
 
-  it('Small Craft applies 1.2× armor bonus inside defensive block', () => {
+  it('Small Craft inherits the ordinary armor factor', () => {
     const asf = calculateAerospaceDefensiveBV(
       baseInput({
         subType: AerospaceSubType.AEROSPACE_FIGHTER,
@@ -103,7 +103,7 @@ describe('calculateAerospaceDefensiveBV', () => {
         totalArmorPoints: 100,
       }),
     );
-    expect(sc.armorBV).toBeCloseTo(asf.armorBV * 1.2, 1);
+    expect(sc.armorBV).toBeCloseTo(asf.armorBV, 1);
   });
 
   it('subtracts explosive penalties before applying defensive factor', () => {

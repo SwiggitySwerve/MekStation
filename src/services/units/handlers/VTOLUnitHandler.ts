@@ -51,6 +51,7 @@ import {
   pushSourceLoadNumberErrors,
   withConstructionDiagnostics,
 } from './unitHandlerShared';
+import { rejectIncompleteCombatVehicleWeight } from './vehicleHandlerWeight';
 
 // ============================================================================
 // Constants
@@ -343,27 +344,8 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
   /**
    * Calculate VTOL weight
    */
-  protected calculateTypeSpecificWeight(unit: IVTOL): number {
-    let weight = 0;
-
-    // Engine weight (VTOLs use lighter engines per thrust)
-    const engineRating = computeEngineRating(
-      unit.tonnage,
-      unit.movement.cruiseMP,
-      GroundMotionType.VTOL,
-    );
-    weight += engineRating * 0.04; // Simplified
-
-    // Rotor weight (10% of tonnage)
-    weight += unit.tonnage * 0.1;
-
-    // Structural weight
-    weight += unit.tonnage * 0.1;
-
-    // Armor weight
-    weight += unit.totalArmorPoints / 16;
-
-    return weight;
+  protected calculateTypeSpecificWeight(_unit: IVTOL): number {
+    return rejectIncompleteCombatVehicleWeight();
   }
 
   /**
