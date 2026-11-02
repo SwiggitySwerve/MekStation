@@ -26,6 +26,7 @@ import { act, render, renderHook } from '@testing-library/react';
 import React from 'react';
 
 import { PreviewTabForType } from '@/components/customizer/tabs/PreviewTabForType';
+import { extractVehicleData } from '@/services/printing/recordsheet/dataExtractors.vehicle';
 import {
   dispatchTargetFromUnit,
   getRecordSheetDispatchKind,
@@ -38,6 +39,7 @@ import {
 import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
 
 import { buildVehicleUnitObject } from '../buildVehicleUnitObject';
 import { useVehicleRecordSheetUnit } from '../useVehicleRecordSheetUnit';
@@ -52,6 +54,110 @@ function makeVehicleStore() {
 }
 
 describe('useVehicleRecordSheetUnit', () => {
+  const turret = {
+    type: TurretType.SINGLE,
+    currentWeight: 0,
+    rotationArc: 360,
+  };
+
+  it('preserves unequal primary and secondary armor as distinct installed locations', () => {
+    const store = makeVehicleStore();
+    store.setState({
+      turret: { ...turret, type: TurretType.DUAL },
+      secondaryTurret: turret,
+      armorAllocation: {
+        ...store.getState().armorAllocation,
+        Turret: 7,
+        'Turret 2': 19,
+      },
+    });
+    const unit = buildVehicleUnitObject(store.getState());
+    expect(unit.turretConfig).toBe('Dual');
+    expect(unit.armorAllocation?.Turret.current).toBe(7);
+    expect(unit.armorAllocation?.['Turret 2'].current).toBe(19);
+    expect(
+      extractVehicleData(unit).armorLocations.filter((a) =>
+        a.location.startsWith('Turret'),
+      ),
+    ).toEqual([
+      { location: 'Turret', current: 7, maximum: 7, bar: undefined },
+      { location: 'Turret 2', current: 19, maximum: 19, bar: undefined },
+    ]);
+  });
+
+  it('does not let a secondary zero overwrite a single primary turret', () => {
+    const store = makeVehicleStore();
+    store.setState({
+      turret,
+      armorAllocation: { ...store.getState().armorAllocation, Turret: 12 },
+    });
+    const unit = buildVehicleUnitObject(store.getState());
+    expect(unit.armorAllocation?.Turret.current).toBe(12);
+    expect(extractVehicleData(unit)).toMatchObject({
+      turretConfig: 'Single',
+      armorLocations: expect.arrayContaining([
+        expect.objectContaining({ location: 'Turret', current: 12 }),
+      ]),
+    });
+  });
+
+  it('uses installed configurations even at zero armor and excludes stale absent armor', () => {
+    const store = makeVehicleStore();
+    expect(buildVehicleUnitObject(store.getState()).turretConfig).toBe('None');
+    store.setState({
+      turret,
+      armorAllocation: { ...store.getState().armorAllocation, 'Turret 2': 99 },
+    });
+    const data = extractVehicleData(buildVehicleUnitObject(store.getState()));
+    expect(data.turretConfig).toBe('Single');
+    expect(data.armorLocations).toContainEqual({
+      location: 'Turret',
+      current: 0,
+      maximum: 0,
+      bar: undefined,
+    });
+    expect(data.armorLocations.some((a) => a.location === 'Turret 2')).toBe(
+      false,
+    );
+  });
+
+  it('reacts when only a turret configuration changes, then reflects removal', () => {
+    const store = makeVehicleStore();
+    store.setState({ turret });
+    const { result } = renderHook(() => useVehicleRecordSheetUnit(), {
+      wrapper: ({ children }: { children: React.ReactNode }) => (
+        <VehicleStoreContext.Provider value={store}>
+          {children}
+        </VehicleStoreContext.Provider>
+      ),
+    });
+    expect(result.current.turretConfig).toBe('Single');
+    const before = result.current;
+    act(() => store.setState({ secondaryTurret: turret }));
+    expect(result.current).not.toBe(before);
+    expect(result.current.turretConfig).toBe('Dual');
+    act(() => store.getState().setTurretType(TurretType.NONE));
+    expect(extractVehicleData(result.current).turretConfig).toBe('None');
+    expect(
+      extractVehicleData(result.current).armorLocations.some((a) =>
+        a.location.startsWith('Turret'),
+      ),
+    ).toBe(false);
+  });
+
+  it('projects actual installed configurations without inventing a missing turret', () => {
+    const store = makeVehicleStore();
+    store.setState({
+      turret: { ...turret, type: TurretType.DUAL },
+      secondaryTurret: null,
+    });
+    expect(buildVehicleUnitObject(store.getState()).turretConfig).toBe(
+      'Single',
+    );
+    store.setState({ turret: null, secondaryTurret: turret });
+    expect(buildVehicleUnitObject(store.getState()).turretConfig).toBe('None');
+  });
+
   it('updates the projection for changed store fields and preserves it for unrelated state', () => {
     const store = makeVehicleStore();
     const { result, rerender } = renderHook(() => useVehicleRecordSheetUnit(), {
@@ -133,6 +239,8 @@ describe('buildVehicleUnitObject — record-sheet dispatch wiring', () => {
       armorAllocation: s.armorAllocation,
       barRating: s.barRating,
       equipment: s.equipment,
+      turret: s.turret,
+      secondaryTurret: s.secondaryTurret,
     });
 
     expect(getRecordSheetDispatchKind(unitObject)).toBe('vehicle');

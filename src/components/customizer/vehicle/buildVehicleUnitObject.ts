@@ -18,11 +18,17 @@ import type {
   IVehicleArmorAllocation,
   IVTOLArmorAllocation,
 } from '@/stores/vehicleState';
-import type { IVehicleMountedEquipment } from '@/types/unit/VehicleInterfaces';
+import type {
+  IVehicleMountedEquipment,
+  ITurretConfiguration,
+} from '@/types/unit/VehicleInterfaces';
 
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { getInstalledArmorAllocation } from '@/utils/construction/vehicle/armor';
+import { getInstalledVehicleTurretType } from '@/utils/construction/vehicle/turret';
 
 import {
   buildRecordSheetUnitIdentity,
@@ -39,7 +45,21 @@ export interface VehicleUnitObjectInput extends RecordSheetUnitIdentityWithTonna
   armorAllocation: IVehicleArmorAllocation | IVTOLArmorAllocation;
   barRating: number | null;
   equipment: readonly IVehicleMountedEquipment[];
+  turret: ITurretConfiguration | null;
+  secondaryTurret: ITurretConfiguration | null;
 }
+
+const TURRET_LABEL: Record<
+  TurretType,
+  NonNullable<IVehicleRecordSheetUnitInput['turretConfig']>
+> = {
+  [TurretType.NONE]: 'None',
+  [TurretType.SINGLE]: 'Single',
+  [TurretType.DUAL]: 'Dual',
+  [TurretType.CHIN]: 'Single',
+  [TurretType.SPONSON_LEFT]: 'Sponson',
+  [TurretType.SPONSON_RIGHT]: 'Sponson',
+};
 
 /**
  * Map a `GroundMotionType` to the record-sheet vehicle motion label.
@@ -70,7 +90,7 @@ function toMotionLabel(
  * Translate the store's keyed armor allocation into the record-sheet
  * `{ location: { current, maximum } }` map. The store keys are location enum
  * strings (Front / Left / Right / Rear / Turret / Turret 2 / Body / Rotor);
- * the extractor recognises the human labels in `VEHICLE_LOCATION_ORDER`.
+ * the extractor recognises the canonical record-sheet location labels.
  */
 function toArmorAllocation(
   allocation: IVehicleArmorAllocation | IVTOLArmorAllocation,
@@ -82,7 +102,7 @@ function toArmorAllocation(
     Right: 'Right Side',
     Rear: 'Rear',
     Turret: 'Turret',
-    'Turret 2': 'Turret',
+    'Turret 2': 'Turret 2',
     Body: 'Body',
     Rotor: 'Rotor',
   };
@@ -108,15 +128,26 @@ function toArmorAllocation(
 export function buildVehicleUnitObject(
   input: VehicleUnitObjectInput,
 ): IVehicleRecordSheetUnitInput {
+  const turretType = getInstalledVehicleTurretType(
+    input.turret,
+    input.secondaryTurret,
+  );
   return {
     ...buildRecordSheetUnitIdentity(input),
     // Dispatch hint — resolves to the 'vehicle' kind for all three sub-types.
     unitType: input.unitType,
     motionType: toMotionLabel(input.motionType),
+    turretConfig: TURRET_LABEL[turretType],
     cruiseMP: input.cruiseMP,
     flankMP: input.flankMP,
     armorType: String(input.armorType),
-    armorAllocation: toArmorAllocation(input.armorAllocation),
+    armorAllocation: toArmorAllocation(
+      getInstalledArmorAllocation(
+        input.armorAllocation,
+        turretType !== TurretType.NONE,
+        turretType === TurretType.DUAL,
+      ),
+    ),
     barRating: input.barRating ?? undefined,
     equipment: input.equipment.map((eq) => ({
       id: eq.id,
