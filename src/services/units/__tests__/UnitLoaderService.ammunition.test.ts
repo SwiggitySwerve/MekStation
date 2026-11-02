@@ -336,7 +336,7 @@ describe('BattleMech BV source parity', () => {
     const raw: UnitData = JSON.parse(JSON.stringify(state.bvContext?.source));
     const b = calculateUnitBV(raw, raw.id).breakdown;
     expect(b?.moveHeat).toBe(9);
-    expect(b?.heatEfficiency).toBe(8);
+    expect(b?.heatEfficiency).toBe(11);
   });
   // Pinned Java MekBVCalculator; both aggregates are checked before rounding.
   it.each([
@@ -344,6 +344,7 @@ describe('BattleMech BV source parity', () => {
     ['phoenix-hawk-lam-mk-i-phx-hk1', 1942, 751.2, 1191],
     ['phoenix-hawk-lam-mk-i-phx-hk1r', 1858, 799.2, 1059],
     ['phoenix-hawk-lam-phx-hk1rb', 1800, 783.2, 1017],
+    ['phoenix-hawk-lam-phx-hk2', 1555, 727.2, 828],
     ['phoenix-hawk-lam-phx-hk2m', 1465, 703.2, 762],
     ['pwwka-s-pw-1lam', 1668, 538.05, 1217.76],
     ['screamer-lam-scr-1x-lam', 1475, 742.4, 732.72],
@@ -352,6 +353,8 @@ describe('BattleMech BV source parity', () => {
     ['stinger-lam-mk-i-stg-a1', 846, 495.55, 350.88],
     ['stinger-lam-stg-a10', 881, 495.55, 385.28],
     ['stinger-lam-stg-a5', 1073, 495.55, 577.92],
+    ['waneta-s-wn-1lam', 2198, 694.4, 1619.2],
+    ['waneta-s-wn-2lam', 2760, 839.8, 2065.5],
     ['wasp-lam-mk-i-wsp-100', 489, 282.4, 206.4],
     ['wasp-lam-mk-i-wsp-100a', 909, 378.4, 531],
     ['wasp-lam-mk-i-wsp-100b', 876, 540, 336],

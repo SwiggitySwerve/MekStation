@@ -388,7 +388,8 @@ export function calculateUnitBV(
       runMP,
       jumpMP,
       umuMP: cs.umuMP,
-      heatDissipation: heatDiss,
+      // Pinned MekBVCalculator.heatEfficiency grants standard LAMs +3 cooling.
+      heatDissipation: heatDiss + (airMekFlankMP === undefined ? 0 : 3),
       hasTargetingComputer: hasTC,
       hasTSM: cs.hasTSM,
       hasIndustrialTSM: cs.hasIndustrialTSM,
