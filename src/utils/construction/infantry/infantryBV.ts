@@ -11,7 +11,9 @@
  *   - Platoon BV = perTrooperBV × totalTroopers × motiveMultiplier.
  *   - If anti-mech training: platoonBV × 1.1.
  *   - If field gun(s): add full mech-scale weapon BV + ammo BV.
- *   - Final BV = (platoonBV + fieldGunBV) × pilot-skill multiplier.
+ *   - Defensive structure follows pinned MegaMek; later defense modifiers and
+ *     the legacy offensive approximation still need source-parity work.
+ *   - Final BV = (defensive structure + platoonBV) × pilot-skill multiplier.
  *
  * @spec openspec/changes/add-infantry-battle-value/specs/battle-value-system/spec.md
  * @spec openspec/changes/add-infantry-battle-value/specs/infantry-unit-system/spec.md
@@ -76,6 +78,9 @@ export interface InfantryFieldGunMount {
  * Input to the infantry BV calculator.
  */
 export interface InfantryBVInput {
+  /** Incoming protection, distinct from the weapon table's damage divisor. */
+  damageDivisor?: number;
+  hasPheromoneEffuser?: boolean;
   /** Motive type — Foot, Jump, Motorized, Mechanized-*. */
   motive: InfantryMotive;
   /** Total troopers in the platoon (squads × troopersPerSquad). */
@@ -292,7 +297,7 @@ export function getInfantryPilotMultiplier(
  *   2. platoonCore = perTrooperBV × troopers × motiveMult.
  *   3. platoonWithTraining = platoonCore × (antiMech ? 1.1 : 1.0).
  *   4. platoonBV (pre-pilot) = platoonWithTraining + fieldGunBV.
- *   5. final = round(platoonBV × pilotMult).
+ *   5. final = round((defensive structure + platoonBV) × pilotMult).
  *
  * Rounding:
  *   - Intermediate values stay as floats for precision.
@@ -323,9 +328,15 @@ export function calculateInfantryBV(
     input.gunnery,
     input.piloting,
   );
-  const final = Math.round(platoonBV * pilotMultiplier);
+  // InfantryBVCalculator.java:65-80, MegaMek 48fcb2f64. Subsequent defensive
+  // movement/stealth factors remain pending; this is the structure term only.
+  const defensiveBV =
+    troopers *
+    (1.5 * (input.damageDivisor ?? 1) + (input.hasPheromoneEffuser ? 0.05 : 0));
+  const final = Math.round((defensiveBV + platoonBV) * pilotMultiplier);
 
   return {
+    defensiveBV,
     perTrooper,
     motiveMultiplier,
     antiMechMultiplier,

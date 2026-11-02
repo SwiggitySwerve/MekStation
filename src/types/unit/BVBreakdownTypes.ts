@@ -56,6 +56,8 @@ export interface IProtoMechBVBreakdown {
 }
 
 export interface IInfantryBVBreakdown {
+  /** Defensive structure only; movement and stealth modifiers remain pending. */
+  readonly defensiveBV: number;
   readonly perTrooper: number;
   readonly motiveMultiplier: number;
   readonly antiMechMultiplier: number;

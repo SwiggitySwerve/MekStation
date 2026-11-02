@@ -121,10 +121,12 @@ describe('InfantryUnitHandler', () => {
 
         const footBV = handler.calculateBV(footUnit);
         const jumpBV = handler.calculateBV(jumpUnit);
-        // Jump platoon should have higher BV than Foot at equal composition
-        // whenever perTrooperBV > 0. When perTrooper is 0 (e.g. no catalog BV),
-        // both will be 0 — guard the strict inequality.
-        if (footBV > 0) {
+        // The legacy motive modifier changes offense only. A positive defensive
+        // structure value does not establish that weapon BV resolved.
+        if (
+          calculateInfantryBVFromUnit(handler.parse(footDoc).data!.unit)
+            .platoonBV > 0
+        ) {
           expect(jumpBV).toBeGreaterThan(footBV);
         } else {
           expect(jumpBV).toBeGreaterThanOrEqual(footBV);
@@ -141,7 +143,10 @@ describe('InfantryUnitHandler', () => {
         });
         const footBV = handler.calculateBV(handler.parse(footDoc).data!.unit);
         const mechBV = handler.calculateBV(handler.parse(mechDoc).data!.unit);
-        if (footBV > 0) {
+        if (
+          calculateInfantryBVFromUnit(handler.parse(footDoc).data!.unit)
+            .platoonBV > 0
+        ) {
           expect(mechBV).toBeGreaterThan(footBV);
         } else {
           expect(mechBV).toBeGreaterThanOrEqual(footBV);
@@ -163,8 +168,8 @@ describe('InfantryUnitHandler', () => {
 
         const baseBV = handler.calculateBV(baseUnit);
         const amBV = handler.calculateBV(amUnit);
-        // When baseBV > 0, amBV must be strictly greater (1.1× uplift).
-        if (baseBV > 0) {
+        // When offensive BV > 0, amBV must be strictly greater (1.1× uplift).
+        if (calculateInfantryBVFromUnit(baseUnit).platoonBV > 0) {
           expect(amBV).toBeGreaterThan(baseBV);
         } else {
           expect(amBV).toBeGreaterThanOrEqual(0);

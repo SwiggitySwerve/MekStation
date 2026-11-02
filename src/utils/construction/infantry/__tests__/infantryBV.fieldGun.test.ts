@@ -86,6 +86,6 @@ describe('Infantry Field Gun BV Addition (spec.md Infantry Field Gun BV Addition
     const result = calculateInfantryBV(input);
     expect(result.fieldGunBV).toBe(79);
     expect(result.platoonBV).toBeCloseTo(359, 5);
-    expect(result.final).toBe(359);
+    expect(result.final).toBe(401);
   });
 });
