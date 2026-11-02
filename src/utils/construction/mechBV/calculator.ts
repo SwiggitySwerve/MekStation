@@ -42,6 +42,7 @@ import {
   type MechLocation,
 } from '../../../utils/construction/battleValueCalculations';
 import { resolveEquipmentBV } from '../../../utils/construction/equipmentBVResolver';
+import { calculateOffensiveSpeedFactor } from '../battleValueMovement';
 import { buildMechBVWeapons } from './weaponInputs';
 
 // === MAIN BV CALCULATION ===
@@ -85,6 +86,13 @@ export function calculateUnitBV(
     partialWingJumpBonus,
   } = deriveBvHeatAndMovement(unit, cs, armorType);
   const hasStealth = armorType === 'stealth';
+  // Pinned LandAirMek.getAirMekFlankMP and MekBVCalculator.offensiveSpeedFactorMP.
+  // Bimodal LAMs retain ordinary Mek movement; standard LAMs use airborne AirMek MP.
+  const airMekFlankMP =
+    unit.configuration?.toLowerCase() === 'lam' &&
+    unit.lamType?.toLowerCase() !== 'bimodal'
+      ? Math.ceil(jumpMP * 3 * 1.5)
+      : undefined;
 
   const { weapons, hasTC } = buildMechBVWeapons(unit, cs, issues);
   const defEquipIds: string[] = [...cs.defEquipIds];
@@ -370,36 +378,43 @@ export function calculateUnitBV(
     cockpitUpper === 'SUPERHEAVY_INDUSTRIAL' ||
     cockpitUpper === 'TRIPOD_INDUSTRIAL' ||
     cockpitUpper === 'SUPERHEAVY_TRIPOD_INDUSTRIAL';
-  const offResult = calculateOffensiveBVWithHeatTracking({
-    weapons,
-    ammo: ammoForCalc,
-    tonnage: unit.tonnage,
-    walkMP: bvWalk,
-    runMP,
-    jumpMP,
-    umuMP: cs.umuMP,
-    heatDissipation: heatDiss,
-    hasTargetingComputer: hasTC,
-    hasTSM: cs.hasTSM,
-    hasIndustrialTSM: cs.hasIndustrialTSM,
-    hasStealthArmor: hasStealth,
-    hasNullSig: cs.hasNullSig,
-    hasVoidSig: cs.hasVoidSig,
-    hasChameleonShield: cs.hasChameleon,
-    physicalWeaponBV,
-    offensiveEquipmentBV: offensiveEquipBV,
-    hasImprovedJJ: cs.hasImprovedJJ,
-    hasPrototypeIJJ: cs.hasPrototypeIJJ,
-    isXXLEngine,
-    engineType,
-    coolantPods: cs.coolantPods,
-    heatSinkCount: effectiveHSCount,
-    jumpHeatMP: jumpHeatMP,
-    aesArms: armAES,
-    aesLegs: hasLegAES ? (isQuad ? 4 : 2) : 0,
-    isIndustrialMech,
-    hasSCM: cs.hasSCM,
-  });
+  const offResult = calculateOffensiveBVWithHeatTracking(
+    {
+      weapons,
+      ammo: ammoForCalc,
+      tonnage: unit.tonnage,
+      walkMP: bvWalk,
+      runMP,
+      jumpMP,
+      umuMP: cs.umuMP,
+      heatDissipation: heatDiss,
+      hasTargetingComputer: hasTC,
+      hasTSM: cs.hasTSM,
+      hasIndustrialTSM: cs.hasIndustrialTSM,
+      hasStealthArmor: hasStealth,
+      hasNullSig: cs.hasNullSig,
+      hasVoidSig: cs.hasVoidSig,
+      hasChameleonShield: cs.hasChameleon,
+      physicalWeaponBV,
+      offensiveEquipmentBV: offensiveEquipBV,
+      hasImprovedJJ: cs.hasImprovedJJ,
+      hasPrototypeIJJ: cs.hasPrototypeIJJ,
+      isXXLEngine,
+      engineType,
+      coolantPods: cs.coolantPods,
+      heatSinkCount: effectiveHSCount,
+      jumpHeatMP: jumpHeatMP,
+      aesArms: armAES,
+      aesLegs: hasLegAES ? (isQuad ? 4 : 2) : 0,
+      isIndustrialMech,
+      hasSCM: cs.hasSCM,
+    },
+    airMekFlankMP === undefined
+      ? undefined
+      : {
+          speedFactor: calculateOffensiveSpeedFactor(runMP, airMekFlankMP),
+        },
+  );
 
   const baseBV = defResult.totalDefensiveBV + offResult.totalOffensiveBV;
   // Cockpit type comes directly from unit data (now properly parsed from MTF source).

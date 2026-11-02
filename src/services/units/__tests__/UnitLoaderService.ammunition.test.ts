@@ -319,6 +319,11 @@ describe('BattleMech BV source parity', () => {
     expect(result.current.walkMP).toBe(4);
   });
 
+  it('LAM offensive speed uses AirMek flank movement', async () => {
+    const state = await load('stinger-lam-stg-a10');
+    const raw: UnitData = JSON.parse(JSON.stringify(state.bvContext?.source));
+    expect(calculateUnitBV(raw, raw.id).breakdown?.speedFactor).toBe(3.44);
+  });
   it.each(['armor', 'weapon', 'ammo', 'CASE'] as const)(
     '%s edits agree with independently edited gate inputs',
     async (change) => {
