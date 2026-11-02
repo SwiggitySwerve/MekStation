@@ -1,0 +1,136 @@
+{
+  "id": "warg-assault-battle-armor-reactivesqd5",
+  "chassis": "Warg Assault Battle Armor",
+  "model": "(Reactive)(Sqd5)",
+  "unitType": "BattleArmor",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3122,
+  "weightClass": "ASSAULT",
+  "chassisType": "BIPED",
+  "motionType": "GROUND",
+  "movement": {
+    "groundMP": 1,
+    "jumpMP": 0,
+    "umuMP": 0,
+    "vtolMP": 0
+  },
+  "tonnage": 5,
+  "squadSize": 5,
+  "armorPerTrooper": 16,
+  "armor": {
+    "type": "REACTIVE",
+    "perTrooper": 16,
+    "sourceTechLevel": 6
+  },
+  "manipulators": {
+    "rightArm": "BABasicManipulator",
+    "leftArm": "BAHeavyBattleClaw"
+  },
+  "hasAntiPersonnelMount": false,
+  "hasModularWeaponMount": false,
+  "abilities": [],
+  "equipment": [
+    {
+      "id": "clbasmallpulselaser",
+      "name": "CLBASmallPulseLaser",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "cladvancedsrm2",
+      "name": "CLAdvancedSRM2",
+      "location": "BODY",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "ba-advanced-srm-2-ammo",
+      "name": "BA-Advanced SRM-2 Ammo",
+      "location": "BODY",
+      "shots": 3,
+      "unitLocation": "Point"
+    },
+    {
+      "id": "cladvancedsrm2",
+      "name": "CLAdvancedSRM2",
+      "location": "BODY",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "ba-advanced-srm-2-ammo",
+      "name": "BA-Advanced SRM-2 Ammo",
+      "location": "BODY",
+      "shots": 3,
+      "unitLocation": "Point"
+    },
+    {
+      "id": "baheavybattleclaw",
+      "name": "BAHeavyBattleClaw",
+      "location": "LEFT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "babasicmanipulator",
+      "name": "BABasicManipulator",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-reactive-blazer",
+      "name": "Clan BA Reactive (Blazer)",
+      "location": "LEFT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-reactive-blazer",
+      "name": "Clan BA Reactive (Blazer)",
+      "location": "LEFT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-reactive-blazer",
+      "name": "Clan BA Reactive (Blazer)",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-reactive-blazer",
+      "name": "Clan BA Reactive (Blazer)",
+      "location": "LEFT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-reactive-blazer",
+      "name": "Clan BA Reactive (Blazer)",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-reactive-blazer",
+      "name": "Clan BA Reactive (Blazer)",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-reactive-blazer",
+      "name": "Clan BA Reactive (Blazer)",
+      "location": "LEFT_ARM",
+      "unitLocation": "Point"
+    }
+  ],
+  "clanChassis": true,
+  "isExoskeleton": false,
+  "clanExoWithoutHarJel": false,
+  "mulId": 8802,
+  "role": "Juggernaut",
+  "source": "TR:3145",
+  "fluff": {
+    "overview": "<p>Clan Wolf developed the Warg assault battle armor during the post-Jihad period as a deliberate departure from the Clan's traditional emphasis on mobility. Designed from the ground up at WC Site OZ-2 on Tamar, the Warg was built to hold fixed defensive positions against heavy assault, filling a role that lighter Wolf battle armor designs could not. The suit carried a diverse weapon loadout for a Clan design and mounted armor protection that ranked among the thickest in its weight class. The Warg marked Clan Wolf's acknowledgment that shifting strategic realities demanded battle armor capable of absorbing punishment rather than simply delivering it.</p>",
+    "capabilities": "<p>The Reactive variant replaces the Warg's standard armor with reactive plating, improving protection against missile and ballistic threats at the expense of the left-arm light machine gun. The shoulder-mounted launchers were upgraded to Advanced SRM-3 racks, providing improved accuracy and damage output compared to the original configuration despite a smaller overall missile footprint. The right-arm small pulse laser and heavy battle claw remain unchanged, preserving the suit's core anti-armor and close-quarters capability.</p><p>The trade of the machine gun for enhanced survivability reflects Clan Wolf's operational experience with the base design, where the suit's slow speed often brought it under concentrated fire before reaching effective engagement range.</p>",
+    "deployment": "<p>Clan Wolf Points equipped with the Reactive variant benefited from improved protection against the ballistic and missile threats most commonly encountered in defensive operations. Five-trooper Points carrying the upgraded launchers delivered more precise volleys than the original configuration, making the Reactive Warg a preferred assignment for garrison clusters defending high-value positions.</p>",
+    "history": "<p>The Jihad left Clan Wolf's borders under siege from multiple directions. Punitive strikes by Word of Blake forces destroyed key manufacturing infrastructure, and the return of Clan Hell's Horses to the Inner Sphere further strained Wolf resources. Forced to adopt a more defensive posture, the Wolf leadership recognized a need for heavier battle armor to supplement their frontline OmniMech formations. The success of Clan Jade Falcon's Ironhold suit proved the final catalyst, convincing Wolf leadership to invest in a heavier design class.</p><p>Khan Ward authorized a ground-up assault suit design program, rejecting outside assistance from Clan Diamond Shark despite repeated attempts to gain access. Development proceeded slowly over six years, with the first Warg suits entering service in 3085. Production began on Tamar, though the line later relocated to Stewart's Corean Enterprises facility as Clan Wolf shifted its industrial base. The Reactive armor variant followed in 3122, reflecting continued investment in the design.</p>",
+    "manufacturer": "WC Site OZ-2|Corean Enterprises - MacAdams-Suharno",
+    "primaryFactory": "Tamar|Stewart"
+  }
+}

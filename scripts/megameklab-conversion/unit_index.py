@@ -12,6 +12,9 @@ BattleMech and an aerospace fighter. Before writing anything it checks every
 selected family; a duplicate id, or a family named with ``--family`` that does
 not exist, exits 1 and writes nothing. Without ``--write`` it is a dry run, so a
 scratch directory can be checked without touching ``public/data``.
+
+The three pre-ingest synthetic battle armor BV fixtures stay available to
+their existing consumers but are deliberately excluded from source indexes.
 """
 
 from __future__ import annotations
@@ -26,14 +29,19 @@ from typing import Any, Dict, List, Optional
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _UNITS_ROOT = _REPO_ROOT / "public" / "data" / "units"
 
-DEFAULT_FAMILIES = ("vehicles", "aerospace", "capital", "infantry")
+DEFAULT_FAMILIES = ("vehicles", "aerospace", "capital", "infantry", "battlearmor")
 # Files in a units tree that are not units. The one owner of this list;
 # run_schema_validation_only.py imports it.
 NON_UNIT_FILES = frozenset({"index.json", "units-manifest.json"})
 # Pre-ingest samples remain at their existing paths for fixture consumers.
-LEGACY_INFANTRY_FIXTURES = frozenset({
-    "foot-rifle-platoon.json", "jump-srm-platoon.json", "mechanized-tracked-platoon.json",
-})
+LEGACY_FIXTURES = {
+    "battlearmor": frozenset({
+        "clan-sylph-sqd5.json", "elemental-standard-sqd5.json", "is-cavalier-sqd4.json",
+    }),
+    "infantry": frozenset({
+        "foot-rifle-platoon.json", "jump-srm-platoon.json", "mechanized-tracked-platoon.json",
+    }),
+}
 
 # The one owner of the index file shape. mtf_converter.generate_index (the
 # BattleMech index) uses these too; family indexes add `unitType` after `model`.
@@ -71,7 +79,7 @@ def generate_index(family_dir: Path, generated_at: Optional[str] = None) -> Dict
     units: List[Dict[str, Any]] = []
     for unit_file in sorted(family_dir.rglob("*.json")):
         rel = unit_file.relative_to(family_dir).as_posix()
-        if unit_file.name in NON_UNIT_FILES or (family_dir.name == "infantry" and rel in LEGACY_INFANTRY_FIXTURES):
+        if unit_file.name in NON_UNIT_FILES or rel in LEGACY_FIXTURES.get(family_dir.name, ()):
             continue
         unit = json.loads(unit_file.read_text(encoding="utf-8"))
         units.append(build_index_entry(unit, rel))

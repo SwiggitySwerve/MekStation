@@ -10,11 +10,13 @@
  * @spec openspec/changes/establish-all-unit-data-parity/specs/battle-value-system/spec.md
  */
 import type { IProtoMechBVBreakdown } from '@/types/unit/BVBreakdownTypes';
+import type { IProtoMech } from '@/types/unit/PersonnelInterfaces';
 
 import { IProtoMechUnit, ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import { getPilotSkillModifier } from '@/types/validation/BattleValue';
 
 import { calculateBaseBV } from '../battleValueTotals';
+import { computeRunMP } from './movementCaps';
 import { calculateProtoDefensive } from './protoMechBVDefensive';
 import { calculateProtoOffensive } from './protoMechBVOffensive';
 
@@ -40,6 +42,23 @@ const PROTO_BV_PILOTING = 5;
 /** Neutral compatibility output; chassis effects belong to component rules. */
 export function getProtoChassisMultiplier(_chassis: ProtoChassis): number {
   return 1;
+}
+
+/**
+ * The handler's `IProtoMech` stores `cruiseMP` and the booster flag but no Run.
+ * Derive it with the Run owner (Entity.java:4004-4016, ProtoMek.java:612-627)
+ * so the dispatcher never reads an undefined Run. Only `equipmentId` and the
+ * location-keyed totals are read below, so the location enum types do not matter.
+ */
+export function toBVProtoMech(
+  unit: IProtoMechUnit | IProtoMech,
+): IProtoMechUnit {
+  if ('runMP' in unit) return unit;
+  return {
+    ...unit,
+    walkMP: unit.cruiseMP,
+    runMP: computeRunMP(unit.cruiseMP, unit.hasMyomerBooster),
+  } as unknown as IProtoMechUnit;
 }
 
 // =============================================================================

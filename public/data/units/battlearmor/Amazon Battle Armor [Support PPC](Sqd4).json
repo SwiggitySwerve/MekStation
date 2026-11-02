@@ -1,0 +1,99 @@
+{
+  "id": "amazon-battle-armor-[support-ppc]sqd4",
+  "chassis": "Amazon Battle Armor",
+  "model": "[Support PPC](Sqd4)",
+  "unitType": "BattleArmor",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "DARK_AGE",
+  "year": 3101,
+  "weightClass": "MEDIUM",
+  "chassisType": "BIPED",
+  "motionType": "JUMP",
+  "movement": {
+    "groundMP": 1,
+    "jumpMP": 3,
+    "umuMP": 0,
+    "vtolMP": 0
+  },
+  "tonnage": 4,
+  "squadSize": 4,
+  "armorPerTrooper": 10,
+  "armor": {
+    "type": "BA_STANDARD_ADVANCED",
+    "perTrooper": 10,
+    "sourceTechLevel": 11
+  },
+  "manipulators": {
+    "rightArm": null,
+    "leftArm": "BABattleClaw"
+  },
+  "hasAntiPersonnelMount": false,
+  "hasModularWeaponMount": false,
+  "abilities": [],
+  "equipment": [
+    {
+      "id": "babattleclaw",
+      "name": "BABattleClaw",
+      "location": "LEFT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "isbasupportppc",
+      "name": "ISBASupportPPC",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "is-ba-advanced",
+      "name": "IS BA Advanced",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "is-ba-advanced",
+      "name": "IS BA Advanced",
+      "location": "LEFT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "is-ba-advanced",
+      "name": "IS BA Advanced",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "is-ba-advanced",
+      "name": "IS BA Advanced",
+      "location": "LEFT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "is-ba-advanced",
+      "name": "IS BA Advanced",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "bajumpjet",
+      "name": "BAJumpJet",
+      "location": "NONE",
+      "unitLocation": "NONE"
+    }
+  ],
+  "clanChassis": false,
+  "isExoskeleton": false,
+  "clanExoWithoutHarJel": false,
+  "mulId": 6429,
+  "role": "Ambusher",
+  "source": "TR:3145:CC,TR:3145",
+  "quirks": ["easy_pilot"],
+  "fluff": {
+    "overview": "<p>The Amazon is a medium battle armor suit developed by Foxx Infantry Systems for the Magistracy of Canopus. Introduced in 3101, the design builds on a proven lineage of Inner Sphere battle armor platforms, emphasizing improved protection and mobility over technological novelty. Tougher and better armed than many of its contemporaries, the Amazon has earned a reputation as one of the strongest middleweight contenders fielded by any Inner Sphere power. Its adoption by the Capellan Confederation through the Trinity Alliance partnership further broadened the suit's operational reach, establishing it as a common sight on battlefields across the Capellan March and the near Periphery.</p>",
+    "capabilities": "<p>This configuration replaces the ballistic option with a support particle projector cannon on the right arm's modular weapon mount. The energy weapon eliminates ammunition dependency entirely, giving troopers sustained firepower during extended operations without the logistical burden of resupply. The left arm retains the standard battle claw for anti-BattleMech attacks and OmniMech transport capability.</p><p>The support PPC generates considerably more heat than the recoilless rifle alternative, and its effective range profile differs, favoring engagements at closer distances where the particle bolt's damage potential is maximized. Troopers must manage their rate of fire more carefully to avoid overheating the suit. The same advanced armor and 90-meter jump capability found in the ballistic configuration apply here, giving identical survivability and mobility regardless of weapon selection. For commanders anticipating prolonged engagements where resupply may be uncertain, the energy weapon configuration offers a self-sufficient alternative at the cost of sustained volume of fire.</p>",
+    "deployment": "<p>Inner Sphere militaries deploying the Amazon in standard four-trooper squads favor the energy weapon configuration for rapid reaction forces and garrison duty where ammunition resupply cannot be guaranteed. Capellan Confederation March Militia units have shown particular preference for this loadout, pairing Amazon squads with BattleMech lances as close-assault support capable of sustained engagement.</p>",
+    "history": "<p>The Amazon emerged from a Magistracy of Canopus program to develop a next-generation medium battle armor suit capable of competing with designs fielded by the Great Houses. Foxx Infantry Systems on Royal Foxx drew heavily on the proven Inner Sphere Standard platform, refining its protective qualities and mobility while retaining the simplicity that made the original so widely adopted. The suit entered service in 3101.</p><p>The Amazon's first operational test came during a bandit raid in the Bass system, where two squads tracked and destroyed an isolated Awesome through the streets of Nortown. Three suits were lost in the engagement, but the suit's ability to absorb punishment while pressing an attack validated the design philosophy.</p><p>The Capellan Confederation quickly adopted the Amazon through the Trinity Alliance partnership. During a raid on Sirdar in 3110, Capellan Amazons proved decisively superior to the Cavalier suits fielded by the Armed Forces of the Federated Suns. Deployed from Yùn aerospace fighters directly into the engagement zone, the Amazons overwhelmed opposing battle armor and contributed to a successful counterattack against Davion armored forces. By 3145, the Amazon had become one of several Magistracy designs forming a significant portion of the CCAF's battle armor inventory alongside the Longinus and Achileus.</p>",
+    "manufacturer": "Foxx Infantry Systems",
+    "primaryFactory": "Royal Foxx"
+  }
+}
