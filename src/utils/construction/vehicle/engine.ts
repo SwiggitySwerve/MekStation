@@ -7,7 +7,6 @@
  * Key rules:
  * - Engine rating subtracts suspension, then rounds upward to five
  * - Max engine rating for vehicles: 400
- * - Hover/VTOL/WiGE cannot use ICE engines
  * - ICE engine weight multiplier: 2.0 × fusion base weight
  * - Fusion/fission installed shielding: 1.5 × rounded engine weight
  * - Fission minimum before shielding: 5 tons
@@ -32,16 +31,6 @@ import suspensionTable from './suspension.json';
 export const VEHICLE_MAX_ENGINE_RATING = 400;
 
 /**
- * Motion types that require fusion-based engines (cannot use ICE)
- */
-const FUSION_REQUIRED_MOTION_TYPES: ReadonlySet<GroundMotionType> = new Set([
-  GroundMotionType.HOVER,
-  GroundMotionType.VTOL,
-  GroundMotionType.WIGE,
-  GroundMotionType.HYDROFOIL,
-]);
-
-/**
  * Engine types considered non-fusion for engine classification and motion
  * restrictions (MegaMek 48fcb2f6 Engine.isFusion, Engine.java:361-365).
  * Power-amplifier requirements are decided separately by
@@ -55,13 +44,6 @@ export const NON_FUSION_ENGINE_TYPES: ReadonlySet<VehicleEngineType> = new Set([
   VehicleOnlyEngineType.STEAM,
   VehicleOnlyEngineType.BATTERY,
 ]);
-
-/**
- * Check if a motion type requires a fusion-based engine
- */
-export function requiresFusionEngine(motionType: GroundMotionType): boolean {
-  return FUSION_REQUIRED_MOTION_TYPES.has(motionType);
-}
 
 /**
  * Check if an engine type is fusion-powered
@@ -325,7 +307,6 @@ export interface VehicleEngineValidationResult {
  *
  * Emits VAL-VEHICLE-ENGINE errors for:
  * - Rating exceeds 400
- * - ICE/Fission on Hover/VTOL/WiGE/Hydrofoil
  */
 export function validateVehicleEngine(
   tonnage: number,
@@ -362,19 +343,6 @@ export function validateVehicleEngine(
     errors.push({
       ruleId: 'VAL-VEHICLE-ENGINE',
       message: `Engine rating ${engineRating} exceeds maximum ${VEHICLE_MAX_ENGINE_RATING}`,
-    });
-  }
-
-  // Rule: fusion engine required for certain motion types
-  if (
-    engineType !== null &&
-    !engineLess &&
-    requiresFusionEngine(motionType) &&
-    !isVehicleFusionEngine(engineType)
-  ) {
-    errors.push({
-      ruleId: 'VAL-VEHICLE-ENGINE',
-      message: `${motionType} vehicles require a Fusion, XL, Light, or Fuel Cell engine — ${engineType} is not permitted`,
     });
   }
 

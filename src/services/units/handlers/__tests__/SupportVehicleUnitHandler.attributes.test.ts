@@ -114,14 +114,17 @@ describe('SupportVehicleUnitHandler', () => {
       expect(result.data?.unit?.armorTechRating).toBe(7);
     });
 
-    it('should parse engine tech rating', () => {
-      const doc = createMockBlkDocument({
-        rawTags: { enginetechrating: '8' },
-      });
-      const result = handler.parse(doc);
+    // BLKSupportTankFile.java:137-151 reads engine_tech_rating (rating A is 0)
+    // and Entity.getEngineTechRating falls back to the structural rating.
+    it.each([
+      [{ engine_tech_rating: '2' }, 2],
+      [{ engine_tech_rating: '0', structural_tech_rating: '4' }, 0],
+      [{ structural_tech_rating: '4' }, 4],
+    ])('should parse engine tech rating from %j', (rawTags, expected) => {
+      const result = handler.parse(createMockBlkDocument({ rawTags }));
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.engineTechRating).toBe(8);
+      expect(result.data?.unit?.engineTechRating).toBe(expected);
     });
 
     it('should default tech ratings to 5', () => {

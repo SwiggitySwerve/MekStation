@@ -10,10 +10,7 @@ import type {
   ITurretConfiguration,
 } from '@/types/unit/VehicleInterfaces';
 
-import {
-  VehicleOnlyEngineType,
-  type VehicleEngineType,
-} from '@/types/construction/EngineType';
+import { type VehicleEngineType } from '@/types/construction/EngineType';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { IEquipmentItem } from '@/types/equipment';
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
@@ -126,11 +123,9 @@ export function computeVehicleWeightBreakdown(
     cruiseMP: state.cruiseMP,
     engineTechRating: state.engineTechRating,
   };
-  // Only the vehicle-only engines take Java's support table here; the other
-  // support engines keep the legacy combat derivation characterized in tests.
+  // Every support engine takes Java's support table (Engine.getWeightEngine).
   const engine =
-    state.unitType === UnitType.SUPPORT_VEHICLE &&
-    Object.values<string>(VehicleOnlyEngineType).includes(state.engineType)
+    state.unitType === UnitType.SUPPORT_VEHICLE
       ? computeSupportVehicleEngineWeight(
           state.engineRating,
           state.engineType,
