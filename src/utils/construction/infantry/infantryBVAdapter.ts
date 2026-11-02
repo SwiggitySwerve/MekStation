@@ -43,8 +43,7 @@ import { findWeaponById, INFANTRY_WEAPON_TABLE } from './weaponTable';
  * Minimal subset of the infantry store state required to compute BV.
  *
  * We deliberately avoid importing `InfantryStore` here to keep the calculator
- * free of Zustand typing and to prevent a circular store <-> calculator
- * dependency. Any state that conforms to this shape can feed the calculator.
+ * free of Zustand typing and a circular store <-> calculator dependency.
  */
 export interface InfantryStateLike {
   hasArmorKit?: boolean;
@@ -420,16 +419,18 @@ export function resolveInfantryProtection(tags: SourceTags): {
   hasPheromoneEffuser: boolean;
   isArmorEncumbering: boolean;
   hasArmorKit: boolean;
+  armorKitCount: number;
   bvArmorFlags: readonly string[];
 } {
   const custom = Number(tags.armordivisor ?? tags.InfantryArmor ?? 1);
   if (!Number.isFinite(custom) || custom <= 0)
     throw new Error('Invalid infantry damage divisor');
   // BLKInfantryFile equips the legacy kit before Troopers Equipment.
-  const kitName = [
+  const kitNames = [
     ...values(tags, 'armorKit'),
     ...values(tags, 'Troopers Equipment'),
-  ].find((name) => KIT_DIVISORS.has(name.toLowerCase()));
+  ].filter((name) => KIT_DIVISORS.has(name.toLowerCase()));
+  const kitName = kitNames[0];
   const kit = kitName ? KIT_DIVISORS.get(kitName.toLowerCase()) : undefined;
   let divisor = kit ?? custom;
   const augmentations = values(tags, 'augmentation');
@@ -477,6 +478,7 @@ export function resolveInfantryProtection(tags: SourceTags): {
   return {
     damageDivisor: divisor,
     hasArmorKit: kitName !== undefined,
+    armorKitCount: kitNames.length,
     bvArmorFlags: infantryBVArmorFlags(tags, kitName),
     hasPheromoneEffuser: augmentations.includes('gas_effuser_pheromone'),
     isArmorEncumbering: kitName
