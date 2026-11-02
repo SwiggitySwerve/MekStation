@@ -113,7 +113,10 @@ function calculateHeatEfficiency(
  */
 export function calculateHeatTrackedWeapons<
   T extends { bv: number; heat: number },
->(weapons: readonly T[], heatEfficiency: number) {
+>(
+  weapons: readonly T[],
+  heatEfficiency: number,
+): { weapon: T; adjustedBV: number; heatDiscount: boolean }[] {
   let heatExceeded = heatEfficiency <= 0;
   let heatSum = 0;
   return [...weapons].sort(heatSorter).map((weapon) => {
