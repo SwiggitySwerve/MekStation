@@ -10,8 +10,10 @@ import type {
   IAerospaceBVInput,
 } from './aerospaceBVTypes';
 
+import { HeatSinkType } from '../../../types/construction/HeatSinkType';
 import { AerospaceSubType } from '../../../types/unit/AerospaceInterfaces';
 import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+import { calculateHeatDissipation } from '../heatSinkCalculations';
 import { calculateAerospaceBV } from './aerospaceBVCalculator';
 
 // ============================================================================
@@ -33,6 +35,7 @@ export type AerospaceBVDispatchInput = (
   | IAerospaceUnit
 ) & {
   readonly isSupportVehicle?: boolean;
+  readonly heatCapacity?: number;
   readonly sourceTechType?: string;
   readonly year?: number;
 };
@@ -120,6 +123,16 @@ export function buildAerospaceBVInputFromUnit(
     structuralIntegrity: unit.structuralIntegrity,
     safeThrust: unit.movement.safeThrust,
     maxThrust: unit.movement.maxThrust,
+    heatCapacity:
+      unit.heatCapacity ??
+      (unit.heatSinks === undefined
+        ? undefined
+        : calculateHeatDissipation(
+            unit.heatSinkType === 1
+              ? HeatSinkType.DOUBLE_IS
+              : HeatSinkType.SINGLE,
+            unit.heatSinks,
+          )),
     armorType: resolveAerospaceArmorTypeKey(
       (unit as { readonly armorType?: string | number }).armorType,
     ),

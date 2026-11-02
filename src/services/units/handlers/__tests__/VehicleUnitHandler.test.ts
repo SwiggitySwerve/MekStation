@@ -459,13 +459,14 @@ describe('VehicleUnitHandler', () => {
   });
 
   describe('calculations', () => {
-    it('should calculate weight', () => {
+    it('should explicitly reject incomplete weight totals', () => {
       const doc = createMockBlkDocument();
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const weight = handler.calculateWeight(result.data!.unit);
-      expect(weight).toBeGreaterThan(0);
+      expect(() => handler.calculateWeight(result.data!.unit)).toThrow(
+        /weight is incomplete/,
+      );
     });
 
     it('should calculate BV', () => {

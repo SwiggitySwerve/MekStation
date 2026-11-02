@@ -49,13 +49,9 @@ export function calculateAerospaceDefensiveBV(
 } {
   const armorMultiplier = getArmorBVMultiplier(input.armorType);
   const capital = isCapitalShipBVType(input.subType);
-  const smallCraftArmorBonus =
-    input.subType === AerospaceSubType.SMALL_CRAFT ? 1.2 : 1.0;
+  // BVCalculator.java:461-463: SmallCraft inherits the ordinary armor factor.
   const armorBV =
-    input.totalArmorPoints *
-    (capital ? 25 : 2.5) *
-    armorMultiplier *
-    smallCraftArmorBonus;
+    input.totalArmorPoints * (capital ? 25 : 2.5) * armorMultiplier;
 
   // AeroBVCalculator.java:64-70; aircraft and DropShips use SI x 2.
   // @spec establish-all-unit-data-parity: Aerospace Defensive BV

@@ -60,6 +60,8 @@ export interface IAerospaceBVInput {
   readonly structuralIntegrity: number;
   readonly safeThrust: number;
   readonly maxThrust: number;
+  /** Dissipation per turn; absent cooling retains the legacy unheated pool. */
+  readonly heatCapacity?: number;
   readonly armorType: string;
   readonly totalArmorPoints: number;
   readonly equipment: readonly IAerospaceBVEquipment[];

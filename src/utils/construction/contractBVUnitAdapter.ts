@@ -30,6 +30,7 @@ import type { ICapitalShipBVUnit } from './aerospace/capitalShipBV';
 import type { IDropShipBVUnit } from './aerospace/dropShipBV';
 
 import { isCapitalShipBVType } from './aerospace/aerospaceBVTypes';
+import { calculateHeatDissipation } from './heatSinkCalculations';
 
 /** The subset of a converter / `UnitContract` unit this adapter reads. */
 export interface IContractBVSource {
@@ -90,6 +91,7 @@ export interface IContractBVVehicle {
 
 /** Domain-shaped aerospace value accepted by `calculateBattleValueForUnit`. */
 export interface IContractBVAerospace {
+  readonly heatCapacity?: number;
   readonly isSupportVehicle: boolean;
   readonly techBase?: string;
   readonly sourceTechType?: string;
@@ -244,6 +246,12 @@ function contractAerospaceToBVUnit(
   }
   return {
     unitType: unit.unitType as IContractBVAerospace['unitType'],
+    heatCapacity: unit.heatSinks
+      ? calculateHeatDissipation(
+          mapHeatSinkType(unit.heatSinks.type),
+          unit.heatSinks.count,
+        )
+      : undefined,
     isSupportVehicle: unit.subType === 'FixedWingSupport',
     techBase: unit.techBase,
     sourceTechType: unit.sourceTechType,
