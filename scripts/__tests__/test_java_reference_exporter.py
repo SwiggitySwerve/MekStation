@@ -18,6 +18,7 @@ import java_reference_exporter as exporter
 from java_reference_exporter import FAMILY_DIRS, FIXTURE_EXTRAS, KNOWN_REFERENCES, list_sources, selfcheck
 
 FIXTURE = Path(__file__).resolve().parent / 'fixtures' / 'java_reference_vehicle_aero_capital.json'
+NEW_FIXTURE = FIXTURE.with_name('java_reference_mek_infantry_proto.json')
 AERO_FAMILIES = ('AeroSpaceFighter', 'ConvFighter')
 
 
@@ -25,7 +26,8 @@ class JavaReferenceExporterTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.fixture = json.loads(FIXTURE.read_text(encoding='utf-8'))
-        cls.rows = cls.fixture['rows']
+        cls.new_fixture = json.loads(NEW_FIXTURE.read_text(encoding='utf-8'))
+        cls.rows = cls.fixture['rows'] + cls.new_fixture['rows']
         cls.sorted_rows = sorted(cls.rows, key=lambda r: r['path'])
 
     def test_exporter_reproduces_the_known_references(self):
@@ -70,6 +72,8 @@ class JavaReferenceExporterTest(unittest.TestCase):
                 exporter.main()
             finally:
                 self.summary = json.loads(summary.read_text()) if summary.exists() else None
+                failures = Path(temp) / 'failures.json'
+                self.failures = json.loads(failures.read_text()) if failures.exists() else None
         return self.calls
 
     def test_failed_selfcheck_stops_before_the_corpus_run(self):
@@ -83,6 +87,9 @@ class JavaReferenceExporterTest(unittest.TestCase):
     def test_clean_selfcheck_runs_the_corpus(self):
         self.assertEqual(self.run_main(sorted(self.rows, key=lambda r: r['path']), self.rows), ['selfcheck', 'full'])
         self.assertEqual((self.summary['sourceDrift'], self.summary['pathsReconciled']), (0, True))
+        for directory, counts in self.summary['byDirectory'].items():
+            expected = sum(row['path'].startswith(directory + '/') for row in self.rows)
+            self.assertEqual(counts, {'pinnedSources': expected, 'sources': expected, 'rows': expected})
 
     def test_corpus_run_fails_when_a_non_reference_source_drifts(self):
         drifted = copy.deepcopy(self.rows)
@@ -115,9 +122,14 @@ class JavaReferenceExporterTest(unittest.TestCase):
         full = copy.deepcopy(self.rows)
         others = [r for r in full if r['path'] not in KNOWN_REFERENCES]
         others[0]['status'] = 'failed'
+        others[0]['failure'] = {'stage': 'entity-loading', 'message': 'unreadable unit'}
+        others[0].pop('concreteFamily')
         others[1]['stageFailure'] = {'stage': 'battle-value'}
         self.run_main(self.rows, full)
         self.assertEqual((self.summary['loadFailures'], self.summary['stageFailures']), (1, 1))
+        self.assertEqual(self.summary['byClass']['failed'], 1)
+        self.assertEqual(self.failures, [{'path': others[0]['path'], 'failure': others[0]['failure']},
+                                        {'path': others[1]['path'], 'failure': others[1]['stageFailure']}])
 
     def test_pick_fixture_takes_references_and_the_lowest_hash_extras_per_class(self):
         def row(path, family, sha):
@@ -144,11 +156,23 @@ class JavaReferenceExporterTest(unittest.TestCase):
                 (root / 'pinned-results/runtime-dependencies.json').write_text(json.dumps([{'file': str(jar), 'sha256': exporter.digest(jar)}]))
                 exporter.verify_runtime()
 
-    def test_fixture_is_about_forty_units_covering_every_family(self):
-        self.assertTrue(36 <= len(self.rows) <= 44, len(self.rows))
+    def test_fixtures_preserve_old_families_and_add_twelve_references(self):
+        self.assertEqual(len(self.fixture['rows']), 39)
+        self.assertEqual(len(self.new_fixture['rows']), 12)
+        self.assertEqual(self.fixture['pins'], self.new_fixture['pins'])
         families = {r['concreteFamily'] for r in self.rows}
         self.assertEqual(families, {f for f, _, _ in KNOWN_REFERENCES.values()} | set(FIXTURE_EXTRAS))
         self.assertTrue(all(r['status'] == 'loaded' and 'stageFailure' not in r for r in self.rows))
+
+    def test_new_references_carry_family_specific_bv_inputs(self):
+        expected = {'meks': {'gyroType', 'cockpitType', 'heatCapacity', 'structureType'},
+                    'battlearmor': {'squadSize', 'shootingStrength', 'antiMek', 'stealth'},
+                    'infantry': {'squadCount', 'damageDivisor', 'primaryWeapon', 'specializations'},
+                    'protomeks': {'glider', 'quad', 'mainGun'}}
+        for row in self.new_fixture['rows']:
+            self.assertTrue(expected[row['path'].split('/')[0]] <= row['familyFacts'].keys(), row['path'])
+            self.assertIn('bvJumpMP', row['familyFacts'])
+        self.assertTrue(all('familyFacts' not in row for row in self.fixture['rows']))
 
     def test_rows_carry_bv_aggregate_construction_weights_and_si(self):
         for row in self.rows:
@@ -166,19 +190,39 @@ class JavaReferenceExporterTest(unittest.TestCase):
 
     def test_list_sources_covers_family_directories_only(self):
         with tempfile.TemporaryDirectory() as temp:
-            for name in ('vehicles/b/Two.blk', 'vehicles/One.blk', 'fighters/x.blk', 'dropships/y.blk', 'meks/Atlas.mtf', 'meks/skip.blk', 'vehicles/note.txt'):
+            expected = ['battlearmor/Elemental.blk', 'dropships/y.blk', 'fighters/x.blk', 'infantry/Foot.blk', 'meks/Atlas.mtf', 'protomeks/Roc.blk', 'vehicles/One.blk', 'vehicles/b/Two.blk']
+            excluded = ['meks/skip.blk', 'battlearmor/skip.mtf', 'vehicles/note.txt', 'vehicles/support.bfs', 'ge/unit.blk', 'advancedbuildings/unit.blk', 'handheld/unit.blk', 'battlefieldsupport/unit.bfs']
+            for name in expected + excluded:
                 path = Path(temp) / name
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text('x')
-            self.assertEqual(list_sources(temp), ['dropships/y.blk', 'fighters/x.blk', 'vehicles/One.blk', 'vehicles/b/Two.blk'])
+            self.assertEqual(list_sources(temp), expected)
 
     def test_list_sources_reads_every_family_directory(self):
         with tempfile.TemporaryDirectory() as temp:
             for family in FAMILY_DIRS:
                 (Path(temp) / family).mkdir()
-                (Path(temp) / family / 'unit.blk').write_text('x')
-            self.assertEqual(list_sources(temp), sorted(f'{family}/unit.blk' for family in FAMILY_DIRS))
-            self.assertEqual(len(FAMILY_DIRS), 8)
+                (Path(temp) / family / ('unit.mtf' if family == 'meks' else 'unit.blk')).write_text('x')
+            self.assertEqual(list_sources(temp), sorted(f'{family}/unit.mtf' if family == 'meks' else f'{family}/unit.blk' for family in FAMILY_DIRS))
+            self.assertEqual(len(FAMILY_DIRS), 12)
+
+    def test_each_new_family_has_at_least_three_known_references(self):
+        for directory in ('meks', 'battlearmor', 'infantry', 'protomeks'):
+            self.assertGreaterEqual(sum(path.startswith(directory + '/') for path in KNOWN_REFERENCES), 3, directory)
+
+    def test_new_family_bv_drift_stops_before_corpus_loading(self):
+        for directory in ('meks', 'battlearmor', 'infantry', 'protomeks'):
+            with self.subTest(directory=directory):
+                rows = copy.deepcopy(self.rows)
+                next(row for row in rows if row['path'].startswith(directory + '/'))['battleValue']['total'] += 1
+                with self.assertRaises(SystemExit):
+                    self.run_main(rows, self.rows)
+                self.assertEqual(self.calls, ['selfcheck'])
+
+    def test_missing_pinned_mtf_counts_as_a_missing_source(self):
+        manifest = [{'path': 'data/mekfiles/meks/Missing.mtf', 'sha256': '0' * 64},
+                    {'path': 'data/mekfiles/handheld/Excluded.blk', 'sha256': '0' * 64}]
+        self.assertEqual(exporter.missing_sources([], manifest), ['meks/Missing.mtf'])
 
 
 if __name__ == '__main__':
