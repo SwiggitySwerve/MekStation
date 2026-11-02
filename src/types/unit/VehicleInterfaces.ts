@@ -39,8 +39,6 @@ export enum TurretType {
 export interface ITurretConfiguration {
   /** Type of turret */
   readonly type: TurretType;
-  /** Current turret weight usage */
-  readonly currentWeight: number;
   /** Turret rotation arc (degrees, 0 for fixed) */
   readonly rotationArc: number;
 }

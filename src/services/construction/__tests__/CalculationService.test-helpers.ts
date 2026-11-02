@@ -367,8 +367,8 @@ describe('CalculationService', () => {
     });
 
     it('should increase BV with higher movement', () => {
-      const slowMech = createTestMech({ walkMP: 2 });
-      const fastMech = createTestMech({ walkMP: 6 });
+      const slowMech = createTestMech({ walkMP: 2, engineRating: 200 });
+      const fastMech = createTestMech({ walkMP: 6, engineRating: 600 });
 
       const slowBV = service.calculateBattleValue(slowMech);
       const fastBV = service.calculateBattleValue(fastMech);
@@ -379,6 +379,7 @@ describe('CalculationService', () => {
     it('should feed the BV engine the rounded-up run MP for odd walk MP', () => {
       const mech = createTestMech({
         walkMP: 5,
+        engineRating: 500,
         equipment: [
           createEquipmentSlot('medium-laser', 'rightArm', 0),
           createEquipmentSlot('medium-laser', 'leftArm', 0),

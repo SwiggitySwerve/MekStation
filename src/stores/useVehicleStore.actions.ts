@@ -182,22 +182,6 @@ export function setLocationArmorLogic(
   };
 }
 
-export function setTurretWeightLogic(
-  state: VehicleStore,
-  weight: number,
-): Partial<VehicleStore> | VehicleStore {
-  if (!state.turret) return state;
-
-  return {
-    turret: {
-      ...state.turret,
-      currentWeight: weight,
-    },
-    isModified: true,
-    lastModifiedAt: Date.now(),
-  };
-}
-
 export function setTurretTypeLogic(
   state: Pick<VehicleState, 'turret' | 'tonnage' | 'armorAllocation'>,
   type: TurretType,
@@ -217,10 +201,10 @@ export function setTurretTypeLogic(
   }
 
   const turret: ITurretConfiguration = state.turret
-    ? { ...state.turret, type }
+    ? { type, rotationArc: state.turret.rotationArc }
     : {
         type,
-        currentWeight: 0,
+
         rotationArc: 360,
       };
 
@@ -266,7 +250,7 @@ export function setHasSecondaryTurretLogic(
 
   const secondaryTurret: ITurretConfiguration = {
     type: TurretType.SINGLE,
-    currentWeight: 0,
+
     rotationArc: 360,
   };
   return {
@@ -295,7 +279,7 @@ export function setSecondaryTurretTypeLogic(
     return setHasSecondaryTurretLogic(state, false);
   }
   return {
-    secondaryTurret: { ...state.secondaryTurret, type },
+    secondaryTurret: { type, rotationArc: state.secondaryTurret.rotationArc },
     isModified: true,
     lastModifiedAt: Date.now(),
   };

@@ -17,7 +17,7 @@ describe('VTOL chin configuration compatibility', () => {
       expect(result.success).toBe(true);
       expect(result.data?.unit.chinTurret).toEqual({
         type: TurretType.CHIN,
-        currentWeight: 0,
+
         rotationArc: 180,
       });
     },
@@ -35,7 +35,7 @@ describe('VTOL chin configuration compatibility', () => {
       expect(result.success).toBe(true);
       expect(result.data?.unit.chinTurret).toEqual({
         type: TurretType.CHIN,
-        currentWeight: 0,
+
         rotationArc: 180,
       });
     },
