@@ -2,6 +2,7 @@ import type { IEditableMech } from '@/services/construction/MechBuilderService';
 import type { IUnitConfig } from '@/services/printing/recordsheet/types';
 
 import { getCalculationService } from '@/services/construction/CalculationService';
+import { calculateRatedWalkMP } from '@/utils/construction/engineCalculations';
 import { logger } from '@/utils/logger';
 
 import {
@@ -34,9 +35,12 @@ export interface BattleMechPreviewProjection {
 export function getMovementProfile(
   engineRating: number,
   tonnage: number,
+  cockpitType = '',
 ): { walkMP: number; runMP: number } {
   const walkMP =
-    engineRating > 0 && tonnage > 0 ? Math.floor(engineRating / tonnage) : 0;
+    engineRating > 0 && tonnage > 0
+      ? calculateRatedWalkMP(engineRating, tonnage, cockpitType)
+      : 0;
   return {
     walkMP,
     runMP: Math.ceil(walkMP * 1.5),
@@ -73,6 +77,7 @@ export function buildBattleMechPreviewProjection(
   const { walkMP, runMP } = getMovementProfile(
     state.engineRating,
     state.tonnage,
+    state.cockpitType,
   );
   const editableMech = buildEditableMech(state, walkMP);
   const { battleValue, cost } = calculateBattleValueAndCost(editableMech);
