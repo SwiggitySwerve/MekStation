@@ -86,16 +86,6 @@ def build_equipment_list(
     """Build equipment list from weapons data and selected critical-only equipment."""
     equipment: List[SerializedEquipment] = []
     seen: Set[Tuple[str, str, bool]] = set()
-    critical_ids, consumed = {}, {}
-    for section, items in (criticals or {}).items():
-        for item in items:
-            clean = _clean_critical_equipment_name(item)
-            rear = _clean_rear_mount_suffix(clean) != clean
-            candidate = normalize_equipment_id(_clean_rear_mount_suffix(clean))
-            compact = candidate.replace('-', '')
-            if compact[:2] in ('is', 'cl'):
-                key = (map_mech_location(section), compact[2:], rear)
-                critical_ids.setdefault(key, []).append(candidate)
 
     for weapon in weapons:
         name = weapon.get('name', '')
@@ -121,19 +111,6 @@ def build_equipment_list(
             }
             if len(variants) == 1:
                 equip_id = variants.pop()
-        key = (mapped_location, _canonical_seen_id(equip_id), is_rear)
-        candidates = critical_ids.get(key, [])
-        if len(set(candidates)) == 1:
-            equip_id = candidates[0]
-        elif candidates:
-            # Mixed one-slot weapons can share a summary name in one location.
-            count = sum(map_mech_location(w['location']) == mapped_location
-                        and _canonical_seen_id(normalize_equipment_id(_clean_rear_mount_suffix(w['name']))) == key[1]
-                        and (_clean_rear_mount_suffix(w['name']) != w['name']) == is_rear for w in weapons)
-            if len(candidates) == count:
-                offset = consumed.get(key, 0)
-                equip_id = candidates[offset]
-                consumed[key] = offset + 1
         seen.add(_seen_key(equip_id, mapped_location, is_rear))
 
         equipment.append(SerializedEquipment(

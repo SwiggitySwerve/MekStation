@@ -16,13 +16,6 @@ PIN = Path(os.environ.get('MEKSTATION_MEKFILES',
 
 
 class MechCatalogRegenerationTest(unittest.TestCase):
-    def test_weapon_summary_names_retain_explicit_critical_tech(self):
-        source = ['chassis:Mixed', 'model:Test', 'Weapons:3', 'Ultra AC/5, Right Arm',
-                  'ER Medium Laser, Left Arm', 'ER Medium Laser, Left Arm', 'Right Arm:']
-        source += ['ISUltraAC5'] * 5 + ['Left Arm:', 'ISERMediumLaser', 'CLERMediumLaser']
-        unit = MTFParser()._parse_lines(source, 'source.mtf')
-        self.assertEqual([item.id for item in unit.equipment], ['isultraac5', 'isermediumlaser', 'clermediumlaser'])
-
     def test_source_display_aliases_keep_the_registered_wire_spellings(self):
         for name, expected in [('Improved ATM 9', 'iatm-9'),
                                ('Prototype ER Medium Laser (CP)', 'prototype-er-medium-laser'),
@@ -38,7 +31,7 @@ class MechCatalogRegenerationTest(unittest.TestCase):
                   'SRM 4 (OS), Left Arm', 'Right Arm:', 'ISHeavyRifle', 'ISHeavyRifle',
                   'ISHeavyRifle', 'Left Arm:', 'ISSRM4 (OS)']
         unit = MTFParser()._parse_lines(source, 'source.mtf')
-        self.assertEqual([item.id for item in unit.equipment], ['isheavyrifle', 'issrm4-os'])
+        self.assertEqual([item.id for item in unit.equipment], ['heavy-rifle', 'issrm4-os'])
         self.assertEqual(unit.equipment[0].location, 'RIGHT_ARM')
 
     @unittest.skipUnless((PIN / 'meks').exists(), 'set MEKSTATION_MEKFILES to pinned mm-data')
