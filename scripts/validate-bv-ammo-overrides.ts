@@ -134,8 +134,10 @@ export const AMMO_BV_FALLBACKS: AmmoOverrideEntry[] = [
   ['is-sc-mortar-2-ammo', 2, 'mortar-2'],
   ['is-sc-mortar-4-ammo', 4, 'mortar-4'],
   ['is-sc-mortar-8-ammo', 8, 'mortar-8'],
-  ['lb-2-x-cluster-ammo', 6, 'lb-2-x-ac'],
-  ['lb-5-x-cluster-ammo', 12, 'lb-5-x-ac'],
+  // Generic (IS) cluster ids: pinned Java createISLB2XClusterAmmo bv 5, createISLB5XClusterAmmo bv 10
+  // (AmmoType.java:5122, :5156). Clan cluster stays 6/12 via the explicit clan-* tuples above.
+  ['lb-2-x-cluster-ammo', 5, 'lb-2-x-ac'],
+  ['lb-5-x-cluster-ammo', 10, 'lb-5-x-ac'],
   ['clan-medium-chemical-laser-ammo', 5, 'medium-chemical-laser'],
   ['clan-heavy-flamer-ammo', 1, 'heavy-flamer'],
   ['cl-heavy-flamer-ammo', 1, 'heavy-flamer'],
