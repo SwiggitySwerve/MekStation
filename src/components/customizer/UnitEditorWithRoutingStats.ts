@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
 import type { MobileLoadoutStats } from '@/components/customizer/mobile';
+import type { IMechBVContext } from '@/services/construction/editableMechProjection';
 import type { IArmorAllocation } from '@/types/construction/ArmorAllocation';
 import type { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import type { CockpitType } from '@/types/construction/CockpitType';
@@ -42,6 +43,7 @@ import {
 import { logger } from '@/utils/logger';
 
 interface UnitEditorStatsInput {
+  bvContext?: IMechBVContext;
   unitName: string;
   chassis: string;
   model: string;
@@ -78,6 +80,7 @@ export function useUnitEditorRoutingStats(
   input: UnitEditorStatsInput,
 ): UnitEditorStatsResult {
   const {
+    bvContext,
     unitName,
     chassis,
     model,
@@ -154,6 +157,8 @@ export function useUnitEditorRoutingStats(
       projectEditableMech(
         {
           name: unitName,
+          bvContext,
+          jumpMP,
           chassis,
           model,
           tonnage,
@@ -174,6 +179,8 @@ export function useUnitEditorRoutingStats(
         'editor',
       ),
     [
+      bvContext,
+      jumpMP,
       unitName,
       chassis,
       model,

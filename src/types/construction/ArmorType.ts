@@ -23,6 +23,7 @@ export enum ArmorTypeEnum {
   REFLECTIVE = 'Reflective',
   HARDENED = 'Hardened',
   FERRO_LAMELLOR = 'Ferro-Lamellor',
+  BALLISTIC_REINFORCED = 'Ballistic-Reinforced',
 }
 
 /**
@@ -149,14 +150,28 @@ export const ARMOR_DEFINITIONS: readonly ArmorDefinition[] = [
     isSpecial: true,
   },
   {
+    // MegaMek ArmorType.java:1017-1046: 16 x 0.875 points per ton, Advanced.
     type: ArmorTypeEnum.FERRO_LAMELLOR,
     name: 'Ferro-Lamellor',
     techBase: TechBase.CLAN,
-    rulesLevel: RulesLevel.EXPERIMENTAL,
-    pointsPerTon: 17.6,
+    rulesLevel: RulesLevel.ADVANCED,
+    pointsPerTon: 14,
     criticalSlots: 12,
     costMultiplier: 3.5,
     introductionYear: 3070,
+    isSpecial: true,
+  },
+  {
+    // MegaMek ArmorType.java:1136-1166: 16 x 0.75 points per ton, Advanced;
+    // 10 Mek slots (MiscType.java:1250-1255).
+    type: ArmorTypeEnum.BALLISTIC_REINFORCED,
+    name: 'Ballistic-Reinforced',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.ADVANCED,
+    pointsPerTon: 12,
+    criticalSlots: 10,
+    costMultiplier: 2.5,
+    introductionYear: 3120,
     isSpecial: true,
   },
 ] as const;

@@ -40,6 +40,12 @@ registry owns their accepted contract discriminators and available store mapper.
   a subtype of `UnsupportedUnitConfigurationError`, with code
   `unsupported-configuration`, field and value. Unsupported motion and armor
   identities also fail explicitly. Invalid/missing facts remain parse errors.
+  The error message is plain sentence-case copy shown to users, such as "The
+  vehicle editor cannot open vehicles with heavy industrial armor yet."; it never
+  names contract fields.
+- Ferro-Lamellor and Ballistic-Reinforced armor use MegaMek points per ton
+  (16 x 0.875 and 16 x 0.75, `ArmorType.java`). Small craft `HULL` equipment
+  maps to the internal fuselage (`SmallCraft.java:75-78`).
 - Source engine ratings are retained; missing ratings use the vehicle engine and
   suspension owner. Flank MP always uses the movement owner.
 - Armor uses named `armor.byLocation` entries and the shared converter-location

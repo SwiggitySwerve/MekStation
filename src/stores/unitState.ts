@@ -1,3 +1,4 @@
+import type { IMechBVContext } from '@/services/construction/editableMechProjection';
 import type { IUnitDefinitionReference } from '@/types/unit/UnitDefinition';
 /**
  * Unit State Interface
@@ -197,6 +198,7 @@ export function createEmptySelectionMemory(): ISelectionMemory {
  * Each unit has its own isolated store containing this state.
  */
 export interface UnitState {
+  readonly bvContext?: IMechBVContext;
   /** Optional actuators omitted by the source design; absence keeps standard arms. */
   armActuators?: ArmActuatorConfig;
   // =========================================================================
