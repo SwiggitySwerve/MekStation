@@ -16,13 +16,14 @@ import type {
   ISmallCraft,
 } from '@/types/unit/AerospaceInterfaces';
 import type { IAerospaceUnit } from '@/types/unit/BaseUnitInterfaces';
-import type { IInfantry } from '@/types/unit/PersonnelInterfaces';
+import type { IBattleArmor, IInfantry } from '@/types/unit/PersonnelInterfaces';
 import type { IProtoMechUnit } from '@/types/unit/ProtoMechInterfaces';
 import type { IVehicleUnit } from '@/types/unit/VehicleInterfaces';
 
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { isVehicleUnitShape } from '@/types/unit/VehicleInterfaces';
 
+import type { IBABreakdown } from './battlearmor/battleArmorBV';
 import type { IInfantryBVBreakdown } from './infantry/infantryBV';
 import type { IVehicleBVBreakdown } from './vehicle/vehicleBV';
 
@@ -40,6 +41,7 @@ import {
   type IDropShipBVBreakdown,
   type ILargeAerospaceBVBreakdown,
 } from './aerospace/dropShipComplete';
+import { calculateBattleArmorBVFromUnit } from './battlearmor/battleArmorBVAdapter';
 import { calculateInfantryBVFromUnit as _calculateInfantryBVFromUnit } from './infantry/infantryBVAdapter';
 import {
   calculateProtoMechBV as _calculateProtoMechBV,
@@ -218,6 +220,7 @@ export interface IUnitBVOptions extends IProtoMechBVOptions {
  *       — Requirement: Aerospace BV Dispatch
  */
 export type UnitBVResult =
+  | { readonly kind: 'battlearmor'; readonly breakdown: IBABreakdown }
   | {
       readonly kind: 'capital-ship';
       readonly breakdown: ILargeAerospaceBVBreakdown;
@@ -310,6 +313,12 @@ export function calculateBattleValueForUnit(
     | AerospaceDispatchUnit,
   options?: IUnitBVOptions,
 ): UnitBVResult | undefined {
+  if (unit?.unitType === UnitType.BATTLE_ARMOR) {
+    return {
+      kind: 'battlearmor',
+      breakdown: calculateBattleArmorBVFromUnit(unit as IBattleArmor, options),
+    };
+  }
   if (isCapitalShipBVType(unit?.unitType)) {
     return {
       kind: 'capital-ship',

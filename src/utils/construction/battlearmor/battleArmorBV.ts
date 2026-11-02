@@ -1,34 +1,11 @@
 /**
- * Battle Armor Battle Value Calculator (BV 2.0)
- *
- * Implements the full Battle Value 2.0 formula for BattleArmor squads per the
- * TechManual / MegaMek BA rules. BA BV is structured around a per-trooper
- * calculation that is then scaled by squad size and pilot skill:
- *
- *   trooperBV     = defensiveBV + offensiveBV                              (per trooper)
- *   defensiveBV   = armorBV + moveBV + jumpBV + antiMechBonus              (per trooper)
- *     armorBV     = armorPoints × 2.5 × armorTypeMultiplier
- *     moveBV      = groundMP × classMultiplier  (PA(L)/Light 0.5, Medium 0.75,
- *                                                Heavy 1.0, Assault 1.5)
- *     jumpBV      = max(jumpMP, umuMP) × 0.5
- *     antiMechBonus = 5 BV if Magnetic Clamps present (swarm-capable)
- *   offensiveBV   = weaponBV + ammoBV + manipulatorBV                      (per trooper)
- *     manipulatorBV = Vibro-Claw 3, Heavy Claw 2, Battle Claw 1 (per manipulator)
- *   squadBV       = trooperBV × squadSize
- *   finalBV       = round(squadBV × pilotSkillMultiplier)
- *
- * Armor type multipliers (Standard 1.0, Stealth variants 1.5, Mimetic 1.5,
- * Reactive 1.3, Reflective 1.3, Fire-Resistant 1.1) capture the defensive
- * premium of specialty armor; the combat-time movement modifiers for
- * Stealth/Mimetic are documented in the combat spec, not the BV formula
- * (no double counting).
- *
- * The calculator is intentionally pure — no store or React dependencies — so
- * it can be invoked from construction code, unit tests, the parity harness,
- * or the status bar adapter with equal ease.
- *
- * @spec openspec/changes/add-battlearmor-battle-value/specs/battle-value-system/spec.md
- * @spec openspec/changes/add-battlearmor-battle-value/specs/battle-armor-unit-system/spec.md
+ * Battle Armor BV owner. Defense follows MegaMek 48fcb2f64,
+ * BattleArmorBVCalculator.java:84-111,257-278 and BVCalculator.java:650-683.
+ * Per trooper: (1 + armor * rate) * (1.1 + maxTMM/10 + stealth + camo).
+ * Rate is 3.5 for reactive/reflective/fire-resistant armor, otherwise 2.5.
+ * Defensive equipment, offense and squad-size parity remain separate work.
+ * The existing offensive and linear squad calculations are retained here.
+ * @spec openspec/specs/battle-value-system/spec.md
  */
 
 import type {
@@ -45,17 +22,18 @@ import {
 } from '@/types/unit/BattleArmorInterfaces';
 import { getPilotSkillModifier } from '@/types/validation/BattleValue';
 
+import { calculateTMM } from '../battleValueMovement';
 import { resolveAmmoBV, resolveEquipmentBV } from '../equipmentBVResolver';
 
 const BA_ARMOR_BV_MULTIPLIERS: Readonly<Record<BAArmorType, number>> = {
   [BAArmorType.STANDARD]: 1.0,
-  [BAArmorType.STEALTH_BASIC]: 1.5,
-  [BAArmorType.STEALTH_IMPROVED]: 1.5,
-  [BAArmorType.STEALTH_PROTOTYPE]: 1.5,
-  [BAArmorType.MIMETIC]: 1.5,
-  [BAArmorType.REACTIVE]: 1.3,
-  [BAArmorType.REFLECTIVE]: 1.3,
-  [BAArmorType.FIRE_RESISTANT]: 1.1,
+  [BAArmorType.STEALTH_BASIC]: 1.0,
+  [BAArmorType.STEALTH_IMPROVED]: 1.0,
+  [BAArmorType.STEALTH_PROTOTYPE]: 1.0,
+  [BAArmorType.MIMETIC]: 1.0,
+  [BAArmorType.REACTIVE]: 1.4,
+  [BAArmorType.REFLECTIVE]: 1.4,
+  [BAArmorType.FIRE_RESISTANT]: 1.4,
 };
 
 // =============================================================================
@@ -99,7 +77,7 @@ export interface BAManipulatorConfig {
  * calculator accepts a single trooper's configuration plus the squad size.
  */
 export interface IBattleArmorBVInput {
-  /** Weight class governs the move-BV class multiplier. */
+  /** Retained input for compatibility; defense does not depend on class. */
   weightClass: BAWeightClass;
   /** Number of troopers (1–6). */
   squadSize: number;
@@ -124,8 +102,10 @@ export interface IBattleArmorBVInput {
   /** Ammo bins per trooper. */
   ammo?: readonly BAAmmoBVMount[];
 
-  /** True if the squad carries Magnetic Clamps (adds anti-mech bonus). */
+  /** Retained equipment fact; clamps do not add defensive BV. */
   hasMagneticClamp?: boolean;
+  /** Camouflage adds 0.2 to the defensive factor, independently of armor. */
+  hasCamoSystem?: boolean;
 
   /** Pilot gunnery skill (default 4). */
   gunnery?: number;
@@ -144,19 +124,7 @@ export type {
 // Armor-Type Multipliers
 // =============================================================================
 
-/**
- * BA armor-type BV multipliers.
- *
- *   Standard           = 1.0
- *   Stealth (any)      = 1.5  (Basic / Improved / Prototype)
- *   Mimetic            = 1.5
- *   Reactive           = 1.3
- *   Reflective         = 1.3
- *   Fire-Resistant     = 1.1
- *
- * Stealth/Mimetic target-movement modifiers are applied in combat, not in BV,
- * so the defensive premium shows up entirely in this multiplier.
- */
+/** Armor rate relative to 2.5; stealth affects the defensive factor. */
 export function getBAArmorBVMultiplier(type: BAArmorType): number {
   return BA_ARMOR_BV_MULTIPLIERS[type] ?? 1.0;
 }
@@ -166,7 +134,8 @@ export function getBAArmorBVMultiplier(type: BAArmorType): number {
 // =============================================================================
 
 /**
- * BA move-BV class multiplier.
+ * Legacy move-class lookup, retained for public API compatibility.
+ * The pinned defensive calculation no longer uses this table.
  *
  *   PA(L) / Light      = 0.5
  *   Medium             = 0.75
@@ -222,31 +191,38 @@ export function getBAManipulatorMeleeBV(manipulator: BAManipulator): number {
 // Defensive BV (Per Trooper)
 // =============================================================================
 
-/**
- * Compute per-trooper defensive BV.
- *
- *   armorBV       = armorPoints × 2.5 × armorTypeMultiplier
- *   moveBV        = groundMP × classMultiplier
- *   jumpBV        = max(jumpMP, umuMP) × 0.5
- *   antiMechBonus = 5 BV if Magnetic Clamps (swarm-capable)
- *   total         = armorBV + moveBV + jumpBV + antiMechBonus
- */
+/** Armor/internal BV multiplied by movement, stealth and camouflage. */
 export function calculateBADefensiveBV(
   input: IBattleArmorBVInput,
 ): BADefensiveBVBreakdown {
   const armorMult = getBAArmorBVMultiplier(input.armorType);
-  const classMult = getBAMoveClassMultiplier(input.weightClass);
-
-  const armorBV = input.armorPointsPerTrooper * 2.5 * armorMult;
-  const moveBV = input.groundMP * classMult;
-
-  // Jump and UMU share the /2 slot — BA treats the higher of the two.
-  const jumpLike = Math.max(input.jumpMP, input.umuMP ?? 0);
-  const jumpBV = jumpLike * 0.5;
-
-  const antiMechBonus = input.hasMagneticClamp ? 5 : 0;
-
-  const total = armorBV + moveBV + jumpBV + antiMechBonus;
+  // MegaMek 48fcb2f64 BattleArmorBVCalculator.java:257-278: armor plus
+  // one internal point. Specialty protection costs 3.5 rather than 2.5.
+  const armorBV =
+    1 + Math.max(0, input.armorPointsPerTrooper) * 2.5 * armorMult;
+  const groundTMM = calculateTMM(input.groundMP);
+  const tmm = Math.max(
+    calculateTMM(input.groundMP, input.jumpMP),
+    calculateTMM(input.umuMP ?? 0),
+  );
+  // BattleArmorBVCalculator.java:84-111. Stealth affects the factor, not
+  // the armor rate. Clamps and weight class give no defensive BV bonus.
+  const stealth =
+    input.armorType === BAArmorType.STEALTH_IMPROVED ||
+    input.armorType === BAArmorType.MIMETIC
+      ? 0.3
+      : [BAArmorType.STEALTH_BASIC, BAArmorType.STEALTH_PROTOTYPE].includes(
+            input.armorType,
+          )
+        ? 0.2
+        : 0;
+  const bonus = 0.1 + stealth + (input.hasCamoSystem ? 0.2 : 0);
+  // Preserve the public breakdown: moveBV is the ground/system premium;
+  // jumpBV is only the additional premium over ground TMM (including UMU).
+  const moveBV = armorBV * (groundTMM / 10 + bonus);
+  const jumpBV = armorBV * ((tmm - groundTMM) / 10);
+  const antiMechBonus = 0;
+  const total = armorBV * (1 + tmm / 10 + bonus);
 
   return { armorBV, moveBV, jumpBV, antiMechBonus, total };
 }

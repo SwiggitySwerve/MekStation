@@ -353,6 +353,7 @@ describe('BattleArmorUnitHandler', () => {
     it('should calculate weight per trooper correctly for standard squad', () => {
       const doc = createMockBlkDocument({
         tonnage: 4,
+        weightClass: 2,
         trooperCount: 4,
       });
       const result = handler.parse(doc);
@@ -365,6 +366,7 @@ describe('BattleArmorUnitHandler', () => {
     it('should calculate weight per trooper for 5-trooper squad', () => {
       const doc = createMockBlkDocument({
         tonnage: 5,
+        weightClass: 2,
         trooperCount: 5,
       });
       const result = handler.parse(doc);
@@ -379,8 +381,8 @@ describe('BattleArmorUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      // 0.4 tons / 4 troopers = 0.1 tons = 100 kg per trooper
-      expect(result.data?.unit?.weightPerTrooper).toBe(100);
+      // Java's PA(L) class limit is 400kg, independent of transport tonnage.
+      expect(result.data?.unit?.weightPerTrooper).toBe(400);
     });
   });
 

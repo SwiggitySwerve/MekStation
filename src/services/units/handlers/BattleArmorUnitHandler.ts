@@ -24,6 +24,7 @@ import {
 } from '@/types/unit/PersonnelInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
+import { calculateBattleArmorBVFromUnit } from '@/utils/construction/battlearmor/battleArmorBVAdapter';
 
 import {
   AbstractUnitTypeHandler,
@@ -104,11 +105,12 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
     }
 
     // Weight class from weight code or calculation
-    const weightCode = document.weightClass || 2; // Default medium
+    const weightCode = document.weightClass ?? 2; // Default medium
     const baWeightClass = this.weightCodeToClass(weightCode);
 
-    // Weight per trooper (in kg, converted from tons)
-    const weightPerTrooper = (document.tonnage * 1000) / squadSize;
+    // BattleArmor.java:1200-1201 -> EntityWeightClass.java:77,438-440:
+    // getTrooperWeight() is the class limit for both biped and quad chassis.
+    const weightPerTrooper = BA_WEIGHT_CLASS_LIMITS[baWeightClass].maxMassKg;
 
     // Motion type
     const motionTypeStr = document.motionType?.toLowerCase() || 'jump';
@@ -390,19 +392,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
    * Calculate BA BV
    */
   protected calculateTypeSpecificBV(unit: IBattleArmor): number {
-    let bv = 0;
-
-    // Base BV from armor (per trooper)
-    bv += unit.armorPerTrooper * 20 * unit.squadSize;
-
-    // Movement modifier
-    if (unit.jumpMP > 0) {
-      bv *= 1.1;
-    }
-
-    // Equipment BV would be added here
-
-    return Math.round(bv);
+    return calculateBattleArmorBVFromUnit(unit).final;
   }
 
   /**

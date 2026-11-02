@@ -41,12 +41,12 @@ describe('canonical BA archetypes', () => {
       piloting: 5,
     });
 
-    expect(b.perTrooper.defensive.total).toBeCloseTo(32.5, 10);
+    expect(b.perTrooper.defensive.total).toBeCloseTo(33.8, 10);
     expect(b.perTrooper.offensive.total).toBe(35);
-    expect(b.perTrooper.total).toBeCloseTo(67.5, 10);
+    expect(b.perTrooper.total).toBeCloseTo(68.8, 10);
     expect(b.squadSize).toBe(5);
-    expect(b.squadTotal).toBeCloseTo(337.5, 10);
-    expect(b.final).toBe(338);
+    expect(b.squadTotal).toBeCloseTo(344, 10);
+    expect(b.final).toBe(344);
   });
 
   it('IS Cavalier (Medium, 4 troopers, twin MG + Battle Claw)', () => {
@@ -72,11 +72,11 @@ describe('canonical BA archetypes', () => {
       piloting: 5,
     });
 
-    expect(b.perTrooper.defensive.total).toBe(19);
+    expect(b.perTrooper.defensive.total).toBeCloseTo(20.35, 10);
     expect(b.perTrooper.offensive.total).toBe(13);
-    expect(b.perTrooper.total).toBe(32);
-    expect(b.squadTotal).toBe(128);
-    expect(b.final).toBe(128);
+    expect(b.perTrooper.total).toBeCloseTo(33.35, 10);
+    expect(b.squadTotal).toBeCloseTo(133.4, 10);
+    expect(b.final).toBe(133);
   });
 
   it('Clan Sylph (Light VTOL, 5 troopers, ER Small Laser)', () => {
@@ -99,11 +99,11 @@ describe('canonical BA archetypes', () => {
       piloting: 5,
     });
 
-    expect(b.perTrooper.defensive.total).toBe(14);
+    expect(b.perTrooper.defensive.total).toBe(16.5);
     expect(b.perTrooper.offensive.total).toBe(17);
-    expect(b.perTrooper.total).toBe(31);
-    expect(b.squadTotal).toBe(155);
-    expect(b.final).toBe(155);
+    expect(b.perTrooper.total).toBe(33.5);
+    expect(b.squadTotal).toBe(167.5);
+    expect(b.final).toBe(168);
   });
 
   it('IS Standard (Medium, 4 troopers, SRM-2)', () => {
@@ -126,11 +126,11 @@ describe('canonical BA archetypes', () => {
       piloting: 5,
     });
 
-    expect(b.perTrooper.defensive.total).toBeCloseTo(22.25, 10);
+    expect(b.perTrooper.defensive.total).toBeCloseTo(20.8, 10);
     expect(b.perTrooper.offensive.total).toBe(26);
-    expect(b.perTrooper.total).toBeCloseTo(48.25, 10);
-    expect(b.squadTotal).toBe(193);
-    expect(b.final).toBe(193);
+    expect(b.perTrooper.total).toBeCloseTo(46.8, 10);
+    expect(b.squadTotal).toBeCloseTo(187.2, 10);
+    expect(b.final).toBe(187);
   });
 
   it('Clan Gnome (Assault, 5 troopers, Heavy Battle Claw + heavy armor)', () => {
@@ -156,10 +156,10 @@ describe('canonical BA archetypes', () => {
       piloting: 5,
     });
 
-    expect(b.perTrooper.defensive.total).toBe(41.5);
+    expect(b.perTrooper.defensive.total).toBeCloseTo(39.6, 10);
     expect(b.perTrooper.offensive.total).toBe(63);
-    expect(b.perTrooper.total).toBe(104.5);
-    expect(b.squadTotal).toBe(522.5);
-    expect(b.final).toBe(523);
+    expect(b.perTrooper.total).toBe(102.6);
+    expect(b.squadTotal).toBe(513);
+    expect(b.final).toBe(513);
   });
 });
