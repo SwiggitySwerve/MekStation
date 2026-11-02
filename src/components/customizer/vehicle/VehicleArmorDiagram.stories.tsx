@@ -46,7 +46,7 @@ const baseOptions = {
 
 const turret: ITurretConfiguration = {
   type: TurretType.SINGLE,
-  currentWeight: 0,
+
   rotationArc: 360,
 };
 

@@ -55,7 +55,7 @@ import { UnsupportedUnitConfigurationError } from './movementConfiguration';
 const turretSchema = z
   .object({
     type: z.enum(TurretType),
-    currentWeight: z.number().nonnegative(),
+    currentWeight: z.number().nonnegative().optional(),
     rotationArc: z.number().nonnegative(),
   })
   .nullable();

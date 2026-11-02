@@ -151,7 +151,7 @@ it('rounds the two turrets independently when composing weight', () => {
   const turretConfig = {
     type: TurretType.SINGLE,
     maxWeight: 5,
-    currentWeight: 0,
+
     rotationArc: 360,
   };
   const result = computeVehicleWeightBreakdown(
