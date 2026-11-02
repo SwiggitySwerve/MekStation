@@ -10,9 +10,18 @@ Ammo uses the catalog owner's bin shot count and native
 `max(1, floor(usableShots / binShots))`, with depleted bins contributing zero.
 The shared cap accumulator and six-arc stage own accumulation and weighting.
 
-The closed supported subset is ordinary AC/Ultra/Rotary/light AC, LRM/SRM/MRM,
-Streak and catalog laser/PPC/flamer subtypes. Unsupported capital weapons,
-links, other equipment, unknown identities/arcs and missing/invalid ammo
+The closed supported subset includes AC/Ultra/Rotary/light AC, Gauss/light/heavy
+Gauss, LB-X, LRM/SRM/MRM/MML, Streak and represented laser/PPC/flamer subtypes,
+including variable-speed and X-pulse lasers. LB-X slug and cluster bins share
+their native type/rack cap; Gauss bins retain their distinct weapon types.
+Artemis IV/V links select the first compatible unlinked launcher in the same
+physical location, irrespective of rear flags (pinned `MekFileParser.java:425-449`).
+The shared equipment owner applies the launcher modifier; ammo caps retain raw
+weapon BV (`BVCalculator.java:860-872`, `LargeAeroBVCalculator.java:85-146`).
+Represented naval C3, comm-scanner suites and tug adapters carry zero standalone
+offensive BV even on the hull; force-context bonuses are outside this input.
+Missing capital/screen/tele-operated catalog types, unsupported links and other
+equipment, unknown identities/arcs and missing/invalid ammo
 quantities produce indexed reasons. Returned arcs are partial diagnostics
 while any reason remains. Catalog resolution alone does not certify native
 numerical parity. `dropShipComplete.ts` composes only fully resolved sets. Tests enforce bay multiplicity, rear arcs, native
