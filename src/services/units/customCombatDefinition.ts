@@ -6,13 +6,16 @@
 
 import {
   projectCustomCombatSnapshot,
+  customCombatSnapshotFamily,
+  isCustomCombatReference,
   type CustomCombatSnapshot,
 } from '@/types/contracts/CustomCombatSnapshot';
+import { parseUnitReference } from '@/types/unit/UnitIndex';
 
-const CUSTOM_ID_PREFIX = 'custom-';
+export { isCustomCombatReference };
 
 /**
- * Accept only a biped BattleMech snapshot whose identity matches the requested
+ * Accept supported combat construction whose identity matches the requested
  * custom-* reference. Id mismatch, malformed payloads, and unsupported
  * chassis types return null (callers fail closed).
  */
@@ -20,13 +23,14 @@ export function parseCustomCombatDefinition(
   payload: unknown,
   id: string,
 ): CustomCombatSnapshot | null {
-  if (!id.startsWith(CUSTOM_ID_PREFIX)) return null;
+  const reference = parseUnitReference(id);
+  if (!isCustomCombatReference(id)) return null;
   const definition = projectCustomCombatSnapshot(payload);
   if (
     !definition ||
-    definition.id !== id ||
-    definition.unitType !== 'BattleMech' ||
-    definition.configuration !== 'Biped'
+    definition.id !== reference.id ||
+    (reference.family &&
+      reference.family !== customCombatSnapshotFamily(definition))
   ) {
     return null;
   }

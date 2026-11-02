@@ -27,7 +27,10 @@ import {
   VehicleLocation,
   VTOLLocation,
 } from '@/types/construction/UnitLocation';
-import { customCombatSnapshotSchema } from '@/types/contracts/CustomCombatSnapshot';
+import {
+  recordedCustomCombatSnapshotSchema,
+  customCombatSnapshotReferenceError,
+} from '@/types/contracts/CustomCombatSnapshot';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
@@ -574,7 +577,7 @@ export const gameUnitSchema = z
     name: z.string(),
     side: z.nativeEnum(GameSide),
     unitRef: z.string(),
-    customUnitDefinition: customCombatSnapshotSchema.optional(),
+    customUnitDefinition: recordedCustomCombatSnapshotSchema.optional(),
     pilotRef: z.string(),
     gunnery: finiteNumber,
     piloting: finiteNumber,
@@ -666,8 +669,10 @@ export const gameUnitSchema = z
   .refine(
     (unit) =>
       unit.customUnitDefinition === undefined ||
-      (unit.unitRef.startsWith('custom-') &&
-        unit.customUnitDefinition.id === unit.unitRef),
+      customCombatSnapshotReferenceError(
+        unit.customUnitDefinition,
+        unit.unitRef,
+      ) === null,
     {
       message: 'Recorded construction must match the custom source reference',
       path: ['customUnitDefinition'],

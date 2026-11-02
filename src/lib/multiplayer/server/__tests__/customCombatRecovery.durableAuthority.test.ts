@@ -147,12 +147,12 @@ function createdPayload(events: readonly IGameEvent[]): IGameCreatedPayload {
 function customUnitFromPayload(
   payload: IGameCreatedPayload,
   instanceId: string,
-): IGameUnit {
+) {
   const unit = payload.units.find((entry) => entry.id === instanceId);
-  if (!unit) {
+  if (!unit || unit.customUnitDefinition?.unitType !== 'BattleMech') {
     throw new Error(`expected launched unit ${instanceId}`);
   }
-  return unit;
+  return { ...unit, customUnitDefinition: unit.customUnitDefinition };
 }
 
 describe('custom combat durable match recovery', () => {
@@ -179,6 +179,8 @@ describe('custom combat durable match recovery', () => {
   it('recovers original construction after store reopen and library edit/delete', async () => {
     const unitRef = persistCustomUnit(30);
     const original = readServerCustomCombatDefinition(unitRef);
+    if (original?.unitType !== 'BattleMech')
+      throw new Error('Expected Mech construction');
     expect(original?.armor.allocation.LEFT_ARM).toBe(30);
     expect(original?.id).toBe(unitRef);
 
@@ -212,9 +214,10 @@ describe('custom combat durable match recovery', () => {
       notes: 'library mutation after launch',
     });
     expect(mutated.success).toBe(true);
-    expect(
-      readServerCustomCombatDefinition(unitRef)?.armor.allocation.LEFT_ARM,
-    ).toBe(10);
+    const changed = readServerCustomCombatDefinition(unitRef);
+    if (changed?.unitType !== 'BattleMech')
+      throw new Error('Expected Mech construction');
+    expect(changed.armor.allocation.LEFT_ARM).toBe(10);
 
     store.close();
     store = new DurableMatchStore({ path: matchPath });
@@ -228,6 +231,8 @@ describe('custom combat durable match recovery', () => {
     const recoveredPlayer = recoveredSession.units.find(
       (unit) => unit.id === PLAYER_INSTANCE_ID,
     );
+    if (recoveredPlayer?.customUnitDefinition?.unitType !== 'BattleMech')
+      throw new Error('Expected recorded Mech construction');
     expect(
       recoveredPlayer?.customUnitDefinition?.armor.allocation.LEFT_ARM,
     ).toBe(30);
@@ -259,6 +264,8 @@ describe('custom combat durable match recovery', () => {
     const rebuiltPlayer = rebuilt
       .getSession()
       .units.find((unit) => unit.id === PLAYER_INSTANCE_ID);
+    if (rebuiltPlayer?.customUnitDefinition?.unitType !== 'BattleMech')
+      throw new Error('Expected recorded Mech construction');
     expect(rebuiltPlayer?.customUnitDefinition?.armor.allocation.LEFT_ARM).toBe(
       30,
     );
@@ -276,7 +283,7 @@ describe('custom combat durable match recovery', () => {
       { ...atlas, id: unitRef },
       unitRef,
     );
-    if (!snapshot) {
+    if (!snapshot || snapshot.unitType !== 'BattleMech') {
       throw new Error('expected a valid snapshot for the corrupt-history case');
     }
 

@@ -1,4 +1,9 @@
 import {
+  adaptUnitFromData,
+  fullUnitFromCustomSnapshot,
+} from '@/engine/adapters/CompendiumAdapter';
+import { parseCustomCombatDefinition } from '@/services/units/customCombatDefinition';
+import {
   IForce,
   IAssignment,
   IForceStats,
@@ -6,6 +11,7 @@ import {
   ForceStatus,
   ForcePosition,
 } from '@/types/force';
+import { parseUnitReference } from '@/types/unit/UnitIndex';
 import { calculateUnitBV as calculateBV } from '@/utils/construction/bvAdapter';
 
 import { getSQLiteService } from '../persistence/SQLiteService';
@@ -107,19 +113,32 @@ export function calculateUnitStats(
 }
 
 function calculateCustomUnitStats(unitId: string): CalculatedUnitStats | null {
+  const reference = parseUnitReference(unitId);
   let customUnit: { data: string; tonnage: number } | undefined;
   try {
     const db = getSQLiteService().getDatabase();
 
     customUnit = db
       .prepare('SELECT data, tonnage FROM custom_units WHERE id = ?')
-      .get(unitId) as { data: string; tonnage: number } | undefined;
+      .get(reference.id) as { data: string; tonnage: number } | undefined;
   } catch {
     return null;
   }
   if (!customUnit) return null;
   try {
     const unitData: unknown = JSON.parse(customUnit.data);
+    if (reference.family && reference.family !== 'battlemechs') {
+      const snapshot = parseCustomCombatDefinition(
+        typeof unitData === 'object' && unitData !== null
+          ? { ...unitData, id: reference.id }
+          : unitData,
+        unitId,
+      );
+      if (!snapshot) throw new Error('Invalid saved combat construction');
+      const bv = adaptUnitFromData(fullUnitFromCustomSnapshot(snapshot)).bv;
+      if (bv === undefined) throw new Error('Saved native BV unavailable');
+      return { bv, tonnage: customUnit.tonnage };
+    }
     return { bv: calculateBV(unitData), tonnage: customUnit.tonnage };
   } catch (error) {
     throw new Error(

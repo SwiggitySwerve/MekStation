@@ -9,17 +9,22 @@ import {
   type IFullUnit,
   getCanonicalUnitService,
 } from '@/services/units/CanonicalUnitService';
-import { parseCustomCombatDefinition } from '@/services/units/customCombatDefinition';
-import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import {
-  hydrateC3EquipmentFromFullUnit,
-  hydrateCriticalSlotManifestFromFullUnit,
-  hydrateHeatSinksFromFullUnit,
-  hydrateInitiativeEquipmentFromFullUnit,
-} from '@/simulation/runner/UnitHydration';
+  parseCustomCombatDefinition,
+  isCustomCombatReference,
+} from '@/services/units/customCombatDefinition';
+import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { hydrateAmmoStateFromFullUnit } from '@/simulation/runner/UnitHydrationAmmo';
+import { hydrateCriticalSlotManifestFromFullUnit } from '@/simulation/runner/UnitHydrationCriticalSlots';
+import { hydrateC3EquipmentFromFullUnit } from '@/simulation/runner/UnitHydrationElectronics';
+import { hydrateInitiativeEquipmentFromFullUnit } from '@/simulation/runner/UnitHydrationInitiative';
+import { hydrateHeatSinksFromFullUnit } from '@/simulation/runner/UnitHydrationMovement';
 import { GameSide, LockState } from '@/types/gameplay/GameSessionInterfaces';
 import { Facing, MovementType } from '@/types/gameplay/HexGridInterfaces';
+import {
+  formatUnitReference,
+  parseUnitReference,
+} from '@/types/unit/UnitIndex';
 
 import type {
   CustomUnitDefinitionReader,
@@ -215,9 +220,13 @@ export async function adaptUnit(
   options: IAdaptUnitOptions = {},
   readCustom?: CustomUnitDefinitionReader,
 ): Promise<IAdaptedUnit | null> {
-  if (unitId.startsWith('custom-')) {
+  const reference = parseUnitReference(unitId, options.family);
+  if (isCustomCombatReference(unitId)) {
     const read = readCustom ?? defaultReadCustom;
-    const definition = parseCustomCombatDefinition(await read(unitId), unitId);
+    const definition = parseCustomCombatDefinition(
+      await read(reference.id),
+      formatUnitReference(reference.id, reference.family),
+    );
     if (!definition) {
       throw new Error(
         'Saved custom unit ' +
@@ -247,7 +256,7 @@ function defaultReadCustom(id: string): Promise<unknown> {
  * `IFullUnit.armor` is a legacy flat map; nested snapshot armor/movement stay
  * on the object and are read by `adaptUnitFromData` via its record view.
  */
-function fullUnitFromCustomSnapshot(
+export function fullUnitFromCustomSnapshot(
   definition: CustomCombatSnapshot,
 ): IFullUnit {
   return definition as unknown as IFullUnit;

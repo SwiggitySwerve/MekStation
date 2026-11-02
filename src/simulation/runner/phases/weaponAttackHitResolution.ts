@@ -17,6 +17,7 @@ import { determineHitLocation } from '@/utils/gameplay/hitLocation';
 
 import type { IWeapon } from '../../ai/types';
 
+import { tryResolveNativeRunnerHit } from '../SimulationRunner.nativeUnits';
 import {
   applyDamageResultToState,
   buildDamageState,
@@ -130,6 +131,9 @@ export function resolveWeaponHit(options: {
       firingArc,
     });
   }
+
+  const native = tryResolveNativeRunnerHit(options);
+  if (native) return native;
 
   const hitLocationResult = determineHitLocation(
     toFiringArc(firingArc),

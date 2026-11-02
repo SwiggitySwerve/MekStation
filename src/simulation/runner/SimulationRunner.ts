@@ -6,6 +6,7 @@ import {
   IGameEvent,
   IMovementCapability,
   ReplaySource,
+  type IGameSession,
 } from '@/types/gameplay';
 import { GameSide } from '@/types/gameplay';
 import { runObjectiveControlPass } from '@/utils/gameplay/objectives';
@@ -29,6 +30,12 @@ import {
   runPSRPhase,
 } from './phases';
 import { createGameEvent, createRunnerTurnStartedEvent } from './phases/utils';
+import {
+  appendNativeRunnerDeploymentEvents,
+  nativeRunnerConstruction,
+  runnerHydrationFromSession,
+  synchronizeNativeRunnerHeat,
+} from './SimulationRunner.nativeUnits';
 import { MAX_TURNS } from './SimulationRunnerConstants';
 import {
   buildAnomalyBattleState,
@@ -65,6 +72,20 @@ const DEFAULT_AI_FACTORY: AIPlayerFactory = (random: SeededRandom, behavior) =>
   new BotPlayer(random, behavior);
 
 export class SimulationRunner {
+  static async fromSession(
+    seed: number,
+    session: IGameSession,
+    aiPlayerFactory?: AIPlayerFactory,
+  ): Promise<SimulationRunner> {
+    return new SimulationRunner(
+      seed,
+      undefined,
+      undefined,
+      aiPlayerFactory,
+      undefined,
+      await runnerHydrationFromSession(session),
+    );
+  }
   private readonly random: SeededRandom;
   private readonly invariantRunner: InvariantRunner;
   private readonly detectorConfig: IDetectorConfig;
@@ -148,6 +169,11 @@ export class SimulationRunner {
       // would force a transpile flag flip across the whole project.
       hydration.forEach((data, unitId) => {
         weaponsMap.set(unitId, data.aiWeapons);
+        const native = nativeRunnerConstruction(data);
+        if (native) {
+          movementCapabilityMap.set(unitId, native.movement);
+          return;
+        }
         const manifest = hydrateCriticalSlotManifestFromFullUnit(
           data.fullUnit,
           data.aiWeapons,
@@ -241,6 +267,8 @@ export class SimulationRunner {
         },
       ),
     );
+
+    appendNativeRunnerDeploymentEvents(state, events, gameId);
 
     // Per Phase 3: construct the AI player through the injected factory so
     // tests and the swarm harness can swap implementations without changing
@@ -342,6 +370,7 @@ export class SimulationRunner {
       });
 
       currentState = { ...currentState, phase: GamePhase.End };
+      currentState = synchronizeNativeRunnerHeat(currentState);
       violations.push(...this.invariantRunner.runAll(currentState));
 
       // Per `add-scenario-objective-engine` (D7 / task 7.2): run the
