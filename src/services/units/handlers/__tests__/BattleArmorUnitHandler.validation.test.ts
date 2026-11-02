@@ -90,17 +90,12 @@ describe('BattleArmorUnitHandler', () => {
       expect(validation.isValid).toBe(true);
     });
 
-    it('should fail parsing for squad size of 0 due to zero tonnage', () => {
-      // When using createUnusualSquadSizeDocument(0), tonnage also becomes 0
-      // The parser rejects tonnage: 0 as invalid
-      const doc = createUnusualSquadSizeDocument(0);
-      const result = handler.parse(doc);
+    it('should not reject zero tonnage: BA BLKs have no Tonnage tag', () => {
+      // createUnusualSquadSizeDocument(0) also gives tonnage 0, which is what
+      // the parser produces for every BA source (BLKBattleArmorFile.java:90).
+      const result = handler.parse(createUnusualSquadSizeDocument(0));
 
-      // Parse fails due to invalid tonnage (0)
-      expect(result.success).toBe(false);
-      expect(
-        result.error!.errors.some((e) => e.toLowerCase().includes('tonnage')),
-      ).toBe(true);
+      expect(result.success).toBe(true);
     });
 
     it('should default trooperCount 0 to 4 when tonnage is valid', () => {
