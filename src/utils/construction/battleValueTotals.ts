@@ -26,6 +26,20 @@ export function getCockpitModifier(cockpitType?: CockpitType): number {
   }
 }
 
+/** Shared base-unit summary; pilot adjustment follows this integer rounding. */
+export function calculateBaseBV(
+  defensiveBV: number,
+  offensiveBV: number,
+  cockpitModifiers: readonly number[] = [],
+): number {
+  return Math.round(
+    cockpitModifiers.reduce(
+      (bv, modifier) => bv * modifier,
+      defensiveBV + offensiveBV,
+    ),
+  );
+}
+
 export interface BVCalculationConfig {
   totalArmorPoints: number;
   totalStructurePoints: number;
@@ -153,10 +167,12 @@ export function calculateTotalBV(config: BVCalculationConfig): number {
     umuMP: config.umuMP,
   });
 
-  const baseBV =
-    defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV;
   const cockpitModifier = getCockpitModifier(config.cockpitType);
-  return Math.round(baseBV * cockpitModifier);
+  return calculateBaseBV(
+    defensiveResult.totalDefensiveBV,
+    offensiveResult.totalOffensiveBV,
+    [cockpitModifier],
+  );
 }
 
 export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
@@ -208,14 +224,16 @@ export function getBVBreakdown(config: BVCalculationConfig): BVBreakdown {
     umuMP: config.umuMP,
   });
 
-  const baseBV =
-    defensiveResult.totalDefensiveBV + offensiveResult.totalOffensiveBV;
   const cockpitModifier = getCockpitModifier(config.cockpitType);
 
   return {
     defensiveBV: defensiveResult.totalDefensiveBV,
     offensiveBV: offensiveResult.totalOffensiveBV,
     speedFactor: offensiveResult.speedFactor,
-    totalBV: Math.round(baseBV * cockpitModifier),
+    totalBV: calculateBaseBV(
+      defensiveResult.totalDefensiveBV,
+      offensiveResult.totalOffensiveBV,
+      [cockpitModifier],
+    ),
   };
 }

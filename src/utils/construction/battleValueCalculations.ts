@@ -37,11 +37,11 @@ import {
   type ICapitalShipBVUnit,
   type ICapitalShipDefensiveBVBreakdown,
 } from './aerospace/capitalShipBV';
+import { type IDropShipBVUnit } from './aerospace/dropShipBV';
 import {
-  calculateDropShipDefensiveBV,
-  type IDropShipBVUnit,
-  type IDropShipDefensiveBVBreakdown,
-} from './aerospace/dropShipBV';
+  calculateDropShipBV,
+  type IDropShipBVBreakdown,
+} from './aerospace/dropShipComplete';
 import { calculateInfantryBVFromUnit as _calculateInfantryBVFromUnit } from './infantry/infantryBVAdapter';
 import {
   calculateProtoMechBV as _calculateProtoMechBV,
@@ -226,7 +226,7 @@ export type UnitBVResult =
     }
   | {
       readonly kind: 'dropship';
-      readonly breakdown: IDropShipDefensiveBVBreakdown;
+      readonly breakdown: IDropShipBVBreakdown;
     }
   | {
       readonly kind: 'protomech';
@@ -318,11 +318,11 @@ export function calculateBattleValueForUnit(
       breakdown: calculateCapitalShipDefensiveBV(unit as ICapitalShipBVUnit),
     };
   }
-  // DropShip defense is available; offensive and final BV remain undefined.
+  // Complete DropShip BV requires resolved mounts and represented stage facts.
   if (unit?.unitType === UnitType.DROPSHIP) {
     return {
       kind: 'dropship',
-      breakdown: calculateDropShipDefensiveBV(unit as IDropShipBVUnit),
+      breakdown: calculateDropShipBV(unit as IDropShipBVUnit, options),
     };
   }
   if (unit && (unit as IProtoMechUnit).unitType === UnitType.PROTOMECH) {
