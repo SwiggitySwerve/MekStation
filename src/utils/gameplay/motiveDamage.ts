@@ -150,7 +150,7 @@ export function applyMotionTypeAggravation(
  */
 export function applyMotiveDamageToState(
   state: IMotiveDamageState,
-  rollResult: IMotiveDamageRollResult,
+  rollResult: Pick<IMotiveDamageRollResult, 'mpPenalty' | 'immobilized'>,
 ): IMotiveDamageState {
   if (state.immobilized) {
     // Already immobilized — no further motive damage changes anything.
