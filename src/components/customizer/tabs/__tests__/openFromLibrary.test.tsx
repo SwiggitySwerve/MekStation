@@ -21,12 +21,23 @@ import type { UnitFamily } from '@/types/unit/UnitIndex';
 import { UnitLoadDialog } from '@/components/customizer/dialogs/UnitLoadDialog';
 import { UnitTypeRouter } from '@/components/customizer/UnitTypeRouter';
 import { ARMOR_TYPE_OPTIONS } from '@/components/customizer/vehicle/VehicleArmorTab.constants';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import {
+  getSQLiteService,
+  resetSQLiteService,
+} from '@/services/persistence/SQLiteService';
 import {
   getCanonicalUnitService,
   resetCanonicalUnitService,
 } from '@/services/units/CanonicalUnitService';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
+import { mapAerospaceDefinitionToState } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { getCapitalShipView } from '@/services/units/unitLoaderService/capitalShipView';
+import { isDefinitionForFamily } from '@/services/units/unitLoaderService/definitionTypes';
+import { UnitLoaderService } from '@/services/units/unitLoaderService/unitLoader';
+import { mapToVehicleState } from '@/services/units/unitLoaderService/vehicleMapping';
+import { UnitRepository } from '@/services/units/UnitRepository';
 import { getAerospaceStore } from '@/stores/aerospaceStoreRegistry';
 import {
   computeInfantryStateBV,
@@ -40,14 +51,21 @@ import { createUnitFromFullState } from '@/stores/unitStoreRegistry';
 import { useTabManagerStore } from '@/stores/useTabManagerStore';
 import { getVehicleStore } from '@/stores/vehicleStoreRegistry';
 import { UnitContract } from '@/types/contracts';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { Era } from '@/types/temporal/Era';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { infantryLibraryBVInput } from '@/utils/construction/infantry/libraryMapping';
+import {
+  serializeCustomVehicleState,
+  serializeCustomAerospaceState,
+} from '@/utils/serialization/CustomUnitSerializer';
 
+import { isLibrarySaveSupported } from '../MultiUnitTabsUnitState';
 import { getLibrarySaveDisabledReason } from '../MultiUnitTabsUnitState';
 import { loadUnitIntoTab } from '../useMultiUnitTabsController.helpers';
 
 jest.mock('@/services/units/CustomUnitApiService', () => ({
-  customUnitApiService: { list: async () => [], getById: jest.fn() },
+  customUnitApiService: { list: jest.fn(async () => []), getById: jest.fn() },
 }));
 jest.mock('@/services/equipment/EquipmentFileReader', () => ({
   readJsonFile: async (file: string) =>
@@ -161,7 +179,68 @@ beforeEach(() => {
   useTabManagerStore.setState({ tabs: [], activeTabId: null });
   showToast.mockClear();
   jest.mocked(createUnitFromFullState).mockClear();
+  jest.mocked(customUnitApiService.list).mockResolvedValue([]);
 });
+
+it.each(['vehicles', 'aerospace'] as const)(
+  'lists a saved %s with its family and reopens it in its own store',
+  async (family) => {
+    const entry = await indexEntry(
+      family,
+      family === 'vehicles' ? 'manticore-heavy-tank' : 'aquarius-escort',
+    );
+    const definition = await getCanonicalUnitService().getById(entry.id, {
+      family,
+    });
+    const identity = {
+      id: 'custom-manticore',
+      chassis: 'Saved Manticore',
+      variant: 'Custom',
+      era: Era.DARK_AGE,
+    };
+    const contract = UnitContract.parse(definition);
+    const saved = isDefinitionForFamily('aerospace', contract)
+      ? serializeCustomAerospaceState(
+          mapAerospaceDefinitionToState(contract),
+          identity,
+        )
+      : serializeCustomVehicleState(mapToVehicleState(definition), identity);
+    const customEntry = {
+      ...entry,
+      id: saved.id,
+      family,
+      chassis: 'Saved Manticore',
+      era: Era.DARK_AGE,
+      rulesLevel: RulesLevel.STANDARD,
+      variant: 'Custom',
+      currentVersion: 1,
+      createdAt: '',
+      updatedAt: '',
+    };
+    jest.mocked(customUnitApiService.list).mockResolvedValue([customEntry]);
+    jest.mocked(customUnitApiService.getById).mockResolvedValue(saved as never);
+    const onLoadUnit = jest.fn();
+    render(
+      <UnitLoadDialog isOpen onCancel={jest.fn()} onLoadUnit={onLoadUnit} />,
+    );
+    await userEvent.click(await screen.findByText('Saved Manticore'));
+    await userEvent.click(screen.getByRole('button', { name: 'Load Unit' }));
+    expect(onLoadUnit).toHaveBeenCalledWith(
+      expect.objectContaining({ family, id: saved.id }),
+      'custom',
+    );
+    const [selected] = onLoadUnit.mock.calls[0];
+    await open(selected, 'custom');
+    const [tab] = useTabManagerStore.getState().tabs;
+    const getStore =
+      family === 'vehicles' ? getVehicleStore : getAerospaceStore;
+    expect(getStore(tab.id)?.getState()).toMatchObject({
+      chassis: 'Saved Manticore',
+      unitType: saved.unitType,
+      equipment: expect.any(Array),
+    });
+  },
+);
 
 async function indexEntry(
   family: UnitFamily,
@@ -307,7 +386,7 @@ it.each([
       );
     }
     expect(createUnitFromFullState).not.toHaveBeenCalled();
-    expect(getLibrarySaveDisabledReason(tab)).toMatch(/not available/);
+    expect(getLibrarySaveDisabledReason(tab)).toBeNull();
   },
 );
 
@@ -336,7 +415,7 @@ it('fetches a catalog file whose name contains # with each path segment encoded'
   );
 });
 
-it('explains that a saved non-mech design cannot be reopened yet', async () => {
+it('rejects a vehicle saved without its family rather than treating it as a BattleMech', async () => {
   const { family: _family, ...entry } = await indexEntry(
     'vehicles',
     'manticore-heavy-tank',
@@ -351,7 +430,7 @@ it('explains that a saved non-mech design cannot be reopened yet', async () => {
   const params = await open({ ...entry, id: 'saved-tank' }, 'custom');
   expect(showToast).toHaveBeenCalledWith({
     message:
-      'Saved Vehicle designs cannot be reopened yet. Only BattleMech designs reopen from the library.',
+      'This library entry contains invalid unit data. Choose another entry or correct the saved definition.',
     variant: 'error',
   });
   expect(params.navigateToTab).not.toHaveBeenCalled();
@@ -377,6 +456,211 @@ it('still opens a BattleMech through the BattleMech store and tab', async () => 
     },
   ]);
   expect(params.navigateToTab).toHaveBeenCalledWith(state.id);
+});
+
+describe('vehicle save and reopen', () => {
+  const directory = 'public/data/units/vehicles';
+  beforeAll(async () => {
+    await getEquipmentLookupService().initialize();
+    await getEquipmentRegistry().initialize();
+  });
+  const index = JSON.parse(
+    fs.readFileSync(`${directory}/index.json`, 'utf8'),
+  ) as {
+    units: { id: string; path: string }[];
+  };
+  const groups = new Map<string, typeof index.units>();
+  for (const row of index.units) {
+    const definition = JSON.parse(
+      fs.readFileSync(path.join(directory, row.path), 'utf8'),
+    );
+    const sixSides = definition.armor.byLocation.FRONT_RIGHT !== undefined;
+    const subtype =
+      definition.unitType === 'Support Vehicle'
+        ? definition.motionType === 'VTOL'
+          ? 'SupportVTOL'
+          : sixSides
+            ? 'LargeSupportTank'
+            : 'SupportTank'
+        : definition.unitType === 'VTOL'
+          ? 'VTOL'
+          : sixSides
+            ? 'SuperHeavyTank'
+            : 'Tank';
+    groups.set(subtype, [...(groups.get(subtype) ?? []), row]);
+  }
+
+  // Session identity and timestamps are deliberately fresh. Every construction
+  // field and mount property is compared; linked mount IDs retain their relation.
+  function semantic(state: ReturnType<typeof mapToVehicleState>) {
+    const {
+      id: _id,
+      createdAt: _created,
+      lastModifiedAt: _modified,
+      isModified: _dirty,
+      ...configuration
+    } = state;
+    return {
+      ...configuration,
+      equipment: state.equipment.map((mount, index) => ({
+        ...mount,
+        id: `mount-${index}`,
+        linkedAmmoId: state.equipment.some(
+          (item) => item.id === mount.linkedAmmoId,
+        )
+          ? `mount-${state.equipment.findIndex((item) => item.id === mount.linkedAmmoId)}`
+          : mount.linkedAmmoId,
+      })),
+    };
+  }
+
+  it.each([UnitType.VEHICLE, UnitType.VTOL, UnitType.SUPPORT_VEHICLE])(
+    'allows %s library saves',
+    (type) => expect(isLibrarySaveSupported(type)).toBe(true),
+  );
+
+  it.each([...groups])(
+    'round trips real %s designs through JSON and the vehicle mapper',
+    (subtype, rows) => {
+      const selected = process.env.UL25_ALL
+        ? rows
+        : rows
+            .filter(
+              (_, i) => i % Math.max(1, Math.floor(rows.length / 8)) === 0,
+            )
+            .slice(0, 8);
+      const mixedAmmo = rows.find(
+        (row) => row.id === 'chalchiuhtotolin-support-tank-chemical-laser',
+      );
+      if (mixedAmmo && !selected.includes(mixedAmmo)) selected.push(mixedAmmo);
+      const results = selected.map((row) => {
+        try {
+          const state = mapToVehicleState(
+            JSON.parse(fs.readFileSync(path.join(directory, row.path), 'utf8')),
+          );
+          const saved = JSON.parse(
+            JSON.stringify(
+              serializeCustomVehicleState(state, {
+                id: row.id,
+                chassis: state.chassis,
+                variant: state.model,
+                era: Era.DARK_AGE,
+              }),
+            ),
+          );
+          expect(saved.family).toBe('vehicles');
+          expect(UnitContract.safeParse(saved).success).toBe(true);
+          const reopened = mapToVehicleState(saved);
+          expect(semantic(reopened)).toEqual(semantic(state));
+          return { id: row.id, result: 'pass' };
+        } catch (error) {
+          return { id: row.id, result: 'fail', error: String(error) };
+        }
+      });
+      if (process.env.UL25_REPORT)
+        fs.writeFileSync(
+          `${process.env.UL25_REPORT}/${subtype}.json`,
+          JSON.stringify(results, null, 2),
+        );
+      expect(results.filter((row) => row.result === 'fail')).toEqual([]);
+    },
+  );
+
+  it('retains edited construction fields, mount flags and unresolved identities through actual persistence and routing', async () => {
+    getSQLiteService({ path: ':memory:' }).initialize();
+    try {
+      const state = mapToVehicleState(
+        JSON.parse(
+          fs.readFileSync(path.join(directory, index.units[0].path), 'utf8'),
+        ),
+      );
+      const edited = {
+        ...state,
+        crewSize: 12,
+        passengerSlots: 7,
+        armorTonnage: 9.75,
+        hasEnvironmentalSealing: true,
+        hasFlotationHull: true,
+        isAmphibious: true,
+        hasTrailerHitch: true,
+        hasNoControlSystems: true,
+        powerAmpWeight: 1.25,
+        equipment: state.equipment.map((mount, index) => ({
+          ...mount,
+          id: `custom-mount-${index}`,
+          linkedAmmoId: index === 0 ? 'custom-mount-1' : undefined,
+          isRearMounted: true,
+          isPintleTurretMounted: true,
+          isChinTurretMounted: true,
+          isSponsonMounted: true,
+          isOmniPodMounted: true,
+        })),
+      };
+      const saved = serializeCustomVehicleState(edited, {
+        id: state.id,
+        chassis: state.chassis,
+        variant: state.model,
+        era: Era.DARK_AGE,
+      });
+      const repository = new UnitRepository();
+      const created = repository.create({
+        chassis: state.chassis,
+        variant: state.model,
+        data: { ...saved },
+      });
+      if (!created.success) throw new Error(created.error.message);
+      const record = repository.getById(created.data.id)!;
+      expect(repository.list()[0].family).toBe('vehicles');
+      jest
+        .mocked(customUnitApiService.getById)
+        .mockResolvedValue(JSON.parse(record.data));
+      const loaded = await new UnitLoaderService().loadCustomUnit(
+        record.id,
+        'vehicles',
+      );
+      expect(loaded.success).toBe(true);
+      if (loaded.familyState?.store !== 'vehicle')
+        throw new Error(JSON.stringify(loaded));
+      expect(semantic(loaded.familyState.state)).toEqual(semantic(edited));
+      expect(loaded.familyState.state.equipment[0].linkedAmmoId).toBe(
+        loaded.familyState.state.equipment[1].id,
+      );
+      const missingFamily = { ...saved, family: undefined };
+      jest
+        .mocked(customUnitApiService.getById)
+        .mockResolvedValue(missingFamily as never);
+      const legacy = await new UnitLoaderService().loadCustomUnit(
+        record.id,
+        'vehicles',
+      );
+      expect(legacy.success).toBe(false);
+      const invalid = {
+        ...saved,
+        vehicleEditor: { ...saved.vehicleEditor, crewSize: 'bad' },
+      };
+      expect(() => mapToVehicleState(invalid)).toThrow();
+    } finally {
+      resetSQLiteService();
+    }
+  });
+
+  it('reads a saved design without family as a BattleMech', async () => {
+    const mechs = JSON.parse(
+      fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+    ) as typeof index;
+    const atlas = mechs.units.find((row) => row.id === 'atlas-as7-d')!;
+    const definition = JSON.parse(
+      fs.readFileSync(
+        path.join('public/data/units/battlemechs', atlas.path),
+        'utf8',
+      ),
+    );
+    jest.mocked(customUnitApiService.getById).mockResolvedValue(definition);
+    const loaded = await new UnitLoaderService().loadCustomUnit(definition.id);
+    expect(loaded.success).toBe(true);
+    expect(loaded.state?.unitType).toBe(UnitType.BATTLEMECH);
+    expect(loaded.familyState).toBeUndefined();
+  });
 });
 
 it('opens every indexed infantry platoon in its own shell with source figures', async () => {
