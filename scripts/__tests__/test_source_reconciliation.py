@@ -60,6 +60,30 @@ class ReconciliationTest(unittest.TestCase):
         self.assertEqual(report['totals']['pending'], 1)
         self.assertEqual(report['byFamily']['battlefield-support-pending']['pending'], 1)
 
+    def test_committed_exclusions_exclude_all_six_battlefield_support_files(self):
+        """Owner ruling 2026-11-02 item 4: all 6 pinned BFS files are excluded, not pending."""
+        bfs = ['battlearmor/3058Uu/Elemental Battle Armor [MG] (Sqd5).bfs',
+               'battlefieldsupport/Heavy Emplacement.bfs',
+               'infantry/TW/IS Platoons/Foot Platoon (Rifle).bfs',
+               'vehicles/3039u/Maxim Heavy Hover Transport.bfs',
+               'vehicles/3039u/Mobile Long Tom LT-MOB-25.bfs',
+               'vehicles/Rec Guides ilClan/Vol 29/Browning Mobile HQ.bfs']
+        folders = ['ge/A.blk', 'advancedbuildings/A.blk', 'handheld/A.blk']
+        self.entries += [dict(self.entries[0], path='data/mekfiles/' + p, format=p.rsplit('.', 1)[-1])
+                         for p in bfs + folders]
+        rules = json.loads((Path(__file__).resolve().parents[1] / 'megameklab-conversion' /
+                            'source-load-exclusions.json').read_text())
+        report = self.run_report(rules)
+        self.assertEqual(report['totals']['pending'], 0)
+        self.assertEqual(report['totals']['excluded'], 9)
+        self.assertNotIn('battlefield-support-pending', report['byFamily'])
+        rows = {r['path']: r for r in report['rows']}
+        for p in bfs:
+            self.assertEqual(rows['data/mekfiles/' + p]['status'], 'excluded', p)
+            self.assertEqual(rows['data/mekfiles/' + p]['family'], p.split('/')[0], p)
+            self.assertIn('2026-11-02', rows['data/mekfiles/' + p]['reason'], p)
+        self.assertEqual([r['status'] for r in report['rows'] if r['path'].endswith('A.mtf')], ['loaded'])
+
     def test_duplicate_designs_collapse_only_exact_loaded_keys(self):
         self.entries.append(dict(self.entries[0], path='data/mekfiles/meks/B.mtf'))
         self.loads.append(dict(self.loads[0], path='data/mekfiles/meks/B.mtf'))
