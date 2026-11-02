@@ -528,70 +528,6 @@
         "version": { "type": "integer", "minimum": 1 }
       }
     },
-    "motiveType": { "type": "string", "minLength": 1 },
-    "motionType": { "type": "string", "minLength": 1 },
-    "beastMount": { "type": "string", "minLength": 1 },
-    "platoon": {
-      "type": "object",
-      "required": ["squadSize", "squadCount", "totalTroopers"],
-      "properties": {
-        "squadSize": { "type": "integer", "minimum": 1 },
-        "squadCount": { "type": "integer", "minimum": 1 },
-        "totalTroopers": { "type": "integer", "minimum": 1 }
-      },
-      "additionalProperties": false
-    },
-    "primaryWeapon": {
-      "anyOf": [
-        {
-          "type": "string",
-          "minLength": 1
-        },
-        {
-          "type": "object",
-          "required": ["id", "name"],
-          "properties": {
-            "id": {
-              "type": "string",
-              "minLength": 1
-            },
-            "name": {
-              "type": "string",
-              "minLength": 1
-            }
-          },
-          "additionalProperties": false
-        }
-      ]
-    },
-    "secondaryWeapon": {
-      "type": "object",
-      "required": ["id", "name", "count"],
-      "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "name": { "type": "string", "minLength": 1 },
-        "count": { "type": "integer", "minimum": 0 }
-      },
-      "additionalProperties": false
-    },
-    "customArmorDamageDivisor": { "type": "number", "exclusiveMinimum": 0 },
-    "damageDivisor": { "type": "number", "exclusiveMinimum": 0 },
-    "armorKit": { "type": ["string", "null"] },
-    "armorFlags": { "type": "array", "items": { "type": "string" } },
-    "effectiveArmorFlags": { "type": "array", "items": { "type": "string" } },
-    "specializations": { "type": "integer", "minimum": 0, "maximum": 8191 },
-    "augmentations": { "type": "array", "items": { "type": "string" } },
-    "prostheticEnhancements": {
-      "type": "object",
-      "additionalProperties": { "type": "string" }
-    },
-    "prostheticEnhancementCounts": {
-      "type": "object",
-      "additionalProperties": { "type": "integer", "minimum": 1 }
-    },
-    "srmMunition": { "type": "string" },
-    "disposableWeapon": { "type": "string", "minLength": 1 },
-    "customArmorName": { "type": "string", "minLength": 1 },
     "mulId": {
       "anyOf": [
         { "type": "integer" },
@@ -612,7 +548,14 @@
   "anyOf": [
     {
       "properties": {
-        "unitType": { "not": { "$ref": "#/$defs/capitalUnitType" } },
+        "unitType": {
+          "not": {
+            "anyOf": [
+              { "$ref": "#/$defs/capitalUnitType" },
+              { "$ref": "#/$defs/infantryUnitType" }
+            ]
+          }
+        },
         "armor": {
           "type": "object",
           "properties": { "type": { "$ref": "#/$defs/standardArmorType" } }
@@ -648,6 +591,84 @@
         },
         "dockingCollars": { "type": "integer", "minimum": 0 },
         "isModular": { "type": "boolean" }
+      }
+    },
+    {
+      "required": ["unitType"],
+      "properties": {
+        "unitType": { "$ref": "#/$defs/infantryUnitType" },
+        "tonnage": { "type": "number", "maximum": 250 },
+        "armor": {
+          "type": "object",
+          "properties": { "type": { "$ref": "#/$defs/standardArmorType" } }
+        },
+        "motiveType": { "type": "string", "minLength": 1 },
+        "motionType": { "type": "string", "minLength": 1 },
+        "beastMount": { "type": "string", "minLength": 1 },
+        "platoon": {
+          "type": "object",
+          "required": ["squadSize", "squadCount", "totalTroopers"],
+          "properties": {
+            "squadSize": { "type": "integer", "minimum": 1 },
+            "squadCount": { "type": "integer", "minimum": 1 },
+            "totalTroopers": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": false
+        },
+        "primaryWeapon": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "object",
+              "required": ["id", "name"],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        },
+        "secondaryWeapon": {
+          "type": "object",
+          "required": ["id", "name", "count"],
+          "properties": {
+            "id": { "type": "string", "minLength": 1 },
+            "name": { "type": "string", "minLength": 1 },
+            "count": { "type": "integer", "minimum": 0 }
+          },
+          "additionalProperties": false
+        },
+        "customArmorDamageDivisor": { "type": "number", "exclusiveMinimum": 0 },
+        "damageDivisor": { "type": "number", "exclusiveMinimum": 0 },
+        "armorKit": { "type": ["string", "null"] },
+        "armorFlags": { "type": "array", "items": { "type": "string" } },
+        "effectiveArmorFlags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "specializations": { "type": "integer", "minimum": 0, "maximum": 8191 },
+        "augmentations": { "type": "array", "items": { "type": "string" } },
+        "prostheticEnhancements": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "prostheticEnhancementCounts": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 1 }
+        },
+        "srmMunition": { "type": "string" },
+        "disposableWeapon": { "type": "string", "minLength": 1 },
+        "customArmorName": { "type": "string", "minLength": 1 }
       }
     }
   ],
@@ -707,7 +728,8 @@
     },
     "capitalUnitType": {
       "enum": ["DropShip", "JumpShip", "WarShip", "Space Station"]
-    }
+    },
+    "infantryUnitType": { "enum": ["Infantry"] }
   },
   "allOf": [
     {

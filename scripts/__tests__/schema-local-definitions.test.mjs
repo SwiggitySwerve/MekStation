@@ -73,3 +73,28 @@ test('schemas without definitions keep identical generated output', () => {
     jsonSchemaToZod(input),
   );
 });
+
+test('negating multiple family definitions keeps unknown rather than widening to any', () => {
+  const input = {
+    $defs: {
+      Capital: { enum: ['DropShip'] },
+      Infantry: { enum: ['Infantry'] },
+    },
+    type: 'object',
+    properties: {
+      unitType: {
+        not: {
+          anyOf: [{ $ref: '#/$defs/Capital' }, { $ref: '#/$defs/Infantry' }],
+        },
+      },
+    },
+  };
+  const prepared = prepareSchemaDefinitions(input);
+  const code = jsonSchemaToZod(prepared.schema, {
+    parserOverride: prepared.parserOverride,
+  });
+  assert.match(code, /z\.unknown\(\)\.refine\(/);
+  assert.doesNotMatch(code, /z\.any\(\)/);
+  assert.match(code, /SchemaDef_Capital/);
+  assert.match(code, /SchemaDef_Infantry/);
+});

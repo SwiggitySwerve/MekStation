@@ -106,3 +106,38 @@ test('an unsupported discriminator guard remains enforced by its alternative', (
     input.anyOf,
   );
 });
+
+test('family exclusions fold the mech object without adding infantry properties', () => {
+  const input = schema(1000);
+  input.properties.unitType.enum.push('Infantry');
+  input.anyOf = [
+    {
+      properties: {
+        unitType: {
+          not: { anyOf: [{ enum: ['Capital'] }, { enum: ['Infantry'] }] },
+        },
+        tonnage: { type: 'number', maximum: 250 },
+      },
+    },
+    {
+      properties: {
+        unitType: { enum: ['Capital'] },
+        tonnage: { type: 'number', maximum: 900 },
+      },
+    },
+    {
+      properties: {
+        unitType: { enum: ['Infantry'] },
+        specializations: { type: 'integer', minimum: 0 },
+      },
+    },
+  ];
+  const result = expandUnitTypeRequirements(input);
+  assert.equal(result.anyOf[0].anyOf, undefined);
+  assert.equal(result.anyOf[0].properties.tonnage.maximum, 20);
+  assert.equal(result.anyOf[0].properties.specializations, undefined);
+  assert.equal(
+    result.anyOf[1].anyOf[2].properties.specializations.type,
+    'integer',
+  );
+});

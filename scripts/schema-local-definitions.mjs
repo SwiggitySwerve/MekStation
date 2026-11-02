@@ -1,5 +1,31 @@
 import { jsonSchemaToZod } from 'json-schema-to-zod';
 
+/** Decode only bounded string-enum alternatives; unsupported guards remain unfurled. */
+export function stringEnumValues(schema) {
+  const variants =
+    schema &&
+    Object.keys(schema).join() === 'anyOf' &&
+    Array.isArray(schema.anyOf)
+      ? schema.anyOf
+      : [schema];
+  if (
+    !variants.length ||
+    variants.some(
+      (value) =>
+        !value ||
+        !Array.isArray(value.enum) ||
+        !value.enum.length ||
+        value.enum.some((item) => typeof item !== 'string') ||
+        ('type' in value && value.type !== 'string') ||
+        Object.keys(value).some(
+          (key) => !['type', 'enum', 'description'].includes(key),
+        ),
+    )
+  )
+    return undefined;
+  return variants.flatMap((value) => value.enum);
+}
+
 /** Reuse local string-enum facts in generated code as well as JSON Schema. */
 export function prepareSchemaDefinitions(input) {
   const definitions = input.$defs ?? {};
@@ -8,14 +34,8 @@ export function prepareSchemaDefinitions(input) {
   for (const [key, value] of Object.entries(definitions)) {
     if (
       !/^\w+$/.test(key) ||
-      !Array.isArray(value.enum) ||
-      !value.enum?.length ||
-      value.enum.some((item) => typeof item !== 'string') ||
-      // A Zod literal drops `type`, so only the matching string type is safe.
-      ('type' in value && value.type !== 'string') ||
-      Object.keys(value).some(
-        (keyword) => !['type', 'enum', 'description'].includes(keyword),
-      )
+      !Array.isArray(value?.enum) ||
+      !stringEnumValues(value)
     )
       throw new Error('Unsupported local enum definition: ' + key);
     const name = 'SchemaDef_' + key;
@@ -42,20 +62,23 @@ export function prepareSchemaDefinitions(input) {
       Object.entries(value).map(([key, child]) => [key, resolve(child)]),
     );
   }
+  function parserOverride(schema) {
+    const name = names.get(JSON.stringify(schema));
+    if (name) return name;
+    // z.any() for a negated family guard would erase the unitType discriminator.
+    if (
+      Object.keys(schema).length === 1 &&
+      schema.not &&
+      stringEnumValues(schema.not)
+    ) {
+      const negated = jsonSchemaToZod(schema.not, { parserOverride });
+      return `z.unknown().refine((value) => !${negated}.safeParse(value).success, "Invalid input: Should NOT be valid against schema")`;
+    }
+    return undefined;
+  }
   return {
     schema: resolve(input),
     declarations: declarations.join('\n'),
-    parserOverride: (schema) => {
-      const name = names.get(JSON.stringify(schema));
-      if (name) return name;
-      // The library emits z.any() for `not`; in an intersected branch that
-      // widens the inferred field to any. unknown keeps the other branch's type.
-      const negated =
-        Object.keys(schema).length === 1 &&
-        names.get(JSON.stringify(schema.not));
-      if (negated)
-        return `z.unknown().refine((value) => !${negated}.safeParse(value).success, "Invalid input: Should NOT be valid against schema")`;
-      return undefined;
-    },
+    parserOverride,
   };
 }

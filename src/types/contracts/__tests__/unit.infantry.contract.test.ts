@@ -1,8 +1,52 @@
 import { spawnSync } from 'node:child_process';
 
+import atlas from '../../../../public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json';
+import {
+  customCombatSnapshotSchema,
+  projectCustomCombatSnapshot,
+} from '../CustomCombatSnapshot';
 import { UnitContract } from '../index';
 
 describe('pinned infantry converter contract', () => {
+  it.each(
+    Object.entries({
+      motiveType: 'Leg',
+      motionType: 'FOOT',
+      beastMount: 'Beast:Horse',
+      platoon: { squadSize: 7, squadCount: 4, totalTroopers: 28 },
+      primaryWeapon: { id: 'rifle', name: 'Rifle' },
+      secondaryWeapon: { id: 'tag', name: 'TAG', count: 1 },
+      customArmorDamageDivisor: 1,
+      damageDivisor: 1,
+      armorKit: 'Generic Infantry Kit',
+      armorFlags: [],
+      effectiveArmorFlags: [],
+      specializations: 0,
+      augmentations: [],
+      prostheticEnhancements: {},
+      prostheticEnhancementCounts: {},
+      srmMunition: 'Standard',
+      disposableWeapon: 'Disposable',
+      customArmorName: 'Custom',
+    }),
+  )(
+    'keeps %s out of the strict BattleMech contract and recorded snapshot',
+    (key, value) => {
+      const mech = UnitContract.options[0];
+      expect(mech.shape).not.toHaveProperty(key);
+      const construction = mech.strip().parse(atlas);
+      expect(
+        mech.strict().safeParse({ ...construction, [key]: value }).success,
+      ).toBe(false);
+      const snapshot = projectCustomCombatSnapshot(atlas);
+      expect(snapshot).not.toBeNull();
+      expect(
+        customCombatSnapshotSchema.safeParse({ ...snapshot, [key]: value })
+          .success,
+      ).toBe(false);
+    },
+  );
+
   it('accepts and retains every infantry source fact', () => {
     const result = spawnSync(
       'python',

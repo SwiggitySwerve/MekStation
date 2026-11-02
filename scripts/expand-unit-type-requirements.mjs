@@ -1,3 +1,5 @@
+import { stringEnumValues } from './schema-local-definitions.mjs';
+
 /**
  * json-schema-to-zod does not implement if/then. Expand the unit schema's
  * discriminator requirements into ordinary union branches before conversion.
@@ -61,7 +63,7 @@ function foldNumericAlternative(branch) {
     return branch.properties.unitType.enum.some(
       (type) =>
         (!discriminator?.enum || discriminator.enum.includes(type)) &&
-        (!discriminator?.not?.enum || !discriminator.not.enum.includes(type)),
+        !(stringEnumValues(discriminator?.not) ?? []).includes(type),
     );
   });
   if (alternatives.length !== 1) return;
@@ -72,7 +74,7 @@ function foldNumericAlternative(branch) {
     Object.keys(discriminator ?? {}).some(
       (key) => !['enum', 'not'].includes(key),
     ) ||
-    (discriminator?.not && Object.keys(discriminator.not).join() !== 'enum')
+    (discriminator?.not && !stringEnumValues(discriminator.not))
   )
     return;
   const armorType = clause.properties?.armor?.properties?.type;
