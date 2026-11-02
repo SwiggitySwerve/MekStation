@@ -1,6 +1,7 @@
 import type { TabInfo } from '@/stores/useTabManagerStore';
 
 import { getUnitStore } from '@/stores/unitStoreRegistry';
+import { isEditableAerospace } from '@/types/unit/AerospaceSerialization';
 import { isVehicleUnitShape } from '@/types/unit/VehicleInterfaces';
 
 import { isLibrarySaveSupported } from './MultiUnitTabsUnitState';
@@ -12,7 +13,8 @@ export function getSavedHistoryDisabledReason(
   if (
     !isLibrarySaveSupported(tab.unitType) ||
     (tab.unitType !== undefined &&
-      isVehicleUnitShape({ unitType: tab.unitType }))
+      (isVehicleUnitShape({ unitType: tab.unitType }) ||
+        isEditableAerospace({ unitType: tab.unitType })))
   ) {
     return `Saved history is not available for ${tab.unitType} units yet.`;
   }

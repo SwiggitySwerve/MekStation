@@ -32,7 +32,9 @@ import {
   resetCanonicalUnitService,
 } from '@/services/units/CanonicalUnitService';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
+import { mapAerospaceDefinitionToState } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { getCapitalShipView } from '@/services/units/unitLoaderService/capitalShipView';
+import { isDefinitionForFamily } from '@/services/units/unitLoaderService/definitionTypes';
 import { UnitLoaderService } from '@/services/units/unitLoaderService/unitLoader';
 import { mapToVehicleState } from '@/services/units/unitLoaderService/vehicleMapping';
 import { UnitRepository } from '@/services/units/UnitRepository';
@@ -53,7 +55,10 @@ import { RulesLevel } from '@/types/enums/RulesLevel';
 import { Era } from '@/types/temporal/Era';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { infantryLibraryBVInput } from '@/utils/construction/infantry/libraryMapping';
-import { serializeCustomVehicleState } from '@/utils/serialization/CustomUnitSerializer';
+import {
+  serializeCustomVehicleState,
+  serializeCustomAerospaceState,
+} from '@/utils/serialization/CustomUnitSerializer';
 
 import { isLibrarySaveSupported } from '../MultiUnitTabsUnitState';
 import { getLibrarySaveDisabledReason } from '../MultiUnitTabsUnitState';
@@ -177,51 +182,65 @@ beforeEach(() => {
   jest.mocked(customUnitApiService.list).mockResolvedValue([]);
 });
 
-it('lists a saved vehicle with its family and reopens it in the vehicle store', async () => {
-  const entry = await indexEntry('vehicles', 'manticore-heavy-tank');
-  const definition = await getCanonicalUnitService().getById(entry.id, {
-    family: 'vehicles',
-  });
-  const state = mapToVehicleState(definition);
-  const saved = serializeCustomVehicleState(state, {
-    id: 'custom-manticore',
-    chassis: 'Saved Manticore',
-    variant: 'Custom',
-    era: Era.DARK_AGE,
-  });
-  const customEntry = {
-    ...entry,
-    id: saved.id,
-    family: 'vehicles' as const,
-    chassis: 'Saved Manticore',
-    era: Era.DARK_AGE,
-    rulesLevel: RulesLevel.STANDARD,
-    variant: 'Custom',
-    currentVersion: 1,
-    createdAt: '',
-    updatedAt: '',
-  };
-  jest.mocked(customUnitApiService.list).mockResolvedValue([customEntry]);
-  jest.mocked(customUnitApiService.getById).mockResolvedValue(saved as never);
-  const onLoadUnit = jest.fn();
-  render(
-    <UnitLoadDialog isOpen onCancel={jest.fn()} onLoadUnit={onLoadUnit} />,
-  );
-  await userEvent.click(await screen.findByText('Saved Manticore'));
-  await userEvent.click(screen.getByRole('button', { name: 'Load Unit' }));
-  expect(onLoadUnit).toHaveBeenCalledWith(
-    expect.objectContaining({ family: 'vehicles', id: saved.id }),
-    'custom',
-  );
-  const [selected] = onLoadUnit.mock.calls[0];
-  await open(selected, 'custom');
-  const [tab] = useTabManagerStore.getState().tabs;
-  expect(getVehicleStore(tab.id)?.getState()).toMatchObject({
-    chassis: 'Saved Manticore',
-    unitType: UnitType.VEHICLE,
-    equipment: expect.any(Array),
-  });
-});
+it.each(['vehicles', 'aerospace'] as const)(
+  'lists a saved %s with its family and reopens it in its own store',
+  async (family) => {
+    const entry = await indexEntry(
+      family,
+      family === 'vehicles' ? 'manticore-heavy-tank' : 'aquarius-escort',
+    );
+    const definition = await getCanonicalUnitService().getById(entry.id, {
+      family,
+    });
+    const identity = {
+      id: 'custom-manticore',
+      chassis: 'Saved Manticore',
+      variant: 'Custom',
+      era: Era.DARK_AGE,
+    };
+    const contract = UnitContract.parse(definition);
+    const saved = isDefinitionForFamily('aerospace', contract)
+      ? serializeCustomAerospaceState(
+          mapAerospaceDefinitionToState(contract),
+          identity,
+        )
+      : serializeCustomVehicleState(mapToVehicleState(definition), identity);
+    const customEntry = {
+      ...entry,
+      id: saved.id,
+      family,
+      chassis: 'Saved Manticore',
+      era: Era.DARK_AGE,
+      rulesLevel: RulesLevel.STANDARD,
+      variant: 'Custom',
+      currentVersion: 1,
+      createdAt: '',
+      updatedAt: '',
+    };
+    jest.mocked(customUnitApiService.list).mockResolvedValue([customEntry]);
+    jest.mocked(customUnitApiService.getById).mockResolvedValue(saved as never);
+    const onLoadUnit = jest.fn();
+    render(
+      <UnitLoadDialog isOpen onCancel={jest.fn()} onLoadUnit={onLoadUnit} />,
+    );
+    await userEvent.click(await screen.findByText('Saved Manticore'));
+    await userEvent.click(screen.getByRole('button', { name: 'Load Unit' }));
+    expect(onLoadUnit).toHaveBeenCalledWith(
+      expect.objectContaining({ family, id: saved.id }),
+      'custom',
+    );
+    const [selected] = onLoadUnit.mock.calls[0];
+    await open(selected, 'custom');
+    const [tab] = useTabManagerStore.getState().tabs;
+    const getStore =
+      family === 'vehicles' ? getVehicleStore : getAerospaceStore;
+    expect(getStore(tab.id)?.getState()).toMatchObject({
+      chassis: 'Saved Manticore',
+      unitType: saved.unitType,
+      equipment: expect.any(Array),
+    });
+  },
+);
 
 async function indexEntry(
   family: UnitFamily,
@@ -367,9 +386,7 @@ it.each([
       );
     }
     expect(createUnitFromFullState).not.toHaveBeenCalled();
-    if (family === 'vehicles')
-      expect(getLibrarySaveDisabledReason(tab)).toBeNull();
-    else expect(getLibrarySaveDisabledReason(tab)).toMatch(/not available/);
+    expect(getLibrarySaveDisabledReason(tab)).toBeNull();
   },
 );
 

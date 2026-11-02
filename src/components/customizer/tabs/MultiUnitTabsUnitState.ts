@@ -1,3 +1,4 @@
+import type { AerospaceStore } from '@/stores/aerospaceState';
 import type { UnitStore } from '@/stores/unitState';
 import type { TabInfo } from '@/stores/useTabManagerStore';
 import type { VehicleStore } from '@/stores/vehicleState';
@@ -10,6 +11,7 @@ import { getUnitStore } from '@/stores/unitStoreRegistry';
 import { getVehicleStore } from '@/stores/vehicleStoreRegistry';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
+import { isEditableAerospace } from '@/types/unit/AerospaceSerialization';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { isVehicleUnitShape } from '@/types/unit/VehicleInterfaces';
 
@@ -29,7 +31,8 @@ export function isLibrarySaveSupported(unitType?: UnitType): boolean {
     unitType === UnitType.BATTLEMECH ||
     unitType === UnitType.OMNIMECH ||
     unitType === UnitType.INDUSTRIALMECH ||
-    isVehicleUnitShape({ unitType })
+    isVehicleUnitShape({ unitType }) ||
+    isEditableAerospace({ unitType })
   );
 }
 
@@ -55,7 +58,7 @@ function isAerospaceType(unitType: UnitType): boolean {
 }
 
 interface LibrarySaveStore {
-  getState(): UnitStore | VehicleStore;
+  getState(): UnitStore | VehicleStore | AerospaceStore;
   setState(
     partial: Partial<
       Pick<
@@ -70,6 +73,8 @@ export function getLibrarySaveStore(
   tabId: string,
   unitType?: UnitType,
 ): LibrarySaveStore | undefined {
+  if (unitType && isEditableAerospace({ unitType }))
+    return getAerospaceStore(tabId);
   return unitType && isVehicleUnitShape({ unitType })
     ? getVehicleStore(tabId)
     : getUnitStore(tabId);

@@ -144,7 +144,7 @@ describe('useDialogHandlers library save', () => {
   );
 
   it('reports unsupported families and keeps the unsaved-close choice open', () => {
-    const getTabById = jest.fn(() => tab(UnitType.AEROSPACE));
+    const getTabById = jest.fn(() => tab(UnitType.DROPSHIP));
     const { result } = renderHook(() =>
       useDialogHandlers(performCloseTab, renameTab, getTabById),
     );

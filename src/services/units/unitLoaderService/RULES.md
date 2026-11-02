@@ -46,6 +46,13 @@ registry owns their accepted contract discriminators and available store mapper.
 
 ## Vehicle definition mapping
 
+- Aerospace fighter, conventional fighter, FixedWingSupport and small-craft saves
+  use CustomUnitSerializer and family `aerospace`. The mapper validates the
+  aerospaceEditor extension for exact construction, crew, bay and mount facts.
+  Session IDs, timestamps and dirty flags renew; mount IDs renew with links
+  retargeted by index. Capital ships stay read-only; aerospace saved history
+  receipts remain unavailable. Newer edits remain dirty after an in-flight save.
+
 - `mapToVehicleState` accepts contract JSON or a loaded vehicle definition.
   `normalizeVehicleConfiguration` validates required vehicle facts and maps them
   deterministically; `createVehicleSession` assigns fresh editor identity and

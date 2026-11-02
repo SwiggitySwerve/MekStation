@@ -11,6 +11,7 @@ import { logger } from '@/utils/logger';
 import {
   serializeCustomUnitState,
   serializeCustomVehicleState,
+  serializeCustomAerospaceState,
 } from '@/utils/serialization/CustomUnitSerializer';
 import { getEraForYear } from '@/utils/temporal/eraUtils';
 
@@ -195,7 +196,9 @@ export function useDialogHandlers(
         const unitData =
           'configuration' in state
             ? serializeCustomUnitState(state, identity)
-            : serializeCustomVehicleState(state, identity);
+            : 'aerospaceSubType' in state
+              ? serializeCustomAerospaceState(state, identity)
+              : serializeCustomVehicleState(state, identity);
 
         // The legacy API type names persisted data as IFullUnit even though
         // this path writes the canonical ISerializedUnit contract.
