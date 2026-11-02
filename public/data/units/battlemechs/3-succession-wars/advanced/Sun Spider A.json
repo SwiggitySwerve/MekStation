@@ -43,7 +43,7 @@
     }
   },
   "heatSinks": {
-    "type": "DOUBLE",
+    "type": "DOUBLE_CLAN",
     "count": 15
   },
   "movement": {
@@ -53,11 +53,11 @@
   "equipment": [
     {
       "id": "er-large-laser",
-      "location": "RIGHT_ARM"
+      "location": "LEFT_ARM"
     },
     {
       "id": "er-large-laser",
-      "location": "LEFT_ARM"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "ultra-ac-2",
@@ -81,7 +81,7 @@
       "Shoulder",
       "Upper Arm Actuator",
       "Clan Endo Steel",
-      "CLERLargeLaser",
+      "CLERLargeLaser (OMNIPOD)",
       null,
       null,
       null,
@@ -95,9 +95,9 @@
       "Shoulder",
       "Upper Arm Actuator",
       "Clan Endo Steel",
-      "CLERLargeLaser",
-      "CLDoubleHeatSink",
-      "CLDoubleHeatSink",
+      "CLERLargeLaser (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
       null,
       null,
       null,
@@ -112,11 +112,11 @@
       "Clan Endo Steel",
       "Clan Ferro-Fibrous",
       "Clan Ferro-Fibrous",
-      "CLUltraAC2",
-      "CLUltraAC2",
-      "CLUltraAC2",
-      "CLUltraAC2",
-      "Clan Ultra AC/2 Ammo",
+      "CLUltraAC2 (OMNIPOD)",
+      "CLUltraAC2 (OMNIPOD)",
+      "CLUltraAC2 (OMNIPOD)",
+      "CLUltraAC2 (OMNIPOD)",
+      "Clan Ultra AC/2 Ammo (OMNIPOD)",
       null
     ],
     "RIGHT_TORSO": [
@@ -126,11 +126,11 @@
       "Clan Endo Steel",
       "Clan Ferro-Fibrous",
       "Clan Ferro-Fibrous",
-      "CLUltraAC2",
-      "CLUltraAC2",
-      "CLUltraAC2",
-      "CLUltraAC2",
-      "Clan Ultra AC/2 Ammo",
+      "CLUltraAC2 (OMNIPOD)",
+      "CLUltraAC2 (OMNIPOD)",
+      "CLUltraAC2 (OMNIPOD)",
+      "CLUltraAC2 (OMNIPOD)",
+      "Clan Ultra AC/2 Ammo (OMNIPOD)",
       null
     ],
     "CENTER_TORSO": [
@@ -172,5 +172,5 @@
       null
     ]
   },
-  "source": "Videogame (Apocryphal)"
+  "source": "Apocryphal (Videogame)"
 }

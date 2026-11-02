@@ -196,13 +196,6 @@
       "IS Endo Steel"
     ]
   },
-  "quirks": [
-    "distracting"
-  ],
-  "fluff": {
-    "overview": "\"This is something brand-new to me, Commander. I don't know where this 'Mech came from, but it's a serious force to be reckoned with because of its heavy weaponry and nearly impenetrable armor. Quite a find!\" - Yang Virtanen",
-    "history": "Following the discovery and subsequent loss of the original Bull Shark BSK-MAZ aboard the abandoned jumpship Dobrev, the shadowy organisation known as the Baumann Group set to recreate the design. While the original 'Mech was lost to them during a conflict with the Black Widow Company, a large equipment cache of mysterious origin was still aboard and available for them to use, primarily consisting of seemingly cast-off but high-quality autocannons. After a few years of design and production set-up, the initial results were less than desirable, with the 'Mech unable to match its original's speed without sacrificing firepower or armour. The rediscovery of Endo-Steel and Extralight Fusion Engine manufacturing in 3035, around a decade after the original Bull Shark had been lost, allowed the Baumann Group to progress their recreation further. With their influence and black market dealings, they sourced the new material and engines for their efforts. Using standard Inner Sphere weaponry - paired with the Improved Autocannons from the Dobrev - a limited run of BSK-M3s were produced and sold to those with the right connections and enough C-Bills to afford the exotic-looking new 'Mechs.\nmanufacturer:Baumann Group",
-    "deployment": "The Bull Shark is a 95-ton Assault 'Mech described as a \"Heavy Brawler\", and is equipped to engage targets across a fairly wide range bracket. This Inner Sphere production variant uses conventional and rediscovered 'tech, unlike its original prototype, and carries a more versatile loadout and hardpoint set-up. A pair of LRM-5s and one ton of ammo are fitted to each torso, while medium lasers replace the original extended range versions. Each arm mounts a standard AC/10 and an Improved AC/5. The design features two tons of AC/10 ammo and one ton of AC/5 ammo. The replacement of the original's Thumper Artillery Cannon allows the chassis to carry a full 18.5 tons of armour, providing protection that nearly rivals an Atlas.  Only ten Single Heat Sinks mounted in the engine fight to keep the 'Mech from burning up, with MechWarriors needing to keep careful track of their heat generation."
-  },
-  "source": "Videogame (Apocryphal)"
+  "quirks": ["distracting"],
+  "source": "Apocryphal (Videogame)"
 }

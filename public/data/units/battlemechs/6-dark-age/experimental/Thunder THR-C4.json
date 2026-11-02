@@ -52,24 +52,24 @@
   },
   "equipment": [
     {
-      "id": "1-isermediumlaser",
+      "id": "er-medium-laser",
       "location": "LEFT_ARM"
     },
     {
-      "id": "1-isermediumlaser",
+      "id": "er-medium-laser",
       "location": "LEFT_ARM"
     },
     {
-      "id": "1-isermediumlaser",
+      "id": "er-medium-laser",
       "location": "LEFT_ARM"
     },
     {
-      "id": "1-ismediumxpulselaser",
-      "location": "HEAD"
-    },
-    {
-      "id": "1-isthunderbolt20",
+      "id": "thunderbolt-20",
       "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-x-pulse-laser",
+      "location": "HEAD"
     }
   ],
   "criticalSlots": {
@@ -77,71 +77,71 @@
       "Shoulder",
       "Upper Arm Actuator",
       "Lower Arm Actuator",
-      "ISDouble Heat Sink",
-      "ISDouble Heat Sink",
-      "ISDouble Heat Sink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
+      "ISDoubleHeatSink",
       "ISERMediumLaser",
       "ISERMediumLaser",
       "ISERMediumLaser",
-      "Endo-Steel",
-      "Endo-Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
       null
     ],
     "RIGHT_ARM": [
       "Shoulder",
       "Upper Arm Actuator",
-      "ISThunderbolt20",
-      "ISThunderbolt20",
-      "ISThunderbolt20",
-      "ISThunderbolt20",
-      "ISThunderbolt20",
-      "ISThunderbolt20 Ammo",
-      "ISThunderbolt20 Ammo",
-      "ISThunderbolt20 Ammo",
-      "ISThunderbolt20 Ammo",
+      "Thunderbolt 20",
+      "Thunderbolt 20",
+      "Thunderbolt 20",
+      "Thunderbolt 20",
+      "Thunderbolt 20",
+      "IS Ammo Thunderbolt-20",
+      "IS Ammo Thunderbolt-20",
+      "IS Ammo Thunderbolt-20",
+      "IS Ammo Thunderbolt-20",
       "ISCASEII"
     ],
     "LEFT_TORSO": [
-      "Engine",
-      "Engine",
-      "Engine",
-      "ISImprovedJump Jet",
-      "ISImprovedJump Jet",
-      "ISImprovedJump Jet",
-      "ISImprovedJump Jet",
-      "ISImprovedJump Jet",
-      "ISImprovedJump Jet",
-      "Endo-Steel",
-      "Endo-Steel",
-      "Endo-Steel"
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
     ],
     "RIGHT_TORSO": [
-      "Engine",
-      "Engine",
-      "Engine",
-      "ISImprovedJump Jet",
-      "ISImprovedJump Jet",
-      "ISImprovedJump Jet",
-      "ISImprovedJump Jet",
-      "ISImprovedJump Jet",
-      "ISImprovedJump Jet",
-      "Endo-Steel",
-      "Endo-Steel",
-      "Endo-Steel"
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "Improved Jump Jet",
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
     ],
     "CENTER_TORSO": [
-      "Engine",
-      "Engine",
-      "Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
       "Gyro",
       "Gyro",
       "Gyro",
       "Gyro",
-      "Engine",
-      "Engine",
-      "Engine",
-      "Endo-Steel",
-      "Endo-Steel"
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      "IS Endo Steel"
     ],
     "HEAD": [
       "Life Support",
@@ -156,31 +156,33 @@
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      "Endo-Steel",
-      "Endo-Steel"
+      "IS Endo Steel",
+      "IS Endo Steel"
     ],
     "RIGHT_LEG": [
       "Hip",
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      "Endo-Steel",
-      "Endo-Steel"
+      "IS Endo Steel",
+      "IS Endo Steel"
     ]
   },
-  "quirks": ["cowl", "hard_pilot", "easy_maintain", "reinforced_legs"],
+  "quirks": ["hard_pilot", "cowl", "easy_maintain", "reinforced_legs"],
   "fluff": {
-    "overview": "The Thunder is a product of the aftermath of the Fourth Succession War.",
-    "capabilities": "This version of the Thunder replaces the heavy autocannon with a Sian/Ceres Hellcat Thunderbolt 20 missile launcher. It also mounts three Ceres Arms ER Medium Lasers and a single Ceres Arms Model X Medium X-Pulse Laser for close combat. The XL engine is smaller than the standard Thunders engine, reducing the top speed to 64 km/h. To offset this loss of speed, the C4 mounts six Anderson High Propulsion 12s Improved Jump Jets. For protection against ammunition explosions, the four tons of Thunderbolt ammunition is protected by CASE II. Built on an Endo Steel chassis, the rest of the 'Mech is covered in thirteen tons of armor.",
-    "history": "The 'Mech was built to make the most of new technologies that had made their way to the Capellan Confederation at the beginning of the 3050s. This was done by building the 'Mech around a Magna 350 XL Engine to maximize the available weight in the 'Mech. The Thunder also uses double heat sinks to make it capable of handling a high heat load from its weapons systems. The 'Mech is well protected with thirteen and a half tons of armor. Its weapons payload, and the design in general, uses a mix of advanced and off the shelf parts. This balanced mix makes the Thunder a valuable asset on the modern battlefield.",
+    "overview": "<p>The Thunder is a seventy-ton heavy BattleMech introduced in 3055 by Ceres Metals Industries for the Capellan Confederation Armed Forces. Designed to deliver overwhelming short-range firepower without sacrificing maneuverability, the Thunder became one of the most prolifically produced BattleMechs in the Confederation, serving as a mobile line breaker capable of crippling opponents at close quarters.</p><p>Produced at multiple Ceres Metals facilities across Capellan space, the Thunder filled a critical need for the resource-strapped Confederation by combining advanced technology with economical production. The design has earned a fearsome reputation among opponents who must face its devastating primary armament, though its short effective range and ammunition dependency have drawn persistent criticism from within Capellan ranks as well.</p>",
+    "capabilities": "<p>The Thunder's primary weapon is the devastating Kali Yama Big Bore Autocannon/20, mounted with three tons of ammunition. Capable of crippling lighter 'Mechs with a single salvo, the autocannon gives the design its fearsome reputation as a line breaker. A Sian/Ceres Jaguar LRM-5 in the left torso provides limited indirect fire capability, while three Ceres Arms Model W medium pulse lasers offer accurate close-range support. CASE protects against catastrophic ammunition detonation.</p><p>The Magna 350 XL fusion engine propels the seventy-ton chassis to an impressive 86 kilometers per hour, permitting the Thunder to engage enemy units half its size in maneuver warfare. Eleven double heat sinks manage the considerable thermal output, and thirteen and a half tons of Durallex heavy armor provide solid protection. However, the design's reliance on an XL engine creates a significant vulnerability, as damage to either side torso can prove immediately crippling. The short effective range of the Thunder's primary weapons forces pilots to close aggressively, and the autocannon's appetite for ammunition limits sustained combat endurance.</p>",
+    "history": "<p>The Thunder's development traces directly to the devastation inflicted on the Capellan Confederation during the Fourth Succession War. With the Federated Commonwealth occupying several key industrial worlds, Ceres Metals Industries found itself among the Confederation's few remaining heavy manufacturers. The company worked aggressively to expand its production capacity at facilities on Capella, Sian, and St. Ives, driven by the urgent need to rebuild the shattered Capellan Armed Forces.</p><p>By the early 3050s, new technologies derived from analysis of salvaged Clan OmniMech components had begun reaching the Inner Sphere. Ceres Metals acquired this knowledge through the Free Worlds League and applied it to the Thunder's design. When the THR-1L entered service in 3055, Chancellor Romano Liao personally awarded the design team a citation. Production initially centered on the Capella facility before expanding to Sian and eventually St. Ives.</p><p>The Thunder quickly proved its worth in combat. During the Battle of Denbar, a pair of Thunders and their powerful autocannons were credited with saving elements of the Hustang Warriors from destruction after they were ambushed by the reconstituted Blackwind Lancers' Second Battalion. The Thunders forced two lances of lighter 'Mechs to withdraw after inflicting heavy casualties, losing only one of their number disabled in the exchange. Thunders soon served throughout the CCAF, with rumors of a few lances deployed in Free Capellan units as well.</p><p>As the design matured, Ceres Metals introduced upgraded variants. The stealth-armored THR-2L entered production around 3062, followed by the Arrow IV-equipped THR-3L intended to replace the aging Catapult in line regiments. The Magistracy of Canopus also became a significant customer, making the Thunder a popular purchase in the Magistracy Armed Forces. However, both the MAF and CCAF expressed growing dissatisfaction with the Thunder's short effective range, ammunition vulnerability, and limited survivability in extended engagements.</p><p>The Jihad brought severe disruption to the Thunder's production network. The Word of Blake's Eighth Division violently ended production at the St. Ives facility, while the Sian plant eventually shifted priorities to other designs. In 3078, the MAF opted not to renew its Thunder contract, citing high cost and low survivability. Eager to retain a valued customer, Ceres Metals invited MAF officers to provide input on a new variant, with CCAF representatives participating as well. The resulting THR-C4 entered service with both nations in 3083, featuring a Thunderbolt launcher, improved jump jets, and enhanced protection. The Capella facility continues to produce the Thunder, and the design remains a mainstay of the Capellan Armed Forces.</p>",
+    "deployment": "<p>Developed jointly by the Capellan Confederation and the Magistracy of Canopus following dissatisfaction with earlier Thunder variants, this variant entered service with both nations in 3083. Responding to criticism that the Thunder's effective range was dangerously short and its ammunition dependency created unacceptable vulnerability, Ceres Metals undertook a substantial redesign. The autocannon is replaced by a Sian/Ceres Hellcat Thunderbolt 20 launcher, capable of delivering equivalent damage at twice the distance. A smaller VOX 280 XL engine reduces top speed to 64 kilometers per hour, but six Anderson High Propulsion improved jump jets provide 180 meters of jumping capability over rough terrain. Three Ceres Arms extended-range medium lasers and a Ceres Arms Model X medium X-pulse laser round out the weapons suite, while the chassis is rebuilt with endo steel internals and CASE II provides enhanced ammunition protection.</p>",
     "manufacturer": "Ceres Metals Industries",
-    "primaryFactory": "Sian, Capella and St. Ives",
+    "primaryFactory": "Capella",
     "systemManufacturer": {
-      "CHASSIS": "Hollis Mk III",
-      "ENGINE": "Magna 350 XL",
-      "ARMOR": "Ceres Heavy with CASE",
-      "COMMUNICATIONS": "Ceres Metals Model 21-Rs",
-      "TARGETING": "C-Apple Churchill"
+      "CHASSIS": "Hollis",
+      "ENGINE": "VOX",
+      "ARMOR": "Ceres",
+      "JUMP_JET": "Anderson High Propulsion",
+      "COMMUNICATIONS": "Ceres Metals",
+      "TARGETING": "C-Apple"
     }
   },
   "mulId": 5230,

@@ -1,0 +1,203 @@
+{
+  "id": "hunchback-hbk-lgn-pin-drizella",
+  "chassis": "Hunchback",
+  "model": "HBK-LGN-Pin 'Drizella'",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "MIXED",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "DARK_AGE",
+  "year": 3138,
+  "tonnage": 50,
+  "engine": {
+    "type": "XL",
+    "rating": 350
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 16,
+      "RIGHT_ARM": 16,
+      "LEFT_TORSO": {
+        "front": 15,
+        "rear": 7
+      },
+      "RIGHT_TORSO": {
+        "front": 15,
+        "rear": 7
+      },
+      "CENTER_TORSO": {
+        "front": 20,
+        "rear": 7
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 20,
+      "RIGHT_LEG": 20
+    }
+  },
+  "heatSinks": {
+    "type": "DOUBLE",
+    "count": 14
+  },
+  "movement": {
+    "walk": 7,
+    "jump": 6
+  },
+  "equipment": [
+    {
+      "id": "medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "micro-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "micro-pulse-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "medium-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "micro-pulse-laser",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "micro-pulse-laser",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Lower Arm Actuator",
+      "Hand Actuator",
+      "Medium Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "CLMediumPulseLaser",
+      "CLMicroPulseLaser",
+      "CLMicroPulseLaser",
+      "Clan Endo Steel",
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Jump Jet",
+      "Jump Jet",
+      "Jump Jet",
+      "CLMediumPulseLaser",
+      "CLMicroPulseLaser",
+      "CLMicroPulseLaser",
+      "Clan Endo Steel",
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "IS Endo Steel",
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      "IS Endo Steel",
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      null,
+      null
+    ]
+  },
+  "quirks": ["ext_twist", "stable", "prototype", "non_standard"],
+  "fluff": {
+    "overview": "<p>The HBK-LGN-Pin Ugly Stepsister Drizella is a fifty-ton mixed-technology BattleMech built for the Solaris dueling stable Team Godmother during the Dark Age. It is the twin counterpart to Anastasia, assembled from the same salvaged trio of donor 'Mechs and presented as the second of the team's wicked stepsisters under the stable's Cinderella theme.</p><p>Where its sister leans on mass and armor, Drizella takes the opposite approach. It is fast and light on its feet, built around mobility and a dense battery of short-range energy weapons rather than a single heavy punch. The design trades reach and durability for speed, aiming to close quickly and overwhelm a single opponent before the crowd has time to settle.</p>",
+    "capabilities": "<p>Drizella is a saturation brawler designed to bury a single target under a wall of short-range fire. Its mixed battery combines a pair of medium lasers, two Clan medium pulse lasers, and four Clan micro pulse lasers, a loadout that produces enormous damage at point-blank range while contributing almost nothing past a short reach. A three-hundred-fifty-rated extralight engine drives the machine to highway speeds, and jump jets let it cover nearly its full running distance in a single bound, giving it the agility to dictate range against slower foes.</p><p>That speed and firepower come at a cost. Fourteen double heat sinks struggle to keep pace with the full array, so the pilot must choose which weapons fire on any given pass or risk building dangerous heat. The extralight engine saves weight but spreads vulnerable components into the side torsos, and the short effective range of every weapon means a faster or longer-ranged opponent can simply refuse the close fight Drizella needs.</p>",
+    "history": "<p>The two machines that became the Ugly Stepsisters began as scrap. Around 3138, technicians working for what would later be organized as Team Godmother cannibalized three very different donor 'Mechs, a Hunchback dating to the early 3050s, an early-production Legionnaire, and a Clan-built Pinion, and recombined their salvageable sections into a matched pair of fifty-ton hybrids. The result honored none of the original designs and instead followed the team's theatrical conceit, a Solaris dueling stable themed around the Cinderella story, with the two brawlers cast as the wicked stepsisters Anastasia and Drizella.</p><p>Team Godmother was a newcomer to the Solaris VII circuit, assembled and trained for the 3146 Royal Fantasy Tournament after several quieter years of preparation. The stable carried no permanent owner of record and was widely understood to be backed by the Federated Suns, fielding three contracted independent gladiators rather than a roster of house pilots. On a world where reputation is won in the arena rather than on the battlefield, the Stepsisters provided the team's heavy muscle, deliberately unlovely machines built to punish opponents who underestimated cobbled-together salvage.</p>",
+    "deployment": "<p>Drizella was Team Godmother's aggressor, using its speed and jump capability to chase down and corner single opponents in the arena. The machine excelled in the kind of fast, brutal, short-ranged duel its loadout was tuned for, swarming a target with overlapping fire before a bout could turn into a long-range contest. Spectators came to recognize it as the faster, flashier half of the Stepsister pairing.</p>",
+    "manufacturer": "Team Godmother",
+    "primaryFactory": "Solaris VII",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "JUMP_JET": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "Unknown"
+    }
+  },
+  "mulId": 8375,
+  "role": "Striker",
+  "source": "XTR:Royal Fantasy"
+}

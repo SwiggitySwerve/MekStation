@@ -21,7 +21,7 @@
     "type": "ENDO_STEEL_CLAN"
   },
   "armor": {
-    "type": "FERRO_FIBROUS_CLAN",
+    "type": "FERRO_LAMELLOR",
     "allocation": {
       "LEFT_ARM": 16,
       "RIGHT_ARM": 16,
@@ -43,7 +43,7 @@
     }
   },
   "heatSinks": {
-    "type": "DOUBLE",
+    "type": "DOUBLE_CLAN",
     "count": 11
   },
   "movement": {
@@ -82,28 +82,28 @@
       "Upper Arm Actuator",
       "Clan Ferro-Lamellor",
       "Clan Ferro-Lamellor",
-      "CLUltraAC20 (omnipod)",
-      "CLUltraAC20 (omnipod)",
-      "CLUltraAC20 (omnipod)",
-      "CLUltraAC20 (omnipod)",
-      "CLUltraAC20 (omnipod)",
-      "CLUltraAC20 (omnipod)",
-      "CLUltraAC20 (omnipod)",
-      "CLUltraAC20 (omnipod)"
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)"
     ],
     "RIGHT_ARM": [
       "Shoulder",
       "Upper Arm Actuator",
       "Lower Arm Actuator",
-      "TSM",
-      "TSM",
-      "TSM",
-      "CLImprovedMediumHeavyLaser (omnipod)",
-      "CLImprovedMediumHeavyLaser (omnipod)",
-      "CLImprovedMediumHeavyLaser (omnipod)",
-      "CLImprovedMediumHeavyLaser (omnipod)",
-      "CLImprovedMediumHeavyLaser (omnipod)",
-      "CLImprovedMediumHeavyLaser (omnipod)"
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)"
     ],
     "LEFT_TORSO": [
       "Fusion Engine",
@@ -115,9 +115,9 @@
       "Clan Endo Steel",
       "Clan Endo Steel",
       "Clan Endo Steel",
-      "CLImprovedMediumHeavyLaser (omnipod)",
-      "CLImprovedMediumHeavyLaser (omnipod)",
-      "CL Super Charger (omnipod)"
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "Supercharger (OMNIPOD)"
     ],
     "RIGHT_TORSO": [
       "Fusion Engine",
@@ -128,10 +128,10 @@
       "Clan Ferro-Lamellor",
       "Clan Ferro-Lamellor",
       "Clan Ferro-Lamellor",
-      "Clan Ultra AC/20 Ammo (omnipod)",
-      "Clan Ultra AC/20 Ammo (omnipod)",
-      "Clan Ultra AC/20 Ammo (omnipod)",
-      "CLCASEII (omnipod)"
+      "Clan Ultra AC/20 Ammo (OMNIPOD)",
+      "Clan Ultra AC/20 Ammo (OMNIPOD)",
+      "Clan Ultra AC/20 Ammo (OMNIPOD)",
+      "CLCASEII (OMNIPOD)"
     ],
     "CENTER_TORSO": [
       "Fusion Engine",
@@ -140,12 +140,12 @@
       "Fusion Engine",
       "Fusion Engine",
       "Fusion Engine",
-      "TSM",
-      "TSM",
-      "TSM",
-      "CLImprovedMediumHeavyLaser (omnipod)",
-      "CLImprovedMediumHeavyLaser (omnipod)",
-      "CLECMSuite (omnipod)"
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "Triple Strength Myomer",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLImprovedMediumHeavyLaser (OMNIPOD)",
+      "CLECMSuite (OMNIPOD)"
     ],
     "HEAD": [
       "Life Support",
@@ -173,15 +173,15 @@
     ]
   },
   "fluff": {
-    "overview": "Developed during the mid-Dark Ages in the 32nd Century, the Ryoken III-XP was an experimental medium OmniMech which was first fielded by Clan Wolf.",
-    "capabilities": "Built with a mix of Inner Sphere and Clan technologies, the Ryoken III-XP is a powerful and swift design. Using a combination of a 330-rated Extra-Light Fusion Engine and Triple Strength Myomer, the 'Mech is able to achieve speeds up to 110 km/h. Perhaps the most startling innovation included in this design is the Clan Interface Armor, which allows a MechWarrior to interface with their 'Mech while being completely armored should they be forced to eject. This combination interface allows the Ryoken III pilot's a degree of control in combat, and removes the need to have a Gyro mounted in the 'Mech. This technology was thought to have been lost at the time of Ryoken III's baptism in combat by Inner Sphere powers. In addition to having its pilot encased in a power-armor interface, the Mech's hull is protected by 11.5 tons of Ferro-Lamellor Armor.",
-    "history": "Also known as the Skinwalker, it was created by the newly transplanted Clan Wolf, which had renovated a factory that had once belonged to the former Marik-Stewart Commonwealth. This 'Mech, when it was first deployed into combat, surprised many with its use of a mix of experimental and exotic technologies, the likes of which was rarely seen in Clan design before. The design was first encountered in combat in 3148, when Republic Remnant forces raided Kalidasa.",
-    "deployment": "Fast, quick, and deadly, the B configuration is fitted with medium and short range weapons and a Supercharger to help it get into range. The arsenal includes five Improved Heavy Medium Lasers. These weapons are fitted in the side, center torsos and right arm. The main weapon for close-up combat is a Class-20 Ultra Autocannon mounted on the right arm, with three tons of ammunition protected by CASE II. Enhancing the Mech's survival is a Clan-produced ECM suite.",
+    "overview": "<p>The Ryoken III-XP is a 55-ton experimental OmniMech developed by Clan Wolf at the renovated Kali Yama Weapons Industries facility on Kalidasa during the mid-thirty-second century. Designated a Prototype Hybrid Chassis, the design served as a technology demonstrator that combined Inner Sphere and Clan experimental systems on a medium OmniMech platform derived from the proven Stormcrow lineage. Only a handful of prototypes were produced in multiple configurations before the program transitioned to the production Skinwalker, which replaced the most unreliable experimental components with proven alternatives suitable for mass manufacturing. The Ryoken III-XP remains classified as a high-priority intelligence target by former Republic analysts.</p>",
+    "capabilities": "<p>Built with a mix of Inner Sphere and Clan technologies, the Ryoken III-XP is a powerful and swift design. Using a combination of a 330-rated Extra-Light Fusion Engine and Triple Strength Myomer, the 'Mech is able to achieve speeds up to 110 km/h when the myomer bundles reach operating temperature. Perhaps the most startling innovation included in this design is the Clan Interface Armor, which allows a MechWarrior to interface with their 'Mech while being completely armored should they be forced to eject. This combination interface allows the Ryoken III pilot a degree of control in combat unmatched by conventional cockpit systems, and removes the need to have a Gyro mounted in the 'Mech. This technology was thought to have been lost at the time of Ryoken III's baptism in combat by Inner Sphere powers. In addition to having its pilot encased in a power-armor interface, the Mech's hull is protected by 11.5 tons of Ferro-Lamellor Armor.</p>",
+    "history": "<p>The Ryoken III-XP emerged from Clan Wolf's renovation of the former Kali Yama Weapons Industries facility on Kalidasa, a planet seized during the Wolf occupation of the old Marik-Stewart Commonwealth. Clan Wolf scientists used the facility to experiment with a combination of Inner Sphere and Clan technologies that was rarely attempted in Clan design philosophy. The prototype incorporated fixed Triple Strength Myomer, an Interface Cockpit derived from technology the Word of Blake had deployed during the Jihad, and Ferro-Lamellor armor on a 55-ton chassis descended from the proven Stormcrow platform.</p><p>The design was first encountered in 3148, when Republic Remnant forces raided Kalidasa to test Clan Wolf's state of readiness. During the engagement, a heavy lance isolated what was believed to be a standard Skinwalker. The prototype's speed and advanced armor absorbed punishment that should have destroyed a conventional OmniMech, until a PPC strike crippled the engine. The armored pilot ejected and escaped before capture, but examination of recovered battleROM data confirmed the use of an Interface Cockpit system. The discovery alarmed Republic intelligence, who classified the Ryoken III-XP as a high-priority capture target. The lessons learned from the prototype program fed directly into the production Skinwalker, which replaced the experimental Triple Strength Myomer and other unreliable systems with proven alternatives suitable for mass production.</p>",
+    "deployment": "<p>Built for aggressive close-range engagements, the B configuration mounts a devastating Ultra Autocannon/20 in the right arm alongside five improved heavy medium lasers distributed across the torsos and arms. A supercharger allows brief sprints exceeding 140 km/h when the Triple Strength Myomer reaches operating temperature, enabling rapid flanking attacks. An ECM suite and CASE II provide electronic protection and ammunition safety for this high-risk assault loadout.</p>",
     "manufacturer": "Kali Yama Weapons Industries Inc.",
     "primaryFactory": "Kalidasa",
     "systemManufacturer": {
-      "CHASSIS": "Prototype Hybrid Chassis",
-      "ENGINE": "330 Fusion Extralight",
+      "CHASSIS": "Kali Yama Weapons Industries",
+      "ENGINE": "Unknown",
       "ARMOR": "Unknown",
       "COMMUNICATIONS": "Unknown",
       "TARGETING": "Unknown"

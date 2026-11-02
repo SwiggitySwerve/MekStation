@@ -11,6 +11,15 @@ from append_pinned_bv_references import append_references, entry_spans
 
 
 class PinnedBVAppendTest(unittest.TestCase):
+    def test_shipped_historical_entries_are_byte_frozen_and_additions_tagged(self):
+        root = Path(__file__).resolve().parents[2]
+        cache = (root / 'scripts/data-migration/megamek-bv-cache.json').read_bytes()
+        values, spans = json.loads(cache)['entries'], entry_spans(cache)[2]
+        removed = json.loads((root / 'src/services/units/__tests__/fixtures/battleMechRemovedIds.json').read_text())
+        historical = [spans[key] for key in sorted(spans) if key not in removed and not values[key].get('source', '').startswith('pinned-java-')]
+        self.assertEqual(hashlib.sha256('\n'.join(historical).encode()).hexdigest(), 'd1d1fb04ee0536ccadb7090470f4ffecf6b314f91310485018f96ea24346773f')
+        self.assertEqual(sum(entry.get('source') == 'pinned-java-48fcb2f6' for entry in values.values()), 82)
+
     def test_only_appends_tagged_missing_ids_and_drops_approved_retirements(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
