@@ -69,6 +69,7 @@ const SchemaDef_capitalUnitType = z.enum([
   'WarShip',
   'Space Station',
 ]);
+const SchemaDef_infantryUnitType = z.literal('Infantry');
 
 export const UnitContract = z
   .union([
@@ -1028,13 +1029,22 @@ export const UnitContract = z
                       !SchemaDef_capitalUnitType.safeParse(value).success,
                     'Invalid input: Should NOT be valid against schema',
                   ),
-                z
-                  .unknown()
-                  .refine(
-                    (value) =>
-                      !SchemaDef_battleArmorUnitType.safeParse(value).success,
-                    'Invalid input: Should NOT be valid against schema',
-                  ),
+                z.intersection(
+                  z
+                    .unknown()
+                    .refine(
+                      (value) =>
+                        !SchemaDef_battleArmorUnitType.safeParse(value).success,
+                      'Invalid input: Should NOT be valid against schema',
+                    ),
+                  z
+                    .unknown()
+                    .refine(
+                      (value) =>
+                        !SchemaDef_infantryUnitType.safeParse(value).success,
+                      'Invalid input: Should NOT be valid against schema',
+                    ),
+                ),
               )
               .optional(),
             armor: z
@@ -1142,6 +1152,70 @@ export const UnitContract = z
                 vtolMP: z.number().int().gte(0).optional(),
               })
               .optional(),
+          }),
+          z.object({
+            unitType: SchemaDef_infantryUnitType,
+            tonnage: z.number().lte(250).optional(),
+            armor: z
+              .object({
+                type: SchemaDef_standardArmorType.optional(),
+                perTrooper: z.never().optional(),
+                sourceTechLevel: z.never().optional(),
+              })
+              .optional(),
+            equipment: z
+              .array(
+                z.object({
+                  unitLocation: z.never().optional(),
+                  isDWPMounted: z.never().optional(),
+                  isSquadSupportWeapon: z.never().optional(),
+                  isAPMMounted: z.never().optional(),
+                  shots: z.never().optional(),
+                  size: z.never().optional(),
+                }),
+              )
+              .optional(),
+            motiveType: z.string().min(1).optional(),
+            motionType: z.string().min(1).optional(),
+            beastMount: z.string().min(1).optional(),
+            platoon: z
+              .object({
+                squadSize: z.number().int().gte(1),
+                squadCount: z.number().int().gte(1),
+                totalTroopers: z.number().int().gte(1),
+              })
+              .strict()
+              .optional(),
+            primaryWeapon: z
+              .union([
+                z.string().min(1),
+                z
+                  .object({ id: z.string().min(1), name: z.string().min(1) })
+                  .strict(),
+              ])
+              .optional(),
+            secondaryWeapon: z
+              .object({
+                id: z.string().min(1),
+                name: z.string().min(1),
+                count: z.number().int().gte(0),
+              })
+              .strict()
+              .optional(),
+            customArmorDamageDivisor: z.number().gt(0).optional(),
+            damageDivisor: z.number().gt(0).optional(),
+            armorKit: z.union([z.string(), z.null()]).optional(),
+            armorFlags: z.array(z.string()).optional(),
+            effectiveArmorFlags: z.array(z.string()).optional(),
+            specializations: z.number().int().gte(0).lte(8191).optional(),
+            augmentations: z.array(z.string()).optional(),
+            prostheticEnhancements: z.record(z.string(), z.string()).optional(),
+            prostheticEnhancementCounts: z
+              .record(z.string(), z.number().int().gte(1))
+              .optional(),
+            srmMunition: z.string().optional(),
+            disposableWeapon: z.string().min(1).optional(),
+            customArmorName: z.string().min(1).optional(),
           }),
         ]),
       )
