@@ -4,6 +4,7 @@ export { calculateProtoSpeedFactor } from './protoMechBVOffensive';
 export type { IProtoMechBVOptions } from './protoMechBVCalculator';
 export {
   getProtoChassisMultiplier,
+  toBVProtoMech,
   calculateProtoMechBV,
   calculateProtoPointBV,
 } from './protoMechBVCalculator';
