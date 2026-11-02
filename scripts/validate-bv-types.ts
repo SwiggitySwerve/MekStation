@@ -11,6 +11,7 @@ export interface UnitData {
   model: string;
   unitType: string;
   configuration: string;
+  lamType?: string;
   techBase: string;
   tonnage: number;
   engine: { type: string; rating: number };

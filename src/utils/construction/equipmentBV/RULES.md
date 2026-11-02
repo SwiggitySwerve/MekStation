@@ -291,6 +291,26 @@ the real Warhammer inventory and its retained 70-ton construction.
 
 ## Converted mount qualifiers
 
+Native bay prefixes `(B)` and converted `b-` are mount grouping metadata,
+like rear prefixes. Preserve an exact catalog identity before stripping them.
+BA location suffixes `:Body`, `:LA`, `:RA`, `:TU` and mount markers `:APM`,
+`:DWP`, `:SSWM` likewise do not change EquipmentType identity. A terminal
+`:Shots<nonnegative integer>#` describes ammunition quantity; ProtoMech ammo
+may instead end in ` (<nonnegative integer>)`, and capital ammo in `:<quantity>`.
+Parse these without applying
+quantity to catalog BV or mass. Malformed quantities remain unresolved.
+
+Sources at MegaMek `48fcb2f64`: `BLKDropShipFile.java:289-302`,
+`BLKBattleArmorFile.java:215-236`, `BLKFile.java:280-287`, and
+`BLKProtoMekFile.java:198-214`. `equipmentBVResolver.sourceAliases` enforces
+the qualifiers, exact variant selection, and absent-variant guards.
+The exact Vehicle Flamer catalog identity is `vehicle-flamer` (BV 5,
+0.5 tons); see `ISVehicleFlamer.java:59-65`. Migrating the legacy converted
+alias and unresolved native names requires BV-consumer reconciliation first:
+the pinned corpus exposed 15 lost exact totals during that migration.
+Preserve represented aliases before sponson suffix stripping as well; an
+infantry `myomer,-vest` alias must retain its terminal `st`.
+
 For compatibility lookup, terminal `:SIZE:<nonnegative decimal>` and `:OMNI`
 segments describe a mount, not its EquipmentType name. Remove the terminal
 chain before lookup, preserving an exact catalog ID first. Check the base ID
@@ -301,9 +321,34 @@ resolver's contract. Malformed sizes and missing base types stay unresolved.
 
 The existing alias owner covers the pinned MiscType/EquipmentTypeLookup names
 HeavyBridgeLayer, Hitch, PintleTurret, SponsonTurret and Tank Sprayer, plus
-converted `mek-taser`. Only the converted AP Gauss ammo slug gains the native
-`apgaussrifle` ammunition identity. The canonical Mech spelling
-`CLAPGaussRifle Ammo` retains its previous unresolved result, as required by
-this lane's unchanged Mech contract. This does not claim native Mech ammo
-parity. Focused qualifier tests and the unchanged canonical ammo suites enforce
-that boundary; the complete committed Mech token comparison is local evidence.
+converted `mek-taser`. Native `CLAPGaussRifle Ammo` and its converted slug
+share the registered `apgaussrifle` ammunition identity, including counted
+ProtoMech bins. Both spellings live in the alias table; quantity parsing does
+not define another identity rule. Focused qualifier tests enforce the shared
+identity, and the pinned corpus comparison checks Mech BV regression.
+
+## One-shot BV heat
+
+`weaponHeat.ts` owns one-shot identity projection and heat /4. The shared
+resolver applies it once, before Ultra/Rotary/Streak heat adjustments, using
+the resolved item identity/name and the retained source one-shot spelling.
+Mech weapon construction consumes that resolved heat; its script fallback
+boundary uses the same owner. The legacy Mech missile BV /5 guard remains a
+separate compatibility policy, as do its existing fallback table heat facts.
+Raw catalog firing heat and weapon BV do not change.
+Source: MegaMek 48fcb2f64, HeatTrackingBVCalculator.java:170-180,203-209;
+WeaponMounted.java:231-234 reads WeaponType.F_ONE_SHOT (WeaponType.java:577).
+`equipmentBVResolver.oneShotHeat.test.ts` pins RL10/15/20, I-OS, combined
+Streak heat, Mech single application and Ahab/Avar native totals.
+
+Tech-qualified Mech candidate lookups retain the original source identity at
+the resolver boundary, so a source I-OS flag survives a different Clan catalog
+spelling. Crossbow T's SRM2/6 I-OS regressions enforce this retained fact.
+
+`weaponLinks.ts` owns the represented LRM/SRM/MML Artemis compatibility and
+first-unlinked/same-physical-location assignment for aircraft and large craft.
+Links follow source order; rear flags and list adjacency do not select the
+launcher (MekFileParser.java:425-449). The existing multiplier owner supplies
+1.2/1.3 before arc weighting and heat sorting (BVCalculator.java:860-872).
+Mech's older critical-grid/location heuristic is retained as a separate input
+projection; vehicles already consume explicit links. No catalog flags added.

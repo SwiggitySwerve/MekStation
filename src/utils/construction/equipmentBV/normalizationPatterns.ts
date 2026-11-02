@@ -5,9 +5,13 @@
  * (MegaMek, unit JSON, concatenated, etc.) to canonical catalog IDs.
  */
 
+import { SOURCE_LOOKUP_ALIASES } from './sourceLookupAliases';
+
 // Only identities represented in the ammo catalog belong here. In particular,
 // Clan LRM/SRM and Ultra ammo must not fall back to their different IS variants.
 export const AMMUNITION_NORMALIZATION_PATTERNS: Array<[RegExp, string]> = [
+  [/^(ba-(?:srm[1-6]|advanced-srm-[1-6]))-ammo$/, '$1'],
+  [/^is-(ba-ammo-lrm-[1-5])$/, '$1'],
   [
     /^is-ammo-((?:srm|lrm|lrtorpedo|srtorpedo|extended-lrm|lac)-\d+)$/,
     'ammo-$1',
@@ -126,13 +130,7 @@ export const ABBREVIATION_MAP: Record<string, string> = {
 };
 
 export const DIRECT_ALIAS_MAP: Record<string, string> = {
-  // ISAC{2,5,10,20}.java:58-64; ISLAC{2,5}.java:56-60 (48fcb2f64).
-  'autocannon/2': 'ac-2',
-  'autocannon/5': 'ac-5',
-  'autocannon/10': 'ac-10',
-  'autocannon/20': 'ac-20',
-  'light auto cannon/2': 'lac-2',
-  'light auto cannon/5': 'lac-5',
+  ...SOURCE_LOOKUP_ALIASES,
   heavybridgelayer: 'bridge-layer-heavy',
   hitch: 'trailer-hitch',
   pintleturret: 'pintle-mount',

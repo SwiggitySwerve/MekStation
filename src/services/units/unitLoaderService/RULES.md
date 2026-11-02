@@ -23,7 +23,7 @@ registry owns their accepted contract discriminators and available store mapper.
   (`mapAerospaceDefinitionToState`) to `familyState`. The library-open flow
   registers `familyState` in its own store and opens a tab of the state's unit
   type. ProtoMechs and battle armor use `smallUnitDefinitionMapper` and their
-  existing stores and shells. Infantry has no store mapper in this slice.
+  existing stores and shells. Infantry uses the same registered-store route.
 - Capital ships (DropShip, JumpShip, WarShip, Space Station) open read-only
   (UL-14). `mapCapitalDefinitionToView` maps the definition to a deep-frozen
   view (`capitalShipView.ts`), kept in memory by tab id; no store is created and
@@ -33,9 +33,25 @@ registry owns their accepted contract discriminators and available store mapper.
   plain "not available yet" note and never as the total.
 - BattleMech equipment mapping, normalization and session creation stay unchanged.
   No fallback creates a BattleMech from a different family.
-- Custom library entries are BattleMech-only until UL-25a records their family.
+- Saved vehicle designs carry family `vehicles` in their persisted JSON and
+  library index. A saved design without family means BattleMech; requesting a
+  different family fails validation. Force/roster references require UL-24's
+  separate persistence and resolver changes.
+- CustomUnitSerializer owns vehicle store serialization into UnitContract.
+  The vehicle mapper validates its vehicleEditor extension for editor-only
+  construction/mount facts. Session IDs, timestamps and dirty flags renew;
+  construction values and linked-mount relationships survive JSON save/reopen.
+  Vehicle saves clear the submitted draft's dirty flag only when no newer edit
+  arrived. Vehicle saved-history receipts remain unavailable in this slice.
 
 ## Vehicle definition mapping
+
+- Aerospace fighter, conventional fighter, FixedWingSupport and small-craft saves
+  use CustomUnitSerializer and family `aerospace`. The mapper validates the
+  aerospaceEditor extension for exact construction, crew, bay and mount facts.
+  Session IDs, timestamps and dirty flags renew; mount IDs renew with links
+  retargeted by index. Capital ships stay read-only; aerospace saved history
+  receipts remain unavailable. Newer edits remain dirty after an in-flight save.
 
 - `mapToVehicleState` accepts contract JSON or a loaded vehicle definition.
   `normalizeVehicleConfiguration` validates required vehicle facts and maps them
@@ -99,3 +115,27 @@ registry owns their accepted contract discriminators and available store mapper.
   BA VTOL MP has no separate store field; source jump MP is retained.
 - The BV shown is the existing app owner's result, not a new parity verdict.
   Custom-library saving remains gated by the existing family capability.
+
+## Infantry library sessions
+
+- Infantry opens in its existing store and shell. Composition and weapon counts
+  remain source values (secondary count is per squad); no setter clamps them.
+  The catalog's absent transport tonnage remains the existing zero placeholder.
+- `libraryMapping` projects identity, weapons, composition, movement and incoming
+  protection. The existing infantry owners resolve native movement, kit flags,
+  augmentations, masks and prosthetic effects. Source damageDivisor is already
+  effective and is passed once to the BV owner. Source MP includes UMU.
+- `librarySource` retains the full validated definition through store persistence:
+  exact kit/custom protection, explicit/effective flags, source motive/beast,
+  specialization mask (including zero), augmentations/prosthetic counts, every
+  ordered mount/location, SRM tags, identity metadata and fluff. These original
+  facts are provenance; they are not rewritten when editor fields change.
+- Editor limits: the active enums cannot express exact source kits, beast/SCUBA
+  motives, specialization combinations or prosthetic records. Raw facts remain
+  available in librarySource; the shell shows effective protection/movement/BV.
+  Only approved field guns with a resolved equipment identity populate the gun
+  editor. Other guns/artillery and all explicit ammo remain in the original
+  ordered source mounts. Ammo rounds are not inferred; projected guns start at
+  zero rounds. The separate field-gun/BV lane owns expanded support and parity.
+- Legacy infantry stores retain their previous BV path. Library states feed the
+  current source-aware infantry BV owner; no calculator rules are changed here.

@@ -39,7 +39,6 @@ import { getTankMaxTotalArmor } from '@/utils/construction/vehicle/armor';
 import {
   computeEngineRating,
   computeFlankMP,
-  computeVehicleEngineWeight,
   validateVehicleEngine,
 } from '@/utils/construction/vehicle/engine';
 import {
@@ -66,6 +65,7 @@ import {
   getBooleanFromRawTags,
   hasVehicleEquipmentFeature,
 } from './vehicleFeatureTags';
+import { rejectIncompleteCombatVehicleWeight } from './vehicleHandlerWeight';
 
 // ============================================================================
 // Constants
@@ -424,39 +424,8 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
   /**
    * Calculate vehicle weight
    */
-  protected calculateTypeSpecificWeight(unit: IVehicle): number {
-    let weight = 0;
-
-    const engineType = decodeBlkVehicleEngine(
-      unit.engineType,
-      unit.clanEngine ?? isClanBlkEngine(String(unit.techBase)),
-    );
-    const engineRating = this.getEngineRating(
-      unit.tonnage,
-      unit.movement.cruiseMP,
-      unit.motionType,
-      unit.engineType,
-    );
-    weight += computeVehicleEngineWeight(engineRating, engineType, {
-      tonnage: unit.tonnage,
-      motionType: unit.motionType,
-    });
-
-    // Structural weight (10% of tonnage for most vehicles)
-    weight += unit.tonnage * 0.1;
-
-    // Armor weight (1 point = 0.0625 tons for standard armor)
-    const armorPointsPerTon = 16; // Standard armor
-    weight += unit.totalArmorPoints / armorPointsPerTon;
-
-    // Turret weight (10% of turret-mounted weapons)
-    if (unit.turret) {
-      weight += unit.turret.currentWeight * 0.1;
-    }
-
-    // Equipment weight would be added here
-
-    return weight;
+  protected calculateTypeSpecificWeight(_unit: IVehicle): number {
+    return rejectIncompleteCombatVehicleWeight();
   }
 
   private getEngineRating(

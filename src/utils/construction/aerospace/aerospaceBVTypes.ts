@@ -50,12 +50,18 @@ export interface IAerospaceBVAmmo {
  */
 export interface IAerospaceBVInput {
   readonly subType: AerospaceSubType;
+  readonly techBase?: string;
+  readonly year?: number;
+  /** Original BLK type retains mixed-tech chassis identity. */
+  readonly sourceTechType?: string;
   /** Fixed-wing support aircraft use the support-vehicle defensive type rule. */
   readonly isSupportVehicle?: boolean;
   readonly tonnage: number;
   readonly structuralIntegrity: number;
   readonly safeThrust: number;
   readonly maxThrust: number;
+  /** Dissipation per turn; absent cooling retains the legacy unheated pool. */
+  readonly heatCapacity?: number;
   readonly armorType: string;
   readonly totalArmorPoints: number;
   readonly equipment: readonly IAerospaceBVEquipment[];
@@ -76,6 +82,9 @@ export interface IAerospaceBVInput {
 export type IAerospaceDefensiveBVInput = Pick<
   IAerospaceBVInput,
   | 'isSupportVehicle'
+  | 'techBase'
+  | 'sourceTechType'
+  | 'year'
   | 'armorType'
   | 'totalArmorPoints'
   | 'structuralIntegrity'

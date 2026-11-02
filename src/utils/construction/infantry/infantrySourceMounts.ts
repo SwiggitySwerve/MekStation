@@ -80,7 +80,7 @@ function catalogFacts(unit: Extract<IUnitContract, { unitType: 'Infantry' }>) {
   for (const [key, count] of Object.entries(
     unit.prostheticEnhancementCounts ?? {},
   ))
-    tags[key] = String(count);
+    tags[`${key}Count`] = String(count);
   return { unit, tags };
 }
 export function infantryCatalogState(

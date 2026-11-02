@@ -60,8 +60,11 @@ export interface UnitLoadDialogProps {
   onCancel: () => void;
 }
 
-function toCustomUnitWithSource(unit: ICustomUnitIndexEntry): UnitWithSource {
+function toCustomUnitWithSource(
+  unit: ICustomUnitIndexEntry & Pick<IUnitIndexEntry, 'family'>,
+): UnitWithSource {
   return {
+    ...(unit.family ? { family: unit.family } : {}),
     id: unit.id,
     chassis: unit.chassis,
     variant: unit.variant,

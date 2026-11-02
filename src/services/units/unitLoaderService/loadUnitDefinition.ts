@@ -128,12 +128,22 @@ async function validateUnitDefinition(
     };
   }
   const parsed = UnitContract.safeParse(payload);
-  if (!parsed.success || !isDefinitionForFamily(family, parsed.data)) {
+  const savedFamilyMatches =
+    reader !== sourceReader ||
+    reference.source !== 'custom' ||
+    (parsed.success && (parsed.data.family ?? 'battlemechs') === family);
+  if (
+    !parsed.success ||
+    !isDefinitionForFamily(family, parsed.data) ||
+    !savedFamilyMatches
+  ) {
     const issues = parsed.success
       ? [
           {
             path: 'unitType',
-            message: `Unit type ${parsed.data.unitType} does not belong to family ${family}`,
+            message: savedFamilyMatches
+              ? `Unit type ${parsed.data.unitType} does not belong to family ${family}`
+              : `Saved family does not belong to family ${family}`,
           },
         ]
       : unitContractIssues(parsed.error.issues);

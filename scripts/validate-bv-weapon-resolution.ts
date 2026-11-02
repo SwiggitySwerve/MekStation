@@ -1,3 +1,4 @@
+import { applyOneShotBVHeat } from '../src/utils/construction/equipmentBV/weaponHeat';
 import {
   normalizeEquipmentId,
   resolveEquipmentBV,
@@ -303,7 +304,11 @@ export function resolveWeaponForUnit(
     CATALOG_BV_OVERRIDES[normId] ||
     CATALOG_BV_OVERRIDES[lo.replace(/^(is|cl|clan)/, '')];
   if (override)
-    return { battleValue: override.bv, heat: override.heat, resolved: true };
+    return {
+      battleValue: override.bv,
+      heat: applyOneShotBVHeat(override.heat, id),
+      resolved: true,
+    };
   const isResult = resolveEquipmentBV(id);
   if (
     techBase === 'CLAN' ||
@@ -322,7 +327,7 @@ export function resolveWeaponForUnit(
       candidates.push('clan-' + lo);
     }
     for (const cid of candidates) {
-      const cr = resolveEquipmentBV(cid);
+      const cr = resolveEquipmentBV(cid, id);
       if (cr.resolved && cr.battleValue > 0) {
         if (!isResult.resolved || cr.battleValue > isResult.battleValue)
           return cr;
@@ -333,7 +338,7 @@ export function resolveWeaponForUnit(
   if (isResult.resolved && isResult.battleValue > 0) return isResult;
   const stripped = id.replace(/^\d+-/, '');
   if (stripped !== id) {
-    const sr = resolveEquipmentBV(stripped);
+    const sr = resolveEquipmentBV(stripped, id);
     if (sr.resolved && sr.battleValue > 0) return sr;
   }
   // For MIXED units: if IS resolution failed, try Clan resolution as fallback
@@ -349,7 +354,7 @@ export function resolveWeaponForUnit(
     if (!lo.startsWith('clan-') && lo !== normalizedMixed)
       clanCandidates.push('clan-' + lo);
     for (const cid of clanCandidates) {
-      const cr = resolveEquipmentBV(cid);
+      const cr = resolveEquipmentBV(cid, id);
       if (cr.resolved && cr.battleValue > 0) return cr;
     }
   }
@@ -359,7 +364,12 @@ export function resolveWeaponForUnit(
     FALLBACK_WEAPON_BV[lo] ||
     FALLBACK_WEAPON_BV[norm] ||
     FALLBACK_WEAPON_BV[lo.replace(/^(is|cl|clan)/, '')];
-  if (fb) return { battleValue: fb.bv, heat: fb.heat, resolved: true };
+  if (fb)
+    return {
+      battleValue: fb.bv,
+      heat: applyOneShotBVHeat(fb.heat, id),
+      resolved: true,
+    };
   return isResult;
 }
 
@@ -484,26 +494,4 @@ export function isWeaponEquip(id: string): boolean {
   return resolveWeaponForUnit(id, 'CLAN').resolved;
 }
 
-export function isDefEquip(id: string): boolean {
-  const lo = id.toLowerCase();
-  return (
-    lo.includes('anti-missile') ||
-    lo.includes('antimissile') ||
-    lo.includes('ams') ||
-    lo.includes('ecm') ||
-    lo.includes('guardian') ||
-    lo.includes('angel') ||
-    lo.includes('bap') ||
-    lo.includes('beagle') ||
-    lo.includes('probe') ||
-    lo.includes('bloodhound') ||
-    lo.includes('light-active-probe') ||
-    lo.includes('null-signature') ||
-    (lo.includes('shield') && !lo.includes('blue-shield')) ||
-    lo.includes('apds') ||
-    lo.includes('advanced-point-defense') ||
-    lo.includes('point-defense-system') ||
-    lo.includes('chaff-pod') ||
-    lo.includes('chaffpod')
-  );
-}
+export { isMechDefensiveEquipment as isDefEquip } from '../src/utils/construction/battleValueEquipment';

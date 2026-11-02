@@ -101,46 +101,58 @@ function calculateHeatEfficiency(
   moveHeat: number,
 ): number {
   return (
-    6 +
-    config.heatDissipation -
+    calculateBaseHeatEfficiency(config.heatDissipation) -
     moveHeat +
     calculateCoolantPodHeatBonus(config) -
     calculateSignatureHeatPenalty(config)
   );
 }
 
-function calculateHeatTrackedWeaponTotals(
-  sortedWeapons: Array<{ bv: number; heat: number }>,
+/** Shared native ordering and cutoff; the threshold-crossing weapon stays full.
+ * MegaMek 48fcb2f64, HeatTrackingBVCalculator.java:108-147.
+ */
+export function calculateHeatTrackedWeapons<
+  T extends { bv: number; heat: number },
+>(
+  weapons: readonly T[],
   heatEfficiency: number,
-) {
+): { weapon: T; adjustedBV: number; heatDiscount: boolean }[] {
   let heatExceeded = heatEfficiency <= 0;
   let heatSum = 0;
+  return [...weapons].sort(heatSorter).map((weapon) => {
+    heatSum += weapon.heat;
+    const heatDiscount = heatExceeded;
+    const adjustedBV = heatDiscount ? weapon.bv * 0.5 : weapon.bv;
+    heatExceeded = heatExceeded || heatSum >= heatEfficiency;
+    return { weapon, adjustedBV, heatDiscount };
+  });
+}
+
+export function calculateBaseHeatEfficiency(heatDissipation: number): number {
+  return 6 + heatDissipation;
+}
+
+function calculateHeatTrackedWeaponTotals(
+  weapons: readonly { bv: number; heat: number }[],
+  heatEfficiency: number,
+) {
   let weaponBV = 0;
   let rawWeaponBV = 0;
   let halvedWeaponBV = 0;
   let halvedWeaponCount = 0;
-
-  for (const weapon of sortedWeapons) {
-    heatSum += weapon.heat;
+  for (const {
+    weapon,
+    adjustedBV,
+    heatDiscount,
+  } of calculateHeatTrackedWeapons(weapons, heatEfficiency)) {
     rawWeaponBV += weapon.bv;
-
-    const adjustedBV = heatExceeded ? weapon.bv * 0.5 : weapon.bv;
     weaponBV += adjustedBV;
-
-    if (heatExceeded) {
+    if (heatDiscount) {
       halvedWeaponBV += adjustedBV;
       halvedWeaponCount++;
     }
-
-    heatExceeded = heatExceeded || heatSum >= heatEfficiency;
   }
-
-  return {
-    weaponBV,
-    rawWeaponBV,
-    halvedWeaponBV,
-    halvedWeaponCount,
-  };
+  return { weaponBV, rawWeaponBV, halvedWeaponBV, halvedWeaponCount };
 }
 
 function calculateWeightBonus(config: OffensiveBVConfig): number {
@@ -157,6 +169,7 @@ function calculateWeightBonus(config: OffensiveBVConfig): number {
 
 export function calculateOffensiveBVWithHeatTracking(
   config: OffensiveBVConfig,
+  movement: { speedFactor?: number; heat?: number } = {},
 ): OffensiveBVResult {
   const hasTC = config.hasTargetingComputer ?? false;
 
@@ -165,13 +178,14 @@ export function calculateOffensiveBVWithHeatTracking(
     bv: applyWeaponBVModifiers(weapon, hasTC),
   }));
 
-  const sortedWeapons = [...weaponsWithModifiers].sort(heatSorter);
-  const moveHeat = config.hasSCM
-    ? 0
-    : Math.max(calculateRunningHeat(config), calculateJumpHeat(config));
+  const moveHeat =
+    movement.heat ??
+    (config.hasSCM
+      ? 0
+      : Math.max(calculateRunningHeat(config), calculateJumpHeat(config)));
   const heatEfficiency = calculateHeatEfficiency(config, moveHeat);
   const heatTrackedWeapons = calculateHeatTrackedWeaponTotals(
-    sortedWeapons,
+    weaponsWithModifiers,
     heatEfficiency,
   );
 
@@ -181,11 +195,13 @@ export function calculateOffensiveBVWithHeatTracking(
   );
   const weightBonus = calculateWeightBonus(config);
 
-  const speedFactor = calculateOffensiveSpeedFactor(
-    config.runMP,
-    config.jumpMP,
-    config.umuMP ?? 0,
-  );
+  const speedFactor =
+    movement.speedFactor ??
+    calculateOffensiveSpeedFactor(
+      config.runMP,
+      config.jumpMP,
+      config.umuMP ?? 0,
+    );
   const physicalWeaponBV = config.physicalWeaponBV ?? 0;
   const offensiveEquipmentBV = config.offensiveEquipmentBV ?? 0;
   const baseOffensive =
@@ -208,7 +224,7 @@ export function calculateOffensiveBVWithHeatTracking(
     moveHeat,
     rawWeaponBV: heatTrackedWeapons.rawWeaponBV,
     halvedWeaponBV: heatTrackedWeapons.halvedWeaponBV,
-    weaponCount: sortedWeapons.length,
+    weaponCount: weaponsWithModifiers.length,
     halvedWeaponCount: heatTrackedWeapons.halvedWeaponCount,
     physicalWeaponBV,
     offensiveEquipmentBV,

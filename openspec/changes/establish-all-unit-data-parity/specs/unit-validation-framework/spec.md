@@ -18,12 +18,11 @@ The system SHALL provide validation rules for Vehicle category units (Vehicle, V
 - **AND** missing motive system SHALL produce CRITICAL_ERROR
 - **AND** error message SHALL be "Motive system type required"
 
-#### Scenario: VAL-VEH-003 Turret Capacity Limits
+#### Scenario: Retired VAL-VEH-003 turret capacity rule
 
-- **WHEN** validating a Vehicle with turret
-- **THEN** turret equipment weight SHALL not exceed turret capacity
-- **AND** turret overflow SHALL produce ERROR
-- **AND** error message SHALL be "Turret capacity exceeded by {diff} tons"
+- **WHEN** validating any vehicle category unit, including one with legacy turret `capacity` and `usedWeight` values
+- **THEN** `VAL-VEH-003` SHALL NOT be registered or exported and no generic turret-capacity error SHALL be reported
+- **AND** total vehicle weight validation SHALL continue to reject allocated weight above the vehicle tonnage
 
 #### Scenario: VAL-VEH-004 VTOL Rotor Required
 

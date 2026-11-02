@@ -1,16 +1,28 @@
 import { BlkParserService } from '../../src/services/conversion/BlkParserService';
 import protos from '../../src/services/units/handlers/__tests__/fixtures/native-protomek.json';
 import { ProtoMechUnitHandler } from '../../src/services/units/handlers/ProtoMechUnitHandler';
+import * as dispatcher from '../../src/utils/construction/battleValueCalculations';
 import {
   buildDeltaReport,
   calculateRow,
   compareFigures,
   FAMILIES,
   sourceHash,
+  type IFigure,
   type IJavaReferenceRow,
   type IComputedRow,
 } from '../vehicle-aero-bv-delta';
 import fixture from './fixtures/vehicle_aero_contract_bv.json';
+
+jest.mock('../../src/utils/construction/battleValueCalculations', () => {
+  const actual = jest.requireActual(
+    '../../src/utils/construction/battleValueCalculations',
+  );
+  return {
+    ...actual,
+    calculateBattleValueForUnit: jest.fn(actual.calculateBattleValueForUnit),
+  };
+});
 
 const sha256 = 'a'.repeat(64);
 const figure = (total = 100) => ({ total, defensive: 60, offensive: 40 });
@@ -23,6 +35,13 @@ const java = (family = 'vehicles'): IJavaReferenceRow => ({
     aggregates: { defensiveValue: 60, offensiveValue: 40 },
   },
 });
+const java0 = (): IJavaReferenceRow => ({
+  ...java(),
+  battleValue: {
+    total: 100,
+    aggregates: { defensiveValue: 60, offensiveValue: 0 },
+  },
+});
 const computed = (family = 'vehicles'): IComputedRow => ({
   path: java(family).path,
   sha256,
@@ -31,13 +50,12 @@ const computed = (family = 'vehicles'): IComputedRow => ({
 const report = (ours: IComputedRow[], refs = [java()]) =>
   buildDeltaReport(ours, refs, ['vehicles']);
 
-it.each([
-  ['battlearmor', 'BattleArmor'],
-  ['infantry', 'Infantry'],
-])(
-  'retains the newly loadable %s handler total without inventing aggregates',
-  (folder, type) => {
-    const sourceText = Object.entries({
+const personnelRow = (folder: string, type: string): IComputedRow =>
+  calculateRow({
+    path: `${folder}/unit.blk`,
+    sha256,
+    unit: null,
+    sourceText: Object.entries({
       UnitType: type,
       Name: 'Pinned source probe',
       year: '3064',
@@ -52,20 +70,90 @@ it.each([
       squad_size: '7',
       squadn: '4',
       Primary: 'Submachine Gun',
+      // A BA with no armed mount has zero offense, which the strict rules reject.
+      ...(type === 'BattleArmor' && {
+        'Squad Equipment': 'BADavidLightGaussRifle:RA\nBABasicManipulator:RA',
+      }),
     })
       .map(([key, value]) => `<${key}>\n${value}\n</${key}>`)
-      .join('\n');
-    const row = calculateRow({
-      path: `${folder}/unit.blk`,
-      sha256,
-      unit: null,
-      sourceText,
-    });
-    expect(typeof row.handlerTotal).toBe('number');
-    expect(row.figure).toBeUndefined();
-    expect(row.reason).toContain('aggregate');
+      .join('\n'),
+  });
+const oracleFor = (
+  folder: string,
+  f: IFigure,
+  total = f.total ?? NaN,
+): IJavaReferenceRow => ({
+  path: `${folder}/unit.blk`,
+  sha256,
+  concreteFamily: folder,
+  battleValue: {
+    total,
+    aggregates: {
+      defensiveValue: f.defensive,
+      offensiveValue: f.offensive ?? NaN,
+    },
   },
-);
+});
+
+describe.each([
+  ['battlearmor', 'BattleArmor'],
+  ['infantry', 'Infantry'],
+])('%s source rows use the real dispatcher path', (folder, type) => {
+  const row = personnelRow(folder, type);
+  const ours = row.figure as IFigure;
+
+  it('counts an oracle with the same figures as exact', () => {
+    expect(row.reason).toBeUndefined();
+    expect(ours.total).toBe(row.handlerTotal);
+    const result = buildDeltaReport([row], [oracleFor(folder, ours)], [folder]);
+    expect(result.rows[0].status).toBe('exact');
+    expect(result.ok).toBe(true);
+    expect(result.byFamily[folder]).toMatchObject({
+      exact: 1,
+      notComputable: 0,
+      handlerExact: 1,
+      runtimeExact: 1,
+    });
+  });
+
+  it('counts a different oracle total as a miss', () => {
+    const result = buildDeltaReport(
+      [row],
+      [oracleFor(folder, ours, (ours.total ?? 0) * 2)],
+      [folder],
+    );
+    expect(result.rows[0].status).toBe('farther');
+    expect(result.ok).toBe(false);
+    expect(result.byFamily[folder]).toMatchObject({ exact: 0, farther: 1 });
+  });
+
+  it('rejects a non-finite dispatcher aggregate instead of matching it', () => {
+    const real = jest.requireActual<typeof dispatcher>(
+      '../../src/utils/construction/battleValueCalculations',
+    );
+    const mocked = jest.mocked(dispatcher.calculateBattleValueForUnit);
+    mocked.mockImplementation((unit, options) => {
+      const result = real.calculateBattleValueForUnit(unit, options);
+      // BA reads `defensive`, infantry reads `defensiveBV`.
+      const breakdown = {
+        ...result?.breakdown,
+        defensive: NaN,
+        defensiveBV: NaN,
+      };
+      return { ...result, breakdown } as typeof result;
+    });
+    let nan: IComputedRow;
+    try {
+      nan = personnelRow(folder, type);
+    } finally {
+      mocked.mockImplementation(real.calculateBattleValueForUnit);
+    }
+    const result = buildDeltaReport([nan], [oracleFor(folder, ours)], [folder]);
+    expect(result.rows[0].status).toBe('invalid');
+    expect(result.byFamily[folder]).toMatchObject({ exact: 0, invalid: 1 });
+    expect(result.ok).toBe(false);
+  });
+});
 
 it('compares integer totals exactly, with inclusive signed 1% boundaries', () => {
   for (const [total, status] of [
@@ -86,6 +174,7 @@ it.each([0, NaN, Infinity, -Infinity, -1])(
   'rejects invalid values on either side: %s',
   (bad) => {
     for (const key of ['total', 'defensive', 'offensive'] as const) {
+      if (bad === 0 && key !== 'total') continue; // a real zero aggregate; see below
       expect(compareFigures({ ...figure(), [key]: bad }, figure()).status).toBe(
         'invalid',
       );
@@ -95,6 +184,40 @@ it.each([0, NaN, Infinity, -Infinity, -1])(
     }
   },
 );
+
+describe('a zero aggregate is a real value, a zero total is not', () => {
+  const unarmed = { ...figure(), offensive: 0 };
+
+  it('compares normally when Java and ours are both zero', () => {
+    const result = compareFigures(unarmed, unarmed);
+    expect(result.status).toBe('exact');
+    expect(result.offensive?.withinTolerance).toBe(true);
+    expect(report([{ ...computed(), figure: unarmed }], [java0()]).ok).toBe(
+      true,
+    );
+  });
+
+  it.each([
+    ['Java', unarmed, figure()],
+    ['ours', figure(), unarmed],
+  ])('is a mismatch, not invalid, when only %s is zero', (_, a, b) => {
+    const result = compareFigures(a, b);
+    expect(result.status).toBe('exact');
+    expect(result.offensive?.withinTolerance).toBe(false);
+  });
+
+  it('still rejects a NaN aggregate or a zero total beside a zero aggregate', () => {
+    expect(compareFigures(unarmed, { ...unarmed, offensive: NaN }).status).toBe(
+      'invalid',
+    );
+    expect(compareFigures({ ...unarmed, total: 0 }, unarmed).status).toBe(
+      'invalid',
+    );
+    expect(compareFigures(unarmed, { ...unarmed, total: 0 }).status).toBe(
+      'invalid',
+    );
+  });
+});
 
 it('uses tolerance only for aggregates and rejects fractional totals', () => {
   expect(

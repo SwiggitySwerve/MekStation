@@ -45,7 +45,11 @@ export function deriveUnitBvCalculatorSetup(
   const cockpitUpper = (
     typeof unit.cockpit === 'string' ? unit.cockpit : ''
   ).toUpperCase();
-  const effectiveConfig = deriveEffectiveConfiguration(unit, cockpitUpper);
+  const effectiveConfig = deriveEffectiveConfiguration(
+    unit.configuration,
+    cockpitUpper,
+    Object.keys(unit.armor?.allocation || {}),
+  );
   const totalStructure = calcTotalStructure(unit.tonnage, effectiveConfig);
 
   return {
@@ -146,13 +150,12 @@ function deriveTotalArmorForBv(
   return totalArmor;
 }
 
-function deriveEffectiveConfiguration(
-  unit: UnitData,
+export function deriveEffectiveConfiguration(
+  configuration: string | undefined,
   cockpitUpper: string,
+  armorLocations: readonly string[],
 ): string | undefined {
-  const armorLocKeys = Object.keys(unit.armor?.allocation || {}).map(
-    (k: string) => k.toUpperCase(),
-  );
+  const armorLocKeys = armorLocations.map((k: string) => k.toUpperCase());
   const hasQuadArmorLocs = armorLocKeys.some((k: string) =>
     [
       'FLL',
@@ -168,9 +171,9 @@ function deriveEffectiveConfiguration(
   const isTripodCockpit =
     cockpitUpper.includes('TRIPOD') || cockpitUpper === 'SUPERHEAVY_TRIPOD';
 
-  return hasQuadArmorLocs && unit.configuration?.toLowerCase() !== 'quad'
+  return hasQuadArmorLocs && configuration?.toLowerCase() !== 'quad'
     ? 'Quad'
-    : isTripodCockpit && unit.configuration?.toLowerCase() !== 'tripod'
+    : isTripodCockpit && configuration?.toLowerCase() !== 'tripod'
       ? 'Tripod'
-      : unit.configuration;
+      : configuration;
 }

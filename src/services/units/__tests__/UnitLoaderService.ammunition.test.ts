@@ -2,11 +2,17 @@ import { renderHook } from '@testing-library/react';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { getMovementProfile } from '@/components/customizer/preview/recordSheetPreview.logic';
+import {
+  getMovementProfile,
+  buildBattleMechPreviewProjection,
+} from '@/components/customizer/preview/recordSheetPreview.logic';
 import { buildEditableMech } from '@/components/customizer/tabs/PreviewTab.builders';
 import { useUnitCalculations } from '@/hooks/useUnitCalculations';
 import { getCalculationService } from '@/services/construction/CalculationService';
-import { projectEditableMech } from '@/services/construction/editableMechProjection';
+import {
+  buildEditableMechBVInput,
+  projectEditableMech,
+} from '@/services/construction/editableMechProjection';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { resetCanonicalUnitService } from '@/services/units/CanonicalUnitService';
@@ -18,7 +24,7 @@ import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { Era, RulesLevel, TechBase } from '@/types/enums';
 import { EquipmentCategory } from '@/types/equipment';
 import { getTotalEquipmentSlots } from '@/types/equipment/MountedEquipment';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { MechConfiguration, UnitType } from '@/types/unit/BattleMechInterfaces';
 import { IValidatableUnit } from '@/types/validation/UnitValidationInterfaces';
 import { calculateUnitBV } from '@/utils/construction/mechBV/calculator';
 import { getEquipmentPayloadWeight } from '@/utils/equipment/equipmentWeightAccounting';
@@ -277,11 +283,174 @@ describe('BattleMech BV source parity', () => {
     expect(bv(await load(id))).toBe(expected);
   });
 
+  it.each([
+    ['dragonfly-f', 1689],
+    ['vulcan-vt-6c', 959],
+    ['men-shen-ms1-oe', 1625],
+    ['urbanmech-um-r60b', 598],
+    ['sun-spider-d', 2096],
+  ])(
+    '%s full-bin ammo retains Java BV in gate and editor',
+    async (id, expected) => {
+      const state = await load(id);
+      const raw: UnitData = JSON.parse(JSON.stringify(state.bvContext?.source));
+      expect(calculateUnitBV(raw, id).bv).toBe(expected);
+      expect(bv(state)).toBe(expected);
+    },
+  );
+
+  it.each([
+    ['5-civil-war/advanced/Balius A.json', 27],
+    ['6-dark-age/experimental/Arion Unknown.json', 5],
+    ['5-civil-war/advanced/Balius A.json', 0],
+  ])('retains legacy Biped quad limbs from %s (%s armor)', (file, limb) => {
+    const original = loadDefinition(file);
+    const source = {
+      ...original,
+      configuration: MechConfiguration.BIPED,
+      armor: {
+        type: original.armor?.type ?? 'STANDARD',
+        allocation: {
+          ...original.armor?.allocation,
+          FLL: limb,
+          FRL: limb,
+          RLL: limb,
+          RRL: limb,
+        },
+      },
+    };
+    const state = new UnitLoaderService().mapToUnitState(source, true);
+    const liveLimb = limb ? limb + 1 : 0;
+    state.armorAllocation[MechLocation.FRONT_LEFT_LEG] = liveLimb;
+    const raw: UnitData = JSON.parse(JSON.stringify(source));
+    raw.armor.allocation.FLL = liveLimb;
+    const { walkMP } = getMovementProfile(state.engineRating, state.tonnage);
+    const projected = buildEditableMechBVInput(
+      buildEditableMech(state, walkMP),
+    );
+    expect(projected.armor.allocation).toMatchObject({
+      FRONT_LEFT_LEG: liveLimb,
+      FRONT_RIGHT_LEG: limb,
+      REAR_LEFT_LEG: limb,
+      REAR_RIGHT_LEG: limb,
+    });
+    expect(bv(state)).toBe(calculateUnitBV(raw, raw.id).bv);
+  });
+
+  it('an explicit live configuration change overrides source quad topology', async () => {
+    const state = {
+      ...(await load('balius-a')),
+      configuration: MechConfiguration.BIPED,
+    };
+    const { walkMP } = getMovementProfile(state.engineRating, state.tonnage);
+    const projected = buildEditableMechBVInput(
+      buildEditableMech(state, walkMP),
+    );
+    expect(projected.armor.allocation).toHaveProperty('LEFT_ARM');
+    expect(projected.armor.allocation).not.toHaveProperty('FRONT_LEFT_LEG');
+  });
   it('retains third-leg armor for legacy tripods labeled Biped', async () => {
     const state = await load('ares-ars-v1c-aphrodite');
     const raw: UnitData = JSON.parse(JSON.stringify(state.bvContext?.source));
     expect(bv(state)).toBe(calculateUnitBV(raw, raw.id).bv);
   });
+
+  it.each([
+    'commando-com-1a',
+    'commando-com-1ak',
+    'wasp-wsp-1',
+    'firebee-frb-1e-wam-b',
+    'trooper-tp-1r',
+    'pathfinder-pff-2',
+    'pathfinder-pff-2t',
+  ])(
+    '%s primitive movement agrees across editor projections and gate',
+    async (id) => {
+      const state = await load(id);
+      const raw: UnitData = JSON.parse(JSON.stringify(state.bvContext?.source));
+      const preview = buildBattleMechPreviewProjection(state);
+      const { result } = renderHook(() =>
+        useUnitCalculations(state.tonnage, state),
+      );
+      expect(preview.walkMP).toBe(raw.movement.walk);
+      expect(result.current.walkMP).toBe(raw.movement.walk);
+      expect(preview.battleValue).toBe(calculateUnitBV(raw, id).bv);
+    },
+  );
+
+  it('rounds primitive effective ratings upward at the editor boundary', async () => {
+    const loaded = await load('commando-com-1a');
+    const state = { ...loaded, engineRating: 115 };
+    expect(buildBattleMechPreviewProjection(state).walkMP).toBe(4);
+    const { result } = renderHook(() =>
+      useUnitCalculations(state.tonnage, state),
+    );
+    expect(result.current.walkMP).toBe(4);
+  });
+
+  it('LAM offensive speed uses AirMek flank movement', async () => {
+    const state = await load('stinger-lam-stg-a10');
+    const raw: UnitData = JSON.parse(JSON.stringify(state.bvContext?.source));
+    expect(calculateUnitBV(raw, raw.id).breakdown?.speedFactor).toBe(3.44);
+  });
+  it('LAM defense keeps the airborne TMM bonus through bracket seven', async () => {
+    const state = await load('stinger-lam-stg-a10');
+    const raw: UnitData = JSON.parse(JSON.stringify(state.bvContext?.source));
+    const b = calculateUnitBV(raw, raw.id).breakdown;
+    expect(b?.maxTMM).toBe(7);
+    expect(b?.defensiveFactor).toBe(1.7);
+  });
+  it('LAM heat uses rounded AirMek flank MP divided by three', async () => {
+    const state = await load('stinger-lam-stg-a10');
+    const raw: UnitData = JSON.parse(JSON.stringify(state.bvContext?.source));
+    const b = calculateUnitBV(raw, raw.id).breakdown;
+    expect(b?.moveHeat).toBe(9);
+    expect(b?.heatEfficiency).toBe(11);
+  });
+  // Pinned Java MekBVCalculator; both aggregates are checked before rounding.
+  it.each([
+    ['urbanmech-lam-s-um-1xla', 1899, 696.75, 1301.7375],
+    ['urbanmech-lam-um-a07', 802, 494.25, 308.07],
+    ['phoenix-hawk-lam-mk-i-phx-hk1', 1942, 751.2, 1191],
+    ['phoenix-hawk-lam-mk-i-phx-hk1r', 1858, 799.2, 1059],
+    ['phoenix-hawk-lam-phx-hk1rb', 1800, 783.2, 1017],
+    ['phoenix-hawk-lam-phx-hk2', 1555, 727.2, 828],
+    ['phoenix-hawk-lam-phx-hk2m', 1465, 703.2, 762],
+    ['pwwka-s-pw-1lam', 1668, 538.05, 1217.76],
+    ['screamer-lam-scr-1x-lam', 1475, 742.4, 732.72],
+    ['shadow-hawk-lam-shd-x1', 828, 512.2, 316.22],
+    ['shadow-hawk-lam-shd-x2', 994, 562.8, 431.55],
+    ['stinger-lam-mk-i-stg-a1', 846, 495.55, 350.88],
+    ['stinger-lam-stg-a10', 881, 495.55, 385.28],
+    ['stinger-lam-stg-a5', 1073, 495.55, 577.92],
+    ['waneta-s-wn-1lam', 2198, 694.4, 1619.2],
+    ['waneta-s-wn-2lam', 2760, 839.8, 2065.5],
+    ['wasp-lam-mk-i-wsp-100', 489, 282.4, 206.4],
+    ['wasp-lam-mk-i-wsp-100a', 909, 378.4, 531],
+    ['wasp-lam-mk-i-wsp-100b', 876, 540, 336],
+    ['wasp-lam-wsp-105', 814, 470.05, 344],
+    ['wasp-lam-wsp-105m', 907, 470.05, 436.88],
+    ['wasp-lam-wsp-110', 639, 381.2, 258],
+    ['yurei-s-yr-1lam', 2106, 704.8, 1512],
+  ] as const)(
+    '%s LAM agrees with pinned Java',
+    async (id, total, defensive, offensive) => {
+      const loaded = await load(id);
+      const context = loaded.bvContext;
+      if (!context) throw new Error('Fixture needs source context');
+      const source = {
+        ...context.source,
+        lamType: id.startsWith('shadow-hawk') ? 'Bimodal' : 'Standard',
+      };
+      const state = { ...loaded, bvContext: { ...context, source } };
+      const raw: UnitData = JSON.parse(JSON.stringify(source));
+      const result = calculateUnitBV(raw, id);
+      expect(result.breakdown?.defensiveBV).toBeCloseTo(defensive, 7);
+      expect(result.breakdown?.offensiveBV).toBeCloseTo(offensive, 7);
+      expect(result.bv).toBe(total);
+      expect(buildBattleMechPreviewProjection(state).battleValue).toBe(total);
+    },
+  );
 
   it.each(['armor', 'weapon', 'ammo', 'CASE'] as const)(
     '%s edits agree with independently edited gate inputs',

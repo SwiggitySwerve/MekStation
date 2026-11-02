@@ -218,7 +218,20 @@ export function calculateWalkMP(rating: number, tonnage: number): number {
   if (tonnage <= 0 || rating <= 0) {
     return 0;
   }
-  return Math.floor(rating / tonnage);
+  return calculateRatedWalkMP(rating, tonnage);
+}
+
+/** Raw rating conversion; callers retain their existing invalid-input policy. */
+export function calculateRatedWalkMP(
+  rating: number,
+  tonnage: number,
+  cockpitType = '',
+): number {
+  // MegaMek 48fcb2f6 Mek.calculateWalk(): primitive rating / 1.2, rounded UP to five.
+  const effectiveRating = /^primitive(?:[ _-]industrial)?$/i.test(cockpitType)
+    ? Math.ceil(rating / 1.2 / 5) * 5
+    : rating;
+  return Math.floor(effectiveRating / tonnage);
 }
 
 /**

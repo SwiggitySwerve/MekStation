@@ -5,7 +5,11 @@ import type { CapitalShipBVType } from './aerospaceBVTypes';
 import type { IDropShipBVUnit } from './dropShipBV';
 import type { ILargeAerospaceArcBV } from './largeAerospaceFirePool';
 
-import { addBVToAmmoCapGroup } from '../battleValueAmmo';
+import { addBVToAmmoCapGroup, getCatalogAmmoBVGroup } from '../battleValueAmmo';
+import {
+  isArtemisCompatibleBVWeapon,
+  linkArtemisBVWeapons,
+} from '../equipmentBV/weaponLinks';
 import {
   getArtemisBVMultiplier,
   getEquipmentEntry,
@@ -46,24 +50,6 @@ const ENERGY_SUBTYPES = new Set([
   'PPC',
   'Flamer',
 ]);
-
-/** Closed subset whose catalog identity supplies a native type/rack cap group. */
-function ammoGroup(id: string): string | undefined {
-  const key = id
-    .replace(/^ammo-/, '')
-    .replace(/-ammo$/, '')
-    .replace(/^clan-/, '');
-  if (/^lb-\d+-x(?:-ac|-cluster)?$/.test(key))
-    return key.replace(/-(?:ac|cluster)$/, '');
-  if (/^(?:(?:light|heavy)-)?gauss(?:-rifle)?$/.test(key))
-    return key.replace(/-rifle$/, '');
-  if (/^improvedheavygauss(?:rifle)?$/.test(key)) return 'improvedheavygauss';
-  return /^(?:ac|uac|rac|lac|lrm|srm|mrm|mml|streak-srm|streak-lrm)-\d+$/.test(
-    key,
-  )
-    ? key
-    : undefined;
-}
 
 export interface IDropShipMountBV {
   /** Partial diagnostic facts when unresolved is nonempty; never a unit BV. */
@@ -174,7 +160,7 @@ export function resolveLargeAerospaceMountBV(
     }
     if (quantity !== undefined || /ammo|pods/.test(id)) {
       const entry = getLargeAerospaceAmmoEntry(id);
-      const key = entry && ammoGroup(entry.id);
+      const key = entry && getCatalogAmmoBVGroup(entry.id);
       const shots = Number(quantity);
       if (
         !entry ||
@@ -200,7 +186,7 @@ export function resolveLargeAerospaceMountBV(
       fail('Unresolved equipment identity');
       return;
     }
-    const key = ammoGroup(entry.id);
+    const key = getCatalogAmmoBVGroup(entry.id);
     if (
       !(
         key &&
@@ -216,7 +202,7 @@ export function resolveLargeAerospaceMountBV(
       arc,
       location: physicalLocation,
       battleValue: value.battleValue,
-      compatible: /^(?:clan-)?(?:lrm|srm|mml)-\d+$/.test(entry.id),
+      compatible: isArtemisCompatibleBVWeapon(entry.id),
     });
     arc.heat += value.heat;
     if (key)
@@ -224,17 +210,12 @@ export function resolveLargeAerospaceMountBV(
   });
   // MekFileParser links to the first unlinked compatible launcher in the same
   // physical location, regardless of rear flags or adjacency in the BLK list.
-  for (const link of links) {
-    const weapon = weapons.find(
-      (w) => w.compatible && !w.artemisType && w.location === link.location,
-    );
-    if (weapon) weapon.artemisType = link.type;
-    else
-      unresolved.push({
-        mountIndex: link.mountIndex,
-        equipmentId: link.equipmentId,
-        reason: 'Unmatched Artemis launcher link',
-      });
+  for (const link of linkArtemisBVWeapons(weapons, links)) {
+    unresolved.push({
+      mountIndex: link.mountIndex,
+      equipmentId: link.equipmentId,
+      reason: 'Unmatched Artemis launcher link',
+    });
   }
   for (const weapon of weapons)
     weapon.arc.weaponBV +=

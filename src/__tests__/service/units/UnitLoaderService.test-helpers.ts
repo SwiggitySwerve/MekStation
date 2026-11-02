@@ -24,6 +24,7 @@ import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
 
 import atlasDefinition from '../../../../public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json';
+import infantryDefinition from '../../../../public/data/units/infantry/aa-jump-infantry-292nd-league-regulars.json';
 
 // Mock dependencies
 jest.mock('@/services/units/CanonicalUnitService', () => {
@@ -257,18 +258,19 @@ describe('UnitLoaderService', () => {
     expect(result.state?.librarySave?.fingerprint.length).toBeGreaterThan(0);
   });
 
-  it('rejects a valid non-mech definition at the BattleMech session boundary', async () => {
-    mockCanonicalUnitService.getById.mockResolvedValue({
-      id: 'infantry-squad',
-      unitType: 'Infantry',
-    } as IFullUnit);
+  // Every family now has an editor store, so a non-mech definition opens in its
+  // own family state and never crosses the BattleMech session boundary.
+  it('routes a non-mech definition to its family store, not the BattleMech session', async () => {
+    mockCanonicalUnitService.getById.mockResolvedValue(
+      infantryDefinition as unknown as IFullUnit,
+    );
     const result = await service.loadCanonicalUnit(
-      'infantry-squad',
+      infantryDefinition.id,
       'infantry',
     );
     expect(result).toMatchObject({
-      success: false,
-      errorCode: 'unsupported-store-family',
+      success: true,
+      familyState: { store: 'infantry' },
     });
     expect(result.state).toBeUndefined();
     expect(mockEquipmentLookupService.initialize).not.toHaveBeenCalled();

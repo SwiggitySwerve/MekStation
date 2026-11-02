@@ -236,12 +236,11 @@ The system SHALL enforce vehicle-specific validation rules.
 - **THEN** the unit MUST have a motive system type selected
 - **AND** violation SHALL be `CRITICAL_ERROR` severity
 
-#### Scenario: VAL-VEH-003 — Turret Capacity Limits
+#### Scenario: Retired VAL-VEH-003 turret capacity rule
 
-- **WHEN** validating a vehicle with a turret (VEHICLE or SUPPORT_VEHICLE, not VTOL)
-- **THEN** turret equipment weight MUST NOT exceed turret capacity
-- **AND** violation SHALL be `ERROR` severity
-- **AND** the error SHALL report the overflow amount
+- **WHEN** validating any vehicle category unit, including one with legacy turret `capacity` and `usedWeight` values
+- **THEN** `VAL-VEH-003` SHALL NOT be registered or exported and no generic turret-capacity error SHALL be reported
+- **AND** total vehicle weight validation SHALL continue to reject allocated weight above the vehicle tonnage
 
 #### Scenario: VAL-VEH-004 — VTOL Rotor Required
 
@@ -641,3 +640,20 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 - **THEN** its store SHALL contain cruise 5 and flank 8
 - **AND** a later cruise edit to 3 SHALL update flank to 5
 - **AND** no generated catalog regeneration SHALL be required
+
+### Requirement: Explicit Incomplete Combat Handler Weight Failure
+The Tank and VTOL handler calculateWeight APIs SHALL fail explicitly when a
+complete weight is unavailable. They SHALL NOT return simplified subtotals,
+invent mounted mass from equipment names, or use legacy turret compatibility
+fields as mechanism mass. Parsing SHALL remain independent of this calculation.
+
+#### Scenario: Parsed vehicle lacks resolved construction mass
+- **GIVEN** a successfully parsed Tank or VTOL source
+- **WHEN** calculateWeight is requested without a complete resolved construction
+- **THEN** it throws a descriptive incomplete-weight error
+- **AND** parsing remains successful
+
+#### Scenario: Legacy turret fields cannot supply missing mass
+- **GIVEN** a Tank whose turret has legacy currentWeight values
+- **WHEN** calculateWeight is requested
+- **THEN** it still fails explicitly rather than presenting a subtotal as a total
