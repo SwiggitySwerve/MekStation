@@ -249,6 +249,15 @@ export interface IInfantry extends ISquadUnit {
   readonly damageDivisor?: number;
   /** Adds 0.05 defensive structure BV per trooper. */
   readonly hasPheromoneEffuser?: boolean;
+  readonly isArmorEncumbering?: boolean;
+  /** Pinned source facts; absent on legacy editor/store records. */
+  readonly bvOffense?: {
+    secondaryShooters: number;
+    mp: number;
+    antiMek: boolean;
+    augmentations: readonly string[];
+    prostheticAntiMek: boolean;
+  };
 
   /** Squad size (soldiers per squad) */
   readonly squadSize: number;

@@ -6,7 +6,7 @@ IProtoMechUnit shape used by MekStation.
 
 BLK format specifics for ProtoMechs:
   - UnitType: ProtoMek
-  - <armor> 5 values: Head, Torso, Right Arm, Left Arm, Legs
+  - <armor> 5 or 6 values: Head, Torso, Right Arm, Left Arm, Legs, optional Main Gun
   - Equipment blocks: <Head Equipment>, <Torso Equipment>, <Right Arm Equipment>,
                       <Left Arm Equipment>, <Legs Equipment>, <Body Equipment>,
                       <Main Gun Equipment>
@@ -32,27 +32,23 @@ from blk_conversion_runner import BlkConversionConfig, run_blk_conversion, run_m
 # Shared BLK helpers + enum_mappings re-exports — see blk_common.py for the
 # extraction rationale (2026-04-25 maintenance sweep).
 from blk_common import (
+    BLK_ARMOR_CODE_MAP,
+    map_armor_code,
     default_mm_data_root,
     extract_tags,
     generate_id_from_name,
     get_string,
-    map_armor_code,
-    map_rules_level,
-    map_tech_base,
+    map_blk_tech_type,
     map_year_to_era,
-    normalize_equipment_id,
-    parse_armor_array,
     parse_number,
     remove_comments,
 )
 
+from blk_unit_fields import parse_location_equipment, parse_qualifier_number
 
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-
-# BLK armor array order for ProtoMechs
-PROTO_ARMOR_LOCATIONS = ["HEAD", "TORSO", "RIGHT_ARM", "LEFT_ARM", "LEGS"]
 
 # Equipment block tag → location key
 PROTO_LOCATION_MAP: Dict[str, str] = {
@@ -65,35 +61,57 @@ PROTO_LOCATION_MAP: Dict[str, str] = {
     "Main Gun Equipment": "MAIN_GUN",
 }
 
-# Motion type map: BLK motion_type → output enum
-PROTO_MOTION_MAP: Dict[str, str] = {
-    "Biped": "BIPED",
-    "Quad": "QUAD",
-    "Glider": "GLIDER",
-    "UMU": "UMU",
-    "WiGE": "WIGE",
-}
-
-# Armor type code (rarely used in ProtoMech BLKs, but handle it)
-ARMOR_CODE_MAP: Dict[int, str] = {
-    0: "STANDARD", 1: "FERRO_FIBROUS", 2: "REACTIVE", 3: "REFLECTIVE",
-    4: "HARDENED", 34: "FERRO_FIBROUS_CLAN",
+PROTO_ARMOR_LOCATIONS = ('HEAD', 'TORSO', 'RIGHT_ARM', 'LEFT_ARM', 'LEGS', 'MAIN_GUN')
+# EntityMovementMode.parseFromString accepts enum names and these legacy aliases.
+MOTION_MODES = frozenset(('BIPED TRIPOD QUAD TRACKED WHEELED HOVER VTOL NAVAL HYDROFOIL '
+    'SUBMARINE INF_LEG INF_MOTORIZED INF_JUMP BIPED_SWIM QUAD_SWIM WIGE AERODYNE '
+    'SPHEROID INF_UMU AEROSPACE AIRSHIP STATION_KEEPING RAIL MAGLEV').split())
+MOTION_ALIASES = {
+    'GLIDER': 'WIGE', 'UMU': 'INF_UMU', 'SCUBA': 'INF_UMU', 'MOTORIZED SCUBA': 'INF_UMU',
+    'MICROCOPTER': 'VTOL', 'MICRO-COPTER': 'VTOL', 'MICROLITE': 'VTOL',
+    'LEG': 'INF_LEG', 'MOTORIZED': 'INF_MOTORIZED', 'JUMP': 'INF_JUMP',
+    'STATION': 'STATION_KEEPING', 'SATELLITE': 'STATION_KEEPING', 'STATION-KEEPING': 'STATION_KEEPING',
 }
 
 
-# Weight class thresholds for ProtoMechs (by tonnage)
-# ProtoMechs range from 2t (PA(L)) to 9t (Assault)
 def get_proto_weight_class(tonnage: float) -> str:
-    if tonnage <= 2:
-        return "PAL"
-    elif tonnage <= 4:
-        return "LIGHT"
-    elif tonnage <= 6:
-        return "MEDIUM"
-    elif tonnage <= 8:
-        return "HEAVY"
-    else:
-        return "ASSAULT"
+    """EntityWeightClass.protoWeightLimits: 3/5/7/9, then WEIGHT_SUPER_HEAVY."""
+    for limit, name in ((3, 'LIGHT'), (5, 'MEDIUM'), (7, 'HEAVY'), (9, 'ASSAULT')):
+        if tonnage <= limit:
+            return name
+    return 'ULTRAHEAVY'
+
+
+def parse_proto_fields(tags: Dict[str, Any]) -> Dict[str, Any]:
+    for tag in ('Name', 'year', 'tonnage', 'type', 'motion_type', 'cruiseMP', 'armor'):
+        if tag not in tags or not str(tags[tag]).strip():
+            raise ValueError(f'Missing required ProtoMek <{tag}>')
+    year = parse_qualifier_number(tags, 'year', integer=True)
+    tonnage = parse_qualifier_number(tags, 'tonnage')
+    if tonnage <= 0:
+        raise ValueError('Invalid ProtoMek tonnage: must be positive')
+    tonnage = int(tonnage) if tonnage.is_integer() else tonnage
+    raw_motion = str(tags['motion_type']).upper()
+    motion = MOTION_ALIASES.get(raw_motion, raw_motion)
+    if motion not in MOTION_MODES:
+        raise ValueError(f'Invalid ProtoMek motion_type: {raw_motion!r}')
+    armor_values = [parse_qualifier_number({'armor': value}, 'armor', integer=True)
+                    for value in str(tags['armor']).splitlines() if value.strip()]
+    if len(armor_values) not in (5, 6):
+        raise ValueError('Incorrect ProtoMek armor array length: expected 5 or 6')
+    armor_code = parse_qualifier_number(tags, 'armor_type', integer=True) if 'armor_type' in tags else 0
+    armor = {
+        'type': map_armor_code(42 if armor_code == 0 else armor_code, BLK_ARMOR_CODE_MAP, strict=True),
+        'byLocation': dict(zip(PROTO_ARMOR_LOCATIONS, armor_values)),
+    }
+    tech_tag = next((tag for tag in ('armor_tech_level', 'armor_tech') if tag in tags), None)
+    if tech_tag:
+        armor['sourceTechLevel'] = parse_qualifier_number(tags, tech_tag, integer=True)
+    movement = {'cruiseMP': parse_qualifier_number(tags, 'cruiseMP', integer=True),
+                'jumpMP': parse_qualifier_number(tags, 'jumpingMP', integer=True) if 'jumpingMP' in tags else 0}
+    return dict(year=year, tonnage=tonnage, weightClass=get_proto_weight_class(tonnage),
+                motionType=motion, isGlider=motion == 'WIGE', isQuad=motion == 'QUAD',
+                hasMainGun=len(armor_values) == 6, armor=armor, movement=movement)
 
 
 # ---------------------------------------------------------------------------
@@ -116,50 +134,12 @@ def convert_protomech_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
         logger.debug(f"Skipping {blk_path.name}: UnitType='{unit_type_raw}' (not ProtoMek)")
         return None
 
-    # --- Required fields ---
+    fields = parse_proto_fields(tags)
     name = get_string(tags, "Name")
-    if not name:
-        logger.warning(f"Skipping {blk_path.name}: missing Name tag")
-        return None
-
     model = get_string(tags, "Model", "model") or ""
-
-    year_raw = parse_number(get_string(tags, "year", "Year"))
-    if year_raw is None:
-        logger.warning(f"Skipping {blk_path.name}: missing year tag")
-        return None
-    year = int(year_raw)
-
-    tonnage_raw = parse_number(get_string(tags, "tonnage", "Tonnage"))
-    if tonnage_raw is None:
-        logger.warning(f"Skipping {blk_path.name}: missing tonnage tag")
-        return None
-    tonnage = int(tonnage_raw) if tonnage_raw == int(tonnage_raw) else tonnage_raw
-
-    # --- Classification ---
-    tech_type_str = get_string(tags, "type", "Type") or "Clan Level 2"
-    tech_base = map_tech_base(tech_type_str)
-    rules_level = map_rules_level(tech_type_str)
+    year = fields['year']
+    tech_base, rules_level = map_blk_tech_type(get_string(tags, "type"), year)
     era = map_year_to_era(year)
-
-    weight_class = get_proto_weight_class(float(tonnage))
-
-    # --- Motion type ---
-    motion_raw = get_string(tags, "motion_type") or "Biped"
-    motion_type = PROTO_MOTION_MAP.get(motion_raw, motion_raw.upper())
-
-    # Glider detection: either motion_type == Glider or interface_cockpit flag
-    is_glider = (motion_raw.lower() == "glider")
-
-    # --- Movement ---
-    cruise_mp = int(parse_number(get_string(tags, "cruiseMP", "CruiseMP")) or 0)
-    jump_mp = int(parse_number(get_string(tags, "jumpingMP", "JumpingMP")) or 0)
-    umu_mp = int(parse_number(get_string(tags, "UMUPM", "umuMP")) or 0)
-
-    # ProtoMechs use glider MP as jump MP
-    if is_glider and jump_mp == 0 and cruise_mp > 0:
-        # For gliders, cruise = ground, jump = glide
-        pass  # Already correct
 
     # --- Engine ---
     engine_code = tags.get("engine_type")
@@ -168,36 +148,12 @@ def convert_protomech_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     if engine_code is not None and str(engine_code).strip() != "0":
         logger.warning(f"{blk_path}: ignored raw engine_type={engine_code!r}; ProtoMek loader uses fusion")
 
-    # --- Armor (5 locations: Head, Torso, R Arm, L Arm, Legs) ---
-    armor_raw = tags.get("armor") or tags.get("Armor")
-    armor_values = parse_armor_array(armor_raw)
-    armor_code = get_string(tags, "armor_type")
-    armor_type_str = map_armor_code(armor_code, ARMOR_CODE_MAP)
-
-    armor_by_location: Dict[str, int] = {}
-    for i, loc in enumerate(PROTO_ARMOR_LOCATIONS):
-        if i < len(armor_values):
-            armor_by_location[loc] = armor_values[i]
-
-    # --- Equipment ---
-    equipment: List[Dict[str, str]] = []
-    main_gun: List[str] = []
-
-    for blk_tag, loc_key in PROTO_LOCATION_MAP.items():
-        items: List[str] = tags.get(blk_tag) or []
-        if isinstance(items, str):
-            items = [ln.strip() for ln in items.splitlines() if ln.strip()]
-        for item in items:
-            if item.strip():
-                eq = {
-                    "id": normalize_equipment_id(item),
-                    "name": item,
-                    "location": loc_key,
-                }
-                if loc_key == "MAIN_GUN":
-                    main_gun.append(item)
-                else:
-                    equipment.append(eq)
+    # Source locations and names remain intact; runtime mount resolution belongs
+    # to the loader. Java ignores the Main Gun block when the location is absent.
+    locations = {tag: location for tag, location in PROTO_LOCATION_MAP.items()
+                 if location != "MAIN_GUN" or fields['hasMainGun']}
+    equipment = parse_location_equipment(tags, locations)
+    main_gun = [item for item in equipment if item['location'] == 'MAIN_GUN']
 
     # --- Misc ---
     mul_id_raw = get_string(tags, "mul id:", "mulId")
@@ -228,30 +184,17 @@ def convert_protomech_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
         "techBase": tech_base,
         "rulesLevel": rules_level,
         "era": era,
-        "year": year,
-        "tonnage": tonnage,
-        "weightClass": weight_class,
-        "motionType": motion_type,
-        "isGlider": is_glider,
+        **fields,
         "hasInterfaceCockpit": has_interface_cockpit,
-        "movement": {
-            "cruiseMP": cruise_mp,
-            "jumpMP": jump_mp,
-            "umuMP": umu_mp,
-        },
         "engine": {
             "type": engine_type_str,
-        },
-        "armor": {
-            "type": armor_type_str,
-            "byLocation": armor_by_location,
         },
         "equipment": equipment,
     }
 
     if main_gun:
         output["mainGun"] = {
-            "weapons": [{"id": normalize_equipment_id(w), "name": w} for w in main_gun],
+            "weapons": [{"id": w["id"], "name": w["name"]} for w in main_gun],
         }
 
     if mul_id is not None:
@@ -324,7 +267,7 @@ def build_manifest_entry(unit: Dict[str, Any]) -> Dict[str, Any]:
         "weightClass": unit["weightClass"],
         "motionType": unit["motionType"],
         "isGlider": unit.get("isGlider", False),
-        "hasMainGun": "mainGun" in unit,
+        "hasMainGun": unit["hasMainGun"],
         "role": unit.get("role"),
         "source": unit.get("source"),
         "mulId": unit.get("mulId"),

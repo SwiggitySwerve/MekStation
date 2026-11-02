@@ -11,8 +11,8 @@
  *   - Platoon BV = perTrooperBV × totalTroopers × motiveMultiplier.
  *   - If anti-mech training: platoonBV × 1.1.
  *   - If field gun(s): add full mech-scale weapon BV + ammo BV.
- *   - Defensive structure follows pinned MegaMek; later defense modifiers and
- *     the legacy offensive approximation still need source-parity work.
+ *   - Source facts use pinned offense and defensive structure; defensive
+ *     movement/stealth remain pending. Editor inputs retain legacy offense.
  *   - Final BV = (defensive structure + platoonBV) × pilot-skill multiplier.
  *
  * @spec openspec/changes/add-infantry-battle-value/specs/battle-value-system/spec.md
@@ -22,11 +22,13 @@
 import type { IInfantryBVBreakdown } from '@/types/unit/BVBreakdownTypes';
 
 import { InfantryMotive } from '@/types/unit/InfantryInterfaces';
-import { InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
+import { IInfantry, InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
 import { getPilotSkillModifier } from '@/types/validation/BattleValue';
 
+import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
 import { calculateAmmoBVWithExcessiveCap } from '../battleValueOffensive';
 import { resolveEquipmentBV } from '../equipmentBVResolver';
+import { getInfantryBVWeapon } from './weaponTable';
 
 // =============================================================================
 // Public Types
@@ -78,6 +80,7 @@ export interface InfantryFieldGunMount {
  * Input to the infantry BV calculator.
  */
 export interface InfantryBVInput {
+  sourceOffense?: IInfantry['bvOffense'];
   /** Incoming protection, distinct from the weapon table's damage divisor. */
   damageDivisor?: number;
   hasPheromoneEffuser?: boolean;
@@ -307,19 +310,55 @@ export function getInfantryPilotMultiplier(
 export function calculateInfantryBV(
   input: InfantryBVInput,
 ): IInfantryBVBreakdown {
-  const primaryBV = calculateInfantryPrimaryBV(input.primaryWeapon);
-  const secondaryBV = calculateInfantrySecondaryBV(input.secondaryWeapon);
-  const armorKitBV = ARMOR_KIT_PER_TROOPER_BV[input.armorKit] ?? 0;
+  const source = input.sourceOffense;
+  const primary = source
+    ? getInfantryBVWeapon(input.primaryWeapon.id)
+    : undefined;
+  const secondary =
+    source && input.secondaryWeapon
+      ? getInfantryBVWeapon(input.secondaryWeapon.id)
+      : undefined;
+  const ratio = source ? source.secondaryShooters / input.totalTroopers : 0;
+  // InfantryBVCalculator.java:117-158 and BVCalculator.java:805-829 (48fcb2f64):
+  // BV per shooter, not combat damage or incoming armor divisor. Secondary
+  // shooters replace primary shooters; archaic weapons get no anti-mek repeat.
+  const primaryBV = primary
+    ? primary.bv * (1 - ratio)
+    : calculateInfantryPrimaryBV(input.primaryWeapon);
+  const secondaryBV = source
+    ? (secondary?.bv ?? 0) * ratio
+    : calculateInfantrySecondaryBV(input.secondaryWeapon);
+  const armorKitBV = source
+    ? 0
+    : (ARMOR_KIT_PER_TROOPER_BV[input.armorKit] ?? 0);
   const perTrooper = Math.max(0, primaryBV + secondaryBV + armorKitBV);
 
-  const motiveMultiplier = getInfantryMotiveMultiplier(input.motive);
-  const antiMechMultiplier = input.hasAntiMechTraining
-    ? ANTI_MECH_MULTIPLIER
-    : 1.0;
+  const motiveMultiplier = source
+    ? calculateOffensiveSpeedFactorForMP(source.mp)
+    : getInfantryMotiveMultiplier(input.motive);
+  const antiMechMultiplier = source
+    ? source.antiMek
+      ? 1 + (source.prostheticAntiMek ? 1.2 : 1)
+      : 1
+    : input.hasAntiMechTraining
+      ? ANTI_MECH_MULTIPLIER
+      : 1.0;
 
   const troopers = Math.max(0, input.totalTroopers);
-  const platoonCore =
+  let platoonCore =
     perTrooper * troopers * motiveMultiplier * antiMechMultiplier;
+  if (source) {
+    const repeat =
+      ((primary?.archaic ? 0 : primaryBV) +
+        (secondary?.archaic ? 0 : secondaryBV)) *
+      (antiMechMultiplier - 1);
+    // InfantryBVCalculator.java:170-235; movement max selection :329-331.
+    const bonus =
+      (source.augmentations.includes('gas_effuser_toxin') ? 0.23 : 0) +
+      (source.augmentations.includes('tsm_implant') ? 0.1 : 0) +
+      (source.augmentations.includes('suicide_implants') ? 0.12 : 0);
+    platoonCore = (perTrooper + repeat + bonus) * troopers * motiveMultiplier;
+  }
 
   const fieldGunResult = calculateInfantryFieldGunBV(input.fieldGuns);
   const platoonBV = platoonCore + fieldGunResult.total;

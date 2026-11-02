@@ -229,3 +229,124 @@ export function getPrimaryWeaponOptions(
     ? INFANTRY_WEAPON_TABLE
     : INFANTRY_WEAPON_TABLE.filter((w) => !w.isHeavy);
 }
+
+// Pinned 48fcb2f64 weapon BV/flags absent from the equipment catalog. These are
+// BV facts, not a second infantryDamage table. Each row cites its Java owner.
+type WeaponBV = { bv: number; support: boolean; archaic: boolean };
+const SOURCE_BV = new Map<string, WeaponBV>();
+for (const row of [
+  'AA Weapon (Mk. 1, Light)|0.7|s', // InfantrySupportMk1LightAAWeapon.java:71
+  'AA Weapon (Mk. 2, Man-Portable)|4.14|s', // InfantrySupportMk2PortableAAWeapon.java:71
+  'Auto-Pistol|0.19|', // InfantryPistolAutoPistolWeapon.java:70
+  'Auto-Pistol (M&G)|0.16|', // InfantryPistolMauserAutoPistolWeapon.java:71
+  'Auto-Pistol (Magnum)|0.19|', // InfantryPistolMagnumAutoPistolWeapon.java:70
+  'Auto-Pistol (Nambu)|0.19|', // InfantryPistolNambuAutoPistolWeapon.java:71
+  'Auto-Pistol (Serrek 7875D)|0.15|', // InfantryPistolSerrekAutoPistolWeapon.java:71
+  'Auto-Shotgun|0.21|', // InfantryShotgunAutomaticWeapon.java:70
+  'Autocannon (Bearhunter Superheavy)|2.13|s', // InfantrySupportClanBearhunterAutocannonWeapon.java:72
+  'Autocannon (Semi-Portable)|2.35|s', // InfantrySupportPortableAutocannonWeapon.java:72
+  'Blade (Dagger/Knife/Bayonet)|0.02|a', // InfantryArchaicDaggerWeapon.java:72
+  'Blade (Vibro-blade)|0.19|a', // InfantryArchaicVibroBladeWeapon.java:71
+  'Blade (Vibro-katana)|0.29|a', // InfantryArchaicVibroKatanaWeapon.java:71
+  'Ceres Arms Crowdbuster|0.1|', // InfantryShotgunCeresCrowdbusterWeapon.java:70
+  'Elephant Gun|0.34|', // InfantryRifleElephantGunWeapon.java:69
+  'Flamer (Heavy)|0.72|s', // InfantrySupportHeavyFlamerWeapon.java:70
+  'Flamer (Man-Portable)|0.5|s', // InfantrySupportPortableFlamerWeapon.java:72
+  'Gauss Cannon (Grand Mauler)|3.22|s', // InfantrySupportGrandMaulerGaussCannonWeapon.java:72
+  'Gauss Rifle (Gungnir Heavy Support)|0.0|s', // InfantrySupportGungnirHeavyGaussWeapon.java:65
+  'Gauss Rifle (Thunderstroke II)|2.71|', // InfantryRifleThunderstrokeIIWeapon.java:73
+  'Gauss Rifle (Thunderstroke)|0.79|', // InfantryRifleThunderstrokeWeapon.java:71
+  'Gauss Rifle (Tsunami Heavy)|3.22|s', // InfantrySupportTsunamiHeavyGaussRifleWeapon.java:72
+  'Gauss Rifle, Light (David)|4.01|s', // InfantrySupportDavidLightGaussRifleWeapon.java:70
+  'Gauss Rifle, Light (King David)|4.87|s', // InfantrySupportKingDavidLightGaussRifleWeapon.java:72
+  'Gauss Submachine Gun|1.38|', // InfantrySMGClanGaussWeapon.java:72
+  'Grenade Launcher|2.48|s', // InfantrySupportGrenadeLauncherWeapon.java:70
+  'Grenade Launcher (Compact)|0.49|s', // InfantrySupportGrenadeLauncherCompactWeapon.java:71
+  'Gyrojet Rifle|1.07|', // InfantryRifleGyrojetRifleWeapon.java:70
+  'Gyroslug Rifle|1.07|', // InfantryRifleGyroslugRifleWeapon.java:70
+  'InfantryAssaultRifle|1.59|', // InfantryRifleAutoRifleWeapon.java:75
+  'InfantryAutoGL|4.55|s', // InfantrySupportGrenadeLauncherAutoWeapon.java:70
+  'InfantryAutoGLInferno|1.25|s', // InfantrySupportGrenadeLauncherAutoInfernoWeapon.java:71
+  'InfantryFederatedBarrettM42B|3.12|', // InfantryRifleFederatedBarrettM42BWeapon.java:64
+  'InfantryFederatedBarrettM61A|3.83|', // InfantryRifleFederatedBarrettM61ALaserWeapon.java:64
+  'InfantryHRR|2.91|s', // InfantrySupportRecoillessRifleHeavyWeapon.java:71
+  'InfantryHeavyGrenadeLauncherInferno|2.11|s', // InfantrySupportHeavyGrenadeLauncherInfernoWeapon.java:72
+  'InfantryHeavyMortar|4.09|s', // InfantrySupportMortarHeavyWeapon.java:73
+  'InfantryHeavySRM|2.91|s', // InfantrySupportSRMHeavyWeapon.java:79
+  'InfantryLRM|3.44|s', // InfantrySupportLRMWeapon.java:74
+  'InfantryLRR|2.45|s', // InfantrySupportRecoillessRifleLightWeapon.java:71
+  'InfantryLightMortar|1.62|s', // InfantrySupportMortarLightWeapon.java:73
+  'InfantryMRR|2.71|s', // InfantrySupportRecoillessRifleMediumWeapon.java:71
+  'InfantryMiniGrenadeInferno|0.1|s', // InfantryGrenadeMiniInfernoWeapon.java:72
+  'InfantryOneShotMRM|2.71|s', // InfantrySupportOneShotMRMWeapon.java:72
+  'InfantrySRMLight|2.91|s', // InfantrySupportSRMLightWeapon.java:79
+  'InfantryStandardSRM|5.83|s', // InfantrySupportSRMStandardWeapon.java:79
+  'InfantryTAG|0|s', // InfantrySupportTAGWeapon.java:65
+  'Laser (Hellbore Assault)|3.22|s', // InfantrySupportHellboreAssaultLaserWeapon.java:72
+  'Laser Pistol (Blazer)|0.79|', // InfantryPistolBlazerPistolWeapon.java:70
+  'Laser Pistol (Sunbeam)|0.86|', // InfantryPistolSunbeamLaserPistolWeapon.java:71
+  'Laser Rifle|1.43|', // InfantryRifleLaserWeapon.java:63
+  'Laser Rifle (Blazer)|1.79|', // InfantryRifleBlazerRifleWeapon.java:71
+  'Laser Rifle (ER [Sunbeam Starfire])|2.01|', // InfantryRifleSunbeamStarfireERLaserWeapon.java:71
+  'Laser Rifle (ER)|2.01|', // InfantryRifleClanERLaserWeapon.java:71
+  'Laser Rifle (Ebony Assault)|1.07|', // InfantryRifleEbonyAssaultLaserWeapon.java:71
+  'Laser Rifle (Intek)|1.51|', // InfantryRifleIntekLaserWeapon.java:71
+  'Laser Rifle (Magna)|1.33|', // InfantryRifleMagnaLaserWeapon.java:64
+  'Laser Rifle (Marx XX)|1.86|', // InfantryRifleMarxXXLaserWeapon.java:71
+  'Laser Rifle (Mauser 1200 LSS)|5.32|', // InfantryRifleMauser1200LSSWeapon.java:64
+  'Laser Rifle (Mauser 960)|4.75|', // InfantryRifleMauser960LaserWeapon.java:64
+  'Laser Rifle (Mauser IIC IAS)|9.82|', // InfantryRifleClanMauserIICIASWeapon.java:72
+  'Laser Rifle (Maxell PL-10)|1.33|', // InfantryRifleMaxellPL10LaserWeapon.java:71
+  'Machine Gun (Portable)|1.99|s', // InfantrySupportMGPortableWeapon.java:71
+  'Machine Gun (Semi-Portable)|2.29|s', // InfantrySupportMGSemiPortableWeapon.java:71
+  'Machine Gun (Support)|4.8|s', // InfantrySupportMGSupportWeapon.java:71
+  'Needler Pistol|0.21|', // InfantryPistolNeedlerPistolWeapon.java:69
+  'Needler Rifle|0.21|', // InfantryRifleNeedlerWeapon.java:69
+  'Needler Rifle (M&G Flechette)|0.1|', // InfantryRifleMGFlechetteNeedlerWeapon.java:64
+  'Needler Rifle (Shredder Heavy)|0.31|', // InfantryRifleShredderHeavyNeedlerWeapon.java:71
+  'Needler, Support (Firedrake)|6.13|s', // InfantrySupportFiredrakeNeedlerWeapon.java:72
+  'Particle Cannon (Semi-Portable)|3.68|s', // InfantrySupportSemiPortablePPCWeapon.java:72
+  'Particle Cannon (Support)|11.32|s', // InfantrySupportHeavyPPCWeapon.java:72
+  'Pistol (Sternsnacht Heavy [Claymore])|0.08|', // InfantryPistolSternsnachtPistolWeapon.java:72
+  'Plasma Rifle (Man-Portable)|8.08|s', // InfantrySupportPortablePlasmaWeapon.java:73
+  'Pulse Laser Rifle (Inner Sphere)|0.76|', // InfantryRiflePulseLaserWeapon.java:71
+  'Rifle (Bolt-Action)|0.43|', // InfantryRifleBoltActionWeapon.java:70
+  'Rifle (Federated Long)|1.07|', // InfantryRifleFederatedLongWeapon.java:71
+  'Rifle (Imperator AX-22 Assault)|1.59|', // InfantryRifleImperatorAX22AssaultWeapon.java:71
+  'Rifle (M&G G-150)|1.64|', // InfantryRifleMauserG150Weapon.java:71
+  'Rifle (Makeshift)|0.09|', // InfantryRifleMakeshiftWeapon.java:70
+  'Rifle (Striker Carbine)|0.29|', // InfantryRifleStrikerCarbineRifleWeapon.java:69
+  'Rifle (TK Assault)|1.34|', // InfantryRifleTKAssaultWeapon.java:71
+  'Rifle (Zeus Heavy)|0.67|', // InfantryRifleZeusHeavyWeapon.java:71
+  'Rocket Launcher (V-LAW)|1.47|s', // InfantrySupportRocketLauncherVLAWWeapon.java:71
+  'SMG (Gunther MP-20)|0.3|', // InfantrySMGGuntherMP20Weapon.java:71
+  'Shotgun (Avenger CCW)|0.3|', // InfantryShotgunAvengerCCWWeapon.java:71
+  'Shotgun (Combat)|0.25|', // InfantryShotgunCombatWeapon.java:70
+  'Sniper Rifle (Bolt Action)|0.92|', // InfantrySniperRifleSniperWeapon.java:71
+  'Sniper Rifle (Hammel Marksman)|0.28|', // InfantrySniperRifleHammelMarksman.java:67
+  'Sniper Rifle (Minolta 9000 Advanced Sniper System)|1.79|', // InfantrySniperRifleMinolta9000Weapon.java:72
+  'Sonic Stunner|0.06|', // InfantryPistolSonicStunnerWeapon.java:70
+  'Stunstick|0.06|a', // InfantryArchaicStunstickWeapon.java:70
+  'Submachine Gun|0.23|', // InfantrySMGWeapon.java:70
+  'Support Laser|6.02|s', // InfantrySupportLaserWeapon.java:72
+  'Support Laser (ER Heavy, Clan)|18.52|s', // InfantrySupportClanERHeavyLaserWeapon.java:72
+  'Support Laser (ER, IS)|8.21|s', // InfantrySupportERLaserWeapon.java:72
+  'Support Laser (ER, Semi-Portable)|5.02|s', // InfantrySupportClanSemiPortableERLaserWeapon.java:72
+  'Support Laser (Heavy)|17.35|s', // InfantrySupportHeavyLaserWeapon.java:72
+  'Support Laser (Semi-Portable)|4.37|s', // InfantrySupportSemiPortableLaserWeapon.java:71
+  'Support PPC (Snub-Nose)|0.0|s', // InfantrySupportSnubNoseSupportPPCWeapon.java:64
+  'Support Pulse Laser|5.81|s', // InfantrySupportPulseLaserWeapon.java:72
+  'Tranq Gun|0.13|', // InfantryPistolTranqGunWeapon.java:69
+]) {
+  const [name, bv, flags] = row.split('|');
+  SOURCE_BV.set(name.toLowerCase(), {
+    bv: Number(bv),
+    support: flags.includes('s'),
+    archaic: flags.includes('a'),
+  });
+}
+export function getInfantryBVWeapon(name: string): WeaponBV {
+  const weapon = SOURCE_BV.get(name.toLowerCase());
+  if (!weapon) throw new Error(`Unresolved infantry BV weapon: ${name}`);
+  return weapon;
+}

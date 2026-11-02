@@ -571,6 +571,11 @@
               "not": {
                 "$ref": "#/$defs/infantryUnitType"
               }
+            },
+            {
+              "not": {
+                "$ref": "#/$defs/protoMechUnitType"
+              }
             }
           ]
         },
@@ -796,6 +801,34 @@
         "disposableWeapon": { "type": "string", "minLength": 1 },
         "customArmorName": { "type": "string", "minLength": 1 }
       }
+    },
+    {
+      "required": ["unitType"],
+      "properties": {
+        "unitType": { "$ref": "#/$defs/protoMechUnitType" },
+        "armor": {
+          "type": "object",
+          "properties": {
+            "type": { "$ref": "#/$defs/standardArmorType" },
+            "perTrooper": false
+          }
+        },
+        "equipment": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "unitLocation": false,
+              "isDWPMounted": false,
+              "isSquadSupportWeapon": false,
+              "isAPMMounted": false,
+              "shots": false,
+              "size": false
+            }
+          }
+        },
+        "tonnage": { "type": "number", "maximum": 250 }
+      }
     }
   ],
   "$defs": {
@@ -858,7 +891,8 @@
     "capitalUnitType": {
       "enum": ["DropShip", "JumpShip", "WarShip", "Space Station"]
     },
-    "infantryUnitType": { "enum": ["Infantry"] }
+    "infantryUnitType": { "enum": ["Infantry"] },
+    "protoMechUnitType": { "enum": ["ProtoMech"] }
   },
   "allOf": [
     {
