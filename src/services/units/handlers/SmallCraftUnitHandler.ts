@@ -8,7 +8,6 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
 
-import { SMALL_CRAFT_TONNAGE } from '@/services/construction/constructionConstants';
 import { blkEngineCode } from '@/services/conversion/blkEngineIdentity';
 import { SmallCraftLocation } from '@/types/construction/UnitLocation';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
@@ -25,6 +24,7 @@ import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
 import { calculateAerospaceBVFromUnit } from '@/utils/construction/aerospace/aerospaceBVUnitAdapter';
 import { calculateMaxThrust } from '@/utils/construction/aerospace/thrustCalculations';
+import { validateSmallCraftSourceLimits } from '@/utils/construction/aerospace/validationRules';
 
 import {
   AbstractUnitTypeHandler,
@@ -38,8 +38,6 @@ import {
   createValidationMessages,
   mapLocationEquipment,
   parseRulesLevelThroughAdvancedFromType,
-  pushSafeThrustAndStructureErrors,
-  pushTonnageRangeErrors,
   pushSourceLoadNumberErrors,
   withConstructionDiagnostics,
   serializeConfigurationWithRulesLevel,
@@ -267,18 +265,7 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
   ): UnitValidationMessages {
     const { errors, warnings, infos } = createValidationMessages();
 
-    pushTonnageRangeErrors(errors, unit.tonnage, {
-      label: 'Small craft',
-      min: SMALL_CRAFT_TONNAGE.min,
-      max: SMALL_CRAFT_TONNAGE.max,
-    });
-
-    pushSafeThrustAndStructureErrors(
-      errors,
-      unit,
-      'Small craft must have at least 1 safe thrust',
-      'Small craft must have at least 1 SI',
-    );
+    errors.push(...validateSmallCraftSourceLimits(unit));
 
     // Crew validation
     if (unit.crew < 1) {
