@@ -21,7 +21,10 @@ import {
   calculateAerospaceAmmoBV,
   sumWeaponBV,
 } from './aerospaceBVCalculations';
-import { calculateMountedAerospaceDefensiveBV } from './aerospaceBVEquipment';
+import {
+  calculateMountedAerospaceDefensiveBV,
+  calculateMountedAerospaceExplosivePenalty,
+} from './aerospaceBVEquipment';
 import { isCapitalShipBVType } from './aerospaceBVTypes';
 
 // ============================================================================
@@ -62,11 +65,13 @@ export function calculateAerospaceDefensiveBV(
   const defensiveEquipmentBV =
     (input.defensiveEquipmentBV ?? 0) +
     calculateMountedAerospaceDefensiveBV(input.equipment);
+  const defensivePool = armorBV + siBV + defensiveEquipmentBV;
   // LargeAeroBVCalculator.processExplosiveEquipment is empty (no minimum).
   const explosivePenalties =
     capital || input.subType === UnitType.DROPSHIP
       ? 0
-      : (input.explosivePenalties ?? 0);
+      : (input.explosivePenalties ??
+        calculateMountedAerospaceExplosivePenalty(input, defensivePool));
 
   // AeroBVCalculator.java:118-134; support classification precedes ConvFighter.
   let typeModifier = 1.2;
@@ -97,9 +102,7 @@ export function calculateAerospaceDefensiveBV(
 
   const defensiveFactor = 1;
   const defensive =
-    (armorBV + siBV + defensiveEquipmentBV - explosivePenalties) *
-    typeModifier *
-    defensiveFactor;
+    (defensivePool - explosivePenalties) * typeModifier * defensiveFactor;
 
   return {
     armorBV,
