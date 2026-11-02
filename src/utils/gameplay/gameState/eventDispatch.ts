@@ -22,6 +22,7 @@ import {
   type IInitiativeRolledPayload,
   type IMinefieldChangedPayload,
   type IMoraleShiftedPayload,
+  type IMotiveDamagedPayload,
   type IMovementDeclaredPayload,
   type IMovementEnhancementActivatedPayload,
   type INeuralInterfaceStateChangedPayload,
@@ -111,6 +112,7 @@ import {
   applyTurnStarted,
 } from './phaseManagement';
 import { applyMinefieldChanged, applyTerrainChanged } from './terrainReducer';
+import { applyVehicleMotiveDamaged } from './vehicleCombatStateUpdates';
 
 type EventHandler = (state: IGameState, event: IGameEvent) => IGameState;
 type PayloadHandler<TPayload> = (
@@ -226,6 +228,9 @@ const EVENT_HANDLERS: Partial<Record<GameEventType, EventHandler>> = {
     withPayload<IAttacksRevealedPayload>(applyAttacksRevealed),
   [GameEventType.DamageApplied]:
     withPayload<IDamageAppliedPayload>(applyDamageApplied),
+  [GameEventType.MotiveDamaged]: withPayload<IMotiveDamagedPayload>(
+    applyVehicleMotiveDamaged,
+  ),
   [GameEventType.HeatGenerated]: withPayload<IHeatPayload>(applyHeatChange),
   [GameEventType.HeatDissipated]: withPayload<IHeatPayload>(applyHeatChange),
   [GameEventType.PilotHit]: withPayload<IPilotHitPayload>(applyPilotHit),

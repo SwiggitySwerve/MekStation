@@ -14,6 +14,7 @@ import {
   blkEngineName,
   encodeBlkEngine,
 } from '@/services/conversion/blkEngineIdentity';
+import { serializeVehicleTurretContext } from '@/services/conversion/vehicleTurretContext';
 import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { vehicleEditorSchema } from '@/services/units/unitLoaderService/vehicleMapping';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
@@ -319,7 +320,7 @@ export function serializeCustomVehicleState(
         ]),
       ),
     },
-    isOmni: state.isOmni,
+    ...serializeVehicleTurretContext(state),
     isTrailer: state.isTrailer,
     equipment: state.equipment.map((item) => ({
       id: item.equipmentId,

@@ -12,6 +12,7 @@
  */
 
 import type { VehicleEngineType } from '@/types/construction/EngineType';
+import type { IVehicleTurretSourceContext } from '@/types/unit/VehicleInterfaces';
 
 import {
   getVehicleMaxTonnage,
@@ -21,6 +22,7 @@ import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { isValidWeight } from '@/utils/physical/weightUtils';
 
 import { validateVehicleArmorLocations } from './armor';
 import {
@@ -34,7 +36,11 @@ import {
   computeVehicleStructureWeight,
   VehicleStructureType,
 } from './structure';
-import { validateTurretEligibility, validateTurretWeight } from './turret';
+import {
+  computeVehicleTurretMechanismWeight,
+  validateTurretEligibility,
+  validateTurretWeight,
+} from './turret';
 
 // =============================================================================
 // Registered Rule IDs
@@ -57,21 +63,24 @@ export type VehicleValidationRuleId =
 // Validation Input
 // =============================================================================
 
-export interface VehicleValidationInput extends VehicleControlsLiftContext {
+export interface VehicleValidationInput
+  extends VehicleControlsLiftContext, IVehicleTurretSourceContext {
   /** Engine type */
   engineType: VehicleEngineType;
   /** Cruise MP */
   cruiseMP: number;
   /** Turret configuration */
   turretType: TurretType;
+  /** Explicit secondary installation overrides the legacy Dual shorthand. */
+  secondaryTurretType?: TurretType;
   /** Total weight of equipment in primary turret (tons) */
-  turretEquipmentWeight: number;
+  turretEquipmentWeight: number | null;
   /** Current declared turret structure weight */
-  turretStructureWeight: number;
+  turretStructureWeight: number | null;
   /** Total weight of equipment in secondary turret (tons, 0 if no dual) */
-  secondaryTurretEquipmentWeight: number;
+  secondaryTurretEquipmentWeight: number | null;
   /** Current declared secondary turret structure weight */
-  secondaryTurretStructureWeight: number;
+  secondaryTurretStructureWeight: number | null;
   /** Armor type */
   armorType: ArmorTypeEnum;
   /** Per-location armor allocation */
@@ -79,9 +88,9 @@ export interface VehicleValidationInput extends VehicleControlsLiftContext {
   /** Configured crew size */
   crewSize: number;
   /** Total weight of energy weapons (tons) — for power amp check */
-  energyWeaponWeight: number;
+  energyWeaponWeight: number | null;
   /** Declared power amplifier weight */
-  powerAmpWeight: number;
+  powerAmpWeight: number | null;
   /** Structure type */
   structureType: VehicleStructureType;
 }
@@ -97,6 +106,8 @@ export interface VehicleValidationError {
 
 export interface VehicleValidationResult {
   isValid: boolean;
+  /** Unknown or invalid dependent mass prevents successful validation. */
+  isComplete: boolean;
   errors: VehicleValidationError[];
   warnings: string[];
   /** Computed weights for display in the status bar */
@@ -122,6 +133,15 @@ export function validateVehicleConstruction(
 ): VehicleValidationResult {
   const errors: VehicleValidationError[] = [];
   const warnings: string[] = [];
+  const primaryContext = {
+    isOmni: input.isOmni,
+    baseChassisWeight: input.baseChassisTurretWeight,
+    isSupportVehicle: input.unitType === UnitType.SUPPORT_VEHICLE,
+  };
+  const secondaryContext = {
+    ...primaryContext,
+    baseChassisWeight: input.baseChassisSecondaryTurretWeight,
+  };
 
   // ── VAL-VEHICLE-TONNAGE ─────────────────────────────────────────────────
   const support = input.unitType === UnitType.SUPPORT_VEHICLE;
@@ -166,21 +186,23 @@ export function validateVehicleConstruction(
     input.turretType,
     input.turretEquipmentWeight,
     input.turretStructureWeight,
+    primaryContext,
   );
   for (const e of turretWeightErrors) {
     errors.push(e);
   }
 
-  // Secondary turret weight rule (Dual only)
-  if (input.turretType === TurretType.DUAL) {
-    const secondaryErrors = validateTurretWeight(
-      TurretType.DUAL,
-      input.secondaryTurretEquipmentWeight,
-      input.secondaryTurretStructureWeight,
-    );
-    for (const e of secondaryErrors) {
-      errors.push(e);
-    }
+  const secondaryTurretType =
+    input.secondaryTurretType ??
+    (input.turretType === TurretType.DUAL ? TurretType.DUAL : TurretType.NONE);
+  const secondaryErrors = validateTurretWeight(
+    secondaryTurretType,
+    input.secondaryTurretEquipmentWeight,
+    input.secondaryTurretStructureWeight,
+    secondaryContext,
+  );
+  for (const error of secondaryErrors) {
+    errors.push({ ...error, message: `Secondary: ${error.message}` });
   }
 
   // ── VAL-VEHICLE-ARMOR-LOC ──────────────────────────────────────────────
@@ -207,14 +229,45 @@ export function validateVehicleConstruction(
   }
 
   // ── VAL-VEHICLE-POWER-AMP ─────────────────────────────────────────────
-  const powerAmpResult = validatePowerAmplifiers(
-    input.engineType,
+  const amplifierMassesComplete = [
     input.energyWeaponWeight,
     input.powerAmpWeight,
-  );
-  for (const e of powerAmpResult.errors) {
-    errors.push(e);
+  ].every((mass) => mass !== null && isValidWeight(mass));
+  if (
+    amplifierMassesComplete &&
+    input.energyWeaponWeight !== null &&
+    input.powerAmpWeight !== null
+  ) {
+    errors.push(
+      ...validatePowerAmplifiers(
+        input.engineType,
+        input.energyWeaponWeight,
+        input.powerAmpWeight,
+      ).errors,
+    );
   }
+  const primaryMechanism = computeVehicleTurretMechanismWeight({
+    ...primaryContext,
+    type: input.turretType,
+    equipmentWeight: input.turretEquipmentWeight,
+  });
+  const secondaryMechanism = computeVehicleTurretMechanismWeight({
+    ...secondaryContext,
+    type: secondaryTurretType,
+    equipmentWeight: input.secondaryTurretEquipmentWeight,
+  });
+  const isComplete =
+    primaryMechanism.weight !== null &&
+    primaryMechanism.allowanceOverloaded !== null &&
+    secondaryMechanism.weight !== null &&
+    secondaryMechanism.allowanceOverloaded !== null &&
+    (input.turretType === TurretType.NONE ||
+      (input.turretStructureWeight !== null &&
+        isValidWeight(input.turretStructureWeight))) &&
+    (secondaryTurretType === TurretType.NONE ||
+      (input.secondaryTurretStructureWeight !== null &&
+        isValidWeight(input.secondaryTurretStructureWeight))) &&
+    amplifierMassesComplete;
 
   // Computed weights for status bar display
   const computedWeights = {
@@ -227,7 +280,8 @@ export function validateVehicleConstruction(
   };
 
   return {
-    isValid: errors.length === 0,
+    isValid: isComplete && errors.length === 0,
+    isComplete,
     errors,
     warnings,
     computedWeights,
