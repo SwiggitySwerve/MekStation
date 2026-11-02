@@ -3,8 +3,13 @@ import type {
   IAerospaceBVEquipment,
 } from './aerospaceBVTypes';
 
-import { addBVToAmmoCapGroup, sumCappedAmmoBV } from '../battleValueAmmo';
-import { resolveEquipmentBV } from '../equipmentBVResolver';
+import {
+  addBVToAmmoCapGroup,
+  getNativeAmmoBVGroup,
+  sumCappedAmmoBV,
+} from '../battleValueAmmo';
+import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
+import { getEquipmentEntry, resolveEquipmentBV } from '../equipmentBVResolver';
 import { getAerospaceDefensiveEquipmentKind } from './aerospaceBVEquipment';
 
 export function sumWeaponBV(items: readonly IAerospaceBVEquipment[]): number {
@@ -38,6 +43,7 @@ export function calculateAerospaceAmmoBV(
   equipment: readonly IAerospaceBVEquipment[],
 
   ammo: readonly IAerospaceBVAmmo[],
+  nativeGroups = false,
 ): number {
   if (ammo.length === 0) return 0;
 
@@ -46,12 +52,21 @@ export function calculateAerospaceAmmoBV(
   const weaponBVByType: Record<string, number> = {};
 
   for (const item of equipment) {
+    if (nativeGroups && (item.isAmmo ?? isAmmunitionEquipmentId(item.id)))
+      continue;
     if (getAerospaceDefensiveEquipmentKind(item.id)) continue;
     const resolved = resolveEquipmentBV(item.id);
 
     if (!resolved.resolved) continue;
 
-    const key = item.id.toLowerCase();
+    // BVCalculator.java:1190-1240: native ammo type/rack crosses tech bases.
+    const entry = nativeGroups ? getEquipmentEntry(item.id) : undefined;
+    const key =
+      (nativeGroups
+        ? (getNativeAmmoBVGroup(item.id) ??
+          getNativeAmmoBVGroup(entry?.id ?? '') ??
+          getNativeAmmoBVGroup(entry?.name ?? ''))
+        : undefined) ?? item.id.toLowerCase();
 
     addBVToAmmoCapGroup(weaponBVByType, key, resolved.battleValue);
   }
@@ -66,7 +81,11 @@ export function calculateAerospaceAmmoBV(
       getAerospaceDefensiveEquipmentKind(entry.weaponType)
     )
       continue;
-    const key = entry.weaponType.toLowerCase();
+    const key =
+      (nativeGroups
+        ? (getNativeAmmoBVGroup(entry.weaponType) ??
+          getNativeAmmoBVGroup(entry.id))
+        : undefined) ?? entry.weaponType.toLowerCase();
 
     addBVToAmmoCapGroup(ammoBVByType, key, entry.bv);
   }

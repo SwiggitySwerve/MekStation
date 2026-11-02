@@ -30,6 +30,8 @@ export interface IAerospaceBVEquipment {
   readonly id: string;
   /** Firing arc / internal location */
   readonly location: AerospaceArc | string;
+  /** Source identity survives aliases whose catalog id omits "ammo". */
+  readonly isAmmo?: boolean;
 }
 
 /**
@@ -63,6 +65,7 @@ export interface IAerospaceBVInput {
   /** Dissipation per turn; absent cooling retains the legacy unheated pool. */
   readonly heatCapacity?: number;
   readonly armorType: string;
+  readonly barRating?: number;
   readonly totalArmorPoints: number;
   readonly equipment: readonly IAerospaceBVEquipment[];
   readonly ammo?: readonly IAerospaceBVAmmo[];
@@ -86,6 +89,7 @@ export type IAerospaceDefensiveBVInput = Pick<
   | 'sourceTechType'
   | 'year'
   | 'armorType'
+  | 'barRating'
   | 'totalArmorPoints'
   | 'structuralIntegrity'
   | 'equipment'
