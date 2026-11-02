@@ -319,7 +319,6 @@ export interface VehicleActions
 
   // Turret
   setTurretType: (type: TurretType) => void;
-  setTurretWeight: (weight: number) => void;
   /** Toggle the secondary turret on/off; off zeros TURRET_2 armor. */
   setHasSecondaryTurret: (enabled: boolean) => void;
   /** Set secondary turret type (no-op when secondary turret is off). */

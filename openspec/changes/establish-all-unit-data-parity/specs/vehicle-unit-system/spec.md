@@ -313,7 +313,7 @@ The system SHALL provide turret configuration unique to the Vehicle unit type.
 
 - **WHEN** selecting a turret type other than None
 - **THEN** the system SHALL create a turret configuration with:
-  - `currentWeight`: 0 (initially empty)
+  - `type`: the selected turret type
   - `rotationArc`: 360°
 
 #### Scenario: Removing turret
@@ -328,6 +328,22 @@ The system SHALL provide turret configuration unique to the Vehicle unit type.
 - **THEN** no turret capacity error SHALL be reported, because a turret has no capacity of its own
   (pinned MegaMek `TestTank` and `TestSupportVehicle` define none)
 - **AND** the vehicle SHALL be invalid only when its total weight exceeds its tonnage
+
+#### Scenario: Saved turret configuration without cached mass
+
+- **WHEN** saving or reopening a turret with its type and rotation arc
+- **THEN** cached currentWeight SHALL NOT be required or synthesized when absent
+- **AND** independent installation and explicit Omni allowances SHALL remain intact
+- **AND** invalid live turret types or rotation arcs SHALL still be rejected
+
+#### Scenario: Retired cached turret mass API
+
+- **WHEN** creating, loading or editing a vehicle turret configuration
+- **THEN** its public configuration contract SHALL expose type and rotation arc without declaring currentWeight
+- **AND** neither the vehicle store nor its action module SHALL expose setTurretWeight or its implementation
+- **AND** obsolete cached weight in saved editor data SHALL be ignored without changing live turret facts or independent Omni allowances
+- **AND** type edits and imported secondary projection SHALL copy only live configuration facts, preserving rotation arc without carrying obsolete cached mass
+- **AND** resolved construction owners SHALL remain authoritative for mechanism and mounted mass
 
 ### Requirement: Vehicle Equipment Management
 
@@ -431,6 +447,30 @@ The system SHALL provide a tabbed customizer interface for vehicles.
 - **THEN** its status SHALL use the existing warning colour
 - **AND** known overweight budgets SHALL retain error colour and a real balanced zero SHALL retain success status
 - **AND** mounted turret mass SHALL keep units and SHALL NOT regain a capacity denominator
+
+#### Scenario: Independent resolved turret figures
+
+- **WHEN** viewing the decomposed Turret tab
+- **THEN** primary and secondary panels SHALL display mounted equipment, qualifying non-ammunition equipment and charged mechanism weight from the existing construction owner
+- **AND** VTOLs SHALL display the chin panel without a secondary panel
+- **AND** each Omni allowance SHALL retain its explicit raw value, including zero, fractional and negative source values, independently of installation
+- **AND** absent installed turrets SHALL NOT hide known assigned charges
+- **AND** no capacity bar or denominator SHALL be displayed
+
+#### Scenario: Unavailable independent turret figures
+
+- **WHEN** an individual mounted or qualifying figure awaits catalog readiness
+- **THEN** that dependent unavailable figure SHALL show Loading, then Unknown if unresolved after readiness
+- **AND** independently known figures, empty-load zero and known assigned charges SHALL remain numeric
+- **AND** invalid source allowances SHALL show Unknown rather than a numeric fallback
+- **AND** editing source context or equipment SHALL recompute the displayed figures
+
+#### Scenario: Turret figure colours and responsive rendering
+
+- **WHEN** turret figures render at narrow or wide widths
+- **THEN** labels SHALL use Title Case and sentences SHALL use sentence case
+- **AND** unavailable figures SHALL keep warning colour and independent known allowance overloads SHALL keep error colour
+- **AND** panels SHALL remain readable without horizontal overflow
 
 ## ADDED Requirements
 

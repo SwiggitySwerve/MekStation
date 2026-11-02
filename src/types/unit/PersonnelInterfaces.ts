@@ -261,6 +261,7 @@ export interface IInfantry extends ISquadUnit {
   readonly bvArmorFlags?: readonly string[];
   /** Pinned source facts; absent on legacy editor/store records. */
   readonly bvOffense?: {
+    fieldGunEquipment?: readonly string[];
     runMP?: number;
     jumpMP?: number;
     umuMP?: number;
@@ -386,6 +387,9 @@ export interface IProtoMech extends ISquadUnit {
 
   /** Armor per location */
   readonly armorByLocation: Record<ProtoMechLocation, number>;
+
+  /** Native BLK armor identity; omitted on legacy records. */
+  readonly armorType?: number;
 
   /** Internal structure per location */
   readonly structureByLocation: Record<ProtoMechLocation, number>;

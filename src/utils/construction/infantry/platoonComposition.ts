@@ -219,6 +219,7 @@ export function resolveInfantryOffenseSource(
       walk = Math.min(walk, 1);
   }
   return {
+    fieldGunEquipment: values('Field Guns Equipment'),
     runMP: walk,
     jumpMP: jump,
     umuMP: umu,
@@ -237,9 +238,7 @@ export function resolveInfantryOffenseSource(
         /^(tracked|wheeled|hover|submarine|vtol|microcopter|microlite)$/.test(
           mode,
         )
-      ) &&
-      !encumbering &&
-      !values('Field Guns Equipment').some(Boolean),
+      ) && !encumbering,
     augmentations,
     prostheticAntiMek: Object.entries(tags).some(
       ([key, name]) =>

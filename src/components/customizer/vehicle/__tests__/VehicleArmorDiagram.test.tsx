@@ -339,7 +339,7 @@ describe('VehicleArmorDiagram app confirmation with the real store', () => {
   const turret = {
     type: TurretType.SINGLE,
     maxWeight: 5,
-    currentWeight: 0,
+
     rotationArc: 360,
   };
   it.each([
@@ -410,7 +410,7 @@ describe('VehicleArmorDiagram app confirmation with the real store', () => {
     act(() =>
       store.setState({
         armorAllocation: { ...store.getState().armorAllocation },
-        turret: { ...turret, currentWeight: 1 },
+        turret: { ...turret },
         secondaryTurret: { ...turret },
         name: 'Renamed Tank',
         lastModifiedAt: 99,

@@ -1,7 +1,8 @@
 /**
  * ProtoMech Construction Validation Rules (VAL-PROTO-*)
  *
- * Five named rules cover the full construction rule set:
+ * Five named rules preserve the legacy editor build-snapshot contract.
+ * Native source checks use getProtoSourceConstructionErrors. Editor rules:
  *   VAL-PROTO-TONNAGE   — tonnage in legal range
  *   VAL-PROTO-CHASSIS   — chassis × tonnage × MP compatibility
  *   VAL-PROTO-MP        — MP ≤ weight-class cap; Ultraheavy cannot jump
@@ -15,14 +16,26 @@
  * @spec openspec/changes/add-protomech-construction/tasks.md §9
  */
 
+import type { IProtoMech } from '@/types/unit/PersonnelInterfaces';
+
+import { readBlkProtoEquipmentEntry } from '@/services/conversion/BlkProtoEquipmentEntry';
+import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { ProtoChassis, ProtoLocation } from '@/types/unit/ProtoMechInterfaces';
+import { getEquipmentEntry } from '@/utils/construction/equipmentBVResolver';
 
 import { isArmPlacementIllegal, isMainGunWeaponApproved } from './mainGun';
-import { getProtoMPCaps, isMyomerBoosterLegal } from './movementCaps';
+import {
+  computeProtoEngineWeight,
+  computeRunMP,
+  getProtoMPCaps,
+  isMyomerBoosterLegal,
+} from './movementCaps';
+import { PROTO_AMMO_STOPGAP } from './protoMechAmmo';
 import {
   getProtoWeightClass,
   isChassisLegalForTonnage,
   PROTO_MAX_TONNAGE,
+  PROTO_MAX_STANDARD_TONNAGE,
   PROTO_MIN_TONNAGE,
 } from './weightClass';
 
@@ -102,6 +115,72 @@ export function validateProtoTonnage(
     passed: findings.length === 0,
     findings,
   };
+}
+
+/** TestProtoMek/TestEntity 48fcb2f6: a lower bound, not a complete mass total.
+ * Standard armor, structure, controls, engine, fixed-mass weapons, standard LRMs
+ * and known ammo can prove overage. Other missiles/misc/jump/sink mass is omitted.
+ */
+function getProtoMinimumWeight(unit: IProtoMech): number | undefined {
+  if (unit.armorType !== 42) return undefined;
+  const engine = computeProtoEngineWeight(unit.engineRating);
+  if (engine === null) return undefined;
+  let weight =
+    Math.round(unit.weightPerUnit * 0.1 * 1000) / 1000 +
+    (unit.weightPerUnit > PROTO_MAX_STANDARD_TONNAGE ? 0.75 : 0.5) +
+    engine +
+    Object.values(unit.armorByLocation).reduce(
+      (sum, points) => sum + points,
+      0,
+    ) *
+      0.05;
+  for (const mount of unit.equipment) {
+    if (mount.location === ProtoMechLocation.MAIN_GUN && !unit.hasMainGun)
+      continue;
+    const syntax = readBlkProtoEquipmentEntry(mount.equipmentId);
+    if (!syntax.lookupName || syntax.errors.length) continue;
+    const ammo = PROTO_AMMO_STOPGAP[syntax.lookupName];
+    if (ammo && syntax.shots !== undefined) {
+      weight += Math.ceil(ammo[0] * syntax.shots) / 1000;
+      continue;
+    }
+    const entry = getEquipmentEntry(syntax.lookupName);
+    // LRMWeapon.java:77-82 overrides BattleMech mass on ProtoMeks.
+    const lrmRack = /^(?:CL|IS)LRM(\d+)$/.exec(syntax.lookupName);
+    if (lrmRack && entry) {
+      weight += Number(lrmRack[1]) * 0.2;
+      continue;
+    }
+    if (
+      entry &&
+      ['Energy', 'Ballistic', 'Artillery'].includes(entry.category)
+    ) {
+      weight += Math.max(0, entry.weight ?? 0);
+    }
+  }
+  return Math.round(weight * 1000) / 1000;
+}
+
+/** Native source rules from TestProtoMek.java:246-294,445-467.
+ * These differ from the legacy editor's chassis/MP policies below.
+ */
+export function getProtoSourceConstructionErrors(unit: IProtoMech): string[] {
+  const errors = validateProtoTonnage({
+    tonnage: unit.weightPerUnit,
+  }).findings.map((f) => f.message);
+  const minimumWeight = getProtoMinimumWeight(unit);
+  if (minimumWeight !== undefined && minimumWeight > unit.weightPerUnit) {
+    errors.push(
+      `Weight: ${(minimumWeight * 1000).toFixed(1)} kg is greater than ${(unit.weightPerUnit * 1000).toFixed(1)} kg`,
+    );
+  }
+  if (
+    unit.chassisType === ProtoChassis.GLIDER &&
+    computeRunMP(unit.cruiseMP) < 4
+  ) {
+    errors.push('Glider ProtoMeks have a minimum flanking MP of 4.');
+  }
+  return errors;
 }
 
 // =============================================================================

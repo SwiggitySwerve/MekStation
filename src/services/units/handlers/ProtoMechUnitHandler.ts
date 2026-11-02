@@ -45,6 +45,7 @@ import {
 } from '@/utils/construction/protomech';
 import { projectProtoMechEquipment } from '@/utils/construction/protomech/equipmentProjection';
 import { calculateProtoMechBV } from '@/utils/construction/protomech/protoMechBV';
+import { getProtoSourceConstructionErrors } from '@/utils/construction/protomech/validation';
 
 import {
   AbstractUnitTypeHandler,
@@ -223,6 +224,7 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
       armorPerTrooper,
       hasMainGun,
       armorByLocation,
+      armorType: document.armorType,
       structureByLocation,
       equipment,
       chassisType,
@@ -398,13 +400,7 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     const engineMassError = getProtoEngineWeightError(unit.engineRating);
     if (engineMassError) errors.push(engineMassError);
 
-    // Weight validation (2-9 tons per ProtoMech)
-    if (unit.weightPerUnit < 2) {
-      errors.push('ProtoMech must be at least 2 tons');
-    }
-    if (unit.weightPerUnit > 9) {
-      errors.push('ProtoMech cannot exceed 9 tons');
-    }
+    errors.push(...getProtoSourceConstructionErrors(unit));
 
     // Point size (typically 5)
     if (unit.pointSize < 1 || unit.pointSize > 6) {
@@ -414,16 +410,6 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
     // Movement validation
     if (unit.cruiseMP < 1) {
       errors.push('ProtoMech must have at least 1 cruise MP');
-    }
-
-    // Main gun validation
-    if (unit.hasMainGun && unit.chassisType === ProtoChassis.QUAD) {
-      errors.push('Quad ProtoMechs cannot have main guns');
-    }
-
-    // Glider validation
-    if (unit.chassisType === ProtoChassis.GLIDER && unit.jumpMP < 2) {
-      errors.push('Glider ProtoMechs require at least 2 jump MP');
     }
 
     // Tech base validation

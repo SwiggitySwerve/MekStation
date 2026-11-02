@@ -11,13 +11,13 @@ describe('existing source-family construction tonnage diagnostics', () => {
   const vtol = createVTOLHandler();
 
   it.each([
-    [99, ['Small craft tonnage must be at least 100 tons']],
-    [100, []],
-    [200, []],
-    [201, ['Small craft tonnage cannot exceed 200 tons']],
+    [99, [], true],
+    [100, [], false],
+    [200, [], false],
+    [201, ['Small craft tonnage cannot exceed 200 tons'], true],
   ] as const)(
-    'preserves SmallCraft diagnostics at %s tons',
-    (tonnage, errors) => {
+    'separates native SmallCraft validity from editor limits at %s tons',
+    (tonnage, errors, editorRejects) => {
       const parsed = smallCraft.parse(smallCraftDocument());
       if (!parsed.success) throw new Error('Expected valid reference craft');
       expect(
@@ -29,7 +29,7 @@ describe('existing source-family construction tonnage diagnostics', () => {
       ).toEqual(errors);
       const rules = validateTonnage(tonnage, AerospaceSubType.SMALL_CRAFT);
       expect(rules).toEqual(
-        errors.length
+        editorRejects
           ? [
               {
                 ruleId: 'VAL-AERO-TONNAGE',

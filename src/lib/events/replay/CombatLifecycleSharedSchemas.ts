@@ -459,6 +459,7 @@ const infantryInitSchema = z
         antiMek: z.boolean(),
         augmentations: z.array(z.string()),
         prostheticAntiMek: z.boolean(),
+        fieldGunEquipment: z.array(z.string()).optional(),
         runMP: finiteNumber.optional(),
         jumpMP: finiteNumber.optional(),
         umuMP: finiteNumber.optional(),

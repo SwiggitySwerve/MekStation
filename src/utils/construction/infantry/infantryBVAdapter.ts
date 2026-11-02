@@ -34,6 +34,11 @@ import {
   InfantryWeaponRef,
 } from './infantryBV';
 import { infantryBVArmorFlags } from './infantryBVFactors';
+import {
+  infantryCatalogFacts,
+  infantryCatalogState,
+  infantrySourceFieldGuns,
+} from './infantrySourceMounts';
 import { totalTroopers } from './platoonComposition';
 import { findWeaponById, INFANTRY_WEAPON_TABLE } from './weaponTable';
 
@@ -253,7 +258,9 @@ export function computeInfantryBVFromState(
     secondaryWeapon: secondary,
     armorKit: state.armorKit,
     hasAntiMechTraining: state.hasAntiMechTraining,
-    fieldGuns: adaptFieldGuns(state.fieldGuns),
+    fieldGuns: state.bvOffense?.fieldGunEquipment
+      ? infantrySourceFieldGuns(state.bvOffense.fieldGunEquipment)
+      : adaptFieldGuns(state.fieldGuns),
     gunnery: options.gunnery,
     piloting: options.piloting,
   };
@@ -307,9 +314,8 @@ function mapSquadMotionToInfantryMotive(
  * The handler populates `IInfantry` from parsed BLK documents; this adapter
  * bridges that shape into the store-shape consumed by `computeInfantryBVFromState`.
  *
- * Field guns on `IInfantry` do not carry `ammoRounds` (the handler-level
- * `IInfantryFieldGun` is a simpler shape) — we synthesize one ammo bin per gun
- * so the excessive-ammo cap in the BV calculator still behaves correctly.
+ * Source facts retain actual weapon and ammo mounts. Older records keep
+ * the editor-compatible one-bin-per-gun projection.
  *
  * @spec openspec/changes/add-infantry-battle-value/specs/battle-value-system/spec.md
  */
@@ -317,6 +323,12 @@ export function calculateInfantryBVFromUnit(
   unit: IInfantry,
   options: { gunnery?: number; piloting?: number } = {},
 ): IInfantryBVBreakdown {
+  const catalog = infantryCatalogFacts(unit);
+  if (catalog)
+    return computeInfantryBVFromState(
+      infantryCatalogState(catalog, resolveInfantryProtection(catalog.tags)),
+      options,
+    );
   const motive = mapSquadMotionToInfantryMotive(unit.motionType);
   const platoonComposition: IPlatoonComposition = {
     squads: unit.numberOfSquads,
