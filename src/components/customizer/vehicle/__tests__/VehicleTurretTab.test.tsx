@@ -27,6 +27,9 @@ import {
 import { VehicleTurretTab } from '../VehicleTurretTab';
 
 jest.mock('@/stores/useVehicleStore');
+jest.mock('@/hooks/useEquipmentRegistry', () => ({
+  useEquipmentRegistry: () => ({ isReady: true }),
+}));
 const mockUseVehicleStore = useVehicleStore as jest.MockedFunction<
   typeof useVehicleStore
 >;
@@ -37,7 +40,7 @@ const setSecondaryTurretType = jest.fn();
 function turretConfig(
   type: TurretType = TurretType.SINGLE,
 ): ITurretConfiguration {
-  return { type, currentWeight: 0, rotationArc: 360 };
+  return { type, rotationArc: 360 };
 }
 
 function makeState(overrides: Record<string, unknown> = {}) {

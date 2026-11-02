@@ -56,7 +56,7 @@ function makeVehicleStore() {
 describe('useVehicleRecordSheetUnit', () => {
   const turret = {
     type: TurretType.SINGLE,
-    currentWeight: 0,
+
     rotationArc: 360,
   };
 

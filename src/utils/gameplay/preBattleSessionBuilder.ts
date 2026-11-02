@@ -17,7 +17,24 @@ import {
   type IGameUnit,
   type IRepresentedMinefieldState,
 } from '@/types/gameplay';
+import { parseUnitReference, type UnitFamily } from '@/types/unit/UnitIndex';
 import { createGameSession } from '@/utils/gameplay/gameSession';
+
+export const SKIRMISH_UNIT_FAMILIES = [
+  'battlemechs',
+  'vehicles',
+  'aerospace',
+] as const;
+export function isSkirmishFamily(family: UnitFamily = 'battlemechs'): boolean {
+  return SKIRMISH_UNIT_FAMILIES.some((supported) => supported === family);
+}
+export function assertSkirmishUnitReference(reference: string): void {
+  const { family } = parseUnitReference(reference);
+  if (!isSkirmishFamily(family))
+    throw new Error(
+      'This unit family is not supported in combat. Pick a BattleMech, vehicle or aerospace unit; capital ships are read-only.',
+    );
+}
 
 // =============================================================================
 // Public Types
@@ -118,6 +135,7 @@ function validateSkirmishConfig(config: ISkirmishLaunchConfig): void {
 
   // Every unit must have a pilot assigned (spec § 3.4)
   for (const unit of [...config.player.units, ...config.opponent.units]) {
+    assertSkirmishUnitReference(unit.unitId);
     if (!unit.pilot) {
       throw new Error(`Pilot required for unit ${unit.designation}`);
     }

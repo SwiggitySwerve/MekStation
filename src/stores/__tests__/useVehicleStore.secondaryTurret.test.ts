@@ -19,7 +19,6 @@ import {
   setHasSecondaryTurretLogic,
   setSecondaryTurretTypeLogic,
   setTurretTypeLogic,
-  setTurretWeightLogic,
 } from '../useVehicleStore.actions';
 import {
   createEmptyVehicleArmorAllocation,
@@ -103,21 +102,9 @@ describe('primary turret has no capacity cap', () => {
 
     expect(next.turret).toEqual({
       type: TurretType.SINGLE,
-      currentWeight: 0,
+
       rotationArc: 360,
     });
-  });
-
-  it('records a turret weight above 10% of tonnage unchanged', () => {
-    const installed = setTurretTypeLogic(
-      makeState({ tonnage: 60 }),
-      TurretType.SINGLE,
-    );
-    const state = makeState({ tonnage: 60, turret: installed.turret });
-
-    const next = setTurretWeightLogic(state, 20) as Partial<VehicleStore>;
-
-    expect(next.turret?.currentWeight).toBe(20);
   });
 });
 
@@ -130,7 +117,7 @@ describe('setHasSecondaryTurretLogic', () => {
     // No capacity field: a turret is limited only by the vehicle's weight.
     expect(next.secondaryTurret).toEqual({
       type: TurretType.SINGLE,
-      currentWeight: 0,
+
       rotationArc: 360,
     });
     expect(next.isModified).toBe(true);
@@ -140,7 +127,7 @@ describe('setHasSecondaryTurretLogic', () => {
     const state = makeState({
       secondaryTurret: {
         type: TurretType.SINGLE,
-        currentWeight: 0,
+
         rotationArc: 360,
       },
       armorAllocation: {
@@ -159,7 +146,7 @@ describe('setHasSecondaryTurretLogic', () => {
     const state = makeState({
       secondaryTurret: {
         type: TurretType.DUAL,
-        currentWeight: 0,
+
         rotationArc: 360,
       },
     });
@@ -180,7 +167,7 @@ describe('setSecondaryTurretTypeLogic', () => {
     const state = makeState({
       secondaryTurret: {
         type: TurretType.SINGLE,
-        currentWeight: 0,
+
         rotationArc: 360,
       },
     });
@@ -192,7 +179,7 @@ describe('setSecondaryTurretTypeLogic', () => {
     const state = makeState({
       secondaryTurret: {
         type: TurretType.SINGLE,
-        currentWeight: 0,
+
         rotationArc: 360,
       },
       armorAllocation: {

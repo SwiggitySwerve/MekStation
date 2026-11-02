@@ -6,6 +6,8 @@
  * @spec openspec/changes/add-force-management/proposal.md
  */
 
+import type { UnitFamily } from '../unit/UnitIndex';
+
 import { IEntity } from '../core/IEntity';
 
 // =============================================================================
@@ -118,6 +120,9 @@ export interface IUpdateAssignmentRequest {
  * Calculated force statistics.
  */
 export interface IForceStats {
+  /** False when totals include only the references that could be resolved. */
+  readonly complete?: boolean;
+  readonly missingUnits?: readonly { family: UnitFamily; id: string }[];
   /** Total Battle Value of all assigned units */
   readonly totalBV: number;
   /** Total tonnage of all assigned units */

@@ -14,6 +14,7 @@ import {
 } from '@/services/core/createSingleton';
 import {
   indexFamilies,
+  parseUnitReference,
   unitFamilyKey,
   type UnitFamily,
   type UnitIndexOptions,
@@ -183,17 +184,20 @@ export class CanonicalUnitService implements ICanonicalUnitService {
    * Get full unit data by ID (lazy loads from static JSON)
    */
   getById = async (
-    id: string,
+    referenceId: string,
     options: UnitLookupOptions = {},
   ): Promise<IFullUnit | null> => {
+    const { id, family } = parseUnitReference(referenceId, options.family);
     // Check cache first
-    const key = unitFamilyKey(id, options.family);
+    const key = unitFamilyKey(id, family);
     if (this.unitCache.has(key)) {
       return this.unitCache.get(key)!;
     }
 
     // Find in index to get file path
-    const index = await this.getIndex(options);
+    const index = await this.getIndex(
+      family ? { ...options, family } : options,
+    );
     const entry = index.find((e) => e.id === id);
 
     if (!entry) {
@@ -265,7 +269,8 @@ export class CanonicalUnitService implements ICanonicalUnitService {
   };
 
   invalidateUnit = (id: string, family?: UnitFamily): void => {
-    this.unitCache.delete(unitFamilyKey(id, family));
+    const reference = parseUnitReference(id, family);
+    this.unitCache.delete(unitFamilyKey(reference.id, reference.family));
   };
 
   /**

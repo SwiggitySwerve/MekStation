@@ -24,7 +24,7 @@ const OPTIONS = {
 const turret = {
   type: TurretType.SINGLE,
   maxWeight: 5,
-  currentWeight: 0,
+
   rotationArc: 360,
 };
 function makeStore() {
