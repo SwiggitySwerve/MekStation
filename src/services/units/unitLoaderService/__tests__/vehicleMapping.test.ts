@@ -11,9 +11,11 @@ import { VTOLUnitHandler } from '@/services/units/handlers/VTOLUnitHandler';
 import { createVehicleStore } from '@/stores/useVehicleStore';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { VehicleOnlyEngineType } from '@/types/construction/EngineType';
+import { Era } from '@/types/temporal/Era';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { computeVehicleWeightBreakdown } from '@/utils/construction/vehicle/weightComposition';
+import { serializeCustomVehicleState } from '@/utils/serialization/CustomUnitSerializer';
 
 import { createVehicleSession } from '../createVehicleSession';
 import { loadUnitDefinition } from '../loadUnitDefinition';
@@ -355,3 +357,37 @@ it('does not materialize a normalized VTOL secondary allowance', () => {
     secondaryTurret: null,
   });
 });
+
+it.each([
+  [0.5, 0],
+  [0, 0.5],
+] as const)(
+  'preserves independent allowances %s / %s through library serialization and JSON reopen',
+  (primary, secondary) => {
+    const row = fixtures.rows.find((entry) => entry.kind === 'dual turret');
+    if (!row) throw new Error('missing pinned dual-turret fixture');
+    const state = mapToVehicleState({
+      ...row.definition,
+      isOmni: true,
+      baseChassisTurretWeight: primary,
+      baseChassisTurret2Weight: secondary,
+    });
+    const saved = serializeCustomVehicleState(state, {
+      id: 'omni-context-roundtrip',
+      chassis: state.chassis,
+      variant: state.model,
+      era: Era.DARK_AGE,
+    });
+    expect(saved).toMatchObject({
+      isOmni: true,
+      baseChassisTurretWeight: primary,
+      baseChassisTurret2Weight: secondary,
+    });
+    const decoded: unknown = JSON.parse(JSON.stringify(saved));
+    expect(mapToVehicleState(decoded)).toMatchObject({
+      isOmni: true,
+      baseChassisTurretWeight: primary,
+      baseChassisSecondaryTurretWeight: secondary,
+    });
+  },
+);

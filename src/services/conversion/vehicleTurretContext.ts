@@ -22,3 +22,14 @@ export function mapVehicleTurretContext(
       : readAllowance(SECONDARY_TURRET_ALLOWANCE_TAG),
   };
 }
+
+/** Inverse mapping for the normalized custom-library contract. */
+export function serializeVehicleTurretContext(
+  context: IVehicleTurretSourceContext,
+): Pick<IUnitContract, 'isOmni' | AllowanceTag> {
+  return {
+    isOmni: context.isOmni,
+    baseChassisTurretWeight: context.baseChassisTurretWeight,
+    [SECONDARY_TURRET_ALLOWANCE_TAG]: context.baseChassisSecondaryTurretWeight,
+  };
+}
