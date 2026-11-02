@@ -38,6 +38,17 @@ describe('UnitLoaderService armor calculations', () => {
     },
   );
 
+  it.each([
+    // Charger C and Shogun C 2 carry 245 points. MegaMek points per ton are
+    // 16 x 0.875 and 16 x 0.75 (ArmorType.java:1043, :1163).
+    [ArmorTypeEnum.FERRO_LAMELLOR, 17.5],
+    [ArmorTypeEnum.BALLISTIC_REINFORCED, 20.5],
+  ])('uses MegaMek points per ton for %s', (armorType, expectedTonnage) => {
+    expect(
+      calculateArmorTonnage(armorAllocationWithPoints(245), armorType),
+    ).toBe(expectedTonnage);
+  });
+
   it('preserves the currently counted BattleMech armor fields', () => {
     const allocation = armorAllocationWithPoints(16);
     allocation[MechLocation.CENTER_LEG] = 50;

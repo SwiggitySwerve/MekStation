@@ -36,14 +36,35 @@ import { createVehicleSession } from './createVehicleSession';
 import { isDefinitionForFamily } from './definitionTypes';
 import { UnsupportedUnitConfigurationError } from './movementConfiguration';
 
+type UnsupportedVehicleField =
+  | 'unitType'
+  | 'motionType'
+  | 'engine.type'
+  | 'armor.type';
+
+/** Contract value in plain words: "FERRO_LAMELLOR" becomes "ferro lamellor". */
+const plain = (value: string) => value.toLowerCase().replace(/_/g, ' ');
+
+const UNSUPPORTED_VEHICLE_COPY: Readonly<
+  Record<UnsupportedVehicleField, (value: string) => string>
+> = {
+  unitType: (value) => `The vehicle editor cannot open ${value} units.`,
+  motionType: (value) =>
+    `The vehicle editor cannot open vehicles with ${plain(value)} motion yet.`,
+  'engine.type': (value) =>
+    `The vehicle editor cannot open vehicles with ${plain(value)} engines yet.`,
+  'armor.type': (value) =>
+    `The vehicle editor cannot open vehicles with ${plain(value)} armor yet.`,
+};
+
 export class UnsupportedVehicleConfigurationError extends UnsupportedUnitConfigurationError {
   readonly code = 'unsupported-configuration';
 
   constructor(
-    readonly field: string,
+    readonly field: UnsupportedVehicleField,
     readonly value: string,
   ) {
-    super(`Vehicle ${field} "${value}" is not supported by this editor.`);
+    super(UNSUPPORTED_VEHICLE_COPY[field](value));
   }
 }
 

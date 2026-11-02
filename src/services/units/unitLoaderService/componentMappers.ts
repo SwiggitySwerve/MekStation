@@ -223,6 +223,12 @@ export function mapArmorType(
   if (normalized === 'HARDENED') {
     return ArmorTypeEnum.HARDENED;
   }
+  if (normalized === 'FERROLAMELLOR') {
+    return ArmorTypeEnum.FERRO_LAMELLOR;
+  }
+  if (normalized === 'BALLISTICREINFORCED') {
+    return ArmorTypeEnum.BALLISTIC_REINFORCED;
+  }
   // INDUSTRIAL, HEAVY_INDUSTRIAL, PRIMITIVE armor types map to STANDARD for now
   // These can be added to the enum when needed
 
