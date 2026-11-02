@@ -82,6 +82,29 @@ describe('half-ton MG ammo matches the pinned Java half-ton types', () => {
     expect(r.ammo.map((a) => a.bv)).toEqual([0.5]);
   });
 
+  // IS LB-X cluster ammo. Java: createISLB2XClusterAmmo bv = 5 (AmmoType.java:5122),
+  // createISLB5XClusterAmmo bv = 10 (:5156); the Clan twins stay 6 and 12
+  // (createCLLB2XClusterAmmo, createCLLB5XClusterAmmo: bv 6 / 12).
+  it.each([
+    ['ISLBXAC2 CL Ammo', 'INNER_SPHERE', 5],
+    ['ISLBXAC5 CL Ammo', 'INNER_SPHERE', 10],
+    ['ISLBXAC2 Ammo', 'INNER_SPHERE', 5],
+    ['ISLBXAC5 Ammo', 'INNER_SPHERE', 10],
+    ['CLLBXAC2 CL Ammo', 'CLAN', 6],
+    ['CLLBXAC5 CL Ammo', 'CLAN', 12],
+  ])('crit scan scores %s (%s) at Java BV %s', (name, tech, bv) => {
+    const r = createEmptyCritScan();
+    processCritAmmoSlot({
+      r,
+      clean: name,
+      lo: name.toLowerCase(),
+      loc: 'RT',
+      ml: null,
+      unitTechBase: tech,
+    });
+    expect(r.ammo.map((a) => a.bv)).toEqual([bv]);
+  });
+
   it('crit scan still scores a full-ton MG bin at 1 BV', () => {
     const r = createEmptyCritScan();
     processCritAmmoSlot({
