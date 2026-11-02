@@ -73,6 +73,12 @@
       "lastReviewed": "2026-10-29"
     },
     {
+      "name": "validate-combat-omni-turret-mechanisms",
+      "status": "in-progress",
+      "reason": "Bounded S12 explicit combat Omni mechanism charges, raw allowance overload checks and nullable dependent validation; current geometry, support totals and ruling 5 remain with their owners. Composition and UI follow separately.",
+      "lastReviewed": "2026-11-02"
+    },
+    {
       "name": "preserve-combat-vehicle-turret-source-facts",
       "status": "in-progress",
       "reason": "Current-topology source contract under establish-all-unit-data-parity. Documentation only: S10 allowance/context and unknown-support-block implementation and S14 remaining handler integration are pending. Existing normalization, refused-layout inspection, normalized-contract constraints and owner ruling 5 remain authoritative; no mass or BV parity is claimed.",
