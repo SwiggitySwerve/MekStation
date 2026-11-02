@@ -75,6 +75,16 @@ Browser and Node unit services SHALL load every upstream-loadable source family 
 - **THEN** editor loading SHALL return `unsupported-store-family` without initializing equipment or creating a BattleMech store
 - **AND** the customizer SHALL preserve the requested family and keep the load dialog open on failure
 
+#### Scenario: Open a vehicle or aerospace unit from the library
+
+- **GIVEN** the load dialog lists every family's catalog entries with their family name
+- **WHEN** the user opens a Tank, VTOL, support vehicle, aerospace fighter, conventional fighter or small craft
+- **THEN** editor loading SHALL map the definition through its family's registered store mapper
+- **AND** the customizer SHALL register the result in the vehicle or aerospace store and open one tab of the unit's type, adding no tab type
+- **AND** library save SHALL remain unavailable for that tab
+- **AND** a capital ship, battle armor or infantry unit SHALL keep the dialog open with copy that says why it cannot open, without suggesting a retry
+- **AND** a BattleMech SHALL open exactly as before
+
 #### Scenario: Load and clone a support aircraft
 
 - **GIVEN** a FixedWingSupport definition with known equipment

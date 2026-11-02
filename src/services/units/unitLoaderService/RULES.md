@@ -18,8 +18,12 @@ registry owns their accepted contract discriminators and available store mapper.
 - Family/type disagreement fails validation. Loading a definition does not
   initialize equipment or create store state. Only registered store mappers may
   create an editor session; other families return `unsupported-store-family`.
+- Editor loading routes by the family's registered store: BattleMechs to
+  `state`; vehicles (`mapToVehicleState`) and aerospace fighters and small craft
+  (`mapAerospaceDefinitionToState`) to `familyState`. The library-open flow
+  registers `familyState` in its own store and opens a tab of the state's unit
+  type. Capital ships, battle armor and infantry have no store mapper.
 - BattleMech equipment mapping, normalization and session creation stay unchanged.
-  Aerospace store hydration and library UI expansion belong to later slices.
   No fallback creates a BattleMech from a different family.
 - Custom library entries are BattleMech-only until UL-25a records their family.
 
@@ -28,8 +32,8 @@ registry owns their accepted contract discriminators and available store mapper.
 - `mapToVehicleState` accepts contract JSON or a loaded vehicle definition.
   `normalizeVehicleConfiguration` validates required vehicle facts and maps them
   deterministically; `createVehicleSession` assigns fresh editor identity and
-  copies mutable state. It uses the existing vehicle store, without registering
-  the library-open flow. The vehicle mapper hydrates every source
+  copies mutable state. It uses the existing vehicle store, and the library-open
+  flow routes vehicles to it (UL-13). The vehicle mapper hydrates every source
   mount using the shared equipment resolver and location/mount owners.
 - Engine identities use the BLK engine owner. Unsupported identities throw
   `UnsupportedVehicleConfigurationError`,
