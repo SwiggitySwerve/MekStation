@@ -24,6 +24,9 @@ export interface EquipmentCatalogEntry {
   subType?: string;
   techBase: string;
   heat?: number;
+  weight?: number;
+  special?: readonly string[];
+  variableEquipmentId?: string;
   battleValue: number;
   damage?: number | string;
   shotsPerTon?: number;
