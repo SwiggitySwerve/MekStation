@@ -48,6 +48,9 @@ import { findWeaponById, INFANTRY_WEAPON_TABLE } from './weaponTable';
  * dependency. Any state that conforms to this shape can feed the calculator.
  */
 export interface InfantryStateLike {
+  /** Effective incoming protection from the source boundary, when available. */
+  damageDivisor?: number;
+  hasPheromoneEffuser?: boolean;
   /** Granular construction motive (drives MP and composition defaults). */
   infantryMotive: InfantryMotive;
   /** Platoon composition — converted to a trooper count via `totalTroopers`. */
@@ -244,6 +247,8 @@ export function computeInfantryBVFromState(
   }
 
   const input: InfantryBVInput = {
+    damageDivisor: state.damageDivisor,
+    hasPheromoneEffuser: state.hasPheromoneEffuser,
     motive: state.infantryMotive,
     totalTroopers: troopers,
     primaryWeapon: primary,
@@ -331,6 +336,8 @@ export function calculateInfantryBVFromUnit(
   }));
 
   const state: InfantryStateLike = {
+    damageDivisor: unit.damageDivisor,
+    hasPheromoneEffuser: unit.hasPheromoneEffuser,
     infantryMotive: motive,
     platoonComposition,
     armorKit: unit.armorKit,
@@ -344,4 +351,125 @@ export function calculateInfantryBVFromUnit(
   };
 
   return computeInfantryBVFromState(state, options);
+}
+
+/** Incoming protection for the defensive structure term only.
+ * MegaMek 48fcb2f64: ConvInfantry.java:1297-1334; InfantryBVCalculator.java:65-80.
+ * Kit facts: MiscType.create*InfArmor; mount facts: InfantryMount.sampleMounts.
+ * Separate from weapon damage divisors and from the remaining BV modifiers.
+ */
+type SourceTags = Readonly<Record<string, string | string[]>>;
+
+// Runtime stopgap until the equipment catalog exposes infantry kit divisors.
+// Python conversion owns its independent offline boundary; aliases match that pin.
+const KIT_DIVISORS = new Map<string, number>();
+for (const alias of (
+  'Ablative, Standard|ISAblativeStandard|Ablative, Concealed|ISAblativeConcealed|Ablative/Flak, Standard|' +
+  'ISAblativeFlakStandard|CLAblativeFlakStandard|Ablative/Flak, Concealed|ISAblativeFlakConcealed|' +
+  'CLAblativeFlakConcealed|Ballistic Plate, Concealed|BallisticPlateConcealed|' +
+  'Clothing, Fatigues/Civilian/Non-Armored|Fatigues|Clothing, Leather/Synthetic Hide|ClothingLeather|' +
+  'Engineering Suit|ISEngineeringSuit|CLEngineeringSuit|Environment Suit, Light|ISEnvironmentSuitLight|' +
+  'CLEnvironmentSuitLight|Flak, Standard|ISFlakStandard|Flak, Concealed|ISFlakConcealed|Heat Suit|HeatSuit|' +
+  'MechWarrior Combat Suit|ISMechWarriorCombatSuit|MekWarrior Kit (Advanced)|MekWarriorKitAdvanced|' +
+  'MekWarrior Kit (Clan)|MekWarriorKitClan|Aerospace Fighter Pilot Kit|AerospacePilotKit|' +
+  'MechWarrior Cooling Suit|ISMechWarriorCoolingSuit|Neo-Chainmail|NeoChainmail|Parka|Snowsuit|SnowSuit|' +
+  'Spacesuit|Spacesuit, Combat|SpacesuitCombat|Capellan Confederation Armor Kit (3050)|LiaoKit|' +
+  'Draconis Combine Infantry Kit|KuritaKit|Federated Suns Infantry Kit|DavionKit|' +
+  'Free Rasalhague Republic Infantry Kit|FRRKit|Free Worlds League Infantry Kit|MarikKit|' +
+  'Lyran Commonwealth Infantry Kit|SteinerKit|Magistracy of Canopus Infantry Kit|CanopianKit|' +
+  'Taurian Concordat/Calderon Infantry Kit|TaurianKit|Generic Infantry Kit|GenericKit|' +
+  'Vintage Bulletproof Vest|BulletproofVest|Vintage Bomb Suit|BombSuit|DEST Infiltration Suit|DESTSuit|' +
+  'Sneak Suit (Camo)|ISSneakSuitCamo|Sneak Suit (IR)|ISSneakSuitIR|Sneak Suit (ECM)|ISSneakSuitECM|' +
+  'Sneak Suit (Camo/IR)|ISSneakSuitCamoIR|Sneak Suit (Camo/ECM)|ISSneakSuitCamoECM|Sneak Suit (IR/ECM)|' +
+  'ISSneakSuitIRECM|Sneak Suit (Camo/IR/ECM)|ISSneakSuitCamoIRECM'
+).split('|'))
+  KIT_DIVISORS.set(alias.toLowerCase(), 1.0);
+
+for (const alias of (
+  'Ballistic Plate, Standard|ISBallisticPlateStandard|CLBallisticPlateStandard|Environment Suit, Hostile|' +
+  'ISEnvironmentSuitHostile|CLEnvironmentSuitHostile|Environment Suit, Marine|ISEnvironmentSuitMarine|' +
+  "CLEnvironmentSuitMarine|Tanker's Smock|TankersSmock|Myomer, Suit|MyomerSuit|Myomer, Vest|MyomerVest|" +
+  'Clan Armor Kit (All)|ClanKit|ComStar Infantry Kit|CSInfKit|ComstarKit|' +
+  'Fed Suns/Fed Commonwealth Infantry Kit (3030-3066)|Fed Suns/Fed Commonweath Infantry Kit (3030-3066)|' +
+  'DavionKit3030|EarlyFedComKit|Fed Suns Infantry Kit (3067+)|DavionKit3067|LateDavionKit|' +
+  'Free Worlds League Infantry Kit (3035+)|MarikKit3035|LateMarikKit|' +
+  'Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit|SteinerKit3060|Marian Hegemony Infantry Kit|' +
+  'MarianKit|SLDF Infantry Kit|SLDFKit|Word of Blake Infantry Kit|WoBKit'
+).split('|'))
+  KIT_DIVISORS.set(alias.toLowerCase(), 2.0);
+
+for (const alias of (
+  'Clothing, Light (e.g. Summer Wear/None)|ClothingLightNone|MekWarrior Kit (Basic)|MekWarriorKitBasic|' +
+  'MechWarrior Cooling Vest (Only)|MechWarriorCoolingVest'
+).split('|'))
+  KIT_DIVISORS.set(alias.toLowerCase(), 0.5);
+
+function values(tags: SourceTags, key: string): string[] {
+  const raw = tags[key];
+  return (
+    Array.isArray(raw) ? raw : raw === undefined ? [] : raw.split('\n')
+  ).map((value) => value.trim());
+}
+
+export function resolveInfantryProtection(tags: SourceTags): {
+  damageDivisor: number;
+  hasPheromoneEffuser: boolean;
+} {
+  const custom = Number(tags.armordivisor ?? tags.InfantryArmor ?? 1);
+  if (!Number.isFinite(custom) || custom <= 0)
+    throw new Error('Invalid infantry damage divisor');
+  // BLKInfantryFile equips the legacy kit before Troopers Equipment.
+  const kit = [
+    ...values(tags, 'armorKit'),
+    ...values(tags, 'Troopers Equipment'),
+  ]
+    .map((name) => KIT_DIVISORS.get(name.toLowerCase()))
+    .find((value) => value !== undefined);
+  let divisor = kit ?? custom;
+  const augmentations = values(tags, 'augmentation');
+  const hasArmor =
+    kit !== undefined ||
+    custom !== 1 ||
+    values(tags, 'armor_name').some(Boolean) ||
+    [
+      'encumberingarmor',
+      'spacesuit',
+      'dest',
+      'sneakcamo',
+      'sneakir',
+      'sneakecm',
+    ].some((flag) => flag in tags);
+  if (!hasArmor && augmentations.includes('tsm_implant')) divisor = 0.5;
+  if (divisor === 0.5 && augmentations.includes('dermal_camo_armor'))
+    divisor = 1;
+  if (augmentations.includes('dermal_armor')) divisor += 1;
+  const motion = values(tags, 'motion_type')[0] ?? '';
+  if (motion.startsWith('Beast:')) {
+    const mount = motion.slice(6);
+    const multiplier = mount.startsWith('Custom:')
+      ? Number(mount.slice(7).split(',')[7])
+      : mount === 'Hipposaur'
+        ? 4
+        : ['Elephant', 'Orca'].includes(mount)
+          ? 2
+          : [
+                'Donkey',
+                'Coventry Kangaroo',
+                'Horse',
+                'Camel',
+                'Branth',
+                'Odessan Raxx',
+                'Tabiranth',
+                'Tariq',
+              ].includes(mount)
+            ? 1
+            : NaN;
+    if (!Number.isFinite(multiplier) || multiplier <= 0)
+      throw new Error('Invalid infantry mount divisor');
+    divisor *= multiplier;
+  }
+  return {
+    damageDivisor: divisor,
+    hasPheromoneEffuser: augmentations.includes('gas_effuser_pheromone'),
+  };
 }

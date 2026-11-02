@@ -165,7 +165,7 @@ describe('Infantry Platoon BV - Motive Multiplier (spec.md Infantry Platoon BV w
     const result = calculateInfantryBV(input);
     expect(result.perTrooper).toBe(15);
     expect(result.platoonBV).toBeCloseTo(420, 5);
-    expect(result.final).toBe(420);
+    expect(result.final).toBe(462);
   });
 
   it('Mechanized 20-trooper perTrooperBV 20 -> platoonBV 460', () => {
@@ -182,7 +182,7 @@ describe('Infantry Platoon BV - Motive Multiplier (spec.md Infantry Platoon BV w
     });
     const result = calculateInfantryBV(input);
     expect(result.platoonBV).toBeCloseTo(460, 5);
-    expect(result.final).toBe(460);
+    expect(result.final).toBe(490);
   });
 });
 

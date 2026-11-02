@@ -25,6 +25,7 @@ import {
   calculateInfantryBVFromUnit,
   calculatePersonnelArmorKitMassTons,
 } from '@/utils/construction/infantry';
+import { resolveInfantryProtection } from '@/utils/construction/infantry/infantryBVAdapter';
 
 import {
   AbstractUnitTypeHandler,
@@ -137,6 +138,12 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
     // Specialization (from raw tags)
     const rawTags = document.rawTags || {};
     const specialization = this.parseSpecialization(rawTags);
+    let protection: Partial<IInfantry> = {};
+    try {
+      protection = resolveInfantryProtection(rawTags);
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : String(error));
+    }
 
     // Field guns
     const fieldGuns = this.parseFieldGuns(document);
@@ -152,6 +159,7 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
 
     return {
       unitType: UnitType.INFANTRY,
+      ...protection,
       squadSize,
       numberOfSquads,
       platoonStrength,
@@ -319,12 +327,11 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
   }
 
   /**
-   * Calculate Infantry BV using the spec-compliant per-trooper calculator.
+   * Calculate Infantry BV using the shared infantry calculator.
    *
    * Delegates to `calculateInfantryBVFromUnit` (adapter over
-   * `calculateInfantryBV`) so BV obeys motive multiplier, armor-kit
-   * multiplier, secondary-weapon damage/trooper rules, field guns, and
-   * anti-mech × 1.1 uplift.
+   * `calculateInfantryBV`), including pinned Java defensive structure and the
+   * legacy offensive approximation. Full source BV parity remains pending.
    *
    * @spec openspec/changes/add-infantry-battle-value/specs/battle-value-system/spec.md
    */
