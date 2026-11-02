@@ -1,6 +1,22 @@
 import { normalizeEquipmentId } from './equipmentBVResolver';
 
 const AMMO_WEAPON_TYPE_ALIASES: Record<string, string[]> = {
+  // Native type/rack pools: BVCalculator.java:1198-1238 (48fcb2f64).
+  arrowivammo: ['arrow-iv-launcher'],
+  gauss: ['gauss-rifle'],
+  'light-gauss': ['light-gauss-rifle'],
+  'silver-bullet-gauss': ['sbgr'],
+  rotaryac2: ['rac-2'],
+  rotaryac5: ['rac-5'],
+  'protomech-ac-2': ['protomechac2'],
+  'protomech-ac-4': ['protomechac4'],
+  'protomech-ac-8': ['protomechac8'],
+  snipercannonammo: ['sniper-cannon'],
+  thumpercannonammo: ['thumper-cannon'],
+  'lb-2-x-cluster': ['lb-2-x-ac'],
+  'lb-5-x-cluster': ['lb-5-x-ac'],
+  'lb-10-x-cluster': ['lb-10-x-ac'],
+  'lb-20-x-cluster': ['lb-20-x-ac'],
   'arrow-iv-launcher': [
     'isarrowivsystem',
     'isarrowiv',
@@ -89,7 +105,9 @@ export function findMatchingWeaponBV(
   weaponBVByType: Record<string, number>,
 ): number {
   if (weaponBVByType[ammoType] !== undefined) return weaponBVByType[ammoType];
-  const aliases = AMMO_WEAPON_TYPE_ALIASES[ammoType];
+  const aliases =
+    AMMO_WEAPON_TYPE_ALIASES[ammoType] ??
+    AMMO_WEAPON_TYPE_ALIASES[ammoType.replace(/^clan-/, '')];
   if (aliases) {
     for (const alias of aliases) {
       if (weaponBVByType[alias] !== undefined) return weaponBVByType[alias];

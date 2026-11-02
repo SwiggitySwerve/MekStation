@@ -21,11 +21,13 @@ import {
 } from '@/types/unit/PersonnelInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
+import { getEquipmentEntry } from '@/utils/construction/equipmentBVResolver';
 import {
   calculateInfantryBVFromUnit,
   calculatePersonnelArmorKitMassTons,
 } from '@/utils/construction/infantry';
 import { resolveInfantryProtection } from '@/utils/construction/infantry/infantryBVAdapter';
+import { infantrySourceFieldGuns } from '@/utils/construction/infantry/infantrySourceMounts';
 import { resolveInfantryOffenseSource } from '@/utils/construction/infantry/platoonComposition';
 
 import {
@@ -217,6 +219,20 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
    * Parse field guns from document
    */
   private parseFieldGuns(document: IBlkDocument): readonly IInfantryFieldGun[] {
+    // BLKInfantryFile.java:229-230; ConvInfantry.java:2683-2685 (48fcb2f64).
+    const source = document.rawTags?.['Field Guns Equipment'];
+    if (source)
+      return infantrySourceFieldGuns([source].flat()).map(({ id }) => {
+        const entry = getEquipmentEntry(id);
+        const roundedWeight = Math.ceil(entry?.weight ?? 0);
+        return {
+          equipmentId: id,
+          name: entry?.name ?? id,
+          crew: entry?.special?.includes('artillery')
+            ? roundedWeight
+            : Math.max(2, roundedWeight),
+        };
+      });
     const fieldGuns: IInfantryFieldGun[] = [];
 
     // Check equipment for field gun entries
