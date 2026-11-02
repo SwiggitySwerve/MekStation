@@ -277,34 +277,21 @@ class SharedIndexShapeTest(unittest.TestCase):
         self.assertEqual(index['units'][0]['role'], '')
 
 
-class BattleArmorCatalogSchemaTest(unittest.TestCase):
-    def test_every_committed_battlearmor_design_passes_json_schema(self):
+class ConvertedCatalogSchemaTest(unittest.TestCase):
+    def test_every_committed_design_passes_json_schema(self):
         from schema_gate import validate_unit
         from unit_index import NON_UNIT_FILES
-        family = REPO_ROOT / 'public' / 'data' / 'units' / 'battlearmor'
-        index = json.loads((family / 'index.json').read_text(encoding='utf-8'))
-        self.assertEqual(index['totalUnits'], 1188)
-        self.assertEqual(generate_index(family, generated_at=index['generatedAt']), index)
-        files = [path for path in family.rglob('*.json') if path.name not in NON_UNIT_FILES]
-        self.assertEqual(len(files), 1191)  # 1188 converted designs and three retained BV fixtures
-        for path in files:
-            with self.subTest(path=path.name):
-                self.assertEqual(validate_unit(json.loads(path.read_text(encoding='utf-8'))), [])
-
-
-class InfantryCatalogSchemaTest(unittest.TestCase):
-    def test_every_committed_infantry_design_passes_json_schema(self):
-        from schema_gate import validate_unit
-        from unit_index import NON_UNIT_FILES
-        family = REPO_ROOT / 'public/data/units/infantry'
-        index = json.loads((family / 'index.json').read_text(encoding='utf-8'))
-        self.assertEqual(index['totalUnits'], 1820)
-        self.assertEqual(generate_index(family, generated_at=index['generatedAt']), index)
-        files = [file for file in family.rglob('*.json') if file.name not in NON_UNIT_FILES]
-        self.assertEqual(len(files), 1823)
-        for file in files:
-            with self.subTest(file=file.name):
-                self.assertEqual(validate_unit(json.loads(file.read_text(encoding='utf-8'))), [])
+        for name, count, samples in [('battlearmor', 1188, 3), ('infantry', 1820, 3), ('protomechs', 86, 0)]:
+            family = REPO_ROOT / 'public/data/units' / name
+            with self.subTest(family=name):
+                index = json.loads((family / 'index.json').read_text(encoding='utf-8'))
+                self.assertEqual(index['totalUnits'], count)
+                self.assertEqual(generate_index(family, generated_at=index['generatedAt']), index)
+                files = [file for file in family.rglob('*.json') if file.name not in NON_UNIT_FILES]
+                self.assertEqual(len(files), count + samples)
+                for file in files:
+                    with self.subTest(file=file.name):
+                        self.assertEqual(validate_unit(json.loads(file.read_text(encoding='utf-8'))), [])
 
 
 class GitignoreAllowRuleTest(unittest.TestCase):
