@@ -1,7 +1,6 @@
 import type { LoadUnitSource } from '@/components/customizer/dialogs/UnitLoadDialog';
 import type { useToast } from '@/components/shared/Toast';
 import type { UnitState } from '@/stores/unitState';
-import type { UnitFamily } from '@/types/unit/UnitIndex';
 import type {
   IExportableUnit,
   IImportHandlers,
