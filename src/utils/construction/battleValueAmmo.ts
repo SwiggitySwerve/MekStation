@@ -1,5 +1,23 @@
 import { normalizeEquipmentId } from './equipmentBVResolver';
 
+/** Closed subset whose catalog identity supplies a native type/rack cap group. */
+export function getCatalogAmmoBVGroup(id: string): string | undefined {
+  const key = id
+    .replace(/^ammo-/, '')
+    .replace(/-ammo$/, '')
+    .replace(/^clan-/, '');
+  if (/^lb-\d+-x(?:-ac|-cluster)?$/.test(key))
+    return key.replace(/-(?:ac|cluster)$/, '');
+  if (/^(?:(?:light|heavy)-)?gauss(?:-rifle)?$/.test(key))
+    return key.replace(/-rifle$/, '');
+  if (/^improvedheavygauss(?:rifle)?$/.test(key)) return 'improvedheavygauss';
+  return /^(?:ac|uac|rac|lac|lrm|srm|mrm|mml|streak-srm|streak-lrm)-\d+$/.test(
+    key,
+  )
+    ? key
+    : undefined;
+}
+
 // === AMMO WEAPON KEY NORMALIZATION ===
 // MegaMek matches ammo to weapons by ammoType:rackSize. We normalize both
 // ammo weaponType and weapon IDs to a common key for matching.

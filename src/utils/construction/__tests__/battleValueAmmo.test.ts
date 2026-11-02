@@ -2,8 +2,25 @@ import { resolveAmmoByPattern } from '../../../../scripts/validate-bv-ammo-resol
 import {
   calculateAmmoBVWithExcessiveCap,
   findMatchingWeaponBV,
+  getCatalogAmmoBVGroup,
   extractWeaponTypeFromAmmoId,
 } from '../battleValueAmmo';
+
+describe('catalog ammunition cap identities', () => {
+  it.each([
+    ['ammo-lrm-20', 'lrm-20'],
+    ['clan-lrm-20', 'lrm-20'],
+    ['clan-lb-10-x-ac', 'lb-10-x'],
+    ['lb-10-x-cluster-ammo', 'lb-10-x'],
+    ['gauss-rifle', 'gauss'],
+    ['gauss-ammo', 'gauss'],
+    ['improvedheavygaussrifle', 'improvedheavygauss'],
+    ['ammo-lrm', undefined],
+    ['unresolved-ammo', undefined],
+  ])('groups %s as %s', (id, group) => {
+    expect(getCatalogAmmoBVGroup(id)).toBe(group);
+  });
+});
 
 describe('shared ammunition matching precedence', () => {
   it('retains an exact zero before aliases or technology fallbacks', () => {
