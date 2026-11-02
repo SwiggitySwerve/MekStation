@@ -24,12 +24,17 @@ import { gameUnitsWithAdaptedCombatSeeds } from '../InteractiveSession.setup';
 
 jest.mock('@/services/units/CanonicalUnitService', () => {
   const unitStore: Record<string, IFullUnit> = {};
+  let lookupOptions: unknown;
 
   return {
     getCanonicalUnitService: () => ({
-      getById: jest.fn(async (id: string) => unitStore[id] ?? null),
+      getById: jest.fn(async (id: string, options?: unknown) => {
+        lookupOptions = options;
+        return unitStore[id] ?? null;
+      }),
       getIndex: jest.fn(async () => []),
     }),
+    __lookupOptions: () => lookupOptions,
     __setUnit: (id: string, data: IFullUnit) => {
       unitStore[id] = data;
     },
@@ -44,6 +49,7 @@ jest.mock('@/services/units/CanonicalUnitService', () => {
 const mockModule = jest.requireMock(
   '@/services/units/CanonicalUnitService',
 ) as {
+  __lookupOptions: () => unknown;
   __setUnit: (id: string, data: IFullUnit) => void;
   __clearUnits: () => void;
 };
@@ -1696,5 +1702,23 @@ it.each(
     expect(
       deriveState(resolved.id, JSON.parse(JSON.stringify(resolved.events))),
     ).toEqual(resolved.currentState);
+  },
+);
+
+it('family-scoped aerospace lookup reaches canonical aerospace adaptation', async () => {
+  mockModule.__setUnit('aero', aerospaceFixture(0));
+  const adapted = await adaptUnit('aero', { family: 'aerospace' });
+  expect(adapted?.structure).toEqual({ si: 7 });
+  expect(mockModule.__lookupOptions()).toEqual({ family: 'aerospace' });
+});
+it('family-scoped aerospace rejects a Mech source', () => {
+  expect(() =>
+    adaptUnitFromData(createAtlasData(), { family: 'aerospace' }),
+  ).toThrow();
+});
+it.each(['vehicles', 'battlemechs'] as const)(
+  'family-scoped aerospace rejects requested %s',
+  (family) => {
+    expect(() => adaptUnitFromData(aerospaceFixture(0), { family })).toThrow();
   },
 );

@@ -67,8 +67,7 @@ export interface IAdaptedUnit extends IUnitGameState {
   /** Validated detached construction; present only for launched custom units. */
   readonly customUnitDefinition?: CustomCombatSnapshot;
   /** Weapons equipped on this unit */
-  readonly aerospaceInit?: import('@/types/gameplay').IGameUnit['aerospaceInit'];
-  readonly bv?: number;
+  readonly aerospaceInit?: IGameUnit['aerospaceInit'];
   readonly weapons: readonly IWeapon[];
   /** Walking movement points */
   readonly walkMP: number;

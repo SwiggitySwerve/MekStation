@@ -38,7 +38,13 @@ export function tryAdaptAerospaceUnit(
 ): IAdaptedUnit | undefined {
   const supported: readonly string[] =
     UNIT_DEFINITION_FAMILIES.aerospace.unitTypes;
-  if (!supported.includes(fullUnit.unitType)) return undefined;
+  if (!supported.includes(fullUnit.unitType)) {
+    if (options.family === 'aerospace')
+      throw new TypeError('Expected an aerospace definition');
+    return undefined;
+  }
+  if (options.family && options.family !== 'aerospace')
+    throw new TypeError('Aerospace definition does not match requested family');
   const definition = UnitContract.parse(fullUnit);
   const unitType =
     fullUnit.unitType === 'SmallCraft' ||
