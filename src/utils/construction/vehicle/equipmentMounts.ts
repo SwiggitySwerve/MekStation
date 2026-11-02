@@ -88,9 +88,11 @@ export function getPrimaryVehicleTurretConfiguration(
   chinTurret = false,
 ): ITurretConfiguration | undefined {
   const type = getPrimaryVehicleTurretType(
-    Object.keys(source.equipmentByLocation).filter(
-      (location) => source.equipmentByLocation[location]?.length > 0,
-    ),
+    Object.keys(source.equipmentByLocation)
+      .filter((location) => source.equipmentByLocation[location]?.length > 0)
+      .map((location) =>
+        chinTurret && location === 'Chin' ? 'Turret' : location,
+      ),
     explicitType,
     {
       hasTurret: layoutArmor?.[VehicleLocation.TURRET] !== undefined,

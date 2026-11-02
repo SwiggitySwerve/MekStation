@@ -25,14 +25,16 @@ import {
   IVTOL,
   IVehicleMountedEquipment,
   ITurretConfiguration,
-  TurretType,
 } from '@/types/unit/VehicleInterfaces';
 import { getTankMaxTotalArmor } from '@/utils/construction/vehicle/armor';
 import {
   computeEngineRating,
   computeFlankMP,
 } from '@/utils/construction/vehicle/engine';
-import { getVehicleMountFlags } from '@/utils/construction/vehicle/equipmentMounts';
+import {
+  getVehicleMountFlags,
+  getPrimaryVehicleTurretConfiguration,
+} from '@/utils/construction/vehicle/equipmentMounts';
 
 import {
   AbstractUnitTypeHandler,
@@ -200,30 +202,12 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     const rawTags = document.rawTags || {};
     const turretType = this.getStringFromRaw(rawTags, 'turrettype');
 
-    // VTOLs use chin turrets
-    if (turretType?.toLowerCase() === 'chin') {
-      return {
-        type: TurretType.CHIN,
-        currentWeight: 0,
-        rotationArc: 180, // Chin turrets have limited arc
-      };
-    }
-
-    // Check for turret equipment
-    const hasTurretEquipment =
-      document.equipmentByLocation['Turret']?.length > 0 ||
-      document.equipmentByLocation['Turret Equipment']?.length > 0 ||
-      document.equipmentByLocation['Chin']?.length > 0;
-
-    if (!hasTurretEquipment) {
-      return undefined;
-    }
-
-    return {
-      type: TurretType.CHIN,
-      currentWeight: 0,
-      rotationArc: 180,
-    };
+    return getPrimaryVehicleTurretConfiguration(
+      document,
+      turretType?.toLowerCase() === 'chin' ? turretType : undefined,
+      undefined,
+      true,
+    );
   }
 
   /**
