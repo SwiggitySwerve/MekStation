@@ -8,8 +8,13 @@ export type {
 } from '@/utils/construction/vehicle/weightComposition';
 
 /** Numeric formatting preserves unavailable mass instead of displaying zero. */
-export function formatVehicleWeight(weight: number | null): string {
+export function formatVehicleWeight(
+  weight: number | null,
+  isLoading = false,
+): string {
   return weight === null || !Number.isFinite(weight)
-    ? 'Unknown'
+    ? isLoading
+      ? 'Loading'
+      : 'Unknown'
     : formatTons(weight);
 }

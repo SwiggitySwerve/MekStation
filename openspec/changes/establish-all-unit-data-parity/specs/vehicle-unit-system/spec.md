@@ -400,6 +400,38 @@ The system SHALL provide a tabbed customizer interface for vehicles.
 - **AND** the diagram SHALL display armor values per location color-coded by fill percentage
 - **AND** the diagram SHALL show motion-type-specific visual indicators (tracks, wheels, rotors)
 
+#### Scenario: Unavailable weight during catalog startup
+
+- **GIVEN** mounted definitions that are still awaiting catalog readiness
+- **WHEN** their dependent weight budget is unavailable
+- **THEN** Weight Free SHALL show Loading without a numeric fallback or percentage
+- **AND** after readiness, a still-unresolved budget SHALL show Unknown
+- **AND** invalid source mass without catalog-dependent mounts SHALL remain Unknown rather than Loading
+- **AND** empty loads and resolved zero masses SHALL retain known numeric budgets
+
+#### Scenario: Reactive independent construction context
+
+- **GIVEN** Omni identity, independent primary/secondary allowances, explicit secondary installation and structural tech context
+- **WHEN** those source facts change in the store
+- **THEN** the status bar SHALL recompute through the existing owners with every applicable field, retaining explicit zero
+- **AND** validation SHALL receive the actual secondary type and both raw allowances
+- **AND** changing raw allowance overload at the same rounded charge SHALL update validity without inventing a weight change
+
+#### Scenario: Incomplete validation status retains known errors
+
+- **GIVEN** incomplete represented mass
+- **WHEN** validation has no known independent errors
+- **THEN** the bar SHALL show Incomplete, or Loading while waiting for mounted definitions, rather than OK or a misleading zero-error certification
+- **AND** known independent errors SHALL retain their count, rule identifier and error colour
+
+#### Scenario: Numeric and unavailable status colours
+
+- **GIVEN** compact or normal status presentation
+- **WHEN** mass is unavailable
+- **THEN** its status SHALL use the existing warning colour
+- **AND** known overweight budgets SHALL retain error colour and a real balanced zero SHALL retain success status
+- **AND** mounted turret mass SHALL keep units and SHALL NOT regain a capacity denominator
+
 ## ADDED Requirements
 
 ### Requirement: Vehicle turret armor lifecycle
