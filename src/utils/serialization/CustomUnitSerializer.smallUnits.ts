@@ -1,4 +1,5 @@
 import type { BattleArmorState } from '@/stores/battleArmorState';
+import type { InfantryState } from '@/stores/infantryState';
 import type { ProtoMechState } from '@/stores/protoMechState';
 
 import {
@@ -19,28 +20,41 @@ import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 import {
   battleArmorEditorSchema,
   protoMechEditorSchema,
+  infantryEditorSchema,
 } from '@/types/unit/SmallUnitSerialization';
 import { battleArmorContractArmorType } from '@/utils/construction/battlearmor/battleArmorBVAdapter';
+import { mapInfantryDefinition } from '@/utils/construction/infantry/libraryMapping';
+import {
+  squadMotionTypeForMotive,
+  totalTroopers,
+} from '@/utils/construction/infantry/platoonComposition';
 
 import type { CustomUnitSaveIdentity } from './CustomUnitSerializer';
 
 /** Small-unit store -> contract, retaining source declarations and exact editor facts. */
 export function serializeCustomSmallUnitState(
-  state: ProtoMechState | BattleArmorState,
+  state: ProtoMechState | BattleArmorState | InfantryState,
   identity: CustomUnitSaveIdentity,
 ): IUnitContract & {
-  family: 'protomechs' | 'battlearmor';
+  family: 'protomechs' | 'battlearmor' | 'infantry';
   smallUnitEditor:
     | ReturnType<typeof protoMechEditorSchema.parse>
-    | ReturnType<typeof battleArmorEditorSchema.parse>;
+    | ReturnType<typeof battleArmorEditorSchema.parse>
+    | ReturnType<typeof infantryEditorSchema.parse>;
 } {
   const family =
-    state.unitType === UnitType.PROTOMECH ? 'protomechs' : 'battlearmor';
+    state.unitType === UnitType.PROTOMECH
+      ? 'protomechs'
+      : state.unitType === UnitType.BATTLE_ARMOR
+        ? 'battlearmor'
+        : 'infantry';
   const source = state.librarySource;
   const smallUnitEditor = (
     state.unitType === UnitType.PROTOMECH
       ? protoMechEditorSchema
-      : battleArmorEditorSchema
+      : state.unitType === UnitType.BATTLE_ARMOR
+        ? battleArmorEditorSchema
+        : infantryEditorSchema
   ).parse({
     ...state,
     chassis: identity.chassis,
@@ -56,85 +70,117 @@ export function serializeCustomSmallUnitState(
     return tag;
   };
   const project = (
-    value: ProtoMechState | BattleArmorState,
+    value: ProtoMechState | BattleArmorState | InfantryState,
   ): Record<string, unknown> => ({
     unitType: value.unitType,
     year: value.year,
     mulId: value.mulId,
     techBase: value.techBase === TechBase.CLAN ? 'CLAN' : 'INNER_SPHERE',
     rulesLevel: RULES_LEVEL[value.rulesLevel],
-    ...(value.unitType === UnitType.PROTOMECH
+    ...(value.unitType === UnitType.INFANTRY
       ? {
-          tonnage: value.tonnage,
-          weightClass: value.weightClass.toUpperCase(),
-          isQuad: value.chassisType === ProtoChassis.QUAD,
-          isGlider: value.chassisType === ProtoChassis.GLIDER,
-          hasMainGun: value.hasMainGun,
-          engine: {
-            type: value.librarySource?.engine?.type ?? 'FUSION',
-            rating: value.engineRating,
+          platoon: {
+            squadSize: value.squadSize,
+            squadCount: value.numberOfSquads,
+            totalTroopers: totalTroopers(value.platoonComposition),
           },
-          movement: { cruiseMP: value.cruiseMP, jumpMP: value.jumpMP },
-          armor: {
-            type: Object.entries(PROTO_ARMOR_CODES).find(
-              ([, code]) =>
-                code ===
-                (value.armorType || PROTO_ARMOR_CODES.STANDARD_PROTOMEK),
-            )?.[0],
-            byLocation: Object.fromEntries(
-              Object.entries(value.armorByLocation).map(([key, points]) => [
-                location(key),
-                points,
-              ]),
-            ),
-          },
-          mainGun: {
-            weapons: value.equipment
-              .filter((mount) => mount.location === ProtoMechLocation.MAIN_GUN)
-              .map((mount) => ({ id: mount.equipmentId, name: mount.name })),
-          },
-        }
-      : {
-          tonnage: value.squadSize,
-          squadSize: value.squadSize,
-          weightClass:
-            value.weightClass === BattleArmorWeightClass.PA_L
-              ? 'PAL'
-              : value.weightClass.toUpperCase(),
-          chassisType: value.chassisType.toUpperCase(),
           motionType: value.motionType.toUpperCase(),
-          movement: {
-            groundMP: value.groundMP,
-            jumpMP: value.jumpMP,
-            umuMP: value.umuMP,
+          motiveType: squadMotionTypeForMotive(value.infantryMotive),
+          primaryWeapon: {
+            id: value.primaryWeaponId ?? value.primaryWeapon,
+            name: value.primaryWeapon,
           },
-          armor: {
-            type: battleArmorContractArmorType(value.armorType),
-            perTrooper: value.armorPerTrooper,
-          },
-          armorPerTrooper: value.armorPerTrooper,
-          manipulators: {
-            leftArm: value.leftManipulator,
-            rightArm: value.rightManipulator,
-          },
-          hasAntiPersonnelMount: value.hasAPMount,
-          hasModularWeaponMount: value.hasModularMount,
-        }),
-    equipment: value.equipment.map((mount) => ({
-      id: mount.equipmentId,
-      name: mount.name,
-      location: location(mount.location),
-      ...('unitLocation' in mount ? { unitLocation: mount.unitLocation } : {}),
-      ...('isAPMount' in mount ? { isAPMMounted: mount.isAPMount } : {}),
-    })),
+          secondaryWeapon: value.secondaryWeapon
+            ? {
+                id: value.secondaryWeaponId ?? value.secondaryWeapon,
+                name: value.secondaryWeapon,
+                count: value.secondaryWeaponCount,
+              }
+            : undefined,
+          armorKit: value.armorKit,
+          damageDivisor: value.damageDivisor,
+        }
+      : value.unitType === UnitType.PROTOMECH
+        ? {
+            tonnage: value.tonnage,
+            weightClass: value.weightClass.toUpperCase(),
+            isQuad: value.chassisType === ProtoChassis.QUAD,
+            isGlider: value.chassisType === ProtoChassis.GLIDER,
+            hasMainGun: value.hasMainGun,
+            engine: {
+              type: value.librarySource?.engine?.type ?? 'FUSION',
+              rating: value.engineRating,
+            },
+            movement: { cruiseMP: value.cruiseMP, jumpMP: value.jumpMP },
+            armor: {
+              type: Object.entries(PROTO_ARMOR_CODES).find(
+                ([, code]) =>
+                  code ===
+                  (value.armorType || PROTO_ARMOR_CODES.STANDARD_PROTOMEK),
+              )?.[0],
+              byLocation: Object.fromEntries(
+                Object.entries(value.armorByLocation).map(([key, points]) => [
+                  location(key),
+                  points,
+                ]),
+              ),
+            },
+            mainGun: {
+              weapons: value.equipment
+                .filter(
+                  (mount) => mount.location === ProtoMechLocation.MAIN_GUN,
+                )
+                .map((mount) => ({ id: mount.equipmentId, name: mount.name })),
+            },
+          }
+        : {
+            tonnage: value.squadSize,
+            squadSize: value.squadSize,
+            weightClass:
+              value.weightClass === BattleArmorWeightClass.PA_L
+                ? 'PAL'
+                : value.weightClass.toUpperCase(),
+            chassisType: value.chassisType.toUpperCase(),
+            motionType: value.motionType.toUpperCase(),
+            movement: {
+              groundMP: value.groundMP,
+              jumpMP: value.jumpMP,
+              umuMP: value.umuMP,
+            },
+            armor: {
+              type: battleArmorContractArmorType(value.armorType),
+              perTrooper: value.armorPerTrooper,
+            },
+            armorPerTrooper: value.armorPerTrooper,
+            manipulators: {
+              leftArm: value.leftManipulator,
+              rightArm: value.rightManipulator,
+            },
+            hasAntiPersonnelMount: value.hasAPMount,
+            hasModularWeaponMount: value.hasModularMount,
+          }),
+    ...(value.unitType !== UnitType.INFANTRY
+      ? {
+          equipment: value.equipment.map((mount) => ({
+            id: mount.equipmentId,
+            name: mount.name,
+            location: location(mount.location),
+            ...('unitLocation' in mount
+              ? { unitLocation: mount.unitLocation }
+              : {}),
+            ...('isAPMount' in mount ? { isAPMMounted: mount.isAPMount } : {}),
+          })),
+        }
+      : {}),
   });
-  const baseline = source
-    ? project(
-        state.unitType === UnitType.PROTOMECH
-          ? mapProtoMechDefinitionToState(source)
-          : mapBattleArmorDefinitionToState(source),
-      )
-    : {};
+  const original = source
+    ? state.unitType === UnitType.INFANTRY
+      ? { ...state, ...mapInfantryDefinition(source) }
+      : state.unitType === UnitType.PROTOMECH
+        ? mapProtoMechDefinitionToState(source)
+        : mapBattleArmorDefinitionToState(source)
+    : undefined;
+  const baseline = original ? project(original) : {};
   const patch = Object.fromEntries(
     Object.entries(project(state))
       .filter(
