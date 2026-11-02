@@ -1,4 +1,7 @@
+import type { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import type { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
+
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 /**
  * Mech Builder Service
  *
@@ -6,8 +9,6 @@ import type { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
  *
  * @spec openspec/specs/construction-services/spec.md
  */
-
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { CockpitType } from '@/types/construction/CockpitType';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
@@ -17,6 +18,8 @@ import {
   STRUCTURE_POINTS_TABLE,
 } from '@/types/construction/InternalStructureType';
 import { TechBase } from '@/types/enums/TechBase';
+
+import type { IMechBVContext } from './editableMechProjection';
 
 import { ValidationError } from '../common/errors';
 import {
@@ -31,6 +34,8 @@ import { IFullUnit } from '../units/CanonicalUnitService';
  * Uses concrete enum types for type safety instead of strings.
  */
 export interface IEditableMech {
+  readonly bvContext?: IMechBVContext;
+  readonly jumpMP?: number;
   readonly configuration?: MechConfiguration;
   readonly id: string;
   readonly chassis: string;
@@ -91,6 +96,12 @@ export interface IArmorAllocation {
  * Equipment in a critical slot
  */
 export interface IEquipmentSlot {
+  readonly category?: EquipmentCategory;
+  readonly instanceId?: string;
+  readonly name?: string;
+  readonly slots?: readonly number[];
+  readonly criticalSlots?: number;
+  readonly isRearMounted?: boolean;
   readonly equipmentId: string;
   readonly location: string;
   readonly slotIndex: number;
