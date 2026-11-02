@@ -303,6 +303,9 @@ export function createVehicleStore(
           unitType: state.unitType,
           motionType: state.motionType,
           isOmni: state.isOmni,
+          baseChassisTurretWeight: state.baseChassisTurretWeight,
+          baseChassisSecondaryTurretWeight:
+            state.baseChassisSecondaryTurretWeight,
           hasNoControlSystems: state.hasNoControlSystems,
           engineType: state.engineType,
           engineRating: state.engineRating,
