@@ -31,6 +31,24 @@ import { calculateUnitBV as gateBV } from './validate-bv-calculator';
 const Mech = UnitContract.options[0];
 const Contract = UnitContract.options[1];
 const personnel = new UnitTypeRegistry();
+const numericTerms = (value: object): NonNullable<IFigure['terms']> => {
+  const terms = Object.fromEntries(
+    Object.entries(value).filter(
+      (entry): entry is [string, number] => typeof entry[1] === 'number',
+    ),
+  );
+  return {
+    ...terms,
+    structureBV: terms.structureBV ?? terms.siBV,
+    explosivePenalty: terms.explosivePenalty ?? terms.explosivePenalties,
+    weaponBV:
+      terms.weaponBV ??
+      (terms.weaponFirePoolBV !== undefined &&
+      terms.fuselageWeaponBV !== undefined
+        ? terms.weaponFirePoolBV + terms.fuselageWeaponBV
+        : undefined),
+  };
+};
 personnel.register(new BattleArmorUnitHandler());
 personnel.register(new InfantryUnitHandler());
 const Input = z.object({
@@ -134,6 +152,16 @@ export function calculateRow(raw: unknown): IComputedRow {
           total: result.bv,
           defensive: result.breakdown?.defensiveBV ?? NaN,
           offensive: result.breakdown?.offensiveBV ?? NaN,
+          terms: result.breakdown
+            ? {
+                ...numericTerms(result.breakdown),
+                structureBV:
+                  result.breakdown.structureBV + result.breakdown.gyroBV,
+                defensiveEquipmentBV: result.breakdown.defensiveEquipBV,
+                offensiveEquipmentBV: result.breakdown.offEquipBV,
+                weightBV: result.breakdown.weightBonus,
+              }
+            : undefined,
         },
         runtimeTotal,
       };
@@ -158,6 +186,7 @@ export function calculateRow(raw: unknown): IComputedRow {
       total: b.final,
       defensive: b.defensive,
       offensive: b.offensive,
+      terms: numericTerms(b),
       ...('calculationScope' in b && b.calculationScope === 'defensive-only'
         ? { calculationScope: 'defensive-only' as const }
         : {}),
@@ -200,6 +229,8 @@ export function main(): void {
   const report = buildDeltaReport(
     converted,
     read(arg('--reference')).map((row) => JavaReference.parse(row)),
+    undefined,
+    process.argv.includes('--per-term'),
   );
   fs.mkdirSync(arg('--out'), { recursive: true });
   const { rows, ...summary } = report;
