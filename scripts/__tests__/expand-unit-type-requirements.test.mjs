@@ -106,3 +106,62 @@ test('an unsupported discriminator guard remains enforced by its alternative', (
     input.anyOf,
   );
 });
+
+test('family exclusions fold without widening the mech object or its closed mounts', () => {
+  const input = schema(1000);
+  input.properties.unitType.enum.push('BA');
+  input.properties.equipment = {
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: { id: { type: 'string' }, unitLocation: { type: 'string' } },
+      additionalProperties: false,
+    },
+  };
+  input.anyOf = [
+    {
+      properties: {
+        unitType: {
+          allOf: [{ not: { enum: ['Capital'] } }, { not: { enum: ['BA'] } }],
+        },
+        tonnage: { type: 'number', maximum: 250 },
+        equipment: {
+          type: 'array',
+          items: { type: 'object', properties: { unitLocation: false } },
+        },
+      },
+    },
+    {
+      properties: {
+        unitType: { enum: ['BA'] },
+        squadSize: { type: 'integer' },
+      },
+    },
+  ];
+  const mech = expandUnitTypeRequirements(input).anyOf[0];
+  assert.equal(mech.anyOf, undefined);
+  assert.equal(mech.properties.squadSize, undefined);
+  assert.equal(mech.properties.equipment.items.properties.unitLocation, false);
+  assert.deepEqual(mech.properties.equipment.items.properties.id, {
+    type: 'string',
+  });
+  assert.deepEqual(input.properties.equipment.items.properties.unitLocation, {
+    type: 'string',
+  });
+});
+
+test('unsupported mount exclusions stay enforced instead of being folded away', () => {
+  const input = schema(1000);
+  input.anyOf = [
+    {
+      properties: {
+        tonnage: { type: 'number', maximum: 250 },
+        equipment: { minItems: 1 },
+      },
+    },
+  ];
+  assert.deepEqual(
+    expandUnitTypeRequirements(input).anyOf[0].anyOf,
+    input.anyOf,
+  );
+});
