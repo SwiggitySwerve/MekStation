@@ -18,8 +18,10 @@ are outside this oracle's scope. There are no per-unit exclusions.
 Mechs use `validate-bv-calculator.calculateUnitBV`; `bvAdapter` runtime totals
 and exact counts are separate fields. ProtoMechs use the handler's existing
 BV breakdown. Vehicle, aerospace and capital contracts use the real dispatcher.
-BA and infantry source-handler totals and exact counts are separate fields;
-their missing aggregate paths retain explicit not-computable reasons.
+BA and infantry sources go through the BLK parser, their unit handler and the
+shared dispatcher, and compare under the same strict rules; the handler total
+and its exact count stay separate fields. A source that does not reach a BA or
+infantry dispatcher result is counted not-computable with its reason.
 
 Totals must be positive integers and match exactly. Both aggregate values must
 be positive and finite; their relative tolerance is `1e-9 * max(1, |a|, |b|)`

@@ -17,6 +17,9 @@ const KNOWN_MISSING_TARGETS = new Set([
 // targets are often BA (Battle Armor) variants while DIRECT_ALIAS_MAP targets are
 // standard Mech-scale equivalents.
 const KNOWN_CONFLICTS = new Set([
+  // These legacy name mappings target absent IDs; the aliases select the
+  // represented pinned Java identity (covered by sourceAliases tests).
+  'binary laser (blazer) cannon',
   'issmallvsplaser',
   'ismediumvsplaser',
   'islargevsplaser',
@@ -36,15 +39,16 @@ interface AliasEntry {
   target: string;
 }
 
-function extractDirectAliasMap(): AliasEntry[] {
+function extractAliasTable(fileName: string, tableName: string): AliasEntry[] {
   const srcPath = path.resolve(
     __dirname,
-    '../../../../utils/construction/equipmentBV/normalizationPatterns.ts',
+    '../../../../utils/construction/equipmentBV',
+    fileName,
   );
   const src = fs.readFileSync(srcPath, 'utf8');
 
-  const startIdx = src.indexOf('const DIRECT_ALIAS_MAP');
-  if (startIdx === -1) throw new Error('DIRECT_ALIAS_MAP not found in source');
+  const startIdx = src.indexOf(`const ${tableName}`);
+  if (startIdx === -1) throw new Error(`${tableName} not found in source`);
 
   const braceStart = src.indexOf('{', startIdx);
   let depth = 0;
@@ -64,13 +68,20 @@ function extractDirectAliasMap(): AliasEntry[] {
 
   const block = src.substring(braceStart + 1, braceEnd);
   const entries: AliasEntry[] = [];
-  const lineRe = /^\s*['"]?([^'":\s]+)['"]?\s*:\s*'([^']+)'/gm;
+  const lineRe = /^\s*(?:['"]([^'"]+)['"]|([^'":\s]+))\s*:\s*'([^']+)'/gm;
   let m: RegExpExecArray | null;
   while ((m = lineRe.exec(block)) !== null) {
-    entries.push({ key: m[1].trim(), target: m[2] });
+    entries.push({ key: (m[1] ?? m[2]).trim(), target: m[3] });
   }
 
   return entries;
+}
+
+function extractDirectAliasMap(): AliasEntry[] {
+  return [
+    ...extractAliasTable('normalizationPatterns.ts', 'DIRECT_ALIAS_MAP'),
+    ...extractAliasTable('sourceLookupAliases.ts', 'SOURCE_LOOKUP_ALIASES'),
+  ];
 }
 
 interface CatalogFile {

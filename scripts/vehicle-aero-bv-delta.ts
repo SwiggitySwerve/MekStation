@@ -57,12 +57,34 @@ export function calculateRow(raw: unknown): IComputedRow {
         if (!handler) throw new Error('No source handler');
         const parsed = handler.parse(document.data.document);
         if (!parsed.success) throw new Error(parsed.error.errors.join('; '));
-        return {
+        // Parser -> handler -> shared dispatcher, as the BA and infantry BV lanes measured.
+        const result = calculateBattleValueForUnit(parsed.data.unit);
+        const base = {
           path: input.path,
           sha256: input.sha256,
           handlerTotal: handler.calculateBV(parsed.data.unit),
-          reason: 'No aggregate BV path; source handler total retained',
         };
+        if (result?.kind === 'battlearmor')
+          return {
+            ...base,
+            runtimeTotal: result.breakdown.final,
+            figure: {
+              total: result.breakdown.final,
+              defensive: result.breakdown.defensive,
+              offensive: result.breakdown.offensive,
+            },
+          };
+        if (result?.kind === 'infantry')
+          return {
+            ...base,
+            runtimeTotal: result.breakdown.final,
+            figure: {
+              total: result.breakdown.final,
+              defensive: result.breakdown.defensiveBV,
+              offensive: result.breakdown.platoonBV,
+            },
+          };
+        throw new Error('Source dispatcher returned no BA or infantry result');
       }
       const handler = new ProtoMechUnitHandler();
       const parsed = handler.parse(document.data.document);
