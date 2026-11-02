@@ -10,7 +10,7 @@
 import React, { useCallback } from 'react';
 
 import { useVehicleStore } from '@/stores/useVehicleStore';
-import { EngineType } from '@/types/construction/EngineType';
+import { type VehicleEngineType } from '@/types/construction/EngineType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { computeMinimumCrew } from '@/utils/construction/vehicle/crew';
@@ -21,7 +21,7 @@ import { customizerStyles as cs } from '../styles';
 import { SelectOptions, toSelectOptions } from '../tabs/SelectOptions';
 import { VehicleSpecialFeaturesSection } from './VehicleSpecialFeaturesSection';
 import {
-  ENGINE_TYPE_OPTIONS,
+  getEngineTypeOptions,
   MOTION_TYPE_OPTIONS,
   STRUCTURE_TYPE_OPTIONS,
   TURRET_TYPE_OPTIONS,
@@ -56,6 +56,7 @@ export function VehicleStructureTab({
   // Get vehicle state from context
   const tonnage = useVehicleStore((s) => s.tonnage);
   const motionType = useVehicleStore((s) => s.motionType);
+  const unitType = useVehicleStore((s) => s.unitType);
   const engineType = useVehicleStore((s) => s.engineType);
   const engineRating = useVehicleStore((s) => s.engineRating);
   const cruiseMP = useVehicleStore((s) => s.cruiseMP);
@@ -131,7 +132,7 @@ export function VehicleStructureTab({
 
   const handleEngineTypeChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setEngineType(e.target.value as EngineType);
+      setEngineType(e.target.value as VehicleEngineType);
     },
     [setEngineType],
   );
@@ -320,7 +321,9 @@ export function VehicleStructureTab({
               className={`${cs.select.full} mt-1`}
               data-testid="vehicle-engine-type-select"
             >
-              <SelectOptions options={ENGINE_TYPE_OPTIONS} />
+              <SelectOptions
+                options={getEngineTypeOptions(unitType, engineType, isTrailer)}
+              />
             </select>
             {isTrailer && (
               <p className={cs.text.secondary}>Trailers have no engine</p>

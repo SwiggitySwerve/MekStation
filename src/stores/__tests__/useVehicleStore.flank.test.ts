@@ -1,6 +1,9 @@
 /** @spec openspec/changes/establish-all-unit-data-parity/specs/vehicle-unit-system/spec.md */
 import { buildVehicleUnitObject } from '@/components/customizer/vehicle/buildVehicleUnitObject';
-import { EngineType } from '@/types/construction/EngineType';
+import {
+  EngineType,
+  VehicleOnlyEngineType,
+} from '@/types/construction/EngineType';
 import { TechBase } from '@/types/enums/TechBase';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
@@ -119,4 +122,45 @@ it('normalizes supplied state and duplicated vehicles from cruise', () => {
   expect(duplicate).not.toBeNull();
   expect(duplicate!.getState().cruiseMP).toBe(17);
   expect(duplicate!.getState().flankMP).toBe(26);
+});
+
+it('duplicating a support vehicle keeps its engine tech rating', () => {
+  const store = createVehicleStore({
+    ...createDefaultVehicleState({
+      ...OPTIONS,
+      unitType: UnitType.SUPPORT_VEHICLE,
+    }),
+    engineTechRating: 1,
+  });
+  registerVehicleStore(store);
+  expect(duplicateVehicle(OPTIONS.id)!.getState().engineTechRating).toBe(1);
+});
+
+// Engine.getRating(Entity) (Engine.java:601-604): a support rating is
+// min(500, walk MP x tonnage) with no floor. The Small Steamer is 1 t at
+// cruise 5: rating 5. BLKTankFile.java:155-163 keeps the combat floor of 10.
+it('keeps a small support rating below 10 on tonnage edits', () => {
+  const store = createVehicleStore({
+    ...createDefaultVehicleState({
+      ...OPTIONS,
+      tonnage: 5,
+      unitType: UnitType.SUPPORT_VEHICLE,
+    }),
+    engineType: VehicleOnlyEngineType.STEAM,
+    cruiseMP: 5,
+  });
+  store.getState().setTonnage(1);
+  expect(store.getState().engineRating).toBe(5);
+});
+
+it('keeps the combat rating floor of 10 and cap of 400 on tonnage edits', () => {
+  const store = createVehicleStore({
+    ...createDefaultVehicleState(OPTIONS),
+    cruiseMP: 1,
+  });
+  store.getState().setTonnage(1);
+  expect(store.getState().engineRating).toBe(10);
+  store.getState().setCruiseMP(10);
+  store.getState().setTonnage(100);
+  expect(store.getState().engineRating).toBe(400);
 });

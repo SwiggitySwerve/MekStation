@@ -558,7 +558,19 @@ describe('BLK engine export, parse and reload', () => {
       );
     },
   );
-  it.each([9, 10, 11, 12, 13])(
+  // BLKTankFile.java:139-166 builds Engine(rating, translateEngineCode(code)),
+  // and translateEngineCode (BLKFile.java:538-570) maps STEAM (10) and BATTERY
+  // (11), so a combat Tank loads them as themselves.
+  it.each([10, 11])('vehicle accepts code %s as its own engine', (code) => {
+    const parsed = parser.parse(source('Tank', String(code)));
+    expect(parsed.success).toBe(true);
+    const result = new VehicleUnitHandler().parse(parsed.data!.document);
+    expect(result.success).toBe(true);
+    expect(result.data?.unit.engineType).toBe(code);
+  });
+  // MAGLEV, SOLAR and EXTERNAL are also valid Engines in Java, but the vehicle
+  // store has no identity for them yet.
+  it.each([9, 12, 13])(
     'vehicle rejects code %s without substituting fusion construction',
     (code) => {
       const parsed = parser.parse(source('Tank', String(code)));

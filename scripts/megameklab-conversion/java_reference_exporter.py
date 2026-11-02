@@ -1,4 +1,4 @@
-"""Run the pinned-MegaMek reference exporter over vehicle, aerospace and capital BLK sources (UL-16).
+"""Run the pinned-MegaMek reference exporter over all in-scope MTF/BLK sources (UL-16b).
 
 Output goes outside the repo. Queue every Java step, e.g. heavy-run.mjs --class build -- python -B this.py ...
   python -B java_reference_exporter.py --mekfiles <mm-data>/data/mekfiles --out-dir <dir> [--selfcheck-only] [--fixture <file>]
@@ -13,11 +13,13 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 RUNTIME_REFERENCE = Path('E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/upstream-crosscheck/implementation/runtime-reference')
-FAMILY_DIRS = ('vehicles', 'fighters', 'convfighter', 'smallcraft', 'dropships', 'jumpships', 'warship', 'spacestation')
+FAMILY_DIRS = ('vehicles', 'fighters', 'convfighter', 'smallcraft', 'dropships', 'jumpships', 'warship', 'spacestation',
+               'meks', 'battlearmor', 'infantry', 'protomeks')
+SOURCE_EXTENSIONS = dict.fromkeys(FAMILY_DIRS, '.blk') | {'meks': '.mtf'}
 PINS = {'megamek': '48fcb2f64a1b3f2d575707ce5653dad64927b587', 'mmData': '50f7efef0c9f775b0258f8283525ed4f906e1985'}
 
 # Paths relative to data/mekfiles -> (concrete class, BV, source sha256). The first eight are the plan's known
-# references; the last four are capital-ship references from runtime-reference/README.md.
+# references, followed by four capital ships and 12 UL-16b references captured from pinned Java.
 KNOWN_REFERENCES = {
     'vehicles/3075/Tamerlane Strike Sled (Flamer).blk': ('Tank', 436, '5ceb9843137d2eadd33866de3484c8f9f9f4570da60e134a2a088c8d4b7f83d3'),
     'vehicles/AToW Companion/Hover/Boreas Cavalry Hovercraft Prime.blk': ('SupportTank', 78, '9c7a6cce4ed989563faadd8ce15febbaf7c9d15e30f9e14fec6556f8b8f47d33'),
@@ -31,6 +33,18 @@ KNOWN_REFERENCES = {
     'jumpships/3057R/Clan/Comitatus JumpShip (2995).blk': ('Jumpship', 5919, '31130a53ba44e855e55726732bd2cdf9d90a7fefa992c25f4d2d0ded437d9597'),
     'spacestation/HB HL/Crucible Station.blk': ('SpaceStation', 2004, '4bc6f8884bdcf149eb6998a27afc3b277ce62da6fced54e16fc3270a8ae11b09'),
     'warship/3057/Clan/Aegis Heavy Cruiser (2843).blk': ('Warship', 187814, '4aa9c3916a2df9ad7025d1b5fd16e580e578f241cbed55e793f337966f0d2a25'),
+    'meks/3039u/Atlas AS7-D.mtf': ('BipedMek', 1897, 'afed270108038d93c33b2537ac1efc6c95c532ab6012eab25e6c3a266c1474cb'),
+    'meks/3039u/Scorpion SCP-1N.mtf': ('QuadMek', 1019, '53780b2d4fa31e7f44c23be6476e2d92823f234d6afc68ef7d4600e10314988c'),
+    'meks/3145/Republic/Ares ARS-V1 Zeus.mtf': ('TripodMek', 3247, '9efe9ccd8726c04344ed162badbe7d9fb4e53c1d5e8237aec0c38af66db5a0c3'),
+    'battlearmor/3058Uu/Achileus BA (Sqd 4) [David].blk': ('BattleArmor', 189, '15c04915ccd68cf444a4b01a9b46b3889be1743a64aacd8226ade7d91b09c85f'),
+    'battlearmor/3145/Clans/Black Wolf BA (ER Pulse) (Sqd4).blk': ('BattleArmor', 348, 'bdfb38dbfe6133d1eed740c9264805a102c09933a8051fa9634e37a3f321b716'),
+    'battlearmor/XTRs/Steiner/Gray Death SA Prototype (Sqd6).blk': ('BattleArmor', 569, '7b80e77953a3f479517402090eef49b43373e3cdde830e05666959a6829903fd'),
+    'infantry/3085/Clan/Clan Anti-Infantry Clan Jade Falcon Police.blk': ('ConvInfantry', 70, 'abf0436a98f9e81a2f9db2004bfcc4cfbe0a4b6f447b5ab1fd76ca19831573f5'),
+    'infantry/Clan/Clan Mechanized Hover Point (Laser Basic).blk': ('ConvInfantry', 65, 'cef67d6421841bcba57d4ee056a0537e16fd076505d3a054c8b99798deb62233'),
+    'infantry/Taurian Infantry/Motorized Platoon TC 3047+ (SRM).blk': ('ConvInfantry', 117, 'ef785f60125914798c4e737a129aa5cc64c4bf76d1dd5cb1ff96acbebb09d244'),
+    'protomeks/3060/Centaur 2.blk': ('ProtoMek', 154, '2084acd9f401295367487f2b3c55521ac793081132beb833fc4ad28ca0acc1f1'),
+    'protomeks/3075/Delphyne 3.blk': ('ProtoMek', 400, '039dcf6184b0fe0333d07d471f3b7821820fb516cfc0dae02400ecbeb4c94f8b'),
+    'protomeks/XTR Clans/Minotaur-XP.blk': ('ProtoMek', 276, '25e1229a9802ea0e551044e7b6b233a2acb89212575ac0f6b34725e9390e3f6c'),
 }
 # Extra fixture units per concrete class on top of the references (lowest source sha256 first, so the pick is stable).
 FIXTURE_EXTRAS = {
@@ -42,7 +56,8 @@ FIXTURE_EXTRAS = {
 
 def list_sources(mekfiles):
     root = Path(mekfiles)
-    return sorted(p.relative_to(root).as_posix() for d in FAMILY_DIRS for p in (root / d).rglob('*.blk'))
+    return sorted(p.relative_to(root).as_posix() for d, extension in SOURCE_EXTENSIONS.items()
+                  for p in (root / d).rglob('*' + extension))
 
 
 def selfcheck(rows):
@@ -70,11 +85,16 @@ def source_drift(rows, manifest_rows):
     return [r['path'] for r in rows if pinned.get('data/mekfiles/' + r['path']) != r.get('sha256')]
 
 
+def pinned_sources(manifest_rows):
+    """In-scope source paths using the same directory/format contract as discovery."""
+    prefix = 'data/mekfiles/'
+    paths = (entry['path'][len(prefix):] for entry in manifest_rows if entry['path'].startswith(prefix))
+    return sorted(path for path in paths if Path(path).suffix == SOURCE_EXTENSIONS.get(path.split('/')[0]))
+
+
 def missing_sources(sources, manifest_rows):
-    """Pinned family .blk sources (per the manifest) that the snapshot walk did not find."""
-    found, prefix = set(sources), 'data/mekfiles/'
-    pinned = (e['path'][len(prefix):] for e in manifest_rows if e['path'].startswith(prefix) and e['path'].endswith('.blk'))
-    return sorted(path for path in pinned if path.split('/')[0] in FAMILY_DIRS and path not in found)
+    """Pinned family sources that the snapshot walk did not find."""
+    return sorted(set(pinned_sources(manifest_rows)) - set(sources))
 
 
 def pick_fixture(rows):
@@ -101,6 +121,7 @@ def verify_runtime():
 
 
 def run_java(mekfiles, paths, out_dir, name):
+    mekfiles, out_dir = Path(mekfiles).resolve(), out_dir.resolve()
     jdk = Path(json.loads((RUNTIME_REFERENCE / 'build-inputs/toolchain-downloads.json').read_text())[0]['extractedRoot'])
     cp = (RUNTIME_REFERENCE / 'build-inputs/runtime-classpath.txt').read_text().strip()
     classes = out_dir / 'classes'
@@ -110,7 +131,8 @@ def run_java(mekfiles, paths, out_dir, name):
     listing.write_text('\n'.join(paths) + '\n', encoding='utf-8')
     with (out_dir / (name + '.stdout.log')).open('wb') as stdout, (out_dir / (name + '.stderr.log')).open('wb') as stderr:
         subprocess.run([jdk / 'bin/java.exe', '-Xmx2g', '-Djava.awt.headless=true', '-cp', f'{classes};{cp}', 'VehicleAeroReferenceExporter',
-                        mekfiles, listing, rows_path], stdout=stdout, stderr=stderr, check=True)
+                        mekfiles, listing, rows_path], stdout=stdout, stderr=stderr, check=True,
+                       cwd=RUNTIME_REFERENCE / 'build-inputs/megamek/megamek')
     return [json.loads(line) for line in rows_path.read_text(encoding='utf-8').splitlines()]
 
 
@@ -119,9 +141,9 @@ def main():
     parser.add_argument('--mekfiles', required=True, help='pinned mm-data data/mekfiles directory (read-only)')
     parser.add_argument('--out-dir', required=True, help='scratch output directory, outside the repo')
     parser.add_argument('--selfcheck-only', action='store_true')
-    parser.add_argument('--fixture', help='write the ~40-unit committed fixture here')
+    parser.add_argument('--fixture', help='write the combined reference/extra fixture here')
     args = parser.parse_args()
-    out_dir = Path(args.out_dir)
+    out_dir = Path(args.out_dir).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     verify_runtime()
     problems = selfcheck(run_java(args.mekfiles, list(KNOWN_REFERENCES), out_dir, 'selfcheck'))
@@ -136,16 +158,23 @@ def main():
     failures = [r for r in rows if r['status'] != 'loaded']
     manifest = load_manifest_rows()
     drift, missing = source_drift(rows, manifest), missing_sources(sources, manifest)
+    counts = [collections.Counter(path.split('/')[0] for path in paths)
+              for paths in (pinned_sources(manifest), sources, [row['path'] for row in rows])]
     summary = {'pins': PINS, 'sources': len(sources), 'rows': len(rows), 'loadFailures': len(failures),
                'stageFailures': sum('stageFailure' in r for r in rows), 'pathsReconciled': [r['path'] for r in rows] == sources,
                'sourceDrift': len(drift), 'missingSources': len(missing),
-               'byClass': dict(sorted(collections.Counter(r.get('concreteFamily') for r in rows).items()))}
+               'byClass': dict(sorted(collections.Counter(r.get('concreteFamily', 'failed') for r in rows).items())),
+               'byDirectory': {directory: dict(zip(('pinnedSources', 'sources', 'rows'),
+                                                 (count[directory] for count in counts))) for directory in sorted(FAMILY_DIRS)}}
     (out_dir / 'summary.json').write_text(json.dumps(summary, indent=2) + '\n')
+    (out_dir / 'failures.json').write_text(json.dumps([{'path': r['path'], 'failure': r.get('failure') or r.get('stageFailure')}
+                                                    for r in rows if r['status'] != 'loaded' or 'stageFailure' in r], indent=2) + '\n')
     if drift or missing or not summary['pathsReconciled']:
         sys.exit(f'Corpus run does not match the pinned sources ({len(drift)} drifted, {len(missing)} missing, '
                  f'paths reconciled: {summary["pathsReconciled"]}):\n' + '\n'.join((drift + missing)[:20]))
-    hashes = {n: digest(out_dir / n) for n in ('full.jsonl', 'full.list.txt', 'selfcheck.jsonl', 'summary.json', 'classes/VehicleAeroReferenceExporter.class')}
+    hashes = {n: digest(out_dir / n) for n in ('full.jsonl', 'full.list.txt', 'selfcheck.jsonl', 'selfcheck.json', 'summary.json', 'failures.json', 'classes/VehicleAeroReferenceExporter.class')}
     hashes['VehicleAeroReferenceExporter.java'] = digest(HERE / 'java-reference/VehicleAeroReferenceExporter.java')
+    hashes['java_reference_exporter.py'] = digest(Path(__file__))
     for name in ('runtime-dependencies.json', 'compiled-runtime-files.json'):
         hashes[name] = digest(RUNTIME_REFERENCE / 'pinned-results' / name)
     (out_dir / 'artifact-hashes.json').write_text(json.dumps(hashes, indent=2) + '\n')
