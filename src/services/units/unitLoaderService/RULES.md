@@ -115,7 +115,7 @@ registry owns their accepted contract discriminators and available store mapper.
   BA VTOL MP has no separate store field; source jump MP is retained.
 - The BV shown is the existing app owner's result, not a new parity verdict.
   ProtoMech and battle-armor library saves use CustomUnitSerializer with an
-  explicit family. Infantry saving remains gated for the next slice.
+  explicit family. Infantry uses the same serializer and saved-family routing.
   Callers use the serializer facade; its adjacent smallUnits module implements
   the small-unit encoding without changing that public boundary.
 - Both small-unit stores persist the full validated definition as librarySource.
@@ -128,6 +128,16 @@ registry owns their accepted contract discriminators and available store mapper.
   these stores; family-less legacy saves still select BattleMechs.
 
 ## Infantry library sessions
+
+- Infantry saves retain the complete original definition in librarySource and
+  exact editor fields in the validated smallUnitEditor extension. Reopening
+  restores composition, movement overrides, field-gun editor data, kit selections
+  and flags without reconstructing unrepresentable native declarations. Original
+  masks, kit/custom armor, explicit/effective flags, prosthetic slots/counts,
+  movement source, ordered mounts and ammunition remain unchanged in librarySource.
+- Contract projection updates edited composition and weapon facts; unchanged
+  source spellings and source-only fields remain authoritative. Session metadata
+  renews and BV is recomputed. Saved history remains unavailable.
 
 - Infantry opens in its existing store and shell. Composition and weapon counts
   remain source values (secondary count is per squad); no setter clamps them.

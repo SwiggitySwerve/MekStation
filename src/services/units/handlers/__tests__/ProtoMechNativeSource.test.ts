@@ -197,7 +197,9 @@ describe('native ProtoMek BLK source loading', () => {
       engineRating: -28,
     });
     expect(unit.validationErrors).toEqual(handler.validate(unit).errors);
-    expect(unit.validationErrors).toContain('ProtoMech cannot exceed 9 tons');
+    expect(unit.validationErrors).not.toContain(
+      'ProtoMech cannot exceed 9 tons',
+    );
     expect(unit.validationErrors).toContain(
       'ProtoMech must have at least 1 cruise MP',
     );

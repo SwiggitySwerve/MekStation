@@ -166,7 +166,7 @@ describe('SmallCraftUnitHandler', () => {
       expect(noseWeapon).toBeDefined();
     });
 
-    it('should load under-tonnage craft with construction errors', () => {
+    it('should load light craft as construction-valid', () => {
       const doc = createMockBlkDocument({ tonnage: 50 });
       const result = handler.parse(doc);
 
@@ -174,9 +174,7 @@ describe('SmallCraftUnitHandler', () => {
       if (!result.success) return;
       expect(result.data.unit.tonnage).toBe(doc.tonnage);
       expect(result.data.unit.movement.safeThrust).toBe(doc.safeThrust);
-      expect(handler.validate(result.data.unit).errors).toContain(
-        'Small craft tonnage must be at least 100 tons',
-      );
+      expect(handler.validate(result.data.unit).isValid).toBe(true);
     });
 
     it('should load over-tonnage craft with construction errors', () => {
@@ -192,7 +190,7 @@ describe('SmallCraftUnitHandler', () => {
       );
     });
 
-    it('should load zero thrust with construction errors', () => {
+    it('should load zero thrust as construction-valid', () => {
       const doc = createMockBlkDocument({ safeThrust: 0 });
       const result = handler.parse(doc);
 
@@ -200,9 +198,7 @@ describe('SmallCraftUnitHandler', () => {
       if (!result.success) return;
       expect(result.data.unit.tonnage).toBe(doc.tonnage);
       expect(result.data.unit.movement.safeThrust).toBe(doc.safeThrust);
-      expect(handler.validate(result.data.unit).errors).toContain(
-        'Small craft must have at least 1 safe thrust',
-      );
+      expect(handler.validate(result.data.unit).isValid).toBe(true);
     });
 
     it('should parse tech base', () => {

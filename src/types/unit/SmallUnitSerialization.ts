@@ -11,17 +11,21 @@ import { TechBase } from '@/types/enums/TechBase';
 import { SquadMotionType } from './BaseUnitInterfaces';
 import { BAArmorType } from './BattleArmorInterfaces';
 import { UnitType } from './BattleMechInterfaces';
+import { InfantryMotive } from './InfantryInterfaces';
 import {
   BattleArmorChassisType,
   BattleArmorWeightClass,
   ManipulatorType,
+  InfantryArmorKit,
+  InfantrySpecialization,
 } from './PersonnelInterfaces';
 import { ProtoChassis, ProtoWeightClass } from './ProtoMechInterfaces';
 
 export function isEditableSmallUnit(unit: { unitType: UnitType }): boolean {
   return (
     unit.unitType === UnitType.PROTOMECH ||
-    unit.unitType === UnitType.BATTLE_ARMOR
+    unit.unitType === UnitType.BATTLE_ARMOR ||
+    unit.unitType === UnitType.INFANTRY
   );
 }
 
@@ -145,3 +149,39 @@ export function renewSmallUnitMounts<
     };
   });
 }
+
+export const infantryEditorSchema = common.extend({
+  unitType: z.literal(UnitType.INFANTRY),
+  umuMP: z.number().optional(),
+  squadSize: z.number(),
+  numberOfSquads: z.number(),
+  motionType: z.enum(SquadMotionType),
+  infantryMotive: z.enum(InfantryMotive),
+  platoonComposition: z.object({
+    squads: z.number(),
+    troopersPerSquad: z.number(),
+  }),
+  groundMP: z.number(),
+  jumpMP: z.number(),
+  primaryWeapon: z.string(),
+  primaryWeaponId: z.string().optional(),
+  secondaryWeapon: z.string().optional(),
+  secondaryWeaponId: z.string().optional(),
+  secondaryWeaponCount: z.number(),
+  armorKit: z.enum(InfantryArmorKit),
+  damageDivisor: z.number(),
+  specialization: z.enum(InfantrySpecialization),
+  hasAntiMechTraining: z.boolean(),
+  isAugmented: z.boolean(),
+  augmentationType: z.string().optional(),
+  fieldGuns: z.array(
+    z.object({
+      weaponId: z.string(),
+      equipmentId: z.string(),
+      name: z.string(),
+      ammoRounds: z.number(),
+      crewCount: z.number(),
+      crew: z.number(),
+    }),
+  ),
+});
