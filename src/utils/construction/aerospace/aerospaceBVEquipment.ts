@@ -78,7 +78,7 @@ export function calculateMountedAerospaceDefensiveBV(
   return equipmentBV + sumCappedAmmoBV({ ams: amsAmmoBV }, () => amsBV);
 }
 
-/** AeroBVCalculator.java:78-115; HeatTrackingBVCalculator.java:59-64,266-286. */
+/** AeroBVCalculator.java:78-115; HeatTrackingBVCalculator.java:65-70,229-247. */
 export function calculateMountedAerospaceExplosivePenalty(
   input: Pick<
     IAerospaceBVInput,
