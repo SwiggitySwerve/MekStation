@@ -41,9 +41,11 @@ it.each(supported)(
       cruiseMP: row.definition.movement.cruiseMP,
       flankMP: row.definition.movement.flankMP,
       isTrailer: row.definition.isTrailer ?? false,
-      equipment: [],
       isModified: false,
     });
+    expect(store.getState().equipment).toHaveLength(
+      row.definition.equipment.length,
+    );
     const parsed = new BlkParserService().parse(row.content);
     if (!parsed.success) throw new Error(JSON.stringify(parsed.error));
     const doc = parsed.data.document;

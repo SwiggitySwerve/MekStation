@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from typing import Any, Dict, List, Optional
 
-from blk_common import get_string, normalize_equipment_id, parse_number
+from blk_common import get_string, normalize_equipment_id, parse_number, map_armor_code, BLK_ARMOR_CODE_MAP
 from blk_vehicle_tables import BAR_ARMOR_CODES
 
 STANDARD_FLUFF_FIELDS = (
@@ -97,9 +97,8 @@ def bar_armor_fields(
     is emitted and none is inferred from the code. `reads_bar_rating=False` is for
     loaders that never read the tag.
     """
-    if code not in BAR_ARMOR_CODES:
-        return {}
-    fields: Dict[str, Any] = {"type": "BAR"}
+    # loadSVArmor reads an explicit rating independently of armor_type.
+    fields: Dict[str, Any] = {"type": "BAR"} if code in BAR_ARMOR_CODES else {}
     rating = parse_number(get_string(tags, "barrating")) if reads_bar_rating else None
     if rating and rating > 0:
         fields["barRating"] = int(rating)
@@ -115,3 +114,28 @@ def parse_qualifier_number(tags: Dict[str, Any], tag: str, *, integer: bool = Fa
     if not math.isfinite(value) or (integer and not value.is_integer()):
         raise ValueError(f'Invalid BLK {tag}: {tags[tag]!r}')
     return int(value) if integer else value
+
+
+def vehicle_patchwork_armor_fields(tags: Dict[str, Any], locations: Dict[str, int], support: bool) -> Dict[str, Any]:
+    """BLKTankFile.setupArmorTypeAndTechLevel / BLKFile.loadSVArmor facts."""
+    types, bars = {}, {}
+    for location in locations:
+        name = location.replace('_', ' ').title()
+        if 'TURRET_2' in locations and location in ('TURRET', 'TURRET_2'):
+            name = 'Rear Turret' if location == 'TURRET' else 'Front Turret'
+        if support and f'{name}_barrating' in tags:
+            rating = parse_qualifier_number(tags, f'{name}_barrating', integer=True)
+            if not 2 <= rating <= 10:
+                raise ValueError(f'Invalid patchwork BAR: {rating}')
+            types[location], bars[location] = BAR_ARMOR_CODES[rating - 2], rating
+        else:
+            type_tag = f'{name}_armor_type'
+            # BLKTankFile.java:306-307 requires a type for every installed location.
+            if type_tag not in tags:
+                raise ValueError(f'Missing patchwork armor type for {name}: <{type_tag}>')
+            code = parse_qualifier_number(tags, type_tag, integer=True)
+            map_armor_code(code, BLK_ARMOR_CODE_MAP, strict=True)
+            types[location] = code
+            if support:
+                bars[location] = 10
+    return {'typeByLocation': types, **({'barRatingByLocation': bars} if bars else {})}
