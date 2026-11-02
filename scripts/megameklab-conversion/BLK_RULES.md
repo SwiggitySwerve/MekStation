@@ -128,3 +128,10 @@ source; Java's legacy propulsion fallback adds one only when absent. Turret and
 exoskeleton source facts survive. Automatic one-shot ammo, resolved equipment
 aliases and effective movement remain later loader/BV responsibilities.
 Regression coverage: test_blk_battlearmor_fidelity.py and 22 pinned BLK texts.
+
+BA root facts and propulsion declarations belong to the battle-armor unitType
+alternative. Non-BA alternatives forbid BA armor and equipment annotations. The
+generator folds those family exclusions into the existing BattleMech object API;
+recorded combat retains exactly 21 construction keys. Regression coverage is
+unit.battlearmor-scope.contract.test.ts and the unchanged customCombatDefinition
+snapshot test.

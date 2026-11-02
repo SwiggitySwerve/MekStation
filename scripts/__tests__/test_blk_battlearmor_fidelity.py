@@ -56,6 +56,18 @@ class BattleArmorFidelityTest(unittest.TestCase):
                 self.assertEqual([e['name'] for e in unit['equipment'] if e['unitLocation'] == group], names)
                 self.assertEqual(validate_unit(unit), [])
 
+    def test_ba_mount_and_armor_facts_are_scoped_to_battle_armor(self):
+        for unit_type in ['Vehicle', 'Support Vehicle', 'DropShip', 'Infantry']:
+            base = {'id': 'scope', 'unitType': unit_type}
+            self.assertEqual(validate_unit(base), [])
+            for key, value in {'unitLocation': 'Squad', 'isDWPMounted': True,
+                               'isSquadSupportWeapon': True, 'isAPMMounted': True,
+                               'shots': 4, 'size': 2.5}.items():
+                with self.subTest(unit_type=unit_type, key=key):
+                    self.assertTrue(validate_unit(dict(base, equipment=[{'id': 'gear', 'location': 'BODY', key: value}])))
+            with self.subTest(unit_type=unit_type, armor=True):
+                self.assertTrue(validate_unit(dict(base, armor={'type': 'STANDARD', 'byArc': {'NOSE': 1}, 'sourceTechLevel': -1})))
+
     def test_required_and_invalid_fields_fail(self):
         body = FIXTURES[0]['blk']
         for name in ['Name', 'year', 'type', 'Trooper Count', 'weightclass', 'chassis', 'motion_type', 'cruiseMP', 'armor']:
