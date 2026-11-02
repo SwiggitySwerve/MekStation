@@ -58,6 +58,11 @@ const SchemaDef_standardArmorType = z
     'STANDARD_PROTOMEK',
   ])
   .describe('Armor type');
+const SchemaDef_battleArmorUnitType = z.enum([
+  'BattleArmor',
+  'Battle Armor',
+  'BATTLEARMOR',
+]);
 const SchemaDef_capitalUnitType = z.enum([
   'DropShip',
   'JumpShip',
@@ -188,6 +193,7 @@ export const UnitContract = z
         armor: z
           .object({
             type: SchemaDef_standardArmorType,
+            sourceTechLevel: z.never().optional(),
             barRating: z
               .number()
               .int()
@@ -270,12 +276,7 @@ export const UnitContract = z
                 'Explicit BLK armor type codes per normalized source arc; includes sentinel -1. Distinct from armor points in byArc.',
               )
               .optional(),
-            perTrooper: z
-              .number()
-              .int()
-              .gte(0)
-              .describe('Battle armor points per trooper')
-              .optional(),
+            perTrooper: z.never().optional(),
           })
           .strict()
           .and(
@@ -381,6 +382,12 @@ export const UnitContract = z
                   .array(z.number().int())
                   .describe('Specific slot indices')
                   .optional(),
+                unitLocation: z.never().optional(),
+                isDWPMounted: z.never().optional(),
+                isSquadSupportWeapon: z.never().optional(),
+                isAPMMounted: z.never().optional(),
+                shots: z.never().optional(),
+                size: z.never().optional(),
                 isRearMounted: z
                   .boolean()
                   .describe('Whether weapon is rear-facing')
@@ -676,6 +683,7 @@ export const UnitContract = z
                 ]),
               ])
               .describe('Armor type'),
+            sourceTechLevel: z.number().int().gte(-1).optional(),
             barRating: z
               .number()
               .int()
@@ -872,6 +880,12 @@ export const UnitContract = z
                   .array(z.number().int())
                   .describe('Specific slot indices')
                   .optional(),
+                unitLocation: z.string().optional(),
+                isDWPMounted: z.boolean().optional(),
+                isSquadSupportWeapon: z.boolean().optional(),
+                isAPMMounted: z.boolean().optional(),
+                shots: z.number().int().gte(0).optional(),
+                size: z.number().gte(0).optional(),
                 isRearMounted: z
                   .boolean()
                   .describe('Whether weapon is rear-facing')
@@ -1006,26 +1020,87 @@ export const UnitContract = z
         z.union([
           z.object({
             unitType: z
-              .unknown()
-              .refine(
-                (value) => !SchemaDef_capitalUnitType.safeParse(value).success,
-                'Invalid input: Should NOT be valid against schema',
+              .intersection(
+                z
+                  .unknown()
+                  .refine(
+                    (value) =>
+                      !SchemaDef_capitalUnitType.safeParse(value).success,
+                    'Invalid input: Should NOT be valid against schema',
+                  ),
+                z
+                  .unknown()
+                  .refine(
+                    (value) =>
+                      !SchemaDef_battleArmorUnitType.safeParse(value).success,
+                    'Invalid input: Should NOT be valid against schema',
+                  ),
               )
               .optional(),
             armor: z
-              .object({ type: SchemaDef_standardArmorType.optional() })
+              .object({
+                type: SchemaDef_standardArmorType.optional(),
+                perTrooper: z.never().optional(),
+                sourceTechLevel: z.never().optional(),
+              })
+              .optional(),
+            equipment: z
+              .array(
+                z.object({
+                  unitLocation: z.never().optional(),
+                  isDWPMounted: z.never().optional(),
+                  isSquadSupportWeapon: z.never().optional(),
+                  isAPMMounted: z.never().optional(),
+                  shots: z.never().optional(),
+                  size: z.never().optional(),
+                }),
+              )
               .optional(),
             tonnage: z.number().lte(250).optional(),
           }),
           z.object({
             unitType: z.enum(['Support Vehicle', 'SupportVehicle']),
             armor: z
-              .object({ type: SchemaDef_standardArmorType.optional() })
+              .object({
+                type: SchemaDef_standardArmorType.optional(),
+                perTrooper: z.never().optional(),
+                sourceTechLevel: z.never().optional(),
+              })
+              .optional(),
+            equipment: z
+              .array(
+                z.object({
+                  unitLocation: z.never().optional(),
+                  isDWPMounted: z.never().optional(),
+                  isSquadSupportWeapon: z.never().optional(),
+                  isAPMMounted: z.never().optional(),
+                  shots: z.never().optional(),
+                  size: z.never().optional(),
+                }),
+              )
               .optional(),
             tonnage: z.number().lte(600).optional(),
           }),
           z.object({
             unitType: SchemaDef_capitalUnitType,
+            armor: z
+              .object({
+                perTrooper: z.never().optional(),
+                sourceTechLevel: z.never().optional(),
+              })
+              .optional(),
+            equipment: z
+              .array(
+                z.object({
+                  unitLocation: z.never().optional(),
+                  isDWPMounted: z.never().optional(),
+                  isSquadSupportWeapon: z.never().optional(),
+                  isAPMMounted: z.never().optional(),
+                  shots: z.never().optional(),
+                  size: z.never().optional(),
+                }),
+              )
+              .optional(),
             tonnage: z.number().lte(2500000).optional(),
             otherCrew: z.number().int().gte(0).optional(),
             driveCoreType: z.number().int().gte(0).lte(4).optional(),
@@ -1036,6 +1111,37 @@ export const UnitContract = z
             gravDecks: z.array(z.number().int().gte(0)).optional(),
             dockingCollars: z.number().int().gte(0).optional(),
             isModular: z.boolean().optional(),
+          }),
+          z.object({
+            unitType: SchemaDef_battleArmorUnitType,
+            tonnage: z.number().lte(250).optional(),
+            weightClass: z.string().optional(),
+            chassisType: z.enum(['BIPED', 'QUAD']).optional(),
+            motionType: z.string().optional(),
+            squadSize: z.number().int().gte(1).optional(),
+            armorPerTrooper: z.number().int().gte(0).optional(),
+            manipulators: z
+              .object({
+                rightArm: z.union([z.string(), z.null()]).optional(),
+                leftArm: z.union([z.string(), z.null()]).optional(),
+              })
+              .strict()
+              .optional(),
+            hasAntiPersonnelMount: z.boolean().optional(),
+            hasModularWeaponMount: z.boolean().optional(),
+            clanChassis: z.boolean().optional(),
+            isExoskeleton: z.boolean().optional(),
+            clanExoWithoutHarJel: z.boolean().optional(),
+            turretSize: z.number().int().gte(0).optional(),
+            hasModularTurret: z.boolean().optional(),
+            movement: z
+              .object({
+                groundMP: z.number().int().gte(0).optional(),
+                jumpMP: z.number().int().gte(0).optional(),
+                umuMP: z.number().int().gte(0).optional(),
+                vtolMP: z.number().int().gte(0).optional(),
+              })
+              .optional(),
           }),
         ]),
       )
