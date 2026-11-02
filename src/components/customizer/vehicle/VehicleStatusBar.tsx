@@ -26,6 +26,7 @@ import { StatusItem, type StatusLevel } from '../tabs/StatusItem';
 import { VehicleBVBreakdownDialog } from './VehicleBVBreakdownDialog';
 import {
   computeVehicleWeightBreakdown,
+  formatVehicleWeight,
   type VehicleWeightBreakdown,
 } from './VehicleStatusBar.utils';
 
@@ -83,7 +84,8 @@ const MOTION_LABELS: Record<GroundMotionType, string> = {
   [GroundMotionType.MAGLEV]: 'MAG',
 };
 
-function getWeightStatus(remainingWeight: number): StatusLevel {
+function getWeightStatus(remainingWeight: number | null): StatusLevel {
+  if (remainingWeight === null) return 'warning';
   if (remainingWeight < 0) return 'error';
   if (remainingWeight === 0) return 'success';
   return 'normal';
@@ -120,8 +122,7 @@ function calculateWeightBreakdown(
   >,
   catalogReady: boolean,
 ): VehicleWeightBreakdown {
-  // Before the catalog has loaded no mounted item can be resolved, so every
-  // equipment-derived term is 0.
+  // Before catalog readiness, mounted definitions remain unresolved.
   const lookup = getEquipmentLookupService();
   return computeVehicleWeightBreakdown(state, (equipmentId) =>
     catalogReady ? lookup.getById(equipmentId) : undefined,
@@ -214,6 +215,7 @@ function validateStatusBarState(
   weights: VehicleWeightBreakdown,
 ): VehicleValidation {
   return validateVehicleConstruction({
+    weightCalculationComplete: weights.isComplete,
     unitType: state.unitType,
     hasNoControlSystems: state.hasNoControlSystems,
     tonnage: state.tonnage,
@@ -468,7 +470,7 @@ export function VehicleStatusBar({
           {armorStats.allocated} armor
         </span>
         <span className={getCompactStatusClass(weightStatus)}>
-          {formatTons(weightBreakdown.remaining)} free
+          {formatVehicleWeight(weightBreakdown.remaining)} free
         </span>
         {bvBreakdown && (
           <span
@@ -494,8 +496,12 @@ export function VehicleStatusBar({
 
       <StatusItem
         label="Weight Free"
-        value={formatTons(weightBreakdown.remaining)}
-        subValue={`${((weightBreakdown.remaining / tonnage) * 100).toFixed(0)}%`}
+        value={formatVehicleWeight(weightBreakdown.remaining)}
+        subValue={
+          weightBreakdown.remaining === null
+            ? undefined
+            : `${((weightBreakdown.remaining / tonnage) * 100).toFixed(0)}%`
+        }
         status={weightStatus}
       />
 
@@ -519,16 +525,9 @@ export function VehicleStatusBar({
       {turret && (
         <StatusItem
           label="Turret"
-          value={weightBreakdown.turretMounted.toFixed(1)}
-          // No turret cap: it may use whatever the vehicle has left, so show
-          // its mounted mass against turret-held plus free weight, and flag it
-          // only when the vehicle as a whole is overweight.
-          subValue={` / ${formatTons(
-            weightBreakdown.turretMounted +
-              weightBreakdown.turret +
-              weightBreakdown.remaining,
-          )}`}
-          status={weightBreakdown.remaining < 0 ? 'error' : 'normal'}
+          value={formatVehicleWeight(weightBreakdown.turretMounted)}
+          subValue="mounted"
+          status={weightStatus}
         />
       )}
 
