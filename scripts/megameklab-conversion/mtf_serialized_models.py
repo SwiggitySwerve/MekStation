@@ -107,3 +107,4 @@ class SerializedUnit:
     mulId: Optional[int] = None
     role: Optional[str] = None
     source: Optional[str] = None
+    lamType: Optional[str] = None

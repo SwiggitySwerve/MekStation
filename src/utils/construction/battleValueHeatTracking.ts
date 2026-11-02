@@ -157,6 +157,7 @@ function calculateWeightBonus(config: OffensiveBVConfig): number {
 
 export function calculateOffensiveBVWithHeatTracking(
   config: OffensiveBVConfig,
+  movement: { speedFactor?: number; heat?: number } = {},
 ): OffensiveBVResult {
   const hasTC = config.hasTargetingComputer ?? false;
 
@@ -166,9 +167,11 @@ export function calculateOffensiveBVWithHeatTracking(
   }));
 
   const sortedWeapons = [...weaponsWithModifiers].sort(heatSorter);
-  const moveHeat = config.hasSCM
-    ? 0
-    : Math.max(calculateRunningHeat(config), calculateJumpHeat(config));
+  const moveHeat =
+    movement.heat ??
+    (config.hasSCM
+      ? 0
+      : Math.max(calculateRunningHeat(config), calculateJumpHeat(config)));
   const heatEfficiency = calculateHeatEfficiency(config, moveHeat);
   const heatTrackedWeapons = calculateHeatTrackedWeaponTotals(
     sortedWeapons,
@@ -181,11 +184,13 @@ export function calculateOffensiveBVWithHeatTracking(
   );
   const weightBonus = calculateWeightBonus(config);
 
-  const speedFactor = calculateOffensiveSpeedFactor(
-    config.runMP,
-    config.jumpMP,
-    config.umuMP ?? 0,
-  );
+  const speedFactor =
+    movement.speedFactor ??
+    calculateOffensiveSpeedFactor(
+      config.runMP,
+      config.jumpMP,
+      config.umuMP ?? 0,
+    );
   const physicalWeaponBV = config.physicalWeaponBV ?? 0;
   const offensiveEquipmentBV = config.offensiveEquipmentBV ?? 0;
   const baseOffensive =

@@ -118,7 +118,10 @@ export function ProtoMechCustomizer({
 }: ProtoMechCustomizerProps): React.ReactElement {
   return (
     <ProtoMechStoreContext.Provider value={store}>
-      <div className={`flex h-full flex-col ${className}`}>
+      <div
+        data-testid="protomech-customizer"
+        className={`flex h-full flex-col ${className}`}
+      >
         <ProtoMechCustomizerInner
           initialTab={initialTab}
           onTabChange={onTabChange}

@@ -1,4 +1,6 @@
 import type { AerospaceState } from '@/stores/aerospaceState';
+import type { BattleArmorState } from '@/stores/battleArmorState';
+import type { ProtoMechState } from '@/stores/protoMechState';
 /**
  * Unit Loader Service - Type Definitions
  *
@@ -118,6 +120,8 @@ export interface ILoadUnitResult {
 }
 
 export type FamilyEditorState =
+  | { readonly store: 'protomech'; readonly state: ProtoMechState }
+  | { readonly store: 'battlearmor'; readonly state: BattleArmorState }
   | { readonly store: 'vehicle'; readonly state: VehicleState }
   | { readonly store: 'aerospace'; readonly state: AerospaceState }
   | { readonly store: 'capital'; readonly state: ICapitalShipView };
