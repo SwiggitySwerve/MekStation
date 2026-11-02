@@ -9,11 +9,16 @@
  * Requirement: Construction Validation Rule Set
  */
 
+import { BattleArmorLocation } from '@/types/construction/UnitLocation';
 import {
   BA_VALIDATION_RULES,
   BA_WEIGHT_CLASS_LIMITS,
   IBattleArmorUnit,
 } from '@/types/unit/BattleArmorInterfaces';
+import {
+  type IBattleArmor,
+  BattleArmorWeightClass,
+} from '@/types/unit/PersonnelInterfaces';
 
 import { validateAntiMechEquipment } from './antiMech';
 import { camoBodySlots, validateArmor } from './armor';
@@ -294,4 +299,47 @@ export function validateBattleArmorConstruction(
  */
 export function registeredBARules(): readonly string[] {
   return Object.values(BA_VALIDATION_RULES);
+}
+
+/** Source verifier rules at MegaMek 48fcb2f64: BattleArmor:1592 and
+ * TestEntity:1528-1554; TestBattleArmor:931-962. Editor policy above is separate.
+ * Basic Clan armor's approximate 2868 introduction becomes 2863; verifier margin is 5.
+ * Other equipment tech dates and critical-slot requirements need catalog metadata.
+ */
+export function validateBattleArmorSource(unit: IBattleArmor): string[] {
+  const caps: Record<BattleArmorWeightClass, number> = {
+    'PA(L)': 2,
+    Light: 6,
+    Medium: 10,
+    Heavy: 14,
+    Assault: 18,
+  };
+  const errors: string[] = [];
+  const max = caps[unit.baWeightClass];
+  if (unit.armorPerTrooper > max)
+    errors.push(
+      `Armor per trooper (${unit.armorPerTrooper}) exceeds maximum (${max}) for ${unit.baWeightClass}`,
+    );
+  if (
+    unit.armorType === 28 &&
+    [2, 6, 8, 10, 12].includes(unit.sourceArmorTech ?? -1) &&
+    unit.metadata.year + 5 < 2863
+  )
+    errors.push('BA Standard (Basic) armor has intro date of 2863');
+  for (const mount of unit.equipment) {
+    if (
+      /^(BABattleMechNIU|BattleMech Neural Interface Unit)$/i.test(
+        mount.equipmentId.split(':')[0],
+      ) &&
+      !/:(Body|LA|RA|TU)(:|$)/i.test(mount.equipmentId) &&
+      ![
+        BattleArmorLocation.BODY,
+        BattleArmorLocation.LEFT_ARM,
+        BattleArmorLocation.RIGHT_ARM,
+        BattleArmorLocation.TURRET,
+      ].includes(mount.location)
+    )
+      errors.push('Unallocated Equipment:\n- BattleMech Neural Interface Unit');
+  }
+  return errors;
 }
