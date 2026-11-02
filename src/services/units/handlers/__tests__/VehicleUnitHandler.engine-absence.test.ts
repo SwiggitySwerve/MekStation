@@ -23,8 +23,14 @@ describe('explicit BLK NONE independently of trailer identity', () => {
     expect(loaded.data.unit.engineType).toBe(8);
     expect(loaded.data.unit.engineRating).toBe(0);
     expect(loaded.data.unit.isTrailer).toBe(true);
-    expect(handler.calculateWeight(loaded.data.unit)).toBe(
-      loaded.data.unit.tonnage * 0.1 + loaded.data.unit.totalArmorPoints / 16,
+    expect(
+      computeVehicleEngineWeight(loaded.data.unit.engineRating, null, {
+        tonnage: loaded.data.unit.tonnage,
+        motionType: loaded.data.unit.motionType,
+      }),
+    ).toBe(0);
+    expect(() => handler.calculateWeight(loaded.data.unit)).toThrow(
+      /weight is incomplete/,
     );
   });
 
