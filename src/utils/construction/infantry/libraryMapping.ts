@@ -10,6 +10,7 @@ import {
 import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { InfantryMotive } from '@/types/unit/InfantryInterfaces';
 import { InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
+import { infantryEditorSchema } from '@/types/unit/SmallUnitSerialization';
 import { getEquipmentEntry } from '@/utils/construction/equipmentBVResolver';
 
 import { FIELD_GUN_CATALOG, buildFieldGun } from './fieldGuns';
@@ -92,6 +93,8 @@ export function infantryLibraryBVInput(
 export function mapInfantryDefinition(
   definition: IUnitContract,
 ): Partial<InfantryState> {
+  if (definition.smallUnitEditor !== undefined)
+    return infantryEditorSchema.parse(definition.smallUnitEditor);
   const source = z
     .object({
       unitType: z.literal('Infantry'),

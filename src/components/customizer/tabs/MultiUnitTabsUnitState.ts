@@ -1,5 +1,6 @@
 import type { AerospaceStore } from '@/stores/aerospaceState';
 import type { BattleArmorStore } from '@/stores/battleArmorState';
+import type { InfantryStore } from '@/stores/infantryState';
 import type { ProtoMechStore } from '@/stores/protoMechState';
 import type { UnitStore } from '@/stores/unitState';
 import type { TabInfo } from '@/stores/useTabManagerStore';
@@ -67,7 +68,8 @@ interface LibrarySaveStore {
     | VehicleStore
     | AerospaceStore
     | ProtoMechStore
-    | BattleArmorStore;
+    | BattleArmorStore
+    | InfantryStore;
   setState(
     partial: Partial<
       Pick<
@@ -84,6 +86,7 @@ export function getLibrarySaveStore(
 ): LibrarySaveStore | undefined {
   if (unitType === UnitType.PROTOMECH) return getProtoMechStore(tabId);
   if (unitType === UnitType.BATTLE_ARMOR) return getBattleArmorStore(tabId);
+  if (unitType === UnitType.INFANTRY) return getInfantryStore(tabId);
   if (unitType && isEditableAerospace({ unitType }))
     return getAerospaceStore(tabId);
   return unitType && isVehicleUnitShape({ unitType })
