@@ -27,6 +27,8 @@ export interface VehicleWeaponMount {
   bvOverride?: number;
   /** Artemis type affecting BV, if linked. */
   artemisType?: 'iv' | 'v';
+  /** Native F_INFANTRY fact: infantry weapons are exempt from support FCS scaling. */
+  isInfantry?: boolean;
 }
 
 /**

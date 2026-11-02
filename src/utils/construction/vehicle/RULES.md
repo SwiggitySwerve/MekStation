@@ -400,3 +400,25 @@ MG APC, Chaparral and Bandit E inputs, plus mixed-bin caps and overrides.
 Catalog BV values, missing bins, shot quantities, support fire-control factors
 and the deferred vehicle-flamer mapping remain separate concerns. No bin value
 is inferred from its packaging or substituted for missing catalog data.
+
+## Support fire control, targeting computers and assembled BV movement
+
+`vehicleBVOffensive.ts` applies support basic FCS 0.9 (before advanced),
+advanced FCS 1, or absent FCS 0.8 to non-infantry WeaponType mounts and capped
+ammo. Resolved miscellaneous equipment receives neither FCS nor TC scaling.
+Direct-fire TC 1.25 replaces weapon FCS scaling; ammo still receives FCS.
+Weight and offensive equipment are not scaled. Mounted Targeting catalog
+entries activate TC. Infantry callers supply the native F_INFANTRY fact;
+unrepresented infantry equipment/metadata remains a catalog boundary gap.
+The shared weapon owner retains the existing Mech direct-fire classifier.
+Pin: BVCalculator.java:880-887,966-976,1076-1086 at 48fcb2f64a1b.
+
+`vehicleBVMovement.ts:getVehicleBVMovement` assembles undamaged Tank/VTOL
+run/jump for defense and offense. Active MASC/supercharger/VTOL jet boosters
+use twice cruise; hydrofoil rounds cruise x1.25, dune buggy subtracts one,
+and installed vehicle jump jets contribute one MP each. Modular armor is
+ignored by BV settings. Trains use adjusted cruise for offensive speed;
+original zero-run trailers use one. Jump/2 retains shared Java-style rounding.
+Legacy public TMM/effective-MP helpers and submarine override are preserved.
+Pin: Tank.java:387-418,1570-1575,2034-2042; Entity.java:4004-4016;
+CombatVehicleBVCalculator.java:147-163; MPCalculationSetting.java:123-136.
