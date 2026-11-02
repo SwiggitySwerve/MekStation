@@ -8,6 +8,13 @@ import { expect, test, type Page } from '@playwright/test';
  */
 test.use({ serviceWorkers: 'block' });
 test.setTimeout(120_000);
+// A blocked registration resolves to undefined and trips the dev error overlay
+// over the page; match a browser without offline-worker support instead.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() =>
+    Reflect.deleteProperty(Navigator.prototype, 'serviceWorker'),
+  );
+});
 
 const VIEWPORTS = [
   { name: 'narrow', width: 390, height: 844 },
