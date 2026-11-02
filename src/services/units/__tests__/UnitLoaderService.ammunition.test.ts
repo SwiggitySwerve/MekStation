@@ -309,6 +309,16 @@ describe('BattleMech BV source parity', () => {
     },
   );
 
+  it('rounds primitive effective ratings upward at the editor boundary', async () => {
+    const loaded = await load('commando-com-1a');
+    const state = { ...loaded, engineRating: 115 };
+    expect(buildBattleMechPreviewProjection(state).walkMP).toBe(4);
+    const { result } = renderHook(() =>
+      useUnitCalculations(state.tonnage, state),
+    );
+    expect(result.current.walkMP).toBe(4);
+  });
+
   it.each(['armor', 'weapon', 'ammo', 'CASE'] as const)(
     '%s edits agree with independently edited gate inputs',
     async (change) => {
