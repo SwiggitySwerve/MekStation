@@ -227,4 +227,63 @@ describe('usePreBattleSkirmish recovery persistence', () => {
       variant: 'error',
     });
   });
+  it('keys adapted construction by the launched roster instance while retaining qualified references', async () => {
+    mockAdaptUnit.mockImplementation(
+      async (ref: string, options: { side: GameSide }) =>
+        makeAdaptedUnit(ref.split(':').at(-1) ?? ref, options.side),
+    );
+    mockPersistInteractiveLaunchRecoveryLog.mockResolvedValue(undefined);
+    const setInteractiveSession = jest.fn();
+    const config = makeConfig();
+    const mixed = {
+      ...config,
+      player: {
+        units: [
+          makeSelection('vehicles:tomahawk-c'),
+          makeSelection('aerospace:tomahawk-c'),
+        ],
+      },
+    };
+    const router: NextRouter = {
+      route: '/',
+      pathname: '/',
+      query: {},
+      asPath: '/',
+      basePath: '',
+      isFallback: false,
+      isReady: true,
+      isPreview: false,
+      isLocaleDomain: false,
+      push: jest.fn().mockResolvedValue(true),
+      replace: jest.fn().mockResolvedValue(true),
+      reload: jest.fn(),
+      back: jest.fn(),
+      forward: jest.fn(),
+      prefetch: jest.fn().mockResolvedValue(undefined),
+      beforePopState: jest.fn(),
+      events: { on: jest.fn(), off: jest.fn(), emit: jest.fn() },
+    };
+    const { result } = renderHook(() =>
+      usePreBattleSkirmish({
+        encounter: makeEncounter(),
+        router,
+        setInteractiveSession,
+        showToast: jest.fn(),
+        seedOverride: 123,
+      }),
+    );
+    await act(async () => {
+      await result.current.launchSkirmish(mixed);
+    });
+    expect(setInteractiveSession).toHaveBeenCalledTimes(1);
+    const live = setInteractiveSession.mock.calls[0][0].getSession();
+    expect(
+      live.units.slice(0, 2).map((u: { unitRef: string }) => u.unitRef),
+    ).toEqual(['vehicles:tomahawk-c', 'aerospace:tomahawk-c']);
+    for (const unit of live.units)
+      expect(live.currentState.units[unit.id].armor).toMatchObject({
+        head: 9,
+        center_torso: 31,
+      });
+  });
 });
