@@ -195,6 +195,7 @@
           ],
           "description": "Armor type"
         },
+        "sourceTechLevel": { "type": "integer", "minimum": -1 },
         "barRating": {
           "type": "integer",
           "minimum": 2,
@@ -415,6 +416,12 @@
             },
             "description": "Specific slot indices"
           },
+          "unitLocation": { "type": "string" },
+          "isDWPMounted": { "type": "boolean" },
+          "isSquadSupportWeapon": { "type": "boolean" },
+          "isAPMMounted": { "type": "boolean" },
+          "shots": { "type": "integer", "minimum": 0 },
+          "size": { "type": "number", "minimum": 0 },
           "isRearMounted": {
             "type": "boolean",
             "default": false,
@@ -549,16 +556,45 @@
     {
       "properties": {
         "unitType": {
-          "not": {
-            "anyOf": [
-              { "$ref": "#/$defs/capitalUnitType" },
-              { "$ref": "#/$defs/infantryUnitType" }
-            ]
-          }
+          "allOf": [
+            {
+              "not": {
+                "$ref": "#/$defs/capitalUnitType"
+              }
+            },
+            {
+              "not": {
+                "$ref": "#/$defs/battleArmorUnitType"
+              }
+            },
+            {
+              "not": {
+                "$ref": "#/$defs/infantryUnitType"
+              }
+            }
+          ]
         },
         "armor": {
           "type": "object",
-          "properties": { "type": { "$ref": "#/$defs/standardArmorType" } }
+          "properties": {
+            "type": { "$ref": "#/$defs/standardArmorType" },
+            "perTrooper": false,
+            "sourceTechLevel": false
+          }
+        },
+        "equipment": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "unitLocation": false,
+              "isDWPMounted": false,
+              "isSquadSupportWeapon": false,
+              "isAPMMounted": false,
+              "shots": false,
+              "size": false
+            }
+          }
         },
         "tonnage": { "type": "number", "maximum": 250 }
       }
@@ -569,7 +605,25 @@
         "unitType": { "enum": ["Support Vehicle", "SupportVehicle"] },
         "armor": {
           "type": "object",
-          "properties": { "type": { "$ref": "#/$defs/standardArmorType" } }
+          "properties": {
+            "type": { "$ref": "#/$defs/standardArmorType" },
+            "perTrooper": false,
+            "sourceTechLevel": false
+          }
+        },
+        "equipment": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "unitLocation": false,
+              "isDWPMounted": false,
+              "isSquadSupportWeapon": false,
+              "isAPMMounted": false,
+              "shots": false,
+              "size": false
+            }
+          }
         },
         "tonnage": { "type": "number", "maximum": 600 }
       }
@@ -578,6 +632,24 @@
       "required": ["unitType"],
       "properties": {
         "unitType": { "$ref": "#/$defs/capitalUnitType" },
+        "armor": {
+          "type": "object",
+          "properties": { "perTrooper": false, "sourceTechLevel": false }
+        },
+        "equipment": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "unitLocation": false,
+              "isDWPMounted": false,
+              "isSquadSupportWeapon": false,
+              "isAPMMounted": false,
+              "shots": false,
+              "size": false
+            }
+          }
+        },
         "tonnage": { "type": "number", "maximum": 2500000 },
         "otherCrew": { "type": "integer", "minimum": 0 },
         "driveCoreType": { "type": "integer", "minimum": 0, "maximum": 4 },
@@ -596,11 +668,65 @@
     {
       "required": ["unitType"],
       "properties": {
+        "unitType": { "$ref": "#/$defs/battleArmorUnitType" },
+        "tonnage": { "type": "number", "maximum": 250 },
+        "weightClass": { "type": "string" },
+        "chassisType": { "type": "string", "enum": ["BIPED", "QUAD"] },
+        "motionType": { "type": "string" },
+        "squadSize": { "type": "integer", "minimum": 1 },
+        "armorPerTrooper": { "type": "integer", "minimum": 0 },
+        "manipulators": {
+          "type": "object",
+          "properties": {
+            "rightArm": { "type": ["string", "null"] },
+            "leftArm": { "type": ["string", "null"] }
+          },
+          "additionalProperties": false
+        },
+        "hasAntiPersonnelMount": { "type": "boolean" },
+        "hasModularWeaponMount": { "type": "boolean" },
+        "clanChassis": { "type": "boolean" },
+        "isExoskeleton": { "type": "boolean" },
+        "clanExoWithoutHarJel": { "type": "boolean" },
+        "turretSize": { "type": "integer", "minimum": 0 },
+        "hasModularTurret": { "type": "boolean" },
+        "movement": {
+          "type": "object",
+          "properties": {
+            "groundMP": { "type": "integer", "minimum": 0 },
+            "jumpMP": { "type": "integer", "minimum": 0 },
+            "umuMP": { "type": "integer", "minimum": 0 },
+            "vtolMP": { "type": "integer", "minimum": 0 }
+          }
+        }
+      }
+    },
+    {
+      "required": ["unitType"],
+      "properties": {
         "unitType": { "$ref": "#/$defs/infantryUnitType" },
         "tonnage": { "type": "number", "maximum": 250 },
         "armor": {
           "type": "object",
-          "properties": { "type": { "$ref": "#/$defs/standardArmorType" } }
+          "properties": {
+            "type": { "$ref": "#/$defs/standardArmorType" },
+            "perTrooper": false,
+            "sourceTechLevel": false
+          }
+        },
+        "equipment": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "unitLocation": false,
+              "isDWPMounted": false,
+              "isSquadSupportWeapon": false,
+              "isAPMMounted": false,
+              "shots": false,
+              "size": false
+            }
+          }
         },
         "motiveType": { "type": "string", "minLength": 1 },
         "motionType": { "type": "string", "minLength": 1 },
@@ -725,6 +851,9 @@
         "STANDARD_PROTOMEK"
       ],
       "description": "Armor type"
+    },
+    "battleArmorUnitType": {
+      "enum": ["BattleArmor", "Battle Armor", "BATTLEARMOR"]
     },
     "capitalUnitType": {
       "enum": ["DropShip", "JumpShip", "WarShip", "Space Station"]

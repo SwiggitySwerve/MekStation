@@ -107,37 +107,61 @@ test('an unsupported discriminator guard remains enforced by its alternative', (
   );
 });
 
-test('family exclusions fold the mech object without adding infantry properties', () => {
+test('family exclusions fold without widening the mech object or its closed mounts', () => {
   const input = schema(1000);
-  input.properties.unitType.enum.push('Infantry');
+  input.properties.unitType.enum.push('BA');
+  input.properties.equipment = {
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: { id: { type: 'string' }, unitLocation: { type: 'string' } },
+      additionalProperties: false,
+    },
+  };
   input.anyOf = [
     {
       properties: {
         unitType: {
-          not: { anyOf: [{ enum: ['Capital'] }, { enum: ['Infantry'] }] },
+          allOf: [{ not: { enum: ['Capital'] } }, { not: { enum: ['BA'] } }],
         },
         tonnage: { type: 'number', maximum: 250 },
+        equipment: {
+          type: 'array',
+          items: { type: 'object', properties: { unitLocation: false } },
+        },
       },
     },
     {
       properties: {
-        unitType: { enum: ['Capital'] },
-        tonnage: { type: 'number', maximum: 900 },
-      },
-    },
-    {
-      properties: {
-        unitType: { enum: ['Infantry'] },
-        specializations: { type: 'integer', minimum: 0 },
+        unitType: { enum: ['BA'] },
+        squadSize: { type: 'integer' },
       },
     },
   ];
-  const result = expandUnitTypeRequirements(input);
-  assert.equal(result.anyOf[0].anyOf, undefined);
-  assert.equal(result.anyOf[0].properties.tonnage.maximum, 20);
-  assert.equal(result.anyOf[0].properties.specializations, undefined);
-  assert.equal(
-    result.anyOf[1].anyOf[2].properties.specializations.type,
-    'integer',
+  const mech = expandUnitTypeRequirements(input).anyOf[0];
+  assert.equal(mech.anyOf, undefined);
+  assert.equal(mech.properties.squadSize, undefined);
+  assert.equal(mech.properties.equipment.items.properties.unitLocation, false);
+  assert.deepEqual(mech.properties.equipment.items.properties.id, {
+    type: 'string',
+  });
+  assert.deepEqual(input.properties.equipment.items.properties.unitLocation, {
+    type: 'string',
+  });
+});
+
+test('unsupported mount exclusions stay enforced instead of being folded away', () => {
+  const input = schema(1000);
+  input.anyOf = [
+    {
+      properties: {
+        tonnage: { type: 'number', maximum: 250 },
+        equipment: { minItems: 1 },
+      },
+    },
+  ];
+  assert.deepEqual(
+    expandUnitTypeRequirements(input).anyOf[0].anyOf,
+    input.anyOf,
   );
 });

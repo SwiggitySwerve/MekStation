@@ -122,3 +122,33 @@ Kit precedence, dermal/TSM and beast effects follow ConvInfantry.calcDamageDivis
 JSON Schema validates each returned unit. Authority: MegaMek 48fcb2f6
 BLKInfantryFile and its referenced infantry, equipment and pilot-option classes.
 Regression coverage: `test_blk_infantry.py`, `unit.infantry.contract.test.ts`.
+
+## Battle armor source fidelity
+
+`blk_battlearmor_fields.py` owns BA source facts (MegaMek 48fcb2f6,
+BLKBattleArmorFile, BattleArmor, EntityWeightClass). Name, year, type, trooper
+count, weight class, chassis, motion, cruiseMP and one armor integer are required.
+Unknown enum values, malformed numbers and equipment suffixes fail. Zero ground
+MP survives. Optional Model/jumpingMP/armor_type use Java defaults: empty/0/28.
+Weight codes are 0..4 (PAL..ASSAULT). Tonnage follows Java setWeight(squadSize)
+(the abstract trooper-count weight, not physical suit mass). Tech/rules and armor use the shared strict
+owners above; mixed chassis allegiance is retained separately as clanChassis.
+
+`jumpMP` retains originalJumpMP; UMU/VTOL expose that same propulsion rating as
+umuMP/vtolMP, never from an invented UMUPM tag. These ratings are alternatives.
+Equipment retains both unitLocation (Point/Squad/trooper/NONE) and physical
+location (NONE/BODY/arms/TURRET), plus DWP/SSWM/APM, shots and size. Manipulators
+and AP/modular mounts remain equipment; dedicated manipulator fields summarize
+the squad mounts. Armor sourceTechLevel preserves armor_tech_level before the
+legacy armor_tech alias (including its -1 sentinel); Java normalization/defaulting is deferred. Slotless movement equipment retains duplicates explicitly in
+source; Java's legacy propulsion fallback adds one only when absent. Turret and
+exoskeleton source facts survive. Automatic one-shot ammo, resolved equipment
+aliases and effective movement remain later loader/BV responsibilities.
+Regression coverage: test_blk_battlearmor_fidelity.py and 22 pinned BLK texts.
+
+BA root facts and propulsion declarations belong to the battle-armor unitType
+alternative. Non-BA alternatives forbid BA armor and equipment annotations. The
+generator folds those family exclusions into the existing BattleMech object API;
+recorded combat retains exactly 21 construction keys. Regression coverage is
+unit.battlearmor-scope.contract.test.ts and the unchanged customCombatDefinition
+snapshot test.

@@ -1,5 +1,3 @@
-import { stringEnumValues } from './schema-local-definitions.mjs';
-
 /**
  * json-schema-to-zod does not implement if/then. Expand the unit schema's
  * discriminator requirements into ordinary union branches before conversion.
@@ -44,7 +42,7 @@ export function expandUnitTypeRequirements(schema) {
     delete branch.allOf;
     branch.properties.unitType.enum = group.unitTypes;
     for (const rule of group.rules) applyRequirements(branch, rule.then);
-    foldNumericAlternative(branch);
+    foldFamilyAlternative(branch);
     return branch;
   });
   return {
@@ -55,26 +53,33 @@ export function expandUnitTypeRequirements(schema) {
   };
 }
 
-/** Preserve the generated object's public shape when its discriminator rules out alternatives. */
-function foldNumericAlternative(branch) {
+/** Fold a sole family alternative while preserving its constraints and object API. */
+function foldFamilyAlternative(branch) {
   if (!branch.anyOf) return;
   const alternatives = branch.anyOf.filter((clause) => {
     const discriminator = clause.properties?.unitType;
-    return branch.properties.unitType.enum.some(
-      (type) =>
-        (!discriminator?.enum || discriminator.enum.includes(type)) &&
-        !(stringEnumValues(discriminator?.not) ?? []).includes(type),
+    const guards = discriminator?.allOf ?? [discriminator ?? {}];
+    return branch.properties.unitType.enum.some((type) =>
+      guards.every(
+        (guard) =>
+          (!guard.enum || guard.enum.includes(type)) &&
+          (!guard.not?.enum || !guard.not.enum.includes(type)),
+      ),
     );
   });
   if (alternatives.length !== 1) return;
   const clause = alternatives[0];
   if (Object.keys(clause).some((key) => key !== 'properties')) return;
   const discriminator = clause.properties?.unitType;
+  const guards = discriminator?.allOf ?? [discriminator ?? {}];
   if (
-    Object.keys(discriminator ?? {}).some(
-      (key) => !['enum', 'not'].includes(key),
+    (discriminator?.allOf && Object.keys(discriminator).join() !== 'allOf') ||
+    guards.some(
+      (guard) =>
+        Object.keys(guard).some((key) => !['enum', 'not'].includes(key)) ||
+        (guard.not && Object.keys(guard.not).join() !== 'enum'),
     ) ||
-    (discriminator?.not && !stringEnumValues(discriminator.not))
+    !guards.length
   )
     return;
   const armorType = clause.properties?.armor?.properties?.type;
@@ -85,14 +90,41 @@ function foldNumericAlternative(branch) {
     ) ||
       (clause.properties.armor.type !== undefined &&
         clause.properties.armor.type !== 'object') ||
-      Object.keys(clause.properties.armor.properties).join() !== 'type' ||
+      Object.entries(clause.properties.armor.properties).some(
+        ([key, value]) => key !== 'type' && value !== false,
+      ) ||
       !branch.properties.armor?.properties?.type?.anyOf?.some(
         (type) => JSON.stringify(type) === JSON.stringify(armorType),
       ))
   )
     return;
+  const armorExclusions = Object.fromEntries(
+    Object.entries(clause.properties?.armor?.properties ?? {}).filter(
+      ([key]) => key !== 'type',
+    ),
+  );
+  const equipment = clause.properties?.equipment;
+  if (
+    (Object.keys(armorExclusions).length &&
+      branch.properties.armor?.additionalProperties !== false) ||
+    (equipment &&
+      (branch.properties.equipment?.items?.additionalProperties !== false ||
+        Object.keys(equipment).some(
+          (key) => !['type', 'items'].includes(key),
+        ) ||
+        (equipment.type !== undefined && equipment.type !== 'array') ||
+        Object.keys(equipment.items ?? {}).some(
+          (key) => !['type', 'properties'].includes(key),
+        ) ||
+        (equipment.items?.type !== undefined &&
+          equipment.items.type !== 'object') ||
+        Object.values(equipment.items.properties).some(
+          (value) => value !== false,
+        )))
+  )
+    return;
   const entries = Object.entries(clause.properties ?? {}).filter(
-    ([key]) => key !== 'unitType' && key !== 'armor',
+    ([key]) => !['unitType', 'armor', 'equipment'].includes(key),
   );
   if (
     !entries.length ||
@@ -113,6 +145,11 @@ function foldNumericAlternative(branch) {
   }
   if (armorType)
     branch.properties.armor.properties.type = structuredClone(armorType);
+  Object.assign(branch.properties.armor?.properties ?? {}, armorExclusions);
+  Object.assign(
+    branch.properties.equipment?.items?.properties ?? {},
+    equipment?.items.properties ?? {},
+  );
   delete branch.anyOf;
 }
 
