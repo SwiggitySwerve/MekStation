@@ -62,13 +62,27 @@ caps SHALL use the inherited owner. KF drive and sail integrity SHALL add no
 BV. Explosive penalties SHALL be zero and the defensive factor SHALL be 1.
 The capital type override SHALL NOT inherit the aircraft stealth addition.
 
+Complete scope SHALL require fully resolved mounts and represented heat,
+cockpit and WarShip thrust facts. The shared final stage SHALL use G4/P5
+without assigned skills; unresolved units SHALL retain defensive-only scope,
+indexed mount reasons and undefined offense/final. WarShips SHALL use eight
+arcs, primary candidates nose/aft/broadsides and the opposite third weighted
+arc. JumpShip speed-factor MP SHALL be fixed at 1; station MP SHALL be 0.
+
 #### Scenario: Capital defense without an invented total
 
-- **GIVEN** Comitatus (2995), Aegis (2582) or Crucible with native defensive equipment facts
+- **GIVEN** Comitatus (2995), Aegis (2582) or Crucible with native defensive equipment facts but absent offensive stage facts
 - **WHEN** domain or contract input reaches BV dispatch
 - **THEN** defense SHALL be 2142, 12920 or 1064, respectively
 - **AND** calculationScope SHALL be defensive-only with offensive and final BV undefined
 - **AND** DropShip, fighter and small-craft results SHALL remain unchanged
+
+#### Scenario: Supported capital mounts and unresolved identities
+
+- **GIVEN** a capital unit with represented heat and stage facts
+- **WHEN** all mounts resolve through the shared large-aerospace owner
+- **THEN** dispatch SHALL compose offense and the shared final stage with complete scope
+- **AND** any unresolved capital/sub-capital weapon, defensive qualifier or ammo quantity SHALL retain defensive-only scope with its reason
 
 #### Scenario: Required capital defense facts
 
