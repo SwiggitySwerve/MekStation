@@ -1,0 +1,47 @@
+{
+  "id": "foot-triplus-contubernium-mhaf-flamer-3049",
+  "chassis": "Foot Triplus Contubernium (MHAF)",
+  "model": "(Flamer 3049)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3049,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 10,
+    "squadCount": 3,
+    "totalTroopers": 30
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Marian Hegemony Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "marian-hegemony-infantry-kit",
+      "name": "Marian Hegemony Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "flamer-man-portable",
+    "name": "Flamer (Man-Portable)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Infantry within the Legiones Marianes form the backbone of planetary garrison and territorial defense, freeing the Hegemony's limited BattleMech assets for offensive operations and prestige assignments. A triplus contubernium, or triple tent-group, combines three squads of ten into the Marian equivalent of a standard Inner Sphere platoon. Foot triplus contubernia form the primary garrison infantry of the Hegemony, holding defensive lines and providing the manpower that auxiliary legions depend on for territorial control. Support troops carry man-portable flamers that project streams of burning chemicals, providing devastating area-effect capability against infantry and structures at the cost of short range and the vulnerability of the operator's fuel tank.</p>"
+  }
+}

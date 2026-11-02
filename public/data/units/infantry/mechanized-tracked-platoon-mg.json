@@ -1,0 +1,49 @@
+{
+  "id": "mechanized-tracked-platoon-mg",
+  "chassis": "Mechanized Tracked Platoon",
+  "model": "(MG)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "EARLY_SPACEFLIGHT",
+  "year": 1950,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "machine-gun-portable",
+    "name": "Machine Gun (Portable)",
+    "count": 2
+  },
+  "mulId": 2141,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Mechanized tracked platoons move their infantry in armored personnel carriers fitted with tracks for reliable all-terrain performance. Tracked APCs handle mud, snow, rubble, and rough ground better than any wheeled or hover alternative, making these platoons the preferred mechanized infantry for operations where terrain is uncertain or hostile. They sacrifice road speed compared to wheeled formations but gain the ability to keep pace with armored vehicles across broken ground. The APCs provide meaningful ballistic protection during transit, though troops must still dismount to fight effectively.</p>"
+  }
+}

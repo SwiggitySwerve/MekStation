@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-tracked-squad-lrm",
+  "chassis": "Mechanized Tracked Squad",
+  "model": "(LRM)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CLAN_INVASION",
+  "year": 3065,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 1,
+    "totalTroopers": 5
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrylrm",
+    "name": "InfantryLRM",
+    "count": 2
+  },
+  "source": "TW",
+  "fluff": {
+    "overview": "<p>Mechanized tracked squads ride in tracked armored personnel carriers at squad strength, providing all-terrain mechanized capability in a smaller package than a full platoon. These formations serve as armored reconnaissance elements, point security teams, and independent screening forces that need to cross rough ground reliably. The tracked APC handles terrain that would stop wheeled vehicles, and its armor protects the squad during movement, though the small troop count limits what the squad can hold once dismounted.</p>"
+  }
+}

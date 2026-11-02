@@ -1,0 +1,69 @@
+{
+  "id": "manei-domini-attack-squad-tau-zombie",
+  "chassis": "Manei Domini Attack Squad",
+  "model": "'Tau Zombie'",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "CLAN_INVASION",
+  "year": 3065,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 1,
+    "totalTroopers": 6
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-mauser-1200-lss",
+    "name": "Laser Rifle (Mauser 1200 LSS)"
+  },
+  "armorKit": "Word of Blake Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "word-of-blake-infantry-kit",
+      "name": "Word of Blake Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 3.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [
+    "artificial_pain_shunt",
+    "cyber_imp_visual",
+    "cyber_imp_laser",
+    "dermal_armor",
+    "tsm_implant",
+    "pl_ienhanced",
+    "suicide_implants"
+  ],
+  "prostheticEnhancements": {
+    "prostheticEnhancement1": "BALLISTIC",
+    "prostheticEnhancement2": "GRAPPLER"
+  },
+  "prostheticEnhancementCounts": {
+    "prostheticEnhancement1": 2,
+    "prostheticEnhancement2": 2
+  },
+  "secondaryWeapon": {
+    "id": "support-laser-heavy",
+    "name": "Support Laser (Heavy)",
+    "count": 4
+  },
+  "mulId": 3167,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Manei Domini's Tau Zombie attack squads were among the most terrifying infantry formations fielded during the Jihad. Deployed in six-trooper squads rather than full platoons, each Zombie carried an extensive array of cybernetic enhancements: myomer-augmented muscles, prosthetic arms mounting built-in TK Enforcer weapons and magnetic grapples, multi-modal cybernetic eyes with infrared and laser targeting, full-body dermal armor reinforced by triple-strength myomer implants, and pain shunts that blocked all but the most catastrophic injuries. Armed with Mauser 1200 LSS laser rifles and heavy support lasers, Zombies fought with a mechanical relentlessness that unnerved even veteran soldiers. They never surrendered and never fled, continuing to fight through wounds that would incapacitate ordinary infantry. Surgically implanted suicide charges ensured that even a fallen Zombie remained dangerous, detonating when killed to inflict casualties on anyone nearby.</p>"
+  }
+}

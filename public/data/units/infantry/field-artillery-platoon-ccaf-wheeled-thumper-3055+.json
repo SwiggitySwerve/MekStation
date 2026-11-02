@@ -1,0 +1,69 @@
+{
+  "id": "field-artillery-platoon-ccaf-wheeled-thumper-3055+",
+  "chassis": "Field Artillery Platoon (CCAF)",
+  "model": "(Wheeled Thumper 3055+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3055,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "Capellan Confederation Armor Kit (3050)",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "capellan-confederation-armor-kit-3050",
+      "name": "Capellan Confederation Armor Kit (3050)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isthumper",
+      "name": "ISThumper",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isthumperammo",
+      "name": "ISThumperAmmo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "rifle-striker-carbine",
+    "name": "Rifle (Striker Carbine)",
+    "count": 1
+  },
+  "fieldGuns": [
+    {
+      "id": "isthumper",
+      "name": "ISThumper"
+    },
+    {
+      "id": "isthumperammo",
+      "name": "ISThumperAmmo"
+    }
+  ],
+  "role": "Missile Boat",
+  "fluff": {
+    "overview": "<p>The Capellan Confederation has always relied on its infantry to compensate for the CCAF's chronic shortage of heavier assets. Conventional foot soldiers, drawn from the citizens' militia system that defines Capellan military service, form the backbone of garrison forces across the Confederation's commonalities. Field artillery platoons give CCAF ground commanders organic indirect fire support without requiring dedicated artillery vehicles. Operating crew-served tube or missile artillery pieces from mechanized transports, these platoons can displace and redeploy faster than vehicle-mounted artillery at the cost of lower rates of fire and less ammunition. Operating a Thumper artillery piece, these platoons provide light indirect fire support, effective for suppression and area denial against infantry and light vehicles.</p>"
+  }
+}

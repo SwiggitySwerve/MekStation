@@ -126,3 +126,8 @@ export function validateWeight(
     errors,
   };
 }
+
+/** Integer grams for MegaMek RoundWeight.truncate (RoundWeight.java:118). */
+export function roundWeightToGrams(tons: number): number {
+  return Math.round(tons * 1_000_000);
+}

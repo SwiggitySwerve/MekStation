@@ -1,0 +1,49 @@
+{
+  "id": "mechanized-wheeled-century-mhaf-mg",
+  "chassis": "Mechanized Wheeled Century (MHAF)",
+  "model": "(MG)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 3010,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "machine-gun-portable",
+    "name": "Machine Gun (Portable)",
+    "count": 2
+  },
+  "mulId": 7285,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Caesar's ongoing program to modernize the Legiones Marianes has extended to conventional infantry formations, with improved equipment and weapons gradually replacing older stockpiles across the Hegemony's auxiliary legions. A centuria, or century, is the Marian equivalent of a company-sized formation. Mechanized wheeled centuries use wheeled transports that offer good road speed and lower maintenance costs than tracked vehicles, well suited to the Hegemony's infrastructure-limited Periphery worlds where supply lines stretch thin. Support squads operate portable machine guns that deliver sustained automatic fire, providing suppression capability against enemy infantry and light vehicles.</p>"
+  }
+}

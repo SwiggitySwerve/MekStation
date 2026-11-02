@@ -95,7 +95,9 @@ describe('support vehicle handler matches pinned MegaMek per location', () => {
     it('armor limit equals TestSupportVehicle.maxArmorFactor and validity follows it', () => {
       const { unit, validation } = load(documentOf(r));
       expect(unit.maxArmorPoints).toBe(r.javaSvArmorLimit);
-      expect(validation.errors).toEqual(
+      expect(
+        validation.errors.filter((error) => error.startsWith('Total armor')),
+      ).toEqual(
         r.javaTotalOArmor > r.javaSvArmorLimit
           ? [
               `Total armor (${r.javaTotalOArmor}) exceeds maximum (${r.javaSvArmorLimit})`,

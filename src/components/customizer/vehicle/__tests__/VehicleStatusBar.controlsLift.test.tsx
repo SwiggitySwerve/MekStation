@@ -64,7 +64,8 @@ it('reacts through real store actions and preserves no-controls across persisten
   // Family alone drops the combat-only controls1.5/lift2.5 terms, and the
   // engine takes the support table (Engine.java:396-404, 470-474): the hover
   // 20% minimum 4.2 t rounds to the nearest half ton (RoundWeight.SV_ENGINE), 4.0.
-  expect(free()).toBe('14.5 t');
+  // Support D chassis is ceil(21 * .25) = 5.5 t.
+  expect(free()).toBe('11.5 t');
   act(() => store.getState().setHasNoControlSystems(true));
   const restored = hydrateOrCreateVehicle(store.getState().id, {
     name: 'Fallback',

@@ -1,0 +1,53 @@
+{
+  "id": "jump-triplus-contubernium-mhaf-flamer-3049+",
+  "chassis": "Jump Triplus Contubernium (MHAF)",
+  "model": "(Flamer 3049+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3049,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 10,
+    "squadCount": 3,
+    "totalTroopers": 30
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Marian Hegemony Infantry Kit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "marian-hegemony-infantry-kit",
+      "name": "Marian Hegemony Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "flamer-man-portable",
+    "name": "Flamer (Man-Portable)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Marian Hegemony Armed Forces organize their conventional infantry along Roman legionary lines, with formations structured into contubernia, centuries, and cohorts rather than the squads and platoons used by Inner Sphere armies. A triplus contubernium, or triple tent-group, combines three squads of ten. Jump-capable triplus contubernia are among the more capable light infantry formations in the MHAF, able to conduct company-scale airborne insertions and rapid seizure of key terrain features. Support troops carry man-portable flamers that project streams of burning chemicals, providing devastating area-effect capability against infantry and structures at the cost of short range and the vulnerability of the operator's fuel tank.</p>"
+  }
+}

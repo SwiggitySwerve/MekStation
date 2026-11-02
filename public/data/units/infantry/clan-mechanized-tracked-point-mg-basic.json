@@ -1,0 +1,49 @@
+{
+  "id": "clan-mechanized-tracked-point-mg-basic",
+  "chassis": "Clan Mechanized Tracked Point",
+  "model": "(MG Basic)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2807,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "machine-gun-portable",
+    "name": "Machine Gun (Portable)",
+    "count": 2
+  },
+  "mulId": 9615,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Conventional infantry within the Clan touman fills the garrison and screening roles that battle armor and BattleMech forces cannot efficiently sustain across dozens of occupied worlds. Mechanized Tracked Points travel in tracked armored personnel carriers that offer all-terrain capability at the cost of speed. Tracked vehicles handle rough ground, mud, and snow better than wheeled alternatives, making these Points reliable in difficult terrain where faster formations would bog down. Support squads operate portable machine guns that deliver sustained automatic fire, providing suppression capability that can pin down enemy infantry and threaten light vehicles.</p>"
+  }
+}

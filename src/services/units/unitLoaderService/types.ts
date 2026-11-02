@@ -11,6 +11,7 @@ import type { ISerializedFluff } from '@/types/unit/UnitSerialization';
 
 import { UnitState } from '@/stores/unitState';
 
+import type { ICapitalShipView } from './capitalShipView';
 import type {
   IUnitDefinitionReference,
   UnitDefinitionLoadErrorCode,
@@ -111,11 +112,12 @@ export interface ILoadUnitResult {
   readonly success: boolean;
   /** BattleMech editor state. */
   readonly state?: UnitState;
-  /** Editor state for a family with its own store (vehicles, aerospace). */
+  /** Editor state for a family with its own store, or a capital read-only view. */
   readonly familyState?: FamilyEditorState;
   readonly error?: string;
 }
 
 export type FamilyEditorState =
   | { readonly store: 'vehicle'; readonly state: VehicleState }
-  | { readonly store: 'aerospace'; readonly state: AerospaceState };
+  | { readonly store: 'aerospace'; readonly state: AerospaceState }
+  | { readonly store: 'capital'; readonly state: ICapitalShipView };

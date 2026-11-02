@@ -1,0 +1,104 @@
+{
+  "id": "field-gun-platoon-ccaf-tracked-ac5-2367+",
+  "chassis": "Field Gun Platoon (CCAF)",
+  "model": "(Tracked AC5 2367+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2367,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5"
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5"
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5"
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5"
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5"
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>The Capellan Confederation has always relied on its infantry to compensate for the CCAF's chronic shortage of heavier assets. Conventional foot soldiers, drawn from the citizens' militia system that defines Capellan military service, form the backbone of garrison forces across the Confederation's commonalities. Field gun platoons provide Capellan infantry with organic direct-fire heavy weapons, towing crew-served autocannons or other heavy guns to prepared positions. The weapon crew operates the gun while the remaining troopers provide local security with personal arms. Their crew-served autocannon/5 balances range and hitting power, serving as a versatile direct-fire support weapon from prepared positions.</p>"
+  }
+}

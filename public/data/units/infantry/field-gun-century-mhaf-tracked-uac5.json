@@ -1,0 +1,84 @@
+{
+  "id": "field-gun-century-mhaf-tracked-uac5",
+  "chassis": "Field Gun Century (MHAF)",
+  "model": "(Tracked UAC5)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3049,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Marian Hegemony Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "marian-hegemony-infantry-kit",
+      "name": "Marian Hegemony Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5"
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo"
+    },
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5"
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>The Marian military tradition places infantry at the foundation of its legionary system, with conventional soldiers organized into units bearing Latin designations that reflect the Hegemony's deliberate cultivation of Roman imperial identity. Marian field gun centuries tow crew-served weapons on wheeled, tracked, or motorized carriages, providing direct-fire anti-armor capability that supplements the Legiones Marianes' limited BattleMech strength. The century tows an ultra autocannon capable of firing at double the normal rate, delivering sustained suppressive fire at the risk of jamming under rapid fire.</p>"
+  }
+}

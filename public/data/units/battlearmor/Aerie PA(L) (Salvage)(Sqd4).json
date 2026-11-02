@@ -1,0 +1,105 @@
+{
+  "id": "aerie-pal-salvagesqd4",
+  "chassis": "Aerie PA(L)",
+  "model": "(Salvage)(Sqd4)",
+  "unitType": "BattleArmor",
+  "techBase": "CLAN",
+  "rulesLevel": "STANDARD",
+  "era": "CIVIL_WAR",
+  "year": 3069,
+  "weightClass": "PAL",
+  "chassisType": "BIPED",
+  "motionType": "JUMP",
+  "movement": {
+    "groundMP": 2,
+    "jumpMP": 3,
+    "umuMP": 0,
+    "vtolMP": 0
+  },
+  "tonnage": 4,
+  "squadSize": 4,
+  "armorPerTrooper": 1,
+  "armor": {
+    "type": "STEALTH",
+    "perTrooper": 1,
+    "sourceTechLevel": 2
+  },
+  "manipulators": {
+    "rightArm": "BASalvageArm",
+    "leftArm": "BAArmoredGlove"
+  },
+  "hasAntiPersonnelMount": true,
+  "hasModularWeaponMount": false,
+  "abilities": [],
+  "equipment": [
+    {
+      "id": "basalvagearm",
+      "name": "BASalvageArm",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "baarmoredglove",
+      "name": "BAArmoredGlove",
+      "location": "LEFT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "laser-rifle-mauser-iic-ias",
+      "name": "Laser Rifle (Mauser IIC IAS)",
+      "location": "RIGHT_ARM",
+      "isAPMMounted": true,
+      "unitLocation": "Point"
+    },
+    {
+      "id": "isbaspaceoperationsadaptation",
+      "name": "ISBASpaceOperationsAdaptation",
+      "location": "BODY",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-stealth-standard",
+      "name": "Clan BA Stealth (Standard)",
+      "location": "BODY",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-stealth-standard",
+      "name": "Clan BA Stealth (Standard)",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-stealth-standard",
+      "name": "Clan BA Stealth (Standard)",
+      "location": "LEFT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "clan-ba-stealth-standard",
+      "name": "Clan BA Stealth (Standard)",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Point"
+    },
+    {
+      "id": "bajumpjet",
+      "name": "BAJumpJet",
+      "location": "NONE",
+      "unitLocation": "NONE"
+    }
+  ],
+  "clanChassis": true,
+  "isExoskeleton": false,
+  "clanExoWithoutHarJel": false,
+  "mulId": 3673,
+  "role": "Ambusher",
+  "source": "TR:3075",
+  "fluff": {
+    "overview": "<p>The Aerie is a lightweight power armor suit developed by Clan Snow Raven in collaboration with Outworlds Alliance scientists in the late 3060s. Designed for space-borne operations, the suit fills a role that earlier Raven battle armor designs had left unaddressed: purpose-built combat capability in zero-gravity and shipboard environments. Classified as PA(L), the Aerie prioritizes agility and freedom of movement over heavy protection, making it well-suited for boarding actions, marine security, and close-quarters fighting aboard spacecraft. A dedicated salvage configuration extends the platform's utility beyond direct combat roles.</p>",
+    "capabilities": "<p>The Salvage configuration replaces the standard Aerie's extended life support module with a dedicated salvage arm mounted in the right forearm. This gives the suit a powerful tool for repair and recovery operations, allowing operators to strip components, cut through damaged hull plating, and manipulate heavy salvage in both gravity and zero-g environments.</p><p>All other systems remain unchanged from the base Aerie. The suit retains its jump capability, armored gloves, and minimal armor protection. The loss of extended life support limits operational endurance in vacuum, requiring more frequent cycling of troopers during prolonged salvage work outside a pressurized environment. The armored gloves still permit use of infantry weapons for self-defense, though most operators in salvage roles carry tools rather than firearms.</p>",
+    "deployment": "<p>Alliance technicians adopted the Salvage Aerie in four-trooper squads for fleet maintenance and recovery operations. These squads worked from Alliance naval stations and mobile repair platforms, supporting both Raven and Alliance vessels. Reports indicated the Alliance began forming independent salvage teams equipped with the suit, though their exact organizational purpose remained unclear to outside observers.</p>",
+    "history": "<p>Clan Snow Raven had developed numerous zero-g and space battle armor variants since the Golden Century, but none were purpose-built for space-borne operations. That changed in the 3060s when the Clan expanded beyond its homeworld holdings into the Deep Periphery. Collaboration with leading scientists in the Outworlds Alliance opened new research avenues, and the lightweight Aerie was the only design from this effort to enter widespread use. Production began at CSR Battle Armor Facility Alpha on Ramora, reaching full operational capacity around 3077. A second line at Quatre Belle was reportedly established by 3081.</p><p>The Salvage configuration originated in 3069 as a field modification after the destruction of the Swift Wing Naval Assault Star left the Ravens critically short on repair capacity. A senior technician persuaded the Clan Council to allocate resources for dedicated production. The timing proved fortunate. Shortly after production began, the Lum yards were destroyed and several resource facilities in the homeworlds were lost. Cut off and overstretched, the Ravens found themselves in desperate need of repair and salvage capability, and the Aerie filled that gap across the Clan's fleet operations throughout the Jihad era.</p>",
+    "manufacturer": "CSR Battle Armor Facility Alpha",
+    "primaryFactory": "Ramora"
+  }
+}

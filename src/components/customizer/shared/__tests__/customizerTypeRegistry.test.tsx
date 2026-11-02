@@ -26,6 +26,7 @@ import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import { AerospacePreviewTab } from '../../aerospace/AerospacePreviewTab';
 import { BattleArmorPreviewTab } from '../../battlearmor/BattleArmorPreviewTab';
+import { CapitalShipShell } from '../../capital/CapitalShipCustomizer';
 import { InfantryPreviewTab } from '../../infantry/InfantryPreviewTab';
 import { ProtoMechPreviewTab } from '../../protomech/ProtoMechPreviewTab';
 import {
@@ -59,10 +60,13 @@ const MAPPED_TYPES: UnitType[] = [
   UnitType.BATTLE_ARMOR,
   UnitType.INFANTRY,
   UnitType.PROTOMECH,
+  UnitType.DROPSHIP,
+  UnitType.JUMPSHIP,
+  UnitType.WARSHIP,
+  UnitType.SPACE_STATION,
 ];
 
-// Capital craft etc. — intentionally unmapped, must fall back to mech.
-const UNMAPPED_TYPES: UnitType[] = [
+const CAPITAL_TYPES: UnitType[] = [
   UnitType.DROPSHIP,
   UnitType.JUMPSHIP,
   UnitType.WARSHIP,
@@ -106,16 +110,24 @@ describe('customizerTypeRegistry — descriptor completeness', () => {
   });
 });
 
-describe('customizerTypeRegistry — mech fallback', () => {
-  it.each(UNMAPPED_TYPES)(
-    'falls back to the BattleMech descriptor for %s',
+describe('customizerTypeRegistry — capital ships (UL-14)', () => {
+  it.each(CAPITAL_TYPES)(
+    'resolves the read-only capital descriptor, not the BattleMech one, for %s',
     (unitType) => {
       const d = getCustomizerDescriptor(unitType);
-      expect(d.label).toBe('BattleMech');
-      expect(d.OverviewComponent).toBe(OverviewTab);
-      expect(d.PreviewComponent).toBe(PreviewTab);
+      expect(d.label).toBe('CapitalShip');
+      expect(d.Shell).toBe(CapitalShipShell);
+      expect(d.OverviewComponent).not.toBe(OverviewTab);
+      expect(d.PreviewComponent).not.toBe(PreviewTab);
+      expect(d.tabs.map((tab) => tab.id)).toEqual(['overview', 'structure']);
     },
   );
+
+  it('still falls back to the BattleMech descriptor for an unmapped type', () => {
+    expect(getCustomizerDescriptor('Unknown' as UnitType).label).toBe(
+      'BattleMech',
+    );
+  });
 });
 
 describe('customizerTypeRegistry — component identity (no-behaviour-change guard)', () => {

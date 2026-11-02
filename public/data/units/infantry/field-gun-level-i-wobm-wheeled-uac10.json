@@ -1,0 +1,64 @@
+{
+  "id": "field-gun-level-i-wobm-wheeled-uac10",
+  "chassis": "Field Gun Level I (WOBM)",
+  "model": "(Wheeled UAC10)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3057,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Word of Blake Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "word-of-blake-infantry-kit",
+      "name": "Word of Blake Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isultraac10",
+      "name": "ISUltraAC10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ultra-ac-10-ammo",
+      "name": "IS Ultra AC/10 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "isultraac10",
+      "name": "ISUltraAC10"
+    },
+    {
+      "id": "is-ultra-ac-10-ammo",
+      "name": "IS Ultra AC/10 Ammo"
+    }
+  ],
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Drawing veterans from the Com Guards, recruits from the Free Worlds League, and volunteers from Protectorate worlds, the Word of Blake Militia assembled infantry formations whose quality varied but whose equipment was consistently first-rate. Manning heavy ultra autocannon capable of rapid double-fire bursts, these gun crews can deliver devastating concentrated firepower that threatens medium armor, though the punishing rate of fire demands careful barrel management.</p>"
+  }
+}

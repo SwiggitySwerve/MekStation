@@ -1,0 +1,104 @@
+{
+  "id": "field-gun-platoon-ccaf-tracked-heavy-cannon-2367+",
+  "chassis": "Field Gun Platoon (CCAF)",
+  "model": "(Tracked Heavy Cannon 2367+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2367,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "rifle-cannon,-heavy",
+      "name": "Rifle (Cannon, Heavy)",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-heavy-rifle",
+      "name": "IS Ammo Heavy Rifle",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "rifle-cannon,-heavy",
+      "name": "Rifle (Cannon, Heavy)",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-heavy-rifle",
+      "name": "IS Ammo Heavy Rifle",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "rifle-cannon,-heavy",
+      "name": "Rifle (Cannon, Heavy)",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-heavy-rifle",
+      "name": "IS Ammo Heavy Rifle",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "rifle-cannon,-heavy",
+      "name": "Rifle (Cannon, Heavy)"
+    },
+    {
+      "id": "is-ammo-heavy-rifle",
+      "name": "IS Ammo Heavy Rifle"
+    },
+    {
+      "id": "rifle-cannon,-heavy",
+      "name": "Rifle (Cannon, Heavy)"
+    },
+    {
+      "id": "is-ammo-heavy-rifle",
+      "name": "IS Ammo Heavy Rifle"
+    },
+    {
+      "id": "rifle-cannon,-heavy",
+      "name": "Rifle (Cannon, Heavy)"
+    },
+    {
+      "id": "is-ammo-heavy-rifle",
+      "name": "IS Ammo Heavy Rifle"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>The CCAF fields conventional infantry in larger numbers than its limited industrial base might suggest, drawing on the Confederation's deep tradition of citizens' militia service. Capellan soldiers learn to fight with fewer resources and less support than their counterparts in wealthier states, compensating with resourcefulness and ideological commitment. Field gun platoons provide Capellan infantry with organic direct-fire heavy weapons, towing crew-served autocannons or other heavy guns to prepared positions. The weapon crew operates the gun while the remaining troopers provide local security with personal arms. Their heavy cannon provides direct-fire support with solid projectiles, offering a simpler and cheaper alternative to autocannons.</p>"
+  }
+}

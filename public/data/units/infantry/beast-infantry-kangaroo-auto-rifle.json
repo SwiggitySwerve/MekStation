@@ -1,0 +1,48 @@
+{
+  "id": "beast-infantry-kangaroo-auto-rifle",
+  "chassis": "Beast Infantry (Kangaroo)",
+  "model": "(Auto-Rifle)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2380,
+  "motionType": "BEAST",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clothing, Fatigues/Civilian/Non-Armored",
+  "motiveType": "Beast:Coventry Kangaroo",
+  "equipment": [
+    {
+      "id": "clothing,-fatigues-civilian-non-armored",
+      "name": "Clothing, Fatigues/Civilian/Non-Armored",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "beastMount": "Beast:Coventry Kangaroo",
+  "fluff": {
+    "overview": "<p>The Coventry kangaroo is a genetically modified offshoot of the Terran red kangaroo, bred on the Lyran world of Coventry to be significantly larger than its ancestors. Standing roughly horse-sized with a distinctive chestnut brown coloring, the Coventry kangaroo was originally intended as a pack animal but proved far more effective as a riding mount. The creatures move smoothly and quickly through rough and wooded terrain, making them ideal for light cavalry operations. Troopers of the Coventry Province Militia who adopted the animals as mounts earned the nickname \"diggers.\" Some sub-breeds were intentionally partially deafened through selective breeding to reduce startling under fire, improving their reliability in combat situations. Kangaroo-mounted infantry operate effectively in the broken, forested terrain common across Coventry's landmasses, where heavier vehicles struggle to maintain pace.</p>"
+  }
+}

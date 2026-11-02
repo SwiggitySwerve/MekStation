@@ -1,0 +1,144 @@
+{
+  "id": "field-gun-century-mhaf-motorized-lac2",
+  "chassis": "Field Gun Century (MHAF)",
+  "model": "(Motorized LAC2)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3068,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 10,
+    "squadCount": 2,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>The Marian military tradition places infantry at the foundation of its legionary system, with conventional soldiers organized into units bearing Latin designations that reflect the Hegemony's deliberate cultivation of Roman imperial identity. Marian field gun centuries tow crew-served weapons on wheeled, tracked, or motorized carriages, providing direct-fire anti-armor capability that supplements the Legiones Marianes' limited BattleMech strength. The century tows a light autocannon, a smaller-caliber weapon that provides long-range harassment fire against armored targets.</p>"
+  }
+}

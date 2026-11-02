@@ -1,0 +1,47 @@
+{
+  "id": "foot-platoon-affs-sniper-detachment-2505+",
+  "chassis": "Foot Platoon (AFFS)",
+  "model": "(Sniper Detachment 2505+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2505,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 2,
+    "squadCount": 2,
+    "totalTroopers": 4
+  },
+  "primaryWeapon": {
+    "id": "sniper-rifle-hammel-marksman",
+    "name": "Sniper Rifle (Hammel Marksman)"
+  },
+  "armorKit": "Sneak Suit (Camo/IR)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "sneak-suit-camo-ir",
+      "name": "Sneak Suit (Camo/IR)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": ["sneakcamo", "sneakir"],
+  "effectiveArmorFlags": ["sneakcamo", "sneakir"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun",
+    "count": 1
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Federated Suns infantry benefit from one of the strongest industrial bases in the Inner Sphere, with AFFS quartermasters able to supply platoons with standardized equipment and ammunition from a logistics network that few rival states can match. Foot infantry remain the backbone of AFFS planetary garrisons, cheap enough to deploy in numbers across the Federated Suns' vast territory and reliable enough to hold ground that BattleMech forces cannot permanently occupy. Operating as designated marksman teams within a larger platoon framework, these snipers provide precision long-range fire from concealed positions, engaging high-value targets with disproportionate tactical and psychological effect.</p>"
+  }
+}

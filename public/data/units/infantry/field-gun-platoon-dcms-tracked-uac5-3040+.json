@@ -1,0 +1,104 @@
+{
+  "id": "field-gun-platoon-dcms-tracked-uac5-3040+",
+  "chassis": "Field Gun Platoon (DCMS)",
+  "model": "(Tracked UAC5 3040+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3040,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Draconis Combine Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "draconis-combine-infantry-kit",
+      "name": "Draconis Combine Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5"
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo"
+    },
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5"
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo"
+    },
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5"
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>Conventional infantry within the DCMS serve as the foundation of planetary defense, providing the manpower essential to territorial control while freeing BattleMech and armored assets for offensive operations. The platoon tows a light ultra autocannon that can double its rate of fire when the situation demands it, though the mechanism risks jamming under sustained rapid fire. The gamble is usually worth it when targets are in the open.</p>"
+  }
+}

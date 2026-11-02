@@ -1,0 +1,55 @@
+{
+  "id": "motorized-platoon-mg",
+  "chassis": "Motorized Platoon",
+  "model": "(MG)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "EARLY_SPACEFLIGHT",
+  "year": 1950,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "machine-gun-portable",
+    "name": "Machine Gun (Portable)",
+    "count": 2
+  },
+  "mulId": 2238,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Motorized infantry platoons use light ground vehicles, typically motorcycles or utility trucks, for rapid movement between positions. Faster than foot infantry and cheaper than fully mechanized formations, motorized platoons fill the gap between static garrison troops and armored combat units. They excel at road-bound patrol routes, rapid redeployment along prepared axes, and screening operations where speed matters more than protection. Off-road performance depends heavily on terrain and vehicle type, and the troops must dismount to fight, leaving their transport vulnerable.</p>"
+  }
+}

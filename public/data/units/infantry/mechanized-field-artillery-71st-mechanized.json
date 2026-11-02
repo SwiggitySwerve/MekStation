@@ -1,0 +1,71 @@
+{
+  "id": "mechanized-field-artillery-71st-mechanized",
+  "chassis": "Mechanized Field Artillery",
+  "model": "71st Mechanized",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2500,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "rifle-tk-assault",
+    "name": "Rifle (TK Assault)"
+  },
+  "armorKit": "Draconis Combine Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "draconis-combine-infantry-kit",
+      "name": "Draconis Combine Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isthumper",
+      "name": "ISThumper",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isthumperammo",
+      "name": "ISThumperAmmo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "autocannon-semi-portable",
+    "name": "Autocannon (Semi-Portable)",
+    "count": 2
+  },
+  "fieldGuns": [
+    {
+      "id": "isthumper",
+      "name": "ISThumper"
+    },
+    {
+      "id": "isthumperammo",
+      "name": "ISThumperAmmo"
+    }
+  ],
+  "mulId": 2131,
+  "role": "Missile Boat",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Sword of Light brigade has long represented the elite of the Draconis Combine Mustered Soldiery's combat arm, with membership requiring five years of flawless service and rigorous testing. Despite the advent of battle armor in the Inner Sphere, certain Sword of Light units have vehemently resisted incorporating battlesuits into their tables of organization. The Seventy-first Mechanized field artillery battalion embodies that philosophy, assigned to the Ninth Sword of Light after remaining loyal through the Second Sword of Light's betrayal. The battalion stubbornly continued to demonstrate that conventional infantry could deliver firepower without battlesuits. Each soldier carries a TK assault rifle, with support weapons specialists manning semi-portable autocannons to provide suppressive fire. The pride of the Seventy-first is its Thumper artillery piece, a traditional field gun whose indirect fire capability still exceeds what battle armor can deliver.</p>"
+  }
+}

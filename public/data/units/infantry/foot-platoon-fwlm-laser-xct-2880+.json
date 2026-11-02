@@ -1,0 +1,47 @@
+{
+  "id": "foot-platoon-fwlm-laser-xct-2880+",
+  "chassis": "Foot Platoon (FWLM)",
+  "model": "(Laser XCT 2880+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2880,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-intek",
+    "name": "Laser Rifle (Intek)"
+  },
+  "armorKit": "Environment Suit, Hostile",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "environment-suit,-hostile",
+      "name": "Environment Suit, Hostile",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor", "spacesuit"],
+  "effectiveArmorFlags": ["encumberingarmor", "spacesuit"],
+  "specializations": 2048,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "support-laser-semi-portable",
+    "name": "Support Laser (Semi-Portable)",
+    "count": 1
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Conventional infantry within the FWLM serve as the backbone of provincial defense across a patchwork of semi-autonomous states, each maintaining its own military traditions and equipment preferences. Foot infantry platoons form the garrison backbone of the League's provincial militaries, assigned to hold ground on worlds that BattleMech forces cannot permanently occupy. Quality varies with provincial investment, but even modest foot platoons benefit from the FWLM's tradition of equipping infantry with reliable, standardized kit. Equipped with laser rifles that offer superior range and armor penetration compared to ballistic weapons, these platoons field one of the most effective personal arms available to conventional infantry, though the weapons are significantly more expensive and require soldiers to carry additional power packs. These Xenoplanetary Condition Troops are trained and equipped for combat in hostile environments where standard infantry cannot operate effectively, carrying specialized survival gear for extreme temperatures, toxic atmospheres, or unusual gravity conditions.</p>"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "id": "mechanized-wheeled-platoon-taurian-3047+-flamer",
+  "chassis": "Mechanized Wheeled Platoon (Taurian 3047+)",
+  "model": "(Flamer)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3047,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Taurian Concordat/Calderon Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "taurian-concordat-calderon-infantry-kit",
+      "name": "Taurian Concordat/Calderon Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "flamer-man-portable",
+    "name": "Flamer (Man-Portable)",
+    "count": 2
+  },
+  "mulId": 9302,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Every Concordat world maintains infantry formations as the first line of planetary defense, drawn from a population whose fierce independence and hatred of foreign aggression run deep. Mechanized wheeled platoons offer a balance of speed and economy, their wheeled transports being cheaper to maintain than hover or tracked alternatives. For a military that must stretch limited resources across a significant number of garrison worlds, this cost efficiency matters as much as tactical performance.</p><p>Support troops carry man-portable flamers that project streams of burning chemicals over several hundred square meters, providing devastating area-effect capability against infantry and structures at the cost of short range and the vulnerability of the operator's fuel tank.</p>"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "id": "jump-contubernium-mhaf-command",
+  "chassis": "Jump Contubernium (MHAF)",
+  "model": "(Command)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2902,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 10,
+    "squadCount": 1,
+    "totalTroopers": 10
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle",
+    "name": "Laser Rifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Marian military tradition places infantry at the foundation of its legionary system, with conventional soldiers organized into units bearing Latin designations that reflect the Hegemony's deliberate cultivation of Roman imperial identity. A contubernium is the smallest tactical unit in the Marian system, equivalent to a single reinforced squad of ten soldiers. Jump-capable contubernia provide vertical mobility for operations in broken terrain or urban environments where rooftop access and rapid repositioning give small units an outsized tactical advantage. Command personnel carry sidearms and rifles suited to personal defense rather than front-line engagement, reflecting their primary role as coordinators rather than riflemen.</p>"
+  }
+}

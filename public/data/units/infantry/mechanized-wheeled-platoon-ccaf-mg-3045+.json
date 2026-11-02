@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-wheeled-platoon-ccaf-mg-3045+",
+  "chassis": "Mechanized Wheeled Platoon (CCAF)",
+  "model": "(MG 3045+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3045,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Capellan Confederation Armor Kit (3050)",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "capellan-confederation-armor-kit-3050",
+      "name": "Capellan Confederation Armor Kit (3050)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "machine-gun-portable",
+    "name": "Machine Gun (Portable)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Capellan infantry serve where BattleMechs and armor cannot be spared, which in the resource-constrained CCAF means nearly everywhere. The Xin Sheng movement revitalized the infantry arm alongside every other facet of the Capellan Confederation Armed Forces, giving foot soldiers better equipment and renewed purpose. Mechanized wheeled platoons balance speed and infantry presence, using armored wheeled transports to move troops quickly along the Confederation's road networks. They sacrifice the cross-country capability of tracked vehicles for faster transit between defensive positions. Support sections within the platoon carry portable machine guns that provide sustained automatic fire, giving the formation a significant volume-of-fire advantage in defensive positions at the cost of additional weight and ammunition bulk.</p>"
+  }
+}

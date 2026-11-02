@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-hover-platoon-affs-gauss-3067+",
+  "chassis": "Mechanized Hover Platoon (AFFS)",
+  "model": "(Gauss 3067+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "gauss-rifle-thunderstroke-ii",
+    "name": "Gauss Rifle (Thunderstroke II)"
+  },
+  "armorKit": "Fed Suns Infantry Kit (3067+)",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "fed-suns-infantry-kit-3067+",
+      "name": "Fed Suns Infantry Kit (3067+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "gauss-cannon-grand-mauler",
+    "name": "Gauss Cannon (Grand Mauler)",
+    "count": 2
+  },
+  "role": "Skirmisher",
+  "fluff": {
+    "overview": "<p>Federated Suns infantry benefit from one of the strongest industrial bases in the Inner Sphere, with AFFS quartermasters able to supply platoons with standardized equipment and ammunition from a logistics network that few rival states can match. Mechanized hover platoons ride hovercraft that provide the fastest ground transport available to conventional infantry, capable of crossing water obstacles and covering open terrain at speeds that allow them to screen for heavier formations or exploit gaps in enemy lines. Carrying infantry-scale gauss rifles that use magnetic acceleration to propel projectiles at extreme velocities, these platoons field the longest-ranged and hardest-hitting personal ballistic weapon available to conventional soldiers.</p>"
+  }
+}

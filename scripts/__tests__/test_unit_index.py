@@ -89,6 +89,14 @@ class UnitIndexShapeTest(unittest.TestCase):
         )
         self.assertEqual(entry['role'], '')
 
+    def test_only_tonnageless_infantry_gets_an_index_placeholder(self):
+        unit = {'id': 'i', 'chassis': 'I', 'model': '', 'unitType': 'Infantry',
+                'techBase': 'CLAN', 'year': 3000, 'rulesLevel': 'STANDARD'}
+        self.assertEqual(build_index_entry(unit, 'i.json')['tonnage'], 0)
+        self.assertEqual(build_index_entry({**unit, 'tonnage': 2}, 'i.json')['tonnage'], 2)
+        with self.assertRaises(KeyError):
+            build_index_entry({**unit, 'unitType': 'Vehicle'}, 'v.json')
+
 
 class IdUniquenessTest(unittest.TestCase):
     def test_duplicate_inside_one_family_is_reported_once(self):
@@ -207,8 +215,52 @@ class UnitIndexCliTest(unittest.TestCase):
         self.assertTrue((self.root / 'vehicles' / 'index.json').exists())
         self.assertFalse((self.root / 'aerospace' / 'index.json').exists())
 
+    def test_battlearmor_is_an_allowed_converted_family(self):
+        family = self.root / 'battlearmor'
+        family.mkdir()
+        unit = json.loads((self.root / 'vehicles' / 'Demolisher II Heavy Tank.json').read_text(encoding='utf-8'))
+        unit.update(id='converted-ba', unitType='Battle Armor', tonnage=0)
+        (family / 'BA.json').write_text(json.dumps(unit), encoding='utf-8')
+        self.assertEqual(self.run_main(self.root, '--family', 'battlearmor', '--write'), 0)
+        index = json.loads((family / 'index.json').read_text(encoding='utf-8'))
+        self.assertEqual(index['totalUnits'], 1)
+        self.assertEqual(index['units'][0]['unitType'], 'Battle Armor')
+        self.assertEqual(index['units'][0]['tonnage'], 0)
+        self.assertFalse((self.root / 'vehicles' / 'index.json').exists())
+
+    def test_battlearmor_index_keeps_legacy_bv_fixtures_unindexed(self):
+        family = self.root / 'battlearmor'
+        family.mkdir()
+        for filename in ('clan-sylph-sqd5.json', 'elemental-standard-sqd5.json', 'is-cavalier-sqd4.json'):
+            shutil.copy(REPO_ROOT / 'public/data/units/battlearmor' / filename, family / filename)
+        self.assertEqual(self.run_main(self.root, '--family', 'battlearmor', '--write'), 0)
+        self.assertEqual(json.loads((family / 'index.json').read_text(encoding='utf-8'))['totalUnits'], 0)
+
     def test_absent_default_family_is_tolerated(self):
         self.assertEqual(self.run_main(self.root), 0)  # no capital/ in the fixtures
+
+    def test_infantry_is_allowed_without_inventing_a_converted_weight(self):
+        family = self.root / 'infantry'
+        family.mkdir()
+        unit = json.loads((self.root / 'vehicles' / 'Demolisher II Heavy Tank.json').read_text(encoding='utf-8'))
+        unit.update(id='converted-infantry', unitType='Infantry')
+        del unit['tonnage']
+        (family / 'Infantry.json').write_text(json.dumps(unit), encoding='utf-8')
+        self.assertEqual(self.run_main(self.root, '--family', 'infantry', '--write'), 0)
+        index = json.loads((family / 'index.json').read_text(encoding='utf-8'))
+        self.assertEqual(index['totalUnits'], 1)
+        self.assertEqual(index['units'][0]['unitType'], 'Infantry')
+        self.assertEqual(index['units'][0]['tonnage'], 0)  # index placeholder, not calculated weight
+        self.assertFalse((self.root / 'vehicles' / 'index.json').exists())
+
+    def test_infantry_samples_stay_unindexed(self):
+        family = self.root / 'infantry'
+        family.mkdir()
+        samples = {'foot-rifle-platoon.json', 'jump-srm-platoon.json', 'mechanized-tracked-platoon.json'}
+        for sample in samples:
+            shutil.copy(REPO_ROOT / 'public/data/units/infantry' / sample, family / sample)
+        self.assertEqual(self.run_main(self.root, '--family', 'infantry', '--write'), 0)
+        self.assertEqual(json.loads((family / 'index.json').read_text(encoding='utf-8'))['totalUnits'], 0)
 
 
 class SharedIndexShapeTest(unittest.TestCase):
@@ -223,6 +275,36 @@ class SharedIndexShapeTest(unittest.TestCase):
         self.assertEqual(list(index), ['version', 'generatedAt', 'totalUnits', 'units'])
         self.assertEqual(list(index['units'][0]), list(INDEX_COLUMNS))
         self.assertEqual(index['units'][0]['role'], '')
+
+
+class BattleArmorCatalogSchemaTest(unittest.TestCase):
+    def test_every_committed_battlearmor_design_passes_json_schema(self):
+        from schema_gate import validate_unit
+        from unit_index import NON_UNIT_FILES
+        family = REPO_ROOT / 'public' / 'data' / 'units' / 'battlearmor'
+        index = json.loads((family / 'index.json').read_text(encoding='utf-8'))
+        self.assertEqual(index['totalUnits'], 1188)
+        self.assertEqual(generate_index(family, generated_at=index['generatedAt']), index)
+        files = [path for path in family.rglob('*.json') if path.name not in NON_UNIT_FILES]
+        self.assertEqual(len(files), 1191)  # 1188 converted designs and three retained BV fixtures
+        for path in files:
+            with self.subTest(path=path.name):
+                self.assertEqual(validate_unit(json.loads(path.read_text(encoding='utf-8'))), [])
+
+
+class InfantryCatalogSchemaTest(unittest.TestCase):
+    def test_every_committed_infantry_design_passes_json_schema(self):
+        from schema_gate import validate_unit
+        from unit_index import NON_UNIT_FILES
+        family = REPO_ROOT / 'public/data/units/infantry'
+        index = json.loads((family / 'index.json').read_text(encoding='utf-8'))
+        self.assertEqual(index['totalUnits'], 1820)
+        self.assertEqual(generate_index(family, generated_at=index['generatedAt']), index)
+        files = [file for file in family.rglob('*.json') if file.name not in NON_UNIT_FILES]
+        self.assertEqual(len(files), 1823)
+        for file in files:
+            with self.subTest(file=file.name):
+                self.assertEqual(validate_unit(json.loads(file.read_text(encoding='utf-8'))), [])
 
 
 class GitignoreAllowRuleTest(unittest.TestCase):

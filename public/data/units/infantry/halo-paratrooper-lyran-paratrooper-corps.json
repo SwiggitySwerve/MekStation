@@ -1,0 +1,49 @@
+{
+  "id": "halo-paratrooper-lyran-paratrooper-corps",
+  "chassis": "HALO Paratrooper",
+  "model": "Lyran Paratrooper Corps",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3045,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "rifle-m&g-g-150",
+    "name": "Rifle (M&G G-150)"
+  },
+  "armorKit": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "lyran-alliance-lyran-commonwealth-3060+-infantry-kit",
+      "name": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 2.0,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 512,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryhrr",
+    "name": "InfantryHRR",
+    "count": 2
+  },
+  "mulId": 1364,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Most Lyran troops undergo some form of paratrooper training during their service, but the soldiers who actually deploy with the Lyran Paratrooper Corps are a cut above. Experienced, talented, and organized into three-squad platoons of twenty-one troopers, the Corps operates as a strategic asset rather than a tactical one. Armed with Mauser and Gray G-150 rifles and backed by heavy recoilless rifles, paratroopers like those attached to the Third Skye CMR can deploy at a moment's notice from the Commonwealth's extensive inventory of fixed-wing transport craft. Their ability to conduct atmospheric drops gives them access to battlefields that ground-bound formations simply cannot reach in time.</p>"
+  }
+}

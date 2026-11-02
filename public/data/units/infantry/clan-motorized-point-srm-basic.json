@@ -1,0 +1,49 @@
+{
+  "id": "clan-motorized-point-srm-basic",
+  "chassis": "Clan Motorized Point",
+  "model": "(SRM Basic)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2807,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 5,
+    "totalTroopers": 25
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryheavysrm",
+    "name": "InfantryHeavySRM",
+    "count": 2
+  },
+  "mulId": 9605,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Most Clan infantry are solahma warriors at the end of their careers or who have failed their Trials, assigned to duties the warrior caste considers beneath notice. Motorized Points ride light vehicles or motorcycles that provide faster movement than foot infantry without the heavier logistical requirements of fully mechanized formations. They trade protection for speed, making them effective as screening forces and rapid-response elements but vulnerable when caught in sustained engagements. Support elements carry man-portable short-range missile launchers firing the same warheads used by BattleMechs and combat vehicles, giving the Point a potent anti-armor punch at close range.</p>"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "id": "anti-mech-jump-infantry-third-ueda-infantry",
+  "chassis": "Anti-'Mech Jump Infantry",
+  "model": "Third Ueda Infantry",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "STAR_LEAGUE",
+  "year": 2600,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-blazer",
+    "name": "Laser Rifle (Blazer)"
+  },
+  "armorKit": "Free Rasalhague Republic Infantry Kit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "free-rasalhague-republic-infantry-kit",
+      "name": "Free Rasalhague Republic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "support-laser-heavy",
+    "name": "Support Laser (Heavy)",
+    "count": 1
+  },
+  "mulId": 46,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Third Ueda Infantry is a typical example of the KungsÉrmé forces absorbed into the Rasalhague Dominion touman. Veterans of the grinding war against Clan Wolf, their numbers were culled through the Trials of Position required for integration into the Dominion military structure. The strongest warriors were seconded into the Third Drakon Cluster's battle armor Binaries, while those who remain provide conventional infantry support to the First Ueda Cavaliers. Low on the military hierarchy and without access to Clan equipment, the Third retains much of its old Inner Sphere gear, including Blazer rifles and heavy support lasers. This may make them appear less capable on paper, but appearances are deceptive. As jump infantry with dedicated anti-BattleMech training, they pose a serious threat to any force they can close with, and their years of combat experience against Clan opponents have taught them exactly how to exploit the weaknesses of heavier formations.</p>"
+  }
+}

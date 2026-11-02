@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-tracked-platoon-ccaf-rifle-aa-3056+",
+  "chassis": "Mechanized Tracked Platoon (CCAF)",
+  "model": "(Rifle AA 3056+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3056,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "rifle-striker-carbine",
+    "name": "Rifle (Striker Carbine)"
+  },
+  "armorKit": "Capellan Confederation Armor Kit (3050)",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "capellan-confederation-armor-kit-3050",
+      "name": "Capellan Confederation Armor Kit (3050)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "aa-weapon-mk.-2,-man-portable",
+    "name": "AA Weapon (Mk. 2, Man-Portable)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Capellan infantry serve where BattleMechs and armor cannot be spared, which in the resource-constrained CCAF means nearly everywhere. The Xin Sheng movement revitalized the infantry arm alongside every other facet of the Capellan Confederation Armed Forces, giving foot soldiers better equipment and renewed purpose. Mechanized tracked platoons give Capellan commanders infantry that can keep pace with armored formations across rough terrain. The tracked transports provide better cross-country mobility than wheeled vehicles, allowing these platoons to operate alongside the tanks and combat vehicles that form the CCAF's armored reserve. Armed with standard ballistic assault rifles, the most common and affordable infantry weapon in the Inner Sphere, these platoons deliver reliable short-range firepower and can be equipped and resupplied from almost any garrison stockpile. Equipped with man-portable anti-aircraft weapons, these platoons provide ground formations with a dedicated air defense capability against low-flying VTOLs and conventional aircraft.</p>"
+  }
+}

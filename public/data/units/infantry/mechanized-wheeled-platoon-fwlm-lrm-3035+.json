@@ -1,0 +1,49 @@
+{
+  "id": "mechanized-wheeled-platoon-fwlm-lrm-3035+",
+  "chassis": "Mechanized Wheeled Platoon (FWLM)",
+  "model": "(LRM 3035+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3055,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Free Worlds League Infantry Kit (3035+)",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "free-worlds-league-infantry-kit-3035+",
+      "name": "Free Worlds League Infantry Kit (3035+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrylrm",
+    "name": "InfantryLRM",
+    "count": 2
+  },
+  "mulId": 7114,
+  "role": "Ambusher",
+  "source": "TO:AUE",
+  "fluff": {
+    "overview": "<p>New technology and creative tactical thinking have long featured in FWLM infantry deployment, with varied unit types and specialized formations treated as the norm rather than the exception. Wheeled mechanized platoons in FWLM service ride armored personnel carriers that offer good road speed and reasonable protection, making them well-suited to the League's developed industrial worlds where paved infrastructure supports rapid deployment between population centers. Carrying infantry-portable long-range missile systems, these platoons provide indirect fire capability that extends their engagement envelope well beyond personal weapons range, though the weight and bulk of the launchers reduce the platoon's mobility.</p>"
+  }
+}

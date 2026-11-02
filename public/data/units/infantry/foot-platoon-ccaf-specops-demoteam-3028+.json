@@ -1,0 +1,54 @@
+{
+  "id": "foot-platoon-ccaf-specops-demoteam-3028+",
+  "chassis": "Foot Platoon (CCAF)",
+  "model": "(SpecOps Demoteam 3028+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3028,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 8,
+    "squadCount": 2,
+    "totalTroopers": 16
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Sneak Suit (Camo/IR)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "demolition-charge",
+      "name": "Demolition Charge",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "demolition-charge",
+      "name": "Demolition Charge",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "sneak-suit-camo-ir",
+      "name": "Sneak Suit (Camo/IR)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": ["sneakcamo", "sneakir"],
+  "effectiveArmorFlags": ["sneakcamo", "sneakir"],
+  "specializations": 514,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Capellan Confederation has always relied on its infantry to compensate for the CCAF's chronic shortage of heavier assets. Conventional foot soldiers, drawn from the citizens' militia system that defines Capellan military service, form the backbone of garrison forces across the Confederation's commonalities. CCAF foot platoons anchor the Confederation's garrison network, holding worlds that BattleMech forces cannot permanently occupy. Slow and vulnerable in open terrain, they depend on prepared positions and local knowledge to offset their lack of mobility. These small demolition teams carry standard assault rifles for personal defense while specializing in explosive ordnance disposal and structural demolition operations.</p>"
+  }
+}

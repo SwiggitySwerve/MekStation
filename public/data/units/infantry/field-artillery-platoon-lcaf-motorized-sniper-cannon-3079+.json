@@ -1,0 +1,69 @@
+{
+  "id": "field-artillery-platoon-lcaf-motorized-sniper-cannon-3079+",
+  "chassis": "Field Artillery Platoon (LCAF)",
+  "model": "(Motorized Sniper Cannon 3079+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3079,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "lyran-alliance-lyran-commonwealth-3060+-infantry-kit",
+      "name": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "issnipercannon",
+      "name": "ISSniperCannon",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "issnipercannonammo",
+      "name": "ISSniperCannonAmmo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "rifle-tk-assault",
+    "name": "Rifle (TK Assault)",
+    "count": 1
+  },
+  "fieldGuns": [
+    {
+      "id": "issnipercannon",
+      "name": "ISSniperCannon"
+    },
+    {
+      "id": "issnipercannonammo",
+      "name": "ISSniperCannonAmmo"
+    }
+  ],
+  "role": "Missile Boat",
+  "fluff": {
+    "overview": "<p>The Lyran Commonwealth's industrial wealth ensures its infantry are among the best-equipped in the Inner Sphere, fielding hardware that most armies reserve for elite formations as standard issue. LCAF field artillery platoons operate indirect-fire weapons that can engage targets well beyond line of sight, providing conventional infantry formations with area bombardment and fire-support capability. Crewed by troops armed with submachine guns and assault rifles for perimeter defense, these platoons are high-value assets that require dedicated security.</p>"
+  }
+}
