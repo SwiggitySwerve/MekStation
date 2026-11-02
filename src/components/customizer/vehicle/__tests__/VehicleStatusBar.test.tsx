@@ -125,13 +125,14 @@ describe('VehicleStatusBar — full layout', () => {
     rerenderBar(view, {
       turret: {
         type: TurretType.SINGLE,
-        maxWeight: 5,
         currentWeight: 2,
         rotationArc: 360,
       },
     });
-    // Turret weight is derived from its equipment, not read from currentWeight
-    expect(item('Turret')).toEqual(['0.0', ' / 5.0 t']);
+    // Turret weight is derived from its equipment, not read from currentWeight.
+    // With no turret cap and an empty turret, the weight available to it is
+    // exactly the vehicle's free weight.
+    expect(item('Turret')).toEqual(['0.0', ` / ${item('Weight Free')[0]}`]);
   });
 
   it('surfaces the validation error count and first rule id', () => {
