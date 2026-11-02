@@ -96,12 +96,15 @@ export function normalizeEquipmentId(
   const rawLower = equipmentId.toLowerCase().trim();
   // BLK size is mount metadata, not part of EquipmentType's lookup name.
   const base = rawLower.replace(/(?::omni|:size:\d+(?:\.\d+)?)+$/, '');
-  // BLK (ST)/(R) mount markers become these spellings in converter IDs.
+  // BLK mount markers occur in native tokens and converted IDs.
   const lower = catalog.has(rawLower)
     ? rawLower
     : catalog.has(base)
       ? base
-      : base.replace(/^r-/, '').replace(/st$/, '');
+      : base
+          .replace(/^(?:r-|\(r\)\s*)/, '')
+          .replace(/(?:-?\((?:st|pt)\)|-?(?:st|pt))$/, '')
+          .trim();
   const stripped = lower.replace(/^\d+-/, '').replace(/-\d+$/, '');
 
   // Preserve rack numbers and tech/munition variants before general instance-ID

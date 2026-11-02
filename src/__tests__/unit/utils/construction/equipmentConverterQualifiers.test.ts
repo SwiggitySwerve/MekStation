@@ -14,6 +14,8 @@ describe('native converted equipment qualifiers and aliases', () => {
     ['ISDroneCarrierControlSystem:OMNI:SIZE:6.0', 'dronecarriercontrolsystem'],
     ['lift-hoist-arresting-hoist:OMNI', 'lift-hoist-arresting-hoist'],
     ['lift-hoist-arresting-hoist:OMNI:SIZE:1.0', 'lift-hoist-arresting-hoist'],
+    ['(R)ISERMediumLaser (PT):OMNI:SIZE:1.0', 'er-medium-laser'],
+    ['r-machine-gunst:OMNI:SIZE:1.0', 'machine-gun'],
   ])('looks up the base identity of %s', (input, id) => {
     expect(normalizeEquipmentId(input)).toBe(id);
     expect(getEquipmentEntry(input)?.id).toBe(id);
