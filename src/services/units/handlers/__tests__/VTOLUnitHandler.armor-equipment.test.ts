@@ -136,7 +136,7 @@ describe('VTOLUnitHandler', () => {
       expect(result.data?.unit?.chinTurret?.rotationArc).toBe(180);
     });
 
-    it('should calculate chin turret max weight as 10% of tonnage', () => {
+    it('should not cap the chin turret at 10% of tonnage', () => {
       const doc = createMockBlkDocument({
         tonnage: 25,
         equipmentByLocation: { Chin: ['SRM 2'] },
@@ -145,7 +145,47 @@ describe('VTOLUnitHandler', () => {
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.chinTurret?.maxWeight).toBe(2.5); // 25 * 0.1
+      expect(result.data?.unit?.chinTurret).toBeDefined();
+      expect(result.data?.unit?.chinTurret).not.toHaveProperty('maxWeight');
+    });
+
+    it('accepts a chin turret carrying more than 10% of tonnage', () => {
+      const doc = createMockBlkDocument({
+        tonnage: 25,
+        equipmentByLocation: { Chin: ['SRM 2'] },
+        rawTags: { turrettype: 'Chin' },
+      });
+      const unit = handler.parse(doc).data!.unit;
+      const heavyChin = {
+        ...unit,
+        chinTurret: { ...unit.chinTurret!, currentWeight: 6 }, // 24% of 25 t
+      } as IVTOL;
+
+      const result = handler.validate(heavyChin);
+
+      expect(result.errors).toEqual([]);
+      expect(result.isValid).toBe(true);
+    });
+
+    it('still rejects an overweight VTOL through total weight', () => {
+      const doc = createMockBlkDocument({
+        tonnage: 25,
+        equipmentByLocation: { Chin: ['SRM 2'] },
+        rawTags: { turrettype: 'Chin' },
+      });
+      const unit = handler.parse(doc).data!.unit;
+      const overweight = {
+        ...unit,
+        totalWeight: unit.tonnage + 1,
+        chinTurret: { ...unit.chinTurret!, currentWeight: 6 },
+      } as IVTOL;
+
+      const result = handler.validate(overweight);
+
+      expect(result.isValid).toBe(false);
+      expect(result.errors).toEqual([
+        'Total weight (26.00t) exceeds tonnage (25t)',
+      ]);
     });
 
     it('should detect chin turret from Chin equipment location', () => {
