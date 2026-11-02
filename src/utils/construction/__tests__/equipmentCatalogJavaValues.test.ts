@@ -11,6 +11,7 @@ const AMMO_VALUES = [
   ['uac-5-ammo', 14, 'createISUltra5Ammo ammo.bv = 14 (AmmoType.java:5660)'],
   ['lb-2-x-ammo', 5, 'createISLB2XAmmo ammo.bv = 5 (AmmoType.java:5383)'],
   ['lb-5-x-ammo', 10, 'createISLB5XAmmo ammo.bv = 10 (AmmoType.java:5414)'],
+  ['clan-ams-ammo', 22, 'createCLAMSAmmo ammo.bv = 22 (AmmoType.java:4096)'],
 ] as const;
 
 // [catalog id, pinned Java BV, citation in megamek/common/weapons/artillery]
