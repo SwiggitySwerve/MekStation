@@ -298,3 +298,79 @@ export function calculateAmmoBVWithExcessiveCap(
     return matchingWeaponBV === 0 ? undefined : matchingWeaponBV;
   });
 }
+
+/** Native AmmoType/rack identities (BVCalculator.java:1190-1240).
+ * Legacy alias-key APIs retain their separate compatibility contract.
+ */
+export function getNativeAmmoBVGroup(id: string): string | undefined {
+  const token = id
+    .toLowerCase()
+    .split(':')[0]
+    .replace(/ammo|pods|[^a-z0-9]/g, '')
+    .replace(/^(?:clan|is|cl)/, '');
+  const patterns: readonly (readonly [RegExp, string])[] = [
+    [/^(?:ac|autocannon)(\d+)primitive/, 'AC_PRIMITIVE:$1'],
+    [/^(?:lb|lbxac)(\d+)(?:x)?/, 'AC_LBX:$1'],
+    [/^(?:ultraac|uac)(\d+)/, 'AC_ULTRA:$1'],
+    [/^(?:rotaryac|rac)(\d+)/, 'AC_ROTARY:$1'],
+    [/^(?:lightautocannon|lightac|lac)(\d+)/, 'LAC:$1'],
+    [/^streaksrm(\d+)/, 'SRM_STREAK:$1'],
+    [/^streaklrm(\d+)/, 'LRM_STREAK:$1'],
+    [/^(?:lrtorpedo|lrt)(\d+)/, 'LRM_TORPEDO:$1'],
+    [/^(?:srtorpedo|srt)(\d+)/, 'SRM_TORPEDO:$1'],
+    [/^(?:extended|er)lrm(\d+)/, 'EXLRM:$1'],
+    [/^enhancedlrm(\d+)/, 'NLRM:$1'],
+    [/^(?:improved|imp)lrm(\d+)/, 'LRM_IMP:$1'],
+    [/^(?:improved|imp)srm(\d+)/, 'SRM_IMP:$1'],
+    [/^(?:mechmortar|scmortar|mortar)(\d+)/, 'MEK_MORTAR:$1'],
+    [/^protomechac(\d+)/, 'PAC:$1'],
+    [
+      /^(?:hypervelocityautocannon|hypervelocityac|hvac)(\d+)/,
+      'HYPER_VELOCITY:$1',
+    ],
+    [/^(?:hyperassaultgaussrifle|hag)(\d+)/, 'HAG:$1'],
+    [/^thunderbolt(\d+)/, 'TBOLT_$1:1'],
+    [/^cruisemissile(\d+)/, 'CRUISE_MISSILE:$1'],
+    [/^longtomcannon/, 'LONG_TOM_CANNON:20'],
+    [/^longtom/, 'LONG_TOM:25'],
+    [/^snipercannon/, 'SNIPER_CANNON:10'],
+    [/^sniper/, 'SNIPER:20'],
+    [/^thumpercannon/, 'THUMPER_CANNON:5'],
+    [/^thumper/, 'THUMPER:15'],
+    [/^arrowiv/, 'ARROW_IV:20'],
+    [/^(?:vehicleflamer|flamervehicle)/, 'VEHICLE_FLAMER:2'],
+    [/^heavyflamer/, 'HEAVY_FLAMER:2'],
+    [/^plasmarifle/, 'PLASMA:1'],
+    [/^plasmacannon/, 'PLASMA:2'],
+    [/^(?:apgauss)/, 'APGAUSS:0'],
+    [/^magshot/, 'MAGSHOT:0'],
+    [/^lightgauss/, 'GAUSS_LIGHT:0'],
+    [/^improvedheavygauss/, 'IGAUSS_HEAVY:0'],
+    [/^heavygauss/, 'GAUSS_HEAVY:0'],
+    [/^gauss/, 'GAUSS:0'],
+    [/^(?:silverbulletgauss|sbgauss|sbgr)/, 'SBGAUSS:15'],
+    [/^large(?:chem|chemical)laser/, 'CHEMICAL_LASER:1'],
+    [/^medium(?:chem|chemical)laser/, 'CHEMICAL_LASER:5'],
+    [/^(?:lightrifle|riflecannonlight)/, 'RIFLE:3'],
+    [/^(?:mediumrifle|riflecannonmedium)/, 'RIFLE:6'],
+    [/^(?:heavyrifle|riflecannonheavy)/, 'RIFLE:9'],
+    [/^(?:lightmachinegun|lightmg|lmg)(?:half|full|st|pt)?$/, 'MG_LIGHT:1'],
+    [/^(?:heavymachinegun|heavymg|hmg)(?:half|full|st|pt)?$/, 'MG_HEAVY:3'],
+    [/^(?:machinegun|mg)(?:half|full|st|pt)?$/, 'MG:2'],
+    [/^(?:improvednarc|inarc)/, 'INARC:1'],
+    [/^narc/, 'NARC:1'],
+    [/^(?:vehiculargrenadelauncher|vgl)/, 'VGL:1'],
+    [/^(?:battlemechtaser|taser)/, 'TASER:1'],
+    [/^c3sensors/, 'C3_REMOTE_SENSOR:1'],
+  ];
+  for (const [pattern, replacement] of patterns) {
+    const match = token.match(pattern);
+    if (match) return replacement.replace('$1', match[1] ?? '');
+  }
+  const rack = token.match(
+    /^(lrm|srm|mml|mrm|atm|iatm|lac|ac|autocannon)(\d+)/,
+  );
+  return rack
+    ? `${rack[1] === 'autocannon' ? 'AC' : rack[1].toUpperCase()}:${rack[2]}`
+    : undefined;
+}
