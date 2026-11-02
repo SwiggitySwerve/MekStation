@@ -60,7 +60,9 @@ function turretMultiplier(turret?: VehicleBVTurret): number {
 }
 
 /** BVCalculator.java:966-976: basic takes precedence if both are mounted. */
-function supportFireControlFactor(input: VehicleBVInput): number {
+export function supportFireControlFactor(
+  input: Pick<VehicleBVInput, 'isSupportVehicle' | 'chassisEquipment'>,
+): number {
   if (!input.isSupportVehicle) return 1;
   const ids = (input.chassisEquipment ?? []).map((id) =>
     normalizeEquipmentId(id),
