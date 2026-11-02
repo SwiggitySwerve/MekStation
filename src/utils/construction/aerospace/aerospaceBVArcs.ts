@@ -73,45 +73,16 @@ export function normalizeArcLocation(
   return LEGACY_ARC_LOCATION_MAP[location] ?? null;
 }
 
-/**
- * Return the "opposite arc" for a given primary arc.
- * Nose ↔ Aft; LeftWing/LeftSide ↔ RightWing/RightSide (by sub-type).
- */
-function getOppositeArc(
-  primary: AerospaceArc,
-  subType: AerospaceSubType,
-): AerospaceArc {
-  switch (primary) {
-    case AerospaceArc.NOSE:
-      return AerospaceArc.AFT;
-    case AerospaceArc.AFT:
-      return AerospaceArc.NOSE;
-    case AerospaceArc.LEFT_WING:
-      return AerospaceArc.RIGHT_WING;
-    case AerospaceArc.RIGHT_WING:
-      return AerospaceArc.LEFT_WING;
-    case AerospaceArc.LEFT_SIDE:
-      return AerospaceArc.RIGHT_SIDE;
-    case AerospaceArc.RIGHT_SIDE:
-      return AerospaceArc.LEFT_SIDE;
-    default:
-      // Fuselage has no opposite; return aft as a neutral default — callers
-      // that care about this never pass FUSELAGE as a primary candidate.
-      return subType === AerospaceSubType.SMALL_CRAFT
-        ? AerospaceArc.AFT
-        : AerospaceArc.AFT;
-  }
-}
-
 // ============================================================================
 // Offensive BV (Arc Fire Pool)
 // ============================================================================
 
 /**
  * Compute the per-arc fire pool and the weighted contribution for each.
- * The highest-BV main arc becomes the primary (100%). Opposite arc contributes
- * 25%, the two side arcs each contribute 50%. Fuselage weapons always
- * contribute at 100%.
+ * Ordinary aerospace combines Nose, wings/sides and Fuselage into one forward
+ * group. The weaker forward/rear group contributes at 50% (ties favor forward).
+ * Primary identifies the largest populated arc within the dominant group.
+ * Pinned AeroBVCalculator.java:147-155; BVCalculator.java:690-699,835-837.
  *
  * @spec battle-value-system spec: Aerospace Offensive BV Arc Fire Pool
  */
@@ -146,25 +117,32 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     }
   }
 
-  // Identify the primary arc (highest BV). Ties break to Nose → LW/LS → RW/RS → Aft.
+  // Decide direction using the complete forward group, not individual arcs.
+  const forwardArcs = mainArcs.filter((arc) => arc !== AerospaceArc.AFT);
+  const forwardBV = forwardArcs.reduce(
+    (sum, arc) => sum + (rawByArc.get(arc) ?? 0),
+    fuselageWeaponBV,
+  );
+  const rearIsPrimary = (rawByArc.get(AerospaceArc.AFT) ?? 0) > forwardBV;
+  const primaryCandidates = rearIsPrimary
+    ? [AerospaceArc.AFT]
+    : [...forwardArcs, AerospaceArc.FUSELAGE];
+  // Preserve the contribution shape and deterministic ordering for callers.
   let primaryArc: AerospaceArc | null = null;
-  let primaryBV = -1;
-  for (const arc of mainArcs) {
-    const bv = rawByArc.get(arc) ?? 0;
+  let primaryBV = 0;
+  for (const arc of primaryCandidates) {
+    const bv =
+      arc === AerospaceArc.FUSELAGE
+        ? fuselageWeaponBV
+        : (rawByArc.get(arc) ?? 0);
     if (bv > primaryBV) {
       primaryBV = bv;
       primaryArc = arc;
     }
   }
-  // If every arc is zero, there is no meaningful primary arc.
-  if (primaryBV <= 0) {
-    primaryArc = null;
-  }
-
-  // Assign weights.
-  const oppositeArc = primaryArc
-    ? getOppositeArc(primaryArc, input.subType)
-    : null;
+  const forwardWeight = rearIsPrimary ? 0.5 : 1;
+  const rearWeight = rearIsPrimary ? 1 : 0.5;
+  fuselageWeaponBV *= forwardWeight;
 
   const contributions: IAerospaceArcContribution[] = [];
   let weaponFirePoolBV = 0;
@@ -173,12 +151,10 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     let weight: number;
     if (primaryArc === null) {
       weight = 0;
-    } else if (arc === primaryArc) {
-      weight = 1.0;
-    } else if (arc === oppositeArc) {
-      weight = 0.25;
+    } else if (arc === AerospaceArc.AFT) {
+      weight = rearWeight;
     } else {
-      weight = 0.5;
+      weight = forwardWeight;
     }
     const weightedBV = rawBV * weight;
     weaponFirePoolBV += weightedBV;
