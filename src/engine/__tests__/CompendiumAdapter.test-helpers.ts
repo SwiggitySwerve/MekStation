@@ -542,7 +542,7 @@ describe('CompendiumAdapter', () => {
           turret: {
             type: TurretType.SINGLE,
             maxWeight: 6,
-            currentWeight: 0,
+
             rotationArc: 360,
           },
           equipment: [

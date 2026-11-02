@@ -155,8 +155,28 @@ public class VehicleAeroReferenceExporter {
             field.setAccessible(true);
             aggregates.put(name, field.getDouble(calculator));
         }
-        return Map.of("mode", "ignoreC3=true,ignoreSkill=true,ignoreTAG=true", "total", total,
-            "calculatorClass", calculator.getClass().getName(), "aggregates", aggregates);
+        Map<String, Object> result = new TreeMap<>(Map.of("mode", "ignoreC3=true,ignoreSkill=true,ignoreTAG=true", "total", total,
+            "calculatorClass", calculator.getClass().getName(), "aggregates", aggregates));
+        if (Boolean.getBoolean("bv.terms")) {
+            if (entity instanceof Infantry || entity instanceof ProtoMek) {
+                result.put("termsUnsupported", "BA, infantry and ProtoMek probes deferred (bounded first slice)");
+            } else {
+                BVCalculator probe = (BVCalculator) Class.forName("megamek.common.battleValue.Trace" + calculator.getClass().getSimpleName())
+                    .getConstructor(Entity.class).newInstance(entity);
+                int tracedTotal = probe.calculateBV(true, true, true, new TextCalculationReport());
+                for (String name : aggregates.keySet()) {
+                    Field field = BVCalculator.class.getDeclaredField(name);
+                    field.setAccessible(true);
+                    double expected = (double) aggregates.get(name), actual = field.getDouble(probe);
+                    if (Math.abs(actual - expected) > 1e-12 * Math.max(1, Math.abs(expected)))
+                        throw new IllegalStateException("Probe changed aggregate " + name);
+                    aggregates.put(name, actual);
+                }
+                if (tracedTotal != total) throw new IllegalStateException("Probe changed total");
+                result.put("terms", probe.getClass().getField("terms").get(probe));
+            }
+        }
+        return result;
     }
 
     public static void main(String[] args) throws Exception {

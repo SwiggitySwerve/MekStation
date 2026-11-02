@@ -1,0 +1,20 @@
+{
+  "armorBV": ["processArmor", "defensiveValue", "+"],
+  "structureBV": ["processStructure", "defensiveValue", "+"],
+  "defensiveEquipmentBV": ["processDefensiveEquipment", "defensiveValue", "+"],
+  "explosivePenalty": ["processExplosiveEquipment", "defensiveValue", "-"],
+  "typeModifier": ["processTypeModifier", "defensiveValue", "*"],
+  "defensiveFactor": ["processDefensiveFactor", "defensiveValue", "*"],
+  "weaponBV": ["processWeapons", "offensiveValue", "+"],
+  "ammoBV": ["processAmmo", "offensiveValue", "+"],
+  "offensiveEquipmentBV": ["processOffensiveEquipment", "offensiveValue", "+"],
+  "weightBV": ["processWeight", "offensiveValue", "+"],
+  "speedFactor": ["processSpeedFactor", "offensiveValue", "*"],
+  "offensiveTypeModifier": [
+    "processOffensiveTypeModifier",
+    "offensiveValue",
+    "*"
+  ],
+  "summaryModifier": ["processSummarize", "baseBV", "*"],
+  "adjustment": ["adjustBV", "adjustedBV", "+"]
+}

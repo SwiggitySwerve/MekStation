@@ -14,6 +14,7 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 1.1
  */
 
+import type { IBlkDocument } from '../formats/BlkFormat';
 import type { IAerospaceBVBreakdown } from './BVBreakdownTypes';
 
 import {
@@ -74,6 +75,8 @@ export interface IBaseUnit
 
   /** List of validation errors */
   readonly validationErrors: readonly string[];
+  /** Native source facts; absent on legacy/editor-only records. */
+  readonly nativeAerospaceConstruction?: IBlkDocument;
 }
 
 /**

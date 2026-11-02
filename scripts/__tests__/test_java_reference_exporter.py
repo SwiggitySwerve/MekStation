@@ -51,7 +51,7 @@ class JavaReferenceExporterTest(unittest.TestCase):
         """Run main() with Java, the runtime guard and artifact hashing stubbed; record the run names."""
         self.calls = []
 
-        def fake_run_java(mekfiles, paths, out_dir, name):
+        def fake_run_java(mekfiles, paths, out_dir, name, per_term=False):
             self.calls.append(name)
             return selfcheck_rows if name == 'selfcheck' else full_rows
 
