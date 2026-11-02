@@ -2,7 +2,8 @@
  * Vehicle Category Validation Rules
  *
  * Rules that apply to Vehicle category units (Vehicle, VTOL, SupportVehicle).
- * VAL-VEH-001 through VAL-VEH-005.
+ * VAL-VEH-001, VAL-VEH-002, VAL-VEH-004 and VAL-VEH-005.
+ * VAL-VEH-003 is retired: only total vehicle weight limits a turret (owner ruling 5).
  *
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
@@ -36,10 +37,6 @@ interface IVehicleUnit extends IValidatableUnit {
   engine?: { type: string; rating: number };
   motiveSystem?: { type: string };
   rotor?: { type: string };
-  turret?: {
-    capacity: number;
-    usedWeight: number;
-  };
 }
 
 /**
@@ -145,51 +142,6 @@ export const VehicleMotiveSystemRequired: IUnitValidationRuleDefinition = {
 };
 
 /**
- * VAL-VEH-003: Turret Capacity Limits
- */
-export const VehicleTurretCapacity: IUnitValidationRuleDefinition = {
-  id: 'VAL-VEH-003',
-  name: 'Turret Capacity Limits',
-  description: 'Turret equipment weight must not exceed turret capacity',
-  category: VEHICLE_CATEGORY_RULES_WEIGHT_CATEGORY,
-  priority: 32,
-  applicableUnitTypes: [UnitType.VEHICLE, UnitType.SUPPORT_VEHICLE],
-
-  canValidate(context: IUnitValidationContext): boolean {
-    if (!isVehicleUnit(context.unit)) return false;
-    return context.unit.turret !== undefined;
-  },
-
-  validate(context: IUnitValidationContext): IUnitValidationRuleResult {
-    const { unit } = context;
-    const errors: IUnitValidationError[] = [];
-
-    if (isVehicleUnit(unit) && unit.turret) {
-      const { capacity, usedWeight } = unit.turret;
-
-      if (usedWeight > capacity) {
-        const overflow = usedWeight - capacity;
-        addRuleDiagnostic(
-          errors,
-          this,
-          UnitValidationSeverity.ERROR,
-          `Turret capacity exceeded by ${overflow.toFixed(2)} tons`,
-          {
-            field: 'turret.usedWeight',
-            expected: `<= ${capacity}`,
-            actual: String(usedWeight),
-            suggestion:
-              'Remove equipment from turret or increase turret capacity',
-          },
-        );
-      }
-    }
-
-    return createRuleResult(this, { errors });
-  },
-};
-
-/**
  * VAL-VEH-004: VTOL Rotor Required
  */
 export const VTOLRotorRequired: IUnitValidationRuleDefinition = {
@@ -269,7 +221,6 @@ export const VEHICLE_CATEGORY_RULES: readonly IUnitValidationRuleDefinition[] =
   [
     VehicleEngineRequired,
     VehicleMotiveSystemRequired,
-    VehicleTurretCapacity,
     VTOLRotorRequired,
     VehicleTonnageRange,
   ];

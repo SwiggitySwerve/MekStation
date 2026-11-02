@@ -353,7 +353,7 @@ floors at one before type scaling, except the native early protection return.
 Explicit totals remain authoritative. DropShip/capital keep their empty stage.
 
 Source: MegaMek 48fcb2f64: AeroBVCalculator.java:78-115,
-HeatTrackingBVCalculator.java:59-64,266-286, MekFileParser.java:90-93,472-497
+HeatTrackingBVCalculator.java:65-70,229-247, MekFileParser.java:90-93,472-497
 (eligible same-location PPC links; Clan ER PPC requires year >= 3101).
 The shared ammo predicate preserves the crit scanner's exclusions; Mek
 per-slot penalties remain separate. `HULL` maps to Fuselage at the boundary.
