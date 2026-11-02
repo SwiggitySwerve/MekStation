@@ -175,52 +175,52 @@ const supportSources = [
     path: 'vehicles/3075 Support tanks/Dromedary Water Transport.blk',
     sha256: 'b05b8852e242a08b8e6c0cfa70bf4943ea41f695b834197881693952c3bb7a79',
     content:
-      '<UnitType>\nLargeSupportTank\n</UnitType>\n\n<Name>\nDromedary Water Transport\n</Name>\n\n<Model>\n\n</Model>\n\n<year>\n2562\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<motion_type>\nWheeled\n</motion_type>\n\n<cruiseMP>\n2\n</cruiseMP>\n\n<engine_type>\n1\n</engine_type>\n\n<armor_type>\n46\n</armor_type>\n\n<armor_tech_rating>\n2\n</armor_tech_rating>\n\n<armor>\n15\n15\n15\n15\n15\n15\n10\n</armor>\n\n<Body Equipment>\nIS Machine Gun Ammo - Half\nISSVDuneBuggyChassis\n</Body Equipment>\n\n<Front Equipment>\n</Front Equipment>\n\n<Front Right Equipment>\n</Front Right Equipment>\n\n<Front Left Equipment>\n</Front Left Equipment>\n\n<Rear Right Equipment>\n</Rear Right Equipment>\n\n<Rear Left Equipment>\n</Rear Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<Turret Equipment>\nMachine Gun\n</Turret Equipment>\n\n<barrating>\n5\n</barrating>\n\n<structural_tech_rating>\n2\n</structural_tech_rating>\n\n<engine_tech_rating>\n2\n</engine_tech_rating>\n\n<tonnage>\n150.0\n</tonnage>\n\n<fuel>\n7.5\n</fuel>',
+      '<UnitType>\nLargeSupportTank\n</UnitType>\n\n<Name>\nDromedary Water Transport\n</Name>\n\n<Model>\n\n</Model>\n\n<year>\n2562\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<motion_type>\nWheeled\n</motion_type>\n\n<cruiseMP>\n2\n</cruiseMP>\n\n<engine_type>\n1\n</engine_type>\n\n<armor_type>\n46\n</armor_type>\n\n<armor_tech_rating>\n2\n</armor_tech_rating>\n\n<armor>\n15\n15\n15\n15\n15\n15\n10\n</armor>\n\n<Body Equipment>\nIS Machine Gun Ammo - Half\nISSVDuneBuggyChassis\n</Body Equipment>\n\n<Front Equipment>\n</Front Equipment>\n\n<Front Right Equipment>\n</Front Right Equipment>\n\n<Front Left Equipment>\n</Front Left Equipment>\n\n<Rear Right Equipment>\n</Rear Right Equipment>\n\n<Rear Left Equipment>\n</Rear Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<Turret Equipment>\nMachine Gun\n</Turret Equipment>\n\n<barrating>\n5\n</barrating>\n\n<structural_tech_rating>\n2\n</structural_tech_rating>\n\n<engine_tech_rating>\n2\n</engine_tech_rating>\n\n<tonnage>\n150.0\n</tonnage>\n\n<fuel>\n7.5\n</fuel>\n<transporters>\ncargobay:4.0:1:1::-1:0\nLiquidCargoBay:45.5:1:2::-1:0\n</transporters>',
     structure: 47.0,
     engine: 36.0,
     armor: 4.0,
     fuel: 7.5,
-    subtotal: 94.5,
+    subtotal: 150,
   },
   {
     path: 'vehicles/AToW Companion/Naval/Small Steamer.blk',
     sha256: 'cfe001a95c9166ad26f788371589a743c6f2b0c2f1175da85daa02ff8721f62c',
     content:
-      '<UnitType>\nSupportTank\n</UnitType>\n\n<Name>\nSmall Steamer\n</Name>\n\n<Model>\n\n</Model>\n\n<year>\n2100\n</year>\n\n<type>\nIS Level 2\n</type>\n\n<motion_type>\nNaval\n</motion_type>\n\n<cruiseMP>\n2\n</cruiseMP>\n\n<engine_type>\n10\n</engine_type>\n\n<armor_type>\n43\n</armor_type>\n\n<armor_tech_rating>\n1\n</armor_tech_rating>\n\n<armor>\n1\n1\n1\n1\n</armor>\n\n<Body Equipment>\n</Body Equipment>\n\n<Front Equipment>\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<barrating>\n2\n</barrating>\n\n<structural_tech_rating>\n1\n</structural_tech_rating>\n\n<engine_tech_rating>\n1\n</engine_tech_rating>\n\n<tonnage>\n2.5\n</tonnage>\n\n<fuel>\n0.21\n</fuel>',
+      '<UnitType>\nSupportTank\n</UnitType>\n\n<Name>\nSmall Steamer\n</Name>\n\n<Model>\n\n</Model>\n\n<year>\n2100\n</year>\n\n<type>\nIS Level 2\n</type>\n\n<motion_type>\nNaval\n</motion_type>\n\n<cruiseMP>\n2\n</cruiseMP>\n\n<engine_type>\n10\n</engine_type>\n\n<armor_type>\n43\n</armor_type>\n\n<armor_tech_rating>\n1\n</armor_tech_rating>\n\n<armor>\n1\n1\n1\n1\n</armor>\n\n<Body Equipment>\n</Body Equipment>\n\n<Front Equipment>\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<barrating>\n2\n</barrating>\n\n<structural_tech_rating>\n1\n</structural_tech_rating>\n\n<engine_tech_rating>\n1\n</engine_tech_rating>\n\n<tonnage>\n2.5\n</tonnage>\n\n<fuel>\n0.21\n</fuel>\n<transporters>\ncargobay:0.7:1:1::-1:0\nstandardseats:1.0:0:-1::-1:0\npillionseats:21.0:0:-1::-1:0\n</transporters>',
     structure: 0.39,
     engine: 0.28,
     armor: 0.1,
     fuel: 0.21,
-    subtotal: 0.98,
+    subtotal: 2.28,
   },
   {
     path: 'vehicles/TRO Vehicle Annex/Wheeled/Burro II Super Heavy Cargo Truck.blk',
     sha256: '951e6f7b5c655b9a4c23760ef0baccf89686411fdcfdf3202d816e613f16913d',
     content:
-      '<UnitType>\nSupportTank\n</UnitType>\n\n<Name>\nBurro II Super Heavy Cargo Truck\n</Name>\n\n<Model>\n\n</Model>\n\n<year>\n3064\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<motion_type>\nWheeled\n</motion_type>\n\n<cruiseMP>\n3\n</cruiseMP>\n\n<engine_type>\n0\n</engine_type>\n\n<armor_type>\n50\n</armor_type>\n\n<armor_tech_rating>\n4\n</armor_tech_rating>\n\n<armor>\n25\n20\n20\n13\n</armor>\n\n<Body Equipment>\nEnvironmental Sealing\nArmored Chassis\nISOffRoadChassis\n</Body Equipment>\n\n<Front Equipment>\nSearchlight\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<barrating>\n9\n</barrating>\n\n<structural_tech_rating>\n4\n</structural_tech_rating>\n\n<engine_tech_rating>\n4\n</engine_tech_rating>\n\n<tonnage>\n50.0\n</tonnage>\n\n<fuel>\n0.0\n</fuel>',
+      '<UnitType>\nSupportTank\n</UnitType>\n\n<Name>\nBurro II Super Heavy Cargo Truck\n</Name>\n\n<Model>\n\n</Model>\n\n<year>\n3064\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<motion_type>\nWheeled\n</motion_type>\n\n<cruiseMP>\n3\n</cruiseMP>\n\n<engine_type>\n0\n</engine_type>\n\n<armor_type>\n50\n</armor_type>\n\n<armor_tech_rating>\n4\n</armor_tech_rating>\n\n<armor>\n25\n20\n20\n13\n</armor>\n\n<Body Equipment>\nEnvironmental Sealing\nArmored Chassis\nISOffRoadChassis\n</Body Equipment>\n\n<Front Equipment>\nSearchlight\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<barrating>\n9\n</barrating>\n\n<structural_tech_rating>\n4\n</structural_tech_rating>\n\n<engine_tech_rating>\n4\n</engine_tech_rating>\n\n<tonnage>\n50.0\n</tonnage>\n\n<fuel>\n0.0\n</fuel>\n<transporters>\ncargobay:12.5:1:1::-1:0\n</transporters>',
     structure: 29.0,
     engine: 3.5,
     armor: 4.0,
     fuel: 0.0,
-    subtotal: 36.5,
+    subtotal: 49.5,
   },
   {
     path: 'vehicles/Turning Points/TP Vega 3039/Flatbed Railcar.blk',
     sha256: '9415760f7bd8346e0a571a85244db9c8023391be2ed0316dbd438f42ba02db77',
     content:
-      '<UnitType>\nSupportTank\n</UnitType>\n\n<Name>\nFlatbed Railcar\n</Name>\n\n<Model>\n\n</Model>\n\n<year>\n2899\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<motion_type>\nRail\n</motion_type>\n\n<cruiseMP>\n0\n</cruiseMP>\n\n<engine_type>\n8\n</engine_type>\n\n<armor_type>\n44\n</armor_type>\n\n<armor_tech_rating>\n3\n</armor_tech_rating>\n\n<armor>\n16\n16\n16\n16\n</armor>\n\n<Body Equipment>\nSV Chassis Mod [Trailer]\n</Body Equipment>\n\n<Front Equipment>\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<barrating>\n3\n</barrating>\n\n<structural_tech_rating>\n3\n</structural_tech_rating>\n\n<engine_tech_rating>\n3\n</engine_tech_rating>\n\n<tonnage>\n120.0\n</tonnage>\n\n<fuel>\n0.0\n</fuel>',
+      '<UnitType>\nSupportTank\n</UnitType>\n\n<Name>\nFlatbed Railcar\n</Name>\n\n<Model>\n\n</Model>\n\n<year>\n2899\n</year>\n\n<type>\nIS Level 3\n</type>\n\n<motion_type>\nRail\n</motion_type>\n\n<cruiseMP>\n0\n</cruiseMP>\n\n<engine_type>\n8\n</engine_type>\n\n<armor_type>\n44\n</armor_type>\n\n<armor_tech_rating>\n3\n</armor_tech_rating>\n\n<armor>\n16\n16\n16\n16\n</armor>\n\n<Body Equipment>\nSV Chassis Mod [Trailer]\n</Body Equipment>\n\n<Front Equipment>\n</Front Equipment>\n\n<Right Equipment>\n</Right Equipment>\n\n<Left Equipment>\n</Left Equipment>\n\n<Rear Equipment>\n</Rear Equipment>\n\n<barrating>\n3\n</barrating>\n\n<structural_tech_rating>\n3\n</structural_tech_rating>\n\n<engine_tech_rating>\n3\n</engine_tech_rating>\n\n<tonnage>\n120.0\n</tonnage>\n\n<fuel>\n0.0\n</fuel>\n<transporters>\ncargobay:99.0:1:1::-1:0\n</transporters>',
     structure: 19.5,
     engine: 0.0,
     armor: 1.5,
     fuel: 0.0,
-    subtotal: 21.0,
+    subtotal: 120.0,
   },
 ];
 
 // Construction excerpts: mm-data 50f7efef, CC BY-NC-SA 4.0.
 // Paths and hashes identify the complete pinned sources.
 // Expected component values: MegaMek 48fcb2f6 UL-16 weightMethods.
-describe('support construction subtotal (crew, bays and equipment deferred)', () => {
+describe('support construction components and represented total', () => {
   const handler = new SupportVehicleUnitHandler();
   it.each(supportSources)(
     '$path uses the pinned chassis, engine, BAR and source fuel',
@@ -350,5 +350,5 @@ it('rounds the complete represented subtotal after adding fractional source fuel
   const handler = new SupportVehicleUnitHandler();
   const result = handler.parse({ ...parsed.data.document, fuel: 7.5001 });
   if (!result.success) throw new Error('handler parse');
-  expect(handler.calculateWeight(result.data.unit)).toBe(95);
+  expect(handler.calculateWeight(result.data.unit)).toBe(150.5);
 });
