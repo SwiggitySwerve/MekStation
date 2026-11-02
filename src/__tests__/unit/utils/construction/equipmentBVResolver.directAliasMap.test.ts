@@ -17,6 +17,9 @@ const KNOWN_MISSING_TARGETS = new Set([
 // targets are often BA (Battle Armor) variants while DIRECT_ALIAS_MAP targets are
 // standard Mech-scale equivalents.
 const KNOWN_CONFLICTS = new Set([
+  // These legacy name mappings target absent IDs; the aliases select the
+  // represented pinned Java identity (covered by sourceAliases tests).
+  'binary laser (blazer) cannon',
   'issmallvsplaser',
   'ismediumvsplaser',
   'islargevsplaser',
@@ -64,10 +67,10 @@ function extractDirectAliasMap(): AliasEntry[] {
 
   const block = src.substring(braceStart + 1, braceEnd);
   const entries: AliasEntry[] = [];
-  const lineRe = /^\s*['"]?([^'":\s]+)['"]?\s*:\s*'([^']+)'/gm;
+  const lineRe = /^\s*(?:['"]([^'"]+)['"]|([^'":\s]+))\s*:\s*'([^']+)'/gm;
   let m: RegExpExecArray | null;
   while ((m = lineRe.exec(block)) !== null) {
-    entries.push({ key: m[1].trim(), target: m[2] });
+    entries.push({ key: (m[1] ?? m[2]).trim(), target: m[3] });
   }
 
   return entries;
