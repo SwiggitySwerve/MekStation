@@ -13,10 +13,12 @@ import { getTotalAerospaceArmor } from '@/stores/aerospaceState';
 import { useAerospaceStore } from '@/stores/useAerospaceStore';
 import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { getEngineDefinition } from '@/types/construction/EngineType';
+import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import {
   calculateAerospaceBV,
   type IAerospaceBVEquipment,
 } from '@/utils/construction/aerospace/aerospaceBV';
+import { calculateHeatDissipation } from '@/utils/construction/heatSinkCalculations';
 import { formatTons } from '@/utils/formatting';
 
 import { StatusItem } from '../tabs/StatusItem';
@@ -104,7 +106,10 @@ export function AerospaceStatusBar({
   }, [armorAllocation, armorType, armorTonnage]);
 
   // Heat dissipation
-  const heatDissipation = doubleHeatSinks ? heatSinks * 2 : heatSinks;
+  const heatDissipation = calculateHeatDissipation(
+    doubleHeatSinks ? HeatSinkType.DOUBLE_IS : HeatSinkType.SINGLE,
+    heatSinks,
+  );
 
   // Live BV breakdown (TechManual BV 2.0 aerospace path)
   const bv = useMemo(() => {
@@ -118,6 +123,7 @@ export function AerospaceStatusBar({
       structuralIntegrity,
       safeThrust,
       maxThrust,
+      heatCapacity: heatDissipation,
       armorType,
       totalArmorPoints: armorStats.allocated,
       equipment: bvEquipment,
@@ -128,6 +134,7 @@ export function AerospaceStatusBar({
     structuralIntegrity,
     safeThrust,
     maxThrust,
+    heatDissipation,
     armorType,
     armorStats.allocated,
     equipment,

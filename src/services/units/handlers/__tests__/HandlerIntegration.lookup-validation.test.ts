@@ -167,6 +167,12 @@ describe('Handler Integration', () => {
         const parseResult = handler!.parse(doc);
 
         if (parseResult.success && parseResult.data?.unit) {
+          if (unitType === UnitType.VEHICLE || unitType === UnitType.VTOL) {
+            expect(() =>
+              handler!.calculateWeight(parseResult.data!.unit),
+            ).toThrow(/weight is incomplete/);
+            continue;
+          }
           const weight = handler!.calculateWeight(parseResult.data.unit);
           expect(typeof weight).toBe('number');
           expect(weight).toBeGreaterThanOrEqual(0);

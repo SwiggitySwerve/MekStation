@@ -7,6 +7,10 @@ import {
   AerospaceArc,
   AerospaceSubType,
 } from '../../../types/unit/AerospaceInterfaces';
+import {
+  calculateBaseHeatEfficiency,
+  calculateHeatTrackedWeapons,
+} from '../battleValueHeatTracking';
 import { resolveEquipmentBV } from '../equipmentBVResolver';
 import { getAerospaceDefensiveEquipmentKind } from './aerospaceBVEquipment';
 
@@ -100,6 +104,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     rawByArc.set(arc, 0);
   }
   let fuselageWeaponBV = 0;
+  const weapons: { arc: AerospaceArc; bv: number; heat: number }[] = [];
 
   for (const item of input.equipment) {
     if (getAerospaceDefensiveEquipmentKind(item.id)) continue;
@@ -108,6 +113,8 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     const resolved = resolveEquipmentBV(item.id);
     if (!resolved.resolved || resolved.battleValue === 0) continue;
 
+    if (arc !== AerospaceArc.FUSELAGE && !rawByArc.has(arc)) continue;
+    weapons.push({ arc, bv: resolved.battleValue, heat: resolved.heat });
     if (arc === AerospaceArc.FUSELAGE) {
       fuselageWeaponBV += resolved.battleValue;
       continue;
@@ -142,7 +149,31 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
   }
   const forwardWeight = rearIsPrimary ? 0.5 : 1;
   const rearWeight = rearIsPrimary ? 1 : 0.5;
-  fuselageWeaponBV *= forwardWeight;
+  // AeroBVCalculator.java:141-155; HeatTrackingBVCalculator.java:59-61,108-126.
+  // Native sorting uses arc-modified BV and one aircraft-wide heat budget.
+  const heatPenalty = new Map<AerospaceArc, number>();
+  if (
+    input.heatCapacity !== undefined &&
+    !input.isSupportVehicle &&
+    input.subType !== AerospaceSubType.CONVENTIONAL_FIGHTER
+  ) {
+    const weighted = weapons.map((w) => ({
+      ...w,
+      bv: w.bv * (w.arc === AerospaceArc.AFT ? rearWeight : forwardWeight),
+    }));
+    for (const { weapon, adjustedBV } of calculateHeatTrackedWeapons(
+      weighted,
+      calculateBaseHeatEfficiency(input.heatCapacity),
+    )) {
+      heatPenalty.set(
+        weapon.arc,
+        (heatPenalty.get(weapon.arc) ?? 0) + weapon.bv - adjustedBV,
+      );
+    }
+  }
+  fuselageWeaponBV =
+    fuselageWeaponBV * forwardWeight -
+    (heatPenalty.get(AerospaceArc.FUSELAGE) ?? 0);
 
   const contributions: IAerospaceArcContribution[] = [];
   let weaponFirePoolBV = 0;
@@ -156,7 +187,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     } else {
       weight = forwardWeight;
     }
-    const weightedBV = rawBV * weight;
+    const weightedBV = rawBV * weight - (heatPenalty.get(arc) ?? 0);
     weaponFirePoolBV += weightedBV;
     contributions.push({
       arc,
