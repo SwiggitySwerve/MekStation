@@ -14,6 +14,7 @@ const INFANTRY_SCRIPT = path.resolve(
   process.cwd(),
   'scripts/validate-infantry-bv.ts',
 );
+const PROTO_SCRIPT = path.resolve('scripts/validate-proto-bv.ts');
 
 interface AerospaceReport {
   readonly generatedAt: string;
@@ -146,5 +147,32 @@ describe('Wave 4 BV report output', () => {
       units: [{ path: 'nested/design.json' }],
     });
     expect(gatherInfantryFixtureFiles(directory)).toEqual([design]);
+  });
+
+  it('keeps ProtoMech parity deferred for the construction catalog', () => {
+    const output = makeTempFile('proto-report.json');
+    expect(runScript(PROTO_SCRIPT, output).status).toBe(0);
+    expect(
+      readJson<{ status: string; protos: unknown[] }>(output),
+    ).toMatchObject({
+      status: 'deferred',
+      protos: [],
+    });
+  });
+
+  it('retains the explicit error for a supplied unimplemented ProtoMech cache', () => {
+    const directory = makeTempDir('proto-cache-');
+    writeJson(path.join(directory, 'reference.json'), {
+      id: 'reference',
+      bv: 154,
+    });
+    writeJson(path.join(directory, 'index.json'), {
+      units: [{ path: 'reference.json' }],
+    });
+    const output = makeTempFile('proto-error.json');
+    expect(
+      runScript(PROTO_SCRIPT, output, ['--proto-cache', directory]).status,
+    ).toBe(0);
+    expect(readJson<{ status: string }>(output).status).toBe('error');
   });
 });
