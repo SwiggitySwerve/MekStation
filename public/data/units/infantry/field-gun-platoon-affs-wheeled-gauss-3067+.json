@@ -1,0 +1,64 @@
+{
+  "id": "field-gun-platoon-affs-wheeled-gauss-3067+",
+  "chassis": "Field Gun Platoon (AFFS)",
+  "model": "(Wheeled Gauss 3067+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "rifle-federated-long",
+    "name": "Rifle (Federated Long)"
+  },
+  "armorKit": "Fed Suns Infantry Kit (3067+)",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "fed-suns-infantry-kit-3067+",
+      "name": "Fed Suns Infantry Kit (3067+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-gauss-ammo",
+      "name": "IS Gauss Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "isgaussrifle",
+      "name": "ISGaussRifle"
+    },
+    {
+      "id": "is-gauss-ammo",
+      "name": "IS Gauss Ammo"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>The AFFS treats its infantry as professionals rather than expendable garrison filler, drawing soldiers from single worlds or neighboring systems to build the unit cohesion that the Federated Suns considers essential to effective combined-arms operations. Towing infantry-scale gauss cannon that propel slugs at hypersonic velocities, these field gun crews deliver the longest-ranged and most accurate direct fire available to conventional ground forces.</p>"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "id": "foot-platoon-affs-specops-fireteam-2860+",
+  "chassis": "Foot Platoon (AFFS)",
+  "model": "(SpecOps Fireteam 2860+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2860,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 8,
+    "squadCount": 2,
+    "totalTroopers": 16
+  },
+  "primaryWeapon": {
+    "id": "rifle-federated-long",
+    "name": "Rifle (Federated Long)"
+  },
+  "armorKit": "Sneak Suit (Camo/IR)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "sneak-suit-camo-ir",
+      "name": "Sneak Suit (Camo/IR)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": ["sneakcamo", "sneakir"],
+  "effectiveArmorFlags": ["sneakcamo", "sneakir"],
+  "specializations": 512,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "laser-rifle-blazer",
+    "name": "Laser Rifle (Blazer)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Federated Suns infantry benefit from one of the strongest industrial bases in the Inner Sphere, with AFFS quartermasters able to supply platoons with standardized equipment and ammunition from a logistics network that few rival states can match. Foot infantry remain the backbone of AFFS planetary garrisons, cheap enough to deploy in numbers across the Federated Suns' vast territory and reliable enough to hold ground that BattleMech forces cannot permanently occupy. These special operations fireteams are small, highly trained units configured for reconnaissance, sabotage, and direct action missions operating independently behind enemy lines, relying on stealth and precise execution rather than conventional firepower.</p>"
+  }
+}

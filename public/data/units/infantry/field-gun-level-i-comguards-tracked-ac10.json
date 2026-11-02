@@ -1,0 +1,84 @@
+{
+  "id": "field-gun-level-i-comguards-tracked-ac10",
+  "chassis": "Field Gun Level I (ComGuards)",
+  "model": "(Tracked AC10)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2933,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "ComStar Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "comstar-infantry-kit",
+      "name": "ComStar Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10"
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10"
+    },
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10"
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10"
+    }
+  ],
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Com Guards field conventional infantry as a core component of their combined-arms formations, with Level I infantry units integrated into the same command structure alongside BattleMech, armor, and aerospace elements at every organizational level. Operating heavy field autocannon, these crews deliver punishing direct fire capable of damaging medium-weight combat vehicles, providing organic heavy weapons support that reduces a formation's dependence on armor assets.</p>"
+  }
+}

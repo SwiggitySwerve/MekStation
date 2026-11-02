@@ -1,0 +1,53 @@
+{
+  "id": "foot-platoon-affs-specops-fireteam-3028+",
+  "chassis": "Foot Platoon (AFFS)",
+  "model": "(SpecOps Fireteam 3028+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2860,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 8,
+    "squadCount": 2,
+    "totalTroopers": 16
+  },
+  "primaryWeapon": {
+    "id": "rifle-federated-long",
+    "name": "Rifle (Federated Long)"
+  },
+  "armorKit": "Sneak Suit (Camo/IR/ECM)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "sneak-suit-camo-ir-ecm",
+      "name": "Sneak Suit (Camo/IR/ECM)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": ["sneakcamo", "sneakir", "sneakecm"],
+  "effectiveArmorFlags": ["sneakcamo", "sneakir", "sneakecm"],
+  "specializations": 512,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "laser-rifle-blazer",
+    "name": "Laser Rifle (Blazer)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Armed Forces of the Federated Suns integrate conventional infantry directly into their Regimental Combat Teams, assigning foot, mechanized, and jump platoons to work permanently alongside BattleMech and armored formations. Foot infantry remain the backbone of AFFS planetary garrisons, cheap enough to deploy in numbers across the Federated Suns' vast territory and reliable enough to hold ground that BattleMech forces cannot permanently occupy. These special operations fireteams are small, highly trained units configured for reconnaissance, sabotage, and direct action missions operating independently behind enemy lines, relying on stealth and precise execution rather than conventional firepower.</p>"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "id": "special-forces-stones-trackers",
+  "chassis": "Special Forces",
+  "model": "Stone's Trackers",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "DARK_AGE",
+  "year": 3082,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-mauser-iic-ias",
+    "name": "Laser Rifle (Mauser IIC IAS)"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "support-laser-er-heavy,-clan",
+    "name": "Support Laser (ER Heavy, Clan)",
+    "count": 2
+  },
+  "mulId": 3000,
+  "role": "Ambusher",
+  "source": "TR:3085S",
+  "fluff": {
+    "overview": "<p>Stone's Trackers trace their origins to the 212th Nova Cat Headhunter Binary, a clandestine Clan Nova Cat unit formed during the Jihad for missions too dishonorable for conventional Clan warriors. The 212th joined Devlin Stone's coalition in 3071 and spent the remainder of the war conducting high-risk assassination, sabotage, and counterinsurgency operations against the Word of Blake. Inner Sphere personnel filled the ranks alongside the original Clanners as casualties mounted, creating a hybrid unit that embraced unconventional tactics regardless of cultural origin.</p><p>After the Jihad, the 212th was officially transferred to the Republic Armed Forces and rechristened the 212th Special Operations Battalion. The transfer stripped the unit of its BattleMech and battle armor elements over the objections of its founding commander, making the Trackers a purely infantry formation. Stone's Peace left few opportunities to maintain combat readiness, and many veteran operators retired. The Capellan Crusades provided the first real test of the rebuilt unit, and the Trackers saw heavy action during border skirmishes with the Confederation. The fighting crippled the battalion, and the 212th was officially disbanded following the Crusades. Surviving operators were reportedly distributed across RAF SpecOps Command to spread their headhunting expertise throughout the Republic's special operations community.</p>"
+  }
+}

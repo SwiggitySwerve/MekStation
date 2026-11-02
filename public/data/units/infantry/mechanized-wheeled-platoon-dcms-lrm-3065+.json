@@ -1,0 +1,49 @@
+{
+  "id": "mechanized-wheeled-platoon-dcms-lrm-3065+",
+  "chassis": "Mechanized Wheeled Platoon (DCMS)",
+  "model": "(LRM 3065+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3065,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Draconis Combine Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "draconis-combine-infantry-kit",
+      "name": "Draconis Combine Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrylrm",
+    "name": "InfantryLRM",
+    "count": 2
+  },
+  "mulId": 2146,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>The Draconis Combine Mustered Soldiery assigns conventional infantry to garrison roles across its military districts, with district regulars often fielding extra platoons to secure worlds that BattleMech forces cannot permanently garrison. Wheeled mechanized infantry ride armored personnel carriers that offer speed on roads and enough protection to survive initial contact. The DCMS assigns these platoons where garrison duty demands both rapid response and the ability to dismount under fire, a combination that foot and motorized troops cannot reliably deliver. Their support troops operate man-portable long-range missile launchers capable of reaching targets well beyond personal weapon range. The ability to engage vehicles and fortified positions from a distance that keeps the crew out of direct fire makes LRM teams among the most valued assets in any infantry formation.</p>"
+  }
+}

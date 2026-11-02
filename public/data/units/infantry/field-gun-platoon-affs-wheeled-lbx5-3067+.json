@@ -1,0 +1,104 @@
+{
+  "id": "field-gun-platoon-affs-wheeled-lbx5-3067+",
+  "chassis": "Field Gun Platoon (AFFS)",
+  "model": "(Wheeled LBX5 3067+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "rifle-federated-long",
+    "name": "Rifle (Federated Long)"
+  },
+  "armorKit": "Fed Suns Infantry Kit (3067+)",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "fed-suns-infantry-kit-3067+",
+      "name": "Fed Suns Infantry Kit (3067+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac5",
+      "name": "ISLBXAC5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-5-x-cluster-ammo",
+      "name": "IS LB 5-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac5",
+      "name": "ISLBXAC5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-5-x-cluster-ammo",
+      "name": "IS LB 5-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac5",
+      "name": "ISLBXAC5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-5-x-cluster-ammo",
+      "name": "IS LB 5-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "islbxac5",
+      "name": "ISLBXAC5"
+    },
+    {
+      "id": "is-lb-5-x-cluster-ammo",
+      "name": "IS LB 5-X Cluster Ammo"
+    },
+    {
+      "id": "islbxac5",
+      "name": "ISLBXAC5"
+    },
+    {
+      "id": "is-lb-5-x-cluster-ammo",
+      "name": "IS LB 5-X Cluster Ammo"
+    },
+    {
+      "id": "islbxac5",
+      "name": "ISLBXAC5"
+    },
+    {
+      "id": "is-lb-5-x-cluster-ammo",
+      "name": "IS LB 5-X Cluster Ammo"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>Federated Suns infantry benefit from one of the strongest industrial bases in the Inner Sphere, with AFFS quartermasters able to supply platoons with standardized equipment and ammunition from a logistics network that few rival states can match. Towing LB-X autocannon that can switch between solid slugs and cluster rounds, these field gun crews adapt their fire to engage both armored point targets and dispersed infantry formations.</p>"
+  }
+}

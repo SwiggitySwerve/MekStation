@@ -1,0 +1,48 @@
+{
+  "id": "clan-motorized-squad-rifle",
+  "chassis": "Clan Motorized Squad",
+  "model": "(Rifle)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2815,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 1,
+    "totalTroopers": 5
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "source": "TW",
+  "fluff": {
+    "overview": "<p>Clan motorized squads mount a squad-strength element on light vehicles for fast patrol and screening operations. These small, mobile formations extend garrison coverage along road networks and perimeter zones where a full motorized Point would be excessive. Their speed and low logistics footprint make them useful as early-warning elements and rapid checkpoint reinforcements across Clan occupation zones.</p>"
+  }
+}

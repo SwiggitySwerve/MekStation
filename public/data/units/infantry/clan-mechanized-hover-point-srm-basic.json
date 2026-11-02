@@ -1,0 +1,49 @@
+{
+  "id": "clan-mechanized-hover-point-srm-basic",
+  "chassis": "Clan Mechanized Hover Point",
+  "model": "(SRM Basic)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2807,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryheavysrm",
+    "name": "InfantryHeavySRM",
+    "count": 2
+  },
+  "mulId": 9613,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Clan doctrine generally treats conventional infantry as a necessary evil, though Clans like Hell's Horses have demonstrated that properly supported infantry can be an effective component of combined-arms operations. Mechanized Hover Points ride hovercraft that provide the fastest ground speed of any infantry transport, with the added capability of crossing water obstacles. This speed comes at the cost of durability, as hovercraft are fragile compared to tracked or wheeled vehicles, but in open terrain or coastal environments, few formations can match their ability to reposition quickly. Support elements carry man-portable short-range missile launchers firing the same warheads used by BattleMechs and combat vehicles, giving the Point a potent anti-armor punch at close range.</p>"
+  }
+}

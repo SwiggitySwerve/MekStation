@@ -1,0 +1,48 @@
+{
+  "id": "jump-platoon-lcaf-rifle-3058+",
+  "chassis": "Jump Platoon (LCAF)",
+  "model": "(Rifle 3058+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3058,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "rifle-tk-assault",
+    "name": "Rifle (TK Assault)"
+  },
+  "armorKit": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "lyran-alliance-lyran-commonwealth-3060+-infantry-kit",
+      "name": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Lyran infantry draw confidence from knowing their equipment is first-rate, even when assigned to garrison duty on worlds far from the front lines. Jump infantry use thruster backpacks to leap across obstacles and reposition rapidly on the battlefield, trading platoon size for the tactical mobility to seize or defend terrain that foot troops cannot reach quickly. Armed with standard ballistic assault rifles, these platoons deliver reliable short-range firepower and can be equipped and resupplied from almost any garrison stockpile.</p>"
+  }
+}

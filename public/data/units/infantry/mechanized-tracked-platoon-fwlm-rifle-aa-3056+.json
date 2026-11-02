@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-tracked-platoon-fwlm-rifle-aa-3056+",
+  "chassis": "Mechanized Tracked Platoon (FWLM)",
+  "model": "(Rifle AA 3056+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3056,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Free Worlds League Infantry Kit (3035+)",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "free-worlds-league-infantry-kit-3035+",
+      "name": "Free Worlds League Infantry Kit (3035+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "aa-weapon-mk.-2,-man-portable",
+    "name": "AA Weapon (Mk. 2, Man-Portable)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>New technology and creative tactical thinking have long featured in FWLM infantry deployment, with varied unit types and specialized formations treated as the norm rather than the exception. Tracked mechanized platoons sacrifice road speed for all-terrain capability, carrying their infantry across ground that would halt wheeled vehicles. The FWLM assigns these formations to worlds where rough terrain or poor infrastructure demands mobility that wheels cannot provide. Armed with standard ballistic assault rifles, the most common and affordable infantry weapon in the Inner Sphere, these platoons deliver reliable short-range firepower and can be equipped and resupplied from almost any garrison stockpile. These anti-aircraft specialists are trained and equipped to engage low-flying aerospace fighters, VTOLs, and conventional aircraft, providing dedicated point air defense for installations and ground formations.</p>"
+  }
+}

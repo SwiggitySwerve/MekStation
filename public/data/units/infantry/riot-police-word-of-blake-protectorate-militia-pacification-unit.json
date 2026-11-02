@@ -1,0 +1,49 @@
+{
+  "id": "riot-police-word-of-blake-protectorate-militia-pacification-unit",
+  "chassis": "Riot Police",
+  "model": "Word of Blake Protectorate Militia Pacification Unit",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3055,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 3,
+    "totalTroopers": 18
+  },
+  "primaryWeapon": {
+    "id": "tranq-gun",
+    "name": "Tranq Gun"
+  },
+  "armorKit": "Word of Blake Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "word-of-blake-infantry-kit",
+      "name": "Word of Blake Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "stunstick",
+    "name": "Stunstick",
+    "count": 1
+  },
+  "mulId": 2718,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Word of Blake Protectorate Militia pacification units were configured for civil disturbance management on conquered worlds where local populations resisted Blakist rule. Contrary to propaganda, not every government within the Protectorate accepted the Word's authority willingly, and riot control became a routine requirement on many occupied planets. These motorized platoons carried tranquilizer guns and stunsticks rather than lethal weapons, intended to subdue rather than kill, minimizing collateral damage and avoiding the kind of visible atrocities that would fuel further resistance. Operating in eighteen-trooper sub-platoons, pacification units could flank difficult crowds, sweep buildings for hidden insurgents, and break up organized protests. Their non-lethal armament meant they posed no threat to armored targets, limiting their effectiveness to population control operations.</p>"
+  }
+}

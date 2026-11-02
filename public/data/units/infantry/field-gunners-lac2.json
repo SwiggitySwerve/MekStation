@@ -1,0 +1,183 @@
+{
+  "id": "field-gunners-lac2",
+  "chassis": "Field Gunners",
+  "model": "(LAC2)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3068,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    }
+  ],
+  "fluff": {
+    "overview": "<p>Field gun platoons crew light-caliber autocannons towed on wheeled carriages, providing long-range direct fire against armored targets. The lighter autocannon variants trade raw stopping power for accuracy and sustained engagement capability, allowing the crew to engage at distances that keep them well clear of close combat. These platoons supplement armored formations by adding volume of fire without the cost of a dedicated combat vehicle, though their towed configuration limits repositioning speed once emplaced.</p>"
+  }
+}

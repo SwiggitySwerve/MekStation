@@ -1,0 +1,43 @@
+{
+  "id": "surveillance-specialist-com-guards-battlefield-data-miners",
+  "chassis": "Surveillance Specialist",
+  "model": "Com Guards Battlefield Data Miners",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3064,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 2,
+    "totalTroopers": 10
+  },
+  "primaryWeapon": {
+    "id": "infantryfederatedbarrettm42b",
+    "name": "InfantryFederatedBarrettM42B"
+  },
+  "armorKit": "ComStar Infantry Kit",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "comstar-infantry-kit",
+      "name": "ComStar Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 16,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 3136,
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>ComStar's battlefield data miners are a specialized signals intelligence formation deployed from mechanized hover carriers. These sensor-equipped platoons use networks of remote sensors to capture enemy transmissions and submit them for processing by Com Guard intelligence staff. While the data miners rarely crack enemy encryption in real time, their ability to measure and triangulate signal sources provides Com Guard commanders with targeting data on opposing formations. Armed with Federated-Barrett M42B assault rifles for self-defense, the platoon's primary value lies in its electronic surveillance capability rather than its direct combat power. The combination of hover mobility and sensor equipment allows data miner units to reposition quickly as the battle develops, maintaining coverage of enemy communications even as front lines shift.</p>"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "id": "beast-infantry-odessan-raxx-needler",
+  "chassis": "Beast Infantry (Odessan Raxx)",
+  "model": "(Needler)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2680,
+  "motionType": "BEAST",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "needler-rifle",
+    "name": "Needler Rifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Beast:Odessan Raxx",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "beastMount": "Beast:Odessan Raxx",
+  "fluff": {
+    "overview": "<p>The Odessan raxx is a massive six-legged reptile native to the Lyran world of Odessa, rivaling a Terran elephant in size. Despite their imposing bulk, raxx are remarkably docile and highly intelligent, traits that made them ideal pack animals and riding beasts. Their most extraordinary quality is endurance: a raxx can survive without food or water for up to two weeks, making them invaluable on worlds with scarce resources or harsh conditions. These qualities led to their export across countless Inner Sphere worlds, where they serve as mounts, draft animals, and military beasts of burden. Raxx-mounted infantry benefit from their animals' durability and calm temperament under fire, though the creatures become fiercely aggressive when defending their young. Military formations mounted on raxx can operate far from supply lines for extended periods, a significant advantage on the frontier worlds where they are most commonly employed.</p>"
+  }
+}

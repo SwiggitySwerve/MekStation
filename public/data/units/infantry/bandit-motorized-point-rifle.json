@@ -1,0 +1,47 @@
+{
+  "id": "bandit-motorized-point-rifle",
+  "chassis": "Bandit Motorized Point",
+  "model": "(Rifle)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2830,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 5,
+    "totalTroopers": 25
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clothing, Leather/Synthetic Hide",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "clothing,-leather-synthetic-hide",
+      "name": "Clothing, Leather/Synthetic Hide",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrystandardsrm",
+    "name": "InfantryStandardSRM",
+    "count": 1
+  },
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Bandit caste motorized Points are irregular Clan formations drawn from the lowest social strata, fielding warriors deemed unfit for proper Touman service. Mounted on light vehicles for raiding speed, these Points carry assault rifles backed by disposable two-shot SRM launchers that provide a short-range anti-armor punch. Bandit forces lack the discipline and training of garrison solahma, but their willingness to fight for survival makes them unpredictable opponents in the peripheral zones between Clan occupation worlds.</p>"
+  }
+}

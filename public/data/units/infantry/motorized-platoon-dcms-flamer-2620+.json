@@ -1,0 +1,49 @@
+{
+  "id": "motorized-platoon-dcms-flamer-2620+",
+  "chassis": "Motorized Platoon (DCMS)",
+  "model": "(Flamer 2620+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2620,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Draconis Combine Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "draconis-combine-infantry-kit",
+      "name": "Draconis Combine Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "flamer-man-portable",
+    "name": "Flamer (Man-Portable)",
+    "count": 2
+  },
+  "mulId": 2235,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Conventional infantry within the DCMS serve as the foundation of planetary defense, providing the manpower essential to territorial control while freeing BattleMech and armored assets for offensive operations. Motorized infantry travel on light unarmored vehicles that allow them to cover ground faster than the foot platoons that make up the bulk of DCMS garrison forces. District regulars rely on motorized platoons for security patrols across large garrison zones, forward observation, and the rapid response that foot troops cannot provide when trouble arises between widely separated posts. Their support troops carry man-portable flamers that spray burning chemicals across several hundred square meters. Devastating against infantry in the open and effective at clearing structures, though the short range and the vulnerability of the operator's fuel tank make flamer duty one of the most dangerous assignments in the platoon.</p>"
+  }
+}

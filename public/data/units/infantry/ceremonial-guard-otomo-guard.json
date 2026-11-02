@@ -1,0 +1,49 @@
+{
+  "id": "ceremonial-guard-otomo-guard",
+  "chassis": "Ceremonial Guard",
+  "model": "Otomo Guard",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2350,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "blade-vibro-katana",
+    "name": "Blade (Vibro-katana)"
+  },
+  "armorKit": "Neo-Chainmail",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "neo-chainmail",
+      "name": "Neo-Chainmail",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle",
+    "count": 2
+  },
+  "mulId": 531,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Otomo serve as the Palace Household Guard of the Draconis Combine, tasked with the defense of Unity Palace, the Coordinator, and the Coordinator's family. Slightly more than a regiment in size, the Otomo draw their members exclusively from Sword of Light regiments and district regular units, accepting only the most highly skilled soldiers in the DCMS. Seeking appointment is considered self-aggrandizing; instead, one is chosen, with the Coordinator assembling a list of candidates who are then investigated by the Internal Security Force. The Otomo's infantry companies carry vibro-katanas and wear neo-chainmail armor crafted to evoke centuries of Combine samurai tradition. A handful of auto-rifles provide ranged fire support for each platoon, though such weapons are rarely needed. Assignment to the Otomo ranks among the highest honors available to infantry in service of the Dragon.</p>"
+  }
+}

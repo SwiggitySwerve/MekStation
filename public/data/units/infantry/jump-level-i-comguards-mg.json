@@ -1,0 +1,55 @@
+{
+  "id": "jump-level-i-comguards-mg",
+  "chassis": "Jump Level I (ComGuards)",
+  "model": "(MG)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2933,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 5,
+    "totalTroopers": 30
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "ComStar Infantry Kit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "comstar-infantry-kit",
+      "name": "ComStar Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "machine-gun-portable",
+    "name": "Machine Gun (Portable)",
+    "count": 2
+  },
+  "mulId": 7025,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>The Com Guards field conventional infantry as a core component of their combined-arms formations, with Level I infantry units integrated into the same command structure alongside BattleMech, armor, and aerospace elements at every organizational level. Jump infantry Level I formations provide the vertical mobility needed to operate in urban environments and mountainous terrain. Com Guard jump troops train to exploit three-dimensional movement as a tactical advantage, clearing rooftops and elevated positions that conventional foot infantry cannot reach without significant delay. Carrying infantry-portable machine guns that provide sustained suppressive fire, these troops anchor defensive positions with a volume of fire that discourages enemy movement in the open.</p>"
+  }
+}

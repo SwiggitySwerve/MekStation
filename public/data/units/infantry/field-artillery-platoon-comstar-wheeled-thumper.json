@@ -1,0 +1,64 @@
+{
+  "id": "field-artillery-platoon-comstar-wheeled-thumper",
+  "chassis": "Field Artillery Platoon (ComStar)",
+  "model": "(Wheeled Thumper)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2825,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "ComStar Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "comstar-infantry-kit",
+      "name": "ComStar Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isthumper",
+      "name": "ISThumper",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isthumperammo",
+      "name": "ISThumperAmmo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "isthumper",
+      "name": "ISThumper"
+    },
+    {
+      "id": "isthumperammo",
+      "name": "ISThumperAmmo"
+    }
+  ],
+  "role": "Missile Boat",
+  "fluff": {
+    "overview": "<p>ComStar's infantry served across the Inner Sphere in garrison and security roles, stationed on HPG compound worlds where they provided protection for the Order's most critical infrastructure while maintaining the facade of a purely defensive force. Crewing Thumper artillery pieces, these gunners provide organic indirect fire support capable of suppressing enemy formations at ranges well beyond direct-fire weapons, dropping explosive rounds onto positions that cannot be engaged by line-of-sight weapons.</p>"
+  }
+}

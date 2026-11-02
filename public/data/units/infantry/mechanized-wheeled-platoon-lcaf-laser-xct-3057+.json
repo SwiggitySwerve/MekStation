@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-wheeled-platoon-lcaf-laser-xct-3057+",
+  "chassis": "Mechanized Wheeled Platoon (LCAF)",
+  "model": "(Laser XCT 3057+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3057,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-maxell-pl-10",
+    "name": "Laser Rifle (Maxell PL-10)"
+  },
+  "armorKit": "Environment Suit, Hostile",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "environment-suit,-hostile",
+      "name": "Environment Suit, Hostile",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor", "spacesuit"],
+  "effectiveArmorFlags": ["encumberingarmor", "spacesuit"],
+  "specializations": 2048,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "support-pulse-laser",
+    "name": "Support Pulse Laser",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Lyran military budgets translate directly into infantry equipment quality, giving LCAF conventional forces a material edge that compensates for the uneven tactical leadership the social general tradition sometimes produces. Mechanized wheeled platoons use wheeled APCs that offer a balance between the speed of hover transport and the protection of tracked vehicles, well-suited to operations on developed road networks. Equipped with Maxell PL-10 laser rifles and support pulse lasers, these platoons field an all-energy weapons loadout where the pulse laser's rapid-burst fire provides improved accuracy against moving targets. These Xenoplanetary Condition Troops carry specialized survival gear that allows them to fight in extreme temperatures, toxic atmospheres, or unusual gravity conditions where standard infantry cannot operate.</p>"
+  }
+}

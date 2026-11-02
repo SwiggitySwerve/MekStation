@@ -1,0 +1,49 @@
+{
+  "id": "mechanized-wheeled-century-mhaf-flamer-3049+",
+  "chassis": "Mechanized Wheeled Century (MHAF)",
+  "model": "(Flamer 3049+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3049,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Marian Hegemony Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "marian-hegemony-infantry-kit",
+      "name": "Marian Hegemony Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "flamer-man-portable",
+    "name": "Flamer (Man-Portable)",
+    "count": 2
+  },
+  "mulId": 7288,
+  "role": "Ambusher",
+  "source": "TW,TO:AUE",
+  "fluff": {
+    "overview": "<p>Caesar's ongoing program to modernize the Legiones Marianes has extended to conventional infantry formations, with improved equipment and weapons gradually replacing older stockpiles across the Hegemony's auxiliary legions. A centuria, or century, is the Marian equivalent of a company-sized formation. Mechanized wheeled centuries use wheeled transports that offer good road speed and lower maintenance costs than tracked vehicles, well suited to the Hegemony's infrastructure-limited Periphery worlds where supply lines stretch thin. Support troops carry man-portable flamers that project streams of burning chemicals, providing devastating area-effect capability against infantry and structures at the cost of short range and the vulnerability of the operator's fuel tank.</p>"
+  }
+}

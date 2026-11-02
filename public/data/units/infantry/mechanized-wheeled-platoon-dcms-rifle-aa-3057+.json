@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-wheeled-platoon-dcms-rifle-aa-3057+",
+  "chassis": "Mechanized Wheeled Platoon (DCMS)",
+  "model": "(Rifle AA 3057+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3057,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Draconis Combine Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "draconis-combine-infantry-kit",
+      "name": "Draconis Combine Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "aa-weapon-mk.-2,-man-portable",
+    "name": "AA Weapon (Mk. 2, Man-Portable)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Draconis Combine Mustered Soldiery assigns conventional infantry to garrison roles across its military districts, with district regulars often fielding extra platoons to secure worlds that BattleMech forces cannot permanently garrison. Wheeled mechanized infantry ride armored personnel carriers that offer speed on roads and enough protection to survive initial contact. The DCMS assigns these platoons where garrison duty demands both rapid response and the ability to dismount under fire, a combination that foot and motorized troops cannot reliably deliver. Armed with standard assault rifles, the cheapest and most widely manufactured personal weapon in the Inner Sphere. Effective range is limited, but any world with basic industry can produce and stockpile them in quantity, and resupply is rarely a concern even on remote garrison posts. These anti-aircraft specialists carry weapons configured to engage low-flying VTOLs, conventional aircraft, and aerospace fighters. Positioned around key installations or march columns, they provide point air defense that forces enemy pilots to think twice about low-altitude attack runs.</p>"
+  }
+}

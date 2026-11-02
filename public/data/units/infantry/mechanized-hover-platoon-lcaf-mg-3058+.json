@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-hover-platoon-lcaf-mg-3058+",
+  "chassis": "Mechanized Hover Platoon (LCAF)",
+  "model": "(MG 3058+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3058,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "rifle-tk-assault",
+    "name": "Rifle (TK Assault)"
+  },
+  "armorKit": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "lyran-alliance-lyran-commonwealth-3060+-infantry-kit",
+      "name": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "machine-gun-portable",
+    "name": "Machine Gun (Portable)",
+    "count": 2
+  },
+  "role": "Skirmisher",
+  "fluff": {
+    "overview": "<p>Lyran infantry draw confidence from knowing their equipment is first-rate, even when assigned to garrison duty on worlds far from the front lines. Mechanized hover platoons ride into battle aboard hovercraft that provide both speed and the ability to cross water and rough terrain without slowing, making them effective rapid-reaction forces. Armed with assault rifles backed by portable machine guns, these platoons combine individual marksmanship with sustained suppressive fire from crew-served weapons that can pin down opposing formations.</p>"
+  }
+}

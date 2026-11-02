@@ -1,0 +1,49 @@
+{
+  "id": "xenoplanetary-infantry-eagle-corps-eyrie-defense-force",
+  "chassis": "Xenoplanetary Infantry",
+  "model": "Eagle Corps Eyrie Defense Force",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2600,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "gyroslug-rifle",
+    "name": "Gyroslug Rifle"
+  },
+  "armorKit": "Spacesuit, Combat",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "spacesuit,-combat",
+      "name": "Spacesuit, Combat",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": ["encumberingarmor", "spacesuit"],
+  "effectiveArmorFlags": ["encumberingarmor", "spacesuit"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "support-laser-er,-is",
+    "name": "Support Laser (ER, IS)",
+    "count": 2
+  },
+  "mulId": 3608,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Eyrie Defense Force guards the most sensitive intelligence facility in Free Worlds League space: the Eagle Corps headquarters, a hidden bunker beneath a dead volcano on Wendigo, the airless moon of Atreus. The Eagle Corps served as SAFE's special-forces branch, and its protectors are drawn from highly skilled, xenoplanetary-trained soldiers who spend most of their time sealed inside space suits. Operating in standard platoons of twenty-eight, the EDF carries gyroslug rifles paired with ER support lasers, giving each platoon a 360-meter engagement envelope and enough concentrated firepower to give pause to even BattleMech pilots. This firepower comes at a cost. The weight of their armament prohibits anti-BattleMech operations entirely, and the troops must devote significant effort to redeployment between positions rather than engaging on the move. After the dissolution of the Free Worlds League, the Marik-Stewart Commonwealth retained the Eyrie and its defenders, though SAFE itself splintered into competing factions across the successor states.</p>"
+  }
+}

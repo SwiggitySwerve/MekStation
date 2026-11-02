@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-tracked-platoon-affs-gauss-3067+",
+  "chassis": "Mechanized Tracked Platoon (AFFS)",
+  "model": "(Gauss 3067+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "gauss-rifle-thunderstroke-ii",
+    "name": "Gauss Rifle (Thunderstroke II)"
+  },
+  "armorKit": "Fed Suns Infantry Kit (3067+)",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "fed-suns-infantry-kit-3067+",
+      "name": "Fed Suns Infantry Kit (3067+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "gauss-cannon-grand-mauler",
+    "name": "Gauss Cannon (Grand Mauler)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Armed Forces of the Federated Suns integrate conventional infantry directly into their Regimental Combat Teams, assigning foot, mechanized, and jump platoons to work permanently alongside BattleMech and armored formations. Mechanized tracked platoons ride armored personnel carriers that provide both protection and all-terrain mobility, allowing these troops to keep pace with armored advances across open ground and survive the indirect fire that scatters lighter formations. Carrying infantry-scale gauss rifles that use magnetic acceleration to propel projectiles at extreme velocities, these platoons field the longest-ranged and hardest-hitting personal ballistic weapon available to conventional soldiers.</p>"
+  }
+}

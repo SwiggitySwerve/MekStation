@@ -1,0 +1,49 @@
+{
+  "id": "mechanized-tracked-platoon-fwlm-flamer-3035+",
+  "chassis": "Mechanized Tracked Platoon (FWLM)",
+  "model": "(Flamer 3035+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3030,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Free Worlds League Infantry Kit (3035+)",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "free-worlds-league-infantry-kit-3035+",
+      "name": "Free Worlds League Infantry Kit (3035+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "flamer-man-portable",
+    "name": "Flamer (Man-Portable)",
+    "count": 2
+  },
+  "mulId": 2138,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>New technology and creative tactical thinking have long featured in FWLM infantry deployment, with varied unit types and specialized formations treated as the norm rather than the exception. Tracked mechanized platoons sacrifice road speed for all-terrain capability, carrying their infantry across ground that would halt wheeled vehicles. The FWLM assigns these formations to worlds where rough terrain or poor infrastructure demands mobility that wheels cannot provide. Armed with man-portable flamers that project streams of burning gel, these platoons carry one of the most psychologically devastating weapons available to conventional infantry. The short range and danger of carrying volatile fuel make flamer duty one of the most hazardous assignments in the platoon.</p>"
+  }
+}

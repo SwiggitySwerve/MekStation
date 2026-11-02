@@ -1,0 +1,47 @@
+{
+  "id": "foot-duplus-contubernium-mhaf-lrm",
+  "chassis": "Foot Duplus Contubernium (MHAF)",
+  "model": "(LRM)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CLAN_INVASION",
+  "year": 3057,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 10,
+    "squadCount": 2,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrylrm",
+    "name": "InfantryLRM",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Marian Hegemony Armed Forces organize their conventional infantry along Roman legionary lines, with formations structured into contubernia, centuries, and cohorts rather than the squads and platoons used by Inner Sphere armies. A duplus contubernium, or double tent-group, fields two squads of ten soldiers and serves as the standard patrol and security element within Marian garrison forces. Foot duplus contubernia hold ground, man defensive positions, and conduct area security operations across Hegemony worlds. Support troops operate man-portable long-range missile launchers capable of engaging targets at distances well beyond personal weapon range, providing indirect fire capability against vehicles and fortified positions.</p>"
+  }
+}

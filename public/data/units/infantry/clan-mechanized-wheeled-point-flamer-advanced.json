@@ -1,0 +1,49 @@
+{
+  "id": "clan-mechanized-wheeled-point-flamer-advanced",
+  "chassis": "Clan Mechanized Wheeled Point",
+  "model": "(Flamer Advanced)",
+  "unitType": "Infantry",
+  "techBase": "MIXED",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2845,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "flamer-man-portable",
+    "name": "Flamer (Man-Portable)",
+    "count": 2
+  },
+  "mulId": 629,
+  "role": "Ambusher",
+  "source": "TO:AUE",
+  "fluff": {
+    "overview": "<p>Most Clan infantry are solahma warriors at the end of their careers or who have failed their Trials, assigned to duties the warrior caste considers beneath notice. Mechanized Wheeled Points use wheeled armored vehicles that balance speed and protection better than hovercraft or motorcycles. Effective on developed road networks and open terrain, they sacrifice the all-terrain capability of tracked vehicles for better sustained speed on firm ground. Support troops carry man-portable flamers that project streams of burning chemicals, providing devastating area-effect capability against infantry and structures at the cost of short range and the vulnerability of the operator's fuel tank.</p>"
+  }
+}

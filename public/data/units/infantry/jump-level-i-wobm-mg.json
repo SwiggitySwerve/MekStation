@@ -1,0 +1,55 @@
+{
+  "id": "jump-level-i-wobm-mg",
+  "chassis": "Jump Level I (WOBM)",
+  "model": "(MG)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3053,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 5,
+    "totalTroopers": 30
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Word of Blake Infantry Kit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "word-of-blake-infantry-kit",
+      "name": "Word of Blake Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "machine-gun-portable",
+    "name": "Machine Gun (Portable)",
+    "count": 2
+  },
+  "mulId": 7025,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>The Word of Blake Militia inherited ComStar's combined-arms organizational philosophy and its Star League-era equipment stocks, fielding infantry formations that ranked among the best equipped in the Inner Sphere during the Jihad. Jump infantry Level I formations gave Militia commanders a vertical mobility option for operations in dense urban environments, where the ability to bypass barricades and reach elevated positions provided tactical flexibility against insurgent forces resisting Protectorate authority. Carrying infantry-portable machine guns that provide sustained suppressive fire, these troops anchor defensive positions with a volume of fire that discourages enemy movement in the open.</p>"
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "id": "foot-platoon-affs-laser-paratrooper-3067+",
+  "chassis": "Foot Platoon (AFFS)",
+  "model": "(Laser Paratrooper 3067+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle",
+    "name": "Laser Rifle"
+  },
+  "armorKit": "Fed Suns Infantry Kit (3067+)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "fed-suns-infantry-kit-3067+",
+      "name": "Fed Suns Infantry Kit (3067+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 512,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryfederatedbarrettm61a",
+    "name": "InfantryFederatedBarrettM61A",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The AFFS treats its infantry as professionals rather than expendable garrison filler, drawing soldiers from single worlds or neighboring systems to build the unit cohesion that the Federated Suns considers essential to effective combined-arms operations. Foot infantry remain the backbone of AFFS planetary garrisons, cheap enough to deploy in numbers across the Federated Suns' vast territory and reliable enough to hold ground that BattleMech forces cannot permanently occupy. These paratroopers are specialized infantry trained and equipped to deploy via parachute or parafoil from aerospace craft, seizing objectives behind enemy lines with laser weapons that provide reliable firepower without the ammunition resupply constraints of ballistic arms.</p>"
+  }
+}

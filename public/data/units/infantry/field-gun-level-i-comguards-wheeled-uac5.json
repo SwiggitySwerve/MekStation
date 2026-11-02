@@ -1,0 +1,84 @@
+{
+  "id": "field-gun-level-i-comguards-wheeled-uac5",
+  "chassis": "Field Gun Level I (ComGuards)",
+  "model": "(Wheeled UAC5)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2933,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "ComStar Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "comstar-infantry-kit",
+      "name": "ComStar Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5"
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo"
+    },
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5"
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>Com Guard conventional infantry benefit from ComStar's access to preserved Star League technology, fielding weapons and equipment that match or exceed the standard issue of any Inner Sphere military, backed by the institutional discipline of the secular Order's professional military culture. Operating medium-caliber ultra autocannon that can fire at double the normal rate, these crews deliver concentrated salvos that overwhelm light armor and suppress infantry positions, accepting increased jam risk for burst damage.</p>"
+  }
+}

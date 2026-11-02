@@ -1,0 +1,50 @@
+{
+  "id": "jump-level-i-wobm-laser",
+  "chassis": "Jump Level I (WOBM)",
+  "model": "(Laser)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3053,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 5,
+    "totalTroopers": 30
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle",
+    "name": "Laser Rifle"
+  },
+  "armorKit": "Word of Blake Infantry Kit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "word-of-blake-infantry-kit",
+      "name": "Word of Blake Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 7023,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Drawing veterans from the Com Guards, recruits from the Free Worlds League, and volunteers from Protectorate worlds, the Word of Blake Militia assembled infantry formations whose quality varied but whose equipment was consistently first-rate. Jump infantry Level I formations gave Militia commanders a vertical mobility option for operations in dense urban environments, where the ability to bypass barricades and reach elevated positions provided tactical flexibility against insurgent forces resisting Protectorate authority. Equipped with laser rifles that offer superior range and armor penetration compared to ballistic weapons, these troops field one of the most effective personal arms available to conventional infantry, though the weapons are significantly more expensive and require soldiers to carry additional power packs.</p>"
+  }
+}

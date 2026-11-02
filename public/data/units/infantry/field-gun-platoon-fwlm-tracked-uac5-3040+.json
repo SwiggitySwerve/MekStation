@@ -1,0 +1,104 @@
+{
+  "id": "field-gun-platoon-fwlm-tracked-uac5-3040+",
+  "chassis": "Field Gun Platoon (FWLM)",
+  "model": "(Tracked UAC5 3040+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3040,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Free Worlds League Infantry Kit (3035+)",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "free-worlds-league-infantry-kit-3035+",
+      "name": "Free Worlds League Infantry Kit (3035+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5"
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo"
+    },
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5"
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo"
+    },
+    {
+      "id": "isultraac5",
+      "name": "ISUltraAC5"
+    },
+    {
+      "id": "is-ultra-ac-5-ammo",
+      "name": "IS Ultra AC/5 Ammo"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>The Free Worlds League Military has long fielded some of the largest infantry formations in the Inner Sphere, with regiments numbering nearly 1,800 soldiers compared to roughly 750 in the Combine and just over 1,000 in the Federated Suns. Towing crew-served Ultra autocannon/5, these platoons exploit the Ultra mechanism's double-fire capability to deliver punishing volumes of medium-caliber fire, though the jamming risk under rapid fire is a known hazard.</p>"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "id": "field-artillery-level-i-comguards-wheeled-thumper",
+  "chassis": "Field Artillery Level I (ComGuards)",
+  "model": "(Wheeled Thumper)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2933,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "ComStar Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "comstar-infantry-kit",
+      "name": "ComStar Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isthumper",
+      "name": "ISThumper",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isthumperammo",
+      "name": "ISThumperAmmo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "isthumper",
+      "name": "ISThumper"
+    },
+    {
+      "id": "isthumperammo",
+      "name": "ISThumperAmmo"
+    }
+  ],
+  "role": "Missile Boat",
+  "fluff": {
+    "overview": "<p>Com Guard conventional infantry benefit from ComStar's access to preserved Star League technology, fielding weapons and equipment that match or exceed the standard issue of any Inner Sphere military, backed by the institutional discipline of the secular Order's professional military culture. Crewing Thumper artillery pieces, these gunners provide organic indirect fire support capable of suppressing enemy formations at ranges well beyond direct-fire weapons, dropping explosive rounds onto positions that cannot be engaged by line-of-sight weapons.</p>"
+  }
+}

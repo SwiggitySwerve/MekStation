@@ -1,0 +1,48 @@
+{
+  "id": "jump-platoon-ccaf-er-laser-3052+",
+  "chassis": "Jump Platoon (CCAF)",
+  "model": "(ER Laser 3052+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3052,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-er-[sunbeam-starfire]",
+    "name": "Laser Rifle (ER [Sunbeam Starfire])"
+  },
+  "armorKit": "Capellan Confederation Armor Kit (3050)",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "capellan-confederation-armor-kit-3050",
+      "name": "Capellan Confederation Armor Kit (3050)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Capellan infantry serve where BattleMechs and armor cannot be spared, which in the resource-constrained CCAF means nearly everywhere. The Xin Sheng movement revitalized the infantry arm alongside every other facet of the Capellan Confederation Armed Forces, giving foot soldiers better equipment and renewed purpose. Jump-capable infantry give CCAF commanders a vertical mobility option for urban combat and rough terrain operations. The added cost of jump equipment limits their numbers compared to foot formations, but their ability to bypass obstacles and reach elevated positions makes them valuable in the defensive fighting the Confederation often faces. Armed with extended-range laser rifles that push the engagement envelope well beyond standard infantry weapons, these platoons can threaten targets at distances normally reserved for vehicle-mounted systems.</p>"
+  }
+}

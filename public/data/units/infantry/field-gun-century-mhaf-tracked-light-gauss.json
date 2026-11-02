@@ -1,0 +1,64 @@
+{
+  "id": "field-gun-century-mhaf-tracked-light-gauss",
+  "chassis": "Field Gun Century (MHAF)",
+  "model": "(Tracked Light Gauss)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Marian Hegemony Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "marian-hegemony-infantry-kit",
+      "name": "Marian Hegemony Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islightgaussrifle",
+      "name": "ISLightGaussRifle",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-light-gauss-ammo",
+      "name": "IS Light Gauss Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "islightgaussrifle",
+      "name": "ISLightGaussRifle"
+    },
+    {
+      "id": "is-light-gauss-ammo",
+      "name": "IS Light Gauss Ammo"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>The Marian military tradition places infantry at the foundation of its legionary system, with conventional soldiers organized into units bearing Latin designations that reflect the Hegemony's deliberate cultivation of Roman imperial identity. Marian field gun centuries tow crew-served weapons on wheeled, tracked, or motorized carriages, providing direct-fire anti-armor capability that supplements the Legiones Marianes' limited BattleMech strength. The century tows a light gauss rifle that uses magnetic acceleration to fire projectiles at extreme velocity, delivering exceptional range and penetration with no ammunition explosion risk.</p>"
+  }
+}

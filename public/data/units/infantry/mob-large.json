@@ -1,0 +1,40 @@
+{
+  "id": "mob-large",
+  "chassis": "Mob",
+  "model": "(Large)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2400,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "rifle-makeshift",
+    "name": "Rifle (Makeshift)"
+  },
+  "armorKit": null,
+  "motiveType": "Leg",
+  "equipment": [],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryminigrenadeinferno",
+    "name": "InfantryMiniGrenadeInferno",
+    "count": 1
+  },
+  "source": "Apocryphal",
+  "fluff": {
+    "overview": "<p>A large mob signals a serious breakdown in civil order, with hundreds of armed civilians operating as a collective force driven by shared fury. Armed with makeshift rifles, improvised weapons, and incendiary grenades, a mob of this size can overrun isolated military patrols, seize government buildings, and hold ground long enough to force a significant armed response. What large mobs lack in training they compensate for with mass and momentum. Suppressing them requires committing troops that garrison commanders would rather deploy elsewhere, and heavy-handed responses risk turning sympathetic bystanders into active participants. Large mobs have disrupted military operations on dozens of worlds during the Succession Wars and beyond.</p>"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "id": "foot-platoon-flamer",
+  "chassis": "Foot Platoon",
+  "model": "(Flamer)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2025,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "flamer-man-portable",
+    "name": "Flamer (Man-Portable)",
+    "count": 2
+  },
+  "mulId": 1143,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Foot infantry platoons are the most basic and numerous conventional military formation across the Inner Sphere and Periphery. Deployed on foot without dedicated transport, these platoons are slow to reposition but cheap to raise, easy to supply, and capable of holding ground that faster units cannot afford to garrison permanently. Every major military fields foot platoons in enormous numbers for planetary defense, installation security, and rear-area policing. Their lack of mobility makes them poorly suited for offensive operations against armored forces, but in prepared defensive positions, urban terrain, or dense forests, dismounted infantry remain difficult to dislodge without committing disproportionate resources.</p>"
+  }
+}
