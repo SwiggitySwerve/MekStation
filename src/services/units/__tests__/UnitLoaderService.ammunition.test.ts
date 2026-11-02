@@ -375,6 +375,11 @@ describe('BattleMech BV source parity', () => {
       expect(preview.walkMP).toBe(raw.movement.walk);
       expect(result.current.walkMP).toBe(raw.movement.walk);
       expect(preview.battleValue).toBe(calculateUnitBV(raw, id).bv);
+      // CalculationService owns the primitive rule; a caller's plain walk MP must not matter.
+      const plainWalk = Math.floor(state.engineRating / state.tonnage);
+      expect(
+        service.calculateBattleValue(buildEditableMech(state, plainWalk)),
+      ).toBe(calculateUnitBV(raw, id).bv);
     },
   );
 
