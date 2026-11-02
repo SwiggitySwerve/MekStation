@@ -1,3 +1,4 @@
+import type { IVehicleArmorAllocation } from '@/stores/vehicleState';
 /**
  * Vehicle BV adapter — converts the `VehicleState` store shape into the
  * `VehicleBVInput` shape consumed by `calculateVehicleBV`.
@@ -7,8 +8,6 @@
  *
  * @spec openspec/changes/add-vehicle-battle-value/specs/vehicle-unit-system/spec.md
  */
-
-import type { IVehicleArmorAllocation } from '@/stores/vehicleState';
 import type { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import type {
   IVehicleMountedEquipment,
@@ -19,6 +18,7 @@ import type {
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType, isSupportVehicle } from '@/types/unit/VehicleInterfaces';
 
+import { getDefensiveEquipmentKind } from '../battleValueEquipment';
 import { computeFlankMP } from './engine';
 import {
   computeVehicleBVStructurePoints,
@@ -172,9 +172,15 @@ export function toVehicleBVInput(state: VehicleBVStateSubset): VehicleBVInput {
 
   const weapons: VehicleWeaponMount[] = [];
   const ammo: VehicleBVInput['ammo'] = [];
+  const defensiveEquipment: VehicleBVInput['defensiveEquipment'] = [];
 
   for (const item of state.equipment) {
-    if (isAmmo(item.equipmentId)) {
+    if (getDefensiveEquipmentKind(item.equipmentId)) {
+      defensiveEquipment.push({
+        id: item.equipmentId,
+        location: String(item.location),
+      });
+    } else if (isAmmo(item.equipmentId)) {
       ammo.push({
         id: item.equipmentId,
         location: String(item.location),
@@ -220,7 +226,7 @@ export function toVehicleBVInput(state: VehicleBVStateSubset): VehicleBVInput {
     barRating: state.barRating,
     weapons,
     ammo,
-    defensiveEquipment: [],
+    defensiveEquipment,
     offensiveEquipment: [],
     explosivePenalty: 0,
     turret: toTurretConfig(state.turret?.type),
@@ -279,8 +285,8 @@ function sumUnitArmor(
  * This is the unit-shape entry point used by the per-unit dispatcher
  * (`calculateBattleValueForUnit`). The full store-driven adapter remains the
  * preferred path inside the customizer; this adapter is intentionally
- * conservative (no equipment partitioning beyond the basic ammo/weapon
- * heuristic) so it can run against minimal fixtures and bare unit JSON.
+ * conservative for unresolved items, while both adapters use the shared
+ * defensive-equipment partition for represented catalog identities.
  *
  * @spec openspec/changes/add-vehicle-battle-value/specs/battle-value-system/spec.md
  *       — Requirement: Vehicle BV Dispatch
@@ -308,15 +314,20 @@ export function toVehicleBVInputFromUnit(
     ? (unit as ISupportVehicle).barRating
     : null;
 
-  // Equipment partitioning. We treat anything that isn't ammo as a candidate
-  // weapon — the equipment BV resolver downstream is the ultimate filter.
+  // Shared defensive identities take precedence over the ammo/weapon fallback.
   // Vehicles without an equipment array (legacy fixtures) get an empty list.
   const rawEquipment: ReadonlyArray<IVehicleMountedEquipment> =
     unit.equipment ?? [];
   const weapons: VehicleWeaponMount[] = [];
   const ammo: VehicleBVInput['ammo'] = [];
+  const defensiveEquipment: VehicleBVInput['defensiveEquipment'] = [];
   for (const item of rawEquipment) {
-    if (isAmmo(item.equipmentId)) {
+    if (getDefensiveEquipmentKind(item.equipmentId)) {
+      defensiveEquipment.push({
+        id: item.equipmentId,
+        location: String(item.location),
+      });
+    } else if (isAmmo(item.equipmentId)) {
       ammo.push({
         id: item.equipmentId,
         location: String(item.location),
@@ -388,7 +399,7 @@ export function toVehicleBVInputFromUnit(
     barRating,
     weapons,
     ammo,
-    defensiveEquipment: [],
+    defensiveEquipment,
     offensiveEquipment: [],
     explosivePenalty: 0,
     turret,

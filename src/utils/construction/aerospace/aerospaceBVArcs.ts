@@ -11,7 +11,15 @@ import {
   calculateBaseHeatEfficiency,
   calculateHeatTrackedWeapons,
 } from '../battleValueHeatTracking';
-import { resolveEquipmentBV } from '../equipmentBVResolver';
+import {
+  isArtemisCompatibleBVWeapon,
+  linkArtemisBVWeapons,
+} from '../equipmentBV/weaponLinks';
+import {
+  getArtemisBVMultiplier,
+  getEquipmentEntry,
+  resolveEquipmentBV,
+} from '../equipmentBVResolver';
 import { getAerospaceDefensiveEquipmentKind } from './aerospaceBVEquipment';
 
 const DIRECT_AEROSPACE_ARCS: ReadonlySet<AerospaceArc> = new Set(
@@ -104,24 +112,47 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     rawByArc.set(arc, 0);
   }
   let fuselageWeaponBV = 0;
-  const weapons: { arc: AerospaceArc; bv: number; heat: number }[] = [];
+  const weapons: {
+    arc: AerospaceArc;
+    location: AerospaceArc;
+    bv: number;
+    heat: number;
+    compatible: boolean;
+    artemisType?: 'iv' | 'v';
+  }[] = [];
+  const links: { location: AerospaceArc; type: 'iv' | 'v' }[] = [];
 
   for (const item of input.equipment) {
     if (getAerospaceDefensiveEquipmentKind(item.id)) continue;
     const arc = normalizeArcLocation(item.location);
     if (arc === null) continue;
+    const entry = getEquipmentEntry(item.id);
+    if (entry?.id === 'artemisiv' || entry?.id === 'artemisv') {
+      links.push({
+        location: arc,
+        type: entry.id === 'artemisiv' ? 'iv' : 'v',
+      });
+      continue;
+    }
     const resolved = resolveEquipmentBV(item.id);
     if (!resolved.resolved || resolved.battleValue === 0) continue;
 
     if (arc !== AerospaceArc.FUSELAGE && !rawByArc.has(arc)) continue;
-    weapons.push({ arc, bv: resolved.battleValue, heat: resolved.heat });
-    if (arc === AerospaceArc.FUSELAGE) {
-      fuselageWeaponBV += resolved.battleValue;
-      continue;
-    }
-    if (rawByArc.has(arc)) {
-      rawByArc.set(arc, (rawByArc.get(arc) ?? 0) + resolved.battleValue);
-    }
+    weapons.push({
+      arc,
+      location: arc,
+      bv: resolved.battleValue,
+      heat: resolved.heat,
+      compatible:
+        entry?.category === 'Missile' && isArtemisCompatibleBVWeapon(entry.id),
+    });
+  }
+  // MekFileParser.java:425-449; BVCalculator.java:860-872.
+  linkArtemisBVWeapons(weapons, links);
+  for (const weapon of weapons) {
+    weapon.bv *= getArtemisBVMultiplier(weapon.artemisType);
+    if (weapon.arc === AerospaceArc.FUSELAGE) fuselageWeaponBV += weapon.bv;
+    else rawByArc.set(weapon.arc, (rawByArc.get(weapon.arc) ?? 0) + weapon.bv);
   }
 
   // Decide direction using the complete forward group, not individual arcs.

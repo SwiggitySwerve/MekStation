@@ -9,6 +9,8 @@
 
 import { v4 as uuidv4 } from 'uuid';
 
+import type { IUnitIndexEntry } from '@/types/unit/UnitIndex';
+
 import { Era } from '@/types/enums/Era';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
@@ -22,6 +24,7 @@ import {
   UnitErrorCode,
   ICloneNameSuggestion,
 } from '@/types/persistence/UnitPersistence';
+import { isUnitFamily } from '@/types/unit/UnitIndex';
 
 import {
   createSingleton,
@@ -33,6 +36,7 @@ import { getSQLiteService } from '../persistence/SQLiteService';
  * Database row type for custom_units table
  */
 interface CustomUnitRow {
+  family?: unknown;
   id: string;
   chassis: string;
   variant: string;
@@ -301,13 +305,15 @@ export class UnitRepository implements IUnitRepository {
   /**
    * List all custom units as index entries
    */
-  list = (): readonly ICustomUnitIndexEntry[] => {
+  list = (): readonly (ICustomUnitIndexEntry &
+    Pick<IUnitIndexEntry, 'family'>)[] => {
     const db = getSQLiteService().getDatabase();
 
     const rows = db
       .prepare(`
       SELECT id, chassis, variant, tonnage, tech_base, era, rules_level, 
-             unit_type, current_version, created_at, updated_at
+             unit_type, current_version, created_at, updated_at,
+             json_extract(data, '$.family') AS family
       FROM custom_units
       ORDER BY chassis, variant
     `)
@@ -423,8 +429,13 @@ export class UnitRepository implements IUnitRepository {
   /**
    * Convert database row to index entry
    */
-  private rowToIndexEntry(row: CustomUnitRow): ICustomUnitIndexEntry {
+  private rowToIndexEntry(
+    row: CustomUnitRow,
+  ): ICustomUnitIndexEntry & Pick<IUnitIndexEntry, 'family'> {
     return {
+      ...(isUnitFamily(row.family) && row.family !== 'battlemechs'
+        ? { family: row.family }
+        : {}),
       id: row.id,
       chassis: row.chassis,
       variant: row.variant,
