@@ -216,20 +216,20 @@ describe('ProtoMechUnitHandler', () => {
 
       const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
-      expect(validation.errors.some((e) => e.includes('2 tons'))).toBe(true);
+      expect(validation.errors.some((e) => e.includes('2–15 t'))).toBe(true);
     });
 
     it('should fail validation for too heavy ProtoMech', () => {
-      const doc = createMockBlkDocument({ tonnage: 12 });
+      const doc = createMockBlkDocument({ tonnage: 16 });
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
       expect(validation.isValid).toBe(false);
-      expect(validation.errors.some((e) => e.includes('9 tons'))).toBe(true);
+      expect(validation.errors.some((e) => e.includes('2–15 t'))).toBe(true);
     });
 
-    it('should fail validation for quad with main gun', () => {
+    it('should allow a quad main gun', () => {
       const doc = createQuadProtoMechDocument();
       // Add main gun equipment
       const modifiedDoc: IBlkDocument = {
@@ -243,17 +243,13 @@ describe('ProtoMechUnitHandler', () => {
       expect(result.success).toBe(true);
 
       const validation = handler.validate(result.data!.unit);
-      expect(validation.isValid).toBe(false);
-      expect(
-        validation.errors.some(
-          (e) => e.includes('Quad') && e.includes('main gun'),
-        ),
-      ).toBe(true);
+      expect(validation.isValid).toBe(true);
     });
 
-    it('should fail validation for glider with insufficient jump', () => {
+    it('should fail validation for glider with insufficient running speed', () => {
       const doc = createMockBlkDocument({
         jumpingMP: 1,
+        cruiseMP: 2,
         rawTags: { glider: 'true' },
       });
       const result = handler.parse(doc);
@@ -263,7 +259,7 @@ describe('ProtoMechUnitHandler', () => {
       expect(validation.isValid).toBe(false);
       expect(
         validation.errors.some(
-          (e) => e.includes('Glider') && e.includes('jump'),
+          (e) => e.includes('Glider') && e.includes('flanking'),
         ),
       ).toBe(true);
     });

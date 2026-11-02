@@ -1,12 +1,19 @@
 /** @spec openspec/changes/establish-all-unit-data-parity/specs/unit-services/spec.md */
 import { createHash } from 'node:crypto';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import { BlkParserService } from '@/services/conversion/BlkParserService';
-import { UnitTypeRegistry } from '@/services/units/UnitTypeRegistry';
+import {
+  getUnitTypeRegistry,
+  UnitTypeRegistry,
+} from '@/services/units/UnitTypeRegistry';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import { isSmallCraft } from '@/types/unit/AerospaceInterfaces';
 import { isVTOL } from '@/types/unit/VehicleInterfaces';
 
+import { initializeUnitTypeHandlers } from '../initializeHandlers';
+import { createProtoMechHandler } from '../ProtoMechUnitHandler';
 import { createSmallCraftHandler } from '../SmallCraftUnitHandler';
 import { createVTOLHandler } from '../VTOLUnitHandler';
 import fixtures from './fixtures/source-load-legality.json';
@@ -104,7 +111,7 @@ describe('source loading separately from construction validity', () => {
     {
       name: 'SmallCraft',
       document: smallCraftDocument({ safeThrust: 0 }),
-      message: 'Small craft must have at least 1 safe thrust',
+      message: undefined,
     },
   ])(
     'retains zero movement and diagnostics for $name',
@@ -117,9 +124,16 @@ describe('source loading separately from construction validity', () => {
         expect(unit.movement).toEqual({ cruiseMP: 0, flankMP: 0, jumpMP: 0 });
       else if (isSmallCraft(unit))
         expect(unit.movement).toEqual({ safeThrust: 0, maxThrust: 0 });
-      expect(handler.validate(unit).errors).toContain(message);
-      expect(unit.isValid).toBe(false);
-      expect(unit.validationErrors).toContain(message);
+      const validation = handler.validate(unit);
+      if (message) {
+        expect(validation.errors).toContain(message);
+        expect(unit.isValid).toBe(false);
+        expect(unit.validationErrors).toContain(message);
+      } else {
+        expect(validation.isValid).toBe(true);
+        expect(unit.isValid).toBe(true);
+        expect(unit.validationErrors).toEqual([]);
+      }
     },
   );
 
@@ -198,3 +212,161 @@ describe('source loading separately from construction validity', () => {
     expect(createVTOLHandler().parse(smallCraftDocument()).success).toBe(false);
   });
 });
+
+beforeAll(() => initializeUnitTypeHandlers());
+
+it.each(fixtures.nativeValidity.rows)(
+  'matches Java construction validity: $path',
+  (row) => {
+    expect(createHash('sha256').update(row.content).digest('hex')).toBe(
+      row.sha256,
+    );
+    const document = new BlkParserService().parse(row.content);
+    if (!document.success) throw new Error(JSON.stringify(document.error));
+    const handler = getUnitTypeRegistry().getHandlerForDocument(
+      document.data.document,
+    )!;
+    const parsed = handler.parse(document.data.document);
+    if (!parsed.success) throw new Error(JSON.stringify(parsed.error));
+    const validation = handler.validate(parsed.data.unit);
+    expect(validation.isValid).toBe(row.valid);
+    if (row.diagnostic)
+      expect(validation.errors.join('\n')).toContain(row.diagnostic);
+    expect(parsed.data.unit.isValid).toBe(validation.isValid);
+    expect(parsed.data.unit.validationErrors).toEqual(validation.errors);
+  },
+);
+
+it('allows a Quad main-gun mount and checks glider running speed', () => {
+  const handler = createProtoMechHandler();
+  const quad = fixtures.nativeValidity.rows.find((row) =>
+    row.path.endsWith('Boggart Ultraheavy ProtoMech.blk'),
+  )!;
+  const parsed = new BlkParserService().parse(quad.content);
+  if (!parsed.success) throw new Error(JSON.stringify(parsed.error));
+  const unit = handler.parse(parsed.data.document);
+  if (!unit.success) throw new Error(JSON.stringify(unit.error));
+  expect(
+    handler.validate({ ...unit.data.unit, hasMainGun: true, equipment: [] })
+      .isValid,
+  ).toBe(true);
+
+  const glider = fixtures.nativeValidity.rows.find((row) =>
+    row.path.endsWith('SvartAlfa Ultra.blk'),
+  )!;
+  const document = new BlkParserService().parse(glider.content);
+  if (!document.success) throw new Error(JSON.stringify(document.error));
+  const slow = handler.parse({
+    ...document.data.document,
+    cruiseMP: 2,
+    rawTags: { ...document.data.document.rawTags, cruiseMP: '2' },
+  });
+  if (!slow.success) throw new Error(JSON.stringify(slow.error));
+  expect(handler.validate(slow.data.unit).errors.join('\n')).toContain(
+    'minimum flanking MP of 4',
+  );
+});
+
+const corpus = process.env.CONSTRUCTION_CORPUS;
+it.each([
+  [72, true],
+  [73, false],
+] as const)('checks native mass at %i chemical-laser shots', (shots, valid) => {
+  const source = fixtures.nativeValidity.rows.find((row) =>
+    row.path.endsWith('Svartalfa 3.blk'),
+  )!;
+  const document = new BlkParserService().parse(
+    source.content.replace(
+      'CLMediumChemLaserAmmo (75)',
+      `CLMediumChemLaserAmmo (${shots})`,
+    ),
+  );
+  if (!document.success) throw new Error(JSON.stringify(document.error));
+  const handler = createProtoMechHandler();
+  const parsed = handler.parse(document.data.document);
+  if (!parsed.success) throw new Error(JSON.stringify(parsed.error));
+  const validation = handler.validate(parsed.data.unit);
+  expect(validation.isValid).toBe(valid);
+  if (!valid)
+    expect(validation.errors.join('\n')).toContain(
+      'kg is greater than 14000.0 kg',
+    );
+});
+
+(corpus ? it : it.skip)(
+  'measures pinned ProtoMech, aerospace and capital validity',
+  () => {
+    const parser = new BlkParserService();
+    const families = [
+      'ProtoMek',
+      'AeroSpaceFighter',
+      'ConvFighter',
+      'SmallCraft',
+      'FixedWingSupport',
+      'Dropship',
+      'Jumpship',
+      'Warship',
+      'SpaceStation',
+    ];
+    const rows = readFileSync(join(corpus!, 'oracle.jsonl'), 'utf8')
+      .trim()
+      .split('\n')
+      .map(
+        (line) =>
+          JSON.parse(line) as {
+            path: string;
+            sha256: string;
+            concreteFamily: string;
+            construction: { valid: boolean; diagnostics: string };
+          },
+      )
+      .filter((row) => families.includes(row.concreteFamily));
+    const results = rows.map((row) => {
+      const content = readFileSync(
+        join(corpus!, 'sources', row.path),
+        'utf8',
+      ).replace(/\r\n/g, '\n');
+      expect(createHash('sha256').update(content).digest('hex')).toBe(
+        row.sha256,
+      );
+      const doc = parser.parse(content);
+      if (!doc.success) throw new Error(JSON.stringify(doc.error));
+      const handler = getUnitTypeRegistry().getHandlerForDocument(
+        doc.data.document,
+      );
+      if (!handler) throw new Error(row.path);
+      const parsed = handler.parse(doc.data.document);
+      return {
+        path: row.path,
+        family: row.concreteFamily,
+        java: row.construction.valid,
+        javaDiagnostics: row.construction.diagnostics,
+        loaded: parsed.success,
+        local: parsed.success
+          ? handler.validate(parsed.data.unit)
+          : parsed.error,
+        bv: parsed.success ? handler.calculateBV(parsed.data.unit) : null,
+      };
+    });
+    writeFileSync(
+      join(corpus!, `${process.env.CONSTRUCTION_PHASE}.json`),
+      JSON.stringify(results, null, 2),
+    );
+    expect(results).toHaveLength(1100);
+    if (process.env.CONSTRUCTION_PHASE === 'after') {
+      const before = JSON.parse(
+        readFileSync(join(corpus!, 'before.json'), 'utf8'),
+      ) as Array<{ path: string; loaded: boolean; bv: number | null }>;
+      const loadingAndBV = (rows: typeof before) =>
+        rows.map(({ path, loaded, bv }) => ({ path, loaded, bv }));
+      expect(loadingAndBV(results)).toEqual(loadingAndBV(before));
+      expect(
+        results.filter(
+          (row) =>
+            row.family === 'ProtoMek' &&
+            (!('isValid' in row.local) || row.java !== row.local.isValid),
+        ),
+      ).toEqual([]);
+    }
+  },
+);
