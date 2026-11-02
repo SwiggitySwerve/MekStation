@@ -313,11 +313,6 @@ it('fetches a catalog file whose name contains # with each path segment encoded'
 
 it.each([
   [
-    'battlearmor',
-    'elemental-standard',
-    'Battle armor cannot be opened yet because the editor cannot load battle armor from the library.',
-  ],
-  [
     'infantry',
     'foot-rifle-platoon',
     'Infantry cannot be opened yet because the editor cannot load infantry from the library.',

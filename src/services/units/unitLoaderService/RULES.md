@@ -22,7 +22,8 @@ registry owns their accepted contract discriminators and available store mapper.
   `state`; vehicles (`mapToVehicleState`) and aerospace fighters and small craft
   (`mapAerospaceDefinitionToState`) to `familyState`. The library-open flow
   registers `familyState` in its own store and opens a tab of the state's unit
-  type. Battle armor and infantry have no store mapper.
+  type. ProtoMechs and battle armor use `smallUnitDefinitionMapper` and their
+  existing stores and shells. Infantry has no store mapper in this slice.
 - Capital ships (DropShip, JumpShip, WarShip, Space Station) open read-only
   (UL-14). `mapCapitalDefinitionToView` maps the definition to a deep-frozen
   view (`capitalShipView.ts`), kept in memory by tab id; no store is created and
@@ -77,3 +78,24 @@ registry owns their accepted contract discriminators and available store mapper.
   select only ammunition definitions. Missing variants never fall through to
   weapon lookup, registry aliases or another technology's ammo. Resolver tests
   enforce this even when ammunition and a weapon share a canonical ID.
+
+## Small-unit library sessions
+
+- ProtoMech armor, base movement, chassis, main-gun topology and every mount
+  populate the existing store. Structure, engine rating, run MP and booster
+  interpretation use their current owners. BODY mounts retain their original
+  block in `blkSource` while occupying the store torso location.
+  The store derives weight class from its construction owner; it has no Assault
+  class, so the catalog's original weight-class label is not retained.
+- Battle armor retains squad size, class-limit trooper mass, manipulators,
+  motion, typed/numeric armor, mount options and every mount. Native source
+  names and qualifiers feed the existing equipment/BV owner; suit location is
+  separate from squad/point/trooper location. Catalog tonnage is trooper count.
+- Store limits: both stores lack era, role, source, fluff and quirks. ProtoMechs
+  lack interface-cockpit and armor-tech declarations; the main-gun weapon list
+  is represented by its mounts. BA lacks chassis tech, exoskeleton/HarJel,
+  armor-tech declarations, abilities, turret capacity/modularity and distinct
+  magnetic-claw selection. Original claw identities remain in equipment.
+  BA VTOL MP has no separate store field; source jump MP is retained.
+- The BV shown is the existing app owner's result, not a new parity verdict.
+  Custom-library saving remains gated by the existing family capability.

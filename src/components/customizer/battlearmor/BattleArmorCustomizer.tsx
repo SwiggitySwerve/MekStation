@@ -10,7 +10,7 @@
  */
 
 import React from 'react';
-import { StoreApi } from 'zustand';
+import { StoreApi, useStore } from 'zustand';
 
 import { BATTLE_ARMOR_TABS } from '@/components/customizer/shared/tabRegistry';
 import { CustomizerTabs } from '@/components/customizer/tabs/CustomizerTabs';
@@ -20,6 +20,7 @@ import {
   BattleArmorStore,
 } from '@/stores/useBattleArmorStore';
 
+import { StatusItem } from '../tabs/StatusItem';
 import { BattleArmorDiagram } from './BattleArmorDiagram';
 
 // =============================================================================
@@ -68,6 +69,12 @@ export function BattleArmorCustomizer({
   readOnly = false,
   className = '',
 }: BattleArmorCustomizerProps): React.ReactElement {
+  const squadSize = useStore(store, (s) => s.squadSize);
+  const armor = useStore(store, (s) => s.armorPerTrooper);
+  const groundMP = useStore(store, (s) => s.groundMP);
+  const jumpMP = useStore(store, (s) => s.jumpMP);
+  const umuMP = useStore(store, (s) => s.umuMP);
+  const bv = useStore(store, (s) => s.bvBreakdown?.final);
   const { tabBarProps, activeTab, TabComponent } = useCustomizerTabShell({
     specs: BATTLE_ARMOR_TABS,
     state: {},
@@ -77,7 +84,23 @@ export function BattleArmorCustomizer({
 
   return (
     <BattleArmorStoreContext.Provider value={store}>
-      <div className={`flex h-full flex-col ${className}`}>
+      <div
+        data-testid="battlearmor-customizer"
+        className={`flex h-full flex-col ${className}`}
+      >
+        <div className="bg-surface-base border-border-theme-subtle flex flex-wrap justify-between border-b">
+          <StatusItem label="Troopers" value={squadSize} />
+          <StatusItem label="Armor/Trooper" value={armor} />
+          <StatusItem
+            label="Movement"
+            value={`${groundMP}/${jumpMP}J/${umuMP}U`}
+          />
+          <StatusItem
+            label="BV"
+            value={bv ?? 'Unavailable'}
+            status={bv === undefined ? 'warning' : 'success'}
+          />
+        </div>
         {/* Tab Bar */}
         <CustomizerTabs {...tabBarProps} readOnly={readOnly} />
 
