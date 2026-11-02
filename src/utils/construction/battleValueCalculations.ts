@@ -31,6 +31,12 @@ import {
   isAerospaceUnitType as _isAerospaceUnitType,
   type IAerospaceBVBreakdown,
 } from './aerospace/aerospaceBV';
+import { isCapitalShipBVType } from './aerospace/aerospaceBVTypes';
+import {
+  calculateCapitalShipDefensiveBV,
+  type ICapitalShipBVUnit,
+  type ICapitalShipDefensiveBVBreakdown,
+} from './aerospace/capitalShipBV';
 import {
   calculateDropShipDefensiveBV,
   type IDropShipBVUnit,
@@ -167,6 +173,11 @@ export {
   isAerospaceUnitType,
 } from './aerospace/aerospaceBV';
 export { calculateDropShipDefensiveBV } from './aerospace/dropShipBV';
+export { calculateCapitalShipDefensiveBV } from './aerospace/capitalShipBV';
+export type {
+  ICapitalShipBVUnit,
+  ICapitalShipDefensiveBVBreakdown,
+} from './aerospace/capitalShipBV';
 export type {
   IDropShipBVUnit,
   IDropShipDefensiveBVBreakdown,
@@ -200,7 +211,7 @@ export interface IUnitBVOptions extends IProtoMechBVOptions {
  * `kind` identifies which calculator produced the breakdown so callers can
  * narrow on the payload. Currently implemented for ProtoMech, Infantry,
  * Vehicle (combat / VTOL / support), and Aerospace (ASF / Conventional
- * Fighter / Small Craft); BattleMech units continue to go through the
+ * Fighter / Small Craft), plus defensive-only large aerospace; BattleMech units go through the
  * existing `CalculationService` path.
  *
  * @spec openspec/changes/add-vehicle-battle-value/specs/battle-value-system/spec.md
@@ -209,6 +220,10 @@ export interface IUnitBVOptions extends IProtoMechBVOptions {
  *       — Requirement: Aerospace BV Dispatch
  */
 export type UnitBVResult =
+  | {
+      readonly kind: 'capital-ship';
+      readonly breakdown: ICapitalShipDefensiveBVBreakdown;
+    }
   | {
       readonly kind: 'dropship';
       readonly breakdown: IDropShipDefensiveBVBreakdown;
@@ -244,13 +259,17 @@ type AerospaceDispatchUnit =
 /**
  * Route a unit to its per-type BV calculator. Currently implemented for
  * ProtoMech, Infantry, Vehicle, and Aerospace (ASF / Conventional Fighter /
- * Small Craft); other unit types fall through with `undefined` so the caller
+ * Small Craft), plus defensive-only large aerospace; other types return `undefined` so the caller
  * can keep using its existing mech path unchanged.
  *
  * @param unit  A discriminated unit value (`IProtoMechUnit`, `IInfantry`,
  *              `IVehicleUnit`, or an aerospace shape).
  * @param options Optional per-type overrides (skill, etc.).
  */
+export function calculateBattleValueForUnit(
+  unit: ICapitalShipBVUnit,
+  options?: IUnitBVOptions,
+): UnitBVResult;
 export function calculateBattleValueForUnit(
   unit: IDropShipBVUnit,
   options?: IUnitBVOptions,
@@ -277,6 +296,7 @@ export function calculateBattleValueForUnit(
     | IProtoMechUnit
     | IInfantry
     | IVehicleUnit
+    | ICapitalShipBVUnit
     | IDropShipBVUnit
     | AerospaceDispatchUnit,
   options?: IUnitBVOptions,
@@ -287,10 +307,17 @@ export function calculateBattleValueForUnit(
     | IProtoMechUnit
     | IInfantry
     | IVehicleUnit
+    | ICapitalShipBVUnit
     | IDropShipBVUnit
     | AerospaceDispatchUnit,
   options?: IUnitBVOptions,
 ): UnitBVResult | undefined {
+  if (isCapitalShipBVType(unit?.unitType)) {
+    return {
+      kind: 'capital-ship',
+      breakdown: calculateCapitalShipDefensiveBV(unit as ICapitalShipBVUnit),
+    };
+  }
   // DropShip defense is available; offensive and final BV remain undefined.
   if (unit?.unitType === UnitType.DROPSHIP) {
     return {

@@ -1,5 +1,29 @@
 ## ADDED Requirements
 
+### Requirement: DropShip mount valuation
+
+The aerospace BV owner SHALL resolve represented DropShip mounts into six-arc
+weapon BV, heat and arc-local ammo facts using the existing equipment resolver.
+A bay-start marker SHALL count its weapon once; rear side mounts SHALL use the
+corresponding aft-side arc. Supported ammo SHALL use its catalog bin shot count
+and native integer multi-ton ratio, with depleted bins contributing zero.
+Unsupported identities, capital weapons, links, quantities and arcs SHALL be
+reported with mount indices and reasons, never silently valued at zero.
+Partial arc facts SHALL NOT authorize complete DropShip dispatch.
+
+#### Scenario: Supported mounts and native quantities
+
+- **GIVEN** a bay-start PPC, a rear left-side laser and AC/5 ammo with 39 shots
+- **WHEN** mount facts are resolved
+- **THEN** the PPC SHALL count once, the laser SHALL use the left-aft arc and the ammo SHALL count one native bin
+- **AND** a matching weapon in another arc SHALL NOT supply an ammo cap
+
+#### Scenario: Unrepresented mounts remain explicit
+
+- **GIVEN** a capital weapon, an unrepresented link or malformed mount facts
+- **WHEN** mount facts are resolved
+- **THEN** each unsupported mount SHALL be reported and complete BV SHALL remain unavailable
+
 ### Requirement: Large aerospace offensive fire pool
 
 The aerospace BV owner SHALL provide a separate six-arc offensive stage for
@@ -28,6 +52,31 @@ required before changing the defensive-only calculation scope.
 - **AND** the weaker adjacent arc SHALL use 0.25 if cumulative heat exceeds capacity
 - **AND** ammo SHALL NOT borrow a matching weapon cap from another arc
 - **AND** missing, duplicate, unsupported or nonfinite stage facts SHALL be rejected
+
+### Requirement: Capital ship defensive BV dispatch
+
+JumpShips, WarShips and Space Stations SHALL use the aerospace defensive owner
+with armor factor 25, SI factor 20 and type modifiers 0.75, 0.8 and 0.7,
+respectively, matching pinned MegaMek 48fcb2f6. Defensive equipment and ammo
+caps SHALL use the inherited owner. KF drive and sail integrity SHALL add no
+BV. Explosive penalties SHALL be zero and the defensive factor SHALL be 1.
+The capital type override SHALL NOT inherit the aircraft stealth addition.
+
+#### Scenario: Capital defense without an invented total
+
+- **GIVEN** Comitatus (2995), Aegis (2582) or Crucible with native defensive equipment facts
+- **WHEN** domain or contract input reaches BV dispatch
+- **THEN** defense SHALL be 2142, 12920 or 1064, respectively
+- **AND** calculationScope SHALL be defensive-only with offensive and final BV undefined
+- **AND** DropShip, fighter and small-craft results SHALL remain unchanged
+
+#### Scenario: Required capital defense facts
+
+- **GIVEN** capital contract JSON without SI or armor.byArc
+- **WHEN** the BV adapter runs
+- **THEN** it SHALL reject the missing fact and preserve explicit zero values
+- **AND** hull and broadside mounts SHALL retain their identities and locations
+- **AND** all 185 pinned units SHALL be compared against the Java defensive aggregate with every miss explained by component
 
 ### Requirement: DropShip defensive BV dispatch
 

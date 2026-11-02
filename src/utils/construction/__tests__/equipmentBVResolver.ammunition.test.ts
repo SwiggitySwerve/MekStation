@@ -9,6 +9,7 @@ import { AMMUNITION_CATALOG_FILES } from '../equipmentBVCatalogData';
 import {
   type EquipmentCatalogEntry,
   getEquipmentEntry,
+  getAmmunitionEntry,
   initializeCatalog,
   normalizeEquipmentId,
   resetCatalogCache,
@@ -18,6 +19,19 @@ import {
 
 beforeEach(resetCatalogCache);
 afterEach(resetCatalogCache);
+
+it('exposes bin shot counts through the ammunition context without weapon collisions', () => {
+  expect(getAmmunitionEntry('IS Ammo LRM-20')).toMatchObject({
+    id: 'ammo-lrm-20',
+    battleValue: 23,
+    shotsPerTon: 6,
+  });
+  expect(getAmmunitionEntry('clan-lb-2-x-ac')).toMatchObject({
+    battleValue: 6,
+  });
+  expect(getEquipmentEntry('clan-lb-2-x-ac')?.battleValue).toBe(47);
+  expect(getAmmunitionEntry('medium-laser')).toBeUndefined();
+});
 
 // Literal local catalog values: distinct ammunition and weapon records share
 // these IDs. This boundary test does not establish native quantity/grouping BV.

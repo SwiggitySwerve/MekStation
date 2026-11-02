@@ -26,6 +26,7 @@ export interface EquipmentCatalogEntry {
   heat?: number;
   battleValue: number;
   damage?: number | string;
+  shotsPerTon?: number;
 }
 
 /**
