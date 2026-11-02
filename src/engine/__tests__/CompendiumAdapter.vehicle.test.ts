@@ -251,6 +251,8 @@ it.each([
   'Hydrofoil',
   'Submarine',
   'WiGE',
+  'Rail',
+  'Maglev',
 ])(
   'runs %s through scripted fire, motive damage and completion',
   (motionType) => {
