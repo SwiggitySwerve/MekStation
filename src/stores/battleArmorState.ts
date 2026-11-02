@@ -8,6 +8,7 @@
  */
 
 import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
+import type { IUnitContract } from '@/types/contracts';
 import type { IBABreakdown } from '@/utils/construction/battlearmor/battleArmorBV';
 
 import { BattleArmorLocation } from '@/types/construction/UnitLocation';
@@ -56,6 +57,8 @@ export function createBattleArmorMountedEquipment(
  * Complete state for a single Battle Armor unit (squad)
  */
 export interface BattleArmorState {
+  /** Original catalog facts not expressible by the editor. */
+  librarySource?: IUnitContract;
   // =========================================================================
   // Identity
   // =========================================================================
