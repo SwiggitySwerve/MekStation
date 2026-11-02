@@ -123,6 +123,19 @@ it('counts passengers, marines and battle armor but floors each quarters bay sep
     ),
   ).toEqual([]);
 });
+it('requires the last berth for transported passengers and troops', () => {
+  expect(
+    validateAerospaceSource(
+      ship({
+        passengers: 1,
+        marines: 1,
+        battlearmor: 1,
+        transporters: ['crewquarters:62:0:1'],
+      }),
+    ),
+  ).toContain('Requires quarters for 9 crew but only has 8');
+});
+
 it('checks repair facings and shared placement for both BLK encodings', () => {
   expect(
     aerospaceBays(
