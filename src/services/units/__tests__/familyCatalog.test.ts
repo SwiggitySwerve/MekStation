@@ -114,7 +114,7 @@ it('admits the ProtoMech family for catalog reads', () => {
   expect(UNIT_FAMILIES).toContain('protomechs');
   expect(UNIT_DEFINITION_FAMILIES.protomechs).toEqual({
     unitTypes: ['ProtoMech'],
-    store: null,
+    store: 'protomech',
   });
 });
 
@@ -185,7 +185,18 @@ it('UL-10 loads every fixture definition without creating non-mech stores', asyn
     ['infantry', 'Infantry'],
     ['protomechs', 'ProtoMech'],
   ] as const) {
+    const sourceFile =
+      family === 'protomechs'
+        ? 'protomechs/Centaur.json'
+        : family === 'battlearmor'
+          ? 'battlearmor/Achileus Light Battle Armor (WoB)(Sqd4).json'
+          : null;
     const definition = {
+      ...(sourceFile
+        ? JSON.parse(
+            fs.readFileSync(path.join('public/data/units', sourceFile), 'utf8'),
+          )
+        : {}),
       id: `${family}-fixture`,
       unitType,
       // The capital read-only view needs a tonnage (UL-14).
@@ -217,6 +228,8 @@ it('UL-10 loads every fixture definition without creating non-mech stores', asyn
         vehicles: 'vehicle',
         aerospace: 'aerospace',
         capital: 'capital',
+        protomechs: 'protomech',
+        battlearmor: 'battlearmor',
       }[family as string];
       if (family !== 'battlemechs') {
         expect(
