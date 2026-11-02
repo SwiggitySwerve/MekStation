@@ -56,7 +56,11 @@ export function hasVehicleStealth(armorType?: string | number): boolean {
 /** Undamaged BV movement: Tank.java:387-418,1570-1575,2034-2042.
  * BV settings ignore modular armor, cargo, weather and gravity.
  */
-export function getVehicleBVMovement(input: VehicleBVInput) {
+export function getVehicleBVMovement(input: VehicleBVInput): {
+  walkMP: number;
+  runMP: number;
+  jumpMP: number;
+} {
   const ids = (input.chassisEquipment ?? []).map((id) =>
     normalizeEquipmentId(id)
       .replace(/:omni$/, '')
