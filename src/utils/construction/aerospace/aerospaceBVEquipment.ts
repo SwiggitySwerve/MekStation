@@ -140,7 +140,6 @@ export function calculateMountedAerospaceExplosivePenalty(
     )
       explosiveMounts++;
   }
-  // MekFileParser links each capacitor to one available same-location PPC.
   for (const [location, count] of capacitors)
     explosiveMounts += Math.min(count, ppcs.get(location) ?? 0);
   if ((clan || hasCase) && (ammoTypes.size > 0 || explosiveMounts > 0))
