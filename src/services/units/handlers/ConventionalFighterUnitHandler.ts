@@ -179,7 +179,10 @@ export class ConventionalFighterUnitHandler extends AbstractUnitTypeHandler<ICon
 
     pushTonnageRangeErrors(errors, unit.tonnage, {
       label: 'Conventional fighter',
-      min: 5,
+      min:
+        unit.nativeAerospaceConstruction?.unitType === 'FixedWingSupport'
+          ? 0
+          : 5,
       max: 100,
     });
 
