@@ -1,10 +1,15 @@
+import {
+  addAmmunitionAliases,
+  ammunitionAliasKey,
+  isPhysicalAmmunitionBin,
+} from '@/services/equipment/aliases/ammunition';
+import { TechBase } from '@/types/enums/TechBase';
 /**
  * Equipment BV Resolver - BV Resolution
  *
  * Resolves equipment IDs to BV and heat values with BV-context heat overrides.
  * Provides the main public API for equipment lookup and validation.
  */
-
 import { logger } from '@/utils/logger';
 
 import type {
@@ -138,4 +143,36 @@ export function resolveAmmoBV(ammoId: string): AmmoBVResult {
 
 export function getCatalogSize(): number {
   return loadEquipmentCatalog().size;
+}
+
+/** Physical-bin aliases reuse the registry owner, including its malformed-half-bin guard.
+ * Keep legacy BV identity resolution unchanged; physical construction needs bin size.
+ */
+export function getAmmunitionWeightEntry(
+  ammoId: string,
+): EquipmentCatalogEntry | undefined {
+  const catalog = loadAmmunitionCatalog(),
+    aliases = new Map<string, string>();
+  const normalize = (name: string) =>
+    name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  for (const entry of catalog.values())
+    if (entry.weight !== undefined && entry.shotsPerTon !== undefined)
+      addAmmunitionAliases(
+        {
+          ...entry,
+          weight: entry.weight,
+          shotsPerTon: entry.shotsPerTon,
+          techBase:
+            entry.techBase === 'CLAN' ? TechBase.CLAN : TechBase.INNER_SPHERE,
+        },
+        aliases,
+        normalize,
+      );
+  const alias = aliases.get(ammunitionAliasKey(ammoId, normalize) ?? '');
+  const entry =
+    (alias ? catalog.get(alias) : undefined) ?? getAmmunitionEntry(ammoId);
+  return entry?.weight !== undefined &&
+    isPhysicalAmmunitionBin({ ...entry, weight: entry.weight })
+    ? entry
+    : undefined;
 }
