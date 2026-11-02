@@ -16,8 +16,10 @@ from pathlib import Path, PurePosixPath
 import re
 import subprocess
 import sys
+import zipfile
 
-SOURCE_ROOT = "data/mekfiles"
+from source_reconciliation import SOURCE_ROOT, reconcile_inventory
+
 SOURCE_FORMATS = frozenset({"mtf", "blk", "bfs"})
 
 
@@ -37,7 +39,7 @@ def _git(repo: Path, *args: str, data: bytes | None = None) -> bytes:
         raise InventoryError(f"Git source read failed: {detail or error}") from error
 
 
-def build_inventory(repo: Path, commit: str, *, repository: str) -> dict:
+def build_inventory(repo: Path, commit: str, *, repository: str, archive_members: bool = False) -> dict:
     """Return byte-stable source records, independent of the Git worktree.
 
     Read batches of immutable blobs rather than running one Git process per file.
@@ -73,10 +75,11 @@ def build_inventory(repo: Path, commit: str, *, repository: str) -> dict:
             "blob": blob, "mode": mode,
         })
     entries.sort(key=lambda entry: entry["path"])
-    if not any(entry["kind"] == "source" for entry in entries):
+    if not any(entry["kind"] == "source" or archive_members and entry["kind"] == "archive" for entry in entries):
         raise InventoryError(f"Pinned tree contains no source definitions under {SOURCE_ROOT}")
 
     # Bound peak memory even when a future source corpus adds large assets.
+    members = []
     for start in range(0, len(entries), 256):
         batch = entries[start:start + 256]
         requests = "".join(f"{entry['blob']}\n" for entry in batch).encode("ascii")
@@ -90,10 +93,28 @@ def build_inventory(repo: Path, commit: str, *, repository: str) -> dict:
             if len(content) != size or stream.read(1) != b"\n":
                 raise InventoryError(f"Incomplete Git blob response for {entry['path']}")
             entry.update({"bytes": size, "sha256": hashlib.sha256(content).hexdigest()})
+            if archive_members and entry['kind'] == 'archive':
+                try:
+                    with zipfile.ZipFile(io.BytesIO(content)) as archive:
+                        for member in archive.infolist():
+                            suffix = PurePosixPath(member.filename).suffix.lower().removeprefix('.')
+                            if member.is_dir() or suffix not in SOURCE_FORMATS:
+                                continue
+                            payload = archive.read(member)
+                            members.append({'path': entry['path'] + '!/' + member.filename,
+                                            'kind': 'source', 'format': suffix, 'bytes': len(payload),
+                                            'sha256': hashlib.sha256(payload).hexdigest()})
+                except (OSError, ValueError, zipfile.BadZipFile) as error:
+                    raise InventoryError(f"Cannot expand archive: {entry['path']}: {error}") from error
         if stream.read():
             raise InventoryError("Unexpected trailing Git batch output")
 
+    entries = sorted(entries + members, key=lambda entry: entry['path'])
+    if len({e['path'] for e in entries}) != len(entries):
+        raise InventoryError('Duplicate archive member path')
     by_format = Counter(entry["format"] for entry in entries if entry["kind"] == "source")
+    if not by_format:
+        raise InventoryError(f"Pinned tree contains no source definitions under {SOURCE_ROOT}")
     return {
         "schemaVersion": 1,
         "repository": repository,
@@ -102,10 +123,11 @@ def build_inventory(repo: Path, commit: str, *, repository: str) -> dict:
         "entityLoading": "not-run",
         "parity": "not-run",
         "summary": {
-            "trackedFiles": len(entries),
+            "trackedFiles": len(entries) - len(members),
             "sourceFiles": sum(by_format.values()),
             "byFormat": dict(sorted(by_format.items())),
             "archiveFiles": sum(entry["kind"] == "archive" for entry in entries),
+            "archiveMembers": len(members),
             "otherFiles": sum(entry["kind"] == "other" for entry in entries),
         },
         "entries": entries,
@@ -118,10 +140,20 @@ def main() -> int:
     parser.add_argument("--repository", required=True,
                         help="Asserted repository identity URI; preserved exactly, not fetched or verified")
     parser.add_argument("--commit", required=True, help="Full immutable mm-data commit hash")
+    parser.add_argument('--loads', type=Path, help='External pinned Java JSONL (path + sha256)')
+    parser.add_argument('--exclusions', type=Path, help='Recorded JSON exclusion/pending rule list')
     args = parser.parse_args()
     try:
-        report = build_inventory(args.repo, args.commit, repository=args.repository)
-    except InventoryError as error:
+        if args.exclusions and not args.loads:
+            raise InventoryError('--exclusions requires --loads')
+        report = build_inventory(args.repo, args.commit, repository=args.repository, archive_members=bool(args.loads))
+        if args.loads:
+            payload = args.loads.read_bytes()
+            rules = json.loads(args.exclusions.read_bytes()) if args.exclusions else []
+            report['reconciliation'] = reconcile_inventory(report, [json.loads(line) for line in payload.splitlines()], rules)
+            report['loadFileSha256'] = hashlib.sha256(payload).hexdigest()
+            report['entityLoading'] = 'reconciled-java-loads'
+    except (ValueError, OSError, KeyError, TypeError) as error:
         print(f"Source inventory failed: {error}", file=sys.stderr)
         return 1
     # Binary stdout avoids platform newline/encoding changes to the JSON artifact.
