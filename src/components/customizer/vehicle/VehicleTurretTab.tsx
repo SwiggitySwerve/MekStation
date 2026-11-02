@@ -2,7 +2,7 @@
  * Vehicle Turret Tab Component
  *
  * Management of vehicle turret configuration and turret-mounted weapons.
- * Allows configuring turret type, viewing turret weight capacity,
+ * Allows configuring turret type, viewing turret weight rules,
  * and managing which weapons are mounted in the turret.
  *
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3.4
@@ -18,7 +18,6 @@ import {
   IVehicleMountedEquipment,
   TurretType,
 } from '@/types/unit/VehicleInterfaces';
-import { formatTons } from '@/utils/formatting';
 
 import { customizerStyles as cs } from '../styles';
 
@@ -35,9 +34,6 @@ type CheckboxHandler = (e: React.ChangeEvent<HTMLInputElement>) => void;
 type EquipmentAction = (instanceId: string) => void;
 type TurretStats = {
   equipmentCount: number;
-  maxWeight: number;
-  weightPercent: number;
-  weightUsed: number;
 };
 type SelectProps = {
   disabled: boolean;
@@ -58,7 +54,6 @@ type ConfigProps = SecondaryProps & {
   canHaveSecondaryTurret: boolean;
   onTurretTypeChange: SelectHandler;
   stats: TurretStats;
-  tonnage: number;
   turret: ITurretConfiguration | null;
   turretOptions: TurretOption[];
 };
@@ -107,12 +102,6 @@ function getSecondaryTurretTypeOptions(): TurretOption[] {
   return TURRET_TYPE_OPTIONS.filter(
     (opt) => opt.value !== TurretType.CHIN && opt.value !== TurretType.NONE,
   );
-}
-
-function getTurretCapacityBarClass(percent: number): string {
-  if (percent > 100) return 'bg-red-500';
-  if (percent > 75) return 'bg-amber-500';
-  return 'bg-cyan-500';
 }
 
 function TurretOptionSelect({
@@ -196,50 +185,26 @@ function TurretStatsPanel({
   stats: TurretStats;
   turret: ITurretConfiguration;
 }) {
-  const usedClass =
-    stats.weightUsed > stats.maxWeight ? cs.text.valueNegative : cs.text.value;
   return (
     <div className={`${cs.panel.summary} mb-4`}>
       <div className="grid grid-cols-2 gap-2 text-sm">
-        <TurretStat label="Max Capacity">
-          {formatTons(stats.maxWeight)}
-        </TurretStat>
-        <div>
-          <span className={cs.text.label}>Weight Used:</span>
-          <span className={`ml-2 ${usedClass}`}>
-            {formatTons(stats.weightUsed)}
-          </span>
-        </div>
         <TurretStat label="Rotation Arc">
           {turret.rotationArc}
           {'\u00b0'}
         </TurretStat>
         <TurretStat label="Items Mounted">{stats.equipmentCount}</TurretStat>
       </div>
-      <div className="mt-3">
-        <div className="bg-surface-base h-2 overflow-hidden rounded-full">
-          <div
-            className={`h-full transition-all ${getTurretCapacityBarClass(stats.weightPercent)}`}
-            style={{ width: `${Math.min(100, stats.weightPercent)}%` }}
-          />
-        </div>
-        <p className="text-text-theme-secondary mt-1 text-right text-xs">
-          {stats.weightPercent.toFixed(0)}% capacity used
-        </p>
-      </div>
     </div>
   );
 }
 
-function TurretWeightInfo({ tonnage }: { tonnage: number }) {
+function TurretWeightInfo() {
   return (
     <div className="text-text-theme-secondary bg-surface-raised/30 rounded p-2 text-xs">
-      <p className="text-text-theme-primary mb-1 font-medium">
-        Turret Capacity
-      </p>
+      <p className="text-text-theme-primary mb-1 font-medium">Turret Weight</p>
       <p>
-        Maximum turret weight is typically 10% of vehicle tonnage (
-        {formatTons(tonnage * 0.1)} for this {formatTons(tonnage)} vehicle).
+        A turret is limited only by the vehicle&apos;s available weight. The
+        turret itself weighs 10% of the equipment it carries.
       </p>
     </div>
   );
@@ -255,7 +220,6 @@ function TurretConfigurationSection({
   secondaryTurret,
   secondaryTurretTypeOptions,
   stats,
-  tonnage,
   turret,
   turretOptions,
 }: ConfigProps) {
@@ -289,7 +253,7 @@ function TurretConfigurationSection({
       {turret ? (
         <>
           <TurretStatsPanel turret={turret} stats={stats} />
-          <TurretWeightInfo tonnage={tonnage} />
+          <TurretWeightInfo />
         </>
       ) : (
         <div className={cs.panel.empty}>
@@ -364,7 +328,6 @@ export function VehicleTurretTab({
   readOnly = false,
   className = '',
 }: VehicleTurretTabProps): React.ReactElement {
-  const tonnage = useVehicleStore((s) => s.tonnage);
   const motionType = useVehicleStore((s) => s.motionType);
   const turret = useVehicleStore((s) => s.turret);
   const secondaryTurret = useVehicleStore((s) => s.secondaryTurret);
@@ -391,16 +354,10 @@ export function VehicleTurretTab({
     [equipment],
   );
   const secondaryTurretTypeOptions = useMemo(getSecondaryTurretTypeOptions, []);
-  const stats = useMemo<TurretStats>(() => {
-    const weightUsed = turretEquipment.length * 0.5;
-    const maxWeight = turret?.maxWeight ?? 0;
-    return {
-      equipmentCount: turretEquipment.length,
-      maxWeight,
-      weightPercent: maxWeight > 0 ? (weightUsed / maxWeight) * 100 : 0,
-      weightUsed,
-    };
-  }, [turret, turretEquipment.length]);
+  const stats = useMemo<TurretStats>(
+    () => ({ equipmentCount: turretEquipment.length }),
+    [turretEquipment.length],
+  );
 
   const handleTurretTypeChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -451,7 +408,6 @@ export function VehicleTurretTab({
           secondaryTurret={secondaryTurret}
           secondaryTurretTypeOptions={secondaryTurretTypeOptions}
           stats={stats}
-          tonnage={tonnage}
           turret={turret}
           turretOptions={turretOptions}
         />

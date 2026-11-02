@@ -27,7 +27,7 @@ describe('vehicle source fidelity', () => {
       expect(result.data.unit).not.toHaveProperty('turret.type');
     else
       expect(result.data.unit).toMatchObject({
-        turret: { type, maxWeight: 2, currentWeight: 0, rotationArc: 360 },
+        turret: { type, currentWeight: 0, rotationArc: 360 },
       });
   });
 
