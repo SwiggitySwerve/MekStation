@@ -24,6 +24,9 @@ import type {
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IMovementCapability } from '@/types/gameplay/HexGridInterfaces';
 
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { isAerospaceUnitType } from '@/utils/construction/aerospace/aerospaceBVUnitAdapter';
+
 import type { IInteractiveSessionLinkage } from './InteractiveSession.types';
 import type { IAdaptedUnit } from './types';
 
@@ -122,6 +125,13 @@ function adaptedCombatSeedPatch(
 ): MutableGameUnitPatch | null {
   const patch: MutableGameUnitPatch = {};
 
+  if (adapted.vehicleInit !== undefined) {
+    patch.unitType =
+      unit.unitType ?? (adapted.unitType as IGameUnit['unitType']);
+    patch.vehicleInit = unit.vehicleInit ?? adapted.vehicleInit;
+    patch.motionType = unit.motionType ?? adapted.vehicleInit.motionType;
+  }
+
   if (
     adapted.movementMode !== undefined &&
     unit.movementMode !== adapted.movementMode
@@ -130,6 +140,10 @@ function adaptedCombatSeedPatch(
   }
   if (adapted.gyroType !== undefined && unit.gyroType !== adapted.gyroType) {
     patch.gyroType = adapted.gyroType;
+  }
+  if (adapted.aerospaceInit && isAerospaceUnitType(adapted)) {
+    patch.unitType = unit.unitType ?? (adapted.unitType as UnitType);
+    patch.aerospaceInit = unit.aerospaceInit ?? adapted.aerospaceInit;
   }
   appendAdaptedArmorSeeds(patch, unit, adapted);
   appendAdaptedHeatSinkSeeds(patch, unit, adapted);
@@ -208,17 +222,15 @@ function appendVehicleCriticalAvailabilitySeed(
   const vehicleCriticalAvailability = vehicleCriticalAvailabilityFromWeapons(
     adapted.weapons,
   );
-  if (
-    unit.vehicleInit === undefined ||
-    vehicleCriticalAvailability === undefined
-  ) {
+  const vehicleInit = patch.vehicleInit ?? unit.vehicleInit;
+  if (vehicleInit === undefined || vehicleCriticalAvailability === undefined) {
     return;
   }
 
   patch.vehicleInit = {
-    ...unit.vehicleInit,
+    ...vehicleInit,
     criticalAvailability: mergeVehicleCriticalAvailability(
-      unit.vehicleInit.criticalAvailability,
+      vehicleInit.criticalAvailability,
       vehicleCriticalAvailability,
     ),
   };

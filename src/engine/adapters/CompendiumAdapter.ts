@@ -27,6 +27,7 @@ import type {
   IAdaptUnitOptions,
 } from '../types';
 
+import { tryAdaptAerospaceUnit } from './CompendiumAdapter.aerospace';
 import {
   applyInitialDamageToArmor,
   extractArmor,
@@ -37,6 +38,10 @@ import {
   type AdaptedMovementState,
   calculateMovement,
 } from './CompendiumAdapter.movement';
+import {
+  adaptVehicleConstruction,
+  isVehicleDefinition,
+} from './CompendiumAdapter.vehicle';
 import { getWeaponData } from './CompendiumAdapter.weaponData';
 import {
   ammoFromWeapons,
@@ -88,11 +93,19 @@ export function adaptUnitFromData(
   fullUnit: IFullUnit,
   options: IAdaptUnitOptions = {},
 ): IAdaptedUnit {
+  const aerospace = tryAdaptAerospaceUnit(fullUnit, options);
+  if (aerospace) return aerospace;
   const side = options.side ?? GameSide.Player;
   const position = options.position ?? { q: 0, r: 0 };
   const facing =
     options.facing ?? (side === GameSide.Player ? Facing.North : Facing.South);
   const initialDamage = options.initialDamage ?? {};
+  const isVehicle = isVehicleDefinition(fullUnit);
+  if (options.family === 'vehicles' && !isVehicle)
+    throw new Error(`Unit '${fullUnit.id}' is not a vehicle definition`);
+  const vehicle = isVehicle
+    ? adaptVehicleConstruction(fullUnit, initialDamage)
+    : undefined;
 
   const unitData = fullUnit as Record<string, unknown>;
   const tonnage = (unitData.tonnage as number) ?? 50;
@@ -100,26 +113,36 @@ export function adaptUnitFromData(
   const armorAllocation = recordField(unitData.armor)?.allocation as
     | Record<string, unknown>
     | undefined;
-  const armor = extractArmor(armorAllocation ?? {});
-  applyInitialDamageToArmor(armor, initialDamage);
+  const armor = vehicle?.armor ?? extractArmor(armorAllocation ?? {});
+  if (!vehicle) applyInitialDamageToArmor(armor, initialDamage);
 
-  const structure = getStructureForTonnage(tonnage);
+  const structure = vehicle?.structure ?? getStructureForTonnage(tonnage);
   const rawEquipment =
-    (unitData.equipment as AdaptableEquipmentItem[] | undefined) ?? [];
-  const weapons = extractWeapons(rawEquipment, fullUnit.id, unitData);
+    vehicle?.equipment ??
+    (unitData.equipment as AdaptableEquipmentItem[] | undefined) ??
+    [];
+  const weapons = extractWeapons(
+    rawEquipment,
+    fullUnit.id,
+    vehicle ? { ...unitData, ...vehicle } : unitData,
+  );
   const initiativeEquipment = hydrateInitiativeEquipmentFromFullUnit(fullUnit);
   const c3Equipment = hydrateC3EquipmentFromFullUnit(fullUnit);
-  const movement = calculateMovement(unitData);
+  const movement = {
+    ...calculateMovement(unitData),
+    ...(vehicle
+      ? { walkMP: vehicle.walkMP, runMP: vehicle.runMP, jumpMP: vehicle.jumpMP }
+      : {}),
+  };
   const gyroType = gyroTypeFromUnitData(unitData);
   const ammoState = hydrateAmmoStateFromFullUnit(fullUnit) ?? {};
   const ammo = ammoFromWeapons(weapons, ammoState);
   // Real critical layout (catalog or saved custom unit), not the legacy
   // XL-shaped default manifest (L0-06).
   // @spec openspec/specs/critical-hit-resolution/spec.md (Critical Slot Selection)
-  const criticalSlotManifest = hydrateCriticalSlotManifestFromFullUnit(
-    fullUnit,
-    weapons,
-  );
+  const criticalSlotManifest = vehicle
+    ? undefined
+    : hydrateCriticalSlotManifestFromFullUnit(fullUnit, weapons);
   const ammoConstruction = Object.values(ammoState).map((bin) => ({
     binId: bin.binId,
     weaponType: bin.weaponType,
@@ -131,7 +154,8 @@ export function adaptUnitFromData(
 
   const adapted: IAdaptedUnit = {
     id: fullUnit.id,
-    unitType: fullUnit.unitType,
+    unitType: vehicle?.unitType ?? fullUnit.unitType,
+    ...(vehicle ? { vehicleInit: vehicle.vehicleInit, bv: vehicle.bv } : {}),
     side,
     position,
     facing,
@@ -207,7 +231,9 @@ export async function adaptUnit(
     };
   }
   const service = getCanonicalUnitService();
-  const fullUnit = await service.getById(unitId);
+  const fullUnit = options.family
+    ? await service.getById(unitId, { family: options.family })
+    : await service.getById(unitId);
   if (!fullUnit) return null;
   return adaptUnitFromData(fullUnit, options);
 }

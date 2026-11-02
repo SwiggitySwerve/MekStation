@@ -45,6 +45,13 @@ export interface ITurretConfiguration {
   readonly rotationArc: number;
 }
 
+/** Source mechanism allowances are independent of installed turret layout. */
+export interface IVehicleTurretSourceContext {
+  readonly isOmni?: boolean;
+  readonly baseChassisTurretWeight?: number;
+  readonly baseChassisSecondaryTurretWeight?: number;
+}
+
 // ============================================================================
 // Vehicle Equipment
 // ============================================================================
@@ -81,7 +88,7 @@ export interface IVehicleMountedEquipment extends IUnitMountedEquipmentIdentity 
 /**
  * Interface for combat vehicles (tanks, APCs, etc.)
  */
-export interface IVehicle extends IGroundUnit {
+export interface IVehicle extends IGroundUnit, IVehicleTurretSourceContext {
   /** Installed non-placeholder layout locations from the source. */
   readonly structureLocations?: readonly string[];
   /** Loaded BLK engine construction flag, independent of chassis tech base. */
@@ -155,7 +162,7 @@ export interface IVehicle extends IGroundUnit {
 /**
  * Interface for VTOL (Vertical Take-Off and Landing) vehicles
  */
-export interface IVTOL extends IGroundUnit {
+export interface IVTOL extends IGroundUnit, IVehicleTurretSourceContext {
   readonly structureLocations?: readonly string[];
   readonly internalStructureType?: number;
   readonly unitType: UnitType.VTOL;

@@ -18,7 +18,10 @@ import type {
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType, isSupportVehicle } from '@/types/unit/VehicleInterfaces';
 
-import { getDefensiveEquipmentKind } from '../battleValueEquipment';
+import {
+  getDefensiveEquipmentKind,
+  getOffensiveBVRole,
+} from '../battleValueEquipment';
 import { computeFlankMP } from './engine';
 import {
   computeVehicleBVStructurePoints,
@@ -173,6 +176,7 @@ export function toVehicleBVInput(state: VehicleBVStateSubset): VehicleBVInput {
   const weapons: VehicleWeaponMount[] = [];
   const ammo: VehicleBVInput['ammo'] = [];
   const defensiveEquipment: VehicleBVInput['defensiveEquipment'] = [];
+  const offensiveEquipment: VehicleBVInput['offensiveEquipment'] = [];
 
   for (const item of state.equipment) {
     if (getDefensiveEquipmentKind(item.equipmentId)) {
@@ -182,6 +186,11 @@ export function toVehicleBVInput(state: VehicleBVStateSubset): VehicleBVInput {
       });
     } else if (isAmmo(item.equipmentId)) {
       ammo.push({
+        id: item.equipmentId,
+        location: String(item.location),
+      });
+    } else if (getOffensiveBVRole(item.equipmentId) === 'equipment') {
+      offensiveEquipment.push({
         id: item.equipmentId,
         location: String(item.location),
       });
@@ -227,7 +236,7 @@ export function toVehicleBVInput(state: VehicleBVStateSubset): VehicleBVInput {
     weapons,
     ammo,
     defensiveEquipment,
-    offensiveEquipment: [],
+    offensiveEquipment,
     explosivePenalty: 0,
     turret: toTurretConfig(state.turret?.type),
     secondaryTurret: toTurretConfig(state.secondaryTurret?.type),
@@ -321,6 +330,7 @@ export function toVehicleBVInputFromUnit(
   const weapons: VehicleWeaponMount[] = [];
   const ammo: VehicleBVInput['ammo'] = [];
   const defensiveEquipment: VehicleBVInput['defensiveEquipment'] = [];
+  const offensiveEquipment: VehicleBVInput['offensiveEquipment'] = [];
   for (const item of rawEquipment) {
     if (getDefensiveEquipmentKind(item.equipmentId)) {
       defensiveEquipment.push({
@@ -329,6 +339,11 @@ export function toVehicleBVInputFromUnit(
       });
     } else if (isAmmo(item.equipmentId)) {
       ammo.push({
+        id: item.equipmentId,
+        location: String(item.location),
+      });
+    } else if (getOffensiveBVRole(item.equipmentId) === 'equipment') {
+      offensiveEquipment.push({
         id: item.equipmentId,
         location: String(item.location),
       });
@@ -400,7 +415,7 @@ export function toVehicleBVInputFromUnit(
     weapons,
     ammo,
     defensiveEquipment,
-    offensiveEquipment: [],
+    offensiveEquipment,
     explosivePenalty: 0,
     turret,
     secondaryTurret,

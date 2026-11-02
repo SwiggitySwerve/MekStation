@@ -15,7 +15,7 @@ import {
   TurretType,
   type ITurretConfiguration,
 } from '@/types/unit/VehicleInterfaces';
-import { ceilToHalfTon } from '@/utils/physical/weightUtils';
+import { ceilToHalfTon, isValidWeight } from '@/utils/physical/weightUtils';
 
 // Minimum tonnage required for dual turrets
 export const DUAL_TURRET_MIN_TONNAGE = 50;
@@ -70,6 +70,93 @@ export function computeTurretWeight(
     default:
       return 0;
   }
+}
+
+export interface VehicleTurretMechanismResult {
+  weight: number | null;
+  allowanceOverloaded: boolean | null;
+  issues: readonly string[];
+}
+
+export interface VehicleTurretMechanismContext {
+  type: TurretType;
+  equipmentWeight: number | null;
+  isOmni?: boolean;
+  baseChassisWeight?: number;
+  isSupportVehicle?: boolean;
+}
+
+/**
+ * Keep assigned Omni mechanism mass separate from required mechanism mass.
+ * Legacy capacity/usage fields have no authority.
+ * @spec openspec/changes/validate-combat-omni-turret-mechanisms/specs/vehicle-unit-system/spec.md
+ */
+export function computeVehicleTurretMechanismWeight(
+  context: VehicleTurretMechanismContext,
+): VehicleTurretMechanismResult {
+  const { type, equipmentWeight, isOmni, baseChassisWeight } = context;
+  if (
+    isOmni &&
+    baseChassisWeight !== undefined &&
+    !Number.isFinite(baseChassisWeight)
+  ) {
+    return {
+      weight: null,
+      allowanceOverloaded: null,
+      issues: ['Omni mechanism allowance is nonfinite'],
+    };
+  }
+  const assigned =
+    isOmni && baseChassisWeight !== undefined && baseChassisWeight >= 0;
+  if (type === TurretType.NONE && !assigned)
+    return { weight: 0, allowanceOverloaded: false, issues: [] };
+  if (
+    isOmni &&
+    (context.isSupportVehicle ||
+      type === TurretType.SPONSON_LEFT ||
+      type === TurretType.SPONSON_RIGHT)
+  ) {
+    return {
+      weight: null,
+      allowanceOverloaded: null,
+      issues: ['Omni support/sponson mechanism calculation is unsupported'],
+    };
+  }
+  if (
+    type !== TurretType.NONE &&
+    equipmentWeight !== null &&
+    !isValidWeight(equipmentWeight)
+  ) {
+    return {
+      weight: null,
+      allowanceOverloaded: null,
+      issues: ['Mechanism equipment mass is invalid'],
+    };
+  }
+  const required =
+    type === TurretType.NONE
+      ? 0
+      : equipmentWeight === null
+        ? null
+        : computeTurretWeight(type, equipmentWeight);
+  const weight = assigned ? ceilToHalfTon(baseChassisWeight) : required;
+  if (weight !== null && !Number.isFinite(weight)) {
+    return {
+      weight: null,
+      allowanceOverloaded: null,
+      issues: ['Rounded mechanism mass is nonfinite'],
+    };
+  }
+  return {
+    weight,
+    allowanceOverloaded:
+      required === null
+        ? null
+        : assigned
+          ? required > baseChassisWeight
+          : false,
+    issues: [],
+  };
 }
 
 // =============================================================================
@@ -168,19 +255,47 @@ export function getEligibleTurretTypes(
  */
 export function validateTurretWeight(
   turretType: TurretType,
-  equipmentWeight: number,
-  currentTurretWeight: number,
+  equipmentWeight: number | null,
+  currentTurretWeight: number | null,
+  context: Omit<VehicleTurretMechanismContext, 'type' | 'equipmentWeight'> = {},
 ): Array<{ ruleId: string; message: string }> {
   const errors: Array<{ ruleId: string; message: string }> = [];
-  if (turretType === TurretType.NONE) return errors;
 
-  const expected = computeTurretWeight(turretType, equipmentWeight);
+  const result = computeVehicleTurretMechanismWeight({
+    ...context,
+    type: turretType,
+    equipmentWeight,
+  });
+  const expected = result.weight;
+  if (
+    result.issues.length ||
+    (turretType !== TurretType.NONE &&
+      currentTurretWeight !== null &&
+      !isValidWeight(currentTurretWeight))
+  ) {
+    return [
+      {
+        ruleId: 'VAL-VEHICLE-TURRET',
+        message: `Turret mass is incomplete or invalid${result.issues.length ? `: ${result.issues.join('; ')}` : ''}`,
+      },
+    ];
+  }
+  if (turretType === TurretType.NONE) return errors;
   // Allow a small floating-point tolerance
-  if (Math.abs(currentTurretWeight - expected) > 0.001) {
+  if (
+    expected !== null &&
+    currentTurretWeight !== null &&
+    Math.abs(currentTurretWeight - expected) > 0.001
+  ) {
     errors.push({
       ruleId: 'VAL-VEHICLE-TURRET',
-      message: `Turret weight should be ${expected}t (10% of ${equipmentWeight}t equipment) — found ${currentTurretWeight}t`,
+      message: `Turret mechanism weight should be ${expected}t — found ${currentTurretWeight}t`,
     });
   }
+  if (result.allowanceOverloaded)
+    errors.push({
+      ruleId: 'VAL-VEHICLE-TURRET',
+      message: `Turret mechanism requirement exceeds the assigned Omni base-chassis allowance ${context.baseChassisWeight}t`,
+    });
   return errors;
 }
