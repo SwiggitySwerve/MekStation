@@ -14,7 +14,10 @@
  */
 
 /** Public compatibility facade; implementations are split by responsibility. */
-export { resolveDropShipMountBV } from './dropShipMountBV';
+export {
+  resolveDropShipMountBV,
+  resolveLargeAerospaceMountBV,
+} from './dropShipMountBV';
 export type { IDropShipMountBV } from './dropShipMountBV';
 export { calculateLargeAerospaceFirePool } from './largeAerospaceFirePool';
 export type {

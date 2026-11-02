@@ -56,9 +56,9 @@ fighter/small-craft breakdowns; native-valued inputs do not prove app loading.
 ## Capital defensive slice
 
 `capitalShipBV.ts` adapts JumpShip, WarShip and Space Station facts and calls
-the aerospace defensive owner. Dispatch returns `kind: capital-ship` and the
-existing large-aerospace `defensive-only` contract; offensive and final BV
-remain undefined. The contract adapter requires SI and armor.byArc, accepts
+the aerospace defensive owner. Dispatch returns `kind: capital-ship`; the shared
+composition owner decides complete or defensive-only scope. The contract
+adapter requires SI and armor.byArc, accepts
 zero and preserves hull/broadside mounts. Domain mounts may carry arc names.
 
 Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587` factory routes
@@ -78,7 +78,7 @@ guards, equipment caps and type overrides. UL-21's external evidence compares
 all 185 native defensive aggregates and verifies 620 aerospace and 209
 DropShip results unchanged. Existing source-qualified equipment IDs, screen
 identities and ammunition quantities remain boundary limitations, reported
-per unit; no complete-total parity or new equipment resolution is claimed.
+per unit. Supported complete scope is documented below; missing identities remain unresolved.
 
 ## DropShip defensive slice
 
@@ -322,3 +322,21 @@ Java screen-launcher/APDS identities without catalog coverage, depleted or
 multi-ton ammunition state, variable equipment BV, destroyed/grouped mounts,
 cockpit/drone modifiers and complete aerospace BV parity remain open. This
 construction input has no working/destroyed state. Catalogs are unchanged.
+
+## Capital offense and supported complete scope
+
+The shared large-aerospace fire pool accepts WarShip eight-arc topology.
+WarShip primary candidates are nose, aft and broadsides, in native index order;
+its third weighted arc is opposite the primary, not the weaker adjacent.
+Sources: MegaMek 48fcb2f64, WarShipBVCalculator.determineFront/processWeapons
+and JumpShipBVCalculator.offensiveSpeedFactorMP (JumpShip fixed MP 1,
+station 0 despite both having zero thrust). Heat and local caps reuse LargeAero.
+The mount owner supports capital location tags and bay-start multiplicity;
+capital/sub-capital identities lacking catalog facts remain indexed unresolved.
+Capital defensive qualifiers/shot quantities absent from defense are unresolved.
+`dropShipComplete.ts` composes both families through the existing final owner,
+with Crew.java:233-234 / BVCalculator.java:1307-1313 no-pilot defaults G4/P5.
+Only fully resolved mounts and represented heat/cockpit/thrust facts authorize
+complete scope; other results retain defense and explicit reasons. No game
+context supplies C3/TAG bonuses. UL-21/complete external evidence covers all
+185 capital sources and unchanged 209 DropShips / 620 aerospace sources.

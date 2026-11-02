@@ -4,7 +4,7 @@ import { sumCappedAmmoBV } from '../battleValueAmmo';
 import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
 
 // LargeAeroBVCalculator's BV_LOC_* order also resolves primary-arc ties.
-const ARCS = [
+export const LARGE_AEROSPACE_ARCS = [
   CapitalArc.NOSE,
   CapitalArc.FRONT_LEFT,
   CapitalArc.AFT_LEFT,
@@ -12,6 +12,19 @@ const ARCS = [
   CapitalArc.AFT_RIGHT,
   CapitalArc.FRONT_RIGHT,
 ] as const;
+
+/** WarShipBVCalculator uses native indices 6/7 for its broadside arcs. */
+export function getLargeAerospaceArcs(
+  isWarship = false,
+): readonly CapitalArc[] {
+  return isWarship
+    ? [
+        ...LARGE_AEROSPACE_ARCS,
+        CapitalArc.LEFT_BROADSIDE,
+        CapitalArc.RIGHT_BROADSIDE,
+      ]
+    : LARGE_AEROSPACE_ARCS;
+}
 
 /** Native type/rack keys and mount valuation must be supplied by their owner. */
 export interface ILargeAerospaceArcBV {
@@ -31,6 +44,7 @@ export interface ILargeAerospaceFirePoolInput {
   readonly arcs: readonly ILargeAerospaceArcBV[];
   readonly heatCapacity: number;
   readonly maxThrust: number;
+  readonly isWarship?: boolean;
   readonly offensiveEquipmentBV?: number;
 }
 
@@ -69,17 +83,18 @@ export function calculateLargeAerospaceFirePool(
   requireNonnegative(input.heatCapacity);
   requireNonnegative(input.maxThrust);
   requireNonnegative(input.offensiveEquipmentBV ?? 0);
+  const locations = getLargeAerospaceArcs(input.isWarship);
   const byArc = new Map(input.arcs.map((arc) => [arc.arc, arc]));
   if (
-    input.arcs.length !== 6 ||
-    byArc.size !== 6 ||
-    ARCS.some((arc) => !byArc.has(arc))
+    input.arcs.length !== locations.length ||
+    byArc.size !== locations.length ||
+    locations.some((arc) => !byArc.has(arc))
   ) {
     throw new Error(
-      'Large aerospace BV requires each of the six firing arcs exactly once',
+      'Large aerospace BV requires each native firing arc exactly once',
     );
   }
-  const arcs = ARCS.map((arc) => {
+  const arcs = locations.map((arc) => {
     const facts = byArc.get(arc);
     if (!facts) throw new Error('Missing large aerospace firing arc');
     const weaponSelectionBV = facts.weaponSelectionBV ?? facts.weaponBV;
@@ -95,24 +110,43 @@ export function calculateLargeAerospaceFirePool(
       requireNonnegative(value);
     return { ...facts, weaponSelectionBV, arcIndependentWeaponBV };
   });
+  const candidates = input.isWarship ? [0, 3, 6, 7] : [0, 1, 2, 3, 4, 5];
+  const ccwOf = (i: number): number =>
+    input.isWarship ? [1, 6, 3, 4, 7, 0, 2, 5][i] : (i + 1) % 6;
+  const cwOf = (i: number): number =>
+    input.isWarship ? [5, 0, 6, 2, 3, 7, 1, 4][i] : (i + 5) % 6;
+  const opposite = (i: number): number =>
+    input.isWarship ? [3, 4, 5, 0, 1, 2, 7, 6][i] : (i + 3) % 6;
   let primary = 0;
-  for (let i = 1; i < 6; i++) {
+  for (const i of candidates) {
     if (arcs[i].weaponSelectionBV > arcs[primary].weaponSelectionBV)
       primary = i;
   }
-  const ccw = (primary + 1) % 6;
-  const cw = (primary + 5) % 6;
+  const ccw = ccwOf(primary);
+  const cw = cwOf(primary);
   const left =
     arcs[ccw].weaponSelectionBV > arcs[cw].weaponSelectionBV ? ccw : cw;
   const right = left === ccw ? cw : ccw;
-  const order = [
-    primary,
-    left,
-    right,
-    (primary + 3) % 6,
-    (left + 3) % 6,
-    (right + 3) % 6,
-  ];
+  const rear = opposite(primary);
+  const order = input.isWarship
+    ? [
+        primary,
+        left,
+        rear,
+        ccwOf(rear),
+        cwOf(rear),
+        ccwOf(ccwOf(rear)),
+        cwOf(cwOf(rear)),
+        right,
+      ]
+    : [
+        primary,
+        left,
+        right,
+        opposite(primary),
+        opposite(left),
+        opposite(right),
+      ];
   let heat = 0;
   const arcContributions = order.map((index, position) => {
     const arc = arcs[index];

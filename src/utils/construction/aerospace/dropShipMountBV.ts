@@ -1,5 +1,7 @@
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { CapitalArc } from '@/types/unit/CapitalShipInterfaces';
 
+import type { CapitalShipBVType } from './aerospaceBVTypes';
 import type { IDropShipBVUnit } from './dropShipBV';
 import type { ILargeAerospaceArcBV } from './largeAerospaceFirePool';
 
@@ -11,15 +13,8 @@ import {
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
 import { getAerospaceDefensiveEquipmentKind } from './aerospaceBVEquipment';
+import { getLargeAerospaceArcs } from './largeAerospaceFirePool';
 
-const ARCS = [
-  CapitalArc.NOSE,
-  CapitalArc.FRONT_LEFT,
-  CapitalArc.AFT_LEFT,
-  CapitalArc.AFT,
-  CapitalArc.AFT_RIGHT,
-  CapitalArc.FRONT_RIGHT,
-] as const;
 const LOCATIONS: Readonly<Record<string, CapitalArc>> = {
   NOSE: CapitalArc.NOSE,
   AFT: CapitalArc.AFT,
@@ -31,6 +26,16 @@ const LOCATIONS: Readonly<Record<string, CapitalArc>> = {
   FR: CapitalArc.FRONT_RIGHT,
   AL: CapitalArc.AFT_LEFT,
   AR: CapitalArc.AFT_RIGHT,
+};
+const CAPITAL_LOCATIONS: Readonly<Record<string, CapitalArc>> = {
+  FRONT_LEFT_SIDE: CapitalArc.FRONT_LEFT,
+  FRONT_RIGHT_SIDE: CapitalArc.FRONT_RIGHT,
+  AFT_LEFT_SIDE: CapitalArc.AFT_LEFT,
+  AFT_RIGHT_SIDE: CapitalArc.AFT_RIGHT,
+  LEFT_BROADSIDE: CapitalArc.LEFT_BROADSIDE,
+  RIGHT_BROADSIDE: CapitalArc.RIGHT_BROADSIDE,
+  LBS: CapitalArc.LEFT_BROADSIDE,
+  RBS: CapitalArc.RIGHT_BROADSIDE,
 };
 const ENERGY_SUBTYPES = new Set([
   'Laser',
@@ -76,16 +81,19 @@ export interface IDropShipMountBV {
  * Absent catalog types and unsupported links remain explicit diagnostics.
  * @spec establish-all-unit-data-parity: DropShip mount valuation
  */
-export function resolveDropShipMountBV(
+export function resolveLargeAerospaceMountBV(
   mounts: NonNullable<IDropShipBVUnit['equipment']>,
+  capitalType?: CapitalShipBVType,
 ): IDropShipMountBV {
-  const arcs = ARCS.map((arc) => ({
-    arc,
-    weaponBV: 0,
-    heat: 0,
-    ammoBVByType: {} as Record<string, number>,
-    weaponBVByAmmoType: {} as Record<string, number>,
-  }));
+  const arcs = getLargeAerospaceArcs(capitalType === UnitType.WARSHIP).map(
+    (arc) => ({
+      arc,
+      weaponBV: 0,
+      heat: 0,
+      ammoBVByType: {} as Record<string, number>,
+      weaponBVByAmmoType: {} as Record<string, number>,
+    }),
+  );
   const unresolved: {
     mountIndex: number;
     equipmentId: string;
@@ -117,10 +125,15 @@ export function resolveDropShipMountBV(
       return;
     }
     // The shared classifier owns defensive exclusions, including hull electronics.
-    if (getAerospaceDefensiveEquipmentKind(id)) return;
+    if (getAerospaceDefensiveEquipmentKind(id)) {
+      if (capitalType && raw !== id)
+        fail('Unrepresented defensive mount qualifier or ammunition quantity');
+      return;
+    }
     const entry = getEquipmentEntry(id);
+    const tag = (mount.location ?? mount.arc ?? '').toUpperCase();
     const physicalLocation =
-      LOCATIONS[(mount.location ?? mount.arc ?? '').toUpperCase()];
+      (capitalType ? CAPITAL_LOCATIONS[tag] : undefined) ?? LOCATIONS[tag];
     if (
       quantity === undefined &&
       (entry?.id === 'artemisiv' || entry?.id === 'artemisv')
@@ -145,9 +158,10 @@ export function resolveDropShipMountBV(
     )
       return;
     let location = physicalLocation;
-    if (rear && location === CapitalArc.FRONT_LEFT)
+    // JumpShip filters use location alone; DropShip filters inspect rear mounting.
+    if (!capitalType && rear && location === CapitalArc.FRONT_LEFT)
       location = CapitalArc.AFT_LEFT;
-    if (rear && location === CapitalArc.FRONT_RIGHT)
+    if (!capitalType && rear && location === CapitalArc.FRONT_RIGHT)
       location = CapitalArc.AFT_RIGHT;
     const arc = arcs.find((a) => a.arc === location);
     if (!arc || physicalLocation === undefined) {
@@ -227,4 +241,11 @@ export function resolveDropShipMountBV(
       weapon.battleValue * getArtemisBVMultiplier(weapon.artemisType);
   unresolved.sort((a, b) => a.mountIndex - b.mountIndex);
   return { arcs, unresolved };
+}
+
+/** Compatibility entry retains the DropShip-only arc and exclusion contract. */
+export function resolveDropShipMountBV(
+  mounts: NonNullable<IDropShipBVUnit['equipment']>,
+): IDropShipMountBV {
+  return resolveLargeAerospaceMountBV(mounts);
 }
