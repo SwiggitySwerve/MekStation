@@ -1,3 +1,4 @@
+import { resolveAmmoByPattern } from '../../../../scripts/validate-bv-ammo-resolution';
 import {
   calculateAmmoBVWithExcessiveCap,
   findMatchingWeaponBV,
@@ -115,5 +116,20 @@ describe('Clan weapon ammunition aliases', () => {
         [{ id: 'lb-5-x-ammo', weaponType: 'lb-5-x', bv: 12 }],
       ),
     ).toBe(0);
+  });
+});
+
+// Catalog BV remains authoritative, including explicit zero and known discrepancies.
+describe('ammunition resolution compatibility', () => {
+  it.each([
+    ['IS Machine Gun Ammo - Half', 0, 'machine-gun-ammo'],
+    ['IS Ultra AC/5 Ammo', 15, 'uac-5'],
+    ['Clan Ammo LRM-15', 21, 'lrm-15'],
+    ['Clan Heavy Machine Gun Ammo - Full', 1, 'heavy-machine-gun-ammo'],
+  ])('retains %s catalog BV and derived family', (name, bv, weaponType) => {
+    expect(resolveAmmoByPattern(name, 'INNER_SPHERE')).toEqual({
+      bv,
+      weaponType,
+    });
   });
 });
