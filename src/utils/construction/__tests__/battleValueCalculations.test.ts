@@ -21,6 +21,7 @@ import {
   calculateBattleValueForUnit,
   calculateProtoMechBV,
 } from '../battleValueCalculations';
+import { calculateUnitBV as runtimeBV } from '../bvAdapter';
 
 describe('calculateAdjustedBV', () => {
   describe('baseline pilot (4/5)', () => {
@@ -203,6 +204,7 @@ describe('calculateBattleValueForUnit — PROTOMECH dispatch', () => {
     // Must match a direct call to the canonical calculator — dispatch is a
     // routing concern, not a recomputation.
     const direct = calculateProtoMechBV(proto);
+    expect(runtimeBV(proto)).toBe(direct.final);
     if (dispatched?.kind !== 'protomech') {
       throw new Error('Expected protomech dispatch result');
     }
@@ -295,6 +297,7 @@ describe('calculateBattleValueForUnit — VEHICLE dispatch', () => {
     // A vehicle with positive armor should always produce a non-zero
     // defensive BV; catches regressions where dispatch returns a zero stub.
     expect(dispatched.breakdown.defensive).toBeGreaterThan(0);
+    expect(runtimeBV(vehicle)).toBe(dispatched.breakdown.final);
   });
 
   it('routes a VTOL unit through the same vehicle dispatch branch', () => {
@@ -383,6 +386,7 @@ describe('calculateBattleValueForUnit — AEROSPACE dispatch', () => {
     expect(dispatched.breakdown.final).toBe(direct.final);
     expect(dispatched.breakdown.defensive).toBe(direct.defensive);
     expect(dispatched.breakdown.offensive).toBe(direct.offensive);
+    expect(runtimeBV(aero)).toBe(direct.final);
 
     // Required-by-spec fields on the breakdown.
     expect(dispatched.breakdown).toHaveProperty('arcContributions');

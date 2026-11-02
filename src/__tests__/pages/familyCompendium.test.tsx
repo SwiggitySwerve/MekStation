@@ -105,6 +105,7 @@ it('shows display names and navigates with the family id', async () => {
     'Capital Ships',
     'Battle Armor',
     'Infantry',
+    'ProtoMechs',
   ]);
   fireEvent.change(selector, { target: { value: 'battlearmor' } });
   expect(mockRouter.push).toHaveBeenCalledWith(

@@ -444,6 +444,16 @@ const infantryInitSchema = z
     // IInfantry
     damageDivisor: finiteNumber.positive().optional(),
     hasPheromoneEffuser: z.boolean().optional(),
+    isArmorEncumbering: z.boolean().optional(),
+    bvOffense: z
+      .strictObject({
+        secondaryShooters: finiteNumber,
+        mp: finiteNumber,
+        antiMek: z.boolean(),
+        augmentations: z.array(z.string()),
+        prostheticAntiMek: z.boolean(),
+      })
+      .optional(),
     numberOfSquads: finiteNumber,
     platoonStrength: finiteNumber,
     primaryWeapon: z.string(),

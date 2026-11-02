@@ -26,6 +26,7 @@ import {
   calculatePersonnelArmorKitMassTons,
 } from '@/utils/construction/infantry';
 import { resolveInfantryProtection } from '@/utils/construction/infantry/infantryBVAdapter';
+import { resolveInfantryOffenseSource } from '@/utils/construction/infantry/platoonComposition';
 
 import {
   AbstractUnitTypeHandler,
@@ -141,6 +142,14 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
     let protection: Partial<IInfantry> = {};
     try {
       protection = resolveInfantryProtection(rawTags);
+      if (rawTags.Primary)
+        protection = {
+          ...protection,
+          bvOffense: resolveInfantryOffenseSource(
+            rawTags,
+            protection.isArmorEncumbering ?? false,
+          ),
+        };
     } catch (error) {
       errors.push(error instanceof Error ? error.message : String(error));
     }

@@ -56,6 +56,19 @@ function unusedCatalogService(): ICanonicalUnitService {
 }
 
 describe('prewarmCatalogBV public report and cache boundaries', () => {
+  it('surfaces fallback calculation errors instead of recording zero BV', async () => {
+    const service = unusedCatalogService();
+    jest
+      .mocked(service.getById)
+      .mockRejectedValue(new Error('Missing required BV fact: movement'));
+    await expect(
+      prewarmCatalogBV([fixtureEntry('invalid-design')], service, 'test', {
+        bvReportPath: 'does-not-exist.json',
+        skipCache: true,
+      }),
+    ).rejects.toThrow(/movement/);
+  });
+
   it('uses the injected report path and invalidates cache on version or catalog count changes', async () => {
     const root = tempRoot();
     const service = unusedCatalogService();

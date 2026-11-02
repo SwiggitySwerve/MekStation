@@ -17,11 +17,8 @@
  *
  * Tier 2 — `calculateUnitBV()` from `src/utils/construction/bvAdapter`:
  *   Used only as a fallback for units the report does not cover. The
- *   construction-side adapter is a reduced-scope calculator and returns
- *   0 for many unit shapes (Tripods, ProtoMechs, vehicles), but that's
- *   acceptable here — entries with BV=0 are filtered out as ineligible
- *   by `randomForceGenerator`'s budget sanity check, leaving the 4196
- *   "good" units selectable.
+ *   adapter preserves source inputs for the shared mech BV owner.
+ *   Calculation failures propagate instead of silently excluding valid units.
  *
  * Caching
  * -------
@@ -46,7 +43,7 @@ import * as path from 'path';
 import type { IUnitIndexEntry } from '../../types/unit/UnitIndex';
 import type { ICanonicalUnitService } from '../units/CanonicalUnitService';
 
-import { calculateUnitBV, UnitData } from '../../utils/construction/bvAdapter';
+import { calculateUnitBV } from '../../utils/construction/bvAdapter';
 
 // =============================================================================
 // Disk cache shape
@@ -128,9 +125,8 @@ interface BVReportLookup {
  *   2. Read `validation-output/bv-validation-report.json` and stamp BV
  *      from `calculatedBV` per `unitId`.
  *   3. For any catalog entries the report did not cover, fall back to
- *      `calculateUnitBV` via the catalog service. This branch is best-effort
- *      and entries that still resolve to 0 are returned with bv: 0
- *      (they will be filtered out by `randomForceGenerator`).
+ *      `calculateUnitBV` via the catalog service. Absent units return bv: 0;
+ *      calculation failures propagate to the caller.
  *
  * The result is persisted to the disk cache for the next run.
  *
@@ -288,28 +284,16 @@ function getPrewarmSource(
 }
 
 /**
- * Compute BV for a single catalog entry. Returns 0 on any failure path so
- * the caller can keep iterating through the rest of the catalog.
- *
- * Uses the construction-side `calculateUnitBV` which works for many but not
- * all unit shapes — fine here as the Tier 1 report covers the common cases.
+ * Compute BV through the shared owner. Only an absent unit returns 0;
+ * malformed inputs and calculation failures remain visible to the caller.
  */
 async function computeBVForEntry(
   unitId: string,
   catalogService: ICanonicalUnitService,
 ): Promise<number> {
-  try {
-    const fullUnit = await catalogService.getById(unitId);
-    if (fullUnit === null) {
-      return 0;
-    }
-    // The IFullUnit shape and UnitData shape overlap on every field
-    // calculateUnitBV reads; keep this adapter boundary explicit until the
-    // construction-side BV input shape is split from raw unit persistence.
-    return calculateUnitBV(fullUnit as Partial<UnitData> as UnitData);
-  } catch {
-    return 0;
-  }
+  const fullUnit = await catalogService.getById(unitId);
+  if (fullUnit === null) return 0;
+  return calculateUnitBV(fullUnit);
 }
 
 /**

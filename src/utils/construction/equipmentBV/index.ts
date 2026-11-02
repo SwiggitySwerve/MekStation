@@ -16,6 +16,7 @@ export {
   resolveEquipmentBV,
   getEquipmentEntry,
   getAmmunitionEntry,
+  getAmmunitionWeightEntry,
   isResolvable,
   resolveAmmoBV,
   getCatalogSize,
