@@ -39,15 +39,16 @@ interface AliasEntry {
   target: string;
 }
 
-function extractDirectAliasMap(): AliasEntry[] {
+function extractAliasTable(fileName: string, tableName: string): AliasEntry[] {
   const srcPath = path.resolve(
     __dirname,
-    '../../../../utils/construction/equipmentBV/normalizationPatterns.ts',
+    '../../../../utils/construction/equipmentBV',
+    fileName,
   );
   const src = fs.readFileSync(srcPath, 'utf8');
 
-  const startIdx = src.indexOf('const DIRECT_ALIAS_MAP');
-  if (startIdx === -1) throw new Error('DIRECT_ALIAS_MAP not found in source');
+  const startIdx = src.indexOf(`const ${tableName}`);
+  if (startIdx === -1) throw new Error(`${tableName} not found in source`);
 
   const braceStart = src.indexOf('{', startIdx);
   let depth = 0;
@@ -74,6 +75,13 @@ function extractDirectAliasMap(): AliasEntry[] {
   }
 
   return entries;
+}
+
+function extractDirectAliasMap(): AliasEntry[] {
+  return [
+    ...extractAliasTable('normalizationPatterns.ts', 'DIRECT_ALIAS_MAP'),
+    ...extractAliasTable('sourceLookupAliases.ts', 'SOURCE_LOOKUP_ALIASES'),
+  ];
 }
 
 interface CatalogFile {
