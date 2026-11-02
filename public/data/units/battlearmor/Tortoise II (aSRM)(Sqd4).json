@@ -1,0 +1,116 @@
+{
+  "id": "tortoise-ii-asrmsqd4",
+  "chassis": "Tortoise II",
+  "model": "(aSRM)(Sqd4)",
+  "unitType": "BattleArmor",
+  "techBase": "MIXED",
+  "rulesLevel": "STANDARD",
+  "era": "DARK_AGE",
+  "year": 3134,
+  "weightClass": "ASSAULT",
+  "chassisType": "QUAD",
+  "motionType": "GROUND",
+  "movement": {
+    "groundMP": 2,
+    "jumpMP": 0,
+    "umuMP": 0,
+    "vtolMP": 0
+  },
+  "tonnage": 4,
+  "squadSize": 4,
+  "armorPerTrooper": 10,
+  "armor": {
+    "type": "STEALTH_IMPROVED",
+    "perTrooper": 10,
+    "sourceTechLevel": 2
+  },
+  "manipulators": {
+    "rightArm": null,
+    "leftArm": null
+  },
+  "hasAntiPersonnelMount": false,
+  "hasModularWeaponMount": false,
+  "abilities": [],
+  "equipment": [
+    {
+      "id": "is-ba-stealth-improved",
+      "name": "IS BA Stealth (Improved)",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "is-ba-stealth-improved",
+      "name": "IS BA Stealth (Improved)",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "is-ba-stealth-improved",
+      "name": "IS BA Stealth (Improved)",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "is-ba-stealth-improved",
+      "name": "IS BA Stealth (Improved)",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "is-ba-stealth-improved",
+      "name": "IS BA Stealth (Improved)",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "baclermediumpulselaser",
+      "name": "BACLERMediumPulseLaser",
+      "location": "NONE",
+      "isDWPMounted": true,
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "cladvancedsrm3",
+      "name": "CLAdvancedSRM3",
+      "location": "TURRET",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "ba-advanced-srm-3-ammo",
+      "name": "BA-Advanced SRM-3 Ammo",
+      "location": "TURRET",
+      "shots": 4,
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "ba-advanced-srm-3-ammo",
+      "name": "BA-Advanced SRM-3 Ammo",
+      "location": "TURRET",
+      "shots": 4,
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "isdetachableweaponpack",
+      "name": "ISDetachableWeaponPack",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    }
+  ],
+  "clanChassis": false,
+  "isExoskeleton": false,
+  "clanExoWithoutHarJel": false,
+  "turretSize": 5,
+  "hasModularTurret": true,
+  "mulId": 7362,
+  "role": "Ambusher",
+  "source": "XTR:RotS 2",
+  "quirks": ["hard_pilot", "difficult_maintain", "prototype"],
+  "fluff": {
+    "overview": "<p>The Tortoise II is a mixed-technology assault battle armor developed by StarCorps Industries for the Republic of the Sphere. Introduced in 3134, the quad-chassis design blends Inner Sphere and Clan components into an unorthodox weapons platform built around a hybrid wheel-and-leg motive system. The suit carries its armament in a distinctive split configuration, with a modular turret mount and a detachable weapon pack that can be jettisoned to improve mobility. Earning the nickname \"Wheelbarrow\" during its troubled prototype phase, the Tortoise II emerged as a durable if unconventional addition to the Republic's experimental battle armor program.</p>",
+    "capabilities": "<p>The Tortoise II's advanced SRM configuration pairs an ER medium pulse laser in the suit's detachable weapon pack with an advanced SRM 3 launcher mounted in the modular turret. The Clan-manufactured advanced missile system provides accurate short-range firepower with eight rounds of ammunition, complementing the pulse laser's consistent damage output. At two tons, the quad-legged suit moves at a walking pace under normal conditions, though removing the detachable weapon pack doubles its ground speed at the cost of its primary energy weapon. The Tortoise II carries 350 kilograms of Clan improved stealth armor, granting both substantial protection and reduced targeting signatures. The suit lacks jump capability and manipulators, reflecting its design philosophy as a mobile weapons platform rather than a versatile infantry tool. Its considerable armament gives the Tortoise II firepower comparable to some light BattleMechs, offset by its sluggish pace and the complexity of its hybrid motive system.</p>",
+    "deployment": "<p>Republic Armed Forces planners organized Tortoise II prototypes into four-trooper squads for initial evaluation, following standard Inner Sphere infantry doctrine. The aSRM configuration's balanced mix of missile and energy firepower made it a natural fit for general-purpose squad assignments during the 3134 field trials at Thetford Proving Grounds.</p>",
+    "history": "<p>StarCorps Industries began developing the Tortoise at their Thetford Proving Grounds facility on Terra under the direction of Dr. Stephen Vance. The original prototype replaced its rear legs with wheels, an experimental approach intended to improve stability and load-bearing capacity for an assault-class suit. The unusual motive system earned the prototype the unflattering nickname \"Wheelbarrow\" and proved extraordinarily expensive to refine. StarCorps spent years and considerable resources attempting to reconcile the hybrid wheel-and-leg locomotion before Dr. Vance's redesign, incorporating myomer-enhanced shock absorbers on the rear wheels, finally produced a workable platform.</p><p>The StarCorps board approved procurement of Clan-grade components from Arc-Royal MechWorks, allowing the rechristened Tortoise II to incorporate advanced weapons systems drawn from designs like the Cuchulainn and Fenrir II. A sole field trial conducted in 3134 demonstrated the suit's durability and considerable firepower, with opposition forces caught off guard by the punishment the prototype could absorb and deliver. The trial concluded shortly before the activation of Fortress Republic severed Terra's communications with the rest of the Inner Sphere. The Tortoise II's ultimate fate behind the Fortress walls remained unknown to outside observers, though Republic officials had expressed confidence that the design would anchor future battle armor doctrine within the Republic Armed Forces.</p>",
+    "manufacturer": "StarCorps Industries",
+    "primaryFactory": "Terra"
+  }
+}

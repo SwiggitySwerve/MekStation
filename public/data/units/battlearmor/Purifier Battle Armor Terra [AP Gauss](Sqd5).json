@@ -1,0 +1,69 @@
+{
+  "id": "purifier-battle-armor-terra-[ap-gauss]sqd5",
+  "chassis": "Purifier Battle Armor Terra",
+  "model": "[AP Gauss](Sqd5)",
+  "unitType": "BattleArmor",
+  "techBase": "MIXED",
+  "rulesLevel": "ADVANCED",
+  "era": "CIVIL_WAR",
+  "year": 3075,
+  "weightClass": "MEDIUM",
+  "chassisType": "BIPED",
+  "motionType": "JUMP",
+  "movement": {
+    "groundMP": 1,
+    "jumpMP": 3,
+    "umuMP": 0,
+    "vtolMP": 0
+  },
+  "tonnage": 5,
+  "squadSize": 5,
+  "armorPerTrooper": 10,
+  "armor": {
+    "type": "STANDARD",
+    "perTrooper": 10,
+    "sourceTechLevel": 2
+  },
+  "manipulators": {
+    "rightArm": "BABattleClaw",
+    "leftArm": null
+  },
+  "hasAntiPersonnelMount": false,
+  "hasModularWeaponMount": false,
+  "abilities": [],
+  "equipment": [
+    {
+      "id": "babattleclaw",
+      "name": "BABattleClaw",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "clbaapgaussrifle",
+      "name": "CLBAAPGaussRifle",
+      "location": "LEFT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "bajumpjet",
+      "name": "BAJumpJet",
+      "location": "NONE",
+      "unitLocation": "NONE"
+    }
+  ],
+  "clanChassis": false,
+  "isExoskeleton": false,
+  "clanExoWithoutHarJel": false,
+  "mulId": 8713,
+  "role": "Ambusher",
+  "source": "XTR:Phantoms",
+  "quirks": ["bad_rep_is", "difficult_maintain"],
+  "fluff": {
+    "overview": "<p>The Purifier Terra is an experimental hybrid refit of the standard Purifier Adaptive, developed by TerraSec special operations forces on Terra. First appearing around 3075, the design trades the original suit's stealth systems for substantially increased protection using advanced materials sourced through uncertain channels. Produced in limited quantities under secretive circumstances, the Purifier Terra was difficult to maintain and earned a poor reputation among field technicians. Despite these drawbacks, the suit offered a considerably more durable alternative to the standard Purifier for operators who prioritized survivability over concealment.</p>",
+    "capabilities": "<p>The AP Gauss configuration mounts a Clan-quality anti-personnel gauss rifle in the Purifier Terra's modular weapon mount, providing accurate long-range fire against infantry and light targets. The gauss rifle's high-velocity projectiles are effective at suppressing enemy battle armor and conventional infantry, though limited ammunition capacity demands disciplined fire. The Purifier Terra's heavy conventional armor makes the suit considerably more durable than the mimetic-equipped standard Purifier, allowing troopers to engage from exposed positions where the original design would require concealment. Jump jets enable rapid repositioning between firing positions, and the battle claw permits anti-BattleMech attacks at close quarters. The AP Gauss loadout fills a precision fire support role, pairing enhanced survivability with long-range lethality against soft targets.</p>",
+    "deployment": "<p>Five-trooper Clan Points operating AP Gauss-configured Purifier Terra suits were rare, though the weapon's precision and the suit's Clan-grade armor would have appealed to Clan warriors familiar with gauss technology. Any such Points likely formed from captured equipment rather than deliberate production.</p>",
+    "history": "<p>The Purifier Terra traces its lineage to a series of battle armor variants developed under Word of Blake governance of Terra during the Jihad. A provincial governor in the Thaliand district commissioned a simplified version of the Purifier Adaptive for local paramilitary forces, stripping the mimetic armor system in favor of conventional protection that was easier to produce and maintain. This \"Purifier Police\" design saw widespread use controlling displaced civilian populations in the aftermath of nuclear strikes on North American cities, and was produced in quantity at the Krupp Armament Works.</p><p>Coalition forces later discovered a more advanced variant in the hands of elite TerraSec special operations units. These suits featured armor of a quality comparable to Clan manufacturing standards, though their origins remained murky. Only a handful of battle-ravaged copies were recovered, and investigations into Terran industrial facilities capable of producing such materials were shut down by Devlin Stone. Whether the advanced armor came from captured Clan stockpiles or clandestine local production was never conclusively determined, though evidence from the Tornado G17 program suggested Terra-based manufacturing of advanced-grade materials. The Republic Armed Forces continued to produce and field the Purifier Terra after the liberation.</p>",
+    "manufacturer": "Unknown",
+    "primaryFactory": "Terra"
+  }
+}

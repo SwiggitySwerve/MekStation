@@ -12,6 +12,9 @@ BattleMech and an aerospace fighter. Before writing anything it checks every
 selected family; a duplicate id, or a family named with ``--family`` that does
 not exist, exits 1 and writes nothing. Without ``--write`` it is a dry run, so a
 scratch directory can be checked without touching ``public/data``.
+
+The three pre-ingest synthetic battle armor BV fixtures stay available to
+their existing consumers but are deliberately excluded from source indexes.
 """
 
 from __future__ import annotations
@@ -26,10 +29,13 @@ from typing import Any, Dict, List, Optional
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _UNITS_ROOT = _REPO_ROOT / "public" / "data" / "units"
 
-DEFAULT_FAMILIES = ("vehicles", "aerospace", "capital")
+DEFAULT_FAMILIES = ("vehicles", "aerospace", "capital", "battlearmor")
 # Files in a units tree that are not units. The one owner of this list;
 # run_schema_validation_only.py imports it.
 NON_UNIT_FILES = frozenset({"index.json", "units-manifest.json"})
+LEGACY_BA_FIXTURES = frozenset({
+    "clan-sylph-sqd5.json", "elemental-standard-sqd5.json", "is-cavalier-sqd4.json",
+})
 
 # The one owner of the index file shape. mtf_converter.generate_index (the
 # BattleMech index) uses these too; family indexes add `unitType` after `model`.
@@ -63,10 +69,10 @@ def build_index_entry(unit: Dict[str, Any], path: str) -> Dict[str, Any]:
 def generate_index(family_dir: Path, generated_at: Optional[str] = None) -> Dict[str, Any]:
     units: List[Dict[str, Any]] = []
     for unit_file in sorted(family_dir.rglob("*.json")):
-        if unit_file.name in NON_UNIT_FILES:
+        rel = unit_file.relative_to(family_dir).as_posix()
+        if unit_file.name in NON_UNIT_FILES or (family_dir.name == "battlearmor" and rel in LEGACY_BA_FIXTURES):
             continue
         unit = json.loads(unit_file.read_text(encoding="utf-8"))
-        rel = unit_file.relative_to(family_dir).as_posix()
         units.append(build_index_entry(unit, rel))
     units.sort(key=lambda u: (u["chassis"], u["model"], u["id"]))
     return index_envelope(units, generated_at)
