@@ -3,8 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 /**
  * L-E2E: open one real catalog unit per family through the library dialog,
  * at a phone and a desktop width. Figures come from the committed catalog
- * files; battle armor and infantry remain unsupported, so their test index
- * and definition are served from a route.
+ * files; infantry remains unsupported in this slice.
  */
 test.use({ serviceWorkers: 'block' });
 test.setTimeout(120_000);
@@ -29,7 +28,13 @@ interface OpenCase {
   chassis: string;
   model: string;
   family: string;
-  shell: 'customizer-workbench' | 'vehicle-customizer' | 'aerospace-customizer';
+  shell:
+    | 'customizer-workbench'
+    | 'vehicle-customizer'
+    | 'aerospace-customizer'
+    | 'protomech-customizer'
+    | 'battlearmor-customizer';
+  bv?: string;
   tabs: string[];
   tonnage: string;
   armor: string;
@@ -37,6 +42,49 @@ interface OpenCase {
 }
 
 const OPEN_CASES: OpenCase[] = [
+  {
+    label: 'ProtoMech',
+    chassis: 'Centaur',
+    model: '',
+    family: 'ProtoMechs',
+    shell: 'protomech-customizer',
+    tabs: [
+      'Overview',
+      'Structure',
+      'Armor',
+      'Main Gun',
+      'Equipment',
+      'Glider',
+      'Preview',
+      'Fluff',
+    ],
+    tonnage: '5.0 t',
+    armor: '20',
+    movement: '6/9',
+    bv: '190',
+  },
+  {
+    label: 'battle armor',
+    chassis: 'Achileus Light Battle Armor',
+    model: '(WoB)(Sqd4)',
+    family: 'Battle Armor',
+    shell: 'battlearmor-customizer',
+    tabs: [
+      'Overview',
+      'Chassis',
+      'Squad',
+      'Manipulators',
+      'Modular Weapons',
+      'AP Weapons',
+      'Jump/UMU',
+      'Preview',
+      'Fluff',
+    ],
+    tonnage: '4',
+    armor: '6',
+    movement: '1/3J/0U',
+    bv: '133',
+  },
   {
     label: 'BattleMech',
     chassis: 'Atlas',
@@ -96,15 +144,6 @@ const OPEN_CASES: OpenCase[] = [
 ];
 
 const SYNTHETIC_ROWS = {
-  battlearmor: {
-    id: 'elemental-standard',
-    chassis: 'Elemental',
-    model: 'Standard',
-    unitType: 'Battle Armor',
-    tonnage: 1,
-    techBase: 'CLAN',
-    path: 'elemental.json',
-  },
   infantry: {
     id: 'foot-rifle-platoon',
     chassis: 'Foot Rifle Platoon',
@@ -117,21 +156,11 @@ const SYNTHETIC_ROWS = {
 } as const;
 
 const NO_VIEW_COPY = {
-  battlearmor:
-    'Battle armor cannot be opened yet because the editor cannot load battle armor from the library.',
   infantry:
     'Infantry cannot be opened yet because the editor cannot load infantry from the library.',
 };
 
 const UNSUPPORTED_CASES = [
-  {
-    label: 'battle armor',
-    chassis: 'Elemental',
-    model: 'Standard',
-    family: 'Battle Armor',
-    copy: NO_VIEW_COPY.battlearmor,
-    synthetic: 'battlearmor',
-  },
   {
     label: 'infantry',
     chassis: 'Foot Rifle Platoon',
@@ -241,6 +270,8 @@ for (const viewport of VIEWPORTS) {
           'customizer-workbench',
           'vehicle-customizer',
           'aerospace-customizer',
+          'protomech-customizer',
+          'battlearmor-customizer',
         ].filter((id) => id !== unit.shell))
           await expect(page.getByTestId(other)).toHaveCount(0);
 
@@ -268,17 +299,32 @@ for (const viewport of VIEWPORTS) {
           ).toHaveAttribute('aria-label', unit.movement);
         } else {
           const movementLabel =
-            unit.shell === 'vehicle-customizer' ? 'Movement' : 'Thrust';
-          await expect(statusItem(shell, 'Tonnage')).toHaveText(
-            new RegExp(`^Tonnage\\s*${unit.tonnage}`),
-          );
-          await expect(statusItem(shell, 'Armor')).toHaveText(
-            new RegExp(`^Armor\\s*${unit.armor}(?!\\d)`),
+            unit.shell === 'aerospace-customizer' ? 'Thrust' : 'Movement';
+          await expect(
+            statusItem(
+              shell,
+              unit.shell === 'battlearmor-customizer' ? 'Troopers' : 'Tonnage',
+            ),
+          ).toContainText(unit.tonnage);
+          await expect(
+            statusItem(
+              shell,
+              unit.shell === 'battlearmor-customizer'
+                ? 'Armor/Trooper'
+                : 'Armor',
+            ),
+          ).toHaveText(
+            new RegExp(`^Armor(?:/Trooper)?\\s*${unit.armor}(?!\\d)`),
           );
           await expect(statusItem(shell, movementLabel)).toHaveText(
             new RegExp(`^${movementLabel}\\s*${unit.movement}`),
           );
         }
+
+        if (unit.bv)
+          await expect(
+            statusItem(shell, 'BV').locator('span').nth(1),
+          ).toHaveText(unit.bv);
 
         await page.screenshot({
           path: testInfo.outputPath(
