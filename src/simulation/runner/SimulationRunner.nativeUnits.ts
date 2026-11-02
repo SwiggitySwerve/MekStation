@@ -42,7 +42,11 @@ export type IRunnerHydratedUnitData = IHydratedUnitData & {
   readonly sourceUnit?: IGameUnit;
 };
 
-export function nativeRunnerConstruction(data: IRunnerHydratedUnitData) {
+export function nativeRunnerConstruction(data: IRunnerHydratedUnitData): {
+  unit: IGameUnit;
+  movement: ReturnType<typeof toMovementCapability>;
+  state: ReturnType<typeof createInitialUnitState>;
+} | null {
   const vehicle = isVehicleDefinition(data.fullUnit);
   if (!vehicle && !isAerospaceUnitType(data.fullUnit)) return null;
   const adapted = {
@@ -79,7 +83,9 @@ export function nativeRunnerConstruction(data: IRunnerHydratedUnitData) {
 }
 
 /** A new autonomous run uses recorded custom construction, never the mutable library. */
-export async function runnerHydrationFromSession(session: IGameSession) {
+export async function runnerHydrationFromSession(
+  session: IGameSession,
+): Promise<Map<string, IRunnerHydratedUnitData>> {
   for (const unit of session.units)
     if (isCustomCombatUnitRef(unit.unitRef) && !unit.customUnitDefinition)
       throw new Error(
@@ -126,21 +132,9 @@ export function synchronizeNativeRunnerHeat(state: IGameState): IGameState {
 /** Native hit resolution and replay are shared with GameEngine/InteractiveSession. */
 export function tryResolveNativeRunnerHit(
   options: Parameters<typeof resolveWeaponHit>[0],
-) {
-  const {
-    currentState,
-    targetId,
-    unitId,
-    weapon,
-    weaponId,
-    gameId,
-    events,
-    d6Roller,
-    firingArc,
-    attackRoll,
-    toHitNumber,
-  } = options;
-  const targetState = currentState.units[targetId];
+): IGameState | null {
+  const { currentState, events, weapon, d6Roller } = options;
+  const targetState = currentState.units[options.targetId];
   if (
     targetState.combatState?.kind !== 'vehicle' &&
     targetState.combatState?.kind !== 'aero'
@@ -148,7 +142,7 @@ export function tryResolveNativeRunnerHit(
     return null;
   const created = events[0].payload as IGameCreatedPayload;
   const session: IGameSession = {
-    id: gameId,
+    id: options.gameId,
     config: created.config,
     units: created.units,
     events: [...events],
@@ -157,7 +151,7 @@ export function tryResolveNativeRunnerHit(
     updatedAt: events[0].timestamp,
   };
   const weaponData = {
-    weaponId,
+    weaponId: options.weaponId,
     weaponName: weapon.name,
     damage: weapon.damage,
     heat: weapon.heat,
@@ -165,14 +159,14 @@ export function tryResolveNativeRunnerHit(
   const diceRoller = () => roll2d6(d6Roller);
   const input = {
     session,
-    attackerId: unitId,
-    targetId,
-    weaponId,
+    attackerId: options.unitId,
+    targetId: options.targetId,
+    weaponId: options.weaponId,
     weaponData,
     targetState,
-    attackRollTotal: attackRoll,
-    toHitNumber,
-    attackDirection: firingArc,
+    attackRollTotal: options.attackRoll,
+    toHitNumber: options.toHitNumber,
+    attackDirection: options.firingArc,
     diceRoller,
     d6Roller,
   };
@@ -182,16 +176,16 @@ export function tryResolveNativeRunnerHit(
           ...input,
           weaponName: weapon.name,
           turn: currentState.turn,
-          weaponToHitNumber: toHitNumber,
-          firingArc: toFiringArc(firingArc),
-          arcString: firingArc,
+          weaponToHitNumber: options.toHitNumber,
+          firingArc: toFiringArc(options.firingArc),
+          arcString: options.firingArc,
           ammoBinIdForResolved: null,
           criticalD6Roller: d6Roller,
           payload: {
-            attackerId: unitId,
-            targetId,
-            weapons: [weaponId],
-            toHitNumber,
+            attackerId: options.unitId,
+            targetId: options.targetId,
+            weapons: [options.weaponId],
+            toHitNumber: options.toHitNumber,
             modifiers: [],
           },
         })
@@ -201,7 +195,7 @@ export function tryResolveNativeRunnerHit(
   let state = currentState;
   for (const event of resolved.events.slice(events.length)) {
     const transported = createGameEvent({
-      gameId,
+      gameId: options.gameId,
       sequence: events.length,
       type: event.type,
       turn: event.turn,
@@ -215,8 +209,8 @@ export function tryResolveNativeRunnerHit(
   return consumeWeaponAmmo({
     currentState: state,
     events,
-    gameId,
-    attackerId: unitId,
+    gameId: options.gameId,
+    attackerId: options.unitId,
     weapon,
     ammoWeaponType: options.ammoWeaponType,
   });

@@ -6,6 +6,8 @@
 
 import { z } from 'zod';
 
+import type { UnitFamily } from '@/types/unit/UnitIndex';
+
 import { UNIT_DEFINITION_FAMILIES } from '@/services/units/unitLoaderService/definitionTypes';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { parseUnitReference } from '@/types/unit/UnitIndex';
@@ -174,7 +176,9 @@ export type CustomCombatSnapshot = z.infer<
   typeof recordedCustomCombatSnapshotSchema
 >;
 
-export function customCombatSnapshotFamily(snapshot: CustomCombatSnapshot) {
+export function customCombatSnapshotFamily(
+  snapshot: CustomCombatSnapshot,
+): UnitFamily {
   return 'family' in snapshot ? snapshot.family : 'battlemechs';
 }
 
@@ -182,7 +186,10 @@ export function isCustomCombatReference(reference: string): boolean {
   return parseUnitReference(reference).id.startsWith('custom-');
 }
 
-export function snapshotRefError(snapshot: CustomCombatSnapshot, ref: string) {
+export function snapshotRefError(
+  snapshot: CustomCombatSnapshot,
+  ref: string,
+): 'identity' | 'family' | null {
   const { id, family } = parseUnitReference(ref);
   if (!isCustomCombatReference(ref) || snapshot.id !== id) return 'identity';
   return (family ?? 'battlemechs') === customCombatSnapshotFamily(snapshot)
