@@ -16,7 +16,10 @@ interface ICombatEventContext {
   readonly turn: number;
 }
 
-export interface ICreateDamageAppliedEventInput extends ICombatEventContext {
+export interface ICreateDamageAppliedEventInput
+  extends
+    ICombatEventContext,
+    Pick<IDamageAppliedPayload, 'aerospaceState' | 'aerospaceEvents'> {
   readonly unitId: string;
   readonly location: string;
   readonly damage: number;
@@ -79,6 +82,8 @@ export function createDamageAppliedEvent(
 ): IGameEvent {
   const {
     armorRemaining,
+    aerospaceState,
+    aerospaceEvents,
     criticals,
     damage,
     gameId,
@@ -91,6 +96,7 @@ export function createDamageAppliedEvent(
     unitId,
   } = damageAppliedInput(input, legacy);
   const payload: IDamageAppliedPayload = {
+    ...(aerospaceState ? { aerospaceState, aerospaceEvents } : {}),
     unitId,
     location,
     damage,

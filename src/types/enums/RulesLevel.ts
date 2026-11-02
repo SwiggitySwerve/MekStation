@@ -23,6 +23,14 @@ export enum RulesLevel {
   EXPERIMENTAL = 'Experimental',
 }
 
+/** Stable unit-contract spelling shared by all custom-unit encoders. */
+export const RULES_LEVEL_TAGS = {
+  [RulesLevel.INTRODUCTORY]: 'INTRODUCTORY',
+  [RulesLevel.STANDARD]: 'STANDARD',
+  [RulesLevel.ADVANCED]: 'ADVANCED',
+  [RulesLevel.EXPERIMENTAL]: 'EXPERIMENTAL',
+} as const satisfies Readonly<Record<RulesLevel, string>>;
+
 /**
  * Array of all RulesLevel values in order of complexity
  */

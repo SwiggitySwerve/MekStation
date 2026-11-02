@@ -194,20 +194,34 @@ export function calculateBattleArmorBVFromState(
 }
 
 /** Catalog names and native numeric codes project onto the same typed armor. */
+const CONTRACT_ARMOR_ALIASES: Readonly<Record<string, number>> = {
+  STANDARD: 28,
+  BA_STANDARD_PROTOTYPE: 29,
+  BA_STANDARD_ADVANCED: 30,
+  STEALTH: 32,
+};
+
+export function battleArmorContractArmorType(code: number): string {
+  if (code === 0) return 'STANDARD'; // Legacy new-draft code.
+  const alias = Object.entries(CONTRACT_ARMOR_ALIASES).find(
+    ([, value]) => value === code,
+  )?.[0];
+  if (alias) return alias;
+  const key = Object.entries(BAArmorType).find(
+    ([, value]) => value === BLK_BA_ARMOR[code],
+  )?.[0];
+  if (!key) throw new TypeError(`Unknown battle armor code: ${code}`);
+  return key === 'STEALTH_BASIC' ? `BA_${key}` : key;
+}
+
 export function mapBattleArmorContractArmor(source: string): {
   armorType: number;
   baArmorType: BAArmorType;
 } {
-  const aliases: Readonly<Record<string, number>> = {
-    STANDARD: 28,
-    BA_STANDARD_PROTOTYPE: 29,
-    BA_STANDARD_ADVANCED: 30,
-    STEALTH: 32,
-  };
   const key = source.replace(/^BA_/, '');
   const typed = Object.entries(BAArmorType).find(([name]) => name === key)?.[1];
   const code =
-    aliases[source] ??
+    CONTRACT_ARMOR_ALIASES[source] ??
     Number(
       Object.entries(BLK_BA_ARMOR).find(([, value]) => value === typed)?.[0],
     );

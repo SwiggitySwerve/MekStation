@@ -1,6 +1,6 @@
 /** Closed catalog subset carrying native F_ARTEMIS_COMPATIBLE. */
 export function isArtemisCompatibleBVWeapon(id: string): boolean {
-  return /^(?:clan-)?(?:lrm|srm|mml)-\d+$/.test(id);
+  return /^(?:clan-)?(?:(?:lrm|srm|mml)-|(?:lr|sr)torpedo)\d+$/.test(id);
 }
 
 /** First compatible unlinked launcher at the same physical location.
