@@ -19,8 +19,8 @@
   },
   {
     "format": "bfs",
-    "status": "pending",
-    "reason": "Six BFS files: owner scope decision pending (L-INV2 brief, 2026-11-01)",
+    "status": "excluded",
+    "reason": "Owner exclusion 2026-11-02 (OWNER-RULINGS-20261030.md, 2026-11-02 item 4): all six BFS files",
     "entityClass": "megamek.common.battlefieldSupport.BattlefieldSupportAsset"
   }
 ]

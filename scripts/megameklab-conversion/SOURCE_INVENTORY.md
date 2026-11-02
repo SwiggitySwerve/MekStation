@@ -14,8 +14,9 @@ selectors intersect). Each rule needs a reason and `excluded` or `pending`
 status. Unused and overlapping rules fail. Excluded classes come from the rule
 when no Java row exists; they are declarations, not observed loads.
 
-Families are source folders, with all six BFS files in
-`battlefield-support-pending`. Class counts retain concrete Java class names.
+Families are source folders; the six BFS files are owner-excluded (ruling
+2026-11-02 item 4) and stay in their own folders. A `pending` rule would move its
+rows into `battlefield-support-pending`. Class counts retain concrete Java class names.
 Unique designs count loaded `[entityClass, chassis, model]` tuples exactly,
 including blank models, matching the corpus duplicate-identity definition.
 Every source stays in `rows`; `duplicateDesigns` lists collisions without
