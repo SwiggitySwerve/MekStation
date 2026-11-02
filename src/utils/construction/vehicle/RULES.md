@@ -267,6 +267,14 @@ fidelity and Python support-engine regression tests enforce these boundaries.
 ceilings): controls = upward-half-ton-rounded tonnage / 20, unless explicit
 `hasNoControlSystems` is true; lift = upward-half-ton-rounded tonnage / 10 for
 HOVER, VTOL, HYDROFOIL, SUBMARINE and WIGE only. NAVAL has no lift term.
+
+`mountedWeight.ts` owns resolved equipment grouping: primary mount flags,
+secondary location identity, ammunition exclusion from mechanism mass,
+qualifying amplifier energy mass, and independently rounded turret mechanisms.
+The composition extends its state/result contracts and retains the
+EquipmentResolver re-export. This extraction preserves unresolved items as
+zero, resolver order and every numeric result; nullable mass remains separate.
+
 `weightComposition.ts` composes these with the existing component owners;
 the former status-bar utility is a compatible re-export. Validation calls the
 same controls/lift owner with the same family, motion and no-controls context.
