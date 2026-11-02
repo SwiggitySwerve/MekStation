@@ -1,5 +1,13 @@
 # Equipment BV catalog resolution
 
+The equipment-BV owner supplies the Artemis IV/V launcher multipliers (1.2/1.3)
+to Mech, vehicle and large-craft callers, preserving each caller's modifier
+ordering. `getLargeAerospaceAmmoEntry` alone accepts the native IS LRM/SRM
+Artemis-capability suffix as the represented standard bin. It delegates identity
+lookup to `getAmmunitionEntry`; general ammo resolution remains unchanged.
+Pinned `AmmoType.java` Artemis mutators preserve bin BV and shots. Missing Clan,
+MML and capital ammo records remain unresolved; no technology fallback is added.
+
 This package owns the compatibility lookup from an equipment string to the
 bundled BV catalog. Public callers use equipmentBVResolver.ts. Catalog data,
 explicit name mappings, normalization and BV-context heat adjustments keep

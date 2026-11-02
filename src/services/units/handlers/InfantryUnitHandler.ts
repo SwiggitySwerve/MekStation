@@ -86,6 +86,12 @@ export class InfantryUnitHandler extends AbstractUnitTypeHandler<IInfantry> {
   readonly displayName = 'Infantry';
 
   /**
+   * Infantry BLKs have no Tonnage tag; Java computes platoon weight from the
+   * configuration (TestInfantry.getWeight, TestInfantry.java:550).
+   */
+  protected readonly requiresUnitTonnage = false;
+
+  /**
    * Get available locations for Infantry
    * Infantry doesn't have location-based equipment
    */

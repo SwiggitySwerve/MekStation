@@ -83,6 +83,12 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
   readonly displayName = 'Battle Armor';
 
   /**
+   * BA BLKs have no Tonnage tag; Java sets weight from the trooper count
+   * (BLKBattleArmorFile.java:90 `t.setWeight(t.getSquadSize())`).
+   */
+  protected readonly requiresUnitTonnage = false;
+
+  /**
    * Get available locations for Battle Armor
    */
   getLocations(): readonly string[] {

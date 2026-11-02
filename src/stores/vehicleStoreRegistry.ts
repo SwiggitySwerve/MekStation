@@ -102,6 +102,7 @@ export function duplicateVehicle(
     ...newState,
     engineType: sourceState.engineType,
     engineRating: sourceState.engineRating,
+    engineTechRating: sourceState.engineTechRating,
     cruiseMP: sourceState.cruiseMP,
     armorType: sourceState.armorType,
     armorTonnage: sourceState.armorTonnage,
