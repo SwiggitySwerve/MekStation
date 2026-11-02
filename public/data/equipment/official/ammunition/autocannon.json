@@ -193,7 +193,7 @@
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 2000,
-      "battleValue": 6,
+      "battleValue": 5,
       "isExplosive": true,
       "introductionYear": 3058
     },
