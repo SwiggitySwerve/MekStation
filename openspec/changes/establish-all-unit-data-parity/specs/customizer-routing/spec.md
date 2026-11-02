@@ -13,7 +13,8 @@ SHALL provide all dispatched surfaces; a missing surface SHALL be a TypeScript
 compile error, not a runtime fallback. `getCustomizerDescriptor` SHALL return the
 BattleMech descriptor for any `UnitType` not explicitly mapped, preserving the
 pre-existing mech-default behaviour. Small craft SHALL be mapped to the
-aerospace descriptor; DropShips and larger remain unmapped.
+aerospace descriptor. DropShips, JumpShips, WarShips and Space Stations SHALL be
+mapped to one read-only capital-ship descriptor.
 
 Adding a new unit type to the customizer SHALL require only registering one new
 descriptor; it SHALL NOT require editing the router or any dispatcher.
@@ -59,3 +60,16 @@ descriptor; it SHALL NOT require editing the router or any dispatcher.
 - **THEN** it SHALL mount the aerospace customizer, not the BattleMech editor
 - **AND** the aerospace store it creates SHALL have unit type and sub-type Small
   Craft
+
+#### Scenario: Capital ship opens read-only
+
+- **GIVEN** a customizer tab whose unit type is DropShip, JumpShip, WarShip or
+  Space Station
+- **WHEN** its shell mounts
+- **THEN** it SHALL mount the read-only capital-ship viewer, not the BattleMech
+  editor, with only the Overview and Structure tabs
+- **AND** it SHALL create no editor store and render no enabled edit control
+- **AND** it SHALL show tonnage, structural integrity, KF drive and sail where
+  present, armor by arc, crew, bays and transport, and equipment by arc
+- **AND** a `defensive-only` BV SHALL be labelled as defensive with a note that
+  full BV is not available yet, and SHALL NOT be shown as the total

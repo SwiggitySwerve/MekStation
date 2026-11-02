@@ -44,7 +44,7 @@ export const UNIT_DEFINITION_FAMILIES = {
       UnitType.WARSHIP,
       UnitType.SPACE_STATION,
     ],
-    store: null,
+    store: 'capital',
   },
   battlearmor: {
     unitTypes: [UnitType.BATTLE_ARMOR, 'BattleArmor', 'BATTLEARMOR'],
@@ -55,7 +55,7 @@ export const UNIT_DEFINITION_FAMILIES = {
   UnitFamily,
   {
     readonly unitTypes: readonly IUnitContract['unitType'][];
-    readonly store: 'battlemech' | 'vehicle' | 'aerospace' | null;
+    readonly store: 'battlemech' | 'vehicle' | 'aerospace' | 'capital' | null;
   }
 >;
 

@@ -77,6 +77,13 @@ import { BattleArmorCustomizer } from '../battlearmor/BattleArmorCustomizer';
 import { BattleArmorPipGrid } from '../battlearmor/BattleArmorPipGrid';
 import { BattleArmorPreviewTab } from '../battlearmor/BattleArmorPreviewTab';
 import { BattleArmorRecordSheetPreview } from '../battlearmor/BattleArmorRecordSheetPreview';
+import {
+  CAPITAL_SHIP_TABS,
+  CapitalArmorPanel,
+  CapitalOverviewPanel,
+  CapitalRecordSheetNotice,
+  CapitalShipShell,
+} from '../capital/CapitalShipCustomizer';
 import { InfantryCustomizer } from '../infantry/InfantryCustomizer';
 import { InfantryPlatoonCounter } from '../infantry/InfantryPlatoonCounter';
 import { InfantryPreviewTab } from '../infantry/InfantryPreviewTab';
@@ -409,7 +416,32 @@ function buildDescriptors(): CustomizerTypeDescriptor[] {
     RecordSheetPreviewComponent: ProtoMechRecordSheetPreview,
   };
 
-  return [mech, vehicle, aerospace, battleArmor, infantry, protoMech];
+  // Read-only: a frozen view per tab, no store and no edit controls (UL-14).
+  const capitalShip: CustomizerTypeDescriptor = {
+    unitTypes: [
+      UnitType.DROPSHIP,
+      UnitType.JUMPSHIP,
+      UnitType.WARSHIP,
+      UnitType.SPACE_STATION,
+    ],
+    label: 'CapitalShip',
+    tabs: CAPITAL_SHIP_TABS,
+    Shell: CapitalShipShell,
+    OverviewComponent: CapitalOverviewPanel,
+    PreviewComponent: CapitalRecordSheetNotice,
+    ArmorDiagramComponent: CapitalArmorPanel,
+    RecordSheetPreviewComponent: CapitalRecordSheetNotice,
+  };
+
+  return [
+    mech,
+    vehicle,
+    aerospace,
+    battleArmor,
+    infantry,
+    protoMech,
+    capitalShip,
+  ];
 }
 
 /** Return the descriptor list, building it once on first access. */
@@ -421,9 +453,9 @@ export function getCustomizerDescriptors(): CustomizerTypeDescriptor[] {
 }
 
 /**
- * Resolve a `UnitType` to its descriptor. Any type not explicitly mapped (e.g.
- * capital ships) falls back to the BattleMech descriptor — identical to the
- * pre-refactor `default:` branch every dispatcher carried.
+ * Resolve a `UnitType` to its descriptor. Any type not explicitly mapped falls
+ * back to the BattleMech descriptor — identical to the pre-refactor `default:`
+ * branch every dispatcher carried.
  */
 export function getCustomizerDescriptor(
   unitType: UnitType,

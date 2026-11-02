@@ -22,7 +22,14 @@ registry owns their accepted contract discriminators and available store mapper.
   `state`; vehicles (`mapToVehicleState`) and aerospace fighters and small craft
   (`mapAerospaceDefinitionToState`) to `familyState`. The library-open flow
   registers `familyState` in its own store and opens a tab of the state's unit
-  type. Capital ships, battle armor and infantry have no store mapper.
+  type. Battle armor and infantry have no store mapper.
+- Capital ships (DropShip, JumpShip, WarShip, Space Station) open read-only
+  (UL-14). `mapCapitalDefinitionToView` maps the definition to a deep-frozen
+  view (`capitalShipView.ts`), kept in memory by tab id; no store is created and
+  nothing persists, so a reloaded capital tab asks to be reopened from the
+  library. BV comes from the unified dispatcher with its scope: complete
+  DropShips show the total; `defensive-only` shows the defensive value with a
+  plain "not available yet" note and never as the total.
 - BattleMech equipment mapping, normalization and session creation stay unchanged.
   No fallback creates a BattleMech from a different family.
 - Custom library entries are BattleMech-only until UL-25a records their family.

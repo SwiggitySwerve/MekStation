@@ -21,7 +21,10 @@ import {
   type VehicleEngineType,
 } from '@/types/construction/EngineType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { ceilToHalfTon } from '@/utils/physical/weightUtils';
+import {
+  ceilToHalfTon,
+  roundWeightToGrams,
+} from '@/utils/physical/weightUtils';
 
 import { getBaseEngineWeight } from '../engineCalculations';
 import supportEngine from './supportEngine.json';
@@ -236,6 +239,18 @@ const SUPPORT_MEDIUM_MAX_TONS: Readonly<
   [GroundMotionType.MAGLEV]: 300,
 };
 
+/** EntityWeightClass.java:80-97; shared chassis/engine weight-class selection. */
+export function getSupportVehicleSizeIndex(
+  tonnage: number,
+  motionType: GroundMotionType,
+): number {
+  return tonnage < 5
+    ? 0
+    : tonnage > (SUPPORT_MEDIUM_MAX_TONS[motionType] ?? 300)
+      ? 2
+      : 1;
+}
+
 /** D: MegaMekLab's new support vehicle (SVMainUI.java:307); engine follows. */
 export const DEFAULT_SUPPORT_ENGINE_TECH_RATING = 3;
 
@@ -263,13 +278,14 @@ export function computeSupportVehicleEngineWeight(
   const techRating =
     context.engineTechRating ?? DEFAULT_SUPPORT_ENGINE_TECH_RATING;
   const small = tonnage < 5;
-  const large = tonnage > (SUPPORT_MEDIUM_MAX_TONS[motionType] ?? Infinity);
   const train =
     motionType === GroundMotionType.RAIL ||
     motionType === GroundMotionType.MAGLEV;
   const mp = train ? Math.max(0, context.cruiseMP - 2) : context.cruiseMP;
   const baseValue =
-    SUPPORT_BASE_ENGINE_VALUES[motionType]?.[small ? 0 : large ? 2 : 1] ?? 0;
+    SUPPORT_BASE_ENGINE_VALUES[motionType]?.[
+      getSupportVehicleSizeIndex(tonnage, motionType)
+    ] ?? 0;
   let weight = baseValue * (4 + mp * mp) * multipliers[techRating] * tonnage;
   if (engineType === EngineType.STANDARD && techRating >= 3) {
     weight = Math.max(weight, 0.25);
@@ -286,7 +302,7 @@ export function computeSupportVehicleEngineWeight(
   // gram, then take the nearest half ton.
   return small
     ? Math.round(weight * 1000) / 1000
-    : Math.round((Math.round(weight * 1e6) / 1e6) * 2) / 2;
+    : Math.round((roundWeightToGrams(weight) / 1e6) * 2) / 2;
 }
 
 // =============================================================================

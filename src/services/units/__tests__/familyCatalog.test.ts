@@ -174,7 +174,12 @@ it('UL-10 loads every fixture definition without creating non-mech stores', asyn
     ['battlearmor', 'Battle Armor'],
     ['infantry', 'Infantry'],
   ] as const) {
-    const definition = { id: `${family}-fixture`, unitType };
+    const definition = {
+      id: `${family}-fixture`,
+      unitType,
+      // The capital read-only view needs a tonnage (UL-14).
+      ...(family === 'capital' ? { tonnage: 4500 } : {}),
+    };
     fs.mkdirSync(path.join(root, 'public/data/units', family), {
       recursive: true,
     });
@@ -197,9 +202,11 @@ it('UL-10 loads every fixture definition without creating non-mech stores', asyn
           await browser.getById(entry.id, { family }),
         ),
       });
-      const store = { vehicles: 'vehicle', aerospace: 'aerospace' }[
-        family as string
-      ];
+      const store = {
+        vehicles: 'vehicle',
+        aerospace: 'aerospace',
+        capital: 'capital',
+      }[family as string];
       if (family !== 'battlemechs') {
         expect(
           await loader.loadUnit(entry.id, 'canonical', family),
