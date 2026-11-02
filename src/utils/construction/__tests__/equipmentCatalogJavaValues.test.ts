@@ -3,7 +3,7 @@
  * equipment catalog values that differed from pinned MegaMek 48fcb2f6 are
  * corrected, each cited. These rows pin every corrected value to its Java line.
  */
-import { getAmmunitionEntry } from '../equipmentBVResolver';
+import { getAmmunitionEntry, resolveEquipmentBV } from '../equipmentBVResolver';
 
 // [catalog id, pinned Java BV, citation in megamek/common/equipment/AmmoType.java]
 const AMMO_VALUES = [
@@ -13,8 +13,17 @@ const AMMO_VALUES = [
   ['lb-5-x-ammo', 10, 'createISLB5XAmmo ammo.bv = 10 (AmmoType.java:5414)'],
 ] as const;
 
+// [catalog id, pinned Java BV, citation in megamek/common/weapons/artillery]
+const WEAPON_VALUES = [
+  ['sniper-cannon', 77, 'SniperCannon.java:78 bv = 77'],
+] as const;
+
 describe('equipment catalog values match pinned Java (ruling 2026-11-02 q1)', () => {
   it.each(AMMO_VALUES)('%s ammo BV is %s (%s)', (id, bv) => {
     expect(getAmmunitionEntry(id)?.battleValue).toBe(bv);
+  });
+
+  it.each(WEAPON_VALUES)('%s weapon BV is %s (%s)', (id, bv) => {
+    expect(resolveEquipmentBV(id).battleValue).toBe(bv);
   });
 });
