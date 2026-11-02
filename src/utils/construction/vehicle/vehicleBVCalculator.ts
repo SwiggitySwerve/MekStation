@@ -1,5 +1,6 @@
 import type { VehicleBVInput, IVehicleBVBreakdown } from './vehicleBVTypes';
 
+import { hasBVDroneOS } from '../battleValueEquipment';
 import { calculateVehicleDefensiveBV } from './vehicleBVDefensive';
 import { calculateVehicleOffensiveBV } from './vehicleBVOffensive';
 
@@ -41,12 +42,14 @@ export function calculateVehicleBV(input: VehicleBVInput): IVehicleBVBreakdown {
   const pilotMultiplier = getVehiclePilotMultiplier(gunnery, piloting);
 
   const base = def.total + off.total;
-  const final = Math.round(base * pilotMultiplier);
+  const summaryModifier = hasBVDroneOS(input.chassisEquipment) ? 0.95 : 1;
+  const final = Math.round(base * summaryModifier * pilotMultiplier);
 
   return {
     defensive: def.total,
     offensive: off.total,
     pilotMultiplier,
+    summaryModifier,
     turretModifier: off.turretModifier,
     final,
 

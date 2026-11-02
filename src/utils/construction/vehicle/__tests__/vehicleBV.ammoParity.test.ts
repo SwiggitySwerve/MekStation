@@ -116,6 +116,7 @@ describe('vehicle ammunition source parity', () => {
     const result = calculateVehicleOffensiveBV(
       baseInput({
         weapons: [
+          { id: 'medium-laser', location: 'Front', bvOverride: 50 },
           {
             id: 'lb-10-x-ac',
             location: 'Rear',
@@ -129,7 +130,7 @@ describe('vehicle ammunition source parity', () => {
         ],
       }),
     );
-    expect(result.weaponBV).toBe(12.5);
+    expect(result.weaponBV).toBe(62.5);
     expect(result.ammoBV).toBe(25);
   });
 

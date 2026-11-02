@@ -46,3 +46,10 @@ normalization also belong to this owner. Remove a terminal bin-size suffix
 before the ammunition suffix; physical bin size does not change its cap family.
 Catalog BV, half-ton scaling, one-shot exclusions and CASE rules remain unchanged.
 The historical audit keeps its separately documented normalization policy.
+
+`getNativeAmmoBVGroup` supplies native enum/rack keys to vehicle ammo caps
+(BVCalculator.java:1190-1240 at 48fcb2f64). Artillery and artillery cannons,
+torpedoes and missiles retain distinct groups; both MML munition modes share
+the MML rack. Listed weapon BV supplies each cap; supported one-shot identities
+are excluded through the shared weapon-heat classifier. Legacy key APIs retain
+their compatibility policy for other callers. Catalog values remain authoritative.

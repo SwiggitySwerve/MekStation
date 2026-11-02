@@ -164,6 +164,30 @@ describe('EquipmentRegistry', () => {
     expect(result.equipment).toBeNull();
   });
 
+  it('should suggest similar IDs for a not-found name, and keep doing so after reset and re-initialize', async () => {
+    const registry = getEquipmentRegistry();
+    await registry.initialize();
+
+    // Pinned from the pre-optimisation scan: map insertion order, first 5.
+    const laser = [
+      'medium-laser',
+      'clan-er-medium-laser',
+      'large-laser',
+      'small-laser',
+      'er-medium-laser',
+    ];
+    expect(registry.lookup('Laser').alternateIds).toEqual(laser);
+    expect(registry.lookup('Jump').alternateIds).toEqual(['jump-jet-medium']);
+    expect(registry.lookup('Double Heat Sink Prototype').alternateIds).toEqual([
+      'double-heat-sink',
+    ]);
+    expect(registry.lookup('xyz-none').alternateIds).toEqual([]);
+
+    registry.reset();
+    await registry.initialize();
+    expect(registry.lookup('Laser').alternateIds).toEqual(laser);
+  });
+
   it('should get registry statistics', async () => {
     const registry = getEquipmentRegistry();
     await registry.initialize();

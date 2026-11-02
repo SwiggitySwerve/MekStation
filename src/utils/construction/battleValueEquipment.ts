@@ -80,15 +80,6 @@ export function calculateMountedDefensiveEquipmentBV(
   }
   return equipmentBV + sumCappedAmmoBV({ ams: amsAmmoBV }, () => amsBV);
 }
-/** BVCalculator.java:1000-1031: Watchdog contributes to both pools. */
-export function getDefensiveEquipmentOffensiveBV(id: string): number {
-  const entry = getEquipmentEntry(id);
-  return entry?.id === 'watchdog-cews' ||
-    entry?.id === 'watchdog-composite-electronic-warfare-system-cews'
-    ? 7
-    : 0;
-}
-
 /** Legacy raw-critical-name guard; Mech mount collection has a separate contract. */
 export function isMechDefensiveEquipment(id: string): boolean {
   const lo = id.toLowerCase();
@@ -98,4 +89,23 @@ export function isMechDefensiveEquipment(id: string): boolean {
     ) ||
     (lo.includes('shield') && !lo.includes('blue-shield'))
   );
+}
+
+/** Raw weapon candidates retain the legacy unintegrated capacitor contract. */
+export function getOffensiveBVRole(
+  id: string,
+): 'weapon' | 'miscWeapon' | 'equipment' {
+  const entry = getEquipmentEntry(id);
+  if (
+    !entry ||
+    ['Energy', 'Ballistic', 'Missile', 'TAG'].includes(entry.category)
+  )
+    return 'weapon';
+  return /vibroblade|vibroclaw|magnetclaw/.test(entry.id) ||
+    entry.id === 'ppc-capacitor'
+    ? 'miscWeapon'
+    : 'equipment';
+}
+export function hasBVDroneOS(ids: readonly string[] = []): boolean {
+  return ids.some((id) => getEquipmentEntry(id)?.id === 'droneoperatingsystem');
 }
