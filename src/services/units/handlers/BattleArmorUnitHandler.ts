@@ -13,6 +13,7 @@ import {
   SquadMotionType,
   ISquadMovement,
 } from '@/types/unit/BaseUnitInterfaces';
+import { BA_WEIGHT_CLASS_LIMITS } from '@/types/unit/BattleArmorInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   IBattleArmor,
@@ -44,20 +45,6 @@ import {
 // ============================================================================
 // Constants
 // ============================================================================
-
-/**
- * BA weight class thresholds (in kg per trooper)
- */
-const BA_WEIGHT_THRESHOLDS: Record<
-  BattleArmorWeightClass,
-  { min: number; max: number }
-> = {
-  [BattleArmorWeightClass.PA_L]: { min: 80, max: 400 },
-  [BattleArmorWeightClass.LIGHT]: { min: 401, max: 750 },
-  [BattleArmorWeightClass.MEDIUM]: { min: 751, max: 1000 },
-  [BattleArmorWeightClass.HEAVY]: { min: 1001, max: 1500 },
-  [BattleArmorWeightClass.ASSAULT]: { min: 1501, max: 2000 },
-};
 
 /**
  * Motion type string to enum mapping
@@ -340,10 +327,10 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
     }
 
     // Weight per trooper validation
-    const thresholds = BA_WEIGHT_THRESHOLDS[unit.baWeightClass];
+    const thresholds = BA_WEIGHT_CLASS_LIMITS[unit.baWeightClass];
     if (
-      unit.weightPerTrooper < thresholds.min ||
-      unit.weightPerTrooper > thresholds.max
+      unit.weightPerTrooper < thresholds.minMassKg ||
+      unit.weightPerTrooper > thresholds.maxMassKg
     ) {
       warnings.push(
         `Weight per trooper (${unit.weightPerTrooper}kg) doesn't match weight class ${unit.baWeightClass}`,
