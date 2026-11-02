@@ -43,7 +43,8 @@ const OPEN_CASES: OpenCase[] = [
     model: 'AS7-D',
     family: 'BattleMechs',
     shell: 'customizer-workbench',
-    tabs: [...COMMON_TABS, 'Critical Slots', ...TAIL_TABS],
+    // The mech shell uses DEFAULT_CUSTOMIZER_TABS, which puts Fluff before Preview.
+    tabs: [...COMMON_TABS, 'Critical Slots', 'Fluff', 'Preview'],
     tonnage: '100',
     armor: '304',
     movement: 'Movement: walk 3, run 5, jump 0 MP',
@@ -57,7 +58,7 @@ const OPEN_CASES: OpenCase[] = [
     tabs: [...COMMON_TABS.slice(0, 3), 'Turret', 'Equipment', ...TAIL_TABS],
     tonnage: '60.0 t',
     armor: '176',
-    movement: '4/7',
+    movement: '4/6',
   },
   {
     label: 'support vehicle',
