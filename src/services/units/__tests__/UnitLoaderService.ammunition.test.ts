@@ -9,7 +9,10 @@ import {
 import { buildEditableMech } from '@/components/customizer/tabs/PreviewTab.builders';
 import { useUnitCalculations } from '@/hooks/useUnitCalculations';
 import { getCalculationService } from '@/services/construction/CalculationService';
-import { projectEditableMech } from '@/services/construction/editableMechProjection';
+import {
+  buildEditableMechBVInput,
+  projectEditableMech,
+} from '@/services/construction/editableMechProjection';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { resetCanonicalUnitService } from '@/services/units/CanonicalUnitService';
@@ -21,7 +24,7 @@ import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { Era, RulesLevel, TechBase } from '@/types/enums';
 import { EquipmentCategory } from '@/types/equipment';
 import { getTotalEquipmentSlots } from '@/types/equipment/MountedEquipment';
-import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { MechConfiguration, UnitType } from '@/types/unit/BattleMechInterfaces';
 import { IValidatableUnit } from '@/types/validation/UnitValidationInterfaces';
 import { calculateUnitBV } from '@/utils/construction/mechBV/calculator';
 import { getEquipmentPayloadWeight } from '@/utils/equipment/equipmentWeightAccounting';
@@ -296,6 +299,56 @@ describe('BattleMech BV source parity', () => {
     },
   );
 
+  it.each([
+    ['5-civil-war/advanced/Balius A.json', 27],
+    ['6-dark-age/experimental/Arion Unknown.json', 5],
+    ['5-civil-war/advanced/Balius A.json', 0],
+  ])('retains legacy Biped quad limbs from %s (%s armor)', (file, limb) => {
+    const original = loadDefinition(file);
+    const source = {
+      ...original,
+      configuration: MechConfiguration.BIPED,
+      armor: {
+        type: original.armor?.type ?? 'STANDARD',
+        allocation: {
+          ...original.armor?.allocation,
+          FLL: limb,
+          FRL: limb,
+          RLL: limb,
+          RRL: limb,
+        },
+      },
+    };
+    const state = new UnitLoaderService().mapToUnitState(source, true);
+    const liveLimb = limb ? limb + 1 : 0;
+    state.armorAllocation[MechLocation.FRONT_LEFT_LEG] = liveLimb;
+    const raw: UnitData = JSON.parse(JSON.stringify(source));
+    raw.armor.allocation.FLL = liveLimb;
+    const { walkMP } = getMovementProfile(state.engineRating, state.tonnage);
+    const projected = buildEditableMechBVInput(
+      buildEditableMech(state, walkMP),
+    );
+    expect(projected.armor.allocation).toMatchObject({
+      FRONT_LEFT_LEG: liveLimb,
+      FRONT_RIGHT_LEG: limb,
+      REAR_LEFT_LEG: limb,
+      REAR_RIGHT_LEG: limb,
+    });
+    expect(bv(state)).toBe(calculateUnitBV(raw, raw.id).bv);
+  });
+
+  it('an explicit live configuration change overrides source quad topology', async () => {
+    const state = {
+      ...(await load('balius-a')),
+      configuration: MechConfiguration.BIPED,
+    };
+    const { walkMP } = getMovementProfile(state.engineRating, state.tonnage);
+    const projected = buildEditableMechBVInput(
+      buildEditableMech(state, walkMP),
+    );
+    expect(projected.armor.allocation).toHaveProperty('LEFT_ARM');
+    expect(projected.armor.allocation).not.toHaveProperty('FRONT_LEFT_LEG');
+  });
   it('retains third-leg armor for legacy tripods labeled Biped', async () => {
     const state = await load('ares-ars-v1c-aphrodite');
     const raw: UnitData = JSON.parse(JSON.stringify(state.bvContext?.source));
