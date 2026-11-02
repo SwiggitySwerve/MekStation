@@ -1,0 +1,64 @@
+{
+  "id": "field-gun-level-i-wobm-tracked-uac20",
+  "chassis": "Field Gun Level I (WOBM)",
+  "model": "(Tracked UAC20)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3060,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Word of Blake Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "word-of-blake-infantry-kit",
+      "name": "Word of Blake Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isultraac20",
+      "name": "ISUltraAC20",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ultra-ac-20-ammo",
+      "name": "IS Ultra AC/20 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "isultraac20",
+      "name": "ISUltraAC20"
+    },
+    {
+      "id": "is-ultra-ac-20-ammo",
+      "name": "IS Ultra AC/20 Ammo"
+    }
+  ],
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Word of Blake Militia infantry served as the backbone of Protectorate garrison forces across dozens of conquered worlds, providing the manpower for territorial control that the Militia's BattleMech and armor assets could not sustain alone. Operating assault-class ultra autocannon, these crews can unleash paired shots of extreme destructive force at close range, capable of mission-killing armored vehicles in a single burst if both rounds connect.</p>"
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "id": "mechanized-hover-platoon-fwlm-er-laser-3052+",
+  "chassis": "Mechanized Hover Platoon (FWLM)",
+  "model": "(ER Laser 3052+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3052,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-er-[sunbeam-starfire]",
+    "name": "Laser Rifle (ER [Sunbeam Starfire])"
+  },
+  "armorKit": "Free Worlds League Infantry Kit (3035+)",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "free-worlds-league-infantry-kit-3035+",
+      "name": "Free Worlds League Infantry Kit (3035+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Scout",
+  "fluff": {
+    "overview": "<p>The Free Worlds League's fractious politics have always made centralized BattleMech procurement difficult, pushing the FWLM toward heavy investment in conventional infantry to fill the gaps. Hover-mechanized platoons are the fastest infantry transport in FWLM service, carrying troops across water and open terrain at speeds that outpace any ground vehicle. Their vulnerability to ambush in confined terrain is offset by the tactical flexibility they offer on League worlds with extensive coastlines or open plains. Carrying extended-range laser rifles that push engagement distances well beyond standard models, these platoons can engage targets at ranges where conventional ballistic infantry cannot effectively respond.</p>"
+  }
+}

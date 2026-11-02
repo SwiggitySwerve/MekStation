@@ -1,0 +1,42 @@
+{
+  "id": "foot-squad-medic",
+  "chassis": "Foot Squad",
+  "model": "(Medic)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2500,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 1,
+    "totalTroopers": 7
+  },
+  "primaryWeapon": {
+    "id": "rifle-federated-long",
+    "name": "Rifle (Federated Long)"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 256,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Medic squads are small infantry elements carrying standard rifles alongside enhanced medical equipment and triage supplies. These squads provide battlefield casualty care and evacuation support to larger formations, treating wounded soldiers under fire and stabilizing casualties for transport to rear-area medical facilities. Their combat capability is limited by the need to carry medical gear in place of heavier weapons.</p>"
+  }
+}

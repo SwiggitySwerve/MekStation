@@ -1,0 +1,49 @@
+{
+  "id": "mountaineer-45th-cerulean-mountain-infantry;-3rd-davion-guards",
+  "chassis": "Mountaineer",
+  "model": "45th Cerulean Mountain Infantry; 3rd Davion Guards",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3064,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 2,
+    "totalTroopers": 14
+  },
+  "primaryWeapon": {
+    "id": "infantryfederatedbarrettm42b",
+    "name": "InfantryFederatedBarrettM42B"
+  },
+  "armorKit": "Federated Suns Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "federated-suns-infantry-kit",
+      "name": "Federated Suns Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 128,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrysrmlight",
+    "name": "InfantrySRMLight",
+    "count": 1
+  },
+  "mulId": 2242,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Federated Suns fields some of the most respected infantry in the Inner Sphere, with the AFFS treating its foot soldiers as essential partners in the combined-arms doctrine that defines the Regimental Combat Team. Among the most specialized of these formations, the Cerulean Mountain Infantry trains extensively for high-altitude and rough-terrain operations. Known as the \"Goat Men,\" these troops can establish command posts on sheer cliff faces and launch attacks from approaches that conventional forces consider impassable. Their equipment includes re-breathers that allow them to operate at altitudes where conventional aircraft and VTOLs struggle to maintain lift. Armed with assault rifles and light missile launchers, the mountain troops combine vertical mobility with enough firepower to threaten light vehicles and exposed BattleMech components from unexpected angles.</p>"
+  }
+}

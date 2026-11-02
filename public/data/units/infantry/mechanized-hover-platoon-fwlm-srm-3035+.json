@@ -1,0 +1,49 @@
+{
+  "id": "mechanized-hover-platoon-fwlm-srm-3035+",
+  "chassis": "Mechanized Hover Platoon (FWLM)",
+  "model": "(SRM 3035+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3030,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 4,
+    "squadCount": 4,
+    "totalTroopers": 16
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Free Worlds League Infantry Kit (3035+)",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "free-worlds-league-infantry-kit-3035+",
+      "name": "Free Worlds League Infantry Kit (3035+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryheavysrm",
+    "name": "InfantryHeavySRM",
+    "count": 2
+  },
+  "mulId": 2137,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>New technology and creative tactical thinking have long featured in FWLM infantry deployment, with varied unit types and specialized formations treated as the norm rather than the exception. Hover-mechanized platoons are the fastest infantry transport in FWLM service, carrying troops across water and open terrain at speeds that outpace any ground vehicle. Their vulnerability to ambush in confined terrain is offset by the tactical flexibility they offer on League worlds with extensive coastlines or open plains. Equipped with infantry-portable short-range missile launchers, these platoons pack anti-armor punch that standard rifle or laser formations cannot match, capable of threatening light vehicles and even damaging BattleMech leg actuators at close range.</p>"
+  }
+}

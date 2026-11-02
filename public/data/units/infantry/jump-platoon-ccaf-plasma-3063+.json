@@ -1,0 +1,47 @@
+{
+  "id": "jump-platoon-ccaf-plasma-3063+",
+  "chassis": "Jump Platoon (CCAF)",
+  "model": "(Plasma 3063+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3063,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "rifle-striker-carbine",
+    "name": "Rifle (Striker Carbine)"
+  },
+  "armorKit": "Capellan Confederation Armor Kit (3050)",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "capellan-confederation-armor-kit-3050",
+      "name": "Capellan Confederation Armor Kit (3050)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "plasma-rifle-man-portable",
+    "name": "Plasma Rifle (Man-Portable)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Capellan Confederation has always relied on its infantry to compensate for the CCAF's chronic shortage of heavier assets. Conventional foot soldiers, drawn from the citizens' militia system that defines Capellan military service, form the backbone of garrison forces across the Confederation's commonalities. Jump-capable infantry give CCAF commanders a vertical mobility option for urban combat and rough terrain operations. The added cost of jump equipment limits their numbers compared to foot formations, but their ability to bypass obstacles and reach elevated positions makes them valuable in the defensive fighting the Confederation often faces. Plasma rifle sections carry one of the most advanced man-portable energy weapons available, delivering devastating thermal damage that can threaten light vehicles and battle armor at close range.</p>"
+  }
+}

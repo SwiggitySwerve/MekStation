@@ -1,0 +1,49 @@
+{
+  "id": "specops-paratrooper-mi6-extraction-team",
+  "chassis": "SpecOps Paratrooper",
+  "model": "MI6 Extraction Team",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3064,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "infantryfederatedbarrettm42b",
+    "name": "InfantryFederatedBarrettM42B"
+  },
+  "armorKit": "Sneak Suit (Camo/IR/ECM)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "sneak-suit-camo-ir-ecm",
+      "name": "Sneak Suit (Camo/IR/ECM)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": ["sneakcamo", "sneakir", "sneakecm"],
+  "effectiveArmorFlags": ["sneakcamo", "sneakir", "sneakecm"],
+  "specializations": 512,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "sonic-stunner",
+    "name": "Sonic Stunner",
+    "count": 1
+  },
+  "mulId": 3001,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>When the Federated Suns requires something extracted from hostile territory overnight, the Rabid Foxes answer the call. Officially designated MI6 within the Department of Military Intelligence, the Rabid Foxes are among the most capable special operations personnel in the AFFS. Their Extraction Specialist Teams are trained to deploy from orbit on personal reentry units, locate a target, and reach the extraction point while avoiding all contact. Equipped with stealth suits, portable electronics, and sonic stunners alongside standard assault rifles, E-Teams prize silence and speed over firepower. MI6 units typically operate in five- to seven-person teams, though larger formations are assembled when the mission demands it.</p>"
+  }
+}

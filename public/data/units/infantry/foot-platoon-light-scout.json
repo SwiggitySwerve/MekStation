@@ -1,0 +1,42 @@
+{
+  "id": "foot-platoon-light-scout",
+  "chassis": "Foot Platoon",
+  "model": "(Light Scout)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2500,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "auto-pistol",
+    "name": "Auto-Pistol"
+  },
+  "armorKit": "Clothing, Fatigues/Civilian/Non-Armored",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "clothing,-fatigues-civilian-non-armored",
+      "name": "Clothing, Fatigues/Civilian/Non-Armored",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Light scout platoons carry only auto-pistols, sacrificing firepower for reduced weight and a low profile suited to extended reconnaissance patrols. These formations prioritize observation and reporting over combat engagement, moving quietly through terrain to gather intelligence on enemy positions and movements. Their minimal armament means they avoid contact whenever possible, relying on stealth and evasion rather than firepower.</p>"
+  }
+}

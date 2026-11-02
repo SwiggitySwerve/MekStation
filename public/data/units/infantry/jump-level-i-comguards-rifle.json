@@ -1,0 +1,50 @@
+{
+  "id": "jump-level-i-comguards-rifle",
+  "chassis": "Jump Level I (ComGuards)",
+  "model": "(Rifle)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2933,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 5,
+    "totalTroopers": 30
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "ComStar Infantry Kit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "comstar-infantry-kit",
+      "name": "ComStar Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 7021,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Under the reforms of Precentor Martial Anastasius Focht, Com Guard infantry train extensively in combined-arms cooperation, conducting regular exercises alongside heavier elements to ensure seamless coordination across all branches when battle demands it. Jump infantry Level I formations provide the vertical mobility needed to operate in urban environments and mountainous terrain. Com Guard jump troops train to exploit three-dimensional movement as a tactical advantage, clearing rooftops and elevated positions that conventional foot infantry cannot reach without significant delay. Armed with standard ballistic assault rifles, the most common and affordable infantry weapon in the Inner Sphere, these troops deliver reliable short-range firepower and can be equipped and resupplied from almost any garrison stockpile.</p>"
+  }
+}

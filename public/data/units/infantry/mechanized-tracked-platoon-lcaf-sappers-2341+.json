@@ -1,0 +1,48 @@
+{
+  "id": "mechanized-tracked-platoon-lcaf-sappers-2341+",
+  "chassis": "Mechanized Tracked Platoon (LCAF)",
+  "model": "(Sappers 2341+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2341,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 2,
+    "totalTroopers": 14
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "Ballistic Plate, Standard",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "demolition-charge",
+      "name": "Demolition Charge",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "ballistic-plate,-standard",
+      "name": "Ballistic Plate, Standard",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 10,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "None",
+  "fluff": {
+    "overview": "<p>The Lyran Commonwealth's industrial wealth ensures its infantry are among the best-equipped in the Inner Sphere, fielding hardware that most armies reserve for elite formations as standard issue. Mechanized tracked platoons deploy from armored personnel carriers that provide protection during movement and allow the formation to keep pace with heavier combat vehicles in offensive operations. Equipped with submachine guns optimized for close-quarters combat, these platoons trade effective range for high rates of fire at short distances, making them well-suited to urban operations and building clearance. Trained as military sappers, these troops specialize in obstacle construction, demolition, and field fortification preparation, combining engineering and combat skills to shape the battlefield.</p>"
+  }
+}

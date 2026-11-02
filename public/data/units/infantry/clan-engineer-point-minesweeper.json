@@ -1,0 +1,54 @@
+{
+  "id": "clan-engineer-point-minesweeper",
+  "chassis": "Clan Engineer Point",
+  "model": "(Minesweeper)",
+  "unitType": "Infantry",
+  "techBase": "MIXED",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2840,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 10,
+    "squadCount": 2,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "rifle-bolt-action",
+    "name": "Rifle (Bolt-Action)"
+  },
+  "armorKit": "Clothing, Leather/Synthetic Hide",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "clothing,-leather-synthetic-hide",
+      "name": "Clothing, Leather/Synthetic Hide",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-minesweeper",
+      "name": "Light Minesweeper",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-minesweeper",
+      "name": "Light Minesweeper",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 8,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Alongside demolition training, the Clans kept minesweeping as a practical battlefield skill after abandoning dedicated engineering around 2840. These Points clear mines ahead of an advancing Cluster.</p>"
+  }
+}

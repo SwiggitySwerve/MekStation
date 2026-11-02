@@ -1,0 +1,49 @@
+{
+  "id": "mechanized-tracked-level-i-comguards-lrm",
+  "chassis": "Mechanized Tracked Level I (ComGuards)",
+  "model": "(LRM)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3057,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "ComStar Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "comstar-infantry-kit",
+      "name": "ComStar Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrylrm",
+    "name": "InfantryLRM",
+    "count": 2
+  },
+  "mulId": 7072,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Under the reforms of Precentor Martial Anastasius Focht, Com Guard infantry train extensively in combined-arms cooperation, conducting regular exercises alongside heavier elements to ensure seamless coordination across all branches when battle demands it. Mechanized tracked Level I formations ride armored personnel carriers through terrain that would stop wheeled vehicles, providing all-terrain mobility with meaningful armor protection against battlefield hazards. These formations can advance alongside armored Level I units without falling behind on broken ground. Carrying infantry-portable long-range missile systems that extend the platoon's engagement envelope well beyond personal weapon range, these troops provide indirect fire support that can suppress enemy positions from distances where return fire is difficult.</p>"
+  }
+}

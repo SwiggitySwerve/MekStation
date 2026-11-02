@@ -1,0 +1,83 @@
+{
+  "id": "clan-field-gunners-lbx20",
+  "chassis": "Clan Field Gunners",
+  "model": "(LBX20)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2821,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 5,
+    "totalTroopers": 25
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "cllbxac20",
+      "name": "CLLBXAC20",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clan-lb-20-x-cluster-ammo",
+      "name": "Clan LB 20-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "cllbxac20",
+      "name": "CLLBXAC20",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clan-lb-20-x-cluster-ammo",
+      "name": "Clan LB 20-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "cllbxac20",
+      "name": "CLLBXAC20"
+    },
+    {
+      "id": "clan-lb-20-x-cluster-ammo",
+      "name": "Clan LB 20-X Cluster Ammo"
+    },
+    {
+      "id": "cllbxac20",
+      "name": "CLLBXAC20"
+    },
+    {
+      "id": "clan-lb-20-x-cluster-ammo",
+      "name": "Clan LB 20-X Cluster Ammo"
+    }
+  ],
+  "fluff": {
+    "overview": "<p>Clan field gun Points crew heavy LB-X autocannons capable of devastating fire in both slug and cluster modes. The heavier Clan LB-X variants deliver superior penetration and blast effect compared to Inner Sphere equivalents, and Clan ammunition manufacturing produces more consistent performance. These Points anchor defensive positions where their firepower can cover key approaches, trading mobility for the ability to destroy vehicles and suppress infantry formations at significant range.</p>"
+  }
+}

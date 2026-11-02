@@ -1,0 +1,48 @@
+{
+  "id": "jump-platoon-affs-laser-anti-mek-3067+",
+  "chassis": "Jump Platoon (AFFS)",
+  "model": "(Laser Anti-Mek 3067+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "infantryfederatedbarrettm61a",
+    "name": "InfantryFederatedBarrettM61A"
+  },
+  "armorKit": "Sneak Suit (Camo/IR)",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "sneak-suit-camo-ir",
+      "name": "Sneak Suit (Camo/IR)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": ["sneakcamo", "sneakir"],
+  "effectiveArmorFlags": ["sneakcamo", "sneakir"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The AFFS treats its infantry as professionals rather than expendable garrison filler, drawing soldiers from single worlds or neighboring systems to build the unit cohesion that the Federated Suns considers essential to effective combined-arms operations. Jump-capable infantry provide the vertical mobility that AFFS commanders prize in urban combat and rough terrain, able to bypass obstacles and seize elevated positions that ground-bound platoons cannot reach. Armed with laser rifles optimized for engaging BattleMech leg actuators and sensor arrays at close range, these anti-BattleMech specialists are trained in the dangerous art of swarming enemy machines, targeting vulnerable joints and exposed systems.</p>"
+  }
+}

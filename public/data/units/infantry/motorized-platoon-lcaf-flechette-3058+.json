@@ -1,0 +1,47 @@
+{
+  "id": "motorized-platoon-lcaf-flechette-3058+",
+  "chassis": "Motorized Platoon (LCAF)",
+  "model": "(Flechette 3058+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3058,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "rifle-zeus-heavy",
+    "name": "Rifle (Zeus Heavy)"
+  },
+  "armorKit": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "lyran-alliance-lyran-commonwealth-3060+-infantry-kit",
+      "name": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "needler,-support-firedrake",
+    "name": "Needler, Support (Firedrake)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The LCAF fields conventional infantry that benefit from the Commonwealth's deep industrial base, equipping even garrison formations with reliable, well-maintained weapons and transport. Motorized platoons add light transport vehicles to standard infantry formations, giving them the speed to conduct rapid strikes, screening operations, and quick withdrawals that foot infantry cannot manage. Armed with heavy-caliber Zeus rifles and Firedrake support needlers, these platoons combine hard-hitting ballistic fire with flechette weapons that shred unarmored targets and can ignite terrain.</p>"
+  }
+}

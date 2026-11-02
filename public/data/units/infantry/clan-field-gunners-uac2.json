@@ -1,0 +1,143 @@
+{
+  "id": "clan-field-gunners-uac2",
+  "chassis": "Clan Field Gunners",
+  "model": "(UAC2)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2822,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 5,
+    "totalTroopers": 25
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clan-ultra-ac-2-ammo",
+      "name": "Clan Ultra AC/2 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clan-ultra-ac-2-ammo",
+      "name": "Clan Ultra AC/2 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clan-ultra-ac-2-ammo",
+      "name": "Clan Ultra AC/2 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clan-ultra-ac-2-ammo",
+      "name": "Clan Ultra AC/2 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clan-ultra-ac-2-ammo",
+      "name": "Clan Ultra AC/2 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2"
+    },
+    {
+      "id": "clan-ultra-ac-2-ammo",
+      "name": "Clan Ultra AC/2 Ammo"
+    },
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2"
+    },
+    {
+      "id": "clan-ultra-ac-2-ammo",
+      "name": "Clan Ultra AC/2 Ammo"
+    },
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2"
+    },
+    {
+      "id": "clan-ultra-ac-2-ammo",
+      "name": "Clan Ultra AC/2 Ammo"
+    },
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2"
+    },
+    {
+      "id": "clan-ultra-ac-2-ammo",
+      "name": "Clan Ultra AC/2 Ammo"
+    },
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2"
+    },
+    {
+      "id": "clan-ultra-ac-2-ammo",
+      "name": "Clan Ultra AC/2 Ammo"
+    }
+  ],
+  "fluff": {
+    "overview": "<p>Clan field gun Points crew light ultra autocannons built to Clan engineering standards, achieving higher reliability at double-rate fire than Inner Sphere equivalents. The rapid-fire capability suppresses enemy formations and denies ground effectively, and Clan manufacturing reduces the jamming risk that plagues less precisely machined ultra mechanisms. Garrison commanders position these Points along likely avenues of approach where sustained suppressive fire can break up enemy advances.</p>"
+  }
+}

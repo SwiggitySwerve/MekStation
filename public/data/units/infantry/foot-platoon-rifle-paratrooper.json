@@ -1,0 +1,47 @@
+{
+  "id": "foot-platoon-rifle-paratrooper",
+  "chassis": "Foot Platoon",
+  "model": "(Rifle Paratrooper)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3045,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "rifle-m&g-g-150",
+    "name": "Rifle (M&G G-150)"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 512,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryhrr",
+    "name": "InfantryHRR",
+    "count": 1
+  },
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Paratrooper rifle platoons are foot infantry trained and equipped to deploy via parachutes or parafoils from aerospace craft, dropping into combat to seize objectives behind enemy lines or reinforce positions unreachable by ground transport. Armed with M&G rifles and heavy recoilless rifles for anti-armor capability, these platoons sacrifice the sustained logistics of ground-deployed formations for the strategic surprise of airborne insertion.</p>"
+  }
+}

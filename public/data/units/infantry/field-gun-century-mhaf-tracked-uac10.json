@@ -1,0 +1,64 @@
+{
+  "id": "field-gun-century-mhaf-tracked-uac10",
+  "chassis": "Field Gun Century (MHAF)",
+  "model": "(Tracked UAC10)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3060,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Marian Hegemony Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "marian-hegemony-infantry-kit",
+      "name": "Marian Hegemony Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isultraac10",
+      "name": "ISUltraAC10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ultra-ac-10-ammo",
+      "name": "IS Ultra AC/10 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "isultraac10",
+      "name": "ISUltraAC10"
+    },
+    {
+      "id": "is-ultra-ac-10-ammo",
+      "name": "IS Ultra AC/10 Ammo"
+    }
+  ],
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Marian military tradition places infantry at the foundation of its legionary system, with conventional soldiers organized into units bearing Latin designations that reflect the Hegemony's deliberate cultivation of Roman imperial identity. Marian field gun centuries tow crew-served weapons on wheeled, tracked, or motorized carriages, providing direct-fire anti-armor capability that supplements the Legiones Marianes' limited BattleMech strength. The century's field gun is a heavy ultra autocannon that can fire at twice the normal rate, delivering devastating bursts that can cripple vehicles, though the mechanism risks jamming.</p>"
+  }
+}

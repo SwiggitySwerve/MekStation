@@ -1,0 +1,83 @@
+{
+  "id": "clan-field-gunners-gauss",
+  "chassis": "Clan Field Gunners",
+  "model": "(Gauss)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2828,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 5,
+    "totalTroopers": 25
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clan-gauss-ammo",
+      "name": "Clan Gauss Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clan-gauss-ammo",
+      "name": "Clan Gauss Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle"
+    },
+    {
+      "id": "clan-gauss-ammo",
+      "name": "Clan Gauss Ammo"
+    },
+    {
+      "id": "clgaussrifle",
+      "name": "CLGaussRifle"
+    },
+    {
+      "id": "clan-gauss-ammo",
+      "name": "Clan Gauss Ammo"
+    }
+  ],
+  "fluff": {
+    "overview": "<p>Clan field gun Points crew Clan-manufactured gauss rifles that deliver projectiles at extreme velocity through magnetic acceleration. Clan gauss technology produces slightly improved range and penetration compared to Inner Sphere equivalents, and the weapons retain the fundamental safety advantage of requiring no chemical propellant. These Points provide the highest-accuracy direct fire available to Clan garrison infantry, and their combination of range, penetration, and ammunition safety makes them priority assets in defensive planning.</p>"
+  }
+}

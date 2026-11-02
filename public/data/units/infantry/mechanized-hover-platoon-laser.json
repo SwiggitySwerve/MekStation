@@ -1,0 +1,44 @@
+{
+  "id": "mechanized-hover-platoon-laser",
+  "chassis": "Mechanized Hover Platoon",
+  "model": "(Laser)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2405,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle",
+    "name": "Laser Rifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 2133,
+  "role": "Striker",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Mechanized hover platoons transport their infantry in hovercraft capable of crossing water, swamps, and open terrain at high speed. The fastest conventional mechanized formation available, hover platoons trade the all-terrain reliability of tracked vehicles for raw speed and amphibious capability. They are well suited to coastal defense, riverine operations, and rapid flanking maneuvers on open ground. Rough terrain and dense forests limit hovercraft effectiveness, and the vehicles offer less protection than heavier tracked or wheeled transports.</p>"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "id": "field-gun-platoon-dcms-wheeled-ac20-2620+",
+  "chassis": "Field Gun Platoon (DCMS)",
+  "model": "(Wheeled AC20 2620+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2620,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Draconis Combine Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "draconis-combine-infantry-kit",
+      "name": "Draconis Combine Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-20",
+      "name": "Autocannon/20",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-20",
+      "name": "IS Ammo AC/20",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "autocannon-20",
+      "name": "Autocannon/20"
+    },
+    {
+      "id": "is-ammo-ac-20",
+      "name": "IS Ammo AC/20"
+    }
+  ],
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Conventional infantry within the DCMS serve as the foundation of planetary defense, providing the manpower essential to territorial control while freeing BattleMech and armored assets for offensive operations. The platoon's field gun is a massive autocannon capable of crippling vehicles and tearing limbs from BattleMechs with a single round. Slow to reposition and hungry for ammunition, it demands a prepared firing position, but nothing else in the infantry arsenal hits this hard.</p>"
+  }
+}

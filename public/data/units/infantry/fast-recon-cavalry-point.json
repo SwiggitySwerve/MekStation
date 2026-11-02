@@ -1,0 +1,44 @@
+{
+  "id": "fast-recon-cavalry-point",
+  "chassis": "Fast Recon",
+  "model": "Cavalry Point",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2825,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-mauser-iic-ias",
+    "name": "Laser Rifle (Mauser IIC IAS)"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 1035,
+  "role": "Scout",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Sixty-seventh BattleMech Cluster of Clan Hell's Horses maintains an unusually large number of infantry formations, including Cavalry Points designed to keep pace with scouting elements. These Points ride small hovercraft that can scoot across the battlefield alongside the Cluster's reconnaissance vehicles, providing eyes and ears in terrain where larger vehicles cannot operate. Naturally, the limited carrying capacity of their hovercraft restricts what weapons they can bring to a fight, and these troops are accordingly lacking in firepower. In the enclosed environments the Sixty-seventh prefers, Cavalry Points have proved capable scouts, but all too often they are used as distractions to allow damaged scout tanks to disengage, a role that leaves them highly vulnerable in a stand-up fight.</p>"
+  }
+}
