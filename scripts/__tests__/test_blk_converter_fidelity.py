@@ -54,6 +54,16 @@ def replace_tag(body, tag, value):
     return re.sub(rf'<{tag}>.*?</{tag}>', f'<{tag}>\n{value}\n</{tag}>', body, flags=re.S)
 
 
+PATCHWORK_VEHICLE_TYPES = {'Front': 0, 'Right': 1, 'Left': 2, 'Rear': 3, 'Turret': 4}
+
+
+def patchwork_vehicle_body(body, missing=None):
+    return replace_tag(body, 'armor_type', 7) + ''.join(
+        f'\n<{location}_armor_type>{code}</{location}_armor_type>\n'
+        for location, code in PATCHWORK_VEHICLE_TYPES.items() if location != missing
+    )
+
+
 class BlkConverterFidelityTest(unittest.TestCase):
     def test_small_craft_hull_equipment_is_preserved(self):
         fixtures = [fixture for fixture in FIXTURES if 'hullEquipment' in fixture]
@@ -120,9 +130,18 @@ class BlkConverterFidelityTest(unittest.TestCase):
         for fixture in self.bases():
             for code, expected in enumerate(ARMOR):
                 with self.subTest(family=fixture['family'], code=code):
-                    unit = self.convert(fixture, replace_tag(fixture['blk'], 'armor_type', code))
+                    # BLKTankFile.java:306-307 requires the five installed type tags.
+                    body = patchwork_vehicle_body(fixture['blk']) if fixture['family'] == 'vehicles' and code == 7 else replace_tag(fixture['blk'], 'armor_type', code)
+                    unit = self.convert(fixture, body)
                     self.assertEqual(unit['armor']['type'], expected)
                     self.assertEqual(validate_unit(unit), [])
+
+    def test_vehicle_patchwork_requires_each_installed_location_type(self):
+        fixture = next(f for f in self.bases() if f['family'] == 'vehicles')
+        # BLKTankFile.java:306-307 reads every installed location's type tag.
+        for location in PATCHWORK_VEHICLE_TYPES:
+            with self.subTest(location=location), self.assertRaisesRegex(ValueError, rf'{location}.*{location}_armor_type'):
+                self.convert(fixture, patchwork_vehicle_body(fixture['blk'], missing=location))
 
     def test_unknown_and_non_integer_armor_codes_fail(self):
         for fixture in self.bases():

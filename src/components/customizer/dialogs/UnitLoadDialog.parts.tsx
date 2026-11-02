@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { UNIT_FAMILY_LABELS } from '@/components/compendium/units/units.constants';
 import { AppIcon } from '@/components/ui/AppIcon';
 import { IUnitIndexEntry } from '@/services/common/types';
 import { TechBase } from '@/types/enums/TechBase';
@@ -15,6 +16,23 @@ export interface UnitWithSource extends IUnitIndexEntry {
   source: 'canonical' | 'custom';
   currentVersion?: number;
   year?: number;
+}
+
+/** Library rows are identified by (source, family, id); no family means BattleMech. */
+export function isSameLibraryUnit(
+  a: UnitWithSource,
+  b: UnitWithSource | null,
+): boolean {
+  return (
+    !!b &&
+    a.id === b.id &&
+    a.source === b.source &&
+    (a.family ?? 'battlemechs') === (b.family ?? 'battlemechs')
+  );
+}
+
+function getFamilyLabel(unit: UnitWithSource) {
+  return UNIT_FAMILY_LABELS[unit.family ?? 'battlemechs'];
 }
 
 function getTechLabel(techBase: UnitWithSource['techBase']) {
@@ -100,6 +118,7 @@ function UnitTable({
         <tr>
           <th className="px-3 py-2">Chassis</th>
           <th className="px-3 py-2">Model</th>
+          <th className="hidden px-3 py-2 sm:table-cell">Family</th>
           <th className="px-3 py-2 text-right">Weight</th>
           {/* 32px before Year so it reads apart from the right-aligned
               Weight column beside it. */}
@@ -118,7 +137,7 @@ function UnitTable({
       >
         {filteredUnits.map((unit) => (
           <UnitTableRow
-            key={unit.id}
+            key={`${unit.source}:${unit.family ?? 'battlemechs'}:${unit.id}`}
             onDoubleClick={handleDoubleClick}
             selectedUnit={selectedUnit}
             setSelectedUnit={setSelectedUnit}
@@ -149,7 +168,7 @@ function UnitTableRow({
   setSelectedUnit: (unit: UnitWithSource) => void;
   unit: UnitWithSource;
 }) {
-  const isSelected = selectedUnit?.id === unit.id;
+  const isSelected = isSameLibraryUnit(unit, selectedUnit);
 
   return (
     <tr
@@ -182,12 +201,16 @@ function UnitTableRow({
       >
         <UnitVariantLabel unit={unit} />
       </td>
+      <td className="text-text-theme-secondary hidden px-3 py-1.5 sm:table-cell">
+        {getFamilyLabel(unit)}
+      </td>
       <td
         role="cell"
         className="text-text-theme-secondary mt-1 block text-xs tabular-nums sm:table-cell sm:px-3 sm:py-1.5 sm:text-right sm:text-sm"
       >
         {formatTons(unit.tonnage, Number.isInteger(unit.tonnage) ? 0 : 1)}
         <span className="sm:hidden">
+          {` · ${getFamilyLabel(unit)}`}
           {unit.year ? ` · ${unit.year}` : ''} · {getTechLabel(unit.techBase)}
           {unit.role ? ` · ${unit.role}` : ''} · <UnitSourceLabel unit={unit} />
         </span>

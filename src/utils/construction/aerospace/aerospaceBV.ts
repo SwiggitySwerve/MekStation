@@ -14,6 +14,12 @@
  */
 
 /** Public compatibility facade; implementations are split by responsibility. */
+export { calculateLargeAerospaceFirePool } from './largeAerospaceFirePool';
+export type {
+  ILargeAerospaceArcBV,
+  ILargeAerospaceFirePool,
+  ILargeAerospaceFirePoolInput,
+} from './largeAerospaceFirePool';
 export {
   getMainArcsForSubType,
   normalizeArcLocation,

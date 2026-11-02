@@ -12,7 +12,8 @@ import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
-import { IEquipmentItem } from '@/types/equipment';
+import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
+import { isAmmunitionEquipmentId } from '@/utils/construction/equipmentBV/catalogLoader';
 import { normalizeEquipmentId as normalizeCatalogEquipmentId } from '@/utils/construction/equipmentBV/normalization';
 
 type TechHint = 'clan' | 'is';
@@ -274,6 +275,22 @@ export function resolveEquipmentId(
   locationCriticalSlots: ReadonlyArray<string | null> | undefined,
 ): IResolvedEquipment {
   const normalizedId = normalizeEquipmentId(id, unitTechBase);
+
+  // The normalization owner deliberately keeps missing ammo variants unresolved.
+  // Do not reclassify them through weapon variants or registry aliases; ammo and
+  // weapons can also share a canonical ID (for example mrm-20).
+  if (isAmmunitionEquipmentId(id)) {
+    return {
+      equipmentDef: getEquipmentLookupService()
+        .getAllEquipment()
+        .find(
+          (item) =>
+            item.id === normalizedId &&
+            item.category === EquipmentCategory.AMMUNITION,
+        ),
+      resolvedId: normalizedId,
+    };
+  }
 
   const candidates = buildEquipmentVariantCandidates(normalizedId);
 

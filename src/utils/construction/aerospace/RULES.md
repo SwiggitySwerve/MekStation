@@ -1,5 +1,30 @@
 # Aerospace construction rules
 
+## Large aerospace offensive stage
+
+`largeAerospaceFirePool.ts` owns the six-arc fire pool for already-valued
+native arc facts, exported through `aerospaceBV.ts`. It follows pinned
+`LargeAeroBVCalculator.determineFront/processWeapons/processArc/processAmmo`:
+primary ties follow nose/left/left-aft/aft/right-aft/right; adjacent ties favor
+clockwise. Primary weight is 1, stronger adjacent is 1 or 0.5, weaker adjacent
+is 0.5 or 0.25, and the other arcs are 0.25. Adjacent weights use cumulative
+heat strictly greater than heat capacity, checked after each entire arc.
+Ammo uses the shared cap owner within each arc and native ammo type/rack.
+The shared speed owner receives maximum thrust, without the fighter average.
+Offensive equipment is added before speed and outside arc weighting.
+
+This is a component port, not raw-mount valuation or complete DropShip BV.
+Callers must supply resolved weapon BV/heat, native ammo quantities/cap keys
+and offensive equipment BV. Ungrouped selection BV and grouped additions after
+arc weighting (PPC capacitors) have separate input fields. Bay aggregation,
+capital weapons, linked modifier valuation, crew/pilot, cockpit/drone,
+C3/TAG and final rounding remain outside this stage. Do not use this component
+as a complete calculator for unsupported mount modifiers. Dispatch remains
+defensive-only and withholds offensive/final BV. Tests pin Union stage offense
+2339.75, tie/heat boundaries, local ammo caps, speed and malformed facts. UL-20
+offense evidence compares all 209 native stage inputs and all 620 unchanged
+fighter/small-craft breakdowns; native-valued inputs do not prove app loading.
+
 ## DropShip defensive slice
 
 `dropShipBV.ts` adapts DropShip domain mounts and calls the same defensive
@@ -18,9 +43,9 @@ does not apply penalties or the heat-tracking minimum. Aero's defensive
 factor is neutral. No small-craft armor bonus applies to DropShips.
 Mounted defensive equipment uses the existing shared classification and cap.
 
-This is the UL-20 brief's size-capped defensive-half delivery. Six-arc weapon
-selection, cumulative heat, per-arc ammo caps/quantities, weapon-link modifiers,
-offensive speed and final crew/pilot/drone adjustments remain deferred.
+Dispatch integration of the large-aerospace offensive stage, native mount and
+ammo valuation, weapon-link modifiers and final crew/pilot/drone adjustments
+remain deferred after the size-capped component deliveries.
 Existing equipment-ID gaps, screen/APDS coverage, variable equipment values,
 Blue Shield and mount working/destroyed state are not resolved here.
 Numeric armor codes retain the existing aerospace adapter's standard fallback.

@@ -256,6 +256,14 @@ export const UnitContract = z
               .record(z.string(), z.number().int().gte(0))
               .describe('Armor points per aerospace arc')
               .optional(),
+            typeByLocation: z
+              .record(z.string(), z.number().int().gte(0))
+              .describe('Patchwork armor types per installed vehicle location')
+              .optional(),
+            barRatingByLocation: z
+              .record(z.string(), z.number().int().gte(2).lte(10))
+              .describe('Support patchwork BAR per installed vehicle location')
+              .optional(),
             typeByArc: z
               .record(z.string(), z.number().int().gte(-1))
               .describe(
@@ -735,6 +743,14 @@ export const UnitContract = z
             byArc: z
               .record(z.string(), z.number().int().gte(0))
               .describe('Armor points per aerospace arc')
+              .optional(),
+            typeByLocation: z
+              .record(z.string(), z.number().int().gte(0))
+              .describe('Patchwork armor types per installed vehicle location')
+              .optional(),
+            barRatingByLocation: z
+              .record(z.string(), z.number().int().gte(2).lte(10))
+              .describe('Support patchwork BAR per installed vehicle location')
               .optional(),
             typeByArc: z
               .record(z.string(), z.number().int().gte(-1))

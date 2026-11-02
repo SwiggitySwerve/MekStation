@@ -103,7 +103,12 @@ export interface VehicleBVInput {
   /** Total internal structure points. */
   totalStructurePoints: number;
   /** Armor type — lowercase normalized (`standard`, `ferro-fibrous`, `hardened`, `reactive`, `reflective`, `ferro-lamellor`, …). */
-  armorType?: string;
+  armorType?: string | number;
+  /** Original location points, patchwork type/BAR facts and undamaged mounts. */
+  armorByLocation?: Readonly<Record<string, number>>;
+  armorTypeByLocation?: Readonly<Record<string, string | number>>;
+  barRatingByLocation?: Readonly<Record<string, number>>;
+  armorEquipment?: readonly { id: string; location: string }[];
   /** Internal structure type — `standard`, `endo-steel`, `composite`, `reinforced`. */
   structureType?: string;
   /** BAR rating 1-10 for support vehicles; `null` for combat vehicles. */
