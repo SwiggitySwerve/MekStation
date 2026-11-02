@@ -24,6 +24,9 @@ import type {
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IMovementCapability } from '@/types/gameplay/HexGridInterfaces';
 
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { isAerospaceUnitType } from '@/utils/construction/aerospace/aerospaceBVUnitAdapter';
+
 import type { IInteractiveSessionLinkage } from './InteractiveSession.types';
 import type { IAdaptedUnit } from './types';
 
@@ -130,6 +133,14 @@ function adaptedCombatSeedPatch(
   }
   if (adapted.gyroType !== undefined && unit.gyroType !== adapted.gyroType) {
     patch.gyroType = adapted.gyroType;
+  }
+  if (
+    unit.aerospaceInit === undefined &&
+    adapted.aerospaceInit &&
+    isAerospaceUnitType(adapted)
+  ) {
+    patch.unitType = adapted.unitType as UnitType;
+    patch.aerospaceInit = adapted.aerospaceInit;
   }
   appendAdaptedArmorSeeds(patch, unit, adapted);
   appendAdaptedHeatSinkSeeds(patch, unit, adapted);

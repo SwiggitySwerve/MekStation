@@ -133,6 +133,11 @@ const AEROSPACE_ARCS: Readonly<Record<string, string>> = {
   WINGS: 'Wings',
 };
 
+/** Shared contract arc projection for BV and combat adapters. */
+export function resolveAerospaceContractArc(location: string): string {
+  return lookup(AEROSPACE_ARCS, location, 'aerospace arc');
+}
+
 function requireFact<T>(value: T | undefined, name: string): T {
   if (value === undefined) throw new Error(`Missing required BV fact: ${name}`);
   return value;
@@ -265,7 +270,7 @@ function contractAerospaceToBVUnit(
     ...contractAerospaceArmorFacts(unit),
     equipment: (unit.equipment ?? []).map((item) => ({
       equipmentId: item.id,
-      location: lookup(AEROSPACE_ARCS, item.location, 'aerospace arc'),
+      location: resolveAerospaceContractArc(item.location),
     })),
   };
 }

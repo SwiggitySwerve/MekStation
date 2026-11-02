@@ -27,6 +27,7 @@ import type {
   IAdaptUnitOptions,
 } from '../types';
 
+import { tryAdaptAerospaceUnit } from './CompendiumAdapter.aerospace';
 import {
   applyInitialDamageToArmor,
   extractArmor,
@@ -88,6 +89,8 @@ export function adaptUnitFromData(
   fullUnit: IFullUnit,
   options: IAdaptUnitOptions = {},
 ): IAdaptedUnit {
+  const aerospace = tryAdaptAerospaceUnit(fullUnit, options);
+  if (aerospace) return aerospace;
   const side = options.side ?? GameSide.Player;
   const position = options.position ?? { q: 0, r: 0 };
   const facing =
