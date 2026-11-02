@@ -55,6 +55,7 @@ export interface IEquipmentLookupService {
   // Bulk accessors
   getAllWeapons(): IWeapon[];
   getAllAmmunition(): IAmmunition[];
+  /** Existing BattleMech browser inventory; lookup/search retain additional misc items. */
   getAllEquipment(): IEquipmentItem[];
 
   // Source info
@@ -84,6 +85,8 @@ const AMS_WEAPON_IDS = ['ams', 'clan-ams', 'laser-ams', 'clan-laser-ams'];
  */
 export class EquipmentLookupService implements IEquipmentLookupService {
   private equipmentCache: IEquipmentItem[] | null = null;
+  private browserEquipmentCache: IEquipmentItem[] | null = null;
+  private readonly lookupOnlyEquipment = new Set<IEquipmentItem>();
   private equipmentCacheSource: 'json' | 'fallback' | null = null;
   private initPromise: Promise<void> | null = null;
   private initialized = false;
@@ -251,7 +254,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         continue;
       }
 
-      items.push({
+      const item: IEquipmentItem = {
         id: misc.id,
         name: misc.name,
         category: EquipmentCategory.MISC_EQUIPMENT,
@@ -265,7 +268,16 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         extinctionYear: misc.extinctionYear,
         reintroductionYear: misc.reintroductionYear,
         variableEquipmentId: misc.variableEquipmentId,
-      });
+      };
+      items.push(item);
+      // Retain these definitions for resolution without expanding the existing
+      // BattleMech browser. Track records, since physical weapons can share IDs.
+      if (
+        misc.category === MiscEquipmentCategory.MISCELLANEOUS ||
+        misc.category === MiscEquipmentCategory.UNKNOWN
+      ) {
+        this.lookupOnlyEquipment.add(item);
+      }
     }
 
     return items;
@@ -277,6 +289,8 @@ export class EquipmentLookupService implements IEquipmentLookupService {
   private getEquipment(): IEquipmentItem[] {
     const source = this.getDataSource();
     if (!this.equipmentCache || this.equipmentCacheSource !== source) {
+      this.lookupOnlyEquipment.clear();
+      this.browserEquipmentCache = null;
       if (source === 'json') {
         this.equipmentCache = this.buildEquipmentItemsFromLoader();
       } else {
@@ -393,10 +407,14 @@ export class EquipmentLookupService implements IEquipmentLookupService {
   };
 
   /**
-   * Get all equipment items
+   * Get the existing BattleMech browser inventory. Miscellaneous/unknown
+   * definitions remain available through getById, search and query.
    */
   getAllEquipment = (): IEquipmentItem[] => {
-    return this.getEquipment();
+    const items = this.getEquipment();
+    return (this.browserEquipmentCache ??= items.filter(
+      (item) => !this.lookupOnlyEquipment.has(item),
+    ));
   };
 }
 

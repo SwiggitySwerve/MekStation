@@ -113,6 +113,7 @@ const miscEquipmentCategoryMap: Readonly<
   Defensive: MiscEquipmentCategory.DEFENSIVE,
   Myomer: MiscEquipmentCategory.MYOMER,
   Industrial: MiscEquipmentCategory.INDUSTRIAL,
+  Miscellaneous: MiscEquipmentCategory.MISCELLANEOUS,
 };
 
 export function parseWeaponCategory(value: string): WeaponCategory {
@@ -134,7 +135,9 @@ export function parseElectronicsCategory(value: string): ElectronicsCategory {
 export function parseMiscEquipmentCategory(
   value: string,
 ): MiscEquipmentCategory {
-  return miscEquipmentCategoryMap[value] ?? MiscEquipmentCategory.HEAT_SINK;
+  return Object.hasOwn(miscEquipmentCategoryMap, value)
+    ? miscEquipmentCategoryMap[value]
+    : MiscEquipmentCategory.UNKNOWN;
 }
 
 export function parseUnitType(value: string): UnitType | undefined {
