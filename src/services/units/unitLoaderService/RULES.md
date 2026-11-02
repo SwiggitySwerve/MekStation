@@ -23,7 +23,7 @@ registry owns their accepted contract discriminators and available store mapper.
   (`mapAerospaceDefinitionToState`) to `familyState`. The library-open flow
   registers `familyState` in its own store and opens a tab of the state's unit
   type. ProtoMechs and battle armor use `smallUnitDefinitionMapper` and their
-  existing stores and shells. Infantry has no store mapper in this slice.
+  existing stores and shells. Infantry uses the same registered-store route.
 - Capital ships (DropShip, JumpShip, WarShip, Space Station) open read-only
   (UL-14). `mapCapitalDefinitionToView` maps the definition to a deep-frozen
   view (`capitalShipView.ts`), kept in memory by tab id; no store is created and
@@ -108,3 +108,27 @@ registry owns their accepted contract discriminators and available store mapper.
   BA VTOL MP has no separate store field; source jump MP is retained.
 - The BV shown is the existing app owner's result, not a new parity verdict.
   Custom-library saving remains gated by the existing family capability.
+
+## Infantry library sessions
+
+- Infantry opens in its existing store and shell. Composition and weapon counts
+  remain source values (secondary count is per squad); no setter clamps them.
+  The catalog's absent transport tonnage remains the existing zero placeholder.
+- `libraryMapping` projects identity, weapons, composition, movement and incoming
+  protection. The existing infantry owners resolve native movement, kit flags,
+  augmentations, masks and prosthetic effects. Source damageDivisor is already
+  effective and is passed once to the BV owner. Source MP includes UMU.
+- `librarySource` retains the full validated definition through store persistence:
+  exact kit/custom protection, explicit/effective flags, source motive/beast,
+  specialization mask (including zero), augmentations/prosthetic counts, every
+  ordered mount/location, SRM tags, identity metadata and fluff. These original
+  facts are provenance; they are not rewritten when editor fields change.
+- Editor limits: the active enums cannot express exact source kits, beast/SCUBA
+  motives, specialization combinations or prosthetic records. Raw facts remain
+  available in librarySource; the shell shows effective protection/movement/BV.
+  Only approved field guns with a resolved equipment identity populate the gun
+  editor. Other guns/artillery and all explicit ammo remain in the original
+  ordered source mounts. Ammo rounds are not inferred; projected guns start at
+  zero rounds. The separate field-gun/BV lane owns expanded support and parity.
+- Legacy infantry stores retain their previous BV path. Library states feed the
+  current source-aware infantry BV owner; no calculator rules are changed here.

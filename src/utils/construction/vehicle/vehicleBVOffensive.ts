@@ -8,6 +8,10 @@ import type {
 } from './vehicleBVTypes';
 
 import {
+  extractWeaponTypeFromAmmoId,
+  getCatalogAmmoBVGroup,
+} from '../battleValueAmmo';
+import {
   calculateAmmoBVWithExcessiveCap,
   type OffensiveBVConfig,
 } from '../battleValueOffensive';
@@ -107,15 +111,16 @@ function calculateWeaponBVEntry(
   };
 }
 
+/** Vehicle cap groups compose the shared bin-family and closed catalog rules.
+ * BVCalculator.java:1190-1240 at MegaMek 48fcb2f64 groups bins before capping.
+ */
+function vehicleAmmoGroup(id: string): string {
+  const family = extractWeaponTypeFromAmmoId(normalizeEquipmentId(id));
+  return getCatalogAmmoBVGroup(family) ?? family;
+}
+
 function getAmmoWeaponType(ammo: VehicleAmmoMount): string {
-  return (
-    ammo.weaponTypeOverride ??
-    normalizeEquipmentId(ammo.id)
-      .replace(/^is-/, '')
-      .replace(/^cl-/, '')
-      .replace(/-ammo$/, '')
-      .replace(/^ammo-/, '')
-  );
+  return ammo.weaponTypeOverride ?? vehicleAmmoGroup(ammo.id);
 }
 
 function buildVehicleAmmoEntries(
@@ -172,7 +177,7 @@ export function calculateVehicleOffensiveBV(
 
   const weaponBV = weaponEntries.reduce((sum, entry) => sum + entry.finalBV, 0);
   const perWeaponBVs = weaponEntries.map((entry) => ({
-    id: entry.id,
+    id: vehicleAmmoGroup(entry.id),
     bv: entry.listedBV,
   }));
   const ammoEntries = buildVehicleAmmoEntries(input.ammo);

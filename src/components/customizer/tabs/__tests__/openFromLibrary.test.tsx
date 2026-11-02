@@ -3,7 +3,13 @@
  * family, and loadUnitIntoTab routes each family to its own store and tab.
  * Units are real catalog definitions served through a fixture index.
  */
-import { render, screen, waitFor, within } from '@testing-library/react';
+import {
+  cleanup,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -13,6 +19,7 @@ import type { IUnitIndexEntry } from '@/services/common/types';
 import type { UnitFamily } from '@/types/unit/UnitIndex';
 
 import { UnitLoadDialog } from '@/components/customizer/dialogs/UnitLoadDialog';
+import { UnitTypeRouter } from '@/components/customizer/UnitTypeRouter';
 import { ARMOR_TYPE_OPTIONS } from '@/components/customizer/vehicle/VehicleArmorTab.constants';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
@@ -30,6 +37,14 @@ import { UnitLoaderService } from '@/services/units/unitLoaderService/unitLoader
 import { mapToVehicleState } from '@/services/units/unitLoaderService/vehicleMapping';
 import { UnitRepository } from '@/services/units/UnitRepository';
 import { getAerospaceStore } from '@/stores/aerospaceStoreRegistry';
+import {
+  computeInfantryStateBV,
+  calculatePlatoonStrength,
+} from '@/stores/infantryState';
+import {
+  getInfantryStore,
+  clearAllInfantryStores,
+} from '@/stores/infantryStoreRegistry';
 import { createUnitFromFullState } from '@/stores/unitStoreRegistry';
 import { useTabManagerStore } from '@/stores/useTabManagerStore';
 import { getVehicleStore } from '@/stores/vehicleStoreRegistry';
@@ -37,6 +52,7 @@ import { UnitContract } from '@/types/contracts';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { Era } from '@/types/temporal/Era';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { infantryLibraryBVInput } from '@/utils/construction/infantry/libraryMapping';
 import { serializeCustomVehicleState } from '@/utils/serialization/CustomUnitSerializer';
 
 import { isLibrarySaveSupported } from '../MultiUnitTabsUnitState';
@@ -88,8 +104,25 @@ const CATALOG: Record<string, readonly string[]> = {
     'nl-45-gunboat',
   ],
   capital: ['achilles-2582'],
+  infantry: (
+    readJson('data/units/infantry/index.json') as { units: Row[] }
+  ).units
+    .map((row) => row.id)
+    .filter(
+      (id) =>
+        process.env.INFANTRY_CATALOG === '1' ||
+        [
+          'aa-jump-infantry-292nd-league-regulars',
+          'clan-field-artillery-arrow-iv',
+          'manei-domini-attack-squad-tau-zombie',
+          'clan-field-gun-point-motorized-ac5-basic',
+          'beast-infantry-aerial',
+          'frogmen-blue-water-marine-response-teams-frogmen',
+          'commando-battlefield-infiltration-units',
+        ].includes(id),
+    ),
 };
-// No battle armor or infantry catalog is committed; minimal valid definitions.
+// Preserve the small synthetic BA row used by the existing dialog tests.
 const SYNTHETIC: Record<string, Row> = {
   battlearmor: {
     id: 'elemental-standard',
@@ -99,15 +132,6 @@ const SYNTHETIC: Record<string, Row> = {
     tonnage: 1,
     techBase: 'CLAN',
     path: 'elemental.json',
-  },
-  infantry: {
-    id: 'foot-rifle-platoon',
-    chassis: 'Foot Rifle Platoon',
-    model: '',
-    unitType: 'Infantry',
-    tonnage: 3,
-    techBase: 'INNER_SPHERE',
-    path: 'foot.json',
   },
 };
 
@@ -374,23 +398,6 @@ it('fetches a catalog file whose name contains # with each path segment encoded'
   );
 });
 
-it.each([
-  [
-    'infantry',
-    'foot-rifle-platoon',
-    'Infantry cannot be opened yet because the editor cannot load infantry from the library.',
-  ],
-] as const)(
-  'explains why %s units cannot open, without suggesting a retry',
-  async (family, id, message) => {
-    const params = await open(await indexEntry(family, id));
-    expect(showToast).toHaveBeenCalledWith({ message, variant: 'error' });
-    expect(useTabManagerStore.getState().tabs).toEqual([]);
-    expect(params.setIsLoadDialogOpen).not.toHaveBeenCalled();
-    expect(createUnitFromFullState).not.toHaveBeenCalled();
-  },
-);
-
 it('rejects a vehicle saved without its family rather than treating it as a BattleMech', async () => {
   const { family: _family, ...entry } = await indexEntry(
     'vehicles',
@@ -638,3 +645,125 @@ describe('vehicle save and reopen', () => {
     expect(loaded.familyState).toBeUndefined();
   });
 });
+
+it('opens every indexed infantry platoon in its own shell with source figures', async () => {
+  const entries = await getCanonicalUnitService().getIndex({
+    family: 'infantry',
+    strict: true,
+  });
+  const results: Array<{
+    id: string;
+    opened: boolean;
+    bv?: number;
+    error?: string;
+    projectedGuns?: number;
+    sourceMounts?: number;
+  }> = [];
+  for (const entry of entries) {
+    try {
+      const definition = UnitContract.parse(
+        await getCanonicalUnitService().getById(entry.id, {
+          family: 'infantry',
+          strict: true,
+        }),
+      );
+      const params = await open(entry);
+      if (showToast.mock.calls.at(-1)?.[0].variant !== 'success')
+        throw new Error(JSON.stringify(showToast.mock.calls.at(-1)));
+      const tab = useTabManagerStore.getState().tabs.at(-1)!;
+      expect(params.navigateToTab).toHaveBeenCalledWith(tab.id);
+      expect(tab.unitType).toBe(UnitType.INFANTRY);
+      const state = getInfantryStore(tab.id)!.getState();
+      expect(state.librarySource).toEqual(definition);
+      const bvInput = infantryLibraryBVInput(state);
+      expect(bvInput?.bvArmorFlags).toEqual(definition.effectiveArmorFlags);
+      expect(bvInput?.hasArmorKit).toBe(
+        typeof definition.armorKit === 'string',
+      );
+      expect(bvInput?.bvOffense?.specializations).toBe(
+        definition.specializations,
+      );
+      expect(bvInput?.damageDivisor).toBe(definition.damageDivisor);
+      if (entry.id === 'manei-domini-attack-squad-tau-zombie')
+        expect(bvInput?.bvOffense?.prostheticDamage).toBe(0.02);
+      expect(state.squadSize).toBe(definition.platoon?.squadSize);
+      expect(state.numberOfSquads).toBe(definition.platoon?.squadCount);
+      expect(calculatePlatoonStrength(state)).toBe(
+        definition.platoon?.totalTroopers,
+      );
+      expect(state.damageDivisor).toBe(definition.damageDivisor);
+      const primary = definition.primaryWeapon;
+      expect(state.primaryWeapon).toBe(
+        typeof primary === 'string' ? primary : primary?.name,
+      );
+      expect(state.secondaryWeaponCount).toBe(
+        definition.secondaryWeapon?.count ?? 0,
+      );
+      expect(state.isAugmented).toBe(!!definition.augmentations?.length);
+      const persisted = JSON.parse(
+        localStorage.getItem(`megamek-infantry-${state.id}`)!,
+      );
+      expect(persisted.state.librarySource).toEqual(definition);
+      if (entry.id === 'aa-jump-infantry-292nd-league-regulars') {
+        expect(state.groundMP).toBe(1);
+        expect(state.jumpMP).toBe(2);
+        expect(state.bvBreakdown?.final).toBe(98);
+      }
+      if (entry.id === 'clan-field-gun-point-motorized-ac5-basic') {
+        expect(state.fieldGuns).toHaveLength(3);
+        expect(
+          state.fieldGuns.every(
+            (g) => g.ammoRounds === 0 && g.weaponId === 'ac5',
+          ),
+        ).toBe(true);
+      }
+      if (entry.id === 'beast-infantry-aerial') expect(state.jumpMP).toBe(6);
+      if (entry.id === 'frogmen-blue-water-marine-response-teams-frogmen')
+        expect(state.umuMP).toBe(2);
+
+      render(
+        <UnitTypeRouter
+          activeTab={tab}
+          activeTabId="overview"
+          onTabChange={jest.fn()}
+        />,
+      );
+      const shell = screen.getByTestId('infantry-customizer');
+      const figure = (label: string) =>
+        [...shell.querySelectorAll('span')].find(
+          (el) => el.textContent === label,
+        )?.nextElementSibling?.textContent;
+      expect(figure('Troopers')).toBe(
+        String(definition.platoon?.totalTroopers),
+      );
+      expect(figure('Protection')).toBe(String(definition.damageDivisor));
+      expect(figure('Movement')).toBe(
+        `${state.groundMP}/${state.jumpMP}J/${state.umuMP ?? 0}U`,
+      );
+      expect(figure('BV')).toBe(String(computeInfantryStateBV(state)?.final));
+      expect(Number.isFinite(state.bvBreakdown?.final)).toBe(true);
+      results.push({
+        id: entry.id,
+        opened: true,
+        bv: state.bvBreakdown?.final,
+        projectedGuns: state.fieldGuns.length,
+        sourceMounts: definition.equipment?.length ?? 0,
+      });
+    } catch (error) {
+      results.push({ id: entry.id, opened: false, error: String(error) });
+    } finally {
+      cleanup();
+      clearAllInfantryStores(true);
+      localStorage.clear();
+      useTabManagerStore.setState({ tabs: [], activeTabId: null });
+      showToast.mockClear();
+    }
+  }
+  if (process.env.INFANTRY_REPORT)
+    fs.writeFileSync(
+      process.env.INFANTRY_REPORT,
+      JSON.stringify(results, null, 2),
+    );
+  expect(results.filter((row) => !row.opened)).toEqual([]);
+  expect(results.length).toBe(process.env.INFANTRY_CATALOG === '1' ? 1820 : 7);
+}, 180000);

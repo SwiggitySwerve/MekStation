@@ -317,11 +317,9 @@ describe('BattleArmorUnitHandler', () => {
     });
 
     it('should fail for PA(L) with armor > 2', () => {
-      // Note: weightClass: 0 is treated as falsy and defaults to 2 (Medium)
-      // So this test will use weightClass: 1 (Light) with max armor 5 to test the boundary
       const doc = createMockBlkDocument({
-        armor: [6], // Exceeds Light BA max of 5
-        weightClass: 1, // Light (since 0 defaults to Medium)
+        armor: [3],
+        weightClass: 0,
         tonnage: 2,
         trooperCount: 4,
       });
@@ -348,9 +346,9 @@ describe('BattleArmorUnitHandler', () => {
       );
     });
 
-    it('should fail for LIGHT with armor > 5', () => {
+    it('should fail for LIGHT with armor > 6', () => {
       const doc = createMockBlkDocument({
-        armor: [6],
+        armor: [7],
         weightClass: 1, // Light
         tonnage: 2,
         trooperCount: 4,
@@ -378,9 +376,9 @@ describe('BattleArmorUnitHandler', () => {
       );
     });
 
-    it('should fail for MEDIUM with armor > 8', () => {
+    it('should fail for MEDIUM with armor > 10', () => {
       const doc = createMockBlkDocument({
-        armor: [9],
+        armor: [11],
         weightClass: 2, // Medium
         tonnage: 4,
         trooperCount: 4,
@@ -408,9 +406,9 @@ describe('BattleArmorUnitHandler', () => {
       );
     });
 
-    it('should fail for HEAVY with armor > 10', () => {
+    it('should fail for HEAVY with armor > 14', () => {
       const doc = createMockBlkDocument({
-        armor: [11],
+        armor: [15],
         weightClass: 3, // Heavy
         tonnage: 5,
         trooperCount: 4,
@@ -438,9 +436,9 @@ describe('BattleArmorUnitHandler', () => {
       );
     });
 
-    it('should fail for ASSAULT with armor > 14', () => {
+    it('should fail for ASSAULT with armor > 18', () => {
       const doc = createMockBlkDocument({
-        armor: [15],
+        armor: [19],
         weightClass: 4, // Assault
         tonnage: 8,
         trooperCount: 4,

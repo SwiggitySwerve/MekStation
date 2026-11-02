@@ -12,6 +12,8 @@ from blk_unit_fields import bar_armor_fields, parse_qualifier_number, parse_sour
 def parse_aerospace_qualifiers(tags: Dict[str, Any]) -> Dict[str, Any]:
     """Preserve explicit facts without applying construction defaults."""
     result = parse_source_qualifiers(tags)
+    if 'type' in tags:
+        result['sourceTechType'] = get_string(tags, 'type')
     if 'omnipodheatsinks' in tags:
         result['omniPodHeatSinks'] = parse_qualifier_number(tags, 'omnipodheatsinks', integer=True)
     return result

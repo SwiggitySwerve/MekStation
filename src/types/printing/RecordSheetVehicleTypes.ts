@@ -5,6 +5,7 @@ export const RECORD_SHEET_VEHICLE_ARMOR_LOCATIONS = [
   'Right Side',
   'Rear',
   'Turret',
+  'Turret 2',
   'Rotor',
   'Chin',
   'Body',
@@ -30,3 +31,13 @@ export type RecordSheetVehicleTurretConfig =
   | 'Front'
   | 'Rear'
   | 'Sponson';
+
+/** Both extraction and template selection reject an unsupported turret layout. */
+export function assertSupportedVehicleTurretLayout(
+  motionType: RecordSheetVehicleMotionType,
+  turretConfig: RecordSheetVehicleTurretConfig,
+): void {
+  if (motionType === 'VTOL' && turretConfig === 'Dual') {
+    throw new Error('Dual-turret VTOL record sheets are not supported.');
+  }
+}

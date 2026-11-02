@@ -179,6 +179,24 @@ sponson mount label while keeping its body location. Its boundary requires
 cruise/flank or safe/max thrust and the applicable armor allocation map;
 absence throws, while explicit zeros and empty maps remain valid source facts.
 
+`turret.ts:getInstalledVehicleTurretType` projects the explicitly installed
+primary/secondary configurations into a layout. A primary DUAL label without
+an installed secondary projects as Single; an orphan secondary does not invent
+a primary. These compatibility projections do not certify saved-state validity.
+Both preview paths share a reactive store projection that passes the explicit
+layout and distinct armor keys to printing; zero armor never removes a turret.
+The printing location tuple owns its union, schema membership and ordering.
+
+Pinned MegaMek [Tank.java:120-130](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/Tank.java#L120)
+defines primary as rear and secondary as front on dual-turret tanks. Printing
+therefore binds `Turret` to TU and `Turret 2` to FT in the supported assets,
+independently of array order. The checked mm-data asset revision is
+`b67baa5ecc765435425fd8cb703a6da909478b7a`, separate from the unit-source pin;
+these templates retain TU for rear while newer MegaMek code calls it RT.
+Chin/primary VTOL armor uses TU independently of rotor RO. Extraction and
+template selection reject dual VTOLs. Existing renderer fallback behavior,
+font/raster fidelity and physical printing are outside this correction.
+
 `engine.ts` owns combat-vehicle rating and installed-weight derivation.
 `suspension.json` owns the suspension table facts consumed by TypeScript and
 `scripts/megameklab-conversion/combat_vehicle_engine.py`. Python is a conversion
@@ -362,3 +380,23 @@ TestEntity.java:1011-1033 (sum); BLKSupportTankFile.java:96-97 (fuel tons),
 Entity.java:13145-13167 (armor). Engine weight reuses `engine.ts`, including
 shared size-class thresholds (EntityWeightClass.java:80-97). BAR weight reuses
 `armor.ts`. Source fixtures and boundary tests enforce these rules.
+
+## Offensive ammunition groups
+
+`vehicleBVOffensive.ts` selects matching catalog-derived weapon and bin groups
+before calling the shared `calculateAmmoBVWithExcessiveCap` owner. Its common
+LB-X/Gauss/missile rules are shared with large craft in `battleValueAmmo.ts`;
+the large-craft supported subset is unchanged. The shared family normalizer pairs
+compact Arrow IV, rotary AC and Gauss ammo identities with their launchers,
+MG full/half packaging with the corresponding MG weight class, and ATM/iATM
+standard/ER/HE bins with the same rack. LB-X slug and cluster bins share one cap.
+The cap uses listed weapon BV, before rear/guidance/TC modifiers. Explicit ammo
+family/BV overrides and the existing fallback matching policy remain available.
+
+Pinned MegaMek `BVCalculator.java:1045-1096,1190-1240` defines grouping and the
+cap. `AmmoType.java:4117-4131,6183-6333,6582-6702,7051-7072,7182-7204,7311-7333`
+defines the represented identities. The source-parity tests cover native Alacorn,
+MG APC, Chaparral and Bandit E inputs, plus mixed-bin caps and overrides.
+Catalog BV values, missing bins, shot quantities, support fire-control factors
+and the deferred vehicle-flamer mapping remain separate concerns. No bin value
+is inferred from its packaging or substituted for missing catalog data.

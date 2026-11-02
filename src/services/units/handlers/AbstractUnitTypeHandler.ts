@@ -329,12 +329,12 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit> {
     const { errors, warnings, infos } = createValidationMessages();
 
     // Tonnage validation
-    if (unit.tonnage <= 0) {
+    if (this.requiresUnitTonnage && unit.tonnage <= 0) {
       errors.push('Tonnage must be greater than 0');
     }
 
     // Check total weight doesn't exceed tonnage
-    if (unit.totalWeight > unit.tonnage) {
+    if (this.requiresUnitTonnage && unit.totalWeight > unit.tonnage) {
       errors.push(
         `Total weight (${unit.totalWeight.toFixed(2)}t) exceeds tonnage (${unit.tonnage}t)`,
       );

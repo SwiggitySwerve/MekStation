@@ -33,6 +33,8 @@ export type AerospaceBVDispatchInput = (
   | IAerospaceUnit
 ) & {
   readonly isSupportVehicle?: boolean;
+  readonly sourceTechType?: string;
+  readonly year?: number;
 };
 
 /**
@@ -111,6 +113,9 @@ export function buildAerospaceBVInputFromUnit(
   return {
     subType: unitTypeToAerospaceSubType(unit.unitType),
     isSupportVehicle: unit.isSupportVehicle,
+    techBase: unit.techBase,
+    sourceTechType: unit.sourceTechType,
+    year: unit.year ?? unit.metadata?.year,
     tonnage: unit.tonnage,
     structuralIntegrity: unit.structuralIntegrity,
     safeThrust: unit.movement.safeThrust,

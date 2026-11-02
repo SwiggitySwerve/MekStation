@@ -50,6 +50,10 @@ export interface IAerospaceBVAmmo {
  */
 export interface IAerospaceBVInput {
   readonly subType: AerospaceSubType;
+  readonly techBase?: string;
+  readonly year?: number;
+  /** Original BLK type retains mixed-tech chassis identity. */
+  readonly sourceTechType?: string;
   /** Fixed-wing support aircraft use the support-vehicle defensive type rule. */
   readonly isSupportVehicle?: boolean;
   readonly tonnage: number;
@@ -76,6 +80,9 @@ export interface IAerospaceBVInput {
 export type IAerospaceDefensiveBVInput = Pick<
   IAerospaceBVInput,
   | 'isSupportVehicle'
+  | 'techBase'
+  | 'sourceTechType'
+  | 'year'
   | 'armorType'
   | 'totalArmorPoints'
   | 'structuralIntegrity'

@@ -4,6 +4,7 @@ import type { IInfantryRecordSheetUnitInput } from '@/services/printing/recordsh
 import type { IProtoMechRecordSheetUnitInput } from '@/services/printing/recordsheet/dispatchTarget';
 import type { IVehicleRecordSheetUnitInput } from '@/services/printing/recordsheet/dispatchTarget';
 
+import { extractVehicleData } from '@/services/printing/recordsheet/dataExtractors.vehicle';
 import { RecordSheetService } from '@/services/printing/RecordSheetService';
 import { renderRecordSheetSVG } from '@/services/printing/svgRecordSheetRenderer/renderer';
 import {
@@ -314,6 +315,74 @@ describe('multi-type record sheet export', () => {
       { location: 'Front', current: 0, maximum: 0 },
     ]);
     expect(RecordSheetDataSchema.safeParse(data).success).toBe(true);
+  });
+
+  it.each([undefined, 'None'] as const)(
+    'does not infer installed turrets for config %s from armor or equipment',
+    (turretConfig) => {
+      for (const armor of [0, 17]) {
+        const data = extractVehicleData({
+          ...vehicleUnit,
+          turretConfig,
+          armorAllocation: {
+            Front: { current: 9, maximum: 10 },
+            Turret: { current: armor, maximum: armor },
+            'Turret 2': { current: armor, maximum: armor },
+            Chin: { current: armor, maximum: armor },
+          },
+        });
+        expect(data.turretConfig).toBe('None');
+        expect(data.armorLocations).toEqual([
+          { location: 'Front', current: 9, maximum: 10 },
+        ]);
+        expect(RecordSheetDataSchema.safeParse(data).success).toBe(true);
+      }
+    },
+  );
+
+  it.each(['Single', 'Front', 'Rear', 'Sponson'] as const)(
+    'preserves installed zero-armor primary and excludes secondary for %s',
+    (turretConfig) => {
+      const data = extractVehicleData({
+        ...vehicleUnit,
+        turretConfig,
+        armorAllocation: {
+          Turret: { current: 0, maximum: 0 },
+          'Turret 2': { current: 19, maximum: 21 },
+        },
+      });
+      expect(data.turretConfig).toBe(turretConfig);
+      expect(data.armorLocations).toEqual([
+        { location: 'Turret', current: 0, maximum: 0 },
+      ]);
+      expect(RecordSheetDataSchema.safeParse(data).success).toBe(true);
+    },
+  );
+
+  it('extracts and schema-validates unequal dual turret identities in canonical order', () => {
+    const data = extractVehicleData({
+      ...vehicleUnit,
+      turretConfig: 'Dual',
+      armorAllocation: {
+        'Turret 2': { current: 13, maximum: 23 },
+        Turret: { current: 27, maximum: 37 },
+      },
+    });
+    expect(data.armorLocations).toEqual([
+      { location: 'Turret', current: 27, maximum: 37 },
+      { location: 'Turret 2', current: 13, maximum: 23 },
+    ]);
+    expect(RecordSheetDataSchema.safeParse(data).success).toBe(true);
+  });
+
+  it('rejects unsupported dual-turret VTOL extraction', () => {
+    expect(() =>
+      extractVehicleData({
+        ...vehicleUnit,
+        motionType: 'VTOL',
+        turretConfig: 'Dual',
+      }),
+    ).toThrow(/dual-turret VTOL/i);
   });
 
   it('dispatches aerospace extraction and renders SI, fuel, arcs, bombs, and pilot edge', () => {

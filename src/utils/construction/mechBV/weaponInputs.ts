@@ -1,7 +1,6 @@
 import type { CritScan } from '../../../../scripts/validate-bv-crit-scan';
 import type { UnitData } from '../../../../scripts/validate-bv-types';
 
-import { normalizeWeaponKey } from '../../../../scripts/validate-bv-ammo-resolution';
 import {
   applyWeaponPostScanModifiers,
   type WeaponEntry,
@@ -16,6 +15,7 @@ import {
   isWeaponEquip,
   resolveWeaponForUnit,
 } from '../../../../scripts/validate-bv-weapon-resolution';
+import { normalizeWeaponKey } from '../battleValueAmmo';
 import { normalizeEquipmentId } from '../equipmentBVResolver';
 
 /** Builds mounted weapon BV inputs without changing the source critical grid. */

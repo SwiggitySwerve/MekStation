@@ -340,3 +340,21 @@ Only fully resolved mounts and represented heat/cockpit/thrust facts authorize
 complete scope; other results retain defense and explicit reasons. No game
 context supplies C3/TAG bonuses. UL-21/complete external evidence covers all
 185 capital sources and unchanged 209 DropShips / 620 aerospace sources.
+
+## Explosive equipment
+
+`aerospaceBVEquipment.calculateMountedAerospaceExplosivePenalty` owns the stage:
+15 BV per distinct explosive ammo identity, 1 per explosive mount. Gauss ammo
+is safe; Gauss weapons and eligible capacitor-linked PPCs are explosive.
+Clan chassis or CASE/CASE II protect the whole aircraft. `sourceTechType`
+retains mixed-chassis identity; legacy inputs use declared tech base, and
+inputs without either fact retain their explicit/default penalty. The pool
+floors at one before type scaling, except the native early protection return.
+Explicit totals remain authoritative. DropShip/capital keep their empty stage.
+
+Source: MegaMek 48fcb2f64: AeroBVCalculator.java:78-115,
+HeatTrackingBVCalculator.java:59-64,266-286, MekFileParser.java:90-93,472-497
+(eligible same-location PPC links; Clan ER PPC requires year >= 3101).
+The shared ammo predicate preserves the crit scanner's exclusions; Mek
+per-slot penalties remain separate. `HULL` maps to Fuselage at the boundary.
+Enforcement: aerospaceBV.residualParity.test.ts covers these rules and six hull failures.
