@@ -17,10 +17,7 @@ import {
 } from '../../../../scripts/validate-bv-weapon-resolution';
 import { normalizeWeaponKey } from '../battleValueAmmo';
 import { isDirectFireBVWeapon } from '../battleValueWeapons';
-import {
-  applyOneShotBVHeat,
-  isOneShotMissileBVWeapon,
-} from '../equipmentBV/weaponHeat';
+import { isOneShotMissileBVWeapon } from '../equipmentBV/weaponHeat';
 import { normalizeEquipmentId } from '../equipmentBVResolver';
 
 /** Builds mounted weapon BV inputs without changing the source critical grid. */
@@ -106,7 +103,7 @@ export function buildMechBVWeapons(
 
     const wid = eq.id.toLowerCase();
     const isIOS = isOneShotMissileBVWeapon(eq.id);
-    const effectiveHeat = applyOneShotBVHeat(res.heat, eq.id);
+
     // IOS weapons use 1/5 of base weapon BV (aliases must point to BASE weapon entries)
     const effectiveBV = isIOS
       ? Math.round(res.battleValue / 5.0)
@@ -176,7 +173,7 @@ export function buildMechBVWeapons(
       weapons.push({
         id: normalizeWeaponKey(eq.id),
         name: wid,
-        heat: effectiveHeat,
+        heat: res.heat,
         bv: effectiveBV,
         rear: thisRear,
         isTurret: thisTurret,

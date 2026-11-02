@@ -18,6 +18,7 @@ export function isOneShotBVWeapon(id: string): boolean {
     stripped.includes('rocketlauncher') ||
     /^(?:is|cl)rocketlauncher\d+$/.test(stripped) ||
     /^rl\d+$/.test(stripped) ||
+    /(?:\b(?:i-?os|os)\b|one[ -]?shot)/i.test(wid) ||
     isOneShotMissileBVWeapon(id)
   );
 }
