@@ -133,7 +133,9 @@ export function exportAerospace(unit: AerospaceState): IBlkExportResult {
           ? 'FixedWingSupport'
           : unit.unitType === UnitType.CONVENTIONAL_FIGHTER
             ? 'ConvFighter'
-            : 'Aero',
+            : unit.aerospaceSubType === AerospaceSubType.SMALL_CRAFT
+              ? 'SmallCraft'
+              : 'Aero',
       ),
     );
     lines.push(tag('Name', unit.chassis));

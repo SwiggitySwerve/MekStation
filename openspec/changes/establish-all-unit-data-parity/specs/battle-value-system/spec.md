@@ -53,6 +53,31 @@ required before changing the defensive-only calculation scope.
 - **AND** ammo SHALL NOT borrow a matching weapon cap from another arc
 - **AND** missing, duplicate, unsupported or nonfinite stage facts SHALL be rejected
 
+### Requirement: Capital ship defensive BV dispatch
+
+JumpShips, WarShips and Space Stations SHALL use the aerospace defensive owner
+with armor factor 25, SI factor 20 and type modifiers 0.75, 0.8 and 0.7,
+respectively, matching pinned MegaMek 48fcb2f6. Defensive equipment and ammo
+caps SHALL use the inherited owner. KF drive and sail integrity SHALL add no
+BV. Explosive penalties SHALL be zero and the defensive factor SHALL be 1.
+The capital type override SHALL NOT inherit the aircraft stealth addition.
+
+#### Scenario: Capital defense without an invented total
+
+- **GIVEN** Comitatus (2995), Aegis (2582) or Crucible with native defensive equipment facts
+- **WHEN** domain or contract input reaches BV dispatch
+- **THEN** defense SHALL be 2142, 12920 or 1064, respectively
+- **AND** calculationScope SHALL be defensive-only with offensive and final BV undefined
+- **AND** DropShip, fighter and small-craft results SHALL remain unchanged
+
+#### Scenario: Required capital defense facts
+
+- **GIVEN** capital contract JSON without SI or armor.byArc
+- **WHEN** the BV adapter runs
+- **THEN** it SHALL reject the missing fact and preserve explicit zero values
+- **AND** hull and broadside mounts SHALL retain their identities and locations
+- **AND** all 185 pinned units SHALL be compared against the Java defensive aggregate with every miss explained by component
+
 ### Requirement: DropShip defensive BV dispatch
 
 The unified BV dispatcher SHALL return a defensive-only DropShip breakdown
@@ -564,6 +589,52 @@ continue through their owning calculations.
 - **WHEN** baseline-skill final BV is calculated
 - **THEN** final BV SHALL remain 280 or 600 respectively
 - **AND** Biped and Quad SHALL also use the neutral summary multiplier
+
+### Requirement: Aerospace Offensive BV Arc Fire Pool
+
+Aerospace offensive BV SHALL use forward/rear groups for fighters, support aircraft and small craft.
+Nose, wing/side and Fuselage mounts form one forward BV group and Aft mounts
+form the rear group. The larger group SHALL contribute at 100%
+and the smaller at 50%; a tie SHALL keep forward at 100%. Per-arc raw values
+and the separate Fuselage subtotal SHALL remain available. This correction
+SHALL leave heat, ammo, equipment classification and speed rules unchanged.
+
+#### Scenario: Primary arc contributes 100%
+
+- **GIVEN** an ASF whose Nose arc holds the highest-BV weapon pool and whose forward group exceeds Aft
+- **WHEN** offensive BV is computed
+- **THEN** Nose, LeftWing, RightWing and Fuselage SHALL contribute at 100%
+- **AND** Aft SHALL contribute at 50%
+
+#### Scenario: Primary arc not Nose
+
+- **GIVEN** an ASF whose LeftWing arc has higher BV than Nose and whose combined forward group exceeds Aft
+- **WHEN** fire-pool weighting is applied
+- **THEN** LeftWing, RightWing, Nose and Fuselage SHALL contribute at 100%
+- **AND** Aft SHALL contribute at 50%
+- **AND** primaryArc SHALL identify the highest-BV populated arc in the dominant group
+
+#### Scenario: Rear group is stronger
+
+- **GIVEN** Aft BV greater than the sum of all forward arcs including Fuselage
+- **WHEN** offensive BV is computed
+- **THEN** Aft SHALL contribute at 100% and every forward arc at 50%
+- **AND** primaryArc SHALL be Aft
+
+#### Scenario: Tied or empty groups
+
+- **GIVEN** equal forward and rear BV
+- **WHEN** group weights are selected
+- **THEN** forward SHALL retain 100% and Aft 50%
+- **AND** when both groups are zero, primaryArc SHALL be null and all contribution weights zero
+
+#### Scenario: Sabre native prototype mount facts
+
+- **GIVEN** Sabre SB-27b-EC with four native prototype lasers of 62 BV, two per wing
+- **WHEN** those weapon facts are supplied at the catalog boundary
+- **THEN** the forward pool SHALL equal 248 BV
+- **AND** at the unchanged current speed factor 2.16, offensive BV SHALL equal 535.68
+- **AND** native offense 639.84 SHALL remain a separate max-thrust/catalog parity target
 
 ### Requirement: Aerospace Speed Factor
 

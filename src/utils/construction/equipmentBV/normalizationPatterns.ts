@@ -126,6 +126,13 @@ export const ABBREVIATION_MAP: Record<string, string> = {
 };
 
 export const DIRECT_ALIAS_MAP: Record<string, string> = {
+  heavybridgelayer: 'bridge-layer-heavy',
+  hitch: 'trailer-hitch',
+  pintleturret: 'pintle-mount',
+  sponsonturret: 'vehicular-sponson-turret',
+  'tank sprayer': 'sprayer-vehicular',
+  'tank-sprayer': 'sprayer-vehicular',
+  'mek-taser': 'battlemech-taser',
   'extended-range-small-laser': 'er-small-laser',
   'extended-range-medium-laser': 'er-medium-laser',
   'extended-range-large-laser': 'er-large-laser',
