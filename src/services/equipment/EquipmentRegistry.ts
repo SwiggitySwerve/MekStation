@@ -101,6 +101,9 @@ export class EquipmentRegistry {
   // ID to equipment type mapping
   private idToTypeMap: Map<string, EquipmentCategoryType> = new Map();
 
+  // findSimilar's [normalized name, id] pairs; rebuilt lazily after the map changes
+  private similarIndex: [string, string][] | null = null;
+
   private loader: EquipmentLoaderService;
   private isInitialized = false;
 
@@ -151,6 +154,7 @@ export class EquipmentRegistry {
   private buildNameMappings(): void {
     this.nameToIdMap.clear();
     this.idToTypeMap.clear();
+    this.similarIndex = null;
 
     // Map weapons
     this.loader.getAllWeapons().forEach((weapon) => {
@@ -313,8 +317,10 @@ export class EquipmentRegistry {
     const similar: string[] = [];
 
     // Simple substring matching
-    for (const [mappedName, id] of Array.from(this.nameToIdMap.entries())) {
-      const normalizedMapped = this.normalizeName(mappedName);
+    this.similarIndex ??= Array.from(this.nameToIdMap.entries()).map(
+      ([mappedName, id]) => [this.normalizeName(mappedName), id],
+    );
+    for (const [normalizedMapped, id] of this.similarIndex) {
       if (
         normalizedMapped.includes(normalized) ||
         normalized.includes(normalizedMapped)
@@ -414,6 +420,7 @@ export class EquipmentRegistry {
   reset = (): void => {
     this.nameToIdMap.clear();
     this.idToTypeMap.clear();
+    this.similarIndex = null;
     this.isInitialized = false;
   };
 }
