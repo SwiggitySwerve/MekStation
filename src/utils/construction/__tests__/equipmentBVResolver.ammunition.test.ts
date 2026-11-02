@@ -64,7 +64,12 @@ it.each(collisions)(
       expect(normalizeEquipmentId(name)).toBe(id);
       expect(normalizeMTFId(name)).toBe(id);
     }
-    const input = baseInput({ weapons: [{ id }], ammo: [{ id }] });
+    // Isolate identity contexts with a pre-valued bin, not invented native mass.
+    const input = baseInput({
+      groundMP: 5,
+      weapons: [{ id }],
+      ammo: [{ id, bvOverride: ammoBV }],
+    });
     const before = JSON.stringify(input);
     expect(calculateBAOffensiveBV(input)).toMatchObject({
       weaponBV,
