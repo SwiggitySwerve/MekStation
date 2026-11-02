@@ -40,6 +40,16 @@ function toCatalogEntry(
     techBase: item.techBase,
     battleValue: typeof item.battleValue === 'number' ? item.battleValue : 0,
     heat: typeof item.heat === 'number' ? item.heat : undefined,
+    weight: typeof item.weight === 'number' ? item.weight : undefined,
+    special: Array.isArray(item.special)
+      ? item.special.filter(
+          (value): value is string => typeof value === 'string',
+        )
+      : undefined,
+    variableEquipmentId:
+      typeof item.variableEquipmentId === 'string'
+        ? item.variableEquipmentId
+        : undefined,
     subType: typeof item.subType === 'string' ? item.subType : undefined,
     shotsPerTon:
       typeof item.shotsPerTon === 'number' ? item.shotsPerTon : undefined,

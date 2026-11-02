@@ -27,6 +27,8 @@ import {
   getCanonicalUnitService,
 } from '@/services/units/CanonicalUnitService';
 import { SPECIAL_ABILITIES } from '@/types/pilot/SpecialAbilities';
+import { isMechUnit } from '@/types/unit/BaseUnitInterfaces';
+import { calculateUnitBV } from '@/utils/construction/bvAdapter';
 
 import {
   DEFAULT_GUNNERY,
@@ -88,8 +90,9 @@ function extractHeatSinks(unit: IFullUnit): {
   };
 }
 
-/** Pull BV from a full-unit record (sometimes present, often null). */
+/** Calculate mech BV from source facts; retain supplied totals for other families. */
 function extractBattleValue(unit: IFullUnit): number {
+  if (isMechUnit(unit)) return calculateUnitBV(unit);
   // Same as above — `unit.bv` already type-narrows from the index
   // signature without the double-cast.
   const bv = unit.bv;

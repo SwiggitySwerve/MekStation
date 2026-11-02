@@ -1,23 +1,24 @@
+import { ceilSupportWeight } from './supportRounding';
+export { ceilSupportWeight } from './supportRounding';
 import { decodeBlkVehicleEngine } from '@/services/conversion/blkEngineIdentity';
 import {
   ArmorTypeEnum,
   getArmorDefinition,
 } from '@/types/construction/ArmorType';
+import { TechBase } from '@/types/enums/TechBase';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import {
   ISupportVehicle,
   IVehicleMountedEquipment,
 } from '@/types/unit/VehicleInterfaces';
-import {
-  ceilToHalfTon,
-  roundWeightToGrams,
-} from '@/utils/physical/weightUtils';
 
 import { getSupportVehicleBarArmorWeight } from './armor';
 import {
   computeSupportVehicleEngineWeight,
   getSupportVehicleSizeIndex,
 } from './engine';
+import { computeSupportPayloadWeights } from './supportPayload';
+import { computeSupportTransportWeights } from './supportTransport';
 
 // MegaMek 48fcb2f6 TestSupportVehicle.java:102-121 (SVType chassis values).
 const NAVAL_BASE = [0.12, 0.15, 0.17];
@@ -59,7 +60,7 @@ const MODS: Readonly<Record<string, number>> = {
   ultralight: 0.5,
   vstol: 2,
 };
-function chassisMultiplier(name: string): number {
+function chassisMultiplier(name: string): number | undefined {
   const key = name
     .toLowerCase()
     .replace(/[^a-z0-9]/g, '')
@@ -67,15 +68,9 @@ function chassisMultiplier(name: string): number {
     .replace(/^svchassismod/, '')
     .replace(/^sv/, '')
     .replace(/(chassismod|chassis)$/, '');
-  return MODS[key] ?? 1;
+  return MODS[key];
 }
 
-/** TestSupportVehicle.java:754-764: only small support rounds away gram noise. */
-export function ceilSupportWeight(weight: number, tonnage: number): number {
-  return tonnage < 5
-    ? Math.ceil(roundWeightToGrams(weight) / 1000) / 1000
-    : ceilToHalfTon(weight);
-}
 export interface SupportStructureContext {
   tonnage: number;
   motionType: GroundMotionType;
@@ -93,11 +88,11 @@ export function computeSupportStructureWeight(
     ];
   weight *= TECH[state.structuralTechRating ?? 3] ?? 1;
   for (const mount of state.equipment)
-    weight *= chassisMultiplier(mount.equipmentId);
+    weight *= chassisMultiplier(mount.equipmentId) ?? 1;
   return ceilSupportWeight(weight, state.tonnage);
 }
 
-/** Represented subtotal only: crew, bays, weapons, ammo and misc are pending.
+/** Support construction total; unresolved catalog/transport inputs remain explicit.
  * TestEntity.java:1011-1033 + TestSupportVehicle.java:768-775 order the sum;
  * BLKSupportTankFile.java:96-97 loads fuel directly in tons (not fuel points).
  */
@@ -107,7 +102,8 @@ export function computeSupportVehicleWeight(unit: ISupportVehicle): {
   armor: number;
   fuel: number;
   total: number;
-} {
+} & ReturnType<typeof computeSupportPayloadWeights> &
+  ReturnType<typeof computeSupportTransportWeights> {
   const structure = computeSupportStructureWeight(unit);
   const engine = computeSupportVehicleEngineWeight(
     unit.engineRating,
@@ -129,11 +125,44 @@ export function computeSupportVehicleWeight(unit: ISupportVehicle): {
           unit.tonnage,
         );
   const fuel = unit.fuelTonnage ?? 0;
+  const payload = computeSupportPayloadWeights(
+    {
+      ...unit,
+      equipment: unit.equipment.filter(
+        (m) => chassisMultiplier(m.equipmentId) === undefined,
+      ),
+    },
+    engine,
+  );
+  const transport = computeSupportTransportWeights(
+    unit.transporters ?? [],
+    unit.techBase === TechBase.CLAN,
+  );
+  const { weapons, ammo, miscEquipment, heatSinks, powerAmplifiers, misc } =
+    payload;
+  const { controls, carryingSpace } = transport;
   return {
+    ...payload,
+    ...transport,
+    unresolved: [...payload.unresolved, ...transport.unresolved],
     structure,
     engine,
     armor,
     fuel,
-    total: ceilSupportWeight(engine + structure + armor + fuel, unit.tonnage),
+    total: ceilSupportWeight(
+      engine +
+        structure +
+        controls +
+        heatSinks +
+        armor +
+        misc +
+        miscEquipment +
+        weapons +
+        ammo +
+        powerAmplifiers +
+        carryingSpace +
+        fuel,
+      unit.tonnage,
+    ),
   };
 }

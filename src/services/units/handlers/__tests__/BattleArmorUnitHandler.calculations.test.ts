@@ -108,7 +108,24 @@ describe('BattleArmorUnitHandler', () => {
   // ==========================================================================
 
   describe('calculateBV', () => {
-    it.todo('BA BV part 2: exact unarmed Java squad totals 200 / 237 / 149');
+    it.each([
+      [0, 5, 200],
+      [3, 5, 237],
+      [0, 4, 149],
+    ])(
+      'matches unarmed native total at jump %s / strength %s',
+      (jumpingMP, trooperCount, expected) => {
+        const parsed = handler.parse(
+          createMockBlkDocument({
+            jumpingMP,
+            trooperCount,
+            armor: [10],
+            equipmentByLocation: {},
+          }),
+        );
+        expect(handler.calculateBV(parsed.data!.unit)).toBe(expected);
+      },
+    );
     it('reports pinned armor/internal defense without jump', () => {
       const doc = createMockBlkDocument({
         armor: [10],

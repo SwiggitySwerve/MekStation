@@ -15,7 +15,10 @@ import { IAmmunition } from '@/types/equipment/AmmunitionTypes';
  * Add aliases for ammunition
  */
 export function addAmmunitionAliases(
-  ammo: IAmmunition,
+  ammo: Pick<
+    IAmmunition,
+    'id' | 'name' | 'weight' | 'techBase' | 'shotsPerTon'
+  >,
   nameToIdMap: Map<string, string>,
   normalizeName: (name: string) => string,
 ): void {
@@ -65,13 +68,16 @@ export function ammunitionAliasKey(
 }
 
 function addInternalAmmunitionAliases(
-  ammo: IAmmunition,
+  ammo: Pick<
+    IAmmunition,
+    'id' | 'name' | 'weight' | 'techBase' | 'shotsPerTon'
+  >,
   aliases: Map<string, string>,
   normalizeName: (name: string) => string,
 ): void {
   // Some imported half-bin records incorrectly weigh one ton. Do not create
   // additional aliases for them or turn an unknown half bin into a full bin.
-  if (/half/i.test(ammo.name) && ammo.weight !== 0.5) return;
+  if (!isPhysicalAmmunitionBin(ammo)) return;
   const base = ammo.name.replace(/\s*\(Clan\)/i, '');
   const names = new Set([base]);
   if (/^MG Ammo/.test(base)) {
@@ -167,4 +173,10 @@ export function addAmmunitionSlugAliases(
     nameToIdMap.set(`${prefix}lb-${num}-x-ac-${suffix}`, id);
     nameToIdMap.set(`lb-${num}-x-ac-${suffix}`, id);
   }
+}
+
+export function isPhysicalAmmunitionBin(
+  ammo: Pick<IAmmunition, 'name' | 'weight'>,
+): boolean {
+  return !/half/i.test(ammo.name) || ammo.weight === 0.5;
 }

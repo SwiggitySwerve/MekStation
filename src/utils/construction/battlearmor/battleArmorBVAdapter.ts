@@ -30,11 +30,10 @@ import {
 
 import {
   calculateBattleArmorBV,
-  type BAAmmoBVMount,
-  type BAWeaponBVMount,
   type IBABreakdown,
   type IBattleArmorBVInput,
 } from './battleArmorBV';
+import { canMakeBAAntiMekAttacks, projectBAMounts } from './battleArmorMounts';
 
 // -----------------------------------------------------------------------------
 // Enum mapping: personnel-facing -> construction-facing
@@ -61,29 +60,16 @@ function toBAWeightClass(wc: BattleArmorWeightClass): BAWeightClass {
   }
 }
 
-/**
- * Map personnel `ManipulatorType` onto the construction `BAManipulator`.
- *
- * The personnel enum is finer grained (e.g. `BATTLE_VIBRO`, `HEAVY_BATTLE_VIBRO`)
- * while the construction enum only models the melee-relevant classes. We map
- * to the nearest melee-class equivalent so BV picks up the correct multiplier:
- *
- *   BATTLE / BATTLE_VIBRO              -> BATTLE_CLAW   (1 BV)
- *   HEAVY_BATTLE / HEAVY_BATTLE_VIBRO  -> HEAVY_CLAW    (2 BV)
- *   VIBRO_CLAW (implicit)              -> VIBRO_CLAW    (3 BV) — used by tests
- *
- * Any manipulator that does not produce a melee bonus (`NONE`, `BASIC`,
- * `ARMORED_GLOVE`, `BASIC_MINE_CLEARANCE`, `CARGO_LIFTER`, `INDUSTRIAL_DRILL`,
- * `SALVAGE_ARM`) maps to `NONE` — zero melee BV.
- */
+/** Preserve claw adaptation identity; only vibro/magnetic claws add anti-Mek BV. */
 function toBAManipulator(m: ManipulatorType): BAManipulator {
   switch (m) {
     case ManipulatorType.BATTLE:
-    case ManipulatorType.BATTLE_VIBRO:
       return BAManipulator.BATTLE_CLAW;
     case ManipulatorType.HEAVY_BATTLE:
-    case ManipulatorType.HEAVY_BATTLE_VIBRO:
       return BAManipulator.HEAVY_CLAW;
+    case ManipulatorType.BATTLE_VIBRO:
+    case ManipulatorType.HEAVY_BATTLE_VIBRO:
+      return BAManipulator.VIBRO_CLAW;
     default:
       return BAManipulator.NONE;
   }
@@ -93,64 +79,12 @@ function toBAManipulator(m: ManipulatorType): BAManipulator {
 // Equipment partitioning
 // -----------------------------------------------------------------------------
 
-/**
- * Heuristic: is this mount ammo? Same pattern used by the vehicle BV adapter.
- */
-function isAmmo(equipmentId: string): boolean {
-  const n = equipmentId.toLowerCase();
-  return n.includes('ammo') || n.startsWith('ammo-');
-}
-
-/**
- * Heuristic: is this a magnetic clamp mount?
- *
- * The store catalog uses `ba-magnetic-clamp` but other data sources may use
- * `magnetic-clamp`, `magneticclamp`, etc. The check is deliberately fuzzy.
- */
-function isMagneticClamp(equipmentId: string, name: string): boolean {
-  const id = equipmentId.toLowerCase();
-  const n = name.toLowerCase();
-  return (
-    id.includes('magnetic-clamp') ||
-    id.includes('magneticclamp') ||
-    n.includes('magnetic clamp')
-  );
-}
-
-/**
- * Partition BA equipment into weapon / ammo buckets for BV purposes, and
- * detect the presence of Magnetic Clamps for the anti-mech bonus.
- *
- * Non-weapon / non-ammo systems (jump boosters, partial wings, etc.) do not
- * contribute to per-trooper BV directly; their movement-side effect is
- * already baked into `groundMP` / `jumpMP` at construction time.
- */
+/** Compatibility facade; native decoding and identity lookup have one owner. */
 export function partitionBAEquipment(
   equipment: readonly IBattleArmorMountedEquipment[],
-): {
-  weapons: BAWeaponBVMount[];
-  ammo: BAAmmoBVMount[];
-  hasMagneticClamp: boolean;
-} {
-  const weapons: BAWeaponBVMount[] = [];
-  const ammo: BAAmmoBVMount[] = [];
-  let hasMagneticClamp = false;
-
-  for (const mount of equipment) {
-    if (isMagneticClamp(mount.equipmentId, mount.name)) {
-      hasMagneticClamp = true;
-      continue;
-    }
-    if (isAmmo(mount.equipmentId)) {
-      ammo.push({ id: mount.equipmentId });
-      continue;
-    }
-    // Default: treat as a weapon. The resolver returns BV=0 for non-weapon
-    // IDs, so mis-classified system items simply don't contribute.
-    weapons.push({ id: mount.equipmentId });
-  }
-
-  return { weapons, ammo, hasMagneticClamp };
+  squadSize = 1,
+): ReturnType<typeof projectBAMounts> {
+  return projectBAMounts(equipment, squadSize);
 }
 
 // -----------------------------------------------------------------------------
@@ -167,6 +101,9 @@ export function partitionBAEquipment(
 export function buildBattleArmorBVInput(
   state: Pick<
     BattleArmorState,
+    | 'chassisType'
+    | 'motionType'
+    | 'techBase'
     | 'weightClass'
     | 'squadSize'
     | 'groundMP'
@@ -179,9 +116,8 @@ export function buildBattleArmorBVInput(
   > & { equipment: readonly IBattleArmorMountedEquipment[] },
   options: { gunnery?: number; piloting?: number } = {},
 ): IBattleArmorBVInput {
-  const { weapons, ammo, hasMagneticClamp } = partitionBAEquipment(
-    state.equipment,
-  );
+  const { weapons, ammo, hasMagneticClamp, unresolvedEquipment } =
+    partitionBAEquipment(state.equipment, state.squadSize);
 
   return {
     weightClass: toBAWeightClass(state.weightClass),
@@ -198,6 +134,11 @@ export function buildBattleArmorBVInput(
     weapons,
     ammo,
     hasMagneticClamp,
+    unresolvedEquipment,
+    canAntiMek: canMakeBAAntiMekAttacks({
+      ...state,
+      baWeightClass: state.weightClass,
+    }),
     hasCamoSystem: state.equipment.some(
       (mount) => mount.name.split(':')[0] === 'Camo System',
     ),

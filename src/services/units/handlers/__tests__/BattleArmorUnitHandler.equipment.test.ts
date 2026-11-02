@@ -306,12 +306,12 @@ describe('BattleArmorUnitHandler', () => {
       expect(result.data?.unit?.canMountOmni).toBe(false);
     });
 
-    it('should allow anti-mech for all BA', () => {
+    it('disallows anti-mech for the heavy fixture per BattleArmor.java:984-988', () => {
       const doc = createMockBlkDocument();
       const result = handler.parse(doc);
 
       expect(result.success).toBe(true);
-      expect(result.data?.unit?.canAntiMech).toBe(true);
+      expect(result.data?.unit?.canAntiMech).toBe(false);
     });
   });
 
