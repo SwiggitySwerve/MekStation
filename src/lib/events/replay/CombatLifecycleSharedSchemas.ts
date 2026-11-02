@@ -29,7 +29,7 @@ import {
 } from '@/types/construction/UnitLocation';
 import {
   recordedCustomCombatSnapshotSchema,
-  customCombatSnapshotReferenceError,
+  snapshotRefError,
 } from '@/types/contracts/CustomCombatSnapshot';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
@@ -670,10 +670,7 @@ export const gameUnitSchema = z
   .refine(
     (unit) =>
       unit.customUnitDefinition === undefined ||
-      customCombatSnapshotReferenceError(
-        unit.customUnitDefinition,
-        unit.unitRef,
-      ) === null,
+      snapshotRefError(unit.customUnitDefinition, unit.unitRef) === null,
     {
       message: 'Recorded construction must match the custom source reference',
       path: ['customUnitDefinition'],

@@ -256,7 +256,6 @@ export function appendNativeRunnerDeploymentEvents(
   }
 }
 
-/** The allocation key shared by construction, replay roster and session entry. */
 export function runnerUnitId(side: GameSide, index: number): string {
   return `${side === GameSide.Player ? 'player' : 'opponent'}-${index + 1}`;
 }

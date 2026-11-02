@@ -1,9 +1,5 @@
 /**
- * Strict recorded construction for supported custom combat families.
- *
- * Built from the generated BattleMech/Omni/Industrial contract
- * (`UnitContract.options[0]`); its exact shape stays separate from native branches.
- * Live projection drops metadata; recorded validation stays strict.
+ * Strict saved combat construction; the original Mech record stays pinned.
  *
  * @spec openspec/changes/enable-saved-custom-unit-combat/specs/custom-unit-combat/spec.md
  */
@@ -186,13 +182,9 @@ export function isCustomCombatReference(reference: string): boolean {
   return parseUnitReference(reference).id.startsWith('custom-');
 }
 
-export function customCombatSnapshotReferenceError(
-  snapshot: CustomCombatSnapshot,
-  reference: string,
-) {
-  const { id, family } = parseUnitReference(reference);
-  if (!isCustomCombatReference(reference) || snapshot.id !== id)
-    return 'identity';
+export function snapshotRefError(snapshot: CustomCombatSnapshot, ref: string) {
+  const { id, family } = parseUnitReference(ref);
+  if (!isCustomCombatReference(ref) || snapshot.id !== id) return 'identity';
   return (family ?? 'battlemechs') === customCombatSnapshotFamily(snapshot)
     ? null
     : 'family';

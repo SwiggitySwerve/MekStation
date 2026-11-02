@@ -9,7 +9,7 @@ import type { IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 import { isCustomCombatReference } from '@/services/units/customCombatDefinition';
 import {
   recordedCustomCombatSnapshotSchema,
-  customCombatSnapshotReferenceError,
+  snapshotRefError,
 } from '@/types/contracts/CustomCombatSnapshot';
 import { GameEventType } from '@/types/gameplay/GameSessionInterfaces';
 import { parseUnitReference } from '@/types/unit/UnitIndex';
@@ -53,7 +53,7 @@ export function requireRecordedCustomCombatSnapshot(
       `Recorded custom construction snapshot is invalid for unitRef '${unitRef}'`,
     );
   }
-  const error = customCombatSnapshotReferenceError(parsed.data, unitRef);
+  const error = snapshotRefError(parsed.data, unitRef);
   if (error) {
     throw new Error(
       `Recorded custom construction ${error} mismatch: snapshot id '${parsed.data.id}', unitRef '${unitRef}'`,
