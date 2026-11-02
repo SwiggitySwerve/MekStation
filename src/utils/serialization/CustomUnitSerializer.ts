@@ -35,7 +35,7 @@ import {
   SuperHeavyVehicleLocation,
 } from '@/types/construction/UnitLocation';
 import { UnitContract, type IUnitContract } from '@/types/contracts';
-import { RulesLevel } from '@/types/enums/RulesLevel';
+import { RULES_LEVEL_TAGS as RULES_LEVEL } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
 import { aerospaceEditorSchema } from '@/types/unit/AerospaceSerialization';
@@ -115,13 +115,6 @@ const TECH_BASE = {
   [TechBaseMode.CLAN]: 'CLAN',
   [TechBaseMode.MIXED]: 'MIXED',
 } as const satisfies Readonly<Record<TechBaseMode, string>>;
-
-const RULES_LEVEL = {
-  [RulesLevel.INTRODUCTORY]: 'INTRODUCTORY',
-  [RulesLevel.STANDARD]: 'STANDARD',
-  [RulesLevel.ADVANCED]: 'ADVANCED',
-  [RulesLevel.EXPERIMENTAL]: 'EXPERIMENTAL',
-} as const satisfies Readonly<Record<RulesLevel, string>>;
 
 export type CustomUnitSaveIdentity = {
   readonly id: string;
@@ -420,3 +413,5 @@ export function serializeCustomAerospaceState(
   });
   return { ...definition, family: 'aerospace' as const, aerospaceEditor };
 }
+
+export { serializeCustomSmallUnitState } from './CustomUnitSerializer.smallUnits';

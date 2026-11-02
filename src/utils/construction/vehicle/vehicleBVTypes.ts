@@ -152,6 +152,8 @@ export interface IVehicleBVBreakdown {
   turretModifier: number;
   /** Final BV — rounded integer. */
   final: number;
+  /** Chassis summary factor, before pilot adjustment and rounding. */
+  summaryModifier?: number;
 
   /** Raw armor BV (pre-defensive-factor). */
   armorBV: number;

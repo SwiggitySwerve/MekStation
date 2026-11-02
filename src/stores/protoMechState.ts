@@ -10,6 +10,7 @@
 
 import type { StoreEquipmentActions } from '@/stores/equipmentStoreActions';
 import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
+import type { IUnitContract } from '@/types/contracts';
 
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
@@ -117,6 +118,8 @@ export function createProtoMechMountedEquipment(
  * Complete state for a single ProtoMech unit
  */
 export interface ProtoMechState {
+  /** Original catalog facts not expressible by the editor. */
+  librarySource?: IUnitContract;
   // =========================================================================
   // Identity
   // =========================================================================
