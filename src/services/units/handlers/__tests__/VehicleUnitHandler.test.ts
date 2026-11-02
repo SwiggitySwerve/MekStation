@@ -410,7 +410,7 @@ describe('VehicleUnitHandler', () => {
         // 12 t on a 25 t chassis is 48%, far past the old 10% cap.
         const heavyTurret = {
           ...unit,
-          turret: { ...unit.turret! },
+          turret: { ...unit.turret!, currentWeight: 12 },
         };
 
         const result = handler.validate(heavyTurret);
@@ -424,7 +424,7 @@ describe('VehicleUnitHandler', () => {
         const overweight = {
           ...unit,
           totalWeight: unit.tonnage + 1,
-          turret: { ...unit.turret! },
+          turret: { ...unit.turret!, currentWeight: 12 },
         };
 
         const result = handler.validate(overweight);
