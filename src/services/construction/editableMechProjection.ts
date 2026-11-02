@@ -8,6 +8,7 @@ import { EngineType } from '@/types/construction/EngineType';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
+import { calculateRatedWalkMP } from '@/utils/construction/engineCalculations';
 
 import type { UnitData } from '../../../scripts/validate-bv-types';
 import type {
@@ -281,7 +282,18 @@ export function buildEditableMechBVInput(mech: IEditableMech): UnitData {
       ),
       count: mech.heatSinkCount,
     },
-    movement: { walk: mech.walkMP, jump: mech.jumpMP ?? extractJumpMP(mech) },
+    movement: {
+      // Rated walk MP owns the primitive-engine rule; mech.walkMP is the fallback for an unrated mech.
+      walk:
+        mech.engineRating > 0 && mech.tonnage > 0
+          ? calculateRatedWalkMP(
+              mech.engineRating,
+              mech.tonnage,
+              String(mech.cockpitType),
+            )
+          : mech.walkMP,
+      jump: mech.jumpMP ?? extractJumpMP(mech),
+    },
     equipment,
     criticalSlots,
   };
