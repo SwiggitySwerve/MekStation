@@ -1,0 +1,47 @@
+{
+  "id": "motorized-platoon-gauss-heavy",
+  "chassis": "Motorized Platoon",
+  "model": "(Gauss Heavy)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3063,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "rifle-imperator-ax-22-assault",
+    "name": "Rifle (Imperator AX-22 Assault)"
+  },
+  "armorKit": "Ballistic Plate, Standard",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "ballistic-plate,-standard",
+      "name": "Ballistic Plate, Standard",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 2.0,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "gauss-rifle,-light-david",
+    "name": "Gauss Rifle, Light (David)",
+    "count": 2
+  },
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Heavy gauss motorized platoons mount their troops on light vehicles with Imperator assault rifles and David light gauss support weapons distributed across the formation. The light gauss rifles use magnetic acceleration to deliver projectiles at extreme velocity with no propellant signature, giving the platoon credible anti-armor capability at ranges well beyond personal weapon reach. The motorized transport allows rapid repositioning between firing positions, though troops must dismount to employ the crew-served gauss weapons effectively.</p>"
+  }
+}

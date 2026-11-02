@@ -1,0 +1,47 @@
+{
+  "id": "motorized-platoon-nonlethal",
+  "chassis": "Motorized Platoon",
+  "model": "(Nonlethal)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3055,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 3,
+    "totalTroopers": 18
+  },
+  "primaryWeapon": {
+    "id": "tranq-gun",
+    "name": "Tranq Gun"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "stunstick",
+    "name": "Stunstick",
+    "count": 1
+  },
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Nonlethal motorized platoons carry tranquilizer guns and stunsticks for crowd control and prisoner acquisition operations. Transported by light vehicles for rapid response to civil disturbances, riots, or hostage situations, these platoons subdue targets without lethal force. The tranq guns incapacitate at range while the stunsticks provide close-quarters compliance capability. These formations are garrison security assets rather than combat troops, and they lack the armament to engage military targets effectively.</p>"
+  }
+}

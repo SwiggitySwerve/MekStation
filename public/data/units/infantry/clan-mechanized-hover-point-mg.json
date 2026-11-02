@@ -1,0 +1,49 @@
+{
+  "id": "clan-mechanized-hover-point-mg",
+  "chassis": "Clan Mechanized Hover Point",
+  "model": "(MG)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2815,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "machine-gun-portable",
+    "name": "Machine Gun (Portable)",
+    "count": 2
+  },
+  "mulId": 619,
+  "role": "Ambusher",
+  "source": "TW,TO:AUE",
+  "fluff": {
+    "overview": "<p>Clan mechanized hover Points transport five warriors in hovercraft for high-speed operations across open ground and water. These fast-moving formations provide Clan garrison forces with amphibious patrol capability and rapid flanking options that slower infantry cannot match. Hover Points are well suited to coastal defense zones, river crossings, and flat terrain where their speed advantage is most pronounced. Rough terrain and forested worlds limit their effectiveness, but on open or littoral garrison worlds, hover Points extend the reach of Clan security forces considerably.</p>"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "id": "foot-platoon-laser-xct",
+  "chassis": "Foot Platoon",
+  "model": "(Laser XCT)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2500,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-marx-xx",
+    "name": "Laser Rifle (Marx XX)"
+  },
+  "armorKit": "Environment Suit, Marine",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "environment-suit,-marine",
+      "name": "Environment Suit, Marine",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 2.0,
+  "damageDivisor": 2.0,
+  "armorFlags": ["spacesuit"],
+  "effectiveArmorFlags": ["spacesuit"],
+  "specializations": 2048,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "blade-vibro-blade",
+    "name": "Blade (Vibro-blade)",
+    "count": 1
+  },
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Xenoplanetary Condition Troops armed with laser rifles and vibro-blades for close combat, these XCT platoons carry sealed environmental gear that allows them to fight in toxic atmospheres, extreme temperatures, and hostile planetary conditions. The vibro-blades provide a close-quarters option when environmental hazards or confined spaces make ranged weapons impractical, though the platoon relies primarily on its laser rifles for standard engagements.</p>"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-wheeled-platoon-dcms-mrm-3063+",
+  "chassis": "Mechanized Wheeled Platoon (DCMS)",
+  "model": "(MRM 3063+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3063,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Draconis Combine Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "draconis-combine-infantry-kit",
+      "name": "Draconis Combine Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryoneshotmrm",
+    "name": "InfantryOneShotMRM",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Draconis Combine Mustered Soldiery assigns conventional infantry to garrison roles across its military districts, with district regulars often fielding extra platoons to secure worlds that BattleMech forces cannot permanently garrison. Wheeled mechanized infantry ride armored personnel carriers that offer speed on roads and enough protection to survive initial contact. The DCMS assigns these platoons where garrison duty demands both rapid response and the ability to dismount under fire, a combination that foot and motorized troops cannot reliably deliver. Support elements carry disposable medium-range missile launchers that split the difference between the close-range punch of SRM systems and the reach of LRM launchers. The volume of fire compensates for the lack of guidance systems.</p>"
+  }
+}

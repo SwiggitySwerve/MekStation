@@ -1,0 +1,42 @@
+{
+  "id": "clan-mechanized-tracked-point-mauser-iic-advanced",
+  "chassis": "Clan Mechanized Tracked Point",
+  "model": "(Mauser IIC Advanced)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3013,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-mauser-iic-ias",
+    "name": "Laser Rifle (Mauser IIC IAS)"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Most Clan infantry are solahma warriors at the end of their careers or who have failed their Trials, assigned to duties the warrior caste considers beneath notice. Mechanized Tracked Points travel in tracked armored personnel carriers that offer all-terrain capability at the cost of speed. Tracked vehicles handle rough ground, mud, and snow better than wheeled alternatives, making these Points reliable in difficult terrain where faster formations would bog down. Equipped with the Clan-manufactured Mauser IIC Infantry Assault System, these warriors carry energy weapons built to Clan standards that outperform their Inner Sphere equivalents in both range and damage output.</p>"
+  }
+}

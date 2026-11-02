@@ -1,0 +1,49 @@
+{
+  "id": "frogmen-blue-water-marine-response-teams-frogmen",
+  "chassis": "Frogmen",
+  "model": "Blue Water Marine Response Teams (Frogmen)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2500,
+  "motionType": "UMU",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 2,
+    "totalTroopers": 12
+  },
+  "primaryWeapon": {
+    "id": "infantryfederatedbarrettm61a",
+    "name": "InfantryFederatedBarrettM61A"
+  },
+  "armorKit": "Flak, Standard",
+  "motiveType": "Motorized SCUBA",
+  "equipment": [
+    {
+      "id": "flak,-standard",
+      "name": "Flak, Standard",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 4096,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "support-laser",
+    "name": "Support Laser",
+    "count": 1
+  },
+  "mulId": 1153,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The AFFS Frogmen are special operations troops drawn from the blue water marine community, trained extensively in sub-surface warfare and amphibious combat. Riding electric-cell underwater sleds, these operators conduct demolitions, reconnaissance, and direct action missions in riverine and coastal environments where conventional ground forces cannot follow. Equipped with laser rifles and heavy support lasers suited for both surface and near-surface engagements, the Frogmen prove the old adage that no coastline is ever truly secure. Their training pipeline is demanding enough that the AFFS maintains only a small number of active teams, but those who earn the qualification are among the most capable waterborne combatants in the Inner Sphere.</p>"
+  }
+}

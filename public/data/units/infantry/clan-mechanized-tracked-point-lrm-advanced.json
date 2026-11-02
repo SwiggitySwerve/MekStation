@@ -1,0 +1,49 @@
+{
+  "id": "clan-mechanized-tracked-point-lrm-advanced",
+  "chassis": "Clan Mechanized Tracked Point",
+  "model": "(LRM Advanced)",
+  "unitType": "Infantry",
+  "techBase": "MIXED",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3064,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrylrm",
+    "name": "InfantryLRM",
+    "count": 2
+  },
+  "mulId": 625,
+  "role": "Ambusher",
+  "source": "TO:AUE",
+  "fluff": {
+    "overview": "<p>Clan doctrine generally treats conventional infantry as a necessary evil, though Clans like Hell's Horses have demonstrated that properly supported infantry can be an effective component of combined-arms operations. Mechanized Tracked Points travel in tracked armored personnel carriers that offer all-terrain capability at the cost of speed. Tracked vehicles handle rough ground, mud, and snow better than wheeled alternatives, making these Points reliable in difficult terrain where faster formations would bog down. Support troops operate man-portable long-range missile launchers capable of engaging targets at distances well beyond personal weapon range, providing the Point with indirect fire capability against vehicles and fortified positions.</p>"
+  }
+}

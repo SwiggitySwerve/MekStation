@@ -1,0 +1,104 @@
+{
+  "id": "field-gun-platoon-fwlm-wheeled-lbx5-3060+",
+  "chassis": "Field Gun Platoon (FWLM)",
+  "model": "(Wheeled LBX5 3060+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3060,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Free Worlds League Infantry Kit (3035+)",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "free-worlds-league-infantry-kit-3035+",
+      "name": "Free Worlds League Infantry Kit (3035+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac5",
+      "name": "ISLBXAC5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-5-x-cluster-ammo",
+      "name": "IS LB 5-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac5",
+      "name": "ISLBXAC5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-5-x-cluster-ammo",
+      "name": "IS LB 5-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac5",
+      "name": "ISLBXAC5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-5-x-cluster-ammo",
+      "name": "IS LB 5-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "islbxac5",
+      "name": "ISLBXAC5"
+    },
+    {
+      "id": "is-lb-5-x-cluster-ammo",
+      "name": "IS LB 5-X Cluster Ammo"
+    },
+    {
+      "id": "islbxac5",
+      "name": "ISLBXAC5"
+    },
+    {
+      "id": "is-lb-5-x-cluster-ammo",
+      "name": "IS LB 5-X Cluster Ammo"
+    },
+    {
+      "id": "islbxac5",
+      "name": "ISLBXAC5"
+    },
+    {
+      "id": "is-lb-5-x-cluster-ammo",
+      "name": "IS LB 5-X Cluster Ammo"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>The Free Worlds League's fractious politics have always made centralized BattleMech procurement difficult, pushing the FWLM toward heavy investment in conventional infantry to fill the gaps. Towing crew-served LB 5-X autocannon, these platoons field versatile weapons capable of firing solid slugs for armor penetration or cluster rounds for area effect against dispersed targets.</p>"
+  }
+}

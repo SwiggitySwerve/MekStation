@@ -1,0 +1,50 @@
+{
+  "id": "clan-jump-point-laser-basic",
+  "chassis": "Clan Jump Point",
+  "model": "(Laser Basic)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2807,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle",
+    "name": "Laser Rifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 9598,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Despite the low regard most Clans hold for conventional infantry, these formations benefit from incidental access to Clan technology that makes even a disaffected garrison Point a match for its Inner Sphere equivalent. Jump Points are equipped with jump packs that grant vertical mobility and the ability to traverse rough terrain that would slow or stop foot and mechanized formations. This makes them valuable in urban fighting, mountainous terrain, and any environment where the ability to bypass obstacles matters more than sustained speed. Equipped with laser rifles that offer superior range and armor penetration compared to ballistic weapons, these Points field one of the most effective personal arms available to conventional infantry, though the weapons are significantly more expensive and require warriors to carry additional power packs.</p>"
+  }
+}

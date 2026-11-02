@@ -1,0 +1,64 @@
+{
+  "id": "field-artillery-level-i-wobm-wheeled-thumper",
+  "chassis": "Field Artillery Level I (WOBM)",
+  "model": "(Wheeled Thumper)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3053,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "Word of Blake Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "word-of-blake-infantry-kit",
+      "name": "Word of Blake Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isthumper",
+      "name": "ISThumper",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isthumperammo",
+      "name": "ISThumperAmmo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "isthumper",
+      "name": "ISThumper"
+    },
+    {
+      "id": "isthumperammo",
+      "name": "ISThumperAmmo"
+    }
+  ],
+  "role": "Missile Boat",
+  "fluff": {
+    "overview": "<p>Drawing veterans from the Com Guards, recruits from the Free Worlds League, and volunteers from Protectorate worlds, the Word of Blake Militia assembled infantry formations whose quality varied but whose equipment was consistently first-rate. Crewing Thumper artillery pieces, these gunners provide organic indirect fire support capable of suppressing enemy formations at ranges well beyond direct-fire weapons, dropping explosive rounds onto positions that cannot be engaged by line-of-sight weapons.</p>"
+  }
+}

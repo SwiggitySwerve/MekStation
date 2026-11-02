@@ -1,0 +1,64 @@
+{
+  "id": "field-artillery-platoon-comstar-tracked-sniper",
+  "chassis": "Field Artillery Platoon (ComStar)",
+  "model": "(Tracked Sniper)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2825,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "ComStar Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "comstar-infantry-kit",
+      "name": "ComStar Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "issniper",
+      "name": "ISSniper",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "issniperammo",
+      "name": "ISSniperAmmo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "issniper",
+      "name": "ISSniper"
+    },
+    {
+      "id": "issniperammo",
+      "name": "ISSniperAmmo"
+    }
+  ],
+  "role": "Missile Boat",
+  "fluff": {
+    "overview": "<p>The Blessed Order maintained conventional infantry formations equipped with preserved Star League-era weapons and personal armor, fielding platoons that were better armed than most Successor State infantry throughout the late Succession Wars. Operating Sniper artillery systems that deliver heavier indirect fire than Thumper tubes, these crews can damage hardened positions and disrupt armored formations at extended range, providing battalion-level fire support from a single crew-served weapon.</p>"
+  }
+}

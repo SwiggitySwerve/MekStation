@@ -1,0 +1,49 @@
+{
+  "id": "motorized-heavy-infantry-motstand-mimir-troop",
+  "chassis": "Motorized Heavy Infantry",
+  "model": "Motstand/Mimir Troop",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2500,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Free Rasalhague Republic Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "free-rasalhague-republic-infantry-kit",
+      "name": "Free Rasalhague Republic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "rocket-launcher-v-law",
+    "name": "Rocket Launcher (V-LAW)",
+    "count": 1
+  },
+  "mulId": 2232,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Motstånd draws its strength from Mimir, the Free Rasalhague Republic's intelligence division, which coordinated organized resistance to foreign invaders for centuries before the Clans arrived in 3049. After the initial Clan conquest, Mimir settled into an extended guerrilla campaign against the rapidly improving Clan Watch. A standard Mimir troop is fast and hard-hitting, mounting motorized infantry with assault rifles and disposable rocket launchers that can overwhelm an isolated outpost before fading back into the hinterland. With Mimir's formal absorption into the Dominion Watch, the fate of these troops has been mixed. Many aligned themselves with the Motstånd resistance to continue fighting against Clan authority, while others accepted integration. Rumors persist of Mimir-funded troops operating in the Clan Wolf and Hell's Horses occupation zones, though the Dominion vehemently denies this.</p>"
+  }
+}

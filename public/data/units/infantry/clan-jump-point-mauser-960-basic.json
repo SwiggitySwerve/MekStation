@@ -1,0 +1,48 @@
+{
+  "id": "clan-jump-point-mauser-960-basic",
+  "chassis": "Clan Jump Point",
+  "model": "(Mauser 960 Basic)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2807,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-mauser-960",
+    "name": "Laser Rifle (Mauser 960)"
+  },
+  "armorKit": "SLDF Infantry Kit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "sldf-infantry-kit",
+      "name": "SLDF Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Conventional infantry within the Clan touman fills the garrison and screening roles that battle armor and BattleMech forces cannot efficiently sustain across dozens of occupied worlds. Jump Points are equipped with jump packs that grant vertical mobility and the ability to traverse rough terrain that would slow or stop foot and mechanized formations. This makes them valuable in urban fighting, mountainous terrain, and any environment where the ability to bypass obstacles matters more than sustained speed. Equipped with Mauser 960 laser systems, a respected Inner Sphere-manufactured weapon that provides solid energy weapon capability at a fraction of the cost of Clan-produced equivalents.</p>"
+  }
+}

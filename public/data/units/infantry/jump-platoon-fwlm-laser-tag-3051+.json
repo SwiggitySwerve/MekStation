@@ -1,0 +1,47 @@
+{
+  "id": "jump-platoon-fwlm-laser-tag-3051+",
+  "chassis": "Jump Platoon (FWLM)",
+  "model": "(Laser TAG 3051+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3051,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle",
+    "name": "Laser Rifle"
+  },
+  "armorKit": "Free Worlds League Infantry Kit (3035+)",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "free-worlds-league-infantry-kit-3035+",
+      "name": "Free Worlds League Infantry Kit (3035+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 1024,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrytag",
+    "name": "InfantryTAG",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Conventional infantry within the FWLM serve as the backbone of provincial defense across a patchwork of semi-autonomous states, each maintaining its own military traditions and equipment preferences. Jump infantry in League service exploit vertical mobility to compensate for the FWLM's sometimes fragmented command structure, seizing terrain that wheeled or tracked forces cannot reach. Their ability to operate across broken ground and urban environments makes them valuable in the border provinces where coalition territory changes hands frequently. Equipped with laser rifles that offer superior range and armor penetration compared to ballistic weapons, these platoons field one of the most effective personal arms available to conventional infantry, though the weapons are significantly more expensive and require soldiers to carry additional power packs. These TAG specialists carry Target Acquisition Gear that designates targets with a laser for guided munitions delivered by artillery, aerospace assets, or missile units, providing precision strike capability far beyond the platoon's organic firepower.</p>"
+  }
+}

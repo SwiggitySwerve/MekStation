@@ -1,0 +1,44 @@
+{
+  "id": "mechanized-wheeled-platoon-laser",
+  "chassis": "Mechanized Wheeled Platoon",
+  "model": "(Laser)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2405,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle",
+    "name": "Laser Rifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 2145,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Mechanized wheeled platoons transport their infantry in wheeled armored personnel carriers optimized for speed on roads and improved surfaces. Wheeled APCs are cheaper to maintain and faster on pavement than tracked alternatives, making these platoons ideal for garrison rapid-response forces, highway patrol, and urban security operations. Their off-road capability is limited compared to tracked vehicles, restricting employment in rough terrain, but on developed worlds with good road networks, wheeled mechanized infantry offer the best balance of speed, protection, and operating cost.</p>"
+  }
+}

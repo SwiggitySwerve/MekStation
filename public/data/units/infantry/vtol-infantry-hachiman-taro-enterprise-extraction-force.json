@@ -1,0 +1,44 @@
+{
+  "id": "vtol-infantry-hachiman-taro-enterprise-extraction-force",
+  "chassis": "VTOL Infantry",
+  "model": "Hachiman Taro Enterprise Extraction Force",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "SUCCESSION_WARS",
+  "year": 3045,
+  "motionType": "VTOL",
+  "platoon": {
+    "squadSize": 4,
+    "squadCount": 4,
+    "totalTroopers": 16
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Myomer, Vest",
+  "motiveType": "Microcopter",
+  "equipment": [
+    {
+      "id": "myomer,-vest",
+      "name": "Myomer, Vest",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 3457,
+  "role": "Striker",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Hachiman Taro Enterprises, the Draconis Combine electronics conglomerate founded by Chandrasekhar Kurita, fields its Extraction Force as a specialized rapid-response security unit. Each trooper is equipped with a cutting-edge one-man VTOL microcopter, granting the platoon an extraordinary degree of insertion and extraction capability. The HTE Extraction Force specializes in recovering kidnapped corporate assets and personnel from hostile situations, often completing operations before alarms are raised. Armed only with auto-rifles, the sixteen-trooper platoon carries no secondary weapons due to the bulk of their individual flight systems. This trade-off limits their sustained combat power, but the unit's value lies in speed and stealth rather than firepower. The explosive growth of HTE under Chandrasekhar's stewardship brought powerful enemies, making a dedicated extraction capability essential to protecting the company's leadership and key personnel.</p>"
+  }
+}

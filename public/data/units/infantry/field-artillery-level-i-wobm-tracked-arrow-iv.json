@@ -1,0 +1,64 @@
+{
+  "id": "field-artillery-level-i-wobm-tracked-arrow-iv",
+  "chassis": "Field Artillery Level I (WOBM)",
+  "model": "(Tracked Arrow IV)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3053,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "Word of Blake Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "word-of-blake-infantry-kit",
+      "name": "Word of Blake Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isarrowiv",
+      "name": "ISArrowIV",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isarrowivammo",
+      "name": "ISArrowIVAmmo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "isarrowiv",
+      "name": "ISArrowIV"
+    },
+    {
+      "id": "isarrowivammo",
+      "name": "ISArrowIVAmmo"
+    }
+  ],
+  "role": "Missile Boat",
+  "fluff": {
+    "overview": "<p>The Word of Blake Militia inherited ComStar's combined-arms organizational philosophy and its Star League-era equipment stocks, fielding infantry formations that ranked among the best equipped in the Inner Sphere during the Jihad. Manning Arrow IV artillery systems that fire guided munitions capable of precision strikes at extreme range, these crews provide the most accurate indirect fire available to conventional infantry formations, able to place rounds on specific targets rather than simply saturating an area.</p>"
+  }
+}

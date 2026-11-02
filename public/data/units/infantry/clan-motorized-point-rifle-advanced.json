@@ -1,0 +1,44 @@
+{
+  "id": "clan-motorized-point-rifle-advanced",
+  "chassis": "Clan Motorized Point",
+  "model": "(Rifle Advanced)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2845,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 5,
+    "totalTroopers": 25
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 640,
+  "role": "Ambusher",
+  "source": "TO:AUE",
+  "fluff": {
+    "overview": "<p>Conventional infantry within the Clan touman fills the garrison and screening roles that battle armor and BattleMech forces cannot efficiently sustain across dozens of occupied worlds. Motorized Points ride light vehicles or motorcycles that provide faster movement than foot infantry without the heavier logistical requirements of fully mechanized formations. They trade protection for speed, making them effective as screening forces and rapid-response elements but vulnerable when caught in sustained engagements. Armed with standard ballistic assault rifles, the most common and affordable infantry weapon available, these Points deliver reliable short-range firepower and can be equipped and resupplied from almost any garrison stockpile.</p>"
+  }
+}

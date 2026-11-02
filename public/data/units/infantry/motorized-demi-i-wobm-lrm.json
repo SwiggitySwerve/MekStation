@@ -1,0 +1,55 @@
+{
+  "id": "motorized-demi-i-wobm-lrm",
+  "chassis": "Motorized demi-I (WOBM)",
+  "model": "(LRM)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3057,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 3,
+    "totalTroopers": 18
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Word of Blake Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "word-of-blake-infantry-kit",
+      "name": "Word of Blake Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrylrm",
+    "name": "InfantryLRM",
+    "count": 2
+  },
+  "mulId": 7121,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Word of Blake Militia infantry served as the backbone of Protectorate garrison forces across dozens of conquered worlds, providing the manpower for territorial control that the Militia's BattleMech and armor assets could not sustain alone. Motorized Level I formations used light vehicles for rapid movement between garrison posts, providing the speed needed to respond to civil unrest or insurgent attacks faster than foot infantry could march. Their mobility made them a preferred choice for patrol duties across the Word's Protectorate holdings. Carrying infantry-portable long-range missile systems that extend the platoon's engagement envelope well beyond personal weapon range, these troops provide indirect fire support that can suppress enemy positions from distances where return fire is difficult.</p>"
+  }
+}

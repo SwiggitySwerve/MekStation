@@ -1,0 +1,53 @@
+{
+  "id": "clan-jump-squad-lrm",
+  "chassis": "Clan Jump Squad",
+  "model": "(LRM)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "UNOFFICIAL",
+  "era": "CLAN_INVASION",
+  "year": 3065,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 1,
+    "totalTroopers": 5
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrylrm",
+    "name": "InfantryLRM",
+    "count": 2
+  },
+  "source": "TW",
+  "fluff": {
+    "overview": "<p>Clan jump squads field squad-strength jump-capable warriors for reconnaissance and vertical-access missions. Smaller than a standard Clan jump Point, these formations operate as observation teams, rooftop security elements, and insertion forces where reduced numbers and three-dimensional mobility compensate for limited sustained firepower. Their compact size makes them easier to deploy from limited transport assets.</p>"
+  }
+}

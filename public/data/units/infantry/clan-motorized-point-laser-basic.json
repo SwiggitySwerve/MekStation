@@ -1,0 +1,44 @@
+{
+  "id": "clan-motorized-point-laser-basic",
+  "chassis": "Clan Motorized Point",
+  "model": "(Laser Basic)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2807,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 5,
+    "totalTroopers": 25
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle",
+    "name": "Laser Rifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 9604,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Clan doctrine generally treats conventional infantry as a necessary evil, though Clans like Hell's Horses have demonstrated that properly supported infantry can be an effective component of combined-arms operations. Motorized Points ride light vehicles or motorcycles that provide faster movement than foot infantry without the heavier logistical requirements of fully mechanized formations. They trade protection for speed, making them effective as screening forces and rapid-response elements but vulnerable when caught in sustained engagements. Equipped with laser rifles that offer superior range and armor penetration compared to ballistic weapons, these Points field one of the most effective personal arms available to conventional infantry, though the weapons are significantly more expensive and require warriors to carry additional power packs.</p>"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "id": "ceremonial-guard-caesars-royal-guard;-marion-hegemony",
+  "chassis": "Ceremonial Guard",
+  "model": "Caesar's Royal Guard; Marion Hegemony",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2950,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 5,
+    "totalTroopers": 25
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Ballistic Plate, Standard",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "ballistic-plate,-standard",
+      "name": "Ballistic Plate, Standard",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "machine-gun-support",
+    "name": "Machine Gun (Support)",
+    "count": 2
+  },
+  "mulId": 530,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Caesar's Royal Guard is the finest conventional infantry formation in the Marian Hegemony, and arguably the best in the entire Periphery. Organized along the Hegemony's Roman legionary model, the Guard draws recruits from across the Legiones Marianes, selecting only the most physically capable and fanatically loyal soldiers. Candidates endure punishing trials that test both combat skill and devotion to the Caesar, with the majority washing out before completion. Those who survive join a formation whose training never stops.</p><p>Royal Guardsmen wear ballistic plate armor deliberately styled to evoke ancient Roman legionary kit. The archaic appearance is deceptive. The armor incorporates modern materials capable of deflecting contemporary small arms fire. Armed with assault rifles and support machine guns, the Guard provides close protection for the Caesar through layered firepower and absolute willingness to die in his defense. The hundred-trooper formation operates as four platoon-equivalent groups, maintaining constant readiness regardless of political or military conditions within the Hegemony.</p>"
+  }
+}

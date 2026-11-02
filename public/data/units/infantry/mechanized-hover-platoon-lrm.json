@@ -1,0 +1,42 @@
+{
+  "id": "mechanized-hover-platoon-lrm",
+  "chassis": "Mechanized Hover Platoon",
+  "model": "(LRM)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3057,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 4,
+    "squadCount": 3,
+    "totalTroopers": 12
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": null,
+  "motiveType": "Hover",
+  "equipment": [],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrylrm",
+    "name": "InfantryLRM",
+    "count": 2
+  },
+  "mulId": 2134,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Mechanized hover platoons transport their infantry in hovercraft capable of crossing water, swamps, and open terrain at high speed. The fastest conventional mechanized formation available, hover platoons trade the all-terrain reliability of tracked vehicles for raw speed and amphibious capability. They are well suited to coastal defense, riverine operations, and rapid flanking maneuvers on open ground. Rough terrain and dense forests limit hovercraft effectiveness, and the vehicles offer less protection than heavier tracked or wheeled transports.</p>"
+  }
+}

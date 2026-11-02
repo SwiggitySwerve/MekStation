@@ -1,0 +1,42 @@
+{
+  "id": "vip",
+  "chassis": "VIP",
+  "model": "",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2400,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 1,
+    "totalTroopers": 5
+  },
+  "primaryWeapon": {
+    "id": "auto-pistol",
+    "name": "Auto-Pistol"
+  },
+  "armorKit": "Ablative/Flak, Concealed",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "ablative-flak,-concealed",
+      "name": "Ablative/Flak, Concealed",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "source": "Apocryphal",
+  "fluff": {
+    "overview": "They're very important to someone..."
+  }
+}

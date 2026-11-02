@@ -1,0 +1,47 @@
+{
+  "id": "jump-stealth-platoon-laser",
+  "chassis": "Jump Stealth Platoon",
+  "model": "(Laser)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2840,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "laser-pistol-blazer",
+    "name": "Laser Pistol (Blazer)"
+  },
+  "armorKit": "DEST Infiltration Suit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "dest-infiltration-suit",
+      "name": "DEST Infiltration Suit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": ["dest"],
+  "effectiveArmorFlags": ["dest"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "particle-cannon-semi-portable",
+    "name": "Particle Cannon (Semi-Portable)",
+    "count": 1
+  },
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Stealth jump laser platoons combine sneak suit concealment, jump pack mobility, and heavy energy weapons in a special operations formation. Armed with Blazer laser pistols and semi-portable particle cannons, these platoons can approach targets undetected, gain elevated firing positions via jump, and engage with weapons capable of damaging light armor. The particle cannons represent some of the heaviest firepower available to conventional infantry, giving these covert platoons a disproportionate offensive punch.</p>"
+  }
+}

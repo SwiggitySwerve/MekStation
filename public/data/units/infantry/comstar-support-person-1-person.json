@@ -1,0 +1,38 @@
+{
+  "id": "comstar-support-person-1-person",
+  "chassis": "ComStar Support Person",
+  "model": "(1 person)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2825,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 1,
+    "squadCount": 1,
+    "totalTroopers": 1
+  },
+  "primaryWeapon": {
+    "id": "blade-dagger-knife-bayonet",
+    "name": "Blade (Dagger/Knife/Bayonet)"
+  },
+  "armorKit": "Clothing, Fatigues/Civilian/Non-Armored",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "clothing,-fatigues-civilian-non-armored",
+      "name": "Clothing, Fatigues/Civilian/Non-Armored",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {}
+}

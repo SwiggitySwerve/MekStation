@@ -1,0 +1,49 @@
+{
+  "id": "submersible-mechanized-infantry-kraken-unleashed-the-mermen",
+  "chassis": "Submersible Mechanized Infantry",
+  "model": "Kraken Unleashed - The Mermen",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "STAR_LEAGUE",
+  "year": 2600,
+  "motionType": "SUBMARINE",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "gyroslug-rifle",
+    "name": "Gyroslug Rifle"
+  },
+  "armorKit": "Environment Suit, Marine",
+  "motiveType": "Submarine",
+  "equipment": [
+    {
+      "id": "environment-suit,-marine",
+      "name": "Environment Suit, Marine",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["spacesuit"],
+  "effectiveArmorFlags": ["spacesuit"],
+  "specializations": 4096,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrystandardsrm",
+    "name": "InfantryStandardSRM",
+    "count": 2
+  },
+  "mulId": 3116,
+  "role": "Ambusher",
+  "source": "TR:3085S",
+  "fluff": {
+    "overview": "<p>Kraken Unleashed is a mercenary regiment specializing in amphibious, underwater, and naval combat. Stationed on the Capellan world of Principia, the command worked with local shipwright industries to develop a new infantry capability: the Submersible Mechanized Infantry. Using locally produced Harpoon parasubs, five-trooper squads operate from unpressurized submersibles equipped with small torpedo launchers. Troopers fire their gyroslug rifles from the safety of the armored hull while the parasub provides propulsion and additional firepower. Unlike full-sized combat submarines, the Harpoon is compact enough to load into a transport and deploy anywhere on a planet within hours. The Mermen, Kraken Unleashed's dedicated infantry component, field these parasubs as their primary combat platform, bringing firepower sufficient to threaten even concerted underwater BattleMech assaults.</p>"
+  }
+}

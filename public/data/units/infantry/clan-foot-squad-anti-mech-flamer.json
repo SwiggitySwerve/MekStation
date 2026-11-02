@@ -1,0 +1,53 @@
+{
+  "id": "clan-foot-squad-anti-mech-flamer",
+  "chassis": "Clan Foot Squad (Anti-'Mech)",
+  "model": "(Flamer)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2815,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 1,
+    "totalTroopers": 5
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "flamer-man-portable",
+    "name": "Flamer (Man-Portable)",
+    "count": 2
+  },
+  "source": "TW",
+  "fluff": {
+    "overview": "<p>Clan anti-BattleMech foot squads field a squad-strength element trained to engage BattleMechs and armored vehicles at close quarters. Smaller than a standard anti-BattleMech Point, these squads operate as ambush teams and position-denial elements in terrain where their reduced numbers can be offset by concealment and surprise. The Clan warrior caste expects conventional infantry to hold ground at any cost, and anti-BattleMech squads embody that expectation in its most direct form.</p>"
+  }
+}

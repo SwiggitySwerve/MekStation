@@ -1,0 +1,83 @@
+{
+  "id": "field-gunners-light-gauss",
+  "chassis": "Field Gunners",
+  "model": "(Light Gauss)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3056,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islightgaussrifle",
+      "name": "ISLightGaussRifle",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-light-gauss-ammo",
+      "name": "IS Light Gauss Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islightgaussrifle",
+      "name": "ISLightGaussRifle",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-light-gauss-ammo",
+      "name": "IS Light Gauss Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "islightgaussrifle",
+      "name": "ISLightGaussRifle"
+    },
+    {
+      "id": "is-light-gauss-ammo",
+      "name": "IS Light Gauss Ammo"
+    },
+    {
+      "id": "islightgaussrifle",
+      "name": "ISLightGaussRifle"
+    },
+    {
+      "id": "is-light-gauss-ammo",
+      "name": "IS Light Gauss Ammo"
+    }
+  ],
+  "fluff": {
+    "overview": "<p>Field gun platoons crew gauss rifles that use magnetic acceleration to fire projectiles at extreme velocity with no chemical propellant signature. Gauss weapons deliver exceptional range and armor penetration with no ammunition explosion risk, making them among the safest and most effective field guns available. The technology is expensive and the weapons are heavier than equivalent autocannons, but the combination of accuracy, range, and safety gives gauss-equipped platoons a marked advantage in deliberate defensive positions.</p>"
+  }
+}

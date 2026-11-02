@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-wheeled-platoon-fwlm-laser-xct-2880+",
+  "chassis": "Mechanized Wheeled Platoon (FWLM)",
+  "model": "(Laser XCT 2880+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2880,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-intek",
+    "name": "Laser Rifle (Intek)"
+  },
+  "armorKit": "Environment Suit, Hostile",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "environment-suit,-hostile",
+      "name": "Environment Suit, Hostile",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor", "spacesuit"],
+  "effectiveArmorFlags": ["encumberingarmor", "spacesuit"],
+  "specializations": 2048,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "support-laser",
+    "name": "Support Laser",
+    "count": 1
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>New technology and creative tactical thinking have long featured in FWLM infantry deployment, with varied unit types and specialized formations treated as the norm rather than the exception. Wheeled mechanized platoons in FWLM service ride armored personnel carriers that offer good road speed and reasonable protection, making them well-suited to the League's developed industrial worlds where paved infrastructure supports rapid deployment between population centers. Equipped with laser rifles that offer superior range and armor penetration compared to ballistic weapons, these platoons field one of the most effective personal arms available to conventional infantry, though the weapons are significantly more expensive and require soldiers to carry additional power packs. These Xenoplanetary Condition Troops are trained and equipped for combat in hostile environments where standard infantry cannot operate effectively, carrying specialized survival gear for extreme temperatures, toxic atmospheres, or unusual gravity conditions.</p>"
+  }
+}

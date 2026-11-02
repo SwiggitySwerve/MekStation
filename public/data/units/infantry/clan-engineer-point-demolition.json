@@ -1,0 +1,54 @@
+{
+  "id": "clan-engineer-point-demolition",
+  "chassis": "Clan Engineer Point",
+  "model": "(Demolition)",
+  "unitType": "Infantry",
+  "techBase": "MIXED",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2840,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 10,
+    "squadCount": 2,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "rifle-bolt-action",
+    "name": "Rifle (Bolt-Action)"
+  },
+  "armorKit": "Clothing, Leather/Synthetic Hide",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "clothing,-leather-synthetic-hide",
+      "name": "Clothing, Leather/Synthetic Hide",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "demolition-charge",
+      "name": "Demolition Charge",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "demolition-charge",
+      "name": "Demolition Charge",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 2,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>By 2840 the Clans had abandoned general engineering as unworthy of warriors, retaining only the demolition training useful for breaching and destruction. These Points carry demolition charges to reduce fortifications and clear obstacles.</p>"
+  }
+}

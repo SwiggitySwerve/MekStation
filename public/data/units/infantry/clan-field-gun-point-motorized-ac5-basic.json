@@ -1,0 +1,104 @@
+{
+  "id": "clan-field-gun-point-motorized-ac5-basic",
+  "chassis": "Clan Field Gun Point",
+  "model": "(Motorized AC5 Basic)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2807,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 5,
+    "totalTroopers": 25
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5"
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5"
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5"
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5"
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5"
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>Conventional infantry within the Clan touman fills the garrison and screening roles that battle armor and BattleMech forces cannot efficiently sustain across dozens of occupied worlds. Field Gun Points are crew-served weapon teams that bring heavier firepower to the infantry level, towing weapons too large for individual soldiers to carry. The gun itself defines the Point's role, with lighter autocannons providing anti-infantry and anti-vehicle fire while heavier weapons can threaten even armored targets. The Point's field gun is a medium-caliber autocannon that balances range, accuracy, and stopping power, providing flexible direct-fire support against both vehicles and infantry concentrations.</p>"
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "id": "field-gun-platoon-lcaf-tracked-lbx10-3058+",
+  "chassis": "Field Gun Platoon (LCAF)",
+  "model": "(Tracked LBX10 3058+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3058,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "rifle-tk-assault",
+    "name": "Rifle (TK Assault)"
+  },
+  "armorKit": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "lyran-alliance-lyran-commonwealth-3060+-infantry-kit",
+      "name": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo",
+      "name": "IS LB 10-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo",
+      "name": "IS LB 10-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo",
+      "name": "IS LB 10-X Cluster Ammo"
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo",
+      "name": "IS LB 10-X Cluster Ammo"
+    }
+  ],
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Lyran military budgets translate directly into infantry equipment quality, giving LCAF conventional forces a material edge that compensates for the uneven tactical leadership the social general tradition sometimes produces. LCAF field gun platoons deploy towed or vehicle-mounted direct-fire weapons that give conventional infantry formations anti-armor and fire-support capability far beyond what personal weapons can deliver. Crewed by troops armed with standard assault rifles for self-defense, these platoons anchor defensive positions and provide heavy fire support during offensive operations.</p>"
+  }
+}

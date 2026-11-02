@@ -1,0 +1,48 @@
+{
+  "id": "jump-stealth-platoon-needler-demolition",
+  "chassis": "Jump Stealth Platoon",
+  "model": "(Needler Demolition)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2500,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 2,
+    "totalTroopers": 14
+  },
+  "primaryWeapon": {
+    "id": "needler-rifle-shredder-heavy",
+    "name": "Needler Rifle (Shredder Heavy)"
+  },
+  "armorKit": "Sneak Suit (Camo/IR/ECM)",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "demolition-charge",
+      "name": "Demolition Charge",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "sneak-suit-camo-ir-ecm",
+      "name": "Sneak Suit (Camo/IR/ECM)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": ["sneakcamo", "sneakir", "sneakecm"],
+  "effectiveArmorFlags": ["sneakcamo", "sneakir", "sneakecm"],
+  "specializations": 2,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Stealth demolition jump platoons are specialized sabotage formations equipped with sneak suits, jump packs, and Shredder heavy needler rifles. Trained for covert destruction of infrastructure, supply depots, and military installations, these platoons infiltrate under stealth, use jump mobility to bypass perimeter defenses, and carry demolition charges to their targets. The needler rifles provide lethal anti-personnel suppression during withdrawal without the noise signature of ballistic weapons.</p>"
+  }
+}
