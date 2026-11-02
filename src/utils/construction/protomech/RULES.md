@@ -236,3 +236,18 @@ entry syntax through both projections. Its single schema is owned by the BLK
 format types and populated by the shared conversion decoder. It does not
 replace current equipment IDs, locations or effective ammunition state; BV
 and costs continue using their existing inputs until those rules are verified.
+
+## Native offensive BV equipment
+
+`protoMechBVEquipment.ts` owns native miscellaneous offensive BV. Pinned
+MegaMek `48fcb2f6` `MiscType.java:1367-1369` assigns Quad melee
+`2.5 * ceil(0.2 * tonnage)`, before the offensive speed factor. There is no
+final Quad chassis multiplier. Clamps and electric-discharge armor use their
+catalog BV in this equipment pool, outside weapon BV and ammo caps
+(`BVCalculator.java:978-1042`). Their incorrect/missing catalog values remain
+catalog defects, without code overrides. Electric-discharge equipment does
+not change the armor-point coefficient. Fusillade uses ordinary weapon BV
+once per launcher; its two built-in shots add no separate ammo term
+(`CLFussilade.java:58-81`). Source fixtures verify all 12 residuals with the
+missing catalog facts supplied at the resolver boundary; this does not claim
+that the shipped catalog has those facts.

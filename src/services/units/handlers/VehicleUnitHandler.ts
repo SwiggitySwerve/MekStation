@@ -19,6 +19,7 @@ import {
   placeRejectedBlkVehicleArmor,
   resolveBlkVehicleArmor,
 } from '@/services/conversion/blkVehicleArmorLayout';
+import { projectCombatVehicleTurretSource } from '@/services/conversion/blkVehicleTurretSource';
 import {
   SuperHeavyVehicleLocation,
   VehicleLocation,
@@ -43,6 +44,7 @@ import {
 } from '@/utils/construction/vehicle/engine';
 import {
   getPrimaryVehicleTurretConfiguration,
+  getSecondaryVehicleTurretConfiguration,
   getVehicleMountFlags,
 } from '@/utils/construction/vehicle/equipmentMounts';
 
@@ -131,6 +133,12 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     document: IBlkDocument,
   ): Partial<IVehicle> & UnitFieldParseMessages {
     const { errors, warnings } = createParseMessages();
+    const turretSource = projectCombatVehicleTurretSource(document);
+    warnings.push(...turretSource.warnings);
+    if (!turretSource.success) {
+      errors.push(...turretSource.errors);
+      return { errors, warnings };
+    }
 
     // Motion type
     const motionTypeStr = document.motionType?.toLowerCase() || 'tracked';
@@ -239,6 +247,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
 
     return {
       unitType: UnitType.VEHICLE,
+      ...turretSource.facts,
       motionType: motionType || GroundMotionType.TRACKED,
       movement,
       engineType,
@@ -251,6 +260,10 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       totalArmorPoints,
       maxArmorPoints: this.calculateMaxArmor(document.tonnage),
       turret,
+      secondaryTurret: getSecondaryVehicleTurretConfiguration(
+        turret,
+        layoutArmor,
+      ),
       equipment,
       internalStructureType,
       structureLocations: Object.keys(placed.byLocation),
