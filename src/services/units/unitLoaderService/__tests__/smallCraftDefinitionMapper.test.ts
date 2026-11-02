@@ -8,7 +8,11 @@
  * - SmallCraft.java:77-78: the side locations are Aero's wing locations, named
  *   "Left Side" and "Right Side"
  * - SmallCraft.java:651-680: a rear-mounted side weapon fires into the aft-side arc
+ * - SmallCraft.java:75-78: location 4 is the internal "Hull"
  */
+
+import * as fs from 'fs';
+import * as path from 'path';
 
 import { createDefaultAerospaceState } from '@/stores/aerospaceState';
 import { createAerospaceStore } from '@/stores/useAerospaceStore';
@@ -352,7 +356,50 @@ describe('mapAerospaceDefinitionToState for small craft', () => {
         ...definition,
         equipment: [{ id: 'x', location: 'WINGS', isRearMounted: false }],
       }),
-    ).toThrow('Unknown aerospace location "WINGS"');
+    ).toThrow(
+      'The aerospace editor cannot open units with equipment or armor in the wings location yet.',
+    );
+  });
+
+  it('maps hull equipment on every committed small craft to the internal fuselage', async () => {
+    const directory = path.join(process.cwd(), 'public/data/units/aerospace');
+    const index = JSON.parse(
+      fs.readFileSync(path.join(directory, 'index.json'), 'utf8'),
+    ) as { units: { id: string; path: string }[] };
+    const hullMounts: Record<string, string[]> = {};
+    for (const row of index.units) {
+      const payload = JSON.parse(
+        fs.readFileSync(path.join(directory, row.path), 'utf8'),
+      ) as { equipment?: { location: string }[] };
+      const hull = (payload.equipment ?? []).flatMap((item, i) =>
+        item.location === 'HULL' ? [`mount-${i}`] : [],
+      );
+      if (hull.length === 0) continue;
+      const result = await loadUnitDefinition(
+        { read: async () => payload },
+        { source: 'canonical', id: row.id, family: 'aerospace' },
+      );
+      if (!result.success) throw new Error(result.error);
+      if (!isDefinitionForFamily('aerospace', result.definition)) {
+        throw new Error(`${row.id} is not an aerospace definition`);
+      }
+      const state = mapAerospaceDefinitionToState(result.definition, session);
+      hullMounts[row.id] = state.equipment
+        .filter((mount) => hull.includes(mount.id))
+        .map((mount) => mount.location);
+      expect(hullMounts[row.id]).toHaveLength(hull.length);
+    }
+    expect(Object.keys(hullMounts)).toHaveLength(6);
+    expect(Object.keys(hullMounts)).toEqual(
+      expect.arrayContaining([
+        'ares-attack-craft-mark-ix',
+        'nl-45-gunboat',
+        'zhen-niao',
+      ]),
+    );
+    expect(new Set(Object.values(hullMounts).flat())).toEqual(
+      new Set([AerospaceLocation.FUSELAGE]),
+    );
   });
 });
 
