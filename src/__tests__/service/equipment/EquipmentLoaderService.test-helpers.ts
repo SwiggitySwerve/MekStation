@@ -637,7 +637,7 @@ describe('EquipmentLoaderService', () => {
         service.getMiscEquipmentById('movement-enhancement')?.category,
       ).toBe(MiscEquipmentCategory.MOVEMENT);
       expect(service.getMiscEquipmentById('unknown-misc')?.category).toBe(
-        MiscEquipmentCategory.HEAT_SINK,
+        MiscEquipmentCategory.UNKNOWN,
       );
     });
 
