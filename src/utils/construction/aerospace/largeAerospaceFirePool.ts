@@ -4,7 +4,7 @@ import { sumCappedAmmoBV } from '../battleValueAmmo';
 import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
 
 // LargeAeroBVCalculator's BV_LOC_* order also resolves primary-arc ties.
-const ARCS = [
+export const LARGE_AEROSPACE_ARCS = [
   CapitalArc.NOSE,
   CapitalArc.FRONT_LEFT,
   CapitalArc.AFT_LEFT,
@@ -73,13 +73,13 @@ export function calculateLargeAerospaceFirePool(
   if (
     input.arcs.length !== 6 ||
     byArc.size !== 6 ||
-    ARCS.some((arc) => !byArc.has(arc))
+    LARGE_AEROSPACE_ARCS.some((arc) => !byArc.has(arc))
   ) {
     throw new Error(
       'Large aerospace BV requires each of the six firing arcs exactly once',
     );
   }
-  const arcs = ARCS.map((arc) => {
+  const arcs = LARGE_AEROSPACE_ARCS.map((arc) => {
     const facts = byArc.get(arc);
     if (!facts) throw new Error('Missing large aerospace firing arc');
     const weaponSelectionBV = facts.weaponSelectionBV ?? facts.weaponBV;

@@ -252,6 +252,23 @@ function contractAerospaceToBVUnit(
   };
 }
 
+function contractLargeAerospaceStageFacts(unit: IContractBVSource) {
+  return {
+    ...(unit.movement.maxThrust === undefined
+      ? {}
+      : { maxThrust: unit.movement.maxThrust }),
+    ...(unit.heatSinks
+      ? {
+          heatSinks: {
+            type: mapHeatSinkType(unit.heatSinks.type),
+            count: unit.heatSinks.count,
+          },
+        }
+      : {}),
+    ...(unit.cockpit === undefined ? {} : { cockpit: unit.cockpit }),
+  };
+}
+
 /** Route a contract unit to its adapter; throws for any other unitType. */
 export function contractUnitToBVUnit(
   unit: IContractBVSource,
@@ -282,18 +299,7 @@ export function contractUnitToBVUnit(
         'structuralIntegrity',
       ),
       ...contractAerospaceArmorFacts(unit),
-      ...(unit.movement.maxThrust === undefined
-        ? {}
-        : { maxThrust: unit.movement.maxThrust }),
-      ...(unit.heatSinks
-        ? {
-            heatSinks: {
-              type: mapHeatSinkType(unit.heatSinks.type),
-              count: unit.heatSinks.count,
-            },
-          }
-        : {}),
-      ...(unit.cockpit === undefined ? {} : { cockpit: unit.cockpit }),
+      ...contractLargeAerospaceStageFacts(unit),
       equipment: (unit.equipment ?? []).map((item) => ({
         equipmentId: item.id,
         location: item.location,

@@ -11,15 +11,8 @@ import {
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
 import { getAerospaceDefensiveEquipmentKind } from './aerospaceBVEquipment';
+import { LARGE_AEROSPACE_ARCS } from './largeAerospaceFirePool';
 
-const ARCS = [
-  CapitalArc.NOSE,
-  CapitalArc.FRONT_LEFT,
-  CapitalArc.AFT_LEFT,
-  CapitalArc.AFT,
-  CapitalArc.AFT_RIGHT,
-  CapitalArc.FRONT_RIGHT,
-] as const;
 const LOCATIONS: Readonly<Record<string, CapitalArc>> = {
   NOSE: CapitalArc.NOSE,
   AFT: CapitalArc.AFT,
@@ -67,7 +60,7 @@ export interface IDropShipMountBV {
 export function resolveDropShipMountBV(
   mounts: NonNullable<IDropShipBVUnit['equipment']>,
 ): IDropShipMountBV {
-  const arcs = ARCS.map((arc) => ({
+  const arcs = LARGE_AEROSPACE_ARCS.map((arc) => ({
     arc,
     weaponBV: 0,
     heat: 0,
