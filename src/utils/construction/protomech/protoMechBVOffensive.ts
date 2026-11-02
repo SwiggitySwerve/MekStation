@@ -6,6 +6,7 @@ import {
   normalizeEquipmentId,
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
+import { resolveProtoAmmoBV } from './protoMechAmmo';
 import { classifyEquipment } from './protoMechBVEquipment';
 
 /**
@@ -62,6 +63,15 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
     }
 
     if (kind === 'ammo') {
+      const protoAmmo = resolveProtoAmmoBV(mount.equipmentId);
+      if (protoAmmo) {
+        ammoForCap.push({
+          id: mount.equipmentId,
+          bv: protoAmmo.battleValue,
+          weaponType: protoAmmo.weaponType,
+        });
+        continue;
+      }
       const resolved = resolveEquipmentBV(mount.equipmentId);
       if (resolved.resolved) {
         const weaponType = normalizeEquipmentId(mount.equipmentId)
