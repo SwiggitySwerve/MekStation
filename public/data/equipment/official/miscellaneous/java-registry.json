@@ -1,0 +1,1614 @@
+{
+  "$schema": "../../_schema/misc-equipment-schema.json",
+  "items": [
+    {
+      "id": "ablative-concealed-registry",
+      "name": "Ablative, Concealed",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2385,
+      "costCBills": 1500,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Ablative, Concealed"
+      ]
+    },
+    {
+      "id": "ablative-standard-registry",
+      "name": "Ablative, Standard",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2100,
+      "costCBills": 1000,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Ablative, Standard"
+      ]
+    },
+    {
+      "id": "ablative-flak-concealed-registry",
+      "name": "Ablative/Flak, Concealed",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2385,
+      "costCBills": 1400,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Ablative/Flak, Concealed"
+      ]
+    },
+    {
+      "id": "ablative-flak-standard-registry",
+      "name": "Ablative/Flak, Standard",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2295,
+      "costCBills": 800,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Ablative/Flak, Standard"
+      ]
+    },
+    {
+      "id": "aerospace-fighter-pilot-kit-registry",
+      "name": "Aerospace Fighter Pilot Kit",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2190,
+      "costCBills": 4275,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Aerospace Fighter Pilot Kit"
+      ]
+    },
+    {
+      "id": "antimekgear-registry",
+      "name": "Anti-Mek Gear",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.015,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2451,
+      "costCBills": 0,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/miscGear/AntiMekGear.java: AntiMekGear",
+        "Java variable cost: -2147483648"
+      ]
+    },
+    {
+      "id": "ba-magnetic-clamp-registry",
+      "name": "Magnetic Clamps [BA]",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.03,
+      "criticalSlots": 2,
+      "battleValue": 1,
+      "introductionYear": 3052,
+      "costCBills": 2500,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: BA-Magnetic Clamp"
+      ]
+    },
+    {
+      "id": "bacargolifter-registry",
+      "name": "BA Manipulators [Cargo Lifter]",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2100,
+      "costCBills": 0,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: BACargoLifter",
+        "Java variable weight: 1.401298464324817e-45",
+        "Java variable cost: -2147483648"
+      ]
+    },
+    {
+      "id": "baisangelecmsuite-registry",
+      "name": "Angel ECM Suite",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.25,
+      "criticalSlots": 3,
+      "battleValue": 100,
+      "introductionYear": 3063,
+      "costCBills": 750000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: BAISAngelECMSuite"
+      ]
+    },
+    {
+      "id": "bamechanicaljumpbooster-registry",
+      "name": "Mechanical Jump Booster [BA]",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3070,
+      "costCBills": 0,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: BAMechanicalJumpBooster",
+        "Java variable weight: 1.401298464324817e-45",
+        "Java variable cost: -2147483648"
+      ]
+    },
+    {
+      "id": "ballistic-plate-concealed-registry",
+      "name": "Ballistic Plate, Concealed",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2805,
+      "costCBills": 2880,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Ballistic Plate, Concealed"
+      ]
+    },
+    {
+      "id": "ballistic-plate-standard-registry",
+      "name": "Ballistic Plate, Standard",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2300,
+      "costCBills": 1600,
+      "damageDivisor": 2,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Ballistic Plate, Standard"
+      ]
+    },
+    {
+      "id": "cl-ba-ecm-registry",
+      "name": "Single-Hex ECM",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.075,
+      "criticalSlots": 1,
+      "battleValue": 0,
+      "introductionYear": 2713,
+      "costCBills": 50000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: CL BA ECM"
+      ]
+    },
+    {
+      "id": "clbamyomerbooster-registry",
+      "name": "BA Myomer Booster",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.08333333333333333,
+      "criticalSlots": 3,
+      "battleValue": 0,
+      "introductionYear": 3072,
+      "costCBills": 0,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: CLBAMyomerBooster",
+        "Java variable cost: -2147483648"
+      ]
+    },
+    {
+      "id": "climprovedsensors-registry",
+      "name": "Improved Sensors",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.045,
+      "criticalSlots": 1,
+      "battleValue": 0,
+      "introductionYear": 2882,
+      "costCBills": 200000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: CLImprovedSensors"
+      ]
+    },
+    {
+      "id": "clmyomerbooster-registry",
+      "name": "Protomek Myomer Booster",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3061,
+      "costCBills": 0,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: CLMyomerBooster",
+        "Java variable weight: 1.401298464324817e-45",
+        "Java variable cost: -2147483648"
+      ]
+    },
+    {
+      "id": "cltargeting-computer-registry",
+      "name": "Targeting Computer",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2845,
+      "costCBills": 0,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: CLTargeting Computer",
+        "Java variable weight: 1.401298464324817e-45",
+        "Java variable criticalSlots: -2147483648",
+        "Java variable cost: -2147483648"
+      ]
+    },
+    {
+      "id": "camo-system-registry",
+      "name": "Camo System",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.2,
+      "criticalSlots": 2,
+      "battleValue": 0,
+      "introductionYear": 2785,
+      "costCBills": 0,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Camo System"
+      ]
+    },
+    {
+      "id": "capellan-confederation-armor-kit-3050-registry",
+      "name": "Capellan Confederation Armor Kit (3050)",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3045,
+      "costCBills": 450,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Capellan Confederation Armor Kit (3050)"
+      ]
+    },
+    {
+      "id": "cargo-registry",
+      "name": "Cargo",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 1950,
+      "costCBills": 0,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Cargo",
+        "Java variable weight: 1.401298464324817e-45",
+        "Java variable criticalSlots: -2147483648"
+      ]
+    },
+    {
+      "id": "clan-armor-kit-all-registry",
+      "name": "Clan Armor Kit (All)",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2845,
+      "costCBills": 5560,
+      "damageDivisor": 2,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Clan Armor Kit (All)"
+      ]
+    },
+    {
+      "id": "clan-ba-fire-resistant-registry",
+      "name": "BA Fire Resistant",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 5,
+      "battleValue": 0,
+      "introductionYear": 3047,
+      "costCBills": 10000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: Clan BA Fire Resistant"
+      ]
+    },
+    {
+      "id": "clan-ba-laser-reflective-reflec-glazed-registry",
+      "name": "BA Laser Reflective (Reflec/Glazed)",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 7,
+      "battleValue": 0,
+      "introductionYear": 3074,
+      "costCBills": 37000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: Clan BA Laser Reflective (Reflec/Glazed)"
+      ]
+    },
+    {
+      "id": "clan-ba-reactive-blazer-registry",
+      "name": "BA Reactive (Blazer)",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 7,
+      "battleValue": 0,
+      "introductionYear": 3075,
+      "costCBills": 37000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: Clan BA Reactive (Blazer)"
+      ]
+    },
+    {
+      "id": "clan-ba-stealth-basic-registry",
+      "name": "BA Stealth (Basic)",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 3,
+      "battleValue": 0,
+      "introductionYear": 3054,
+      "costCBills": 12000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: Clan BA Stealth (Basic)"
+      ]
+    },
+    {
+      "id": "clan-ba-stealth-improved-registry",
+      "name": "BA Stealth (Improved)",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 5,
+      "battleValue": 0,
+      "introductionYear": 3058,
+      "costCBills": 20000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: Clan BA Stealth (Improved)"
+      ]
+    },
+    {
+      "id": "clan-ba-stealth-standard-registry",
+      "name": "BA Stealth (Standard)",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 4,
+      "battleValue": 0,
+      "introductionYear": 3055,
+      "costCBills": 15000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: Clan BA Stealth (Standard)"
+      ]
+    },
+    {
+      "id": "clan-electric-discharge-protomech-registry",
+      "name": "Electric Discharge ProtoMech",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 0,
+      "criticalSlots": 1,
+      "battleValue": 32,
+      "introductionYear": 3066,
+      "extinctionYear": 3085,
+      "costCBills": 1250,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: Clan Electric Discharge ProtoMech"
+      ]
+    },
+    {
+      "id": "clan-ferro-lamellor-registry",
+      "name": "Ferro-Lamellor",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3070,
+      "costCBills": 35000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: Clan Ferro-Lamellor",
+        "Java variable criticalSlots: -2147483648"
+      ]
+    },
+    {
+      "id": "clan-reflective-registry",
+      "name": "Reflective",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3061,
+      "costCBills": 30000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: Clan Reflective",
+        "Java variable criticalSlots: -2147483648"
+      ]
+    },
+    {
+      "id": "clothing-fatigues-civilian-non-armored-registry",
+      "name": "Clothing, Fatigues/Civilian/Non-Armored",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 1950,
+      "extinctionYear": 1950,
+      "reintroductionYear": 1950,
+      "costCBills": 25,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Clothing, Fatigues/Civilian/Non-Armored"
+      ]
+    },
+    {
+      "id": "clothing-leather-synthetic-hide-registry",
+      "name": "Clothing, Leather/Synthetic Hide",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 1950,
+      "extinctionYear": 1950,
+      "reintroductionYear": 1950,
+      "costCBills": 100,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Clothing, Leather/Synthetic Hide"
+      ]
+    },
+    {
+      "id": "clothing-light-e-g-summer-wear-none-registry",
+      "name": "Clothing, Light (e.g. Summer Wear/None)",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 1950,
+      "extinctionYear": 1950,
+      "reintroductionYear": 1950,
+      "costCBills": 15,
+      "damageDivisor": 0.5,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Clothing, Light (e.g. Summer Wear/None)"
+      ]
+    },
+    {
+      "id": "comstar-infantry-kit-registry",
+      "name": "ComStar Infantry Kit",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2825,
+      "costCBills": 4280,
+      "damageDivisor": 2,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: ComStar Infantry Kit"
+      ]
+    },
+    {
+      "id": "dest-infiltration-suit-registry",
+      "name": "DEST Infiltration Suit",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2780,
+      "extinctionYear": 2850,
+      "reintroductionYear": 3045,
+      "costCBills": 50000,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: DEST Infiltration Suit"
+      ]
+    },
+    {
+      "id": "draconis-combine-infantry-kit-registry",
+      "name": "Draconis Combine Infantry Kit",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2620,
+      "costCBills": 360,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Draconis Combine Infantry Kit"
+      ]
+    },
+    {
+      "id": "eiinterface-registry",
+      "name": "Enhanced Imaging (EI) Interface",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3040,
+      "costCBills": 1500000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: EIInterface"
+      ]
+    },
+    {
+      "id": "engineering-suit-registry",
+      "name": "Engineering Suit",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2335,
+      "costCBills": 7500,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Engineering Suit"
+      ]
+    },
+    {
+      "id": "environment-suit-hostile-registry",
+      "name": "Environment Suit, Hostile",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2100,
+      "costCBills": 10000,
+      "damageDivisor": 2,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Environment Suit, Hostile"
+      ]
+    },
+    {
+      "id": "environment-suit-light-registry",
+      "name": "Environment Suit, Light",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2100,
+      "costCBills": 200,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Environment Suit, Light"
+      ]
+    },
+    {
+      "id": "environment-suit-marine-registry",
+      "name": "Environment Suit, Marine",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2310,
+      "costCBills": 15000,
+      "damageDivisor": 2,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Environment Suit, Marine"
+      ]
+    },
+    {
+      "id": "environmental-sealed-chassis-registry",
+      "name": "Combat Vehicle Chassis Mod [Environmental Sealing]",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2475,
+      "costCBills": 0,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Environmental Sealed Chassis",
+        "Java variable weight: 1.401298464324817e-45",
+        "Java variable cost: -2147483648"
+      ]
+    },
+    {
+      "id": "external-stores-hardpoint-registry",
+      "name": "External Stores Hardpoint",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.2,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 1950,
+      "costCBills": 5000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: External Stores Hardpoint"
+      ]
+    },
+    {
+      "id": "fed-suns-infantry-kit-3067-registry",
+      "name": "Fed Suns Infantry Kit (3067+)",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3065,
+      "costCBills": 2080,
+      "damageDivisor": 2,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Fed Suns Infantry Kit (3067+)"
+      ]
+    },
+    {
+      "id": "fed-suns-fed-commonwealth-infantry-kit-3030-3066-registry",
+      "name": "Fed Suns/Fed Commonwealth Infantry Kit (3030-3066)",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3025,
+      "extinctionYear": 3070,
+      "costCBills": 1040,
+      "damageDivisor": 2,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Fed Suns/Fed Commonwealth Infantry Kit (3030-3066)"
+      ]
+    },
+    {
+      "id": "federated-suns-infantry-kit-registry",
+      "name": "Federated Suns Infantry Kit",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2325,
+      "extinctionYear": 3035,
+      "costCBills": 750,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Federated Suns Infantry Kit"
+      ]
+    },
+    {
+      "id": "flak-concealed-registry",
+      "name": "Flak, Concealed",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2100,
+      "costCBills": 225,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Flak, Concealed"
+      ]
+    },
+    {
+      "id": "flak-standard-registry",
+      "name": "Flak, Standard",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2100,
+      "costCBills": 150,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Flak, Standard"
+      ]
+    },
+    {
+      "id": "free-rasalhague-republic-infantry-kit-registry",
+      "name": "Free Rasalhague Republic Infantry Kit",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3035,
+      "costCBills": 360,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Free Rasalhague Republic Infantry Kit"
+      ]
+    },
+    {
+      "id": "free-worlds-league-infantry-kit-registry",
+      "name": "Free Worlds League Infantry Kit",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2280,
+      "extinctionYear": 3050,
+      "costCBills": 950,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Free Worlds League Infantry Kit"
+      ]
+    },
+    {
+      "id": "free-worlds-league-infantry-kit-3035-registry",
+      "name": "Free Worlds League Infantry Kit (3035+)",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3030,
+      "costCBills": 1830,
+      "damageDivisor": 2,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Free Worlds League Infantry Kit (3035+)"
+      ]
+    },
+    {
+      "id": "generic-infantry-kit-registry",
+      "name": "Generic Infantry Kit",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2100,
+      "costCBills": 330,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Generic Infantry Kit"
+      ]
+    },
+    {
+      "id": "heat-suit-registry",
+      "name": "Heat Suit",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2345,
+      "costCBills": 100,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Heat Suit"
+      ]
+    },
+    {
+      "id": "is-ba-advanced-registry",
+      "name": "BA Advanced",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 5,
+      "battleValue": 0,
+      "introductionYear": 3057,
+      "costCBills": 12500,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: IS BA Advanced"
+      ]
+    },
+    {
+      "id": "is-ba-ecm-registry",
+      "name": "Single-Hex ECM",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.1,
+      "criticalSlots": 1,
+      "battleValue": 0,
+      "introductionYear": 2713,
+      "extinctionYear": 2766,
+      "reintroductionYear": 3057,
+      "costCBills": 50000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: IS BA ECM"
+      ]
+    },
+    {
+      "id": "is-ba-laser-reflective-reflec-glazed-registry",
+      "name": "BA Laser Reflective (Reflec/Glazed)",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 7,
+      "battleValue": 0,
+      "introductionYear": 3074,
+      "costCBills": 37000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: IS BA Laser Reflective (Reflec/Glazed)"
+      ]
+    },
+    {
+      "id": "is-ba-mimetic-registry",
+      "name": "BA Mimetic",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 7,
+      "battleValue": 0,
+      "introductionYear": 3053,
+      "costCBills": 15000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: IS BA Mimetic"
+      ]
+    },
+    {
+      "id": "is-ba-reactive-blazer-registry",
+      "name": "BA Reactive (Blazer)",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 7,
+      "battleValue": 0,
+      "introductionYear": 3075,
+      "costCBills": 37000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: IS BA Reactive (Blazer)"
+      ]
+    },
+    {
+      "id": "is-ba-stealth-basic-registry",
+      "name": "BA Stealth (Basic)",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 3,
+      "battleValue": 0,
+      "introductionYear": 2695,
+      "extinctionYear": 2770,
+      "reintroductionYear": 3052,
+      "costCBills": 12000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: IS BA Stealth (Basic)"
+      ]
+    },
+    {
+      "id": "is-ba-stealth-improved-registry",
+      "name": "BA Stealth (Improved)",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 5,
+      "battleValue": 0,
+      "introductionYear": 3050,
+      "costCBills": 20000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: IS BA Stealth (Improved)"
+      ]
+    },
+    {
+      "id": "is-ba-stealth-prototype-registry",
+      "name": "BA Stealth (Prototype)",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 4,
+      "battleValue": 0,
+      "introductionYear": 3050,
+      "extinctionYear": 3055,
+      "costCBills": 50000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: IS BA Stealth (Prototype)"
+      ]
+    },
+    {
+      "id": "is-ba-stealth-standard-registry",
+      "name": "BA Stealth (Standard)",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 4,
+      "battleValue": 0,
+      "introductionYear": 2705,
+      "extinctionYear": 2770,
+      "reintroductionYear": 3053,
+      "costCBills": 15000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: IS BA Stealth (Standard)"
+      ]
+    },
+    {
+      "id": "is-reflective-registry",
+      "name": "Reflective",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3058,
+      "costCBills": 30000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: IS Reflective",
+        "Java variable criticalSlots: -2147483648"
+      ]
+    },
+    {
+      "id": "is-vehicular-stealth-registry",
+      "name": "Vehicular Stealth",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3067,
+      "costCBills": 50000,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/ArmorType.java: IS Vehicular Stealth"
+      ]
+    },
+    {
+      "id": "isbaremotesensordispenser-registry",
+      "name": "Remote Sensors/Dispenser",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.04,
+      "criticalSlots": 1,
+      "battleValue": 0,
+      "introductionYear": 2695,
+      "costCBills": 7500,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: ISBARemoteSensorDispenser"
+      ]
+    },
+    {
+      "id": "istargeting-computer-registry",
+      "name": "Targeting Computer",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3047,
+      "costCBills": 0,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: ISTargeting Computer",
+        "Java variable weight: 1.401298464324817e-45",
+        "Java variable criticalSlots: -2147483648",
+        "Java variable cost: -2147483648"
+      ]
+    },
+    {
+      "id": "lyran-alliance-lyran-commonwealth-3060-infantry-kit-registry",
+      "name": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3058,
+      "costCBills": 730,
+      "damageDivisor": 2,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit"
+      ]
+    },
+    {
+      "id": "lyran-commonwealth-infantry-kit-registry",
+      "name": "Lyran Commonwealth Infantry Kit",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2420,
+      "extinctionYear": 3067,
+      "costCBills": 650,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Lyran Commonwealth Infantry Kit"
+      ]
+    },
+    {
+      "id": "magistracy-of-canopus-infantry-kit-registry",
+      "name": "Magistracy of Canopus Infantry Kit",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2600,
+      "costCBills": 400,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Magistracy of Canopus Infantry Kit"
+      ]
+    },
+    {
+      "id": "marian-hegemony-infantry-kit-registry",
+      "name": "Marian Hegemony Infantry Kit",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3045,
+      "costCBills": 1580,
+      "damageDivisor": 2,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Marian Hegemony Infantry Kit"
+      ]
+    },
+    {
+      "id": "mechwarrior-combat-suit-registry",
+      "name": "MechWarrior Combat Suit",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2685,
+      "costCBills": 20000,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: MechWarrior Combat Suit"
+      ]
+    },
+    {
+      "id": "mechwarrior-cooling-suit-registry",
+      "name": "MechWarrior Cooling Suit",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2475,
+      "reintroductionYear": 3050,
+      "costCBills": 500,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: MechWarrior Cooling Suit"
+      ]
+    },
+    {
+      "id": "mechwarrior-cooling-vest-only-registry",
+      "name": "MechWarrior Cooling Vest (Only)",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2435,
+      "costCBills": 200,
+      "damageDivisor": 0.5,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: MechWarrior Cooling Vest (Only)"
+      ]
+    },
+    {
+      "id": "mekwarrior-kit-advanced-registry",
+      "name": "MekWarrior Kit (Advanced)",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2685,
+      "costCBills": 21575,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: MekWarrior Kit (Advanced)"
+      ]
+    },
+    {
+      "id": "mekwarrior-kit-basic-registry",
+      "name": "MekWarrior Kit (Basic)",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2440,
+      "costCBills": 1281,
+      "damageDivisor": 0.5,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: MekWarrior Kit (Basic)"
+      ]
+    },
+    {
+      "id": "mekwarrior-kit-clan-registry",
+      "name": "MekWarrior Kit (Clan)",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2475,
+      "costCBills": 10100,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: MekWarrior Kit (Clan)"
+      ]
+    },
+    {
+      "id": "myomer-suit-registry",
+      "name": "Myomer, Suit",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3040,
+      "costCBills": 5800,
+      "damageDivisor": 2,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Myomer, Suit"
+      ]
+    },
+    {
+      "id": "myomer-vest-registry",
+      "name": "Myomer, Vest",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3039,
+      "costCBills": 1800,
+      "damageDivisor": 2,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Myomer, Vest"
+      ]
+    },
+    {
+      "id": "neo-chainmail-registry",
+      "name": "Neo-Chainmail",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3057,
+      "costCBills": 920,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Neo-Chainmail"
+      ]
+    },
+    {
+      "id": "parka-registry",
+      "name": "Parka",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 1950,
+      "extinctionYear": 1950,
+      "reintroductionYear": 1950,
+      "costCBills": 50,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Parka"
+      ]
+    },
+    {
+      "id": "protomechjumpjet-registry",
+      "name": "Jump Jet",
+      "category": "Miscellaneous",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3050,
+      "costCBills": 0,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: ProtoMechJumpJet",
+        "Java variable weight: 1.401298464324817e-45"
+      ]
+    },
+    {
+      "id": "sldf-infantry-kit-registry",
+      "name": "SLDF Infantry Kit",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2565,
+      "costCBills": 5000,
+      "damageDivisor": 2,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: SLDF Infantry Kit"
+      ]
+    },
+    {
+      "id": "sneak-suit-camo-registry",
+      "name": "Sneak Suit (Camo)",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2425,
+      "costCBills": 7000,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Sneak Suit (Camo)"
+      ]
+    },
+    {
+      "id": "sneak-suit-camo-ecm-registry",
+      "name": "Sneak Suit (Camo/ECM)",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2440,
+      "costCBills": 21000,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Sneak Suit (Camo/ECM)"
+      ]
+    },
+    {
+      "id": "sneak-suit-camo-ir-registry",
+      "name": "Sneak Suit (Camo/IR)",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2440,
+      "costCBills": 21000,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Sneak Suit (Camo/IR)"
+      ]
+    },
+    {
+      "id": "sneak-suit-camo-ir-ecm-registry",
+      "name": "Sneak Suit (Camo/IR/ECM)",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2460,
+      "costCBills": 28000,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Sneak Suit (Camo/IR/ECM)"
+      ]
+    },
+    {
+      "id": "sneak-suit-ecm-registry",
+      "name": "Sneak Suit (ECM)",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2425,
+      "costCBills": 7000,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Sneak Suit (ECM)"
+      ]
+    },
+    {
+      "id": "sneak-suit-ir-registry",
+      "name": "Sneak Suit (IR)",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2425,
+      "costCBills": 7000,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Sneak Suit (IR)"
+      ]
+    },
+    {
+      "id": "sneak-suit-ir-ecm-registry",
+      "name": "Sneak Suit (IR/ECM)",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2440,
+      "costCBills": 21000,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Sneak Suit (IR/ECM)"
+      ]
+    },
+    {
+      "id": "snowsuit-registry",
+      "name": "Snowsuit",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 1950,
+      "extinctionYear": 1950,
+      "reintroductionYear": 1950,
+      "costCBills": 70,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Snowsuit"
+      ]
+    },
+    {
+      "id": "spacesuit-registry",
+      "name": "Spacesuit",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2100,
+      "extinctionYear": 2100,
+      "reintroductionYear": 2100,
+      "costCBills": 5000,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Spacesuit"
+      ]
+    },
+    {
+      "id": "spacesuit-combat-registry",
+      "name": "Spacesuit, Combat",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2100,
+      "extinctionYear": 2200,
+      "reintroductionYear": 2100,
+      "costCBills": 7000,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Spacesuit, Combat"
+      ]
+    },
+    {
+      "id": "tanker-s-smock-registry",
+      "name": "Tanker's Smock",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2440,
+      "costCBills": 275,
+      "damageDivisor": 2,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Tanker's Smock"
+      ]
+    },
+    {
+      "id": "taurian-concordat-calderon-infantry-kit-registry",
+      "name": "Taurian Concordat/Calderon Infantry Kit",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3045,
+      "costCBills": 370,
+      "damageDivisor": 1,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Taurian Concordat/Calderon Infantry Kit"
+      ]
+    },
+    {
+      "id": "vehiclejumpjet-registry",
+      "name": "Jump Jet",
+      "category": "Miscellaneous",
+      "techBase": "BOTH",
+      "rulesLevel": "ADVANCED",
+      "weight": 0,
+      "criticalSlots": 1,
+      "battleValue": 0,
+      "introductionYear": 2650,
+      "extinctionYear": 2840,
+      "reintroductionYear": 3078,
+      "costCBills": 0,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: VehicleJumpJet",
+        "Java variable weight: 1.401298464324817e-45"
+      ]
+    },
+    {
+      "id": "word-of-blake-infantry-kit-registry",
+      "name": "Word of Blake Infantry Kit",
+      "category": "Miscellaneous",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3053,
+      "extinctionYear": 3081,
+      "costCBills": 4300,
+      "damageDivisor": 2,
+      "allowedUnitTypes": ["Infantry"],
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/MiscType.java: Word of Blake Infantry Kit"
+      ]
+    }
+  ]
+}

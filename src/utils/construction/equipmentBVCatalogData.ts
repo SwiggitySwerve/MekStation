@@ -3,6 +3,7 @@ import ammunitionArtillery from '../../../public/data/equipment/official/ammunit
 import ammunitionAtm from '../../../public/data/equipment/official/ammunition/atm.json';
 import ammunitionAutocannon from '../../../public/data/equipment/official/ammunition/autocannon.json';
 import ammunitionGauss from '../../../public/data/equipment/official/ammunition/gauss.json';
+import registryAmmo from '../../../public/data/equipment/official/ammunition/java-registry.json';
 import ammunitionLrm from '../../../public/data/equipment/official/ammunition/lrm.json';
 import ammunitionMachinegun from '../../../public/data/equipment/official/ammunition/machinegun.json';
 import ammunitionMrm from '../../../public/data/equipment/official/ammunition/mrm.json';
@@ -15,6 +16,7 @@ import electronicsEcm from '../../../public/data/equipment/official/electronics/
 import electronicsOther from '../../../public/data/equipment/official/electronics/other.json';
 import miscellaneousDefensive from '../../../public/data/equipment/official/miscellaneous/defensive.json';
 import miscellaneousHeatSinks from '../../../public/data/equipment/official/miscellaneous/heat-sinks.json';
+import registryMisc from '../../../public/data/equipment/official/miscellaneous/java-registry.json';
 import miscellaneousJumpJets from '../../../public/data/equipment/official/miscellaneous/jump-jets.json';
 import miscellaneousMovement from '../../../public/data/equipment/official/miscellaneous/movement.json';
 import miscellaneousMyomer from '../../../public/data/equipment/official/miscellaneous/myomer.json';
@@ -26,6 +28,7 @@ import weaponsBallisticOther from '../../../public/data/equipment/official/weapo
 import weaponsEnergyLaser from '../../../public/data/equipment/official/weapons/energy-laser.json';
 import weaponsEnergyOther from '../../../public/data/equipment/official/weapons/energy-other.json';
 import weaponsEnergyPpc from '../../../public/data/equipment/official/weapons/energy-ppc.json';
+import registryWeapons from '../../../public/data/equipment/official/weapons/java-registry.json';
 import weaponsMissileAtm from '../../../public/data/equipment/official/weapons/missile-atm.json';
 import weaponsMissileLrm from '../../../public/data/equipment/official/weapons/missile-lrm.json';
 import weaponsMissileMrm from '../../../public/data/equipment/official/weapons/missile-mrm.json';
@@ -39,6 +42,7 @@ interface CatalogDataFile {
 }
 
 export const WEAPON_CATALOG_FILES: readonly CatalogDataFile[] = [
+  registryWeapons,
   weaponsEnergyLaser,
   weaponsEnergyPpc,
   weaponsEnergyOther,
@@ -62,6 +66,7 @@ export const ELECTRONICS_CATALOG_FILES: readonly CatalogDataFile[] = [
 ] as const;
 
 export const MISCELLANEOUS_CATALOG_FILES: readonly CatalogDataFile[] = [
+  registryMisc,
   miscellaneousHeatSinks,
   miscellaneousJumpJets,
   miscellaneousMovement,
@@ -71,6 +76,7 @@ export const MISCELLANEOUS_CATALOG_FILES: readonly CatalogDataFile[] = [
 ] as const;
 
 export const AMMUNITION_CATALOG_FILES: readonly CatalogDataFile[] = [
+  registryAmmo,
   ammunitionArtillery,
   ammunitionAtm,
   ammunitionAutocannon,

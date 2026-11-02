@@ -101,6 +101,14 @@ describe('pinned native lookup identities', () => {
     ['Clan LB 2-X AC Ammo (20)', 'clan-lb-2-x-ac'],
     ['CLAPGaussRifle Ammo (10)', 'apgaussrifle'],
     ['(B) Naval Gauss (Heavy)', 'naval-gauss-heavy'],
+    ['(B) Clan Ammo LRM-15:Shots8#', 'clan-ammo-lrm-15-registry'],
+    [
+      '(B) IS Ammo LRM-15 Artemis-capable:Shots8#',
+      'is-ammo-lrm-15-artemis-capable-registry',
+    ],
+    ['(B) Naval Laser 55', 'naval-laser-55-registry'],
+    ['ISBAERMediumLaser:LA', 'isbaermediumlaser-registry'],
+    ['Clan Ammo LRM-15 (10)', 'clan-ammo-lrm-15-registry'],
   ])('parses mount metadata in %s', (native, canonical) => {
     expect(getEquipmentEntry(native)?.id).toBe(canonical);
   });
@@ -116,11 +124,6 @@ describe('pinned native lookup identities', () => {
     'ISERMediumLaser:20',
     'ISERMediumLaser:Unknown',
     'ISERMediumLaser:SIZE:bad',
-    '(B) Clan Ammo LRM-15:Shots8#',
-    '(B) IS Ammo LRM-15 Artemis-capable:Shots8#',
-    '(B) Naval Laser 55',
-    'ISBAERMediumLaser:LA',
-    'Clan Ammo LRM-15 (10)',
   ])('leaves missing variants and malformed tokens unresolved: %s', (id) => {
     expect(getEquipmentEntry(id)).toBeUndefined();
   });

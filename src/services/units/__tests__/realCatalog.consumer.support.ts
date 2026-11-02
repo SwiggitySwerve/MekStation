@@ -234,7 +234,7 @@ export function testCatalog(
           }
         }
         clearSessions();
-        const allowed = unresolvedAllowlist[family];
+        const allowed: readonly string[] = unresolvedAllowlist[family];
         const unexpected = [...unresolved]
           .filter((id) => !allowed.includes(id))
           .sort();

@@ -1,5 +1,6 @@
 import { normalizeEquipmentId as normalizeMTFId } from '@/services/conversion/MTFParser.mapping';
 
+import equipmentIndex from '../../../../public/data/equipment/official/index.json';
 /** @spec openspec/changes/establish-all-unit-data-parity/specs/equipment-services/spec.md */
 import { processCritAmmoSlot } from '../../../../scripts/validate-bv-crit-scan-ammo';
 import { createEmptyCritScan } from '../../../../scripts/validate-bv-crit-scan-types';
@@ -82,7 +83,7 @@ it.each(collisions)(
 
 it('resolves every ammunition record including IDs shared with weapons', () => {
   const entries = AMMUNITION_CATALOG_FILES.flatMap((file) => file.items ?? []);
-  expect(entries).toHaveLength(289);
+  expect(entries).toHaveLength(equipmentIndex.totalItems.ammunition);
   for (const entry of entries) {
     if (typeof entry.id !== 'string' || typeof entry.battleValue !== 'number') {
       throw new Error('Invalid ammunition catalog fixture');

@@ -1,5 +1,19 @@
 # Equipment category and lookup rules
 
+`scripts/equipment-catalog/` adds pinned Java registry identities with the
+lowercase kebab-case internal name plus `-registry`. It rejects ID collisions and
+preserves every existing catalog item and alias value. Java lookup results
+decide shared alias ownership. Both registry lookup and BV use the catalog's
+existing name-mappings owner. Identity resolution does not establish legality.
+The generator records variable Java sentinels in `special`; numeric zero is
+the catalog's existing variable-value convention, not a calculated mass/BV.
+`kgPerShot` and infantry kit `damageDivisor` are intrinsic Java facts; the
+ProtoMech and infantry BV stopgap consumers remain until a separate migration.
+Ammo compatibility keeps the extractor's platform/technology priority because
+some existing BV readers use the first compatible weapon as their pool key.
+`protected-aliases.json` freezes existing resolver results and explicit alias
+owner targets; generation preserves them alongside the unchanged alias map.
+
 `EquipmentParsers` owns conversion of catalog category strings to equipment
 enums. The miscellaneous parser explicitly maps Heat Sink, Jump Jet, Movement
 Enhancement, Defensive, Myomer, Industrial and Miscellaneous. Unrecognized

@@ -29,6 +29,8 @@ export enum AmmoCategory {
   NARC = 'NARC',
   ARTILLERY = 'Artillery',
   AMS = 'AMS',
+  CAPITAL = 'Capital',
+  OTHER = 'Other',
 }
 
 /**
@@ -36,6 +38,7 @@ export enum AmmoCategory {
  */
 export enum AmmoVariant {
   STANDARD = 'Standard',
+  OTHER = 'Other',
   ARMOR_PIERCING = 'Armor-Piercing',
   CLUSTER = 'Cluster',
   PRECISION = 'Precision',

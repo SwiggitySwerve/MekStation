@@ -76,10 +76,13 @@ const ammoCategoryMap: Readonly<Record<string, AmmoCategory>> = {
   NARC: AmmoCategory.NARC,
   Artillery: AmmoCategory.ARTILLERY,
   AMS: AmmoCategory.AMS,
+  Capital: AmmoCategory.CAPITAL,
+  Other: AmmoCategory.OTHER,
 };
 
 const ammoVariantMap: Readonly<Record<string, AmmoVariant>> = {
   Standard: AmmoVariant.STANDARD,
+  Other: AmmoVariant.OTHER,
   'Armor-Piercing': AmmoVariant.ARMOR_PIERCING,
   Cluster: AmmoVariant.CLUSTER,
   Precision: AmmoVariant.PRECISION,

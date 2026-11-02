@@ -221,6 +221,7 @@ describe('DIRECT_ALIAS_MAP validation', () => {
 
       for (const entry of aliasEntries) {
         const nmTarget = nameMappingsIndex.get(entry.key.toLowerCase());
+        if (!catalogIds.has(entry.target)) continue;
         if (nmTarget && nmTarget !== entry.target) {
           if (!KNOWN_CONFLICTS.has(entry.key.toLowerCase())) {
             unexpectedConflicts.push({

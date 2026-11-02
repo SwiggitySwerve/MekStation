@@ -1,0 +1,6185 @@
+{
+  "$schema": "../../_schema/weapon-schema.json",
+  "items": [
+    {
+      "id": "aa-weapon-mk-1-light-registry",
+      "name": "AA Weapon (Mk. 1, Light)",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.005,
+      "criticalSlots": 0,
+      "battleValue": 0.7,
+      "introductionYear": 2485,
+      "allowedUnitTypes": ["Infantry"],
+      "reintroductionYear": 3056,
+      "costCBills": 1000,
+      "subType": "InfantrySupportMk1LightAAWeapon",
+      "damage": 0.23,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportMk1LightAAWeapon.java: AA Weapon (Mk. 1, Light)"
+      ]
+    },
+    {
+      "id": "aa-weapon-mk-2-man-portable-registry",
+      "name": "AA Weapon (Mk. 2, Man-Portable)",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.035,
+      "criticalSlots": 0,
+      "battleValue": 4.14,
+      "introductionYear": 2493,
+      "allowedUnitTypes": ["Infantry"],
+      "reintroductionYear": 3056,
+      "costCBills": 3500,
+      "subType": "InfantrySupportMk2PortableAAWeapon",
+      "damage": 0.81,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 4,
+        "minimum": 0,
+        "short": 2,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportMk2PortableAAWeapon.java: AA Weapon (Mk. 2, Man-Portable)"
+      ]
+    },
+    {
+      "id": "auto-pistol-registry",
+      "name": "Auto-Pistol",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0005,
+      "criticalSlots": 0,
+      "battleValue": 0.19,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 50,
+      "subType": "InfantryPistolAutoPistolWeapon",
+      "damage": 0.21,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolAutoPistolWeapon.java: Auto-Pistol"
+      ]
+    },
+    {
+      "id": "auto-pistol-m-g-registry",
+      "name": "Auto-Pistol (M&G)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.00065,
+      "criticalSlots": 0,
+      "battleValue": 0.16,
+      "introductionYear": 2485,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 60,
+      "subType": "InfantryPistolMauserAutoPistolWeapon",
+      "damage": 0.17,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolMauserAutoPistolWeapon.java: Auto-Pistol (M&G)"
+      ]
+    },
+    {
+      "id": "auto-pistol-magnum-registry",
+      "name": "Auto-Pistol (Magnum)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0005,
+      "criticalSlots": 0,
+      "battleValue": 0.19,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 75,
+      "subType": "InfantryPistolMagnumAutoPistolWeapon",
+      "damage": 0.21,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolMagnumAutoPistolWeapon.java: Auto-Pistol (Magnum)"
+      ]
+    },
+    {
+      "id": "auto-pistol-nambu-registry",
+      "name": "Auto-Pistol (Nambu)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.00045,
+      "criticalSlots": 0,
+      "battleValue": 0.19,
+      "introductionYear": 2530,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 75,
+      "subType": "InfantryPistolNambuAutoPistolWeapon",
+      "damage": 0.21,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolNambuAutoPistolWeapon.java: Auto-Pistol (Nambu)"
+      ]
+    },
+    {
+      "id": "auto-pistol-serrek-7875d-registry",
+      "name": "Auto-Pistol (Serrek 7875D)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0004,
+      "criticalSlots": 0,
+      "battleValue": 0.15,
+      "introductionYear": 2800,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 185,
+      "subType": "InfantryPistolSerrekAutoPistolWeapon",
+      "damage": 0.16,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolSerrekAutoPistolWeapon.java: Auto-Pistol (Serrek 7875D)"
+      ]
+    },
+    {
+      "id": "auto-shotgun-registry",
+      "name": "Auto-Shotgun",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.005,
+      "criticalSlots": 0,
+      "battleValue": 0.21,
+      "introductionYear": 2100,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 200,
+      "subType": "InfantryShotgunAutomaticWeapon",
+      "damage": 0.23,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/shotgun/InfantryShotgunAutomaticWeapon.java: Auto-Shotgun"
+      ]
+    },
+    {
+      "id": "autocannon-bearhunter-superheavy-registry",
+      "name": "Autocannon (Bearhunter Superheavy)",
+      "category": "Ballistic",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.04,
+      "criticalSlots": 0,
+      "battleValue": 2.13,
+      "introductionYear": 3054,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 3000,
+      "subType": "InfantrySupportClanBearhunterAutocannonWeapon",
+      "damage": 2.33,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/clan/InfantrySupportClanBearhunterAutocannonWeapon.java: Autocannon (Bearhunter Superheavy)"
+      ]
+    },
+    {
+      "id": "autocannon-semi-portable-registry",
+      "name": "Autocannon (Semi-Portable)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.025,
+      "criticalSlots": 0,
+      "battleValue": 2.35,
+      "introductionYear": 2100,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 2000,
+      "subType": "InfantrySupportPortableAutocannonWeapon",
+      "damage": 0.77,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportPortableAutocannonWeapon.java: Autocannon (Semi-Portable)"
+      ]
+    },
+    {
+      "id": "autocannon-10-primitive-registry",
+      "name": "Primitive Prototype Autocannon/10",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 12,
+      "criticalSlots": 7,
+      "battleValue": 123,
+      "introductionYear": 2450,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 200000,
+      "subType": "ISAC10Primitive",
+      "damage": 10,
+      "heat": 3,
+      "ranges": {
+        "long": 15,
+        "medium": 10,
+        "minimum": 0,
+        "short": 5,
+        "extreme": 20
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISAC10Primitive.java: Autocannon/10 Primitive"
+      ]
+    },
+    {
+      "id": "autocannon-20-primitive-registry",
+      "name": "Primitive Prototype Autocannon/20",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 14,
+      "criticalSlots": 10,
+      "battleValue": 178,
+      "introductionYear": 2488,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 300000,
+      "subType": "ISAC20Primitive",
+      "damage": 20,
+      "heat": 7,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISAC20Primitive.java: Autocannon/20 Primitive"
+      ]
+    },
+    {
+      "id": "autocannon-5-primitive-registry",
+      "name": "Primitive Prototype Autocannon/5",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 8,
+      "criticalSlots": 4,
+      "battleValue": 70,
+      "introductionYear": 2240,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 125000,
+      "subType": "ISAC5Primitive",
+      "damage": 5,
+      "heat": 1,
+      "ranges": {
+        "long": 18,
+        "medium": 12,
+        "minimum": 3,
+        "short": 6,
+        "extreme": 24
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISAC5Primitive.java: Autocannon/5 Primitive"
+      ]
+    },
+    {
+      "id": "baclermediumpulselaser-registry",
+      "name": "ER Medium Pulse Laser",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.8,
+      "criticalSlots": 4,
+      "battleValue": 117,
+      "introductionYear": 3057,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 150000,
+      "subType": "CLBAERPulseLaserMedium",
+      "damage": 7,
+      "heat": 6,
+      "ranges": {
+        "long": 14,
+        "medium": 9,
+        "minimum": 0,
+        "short": 5,
+        "extreme": 21
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBAERPulseLaserMedium.java: BACLERMediumPulseLaser"
+      ]
+    },
+    {
+      "id": "baminelauncher-registry",
+      "name": "Pop-up Mine",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.2,
+      "criticalSlots": 1,
+      "battleValue": 6,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 2500,
+      "subType": "ISBAPopUpMineLauncher",
+      "damage": "Java variable damage (-4)",
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBAPopUpMineLauncher.java: BAMineLauncher"
+      ]
+    },
+    {
+      "id": "battle-armor-lb-x-ac-registry",
+      "name": "Battle Armor LB-X AC",
+      "category": "Ballistic",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "weight": 0.4,
+      "criticalSlots": 2,
+      "battleValue": 20,
+      "introductionYear": 3075,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 70000,
+      "subType": "CLBALBX",
+      "damage": 4,
+      "heat": 0,
+      "ranges": {
+        "long": 8,
+        "medium": 5,
+        "minimum": 0,
+        "short": 2,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/CLBALBX.java: Battle Armor LB-X AC"
+      ]
+    },
+    {
+      "id": "blade-dagger-knife-bayonet-registry",
+      "name": "Blade (Dagger/Knife/Bayonet)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0025,
+      "criticalSlots": 0,
+      "battleValue": 0.02,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 8,
+      "subType": "InfantryArchaicDaggerWeapon",
+      "damage": 0.02,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/archaic/InfantryArchaicDaggerWeapon.java: Blade (Dagger/Knife/Bayonet)"
+      ]
+    },
+    {
+      "id": "blade-vibro-blade-registry",
+      "name": "Blade (Vibro-blade)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.00035,
+      "criticalSlots": 0,
+      "battleValue": 0.19,
+      "introductionYear": 2393,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 100,
+      "subType": "InfantryArchaicVibroBladeWeapon",
+      "damage": 0.21,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/archaic/InfantryArchaicVibroBladeWeapon.java: Blade (Vibro-blade)"
+      ]
+    },
+    {
+      "id": "blade-vibro-katana-registry",
+      "name": "Blade (Vibro-katana)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.003,
+      "criticalSlots": 0,
+      "battleValue": 0.29,
+      "introductionYear": 2435,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 350,
+      "subType": "InfantryArchaicVibroKatanaWeapon",
+      "damage": 0.32,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/archaic/InfantryArchaicVibroKatanaWeapon.java: Blade (Vibro-katana)"
+      ]
+    },
+    {
+      "id": "clbaermediumlaser-registry",
+      "name": "ER Medium Laser",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.8,
+      "criticalSlots": 3,
+      "battleValue": 108,
+      "introductionYear": 2867,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 80000,
+      "subType": "CLBALaserERMedium",
+      "damage": 7,
+      "heat": 5,
+      "ranges": {
+        "long": 15,
+        "medium": 10,
+        "minimum": 0,
+        "short": 5,
+        "extreme": 20
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBALaserERMedium.java: CLBAERMediumLaser"
+      ]
+    },
+    {
+      "id": "clbaermicrolaser-registry",
+      "name": "ER Micro Laser",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.15,
+      "criticalSlots": 1,
+      "battleValue": 7,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 10000,
+      "subType": "CLBALaserERMicro",
+      "damage": 2,
+      "heat": 1,
+      "ranges": {
+        "long": 4,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBALaserERMicro.java: CLBAERMicroLaser"
+      ]
+    },
+    {
+      "id": "clbaersmalllaser-registry",
+      "name": "ER Small Laser",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.35,
+      "criticalSlots": 2,
+      "battleValue": 31,
+      "introductionYear": 2867,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 11250,
+      "subType": "CLBALaserERSmall",
+      "damage": 5,
+      "heat": 2,
+      "ranges": {
+        "long": 6,
+        "medium": 4,
+        "minimum": 0,
+        "short": 2,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBALaserERSmall.java: CLBAERSmallLaser"
+      ]
+    },
+    {
+      "id": "clbaersmallpulselaser-registry",
+      "name": "ER Small Pulse Laser",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.55,
+      "criticalSlots": 2,
+      "battleValue": 36,
+      "introductionYear": 3057,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 30000,
+      "subType": "CLBAERPulseLaserSmall",
+      "damage": 5,
+      "heat": 3,
+      "ranges": {
+        "long": 6,
+        "medium": 4,
+        "minimum": 0,
+        "short": 2,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBAERPulseLaserSmall.java: CLBAERSmallPulseLaser"
+      ]
+    },
+    {
+      "id": "clbaflamer-registry",
+      "name": "Flamer [BA]",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.15,
+      "criticalSlots": 1,
+      "battleValue": 5,
+      "introductionYear": 2860,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 7500,
+      "subType": "CLBAFlamer",
+      "damage": 2,
+      "heat": 3,
+      "ranges": {
+        "long": 3,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/CLBAFlamer.java: CLBAFlamer"
+      ]
+    },
+    {
+      "id": "clbaheavyflamer-registry",
+      "name": "Heavy Flamer [BA]",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.35,
+      "criticalSlots": 1,
+      "battleValue": 15,
+      "introductionYear": 3065,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 11250,
+      "subType": "CLBAFlamerHeavy",
+      "damage": 4,
+      "heat": 5,
+      "ranges": {
+        "long": 4,
+        "medium": 3,
+        "minimum": 0,
+        "short": 2,
+        "extreme": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/CLBAFlamerHeavy.java: CLBAHeavyFlamer"
+      ]
+    },
+    {
+      "id": "clbaheavygrenadelauncher-registry",
+      "name": "Grenade Launcher (Heavy)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.1,
+      "criticalSlots": 1,
+      "battleValue": 1,
+      "introductionYear": 2875,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 4500,
+      "subType": "CLBAGrenadeLauncherHeavy",
+      "damage": 1,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/CLBAGrenadeLauncherHeavy.java: CLBAHeavyGrenadeLauncher"
+      ]
+    },
+    {
+      "id": "clbaheavymortar-registry",
+      "name": "Mortar (Heavy)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.4,
+      "criticalSlots": 2,
+      "battleValue": 17,
+      "introductionYear": 3049,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 7500,
+      "subType": "CLBAMortarHeavy",
+      "damage": 3,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 4,
+        "minimum": 2,
+        "short": 2,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/CLBAMortarHeavy.java: CLBAHeavyMortar"
+      ]
+    },
+    {
+      "id": "clbaheavysmalllaser-registry",
+      "name": "Heavy Small Laser",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 3,
+      "battleValue": 15,
+      "introductionYear": 3052,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 20000,
+      "subType": "CLBALaserHeavySmall",
+      "damage": 6,
+      "heat": 3,
+      "ranges": {
+        "long": 3,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBALaserHeavySmall.java: CLBAHeavySmallLaser"
+      ]
+    },
+    {
+      "id": "clbalrm5-registry",
+      "name": "LRM 5",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.175,
+      "criticalSlots": 4,
+      "battleValue": 55,
+      "introductionYear": 3053,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 30000,
+      "subType": "CLBALRM5",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 21,
+        "medium": 14,
+        "minimum": 0,
+        "short": 7,
+        "extreme": 28
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/lrm/CLBALRM5.java: CLBALRM5"
+      ]
+    },
+    {
+      "id": "clbalightmortar-registry",
+      "name": "Mortar (Light)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.3,
+      "criticalSlots": 2,
+      "battleValue": 9,
+      "introductionYear": 3049,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 2100,
+      "subType": "CLBAMortarLight",
+      "damage": 3,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 2,
+        "minimum": 1,
+        "short": 1,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/CLBAMortarLight.java: CLBALightMortar"
+      ]
+    },
+    {
+      "id": "clbalighttag-registry",
+      "name": "TAG (Light)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.035,
+      "criticalSlots": 1,
+      "battleValue": 0,
+      "introductionYear": 3051,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 40000,
+      "subType": "CLBALightTAG",
+      "damage": 0,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/CLBALightTAG.java: CLBALightTAG"
+      ]
+    },
+    {
+      "id": "clbamediumpulselaser-registry",
+      "name": "Medium Pulse Laser",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.8,
+      "criticalSlots": 3,
+      "battleValue": 111,
+      "introductionYear": 2865,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 60000,
+      "subType": "CLBAPulseLaserMedium",
+      "damage": 7,
+      "heat": 4,
+      "ranges": {
+        "long": 12,
+        "medium": 8,
+        "minimum": 0,
+        "short": 4,
+        "extreme": 16
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBAPulseLaserMedium.java: CLBAMediumPulseLaser"
+      ]
+    },
+    {
+      "id": "clbamicrobomb-registry",
+      "name": "Bomb Rack (Micro)",
+      "category": "Ballistic",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.1,
+      "criticalSlots": 2,
+      "battleValue": 11,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 30000,
+      "subType": "CLBAMicroBomb",
+      "damage": "Java variable damage (-3)",
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/CLBAMicroBomb.java: CLBAMicroBomb"
+      ]
+    },
+    {
+      "id": "clbamicropulselaser-registry",
+      "name": "Micro Pulse Laser",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.16,
+      "criticalSlots": 1,
+      "battleValue": 12,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 12500,
+      "subType": "CLBAPulseLaserMicro",
+      "damage": 3,
+      "heat": 1,
+      "ranges": {
+        "long": 3,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBAPulseLaserMicro.java: CLBAMicroPulseLaser"
+      ]
+    },
+    {
+      "id": "clbasrm2-registry",
+      "name": "SRM 2",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.07,
+      "criticalSlots": 2,
+      "battleValue": 21,
+      "introductionYear": 2860,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 10000,
+      "subType": "CLBASRM2",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM2.java: CLBASRM2"
+      ]
+    },
+    {
+      "id": "clbasrm4-registry",
+      "name": "SRM 4",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.14,
+      "criticalSlots": 2,
+      "battleValue": 39,
+      "introductionYear": 2860,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 20000,
+      "subType": "CLBASRM4",
+      "damage": "Java variable damage (-2)",
+      "heat": 3,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM4.java: CLBASRM4"
+      ]
+    },
+    {
+      "id": "clbasrm6-registry",
+      "name": "SRM 6",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.21,
+      "criticalSlots": 3,
+      "battleValue": 59,
+      "introductionYear": 2860,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 30000,
+      "subType": "CLBASRM6",
+      "damage": "Java variable damage (-2)",
+      "heat": 4,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM6.java: CLBASRM6"
+      ]
+    },
+    {
+      "id": "clbasmall-laser-registry",
+      "name": "Small Laser",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.2,
+      "criticalSlots": 1,
+      "battleValue": 9,
+      "introductionYear": 2860,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 11250,
+      "subType": "CLBALaserSmall",
+      "damage": 3,
+      "heat": 1,
+      "ranges": {
+        "long": 3,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBALaserSmall.java: CLBASmall Laser"
+      ]
+    },
+    {
+      "id": "clbasmallpulselaser-registry",
+      "name": "Small Pulse Laser",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.4,
+      "criticalSlots": 1,
+      "battleValue": 24,
+      "introductionYear": 2865,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 16000,
+      "subType": "CLBAPulseLaserSmall",
+      "damage": 3,
+      "heat": 2,
+      "ranges": {
+        "long": 6,
+        "medium": 4,
+        "minimum": 0,
+        "short": 2,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBAPulseLaserSmall.java: CLBASmallPulseLaser"
+      ]
+    },
+    {
+      "id": "clermediumlaserprototype-registry",
+      "name": "Prototype ER Medium Laser (CP)",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "battleValue": 62,
+      "introductionYear": 2814,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2829,
+      "costCBills": 80000,
+      "subType": "CLERLaserMediumPrototype",
+      "damage": 5,
+      "heat": 5,
+      "ranges": {
+        "long": 12,
+        "medium": 8,
+        "minimum": 0,
+        "short": 4,
+        "extreme": 16
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLERLaserMediumPrototype.java: CLERMediumLaserPrototype"
+      ]
+    },
+    {
+      "id": "clheavyflamer-registry",
+      "name": "Heavy Flamer",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "battleValue": 15,
+      "introductionYear": 3068,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ],
+      "costCBills": 11250,
+      "subType": "CLHeavyFlamer",
+      "damage": 4,
+      "heat": 5,
+      "ranges": {
+        "long": 4,
+        "medium": 3,
+        "minimum": 0,
+        "short": 2,
+        "extreme": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/flamers/clan/CLHeavyFlamer.java: CLHeavyFlamer"
+      ]
+    },
+    {
+      "id": "clheavymg-registry",
+      "name": "Heavy Machine Gun",
+      "category": "Ballistic",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "battleValue": 6,
+      "introductionYear": 3049,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 7500,
+      "subType": "CLHeavyMG",
+      "damage": 3,
+      "heat": 0,
+      "ranges": {
+        "long": 2,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 2
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/mgs/clan/CLHeavyMG.java: CLHeavyMG"
+      ]
+    },
+    {
+      "id": "clrocketlauncher10prototype-registry",
+      "name": "Prototype Rocket Launcher 10",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "battleValue": 15,
+      "introductionYear": 2095,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 15000,
+      "subType": "PrototypeRL10",
+      "damage": "Java variable damage (-2)",
+      "heat": 3,
+      "ranges": {
+        "long": 18,
+        "medium": 11,
+        "minimum": 0,
+        "short": 5,
+        "extreme": 27
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/PrototypeRL10.java: CLRocketLauncher10Prototype"
+      ]
+    },
+    {
+      "id": "clrocketlauncher15prototype-registry",
+      "name": "Prototype Rocket Launcher 15",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 1,
+      "criticalSlots": 2,
+      "battleValue": 18,
+      "introductionYear": 2095,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 30000,
+      "subType": "PrototypeRL15",
+      "damage": "Java variable damage (-2)",
+      "heat": 4,
+      "ranges": {
+        "long": 15,
+        "medium": 9,
+        "minimum": 0,
+        "short": 4,
+        "extreme": 22
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/PrototypeRL15.java: CLRocketLauncher15Prototype"
+      ]
+    },
+    {
+      "id": "clwerppc-registry",
+      "name": "Enhanced PPC",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "weight": 7,
+      "criticalSlots": 3,
+      "battleValue": 329,
+      "introductionYear": 2817,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2831,
+      "reintroductionYear": 3080,
+      "costCBills": 300000,
+      "subType": "CLEnhancedPPC",
+      "damage": 12,
+      "heat": 15,
+      "ranges": {
+        "long": 23,
+        "medium": 14,
+        "minimum": 0,
+        "short": 7,
+        "extreme": 34
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/ppc/clan/CLEnhancedPPC.java: CLWERPPC"
+      ]
+    },
+    {
+      "id": "capital-missile-launcher-ar10-launcher-registry",
+      "name": "Capital Missile Launcher (AR10 Launcher)",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 250,
+      "criticalSlots": 0,
+      "battleValue": 961,
+      "introductionYear": 2535,
+      "reintroductionYear": 3051,
+      "costCBills": 250000,
+      "subType": "AR10Weapon",
+      "damage": 2,
+      "heat": 20,
+      "ranges": {
+        "long": 40,
+        "medium": 30,
+        "minimum": 0,
+        "short": 20,
+        "extreme": 50
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/AR10Weapon.java: Capital Missile Launcher (AR10 Launcher)"
+      ]
+    },
+    {
+      "id": "capital-missile-launcher-barracuda-registry",
+      "name": "Capital Missile Launcher (Barracuda)",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 90,
+      "criticalSlots": 0,
+      "battleValue": 522,
+      "introductionYear": 2195,
+      "reintroductionYear": 3051,
+      "costCBills": 90000,
+      "subType": "CapMissBarracudaWeapon",
+      "damage": 2,
+      "heat": 10,
+      "ranges": {
+        "long": 40,
+        "medium": 30,
+        "minimum": 0,
+        "short": 20,
+        "extreme": 50
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissBarracudaWeapon.java: Capital Missile Launcher (Barracuda)"
+      ]
+    },
+    {
+      "id": "capital-missile-launcher-killer-whale-registry",
+      "name": "Capital Missile Launcher (Killer Whale)",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 150,
+      "criticalSlots": 0,
+      "battleValue": 769,
+      "introductionYear": 2195,
+      "reintroductionYear": 3051,
+      "costCBills": 150000,
+      "subType": "CapMissKillerWhaleWeapon",
+      "damage": 4,
+      "heat": 20,
+      "ranges": {
+        "long": 21,
+        "medium": 14,
+        "minimum": 0,
+        "short": 7,
+        "extreme": 28
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissKillerWhaleWeapon.java: Capital Missile Launcher (Killer Whale)"
+      ]
+    },
+    {
+      "id": "capital-missile-launcher-white-shark-registry",
+      "name": "Capital Missile Launcher (White Shark)",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 120,
+      "criticalSlots": 0,
+      "battleValue": 577,
+      "introductionYear": 2195,
+      "reintroductionYear": 3051,
+      "costCBills": 130000,
+      "subType": "CapMissWhiteSharkWeapon",
+      "damage": 3,
+      "heat": 15,
+      "ranges": {
+        "long": 36,
+        "medium": 24,
+        "minimum": 0,
+        "short": 12,
+        "extreme": 48
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissWhiteSharkWeapon.java: Capital Missile Launcher (White Shark)"
+      ]
+    },
+    {
+      "id": "centurion-weapon-system-registry",
+      "name": "Centurion Weapon System",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 5,
+      "criticalSlots": 2,
+      "battleValue": 190,
+      "introductionYear": 2757,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2775,
+      "costCBills": 1000000,
+      "subType": "ISCenturionWeaponSystem",
+      "damage": 0,
+      "heat": 4,
+      "ranges": {
+        "long": 18,
+        "medium": 12,
+        "minimum": 0,
+        "short": 6,
+        "extreme": 24
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/innerSphere/ISCenturionWeaponSystem.java: Centurion Weapon System"
+      ]
+    },
+    {
+      "id": "ceres-arms-crowdbuster-registry",
+      "name": "Ceres Arms Crowdbuster",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.001,
+      "criticalSlots": 0,
+      "battleValue": 0.1,
+      "introductionYear": 3023,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 150,
+      "subType": "InfantryShotgunCeresCrowdbusterWeapon",
+      "damage": 0.11,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/shotgun/InfantryShotgunCeresCrowdbusterWeapon.java: Ceres Arms Crowdbuster"
+      ]
+    },
+    {
+      "id": "clan-mech-mortar-8-registry",
+      "name": "'Mech Mortar 8",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 5,
+      "criticalSlots": 3,
+      "battleValue": 50,
+      "introductionYear": 2830,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ],
+      "costCBills": 70000,
+      "subType": "CLMekMortar8",
+      "damage": "Java variable damage (-2)",
+      "heat": 10,
+      "ranges": {
+        "long": 21,
+        "medium": 14,
+        "minimum": 6,
+        "short": 7,
+        "extreme": 28
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/mortars/clan/CLMekMortar8.java: Clan Mech Mortar-8"
+      ]
+    },
+    {
+      "id": "elephant-gun-registry",
+      "name": "Elephant Gun",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.005,
+      "criticalSlots": 0,
+      "battleValue": 0.34,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 100,
+      "subType": "InfantryRifleElephantGunWeapon",
+      "damage": 0.11,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleElephantGunWeapon.java: Elephant Gun"
+      ]
+    },
+    {
+      "id": "fire-extinguisher-registry",
+      "name": "Fire Extinguisher",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2820,
+      "costCBills": 0,
+      "subType": "ISFireExtinguisher",
+      "damage": 0,
+      "heat": 0,
+      "ranges": {
+        "long": 1,
+        "medium": 1,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 1
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/innerSphere/ISFireExtinguisher.java: Fire Extinguisher"
+      ]
+    },
+    {
+      "id": "flamer-heavy-registry",
+      "name": "Flamer (Heavy)",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.025,
+      "criticalSlots": 0,
+      "battleValue": 0.72,
+      "introductionYear": 2100,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 200,
+      "subType": "InfantrySupportHeavyFlamerWeapon",
+      "damage": 0.79,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/heavy/InfantrySupportHeavyFlamerWeapon.java: Flamer (Heavy)"
+      ]
+    },
+    {
+      "id": "flamer-man-portable-registry",
+      "name": "Flamer (Man-Portable)",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.015,
+      "criticalSlots": 0,
+      "battleValue": 0.5,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 100,
+      "subType": "InfantrySupportPortableFlamerWeapon",
+      "damage": 0.55,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportPortableFlamerWeapon.java: Flamer (Man-Portable)"
+      ]
+    },
+    {
+      "id": "fusillade-registry",
+      "name": "Fusillade Launcher",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "battleValue": 11,
+      "introductionYear": 3067,
+      "allowedUnitTypes": ["ProtoMech"],
+      "extinctionYear": 3075,
+      "costCBills": 100000,
+      "subType": "CLFussilade",
+      "damage": 6,
+      "heat": 0,
+      "ranges": {
+        "long": 15,
+        "medium": 10,
+        "minimum": 4,
+        "short": 5,
+        "extreme": 20
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/clan/CLFussilade.java: Fusillade"
+      ]
+    },
+    {
+      "id": "gauss-cannon-grand-mauler-registry",
+      "name": "Gauss Cannon (Grand Mauler)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.014,
+      "criticalSlots": 0,
+      "battleValue": 3.22,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 5000,
+      "subType": "InfantrySupportGrandMaulerGaussCannonWeapon",
+      "damage": 0.63,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/gauss/InfantrySupportGrandMaulerGaussCannonWeapon.java: Gauss Cannon (Grand Mauler)"
+      ]
+    },
+    {
+      "id": "gauss-rifle-gungnir-heavy-support-registry",
+      "name": "Gauss Rifle (Gungnir Heavy Support)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.06,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3069,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 15000,
+      "subType": "InfantrySupportGungnirHeavyGaussWeapon",
+      "damage": 1.23,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/gauss/InfantrySupportGungnirHeavyGaussWeapon.java: Gauss Rifle (Gungnir Heavy Support)"
+      ]
+    },
+    {
+      "id": "gauss-rifle-thunderstroke-ii-registry",
+      "name": "Gauss Rifle (Thunderstroke II)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0065,
+      "criticalSlots": 0,
+      "battleValue": 2.71,
+      "introductionYear": 3053,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 3500,
+      "subType": "InfantryRifleThunderstrokeIIWeapon",
+      "damage": 0.53,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleThunderstrokeIIWeapon.java: Gauss Rifle (Thunderstroke II)"
+      ]
+    },
+    {
+      "id": "gauss-rifle-thunderstroke-registry",
+      "name": "Gauss Rifle (Thunderstroke)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.007,
+      "criticalSlots": 0,
+      "battleValue": 0.79,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Infantry"],
+      "extinctionYear": 3095,
+      "costCBills": 2500,
+      "subType": "InfantryRifleThunderstrokeWeapon",
+      "damage": 0.26,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleThunderstrokeWeapon.java: Gauss Rifle (Thunderstroke)"
+      ]
+    },
+    {
+      "id": "gauss-rifle-tsunami-heavy-registry",
+      "name": "Gauss Rifle (Tsunami Heavy)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0125,
+      "criticalSlots": 0,
+      "battleValue": 3.22,
+      "introductionYear": 3048,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 5500,
+      "subType": "InfantrySupportTsunamiHeavyGaussRifleWeapon",
+      "damage": 0.63,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportTsunamiHeavyGaussRifleWeapon.java: Gauss Rifle (Tsunami Heavy)"
+      ]
+    },
+    {
+      "id": "gauss-rifle-light-david-registry",
+      "name": "Gauss Rifle, Light (David)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.018,
+      "criticalSlots": 0,
+      "battleValue": 4.01,
+      "introductionYear": 3055,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 6000,
+      "subType": "InfantrySupportDavidLightGaussRifleWeapon",
+      "damage": 0.56,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/gauss/InfantrySupportDavidLightGaussRifleWeapon.java: Gauss Rifle, Light (David)"
+      ]
+    },
+    {
+      "id": "gauss-rifle-light-king-david-registry",
+      "name": "Gauss Rifle, Light (King David)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.03,
+      "criticalSlots": 0,
+      "battleValue": 4.87,
+      "introductionYear": 3055,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 8000,
+      "subType": "InfantrySupportKingDavidLightGaussRifleWeapon",
+      "damage": 0.68,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/gauss/InfantrySupportKingDavidLightGaussRifleWeapon.java: Gauss Rifle, Light (King David)"
+      ]
+    },
+    {
+      "id": "gauss-submachine-gun-registry",
+      "name": "Gauss Submachine Gun",
+      "category": "Ballistic",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0045,
+      "criticalSlots": 0,
+      "battleValue": 1.38,
+      "introductionYear": 3046,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 2000,
+      "subType": "InfantrySMGClanGaussWeapon",
+      "damage": 0.45,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/smg/InfantrySMGClanGaussWeapon.java: Gauss Submachine Gun"
+      ]
+    },
+    {
+      "id": "grenade-launcher-registry",
+      "name": "Grenade Launcher",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.005,
+      "criticalSlots": 0,
+      "battleValue": 2.48,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 465,
+      "subType": "InfantrySupportGrenadeLauncherWeapon",
+      "damage": 0.81,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/grenadeLauncher/InfantrySupportGrenadeLauncherWeapon.java: Grenade Launcher"
+      ]
+    },
+    {
+      "id": "grenade-launcher-compact-registry",
+      "name": "Grenade Launcher (Compact)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.003,
+      "criticalSlots": 0,
+      "battleValue": 0.49,
+      "introductionYear": 2100,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 290,
+      "subType": "InfantrySupportGrenadeLauncherCompactWeapon",
+      "damage": 0.16,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/grenadeLauncher/InfantrySupportGrenadeLauncherCompactWeapon.java: Grenade Launcher (Compact)"
+      ]
+    },
+    {
+      "id": "gyrojet-rifle-registry",
+      "name": "Gyrojet Rifle",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.007,
+      "criticalSlots": 0,
+      "battleValue": 1.07,
+      "introductionYear": 2530,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 1000,
+      "subType": "InfantryRifleGyrojetRifleWeapon",
+      "damage": 0.35,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleGyrojetRifleWeapon.java: Gyrojet Rifle"
+      ]
+    },
+    {
+      "id": "gyroslug-rifle-registry",
+      "name": "Gyroslug Rifle",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.008,
+      "criticalSlots": 0,
+      "battleValue": 1.07,
+      "introductionYear": 2515,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 1000,
+      "subType": "InfantryRifleGyroslugRifleWeapon",
+      "damage": 0.35,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleGyroslugRifleWeapon.java: Gyroslug Rifle"
+      ]
+    },
+    {
+      "id": "is-mech-mortar-1-registry",
+      "name": "'Mech Mortar 1",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 2,
+      "criticalSlots": 1,
+      "battleValue": 10,
+      "introductionYear": 2521,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ],
+      "reintroductionYear": 3043,
+      "costCBills": 7000,
+      "subType": "ISMekMortar1",
+      "damage": "Java variable damage (-2)",
+      "heat": 1,
+      "ranges": {
+        "long": 21,
+        "medium": 14,
+        "minimum": 6,
+        "short": 7,
+        "extreme": 28
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/mortars/innerSphere/ISMekMortar1.java: IS Mech Mortar-1"
+      ]
+    },
+    {
+      "id": "is-mech-mortar-2-registry",
+      "name": "'Mech Mortar 2",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 5,
+      "criticalSlots": 2,
+      "battleValue": 14,
+      "introductionYear": 2521,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ],
+      "reintroductionYear": 3043,
+      "costCBills": 15000,
+      "subType": "ISMekMortar2",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 21,
+        "medium": 14,
+        "minimum": 6,
+        "short": 7,
+        "extreme": 28
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/mortars/innerSphere/ISMekMortar2.java: IS Mech Mortar-2"
+      ]
+    },
+    {
+      "id": "isbaapds-registry",
+      "name": "RISC Advanced Point Defense System",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.35,
+      "criticalSlots": 2,
+      "battleValue": 7,
+      "introductionYear": 3132,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 50000,
+      "subType": "ISBAAPDS",
+      "damage": 0,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBAAPDS.java: ISBAAPDS"
+      ]
+    },
+    {
+      "id": "isbaermediumlaser-registry",
+      "name": "ER Medium Laser",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.8,
+      "criticalSlots": 3,
+      "battleValue": 62,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 80000,
+      "subType": "ISBALaserERMedium",
+      "damage": 5,
+      "heat": 5,
+      "ranges": {
+        "long": 12,
+        "medium": 8,
+        "minimum": 0,
+        "short": 4,
+        "extreme": 16
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/laser/ISBALaserERMedium.java: ISBAERMediumLaser"
+      ]
+    },
+    {
+      "id": "isbaersmalllaser-registry",
+      "name": "ER Small Laser",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.35,
+      "criticalSlots": 2,
+      "battleValue": 17,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 11250,
+      "subType": "ISBALaserERSmall",
+      "damage": 3,
+      "heat": 0,
+      "ranges": {
+        "long": 5,
+        "medium": 4,
+        "minimum": 0,
+        "short": 2,
+        "extreme": 7
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/laser/ISBALaserERSmall.java: ISBAERSmallLaser"
+      ]
+    },
+    {
+      "id": "isbafiredrakeneedler-registry",
+      "name": "Needler (Firedrake)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.05,
+      "criticalSlots": 1,
+      "battleValue": 2,
+      "introductionYear": 3053,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 1500,
+      "subType": "ISBAFiredrakeNeedler",
+      "damage": 1,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBAFiredrakeNeedler.java: ISBAFireDrakeNeedler"
+      ]
+    },
+    {
+      "id": "isbaheavymachinegun-registry",
+      "name": "Machine Gun (Heavy)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.15,
+      "criticalSlots": 1,
+      "battleValue": 6,
+      "introductionYear": 3068,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 7500,
+      "subType": "ISBAMGHeavy",
+      "damage": 3,
+      "heat": 0,
+      "ranges": {
+        "long": 2,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 2
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBAMGHeavy.java: ISBAHeavyMachineGun"
+      ]
+    },
+    {
+      "id": "isbalrm5-registry",
+      "name": "LRM 5",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.3,
+      "criticalSlots": 4,
+      "battleValue": 45,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 30000,
+      "subType": "ISBALRM5",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 21,
+        "medium": 14,
+        "minimum": 6,
+        "short": 7,
+        "extreme": 28
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM5.java: ISBALRM5"
+      ]
+    },
+    {
+      "id": "isbamediumlaser-registry",
+      "name": "Medium Laser",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 3,
+      "battleValue": 46,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 40000,
+      "subType": "ISBALaserMedium",
+      "damage": 5,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/laser/ISBALaserMedium.java: ISBAMediumLaser"
+      ]
+    },
+    {
+      "id": "isbamediumpulselaser-registry",
+      "name": "Medium Pulse Laser",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.8,
+      "criticalSlots": 3,
+      "battleValue": 48,
+      "introductionYear": 3052,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 60000,
+      "subType": "ISBALaserPulseMedium",
+      "damage": 6,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 4,
+        "minimum": 0,
+        "short": 2,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/laser/ISBALaserPulseMedium.java: ISBAMediumPulseLaser"
+      ]
+    },
+    {
+      "id": "isbamediumvsplaser-registry",
+      "name": "Medium VSP Laser",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.9,
+      "criticalSlots": 4,
+      "battleValue": 56,
+      "introductionYear": 3070,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 200000,
+      "subType": "ISBALaserVSPMedium",
+      "damage": "Java variable damage (-3)",
+      "heat": 7,
+      "ranges": {
+        "long": 9,
+        "medium": 5,
+        "minimum": 0,
+        "short": 2,
+        "extreme": 13
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/laser/ISBALaserVSPMedium.java: ISBAMediumVSPLaser"
+      ]
+    },
+    {
+      "id": "isbamicrogrenadelauncher-registry",
+      "name": "Grenade Launcher (Micro)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.075,
+      "criticalSlots": 1,
+      "battleValue": 1,
+      "introductionYear": 2100,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 1950,
+      "subType": "ISBAGrenadeLauncherMicro",
+      "damage": 1,
+      "heat": 0,
+      "ranges": {
+        "long": 2,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 2
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBAGrenadeLauncherMicro.java: ISBAMicroGrenadeLauncher"
+      ]
+    },
+    {
+      "id": "isbaplasmarifle-registry",
+      "name": "Plasma Rifle (Man-Portable)",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.3,
+      "criticalSlots": 2,
+      "battleValue": 12,
+      "introductionYear": 3058,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 28000,
+      "subType": "ISBAPlasmaRifle",
+      "damage": 2,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 4,
+        "minimum": 0,
+        "short": 2,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBAPlasmaRifle.java: ISBAPlasmaRifle"
+      ]
+    },
+    {
+      "id": "isbarl1-registry",
+      "name": "Rocket Launcher 1",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.025,
+      "criticalSlots": 2,
+      "battleValue": 2,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 1500,
+      "subType": "ISBARL1",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 12,
+        "medium": 7,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 18
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/barl/ISBARL1.java: ISBARL1"
+      ]
+    },
+    {
+      "id": "isbarl2-registry",
+      "name": "Rocket Launcher 2",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.05,
+      "criticalSlots": 2,
+      "battleValue": 3,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 3000,
+      "subType": "ISBARL2",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 12,
+        "medium": 7,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 18
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/barl/ISBARL2.java: ISBARL2"
+      ]
+    },
+    {
+      "id": "isbarl4-registry",
+      "name": "Rocket Launcher 4",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.1,
+      "criticalSlots": 3,
+      "battleValue": 5,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 6000,
+      "subType": "ISBARL4",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 12,
+        "medium": 7,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 18
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/barl/ISBARL4.java: ISBARL4"
+      ]
+    },
+    {
+      "id": "isbarl5-registry",
+      "name": "Rocket Launcher 5",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.125,
+      "criticalSlots": 4,
+      "battleValue": 6,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 6000,
+      "subType": "ISBARL5",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 12,
+        "medium": 7,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 18
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/barl/ISBARL5.java: ISBARL5"
+      ]
+    },
+    {
+      "id": "isbasrm2-registry",
+      "name": "SRM 2",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.12,
+      "criticalSlots": 2,
+      "battleValue": 21,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 10000,
+      "subType": "ISBASRM2",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM2.java: ISBASRM2"
+      ]
+    },
+    {
+      "id": "isbasrm2os-registry",
+      "name": "SRM 2 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.075,
+      "criticalSlots": 2,
+      "battleValue": 4,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 5000,
+      "subType": "ISBASRM2OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM2OS.java: ISBASRM2OS"
+      ]
+    },
+    {
+      "id": "isbasrm3os-registry",
+      "name": "SRM 3 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.125,
+      "criticalSlots": 2,
+      "battleValue": 6,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 7500,
+      "subType": "ISBASRM3OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM3OS.java: ISBASRM3OS"
+      ]
+    },
+    {
+      "id": "isbasrm4-registry",
+      "name": "SRM 4",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.24,
+      "criticalSlots": 2,
+      "battleValue": 39,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 2000,
+      "subType": "ISBASRM4",
+      "damage": "Java variable damage (-2)",
+      "heat": 3,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM4.java: ISBASRM4"
+      ]
+    },
+    {
+      "id": "isbasrm4os-registry",
+      "name": "SRM 4 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.15,
+      "criticalSlots": 3,
+      "battleValue": 8,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 10000,
+      "subType": "ISBASRM4OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 3,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM4OS.java: ISBASRM4OS"
+      ]
+    },
+    {
+      "id": "isbasrm6os-registry",
+      "name": "SRM 6 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.2,
+      "criticalSlots": 4,
+      "battleValue": 12,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 15000,
+      "subType": "ISBASRM6OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 4,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM6OS.java: ISBASRM6OS"
+      ]
+    },
+    {
+      "id": "isbasmalllaser-registry",
+      "name": "Small Laser",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.2,
+      "criticalSlots": 1,
+      "battleValue": 9,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 11250,
+      "subType": "ISBALaserSmall",
+      "damage": 3,
+      "heat": 1,
+      "ranges": {
+        "long": 3,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/laser/ISBALaserSmall.java: ISBASmallLaser"
+      ]
+    },
+    {
+      "id": "isbasmallpulselaser-registry",
+      "name": "Small Pulse Laser",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.4,
+      "criticalSlots": 1,
+      "battleValue": 12,
+      "introductionYear": 3052,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 16000,
+      "subType": "ISBALaserPulseSmall",
+      "damage": 3,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/laser/ISBALaserPulseSmall.java: ISBASmallPulseLaser"
+      ]
+    },
+    {
+      "id": "isbasupportppc-registry",
+      "name": "Support PPC",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.25,
+      "criticalSlots": 2,
+      "battleValue": 14,
+      "introductionYear": 3046,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 14000,
+      "subType": "ISBASupportPPC",
+      "damage": 2,
+      "heat": 0,
+      "ranges": {
+        "long": 7,
+        "medium": 5,
+        "minimum": 0,
+        "short": 2,
+        "extreme": 10
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBASupportPPC.java: ISBASupportPPC"
+      ]
+    },
+    {
+      "id": "isbataser-registry",
+      "name": "Battle Armor Taser",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 0.3,
+      "criticalSlots": 3,
+      "battleValue": 15,
+      "introductionYear": 3067,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 10000,
+      "subType": "ISBATaser",
+      "damage": 1,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBATaser.java: ISBATaser"
+      ]
+    },
+    {
+      "id": "isbatubeartillery-registry",
+      "name": "Tube Artillery (BA)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 4,
+      "battleValue": 27,
+      "introductionYear": 3070,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 200000,
+      "subType": "ISBATubeArtillery",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 2,
+        "medium": 2,
+        "minimum": 0,
+        "short": 2,
+        "extreme": 2
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBATubeArtillery.java: ISBATubeArtillery"
+      ]
+    },
+    {
+      "id": "isbpod-registry",
+      "name": "Anti-BattleArmor Pods (B-Pods)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "battleValue": 2,
+      "introductionYear": 3060,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle"
+      ],
+      "costCBills": 2500,
+      "subType": "ISBPod",
+      "damage": 1,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/defensivePods/ISBPod.java: ISBPod"
+      ]
+    },
+    {
+      "id": "islongtom-registry",
+      "name": "Long Tom",
+      "category": "Artillery",
+      "techBase": "BOTH",
+      "rulesLevel": "ADVANCED",
+      "weight": 30,
+      "criticalSlots": 30,
+      "battleValue": 368,
+      "introductionYear": 2445,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 450000,
+      "subType": "LongTom",
+      "damage": "Java variable damage (-5)",
+      "heat": 20,
+      "ranges": {
+        "long": 30,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 30
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/artillery/LongTom.java: ISLongTom"
+      ]
+    },
+    {
+      "id": "islongtomcannon-registry",
+      "name": "Long Tom Cannon",
+      "category": "Artillery",
+      "techBase": "BOTH",
+      "rulesLevel": "ADVANCED",
+      "weight": 20,
+      "criticalSlots": 15,
+      "battleValue": 329,
+      "introductionYear": 3012,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 650000,
+      "subType": "LongTomCannon",
+      "damage": "Java variable damage (-5)",
+      "heat": 20,
+      "ranges": {
+        "long": 20,
+        "medium": 13,
+        "minimum": 4,
+        "short": 6,
+        "extreme": 30
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/artillery/LongTomCannon.java: ISLongTomCannon"
+      ]
+    },
+    {
+      "id": "isrischyperlaser-registry",
+      "name": "RISC Hyper Laser",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 8,
+      "criticalSlots": 6,
+      "battleValue": 596,
+      "introductionYear": 3134,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 750000,
+      "subType": "ISRISCHyperLaser",
+      "damage": 20,
+      "heat": 24,
+      "ranges": {
+        "long": 25,
+        "medium": 15,
+        "minimum": 0,
+        "short": 8,
+        "extreme": 37
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lasers/innerSphere/ISRISCHyperLaser.java: ISRISCHyperLaser"
+      ]
+    },
+    {
+      "id": "issrm2ios-registry",
+      "name": "SRM 2 (I-OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "battleValue": 4,
+      "introductionYear": 3056,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 8000,
+      "subType": "ISSRM2IOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/oneShot/ISSRM2IOS.java: ISSRM2IOS"
+      ]
+    },
+    {
+      "id": "issrm4ios-registry",
+      "name": "SRM 4 (I-OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "battleValue": 8,
+      "introductionYear": 3056,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 48000,
+      "subType": "ISSRM4IOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 3,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/oneShot/ISSRM4IOS.java: ISSRM4IOS"
+      ]
+    },
+    {
+      "id": "issrm4os-registry",
+      "name": "SRM 4 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 2.5,
+      "criticalSlots": 1,
+      "battleValue": 8,
+      "introductionYear": 2660,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "reintroductionYear": 3030,
+      "costCBills": 30000,
+      "subType": "ISSRM4OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 3,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/oneShot/ISSRM4OS.java: ISSRM4OS"
+      ]
+    },
+    {
+      "id": "issrm6os-registry",
+      "name": "SRM 6 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 3.5,
+      "criticalSlots": 2,
+      "battleValue": 12,
+      "introductionYear": 2660,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "reintroductionYear": 3030,
+      "costCBills": 40000,
+      "subType": "ISSRM6OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 4,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/oneShot/ISSRM6OS.java: ISSRM6OS"
+      ]
+    },
+    {
+      "id": "issrt2os-registry",
+      "name": "SRT 2 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "battleValue": 4,
+      "introductionYear": 2660,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "reintroductionYear": 3030,
+      "costCBills": 5000,
+      "subType": "ISSRT2OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/oneShot/ISSRT2OS.java: ISSRT2OS"
+      ]
+    },
+    {
+      "id": "issniper-registry",
+      "name": "Sniper",
+      "category": "Artillery",
+      "techBase": "BOTH",
+      "rulesLevel": "ADVANCED",
+      "weight": 20,
+      "criticalSlots": 20,
+      "battleValue": 85,
+      "introductionYear": 1950,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 300000,
+      "subType": "Sniper",
+      "damage": "Java variable damage (-5)",
+      "heat": 10,
+      "ranges": {
+        "long": 18,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 18
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/artillery/Sniper.java: ISSniper"
+      ]
+    },
+    {
+      "id": "isthumper-registry",
+      "name": "Thumper",
+      "category": "Artillery",
+      "techBase": "BOTH",
+      "rulesLevel": "ADVANCED",
+      "weight": 15,
+      "criticalSlots": 15,
+      "battleValue": 43,
+      "introductionYear": 1950,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 187500,
+      "subType": "Thumper",
+      "damage": "Java variable damage (-5)",
+      "heat": 5,
+      "ranges": {
+        "long": 21,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 21
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/artillery/Thumper.java: ISThumper"
+      ]
+    },
+    {
+      "id": "isultraac5prototype-registry",
+      "name": "Prototype Ultra Autocannon/5",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 9,
+      "criticalSlots": 6,
+      "battleValue": 112,
+      "introductionYear": 3029,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 3040,
+      "costCBills": 1000000,
+      "subType": "ISUAC5Prototype",
+      "damage": 5,
+      "heat": 1,
+      "ranges": {
+        "long": 20,
+        "medium": 13,
+        "minimum": 2,
+        "short": 6,
+        "extreme": 26
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/innerSphere/ISUAC5Prototype.java: ISUltraAC5Prototype"
+      ]
+    },
+    {
+      "id": "improvedlargepulselaser-registry",
+      "name": "Improved Large Pulse Laser",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 6,
+      "criticalSlots": 2,
+      "battleValue": 119,
+      "introductionYear": 2815,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2831,
+      "reintroductionYear": 3080,
+      "costCBills": 175000,
+      "subType": "CLImprovedPulseLaserLarge",
+      "damage": 9,
+      "heat": 10,
+      "ranges": {
+        "long": 10,
+        "medium": 7,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 15
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lasers/clan/large/CLImprovedPulseLaserLarge.java: ImprovedLargePulseLaser"
+      ]
+    },
+    {
+      "id": "infantryassaultrifle-registry",
+      "name": "Auto-Rifle (Modern, Generic)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.004,
+      "criticalSlots": 0,
+      "battleValue": 1.59,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 80,
+      "subType": "InfantryRifleAutoRifleWeapon",
+      "damage": 0.52,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleAutoRifleWeapon.java: InfantryAssaultRifle"
+      ]
+    },
+    {
+      "id": "infantryautogl-registry",
+      "name": "Grenade Launcher (Auto)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.012,
+      "criticalSlots": 0,
+      "battleValue": 4.55,
+      "introductionYear": 2100,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 975,
+      "subType": "InfantrySupportGrenadeLauncherAutoWeapon",
+      "damage": 1.49,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/grenadeLauncher/InfantrySupportGrenadeLauncherAutoWeapon.java: InfantryAutoGL"
+      ]
+    },
+    {
+      "id": "infantryautoglinferno-registry",
+      "name": "Grenade Launcher (Auto) - Incendiary",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.012,
+      "criticalSlots": 0,
+      "battleValue": 1.25,
+      "introductionYear": 2100,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 975,
+      "subType": "InfantrySupportGrenadeLauncherAutoInfernoWeapon",
+      "damage": 0.41,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/grenadeLauncher/InfantrySupportGrenadeLauncherAutoInfernoWeapon.java: InfantryAutoGLInferno"
+      ]
+    },
+    {
+      "id": "infantryfederatedbarrettm42b-registry",
+      "name": "Rifle (Federated-Barrett M42B)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.006,
+      "criticalSlots": 0,
+      "battleValue": 3.12,
+      "introductionYear": 3055,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 1385,
+      "subType": "InfantryRifleFederatedBarrettM42BWeapon",
+      "damage": 1.02,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleFederatedBarrettM42BWeapon.java: InfantryFederatedBarrettM42B"
+      ]
+    },
+    {
+      "id": "infantryfederatedbarrettm61a-registry",
+      "name": "Laser Rifle (Federated-Barrett M61A)",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.006,
+      "criticalSlots": 0,
+      "battleValue": 3.83,
+      "introductionYear": 3053,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 2150,
+      "subType": "InfantryRifleFederatedBarrettM61ALaserWeapon",
+      "damage": 0.75,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleFederatedBarrettM61ALaserWeapon.java: InfantryFederatedBarrettM61A"
+      ]
+    },
+    {
+      "id": "infantryhrr-registry",
+      "name": "Recoilless Rifle (Heavy)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.06,
+      "criticalSlots": 0,
+      "battleValue": 2.91,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 3000,
+      "subType": "InfantrySupportRecoillessRifleHeavyWeapon",
+      "damage": 0.57,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/recoillessRifle/InfantrySupportRecoillessRifleHeavyWeapon.java: InfantryHRR"
+      ]
+    },
+    {
+      "id": "infantryheavygrenadelauncher-registry",
+      "name": "Grenade Launcher (Heavy)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.018,
+      "criticalSlots": 0,
+      "battleValue": 5.38,
+      "introductionYear": 3044,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 1500,
+      "subType": "InfantrySupportHeavyGrenadeLauncherWeapon",
+      "damage": 1.76,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/heavy/InfantrySupportHeavyGrenadeLauncherWeapon.java: InfantryHeavyGrenadeLauncher"
+      ]
+    },
+    {
+      "id": "infantryheavygrenadelauncherinferno-registry",
+      "name": "Grenade Launcher (Heavy) w/Incendiary",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.018,
+      "criticalSlots": 0,
+      "battleValue": 2.11,
+      "introductionYear": 3044,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 1500,
+      "subType": "InfantrySupportHeavyGrenadeLauncherInfernoWeapon",
+      "damage": 0.69,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/heavy/InfantrySupportHeavyGrenadeLauncherInfernoWeapon.java: InfantryHeavyGrenadeLauncherInferno"
+      ]
+    },
+    {
+      "id": "infantryheavymortar-registry",
+      "name": "Mortar (Heavy)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.22,
+      "criticalSlots": 0,
+      "battleValue": 4.09,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 5000,
+      "subType": "InfantrySupportMortarHeavyWeapon",
+      "damage": 0.57,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/mortar/InfantrySupportMortarHeavyWeapon.java: InfantryHeavyMortar"
+      ]
+    },
+    {
+      "id": "infantryheavysrm-registry",
+      "name": "SRM Launcher (Heavy)",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.02,
+      "criticalSlots": 0,
+      "battleValue": 2.91,
+      "introductionYear": 2361,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 3000,
+      "subType": "InfantrySupportSRMHeavyWeapon",
+      "damage": 0.57,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/srm/InfantrySupportSRMHeavyWeapon.java: InfantryHeavySRM"
+      ]
+    },
+    {
+      "id": "infantrylrm-registry",
+      "name": "LRM Launcher (Corean Farshot)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.03,
+      "criticalSlots": 0,
+      "battleValue": 3.44,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 2000,
+      "subType": "InfantrySupportLRMWeapon",
+      "damage": 0.48,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportLRMWeapon.java: InfantryLRM"
+      ]
+    },
+    {
+      "id": "infantrylrr-registry",
+      "name": "Recoilless Rifle (Light)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.008,
+      "criticalSlots": 0,
+      "battleValue": 2.45,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 300,
+      "subType": "InfantrySupportRecoillessRifleLightWeapon",
+      "damage": 0.48,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/recoillessRifle/InfantrySupportRecoillessRifleLightWeapon.java: InfantryLRR"
+      ]
+    },
+    {
+      "id": "infantrylightmortar-registry",
+      "name": "Mortar (Light)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.05,
+      "criticalSlots": 0,
+      "battleValue": 1.62,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 1400,
+      "subType": "InfantrySupportMortarLightWeapon",
+      "damage": 0.53,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/mortar/InfantrySupportMortarLightWeapon.java: InfantryLightMortar"
+      ]
+    },
+    {
+      "id": "infantrymrr-registry",
+      "name": "Recoilless Rifle (Medium)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.032,
+      "criticalSlots": 0,
+      "battleValue": 2.71,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 2000,
+      "subType": "InfantrySupportRecoillessRifleMediumWeapon",
+      "damage": 0.53,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/recoillessRifle/InfantrySupportRecoillessRifleMediumWeapon.java: InfantryMRR"
+      ]
+    },
+    {
+      "id": "infantryminigrenadeinferno-registry",
+      "name": "Grenade (Mini) (Incendiary)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.00045,
+      "criticalSlots": 0,
+      "battleValue": 0.1,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 8,
+      "subType": "InfantryGrenadeMiniInfernoWeapon",
+      "damage": 0.11,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/grenade/InfantryGrenadeMiniInfernoWeapon.java: InfantryMiniGrenadeInferno"
+      ]
+    },
+    {
+      "id": "infantryoneshotmrm-registry",
+      "name": "MRM Launcher",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.03,
+      "criticalSlots": 0,
+      "battleValue": 2.71,
+      "introductionYear": 3058,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 2500,
+      "subType": "InfantrySupportOneShotMRMWeapon",
+      "damage": 0.53,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportOneShotMRMWeapon.java: InfantryOneShotMRM"
+      ]
+    },
+    {
+      "id": "infantrysrmlight-registry",
+      "name": "SRM Launcher (Light)",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.01,
+      "criticalSlots": 0,
+      "battleValue": 2.91,
+      "introductionYear": 2360,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 1500,
+      "subType": "InfantrySupportSRMLightWeapon",
+      "damage": 0.57,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/srm/InfantrySupportSRMLightWeapon.java: InfantrySRMLight"
+      ]
+    },
+    {
+      "id": "infantrystandardsrm-registry",
+      "name": "SRM Launcher (Std, Two-Shot)",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.03,
+      "criticalSlots": 0,
+      "battleValue": 5.83,
+      "introductionYear": 2360,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 1500,
+      "subType": "InfantrySupportSRMStandardWeapon",
+      "damage": 1.14,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/srm/InfantrySupportSRMStandardWeapon.java: InfantryStandardSRM"
+      ]
+    },
+    {
+      "id": "infantrytag-registry",
+      "name": "TAG (Light, Man-Portable)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.02,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2593,
+      "allowedUnitTypes": ["Infantry"],
+      "reintroductionYear": 3051,
+      "costCBills": 40000,
+      "subType": "InfantrySupportTAGWeapon",
+      "damage": 0,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportTAGWeapon.java: InfantryTAG"
+      ]
+    },
+    {
+      "id": "laser-hellbore-assault-registry",
+      "name": "Laser (Hellbore Assault)",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.02,
+      "criticalSlots": 0,
+      "battleValue": 3.22,
+      "introductionYear": 3049,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 2500,
+      "subType": "InfantrySupportHellboreAssaultLaserWeapon",
+      "damage": 0.63,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/laser/InfantrySupportHellboreAssaultLaserWeapon.java: Laser (Hellbore Assault)"
+      ]
+    },
+    {
+      "id": "laser-pistol-blazer-registry",
+      "name": "Laser Pistol (Blazer)",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.002,
+      "criticalSlots": 0,
+      "battleValue": 0.79,
+      "introductionYear": 2100,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 3000,
+      "subType": "InfantryPistolBlazerPistolWeapon",
+      "damage": 0.26,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolBlazerPistolWeapon.java: Laser Pistol (Blazer)"
+      ]
+    },
+    {
+      "id": "laser-pistol-sunbeam-registry",
+      "name": "Laser Pistol (Sunbeam)",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.001,
+      "criticalSlots": 0,
+      "battleValue": 0.86,
+      "introductionYear": 3010,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 750,
+      "subType": "InfantryPistolSunbeamLaserPistolWeapon",
+      "damage": 0.28,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolSunbeamLaserPistolWeapon.java: Laser Pistol (Sunbeam)"
+      ]
+    },
+    {
+      "id": "laser-rifle-registry",
+      "name": "Laser Rifle",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.005,
+      "criticalSlots": 0,
+      "battleValue": 1.43,
+      "introductionYear": 2100,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 1250,
+      "subType": "InfantryRifleLaserWeapon",
+      "damage": 0.28,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleLaserWeapon.java: Laser Rifle"
+      ]
+    },
+    {
+      "id": "laser-rifle-blazer-registry",
+      "name": "Laser Rifle (Blazer)",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.007,
+      "criticalSlots": 0,
+      "battleValue": 1.79,
+      "introductionYear": 2100,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 2190,
+      "subType": "InfantryRifleBlazerRifleWeapon",
+      "damage": 0.35,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleBlazerRifleWeapon.java: Laser Rifle (Blazer)"
+      ]
+    },
+    {
+      "id": "laser-rifle-er-sunbeam-starfire-registry",
+      "name": "Laser Rifle (ER [Sunbeam Starfire])",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.005,
+      "criticalSlots": 0,
+      "battleValue": 2.01,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 2500,
+      "subType": "InfantryRifleSunbeamStarfireERLaserWeapon",
+      "damage": 0.28,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleSunbeamStarfireERLaserWeapon.java: Laser Rifle (ER [Sunbeam Starfire])"
+      ]
+    },
+    {
+      "id": "laser-rifle-er-registry",
+      "name": "Laser Rifle (ER)",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.005,
+      "criticalSlots": 0,
+      "battleValue": 2.01,
+      "introductionYear": 2835,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 2000,
+      "subType": "InfantryRifleClanERLaserWeapon",
+      "damage": 0.28,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleClanERLaserWeapon.java: Laser Rifle (ER)"
+      ]
+    },
+    {
+      "id": "laser-rifle-ebony-assault-registry",
+      "name": "Laser Rifle (Ebony Assault)",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.01,
+      "criticalSlots": 0,
+      "battleValue": 1.07,
+      "introductionYear": 3051,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 8500,
+      "subType": "InfantryRifleEbonyAssaultLaserWeapon",
+      "damage": 0.21,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleEbonyAssaultLaserWeapon.java: Laser Rifle (Ebony Assault)"
+      ]
+    },
+    {
+      "id": "laser-rifle-intek-registry",
+      "name": "Laser Rifle (Intek)",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.005,
+      "criticalSlots": 0,
+      "battleValue": 1.51,
+      "introductionYear": 2870,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 1250,
+      "subType": "InfantryRifleIntekLaserWeapon",
+      "damage": 0.21,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleIntekLaserWeapon.java: Laser Rifle (Intek)"
+      ]
+    },
+    {
+      "id": "laser-rifle-magna-registry",
+      "name": "Laser Rifle (Magna)",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.006,
+      "criticalSlots": 0,
+      "battleValue": 1.33,
+      "introductionYear": 2455,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 1500,
+      "subType": "InfantryRifleMagnaLaserWeapon",
+      "damage": 0.26,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleMagnaLaserWeapon.java: Laser Rifle (Magna)"
+      ]
+    },
+    {
+      "id": "laser-rifle-marx-xx-registry",
+      "name": "Laser Rifle (Marx XX)",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.006,
+      "criticalSlots": 0,
+      "battleValue": 1.86,
+      "introductionYear": 2680,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 1750,
+      "subType": "InfantryRifleMarxXXLaserWeapon",
+      "damage": 0.26,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleMarxXXLaserWeapon.java: Laser Rifle (Marx XX)"
+      ]
+    },
+    {
+      "id": "laser-rifle-mauser-1200-lss-registry",
+      "name": "Laser Rifle (Mauser 1200 LSS)",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.011,
+      "criticalSlots": 0,
+      "battleValue": 5.32,
+      "introductionYear": 3047,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 10000,
+      "subType": "InfantryRifleMauser1200LSSWeapon",
+      "damage": 1.04,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleMauser1200LSSWeapon.java: Laser Rifle (Mauser 1200 LSS)"
+      ]
+    },
+    {
+      "id": "laser-rifle-mauser-960-registry",
+      "name": "Laser Rifle (Mauser 960)",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0108,
+      "criticalSlots": 0,
+      "battleValue": 4.75,
+      "introductionYear": 2693,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 8000,
+      "subType": "InfantryRifleMauser960LaserWeapon",
+      "damage": 0.93,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleMauser960LaserWeapon.java: Laser Rifle (Mauser 960)"
+      ]
+    },
+    {
+      "id": "laser-rifle-mauser-iic-ias-registry",
+      "name": "Laser Rifle (Mauser IIC IAS)",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.012,
+      "criticalSlots": 0,
+      "battleValue": 9.82,
+      "introductionYear": 3008,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 18000,
+      "subType": "InfantryRifleClanMauserIICIASWeapon",
+      "damage": 1.37,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleClanMauserIICIASWeapon.java: Laser Rifle (Mauser IIC IAS)"
+      ]
+    },
+    {
+      "id": "laser-rifle-maxell-pl-10-registry",
+      "name": "Laser Rifle (Maxell PL-10)",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0065,
+      "criticalSlots": 0,
+      "battleValue": 1.33,
+      "introductionYear": 3052,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 2000,
+      "subType": "InfantryRifleMaxellPL10LaserWeapon",
+      "damage": 0.26,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleMaxellPL10LaserWeapon.java: Laser Rifle (Maxell PL-10)"
+      ]
+    },
+    {
+      "id": "light-blazer-registry",
+      "name": "Light Blazer",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1.5,
+      "criticalSlots": 2,
+      "battleValue": 65,
+      "introductionYear": 2852,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 15000,
+      "subType": "ISLBinaryLaserCannon",
+      "damage": 7,
+      "heat": 6,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lasers/innerSphere/ISLBinaryLaserCannon.java: Light Blazer"
+      ]
+    },
+    {
+      "id": "machine-gun-portable-registry",
+      "name": "Machine Gun (Portable)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0115,
+      "criticalSlots": 0,
+      "battleValue": 1.99,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 1000,
+      "subType": "InfantrySupportMGPortableWeapon",
+      "damage": 0.65,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 2,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/mg/InfantrySupportMGPortableWeapon.java: Machine Gun (Portable)"
+      ]
+    },
+    {
+      "id": "machine-gun-semi-portable-registry",
+      "name": "Machine Gun (Semi-Portable)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.02,
+      "criticalSlots": 0,
+      "battleValue": 2.29,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 1000,
+      "subType": "InfantrySupportMGSemiPortableWeapon",
+      "damage": 0.75,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/mg/InfantrySupportMGSemiPortableWeapon.java: Machine Gun (Semi-Portable)"
+      ]
+    },
+    {
+      "id": "machine-gun-support-registry",
+      "name": "Machine Gun (Support)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.044,
+      "criticalSlots": 0,
+      "battleValue": 4.8,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 1750,
+      "subType": "InfantrySupportMGSupportWeapon",
+      "damage": 0.94,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 4,
+        "minimum": 0,
+        "short": 2,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/mg/InfantrySupportMGSupportWeapon.java: Machine Gun (Support)"
+      ]
+    },
+    {
+      "id": "mass-driver-heavy-registry",
+      "name": "Mass Driver (Heavy)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 100000,
+      "criticalSlots": 0,
+      "battleValue": 16464,
+      "introductionYear": 2710,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2860,
+      "reintroductionYear": 3066,
+      "costCBills": 500000000,
+      "subType": "MassDriverHeavy",
+      "damage": 140,
+      "heat": 90,
+      "ranges": {
+        "long": 40,
+        "medium": 24,
+        "minimum": 0,
+        "short": 12,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/MassDriverHeavy.java: Mass Driver (Heavy)"
+      ]
+    },
+    {
+      "id": "mass-driver-light-registry",
+      "name": "Mass Driver (Light)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 30000,
+      "criticalSlots": 0,
+      "battleValue": 7056,
+      "introductionYear": 2710,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2860,
+      "reintroductionYear": 3066,
+      "costCBills": 150000000,
+      "subType": "MassDriverLight",
+      "damage": 60,
+      "heat": 30,
+      "ranges": {
+        "long": 40,
+        "medium": 24,
+        "minimum": 0,
+        "short": 12,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/MassDriverLight.java: Mass Driver (Light)"
+      ]
+    },
+    {
+      "id": "mass-driver-medium-registry",
+      "name": "Mass Driver (Medium)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 50000,
+      "criticalSlots": 0,
+      "battleValue": 11760,
+      "introductionYear": 2710,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2860,
+      "reintroductionYear": 3066,
+      "costCBills": 280000000,
+      "subType": "MassDriverMedium",
+      "damage": 100,
+      "heat": 60,
+      "ranges": {
+        "long": 40,
+        "medium": 24,
+        "minimum": 0,
+        "short": 12,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/MassDriverMedium.java: Mass Driver (Medium)"
+      ]
+    },
+    {
+      "id": "nail-rivet-gun-registry",
+      "name": "Nail/Rivet Gun",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "battleValue": 1,
+      "introductionYear": 2304,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 7000,
+      "subType": "ISNailAndRivetGun",
+      "damage": 0,
+      "heat": 0,
+      "ranges": {
+        "long": 1,
+        "medium": 1,
+        "minimum": 0,
+        "short": 1,
+        "extreme": 1
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISNailAndRivetGun.java: Nail/Rivet Gun"
+      ]
+    },
+    {
+      "id": "naval-autocannon-nac-10-registry",
+      "name": "Naval Autocannon (NAC/10)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 2000,
+      "criticalSlots": 0,
+      "battleValue": 1896,
+      "introductionYear": 2100,
+      "reintroductionYear": 3051,
+      "costCBills": 2000000,
+      "subType": "NAC10Weapon",
+      "damage": 10,
+      "heat": 30,
+      "ranges": {
+        "long": 33,
+        "medium": 22,
+        "minimum": 0,
+        "short": 11,
+        "extreme": 44
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC10Weapon.java: Naval Autocannon (NAC/10)"
+      ]
+    },
+    {
+      "id": "naval-autocannon-nac-20-registry",
+      "name": "Naval Autocannon (NAC/20)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 2500,
+      "criticalSlots": 0,
+      "battleValue": 3792,
+      "introductionYear": 2100,
+      "reintroductionYear": 3051,
+      "costCBills": 5000000,
+      "subType": "NAC20Weapon",
+      "damage": 20,
+      "heat": 60,
+      "ranges": {
+        "long": 31,
+        "medium": 21,
+        "minimum": 0,
+        "short": 11,
+        "extreme": 42
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC20Weapon.java: Naval Autocannon (NAC/20)"
+      ]
+    },
+    {
+      "id": "naval-autocannon-nac-25-registry",
+      "name": "Naval Autocannon (NAC/25)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 3000,
+      "criticalSlots": 0,
+      "battleValue": 4740,
+      "introductionYear": 2100,
+      "reintroductionYear": 3051,
+      "costCBills": 7500000,
+      "subType": "NAC25Weapon",
+      "damage": 25,
+      "heat": 85,
+      "ranges": {
+        "long": 30,
+        "medium": 20,
+        "minimum": 0,
+        "short": 10,
+        "extreme": 40
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC25Weapon.java: Naval Autocannon (NAC/25)"
+      ]
+    },
+    {
+      "id": "naval-autocannon-nac-30-registry",
+      "name": "Naval Autocannon (NAC/30)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 3500,
+      "criticalSlots": 0,
+      "battleValue": 5688,
+      "introductionYear": 2100,
+      "reintroductionYear": 3051,
+      "costCBills": 10500000,
+      "subType": "NAC30Weapon",
+      "damage": 30,
+      "heat": 100,
+      "ranges": {
+        "long": 27,
+        "medium": 18,
+        "minimum": 0,
+        "short": 9,
+        "extreme": 36
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC30Weapon.java: Naval Autocannon (NAC/30)"
+      ]
+    },
+    {
+      "id": "naval-autocannon-nac-35-registry",
+      "name": "Naval Autocannon (NAC/35)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 4000,
+      "criticalSlots": 0,
+      "battleValue": 4956,
+      "introductionYear": 2100,
+      "reintroductionYear": 3051,
+      "costCBills": 14000000,
+      "subType": "NAC35Weapon",
+      "damage": 35,
+      "heat": 120,
+      "ranges": {
+        "long": 21,
+        "medium": 14,
+        "minimum": 0,
+        "short": 7,
+        "extreme": 28
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC35Weapon.java: Naval Autocannon (NAC/35)"
+      ]
+    },
+    {
+      "id": "naval-autocannon-nac-40-registry",
+      "name": "Naval Autocannon (NAC/40)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 4500,
+      "criticalSlots": 0,
+      "battleValue": 5664,
+      "introductionYear": 2100,
+      "reintroductionYear": 3051,
+      "costCBills": 18000000,
+      "subType": "NAC40Weapon",
+      "damage": 40,
+      "heat": 135,
+      "ranges": {
+        "long": 18,
+        "medium": 12,
+        "minimum": 0,
+        "short": 6,
+        "extreme": 24
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC40Weapon.java: Naval Autocannon (NAC/40)"
+      ]
+    },
+    {
+      "id": "naval-laser-35-registry",
+      "name": "Naval Laser 35",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 700,
+      "criticalSlots": 0,
+      "battleValue": 830,
+      "introductionYear": 2100,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "reintroductionYear": 3051,
+      "costCBills": 500000,
+      "subType": "NL35Weapon",
+      "damage": 3,
+      "heat": 52,
+      "ranges": {
+        "long": 33,
+        "medium": 22,
+        "minimum": 0,
+        "short": 11,
+        "extreme": 44
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NL35Weapon.java: Naval Laser 35"
+      ]
+    },
+    {
+      "id": "naval-laser-45-registry",
+      "name": "Naval Laser 45",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 900,
+      "criticalSlots": 0,
+      "battleValue": 1134,
+      "introductionYear": 2100,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "reintroductionYear": 3051,
+      "costCBills": 850000,
+      "subType": "NL45Weapon",
+      "damage": 4,
+      "heat": 70,
+      "ranges": {
+        "long": 36,
+        "medium": 24,
+        "minimum": 0,
+        "short": 12,
+        "extreme": 48
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NL45Weapon.java: Naval Laser 45"
+      ]
+    },
+    {
+      "id": "naval-laser-55-registry",
+      "name": "Naval Laser 55",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 1100,
+      "criticalSlots": 0,
+      "battleValue": 1386,
+      "introductionYear": 2100,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "reintroductionYear": 3051,
+      "costCBills": 1250000,
+      "subType": "NL55Weapon",
+      "damage": 5,
+      "heat": 85,
+      "ranges": {
+        "long": 39,
+        "medium": 26,
+        "minimum": 0,
+        "short": 13,
+        "extreme": 52
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NL55Weapon.java: Naval Laser 55"
+      ]
+    },
+    {
+      "id": "naval-ppc-heavy-registry",
+      "name": "Naval PPC (Heavy)",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 3000,
+      "criticalSlots": 0,
+      "battleValue": 3780,
+      "introductionYear": 2345,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "reintroductionYear": 3052,
+      "costCBills": 9050000,
+      "subType": "NPPCWeaponHeavy",
+      "damage": 15,
+      "heat": 225,
+      "ranges": {
+        "long": 39,
+        "medium": 26,
+        "minimum": 0,
+        "short": 13,
+        "extreme": 52
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NPPCWeaponHeavy.java: Naval PPC (Heavy)"
+      ]
+    },
+    {
+      "id": "naval-ppc-light-registry",
+      "name": "Naval PPC (Light)",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 1400,
+      "criticalSlots": 0,
+      "battleValue": 1659,
+      "introductionYear": 2345,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "reintroductionYear": 3052,
+      "costCBills": 2000000,
+      "subType": "NPPCWeaponLight",
+      "damage": 7,
+      "heat": 105,
+      "ranges": {
+        "long": 33,
+        "medium": 22,
+        "minimum": 0,
+        "short": 11,
+        "extreme": 44
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NPPCWeaponLight.java: Naval PPC (Light)"
+      ]
+    },
+    {
+      "id": "naval-ppc-medium-registry",
+      "name": "Naval PPC (Medium)",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 1800,
+      "criticalSlots": 0,
+      "battleValue": 2268,
+      "introductionYear": 2345,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "reintroductionYear": 3052,
+      "costCBills": 3250000,
+      "subType": "NPPCWeaponMedium",
+      "damage": 9,
+      "heat": 135,
+      "ranges": {
+        "long": 36,
+        "medium": 24,
+        "minimum": 0,
+        "short": 12,
+        "extreme": 48
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NPPCWeaponMedium.java: Naval PPC (Medium)"
+      ]
+    },
+    {
+      "id": "needler-pistol-registry",
+      "name": "Needler Pistol",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0003,
+      "criticalSlots": 0,
+      "battleValue": 0.21,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 50,
+      "subType": "InfantryPistolNeedlerPistolWeapon",
+      "damage": 0.23,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolNeedlerPistolWeapon.java: Needler Pistol"
+      ]
+    },
+    {
+      "id": "needler-rifle-registry",
+      "name": "Needler Rifle",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.001,
+      "criticalSlots": 0,
+      "battleValue": 0.21,
+      "introductionYear": 2100,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 75,
+      "subType": "InfantryRifleNeedlerWeapon",
+      "damage": 0.23,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleNeedlerWeapon.java: Needler Rifle"
+      ]
+    },
+    {
+      "id": "needler-rifle-m-g-flechette-registry",
+      "name": "Needler Rifle (M&G Flechette)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0015,
+      "criticalSlots": 0,
+      "battleValue": 0.1,
+      "introductionYear": 2315,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 200,
+      "subType": "InfantryRifleMGFlechetteNeedlerWeapon",
+      "damage": 0.11,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleMGFlechetteNeedlerWeapon.java: Needler Rifle (M&G Flechette)"
+      ]
+    },
+    {
+      "id": "needler-rifle-shredder-heavy-registry",
+      "name": "Needler Rifle (Shredder Heavy)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.001,
+      "criticalSlots": 0,
+      "battleValue": 0.31,
+      "introductionYear": 3046,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 150,
+      "subType": "InfantryRifleShredderHeavyNeedlerWeapon",
+      "damage": 0.34,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleShredderHeavyNeedlerWeapon.java: Needler Rifle (Shredder Heavy)"
+      ]
+    },
+    {
+      "id": "needler-support-firedrake-registry",
+      "name": "Needler, Support (Firedrake)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.025,
+      "criticalSlots": 0,
+      "battleValue": 6.13,
+      "introductionYear": 3053,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 500,
+      "subType": "InfantrySupportFiredrakeNeedlerWeapon",
+      "damage": 1.2,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportFiredrakeNeedlerWeapon.java: Needler, Support (Firedrake)"
+      ]
+    },
+    {
+      "id": "particle-cannon-semi-portable-registry",
+      "name": "Particle Cannon (Semi-Portable)",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.04,
+      "criticalSlots": 0,
+      "battleValue": 3.68,
+      "introductionYear": 2425,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 7000,
+      "subType": "InfantrySupportSemiPortablePPCWeapon",
+      "damage": 0.72,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportSemiPortablePPCWeapon.java: Particle Cannon (Semi-Portable)"
+      ]
+    },
+    {
+      "id": "particle-cannon-support-registry",
+      "name": "Particle Cannon (Support)",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 1.8,
+      "criticalSlots": 0,
+      "battleValue": 11.32,
+      "introductionYear": 2460,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 45000,
+      "subType": "InfantrySupportHeavyPPCWeapon",
+      "damage": 1.58,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/heavy/InfantrySupportHeavyPPCWeapon.java: Particle Cannon (Support)"
+      ]
+    },
+    {
+      "id": "pistol-sternsnacht-heavy-claymore-registry",
+      "name": "Pistol (Sternsnacht Heavy [Claymore])",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0025,
+      "criticalSlots": 0,
+      "battleValue": 0.08,
+      "introductionYear": 2877,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 200,
+      "subType": "InfantryPistolSternsnachtPistolWeapon",
+      "damage": 0.09,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolSternsnachtPistolWeapon.java: Pistol (Sternsnacht Heavy [Claymore])"
+      ]
+    },
+    {
+      "id": "plasma-rifle-man-portable-registry",
+      "name": "Plasma Rifle (Man-Portable)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.03,
+      "criticalSlots": 0,
+      "battleValue": 8.08,
+      "introductionYear": 3058,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 7500,
+      "subType": "InfantrySupportPortablePlasmaWeapon",
+      "damage": 1.58,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportPortablePlasmaWeapon.java: Plasma Rifle (Man-Portable)"
+      ]
+    },
+    {
+      "id": "pulse-laser-rifle-inner-sphere-registry",
+      "name": "Pulse Laser Rifle (Inner Sphere)",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.005,
+      "criticalSlots": 0,
+      "battleValue": 0.76,
+      "introductionYear": 2673,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 1000,
+      "subType": "InfantryRiflePulseLaserWeapon",
+      "damage": 0.25,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRiflePulseLaserWeapon.java: Pulse Laser Rifle (Inner Sphere)"
+      ]
+    },
+    {
+      "id": "rifle-bolt-action-registry",
+      "name": "Rifle (Bolt-Action)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.003,
+      "criticalSlots": 0,
+      "battleValue": 0.43,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 60,
+      "subType": "InfantryRifleBoltActionWeapon",
+      "damage": 0.14,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleBoltActionWeapon.java: Rifle (Bolt-Action)"
+      ]
+    },
+    {
+      "id": "rifle-federated-long-registry",
+      "name": "Rifle (Federated Long)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.005,
+      "criticalSlots": 0,
+      "battleValue": 1.07,
+      "introductionYear": 2855,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 120,
+      "subType": "InfantryRifleFederatedLongWeapon",
+      "damage": 0.35,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleFederatedLongWeapon.java: Rifle (Federated Long)"
+      ]
+    },
+    {
+      "id": "rifle-imperator-ax-22-assault-registry",
+      "name": "Rifle (Imperator AX-22 Assault)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0035,
+      "criticalSlots": 0,
+      "battleValue": 1.59,
+      "introductionYear": 3047,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 200,
+      "subType": "InfantryRifleImperatorAX22AssaultWeapon",
+      "damage": 0.52,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleImperatorAX22AssaultWeapon.java: Rifle (Imperator AX-22 Assault)"
+      ]
+    },
+    {
+      "id": "rifle-m-g-g-150-registry",
+      "name": "Rifle (M&G G-150)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0035,
+      "criticalSlots": 0,
+      "battleValue": 1.64,
+      "introductionYear": 3053,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 270,
+      "subType": "InfantryRifleMauserG150Weapon",
+      "damage": 0.32,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleMauserG150Weapon.java: Rifle (M&G G-150)"
+      ]
+    },
+    {
+      "id": "rifle-makeshift-registry",
+      "name": "Rifle (Makeshift)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.006,
+      "criticalSlots": 0,
+      "battleValue": 0.09,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 20,
+      "subType": "InfantryRifleMakeshiftWeapon",
+      "damage": 0.03,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleMakeshiftWeapon.java: Rifle (Makeshift)"
+      ]
+    },
+    {
+      "id": "rifle-striker-carbine-registry",
+      "name": "Rifle (Striker Carbine)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.003,
+      "criticalSlots": 0,
+      "battleValue": 0.29,
+      "introductionYear": 3055,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 875,
+      "subType": "InfantryRifleStrikerCarbineRifleWeapon",
+      "damage": 0.29,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleStrikerCarbineRifleWeapon.java: Rifle (Striker Carbine)"
+      ]
+    },
+    {
+      "id": "rifle-tk-assault-registry",
+      "name": "Rifle (TK Assault)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0055,
+      "criticalSlots": 0,
+      "battleValue": 1.34,
+      "introductionYear": 2860,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 150,
+      "subType": "InfantryRifleTKAssaultWeapon",
+      "damage": 0.44,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleTKAssaultWeapon.java: Rifle (TK Assault)"
+      ]
+    },
+    {
+      "id": "rifle-zeus-heavy-registry",
+      "name": "Rifle (Zeus Heavy)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.008,
+      "criticalSlots": 0,
+      "battleValue": 0.67,
+      "introductionYear": 2735,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 200,
+      "subType": "InfantryRifleZeusHeavyWeapon",
+      "damage": 0.22,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleZeusHeavyWeapon.java: Rifle (Zeus Heavy)"
+      ]
+    },
+    {
+      "id": "rocket-launcher-v-law-registry",
+      "name": "Rocket Launcher (V-LAW)",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0022,
+      "criticalSlots": 0,
+      "battleValue": 1.47,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 75,
+      "subType": "InfantrySupportRocketLauncherVLAWWeapon",
+      "damage": 0.48,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportRocketLauncherVLAWWeapon.java: Rocket Launcher (V-LAW)"
+      ]
+    },
+    {
+      "id": "rocketlauncher20prototype-registry",
+      "name": "Prototype Rocket Launcher 20",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 1.5,
+      "criticalSlots": 3,
+      "battleValue": 19,
+      "introductionYear": 2095,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 45000,
+      "subType": "PrototypeRL20",
+      "damage": "Java variable damage (-2)",
+      "heat": 5,
+      "ranges": {
+        "long": 12,
+        "medium": 7,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 18
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/PrototypeRL20.java: RocketLauncher20Prototype"
+      ]
+    },
+    {
+      "id": "smg-gunther-mp-20-registry",
+      "name": "SMG (Gunther MP-20)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0025,
+      "criticalSlots": 0,
+      "battleValue": 0.3,
+      "introductionYear": 3000,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 125,
+      "subType": "InfantrySMGGuntherMP20Weapon",
+      "damage": 0.33,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/smg/InfantrySMGGuntherMP20Weapon.java: SMG (Gunther MP-20)"
+      ]
+    },
+    {
+      "id": "screen-launcher-registry",
+      "name": "Screen Launcher",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 40,
+      "criticalSlots": 0,
+      "battleValue": 160,
+      "introductionYear": 3053,
+      "costCBills": 250000,
+      "subType": "ScreenLauncherWeapon",
+      "damage": 15,
+      "heat": 10,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/ScreenLauncherWeapon.java: Screen Launcher"
+      ]
+    },
+    {
+      "id": "shotgun-avenger-ccw-registry",
+      "name": "Shotgun (Avenger CCW)",
+      "category": "Ballistic",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0055,
+      "criticalSlots": 0,
+      "battleValue": 0.3,
+      "introductionYear": 3014,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 345,
+      "subType": "InfantryShotgunAvengerCCWWeapon",
+      "damage": 0.33,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/shotgun/InfantryShotgunAvengerCCWWeapon.java: Shotgun (Avenger CCW)"
+      ]
+    },
+    {
+      "id": "shotgun-combat-registry",
+      "name": "Shotgun (Combat)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0045,
+      "criticalSlots": 0,
+      "battleValue": 0.25,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 175,
+      "subType": "InfantryShotgunCombatWeapon",
+      "damage": 0.27,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/shotgun/InfantryShotgunCombatWeapon.java: Shotgun (Combat)"
+      ]
+    },
+    {
+      "id": "sniper-rifle-bolt-action-registry",
+      "name": "Sniper Rifle (Bolt Action)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.01,
+      "criticalSlots": 0,
+      "battleValue": 0.92,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 350,
+      "subType": "InfantrySniperRifleSniperWeapon",
+      "damage": 0.18,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/sniperRifle/InfantrySniperRifleSniperWeapon.java: Sniper Rifle (Bolt Action)"
+      ]
+    },
+    {
+      "id": "sniper-rifle-minolta-9000-advanced-sniper-system-registry",
+      "name": "Sniper Rifle (Minolta 9000 Advanced Sniper System)",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.006,
+      "criticalSlots": 0,
+      "battleValue": 1.79,
+      "introductionYear": 3047,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 1000,
+      "subType": "InfantrySniperRifleMinolta9000Weapon",
+      "damage": 0.35,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/sniperRifle/InfantrySniperRifleMinolta9000Weapon.java: Sniper Rifle (Minolta 9000 Advanced Sniper System)"
+      ]
+    },
+    {
+      "id": "sonic-stunner-registry",
+      "name": "Sonic Stunner",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0006,
+      "criticalSlots": 0,
+      "battleValue": 0.06,
+      "introductionYear": 2360,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 100,
+      "subType": "InfantryPistolSonicStunnerWeapon",
+      "damage": 0.07,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolSonicStunnerWeapon.java: Sonic Stunner"
+      ]
+    },
+    {
+      "id": "stunstick-registry",
+      "name": "Stunstick",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0002,
+      "criticalSlots": 0,
+      "battleValue": 0.06,
+      "introductionYear": 2100,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 200,
+      "subType": "InfantryArchaicStunstickWeapon",
+      "damage": 0.07,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/archaic/InfantryArchaicStunstickWeapon.java: Stunstick"
+      ]
+    },
+    {
+      "id": "sub-capital-cannon-heavy-registry",
+      "name": "Sub-Capital Cannon (Heavy)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 700,
+      "criticalSlots": 0,
+      "battleValue": 991,
+      "introductionYear": 3063,
+      "costCBills": 1300000,
+      "subType": "SubCapCannonWeaponHeavy",
+      "damage": 7,
+      "heat": 42,
+      "ranges": {
+        "long": 33,
+        "medium": 22,
+        "minimum": 0,
+        "short": 11,
+        "extreme": 44
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapCannonWeaponHeavy.java: Sub-Capital Cannon (Heavy)"
+      ]
+    },
+    {
+      "id": "sub-capital-cannon-light-registry",
+      "name": "Sub-Capital Cannon (Light)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 200,
+      "criticalSlots": 0,
+      "battleValue": 379,
+      "introductionYear": 3063,
+      "costCBills": 330000,
+      "subType": "SubCapCannonWeaponLight",
+      "damage": 2,
+      "heat": 12,
+      "ranges": {
+        "long": 33,
+        "medium": 22,
+        "minimum": 0,
+        "short": 11,
+        "extreme": 44
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapCannonWeaponLight.java: Sub-Capital Cannon (Light)"
+      ]
+    },
+    {
+      "id": "sub-capital-cannon-medium-registry",
+      "name": "Sub-Capital Cannon (Medium)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 500,
+      "criticalSlots": 0,
+      "battleValue": 708,
+      "introductionYear": 3063,
+      "costCBills": 780000,
+      "subType": "SubCapCannonWeaponMedium",
+      "damage": 5,
+      "heat": 30,
+      "ranges": {
+        "long": 33,
+        "medium": 22,
+        "minimum": 0,
+        "short": 11,
+        "extreme": 44
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapCannonWeaponMedium.java: Sub-Capital Cannon (Medium)"
+      ]
+    },
+    {
+      "id": "sub-capital-laser-1-registry",
+      "name": "Sub-Capital Laser /1",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 150,
+      "criticalSlots": 0,
+      "battleValue": 237,
+      "introductionYear": 3063,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 220000,
+      "subType": "SubCapLaserWeapon1",
+      "damage": 1,
+      "heat": 24,
+      "ranges": {
+        "long": 33,
+        "medium": 22,
+        "minimum": 0,
+        "short": 11,
+        "extreme": 44
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapLaserWeapon1.java: Sub-Capital Laser /1"
+      ]
+    },
+    {
+      "id": "sub-capital-laser-2-registry",
+      "name": "Sub-Capital Laser /2",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 200,
+      "criticalSlots": 0,
+      "battleValue": 354,
+      "introductionYear": 3063,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 335000,
+      "subType": "SubCapLaserWeapon2",
+      "damage": 2,
+      "heat": 28,
+      "ranges": {
+        "long": 33,
+        "medium": 22,
+        "minimum": 0,
+        "short": 11,
+        "extreme": 44
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapLaserWeapon2.java: Sub-Capital Laser /2"
+      ]
+    },
+    {
+      "id": "sub-capital-laser-3-registry",
+      "name": "Sub-Capital Laser /3",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 250,
+      "criticalSlots": 0,
+      "battleValue": 531,
+      "introductionYear": 3063,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 450000,
+      "subType": "SubCapLaserWeapon3",
+      "damage": 3,
+      "heat": 32,
+      "ranges": {
+        "long": 33,
+        "medium": 22,
+        "minimum": 0,
+        "short": 11,
+        "extreme": 44
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapLaserWeapon3.java: Sub-Capital Laser /3"
+      ]
+    },
+    {
+      "id": "sub-capital-missile-launcher-manta-ray-registry",
+      "name": "Sub-Capital Missile Launcher (Manta Ray)",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 160,
+      "criticalSlots": 0,
+      "battleValue": 396,
+      "introductionYear": 3055,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 150000,
+      "subType": "SubCapMissileMantaRayWeapon",
+      "damage": 5,
+      "heat": 21,
+      "ranges": {
+        "long": 21,
+        "medium": 14,
+        "minimum": 0,
+        "short": 7,
+        "extreme": 28
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapMissileMantaRayWeapon.java: Sub-Capital Missile Launcher (Manta Ray)"
+      ]
+    },
+    {
+      "id": "sub-capital-missile-launcher-piranha-registry",
+      "name": "Sub-Capital Missile Launcher (Piranha)",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 100,
+      "criticalSlots": 0,
+      "battleValue": 589,
+      "introductionYear": 3055,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 75000,
+      "subType": "SubCapMissilePiranhaWeapon",
+      "damage": 3,
+      "heat": 9,
+      "ranges": {
+        "long": 21,
+        "medium": 14,
+        "minimum": 0,
+        "short": 7,
+        "extreme": 28
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapMissilePiranhaWeapon.java: Sub-Capital Missile Launcher (Piranha)"
+      ]
+    },
+    {
+      "id": "sub-capital-missile-launcher-stingray-registry",
+      "name": "Sub-Capital Missile Launcher (Stingray)",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 120,
+      "criticalSlots": 0,
+      "battleValue": 496,
+      "introductionYear": 3055,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 85000,
+      "subType": "SubCapMissileStingrayWeapon",
+      "damage": 3,
+      "heat": 9,
+      "ranges": {
+        "long": 21,
+        "medium": 14,
+        "minimum": 0,
+        "short": 7,
+        "extreme": 28
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapMissileStingrayWeapon.java: Sub-Capital Missile Launcher (Stingray)"
+      ]
+    },
+    {
+      "id": "sub-capital-missile-launcher-swordfish-registry",
+      "name": "Sub-Capital Missile Launcher (Swordfish)",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 140,
+      "criticalSlots": 0,
+      "battleValue": 317,
+      "introductionYear": 3055,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 110000,
+      "subType": "SubCapMissileSwordfishWeapon",
+      "damage": 4,
+      "heat": 15,
+      "ranges": {
+        "long": 21,
+        "medium": 14,
+        "minimum": 0,
+        "short": 7,
+        "extreme": 28
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapMissileSwordfishWeapon.java: Sub-Capital Missile Launcher (Swordfish)"
+      ]
+    },
+    {
+      "id": "submachine-gun-registry",
+      "name": "Submachine Gun",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.003,
+      "criticalSlots": 0,
+      "battleValue": 0.23,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 80,
+      "subType": "InfantrySMGWeapon",
+      "damage": 0.25,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/smg/InfantrySMGWeapon.java: Submachine Gun"
+      ]
+    },
+    {
+      "id": "support-laser-registry",
+      "name": "Support Laser",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.072,
+      "criticalSlots": 0,
+      "battleValue": 6.02,
+      "introductionYear": 2372,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 10000,
+      "subType": "InfantrySupportLaserWeapon",
+      "damage": 0.84,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 6,
+        "minimum": 0,
+        "short": 3,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/laser/InfantrySupportLaserWeapon.java: Support Laser"
+      ]
+    },
+    {
+      "id": "support-laser-er-heavy-clan-registry",
+      "name": "Support Laser (ER Heavy, Clan)",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.24,
+      "criticalSlots": 0,
+      "battleValue": 18.52,
+      "introductionYear": 2820,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 80000,
+      "subType": "InfantrySupportClanERHeavyLaserWeapon",
+      "damage": 1.26,
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 28
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/clan/InfantrySupportClanERHeavyLaserWeapon.java: Support Laser (ER Heavy, Clan)"
+      ]
+    },
+    {
+      "id": "support-laser-er-is-registry",
+      "name": "Support Laser (ER, IS)",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.11,
+      "criticalSlots": 0,
+      "battleValue": 8.21,
+      "introductionYear": 3049,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 11250,
+      "subType": "InfantrySupportERLaserWeapon",
+      "damage": 0.84,
+      "heat": 0,
+      "ranges": {
+        "long": 12,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 16
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/laser/InfantrySupportERLaserWeapon.java: Support Laser (ER, IS)"
+      ]
+    },
+    {
+      "id": "support-laser-er-semi-portable-registry",
+      "name": "Support Laser (ER, Semi-Portable)",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.025,
+      "criticalSlots": 0,
+      "battleValue": 5.02,
+      "introductionYear": 3051,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 10000,
+      "subType": "InfantrySupportClanSemiPortableERLaserWeapon",
+      "damage": 0.7,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/clan/InfantrySupportClanSemiPortableERLaserWeapon.java: Support Laser (ER, Semi-Portable)"
+      ]
+    },
+    {
+      "id": "support-laser-heavy-registry",
+      "name": "Support Laser (Heavy)",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.3,
+      "criticalSlots": 0,
+      "battleValue": 17.35,
+      "introductionYear": 2395,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 40000,
+      "subType": "InfantrySupportHeavyLaserWeapon",
+      "damage": 1.47,
+      "heat": 0,
+      "ranges": {
+        "long": 15,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 20
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/heavy/InfantrySupportHeavyLaserWeapon.java: Support Laser (Heavy)"
+      ]
+    },
+    {
+      "id": "support-laser-semi-portable-registry",
+      "name": "Support Laser (Semi-Portable)",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.04,
+      "criticalSlots": 0,
+      "battleValue": 4.37,
+      "introductionYear": 2390,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 5000,
+      "subType": "InfantrySupportSemiPortableLaserWeapon",
+      "damage": 0.61,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/laser/InfantrySupportSemiPortableLaserWeapon.java: Support Laser (Semi-Portable)"
+      ]
+    },
+    {
+      "id": "support-ppc-snub-nose-registry",
+      "name": "Support PPC (Snub-Nose)",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1.6,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3070,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 60000,
+      "subType": "InfantrySupportSnubNoseSupportPPCWeapon",
+      "damage": 1.58,
+      "heat": 0,
+      "ranges": {
+        "long": 15,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 20
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportSnubNoseSupportPPCWeapon.java: Support PPC (Snub-Nose)"
+      ]
+    },
+    {
+      "id": "support-pulse-laser-registry",
+      "name": "Support Pulse Laser",
+      "category": "Energy",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.15,
+      "criticalSlots": 0,
+      "battleValue": 5.81,
+      "introductionYear": 2600,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 16000,
+      "subType": "InfantrySupportPulseLaserWeapon",
+      "damage": 0.81,
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/laser/InfantrySupportPulseLaserWeapon.java: Support Pulse Laser"
+      ]
+    },
+    {
+      "id": "tsemp-repeating-cannon-registry",
+      "name": "TSEMP Repeating Cannon",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 8,
+      "criticalSlots": 7,
+      "battleValue": 600,
+      "introductionYear": 3133,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 3138,
+      "costCBills": 1200000,
+      "subType": "ISTSEMPRepeatingCannon",
+      "damage": 0,
+      "heat": 10,
+      "ranges": {
+        "long": 15,
+        "medium": 10,
+        "minimum": 0,
+        "short": 5,
+        "extreme": 20
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/innerSphere/ISTSEMPRepeatingCannon.java: TSEMP Repeating Cannon"
+      ]
+    },
+    {
+      "id": "tele-operated-missile-killer-whale-t-registry",
+      "name": "Tele-operated Missile (Killer Whale-T)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 160,
+      "criticalSlots": 0,
+      "battleValue": 923,
+      "introductionYear": 3053,
+      "costCBills": 165000,
+      "subType": "CapMissTeleKillerWhaleWeapon",
+      "damage": 4,
+      "heat": 20,
+      "ranges": {
+        "long": 21,
+        "medium": 14,
+        "minimum": 0,
+        "short": 7,
+        "extreme": 28
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissTeleKillerWhaleWeapon.java: Tele-operated Missile (Killer Whale-T)"
+      ]
+    },
+    {
+      "id": "tele-operated-missile-kraken-t-registry",
+      "name": "Tele-operated Missile (Kraken T)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 220,
+      "criticalSlots": 0,
+      "battleValue": 2306,
+      "introductionYear": 3053,
+      "costCBills": 500000,
+      "subType": "CapMissTeleKrakenWeapon",
+      "damage": 10,
+      "heat": 50,
+      "ranges": {
+        "long": 34,
+        "medium": 22,
+        "minimum": 0,
+        "short": 11,
+        "extreme": 46
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissTeleKrakenWeapon.java: Tele-operated Missile (Kraken T)"
+      ]
+    },
+    {
+      "id": "tranq-gun-registry",
+      "name": "Tranq Gun",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.0015,
+      "criticalSlots": 0,
+      "battleValue": 0.13,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 30,
+      "subType": "InfantryPistolTranqGunWeapon",
+      "damage": 0.14,
+      "heat": 0,
+      "ranges": {
+        "long": 0,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolTranqGunWeapon.java: Tranq Gun"
+      ]
+    },
+    {
+      "id": "wire-guided-missile-launcher-registry",
+      "name": "Wire-Guided Missile Launcher",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.095,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 800000,
+      "subType": "InfantrySupportWireGuidedMissileWeapon",
+      "damage": 1.08,
+      "heat": 0,
+      "ranges": {
+        "long": 6,
+        "medium": 0,
+        "minimum": 0,
+        "short": 0,
+        "extreme": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportWireGuidedMissileWeapon.java: Wire-Guided Missile Launcher"
+      ]
+    }
+  ]
+}

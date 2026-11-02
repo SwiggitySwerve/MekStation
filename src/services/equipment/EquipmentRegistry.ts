@@ -18,6 +18,7 @@ import {
   MiscEquipmentCategory,
 } from '@/types/equipment/MiscEquipmentTypes';
 import { IWeapon, WeaponCategory } from '@/types/equipment/weapons/interfaces';
+import { NAME_MAPPINGS_DATA } from '@/utils/construction/equipmentBVCatalogData';
 
 import {
   createSingleton,
@@ -199,6 +200,12 @@ export class EquipmentRegistry {
 
     // Add static alias mappings for known variants
     addStaticAliasMappings(this.nameToIdMap);
+    for (const [alias, id] of Object.entries(NAME_MAPPINGS_DATA)) {
+      if (!id || !this.idToTypeMap.has(id)) continue;
+      for (const key of [alias, this.normalizeName(alias)]) {
+        if (!this.nameToIdMap.has(key)) this.nameToIdMap.set(key, id);
+      }
+    }
   }
 
   /**
