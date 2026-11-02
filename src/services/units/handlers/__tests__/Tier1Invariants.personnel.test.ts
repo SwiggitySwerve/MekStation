@@ -18,6 +18,7 @@
 
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
 
 import { createAerospaceHandler } from '../AerospaceUnitHandler';
 import { createBattleArmorHandler } from '../BattleArmorUnitHandler';
@@ -90,33 +91,43 @@ describe('BattleArmorUnitHandler Tier 1 Invariants', () => {
     };
   }
 
-  it('locks down BV golden value for canonical Elemental Point', () => {
-    // armorPerTrooper=10, squadSize=5, jumpMP=3>0 -> *1.1
-    // bv = round(10 * 20 * 5 * 1.1) = round(1100) = 1100
-    const result = handler.parse(makeDoc());
-    expect(result.success).toBe(true);
-    expect(handler.calculateBV(result.data!.unit)).toBe(1100);
+  function defensive(overrides: Partial<IBlkDocument> = {}): number {
+    const parsed = handler.parse(makeDoc(overrides));
+    if (!parsed.success) throw new Error(parsed.error.errors.join('; '));
+    const value = calculateBattleValueForUnit(parsed.data.unit);
+    if (value?.kind !== 'battlearmor') throw new Error('Missing BA dispatch');
+    return value.breakdown.perTrooper.defensive.total;
+  }
+
+  // The fixture is synthetic and unarmed, not an oracle Elemental source.
+  // MegaMek 48fcb2f64 BattleArmorBVCalculator.java:84-111,257-274 and
+  // BVCalculator.java:650-683: (1 + 10*2.5) * (1 + 2/10 + 0.1) = 33.8.
+  it('matches pinned Java defense for the unarmed heavy Elemental fixture', () => {
+    expect(defensive()).toBeCloseTo(33.8, 10);
   });
 
-  it('BV scales linearly with squad size', () => {
-    const sq4 = handler.parse(makeDoc({ trooperCount: 4 }));
-    const sq5 = handler.parse(makeDoc({ trooperCount: 5 }));
-    const bv4 = handler.calculateBV(sq4.data!.unit);
-    const bv5 = handler.calculateBV(sq5.data!.unit);
-    // 5/4 ratio
-    expect(bv5).toBeGreaterThan(bv4);
-    expect(bv5).toBe(Math.round((bv4 * 5) / 4));
+  it('keeps per-trooper defense independent of shooting strength', () => {
+    expect(defensive({ trooperCount: 4 })).toBeCloseTo(33.8, 10);
+    expect(defensive({ trooperCount: 5 })).toBeCloseTo(33.8, 10);
   });
 
-  it('jump-capable squads get exactly 10% BV bonus', () => {
-    const ground = handler.parse(makeDoc({ jumpingMP: 0 }));
-    const jumper = handler.parse(makeDoc({ jumpingMP: 3 }));
-    const bvGround = handler.calculateBV(ground.data!.unit);
-    const bvJump = handler.calculateBV(jumper.data!.unit);
-    expect(bvJump).toBe(Math.round(bvGround * 1.1));
+  // BattleArmorBVCalculator.java:193-204 applies strength factor 7, not 5.
+  // Its full unarmed total is round(33.8*7)=237, not the partial port's 169.
+  it('matches the unarmed heavy Java total 237 with strength factor 7', () => {
+    const parsed = handler.parse(makeDoc());
+    expect(handler.calculateBV(parsed.data!.unit)).toBe(237);
   });
 
-  it('BV invariants hold for canonical fixture', () => {
+  it('applies jump TMM brackets to the Java defensive factor', () => {
+    // BVCalculator.java:650-683: jumps 1/2 have TMM 1; jump 3 has TMM 2.
+    // The ground run of 1 has TMM 0. This is not a flat jump percentage.
+    expect(defensive({ jumpingMP: 0 })).toBeCloseTo(28.6, 10);
+    expect(defensive({ jumpingMP: 1 })).toBeCloseTo(31.2, 10);
+    expect(defensive({ jumpingMP: 2 })).toBeCloseTo(31.2, 10);
+    expect(defensive({ jumpingMP: 3 })).toBeCloseTo(33.8, 10);
+  });
+
+  it('BV invariants hold for the synthetic unarmed fixture', () => {
     const result = handler.parse(makeDoc());
     assertBVInvariants(handler.calculateBV(result.data!.unit), 'BattleArmor');
   });

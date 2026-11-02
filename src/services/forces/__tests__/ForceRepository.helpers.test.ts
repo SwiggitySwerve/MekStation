@@ -166,6 +166,27 @@ describe('ForceRepository.helpers unit stat resolution', () => {
     expect(stats.assignedUnits).toBe(1);
   });
 
+  it('surfaces saved-unit BV failures instead of substituting zero', () => {
+    mockCustomUnitGet.mockReturnValue({ data: '{}', tonnage: 55 });
+    mockCalculateBV.mockImplementation(() => {
+      throw new Error('Missing BV fact: movement');
+    });
+    expect(() => calculateUnitBV('broken-design')).toThrow(
+      /broken-design.*movement/,
+    );
+  });
+
+  it('surfaces canonical calculation failures', () => {
+    mockCustomUnitGet.mockReturnValue(undefined);
+    expect(() =>
+      calculateUnitBV('broken-catalog', {
+        canonicalUnitStatsResolver: () => {
+          throw new Error('Missing BV fact: armor');
+        },
+      }),
+    ).toThrow(/armor/);
+  });
+
   it('uses injected validation-report BV and canonical tonnage for canonical unit refs', () => {
     mockCustomUnitGet.mockReturnValue(undefined);
     expect(nodeService.getIndexSync()[0]?.bv).toBeUndefined();

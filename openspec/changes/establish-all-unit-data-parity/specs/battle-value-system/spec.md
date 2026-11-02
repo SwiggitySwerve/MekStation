@@ -863,3 +863,105 @@ remain available and equal 1 for these turret kinds.
 - **AND** defense, weapon BV, ammo BV, offensive equipment BV, mount modifiers, speed factor and pilot multiplier SHALL remain unchanged
 - **AND** every unit moving away SHALL be explained with its component values
 - **AND** the mass correction SHALL NOT establish complete vehicle BV parity
+
+
+### Requirement: Per-Trooper Defensive BV
+
+BA defensive BV SHALL apply the pinned MegaMek armor/internal and movement
+factor per trooper: `(1 + max(0, armor) * rate) * factor`. The armor rate SHALL
+be 3.5 for reactive, reflective or fire-resistant armor and 2.5 otherwise.
+The factor SHALL be `1 + max(runTMM, jumpTMM, umuTMM)/10 + 0.1 + stealth + camo`.
+Improved stealth and mimetic armor SHALL add 0.3, other stealth SHALL add 0.2,
+and camouflage SHALL independently add 0.2. Clamps and weight class SHALL NOT
+add defensive BV. Unresolved defensive equipment and effective movement
+SHALL remain explicit limits on the parity claim.
+
+#### Scenario: Armor BV with Standard armor
+
+- **GIVEN** a trooper with 5 points Standard BA armor
+- **WHEN** defensive BV is computed
+- **THEN** armorBV SHALL include the internal point and equal `1 + 5 * 2.5 = 13.5`
+
+#### Scenario: Stealth armor multiplier
+
+- **GIVEN** a trooper with 5 points Basic Stealth BA armor and no movement TMM
+- **WHEN** defensive BV is computed
+- **THEN** armorBV SHALL equal 13.5 and the defensive factor SHALL equal 1.3
+
+#### Scenario: Magnetic Clamp anti-mech bonus
+
+- **GIVEN** a trooper equipped with Magnetic Clamps
+- **WHEN** defensive BV is computed
+- **THEN** clamps SHALL add zero defensive BV
+
+#### Scenario: Move BV by class
+
+- **GIVEN** a Medium-class trooper with ground MP 2 and 5 Standard armor points
+- **WHEN** defensive BV is computed
+- **THEN** defense SHALL equal `13.5 * 1.1 = 14.85`
+- **AND** changing weight class alone SHALL NOT change this defensive value
+
+### Requirement: Squad-Scale BV
+
+BA BV SHALL sum the troopers' unrounded BV, divide by shooting strength,
+and multiply by `(0.9 + 0.1 * strength) * strength`, following pinned MegaMek
+48fcb2f64 BattleArmorBVCalculator.java:193-204. Homogeneous squads SHALL apply
+that factor to per-trooper BV. Pilot skill SHALL apply afterwards, and only the
+final result SHALL be rounded to an integer.
+
+#### Scenario: Clan 5-trooper squad
+
+- **GIVEN** a Clan squad with trooperBV = 100 and squadSize = 5
+- **WHEN** squad BV is computed
+- **THEN** squadBV SHALL equal `100 * 7 = 700` before pilot skill
+
+#### Scenario: IS 4-trooper squad
+
+- **GIVEN** an IS squad with trooperBV = 80 and squadSize = 4
+- **WHEN** squad BV is computed
+- **THEN** squadBV SHALL equal `80 * 5.2 = 416` before pilot skill
+
+#### Scenario: Singleton and unrounded strength scaling
+
+- **GIVEN** a one-trooper design with BV 10.25 or a six-trooper design with BV 10.25 per trooper
+- **WHEN** squad BV is computed with baseline skill
+- **THEN** unrounded squadBV SHALL equal 10.25 or 92.25 and final BV SHALL equal 10 or 92
+
+### Requirement: Per-Trooper Offensive BV
+
+BA offensive BV SHALL use the existing equipment-id resolver after decoding
+native physical mount qualifiers. Shared weapons SHALL contribute per trooper;
+squad-support weapons SHALL divide by shooting strength, and trooper-specific
+mounts SHALL contribute only to their bearer. Anti-Mek-capable suits SHALL
+count eligible non-missile, non-infantry, non-body weapons a second time and
+count vibro/magnetic claws only in the anti-Mek pool. Heavy/assault, quad,
+underwater and burdened suits SHALL NOT receive anti-Mek offense. The pool
+SHALL use the shared offensive speed factor with MP equal to maximum walk,
+jump or active UMU. Unsupported identities and native ammunition lacking
+kgPerShot SHALL remain explicitly unresolved, not invented ton bins.
+
+#### Scenario: Manipulator melee BV
+
+- **GIVEN** an anti-Mek-capable trooper with two vibro claws worth 1 BV each
+- **WHEN** offensive BV is computed
+- **THEN** claws SHALL contribute 2 BV before the offensive speed factor
+- **AND** ordinary battle claws SHALL contribute zero BV
+
+#### Scenario: Weapon BV identical to catalog
+
+- **GIVEN** a trooper with an SRM-2 valued at catalog BV 21 and effective MP 5
+- **WHEN** offensive BV is computed without ammo
+- **THEN** weaponBV SHALL equal 21 and missile weapons SHALL receive no anti-Mek duplication
+
+#### Scenario: Achileus David source and physical mount
+
+- **GIVEN** the pinned four-trooper Achileus David source with a 7 BV arm-mounted Gauss rifle, basic manipulators and effective MP 3
+- **WHEN** both shared dispatch and handler compute BV
+- **THEN** offense SHALL equal `14 * 0.77 = 10.78` per trooper and final BV SHALL equal 189
+- **AND** body-mounting that weapon SHALL remove anti-Mek duplication
+
+#### Scenario: Unresolved native ammunition
+
+- **GIVEN** a native ammunition mount whose catalog lacks per-shot mass
+- **WHEN** native mount values are projected
+- **THEN** its identity and missing kgPerShot SHALL be reported and no one-ton BV SHALL be invented

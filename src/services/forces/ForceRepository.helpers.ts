@@ -6,10 +6,7 @@ import {
   ForceStatus,
   ForcePosition,
 } from '@/types/force';
-import {
-  calculateUnitBV as calculateBV,
-  type UnitData,
-} from '@/utils/construction/bvAdapter';
+import { calculateUnitBV as calculateBV } from '@/utils/construction/bvAdapter';
 
 import { getSQLiteService } from '../persistence/SQLiteService';
 
@@ -110,28 +107,24 @@ export function calculateUnitStats(
 }
 
 function calculateCustomUnitStats(unitId: string): CalculatedUnitStats | null {
+  let customUnit: { data: string; tonnage: number } | undefined;
   try {
     const db = getSQLiteService().getDatabase();
 
-    const customUnit = db
+    customUnit = db
       .prepare('SELECT data, tonnage FROM custom_units WHERE id = ?')
       .get(unitId) as { data: string; tonnage: number } | undefined;
-
-    if (customUnit) {
-      try {
-        const unitData = JSON.parse(customUnit.data) as UnitData;
-        return {
-          bv: calculateBV(unitData),
-          tonnage: customUnit.tonnage,
-        };
-      } catch {
-        return { bv: 0, tonnage: customUnit.tonnage };
-      }
-    }
-
-    return null;
   } catch {
     return null;
+  }
+  if (!customUnit) return null;
+  try {
+    const unitData: unknown = JSON.parse(customUnit.data);
+    return { bv: calculateBV(unitData), tonnage: customUnit.tonnage };
+  } catch (error) {
+    throw new Error(
+      `Cannot calculate BV for saved unit ${unitId}: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 
@@ -142,11 +135,7 @@ function calculateCanonicalUnitStats(
   if (!resolver) {
     return null;
   }
-  try {
-    return resolver(unitId) ?? null;
-  } catch {
-    return null;
-  }
+  return resolver(unitId) ?? null;
 }
 
 export function hydrateForce(

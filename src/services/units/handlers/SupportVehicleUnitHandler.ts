@@ -242,6 +242,7 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
       barRating,
       cargoCapacity,
       fuelTonnage: document.fuel ?? 0,
+      transporters: document.transporters ?? [],
       crewSize,
       passengerCapacity,
       structuralTechRating,
@@ -471,6 +472,10 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
         );
       }
     }
+
+    const unresolved = computeSupportVehicleWeight(unit).unresolved;
+    if (unresolved.length)
+      warnings.push(`Construction weight incomplete: ${unresolved.join(', ')}`);
 
     // Cargo capacity info
     if (unit.cargoCapacity > 0) {

@@ -13,6 +13,7 @@ import {
   SquadMotionType,
   ISquadMovement,
 } from '@/types/unit/BaseUnitInterfaces';
+import { BA_WEIGHT_CLASS_LIMITS } from '@/types/unit/BattleArmorInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   IBattleArmor,
@@ -23,6 +24,8 @@ import {
 } from '@/types/unit/PersonnelInterfaces';
 import { ISerializedUnit } from '@/types/unit/UnitSerialization';
 import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
+import { calculateBattleArmorBVFromUnit } from '@/utils/construction/battlearmor/battleArmorBVAdapter';
+import { canMakeBAAntiMekAttacks } from '@/utils/construction/battlearmor/battleArmorMounts';
 
 import {
   AbstractUnitTypeHandler,
@@ -44,20 +47,6 @@ import {
 // ============================================================================
 // Constants
 // ============================================================================
-
-/**
- * BA weight class thresholds (in kg per trooper)
- */
-const BA_WEIGHT_THRESHOLDS: Record<
-  BattleArmorWeightClass,
-  { min: number; max: number }
-> = {
-  [BattleArmorWeightClass.PA_L]: { min: 80, max: 400 },
-  [BattleArmorWeightClass.LIGHT]: { min: 401, max: 750 },
-  [BattleArmorWeightClass.MEDIUM]: { min: 751, max: 1000 },
-  [BattleArmorWeightClass.HEAVY]: { min: 1001, max: 1500 },
-  [BattleArmorWeightClass.ASSAULT]: { min: 1501, max: 2000 },
-};
 
 /**
  * Motion type string to enum mapping
@@ -117,11 +106,12 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
     }
 
     // Weight class from weight code or calculation
-    const weightCode = document.weightClass || 2; // Default medium
+    const weightCode = document.weightClass ?? 2; // Default medium
     const baWeightClass = this.weightCodeToClass(weightCode);
 
-    // Weight per trooper (in kg, converted from tons)
-    const weightPerTrooper = (document.tonnage * 1000) / squadSize;
+    // BattleArmor.java:1200-1201 -> EntityWeightClass.java:77,438-440:
+    // getTrooperWeight() is the class limit for both biped and quad chassis.
+    const weightPerTrooper = BA_WEIGHT_CLASS_LIMITS[baWeightClass].maxMassKg;
 
     // Motion type
     const motionTypeStr = document.motionType?.toLowerCase() || 'jump';
@@ -167,7 +157,6 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
     const canSwarm = baWeightClass !== BattleArmorWeightClass.ASSAULT;
     const canLegAttack = true;
     const canMountOmni = baWeightClass !== BattleArmorWeightClass.ASSAULT;
-    const canAntiMech = true;
 
     return {
       unitType: UnitType.BATTLE_ARMOR,
@@ -194,7 +183,6 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
       canSwarm,
       canLegAttack,
       canMountOmni,
-      canAntiMech,
       errors,
       warnings,
     };
@@ -258,6 +246,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
       ({ mountId, item, location, locationKey }) => ({
         id: `mount-${mountId}`,
         equipmentId: item,
+        unitLocation: locationKey,
         name: item,
         location,
         isAPMount: locationKey.toLowerCase().includes('ap'),
@@ -295,7 +284,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
     commonFields: ReturnType<typeof this.parseCommonFields>,
     typeSpecificFields: Partial<IBattleArmor>,
   ): IBattleArmor {
-    return combineCommonUnitFields<IBattleArmor>({
+    const unit = combineCommonUnitFields<IBattleArmor>({
       commonFields,
       typeSpecificFields,
       idPrefix: 'battlearmor',
@@ -303,6 +292,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
       weightClass: WeightClass.LIGHT,
       rulesLevelParser: parseRulesLevelThroughAdvancedFromType,
     });
+    return { ...unit, canAntiMech: canMakeBAAntiMekAttacks(unit) };
   }
 
   /**
@@ -340,10 +330,10 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
     }
 
     // Weight per trooper validation
-    const thresholds = BA_WEIGHT_THRESHOLDS[unit.baWeightClass];
+    const thresholds = BA_WEIGHT_CLASS_LIMITS[unit.baWeightClass];
     if (
-      unit.weightPerTrooper < thresholds.min ||
-      unit.weightPerTrooper > thresholds.max
+      unit.weightPerTrooper < thresholds.minMassKg ||
+      unit.weightPerTrooper > thresholds.maxMassKg
     ) {
       warnings.push(
         `Weight per trooper (${unit.weightPerTrooper}kg) doesn't match weight class ${unit.baWeightClass}`,
@@ -403,19 +393,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
    * Calculate BA BV
    */
   protected calculateTypeSpecificBV(unit: IBattleArmor): number {
-    let bv = 0;
-
-    // Base BV from armor (per trooper)
-    bv += unit.armorPerTrooper * 20 * unit.squadSize;
-
-    // Movement modifier
-    if (unit.jumpMP > 0) {
-      bv *= 1.1;
-    }
-
-    // Equipment BV would be added here
-
-    return Math.round(bv);
+    return calculateBattleArmorBVFromUnit(unit).final;
   }
 
   /**

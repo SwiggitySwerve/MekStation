@@ -16,13 +16,18 @@ import type {
   ISmallCraft,
 } from '@/types/unit/AerospaceInterfaces';
 import type { IAerospaceUnit } from '@/types/unit/BaseUnitInterfaces';
-import type { IInfantry, IProtoMech } from '@/types/unit/PersonnelInterfaces';
+import type {
+  IBattleArmor,
+  IInfantry,
+  IProtoMech,
+} from '@/types/unit/PersonnelInterfaces';
 import type { IProtoMechUnit } from '@/types/unit/ProtoMechInterfaces';
 import type { IVehicleUnit } from '@/types/unit/VehicleInterfaces';
 
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { isVehicleUnitShape } from '@/types/unit/VehicleInterfaces';
 
+import type { IBABreakdown } from './battlearmor/battleArmorBV';
 import type { IInfantryBVBreakdown } from './infantry/infantryBV';
 import type { IVehicleBVBreakdown } from './vehicle/vehicleBV';
 
@@ -40,6 +45,7 @@ import {
   type IDropShipBVBreakdown,
   type ILargeAerospaceBVBreakdown,
 } from './aerospace/dropShipComplete';
+import { calculateBattleArmorBVFromUnit } from './battlearmor/battleArmorBVAdapter';
 import { calculateInfantryBVFromUnit as _calculateInfantryBVFromUnit } from './infantry/infantryBVAdapter';
 import {
   calculateProtoMechBV as _calculateProtoMechBV,
@@ -220,6 +226,13 @@ export interface IUnitBVOptions extends IProtoMechBVOptions {
  */
 export type UnitBVResult =
   | {
+      readonly kind: 'battlearmor';
+      readonly breakdown: IBABreakdown & {
+        readonly defensive: number;
+        readonly offensive: number;
+      };
+    }
+  | {
       readonly kind: 'capital-ship';
       readonly breakdown: ILargeAerospaceBVBreakdown;
     }
@@ -311,6 +324,20 @@ export function calculateBattleValueForUnit(
     | AerospaceDispatchUnit,
   options?: IUnitBVOptions,
 ): UnitBVResult | undefined {
+  if (unit?.unitType === UnitType.BATTLE_ARMOR) {
+    const breakdown = calculateBattleArmorBVFromUnit(
+      unit as IBattleArmor,
+      options,
+    );
+    return {
+      kind: 'battlearmor',
+      breakdown: {
+        ...breakdown,
+        defensive: breakdown.perTrooper.defensive.total,
+        offensive: breakdown.perTrooper.offensive.total,
+      },
+    };
+  }
   if (isCapitalShipBVType(unit?.unitType)) {
     return {
       kind: 'capital-ship',

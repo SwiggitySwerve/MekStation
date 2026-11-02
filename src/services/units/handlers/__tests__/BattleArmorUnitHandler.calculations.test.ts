@@ -16,6 +16,7 @@ import {
   BattleArmorChassisType,
   ManipulatorType,
 } from '@/types/unit/PersonnelInterfaces';
+import { calculateBattleArmorBVFromUnit } from '@/utils/construction/battlearmor/battleArmorBVAdapter';
 
 import {
   BattleArmorUnitHandler,
@@ -56,7 +57,8 @@ describe('BattleArmorUnitHandler', () => {
   describe('calculateWeight', () => {
     it('should calculate weight as weightPerTrooper * squadSize / 1000', () => {
       const doc = createMockBlkDocument({
-        tonnage: 4, // 1000kg per trooper
+        tonnage: 4, // Transport weight is not trooper weight
+        weightClass: 2,
         trooperCount: 4,
       });
       const result = handler.parse(doc);
@@ -69,7 +71,8 @@ describe('BattleArmorUnitHandler', () => {
 
     it('should calculate weight for 5-trooper squad', () => {
       const doc = createMockBlkDocument({
-        tonnage: 5, // 1000kg per trooper
+        tonnage: 5,
+        weightClass: 2,
         trooperCount: 5,
       });
       const result = handler.parse(doc);
@@ -86,8 +89,8 @@ describe('BattleArmorUnitHandler', () => {
       expect(result.success).toBe(true);
 
       const weight = handler.calculateWeight(result.data!.unit);
-      // 100kg per trooper * 4 troopers / 1000 = 0.4 tons
-      expect(weight).toBeCloseTo(0.4, 2);
+      // Java class limit: 400kg per trooper * 4 = 1.6 tons
+      expect(weight).toBeCloseTo(1.6, 2);
     });
 
     it('should return positive value', () => {
@@ -105,46 +108,70 @@ describe('BattleArmorUnitHandler', () => {
   // ==========================================================================
 
   describe('calculateBV', () => {
-    it('should calculate BV based on armor', () => {
+    it.each([
+      [0, 5, 200],
+      [3, 5, 237],
+      [0, 4, 149],
+    ])(
+      'matches unarmed native total at jump %s / strength %s',
+      (jumpingMP, trooperCount, expected) => {
+        const parsed = handler.parse(
+          createMockBlkDocument({
+            jumpingMP,
+            trooperCount,
+            armor: [10],
+            equipmentByLocation: {},
+          }),
+        );
+        expect(handler.calculateBV(parsed.data!.unit)).toBe(expected);
+      },
+    );
+    it('reports pinned armor/internal defense without jump', () => {
       const doc = createMockBlkDocument({
         armor: [10],
+        equipmentByLocation: {},
         trooperCount: 5,
         jumpingMP: 0,
       });
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const bv = handler.calculateBV(result.data!.unit);
-      // Base: 10 armor * 20 * 5 troopers = 1000 BV (no jump modifier)
-      expect(bv).toBe(1000);
+      const defensive = calculateBattleArmorBVFromUnit(result.data!.unit)
+        .perTrooper.defensive.total;
+      // BattleArmorBVCalculator.java:84-111,257-274: (1 + 10 * 2.5) * 1.1
+      expect(defensive).toBeCloseTo(28.6, 10);
     });
 
-    it('should apply 1.1x modifier for jump capability', () => {
+    it('reports pinned jump TMM in the defensive factor', () => {
       const doc = createMockBlkDocument({
         armor: [10],
+        equipmentByLocation: {},
         trooperCount: 5,
         jumpingMP: 3,
       });
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const bv = handler.calculateBV(result.data!.unit);
-      // Base: 10 armor * 20 * 5 troopers = 1000 BV * 1.1 = 1100
-      expect(bv).toBe(1100);
+      const defensive = calculateBattleArmorBVFromUnit(result.data!.unit)
+        .perTrooper.defensive.total;
+      // BattleArmorBVCalculator.java:84-111,257-274: (1 + 10 * 2.5) * 1.3
+      expect(defensive).toBeCloseTo(33.8, 10);
     });
 
-    it('should not apply jump modifier for non-jump BA', () => {
+    it('keeps per-trooper ground defense independent of squad size', () => {
       const doc = createMockBlkDocument({
         armor: [10],
+        equipmentByLocation: {},
         trooperCount: 4,
         jumpingMP: 0,
       });
       const result = handler.parse(doc);
       expect(result.success).toBe(true);
 
-      const bv = handler.calculateBV(result.data!.unit);
-      // Base: 10 armor * 20 * 4 troopers = 800 BV (no modifier)
-      expect(bv).toBe(800);
+      const defensive = calculateBattleArmorBVFromUnit(result.data!.unit)
+        .perTrooper.defensive.total;
+      // Same per-trooper defense for four troopers; strength affects totals.
+      expect(defensive).toBeCloseTo(28.6, 10);
     });
 
     it('should return positive value', () => {

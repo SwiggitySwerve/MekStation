@@ -101,13 +101,14 @@ describe('useBattleArmorStore - bvBreakdown reactivity on squadSize change', () 
 
     expect(before.squadSize).toBe(4);
     const trooperBV = before.perTrooper.total;
-    expect(before.squadTotal).toBeCloseTo(trooperBV * 4, 10);
+    expect(before.squadTotal).toBeCloseTo(trooperBV * 5.2, 10);
 
     store.getState().setSquadSize(6);
 
     const after = bv(store);
     expect(after.squadSize).toBe(6);
-    expect(after.squadTotal).toBeCloseTo(trooperBV * 6, 10);
+    expect(after.perTrooper.total).toBe(trooperBV);
+    expect(after.squadTotal).toBeCloseTo(trooperBV * 9, 10);
     expect(after.squadTotal).toBeGreaterThan(before.squadTotal);
   });
 });
@@ -128,14 +129,14 @@ describe('useBattleArmorStore - bvBreakdown reactivity on other inputs', () => {
     expect(after).toBeGreaterThan(before);
   });
 
-  it('baArmorType change updates perTrooper.defensive.armorBV (Stealth ×1.5)', () => {
+  it('baArmorType change increases the defensive factor for stealth', () => {
     const store = makeStore();
-    const before = bv(store).perTrooper.defensive.armorBV;
+    const before = bv(store).perTrooper.defensive.total;
 
     store.getState().setBaArmorType(BAArmorType.STEALTH_BASIC);
 
-    const after = bv(store).perTrooper.defensive.armorBV;
-    expect(after).toBeCloseTo(before * 1.5, 10);
+    const after = bv(store).perTrooper.defensive.total;
+    expect(after / before).toBeCloseTo(1.5 / 1.3, 10);
   });
 
   it('groundMP change updates perTrooper.defensive.moveBV', () => {
@@ -163,25 +164,24 @@ describe('useBattleArmorStore - bvBreakdown reactivity on other inputs', () => {
     const store = makeStore();
     // Default is BATTLE × 2 = 1 + 1 = 2 manipulator BV.
     const before = bv(store).perTrooper.offensive.manipulatorBV;
-    expect(before).toBe(2);
+    expect(before).toBe(0);
 
-    store.getState().setLeftManipulator(ManipulatorType.HEAVY_BATTLE);
-    store.getState().setRightManipulator(ManipulatorType.HEAVY_BATTLE);
+    store.getState().setLeftManipulator(ManipulatorType.BATTLE_VIBRO);
+    store.getState().setRightManipulator(ManipulatorType.BATTLE_VIBRO);
 
     const after = bv(store).perTrooper.offensive.manipulatorBV;
     // HEAVY_BATTLE maps to HEAVY_CLAW (2) × 2 = 4 manipulator BV.
-    expect(after).toBe(4);
+    expect(after).toBe(2);
   });
 
-  it('weightClass change updates perTrooper.defensive.moveBV', () => {
+  it('weightClass alone does not change the defensive factor', () => {
     const store = makeStore({ weightClass: BattleArmorWeightClass.MEDIUM });
     const before = bv(store).perTrooper.defensive.moveBV;
 
     store.getState().setWeightClass(BattleArmorWeightClass.ASSAULT);
 
     const after = bv(store).perTrooper.defensive.moveBV;
-    // Assault class multiplier (1.5) > Medium (0.75) → moveBV should rise.
-    expect(after).toBeGreaterThan(before);
+    expect(after).toBe(before);
   });
 });
 

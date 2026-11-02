@@ -1,3 +1,5 @@
+import { calculateUnitBV } from '@/utils/construction/bvAdapter';
+
 import { getNodeCanonicalUnitService } from '../units/NodeCanonicalUnitService';
 import { setForceRepositoryCanonicalStatsResolver } from './ForceRepository';
 import {
@@ -23,15 +25,19 @@ export const resolveNodeCanonicalUnitStats: CanonicalUnitStatsResolver = (
 ): CalculatedUnitStats | null => {
   assertServerRuntime();
   const entry = getNodeCanonicalUnitService()
-    .getIndexSyncWithBV()
+    .getIndexSync()
     .find((unit) => unit.id === unitId);
 
   if (!entry) {
     return null;
   }
 
+  const unit = getNodeCanonicalUnitService().getByIdSync(unitId);
+  if (!unit) throw new Error(`Cannot load canonical unit for BV: ${unitId}`);
+
   return {
-    bv: entry.bv ?? 0,
+    // The canonical loader validates the bundled JSON at its I/O boundary.
+    bv: calculateUnitBV(unit),
     tonnage: entry.tonnage,
   };
 };
