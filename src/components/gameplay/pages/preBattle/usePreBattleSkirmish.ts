@@ -175,14 +175,10 @@ async function createInteractiveSkirmishSession(
     ),
   ]);
 
-  const adaptedPlayerUnits = requireAllAdaptedUnits(
-    playerAdapted,
-    config.player.units.length,
-  );
-  const adaptedOpponentUnits = requireAllAdaptedUnits(
-    opponentAdapted,
-    config.opponent.units.length,
-  );
+  const adaptedUnits = requireAllAdaptedUnits(
+    [...playerAdapted, ...opponentAdapted],
+    session.units.length,
+  ).map((unit, index) => ({ ...unit, id: session.units[index].id }));
 
   const engine = new GameEngine({
     seed: seedOverride ?? Date.now(),
@@ -191,8 +187,8 @@ async function createInteractiveSkirmishSession(
     grid: createGridFromTerrainPreset(config.mapRadius, config.terrainPreset),
   });
   return engine.createInteractiveSession(
-    adaptedPlayerUnits,
-    adaptedOpponentUnits,
+    adaptedUnits.slice(0, config.player.units.length),
+    adaptedUnits.slice(config.player.units.length),
     buildGameUnits(session),
     { encounterId: encounter.id },
   );

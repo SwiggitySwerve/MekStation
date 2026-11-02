@@ -302,6 +302,7 @@ export function createBattleArmorStore(
         `megamek-battlearmor-${initialState.id}`,
         (state: BattleArmorStore) => ({
           ...pickPersistedUnitIdentity(state),
+          librarySource: state.librarySource,
           techBase: state.techBase,
           unitType: state.unitType,
           chassisType: state.chassisType,

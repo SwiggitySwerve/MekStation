@@ -79,6 +79,27 @@ export function validateTonnage(
   return [];
 }
 
+/** TestSmallCraft accepts light escape craft and zero-thrust life boats.
+ * The editor's 100-ton starting configuration is not a native validity floor.
+ */
+export function validateSmallCraftSourceLimits(unit: {
+  tonnage: number;
+  movement: { safeThrust: number };
+  structuralIntegrity: number;
+}): string[] {
+  const errors: string[] = [];
+  if (unit.tonnage > SMALL_CRAFT_TONNAGE.max) {
+    errors.push(
+      `Small craft tonnage cannot exceed ${SMALL_CRAFT_TONNAGE.max} tons`,
+    );
+  }
+  if (unit.movement.safeThrust < 0)
+    errors.push('Small craft cannot have negative safe thrust');
+  if (unit.structuralIntegrity < 1)
+    errors.push('Small craft must have at least 1 SI');
+  return errors;
+}
+
 /**
  * VAL-AERO-THRUST: engine type must be legal for sub-type,
  * and safeThrust must not exceed the class cap.

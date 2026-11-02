@@ -425,6 +425,7 @@ export function createProtoMechStore(
         `megamek-protomech-${initialState.id}`,
         (state: ProtoMechStore) => ({
           ...pickPersistedUnitIdentity(state),
+          librarySource: state.librarySource,
           techBase: state.techBase,
           unitType: state.unitType,
           tonnage: state.tonnage,

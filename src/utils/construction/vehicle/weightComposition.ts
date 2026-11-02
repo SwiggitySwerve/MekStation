@@ -16,6 +16,7 @@ import {
   requiresPowerAmplifiers,
 } from '@/utils/construction/vehicle/powerAmplifier';
 import { computeVehicleStructureWeight } from '@/utils/construction/vehicle/structure';
+import { isValidWeight } from '@/utils/physical/weightUtils';
 
 import type { VehicleStructureType } from './structure';
 
@@ -50,27 +51,21 @@ export interface VehicleWeightBreakdown extends VehicleMountedWeightBreakdown {
   lift: number;
   structure: number;
   armor: number;
-  powerAmplifiers: number;
-  remaining: number;
+  powerAmplifiers: number | null;
+  remaining: number | null;
+  isComplete: boolean;
 }
 
 /**
  * Tonnage of every figure the bar subtracts from the vehicle's tonnage.
- * Equipment the resolver cannot find counts as 0.
+ * Unknown mounted terms remain unavailable through the remaining budget.
  */
 export function computeVehicleWeightBreakdown(
   state: VehicleWeightState,
   resolve: EquipmentResolver,
 ): VehicleWeightBreakdown {
-  const {
-    equipment,
-    turretEquipment,
-    secondaryTurretEquipment,
-    turretMounted,
-    energyWeapons,
-    turret,
-    secondaryTurret,
-  } = computeVehicleMountedWeightBreakdown(state, resolve);
+  const mounted = computeVehicleMountedWeightBreakdown(state, resolve);
+  const { equipment, energyWeapons, turret, secondaryTurret } = mounted;
 
   const engineContext = {
     tonnage: state.tonnage,
@@ -99,37 +94,50 @@ export function computeVehicleWeightBreakdown(
   // A vehicle that needs amplifiers carries at least the required weight,
   // even before the store has derived `powerAmpWeight`.
   const requiredAmps = requiresPowerAmplifiers(state.engineType)
-    ? computePowerAmplifierWeight(energyWeapons)
+    ? energyWeapons === null
+      ? null
+      : computePowerAmplifierWeight(energyWeapons)
     : 0;
-  const powerAmplifiers = Math.max(state.powerAmpWeight, requiredAmps);
+  const powerAmplifiers =
+    requiredAmps === null || !isValidWeight(state.powerAmpWeight)
+      ? null
+      : Math.max(state.powerAmpWeight, requiredAmps);
+  const issues = [...mounted.issues];
+  if (powerAmplifiers === null)
+    issues.push('Power amplifier mass is unresolved or invalid');
 
   const { controls, lift } = computeVehicleControlsLiftWeights(state);
 
   const totalUsed =
-    engine +
-    controls +
-    lift +
-    structure +
-    armor +
-    equipment +
-    turret +
-    secondaryTurret +
-    powerAmplifiers;
-
+    equipment === null ||
+    turret === null ||
+    secondaryTurret === null ||
+    powerAmplifiers === null
+      ? null
+      : engine +
+        controls +
+        lift +
+        structure +
+        armor +
+        equipment +
+        turret +
+        secondaryTurret +
+        powerAmplifiers;
+  const remaining = totalUsed === null ? null : state.tonnage - totalUsed;
+  const finiteRemaining =
+    remaining !== null && Number.isFinite(remaining) ? remaining : null;
+  if (remaining !== null && finiteRemaining === null)
+    issues.push('Remaining mass is nonfinite');
   return {
+    ...mounted,
     engine,
     controls,
     lift,
     structure,
     armor,
-    equipment,
-    turret,
-    secondaryTurret,
     powerAmplifiers,
-    turretEquipment,
-    secondaryTurretEquipment,
-    turretMounted,
-    energyWeapons,
-    remaining: state.tonnage - totalUsed,
+    issues,
+    remaining: finiteRemaining,
+    isComplete: finiteRemaining !== null,
   };
 }

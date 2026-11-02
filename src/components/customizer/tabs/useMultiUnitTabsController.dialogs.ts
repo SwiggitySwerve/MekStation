@@ -12,6 +12,7 @@ import {
   serializeCustomUnitState,
   serializeCustomVehicleState,
   serializeCustomAerospaceState,
+  serializeCustomSmallUnitState,
 } from '@/utils/serialization/CustomUnitSerializer';
 import { getEraForYear } from '@/utils/temporal/eraUtils';
 
@@ -198,7 +199,9 @@ export function useDialogHandlers(
             ? serializeCustomUnitState(state, identity)
             : 'aerospaceSubType' in state
               ? serializeCustomAerospaceState(state, identity)
-              : serializeCustomVehicleState(state, identity);
+              : 'pointSize' in state || 'squadSize' in state
+                ? serializeCustomSmallUnitState(state, identity)
+                : serializeCustomVehicleState(state, identity);
 
         // The legacy API type names persisted data as IFullUnit even though
         // this path writes the canonical ISerializedUnit contract.

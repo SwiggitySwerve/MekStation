@@ -66,7 +66,7 @@ const LOADOUT = [
   mounted('ac-10-ammo', 'AC/10 Ammo', 'eq-4'),
 ];
 
-function renderWeightFree(equipment: unknown[]): number {
+function renderWeightFreeText(equipment: unknown[]): string {
   const state = {
     ...createDefaultVehicleState({
       name: 'Test Tank',
@@ -83,7 +83,7 @@ function renderWeightFree(equipment: unknown[]): number {
   );
   const { unmount } = render(<VehicleStatusBar />);
   const root = screen.getByText('Weight Free').parentElement as HTMLElement;
-  const value = parseFloat(root.children[1].textContent ?? '');
+  const value = root.children[1].textContent ?? '';
   unmount();
   return value;
 }
@@ -115,4 +115,16 @@ describe('VehicleStatusBar — equipment weight', () => {
     const oneHeavyItem = renderWeightFree([mounted('ac-10', 'AC/10', 'eq-1')]);
     expect(empty - oneHeavyItem).toBeCloseTo(12, 5);
   });
+});
+
+function renderWeightFree(equipment: unknown[]): number {
+  return parseFloat(renderWeightFreeText(equipment));
+}
+
+it('keeps an unresolved body mount unavailable at the status boundary', () => {
+  expect(
+    renderWeightFreeText([
+      mounted('unresolved-source-mount', 'Unresolved', 'unknown-instance'),
+    ]),
+  ).toBe('Unknown');
 });

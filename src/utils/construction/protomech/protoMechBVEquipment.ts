@@ -4,7 +4,27 @@ import {
   ProtoLocation,
 } from '@/types/unit/ProtoMechInterfaces';
 
-import { resolveEquipmentBV } from '../equipmentBVResolver';
+import {
+  normalizeEquipmentId,
+  resolveEquipmentBV,
+} from '../equipmentBVResolver';
+
+/** Native misc belongs outside the weapon/ammo-cap pool (BVCalculator:978-1042). */
+export function resolveProtoOffensiveEquipmentBV(
+  equipmentId: string,
+  tonnage: number,
+): number | undefined {
+  const id = normalizeEquipmentId(equipmentId).replace(/[^a-z0-9]/g, '');
+  if (id === 'protoquadmeleesystem' || id === 'protomechquadmeleesystem') {
+    // MegaMek 48fcb2f6 MiscType.java:1367-1369; dynamic, not catalog BV.
+    return 2.5 * Math.ceil(0.2 * tonnage);
+  }
+  if (id === 'protomagneticclamp' || id === 'clanelectricdischargeprotomech') {
+    // Fixed values stay catalog-owned (MiscType:9401, ArmorType:1405).
+    return resolveEquipmentBV(equipmentId).battleValue;
+  }
+  return undefined;
+}
 
 /** IDs treated as defensive-only equipment (no weapon BV contribution). */
 const DEFENSIVE_EQUIPMENT_HINTS: readonly string[] = [

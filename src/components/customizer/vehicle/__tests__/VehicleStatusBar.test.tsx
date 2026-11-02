@@ -132,7 +132,7 @@ describe('VehicleStatusBar — full layout', () => {
     // Turret weight is derived from its equipment, not read from currentWeight.
     // With no turret cap and an empty turret, the weight available to it is
     // exactly the vehicle's free weight.
-    expect(item('Turret')).toEqual(['0.0', ` / ${item('Weight Free')[0]}`]);
+    expect(item('Turret')).toEqual(['0.0 t', 'mounted']);
   });
 
   it('surfaces the validation error count and first rule id', () => {

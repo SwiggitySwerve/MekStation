@@ -455,3 +455,26 @@ unavailability. Existing support totals and ordinary sponsons remain separate.
 errors while skipping comparisons with unknown operands. `isValid` requires
 completeness. Pinned TestTank.java:178-226,237-239,841-888 at 48fcb2f supplies the
 rule; richer armor-mount classification and complete parity remain separate.
+
+## Unavailable mounted and represented weight
+
+`mountedWeight.ts` resolves each instance once and retains independent groups.
+Missing/invalid mass is null; zero and empty groups stay known. Ammunition and
+amplifier classification remain with existing owners. `weightComposition.ts`
+preserves current engine/support chassis branches and propagates unavailable
+amplifier/remaining terms. Its isComplete flag means represented mass is known,
+not full source parity or construction legality. Validation transports that
+flag while retaining known errors. The status boundary uses null-safe units;
+it does not invent a turret capacity denominator. Projected Java fixtures retain
+their 48fcb2f provenance and establish only the documented mechanism terms.
+
+## Imported Combat Turret Installation
+
+The shared equipment-mount owner materializes imported turret configuration.
+An accepted armor layout preserves an installed empty primary, secondary or
+VTOL chin turret even with zero armor. Only the accepted second slot creates a
+separate secondary object; a legacy Dual label alone does not create one.
+Existing explicit and nonempty-equipment chin compatibility remains supported.
+Raw allowance parsing stays in `projectCombatVehicleTurretSource`; both combat
+handlers carry its independent facts and messages without altering the document.
+Allowances do not install turrets or make incomplete combat totals available.

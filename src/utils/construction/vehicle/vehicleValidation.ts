@@ -65,6 +65,8 @@ export type VehicleValidationRuleId =
 
 export interface VehicleValidationInput
   extends VehicleControlsLiftContext, IVehicleTurretSourceContext {
+  /** Completeness transported from the full weight composition, when supplied. */
+  weightCalculationComplete?: boolean;
   /** Engine type */
   engineType: VehicleEngineType;
   /** Cruise MP */
@@ -257,6 +259,7 @@ export function validateVehicleConstruction(
     equipmentWeight: input.secondaryTurretEquipmentWeight,
   });
   const isComplete =
+    input.weightCalculationComplete !== false &&
     primaryMechanism.weight !== null &&
     primaryMechanism.allowanceOverloaded !== null &&
     secondaryMechanism.weight !== null &&
