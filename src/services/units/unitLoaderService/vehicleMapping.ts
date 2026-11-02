@@ -16,6 +16,7 @@ import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { UnitContract } from '@/types/contracts';
 import { TechBase } from '@/types/enums/TechBase';
+import { WeightClass } from '@/types/enums/WeightClass';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
@@ -34,6 +35,7 @@ import {
   getPrimaryVehicleTurretType,
   getVehicleMountFlags,
 } from '@/utils/construction/vehicle/equipmentMounts';
+import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 import { generateUnitId } from '@/utils/uuid';
 
 import {
@@ -46,6 +48,51 @@ import { createVehicleSession } from './createVehicleSession';
 import { isDefinitionForFamily } from './definitionTypes';
 import { resolveEquipmentId } from './equipmentResolution';
 import { UnsupportedUnitConfigurationError } from './movementConfiguration';
+
+/** Saved editor facts absent from, or not derivable from, the catalog contract.
+ * Canonical armor, engine, movement and equipment identities stay in that contract. */
+const turretSchema = z
+  .object({
+    type: z.enum(TurretType),
+    currentWeight: z.number().nonnegative(),
+    rotationArc: z.number().nonnegative(),
+  })
+  .nullable();
+export const vehicleEditorSchema = z.object({
+  name: z.string(),
+  weightClass: z.enum(WeightClass),
+  flankMP: z.number().nonnegative(),
+  armorTonnage: z.number().nonnegative(),
+  turret: turretSchema,
+  secondaryTurret: turretSchema,
+  hasNoControlSystems: z.boolean().optional(),
+  isSuperheavy: z.boolean(),
+  hasEnvironmentalSealing: z.boolean(),
+  hasFlotationHull: z.boolean(),
+  isAmphibious: z.boolean(),
+  hasTrailerHitch: z.boolean(),
+  structureType: z.enum(VehicleStructureType),
+  crewSize: z.number().int().nonnegative(),
+  passengerSlots: z.number().int().nonnegative(),
+  barRating: z.number().nullable(),
+  powerAmpWeight: z.number().nonnegative(),
+  mounts: z.array(
+    z.object({
+      name: z.string(),
+      isTurretMounted: z.boolean(),
+      isSponsonMounted: z.boolean(),
+      isChinTurretMounted: z.boolean().optional(),
+      isPintleTurretMounted: z.boolean().optional(),
+      resolutionWarning: z
+        .object({
+          code: z.literal('unresolved-equipment'),
+          sourceId: z.string(),
+          attemptedId: z.string(),
+        })
+        .optional(),
+    }),
+  ),
+});
 
 type UnsupportedVehicleField =
   | 'unitType'
@@ -261,10 +308,41 @@ export function normalizeVehicleConfiguration(
 
 /** Contract JSON or a definition returned by loadUnitDefinition('vehicles', id). */
 export function mapToVehicleState(input: unknown): VehicleState {
-  return createVehicleSession(normalizeVehicleConfiguration(input), {
+  const definition = UnitContract.parse(input);
+  const configuration = normalizeVehicleConfiguration(definition);
+  if (definition.vehicleEditor !== undefined) {
+    const { mounts, ...editor } = vehicleEditorSchema.parse(
+      definition.vehicleEditor,
+    );
+    if (mounts.length !== configuration.equipment.length)
+      throw new TypeError('Saved vehicle mount count does not match equipment');
+    Object.assign(configuration, editor);
+    configuration.equipment = configuration.equipment.map((item, index) => ({
+      ...item,
+      // Saved canonical identities are already resolved; resolving them again
+      // can change technology or ammunition identity in mixed-tech designs.
+      equipmentId: definition.equipment?.[index].id ?? item.equipmentId,
+      isRearMounted: definition.equipment?.[index].isRearMounted ?? false,
+      isOmniPodMounted: definition.equipment?.[index].isOmniPodMounted,
+      resolutionWarning: undefined,
+      ...mounts[index],
+    }));
+  }
+  const state = createVehicleSession(configuration, {
     id: generateUnitId(),
     createdAt: Date.now(),
   });
+  return {
+    ...state,
+    equipment: state.equipment.map((item) => ({
+      ...item,
+      linkedAmmoId: configuration.equipment.some(
+        (mount) => mount.id === item.linkedAmmoId,
+      )
+        ? `${state.id}-${item.linkedAmmoId}`
+        : item.linkedAmmoId,
+    })),
+  };
 }
 
 type VehicleEquipmentSource = NonNullable<

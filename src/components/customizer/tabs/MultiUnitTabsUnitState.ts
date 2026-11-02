@@ -1,4 +1,6 @@
+import type { UnitStore } from '@/stores/unitState';
 import type { TabInfo } from '@/stores/useTabManagerStore';
+import type { VehicleStore } from '@/stores/vehicleState';
 
 import { getAerospaceStore } from '@/stores/aerospaceStoreRegistry';
 import { getBattleArmorStore } from '@/stores/battleArmorStoreRegistry';
@@ -9,6 +11,7 @@ import { getVehicleStore } from '@/stores/vehicleStoreRegistry';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { isVehicleUnitShape } from '@/types/unit/VehicleInterfaces';
 
 import type { TabDisplayInfo } from './tabTypes';
 
@@ -25,7 +28,8 @@ export function isLibrarySaveSupported(unitType?: UnitType): boolean {
     unitType === undefined ||
     unitType === UnitType.BATTLEMECH ||
     unitType === UnitType.OMNIMECH ||
-    unitType === UnitType.INDUSTRIALMECH
+    unitType === UnitType.INDUSTRIALMECH ||
+    isVehicleUnitShape({ unitType })
   );
 }
 
@@ -36,14 +40,6 @@ export function getLibrarySaveDisabledReason(
   if (isLibrarySaveSupported(tab.unitType)) return null;
 
   return `Library save is not available for ${tab.unitType} units yet. Your browser draft remains open.`;
-}
-
-function isVehicleType(unitType: UnitType): boolean {
-  return (
-    unitType === UnitType.VEHICLE ||
-    unitType === UnitType.VTOL ||
-    unitType === UnitType.SUPPORT_VEHICLE
-  );
 }
 
 function isAerospaceType(unitType: UnitType): boolean {
@@ -58,8 +54,29 @@ function isAerospaceType(unitType: UnitType): boolean {
   );
 }
 
+interface LibrarySaveStore {
+  getState(): UnitStore | VehicleStore;
+  setState(
+    partial: Partial<
+      Pick<
+        UnitStore,
+        'chassis' | 'model' | 'name' | 'lastModifiedAt' | 'isModified'
+      >
+    >,
+  ): void;
+}
+
+export function getLibrarySaveStore(
+  tabId: string,
+  unitType?: UnitType,
+): LibrarySaveStore | undefined {
+  return unitType && isVehicleUnitShape({ unitType })
+    ? getVehicleStore(tabId)
+    : getUnitStore(tabId);
+}
+
 function getTabStore(tabId: string, unitType?: UnitType) {
-  if (unitType && isVehicleType(unitType)) {
+  if (unitType && isVehicleUnitShape({ unitType })) {
     return getVehicleStore(tabId);
   }
 

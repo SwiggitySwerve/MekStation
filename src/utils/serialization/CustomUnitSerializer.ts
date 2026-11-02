@@ -1,4 +1,5 @@
 import type { UnitState } from '@/stores/unitState';
+import type { VehicleState } from '@/stores/vehicleState';
 import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import type { Era } from '@/types/temporal/Era';
 import type {
@@ -8,6 +9,11 @@ import type {
   ISerializedUnit,
 } from '@/types/unit/UnitSerialization';
 
+import {
+  blkEngineName,
+  encodeBlkEngine,
+} from '@/services/conversion/blkEngineIdentity';
+import { vehicleEditorSchema } from '@/services/units/unitLoaderService/vehicleMapping';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { CockpitType } from '@/types/construction/CockpitType';
 import {
@@ -20,7 +26,14 @@ import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { getLocationsForConfig } from '@/types/construction/MechConfigurationSystem';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
+import {
+  VehicleLocation,
+  VTOLLocation,
+  SuperHeavyVehicleLocation,
+} from '@/types/construction/UnitLocation';
+import { UnitContract, type IUnitContract } from '@/types/contracts';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
 
@@ -244,4 +257,79 @@ export function serializeCustomUnitState(
     baseChassisHeatSinks: state.baseChassisHeatSinks,
     clanName: state.clanName || undefined,
   };
+}
+
+/** Vehicle store -> catalog contract; editor-only facts use a validated extension. */
+export function serializeCustomVehicleState(
+  state: VehicleState,
+  identity: CustomUnitSaveIdentity,
+): IUnitContract & {
+  family: 'vehicles';
+  vehicleEditor: ReturnType<typeof vehicleEditorSchema.parse>;
+} {
+  const locations = {
+    ...VehicleLocation,
+    ...VTOLLocation,
+    ...SuperHeavyVehicleLocation,
+  };
+  const locationTag = (location: string) => {
+    const key = Object.entries(locations).find(
+      ([, value]) => value === location,
+    )?.[0];
+    if (!key) throw new TypeError(`Unknown vehicle location: ${location}`);
+    return key;
+  };
+  const vehicleEditor = vehicleEditorSchema.parse({
+    ...state,
+    name: [identity.chassis, identity.variant].filter(Boolean).join(' '),
+    mounts: state.equipment,
+  });
+  const definition = UnitContract.parse({
+    id: identity.id,
+    family: 'vehicles',
+    chassis: identity.chassis,
+    model: identity.variant,
+    variant: identity.variant,
+    era: identity.era,
+    unitType: state.unitType,
+    year: state.year,
+    tonnage: state.tonnage,
+    mulId: state.mulId,
+    techBase: state.techBase === TechBase.CLAN ? 'CLAN' : 'INNER_SPHERE',
+    rulesLevel: RULES_LEVEL[state.rulesLevel],
+    motionType: state.motionType,
+    engine: {
+      type: blkEngineName(Number(encodeBlkEngine(state.engineType))),
+      rating: state.engineRating,
+    },
+    clanEngine: state.engineType === EngineType.XL_CLAN,
+    engineTechRating: state.engineTechRating,
+    structuralTechRating: state.structuralTechRating,
+    movement: { cruiseMP: state.cruiseMP, flankMP: state.flankMP },
+    armor: {
+      type: ARMOR_TYPE[state.armorType],
+      byLocation: Object.fromEntries(
+        Object.entries(state.armorAllocation).map(([location, points]) => [
+          locationTag(location),
+          points,
+        ]),
+      ),
+    },
+    isOmni: state.isOmni,
+    isTrailer: state.isTrailer,
+    equipment: state.equipment.map((item) => ({
+      id: item.equipmentId,
+      name: item.name,
+      location: locationTag(item.location),
+      isRearMounted: item.isRearMounted,
+      isOmniPodMounted: item.isOmniPodMounted,
+      linkedAmmo: state.equipment.some(
+        (mount) => mount.id === item.linkedAmmoId,
+      )
+        ? `mount-${state.equipment.findIndex((mount) => mount.id === item.linkedAmmoId)}`
+        : item.linkedAmmoId,
+    })),
+    vehicleEditor,
+  });
+  return { ...definition, family: 'vehicles' as const, vehicleEditor };
 }

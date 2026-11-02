@@ -8,10 +8,16 @@ import { recordUnitLibrarySave } from '@/stores/unit/unitEditSnapshot';
 import { getUnitStore } from '@/stores/unitStoreRegistry';
 import { Era } from '@/types/temporal/Era';
 import { logger } from '@/utils/logger';
-import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
+import {
+  serializeCustomUnitState,
+  serializeCustomVehicleState,
+} from '@/utils/serialization/CustomUnitSerializer';
 import { getEraForYear } from '@/utils/temporal/eraUtils';
 
-import { getLibrarySaveDisabledReason } from './MultiUnitTabsUnitState';
+import {
+  getLibrarySaveDisabledReason,
+  getLibrarySaveStore,
+} from './MultiUnitTabsUnitState';
 
 export interface CloseDialogState {
   isOpen: boolean;
@@ -106,7 +112,7 @@ export function useDialogHandlers(
         return;
       }
 
-      const unitStore = getUnitStore(tabId);
+      const unitStore = getLibrarySaveStore(tabId, getTabById(tabId)?.unitType);
       if (!unitStore) {
         showToast({
           message: 'This unit is no longer available to save.',
@@ -162,7 +168,10 @@ export function useDialogHandlers(
         return;
       }
 
-      const unitStore = getUnitStore(saveDialog.tabId);
+      const unitStore = getLibrarySaveStore(
+        saveDialog.tabId,
+        getTabById(saveDialog.tabId)?.unitType,
+      );
       if (!unitStore) {
         showToast({
           message: 'This unit is no longer available to save.',
@@ -172,15 +181,21 @@ export function useDialogHandlers(
       }
 
       const state = unitStore.getState();
+      const mechStore =
+        'configuration' in state ? getUnitStore(saveDialog.tabId) : undefined;
 
       try {
         const era = getEraForYear(state.year) ?? Era.LATE_SUCCESSION_WARS;
-        const unitData = serializeCustomUnitState(state, {
+        const identity = {
           id: overwriteId ?? saveDialog.tabId,
           chassis,
           variant,
           era,
-        });
+        };
+        const unitData =
+          'configuration' in state
+            ? serializeCustomUnitState(state, identity)
+            : serializeCustomVehicleState(state, identity);
 
         // The legacy API type names persisted data as IFullUnit even though
         // this path writes the canonical ISerializedUnit contract.
@@ -227,7 +242,11 @@ export function useDialogHandlers(
           model: variant,
           name: unitName,
         };
-        const storeStillOpen = getUnitStore(saveDialog.tabId) === unitStore;
+        const storeStillOpen =
+          getLibrarySaveStore(
+            saveDialog.tabId,
+            getTabById(saveDialog.tabId)?.unitType,
+          ) === unitStore;
         const stillCurrent = unitStore.getState() === state;
         const tabStillOpen = Boolean(getTabById(saveDialog.tabId));
 
@@ -250,7 +269,12 @@ export function useDialogHandlers(
             }
           }
           try {
-            recordUnitLibrarySave(unitStore, reference, savedState);
+            if ('configuration' in savedState) {
+              if (mechStore)
+                recordUnitLibrarySave(mechStore, reference, savedState);
+            } else {
+              unitStore.setState({ isModified: !stillCurrent });
+            }
           } catch (error) {
             browserSaveFailed = true;
             logger.error(

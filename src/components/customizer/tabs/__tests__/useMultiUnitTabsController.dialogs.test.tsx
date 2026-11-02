@@ -6,6 +6,9 @@ import { useDialogHandlers } from '@/components/customizer/tabs/useMultiUnitTabs
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { getUnitStore } from '@/stores/unitStoreRegistry';
 import { createNewUnitStore } from '@/stores/useUnitStore';
+import { createVehicleStore } from '@/stores/useVehicleStore';
+import { createDefaultVehicleState } from '@/stores/vehicleState';
+import { getVehicleStore } from '@/stores/vehicleStoreRegistry';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
@@ -24,6 +27,9 @@ jest.mock('@/services/units/CustomUnitApiService', () => ({
 
 jest.mock('@/stores/unitStoreRegistry', () => ({
   getUnitStore: jest.fn(),
+}));
+jest.mock('@/stores/vehicleStoreRegistry', () => ({
+  getVehicleStore: jest.fn(),
 }));
 
 jest.mock('@/utils/logger', () => ({
@@ -75,8 +81,70 @@ beforeEach(() => {
 });
 
 describe('useDialogHandlers library save', () => {
+  it.each([UnitType.VEHICLE, UnitType.VTOL, UnitType.SUPPORT_VEHICLE] as const)(
+    'saves %s through its vehicle store and keeps concurrent edits dirty',
+    async (unitType) => {
+      const store = createVehicleStore(
+        createDefaultVehicleState({
+          id: UNIT_ID,
+          name: 'Carrier C',
+          tonnage: 60,
+          techBase: TechBase.INNER_SPHERE,
+          unitType,
+        }),
+      );
+      jest.mocked(getVehicleStore).mockReturnValue(store);
+      const getTabById = jest.fn(() => tab(unitType));
+      let resolveSave: (value: {
+        success: boolean;
+        id: string;
+        version: number;
+      }) => void = () => undefined;
+      mockCreate.mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            resolveSave = resolve;
+          }),
+      );
+      const { result } = renderHook(() =>
+        useDialogHandlers(performCloseTab, renameTab, getTabById),
+      );
+      act(() => result.current.openSaveDialog(UNIT_ID));
+      expect(result.current.saveDialog.isOpen).toBe(true);
+      let pending: Promise<void>;
+      act(() => {
+        pending = result.current.handleSaveDialogSave('Carrier', 'C');
+      });
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({ family: 'vehicles', unitType }),
+        'Carrier',
+        'C',
+      );
+      act(() => store.getState().setCrewSize(9));
+      await act(async () => {
+        resolveSave({ success: true, id: 'custom-carrier', version: 1 });
+        await pending;
+      });
+      expect(store.getState().crewSize).toBe(9);
+      expect(store.getState().isModified).toBe(true);
+      mockCreate.mockResolvedValue({
+        success: true,
+        id: 'custom-carrier',
+        version: 2,
+      });
+      act(() => result.current.openSaveDialog(UNIT_ID));
+      await act(async () => {
+        await result.current.handleSaveDialogSave('Carrier', 'C');
+      });
+      expect(store.getState().isModified).toBe(false);
+      expect(showToastMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({ variant: 'success' }),
+      );
+    },
+  );
+
   it('reports unsupported families and keeps the unsaved-close choice open', () => {
-    const getTabById = jest.fn(() => tab(UnitType.VEHICLE));
+    const getTabById = jest.fn(() => tab(UnitType.AEROSPACE));
     const { result } = renderHook(() =>
       useDialogHandlers(performCloseTab, renameTab, getTabById),
     );

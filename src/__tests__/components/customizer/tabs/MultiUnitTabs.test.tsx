@@ -460,7 +460,7 @@ describe('MultiUnitTabs', () => {
     });
 
     it('gives unsupported unit families an accessible disabled reason', () => {
-      const vehicleTab = { ...mockTab1, unitType: UnitType.VEHICLE };
+      const vehicleTab = { ...mockTab1, unitType: UnitType.AEROSPACE };
       mockTabManager = createMockTabManager({
         tabs: [vehicleTab],
         activeTabId: vehicleTab.id,

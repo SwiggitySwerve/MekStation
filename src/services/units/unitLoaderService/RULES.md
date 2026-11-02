@@ -33,7 +33,16 @@ registry owns their accepted contract discriminators and available store mapper.
   plain "not available yet" note and never as the total.
 - BattleMech equipment mapping, normalization and session creation stay unchanged.
   No fallback creates a BattleMech from a different family.
-- Custom library entries are BattleMech-only until UL-25a records their family.
+- Saved vehicle designs carry family `vehicles` in their persisted JSON and
+  library index. A saved design without family means BattleMech; requesting a
+  different family fails validation. Force/roster references require UL-24's
+  separate persistence and resolver changes.
+- CustomUnitSerializer owns vehicle store serialization into UnitContract.
+  The vehicle mapper validates its vehicleEditor extension for editor-only
+  construction/mount facts. Session IDs, timestamps and dirty flags renew;
+  construction values and linked-mount relationships survive JSON save/reopen.
+  Vehicle saves clear the submitted draft's dirty flag only when no newer edit
+  arrived. Vehicle saved-history receipts remain unavailable in this slice.
 
 ## Vehicle definition mapping
 
