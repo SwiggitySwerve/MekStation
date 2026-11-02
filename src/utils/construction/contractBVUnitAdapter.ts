@@ -8,6 +8,7 @@
  * and nothing is rear-mounted; a Support Vehicle has no turret. Unknown spellings throw instead of
  * defaulting (the handlers default to BODY / Tracked, hiding a converter fault).
  */
+import { mapHeatSinkType } from '@/services/conversion/ValueMappings';
 import { resolveVehicleContractLocation } from '@/services/conversion/vehicleContractLocations';
 import {
   GroundMotionType,
@@ -46,6 +47,8 @@ export interface IContractBVSource {
     >
   >;
   readonly structuralIntegrity?: number;
+  readonly heatSinks?: { readonly type: string; readonly count: number };
+  readonly cockpit?: string;
   readonly internalType?: number;
   readonly armor: {
     readonly type: string;
@@ -279,6 +282,18 @@ export function contractUnitToBVUnit(
         'structuralIntegrity',
       ),
       ...contractAerospaceArmorFacts(unit),
+      ...(unit.movement.maxThrust === undefined
+        ? {}
+        : { maxThrust: unit.movement.maxThrust }),
+      ...(unit.heatSinks
+        ? {
+            heatSinks: {
+              type: mapHeatSinkType(unit.heatSinks.type),
+              count: unit.heatSinks.count,
+            },
+          }
+        : {}),
+      ...(unit.cockpit === undefined ? {} : { cockpit: unit.cockpit }),
       equipment: (unit.equipment ?? []).map((item) => ({
         equipmentId: item.id,
         location: item.location,
