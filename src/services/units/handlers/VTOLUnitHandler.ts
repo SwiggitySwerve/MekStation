@@ -8,7 +8,11 @@
  */
 
 import { VTOL_TONNAGE } from '@/services/construction/constructionConstants';
-import { blkVehicleArmorLengthError } from '@/services/conversion/blkVehicleArmorLayout';
+import {
+  blkVehicleArmorLengthError,
+  resolveBlkVehicleArmor,
+} from '@/services/conversion/blkVehicleArmorLayout';
+import { projectCombatVehicleTurretSource } from '@/services/conversion/blkVehicleTurretSource';
 import { VTOLLocation } from '@/types/construction/UnitLocation';
 import {
   BLK_VTOL_ARMOR_LOCATIONS,
@@ -99,6 +103,12 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     const { errors, warnings } = createParseMessages();
     pushSourceLoadNumberErrors(errors, document, 'cruiseMP');
     if (errors.length > 0) return { errors, warnings };
+    const turretSource = projectCombatVehicleTurretSource(document);
+    warnings.push(...turretSource.warnings);
+    if (!turretSource.success) {
+      errors.push(...turretSource.errors);
+      return { errors, warnings };
+    }
 
     // VTOLs always have VTOL motion type
     const motionType = GroundMotionType.VTOL;
@@ -147,6 +157,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
 
     return {
       unitType: UnitType.VTOL,
+      ...turretSource.facts,
       internalStructureType: document.internalType ?? 0,
       structureLocations: BLK_VTOL_ARMOR_LOCATIONS.slice(0, armor.length),
       motionType,
@@ -205,7 +216,12 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     return getPrimaryVehicleTurretConfiguration(
       document,
       turretType?.toLowerCase() === 'chin' ? turretType : undefined,
-      undefined,
+      resolveBlkVehicleArmor(
+        'VTOL',
+        document.motionType,
+        document.tonnage,
+        document.armor,
+      ),
       true,
     );
   }

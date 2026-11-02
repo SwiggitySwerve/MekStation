@@ -107,6 +107,16 @@ export function getPrimaryVehicleTurretConfiguration(
   };
 }
 
+/** Only an accepted second armor slot installs a separate secondary turret. */
+export function getSecondaryVehicleTurretConfiguration(
+  primary: ITurretConfiguration | undefined,
+  layoutArmor?: Readonly<Record<string, number>>,
+): ITurretConfiguration | undefined {
+  return primary && layoutArmor?.[VehicleLocation.TURRET_2] !== undefined
+    ? { ...primary, type: TurretType.SINGLE }
+    : undefined;
+}
+
 // =============================================================================
 // Mount Result
 // =============================================================================
