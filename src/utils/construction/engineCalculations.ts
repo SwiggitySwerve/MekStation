@@ -218,6 +218,11 @@ export function calculateWalkMP(rating: number, tonnage: number): number {
   if (tonnage <= 0 || rating <= 0) {
     return 0;
   }
+  return calculateRatedWalkMP(rating, tonnage);
+}
+
+/** Raw rating conversion; callers retain their existing invalid-input policy. */
+export function calculateRatedWalkMP(rating: number, tonnage: number): number {
   return Math.floor(rating / tonnage);
 }
 

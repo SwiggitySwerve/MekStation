@@ -14,6 +14,7 @@ import {
   calculateEngineRating,
   calculateEngineWeight,
   calculateIntegralHeatSinks,
+  calculateRatedWalkMP,
   calculateWalkMP,
   getAllValidEngineRatings,
   getBaseEngineWeight,
@@ -88,6 +89,18 @@ describe('calculateEngineWeight (with type multiplier)', () => {
 });
 
 describe('calculateEngineRating + calculateWalkMP', () => {
+  it.each([
+    [200, 50],
+    [199, 50],
+    [-100, 50],
+    [200, 0],
+    [0, 0],
+    [NaN, 50],
+  ])('preserves raw rating conversion for %s / %s', (rating, tonnage) => {
+    expect(calculateRatedWalkMP(rating, tonnage)).toBe(
+      Math.floor(rating / tonnage),
+    );
+  });
   it('rating = tonnage × walkMP, snapped to nearest 5', () => {
     expect(calculateEngineRating(50, 4)).toBe(200);
     expect(calculateEngineRating(75, 4)).toBe(300);

@@ -2,6 +2,7 @@ import type { IEditableMech } from '@/services/construction/MechBuilderService';
 import type { IUnitConfig } from '@/services/printing/recordsheet/types';
 
 import { getCalculationService } from '@/services/construction/CalculationService';
+import { calculateRatedWalkMP } from '@/utils/construction/engineCalculations';
 import { logger } from '@/utils/logger';
 
 import {
@@ -36,7 +37,9 @@ export function getMovementProfile(
   tonnage: number,
 ): { walkMP: number; runMP: number } {
   const walkMP =
-    engineRating > 0 && tonnage > 0 ? Math.floor(engineRating / tonnage) : 0;
+    engineRating > 0 && tonnage > 0
+      ? calculateRatedWalkMP(engineRating, tonnage)
+      : 0;
   return {
     walkMP,
     runMP: Math.ceil(walkMP * 1.5),

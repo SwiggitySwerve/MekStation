@@ -19,7 +19,10 @@ import {
   isLegLocation,
 } from '@/types/construction/MechConfigurationSystem';
 import { getArmorCriticalSlots } from '@/utils/construction/armorCalculations';
-import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
+import {
+  calculateEngineWeight,
+  calculateRatedWalkMP,
+} from '@/utils/construction/engineCalculations';
 import {
   calculateGyroWeight,
   getGyroCriticalSlots,
@@ -212,7 +215,7 @@ export function useUnitCalculations(
     // Movement Calculations
     // =========================================================================
 
-    const walkMP = Math.floor(selections.engineRating / tonnage);
+    const walkMP = calculateRatedWalkMP(selections.engineRating, tonnage);
     const runMP = Math.ceil(walkMP * 1.5);
 
     return {
