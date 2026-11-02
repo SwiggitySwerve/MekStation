@@ -155,6 +155,12 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit> {
   };
 
   /**
+   * Whether the BLK source carries a unit Tonnage tag that must be positive.
+   * Types whose source has none override this to false.
+   */
+  protected readonly requiresUnitTonnage: boolean = true;
+
+  /**
    * Parse common fields present in all unit types
    */
   protected parseCommonFields(document: IBlkDocument): {
@@ -180,7 +186,7 @@ export abstract class AbstractUnitTypeHandler<T extends IBaseUnit = IBaseUnit> {
     const model = document.model || '';
 
     const tonnage = document.tonnage;
-    if (!tonnage || tonnage <= 0) {
+    if (this.requiresUnitTonnage && (!tonnage || tonnage <= 0)) {
       errors.push(`Invalid tonnage: ${tonnage}`);
     }
 

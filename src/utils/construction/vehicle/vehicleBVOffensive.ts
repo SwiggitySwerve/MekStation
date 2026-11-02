@@ -12,6 +12,7 @@ import {
   type OffensiveBVConfig,
 } from '../battleValueOffensive';
 import {
+  getArtemisBVMultiplier,
   normalizeEquipmentId,
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
@@ -82,11 +83,7 @@ function calculateWeaponBVEntry(
   const listedBV = resolveMountBattleValue(weapon);
   let adjustedBV = listedBV;
 
-  if (weapon.artemisType === 'iv') {
-    adjustedBV *= 1.2;
-  } else if (weapon.artemisType === 'v') {
-    adjustedBV *= 1.3;
-  }
+  adjustedBV *= getArtemisBVMultiplier(weapon.artemisType);
 
   if (weapon.isRearMounted && !weapon.isTurretMounted) {
     adjustedBV *= 0.5;

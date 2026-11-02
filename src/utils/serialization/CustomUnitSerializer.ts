@@ -75,6 +75,7 @@ const ARMOR_TYPE = {
   [ArmorTypeEnum.REFLECTIVE]: 'REFLECTIVE',
   [ArmorTypeEnum.HARDENED]: 'HARDENED',
   [ArmorTypeEnum.FERRO_LAMELLOR]: 'FERRO_LAMELLOR',
+  [ArmorTypeEnum.BALLISTIC_REINFORCED]: 'BALLISTIC_REINFORCED',
 } as const satisfies Readonly<Record<ArmorTypeEnum, string>>;
 
 const HEAT_SINK_TYPE = {

@@ -11,6 +11,8 @@ export type {
 } from './types';
 
 export {
+  getArtemisBVMultiplier,
+  getLargeAerospaceAmmoEntry,
   resolveEquipmentBV,
   getEquipmentEntry,
   getAmmunitionEntry,
