@@ -1,0 +1,26 @@
+[
+  {
+    "prefix": "ge/",
+    "status": "excluded",
+    "reason": "Owner exclusion 2026-11-01",
+    "entityClass": "megamek.common.equipment.GunEmplacement"
+  },
+  {
+    "prefix": "advancedbuildings/",
+    "status": "excluded",
+    "reason": "Owner exclusion 2026-11-01",
+    "entityClass": "megamek.common.units.BuildingEntity"
+  },
+  {
+    "prefix": "handheld/",
+    "status": "excluded",
+    "reason": "Owner exclusion 2026-11-01",
+    "entityClass": "megamek.common.equipment.HandheldWeapon"
+  },
+  {
+    "format": "bfs",
+    "status": "pending",
+    "reason": "Six BFS files: owner scope decision pending (L-INV2 brief, 2026-11-01)",
+    "entityClass": "megamek.common.battlefieldSupport.BattlefieldSupportAsset"
+  }
+]

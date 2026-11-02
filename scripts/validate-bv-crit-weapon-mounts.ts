@@ -1,8 +1,6 @@
-import * as fs from 'fs';
-import * as path from 'path';
-
 import type { UnitData } from './validate-bv-types';
 
+import { WEAPON_CATALOG_FILES } from '../src/utils/construction/equipmentBVCatalogData';
 import { normalizeCritName } from './validate-bv-normalizers';
 
 export interface CritWeaponMountCounts {
@@ -15,66 +13,21 @@ let _weaponSlotCache: Map<string, number> | null = null;
 function getWeaponSlotCounts(): Map<string, number> {
   if (_weaponSlotCache) return _weaponSlotCache;
   _weaponSlotCache = new Map();
-  // Load weapon catalogs data-driven from index.json
-  let catalogs: string[] = [];
-  try {
-    const idx = JSON.parse(
-      fs.readFileSync(
-        path.resolve(
-          process.cwd(),
-          'public/data/equipment/official/index.json',
-        ),
-        'utf-8',
-      ),
-    );
-    if (idx?.files?.weapons && typeof idx.files.weapons === 'object') {
-      catalogs = (Object.values(idx.files.weapons) as string[]).map(
-        (f) => '../' + f,
-      );
-    }
-  } catch {
-    /* fallback */
-  }
-  if (catalogs.length === 0)
-    catalogs = [
-      'energy-laser.json',
-      'energy-ppc.json',
-      'energy-other.json',
-      'ballistic-autocannon.json',
-      'ballistic-gauss.json',
-      'ballistic-machinegun.json',
-      'ballistic-other.json',
-      'missile-atm.json',
-      'missile-lrm.json',
-      'missile-mrm.json',
-      'missile-other.json',
-      'missile-srm.json',
-      'physical.json',
-    ];
-  for (const cat of catalogs) {
-    try {
-      const d = JSON.parse(
-        fs.readFileSync(
-          path.resolve(
-            process.cwd(),
-            'public/data/equipment/official/weapons/' + cat,
-          ),
-          'utf-8',
-        ),
-      );
-      for (const item of d.items || []) {
-        if (item.criticalSlots && item.criticalSlots > 0) {
-          const norm = item.id.toLowerCase().replace(/[^a-z0-9]/g, '');
-          _weaponSlotCache.set(norm, item.criticalSlots);
-          const clanNorm = ('clan' + item.id)
-            .toLowerCase()
-            .replace(/[^a-z0-9]/g, '');
-          if (!_weaponSlotCache.has(clanNorm))
-            _weaponSlotCache.set(clanNorm, item.criticalSlots);
-        }
-      }
-    } catch {
-      /* ignore */
+  for (const file of WEAPON_CATALOG_FILES) {
+    for (const item of file.items ?? []) {
+      if (
+        typeof item.id !== 'string' ||
+        typeof item.criticalSlots !== 'number' ||
+        item.criticalSlots <= 0
+      )
+        continue;
+      const norm = item.id.toLowerCase().replace(/[^a-z0-9]/g, '');
+      _weaponSlotCache.set(norm, item.criticalSlots);
+      const clanNorm = ('clan' + item.id)
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '');
+      if (!_weaponSlotCache.has(clanNorm))
+        _weaponSlotCache.set(clanNorm, item.criticalSlots);
     }
   }
   return _weaponSlotCache;

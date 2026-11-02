@@ -13,6 +13,7 @@ import type { IUnitIndexEntry } from '@/services/common/types';
 import type { UnitFamily } from '@/types/unit/UnitIndex';
 
 import { UnitLoadDialog } from '@/components/customizer/dialogs/UnitLoadDialog';
+import { ARMOR_TYPE_OPTIONS } from '@/components/customizer/vehicle/VehicleArmorTab.constants';
 import {
   getCanonicalUnitService,
   resetCanonicalUnitService,
@@ -61,12 +62,16 @@ const CATALOG: Record<string, readonly string[]> = {
     'manticore-heavy-tank',
     'warrior-attack-helicopter-h-7',
     'air-car',
+    'dreadnought-mk-ii-land-trailer-configuration-#1',
+    'eurus-mbt-prime',
+    'demolisher-heavy-tank-reinforced',
   ],
   aerospace: [
     'shilone-sl-17',
     'boeing-jump-bomber',
     'aquarius-escort',
     'tomahawk-c',
+    'nl-45-gunboat',
   ],
   capital: ['achilles-2582'],
 };
@@ -109,6 +114,7 @@ for (const [family, row] of Object.entries(SYNTHETIC)) {
 }
 
 const showToast = jest.fn();
+const VEHICLE_ARMOR_TYPES = ARMOR_TYPE_OPTIONS.map((option) => option.value);
 
 beforeEach(() => {
   global.fetch = jest.fn(async (input: string) => {
@@ -228,6 +234,26 @@ it.each([
     UnitType.CONVENTIONAL_FIGHTER,
   ],
   ['small craft', 'aerospace', 'aquarius-escort', UnitType.SMALL_CRAFT],
+  // Follow-up 67: units that failed to open in #2492's real-catalog run.
+  [
+    'trailer with # in its file name',
+    'vehicles',
+    'dreadnought-mk-ii-land-trailer-configuration-#1',
+    UnitType.SUPPORT_VEHICLE,
+  ],
+  ['Ferro-Lamellor tank', 'vehicles', 'eurus-mbt-prime', UnitType.VEHICLE],
+  [
+    'Ballistic-Reinforced tank',
+    'vehicles',
+    'demolisher-heavy-tank-reinforced',
+    UnitType.VEHICLE,
+  ],
+  [
+    'small craft with hull equipment',
+    'aerospace',
+    'nl-45-gunboat',
+    UnitType.SMALL_CRAFT,
+  ],
 ] as const)(
   'opens a %s into its own store and tab',
   async (_label, family, id, unitType) => {
@@ -249,6 +275,12 @@ it.each([
       tonnage: unit.tonnage,
       isModified: false,
     });
+    if (family === 'vehicles') {
+      // The vehicle armor tab can show the loaded armor type.
+      expect(VEHICLE_ARMOR_TYPES).toContain(
+        getVehicleStore(tab.id)?.getState().armorType,
+      );
+    }
     expect(createUnitFromFullState).not.toHaveBeenCalled();
     expect(getLibrarySaveDisabledReason(tab)).toMatch(/not available/);
   },
@@ -267,6 +299,16 @@ it('opens a capital ship into a read-only tab without creating a store', async (
   expect(getAerospaceStore(tab.id)).toBeUndefined();
   expect(createUnitFromFullState).not.toHaveBeenCalled();
   expect(getLibrarySaveDisabledReason(tab)).toMatch(/not available/);
+});
+
+it('fetches a catalog file whose name contains # with each path segment encoded', async () => {
+  await getCanonicalUnitService().getById(
+    'dreadnought-mk-ii-land-trailer-configuration-#1',
+    { family: 'vehicles', strict: true },
+  );
+  expect(global.fetch).toHaveBeenCalledWith(
+    '/data/units/vehicles/Dreadnought%20Mk%20II%20Land%20Trailer%20Configuration%20%231.json',
+  );
 });
 
 it.each([

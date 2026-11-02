@@ -60,12 +60,14 @@ export function useOverviewBuildSummary(): OverviewBuildSummaryData {
   const armorTonnage = useUnitStore((s) => s.armorTonnage);
   const armorAllocation = useUnitStore((s) => s.armorAllocation);
   const equipment = useUnitStore((s) => s.equipment);
+  const bvContext = useUnitStore((s) => s.bvContext);
   const jumpMP = useUnitStore((s) => s.jumpMP);
   const jumpJetType = useUnitStore((s) => s.jumpJetType);
 
   const validation = useUnitValidation();
 
   const { unitStats } = useUnitEditorRoutingStats({
+    bvContext,
     unitName,
     chassis,
     model,

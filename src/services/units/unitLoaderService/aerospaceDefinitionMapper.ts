@@ -53,12 +53,13 @@ const SUPPORTED_SUBTYPES = new Set([
 ]);
 
 /**
- * Small craft sides are Aero's wing locations under another name
- * (SmallCraft.java:77-78: "Left Side", "Right Side").
+ * Small craft locations under their Aero names (SmallCraft.java:75-78): the
+ * sides are the wing locations, and the internal "Hull" is the fuselage.
  */
-const SMALL_CRAFT_SIDES: Readonly<Record<string, AerospaceLocation>> = {
+const SMALL_CRAFT_LOCATIONS: Readonly<Record<string, AerospaceLocation>> = {
   LEFT_SIDE: AerospaceLocation.LEFT_WING,
   RIGHT_SIDE: AerospaceLocation.RIGHT_WING,
+  HULL: AerospaceLocation.FUSELAGE,
 };
 
 /** The converter keeps BLK's "(R) " rear-mount prefix in name and id. */
@@ -97,11 +98,11 @@ const COCKPIT_BY_CONTRACT: Readonly<Record<string, AerospaceCockpitType>> = {
 /** Converter arc keys are the AerospaceLocation member names. */
 function mapArc(key: string, isSmallCraft: boolean): AerospaceLocation {
   const location =
-    (isSmallCraft ? SMALL_CRAFT_SIDES[key] : undefined) ??
+    (isSmallCraft ? SMALL_CRAFT_LOCATIONS[key] : undefined) ??
     AerospaceLocation[key as keyof typeof AerospaceLocation];
   if (!location) {
     throw new UnsupportedUnitConfigurationError(
-      `Unknown aerospace location "${key}"`,
+      `The aerospace editor cannot open units with equipment or armor in the ${key.toLowerCase().replace(/_/g, ' ')} location yet.`,
     );
   }
   return location;

@@ -19,6 +19,8 @@ export const ARMOR_TYPE_OPTIONS: { value: ArmorTypeEnum; label: string }[] = [
   { value: ArmorTypeEnum.HARDENED, label: 'Hardened' },
   { value: ArmorTypeEnum.REACTIVE, label: 'Reactive' },
   { value: ArmorTypeEnum.REFLECTIVE, label: 'Reflective (Laser)' },
+  { value: ArmorTypeEnum.FERRO_LAMELLOR, label: 'Ferro-Lamellor' },
+  { value: ArmorTypeEnum.BALLISTIC_REINFORCED, label: 'Ballistic-Reinforced' },
 ];
 
 export const BASE_VEHICLE_LOCATIONS: VehicleArmorLocationOption[] = [
