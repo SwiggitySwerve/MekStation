@@ -17,6 +17,10 @@ import {
 } from '../../../../scripts/validate-bv-weapon-resolution';
 import { normalizeWeaponKey } from '../battleValueAmmo';
 import { isDirectFireBVWeapon } from '../battleValueWeapons';
+import {
+  applyOneShotBVHeat,
+  isOneShotMissileBVWeapon,
+} from '../equipmentBV/weaponHeat';
 import { normalizeEquipmentId } from '../equipmentBVResolver';
 
 /** Builds mounted weapon BV inputs without changing the source critical grid. */
@@ -101,21 +105,8 @@ export function buildMechBVWeapons(
     if (!res.resolved || res.battleValue === 0) unresolvedWeapons.push(eq.id);
 
     const wid = eq.id.toLowerCase();
-    const widStripped = wid.replace(/^\d+-/, '');
-    const isRocketLauncher =
-      wid.includes('rocket-launcher') ||
-      wid.includes('rl-') ||
-      /^rl\d+$/.test(wid) ||
-      widStripped.includes('rocketlauncher') ||
-      /^(?:is|cl)rocketlauncher\d+$/.test(widStripped) ||
-      /^rl\d+$/.test(widStripped);
-    // I-OS (Improved One-Shot), OS (One-Shot), and "one-shot" suffix weapons
-    const isIOS =
-      /[- ]i-?os$/i.test(widStripped) ||
-      /[- ]os$/i.test(widStripped) ||
-      widStripped.includes('one-shot');
-    const isOneShot = isRocketLauncher || isIOS;
-    const effectiveHeat = isOneShot ? res.heat / 4 : res.heat;
+    const isIOS = isOneShotMissileBVWeapon(eq.id);
+    const effectiveHeat = applyOneShotBVHeat(res.heat, eq.id);
     // IOS weapons use 1/5 of base weapon BV (aliases must point to BASE weapon entries)
     const effectiveBV = isIOS
       ? Math.round(res.battleValue / 5.0)
