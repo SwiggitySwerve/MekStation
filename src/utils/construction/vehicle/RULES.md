@@ -439,3 +439,19 @@ original zero-run trailers use one. Jump/2 retains shared Java-style rounding.
 Legacy public TMM/effective-MP helpers and submarine override are preserved.
 Pin: Tank.java:387-418,1570-1575,2034-2042; Entity.java:4004-4016;
 CombatVehicleBVCalculator.java:147-163; MPCalculationSetting.java:123-136.
+
+## Explicit combat Omni mechanism mass
+
+`turret.ts:computeVehicleTurretMechanismWeight` owns assigned versus required
+mechanism mass. Explicit nonnegative Omni allowances charge half-ton ceilings
+independently, even without installed turrets; absence makes the requirement
+zero. Absent/negative allowances derive ordinary mass; non-Omni ignores them.
+Compare the rounded requirement to the raw allowance, preserving zero.
+Unknown requirements remain unknown even when an assigned charge is known.
+Nonfinite, invalid and unsupported Omni support/sponson contexts diagnose
+unavailability. Existing support totals and ordinary sponsons remain separate.
+
+`vehicleValidation.ts` exposes dependent completeness and keeps independent
+errors while skipping comparisons with unknown operands. `isValid` requires
+completeness. Pinned TestTank.java:178-226,237-239,841-888 at 48fcb2f supplies the
+rule; richer armor-mount classification and complete parity remain separate.

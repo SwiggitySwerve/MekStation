@@ -234,6 +234,9 @@ export interface IAttackInvalidPayload {
  * Damage applied event payload.
  */
 export interface IDamageAppliedPayload {
+  /** Resolved family state/events: replay never rerolls aerospace control or crit dice. */
+  readonly aerospaceState?: import('@/utils/gameplay/aerospace/state').IAerospaceCombatState;
+  readonly aerospaceEvents?: readonly import('@/utils/gameplay/aerospace/events').AerospaceEvent[];
   /** Unit that took damage */
   readonly unitId: string;
   /** Location hit */

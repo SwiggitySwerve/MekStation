@@ -80,6 +80,9 @@ export function applyDamageApplied(
     return state;
   }
 
+  // The family resolver has already performed every roll and calculation.
+  const aerospace =
+    unit.combatState?.kind === 'aero' ? payload.aerospaceState : undefined;
   const newDestroyedLocations = [...unit.destroyedLocations];
   const newArmor = { ...unit.armor };
   const newStructure = { ...unit.structure };
@@ -131,19 +134,18 @@ export function applyDamageApplied(
 
   const unitAfterDamage: IUnitGameState = {
     ...unit,
-    armor: newArmor,
-    structure: newStructure,
+    armor: aerospace ? { ...aerospace.armorByArc } : newArmor,
+    structure: aerospace ? { si: aerospace.currentSI } : newStructure,
+    ...(aerospace ? { destroyed: aerospace.destroyed } : {}),
     startingInternalStructure: newStartingStructure,
     destroyedLocations: newDestroyedLocations,
     destroyedEquipment: payload.criticals
       ? [...unit.destroyedEquipment, ...payload.criticals]
       : unit.destroyedEquipment,
     damageThisPhase: currentDamageThisPhase + payload.damage,
-    combatState: applyVehicleDamageToCombatState(
-      unit,
-      payload,
-      newDestroyedLocations,
-    ),
+    combatState: aerospace
+      ? { kind: 'aero', state: aerospace }
+      : applyVehicleDamageToCombatState(unit, payload, newDestroyedLocations),
   };
 
   const updatedUnit: IUnitGameState =
@@ -177,6 +179,14 @@ export function applyHeatChange(
       [payload.unitId]: {
         ...unit,
         heat: payload.newTotal,
+        ...(unit.combatState?.kind === 'aero'
+          ? {
+              combatState: {
+                kind: 'aero' as const,
+                state: { ...unit.combatState.state, heat: payload.newTotal },
+              },
+            }
+          : {}),
       },
     },
   };

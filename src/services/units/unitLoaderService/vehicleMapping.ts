@@ -6,6 +6,7 @@ import {
 } from '@/services/conversion/blkEngineIdentity';
 import { isSuperHeavyTank } from '@/services/conversion/blkVehicleArmorLayout';
 import { resolveVehicleContractLocation } from '@/services/conversion/vehicleContractLocations';
+import { mapVehicleTurretContext } from '@/services/conversion/vehicleTurretContext';
 import { getUnitIndexWeightClass } from '@/services/units/unitWeightClass';
 import { setTurretTypeLogic } from '@/stores/useVehicleStore.actions';
 import {
@@ -296,7 +297,11 @@ export function normalizeVehicleConfiguration(
     isSuperheavy:
       unitType === UnitType.VEHICLE && isSuperHeavyTank(motionType, tonnage),
     isTrailer: definition.isTrailer ?? false,
-    isOmni: definition.isOmni ?? false,
+    ...mapVehicleTurretContext(
+      definition.isOmni,
+      unitType === UnitType.VTOL,
+      (tag) => definition[tag],
+    ),
     equipment: mapVehicleEquipment(
       definition.equipment,
       techBase,
