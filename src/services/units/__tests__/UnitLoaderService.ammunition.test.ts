@@ -331,6 +331,13 @@ describe('BattleMech BV source parity', () => {
     expect(b?.maxTMM).toBe(7);
     expect(b?.defensiveFactor).toBe(1.7);
   });
+  it('LAM heat uses rounded AirMek flank MP divided by three', async () => {
+    const state = await load('stinger-lam-stg-a10');
+    const raw: UnitData = JSON.parse(JSON.stringify(state.bvContext?.source));
+    const b = calculateUnitBV(raw, raw.id).breakdown;
+    expect(b?.moveHeat).toBe(9);
+    expect(b?.heatEfficiency).toBe(8);
+  });
   it.each(['armor', 'weapon', 'ammo', 'CASE'] as const)(
     '%s edits agree with independently edited gate inputs',
     async (change) => {

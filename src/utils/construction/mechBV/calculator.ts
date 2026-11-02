@@ -414,6 +414,8 @@ export function calculateUnitBV(
       ? undefined
       : {
           speedFactor: calculateOffensiveSpeedFactor(runMP, airMekFlankMP),
+          // Pinned MekBVCalculator.heatEfficiency: standard LAM movement heat.
+          heat: Math.round(airMekFlankMP / 3),
         },
   );
 
