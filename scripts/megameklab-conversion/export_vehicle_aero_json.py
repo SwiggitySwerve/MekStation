@@ -86,10 +86,8 @@ def export_strict(mekfiles: Path, out_dir: Path) -> None:
                 try:
                     if folder == "meks":
                         row["unit"] = dataclass_to_dict(parser.parse_file(str(source)))
-                    elif folder == "protomeks":
+                    elif folder in ("battlearmor", "infantry", "protomeks"):
                         row["sourceText"] = source.read_bytes().decode("utf-8")
-                    elif folder in ("battlearmor", "infantry"):
-                        row["reason"] = "No pinned-source TypeScript BV adapter for " + folder
                     elif folder in ("dropships", "jumpships", "warship", "spacestation"):
                         row["unit"] = capital.convert_capital_blk(source, logger)
                     elif folder == "vehicles":

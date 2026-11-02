@@ -5,7 +5,10 @@ import * as path from 'path';
 import { z } from 'zod';
 
 import { BlkParserService } from '../src/services/conversion/BlkParserService';
+import { BattleArmorUnitHandler } from '../src/services/units/handlers/BattleArmorUnitHandler';
+import { InfantryUnitHandler } from '../src/services/units/handlers/InfantryUnitHandler';
 import { ProtoMechUnitHandler } from '../src/services/units/handlers/ProtoMechUnitHandler';
+import { UnitTypeRegistry } from '../src/services/units/UnitTypeRegistry';
 import { UnitContract } from '../src/types/contracts/generated/unit.zod';
 import { calculateBattleValueForUnit } from '../src/utils/construction/battleValueCalculations';
 import {
@@ -27,6 +30,9 @@ import { calculateUnitBV as gateBV } from './validate-bv-calculator';
 
 const Mech = UnitContract.options[0];
 const Contract = UnitContract.options[1];
+const personnel = new UnitTypeRegistry();
+personnel.register(new BattleArmorUnitHandler());
+personnel.register(new InfantryUnitHandler());
 const Input = z.object({
   ...sourceKey,
   unit: z.unknown(),
@@ -43,9 +49,21 @@ export function sourceHash(bytes: Buffer): string {
 export function calculateRow(raw: unknown): IComputedRow {
   const input = Input.parse(raw);
   try {
-    if (input.path.startsWith('protomeks/') && input.sourceText !== undefined) {
+    if (input.sourceText !== undefined) {
       const document = new BlkParserService().parse(input.sourceText);
       if (!document.success) throw new Error(document.error.errors.join('; '));
+      if (!input.path.startsWith('protomeks/')) {
+        const handler = personnel.getHandlerForDocument(document.data.document);
+        if (!handler) throw new Error('No source handler');
+        const parsed = handler.parse(document.data.document);
+        if (!parsed.success) throw new Error(parsed.error.errors.join('; '));
+        return {
+          path: input.path,
+          sha256: input.sha256,
+          handlerTotal: handler.calculateBV(parsed.data.unit),
+          reason: 'No aggregate BV path; source handler total retained',
+        };
+      }
       const handler = new ProtoMechUnitHandler();
       const parsed = handler.parse(document.data.document);
       if (!parsed.success) throw new Error(parsed.error.errors.join('; '));

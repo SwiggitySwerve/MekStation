@@ -38,6 +38,7 @@ export interface IComputedRow {
   figure?: IFigure;
   reason?: string;
   runtimeTotal?: number;
+  handlerTotal?: number;
 }
 export const AGGREGATE_REL_TOLERANCE = 1e-9;
 export function aggregateDelta(java: number, ours: number) {
@@ -166,6 +167,7 @@ export function buildDeltaReport(
         java: java?.battleValue ?? null,
         ours: input?.figure ?? null,
         runtimeTotal: input?.runtimeTotal ?? null,
+        handlerTotal: input?.handlerTotal ?? null,
         comparison,
       };
     });
@@ -178,6 +180,11 @@ export function buildDeltaReport(
       const joined = group.filter((row) => row.joined).length;
       const count = (status: string) =>
         group.filter((row) => row.status === status).length;
+      const auxiliaryExact = (key: 'runtimeTotal' | 'handlerTotal') =>
+        group.filter(
+          (row) =>
+            positive(row[key] ?? undefined) && row[key] === row.java?.total,
+        ).length;
       if (!oracleRows) errors.push(`missing-family: ${family}`);
       if (joined < oracleRows)
         errors.push(`coverage: ${family} ${joined}/${oracleRows}`);
@@ -192,17 +199,8 @@ export function buildDeltaReport(
           notComputable: count('not-computable'),
           notComplete: count('not-complete'),
           invalid: count('invalid'),
-          defensiveWithinTolerance: group.filter(
-            (row) => row.comparison?.defensive?.withinTolerance,
-          ).length,
-          offensiveWithinTolerance: group.filter(
-            (row) => row.comparison?.offensive?.withinTolerance,
-          ).length,
-          runtimeExact: group.filter(
-            (row) =>
-              row.runtimeTotal === row.java?.total &&
-              positive(row.runtimeTotal),
-          ).length,
+          runtimeExact: auxiliaryExact('runtimeTotal'),
+          handlerExact: auxiliaryExact('handlerTotal'),
         },
       ] as const;
     }),

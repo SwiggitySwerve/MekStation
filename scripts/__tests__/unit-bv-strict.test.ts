@@ -31,6 +31,42 @@ const computed = (family = 'vehicles'): IComputedRow => ({
 const report = (ours: IComputedRow[], refs = [java()]) =>
   buildDeltaReport(ours, refs, ['vehicles']);
 
+it.each([
+  ['battlearmor', 'BattleArmor'],
+  ['infantry', 'Infantry'],
+])(
+  'retains the newly loadable %s handler total without inventing aggregates',
+  (folder, type) => {
+    const sourceText = Object.entries({
+      UnitType: type,
+      Name: 'Pinned source probe',
+      year: '3064',
+      type: 'IS Level 2',
+      motion_type: 'Jump',
+      cruiseMP: '1',
+      jumpingMP: '3',
+      armor: '6',
+      'Trooper Count': '4',
+      weightclass: '1',
+      chassis: 'biped',
+      squad_size: '7',
+      squadn: '4',
+      Primary: 'Submachine Gun',
+    })
+      .map(([key, value]) => `<${key}>\n${value}\n</${key}>`)
+      .join('\n');
+    const row = calculateRow({
+      path: `${folder}/unit.blk`,
+      sha256,
+      unit: null,
+      sourceText,
+    });
+    expect(typeof row.handlerTotal).toBe('number');
+    expect(row.figure).toBeUndefined();
+    expect(row.reason).toContain('aggregate');
+  },
+);
+
 it('compares integer totals exactly, with inclusive signed 1% boundaries', () => {
   for (const [total, status] of [
     [100, 'exact'],

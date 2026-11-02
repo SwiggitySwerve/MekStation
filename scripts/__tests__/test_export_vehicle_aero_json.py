@@ -58,7 +58,7 @@ class ExportVehicleAeroJsonTest(unittest.TestCase):
             for rel, row in by_path.items():
                 self.assertEqual(row['sha256'], hashlib.sha256(sources[rel].replace('\r\n', '\n').encode('utf-8')).hexdigest())
             self.assertIsNotNone(by_path['vehicles/wing.blk']['unit'])
-            self.assertIn('TypeScript BV adapter', by_path['battlearmor/unsupported.blk']['reason'])
+            self.assertEqual(by_path['battlearmor/unsupported.blk']['sourceText'], 'unsupported\r\n')
             self.assertEqual(by_path['protomeks/source.blk']['sourceText'], 'native\r\n')
 
     def test_rows_are_keyed_by_source_path_and_skips_are_listed(self):
