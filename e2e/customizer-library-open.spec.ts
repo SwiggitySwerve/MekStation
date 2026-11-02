@@ -309,8 +309,6 @@ for (const viewport of VIEWPORTS) {
         await expect(shell.getByText(/^Read-Only$/)).toBeVisible();
         const tabs = shell.getByRole('tab', { includeHidden: true });
         await expect(tabs).toHaveCount(2);
-        await expect(tabs.nth(0)).toHaveAccessibleName('Overview');
-        await expect(tabs.nth(1)).toHaveAccessibleName('Structure');
         const panel = shell.getByRole('tabpanel');
         const label =
           unit.scope === 'complete' ? 'Battle Value' : 'Defensive BV';
@@ -348,6 +346,8 @@ for (const viewport of VIEWPORTS) {
               await shell
                 .getByRole('button', { name: /^Section: Overview,/ })
                 .click();
+            await expect(tabs.nth(0)).toHaveAccessibleName('Overview');
+            await expect(tabs.nth(1)).toHaveAccessibleName('Structure');
             await shell
               .getByRole('tab', { name: section, exact: true })
               .click();
