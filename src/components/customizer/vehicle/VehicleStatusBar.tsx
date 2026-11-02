@@ -55,6 +55,10 @@ type VehicleStatusStoreState = Pick<
   | 'engineType'
   | 'engineRating'
   | 'engineTechRating'
+  | 'structuralTechRating'
+  | 'isOmni'
+  | 'baseChassisTurretWeight'
+  | 'baseChassisSecondaryTurretWeight'
   | 'armorType'
   | 'armorTonnage'
   | 'armorAllocation'
@@ -99,6 +103,7 @@ function getArmorStatus(unallocatedArmor: number): StatusLevel {
 
 function getCompactStatusClass(status: StatusLevel): string {
   if (status === 'error') return 'text-red-400';
+  if (status === 'warning') return 'text-warning';
   return 'text-text-theme-secondary';
 }
 
@@ -112,6 +117,10 @@ function calculateWeightBreakdown(
     | 'engineRating'
     | 'engineType'
     | 'engineTechRating'
+    | 'structuralTechRating'
+    | 'isOmni'
+    | 'baseChassisTurretWeight'
+    | 'baseChassisSecondaryTurretWeight'
     | 'cruiseMP'
     | 'structureType'
     | 'armorTonnage'
@@ -207,6 +216,10 @@ function validateStatusBarState(
     | 'engineType'
     | 'cruiseMP'
     | 'turret'
+    | 'secondaryTurret'
+    | 'isOmni'
+    | 'baseChassisTurretWeight'
+    | 'baseChassisSecondaryTurretWeight'
     | 'armorType'
     | 'armorAllocation'
     | 'crewSize'
@@ -223,6 +236,10 @@ function validateStatusBarState(
     engineType: state.engineType,
     cruiseMP: state.cruiseMP,
     turretType: state.turret?.type ?? TurretType.NONE,
+    secondaryTurretType: state.secondaryTurret?.type ?? TurretType.NONE,
+    isOmni: state.isOmni,
+    baseChassisTurretWeight: state.baseChassisTurretWeight,
+    baseChassisSecondaryTurretWeight: state.baseChassisSecondaryTurretWeight,
     turretEquipmentWeight: weights.turretEquipment,
     // Nothing declares turret structure weight; it is derived from the
     // turret's equipment, so the turret weight rule checks the derived value.
@@ -252,6 +269,12 @@ function useVehicleStatusStoreState(): VehicleStatusStoreState {
     engineType: useVehicleStore((s) => s.engineType),
     engineRating: useVehicleStore((s) => s.engineRating),
     engineTechRating: useVehicleStore((s) => s.engineTechRating),
+    structuralTechRating: useVehicleStore((s) => s.structuralTechRating),
+    isOmni: useVehicleStore((s) => s.isOmni),
+    baseChassisTurretWeight: useVehicleStore((s) => s.baseChassisTurretWeight),
+    baseChassisSecondaryTurretWeight: useVehicleStore(
+      (s) => s.baseChassisSecondaryTurretWeight,
+    ),
     armorType: useVehicleStore((s) => s.armorType),
     armorTonnage: useVehicleStore((s) => s.armorTonnage),
     armorAllocation: useVehicleStore((s) => s.armorAllocation),
@@ -277,6 +300,10 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
     engineType,
     engineRating,
     engineTechRating,
+    structuralTechRating,
+    isOmni,
+    baseChassisTurretWeight,
+    baseChassisSecondaryTurretWeight,
     armorType,
     armorTonnage,
     armorAllocation,
@@ -303,6 +330,10 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
           engineRating,
           engineType,
           engineTechRating,
+          structuralTechRating,
+          isOmni,
+          baseChassisTurretWeight,
+          baseChassisSecondaryTurretWeight,
           cruiseMP,
           structureType,
           armorTonnage,
@@ -321,6 +352,10 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
       engineRating,
       engineType,
       engineTechRating,
+      structuralTechRating,
+      isOmni,
+      baseChassisTurretWeight,
+      baseChassisSecondaryTurretWeight,
       cruiseMP,
       structureType,
       armorTonnage,
@@ -390,6 +425,10 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
           engineType,
           cruiseMP,
           turret,
+          secondaryTurret,
+          isOmni,
+          baseChassisTurretWeight,
+          baseChassisSecondaryTurretWeight,
           armorType,
           armorAllocation,
           crewSize,
@@ -405,6 +444,10 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
       engineType,
       cruiseMP,
       turret,
+      secondaryTurret,
+      isOmni,
+      baseChassisTurretWeight,
+      baseChassisSecondaryTurretWeight,
       armorType,
       armorAllocation,
       crewSize,
@@ -413,6 +456,13 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
     ],
   );
 
+  const massPending =
+    !catalogReady && weightBreakdown.unresolvedMountIds.length > 0;
+  const validationStatus: StatusLevel = validationResult.isValid
+    ? 'success'
+    : validationResult.errors.length
+      ? 'error'
+      : 'warning';
   return {
     ...storeState,
     armorStats,
@@ -421,6 +471,22 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
     flankMP: computeFlankMP(storeState.cruiseMP),
     motionLabel: MOTION_LABELS[storeState.motionType],
     validationResult,
+    validationStatus,
+    validationText: validationResult.isValid
+      ? 'OK'
+      : validationResult.errors.length
+        ? `${validationResult.errors.length} err`
+        : massPending
+          ? 'Loading'
+          : 'Incomplete',
+    validationHint: validationResult.isValid
+      ? 'passes'
+      : (validationResult.errors[0]?.ruleId ?? 'Mass unavailable'),
+    weightText: formatVehicleWeight(weightBreakdown.remaining, massPending),
+    turretMountedText: formatVehicleWeight(
+      weightBreakdown.turretMounted,
+      massPending,
+    ),
     weightBreakdown,
     weightStatus: getWeightStatus(weightBreakdown.remaining),
   };
@@ -449,7 +515,11 @@ export function VehicleStatusBar({
     flankMP,
     tonnage,
     turret,
-    validationResult,
+    validationText,
+    validationHint,
+    validationStatus,
+    weightText,
+    turretMountedText,
     weightBreakdown,
     weightStatus,
   } = viewState;
@@ -470,7 +540,7 @@ export function VehicleStatusBar({
           {armorStats.allocated} armor
         </span>
         <span className={getCompactStatusClass(weightStatus)}>
-          {formatVehicleWeight(weightBreakdown.remaining)} free
+          {weightText} free
         </span>
         {bvBreakdown && (
           <span
@@ -496,7 +566,7 @@ export function VehicleStatusBar({
 
       <StatusItem
         label="Weight Free"
-        value={formatVehicleWeight(weightBreakdown.remaining)}
+        value={weightText}
         subValue={
           weightBreakdown.remaining === null
             ? undefined
@@ -525,7 +595,7 @@ export function VehicleStatusBar({
       {turret && (
         <StatusItem
           label="Turret"
-          value={formatVehicleWeight(weightBreakdown.turretMounted)}
+          value={turretMountedText}
           subValue="mounted"
           status={weightStatus}
         />
@@ -552,17 +622,9 @@ export function VehicleStatusBar({
 
       <StatusItem
         label="Valid"
-        value={
-          validationResult.isValid
-            ? 'OK'
-            : `${validationResult.errors.length} err`
-        }
-        subValue={
-          validationResult.isValid
-            ? 'passes'
-            : validationResult.errors[0]?.ruleId
-        }
-        status={validationResult.isValid ? 'success' : 'error'}
+        value={validationText}
+        subValue={validationHint}
+        status={validationStatus}
       />
 
       {bvDialogOpen && bvBreakdown && (
