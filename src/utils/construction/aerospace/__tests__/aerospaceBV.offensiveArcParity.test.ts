@@ -59,10 +59,8 @@ describe('aerospace forward/rear weapon pool parity', () => {
     expect(
       result.arcContributions.filter((c) => c.rawBV > 0).map((c) => c.weight),
     ).toEqual([1, 1]);
-    // Isolate arcs: current speed remains 2.16. Java uses 2.58 => 639.84.
-    expect(result.speedFactor).toBe(2.16);
-    expect(result.offensive).toBeCloseTo(535.68, 8);
-    expect(result.weaponFirePoolBV * 2.58).toBeCloseTo(639.84, 8);
+    expect(result.speedFactor).toBe(2.58);
+    expect(result.offensive).toBeCloseTo(639.84, 8);
   });
 
   it('Inseki II conventional fighter combines both wings and halves Aft', () => {
@@ -91,9 +89,9 @@ describe('aerospace forward/rear weapon pool parity', () => {
     if (result?.kind !== 'aerospace') throw new Error('Expected aerospace BV');
     expect(result.breakdown.weaponFirePoolBV).toBe(176 + 90 + 90 + 5 * 0.5);
     expect(result.breakdown.fuselageWeaponBV).toBe(22);
-    expect(result.breakdown.offensive).toBeCloseTo(448.99, 8);
-    // Native offense 521.97 includes different speed/ammo; do not claim parity.
-    expect(result.breakdown.speedFactor).toBe(1.18);
+    expect(result.breakdown.offensive).toBeCloseTo(521.285, 8);
+    // Native offense 521.97 retains other valuation differences.
+    expect(result.breakdown.speedFactor).toBe(1.37);
   });
 
   it.each([

@@ -53,15 +53,15 @@ function baseInput(
 // ============================================================================
 
 describe('calculateAerospaceSpeedFactor', () => {
-  it('matches spec scenario: safe 5 / max 7 yields 1.12', () => {
+  it('uses supplied max thrust and keeps the mean as a compatibility field', () => {
     const { avgThrust, speedFactor } = calculateAerospaceSpeedFactor(5, 7);
     expect(avgThrust).toBe(6);
-    expect(speedFactor).toBeCloseTo(1.12, 2);
+    expect(speedFactor).toBe(1.24);
   });
 
-  it('returns baseline 1.0 for avg 5', () => {
-    const { speedFactor } = calculateAerospaceSpeedFactor(4, 6);
-    expect(speedFactor).toBeCloseTo(1.0, 2);
+  it('returns baseline 1.0 for max thrust 5', () => {
+    const { speedFactor } = calculateAerospaceSpeedFactor(3, 5);
+    expect(speedFactor).toBe(1.0);
   });
 });
 
