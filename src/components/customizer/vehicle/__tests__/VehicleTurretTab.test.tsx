@@ -40,7 +40,7 @@ const setSecondaryTurretType = jest.fn();
 function turretConfig(
   type: TurretType = TurretType.SINGLE,
 ): ITurretConfiguration {
-  return { type, currentWeight: 0, rotationArc: 360 };
+  return { type, rotationArc: 360 };
 }
 
 function makeState(overrides: Record<string, unknown> = {}) {
