@@ -2,7 +2,10 @@ import type { MechLocation } from '../src/utils/construction/battleValueCalculat
 import type { CritScan } from './validate-bv-crit-scan-types';
 
 import { isNonExplosiveAmmo } from '../src/utils/construction/battleValueExplosivePenalties';
-import { resolveAmmoBV } from '../src/utils/construction/equipmentBVResolver';
+import {
+  getAmmunitionEntry,
+  resolveAmmoBV,
+} from '../src/utils/construction/equipmentBVResolver';
 import {
   normalizeWeaponKey,
   resolveAmmoByPattern,
@@ -30,12 +33,19 @@ export function processCritAmmoSlot(args: {
       });
     // Half-ton ammo bins (crit names like "IS Machine Gun Ammo - Half") get half BV.
     // The lookup/pattern resolution returns the full-ton BV; we halve it here for half-ton bins.
+    // A record that is itself the half-ton bin (0.5 t, BV 0.5, as pinned Java
+    // defines the half-ton MG types) already carries the half-ton BV: do not halve twice.
     const isHalfTonAmmo = lo.includes('half');
+    const record = getAmmunitionEntry(clean.replace(/\s*\(omnipod\)/gi, ''));
+    const binScale =
+      isHalfTonAmmo && !(record?.weight === 0.5 && record.battleValue === 0.5)
+        ? 0.5
+        : 1;
     const pr = resolveAmmoByPattern(clean, unitTechBase);
     if (pr && pr.bv > 0) {
       r.ammo.push({
         id: clean,
-        bv: isHalfTonAmmo ? pr.bv * 0.5 : pr.bv,
+        bv: pr.bv * binScale,
         weaponType: pr.weaponType,
         location: loc,
       });
@@ -44,14 +54,14 @@ export function processCritAmmoSlot(args: {
       if (ar.resolved && ar.battleValue > 0) {
         r.ammo.push({
           id: clean,
-          bv: isHalfTonAmmo ? ar.battleValue * 0.5 : ar.battleValue,
+          bv: ar.battleValue * binScale,
           weaponType: normalizeWeaponKey(ar.weaponType),
           location: loc,
         });
       } else if (pr) {
         r.ammo.push({
           id: clean,
-          bv: isHalfTonAmmo ? pr.bv * 0.5 : pr.bv,
+          bv: pr.bv * binScale,
           weaponType: pr.weaponType,
           location: loc,
         });
