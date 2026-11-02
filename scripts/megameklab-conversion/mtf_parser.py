@@ -12,6 +12,7 @@ from enum_mappings import (
     map_engine_type,
     map_gyro_type,
     map_heat_sink_type,
+    map_mech_location,
     map_mech_config,
     map_rules_level,
     map_structure_type,
@@ -54,7 +55,8 @@ class MTFParser:
 
     def _parse_weapon_line(self, line_content: str) -> Optional[Dict[str, str]]:
         """Parse a weapon line, ignoring metadata fields after the location."""
-        parts = [part.strip() for part in line_content.split(',')]
+        # Rifle names include a comma inside parentheses; it is not a location.
+        parts = [part.strip() for part in re.split(r',\s*(?![^()]*\))', line_content)]
         if not parts or not parts[0]:
             return None
 
@@ -140,7 +142,9 @@ class MTFParser:
                     data['criticals'][current_section] = current_section_items
 
                 section_name = line_content[:-1]
-                if section_name in self.MECH_LOCATIONS or section_name in ['Head', 'Center Torso']:
+                if section_name in self.MECH_LOCATIONS or map_mech_location(section_name) in {
+                    'FRONT_LEFT_LEG', 'FRONT_RIGHT_LEG', 'REAR_LEFT_LEG', 'REAR_RIGHT_LEG'
+                }:
                     current_section = section_name
                     current_section_items = []
                     in_weapons_section = False
