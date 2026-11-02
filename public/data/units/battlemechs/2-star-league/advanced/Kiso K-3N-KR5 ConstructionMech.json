@@ -69,6 +69,9 @@
       "Searchlight"
     ],
     "LEFT_TORSO": [
+      "Communications Equipment:SIZE:3.0",
+      "Communications Equipment:SIZE:3.0",
+      "Communications Equipment:SIZE:3.0",
       "Lift Hoist/Arresting Hoist",
       "Lift Hoist/Arresting Hoist",
       "Lift Hoist/Arresting Hoist",
@@ -77,10 +80,7 @@
       "Backhoe",
       "Backhoe",
       "Backhoe",
-      "Backhoe",
-      null,
-      null,
-      null
+      "Backhoe"
     ],
     "RIGHT_TORSO": [
       "Heat Sink",

@@ -99,8 +99,8 @@
     ],
     "LEFT_TORSO": [
       "Heat Sink",
-      null,
-      null,
+      "Communications Equipment:SIZE:2.0",
+      "Communications Equipment:SIZE:2.0",
       null,
       null,
       null,

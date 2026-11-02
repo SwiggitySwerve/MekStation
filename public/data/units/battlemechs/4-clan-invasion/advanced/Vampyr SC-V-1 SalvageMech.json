@@ -69,32 +69,32 @@
       "Environmental Sealing (Mech)"
     ],
     "LEFT_TORSO": [
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
       "Extended Fuel Tank",
       "Extended Fuel Tank",
       "Extended Fuel Tank",
       "Industrial Triple Strength Myomer",
       "Industrial Triple Strength Myomer",
-      "Environmental Sealing (Mech)",
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
+      "Environmental Sealing (Mech)"
     ],
     "RIGHT_TORSO": [
       "MechSprayer",
       "Fluid Suction System (Light - Mech)",
+      "Liquid Storage:SIZE:1.0",
+      "Liquid Storage:SIZE:1.0",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
       "Industrial Triple Strength Myomer",
       "Industrial Triple Strength Myomer",
       "Industrial Triple Strength Myomer",
       "Industrial Triple Strength Myomer",
       "Industrial Triple Strength Myomer",
-      "Environmental Sealing (Mech)",
-      null,
-      null,
-      null,
-      null
+      "Environmental Sealing (Mech)"
     ],
     "CENTER_TORSO": [
       "Fusion Engine",

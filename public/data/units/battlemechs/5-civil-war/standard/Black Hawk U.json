@@ -149,7 +149,7 @@
       "CLMG (OMNIPOD)",
       "CLMG (OMNIPOD)",
       "CLLightActiveProbe (OMNIPOD)",
-      null
+      "Liquid Storage (OMNIPOD):SIZE:1.0"
     ],
     "RIGHT_TORSO": [
       "Fusion Engine",
@@ -163,7 +163,7 @@
       "CLMG (OMNIPOD)",
       "CLMG (OMNIPOD)",
       "Clan Machine Gun Ammo - Half (OMNIPOD)",
-      null
+      "Liquid Storage (OMNIPOD):SIZE:1.0"
     ],
     "CENTER_TORSO": [
       "Fusion Engine",

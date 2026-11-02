@@ -78,8 +78,8 @@
       "Backhoe",
       "Backhoe",
       "Backhoe",
-      null,
-      null,
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
       null
     ],
     "RIGHT_TORSO": [
@@ -91,9 +91,9 @@
       "Rock Cutter",
       "Rock Cutter",
       "Rock Cutter",
-      null,
-      null,
-      null,
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
       null
     ],
     "CENTER_TORSO": [

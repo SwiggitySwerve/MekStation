@@ -176,16 +176,16 @@
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      null,
-      null
+      "MechanicalJumpBooster:SIZE:2.0",
+      "MechanicalJumpBooster:SIZE:2.0"
     ],
     "RIGHT_LEG": [
       "Hip",
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      null,
-      null
+      "MechanicalJumpBooster:SIZE:2.0",
+      "MechanicalJumpBooster:SIZE:2.0"
     ]
   },
   "quirks": ["difficult_maintain", "imp_life_support"],

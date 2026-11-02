@@ -85,9 +85,9 @@
       "ISThumper",
       "ISThumper",
       "ISThumper",
-      null,
-      null,
-      null,
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
       null,
       null
     ],
@@ -100,9 +100,9 @@
       "ISThumper",
       "ISThumper",
       "ISThumperAmmo",
-      null,
-      null,
-      null,
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
       null
     ],
     "CENTER_TORSO": [

@@ -155,9 +155,9 @@
       "Life Support",
       "Sensors",
       "Cockpit",
+      "Cargo:SIZE:0.5",
       "Sensors",
-      "Life Support",
-      null
+      "Life Support"
     ],
     "LEFT_LEG": [
       "Hip",

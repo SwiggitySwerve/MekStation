@@ -87,8 +87,8 @@
     ],
     "LEFT_TORSO": [
       "Heat Sink",
-      null,
-      null,
+      "Cargo:SIZE:2.0",
+      "Cargo:SIZE:2.0",
       null,
       null,
       null,

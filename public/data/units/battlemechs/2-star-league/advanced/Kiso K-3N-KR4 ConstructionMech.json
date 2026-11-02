@@ -70,6 +70,9 @@
     ],
     "LEFT_TORSO": [
       "Heat Sink",
+      "Communications Equipment:SIZE:3.0",
+      "Communications Equipment:SIZE:3.0",
+      "Communications Equipment:SIZE:3.0",
       "Lift Hoist/Arresting Hoist",
       "Lift Hoist/Arresting Hoist",
       "Lift Hoist/Arresting Hoist",
@@ -77,10 +80,7 @@
       "Rock Cutter",
       "Rock Cutter",
       "Rock Cutter",
-      "Rock Cutter",
-      null,
-      null,
-      null
+      "Rock Cutter"
     ],
     "RIGHT_TORSO": [
       "Heat Sink",

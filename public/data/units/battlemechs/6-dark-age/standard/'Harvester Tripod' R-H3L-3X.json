@@ -90,6 +90,34 @@
       "Clan Ferro-Lamellor",
       null
     ],
+    "LEFT_TORSO": [
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0"
+    ],
+    "RIGHT_TORSO": [
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0",
+      "Cargo:SIZE:12.0"
+    ],
     "CENTER_TORSO": [
       "Fusion Engine",
       "Fusion Engine",

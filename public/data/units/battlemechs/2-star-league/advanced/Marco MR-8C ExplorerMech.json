@@ -102,10 +102,10 @@
     "RIGHT_TORSO": [
       "Heat Sink",
       "Heat Sink",
+      "Cargo:SIZE:2.5",
+      "Cargo:SIZE:2.5",
+      "Cargo:SIZE:2.5",
       "Environmental Sealing (Mech)",
-      null,
-      null,
-      null,
       null,
       null,
       null,

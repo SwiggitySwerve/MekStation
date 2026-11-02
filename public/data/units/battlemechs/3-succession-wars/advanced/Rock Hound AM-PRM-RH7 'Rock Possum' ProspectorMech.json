@@ -100,9 +100,9 @@
       null
     ],
     "RIGHT_TORSO": [
-      null,
-      null,
-      null,
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
       null,
       null,
       null,

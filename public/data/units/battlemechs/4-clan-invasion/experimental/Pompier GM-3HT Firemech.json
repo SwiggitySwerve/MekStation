@@ -81,8 +81,8 @@
       null
     ],
     "LEFT_TORSO": [
-      null,
-      null,
+      "Liquid Storage:SIZE:1.0",
+      "Liquid Storage:SIZE:1.0",
       null,
       null,
       null,
@@ -95,8 +95,8 @@
       null
     ],
     "RIGHT_TORSO": [
+      "Liquid Storage:SIZE:1.0",
       "Searchlight",
-      null,
       null,
       null,
       null,
@@ -120,7 +120,7 @@
       "Fusion Engine",
       "Fusion Engine",
       "MechSprayer",
-      null
+      "Liquid Storage:SIZE:1.0"
     ],
     "HEAD": [
       "Life Support",

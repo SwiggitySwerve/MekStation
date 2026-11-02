@@ -86,8 +86,8 @@
       null
     ],
     "LEFT_TORSO": [
+      "Cargo:SIZE:1.0",
       "Environmental Sealing (Mech)",
-      null,
       null,
       null,
       null,
@@ -100,11 +100,11 @@
       null
     ],
     "RIGHT_TORSO": [
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
       "Jump Jet",
       "Heat Sink",
       "Environmental Sealing (Mech)",
-      null,
-      null,
       null,
       null,
       null,

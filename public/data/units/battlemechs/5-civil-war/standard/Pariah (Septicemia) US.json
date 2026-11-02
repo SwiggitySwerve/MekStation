@@ -134,8 +134,8 @@
       "Improved Jump Jet (OMNIPOD)",
       "CLERSmallLaser (OMNIPOD)",
       "CLERSmallLaser (OMNIPOD)",
-      null,
-      null
+      "Liquid Storage (OMNIPOD):SIZE:1.0",
+      "Liquid Storage (OMNIPOD):SIZE:1.0"
     ],
     "CENTER_TORSO": [
       "Fusion Engine",

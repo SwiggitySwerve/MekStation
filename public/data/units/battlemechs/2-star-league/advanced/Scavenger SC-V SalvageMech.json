@@ -69,12 +69,12 @@
       null
     ],
     "LEFT_TORSO": [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
       null,
       null,
       null,
@@ -86,12 +86,12 @@
       "Searchlight",
       "MechSprayer",
       "Fluid Suction System (Light - Mech)",
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
+      "Liquid Storage:SIZE:1.0",
+      "Liquid Storage:SIZE:1.0",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
       null,
       null,
       null
@@ -107,8 +107,8 @@
       "Fusion Engine",
       "Fusion Engine",
       "Fusion Engine",
-      null,
-      null
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0"
     ],
     "HEAD": [
       "Life Support",

@@ -81,13 +81,13 @@
       null
     ],
     "LEFT_TORSO": [
+      "Cargo:SIZE:1.0",
       "Industrial Triple Strength Myomer",
       "Industrial Triple Strength Myomer",
       "Industrial Triple Strength Myomer",
       "Industrial Triple Strength Myomer",
       "Industrial Triple Strength Myomer",
       "Industrial Triple Strength Myomer",
-      null,
       null,
       null,
       null,
@@ -95,13 +95,13 @@
       null
     ],
     "RIGHT_TORSO": [
+      "Cargo:SIZE:1.0",
       "Industrial Triple Strength Myomer",
       "Industrial Triple Strength Myomer",
       "Industrial Triple Strength Myomer",
       "Industrial Triple Strength Myomer",
       "Industrial Triple Strength Myomer",
       "Industrial Triple Strength Myomer",
-      null,
       null,
       null,
       null,

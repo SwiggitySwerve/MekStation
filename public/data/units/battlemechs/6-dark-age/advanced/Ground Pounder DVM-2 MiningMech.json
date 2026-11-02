@@ -83,8 +83,8 @@
     "LEFT_TORSO": [
       "MechSprayer",
       "MechSprayer",
-      null,
-      null,
+      "Liquid Storage:SIZE:2.0",
+      "Liquid Storage:SIZE:2.0",
       null,
       null,
       null,
@@ -97,8 +97,8 @@
     "RIGHT_TORSO": [
       "MechSprayer",
       "MechSprayer",
-      null,
-      null,
+      "Liquid Storage:SIZE:2.0",
+      "Liquid Storage:SIZE:2.0",
       null,
       null,
       null,

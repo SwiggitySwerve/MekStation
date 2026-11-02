@@ -81,11 +81,11 @@
       null
     ],
     "LEFT_TORSO": [
-      null,
-      null,
-      null,
-      null,
-      null,
+      "Cargo:SIZE:5.0",
+      "Cargo:SIZE:5.0",
+      "Cargo:SIZE:5.0",
+      "Cargo:SIZE:5.0",
+      "Cargo:SIZE:5.0",
       null,
       null,
       null,
@@ -95,11 +95,11 @@
       null
     ],
     "RIGHT_TORSO": [
-      null,
-      null,
-      null,
-      null,
-      null,
+      "Cargo:SIZE:5.0",
+      "Cargo:SIZE:5.0",
+      "Cargo:SIZE:5.0",
+      "Cargo:SIZE:5.0",
+      "Cargo:SIZE:5.0",
       null,
       null,
       null,
@@ -119,7 +119,7 @@
       "Fusion Engine",
       "Fusion Engine",
       "Fusion Engine",
-      null,
+      "Cargo:SIZE:1.0",
       null
     ],
     "HEAD": [

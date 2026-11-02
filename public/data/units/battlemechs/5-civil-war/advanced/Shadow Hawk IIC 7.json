@@ -109,7 +109,7 @@
       "Clan Ammo ATM-6",
       "Clan Ammo ATM-6 ER",
       "Clan Ammo ATM-6 HE",
-      null
+      "Liquid Storage:SIZE:1.0"
     ],
     "RIGHT_TORSO": [
       "Fusion Engine",
@@ -122,8 +122,8 @@
       "CLATM6",
       "CLATM6",
       "CLERLargeLaser",
-      "Clan Ferro-Fibrous",
-      null
+      "Liquid Storage:SIZE:1.0",
+      "Clan Ferro-Fibrous"
     ],
     "CENTER_TORSO": [
       "Fusion Engine",

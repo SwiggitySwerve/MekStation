@@ -90,7 +90,7 @@
       null
     ],
     "LEFT_TORSO": [
-      null,
+      "Cargo:SIZE:1.0",
       null,
       null,
       null,
@@ -104,7 +104,7 @@
       null
     ],
     "RIGHT_TORSO": [
-      null,
+      "Cargo:SIZE:1.0",
       null,
       null,
       null,
@@ -129,7 +129,7 @@
       "Fusion Engine",
       "Fusion Engine",
       "IS Ammo SRM-4",
-      null
+      "Cargo:SIZE:0.5"
     ],
     "HEAD": [
       "Life Support",

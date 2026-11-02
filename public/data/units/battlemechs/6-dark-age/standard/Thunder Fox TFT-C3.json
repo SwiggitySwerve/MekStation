@@ -74,16 +74,16 @@
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      null,
-      null
+      "MechanicalJumpBooster:SIZE:4.0",
+      "MechanicalJumpBooster:SIZE:4.0"
     ],
     "FRONT_RIGHT_LEG": [
       "Hip",
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      null,
-      null
+      "MechanicalJumpBooster:SIZE:4.0",
+      "MechanicalJumpBooster:SIZE:4.0"
     ],
     "LEFT_TORSO": [
       "Fusion Engine",
@@ -140,16 +140,16 @@
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      null,
-      null
+      "MechanicalJumpBooster:SIZE:4.0",
+      "MechanicalJumpBooster:SIZE:4.0"
     ],
     "REAR_RIGHT_LEG": [
       "Hip",
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      null,
-      null
+      "MechanicalJumpBooster:SIZE:4.0",
+      "MechanicalJumpBooster:SIZE:4.0"
     ]
   },
   "quirks": ["easy_maintain"],

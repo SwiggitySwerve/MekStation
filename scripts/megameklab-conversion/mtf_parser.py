@@ -168,7 +168,10 @@ class MTFParser:
                 continue
 
             # Parse key:value lines
-            if ':' in line_content:
+            # SIZE parameters belong to critical items, not unit metadata.
+            if ':' in line_content and not (
+                current_section and ':SIZE:' in line_content.upper()
+            ):
                 key, value = line_content.split(':', 1)
                 key = key.strip().lower().replace(' ', '_')
                 value = value.strip()

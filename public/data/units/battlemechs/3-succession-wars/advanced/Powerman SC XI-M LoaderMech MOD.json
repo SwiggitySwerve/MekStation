@@ -94,7 +94,7 @@
       null
     ],
     "LEFT_TORSO": [
-      null,
+      "Cargo:SIZE:0.5",
       null,
       null,
       null,
@@ -108,7 +108,7 @@
       null
     ],
     "RIGHT_TORSO": [
-      null,
+      "Cargo:SIZE:0.5",
       null,
       null,
       null,

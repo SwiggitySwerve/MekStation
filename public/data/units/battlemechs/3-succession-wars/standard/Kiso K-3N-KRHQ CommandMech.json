@@ -88,12 +88,12 @@
       "Machine Gun",
       "Machine Gun (R)",
       "IS Machine Gun Ammo - Half",
+      "Communications Equipment:SIZE:3.0",
+      "Communications Equipment:SIZE:3.0",
+      "Communications Equipment:SIZE:3.0",
       "Lift Hoist/Arresting Hoist",
       "Lift Hoist/Arresting Hoist",
-      "Lift Hoist/Arresting Hoist",
-      null,
-      null,
-      null
+      "Lift Hoist/Arresting Hoist"
     ],
     "RIGHT_TORSO": [
       "ISCollapsibleCommandModule",

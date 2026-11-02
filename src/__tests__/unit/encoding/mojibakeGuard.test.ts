@@ -74,7 +74,8 @@ describe('source text encoding', () => {
 const DATA_ROOT = path.resolve(SRC_ROOT, '../public/data');
 const BATTLEMECH_ROOT = path.join(DATA_ROOT, 'units/battlemechs');
 // These index keys have shipped and can be persisted as campaign unitRef.
-// Preserve both the index keys and the distinct ASCII IDs in the unit files.
+// Ruling item 3 repairs the index to these preserved definition IDs.
+// Pinned Gun GN-2O.mtf:20-21 and the other seven name headers retain UTF-8 text.
 const LEGACY_INDEX_IDS = new Map([
   ['alfar-al-d1-d\u00e3\u00b6kk\u00e3\u00a1lfar', 'alfar-al-d1-dakkalfar'],
   ['ara\u00e3\u00b1a-ara-s-1-militiamech', 'araaa-ara-s-1-militiamech'],
@@ -136,6 +137,7 @@ describe('shipped data text encoding (B7)', () => {
       totalUnits: number;
       units: { id: string; path: string; chassis: string; model: string }[];
     };
+    const stableIds = new Set(LEGACY_INDEX_IDS.values());
     const seenLegacyIds: string[] = [];
     expect(index.units).toHaveLength(index.totalUnits);
     expect(new Set(index.units.map((unit) => unit.id)).size).toBe(
@@ -151,9 +153,9 @@ describe('shipped data text encoding (B7)', () => {
       };
       expect(unit.chassis).toBe(entry.chassis);
       expect(unit.model).toBe(entry.model);
-      expect(unit.id).toBe(LEGACY_INDEX_IDS.get(entry.id) ?? entry.id);
-      if (LEGACY_INDEX_IDS.has(entry.id)) seenLegacyIds.push(entry.id);
+      expect(unit.id).toBe(entry.id);
+      if (stableIds.has(entry.id)) seenLegacyIds.push(entry.id);
     }
-    expect(seenLegacyIds.sort()).toEqual([...LEGACY_INDEX_IDS.keys()].sort());
+    expect(seenLegacyIds.sort()).toEqual([...stableIds].sort());
   });
 });

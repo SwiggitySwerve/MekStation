@@ -16,6 +16,19 @@ PIN = Path(os.environ.get('MEKSTATION_MEKFILES',
 
 
 class MechCatalogRegenerationTest(unittest.TestCase):
+    # Ruling item 3; pinned Kiso K-3N-KRHQ CommandMech.mtf:97-99.
+    def test_colon_sized_critical_slots_keep_their_positions_and_parameters(self):
+        source = ['chassis:Kiso', 'model:Test', 'mass:100', 'Weapons:0',
+                  'Right Torso:'] + ['Communications Equipment:SIZE:3.0'] * 3
+        unit = dataclass_to_dict(MTFParser()._parse_lines(source, 'source.mtf'))
+        self.assertEqual(unit['criticalSlots']['RIGHT_TORSO'][:3],
+                         ['Communications Equipment:SIZE:3.0'] * 3)
+        if (PIN / 'meks').exists():
+            unit = dataclass_to_dict(MTFParser().parse_file(str(
+                PIN / 'meks/XTRs/Succession Wars/Kiso K-3N-KRHQ CommandMech.mtf')))
+            self.assertEqual(sum(slot == 'Communications Equipment:SIZE:3.0'
+                for slots in unit['criticalSlots'].values() for slot in slots), 3)
+
     def test_source_display_aliases_keep_the_registered_wire_spellings(self):
         for name, expected in [('Improved ATM 9', 'iatm-9'),
                                ('Prototype ER Medium Laser (CP)', 'prototype-er-medium-laser'),
