@@ -1,0 +1,47 @@
+{
+  "id": "foot-platoon-ccaf-recoilless-3055+",
+  "chassis": "Foot Platoon (CCAF)",
+  "model": "(Recoilless 3055+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3055,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "rifle-striker-carbine",
+    "name": "Rifle (Striker Carbine)"
+  },
+  "armorKit": "Capellan Confederation Armor Kit (3050)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "capellan-confederation-armor-kit-3050",
+      "name": "Capellan Confederation Armor Kit (3050)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrymrr",
+    "name": "InfantryMRR",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Capellan Confederation has always relied on its infantry to compensate for the CCAF's chronic shortage of heavier assets. Conventional foot soldiers, drawn from the citizens' militia system that defines Capellan military service, form the backbone of garrison forces across the Confederation's commonalities. CCAF foot platoons anchor the Confederation's garrison network, holding worlds that BattleMech forces cannot permanently occupy. Slow and vulnerable in open terrain, they depend on prepared positions and local knowledge to offset their lack of mobility. Heavy weapons teams carry medium recoilless rifles that provide portable anti-armor capability with improved accuracy over older designs.</p>"
+  }
+}

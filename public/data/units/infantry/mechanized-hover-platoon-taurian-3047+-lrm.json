@@ -1,0 +1,49 @@
+{
+  "id": "mechanized-hover-platoon-taurian-3047+-lrm",
+  "chassis": "Mechanized Hover Platoon (Taurian 3047+)",
+  "model": "(LRM)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3057,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Taurian Concordat/Calderon Infantry Kit",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "taurian-concordat-calderon-infantry-kit",
+      "name": "Taurian Concordat/Calderon Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrylrm",
+    "name": "InfantryLRM",
+    "count": 2
+  },
+  "mulId": 9294,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Taurian infantry reflect the Concordat's citizen-soldier tradition, with national service requirements ensuring that most adults have received basic military training before ever donning a uniform. Mechanized hover platoons are among the fastest ground infantry in the TDF, riding hovercraft that can traverse both land and water at speeds that let them cover the vast distances between Taurian population centers. The Concordat has historically favored hovercraft for its armor forces, and that preference extends to mechanized infantry as well.</p><p>Support troops operate man-portable long-range missile launchers capable of engaging targets at distances well beyond personal weapon range, providing the platoon with indirect fire capability against vehicles and fortified positions.</p>"
+  }
+}

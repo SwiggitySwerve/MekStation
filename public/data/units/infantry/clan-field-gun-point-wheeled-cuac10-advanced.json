@@ -1,0 +1,64 @@
+{
+  "id": "clan-field-gun-point-wheeled-cuac10-advanced",
+  "chassis": "Clan Field Gun Point",
+  "model": "(Wheeled CUAC10 Advanced)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2845,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clultraac10",
+      "name": "CLUltraAC10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clultraac10",
+      "name": "CLUltraAC10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "clultraac10",
+      "name": "CLUltraAC10"
+    },
+    {
+      "id": "clultraac10",
+      "name": "CLUltraAC10"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>Most Clan infantry are solahma warriors at the end of their careers or who have failed their Trials, assigned to duties the warrior caste considers beneath notice. Field Gun Points are crew-served weapon teams that bring heavier firepower to the infantry level, towing weapons too large for individual soldiers to carry. The gun itself defines the Point's role, with lighter autocannons providing anti-infantry and anti-vehicle fire while heavier weapons can threaten even armored targets. The Point's field gun is a heavy Clan ultra autocannon that can fire at twice the normal rate, delivering devastating bursts that can cripple vehicles, though the mechanism risks jamming under sustained fire.</p>"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "id": "jump-platoon-anti-mech-laser",
+  "chassis": "Jump Platoon (Anti-Mech)",
+  "model": "(Laser)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "STAR_LEAGUE",
+  "year": 2600,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": null,
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "support-laser-heavy",
+    "name": "Support Laser (Heavy)",
+    "count": 1
+  },
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Anti-BattleMech jump platoons combine the extreme danger of close-assault tactics against armored targets with jump pack mobility that allows approach from unexpected angles. Armed with assault rifles and heavy support lasers, these platoons use vertical movement to reach BattleMech upper torsos, cockpits, and sensor arrays that ground-based anti-BattleMech infantry cannot easily access. The jump capability improves approach options but does nothing to reduce the fundamental lethality of attacking a BattleMech at close range.</p>"
+  }
+}

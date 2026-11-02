@@ -1,0 +1,84 @@
+{
+  "id": "field-gun-platoon-dcms-tracked-ac10-2620+",
+  "chassis": "Field Gun Platoon (DCMS)",
+  "model": "(Tracked AC10 2620+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2620,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Draconis Combine Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "draconis-combine-infantry-kit",
+      "name": "Draconis Combine Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10"
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10"
+    },
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10"
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10"
+    }
+  ],
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Conventional infantry within the DCMS serve as the foundation of planetary defense, providing the manpower essential to territorial control while freeing BattleMech and armored assets for offensive operations. The platoon's field gun is a heavy autocannon that can punch through vehicle armor and damage BattleMech components with single well-placed shots. The weapon's weight and appetite for ammunition limit mobility, but few conventional infantry formations can match its anti-armor firepower.</p>"
+  }
+}

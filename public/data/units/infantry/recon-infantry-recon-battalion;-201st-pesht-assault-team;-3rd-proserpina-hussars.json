@@ -1,0 +1,50 @@
+{
+  "id": "recon-infantry-recon-battalion;-201st-pesht-assault-team;-3rd-proserpina-hussars",
+  "chassis": "Recon Infantry",
+  "model": "Recon Battalion; 201st Pesht Assault Team; 3rd Proserpina Hussars",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2500,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 2,
+    "totalTroopers": 10
+  },
+  "primaryWeapon": {
+    "id": "auto-pistol",
+    "name": "Auto-Pistol"
+  },
+  "armorKit": "Draconis Combine Infantry Kit",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "demolition-charge",
+      "name": "Demolition Charge",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "draconis-combine-infantry-kit",
+      "name": "Draconis Combine Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 2,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 2673,
+  "role": "Scout",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Proserpina Hussars are one of the oldest commands in the Draconis Combine, tracing their lineage to a tank regiment that fought for Shiro Kurita before the Combine existed. The brigade has maintained a close relationship with the University of Proserpina, with many officers serving as alumni and instructors at that military academy. The 201st Pesht Assault Team's Recon Battalion draws its personnel from a lesser-known graduating class at Proserpina's academy, one that has earned quiet distinction in Combine service. On first assessment the battalion's light armament of auto-pistols gives little indication of its true capability, but few enemies of the Dragon have made that mistake twice. The 201st specializes in demolition operations, fielding hover-mechanized troopers who use personal hovercraft and superior training to reach their objectives rapidly. Their combat engineering skills and demolition charges allow them to achieve results well beyond what their modest armament would suggest.</p>"
+  }
+}

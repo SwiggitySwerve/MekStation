@@ -1,0 +1,47 @@
+{
+  "id": "motorized-platoon-fwlm-gauss-3060+",
+  "chassis": "Motorized Platoon (FWLM)",
+  "model": "(Gauss 3060+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3060,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Free Worlds League Infantry Kit (3035+)",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "free-worlds-league-infantry-kit-3035+",
+      "name": "Free Worlds League Infantry Kit (3035+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "gauss-rifle,-light-david",
+    "name": "Gauss Rifle, Light (David)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Free Worlds League Military has long fielded some of the largest infantry formations in the Inner Sphere, with regiments numbering nearly 1,800 soldiers compared to roughly 750 in the Combine and just over 1,000 in the Federated Suns. Motorized platoons provide the speed the FWLM needs to cover the vast distances between garrison posts on provincial worlds, mounting troops on light vehicles that can respond to threats faster than foot infantry but without the expense of full mechanization. Carrying infantry-scale gauss rifles that use magnetic acceleration to propel projectiles at extreme velocities, these platoons field the longest-ranged and hardest-hitting personal ballistic weapon available to conventional soldiers.</p>"
+  }
+}

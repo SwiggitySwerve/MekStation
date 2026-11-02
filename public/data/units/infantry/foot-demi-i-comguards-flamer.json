@@ -1,0 +1,49 @@
+{
+  "id": "foot-demi-i-comguards-flamer",
+  "chassis": "Foot demi-I (ComGuards)",
+  "model": "(Flamer)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2933,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 3,
+    "totalTroopers": 18
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "ComStar Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "comstar-infantry-kit",
+      "name": "ComStar Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "flamer-man-portable",
+    "name": "Flamer (Man-Portable)",
+    "count": 2
+  },
+  "mulId": 6997,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>The Com Guards field conventional infantry as a core component of their combined-arms formations, with Level I infantry units integrated into the same command structure alongside BattleMech, armor, and aerospace elements at every organizational level. Foot infantry Level I formations anchor defensive positions and garrison critical installations, providing the persistent ground presence that BattleMech and armor units cannot maintain indefinitely. Com Guard foot infantry train alongside heavier elements and understand their role within the larger combined-arms framework. Armed with man-portable flamers that project streams of ignited fuel, these troops carry one of the most psychologically devastating weapons available to conventional infantry, effective at clearing fortified positions and enclosed spaces at the cost of extreme danger to the operator.</p>"
+  }
+}

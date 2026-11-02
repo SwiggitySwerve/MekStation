@@ -1,0 +1,47 @@
+{
+  "id": "motorized-platoon-affs-gauss-3067+",
+  "chassis": "Motorized Platoon (AFFS)",
+  "model": "(Gauss 3067+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "gauss-rifle-thunderstroke-ii",
+    "name": "Gauss Rifle (Thunderstroke II)"
+  },
+  "armorKit": "Fed Suns Infantry Kit (3067+)",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "fed-suns-infantry-kit-3067+",
+      "name": "Fed Suns Infantry Kit (3067+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "gauss-cannon-grand-mauler",
+    "name": "Gauss Cannon (Grand Mauler)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The AFFS treats its infantry as professionals rather than expendable garrison filler, drawing soldiers from single worlds or neighboring systems to build the unit cohesion that the Federated Suns considers essential to effective combined-arms operations. Motorized platoons ride light vehicles that give them the speed to screen advancing columns, patrol supply routes, and respond to threats faster than foot infantry, though they sacrifice protection for that mobility. Carrying infantry-scale gauss rifles that use magnetic acceleration to propel projectiles at extreme velocities, these platoons field the longest-ranged and hardest-hitting personal ballistic weapon available to conventional soldiers.</p>"
+  }
+}

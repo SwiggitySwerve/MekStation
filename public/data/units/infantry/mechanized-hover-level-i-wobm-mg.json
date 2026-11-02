@@ -1,0 +1,49 @@
+{
+  "id": "mechanized-hover-level-i-wobm-mg",
+  "chassis": "Mechanized Hover Level I (WOBM)",
+  "model": "(MG)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3053,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Word of Blake Infantry Kit",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "word-of-blake-infantry-kit",
+      "name": "Word of Blake Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "machine-gun-portable",
+    "name": "Machine Gun (Portable)",
+    "count": 2
+  },
+  "mulId": 7050,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>The Word of Blake Militia inherited ComStar's combined-arms organizational philosophy and its Star League-era equipment stocks, fielding infantry formations that ranked among the best equipped in the Inner Sphere during the Jihad. Mechanized hover Level I formations gave the Word of Blake Militia its fastest ground-mobile infantry, capable of crossing water obstacles and open terrain at speeds that outpaced wheeled or tracked alternatives. Their speed made them effective pursuit forces when Protectorate populations attempted to flee contested areas. Carrying infantry-portable machine guns that provide sustained suppressive fire, these troops anchor defensive positions with a volume of fire that discourages enemy movement in the open.</p>"
+  }
+}

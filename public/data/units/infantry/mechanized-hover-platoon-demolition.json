@@ -1,0 +1,48 @@
+{
+  "id": "mechanized-hover-platoon-demolition",
+  "chassis": "Mechanized Hover Platoon",
+  "model": "(Demolition)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2500,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 2,
+    "totalTroopers": 10
+  },
+  "primaryWeapon": {
+    "id": "auto-pistol",
+    "name": "Auto-Pistol"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "demolition-charge",
+      "name": "Demolition Charge",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 2,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Hover demolition platoons transport combat engineers in hovercraft for rapid delivery to demolition targets. Armed only with auto-pistols for self-defense, these platoons rely on speed and the element of surprise rather than firepower, racing to bridge supports, supply dumps, or defensive installations to place charges before the enemy can react. The hovercraft's ability to cross water makes these platoons particularly effective against riverside infrastructure and coastal fortifications.</p>"
+  }
+}

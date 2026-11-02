@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-sub-platoon-srm-scuba",
+  "chassis": "Mechanized Sub Platoon",
+  "model": "(SRM SCUBA)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2600,
+  "motionType": "SUBMARINE",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Environment Suit, Marine",
+  "motiveType": "Submarine",
+  "equipment": [
+    {
+      "id": "environment-suit,-marine",
+      "name": "Environment Suit, Marine",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 2.0,
+  "damageDivisor": 2.0,
+  "armorFlags": ["spacesuit"],
+  "effectiveArmorFlags": ["spacesuit"],
+  "specializations": 4096,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrystandardsrm",
+    "name": "InfantryStandardSRM",
+    "count": 2
+  },
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Submarine mechanized SCUBA platoons use motorized underwater propulsion to deliver infantry beneath the surface at speeds faster than combat swimmers can achieve. Armed with assault rifles and two-shot SRM launchers modified for underwater operation, these platoons conduct subsurface infiltration, harbor attack, and coastal sabotage missions. The motorized sleds extend their operational range well beyond what standard SCUBA troops can cover, though the platoon must surface to engage most land targets effectively.</p>"
+  }
+}

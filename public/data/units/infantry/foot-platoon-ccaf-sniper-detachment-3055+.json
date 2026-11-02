@@ -1,0 +1,47 @@
+{
+  "id": "foot-platoon-ccaf-sniper-detachment-3055+",
+  "chassis": "Foot Platoon (CCAF)",
+  "model": "(Sniper Detachment 3055+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3055,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 2,
+    "squadCount": 2,
+    "totalTroopers": 4
+  },
+  "primaryWeapon": {
+    "id": "sniper-rifle-hammel-marksman",
+    "name": "Sniper Rifle (Hammel Marksman)"
+  },
+  "armorKit": "Sneak Suit (Camo/IR/ECM)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "sneak-suit-camo-ir-ecm",
+      "name": "Sneak Suit (Camo/IR/ECM)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": ["sneakcamo", "sneakir", "sneakecm"],
+  "effectiveArmorFlags": ["sneakcamo", "sneakir", "sneakecm"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun",
+    "count": 1
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Capellan Confederation has always relied on its infantry to compensate for the CCAF's chronic shortage of heavier assets. Conventional foot soldiers, drawn from the citizens' militia system that defines Capellan military service, form the backbone of garrison forces across the Confederation's commonalities. CCAF foot platoons anchor the Confederation's garrison network, holding worlds that BattleMech forces cannot permanently occupy. Slow and vulnerable in open terrain, they depend on prepared positions and local knowledge to offset their lack of mobility. Designated marksmen carry precision sniper rifles that allow the platoon to engage targets at extended range with lethal accuracy, providing a force-multiplying capability well beyond the formation's small size.</p>"
+  }
+}

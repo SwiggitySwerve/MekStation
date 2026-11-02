@@ -1,0 +1,53 @@
+{
+  "id": "foot-squad-anti-mech-flamer",
+  "chassis": "Foot Squad (Anti-'Mech)",
+  "model": "(Flamer)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2025,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 1,
+    "totalTroopers": 7
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "flamer-man-portable",
+    "name": "Flamer (Man-Portable)",
+    "count": 2
+  },
+  "source": "TW",
+  "fluff": {
+    "overview": "<p>Anti-BattleMech foot squads are squad-strength formations trained in close-assault tactics against armored combat vehicles. Smaller than a full anti-BattleMech platoon, these squads rely on stealth, ambush positioning, and terrain advantage to close with targets that outmass them by orders of magnitude. Their reduced numbers make each engagement a high-risk commitment, but in restrictive terrain where a single BattleMech can be isolated, even a squad of trained anti-BattleMech infantry poses a credible threat to leg actuators, sensor arrays, and exposed weapon housings.</p>"
+  }
+}

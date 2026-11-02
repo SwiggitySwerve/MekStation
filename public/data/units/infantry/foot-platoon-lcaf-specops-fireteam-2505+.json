@@ -1,0 +1,53 @@
+{
+  "id": "foot-platoon-lcaf-specops-fireteam-2505+",
+  "chassis": "Foot Platoon (LCAF)",
+  "model": "(SpecOps Fireteam 2505+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2505,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 8,
+    "squadCount": 2,
+    "totalTroopers": 16
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Sneak Suit (Camo/IR)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "sneak-suit-camo-ir",
+      "name": "Sneak Suit (Camo/IR)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": ["sneakcamo", "sneakir"],
+  "effectiveArmorFlags": ["sneakcamo", "sneakir"],
+  "specializations": 512,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "laser-rifle-blazer",
+    "name": "Laser Rifle (Blazer)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>After the Jihad stripped many elite units to fill battle armor companies, the LCAF recognized that conventional infantry remained essential for roles that battle armor could not cost-effectively fill. Foot infantry platoons form the backbone of the LCAF's garrison forces, deploying on foot to hold positions, patrol perimeters, and secure urban areas where vehicles cannot easily operate. Armed with assault rifles and Blazer laser rifles that combine two emitters into a single devastating energy weapon, these platoons mix conventional ballistic firepower with high-energy precision shots. These special operations fireteams are small, highly trained units configured for reconnaissance, sabotage, and direct action behind enemy lines, relying on stealth and precise execution rather than conventional firepower.</p>"
+  }
+}

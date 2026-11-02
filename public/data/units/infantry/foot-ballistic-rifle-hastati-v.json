@@ -1,0 +1,44 @@
+{
+  "id": "foot-ballistic-rifle-hastati-v",
+  "chassis": "Foot Ballistic Rifle",
+  "model": "Hastati V",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2500,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Flak, Standard",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "flak,-standard",
+      "name": "Flak, Standard",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 1141,
+  "role": "Ambusher",
+  "source": "TR:3085S",
+  "fluff": {
+    "overview": "<p>The soldiers of V Hastati, 513th Infantry Regiment carry on the traditions of the 375th Avalon Rifle Regiment, bringing Federated Suns military professionalism to Republic service. Built around a core of New Avalon veterans, the 513th is a model standard infantry force within the Republic Armed Forces. The entire regiment can pack and move out in three hours, carrying everything needed for a three-week field campaign. Capable with all manner of weapons, the regiment excels in the application of massed rifle fire and precision sharpshooting alike. The 513th's dedication to professionalism and service to the civilian population has made it the standard other RAF infantry formations aspire to match.</p>"
+  }
+}

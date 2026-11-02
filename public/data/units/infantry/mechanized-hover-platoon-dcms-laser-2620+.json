@@ -1,0 +1,44 @@
+{
+  "id": "mechanized-hover-platoon-dcms-laser-2620+",
+  "chassis": "Mechanized Hover Platoon (DCMS)",
+  "model": "(Laser 2620+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2620,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-magna",
+    "name": "Laser Rifle (Magna)"
+  },
+  "armorKit": "Draconis Combine Infantry Kit",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "draconis-combine-infantry-kit",
+      "name": "Draconis Combine Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 2133,
+  "role": "Scout",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Conventional infantry within the DCMS serve as the foundation of planetary defense, providing the manpower essential to territorial control while freeing BattleMech and armored assets for offensive operations. Hover-mechanized infantry ride hovercraft that can cover ground faster than any tracked or wheeled formation in the DCMS inventory. District commanders prize these platoons for rapid redeployment between garrison posts, and during the Jihad, hover-mechanized troops proved their worth in the kind of hit-and-run resistance operations that the Dictum Honorium demanded of citizens on occupied worlds. Equipped with laser rifles that outrange and outpenetrate ballistic weapons at every engagement distance. The cost is significant: laser rifles are expensive to procure, and each soldier must carry additional power packs that add weight and logistical burden. Where the budget allows, they are worth every C-bill.</p>"
+  }
+}

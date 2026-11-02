@@ -1,0 +1,42 @@
+{
+  "id": "mechanized-hover-squad-rifle",
+  "chassis": "Mechanized Hover Squad",
+  "model": "(Rifle)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2050,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 1,
+    "totalTroopers": 5
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "source": "TW",
+  "fluff": {
+    "overview": "<p>Mechanized hover squads transport a squad-strength infantry element in hovercraft for high-speed operations across open terrain and water. These small, fast formations excel at coastal surveillance, riverine patrol, and rapid flanking actions where their amphibious capability and speed compensate for limited troop numbers. The hovercraft provides some protection during transit but struggles in dense terrain, and the squad lacks the sustained combat power of a full platoon.</p>"
+  }
+}

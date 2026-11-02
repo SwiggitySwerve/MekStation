@@ -1,0 +1,78 @@
+{
+  "id": "motorized-platoon-lcaf-combat-engineers-3058+",
+  "chassis": "Motorized Platoon (LCAF)",
+  "model": "(Combat Engineers 3058+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3058,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 2,
+    "totalTroopers": 14
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "lyran-alliance-lyran-commonwealth-3060+-infantry-kit",
+      "name": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "infantry-bridge-kit",
+      "name": "Infantry Bridge Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 33,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "None",
+  "fluff": {
+    "overview": "<p>The Lyran Commonwealth's industrial wealth ensures its infantry are among the best-equipped in the Inner Sphere, fielding hardware that most armies reserve for elite formations as standard issue. Motorized platoons add light transport vehicles to standard infantry formations, giving them the speed to conduct rapid strikes, screening operations, and quick withdrawals that foot infantry cannot manage. Equipped with submachine guns optimized for close-quarters combat, these platoons trade effective range for high rates of fire at short distances, making them well-suited to urban operations and building clearance. Trained in rapid field fortification, these engineers dig trenches and construct fieldworks that provide defensive cover for friendly units, turning open ground into fortified positions.</p>"
+  }
+}

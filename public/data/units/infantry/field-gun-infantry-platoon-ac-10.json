@@ -1,0 +1,86 @@
+{
+  "id": "field-gun-infantry-platoon-ac-10",
+  "chassis": "Field Gun Infantry Platoon (AC/10)",
+  "model": "",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2500,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10"
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10"
+    },
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10"
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10"
+    }
+  ],
+  "mulId": 8410,
+  "role": "Ambusher",
+  "source": "TP:39V",
+  "fluff": {
+    "overview": "<p>Motorized field gun platoons towing AC/10 autocannon served with both Federated Commonwealth and Draconis Combine forces during the fighting on Vega in 3039. Vega was a bitterly contested world, and the campaign demanded every available asset from garrison infantry to front-line BattleMech regiments. Field gun platoons equipped with towed autocannon provided direct fire support to infantry and armor formations during prolonged engagements across the planet's varied terrain, from urban sieges to running battles through highland passes. Armed with auto rifles for self-defense and crewing a towed AC/10 capable of threatening light vehicles and BattleMechs at range, these platoons filled the critical gap between infantry small arms and dedicated armored vehicles. Their mobility allowed them to reposition between engagements, though they remained vulnerable during transit and required time to unlimber before firing.</p>"
+  }
+}

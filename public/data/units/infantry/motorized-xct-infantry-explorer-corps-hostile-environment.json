@@ -1,0 +1,49 @@
+{
+  "id": "motorized-xct-infantry-explorer-corps-hostile-environment",
+  "chassis": "Motorized XCT Infantry",
+  "model": "Explorer Corps Hostile Environment",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3058,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 3,
+    "totalTroopers": 18
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-mauser-960",
+    "name": "Laser Rifle (Mauser 960)"
+  },
+  "armorKit": "Environment Suit, Hostile",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "environment-suit,-hostile",
+      "name": "Environment Suit, Hostile",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor", "spacesuit"],
+  "effectiveArmorFlags": ["encumberingarmor", "spacesuit"],
+  "specializations": 2048,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "laser-hellbore-assault",
+    "name": "Laser (Hellbore Assault)",
+    "count": 2
+  },
+  "mulId": 2241,
+  "role": "Scout",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Explorer Corps fields some of the most capable hostile environment infantry in the Inner Sphere. Formed as the armed escort component of ComStar's deep Periphery survey teams, these XCT platoons train to operate in conditions ranging from hard vacuum to crushing high-gravity atmospheres. Explorer Corps recon infantry are motorized for maximum flexibility, using tracked crawlers on high-gravity worlds and near-flying skimmers in low-gravity or dense-atmosphere environments. Armed with Mauser 960 assault systems and Hellbore assault lasers, a single platoon can provide enough firepower to discourage all but the most determined opposition. Their environment suits allow operations in toxic, irradiated, or airless conditions without degradation, making them one of the few conventional infantry formations capable of fighting on worlds where unprotected humans would die in minutes.</p>"
+  }
+}

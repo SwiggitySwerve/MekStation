@@ -1,0 +1,104 @@
+{
+  "id": "field-gun-level-i-wobm-tracked-ac5",
+  "chassis": "Field Gun Level I (WOBM)",
+  "model": "(Tracked AC5)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3053,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Word of Blake Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "word-of-blake-infantry-kit",
+      "name": "Word of Blake Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5"
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5"
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5"
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5"
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5"
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>The Word of Blake Militia inherited ComStar's combined-arms organizational philosophy and its Star League-era equipment stocks, fielding infantry formations that ranked among the best equipped in the Inner Sphere during the Jihad. Crewing medium-caliber field autocannon, these gunners provide direct fire support with enough hitting power to threaten light armor while remaining mobile enough to reposition as the tactical situation evolves.</p>"
+  }
+}

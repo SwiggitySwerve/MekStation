@@ -1,0 +1,78 @@
+{
+  "id": "mechanized-tracked-platoon-fwlm-combat-engineers-3035+",
+  "chassis": "Mechanized Tracked Platoon (FWLM)",
+  "model": "(Combat Engineers 3035+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3030,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 2,
+    "totalTroopers": 14
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "Free Worlds League Infantry Kit (3035+)",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "free-worlds-league-infantry-kit-3035+",
+      "name": "Free Worlds League Infantry Kit (3035+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "infantry-bridge-kit",
+      "name": "Infantry Bridge Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 33,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "None",
+  "fluff": {
+    "overview": "<p>Conventional infantry within the FWLM serve as the backbone of provincial defense across a patchwork of semi-autonomous states, each maintaining its own military traditions and equipment preferences. Tracked mechanized platoons sacrifice road speed for all-terrain capability, carrying their infantry across ground that would halt wheeled vehicles. The FWLM assigns these formations to worlds where rough terrain or poor infrastructure demands mobility that wheels cannot provide. Trained as combat engineers, these troops carry specialized equipment for rapid construction of field fortifications, obstacle emplacement, and demolition operations, providing commanders with the ability to reshape terrain to tactical advantage.</p>"
+  }
+}

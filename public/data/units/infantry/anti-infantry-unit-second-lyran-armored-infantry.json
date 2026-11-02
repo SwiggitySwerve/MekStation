@@ -1,0 +1,48 @@
+{
+  "id": "anti-infantry-unit-second-lyran-armored-infantry",
+  "chassis": "Anti-Infantry Unit",
+  "model": "Second Lyran Armored Infantry",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3060,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "needler-rifle-m&g-flechette",
+    "name": "Needler Rifle (M&G Flechette)"
+  },
+  "armorKit": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "lyran-alliance-lyran-commonwealth-3060+-infantry-kit",
+      "name": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 2.0,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "needler,-support-firedrake",
+    "name": "Needler, Support (Firedrake)",
+    "count": 2
+  },
+  "mulId": 46,
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Second Lyran Armored Infantry, attached to the Thirty-second Lyran Guards, fields one of the LCAF's more specialized platoon configurations. Twenty Mauser and Gray flechette needler rifles supplemented by eight Firedrake support needlers give this motorized formation a devastating volume of anti-personnel fire that can shred opposing infantry formations with ease. Against hardened targets the platoon is far less effective, as flechette weapons struggle to penetrate vehicle armor or BattleMech plating. The Firedrakes offer a secondary capability that partially offsets this limitation: turned against the terrain itself, they can ignite buildings, vegetation, and ground cover, denying the enemy concealment and forcing defenders out of prepared positions.</p>"
+  }
+}

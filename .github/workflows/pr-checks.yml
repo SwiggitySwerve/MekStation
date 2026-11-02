@@ -654,9 +654,18 @@ jobs:
         if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
-      - name: Run tactical-map visual smoke suite
+      - name: Run tactical-map visual smoke and library-open suites
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        run: npx playwright test e2e/tactical-map-visual-smoke.spec.ts --project=chromium
+        run: npx playwright test e2e/tactical-map-visual-smoke.spec.ts e2e/customizer-library-open.spec.ts --project=chromium
+
+      - name: Upload library-open screenshots
+        if: always() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
+        uses: actions/upload-artifact@v7
+        with:
+          name: library-open-screenshots
+          path: test-results/**/*.png
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Upload Playwright report
         if: failure() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')

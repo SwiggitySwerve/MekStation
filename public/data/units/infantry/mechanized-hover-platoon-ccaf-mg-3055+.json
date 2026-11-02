@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-hover-platoon-ccaf-mg-3055+",
+  "chassis": "Mechanized Hover Platoon (CCAF)",
+  "model": "(MG 3055+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3055,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "rifle-striker-carbine",
+    "name": "Rifle (Striker Carbine)"
+  },
+  "armorKit": "Capellan Confederation Armor Kit (3050)",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "capellan-confederation-armor-kit-3050",
+      "name": "Capellan Confederation Armor Kit (3050)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "machine-gun-portable",
+    "name": "Machine Gun (Portable)",
+    "count": 2
+  },
+  "role": "Skirmisher",
+  "fluff": {
+    "overview": "<p>Capellan infantry serve where BattleMechs and armor cannot be spared, which in the resource-constrained CCAF means nearly everywhere. The Xin Sheng movement revitalized the infantry arm alongside every other facet of the Capellan Confederation Armed Forces, giving foot soldiers better equipment and renewed purpose. Hover-mechanized platoons are the fastest infantry formation in the CCAF, using hovercraft transports capable of crossing water and open ground at speeds that tracked and wheeled vehicles cannot match. Their speed makes them effective scouts and flanking elements, though the hover transports themselves are fragile. Support sections within the platoon carry portable machine guns that provide sustained automatic fire, giving the formation a significant volume-of-fire advantage in defensive positions at the cost of additional weight and ammunition bulk.</p>"
+  }
+}

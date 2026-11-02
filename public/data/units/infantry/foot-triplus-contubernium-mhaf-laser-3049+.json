@@ -1,0 +1,42 @@
+{
+  "id": "foot-triplus-contubernium-mhaf-laser-3049+",
+  "chassis": "Foot Triplus Contubernium (MHAF)",
+  "model": "(Laser 3049+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3049,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 10,
+    "squadCount": 3,
+    "totalTroopers": 30
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle",
+    "name": "Laser Rifle"
+  },
+  "armorKit": "Marian Hegemony Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "marian-hegemony-infantry-kit",
+      "name": "Marian Hegemony Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Infantry within the Legiones Marianes form the backbone of planetary garrison and territorial defense, freeing the Hegemony's limited BattleMech assets for offensive operations and prestige assignments. A triplus contubernium, or triple tent-group, combines three squads of ten into the Marian equivalent of a standard Inner Sphere platoon. Foot triplus contubernia form the primary garrison infantry of the Hegemony, holding defensive lines and providing the manpower that auxiliary legions depend on for territorial control. Equipped with laser rifles that offer superior range and armor penetration compared to ballistic weapons, these formations field one of the most effective personal arms available to conventional infantry, though the weapons require soldiers to carry additional power packs.</p>"
+  }
+}

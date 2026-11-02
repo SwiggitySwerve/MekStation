@@ -1,0 +1,47 @@
+{
+  "id": "clan-mechanized-wheeled-squad-srm",
+  "chassis": "Clan Mechanized Wheeled Squad",
+  "model": "(SRM)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2815,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 1,
+    "totalTroopers": 5
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryheavysrm",
+    "name": "InfantryHeavySRM",
+    "count": 2
+  },
+  "source": "TW",
+  "fluff": {
+    "overview": "<p>Clan mechanized wheeled squads transport a squad-strength element in wheeled APCs for road-mobile garrison operations. Optimized for speed on developed surfaces, these formations patrol road networks, escort convoys, and respond to security incidents on worlds with adequate infrastructure. They trade off-road capability for lower operating costs and faster transit times compared to tracked alternatives.</p>"
+  }
+}

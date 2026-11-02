@@ -1,0 +1,49 @@
+{
+  "id": "clan-heavy-jump-infantry-heavy-infantry-point",
+  "chassis": "Clan Heavy Jump Infantry",
+  "model": "Heavy Infantry Point",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3015,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-mauser-iic-ias",
+    "name": "Laser Rifle (Mauser IIC IAS)"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "autocannon-bearhunter-superheavy",
+    "name": "Autocannon (Bearhunter Superheavy)",
+    "count": 1
+  },
+  "mulId": 609,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Elementals who lose their battle armor face a more honorable future in conventional infantry service than most solahma warriors, because their existing training transfers directly to the heaviest infantry roles available. The Heavy Infantry Points of the Ninety-first Mechanized Assault, Epsilon Galaxy, field warriors fitted with jump packs and body armor who carry Mauser IIC assault systems alongside Bearhunter autocannons. This combination gives them firepower comparable to light combat vehicles without restricting their mobility, allowing them to operate alongside Elementals and BattleMechs in combined-arms engagements. The Bearhunter autocannon is the key to this capability, boosting the Point's anti-personnel and light vehicle firepower well beyond what laser-armed infantry can achieve. This style of heavy jump infantry is popular across Clan Hell's Horses and is limited only by the number of dispossessed Elementals available to fill the ranks.</p>"
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "id": "mechanized-tracked-platoon-affs-combat-engineers-3067+",
+  "chassis": "Mechanized Tracked Platoon (AFFS)",
+  "model": "(Combat Engineers 3067+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 2,
+    "totalTroopers": 14
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "Fed Suns Infantry Kit (3067+)",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "fed-suns-infantry-kit-3067+",
+      "name": "Fed Suns Infantry Kit (3067+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "infantry-bridge-kit",
+      "name": "Infantry Bridge Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 33,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The AFFS treats its infantry as professionals rather than expendable garrison filler, drawing soldiers from single worlds or neighboring systems to build the unit cohesion that the Federated Suns considers essential to effective combined-arms operations. Mechanized tracked platoons ride armored personnel carriers that provide both protection and all-terrain mobility, allowing these troops to keep pace with armored advances across open ground and survive the indirect fire that scatters lighter formations. Trained as combat engineers, these troops construct field fortifications, clear obstacles, and prepare defensive positions, providing the engineering capability that transforms raw terrain into defensible ground.</p>"
+  }
+}

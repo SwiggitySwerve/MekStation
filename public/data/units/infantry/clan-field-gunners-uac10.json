@@ -1,0 +1,83 @@
+{
+  "id": "clan-field-gunners-uac10",
+  "chassis": "Clan Field Gunners",
+  "model": "(UAC10)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2822,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 5,
+    "totalTroopers": 25
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clultraac10",
+      "name": "CLUltraAC10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clan-ultra-ac-10-ammo",
+      "name": "Clan Ultra AC/10 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clultraac10",
+      "name": "CLUltraAC10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clan-ultra-ac-10-ammo",
+      "name": "Clan Ultra AC/10 Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "clultraac10",
+      "name": "CLUltraAC10"
+    },
+    {
+      "id": "clan-ultra-ac-10-ammo",
+      "name": "Clan Ultra AC/10 Ammo"
+    },
+    {
+      "id": "clultraac10",
+      "name": "CLUltraAC10"
+    },
+    {
+      "id": "clan-ultra-ac-10-ammo",
+      "name": "Clan Ultra AC/10 Ammo"
+    }
+  ],
+  "fluff": {
+    "overview": "<p>Clan field gun Points crew heavy ultra autocannons with the superior engineering tolerances characteristic of Clan weapons manufacturing. Double-rate fire from a heavy-caliber Clan ultra autocannon delivers enough concentrated firepower to threaten combat vehicles and damage BattleMech armor, and the improved mechanism reliability allows more aggressive use of the rapid-fire mode. These Points occupy key defensive positions where their raw output can compensate for the limited mobility of towed field guns.</p>"
+  }
+}

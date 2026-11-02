@@ -1,0 +1,49 @@
+{
+  "id": "heavy-infantry-heavy-urban-response-platoon",
+  "chassis": "Heavy Infantry",
+  "model": "Heavy Urban Response Platoon",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3065,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "lyran-alliance-lyran-commonwealth-3060+-infantry-kit",
+      "name": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "plasma-rifle-man-portable",
+    "name": "Plasma Rifle (Man-Portable)",
+    "count": 2
+  },
+  "mulId": 1436,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Opponents of the Third Lyran Guards should hope they catch the Heavy Urban Response Platoon of the 608th Lyran MTR in the open and on the defensive. Equipped with auto-rifles and man-portable plasma rifles, this motorized platoon of twenty-eight troopers can dig into an urban structure and hold it with a tenacity that belies their conventional infantry classification. The plasma rifles generate enough thermal output to threaten heat-sensitive BattleMechs while punishing any infantry caught without cover. Dislodging the platoon from a fortified building may require a full company-level commitment. On the offensive they remain dangerous, capable of concentrating enough firepower to bring down a light 'Mech in a single coordinated salvo.</p>"
+  }
+}

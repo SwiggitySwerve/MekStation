@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-hover-platoon-dcms-mrm-3063+",
+  "chassis": "Mechanized Hover Platoon (DCMS)",
+  "model": "(MRM 3063+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3063,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Draconis Combine Infantry Kit",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "draconis-combine-infantry-kit",
+      "name": "Draconis Combine Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryoneshotmrm",
+    "name": "InfantryOneShotMRM",
+    "count": 2
+  },
+  "role": "Skirmisher",
+  "fluff": {
+    "overview": "<p>Conventional infantry within the DCMS serve as the foundation of planetary defense, providing the manpower essential to territorial control while freeing BattleMech and armored assets for offensive operations. Hover-mechanized infantry ride hovercraft that can cover ground faster than any tracked or wheeled formation in the DCMS inventory. District commanders prize these platoons for rapid redeployment between garrison posts, and during the Jihad, hover-mechanized troops proved their worth in the kind of hit-and-run resistance operations that the Dictum Honorium demanded of citizens on occupied worlds. Support elements carry disposable medium-range missile launchers that split the difference between the close-range punch of SRM systems and the reach of LRM launchers. The volume of fire compensates for the lack of guidance systems.</p>"
+  }
+}

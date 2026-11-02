@@ -1,0 +1,64 @@
+{
+  "id": "field-artillery-demi-i-comguards-motorized-arrow-iv",
+  "chassis": "Field Artillery demi-I (ComGuards)",
+  "model": "(Motorized Arrow IV)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2933,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 3,
+    "totalTroopers": 18
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "ComStar Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "comstar-infantry-kit",
+      "name": "ComStar Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isarrowiv",
+      "name": "ISArrowIV",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isarrowivammo",
+      "name": "ISArrowIVAmmo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "isarrowiv",
+      "name": "ISArrowIV"
+    },
+    {
+      "id": "isarrowivammo",
+      "name": "ISArrowIVAmmo"
+    }
+  ],
+  "role": "Missile Boat",
+  "fluff": {
+    "overview": "<p>The Com Guards field conventional infantry as a core component of their combined-arms formations, with Level I infantry units integrated into the same command structure alongside BattleMech, armor, and aerospace elements at every organizational level. Manning Arrow IV artillery systems that fire guided munitions capable of precision strikes at extreme range, these crews provide the most accurate indirect fire available to conventional infantry formations, able to place rounds on specific targets rather than simply saturating an area.</p>"
+  }
+}
