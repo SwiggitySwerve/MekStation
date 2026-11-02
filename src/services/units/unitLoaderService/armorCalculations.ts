@@ -39,6 +39,8 @@ const ARMOR_POINTS_PER_TON_BY_TYPE: Partial<Record<ArmorTypeEnum, number>> = {
   [ArmorTypeEnum.LIGHT_FERRO]: 16.96,
   [ArmorTypeEnum.HEAVY_FERRO]: 19.52,
   [ArmorTypeEnum.HARDENED]: 8,
+  [ArmorTypeEnum.FERRO_LAMELLOR]: 14,
+  [ArmorTypeEnum.BALLISTIC_REINFORCED]: 12,
 };
 
 function totalCountedArmorPoints(allocation: IArmorAllocation): number {

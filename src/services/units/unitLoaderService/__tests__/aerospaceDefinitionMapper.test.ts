@@ -549,7 +549,9 @@ describe('mapAerospaceDefinitionToState', () => {
         ...definition,
         equipment: [{ id: 'x', location: 'WINGS', isRearMounted: false }],
       }),
-    ).toThrow('Unknown aerospace location "WINGS"');
+    ).toThrow(
+      'The aerospace editor cannot open units with equipment or armor in the wings location yet.',
+    );
   });
 });
 
