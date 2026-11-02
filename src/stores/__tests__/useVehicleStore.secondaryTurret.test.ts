@@ -18,6 +18,8 @@ import type { VehicleStore } from '../vehicleState';
 import {
   setHasSecondaryTurretLogic,
   setSecondaryTurretTypeLogic,
+  setTurretTypeLogic,
+  setTurretWeightLogic,
 } from '../useVehicleStore.actions';
 import {
   createEmptyVehicleArmorAllocation,
@@ -92,15 +94,42 @@ describe('getTotalVehicleArmor — secondary turret signature', () => {
   });
 });
 
+describe('primary turret has no capacity cap', () => {
+  it('installs a turret without a maxWeight', () => {
+    const next = setTurretTypeLogic(
+      makeState({ tonnage: 60 }),
+      TurretType.SINGLE,
+    );
+
+    expect(next.turret).toEqual({
+      type: TurretType.SINGLE,
+      currentWeight: 0,
+      rotationArc: 360,
+    });
+  });
+
+  it('records a turret weight above 10% of tonnage unchanged', () => {
+    const installed = setTurretTypeLogic(
+      makeState({ tonnage: 60 }),
+      TurretType.SINGLE,
+    );
+    const state = makeState({ tonnage: 60, turret: installed.turret });
+
+    const next = setTurretWeightLogic(state, 20) as Partial<VehicleStore>;
+
+    expect(next.turret?.currentWeight).toBe(20);
+  });
+});
+
 describe('setHasSecondaryTurretLogic', () => {
   it('enabling initializes a default ITurretConfiguration', () => {
     const state = makeState({ tonnage: 60 });
     const next = setHasSecondaryTurretLogic(state, true);
 
     expect(next.secondaryTurret).not.toBeNull();
-    expect(next.secondaryTurret).toMatchObject({
+    // No capacity field: a turret is limited only by the vehicle's weight.
+    expect(next.secondaryTurret).toEqual({
       type: TurretType.SINGLE,
-      maxWeight: 60 * 0.1,
       currentWeight: 0,
       rotationArc: 360,
     });
@@ -111,7 +140,6 @@ describe('setHasSecondaryTurretLogic', () => {
     const state = makeState({
       secondaryTurret: {
         type: TurretType.SINGLE,
-        maxWeight: 5,
         currentWeight: 0,
         rotationArc: 360,
       },
@@ -131,7 +159,6 @@ describe('setHasSecondaryTurretLogic', () => {
     const state = makeState({
       secondaryTurret: {
         type: TurretType.DUAL,
-        maxWeight: 5,
         currentWeight: 0,
         rotationArc: 360,
       },
@@ -153,7 +180,6 @@ describe('setSecondaryTurretTypeLogic', () => {
     const state = makeState({
       secondaryTurret: {
         type: TurretType.SINGLE,
-        maxWeight: 5,
         currentWeight: 0,
         rotationArc: 360,
       },
@@ -166,7 +192,6 @@ describe('setSecondaryTurretTypeLogic', () => {
     const state = makeState({
       secondaryTurret: {
         type: TurretType.SINGLE,
-        maxWeight: 5,
         currentWeight: 0,
         rotationArc: 360,
       },
