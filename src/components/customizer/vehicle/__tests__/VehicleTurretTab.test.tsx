@@ -27,6 +27,9 @@ import {
 import { VehicleTurretTab } from '../VehicleTurretTab';
 
 jest.mock('@/stores/useVehicleStore');
+jest.mock('@/hooks/useEquipmentRegistry', () => ({
+  useEquipmentRegistry: () => ({ isReady: true }),
+}));
 const mockUseVehicleStore = useVehicleStore as jest.MockedFunction<
   typeof useVehicleStore
 >;
