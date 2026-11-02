@@ -435,14 +435,17 @@ describe('VAL-VEHICLE-ENGINE', () => {
     expect(engineErrors.length).toBeGreaterThan(0);
   });
 
-  it('error: ICE engine on Hover vehicle', () => {
+  // Java has no motion-type engine rule: Engine.isValidEngine, TestTank and
+  // MegaMekLab's CVChassisView.getAvailableEngines never read the movement
+  // mode, and the corpus has 73 ICE combat hovers.
+  it('valid: ICE engine on Hover vehicle', () => {
     const result = validateVehicleConstruction(
       savannahMasterInput({ engineType: EngineType.ICE }),
     );
     const engineErrors = result.errors.filter(
       (e) => e.ruleId === 'VAL-VEHICLE-ENGINE',
     );
-    expect(engineErrors.length).toBeGreaterThan(0);
+    expect(engineErrors).toHaveLength(0);
   });
 });
 

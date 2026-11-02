@@ -47,14 +47,35 @@ import { isDefinitionForFamily } from './definitionTypes';
 import { resolveEquipmentId } from './equipmentResolution';
 import { UnsupportedUnitConfigurationError } from './movementConfiguration';
 
+type UnsupportedVehicleField =
+  | 'unitType'
+  | 'motionType'
+  | 'engine.type'
+  | 'armor.type';
+
+/** Contract value in plain words: "FERRO_LAMELLOR" becomes "ferro lamellor". */
+const plain = (value: string) => value.toLowerCase().replace(/_/g, ' ');
+
+const UNSUPPORTED_VEHICLE_COPY: Readonly<
+  Record<UnsupportedVehicleField, (value: string) => string>
+> = {
+  unitType: (value) => `The vehicle editor cannot open ${value} units.`,
+  motionType: (value) =>
+    `The vehicle editor cannot open vehicles with ${plain(value)} motion yet.`,
+  'engine.type': (value) =>
+    `The vehicle editor cannot open vehicles with ${plain(value)} engines yet.`,
+  'armor.type': (value) =>
+    `The vehicle editor cannot open vehicles with ${plain(value)} armor yet.`,
+};
+
 export class UnsupportedVehicleConfigurationError extends UnsupportedUnitConfigurationError {
   readonly code = 'unsupported-configuration';
 
   constructor(
-    readonly field: string,
+    readonly field: UnsupportedVehicleField,
     readonly value: string,
   ) {
-    super(`Vehicle ${field} "${value}" is not supported by this editor.`);
+    super(UNSUPPORTED_VEHICLE_COPY[field](value));
   }
 }
 
@@ -169,7 +190,7 @@ export function normalizeVehicleConfiguration(
       ? (setTurretTypeLogic(defaults, TurretType.SINGLE).turret ?? null)
       : null;
   // The store's legacy action uses 360 degrees even for chin turrets; preserve
-  // the source arc while leaving its existing capacity derivation untouched.
+  // the source arc (there is no turret capacity cap, owner ruling 5).
   const configuredTurret =
     turret && type === TurretType.CHIN
       ? { ...turret, rotationArc: 180 }

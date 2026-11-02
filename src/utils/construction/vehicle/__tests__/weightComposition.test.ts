@@ -14,7 +14,7 @@ import {
   type VehicleWeightState,
 } from '../weightComposition';
 
-it('preserves the facade and every legacy support composition output', () => {
+it('preserves the facade and every support composition output', () => {
   const state: VehicleWeightState = {
     ...createDefaultVehicleState({
       name: 'Characterization',
@@ -28,8 +28,11 @@ it('preserves the facade and every legacy support composition output', () => {
   };
   const result = computeVehicleWeightBreakdown(state, () => undefined);
   expect(facade(state, () => undefined)).toEqual(result);
+  // Every support engine goes through Engine.getWeightEngine's support branch
+  // (Engine.java:396-404): tracked medium 0.013 x (4 + 4^2) x D multiplier 1 x
+  // 50 t = 13 t. The rating field (25) plays no part.
   expect(result).toEqual({
-    engine: 1,
+    engine: 13,
     controls: 0,
     lift: 0,
     structure: 5,
@@ -42,7 +45,7 @@ it('preserves the facade and every legacy support composition output', () => {
     secondaryTurretEquipment: 0,
     turretMounted: 0,
     energyWeapons: 0,
-    remaining: 44,
+    remaining: 32,
   });
 });
 

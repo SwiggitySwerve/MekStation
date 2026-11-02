@@ -1,6 +1,4 @@
-import * as fs from 'fs';
-import * as path from 'path';
-
+import { AMMUNITION_CATALOG_FILES } from '../src/utils/construction/equipmentBVCatalogData';
 import { normalizeEquipmentId } from '../src/utils/construction/equipmentBVResolver';
 import {
   AMMO_BV_FALLBACKS,
@@ -118,48 +116,19 @@ function buildAmmoLookup(): Map<string, { bv: number; weaponType: string }> {
   if (ammoLookup) return ammoLookup;
   ammoLookup = new Map();
 
-  // Data-driven: load ammunition files from index.json (supports split files)
-  const basePath = path.resolve(
-    process.cwd(),
-    'public/data/equipment/official',
-  );
-  let ammoFiles: string[] = ['ammunition.json'];
-  try {
-    const indexData = JSON.parse(
-      fs.readFileSync(path.join(basePath, 'index.json'), 'utf-8'),
-    );
-    const ammoEntry = indexData?.files?.ammunition;
-    if (
-      ammoEntry &&
-      typeof ammoEntry === 'object' &&
-      !Array.isArray(ammoEntry)
-    ) {
-      ammoFiles = Object.values(ammoEntry) as string[];
-    }
-  } catch {
-    /* fall back to ammunition.json */
-  }
-
-  for (const ammoFile of ammoFiles) {
-    try {
-      const d = JSON.parse(
-        fs.readFileSync(path.join(basePath, ammoFile), 'utf-8'),
-      );
-      for (const item of (d.items || []) as Array<{
-        id: string;
-        battleValue: number;
-        compatibleWeaponIds?: string[];
-      }>) {
-        const wt = item.compatibleWeaponIds?.[0]
-          ? normalizeWeaponKey(item.compatibleWeaponIds[0])
+  for (const file of AMMUNITION_CATALOG_FILES) {
+    for (const item of file.items ?? []) {
+      if (typeof item.id !== 'string' || typeof item.battleValue !== 'number')
+        continue;
+      const weapons = item.compatibleWeaponIds;
+      const wt =
+        Array.isArray(weapons) && typeof weapons[0] === 'string'
+          ? normalizeWeaponKey(weapons[0])
           : extractWeaponTypeFromAmmoId(item.id);
-        ammoLookup.set(item.id, { bv: item.battleValue, weaponType: wt });
-        const canon = item.id.replace(/[^a-z0-9]/g, '');
-        if (!ammoLookup.has(canon))
-          ammoLookup.set(canon, { bv: item.battleValue, weaponType: wt });
-      }
-    } catch {
-      /* ignore individual ammo file errors */
+      ammoLookup.set(item.id, { bv: item.battleValue, weaponType: wt });
+      const canon = item.id.replace(/[^a-z0-9]/g, '');
+      if (!ammoLookup.has(canon))
+        ammoLookup.set(canon, { bv: item.battleValue, weaponType: wt });
     }
   }
 

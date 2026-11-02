@@ -571,3 +571,38 @@ print(json.dumps(units))
     );
   }
 });
+
+it.each([-1, 2])(
+  'scopes explicit armor tech %i to ProtoMechs without changing the mech boundary',
+  (sourceTechLevel) => {
+    const atlas = JSON.parse(
+      fs.readFileSync(
+        'public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json',
+        'utf8',
+      ),
+    );
+    expect(UnitContract.safeParse(atlas).success).toBe(true);
+    expect(
+      UnitContract.safeParse({
+        ...atlas,
+        armor: { ...atlas.armor, sourceTechLevel },
+      }).success,
+    ).toBe(false);
+    const proto = {
+      id: 'proto-tech-scope',
+      unitType: 'ProtoMech',
+      armor: {
+        type: 'STANDARD_PROTOMEK',
+        byLocation: { HEAD: 1 },
+        sourceTechLevel,
+      },
+    };
+    expect(UnitContract.safeParse(proto).success).toBe(true);
+    expect(
+      UnitContract.safeParse({
+        ...proto,
+        armor: { ...proto.armor, sourceTechLevel: '2' },
+      }).success,
+    ).toBe(false);
+  },
+);

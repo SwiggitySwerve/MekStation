@@ -21,6 +21,11 @@ import {
 } from './catalogLoader';
 import { normalizeEquipmentId } from './normalization';
 
+/** BVCalculator.processWeapon: apply only to the launcher linked by Artemis. */
+export function getArtemisBVMultiplier(type?: 'iv' | 'v'): number {
+  return type === 'iv' ? 1.2 : type === 'v' ? 1.3 : 1;
+}
+
 function applyBVHeatOverride(
   baseHeat: number,
   entry: EquipmentCatalogEntry,
@@ -104,6 +109,17 @@ export function getAmmunitionEntry(
 ): EquipmentCatalogEntry | undefined {
   const catalog = loadAmmunitionCatalog();
   return catalog.get(normalizeEquipmentId(ammoId, catalog));
+}
+
+/** Native large-craft standard IS bins may carry an Artemis-capability label.
+ * This is not a munition BV bonus; keep legacy Mech/fighter lookup unchanged.
+ */
+export function getLargeAerospaceAmmoEntry(
+  ammoId: string,
+): EquipmentCatalogEntry | undefined {
+  return getAmmunitionEntry(
+    ammoId.replace(/^(is-ammo-(?:lrm|srm)-\d+)-artemis-capable$/, '$1'),
+  );
 }
 
 export function resolveAmmoBV(ammoId: string): AmmoBVResult {

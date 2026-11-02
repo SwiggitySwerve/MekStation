@@ -46,7 +46,13 @@ function mockListeningCatalogFetch(): typeof fetch {
   return (async (input: string | URL | Request) => {
     const raw = typeof input === 'string' ? input : input.toString();
     const pathname = raw.startsWith('http') ? new URL(raw).pathname : raw;
-    const file = path.join(process.cwd(), 'public', pathname);
+    // A static server decodes the URL path; catalog file names are encoded
+    // per segment because they may contain spaces and `#`.
+    const file = path.join(
+      process.cwd(),
+      'public',
+      decodeURIComponent(pathname),
+    );
     const found = fs.existsSync(file);
     const body = found ? fs.readFileSync(file, 'utf8') : '';
     return {

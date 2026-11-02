@@ -75,16 +75,18 @@ export function setTonnageLogic(
   tonnage: number,
 ): Partial<VehicleStore> {
   const engineLess = state.engineType === VehicleOnlyEngineType.NONE;
+  const support = state.unitType === UnitType.SUPPORT_VEHICLE;
   const newEngineRating = computeStoredVehicleEngineRating(
     tonnage,
     state.cruiseMP,
     state.motionType,
-    state.unitType === UnitType.SUPPORT_VEHICLE,
+    support,
     engineLess,
   );
+  // Support ratings have no floor or 400 cap (Engine.getRating, Engine.java:601).
   const clampedRating =
-    engineLess && newEngineRating === 0
-      ? 0
+    support || (engineLess && newEngineRating === 0)
+      ? newEngineRating
       : Math.max(10, Math.min(400, newEngineRating));
 
   return {
@@ -218,7 +220,6 @@ export function setTurretTypeLogic(
     ? { ...state.turret, type }
     : {
         type,
-        maxWeight: state.tonnage * 0.1,
         currentWeight: 0,
         rotationArc: 360,
       };
@@ -265,7 +266,6 @@ export function setHasSecondaryTurretLogic(
 
   const secondaryTurret: ITurretConfiguration = {
     type: TurretType.SINGLE,
-    maxWeight: state.tonnage * 0.1,
     currentWeight: 0,
     rotationArc: 360,
   };

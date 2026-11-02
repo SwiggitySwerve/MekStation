@@ -1,5 +1,10 @@
-import { EngineType } from '@/types/construction/EngineType';
+import {
+  EngineType,
+  VehicleOnlyEngineType,
+  type VehicleEngineType,
+} from '@/types/construction/EngineType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 
@@ -26,7 +31,10 @@ export const MOTION_TYPE_OPTIONS: {
   { value: GroundMotionType.WIGE, label: 'WiGE', maxTonnage: 80 },
 ];
 
-export const ENGINE_TYPE_OPTIONS: { value: EngineType; label: string }[] = [
+export const ENGINE_TYPE_OPTIONS: {
+  value: VehicleEngineType;
+  label: string;
+}[] = [
   { value: EngineType.STANDARD, label: 'Standard Fusion' },
   { value: EngineType.XL_IS, label: 'XL Engine (IS)' },
   { value: EngineType.XL_CLAN, label: 'XL Engine (Clan)' },
@@ -37,6 +45,31 @@ export const ENGINE_TYPE_OPTIONS: { value: EngineType; label: string }[] = [
   { value: EngineType.FUEL_CELL, label: 'Fuel Cell' },
   { value: EngineType.FISSION, label: 'Fission' },
 ];
+
+/**
+ * Steam and Battery are support-vehicle engines (SVEngine; MegaMekLab's
+ * combat list, CVChassisView.ENGINE_TYPES, has neither). An absent engine is
+ * listed only when the unit is a trailer or already has none, so the select
+ * shows it instead of the first option.
+ */
+export function getEngineTypeOptions(
+  unitType: UnitType,
+  engineType: VehicleEngineType,
+  isTrailer: boolean,
+): { value: VehicleEngineType; label: string }[] {
+  return [
+    ...ENGINE_TYPE_OPTIONS,
+    ...(unitType === UnitType.SUPPORT_VEHICLE
+      ? [
+          { value: VehicleOnlyEngineType.STEAM, label: 'Steam Engine' },
+          { value: VehicleOnlyEngineType.BATTERY, label: 'Battery Engine' },
+        ]
+      : []),
+    ...(isTrailer || engineType === VehicleOnlyEngineType.NONE
+      ? [{ value: VehicleOnlyEngineType.NONE, label: 'No Engine' }]
+      : []),
+  ];
+}
 
 export const TURRET_TYPE_OPTIONS: { value: TurretType; label: string }[] = [
   { value: TurretType.NONE, label: 'No Turret' },

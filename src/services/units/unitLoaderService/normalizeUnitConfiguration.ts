@@ -229,7 +229,7 @@ export function normalizeUnitConfiguration(
   const { techBaseMode, techBase } = deriveTechBaseContext(serialized);
   const model = deriveModel(serialized);
   const rulesLevel = deriveRulesLevel(serialized);
-  return {
+  const normalized = {
     ...deriveIdentityState(serialized, model, rulesLevel, techBase),
     ...deriveConfigurationState(serialized, techBase, techBaseMode),
     ...deriveEngineState(serialized, techBase),
@@ -241,5 +241,20 @@ export function normalizeUnitConfiguration(
     ...mapMovementConfiguration(serialized.movement),
     equipment,
     armActuators: deriveArmActuators(serialized),
+  };
+  return {
+    ...normalized,
+    bvContext: {
+      source: serialized,
+      equipment,
+      types: {
+        engineType: normalized.engineType,
+        gyroType: normalized.gyroType,
+        internalStructureType: normalized.internalStructureType,
+        cockpitType: normalized.cockpitType,
+        armorType: normalized.armorType,
+        heatSinkType: normalized.heatSinkType,
+      },
+    },
   };
 }

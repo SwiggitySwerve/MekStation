@@ -37,7 +37,7 @@ const setSecondaryTurretType = jest.fn();
 function turretConfig(
   type: TurretType = TurretType.SINGLE,
 ): ITurretConfiguration {
-  return { type, maxWeight: 5, currentWeight: 0, rotationArc: 360 };
+  return { type, currentWeight: 0, rotationArc: 360 };
 }
 
 function makeState(overrides: Record<string, unknown> = {}) {
@@ -108,5 +108,24 @@ describe('VehicleTurretTab — secondary turret', () => {
     expect(
       screen.queryByTestId('vehicle-secondary-turret-type'),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('VehicleTurretTab — no capacity cap', () => {
+  it('shows no turret capacity figure or capacity bar', () => {
+    renderWithState();
+    expect(screen.queryByText(/Max Capacity/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/capacity used/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/10% of vehicle tonnage/),
+    ).not.toBeInTheDocument();
+  });
+
+  it("states that only the vehicle's available weight limits the turret", () => {
+    renderWithState();
+    expect(screen.getByText('Turret Weight')).toBeInTheDocument();
+    expect(
+      screen.getByText(/limited only by the vehicle's available weight/),
+    ).toBeInTheDocument();
   });
 });

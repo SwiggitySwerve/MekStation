@@ -12,17 +12,12 @@ import {
 } from '@/services/core/createSingleton';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { EngineType } from '@/types/construction/EngineType';
-import {
-  calculateTotalBV,
-  type BVCalculationConfig,
-  type CockpitType as BVCockpitType,
-} from '@/utils/construction/battleValueTotals';
 import { calculateEngineWeight } from '@/utils/construction/engineCalculations';
+import { calculateUnitBV } from '@/utils/construction/mechBV/calculator';
 import { calculateRunMP } from '@/utils/construction/movementCalculations';
 import { logger } from '@/utils/logger';
 
 import {
-  calculateTotalStructurePoints,
   calculateTotalArmorPoints,
   calculateArmorWeight,
   calculateMaxArmorPoints,
@@ -35,7 +30,6 @@ import {
   getCockpitCost,
   getStructureCostMultiplier,
   getArmorCostMultiplier,
-  normalizeBVType,
 } from './CalculationService.utils';
 import {
   STRUCTURE_COST_BASE,
@@ -49,6 +43,7 @@ import {
   ENGINE_INTEGRAL_HEAT_SINK_DIVISOR,
   MECH_CONSTRUCTION_MULTIPLIER,
 } from './constructionConstants';
+import { buildEditableMechBVInput } from './editableMechProjection';
 import { IEditableMech } from './MechBuilderService';
 
 /**
@@ -131,56 +126,14 @@ export class CalculationService implements ICalculationService {
   /**
    * Calculate Battle Value using the validated BV 2.0 engine.
    *
-   * Delegates to calculateTotalBV() from battleValueCalculations.ts which
-   * implements the full MegaMek-accurate BV2 formula with heat tracking,
-   * explosive penalties, and cockpit modifiers.
+   * Uses the same source-input owner as validate:bv, with live editor changes.
    *
    * @spec openspec/specs/battle-value-system/spec.md
    */
   calculateBattleValue = (mech: IEditableMech): number => {
-    const movement = this.calculateMovement(mech);
-    const heatSinkCapacity = isDoubleHeatSink(mech.heatSinkType)
-      ? HEAT_SINK_CAPACITY_DOUBLE
-      : HEAT_SINK_CAPACITY_SINGLE;
-
-    const config: BVCalculationConfig = {
-      totalArmorPoints: calculateTotalArmorPoints(mech),
-      totalStructurePoints: calculateTotalStructurePoints(mech),
-      tonnage: mech.tonnage,
-      heatSinkCapacity: mech.heatSinkCount * heatSinkCapacity,
-      walkMP: movement.walkMP,
-      runMP: movement.runMP,
-      jumpMP: movement.jumpMP,
-      weapons: this.extractWeapons(mech),
-      armorType: normalizeBVType(String(mech.armorType)),
-      structureType: normalizeBVType(String(mech.structureType)),
-      gyroType: normalizeBVType(String(mech.gyroType)),
-      engineType:
-        typeof mech.engineType === 'string'
-          ? this.mapEngineType(mech.engineType)
-          : mech.engineType,
-      cockpitType: normalizeBVType(String(mech.cockpitType)) as BVCockpitType,
-      heatSinkCount: mech.heatSinkCount,
-      isIndustrialMech:
-        normalizeBVType(String(mech.structureType)) === 'industrial',
-    };
-
-    return calculateTotalBV(config);
+    const input = buildEditableMechBVInput(mech);
+    return calculateUnitBV(input, input.id).bv;
   };
-
-  /**
-   * Extract weapon entries from mech equipment for BV calculation.
-   * Passes all equipment IDs — calculateTotalBV's internal resolver
-   * handles filtering weapons vs ammo vs misc.
-   */
-  private extractWeapons(
-    mech: IEditableMech,
-  ): Array<{ id: string; rear?: boolean }> {
-    return mech.equipment.map((slot) => ({
-      id: slot.equipmentId,
-      rear: false,
-    }));
-  }
 
   /**
    * Calculate C-Bill cost using TechManual formula

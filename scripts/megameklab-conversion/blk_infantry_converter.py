@@ -27,8 +27,13 @@ Usage:
 """
 
 import logging
+import math
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+from blk_infantry_armor import ARMOR_KITS, infantry_armor
+from blk_infantry_equipment import INFANTRY_WEAPONS, FIELD_EQUIPMENT, TROOPER_EQUIPMENT
+from schema_gate import validate_unit
 
 from blk_conversion_runner import BlkConversionConfig, run_blk_conversion, run_manifest_range_parity
 
@@ -39,8 +44,7 @@ from blk_common import (
     extract_tags,
     generate_id_from_name,
     get_string,
-    map_rules_level,
-    map_tech_base,
+    map_blk_tech_type,
     map_year_to_era,
     normalize_equipment_id,
     parse_number,
@@ -55,8 +59,6 @@ from blk_common import (
 # Infantry motion type → output enum
 INFANTRY_MOTION_MAP: Dict[str, str] = {
     "Leg": "FOOT",
-    "Foot": "FOOT",
-    "None": "FOOT",
     "Jump": "JUMP",
     "Motorized": "MOTORIZED",
     "Wheeled": "WHEELED",
@@ -64,41 +66,50 @@ INFANTRY_MOTION_MAP: Dict[str, str] = {
     "Hover": "HOVER",
     "VTOL": "VTOL",
     "UMU": "UMU",
-    "Beast": "BEAST",
-    "Mechanized": "MECHANIZED",
 }
 
-# Armor kit specialization inference
-MARINE_KIT_KEYWORDS = {"Marine", "Spacesuit", "Vacuum", "CLEnvironmentSuitMarine"}
-MOUNTAIN_KIT_KEYWORDS = {"Mountain", "Combat", "CombatKitMI", "MountainKit"}
-ARCTIC_KIT_KEYWORDS = {"Arctic", "Cold"}
-JUNGLE_KIT_KEYWORDS = {"Jungle"}
-SWAMP_KIT_KEYWORDS = {"Swamp"}
-DESERT_KIT_KEYWORDS = {"Desert"}
+# BLKInfantryFile uses EntityMovementMode, not armor-kit name heuristics.
+INFANTRY_MOTION_MAP = {key.lower(): value for key, value in INFANTRY_MOTION_MAP.items()}
+INFANTRY_MOTION_MAP.update({"submarine": "SUBMARINE", "inf_leg": "FOOT",
+    "inf_motorized": "MOTORIZED", "inf_jump": "JUMP", "inf_umu": "UMU",
+    "scuba": "UMU", "motorized scuba": "UMU", "microcopter": "VTOL",
+    "micro-copter": "VTOL", "microlite": "VTOL"})
+# InfantryMount.sampleMounts (raw mount text is retained for later loader/BV work).
+BEAST_DIVISORS = dict.fromkeys(("Donkey", "Coventry Kangaroo", "Horse", "Camel", "Branth",
+    "Odessan Raxx", "Tabiranth", "Tariq"), 1.0) | {"Elephant": 2.0, "Orca": 2.0, "Hipposaur": 4.0}
+AUGMENTATIONS = set((
+    "artificial_pain_shunt vdni bvdni pl_enhanced pl_ienhanced pl_masc pl_extra_limbs pl_tail pl_glider pl_flight "
+    "cyber_imp_audio cyber_imp_visual cyber_imp_laser cyber_imp_tele mm_implants enh_mm_implants comm_implant "
+    "boost_comm_implant dermal_armor tsm_implant filtration_implants gas_effuser_pheromone gas_effuser_toxin "
+    "dermal_camo_armor triple_core_processor suicide_implants proto_dni ei_implant"
+).split())
+PROSTHETICS = set("LASER BALLISTIC NEEDLER SHOTGUN SONIC_STUNNER SMG BLADE SHOCKER VIBROBLADE RUMAL_GARROTE GRAPPLER CLIMBING_CLAWS".split())
 
 
-def infer_specialization(armor_kit: Optional[str], has_spacesuit: bool, motion_type: str) -> Optional[str]:
-    """Infer platoon specialization from armor kit and flags."""
-    if has_spacesuit:
-        return "SPACE_MARINE"
-    if armor_kit:
-        kit_upper = armor_kit.upper()
-        if any(kw.upper() in kit_upper for kw in MARINE_KIT_KEYWORDS):
-            return "MARINE"
-        if any(kw.upper() in kit_upper for kw in MOUNTAIN_KIT_KEYWORDS):
-            return "MOUNTAIN"
-        if any(kw.upper() in kit_upper for kw in ARCTIC_KIT_KEYWORDS):
-            return "ARCTIC"
-        if any(kw.upper() in kit_upper for kw in JUNGLE_KIT_KEYWORDS):
-            return "JUNGLE"
-        if any(kw.upper() in kit_upper for kw in SWAMP_KIT_KEYWORDS):
-            return "SWAMP"
-        if any(kw.upper() in kit_upper for kw in DESERT_KIT_KEYWORDS):
-            return "DESERT"
-    # Beast-mounted
-    if motion_type == "BEAST":
-        return "BEAST_MOUNTED"
-    return None
+def infantry_number(tags, tag, default=None, *, integer=True, minimum=0):
+    raw = tags.get(tag, default)
+    value = parse_number(raw)
+    if value is None or not math.isfinite(value) or value < minimum or (integer and not str(raw).strip().lstrip("+-").isdigit()):
+        raise ValueError(f"Invalid infantry <{tag}>: {raw!r}")
+    return int(value) if integer else value
+
+
+def infantry_motion(raw: str) -> Tuple[str, float, int]:
+    if raw.startswith("Beast:"):
+        mount = raw[len("Beast:"):]
+        if mount.startswith("Custom:"):
+            fields = mount[len("Custom:"):].split(",")
+            if len(fields) != 11 or fields[1] not in ("LARGE", "VERY_LARGE", "MONSTROUS") or fields[4] not in ("INF_LEG", "INF_MOTORIZED", "INF_JUMP", "INF_UMU", "TRACKED", "WHEELED", "HOVER", "VTOL", "SUBMARINE", "WIGE"):
+                raise ValueError(f"Invalid infantry mount: {raw!r}")
+            for index in (2, 3, 5, 6, 7, 8, 9, 10):
+                infantry_number({"mount": fields[index]}, "mount", integer=index not in (2, 7))
+            return "BEAST", float(fields[7]), 4096 if fields[4] in ("SUBMARINE", "INF_UMU") else 0
+        if mount in BEAST_DIVISORS:
+            return "BEAST", BEAST_DIVISORS[mount], 4096 if mount in ("Orca", "Hipposaur") else 0
+    elif raw.lower() in INFANTRY_MOTION_MAP:
+        mode = INFANTRY_MOTION_MAP[raw.lower()]
+        return mode, 1.0, 4096 if mode in ("SUBMARINE", "UMU") else 0
+    raise ValueError(f"Unsupported infantry motion_type: {raw!r}")
 
 
 # ---------------------------------------------------------------------------
@@ -108,10 +119,9 @@ def infer_specialization(armor_kit: Optional[str], has_spacesuit: bool, motion_t
 def convert_infantry_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict[str, Any]]:
     """Parse one BLK file and return an infantry JSON dict."""
     try:
-        content = blk_path.read_text(encoding="utf-8", errors="replace")
+        content = blk_path.read_text(encoding="utf-8")
     except OSError as e:
-        logger.warning(f"Cannot read {blk_path}: {e}")
-        return None
+        raise ValueError(f"Cannot read {blk_path}: {e}") from e
 
     clean = remove_comments(content)
     tags = extract_tags(clean)
@@ -121,43 +131,42 @@ def convert_infantry_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dic
         logger.debug(f"Skipping {blk_path.name}: UnitType='{unit_type_raw}' (not Infantry)")
         return None
 
-    # --- Required fields ---
-    name = get_string(tags, "Name")
-    if not name:
-        logger.warning(f"Skipping {blk_path.name}: missing Name tag")
-        return None
+    # --- Required fields (BLKInfantryFile and BLKFile.setBasicEntityData) ---
+    for key in ("Name", "year", "type", "squad_size", "squadn", "motion_type", "Primary"):
+        if not get_string(tags, key):
+            raise ValueError(f"Missing required infantry <{key}> tag")
+    name = tags["Name"]
 
     model = get_string(tags, "Model", "model") or ""
 
-    year_raw = parse_number(get_string(tags, "year", "Year"))
-    if year_raw is None:
-        logger.warning(f"Skipping {blk_path.name}: missing year tag")
-        return None
-    year = int(year_raw)
+    year = infantry_number(tags, "year", minimum=1)
 
     # --- Classification ---
-    tech_type_str = get_string(tags, "type", "Type") or "IS Level 2"
-    tech_base = map_tech_base(tech_type_str)
-    rules_level = map_rules_level(tech_type_str)
+    tech_base, rules_level = map_blk_tech_type(tags["type"], year)
     era = map_year_to_era(year)
 
     # --- Platoon composition ---
-    squad_size = int(parse_number(get_string(tags, "squad_size", "squadSize")) or 7)
-    squad_count = int(parse_number(get_string(tags, "squadn", "squadCount")) or 1)
+    squad_size = infantry_number(tags, "squad_size", minimum=1)
+    squad_count = infantry_number(tags, "squadn", minimum=1)
     total_troopers = squad_size * squad_count
 
     # --- Motion type ---
-    motion_raw = get_string(tags, "motion_type") or "Leg"
-    motion_type = INFANTRY_MOTION_MAP.get(motion_raw, motion_raw.upper())
+    motion_raw = tags["motion_type"]
+    motion_type, beast_divisor, implicit_specializations = infantry_motion(motion_raw)
 
     # --- Weapons ---
-    primary_weapon = get_string(tags, "Primary") or ""
-    primary_weapon_id = normalize_equipment_id(primary_weapon) if primary_weapon else ""
+    primary_weapon = tags["Primary"]
+    primary_weapon_id = normalize_equipment_id(primary_weapon)
 
     secondary_weapon = get_string(tags, "Secondary")
+    if "Secondary" in tags and not secondary_weapon:
+        raise ValueError("Empty infantry <Secondary> tag")
+    for weapon in (primary_weapon, secondary_weapon):
+        if weapon is not None and weapon.lower() not in INFANTRY_WEAPONS:
+            raise ValueError(f"Unsupported infantry weapon: {weapon!r}")
     secondary_weapon_id = normalize_equipment_id(secondary_weapon) if secondary_weapon else None
 
-    secondary_count = int(parse_number(get_string(tags, "secondn", "secondN")) or 0)
+    secondary_count = infantry_number(tags, "secondn", 0) if secondary_weapon else 0
 
     # --- Field guns ---
     field_gun_items: List[str] = tags.get("Field Guns Equipment") or []
@@ -169,17 +178,43 @@ def convert_infantry_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dic
                 "name": item,
             })
 
-    # --- Armor ---
-    armor_kit = get_string(tags, "armorKit")
-    infantry_armor = int(parse_number(get_string(tags, "InfantryArmor")) or 0)
-
-    # --- Specialization ---
-    has_spacesuit = "spacesuit" in tags
-    specialization = infer_specialization(armor_kit, has_spacesuit, motion_type)
+    # Explicit equipment is source data; preserve order, duplicates and location.
+    equipment = [{"id": normalize_equipment_id(item), "name": item, "location": location, "isRearMounted": False}
+                 for tag, location in (("Troopers Equipment", "TROOPERS"), ("Field Guns Equipment", "FIELD_GUNS"))
+                 for item in tags.get(tag, [])]
+    for item in equipment:
+        allowed = FIELD_EQUIPMENT if item["location"] == "FIELD_GUNS" else TROOPER_EQUIPMENT | ARMOR_KITS.keys()
+        if item["name"].lower() not in allowed:
+            raise ValueError(f"Unsupported infantry equipment: {item['name']!r}")
+    custom_divisor = infantry_number(tags, "InfantryArmor", 1)
+    if "armordivisor" in tags:
+        custom_divisor = infantry_number(tags, "armordivisor", integer=False, minimum=0)
+    if custom_divisor <= 0:
+        raise ValueError("Infantry armor damage divisor must be positive")
+    armor_flags = [flag for flag in ("encumberingarmor", "spacesuit", "dest", "sneakcamo", "sneakir", "sneakecm") if flag in tags]
+    augmentations = [line.strip() for line in tags.get("augmentation", "").splitlines() if line.strip()]
+    if set(augmentations) - AUGMENTATIONS:
+        raise ValueError(f"Unsupported infantry augmentations: {augmentations!r}")
+    enhancements, enhancement_counts = {}, {}
+    for slot in ("prostheticEnhancement1", "prostheticEnhancement2", "extraneousPair1", "extraneousPair2"):
+        key = "prostheticEnhancement" if slot == "prostheticEnhancement1" and slot not in tags else slot
+        if key not in tags:
+            continue
+        enhancement = tags[key].upper().replace("/", "_").replace(" ", "_")
+        if enhancement not in PROSTHETICS:
+            raise ValueError(f"Unsupported infantry {key}: {tags[key]!r}")
+        enhancements[slot] = enhancement
+        enhancement_counts[slot] = 2 if slot.startswith("extraneous") else infantry_number(tags, key + "Count", 1, minimum=1)
+    armor_kit, damage_divisor, effective_armor_flags = infantry_armor(tags.get("armorKit"), tags.get("Troopers Equipment", []),
+        custom_divisor, armor_flags, augmentations, beast_divisor, get_string(tags, "armor_name"))
+    # Java applies the specialization tag after motive and TAG defaults.
+    if secondary_weapon and secondary_weapon.lower() in ("infantrytag", "infantry tag", "tag (light, man-portable)"):
+        implicit_specializations |= 1024
+    specializations = infantry_number(tags, "specialization", implicit_specializations)
 
     # --- Misc ---
-    mul_id_raw = get_string(tags, "mul id:", "mulId")
-    mul_id = int(parse_number(mul_id_raw)) if mul_id_raw and parse_number(mul_id_raw) is not None else None
+    mul_key = next((key for key in ("mul id:", "mulId") if key in tags), None)
+    mul_id = infantry_number(tags, mul_key, minimum=-1) if mul_key else None
 
     role = get_string(tags, "role")
     source = get_string(tags, "source")
@@ -212,7 +247,16 @@ def convert_infantry_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dic
             "name": primary_weapon,
         },
         "armorKit": armor_kit,
-        "armorPoints": infantry_armor,
+        "motiveType": motion_raw,
+        "equipment": equipment,
+        "customArmorDamageDivisor": custom_divisor,
+        "damageDivisor": damage_divisor,
+        "armorFlags": armor_flags,
+        "effectiveArmorFlags": effective_armor_flags,
+        "specializations": specializations,
+        "augmentations": augmentations,
+        "prostheticEnhancements": enhancements,
+        "prostheticEnhancementCounts": enhancement_counts,
     }
 
     if secondary_weapon_id:
@@ -225,8 +269,11 @@ def convert_infantry_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dic
     if field_guns:
         output["fieldGuns"] = field_guns
 
-    if specialization:
-        output["specialization"] = specialization
+    if motion_type == "BEAST":
+        output["beastMount"] = motion_raw
+    for tag, field in (("armor_name", "customArmorName"), ("srmMunition", "srmMunition"), ("disposableWeapon", "disposableWeapon")):
+        if tag in tags:
+            output[field] = tags[tag]
 
     if mul_id is not None:
         output["mulId"] = mul_id
@@ -237,6 +284,9 @@ def convert_infantry_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dic
     if fluff:
         output["fluff"] = fluff
 
+    errors = validate_unit(output)
+    if errors:
+        raise ValueError(f"Invalid infantry output: {errors}")
     return output
 
 
@@ -297,7 +347,7 @@ def build_manifest_entry(unit: Dict[str, Any]) -> Dict[str, Any]:
         "squadCount": platoon.get("squadCount"),
         "totalTroopers": platoon.get("totalTroopers"),
         "bv": None,
-        "specialization": unit.get("specialization"),
+        "specializations": unit["specializations"],
         "role": unit.get("role"),
         "source": unit.get("source"),
         "mulId": unit.get("mulId"),

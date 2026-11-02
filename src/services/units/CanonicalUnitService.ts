@@ -80,6 +80,11 @@ function getBaseUrl(): string {
   return baseUrl;
 }
 
+/** Catalog file names may contain `#`, so encode each path segment. */
+function encodeSitePath(sitePath: string): string {
+  return sitePath.split('/').map(encodeURIComponent).join('/');
+}
+
 /**
  * Canonical Unit Service implementation
  */
@@ -197,7 +202,7 @@ export class CanonicalUnitService implements ICanonicalUnitService {
 
     try {
       const unit = await this.loadJson<IFullUnit>(
-        entry.filePath,
+        encodeSitePath(entry.filePath),
         options.strict,
       );
       if (!unit) {
