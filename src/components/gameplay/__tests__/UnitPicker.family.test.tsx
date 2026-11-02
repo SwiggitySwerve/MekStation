@@ -129,3 +129,25 @@ it('does not expose an unsupported family supplied by the catalog', async () => 
     screen.queryByRole('button', { name: /Add Leopard CV/ }),
   ).not.toBeInTheDocument();
 });
+
+it('recovers from a failed catalog when switching to another family', async () => {
+  mockGetIndex.mockRejectedValueOnce(new Error('Catalog unavailable'));
+  render(
+    <UnitPicker
+      side="player"
+      title="Roster"
+      maxUnits={4}
+      selectedUnits={[]}
+      onAdd={jest.fn()}
+      onRemove={jest.fn()}
+    />,
+  );
+  await screen.findByText(/Catalog error: Catalog unavailable/);
+  fireEvent.change(screen.getByRole('combobox', { name: /unit family/i }), {
+    target: { value: 'vehicles' },
+  });
+  expect(
+    await screen.findByRole('button', { name: /Add Schrek C/ }),
+  ).toBeInTheDocument();
+  expect(screen.queryByText(/Catalog error:/)).not.toBeInTheDocument();
+});
