@@ -1,0 +1,840 @@
+{
+  "upstreamCommit": "48fcb2f64a1b3f2d575707ce5653dad64927b587",
+  "boundary": "Projected resolved mass/ammo/location facts only; excludes source loading, power-amplifier identity, armor-type mount exclusions, and full construction/BV readiness.",
+  "cases": [
+    {
+      "name": "chin-seven",
+      "observationFile": "chin-seven.original.json",
+      "sha256": "10e4670402697915ff0cf0d426d74ab806eb28239d354df605f0921d91a091d8",
+      "isOmni": false,
+      "primaryInstalled": true,
+      "secondaryInstalled": false,
+      "baseChassisTurretWeight": -1.0,
+      "baseChassisSecondaryTurretWeight": -1.0,
+      "mounts": [
+        {
+          "id": "0",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "1",
+          "weight": 0.5,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "2",
+          "weight": 7.0,
+          "isAmmo": false,
+          "location": "primary"
+        }
+      ],
+      "expected": {
+        "turret": 1.0,
+        "secondaryTurret": 0.0,
+        "primaryAllowanceOverloaded": false,
+        "secondaryAllowanceOverloaded": false
+      }
+    },
+    {
+      "name": "dual-two-point-five",
+      "observationFile": "dual-two-point-five.original.json",
+      "sha256": "b26af4a27cc3d15b634a24e6f9b1f07e7074933c2cde43c512265e8c865583f7",
+      "isOmni": false,
+      "primaryInstalled": true,
+      "secondaryInstalled": true,
+      "baseChassisTurretWeight": -1.0,
+      "baseChassisSecondaryTurretWeight": -1.0,
+      "mounts": [
+        {
+          "id": "0",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "1",
+          "weight": 8.0,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "2",
+          "weight": 0.5,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "3",
+          "weight": 1.0,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "4",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "5",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "6",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "7",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "secondary"
+        },
+        {
+          "id": "8",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "secondary"
+        },
+        {
+          "id": "9",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "secondary"
+        }
+      ],
+      "expected": {
+        "turret": 0.5,
+        "secondaryTurret": 0.5,
+        "primaryAllowanceOverloaded": false,
+        "secondaryAllowanceOverloaded": false
+      }
+    },
+    {
+      "name": "actual",
+      "observationFile": "Ferret Light Scout VTOL.original.json",
+      "sha256": "8ac353b7bbf7f3f7f9e924371e37a6fa0ac2d9f52f1d0301921cfe971c6a7ef5",
+      "isOmni": false,
+      "primaryInstalled": false,
+      "secondaryInstalled": false,
+      "baseChassisTurretWeight": -1.0,
+      "baseChassisSecondaryTurretWeight": -1.0,
+      "mounts": [
+        {
+          "id": "0",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "1",
+          "weight": 0.5,
+          "isAmmo": true,
+          "location": "hull"
+        }
+      ],
+      "expected": {
+        "turret": 0.0,
+        "secondaryTurret": 0.0,
+        "primaryAllowanceOverloaded": false,
+        "secondaryAllowanceOverloaded": false
+      }
+    },
+    {
+      "name": "omni-fractional",
+      "observationFile": "omni-fractional.original.json",
+      "sha256": "718ed003f2e6ac91255231212e74ab27501f1e336bcba700affea31748b7f95c",
+      "isOmni": true,
+      "primaryInstalled": true,
+      "secondaryInstalled": true,
+      "baseChassisTurretWeight": 0.25,
+      "baseChassisSecondaryTurretWeight": 0.25,
+      "mounts": [
+        {
+          "id": "0",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "1",
+          "weight": 8.0,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "2",
+          "weight": 0.5,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "3",
+          "weight": 1.0,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "4",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "5",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "6",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "7",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "secondary"
+        },
+        {
+          "id": "8",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "secondary"
+        },
+        {
+          "id": "9",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "secondary"
+        }
+      ],
+      "expected": {
+        "turret": 0.5,
+        "secondaryTurret": 0.5,
+        "primaryAllowanceOverloaded": true,
+        "secondaryAllowanceOverloaded": true
+      }
+    },
+    {
+      "name": "omni-positive",
+      "observationFile": "omni-positive.original.json",
+      "sha256": "8a178aab8f11fa8d7b4e97049ba502923c808f97960f47c512feab6703acaf8e",
+      "isOmni": true,
+      "primaryInstalled": true,
+      "secondaryInstalled": true,
+      "baseChassisTurretWeight": 1.0,
+      "baseChassisSecondaryTurretWeight": 1.5,
+      "mounts": [
+        {
+          "id": "0",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "1",
+          "weight": 8.0,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "2",
+          "weight": 0.5,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "3",
+          "weight": 1.0,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "4",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "5",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "6",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "7",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "secondary"
+        },
+        {
+          "id": "8",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "secondary"
+        },
+        {
+          "id": "9",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "secondary"
+        }
+      ],
+      "expected": {
+        "turret": 1.0,
+        "secondaryTurret": 1.5,
+        "primaryAllowanceOverloaded": false,
+        "secondaryAllowanceOverloaded": false
+      }
+    },
+    {
+      "name": "omni-primary-overload",
+      "observationFile": "omni-primary-overload.original.json",
+      "sha256": "fd9d9aa50a031dc353dcd8665120c70fc19e2ed824d00044da0b4b0ee58f2f17",
+      "isOmni": true,
+      "primaryInstalled": true,
+      "secondaryInstalled": true,
+      "baseChassisTurretWeight": 0.0,
+      "baseChassisSecondaryTurretWeight": 0.5,
+      "mounts": [
+        {
+          "id": "0",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "1",
+          "weight": 8.0,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "2",
+          "weight": 0.5,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "3",
+          "weight": 1.0,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "4",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "5",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "6",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "7",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "secondary"
+        },
+        {
+          "id": "8",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "secondary"
+        },
+        {
+          "id": "9",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "secondary"
+        }
+      ],
+      "expected": {
+        "turret": 0.0,
+        "secondaryTurret": 0.5,
+        "primaryAllowanceOverloaded": true,
+        "secondaryAllowanceOverloaded": false
+      }
+    },
+    {
+      "name": "omni-secondary-overload",
+      "observationFile": "omni-secondary-overload.original.json",
+      "sha256": "e47ef5195f2449063a9ca47b334f1fe39f18cb9f7aaaf6b9115c3ce4534131f5",
+      "isOmni": true,
+      "primaryInstalled": true,
+      "secondaryInstalled": true,
+      "baseChassisTurretWeight": 0.5,
+      "baseChassisSecondaryTurretWeight": 0.0,
+      "mounts": [
+        {
+          "id": "0",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "1",
+          "weight": 8.0,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "2",
+          "weight": 0.5,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "3",
+          "weight": 1.0,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "4",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "5",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "6",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "7",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "secondary"
+        },
+        {
+          "id": "8",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "secondary"
+        },
+        {
+          "id": "9",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "secondary"
+        }
+      ],
+      "expected": {
+        "turret": 0.5,
+        "secondaryTurret": 0.0,
+        "primaryAllowanceOverloaded": false,
+        "secondaryAllowanceOverloaded": true
+      }
+    },
+    {
+      "name": "omni-sentinel",
+      "observationFile": "omni-sentinel.original.json",
+      "sha256": "06407c3621bae63013911c37b52aeacb4919e47ed56f0fd8b4471d285d0388da",
+      "isOmni": true,
+      "primaryInstalled": true,
+      "secondaryInstalled": true,
+      "baseChassisTurretWeight": -1.0,
+      "baseChassisSecondaryTurretWeight": -1.0,
+      "mounts": [
+        {
+          "id": "0",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "1",
+          "weight": 8.0,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "2",
+          "weight": 0.5,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "3",
+          "weight": 1.0,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "4",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "5",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "6",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "7",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "secondary"
+        },
+        {
+          "id": "8",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "secondary"
+        },
+        {
+          "id": "9",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "secondary"
+        }
+      ],
+      "expected": {
+        "turret": 0.5,
+        "secondaryTurret": 0.5,
+        "primaryAllowanceOverloaded": false,
+        "secondaryAllowanceOverloaded": false
+      }
+    },
+    {
+      "name": "omni-zero",
+      "observationFile": "omni-zero.original.json",
+      "sha256": "b264867f5abab3b57cde1f70b175afa0e539a7f200da69a9dd67b9c1237e40fc",
+      "isOmni": true,
+      "primaryInstalled": true,
+      "secondaryInstalled": true,
+      "baseChassisTurretWeight": 0.0,
+      "baseChassisSecondaryTurretWeight": 0.0,
+      "mounts": [
+        {
+          "id": "0",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "1",
+          "weight": 8.0,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "2",
+          "weight": 0.5,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "3",
+          "weight": 1.0,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "4",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "5",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "6",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "7",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "secondary"
+        },
+        {
+          "id": "8",
+          "weight": 1.0,
+          "isAmmo": false,
+          "location": "secondary"
+        },
+        {
+          "id": "9",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "secondary"
+        }
+      ],
+      "expected": {
+        "turret": 0.0,
+        "secondaryTurret": 0.0,
+        "primaryAllowanceOverloaded": true,
+        "secondaryAllowanceOverloaded": true
+      }
+    },
+    {
+      "name": "primary-ammo-five",
+      "observationFile": "primary-ammo-five.original.json",
+      "sha256": "12f2b2fc7796bfd6dcd250c328702a802ea7910ef904318609e267ed9b302751",
+      "isOmni": false,
+      "primaryInstalled": true,
+      "secondaryInstalled": false,
+      "baseChassisTurretWeight": -1.0,
+      "baseChassisSecondaryTurretWeight": -1.0,
+      "mounts": [
+        {
+          "id": "0",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "1",
+          "weight": 8.0,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "2",
+          "weight": 0.5,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "3",
+          "weight": 1.0,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "4",
+          "weight": 5.0,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "5",
+          "weight": 1.0,
+          "isAmmo": true,
+          "location": "primary"
+        },
+        {
+          "id": "6",
+          "weight": 1.0,
+          "isAmmo": true,
+          "location": "primary"
+        },
+        {
+          "id": "7",
+          "weight": 1.0,
+          "isAmmo": true,
+          "location": "primary"
+        },
+        {
+          "id": "8",
+          "weight": 1.0,
+          "isAmmo": true,
+          "location": "primary"
+        },
+        {
+          "id": "9",
+          "weight": 1.0,
+          "isAmmo": true,
+          "location": "primary"
+        }
+      ],
+      "expected": {
+        "turret": 0.5,
+        "secondaryTurret": 0.0,
+        "primaryAllowanceOverloaded": false,
+        "secondaryAllowanceOverloaded": false
+      }
+    },
+    {
+      "name": "primary-five",
+      "observationFile": "primary-five.original.json",
+      "sha256": "0441ccb87dcebe2c99323dcca6ed5592e257a5d80cdc5f71af43969ade828c21",
+      "isOmni": false,
+      "primaryInstalled": true,
+      "secondaryInstalled": false,
+      "baseChassisTurretWeight": -1.0,
+      "baseChassisSecondaryTurretWeight": -1.0,
+      "mounts": [
+        {
+          "id": "0",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "1",
+          "weight": 8.0,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "2",
+          "weight": 0.5,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "3",
+          "weight": 1.0,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "4",
+          "weight": 5.0,
+          "isAmmo": false,
+          "location": "primary"
+        }
+      ],
+      "expected": {
+        "turret": 0.5,
+        "secondaryTurret": 0.0,
+        "primaryAllowanceOverloaded": false,
+        "secondaryAllowanceOverloaded": false
+      }
+    },
+    {
+      "name": "primary-misc-two",
+      "observationFile": "primary-misc-two.original.json",
+      "sha256": "e51f327a0d78935d5c0feacff302207d5b941a4ff6f7e309f7a5bf11793b6fda",
+      "isOmni": false,
+      "primaryInstalled": true,
+      "secondaryInstalled": false,
+      "baseChassisTurretWeight": -1.0,
+      "baseChassisSecondaryTurretWeight": -1.0,
+      "mounts": [
+        {
+          "id": "0",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "1",
+          "weight": 8.0,
+          "isAmmo": false,
+          "location": "hull"
+        },
+        {
+          "id": "2",
+          "weight": 0.5,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "3",
+          "weight": 1.0,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "4",
+          "weight": 5.0,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "5",
+          "weight": 2.0,
+          "isAmmo": false,
+          "location": "primary"
+        }
+      ],
+      "expected": {
+        "turret": 1.0,
+        "secondaryTurret": 0.0,
+        "primaryAllowanceOverloaded": false,
+        "secondaryAllowanceOverloaded": false
+      }
+    },
+    {
+      "name": "actual",
+      "observationFile": "Scorpion Light Tank.original.json",
+      "sha256": "62c61a581f952d5b45617da71162dcc1d288975d86bb6d74f0a6fa1d160810e8",
+      "isOmni": false,
+      "primaryInstalled": true,
+      "secondaryInstalled": false,
+      "baseChassisTurretWeight": -1.0,
+      "baseChassisSecondaryTurretWeight": -1.0,
+      "mounts": [
+        {
+          "id": "0",
+          "weight": 0.5,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "1",
+          "weight": 8.0,
+          "isAmmo": false,
+          "location": "primary"
+        },
+        {
+          "id": "2",
+          "weight": 0.5,
+          "isAmmo": true,
+          "location": "hull"
+        },
+        {
+          "id": "3",
+          "weight": 1.0,
+          "isAmmo": true,
+          "location": "hull"
+        }
+      ],
+      "expected": {
+        "turret": 1.0,
+        "secondaryTurret": 0.0,
+        "primaryAllowanceOverloaded": false,
+        "secondaryAllowanceOverloaded": false
+      }
+    }
+  ]
+}

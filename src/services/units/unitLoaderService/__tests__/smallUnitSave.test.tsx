@@ -173,8 +173,8 @@ function inspected(state: SmallState) {
 it.each(families)('allows $family library saving', ({ type }) =>
   expect(isLibrarySaveSupported(type)).toBe(true),
 );
-it('keeps the deferred infantry slice gated', () =>
-  expect(isLibrarySaveSupported(UnitType.INFANTRY)).toBe(false));
+it('supports the completed infantry save slice', () =>
+  expect(isLibrarySaveSupported(UnitType.INFANTRY)).toBe(true));
 
 it('loads an actual family-less saved definition as a BattleMech', async () => {
   const definition = rows('battlemechs')[0].definition();

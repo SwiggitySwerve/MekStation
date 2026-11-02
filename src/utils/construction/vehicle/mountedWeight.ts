@@ -1,95 +1,145 @@
-/** Mounted-equipment resolution and grouping for vehicle construction. */
+/** Resolve mounted mass once; compose only quantities whose inputs are known. */
 import type { IEquipmentItem } from '@/types/equipment';
 import type {
   IVehicleMountedEquipment,
   ITurretConfiguration,
+  IVehicleTurretSourceContext,
 } from '@/types/unit/VehicleInterfaces';
 
 import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { isValidWeight } from '@/utils/physical/weightUtils';
+
+import type { VehicleControlsLiftContext } from './controlsLift';
 
 import { computeTurretEquipmentWeight } from './equipmentMounts';
 import { isPowerAmplifierEnergyWeapon } from './powerAmplifier';
-import { computeTurretWeight } from './turret';
+import { computeVehicleTurretMechanismWeight } from './turret';
 
 export type EquipmentResolver = (
   equipmentId: string,
 ) => IEquipmentItem | undefined;
 
-export interface VehicleMountedWeightState {
+export interface VehicleMountedWeightState
+  extends
+    IVehicleTurretSourceContext,
+    Pick<VehicleControlsLiftContext, 'unitType'> {
   equipment: readonly IVehicleMountedEquipment[];
   turret: ITurretConfiguration | null;
   secondaryTurret: ITurretConfiguration | null;
 }
 
-/** Resolved figures consumed by the full construction composition. */
 export interface VehicleMountedWeightBreakdown {
-  equipment: number;
-  /** Non-ammunition primary equipment tons (mechanism basis). */
-  turretEquipment: number;
-  /** Non-ammunition secondary equipment tons (mechanism basis). */
-  secondaryTurretEquipment: number;
-  /** All primary mounted tons, including ammunition. */
-  turretMounted: number;
-  /** Qualifying energy-weapon tons for power amplifiers. */
-  energyWeapons: number;
-  turret: number;
-  secondaryTurret: number;
+  equipment: number | null;
+  /** Non-ammunition mechanism basis; armor-type mount facts remain unrepresented. */
+  turretEquipment: number | null;
+  secondaryTurretEquipment: number | null;
+  /** Actual primary mounted mass, including ammunition. */
+  turretMounted: number | null;
+  secondaryTurretMounted: number | null;
+  /** Basis from the existing amplifier equipment classification owner. */
+  energyWeapons: number | null;
+  turret: number | null;
+  secondaryTurret: number | null;
+  primaryAllowanceOverloaded: boolean | null;
+  secondaryAllowanceOverloaded: boolean | null;
+  unresolvedMountIds: readonly string[];
+  issues: readonly string[];
 }
 
+/** @spec openspec/changes/establish-all-unit-data-parity/specs/vehicle-unit-system/spec.md */
 export function computeVehicleMountedWeightBreakdown(
   state: VehicleMountedWeightState,
   resolve: EquipmentResolver,
 ): VehicleMountedWeightBreakdown {
-  const mounted = state.equipment.map((e) => {
-    const item = resolve(e.equipmentId);
+  const unresolvedMountIds: string[] = [];
+  const issues: string[] = [];
+  const mounted = state.equipment.map((mount) => {
+    const item = resolve(mount.equipmentId);
+    const weight =
+      item !== undefined && isValidWeight(item.weight) ? item.weight : null;
+    if (weight === null) {
+      unresolvedMountIds.push(mount.id);
+      issues.push(`Mount ${mount.id}: unresolved or invalid equipment mass`);
+    }
     return {
-      weight: item?.weight ?? 0,
+      weight,
       isAmmunition: item?.category === EquipmentCategory.AMMUNITION,
-      needsAmplifier: item !== undefined && isPowerAmplifierEnergyWeapon(item),
-      inSecondaryTurret: e.location === VehicleLocation.TURRET_2,
+      // An unresolved definition has unknown classification as well as mass.
+      needsAmplifier: item === undefined || isPowerAmplifierEnergyWeapon(item),
+      inSecondaryTurret: mount.location === VehicleLocation.TURRET_2,
       inPrimaryTurret:
-        e.isTurretMounted && e.location !== VehicleLocation.TURRET_2,
+        mount.isTurretMounted && mount.location !== VehicleLocation.TURRET_2,
     };
   });
-
-  const equipment = mounted.reduce((sum, m) => sum + m.weight, 0);
-  // Turret structure is 10% of the turret's equipment, ammunition excluded.
-  const turretEquipment = computeTurretEquipmentWeight(
-    mounted.map((m) => ({
-      isTurretMounted: m.inPrimaryTurret && !m.isAmmunition,
-      weight: m.weight,
-    })),
+  const sum = (group: typeof mounted, label: string): number | null => {
+    const resolved: Array<{ isTurretMounted: boolean; weight: number }> = [];
+    for (const mount of group) {
+      if (mount.weight === null) return null;
+      resolved.push({ isTurretMounted: true, weight: mount.weight });
+    }
+    const result = computeTurretEquipmentWeight(resolved);
+    if (Number.isFinite(result)) return result;
+    issues.push(`${label}: summed mass is nonfinite`);
+    return null;
+  };
+  const equipment = sum(mounted, 'Equipment');
+  const primary = mounted.filter((mount) => mount.inPrimaryTurret);
+  const secondary = mounted.filter((mount) => mount.inSecondaryTurret);
+  const turretMounted = sum(primary, 'Primary mounted equipment');
+  const secondaryTurretMounted = sum(secondary, 'Secondary mounted equipment');
+  const turretEquipment = sum(
+    primary.filter((mount) => !mount.isAmmunition),
+    'Primary mechanism basis',
   );
-  const secondaryTurretEquipment = computeTurretEquipmentWeight(
-    mounted.map((m) => ({
-      isTurretMounted: m.inSecondaryTurret && !m.isAmmunition,
-      weight: m.weight,
-    })),
+  const secondaryTurretEquipment = sum(
+    secondary.filter((mount) => !mount.isAmmunition),
+    'Secondary mechanism basis',
   );
-  const turretMounted = computeTurretEquipmentWeight(
-    mounted.map((m) => ({
-      isTurretMounted: m.inPrimaryTurret,
-      weight: m.weight,
-    })),
+  const energyWeapons = sum(
+    mounted.filter((mount) => mount.needsAmplifier),
+    'Power amplifier basis',
   );
-  const energyWeapons = mounted
-    .filter((m) => m.needsAmplifier)
-    .reduce((sum, m) => sum + m.weight, 0);
-
-  const turret = state.turret
-    ? computeTurretWeight(state.turret.type, turretEquipment)
-    : 0;
-  const secondaryTurret = state.secondaryTurret
-    ? computeTurretWeight(state.secondaryTurret.type, secondaryTurretEquipment)
-    : 0;
+  const mechanism = (
+    configuration: ITurretConfiguration | null,
+    basis: number | null,
+    allowance: number | undefined,
+  ) =>
+    computeVehicleTurretMechanismWeight({
+      type: configuration?.type ?? TurretType.NONE,
+      equipmentWeight: basis,
+      isOmni: state.isOmni,
+      baseChassisWeight: allowance,
+      isSupportVehicle: state.unitType === UnitType.SUPPORT_VEHICLE,
+    });
+  const primaryMechanism = mechanism(
+    state.turret,
+    turretEquipment,
+    state.baseChassisTurretWeight,
+  );
+  const secondaryMechanism = mechanism(
+    state.secondaryTurret,
+    secondaryTurretEquipment,
+    state.baseChassisSecondaryTurretWeight,
+  );
+  issues.push(
+    ...primaryMechanism.issues.map((issue) => `Primary turret: ${issue}`),
+    ...secondaryMechanism.issues.map((issue) => `Secondary turret: ${issue}`),
+  );
   return {
     equipment,
     turretEquipment,
     secondaryTurretEquipment,
     turretMounted,
+    secondaryTurretMounted,
     energyWeapons,
-    turret,
-    secondaryTurret,
+    turret: primaryMechanism.weight,
+    secondaryTurret: secondaryMechanism.weight,
+    primaryAllowanceOverloaded: primaryMechanism.allowanceOverloaded,
+    secondaryAllowanceOverloaded: secondaryMechanism.allowanceOverloaded,
+    unresolvedMountIds,
+    issues,
   };
 }
