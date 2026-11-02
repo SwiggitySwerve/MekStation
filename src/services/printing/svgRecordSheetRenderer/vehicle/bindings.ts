@@ -14,6 +14,7 @@
  */
 
 import type { IVehicleRecordSheetData } from '@/types/printing';
+import type { RecordSheetVehicleArmorLocation } from '@/types/printing/RecordSheetVehicleTypes';
 
 import type { PipFill, TextBindings } from '../templateRecordSheetRenderer';
 
@@ -24,7 +25,7 @@ import { VEHICLE_TEMPLATE_IDS } from '../templateElementIds';
  *
  * Keys are the canonical template location codes (FR / LS / RS / RR /
  * TU / FT / RO). A value is present only when the unit actually has
- * that location with non-zero armor.
+ * that location, including installed locations with zero armor.
  */
 export interface VehiclePipCounts {
   /** Front armor points. */
@@ -58,12 +59,16 @@ export interface VehicleBindings {
  * template location code. `Chin` armor renders in the turret block;
  * `Body` has no armor diagram region (internal-only).
  */
-const LOCATION_TO_CODE: Record<string, keyof VehiclePipCounts | null> = {
+const LOCATION_TO_CODE: Record<
+  RecordSheetVehicleArmorLocation,
+  keyof VehiclePipCounts | null
+> = {
   Front: 'FR',
   'Left Side': 'LS',
   'Right Side': 'RS',
   Rear: 'RR',
   Turret: 'TU',
+  'Turret 2': 'FT',
   Rotor: 'RO',
   Chin: 'TU',
   Body: null,
@@ -101,24 +106,16 @@ const ARMOR_TEXT: Record<keyof VehiclePipCounts, string> = {
 export function computeVehiclePipCounts(
   data: IVehicleRecordSheetData,
 ): VehiclePipCounts {
-  const counts: Record<string, number> = {};
+  const counts: Partial<Record<keyof VehiclePipCounts, number>> = {};
   for (const loc of data.armorLocations) {
     const code = LOCATION_TO_CODE[loc.location];
-    if (code && loc.current > 0) {
-      // A second turret location maps to FT only when a dual turret is
-      // configured; otherwise both turret entries (if any) sum into TU.
+    if (code && loc.current >= 0) {
+      // On dual-turret sheets TU is the primary/rear turret and FT is
+      // the secondary/front turret; identity never depends on array order.
       counts[code] = (counts[code] ?? 0) + loc.current;
     }
   }
-  // Dual-turret units expose the front turret separately as FT.
-  if (data.turretConfig === 'Dual') {
-    const turrets = data.armorLocations.filter((l) => l.location === 'Turret');
-    if (turrets.length >= 2) {
-      counts.TU = turrets[0].current;
-      counts.FT = turrets[1].current;
-    }
-  }
-  return counts as VehiclePipCounts;
+  return counts;
 }
 
 /**

@@ -11,11 +11,28 @@
  */
 
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
-import { TurretType } from '@/types/unit/VehicleInterfaces';
+import {
+  TurretType,
+  type ITurretConfiguration,
+} from '@/types/unit/VehicleInterfaces';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 // Minimum tonnage required for dual turrets
 export const DUAL_TURRET_MIN_TONNAGE = 50;
+
+/**
+ * Project explicit installed locations without inventing a missing turret.
+ * Legacy type/toggle disagreements still need separate construction validation.
+ */
+export function getInstalledVehicleTurretType(
+  primary: ITurretConfiguration | null,
+  secondary: ITurretConfiguration | null,
+): TurretType {
+  const type = primary?.type ?? TurretType.NONE;
+  if (type === TurretType.NONE) return TurretType.NONE;
+  if (secondary && secondary.type !== TurretType.NONE) return TurretType.DUAL;
+  return type === TurretType.DUAL ? TurretType.SINGLE : type;
+}
 
 // =============================================================================
 // Turret Weight Computation
