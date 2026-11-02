@@ -499,6 +499,47 @@ export const UnitContract = z
             'Originating source definition, independent of editor or campaign instance identity',
           )
           .optional(),
+        motiveType: z.string().min(1).optional(),
+        motionType: z.string().min(1).optional(),
+        beastMount: z.string().min(1).optional(),
+        platoon: z
+          .object({
+            squadSize: z.number().int().gte(1),
+            squadCount: z.number().int().gte(1),
+            totalTroopers: z.number().int().gte(1),
+          })
+          .strict()
+          .optional(),
+        primaryWeapon: z
+          .union([
+            z.string().min(1),
+            z
+              .object({ id: z.string().min(1), name: z.string().min(1) })
+              .strict(),
+          ])
+          .optional(),
+        secondaryWeapon: z
+          .object({
+            id: z.string().min(1),
+            name: z.string().min(1),
+            count: z.number().int().gte(0),
+          })
+          .strict()
+          .optional(),
+        customArmorDamageDivisor: z.number().gt(0).optional(),
+        damageDivisor: z.number().gt(0).optional(),
+        armorKit: z.union([z.string(), z.null()]).optional(),
+        armorFlags: z.array(z.string()).optional(),
+        effectiveArmorFlags: z.array(z.string()).optional(),
+        specializations: z.number().int().gte(0).lte(8191).optional(),
+        augmentations: z.array(z.string()).optional(),
+        prostheticEnhancements: z.record(z.string(), z.string()).optional(),
+        prostheticEnhancementCounts: z
+          .record(z.string(), z.number().int().gte(1))
+          .optional(),
+        srmMunition: z.string().optional(),
+        disposableWeapon: z.string().min(1).optional(),
+        customArmorName: z.string().min(1).optional(),
         mulId: z
           .union([z.number().int(), z.string().regex(new RegExp('^[0-9-]+$'))])
           .describe(
@@ -992,6 +1033,47 @@ export const UnitContract = z
             'Originating source definition, independent of editor or campaign instance identity',
           )
           .optional(),
+        motiveType: z.string().min(1).optional(),
+        motionType: z.string().min(1).optional(),
+        beastMount: z.string().min(1).optional(),
+        platoon: z
+          .object({
+            squadSize: z.number().int().gte(1),
+            squadCount: z.number().int().gte(1),
+            totalTroopers: z.number().int().gte(1),
+          })
+          .strict()
+          .optional(),
+        primaryWeapon: z
+          .union([
+            z.string().min(1),
+            z
+              .object({ id: z.string().min(1), name: z.string().min(1) })
+              .strict(),
+          ])
+          .optional(),
+        secondaryWeapon: z
+          .object({
+            id: z.string().min(1),
+            name: z.string().min(1),
+            count: z.number().int().gte(0),
+          })
+          .strict()
+          .optional(),
+        customArmorDamageDivisor: z.number().gt(0).optional(),
+        damageDivisor: z.number().gt(0).optional(),
+        armorKit: z.union([z.string(), z.null()]).optional(),
+        armorFlags: z.array(z.string()).optional(),
+        effectiveArmorFlags: z.array(z.string()).optional(),
+        specializations: z.number().int().gte(0).lte(8191).optional(),
+        augmentations: z.array(z.string()).optional(),
+        prostheticEnhancements: z.record(z.string(), z.string()).optional(),
+        prostheticEnhancementCounts: z
+          .record(z.string(), z.number().int().gte(1))
+          .optional(),
+        srmMunition: z.string().optional(),
+        disposableWeapon: z.string().min(1).optional(),
+        customArmorName: z.string().min(1).optional(),
         mulId: z
           .union([z.number().int(), z.string().regex(new RegExp('^[0-9-]+$'))])
           .describe(

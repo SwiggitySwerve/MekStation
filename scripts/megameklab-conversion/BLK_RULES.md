@@ -105,3 +105,20 @@ source texts and synthetic boundary mutations of them. The unit schema owns
 serialized enum values; generated Zod is refreshed through `npm run schema:gen`.
 MTF aliases and the BA/ProtoMek converters retain their existing policies; capital
 armor keeps its separate loader-specific standard-to-aerospace rewrite.
+
+## Conventional infantry
+
+`blk_infantry_converter.py` requires Name, year, type, squad_size, squadn,
+motion_type and Primary. Tech uses `map_blk_tech_type`; unsupported values and
+malformed numbers fail. `blk_infantry_equipment.py` limits equipment names to
+the reviewed mm-data 50f7efef corpus; new aliases require review.
+Equipment order/duplicates, raw motive/mount text and per-squad counts survive.
+Missing secondary count is zero; a count without Secondary is ignored.
+`specializations` is Java's mask with its explicit override; kits imply no bits.
+Presence flags are source facts; effective flags apply the selected kit.
+`blk_infantry_armor.py` owns exact kit names, aliases, divisors and flags.
+InfantryArmor is a custom divisor, overridden by armordivisor, never armor points.
+Kit precedence, dermal/TSM and beast effects follow ConvInfantry.calcDamageDivisor.
+JSON Schema validates each returned unit. Authority: MegaMek 48fcb2f6
+BLKInfantryFile and its referenced infantry, equipment and pilot-option classes.
+Regression coverage: `test_blk_infantry.py`, `unit.infantry.contract.test.ts`.
