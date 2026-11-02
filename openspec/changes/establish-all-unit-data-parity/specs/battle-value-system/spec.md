@@ -35,14 +35,14 @@ and apply the existing speed factor to maximum thrust. Offensive equipment
 SHALL be added outside arc weights. Ungrouped selection values and grouped
 weapon additions after arc weighting SHALL remain distinct. This stage SHALL NOT imply complete
 DropShip dispatch: source mount valuation, links and final adjustments remain
-required before changing the defensive-only calculation scope.
+required before returning complete scope.
 
 #### Scenario: Union offensive stage from native facts
 
 - **GIVEN** independently valued Union (2708) weapons, ammo, heat capacity 90 and maximum thrust 5
 - **WHEN** the six-arc stage runs
 - **THEN** weapon BV SHALL be 2101.25, ammunition BV 238.5 and offensive BV 2339.75
-- **AND** the dispatcher SHALL continue withholding the unported complete total 3972
+- **AND** these already-valued facts alone SHALL NOT authorize complete dispatch
 
 #### Scenario: Strict cumulative heat and local ammunition caps
 
@@ -80,8 +80,15 @@ The capital type override SHALL NOT inherit the aircraft stealth addition.
 
 ### Requirement: DropShip defensive BV dispatch
 
-The unified BV dispatcher SHALL return a defensive-only DropShip breakdown
-through the aerospace defensive owner. It SHALL value armor at 2.5 per point,
+The unified BV dispatcher SHALL return a DropShip breakdown through the
+aerospace owner. Complete scope SHALL require resolved mounts and represented
+heat, thrust and cockpit facts; otherwise scope SHALL remain defensive-only
+with indexed unresolved mounts and explicit reasons, and offensive/final BV
+SHALL remain undefined. Complete results SHALL combine defense and offense
+through the shared summary owner, apply inherited drone/cockpit modifiers,
+round the base, apply shared pilot skill and round again. Absent assigned
+crew skills SHALL use pinned MegaMek defaults G4/P5. With no game/force or bomb
+loadout in the contract, C3, TAG and external-store bonuses SHALL be zero. It SHALL value armor at 2.5 per point,
 SI at 2 per point and represented defensive equipment with the shared ammo
 caps. It SHALL apply neither the small-craft armor bonus, an explosive penalty
 nor a thrust multiplier. The DropShip type modifier SHALL be 1, plus the
@@ -89,10 +96,10 @@ inherited stealth armor addition when applicable.
 
 #### Scenario: Union defensive slice without an invented total
 
-- **GIVEN** Union (2708) with 644 armor points and SI 11
+- **GIVEN** Union (2708) with 644 armor points and SI 11 but absent heat/thrust facts
 - **WHEN** contract JSON or a domain-shaped DropShip reaches BV dispatch
 - **THEN** the breakdown SHALL identify its scope as defensive-only and report defense 1632
-- **AND** offensive BV and final BV SHALL be undefined until their port is implemented
+- **AND** offensive BV and final BV SHALL remain undefined with the absent facts recorded
 - **AND** all existing fighter and small-craft results SHALL remain unchanged
 
 #### Scenario: Contract defense facts are required
@@ -101,6 +108,17 @@ inherited stealth armor addition when applicable.
 - **WHEN** the contract BV adapter runs
 - **THEN** it SHALL reject the missing fact rather than produce a numeric result
 - **AND** explicit zero SI and zero armor SHALL remain valid
+
+#### Scenario: Complete Union and inherited final adjustments
+
+- **GIVEN** all represented Union (2708) mounts, heat capacity 90 and maximum thrust 5
+- **WHEN** contract JSON reaches BV dispatch
+- **THEN** scope SHALL be complete, defense 1632, offense 2339.75 and final BV 3972
+- **AND** unrepresented mounts SHALL keep other DropShips defensive-only with their identities and reasons
+- **AND** base 0.5 at G0/P0 SHALL round to 1 before skill adjustment and final rounding to 2
+- **AND** small and command-console cockpits SHALL apply the Aero 0.95 factor
+- **AND** a represented drone final-stage input SHALL apply both inherited 0.95 factors without a third cockpit factor
+- **AND** existing aerospace results SHALL remain unchanged
 
 ### Requirement: Contract vehicle BV location coverage
 

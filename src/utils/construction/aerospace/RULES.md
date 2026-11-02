@@ -15,10 +15,9 @@ Streak and catalog laser/PPC/flamer subtypes. Unsupported capital weapons,
 links, other equipment, unknown identities/arcs and missing/invalid ammo
 quantities produce indexed reasons. Returned arcs are partial diagnostics
 while any reason remains. Catalog resolution alone does not certify native
-numerical parity. This size-capped boundary port leaves final adjustments and
-dispatch defensive-only. Tests enforce bay multiplicity, rear arcs, native
+numerical parity. `dropShipComplete.ts` composes only fully resolved sets. Tests enforce bay multiplicity, rear arcs, native
 quantity ratios, depleted bins, local caps, unresolved facts and Union's
-2339.75 offensive stage from raw mounts. The complete 3972 remains withheld.
+2339.75 offensive stage and complete 3972 from raw mounts.
 
 ## Large aerospace offensive stage
 
@@ -39,8 +38,8 @@ and offensive equipment BV. Ungrouped selection BV and grouped additions after
 arc weighting (PPC capacitors) have separate input fields. Bay aggregation,
 capital weapons, linked modifier valuation, crew/pilot, cockpit/drone,
 C3/TAG and final rounding remain outside this stage. Do not use this component
-as a complete calculator for unsupported mount modifiers. Dispatch remains
-defensive-only and withholds offensive/final BV. Tests pin Union stage offense
+as a complete calculator for unsupported mount modifiers. Unresolved dispatch
+remains defensive-only and withholds offensive/final BV. Tests pin Union stage offense
 2339.75, tie/heat boundaries, local ammo caps, speed and malformed facts. UL-20
 offense evidence compares all 209 native stage inputs and all 620 unchanged
 fighter/small-craft breakdowns; native-valued inputs do not prove app loading.
@@ -76,9 +75,8 @@ per unit; no complete-total parity or new equipment resolution is claimed.
 
 `dropShipBV.ts` adapts DropShip domain mounts and calls the same defensive
 owner as fighters and small craft. `calculateBattleValueForUnit` returns
-`kind: 'dropship'` with `calculationScope: 'defensive-only'`. Offensive and
-final BV are explicitly undefined; defense is not a complete unit BV.
-The contract adapter transports only SI, total armor, armor identity and mounts.
+`kind: 'dropship'`; `dropShipComplete.ts` owns scope and composition.
+The adapter transports SI, armor, mounts, maximum thrust, heat sinks and cockpit.
 It requires SI and armor.byArc, accepts zero and preserves hull equipment.
 
 Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587` routes Dropship to
@@ -90,9 +88,24 @@ does not apply penalties or the heat-tracking minimum. Aero's defensive
 factor is neutral. No small-craft armor bonus applies to DropShips.
 Mounted defensive equipment uses the existing shared classification and cap.
 
-Dispatch integration, unrepresented mount/ammo valuation, weapon-link
-modifiers and final crew/pilot/drone adjustments remain deferred after the
-size-capped component deliveries.
+Complete scope requires no unresolved mounts, finite nonnegative max thrust,
+integer nonnegative sink count, represented sink type and supported cockpit.
+Missing facts retain defense and explicit reasons; partial offense is withheld.
+`battleValueTotals.calculateBaseBV` owns sum/modifier/base rounding, shared with
+mechs and ProtoMechs. `battleValuePilot.calculateAdjustedBV` owns skill/final
+rounding; fighters retain their existing distinct single-rounding behavior.
+
+Pinned BVCalculator.java:1159-1185 applies drone 0.95; AeroBVCalculator.java:162-181
+then applies 0.95 for small/command-console cockpit OR drone (two factors total
+for drones). BVCalculator.java:1252-1294 rounds base before pilot skill.
+Crew.java:233-234 defaults to G4/P5; the uncrewed path also uses G4/P5
+(BVCalculator.java:1307-1313). Crew counts do not enter this final stage.
+Without a game, Entity.getExtraC3BV and processTagBonus contribute zero.
+Dropship inherits Aero's IBomber: external stores can apply, but the contract
+has no bomb loadout and Aero initializes empty loadouts (Aero.java:226-227).
+Absent cockpit uses Aero's standard default (Aero.java:175). Unknown cockpits
+and unresolved drone/equipment identities retain partial scope; no resolver
+coverage is added by the independently callable final-stage component.
 Existing equipment-ID gaps, screen/APDS coverage, variable equipment values,
 Blue Shield and mount working/destroyed state are not resolved here.
 Numeric armor codes retain the existing aerospace adapter's standard fallback.
@@ -101,7 +114,8 @@ Enforcement: `dropShipBV.test.ts` covers the Union defense 1632 reference,
 contract transport, missing/zero facts, domain mounts and shared AMS caps.
 UL-20's external comparison checks every defensive component for all 209
 pinned DropShips and asserts every breakdown field is unchanged for the
-same 620 aerospace inputs. It reports missing totals as unavailable.
+same 620 aerospace inputs. `dropShipComplete.test.ts` enforces final ordering,
+cockpit/drone factors and incomplete reasons; unresolved totals stay unavailable.
 
 ## Max thrust
 
