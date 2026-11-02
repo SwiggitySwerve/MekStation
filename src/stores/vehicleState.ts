@@ -28,6 +28,7 @@ import {
   TurretType,
   ITurretConfiguration,
   IVehicleMountedEquipment,
+  IVehicleTurretSourceContext,
 } from '@/types/unit/VehicleInterfaces';
 import {
   computeFlankMP,
@@ -131,7 +132,7 @@ export function createVehicleMountedEquipment(
 /**
  * Complete state for a single vehicle
  */
-export interface VehicleState {
+export interface VehicleState extends IVehicleTurretSourceContext {
   // =========================================================================
   // Identity
   // =========================================================================
@@ -374,7 +375,7 @@ export type VehicleStore = VehicleState & VehicleActions;
 /**
  * Options for creating a new vehicle
  */
-export interface CreateVehicleOptions {
+export interface CreateVehicleOptions extends IVehicleTurretSourceContext {
   hasNoControlSystems?: boolean;
   id?: string;
   name: string;
@@ -452,7 +453,9 @@ export function createDefaultVehicleState(
           ? UnitType.VTOL
           : unitType,
     motionType: isVTOL ? GroundMotionType.VTOL : motionType,
-    isOmni: false,
+    isOmni: options.isOmni ?? false,
+    baseChassisTurretWeight: options.baseChassisTurretWeight,
+    baseChassisSecondaryTurretWeight: options.baseChassisSecondaryTurretWeight,
     hasNoControlSystems: options.hasNoControlSystems ?? false,
 
     // Engine & Movement

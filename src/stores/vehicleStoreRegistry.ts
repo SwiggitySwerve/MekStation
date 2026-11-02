@@ -96,6 +96,10 @@ export function duplicateVehicle(
     motionType: sourceState.motionType,
     unitType: sourceState.unitType,
     hasNoControlSystems: sourceState.hasNoControlSystems,
+    isOmni: sourceState.isOmni,
+    baseChassisTurretWeight: sourceState.baseChassisTurretWeight,
+    baseChassisSecondaryTurretWeight:
+      sourceState.baseChassisSecondaryTurretWeight,
   });
 
   const mergedState: VehicleState = {
@@ -109,6 +113,10 @@ export function duplicateVehicle(
     armorTonnage: sourceState.armorTonnage,
     armorAllocation: { ...sourceState.armorAllocation },
     turret: sourceState.turret ? { ...sourceState.turret } : null,
+    secondaryTurret: sourceState.secondaryTurret
+      ? { ...sourceState.secondaryTurret }
+      : null,
+    equipment: sourceState.equipment.map((mount) => ({ ...mount })),
     hasEnvironmentalSealing: sourceState.hasEnvironmentalSealing,
     hasFlotationHull: sourceState.hasFlotationHull,
     isAmphibious: sourceState.isAmphibious,
