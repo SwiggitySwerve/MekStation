@@ -10,9 +10,12 @@ retained for compatibility.
 
 The adapters deliberately retain different matching policies:
 
-- Shared Mech/vehicle/infantry: normalize weapon and ammo keys, use the existing
+- Shared Mech/infantry: normalize weapon and ammo keys, use the existing
   exact/alias/Clan fallback matcher, and omit a zero match. The alias owner and
   its priority do not change.
+- Vehicle: choose represented catalog type/rack groups for both launchers and
+  bins, then use the shared matcher and cap. The vehicle rules document owns
+  the additional identities and explicit override/fallback policy.
 - ProtoMech: normalize weapon IDs; retain the already-derived ammo key; use an
   exact lookup. Skip undefined caps, retain explicit zero caps, and retain the
   outer nonempty weapon/ammo guard. Source shot counts are not connected yet.
@@ -35,6 +38,9 @@ deduplication remain unchanged.
 No source admission, catalog, serialization, stored cache or numerical rule changes
 are made by the extraction. Full source-ammunition and BV parity remain open.
 
+`getCatalogAmmoBVGroup` owns the existing closed large-craft catalog type/rack
+subset, reused by vehicle grouping. Its extraction preserves all large-craft
+outputs; vehicle-specific group extensions do not expand large-craft admission.
 Catalog family derivation (`extractWeaponTypeFromAmmoId`) and live weapon-key
 normalization also belong to this owner. Remove a terminal bin-size suffix
 before the ammunition suffix; physical bin size does not change its cap family.
