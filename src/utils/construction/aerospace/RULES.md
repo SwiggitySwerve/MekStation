@@ -374,3 +374,13 @@ absent cooling preserves legacy behavior. Catalog heat/mount modifiers, ammo
 valuation and final modifiers remain independent residuals. Regression coverage:
 `aerospaceBV.residual2Parity.test.ts` (five SmallCraft, Dragonfly, Goth B,
 Dragonstar, cooling transport, bypass, ordering and cutoff boundaries).
+
+## Ordinary aircraft Artemis links
+
+The shared equipment link owner now supplies the existing IV/V modifier to
+ASF/CF/FWS/SmallCraft, before direction selection, arc weighting and heat.
+Unweighted raw arc BV includes the linked modifier. One compatible launcher
+per controller at the same normalized physical location; Streak and absent
+catalog variants remain unlinked. Ammo BV and caps retain their current policy.
+Enforcement: `aerospaceBV.residual3Parity.test.ts` pins Ogotai A and Tyre 3
+weapon pools, source-order links, location isolation and pre-heat modification.

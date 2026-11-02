@@ -344,3 +344,11 @@ Streak heat, Mech single application and Ahab/Avar native totals.
 Tech-qualified Mech candidate lookups retain the original source identity at
 the resolver boundary, so a source I-OS flag survives a different Clan catalog
 spelling. Crossbow T's SRM2/6 I-OS regressions enforce this retained fact.
+
+`weaponLinks.ts` owns the represented LRM/SRM/MML Artemis compatibility and
+first-unlinked/same-physical-location assignment for aircraft and large craft.
+Links follow source order; rear flags and list adjacency do not select the
+launcher (MekFileParser.java:425-449). The existing multiplier owner supplies
+1.2/1.3 before arc weighting and heat sorting (BVCalculator.java:860-872).
+Mech's older critical-grid/location heuristic is retained as a separate input
+projection; vehicles already consume explicit links. No catalog flags added.
