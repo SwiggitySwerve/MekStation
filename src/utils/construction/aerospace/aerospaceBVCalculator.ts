@@ -22,6 +22,7 @@ import {
   sumWeaponBV,
 } from './aerospaceBVCalculations';
 import { calculateMountedAerospaceDefensiveBV } from './aerospaceBVEquipment';
+import { isCapitalShipBVType } from './aerospaceBVTypes';
 
 // ============================================================================
 // BV Helpers
@@ -44,21 +45,28 @@ export function calculateAerospaceDefensiveBV(
   defensive: number;
 } {
   const armorMultiplier = getArmorBVMultiplier(input.armorType);
+  const capital = isCapitalShipBVType(input.subType);
   const smallCraftArmorBonus =
     input.subType === AerospaceSubType.SMALL_CRAFT ? 1.2 : 1.0;
   const armorBV =
-    input.totalArmorPoints * 2.5 * armorMultiplier * smallCraftArmorBonus;
+    input.totalArmorPoints *
+    (capital ? 25 : 2.5) *
+    armorMultiplier *
+    smallCraftArmorBonus;
 
-  // AeroBVCalculator.java:64-70; all supported families share this SI rule.
+  // AeroBVCalculator.java:64-70; aircraft and DropShips use SI x 2.
   // @spec establish-all-unit-data-parity: Aerospace Defensive BV
-  const siBV = input.structuralIntegrity * 2;
+  // JumpShipBVCalculator overrides SI without adding KF or sail integrity.
+  const siBV = input.structuralIntegrity * (capital ? 20 : 2);
 
   const defensiveEquipmentBV =
     (input.defensiveEquipmentBV ?? 0) +
     calculateMountedAerospaceDefensiveBV(input.equipment);
   // LargeAeroBVCalculator.processExplosiveEquipment is empty (no minimum).
   const explosivePenalties =
-    input.subType === UnitType.DROPSHIP ? 0 : (input.explosivePenalties ?? 0);
+    capital || input.subType === UnitType.DROPSHIP
+      ? 0
+      : (input.explosivePenalties ?? 0);
 
   // AeroBVCalculator.java:118-134; support classification precedes ConvFighter.
   let typeModifier = 1.2;
@@ -75,6 +83,16 @@ export function calculateAerospaceDefensiveBV(
   const armorType = input.armorType.toLowerCase();
   if (armorType === 'stealth' || armorType === 'stealth-vehicle') {
     typeModifier += 0.3;
+  }
+
+  // JumpShip/WarShip replace Aero's entire type stage, including stealth.
+  if (capital) {
+    typeModifier =
+      input.subType === UnitType.WARSHIP
+        ? 0.8
+        : input.subType === UnitType.SPACE_STATION
+          ? 0.7
+          : 0.75;
   }
 
   const defensiveFactor = 1;

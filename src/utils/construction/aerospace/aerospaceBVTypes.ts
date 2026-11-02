@@ -2,7 +2,23 @@ import type {
   AerospaceArc,
   AerospaceSubType,
 } from '../../../types/unit/AerospaceInterfaces';
-import type { UnitType } from '../../../types/unit/BattleMechInterfaces';
+
+import { UnitType } from '../../../types/unit/BattleMechInterfaces';
+
+export type CapitalShipBVType =
+  | UnitType.JUMPSHIP
+  | UnitType.WARSHIP
+  | UnitType.SPACE_STATION;
+
+export function isCapitalShipBVType(
+  value: unknown,
+): value is CapitalShipBVType {
+  return (
+    value === UnitType.JUMPSHIP ||
+    value === UnitType.WARSHIP ||
+    value === UnitType.SPACE_STATION
+  );
+}
 
 /**
  * Single piece of aerospace-mounted equipment for BV purposes.
@@ -66,7 +82,9 @@ export type IAerospaceDefensiveBVInput = Pick<
   | 'equipment'
   | 'defensiveEquipmentBV'
   | 'explosivePenalties'
-> & { readonly subType: AerospaceSubType | UnitType.DROPSHIP };
+> & {
+  readonly subType: AerospaceSubType | UnitType.DROPSHIP | CapitalShipBVType;
+};
 
 export type {
   IAerospaceArcContribution,

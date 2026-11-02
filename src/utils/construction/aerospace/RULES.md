@@ -25,6 +25,33 @@ defensive-only and withholds offensive/final BV. Tests pin Union stage offense
 offense evidence compares all 209 native stage inputs and all 620 unchanged
 fighter/small-craft breakdowns; native-valued inputs do not prove app loading.
 
+## Capital defensive slice
+
+`capitalShipBV.ts` adapts JumpShip, WarShip and Space Station facts and calls
+the aerospace defensive owner. Dispatch returns `kind: capital-ship` and the
+existing large-aerospace `defensive-only` contract; offensive and final BV
+remain undefined. The contract adapter requires SI and armor.byArc, accepts
+zero and preserves hull/broadside mounts. Domain mounts may carry arc names.
+
+Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587` factory routes
+Warship to WarShipBVCalculator, Jumpship (including SpaceStation) to
+JumpShipBVCalculator. Both inherit LargeAero -> Aero -> HeatTracking -> BV.
+JumpShip overrides armor factor to 25 and SI to 20; neither KF nor sail
+integrity contributes. Capital armor points are already capital scale: no
+additional conversion applies. Ferro-carbide, lamellor ferro-carbide and
+improved ferro-aluminum use the native default armor BV multiplier 1.
+JumpShip/WarShip replace the whole aircraft type stage with 0.75/0.8; stations
+use 0.7. They do not add aircraft stealth. Defensive equipment/caps, the empty
+LargeAero explosive stage and Aero's neutral defensive factor are inherited.
+
+Enforcement: `capitalShipBV.test.ts` pins Java defenses 2142/12920/1064 for
+Comitatus/Aegis/Crucible, including native AMS facts for Comitatus, adapter
+guards, equipment caps and type overrides. UL-21's external evidence compares
+all 185 native defensive aggregates and verifies 620 aerospace and 209
+DropShip results unchanged. Existing source-qualified equipment IDs, screen
+identities and ammunition quantities remain boundary limitations, reported
+per unit; no complete-total parity or new equipment resolution is claimed.
+
 ## DropShip defensive slice
 
 `dropShipBV.ts` adapts DropShip domain mounts and calls the same defensive
