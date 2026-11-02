@@ -1,5 +1,25 @@
 # Aerospace construction rules
 
+## DropShip mount valuation
+
+`dropShipMountBV.ts` owns raw DropShip mount-to-arc facts, using the shared
+equipment resolver and defensive classifier. A `b-` bay-start marker counts
+its weapon once. Rear side mounts use AL/AR; nose/aft mounts retain their arc.
+Supported conventional type/rack groups combine IS/Clan cap BV within an arc.
+Ammo uses the catalog owner's bin shot count and native
+`max(1, floor(usableShots / binShots))`, with depleted bins contributing zero.
+The shared cap accumulator and six-arc stage own accumulation and weighting.
+
+The closed supported subset is ordinary AC/Ultra/Rotary/light AC, LRM/SRM/MRM,
+Streak and catalog laser/PPC/flamer subtypes. Unsupported capital weapons,
+links, other equipment, unknown identities/arcs and missing/invalid ammo
+quantities produce indexed reasons. Returned arcs are partial diagnostics
+while any reason remains. Catalog resolution alone does not certify native
+numerical parity. This size-capped boundary port leaves final adjustments and
+dispatch defensive-only. Tests enforce bay multiplicity, rear arcs, native
+quantity ratios, depleted bins, local caps, unresolved facts and Union's
+2339.75 offensive stage from raw mounts. The complete 3972 remains withheld.
+
 ## Large aerospace offensive stage
 
 `largeAerospaceFirePool.ts` owns the six-arc fire pool for already-valued
@@ -70,9 +90,9 @@ does not apply penalties or the heat-tracking minimum. Aero's defensive
 factor is neutral. No small-craft armor bonus applies to DropShips.
 Mounted defensive equipment uses the existing shared classification and cap.
 
-Dispatch integration of the large-aerospace offensive stage, native mount and
-ammo valuation, weapon-link modifiers and final crew/pilot/drone adjustments
-remain deferred after the size-capped component deliveries.
+Dispatch integration, unrepresented mount/ammo valuation, weapon-link
+modifiers and final crew/pilot/drone adjustments remain deferred after the
+size-capped component deliveries.
 Existing equipment-ID gaps, screen/APDS coverage, variable equipment values,
 Blue Shield and mount working/destroyed state are not resolved here.
 Numeric armor codes retain the existing aerospace adapter's standard fallback.
@@ -124,6 +144,32 @@ regenerated or migrated.
 
 The aerospace construction module owns aerospace BV calculations. Its public
 entry is `aerospaceBV.ts`; `aerospaceBVCalculator.ts` owns the defensive pool.
+
+## Offensive forward/rear groups
+
+`aerospaceBVArcs.ts` owns ordinary aerospace mount weighting. Nose, both wings
+or sides and Fuselage form one forward group; Aft forms the rear group. Compare
+the complete groups before weighting: the stronger group contributes fully,
+the weaker contributes half, and ties keep forward full. Fuselage participates
+in the comparison and discount while retaining its separate public subtotal.
+Per-arc raw BV remains unchanged; `primaryArc` identifies the largest populated
+arc in the dominant group, preserving arc order on ties. Empty pools have no
+primary and zero weights. Unknown locations remain excluded.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`AeroBVCalculator.java:147-155`, `BVCalculator.java:690-699,780-782,835-837`.
+The large-aerospace 100/50/25 arc policy does not apply to ASF, CF, FWS or
+SmallCraft. DropShip and capital offensive calculations are outside this owner.
+Rear-mounted flags, heat, mounted ammo/equipment classification, quantities,
+weapon links and speed remain separate parity work; this change preserves
+their existing policies and does not establish full offensive parity.
+
+Enforcement: `aerospaceBV.offensiveArcParity.test.ts` covers Sabre's native
+prototype facts at the catalog boundary, source-derived Inseki II through
+contract dispatch, both wing/side topologies, combined-group selection,
+strong rear groups, Fuselage ties and empty/unknown locations. Sabre remains
+unresolved in production catalog data. UL-19-offense's 620-source comparison
+asserts unchanged inputs, raw arcs and unrelated breakdown fields.
 
 ## Defensive thrust factor
 

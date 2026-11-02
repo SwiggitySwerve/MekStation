@@ -94,14 +94,17 @@ export function normalizeEquipmentId(
   catalog: EquipmentCatalogLookup = loadCatalogForEquipmentId(equipmentId),
 ): string {
   const rawLower = equipmentId.toLowerCase().trim();
+  // BLK size is mount metadata, not part of EquipmentType's lookup name.
+  const base = rawLower.replace(/(?::omni|:size:\d+(?:\.\d+)?)+$/, '');
   // BLK mount markers occur in native tokens and converted IDs.
   const lower = catalog.has(rawLower)
     ? rawLower
-    : rawLower
-        .replace(/:omni$/, '')
-        .replace(/^(?:r-|\(r\)\s*)/, '')
-        .replace(/(?:-?\((?:st|pt)\)|-?(?:st|pt))$/, '')
-        .trim();
+    : catalog.has(base)
+      ? base
+      : base
+          .replace(/^(?:r-|\(r\)\s*)/, '')
+          .replace(/(?:-?\((?:st|pt)\)|-?(?:st|pt))$/, '')
+          .trim();
   const stripped = lower.replace(/^\d+-/, '').replace(/-\d+$/, '');
 
   // Preserve rack numbers and tech/munition variants before general instance-ID
@@ -109,7 +112,12 @@ export function normalizeEquipmentId(
   if (isAmmunitionEquipmentId(lower)) {
     const ammoToken = lower.replace(/\s*-\s*/g, '-').replace(/[\s/]+/g, '-');
     const resolved =
-      firstCatalogMatch(catalog, [lower]) ??
+      // This converter spelling is separate from the canonical Mech token
+      // "CLAPGaussRifle Ammo", whose existing resolution must stay unchanged.
+      firstCatalogMatch(catalog, [
+        lower,
+        lower === 'clapgaussrifle-ammo' ? 'apgaussrifle' : undefined,
+      ]) ??
       firstCatalogMatch(catalog, [ammoToken]) ??
       firstDirectAliasCatalogMatch(catalog, [lower]) ??
       firstLowerMappedCatalogMatch(

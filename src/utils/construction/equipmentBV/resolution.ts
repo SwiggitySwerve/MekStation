@@ -99,10 +99,15 @@ export function isResolvable(equipmentId: string): boolean {
   return getEquipmentEntry(equipmentId) !== undefined;
 }
 
-export function resolveAmmoBV(ammoId: string): AmmoBVResult {
+export function getAmmunitionEntry(
+  ammoId: string,
+): EquipmentCatalogEntry | undefined {
   const catalog = loadAmmunitionCatalog();
-  const normalizedId = normalizeEquipmentId(ammoId, catalog);
-  const entry = catalog.get(normalizedId);
+  return catalog.get(normalizeEquipmentId(ammoId, catalog));
+}
+
+export function resolveAmmoBV(ammoId: string): AmmoBVResult {
+  const entry = getAmmunitionEntry(ammoId);
 
   if (!entry) {
     return { battleValue: 0, weaponType: '', resolved: false };
@@ -110,7 +115,7 @@ export function resolveAmmoBV(ammoId: string): AmmoBVResult {
 
   return {
     battleValue: entry.battleValue ?? 0,
-    weaponType: normalizedId.replace(/-ammo$/, '').replace(/^ammo-/, ''),
+    weaponType: entry.id.replace(/-ammo$/, '').replace(/^ammo-/, ''),
     resolved: true,
   };
 }

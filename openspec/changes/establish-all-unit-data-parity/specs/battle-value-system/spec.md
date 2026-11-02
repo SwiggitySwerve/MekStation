@@ -1,5 +1,29 @@
 ## ADDED Requirements
 
+### Requirement: DropShip mount valuation
+
+The aerospace BV owner SHALL resolve represented DropShip mounts into six-arc
+weapon BV, heat and arc-local ammo facts using the existing equipment resolver.
+A bay-start marker SHALL count its weapon once; rear side mounts SHALL use the
+corresponding aft-side arc. Supported ammo SHALL use its catalog bin shot count
+and native integer multi-ton ratio, with depleted bins contributing zero.
+Unsupported identities, capital weapons, links, quantities and arcs SHALL be
+reported with mount indices and reasons, never silently valued at zero.
+Partial arc facts SHALL NOT authorize complete DropShip dispatch.
+
+#### Scenario: Supported mounts and native quantities
+
+- **GIVEN** a bay-start PPC, a rear left-side laser and AC/5 ammo with 39 shots
+- **WHEN** mount facts are resolved
+- **THEN** the PPC SHALL count once, the laser SHALL use the left-aft arc and the ammo SHALL count one native bin
+- **AND** a matching weapon in another arc SHALL NOT supply an ammo cap
+
+#### Scenario: Unrepresented mounts remain explicit
+
+- **GIVEN** a capital weapon, an unrepresented link or malformed mount facts
+- **WHEN** mount facts are resolved
+- **THEN** each unsupported mount SHALL be reported and complete BV SHALL remain unavailable
+
 ### Requirement: Large aerospace offensive fire pool
 
 The aerospace BV owner SHALL provide a separate six-arc offensive stage for
@@ -565,6 +589,52 @@ continue through their owning calculations.
 - **WHEN** baseline-skill final BV is calculated
 - **THEN** final BV SHALL remain 280 or 600 respectively
 - **AND** Biped and Quad SHALL also use the neutral summary multiplier
+
+### Requirement: Aerospace Offensive BV Arc Fire Pool
+
+Aerospace offensive BV SHALL use forward/rear groups for fighters, support aircraft and small craft.
+Nose, wing/side and Fuselage mounts form one forward BV group and Aft mounts
+form the rear group. The larger group SHALL contribute at 100%
+and the smaller at 50%; a tie SHALL keep forward at 100%. Per-arc raw values
+and the separate Fuselage subtotal SHALL remain available. This correction
+SHALL leave heat, ammo, equipment classification and speed rules unchanged.
+
+#### Scenario: Primary arc contributes 100%
+
+- **GIVEN** an ASF whose Nose arc holds the highest-BV weapon pool and whose forward group exceeds Aft
+- **WHEN** offensive BV is computed
+- **THEN** Nose, LeftWing, RightWing and Fuselage SHALL contribute at 100%
+- **AND** Aft SHALL contribute at 50%
+
+#### Scenario: Primary arc not Nose
+
+- **GIVEN** an ASF whose LeftWing arc has higher BV than Nose and whose combined forward group exceeds Aft
+- **WHEN** fire-pool weighting is applied
+- **THEN** LeftWing, RightWing, Nose and Fuselage SHALL contribute at 100%
+- **AND** Aft SHALL contribute at 50%
+- **AND** primaryArc SHALL identify the highest-BV populated arc in the dominant group
+
+#### Scenario: Rear group is stronger
+
+- **GIVEN** Aft BV greater than the sum of all forward arcs including Fuselage
+- **WHEN** offensive BV is computed
+- **THEN** Aft SHALL contribute at 100% and every forward arc at 50%
+- **AND** primaryArc SHALL be Aft
+
+#### Scenario: Tied or empty groups
+
+- **GIVEN** equal forward and rear BV
+- **WHEN** group weights are selected
+- **THEN** forward SHALL retain 100% and Aft 50%
+- **AND** when both groups are zero, primaryArc SHALL be null and all contribution weights zero
+
+#### Scenario: Sabre native prototype mount facts
+
+- **GIVEN** Sabre SB-27b-EC with four native prototype lasers of 62 BV, two per wing
+- **WHEN** those weapon facts are supplied at the catalog boundary
+- **THEN** the forward pool SHALL equal 248 BV
+- **AND** at the unchanged current speed factor 2.16, offensive BV SHALL equal 535.68
+- **AND** native offense 639.84 SHALL remain a separate max-thrust/catalog parity target
 
 ### Requirement: Aerospace Speed Factor
 

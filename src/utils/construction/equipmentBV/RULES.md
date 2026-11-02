@@ -280,3 +280,22 @@ misses the full bin. Native IS/Clan MG full and half names resolve to the
 represented full/half records with 200/100 rounds. Generic MG aliases must not
 replace those explicit bins. Engine launch and canonical loader tests enforce
 the real Warhammer inventory and its retained 70-ton construction.
+
+## Converted mount qualifiers
+
+For compatibility lookup, terminal `:SIZE:<nonnegative decimal>` and `:OMNI`
+segments describe a mount, not its EquipmentType name. Remove the terminal
+chain before lookup, preserving an exact catalog ID first. Check the base ID
+before stripping converted sponson `st`; otherwise a real `hoist` becomes
+`hoi`. This lookup supplies identity only: it does not apply size to mass,
+slots, cost or ammunition quantities. Those mount values remain outside this
+resolver's contract. Malformed sizes and missing base types stay unresolved.
+
+The existing alias owner covers the pinned MiscType/EquipmentTypeLookup names
+HeavyBridgeLayer, Hitch, PintleTurret, SponsonTurret and Tank Sprayer, plus
+converted `mek-taser`. Only the converted AP Gauss ammo slug gains the native
+`apgaussrifle` ammunition identity. The canonical Mech spelling
+`CLAPGaussRifle Ammo` retains its previous unresolved result, as required by
+this lane's unchanged Mech contract. This does not claim native Mech ammo
+parity. Focused qualifier tests and the unchanged canonical ammo suites enforce
+that boundary; the complete committed Mech token comparison is local evidence.
