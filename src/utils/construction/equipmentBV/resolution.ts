@@ -25,6 +25,7 @@ import {
   getLoggedUnresolvable,
 } from './catalogLoader';
 import { normalizeEquipmentId } from './normalization';
+import { applyOneShotBVHeat } from './weaponHeat';
 
 /** BVCalculator.processWeapon: apply only to the launcher linked by Artemis. */
 export function getArtemisBVMultiplier(type?: 'iv' | 'v'): number {
@@ -71,7 +72,11 @@ function applyBVHeatOverride(
   return baseHeat;
 }
 
-export function resolveEquipmentBV(equipmentId: string): EquipmentBVResult {
+/** Retain source mount identity when a caller tries a tech-qualified catalog spelling. */
+export function resolveEquipmentBV(
+  equipmentId: string,
+  sourceEquipmentId: string = equipmentId,
+): EquipmentBVResult {
   const entry = getEquipmentEntry(equipmentId);
 
   if (!entry) {
@@ -88,7 +93,17 @@ export function resolveEquipmentBV(equipmentId: string): EquipmentBVResult {
   }
 
   const baseHeat = typeof entry.heat === 'number' ? entry.heat : 0;
-  const bvHeat = applyBVHeatOverride(baseHeat, entry);
+  // HeatTrackingBVCalculator.java:170-180: one-shot /4 precedes other heat modifiers.
+  const bvHeat = applyBVHeatOverride(
+    applyOneShotBVHeat(
+      baseHeat,
+      equipmentId,
+      sourceEquipmentId,
+      entry.id,
+      entry.name,
+    ),
+    entry,
+  );
 
   return {
     battleValue: entry.battleValue ?? 0,

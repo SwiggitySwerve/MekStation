@@ -21,7 +21,10 @@ import {
   calculateAerospaceAmmoBV,
   sumWeaponBV,
 } from './aerospaceBVCalculations';
-import { calculateMountedAerospaceDefensiveBV } from './aerospaceBVEquipment';
+import {
+  calculateMountedAerospaceDefensiveBV,
+  calculateMountedAerospaceExplosivePenalty,
+} from './aerospaceBVEquipment';
 import { isCapitalShipBVType } from './aerospaceBVTypes';
 
 // ============================================================================
@@ -46,13 +49,9 @@ export function calculateAerospaceDefensiveBV(
 } {
   const armorMultiplier = getArmorBVMultiplier(input.armorType);
   const capital = isCapitalShipBVType(input.subType);
-  const smallCraftArmorBonus =
-    input.subType === AerospaceSubType.SMALL_CRAFT ? 1.2 : 1.0;
+  // BVCalculator.java:461-463: SmallCraft inherits the ordinary armor factor.
   const armorBV =
-    input.totalArmorPoints *
-    (capital ? 25 : 2.5) *
-    armorMultiplier *
-    smallCraftArmorBonus;
+    input.totalArmorPoints * (capital ? 25 : 2.5) * armorMultiplier;
 
   // AeroBVCalculator.java:64-70; aircraft and DropShips use SI x 2.
   // @spec establish-all-unit-data-parity: Aerospace Defensive BV
@@ -62,11 +61,13 @@ export function calculateAerospaceDefensiveBV(
   const defensiveEquipmentBV =
     (input.defensiveEquipmentBV ?? 0) +
     calculateMountedAerospaceDefensiveBV(input.equipment);
+  const defensivePool = armorBV + siBV + defensiveEquipmentBV;
   // LargeAeroBVCalculator.processExplosiveEquipment is empty (no minimum).
   const explosivePenalties =
     capital || input.subType === UnitType.DROPSHIP
       ? 0
-      : (input.explosivePenalties ?? 0);
+      : (input.explosivePenalties ??
+        calculateMountedAerospaceExplosivePenalty(input, defensivePool));
 
   // AeroBVCalculator.java:118-134; support classification precedes ConvFighter.
   let typeModifier = 1.2;
@@ -97,9 +98,7 @@ export function calculateAerospaceDefensiveBV(
 
   const defensiveFactor = 1;
   const defensive =
-    (armorBV + siBV + defensiveEquipmentBV - explosivePenalties) *
-    typeModifier *
-    defensiveFactor;
+    (defensivePool - explosivePenalties) * typeModifier * defensiveFactor;
 
   return {
     armorBV,

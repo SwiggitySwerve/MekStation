@@ -1,3 +1,4 @@
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import {
   getArmorBVMultiplier,
   getStructureBVMultiplier,
@@ -8,7 +9,8 @@ import type {
   VehicleDefensiveBVBreakdown,
 } from './vehicleBVTypes';
 
-import { resolveEquipmentBV } from '../equipmentBVResolver';
+import { calculateMountedDefensiveEquipmentBV } from '../battleValueEquipment';
+import { getEquipmentEntry } from '../equipmentBVResolver';
 import { calculateVehicleBVDefensiveTMM } from './vehicleBVMovement';
 import { getVehicleDefensiveTypeModifier } from './vehicleBVTypeModifier';
 
@@ -39,14 +41,16 @@ export function calculateVehicleDefensiveBV(
   const armorBV = calculateArmorBV(input, blueShield === true);
   const structureBV = input.totalStructurePoints * 1.5 * structureMult;
 
-  let defensiveEquipmentBV = 0;
-  for (const entry of input.defensiveEquipment ?? []) {
-    if (entry.bvOverride !== undefined) {
-      defensiveEquipmentBV += entry.bvOverride;
-      continue;
-    }
-    defensiveEquipmentBV += resolveEquipmentBV(entry.id).battleValue;
-  }
+  const rotorMast =
+    input.motionType === GroundMotionType.VTOL &&
+    input.armorEquipment?.some(
+      (m) =>
+        m.location === 'Rotor' && getEquipmentEntry(m.id)?.id === 'mast-mount',
+    );
+  const defensiveEquipmentBV = calculateMountedDefensiveEquipmentBV(
+    input.defensiveEquipment ?? [],
+    rotorMast,
+  );
 
   const explosivePenalty = input.explosivePenalty ?? 0;
 

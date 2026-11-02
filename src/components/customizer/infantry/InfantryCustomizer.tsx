@@ -17,11 +17,14 @@ import { INFANTRY_TABS } from '@/components/customizer/shared/tabRegistry';
 import { toCustomizerTabConfigs } from '@/components/customizer/shared/TabSpec';
 import { CustomizerTabs } from '@/components/customizer/tabs/CustomizerTabs';
 import { useCustomizerTabs } from '@/hooks/useCustomizerTabs';
+import { calculatePlatoonStrength } from '@/stores/infantryState';
 import {
   InfantryStoreContext,
   InfantryStore,
   useInfantryStore,
 } from '@/stores/useInfantryStore';
+
+import { StatusItem } from '../tabs/StatusItem';
 
 // =============================================================================
 // Types
@@ -67,7 +70,8 @@ function InfantryCustomizerInner({
   readOnly,
 }: InfantryCustomizerInnerProps): React.ReactElement {
   // Read infantryMotive to drive the Field Guns tab visibility predicate
-  const infantryMotive = useInfantryStore((s) => s.infantryMotive);
+  const state = useInfantryStore((s) => s);
+  const infantryMotive = state.infantryMotive;
 
   const { visibleSpecs, activeTab, setActiveTab, dirtyTabs, errorTabs } =
     useCustomizerTabs({
@@ -84,7 +88,20 @@ function InfantryCustomizerInner({
   const TabComponent = activeSpec?.component;
 
   return (
-    <div className="flex h-full flex-col">
+    <div data-testid="infantry-customizer" className="flex h-full flex-col">
+      <div className="bg-surface-base border-border-theme-subtle flex flex-wrap justify-between border-b">
+        <StatusItem label="Troopers" value={calculatePlatoonStrength(state)} />
+        <StatusItem label="Protection" value={state.damageDivisor} />
+        <StatusItem
+          label="Movement"
+          value={`${state.groundMP}/${state.jumpMP}J/${state.umuMP ?? 0}U`}
+        />
+        <StatusItem
+          label="BV"
+          value={state.bvBreakdown?.final ?? 'Unavailable'}
+          status={state.bvBreakdown ? 'success' : 'warning'}
+        />
+      </div>
       {/* Tab Bar */}
       <CustomizerTabs
         tabs={tabConfigs}

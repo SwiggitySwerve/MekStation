@@ -339,6 +339,8 @@ export function createInfantryStore(
           hasAntiMechTraining: state.hasAntiMechTraining,
           isAugmented: state.isAugmented,
           augmentationType: state.augmentationType,
+          librarySource: state.librarySource,
+          umuMP: state.umuMP,
           fieldGuns: state.fieldGuns,
           bvBreakdown: state.bvBreakdown,
           isModified: state.isModified,

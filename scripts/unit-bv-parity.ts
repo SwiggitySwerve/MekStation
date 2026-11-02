@@ -101,6 +101,9 @@ export function aggregateDelta(java: number, ours: number): IAggregateDelta {
 }
 const positive = (value: number | undefined): value is number =>
   value !== undefined && Number.isFinite(value) && value > 0;
+// A zero aggregate is real (unarmed designs); a mismatch with Java is caught by the tolerance.
+const aggregate = (value: number | undefined): value is number =>
+  value !== undefined && Number.isFinite(value) && value >= 0;
 export function compareFigures(
   java: IFigure,
   ours: IFigure,
@@ -109,15 +112,15 @@ export function compareFigures(
   const javaTotal = java.total ?? NaN,
     ourTotal = ours.total ?? NaN;
   const valid =
-    positive(java.defensive) &&
-    positive(ours.defensive) &&
+    aggregate(java.defensive) &&
+    aggregate(ours.defensive) &&
     (partial ||
       (positive(javaTotal) &&
         Number.isInteger(javaTotal) &&
-        positive(java.offensive) &&
+        aggregate(java.offensive) &&
         positive(ourTotal) &&
         Number.isInteger(ourTotal) &&
-        positive(ours.offensive)));
+        aggregate(ours.offensive)));
   const delta = valid && !partial ? ourTotal - javaTotal : null;
   const deltaPct = delta === null ? null : (delta / javaTotal) * 100;
   return {

@@ -23,8 +23,10 @@ shared dispatcher, and compare under the same strict rules; the handler total
 and its exact count stay separate fields. A source that does not reach a BA or
 infantry dispatcher result is counted not-computable with its reason.
 
-Totals must be positive integers and match exactly. Both aggregate values must
-be positive and finite; their relative tolerance is `1e-9 * max(1, |a|, |b|)`
+Totals must be positive integers and match exactly. Aggregates must be finite
+and not negative; a zero aggregate is real (unarmed designs) and matches only
+a zero, so a one-sided zero is an aggregate mismatch, not an invalid row. Their
+relative tolerance is `1e-9 * max(1, |a|, |b|)`
 to accommodate order-dependent Java floating-point sums. Capital defense-only
 results compare defense alone and always count as incomplete. `within1Pct`
 includes exact totals; both signed 1% boundaries are inclusive. `farther` excludes

@@ -183,7 +183,7 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 `AeroBVCalculator.java:147-155`, `BVCalculator.java:690-699,780-782,835-837`.
 The large-aerospace 100/50/25 arc policy does not apply to ASF, CF, FWS or
 SmallCraft. DropShip and capital offensive calculations are outside this owner.
-Rear-mounted flags, heat, mounted ammo/equipment classification, quantities,
+Rear-mounted flags, mounted ammo/equipment classification, quantities,
 weapon links remain separate parity work; the group calculation preserves
 their existing policies and does not establish full offensive parity.
 
@@ -231,7 +231,7 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 `AeroBVCalculator.java:137-138` (empty `processDefensiveFactor`), invoked after
 the separate type modifier by `BVCalculator.java:274-280`.
 
-Armor bonuses, arc/heat handling and final subtype scaling remain separate
+Arc handling and final subtype scaling remain separate
 parity work. This rule does not assert full-unit parity. Construction SI
 defaults, source movement and shared thrust helpers are outside this correction.
 
@@ -340,3 +340,47 @@ Only fully resolved mounts and represented heat/cockpit/thrust facts authorize
 complete scope; other results retain defense and explicit reasons. No game
 context supplies C3/TAG bonuses. UL-21/complete external evidence covers all
 185 capital sources and unchanged 209 DropShips / 620 aerospace sources.
+
+## Explosive equipment
+
+`aerospaceBVEquipment.calculateMountedAerospaceExplosivePenalty` owns the stage:
+15 BV per distinct explosive ammo identity, 1 per explosive mount. Gauss ammo
+is safe; Gauss weapons and eligible capacitor-linked PPCs are explosive.
+Clan chassis or CASE/CASE II protect the whole aircraft. `sourceTechType`
+retains mixed-chassis identity; legacy inputs use declared tech base, and
+inputs without either fact retain their explicit/default penalty. The pool
+floors at one before type scaling, except the native early protection return.
+Explicit totals remain authoritative. DropShip/capital keep their empty stage.
+
+Source: MegaMek 48fcb2f64: AeroBVCalculator.java:78-115,
+HeatTrackingBVCalculator.java:65-70,229-247, MekFileParser.java:90-93,472-497
+(eligible same-location PPC links; Clan ER PPC requires year >= 3101).
+The shared ammo predicate preserves the crit scanner's exclusions; Mek
+per-slot penalties remain separate. `HULL` maps to Fuselage at the boundary.
+Enforcement: aerospaceBV.residualParity.test.ts covers these rules and six hull failures.
+
+## Ordinary armor and weapon heat
+
+SmallCraft inherits 2.5 BV per armor point, without an additional armor bonus
+(`BVCalculator.java:461-463`, MegaMek 48fcb2f64). Capital armor keeps its factor.
+ASF and SmallCraft use heat efficiency 6 + heat capacity (`AeroBVCalculator.java:141-144`).
+Conventional fighters and FixedWingSupport bypass weapon heat (`HeatTrackingBVCalculator.java:59-61,73-77`).
+After arc weighting, the shared `battleValueHeatTracking` owner sorts zero-heat
+weapons first, then descending BV, with lower heat breaking BV ties. The weapon
+that reaches or crosses efficiency stays full; subsequent weapons contribute
+half (`HeatTrackingBVCalculator.java:108-147`). Raw arc values stay unchanged.
+Contract, unit and customizer inputs use the existing heat-dissipation owner;
+absent cooling preserves legacy behavior. Catalog heat/mount modifiers, ammo
+valuation and final modifiers remain independent residuals. Regression coverage:
+`aerospaceBV.residual2Parity.test.ts` (five SmallCraft, Dragonfly, Goth B,
+Dragonstar, cooling transport, bypass, ordering and cutoff boundaries).
+
+## Ordinary aircraft Artemis links
+
+The shared equipment link owner now supplies the existing IV/V modifier to
+ASF/CF/FWS/SmallCraft, before direction selection, arc weighting and heat.
+Unweighted raw arc BV includes the linked modifier. One compatible launcher
+per controller at the same normalized physical location; Streak and absent
+catalog variants remain unlinked. Ammo BV and caps retain their current policy.
+Enforcement: `aerospaceBV.residual3Parity.test.ts` pins Ogotai A and Tyre 3
+weapon pools, source-order links, location isolation and pre-heat modification.

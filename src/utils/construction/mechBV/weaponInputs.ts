@@ -16,6 +16,8 @@ import {
   resolveWeaponForUnit,
 } from '../../../../scripts/validate-bv-weapon-resolution';
 import { normalizeWeaponKey } from '../battleValueAmmo';
+import { isDirectFireBVWeapon } from '../battleValueWeapons';
+import { isOneShotMissileBVWeapon } from '../equipmentBV/weaponHeat';
 import { normalizeEquipmentId } from '../equipmentBVResolver';
 
 /** Builds mounted weapon BV inputs without changing the source critical grid. */
@@ -100,21 +102,8 @@ export function buildMechBVWeapons(
     if (!res.resolved || res.battleValue === 0) unresolvedWeapons.push(eq.id);
 
     const wid = eq.id.toLowerCase();
-    const widStripped = wid.replace(/^\d+-/, '');
-    const isRocketLauncher =
-      wid.includes('rocket-launcher') ||
-      wid.includes('rl-') ||
-      /^rl\d+$/.test(wid) ||
-      widStripped.includes('rocketlauncher') ||
-      /^(?:is|cl)rocketlauncher\d+$/.test(widStripped) ||
-      /^rl\d+$/.test(widStripped);
-    // I-OS (Improved One-Shot), OS (One-Shot), and "one-shot" suffix weapons
-    const isIOS =
-      /[- ]i-?os$/i.test(widStripped) ||
-      /[- ]os$/i.test(widStripped) ||
-      widStripped.includes('one-shot');
-    const isOneShot = isRocketLauncher || isIOS;
-    const effectiveHeat = isOneShot ? res.heat / 4 : res.heat;
+    const isIOS = isOneShotMissileBVWeapon(eq.id);
+
     // IOS weapons use 1/5 of base weapon BV (aliases must point to BASE weapon entries)
     const effectiveBV = isIOS
       ? Math.round(res.battleValue / 5.0)
@@ -184,36 +173,12 @@ export function buildMechBVWeapons(
       weapons.push({
         id: normalizeWeaponKey(eq.id),
         name: wid,
-        heat: effectiveHeat,
+        heat: res.heat,
         bv: effectiveBV,
         rear: thisRear,
         isTurret: thisTurret,
         hasAES: weaponHasAES,
-        isDirectFire:
-          !wid.includes('lrm') &&
-          !wid.includes('srm') &&
-          !wid.includes('mrm') &&
-          !wid.includes('atm') &&
-          !wid.includes('mml') &&
-          !wid.includes('narc') &&
-          !wid.includes('inarc') &&
-          !wid.includes('lrt') &&
-          !wid.includes('srt') &&
-          !wid.includes('thunderbolt') &&
-          !wid.includes('rocket') &&
-          !wid.includes('arrow') &&
-          !wid.includes('mortar') &&
-          !wid.includes('sniper') &&
-          !wid.includes('thumper') &&
-          !wid.includes('long-tom') &&
-          // Per MegaMek: MGs, Flamers, AMS and TAG do NOT have F_DIRECT_FIRE
-          !wid.includes('machine-gun') &&
-          !wid.includes('flamer') &&
-          !wid.includes('anti-missile') &&
-          !wid.includes('ams') &&
-          wid !== 'tag' &&
-          !wid.includes('light-tag') &&
-          !wid.includes('clan-tag'),
+        isDirectFire: isDirectFireBVWeapon(wid),
         location: eq.location,
       });
     }

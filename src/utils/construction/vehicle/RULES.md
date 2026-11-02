@@ -179,6 +179,24 @@ sponson mount label while keeping its body location. Its boundary requires
 cruise/flank or safe/max thrust and the applicable armor allocation map;
 absence throws, while explicit zeros and empty maps remain valid source facts.
 
+`turret.ts:getInstalledVehicleTurretType` projects the explicitly installed
+primary/secondary configurations into a layout. A primary DUAL label without
+an installed secondary projects as Single; an orphan secondary does not invent
+a primary. These compatibility projections do not certify saved-state validity.
+Both preview paths share a reactive store projection that passes the explicit
+layout and distinct armor keys to printing; zero armor never removes a turret.
+The printing location tuple owns its union, schema membership and ordering.
+
+Pinned MegaMek [Tank.java:120-130](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/Tank.java#L120)
+defines primary as rear and secondary as front on dual-turret tanks. Printing
+therefore binds `Turret` to TU and `Turret 2` to FT in the supported assets,
+independently of array order. The checked mm-data asset revision is
+`b67baa5ecc765435425fd8cb703a6da909478b7a`, separate from the unit-source pin;
+these templates retain TU for rear while newer MegaMek code calls it RT.
+Chin/primary VTOL armor uses TU independently of rotor RO. Extraction and
+template selection reject dual VTOLs. Existing renderer fallback behavior,
+font/raster fidelity and physical printing are outside this correction.
+
 `engine.ts` owns combat-vehicle rating and installed-weight derivation.
 `suspension.json` owns the suspension table facts consumed by TypeScript and
 `scripts/megameklab-conversion/combat_vehicle_engine.py`. Python is a conversion
@@ -249,6 +267,14 @@ fidelity and Python support-engine regression tests enforce these boundaries.
 ceilings): controls = upward-half-ton-rounded tonnage / 20, unless explicit
 `hasNoControlSystems` is true; lift = upward-half-ton-rounded tonnage / 10 for
 HOVER, VTOL, HYDROFOIL, SUBMARINE and WIGE only. NAVAL has no lift term.
+
+`mountedWeight.ts` owns resolved equipment grouping: primary mount flags,
+secondary location identity, ammunition exclusion from mechanism mass,
+qualifying amplifier energy mass, and independently rounded turret mechanisms.
+The composition extends its state/result contracts and retains the
+EquipmentResolver re-export. This extraction preserves unresolved items as
+zero, resolver order and every numeric result; nullable mass remains separate.
+
 `weightComposition.ts` composes these with the existing component owners;
 the former status-bar utility is a compatible re-export. Validation calls the
 same controls/lift owner with the same family, motion and no-controls context.
@@ -382,3 +408,25 @@ MG APC, Chaparral and Bandit E inputs, plus mixed-bin caps and overrides.
 Catalog BV values, missing bins, shot quantities, support fire-control factors
 and the deferred vehicle-flamer mapping remain separate concerns. No bin value
 is inferred from its packaging or substituted for missing catalog data.
+
+## Support fire control, targeting computers and assembled BV movement
+
+`vehicleBVOffensive.ts` applies support basic FCS 0.9 (before advanced),
+advanced FCS 1, or absent FCS 0.8 to non-infantry WeaponType mounts and capped
+ammo. Resolved miscellaneous equipment receives neither FCS nor TC scaling.
+Direct-fire TC 1.25 replaces weapon FCS scaling; ammo still receives FCS.
+Weight and offensive equipment are not scaled. Mounted Targeting catalog
+entries activate TC. Infantry callers supply the native F_INFANTRY fact;
+unrepresented infantry equipment/metadata remains a catalog boundary gap.
+The shared weapon owner retains the existing Mech direct-fire classifier.
+Pin: BVCalculator.java:880-887,966-976,1076-1086 at 48fcb2f64a1b.
+
+`vehicleBVMovement.ts:getVehicleBVMovement` assembles undamaged Tank/VTOL
+run/jump for defense and offense. Active MASC/supercharger/VTOL jet boosters
+use twice cruise; hydrofoil rounds cruise x1.25, dune buggy subtracts one,
+and installed vehicle jump jets contribute one MP each. Modular armor is
+ignored by BV settings. Trains use adjusted cruise for offensive speed;
+original zero-run trailers use one. Jump/2 retains shared Java-style rounding.
+Legacy public TMM/effective-MP helpers and submarine override are preserved.
+Pin: Tank.java:387-418,1570-1575,2034-2042; Entity.java:4004-4016;
+CombatVehicleBVCalculator.java:147-163; MPCalculationSetting.java:123-136.

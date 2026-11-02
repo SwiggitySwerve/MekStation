@@ -36,6 +36,7 @@ import {
   BattleArmorChassisType,
   BattleArmorWeightClass,
 } from '@/types/unit/PersonnelInterfaces';
+import { computeVehicleEngineWeight } from '@/utils/construction/vehicle/engine';
 
 import {
   decodeBlkConstructionEngine,
@@ -404,6 +405,7 @@ const source = (
 <Name>Engine fixture</Name><year>3060</year><Tonnage>${family === 'SmallCraft' ? 100 : 30}</Tonnage>
 <type>IS Level 2</type><cruiseMP>5</cruiseMP><SafeThrust>5</SafeThrust>
 <structural_integrity>5</structural_integrity>
+${family === 'Tank' ? '<armor>0\n0\n0\n0</armor>' : ''}
 ${code === undefined ? '' : `<engine_type>${code}</engine_type>`}`;
 
 // BLKMekFile.java:128-132 at MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587.
@@ -447,15 +449,15 @@ describe('BLK engine export, parse and reload', () => {
     },
   );
   it.each([
-    [EngineType.STANDARD, 0, 22.375],
-    [EngineType.ICE, 1, 26.375],
-    [EngineType.XL_IS, 2, 16.375],
-    [EngineType.XL_CLAN, 2, 16.375],
-    [EngineType.XXL, 3, 13.875],
-    [EngineType.LIGHT, 4, 19.375],
-    [EngineType.COMPACT, 5, 28.875],
-    [EngineType.FUEL_CELL, 6, 19.875],
-    [EngineType.FISSION, 7, 31.875],
+    [EngineType.STANDARD, 0, 13],
+    [EngineType.ICE, 1, 17],
+    [EngineType.XL_IS, 2, 7],
+    [EngineType.XL_CLAN, 2, 7],
+    [EngineType.XXL, 3, 4.5],
+    [EngineType.LIGHT, 4, 10],
+    [EngineType.COMPACT, 5, 19.5],
+    [EngineType.FUEL_CELL, 6, 10.5],
+    [EngineType.FISSION, 7, 22.5],
   ])(
     'exports %s and reloads serialized identity %s',
     (engineType, code, weight) => {
@@ -467,14 +469,25 @@ describe('BLK engine export, parse and reload', () => {
       const loaded = new VehicleUnitHandler().parse(parsed.data!.document);
       expect(loaded.success).toBe(true);
       expect(loaded.data?.unit.engineType).toBe(code);
-      expect(new VehicleUnitHandler().calculateWeight(loaded.data!.unit)).toBe(
-        weight,
+      const unit = loaded.data!.unit;
+      expect(
+        computeVehicleEngineWeight(
+          unit.engineRating!,
+          decodeBlkConstructionEngine(
+            unit.engineType,
+            unit.clanEngine ?? false,
+          ),
+          unit,
+        ),
+      ).toBe(weight);
+      expect(() => new VehicleUnitHandler().calculateWeight(unit)).toThrow(
+        /weight is incomplete/,
       );
     },
   );
   it.each([
-    [EngineType.XL_IS, TechBase.CLAN, 'false', 16.375],
-    [EngineType.XL_CLAN, TechBase.INNER_SPHERE, 'true', 16.375],
+    [EngineType.XL_IS, TechBase.CLAN, 'false', 7],
+    [EngineType.XL_CLAN, TechBase.INNER_SPHERE, 'true', 7],
   ])(
     'preserves %s context across opposite chassis tech',
     (engineType, techBase, flag, weight) => {
@@ -489,7 +502,20 @@ describe('BLK engine export, parse and reload', () => {
       const loaded = handler.parse(document);
       expect(loaded.success).toBe(true);
       expect(loaded.data?.unit.clanEngine).toBe(flag === 'true');
-      expect(handler.calculateWeight(loaded.data!.unit)).toBe(weight);
+      const unit = loaded.data!.unit;
+      expect(
+        computeVehicleEngineWeight(
+          unit.engineRating!,
+          decodeBlkConstructionEngine(
+            unit.engineType,
+            unit.clanEngine ?? false,
+          ),
+          unit,
+        ),
+      ).toBe(weight);
+      expect(() => handler.calculateWeight(unit)).toThrow(
+        /weight is incomplete/,
+      );
     },
   );
   it.each([

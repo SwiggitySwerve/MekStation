@@ -16,6 +16,8 @@
 
 import type { IVehicleRecordSheetData } from '@/types/printing';
 
+import { assertSupportedVehicleTurretLayout } from '@/types/printing/RecordSheetVehicleTypes';
+
 /** The five Wave-1 vehicle / VTOL template keys. */
 export type VehicleTemplateKey =
   | 'vehicle_noturret_standard'
@@ -79,22 +81,17 @@ function turretFor(
 /**
  * Select the canonical Wave-1 template key for a vehicle / VTOL unit.
  *
- * VTOLs always use the `noturret` or `turret` key — there is no
- * `vtol_dualturret` template; a dual-turret VTOL (rare) collapses to
- * the single-turret VTOL sheet.
+ * VTOLs use the `noturret` or `turret` key. Dual-turret VTOLs are
+ * rejected because no matching canonical template is supported.
  *
  * @throws when the unit's motion type is outside Wave-1 scope.
  */
 export function selectVehicleTemplate(
   data: IVehicleRecordSheetData,
 ): VehicleTemplateKey {
+  assertSupportedVehicleTurretLayout(data.motionType, data.turretConfig);
   const subtype = subtypeFor(data);
-  let turret = turretFor(data);
-
-  // No `vtol_dualturret_standard` template exists — collapse to turret.
-  if (subtype === 'vtol' && turret === 'dualturret') {
-    turret = 'turret';
-  }
+  const turret = turretFor(data);
 
   // Weight tier is always `standard` for Wave-1 (superheavy excluded).
   return `${subtype}_${turret}_standard` as VehicleTemplateKey;
