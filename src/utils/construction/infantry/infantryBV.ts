@@ -12,7 +12,7 @@
  *   - If anti-mech training: platoonBV × 1.1.
  *   - If field gun(s): add full mech-scale weapon BV + ammo BV.
  *   - Source facts use pinned offense and defensive structure; defensive
- *     movement/stealth remain pending. Editor inputs retain legacy offense.
+ *     movement/stealth factors and final specialization apply to source totals.
  *   - Final BV = (defensive structure + platoonBV) × pilot-skill multiplier.
  *
  * @spec openspec/changes/add-infantry-battle-value/specs/battle-value-system/spec.md
@@ -28,6 +28,10 @@ import { getPilotSkillModifier } from '@/types/validation/BattleValue';
 import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
 import { calculateAmmoBVWithExcessiveCap } from '../battleValueOffensive';
 import { resolveEquipmentBV } from '../equipmentBVResolver';
+import {
+  infantryDefensiveFactor,
+  infantrySpecializationModifier,
+} from './infantryBVFactors';
 import { getInfantryBVWeapon } from './weaponTable';
 
 // =============================================================================
@@ -80,6 +84,8 @@ export interface InfantryFieldGunMount {
  * Input to the infantry BV calculator.
  */
 export interface InfantryBVInput {
+  armorFlags?: IInfantry['bvArmorFlags'];
+  hasArmorKit?: boolean;
   sourceOffense?: IInfantry['bvOffense'];
   /** Incoming protection, distinct from the weapon table's damage divisor. */
   damageDivisor?: number;
@@ -356,7 +362,8 @@ export function calculateInfantryBV(
     const bonus =
       (source.augmentations.includes('gas_effuser_toxin') ? 0.23 : 0) +
       (source.augmentations.includes('tsm_implant') ? 0.1 : 0) +
-      (source.augmentations.includes('suicide_implants') ? 0.12 : 0);
+      (source.augmentations.includes('suicide_implants') ? 0.12 : 0) +
+      (source.prostheticDamage ?? 0);
     platoonCore = (perTrooper + repeat + bonus) * troopers * motiveMultiplier;
   }
 
@@ -367,12 +374,18 @@ export function calculateInfantryBV(
     input.gunnery,
     input.piloting,
   );
-  // InfantryBVCalculator.java:65-80, MegaMek 48fcb2f64. Subsequent defensive
-  // movement/stealth factors remain pending; this is the structure term only.
+  // InfantryBVCalculator.java:65-113, 247-301; BVCalculator.java:1253-1276.
   const defensiveBV =
     troopers *
-    (1.5 * (input.damageDivisor ?? 1) + (input.hasPheromoneEffuser ? 0.05 : 0));
-  const final = Math.round((defensiveBV + platoonBV) * pilotMultiplier);
+    (1.5 * (input.damageDivisor ?? 1) +
+      (input.hasPheromoneEffuser ? 0.05 : 0)) *
+    infantryDefensiveFactor(source, input.armorFlags, input.hasArmorKit);
+  const baseBV =
+    (defensiveBV + platoonBV) *
+    infantrySpecializationModifier(source?.specializations ?? 0);
+  const final = Math.round(
+    (source ? Math.round(baseBV) : baseBV) * pilotMultiplier,
+  );
 
   return {
     defensiveBV,

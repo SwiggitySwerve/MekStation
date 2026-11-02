@@ -250,6 +250,98 @@ numeric output before native identity, quantity or grouping corrections.
 
 ## MODIFIED Requirements
 
+### Requirement: Infantry Per-Trooper BV
+
+Source-backed infantry SHALL use pinned MegaMek 48fcb2f64 weapon BV per shooter,
+not combat damage or incoming armor division (InfantryBVCalculator.java:117-158;
+BVCalculator.java:805-829). Secondary shooters SHALL replace primary shooters.
+Legacy editor inputs without source facts MAY retain their compatibility path.
+
+#### Scenario: Primary weapon contribution
+
+- **GIVEN** a source trooper with InfantryAssaultRifle, listed BV 1.59
+- **WHEN** personal weapon BV is computed
+- **THEN** the primary shooter SHALL contribute 1.59 before other offensive stages
+
+#### Scenario: Secondary ratio scaling
+
+- **GIVEN** seven troopers per squad and two secondary weapons per squad
+- **WHEN** the source platoon's personal weapons are valued
+- **THEN** two sevenths of shooters SHALL use secondary BV and five sevenths primary BV
+- **AND** a generic weapon-table ratio SHALL NOT replace the source count
+
+#### Scenario: Armor kit modifier
+
+- **GIVEN** a source platoon wearing Sneak Camo
+- **WHEN** BV is computed
+- **THEN** the kit SHALL add no flat offensive BV
+- **AND** its camouflage SHALL add 0.2 to the defensive factor
+
+### Requirement: Infantry Platoon BV with Motive Multiplier
+
+Source infantry SHALL sum defensive and offensive aggregates, apply the final
+specialization modifier, round base BV, then apply pilot adjustment and final
+rounding. Offense SHALL use the maximum run/jump/UMU MP in the shared two-decimal
+speed-factor formula, not a fixed motive multiplier. Defense SHALL multiply
+structure and pheromone BV by `1 + maximum TMM / 10 + stealth additions`.
+Positive jumping MP SHALL add one to its TMM; zero jumping MP SHALL add none.
+DEST, sneak camo and sneak IR SHALL each add 0.2; sneak ECM SHALL add 0.1.
+Eligible dermal camo SHALL provide a minimum potential TMM of three (InfantryBVCalculator.java:65-113, 247-301;
+BVCalculator.java:650-688, 1128-1130, 1253-1276 at the pin).
+
+#### Scenario: Foot platoon BV
+
+- **GIVEN** 28 unencumbered foot troopers with armor divisor one and InfantryAssaultRifle
+- **WHEN** baseline source BV is computed without other equipment or specialization
+- **THEN** defense SHALL equal 42 and offense SHALL equal `28 * 1.59 * 2 * 0.54 = 48.0816`
+- **AND** final BV SHALL equal 90
+
+#### Scenario: Mechanized multiplier
+
+- **GIVEN** 20 tracked troopers with ClanKit and InfantryAssaultRifle
+- **WHEN** baseline source BV is computed without other equipment or specialization
+- **THEN** offense SHALL equal `20 * 1.59 * 0.77 = 24.486` and defense SHALL equal 66
+- **AND** final BV SHALL equal 90
+
+#### Scenario: Movement and stealth defense
+
+- **GIVEN** base defense 42, run MP one, jump MP three and sneak camo/IR/ECM
+- **WHEN** the defensive factor is applied
+- **THEN** it SHALL equal `1 + 2 / 10 + 0.2 + 0.2 + 0.1 = 1.7`
+- **AND** defense SHALL equal 71.4 without intermediate rounding
+
+#### Scenario: Final specialization modifier
+
+- **GIVEN** represented source specialization bits
+- **WHEN** defensive and offensive BV have been summed
+- **THEN** one additive modifier SHALL include 0.1 for any combat-engineer bit, 0.3 marines, 0.2 mountain, 0.1 paratroops, 0.1 SCUBA and 0.1 XCT
+- **AND** multiple engineer bits SHALL count once; unrelated bits SHALL add nothing
+- **AND** an explicit zero mask SHALL override implicit movement or TAG specialization
+
+### Requirement: Infantry Anti-Mech Training Multiplier
+
+Source infantry SHALL follow ConvInfantry.java:288-290 eligibility and repeat eligible non-archaic weapon BV, multiplying only that repeat by 1.2 for Grappler or Climbing Claws.
+The legacy 1.1 training factor SHALL NOT price source infantry.
+
+#### Scenario: Anti-mech trained platoon
+
+- **GIVEN** eligible foot infantry with non-archaic personal weapon BV 420 before speed
+- **WHEN** source offensive BV is computed
+- **THEN** the personal weapon pool SHALL equal 840 before speed, without multiplying defense
+- **AND** mechanized, encumbered or active-field-weapon infantry SHALL receive no repeat
+
+### Requirement: Infantry Field Gun BV Addition
+
+Source field guns SHALL use the existing equipment resolver for actual weapon/ammo mounts, native quantities and excessive-ammo caps.
+Their BV SHALL receive offensive speed, then final specialization and pilot adjustment.
+
+#### Scenario: AC/5 field gun
+
+- **GIVEN** a foot platoon crewing an AC/5 with a standard 20-shot ammunition bin
+- **WHEN** its field-gun contribution is computed at offensive speed factor 0.54
+- **THEN** it SHALL contribute `(70 + 9) * 0.54 = 42.66` before final modifiers
+- **AND** the source gun and ammo SHALL each be counted once
+
 ### Requirement: Aerospace BV Dispatch
 
 The BV calculator SHALL route `IAerospaceUnit` inputs to an aerospace-specific
