@@ -13,6 +13,7 @@ export type {
 export {
   resolveEquipmentBV,
   getEquipmentEntry,
+  getAmmunitionEntry,
   isResolvable,
   resolveAmmoBV,
   getCatalogSize,
