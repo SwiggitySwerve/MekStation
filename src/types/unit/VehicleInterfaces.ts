@@ -62,6 +62,15 @@ export interface IVehicleMountedEquipment extends IUnitMountedEquipmentIdentity 
   readonly isTurretMounted: boolean;
   /** Is this sponson-mounted */
   readonly isSponsonMounted: boolean;
+  readonly isChinTurretMounted?: boolean;
+  readonly isPintleTurretMounted?: boolean;
+  readonly isOmniPodMounted?: boolean;
+  /** Source identity retained when no catalog definition is available. */
+  readonly resolutionWarning?: {
+    readonly code: 'unresolved-equipment';
+    readonly sourceId: string;
+    readonly attemptedId: string;
+  };
   /** Linked ammunition ID */
   readonly linkedAmmoId?: string;
 }

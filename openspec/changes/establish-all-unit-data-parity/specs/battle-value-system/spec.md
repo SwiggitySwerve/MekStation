@@ -1,5 +1,34 @@
 ## ADDED Requirements
 
+### Requirement: Large aerospace offensive fire pool
+
+The aerospace BV owner SHALL provide a separate six-arc offensive stage for
+already-valued native weapon and ammunition facts. It SHALL select the highest
+weapon-BV arc in nose, left, left-aft, aft, right-aft, right order, then the
+stronger adjacent arc (clockwise on ties). It SHALL apply cumulative heat to
+the adjacent arc weights, cap ammunition within each native type/rack and arc,
+and apply the existing speed factor to maximum thrust. Offensive equipment
+SHALL be added outside arc weights. Ungrouped selection values and grouped
+weapon additions after arc weighting SHALL remain distinct. This stage SHALL NOT imply complete
+DropShip dispatch: source mount valuation, links and final adjustments remain
+required before changing the defensive-only calculation scope.
+
+#### Scenario: Union offensive stage from native facts
+
+- **GIVEN** independently valued Union (2708) weapons, ammo, heat capacity 90 and maximum thrust 5
+- **WHEN** the six-arc stage runs
+- **THEN** weapon BV SHALL be 2101.25, ammunition BV 238.5 and offensive BV 2339.75
+- **AND** the dispatcher SHALL continue withholding the unported complete total 3972
+
+#### Scenario: Strict cumulative heat and local ammunition caps
+
+- **GIVEN** primary-arc heat exactly equal to heat capacity
+- **WHEN** the adjacent arcs are processed
+- **THEN** the stronger adjacent arc SHALL retain full value
+- **AND** the weaker adjacent arc SHALL use 0.25 if cumulative heat exceeds capacity
+- **AND** ammo SHALL NOT borrow a matching weapon cap from another arc
+- **AND** missing, duplicate, unsupported or nonfinite stage facts SHALL be rejected
+
 ### Requirement: Capital ship defensive BV dispatch
 
 JumpShips, WarShips and Space Stations SHALL use the aerospace defensive owner
@@ -221,6 +250,24 @@ armored motive mount. Support vehicles SHALL omit these equipment additions.
 - **GIVEN** a BAR-6 support vehicle with 40 armor points
 - **WHEN** armor BV is computed
 - **THEN** armor BV SHALL equal `40 × 2.5 × 1.0 × (6/10) = 60`
+
+#### Scenario: Preserve vehicle armor valuation facts
+
+- **GIVEN** uniform or patchwork vehicle armor, including installed turret and rotor locations
+- **WHEN** the contract adapter and dispatcher compute armor BV
+- **THEN** native numeric and named armor types SHALL use pinned MegaMek's multipliers: hardened 2; reactive, reflective and ballistic-reinforced 1.5; ferro-lamellor and anti-penetrative ablation 1.2; heat-dissipating 1.1; other types 1
+- **AND** patchwork SHALL sum each location's nonnegative points times its multiplier times BAR/10, then multiply by 2.5 without intermediate rounding
+- **AND** missing patchwork location types SHALL fail explicitly
+- **AND** Blue Shield SHALL add 0.2 before location HarJel II/III factors of 1.1/1.2, with each undamaged modular-armor mount adding 10 points
+- **AND** the converter SHALL preserve installed patchwork type codes and support BAR ratings
+- **AND** uniform support armor with no source BAR rating SHALL retain Java's zero default, so Air Car's armor BV SHALL be zero
+
+#### Scenario: Reflective and hardened corpus armor
+
+- **GIVEN** Mamono IFV's 160 reflective armor points and Ballista Artillery Trailer's 152 hardened armor points
+- **WHEN** their armor is valued through the contract dispatcher
+- **THEN** their armor BV SHALL equal 600 and 760 respectively
+- **AND** unrelated offensive, structure, equipment and movement fields SHALL retain their existing rules
 
 #### Scenario: Chassis equipment and support exclusion
 
@@ -536,7 +583,7 @@ Vehicle offensive BV SHALL combine weapon BV, ammo BV, offensive equipment BV,
 mount modifiers and half the unit's raw tonnage before applying the speed
 factor. The mass contribution SHALL apply to Tank, SuperHeavyTank, VTOL and
 support vehicles, including unarmed vehicles, without rounding the tonnage.
-Single, Dual and Chin turret weapons SHALL
+Single, Dual, Chin and Sponson turret weapons SHALL
 retain their listed BV before other applicable modifiers and SHALL NOT receive
 a rotating-turret bonus. The consumed `turretModifier` breakdown field SHALL
 remain available and equal 1 for these turret kinds.
@@ -559,11 +606,11 @@ remain available and equal 1 for these turret kinds.
 - **WHEN** offensive BV is computed
 - **THEN** it SHALL receive neither the 0.5 rear penalty nor a turret bonus
 
-#### Scenario: Preserve the separate sponson term
+#### Scenario: Sponson weapons retain listed BV
 
 - **GIVEN** a sponson-mounted weapon containing 100 BV
 - **WHEN** offensive BV is computed without other weapon modifiers
-- **THEN** its existing 1.025 modifier SHALL remain unchanged in this slice
+- **THEN** it SHALL contribute 100 BV and turretModifier SHALL equal 1
 
 #### Scenario: Bound the parity claim
 

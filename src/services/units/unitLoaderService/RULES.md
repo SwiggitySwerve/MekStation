@@ -29,9 +29,10 @@ registry owns their accepted contract discriminators and available store mapper.
   `normalizeVehicleConfiguration` validates required vehicle facts and maps them
   deterministically; `createVehicleSession` assigns fresh editor identity and
   copies mutable state. It uses the existing vehicle store, without registering
-  the library-open flow or adding equipment and Omni pods.
-- Engine identities use the BLK engine owner. Known identities the store cannot
-  represent (including NONE and STEAM) throw `UnsupportedVehicleConfigurationError`,
+  the library-open flow. The vehicle mapper hydrates every source
+  mount using the shared equipment resolver and location/mount owners.
+- Engine identities use the BLK engine owner. Unsupported identities throw
+  `UnsupportedVehicleConfigurationError`,
   a subtype of `UnsupportedUnitConfigurationError`, with code
   `unsupported-configuration`, field and value. Unsupported motion and armor
   identities also fail explicitly. Invalid/missing facts remain parse errors.
@@ -44,4 +45,18 @@ registry owns their accepted contract discriminators and available store mapper.
   contradicts owner ruling 5 and awaits a separate slice. This mapper adds no cap.
 - Focused `vehicleMapping.test.ts` fixtures enforce this mapping and error
   contract. Full pinned-corpus comparison is external acceptance evidence, not a
-  CI gate. Existing handlers and `vehicleValidation.ts` are unchanged.
+  CI gate. `vehicleValidation.ts` is unchanged.
+
+- Equipment normalization preserves order and repeated mounts; session creation
+  gives mounts independent editor IDs. Resolved items use catalog IDs/names;
+  unresolved items retain source IDs/names and a typed `resolutionWarning`.
+- Rear, turret, sponson, chin, pintle and Omni pod flags come from the shared
+  mount owner or explicit contract flags. Vehicle Omni identity is independent
+  of individual pod flags. Base-chassis Omni mechanism allowances are not yet
+  represented in this store; pod hydration does not infer those allowances.
+- `vehicleEquipmentMapping.test.ts` enforces equipment hydration, unresolved
+  visibility, all vehicle layouts and independent sessions.
+- Ammunition tokens use the normalization owner's exact catalog identity and
+  select only ammunition definitions. Missing variants never fall through to
+  weapon lookup, registry aliases or another technology's ammo. Resolver tests
+  enforce this even when ammunition and a weapon share a canonical ID.

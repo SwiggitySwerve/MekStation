@@ -144,6 +144,8 @@ export interface VehicleBVStateSubset {
   tonnage: number;
   cruiseMP: number;
   armorType: string;
+  armorTypeByLocation?: Readonly<Record<string, string | number>>;
+  barRatingByLocation?: Readonly<Record<string, number>>;
   armorAllocation: IVehicleArmorAllocation | Record<string, unknown>;
   structureType: string;
   turret: { type: TurretType } | null;
@@ -202,6 +204,18 @@ export function toVehicleBVInput(state: VehicleBVStateSubset): VehicleBVInput {
     totalArmorPoints,
     totalStructurePoints,
     armorType: state.armorType,
+    armorByLocation: Object.fromEntries(
+      Object.entries(state.armorAllocation).map(([location, value]) => [
+        location,
+        armorAllocationValueTotal(value),
+      ]),
+    ),
+    armorTypeByLocation: state.armorTypeByLocation,
+    barRatingByLocation: state.barRatingByLocation,
+    armorEquipment: state.equipment.map((item) => ({
+      id: item.equipmentId,
+      location: String(item.location),
+    })),
     structureType: state.structureType,
     barRating: state.barRating,
     weapons,
@@ -272,7 +286,8 @@ function sumUnitArmor(
  *       — Requirement: Vehicle BV Dispatch
  */
 export function toVehicleBVInputFromUnit(
-  unit: IVehicleUnit,
+  unit: IVehicleUnit &
+    Pick<VehicleBVInput, 'armorTypeByLocation' | 'barRatingByLocation'>,
   options: VehicleBVUnitOptions = {},
 ): VehicleBVInput {
   const cruiseMP = unit.movement.cruiseMP;
@@ -356,7 +371,19 @@ export function toVehicleBVInputFromUnit(
     tonnage: unit.tonnage,
     totalArmorPoints,
     totalStructurePoints,
-    armorType: undefined,
+    armorType: unit.armorType,
+    armorByLocation:
+      armorByLocation && Object.keys(armorByLocation).length > 0
+        ? armorByLocation
+        : undefined,
+    armorTypeByLocation: unit.armorTypeByLocation,
+    barRatingByLocation: isSupportVehicle(unit)
+      ? unit.barRatingByLocation
+      : undefined,
+    armorEquipment: rawEquipment.map((item) => ({
+      id: item.equipmentId,
+      location: String(item.location),
+    })),
     structureType: vehicleStructureBVType(unit.internalStructureType),
     barRating,
     weapons,

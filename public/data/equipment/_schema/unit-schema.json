@@ -244,6 +244,20 @@
             "minimum": 0
           }
         },
+        "typeByLocation": {
+          "type": "object",
+          "description": "Patchwork armor types per installed vehicle location",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "barRatingByLocation": {
+          "type": "object",
+          "description": "Support patchwork BAR per installed vehicle location",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 10
+          }
+        },
         "typeByArc": {
           "type": "object",
           "description": "Explicit BLK armor type codes per normalized source arc; includes sentinel -1. Distinct from armor points in byArc.",

@@ -94,13 +94,14 @@ export function normalizeEquipmentId(
   catalog: EquipmentCatalogLookup = loadCatalogForEquipmentId(equipmentId),
 ): string {
   const rawLower = equipmentId.toLowerCase().trim();
-  // BLK (ST)/(R) mount markers become these spellings in converter IDs.
+  // BLK mount markers occur in native tokens and converted IDs.
   const lower = catalog.has(rawLower)
     ? rawLower
     : rawLower
         .replace(/:omni$/, '')
-        .replace(/^r-/, '')
-        .replace(/st$/, '');
+        .replace(/^(?:r-|\(r\)\s*)/, '')
+        .replace(/(?:-?\((?:st|pt)\)|-?(?:st|pt))$/, '')
+        .trim();
   const stripped = lower.replace(/^\d+-/, '').replace(/-\d+$/, '');
 
   // Preserve rack numbers and tech/munition variants before general instance-ID
