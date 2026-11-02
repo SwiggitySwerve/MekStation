@@ -27,6 +27,7 @@ import {
   AerospaceEngineType,
   IAerospaceMountedEquipment,
 } from '@/types/unit/AerospaceInterfaces';
+import { aerospaceEditorSchema } from '@/types/unit/AerospaceSerialization';
 import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { BayType, ITransportBay } from '@/types/unit/CapitalShipInterfaces';
 import { makeSmallCraftCrew } from '@/utils/construction/aerospace/crewCalculations';
@@ -61,6 +62,21 @@ const SMALL_CRAFT_LOCATIONS: Readonly<Record<string, AerospaceLocation>> = {
   RIGHT_SIDE: AerospaceLocation.RIGHT_WING,
   HULL: AerospaceLocation.FUSELAGE,
 };
+
+/** Inverse of mapArc, retaining the small-craft contract's side/hull names. */
+export function aerospaceContractArc(
+  location: AerospaceLocation,
+  smallCraft: boolean,
+): string {
+  const key = Object.entries({
+    ...AerospaceLocation,
+    ...(smallCraft ? SMALL_CRAFT_LOCATIONS : {}),
+  })
+    .filter(([, value]) => value === location)
+    .at(-1)?.[0];
+  if (!key) throw new TypeError(`Unknown aerospace location: ${location}`);
+  return key;
+}
 
 /** The converter keeps BLK's "(R) " rear-mount prefix in name and id. */
 const REAR_PREFIX = '(R) ';
@@ -122,16 +138,47 @@ function mapArmorAllocation(
 function mapEquipment(
   definition: AerospaceDefinition,
   isSmallCraft: boolean,
+  editor?: ReturnType<typeof aerospaceEditorSchema.parse>,
 ): IAerospaceMountedEquipment[] {
+  if (editor && editor.mounts.length !== (definition.equipment ?? []).length)
+    throw new TypeError(
+      'Saved aerospace mount count differs from its contract',
+    );
+  const externalLinks = new Set(
+    editor?.mounts.map((mount) => mount.linkedAmmoId),
+  );
+  const ids = (definition.equipment ?? []).map((_, index) => {
+    let id = `mount-${index}`;
+    while (externalLinks.has(id)) id += '-';
+    return id;
+  });
   return (definition.equipment ?? []).map((item, index) => {
+    const saved = editor?.mounts[index];
+    if (
+      saved?.linkedAmmoIndex !== undefined &&
+      saved.linkedAmmoIndex >= (definition.equipment ?? []).length
+    )
+      throw new TypeError('Saved aerospace ammunition target is missing');
     const sourceName = item.name ?? item.id;
     const prefixed = sourceName.startsWith(REAR_PREFIX);
     return {
-      id: `mount-${index}`,
-      equipmentId: prefixed ? item.id.replace(/^r-/, '') : item.id,
-      name: prefixed ? sourceName.slice(REAR_PREFIX.length) : sourceName,
+      id: ids[index],
+      equipmentId: !saved && prefixed ? item.id.replace(/^r-/, '') : item.id,
+      name:
+        saved?.name ??
+        (prefixed ? sourceName.slice(REAR_PREFIX.length) : sourceName),
       location: mapArc(item.location, isSmallCraft),
-      ...(item.isRearMounted || prefixed ? { isRearMounted: true } : {}),
+      ...(saved
+        ? {
+            isRearMounted: saved.isRearMounted,
+            linkedAmmoId:
+              saved.linkedAmmoIndex === undefined
+                ? saved.linkedAmmoId
+                : ids[saved.linkedAmmoIndex],
+          }
+        : item.isRearMounted || prefixed
+          ? { isRearMounted: true }
+          : {}),
     };
   });
 }
@@ -159,6 +206,11 @@ export function mapAerospaceDefinitionToState(
   definition: AerospaceDefinition,
   session: { readonly id?: string; readonly createdAt?: number } = {},
 ): AerospaceState {
+  const editor =
+    definition.aerospaceEditor === undefined
+      ? undefined
+      : aerospaceEditorSchema.parse(definition.aerospaceEditor);
+  const { mounts: _mounts, ...editorState } = editor ?? {};
   const subType = definitionSubType(definition);
   if (!SUPPORTED_SUBTYPES.has(subType)) {
     throw new UnsupportedUnitConfigurationError(
@@ -256,7 +308,17 @@ export function mapAerospaceDefinitionToState(
         )
       : null,
     bays: mapBays(definition.transporters),
-    equipment: mapEquipment(definition, isSmallCraft),
+    ...(editor
+      ? {
+          ...editorState,
+          isFixedWingSupport: editor.isFixedWingSupport,
+          bays: editor.bays?.map((bay) => ({
+            ...bay,
+            doors: bay.doors ?? NaN,
+          })),
+        }
+      : {}),
+    equipment: mapEquipment(definition, isSmallCraft, editor),
     isModified: false,
     createdAt,
     lastModifiedAt: createdAt,

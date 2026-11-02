@@ -39,65 +39,12 @@ describe('VTOLUnitHandler', () => {
   // ==========================================================================
 
   describe('calculateWeight', () => {
-    it('should calculate positive weight', () => {
-      const doc = createMockBlkDocument();
-      const result = handler.parse(doc);
+    it('rejects incomplete total weight without failing source parsing', () => {
+      const result = handler.parse(createMockBlkDocument());
       expect(result.success).toBe(true);
-
-      const weight = handler.calculateWeight(result.data!.unit);
-      expect(weight).toBeGreaterThan(0);
-    });
-
-    it('should include engine weight based on rating', () => {
-      const doc1 = createMockBlkDocument({ cruiseMP: 6, tonnage: 20 });
-      const doc2 = createMockBlkDocument({ cruiseMP: 10, tonnage: 20 });
-      const result1 = handler.parse(doc1);
-      const result2 = handler.parse(doc2);
-
-      expect(result1.success).toBe(true);
-      expect(result2.success).toBe(true);
-
-      const weight1 = handler.calculateWeight(result1.data!.unit);
-      const weight2 = handler.calculateWeight(result2.data!.unit);
-
-      // Higher cruise MP should mean heavier engine
-      expect(weight2).toBeGreaterThan(weight1);
-    });
-
-    it('should include rotor weight as 10% of tonnage', () => {
-      const doc = createMockBlkDocument({ tonnage: 20 });
-      const result = handler.parse(doc);
-      expect(result.success).toBe(true);
-
-      const weight = handler.calculateWeight(result.data!.unit);
-      // Rotor should contribute 2 tons (20 * 0.1)
-      expect(weight).toBeGreaterThanOrEqual(2);
-    });
-
-    it('should include structural weight', () => {
-      const doc = createMockBlkDocument({ tonnage: 20 });
-      const result = handler.parse(doc);
-      expect(result.success).toBe(true);
-
-      const weight = handler.calculateWeight(result.data!.unit);
-      // Structure should contribute 2 tons (20 * 0.1)
-      expect(weight).toBeGreaterThanOrEqual(2);
-    });
-
-    it('should include armor weight', () => {
-      const doc1 = createMockBlkDocument({ armor: [10, 8, 8, 6, 2] });
-      const doc2 = createMockBlkDocument({ armor: [20, 16, 16, 12, 2] });
-      const result1 = handler.parse(doc1);
-      const result2 = handler.parse(doc2);
-
-      expect(result1.success).toBe(true);
-      expect(result2.success).toBe(true);
-
-      const weight1 = handler.calculateWeight(result1.data!.unit);
-      const weight2 = handler.calculateWeight(result2.data!.unit);
-
-      // More armor should mean more weight
-      expect(weight2).toBeGreaterThan(weight1);
+      expect(() => handler.calculateWeight(result.data!.unit)).toThrow(
+        /weight is incomplete/,
+      );
     });
   });
 

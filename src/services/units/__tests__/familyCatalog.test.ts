@@ -292,7 +292,7 @@ it('loads a family-qualified custom definition without requiring a canonical cat
   if (!vehicle) throw new Error('Missing vehicle fixture');
   jest
     .mocked(customUnitApiService.getById)
-    .mockResolvedValue({ ...vehicle, currentVersion: 7 });
+    .mockResolvedValue({ ...vehicle, family: 'vehicles', currentVersion: 7 });
   fetchMock.mockClear();
   expect(
     await loadUnitDefinition('vehicles', 'saved-vehicle', 'custom'),

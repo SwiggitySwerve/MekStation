@@ -1,4 +1,6 @@
+import type { AerospaceState } from '@/stores/aerospaceState';
 import type { UnitState } from '@/stores/unitState';
+import type { VehicleState } from '@/stores/vehicleState';
 import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 import type { Era } from '@/types/temporal/Era';
 import type {
@@ -8,6 +10,12 @@ import type {
   ISerializedUnit,
 } from '@/types/unit/UnitSerialization';
 
+import {
+  blkEngineName,
+  encodeBlkEngine,
+} from '@/services/conversion/blkEngineIdentity';
+import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
+import { vehicleEditorSchema } from '@/services/units/unitLoaderService/vehicleMapping';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { CockpitType } from '@/types/construction/CockpitType';
 import {
@@ -20,7 +28,16 @@ import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { getLocationsForConfig } from '@/types/construction/MechConfigurationSystem';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
+import {
+  VehicleLocation,
+  VTOLLocation,
+  SuperHeavyVehicleLocation,
+} from '@/types/construction/UnitLocation';
+import { UnitContract, type IUnitContract } from '@/types/contracts';
 import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
+import { aerospaceEditorSchema } from '@/types/unit/AerospaceSerialization';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
 
@@ -244,4 +261,161 @@ export function serializeCustomUnitState(
     baseChassisHeatSinks: state.baseChassisHeatSinks,
     clanName: state.clanName || undefined,
   };
+}
+
+/** Vehicle store -> catalog contract; editor-only facts use a validated extension. */
+export function serializeCustomVehicleState(
+  state: VehicleState,
+  identity: CustomUnitSaveIdentity,
+): IUnitContract & {
+  family: 'vehicles';
+  vehicleEditor: ReturnType<typeof vehicleEditorSchema.parse>;
+} {
+  const locations = {
+    ...VehicleLocation,
+    ...VTOLLocation,
+    ...SuperHeavyVehicleLocation,
+  };
+  const locationTag = (location: string) => {
+    const key = Object.entries(locations).find(
+      ([, value]) => value === location,
+    )?.[0];
+    if (!key) throw new TypeError(`Unknown vehicle location: ${location}`);
+    return key;
+  };
+  const vehicleEditor = vehicleEditorSchema.parse({
+    ...state,
+    name: [identity.chassis, identity.variant].filter(Boolean).join(' '),
+    mounts: state.equipment,
+  });
+  const definition = UnitContract.parse({
+    id: identity.id,
+    family: 'vehicles',
+    chassis: identity.chassis,
+    model: identity.variant,
+    variant: identity.variant,
+    era: identity.era,
+    unitType: state.unitType,
+    year: state.year,
+    tonnage: state.tonnage,
+    mulId: state.mulId,
+    techBase: state.techBase === TechBase.CLAN ? 'CLAN' : 'INNER_SPHERE',
+    rulesLevel: RULES_LEVEL[state.rulesLevel],
+    motionType: state.motionType,
+    engine: {
+      type: blkEngineName(Number(encodeBlkEngine(state.engineType))),
+      rating: state.engineRating,
+    },
+    clanEngine: state.engineType === EngineType.XL_CLAN,
+    engineTechRating: state.engineTechRating,
+    structuralTechRating: state.structuralTechRating,
+    movement: { cruiseMP: state.cruiseMP, flankMP: state.flankMP },
+    armor: {
+      type: ARMOR_TYPE[state.armorType],
+      byLocation: Object.fromEntries(
+        Object.entries(state.armorAllocation).map(([location, points]) => [
+          locationTag(location),
+          points,
+        ]),
+      ),
+    },
+    isOmni: state.isOmni,
+    isTrailer: state.isTrailer,
+    equipment: state.equipment.map((item) => ({
+      id: item.equipmentId,
+      name: item.name,
+      location: locationTag(item.location),
+      isRearMounted: item.isRearMounted,
+      isOmniPodMounted: item.isOmniPodMounted,
+      linkedAmmo: state.equipment.some(
+        (mount) => mount.id === item.linkedAmmoId,
+      )
+        ? `mount-${state.equipment.findIndex((mount) => mount.id === item.linkedAmmoId)}`
+        : item.linkedAmmoId,
+    })),
+    vehicleEditor,
+  });
+  return { ...definition, family: 'vehicles' as const, vehicleEditor };
+}
+
+/** Aerospace store -> catalog contract, sharing the custom-library save owner. */
+export function serializeCustomAerospaceState(
+  state: AerospaceState,
+  identity: CustomUnitSaveIdentity,
+): IUnitContract & {
+  family: 'aerospace';
+  aerospaceEditor: ReturnType<typeof aerospaceEditorSchema.parse>;
+} {
+  const arc = (location: Parameters<typeof aerospaceContractArc>[0]) =>
+    aerospaceContractArc(
+      location,
+      state.aerospaceSubType === AerospaceSubType.SMALL_CRAFT,
+    );
+  const aerospaceEditor = aerospaceEditorSchema.parse({
+    ...state,
+    name: [identity.chassis, identity.variant].filter(Boolean).join(' '),
+    bays: state.bays?.map((bay) => ({
+      ...bay,
+      doors: Number.isNaN(bay.doors) ? null : bay.doors,
+    })),
+    mounts: state.equipment.map((mount) => {
+      const target = state.equipment.findIndex(
+        (item) => item.id === mount.linkedAmmoId,
+      );
+      return {
+        ...mount,
+        linkedAmmoIndex: target >= 0 ? target : undefined,
+        linkedAmmoId: target >= 0 ? undefined : mount.linkedAmmoId,
+      };
+    }),
+  });
+  const definition = UnitContract.parse({
+    id: identity.id,
+    chassis: identity.chassis,
+    model: identity.variant,
+    variant: identity.variant,
+    era: identity.era,
+    family: 'aerospace',
+    unitType: state.unitType,
+    subType: state.isFixedWingSupport
+      ? 'FixedWingSupport'
+      : state.aerospaceSubType,
+    year: state.year,
+    tonnage: state.tonnage,
+    mulId: state.mulId,
+    techBase: state.techBase === TechBase.CLAN ? 'CLAN' : 'INNER_SPHERE',
+    rulesLevel: RULES_LEVEL[state.rulesLevel],
+    motionType: state.motionType.toUpperCase(),
+    isOmni: state.isOmni,
+    // Legacy small-craft ratings exceed the contract's fighter rating range.
+    // Keep the exact editor rating in the validated extension, without clamping.
+    engine: { type: ENGINE_TYPE[state.engineType] },
+    movement: { safeThrust: state.safeThrust, maxThrust: state.maxThrust },
+    fuel: state.fuelPoints,
+    structuralIntegrity: state.structuralIntegrity,
+    cockpit: state.cockpitType.toUpperCase().replaceAll(' ', '_'),
+    heatSinks: {
+      type: state.doubleHeatSinks ? 'DOUBLE' : 'SINGLE',
+      count: state.heatSinks,
+    },
+    armor: {
+      type: ARMOR_TYPE[state.armorType],
+      byArc: Object.fromEntries(
+        Object.entries(state.armorAllocation).map(([location, points]) => [
+          arc(location as Parameters<typeof arc>[0]),
+          points,
+        ]),
+      ),
+    },
+    hasBombBay: state.hasBombBay,
+    bombCapacity: state.bombCapacity,
+    equipment: state.equipment.map((mount) => ({
+      id: mount.equipmentId,
+      name: mount.name,
+      location: arc(mount.location),
+      isRearMounted: mount.isRearMounted,
+    })),
+    aerospaceEditor,
+  });
+  return { ...definition, family: 'aerospace' as const, aerospaceEditor };
 }
