@@ -102,19 +102,28 @@ registry owns their accepted contract discriminators and available store mapper.
   interpretation use their current owners. BODY mounts retain their original
   block in `blkSource` while occupying the store torso location.
   The store derives weight class from its construction owner; it has no Assault
-  class, so the catalog's original weight-class label is not retained.
+  class; the catalog's original weight-class label remains in librarySource.
 - Battle armor retains squad size, class-limit trooper mass, manipulators,
   motion, typed/numeric armor, mount options and every mount. Native source
   names and qualifiers feed the existing equipment/BV owner; suit location is
   separate from squad/point/trooper location. Catalog tonnage is trooper count.
-- Store limits: both stores lack era, role, source, fluff and quirks. ProtoMechs
+- Editor limits: neither editor exposes era, role, source, fluff or quirks. ProtoMechs
   lack interface-cockpit and armor-tech declarations; the main-gun weapon list
   is represented by its mounts. BA lacks chassis tech, exoskeleton/HarJel,
   armor-tech declarations, abilities, turret capacity/modularity and distinct
   magnetic-claw selection. Original claw identities remain in equipment.
   BA VTOL MP has no separate store field; source jump MP is retained.
 - The BV shown is the existing app owner's result, not a new parity verdict.
-  Custom-library saving remains gated by the existing family capability.
+  ProtoMech and battle-armor library saves use CustomUnitSerializer with an
+  explicit family. Infantry saving remains gated for the next slice.
+- Both small-unit stores persist the full validated definition as librarySource.
+  Saves retain every original fact there, including source tech, cockpit, abilities,
+  turret declarations, raw mounts and provenance. A validated smallUnitEditor
+  extension carries exact editor fields; session and mount IDs renew on reopening,
+  and ammunition links renew with their targets. Cached BV is recomputed.
+- Contract projections update edited facts while retaining unchanged source
+  spellings and nested source-only fields. Saved history remains unavailable for
+  these stores; family-less legacy saves still select BattleMechs.
 
 ## Infantry library sessions
 
