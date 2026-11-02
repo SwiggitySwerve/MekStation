@@ -44,10 +44,8 @@ describe('native converted equipment qualifiers and aliases', () => {
       resolved: true,
       battleValue: 3,
     });
-    expect(normalizeEquipmentId('CLAPGaussRifle Ammo')).toBe(
-      'clapgaussrifle ammo',
-    );
-    expect(getEquipmentEntry('CLAPGaussRifle Ammo')).toBeUndefined();
+    expect(normalizeEquipmentId('CLAPGaussRifle Ammo')).toBe('apgaussrifle');
+    expect(getEquipmentEntry('CLAPGaussRifle Ammo')?.id).toBe('apgaussrifle');
   });
 
   it.each([
