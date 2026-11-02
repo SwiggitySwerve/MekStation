@@ -175,7 +175,7 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 The large-aerospace 100/50/25 arc policy does not apply to ASF, CF, FWS or
 SmallCraft. DropShip and capital offensive calculations are outside this owner.
 Rear-mounted flags, heat, mounted ammo/equipment classification, quantities,
-weapon links and speed remain separate parity work; this change preserves
+weapon links remain separate parity work; the group calculation preserves
 their existing policies and does not establish full offensive parity.
 
 Enforcement: `aerospaceBV.offensiveArcParity.test.ts` covers Sabre's native
@@ -184,6 +184,33 @@ contract dispatch, both wing/side topologies, combined-group selection,
 strong rear groups, Fuselage ties and empty/unknown locations. Sabre remains
 unresolved in production catalog data. UL-19-offense's 620-source comparison
 asserts unchanged inputs, raw arcs and unrelated breakdown fields.
+
+## Offensive speed
+
+`aerospaceBVCalculator.calculateAerospaceSpeedFactor` consumes maximum thrust
+as airborne run MP for ASF, conventional fighters, fixed-wing support and
+small craft. `thrustCalculations.calculateMaxThrust` owns the upward rounding;
+`battleValueMovement.calculateOffensiveSpeedFactorForMP` owns the exponent and
+two-decimal rounding before multiplication. The public `avgThrust` diagnostic
+retains its arithmetic mean and does not affect speed. Supplied maximum thrust
+remains authoritative at the BV boundary; this change does not rewrite inputs.
+
+Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`:
+`AeroBVCalculator.java:183-186` reads `getRunMP(BV_CALCULATION)`;
+`Aero.java:1656-1663` delegates airborne movement to
+`Entity.java:4015-4017` (`ceil(walk * 1.5)`). ASF extends Aero, conventional
+fighter extends ASF, fixed-wing support extends conventional fighter, and
+small craft extends Aero; none overrides this movement rule.
+`BVCalculator.java:1129-1132` supplies the shared speed formula.
+
+Enforcement: `aerospaceBV.speedParity.test.ts` covers all four families,
+odd-thrust ceiling, zero thrust, factor rounding and the compatibility mean.
+The arc parity fixtures pin Sabre's native 248 BV pool at factor 2.58 and
+639.84 offense, plus Inseki II's factor 1.37 through contract dispatch.
+UL-19-speed compares all 620 unchanged corpus inputs and allows only speed,
+offense and final BV to change. Sabre's production prototype IDs, heat, ammo,
+links and other valuation gaps remain unresolved. This construction rule
+does not represent grounded/damaged gameplay state or complete BV parity.
 
 ## Defensive thrust factor
 
