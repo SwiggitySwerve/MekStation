@@ -6,6 +6,7 @@ import type {
 import { EngineType } from '../../types/construction/EngineType';
 import { calculateAmmoBVWithExcessiveCap } from './battleValueAmmo';
 import { calculateOffensiveSpeedFactor } from './battleValueMovement';
+import { getArtemisBVMultiplier } from './equipmentBVResolver';
 
 function applyWeaponBVModifiers(
   weapon: {
@@ -27,11 +28,7 @@ function applyWeaponBVModifiers(
     modifiedBV *= 0.5;
   }
 
-  if (weapon.artemisType === 'iv') {
-    modifiedBV *= 1.2;
-  } else if (weapon.artemisType === 'v') {
-    modifiedBV *= 1.3;
-  }
+  modifiedBV *= getArtemisBVMultiplier(weapon.artemisType);
 
   if (hasTC && weapon.isDirectFire) {
     modifiedBV *= 1.25;
