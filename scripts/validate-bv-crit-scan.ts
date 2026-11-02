@@ -425,7 +425,9 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
         // Each crit slot carries -15 BV penalty in standard explosive processing
         if (
           lo.includes('extended fuel tank') ||
-          lo.includes('extendedfueltank')
+          lo.includes('extendedfueltank') ||
+          // Pinned MiscType.createLAMBombBay: each one-slot bay is explosive.
+          lo === 'bomb bay'
         ) {
           if (ml)
             r.explosive.push({

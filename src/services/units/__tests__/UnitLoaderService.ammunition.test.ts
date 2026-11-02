@@ -338,6 +338,47 @@ describe('BattleMech BV source parity', () => {
     expect(b?.moveHeat).toBe(9);
     expect(b?.heatEfficiency).toBe(8);
   });
+  // Pinned Java MekBVCalculator; both aggregates are checked before rounding.
+  it.each([
+    ['urbanmech-lam-s-um-1xla', 1899, 696.75, 1301.7375],
+    ['phoenix-hawk-lam-mk-i-phx-hk1', 1942, 751.2, 1191],
+    ['phoenix-hawk-lam-mk-i-phx-hk1r', 1858, 799.2, 1059],
+    ['phoenix-hawk-lam-phx-hk1rb', 1800, 783.2, 1017],
+    ['phoenix-hawk-lam-phx-hk2m', 1465, 703.2, 762],
+    ['pwwka-s-pw-1lam', 1668, 538.05, 1217.76],
+    ['screamer-lam-scr-1x-lam', 1475, 742.4, 732.72],
+    ['shadow-hawk-lam-shd-x1', 828, 512.2, 316.22],
+    ['shadow-hawk-lam-shd-x2', 994, 562.8, 431.55],
+    ['stinger-lam-mk-i-stg-a1', 846, 495.55, 350.88],
+    ['stinger-lam-stg-a10', 881, 495.55, 385.28],
+    ['stinger-lam-stg-a5', 1073, 495.55, 577.92],
+    ['wasp-lam-mk-i-wsp-100', 489, 282.4, 206.4],
+    ['wasp-lam-mk-i-wsp-100a', 909, 378.4, 531],
+    ['wasp-lam-mk-i-wsp-100b', 876, 540, 336],
+    ['wasp-lam-wsp-105', 814, 470.05, 344],
+    ['wasp-lam-wsp-105m', 907, 470.05, 436.88],
+    ['wasp-lam-wsp-110', 639, 381.2, 258],
+    ['yurei-s-yr-1lam', 2106, 704.8, 1512],
+  ] as const)(
+    '%s LAM agrees with pinned Java',
+    async (id, total, defensive, offensive) => {
+      const loaded = await load(id);
+      const context = loaded.bvContext;
+      if (!context) throw new Error('Fixture needs source context');
+      const source = {
+        ...context.source,
+        lamType: id.startsWith('shadow-hawk') ? 'Bimodal' : 'Standard',
+      };
+      const state = { ...loaded, bvContext: { ...context, source } };
+      const raw: UnitData = JSON.parse(JSON.stringify(source));
+      const result = calculateUnitBV(raw, id);
+      expect(result.breakdown?.defensiveBV).toBeCloseTo(defensive, 7);
+      expect(result.breakdown?.offensiveBV).toBeCloseTo(offensive, 7);
+      expect(result.bv).toBe(total);
+      expect(buildBattleMechPreviewProjection(state).battleValue).toBe(total);
+    },
+  );
+
   it.each(['armor', 'weapon', 'ammo', 'CASE'] as const)(
     '%s edits agree with independently edited gate inputs',
     async (change) => {
