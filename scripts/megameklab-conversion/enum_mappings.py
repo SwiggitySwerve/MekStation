@@ -363,5 +363,6 @@ def normalize_equipment_id(name: str) -> str:
     id_str = re.sub(r'^improved-atm-(3|6|9|12)$', r'iatm-\1', id_str)
     id_str = re.sub(r'^(prototype-er-(?:small|medium)-laser)-cp$', r'\1', id_str)
     id_str = re.sub(r'^prototype-rocket-launcher-(10|15)$', r'clrocketlauncher\1prototype', id_str)
+    id_str = re.sub(r'^rifle-cannon,-(heavy|medium|light)$', r'\1-rifle', id_str)
     return 'ac-10p' if id_str == 'primitive-prototype-autocannon-10' else id_str
 
