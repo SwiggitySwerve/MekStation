@@ -188,9 +188,11 @@ it('UL-10 loads every fixture definition without creating non-mech stores', asyn
     const sourceFile =
       family === 'protomechs'
         ? 'protomechs/Centaur.json'
-        : family === 'battlearmor'
-          ? 'battlearmor/Achileus Light Battle Armor (WoB)(Sqd4).json'
-          : null;
+        : family === 'infantry'
+          ? 'infantry/aa-jump-infantry-292nd-league-regulars.json'
+          : family === 'battlearmor'
+            ? 'battlearmor/Achileus Light Battle Armor (WoB)(Sqd4).json'
+            : null;
     const definition = {
       ...(sourceFile
         ? JSON.parse(
@@ -230,6 +232,7 @@ it('UL-10 loads every fixture definition without creating non-mech stores', asyn
         capital: 'capital',
         protomechs: 'protomech',
         battlearmor: 'battlearmor',
+        infantry: 'infantry',
       }[family as string];
       if (family !== 'battlemechs') {
         expect(

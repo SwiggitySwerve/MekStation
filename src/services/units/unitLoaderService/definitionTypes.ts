@@ -50,7 +50,7 @@ export const UNIT_DEFINITION_FAMILIES = {
     unitTypes: [UnitType.BATTLE_ARMOR, 'BattleArmor', 'BATTLEARMOR'],
     store: 'battlearmor',
   },
-  infantry: { unitTypes: [UnitType.INFANTRY], store: null },
+  infantry: { unitTypes: [UnitType.INFANTRY], store: 'infantry' },
   protomechs: { unitTypes: [UnitType.PROTOMECH], store: 'protomech' },
 } as const satisfies Record<
   UnitFamily,
@@ -63,6 +63,7 @@ export const UNIT_DEFINITION_FAMILIES = {
       | 'capital'
       | 'protomech'
       | 'battlearmor'
+      | 'infantry'
       | null;
   }
 >;
