@@ -10,18 +10,25 @@ import type { RawUnitIndexEntry } from '../unitIndexMapper';
 import { CanonicalUnitService } from '../CanonicalUnitService';
 import { NodeCanonicalUnitService } from '../NodeCanonicalUnitService';
 
-it('parses every BA file through UnitContract and isolates the indexed catalog', () => {
-  const directory = path.resolve('public/data/units/battlearmor');
+it.each([
+  ['battlearmor', 'BattleArmor', 1188],
+  ['protomechs', 'ProtoMech', 86],
+])('loads the %s catalog', (family, unitType, count) => {
+  const directory = path.resolve(`public/data/units/${family}`);
   const index = JSON.parse(
     fs.readFileSync(path.join(directory, 'index.json'), 'utf8'),
   ) as { totalUnits: number; units: RawUnitIndexEntry[] };
   // These pre-ingest synthetic BV fixtures retain their original paths for
   // existing consumers. They are not designs from the pinned source corpus.
-  const fixtures = new Set([
-    'clan-sylph-sqd5.json',
-    'elemental-standard-sqd5.json',
-    'is-cavalier-sqd4.json',
-  ]);
+  const fixtures = new Set(
+    family === 'battlearmor'
+      ? [
+          'clan-sylph-sqd5.json',
+          'elemental-standard-sqd5.json',
+          'is-cavalier-sqd4.json',
+        ]
+      : [],
+  );
   const fixtureIds = new Set(
     [...fixtures].map(
       (file) =>
@@ -44,7 +51,7 @@ it('parses every BA file through UnitContract and isolates the indexed catalog',
     .map(String)
     .filter((file) => file.endsWith('.json') && file !== 'index.json');
   const designs = files.filter((file) => !fixtures.has(file));
-  expect(index.totalUnits).toBe(1188);
+  expect(index.totalUnits).toBe(count);
   expect(index.units).toHaveLength(designs.length);
   expect(index.totalUnits).toBe(index.units.length);
   expect(files.filter((file) => fixtures.has(file)).sort()).toEqual(
@@ -61,7 +68,7 @@ it('parses every BA file through UnitContract and isolates the indexed catalog',
     );
     ids.push(unit.id);
     if (!fixtures.has(file)) {
-      expect(unit.unitType).toBe('BattleArmor');
+      expect(unit.unitType).toBe(unitType);
       const entry = index.units.find((row) => row.path === file);
       expect(entry).toMatchObject({ id: unit.id, unitType: unit.unitType });
     }
@@ -69,7 +76,7 @@ it('parses every BA file through UnitContract and isolates the indexed catalog',
   expect(new Set(ids).size).toBe(files.length);
 });
 
-it('keeps the strict all-family library usable when the BA catalog is present', async () => {
+it('keeps the strict all-family library usable with converted catalogs', async () => {
   const fetch = jest.spyOn(global, 'fetch').mockImplementation(
     jest.fn().mockImplementation(async (url: string) => {
       const file = path.join(
@@ -101,6 +108,11 @@ it('keeps the strict all-family library usable when the BA catalog is present', 
     expect(battleArmor).toHaveLength(1188);
     expect(
       battleArmor.every((unit) => unit.unitType === UnitType.BATTLE_ARMOR),
+    ).toBe(true);
+    const protomechs = browser.filter((unit) => unit.family === 'protomechs');
+    expect(protomechs).toHaveLength(86);
+    expect(
+      protomechs.every((unit) => unit.unitType === UnitType.PROTOMECH),
     ).toBe(true);
     expect(warn).not.toHaveBeenCalled();
   } finally {

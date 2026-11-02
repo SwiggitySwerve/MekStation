@@ -20,6 +20,7 @@ import {
   MOTIVE_MP,
 } from '@/types/unit/InfantryInterfaces';
 
+import { infantryProstheticDamage } from './infantryBVFactors';
 import { getInfantryBVWeapon } from './weaponTable';
 
 // ============================================================================
@@ -153,6 +154,11 @@ export function resolveInfantryOffenseSource(
   const mode = (values('motion_type')[0] ?? 'Leg').toLowerCase();
   const augmentations = values('augmentation');
   const secondary = values('Secondary')[0];
+  const specializations = Number(
+    tags.specialization ??
+      (/scuba|submarine|beast:(orca|hipposaur)/.test(mode) ? 4096 : 0) |
+        (secondary?.toLowerCase() === 'infantrytag' ? 1024 : 0),
+  );
   const count = secondary ? Number(tags.secondn ?? 0) : 0;
   const support = secondary ? getInfantryBVWeapon(secondary).support : false;
   const mot: Record<string, InfantryMotive> = {
@@ -194,16 +200,12 @@ export function resolveInfantryOffenseSource(
     [walk, jump, umu] = mount;
   } else {
     if (encumbering) walk = Math.max(walk - 1, 1);
-    const spec = Number(
-      tags.specialization ??
-        (secondary?.toLowerCase() === 'infantrytag' ? 1024 : 0),
-    );
     const burden =
       count > 1 &&
       support &&
       !augmentations.includes('tsm_implant') &&
       !augmentations.includes('dermal_armor') &&
-      !(spec & 1024);
+      !(specializations & 1024);
     if (burden && mode !== 'tracked' && mode !== 'jump')
       walk = Math.max(walk - 1, 0);
     if (burden && mode !== 'submarine') jump = Math.max(jump - 1, 0);
@@ -217,6 +219,16 @@ export function resolveInfantryOffenseSource(
       walk = Math.min(walk, 1);
   }
   return {
+    runMP: walk,
+    jumpMP: jump,
+    umuMP: umu,
+    specializations,
+    dermalCamoEligible:
+      augmentations.includes('dermal_camo_armor') &&
+      (mode === 'leg' ||
+        mode === 'jump' ||
+        (mounted && jump === 0 && umu === 0)),
+    prostheticDamage: infantryProstheticDamage(tags, augmentations),
     secondaryShooters: count * Number(tags.squadn ?? 1),
     mp: Math.max(walk, jump, umu),
     antiMek:
