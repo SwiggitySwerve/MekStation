@@ -43,6 +43,13 @@ class SharedQualifierVehicleCompatibilityTest(unittest.TestCase):
 
 
 class AerospaceSourceQualifiersTest(unittest.TestCase):
+    def test_source_tech_type_retains_the_mixed_chassis_fact(self):
+        from blk_aerospace_qualifiers import parse_aerospace_qualifiers
+
+        for source_type in ('Clan Level 2', 'IS Level 2', 'Mixed (Clan Chassis) Experimental', 'Mixed (IS Chassis) Experimental'):
+            with self.subTest(source_type=source_type):
+                self.assertEqual(parse_aerospace_qualifiers({'type': source_type}), {'sourceTechType': source_type})
+
     def test_vehicle_stealth_armor_keeps_aircraft_stealth_identity(self):
         # MegaMek EquipmentType.java:107: T_ARMOR_STEALTH_VEHICLE = 22.
         # Saroyan Jump Bomber and Drake Medium Stealth Fighter use this code.

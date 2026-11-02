@@ -1,6 +1,7 @@
 import type { MechLocation } from '../src/utils/construction/battleValueCalculations';
 import type { CritScan } from './validate-bv-crit-scan-types';
 
+import { isNonExplosiveAmmo } from '../src/utils/construction/battleValueExplosivePenalties';
 import { resolveAmmoBV } from '../src/utils/construction/equipmentBVResolver';
 import {
   normalizeWeaponKey,
@@ -21,19 +22,7 @@ export function processCritAmmoSlot(args: {
     // Per MegaMek AmmoType.java: Gauss-type ammo (including HAG) is non-explosive.
     // HAG crit names like "CLHAG20 Ammo" don't contain "gauss", so check 'hag' separately.
     // SB Gauss abbreviated crit name "ISSBGR Ammo" also lacks "gauss".
-    const isNonExplosiveAmmo =
-      lo.includes('gauss') ||
-      lo.includes('hag') ||
-      lo.includes('sbgr') ||
-      lo.includes('magshot') ||
-      lo.includes('plasma') ||
-      lo.includes('fluid') ||
-      lo.includes('nail') ||
-      lo.includes('rivet') ||
-      lo.includes('c3') ||
-      lo.includes('sensor') ||
-      lo.includes('rail gun');
-    if (ml && !isNonExplosiveAmmo)
+    if (ml && !isNonExplosiveAmmo(lo))
       r.explosive.push({
         location: ml,
         slots: 1,
