@@ -8,6 +8,7 @@ import { getAmmunitionEntry } from '../equipmentBVResolver';
 // [catalog id, pinned Java BV, citation in megamek/common/equipment/AmmoType.java]
 const AMMO_VALUES = [
   ['uac-2-ammo', 7, 'createISUltra2Ammo ammo.bv = 7 (AmmoType.java:5630)'],
+  ['uac-5-ammo', 14, 'createISUltra5Ammo ammo.bv = 14 (AmmoType.java:5660)'],
 ] as const;
 
 describe('equipment catalog values match pinned Java (ruling 2026-11-02 q1)', () => {
