@@ -209,8 +209,8 @@ export function calculateUnitBV(
 
   // Defensive BV
   const { correctMaxTMM, defRunMP } = deriveDefensiveMovementInputs(
-    runMP,
-    jumpMP,
+    airMekFlankMP === undefined ? runMP : 0,
+    airMekFlankMP ?? jumpMP,
     cs.umuMP,
   );
 
@@ -312,7 +312,8 @@ export function calculateUnitBV(
     totalStructurePoints: totalStructure,
     tonnage: unit.tonnage,
     runMP: defRunMP,
-    jumpMP: 0,
+    // MekBVCalculator.getRunningTMM uses airborne flank MP (+1), like jumping TMM.
+    jumpMP: airMekFlankMP ?? 0,
     umuMP: 0,
     armorType: hasStealth ? 'standard' : armorType,
     structureType,
