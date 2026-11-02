@@ -272,6 +272,6 @@ describe('SupportVehicleUnitHandler Tier 1 Invariants', () => {
 // BattleArmorUnitHandler — invariants
 // ============================================================================
 //
-// Formula:
-//   bv = round(armorPerTrooper * 20 * squadSize * (jumpMP > 0 ? 1.1 : 1))
+// See Tier1Invariants.personnel.test.ts for pinned Java defensive aggregates.
+// Full squad/offensive totals are pending BA BV part 2; no placeholder golden.
 //

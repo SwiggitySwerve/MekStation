@@ -11,6 +11,7 @@ export const UNIT_FAMILY_LABELS: Record<UnitFamily, string> = {
   capital: 'Capital Ships',
   battlearmor: 'Battle Armor',
   infantry: 'Infantry',
+  protomechs: 'ProtoMechs',
 };
 
 export const ITEMS_PER_PAGE = 50;

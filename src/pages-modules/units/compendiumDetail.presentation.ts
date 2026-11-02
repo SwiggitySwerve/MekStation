@@ -17,6 +17,7 @@ export function getCompendiumDetailPresentation(
   const { armor, movement } = unit;
   switch (family) {
     case 'battlemechs':
+    case 'protomechs':
       return { armor };
     case 'vehicles':
       return {

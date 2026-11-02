@@ -125,6 +125,15 @@ class UnitIndexCliTest(unittest.TestCase):
         self.assertEqual((vehicles['totalUnits'], aerospace['totalUnits']), (5, 4))
         self.assertFalse((self.root / 'capital').exists())  # absent family tolerated, not created
 
+    def test_protomech_family_is_allowed(self):
+        directory = self.root / 'protomechs'
+        directory.mkdir()
+        unit = json.loads((self.root / 'aerospace' / 'Sabre SB-27b-EC.json').read_text())
+        unit['unitType'] = 'ProtoMech'
+        (directory / 'proto.json').write_text(json.dumps(unit))
+        self.assertEqual(self.run_main(self.root, '--family', 'protomechs', '--write'), 0)
+        self.assertEqual(json.loads((directory / 'index.json').read_text())['units'][0]['unitType'], 'ProtoMech')
+
     def test_dry_run_writes_nothing(self):
         self.assertEqual(self.run_main(self.root), 0)
         self.assertFalse((self.root / 'vehicles' / 'index.json').exists())

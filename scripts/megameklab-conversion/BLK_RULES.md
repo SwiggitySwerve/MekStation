@@ -103,8 +103,35 @@ Hull entries. Side armor order is owned by follow-up 30 and is unchanged here.
 Regression coverage: `test_blk_converter_fidelity.py`, including 21 pinned
 source texts and synthetic boundary mutations of them. The unit schema owns
 serialized enum values; generated Zod is refreshed through `npm run schema:gen`.
-MTF aliases and the BA/ProtoMek converters retain their existing policies; capital
+MTF aliases retain their existing policies; capital
 armor keeps its separate loader-specific standard-to-aerospace rewrite.
+
+## ProtoMek source loading
+
+`blk_protomech_converter.py` owns ProtoMek source classification and output
+composition. Required Name/year/type/tonnage/motion/
+cruiseMP/armor fail closed. Numeric source facts use the shared finite/integer
+parser, technology uses `map_blk_tech_type`, and armor uses the strict shared
+`BLK_ARMOR_CODE_MAP`, with Java's standard 0/omission -> 42 rewrite.
+
+MegaMek 48fcb2f6 `EntityWeightClass.protoWeightLimits` sets upper bounds
+3/5/7/9, then superheavy (serialized ULTRAHEAVY). `EntityMovementMode` aliases
+Glider to WIGE; Quad and WiGE set separate chassis flags. Five armor entries
+mean no main gun; six mean present, even with zero armor/no weapon. Preserve
+all six locations, explicit armor technology (modern tag before legacy), and
+Main Gun equipment in the common list. `mainGun.weapons` is a compatibility
+view of those same mounts, not additional equipment.
+
+`BLKProtoMekFile` always creates fusion and reads original jumpingMP (default
+zero only when absent). It never reads umuMP/UMUPM; UMU derives from resolved
+F_UMU equipment. Equipment names/locations are source facts, including ammo
+counts, rear/size suffixes and duplicates. Later loaders own alias resolution,
+slotless/ammo relocation, implicit mounts and effective movement. The converter
+ignores Main Gun equipment when the armor array says that location is absent.
+Regression coverage: `test_blk_protomech.py` and 31 pinned source fixtures.
+The ProtoMech unitType alternative accepts explicit armor sourceTechLevel;
+the generic BattleMech alternative rejects it, preserving the strict 21-key
+construction snapshot. BA mount annotations remain excluded from ProtoMechs.
 
 ## Conventional infantry
 

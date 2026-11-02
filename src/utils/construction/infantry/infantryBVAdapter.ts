@@ -48,6 +48,7 @@ import { findWeaponById, INFANTRY_WEAPON_TABLE } from './weaponTable';
  * dependency. Any state that conforms to this shape can feed the calculator.
  */
 export interface InfantryStateLike {
+  bvOffense?: IInfantry['bvOffense'];
   /** Effective incoming protection from the source boundary, when available. */
   damageDivisor?: number;
   hasPheromoneEffuser?: boolean;
@@ -247,6 +248,7 @@ export function computeInfantryBVFromState(
   }
 
   const input: InfantryBVInput = {
+    sourceOffense: state.bvOffense,
     damageDivisor: state.damageDivisor,
     hasPheromoneEffuser: state.hasPheromoneEffuser,
     motive: state.infantryMotive,
@@ -260,6 +262,10 @@ export function computeInfantryBVFromState(
     piloting: options.piloting,
   };
 
+  if (state.bvOffense) {
+    primary.id = state.primaryWeapon;
+    if (secondary) secondary.id = state.secondaryWeapon ?? secondary.id;
+  }
   return calculateInfantryBV(input);
 }
 
@@ -336,6 +342,7 @@ export function calculateInfantryBVFromUnit(
   }));
 
   const state: InfantryStateLike = {
+    bvOffense: unit.bvOffense,
     damageDivisor: unit.damageDivisor,
     hasPheromoneEffuser: unit.hasPheromoneEffuser,
     infantryMotive: motive,
@@ -414,17 +421,17 @@ function values(tags: SourceTags, key: string): string[] {
 export function resolveInfantryProtection(tags: SourceTags): {
   damageDivisor: number;
   hasPheromoneEffuser: boolean;
+  isArmorEncumbering: boolean;
 } {
   const custom = Number(tags.armordivisor ?? tags.InfantryArmor ?? 1);
   if (!Number.isFinite(custom) || custom <= 0)
     throw new Error('Invalid infantry damage divisor');
   // BLKInfantryFile equips the legacy kit before Troopers Equipment.
-  const kit = [
+  const kitName = [
     ...values(tags, 'armorKit'),
     ...values(tags, 'Troopers Equipment'),
-  ]
-    .map((name) => KIT_DIVISORS.get(name.toLowerCase()))
-    .find((value) => value !== undefined);
+  ].find((name) => KIT_DIVISORS.has(name.toLowerCase()));
+  const kit = kitName ? KIT_DIVISORS.get(kitName.toLowerCase()) : undefined;
   let divisor = kit ?? custom;
   const augmentations = values(tags, 'augmentation');
   const hasArmor =
@@ -471,5 +478,20 @@ export function resolveInfantryProtection(tags: SourceTags): {
   return {
     damageDivisor: divisor,
     hasPheromoneEffuser: augmentations.includes('gas_effuser_pheromone'),
+    isArmorEncumbering: kitName
+      ? ENCUMBERING_KITS.has(kitName.toLowerCase())
+      : 'encumberingarmor' in tags,
   };
 }
+
+// MiscType.create*InfArmor at 48fcb2f64: kit S_ENCUMBERING flag.
+const ENCUMBERING_KITS = new Set(
+  (
+    'ablative, standard|isablativestandard|ballistic plate, standard|isballisticplatestandard|clballisticplatestandard|engineering suit|' +
+    'isengineeringsuit|clengineeringsuit|environment suit, light|isenvironmentsuitlight|clenvironmentsuitlight|' +
+    'environment suit, hostile|isenvironmentsuithostile|clenvironmentsuithostile|mekwarrior kit (basic)|mekwarriorkitbasic|' +
+    'mekwarrior kit (advanced)|mekwarriorkitadvanced|myomer, suit|myomersuit|snowsuit|snowsuit|spacesuit|spacesuit, combat|' +
+    'spacesuitcombat|fed suns infantry kit (3067+)|davionkit3067|latedavionkit|free worlds league infantry kit (3035+)|marikkit3035|' +
+    'latemarikkit|vintage bomb suit|bombsuit'
+  ).split('|'),
+);

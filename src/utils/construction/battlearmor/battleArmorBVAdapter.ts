@@ -25,6 +25,7 @@ import {
   BattleArmorWeightClass,
   ManipulatorType,
   type IBattleArmorMountedEquipment,
+  type IBattleArmor,
 } from '@/types/unit/PersonnelInterfaces';
 
 import {
@@ -164,7 +165,18 @@ export function partitionBAEquipment(
  * skill is campaign-side), so we let callers pass it in.
  */
 export function buildBattleArmorBVInput(
-  state: BattleArmorState,
+  state: Pick<
+    BattleArmorState,
+    | 'weightClass'
+    | 'squadSize'
+    | 'groundMP'
+    | 'jumpMP'
+    | 'umuMP'
+    | 'armorPerTrooper'
+    | 'baArmorType'
+    | 'leftManipulator'
+    | 'rightManipulator'
+  > & { equipment: readonly IBattleArmorMountedEquipment[] },
   options: { gunnery?: number; piloting?: number } = {},
 ): IBattleArmorBVInput {
   const { weapons, ammo, hasMagneticClamp } = partitionBAEquipment(
@@ -186,9 +198,48 @@ export function buildBattleArmorBVInput(
     weapons,
     ammo,
     hasMagneticClamp,
+    hasCamoSystem: state.equipment.some(
+      (mount) => mount.name.split(':')[0] === 'Camo System',
+    ),
     gunnery: options.gunnery,
     piloting: options.piloting,
   };
+}
+
+// EquipmentType.java:113-123, pin 48fcb2f64. Codes 28-30 are standard;
+// code 32 has the same BV stealth bonus as basic/prototype stealth.
+const BLK_BA_ARMOR: Readonly<Record<number, BAArmorType>> = {
+  31: BAArmorType.STEALTH_BASIC,
+  32: BAArmorType.STEALTH_BASIC,
+  33: BAArmorType.STEALTH_IMPROVED,
+  34: BAArmorType.STEALTH_PROTOTYPE,
+  35: BAArmorType.FIRE_RESISTANT,
+  36: BAArmorType.MIMETIC,
+  37: BAArmorType.REFLECTIVE,
+  38: BAArmorType.REACTIVE,
+};
+
+/** Loaded units and editable stores feed the same per-trooper BV owner. */
+export function buildBattleArmorBVInputFromUnit(
+  unit: IBattleArmor,
+  options: { gunnery?: number; piloting?: number } = {},
+): IBattleArmorBVInput {
+  return buildBattleArmorBVInput(
+    {
+      ...unit,
+      weightClass: unit.baWeightClass,
+      groundMP: unit.movement.groundMP,
+      baArmorType: BLK_BA_ARMOR[unit.armorType] ?? BAArmorType.STANDARD,
+    },
+    options,
+  );
+}
+
+export function calculateBattleArmorBVFromUnit(
+  unit: IBattleArmor,
+  options: { gunnery?: number; piloting?: number } = {},
+): IBABreakdown {
+  return calculateBattleArmorBV(buildBattleArmorBVInputFromUnit(unit, options));
 }
 
 /**
