@@ -2,6 +2,7 @@ import { resolveAmmoByPattern } from '../../../../scripts/validate-bv-ammo-resol
 import {
   calculateAmmoBVWithExcessiveCap,
   findMatchingWeaponBV,
+  extractWeaponTypeFromAmmoId,
 } from '../battleValueAmmo';
 
 describe('shared ammunition matching precedence', () => {
@@ -122,14 +123,25 @@ describe('Clan weapon ammunition aliases', () => {
 // Catalog BV remains authoritative, including explicit zero and known discrepancies.
 describe('ammunition resolution compatibility', () => {
   it.each([
-    ['IS Machine Gun Ammo - Half', 0, 'machine-gun-ammo'],
+    ['IS Machine Gun Ammo - Half', 0, 'machine-gun'],
     ['IS Ultra AC/5 Ammo', 15, 'uac-5'],
     ['Clan Ammo LRM-15', 21, 'lrm-15'],
-    ['Clan Heavy Machine Gun Ammo - Full', 1, 'heavy-machine-gun-ammo'],
+    ['Clan Heavy Machine Gun Ammo - Full', 1, 'heavy-machine-gun'],
   ])('retains %s catalog BV and derived family', (name, bv, weaponType) => {
     expect(resolveAmmoByPattern(name, 'INNER_SPHERE')).toEqual({
       bv,
       weaponType,
     });
+  });
+});
+
+describe('ammunition bin family derivation', () => {
+  it.each([
+    ['clan-heavy-machine-gun-ammo-full', 'heavy-machine-gun'],
+    ['light-machine-gun-ammo-half', 'light-machine-gun'],
+    ['lrm-15-ammo', 'lrm-15'],
+    ['lb-5-x-ac-ammo', 'lb-5-x-ac'],
+  ])('derives %s cap family', (id, family) => {
+    expect(extractWeaponTypeFromAmmoId(id)).toBe(family);
   });
 });

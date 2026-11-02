@@ -280,6 +280,22 @@ describe('BattleMech BV source parity', () => {
     expect(bv(await load(id))).toBe(expected);
   });
 
+  it.each([
+    ['dragonfly-f', 1689],
+    ['vulcan-vt-6c', 959],
+    ['men-shen-ms1-oe', 1625],
+    ['urbanmech-um-r60b', 598],
+    ['sun-spider-d', 2096],
+  ])(
+    '%s full-bin ammo retains Java BV in gate and editor',
+    async (id, expected) => {
+      const state = await load(id);
+      const raw: UnitData = JSON.parse(JSON.stringify(state.bvContext?.source));
+      expect(calculateUnitBV(raw, id).bv).toBe(expected);
+      expect(bv(state)).toBe(expected);
+    },
+  );
+
   it('retains third-leg armor for legacy tripods labeled Biped', async () => {
     const state = await load('ares-ars-v1c-aphrodite');
     const raw: UnitData = JSON.parse(JSON.stringify(state.bvContext?.source));

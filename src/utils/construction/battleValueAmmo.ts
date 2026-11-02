@@ -89,7 +89,9 @@ export function normalizeWeaponKey(id: string): string {
 }
 
 export function extractWeaponTypeFromAmmoId(ammoId: string): string {
+  // BVCalculator.java:1189-1242 groups bins by weapon family, independent of bin size.
   let s = ammoId
+    .replace(/-(half|full)$/, '')
     .replace(/-ammo$/, '')
     .replace(/ammo$/, '')
     .replace(/^ammo-/, '')
@@ -99,7 +101,6 @@ export function extractWeaponTypeFromAmmoId(ammoId: string): string {
     /-(standard|er|he|iiw|imp|cluster|ap|precision|fragmentation|inferno|swarm|tandem-charge|thunder|explosive|ecm|haywire|nemesis|pods)$/,
     '',
   );
-  s = s.replace(/-half$/, '').replace(/-full$/, '');
   return normalizeWeaponKey(s);
 }
 
