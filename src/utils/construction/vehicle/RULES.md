@@ -344,3 +344,19 @@ ProtoMek run MP already rounds upward in `protomech/movementCaps.ts`.
 Boosters, modified cruise, rail/zero-MP BV special cases and complete BV parity
 remain separate work. This correction establishes only base movement and its
 propagation. It does not regenerate or migrate unit catalogs.
+
+## Support chassis, fuel and represented subtotal
+
+`supportWeight.ts` owns support structure, upward rounding and the handler's
+subtotal of engine + chassis + armor + source fuel. Crew accommodations,
+bays, equipment, ammunition, heat sinks, turrets and amplifiers are pending;
+this subtotal does not establish full construction-weight parity. The handler
+stores the subtotal in `totalWeight` for the existing overweight validator.
+The status bar shares the chassis owner; its other terms remain independent.
+
+MegaMek pin above: TestSupportVehicle.java:102-121 (base chassis), 258-294
+(modifiers), 539-545 (tech), 754-797 (rounding, fuel and structure);
+TestEntity.java:1011-1033 (sum); BLKSupportTankFile.java:96-97 (fuel tons),
+Entity.java:13145-13167 (armor). Engine weight reuses `engine.ts`, including
+shared size-class thresholds (EntityWeightClass.java:80-97). BAR weight reuses
+`armor.ts`. Source fixtures and boundary tests enforce these rules.

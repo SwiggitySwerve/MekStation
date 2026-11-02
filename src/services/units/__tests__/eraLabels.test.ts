@@ -122,7 +122,7 @@ describe('canonical era labels, search and filters', () => {
     await search.initialize();
     expect(
       search.search('EraProbe', { family: 'all', limit: 100 }),
-    ).toHaveLength(60);
+    ).toHaveLength(UNIT_FAMILIES.length * 10);
     expect(search.getUnitById(mech.id)?.era).toBe(Era.JIHAD);
     expect(search.getUnitById('undated-0', 'vehicles')?.era).toBeUndefined();
   });

@@ -1,0 +1,110 @@
+{
+  "id": "raiden-ii-battle-armor-[flamer]sqd4",
+  "chassis": "Raiden II Battle Armor",
+  "model": "[Flamer](Sqd4)",
+  "unitType": "BattleArmor",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3123,
+  "weightClass": "MEDIUM",
+  "chassisType": "BIPED",
+  "motionType": "JUMP",
+  "movement": {
+    "groundMP": 1,
+    "jumpMP": 3,
+    "umuMP": 0,
+    "vtolMP": 0
+  },
+  "tonnage": 4,
+  "squadSize": 4,
+  "armorPerTrooper": 9,
+  "armor": {
+    "type": "REFLECTIVE",
+    "perTrooper": 9,
+    "sourceTechLevel": 5
+  },
+  "manipulators": {
+    "rightArm": "BABattleClaw",
+    "leftArm": null
+  },
+  "hasAntiPersonnelMount": false,
+  "hasModularWeaponMount": false,
+  "abilities": [],
+  "equipment": [
+    {
+      "id": "clbaflamer",
+      "name": "CLBAFlamer",
+      "location": "LEFT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "babattleclaw",
+      "name": "BABattleClaw",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "is-ba-laser-reflective-reflec-glazed",
+      "name": "IS BA Laser Reflective (Reflec/Glazed)",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "is-ba-laser-reflective-reflec-glazed",
+      "name": "IS BA Laser Reflective (Reflec/Glazed)",
+      "location": "LEFT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "is-ba-laser-reflective-reflec-glazed",
+      "name": "IS BA Laser Reflective (Reflec/Glazed)",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "is-ba-laser-reflective-reflec-glazed",
+      "name": "IS BA Laser Reflective (Reflec/Glazed)",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "is-ba-laser-reflective-reflec-glazed",
+      "name": "IS BA Laser Reflective (Reflec/Glazed)",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "is-ba-laser-reflective-reflec-glazed",
+      "name": "IS BA Laser Reflective (Reflec/Glazed)",
+      "location": "LEFT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "is-ba-laser-reflective-reflec-glazed",
+      "name": "IS BA Laser Reflective (Reflec/Glazed)",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "bajumpjet",
+      "name": "BAJumpJet",
+      "location": "NONE",
+      "unitLocation": "NONE"
+    }
+  ],
+  "clanChassis": false,
+  "isExoskeleton": false,
+  "clanExoWithoutHarJel": false,
+  "mulId": 6731,
+  "role": "Ambusher",
+  "source": "TR:3145",
+  "fluff": {
+    "overview": "<p>The Raiden II is a Dark Age-era upgrade of the Draconis Combine's long-serving Raiden battle armor. Produced by New Samarkand Metals, the suit features upgraded armor protection and an additional weapon mount, addressing limitations identified through decades of operational experience with the original design. The upgrade retains the Raiden's proven jump capability and battle claw, maintaining compatibility with established DCMS infantry doctrine. Introduced around 3123, the Raiden II gave Combine armored infantry improved survivability without requiring a complete redesign of the familiar Raiden platform.</p>",
+    "capabilities": "<p>The Raiden II's flamer configuration carries a battle armor-scale flamer as its primary weapon, paired with the anti-personnel weapon mount that distinguishes the Raiden II from its predecessor. The suit's most significant upgrade is its reflective armor, which disperses energy weapon impacts more effectively than the original Raiden's polymer-bonded standard plating. Against laser-heavy opponents this protection gives Raiden II troopers a meaningful survivability advantage, though the reflective coating offers reduced protection against ballistic and explosive weapons compared to conventional armor of equivalent weight. Jump jets maintain the ninety-meter leap capability inherited from the original Raiden, and the left-arm battle claw retains full anti-BattleMech attack and OmniMech transport functionality. The flamer's area-effect fire combined with the anti-personnel mount makes this configuration effective for clearing infantry positions, particularly in environments where energy weapons are the primary threat.</p>",
+    "deployment": "<p>DCMS infantry squads received the Raiden II flamer configuration as a priority upgrade for frontline formations during the Dark Age. Four-trooper teams equipped with reflective armor proved particularly effective against opponents fielding energy-heavy battle armor and support vehicles, where the upgraded plating gave Combine troopers a decisive survivability advantage in close-range engagements.</p>",
+    "history": "<p>The Raiden II emerged from the Draconis Combine's growing embrace of reflective armor technology during the early thirty-second century. The Kishi battle armor had demonstrated the value of reflective plating against energy-heavy opponents, and DCMS procurement officers quickly authorized a similar upgrade for the long-serving Raiden chassis. New Samarkand Metals received the contract, producing an updated suit that replaced the standard polymer-bonded armor with reflective plating while adding an anti-personnel weapon mount absent from the original design. The Raiden II entered production around 3123 and saw deployment with frontline DCMS formations during the turbulent Dark Age period. While not a radical redesign, the upgrade ensured that Combine battle armor infantry retained an edge against energy-weapon-equipped opponents, extending the Raiden platform's service life well beyond what its original designers likely envisioned.</p>",
+    "manufacturer": "New Samarkand Metals",
+    "primaryFactory": "New Samarkand"
+  }
+}

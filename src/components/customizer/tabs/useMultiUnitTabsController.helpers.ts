@@ -13,6 +13,7 @@ import {
   unitLoaderService,
   type FamilyEditorState,
 } from '@/services/units/unitLoaderService';
+import { registerCapitalShipView } from '@/services/units/unitLoaderService/capitalShipView';
 import { createAerospaceFromFullState } from '@/stores/aerospaceStoreRegistry';
 import {
   createUnitFromFullState,
@@ -54,8 +55,6 @@ type LoadedTab = Parameters<TabManagerState['addTab']>[0];
 
 /** Families that have no library-open route yet; retrying cannot help. */
 const UNSUPPORTED_FAMILY_MESSAGES: Partial<Record<UnitFamily, string>> = {
-  capital:
-    'Capital ships cannot be opened yet because the editor has no capital ship view.',
   battlearmor:
     'Battle armor cannot be opened yet because the editor cannot load battle armor from the library.',
   infantry:
@@ -72,8 +71,14 @@ function openBattleMechState(state: UnitState): LoadedTab {
   };
 }
 
-/** Register a vehicle or aerospace session in its own store; the tab type picks the shell. */
+/** Register a vehicle or aerospace session, or a capital read-only view; the tab type picks the shell. */
 function registerFamilyState(familyState: FamilyEditorState): LoadedTab {
+  if (familyState.store === 'capital') {
+    const { id, name, tonnage, techBase, unitType } = registerCapitalShipView(
+      familyState.state,
+    );
+    return { id, name, tonnage, techBase, unitType };
+  }
   const { id, name, tonnage, techBase, unitType } = (
     familyState.store === 'vehicle'
       ? createVehicleFromFullState(familyState.state)

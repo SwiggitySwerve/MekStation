@@ -44,18 +44,19 @@ export const UNIT_DEFINITION_FAMILIES = {
       UnitType.WARSHIP,
       UnitType.SPACE_STATION,
     ],
-    store: null,
+    store: 'capital',
   },
   battlearmor: {
     unitTypes: [UnitType.BATTLE_ARMOR, 'BattleArmor', 'BATTLEARMOR'],
     store: null,
   },
   infantry: { unitTypes: [UnitType.INFANTRY], store: null },
+  protomechs: { unitTypes: [UnitType.PROTOMECH], store: null },
 } as const satisfies Record<
   UnitFamily,
   {
     readonly unitTypes: readonly IUnitContract['unitType'][];
-    readonly store: 'battlemech' | 'vehicle' | 'aerospace' | null;
+    readonly store: 'battlemech' | 'vehicle' | 'aerospace' | 'capital' | null;
   }
 >;
 

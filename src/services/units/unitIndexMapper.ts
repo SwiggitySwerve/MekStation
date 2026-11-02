@@ -12,6 +12,7 @@ import type { UnitFamily } from '@/types/unit/UnitIndex';
 
 import { getEraForYear } from '@/types/enums/Era';
 import { TechBase } from '@/types/enums/TechBase';
+import { BLK_UNIT_TYPE_MAP } from '@/types/formats/BlkFormat';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { logger } from '@/utils/logger';
 import { isValidUnitType } from '@/utils/validation/UnitCategoryMapper';
@@ -55,12 +56,18 @@ function techBaseFromRawValue(rawTechBase: string): TechBase {
 
 function unitTypeFromRaw(raw: RawUnitIndexEntry): UnitType {
   if (raw.unitType === undefined) return UnitType.BATTLEMECH;
-  if (!isValidUnitType(raw.unitType)) {
+  // Converted catalogs retain BLK wire spellings; the format owner maps them.
+  const unitType =
+    typeof raw.unitType === 'string' &&
+    Object.hasOwn(BLK_UNIT_TYPE_MAP, raw.unitType)
+      ? BLK_UNIT_TYPE_MAP[raw.unitType]
+      : raw.unitType;
+  if (!isValidUnitType(unitType)) {
     throw new Error(
       `Unit index entry "${raw.id}" has unknown unitType "${raw.unitType}"`,
     );
   }
-  return raw.unitType;
+  return unitType;
 }
 
 /**

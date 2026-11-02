@@ -34,6 +34,7 @@ import {
   computeVehicleControlsLiftWeights,
   type VehicleControlsLiftContext,
 } from './controlsLift';
+import { computeSupportStructureWeight } from './supportWeight';
 
 export type EquipmentResolver = (
   equipmentId: string,
@@ -44,6 +45,7 @@ export interface VehicleWeightState extends VehicleControlsLiftContext {
   engineType: VehicleEngineType;
   cruiseMP: number;
   engineTechRating?: number;
+  structuralTechRating?: number;
   structureType: VehicleStructureType;
   armorTonnage: number;
   equipment: readonly IVehicleMountedEquipment[];
@@ -136,10 +138,10 @@ export function computeVehicleWeightBreakdown(
           state.engineType,
           engineContext,
         );
-  const structure = computeVehicleStructureWeight(
-    state.tonnage,
-    state.structureType,
-  );
+  const structure =
+    state.unitType === UnitType.SUPPORT_VEHICLE
+      ? computeSupportStructureWeight(state)
+      : computeVehicleStructureWeight(state.tonnage, state.structureType);
   const armor = state.armorTonnage;
   const turret = state.turret
     ? computeTurretWeight(state.turret.type, turretEquipment)

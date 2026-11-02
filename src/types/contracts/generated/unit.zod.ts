@@ -70,6 +70,7 @@ const SchemaDef_capitalUnitType = z.enum([
   'Space Station',
 ]);
 const SchemaDef_infantryUnitType = z.literal('Infantry');
+const SchemaDef_protoMechUnitType = z.literal('ProtoMech');
 
 export const UnitContract = z
   .union([
@@ -1022,14 +1023,14 @@ export const UnitContract = z
           z.object({
             unitType: z
               .intersection(
-                z
-                  .unknown()
-                  .refine(
-                    (value) =>
-                      !SchemaDef_capitalUnitType.safeParse(value).success,
-                    'Invalid input: Should NOT be valid against schema',
-                  ),
                 z.intersection(
+                  z
+                    .unknown()
+                    .refine(
+                      (value) =>
+                        !SchemaDef_capitalUnitType.safeParse(value).success,
+                      'Invalid input: Should NOT be valid against schema',
+                    ),
                   z
                     .unknown()
                     .refine(
@@ -1037,11 +1038,20 @@ export const UnitContract = z
                         !SchemaDef_battleArmorUnitType.safeParse(value).success,
                       'Invalid input: Should NOT be valid against schema',
                     ),
+                ),
+                z.intersection(
                   z
                     .unknown()
                     .refine(
                       (value) =>
                         !SchemaDef_infantryUnitType.safeParse(value).success,
+                      'Invalid input: Should NOT be valid against schema',
+                    ),
+                  z
+                    .unknown()
+                    .refine(
+                      (value) =>
+                        !SchemaDef_protoMechUnitType.safeParse(value).success,
                       'Invalid input: Should NOT be valid against schema',
                     ),
                 ),
@@ -1216,6 +1226,28 @@ export const UnitContract = z
             srmMunition: z.string().optional(),
             disposableWeapon: z.string().min(1).optional(),
             customArmorName: z.string().min(1).optional(),
+          }),
+          z.object({
+            unitType: SchemaDef_protoMechUnitType,
+            armor: z
+              .object({
+                type: SchemaDef_standardArmorType.optional(),
+                perTrooper: z.never().optional(),
+              })
+              .optional(),
+            equipment: z
+              .array(
+                z.object({
+                  unitLocation: z.never().optional(),
+                  isDWPMounted: z.never().optional(),
+                  isSquadSupportWeapon: z.never().optional(),
+                  isAPMMounted: z.never().optional(),
+                  shots: z.never().optional(),
+                  size: z.never().optional(),
+                }),
+              )
+              .optional(),
+            tonnage: z.number().lte(250).optional(),
           }),
         ]),
       )

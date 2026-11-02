@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { execFileSync } from 'node:child_process';
 import * as os from 'os';
 import * as path from 'path';
 
@@ -15,6 +16,7 @@ import {
 import { customUnitApiService } from '../CustomUnitApiService';
 import { NodeCanonicalUnitService } from '../NodeCanonicalUnitService';
 import { mapRawIndexRows, type RawUnitIndexEntry } from '../unitIndexMapper';
+import { UNIT_DEFINITION_FAMILIES } from '../unitLoaderService/definitionTypes';
 import { loadUnitDefinition } from '../unitLoaderService/loadUnitDefinition';
 import { UnitLoaderService } from '../unitLoaderService/unitLoader';
 import { UnitSearchService } from '../UnitSearchService';
@@ -108,6 +110,14 @@ afterEach(() => {
   resetCanonicalUnitService();
 });
 
+it('admits the ProtoMech family for catalog reads', () => {
+  expect(UNIT_FAMILIES).toContain('protomechs');
+  expect(UNIT_DEFINITION_FAMILIES.protomechs).toEqual({
+    unitTypes: ['ProtoMech'],
+    store: null,
+  });
+});
+
 it('lists identical entries for three families, tolerating absent families', async () => {
   const entries = await browser.getIndex({ family: 'all', strict: true });
   expect(entries).toEqual(await node.getIndex({ family: 'all', strict: true }));
@@ -173,8 +183,14 @@ it('UL-10 loads every fixture definition without creating non-mech stores', asyn
     ['capital', 'DropShip'],
     ['battlearmor', 'Battle Armor'],
     ['infantry', 'Infantry'],
+    ['protomechs', 'ProtoMech'],
   ] as const) {
-    const definition = { id: `${family}-fixture`, unitType };
+    const definition = {
+      id: `${family}-fixture`,
+      unitType,
+      // The capital read-only view needs a tonnage (UL-14).
+      ...(family === 'capital' ? { tonnage: 4500 } : {}),
+    };
     fs.mkdirSync(path.join(root, 'public/data/units', family), {
       recursive: true,
     });
@@ -197,9 +213,11 @@ it('UL-10 loads every fixture definition without creating non-mech stores', asyn
           await browser.getById(entry.id, { family }),
         ),
       });
-      const store = { vehicles: 'vehicle', aerospace: 'aerospace' }[
-        family as string
-      ];
+      const store = {
+        vehicles: 'vehicle',
+        aerospace: 'aerospace',
+        capital: 'capital',
+      }[family as string];
       if (family !== 'battlemechs') {
         expect(
           await loader.loadUnit(entry.id, 'canonical', family),
@@ -470,7 +488,7 @@ describe('follow-up 43: unit service lows from the #2454 review', () => {
     await new UnitSearchService().initialize();
     await new UnitSearchService().initialize();
     await browser.getIndex({ family: 'capital' });
-    for (const family of ['capital', 'battlearmor', 'infantry']) {
+    for (const family of ['capital', 'battlearmor', 'infantry', 'protomechs']) {
       expect(absentFetches(family)).toHaveLength(1);
     }
     expect(await browser.hasFamily('capital')).toBe(false);
@@ -515,3 +533,83 @@ describe('follow-up 43: unit service lows from the #2454 review', () => {
     expect(node.getCatalogVersion()).toBe('fixture');
   });
 });
+
+it('retains every field from the pinned ProtoMech converter fixtures', () => {
+  const fixtures: unknown = JSON.parse(
+    fs.readFileSync(
+      'scripts/__tests__/fixtures/protomechs.pinned.json',
+      'utf8',
+    ),
+  );
+  const output = execFileSync(
+    'python',
+    [
+      '-B',
+      '-c',
+      String.raw`
+import json, logging, sys, tempfile
+from pathlib import Path
+sys.path.insert(0, 'scripts/megameklab-conversion')
+from blk_protomech_converter import convert_protomech_blk
+units = []
+with tempfile.TemporaryDirectory() as directory:
+    source = Path(directory) / 'fixture.blk'
+    for fixture in json.load(sys.stdin):
+        source.write_text(fixture['blk'], encoding='utf-8')
+        units.append(convert_protomech_blk(source, logging.getLogger('contract')))
+print(json.dumps(units))
+`,
+    ],
+    {
+      input: JSON.stringify(fixtures),
+      encoding: 'utf8',
+      maxBuffer: 4 * 1024 * 1024,
+    },
+  );
+  const units: unknown[] = JSON.parse(output);
+  expect(units).toHaveLength(31);
+  for (const raw of units) {
+    const parsed = UnitContract.parse(raw);
+    expect(parsed.unitType).toBe('ProtoMech');
+    expect(parsed.armor?.sourceTechLevel).toEqual(expect.any(Number));
+    expect(parsed).toMatchObject(raw as Record<string, unknown>);
+    expect(parsed.equipment).toHaveLength(
+      (raw as { equipment: unknown[] }).equipment.length,
+    );
+  }
+});
+
+it.each([-1, 2])(
+  'scopes explicit armor tech %i to ProtoMechs without changing the mech boundary',
+  (sourceTechLevel) => {
+    const atlas = JSON.parse(
+      fs.readFileSync(
+        'public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json',
+        'utf8',
+      ),
+    );
+    expect(UnitContract.safeParse(atlas).success).toBe(true);
+    expect(
+      UnitContract.safeParse({
+        ...atlas,
+        armor: { ...atlas.armor, sourceTechLevel },
+      }).success,
+    ).toBe(false);
+    const proto = {
+      id: 'proto-tech-scope',
+      unitType: 'ProtoMech',
+      armor: {
+        type: 'STANDARD_PROTOMEK',
+        byLocation: { HEAD: 1 },
+        sourceTechLevel,
+      },
+    };
+    expect(UnitContract.safeParse(proto).success).toBe(true);
+    expect(
+      UnitContract.safeParse({
+        ...proto,
+        armor: { ...proto.armor, sourceTechLevel: '2' },
+      }).success,
+    ).toBe(false);
+  },
+);

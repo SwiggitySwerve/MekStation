@@ -1,0 +1,117 @@
+{
+  "id": "oni-battle-armor-[mrr]sqd4",
+  "chassis": "Oni Battle Armor",
+  "model": "[MRR](Sqd4)",
+  "unitType": "BattleArmor",
+  "techBase": "MIXED",
+  "rulesLevel": "STANDARD",
+  "era": "DARK_AGE",
+  "year": 3134,
+  "weightClass": "MEDIUM",
+  "chassisType": "BIPED",
+  "motionType": "GROUND",
+  "movement": {
+    "groundMP": 3,
+    "jumpMP": 0,
+    "umuMP": 0,
+    "vtolMP": 0
+  },
+  "tonnage": 4,
+  "squadSize": 4,
+  "armorPerTrooper": 10,
+  "armor": {
+    "type": "FIRE_RESISTANT",
+    "perTrooper": 10,
+    "sourceTechLevel": 12
+  },
+  "manipulators": {
+    "rightArm": "BABasicManipulator",
+    "leftArm": "BAHeavyBattleClawVibro"
+  },
+  "hasAntiPersonnelMount": false,
+  "hasModularWeaponMount": false,
+  "abilities": [],
+  "equipment": [
+    {
+      "id": "baheavybattleclawvibro",
+      "name": "BAHeavyBattleClawVibro",
+      "location": "LEFT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "babasicmanipulator",
+      "name": "BABasicManipulator",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "is-ba-ecm",
+      "name": "IS BA ECM",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "baextendedlifesupport",
+      "name": "BAExtendedLifeSupport",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "clan-ba-fire-resistant",
+      "name": "Clan BA Fire Resistant",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "clan-ba-fire-resistant",
+      "name": "Clan BA Fire Resistant",
+      "location": "LEFT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "clan-ba-fire-resistant",
+      "name": "Clan BA Fire Resistant",
+      "location": "LEFT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "clan-ba-fire-resistant",
+      "name": "Clan BA Fire Resistant",
+      "location": "LEFT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "clan-ba-fire-resistant",
+      "name": "Clan BA Fire Resistant",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "clbamedium-recoilless-rifle",
+      "name": "CLBAMedium Recoilless Rifle",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "bajumpjet",
+      "name": "BAJumpJet",
+      "location": "NONE",
+      "unitLocation": "NONE"
+    }
+  ],
+  "clanChassis": false,
+  "isExoskeleton": false,
+  "clanExoWithoutHarJel": false,
+  "mulId": 6365,
+  "role": "Ambusher",
+  "source": "TR:3145:DC,TR:3145",
+  "quirks": ["fast_reload", "non_standard"],
+  "fluff": {
+    "overview": "<p>Produced by Luthien Armor Works for the Draconis Combine Mustered Soldiery, the Oni is a medium battlesuit that entered service in 3134 as a replacement for the aging Raiden. The one-ton humanoid design employs mixed Inner Sphere and Clan technology, incorporating advanced protective plating to improve operator survivability. Intended as a flexible line unit, the Oni fills multiple battlefield roles through interchangeable weapon loadouts rather than any single specialization. The suit's name translates from Japanese as \"ogre,\" a designation its operators have found grimly appropriate given the design's imposing but graceless silhouette.</p>",
+    "capabilities": "<p>The medium recoilless rifle configuration equips the Oni's modular weapon mount with a Medium Recoilless Rifle and twenty rounds of ammunition, providing a balanced engagement profile against both armored and soft targets. The rifle offers greater effective range than the autocannon variant while retaining reasonable stopping power. A Heavy Vibro Claw on the left arm gives troopers a melee option, and the right arm's basic manipulator supports mechanized operations aboard OmniMechs.</p><p>The suit's three hundred and fifty kilograms of Clan-produced fire-resistant armor is its strongest defensive feature, providing protection well above what most Inner Sphere medium suits carry. An integrated ECM suite and extended life support round out the electronics package. At thirty-two kilometers per hour with no jump jets, the Oni relies on ground mobility alone, making terrain selection critical for effective employment.</p>",
+    "deployment": "<p>The medium recoilless rifle variant proved the most popular assignment among DCMS militia squads, offering four-trooper teams a flexible engagement profile suited to the unpredictable nature of garrison operations. During the fighting on Misery in 3139, Ryuken-go infantry commanders assigned Oni squads to back up field gun teams during a pincer action against the Tenth Avalon Hussars, where the suits performed well in a defensive screening role.</p>",
+    "history": "<p>The DCMS commissioned Luthien Armor Works to develop a Raiden replacement during the early 3130s. Engineers drew on data from evaluations of the Clan Nova Cat Thunderbird suit, adapting several design principles for Inner Sphere production. The Oni entered service in 3134, with manufacturing lines on both Luthien and Savinsville.</p><p>Reception within the DCMS was poor. The Combine's warrior culture prizes honor and prestige, and the Oni's unremarkable capabilities and ungainly appearance earned it few admirers. The Procurement Department reinforced the suit's low standing by assigning it to garrison commands and units out of favor. Supply difficulties compounded these problems, as the Department shipped weapon loadouts based on its own assessments rather than unit requests. Quartermasters across the New Samarkand and Dieron Military Districts developed an informal gray market for trading modular weapon packs among themselves.</p><p>The suit's first recorded action came during the Combine's push to reclaim former Dieron Military District holdings. Positions fielding the Oni showed measurably higher survivability rates among defending personnel, and within a year the suit had been distributed to every planetary garrison across both districts. Heavy protective plating proved its strongest selling point, keeping troopers alive long enough to shift opinions among pragmatic field commanders.</p>",
+    "manufacturer": "Luthien Armor Works|Luthien Armor Works",
+    "primaryFactory": "Luthien|Savinsville"
+  }
+}
