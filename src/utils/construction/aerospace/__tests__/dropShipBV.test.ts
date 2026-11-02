@@ -28,7 +28,7 @@ describe('DropShip defensive BV slice (MegaMek 48fcb2f64)', () => {
     expect(result?.breakdown.final).toBeUndefined();
   });
 
-  it('accepts contract JSON and carries only defensive facts, including hull mounts', () => {
+  it('accepts contract JSON and carries represented stage facts, including hull mounts', () => {
     const adapted = contractUnitToBVUnit({
       id: 'union-2708',
       unitType: 'DropShip',
@@ -43,6 +43,7 @@ describe('DropShip defensive BV slice (MegaMek 48fcb2f64)', () => {
     });
     expect(adapted).toEqual({
       ...union,
+      maxThrust: 5,
       equipment: [{ equipmentId: 'ISGuardianECMSuite', location: 'HULL' }],
     });
     expect(calculateBattleValueForUnit(adapted)?.breakdown).toMatchObject({
@@ -65,7 +66,7 @@ describe('DropShip defensive BV slice (MegaMek 48fcb2f64)', () => {
     ).toMatchObject({ defensiveEquipmentBV: 54, defensive: 1686 });
   });
 
-  it('accepts domain arc mounts and ignores pilot skills until the final stage exists', () => {
+  it('accepts domain arc mounts and withholds pilot adjustment when stage facts are absent', () => {
     const unit = {
       ...union,
       equipment: [{ equipmentId: 'ISGuardianECMSuite', arc: 'FL' }],
