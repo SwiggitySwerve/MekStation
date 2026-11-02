@@ -268,7 +268,7 @@ it('classifies official ammo rows without compatible weapon refs as explicit gap
     countBy(nonstandardEmptyCompatibleAmmo.map((ammo) => ammo.rulesLevel)),
   ).toEqual({
     EXPERIMENTAL: 39,
-    UNOFFICIAL: 101,
+    UNOFFICIAL: 98, // was 101: the three half-ton MG records now declare compatible weapons (owner ruling 2026-11-02 q1)
   });
   expect(countBy(gapClasses)).toEqual({
     'duplicate-runtime-id': 12,
@@ -279,7 +279,7 @@ it('classifies official ammo rows without compatible weapon refs as explicit gap
     'unsupported-aquatic-torpedo-ammo': 11,
     'unsupported-artillery-ammo': 9,
     'unsupported-rotary-ac-10-20-ammo': 2,
-    'unofficial-empty-compatible-row': 101,
+    'unofficial-empty-compatible-row': 98,
   });
   expect(supportIdsByLevel(ammoCompatibilitySupport, 'helper-only')).toEqual(
     [],

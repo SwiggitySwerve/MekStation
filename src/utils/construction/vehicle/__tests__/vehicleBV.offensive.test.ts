@@ -201,8 +201,10 @@ describe('Vehicle final BV', () => {
 
 describe('Clan LB-X catalog ammunition', () => {
   it.each([
-    ['CLLBXAC2', 'lb-2-x-ammo', 47, 6, 92.96],
-    ['CLLBXAC5', 'lb-5-x-ammo', 93, 12, 151.2],
+    // Ammo BV follows pinned Java IS slug ammo, 5 / 10 (owner ruling 2026-11-02 question 1).
+    // Totals drop by the ammo delta times the same 1.12 factor (-1 -> -1.12, -2 -> -2.24).
+    ['CLLBXAC2', 'lb-2-x-ammo', 47, 5, 91.84],
+    ['CLLBXAC5', 'lb-5-x-ammo', 93, 10, 148.96],
   ])(
     'retains ordinary bins for %s without overrides',
     (id, ammoId, weaponBV, ammoBV, total) => {
