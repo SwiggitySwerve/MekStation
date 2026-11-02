@@ -40,8 +40,55 @@ export interface IComputedRow {
   runtimeTotal?: number;
   handlerTotal?: number;
 }
+interface IAggregateDelta {
+  java: number;
+  ours: number;
+  delta: number;
+  withinTolerance: boolean;
+}
+interface IFigureComparison {
+  status: string;
+  delta: number | null;
+  deltaPct: number | null;
+  defensive: IAggregateDelta | null;
+  offensive: IAggregateDelta | null;
+}
+interface IDeltaRow {
+  path: string;
+  sha256: string | undefined;
+  sourceSha256: string | null;
+  family: string;
+  joined: boolean;
+  status: string;
+  reason: string | null;
+  java: IJavaReferenceRow['battleValue'] | null;
+  ours: IFigure | null;
+  runtimeTotal: number | null;
+  handlerTotal: number | null;
+  comparison: IFigureComparison | null;
+}
+interface IGroupSummary {
+  readonly rows: number;
+  readonly joined: number;
+  readonly exact: number;
+  readonly within1Pct: number;
+  readonly farther: number;
+  readonly notComputable: number;
+  readonly notComplete: number;
+  readonly invalid: number;
+  readonly runtimeExact: number;
+  readonly handlerExact: number;
+}
+interface IDeltaReport {
+  ok: boolean;
+  aggregateRelativeTolerance: number;
+  exclusions: never[];
+  errors: string[];
+  byFamily: Record<string, IGroupSummary>;
+  rows: IDeltaRow[];
+}
 export const AGGREGATE_REL_TOLERANCE = 1e-9;
-export function aggregateDelta(java: number, ours: number) {
+export function aggregateDelta(java: number, ours: number): IAggregateDelta {
   const delta = ours - java;
   return {
     java,
@@ -54,7 +101,10 @@ export function aggregateDelta(java: number, ours: number) {
 }
 const positive = (value: number | undefined): value is number =>
   value !== undefined && Number.isFinite(value) && value > 0;
-export function compareFigures(java: IFigure, ours: IFigure) {
+export function compareFigures(
+  java: IFigure,
+  ours: IFigure,
+): IFigureComparison {
   const partial = ours.calculationScope === 'defensive-only';
   const javaTotal = java.total ?? NaN,
     ourTotal = ours.total ?? NaN;
@@ -107,7 +157,7 @@ export function buildDeltaReport(
   converted: readonly IComputedRow[],
   javaRows: readonly IJavaReferenceRow[],
   expectedFamilies: readonly string[] = FAMILIES,
-) {
+): IDeltaReport {
   const errors: string[] = [];
   const index = <T extends { path: string }>(list: readonly T[]) => {
     const map = new Map<string, T>();
