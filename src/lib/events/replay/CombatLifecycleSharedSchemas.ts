@@ -379,6 +379,7 @@ const infantryFieldGunSchema = z
 
 const infantryBVBreakdownSchema = z
   .object({
+    defensiveBV: finiteNumber.optional(),
     perTrooper: finiteNumber,
     motiveMultiplier: finiteNumber,
     antiMechMultiplier: finiteNumber,
@@ -441,6 +442,8 @@ const infantryInitSchema = z
     squadSize: finiteNumber,
     armorPerTrooper: finiteNumber,
     // IInfantry
+    damageDivisor: finiteNumber.positive().optional(),
+    hasPheromoneEffuser: z.boolean().optional(),
     numberOfSquads: finiteNumber,
     platoonStrength: finiteNumber,
     primaryWeapon: z.string(),

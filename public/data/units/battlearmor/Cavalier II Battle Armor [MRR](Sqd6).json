@@ -1,0 +1,105 @@
+{
+  "id": "cavalier-ii-battle-armor-[mrr]sqd6",
+  "chassis": "Cavalier II Battle Armor",
+  "model": "[MRR](Sqd6)",
+  "unitType": "BattleArmor",
+  "techBase": "MIXED",
+  "rulesLevel": "STANDARD",
+  "era": "DARK_AGE",
+  "year": 3142,
+  "weightClass": "MEDIUM",
+  "chassisType": "BIPED",
+  "motionType": "JUMP",
+  "movement": {
+    "groundMP": 1,
+    "jumpMP": 3,
+    "umuMP": 0,
+    "vtolMP": 0
+  },
+  "tonnage": 6,
+  "squadSize": 6,
+  "armorPerTrooper": 9,
+  "armor": {
+    "type": "BA_STEALTH_BASIC",
+    "perTrooper": 9,
+    "sourceTechLevel": 2
+  },
+  "manipulators": {
+    "rightArm": null,
+    "leftArm": "BABattleClaw"
+  },
+  "hasAntiPersonnelMount": true,
+  "hasModularWeaponMount": false,
+  "abilities": [],
+  "equipment": [
+    {
+      "id": "clbamedium-recoilless-rifle",
+      "name": "CLBAMedium Recoilless Rifle",
+      "location": "RIGHT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "babattleclaw",
+      "name": "BABattleClaw",
+      "location": "LEFT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "clan-ba-stealth-basic",
+      "name": "Clan BA Stealth (Basic)",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "clan-ba-stealth-basic",
+      "name": "Clan BA Stealth (Basic)",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "clan-ba-stealth-basic",
+      "name": "Clan BA Stealth (Basic)",
+      "location": "LEFT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "bajumpbooster",
+      "name": "BAJumpBooster",
+      "location": "BODY",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "baapmount",
+      "name": "BAAPMount",
+      "location": "LEFT_ARM",
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "infantryassaultrifle",
+      "name": "InfantryAssaultRifle",
+      "location": "NONE",
+      "isAPMMounted": true,
+      "unitLocation": "Squad"
+    },
+    {
+      "id": "bajumpjet",
+      "name": "BAJumpJet",
+      "location": "NONE",
+      "unitLocation": "NONE"
+    }
+  ],
+  "clanChassis": false,
+  "isExoskeleton": false,
+  "clanExoWithoutHarJel": false,
+  "mulId": 9516,
+  "role": "Ambusher",
+  "source": "TR:3150",
+  "fluff": {
+    "overview": "<p>The Cavalier II is a medium Inner Sphere battle armor suit produced by General Motors on Talcott for the Armed Forces of the Federated Suns. Entering service in 3142, the design was developed specifically to counter Capellan Confederation battle armor threats along the contested Davion-Liao border. The suit incorporates Clan-specification stealth armor and improved jump performance alongside a modular weapon mount and a dedicated anti-personnel weapon station, giving it broader tactical flexibility than its predecessor.</p>",
+    "capabilities": "<p>The medium recoilless rifle configuration arms the Cavalier II with a ballistic weapon that offers stronger ranged punch than the energy and flame options. The dedicated anti-personnel weapon mount provides a secondary weapon for engaging soft targets independently of the primary armament. Clan-specification stealth armor reduces the suit's sensor profile, allowing troopers to set up firing positions without detection and engage at the weapon's effective range before relocating. Improved jump jets provide superior mobility for rapid repositioning after firing. The rifle's ammunition dependency limits sustained operations compared to energy-armed variants, but its hitting power against light armor and battle armor targets exceeds what a laser or flamer can deliver at range.</p>",
+    "deployment": "<p>Six-trooper formations armed with medium recoilless rifle Cavalier IIs appeared in small numbers among mercenary commands and independent military organizations that adopted the larger formation size. These units used the rifle's range and the stealth armor's concealment to establish ambush positions along defensive perimeters.</p>",
+    "history": "<p>By the mid-thirty-second century, the Capellan Confederation had fielded increasingly sophisticated battle armor designs, with the Amazon suit becoming a fixture of CCAF front-line formations. The Amazon's stealth capabilities posed a growing tactical problem for Federated Suns border units, which lacked an equivalent counter in their own armored infantry doctrine. General Motors engineers at Talcott responded with the Cavalier II, drawing on Clan-specification stealth armor technology derived from the Grenadier II design and made available through Clan Sea Fox trade networks.</p><p>Production began in 3142, with initial distribution prioritizing commands stationed along the Capellan March. The Cavalier II retained the proven operational framework of its predecessor while adding capabilities that earlier models lacked: improved jump performance for better tactical mobility and a dedicated anti-personnel weapon mount that freed the modular hardpoint for heavier primary weapons. The design filled a gap in AFFS battle armor doctrine that the original Cavalier could not address against stealth-equipped opponents.</p>",
+    "manufacturer": "General Motors",
+    "primaryFactory": "Talcott"
+  }
+}

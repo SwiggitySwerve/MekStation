@@ -245,6 +245,11 @@ export interface IInfantryFieldGun {
 export interface IInfantry extends ISquadUnit {
   readonly unitType: UnitType.INFANTRY;
 
+  /** Effective incoming-damage divisor, including armor, implants and mount. */
+  readonly damageDivisor?: number;
+  /** Adds 0.05 defensive structure BV per trooper. */
+  readonly hasPheromoneEffuser?: boolean;
+
   /** Squad size (soldiers per squad) */
   readonly squadSize: number;
 
