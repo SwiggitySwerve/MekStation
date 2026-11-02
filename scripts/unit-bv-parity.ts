@@ -1,6 +1,8 @@
 /** One strict pinned-source BV comparator. See unit-bv-parity.md for the contract. */
 import { z } from 'zod';
 
+import stages from './megameklab-conversion/java-reference/bv-stages.json';
+
 export const FAMILIES = [
   'battlemechs',
   'vehicles',
@@ -18,6 +20,7 @@ export const JavaReference = z.object({
   ...sourceKey,
   concreteFamily: z.string(),
   battleValue: z.object({
+    terms: z.record(z.string(), z.number().finite()).optional(),
     total: z.number(),
     aggregates: z.object({
       defensiveValue: z.number(),
@@ -27,6 +30,7 @@ export const JavaReference = z.object({
 });
 export type IJavaReferenceRow = z.infer<typeof JavaReference>;
 export interface IFigure {
+  terms?: Record<string, number | undefined>;
   total?: number;
   defensive: number;
   offensive?: number;
@@ -54,6 +58,7 @@ interface IFigureComparison {
   offensive: IAggregateDelta | null;
 }
 interface IDeltaRow {
+  firstTermDifference: ReturnType<typeof firstTermDifference>;
   path: string;
   sha256: string | undefined;
   sourceSha256: string | null;
@@ -80,6 +85,7 @@ interface IGroupSummary {
   readonly handlerExact: number;
 }
 interface IDeltaReport {
+  perTerm: boolean;
   ok: boolean;
   aggregateRelativeTolerance: number;
   exclusions: never[];
@@ -88,6 +94,24 @@ interface IDeltaReport {
   rows: IDeltaRow[];
 }
 export const AGGREGATE_REL_TOLERANCE = 1e-9;
+function firstTermDifference(java?: IFigure['terms'], ours?: IFigure['terms']) {
+  const keys = [
+    ...new Set([...Object.keys(stages), ...Object.keys(java ?? {}).sort()]),
+  ];
+  for (const term of keys) {
+    const a = java?.[term],
+      b = ours?.[term];
+    if (
+      a === undefined ||
+      b === undefined ||
+      !Number.isFinite(a) ||
+      !Number.isFinite(b) ||
+      !aggregateDelta(a, b).withinTolerance
+    )
+      return { term, java: a ?? null, ours: b ?? null };
+  }
+  return null;
+}
 export function aggregateDelta(java: number, ours: number): IAggregateDelta {
   const delta = ours - java;
   return {
@@ -160,6 +184,7 @@ export function buildDeltaReport(
   converted: readonly IComputedRow[],
   javaRows: readonly IJavaReferenceRow[],
   expectedFamilies: readonly string[] = FAMILIES,
+  perTerm = false,
 ): IDeltaReport {
   const errors: string[] = [];
   const index = <T extends { path: string }>(list: readonly T[]) => {
@@ -181,6 +206,12 @@ export function buildDeltaReport(
         ? familyOf(java)
         : familyOf({ path, concreteFamily: '' });
       const joined = !!input && !!java && input.sha256 === java.sha256;
+      const termDifference =
+        perTerm && joined
+          ? firstTermDifference(java?.battleValue.terms, input?.figure?.terms)
+          : null;
+      if (termDifference)
+        errors.push(`term-mismatch: ${path}: ${termDifference.term}`);
       const comparison =
         java && input?.figure && joined
           ? compareFigures(
@@ -210,6 +241,7 @@ export function buildDeltaReport(
           `${status === 'exact' ? 'aggregate-mismatch' : status}: ${path}`,
         );
       return {
+        firstTermDifference: termDifference,
         path,
         sha256: java?.sha256 ?? input?.sha256,
         sourceSha256: input?.sha256 ?? null,
@@ -260,6 +292,7 @@ export function buildDeltaReport(
   );
   return {
     ok: errors.length === 0,
+    perTerm,
     aggregateRelativeTolerance: AGGREGATE_REL_TOLERANCE,
     exclusions: [],
     errors: errors.sort(),
