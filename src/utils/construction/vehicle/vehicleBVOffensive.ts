@@ -7,7 +7,10 @@ import type {
   VehicleOffensiveBVBreakdown,
 } from './vehicleBVTypes';
 
-import { getCatalogAmmoBVGroup } from '../battleValueAmmo';
+import {
+  extractWeaponTypeFromAmmoId,
+  getCatalogAmmoBVGroup,
+} from '../battleValueAmmo';
 import {
   calculateAmmoBVWithExcessiveCap,
   type OffensiveBVConfig,
@@ -108,41 +111,16 @@ function calculateWeaponBVEntry(
   };
 }
 
-/** Represented native type/rack identities; values still come from the catalog.
+/** Vehicle cap groups compose the shared bin-family and closed catalog rules.
  * BVCalculator.java:1190-1240 at MegaMek 48fcb2f64 groups bins before capping.
  */
-function vehicleAmmoGroup(id: string): string | undefined {
-  const common = getCatalogAmmoBVGroup(id);
-  if (common) return common;
-  const key = id
-    .replace(/^clan-/, '')
-    .replace(/^ammo-/, '')
-    .replace(/-ammo$/, '');
-  if (key === 'arrowivammo') return 'arrow-iv-launcher';
-  if (key === 'apgaussrifle') return 'ap-gauss-rifle';
-  const rotary = /^rotaryac(\d+)$/.exec(key);
-  if (rotary) return `rac-${rotary[1]}`;
-  const mg =
-    /^(light-|heavy-)?(?:mg|machine-gun)(?:-ammo)?(?:-(?:full|half))?$/.exec(
-      key,
-    );
-  if (mg) return `${mg[1] ?? ''}machine-gun`;
-  if (/^i?atm-\d+(?:-(?:er|he))?$/.test(key))
-    return key.replace(/-(?:er|he)$/, '');
-  return undefined;
+function vehicleAmmoGroup(id: string): string {
+  const family = extractWeaponTypeFromAmmoId(normalizeEquipmentId(id));
+  return getCatalogAmmoBVGroup(family) ?? family;
 }
 
 function getAmmoWeaponType(ammo: VehicleAmmoMount): string {
-  const normalized = normalizeEquipmentId(ammo.id);
-  return (
-    ammo.weaponTypeOverride ??
-    vehicleAmmoGroup(normalized) ??
-    normalized
-      .replace(/^is-/, '')
-      .replace(/^cl-/, '')
-      .replace(/-ammo$/, '')
-      .replace(/^ammo-/, '')
-  );
+  return ammo.weaponTypeOverride ?? vehicleAmmoGroup(ammo.id);
 }
 
 function buildVehicleAmmoEntries(
@@ -199,7 +177,7 @@ export function calculateVehicleOffensiveBV(
 
   const weaponBV = weaponEntries.reduce((sum, entry) => sum + entry.finalBV, 0);
   const perWeaponBVs = weaponEntries.map((entry) => ({
-    id: vehicleAmmoGroup(normalizeEquipmentId(entry.id)) ?? entry.id,
+    id: vehicleAmmoGroup(entry.id),
     bv: entry.listedBV,
   }));
   const ammoEntries = buildVehicleAmmoEntries(input.ammo);

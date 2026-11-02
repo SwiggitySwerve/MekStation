@@ -41,3 +41,8 @@ are made by the extraction. Full source-ammunition and BV parity remain open.
 `getCatalogAmmoBVGroup` owns the existing closed large-craft catalog type/rack
 subset, reused by vehicle grouping. Its extraction preserves all large-craft
 outputs; vehicle-specific group extensions do not expand large-craft admission.
+Catalog family derivation (`extractWeaponTypeFromAmmoId`) and live weapon-key
+normalization also belong to this owner. Remove a terminal bin-size suffix
+before the ammunition suffix; physical bin size does not change its cap family.
+Catalog BV, half-ton scaling, one-shot exclusions and CASE rules remain unchanged.
+The historical audit keeps its separately documented normalization policy.

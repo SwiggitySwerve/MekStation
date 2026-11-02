@@ -368,7 +368,7 @@ shared size-class thresholds (EntityWeightClass.java:80-97). BAR weight reuses
 `vehicleBVOffensive.ts` selects matching catalog-derived weapon and bin groups
 before calling the shared `calculateAmmoBVWithExcessiveCap` owner. Its common
 LB-X/Gauss/missile rules are shared with large craft in `battleValueAmmo.ts`;
-the large-craft supported subset is unchanged. Vehicle keys additionally pair
+the large-craft supported subset is unchanged. The shared family normalizer pairs
 compact Arrow IV, rotary AC and Gauss ammo identities with their launchers,
 MG full/half packaging with the corresponding MG weight class, and ATM/iATM
 standard/ER/HE bins with the same rack. LB-X slug and cluster bins share one cap.
