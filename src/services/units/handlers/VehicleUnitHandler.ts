@@ -300,7 +300,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
         equipmentId: item,
         name: item,
         location,
-        ...getVehicleMountFlags(locationKey),
+        ...getVehicleMountFlags(locationKey, item),
       }),
     );
   }

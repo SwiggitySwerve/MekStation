@@ -26,17 +26,35 @@ import {
 } from '@/types/unit/VehicleInterfaces';
 
 /** Combat-vehicle mount flags from a BLK location label, including sponsons. */
-export function getVehicleMountFlags(locationKey: string): {
+export function getVehicleMountFlags(
+  locationKey: string,
+  equipmentName = '',
+  chinTurret = false,
+): {
   isRearMounted: boolean;
   isTurretMounted: boolean;
   isSponsonMounted: boolean;
+  isChinTurretMounted: boolean;
+  isPintleTurretMounted: boolean;
+  isOmniPodMounted: boolean;
 } {
   const label = locationKey.toLowerCase();
+  // BLKFile.java:289-300,1487-1509: decorators describe a mount, not its ID.
+  const mountToken = equipmentName.split(/:size:|:shots/i)[0].trim();
+  const token = mountToken.replace(/:omni$/i, '').trim();
+  const isTurretMounted = label.includes('turret') || label.includes('chin');
   return {
     // Rear Turret is the rear turret, not a rear-facing mount (Tank.java:127-130).
-    isRearMounted: label.includes('rear') && !label.includes('turret'),
-    isTurretMounted: label.includes('turret'),
-    isSponsonMounted: label.includes('sponson'),
+    isRearMounted:
+      (label.includes('rear') && !label.includes('turret')) ||
+      /^\(r\)\s*/i.test(token) ||
+      /^r-/i.test(token),
+    isTurretMounted,
+    isSponsonMounted: label.includes('sponson') || /\(st\)$|-st$/i.test(token),
+    isChinTurretMounted:
+      isTurretMounted && (chinTurret || label.includes('chin')),
+    isPintleTurretMounted: /\(pt\)$|-pt$/i.test(token),
+    isOmniPodMounted: /:omni$/i.test(mountToken),
   };
 }
 

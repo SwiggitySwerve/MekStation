@@ -64,5 +64,32 @@ class VehicleQualifierParsingTest(unittest.TestCase):
             self.assertIs(type(result[field]), int, field)
         self.assertIs(type(result['fuel']), float)
 
+class VehiclePatchworkArmorTest(unittest.TestCase):
+    def test_patchwork_location_types_and_support_bar_survive_schema_gate(self):
+        for unit_type, armor_code in (('Tank', 7), ('VTOL', 7), ('SupportTank', 7), ('SupportTank', 3)):
+            with self.subTest(unit_type=unit_type), tempfile.TemporaryDirectory() as temp:
+                locations = ['Front', 'Right', 'Left', 'Rear', 'Rotor' if unit_type == 'VTOL' else 'Turret']
+                tags = ''.join(f'<{loc}_armor_type>{code}</{loc}_armor_type>\n' for loc, code in zip(locations, [3, 4, 0, 16, 26]))
+                if unit_type == 'SupportTank':
+                    tags += '<Front_barrating>6</Front_barrating>\n'
+                    if armor_code != 7:
+                        tags += '<barrating>6</barrating>\n'
+                source = Path(temp) / 'patchwork.blk'
+                source.write_text(f'<UnitType>{unit_type}</UnitType>\n<Name>Patchwork</Name>\n<year>3050</year>\n<tonnage>20</tonnage>\n<cruiseMP>4</cruiseMP>\n<motion_type>{"VTOL" if unit_type == "VTOL" else "Tracked"}</motion_type>\n<armor_type>{armor_code}</armor_type>\n<armor>\n10\n10\n0\n10\n2\n</armor>\n' + tags, encoding='utf-8')
+                unit = convert_vehicle_blk(source, logging.getLogger(__name__))
+                self.assertIsNotNone(unit)
+                if armor_code != 7:
+                    self.assertEqual(unit['armor']['type'], 'REFLECTIVE')
+                    self.assertEqual(unit['armor']['barRating'], 6)
+                    write_unit_json(Path(temp) / 'unit.json', unit)
+                    continue
+                self.assertEqual(unit['armor']['typeByLocation']['RIGHT'], 4)
+                self.assertEqual(unit['armor']['typeByLocation'][locations[-1].upper()], 26)
+                if unit_type == 'SupportTank':
+                    self.assertEqual(unit['armor']['typeByLocation']['FRONT'], 47)
+                    self.assertEqual(unit['armor']['barRatingByLocation']['FRONT'], 6)
+                    self.assertEqual(unit['armor']['barRatingByLocation']['RIGHT'], 10)
+                write_unit_json(Path(temp) / 'unit.json', unit)
+
 if __name__ == '__main__':
     unittest.main()

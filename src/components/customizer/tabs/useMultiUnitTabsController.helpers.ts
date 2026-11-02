@@ -1,6 +1,7 @@
 import type { LoadUnitSource } from '@/components/customizer/dialogs/UnitLoadDialog';
 import type { useToast } from '@/components/shared/Toast';
 import type { UnitState } from '@/stores/unitState';
+import type { UnitFamily } from '@/types/unit/UnitIndex';
 import type {
   IExportableUnit,
   IImportHandlers,
@@ -8,18 +9,26 @@ import type {
 } from '@/types/vault';
 
 import { IUnitIndexEntry } from '@/services/common/types';
-import { unitLoaderService } from '@/services/units/unitLoaderService';
+import {
+  unitLoaderService,
+  type FamilyEditorState,
+} from '@/services/units/unitLoaderService';
+import { createAerospaceFromFullState } from '@/stores/aerospaceStoreRegistry';
 import {
   createUnitFromFullState,
   getUnitStore,
 } from '@/stores/unitStoreRegistry';
 import {
   useTabManagerStore,
+  type TabManagerState,
   type UnitTemplate,
 } from '@/stores/useTabManagerStore';
+import { createVehicleFromFullState } from '@/stores/vehicleStoreRegistry';
 import { TechBase } from '@/types/enums/TechBase';
 import { logger } from '@/utils/logger';
 import { generateUUID } from '@/utils/uuid';
+
+import { isLibrarySaveSupported } from './MultiUnitTabsUnitState';
 
 type ShowToast = ReturnType<typeof useToast>['showToast'];
 
@@ -39,6 +48,38 @@ interface LoadUnitParams {
   readonly setIsLoadingUnit: (isLoading: boolean) => void;
   readonly showToast: ShowToast;
   readonly isCurrent?: () => boolean;
+}
+
+type LoadedTab = Parameters<TabManagerState['addTab']>[0];
+
+/** Families that have no library-open route yet; retrying cannot help. */
+const UNSUPPORTED_FAMILY_MESSAGES: Partial<Record<UnitFamily, string>> = {
+  capital:
+    'Capital ships cannot be opened yet because the editor has no capital ship view.',
+  battlearmor:
+    'Battle armor cannot be opened yet because the editor cannot load battle armor from the library.',
+  infantry:
+    'Infantry cannot be opened yet because the editor cannot load infantry from the library.',
+};
+
+function openBattleMechState(state: UnitState): LoadedTab {
+  createUnitFromFullState(state);
+  return {
+    id: state.id,
+    name: state.name,
+    tonnage: state.tonnage,
+    techBase: state.techBase,
+  };
+}
+
+/** Register a vehicle or aerospace session in its own store; the tab type picks the shell. */
+function registerFamilyState(familyState: FamilyEditorState): LoadedTab {
+  const { id, name, tonnage, techBase, unitType } = (
+    familyState.store === 'vehicle'
+      ? createVehicleFromFullState(familyState.state)
+      : createAerospaceFromFullState(familyState.state)
+  ).getState();
+  return { id, name, tonnage, techBase, unitType };
 }
 
 export async function loadUnitIntoTab({
@@ -61,16 +102,25 @@ export async function loadUnitIntoTab({
     );
     if (!isCurrent()) return;
 
-    if (!result.success || !result.state) {
+    const tab =
+      result.success && result.state
+        ? openBattleMechState(result.state)
+        : result.success && result.familyState
+          ? registerFamilyState(result.familyState)
+          : null;
+    if (!tab) {
       showToast({
         message:
           result.errorCode === 'unsupported-configuration'
             ? (result.error ??
               'This configuration is not supported by the editor.')
             : result.errorCode === 'invalid-definition'
-              ? 'This library entry contains invalid unit data. Choose another entry or correct the saved definition.'
+              ? source === 'custom' && !isLibrarySaveSupported(unit.unitType)
+                ? `Saved ${unit.unitType} designs cannot be reopened yet. Only BattleMech designs reopen from the library.`
+                : 'This library entry contains invalid unit data. Choose another entry or correct the saved definition.'
               : result.errorCode === 'unsupported-store-family'
-                ? 'This unit family cannot be opened in the BattleMech editor yet.'
+                ? (UNSUPPORTED_FAMILY_MESSAGES[unit.family ?? 'battlemechs'] ??
+                  'This unit family cannot be opened in the editor yet.')
                 : result.errorCode === 'unknown-family'
                   ? 'This library entry uses an unknown unit family. Choose another entry or correct the saved definition.'
                   : result.errorCode === 'family-not-found'
@@ -82,22 +132,14 @@ export async function loadUnitIntoTab({
       return;
     }
 
-    createUnitFromFullState(result.state);
-    const newTabId = result.state.id;
-
-    useTabManagerStore.getState().addTab({
-      id: newTabId,
-      name: result.state.name,
-      tonnage: result.state.tonnage,
-      techBase: result.state.techBase,
-    });
+    useTabManagerStore.getState().addTab(tab);
 
     showToast({
-      message: `Unit "${result.state.name}" loaded`,
+      message: `Unit "${tab.name}" loaded`,
       variant: 'success',
     });
 
-    navigateToTab(newTabId);
+    navigateToTab(tab.id);
     setIsLoadDialogOpen(false);
   } catch (error) {
     if (!isCurrent()) return;

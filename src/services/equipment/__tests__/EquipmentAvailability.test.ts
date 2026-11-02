@@ -89,11 +89,12 @@ it.each([
         sort,
       ),
     ).toEqual([item]);
-    if (!getEquipmentLookupService().getById(id)) return;
+    const browserItems = getEquipmentLookupService().getAllEquipment();
+    if (!browserItems.some((equipment) => equipment.id === id)) return;
     const store = useEquipmentStore.getState();
     store.clearFilters();
     store.showAllCategories();
-    store.setEquipment(getEquipmentLookupService().getAllEquipment());
+    store.setEquipment(browserItems);
     store.setUnitContext(3028, TechBase.INNER_SPHERE, []);
     expect(
       useEquipmentStore

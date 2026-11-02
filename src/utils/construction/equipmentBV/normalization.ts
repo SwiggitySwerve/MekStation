@@ -6,13 +6,15 @@
  */
 
 import {
-  loadEquipmentCatalog,
+  loadCatalogForEquipmentId,
+  isAmmunitionEquipmentId,
   loadNameMappings,
   getLowerMappingsCache,
   setLowerMappingsCache,
 } from './catalogLoader';
 import {
   ABBREVIATION_MAP,
+  AMMUNITION_NORMALIZATION_PATTERNS,
   DIRECT_ALIAS_MAP,
   NORMALIZATION_PATTERNS,
 } from './normalizationPatterns';
@@ -63,8 +65,9 @@ function firstDirectAliasCatalogMatch(
 function firstPatternCatalogMatch(
   catalog: EquipmentCatalogLookup,
   value: string,
+  patterns = NORMALIZATION_PATTERNS,
 ): string | undefined {
-  for (const [pattern, replacement] of NORMALIZATION_PATTERNS) {
+  for (const [pattern, replacement] of patterns) {
     if (!value.match(pattern)) continue;
     const result = value.replace(pattern, replacement);
     const clanId = clanPrefixCatalogMatch(catalog, value, [result]);
@@ -86,12 +89,61 @@ function clanPrefixCatalogMatch(
   );
 }
 
-export function normalizeEquipmentId(equipmentId: string): string {
-  const catalog = loadEquipmentCatalog();
-  const lower = equipmentId.toLowerCase().trim();
+export function normalizeEquipmentId(
+  equipmentId: string,
+  catalog: EquipmentCatalogLookup = loadCatalogForEquipmentId(equipmentId),
+): string {
+  const rawLower = equipmentId.toLowerCase().trim();
+  // BLK size is mount metadata, not part of EquipmentType's lookup name.
+  const base = rawLower.replace(/(?::omni|:size:\d+(?:\.\d+)?)+$/, '');
+  // BLK mount markers occur in native tokens and converted IDs.
+  const lower = catalog.has(rawLower)
+    ? rawLower
+    : catalog.has(base)
+      ? base
+      : base
+          .replace(/^(?:r-|\(r\)\s*)/, '')
+          .replace(/(?:-?\((?:st|pt)\)|-?(?:st|pt))$/, '')
+          .trim();
   const stripped = lower.replace(/^\d+-/, '').replace(/-\d+$/, '');
 
-  const directCatalogId = firstCatalogMatch(catalog, [lower, stripped]);
+  // Preserve rack numbers and tech/munition variants before general instance-ID
+  // stripping. A failed ammo lookup must never become a weapon lookup.
+  if (isAmmunitionEquipmentId(lower)) {
+    const ammoToken = lower.replace(/\s*-\s*/g, '-').replace(/[\s/]+/g, '-');
+    const resolved =
+      // This converter spelling is separate from the canonical Mech token
+      // "CLAPGaussRifle Ammo", whose existing resolution must stay unchanged.
+      firstCatalogMatch(catalog, [
+        lower,
+        lower === 'clapgaussrifle-ammo' ? 'apgaussrifle' : undefined,
+      ]) ??
+      firstCatalogMatch(catalog, [ammoToken]) ??
+      firstDirectAliasCatalogMatch(catalog, [lower]) ??
+      firstLowerMappedCatalogMatch(
+        catalog,
+        getOrBuildLowerMappings(loadNameMappings()),
+        [lower],
+      ) ??
+      firstDirectAliasCatalogMatch(catalog, [ammoToken]) ??
+      firstPatternCatalogMatch(
+        catalog,
+        ammoToken,
+        AMMUNITION_NORMALIZATION_PATTERNS,
+      );
+    if (resolved) return resolved;
+    if (stripped !== lower) {
+      const instanceId = normalizeEquipmentId(stripped, catalog);
+      if (catalog.has(instanceId)) return instanceId;
+    }
+    return lower;
+  }
+
+  const directCatalogId = firstCatalogMatch(catalog, [
+    lower,
+    stripped,
+    lower.replace(/^is-/, ''),
+  ]);
   if (directCatalogId) return directCatalogId;
 
   const directAliasId = firstDirectAliasCatalogMatch(catalog, [

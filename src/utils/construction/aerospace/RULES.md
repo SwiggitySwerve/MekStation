@@ -1,5 +1,108 @@
 # Aerospace construction rules
 
+## DropShip mount valuation
+
+`dropShipMountBV.ts` owns raw DropShip mount-to-arc facts, using the shared
+equipment resolver and defensive classifier. A `b-` bay-start marker counts
+its weapon once. Rear side mounts use AL/AR; nose/aft mounts retain their arc.
+Supported conventional type/rack groups combine IS/Clan cap BV within an arc.
+Ammo uses the catalog owner's bin shot count and native
+`max(1, floor(usableShots / binShots))`, with depleted bins contributing zero.
+The shared cap accumulator and six-arc stage own accumulation and weighting.
+
+The closed supported subset is ordinary AC/Ultra/Rotary/light AC, LRM/SRM/MRM,
+Streak and catalog laser/PPC/flamer subtypes. Unsupported capital weapons,
+links, other equipment, unknown identities/arcs and missing/invalid ammo
+quantities produce indexed reasons. Returned arcs are partial diagnostics
+while any reason remains. Catalog resolution alone does not certify native
+numerical parity. This size-capped boundary port leaves final adjustments and
+dispatch defensive-only. Tests enforce bay multiplicity, rear arcs, native
+quantity ratios, depleted bins, local caps, unresolved facts and Union's
+2339.75 offensive stage from raw mounts. The complete 3972 remains withheld.
+
+## Large aerospace offensive stage
+
+`largeAerospaceFirePool.ts` owns the six-arc fire pool for already-valued
+native arc facts, exported through `aerospaceBV.ts`. It follows pinned
+`LargeAeroBVCalculator.determineFront/processWeapons/processArc/processAmmo`:
+primary ties follow nose/left/left-aft/aft/right-aft/right; adjacent ties favor
+clockwise. Primary weight is 1, stronger adjacent is 1 or 0.5, weaker adjacent
+is 0.5 or 0.25, and the other arcs are 0.25. Adjacent weights use cumulative
+heat strictly greater than heat capacity, checked after each entire arc.
+Ammo uses the shared cap owner within each arc and native ammo type/rack.
+The shared speed owner receives maximum thrust, without the fighter average.
+Offensive equipment is added before speed and outside arc weighting.
+
+This is a component port, not raw-mount valuation or complete DropShip BV.
+Callers must supply resolved weapon BV/heat, native ammo quantities/cap keys
+and offensive equipment BV. Ungrouped selection BV and grouped additions after
+arc weighting (PPC capacitors) have separate input fields. Bay aggregation,
+capital weapons, linked modifier valuation, crew/pilot, cockpit/drone,
+C3/TAG and final rounding remain outside this stage. Do not use this component
+as a complete calculator for unsupported mount modifiers. Dispatch remains
+defensive-only and withholds offensive/final BV. Tests pin Union stage offense
+2339.75, tie/heat boundaries, local ammo caps, speed and malformed facts. UL-20
+offense evidence compares all 209 native stage inputs and all 620 unchanged
+fighter/small-craft breakdowns; native-valued inputs do not prove app loading.
+
+## Capital defensive slice
+
+`capitalShipBV.ts` adapts JumpShip, WarShip and Space Station facts and calls
+the aerospace defensive owner. Dispatch returns `kind: capital-ship` and the
+existing large-aerospace `defensive-only` contract; offensive and final BV
+remain undefined. The contract adapter requires SI and armor.byArc, accepts
+zero and preserves hull/broadside mounts. Domain mounts may carry arc names.
+
+Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587` factory routes
+Warship to WarShipBVCalculator, Jumpship (including SpaceStation) to
+JumpShipBVCalculator. Both inherit LargeAero -> Aero -> HeatTracking -> BV.
+JumpShip overrides armor factor to 25 and SI to 20; neither KF nor sail
+integrity contributes. Capital armor points are already capital scale: no
+additional conversion applies. Ferro-carbide, lamellor ferro-carbide and
+improved ferro-aluminum use the native default armor BV multiplier 1.
+JumpShip/WarShip replace the whole aircraft type stage with 0.75/0.8; stations
+use 0.7. They do not add aircraft stealth. Defensive equipment/caps, the empty
+LargeAero explosive stage and Aero's neutral defensive factor are inherited.
+
+Enforcement: `capitalShipBV.test.ts` pins Java defenses 2142/12920/1064 for
+Comitatus/Aegis/Crucible, including native AMS facts for Comitatus, adapter
+guards, equipment caps and type overrides. UL-21's external evidence compares
+all 185 native defensive aggregates and verifies 620 aerospace and 209
+DropShip results unchanged. Existing source-qualified equipment IDs, screen
+identities and ammunition quantities remain boundary limitations, reported
+per unit; no complete-total parity or new equipment resolution is claimed.
+
+## DropShip defensive slice
+
+`dropShipBV.ts` adapts DropShip domain mounts and calls the same defensive
+owner as fighters and small craft. `calculateBattleValueForUnit` returns
+`kind: 'dropship'` with `calculationScope: 'defensive-only'`. Offensive and
+final BV are explicitly undefined; defense is not a complete unit BV.
+The contract adapter transports only SI, total armor, armor identity and mounts.
+It requires SI and armor.byArc, accepts zero and preserves hull equipment.
+
+Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587` routes Dropship to
+DropShipBVCalculator (`BVCalculator.java:103-118`), which inherits
+LargeAeroBVCalculator and AeroBVCalculator. Armor uses the inherited factor
+2.5 and SI uses 2. Dropship extends SmallCraft, so its defensive type modifier
+is 1; stealth still adds 0.3. LargeAeroBVCalculator's empty explosive stage
+does not apply penalties or the heat-tracking minimum. Aero's defensive
+factor is neutral. No small-craft armor bonus applies to DropShips.
+Mounted defensive equipment uses the existing shared classification and cap.
+
+Dispatch integration, unrepresented mount/ammo valuation, weapon-link
+modifiers and final crew/pilot/drone adjustments remain deferred after the
+size-capped component deliveries.
+Existing equipment-ID gaps, screen/APDS coverage, variable equipment values,
+Blue Shield and mount working/destroyed state are not resolved here.
+Numeric armor codes retain the existing aerospace adapter's standard fallback.
+
+Enforcement: `dropShipBV.test.ts` covers the Union defense 1632 reference,
+contract transport, missing/zero facts, domain mounts and shared AMS caps.
+UL-20's external comparison checks every defensive component for all 209
+pinned DropShips and asserts every breakdown field is unchanged for the
+same 620 aerospace inputs. It reports missing totals as unavailable.
+
 ## Max thrust
 
 `thrustCalculations.ts:calculateMaxThrust` owns the max thrust derived from safe
@@ -41,6 +144,59 @@ regenerated or migrated.
 
 The aerospace construction module owns aerospace BV calculations. Its public
 entry is `aerospaceBV.ts`; `aerospaceBVCalculator.ts` owns the defensive pool.
+
+## Offensive forward/rear groups
+
+`aerospaceBVArcs.ts` owns ordinary aerospace mount weighting. Nose, both wings
+or sides and Fuselage form one forward group; Aft forms the rear group. Compare
+the complete groups before weighting: the stronger group contributes fully,
+the weaker contributes half, and ties keep forward full. Fuselage participates
+in the comparison and discount while retaining its separate public subtotal.
+Per-arc raw BV remains unchanged; `primaryArc` identifies the largest populated
+arc in the dominant group, preserving arc order on ties. Empty pools have no
+primary and zero weights. Unknown locations remain excluded.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`AeroBVCalculator.java:147-155`, `BVCalculator.java:690-699,780-782,835-837`.
+The large-aerospace 100/50/25 arc policy does not apply to ASF, CF, FWS or
+SmallCraft. DropShip and capital offensive calculations are outside this owner.
+Rear-mounted flags, heat, mounted ammo/equipment classification, quantities,
+weapon links remain separate parity work; the group calculation preserves
+their existing policies and does not establish full offensive parity.
+
+Enforcement: `aerospaceBV.offensiveArcParity.test.ts` covers Sabre's native
+prototype facts at the catalog boundary, source-derived Inseki II through
+contract dispatch, both wing/side topologies, combined-group selection,
+strong rear groups, Fuselage ties and empty/unknown locations. Sabre remains
+unresolved in production catalog data. UL-19-offense's 620-source comparison
+asserts unchanged inputs, raw arcs and unrelated breakdown fields.
+
+## Offensive speed
+
+`aerospaceBVCalculator.calculateAerospaceSpeedFactor` consumes maximum thrust
+as airborne run MP for ASF, conventional fighters, fixed-wing support and
+small craft. `thrustCalculations.calculateMaxThrust` owns the upward rounding;
+`battleValueMovement.calculateOffensiveSpeedFactorForMP` owns the exponent and
+two-decimal rounding before multiplication. The public `avgThrust` diagnostic
+retains its arithmetic mean and does not affect speed. Supplied maximum thrust
+remains authoritative at the BV boundary; this change does not rewrite inputs.
+
+Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`:
+`AeroBVCalculator.java:183-186` reads `getRunMP(BV_CALCULATION)`;
+`Aero.java:1656-1663` delegates airborne movement to
+`Entity.java:4015-4017` (`ceil(walk * 1.5)`). ASF extends Aero, conventional
+fighter extends ASF, fixed-wing support extends conventional fighter, and
+small craft extends Aero; none overrides this movement rule.
+`BVCalculator.java:1129-1132` supplies the shared speed formula.
+
+Enforcement: `aerospaceBV.speedParity.test.ts` covers all four families,
+odd-thrust ceiling, zero thrust, factor rounding and the compatibility mean.
+The arc parity fixtures pin Sabre's native 248 BV pool at factor 2.58 and
+639.84 offense, plus Inseki II's factor 1.37 through contract dispatch.
+UL-19-speed compares all 620 unchanged corpus inputs and allows only speed,
+offense and final BV to change. Sabre's production prototype IDs, heat, ammo,
+links and other valuation gaps remain unresolved. This construction rule
+does not represent grounded/damaged gameplay state or complete BV parity.
 
 ## Defensive thrust factor
 

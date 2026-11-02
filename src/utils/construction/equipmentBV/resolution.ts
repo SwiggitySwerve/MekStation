@@ -15,6 +15,7 @@ import type {
 
 import {
   loadEquipmentCatalog,
+  loadCatalogForEquipmentId,
   loadAmmunitionCatalog,
   getLoggedUnresolvable,
 } from './catalogLoader';
@@ -61,9 +62,7 @@ function applyBVHeatOverride(
 }
 
 export function resolveEquipmentBV(equipmentId: string): EquipmentBVResult {
-  const catalog = loadEquipmentCatalog();
-  const normalizedId = normalizeEquipmentId(equipmentId);
-  const entry = catalog.get(normalizedId);
+  const entry = getEquipmentEntry(equipmentId);
 
   if (!entry) {
     const loggedUnresolvable = getLoggedUnresolvable();
@@ -71,7 +70,7 @@ export function resolveEquipmentBV(equipmentId: string): EquipmentBVResult {
       loggedUnresolvable.add(equipmentId);
       if (typeof console !== 'undefined' && process.env.NODE_ENV !== 'test') {
         logger.warn(
-          `[equipmentBVResolver] Unresolvable equipment ID: "${equipmentId}" (normalized: "${normalizedId}")`,
+          `[equipmentBVResolver] Unresolvable equipment ID: "${equipmentId}" (normalized: "${normalizeEquipmentId(equipmentId)}")`,
         );
       }
     }
@@ -91,21 +90,24 @@ export function resolveEquipmentBV(equipmentId: string): EquipmentBVResult {
 export function getEquipmentEntry(
   equipmentId: string,
 ): EquipmentCatalogEntry | undefined {
-  const catalog = loadEquipmentCatalog();
-  const normalizedId = normalizeEquipmentId(equipmentId);
+  const catalog = loadCatalogForEquipmentId(equipmentId);
+  const normalizedId = normalizeEquipmentId(equipmentId, catalog);
   return catalog.get(normalizedId);
 }
 
 export function isResolvable(equipmentId: string): boolean {
-  const catalog = loadEquipmentCatalog();
-  const normalizedId = normalizeEquipmentId(equipmentId);
-  return catalog.has(normalizedId);
+  return getEquipmentEntry(equipmentId) !== undefined;
+}
+
+export function getAmmunitionEntry(
+  ammoId: string,
+): EquipmentCatalogEntry | undefined {
+  const catalog = loadAmmunitionCatalog();
+  return catalog.get(normalizeEquipmentId(ammoId, catalog));
 }
 
 export function resolveAmmoBV(ammoId: string): AmmoBVResult {
-  const catalog = loadAmmunitionCatalog();
-  const normalizedId = normalizeEquipmentId(ammoId);
-  const entry = catalog.get(normalizedId);
+  const entry = getAmmunitionEntry(ammoId);
 
   if (!entry) {
     return { battleValue: 0, weaponType: '', resolved: false };
@@ -113,7 +115,7 @@ export function resolveAmmoBV(ammoId: string): AmmoBVResult {
 
   return {
     battleValue: entry.battleValue ?? 0,
-    weaponType: normalizedId.replace(/-ammo$/, '').replace(/^ammo-/, ''),
+    weaponType: entry.id.replace(/-ammo$/, '').replace(/^ammo-/, ''),
     resolved: true,
   };
 }

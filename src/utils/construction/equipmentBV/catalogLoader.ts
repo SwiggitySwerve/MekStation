@@ -41,6 +41,8 @@ function toCatalogEntry(
     battleValue: typeof item.battleValue === 'number' ? item.battleValue : 0,
     heat: typeof item.heat === 'number' ? item.heat : undefined,
     subType: typeof item.subType === 'string' ? item.subType : undefined,
+    shotsPerTon:
+      typeof item.shotsPerTon === 'number' ? item.shotsPerTon : undefined,
     damage:
       typeof item.damage === 'number' || typeof item.damage === 'string'
         ? item.damage
@@ -149,6 +151,19 @@ export function loadAmmunitionCatalog(): Map<string, EquipmentCatalogEntry> {
   }
   ammunitionCache = catalog;
   return catalog;
+}
+
+/** Ammo and weapons can share an ID (for example mrm-20) in the source files. */
+export function isAmmunitionEquipmentId(equipmentId: string): boolean {
+  return /ammo|pods/i.test(equipmentId);
+}
+
+export function loadCatalogForEquipmentId(
+  equipmentId: string,
+): Map<string, EquipmentCatalogEntry> {
+  return isAmmunitionEquipmentId(equipmentId)
+    ? loadAmmunitionCatalog()
+    : loadEquipmentCatalog();
 }
 
 export function getLoggedUnresolvable(): Set<string> {

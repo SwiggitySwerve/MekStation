@@ -25,6 +25,8 @@ export enum MiscEquipmentCategory {
   DEFENSIVE = 'Defensive',
   MYOMER = 'Myomer',
   INDUSTRIAL = 'Industrial',
+  MISCELLANEOUS = 'Miscellaneous',
+  UNKNOWN = 'Unknown',
 }
 
 /**

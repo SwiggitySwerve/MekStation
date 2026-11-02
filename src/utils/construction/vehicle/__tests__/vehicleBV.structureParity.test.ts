@@ -180,7 +180,7 @@ describe('Pinned MegaMek vehicle structure BV', () => {
       chassisEquipment: ['ISBlueShieldParticleFieldDamper'],
     });
     expect(after.structureBV).toBe(30 * 1.5 * 0.7);
-    expect(after.armorBV).toBe(before.armorBV);
+    expect(after.armorBV).toBeCloseTo(before.armorBV * 1.2, 8);
     expect(after.offensive).toBe(before.offensive);
   });
   it.each([
