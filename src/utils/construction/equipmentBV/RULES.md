@@ -326,3 +326,29 @@ share the registered `apgaussrifle` ammunition identity, including counted
 ProtoMech bins. Both spellings live in the alias table; quantity parsing does
 not define another identity rule. Focused qualifier tests enforce the shared
 identity, and the pinned corpus comparison checks Mech BV regression.
+
+## One-shot BV heat
+
+`weaponHeat.ts` owns one-shot identity projection and heat /4. The shared
+resolver applies it once, before Ultra/Rotary/Streak heat adjustments, using
+the resolved item identity/name and the retained source one-shot spelling.
+Mech weapon construction consumes that resolved heat; its script fallback
+boundary uses the same owner. The legacy Mech missile BV /5 guard remains a
+separate compatibility policy, as do its existing fallback table heat facts.
+Raw catalog firing heat and weapon BV do not change.
+Source: MegaMek 48fcb2f64, HeatTrackingBVCalculator.java:170-180,203-209;
+WeaponMounted.java:231-234 reads WeaponType.F_ONE_SHOT (WeaponType.java:577).
+`equipmentBVResolver.oneShotHeat.test.ts` pins RL10/15/20, I-OS, combined
+Streak heat, Mech single application and Ahab/Avar native totals.
+
+Tech-qualified Mech candidate lookups retain the original source identity at
+the resolver boundary, so a source I-OS flag survives a different Clan catalog
+spelling. Crossbow T's SRM2/6 I-OS regressions enforce this retained fact.
+
+`weaponLinks.ts` owns the represented LRM/SRM/MML Artemis compatibility and
+first-unlinked/same-physical-location assignment for aircraft and large craft.
+Links follow source order; rear flags and list adjacency do not select the
+launcher (MekFileParser.java:425-449). The existing multiplier owner supplies
+1.2/1.3 before arc weighting and heat sorting (BVCalculator.java:860-872).
+Mech's older critical-grid/location heuristic is retained as a separate input
+projection; vehicles already consume explicit links. No catalog flags added.

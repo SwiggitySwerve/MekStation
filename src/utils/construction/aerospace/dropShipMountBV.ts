@@ -7,6 +7,10 @@ import type { ILargeAerospaceArcBV } from './largeAerospaceFirePool';
 
 import { addBVToAmmoCapGroup, getCatalogAmmoBVGroup } from '../battleValueAmmo';
 import {
+  isArtemisCompatibleBVWeapon,
+  linkArtemisBVWeapons,
+} from '../equipmentBV/weaponLinks';
+import {
   getArtemisBVMultiplier,
   getEquipmentEntry,
   getLargeAerospaceAmmoEntry,
@@ -198,7 +202,7 @@ export function resolveLargeAerospaceMountBV(
       arc,
       location: physicalLocation,
       battleValue: value.battleValue,
-      compatible: /^(?:clan-)?(?:lrm|srm|mml)-\d+$/.test(entry.id),
+      compatible: isArtemisCompatibleBVWeapon(entry.id),
     });
     arc.heat += value.heat;
     if (key)
@@ -206,17 +210,12 @@ export function resolveLargeAerospaceMountBV(
   });
   // MekFileParser links to the first unlinked compatible launcher in the same
   // physical location, regardless of rear flags or adjacency in the BLK list.
-  for (const link of links) {
-    const weapon = weapons.find(
-      (w) => w.compatible && !w.artemisType && w.location === link.location,
-    );
-    if (weapon) weapon.artemisType = link.type;
-    else
-      unresolved.push({
-        mountIndex: link.mountIndex,
-        equipmentId: link.equipmentId,
-        reason: 'Unmatched Artemis launcher link',
-      });
+  for (const link of linkArtemisBVWeapons(weapons, links)) {
+    unresolved.push({
+      mountIndex: link.mountIndex,
+      equipmentId: link.equipmentId,
+      reason: 'Unmatched Artemis launcher link',
+    });
   }
   for (const weapon of weapons)
     weapon.arc.weaponBV +=
