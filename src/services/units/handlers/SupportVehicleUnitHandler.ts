@@ -190,7 +190,7 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
     const sizeClass = this.determineSizeClass(document.tonnage);
 
     // Equipment
-    const equipment = this.parseEquipment(document);
+    const equipment = this.parseEquipment(document, errors);
 
     // Cargo capacity
     const cargoCapacity = this.parseCargoCapacity(document);
@@ -324,6 +324,7 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
    */
   private parseEquipment(
     document: IBlkDocument,
+    errors: string[],
   ): readonly IVehicleMountedEquipment[] {
     const equipment: IVehicleMountedEquipment[] = [];
     let mountId = 0;
@@ -331,7 +332,12 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
     for (const [locationKey, items] of Object.entries(
       document.equipmentByLocation,
     )) {
+      if (items.length === 0) continue;
       const location = this.normalizeLocation(locationKey);
+      if (location === undefined) {
+        errors.push(`Unknown support vehicle equipment block: ${locationKey}`);
+        continue;
+      }
 
       for (const item of items) {
         equipment.push({
@@ -368,10 +374,12 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
    */
   private normalizeLocation(
     locationKey: string,
-  ): VehicleLocation | SuperHeavyVehicleLocation | VTOLLocation {
+  ): VehicleLocation | SuperHeavyVehicleLocation | VTOLLocation | undefined {
     const block = locationKey.replace(/ equipment$/i, '');
     const normalized = blkEquipmentBlockLocation(block).toLowerCase();
-    return VEHICLE_LOCATION_MAP[normalized] || VehicleLocation.BODY;
+    return Object.hasOwn(VEHICLE_LOCATION_MAP, normalized)
+      ? VEHICLE_LOCATION_MAP[normalized]
+      : undefined;
   }
 
   /**

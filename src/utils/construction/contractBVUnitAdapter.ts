@@ -157,7 +157,9 @@ function lookup<T>(
   return value;
 }
 
-function contractVehicleToBVUnit(unit: IContractBVSource): IContractBVVehicle {
+export function contractVehicleToBVUnit(
+  unit: IContractBVSource,
+): IContractBVVehicle {
   const unitType = unit.unitType as IContractBVVehicle['unitType'];
   const motionType = Object.values(GroundMotionType).find(
     (m) => m === unit.motionType,
@@ -185,14 +187,7 @@ function contractVehicleToBVUnit(unit: IContractBVSource): IContractBVVehicle {
   const sourceArmor = requireFact(unit.armor.byLocation, 'armor.byLocation');
   // Armor-entry presence, including 0, installs the turrets as in the handler
   // (BLKTankFile.java:180-192).
-  const primaryTurretType = getPrimaryVehicleTurretType(
-    equipment.map((e) => e.location),
-    undefined,
-    {
-      hasTurret: sourceArmor.TURRET !== undefined,
-      hasSecondTurret: sourceArmor.TURRET_2 !== undefined,
-    },
-  );
+  const primaryTurretType = vehicleContractTurretType(unit);
   const armorTypeByLocation: Record<string, number> = {};
   const barRatingByLocation: Record<string, number> = {};
   const armorByLocation = Object.fromEntries(
@@ -234,6 +229,22 @@ function contractVehicleToBVUnit(unit: IContractBVSource): IContractBVVehicle {
       ? { barRating: unit.armor.barRating }
       : {}),
   };
+}
+
+/** Installed turret identity, shared by BV transport and combat adaptation. */
+export function vehicleContractTurretType(
+  unit: IContractBVSource,
+): TurretType | undefined {
+  return getPrimaryVehicleTurretType(
+    (unit.equipment ?? []).map((item) =>
+      resolveVehicleContractLocation(item.location),
+    ),
+    undefined,
+    {
+      hasTurret: unit.armor.byLocation?.TURRET !== undefined,
+      hasSecondTurret: unit.armor.byLocation?.TURRET_2 !== undefined,
+    },
+  );
 }
 
 function contractAerospaceArmorFacts(unit: IContractBVSource) {

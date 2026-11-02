@@ -6,12 +6,16 @@
 import type { IWeapon } from '@/simulation/ai/types';
 import type { CustomCombatSnapshot } from '@/types/contracts/CustomCombatSnapshot';
 import type { IAmmoConstructionData } from '@/types/gameplay/AmmoTypes';
-import type { IUnitGameState } from '@/types/gameplay/GameSessionInterfaces';
+import type {
+  IGameUnit,
+  IUnitGameState,
+} from '@/types/gameplay/GameSessionInterfaces';
 import type {
   IHexCoordinate,
   IHexGrid,
   IMovementCapability,
 } from '@/types/gameplay/HexGridInterfaces';
+import type { UnitFamily } from '@/types/unit/UnitIndex';
 
 /**
  * Injected reader for persisted custom construction. Server callers pass
@@ -56,6 +60,8 @@ export interface IGameEngineConfig {
  * Carries weapon and movement capability info alongside the base state.
  */
 export interface IAdaptedUnit extends IUnitGameState {
+  readonly vehicleInit?: IGameUnit['vehicleInit'];
+  readonly bv?: number;
   /** Actual mounted bins, including an authoritative empty construction. */
   readonly ammoConstruction?: readonly IAmmoConstructionData[];
   /** Validated detached construction; present only for launched custom units. */
@@ -138,6 +144,7 @@ export interface IWeaponData {
  * Options for adapting a unit from compendium data.
  */
 export interface IAdaptUnitOptions {
+  readonly family?: UnitFamily;
   /** Which side this unit fights for */
   readonly side?: import('@/types/gameplay/GameSessionInterfaces').GameSide;
   /** Starting hex position */

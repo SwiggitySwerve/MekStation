@@ -58,6 +58,15 @@ positive-only jump guard (including NaN rejection). Its facade exports and the
 shared construction, validation and gameplay entry points remain unchanged.
 `battleValueMovement.test.ts` pins those contracts independently of defensive BV.
 
+## Catalog combat adaptation
+
+`CompendiumAdapter.vehicle.ts` transports vehicle contracts through the shared
+contract mapper and BV dispatcher. Installed armor names also select structure
+locations, including zero armor turrets, rotor and six-side hulls; each uses
+`computeVehicleLocationStructurePoints`. Flank MP uses `computeFlankMP`.
+`vehicleInit` enters GameCreated through the engine seed splice. MotiveDamaged
+replays through `applyMotiveDamageToState`; notifications alone do not mutate it.
+
 ## Structure BV
 
 `structure.ts:computeVehicleBVStructurePoints` owns installed-location internals
