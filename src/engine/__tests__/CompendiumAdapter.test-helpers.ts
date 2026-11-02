@@ -1722,3 +1722,12 @@ it.each(['vehicles', 'battlemechs'] as const)(
     expect(() => adaptUnitFromData(aerospaceFixture(0), { family })).toThrow();
   },
 );
+
+it('seeds the aerospace discriminator alongside explicit scenario initialization', () => {
+  const adapted = adaptUnitFromData(aerospaceFixture(0));
+  const explicit = { ...adapted.aerospaceInit!, fuelPoints: 123 };
+  const units = [{ ...roster([adapted])[0], aerospaceInit: explicit }];
+  const seeded = gameUnitsWithAdaptedCombatSeeds(units, [adapted], [])[0];
+  expect(seeded.unitType).toBe(UnitType.AEROSPACE);
+  expect(seeded.aerospaceInit).toEqual(explicit);
+});

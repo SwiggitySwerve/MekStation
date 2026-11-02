@@ -141,13 +141,9 @@ function adaptedCombatSeedPatch(
   if (adapted.gyroType !== undefined && unit.gyroType !== adapted.gyroType) {
     patch.gyroType = adapted.gyroType;
   }
-  if (
-    unit.aerospaceInit === undefined &&
-    adapted.aerospaceInit &&
-    isAerospaceUnitType(adapted)
-  ) {
-    patch.unitType = adapted.unitType as UnitType;
-    patch.aerospaceInit = adapted.aerospaceInit;
+  if (adapted.aerospaceInit && isAerospaceUnitType(adapted)) {
+    patch.unitType = unit.unitType ?? (adapted.unitType as UnitType);
+    patch.aerospaceInit = unit.aerospaceInit ?? adapted.aerospaceInit;
   }
   appendAdaptedArmorSeeds(patch, unit, adapted);
   appendAdaptedHeatSinkSeeds(patch, unit, adapted);
