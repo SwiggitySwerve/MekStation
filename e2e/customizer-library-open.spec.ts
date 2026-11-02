@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 /**
  * L-E2E: open one real catalog unit per family through the library dialog,
  * at a phone and a desktop width. Figures come from the committed catalog
- * files; battle armor and infantry have no committed index, so their index
+ * files; battle armor and infantry remain unsupported, so their test index
  * and definition are served from a route.
  */
 test.use({ serviceWorkers: 'block' });
@@ -117,8 +117,6 @@ const SYNTHETIC_ROWS = {
 } as const;
 
 const NO_VIEW_COPY = {
-  capital:
-    'Capital ships cannot be opened yet because the editor has no capital ship view.',
   battlearmor:
     'Battle armor cannot be opened yet because the editor cannot load battle armor from the library.',
   infantry:
@@ -126,13 +124,6 @@ const NO_VIEW_COPY = {
 };
 
 const UNSUPPORTED_CASES = [
-  {
-    label: 'capital ships',
-    chassis: 'Achilles',
-    model: '(2582)',
-    family: 'Capital Ships',
-    copy: NO_VIEW_COPY.capital,
-  },
   {
     label: 'battle armor',
     chassis: 'Elemental',
@@ -150,6 +141,38 @@ const UNSUPPORTED_CASES = [
     synthetic: 'infantry',
   },
 ] as const;
+
+// Committed capital catalog, calculated by calculateBattleValueForUnit with
+// contractUnitToBVUnit; also pinned in CapitalShipCustomizer.test.tsx.
+const CAPITAL_CASES = [
+  { chassis: 'Crucible Station', model: '', scope: 'complete', bv: '2,004' },
+  {
+    chassis: 'Aegis Heavy Cruiser',
+    model: '(2372)',
+    scope: 'defensive-only',
+    bv: '12,920',
+  },
+] as const;
+
+async function expectNoCapitalEdits(shell: ReturnType<Page['getByTestId']>) {
+  for (const role of [
+    'textbox',
+    'searchbox',
+    'combobox',
+    'spinbutton',
+    'checkbox',
+    'radio',
+    'slider',
+    'switch',
+  ] as const)
+    await expect(shell.getByRole(role, { disabled: false })).toHaveCount(0);
+  for (const button of await shell
+    .getByRole('button', { disabled: false })
+    .all())
+    await expect(button).toHaveAccessibleName(
+      /^(Section: (Overview|Structure), [12] of 2|Scroll tabs (left|right))$/,
+    );
+}
 
 async function serveSyntheticFamily(
   page: Page,
@@ -263,6 +286,83 @@ for (const viewport of VIEWPORTS) {
           ),
           animations: 'disabled',
         });
+      });
+    }
+
+    for (const unit of CAPITAL_CASES) {
+      test(`opens a ${unit.scope} capital ship read-only @customizer`, async ({
+        page,
+      }, testInfo) => {
+        const { dialog, row } = await findRow(page, unit);
+        await expect(row).toContainText('Capital Ships');
+        await row.dblclick();
+        await expect(dialog).toBeHidden();
+        await expect(page).toHaveURL(/customizer\/[a-f0-9-]+\//);
+        const shell = page.getByTestId('capital-ship-customizer');
+        await expect(shell).toBeVisible();
+        for (const other of [
+          'customizer-workbench',
+          'vehicle-customizer',
+          'aerospace-customizer',
+        ])
+          await expect(page.getByTestId(other)).toHaveCount(0);
+        await expect(shell.getByText(/^Read-Only$/)).toBeVisible();
+        const tabs = shell.getByRole('tab', { includeHidden: true });
+        await expect(tabs).toHaveCount(2);
+        await expect(tabs.nth(0)).toHaveAccessibleName('Overview');
+        await expect(tabs.nth(1)).toHaveAccessibleName('Structure');
+        const panel = shell.getByRole('tabpanel');
+        const label =
+          unit.scope === 'complete' ? 'Battle Value' : 'Defensive BV';
+        const term = panel
+          .getByRole('term')
+          .filter({ hasText: new RegExp(`^${label}$`) });
+        await expect(term).toHaveCount(1);
+        await expect
+          .poll(() => term.evaluate((el) => el.nextElementSibling?.textContent))
+          .toBe(unit.bv);
+        const note = panel.getByText(
+          'Full battle value is not available yet. Only the defensive value is calculated for this ship.',
+          { exact: true },
+        );
+        if (unit.scope === 'complete') {
+          await expect(note).toHaveCount(0);
+          await expect(
+            panel.getByRole('term').filter({ hasText: /^Defensive BV$/ }),
+          ).toHaveCount(0);
+        } else {
+          await expect(note).toBeVisible();
+          await expect(
+            panel
+              .getByRole('term')
+              .filter({ hasText: /^(Battle Value|Total|Offensive)$/ }),
+          ).toHaveCount(0);
+          // The section heading remains Battle Value; no total label in the status bar.
+          await expect(
+            shell.getByText('Battle Value', { exact: true }),
+          ).toHaveCount(1);
+        }
+        for (const section of ['Overview', 'Structure'] as const) {
+          if (section === 'Structure') {
+            if (viewport.name === 'narrow')
+              await shell
+                .getByRole('button', { name: /^Section: Overview,/ })
+                .click();
+            await shell
+              .getByRole('tab', { name: section, exact: true })
+              .click();
+            await expect(
+              panel.getByRole('heading', { name: 'Hull', exact: true }),
+            ).toBeVisible();
+          }
+          await expectNoCapitalEdits(shell);
+          await page.screenshot({
+            path: testInfo.outputPath(
+              `capital-${unit.scope}-${section}-${viewport.name}.png`,
+            ),
+            animations: 'disabled',
+          });
+        }
       });
     }
 
