@@ -1,0 +1,42 @@
+{
+  "id": "foot-platoon-ccaf-rifle-3055+",
+  "chassis": "Foot Platoon (CCAF)",
+  "model": "(Rifle 3055+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3055,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "rifle-striker-carbine",
+    "name": "Rifle (Striker Carbine)"
+  },
+  "armorKit": "Capellan Confederation Armor Kit (3050)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "capellan-confederation-armor-kit-3050",
+      "name": "Capellan Confederation Armor Kit (3050)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The CCAF fields conventional infantry in larger numbers than its limited industrial base might suggest, drawing on the Confederation's deep tradition of citizens' militia service. Capellan soldiers learn to fight with fewer resources and less support than their counterparts in wealthier states, compensating with resourcefulness and ideological commitment. CCAF foot platoons anchor the Confederation's garrison network, holding worlds that BattleMech forces cannot permanently occupy. Slow and vulnerable in open terrain, they depend on prepared positions and local knowledge to offset their lack of mobility. Equipped with Striker carbines that offer improved accuracy and handling over older assault rifle designs, these platoons benefit from the Confederation's post-Xin Sheng modernization of personal arms.</p>"
+  }
+}

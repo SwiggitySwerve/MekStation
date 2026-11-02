@@ -1,0 +1,123 @@
+{
+  "id": "field-gunners-lbx2",
+  "chassis": "Field Gunners",
+  "model": "(LBX2)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3058,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac2",
+      "name": "ISLBXAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
+      "name": "IS LB 2-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac2",
+      "name": "ISLBXAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
+      "name": "IS LB 2-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac2",
+      "name": "ISLBXAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
+      "name": "IS LB 2-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac2",
+      "name": "ISLBXAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
+      "name": "IS LB 2-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "islbxac2",
+      "name": "ISLBXAC2"
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
+      "name": "IS LB 2-X Cluster Ammo"
+    },
+    {
+      "id": "islbxac2",
+      "name": "ISLBXAC2"
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
+      "name": "IS LB 2-X Cluster Ammo"
+    },
+    {
+      "id": "islbxac2",
+      "name": "ISLBXAC2"
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
+      "name": "IS LB 2-X Cluster Ammo"
+    },
+    {
+      "id": "islbxac2",
+      "name": "ISLBXAC2"
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
+      "name": "IS LB 2-X Cluster Ammo"
+    }
+  ],
+  "fluff": {
+    "overview": "<p>Field gun platoons crew light-caliber LB-X autocannons capable of firing both solid slugs and cluster ammunition. This dual-munition capability gives the crew tactical flexibility to engage armored vehicles with penetrating rounds or switch to cluster munitions against dispersed infantry and light targets. The lighter LB-X variants favor sustained engagement at range, making them well suited to area-denial roles where ammunition flexibility matters more than raw destructive power.</p>"
+  }
+}

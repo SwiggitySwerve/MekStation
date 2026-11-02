@@ -1,0 +1,47 @@
+{
+  "id": "motorized-platoon-ccaf-riot-police-3030+",
+  "chassis": "Motorized Platoon (CCAF)",
+  "model": "(Riot Police 3030+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3030,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "ceres-arms-crowdbuster",
+    "name": "Ceres Arms Crowdbuster"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "grenade-launcher",
+    "name": "Grenade Launcher",
+    "count": 1
+  },
+  "role": "None",
+  "fluff": {
+    "overview": "<p>The CCAF fields conventional infantry in larger numbers than its limited industrial base might suggest, drawing on the Confederation's deep tradition of citizens' militia service. Capellan soldiers learn to fight with fewer resources and less support than their counterparts in wealthier states, compensating with resourcefulness and ideological commitment. Motorized platoons provide the CCAF with faster-moving infantry that can reposition between garrison posts or screen advancing forces along road networks. Their motorcycle and light vehicle transports sacrifice protection for speed, making them best suited to patrol and rapid-response roles. Equipped with Ceres Arms Crowdbuster riot control systems and grenade launchers, these motorized formations combine rapid deployment with both less-lethal and area-denial capability.</p>"
+  }
+}

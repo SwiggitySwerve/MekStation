@@ -1,0 +1,49 @@
+{
+  "id": "foot-platoon-taurian-3047+-flamer",
+  "chassis": "Foot Platoon (Taurian 3047+)",
+  "model": "(Flamer)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3047,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 10,
+    "squadCount": 3,
+    "totalTroopers": 30
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Taurian Concordat/Calderon Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "taurian-concordat-calderon-infantry-kit",
+      "name": "Taurian Concordat/Calderon Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "flamer-man-portable",
+    "name": "Flamer (Man-Portable)",
+    "count": 2
+  },
+  "mulId": 9281,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Every Concordat world maintains infantry formations as the first line of planetary defense, drawn from a population whose fierce independence and hatred of foreign aggression run deep. Foot platoons form the garrison backbone of the TDF's infantry arm, cheap to equip and maintain on worlds where the Concordat's limited resources must stretch across dozens of systems. Since infantry regiments rarely rotate offworld, many battalions train as specialists in local terrain, and anti-BattleMech training is standard for all formations at battalion strength or greater.</p><p>Support troops carry man-portable flamers that project streams of burning chemicals over several hundred square meters, providing devastating area-effect capability against infantry and structures at the cost of short range and the vulnerability of the operator's fuel tank.</p>"
+  }
+}

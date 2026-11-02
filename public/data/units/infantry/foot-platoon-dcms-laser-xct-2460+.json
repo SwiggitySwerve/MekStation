@@ -1,0 +1,47 @@
+{
+  "id": "foot-platoon-dcms-laser-xct-2460+",
+  "chassis": "Foot Platoon (DCMS)",
+  "model": "(Laser XCT 2460+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2460,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-magna",
+    "name": "Laser Rifle (Magna)"
+  },
+  "armorKit": "Environment Suit, Hostile",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "environment-suit,-hostile",
+      "name": "Environment Suit, Hostile",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor", "spacesuit"],
+  "effectiveArmorFlags": ["encumberingarmor", "spacesuit"],
+  "specializations": 2048,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "support-laser-semi-portable",
+    "name": "Support Laser (Semi-Portable)",
+    "count": 1
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Combine's martial traditions extend beyond the BattleMech cockpit, and the Dictum Honorium demands that all citizens contribute their talents to the defense of House Kurita. Infantry soldiers of the DCMS embody that expectation on garrison worlds across the realm. Foot infantry are the cheapest troops the DCMS can field, and the Combine fields them in enormous numbers. Every military district maintains garrison formations whose sole purpose is holding ground that BattleMech regiments cannot occupy permanently. Slow and vulnerable in open terrain, these soldiers prove their worth through discipline and endurance, standing post on worlds across the Combine because the Dragon demands nothing less. Equipped with laser rifles that outrange and outpenetrate ballistic weapons at every engagement distance. The cost is significant: laser rifles are expensive to procure, and each soldier must carry additional power packs that add weight and logistical burden. Where the budget allows, they are worth every C-bill. These Xenoplanetary Condition Troops carry specialized survival gear for hostile environments that would kill standard infantry: extreme temperatures, toxic atmospheres, crushing gravity. Where other troops cannot operate, XCT platoons fight as though conditions were normal.</p>"
+  }
+}

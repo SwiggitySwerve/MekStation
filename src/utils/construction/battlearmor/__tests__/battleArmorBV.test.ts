@@ -279,6 +279,8 @@ it('matches the pinned Achileus defensive aggregate, independent of weapons', ()
   if (result?.kind !== 'battlearmor') throw new Error('Missing BA dispatch');
   // BattleArmorBVCalculator.java:84-111,257-278: (1 + 6*2.5) * 1.6.
   expect(result.breakdown.perTrooper.defensive.total).toBeCloseTo(25.6, 10);
+  expect(result.breakdown.defensive).toBeCloseTo(25.6, 10);
+  expect(result.breakdown.offensive).toBe(0);
 });
 
 it.each([

@@ -1,0 +1,44 @@
+{
+  "id": "clan-heavy-foot-infantry-ebon-keshik-point",
+  "chassis": "Clan Heavy Foot Infantry",
+  "model": "Ebon Keshik Point",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2875,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 1,
+    "totalTroopers": 5
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-mauser-iic-ias",
+    "name": "Laser Rifle (Mauser IIC IAS)"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 608,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Ebon Keshik is a group of elite, black-clad Elementals who guard the most sacred sites on Strana Mechty. Battle armor is too bulky for these human-scale facilities, so these warriors are most commonly equipped as foot infantry in specially sculpted black body armor and armed with Clan-standard Mauser IIC assault systems. Unlikely to see combat, a warrior assigned to the Ebon Keshik has little to look forward to beyond a Trial of Position against a younger warrior and the inevitable relegation to a solahma unit. Patrolling the corridors of power on Strana Mechty is the ultimate achievement in the career of an Elemental, yet it is a tainted honor, marking the end of a warrior's useful service rather than a reward for distinguished performance.</p>"
+  }
+}

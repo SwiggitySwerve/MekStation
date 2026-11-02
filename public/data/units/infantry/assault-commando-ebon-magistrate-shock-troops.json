@@ -1,0 +1,49 @@
+{
+  "id": "assault-commando-ebon-magistrate-shock-troops",
+  "chassis": "Assault Commando",
+  "model": "Ebon Magistrate Shock Troops",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "CLAN_INVASION",
+  "year": 3060,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 1,
+    "totalTroopers": 7
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-ebony-assault",
+    "name": "Laser Rifle (Ebony Assault)"
+  },
+  "armorKit": "Magistracy of Canopus Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "magistracy-of-canopus-infantry-kit",
+      "name": "Magistracy of Canopus Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": ["cyber_imp_visual", "cyber_imp_laser", "dermal_armor"],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "plasma-rifle-man-portable",
+    "name": "Plasma Rifle (Man-Portable)",
+    "count": 3
+  },
+  "mulId": 132,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Ebon Magistrate Shock Troops are the covert strike arm of the Magistracy Intelligence Ministry, a shadowy subdepartment believed to have been created during Magestrix Emma Centrella's reforms of the 3040s. Deployed in seven-person teams, these cybernetically enhanced commandos are drawn from military and civilian personnel across the Magistracy who have no close family or personal ties. Operating in autonomous, semipermanent cells that answer directly to the Magestrix, the Shock Troops combine fanatical loyalty with surgical lethality. Their cybernetic enhancements include Multi-Modal Cybernetic Eyes with infrared and laser targeting capabilities, full-body dermal armor plating that reduces burst-fire damage, and an Active Probe suite integrated into their optical implants. Each trooper carries four Ebony assault lasers, energy weapons built for close-quarters aggression, backed by three man-portable plasma guns that provide devastating anti-armor capability. The combination of personal firepower, cybernetic resilience, and covert training makes a single team capable of engaging multiple conventional platoons. Most troops will never encounter them on a standard battlefield, as the Shock Troops are reserved for covert operations where deniability matters as much as lethality. With the destruction of the Word of Blake's Manei Domini, the Ebon Magistrate Shock Troops may be the most dangerous commando force still operating in the Inner Sphere.</p>"
+  }
+}

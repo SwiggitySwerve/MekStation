@@ -1,0 +1,47 @@
+{
+  "id": "foot-platoon-laser-marine",
+  "chassis": "Foot Platoon",
+  "model": "(Laser Marine)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2900,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "laser-pistol-sunbeam",
+    "name": "Laser Pistol (Sunbeam)"
+  },
+  "armorKit": "Environment Suit, Marine",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "environment-suit,-marine",
+      "name": "Environment Suit, Marine",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 2.0,
+  "damageDivisor": 2.0,
+  "armorFlags": ["spacesuit"],
+  "effectiveArmorFlags": ["spacesuit"],
+  "specializations": 64,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "laser-rifle-blazer",
+    "name": "Laser Rifle (Blazer)",
+    "count": 1
+  },
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Marine laser platoons are trained to fight in zero-gravity, vacuum, and pressurized hull conditions without the penalties that hamper ordinary infantry in such environments. Armed with laser pistols and Blazer rifles that function reliably in vacuum, these marines conduct shipboard security, boarding actions, and orbital facility defense. Energy weapons avoid the ammunition feed problems that ballistic arms can experience in zero-gravity, making laser-armed marines the preferred choice for space combat assignments.</p>"
+  }
+}

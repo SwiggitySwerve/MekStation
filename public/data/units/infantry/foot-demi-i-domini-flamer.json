@@ -1,0 +1,53 @@
+{
+  "id": "foot-demi-i-domini-flamer",
+  "chassis": "Foot demi-I (Domini)",
+  "model": "(Flamer)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 3,
+    "totalTroopers": 18
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-mauser-1200-lss",
+    "name": "Laser Rifle (Mauser 1200 LSS)"
+  },
+  "armorKit": "Word of Blake Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "word-of-blake-infantry-kit",
+      "name": "Word of Blake Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 3.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": ["artificial_pain_shunt", "dermal_armor", "tsm_implant"],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "flamer-heavy",
+    "name": "Flamer (Heavy)",
+    "count": 4
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Manei Domini field cybernetically enhanced infantry whose augmentations place them well beyond the capability of any conventional soldier, blurring the line between human combatant and war machine. Domini foot infantry operate as small, self-contained kill teams whose cybernetic enhancements compensate for their reduced squad sizes. Each trooper carries augmentations that make them individually more dangerous than a full squad of conventional soldiers. Armed with man-portable flamers that project streams of ignited fuel, these troops carry one of the most psychologically devastating weapons available to conventional infantry, effective at clearing fortified positions and enclosed spaces at the cost of extreme danger to the operator.</p>"
+  }
+}

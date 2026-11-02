@@ -1,0 +1,84 @@
+{
+  "id": "mechanized-wheeled-platoon-lcaf-combat-engineers-3058+",
+  "chassis": "Mechanized Wheeled Platoon (LCAF)",
+  "model": "(Combat Engineers 3058+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3058,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 2,
+    "totalTroopers": 12
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "lyran-alliance-lyran-commonwealth-3060+-infantry-kit",
+      "name": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "infantry-bridge-kit",
+      "name": "Infantry Bridge Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 33,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "None",
+  "fluff": {
+    "overview": "<p>Lyran military budgets translate directly into infantry equipment quality, giving LCAF conventional forces a material edge that compensates for the uneven tactical leadership the social general tradition sometimes produces. Mechanized wheeled platoons use wheeled APCs that offer a balance between the speed of hover transport and the protection of tracked vehicles, well-suited to operations on developed road networks. Equipped with submachine guns optimized for close-quarters combat, these platoons trade effective range for high rates of fire at short distances, making them well-suited to urban operations and building clearance. Trained in rapid field fortification, these engineers dig trenches and construct fieldworks that provide defensive cover for friendly units, turning open ground into fortified positions.</p>"
+  }
+}

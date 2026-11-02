@@ -1,0 +1,64 @@
+{
+  "id": "field-gun-century-mhaf-tracked-lbx10",
+  "chassis": "Field Gun Century (MHAF)",
+  "model": "(Tracked LBX10)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3049,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Marian Hegemony Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "marian-hegemony-infantry-kit",
+      "name": "Marian Hegemony Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo",
+      "name": "IS LB 10-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo",
+      "name": "IS LB 10-X Cluster Ammo"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>The Marian military tradition places infantry at the foundation of its legionary system, with conventional soldiers organized into units bearing Latin designations that reflect the Hegemony's deliberate cultivation of Roman imperial identity. Marian field gun centuries tow crew-served weapons on wheeled, tracked, or motorized carriages, providing direct-fire anti-armor capability that supplements the Legiones Marianes' limited BattleMech strength. The century's field gun is an LB-X autocannon capable of firing both solid slugs and cluster munitions, providing tactical flexibility against armored and dispersed targets alike.</p>"
+  }
+}

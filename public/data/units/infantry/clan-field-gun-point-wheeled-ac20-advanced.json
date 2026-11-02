@@ -1,0 +1,64 @@
+{
+  "id": "clan-field-gun-point-wheeled-ac20-advanced",
+  "chassis": "Clan Field Gun Point",
+  "model": "(Wheeled AC20 Advanced)",
+  "unitType": "Infantry",
+  "techBase": "MIXED",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2845,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-20",
+      "name": "Autocannon/20",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-20",
+      "name": "IS Ammo AC/20",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "autocannon-20",
+      "name": "Autocannon/20"
+    },
+    {
+      "id": "is-ammo-ac-20",
+      "name": "IS Ammo AC/20"
+    }
+  ],
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Clan doctrine generally treats conventional infantry as a necessary evil, though Clans like Hell's Horses have demonstrated that properly supported infantry can be an effective component of combined-arms operations. Field Gun Points are crew-served weapon teams that bring heavier firepower to the infantry level, towing weapons too large for individual soldiers to carry. The gun itself defines the Point's role, with lighter autocannons providing anti-infantry and anti-vehicle fire while heavier weapons can threaten even armored targets. The Point's field gun is the heaviest standard autocannon available, delivering devastating single shots that can cripple vehicles and stagger BattleMechs, though its short range and massive ammunition consumption restrict tactical employment.</p>"
+  }
+}

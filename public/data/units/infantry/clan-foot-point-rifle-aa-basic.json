@@ -1,0 +1,47 @@
+{
+  "id": "clan-foot-point-rifle-aa-basic",
+  "chassis": "Clan Foot Point",
+  "model": "(Rifle AA Basic)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2807,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 5,
+    "totalTroopers": 25
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "aa-weapon-mk.-1,-light",
+    "name": "AA Weapon (Mk. 1, Light)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Despite the low regard most Clans hold for conventional infantry, these formations benefit from incidental access to Clan technology that makes even a disaffected garrison Point a match for its Inner Sphere equivalent. Foot Points are the most basic infantry formation, deployed on foot without transport. Slow and vulnerable in open terrain, they are best suited to garrison duty, facility security, and defensive positions where their lack of mobility is less of a liability. Fitted with dedicated anti-aircraft weapons alongside standard rifles, these Points provide point air defense for infantry formations and fixed installations, screening against low-flying VTOLs and conventional aircraft.</p>"
+  }
+}

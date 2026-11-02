@@ -1,0 +1,84 @@
+{
+  "id": "field-gun-platoon-fwlm-tracked-ac20-3035+",
+  "chassis": "Field Gun Platoon (FWLM)",
+  "model": "(Tracked AC20 3035+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3030,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Free Worlds League Infantry Kit (3035+)",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "free-worlds-league-infantry-kit-3035+",
+      "name": "Free Worlds League Infantry Kit (3035+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-20",
+      "name": "Autocannon/20",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-20",
+      "name": "IS Ammo AC/20",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-20",
+      "name": "Autocannon/20",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-20",
+      "name": "IS Ammo AC/20",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "autocannon-20",
+      "name": "Autocannon/20"
+    },
+    {
+      "id": "is-ammo-ac-20",
+      "name": "IS Ammo AC/20"
+    },
+    {
+      "id": "autocannon-20",
+      "name": "Autocannon/20"
+    },
+    {
+      "id": "is-ammo-ac-20",
+      "name": "IS Ammo AC/20"
+    }
+  ],
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Free Worlds League Military has long fielded some of the largest infantry formations in the Inner Sphere, with regiments numbering nearly 1,800 soldiers compared to roughly 750 in the Combine and just over 1,000 in the Federated Suns. Towing crew-served autocannon/20 field guns, these platoons deploy the heaviest conventional direct-fire weapon available to infantry formations. A single AC/20 round can cripple a light vehicle or breach BattleMech armor at short range, though the weapon's bulk limits repositioning.</p>"
+  }
+}

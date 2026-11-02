@@ -1,0 +1,66 @@
+{
+  "id": "motorized-platoon-affs-combat-engineers-3067+",
+  "chassis": "Motorized Platoon (AFFS)",
+  "model": "(Combat Engineers 3067+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 2,
+    "totalTroopers": 14
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "Fed Suns Infantry Kit (3067+)",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "fed-suns-infantry-kit-3067+",
+      "name": "Fed Suns Infantry Kit (3067+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "infantry-bridge-kit",
+      "name": "Infantry Bridge Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 33,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Armed Forces of the Federated Suns integrate conventional infantry directly into their Regimental Combat Teams, assigning foot, mechanized, and jump platoons to work permanently alongside BattleMech and armored formations. Motorized platoons ride light vehicles that give them the speed to screen advancing columns, patrol supply routes, and respond to threats faster than foot infantry, though they sacrifice protection for that mobility. Trained as combat engineers, these troops construct field fortifications, clear obstacles, and prepare defensive positions, providing the engineering capability that transforms raw terrain into defensible ground.</p>"
+  }
+}

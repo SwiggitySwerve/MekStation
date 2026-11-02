@@ -1,0 +1,53 @@
+{
+  "id": "motorized-demi-i-domini-laser-scout",
+  "chassis": "Motorized demi-I (Domini)",
+  "model": "(Laser Scout)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "EXPERIMENTAL",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 3,
+    "totalTroopers": 18
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-er-[sunbeam-starfire]",
+    "name": "Laser Rifle (ER [Sunbeam Starfire])"
+  },
+  "armorKit": "Sneak Suit (Camo/IR/ECM)",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "sneak-suit-camo-ir-ecm",
+      "name": "Sneak Suit (Camo/IR/ECM)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["sneakcamo", "sneakir", "sneakecm"],
+  "effectiveArmorFlags": ["sneakcamo", "sneakir", "sneakecm"],
+  "specializations": 0,
+  "augmentations": ["enh_mm_implants", "dermal_armor"],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "laser-rifle-mauser-1200-lss",
+    "name": "Laser Rifle (Mauser 1200 LSS)",
+    "count": 1
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Manei Domini field cybernetically enhanced infantry whose augmentations place them well beyond the capability of any conventional soldier, blurring the line between human combatant and war machine. Domini motorized formations use light vehicles to extend their operational reach while retaining the cybernetic advantages that make each trooper a force multiplier. The vehicles serve primarily as transport to deliver augmented soldiers where they are needed most. Equipped with compact laser weapons optimized for reconnaissance operations, these troops trade raw firepower for a lighter loadout that supports extended independent patrols behind enemy lines.</p>"
+  }
+}

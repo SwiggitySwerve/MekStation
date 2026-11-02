@@ -1,0 +1,50 @@
+{
+  "id": "jump-platoon-comstar-rifle",
+  "chassis": "Jump Platoon (ComStar)",
+  "model": "(Rifle)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2825,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "ComStar Infantry Kit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "comstar-infantry-kit",
+      "name": "ComStar Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 7027,
+  "role": "Ambusher",
+  "source": "TW",
+  "fluff": {
+    "overview": "<p>ComStar's infantry served across the Inner Sphere in garrison and security roles, stationed on HPG compound worlds where they provided protection for the Order's most critical infrastructure while maintaining the facade of a purely defensive force. Jump-capable platoons provide vertical mobility for urban operations and rough terrain that would slow or halt conventional foot infantry. ComStar deployed jump platoons in specialized roles where their ability to bypass obstacles justified the additional cost of jump equipment and training. Armed with standard ballistic assault rifles, the most common and affordable infantry weapon in the Inner Sphere, these troops deliver reliable short-range firepower and can be equipped and resupplied from almost any garrison stockpile.</p>"
+  }
+}

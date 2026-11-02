@@ -3,6 +3,8 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
+import { gatherInfantryFixtureFiles } from '../validate-infantry-bv';
+
 const NPX = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 const AEROSPACE_SCRIPT = path.resolve(
   process.cwd(),
@@ -116,8 +118,12 @@ describe('Wave 4 BV report output', () => {
     expect(result.stderr).toBe('');
 
     const report = readJson<InfantryReport>(outputPath);
+    const index = readJson<{ totalUnits: number }>(
+      path.resolve('public/data/units/infantry/index.json'),
+    );
     expect(report.generatedAt).toBe('1970-01-01T00:00:00.000Z');
     expect(report.totalPlatoons).toBeGreaterThan(0);
+    expect(report.totalPlatoons).toBe(index.totalUnits);
     expect(report.platoons).toHaveLength(report.parityCoverage.withMulBV);
     expect(report.omittedWithoutMulBV + report.platoons.length).toBe(
       report.totalPlatoons,
@@ -127,5 +133,18 @@ describe('Wave 4 BV report output', () => {
         return platoon.mulBV !== null;
       }),
     ).toBe(true);
+  });
+
+  it('selects indexed infantry designs, excluding bookkeeping and unindexed samples', () => {
+    const directory = makeTempDir('indexed-infantry-');
+    const design = path.join(directory, 'nested/design.json');
+    writeJson(design, { id: 'design' });
+    writeJson(path.join(directory, 'sample.json'), { id: 'sample' });
+    writeJson(path.join(directory, 'units-manifest.json'), { units: [] });
+    writeJson(path.join(directory, 'index.json'), {
+      totalUnits: 1,
+      units: [{ path: 'nested/design.json' }],
+    });
+    expect(gatherInfantryFixtureFiles(directory)).toEqual([design]);
   });
 });

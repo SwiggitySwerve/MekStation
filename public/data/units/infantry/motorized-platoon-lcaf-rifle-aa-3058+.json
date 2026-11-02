@@ -1,0 +1,47 @@
+{
+  "id": "motorized-platoon-lcaf-rifle-aa-3058+",
+  "chassis": "Motorized Platoon (LCAF)",
+  "model": "(Rifle AA 3058+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3058,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "rifle-tk-assault",
+    "name": "Rifle (TK Assault)"
+  },
+  "armorKit": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "lyran-alliance-lyran-commonwealth-3060+-infantry-kit",
+      "name": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "aa-weapon-mk.-1,-light",
+    "name": "AA Weapon (Mk. 1, Light)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Reforms begun under Alessandro Steiner and reinforced by Federated Suns influence have integrated Lyran infantry into combined-arms operations more effectively than at any point in the Commonwealth's history. Motorized platoons add light transport vehicles to standard infantry formations, giving them the speed to conduct rapid strikes, screening operations, and quick withdrawals that foot infantry cannot manage. Armed with assault rifles and light anti-aircraft weapons, these platoons provide dedicated point air defense for installations and ground formations against low-flying aerospace fighters and VTOLs.</p>"
+  }
+}

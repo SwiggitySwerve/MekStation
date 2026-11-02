@@ -1,0 +1,49 @@
+{
+  "id": "mechanized-tracked-platoon-taurian-3047+-srm",
+  "chassis": "Mechanized Tracked Platoon (Taurian 3047+)",
+  "model": "(SRM)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3047,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Taurian Concordat/Calderon Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "taurian-concordat-calderon-infantry-kit",
+      "name": "Taurian Concordat/Calderon Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryheavysrm",
+    "name": "InfantryHeavySRM",
+    "count": 2
+  },
+  "mulId": 9299,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Every Concordat world maintains infantry formations as the first line of planetary defense, drawn from a population whose fierce independence and hatred of foreign aggression run deep. Mechanized tracked platoons trade speed for the all-terrain capability that Taurian commanders need on worlds with rough or undeveloped terrain. Their tracked transports can cross ground that would stop wheeled vehicles, making them reliable assets for garrison duty on frontier worlds where road networks are sparse.</p><p>Support elements carry man-portable short-range missile launchers firing the same warheads used by BattleMechs and combat vehicles, giving the platoon a potent anti-armor punch at close range.</p>"
+  }
+}

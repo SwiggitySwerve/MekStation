@@ -1,0 +1,84 @@
+{
+  "id": "clan-field-gun-point-wheeled-cuac2-advanced",
+  "chassis": "Clan Field Gun Point",
+  "model": "(Wheeled CUAC2 Advanced)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2845,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2"
+    },
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2"
+    },
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2"
+    },
+    {
+      "id": "clultraac2",
+      "name": "CLUltraAC2"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>Despite the low regard most Clans hold for conventional infantry, these formations benefit from incidental access to Clan technology that makes even a disaffected garrison Point a match for its Inner Sphere equivalent. Field Gun Points are crew-served weapon teams that bring heavier firepower to the infantry level, towing weapons too large for individual soldiers to carry. The gun itself defines the Point's role, with lighter autocannons providing anti-infantry and anti-vehicle fire while heavier weapons can threaten even armored targets. The Point tows a light Clan ultra autocannon capable of firing at double the rate of a standard weapon, delivering sustained suppressive fire at long range at the risk of jamming under rapid fire.</p>"
+  }
+}

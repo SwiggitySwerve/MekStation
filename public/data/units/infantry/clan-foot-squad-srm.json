@@ -1,0 +1,47 @@
+{
+  "id": "clan-foot-squad-srm",
+  "chassis": "Clan Foot Squad",
+  "model": "(SRM)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2815,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 1,
+    "totalTroopers": 5
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryheavysrm",
+    "name": "InfantryHeavySRM",
+    "count": 2
+  },
+  "source": "TW",
+  "fluff": {
+    "overview": "<p>Clan foot squads are squad-strength formations of Clan conventional infantry operating outside the standard five-warrior Point structure. These smaller elements serve specialized security roles, observation posts, and detachment duties where a full Point is unnecessary or unavailable. Drawn from the same garrison pool as standard foot Points, squad-sized Clan infantry fills the gaps in territorial defense that larger formations cannot economically cover.</p>"
+  }
+}

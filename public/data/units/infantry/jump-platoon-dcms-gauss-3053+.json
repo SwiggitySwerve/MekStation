@@ -1,0 +1,47 @@
+{
+  "id": "jump-platoon-dcms-gauss-3053+",
+  "chassis": "Jump Platoon (DCMS)",
+  "model": "(Gauss 3053+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3053,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Draconis Combine Infantry Kit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "draconis-combine-infantry-kit",
+      "name": "Draconis Combine Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "gauss-rifle-tsunami-heavy",
+    "name": "Gauss Rifle (Tsunami Heavy)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Draconis Combine Mustered Soldiery assigns conventional infantry to garrison roles across its military districts, with district regulars often fielding extra platoons to secure worlds that BattleMech forces cannot permanently garrison. Jump infantry carry jump packs that make them the most mobile troops in the DCMS inventory for urban and broken terrain fighting. The ability to bypass obstacles and seize elevated positions gives these platoons a tactical value that district commanders prize, particularly on heavily built-up garrison worlds where conventional movement is restricted. Armed with infantry-scale gauss rifles that use magnetic acceleration to hurl projectiles at extreme velocities. The longest-ranged and hardest-hitting personal ballistic weapon available to conventional soldiers, though the weapons are expensive and maintenance-intensive enough that most commands reserve them for their best marksmen.</p>"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "id": "clan-engineer-point-fieldworks",
+  "chassis": "Clan Engineer Point",
+  "model": "(Fieldworks)",
+  "unitType": "Infantry",
+  "techBase": "MIXED",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2810,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 10,
+    "squadCount": 2,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "rifle-bolt-action",
+    "name": "Rifle (Bolt-Action)"
+  },
+  "armorKit": "Clothing, Leather/Synthetic Hide",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "clothing,-leather-synthetic-hide",
+      "name": "Clothing, Leather/Synthetic Hide",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 32,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>A Clan combat engineer Point, a rarity among the warrior-focused Clans. Drawing on Star League engineering practices carried into the Exodus, these laborer- and technician-caste troops build fighting positions and clear obstacles for the touman. By the mid-2800s the Clans increasingly regarded such work as beneath a true warrior, and dedicated engineer Points had all but vanished by 2840.</p>"
+  }
+}

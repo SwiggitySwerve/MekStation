@@ -1,0 +1,60 @@
+{
+  "id": "foot-platoon-affs-sappers-2315+",
+  "chassis": "Foot Platoon (AFFS)",
+  "model": "(Sappers 2315+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2315,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 2,
+    "totalTroopers": 14
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "Ballistic Plate, Standard",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "demolition-charge",
+      "name": "Demolition Charge",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "demolition-charge",
+      "name": "Demolition Charge",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "demolition-charge",
+      "name": "Demolition Charge",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "ballistic-plate,-standard",
+      "name": "Ballistic Plate, Standard",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 10,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "None",
+  "fluff": {
+    "overview": "<p>The AFFS treats its infantry as professionals rather than expendable garrison filler, drawing soldiers from single worlds or neighboring systems to build the unit cohesion that the Federated Suns considers essential to effective combined-arms operations. Foot infantry remain the backbone of AFFS planetary garrisons, cheap enough to deploy in numbers across the Federated Suns' vast territory and reliable enough to hold ground that BattleMech forces cannot permanently occupy. Trained as military sappers, these troops specialize in obstacle construction, demolition, and field fortification, combining engineering and combat skills to shape the battlefield.</p>"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "id": "field-artillery-century-mhaf-wheeled-thumper-cannon",
+  "chassis": "Field Artillery Century (MHAF)",
+  "model": "(Wheeled Thumper Cannon)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "DARK_AGE",
+  "year": 3082,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "Marian Hegemony Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "marian-hegemony-infantry-kit",
+      "name": "Marian Hegemony Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isthumpercannon",
+      "name": "ISThumperCannon",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isthumpercannonammo",
+      "name": "ISThumperCannonAmmo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "isthumpercannon",
+      "name": "ISThumperCannon"
+    },
+    {
+      "id": "isthumpercannonammo",
+      "name": "ISThumperCannonAmmo"
+    }
+  ],
+  "role": "Missile Boat",
+  "fluff": {
+    "overview": "<p>Infantry within the Legiones Marianes form the backbone of planetary garrison and territorial defense, freeing the Hegemony's limited BattleMech assets for offensive operations and prestige assignments. Marian field artillery centuries operate indirect fire weapons that deliver area bombardment at ranges measured in kilometers, providing the Legiones Marianes with fire support capability independent of their scarce aerospace assets. The century tows a Thumper Cannon, a direct-fire variant that sacrifices indirect fire capability for improved accuracy against visible targets.</p>"
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "id": "motorized-platoon-fwlm-sappers-2315+",
+  "chassis": "Motorized Platoon (FWLM)",
+  "model": "(Sappers 2315+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2315,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 2,
+    "totalTroopers": 14
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "Ballistic Plate, Standard",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "demolition-charge",
+      "name": "Demolition Charge",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "demolition-charge",
+      "name": "Demolition Charge",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "demolition-charge",
+      "name": "Demolition Charge",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "ballistic-plate,-standard",
+      "name": "Ballistic Plate, Standard",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 10,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "None",
+  "fluff": {
+    "overview": "<p>The Free Worlds League's fractious politics have always made centralized BattleMech procurement difficult, pushing the FWLM toward heavy investment in conventional infantry to fill the gaps. Motorized platoons provide the speed the FWLM needs to cover the vast distances between garrison posts on provincial worlds, mounting troops on light vehicles that can respond to threats faster than foot infantry but without the expense of full mechanization. Trained as military sappers, these troops specialize in obstacle construction, demolition, and field fortification, combining engineering and combat skills to shape the battlefield before and during engagements.</p>"
+  }
+}

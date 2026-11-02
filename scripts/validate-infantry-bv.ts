@@ -3,7 +3,7 @@
  * Infantry BV Parity Harness
  *
  * Emits `validation-output/infantry-bv-validation-report.json` per the
- * add-infantry-battle-value spec delta. The harness loads every conventional
+ * add-infantry-battle-value spec delta. The harness loads indexed conventional
  * infantry unit JSON from `public/data/units/infantry/`, runs the unified
  * `calculateBattleValueForUnit` dispatcher, and captures the returned
  * `IInfantryBVBreakdown` alongside any MUL BV present on the fixture.
@@ -26,6 +26,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { z } from 'zod';
 
 import type { IInfantryBVBreakdown } from '../src/utils/construction/infantry/infantryBV';
 
@@ -144,25 +145,13 @@ function generatedAtTimestamp(): string {
 }
 
 /**
- * Recursively gather every `*.json` under `public/data/units/infantry/`.
- * Ignores non-JSON files and hidden files so the harness tolerates
- * README.md or other auxiliary content alongside the fixtures.
+ * Read the family index so bookkeeping and retained samples are not platoons.
  */
 function gatherInfantryFixtureFiles(dir: string): string[] {
-  if (!fs.existsSync(dir)) return [];
-  const out: string[] = [];
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    if (entry.name.startsWith('.')) continue;
-    if (entry.name.toLowerCase() === 'units-manifest.json') continue;
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      out.push(...gatherInfantryFixtureFiles(full));
-    } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.json')) {
-      out.push(full);
-    }
-  }
-  return out.sort();
+  const index = z
+    .object({ units: z.array(z.object({ path: z.string() })) })
+    .parse(JSON.parse(fs.readFileSync(path.join(dir, 'index.json'), 'utf-8')));
+  return index.units.map((entry) => path.join(dir, entry.path)).sort();
 }
 
 /**
@@ -436,7 +425,7 @@ function computeEntry(filePath: string): PlatoonReportEntry {
 }
 
 /**
- * Build the parity report object from every fixture on disk.
+ * Build the parity report object from the indexed infantry catalog.
  */
 function buildReport(): InfantryBVReport {
   const files = gatherInfantryFixtureFiles(INFANTRY_DATA_DIR);

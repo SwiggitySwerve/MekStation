@@ -1,0 +1,63 @@
+{
+  "id": "field-artillery-arrow-iv",
+  "chassis": "Field Artillery",
+  "model": "(Arrow IV)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2600,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isarrowiv",
+      "name": "ISArrowIV",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "isarrowivammo",
+      "name": "ISArrowIVAmmo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "isarrowiv",
+      "name": "ISArrowIV"
+    },
+    {
+      "id": "isarrowivammo",
+      "name": "ISArrowIVAmmo"
+    }
+  ],
+  "fluff": {
+    "overview": "<p>Field artillery platoons operate indirect-fire weapons capable of delivering explosive rounds at ranges measured in kilometers. These crew-served systems provide area bombardment, terrain denial, and suppressive fire that conventional direct-fire infantry cannot match. Artillery platoons require forward observers or spotting data to engage targets beyond line of sight, and their slow displacement rate makes them vulnerable to counter-battery fire. Properly emplaced and supported, however, a single artillery platoon can shape the battlefield across an entire sector.</p>"
+  }
+}

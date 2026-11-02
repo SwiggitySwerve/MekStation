@@ -1,0 +1,84 @@
+{
+  "id": "field-gun-platoon-fwlm-wheeled-light-gauss-3056+",
+  "chassis": "Field Gun Platoon (FWLM)",
+  "model": "(Wheeled Light Gauss 3056+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3056,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Free Worlds League Infantry Kit (3035+)",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "free-worlds-league-infantry-kit-3035+",
+      "name": "Free Worlds League Infantry Kit (3035+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islightgaussrifle",
+      "name": "ISLightGaussRifle",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-light-gauss-ammo",
+      "name": "IS Light Gauss Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islightgaussrifle",
+      "name": "ISLightGaussRifle",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-light-gauss-ammo",
+      "name": "IS Light Gauss Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "islightgaussrifle",
+      "name": "ISLightGaussRifle"
+    },
+    {
+      "id": "is-light-gauss-ammo",
+      "name": "IS Light Gauss Ammo"
+    },
+    {
+      "id": "islightgaussrifle",
+      "name": "ISLightGaussRifle"
+    },
+    {
+      "id": "is-light-gauss-ammo",
+      "name": "IS Light Gauss Ammo"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>The Free Worlds League Military has long fielded some of the largest infantry formations in the Inner Sphere, with regiments numbering nearly 1,800 soldiers compared to roughly 750 in the Combine and just over 1,000 in the Federated Suns. Towing crew-served light gauss rifles, these platoons trade the raw stopping power of full-size gauss weapons for improved mobility and a lighter logistics footprint, while still delivering magnetically accelerated rounds at ranges that exceed conventional autocannon.</p>"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "id": "foot-platoon-laser-heavy-xct",
+  "chassis": "Foot Platoon",
+  "model": "(Laser Heavy XCT)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2600,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "gyroslug-rifle",
+    "name": "Gyroslug Rifle"
+  },
+  "armorKit": "Spacesuit, Combat",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "spacesuit,-combat",
+      "name": "Spacesuit, Combat",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": ["encumberingarmor", "spacesuit"],
+  "effectiveArmorFlags": ["encumberingarmor", "spacesuit"],
+  "specializations": 2048,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "support-laser-er,-is",
+    "name": "Support Laser (ER, IS)",
+    "count": 2
+  },
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Xenoplanetary Condition Troops equipped with gyroslug rifles and extended-range support lasers, these heavy laser XCT platoons are trained for combat in hostile environments where standard infantry cannot operate effectively. Their sealed survival gear allows fighting in extreme temperatures, toxic atmospheres, and unusual gravity, while the ER support lasers provide anti-armor fire at ranges that compensate for the mobility restrictions imposed by environmental protection equipment.</p>"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "id": "clan-mechanized-wheeled-point-laser",
+  "chassis": "Clan Mechanized Wheeled Point",
+  "model": "(Laser)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2815,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle",
+    "name": "Laser Rifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 2.0,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 630,
+  "role": "Ambusher",
+  "source": "TW,TO:AUE",
+  "fluff": {
+    "overview": "<p>Clan mechanized wheeled Points transport five warriors in wheeled APCs, balancing road speed with operational economy. On garrison worlds with developed road networks, wheeled Points provide fast, affordable mechanized coverage for checkpoint security, convoy escort, and area patrol. They sacrifice the off-road reliability of tracked vehicles for lower maintenance costs and higher transit speeds on improved surfaces. Clan garrison planners employ wheeled Points where infrastructure supports their mobility advantage and terrain does not demand tracked capability.</p>"
+  }
+}

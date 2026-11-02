@@ -1,0 +1,47 @@
+{
+  "id": "foot-platoon-rifle-mountain",
+  "chassis": "Foot Platoon",
+  "model": "(Rifle Mountain)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2500,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 2,
+    "totalTroopers": 14
+  },
+  "primaryWeapon": {
+    "id": "rifle-imperator-ax-22-assault",
+    "name": "Rifle (Imperator AX-22 Assault)"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 128,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryheavymortar",
+    "name": "InfantryHeavyMortar",
+    "count": 1
+  },
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Mountain rifle platoons are trained for high-altitude combat in thin atmospheres, carrying Imperator assault rifles and heavy mortars suited to the steep terrain and long engagement ranges of mountain warfare. These troops traverse vertical terrain at three times the rate of standard infantry and operate effectively in conditions that exhaust conventional soldiers. The heavy mortars provide organic indirect fire capability that is particularly valuable in mountainous terrain where line-of-sight weapons cannot reach defilade positions.</p>"
+  }
+}

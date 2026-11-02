@@ -1,0 +1,48 @@
+{
+  "id": "clan-foot-point-anti-mech-rifle",
+  "chassis": "Clan Foot Point (Anti-'Mech)",
+  "model": "(Rifle)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2815,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 5,
+    "totalTroopers": 25
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "source": "TW",
+  "fluff": {
+    "overview": "<p>Clan anti-BattleMech foot Points train five warriors in close-assault tactics against armored vehicles and BattleMechs. Within the Clan Touman, anti-BattleMech training carries a grim reputation: the mission demands that conventional warriors close to contact range with machines designed to destroy them. Garrison commanders assign these Points to defensive sectors where terrain favors infantry ambush, particularly urban zones and narrow passes. Success requires patience, discipline, and an acceptance of heavy casualties that reflects the solahma garrison ethos of service to the Clan regardless of personal cost.</p>"
+  }
+}

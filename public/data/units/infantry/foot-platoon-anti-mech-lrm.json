@@ -1,0 +1,53 @@
+{
+  "id": "foot-platoon-anti-mech-lrm",
+  "chassis": "Foot Platoon (Anti-'Mech)",
+  "model": "(LRM)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "CLAN_INVASION",
+  "year": 3065,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrylrm",
+    "name": "InfantryLRM",
+    "count": 2
+  },
+  "source": "TW",
+  "fluff": {
+    "overview": "<p>Anti-BattleMech foot platoons train their infantry in the specialized and extremely dangerous art of attacking BattleMechs at close quarters. Armed with standard infantry weapons supplemented by swarming tactics, magnetic grapples, and explosive charges placed on joints and sensor housings, these platoons represent one of the few ways conventional infantry can threaten armored combat vehicles directly. Casualties are typically severe, and most anti-BattleMech training programs emphasize that success depends on terrain, surprise, and the willingness to accept losses that would break a conventional formation. Urban environments, dense forests, and other restrictive terrain give anti-BattleMech platoons their best chance of closing to effective range.</p>"
+  }
+}

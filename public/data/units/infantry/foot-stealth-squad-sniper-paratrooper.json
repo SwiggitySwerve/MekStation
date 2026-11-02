@@ -1,0 +1,47 @@
+{
+  "id": "foot-stealth-squad-sniper-paratrooper",
+  "chassis": "Foot Stealth Squad",
+  "model": "(Sniper Paratrooper)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2800,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 1,
+    "totalTroopers": 7
+  },
+  "primaryWeapon": {
+    "id": "sniper-rifle-bolt-action",
+    "name": "Sniper Rifle (Bolt Action)"
+  },
+  "armorKit": "Sneak Suit (Camo/IR/ECM)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "sneak-suit-camo-ir-ecm",
+      "name": "Sneak Suit (Camo/IR/ECM)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": ["sneakcamo", "sneakir", "sneakecm"],
+  "effectiveArmorFlags": ["sneakcamo", "sneakir", "sneakecm"],
+  "specializations": 512,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "auto-pistol-magnum",
+    "name": "Auto-Pistol (Magnum)",
+    "count": 1
+  },
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Stealth sniper squads combine airborne insertion capability, sneak suit concealment, and precision marksman training in a compact special operations element. Armed with sniper rifles and magnum auto-pistols for close defense, these squads deploy covertly behind enemy lines to eliminate high-value targets from concealed positions, relying on stealth technology to avoid detection before and after engagement.</p>"
+  }
+}

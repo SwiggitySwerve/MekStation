@@ -1,0 +1,49 @@
+{
+  "id": "foot-infantry-raventhirs-infantry-guard",
+  "chassis": "Foot Infantry",
+  "model": "Raventhir's Infantry Guard",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2500,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Magistracy of Canopus Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "magistracy-of-canopus-infantry-kit",
+      "name": "Magistracy of Canopus Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "machine-gun-support",
+    "name": "Machine Gun (Support)",
+    "count": 1
+  },
+  "mulId": 1142,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Raventhir's Infantry Guard is the foot infantry component of Raventhir's Iron Hand, the personal guard regiment of the Magestrix of Canopus. Organized as a full platoon of twenty-eight handpicked soldiers in four seven-trooper squads, the Infantry Guard carries auto-rifles supplemented by portable machine guns for sustained fire support. These soldiers are selected for absolute loyalty and willingness to die in defense of the Magestrix and Canopian VIPs. The Iron Hand traces its lineage to the original Magestrix Guard, reformed in 2786 when Magestrix Janina Centrella declared Magistracy independence, and renamed for John Raventhir III after he broke the Marik siege of Thurrock at the end of the First Succession War. During the Jihad, the Infantry Guard was protecting the Magestrix and senior officials when Word of Blake forces from the 34th Division inserted infantry into the complex. The Iron Hand's infantry fought the Blakists but were overwhelmed, and their charges were captured. The regiment was destroyed in the fighting at Crimson. After the Jihad, Magestrix Naomi Centrella ordered the Iron Hand rebuilt under Major Jeremy Raventhir, using top-ranking cadets from the Emma Centrella Martial Academy and elite veterans drawn from across the MAF.</p>"
+  }
+}

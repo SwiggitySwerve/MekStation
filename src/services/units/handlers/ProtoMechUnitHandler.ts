@@ -459,9 +459,14 @@ export class ProtoMechUnitHandler extends AbstractUnitTypeHandler<IProtoMech> {
    *       — Requirement: ProtoMech BV Dispatch
    */
   protected calculateTypeSpecificBV(unit: IProtoMech): number {
-    const adapted = this.toProtoMechUnit(unit);
-    const breakdown = calculateProtoMechBV(adapted);
-    return breakdown.final;
+    return this.calculateBVBreakdown(unit).final;
+  }
+
+  /** The same BV path as calculateBV, retaining aggregates for parity evidence. */
+  calculateBVBreakdown(
+    unit: IProtoMech,
+  ): ReturnType<typeof calculateProtoMechBV> {
+    return calculateProtoMechBV(this.toProtoMechUnit(unit));
   }
 
   /**

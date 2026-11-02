@@ -16,7 +16,11 @@ import type {
   ISmallCraft,
 } from '@/types/unit/AerospaceInterfaces';
 import type { IAerospaceUnit } from '@/types/unit/BaseUnitInterfaces';
-import type { IBattleArmor, IInfantry } from '@/types/unit/PersonnelInterfaces';
+import type {
+  IBattleArmor,
+  IInfantry,
+  IProtoMech,
+} from '@/types/unit/PersonnelInterfaces';
 import type { IProtoMechUnit } from '@/types/unit/ProtoMechInterfaces';
 import type { IVehicleUnit } from '@/types/unit/VehicleInterfaces';
 
@@ -45,6 +49,7 @@ import { calculateBattleArmorBVFromUnit } from './battlearmor/battleArmorBVAdapt
 import { calculateInfantryBVFromUnit as _calculateInfantryBVFromUnit } from './infantry/infantryBVAdapter';
 import {
   calculateProtoMechBV as _calculateProtoMechBV,
+  toBVProtoMech as _toBVProtoMech,
   type IProtoMechBVBreakdown,
   type IProtoMechBVOptions,
 } from './protomech/protoMechBV';
@@ -220,7 +225,13 @@ export interface IUnitBVOptions extends IProtoMechBVOptions {
  *       — Requirement: Aerospace BV Dispatch
  */
 export type UnitBVResult =
-  | { readonly kind: 'battlearmor'; readonly breakdown: IBABreakdown }
+  | {
+      readonly kind: 'battlearmor';
+      readonly breakdown: IBABreakdown & {
+        readonly defensive: number;
+        readonly offensive: number;
+      };
+    }
   | {
       readonly kind: 'capital-ship';
       readonly breakdown: ILargeAerospaceBVBreakdown;
@@ -314,9 +325,17 @@ export function calculateBattleValueForUnit(
   options?: IUnitBVOptions,
 ): UnitBVResult | undefined {
   if (unit?.unitType === UnitType.BATTLE_ARMOR) {
+    const breakdown = calculateBattleArmorBVFromUnit(
+      unit as IBattleArmor,
+      options,
+    );
     return {
       kind: 'battlearmor',
-      breakdown: calculateBattleArmorBVFromUnit(unit as IBattleArmor, options),
+      breakdown: {
+        ...breakdown,
+        defensive: breakdown.perTrooper.defensive.total,
+        offensive: breakdown.perTrooper.offensive.total,
+      },
     };
   }
   if (isCapitalShipBVType(unit?.unitType)) {
@@ -334,7 +353,7 @@ export function calculateBattleValueForUnit(
   }
   if (unit && (unit as IProtoMechUnit).unitType === UnitType.PROTOMECH) {
     const breakdown = _calculateProtoMechBV(
-      unit as IProtoMechUnit,
+      _toBVProtoMech(unit as IProtoMechUnit | IProtoMech),
       options ?? {},
     );
     return { kind: 'protomech', breakdown };

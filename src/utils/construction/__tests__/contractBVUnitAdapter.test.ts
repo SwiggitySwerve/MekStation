@@ -1,7 +1,7 @@
 /**
  * Contract JSON -> BV dispatcher input (UL-17). Small hand-written units pin the
  * mapping rules shared with the Tank handler; the converter-output fixture is
- * exercised in `scripts/__tests__/vehicle-aero-bv-delta.test.ts`.
+ * exercised in `scripts/__tests__/unit-bv-strict.test.ts`.
  */
 import { VehicleUnitHandler } from '@/services/units/handlers/VehicleUnitHandler';
 import {
