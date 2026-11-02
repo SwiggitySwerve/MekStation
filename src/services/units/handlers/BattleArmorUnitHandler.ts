@@ -27,6 +27,7 @@ import { IUnitParseResult } from '@/types/unit/UnitTypeHandler';
 import { calculateBattleArmorBVFromUnit } from '@/utils/construction/battlearmor/battleArmorBVAdapter';
 import { canMakeBAAntiMekAttacks } from '@/utils/construction/battlearmor/battleArmorMounts';
 import { parseBattleArmorManipulator } from '@/utils/construction/battlearmor/manipulators';
+import { validateBattleArmorSource } from '@/utils/construction/battlearmor/validation';
 
 import {
   AbstractUnitTypeHandler,
@@ -43,6 +44,7 @@ import {
   getRawTagString,
   mapLocationEquipment,
   parseRulesLevelThroughAdvancedFromType,
+  withConstructionDiagnostics,
 } from './unitHandlerShared';
 
 // ============================================================================
@@ -173,6 +175,7 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
       hasMechanicalJumpBoosters,
       umuMP,
       armorType,
+      sourceArmorTech: getRawTagNumber(rawTags, 'armor_tech'),
       armorPerTrooper,
       equipment,
       hasAPMount,
@@ -277,7 +280,8 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
       weightClass: WeightClass.LIGHT,
       rulesLevelParser: parseRulesLevelThroughAdvancedFromType,
     });
-    return { ...unit, canAntiMech: canMakeBAAntiMekAttacks(unit) };
+    const result = { ...unit, canAntiMech: canMakeBAAntiMekAttacks(unit) };
+    return withConstructionDiagnostics(result, this.validate(result));
   }
 
   /**
@@ -336,34 +340,9 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
     }
 
     // Armor validation (max varies by weight class)
-    const maxArmor = this.getMaxArmorForClass(unit.baWeightClass);
-    if (unit.armorPerTrooper > maxArmor) {
-      errors.push(
-        `Armor per trooper (${unit.armorPerTrooper}) exceeds maximum (${maxArmor}) for ${unit.baWeightClass}`,
-      );
-    }
+    errors.push(...validateBattleArmorSource(unit));
 
     return { errors, warnings, infos };
-  }
-
-  /**
-   * Get maximum armor for weight class
-   */
-  private getMaxArmorForClass(weightClass: BattleArmorWeightClass): number {
-    switch (weightClass) {
-      case BattleArmorWeightClass.PA_L:
-        return 2;
-      case BattleArmorWeightClass.LIGHT:
-        return 5;
-      case BattleArmorWeightClass.MEDIUM:
-        return 8;
-      case BattleArmorWeightClass.HEAVY:
-        return 10;
-      case BattleArmorWeightClass.ASSAULT:
-        return 14;
-      default:
-        return 8;
-    }
   }
 
   /**
