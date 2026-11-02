@@ -1,3 +1,11 @@
+/**
+ * Vehicle Unit Handler
+ *
+ * Handler for parsing, validating, and serializing combat vehicles.
+ * Supports standard vehicles (tanks), VTOLs, and naval units.
+ *
+ * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.2
+ */
 import { getTankMaxTonnage } from '@/services/construction/constructionConstants';
 import {
   blkEngineName,
@@ -11,14 +19,6 @@ import {
   placeRejectedBlkVehicleArmor,
   resolveBlkVehicleArmor,
 } from '@/services/conversion/blkVehicleArmorLayout';
-/**
- * Vehicle Unit Handler
- *
- * Handler for parsing, validating, and serializing combat vehicles.
- * Supports standard vehicles (tanks), VTOLs, and naval units.
- *
- * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.2
- */
 import { projectCombatVehicleTurretSource } from '@/services/conversion/blkVehicleTurretSource';
 import {
   SuperHeavyVehicleLocation,
