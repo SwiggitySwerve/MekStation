@@ -4,6 +4,7 @@ import type { IPilot } from '@/types/pilot';
 
 import { adaptUnit } from '@/engine/adapters/CompendiumAdapter';
 import { GameSide, type IGameUnit } from '@/types/gameplay';
+import { assertSkirmishUnitReference } from '@/utils/gameplay/preBattleSessionBuilder';
 
 type ForceAssignment = IForce['assignments'][number];
 type AssignedForceUnit = ForceAssignment & { unitId: string };
@@ -107,6 +108,7 @@ async function adaptAssignments(
   const adaptedUnits: IAdaptedUnit[] = [];
 
   for (const assignment of assignments) {
+    assertSkirmishUnitReference(assignment.unitId);
     const skills = getPilotSkills(assignment.pilotId, pilots);
     const adapted = await adaptUnit(assignment.unitId, {
       side,
@@ -114,9 +116,9 @@ async function adaptAssignments(
       piloting: skills.piloting,
     });
 
-    if (adapted) {
-      adaptedUnits.push(adapted);
-    }
+    if (!adapted)
+      throw new Error(`Unit not found in catalog: ${assignment.unitId}`);
+    adaptedUnits.push(adapted);
   }
 
   return adaptedUnits;

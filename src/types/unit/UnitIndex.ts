@@ -37,6 +37,26 @@ export function unitFamilyKey(
 ): string {
   return `${family}:${id}`;
 }
+
+/** Persistent string references share the family key; legacy bare IDs are Mechs. */
+export function formatUnitReference(id: string, family?: UnitFamily): string {
+  return family && family !== 'battlemechs' ? unitFamilyKey(id, family) : id;
+}
+
+export function parseUnitReference(
+  reference: string,
+  family?: UnitFamily,
+): Pick<IUnitIndexEntry, 'id' | 'family'> {
+  const separator = reference.indexOf(':');
+  const prefix = reference.slice(0, separator);
+  if (separator < 1 || !isUnitFamily(prefix))
+    return { id: reference, ...(family ? { family } : {}) };
+  if (family && family !== prefix)
+    throw new Error('Unit reference family conflicts with requested family');
+  const id = reference.slice(separator + 1);
+  if (!id) throw new Error('Unit reference requires an id');
+  return { id, family: prefix };
+}
 export function matchesUnitFamily(
   unit: { readonly family?: UnitFamily },
   family: UnitFamily | 'all' = 'battlemechs',

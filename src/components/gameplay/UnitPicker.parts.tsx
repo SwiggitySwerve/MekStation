@@ -4,6 +4,21 @@ import type { IUnitIndexEntry } from '@/services/common/types';
 import type { ISkirmishUnitSelection } from '@/utils/gameplay/preBattleSessionBuilder';
 
 import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
+import {
+  formatUnitReference,
+  isUnitFamily,
+  type UnitFamily,
+} from '@/types/unit/UnitIndex';
+import {
+  isSkirmishFamily,
+  SKIRMISH_UNIT_FAMILIES,
+} from '@/utils/gameplay/preBattleSessionBuilder';
+
+const FAMILY_LABELS = {
+  battlemechs: 'BattleMechs',
+  vehicles: 'Vehicles',
+  aerospace: 'Aerospace',
+};
 
 export type TonnageFilter = 'all' | 'light' | 'medium' | 'heavy' | 'assault';
 
@@ -21,7 +36,9 @@ const TONNAGE_FILTERS: Record<TonnageFilter, (tonnage: number) => boolean> = {
   assault: (tonnage) => tonnage > 75,
 };
 
-export function useCanonicalUnitCatalog(): UnitCatalogState {
+export function useCanonicalUnitCatalog(
+  family: UnitFamily = 'battlemechs',
+): UnitCatalogState {
   const [catalog, setCatalog] = useState<readonly IUnitIndexEntry[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,8 +47,11 @@ export function useCanonicalUnitCatalog(): UnitCatalogState {
     let cancelled = false;
     setIsLoading(true);
 
-    getCanonicalUnitService()
-      .getIndex()
+    const service = getCanonicalUnitService();
+    (family === 'battlemechs'
+      ? service.getIndex()
+      : service.getIndex({ family })
+    )
       .then((index) => {
         if (cancelled) {
           return;
@@ -56,15 +76,19 @@ export function useCanonicalUnitCatalog(): UnitCatalogState {
     return (): void => {
       cancelled = true;
     };
-  }, []);
+  }, [family]);
 
   return { catalog, isLoading, loadError };
 }
 
 export function toSelection(entry: IUnitIndexEntry): ISkirmishUnitSelection {
+  const designation = `${entry.chassis} ${entry.variant}`.trim();
   return {
-    unitId: entry.id,
-    designation: `${entry.chassis} ${entry.variant}`.trim(),
+    unitId: formatUnitReference(entry.id, entry.family),
+    designation:
+      entry.family && entry.family !== 'battlemechs'
+        ? `${designation} (${entry.family})`
+        : designation,
     tonnage: entry.tonnage,
     bv: entry.bv ?? 0,
     pilot: null,
@@ -86,13 +110,18 @@ export function filterCatalog({
   const query = searchQuery.trim().toLowerCase();
 
   return catalog
-    .filter((entry) => !selectedIds.has(entry.id))
+    .filter((entry) => isSkirmishFamily(entry.family))
+    .filter(
+      (entry) => !selectedIds.has(formatUnitReference(entry.id, entry.family)),
+    )
     .filter((entry) => matchesSearch(entry, query))
     .filter((entry) => TONNAGE_FILTERS[tonnageFilter](entry.tonnage))
     .slice(0, 50);
 }
 
 export function CatalogPicker({
+  family,
+  setFamily,
   side,
   title,
   searchQuery,
@@ -107,6 +136,8 @@ export function CatalogPicker({
   setTonnageFilter,
   onAdd,
 }: {
+  readonly family: UnitFamily;
+  readonly setFamily: (family: UnitFamily) => void;
   readonly side: 'player' | 'opponent';
   readonly title: string;
   readonly searchQuery: string;
@@ -128,6 +159,8 @@ export function CatalogPicker({
   return (
     <div className="border-border-theme-subtle border-t pt-4">
       <CatalogControls
+        family={family}
+        setFamily={setFamily}
         side={side}
         title={title}
         searchQuery={searchQuery}
@@ -149,6 +182,8 @@ export function CatalogPicker({
 }
 
 function CatalogControls({
+  family,
+  setFamily,
   side,
   title,
   searchQuery,
@@ -156,6 +191,8 @@ function CatalogControls({
   setSearchQuery,
   setTonnageFilter,
 }: {
+  readonly family: UnitFamily;
+  readonly setFamily: (family: UnitFamily) => void;
   readonly side: 'player' | 'opponent';
   readonly title: string;
   readonly searchQuery: string;
@@ -165,6 +202,25 @@ function CatalogControls({
 }): React.ReactElement {
   return (
     <div className="mb-3 grid grid-cols-1 gap-2 md:grid-cols-2">
+      <select
+        value={family}
+        aria-label={`Unit family for ${title}`}
+        className="bg-surface-theme text-text-theme-primary border-border-theme min-h-11 rounded border px-2 py-1 text-sm"
+        onChange={(event) => {
+          const value = event.target.value;
+          if (isUnitFamily(value) && isSkirmishFamily(value)) setFamily(value);
+        }}
+      >
+        {SKIRMISH_UNIT_FAMILIES.map((value) => (
+          <option key={value} value={value}>
+            {FAMILY_LABELS[value]}
+          </option>
+        ))}
+      </select>
+      <p className="text-text-theme-muted text-xs">
+        Capital ships are read-only. Battle Armor, infantry and ProtoMechs are
+        not available for combat.
+      </p>
       <input
         type="text"
         placeholder="Search by chassis or variant"
@@ -244,7 +300,7 @@ function CatalogResults({
     >
       {filteredCatalog.map((entry) => (
         <CatalogUnitRow
-          key={entry.id}
+          key={formatUnitReference(entry.id, entry.family)}
           side={side}
           entry={entry}
           onAdd={onAdd}
@@ -269,7 +325,7 @@ function CatalogUnitRow({
         type="button"
         onClick={() => onAdd(toSelection(entry))}
         className="bg-surface-theme hover:bg-surface-raised border-border-theme-subtle flex w-full items-center justify-between rounded border px-3 py-2 text-left text-sm transition-colors"
-        data-testid={`${side}-catalog-${entry.id}`}
+        data-testid={`${side}-catalog-${formatUnitReference(entry.id, entry.family)}`}
         aria-label={`Add ${entry.chassis} ${entry.variant}`}
       >
         <span>

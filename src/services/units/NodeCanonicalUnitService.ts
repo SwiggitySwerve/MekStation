@@ -24,6 +24,7 @@ import * as path from 'path';
 
 import {
   indexFamilies,
+  parseUnitReference,
   unitFamilyKey,
   type UnitFamily,
   type UnitIndexOptions,
@@ -364,17 +365,21 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
    * instead of corrupting downstream domain code with a malformed unit.
    */
   getByIdSync = (
-    id: string,
+    referenceId: string,
     options: UnitLookupOptions = {},
   ): IFullUnit | null => {
+    const { id, family: referenceFamily } = parseUnitReference(
+      referenceId,
+      options.family,
+    );
     // Return cached reference immediately — this also satisfies Task 2.8's
     // requirement that two calls for the same id return the same object.
-    const key = unitFamilyKey(id, options.family);
+    const key = unitFamilyKey(id, referenceFamily);
     if (this.unitCache.has(key)) {
       return this.unitCache.get(key)!;
     }
 
-    const family = options.family ?? 'battlemechs';
+    const family = referenceFamily ?? 'battlemechs';
     try {
       this.loadRawIndex(family);
     } catch (error) {
