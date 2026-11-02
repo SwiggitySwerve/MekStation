@@ -71,7 +71,7 @@ const base = {
   engineType: EngineType.ICE,
   powerAmpWeight: 0,
 };
-const turret = { type: TurretType.SINGLE, currentWeight: 0, rotationArc: 360 };
+const turret = { type: TurretType.SINGLE, rotationArc: 360 };
 
 it('keeps mount flags, secondary location, ammunition and amplifier eligibility distinct', () => {
   const calls: string[] = [];

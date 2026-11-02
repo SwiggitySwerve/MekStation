@@ -86,7 +86,7 @@ const inTurret = (equipmentId: string, id: string) =>
   mounted(equipmentId, id, VehicleLocation.TURRET, true);
 
 function turretConfig(type: TurretType = TurretType.SINGLE) {
-  return { type, currentWeight: 0, rotationArc: 360 };
+  return { type, rotationArc: 360 };
 }
 
 // Rating 25 standard fusion installs at 1 t after vehicle shielding.

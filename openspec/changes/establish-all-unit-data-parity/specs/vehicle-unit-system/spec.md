@@ -313,7 +313,7 @@ The system SHALL provide turret configuration unique to the Vehicle unit type.
 
 - **WHEN** selecting a turret type other than None
 - **THEN** the system SHALL create a turret configuration with:
-  - `currentWeight`: 0 (initially empty)
+  - `type`: the selected turret type
   - `rotationArc`: 360°
 
 #### Scenario: Removing turret
@@ -328,6 +328,13 @@ The system SHALL provide turret configuration unique to the Vehicle unit type.
 - **THEN** no turret capacity error SHALL be reported, because a turret has no capacity of its own
   (pinned MegaMek `TestTank` and `TestSupportVehicle` define none)
 - **AND** the vehicle SHALL be invalid only when its total weight exceeds its tonnage
+
+#### Scenario: Saved turret configuration without cached mass
+
+- **WHEN** saving or reopening a turret with its type and rotation arc
+- **THEN** cached currentWeight SHALL NOT be required or synthesized when absent
+- **AND** independent installation and explicit Omni allowances SHALL remain intact
+- **AND** invalid live turret types or rotation arcs SHALL still be rejected
 
 ### Requirement: Vehicle Equipment Management
 

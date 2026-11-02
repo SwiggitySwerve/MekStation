@@ -357,7 +357,7 @@ describe('BlkExportService', () => {
       const tank = createMockVehicleState({
         turret: {
           type: TurretType.SINGLE,
-          currentWeight: 0,
+
           rotationArc: 360,
         },
         armorAllocation: {
