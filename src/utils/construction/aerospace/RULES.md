@@ -384,3 +384,24 @@ per controller at the same normalized physical location; Streak and absent
 catalog variants remain unlinked. Ammo BV and caps retain their current policy.
 Enforcement: `aerospaceBV.residual3Parity.test.ts` pins Ogotai A and Tyre 3
 weapon pools, source-order links, location isolation and pre-heat modification.
+
+## Native fixed-wing support admission
+
+`FixedWingSupportUnitHandler` owns FWS admission/validity and keeps the existing
+conventional-fighter persistence identity plus `isFixedWingSupport` (FU57/61).
+The registry selects it by native source family before mapped-type lookup.
+Positive source mass through 200 t is allowed; small is <5 t, medium <=100 t
+(`FixedWingSupport.java:325-349`, `TestSupportVehicle.java:90`, pinned 48fcb2f6).
+Conventional-fighter admission and limits remain separate.
+
+`fixedWingSupport.ts` checks maritime lifeboats against the amphibious chassis,
+and a supported slot lower bound: represented weapon/CASE costs, distinct ammo
+kinds/racks, BAR-10 E/F armor, and `5 + floor(tons/10)` capacity. Other misc,
+crew and transporter slots remain unrepresented, rather than assuming Mek
+critical slots are SV slots (`TestSupportVehicle:1027-1038,1110-1116,1570-1655`).
+Thunderbolt 20 uses its native five slots; no catalog is edited.
+
+Newly admitted large FWS uses support-vehicle BV through the shared dispatcher.
+Small/medium source BV retains its published projection to preserve the other
+aerospace rows required by this routing slice. Store, library and save identity
+are unchanged; broader BV corrections are outside this admission change.

@@ -116,7 +116,18 @@ describe('Wave 4 BV report output', () => {
     const result = runScript(INFANTRY_SCRIPT, outputPath);
 
     expect(result.status).toBe(0);
-    expect(result.stderr).toBe('');
+    // Field-gun mounts reach catalog gaps; the resolver reports each once.
+    expect(
+      result.stderr
+        .split(/\r?\n/)
+        .filter(
+          (line) =>
+            line !== '' &&
+            !line.startsWith(
+              '[equipmentBVResolver] Unresolvable equipment ID:',
+            ),
+        ),
+    ).toEqual([]);
 
     const report = readJson<InfantryReport>(outputPath);
     const index = readJson<{ totalUnits: number }>(

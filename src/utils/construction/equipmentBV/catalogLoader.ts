@@ -41,6 +41,8 @@ function toCatalogEntry(
     battleValue: typeof item.battleValue === 'number' ? item.battleValue : 0,
     heat: typeof item.heat === 'number' ? item.heat : undefined,
     weight: typeof item.weight === 'number' ? item.weight : undefined,
+    criticalSlots:
+      typeof item.criticalSlots === 'number' ? item.criticalSlots : undefined,
     special: Array.isArray(item.special)
       ? item.special.filter(
           (value): value is string => typeof value === 'string',

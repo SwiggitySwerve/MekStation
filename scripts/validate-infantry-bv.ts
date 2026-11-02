@@ -375,7 +375,9 @@ function loadFixture(filePath: string): {
       : null;
 
   return {
-    unit,
+    // Converter records (`platoon`) carry source facts that BV reads from the
+    // validated record, as the app does; the rewritten copy fails that parse.
+    unit: 'platoon' in data ? (data as IInfantry) : unit,
     mulBV,
     source: path.relative(process.cwd(), filePath),
   };
