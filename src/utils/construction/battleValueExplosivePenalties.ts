@@ -3,6 +3,24 @@ import {
   getEngineDefinition,
 } from '../../types/construction/EngineType';
 
+/** Native non-explosive ammunition families, shared with the legacy crit scanner. */
+export function isNonExplosiveAmmo(name: string): boolean {
+  const lo = name.toLowerCase();
+  return (
+    lo.includes('gauss') ||
+    lo.includes('hag') ||
+    lo.includes('sbgr') ||
+    lo.includes('magshot') ||
+    lo.includes('plasma') ||
+    lo.includes('fluid') ||
+    lo.includes('nail') ||
+    lo.includes('rivet') ||
+    lo.includes('c3') ||
+    lo.includes('sensor') ||
+    lo.includes('rail gun')
+  );
+}
+
 export type MechLocation =
   | 'HD'
   | 'CT'
