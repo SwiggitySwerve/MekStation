@@ -122,6 +122,13 @@ function adaptedCombatSeedPatch(
 ): MutableGameUnitPatch | null {
   const patch: MutableGameUnitPatch = {};
 
+  if (adapted.vehicleInit !== undefined) {
+    patch.unitType =
+      unit.unitType ?? (adapted.unitType as IGameUnit['unitType']);
+    patch.vehicleInit = unit.vehicleInit ?? adapted.vehicleInit;
+    patch.motionType = unit.motionType ?? adapted.vehicleInit.motionType;
+  }
+
   if (
     adapted.movementMode !== undefined &&
     unit.movementMode !== adapted.movementMode
@@ -208,17 +215,15 @@ function appendVehicleCriticalAvailabilitySeed(
   const vehicleCriticalAvailability = vehicleCriticalAvailabilityFromWeapons(
     adapted.weapons,
   );
-  if (
-    unit.vehicleInit === undefined ||
-    vehicleCriticalAvailability === undefined
-  ) {
+  const vehicleInit = patch.vehicleInit ?? unit.vehicleInit;
+  if (vehicleInit === undefined || vehicleCriticalAvailability === undefined) {
     return;
   }
 
   patch.vehicleInit = {
-    ...unit.vehicleInit,
+    ...vehicleInit,
     criticalAvailability: mergeVehicleCriticalAvailability(
-      unit.vehicleInit.criticalAvailability,
+      vehicleInit.criticalAvailability,
       vehicleCriticalAvailability,
     ),
   };

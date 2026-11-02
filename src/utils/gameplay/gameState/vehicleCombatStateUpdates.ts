@@ -4,7 +4,35 @@ import type {
   IUnitDestroyedPayload,
   IUnitGameState,
   IVehicleCombatState,
+  IGameState,
+  IMotiveDamagedPayload,
 } from '@/types/gameplay';
+
+import { applyMotiveDamageToState } from '../motiveDamage';
+import { updateUnitState } from './unitStatePatch';
+
+export function applyVehicleMotiveDamaged(
+  state: IGameState,
+  payload: IMotiveDamagedPayload,
+): IGameState {
+  return updateUnitState(state, payload.unitId, (unit) => {
+    if (unit.combatState?.kind !== 'vehicle') return unit;
+    const vehicle = unit.combatState.state;
+    return {
+      ...unit,
+      combatState: {
+        kind: 'vehicle',
+        state: {
+          ...vehicle,
+          motive: applyMotiveDamageToState(vehicle.motive, {
+            mpPenalty: payload.mpPenalty,
+            immobilized: payload.severity === 'immobilized',
+          }),
+        },
+      },
+    };
+  });
+}
 
 type VehicleCombatEnvelope = IUnitGameState['combatState'];
 type VehicleDestructionCause = NonNullable<
