@@ -188,6 +188,7 @@ export const UnitContract = z
         armor: z
           .object({
             type: SchemaDef_standardArmorType,
+            sourceTechLevel: z.number().int().gte(-1).optional(),
             barRating: z
               .number()
               .int()
@@ -355,6 +356,10 @@ export const UnitContract = z
           .strict(),
         movement: z
           .object({
+            groundMP: z.number().int().gte(0).optional(),
+            jumpMP: z.number().int().gte(0).optional(),
+            umuMP: z.number().int().gte(0).optional(),
+            vtolMP: z.number().int().gte(0).optional(),
             walk: z.number().int().gte(0).describe('Walking MP'),
             jump: z.number().int().gte(0).describe('Jumping MP'),
             jumpJetType: z
@@ -367,6 +372,25 @@ export const UnitContract = z
               .optional(),
           })
           .catchall(z.any()),
+        weightClass: z.string().optional(),
+        chassisType: z.enum(['BIPED', 'QUAD']).optional(),
+        motionType: z.string().optional(),
+        squadSize: z.number().int().gte(1).optional(),
+        armorPerTrooper: z.number().int().gte(0).optional(),
+        manipulators: z
+          .object({
+            rightArm: z.union([z.string(), z.null()]).optional(),
+            leftArm: z.union([z.string(), z.null()]).optional(),
+          })
+          .strict()
+          .optional(),
+        hasAntiPersonnelMount: z.boolean().optional(),
+        hasModularWeaponMount: z.boolean().optional(),
+        clanChassis: z.boolean().optional(),
+        isExoskeleton: z.boolean().optional(),
+        clanExoWithoutHarJel: z.boolean().optional(),
+        turretSize: z.number().int().gte(0).optional(),
+        hasModularTurret: z.boolean().optional(),
         equipment: z
           .array(
             z
@@ -381,6 +405,12 @@ export const UnitContract = z
                   .array(z.number().int())
                   .describe('Specific slot indices')
                   .optional(),
+                unitLocation: z.string().optional(),
+                isDWPMounted: z.boolean().optional(),
+                isSquadSupportWeapon: z.boolean().optional(),
+                isAPMMounted: z.boolean().optional(),
+                shots: z.number().int().gte(0).optional(),
+                size: z.number().gte(0).optional(),
                 isRearMounted: z
                   .boolean()
                   .describe('Whether weapon is rear-facing')
@@ -676,6 +706,7 @@ export const UnitContract = z
                 ]),
               ])
               .describe('Armor type'),
+            sourceTechLevel: z.number().int().gte(-1).optional(),
             barRating: z
               .number()
               .int()
@@ -845,6 +876,10 @@ export const UnitContract = z
           .optional(),
         movement: z
           .object({
+            groundMP: z.number().int().gte(0).optional(),
+            jumpMP: z.number().int().gte(0).optional(),
+            umuMP: z.number().int().gte(0).optional(),
+            vtolMP: z.number().int().gte(0).optional(),
             walk: z.number().int().gte(0).describe('Walking MP').optional(),
             jump: z.number().int().gte(0).describe('Jumping MP').optional(),
             jumpJetType: z
@@ -858,6 +893,25 @@ export const UnitContract = z
           })
           .catchall(z.any())
           .optional(),
+        weightClass: z.string().optional(),
+        chassisType: z.enum(['BIPED', 'QUAD']).optional(),
+        motionType: z.string().optional(),
+        squadSize: z.number().int().gte(1).optional(),
+        armorPerTrooper: z.number().int().gte(0).optional(),
+        manipulators: z
+          .object({
+            rightArm: z.union([z.string(), z.null()]).optional(),
+            leftArm: z.union([z.string(), z.null()]).optional(),
+          })
+          .strict()
+          .optional(),
+        hasAntiPersonnelMount: z.boolean().optional(),
+        hasModularWeaponMount: z.boolean().optional(),
+        clanChassis: z.boolean().optional(),
+        isExoskeleton: z.boolean().optional(),
+        clanExoWithoutHarJel: z.boolean().optional(),
+        turretSize: z.number().int().gte(0).optional(),
+        hasModularTurret: z.boolean().optional(),
         equipment: z
           .array(
             z
@@ -872,6 +926,12 @@ export const UnitContract = z
                   .array(z.number().int())
                   .describe('Specific slot indices')
                   .optional(),
+                unitLocation: z.string().optional(),
+                isDWPMounted: z.boolean().optional(),
+                isSquadSupportWeapon: z.boolean().optional(),
+                isAPMMounted: z.boolean().optional(),
+                shots: z.number().int().gte(0).optional(),
+                size: z.number().gte(0).optional(),
                 isRearMounted: z
                   .boolean()
                   .describe('Whether weapon is rear-facing')

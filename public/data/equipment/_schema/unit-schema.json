@@ -195,6 +195,7 @@
           ],
           "description": "Armor type"
         },
+        "sourceTechLevel": { "type": "integer", "minimum": -1 },
         "barRating": {
           "type": "integer",
           "minimum": 2,
@@ -365,6 +366,10 @@
       "type": "object",
       "required": [],
       "properties": {
+        "groundMP": { "type": "integer", "minimum": 0 },
+        "jumpMP": { "type": "integer", "minimum": 0 },
+        "umuMP": { "type": "integer", "minimum": 0 },
+        "vtolMP": { "type": "integer", "minimum": 0 },
         "walk": {
           "type": "integer",
           "minimum": 0,
@@ -390,6 +395,26 @@
       },
       "additionalProperties": true
     },
+    "weightClass": { "type": "string" },
+    "chassisType": { "type": "string", "enum": ["BIPED", "QUAD"] },
+    "motionType": { "type": "string" },
+    "squadSize": { "type": "integer", "minimum": 1 },
+    "armorPerTrooper": { "type": "integer", "minimum": 0 },
+    "manipulators": {
+      "type": "object",
+      "properties": {
+        "rightArm": { "type": ["string", "null"] },
+        "leftArm": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "hasAntiPersonnelMount": { "type": "boolean" },
+    "hasModularWeaponMount": { "type": "boolean" },
+    "clanChassis": { "type": "boolean" },
+    "isExoskeleton": { "type": "boolean" },
+    "clanExoWithoutHarJel": { "type": "boolean" },
+    "turretSize": { "type": "integer", "minimum": 0 },
+    "hasModularTurret": { "type": "boolean" },
     "equipment": {
       "type": "array",
       "items": {
@@ -415,6 +440,12 @@
             },
             "description": "Specific slot indices"
           },
+          "unitLocation": { "type": "string" },
+          "isDWPMounted": { "type": "boolean" },
+          "isSquadSupportWeapon": { "type": "boolean" },
+          "isAPMMounted": { "type": "boolean" },
+          "shots": { "type": "integer", "minimum": 0 },
+          "size": { "type": "number", "minimum": 0 },
           "isRearMounted": {
             "type": "boolean",
             "default": false,
