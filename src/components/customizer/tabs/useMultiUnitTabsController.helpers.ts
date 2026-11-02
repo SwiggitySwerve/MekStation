@@ -16,6 +16,7 @@ import {
 import { registerCapitalShipView } from '@/services/units/unitLoaderService/capitalShipView';
 import { createAerospaceFromFullState } from '@/stores/aerospaceStoreRegistry';
 import { createBattleArmorFromFullState } from '@/stores/battleArmorStoreRegistry';
+import { createInfantryFromFullState } from '@/stores/infantryStoreRegistry';
 import { createProtoMechFromFullState } from '@/stores/protoMechStoreRegistry';
 import {
   createUnitFromFullState,
@@ -55,12 +56,6 @@ interface LoadUnitParams {
 
 type LoadedTab = Parameters<TabManagerState['addTab']>[0];
 
-/** Families that have no library-open route yet; retrying cannot help. */
-const UNSUPPORTED_FAMILY_MESSAGES: Partial<Record<UnitFamily, string>> = {
-  infantry:
-    'Infantry cannot be opened yet because the editor cannot load infantry from the library.',
-};
-
 function openBattleMechState(state: UnitState): LoadedTab {
   createUnitFromFullState(state);
   return {
@@ -80,16 +75,23 @@ function registerFamilyState(familyState: FamilyEditorState): LoadedTab {
     return { id, name, tonnage, techBase, unitType };
   }
   const state = (
-    familyState.store === 'protomech'
-      ? createProtoMechFromFullState(familyState.state)
-      : familyState.store === 'battlearmor'
-        ? createBattleArmorFromFullState(familyState.state)
-        : familyState.store === 'vehicle'
-          ? createVehicleFromFullState(familyState.state)
-          : createAerospaceFromFullState(familyState.state)
+    familyState.store === 'infantry'
+      ? createInfantryFromFullState(familyState.state)
+      : familyState.store === 'protomech'
+        ? createProtoMechFromFullState(familyState.state)
+        : familyState.store === 'battlearmor'
+          ? createBattleArmorFromFullState(familyState.state)
+          : familyState.store === 'vehicle'
+            ? createVehicleFromFullState(familyState.state)
+            : createAerospaceFromFullState(familyState.state)
   ).getState();
   const { id, name, techBase, unitType } = state;
-  const tonnage = 'tonnage' in state ? state.tonnage : state.squadSize;
+  const tonnage =
+    'tonnage' in state
+      ? state.tonnage
+      : 'numberOfSquads' in state
+        ? 0
+        : state.squadSize;
   return { id, name, tonnage, techBase, unitType };
 }
 
@@ -130,8 +132,7 @@ export async function loadUnitIntoTab({
                 ? `Saved ${unit.unitType} designs cannot be reopened yet. Only BattleMech designs reopen from the library.`
                 : 'This library entry contains invalid unit data. Choose another entry or correct the saved definition.'
               : result.errorCode === 'unsupported-store-family'
-                ? (UNSUPPORTED_FAMILY_MESSAGES[unit.family ?? 'battlemechs'] ??
-                  'This unit family cannot be opened in the editor yet.')
+                ? 'This unit family cannot be opened in the editor yet.'
                 : result.errorCode === 'unknown-family'
                   ? 'This library entry uses an unknown unit family. Choose another entry or correct the saved definition.'
                   : result.errorCode === 'family-not-found'

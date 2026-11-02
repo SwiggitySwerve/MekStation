@@ -14,7 +14,9 @@ import type { UnitFamily } from '@/types/unit/UnitIndex';
 
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { createDefaultInfantryState } from '@/stores/infantryState';
 import { createLibrarySaveReceipt } from '@/stores/unit/unitEditSnapshot';
+import { mapInfantryDefinition } from '@/utils/construction/infantry/libraryMapping';
 
 import type { IUnitDefinitionReference } from './definitionTypes';
 
@@ -51,6 +53,13 @@ function mapFamilyState(
   store: FamilyEditorState['store'],
   definition: IUnitContract,
 ): FamilyEditorState {
+  if (store === 'infantry') {
+    const config = mapInfantryDefinition(definition);
+    return {
+      store,
+      state: { ...createDefaultInfantryState(config), ...config },
+    };
+  }
   if (store === 'protomech')
     return { store, state: mapProtoMechDefinitionToState(definition) };
   if (store === 'battlearmor')

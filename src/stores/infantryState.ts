@@ -9,6 +9,7 @@
  */
 
 import type { UnitIdentityActions } from '@/stores/unitStoreIdentityActions';
+import type { IUnitContract } from '@/types/contracts';
 import type { IInfantryBVBreakdown } from '@/utils/construction/infantry/infantryBV';
 
 import { RulesLevel } from '@/types/enums/RulesLevel';
@@ -32,6 +33,7 @@ import {
   squadMotionTypeForMotive,
 } from '@/utils/construction/infantry';
 import { computeInfantryBVFromState } from '@/utils/construction/infantry/infantryBVAdapter';
+import { infantryLibraryBVInput } from '@/utils/construction/infantry/libraryMapping';
 import { generateUnitId as generateUUID } from '@/utils/uuid';
 
 // =============================================================================
@@ -42,6 +44,9 @@ import { generateUnitId as generateUUID } from '@/utils/uuid';
  * Complete state for a single Infantry platoon
  */
 export interface InfantryState {
+  /** Original catalog facts not expressible by the legacy editor enums. */
+  librarySource?: IUnitContract;
+  umuMP?: number;
   // =========================================================================
   // Identity
   // =========================================================================
@@ -406,18 +411,20 @@ export function computeInfantryStateBV(
   state: InfantryState,
 ): IInfantryBVBreakdown | undefined {
   try {
-    return computeInfantryBVFromState({
-      infantryMotive: state.infantryMotive,
-      platoonComposition: state.platoonComposition,
-      armorKit: state.armorKit,
-      hasAntiMechTraining: state.hasAntiMechTraining,
-      primaryWeapon: state.primaryWeapon,
-      primaryWeaponId: state.primaryWeaponId,
-      secondaryWeapon: state.secondaryWeapon,
-      secondaryWeaponId: state.secondaryWeaponId,
-      secondaryWeaponCount: state.secondaryWeaponCount,
-      fieldGuns: state.fieldGuns,
-    });
+    return computeInfantryBVFromState(
+      infantryLibraryBVInput(state) ?? {
+        infantryMotive: state.infantryMotive,
+        platoonComposition: state.platoonComposition,
+        armorKit: state.armorKit,
+        hasAntiMechTraining: state.hasAntiMechTraining,
+        primaryWeapon: state.primaryWeapon,
+        primaryWeaponId: state.primaryWeaponId,
+        secondaryWeapon: state.secondaryWeapon,
+        secondaryWeaponId: state.secondaryWeaponId,
+        secondaryWeaponCount: state.secondaryWeaponCount,
+        fieldGuns: state.fieldGuns,
+      },
+    );
   } catch {
     return undefined;
   }
