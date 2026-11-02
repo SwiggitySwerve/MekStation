@@ -102,7 +102,7 @@ describe('aerospace aircraft type defensive modifier', () => {
         explosivePenalties: 5,
       };
       const result = calculateAerospaceDefensiveBV(input);
-      const armorBV = subType === AerospaceSubType.SMALL_CRAFT ? 120 : 100;
+      const armorBV = 100;
       expect(result.armorBV).toBe(armorBV);
       expect(result.siBV).toBe(10);
       expect(result.defensive).toBeCloseTo(

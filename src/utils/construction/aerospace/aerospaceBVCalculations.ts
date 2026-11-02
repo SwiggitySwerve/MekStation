@@ -98,13 +98,11 @@ export function calculateAerospaceAmmoBV(
 
  * defensiveFactor = 1 (no thrust multiplier)
 
- * defensive = (armorBV × smallCraftBonus + siBV + defEquipBV − explosive) × aircraftTypeModifier × defensiveFactor
+ * defensive = (armorBV + siBV + defEquipBV − explosive) × aircraftTypeModifier × defensiveFactor
 
  *
 
- * Small Craft apply a 1.2× armor bonus inside the defensive block to reflect
-
- * their heavy armor tonnage allotment.
+ * Small Craft inherits the ordinary 2.5 BV per armor point (BVCalculator.java:461-463).
 
  *
 
