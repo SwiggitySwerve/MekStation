@@ -1105,7 +1105,7 @@
       "criticalSlots": 15,
       "ammoPerTon": 20,
       "costCBills": 200000,
-      "battleValue": 43,
+      "battleValue": 41,
       "introductionYear": 3079,
       "special": ["artillery"]
     },

@@ -16,6 +16,7 @@ const AMMO_VALUES = [
 // [catalog id, pinned Java BV, citation in megamek/common/weapons/artillery]
 const WEAPON_VALUES = [
   ['sniper-cannon', 77, 'SniperCannon.java:78 bv = 77'],
+  ['thumper-cannon', 41, 'ThumperCannon.java:78 bv = 41'],
 ] as const;
 
 describe('equipment catalog values match pinned Java (ruling 2026-11-02 q1)', () => {
