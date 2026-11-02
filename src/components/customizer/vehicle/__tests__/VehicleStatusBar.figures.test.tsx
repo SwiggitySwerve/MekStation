@@ -86,7 +86,7 @@ const inTurret = (equipmentId: string, id: string) =>
   mounted(equipmentId, id, VehicleLocation.TURRET, true);
 
 function turretConfig(type: TurretType = TurretType.SINGLE) {
-  return { type, currentWeight: 0, rotationArc: 360 };
+  return { type, rotationArc: 360 };
 }
 
 // Rating 25 standard fusion installs at 1 t after vehicle shielding.
@@ -356,14 +356,14 @@ describe('VehicleStatusBar — turret weight', () => {
     ).toBe(29.5);
   });
 
-  it('shows the turret equipment mass against the weight available to it', () => {
-    // 28 t free + 12 t AC/10 + 1.5 t turret = 41.5 t; no 10% cap applies.
+  it('shows mounted turret mass with units and no capacity denominator', () => {
+    // Mounted mass is a quantity, without an invented capacity denominator.
     renderBar({
       turret: turretConfig(),
       equipment: AC10_IN_TURRET,
       ...SMALL_ENGINE,
     });
-    expect(item('Turret')).toEqual(['12.0', ' / 41.5 t']);
+    expect(item('Turret')).toEqual(['12.0 t', 'mounted']);
   });
 
   it('does not flag a turret heavier than 10% of the tonnage', () => {
@@ -373,7 +373,7 @@ describe('VehicleStatusBar — turret weight', () => {
       equipment: AC10_IN_TURRET,
       ...SMALL_ENGINE,
     });
-    expect(screen.getByText('12.0').className).not.toContain('text-red-400');
+    expect(screen.getByText('12.0 t').className).not.toContain('text-red-400');
   });
 
   it('flags the turret only when the whole vehicle is overweight', () => {
@@ -383,7 +383,7 @@ describe('VehicleStatusBar — turret weight', () => {
       equipment: [1, 2, 3, 4, 5].map((n) => inTurret('ac-10', `eq-${n}`)),
       ...SMALL_ENGINE,
     });
-    expect(screen.getByText('60.0').className).toContain('text-red-400');
+    expect(screen.getByText('60.0 t').className).toContain('text-red-400');
   });
 });
 

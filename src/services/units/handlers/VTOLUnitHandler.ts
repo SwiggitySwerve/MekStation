@@ -8,7 +8,11 @@
  */
 
 import { VTOL_TONNAGE } from '@/services/construction/constructionConstants';
-import { blkVehicleArmorLengthError } from '@/services/conversion/blkVehicleArmorLayout';
+import {
+  blkVehicleArmorLengthError,
+  resolveBlkVehicleArmor,
+} from '@/services/conversion/blkVehicleArmorLayout';
+import { projectCombatVehicleTurretSource } from '@/services/conversion/blkVehicleTurretSource';
 import { VTOLLocation } from '@/types/construction/UnitLocation';
 import {
   BLK_VTOL_ARMOR_LOCATIONS,
@@ -25,14 +29,16 @@ import {
   IVTOL,
   IVehicleMountedEquipment,
   ITurretConfiguration,
-  TurretType,
 } from '@/types/unit/VehicleInterfaces';
 import { getTankMaxTotalArmor } from '@/utils/construction/vehicle/armor';
 import {
   computeEngineRating,
   computeFlankMP,
 } from '@/utils/construction/vehicle/engine';
-import { getVehicleMountFlags } from '@/utils/construction/vehicle/equipmentMounts';
+import {
+  getVehicleMountFlags,
+  getPrimaryVehicleTurretConfiguration,
+} from '@/utils/construction/vehicle/equipmentMounts';
 
 import {
   AbstractUnitTypeHandler,
@@ -97,6 +103,12 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     const { errors, warnings } = createParseMessages();
     pushSourceLoadNumberErrors(errors, document, 'cruiseMP');
     if (errors.length > 0) return { errors, warnings };
+    const turretSource = projectCombatVehicleTurretSource(document);
+    warnings.push(...turretSource.warnings);
+    if (!turretSource.success) {
+      errors.push(...turretSource.errors);
+      return { errors, warnings };
+    }
 
     // VTOLs always have VTOL motion type
     const motionType = GroundMotionType.VTOL;
@@ -145,6 +157,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
 
     return {
       unitType: UnitType.VTOL,
+      ...turretSource.facts,
       internalStructureType: document.internalType ?? 0,
       structureLocations: BLK_VTOL_ARMOR_LOCATIONS.slice(0, armor.length),
       motionType,
@@ -200,30 +213,17 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
     const rawTags = document.rawTags || {};
     const turretType = this.getStringFromRaw(rawTags, 'turrettype');
 
-    // VTOLs use chin turrets
-    if (turretType?.toLowerCase() === 'chin') {
-      return {
-        type: TurretType.CHIN,
-        currentWeight: 0,
-        rotationArc: 180, // Chin turrets have limited arc
-      };
-    }
-
-    // Check for turret equipment
-    const hasTurretEquipment =
-      document.equipmentByLocation['Turret']?.length > 0 ||
-      document.equipmentByLocation['Turret Equipment']?.length > 0 ||
-      document.equipmentByLocation['Chin']?.length > 0;
-
-    if (!hasTurretEquipment) {
-      return undefined;
-    }
-
-    return {
-      type: TurretType.CHIN,
-      currentWeight: 0,
-      rotationArc: 180,
-    };
+    return getPrimaryVehicleTurretConfiguration(
+      document,
+      turretType?.toLowerCase() === 'chin' ? turretType : undefined,
+      resolveBlkVehicleArmor(
+        'VTOL',
+        document.motionType,
+        document.tonnage,
+        document.armor,
+      ),
+      true,
+    );
   }
 
   /**

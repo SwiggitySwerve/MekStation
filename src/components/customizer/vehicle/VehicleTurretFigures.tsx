@@ -1,0 +1,140 @@
+import React from 'react';
+
+import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { useVehicleStore } from '@/stores/useVehicleStore';
+import { computeVehicleMountedWeightBreakdown } from '@/utils/construction/vehicle/mountedWeight';
+
+import { customizerStyles as cs } from '../styles';
+import { formatVehicleWeight } from './VehicleStatusBar.utils';
+
+interface TurretFigurePanelProps {
+  title: string;
+  installed: boolean;
+  mounted: number | null;
+  equipment: number | null;
+  mechanism: number | null;
+  allowance: number | undefined;
+  isOmni: boolean;
+  overloaded: boolean | null;
+  isReady: boolean;
+}
+
+/** Presentation only; every mass and overload decision comes from construction. */
+export function TurretFigurePanel({
+  title,
+  installed,
+  mounted,
+  equipment,
+  mechanism,
+  allowance,
+  isOmni,
+  overloaded,
+  isReady,
+}: TurretFigurePanelProps): React.ReactElement {
+  const pending =
+    !isReady &&
+    equipment === null &&
+    (allowance === undefined || Number.isFinite(allowance));
+  const allowanceText = !isOmni
+    ? 'Not applicable'
+    : allowance === undefined
+      ? 'Not supplied'
+      : Number.isFinite(allowance)
+        ? `${allowance} t`
+        : 'Unknown';
+  const figures = [
+    ['Mounted Equipment', formatVehicleWeight(mounted, !isReady)],
+    ['Qualifying Equipment', formatVehicleWeight(equipment, !isReady)],
+    ['Mechanism Weight', formatVehicleWeight(mechanism, pending)],
+    ['Omni Allowance', allowanceText],
+  ];
+  return (
+    <section
+      aria-label={`${title} Figures`}
+      className={`${cs.panel.summary} min-w-0`}
+    >
+      <h4 className={`${cs.text.label} mb-2 font-medium`}>{title} Figures</h4>
+      <dl className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2">
+        {figures.map(([label, value]) => (
+          <div key={label} className="min-w-0">
+            <dt className={cs.text.label}>{label}</dt>
+            <dd
+              className={`${value === 'Unknown' || value === 'Loading' ? cs.text.valueWarning : overloaded ? cs.text.valueNegative : cs.text.value} min-w-0 break-words`}
+            >
+              {value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      {!installed && (
+        <p className={`${cs.text.label} mt-2`}>No turret installed.</p>
+      )}
+      {overloaded && (
+        <p className={`${cs.text.valueNegative} mt-2 text-sm`}>
+          Mechanism allowance exceeded.
+        </p>
+      )}
+    </section>
+  );
+}
+
+export function VehicleTurretFigures({
+  isVTOL,
+}: {
+  isVTOL: boolean;
+}): React.ReactElement {
+  const unitType = useVehicleStore((s) => s.unitType);
+  const turret = useVehicleStore((s) => s.turret);
+  const secondaryTurret = useVehicleStore((s) => s.secondaryTurret);
+  const equipment = useVehicleStore((s) => s.equipment);
+  const isOmni = useVehicleStore((s) => s.isOmni);
+  const baseChassisTurretWeight = useVehicleStore(
+    (s) => s.baseChassisTurretWeight,
+  );
+  const baseChassisSecondaryTurretWeight = useVehicleStore(
+    (s) => s.baseChassisSecondaryTurretWeight,
+  );
+  const { isReady } = useEquipmentRegistry();
+  const lookup = getEquipmentLookupService();
+  const weights = computeVehicleMountedWeightBreakdown(
+    {
+      unitType,
+      turret,
+      secondaryTurret,
+      equipment,
+      isOmni,
+      baseChassisTurretWeight,
+      baseChassisSecondaryTurretWeight,
+    },
+    (id) => (isReady ? lookup.getById(id) : undefined),
+  );
+  return (
+    <div className="mt-4 min-w-0 space-y-3">
+      <TurretFigurePanel
+        title={isVTOL ? 'Chin Turret' : 'Primary Turret'}
+        installed={turret !== null}
+        mounted={weights.turretMounted}
+        equipment={weights.turretEquipment}
+        mechanism={weights.turret}
+        allowance={baseChassisTurretWeight}
+        isOmni={isOmni}
+        overloaded={weights.primaryAllowanceOverloaded}
+        isReady={isReady}
+      />
+      {!isVTOL && (
+        <TurretFigurePanel
+          title="Secondary Turret"
+          installed={secondaryTurret !== null}
+          mounted={weights.secondaryTurretMounted}
+          equipment={weights.secondaryTurretEquipment}
+          mechanism={weights.secondaryTurret}
+          allowance={baseChassisSecondaryTurretWeight}
+          isOmni={isOmni}
+          overloaded={weights.secondaryAllowanceOverloaded}
+          isReady={isReady}
+        />
+      )}
+    </div>
+  );
+}

@@ -313,7 +313,7 @@ The system SHALL provide turret configuration unique to the Vehicle unit type.
 
 - **WHEN** selecting a turret type other than None
 - **THEN** the system SHALL create a turret configuration with:
-  - `currentWeight`: 0 (initially empty)
+  - `type`: the selected turret type
   - `rotationArc`: 360°
 
 #### Scenario: Removing turret
@@ -328,6 +328,22 @@ The system SHALL provide turret configuration unique to the Vehicle unit type.
 - **THEN** no turret capacity error SHALL be reported, because a turret has no capacity of its own
   (pinned MegaMek `TestTank` and `TestSupportVehicle` define none)
 - **AND** the vehicle SHALL be invalid only when its total weight exceeds its tonnage
+
+#### Scenario: Saved turret configuration without cached mass
+
+- **WHEN** saving or reopening a turret with its type and rotation arc
+- **THEN** cached currentWeight SHALL NOT be required or synthesized when absent
+- **AND** independent installation and explicit Omni allowances SHALL remain intact
+- **AND** invalid live turret types or rotation arcs SHALL still be rejected
+
+#### Scenario: Retired cached turret mass API
+
+- **WHEN** creating, loading or editing a vehicle turret configuration
+- **THEN** its public configuration contract SHALL expose type and rotation arc without declaring currentWeight
+- **AND** neither the vehicle store nor its action module SHALL expose setTurretWeight or its implementation
+- **AND** obsolete cached weight in saved editor data SHALL be ignored without changing live turret facts or independent Omni allowances
+- **AND** type edits and imported secondary projection SHALL copy only live configuration facts, preserving rotation arc without carrying obsolete cached mass
+- **AND** resolved construction owners SHALL remain authoritative for mechanism and mounted mass
 
 ### Requirement: Vehicle Equipment Management
 
@@ -388,7 +404,8 @@ The system SHALL provide a tabbed customizer interface for vehicles.
 #### Scenario: Status bar
 
 - **WHEN** the vehicle customizer is open
-- **THEN** a status bar SHALL display: tonnage, weight free, movement (cruise/flank), armor allocated, turret equipment mass against the weight available to the turret (if applicable), equipment count
+- **THEN** a status bar SHALL display: tonnage, weight free, movement (cruise/flank), armor allocated, turret-mounted equipment mass (if applicable), equipment count
+- **AND** turret mass SHALL NOT use a capacity denominator
 - **AND** weight overages SHALL show in red
 - **AND** unallocated armor SHALL show in amber
 
@@ -398,6 +415,62 @@ The system SHALL provide a tabbed customizer interface for vehicles.
 - **THEN** a vehicle diagram sidebar SHALL show an SVG top-down view
 - **AND** the diagram SHALL display armor values per location color-coded by fill percentage
 - **AND** the diagram SHALL show motion-type-specific visual indicators (tracks, wheels, rotors)
+
+#### Scenario: Unavailable weight during catalog startup
+
+- **GIVEN** mounted definitions that are still awaiting catalog readiness
+- **WHEN** their dependent weight budget is unavailable
+- **THEN** Weight Free SHALL show Loading without a numeric fallback or percentage
+- **AND** after readiness, a still-unresolved budget SHALL show Unknown
+- **AND** invalid source mass without catalog-dependent mounts SHALL remain Unknown rather than Loading
+- **AND** empty loads and resolved zero masses SHALL retain known numeric budgets
+
+#### Scenario: Reactive independent construction context
+
+- **GIVEN** Omni identity, independent primary/secondary allowances, explicit secondary installation and structural tech context
+- **WHEN** those source facts change in the store
+- **THEN** the status bar SHALL recompute through the existing owners with every applicable field, retaining explicit zero
+- **AND** validation SHALL receive the actual secondary type and both raw allowances
+- **AND** changing raw allowance overload at the same rounded charge SHALL update validity without inventing a weight change
+
+#### Scenario: Incomplete validation status retains known errors
+
+- **GIVEN** incomplete represented mass
+- **WHEN** validation has no known independent errors
+- **THEN** the bar SHALL show Incomplete, or Loading while waiting for mounted definitions, rather than OK or a misleading zero-error certification
+- **AND** known independent errors SHALL retain their count, rule identifier and error colour
+
+#### Scenario: Numeric and unavailable status colours
+
+- **GIVEN** compact or normal status presentation
+- **WHEN** mass is unavailable
+- **THEN** its status SHALL use the existing warning colour
+- **AND** known overweight budgets SHALL retain error colour and a real balanced zero SHALL retain success status
+- **AND** mounted turret mass SHALL keep units and SHALL NOT regain a capacity denominator
+
+#### Scenario: Independent resolved turret figures
+
+- **WHEN** viewing the decomposed Turret tab
+- **THEN** primary and secondary panels SHALL display mounted equipment, qualifying non-ammunition equipment and charged mechanism weight from the existing construction owner
+- **AND** VTOLs SHALL display the chin panel without a secondary panel
+- **AND** each Omni allowance SHALL retain its explicit raw value, including zero, fractional and negative source values, independently of installation
+- **AND** absent installed turrets SHALL NOT hide known assigned charges
+- **AND** no capacity bar or denominator SHALL be displayed
+
+#### Scenario: Unavailable independent turret figures
+
+- **WHEN** an individual mounted or qualifying figure awaits catalog readiness
+- **THEN** that dependent unavailable figure SHALL show Loading, then Unknown if unresolved after readiness
+- **AND** independently known figures, empty-load zero and known assigned charges SHALL remain numeric
+- **AND** invalid source allowances SHALL show Unknown rather than a numeric fallback
+- **AND** editing source context or equipment SHALL recompute the displayed figures
+
+#### Scenario: Turret figure colours and responsive rendering
+
+- **WHEN** turret figures render at narrow or wide widths
+- **THEN** labels SHALL use Title Case and sentences SHALL use sentence case
+- **AND** unavailable figures SHALL keep warning colour and independent known allowance overloads SHALL keep error colour
+- **AND** panels SHALL remain readable without horizontal overflow
 
 ## ADDED Requirements
 
@@ -640,3 +713,57 @@ Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 - **THEN** its store SHALL contain cruise 5 and flank 8
 - **AND** a later cruise edit to 3 SHALL update flank to 5
 - **AND** no generated catalog regeneration SHALL be required
+
+### Requirement: Unavailable mounted vehicle weight composition
+
+The mounted-weight owner SHALL resolve each mounted instance once and compose only quantities with known finite nonnegative inputs. It SHALL report unresolved or invalid instance IDs, retain zero as a known mass, and preserve the existing primary-flag, secondary-location, ammunition and amplifier classification owners. Unknown mass SHALL NOT become zero. Separate groups SHALL remain independently available. Full composition SHALL use the existing engine, support chassis, controls, lift and armor owners and the explicit Omni mechanism owner; it SHALL NOT introduce a turret capacity denominator or a substitute support total.
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`, `TestTank.java:178-226,237-239,841-888`. Retained projected Java mass/classification fixtures establish mechanism terms only; they do not establish complete source, armor-mount, amplifier-identity or BV parity.
+
+#### Scenario: Missing and invalid instances preserve other groups
+
+- **GIVEN** known primary mounts and an unresolved, negative or nonfinite secondary mount
+- **WHEN** mounted mass is composed
+- **THEN** total equipment, secondary mounted/mechanism basis and dependent ordinary secondary mechanism mass SHALL be null
+- **AND** known primary quantities SHALL remain available
+- **AND** unresolved IDs SHALL identify mounted instances independently even when they share one definition
+
+#### Scenario: Ammunition and known classification remain independent
+
+- **GIVEN** an ammunition definition whose mass is invalid
+- **WHEN** grouped quantities are computed
+- **THEN** its mounted and total equipment mass SHALL be unavailable without poisoning the non-ammunition mechanism basis
+- **AND** a known non-energy classification SHALL NOT make amplifier basis unknown merely because its mass is invalid
+- **AND** an unresolved definition SHALL keep its possible amplifier contribution unknown
+
+#### Scenario: Empty, zero and overflowing groups
+
+- **GIVEN** an empty group or resolved zero-weight mount
+- **WHEN** its group is summed
+- **THEN** the quantity SHALL be known zero
+- **AND** finite inputs whose sum overflows SHALL produce null with a diagnostic instead of a nonfinite quantity
+
+#### Scenario: Independent Omni context reaches composition
+
+- **GIVEN** independent explicit primary and secondary Omni allowances
+- **WHEN** mounted and full weights are composed
+- **THEN** each SHALL use the existing assigned/required mechanism owner without reading legacy capacity or usage estimates
+- **AND** an assigned charge SHALL remain known while its required-basis overload is unknown
+- **AND** absent turrets SHALL retain explicit nonnegative charges without being installed
+
+#### Scenario: Amplifier and remaining budgets remain unavailable
+
+- **GIVEN** unavailable equipment, mechanism or required amplifier mass, or an invalid declared amplifier floor
+- **WHEN** the full weight budget is calculated
+- **THEN** dependent remaining mass SHALL be null and full calculation completeness false
+- **AND** a declared amplifier floor SHALL NOT certify an unknown required contribution
+- **AND** an engine that needs no amplifier SHALL retain a known amplifier term when its unrelated energy basis is unknown
+- **AND** valid resolved inputs SHALL retain their existing numerical results, including negative overweight budgets
+
+#### Scenario: Completeness reaches validation and the status boundary
+
+- **GIVEN** an unavailable or nonfinite remaining budget
+- **WHEN** its result reaches construction validation and the existing status consumer
+- **THEN** validation SHALL remain incomplete and invalid while retaining known independent errors
+- **AND** the status boundary SHALL display an unavailable value without arithmetic on null, a false zero, or a synthetic turret capacity denominator
+- **AND** resolved input figures SHALL retain their existing numerical values

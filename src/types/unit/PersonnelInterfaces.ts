@@ -388,6 +388,9 @@ export interface IProtoMech extends ISquadUnit {
   /** Armor per location */
   readonly armorByLocation: Record<ProtoMechLocation, number>;
 
+  /** Native BLK armor identity; omitted on legacy records. */
+  readonly armorType?: number;
+
   /** Internal structure per location */
   readonly structureByLocation: Record<ProtoMechLocation, number>;
 

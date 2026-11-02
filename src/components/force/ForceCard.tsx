@@ -19,6 +19,8 @@ import {
   getForceTypeName,
 } from '@/types/force';
 
+import { ForceStatsCompleteness } from './ForceStatsCompleteness';
+
 // =============================================================================
 // Types
 // =============================================================================
@@ -146,6 +148,7 @@ export function ForceCard({
           )}
 
           {/* Stats row */}
+          <ForceStatsCompleteness stats={stats} />
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-1">
               <span className="text-text-theme-muted">BV:</span>

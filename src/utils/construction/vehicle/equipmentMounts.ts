@@ -88,9 +88,11 @@ export function getPrimaryVehicleTurretConfiguration(
   chinTurret = false,
 ): ITurretConfiguration | undefined {
   const type = getPrimaryVehicleTurretType(
-    Object.keys(source.equipmentByLocation).filter(
-      (location) => source.equipmentByLocation[location]?.length > 0,
-    ),
+    Object.keys(source.equipmentByLocation)
+      .filter((location) => source.equipmentByLocation[location]?.length > 0)
+      .map((location) =>
+        chinTurret && location === 'Chin' ? 'Turret' : location,
+      ),
     explicitType,
     {
       hasTurret: layoutArmor?.[VehicleLocation.TURRET] !== undefined,
@@ -100,9 +102,18 @@ export function getPrimaryVehicleTurretConfiguration(
   if (type === undefined) return undefined;
   return {
     type: chinTurret ? TurretType.CHIN : type,
-    currentWeight: 0,
     rotationArc: chinTurret ? 180 : 360,
   };
+}
+
+/** Only an accepted second armor slot installs a separate secondary turret. */
+export function getSecondaryVehicleTurretConfiguration(
+  primary: ITurretConfiguration | undefined,
+  layoutArmor?: Readonly<Record<string, number>>,
+): ITurretConfiguration | undefined {
+  return primary && layoutArmor?.[VehicleLocation.TURRET_2] !== undefined
+    ? { type: TurretType.SINGLE, rotationArc: primary.rotationArc }
+    : undefined;
 }
 
 // =============================================================================

@@ -37,6 +37,7 @@ const catalog: Partial<Record<string, IEquipmentItem>> = {
   'body-energy': item('body-energy', 4, C.ENERGY_WEAPON),
   chemical: item('chemical', 0.1, C.ENERGY_WEAPON, ['Requires ammo']),
   zero: item('zero', 0, C.ENERGY_WEAPON),
+  missing: item('resolved zero-mass placeholder', 0, C.ENERGY_WEAPON),
 };
 const mount = (
   equipmentId: string,
@@ -70,7 +71,7 @@ const base = {
   engineType: EngineType.ICE,
   powerAmpWeight: 0,
 };
-const turret = { type: TurretType.SINGLE, currentWeight: 0, rotationArc: 360 };
+const turret = { type: TurretType.SINGLE, rotationArc: 360 };
 
 it('keeps mount flags, secondary location, ammunition and amplifier eligibility distinct', () => {
   const calls: string[] = [];
@@ -105,6 +106,8 @@ it('keeps mount flags, secondary location, ammunition and amplifier eligibility 
     { ...base, equipment: [], turret, secondaryTurret: turret },
     () => undefined,
   );
+  if (empty.remaining === null)
+    throw new Error('resolved characterization budget unavailable');
   expect(result.remaining).toBeCloseTo(empty.remaining - 13.6, 12);
 });
 
@@ -124,7 +127,7 @@ it('groups equipment even when neither turret is installed, without charging mec
   });
 });
 
-it('keeps unresolved equipment at zero and retains a declared amplifier floor', () => {
+it('keeps unresolved equipment unknown despite a declared amplifier floor', () => {
   expect(
     computeVehicleWeightBreakdown(
       {
@@ -137,14 +140,16 @@ it('keeps unresolved equipment at zero and retains a declared amplifier floor', 
       () => undefined,
     ),
   ).toMatchObject({
-    equipment: 0,
-    turretEquipment: 0,
-    secondaryTurretEquipment: 0,
-    turretMounted: 0,
-    energyWeapons: 0,
-    turret: 0,
-    secondaryTurret: 0,
-    powerAmplifiers: 2,
+    equipment: null,
+    turretEquipment: null,
+    secondaryTurretEquipment: null,
+    turretMounted: null,
+    energyWeapons: null,
+    turret: null,
+    secondaryTurret: null,
+    powerAmplifiers: null,
+    remaining: null,
+    isComplete: false,
   });
 });
 

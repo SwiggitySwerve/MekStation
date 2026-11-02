@@ -1,10 +1,12 @@
+import { adaptUnitFromData } from '@/engine/adapters/CompendiumAdapter';
+import { parseUnitReference } from '@/types/unit/UnitIndex';
 import { calculateUnitBV } from '@/utils/construction/bvAdapter';
 
 import { getNodeCanonicalUnitService } from '../units/NodeCanonicalUnitService';
 import { setForceRepositoryCanonicalStatsResolver } from './ForceRepository';
 import {
-  type CalculatedUnitStats,
   type CanonicalUnitStatsResolver,
+  missingUnitStats,
 } from './ForceRepository.helpers';
 
 function assertServerRuntime(): void {
@@ -22,22 +24,31 @@ function assertServerRuntime(): void {
 
 export const resolveNodeCanonicalUnitStats: CanonicalUnitStatsResolver = (
   unitId: string,
-): CalculatedUnitStats | null => {
+) => {
   assertServerRuntime();
-  const entry = getNodeCanonicalUnitService()
-    .getIndexSync()
-    .find((unit) => unit.id === unitId);
+  const reference = parseUnitReference(unitId);
+  const catalog = getNodeCanonicalUnitService();
+  const index = reference.family
+    ? catalog.getIndexSync({ family: reference.family })
+    : catalog.getIndexSync();
+  const entry = index.find((unit) => unit.id === reference.id);
 
   if (!entry) {
-    return null;
+    return missingUnitStats(unitId);
   }
 
   const unit = getNodeCanonicalUnitService().getByIdSync(unitId);
-  if (!unit) throw new Error(`Cannot load canonical unit for BV: ${unitId}`);
+  if (!unit) return missingUnitStats(unitId);
 
+  // Non-mech contracts need the same construction projection as combat.
+  const bv =
+    reference.family && reference.family !== 'battlemechs'
+      ? adaptUnitFromData(unit, { family: reference.family }).bv
+      : calculateUnitBV(unit);
+  if (bv === undefined)
+    throw new Error(`Force BV is unavailable for ${unitId}`);
   return {
-    // The canonical loader validates the bundled JSON at its I/O boundary.
-    bv: calculateUnitBV(unit),
+    bv,
     tonnage: entry.tonnage,
   };
 };

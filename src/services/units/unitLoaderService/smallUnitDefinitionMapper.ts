@@ -31,6 +31,11 @@ import {
   ManipulatorType,
 } from '@/types/unit/PersonnelInterfaces';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
+import {
+  battleArmorEditorSchema,
+  protoMechEditorSchema,
+  renewSmallUnitMounts,
+} from '@/types/unit/SmallUnitSerialization';
 import { mapBattleArmorContractArmor } from '@/utils/construction/battlearmor/battleArmorBVAdapter';
 import { parseBattleArmorManipulator } from '@/utils/construction/battlearmor/manipulators';
 import {
@@ -43,6 +48,11 @@ import {
 
 import { mapRulesLevel, mapTechBase } from './componentMappers';
 import { UnsupportedUnitConfigurationError } from './movementConfiguration';
+
+export const PROTO_ARMOR_CODES = {
+  STANDARD_PROTOMEK: 42,
+  ELECTRIC_DISCHARGE: 18,
+} as const;
 
 function enumValue<T extends string>(
   values: Record<string, T>,
@@ -88,6 +98,14 @@ function identity(definition: IUnitContract) {
 export function mapProtoMechDefinitionToState(
   definition: IUnitContract,
 ): ProtoMechState {
+  if (definition.smallUnitEditor !== undefined) {
+    const editor = protoMechEditorSchema.parse(definition.smallUnitEditor);
+    const state = { ...createDefaultProtoMechState(), ...editor };
+    return {
+      ...state,
+      equipment: renewSmallUnitMounts(editor.equipment, state.id),
+    };
+  }
   const source = z
     .object({
       tonnage: z.number(),
@@ -95,7 +113,9 @@ export function mapProtoMechDefinitionToState(
       isGlider: z.boolean(),
       hasMainGun: z.boolean(),
       armor: z.object({
-        type: z.enum(['STANDARD_PROTOMEK', 'ELECTRIC_DISCHARGE']),
+        type: z.enum(
+          Object.keys(PROTO_ARMOR_CODES) as (keyof typeof PROTO_ARMOR_CODES)[],
+        ),
         byLocation: z.record(z.string(), z.number()),
       }),
       movement: z.object({ cruiseMP: z.number(), jumpMP: z.number() }),
@@ -155,7 +175,7 @@ export function mapProtoMechDefinitionToState(
     )?.equipmentId,
     hasMyomerBooster,
     hasMagneticClamps: equipment.some((e) => e.name === 'ProtoMagneticClamp'),
-    armorType: source.armor.type === 'ELECTRIC_DISCHARGE' ? 18 : 42,
+    armorType: PROTO_ARMOR_CODES[source.armor.type],
     armorByLocation: {
       ...state.armorByLocation,
       ...Object.fromEntries(
@@ -171,6 +191,7 @@ export function mapProtoMechDefinitionToState(
       source.hasMainGun,
     ),
     equipment,
+    librarySource: definition,
   };
 }
 
@@ -178,6 +199,14 @@ export function mapProtoMechDefinitionToState(
 export function mapBattleArmorDefinitionToState(
   definition: IUnitContract,
 ): BattleArmorState {
+  if (definition.smallUnitEditor !== undefined) {
+    const editor = battleArmorEditorSchema.parse(definition.smallUnitEditor);
+    const state = { ...createDefaultBattleArmorState(), ...editor };
+    return {
+      ...state,
+      equipment: renewSmallUnitMounts(editor.equipment, state.id),
+    };
+  }
   const source = z
     .object({
       squadSize: z.number().int().positive(),
@@ -268,5 +297,6 @@ export function mapBattleArmorDefinitionToState(
     hasMimeticArmor: baArmorType === BAArmorType.MIMETIC,
     hasFireResistantArmor: baArmorType === BAArmorType.FIRE_RESISTANT,
     equipment,
+    librarySource: definition,
   };
 }

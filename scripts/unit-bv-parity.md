@@ -35,3 +35,28 @@ invalid, unsupported, unjoined and incomplete results, which have separate count
 Exit zero requires every expected family, complete hash joins, valid figures,
 exact totals and matching aggregates. Every gap exits one. Sorted JSON/JSONL
 reports contain no timestamps and are byte deterministic for the same inputs.
+
+Add `--per-term` to the Java exporter and comparator to include unrounded
+stage terms. The exporter generates read-only calculator subclasses in the
+external output directory; it never patches MegaMek. Reference identity includes
+the stage definition, generator, generated Java, compiled probes and pinned
+runtime manifests. `reconstruction.json` lists failures and supported counts.
+Capital probes replace their identity-keyed weapon HashMap with a LinkedHashMap
+in the probe instance only, preserving source order for reproducible sums.
+Per-term aggregates use those probe sums after checking the untouched calculator
+within `1e-12` relative tolerance; integer totals must match exactly.
+The bounded first slice covers mechs, vehicles, aerospace and capital ships;
+BA, infantry and ProtoMeks carry `termsUnsupported` and cannot pass term mode.
+
+Each supported row reconstructs defense, offense, base BV, adjustment and rounded
+total, and the probe independently checks the normal calculator's aggregates.
+Structure includes gyro; defensive equipment includes armored components;
+weapon BV is heat-adjusted and excludes arc ammo. Detail keys preserve weapon
+location/type totals and available/capped ammo groups, plus capital arc ammo.
+Neutral factors on zero pools are recorded as one (speed uses Java's factor).
+
+Term mode compares required stages in calculation order, then every oracle
+detail key in sorted order, reporting `firstTermDifference`. Missing or nonfinite
+values fail, even when totals match. Existing MekStation breakdowns expose only
+some terms; those omissions remain failures rather than inferred neutral values.
+Aggregate mode remains available without the flag.

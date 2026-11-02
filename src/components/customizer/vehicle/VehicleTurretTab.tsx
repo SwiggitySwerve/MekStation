@@ -20,6 +20,7 @@ import {
 } from '@/types/unit/VehicleInterfaces';
 
 import { customizerStyles as cs } from '../styles';
+import { VehicleTurretFigures } from './VehicleTurretFigures';
 
 interface VehicleTurretTabProps {
   /** Read-only mode */
@@ -51,6 +52,7 @@ type SecondaryProps = {
   secondaryTurretTypeOptions: TurretOption[];
 };
 type ConfigProps = SecondaryProps & {
+  isVTOL: boolean;
   canHaveSecondaryTurret: boolean;
   onTurretTypeChange: SelectHandler;
   stats: TurretStats;
@@ -204,13 +206,16 @@ function TurretWeightInfo() {
       <p className="text-text-theme-primary mb-1 font-medium">Turret Weight</p>
       <p>
         A turret is limited only by the vehicle&apos;s available weight. The
-        turret itself weighs 10% of the equipment it carries.
+        mechanism uses qualifying equipment, excluding ammunition, rounded up to
+        half a ton for each turret. Explicit Omni allowances charge
+        independently; negative source values are unassigned.
       </p>
     </div>
   );
 }
 
 function TurretConfigurationSection({
+  isVTOL,
   canHaveSecondaryTurret,
   hasSecondaryTurret,
   onSecondaryTurretToggle,
@@ -263,6 +268,7 @@ function TurretConfigurationSection({
           </p>
         </div>
       )}
+      <VehicleTurretFigures isVTOL={isVTOL} />
     </section>
   );
 }
@@ -399,6 +405,7 @@ export function VehicleTurretTab({
     <div className={`${cs.panel.main} ${className}`}>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <TurretConfigurationSection
+          isVTOL={isVTOL}
           canHaveSecondaryTurret={!isVTOL && hasTurret}
           hasSecondaryTurret={hasSecondaryTurret}
           onSecondaryTurretToggle={handleSecondaryTurretToggle}

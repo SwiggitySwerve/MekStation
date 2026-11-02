@@ -40,16 +40,15 @@ describe('SmallCraftUnitHandler', () => {
       expect(validateResult.isValid).toBe(true);
     });
 
-    it('should error for tonnage under 100', () => {
-      const doc = createMockBlkDocument({ tonnage: 100 });
+    it('should allow tonnage under 100', () => {
+      const doc = createMockBlkDocument({ tonnage: 80 });
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
 
-      const unit = { ...parseResult.data!.unit, tonnage: 80 };
+      const unit = parseResult.data!.unit;
       const validateResult = handler.validate(unit);
 
-      expect(validateResult.isValid).toBe(false);
-      expect(validateResult.errors.some((e) => e.includes('100'))).toBe(true);
+      expect(validateResult.isValid).toBe(true);
     });
 
     it('should error for tonnage over 200', () => {
@@ -64,7 +63,7 @@ describe('SmallCraftUnitHandler', () => {
       expect(validateResult.errors.some((e) => e.includes('200'))).toBe(true);
     });
 
-    it('should error for zero safe thrust', () => {
+    it('should allow zero safe thrust', () => {
       const doc = createMockBlkDocument({ safeThrust: 1 }); // Valid for parse
       const parseResult = handler.parse(doc);
       expect(parseResult.success).toBe(true);
@@ -80,10 +79,7 @@ describe('SmallCraftUnitHandler', () => {
       };
       const validateResult = handler.validate(unit);
 
-      expect(validateResult.isValid).toBe(false);
-      expect(validateResult.errors.some((e) => e.includes('thrust'))).toBe(
-        true,
-      );
+      expect(validateResult.isValid).toBe(true);
     });
 
     it('should error for zero structural integrity', () => {

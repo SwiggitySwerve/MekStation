@@ -11,6 +11,7 @@
 
 import { useMemo, useState } from 'react';
 
+import type { UnitFamily } from '@/types/unit/UnitIndex';
 import type { ISkirmishUnitSelection } from '@/utils/gameplay/preBattleSessionBuilder';
 
 import { Badge, Card } from '@/components/ui';
@@ -58,7 +59,8 @@ export function UnitPicker({
   const accentClass = isOpponent
     ? 'border-red-500/30 text-red-400'
     : 'border-cyan-500/30 text-cyan-400';
-  const { catalog, isLoading, loadError } = useCanonicalUnitCatalog();
+  const [family, setFamily] = useState<UnitFamily>('battlemechs');
+  const { catalog, isLoading, loadError } = useCanonicalUnitCatalog(family);
   const [searchQuery, setSearchQuery] = useState('');
   const [tonnageFilter, setTonnageFilter] = useState<TonnageFilter>('all');
   const filteredCatalog = useMemo(
@@ -95,6 +97,8 @@ export function UnitPicker({
           onRemove={onRemove}
         />
         <CatalogPicker
+          family={family}
+          setFamily={setFamily}
           side={side}
           title={title}
           searchQuery={searchQuery}
