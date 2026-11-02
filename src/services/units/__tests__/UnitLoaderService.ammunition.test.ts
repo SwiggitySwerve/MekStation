@@ -341,6 +341,7 @@ describe('BattleMech BV source parity', () => {
   // Pinned Java MekBVCalculator; both aggregates are checked before rounding.
   it.each([
     ['urbanmech-lam-s-um-1xla', 1899, 696.75, 1301.7375],
+    ['urbanmech-lam-um-a07', 802, 494.25, 308.07],
     ['phoenix-hawk-lam-mk-i-phx-hk1', 1942, 751.2, 1191],
     ['phoenix-hawk-lam-mk-i-phx-hk1r', 1858, 799.2, 1059],
     ['phoenix-hawk-lam-phx-hk1rb', 1800, 783.2, 1017],

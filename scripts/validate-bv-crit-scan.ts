@@ -427,7 +427,9 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
           lo.includes('extended fuel tank') ||
           lo.includes('extendedfueltank') ||
           // Pinned MiscType.createLAMBombBay: each one-slot bay is explosive.
-          lo === 'bomb bay'
+          lo === 'bomb bay' ||
+          // Pinned MiscType.createLAMFuelTank is explosive as well.
+          lo === 'lam fuel tank'
         ) {
           if (ml)
             r.explosive.push({
