@@ -262,7 +262,9 @@ function runGenerator() {
       '--write',
       `${root}/official/index.json`,
       `${root}/name-mappings.json`,
-      `${root}/official/**/java-registry.json`,
+      ...['weapons', 'ammunition', 'miscellaneous'].map(
+        (kind) => `${root}/official/${kind}/java-registry.json`,
+      ),
       'scripts/equipment-catalog/*.json',
     ],
     { stdio: 'inherit', windowsHide: true },
