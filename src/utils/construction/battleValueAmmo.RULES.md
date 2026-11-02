@@ -34,3 +34,9 @@ BV=1 groups; it does not calculate this cap. Its normalization and Set-based
 deduplication remain unchanged.
 No source admission, catalog, serialization, stored cache or numerical rule changes
 are made by the extraction. Full source-ammunition and BV parity remain open.
+
+Catalog family derivation (`extractWeaponTypeFromAmmoId`) and live weapon-key
+normalization also belong to this owner. Remove a terminal bin-size suffix
+before the ammunition suffix; physical bin size does not change its cap family.
+Catalog BV, half-ton scaling, one-shot exclusions and CASE rules remain unchanged.
+The historical audit keeps its separately documented normalization policy.

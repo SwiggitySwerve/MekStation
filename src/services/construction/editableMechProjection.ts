@@ -15,6 +15,7 @@ import type {
   IArmorAllocation as IEditableArmorAllocation,
 } from './MechBuilderService';
 
+import { deriveEffectiveConfiguration } from '../../../scripts/validate-bv-calculator-setup';
 import { toMechLoc } from '../../../scripts/validate-bv-normalizers';
 import { extractJumpMP } from './CalculationService.calculations';
 
@@ -192,9 +193,17 @@ export function buildEditableMechBVInput(mech: IEditableMech): UnitData {
     }
   }
   const a = mech.armorAllocation;
+  const effectiveConfiguration =
+    source?.configuration === mech.configuration
+      ? deriveEffectiveConfiguration(
+          mech.configuration,
+          '',
+          Object.keys(source?.armor?.allocation ?? {}),
+        )
+      : mech.configuration;
   const quad =
-    mech.configuration === MechConfiguration.QUAD ||
-    mech.configuration === MechConfiguration.QUADVEE;
+    effectiveConfiguration === MechConfiguration.QUAD ||
+    effectiveConfiguration === MechConfiguration.QUADVEE;
   const allocation: UnitData['armor']['allocation'] = {
     HEAD: a.head,
     CENTER_TORSO: { front: a.centerTorso, rear: a.centerTorsoRear },
