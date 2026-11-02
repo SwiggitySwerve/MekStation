@@ -291,6 +291,26 @@ the real Warhammer inventory and its retained 70-ton construction.
 
 ## Converted mount qualifiers
 
+Native bay prefixes `(B)` and converted `b-` are mount grouping metadata,
+like rear prefixes. Preserve an exact catalog identity before stripping them.
+BA location suffixes `:Body`, `:LA`, `:RA`, `:TU` and mount markers `:APM`,
+`:DWP`, `:SSWM` likewise do not change EquipmentType identity. A terminal
+`:Shots<nonnegative integer>#` describes ammunition quantity; ProtoMech ammo
+may instead end in ` (<nonnegative integer>)`, and capital ammo in `:<quantity>`.
+Parse these without applying
+quantity to catalog BV or mass. Malformed quantities remain unresolved.
+
+Sources at MegaMek `48fcb2f64`: `BLKDropShipFile.java:289-302`,
+`BLKBattleArmorFile.java:215-236`, `BLKFile.java:280-287`, and
+`BLKProtoMekFile.java:198-214`. `equipmentBVResolver.sourceAliases` enforces
+the qualifiers, exact variant selection, and absent-variant guards.
+The exact Vehicle Flamer catalog identity is `vehicle-flamer` (BV 5,
+0.5 tons); see `ISVehicleFlamer.java:59-65`. Migrating the legacy converted
+alias and unresolved native names requires BV-consumer reconciliation first:
+the pinned corpus exposed 15 lost exact totals during that migration.
+Preserve represented aliases before sponson suffix stripping as well; an
+infantry `myomer,-vest` alias must retain its terminal `st`.
+
 For compatibility lookup, terminal `:SIZE:<nonnegative decimal>` and `:OMNI`
 segments describe a mount, not its EquipmentType name. Remove the terminal
 chain before lookup, preserving an exact catalog ID first. Check the base ID
@@ -301,9 +321,8 @@ resolver's contract. Malformed sizes and missing base types stay unresolved.
 
 The existing alias owner covers the pinned MiscType/EquipmentTypeLookup names
 HeavyBridgeLayer, Hitch, PintleTurret, SponsonTurret and Tank Sprayer, plus
-converted `mek-taser`. Only the converted AP Gauss ammo slug gains the native
-`apgaussrifle` ammunition identity. The canonical Mech spelling
-`CLAPGaussRifle Ammo` retains its previous unresolved result, as required by
-this lane's unchanged Mech contract. This does not claim native Mech ammo
-parity. Focused qualifier tests and the unchanged canonical ammo suites enforce
-that boundary; the complete committed Mech token comparison is local evidence.
+converted `mek-taser`. Native `CLAPGaussRifle Ammo` and its converted slug
+share the registered `apgaussrifle` ammunition identity, including counted
+ProtoMech bins. Both spellings live in the alias table; quantity parsing does
+not define another identity rule. Focused qualifier tests enforce the shared
+identity, and the pinned corpus comparison checks Mech BV regression.
