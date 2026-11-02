@@ -1,0 +1,42 @@
+{
+  "id": "clan-foot-point-laser-marine",
+  "chassis": "Clan Foot Point",
+  "model": "(Laser Marine)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2807,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 5,
+    "totalTroopers": 25
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle",
+    "name": "Laser Rifle"
+  },
+  "armorKit": "Environment Suit, Marine",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "environment-suit,-marine",
+      "name": "Environment Suit, Marine",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["spacesuit"],
+  "effectiveArmorFlags": ["spacesuit"],
+  "specializations": 64,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Despite the low regard most Clans hold for conventional infantry, these formations benefit from incidental access to Clan technology that makes even a disaffected garrison Point a match for its Inner Sphere equivalent. Foot Points are the most basic infantry formation, deployed on foot without transport. Slow and vulnerable in open terrain, they are best suited to garrison duty, facility security, and defensive positions where their lack of mobility is less of a liability. Fitted with marine environment suits and armed with laser rifles, these warriors can fight effectively in zero-gravity and vacuum conditions, providing shipboard security and boarding defense.</p>"
+  }
+}

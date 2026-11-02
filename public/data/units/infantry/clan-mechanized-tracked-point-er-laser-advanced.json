@@ -1,0 +1,42 @@
+{
+  "id": "clan-mechanized-tracked-point-er-laser-advanced",
+  "chassis": "Clan Mechanized Tracked Point",
+  "model": "(ER Laser Advanced)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2845,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-er",
+    "name": "Laser Rifle (ER)"
+  },
+  "armorKit": "Clan Armor Kit (All)",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "clan-armor-kit-all",
+      "name": "Clan Armor Kit (All)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Clan doctrine generally treats conventional infantry as a necessary evil, though Clans like Hell's Horses have demonstrated that properly supported infantry can be an effective component of combined-arms operations. Mechanized Tracked Points travel in tracked armored personnel carriers that offer all-terrain capability at the cost of speed. Tracked vehicles handle rough ground, mud, and snow better than wheeled alternatives, making these Points reliable in difficult terrain where faster formations would bog down. Carrying extended-range laser rifles that push engagement distances well beyond standard models, these Points can engage targets at ranges where conventional ballistic infantry cannot effectively respond.</p>"
+  }
+}

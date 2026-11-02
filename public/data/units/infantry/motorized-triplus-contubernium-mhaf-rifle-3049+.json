@@ -1,0 +1,42 @@
+{
+  "id": "motorized-triplus-contubernium-mhaf-rifle-3049+",
+  "chassis": "Motorized Triplus Contubernium (MHAF)",
+  "model": "(Rifle 3049+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3049,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 10,
+    "squadCount": 3,
+    "totalTroopers": 30
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Marian Hegemony Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "marian-hegemony-infantry-kit",
+      "name": "Marian Hegemony Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Infantry within the Legiones Marianes form the backbone of planetary garrison and territorial defense, freeing the Hegemony's limited BattleMech assets for offensive operations and prestige assignments. A triplus contubernium, or triple tent-group, combines three squads of ten soldiers mounted on light vehicles. Motorized triplus contubernia provide fast-moving infantry support for Marian armored columns and conduct sweeps across open terrain where foot infantry cannot keep pace. Armed with standard ballistic assault rifles, the most common and affordable infantry weapon available, these formations deliver reliable short-range firepower and can be equipped and resupplied from almost any garrison stockpile.</p>"
+  }
+}

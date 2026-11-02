@@ -1,0 +1,124 @@
+{
+  "id": "field-gun-platoon-fwlm-motorized-ac2-3035+",
+  "chassis": "Field Gun Platoon (FWLM)",
+  "model": "(Motorized AC2 3035+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3030,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Free Worlds League Infantry Kit (3035+)",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "free-worlds-league-infantry-kit-3035+",
+      "name": "Free Worlds League Infantry Kit (3035+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2"
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2"
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2"
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2"
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2"
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2"
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2"
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>New technology and creative tactical thinking have long featured in FWLM infantry deployment, with varied unit types and specialized formations treated as the norm rather than the exception. Towing crew-served autocannon/2 field guns, these platoons provide long-range direct fire support that supplements a formation's organic firepower. The light caliber offers sustained suppressive fire at extended range, though stopping power against armored targets is limited.</p>"
+  }
+}

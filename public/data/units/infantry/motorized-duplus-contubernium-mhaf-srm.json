@@ -1,0 +1,47 @@
+{
+  "id": "motorized-duplus-contubernium-mhaf-srm",
+  "chassis": "Motorized Duplus Contubernium (MHAF)",
+  "model": "(SRM)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2920,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 10,
+    "squadCount": 2,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryheavysrm",
+    "name": "InfantryHeavySRM",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Marian Hegemony Armed Forces organize their conventional infantry along Roman legionary lines, with formations structured into contubernia, centuries, and cohorts rather than the squads and platoons used by Inner Sphere armies. A duplus contubernium, or double tent-group, fields two squads of ten soldiers. Motorized duplus contubernia use light vehicles for rapid deployment across Hegemony worlds, trading the staying power of heavier mechanized transport for speed and operational reach on patrol and screening duties. Support elements carry man-portable short-range missile launchers firing the same warheads used by BattleMechs, giving the formation a potent anti-armor punch at close range.</p>"
+  }
+}

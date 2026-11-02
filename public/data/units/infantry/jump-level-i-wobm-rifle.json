@@ -1,0 +1,50 @@
+{
+  "id": "jump-level-i-wobm-rifle",
+  "chassis": "Jump Level I (WOBM)",
+  "model": "(Rifle)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3053,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 5,
+    "totalTroopers": 30
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Word of Blake Infantry Kit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "word-of-blake-infantry-kit",
+      "name": "Word of Blake Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 7021,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Word of Blake Militia infantry served as the backbone of Protectorate garrison forces across dozens of conquered worlds, providing the manpower for territorial control that the Militia's BattleMech and armor assets could not sustain alone. Jump infantry Level I formations gave Militia commanders a vertical mobility option for operations in dense urban environments, where the ability to bypass barricades and reach elevated positions provided tactical flexibility against insurgent forces resisting Protectorate authority. Armed with standard ballistic assault rifles, the most common and affordable infantry weapon in the Inner Sphere, these troops deliver reliable short-range firepower and can be equipped and resupplied from almost any garrison stockpile.</p>"
+  }
+}

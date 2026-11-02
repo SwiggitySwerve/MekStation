@@ -1,0 +1,50 @@
+{
+  "id": "motorized-demi-i-comguards-rifle",
+  "chassis": "Motorized demi-I (ComGuards)",
+  "model": "(Rifle)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2933,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 3,
+    "totalTroopers": 18
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "ComStar Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "comstar-infantry-kit",
+      "name": "ComStar Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 7118,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Under the reforms of Precentor Martial Anastasius Focht, Com Guard infantry train extensively in combined-arms cooperation, conducting regular exercises alongside heavier elements to ensure seamless coordination across all branches when battle demands it. Motorized Level I formations use light vehicles to achieve rapid redeployment between positions, trading the armor protection of mechanized transports for greater speed and lower logistical burden. These formations excel at screening operations and can cover more ground than foot infantry during extended patrol assignments. Armed with standard ballistic assault rifles, the most common and affordable infantry weapon in the Inner Sphere, these troops deliver reliable short-range firepower and can be equipped and resupplied from almost any garrison stockpile.</p>"
+  }
+}

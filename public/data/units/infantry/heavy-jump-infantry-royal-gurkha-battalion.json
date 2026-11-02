@@ -1,0 +1,49 @@
+{
+  "id": "heavy-jump-infantry-royal-gurkha-battalion",
+  "chassis": "Heavy Jump Infantry",
+  "model": "Royal Gurkha Battalion",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3063,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-er-[sunbeam-starfire]",
+    "name": "Laser Rifle (ER [Sunbeam Starfire])"
+  },
+  "armorKit": "Free Worlds League Infantry Kit (3035+)",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "free-worlds-league-infantry-kit-3035+",
+      "name": "Free Worlds League Infantry Kit (3035+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "gauss-rifle,-light-king-david",
+    "name": "Gauss Rifle, Light (King David)",
+    "count": 1
+  },
+  "mulId": 1438,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>The Royal Gurkha Battalion of the Fourth Regulan Hussars is among the most recognized infantry formations in the Free Worlds League Military. Recruited almost exclusively from the Nepalese inhabitants of Muscida in the Principality of Regulus, the Gurkhas bring a warrior heritage that predates interstellar colonization. Each soldier wears a distinctive battle dress featuring slide-in armor plating that allows maximum customization without sacrificing protection, and carries a thirty-kilogram jump pack providing sixty meters of vertical mobility. The battalion's primary armament consists of Starfire ER laser rifles, supplemented by King David Light Gauss Rifles at the squad support level. Every Gurkha trooper also carries the traditional kukri knife, a blade that has accompanied their ancestors into battle for over a thousand years. The combined package makes the Gurkhas a formidable force on any battlefield, even without anti-BattleMech training. During the Jihad-era campaign on Diass in 3077, Gurkha infantry patrols walked the streets unarmed except for their kukris, a deliberate display of trust that helped defuse tensions between the population and the occupying Fourth Hussars.</p>"
+  }
+}

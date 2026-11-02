@@ -1,0 +1,64 @@
+{
+  "id": "field-artillery-level-i-comguards-wheeled-sniper",
+  "chassis": "Field Artillery Level I (ComGuards)",
+  "model": "(Wheeled Sniper)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2933,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun"
+  },
+  "armorKit": "ComStar Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "comstar-infantry-kit",
+      "name": "ComStar Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "issniper",
+      "name": "ISSniper",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "issniperammo",
+      "name": "ISSniperAmmo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "issniper",
+      "name": "ISSniper"
+    },
+    {
+      "id": "issniperammo",
+      "name": "ISSniperAmmo"
+    }
+  ],
+  "role": "Missile Boat",
+  "fluff": {
+    "overview": "<p>Under the reforms of Precentor Martial Anastasius Focht, Com Guard infantry train extensively in combined-arms cooperation, conducting regular exercises alongside heavier elements to ensure seamless coordination across all branches when battle demands it. Operating Sniper artillery systems that deliver heavier indirect fire than Thumper tubes, these crews can damage hardened positions and disrupt armored formations at extended range, providing battalion-level fire support from a single crew-served weapon.</p>"
+  }
+}

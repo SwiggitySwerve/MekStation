@@ -1,0 +1,47 @@
+{
+  "id": "foot-platoon-lcaf-sniper-detachment-2505+",
+  "chassis": "Foot Platoon (LCAF)",
+  "model": "(Sniper Detachment 2505+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2505,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 2,
+    "squadCount": 2,
+    "totalTroopers": 4
+  },
+  "primaryWeapon": {
+    "id": "sniper-rifle-hammel-marksman",
+    "name": "Sniper Rifle (Hammel Marksman)"
+  },
+  "armorKit": "Sneak Suit (Camo/IR)",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "sneak-suit-camo-ir",
+      "name": "Sneak Suit (Camo/IR)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": ["sneakcamo", "sneakir"],
+  "effectiveArmorFlags": ["sneakcamo", "sneakir"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "submachine-gun",
+    "name": "Submachine Gun",
+    "count": 1
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Reforms begun under Alessandro Steiner and reinforced by Federated Suns influence have integrated Lyran infantry into combined-arms operations more effectively than at any point in the Commonwealth's history. Foot infantry platoons form the backbone of the LCAF's garrison forces, deploying on foot to hold positions, patrol perimeters, and secure urban areas where vehicles cannot easily operate. Armed with Hammel Marksman precision sniper rifles and submachine guns for close defense, these platoons provide designated marksman capability that extends the formation's engagement envelope well beyond standard infantry weapon ranges. Operating in small teams within a larger platoon framework, these designated marksmen provide precision long-range fire from concealed positions, engaging high-value targets with disproportionate tactical effect.</p>"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "id": "foot-demi-i-wobm-srm",
+  "chassis": "Foot demi-I (WOBM)",
+  "model": "(SRM)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3053,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 3,
+    "totalTroopers": 18
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Word of Blake Infantry Kit",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "word-of-blake-infantry-kit",
+      "name": "Word of Blake Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryheavysrm",
+    "name": "InfantryHeavySRM",
+    "count": 2
+  },
+  "mulId": 7002,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Drawing veterans from the Com Guards, recruits from the Free Worlds League, and volunteers from Protectorate worlds, the Word of Blake Militia assembled infantry formations whose quality varied but whose equipment was consistently first-rate. Foot infantry Level I formations provided the bulk of Protectorate garrison manpower, assigned to hold ground that the Militia's BattleMech forces had already taken. On occupied worlds, these platoons maintained checkpoints, patrolled population centers, and enforced curfews as the visible face of Blakist territorial control. Equipped with infantry-portable short-range missile launchers that provide anti-armor capability beyond what personal weapons can achieve, these troops can threaten light vehicles and battle armor at close range.</p>"
+  }
+}

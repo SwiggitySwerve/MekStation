@@ -1,0 +1,48 @@
+{
+  "id": "motorized-platoon-fieldworks",
+  "chassis": "Motorized Platoon",
+  "model": "(Fieldworks)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3045,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 2,
+    "totalTroopers": 14
+  },
+  "primaryWeapon": {
+    "id": "smg-gunther-mp-20",
+    "name": "SMG (Gunther MP-20)"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "vibro-shovel",
+      "name": "Vibro-Shovel",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 32,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Motorized fieldworks platoons are combat engineers transported by light vehicles for rapid deployment to defensive preparation sites. Armed with Gunther MP-20 submachine guns for close defense, these engineers dig trenches and construct ad-hoc field fortifications that provide cover for friendly infantry, turning open ground into defensive positions. The motorized transport allows them to reach forward positions quickly and begin construction before the enemy can contest the ground.</p>"
+  }
+}

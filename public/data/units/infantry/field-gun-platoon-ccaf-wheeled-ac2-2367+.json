@@ -1,0 +1,124 @@
+{
+  "id": "field-gun-platoon-ccaf-wheeled-ac2-2367+",
+  "chassis": "Field Gun Platoon (CCAF)",
+  "model": "(Wheeled AC2 2367+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "AGE_OF_WAR",
+  "year": 2367,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2"
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2"
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2"
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2"
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2"
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2"
+    },
+    {
+      "id": "autocannon-2",
+      "name": "Autocannon/2"
+    },
+    {
+      "id": "is-ammo-ac-2",
+      "name": "IS Ammo AC/2"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>The CCAF fields conventional infantry in larger numbers than its limited industrial base might suggest, drawing on the Confederation's deep tradition of citizens' militia service. Capellan soldiers learn to fight with fewer resources and less support than their counterparts in wealthier states, compensating with resourcefulness and ideological commitment. Field gun platoons provide Capellan infantry with organic direct-fire heavy weapons, towing crew-served autocannons or other heavy guns to prepared positions. The weapon crew operates the gun while the remaining troopers provide local security with personal arms. Their crew-served autocannon/2 provides long-range direct fire support, well suited to suppression and light vehicle engagement from prepared positions.</p>"
+  }
+}

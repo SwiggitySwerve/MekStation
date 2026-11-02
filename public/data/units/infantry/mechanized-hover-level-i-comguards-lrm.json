@@ -1,0 +1,49 @@
+{
+  "id": "mechanized-hover-level-i-comguards-lrm",
+  "chassis": "Mechanized Hover Level I (ComGuards)",
+  "model": "(LRM)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3057,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "ComStar Infantry Kit",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "comstar-infantry-kit",
+      "name": "ComStar Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrylrm",
+    "name": "InfantryLRM",
+    "count": 2
+  },
+  "mulId": 7049,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Under the reforms of Precentor Martial Anastasius Focht, Com Guard infantry train extensively in combined-arms cooperation, conducting regular exercises alongside heavier elements to ensure seamless coordination across all branches when battle demands it. Mechanized hover Level I formations are the fastest ground-mobile infantry in the Com Guards, using hovercraft APCs that can cross water obstacles and open terrain at speeds no wheeled or tracked transport can match. Their speed makes them valuable for flanking maneuvers and rapid exploitation of breakthroughs. Carrying infantry-portable long-range missile systems that extend the platoon's engagement envelope well beyond personal weapon range, these troops provide indirect fire support that can suppress enemy positions from distances where return fire is difficult.</p>"
+  }
+}

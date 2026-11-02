@@ -1,0 +1,48 @@
+{
+  "id": "jump-triplus-contubernium-mhaf-laser",
+  "chassis": "Jump Triplus Contubernium (MHAF)",
+  "model": "(Laser)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2902,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 10,
+    "squadCount": 3,
+    "totalTroopers": 30
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle",
+    "name": "Laser Rifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Marian Hegemony Armed Forces organize their conventional infantry along Roman legionary lines, with formations structured into contubernia, centuries, and cohorts rather than the squads and platoons used by Inner Sphere armies. A triplus contubernium, or triple tent-group, combines three squads of ten. Jump-capable triplus contubernia are among the more capable light infantry formations in the MHAF, able to conduct company-scale airborne insertions and rapid seizure of key terrain features. Equipped with laser rifles that offer superior range and armor penetration compared to ballistic weapons, these formations field one of the most effective personal arms available to conventional infantry, though the weapons require soldiers to carry additional power packs.</p>"
+  }
+}

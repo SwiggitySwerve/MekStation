@@ -1,0 +1,104 @@
+{
+  "id": "field-gun-platoon-affs-motorized-ac5-3067+",
+  "chassis": "Field Gun Platoon (AFFS)",
+  "model": "(Motorized AC5 3067+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "rifle-federated-long",
+    "name": "Rifle (Federated Long)"
+  },
+  "armorKit": "Fed Suns Infantry Kit (3067+)",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "fed-suns-infantry-kit-3067+",
+      "name": "Fed Suns Infantry Kit (3067+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5"
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5"
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5"
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5"
+    },
+    {
+      "id": "autocannon-5",
+      "name": "Autocannon/5"
+    },
+    {
+      "id": "is-ammo-ac-5",
+      "name": "IS Ammo AC/5"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>The Armed Forces of the Federated Suns integrate conventional infantry directly into their Regimental Combat Teams, assigning foot, mechanized, and jump platoons to work permanently alongside BattleMech and armored formations. Towing medium autocannon that balance range and hitting power, these field gun crews provide flexible direct fire support effective against both infantry positions and light vehicles.</p>"
+  }
+}

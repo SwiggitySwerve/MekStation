@@ -1,0 +1,49 @@
+{
+  "id": "space-marine-com-guards-warship-fleet-marine",
+  "chassis": "Space Marine",
+  "model": "Com Guards Warship Fleet Marine",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2900,
+  "motionType": "FOOT",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "laser-pistol-sunbeam",
+    "name": "Laser Pistol (Sunbeam)"
+  },
+  "armorKit": "Environment Suit, Marine",
+  "motiveType": "Leg",
+  "equipment": [
+    {
+      "id": "environment-suit,-marine",
+      "name": "Environment Suit, Marine",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["spacesuit"],
+  "effectiveArmorFlags": ["spacesuit"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "laser-rifle-blazer",
+    "name": "Laser Rifle (Blazer)",
+    "count": 1
+  },
+  "mulId": 2985,
+  "role": "Ambusher",
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Com Guard fleet marines are trained for shipboard security, boarding actions, and combat in both zero-gravity and pressurized hull environments. When ComStar revealed its hidden WarShip fleet in the 3050s, the Inner Sphere learned that the Order had maintained a corps of fleet marines for decades, crewing vessels that most powers believed extinct. These marines are armed with Sunbeam laser pistols for close-quarters shipboard work and Blazer rifles for engagements where greater firepower is needed. Several ship-to-ship battles during the Jihad devolved into boarding actions, and Com Guard marines proved adept at repelling enemy assault teams and conducting offensive hull breaches. The Republic Armed Forces' own WarShip-based marine units drew significantly from Com Guard marine doctrine, which remains the benchmark for Inner Sphere naval infantry training.</p>"
+  }
+}

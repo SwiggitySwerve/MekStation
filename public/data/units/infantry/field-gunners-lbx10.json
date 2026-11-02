@@ -1,0 +1,83 @@
+{
+  "id": "field-gunners-lbx10",
+  "chassis": "Field Gunners",
+  "model": "(LBX10)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2595,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo",
+      "name": "IS LB 10-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo",
+      "name": "IS LB 10-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo",
+      "name": "IS LB 10-X Cluster Ammo"
+    },
+    {
+      "id": "islbxac10",
+      "name": "ISLBXAC10"
+    },
+    {
+      "id": "is-lb-10-x-cluster-ammo",
+      "name": "IS LB 10-X Cluster Ammo"
+    }
+  ],
+  "fluff": {
+    "overview": "<p>Field gun platoons crew heavy LB-X autocannons with dual-ammunition capability, able to fire armor-piercing slugs against vehicles or cluster rounds that scatter across a wide area against soft targets. The heavier LB-X variants deliver punishing firepower in either mode, though the weapon system demands significant logistics support and trained crews who can select the right ammunition type under pressure.</p>"
+  }
+}

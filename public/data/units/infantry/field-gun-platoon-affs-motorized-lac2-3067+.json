@@ -1,0 +1,184 @@
+{
+  "id": "field-gun-platoon-affs-motorized-lac2-3067+",
+  "chassis": "Field Gun Platoon (AFFS)",
+  "model": "(Motorized LAC2 3067+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "rifle-federated-long",
+    "name": "Rifle (Federated Long)"
+  },
+  "armorKit": "Fed Suns Infantry Kit (3067+)",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "fed-suns-infantry-kit-3067+",
+      "name": "Fed Suns Infantry Kit (3067+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    },
+    {
+      "id": "light-auto-cannon-2",
+      "name": "Light Auto Cannon/2"
+    },
+    {
+      "id": "is-ammo-lac-2",
+      "name": "IS Ammo LAC/2"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>The AFFS treats its infantry as professionals rather than expendable garrison filler, drawing soldiers from single worlds or neighboring systems to build the unit cohesion that the Federated Suns considers essential to effective combined-arms operations. Towing light autocannon that provide sustained long-range direct fire, these field gun crews deliver suppressive capability that pins enemy formations at distances beyond personal weapons range.</p>"
+  }
+}

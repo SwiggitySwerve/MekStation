@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-wheeled-platoon-laser-xct",
+  "chassis": "Mechanized Wheeled Platoon",
+  "model": "(Laser XCT)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3065,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle-blazer",
+    "name": "Laser Rifle (Blazer)"
+  },
+  "armorKit": "Environment Suit, Marine",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "environment-suit,-marine",
+      "name": "Environment Suit, Marine",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 2.0,
+  "damageDivisor": 2.0,
+  "armorFlags": ["spacesuit"],
+  "effectiveArmorFlags": ["spacesuit"],
+  "specializations": 2048,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "plasma-rifle-man-portable",
+    "name": "Plasma Rifle (Man-Portable)",
+    "count": 1
+  },
+  "source": "TR:3085",
+  "fluff": {
+    "overview": "<p>Wheeled mechanized XCT platoons transport Xenoplanetary Condition Troops in sealed wheeled APCs suited to hostile environment operations on worlds with road infrastructure. Armed with Blazer laser rifles and man-portable plasma rifles, these platoons carry heavy energy weapons that function reliably in the extreme conditions that define XCT deployments. The plasma rifles provide thermal damage effective against both infantry and armored targets, complementing the Blazer rifles' raw energy output.</p>"
+  }
+}

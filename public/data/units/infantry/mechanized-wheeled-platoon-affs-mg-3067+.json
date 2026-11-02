@@ -1,0 +1,47 @@
+{
+  "id": "mechanized-wheeled-platoon-affs-mg-3067+",
+  "chassis": "Mechanized Wheeled Platoon (AFFS)",
+  "model": "(MG 3067+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3067,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 3,
+    "totalTroopers": 18
+  },
+  "primaryWeapon": {
+    "id": "rifle-federated-long",
+    "name": "Rifle (Federated Long)"
+  },
+  "armorKit": "Fed Suns Infantry Kit (3067+)",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "fed-suns-infantry-kit-3067+",
+      "name": "Fed Suns Infantry Kit (3067+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "machine-gun-semi-portable",
+    "name": "Machine Gun (Semi-Portable)",
+    "count": 2
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>The Armed Forces of the Federated Suns integrate conventional infantry directly into their Regimental Combat Teams, assigning foot, mechanized, and jump platoons to work permanently alongside BattleMech and armored formations. Mechanized wheeled platoons ride wheeled transports that offer good speed on roads and developed terrain, making them well-suited to garrison duty on worlds with established infrastructure where rapid response matters more than cross-country capability. Supplementing their rifles with portable machine guns that provide sustained automatic fire, these platoons anchor defensive positions with suppressive capability that pins attacking infantry and discourages unarmored vehicles from closing.</p>"
+  }
+}

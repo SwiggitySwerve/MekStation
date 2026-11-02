@@ -1,0 +1,47 @@
+{
+  "id": "motorized-platoon-dcms-riot-police-2620+",
+  "chassis": "Motorized Platoon (DCMS)",
+  "model": "(Riot Police 2620+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "STAR_LEAGUE",
+  "year": 2620,
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "sonic-stunner",
+    "name": "Sonic Stunner"
+  },
+  "armorKit": "Draconis Combine Infantry Kit",
+  "motiveType": "Motorized",
+  "equipment": [
+    {
+      "id": "draconis-combine-infantry-kit",
+      "name": "Draconis Combine Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "grenade-launcher",
+    "name": "Grenade Launcher",
+    "count": 1
+  },
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>Conventional infantry within the DCMS serve as the foundation of planetary defense, providing the manpower essential to territorial control while freeing BattleMech and armored assets for offensive operations. Motorized infantry travel on light unarmored vehicles that allow them to cover ground faster than the foot platoons that make up the bulk of DCMS garrison forces. District regulars rely on motorized platoons for security patrols across large garrison zones, forward observation, and the rapid response that foot troops cannot provide when trouble arises between widely separated posts. Armed with standard assault rifles, the cheapest and most widely manufactured personal weapon in the Inner Sphere. Effective range is limited, but any world with basic industry can produce and stockpile them in quantity, and resupply is rarely a concern even on remote garrison posts. Configured for riot control and civil disturbance management rather than conventional combat. These troops maintain order on garrison worlds during periods of civil unrest, equipped for crowd suppression rather than military engagements.</p>"
+  }
+}

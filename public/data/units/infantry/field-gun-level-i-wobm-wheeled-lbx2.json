@@ -1,0 +1,124 @@
+{
+  "id": "field-gun-level-i-wobm-wheeled-lbx2",
+  "chassis": "Field Gun Level I (WOBM)",
+  "model": "(Wheeled LBX2)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "CLAN_INVASION",
+  "year": 3058,
+  "motionType": "WHEELED",
+  "platoon": {
+    "squadSize": 6,
+    "squadCount": 4,
+    "totalTroopers": 24
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Word of Blake Infantry Kit",
+  "motiveType": "Wheeled",
+  "equipment": [
+    {
+      "id": "word-of-blake-infantry-kit",
+      "name": "Word of Blake Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac2",
+      "name": "ISLBXAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
+      "name": "IS LB 2-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac2",
+      "name": "ISLBXAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
+      "name": "IS LB 2-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac2",
+      "name": "ISLBXAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
+      "name": "IS LB 2-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "islbxac2",
+      "name": "ISLBXAC2",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
+      "name": "IS LB 2-X Cluster Ammo",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "islbxac2",
+      "name": "ISLBXAC2"
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
+      "name": "IS LB 2-X Cluster Ammo"
+    },
+    {
+      "id": "islbxac2",
+      "name": "ISLBXAC2"
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
+      "name": "IS LB 2-X Cluster Ammo"
+    },
+    {
+      "id": "islbxac2",
+      "name": "ISLBXAC2"
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
+      "name": "IS LB 2-X Cluster Ammo"
+    },
+    {
+      "id": "islbxac2",
+      "name": "ISLBXAC2"
+    },
+    {
+      "id": "is-lb-2-x-cluster-ammo",
+      "name": "IS LB 2-X Cluster Ammo"
+    }
+  ],
+  "role": "Sniper",
+  "fluff": {
+    "overview": "<p>Drawing veterans from the Com Guards, recruits from the Free Worlds League, and volunteers from Protectorate worlds, the Word of Blake Militia assembled infantry formations whose quality varied but whose equipment was consistently first-rate. Operating light cluster-munition autocannon that fire shotgun-pattern rounds for anti-infantry and anti-aircraft work, these crews provide flexible fire support effective against dispersed or fast-moving targets.</p>"
+  }
+}

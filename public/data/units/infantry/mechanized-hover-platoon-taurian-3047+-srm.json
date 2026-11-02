@@ -1,0 +1,49 @@
+{
+  "id": "mechanized-hover-platoon-taurian-3047+-srm",
+  "chassis": "Mechanized Hover Platoon (Taurian 3047+)",
+  "model": "(SRM)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3047,
+  "motionType": "HOVER",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 4,
+    "totalTroopers": 20
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Taurian Concordat/Calderon Infantry Kit",
+  "motiveType": "Hover",
+  "equipment": [
+    {
+      "id": "taurian-concordat-calderon-infantry-kit",
+      "name": "Taurian Concordat/Calderon Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantryheavysrm",
+    "name": "InfantryHeavySRM",
+    "count": 2
+  },
+  "mulId": 9293,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>The Taurian Defense Force assigns conventional infantry to garrison and planetary defense roles across the Concordat, where citizen-soldiers serve out of patriotic duty rather than mere obligation. Mechanized hover platoons are among the fastest ground infantry in the TDF, riding hovercraft that can traverse both land and water at speeds that let them cover the vast distances between Taurian population centers. The Concordat has historically favored hovercraft for its armor forces, and that preference extends to mechanized infantry as well.</p><p>Support elements carry man-portable short-range missile launchers firing the same warheads used by BattleMechs and combat vehicles, giving the platoon a potent anti-armor punch at close range.</p>"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "jump-platoon-laser",
+  "chassis": "Jump Platoon",
+  "model": "(Laser)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "AGE_OF_WAR",
+  "year": 2405,
+  "motionType": "JUMP",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 3,
+    "totalTroopers": 21
+  },
+  "primaryWeapon": {
+    "id": "laser-rifle",
+    "name": "Laser Rifle"
+  },
+  "armorKit": "Generic Infantry Kit",
+  "motiveType": "Jump",
+  "equipment": [
+    {
+      "id": "generic-infantry-kit",
+      "name": "Generic Infantry Kit",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "antimekgear",
+      "name": "AntiMekGear",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1.0,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "mulId": 1719,
+  "role": "Ambusher",
+  "source": "TW,TM",
+  "fluff": {
+    "overview": "<p>Jump infantry platoons equip their troops with personal jump packs that allow short powered hops across broken terrain, over walls, and onto rooftops. This vertical mobility gives jump platoons access to positions that foot and motorized infantry cannot reach, making them particularly effective in urban combat, mountainous terrain, and defensive operations where elevation matters. The trade-off is cost and logistics: jump packs require fuel, maintenance, and trained operators, limiting the number of jump platoons a garrison command can field compared to standard foot formations.</p>"
+  }
+}

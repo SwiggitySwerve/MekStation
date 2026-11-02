@@ -1,0 +1,84 @@
+{
+  "id": "field-gun-platoon-fwlm-tracked-ac10-3035+",
+  "chassis": "Field Gun Platoon (FWLM)",
+  "model": "(Tracked AC10 3035+)",
+  "unitType": "Infantry",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 3030,
+  "motionType": "TRACKED",
+  "platoon": {
+    "squadSize": 7,
+    "squadCount": 4,
+    "totalTroopers": 28
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Free Worlds League Infantry Kit (3035+)",
+  "motiveType": "Tracked",
+  "equipment": [
+    {
+      "id": "free-worlds-league-infantry-kit-3035+",
+      "name": "Free Worlds League Infantry Kit (3035+)",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10",
+      "location": "FIELD_GUNS",
+      "isRearMounted": false
+    }
+  ],
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 2.0,
+  "armorFlags": ["encumberingarmor"],
+  "effectiveArmorFlags": ["encumberingarmor"],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "fieldGuns": [
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10"
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10"
+    },
+    {
+      "id": "autocannon-10",
+      "name": "Autocannon/10"
+    },
+    {
+      "id": "is-ammo-ac-10",
+      "name": "IS Ammo AC/10"
+    }
+  ],
+  "role": "Ambusher",
+  "fluff": {
+    "overview": "<p>New technology and creative tactical thinking have long featured in FWLM infantry deployment, with varied unit types and specialized formations treated as the norm rather than the exception. Towing crew-served autocannon/10 field guns, these platoons bring heavy direct fire to bear against vehicles, fortifications, and even BattleMech armor at medium range. The AC/10's punch makes it one of the most respected crew-served weapons on any battlefield.</p>"
+  }
+}
