@@ -116,6 +116,8 @@ registry owns their accepted contract discriminators and available store mapper.
 - The BV shown is the existing app owner's result, not a new parity verdict.
   ProtoMech and battle-armor library saves use CustomUnitSerializer with an
   explicit family. Infantry saving remains gated for the next slice.
+  Callers use the serializer facade; its adjacent smallUnits module implements
+  the small-unit encoding without changing that public boundary.
 - Both small-unit stores persist the full validated definition as librarySource.
   Saves retain every original fact there, including source tech, cockpit, abilities,
   turret declarations, raw mounts and provenance. A validated smallUnitEditor
