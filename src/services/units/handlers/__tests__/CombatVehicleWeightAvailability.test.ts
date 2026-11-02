@@ -42,7 +42,6 @@ describe('combat handler total availability', () => {
         turret: {
           type: TurretType.SINGLE,
           rotationArc: 360,
-          currentWeight: 7,
         },
       }),
     ).toThrow(/weight.*incomplete/i);

@@ -158,7 +158,7 @@ describe('VTOLUnitHandler', () => {
       const unit = handler.parse(doc).data!.unit;
       const heavyChin = {
         ...unit,
-        chinTurret: { ...unit.chinTurret!, currentWeight: 6 }, // 24% of 25 t
+        chinTurret: { ...unit.chinTurret! }, // Legacy cap is not a construction rule
       } as IVTOL;
 
       const result = handler.validate(heavyChin);
@@ -177,7 +177,7 @@ describe('VTOLUnitHandler', () => {
       const overweight = {
         ...unit,
         totalWeight: unit.tonnage + 1,
-        chinTurret: { ...unit.chinTurret!, currentWeight: 6 },
+        chinTurret: { ...unit.chinTurret! },
       } as IVTOL;
 
       const result = handler.validate(overweight);
