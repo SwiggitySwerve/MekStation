@@ -51,9 +51,7 @@ export function bindCapital(data: ICapitalRecordSheetData): {
     textKFDrive: String(data.integrity.kf ?? 'N/A'),
     textSail: String(data.integrity.sail ?? 'N/A'),
     textDockingCollars: String(
-      data.transport
-        .filter((r) => r.label === 'Docking Collar')
-        .reduce((sum, r) => sum + r.count, 0),
+      data.transport.find((r) => r.label === 'Docking Collar')?.count ?? 0,
     ),
     gunnerySkill0: '4',
     pilotingSkill0: '5',
