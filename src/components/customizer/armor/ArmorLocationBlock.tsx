@@ -31,6 +31,8 @@ export interface ArmorLocationBlockProps {
   className?: string;
   /** Accent colour class applied to the current/max counter text (default: cyan) */
   accentClass?: string;
+  /** Large global armor limits are counters, not hundreds of empty pips. */
+  showPips?: boolean;
 }
 
 // =============================================================================
@@ -51,6 +53,7 @@ export function ArmorLocationBlock({
   pipSize = 8,
   className = '',
   accentClass = 'text-cyan-400',
+  showPips = true,
 }: ArmorLocationBlockProps): React.ReactElement {
   const safeMax = Math.max(0, max);
 
@@ -71,7 +74,7 @@ export function ArmorLocationBlock({
       </div>
 
       {/* Pip strip — delegates to shared primitive */}
-      {safeMax > 0 ? (
+      {!showPips ? null : safeMax > 0 ? (
         <ArmorPipRow
           label={label}
           current={current}

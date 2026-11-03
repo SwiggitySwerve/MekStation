@@ -15,10 +15,12 @@ import {
   ArmorTypeEnum,
   getArmorDefinition,
 } from '@/types/construction/ArmorType';
+import { VehicleLocation } from '@/types/construction/UnitLocation';
 import {
-  VehicleLocation,
-  VTOLLocation,
-} from '@/types/construction/UnitLocation';
+  BLK_DUAL_TURRET_ARMOR_LOCATIONS,
+  BLK_SUPERHEAVY_ARMOR_LOCATIONS,
+  BLK_VTOL_ARMOR_LOCATIONS,
+} from '@/types/formats/BlkFormat';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import {
   ceilToHalfTon,
@@ -51,17 +53,15 @@ export function getTotalVehicleArmor(
     hasTurret,
     hasSecondaryTurret,
   );
-  let total =
-    (installed[VehicleLocation.FRONT] || 0) +
-    (installed[VehicleLocation.LEFT] || 0) +
-    (installed[VehicleLocation.RIGHT] || 0) +
-    (installed[VehicleLocation.REAR] || 0);
-  if (hasTurret) total += installed[VehicleLocation.TURRET] || 0;
-  if (hasSecondaryTurret) total += installed[VehicleLocation.TURRET_2] || 0;
-  if (VTOLLocation.ROTOR in installed) {
-    total += installed[VTOLLocation.ROTOR] || 0;
-  }
-  return total;
+  const locations = new Set([
+    ...BLK_DUAL_TURRET_ARMOR_LOCATIONS,
+    ...BLK_SUPERHEAVY_ARMOR_LOCATIONS,
+    ...BLK_VTOL_ARMOR_LOCATIONS,
+  ]);
+  return [...locations].reduce(
+    (total, location) => total + (installed[location] || 0),
+    0,
+  );
 }
 
 // =============================================================================
