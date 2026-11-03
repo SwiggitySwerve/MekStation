@@ -102,3 +102,26 @@ it.each(['NovaCEWS:OMNI', 'ISERFlamer:OMNI', 'CLERFlamer:OMNI'])(
     );
   },
 );
+
+it('preserves an explicitly registered custom mapping', () => {
+  const custom = new EquipmentNameMapper();
+  custom.addMapping('ISERFlamer', 'custom-er-flamer');
+  expect(custom.mapName('ISERFlamer').equipmentId).toBe('custom-er-flamer');
+});
+
+it('preserves custom mappings loaded from a file', async () => {
+  const saved = global.fetch;
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true,
+    json: async () => ({ 'IS Machine Gun Ammo': 'custom-ammo' }),
+  });
+  try {
+    const custom = new EquipmentNameMapper();
+    expect(await custom.loadMappings('/custom-aliases.json')).toBe(1);
+    expect(custom.mapName('IS Machine Gun Ammo').equipmentId).toBe(
+      'custom-ammo',
+    );
+  } finally {
+    global.fetch = saved;
+  }
+});
