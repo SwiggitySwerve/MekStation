@@ -56,7 +56,7 @@ const OPEN_CASES: OpenCase[] = [
     model: '',
     family: 'Aerospace',
     shell: 'aerospace-customizer',
-    tabs: [...COMMON_TABS, 'Velocity', 'Bombs', ...TAIL_TABS],
+    tabs: [...COMMON_TABS, 'Velocity', ...TAIL_TABS],
     tonnage: '5.0 t',
     armor: '0',
     movement: '4/6',
