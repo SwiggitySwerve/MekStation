@@ -108,6 +108,8 @@ export interface ISerializedGyro {
  */
 export interface ISerializedStructure {
   readonly type: string;
+  /** FrankenMek only: structure tonnage per location (MtfFile.java:669-691). */
+  readonly locationTonnage?: Readonly<Record<string, number>>;
 }
 
 /**
