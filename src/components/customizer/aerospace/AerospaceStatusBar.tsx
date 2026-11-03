@@ -14,10 +14,7 @@ import { useAerospaceStore } from '@/stores/useAerospaceStore';
 import { getArmorDefinition } from '@/types/construction/ArmorType';
 import { getEngineDefinition } from '@/types/construction/EngineType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
-import {
-  calculateAerospaceBV,
-  type IAerospaceBVEquipment,
-} from '@/utils/construction/aerospace/aerospaceBV';
+import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
 import { calculateHeatDissipation } from '@/utils/construction/heatSinkCalculations';
 import { formatTons } from '@/utils/formatting';
 
@@ -56,7 +53,11 @@ export function AerospaceStatusBar({
   const equipment = useAerospaceStore((s) => s.equipment);
   const engineType = useAerospaceStore((s) => s.engineType);
   const engineRating = useAerospaceStore((s) => s.engineRating);
-  const aerospaceSubType = useAerospaceStore((s) => s.aerospaceSubType);
+  const unitType = useAerospaceStore((s) => s.unitType);
+  const isFixedWingSupport = useAerospaceStore((s) => s.isFixedWingSupport);
+  const barRating = useAerospaceStore((s) => s.barRating);
+  const techBase = useAerospaceStore((s) => s.techBase);
+  const year = useAerospaceStore((s) => s.year);
 
   // Calculate weight breakdown
   const weightBreakdown = useMemo(() => {
@@ -113,23 +114,30 @@ export function AerospaceStatusBar({
 
   // Live BV breakdown (TechManual BV 2.0 aerospace path)
   const bv = useMemo(() => {
-    const bvEquipment: IAerospaceBVEquipment[] = equipment.map((item) => ({
-      id: item.equipmentId,
-      location: item.location,
-    }));
-    return calculateAerospaceBV({
-      subType: aerospaceSubType,
+    const bvInput = {
+      unitType,
+      isFixedWingSupport,
+      barRating,
+      techBase,
+      year,
       tonnage,
       structuralIntegrity,
-      safeThrust,
-      maxThrust,
+      movement: { safeThrust, maxThrust },
       heatCapacity: heatDissipation,
       armorType,
       totalArmorPoints: armorStats.allocated,
-      equipment: bvEquipment,
-    });
+      equipment,
+    };
+    const result = calculateBattleValueForUnit(bvInput);
+    if (!result || result.kind !== 'aerospace')
+      throw new TypeError('Expected aerospace BV');
+    return result.breakdown;
   }, [
-    aerospaceSubType,
+    unitType,
+    isFixedWingSupport,
+    barRating,
+    techBase,
+    year,
     tonnage,
     structuralIntegrity,
     safeThrust,

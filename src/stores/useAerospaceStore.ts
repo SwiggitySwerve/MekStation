@@ -279,7 +279,7 @@ const createAerospaceFuelActions = (
 });
 
 const AEROSPACE_PERSIST_KEYS =
-  'tonnage techBase unitType aerospaceSubType isFixedWingSupport motionType isOmni engineType aerospaceEngineType engineRating safeThrust fuelTons structuralIntegrity cockpitType heatSinks doubleHeatSinks armorType armorTonnage armorAllocation hasBombBay bombCapacity hasReinforcedCockpit hasEjectionSeat crew equipment isModified createdAt lastModifiedAt'.split(
+  'tonnage techBase unitType aerospaceSubType isFixedWingSupport motionType isOmni engineType aerospaceEngineType engineRating safeThrust fuelTons structuralIntegrity cockpitType heatSinks doubleHeatSinks armorType barRating armorTonnage armorAllocation hasBombBay bombCapacity hasReinforcedCockpit hasEjectionSeat crew equipment isModified createdAt lastModifiedAt'.split(
     ' ',
   ) as ReadonlyArray<keyof AerospaceStore>;
 
