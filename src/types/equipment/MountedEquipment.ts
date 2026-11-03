@@ -41,6 +41,11 @@ export interface IMountedEquipmentInstance {
   readonly location?: MechLocation;
   /** Critical slot indices in the location (undefined = unallocated) */
   readonly slots?: readonly number[];
+  /** Split weapon's second location and slots (MtfFile.java:1086-1124) */
+  readonly splitSlots?: {
+    readonly location: MechLocation;
+    readonly slots: readonly number[];
+  };
   /** Whether mounted facing rear arc */
   readonly isRearMounted: boolean;
   /** Linked ammunition instance ID (for weapons that use ammo) */
