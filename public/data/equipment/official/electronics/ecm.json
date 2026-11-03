@@ -42,7 +42,7 @@
       "criticalSlots": 2,
       "costCBills": 750000,
       "battleValue": 100,
-      "introductionYear": 3080,
+      "introductionYear": 3057,
       "special": ["6 hex ECM bubble", "Enhanced protection vs active probes"]
     },
     {
@@ -55,7 +55,7 @@
       "criticalSlots": 2,
       "costCBills": 600000,
       "battleValue": 68,
-      "introductionYear": 3080,
+      "introductionYear": 3059,
       "special": ["Combined ECM and Active Probe", "4 hex probe range"]
     },
     {
@@ -137,7 +137,7 @@
       "criticalSlots": 2,
       "costCBills": 500000,
       "battleValue": 68,
-      "introductionYear": 3080,
+      "introductionYear": 3059,
       "special": []
     },
     {
