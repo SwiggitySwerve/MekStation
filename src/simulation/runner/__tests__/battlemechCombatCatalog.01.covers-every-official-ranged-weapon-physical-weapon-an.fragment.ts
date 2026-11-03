@@ -348,12 +348,14 @@ it('classifies zero-damage official ranged weapons as explicit non-damage behavi
     .filter((id): id is string => typeof id === 'string')
     .sort();
 
-  // 268 -> 129: the 139 missile launchers that carried a numeric damage 0
-  // placeholder now use N/missile (pinned MegaMek per-missile damage).
+  // Pinned 48fcb2f64: 129 - 3 AMS - taser - Hammel rifle + fluid gun = 125.
+  // CLAMS.java:67; ISLaserAMS.java:67; CLLaserAMS.java:66;
+  // ISMekTaser.java:75; InfantrySniperRifleHammelMarksman.java:69;
+  // WeaponType.java:799,922 and ISFluidGun.java:58-68. Full paths in batch-2 audit.
   const addedZero = javaCatalogAdditions.filter(
     (row) => row.kind === 'weapons' && row.java.damage === 0,
   );
-  expect(zeroDamageItems).toHaveLength(129 + addedZero.length);
+  expect(zeroDamageItems).toHaveLength(125 + addedZero.length);
   expect(unclassified).toEqual([]);
   expect(
     ids(

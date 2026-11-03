@@ -1904,7 +1904,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 1,
     "id": "clan-ams",
-    "sha256": "7604c2e36208f3ecb348bc9e26d6fa42561c1f5e850ca8224493221447854d25",
+    "sha256": "7c14143154db93befe5fee93bad2b5e7ec87353c24d5a73bd0adba6e4e982723",
     "item": {
       "id": "clan-ams",
       "name": "Anti-Missile System (Clan)",
@@ -1912,7 +1912,7 @@
       "subType": "Anti-Missile System",
       "techBase": "CLAN",
       "rulesLevel": "STANDARD",
-      "damage": 0,
+      "damage": 2,
       "heat": 1,
       "ranges": {
         "minimum": 0,
@@ -2020,7 +2020,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 5,
     "id": "nail-rivet-gun",
-    "sha256": "192f29db768c1b8dfb3cdf6fa9b047e81132797d5044ea146d1715a3b787e4f6",
+    "sha256": "3a99e4cb16e9be13030de793d4c6381f7be14018ecde29aad860f67cff5e3e9e",
     "item": {
       "id": "nail-rivet-gun",
       "name": "Nail/Rivet Gun",
@@ -2036,10 +2036,10 @@
         "medium": 0,
         "long": 0
       },
-      "weight": 0,
-      "criticalSlots": 0,
+      "weight": 0.5,
+      "criticalSlots": 1,
       "costCBills": 0,
-      "battleValue": 0,
+      "battleValue": 1,
       "introductionYear": 2310,
       "special": []
     }
@@ -3122,7 +3122,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 44,
     "id": "sniper-rifle-hammel-marksman",
-    "sha256": "f3819a6751f41b394e88b86d129f2ec61cc75c4dec200a6db6894350bee5d6c7",
+    "sha256": "3e0cb498ec64b1879c3f3f4d3fdbbb1dbd43577793a11008d73c445ab63c611e",
     "item": {
       "id": "sniper-rifle-hammel-marksman",
       "name": "Sniper Rifle (Hammel Marksman)",
@@ -3130,7 +3130,7 @@
       "subType": "Rifle",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "ADVANCED",
-      "damage": 0,
+      "damage": 0.28,
       "heat": 0,
       "ranges": {
         "minimum": 0,
@@ -3141,7 +3141,7 @@
       "weight": 0.005,
       "criticalSlots": 0,
       "costCBills": 500,
-      "battleValue": 0,
+      "battleValue": 0.28,
       "introductionYear": 2100,
       "special": []
     }
@@ -3490,7 +3490,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 57,
     "id": "long-tom",
-    "sha256": "f9b06905d51f09c29149bd33270422f3b1cec259868632b3f9b60fcdfcf27b30",
+    "sha256": "ffba7d2309bd8cb80402f14d8960a5f8c50f4ea236ed0bb3d68b65df779d7469",
     "item": {
       "id": "long-tom",
       "name": "Long Tom Cannon",
@@ -3506,11 +3506,11 @@
         "medium": 8,
         "long": 12
       },
-      "weight": 30,
-      "criticalSlots": 20,
+      "weight": 20,
+      "criticalSlots": 15,
       "ammoPerTon": 5,
       "costCBills": 650000,
-      "battleValue": 226,
+      "battleValue": 329,
       "introductionYear": 3079,
       "special": ["artillery"]
     }
@@ -3548,7 +3548,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 59,
     "id": "thumper-cannon",
-    "sha256": "6d71b17eee68c75c8c6de83b02ca168eca45e26e20dcd8e54efa681f8de23bbd",
+    "sha256": "bd02cef0d1e8d7fcbd838ca417db78510851fdb3cc9b7bd8b3cbaaeaf1556015",
     "item": {
       "id": "thumper-cannon",
       "name": "Thumper Cannon",
@@ -3557,15 +3557,15 @@
       "techBase": "INNER_SPHERE",
       "rulesLevel": "ADVANCED",
       "damage": 5,
-      "heat": 6,
+      "heat": 5,
       "ranges": {
         "minimum": 0,
         "short": 4,
         "medium": 8,
         "long": 12
       },
-      "weight": 15,
-      "criticalSlots": 15,
+      "weight": 10,
+      "criticalSlots": 7,
       "ammoPerTon": 20,
       "costCBills": 200000,
       "battleValue": 41,
@@ -9062,7 +9062,7 @@
     "file": "weapons/missile-other.json",
     "index": 45,
     "id": "thunderbolt-10",
-    "sha256": "9504fbc34d882c127fdbd49f3e82505829f40b1368c40a540df0a177e92b4e92",
+    "sha256": "6fd071beab45e7514e1abf8667ce5ff7bcedf7ce55001e753771d23ed9493fdd",
     "item": {
       "id": "thunderbolt-10",
       "name": "Thunderbolt 10",
@@ -9079,7 +9079,7 @@
         "long": 0
       },
       "weight": 7,
-      "criticalSlots": 0,
+      "criticalSlots": 2,
       "costCBills": 175000,
       "battleValue": 127,
       "introductionYear": 3072,
@@ -9090,7 +9090,7 @@
     "file": "weapons/missile-other.json",
     "index": 46,
     "id": "thunderbolt-15",
-    "sha256": "81e0fff3b56fddb16b9ba82ec36e406db17ec6d08188e033f9cf322ce14789dd",
+    "sha256": "a6d181a1fe6bdcdca236f2b18b98f1bc35892223a1023190d83f0de17110f0bc",
     "item": {
       "id": "thunderbolt-15",
       "name": "Thunderbolt 15",
@@ -9107,7 +9107,7 @@
         "long": 0
       },
       "weight": 11,
-      "criticalSlots": 0,
+      "criticalSlots": 3,
       "costCBills": 325000,
       "battleValue": 229,
       "introductionYear": 3072,
@@ -9118,7 +9118,7 @@
     "file": "weapons/missile-other.json",
     "index": 47,
     "id": "thunderbolt-20",
-    "sha256": "ffc4bc30b6d6c3c455d7faf5361c52ed3553004a5e947b621cdc6082793edec8",
+    "sha256": "1cf9b1c9fd97a852bc0025c2ac0c9cbd7df8de4cbba978a0999cf294c7422705",
     "item": {
       "id": "thunderbolt-20",
       "name": "Thunderbolt 20",
@@ -9135,7 +9135,7 @@
         "long": 0
       },
       "weight": 15,
-      "criticalSlots": 0,
+      "criticalSlots": 5,
       "costCBills": 450000,
       "battleValue": 305,
       "introductionYear": 3072,
@@ -9146,7 +9146,7 @@
     "file": "weapons/missile-other.json",
     "index": 48,
     "id": "thunderbolt-5",
-    "sha256": "64f2f0b1646bc456e6fe13781e2e11e09fbf9ced9abbf1a3c2f8cece5c890c9e",
+    "sha256": "33c968f68a03f3a995135baad6a8fcda3ce1dcc42fd0d086546f82dcf82bfbeb",
     "item": {
       "id": "thunderbolt-5",
       "name": "Thunderbolt 5",
@@ -9163,7 +9163,7 @@
         "long": 0
       },
       "weight": 3,
-      "criticalSlots": 0,
+      "criticalSlots": 1,
       "costCBills": 50000,
       "battleValue": 64,
       "introductionYear": 3072,
@@ -12670,7 +12670,7 @@
     "file": "weapons/energy-laser.json",
     "index": 26,
     "id": "bombast-laser",
-    "sha256": "ac23657992efec031f178e0b871ce7f9a0fcfc6a3bb49d65dfeaabd7cd8b7f23",
+    "sha256": "5d8347fff7793513b0d72c47fb271debd9f203c4511015948c3a5197c03cca41",
     "item": {
       "id": "bombast-laser",
       "name": "Bombast Laser",
@@ -12678,7 +12678,7 @@
       "subType": "Laser",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "EXPERIMENTAL",
-      "damage": 12,
+      "damage": 16,
       "heat": 12,
       "ranges": {
         "minimum": 0,
@@ -13042,7 +13042,7 @@
     "file": "weapons/energy-laser.json",
     "index": 39,
     "id": "improved-large-laser",
-    "sha256": "153c17a1327d67db94e2acdf1084a32908ab31a134989864c4ff5def9d1aa0a8",
+    "sha256": "472c07c830e4967b3b07625c5cd240c6f70816ed1f7a34168256812652083122",
     "item": {
       "id": "improved-large-laser",
       "name": "Improved Large Laser",
@@ -13058,8 +13058,8 @@
         "medium": 10,
         "long": 15
       },
-      "weight": 5,
-      "criticalSlots": 2,
+      "weight": 4,
+      "criticalSlots": 1,
       "costCBills": 100000,
       "battleValue": 123,
       "introductionYear": 2815,
@@ -13071,7 +13071,7 @@
     "file": "weapons/energy-laser.json",
     "index": 40,
     "id": "small-re-engineered-laser",
-    "sha256": "0ac324975ebeea3b4521fd0242ab85ebe474ef0593de2ccfa17d642dfcab3c44",
+    "sha256": "21398ef91feca7b8b31bbfbc1d667e26366b4ac242c724c22e71d0c47109d39b",
     "item": {
       "id": "small-re-engineered-laser",
       "name": "Small Re-engineered Laser",
@@ -13079,7 +13079,7 @@
       "subType": "Re-engineered Laser",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "EXPERIMENTAL",
-      "damage": 3,
+      "damage": 4,
       "heat": 4,
       "ranges": {
         "minimum": 0,
@@ -13087,7 +13087,7 @@
         "medium": 2,
         "long": 3
       },
-      "weight": 0.5,
+      "weight": 1.5,
       "criticalSlots": 1,
       "costCBills": 12500,
       "battleValue": 14,
@@ -13597,7 +13597,7 @@
     "file": "weapons/energy-other.json",
     "index": 8,
     "id": "laser-ams",
-    "sha256": "c2718618cbe9e157e145938370e8c46149f1f7d43d3c3e7f958ca2222a647fcd",
+    "sha256": "ef738c8d550bc2e548c64669bad7ba3a119ebbb549bceec4c71f51b794cd64cf",
     "item": {
       "id": "laser-ams",
       "name": "Laser Anti-Missile System",
@@ -13605,7 +13605,7 @@
       "subType": "Anti-Missile System",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "ADVANCED",
-      "damage": 0,
+      "damage": 3,
       "heat": 7,
       "ranges": {
         "minimum": 0,
@@ -13625,7 +13625,7 @@
     "file": "weapons/energy-other.json",
     "index": 9,
     "id": "clan-laser-ams",
-    "sha256": "27b605188d15eceb77a7b707e8448e08a137f4978ce38a0e671928db5530fefc",
+    "sha256": "ddecfbce8a3f46b73909c2372b9ab45c5b37024f0e2b5e4bd065a3768d5de60a",
     "item": {
       "id": "clan-laser-ams",
       "name": "Laser Anti-Missile System (Clan)",
@@ -13633,7 +13633,7 @@
       "subType": "Anti-Missile System",
       "techBase": "CLAN",
       "rulesLevel": "ADVANCED",
-      "damage": 0,
+      "damage": 3,
       "heat": 5,
       "ranges": {
         "minimum": 0,
@@ -13682,7 +13682,7 @@
     "file": "weapons/energy-other.json",
     "index": 11,
     "id": "battlemech-taser",
-    "sha256": "5d33f1ef8c123788358ccec4167ad96dcf94766c6ceb0621b6b6f7d28df362ba",
+    "sha256": "fbd223c63715c846160a296e0d8a24084aabdc2ec287f66fb472df2691224a0b",
     "item": {
       "id": "battlemech-taser",
       "name": "BattleMech Taser",
@@ -13690,7 +13690,7 @@
       "subType": "Taser",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "EXPERIMENTAL",
-      "damage": 0,
+      "damage": 1,
       "heat": 6,
       "ranges": {
         "minimum": 0,
@@ -13710,7 +13710,7 @@
     "file": "weapons/energy-other.json",
     "index": 12,
     "id": "fluid-gun",
-    "sha256": "fd774bf5df6fa60ce92b347664e55368c98ed5f482fcf02e554ebf403baa1317",
+    "sha256": "449814906de1244fd3213d53eb3f310b60f3227887f518dc4719a8785f74ab69",
     "item": {
       "id": "fluid-gun",
       "name": "Fluid Gun",
@@ -13718,7 +13718,7 @@
       "subType": "Flamer",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "ADVANCED",
-      "damage": 2,
+      "damage": 0,
       "heat": 0,
       "ranges": {
         "minimum": 0,
@@ -13727,7 +13727,7 @@
         "long": 3
       },
       "weight": 2,
-      "criticalSlots": 1,
+      "criticalSlots": 2,
       "ammoPerTon": 20,
       "costCBills": 35000,
       "battleValue": 6,
@@ -15446,7 +15446,7 @@
     "file": "ammunition/autocannon.json",
     "index": 30,
     "id": "ammo-nac-10",
-    "sha256": "64d014c13ed89a3f97456c66606abec6fc8a47460c29b3e0b201541c858f9305",
+    "sha256": "47e32b9fe22cc24586ea4feeb2493ca330e329811d83c49393aa85520eee830f",
     "item": {
       "id": "ammo-nac-10",
       "name": "NAC/10 Ammo",
@@ -15456,7 +15456,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
-      "weight": 1,
+      "weight": 0.2,
       "criticalSlots": 1,
       "costPerTon": 30000,
       "battleValue": 237,
@@ -15471,7 +15471,7 @@
     "file": "ammunition/autocannon.json",
     "index": 31,
     "id": "ammo-nac-20",
-    "sha256": "b8d5fcf9f9ccfbdb90c98d41499867c4ff81c5900563aebceaa34d56721e3c89",
+    "sha256": "ed90784c96a17029840f7bedf9a525a73bf3506fe69d58dcb4761b9271bfad42",
     "item": {
       "id": "ammo-nac-20",
       "name": "NAC/20 Ammo",
@@ -15481,7 +15481,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
-      "weight": 1,
+      "weight": 0.4,
       "criticalSlots": 1,
       "costPerTon": 60000,
       "battleValue": 474,
@@ -15496,7 +15496,7 @@
     "file": "ammunition/autocannon.json",
     "index": 32,
     "id": "ammo-nac-25",
-    "sha256": "a65bbc63a3322d6796bb34d6d6270de193361150c82e87bd8580d780a1a8322c",
+    "sha256": "0befef19ff997565e74db36a84da7d30fb596e3725dcbec89092b92f1dea807d",
     "item": {
       "id": "ammo-nac-25",
       "name": "NAC/25 Ammo",
@@ -15506,7 +15506,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
-      "weight": 1,
+      "weight": 0.6,
       "criticalSlots": 1,
       "costPerTon": 75000,
       "battleValue": 593,
@@ -15521,7 +15521,7 @@
     "file": "ammunition/autocannon.json",
     "index": 33,
     "id": "ammo-nac-30",
-    "sha256": "9aea37702fae62bfb5675882500c491cf432674a4f50b8a794458457c2cf0543",
+    "sha256": "bfda009aea2c6fe46c59a26975c14691af7f440c3a0b37b19e5139d5ea52d1d4",
     "item": {
       "id": "ammo-nac-30",
       "name": "NAC/30 Ammo",
@@ -15531,7 +15531,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
-      "weight": 1,
+      "weight": 0.8,
       "criticalSlots": 1,
       "costPerTon": 90000,
       "battleValue": 711,
@@ -15571,7 +15571,7 @@
     "file": "ammunition/autocannon.json",
     "index": 35,
     "id": "ammo-nac-40",
-    "sha256": "59bb4ab37b86ed4ac829b5645b47b5638431f0902f3c09a618253bd63ccb039e",
+    "sha256": "be037f59ebc6a21da0db58a6a98fb9b01b2b84905d2a878709915ac3cea3ff44",
     "item": {
       "id": "ammo-nac-40",
       "name": "NAC/40 Ammo",
@@ -15581,7 +15581,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
-      "weight": 1,
+      "weight": 1.2,
       "criticalSlots": 1,
       "costPerTon": 120000,
       "battleValue": 708,
@@ -15596,7 +15596,7 @@
     "file": "ammunition/autocannon.json",
     "index": 36,
     "id": "ammo-barracuda",
-    "sha256": "9ff62e1a18c3e70bdb520909670c09e4779073cac39e64f95b30f6e59e1da7dc",
+    "sha256": "493c0e631d9209e1c4e0bf475c638aedcb2b923ed931b9bde2d8de9ea7301b83",
     "item": {
       "id": "ammo-barracuda",
       "name": "Barracuda Ammo",
@@ -15606,7 +15606,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
-      "weight": 1,
+      "weight": 30,
       "criticalSlots": 1,
       "costPerTon": 8000,
       "battleValue": 65,
@@ -17052,7 +17052,7 @@
     "file": "ammunition/lrm.json",
     "index": 20,
     "id": "clan-streak-lrm-1",
-    "sha256": "095a59b04201fe821c8a86bc7b531d92bfcf0ac891408e7a730ba0f4efca6bb7",
+    "sha256": "9571c7b6859cddd3d9e8d1c0f9f1eb4b409f2c488c44b1f573f362e6771e28f1",
     "item": {
       "id": "clan-streak-lrm-1",
       "name": "Streak LRM 1 Ammo",
@@ -17065,7 +17065,7 @@
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 60000,
-      "battleValue": 0,
+      "battleValue": 0.016,
       "isExplosive": true,
       "introductionYear": 3057,
       "special": []
@@ -17075,7 +17075,7 @@
     "file": "ammunition/lrm.json",
     "index": 21,
     "id": "clan-streak-lrm-2",
-    "sha256": "ec5d0322092ea597ab79504b2aed4811b53e15726f89f41b1fae7fa8fad0d00d",
+    "sha256": "e982dbf2fd93c23482181767cc552b98afb590fc9eb610b8edcff03bfee10dc4",
     "item": {
       "id": "clan-streak-lrm-2",
       "name": "Streak LRM 2 Ammo",
@@ -17088,7 +17088,7 @@
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 60000,
-      "battleValue": 0,
+      "battleValue": 0.033,
       "isExplosive": true,
       "introductionYear": 3057,
       "special": []
@@ -17236,7 +17236,7 @@
     "file": "ammunition/lrm.json",
     "index": 28,
     "id": "clan-streak-lrm-11",
-    "sha256": "5a00618c455a0dd1214504f90af27ffbe36cd6695e04f8051a1dec1b41ae60b9",
+    "sha256": "7c36cc55d7d49d3f84b41228566596186bbaa0e72889af31a2c4d75f3953ee48",
     "item": {
       "id": "clan-streak-lrm-11",
       "name": "Streak LRM 11 Ammo",
@@ -17249,7 +17249,7 @@
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 60000,
-      "battleValue": 0,
+      "battleValue": 0.183,
       "isExplosive": true,
       "introductionYear": 3057,
       "special": []
@@ -17259,7 +17259,7 @@
     "file": "ammunition/lrm.json",
     "index": 29,
     "id": "clan-streak-lrm-12",
-    "sha256": "d88ea75dac2b691a800d8d62d6f636a35b37b7195d67b8b1c56f6569978cc04e",
+    "sha256": "c1d137041e729170c8552b15dc7dfb430b5916e5c925944e438d075b9486f13c",
     "item": {
       "id": "clan-streak-lrm-12",
       "name": "Streak LRM 12 Ammo",
@@ -17272,7 +17272,7 @@
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 60000,
-      "battleValue": 0,
+      "battleValue": 0.2,
       "isExplosive": true,
       "introductionYear": 3057,
       "special": []
@@ -17282,7 +17282,7 @@
     "file": "ammunition/lrm.json",
     "index": 30,
     "id": "clan-streak-lrm-13",
-    "sha256": "14c144bd08e208a4f50f1bc3832ecbaca14f728d9e5a813bf299c93b574f0ce9",
+    "sha256": "b90b065668a2cbcf6d0b2656519062dcb45b64858d4df87ac972e0eaae3e8a28",
     "item": {
       "id": "clan-streak-lrm-13",
       "name": "Streak LRM 13 Ammo",
@@ -17295,7 +17295,7 @@
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 60000,
-      "battleValue": 0,
+      "battleValue": 0.216,
       "isExplosive": true,
       "introductionYear": 3057,
       "special": []
@@ -17305,7 +17305,7 @@
     "file": "ammunition/lrm.json",
     "index": 31,
     "id": "clan-streak-lrm-14",
-    "sha256": "2b0a6670c6ced5445f3facba74467d16c7021ed3739dc7a4daa07f9a893614db",
+    "sha256": "9237c666af9af32ba96d2b8a44765b121777409498d7f17f7f17d0d02225a496",
     "item": {
       "id": "clan-streak-lrm-14",
       "name": "Streak LRM 14 Ammo",
@@ -17318,7 +17318,7 @@
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 60000,
-      "battleValue": 0,
+      "battleValue": 0.233,
       "isExplosive": true,
       "introductionYear": 3057,
       "special": []
@@ -17328,7 +17328,7 @@
     "file": "ammunition/lrm.json",
     "index": 32,
     "id": "clan-streak-lrm-16",
-    "sha256": "93501506f16420b989f7a66b5cd56745765bd8cb0b671ad199961221a331b714",
+    "sha256": "8c87a4602ef5037b20e531f1fee51e8b5b57d4189e27c77512697092d8e7def7",
     "item": {
       "id": "clan-streak-lrm-16",
       "name": "Streak LRM 16 Ammo",
@@ -17341,7 +17341,7 @@
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 60000,
-      "battleValue": 0,
+      "battleValue": 0.266,
       "isExplosive": true,
       "introductionYear": 3057,
       "special": []
@@ -17351,7 +17351,7 @@
     "file": "ammunition/lrm.json",
     "index": 33,
     "id": "clan-streak-lrm-17",
-    "sha256": "1fdc68360a5588874bb7c2a3bde3214b388716a801abd7152fc8df2b5849770a",
+    "sha256": "0bd671fb599e9bfeeed6787a0f567bb16851f7423e2a2f66d90e76205d6a6a5e",
     "item": {
       "id": "clan-streak-lrm-17",
       "name": "Streak LRM 17 Ammo",
@@ -17364,7 +17364,7 @@
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 60000,
-      "battleValue": 0,
+      "battleValue": 0.283,
       "isExplosive": true,
       "introductionYear": 3057,
       "special": []
@@ -17374,7 +17374,7 @@
     "file": "ammunition/lrm.json",
     "index": 34,
     "id": "clan-streak-lrm-18",
-    "sha256": "fa33c5476e48b89413c5211958399c45950c6e6f9529a10348e3e60a122c60de",
+    "sha256": "8c6b2773379694384a7ef11357a57c944de5f025e2a511d79914364dc211d0fe",
     "item": {
       "id": "clan-streak-lrm-18",
       "name": "Streak LRM 18 Ammo",
@@ -17387,7 +17387,7 @@
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 60000,
-      "battleValue": 0,
+      "battleValue": 0.3,
       "isExplosive": true,
       "introductionYear": 3057,
       "special": []
@@ -17397,7 +17397,7 @@
     "file": "ammunition/lrm.json",
     "index": 35,
     "id": "clan-streak-lrm-19",
-    "sha256": "cbbebe19d54a7258fa43352ecffd28898cd5a9ff0ca5ee6363b4ee380876d91f",
+    "sha256": "9bda67ceb812322822466f3f3a2cd14e5b9ebd0cda4882dae0ac2c27b9086dff",
     "item": {
       "id": "clan-streak-lrm-19",
       "name": "Streak LRM 19 Ammo",
@@ -17410,7 +17410,7 @@
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 60000,
-      "battleValue": 0,
+      "battleValue": 0.316,
       "isExplosive": true,
       "introductionYear": 3057,
       "special": []
@@ -18666,7 +18666,7 @@
     "file": "ammunition/narc.json",
     "index": 1,
     "id": "inarc-ammo",
-    "sha256": "0cdcae943687e9d9cbcb36c6074d64581ca97400e3ab232fce8b7ee989aa98e5",
+    "sha256": "9642b08e2fc51370409d3ca7168816041e5e0643bbaa5e58348dc96b2c6900e0",
     "item": {
       "id": "inarc-ammo",
       "name": "iNARC Pods",
@@ -18679,7 +18679,7 @@
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 7500,
-      "battleValue": 21,
+      "battleValue": 0,
       "isExplosive": true,
       "introductionYear": 3062
     }
@@ -23029,7 +23029,7 @@
     "file": "miscellaneous/other.json",
     "index": 68,
     "id": "chain-whip",
-    "sha256": "a8963c9e6cac2fd3e2a2f43473bc3d8c17f0b88f8a3997057fd07f1c120fe7d4",
+    "sha256": "abf9570ab976b7af074a5118caa98d09c2a086c040e471c254a4544b429eb7b3",
     "item": {
       "id": "chain-whip",
       "name": "Chain Whip",
@@ -23039,7 +23039,7 @@
       "weight": 3,
       "criticalSlots": 2,
       "costCBills": 120000,
-      "battleValue": 5,
+      "battleValue": 5.175,
       "introductionYear": 3084,
       "special": []
     }
@@ -24635,14 +24635,14 @@
     "file": "miscellaneous/other.json",
     "index": 151,
     "id": "fluid-suction-system-standard",
-    "sha256": "9fd8130f4df3cbee19c0fb08991e11a2d7c61b7a6775ebc120a11067d2fbf4b4",
+    "sha256": "862149f6a9fffc9036b0ea37767d9d13b623e94f5c2d29b28dfeb5da10205c21",
     "item": {
       "id": "fluid-suction-system-standard",
       "name": "Fluid Suction System (Standard)",
       "category": "Miscellaneous",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "weight": 0,
+      "weight": 1,
       "criticalSlots": 1,
       "costCBills": 25000,
       "battleValue": 0,
@@ -25572,7 +25572,7 @@
     "file": "miscellaneous/other.json",
     "index": 200,
     "id": "protomagneticclamp",
-    "sha256": "a20fd4fa911478198217bfbd0f7610c1d49305a7d64bc8b84a3233b415fce635",
+    "sha256": "12658ccb6f54373d863a4c68249651048bf962ca7312200350a0b7edbe18552e",
     "item": {
       "id": "protomagneticclamp",
       "name": "Magnetic Clamps System",
@@ -25582,7 +25582,7 @@
       "weight": 0,
       "criticalSlots": 1,
       "costCBills": 25000,
-      "battleValue": 0,
+      "battleValue": 1,
       "introductionYear": 3080,
       "special": ["Variable weight"]
     }
@@ -26751,7 +26751,7 @@
     "file": "miscellaneous/other.json",
     "index": 262,
     "id": "babattleclawmagnets",
-    "sha256": "42e9dc876bcaef7142d1b12fb5807c05323456cb9fb2f12f2bdf2d372026531d",
+    "sha256": "ee8c3da6da94d98cef5e48f5182f973bb290d9ca81ed5d279f3489809b232183",
     "item": {
       "id": "babattleclawmagnets",
       "name": "BA Manipulator Adaptation [Magnetic Battle Claw]",
@@ -26761,7 +26761,7 @@
       "weight": 0.035,
       "criticalSlots": 0,
       "costCBills": 12500,
-      "battleValue": 1,
+      "battleValue": 1.5,
       "introductionYear": 3055,
       "special": []
     }
@@ -26770,7 +26770,7 @@
     "file": "miscellaneous/other.json",
     "index": 263,
     "id": "baheavybattleclawmagnets",
-    "sha256": "65505eeae43973f9f10d4ba81376d7b8f7038b50aea000744fe7ee180146cdce",
+    "sha256": "be1b4f0f7162206e94e6976253cc7e2aa988ab4553f0ca6286c6488f22e8f137",
     "item": {
       "id": "baheavybattleclawmagnets",
       "name": "BA Manipulator Adaptation [Heavy Magnetic Battle Claw]",
@@ -26780,7 +26780,7 @@
       "weight": 0.04,
       "criticalSlots": 0,
       "costCBills": 31250,
-      "battleValue": 1,
+      "battleValue": 1.5,
       "introductionYear": 3055,
       "special": []
     }
@@ -27416,7 +27416,7 @@
     "file": "miscellaneous/other.json",
     "index": 297,
     "id": "vehicular-grenade-launcher",
-    "sha256": "7d27d4db41f5a4aa4c0292e8f28d770de28123a962926e4b71ce9c5991b32766",
+    "sha256": "a8b90e85cea2b6625066b7d4a64be313c41e565ad0967f5de9fe9cb109a55398",
     "item": {
       "id": "vehicular-grenade-launcher",
       "name": "Vehicular Grenade Launcher",
@@ -27426,7 +27426,7 @@
       "weight": 0.5,
       "criticalSlots": 1,
       "costCBills": 10000,
-      "battleValue": 5,
+      "battleValue": 15,
       "introductionYear": 1950,
       "special": ["smoke"]
     }
@@ -27435,7 +27435,7 @@
     "file": "miscellaneous/other.json",
     "index": 298,
     "id": "risc-apds",
-    "sha256": "abaeb83bd2ef9a02295662bf1c9233c610c69985ef10513134df4d76e8a376e2",
+    "sha256": "3d9830ece8b710a30e1c4a6d2fa80266e3c7632351a66adc70e3b79f27234657",
     "item": {
       "id": "risc-apds",
       "name": "RISC Advanced Point Defense System",
@@ -27443,7 +27443,7 @@
       "techBase": "INNER_SPHERE",
       "rulesLevel": "EXPERIMENTAL",
       "weight": 3,
-      "criticalSlots": 4,
+      "criticalSlots": 2,
       "costCBills": 300000,
       "battleValue": 64,
       "introductionYear": 3137,
