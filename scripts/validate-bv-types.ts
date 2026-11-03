@@ -17,7 +17,7 @@ export interface UnitData {
   engine: { type: string; rating: number };
   gyro: { type: string };
   cockpit: string;
-  structure: { type: string };
+  structure: { type: string; locationTonnage?: Record<string, number> };
   armor: { type: string; allocation: ArmorAllocation };
   heatSinks: { type: string; count: number };
   movement: { walk: number; jump: number };

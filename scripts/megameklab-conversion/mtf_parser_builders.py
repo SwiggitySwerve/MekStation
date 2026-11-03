@@ -15,6 +15,37 @@ CRITICAL_MOUNTED_EQUIPMENT_IDS = {
     'ischaffpod': 'chaffpod',
 }
 
+FRANKEN_STRUCTURE_LOCATIONS = {
+    'hd': 'HEAD', 'ct': 'CENTER_TORSO', 'lt': 'LEFT_TORSO', 'rt': 'RIGHT_TORSO',
+    'la': 'LEFT_ARM', 'ra': 'RIGHT_ARM', 'll': 'LEFT_LEG', 'rl': 'RIGHT_LEG',
+    'fll': 'FRONT_LEFT_LEG', 'frl': 'FRONT_RIGHT_LEG', 'rll': 'REAR_LEFT_LEG',
+    'rrl': 'REAR_RIGHT_LEG', 'cl': 'CENTER_LEG',
+}
+
+
+def franken_structure_tonnage(config: str, structure: str,
+                              values: Dict[str, str]) -> Optional[Dict[str, int]]:
+    """Per-location structure tonnage of a FrankenMek (MtfFile.java:362-411,669-702).
+
+    Hybrid structure, or a value with its own type, is `<type>:<tonnage>`;
+    otherwise the value is the tonnage. Other meks have none.
+    """
+    if 'FrankenMek' not in config:
+        return None
+    hybrid = structure.strip().lower() == 'hybrid'
+    tonnage: Dict[str, int] = {}
+    for code, value in values.items():
+        location = FRANKEN_STRUCTURE_LOCATIONS.get(code)
+        if location is None or not value.strip():
+            continue
+        raw = value.rsplit(':', 1)[-1] if hybrid or ':' in value else value
+        try:
+            tonnage[location] = int(raw.strip())
+        except ValueError as error:
+            raise ValueError(f'Invalid FrankenMek structure tonnage for {code}: {raw}') from error
+    return tonnage or None
+
+
 def build_armor_allocation(raw_allocation: Dict[str, int]) -> Dict[str, Any]:
     """Build armor allocation with proper location names and front/rear handling."""
     allocation: Dict[str, Any] = {}

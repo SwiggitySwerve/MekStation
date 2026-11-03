@@ -209,6 +209,12 @@ export const UnitContract = z
                 'ENDO_COMPOSITE_CLAN',
               ])
               .describe('Internal structure type'),
+            locationTonnage: z
+              .record(z.string(), z.number().int().gte(1))
+              .describe(
+                'FrankenMek only: structure tonnage per location (MegaMek MtfFile.java:669-691)',
+              )
+              .optional(),
           })
           .strict(),
         armor: z
@@ -690,6 +696,12 @@ export const UnitContract = z
                 'ENDO_COMPOSITE_CLAN',
               ])
               .describe('Internal structure type'),
+            locationTonnage: z
+              .record(z.string(), z.number().int().gte(1))
+              .describe(
+                'FrankenMek only: structure tonnage per location (MegaMek MtfFile.java:669-691)',
+              )
+              .optional(),
           })
           .strict()
           .optional(),

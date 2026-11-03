@@ -50,7 +50,11 @@ export function deriveUnitBvCalculatorSetup(
     cockpitUpper,
     Object.keys(unit.armor?.allocation || {}),
   );
-  const totalStructure = calcTotalStructure(unit.tonnage, effectiveConfig);
+  const totalStructure = calcTotalStructure(
+    unit.tonnage,
+    effectiveConfig,
+    unit.structure?.locationTonnage,
+  );
 
   return {
     engineType,
