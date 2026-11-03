@@ -50,7 +50,7 @@ function isKnownCombatEquipment(name: string): boolean {
   return COMBAT_EQUIPMENT.some((ce) => lowerName.includes(ce.toLowerCase()));
 }
 
-function mapCombatEquipment(
+export function mapCombatEquipment(
   eq: UnitEquipment,
   weaponData: WeaponLookupResult | undefined,
   allAmmunition: readonly IAmmunition[],

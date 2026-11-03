@@ -1,0 +1,68 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`committed catalog record-sheet model parity aerospace: checks every indexed unit and records every mismatch/rejection 1`] = `
+{
+  "counts": {
+    "BV.source": 44,
+    "equipmentUnresolved": 166,
+    "template": 39,
+  },
+  "rejected": 0,
+  "residualDigest": "e683d7d512cd77a03b79c58e4b678f6f1d2191b2d6091ae86f9194c1972ba9e1",
+  "total": 620,
+}
+`;
+
+exports[`committed catalog record-sheet model parity battlearmor: checks every indexed unit and records every mismatch/rejection 1`] = `
+{
+  "counts": {},
+  "rejected": 0,
+  "residualDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "total": 1188,
+}
+`;
+
+exports[`committed catalog record-sheet model parity battlemechs: checks every indexed unit and records every mismatch/rejection 1`] = `
+{
+  "counts": {},
+  "rejected": 0,
+  "residualDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "total": 4263,
+}
+`;
+
+exports[`committed catalog record-sheet model parity infantry: checks every indexed unit and records every mismatch/rejection 1`] = `
+{
+  "counts": {},
+  "rejected": 0,
+  "residualDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "total": 1820,
+}
+`;
+
+exports[`committed catalog record-sheet model parity protomechs: checks every indexed unit and records every mismatch/rejection 1`] = `
+{
+  "counts": {},
+  "rejected": 0,
+  "residualDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "total": 86,
+}
+`;
+
+exports[`committed catalog record-sheet model parity vehicles: checks every indexed unit and records every mismatch/rejection 1`] = `
+{
+  "counts": {
+    "BV.source": 182,
+    "armor.FRONT_LEFT": 37,
+    "armor.FRONT_RIGHT": 37,
+    "armor.REAR_LEFT": 37,
+    "armor.REAR_RIGHT": 37,
+    "equipmentUnresolved": 447,
+    "motion": 7,
+    "template.weightTier": 26,
+  },
+  "rejected": 68,
+  "residualDigest": "7301251b22dbe2b7dca4250855f35627936294dd74b148a121d1809a533a6f6e",
+  "total": 1444,
+}
+`;

@@ -36,6 +36,7 @@ export function ProtoMechPreviewTab({
 }: ProtoMechPreviewTabProps): React.ReactElement {
   const [paperSize, setPaperSize] = useState<PaperSize>(PaperSize.LETTER);
 
+  const source = useProtoMechStore((s) => s);
   const id = useProtoMechStore((s) => s.id);
   const name = useProtoMechStore((s) => s.name);
   const chassis = useProtoMechStore((s) => s.chassis);
@@ -54,6 +55,7 @@ export function ProtoMechPreviewTab({
   const unitObject = useMemo(
     () =>
       buildProtoMechUnitObject({
+        source,
         id,
         name,
         chassis,
@@ -70,6 +72,7 @@ export function ProtoMechPreviewTab({
         glidingWings,
       }),
     [
+      source,
       id,
       name,
       chassis,
