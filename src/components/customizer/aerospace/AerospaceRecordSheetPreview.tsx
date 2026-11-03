@@ -47,6 +47,7 @@ export function AerospaceRecordSheetPreview({
   const rulesLevel = useAerospaceStore((s) => s.rulesLevel);
   const year = useAerospaceStore((s) => s.year);
   const unitType = useAerospaceStore((s) => s.unitType);
+  const isFixedWingSupport = useAerospaceStore((s) => s.isFixedWingSupport);
   const structuralIntegrity = useAerospaceStore((s) => s.structuralIntegrity);
   const fuelPoints = useAerospaceStore((s) => s.fuelPoints);
   const safeThrust = useAerospaceStore((s) => s.safeThrust);
@@ -71,6 +72,7 @@ export function AerospaceRecordSheetPreview({
         rulesLevel,
         year,
         unitType,
+        isFixedWingSupport,
         structuralIntegrity,
         fuelPoints,
         safeThrust,
@@ -93,6 +95,7 @@ export function AerospaceRecordSheetPreview({
       rulesLevel,
       year,
       unitType,
+      isFixedWingSupport,
       structuralIntegrity,
       fuelPoints,
       safeThrust,

@@ -38,6 +38,7 @@ export function ProtoMechRecordSheetPreview({
   scale = 0.75,
   className = '',
 }: ProtoMechRecordSheetPreviewProps): React.ReactElement {
+  const source = useProtoMechStore((s) => s);
   const id = useProtoMechStore((s) => s.id);
   const name = useProtoMechStore((s) => s.name);
   const chassis = useProtoMechStore((s) => s.chassis);
@@ -56,6 +57,7 @@ export function ProtoMechRecordSheetPreview({
   const unitObject = useMemo(
     () =>
       buildProtoMechUnitObject({
+        source,
         id,
         name,
         chassis,
@@ -72,6 +74,7 @@ export function ProtoMechRecordSheetPreview({
         glidingWings,
       }),
     [
+      source,
       id,
       name,
       chassis,

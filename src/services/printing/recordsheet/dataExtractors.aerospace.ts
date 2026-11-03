@@ -5,6 +5,7 @@
  * fighter unit configuration.
  */
 
+import { mapHeatSinkType } from '@/services/conversion/ValueMappings';
 import {
   IAerospaceRecordSheetData,
   IAerospaceArcArmor,
@@ -12,6 +13,7 @@ import {
   IRecordSheetPilot,
   IRecordSheetSPAEntry,
 } from '@/types/printing';
+import { calculateHeatDissipation } from '@/utils/construction/heatSinkCalculations';
 
 import type { IBaseRecordSheetUnitConfig } from './types';
 
@@ -23,6 +25,7 @@ import {
 
 /** Aerospace-specific unit config fields. */
 export interface IAerospaceUnitConfig extends IBaseRecordSheetUnitConfig {
+  isConventional?: boolean;
   /** Structural Integrity points. */
   structuralIntegrity?: number;
   /** Total fuel points (standard aerospace: 400). */
@@ -66,17 +69,20 @@ export function extractAerospaceData(
   }));
 
   const hsRaw = unit.heatSinks ?? { type: 'Single', count: 10 };
-  const isDouble = hsRaw.type.toLowerCase().includes('double');
   const heatSinks: IRecordSheetHeatSinks = {
     type: hsRaw.type,
     count: hsRaw.count,
-    capacity: hsRaw.count * (isDouble ? 2 : 1),
+    capacity: calculateHeatDissipation(
+      mapHeatSinkType(hsRaw.type),
+      hsRaw.count,
+    ),
     integrated: Math.min(hsRaw.count, 10),
     external: Math.max(0, hsRaw.count - 10),
   };
 
   return {
     unitType: 'aerospace',
+    isConventional: unit.isConventional ?? false,
     header: extractHeader(unit),
     structuralIntegrity: unit.structuralIntegrity ?? 0,
     fuelPoints: unit.fuelPoints ?? 400,

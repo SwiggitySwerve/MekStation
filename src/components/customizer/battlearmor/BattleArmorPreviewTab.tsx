@@ -36,6 +36,7 @@ export function BattleArmorPreviewTab({
 }: BattleArmorPreviewTabProps): React.ReactElement {
   const [paperSize, setPaperSize] = useState<PaperSize>(PaperSize.LETTER);
 
+  const source = useBattleArmorStore((s) => s);
   const id = useBattleArmorStore((s) => s.id);
   const name = useBattleArmorStore((s) => s.name);
   const chassis = useBattleArmorStore((s) => s.chassis);
@@ -54,6 +55,7 @@ export function BattleArmorPreviewTab({
   const unitObject = useMemo(
     () =>
       buildBattleArmorUnitObject({
+        source,
         id,
         name,
         chassis,
@@ -70,6 +72,7 @@ export function BattleArmorPreviewTab({
         umuMP,
       }),
     [
+      source,
       id,
       name,
       chassis,

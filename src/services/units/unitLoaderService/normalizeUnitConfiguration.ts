@@ -17,6 +17,7 @@ import { MechConfiguration, UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import type { IRawSerializedUnit } from './types';
 
+import { deriveEffectiveConfiguration } from '../../../../scripts/validate-bv-calculator-setup';
 import { calculateArmorTonnage } from './armorCalculations';
 import {
   mapEngineType,
@@ -206,7 +207,16 @@ function deriveConfigurationState(
 ): UnitConfigurationState {
   return {
     unitType: (serialized.unitType as UnitType) || 'BattleMech',
-    configuration: (serialized.configuration as MechConfiguration) || 'Biped',
+    configuration:
+      Object.values(MechConfiguration).find(
+        (config) =>
+          config ===
+          deriveEffectiveConfiguration(
+            serialized.configuration,
+            (serialized.cockpit ?? '').toUpperCase(),
+            [],
+          ),
+      ) ?? MechConfiguration.BIPED,
     lamMode: LAMMode.MECH,
     quadVeeMode: QuadVeeMode.MECH,
     isOmni: serialized.isOmni ?? false,

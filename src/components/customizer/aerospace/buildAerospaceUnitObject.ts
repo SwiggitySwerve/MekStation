@@ -15,9 +15,11 @@ import type { IAerospaceRecordSheetUnitInput } from '@/services/printing/records
 import type { IAerospaceArmorAllocation } from '@/stores/aerospaceState';
 import type { IAerospaceMountedEquipment } from '@/types/unit/AerospaceInterfaces';
 
+import { getTotalAerospaceArmor } from '@/stores/aerospaceState';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
 
 import {
   buildRecordSheetUnitIdentity,
@@ -30,6 +32,7 @@ export interface AerospaceUnitObjectInput extends RecordSheetUnitIdentityWithTon
     | UnitType.AEROSPACE
     | UnitType.CONVENTIONAL_FIGHTER
     | UnitType.SMALL_CRAFT;
+  isFixedWingSupport?: boolean;
   structuralIntegrity: number;
   fuelPoints: number;
   safeThrust: number;
@@ -76,8 +79,18 @@ function toArmorArcs(
 export function buildAerospaceUnitObject(
   input: AerospaceUnitObjectInput,
 ): IAerospaceRecordSheetUnitInput {
+  const bv = calculateBattleValueForUnit({
+    ...input,
+    movement: { safeThrust: input.safeThrust, maxThrust: input.maxThrust },
+    heatSinkType: input.doubleHeatSinks ? 1 : 0,
+    totalArmorPoints: getTotalAerospaceArmor(input.armorAllocation),
+  });
+  if (!bv || bv.kind !== 'aerospace')
+    throw new TypeError('Expected aerospace BV');
   return {
     ...buildRecordSheetUnitIdentity(input),
+    battleValue: bv.breakdown.final,
+    isConventional: input.unitType === UnitType.CONVENTIONAL_FIGHTER,
     // Dispatch hint — resolves to the 'aerospace' kind for both sub-types.
     // There is no small craft sheet yet; small craft use the aerospace sheet.
     unitType:
@@ -97,6 +110,7 @@ export function buildAerospaceUnitObject(
     bombBaySlots: input.hasBombBay ? input.bombCapacity : 0,
     equipment: input.equipment.map((eq) => ({
       id: eq.id,
+      equipmentId: eq.equipmentId,
       name: eq.name,
       location: String(eq.location),
     })),
