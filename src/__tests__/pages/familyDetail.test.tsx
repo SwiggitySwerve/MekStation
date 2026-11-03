@@ -117,29 +117,34 @@ it.each(cases)(
 );
 
 it.each([
+  // Ruling item 3; pinned Tomahawk C.mtf:38 specifies Clan Double sinks.
   [
     'tomahawk-c',
-    'a21aa7b85ba35a979b7ff2bda15b43c26be62365babe6c563f4b8fadf6a8edc9',
+    'f19b48433194adb56b9b594577829c7862e2a4c72f96905571b38b9a1db7b85d',
   ],
+  // Ruling item 3; pinned Battle Tripod R_H3L-2X.mtf:48 specifies Ferro-Lamellor armor.
   [
     'battle-tripod-r-h3l-2x',
-    '349c380f3087aefe9f40a3968cecbb4639923ff2867979f6213bf87be8b426e3',
+    '59fa1779a378e75312dc72feed1cfd4fa7ecedd7326f1c994c600ba87a676899',
   ],
+  // Ruling item 3; pinned Archer ARC-6W.mtf:32-36 fixes the quirk order.
   [
     'archer-arc-6w',
-    'a9cfea8a129f042f01140da09844de1c9bbf0e6d338bbcc1114fc6d675a8902d',
+    'fa1673449d3b6a3c5f100460e58a4df462e6b8d5ec387f231501d75ddccecec6',
   ],
   [
     'dervish-dv-1s',
     '35a9963b19a2804aecb40e8f58fb4e7effdcf59e634212659ae7bbad8e7c2166',
   ],
+  // Ruling item 3; pinned Kintaro KTO-21.mtf:56-61 lists five weapons; C3i remains in slots :130-131.
   [
     'kintaro-kto-21',
-    '0fc25c2d5644d83eab107636b990dbfa41c5b8b2b53c27be630b06db671e4006',
+    'bf85f8980b233ebafe121adc33746c8470d304f956937f3975bca77ec6266416',
   ],
+  // Ruling item 3; pinned Zeus X ZEU-X4.mtf:32-33,59-63 fixes quirk and mount order.
   [
     'zeus-x-zeu-x4',
-    'c07f67fe6263bd226642abb61bfc07230da8a933d9e98e4ffd05d1ff6f9096e8',
+    '8c9f3620ba86f87bb52967b7f3e7538d3aed22b2420f10f812f48cdb6c624c15',
   ],
 ])('preserves the complete shipped %s mech rendering', async (id, hash) => {
   const rows = JSON.parse(
@@ -150,7 +155,8 @@ it.each([
     'battlemechs',
     path.join('public/data/units/battlemechs', mech.path),
   );
-  // Captured before the family presentation fix; compare the complete mech DOM.
+  // Compare the complete DOM; the pinned-source changes above were isolated
+  // against the old inputs under this same renderer before updating hashes.
   const dom = format(view.container, {
     plugins: [plugins.DOMElement, plugins.DOMCollection],
   });

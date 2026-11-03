@@ -157,5 +157,6 @@
     ]
   },
   "role": "Skirmisher",
-  "source": "Salvage Box:UrbanMech"
+  "source": "SB:UrbanLAM",
+  "lamType": "Standard"
 }

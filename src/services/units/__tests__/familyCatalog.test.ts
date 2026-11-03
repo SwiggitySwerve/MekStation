@@ -422,7 +422,7 @@ it('rejects all-skipped indexes in strict mode without caching them', async () =
   expect(warn).toHaveBeenCalledTimes(6);
 });
 
-it('maps every shipped mech row with zero skips and opens all eight non-ASCII index ids', async () => {
+it('maps every shipped mech row with zero skips and opens all eight preserved UTF-8 designs', async () => {
   const warn = jest.spyOn(logger, 'warn').mockImplementation(() => {});
   expect(mapRawIndexRows(shipped.units)).toHaveLength(shipped.units.length);
   expect(warn).not.toHaveBeenCalled();
@@ -442,12 +442,19 @@ it('maps every shipped mech row with zero skips and opens all eight non-ASCII in
       ),
   }));
   const realBrowser = new CanonicalUnitService();
-  const unusual = shipped.units.filter((row) => /[^\x00-\x7F]/.test(row.id));
+  // Ruling item 3; pinned Gun GN-2O.mtf:20-21 (and the other seven name headers).
+  // UTF-8 display names remain; the index now uses the preserved definition IDs.
+  const unusual = shipped.units.filter((row) =>
+    [row.chassis, row.model].some(
+      (value) => typeof value === 'string' && /[^\x00-\x7F]/.test(value),
+    ),
+  );
   expect(unusual).toHaveLength(8);
   for (const row of unusual) {
     const unit = await realNode.getById(row.id);
     expect(unit).not.toBeNull();
     expect(unit?.chassis).toBe(row.chassis);
+    expect(unit?.id).toBe(row.id);
     expect(await realBrowser.getById(row.id)).toEqual(unit);
   }
 });

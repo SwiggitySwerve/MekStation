@@ -45,8 +45,21 @@ Capital probes replace their identity-keyed weapon HashMap with a LinkedHashMap
 in the probe instance only, preserving source order for reproducible sums.
 Per-term aggregates use those probe sums after checking the untouched calculator
 within `1e-12` relative tolerance; integer totals must match exactly.
-The bounded first slice covers mechs, vehicles, aerospace and capital ships;
-BA, infantry and ProtoMeks carry `termsUnsupported` and cannot pass term mode.
+Probes cover every in-scope family, including BA, infantry and ProtoMeks.
+Unsupported markers fail reconstruction for every family.
+
+BA retains its native private trooper loop. Protected-stage hooks snapshot each
+trooper; reflection reads only the private trooper index. Reconstruction checks
+each trooper's defense, offense and base, then the native squad average and
+`(0.9 + 0.1 * strength) * strength` factor. Named weapon sections separate
+normal weapons, squad support and anti-mek contributions. Common top-level BA
+defense/offense retain the factory calculator's last processed trooper semantics.
+Infantry records primary/secondary contributions, anti-mek repeats, field guns
+and other weapon-stage contributions; summaryModifier captures specialization.
+PrimaryBV and secondaryBV use the existing breakdown's per-trooper units.
+ProtoMek misc-equipment details include native Quad melee, clamps and electric
+discharge values by internal name and location. Quad chassis alone adds no
+weight-stage bonus. All formulas execute in the pinned native calculators.
 
 Each supported row reconstructs defense, offense, base BV, adjustment and rounded
 total, and the probe independently checks the normal calculator's aggregates.

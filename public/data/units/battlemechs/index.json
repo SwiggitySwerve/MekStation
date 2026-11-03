@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-02-07T02:12:44.659970",
-  "totalUnits": 4225,
+  "generatedAt": "2026-11-02T00:00:00",
+  "totalUnits": 4263,
   "units": [
     {
       "id": "battle-tripod-r-h3l-2x",
@@ -53,8 +53,8 @@
       "model": "TR4",
       "tonnage": 55,
       "techBase": "INNER_SPHERE",
-      "year": 3150,
-      "role": "",
+      "year": 3111,
+      "role": "Skirmisher",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/'Wing' Wraith TR4.json"
     },
@@ -64,8 +64,8 @@
       "model": "TR4-X",
       "tonnage": 55,
       "techBase": "INNER_SPHERE",
-      "year": 3150,
-      "role": "",
+      "year": 3110,
+      "role": "Skirmisher",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/'Wing' Wraith TR4-X.json"
     },
@@ -75,8 +75,8 @@
       "model": "TR6",
       "tonnage": 55,
       "techBase": "INNER_SPHERE",
-      "year": 3150,
-      "role": "",
+      "year": 3143,
+      "role": "Skirmisher",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/'Wing' Wraith TR6.json"
     },
@@ -87,7 +87,7 @@
       "tonnage": 55,
       "techBase": "MIXED",
       "year": 3150,
-      "role": "",
+      "role": "Skirmisher",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/'Wing' Wraith TR7.json"
     },
@@ -208,7 +208,7 @@
       "tonnage": 95,
       "techBase": "INNER_SPHERE",
       "year": 3103,
-      "role": "",
+      "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Albatross ALB-4Ur.json"
     },
@@ -219,7 +219,7 @@
       "tonnage": 95,
       "techBase": "INNER_SPHERE",
       "year": 3091,
-      "role": "",
+      "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Albatross ALB-5U.json"
     },
@@ -230,7 +230,7 @@
       "tonnage": 95,
       "techBase": "INNER_SPHERE",
       "year": 3070,
-      "role": "",
+      "role": "Juggernaut",
       "rulesLevel": "EXPERIMENTAL",
       "path": "5-civil-war/experimental/Albatross ALB-5W.json"
     },
@@ -252,7 +252,7 @@
       "tonnage": 95,
       "techBase": "INNER_SPHERE",
       "year": 3118,
-      "role": "",
+      "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Albatross ALB-6U.json"
     },
@@ -263,7 +263,7 @@
       "tonnage": 95,
       "techBase": "MIXED",
       "year": 3148,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Albatross C 'Sooty Albatross'.json"
     },
@@ -279,7 +279,7 @@
       "path": "2-star-league/advanced/Alfar AL-A1.json"
     },
     {
-      "id": "alfar-al-d1-dã¶kkã¡lfar",
+      "id": "alfar-al-d1-dakkalfar",
       "chassis": "Alfar",
       "model": "AL-D1 'Dökkálfar'",
       "tonnage": 55,
@@ -746,7 +746,7 @@
       "model": "AQS-4",
       "tonnage": 50,
       "techBase": "INNER_SPHERE",
-      "year": 3066,
+      "year": 3067,
       "role": "Striker",
       "rulesLevel": "UNOFFICIAL",
       "path": "4-clan-invasion/standard/Aquagladius AQS-4.json"
@@ -763,13 +763,13 @@
       "path": "6-dark-age/standard/Aquagladius AQS-5 MAM.json"
     },
     {
-      "id": "araã±a-ara-s-1-militiamech",
+      "id": "araaa-ara-s-1-militiamech",
       "chassis": "Araña",
       "model": "ARA-S-1 MilitiaMech",
       "tonnage": 40,
       "techBase": "CLAN",
       "year": 3087,
-      "role": "",
+      "role": "Striker",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Araña ARA-S-1 MilitiaMech.json"
     },
@@ -813,7 +813,7 @@
       "tonnage": 35,
       "techBase": "INNER_SPHERE",
       "year": 3074,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "UNOFFICIAL",
       "path": "5-civil-war/standard/Arbiter ARB-001 SecurityMech.json"
     },
@@ -849,17 +849,6 @@
       "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "4-clan-invasion/advanced/Arcas Unknown.json"
-    },
-    {
-      "id": "archangel-c-ang-o-berith",
-      "chassis": "Archangel",
-      "model": "C-ANG-O (Berith)",
-      "tonnage": 100,
-      "techBase": "INNER_SPHERE",
-      "year": 3072,
-      "role": "Juggernaut",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "5-civil-war/standard/Archangel C-ANG-O (Berith).json"
     },
     {
       "id": "archangel-c-ang-o-invictus",
@@ -961,6 +950,17 @@
       "path": "1-age-of-war/standard/Archer ARC-1A.json"
     },
     {
+      "id": "archer-arc-2d",
+      "chassis": "Archer",
+      "model": "ARC-2D",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 2843,
+      "role": "Brawler",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Archer ARC-2D.json"
+    },
+    {
       "id": "archer-arc-2k",
       "chassis": "Archer",
       "model": "ARC-2K",
@@ -970,6 +970,28 @@
       "role": "Missile Boat",
       "rulesLevel": "STANDARD",
       "path": "3-succession-wars/standard/Archer ARC-2K.json"
+    },
+    {
+      "id": "archer-arc-2kh",
+      "chassis": "Archer",
+      "model": "ARC-2Kh",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3034,
+      "role": "Missile Boat",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Archer ARC-2Kh.json"
+    },
+    {
+      "id": "archer-arc-2l",
+      "chassis": "Archer",
+      "model": "ARC-2L",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 2803,
+      "role": "Missile Boat",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Archer ARC-2L.json"
     },
     {
       "id": "archer-arc-2r",
@@ -1599,6 +1621,17 @@
       "path": "2-star-league/standard/Assassin ASN-21.json"
     },
     {
+      "id": "assassin-asn-22",
+      "chassis": "Assassin",
+      "model": "ASN-22",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3023,
+      "role": "Striker",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Assassin ASN-22.json"
+    },
+    {
       "id": "assassin-asn-23",
       "chassis": "Assassin",
       "model": "ASN-23",
@@ -1641,6 +1674,17 @@
       "role": "Scout",
       "rulesLevel": "ADVANCED",
       "path": "5-civil-war/advanced/Assassin ASN-99.json"
+    },
+    {
+      "id": "assassin-asn-sb",
+      "chassis": "Assassin",
+      "model": "ASN-SB",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3021,
+      "role": "Scout",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Assassin ASN-SB.json"
     },
     {
       "id": "atlas-as7-00-jurn",
@@ -2353,7 +2397,7 @@
       "tonnage": 80,
       "techBase": "INNER_SPHERE",
       "year": 3135,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Awesome AWS-11V.json"
     },
@@ -2474,7 +2518,7 @@
       "tonnage": 80,
       "techBase": "CLAN",
       "year": 3143,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Awesome C.json"
     },
@@ -2490,6 +2534,17 @@
       "path": "3-succession-wars/advanced/Axman AXM-1N.json"
     },
     {
+      "id": "axman-axm-1x",
+      "chassis": "Axman",
+      "model": "AXM-1X",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3031,
+      "role": "Brawler",
+      "rulesLevel": "ADVANCED",
+      "path": "3-succession-wars/advanced/Axman AXM-1X.json"
+    },
+    {
       "id": "axman-axm-2n",
       "chassis": "Axman",
       "model": "AXM-2N",
@@ -2499,6 +2554,17 @@
       "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "3-succession-wars/advanced/Axman AXM-2N.json"
+    },
+    {
+      "id": "axman-axm-2r",
+      "chassis": "Axman",
+      "model": "AXM-2R",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3049,
+      "role": "Skirmisher",
+      "rulesLevel": "ADVANCED",
+      "path": "3-succession-wars/advanced/Axman AXM-2R.json"
     },
     {
       "id": "axman-axm-3s",
@@ -2543,6 +2609,28 @@
       "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Axman AXM-5N.json"
+    },
+    {
+      "id": "axman-axm-5r",
+      "chassis": "Axman",
+      "model": "AXM-5R",
+      "tonnage": 65,
+      "techBase": "MIXED",
+      "year": 3077,
+      "role": "Brawler",
+      "rulesLevel": "ADVANCED",
+      "path": "5-civil-war/advanced/Axman AXM-5R.json"
+    },
+    {
+      "id": "axman-axm-5s",
+      "chassis": "Axman",
+      "model": "AXM-5S",
+      "tonnage": 65,
+      "techBase": "MIXED",
+      "year": 3074,
+      "role": "Brawler",
+      "rulesLevel": "EXPERIMENTAL",
+      "path": "5-civil-war/experimental/Axman AXM-5S.json"
     },
     {
       "id": "axman-axm-6t",
@@ -2884,6 +2972,17 @@
       "role": "Juggernaut",
       "rulesLevel": "STANDARD",
       "path": "3-succession-wars/standard/Banshee BNC-3S (Reinesblatt).json"
+    },
+    {
+      "id": "banshee-bnc-3s-x",
+      "chassis": "Banshee",
+      "model": "BNC-3S-X",
+      "tonnage": 95,
+      "techBase": "INNER_SPHERE",
+      "year": 3024,
+      "role": "Juggernaut",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Banshee BNC-3S-X.json"
     },
     {
       "id": "banshee-bnc-5s",
@@ -3485,7 +3584,7 @@
       "model": "BLR-1Gd",
       "tonnage": 85,
       "techBase": "INNER_SPHERE",
-      "year": 2760,
+      "year": 2712,
       "role": "Brawler",
       "rulesLevel": "EXPERIMENTAL",
       "path": "2-star-league/experimental/BattleMaster BLR-1Gd.json"
@@ -3507,7 +3606,7 @@
       "model": "BLR-2C",
       "tonnage": 85,
       "techBase": "INNER_SPHERE",
-      "year": 2925,
+      "year": 2850,
       "role": "Brawler",
       "rulesLevel": "EXPERIMENTAL",
       "path": "3-succession-wars/experimental/BattleMaster BLR-2C.json"
@@ -3579,28 +3678,6 @@
       "path": "4-clan-invasion/advanced/BattleMaster BLR-4S.json"
     },
     {
-      "id": "battlemaster-blr-4s-calvin-ii",
-      "chassis": "BattleMaster",
-      "model": "BLR-4S (Calvin II)",
-      "tonnage": 85,
-      "techBase": "INNER_SPHERE",
-      "year": 3071,
-      "role": "Brawler",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "5-civil-war/standard/BattleMaster BLR-4S (Calvin II).json"
-    },
-    {
-      "id": "battlemaster-blr-4s-calvin",
-      "chassis": "BattleMaster",
-      "model": "BLR-4S (Calvin)",
-      "tonnage": 85,
-      "techBase": "INNER_SPHERE",
-      "year": 3070,
-      "role": "Brawler",
-      "rulesLevel": "ADVANCED",
-      "path": "5-civil-war/advanced/BattleMaster BLR-4S (Calvin).json"
-    },
-    {
       "id": "battlemaster-blr-5m",
       "chassis": "BattleMaster",
       "model": "BLR-5M",
@@ -3640,7 +3717,7 @@
       "tonnage": 85,
       "techBase": "INNER_SPHERE",
       "year": 3120,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/BattleMaster BLR-6M.json"
     },
@@ -3728,7 +3805,7 @@
       "tonnage": 85,
       "techBase": "MIXED",
       "year": 3145,
-      "role": "",
+      "role": "Brawler",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/BattleMaster C 2.json"
     },
@@ -4393,17 +4470,6 @@
       "path": "4-clan-invasion/standard/Black Hawk-KU BHKU-OX.json"
     },
     {
-      "id": "black-knight-bl-10-knt-ross",
-      "chassis": "Black Knight",
-      "model": "BL-10-KNT (Ross)",
-      "tonnage": 75,
-      "techBase": "INNER_SPHERE",
-      "year": 3055,
-      "role": "Brawler",
-      "rulesLevel": "ADVANCED",
-      "path": "4-clan-invasion/advanced/Black Knight BL-10-KNT (Ross).json"
-    },
-    {
       "id": "black-knight-bl-12-knt",
       "chassis": "Black Knight",
       "model": "BL-12-KNT",
@@ -4435,17 +4501,6 @@
       "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "2-star-league/advanced/Black Knight BL-6-KNT.json"
-    },
-    {
-      "id": "black-knight-bl-6-knt-ian",
-      "chassis": "Black Knight",
-      "model": "BL-6-KNT (Ian)",
-      "tonnage": 75,
-      "techBase": "INNER_SPHERE",
-      "year": 3039,
-      "role": "Brawler",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "3-succession-wars/standard/Black Knight BL-6-KNT (Ian).json"
     },
     {
       "id": "black-knight-bl-6-rr",
@@ -4805,10 +4860,10 @@
       "model": "BJ-2A",
       "tonnage": 45,
       "techBase": "CLAN",
-      "year": 3145,
+      "year": 3077,
       "role": "Sniper",
       "rulesLevel": "ADVANCED",
-      "path": "6-dark-age/advanced/Blackjack BJ-2A.json"
+      "path": "5-civil-war/advanced/Blackjack BJ-2A.json"
     },
     {
       "id": "blackjack-bj-2r",
@@ -4827,7 +4882,7 @@
       "model": "BJ-2t",
       "tonnage": 45,
       "techBase": "INNER_SPHERE",
-      "year": 3052,
+      "year": 3054,
       "role": "Sniper",
       "rulesLevel": "ADVANCED",
       "path": "4-clan-invasion/advanced/Blackjack BJ-2t.json"
@@ -4992,7 +5047,7 @@
       "model": "C",
       "tonnage": 45,
       "techBase": "CLAN",
-      "year": 3150,
+      "year": 3089,
       "role": "Sniper",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Blackjack C.json"
@@ -5213,7 +5268,7 @@
       "tonnage": 50,
       "techBase": "INNER_SPHERE",
       "year": 3138,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "UNOFFICIAL",
       "path": "6-dark-age/standard/Bombard BMB-016.json"
     },
@@ -5411,7 +5466,7 @@
       "tonnage": 60,
       "techBase": "INNER_SPHERE",
       "year": 3148,
-      "role": "",
+      "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Brahma BRM-6T.json"
     },
@@ -5961,7 +6016,7 @@
       "tonnage": 70,
       "techBase": "MIXED",
       "year": 3148,
-      "role": "",
+      "role": "Brawler",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Caesar CES-5D.json"
     },
@@ -6104,7 +6159,7 @@
       "tonnage": 30,
       "techBase": "INNER_SPHERE",
       "year": 3131,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Carbine CON-9M (Karenna).json"
     },
@@ -6263,17 +6318,6 @@
       "path": "3-succession-wars/standard/Cataphract CTF-2X.json"
     },
     {
-      "id": "cataphract-ctf-2x-george",
-      "chassis": "Cataphract",
-      "model": "CTF-2X (George)",
-      "tonnage": 70,
-      "techBase": "INNER_SPHERE",
-      "year": 3039,
-      "role": "Brawler",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "3-succession-wars/standard/Cataphract CTF-2X (George).json"
-    },
-    {
       "id": "cataphract-ctf-3d",
       "chassis": "Cataphract",
       "model": "CTF-3D",
@@ -6305,17 +6349,6 @@
       "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "5-civil-war/advanced/Cataphract CTF-3LL.json"
-    },
-    {
-      "id": "cataphract-ctf-3x-sara",
-      "chassis": "Cataphract",
-      "model": "CTF-3X (Sara)",
-      "tonnage": 70,
-      "techBase": "INNER_SPHERE",
-      "year": 3062,
-      "role": "Brawler",
-      "rulesLevel": "ADVANCED",
-      "path": "4-clan-invasion/advanced/Cataphract CTF-3X (Sara).json"
     },
     {
       "id": "cataphract-ctf-4l",
@@ -7198,6 +7231,17 @@
       "path": "6-dark-age/experimental/Centurion CN9-H3 MilitiaMech.json"
     },
     {
+      "id": "centurion-cn9-k",
+      "chassis": "Centurion",
+      "model": "CN9-K",
+      "tonnage": 50,
+      "techBase": "INNER_SPHERE",
+      "year": 3008,
+      "role": "Brawler",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Centurion CN9-K.json"
+    },
+    {
       "id": "centurion-cn9-ylw-yen-lo-wang",
       "chassis": "Centurion",
       "model": "CN9-YLW 'Yen Lo Wang'",
@@ -7336,7 +7380,7 @@
       "tonnage": 95,
       "techBase": "INNER_SPHERE",
       "year": 3121,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Cerberus MR-7K.json"
     },
@@ -7610,7 +7654,7 @@
       "model": "C",
       "tonnage": 80,
       "techBase": "MIXED",
-      "year": 3130,
+      "year": 3093,
       "role": "Scout",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Charger C.json"
@@ -7625,6 +7669,17 @@
       "role": "Scout",
       "rulesLevel": "STANDARD",
       "path": "2-star-league/standard/Charger CGR-1A1.json"
+    },
+    {
+      "id": "charger-cgr-1a2",
+      "chassis": "Charger",
+      "model": "CGR-1A2",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3025,
+      "role": "Juggernaut",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Charger CGR-1A2.json"
     },
     {
       "id": "charger-cgr-1a5",
@@ -7801,6 +7856,17 @@
       "role": "Scout",
       "rulesLevel": "STANDARD",
       "path": "3-succession-wars/standard/Cicada CDA-2B.json"
+    },
+    {
+      "id": "cicada-cda-2c",
+      "chassis": "Cicada",
+      "model": "CDA-2C",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 2740,
+      "role": "Scout",
+      "rulesLevel": "STANDARD",
+      "path": "2-star-league/standard/Cicada CDA-2C.json"
     },
     {
       "id": "cicada-cda-3c",
@@ -8226,7 +8292,7 @@
       "model": "COM-7S",
       "tonnage": 25,
       "techBase": "INNER_SPHERE",
-      "year": 3060,
+      "year": 3064,
       "role": "Striker",
       "rulesLevel": "ADVANCED",
       "path": "4-clan-invasion/advanced/Commando COM-7S.json"
@@ -8698,7 +8764,7 @@
       "chassis": "Cougar",
       "model": "XR",
       "tonnage": 35,
-      "techBase": "MIXED",
+      "techBase": "CLAN",
       "year": 3071,
       "role": "Missile Boat",
       "rulesLevel": "UNOFFICIAL",
@@ -8798,7 +8864,7 @@
       "model": "CRB-27sl",
       "tonnage": 50,
       "techBase": "INNER_SPHERE",
-      "year": 2719,
+      "year": 2733,
       "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "2-star-league/advanced/Crab CRB-27sl.json"
@@ -9316,7 +9382,7 @@
       "tonnage": 30,
       "techBase": "INNER_SPHERE",
       "year": 2810,
-      "role": "",
+      "role": "Ambusher",
       "rulesLevel": "UNOFFICIAL",
       "path": "3-succession-wars/standard/Crosscut ED-X2 LoggerMech (RL).json"
     },
@@ -9327,7 +9393,7 @@
       "tonnage": 30,
       "techBase": "INNER_SPHERE",
       "year": 2801,
-      "role": "",
+      "role": "Ambusher",
       "rulesLevel": "ADVANCED",
       "path": "3-succession-wars/advanced/Crosscut ED-X2M LoggerMech MOD.json"
     },
@@ -11042,7 +11108,7 @@
       "model": "DV-6Md",
       "tonnage": 55,
       "techBase": "INNER_SPHERE",
-      "year": 2750,
+      "year": 2688,
       "role": "Missile Boat",
       "rulesLevel": "EXPERIMENTAL",
       "path": "2-star-league/experimental/Dervish DV-6Md.json"
@@ -11059,6 +11125,17 @@
       "path": "5-civil-war/advanced/Dervish DV-6Mr.json"
     },
     {
+      "id": "dervish-dv-7a",
+      "chassis": "Dervish",
+      "model": "DV-7A",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 3033,
+      "role": "Missile Boat",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Dervish DV-7A.json"
+    },
+    {
       "id": "dervish-dv-7d",
       "chassis": "Dervish",
       "model": "DV-7D",
@@ -11068,6 +11145,17 @@
       "role": "Missile Boat",
       "rulesLevel": "ADVANCED",
       "path": "3-succession-wars/advanced/Dervish DV-7D.json"
+    },
+    {
+      "id": "dervish-dv-7s",
+      "chassis": "Dervish",
+      "model": "DV-7S",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 3025,
+      "role": "Missile Boat",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Dervish DV-7S.json"
     },
     {
       "id": "dervish-dv-8d",
@@ -11101,17 +11189,6 @@
       "role": "Missile Boat",
       "rulesLevel": "ADVANCED",
       "path": "5-civil-war/advanced/Dervish DV-9D.json"
-    },
-    {
-      "id": "deva-c-dva-o-achilleus",
-      "chassis": "Deva",
-      "model": "C-DVA-O (Achilleus)",
-      "tonnage": 70,
-      "techBase": "INNER_SPHERE",
-      "year": 3071,
-      "role": "Skirmisher",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "5-civil-war/standard/Deva C-DVA-O (Achilleus).json"
     },
     {
       "id": "deva-c-dva-o-invictus",
@@ -11208,7 +11285,7 @@
       "tonnage": 100,
       "techBase": "INNER_SPHERE",
       "year": 3142,
-      "role": "",
+      "role": "Juggernaut",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Devastator DVS-10.json"
     },
@@ -11565,6 +11642,17 @@
       "path": "6-dark-age/experimental/Doom Courser Prime.json"
     },
     {
+      "id": "dragon-drg-1alag",
+      "chassis": "Dragon",
+      "model": "DRG-1ALAG",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3000,
+      "role": "Skirmisher",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Dragon DRG-1ALAG.json"
+    },
+    {
       "id": "dragon-drg-1c",
       "chassis": "Dragon",
       "model": "DRG-1C",
@@ -11587,6 +11675,17 @@
       "path": "2-star-league/standard/Dragon DRG-1N.json"
     },
     {
+      "id": "dragon-drg-2alag",
+      "chassis": "Dragon",
+      "model": "DRG-2ALAG",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3000,
+      "role": "Skirmisher",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Dragon DRG-2ALAG.json"
+    },
+    {
       "id": "dragon-drg-2y-yoriyoshi",
       "chassis": "Dragon",
       "model": "DRG-2Y (Yoriyoshi)",
@@ -11596,6 +11695,17 @@
       "role": "Skirmisher",
       "rulesLevel": "STANDARD",
       "path": "3-succession-wars/standard/Dragon DRG-2Y (Yoriyoshi).json"
+    },
+    {
+      "id": "dragon-drg-5alag",
+      "chassis": "Dragon",
+      "model": "DRG-5ALAG",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3060,
+      "role": "Skirmisher",
+      "rulesLevel": "ADVANCED",
+      "path": "4-clan-invasion/advanced/Dragon DRG-5ALAG.json"
     },
     {
       "id": "dragon-drg-5n",
@@ -11620,6 +11730,17 @@
       "path": "5-civil-war/advanced/Dragon DRG-5Nr.json"
     },
     {
+      "id": "dragon-drg-7alag",
+      "chassis": "Dragon",
+      "model": "DRG-7ALAG",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3060,
+      "role": "Skirmisher",
+      "rulesLevel": "ADVANCED",
+      "path": "4-clan-invasion/advanced/Dragon DRG-7ALAG.json"
+    },
+    {
       "id": "dragon-drg-7n",
       "chassis": "Dragon",
       "model": "DRG-7N",
@@ -11629,6 +11750,17 @@
       "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "4-clan-invasion/advanced/Dragon DRG-7N.json"
+    },
+    {
+      "id": "dragon-drg-8alag",
+      "chassis": "Dragon",
+      "model": "DRG-8ALAG",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3060,
+      "role": "Skirmisher",
+      "rulesLevel": "ADVANCED",
+      "path": "4-clan-invasion/advanced/Dragon DRG-8ALAG.json"
     },
     {
       "id": "dragon-fire-dgr-3f",
@@ -11647,10 +11779,10 @@
       "model": "DGR-4/6N",
       "tonnage": 75,
       "techBase": "INNER_SPHERE",
-      "year": 3080,
+      "year": 3082,
       "role": "Brawler",
       "rulesLevel": "ADVANCED",
-      "path": "5-civil-war/advanced/Dragon Fire DGR-4-6N.json"
+      "path": "6-dark-age/advanced/Dragon Fire DGR-4-6N.json"
     },
     {
       "id": "dragon-fire-dgr-4f",
@@ -11669,7 +11801,7 @@
       "model": "DGR-5F",
       "tonnage": 75,
       "techBase": "INNER_SPHERE",
-      "year": 3150,
+      "year": 3081,
       "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Dragon Fire DGR-5F.json"
@@ -11702,7 +11834,7 @@
       "model": "DGR-7K",
       "tonnage": 75,
       "techBase": "INNER_SPHERE",
-      "year": 3150,
+      "year": 3140,
       "role": "Brawler",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Dragon Fire DGR-7K.json"
@@ -11713,7 +11845,7 @@
       "model": "DGR-9D",
       "tonnage": 75,
       "techBase": "MIXED",
-      "year": 3150,
+      "year": 3142,
       "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Dragon Fire DGR-9D.json"
@@ -12390,15 +12522,15 @@
       "path": "2-star-league/standard/Enforcer ENF-4R.json"
     },
     {
-      "id": "enforcer-enf-4r-daniel",
+      "id": "enforcer-enf-5a-enforcer-ii",
       "chassis": "Enforcer",
-      "model": "ENF-4R (Daniel)",
+      "model": "ENF-5A 'Enforcer II'",
       "tonnage": 50,
       "techBase": "INNER_SPHERE",
-      "year": 3039,
-      "role": "Brawler",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "3-succession-wars/standard/Enforcer ENF-4R (Daniel).json"
+      "year": 3028,
+      "role": "Skirmisher",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Enforcer ENF-5A 'Enforcer II'.json"
     },
     {
       "id": "enforcer-enf-5d",
@@ -12410,17 +12542,6 @@
       "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "4-clan-invasion/advanced/Enforcer ENF-5D.json"
-    },
-    {
-      "id": "enforcer-enf-5d-daniel",
-      "chassis": "Enforcer",
-      "model": "ENF-5D (Daniel)",
-      "tonnage": 50,
-      "techBase": "INNER_SPHERE",
-      "year": 3054,
-      "role": "Skirmisher",
-      "rulesLevel": "ADVANCED",
-      "path": "4-clan-invasion/advanced/Enforcer ENF-5D (Daniel).json"
     },
     {
       "id": "enforcer-enf-5r",
@@ -12495,7 +12616,7 @@
       "tonnage": 50,
       "techBase": "INNER_SPHERE",
       "year": 3102,
-      "role": "",
+      "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Enforcer III ENF-6R.json"
     },
@@ -13103,6 +13224,39 @@
       "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "4-clan-invasion/advanced/Falcon Hawk FNHK-9K1B.json"
+    },
+    {
+      "id": "falconer-flc-10r",
+      "chassis": "Falconer",
+      "model": "FLC-10R",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 3075,
+      "role": "Skirmisher",
+      "rulesLevel": "ADVANCED",
+      "path": "5-civil-war/advanced/Falconer FLC-10R.json"
+    },
+    {
+      "id": "falconer-flc-11r",
+      "chassis": "Falconer",
+      "model": "FLC-11R",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 3150,
+      "role": "Skirmisher",
+      "rulesLevel": "ADVANCED",
+      "path": "6-dark-age/advanced/Falconer FLC-11R.json"
+    },
+    {
+      "id": "falconer-flc-12x",
+      "chassis": "Falconer",
+      "model": "FLC-12X",
+      "tonnage": 75,
+      "techBase": "MIXED",
+      "year": 3120,
+      "role": "Skirmisher",
+      "rulesLevel": "UNOFFICIAL",
+      "path": "6-dark-age/standard/Falconer FLC-12X.json"
     },
     {
       "id": "falconer-flc-8r",
@@ -14590,17 +14744,6 @@
       "path": "4-clan-invasion/advanced/Gallowglas GAL-4GLS.json"
     },
     {
-      "id": "gallowglas-gal-4glsa",
-      "chassis": "Gallowglas",
-      "model": "GAL-4GLSA",
-      "tonnage": 70,
-      "techBase": "INNER_SPHERE",
-      "year": 3067,
-      "role": "Brawler",
-      "rulesLevel": "ADVANCED",
-      "path": "4-clan-invasion/advanced/Gallowglas GAL-4GLSA.json"
-    },
-    {
       "id": "gallowglas-wd",
       "chassis": "Gallowglas",
       "model": "WD",
@@ -14882,7 +15025,7 @@
       "tonnage": 55,
       "techBase": "INNER_SPHERE",
       "year": 3071,
-      "role": "",
+      "role": "Skirmisher",
       "rulesLevel": "EXPERIMENTAL",
       "path": "5-civil-war/experimental/Gladiator GLD-1R (Keller).json"
     },
@@ -15127,6 +15270,17 @@
       "role": "Sniper",
       "rulesLevel": "STANDARD",
       "path": "2-star-league/standard/Goliath GOL-1H.json"
+    },
+    {
+      "id": "goliath-gol-1m",
+      "chassis": "Goliath",
+      "model": "GOL-1M",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3025,
+      "role": "Missile Boat",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Goliath GOL-1M.json"
     },
     {
       "id": "goliath-gol-2h",
@@ -15377,7 +15531,7 @@
       "tonnage": 45,
       "techBase": "CLAN",
       "year": 3130,
-      "role": "",
+      "role": "Striker",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Goshawk II 4.json"
     },
@@ -15525,17 +15679,6 @@
       "path": "4-clan-invasion/advanced/Grand Dragon DRG-5K.json"
     },
     {
-      "id": "grand-dragon-drg-5k-emory",
-      "chassis": "Grand Dragon",
-      "model": "DRG-5K (Emory)",
-      "tonnage": 60,
-      "techBase": "INNER_SPHERE",
-      "year": 3039,
-      "role": "Skirmisher",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "3-succession-wars/standard/Grand Dragon DRG-5K (Emory).json"
-    },
-    {
       "id": "grand-dragon-drg-5k-dc",
       "chassis": "Grand Dragon",
       "model": "DRG-5K-DC",
@@ -15556,17 +15699,6 @@
       "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "4-clan-invasion/advanced/Grand Dragon DRG-7K.json"
-    },
-    {
-      "id": "grand-dragon-drg-7k-mark",
-      "chassis": "Grand Dragon",
-      "model": "DRG-7K (Mark)",
-      "tonnage": 60,
-      "techBase": "INNER_SPHERE",
-      "year": 3067,
-      "role": "Sniper",
-      "rulesLevel": "ADVANCED",
-      "path": "4-clan-invasion/advanced/Grand Dragon DRG-7K (Mark).json"
     },
     {
       "id": "grand-dragon-drg-7kc",
@@ -15668,6 +15800,17 @@
       "path": "2-star-league/standard/Grasshopper GHR-5H.json"
     },
     {
+      "id": "grasshopper-ghr-5hh",
+      "chassis": "Grasshopper",
+      "model": "GHR-5Hh",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3034,
+      "role": "Skirmisher",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Grasshopper GHR-5Hh.json"
+    },
+    {
       "id": "grasshopper-ghr-5j",
       "chassis": "Grasshopper",
       "model": "GHR-5J",
@@ -15688,6 +15831,17 @@
       "role": "Skirmisher",
       "rulesLevel": "STANDARD",
       "path": "3-succession-wars/standard/Grasshopper GHR-5N.json"
+    },
+    {
+      "id": "grasshopper-ghr-5s",
+      "chassis": "Grasshopper",
+      "model": "GHR-5S",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 2921,
+      "role": "Skirmisher",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Grasshopper GHR-5S.json"
     },
     {
       "id": "grasshopper-ghr-6k",
@@ -15849,7 +16003,7 @@
       "model": "A",
       "tonnage": 45,
       "techBase": "CLAN",
-      "year": 3053,
+      "year": 3052,
       "role": "Missile Boat",
       "rulesLevel": "ADVANCED",
       "path": "4-clan-invasion/advanced/Grendel A.json"
@@ -15860,7 +16014,7 @@
       "model": "B",
       "tonnage": 45,
       "techBase": "CLAN",
-      "year": 3053,
+      "year": 3052,
       "role": "Striker",
       "rulesLevel": "ADVANCED",
       "path": "4-clan-invasion/advanced/Grendel B.json"
@@ -15871,7 +16025,7 @@
       "model": "C",
       "tonnage": 45,
       "techBase": "CLAN",
-      "year": 3053,
+      "year": 3052,
       "role": "Striker",
       "rulesLevel": "ADVANCED",
       "path": "4-clan-invasion/advanced/Grendel C.json"
@@ -15882,7 +16036,7 @@
       "model": "D",
       "tonnage": 45,
       "techBase": "CLAN",
-      "year": 3053,
+      "year": 3052,
       "role": "Striker",
       "rulesLevel": "ADVANCED",
       "path": "4-clan-invasion/advanced/Grendel D.json"
@@ -16051,6 +16205,17 @@
       "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "5-civil-war/advanced/Griffin GRF-1E2 'Sparky 2.0'.json"
+    },
+    {
+      "id": "griffin-grf-1m",
+      "chassis": "Griffin",
+      "model": "GRF-1M",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 3020,
+      "role": "Missile Boat",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Griffin GRF-1M.json"
     },
     {
       "id": "griffin-grf-1n",
@@ -16229,28 +16394,6 @@
       "path": "4-clan-invasion/advanced/Griffin GRF-6S.json"
     },
     {
-      "id": "griffin-grf-6s-francine-ii",
-      "chassis": "Griffin",
-      "model": "GRF-6S (Francine II)",
-      "tonnage": 55,
-      "techBase": "INNER_SPHERE",
-      "year": 3071,
-      "role": "Skirmisher",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "5-civil-war/standard/Griffin GRF-6S (Francine II).json"
-    },
-    {
-      "id": "griffin-grf-6s-francine",
-      "chassis": "Griffin",
-      "model": "GRF-6S (Francine)",
-      "tonnage": 55,
-      "techBase": "INNER_SPHERE",
-      "year": 3070,
-      "role": "Skirmisher",
-      "rulesLevel": "ADVANCED",
-      "path": "5-civil-war/advanced/Griffin GRF-6S (Francine).json"
-    },
-    {
       "id": "griffin-grf-6s2",
       "chassis": "Griffin",
       "model": "GRF-6S2",
@@ -16359,17 +16502,6 @@
       "role": "Missile Boat",
       "rulesLevel": "ADVANCED",
       "path": "3-succession-wars/advanced/Griffin IIC Unknown.json"
-    },
-    {
-      "id": "grigori-c-grg-o-rufus",
-      "chassis": "Grigori",
-      "model": "C-GRG-O (Rufus)",
-      "tonnage": 60,
-      "techBase": "INNER_SPHERE",
-      "year": 3071,
-      "role": "Skirmisher",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "5-civil-war/standard/Grigori C-GRG-O (Rufus).json"
     },
     {
       "id": "grigori-c-grg-o-tamiel",
@@ -16575,8 +16707,8 @@
       "model": "Prime",
       "tonnage": 80,
       "techBase": "CLAN",
-      "year": 3049,
-      "role": "",
+      "year": 3040,
+      "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "3-succession-wars/advanced/Grotesque (Mongrel) Prime.json"
     },
@@ -16977,18 +17109,18 @@
       "path": "6-dark-age/experimental/Gyrfalcon Unknown.json"
     },
     {
-      "id": "gã¶tterdã¤mmerung-gtd-20c",
+      "id": "gatterdammerung-gtd-20c",
       "chassis": "Götterdämmerung",
       "model": "GTD-20C",
       "tonnage": 75,
       "techBase": "MIXED",
       "year": 3138,
-      "role": "",
+      "role": "Brawler",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Götterdämmerung GTD-20C.json"
     },
     {
-      "id": "gã¶tterdã¤mmerung-gtd-20s",
+      "id": "gatterdammerung-gtd-20s",
       "chassis": "Götterdämmerung",
       "model": "GTD-20S",
       "tonnage": 75,
@@ -16999,18 +17131,18 @@
       "path": "6-dark-age/advanced/Götterdämmerung GTD-20S.json"
     },
     {
-      "id": "gã¶tterdã¤mmerung-gtd-30s",
+      "id": "gatterdammerung-gtd-30s",
       "chassis": "Götterdämmerung",
       "model": "GTD-30S",
       "tonnage": 75,
       "techBase": "INNER_SPHERE",
       "year": 3138,
-      "role": "",
+      "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Götterdämmerung GTD-30S.json"
     },
     {
-      "id": "gã¹n-gn-2o",
+      "id": "ga1n-gn-2o",
       "chassis": "Gùn",
       "model": "GN-2O",
       "tonnage": 20,
@@ -17021,7 +17153,7 @@
       "path": "6-dark-age/advanced/Gùn GN-2O.json"
     },
     {
-      "id": "gã¹n-gn-2oa",
+      "id": "ga1n-gn-2oa",
       "chassis": "Gùn",
       "model": "GN-2OA",
       "tonnage": 20,
@@ -17032,7 +17164,7 @@
       "path": "6-dark-age/advanced/Gùn GN-2OA.json"
     },
     {
-      "id": "gã¹n-gn-2ob",
+      "id": "ga1n-gn-2ob",
       "chassis": "Gùn",
       "model": "GN-2OB",
       "tonnage": 20,
@@ -17041,6 +17173,17 @@
       "role": "Sniper",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Gùn GN-2OB.json"
+    },
+    {
+      "id": "ha-otoko-hr",
+      "chassis": "Ha Otoko",
+      "model": "-HR",
+      "tonnage": 65,
+      "techBase": "MIXED",
+      "year": 3077,
+      "role": "Missile Boat",
+      "rulesLevel": "UNOFFICIAL",
+      "path": "5-civil-war/standard/Ha Otoko -HR.json"
     },
     {
       "id": "ha-otoko-2",
@@ -17085,17 +17228,6 @@
       "role": "Missile Boat",
       "rulesLevel": "ADVANCED",
       "path": "4-clan-invasion/advanced/Ha Otoko Unknown.json"
-    },
-    {
-      "id": "ha-otoko-hr-unknown",
-      "chassis": "Ha Otoko-HR",
-      "model": "Unknown",
-      "tonnage": 65,
-      "techBase": "MIXED",
-      "year": 3077,
-      "role": "Missile Boat",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "5-civil-war/standard/Ha Otoko-HR Unknown.json"
     },
     {
       "id": "hachiwara-hca-3t",
@@ -17489,7 +17621,7 @@
       "tonnage": 20,
       "techBase": "INNER_SPHERE",
       "year": 2801,
-      "role": "",
+      "role": "Ambusher",
       "rulesLevel": "ADVANCED",
       "path": "3-succession-wars/advanced/Harvester Ant KIC-3M AgroMech MOD.json"
     },
@@ -17511,7 +17643,7 @@
       "tonnage": 20,
       "techBase": "INNER_SPHERE",
       "year": 2801,
-      "role": "",
+      "role": "Missile Boat",
       "rulesLevel": "ADVANCED",
       "path": "3-succession-wars/advanced/Harvester Ant KIC-3M-B AgroMech MOD.json"
     },
@@ -17536,28 +17668,6 @@
       "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "3-succession-wars/advanced/Hatamoto-Chi HTM-27T.json"
-    },
-    {
-      "id": "hatamoto-chi-htm-27t-daniel-ii",
-      "chassis": "Hatamoto-Chi",
-      "model": "HTM-27T (Daniel II)",
-      "tonnage": 80,
-      "techBase": "INNER_SPHERE",
-      "year": 3052,
-      "role": "Juggernaut",
-      "rulesLevel": "ADVANCED",
-      "path": "4-clan-invasion/advanced/Hatamoto-Chi HTM-27T (Daniel II).json"
-    },
-    {
-      "id": "hatamoto-chi-htm-27t-daniel",
-      "chassis": "Hatamoto-Chi",
-      "model": "HTM-27T (Daniel)",
-      "tonnage": 80,
-      "techBase": "INNER_SPHERE",
-      "year": 3039,
-      "role": "Sniper",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "3-succession-wars/standard/Hatamoto-Chi HTM-27T (Daniel).json"
     },
     {
       "id": "hatamoto-chi-htm-27t-lowenbrau",
@@ -17698,7 +17808,7 @@
       "tonnage": 80,
       "techBase": "INNER_SPHERE",
       "year": 3115,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Hatamoto-Kaze HTM-27V2.json"
     },
@@ -17758,15 +17868,26 @@
       "path": "3-succession-wars/standard/Hatchetman HCT-3F.json"
     },
     {
-      "id": "hatchetman-hct-3f-austin",
+      "id": "hatchetman-hct-3fx",
       "chassis": "Hatchetman",
-      "model": "HCT-3F (Austin)",
+      "model": "HCT-3FX",
       "tonnage": 45,
       "techBase": "INNER_SPHERE",
-      "year": 3039,
+      "year": 3021,
       "role": "Brawler",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "3-succession-wars/standard/Hatchetman HCT-3F (Austin).json"
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Hatchetman HCT-3FX.json"
+    },
+    {
+      "id": "hatchetman-hct-3fy",
+      "chassis": "Hatchetman",
+      "model": "HCT-3FY",
+      "tonnage": 45,
+      "techBase": "INNER_SPHERE",
+      "year": 3022,
+      "role": "Ambusher",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Hatchetman HCT-3FY.json"
     },
     {
       "id": "hatchetman-hct-5d",
@@ -17824,17 +17945,6 @@
       "path": "3-succession-wars/advanced/Hatchetman HCT-5S.json"
     },
     {
-      "id": "hatchetman-hct-5s-austin",
-      "chassis": "Hatchetman",
-      "model": "HCT-5S (Austin)",
-      "tonnage": 45,
-      "techBase": "INNER_SPHERE",
-      "year": 3059,
-      "role": "Brawler",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "4-clan-invasion/standard/Hatchetman HCT-5S (Austin).json"
-    },
-    {
       "id": "hatchetman-hct-6d",
       "chassis": "Hatchetman",
       "model": "HCT-6D",
@@ -17874,7 +17984,7 @@
       "tonnage": 45,
       "techBase": "INNER_SPHERE",
       "year": 3092,
-      "role": "",
+      "role": "Skirmisher",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Hatchetman HCT-7D.json"
     },
@@ -18666,7 +18776,7 @@
       "tonnage": 70,
       "techBase": "INNER_SPHERE",
       "year": 3088,
-      "role": "",
+      "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Hercules HRC-LS-9003.json"
     },
@@ -18677,7 +18787,7 @@
       "tonnage": 70,
       "techBase": "INNER_SPHERE",
       "year": 3141,
-      "role": "",
+      "role": "Skirmisher",
       "rulesLevel": "UNOFFICIAL",
       "path": "6-dark-age/standard/Hercules HRC-LS-9004.json"
     },
@@ -19337,7 +19447,7 @@
       "tonnage": 35,
       "techBase": "INNER_SPHERE",
       "year": 3121,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Hollander BZK-G2.json"
     },
@@ -19595,28 +19705,6 @@
       "path": "2-star-league/standard/Hunchback HBK-4G.json"
     },
     {
-      "id": "hunchback-hbk-4g-hohiro",
-      "chassis": "Hunchback",
-      "model": "HBK-4G (Hohiro)",
-      "tonnage": 50,
-      "techBase": "INNER_SPHERE",
-      "year": 3056,
-      "role": "Brawler",
-      "rulesLevel": "ADVANCED",
-      "path": "4-clan-invasion/advanced/Hunchback HBK-4G (Hohiro).json"
-    },
-    {
-      "id": "hunchback-hbk-4g-shakir",
-      "chassis": "Hunchback",
-      "model": "HBK-4G (Shakir)",
-      "tonnage": 50,
-      "techBase": "INNER_SPHERE",
-      "year": 3039,
-      "role": "Brawler",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "3-succession-wars/standard/Hunchback HBK-4G (Shakir).json"
-    },
-    {
       "id": "hunchback-hbk-4h",
       "chassis": "Hunchback",
       "model": "HBK-4H",
@@ -19766,7 +19854,7 @@
       "tonnage": 50,
       "techBase": "INNER_SPHERE",
       "year": 3133,
-      "role": "",
+      "role": "Juggernaut",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Hunchback HBK-6P.json"
     },
@@ -19820,10 +19908,10 @@
       "model": "HBK-LGN-Pin 'Anastasia'",
       "tonnage": 50,
       "techBase": "MIXED",
-      "year": 3100,
+      "year": 3138,
       "role": "Juggernaut",
-      "rulesLevel": "ADVANCED",
-      "path": "6-dark-age/advanced/Hunchback HBK-LGN-Pin 'Anastasia'.json"
+      "rulesLevel": "UNOFFICIAL",
+      "path": "6-dark-age/standard/Hunchback HBK-LGN-Pin 'Anastasia'.json"
     },
     {
       "id": "hunchback-hbk-lgn-pin-drizella",
@@ -19831,10 +19919,10 @@
       "model": "HBK-LGN-Pin 'Drizella'",
       "tonnage": 50,
       "techBase": "MIXED",
-      "year": 3100,
+      "year": 3138,
       "role": "Striker",
-      "rulesLevel": "ADVANCED",
-      "path": "6-dark-age/advanced/Hunchback HBK-LGN-Pin 'Drizella'.json"
+      "rulesLevel": "UNOFFICIAL",
+      "path": "6-dark-age/standard/Hunchback HBK-LGN-Pin 'Drizella'.json"
     },
     {
       "id": "hunchback-iic-2",
@@ -19942,7 +20030,7 @@
       "tonnage": 50,
       "techBase": "INNER_SPHERE",
       "year": 3102,
-      "role": "",
+      "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Huron Warrior HUR-WO-R5L.json"
     },
@@ -20046,6 +20134,28 @@
       "path": "5-civil-war/advanced/Hussar HSR-950-D.json"
     },
     {
+      "id": "hybrid-rifleman-rfl-3n-sneede-ii",
+      "chassis": "Hybrid Rifleman",
+      "model": "RFL-3N (Sneede II)",
+      "tonnage": 60,
+      "techBase": "MIXED",
+      "year": 3147,
+      "role": "Sniper",
+      "rulesLevel": "UNOFFICIAL",
+      "path": "6-dark-age/standard/Hybrid Rifleman RFL-3N (Sneede II).json"
+    },
+    {
+      "id": "hybrid-rifleman-rfl-3n-sneede",
+      "chassis": "Hybrid Rifleman",
+      "model": "RFL-3N (Sneede)",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3024,
+      "role": "Sniper",
+      "rulesLevel": "UNOFFICIAL",
+      "path": "3-succession-wars/standard/Hybrid Rifleman RFL-3N (Sneede).json"
+    },
+    {
       "id": "hyena-hyn-4a-salvagemech",
       "chassis": "Hyena",
       "model": "HYN-4A SalvageMech",
@@ -20074,7 +20184,7 @@
       "tonnage": 55,
       "techBase": "INNER_SPHERE",
       "year": 2792,
-      "role": "Skirmisher",
+      "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "3-succession-wars/advanced/Hyena HYN-KTO.json"
     },
@@ -20107,7 +20217,7 @@
       "tonnage": 40,
       "techBase": "INNER_SPHERE",
       "year": 3124,
-      "role": "",
+      "role": "Striker",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Icarus II ICR-2R.json"
     },
@@ -20536,7 +20646,7 @@
       "tonnage": 30,
       "techBase": "MIXED",
       "year": 3136,
-      "role": "Scout",
+      "role": "Striker",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Jackalope JLP-BD-L 'Harvey'.json"
     },
@@ -20772,6 +20882,17 @@
       "path": "2-star-league/standard/JagerMech JM6-A.json"
     },
     {
+      "id": "jagermech-jm6-b",
+      "chassis": "JagerMech",
+      "model": "JM6-B",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 2778,
+      "role": "Missile Boat",
+      "rulesLevel": "STANDARD",
+      "path": "2-star-league/standard/JagerMech JM6-B.json"
+    },
+    {
       "id": "jagermech-jm6-dd",
       "chassis": "JagerMech",
       "model": "JM6-DD",
@@ -20992,6 +21113,17 @@
       "path": "3-succession-wars/advanced/Javelin JVN-10P.json"
     },
     {
+      "id": "javelin-jvn-10u",
+      "chassis": "Javelin",
+      "model": "JVN-10U",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 2751,
+      "role": "Striker",
+      "rulesLevel": "STANDARD",
+      "path": "2-star-league/standard/Javelin JVN-10U.json"
+    },
+    {
       "id": "javelin-jvn-11a-fire-javelin",
       "chassis": "Javelin",
       "model": "JVN-11A 'Fire Javelin'",
@@ -21190,17 +21322,6 @@
       "path": "3-succession-wars/advanced/Jenner JR7-K.json"
     },
     {
-      "id": "jenner-jr7-k-grace-ii",
-      "chassis": "Jenner",
-      "model": "JR7-K (Grace II)",
-      "tonnage": 35,
-      "techBase": "INNER_SPHERE",
-      "year": 3067,
-      "role": "Scout",
-      "rulesLevel": "ADVANCED",
-      "path": "4-clan-invasion/advanced/Jenner JR7-K (Grace II).json"
-    },
-    {
       "id": "jenner-jr7-k-grace",
       "chassis": "Jenner",
       "model": "JR7-K (Grace)",
@@ -21232,6 +21353,17 @@
       "role": "Striker",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Jenner JR7-N.json"
+    },
+    {
+      "id": "jenner-jr7-y",
+      "chassis": "Jenner",
+      "model": "JR7-Y",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 2785,
+      "role": "Striker",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Jenner JR7-Y.json"
     },
     {
       "id": "jenner-iic-2",
@@ -21438,7 +21570,7 @@
       "tonnage": 90,
       "techBase": "INNER_SPHERE",
       "year": 3146,
-      "role": "",
+      "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Juliano JLN-5B.json"
     },
@@ -21449,7 +21581,7 @@
       "tonnage": 90,
       "techBase": "MIXED",
       "year": 3146,
-      "role": "",
+      "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Juliano JLN-5C.json"
     },
@@ -21557,7 +21689,7 @@
       "chassis": "Karhu",
       "model": "C",
       "tonnage": 65,
-      "techBase": "CLAN",
+      "techBase": "MIXED",
       "year": 3079,
       "role": "Sniper",
       "rulesLevel": "ADVANCED",
@@ -21590,7 +21722,7 @@
       "chassis": "Karhu",
       "model": "Prime",
       "tonnage": 65,
-      "techBase": "CLAN",
+      "techBase": "MIXED",
       "year": 3079,
       "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
@@ -21779,7 +21911,7 @@
       "tonnage": 100,
       "techBase": "MIXED",
       "year": 3143,
-      "role": "",
+      "role": "Juggernaut",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/King Crab KGC-009C.json"
     },
@@ -21960,17 +22092,6 @@
       "path": "3-succession-wars/standard/Kintaro KTO-18.json"
     },
     {
-      "id": "kintaro-kto-18-akbani",
-      "chassis": "Kintaro",
-      "model": "KTO-18 (Akbani)",
-      "tonnage": 55,
-      "techBase": "INNER_SPHERE",
-      "year": 3052,
-      "role": "Skirmisher",
-      "rulesLevel": "ADVANCED",
-      "path": "4-clan-invasion/advanced/Kintaro KTO-18 (Akbani).json"
-    },
-    {
       "id": "kintaro-kto-19",
       "chassis": "Kintaro",
       "model": "KTO-19",
@@ -21980,6 +22101,17 @@
       "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "2-star-league/advanced/Kintaro KTO-19.json"
+    },
+    {
+      "id": "kintaro-kto-19-omar",
+      "chassis": "Kintaro",
+      "model": "KTO-19 (Omar)",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 3052,
+      "role": "Skirmisher",
+      "rulesLevel": "ADVANCED",
+      "path": "4-clan-invasion/advanced/Kintaro KTO-19 (Omar).json"
     },
     {
       "id": "kintaro-kto-19b",
@@ -22054,7 +22186,7 @@
       "tonnage": 100,
       "techBase": "INNER_SPHERE",
       "year": 2703,
-      "role": "",
+      "role": "Juggernaut",
       "rulesLevel": "ADVANCED",
       "path": "2-star-league/advanced/Kiso K-3N-KR4 ConstructionMech.json"
     },
@@ -22065,7 +22197,7 @@
       "tonnage": 100,
       "techBase": "INNER_SPHERE",
       "year": 2703,
-      "role": "",
+      "role": "Juggernaut",
       "rulesLevel": "ADVANCED",
       "path": "2-star-league/advanced/Kiso K-3N-KR5 ConstructionMech.json"
     },
@@ -22076,7 +22208,7 @@
       "tonnage": 100,
       "techBase": "INNER_SPHERE",
       "year": 2823,
-      "role": "",
+      "role": "Juggernaut",
       "rulesLevel": "UNOFFICIAL",
       "path": "3-succession-wars/standard/Kiso K-3N-KRHQ CommandMech.json"
     },
@@ -22175,7 +22307,7 @@
       "tonnage": 100,
       "techBase": "MIXED",
       "year": 3146,
-      "role": "",
+      "role": "Juggernaut",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Kodiak II 3.json"
     },
@@ -22889,7 +23021,7 @@
       "model": "LNC25-01sl",
       "tonnage": 60,
       "techBase": "INNER_SPHERE",
-      "year": 2750,
+      "year": 2693,
       "role": "Sniper",
       "rulesLevel": "UNOFFICIAL",
       "path": "2-star-league/standard/Lancelot LNC25-01sl.json"
@@ -23247,17 +23379,6 @@
       "path": "4-clan-invasion/advanced/Lightray LGH-5W.json"
     },
     {
-      "id": "lightray-lgh-6w",
-      "chassis": "Lightray",
-      "model": "LGH-6W",
-      "tonnage": 55,
-      "techBase": "INNER_SPHERE",
-      "year": 3067,
-      "role": "Skirmisher",
-      "rulesLevel": "ADVANCED",
-      "path": "4-clan-invasion/advanced/Lightray LGH-6W.json"
-    },
-    {
       "id": "lightray-lgh-7w",
       "chassis": "Lightray",
       "model": "LGH-7W",
@@ -23429,7 +23550,7 @@
       "tonnage": 55,
       "techBase": "INNER_SPHERE",
       "year": 3131,
-      "role": "",
+      "role": "Brawler",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Lineholder KW2-LH10.json"
     },
@@ -23500,6 +23621,17 @@
       "path": "3-succession-wars/standard/Locust LCT-1E.json"
     },
     {
+      "id": "locust-lct-1e2",
+      "chassis": "Locust",
+      "model": "LCT-1E2",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 2816,
+      "role": "Striker",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Locust LCT-1E2.json"
+    },
+    {
       "id": "locust-lct-1l",
       "chassis": "Locust",
       "model": "LCT-1L",
@@ -23520,6 +23652,17 @@
       "role": "Missile Boat",
       "rulesLevel": "STANDARD",
       "path": "2-star-league/standard/Locust LCT-1M.json"
+    },
+    {
+      "id": "locust-lct-1p",
+      "chassis": "Locust",
+      "model": "LCT-1P",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 3019,
+      "role": "Sniper",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Locust LCT-1P.json"
     },
     {
       "id": "locust-lct-1s",
@@ -23564,6 +23707,28 @@
       "role": "Striker",
       "rulesLevel": "ADVANCED",
       "path": "2-star-league/advanced/Locust LCT-1Vb.json"
+    },
+    {
+      "id": "locust-lct-1y",
+      "chassis": "Locust",
+      "model": "LCT-1Y",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 3020,
+      "role": "Scout",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Locust LCT-1Y.json"
+    },
+    {
+      "id": "locust-lct-1y2",
+      "chassis": "Locust",
+      "model": "LCT-1Y2",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 3022,
+      "role": "Striker",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Locust LCT-1Y2.json"
     },
     {
       "id": "locust-lct-3d",
@@ -24397,7 +24562,7 @@
       "tonnage": 70,
       "techBase": "INNER_SPHERE",
       "year": 3070,
-      "role": "",
+      "role": "Missile Boat",
       "rulesLevel": "ADVANCED",
       "path": "5-civil-war/advanced/Lumberjack LM5-M MilitiaMech.json"
     },
@@ -24804,7 +24969,7 @@
       "tonnage": 55,
       "techBase": "CLAN",
       "year": 3132,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Mad Cat III (Dark Age RS).json"
     },
@@ -24826,7 +24991,7 @@
       "tonnage": 55,
       "techBase": "CLAN",
       "year": 3089,
-      "role": "None",
+      "role": "Skirmisher",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Mad Cat III 2.json"
     },
@@ -24837,7 +25002,7 @@
       "tonnage": 55,
       "techBase": "CLAN",
       "year": 3089,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Mad Cat III 2 (MWDA).json"
     },
@@ -25046,7 +25211,7 @@
       "tonnage": 75,
       "techBase": "CLAN",
       "year": 3130,
-      "role": "",
+      "role": "Skirmisher",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Mad Cat Mk IV PR Unknown.json"
     },
@@ -25093,17 +25258,6 @@
       "role": "Skirmisher",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Maelstrom MTR-7K.json"
-    },
-    {
-      "id": "malak-c-mk-o-mi",
-      "chassis": "Malak",
-      "model": "C-MK-O (Mi)",
-      "tonnage": 30,
-      "techBase": "INNER_SPHERE",
-      "year": 3071,
-      "role": "Striker",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "5-civil-war/standard/Malak C-MK-O (Mi).json"
     },
     {
       "id": "malak-c-mk-o-invictus",
@@ -25574,7 +25728,7 @@
       "tonnage": 75,
       "techBase": "MIXED",
       "year": 3146,
-      "role": "",
+      "role": "Juggernaut",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Marauder (Red Hunter-3146).json"
     },
@@ -25667,6 +25821,17 @@
       "path": "6-dark-age/standard/Marauder MAD-3H.json"
     },
     {
+      "id": "marauder-mad-3j",
+      "chassis": "Marauder",
+      "model": "MAD-3J",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 2835,
+      "role": "Sniper",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Marauder MAD-3J.json"
+    },
+    {
       "id": "marauder-mad-3l",
       "chassis": "Marauder",
       "model": "MAD-3L",
@@ -25698,6 +25863,17 @@
       "role": "Sniper",
       "rulesLevel": "STANDARD",
       "path": "3-succession-wars/standard/Marauder MAD-3R.json"
+    },
+    {
+      "id": "marauder-mad-3v",
+      "chassis": "Marauder",
+      "model": "MAD-3V",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 2981,
+      "role": "Brawler",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Marauder MAD-3V.json"
     },
     {
       "id": "marauder-mad-4x",
@@ -26718,7 +26894,7 @@
       "tonnage": 90,
       "techBase": "MIXED",
       "year": 3144,
-      "role": "Sniper",
+      "role": "Juggernaut",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Mauler MAL-4R.json"
     },
@@ -27168,7 +27344,7 @@
       "model": "MON-69",
       "tonnage": 25,
       "techBase": "INNER_SPHERE",
-      "year": 2819,
+      "year": 2814,
       "role": "Striker",
       "rulesLevel": "ADVANCED",
       "path": "3-succession-wars/advanced/Mongoose MON-69.json"
@@ -27179,7 +27355,7 @@
       "model": "MON-70",
       "tonnage": 25,
       "techBase": "INNER_SPHERE",
-      "year": 2819,
+      "year": 2814,
       "role": "Striker",
       "rulesLevel": "ADVANCED",
       "path": "3-succession-wars/advanced/Mongoose MON-70.json"
@@ -28654,7 +28830,7 @@
       "tonnage": 150,
       "techBase": "INNER_SPHERE",
       "year": 3103,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Omega SHP-5R.json"
     },
@@ -28841,7 +29017,7 @@
       "tonnage": 75,
       "techBase": "MIXED",
       "year": 3142,
-      "role": "",
+      "role": "Brawler",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Orion C.json"
     },
@@ -28907,9 +29083,20 @@
       "tonnage": 75,
       "techBase": "INNER_SPHERE",
       "year": 3025,
-      "role": "Missile Boat",
+      "role": "Brawler",
       "rulesLevel": "EXPERIMENTAL",
       "path": "3-succession-wars/experimental/Orion ON1-K (Muller).json"
+    },
+    {
+      "id": "orion-on1-ka",
+      "chassis": "Orion",
+      "model": "ON1-KA",
+      "tonnage": 75,
+      "techBase": "INNER_SPHERE",
+      "year": 2763,
+      "role": "Brawler",
+      "rulesLevel": "STANDARD",
+      "path": "2-star-league/standard/Orion ON1-KA.json"
     },
     {
       "id": "orion-on1-kb",
@@ -29005,7 +29192,7 @@
       "model": "ON1-V-DC",
       "tonnage": 75,
       "techBase": "INNER_SPHERE",
-      "year": 2913,
+      "year": 2813,
       "role": "Brawler",
       "rulesLevel": "EXPERIMENTAL",
       "path": "3-succession-wars/experimental/Orion ON1-V-DC.json"
@@ -29094,7 +29281,7 @@
       "tonnage": 90,
       "techBase": "INNER_SPHERE",
       "year": 3144,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Orochi OR-3K.json"
     },
@@ -29363,6 +29550,17 @@
       "path": "3-succession-wars/standard/Ostroc OSR-2M.json"
     },
     {
+      "id": "ostroc-osr-2owr",
+      "chassis": "Ostroc",
+      "model": "OSR-2OWR",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 2848,
+      "role": "Skirmisher",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Ostroc OSR-2OWR.json"
+    },
+    {
       "id": "ostroc-osr-3c",
       "chassis": "Ostroc",
       "model": "OSR-3C",
@@ -29567,7 +29765,7 @@
       "tonnage": 35,
       "techBase": "MIXED",
       "year": 3067,
-      "role": "None",
+      "role": "Scout",
       "rulesLevel": "UNOFFICIAL",
       "path": "4-clan-invasion/standard/Ostscout IIC Unknown.json"
     },
@@ -30232,6 +30430,17 @@
       "path": "2-star-league/standard/Panther PNT-9R.json"
     },
     {
+      "id": "panther-pnt-9rh",
+      "chassis": "Panther",
+      "model": "PNT-9Rh",
+      "tonnage": 35,
+      "techBase": "INNER_SPHERE",
+      "year": 3034,
+      "role": "Brawler",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Panther PNT-9Rh.json"
+    },
+    {
       "id": "panther-pnt-c",
       "chassis": "Panther",
       "model": "PNT-C",
@@ -30304,7 +30513,7 @@
       "tonnage": 55,
       "techBase": "CLAN",
       "year": 3072,
-      "role": "Scout",
+      "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "5-civil-war/advanced/Pariah (Septicemia) A.json"
     },
@@ -30700,7 +30909,7 @@
       "tonnage": 75,
       "techBase": "INNER_SPHERE",
       "year": 3133,
-      "role": "",
+      "role": "Skirmisher",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Penetrator PTR-7D.json"
     },
@@ -31238,7 +31447,7 @@
       "model": "PXH-1Kk",
       "tonnage": 45,
       "techBase": "INNER_SPHERE",
-      "year": 2725,
+      "year": 2671,
       "role": "Skirmisher",
       "rulesLevel": "UNOFFICIAL",
       "path": "2-star-league/standard/Phoenix Hawk PXH-1Kk.json"
@@ -31662,9 +31871,9 @@
       "path": "3-succession-wars/advanced/Phoenix Hawk IIC Unknown.json"
     },
     {
-      "id": "phoenix-hawk-l-fenikkusu-taka-pxh-11k",
-      "chassis": "Phoenix Hawk L",
-      "model": "'Fenikkusu Taka' PXH-11K",
+      "id": "phoenix-hawk-l-fenikkusu-taka-pxh-11k-e1571d56",
+      "chassis": "Phoenix Hawk L 'Fenikkusu Taka'",
+      "model": "PXH-11K",
       "tonnage": 35,
       "techBase": "INNER_SPHERE",
       "year": 3116,
@@ -31673,9 +31882,9 @@
       "path": "6-dark-age/experimental/Phoenix Hawk L 'Fenikkusu Taka' PXH-11K.json"
     },
     {
-      "id": "phoenix-hawk-l-fenikkusu-taka-pxh-11k2",
-      "chassis": "Phoenix Hawk L",
-      "model": "'Fenikkusu Taka' PXH-11K2",
+      "id": "phoenix-hawk-l-fenikkusu-taka-pxh-11k2-bdd65eb8",
+      "chassis": "Phoenix Hawk L 'Fenikkusu Taka'",
+      "model": "PXH-11K2",
       "tonnage": 35,
       "techBase": "INNER_SPHERE",
       "year": 3116,
@@ -31910,7 +32119,7 @@
       "tonnage": 15,
       "techBase": "INNER_SPHERE",
       "year": 3044,
-      "role": "",
+      "role": "Ambusher",
       "rulesLevel": "EXPERIMENTAL",
       "path": "3-succession-wars/experimental/Pompier GM-3A Firemech.json"
     },
@@ -31921,7 +32130,7 @@
       "tonnage": 15,
       "techBase": "INNER_SPHERE",
       "year": 3062,
-      "role": "",
+      "role": "Scout",
       "rulesLevel": "EXPERIMENTAL",
       "path": "4-clan-invasion/experimental/Pompier GM-3CD Firemech.json"
     },
@@ -31943,7 +32152,7 @@
       "tonnage": 15,
       "techBase": "INNER_SPHERE",
       "year": 3085,
-      "role": "",
+      "role": "Ambusher",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Pompier GM-4P PoliceMech.json"
     },
@@ -31954,7 +32163,7 @@
       "tonnage": 15,
       "techBase": "INNER_SPHERE",
       "year": 3076,
-      "role": "",
+      "role": "Ambusher",
       "rulesLevel": "EXPERIMENTAL",
       "path": "5-civil-war/experimental/Pompier GM-FL FireMech.json"
     },
@@ -32278,17 +32487,6 @@
       "path": "6-dark-age/experimental/Prefect PRF-3R.json"
     },
     {
-      "id": "preta-c-prt-o-kendali",
-      "chassis": "Preta",
-      "model": "C-PRT-O (Kendali)",
-      "tonnage": 45,
-      "techBase": "INNER_SPHERE",
-      "year": 3071,
-      "role": "Scout",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "5-civil-war/standard/Preta C-PRT-O (Kendali).json"
-    },
-    {
       "id": "preta-c-prt-o-invictus",
       "chassis": "Preta",
       "model": "C-PRT-O Invictus",
@@ -32394,7 +32592,7 @@
       "tonnage": 15,
       "techBase": "INNER_SPHERE",
       "year": 3140,
-      "role": "",
+      "role": "Striker",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Prey Seeker PY-SR20.json"
     },
@@ -32405,7 +32603,7 @@
       "tonnage": 15,
       "techBase": "INNER_SPHERE",
       "year": 3141,
-      "role": "",
+      "role": "Scout",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Prey Seeker PY-SR30.json"
     },
@@ -32696,6 +32894,17 @@
       "path": "2-star-league/standard/Quickdraw QKD-4G.json"
     },
     {
+      "id": "quickdraw-qkd-4gh",
+      "chassis": "Quickdraw",
+      "model": "QKD-4Gh",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3034,
+      "role": "Skirmisher",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Quickdraw QKD-4Gh.json"
+    },
+    {
       "id": "quickdraw-qkd-4h",
       "chassis": "Quickdraw",
       "model": "QKD-4H",
@@ -32705,6 +32914,17 @@
       "role": "Skirmisher",
       "rulesLevel": "STANDARD",
       "path": "3-succession-wars/standard/Quickdraw QKD-4H.json"
+    },
+    {
+      "id": "quickdraw-qkd-4r",
+      "chassis": "Quickdraw",
+      "model": "QKD-4R",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 2770,
+      "role": "Brawler",
+      "rulesLevel": "STANDARD",
+      "path": "2-star-league/standard/Quickdraw QKD-4R.json"
     },
     {
       "id": "quickdraw-qkd-5a",
@@ -32867,7 +33087,7 @@
       "tonnage": 50,
       "techBase": "INNER_SPHERE",
       "year": 3138,
-      "role": "",
+      "role": "Juggernaut",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Raider JL-3A.json"
     },
@@ -32878,7 +33098,7 @@
       "tonnage": 50,
       "techBase": "INNER_SPHERE",
       "year": 3138,
-      "role": "",
+      "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Raider JL-3B.json"
     },
@@ -32900,7 +33120,7 @@
       "tonnage": 50,
       "techBase": "INNER_SPHERE",
       "year": 3139,
-      "role": "",
+      "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Raider Mk II JL-3C.json"
     },
@@ -33637,7 +33857,7 @@
       "tonnage": 30,
       "techBase": "INNER_SPHERE",
       "year": 3075,
-      "role": "",
+      "role": "Striker",
       "rulesLevel": "EXPERIMENTAL",
       "path": "5-civil-war/experimental/Revenant UBM-1A.json"
     },
@@ -33796,6 +34016,17 @@
       "path": "5-civil-war/advanced/Rifleman RFL-3Cr.json"
     },
     {
+      "id": "rifleman-rfl-3k-cool-head",
+      "chassis": "Rifleman",
+      "model": "RFL-3K 'Cool Head'",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 2770,
+      "role": "Sniper",
+      "rulesLevel": "STANDARD",
+      "path": "2-star-league/standard/Rifleman RFL-3K 'Cool Head'.json"
+    },
+    {
       "id": "rifleman-rfl-3n",
       "chassis": "Rifleman",
       "model": "RFL-3N",
@@ -33805,6 +34036,17 @@
       "role": "Sniper",
       "rulesLevel": "STANDARD",
       "path": "2-star-league/standard/Rifleman RFL-3N.json"
+    },
+    {
+      "id": "rifleman-rfl-3n-legend-killer-2",
+      "chassis": "Rifleman",
+      "model": "RFL-3N (Legend Killer 2)",
+      "tonnage": 60,
+      "techBase": "INNER_SPHERE",
+      "year": 3025,
+      "role": "Sniper",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Rifleman RFL-3N (Legend Killer 2).json"
     },
     {
       "id": "rifleman-rfl-4d",
@@ -33992,6 +34234,17 @@
       "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "2-star-league/advanced/Rifleman II RFL-3N-2.json"
+    },
+    {
+      "id": "rifleman-ii-rfl-3n-2-legend-killer",
+      "chassis": "Rifleman II",
+      "model": "RFL-3N-2 (Legend Killer)",
+      "tonnage": 80,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "",
+      "rulesLevel": "ADVANCED",
+      "path": "4-clan-invasion/advanced/Rifleman II RFL-3N-2 (Legend Killer).json"
     },
     {
       "id": "rifleman-iic-10",
@@ -34616,7 +34869,7 @@
       "tonnage": 75,
       "techBase": "CLAN",
       "year": 3132,
-      "role": "None",
+      "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Ryoken II (Tassa).json"
     },
@@ -35122,7 +35375,7 @@
       "tonnage": 80,
       "techBase": "INNER_SPHERE",
       "year": 2613,
-      "role": "",
+      "role": "Ambusher",
       "rulesLevel": "ADVANCED",
       "path": "2-star-league/advanced/Scavenger SC-V SalvageMech.json"
     },
@@ -35133,9 +35386,20 @@
       "tonnage": 80,
       "techBase": "INNER_SPHERE",
       "year": 2990,
-      "role": "",
+      "role": "Ambusher",
       "rulesLevel": "EXPERIMENTAL",
       "path": "3-succession-wars/experimental/Scavenger SC-V-M MilitiaMech.json"
+    },
+    {
+      "id": "schwerer-gustav-unknown",
+      "chassis": "Schwerer Gustav",
+      "model": "Unknown",
+      "tonnage": 100,
+      "techBase": "MIXED",
+      "year": 3073,
+      "role": "Missile Boat",
+      "rulesLevel": "UNOFFICIAL",
+      "path": "5-civil-war/standard/Schwerer Gustav Unknown.json"
     },
     {
       "id": "scorpion-c",
@@ -35191,6 +35455,17 @@
       "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "4-clan-invasion/advanced/Scorpion SCP-12S.json"
+    },
+    {
+      "id": "scorpion-scp-1a",
+      "chassis": "Scorpion",
+      "model": "SCP-1A",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 3030,
+      "role": "Skirmisher",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Scorpion SCP-1A.json"
     },
     {
       "id": "scorpion-scp-1b",
@@ -35499,17 +35774,6 @@
       "role": "Skirmisher",
       "rulesLevel": "EXPERIMENTAL",
       "path": "5-civil-war/experimental/Sentry SNT-W5.json"
-    },
-    {
-      "id": "seraph-c-srp-o-havalah",
-      "chassis": "Seraph",
-      "model": "C-SRP-O (Havalah)",
-      "tonnage": 85,
-      "techBase": "INNER_SPHERE",
-      "year": 3071,
-      "role": "Juggernaut",
-      "rulesLevel": "EXPERIMENTAL",
-      "path": "5-civil-war/experimental/Seraph C-SRP-O (Havalah).json"
     },
     {
       "id": "seraph-c-srp-o-invictus",
@@ -36024,7 +36288,7 @@
       "tonnage": 55,
       "techBase": "INNER_SPHERE",
       "year": 2775,
-      "role": "Skirmisher",
+      "role": "Brawler",
       "rulesLevel": "EXPERIMENTAL",
       "path": "2-star-league/experimental/Shadow Hawk SHD-3H2.json"
     },
@@ -36420,7 +36684,7 @@
       "tonnage": 85,
       "techBase": "CLAN",
       "year": 3139,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Shogun C 2.json"
     },
@@ -36486,7 +36750,7 @@
       "tonnage": 85,
       "techBase": "INNER_SPHERE",
       "year": 3090,
-      "role": "",
+      "role": "Juggernaut",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Shogun SHG-3E.json"
     },
@@ -36530,7 +36794,7 @@
       "tonnage": 95,
       "techBase": "CLAN",
       "year": 3134,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Shrike 'Black Rose'.json"
     },
@@ -36639,8 +36903,8 @@
       "model": "Prime",
       "tonnage": 75,
       "techBase": "CLAN",
-      "year": 3049,
-      "role": "",
+      "year": 3038,
+      "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "3-succession-wars/advanced/Sidewinder Prime.json"
     },
@@ -37410,7 +37674,7 @@
       "tonnage": 90,
       "techBase": "INNER_SPHERE",
       "year": 3063,
-      "role": "None",
+      "role": "Ambusher",
       "rulesLevel": "EXPERIMENTAL",
       "path": "4-clan-invasion/experimental/St. Florian FLN-366 FireMech.json"
     },
@@ -37421,7 +37685,7 @@
       "tonnage": 90,
       "techBase": "INNER_SPHERE",
       "year": 3133,
-      "role": "None",
+      "role": "Ambusher",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/St. Florian FLN-366-M FireMech MOD.json"
     },
@@ -37497,7 +37761,7 @@
       "model": "STK-3Fk",
       "tonnage": 85,
       "techBase": "INNER_SPHERE",
-      "year": 2750,
+      "year": 2683,
       "role": "Juggernaut",
       "rulesLevel": "UNOFFICIAL",
       "path": "2-star-league/standard/Stalker STK-3Fk.json"
@@ -37827,8 +38091,8 @@
       "model": "Prime",
       "tonnage": 70,
       "techBase": "CLAN",
-      "year": 3049,
-      "role": "",
+      "year": 2954,
+      "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "3-succession-wars/advanced/Starhawk Prime.json"
     },
@@ -38095,6 +38359,28 @@
       "role": "Scout",
       "rulesLevel": "STANDARD",
       "path": "1-age-of-war/standard/Stinger STG-3R.json"
+    },
+    {
+      "id": "stinger-stg-3y",
+      "chassis": "Stinger",
+      "model": "STG-3Y",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 3019,
+      "role": "Scout",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Stinger STG-3Y.json"
+    },
+    {
+      "id": "stinger-stg-3y2",
+      "chassis": "Stinger",
+      "model": "STG-3Y2",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 3021,
+      "role": "Striker",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Stinger STG-3Y2.json"
     },
     {
       "id": "stinger-stg-4g",
@@ -38642,7 +38928,7 @@
       "tonnage": 80,
       "techBase": "INNER_SPHERE",
       "year": 3123,
-      "role": "",
+      "role": "Juggernaut",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Striker STC-2L.json"
     },
@@ -39274,13 +39560,24 @@
       "path": "6-dark-age/advanced/Targe TRG-3M.json"
     },
     {
+      "id": "temax-cat-ninjabolt-tmc-nb",
+      "chassis": "Temax Cat Ninjabolt",
+      "model": "TMC-NB",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3075,
+      "role": "Sniper",
+      "rulesLevel": "UNOFFICIAL",
+      "path": "5-civil-war/standard/Temax Cat Ninjabolt TMC-NB.json"
+    },
+    {
       "id": "tempest-c",
       "chassis": "Tempest",
       "model": "C",
       "tonnage": 65,
       "techBase": "MIXED",
       "year": 3150,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Tempest C.json"
     },
@@ -39335,7 +39632,7 @@
       "tonnage": 65,
       "techBase": "INNER_SPHERE",
       "year": 3134,
-      "role": "",
+      "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Tempest TMP-4M.json"
     },
@@ -39741,7 +40038,7 @@
       "model": "TNS-6S2",
       "tonnage": 75,
       "techBase": "INNER_SPHERE",
-      "year": 3081,
+      "year": 3086,
       "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Thanatos TNS-6S2.json"
@@ -39752,10 +40049,10 @@
       "model": "TNS-6T",
       "tonnage": 75,
       "techBase": "INNER_SPHERE",
-      "year": 3150,
+      "year": 3076,
       "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
-      "path": "6-dark-age/advanced/Thanatos TNS-6T.json"
+      "path": "5-civil-war/advanced/Thanatos TNS-6T.json"
     },
     {
       "id": "thanatos-tns-7d",
@@ -39763,7 +40060,7 @@
       "model": "TNS-7D",
       "tonnage": 75,
       "techBase": "MIXED",
-      "year": 3150,
+      "year": 3146,
       "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Thanatos TNS-7D.json"
@@ -39774,7 +40071,7 @@
       "model": "TNS-7D2",
       "tonnage": 75,
       "techBase": "MIXED",
-      "year": 3150,
+      "year": 3151,
       "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "6-dark-age/advanced/Thanatos TNS-7D2.json"
@@ -40390,7 +40687,7 @@
       "model": "TDK-7XEM",
       "tonnage": 100,
       "techBase": "INNER_SPHERE",
-      "year": 3138,
+      "year": 3097,
       "role": "Sniper",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Thunder Hawk TDK-7XEM.json"
@@ -40682,6 +40979,17 @@
       "path": "3-succession-wars/standard/Thunderbolt TDR-5SS.json"
     },
     {
+      "id": "thunderbolt-tdr-5ss1",
+      "chassis": "Thunderbolt",
+      "model": "TDR-5SS1",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 2927,
+      "role": "Brawler",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Thunderbolt TDR-5SS1.json"
+    },
+    {
       "id": "thunderbolt-tdr-5sb",
       "chassis": "Thunderbolt",
       "model": "TDR-5Sb",
@@ -40709,10 +41017,21 @@
       "model": "TDR-5Sd",
       "tonnage": 65,
       "techBase": "INNER_SPHERE",
-      "year": 2750,
+      "year": 2682,
       "role": "Brawler",
       "rulesLevel": "UNOFFICIAL",
       "path": "2-star-league/standard/Thunderbolt TDR-5Sd.json"
+    },
+    {
+      "id": "thunderbolt-tdr-5sh",
+      "chassis": "Thunderbolt",
+      "model": "TDR-5Sh",
+      "tonnage": 65,
+      "techBase": "INNER_SPHERE",
+      "year": 3034,
+      "role": "Brawler",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Thunderbolt TDR-5Sh.json"
     },
     {
       "id": "thunderbolt-tdr-60-rla",
@@ -40995,7 +41314,7 @@
       "model": "TNZ-N4",
       "tonnage": 75,
       "techBase": "INNER_SPHERE",
-      "year": 3140,
+      "year": 3147,
       "role": "Sniper",
       "rulesLevel": "UNOFFICIAL",
       "path": "6-dark-age/standard/Tian-Zong TNZ-N4.json"
@@ -41006,7 +41325,7 @@
       "model": "TNZ-N5",
       "tonnage": 75,
       "techBase": "MIXED",
-      "year": 3140,
+      "year": 3148,
       "role": "Sniper",
       "rulesLevel": "UNOFFICIAL",
       "path": "6-dark-age/standard/Tian-Zong TNZ-N5.json"
@@ -41017,7 +41336,7 @@
       "model": "TNZ-N6",
       "tonnage": 75,
       "techBase": "MIXED",
-      "year": 3140,
+      "year": 3151,
       "role": "Sniper",
       "rulesLevel": "UNOFFICIAL",
       "path": "6-dark-age/standard/Tian-Zong TNZ-N6.json"
@@ -42024,6 +42343,17 @@
       "path": "4-clan-invasion/standard/UrbanMech UM-R60B.json"
     },
     {
+      "id": "urbanmech-um-r60g",
+      "chassis": "UrbanMech",
+      "model": "UM-R60G",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 2912,
+      "role": "Brawler",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/UrbanMech UM-R60G.json"
+    },
+    {
       "id": "urbanmech-um-r60l",
       "chassis": "UrbanMech",
       "model": "UM-R60L",
@@ -42033,6 +42363,39 @@
       "role": "Ambusher",
       "rulesLevel": "STANDARD",
       "path": "3-succession-wars/standard/UrbanMech UM-R60L.json"
+    },
+    {
+      "id": "urbanmech-um-r60r",
+      "chassis": "UrbanMech",
+      "model": "UM-R60R",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 2896,
+      "role": "Ambusher",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/UrbanMech UM-R60R.json"
+    },
+    {
+      "id": "urbanmech-um-r61",
+      "chassis": "UrbanMech",
+      "model": "UM-R61",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 2787,
+      "role": "Ambusher",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/UrbanMech UM-R61.json"
+    },
+    {
+      "id": "urbanmech-um-r62",
+      "chassis": "UrbanMech",
+      "model": "UM-R62",
+      "tonnage": 30,
+      "techBase": "INNER_SPHERE",
+      "year": 2788,
+      "role": "Ambusher",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/UrbanMech UM-R62.json"
     },
     {
       "id": "urbanmech-um-r63",
@@ -42253,28 +42616,6 @@
       "role": "Striker",
       "rulesLevel": "ADVANCED",
       "path": "4-clan-invasion/advanced/Uziel UZL-2S.json"
-    },
-    {
-      "id": "uziel-uzl-2s-jacob-ii",
-      "chassis": "Uziel",
-      "model": "UZL-2S (Jacob II)",
-      "tonnage": 50,
-      "techBase": "INNER_SPHERE",
-      "year": 3071,
-      "role": "Striker",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "5-civil-war/standard/Uziel UZL-2S (Jacob II).json"
-    },
-    {
-      "id": "uziel-uzl-2s-jacob",
-      "chassis": "Uziel",
-      "model": "UZL-2S (Jacob)",
-      "tonnage": 50,
-      "techBase": "INNER_SPHERE",
-      "year": 3070,
-      "role": "Striker",
-      "rulesLevel": "ADVANCED",
-      "path": "5-civil-war/advanced/Uziel UZL-2S (Jacob).json"
     },
     {
       "id": "uziel-uzl-3s",
@@ -42690,7 +43031,7 @@
       "tonnage": 35,
       "techBase": "INNER_SPHERE",
       "year": 3108,
-      "role": "",
+      "role": "Scout",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Venom SDR-9KE.json"
     },
@@ -43465,6 +43806,39 @@
       "path": "3-succession-wars/standard/Vulcan VL-2T (Timms).json"
     },
     {
+      "id": "vulcan-vl-3t",
+      "chassis": "Vulcan",
+      "model": "VL-3T",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 2978,
+      "role": "Scout",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Vulcan VL-3T.json"
+    },
+    {
+      "id": "vulcan-vl-3t2",
+      "chassis": "Vulcan",
+      "model": "VL-3T2",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3005,
+      "role": "Scout",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Vulcan VL-3T2.json"
+    },
+    {
+      "id": "vulcan-vl-4t",
+      "chassis": "Vulcan",
+      "model": "VL-4T",
+      "tonnage": 40,
+      "techBase": "INNER_SPHERE",
+      "year": 3025,
+      "role": "Scout",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Vulcan VL-4T.json"
+    },
+    {
       "id": "vulcan-vl-5t",
       "chassis": "Vulcan",
       "model": "VL-5T",
@@ -44059,6 +44433,17 @@
       "path": "6-dark-age/advanced/Warhammer WHM-5L.json"
     },
     {
+      "id": "warhammer-whm-6b",
+      "chassis": "Warhammer",
+      "model": "WHM-6B",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 2609,
+      "role": "Juggernaut",
+      "rulesLevel": "STANDARD",
+      "path": "2-star-league/standard/Warhammer WHM-6B.json"
+    },
+    {
       "id": "warhammer-whm-6d",
       "chassis": "Warhammer",
       "model": "WHM-6D",
@@ -44068,6 +44453,17 @@
       "role": "Brawler",
       "rulesLevel": "STANDARD",
       "path": "3-succession-wars/standard/Warhammer WHM-6D.json"
+    },
+    {
+      "id": "warhammer-whm-6j",
+      "chassis": "Warhammer",
+      "model": "WHM-6J",
+      "tonnage": 70,
+      "techBase": "INNER_SPHERE",
+      "year": 3012,
+      "role": "Skirmisher",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Warhammer WHM-6J.json"
     },
     {
       "id": "warhammer-whm-6k",
@@ -44130,7 +44526,7 @@
       "model": "WHM-6Rk",
       "tonnage": 70,
       "techBase": "INNER_SPHERE",
-      "year": 2745,
+      "year": 2721,
       "role": "Skirmisher",
       "rulesLevel": "EXPERIMENTAL",
       "path": "2-star-league/experimental/Warhammer WHM-6Rk.json"
@@ -44631,6 +45027,17 @@
       "path": "3-succession-wars/standard/Wasp WSP-1W.json"
     },
     {
+      "id": "wasp-wsp-1y",
+      "chassis": "Wasp",
+      "model": "WSP-1Y",
+      "tonnage": 20,
+      "techBase": "INNER_SPHERE",
+      "year": 3018,
+      "role": "Scout",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Wasp WSP-1Y.json"
+    },
+    {
       "id": "wasp-wsp-3a",
       "chassis": "Wasp",
       "model": "WSP-3A",
@@ -44846,7 +45253,7 @@
       "tonnage": 40,
       "techBase": "INNER_SPHERE",
       "year": 3145,
-      "role": "",
+      "role": "Striker",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Watchman WTC-4DM2.json"
     },
@@ -44939,15 +45346,15 @@
       "path": "6-dark-age/standard/Wendigo-VP A.json"
     },
     {
-      "id": "wendigo-xp-prime",
-      "chassis": "Wendigo-XP",
+      "id": "wendigo-xr-prime",
+      "chassis": "Wendigo-XR",
       "model": "(Prime)",
       "tonnage": 50,
       "techBase": "MIXED",
       "year": 3151,
       "role": "Brawler",
-      "rulesLevel": "STANDARD",
-      "path": "6-dark-age/standard/Wendigo-XP (Prime).json"
+      "rulesLevel": "UNOFFICIAL",
+      "path": "6-dark-age/standard/Wendigo-XR (Prime).json"
     },
     {
       "id": "werewolf-wer-lf-004",
@@ -45412,17 +45819,6 @@
       "path": "5-civil-war/advanced/Wolfhound WLF-4W.json"
     },
     {
-      "id": "wolfhound-wlf-4wa",
-      "chassis": "Wolfhound",
-      "model": "WLF-4WA",
-      "tonnage": 35,
-      "techBase": "INNER_SPHERE",
-      "year": 3071,
-      "role": "Sniper",
-      "rulesLevel": "ADVANCED",
-      "path": "5-civil-war/advanced/Wolfhound WLF-4WA.json"
-    },
-    {
       "id": "wolfhound-wlf-5",
       "chassis": "Wolfhound",
       "model": "WLF-5",
@@ -45511,6 +45907,17 @@
       "path": "1-age-of-war/standard/Wolverine WVR-1R.json"
     },
     {
+      "id": "wolverine-wvr-3n",
+      "chassis": "Wolverine",
+      "model": "WVR-3N",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 2575,
+      "role": "Skirmisher",
+      "rulesLevel": "STANDARD",
+      "path": "2-star-league/standard/Wolverine WVR-3N.json"
+    },
+    {
       "id": "wolverine-wvr-3r",
       "chassis": "Wolverine",
       "model": "WVR-3R",
@@ -45527,10 +45934,10 @@
       "model": "WVR-6D",
       "tonnage": 55,
       "techBase": "INNER_SPHERE",
-      "year": 2834,
+      "year": 2575,
       "role": "Skirmisher",
       "rulesLevel": "STANDARD",
-      "path": "3-succession-wars/standard/Wolverine WVR-6D.json"
+      "path": "2-star-league/standard/Wolverine WVR-6D.json"
     },
     {
       "id": "wolverine-wvr-6k",
@@ -45542,6 +45949,17 @@
       "role": "Skirmisher",
       "rulesLevel": "STANDARD",
       "path": "2-star-league/standard/Wolverine WVR-6K.json"
+    },
+    {
+      "id": "wolverine-wvr-6kh",
+      "chassis": "Wolverine",
+      "model": "WVR-6Kh",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 3034,
+      "role": "Skirmisher",
+      "rulesLevel": "STANDARD",
+      "path": "3-succession-wars/standard/Wolverine WVR-6Kh.json"
     },
     {
       "id": "wolverine-wvr-6m",
@@ -45586,6 +46004,17 @@
       "role": "Skirmisher",
       "rulesLevel": "ADVANCED",
       "path": "4-clan-invasion/advanced/Wolverine WVR-7K.json"
+    },
+    {
+      "id": "wolverine-wvr-7kh",
+      "chassis": "Wolverine",
+      "model": "WVR-7Kh",
+      "tonnage": 55,
+      "techBase": "INNER_SPHERE",
+      "year": 3050,
+      "role": "Skirmisher",
+      "rulesLevel": "ADVANCED",
+      "path": "4-clan-invasion/advanced/Wolverine WVR-7Kh.json"
     },
     {
       "id": "wolverine-wvr-7m",
@@ -45956,7 +46385,7 @@
       "model": "WVE-5Nsl",
       "tonnage": 45,
       "techBase": "INNER_SPHERE",
-      "year": 2750,
+      "year": 2695,
       "role": "Missile Boat",
       "rulesLevel": "UNOFFICIAL",
       "path": "2-star-league/standard/Wyvern WVE-5Nsl.json"
@@ -46221,7 +46650,7 @@
       "tonnage": 90,
       "techBase": "MIXED",
       "year": 3146,
-      "role": "",
+      "role": "Sniper",
       "rulesLevel": "EXPERIMENTAL",
       "path": "6-dark-age/experimental/Yu Huang Y-H12GC.json"
     },
@@ -46422,17 +46851,6 @@
       "role": "Brawler",
       "rulesLevel": "ADVANCED",
       "path": "4-clan-invasion/advanced/Zeus-X ZEU-9WD.json"
-    },
-    {
-      "id": "zeus-x-zeu-9wd-stacy",
-      "chassis": "Zeus-X",
-      "model": "ZEU-9WD (Stacy)",
-      "tonnage": 80,
-      "techBase": "INNER_SPHERE",
-      "year": 3070,
-      "role": "Sniper",
-      "rulesLevel": "UNOFFICIAL",
-      "path": "5-civil-war/standard/Zeus-X ZEU-9WD (Stacy).json"
     },
     {
       "id": "zeus-x-zeu-x",

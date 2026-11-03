@@ -94,7 +94,10 @@ function cockpitTypeFromFullUnit(fullUnit: IFullUnit): string | undefined {
 function communicationsTonnageFromEquipmentDescriptor(
   descriptor: string,
 ): number | undefined {
-  const normalized = descriptor.trim().toLowerCase();
+  const normalized = descriptor
+    .trim()
+    .toLowerCase()
+    .replace(/^communications equipment\b/, 'communications-equipment');
   if (!normalized.includes('communications-equipment')) return undefined;
 
   const explicitSizeMatch = normalized.match(
@@ -104,7 +107,7 @@ function communicationsTonnageFromEquipmentDescriptor(
     /\bcommunications-equipment-(\d+(?:\.\d+)?)-ton\b/,
   );
   const parentheticalTonnageMatch = normalized.match(
-    /\bcommunications equipment\s*\((\d+(?:\.\d+)?)\s*tons?\)/,
+    /\bcommunications-equipment\s*\((\d+(?:\.\d+)?)\s*tons?\)/,
   );
   const match =
     explicitSizeMatch ?? tonSuffixMatch ?? parentheticalTonnageMatch;
@@ -165,12 +168,9 @@ function communicationsTonnageFromCriticalSlots(
         continue;
       }
 
-      const match = slot.match(/\((\d+(?:\.\d+)?)\s*tons?\)/i);
-      if (!match) continue;
-      const tonnage = Number.parseFloat(match[1]);
-      if (Number.isFinite(tonnage) && tonnage > 0) {
-        uniqueTonnages.add(tonnage);
-      }
+      // MTF criticals and mounted entries share native SIZE and legacy ton descriptors.
+      const tonnage = communicationsTonnageFromEquipmentDescriptor(slot);
+      if (tonnage !== undefined) uniqueTonnages.add(tonnage);
     }
   }
 

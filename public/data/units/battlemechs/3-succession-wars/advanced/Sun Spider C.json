@@ -43,7 +43,7 @@
     }
   },
   "heatSinks": {
-    "type": "DOUBLE",
+    "type": "DOUBLE_CLAN",
     "count": 15
   },
   "movement": {
@@ -53,14 +53,6 @@
   "equipment": [
     {
       "id": "lrm-15",
-      "location": "RIGHT_ARM"
-    },
-    {
-      "id": "lrm-15",
-      "location": "RIGHT_ARM"
-    },
-    {
-      "id": "lrm-15",
       "location": "LEFT_ARM"
     },
     {
@@ -68,12 +60,20 @@
       "location": "LEFT_ARM"
     },
     {
-      "id": "lrm-20",
-      "location": "RIGHT_TORSO"
+      "id": "lrm-15",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "lrm-15",
+      "location": "RIGHT_ARM"
     },
     {
       "id": "lrm-20",
       "location": "LEFT_TORSO"
+    },
+    {
+      "id": "lrm-20",
+      "location": "RIGHT_TORSO"
     }
   ],
   "criticalSlots": {
@@ -81,12 +81,12 @@
       "Shoulder",
       "Upper Arm Actuator",
       "Clan Endo Steel",
-      "CLLRM15",
-      "CLLRM15",
-      "CLLRM15",
-      "CLLRM15",
-      "CLDoubleHeatSink",
-      "CLDoubleHeatSink",
+      "CLLRM15 (OMNIPOD)",
+      "CLLRM15 (OMNIPOD)",
+      "CLLRM15 (OMNIPOD)",
+      "CLLRM15 (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
       null,
       null,
       null
@@ -95,10 +95,10 @@
       "Shoulder",
       "Upper Arm Actuator",
       "Clan Endo Steel",
-      "CLLRM15",
-      "CLLRM15",
-      "CLLRM15",
-      "CLLRM15",
+      "CLLRM15 (OMNIPOD)",
+      "CLLRM15 (OMNIPOD)",
+      "CLLRM15 (OMNIPOD)",
+      "CLLRM15 (OMNIPOD)",
       null,
       null,
       null,
@@ -112,12 +112,12 @@
       "Clan Endo Steel",
       "Clan Ferro-Fibrous",
       "Clan Ferro-Fibrous",
-      "CLLRM20",
-      "CLLRM20",
-      "CLLRM20",
-      "CLLRM20",
-      "Clan Ammo LRM-15",
-      "Clan Ammo LRM-15"
+      "CLLRM20 (OMNIPOD)",
+      "CLLRM20 (OMNIPOD)",
+      "CLLRM20 (OMNIPOD)",
+      "CLLRM20 (OMNIPOD)",
+      "Clan Ammo LRM-15 (OMNIPOD)",
+      "Clan Ammo LRM-15 (OMNIPOD)"
     ],
     "RIGHT_TORSO": [
       "Fusion Engine",
@@ -126,12 +126,12 @@
       "Clan Endo Steel",
       "Clan Ferro-Fibrous",
       "Clan Ferro-Fibrous",
-      "CLLRM20",
-      "CLLRM20",
-      "CLLRM20",
-      "CLLRM20",
-      "Clan Ammo LRM-15",
-      "Clan Ammo LRM-15"
+      "CLLRM20 (OMNIPOD)",
+      "CLLRM20 (OMNIPOD)",
+      "CLLRM20 (OMNIPOD)",
+      "CLLRM20 (OMNIPOD)",
+      "Clan Ammo LRM-15 (OMNIPOD)",
+      "Clan Ammo LRM-15 (OMNIPOD)"
     ],
     "CENTER_TORSO": [
       "Fusion Engine",
@@ -161,7 +161,7 @@
       "Lower Leg Actuator",
       "Foot Actuator",
       "Clan Ferro-Fibrous",
-      "Clan Ammo LRM-20"
+      "Clan Ammo LRM-20 (OMNIPOD)"
     ],
     "RIGHT_LEG": [
       "Hip",
@@ -169,8 +169,8 @@
       "Lower Leg Actuator",
       "Foot Actuator",
       "Clan Ferro-Fibrous",
-      "Clan Ammo LRM-20"
+      "Clan Ammo LRM-20 (OMNIPOD)"
     ]
   },
-  "source": "Videogame (Apocryphal)"
+  "source": "Apocryphal (Videogame)"
 }
