@@ -5,7 +5,6 @@ import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipme
 import type { Era } from '@/types/temporal/Era';
 import type {
   ISerializedArmor,
-  ISerializedCriticalSlots,
   ISerializedEquipment,
   ISerializedUnit,
 } from '@/types/unit/UnitSerialization';
@@ -169,10 +168,7 @@ function serializeEquipment(
   }));
 }
 
-function serializeCriticalSlots(
-  state: UnitState,
-  walk: number,
-): ISerializedCriticalSlots {
+function serializeCriticalSlots(state: UnitState, walk: number) {
   // Reuse the source-aware projection: editor mounts alone cannot represent
   // original critical-grid details such as the Atlas's rear laser markers.
   const projected = state.bvContext
