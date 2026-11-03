@@ -176,6 +176,8 @@ export interface AerospaceState {
    * safe thrust alone (FixedWingSupport.java:135-138).
    */
   isFixedWingSupport?: boolean;
+  structuralTechRating?: number;
+  engineTechRating?: number;
 
   /** Motion type (Aerodyne for fighters; small craft may be Spheroid) */
   motionType: AerospaceMotionType;
@@ -319,6 +321,10 @@ export interface AerospaceActions
     StoreEquipmentCollectionActions<AerospaceLocation> {
   // Chassis & sub-type
   setTonnage: (tonnage: number) => void;
+  setSupportRating: (
+    field: 'barRating' | 'structuralTechRating' | 'engineTechRating',
+    value: number | undefined,
+  ) => void;
   setIsOmni: (isOmni: boolean) => void;
   /** Set the aerospace sub-type (ASF / CF / SmallCraft) */
   setAerospaceSubType: (subType: AerospaceSubType) => void;

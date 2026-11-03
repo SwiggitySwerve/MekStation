@@ -157,6 +157,13 @@ export class UnitLoaderService {
     }
 
     try {
+      if (
+        store === 'battlemech' ||
+        store === 'vehicle' ||
+        store === 'aerospace'
+      ) {
+        await this.ensureEquipmentInitialized();
+      }
       if (store !== 'battlemech') {
         return {
           success: true,
@@ -164,7 +171,6 @@ export class UnitLoaderService {
           sourceDefinition: loaded.reference,
         };
       }
-      await this.ensureEquipmentInitialized();
       const state = this.mapToUnitState(
         loaded.definition as IRawSerializedUnit,
         source === 'canonical',

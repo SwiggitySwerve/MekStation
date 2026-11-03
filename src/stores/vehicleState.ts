@@ -227,6 +227,8 @@ export interface VehicleState extends IVehicleTurretSourceContext {
 
   /** Total armor tonnage allocated */
   armorTonnage: number;
+  usesBarArmor?: boolean;
+  armorTechRating?: number;
 
   /** Per-location armor allocation */
   armorAllocation: IVehicleArmorAllocation | IVTOLArmorAllocation;

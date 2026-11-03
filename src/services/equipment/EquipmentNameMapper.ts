@@ -8,6 +8,7 @@
  */
 
 import { TechBase } from '@/types/enums/TechBase';
+import { nativeIdentityId } from '@/utils/construction/equipmentBV/sourceLookupAliases';
 import { logger } from '@/utils/logger';
 
 import {
@@ -229,13 +230,14 @@ export class EquipmentNameMapper {
   private registry: EquipmentRegistry;
   private customMappings: Map<string, string> = new Map();
   private unknownNames: Set<string> = new Set();
+  private explicitMappings = new Set<string>();
 
   constructor() {
     this.registry = getEquipmentRegistry();
 
     // Initialize static mappings
     Object.entries(MTF_NAME_MAPPINGS).forEach(([name, id]) => {
-      this.customMappings.set(name.toLowerCase(), id);
+      this.registerMapping(name, id, 'default');
     });
   }
 
@@ -247,7 +249,15 @@ export class EquipmentNameMapper {
     const cleanName = this.cleanMtfName(mtfName);
 
     // Try exact match from static mappings
-    const staticId = this.customMappings.get(cleanName.toLowerCase());
+    const key = cleanName.toLowerCase();
+    const mappedId = this.customMappings.get(key);
+    const identity = nativeIdentityId(mtfName);
+    const nativeId =
+      identity && this.registry.lookup(identity).found ? identity : undefined;
+    const staticId =
+      mappedId && this.explicitMappings.has(key)
+        ? mappedId
+        : (nativeId ?? mappedId);
     if (staticId) {
       return {
         success: true,
@@ -332,11 +342,21 @@ export class EquipmentNameMapper {
       .trim();
   }
 
+  private registerMapping(
+    name: string,
+    id: string,
+    source: 'default' | 'custom',
+  ): void {
+    const key = name.toLowerCase();
+    this.customMappings.set(key, id);
+    if (source === 'custom') this.explicitMappings.add(key);
+  }
+
   /**
    * Add a custom name mapping
    */
   addMapping = (mtfName: string, equipmentId: string): void => {
-    this.customMappings.set(mtfName.toLowerCase(), equipmentId);
+    this.registerMapping(mtfName, equipmentId, 'custom');
     this.unknownNames.delete(mtfName);
   };
 
@@ -354,7 +374,7 @@ export class EquipmentNameMapper {
       let count = 0;
 
       Object.entries(mappings).forEach(([name, id]) => {
-        this.customMappings.set(name.toLowerCase(), id);
+        this.registerMapping(name, id, 'custom');
         count++;
       });
 
