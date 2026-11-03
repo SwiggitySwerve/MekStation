@@ -64,16 +64,16 @@
       "location": "LEFT_ARM"
     },
     {
-      "id": "light-blazer",
-      "location": "RIGHT_TORSO"
-    },
-    {
       "id": "small-laser",
       "location": "RIGHT_ARM"
     },
     {
       "id": "machine-gun",
       "location": "RIGHT_ARM"
+    },
+    {
+      "id": "light-blazer",
+      "location": "RIGHT_TORSO"
     }
   ],
   "criticalSlots": {
@@ -174,5 +174,5 @@
   },
   "quirks": ["command_mech", "ubiquitous_clan", "ubiquitous_is", "imp_com"],
   "role": "Skirmisher",
-  "source": "Shrapnel: Gothic"
+  "source": "ShrapGothic"
 }

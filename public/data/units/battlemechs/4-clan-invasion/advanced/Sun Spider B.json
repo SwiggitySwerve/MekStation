@@ -43,7 +43,7 @@
     }
   },
   "heatSinks": {
-    "type": "DOUBLE",
+    "type": "DOUBLE_CLAN",
     "count": 15
   },
   "movement": {
@@ -52,32 +52,32 @@
   },
   "equipment": [
     {
-      "id": "gauss-rifle",
-      "location": "RIGHT_TORSO"
+      "id": "streak-srm-6",
+      "location": "LEFT_ARM"
     },
     {
-      "id": "ams",
+      "id": "er-medium-laser",
+      "location": "LEFT_ARM"
+    },
+    {
+      "id": "streak-srm-6",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "anti-missile-system",
       "location": "LEFT_TORSO"
-    },
-    {
-      "id": "streak-srm-6",
-      "location": "RIGHT_ARM"
-    },
-    {
-      "id": "streak-srm-6",
-      "location": "LEFT_ARM"
-    },
-    {
-      "id": "er-medium-laser",
-      "location": "RIGHT_ARM"
-    },
-    {
-      "id": "er-medium-laser",
-      "location": "LEFT_ARM"
     },
     {
       "id": "er-large-laser",
       "location": "LEFT_TORSO"
+    },
+    {
+      "id": "gauss-rifle",
+      "location": "RIGHT_TORSO"
     }
   ],
   "criticalSlots": {
@@ -85,10 +85,10 @@
       "Shoulder",
       "Upper Arm Actuator",
       "Clan Endo Steel",
-      "CLStreakSRM6",
-      "CLStreakSRM6",
-      "CLERMediumLaser",
-      "Clan Streak SRM 6 Ammo",
+      "CLStreakSRM6 (OMNIPOD)",
+      "CLStreakSRM6 (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)",
+      "Clan Streak SRM 6 Ammo (OMNIPOD)",
       null,
       null,
       null,
@@ -99,10 +99,10 @@
       "Shoulder",
       "Upper Arm Actuator",
       "Clan Endo Steel",
-      "CLStreakSRM6",
-      "CLStreakSRM6",
-      "CLERMediumLaser",
-      "Clan Streak SRM 6 Ammo",
+      "CLStreakSRM6 (OMNIPOD)",
+      "CLStreakSRM6 (OMNIPOD)",
+      "CLERMediumLaser (OMNIPOD)",
+      "Clan Streak SRM 6 Ammo (OMNIPOD)",
       null,
       null,
       null,
@@ -116,11 +116,11 @@
       "Clan Endo Steel",
       "Clan Ferro-Fibrous",
       "Clan Ferro-Fibrous",
-      "CLAntiMissileSystem",
-      "CLERLargeLaser",
-      "CLLightActiveProbe",
-      "CLDoubleHeatSink",
-      "CLDoubleHeatSink",
+      "CLAntiMissileSystem (OMNIPOD)",
+      "CLERLargeLaser (OMNIPOD)",
+      "CLLightActiveProbe (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
       null
     ],
     "RIGHT_TORSO": [
@@ -130,12 +130,12 @@
       "Clan Endo Steel",
       "Clan Ferro-Fibrous",
       "Clan Ferro-Fibrous",
-      "CLGaussRifle",
-      "CLGaussRifle",
-      "CLGaussRifle",
-      "CLGaussRifle",
-      "CLGaussRifle",
-      "CLGaussRifle"
+      "CLGaussRifle (OMNIPOD)",
+      "CLGaussRifle (OMNIPOD)",
+      "CLGaussRifle (OMNIPOD)",
+      "CLGaussRifle (OMNIPOD)",
+      "CLGaussRifle (OMNIPOD)",
+      "CLGaussRifle (OMNIPOD)"
     ],
     "CENTER_TORSO": [
       "Fusion Engine",
@@ -149,7 +149,7 @@
       "Fusion Engine",
       "Fusion Engine",
       "Clan Ferro-Fibrous",
-      "Clan Gauss Ammo"
+      "Clan Gauss Ammo (OMNIPOD)"
     ],
     "HEAD": [
       "Life Support",
@@ -165,7 +165,7 @@
       "Lower Leg Actuator",
       "Foot Actuator",
       "Clan Ferro-Fibrous",
-      "CLAMS Ammo"
+      "CLAMS Ammo (OMNIPOD)"
     ],
     "RIGHT_LEG": [
       "Hip",
@@ -173,8 +173,8 @@
       "Lower Leg Actuator",
       "Foot Actuator",
       "Clan Ferro-Fibrous",
-      "Clan Gauss Ammo"
+      "Clan Gauss Ammo (OMNIPOD)"
     ]
   },
-  "source": "Videogame (Apocryphal)"
+  "source": "Apocryphal (Videogame)"
 }

@@ -43,7 +43,7 @@
     }
   },
   "heatSinks": {
-    "type": "DOUBLE",
+    "type": "DOUBLE_CLAN",
     "count": 16
   },
   "movement": {
@@ -92,9 +92,9 @@
     "LEFT_ARM": [
       "Shoulder",
       "Upper Arm Actuator",
-      "CLImprovedSmallHeavyLaser (omnipod)",
-      "CLImprovedSmallHeavyLaser (omnipod)",
-      "CLImprovedSmallHeavyLaser (omnipod)",
+      "CLImprovedSmallHeavyLaser (OMNIPOD)",
+      "CLImprovedSmallHeavyLaser (OMNIPOD)",
+      "CLImprovedSmallHeavyLaser (OMNIPOD)",
       "Clan Endo Steel",
       "Clan Endo Steel",
       "Clan Endo Steel",
@@ -106,9 +106,9 @@
     "RIGHT_ARM": [
       "Shoulder",
       "Upper Arm Actuator",
-      "CLImprovedSmallHeavyLaser (omnipod)",
-      "CLImprovedSmallHeavyLaser (omnipod)",
-      "CLImprovedSmallHeavyLaser (omnipod)",
+      "CLImprovedSmallHeavyLaser (OMNIPOD)",
+      "CLImprovedSmallHeavyLaser (OMNIPOD)",
+      "CLImprovedSmallHeavyLaser (OMNIPOD)",
       "Clan Ferro-Fibrous",
       "Clan Ferro-Fibrous",
       "Clan Ferro-Fibrous",
@@ -120,29 +120,29 @@
     "LEFT_TORSO": [
       "Fusion Engine",
       "Fusion Engine",
-      "CLDoubleHeatSink (omnipod)",
-      "CLDoubleHeatSink (omnipod)",
-      "CLiATM12 (omnipod)",
-      "CLiATM12 (omnipod)",
-      "CLiATM12 (omnipod)",
-      "CLiATM12 (omnipod)",
-      "CLiATM12 (omnipod)",
-      "CLLightTAG (omnipod)",
-      "Clan Ammo iATM-12 (omnipod)",
-      "Clan Ammo iATM-12 (omnipod)"
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLiATM12 (OMNIPOD)",
+      "CLiATM12 (OMNIPOD)",
+      "CLiATM12 (OMNIPOD)",
+      "CLiATM12 (OMNIPOD)",
+      "CLiATM12 (OMNIPOD)",
+      "CLLightTAG (OMNIPOD)",
+      "Clan Ammo iATM-12 (OMNIPOD)",
+      "Clan Ammo iATM-12 (OMNIPOD)"
     ],
     "RIGHT_TORSO": [
       "Fusion Engine",
       "Fusion Engine",
-      "CLDoubleHeatSink (omnipod)",
-      "CLDoubleHeatSink (omnipod)",
-      "CLiATM12 (omnipod)",
-      "CLiATM12 (omnipod)",
-      "CLiATM12 (omnipod)",
-      "CLiATM12 (omnipod)",
-      "CLiATM12 (omnipod)",
-      "Clan Ammo iATM-12 (omnipod)",
-      "Clan Ammo iATM-12 (omnipod)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLiATM12 (OMNIPOD)",
+      "CLiATM12 (OMNIPOD)",
+      "CLiATM12 (OMNIPOD)",
+      "CLiATM12 (OMNIPOD)",
+      "CLiATM12 (OMNIPOD)",
+      "Clan Ammo iATM-12 (OMNIPOD)",
+      "Clan Ammo iATM-12 (OMNIPOD)",
       null
     ],
     "CENTER_TORSO": [
@@ -156,14 +156,14 @@
       "Fusion Engine",
       "Fusion Engine",
       "Fusion Engine",
-      "CLDoubleHeatSink (omnipod)",
-      "CLDoubleHeatSink (omnipod)"
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)"
     ],
     "HEAD": [
       "Life Support",
       "Sensors",
       "Cockpit",
-      "NovaCEWS (omnipod)",
+      "NovaCEWS (OMNIPOD)",
       "Sensors",
       "Life Support"
     ],
@@ -172,39 +172,35 @@
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      "CLDoubleHeatSink (omnipod)",
-      "CLDoubleHeatSink (omnipod)"
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)"
     ],
     "RIGHT_LEG": [
       "Hip",
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      "CLDoubleHeatSink (omnipod)",
-      "CLDoubleHeatSink (omnipod)"
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)"
     ]
   },
-  "quirks": [
-    "ext_twist",
-    "multi_trac",
-    "bad_rep_clan"
-  ],
+  "quirks": ["ext_twist", "bad_rep_clan", "multi_trac"],
   "fluff": {
-    "overview": "The backbone of The Society's military forces, the Septicemia was a utilitarian medium-class workhorse. Devoid of the more experimental technology utilized by the Cephalus and Osteon to allow it to be built in higher volumes, the Septicemia saves weight with an XL Engine, Endo Steel chassis, and nine tons of Ferro-Fibrous armor. While the location of its weaponry in its torsos hampers its ability to carry Battle Armor, this was intentional to try and ensure hand actuators were retained to maximize its physical combat abilities.",
-    "capabilities": "This configuration carries a Nova CEWS and Light TAG. Each arm carries three Improved Heavy Small Lasers, while each side torso carries an iATM 12 with two tons of ammunition. Seventeen double heat sinks keep it cool.",
-    "history": "Despite its role in the Wars of Reaving, the Septicemia would see service after the conflict in the toumans of the four surviving Homeworld Clans. Avoiding extinction unlike the Cephalus and Osteon due to the capture of its production plant and lack of integrated Nova Combined Electronic Warfare System, while the other surviving Clans would push for a renaming of the Septicemia to excise its Taint (Void and Codex being popular suggestions), Khan Magnus DelVillar from Clan Stone Lion successfully campaigned against any moves to rename or remodel the design, citing that it would serve as a constant reminder of the dark crucible from which the Clans had emerged.",
-    "deployment": "Planning their OmniMech forces around a single mass-produced design intended to work in concert with two rarer but cutting-edge units, the Septicemia was built using proven technology with a focus towards mutual support on the battlefield, its every aspect intended to allow it to engage the Clan toumans using methods of warfare they found dezgra. Appearing during the Wars of Reaving when Clan warriors were even more intent on an exceedingly strict adherence of zellbrigen to avoid accusations of Taint, the Septicemia would prove frighteningly effective, earning it the nickname of \"Pariah\" by the Clan Diamond Shark forces that first faced it on Babylon in 3072.",
+    "overview": "<p>The backbone of The Society's military forces, the Septicemia was a utilitarian medium-class workhorse designed for mass production. Devoid of the more experimental technology utilized by the Cephalus and Osteon to allow it to be built in higher volumes, the Septicemia saves weight with an XL Engine, Endo Steel chassis, and nine tons of Ferro-Fibrous armor. While the location of its weaponry in its torsos hampers its ability to carry Battle Armor, this was intentional to try and ensure hand actuators were retained to maximize its physical combat abilities against Clan opponents.</p>",
+    "capabilities": "<p>With an armor layout geared to resist most common Clan weaponry, the Septicemia's speed and pod space proved more than adequate. Its overall weapon selection focused on the presumption of mutually supporting fields of fire, while most configurations attempted to wield hand actuators to encourage their MechWarriors to engage in physical combat. Every aspect of the Septicemia was geared toward engaging the Clans using methods of warfare they found distasteful and dishonorable. While many Clans had begun taking a more Spheroid approach to warfare, many opponents still demonstrated limited adaptability when confronted with the exact opposite of their preferred combat dogma. This was amplified by the Trials of Reaving taking place, where Clans and warriors intent on proving they were not tainted adhered very strictly to the Clan tenets of warfare.</p><p>The extent to which the Clans grew to hate the design (especially Clan Diamond Shark, whose warriors were particularly vexed by it) led to its nickname: \"Pariah\".</p>",
+    "history": "<p>Planning their OmniMech forces around a single mass-produced design intended to work in concert with two rarer but cutting-edge units, the Septicemia was built using proven technology with a focus towards mutual support on the battlefield, its every aspect intended to allow it to engage the Clan toumans using methods of warfare they found dezgra. Appearing during the Wars of Reaving when Clan warriors were even more intent on an exceedingly strict adherence of zellbrigen to avoid accusations of Taint, the Septicemia would prove frighteningly effective, earning it the nickname of \"Pariah\" by the Clan Diamond Shark forces that first faced it on Babylon in 3072.</p><p>Despite its role in the Wars of Reaving, the Septicemia would see service after the conflict in the toumans of the four surviving Homeworld Clans. Avoiding extinction unlike the Cephalus and Osteon due to the capture of its production plant and lack of integrated Nova Combined Electronic Warfare System, while the other surviving Clans would push for a renaming of the Septicemia to excise its Taint (Void and Codex being popular suggestions), Khan Magnus DelVillar from Clan Stone Lion successfully campaigned against any moves to rename or remodel the design, citing that it would serve as a constant reminder of the dark crucible from which the Clans had emerged.</p>",
+    "deployment": "<p>This configuration carries a Nova CEWS and Light TAG for electronic warfare and targeting support. Each arm carries three Improved Heavy Small Lasers for devastating close-range firepower, while each side torso mounts an iATM 12 launcher with flexible ammunition options. This revision of the A configuration substitutes improved weapon systems and adds electronic warfare capability for coordinated operations.</p>",
     "manufacturer": "Kerensky Memorial Manufacturing",
     "primaryFactory": "Strana Mechty",
     "systemManufacturer": {
-      "CHASSIS": "55T Battle Epsilon-5 Profile Endo-Steel",
-      "ENGINE": "275 Type II XL",
-      "ARMOR": "Compound SJ8CW Ferro-Fibrous",
-      "COMMUNICATIONS": "GBX Series Integrated II",
-      "TARGETING": "Cat’s Eye MD7"
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "COMMUNICATIONS": "GBX",
+      "TARGETING": "Cat's Eye"
     }
   },
   "mulId": 5812,
   "role": "Brawler",
-  "source": "WoR"
+  "source": "WoR,WoRS"
 }

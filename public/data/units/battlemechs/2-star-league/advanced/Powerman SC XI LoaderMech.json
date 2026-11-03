@@ -10,7 +10,7 @@
   "year": 2764,
   "tonnage": 35,
   "engine": {
-    "type": "FUSION",
+    "type": "ICE",
     "rating": 140
   },
   "gyro": {
@@ -50,45 +50,16 @@
     "walk": 4,
     "jump": 0
   },
-  "equipment": [
-    {
-      "id": "1-lift-hoist",
-      "location": "RIGHT_ARM"
-    },
-    {
-      "id": "1-lift-hoist",
-      "location": "LEFT_ARM"
-    },
-    {
-      "id": "1-cargo-0.5-tons",
-      "location": "CENTER_TORSO"
-    },
-    {
-      "id": "1-cargo-1-ton",
-      "location": "LEFT_TORSO"
-    },
-    {
-      "id": "1-cargo-1-ton",
-      "location": "LEFT_TORSO"
-    },
-    {
-      "id": "1-cargo-1-ton",
-      "location": "RIGHT_TORSO"
-    },
-    {
-      "id": "1-cargo-1-ton",
-      "location": "RIGHT_TORSO"
-    }
-  ],
+  "equipment": [],
   "criticalSlots": {
     "LEFT_ARM": [
       "Shoulder",
       "Upper Arm Actuator",
       "Lower Arm Actuator",
       "Hand Actuator",
-      "Lift Hoist",
-      "Lift Hoist",
-      "Lift Hoist",
+      "Lift Hoist/Arresting Hoist",
+      "Lift Hoist/Arresting Hoist",
+      "Lift Hoist/Arresting Hoist",
       null,
       null,
       null,
@@ -100,9 +71,9 @@
       "Upper Arm Actuator",
       "Lower Arm Actuator",
       "Hand Actuator",
-      "Lift Hoist",
-      "Lift Hoist",
-      "Lift Hoist",
+      "Lift Hoist/Arresting Hoist",
+      "Lift Hoist/Arresting Hoist",
+      "Lift Hoist/Arresting Hoist",
       null,
       null,
       null,
@@ -110,8 +81,8 @@
       null
     ],
     "LEFT_TORSO": [
-      "Cargo (1 ton)",
-      "Cargo (1 ton)",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
       null,
       null,
       null,
@@ -124,8 +95,8 @@
       null
     ],
     "RIGHT_TORSO": [
-      "Cargo (1 ton)",
-      "Cargo (1 ton)",
+      "Cargo:SIZE:1.0",
+      "Cargo:SIZE:1.0",
       null,
       null,
       null,
@@ -138,17 +109,17 @@
       null
     ],
     "CENTER_TORSO": [
-      "Engine",
-      "Engine",
-      "Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
       "Gyro",
       "Gyro",
       "Gyro",
       "Gyro",
-      "Engine",
-      "Engine",
-      "Engine",
-      "Cargo (0.5 tons)",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Cargo:SIZE:0.5",
       null
     ],
     "HEAD": [
@@ -175,6 +146,20 @@
       null,
       null
     ]
+  },
+  "fluff": {
+    "overview": "<p>The Powerman HaulerMech series was introduced in 2764 by Sitwell Corporation of Saiph. Designed as a direct competitor to Bluth Corporation's dominant Buster-class HaulerMechs, the thirty-five-ton Powerman took a fundamentally different approach to freight handling, employing a lighter and more agile chassis that could perform the same tasks faster and more reliably than the heavier Buster.</p><p>The Powerman's ability to unload a fully loaded Mule-class DropShip in a quarter less time than the Buster made it an instant favorite among freight companies and spaceport operators across the Inner Sphere. Produced by Sitwell Corporation on Saiph, the Powerman has remained in continuous service for over three centuries, outlasting not only its rival but the corporation that once dominated the industrial 'Mech market.</p>",
+    "capabilities": "<p>The Powerman's competitive edge over the Buster stems from its durable nickel-steel alloy frame built on a PowerLift CXV chassis. Paired with the efficient Skobel 140 ICE power plant, the Powerman achieves a top speed of over sixty-four kilometers per hour, significantly faster than most industrial 'Mechs in its weight class. This combination of a lighter frame and a more responsive engine gives the Powerman the agility to maneuver through crowded cargo yards and DropShip bays with ease.</p><p>The standard SC XV configuration mounts two GripperTech lift hoists, one in each arm, allowing the 'Mech to handle cargo with precision and speed. Additional cargo capacity is provided by a pair of two-ton bays in the side torsos and a half-ton bay in the center torso. Two and a half tons of Hughes CommerWeave II commercial armor provide adequate protection against the routine hazards of heavy cargo work, though it offers minimal resistance to actual weapons fire. The Powerman carries no weapons and lacks a targeting system entirely, reflecting its purely civilian design philosophy. Its SineWave 5000 communications system provides sufficient coordination capability for cargo operations.</p>",
+    "history": "<p>The Powerman's origins lie in the bitter rivalry between Sitwell Corporation and Bluth Corporation. When Sitwell introduced the design in 2764, Bluth Corporation (which had dominated the HaulerMech market for over a century with its Buster class) immediately filed a massive lawsuit alleging theft of trade secrets and industrial espionage. The legal battle raged across thirteen star systems, clogging courts throughout the fall of the Star League and well into the First Succession War.</p><p>Sitwell ultimately prevailed after evidence surfaced of Bluth CEO George Bluth's involvement in treason, embezzlement, and a staggering number of safety violations. The resulting criminal proceedings destroyed Bluth Corporation as an interstellar entity, leaving only its Terran plant intact. Sitwell Corporation emerged as the dominant producer of freight-handling IndustrialMechs, with its Saiph facility continuing to produce the Powerman throughout the Succession Wars era.</p><p>During the upheaval of the Exodus and the Pentagon Civil Wars, militarized versions of the Powerman appeared on the Pentagon Worlds around 2801. Desperate factions armed every available platform, and technicians stripped the Powerman's cargo equipment to mount lasers, machine guns, or missile launchers. These crude modifications demonstrated the chassis's versatility, even if the results fell far short of true BattleMech performance.</p><p>Ownership of the Saiph production facility changed hands numerous times across the centuries, passing through Capellan Confederation, Federated Suns, and Federated Commonwealth control before falling under the Sarna March and then the Word of Blake during the Jihad. The Republic of the Sphere subsequently assumed control and leveraged its dominance of IndustrialMech production (including the Powerman line) as a diplomatic tool during the reconstruction era, distributing or withholding civilian equipment based on other states' willingness to support rebuilding efforts. The Powerman's proven chassis also served as the foundation for Sitwell Corporation's StrongArm ConstructionMech, introduced in 3094, demonstrating the enduring viability of the original design.</p>",
+    "deployment": "<p>The original civilian LoaderMech designation predates the current SC XV production standard and represents the earliest Powerman configuration. Introduced in 2764, this was the variant that first challenged Bluth Corporation's Buster-class monopoly on the hauling market. Functionally similar to the later SC XV HaulerMech in most respects, the SC XI designation reflects the Powerman's original LoaderMech classification before Sitwell Corporation reclassified its product line under the HaulerMech designation.</p>",
+    "manufacturer": "Unknown",
+    "primaryFactory": "Unknown",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Skobel",
+      "ARMOR": "Hughes",
+      "COMMUNICATIONS": "Unknown"
+    }
   },
   "mulId": 2564,
   "role": "Ambusher",

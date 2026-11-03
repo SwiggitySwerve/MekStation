@@ -60,6 +60,10 @@
       "location": "LEFT_ARM"
     },
     {
+      "id": "medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
       "id": "machine-gun",
       "location": "LEFT_TORSO"
     },
@@ -72,16 +76,12 @@
       "location": "RIGHT_TORSO"
     },
     {
-      "id": "small-laser",
-      "location": "CENTER_TORSO"
-    },
-    {
       "id": "lrm-15",
       "location": "RIGHT_TORSO"
     },
     {
-      "id": "medium-laser",
-      "location": "RIGHT_ARM"
+      "id": "small-laser",
+      "location": "CENTER_TORSO"
     }
   ],
   "criticalSlots": {
@@ -180,5 +180,5 @@
       "Heat Sink"
     ]
   },
-  "source": "Videogame (Apocryphal)"
+  "source": "Apocryphal (Videogame)"
 }

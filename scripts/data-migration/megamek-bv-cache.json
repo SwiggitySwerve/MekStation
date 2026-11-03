@@ -859,17 +859,6 @@
       "megamekModel": "3",
       "matchedById": "arcas-3"
     },
-    "archangel-c-ang-o-berith": {
-      "megamekBV": 2060,
-      "mulId": 64,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 100,
-      "year": 3072,
-      "megamekChassis": "Archangel",
-      "megamekModel": "C-ANG-O (Berith)",
-      "matchedById": "archangel-c-ang-o-berith"
-    },
     "archangel-c-ang-o-invictus": {
       "megamekBV": 2237,
       "mulId": 65,
@@ -3587,28 +3576,6 @@
       "megamekModel": "BLR-4S",
       "matchedById": "battlemaster-blr-4s"
     },
-    "battlemaster-blr-4s-calvin-ii": {
-      "megamekBV": 2274,
-      "mulId": 295,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 85,
-      "year": 3071,
-      "megamekChassis": "BattleMaster",
-      "megamekModel": "BLR-4S (Calvin II)",
-      "matchedById": "battlemaster-blr-4s-calvin-ii"
-    },
-    "battlemaster-blr-4s-calvin": {
-      "megamekBV": 2029,
-      "mulId": 296,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 85,
-      "year": 3070,
-      "megamekChassis": "BattleMaster",
-      "megamekModel": "BLR-4S (Calvin)",
-      "matchedById": "battlemaster-blr-4s-calvin"
-    },
     "battlemaster-blr-5m": {
       "megamekBV": 1766,
       "mulId": 297,
@@ -4401,17 +4368,6 @@
       "megamekModel": "BHKU-OX",
       "matchedById": "black-hawk-ku-bhku-ox"
     },
-    "black-knight-bl-10-knt-ross": {
-      "megamekBV": 2103,
-      "mulId": 355,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 75,
-      "year": 3055,
-      "megamekChassis": "Black Knight",
-      "megamekModel": "BL-10-KNT (Ross)",
-      "matchedById": "black-knight-bl-10-knt-ross"
-    },
     "black-knight-bl-12-knt": {
       "megamekBV": 1840,
       "mulId": 356,
@@ -4444,17 +4400,6 @@
       "megamekChassis": "Black Knight",
       "megamekModel": "BL-6-KNT",
       "matchedById": "black-knight-bl-6-knt"
-    },
-    "black-knight-bl-6-knt-ian": {
-      "megamekBV": 1861,
-      "mulId": 359,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 75,
-      "year": 3039,
-      "megamekChassis": "Black Knight",
-      "megamekModel": "BL-6-KNT (Ian)",
-      "matchedById": "black-knight-bl-6-knt-ian"
     },
     "black-knight-bl-6-rr": {
       "megamekBV": 1954,
@@ -6271,17 +6216,6 @@
       "megamekModel": "CTF-2X",
       "matchedById": "cataphract-ctf-2x"
     },
-    "cataphract-ctf-2x-george": {
-      "megamekBV": 1311,
-      "mulId": 468,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 70,
-      "year": 3039,
-      "megamekChassis": "Cataphract",
-      "megamekModel": "CTF-2X (George)",
-      "matchedById": "cataphract-ctf-2x-george"
-    },
     "cataphract-ctf-3d": {
       "megamekBV": 1325,
       "mulId": 469,
@@ -6314,17 +6248,6 @@
       "megamekChassis": "Cataphract",
       "megamekModel": "CTF-3LL",
       "matchedById": "cataphract-ctf-3ll"
-    },
-    "cataphract-ctf-3x-sara": {
-      "megamekBV": 1734,
-      "mulId": 472,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 70,
-      "year": 3062,
-      "megamekChassis": "Cataphract",
-      "megamekModel": "CTF-3X (Sara)",
-      "matchedById": "cataphract-ctf-3x-sara"
     },
     "cataphract-ctf-4l": {
       "megamekBV": 2002,
@@ -11111,17 +11034,6 @@
       "megamekModel": "DV-9D",
       "matchedById": "dervish-dv-9d"
     },
-    "deva-c-dva-o-achilleus": {
-      "megamekBV": 1595,
-      "mulId": 884,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 70,
-      "year": 3071,
-      "megamekChassis": "Deva",
-      "megamekModel": "C-DVA-O (Achilleus)",
-      "matchedById": "deva-c-dva-o-achilleus"
-    },
     "deva-c-dva-o-invictus": {
       "megamekBV": 1584,
       "mulId": 885,
@@ -12398,17 +12310,6 @@
       "megamekModel": "ENF-4R",
       "matchedById": "enforcer-enf-4r"
     },
-    "enforcer-enf-4r-daniel": {
-      "megamekBV": 1357,
-      "mulId": 977,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 50,
-      "year": 3039,
-      "megamekChassis": "Enforcer",
-      "megamekModel": "ENF-4R (Daniel)",
-      "matchedById": "enforcer-enf-4r-daniel"
-    },
     "enforcer-enf-5d": {
       "megamekBV": 1308,
       "mulId": 978,
@@ -12419,17 +12320,6 @@
       "megamekChassis": "Enforcer",
       "megamekModel": "ENF-5D",
       "matchedById": "enforcer-enf-5d"
-    },
-    "enforcer-enf-5d-daniel": {
-      "megamekBV": 1738,
-      "mulId": 979,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 50,
-      "year": 3054,
-      "megamekChassis": "Enforcer",
-      "megamekModel": "ENF-5D (Daniel)",
-      "matchedById": "enforcer-enf-5d-daniel"
     },
     "enforcer-enf-5r": {
       "megamekBV": 1192,
@@ -14598,17 +14488,6 @@
       "megamekModel": "GAL-4GLS",
       "matchedById": "gallowglas-gal-4gls"
     },
-    "gallowglas-gal-4glsa": {
-      "megamekBV": 2017,
-      "mulId": 1187,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 70,
-      "year": 3067,
-      "megamekChassis": "Gallowglas",
-      "megamekModel": "GAL-4GLSA",
-      "matchedById": "gallowglas-gal-4glsa"
-    },
     "gallowglas-wd": {
       "megamekBV": 2094,
       "mulId": 1188,
@@ -15533,17 +15412,6 @@
       "megamekModel": "DRG-5K",
       "matchedById": "grand-dragon-drg-5k"
     },
-    "grand-dragon-drg-5k-emory": {
-      "megamekBV": 1394,
-      "mulId": 1259,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 60,
-      "year": 3039,
-      "megamekChassis": "Grand Dragon",
-      "megamekModel": "DRG-5K (Emory)",
-      "matchedById": "grand-dragon-drg-5k-emory"
-    },
     "grand-dragon-drg-5k-dc": {
       "megamekBV": 1322,
       "mulId": 4230,
@@ -15565,17 +15433,6 @@
       "megamekChassis": "Grand Dragon",
       "megamekModel": "DRG-7K",
       "matchedById": "grand-dragon-drg-7k"
-    },
-    "grand-dragon-drg-7k-mark": {
-      "megamekBV": 1817,
-      "mulId": 1261,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 60,
-      "year": 3067,
-      "megamekChassis": "Grand Dragon",
-      "megamekModel": "DRG-7K (Mark)",
-      "matchedById": "grand-dragon-drg-7k-mark"
     },
     "grand-dragon-drg-7kc": {
       "megamekBV": 1673,
@@ -16237,28 +16094,6 @@
       "megamekModel": "GRF-6S",
       "matchedById": "griffin-grf-6s"
     },
-    "griffin-grf-6s-francine-ii": {
-      "megamekBV": 2249,
-      "mulId": 1308,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 55,
-      "year": 3071,
-      "megamekChassis": "Griffin",
-      "megamekModel": "GRF-6S (Francine II)",
-      "matchedById": "griffin-grf-6s-francine-ii"
-    },
-    "griffin-grf-6s-francine": {
-      "megamekBV": 1778,
-      "mulId": 1309,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 55,
-      "year": 3070,
-      "megamekChassis": "Griffin",
-      "megamekModel": "GRF-6S (Francine)",
-      "matchedById": "griffin-grf-6s-francine"
-    },
     "griffin-grf-6s2": {
       "megamekBV": 1870,
       "mulId": 6899,
@@ -16368,17 +16203,6 @@
       "megamekChassis": "Griffin IIC",
       "megamekModel": "9",
       "matchedById": "griffin-iic-9"
-    },
-    "grigori-c-grg-o-rufus": {
-      "megamekBV": 1422,
-      "mulId": 1318,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 60,
-      "year": 3071,
-      "megamekChassis": "Grigori",
-      "megamekModel": "C-GRG-O (Rufus)",
-      "matchedById": "grigori-c-grg-o-rufus"
     },
     "grigori-c-grg-o-tamiel": {
       "megamekBV": 1426,
@@ -17095,17 +16919,6 @@
       "megamekModel": "HKO-1C",
       "matchedById": "ha-otoko-hko-1c"
     },
-    "ha-otoko-hr-unknown": {
-      "megamekBV": 1553,
-      "mulId": 4258,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 65,
-      "year": 3077,
-      "megamekChassis": "Ha Otoko-HR",
-      "megamekModel": "",
-      "matchedById": "unknown-model:ha-otoko-hr-unknown"
-    },
     "hachiwara-hca-3t": {
       "megamekBV": 1646,
       "mulId": 1360,
@@ -17546,28 +17359,6 @@
       "megamekModel": "HTM-27T",
       "matchedById": "hatamoto-chi-htm-27t"
     },
-    "hatamoto-chi-htm-27t-daniel-ii": {
-      "megamekBV": 1661,
-      "mulId": 1399,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 80,
-      "year": 3052,
-      "megamekChassis": "Hatamoto-Chi",
-      "megamekModel": "HTM-27T (Daniel II)",
-      "matchedById": "hatamoto-chi-htm-27t-daniel-ii"
-    },
-    "hatamoto-chi-htm-27t-daniel": {
-      "megamekBV": 1520,
-      "mulId": 1400,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 80,
-      "year": 3039,
-      "megamekChassis": "Hatamoto-Chi",
-      "megamekModel": "HTM-27T (Daniel)",
-      "matchedById": "hatamoto-chi-htm-27t-daniel"
-    },
     "hatamoto-chi-htm-27t-lowenbrau": {
       "megamekBV": 1865,
       "mulId": 8284,
@@ -17766,17 +17557,6 @@
       "megamekModel": "HCT-3F",
       "matchedById": "hatchetman-hct-3f"
     },
-    "hatchetman-hct-3f-austin": {
-      "megamekBV": 962,
-      "mulId": 1411,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 45,
-      "year": 3039,
-      "megamekChassis": "Hatchetman",
-      "megamekModel": "HCT-3F (Austin)",
-      "matchedById": "hatchetman-hct-3f-austin"
-    },
     "hatchetman-hct-5d": {
       "megamekBV": 1012,
       "mulId": 5445,
@@ -17831,17 +17611,6 @@
       "megamekChassis": "Hatchetman",
       "megamekModel": "HCT-5S",
       "matchedById": "hatchetman-hct-5s"
-    },
-    "hatchetman-hct-5s-austin": {
-      "megamekBV": 1174,
-      "mulId": 1414,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 45,
-      "year": 3059,
-      "megamekChassis": "Hatchetman",
-      "megamekModel": "HCT-5S (Austin)",
-      "matchedById": "hatchetman-hct-5s-austin"
     },
     "hatchetman-hct-6d": {
       "megamekBV": 1611,
@@ -19603,28 +19372,6 @@
       "megamekModel": "HBK-4G",
       "matchedById": "hunchback-hbk-4g"
     },
-    "hunchback-hbk-4g-hohiro": {
-      "megamekBV": 1126,
-      "mulId": 1553,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 50,
-      "year": 3056,
-      "megamekChassis": "Hunchback",
-      "megamekModel": "HBK-4G (Hohiro)",
-      "matchedById": "hunchback-hbk-4g-hohiro"
-    },
-    "hunchback-hbk-4g-shakir": {
-      "megamekBV": 952,
-      "mulId": 1554,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 50,
-      "year": 3039,
-      "megamekChassis": "Hunchback",
-      "megamekModel": "HBK-4G (Shakir)",
-      "matchedById": "hunchback-hbk-4g-shakir"
-    },
     "hunchback-hbk-4h": {
       "megamekBV": 1067,
       "mulId": 1555,
@@ -21253,17 +21000,6 @@
       "megamekModel": "JR7-K",
       "matchedById": "jenner-jr7-k"
     },
-    "jenner-jr7-k-grace-ii": {
-      "megamekBV": 787,
-      "mulId": 1695,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 35,
-      "year": 3067,
-      "megamekChassis": "Jenner",
-      "megamekModel": "JR7-K (Grace II)",
-      "matchedById": "jenner-jr7-k-grace-ii"
-    },
     "jenner-jr7-k-grace": {
       "megamekBV": 702,
       "mulId": 1696,
@@ -21967,17 +21703,6 @@
       "megamekChassis": "Kintaro",
       "megamekModel": "KTO-18",
       "matchedById": "kintaro-kto-18"
-    },
-    "kintaro-kto-18-akbani": {
-      "megamekBV": 1420,
-      "mulId": -1,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 55,
-      "year": 3052,
-      "megamekChassis": "Kintaro",
-      "megamekModel": "KTO-18 (Akbani)",
-      "matchedById": "kintaro-kto-18-akbani"
     },
     "kintaro-kto-19": {
       "megamekBV": 1160,
@@ -23254,17 +22979,6 @@
       "megamekChassis": "Lightray",
       "megamekModel": "LGH-5W",
       "matchedById": "lightray-lgh-5w"
-    },
-    "lightray-lgh-6w": {
-      "megamekBV": 1554,
-      "mulId": 1885,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 55,
-      "year": 3067,
-      "megamekChassis": "Lightray",
-      "megamekModel": "LGH-6W",
-      "matchedById": "lightray-lgh-6w"
     },
     "lightray-lgh-7w": {
       "megamekBV": 1352,
@@ -25102,17 +24816,6 @@
       "megamekChassis": "Maelstrom",
       "megamekModel": "MTR-7K",
       "matchedById": "maelstrom-mtr-7k"
-    },
-    "malak-c-mk-o-mi": {
-      "megamekBV": 758,
-      "mulId": 1993,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 30,
-      "year": 3071,
-      "megamekChassis": "Malak",
-      "megamekModel": "C-MK-O (Mi)",
-      "matchedById": "malak-c-mk-o-mi"
     },
     "malak-c-mk-o-invictus": {
       "megamekBV": 792,
@@ -31230,28 +30933,6 @@
       "megamekModel": "9",
       "matchedById": "phoenix-hawk-iic-9"
     },
-    "phoenix-hawk-l-fenikkusu-taka-pxh-11k": {
-      "megamekBV": 1563,
-      "mulId": 6390,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 35,
-      "year": 3116,
-      "megamekChassis": "Phoenix Hawk L",
-      "megamekModel": "'Fenikkusu Taka' PXH-11K",
-      "matchedById": "phoenix-hawk-l-fenikkusu-taka-pxh-11k"
-    },
-    "phoenix-hawk-l-fenikkusu-taka-pxh-11k2": {
-      "megamekBV": 1233,
-      "mulId": 6391,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 35,
-      "year": 3116,
-      "megamekChassis": "Phoenix Hawk L",
-      "megamekModel": "'Fenikkusu Taka' PXH-11K2",
-      "matchedById": "phoenix-hawk-l-fenikkusu-taka-pxh-11k2"
-    },
     "phoenix-hawk-lam-mk-i-phx-hk1": {
       "megamekBV": 1942,
       "mulId": 4824,
@@ -32285,17 +31966,6 @@
       "megamekChassis": "Prefect",
       "megamekModel": "PRF-3R",
       "matchedById": "prefect-prf-3r"
-    },
-    "preta-c-prt-o-kendali": {
-      "megamekBV": 999,
-      "mulId": 2572,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 45,
-      "year": 3071,
-      "megamekChassis": "Preta",
-      "megamekModel": "C-PRT-O (Kendali)",
-      "matchedById": "preta-c-prt-o-kendali"
     },
     "preta-c-prt-o-invictus": {
       "megamekBV": 1067,
@@ -35508,17 +35178,6 @@
       "megamekChassis": "Sentry",
       "megamekModel": "SNT-W5",
       "matchedById": "sentry-snt-w5"
-    },
-    "seraph-c-srp-o-havalah": {
-      "megamekBV": 1927,
-      "mulId": 2868,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 85,
-      "year": 3071,
-      "megamekChassis": "Seraph",
-      "megamekModel": "C-SRP-O (Havalah)",
-      "matchedById": "seraph-c-srp-o-havalah"
     },
     "seraph-c-srp-o-invictus": {
       "megamekBV": 1810,
@@ -42263,28 +41922,6 @@
       "megamekModel": "UZL-2S",
       "matchedById": "uziel-uzl-2s"
     },
-    "uziel-uzl-2s-jacob-ii": {
-      "megamekBV": 1271,
-      "mulId": 3366,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 50,
-      "year": 3071,
-      "megamekChassis": "Uziel",
-      "megamekModel": "UZL-2S (Jacob II)",
-      "matchedById": "uziel-uzl-2s-jacob-ii"
-    },
-    "uziel-uzl-2s-jacob": {
-      "megamekBV": 1513,
-      "mulId": 3367,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 50,
-      "year": 3070,
-      "megamekChassis": "Uziel",
-      "megamekModel": "UZL-2S (Jacob)",
-      "matchedById": "uziel-uzl-2s-jacob"
-    },
     "uziel-uzl-3s": {
       "megamekBV": 1189,
       "mulId": 5332,
@@ -44947,17 +44584,6 @@
       "megamekModel": "A",
       "matchedById": "wendigo-vp-a"
     },
-    "wendigo-xp-prime": {
-      "megamekBV": 1767,
-      "mulId": -1,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 50,
-      "year": 3151,
-      "megamekChassis": "Wendigo-XP",
-      "megamekModel": "(Prime)",
-      "matchedById": "wendigo-xp-prime"
-    },
     "werewolf-wer-lf-004": {
       "megamekBV": 802,
       "mulId": 3535,
@@ -45430,17 +45056,6 @@
       "megamekChassis": "Wolfhound",
       "megamekModel": "WLF-4W",
       "matchedById": "wolfhound-wlf-4w"
-    },
-    "wolfhound-wlf-4wa": {
-      "megamekBV": 1050,
-      "mulId": 3568,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 35,
-      "year": 3071,
-      "megamekChassis": "Wolfhound",
-      "megamekModel": "WLF-4WA",
-      "matchedById": "wolfhound-wlf-4wa"
     },
     "wolfhound-wlf-5": {
       "megamekBV": 1290,
@@ -46432,17 +46047,6 @@
       "megamekModel": "ZEU-9WD",
       "matchedById": "zeus-x-zeu-9wd"
     },
-    "zeus-x-zeu-9wd-stacy": {
-      "megamekBV": 1921,
-      "mulId": 3647,
-      "unitType": "Mek",
-      "entityClass": "BipedMek",
-      "tonnage": 80,
-      "year": 3070,
-      "megamekChassis": "Zeus-X",
-      "megamekModel": "ZEU-9WD (Stacy)",
-      "matchedById": "zeus-x-zeu-9wd-stacy"
-    },
     "zeus-x-zeu-x": {
       "megamekBV": 2119,
       "mulId": 6631,
@@ -46486,6 +46090,498 @@
       "megamekChassis": "Zeus-X",
       "megamekModel": "ZEU-X4",
       "matchedById": "zeus-x-zeu-x4"
+    },
+    "alfar-al-d1-dakkalfar": {
+      "megamekBV": 1458,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Historicals/Hist Reunification War/Alfar AL-D1 Dokkalfar.mtf",
+      "sourceSha256": "fbd1c01dcd448d7a4ceb5e6e2f65225c7d680c31a2267838571755ff89c813f3"
+    },
+    "araaa-ara-s-1-militiamech": {
+      "megamekBV": 1092,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/ISP3/Arana MilitiaMech ARA-S-1.mtf",
+      "sourceSha256": "752c7ab8b9fcf7f2146476c3c8614be849eee89c71eb174863d8b73570afdd15"
+    },
+    "archer-arc-2d": {
+      "megamekBV": 1290,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Heavy/Archer ARC-2D.mtf",
+      "sourceSha256": "6703141b7b24cb729413b38854291122d1f9d7daece93b338b954c8b931b7d4b"
+    },
+    "archer-arc-2kh": {
+      "megamekBV": 1311,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Force Manuals/Kurita/Archer ARC-2Kh.mtf",
+      "sourceSha256": "44ce315797edd2d3c8310a62cbd82670bb9a090524eabff3f8743b0fccdbe516"
+    },
+    "archer-arc-2l": {
+      "megamekBV": 1483,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Heavy/Archer ARC-2L.mtf",
+      "sourceSha256": "41c7e4561f0b467e1e8a239b271b7ceff1d6265e4ba753e9c39e56cc8217c1c3"
+    },
+    "assassin-asn-22": {
+      "megamekBV": 796,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Medium/Assassin ASN-22.mtf",
+      "sourceSha256": "e6794bdfd232e23cf22c168c900d60e72f154271f0d62b98413051d2cee59a93"
+    },
+    "assassin-asn-sb": {
+      "megamekBV": 877,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Medium/Assassin ASN-SB.mtf",
+      "sourceSha256": "44c1abf5ffbc915bee7845fa8c76f39099770cc8f8eafb69db99ecfad5c662de"
+    },
+    "axman-axm-1x": {
+      "megamekBV": 1256,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Shrapnel/Vol 25/Axman AXM-1X.mtf",
+      "sourceSha256": "64d533eb56ec266b9793791e8d136082c9bd7badbe89292caafc163f452c3ca1"
+    },
+    "axman-axm-2r": {
+      "megamekBV": 1405,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Shrapnel/Vol 25/Axman AXM-2R.mtf",
+      "sourceSha256": "a3d4248dc6196919b93f6df64b1b73ae7b4d6fbaac3a875bb3e86ab5c10efdc9"
+    },
+    "axman-axm-5r": {
+      "megamekBV": 2135,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Shrapnel/Vol 25/Axman AXM-5R.mtf",
+      "sourceSha256": "9fed0e9c22fd6a9b1ca62f2d733ea5e31e0e1952f27fe811c5530c8951d224ad"
+    },
+    "axman-axm-5s": {
+      "megamekBV": 2493,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Shrapnel/Vol 25/Axman AXM-5S.mtf",
+      "sourceSha256": "a829bb77d67a25b4b39c8bc1036bdd16b3dd26daf6d1361b50dbf2c21b150ca5"
+    },
+    "banshee-bnc-3s-x": {
+      "megamekBV": 1731,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Assault/Banshee BNC-3S-X.mtf",
+      "sourceSha256": "1267e72cc5f43acc63b6d7a75e86d429ba8f5644ef157a7206a2f37ae6fb7c4a"
+    },
+    "centurion-cn9-k": {
+      "megamekBV": 1055,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Medium/Centurion CN9-K.mtf",
+      "sourceSha256": "3432a7b40dd6e1c9b605cfdf3676bfbc228700abc04bbcf0fcc08fc8de60474e"
+    },
+    "charger-cgr-1a2": {
+      "megamekBV": 1588,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Assault/Charger CGR-1A2.mtf",
+      "sourceSha256": "4e4ae620372bc618e430ff3ab6c0af33846d49145ab4488d0baa2bd2cdd22e7b"
+    },
+    "cicada-cda-2c": {
+      "megamekBV": 550,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Medium/Cicada CDA-2C.mtf",
+      "sourceSha256": "e749096e5291b185f594f7f5f2400c5ab0e9d94f3a9c8807a1886387d7414b51"
+    },
+    "dervish-dv-7a": {
+      "megamekBV": 1130,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Medium/Dervish DV-7A.mtf",
+      "sourceSha256": "5c9738447f4e3e188482064d0a00c63619e86dc93acacf1c504e05eb0993fb50"
+    },
+    "dervish-dv-7s": {
+      "megamekBV": 1072,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Medium/Dervish DV-7S.mtf",
+      "sourceSha256": "e0b1c496475b4fde3ba567b417b5721a6a3cfaf07caffd2b299e5f09d04ad5dd"
+    },
+    "dragon-drg-1alag": {
+      "megamekBV": 1179,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Shrapnel/Vol 25/Dragon DRG-1ALAG.mtf",
+      "sourceSha256": "b5d0995d40f1e1abc8b4e9786986a498c128c0fd43cf16ce43a52c853e514dc0"
+    },
+    "dragon-drg-2alag": {
+      "megamekBV": 1172,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Shrapnel/Vol 25/Dragon DRG-2ALAG.mtf",
+      "sourceSha256": "110708e00925bd5baddd5314f01c0436249f75b607e8cb314bcc05e740087768"
+    },
+    "dragon-drg-5alag": {
+      "megamekBV": 1515,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Shrapnel/Vol 25/Dragon DRG-5ALAG.mtf",
+      "sourceSha256": "00f2eaeb03fad7ae4ff2e08433540e71aa8f846d1324d8ae42e4150b1f90a887"
+    },
+    "dragon-drg-7alag": {
+      "megamekBV": 1680,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Shrapnel/Vol 25/Dragon DRG-7ALAG.mtf",
+      "sourceSha256": "c0a1e27bf5f59b935b94891e73cd4e547b1aecdfeff335b6618aecc4e27a7460"
+    },
+    "dragon-drg-8alag": {
+      "megamekBV": 1545,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Shrapnel/Vol 25/Dragon DRG-8ALAG.mtf",
+      "sourceSha256": "51f597cf791d622b4fa52579adcc2c25a76dd8bb68e7bf979f4fe323c189c7cd"
+    },
+    "enforcer-enf-5a-enforcer-ii": {
+      "megamekBV": 998,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Medium/Enforcer ENF-5A Enforcer II.mtf",
+      "sourceSha256": "bb6f0314d5ef97ebece90b1e92074dcb19d6a09d6c64dee6d22d6b1187ef43e1"
+    },
+    "falconer-flc-10r": {
+      "megamekBV": 2296,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Shrapnel/Vol 24/Falconer FLC-10R.mtf",
+      "sourceSha256": "9112368e963987dead6374917c1e53864d43a736dc1b32a83ebf789763491714"
+    },
+    "falconer-flc-11r": {
+      "megamekBV": 2099,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Shrapnel/Vol 24/Falconer FLC-11R.mtf",
+      "sourceSha256": "c48c252b79d51bef74caadc5437ce3890e76b94cd64ec3f06bfa9b90459d5cd2"
+    },
+    "falconer-flc-12x": {
+      "megamekBV": 2312,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Shrapnel/Vol 24/Falconer FLC-12X.mtf",
+      "sourceSha256": "efd4864847c6357939492b5180d5abd036ecaf50c404c49b5f0f6222df3f31ca"
+    },
+    "ga1n-gn-2o": {
+      "megamekBV": 775,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3145/Liao/Gun GN-2O.mtf",
+      "sourceSha256": "47b2305f3eb5cc71b3eccb801cb20521db2fb8276dac5b8932eb947336bd1133"
+    },
+    "ga1n-gn-2oa": {
+      "megamekBV": 685,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3145/Liao/Gun GN-2OA.mtf",
+      "sourceSha256": "93787f8a1028c60859ee5735a89fcfdabfce191ed8ef75a704bc7a5e14e0e013"
+    },
+    "ga1n-gn-2ob": {
+      "megamekBV": 639,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3145/Liao/Gun GN-2OC.mtf",
+      "sourceSha256": "9a44aed7c966e5b71bd7668ed4d5bfd1203643931502881405f5604d7e16ee69"
+    },
+    "gatterdammerung-gtd-20c": {
+      "megamekBV": 2285,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3150/Gotterdammerung GTD-20C.mtf",
+      "sourceSha256": "2e77711d8fdd8eab75da8276210bc557384e9c7e4739bb9ce8848aa02b4cc39f"
+    },
+    "gatterdammerung-gtd-20s": {
+      "megamekBV": 1727,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3145/Steiner/Gotterdammerung GTD-20S.mtf",
+      "sourceSha256": "e59b63a19e3a15da448d89ebaf06c82edcab6a9e77b1b2360c2bd6d14f48c225"
+    },
+    "gatterdammerung-gtd-30s": {
+      "megamekBV": 1574,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3150/Gotterdammerung GTD-30S.mtf",
+      "sourceSha256": "b87655d62444693b8d58dad6426038fde5844f3ab21a7ca3ff1a957d4d60cff4"
+    },
+    "goliath-gol-1m": {
+      "megamekBV": 1500,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Assault/Goliath GOL-1M.mtf",
+      "sourceSha256": "a358b18656c0f7bc5a547ad137d1ff73bb4f0d97a7783a913e6925f6145d19c3"
+    },
+    "grasshopper-ghr-5hh": {
+      "megamekBV": 1341,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Force Manuals/Kurita/Grasshopper GHR-5Hh.mtf",
+      "sourceSha256": "4fd87eafeee7f740b899e22a5843921a112600f5f7362e8d414acd7a4caaec9a"
+    },
+    "grasshopper-ghr-5s": {
+      "megamekBV": 1417,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Heavy/Grasshopper GHR-5S.mtf",
+      "sourceSha256": "3639866441f1d2507ba3545239c331f3487c47bc76f192d6c5a354bf83d6f963"
+    },
+    "griffin-grf-1m": {
+      "megamekBV": 1266,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Medium/Griffin GRF-1M.mtf",
+      "sourceSha256": "6373bd09c4907a3375d4a029238e9cd84430789ce6a8be359a79d1356ee7ab3c"
+    },
+    "ha-otoko-hr": {
+      "megamekBV": 1553,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/XTRs/Clans/Ha Otoko-HR.mtf",
+      "sourceSha256": "d0e8a31e3625a248e3f36eef9fee7b1620ac7c145bb7d92dd4f287ffe2622b5c"
+    },
+    "hatchetman-hct-3fx": {
+      "megamekBV": 835,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Medium/Hatchetman HCT-3FX.mtf",
+      "sourceSha256": "dc48dcb4b752c75e7d01118e58856b841af1e2371dcb3e879620dbc6d1d2aa67"
+    },
+    "hatchetman-hct-3fy": {
+      "megamekBV": 814,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Medium/Hatchetman HCT-3FY.mtf",
+      "sourceSha256": "049dc301a658a96aaa5e4855b3c17297041ebbe1152c1258c81543a1f633ec11"
+    },
+    "hybrid-rifleman-rfl-3n-sneede": {
+      "megamekBV": 1248,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Snords Irregulars/Hybrid Rifleman RFL-3N (Sneede).mtf",
+      "sourceSha256": "db9e67b138b0b6e75bbda20a584a83f49df708e12b06c5711d532e60f3dd6b36"
+    },
+    "hybrid-rifleman-rfl-3n-sneede-ii": {
+      "megamekBV": 2165,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Snords Irregulars/Hybrid Rifleman RFL-3N (Sneede II).mtf",
+      "sourceSha256": "b3dc3a35f71d1cc4d3423df1a008f4494be887cc21634fa5b6a4918860b637a4"
+    },
+    "jagermech-jm6-b": {
+      "megamekBV": 1248,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Heavy/JagerMech JM6-B.mtf",
+      "sourceSha256": "45485168a2927a0270825b198ec5d2cd6022c38a8685652ce2919ec3bafb7f7b"
+    },
+    "javelin-jvn-10u": {
+      "megamekBV": 594,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Light/Javelin JVN-10U.mtf",
+      "sourceSha256": "315173421c9212993b3f2da0f0514665348f30888ce951de902f6a2b30c9edd1"
+    },
+    "jenner-jr7-y": {
+      "megamekBV": 861,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Light/Jenner JR7-Y.mtf",
+      "sourceSha256": "5fe80036602e978b7995a86e57b548fa2498347b7f07d758201d8987daddac2e"
+    },
+    "kintaro-kto-19-omar": {
+      "megamekBV": 1420,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Force Manuals/Kurita/Kintaro KTO-19 (Omar).mtf",
+      "sourceSha256": "47a3511b96026dbd36b57e5831f5f1cba27648e9233cd4fabe3a8fca3e7f9de8"
+    },
+    "locust-lct-1e2": {
+      "megamekBV": 584,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Light/Locust LCT-1E2.mtf",
+      "sourceSha256": "5bd8406d2e5361b522d636917daadd540ccbf47209fd2149cb7d399c89d6d3b9"
+    },
+    "locust-lct-1p": {
+      "megamekBV": 484,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Light/Locust LCT-1P.mtf",
+      "sourceSha256": "2df300e8a7ff6dcd0c72887f820e56f36beb6b1c83f2a7418b57ab2abb427b78"
+    },
+    "locust-lct-1y": {
+      "megamekBV": 606,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Light/Locust LCT-1Y.mtf",
+      "sourceSha256": "05df06fd5c07471869e6deb39c79195c6114022bff8203b488bcd7de3346b7e9"
+    },
+    "locust-lct-1y2": {
+      "megamekBV": 617,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Light/Locust LCT-1Y2.mtf",
+      "sourceSha256": "9de98b7ee51095ccc90074abfd971b437d5ba937235f056551e20c628ca1d92a"
+    },
+    "marauder-mad-3j": {
+      "megamekBV": 1327,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Heavy/Marauder MAD-3J.mtf",
+      "sourceSha256": "78de25ad8ce234e9179b51527a1b1f6f2edabc5eee26b29db2f691bff45ced95"
+    },
+    "marauder-mad-3v": {
+      "megamekBV": 1461,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Heavy/Marauder MAD-3V.mtf",
+      "sourceSha256": "6f1fa12608167a62d8e98186d9e299323c5b87ef4fc8ded3fef19a64c1c07bc7"
+    },
+    "orion-on1-ka": {
+      "megamekBV": 1429,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Heavy/Orion ON1-KA.mtf",
+      "sourceSha256": "cb1f0aa7a1fa7025921bb78850088bac2059784bda41adc3a5ef12ac218822ab"
+    },
+    "ostroc-osr-2owr": {
+      "megamekBV": 1181,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Heavy/Ostroc OSR-2OWR.mtf",
+      "sourceSha256": "8601d582d5dc2661af54c5311e7e2d0c8789667f97e80e69a9b504f0d7c5a487"
+    },
+    "panther-pnt-9rh": {
+      "megamekBV": 741,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Force Manuals/Kurita/Panther PNT-9Rh.mtf",
+      "sourceSha256": "0e0289602d473bf0e235c59a80f5a19995d69ead833647f2bfd9273095e8979b"
+    },
+    "phoenix-hawk-l-fenikkusu-taka-pxh-11k-e1571d56": {
+      "megamekBV": 1563,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3145/Kurita/Phoenix Hawk L PXH-11K.mtf",
+      "sourceSha256": "023da5b8e8c36375e26dd7eac7359b36881ef5ee7bcde71e3c93274f741b84a6"
+    },
+    "phoenix-hawk-l-fenikkusu-taka-pxh-11k2-bdd65eb8": {
+      "megamekBV": 1233,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3145/Kurita/Phoenix Hawk L PXH-11K2.mtf",
+      "sourceSha256": "eb8f6142fec19b5eddf68154fa49c9de05729e2fbb909f68083e5c28b9b0e91b"
+    },
+    "quickdraw-qkd-4gh": {
+      "megamekBV": 1146,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Force Manuals/Kurita/Quickdraw QKD-4Gh.mtf",
+      "sourceSha256": "5d4f30f357f6feadc5b90f9572585e9161d808b76a2857b4f98cda28751427b1"
+    },
+    "quickdraw-qkd-4r": {
+      "megamekBV": 1179,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Heavy/Quickdraw QKD-4R.mtf",
+      "sourceSha256": "62116da4b3966793a8049884a40efeda17a5557e549620c3eaebd387d0dc93b5"
+    },
+    "rifleman-ii-rfl-3n-2-legend-killer": {
+      "megamekBV": 1768,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3055U/Rifleman II RFL-3N-2 (Legend Killer).mtf",
+      "sourceSha256": "c6ebdfa7e111664002300422a822f0b7b718b3df54001a5c94bee0e823de7ba6"
+    },
+    "rifleman-rfl-3k-cool-head": {
+      "megamekBV": 1133,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Heavy/Rifleman RFL-3K Cool Head.mtf",
+      "sourceSha256": "c46ec6628a148f25cea3a53bdfb9b16f8d8cdb44c9a63ffdd8e5d5ba67945095"
+    },
+    "rifleman-rfl-3n-legend-killer-2": {
+      "megamekBV": 1209,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3055U/Rilfeman RFL-3N (Legend Killer 2).mtf",
+      "sourceSha256": "c81eda40fdaccc0727a8afa5531a3224954c61ef6df1e5134d4d6fd322b83cb0"
+    },
+    "schwerer-gustav-unknown": {
+      "megamekBV": 1643,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/XTRs/Mercenaries/Schwerer Gustav.mtf",
+      "sourceSha256": "8437afdf3aa862b51b81d39ff396b43345ab02b50f30c6449dd02737d1fad4cb"
+    },
+    "scorpion-scp-1a": {
+      "megamekBV": 1043,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Medium/Scorpion SCP-1A.mtf",
+      "sourceSha256": "96b4f86c1677037940e0e21327416d12b7931b52e07fc9a3a23a079f16b891b9"
+    },
+    "stinger-stg-3y": {
+      "megamekBV": 426,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Light/Stinger STG-3Y.mtf",
+      "sourceSha256": "cffcf2866ca3c7443ccb5b6b3b607e06e7dc8a85689fa17932b9aa52f29e3350"
+    },
+    "stinger-stg-3y2": {
+      "megamekBV": 576,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Light/Stinger STG-3Y2.mtf",
+      "sourceSha256": "e1ff121aff858e059e479c9bd08f6a83829393a0024feda1cf500046b55426fe"
+    },
+    "temax-cat-ninjabolt-tmc-nb": {
+      "megamekBV": 1490,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/XTRs/Boondocks/Temax Cat Ninjabolt TMC-NB.mtf",
+      "sourceSha256": "6473505715fe539b3e861bb38f9031e5f2c8cfc945aeba379e9f0a20bfca4d37"
+    },
+    "thunderbolt-tdr-5sh": {
+      "megamekBV": 1257,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Force Manuals/Kurita/Thunderbolt TDR-5Sh.mtf",
+      "sourceSha256": "7986f62753e78b5f30c565fccaccf1d085d62448f5665e9bd68b7a91a9ded5c1"
+    },
+    "thunderbolt-tdr-5ss1": {
+      "megamekBV": 1332,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Heavy/Thunderbolt TDR-5SS1.mtf",
+      "sourceSha256": "b462a61695cf760ffcdc4786c338cb001508aae86a6503cb90d231c25277f8d8"
+    },
+    "urbanmech-um-r60g": {
+      "megamekBV": 703,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Light/UrbanMech UM-R60G.mtf",
+      "sourceSha256": "c490af239bc558a6158ba00137593e093c9dddcbffaf33f131ef3f172dd5c183"
+    },
+    "urbanmech-um-r60r": {
+      "megamekBV": 586,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Light/UrbanMech UM-R60R.mtf",
+      "sourceSha256": "892b45e472ed2c20dc1ac7b7464b1b6f34566c4f7a177aa5f703a7957f25ea98"
+    },
+    "urbanmech-um-r61": {
+      "megamekBV": 509,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Light/UrbanMech UM-R61.mtf",
+      "sourceSha256": "88c2c78f567478876bac6fa7ec5e09dcff8ef97432b4bddadd9b182f62571b64"
+    },
+    "urbanmech-um-r62": {
+      "megamekBV": 492,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Light/UrbanMech UM-R62.mtf",
+      "sourceSha256": "68a44be028743bc250fa1afda75d3dabf5890fe4e0061ea3a3cd0241d46f3754"
+    },
+    "vulcan-vl-3t": {
+      "megamekBV": 727,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Medium/Vulcan VL-3T.mtf",
+      "sourceSha256": "d2e086ccd49968981a6d5ddeb71720e3adf1d825ce1bce2b158590105aab5d00"
+    },
+    "vulcan-vl-3t2": {
+      "megamekBV": 734,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Medium/Vulcan VL-3T2.mtf",
+      "sourceSha256": "a73d3208da12baf65ef1e975da8b2fc70341f1a748a01d703846b930a0e7f46e"
+    },
+    "vulcan-vl-4t": {
+      "megamekBV": 815,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Medium/Vulcan VL-4T.mtf",
+      "sourceSha256": "9d796b0def6b46fa953e32c023071a98640c690b65a88acb0671167792b91cbd"
+    },
+    "warhammer-whm-6b": {
+      "megamekBV": 1266,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Heavy/Warhammer WHM-6B.mtf",
+      "sourceSha256": "453533583b62263d0f10278fabe228205ab709684b764990e75522833adfa228"
+    },
+    "warhammer-whm-6j": {
+      "megamekBV": 1365,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Heavy/Warhammer WHM-6J.mtf",
+      "sourceSha256": "34b869d395757773569d8211c75c4a76558bc624b0cef856cc807f1fd2ee98d3"
+    },
+    "wasp-wsp-1y": {
+      "megamekBV": 497,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Light/Wasp WSP-1Y.mtf",
+      "sourceSha256": "42ba938da4fd107a3f8918161341d9e6299e3d94e4769702ea8647954bccacce"
+    },
+    "wendigo-xr-prime": {
+      "megamekBV": 1767,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/XTRs/RISC/Wendigo-XR.mtf",
+      "sourceSha256": "b18364dcd1e3c48dbdf071d6f71f1d643d82c42def1c5e51c7028f35e7754294"
+    },
+    "wolverine-wvr-3n": {
+      "megamekBV": 1153,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/3025 CCE/Medium/Wolverine WVR-3N.mtf",
+      "sourceSha256": "a3740363f523f355866914897541ef1f540a37446ec3d4e5a680ba785e26ea04"
+    },
+    "wolverine-wvr-6kh": {
+      "megamekBV": 1161,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Force Manuals/Kurita/Wolverine WVR-6Kh.mtf",
+      "sourceSha256": "e4f69e554ad83c0a45ec9dbaf944437d589fd57330ab91d01b8830a105fc7019"
+    },
+    "wolverine-wvr-7kh": {
+      "megamekBV": 1263,
+      "source": "pinned-java-48fcb2f6",
+      "sourcePath": "meks/Force Manuals/Kurita/Wolverine WVR-7Kh.mtf",
+      "sourceSha256": "66326eb1ce00ec5429c012821255ffe9ce1837e76570931081711652ea20e81a"
     }
   },
   "unmatchedMekStationUnits": [],

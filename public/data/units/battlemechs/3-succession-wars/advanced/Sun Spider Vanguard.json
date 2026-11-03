@@ -43,7 +43,7 @@
     }
   },
   "heatSinks": {
-    "type": "DOUBLE",
+    "type": "DOUBLE_CLAN",
     "count": 14
   },
   "movement": {
@@ -52,12 +52,20 @@
   },
   "equipment": [
     {
+      "id": "streak-srm-2",
+      "location": "LEFT_ARM"
+    },
+    {
       "id": "streak-srm-4",
       "location": "RIGHT_ARM"
     },
     {
       "id": "streak-srm-4",
       "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-ppc",
+      "location": "LEFT_TORSO"
     },
     {
       "id": "lb-5-x-ac",
@@ -66,14 +74,6 @@
     {
       "id": "lb-5-x-ac",
       "location": "RIGHT_TORSO"
-    },
-    {
-      "id": "er-ppc",
-      "location": "LEFT_TORSO"
-    },
-    {
-      "id": "streak-srm-2",
-      "location": "LEFT_ARM"
     }
   ],
   "criticalSlots": {
@@ -81,8 +81,8 @@
       "Shoulder",
       "Upper Arm Actuator",
       "Clan Endo Steel",
-      "CLStreakSRM2",
-      "Clan Streak SRM 2 Ammo",
+      "CLStreakSRM2 (OMNIPOD)",
+      "Clan Streak SRM 2 Ammo (OMNIPOD)",
       null,
       null,
       null,
@@ -95,10 +95,10 @@
       "Shoulder",
       "Upper Arm Actuator",
       "Clan Endo Steel",
-      "CLStreakSRM4",
-      "CLStreakSRM4",
-      "Clan Streak SRM 4 Ammo",
-      "Clan Streak SRM 4 Ammo",
+      "CLStreakSRM4 (OMNIPOD)",
+      "CLStreakSRM4 (OMNIPOD)",
+      "Clan Streak SRM 4 Ammo (OMNIPOD)",
+      "Clan Streak SRM 4 Ammo (OMNIPOD)",
       null,
       null,
       null,
@@ -112,12 +112,12 @@
       "Clan Endo Steel",
       "Clan Ferro-Fibrous",
       "Clan Ferro-Fibrous",
-      "CLERPPC",
-      "CLERPPC",
-      "CLLBXAC5",
-      "CLLBXAC5",
-      "CLLBXAC5",
-      "CLLBXAC5"
+      "CLERPPC (OMNIPOD)",
+      "CLERPPC (OMNIPOD)",
+      "CLLBXAC5 (OMNIPOD)",
+      "CLLBXAC5 (OMNIPOD)",
+      "CLLBXAC5 (OMNIPOD)",
+      "CLLBXAC5 (OMNIPOD)"
     ],
     "RIGHT_TORSO": [
       "Fusion Engine",
@@ -126,12 +126,12 @@
       "Clan Endo Steel",
       "Clan Ferro-Fibrous",
       "Clan Ferro-Fibrous",
-      "CLLBXAC5",
-      "CLLBXAC5",
-      "CLLBXAC5",
-      "CLLBXAC5",
-      "Clan LB 5-X AC Ammo",
-      "Clan LB 5-X Cluster Ammo"
+      "CLLBXAC5 (OMNIPOD)",
+      "CLLBXAC5 (OMNIPOD)",
+      "CLLBXAC5 (OMNIPOD)",
+      "CLLBXAC5 (OMNIPOD)",
+      "Clan LB 5-X AC Ammo (OMNIPOD)",
+      "Clan LB 5-X Cluster Ammo (OMNIPOD)"
     ],
     "CENTER_TORSO": [
       "Fusion Engine",
@@ -145,7 +145,7 @@
       "Fusion Engine",
       "Fusion Engine",
       "Clan Ferro-Fibrous",
-      "Clan LB 5-X AC Ammo"
+      "Clan LB 5-X AC Ammo (OMNIPOD)"
     ],
     "HEAD": [
       "Life Support",
@@ -172,5 +172,5 @@
       null
     ]
   },
-  "source": "Videogame (Apocryphal)"
+  "source": "Apocryphal (Videogame)"
 }

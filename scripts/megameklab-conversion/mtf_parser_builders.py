@@ -100,6 +100,17 @@ def build_equipment_list(
 
         # Map location
         mapped_location = map_mech_location(location)
+        if equip_id == 'srm-4-os':
+            # Summary names omit tech; critical declarations retain the variant.
+            variants = {
+                match.group(1).lower() + 'srm4-os'
+                for section, items in (criticals or {}).items()
+                if map_mech_location(section) == mapped_location
+                for item in items
+                if (match := re.fullmatch(r'(IS|CL)SRM4\s*\(?OS\)?', _clean_critical_equipment_name(item), re.IGNORECASE))
+            }
+            if len(variants) == 1:
+                equip_id = variants.pop()
         seen.add(_seen_key(equip_id, mapped_location, is_rear))
 
         equipment.append(SerializedEquipment(
