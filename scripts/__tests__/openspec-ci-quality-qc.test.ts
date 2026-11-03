@@ -99,7 +99,7 @@ describe('OpenSpec CI quality QC validator', () => {
     const result = runValidator();
 
     expect(result.status).toBe(0);
-    expect(result.stdout).toContain('workflowContracts=8/8');
+    expect(result.stdout).toContain('workflowContracts=9/9');
     expect(result.stdout).toContain('protectedContexts=4');
     expect(result.stdout).toMatch(/activeOpenSpecChanges=\d+/);
     expect(result.stdout).toMatch(/accountedActiveOpenSpecChanges=\d+/);
