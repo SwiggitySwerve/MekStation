@@ -24,7 +24,7 @@
  *        Requirement: Vehicle Diagram Geometry
  */
 
-import React, { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useLayoutEffect, useRef } from 'react';
 import { shallow } from 'zustand/vanilla/shallow';
 
 import { useVehicleStore, useVehicleStoreApi } from '@/stores/useVehicleStore';
@@ -37,12 +37,15 @@ import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import {
   getMaxVehicleArmorForLocation,
+  getVehicleArmorEditorLayout,
+  calculateArmorPoints,
   type VehicleArmorLocation,
 } from '@/utils/construction/vehicle/editorArmor';
 
 import { ArmorAllocationInput } from '../armor/ArmorAllocationInput';
 import { ArmorLocationBlock } from '../armor/ArmorLocationBlock';
 import { useCustomizerConfirmation } from '../dialogs/CustomizerConfirmationProvider';
+import { VehicleSixSideArmorDiagram } from './VehicleSixSideArmorDiagram';
 
 // =============================================================================
 // Types
@@ -50,14 +53,8 @@ import { useCustomizerConfirmation } from '../dialogs/CustomizerConfirmationProv
 
 interface VehicleArmorDiagramProps {
   className?: string;
+  readOnly?: boolean;
 }
-
-// Synthetic location key used for the chin-turret slot.
-// (TurretType.CHIN exists but the VehicleLocation enum has no CHIN_TURRET
-//  member yet; until the construction proposal lands we route chin armor
-//  through the existing VehicleLocation.TURRET slot but display it under
-//  the "Chin Turret" label.)
-const CHIN_TURRET_KEY = VehicleLocation.TURRET;
 
 // =============================================================================
 // Component
@@ -70,6 +67,7 @@ const CHIN_TURRET_KEY = VehicleLocation.TURRET;
  */
 export function VehicleArmorDiagram({
   className = '',
+  readOnly = false,
 }: VehicleArmorDiagramProps): React.ReactElement {
   const storeApi = useVehicleStoreApi();
   const committedStore = useRef(storeApi);
@@ -84,42 +82,26 @@ export function VehicleArmorDiagram({
   const armorAllocation = useVehicleStore((s) => s.armorAllocation);
   const tonnage = useVehicleStore((s) => s.tonnage);
   const armorTonnage = useVehicleStore((s) => s.armorTonnage);
+  const armorType = useVehicleStore((s) => s.armorType);
+  const isSuperheavy = useVehicleStore((s) => s.isSuperheavy);
   const setLocationArmor = useVehicleStore((s) => s.setLocationArmor);
 
   const isVTOL = motionType === GroundMotionType.VTOL;
   // Support vehicles carry a Body location per spec
   const isSupport = unitType === UnitType.SUPPORT_VEHICLE;
   const hasTurret = turret !== null;
-  const hasSecondaryTurret = secondaryTurret !== null;
+  const hasSecondaryTurret = Boolean(secondaryTurret);
   const isChinTurret = turret?.type === TurretType.CHIN;
-  const armorProfile = useMemo(
-    () => ({ hasTurret, isVTOL, hasSecondaryTurret }),
-    [hasTurret, isVTOL, hasSecondaryTurret],
-  );
-
-  // Build ordered list of active locations for this vehicle configuration.
-  // The turret slot's label switches to "Chin Turret" when turret.type === CHIN
-  // so the user sees the configured variant clearly.
-  const locations = useMemo<{ key: string; label: string }[]>(() => {
-    const base: { key: string; label: string }[] = [
-      { key: VehicleLocation.FRONT, label: 'Front' },
-      { key: VehicleLocation.LEFT, label: 'Left Side' },
-      { key: VehicleLocation.RIGHT, label: 'Right Side' },
-      { key: VehicleLocation.REAR, label: 'Rear' },
-    ];
-    if (hasTurret) {
-      base.push({
-        key: isChinTurret ? CHIN_TURRET_KEY : VehicleLocation.TURRET,
-        label: isChinTurret ? 'Chin Turret' : 'Turret',
-      });
-    }
-    if (hasSecondaryTurret) {
-      base.push({ key: VehicleLocation.TURRET_2, label: 'Turret 2' });
-    }
-    if (isVTOL) base.push({ key: VTOLLocation.ROTOR, label: 'Rotor' });
-    if (isSupport) base.push({ key: VehicleLocation.BODY, label: 'Body' });
-    return base;
-  }, [hasTurret, hasSecondaryTurret, isChinTurret, isVTOL, isSupport]);
+  const armorProfile = {
+    hasTurret,
+    isVTOL,
+    hasSecondaryTurret,
+    isSuperheavy,
+    isSupport,
+    isChinTurret,
+    motionType,
+  };
+  const layout = getVehicleArmorEditorLayout(armorProfile);
 
   const handleChange = useCallback(
     (location: VehicleArmorLocation, raw: number) => {
@@ -134,7 +116,7 @@ export function VehicleArmorDiagram({
   );
 
   // Available points derived from armor tonnage (standard 16 pts/ton for display)
-  const availablePoints = Math.floor(armorTonnage * 16);
+  const availablePoints = calculateArmorPoints(armorTonnage, armorType);
 
   const handleAutoAllocate = useCallback(() => {
     const state = storeApi.getState();
@@ -180,8 +162,9 @@ export function VehicleArmorDiagram({
   }, [requestConfirmation, storeApi]);
 
   return (
-    <div
-      className={`bg-surface-base border-border-theme-subtle flex flex-col gap-4 rounded-lg border p-4 ${className}`}
+    <fieldset
+      disabled={readOnly}
+      className={`bg-surface-base border-border-theme-subtle flex min-w-0 flex-col gap-4 rounded-lg border p-4 ${className}`}
       data-testid="vehicle-armor-diagram"
     >
       {/* Header */}
@@ -189,7 +172,7 @@ export function VehicleArmorDiagram({
         <h4 className="text-sm font-semibold text-white">Armor Diagram</h4>
         <button
           onClick={handleAutoAllocate}
-          disabled={availablePoints === 0}
+          disabled={availablePoints === 0 || !layout.canAutoAllocate}
           className="rounded bg-blue-600 px-2 py-1 text-xs font-medium text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
           data-testid="vehicle-armor-auto-allocate"
         >
@@ -197,11 +180,24 @@ export function VehicleArmorDiagram({
         </button>
       </div>
 
+      {!layout.canAutoAllocate && (
+        <p className="text-text-theme-secondary text-xs">
+          Automatic allocation is unavailable for six-side armor.
+        </p>
+      )}
       {/* Top-down vehicle schematic */}
       <div className="flex justify-center">
+        {layout.isSixSide && (
+          <VehicleSixSideArmorDiagram
+            locations={layout.locations}
+            allocation={armorAllocation}
+            hasTurret={hasTurret}
+            hasSecondaryTurret={hasSecondaryTurret}
+          />
+        )}
         <svg
           viewBox="0 0 160 200"
-          className="w-full max-w-[160px]"
+          className={`w-full max-w-[160px] ${layout.isSixSide ? 'hidden' : ''}`}
           aria-hidden="true"
         >
           {/* Vehicle body */}
@@ -249,6 +245,14 @@ export function VehicleArmorDiagram({
               strokeWidth="1.5"
             />
           )}
+          {hasSecondaryTurret && !isVTOL && (
+            <circle
+              cx="80"
+              cy="75"
+              r="13"
+              className="fill-orange-900/30 stroke-orange-500"
+            />
+          )}
           {/* Rotor dashes for VTOL */}
           {isVTOL && (
             <ellipse
@@ -272,7 +276,7 @@ export function VehicleArmorDiagram({
 
       {/* Location blocks grid */}
       <div className="grid grid-cols-2 gap-3">
-        {locations.map(({ key, label }) => {
+        {layout.locations.map(({ location: key, label }) => {
           const current = (armorAllocation as Record<string, number>)[key] ?? 0;
           const max = getMaxVehicleArmorForLocation({
             tonnage,
@@ -295,6 +299,7 @@ export function VehicleArmorDiagram({
                 current={current}
                 max={max}
                 accentClass={accentClass}
+                showPips={!layout.isSixSide}
               />
               {/* Shared numeric input — clamps + arrow navigation */}
               <ArmorAllocationInput
@@ -311,7 +316,7 @@ export function VehicleArmorDiagram({
           );
         })}
       </div>
-    </div>
+    </fieldset>
   );
 }
 

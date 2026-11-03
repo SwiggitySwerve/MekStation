@@ -42,6 +42,7 @@ interface OpenCase {
     | 'battlearmor-customizer'
     | 'infantry-customizer';
   bv?: string;
+  panel?: 'six-side' | 'dual-turret';
   tabs: string[];
   tonnage: string;
   armor: string;
@@ -49,6 +50,31 @@ interface OpenCase {
 }
 
 const OPEN_CASES: OpenCase[] = [
+  {
+    label: 'SuperHeavy vehicle',
+    chassis: 'Burke II Superheavy Tank',
+    model: '',
+    family: 'Vehicles',
+    shell: 'vehicle-customizer',
+    tabs: [...COMMON_TABS.slice(0, 3), 'Turret', 'Equipment', ...TAIL_TABS],
+    tonnage: '140.0 t',
+    armor: '107',
+    movement: '2/3',
+    panel: 'six-side',
+  },
+  {
+    label: 'dual-turret vehicle',
+    chassis: 'Arrow IV Assault Vehicle',
+    model: '',
+    family: 'Vehicles',
+    shell: 'vehicle-customizer',
+    tabs: [...COMMON_TABS.slice(0, 3), 'Turret', 'Equipment', ...TAIL_TABS],
+    tonnage: '80.0 t',
+    armor: '267',
+    movement: '3/5',
+    panel: 'dual-turret',
+  },
+
   {
     label: 'infantry',
     chassis: 'AA Jump Infantry',
@@ -327,6 +353,73 @@ for (const viewport of VIEWPORTS) {
             statusItem(shell, 'BV').locator('span').nth(1),
           ).toHaveText(unit.bv);
 
+        if (unit.panel) {
+          await section(page, 'Armor');
+          const diagram = page.getByTestId('vehicle-armor-diagram');
+          if (unit.panel === 'six-side') {
+            await expect(
+              diagram.getByTestId('vehicle-six-side-armor-diagram'),
+            ).toBeVisible();
+            for (const label of [
+              'Front',
+              'Front Right',
+              'Front Left',
+              'Rear Right',
+              'Rear Left',
+              'Rear',
+            ])
+              await expect(
+                diagram.getByRole('spinbutton', {
+                  name: label + ' armor value',
+                  exact: true,
+                }),
+              ).toBeEnabled();
+            const offsets = await diagram
+              .getByTestId('six-side-label')
+              .evaluateAll((nodes) =>
+                nodes.map((node) => {
+                  const rect = node.getBoundingClientRect(),
+                    region = node
+                      .closest('foreignObject')
+                      ?.getBoundingClientRect();
+                  if (!region) throw Error('Missing rendered label region');
+                  return {
+                    x: Math.abs(
+                      rect.left +
+                        rect.width / 2 -
+                        region.left -
+                        region.width / 2,
+                    ),
+                    y: Math.abs(
+                      rect.top +
+                        rect.height / 2 -
+                        region.top -
+                        region.height / 2,
+                    ),
+                  };
+                }),
+              );
+            expect(offsets).toHaveLength(6);
+            for (const offset of offsets) {
+              expect(offset.x).toBeLessThanOrEqual(1.5);
+              expect(offset.y).toBeLessThanOrEqual(1.5);
+            }
+          } else {
+            await expect(
+              diagram.getByRole('spinbutton', {
+                name: 'Rear Turret armor value',
+                exact: true,
+              }),
+            ).toHaveValue('52');
+            await expect(
+              diagram.getByRole('spinbutton', {
+                name: 'Front Turret armor value',
+                exact: true,
+              }),
+            ).toHaveValue('32');
+          }
+        }
+
         await page.screenshot({
           path: testInfo.outputPath(
             `${unit.label.replace(/ /g, '-')}-${viewport.name}.png`,
@@ -415,6 +508,53 @@ for (const viewport of VIEWPORTS) {
   });
 }
 
+/** Reach controls by browser Tab order; never programmatically focus them. */
+async function tabTo(page: Page, target: Locator) {
+  for (let i = 0; i < 160; i++) {
+    if (await target.evaluate((el) => el === document.activeElement)) return;
+    await page.keyboard.press('Tab');
+  }
+  await expect(target).toBeFocused();
+}
+
+async function activate(page: Page, target: Locator, keyboard: boolean) {
+  if (!keyboard) return target.click();
+  await tabTo(page, target);
+  await page.keyboard.press('Enter');
+}
+
+async function fill(
+  page: Page,
+  target: Locator,
+  value: string,
+  keyboard: boolean,
+) {
+  if (!keyboard) return target.fill(value);
+  await tabTo(page, target);
+  await page.keyboard.press('ControlOrMeta+A');
+  await page.keyboard.insertText(value);
+  await page.keyboard.press('Tab');
+}
+
+async function section(page: Page, name: string, keyboard = false) {
+  const selector = page.getByRole('button', { name: /^Section:/ });
+  const narrow = await selector.isVisible();
+  if (narrow) await activate(page, selector, keyboard);
+  const tabs = page.getByRole('tablist', { name: 'Unit configuration tabs' });
+  const target = tabs.getByRole('tab', { name, exact: true });
+  if (!keyboard) return target.click();
+  // The section tablist uses roving tabindex.
+  await tabTo(page, tabs.getByRole('tab', { selected: true }));
+  for (
+    let i = 0;
+    i < 12 && !(await target.evaluate((el) => el === document.activeElement));
+    i++
+  )
+    await page.keyboard.press(narrow ? 'ArrowDown' : 'ArrowRight');
+  await expect(target).toBeFocused();
+  await page.keyboard.press('Enter');
+}
+
 test.describe('library persistence and printing', () => {
   // Real catalog, SQLite save API and sheet renderer throughout. The print
   // harness only records the real popup document instead of opening an OS dialog.
@@ -498,53 +638,6 @@ test.describe('library persistence and printing', () => {
     },
   ] as const;
   type FlowCase = (typeof cases)[number];
-
-  /** Reach controls by browser Tab order; never programmatically focus them. */
-  async function tabTo(page: Page, target: Locator) {
-    for (let i = 0; i < 160; i++) {
-      if (await target.evaluate((el) => el === document.activeElement)) return;
-      await page.keyboard.press('Tab');
-    }
-    await expect(target).toBeFocused();
-  }
-
-  async function activate(page: Page, target: Locator, keyboard: boolean) {
-    if (!keyboard) return target.click();
-    await tabTo(page, target);
-    await page.keyboard.press('Enter');
-  }
-
-  async function fill(
-    page: Page,
-    target: Locator,
-    value: string,
-    keyboard: boolean,
-  ) {
-    if (!keyboard) return target.fill(value);
-    await tabTo(page, target);
-    await page.keyboard.press('ControlOrMeta+A');
-    await page.keyboard.insertText(value);
-    await page.keyboard.press('Tab');
-  }
-
-  async function section(page: Page, name: string, keyboard = false) {
-    const selector = page.getByRole('button', { name: /^Section:/ });
-    const narrow = await selector.isVisible();
-    if (narrow) await activate(page, selector, keyboard);
-    const tabs = page.getByRole('tablist', { name: 'Unit configuration tabs' });
-    const target = tabs.getByRole('tab', { name, exact: true });
-    if (!keyboard) return target.click();
-    // The section tablist uses roving tabindex.
-    await tabTo(page, tabs.getByRole('tab', { selected: true }));
-    for (
-      let i = 0;
-      i < 12 && !(await target.evaluate((el) => el === document.activeElement));
-      i++
-    )
-      await page.keyboard.press(narrow ? 'ArrowDown' : 'ArrowRight');
-    await expect(target).toBeFocused();
-    await page.keyboard.press('Enter');
-  }
 
   async function library(
     page: Page,
