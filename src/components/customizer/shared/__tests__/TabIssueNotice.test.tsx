@@ -5,6 +5,23 @@ import { TabIssueNotice } from '../TabIssueNotice';
 import { COOLING_CARD_ID } from '../tabIssueTargets';
 
 describe('TabIssueNotice', () => {
+  it('keeps the real added-mortar warning complete in the title and accessible name', () => {
+    const summary =
+      "1 error: Overweight by 2.0 t · 1 warning: 'Mech Mortar 1 has no ammunition";
+    render(
+      <TabIssueNotice
+        notice={{ severity: 'error', summary }}
+        onShowAll={jest.fn()}
+      />,
+    );
+    const text = screen.getByTestId('tab-issue-notice-summary');
+    expect(text).toHaveTextContent(summary);
+    expect(text).toHaveAttribute('title', summary);
+    expect(text).toHaveAccessibleName(summary);
+    expect(
+      screen.getByRole('button', { name: 'Show All Issues' }),
+    ).toBeEnabled();
+  });
   it('names the issue and its fix beside a link to every issue', () => {
     const onShowAll = jest.fn();
     render(

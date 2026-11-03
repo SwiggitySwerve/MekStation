@@ -1,8 +1,4 @@
-import {
-  expectJavaCatalogAddition,
-  javaCatalogAdditions,
-  javaCatalogAdditionById,
-} from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
+import { expectJavaCatalogAddition } from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
 
 import type {
   AmmoCompatibilityGapClass,

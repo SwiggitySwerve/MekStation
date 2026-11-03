@@ -1,6 +1,5 @@
 import {
   expectJavaCatalogAddition,
-  javaCatalogAdditions,
   javaCatalogAdditionById,
 } from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
 

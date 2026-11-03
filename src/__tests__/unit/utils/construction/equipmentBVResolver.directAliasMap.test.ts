@@ -3,7 +3,6 @@ import * as path from 'path';
 
 import {
   expectJavaCatalogAddition,
-  javaCatalogAdditions,
   javaCatalogAdditionById,
 } from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
 import { getEquipmentEntry } from '@/utils/construction/equipmentBVResolver';
