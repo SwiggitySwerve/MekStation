@@ -429,7 +429,7 @@
       "ammoPerTon": 20,
       "costCBills": 275000,
       "battleValue": 345,
-      "introductionYear": 3104,
+      "introductionYear": 3073,
       "special": ["Can fire 1-6 shots"]
     },
     {
@@ -586,7 +586,7 @@
       "criticalSlots": 6,
       "costCBills": 230000,
       "battleValue": 158,
-      "introductionYear": 3079,
+      "introductionYear": 3059,
       "special": []
     },
     {

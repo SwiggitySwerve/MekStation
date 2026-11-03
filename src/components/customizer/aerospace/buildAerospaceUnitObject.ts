@@ -15,6 +15,8 @@ import type { IAerospaceRecordSheetUnitInput } from '@/services/printing/records
 import type { IAerospaceArmorAllocation } from '@/stores/aerospaceState';
 import type { IAerospaceMountedEquipment } from '@/types/unit/AerospaceInterfaces';
 
+import { getAerospaceEquipmentLocationAbbr } from '@/services/printing/recordsheet/equipmentLocations';
+import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { getTotalAerospaceArmor } from '@/stores/aerospaceState';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
@@ -113,6 +115,12 @@ export function buildAerospaceUnitObject(
       equipmentId: eq.equipmentId,
       name: eq.name,
       location: String(eq.location),
+      locationAbbr: getAerospaceEquipmentLocationAbbr(
+        aerospaceContractArc(
+          eq.location,
+          input.unitType === UnitType.SMALL_CRAFT,
+        ),
+      ),
     })),
   };
 }

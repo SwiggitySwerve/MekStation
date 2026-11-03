@@ -172,7 +172,7 @@
       "criticalSlots": 1,
       "costCBills": 100000,
       "battleValue": 0,
-      "introductionYear": 3096,
+      "introductionYear": 3072,
       "special": []
     },
     {
@@ -1674,7 +1674,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2100,
       "special": ["Variable weight"]
     },
     {
