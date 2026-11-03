@@ -41,7 +41,6 @@ const expressions = {
   kgPerShot: /\bkgPerShot\s*=/,
   isExplosive: /\bexplosive\s*=/,
   flags: /\bflags\s*=/,
-  allowedUnitTypes: /\bflags\s*=/,
   compatibleWeaponIds: /isAmmoValid\(AmmoType/,
 };
 function citations(record, sources) {
@@ -71,7 +70,7 @@ function citations(record, sources) {
       ? new RegExp(`\\b${field.slice(7)}Range\\s*=`)
       : /Year$/.test(field)
         ? /set(?:IS|Clan)?Advancement\(/
-        : expressions[field];
+        : expressions[field.replace(/allowedUnitTypes|isPrototype/, 'flags')];
     const candidates = [...lineage];
     if (field === 'compatibleWeaponIds') {
       const path = 'equipment/AmmoType.java';
@@ -177,7 +176,7 @@ export function sweep(input) {
         fact.rulesLevel === 'INTRO' ? 'INTRODUCTORY' : fact.rulesLevel,
     };
     const fields =
-      'introductionYear prototypeYear productionYear commonYear extinctionYear reintroductionYear heat damage kgPerShot isExplosive flags allowedUnitTypes'.split(
+      'introductionYear prototypeYear productionYear commonYear extinctionYear reintroductionYear heat damage kgPerShot isExplosive isPrototype flags allowedUnitTypes'.split(
         ' ',
       );
     for (const field of fields) {

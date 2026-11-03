@@ -14,9 +14,8 @@ public class SweepFacts {
             row.putAll(Map.of("prototypeYear", type.getPrototypeDate(), "productionYear", type.getProductionDate(), "commonYear", type.getCommonDate()));
             var flags = new TreeSet<String>();
             Class<?> flagClass = Class.forName("megamek.common.equipment." + (type instanceof AmmoType ? "enums.AmmoTypeFlag" : type instanceof WeaponType ? "WeaponTypeFlag" : "enums.MiscTypeFlag"));
-            for (var flag : flagClass.getEnumConstants()) {
+            for (var flag : flagClass.getEnumConstants())
                 if (type.getFlags().get((EquipmentFlag) flag)) flags.add(((Enum<?>) flag).name());
-            }
             row.put("flags", flags);
         }
         mapper.writerWithDefaultPrettyPrinter().writeValue(Path.of(args[0]).toFile(), rows);
