@@ -145,7 +145,11 @@ class StationaryShooter implements IAIPlayer {
     );
     if (!target || !unit.weapons.length) return null;
     const weapon =
-      unit.weapons.find((candidate) => candidate.heat > 0) ?? unit.weapons[0];
+      unit.weapons.find(
+        (candidate) => candidate.ammoPerTon > 0 && candidate.heat > 0,
+      ) ??
+      unit.weapons.find((candidate) => candidate.heat > 0) ??
+      unit.weapons[0];
     return {
       type: GameEventType.AttackDeclared as const,
       payload: {
@@ -324,48 +328,44 @@ it('records the runner aerospace heat total through the same projection as repla
   }
 });
 
-it('keeps recorded ammunition consumption on native vehicle hits and replay', async () => {
-  const prepared = await duelSession('vehicles:scorpion-light-tank');
-  // The current adapter reads ammo from Mech critical slots. Explicit recorded
-  // bins exercise runner transport independently of that native adapter gap.
-  const session = {
-    ...prepared,
-    units: prepared.units.map((unit) => ({
-      ...unit,
-      ammoConstruction: [
-        {
-          binId: 'recorded-ac5',
-          weaponType: 'autocannon-5',
-          location: 'body',
-          maxRounds: 20,
-          damagePerRound: 5,
-          isExplosive: true,
-        },
-      ],
-    })),
-  };
-  const observed = jest.spyOn(InvariantRunner.prototype, 'runAll');
-  const runner = await SimulationRunner.fromSession(
-    123,
-    session,
-    () => new StationaryShooter(),
-  );
-  const result = runner.run({
-    seed: 123,
-    turnLimit: 1,
-    mapRadius: 3,
-    unitCount: { player: 1, opponent: 1 },
-  });
-  expect(
-    result.events.filter((event) => event.type === GameEventType.AmmoConsumed),
-  ).toHaveLength(2);
-  const replay = deriveState(
-    result.events[0].gameId,
-    JSON.parse(JSON.stringify(result.events)),
-  );
-  for (const unit of Object.values(observed.mock.calls.at(-1)![0].units))
-    expect(replay.units[unit.id].ammoState).toEqual(unit.ammoState);
-});
+it.each(['vehicles:scorpion-light-tank', 'aerospace:riever-f-100b'])(
+  'consumes native catalog ammo for %s through a seeded session and replay',
+  async (ref) => {
+    const session = await duelSession(ref);
+    expect(
+      session.units.every((unit) => (unit.ammoConstruction?.length ?? 0) > 0),
+    ).toBe(true);
+    const observed = jest.spyOn(InvariantRunner.prototype, 'runAll');
+    const runner = await SimulationRunner.fromSession(
+      123,
+      session,
+      () => new StationaryShooter(),
+    );
+    const result = runner.run({
+      seed: 123,
+      turnLimit: 1,
+      mapRadius: 3,
+      unitCount: { player: 1, opponent: 1 },
+    });
+    expect(
+      result.events.filter(
+        (event) => event.type === GameEventType.AmmoConsumed,
+      ),
+    ).toHaveLength(2);
+    const replay = deriveState(
+      result.events[0].gameId,
+      JSON.parse(JSON.stringify(result.events)),
+    );
+    for (const unit of Object.values(observed.mock.calls.at(-1)![0].units)) {
+      expect(
+        Object.values(unit.ammoState ?? {}).some(
+          (bin) => bin.remainingRounds < bin.maxRounds,
+        ),
+      ).toBe(true);
+      expect(replay.units[unit.id].ammoState).toEqual(unit.ammoState);
+    }
+  },
+);
 
 it('keeps the recorded BattleMech construction bytes and 21-key shape unchanged', async () => {
   const saved = { ...load('atlas-as7-d'), id: 'custom-byte-atlas' };
@@ -397,8 +397,11 @@ it('keeps the recorded BattleMech construction bytes and 21-key shape unchanged'
     .createHash('sha256')
     .update(JSON.stringify(recorded))
     .digest('hex');
+  // Repinned after #2581 regenerated the Atlas AS7-D catalog entry: the only
+  // snapshot change is quirks order (distracting before command_mech), which
+  // is the order in the pinned mm-data Atlas AS7-D.mtf.
   expect(sha).toBe(
-    'fa737db6b6115b87357f02375c313b152a2ff7aa7a1af63f978c82872f806fa5',
+    'cdae21a4bd666705bcce2957dcefd5a7f3a84a4519dab403c89da57e04201061',
   );
   const runner = await SimulationRunner.fromSession(
     123,

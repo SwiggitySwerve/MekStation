@@ -1,12 +1,21 @@
 import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 import type { IAmmoSlotState } from '@/types/gameplay';
 
+import { UNIT_DEFINITION_FAMILIES } from '@/services/units/unitLoaderService/definitionTypes';
+import {
+  extractWeaponTypeFromAmmoId,
+  getNativeAmmoBVGroup,
+  resolveNativeAmmoBin,
+} from '@/utils/construction/battleValueAmmo';
 import { AMMUNITION_CATALOG_FILES } from '@/utils/construction/equipmentBVCatalogData';
 
 import type { AmmoLookup, ICatalogAmmoStats } from './UnitHydrationTypes';
 
 import { buildAmmoLookupFromCatalogFiles } from './UnitHydrationCatalogLookup';
-import { criticalSlotsFromFullUnit } from './UnitHydrationEquipment';
+import {
+  criticalSlotsFromFullUnit,
+  equipmentEntriesFromFullUnit,
+} from './UnitHydrationEquipment';
 import { runnerCriticalLocationFromCatalogLocation } from './UnitHydrationLocations';
 import { stripCriticalSlotRearMarker } from './UnitHydrationText';
 
@@ -110,6 +119,12 @@ export function hydrateAmmoStateFromFullUnit(
   fullUnit: IFullUnit,
   ammoLookup: AmmoLookup = defaultCatalogAmmoLookup(),
 ): Record<string, IAmmoSlotState> | undefined {
+  const nativeTypes: readonly string[] = [
+    ...UNIT_DEFINITION_FAMILIES.vehicles.unitTypes,
+    ...UNIT_DEFINITION_FAMILIES.aerospace.unitTypes,
+  ];
+  if (nativeTypes.includes(fullUnit.unitType))
+    return hydrateNativeAmmo(fullUnit, ammoLookup);
   const criticalSlots = criticalSlotsFromFullUnit(fullUnit);
   const ammoState: Record<string, IAmmoSlotState> = {};
 
@@ -145,4 +160,45 @@ export function hydrateAmmoStateFromFullUnit(
   }
 
   return Object.keys(ammoState).length > 0 ? ammoState : undefined;
+}
+
+/** One equipment occurrence is one physical bin; retain native location keys.
+ * @spec openspec/specs/ammo-tracking/spec.md (Per-Bin Ammo State)
+ */
+function hydrateNativeAmmo(
+  fullUnit: IFullUnit,
+  ammoLookup: AmmoLookup,
+): Record<string, IAmmoSlotState> | undefined {
+  const state: Record<string, IAmmoSlotState> = {};
+  equipmentEntriesFromFullUnit(fullUnit).forEach((mount, index) => {
+    const bin = resolveNativeAmmoBin(mount.id, mount.name);
+    if (!bin) return;
+    const ammo = ammoLookup(bin.ammoId);
+    if (!ammo) return;
+    const clan =
+      /^cl(?!uster)/i.test(mount.id) ||
+      (!/^is/i.test(mount.id) && fullUnit.techBase === 'CLAN');
+    const group = getNativeAmmoBVGroup(mount.id);
+    const compatible = ammo.compatibleWeaponIds.filter(
+      (id) => !group || getNativeAmmoBVGroup(id) === group,
+    );
+    const fallback = extractWeaponTypeFromAmmoId(ammo.id);
+    const weaponType =
+      compatible.length === 1
+        ? compatible[0]
+        : (compatible.find((id) => id.startsWith('clan-') === clan) ??
+          (clan ? `clan-${fallback}` : fallback));
+    if (!weaponType) return;
+    const location = mount.location.toLowerCase();
+    const binId = `${location}-${index}-${bin.ammoId}`;
+    state[binId] = {
+      binId,
+      weaponType,
+      location,
+      remainingRounds: bin.shots,
+      maxRounds: bin.shots,
+      isExplosive: ammo.isExplosive,
+    };
+  });
+  return Object.keys(state).length ? state : undefined;
 }

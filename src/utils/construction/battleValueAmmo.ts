@@ -1,4 +1,34 @@
-import { normalizeEquipmentId } from './equipmentBVResolver';
+import { isAmmunitionEquipmentId } from './equipmentBV/catalogLoader';
+import {
+  getAmmunitionWeightEntry,
+  normalizeEquipmentId,
+} from './equipmentBVResolver';
+
+/** Physical native mounts, not BV cap pools. AmmoMounted.java:49-53 (48fcb2f64)
+ * seeds type.getShots(); AmmoType.java:6665,6700-6701 half-bin entries (CAT-Q1)
+ * already contain that capacity, without another tonnage multiplier.
+ * The catalog's :NN suffix specifies shots in this bin, not a bin multiplier.
+ */
+export function resolveNativeAmmoBin(
+  id: string,
+  name?: string,
+): { ammoId: string; shots: number } | undefined {
+  if (!isAmmunitionEquipmentId(id)) return undefined;
+  const token = id.replace(/:omni$/i, '');
+  const override = token.match(/:(\d+)$/);
+  const entry =
+    getAmmunitionWeightEntry(token.replace(/:\d+$/, '')) ??
+    (name
+      ? getAmmunitionWeightEntry(
+          name.replace(/:omni$/i, '').replace(/:\d+$/, ''),
+        )
+      : undefined);
+  if (!entry) return undefined;
+  const shots = override ? Number(override[1]) : entry.shotsPerTon;
+  return shots !== undefined && Number.isSafeInteger(shots) && shots >= 0
+    ? { ammoId: entry.id, shots }
+    : undefined;
+}
 
 /** Closed subset whose catalog identity supplies a native type/rack cap group. */
 export function getCatalogAmmoBVGroup(id: string): string | undefined {

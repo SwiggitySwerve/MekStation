@@ -174,6 +174,7 @@ export function StructureTab({
   } = useMovementCalculations({
     tonnage,
     engineRating,
+    cockpitType,
     jumpMP,
     jumpJetType,
     enhancement,

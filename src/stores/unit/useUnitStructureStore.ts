@@ -265,6 +265,7 @@ export function createStructureSlice(
           state.engineRating,
           state.jumpJetType,
           jumpMP,
+          state.cockpitType,
         );
 
         return modifiedPatch({
@@ -281,6 +282,7 @@ export function createStructureSlice(
           state.engineRating,
           state.jumpMP,
           jumpJetType,
+          state.cockpitType,
         );
 
         return modifiedPatch({

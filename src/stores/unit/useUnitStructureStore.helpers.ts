@@ -6,6 +6,7 @@
  */
 
 import type { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import type { CockpitType } from '@/types/construction/CockpitType';
 import type { EngineType } from '@/types/construction/EngineType';
 import type { GyroType } from '@/types/construction/GyroType';
 import type { HeatSinkType } from '@/types/construction/HeatSinkType';
@@ -26,6 +27,7 @@ import {
 import {
   calculateIntegralHeatSinks,
   calculateEngineWeight,
+  calculateRatedWalkMP,
 } from '@/utils/construction/engineCalculations';
 import { getMaxJumpMP } from '@/utils/construction/movementCalculations';
 import {
@@ -299,8 +301,9 @@ export function applyJumpMPChange(
   engineRating: number,
   jumpJetType: JumpJetType,
   newJumpMP: number,
+  cockpitType: CockpitType,
 ): { equipment: readonly IMountedEquipmentInstance[]; jumpMP: number } {
-  const walkMP = Math.floor(engineRating / tonnage);
+  const walkMP = calculateRatedWalkMP(engineRating, tonnage, cockpitType);
   const maxJump = getMaxJumpMP(walkMP, jumpJetType);
   const clampedJumpMP = Math.max(0, Math.min(newJumpMP, maxJump));
 
@@ -323,8 +326,9 @@ export function applyJumpJetTypeChange(
   engineRating: number,
   currentJumpMP: number,
   newJumpJetType: JumpJetType,
+  cockpitType: CockpitType,
 ): { equipment: readonly IMountedEquipmentInstance[]; jumpMP: number } {
-  const walkMP = Math.floor(engineRating / tonnage);
+  const walkMP = calculateRatedWalkMP(engineRating, tonnage, cockpitType);
   const maxJump = getMaxJumpMP(walkMP, newJumpJetType);
   const clampedJumpMP = Math.min(currentJumpMP, maxJump);
 
