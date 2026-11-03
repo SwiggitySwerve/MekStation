@@ -3,6 +3,7 @@ import ammunitionArtillery from '../../../public/data/equipment/official/ammunit
 import ammunitionAtm from '../../../public/data/equipment/official/ammunition/atm.json';
 import ammunitionAutocannon from '../../../public/data/equipment/official/ammunition/autocannon.json';
 import ammunitionGauss from '../../../public/data/equipment/official/ammunition/gauss.json';
+import registryAmmo from '../../../public/data/equipment/official/ammunition/java-registry.json';
 import ammunitionLrm from '../../../public/data/equipment/official/ammunition/lrm.json';
 import ammunitionMachinegun from '../../../public/data/equipment/official/ammunition/machinegun.json';
 import ammunitionMrm from '../../../public/data/equipment/official/ammunition/mrm.json';
@@ -15,6 +16,7 @@ import electronicsEcm from '../../../public/data/equipment/official/electronics/
 import electronicsOther from '../../../public/data/equipment/official/electronics/other.json';
 import miscellaneousDefensive from '../../../public/data/equipment/official/miscellaneous/defensive.json';
 import miscellaneousHeatSinks from '../../../public/data/equipment/official/miscellaneous/heat-sinks.json';
+import registryMisc from '../../../public/data/equipment/official/miscellaneous/java-registry.json';
 import miscellaneousJumpJets from '../../../public/data/equipment/official/miscellaneous/jump-jets.json';
 import miscellaneousMovement from '../../../public/data/equipment/official/miscellaneous/movement.json';
 import miscellaneousMyomer from '../../../public/data/equipment/official/miscellaneous/myomer.json';
@@ -26,19 +28,23 @@ import weaponsBallisticOther from '../../../public/data/equipment/official/weapo
 import weaponsEnergyLaser from '../../../public/data/equipment/official/weapons/energy-laser.json';
 import weaponsEnergyOther from '../../../public/data/equipment/official/weapons/energy-other.json';
 import weaponsEnergyPpc from '../../../public/data/equipment/official/weapons/energy-ppc.json';
+import registryWeapons from '../../../public/data/equipment/official/weapons/java-registry.json';
 import weaponsMissileAtm from '../../../public/data/equipment/official/weapons/missile-atm.json';
 import weaponsMissileLrm from '../../../public/data/equipment/official/weapons/missile-lrm.json';
 import weaponsMissileMrm from '../../../public/data/equipment/official/weapons/missile-mrm.json';
 import weaponsMissileOther from '../../../public/data/equipment/official/weapons/missile-other.json';
 import weaponsMissileSrm from '../../../public/data/equipment/official/weapons/missile-srm.json';
 import weaponsPhysical from '../../../public/data/equipment/official/weapons/physical.json';
+import registryRouting from '../../../public/data/equipment/registry-routing.json';
 import { parseNameMappings } from './equipmentBV/nameMappingsContractAdapter';
+import { nativeIdentityId } from './equipmentBV/sourceLookupAliases';
 
 interface CatalogDataFile {
   items?: Array<Record<string, unknown>>;
 }
 
 export const WEAPON_CATALOG_FILES: readonly CatalogDataFile[] = [
+  registryWeapons,
   weaponsEnergyLaser,
   weaponsEnergyPpc,
   weaponsEnergyOther,
@@ -62,6 +68,7 @@ export const ELECTRONICS_CATALOG_FILES: readonly CatalogDataFile[] = [
 ] as const;
 
 export const MISCELLANEOUS_CATALOG_FILES: readonly CatalogDataFile[] = [
+  registryMisc,
   miscellaneousHeatSinks,
   miscellaneousJumpJets,
   miscellaneousMovement,
@@ -71,6 +78,7 @@ export const MISCELLANEOUS_CATALOG_FILES: readonly CatalogDataFile[] = [
 ] as const;
 
 export const AMMUNITION_CATALOG_FILES: readonly CatalogDataFile[] = [
+  registryAmmo,
   ammunitionArtillery,
   ammunitionAtm,
   ammunitionAutocannon,
@@ -91,3 +99,44 @@ export const AMMUNITION_CATALOG_FILES: readonly CatalogDataFile[] = [
 // so any future drift in `name-mappings.json` (e.g. a non-string value
 // sneaking in via an audit) fails loudly with a Zod issue path.
 export const NAME_MAPPINGS_DATA = parseNameMappings(nameMappings);
+// Imported Java identities are exact-only; adding candidates must not change
+// established alias synthesis, prefix stripping or fuzzy consumer fallbacks.
+const registryIds = new Set(
+  [...registryWeapons.items, ...registryAmmo.items, ...registryMisc.items].map(
+    (item) => item.id,
+  ),
+);
+const registryNames = new Map<string, string>();
+for (const [name, id] of Object.entries(NAME_MAPPINGS_DATA))
+  if (typeof id === 'string' && registryIds.has(id))
+    registryNames.set(name.toLowerCase(), id);
+export const isRegistryEquipment = (id: string): boolean => registryIds.has(id);
+export const isLegacyEquipmentId = (id: string): boolean =>
+  !isRegistryEquipment(id);
+const previousRegistryIds = new Map(
+  Object.entries(registryRouting.previousIds),
+);
+export const registryPreviousId = (
+  id: string,
+  name?: string,
+): string | undefined =>
+  name === undefined ||
+  Object.entries(registryRouting.nativeNames).some(
+    ([target, native]) =>
+      target === id && native.toLowerCase() === name.trim().toLowerCase(),
+  )
+    ? ((name === undefined ? undefined : nativeIdentityId(name)) ??
+      previousRegistryIds.get(id))
+    : undefined;
+export function preferRegistryEquipment<
+  T extends { id: string } | null | undefined,
+>(previous: T, imported: NonNullable<T> | undefined, name: string): T {
+  return imported &&
+    (!previous || registryPreviousId(imported.id, name) === previous.id)
+    ? imported
+    : previous;
+}
+export const resolveRegistryId = (name: string): string | undefined => {
+  const key = name.toLowerCase().trim();
+  return registryIds.has(key) ? key : registryNames.get(key);
+};

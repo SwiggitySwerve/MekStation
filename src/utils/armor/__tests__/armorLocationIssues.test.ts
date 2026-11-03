@@ -5,6 +5,7 @@ import type {
 
 import { ArmorAllocationValidation } from '@/services/validation/rules/universal/ArmorAllocationValidation';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { UnitValidationSeverity } from '@/types/validation/UnitValidationInterfaces';
 import { getArmorLocationIssues } from '@/utils/armor/armorLocationIssues';
 import { buildArmorByLocation } from '@/utils/validation/armorValidationUtils';
 
@@ -50,22 +51,52 @@ describe('getArmorLocationIssues', () => {
     });
   });
 
-  it('marks critical armor as an error and a low rear face on its torso', () => {
+  // Pinned MegaMek 48fcb2f64, TestMek.java:682-713: maxima only; sparse armor is advice.
+  it('marks sparse armor and a low rear face as warnings', () => {
     expect(
       getArmorLocationIssues(
         atlasResult({ [MechLocation.RIGHT_LEG]: 0, centerTorsoRear: 5 }),
       ),
     ).toEqual({
-      [MechLocation.RIGHT_LEG]: 'error',
+      [MechLocation.RIGHT_LEG]: 'warning',
       [MechLocation.CENTER_TORSO]: 'warning',
     });
   });
 
-  it('keeps the error when a torso has a critical front and a low rear', () => {
+  it('keeps warning severity for sparse front and low rear armor', () => {
     expect(
       getArmorLocationIssues(
         atlasResult({ [MechLocation.LEFT_TORSO]: 2, leftTorsoRear: 3 }),
       ),
-    ).toEqual({ [MechLocation.LEFT_TORSO]: 'error' });
+    ).toEqual({ [MechLocation.LEFT_TORSO]: 'warning' });
+  });
+  it('preserves independent armor errors alongside warnings', () => {
+    const result = atlasResult({
+      [MechLocation.LEFT_TORSO]: 2,
+      leftTorsoRear: 3,
+    });
+    const rule = result.results[0];
+    const warning = rule.warnings.find(
+      (issue) => issue.field === 'armorAllocation.leftTorso',
+    );
+    if (!warning) throw new Error('Expected front torso warning');
+    const withError = {
+      ...result,
+      results: [
+        {
+          ...rule,
+          errors: [
+            {
+              ...warning,
+              severity: UnitValidationSeverity.ERROR,
+              message: 'Independent armor construction error',
+            },
+          ],
+        },
+      ],
+    };
+    expect(getArmorLocationIssues(withError)).toEqual({
+      [MechLocation.LEFT_TORSO]: 'error',
+    });
   });
 });

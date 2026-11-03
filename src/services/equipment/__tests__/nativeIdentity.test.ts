@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { expectJavaCatalogAddition } from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
 import { EquipmentNameResolver } from '@/services/conversion/EquipmentNameResolver';
 import {
   lookupWeapon,
@@ -45,9 +46,9 @@ const cases = [
   ['NovaCEWS', 'nova-combined-electronic-warfare-system-cews'],
   ['Small VSP Laser', 'small-vsp-laser'],
   ['IS LB 10-X AC Ammo', 'lb-10-x-ammo'],
-  ['IS LB 2-X AC Ammo', 'lb-2-x-ammo'],
+  ['IS LB 2-X AC Ammo', 'is-lb-2-x-ac-ammo-registry'],
   ['IS LB 20-X AC Ammo', 'lb-20-x-ammo'],
-  ['IS LB 5-X AC Ammo', 'lb-5-x-ammo'],
+  ['IS LB 5-X AC Ammo', 'is-lb-5-x-ac-ammo-registry'],
   ['IS Streak SRM 2 Ammo', 'streak-srm-ammo'],
 ];
 const loader = getEquipmentLoader();
@@ -61,6 +62,14 @@ beforeAll(async () => {
   await getEquipmentLookupService().initialize();
 });
 it.each(cases)('%s retains its Java identity (%s)', (name, target) => {
+  // CAT-Q2's five approved routes: pinned java-registry.json IS LB 2/5-X AC Ammo;
+  // full Java values/citation live in scripts/equipment-catalog/java-additions.json.
+  if (target.endsWith('-registry'))
+    expectJavaCatalogAddition(
+      AMMUNITION_CATALOG_FILES.flatMap((file) => file.items ?? []).find(
+        (item) => (item as { id?: string }).id === target,
+      ),
+    );
   expect(normalizeEquipmentId(name)).toBe(target);
   expect(registry.lookup(name).equipment?.id).toBe(target);
   for (const tech of [undefined, TechBase.INNER_SPHERE, TechBase.CLAN]) {

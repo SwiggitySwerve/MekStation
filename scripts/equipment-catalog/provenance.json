@@ -1,0 +1,1791 @@
+{
+  "revision": "48fcb2f64a1b3f2d575707ce5653dad64927b587",
+  "inputs": {
+    "java-registry.json": "681daa36a26a4ec5a36ffc7f89fcbcfdcf90308c6b7b8780a6de9d9192136e0e",
+    "java-registry.json.lookups.json": "6b97368fc5adee2917b0fbffde5de4a4d4d8cdec6807b4b16ac28d6e2066ebd1",
+    "catalog-gaps-by-java.json": "421f332758d4ca6d70525eb19af562d910c6e98676da1cbab53a0f1e2a27678d",
+    "java-facts.json": "e0920d67ba9014acaf048d588979ae6e5e94466e010d2e345d0e18403faf2d3e"
+  },
+  "identities": [
+    {
+      "internalName": "AA Weapon (Mk. 1, Light)",
+      "id": "aa-weapon-mk-1-light-registry"
+    },
+    {
+      "internalName": "AA Weapon (Mk. 2, Man-Portable)",
+      "id": "aa-weapon-mk-2-man-portable-registry"
+    },
+    {
+      "internalName": "Ablative, Concealed",
+      "id": "ablative-concealed-registry"
+    },
+    {
+      "internalName": "Ablative, Standard",
+      "id": "ablative-standard-registry"
+    },
+    {
+      "internalName": "Ablative/Flak, Concealed",
+      "id": "ablative-flak-concealed-registry"
+    },
+    {
+      "internalName": "Ablative/Flak, Standard",
+      "id": "ablative-flak-standard-registry"
+    },
+    {
+      "internalName": "Aerospace Fighter Pilot Kit",
+      "id": "aerospace-fighter-pilot-kit-registry"
+    },
+    {
+      "internalName": "Ammo AR10 Barracuda",
+      "id": "ammo-ar10-barracuda-registry"
+    },
+    {
+      "internalName": "Ammo AR10 Killer Whale",
+      "id": "ammo-ar10-killer-whale-registry"
+    },
+    {
+      "internalName": "Ammo AR10 White Shark",
+      "id": "ammo-ar10-white-shark-registry"
+    },
+    {
+      "internalName": "Ammo Heavy Mass Driver",
+      "id": "ammo-heavy-mass-driver-registry"
+    },
+    {
+      "internalName": "Ammo Heavy SCC",
+      "id": "ammo-heavy-scc-registry"
+    },
+    {
+      "internalName": "Ammo Killer Whale",
+      "id": "ammo-killer-whale-registry"
+    },
+    {
+      "internalName": "Ammo Killer Whale-T",
+      "id": "ammo-killer-whale-t-registry"
+    },
+    {
+      "internalName": "Ammo KrakenT",
+      "id": "ammo-krakent-registry"
+    },
+    {
+      "internalName": "Ammo Light Mass Driver",
+      "id": "ammo-light-mass-driver-registry"
+    },
+    {
+      "internalName": "Ammo Light SCC",
+      "id": "ammo-light-scc-registry"
+    },
+    {
+      "internalName": "Ammo Manta Ray",
+      "id": "ammo-manta-ray-registry"
+    },
+    {
+      "internalName": "Ammo Medium Mass Driver",
+      "id": "ammo-medium-mass-driver-registry"
+    },
+    {
+      "internalName": "Ammo Medium SCC",
+      "id": "ammo-medium-scc-registry"
+    },
+    {
+      "internalName": "Ammo Piranha",
+      "id": "ammo-piranha-registry"
+    },
+    {
+      "internalName": "Ammo Screen",
+      "id": "ammo-screen-registry"
+    },
+    {
+      "internalName": "Ammo Stingray",
+      "id": "ammo-stingray-registry"
+    },
+    {
+      "internalName": "Ammo Swordfish",
+      "id": "ammo-swordfish-registry"
+    },
+    {
+      "internalName": "Ammo White Shark",
+      "id": "ammo-white-shark-registry"
+    },
+    {
+      "internalName": "AntiMekGear",
+      "id": "antimekgear-registry"
+    },
+    {
+      "internalName": "Auto-Pistol",
+      "id": "auto-pistol-registry"
+    },
+    {
+      "internalName": "Auto-Pistol (M&G)",
+      "id": "auto-pistol-m-g-registry"
+    },
+    {
+      "internalName": "Auto-Pistol (Magnum)",
+      "id": "auto-pistol-magnum-registry"
+    },
+    {
+      "internalName": "Auto-Pistol (Nambu)",
+      "id": "auto-pistol-nambu-registry"
+    },
+    {
+      "internalName": "Auto-Pistol (Serrek 7875D)",
+      "id": "auto-pistol-serrek-7875d-registry"
+    },
+    {
+      "internalName": "Auto-Shotgun",
+      "id": "auto-shotgun-registry"
+    },
+    {
+      "internalName": "Autocannon (Bearhunter Superheavy)",
+      "id": "autocannon-bearhunter-superheavy-registry"
+    },
+    {
+      "internalName": "Autocannon (Semi-Portable)",
+      "id": "autocannon-semi-portable-registry"
+    },
+    {
+      "internalName": "Autocannon/10 Primitive",
+      "id": "autocannon-10-primitive-registry"
+    },
+    {
+      "internalName": "Autocannon/20 Primitive",
+      "id": "autocannon-20-primitive-registry"
+    },
+    {
+      "internalName": "Autocannon/5 Primitive",
+      "id": "autocannon-5-primitive-registry"
+    },
+    {
+      "internalName": "BA-Magnetic Clamp",
+      "id": "ba-magnetic-clamp-registry"
+    },
+    {
+      "internalName": "BACL Ammo LRM-3",
+      "id": "bacl-ammo-lrm-3-registry"
+    },
+    {
+      "internalName": "BACL Ammo LRM-4",
+      "id": "bacl-ammo-lrm-4-registry"
+    },
+    {
+      "internalName": "BACL Ammo LRM-5",
+      "id": "bacl-ammo-lrm-5-registry"
+    },
+    {
+      "internalName": "BACLERMediumPulseLaser",
+      "id": "baclermediumpulselaser-registry"
+    },
+    {
+      "internalName": "BACargoLifter",
+      "id": "bacargolifter-registry"
+    },
+    {
+      "internalName": "BAISAngelECMSuite",
+      "id": "baisangelecmsuite-registry"
+    },
+    {
+      "internalName": "BAMechanicalJumpBooster",
+      "id": "bamechanicaljumpbooster-registry"
+    },
+    {
+      "internalName": "BAMineLauncher",
+      "id": "baminelauncher-registry"
+    },
+    {
+      "internalName": "Ballistic Plate, Concealed",
+      "id": "ballistic-plate-concealed-registry"
+    },
+    {
+      "internalName": "Ballistic Plate, Standard",
+      "id": "ballistic-plate-standard-registry"
+    },
+    {
+      "internalName": "Battle Armor LB-X AC",
+      "id": "battle-armor-lb-x-ac-registry"
+    },
+    {
+      "internalName": "Blade (Dagger/Knife/Bayonet)",
+      "id": "blade-dagger-knife-bayonet-registry"
+    },
+    {
+      "internalName": "Blade (Vibro-blade)",
+      "id": "blade-vibro-blade-registry"
+    },
+    {
+      "internalName": "Blade (Vibro-katana)",
+      "id": "blade-vibro-katana-registry"
+    },
+    {
+      "internalName": "CL BA ECM",
+      "id": "cl-ba-ecm-registry"
+    },
+    {
+      "internalName": "CL Heavy Flamer Ammo",
+      "id": "cl-heavy-flamer-ammo-registry"
+    },
+    {
+      "internalName": "CLAPGaussRifle Ammo",
+      "id": "clapgaussrifle-ammo-registry"
+    },
+    {
+      "internalName": "CLArrowIVHomingAmmo",
+      "id": "clarrowivhomingammo-registry"
+    },
+    {
+      "internalName": "CLBAERMediumLaser",
+      "id": "clbaermediumlaser-registry"
+    },
+    {
+      "internalName": "CLBAERMicroLaser",
+      "id": "clbaermicrolaser-registry"
+    },
+    {
+      "internalName": "CLBAERSmallLaser",
+      "id": "clbaersmalllaser-registry"
+    },
+    {
+      "internalName": "CLBAERSmallPulseLaser",
+      "id": "clbaersmallpulselaser-registry"
+    },
+    {
+      "internalName": "CLBAFlamer",
+      "id": "clbaflamer-registry"
+    },
+    {
+      "internalName": "CLBAHeavyFlamer",
+      "id": "clbaheavyflamer-registry"
+    },
+    {
+      "internalName": "CLBAHeavyGrenadeLauncher",
+      "id": "clbaheavygrenadelauncher-registry"
+    },
+    {
+      "internalName": "CLBAHeavyMortar",
+      "id": "clbaheavymortar-registry"
+    },
+    {
+      "internalName": "CLBAHeavySmallLaser",
+      "id": "clbaheavysmalllaser-registry"
+    },
+    {
+      "internalName": "CLBALRM5",
+      "id": "clbalrm5-registry"
+    },
+    {
+      "internalName": "CLBALightMortar",
+      "id": "clbalightmortar-registry"
+    },
+    {
+      "internalName": "CLBALightTAG",
+      "id": "clbalighttag-registry"
+    },
+    {
+      "internalName": "CLBAMediumPulseLaser",
+      "id": "clbamediumpulselaser-registry"
+    },
+    {
+      "internalName": "CLBAMicroBomb",
+      "id": "clbamicrobomb-registry"
+    },
+    {
+      "internalName": "CLBAMicroPulseLaser",
+      "id": "clbamicropulselaser-registry"
+    },
+    {
+      "internalName": "CLBAMyomerBooster",
+      "id": "clbamyomerbooster-registry"
+    },
+    {
+      "internalName": "CLBASRM2",
+      "id": "clbasrm2-registry"
+    },
+    {
+      "internalName": "CLBASRM4",
+      "id": "clbasrm4-registry"
+    },
+    {
+      "internalName": "CLBASRM6",
+      "id": "clbasrm6-registry"
+    },
+    {
+      "internalName": "CLBASmall Laser",
+      "id": "clbasmall-laser-registry"
+    },
+    {
+      "internalName": "CLBASmallPulseLaser",
+      "id": "clbasmallpulselaser-registry"
+    },
+    {
+      "internalName": "CLERMediumLaserPrototype",
+      "id": "clermediumlaserprototype-registry"
+    },
+    {
+      "internalName": "CLHeavyFlamer",
+      "id": "clheavyflamer-registry"
+    },
+    {
+      "internalName": "CLHeavyMG",
+      "id": "clheavymg-registry"
+    },
+    {
+      "internalName": "CLImprovedSensors",
+      "id": "climprovedsensors-registry"
+    },
+    {
+      "internalName": "CLMediumChemLaserAmmo",
+      "id": "clmediumchemlaserammo-registry"
+    },
+    {
+      "internalName": "CLMyomerBooster",
+      "id": "clmyomerbooster-registry"
+    },
+    {
+      "internalName": "CLPlasmaCannonAmmo",
+      "id": "clplasmacannonammo-registry"
+    },
+    {
+      "internalName": "CLRocketLauncher10Prototype",
+      "id": "clrocketlauncher10prototype-registry"
+    },
+    {
+      "internalName": "CLRocketLauncher15Prototype",
+      "id": "clrocketlauncher15prototype-registry"
+    },
+    {
+      "internalName": "CLRotaryAC2 Ammo",
+      "id": "clrotaryac2-ammo-registry"
+    },
+    {
+      "internalName": "CLRotaryAC5 Ammo",
+      "id": "clrotaryac5-ammo-registry"
+    },
+    {
+      "internalName": "CLTargeting Computer",
+      "id": "cltargeting-computer-registry"
+    },
+    {
+      "internalName": "CLWERPPC",
+      "id": "clwerppc-registry"
+    },
+    {
+      "internalName": "Camo System",
+      "id": "camo-system-registry"
+    },
+    {
+      "internalName": "Capellan Confederation Armor Kit (3050)",
+      "id": "capellan-confederation-armor-kit-3050-registry"
+    },
+    {
+      "internalName": "Capital Missile Launcher (AR10 Launcher)",
+      "id": "capital-missile-launcher-ar10-launcher-registry"
+    },
+    {
+      "internalName": "Capital Missile Launcher (Barracuda)",
+      "id": "capital-missile-launcher-barracuda-registry"
+    },
+    {
+      "internalName": "Capital Missile Launcher (Killer Whale)",
+      "id": "capital-missile-launcher-killer-whale-registry"
+    },
+    {
+      "internalName": "Capital Missile Launcher (White Shark)",
+      "id": "capital-missile-launcher-white-shark-registry"
+    },
+    {
+      "internalName": "Cargo",
+      "id": "cargo-registry"
+    },
+    {
+      "internalName": "Centurion Weapon System",
+      "id": "centurion-weapon-system-registry"
+    },
+    {
+      "internalName": "Ceres Arms Crowdbuster",
+      "id": "ceres-arms-crowdbuster-registry"
+    },
+    {
+      "internalName": "Clan Ammo LRM-10",
+      "id": "clan-ammo-lrm-10-registry"
+    },
+    {
+      "internalName": "Clan Ammo LRM-10 (Clan) Artemis V-capable",
+      "id": "clan-ammo-lrm-10-clan-artemis-v-capable-registry"
+    },
+    {
+      "internalName": "Clan Ammo LRM-10 (Clan) Artemis-capable",
+      "id": "clan-ammo-lrm-10-clan-artemis-capable-registry"
+    },
+    {
+      "internalName": "Clan Ammo LRM-15",
+      "id": "clan-ammo-lrm-15-registry"
+    },
+    {
+      "internalName": "Clan Ammo LRM-15 (Clan) Artemis V-capable",
+      "id": "clan-ammo-lrm-15-clan-artemis-v-capable-registry"
+    },
+    {
+      "internalName": "Clan Ammo LRM-15 (Clan) Artemis-capable",
+      "id": "clan-ammo-lrm-15-clan-artemis-capable-registry"
+    },
+    {
+      "internalName": "Clan Ammo LRM-20",
+      "id": "clan-ammo-lrm-20-registry"
+    },
+    {
+      "internalName": "Clan Ammo LRM-20 (Clan) Artemis V-capable",
+      "id": "clan-ammo-lrm-20-clan-artemis-v-capable-registry"
+    },
+    {
+      "internalName": "Clan Ammo LRM-20 (Clan) Artemis-capable",
+      "id": "clan-ammo-lrm-20-clan-artemis-capable-registry"
+    },
+    {
+      "internalName": "Clan Ammo LRM-5",
+      "id": "clan-ammo-lrm-5-registry"
+    },
+    {
+      "internalName": "Clan Ammo ProtoMech LRM-12",
+      "id": "clan-ammo-protomech-lrm-12-registry"
+    },
+    {
+      "internalName": "Clan Ammo ProtoMech LRM-2",
+      "id": "clan-ammo-protomech-lrm-2-registry"
+    },
+    {
+      "internalName": "Clan Ammo ProtoMech LRM-3",
+      "id": "clan-ammo-protomech-lrm-3-registry"
+    },
+    {
+      "internalName": "Clan Ammo ProtoMech LRM-4",
+      "id": "clan-ammo-protomech-lrm-4-registry"
+    },
+    {
+      "internalName": "Clan Ammo ProtoMech LRM-6",
+      "id": "clan-ammo-protomech-lrm-6-registry"
+    },
+    {
+      "internalName": "Clan Ammo SC Mortar-8",
+      "id": "clan-ammo-sc-mortar-8-registry"
+    },
+    {
+      "internalName": "Clan Ammo SRM-1",
+      "id": "clan-ammo-srm-1-registry"
+    },
+    {
+      "internalName": "Clan Ammo SRM-2",
+      "id": "clan-ammo-srm-2-registry"
+    },
+    {
+      "internalName": "Clan Ammo SRM-3",
+      "id": "clan-ammo-srm-3-registry"
+    },
+    {
+      "internalName": "Clan Ammo SRM-4",
+      "id": "clan-ammo-srm-4-registry"
+    },
+    {
+      "internalName": "Clan Ammo SRM-4 (Clan) Artemis-capable",
+      "id": "clan-ammo-srm-4-clan-artemis-capable-registry"
+    },
+    {
+      "internalName": "Clan Ammo SRM-5",
+      "id": "clan-ammo-srm-5-registry"
+    },
+    {
+      "internalName": "Clan Ammo SRM-6",
+      "id": "clan-ammo-srm-6-registry"
+    },
+    {
+      "internalName": "Clan Ammo SRM-6 (Clan) Artemis-capable",
+      "id": "clan-ammo-srm-6-clan-artemis-capable-registry"
+    },
+    {
+      "internalName": "Clan Ammo iATM-3",
+      "id": "clan-ammo-iatm-3-registry"
+    },
+    {
+      "internalName": "Clan Armor Kit (All)",
+      "id": "clan-armor-kit-all-registry"
+    },
+    {
+      "internalName": "Clan BA Fire Resistant",
+      "id": "clan-ba-fire-resistant-registry"
+    },
+    {
+      "internalName": "Clan BA Laser Reflective (Reflec/Glazed)",
+      "id": "clan-ba-laser-reflective-reflec-glazed-registry"
+    },
+    {
+      "internalName": "Clan BA Reactive (Blazer)",
+      "id": "clan-ba-reactive-blazer-registry"
+    },
+    {
+      "internalName": "Clan BA Stealth (Basic)",
+      "id": "clan-ba-stealth-basic-registry"
+    },
+    {
+      "internalName": "Clan BA Stealth (Improved)",
+      "id": "clan-ba-stealth-improved-registry"
+    },
+    {
+      "internalName": "Clan BA Stealth (Standard)",
+      "id": "clan-ba-stealth-standard-registry"
+    },
+    {
+      "internalName": "Clan Electric Discharge ProtoMech",
+      "id": "clan-electric-discharge-protomech"
+    },
+    {
+      "internalName": "Clan Ferro-Lamellor",
+      "id": "clan-ferro-lamellor-registry"
+    },
+    {
+      "internalName": "Clan LB 10-X Cluster Ammo",
+      "id": "clan-lb-10-x-cluster-ammo-registry"
+    },
+    {
+      "internalName": "Clan LB 2-X AC Ammo",
+      "id": "clan-lb-2-x-ac-ammo-registry"
+    },
+    {
+      "internalName": "Clan LB 20-X Cluster Ammo",
+      "id": "clan-lb-20-x-cluster-ammo-registry"
+    },
+    {
+      "internalName": "Clan Light Machine Gun Ammo - Proto",
+      "id": "clan-light-machine-gun-ammo-proto-registry"
+    },
+    {
+      "internalName": "Clan Machine Gun Ammo - Proto",
+      "id": "clan-machine-gun-ammo-proto-registry"
+    },
+    {
+      "internalName": "Clan Mech Mortar-8",
+      "id": "clan-mech-mortar-8-registry"
+    },
+    {
+      "internalName": "Clan ProtoMech AC/2 Ammo",
+      "id": "clan-protomech-ac-2-ammo-registry"
+    },
+    {
+      "internalName": "Clan Reflective",
+      "id": "clan-reflective-registry"
+    },
+    {
+      "internalName": "Clan Streak LRM 5 Ammo",
+      "id": "clan-streak-lrm-5-ammo-registry"
+    },
+    {
+      "internalName": "Clan Streak SRM 1 Ammo",
+      "id": "clan-streak-srm-1-ammo-registry"
+    },
+    {
+      "internalName": "Clan Streak SRM 2 Ammo",
+      "id": "clan-streak-srm-2-ammo-registry"
+    },
+    {
+      "internalName": "Clan Streak SRM 3 Ammo",
+      "id": "clan-streak-srm-3-ammo-registry"
+    },
+    {
+      "internalName": "Clan Streak SRM 4 Ammo",
+      "id": "clan-streak-srm-4-ammo-registry"
+    },
+    {
+      "internalName": "Clan Streak SRM 5 Ammo",
+      "id": "clan-streak-srm-5-ammo-registry"
+    },
+    {
+      "internalName": "Clan Streak SRM 6 Ammo",
+      "id": "clan-streak-srm-6-ammo-registry"
+    },
+    {
+      "internalName": "Clan Ultra AC/10 Ammo",
+      "id": "clan-ultra-ac-10-ammo-registry"
+    },
+    {
+      "internalName": "Clan Ultra AC/2 Ammo",
+      "id": "clan-ultra-ac-2-ammo-registry"
+    },
+    {
+      "internalName": "Clan Ultra AC/20 Ammo",
+      "id": "clan-ultra-ac-20-ammo-registry"
+    },
+    {
+      "internalName": "Clan Ultra AC/5 Ammo",
+      "id": "clan-ultra-ac-5-ammo-registry"
+    },
+    {
+      "internalName": "Clothing, Fatigues/Civilian/Non-Armored",
+      "id": "clothing-fatigues-civilian-non-armored-registry"
+    },
+    {
+      "internalName": "Clothing, Leather/Synthetic Hide",
+      "id": "clothing-leather-synthetic-hide-registry"
+    },
+    {
+      "internalName": "Clothing, Light (e.g. Summer Wear/None)",
+      "id": "clothing-light-e-g-summer-wear-none-registry"
+    },
+    {
+      "internalName": "ComStar Infantry Kit",
+      "id": "comstar-infantry-kit-registry"
+    },
+    {
+      "internalName": "Coolant Pod",
+      "id": "coolant-pod-registry"
+    },
+    {
+      "internalName": "DEST Infiltration Suit",
+      "id": "dest-infiltration-suit-registry"
+    },
+    {
+      "internalName": "Draconis Combine Infantry Kit",
+      "id": "draconis-combine-infantry-kit-registry"
+    },
+    {
+      "internalName": "EIInterface",
+      "id": "eiinterface-registry"
+    },
+    {
+      "internalName": "Elephant Gun",
+      "id": "elephant-gun-registry"
+    },
+    {
+      "internalName": "Engineering Suit",
+      "id": "engineering-suit-registry"
+    },
+    {
+      "internalName": "Environment Suit, Hostile",
+      "id": "environment-suit-hostile-registry"
+    },
+    {
+      "internalName": "Environment Suit, Light",
+      "id": "environment-suit-light-registry"
+    },
+    {
+      "internalName": "Environment Suit, Marine",
+      "id": "environment-suit-marine-registry"
+    },
+    {
+      "internalName": "Environmental Sealed Chassis",
+      "id": "environmental-sealed-chassis-registry"
+    },
+    {
+      "internalName": "External Stores Hardpoint",
+      "id": "external-stores-hardpoint-registry"
+    },
+    {
+      "internalName": "Fed Suns Infantry Kit (3067+)",
+      "id": "fed-suns-infantry-kit-3067-registry"
+    },
+    {
+      "internalName": "Fed Suns/Fed Commonwealth Infantry Kit (3030-3066)",
+      "id": "fed-suns-fed-commonwealth-infantry-kit-3030-3066-registry"
+    },
+    {
+      "internalName": "Federated Suns Infantry Kit",
+      "id": "federated-suns-infantry-kit-registry"
+    },
+    {
+      "internalName": "Fire Extinguisher",
+      "id": "fire-extinguisher-registry"
+    },
+    {
+      "internalName": "Flak, Concealed",
+      "id": "flak-concealed-registry"
+    },
+    {
+      "internalName": "Flak, Standard",
+      "id": "flak-standard-registry"
+    },
+    {
+      "internalName": "Flamer (Heavy)",
+      "id": "flamer-heavy-registry"
+    },
+    {
+      "internalName": "Flamer (Man-Portable)",
+      "id": "flamer-man-portable-registry"
+    },
+    {
+      "internalName": "Free Rasalhague Republic Infantry Kit",
+      "id": "free-rasalhague-republic-infantry-kit-registry"
+    },
+    {
+      "internalName": "Free Worlds League Infantry Kit",
+      "id": "free-worlds-league-infantry-kit-registry"
+    },
+    {
+      "internalName": "Free Worlds League Infantry Kit (3035+)",
+      "id": "free-worlds-league-infantry-kit-3035-registry"
+    },
+    {
+      "internalName": "Fusillade",
+      "id": "fusillade-registry"
+    },
+    {
+      "internalName": "Gauss Cannon (Grand Mauler)",
+      "id": "gauss-cannon-grand-mauler-registry"
+    },
+    {
+      "internalName": "Gauss Rifle (Gungnir Heavy Support)",
+      "id": "gauss-rifle-gungnir-heavy-support-registry"
+    },
+    {
+      "internalName": "Gauss Rifle (Thunderstroke II)",
+      "id": "gauss-rifle-thunderstroke-ii-registry"
+    },
+    {
+      "internalName": "Gauss Rifle (Thunderstroke)",
+      "id": "gauss-rifle-thunderstroke-registry"
+    },
+    {
+      "internalName": "Gauss Rifle (Tsunami Heavy)",
+      "id": "gauss-rifle-tsunami-heavy-registry"
+    },
+    {
+      "internalName": "Gauss Rifle, Light (David)",
+      "id": "gauss-rifle-light-david-registry"
+    },
+    {
+      "internalName": "Gauss Rifle, Light (King David)",
+      "id": "gauss-rifle-light-king-david-registry"
+    },
+    {
+      "internalName": "Gauss Submachine Gun",
+      "id": "gauss-submachine-gun-registry"
+    },
+    {
+      "internalName": "Generic Infantry Kit",
+      "id": "generic-infantry-kit-registry"
+    },
+    {
+      "internalName": "Grenade Launcher",
+      "id": "grenade-launcher-registry"
+    },
+    {
+      "internalName": "Grenade Launcher (Compact)",
+      "id": "grenade-launcher-compact-registry"
+    },
+    {
+      "internalName": "Gyrojet Rifle",
+      "id": "gyrojet-rifle-registry"
+    },
+    {
+      "internalName": "Gyroslug Rifle",
+      "id": "gyroslug-rifle-registry"
+    },
+    {
+      "internalName": "Heat Suit",
+      "id": "heat-suit-registry"
+    },
+    {
+      "internalName": "Hyper-Assault Gauss Rifle/20 Ammo",
+      "id": "hyper-assault-gauss-rifle-20-ammo-registry"
+    },
+    {
+      "internalName": "Hyper-Assault Gauss Rifle/30 Ammo",
+      "id": "hyper-assault-gauss-rifle-30-ammo-registry"
+    },
+    {
+      "internalName": "Hyper-Assault Gauss Rifle/40 Ammo",
+      "id": "hyper-assault-gauss-rifle-40-ammo-registry"
+    },
+    {
+      "internalName": "IS Ammo HVAC/10",
+      "id": "is-ammo-hvac-10-registry"
+    },
+    {
+      "internalName": "IS Ammo HVAC/2",
+      "id": "is-ammo-hvac-2-registry"
+    },
+    {
+      "internalName": "IS Ammo HVAC/5",
+      "id": "is-ammo-hvac-5-registry"
+    },
+    {
+      "internalName": "IS Ammo Heavy Rifle",
+      "id": "is-ammo-heavy-rifle-registry"
+    },
+    {
+      "internalName": "IS Ammo LRM-10 Artemis-capable",
+      "id": "is-ammo-lrm-10-artemis-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo LRM-10 Narc-capable",
+      "id": "is-ammo-lrm-10-narc-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo LRM-15 Artemis-capable",
+      "id": "is-ammo-lrm-15-artemis-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo LRM-20 Artemis-capable",
+      "id": "is-ammo-lrm-20-artemis-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo LRM-5 Artemis-capable",
+      "id": "is-ammo-lrm-5-artemis-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo Light Rifle",
+      "id": "is-ammo-light-rifle-registry"
+    },
+    {
+      "internalName": "IS Ammo MML-3 LRM",
+      "id": "is-ammo-mml-3-lrm-registry"
+    },
+    {
+      "internalName": "IS Ammo MML-3 SRM",
+      "id": "is-ammo-mml-3-srm-registry"
+    },
+    {
+      "internalName": "IS Ammo MML-5 LRM",
+      "id": "is-ammo-mml-5-lrm-registry"
+    },
+    {
+      "internalName": "IS Ammo MML-5 LRM Artemis-capable",
+      "id": "is-ammo-mml-5-lrm-artemis-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo MML-5 SRM",
+      "id": "is-ammo-mml-5-srm-registry"
+    },
+    {
+      "internalName": "IS Ammo MML-5 SRM Artemis-capable",
+      "id": "is-ammo-mml-5-srm-artemis-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo MML-7 LRM",
+      "id": "is-ammo-mml-7-lrm-registry"
+    },
+    {
+      "internalName": "IS Ammo MML-7 LRM Artemis-capable",
+      "id": "is-ammo-mml-7-lrm-artemis-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo MML-7 LRM Narc-capable",
+      "id": "is-ammo-mml-7-lrm-narc-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo MML-7 SRM",
+      "id": "is-ammo-mml-7-srm-registry"
+    },
+    {
+      "internalName": "IS Ammo MML-7 SRM Artemis-capable",
+      "id": "is-ammo-mml-7-srm-artemis-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo MML-7 SRM Narc-capable",
+      "id": "is-ammo-mml-7-srm-narc-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo MML-9 LRM",
+      "id": "is-ammo-mml-9-lrm-registry"
+    },
+    {
+      "internalName": "IS Ammo MML-9 LRM Artemis-capable",
+      "id": "is-ammo-mml-9-lrm-artemis-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo MML-9 SRM",
+      "id": "is-ammo-mml-9-srm-registry"
+    },
+    {
+      "internalName": "IS Ammo MML-9 SRM Artemis-capable",
+      "id": "is-ammo-mml-9-srm-artemis-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo Medium Rifle",
+      "id": "is-ammo-medium-rifle-registry"
+    },
+    {
+      "internalName": "IS Ammo SC Mortar-1",
+      "id": "is-ammo-sc-mortar-1-registry"
+    },
+    {
+      "internalName": "IS Ammo SC Mortar-2",
+      "id": "is-ammo-sc-mortar-2-registry"
+    },
+    {
+      "internalName": "IS Ammo SC Mortar-8",
+      "id": "is-ammo-sc-mortar-8-registry"
+    },
+    {
+      "internalName": "IS Ammo SRM-2 Narc-capable",
+      "id": "is-ammo-srm-2-narc-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo SRM-4 Artemis-capable",
+      "id": "is-ammo-srm-4-artemis-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo SRM-4 Narc-capable",
+      "id": "is-ammo-srm-4-narc-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo SRM-6 Artemis-capable",
+      "id": "is-ammo-srm-6-artemis-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo SRM-6 Narc-capable",
+      "id": "is-ammo-srm-6-narc-capable-registry"
+    },
+    {
+      "internalName": "IS Ammo Thunderbolt-10",
+      "id": "is-ammo-thunderbolt-10-registry"
+    },
+    {
+      "internalName": "IS Ammo Thunderbolt-15",
+      "id": "is-ammo-thunderbolt-15-registry"
+    },
+    {
+      "internalName": "IS Ammo Thunderbolt-20",
+      "id": "is-ammo-thunderbolt-20-registry"
+    },
+    {
+      "internalName": "IS Ammo Thunderbolt-5",
+      "id": "is-ammo-thunderbolt-5-registry"
+    },
+    {
+      "internalName": "IS BA Advanced",
+      "id": "is-ba-advanced-registry"
+    },
+    {
+      "internalName": "IS BA ECM",
+      "id": "is-ba-ecm-registry"
+    },
+    {
+      "internalName": "IS BA Laser Reflective (Reflec/Glazed)",
+      "id": "is-ba-laser-reflective-reflec-glazed-registry"
+    },
+    {
+      "internalName": "IS BA Mimetic",
+      "id": "is-ba-mimetic-registry"
+    },
+    {
+      "internalName": "IS BA Reactive (Blazer)",
+      "id": "is-ba-reactive-blazer-registry"
+    },
+    {
+      "internalName": "IS BA Stealth (Basic)",
+      "id": "is-ba-stealth-basic-registry"
+    },
+    {
+      "internalName": "IS BA Stealth (Improved)",
+      "id": "is-ba-stealth-improved-registry"
+    },
+    {
+      "internalName": "IS BA Stealth (Prototype)",
+      "id": "is-ba-stealth-prototype-registry"
+    },
+    {
+      "internalName": "IS BA Stealth (Standard)",
+      "id": "is-ba-stealth-standard-registry"
+    },
+    {
+      "internalName": "IS Heavy Flamer Ammo",
+      "id": "is-heavy-flamer-ammo-registry"
+    },
+    {
+      "internalName": "IS LB 2-X AC Ammo",
+      "id": "is-lb-2-x-ac-ammo-registry"
+    },
+    {
+      "internalName": "IS LB 2-X Cluster Ammo",
+      "id": "is-lb-2-x-cluster-ammo-registry"
+    },
+    {
+      "internalName": "IS LB 5-X AC Ammo",
+      "id": "is-lb-5-x-ac-ammo-registry"
+    },
+    {
+      "internalName": "IS LB 5-X Cluster Ammo",
+      "id": "is-lb-5-x-cluster-ammo-registry"
+    },
+    {
+      "internalName": "IS Mech Mortar-1",
+      "id": "is-mech-mortar-1-registry"
+    },
+    {
+      "internalName": "IS Mech Mortar-2",
+      "id": "is-mech-mortar-2-registry"
+    },
+    {
+      "internalName": "IS Reflective",
+      "id": "is-reflective-registry"
+    },
+    {
+      "internalName": "IS Streak SRM 2 Ammo",
+      "id": "is-streak-srm-2-ammo-registry"
+    },
+    {
+      "internalName": "IS Streak SRM 4 Ammo",
+      "id": "is-streak-srm-4-ammo-registry"
+    },
+    {
+      "internalName": "IS Streak SRM 6 Ammo",
+      "id": "is-streak-srm-6-ammo-registry"
+    },
+    {
+      "internalName": "IS Vehicle Flamer Ammo",
+      "id": "is-vehicle-flamer-ammo-registry"
+    },
+    {
+      "internalName": "IS Vehicular Stealth",
+      "id": "is-vehicular-stealth-registry"
+    },
+    {
+      "internalName": "ISAPDS Ammo",
+      "id": "isapds-ammo-registry"
+    },
+    {
+      "internalName": "ISArrowIVClusterAmmo",
+      "id": "isarrowivclusterammo-registry"
+    },
+    {
+      "internalName": "ISArrowIVHomingAmmo",
+      "id": "isarrowivhomingammo-registry"
+    },
+    {
+      "internalName": "ISBAAPDS",
+      "id": "isbaapds-registry"
+    },
+    {
+      "internalName": "ISBAERMediumLaser",
+      "id": "isbaermediumlaser-registry"
+    },
+    {
+      "internalName": "ISBAERSmallLaser",
+      "id": "isbaersmalllaser-registry"
+    },
+    {
+      "internalName": "ISBAFireDrakeNeedler",
+      "id": "isbafiredrakeneedler-registry"
+    },
+    {
+      "internalName": "ISBAHeavyMachineGun",
+      "id": "isbaheavymachinegun-registry"
+    },
+    {
+      "internalName": "ISBALRM5",
+      "id": "isbalrm5-registry"
+    },
+    {
+      "internalName": "ISBAMediumLaser",
+      "id": "isbamediumlaser-registry"
+    },
+    {
+      "internalName": "ISBAMediumPulseLaser",
+      "id": "isbamediumpulselaser-registry"
+    },
+    {
+      "internalName": "ISBAMediumVSPLaser",
+      "id": "isbamediumvsplaser-registry"
+    },
+    {
+      "internalName": "ISBAMicroGrenadeLauncher",
+      "id": "isbamicrogrenadelauncher-registry"
+    },
+    {
+      "internalName": "ISBAPlasmaRifle",
+      "id": "isbaplasmarifle-registry"
+    },
+    {
+      "internalName": "ISBARL1",
+      "id": "isbarl1-registry"
+    },
+    {
+      "internalName": "ISBARL2",
+      "id": "isbarl2-registry"
+    },
+    {
+      "internalName": "ISBARL4",
+      "id": "isbarl4-registry"
+    },
+    {
+      "internalName": "ISBARL5",
+      "id": "isbarl5-registry"
+    },
+    {
+      "internalName": "ISBARemoteSensorDispenser",
+      "id": "isbaremotesensordispenser-registry"
+    },
+    {
+      "internalName": "ISBASRM2",
+      "id": "isbasrm2-registry"
+    },
+    {
+      "internalName": "ISBASRM2OS",
+      "id": "isbasrm2os-registry"
+    },
+    {
+      "internalName": "ISBASRM3OS",
+      "id": "isbasrm3os-registry"
+    },
+    {
+      "internalName": "ISBASRM4",
+      "id": "isbasrm4-registry"
+    },
+    {
+      "internalName": "ISBASRM4OS",
+      "id": "isbasrm4os-registry"
+    },
+    {
+      "internalName": "ISBASRM6OS",
+      "id": "isbasrm6os-registry"
+    },
+    {
+      "internalName": "ISBASmallLaser",
+      "id": "isbasmalllaser-registry"
+    },
+    {
+      "internalName": "ISBASmallPulseLaser",
+      "id": "isbasmallpulselaser-registry"
+    },
+    {
+      "internalName": "ISBASupportPPC",
+      "id": "isbasupportppc-registry"
+    },
+    {
+      "internalName": "ISBATaser",
+      "id": "isbataser-registry"
+    },
+    {
+      "internalName": "ISBATubeArtillery",
+      "id": "isbatubeartillery-registry"
+    },
+    {
+      "internalName": "ISBATubeArtilleryAmmo",
+      "id": "isbatubeartilleryammo-registry"
+    },
+    {
+      "internalName": "ISBPod",
+      "id": "isbpod-registry"
+    },
+    {
+      "internalName": "ISC3Sensors",
+      "id": "isc3sensors-registry"
+    },
+    {
+      "internalName": "ISCruiseMissile120Ammo",
+      "id": "iscruisemissile120ammo-registry"
+    },
+    {
+      "internalName": "ISCruiseMissile50Ammo",
+      "id": "iscruisemissile50ammo-registry"
+    },
+    {
+      "internalName": "ISCruiseMissile70Ammo",
+      "id": "iscruisemissile70ammo-registry"
+    },
+    {
+      "internalName": "ISEnhancedLRM20 Ammo Artemis-capable",
+      "id": "isenhancedlrm20-ammo-artemis-capable-registry"
+    },
+    {
+      "internalName": "ISLongTom",
+      "id": "islongtom-registry"
+    },
+    {
+      "internalName": "ISLongTomCannon",
+      "id": "islongtomcannon-registry"
+    },
+    {
+      "internalName": "ISMagshotGR Ammo",
+      "id": "ismagshotgr-ammo-registry"
+    },
+    {
+      "internalName": "ISRISCHyperLaser",
+      "id": "isrischyperlaser-registry"
+    },
+    {
+      "internalName": "ISSRM2IOS",
+      "id": "issrm2ios-registry"
+    },
+    {
+      "internalName": "ISSRM4IOS",
+      "id": "issrm4ios-registry"
+    },
+    {
+      "internalName": "ISSRM4OS",
+      "id": "issrm4os-registry"
+    },
+    {
+      "internalName": "ISSRM6OS",
+      "id": "issrm6os-registry"
+    },
+    {
+      "internalName": "ISSRT2OS",
+      "id": "issrt2os-registry"
+    },
+    {
+      "internalName": "ISSniper",
+      "id": "issniper-registry"
+    },
+    {
+      "internalName": "ISTargeting Computer",
+      "id": "istargeting-computer-registry"
+    },
+    {
+      "internalName": "ISThumper",
+      "id": "isthumper-registry"
+    },
+    {
+      "internalName": "ISUltraAC5Prototype",
+      "id": "isultraac5prototype-registry"
+    },
+    {
+      "internalName": "ImprovedLargePulseLaser",
+      "id": "improvedlargepulselaser-registry"
+    },
+    {
+      "internalName": "InfantryAssaultRifle",
+      "id": "infantryassaultrifle-registry"
+    },
+    {
+      "internalName": "InfantryAutoGL",
+      "id": "infantryautogl-registry"
+    },
+    {
+      "internalName": "InfantryAutoGLInferno",
+      "id": "infantryautoglinferno-registry"
+    },
+    {
+      "internalName": "InfantryFederatedBarrettM42B",
+      "id": "infantryfederatedbarrettm42b-registry"
+    },
+    {
+      "internalName": "InfantryFederatedBarrettM61A",
+      "id": "infantryfederatedbarrettm61a-registry"
+    },
+    {
+      "internalName": "InfantryHRR",
+      "id": "infantryhrr-registry"
+    },
+    {
+      "internalName": "InfantryHeavyGrenadeLauncher",
+      "id": "infantryheavygrenadelauncher-registry"
+    },
+    {
+      "internalName": "InfantryHeavyGrenadeLauncherInferno",
+      "id": "infantryheavygrenadelauncherinferno-registry"
+    },
+    {
+      "internalName": "InfantryHeavyMortar",
+      "id": "infantryheavymortar-registry"
+    },
+    {
+      "internalName": "InfantryHeavySRM",
+      "id": "infantryheavysrm-registry"
+    },
+    {
+      "internalName": "InfantryLRM",
+      "id": "infantrylrm-registry"
+    },
+    {
+      "internalName": "InfantryLRR",
+      "id": "infantrylrr-registry"
+    },
+    {
+      "internalName": "InfantryLightMortar",
+      "id": "infantrylightmortar-registry"
+    },
+    {
+      "internalName": "InfantryMRR",
+      "id": "infantrymrr-registry"
+    },
+    {
+      "internalName": "InfantryMiniGrenadeInferno",
+      "id": "infantryminigrenadeinferno-registry"
+    },
+    {
+      "internalName": "InfantryOneShotMRM",
+      "id": "infantryoneshotmrm-registry"
+    },
+    {
+      "internalName": "InfantrySRMLight",
+      "id": "infantrysrmlight-registry"
+    },
+    {
+      "internalName": "InfantryStandardSRM",
+      "id": "infantrystandardsrm-registry"
+    },
+    {
+      "internalName": "InfantryTAG",
+      "id": "infantrytag-registry"
+    },
+    {
+      "internalName": "Laser (Hellbore Assault)",
+      "id": "laser-hellbore-assault-registry"
+    },
+    {
+      "internalName": "Laser Pistol (Blazer)",
+      "id": "laser-pistol-blazer-registry"
+    },
+    {
+      "internalName": "Laser Pistol (Sunbeam)",
+      "id": "laser-pistol-sunbeam-registry"
+    },
+    {
+      "internalName": "Laser Rifle",
+      "id": "laser-rifle-registry"
+    },
+    {
+      "internalName": "Laser Rifle (Blazer)",
+      "id": "laser-rifle-blazer-registry"
+    },
+    {
+      "internalName": "Laser Rifle (ER [Sunbeam Starfire])",
+      "id": "laser-rifle-er-sunbeam-starfire-registry"
+    },
+    {
+      "internalName": "Laser Rifle (ER)",
+      "id": "laser-rifle-er-registry"
+    },
+    {
+      "internalName": "Laser Rifle (Ebony Assault)",
+      "id": "laser-rifle-ebony-assault-registry"
+    },
+    {
+      "internalName": "Laser Rifle (Intek)",
+      "id": "laser-rifle-intek-registry"
+    },
+    {
+      "internalName": "Laser Rifle (Magna)",
+      "id": "laser-rifle-magna-registry"
+    },
+    {
+      "internalName": "Laser Rifle (Marx XX)",
+      "id": "laser-rifle-marx-xx-registry"
+    },
+    {
+      "internalName": "Laser Rifle (Mauser 1200 LSS)",
+      "id": "laser-rifle-mauser-1200-lss-registry"
+    },
+    {
+      "internalName": "Laser Rifle (Mauser 960)",
+      "id": "laser-rifle-mauser-960-registry"
+    },
+    {
+      "internalName": "Laser Rifle (Mauser IIC IAS)",
+      "id": "laser-rifle-mauser-iic-ias-registry"
+    },
+    {
+      "internalName": "Laser Rifle (Maxell PL-10)",
+      "id": "laser-rifle-maxell-pl-10-registry"
+    },
+    {
+      "internalName": "Light Blazer",
+      "id": "light-blazer-registry"
+    },
+    {
+      "internalName": "Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit",
+      "id": "lyran-alliance-lyran-commonwealth-3060-infantry-kit-registry"
+    },
+    {
+      "internalName": "Lyran Commonwealth Infantry Kit",
+      "id": "lyran-commonwealth-infantry-kit-registry"
+    },
+    {
+      "internalName": "Machine Gun (Portable)",
+      "id": "machine-gun-portable-registry"
+    },
+    {
+      "internalName": "Machine Gun (Semi-Portable)",
+      "id": "machine-gun-semi-portable-registry"
+    },
+    {
+      "internalName": "Machine Gun (Support)",
+      "id": "machine-gun-support-registry"
+    },
+    {
+      "internalName": "Magistracy of Canopus Infantry Kit",
+      "id": "magistracy-of-canopus-infantry-kit-registry"
+    },
+    {
+      "internalName": "Marian Hegemony Infantry Kit",
+      "id": "marian-hegemony-infantry-kit-registry"
+    },
+    {
+      "internalName": "Mass Driver (Heavy)",
+      "id": "mass-driver-heavy-registry"
+    },
+    {
+      "internalName": "Mass Driver (Light)",
+      "id": "mass-driver-light-registry"
+    },
+    {
+      "internalName": "Mass Driver (Medium)",
+      "id": "mass-driver-medium-registry"
+    },
+    {
+      "internalName": "MechWarrior Combat Suit",
+      "id": "mechwarrior-combat-suit-registry"
+    },
+    {
+      "internalName": "MechWarrior Cooling Suit",
+      "id": "mechwarrior-cooling-suit-registry"
+    },
+    {
+      "internalName": "MechWarrior Cooling Vest (Only)",
+      "id": "mechwarrior-cooling-vest-only-registry"
+    },
+    {
+      "internalName": "MekWarrior Kit (Advanced)",
+      "id": "mekwarrior-kit-advanced-registry"
+    },
+    {
+      "internalName": "MekWarrior Kit (Basic)",
+      "id": "mekwarrior-kit-basic-registry"
+    },
+    {
+      "internalName": "MekWarrior Kit (Clan)",
+      "id": "mekwarrior-kit-clan-registry"
+    },
+    {
+      "internalName": "Myomer, Suit",
+      "id": "myomer-suit-registry"
+    },
+    {
+      "internalName": "Myomer, Vest",
+      "id": "myomer-vest-registry"
+    },
+    {
+      "internalName": "Nail/Rivet Gun",
+      "id": "nail-rivet-gun-registry"
+    },
+    {
+      "internalName": "Naval Autocannon (NAC/10)",
+      "id": "naval-autocannon-nac-10-registry"
+    },
+    {
+      "internalName": "Naval Autocannon (NAC/20)",
+      "id": "naval-autocannon-nac-20-registry"
+    },
+    {
+      "internalName": "Naval Autocannon (NAC/25)",
+      "id": "naval-autocannon-nac-25-registry"
+    },
+    {
+      "internalName": "Naval Autocannon (NAC/30)",
+      "id": "naval-autocannon-nac-30-registry"
+    },
+    {
+      "internalName": "Naval Autocannon (NAC/35)",
+      "id": "naval-autocannon-nac-35-registry"
+    },
+    {
+      "internalName": "Naval Autocannon (NAC/40)",
+      "id": "naval-autocannon-nac-40-registry"
+    },
+    {
+      "internalName": "Naval Laser 35",
+      "id": "naval-laser-35-registry"
+    },
+    {
+      "internalName": "Naval Laser 45",
+      "id": "naval-laser-45-registry"
+    },
+    {
+      "internalName": "Naval Laser 55",
+      "id": "naval-laser-55-registry"
+    },
+    {
+      "internalName": "Naval PPC (Heavy)",
+      "id": "naval-ppc-heavy-registry"
+    },
+    {
+      "internalName": "Naval PPC (Light)",
+      "id": "naval-ppc-light-registry"
+    },
+    {
+      "internalName": "Naval PPC (Medium)",
+      "id": "naval-ppc-medium-registry"
+    },
+    {
+      "internalName": "Needler Pistol",
+      "id": "needler-pistol-registry"
+    },
+    {
+      "internalName": "Needler Rifle",
+      "id": "needler-rifle-registry"
+    },
+    {
+      "internalName": "Needler Rifle (M&G Flechette)",
+      "id": "needler-rifle-m-g-flechette-registry"
+    },
+    {
+      "internalName": "Needler Rifle (Shredder Heavy)",
+      "id": "needler-rifle-shredder-heavy-registry"
+    },
+    {
+      "internalName": "Needler, Support (Firedrake)",
+      "id": "needler-support-firedrake-registry"
+    },
+    {
+      "internalName": "Neo-Chainmail",
+      "id": "neo-chainmail-registry"
+    },
+    {
+      "internalName": "Parka",
+      "id": "parka-registry"
+    },
+    {
+      "internalName": "Particle Cannon (Semi-Portable)",
+      "id": "particle-cannon-semi-portable-registry"
+    },
+    {
+      "internalName": "Particle Cannon (Support)",
+      "id": "particle-cannon-support-registry"
+    },
+    {
+      "internalName": "Pistol (Sternsnacht Heavy [Claymore])",
+      "id": "pistol-sternsnacht-heavy-claymore-registry"
+    },
+    {
+      "internalName": "Plasma Rifle (Man-Portable)",
+      "id": "plasma-rifle-man-portable-registry"
+    },
+    {
+      "internalName": "ProtoMechJumpJet",
+      "id": "protomechjumpjet-registry"
+    },
+    {
+      "internalName": "Pulse Laser Rifle (Inner Sphere)",
+      "id": "pulse-laser-rifle-inner-sphere-registry"
+    },
+    {
+      "internalName": "Rifle (Bolt-Action)",
+      "id": "rifle-bolt-action-registry"
+    },
+    {
+      "internalName": "Rifle (Federated Long)",
+      "id": "rifle-federated-long-registry"
+    },
+    {
+      "internalName": "Rifle (Imperator AX-22 Assault)",
+      "id": "rifle-imperator-ax-22-assault-registry"
+    },
+    {
+      "internalName": "Rifle (M&G G-150)",
+      "id": "rifle-m-g-g-150-registry"
+    },
+    {
+      "internalName": "Rifle (Makeshift)",
+      "id": "rifle-makeshift-registry"
+    },
+    {
+      "internalName": "Rifle (Striker Carbine)",
+      "id": "rifle-striker-carbine-registry"
+    },
+    {
+      "internalName": "Rifle (TK Assault)",
+      "id": "rifle-tk-assault-registry"
+    },
+    {
+      "internalName": "Rifle (Zeus Heavy)",
+      "id": "rifle-zeus-heavy-registry"
+    },
+    {
+      "internalName": "Rocket Launcher (V-LAW)",
+      "id": "rocket-launcher-v-law-registry"
+    },
+    {
+      "internalName": "RocketLauncher20Prototype",
+      "id": "rocketlauncher20prototype-registry"
+    },
+    {
+      "internalName": "SLDF Infantry Kit",
+      "id": "sldf-infantry-kit-registry"
+    },
+    {
+      "internalName": "SMG (Gunther MP-20)",
+      "id": "smg-gunther-mp-20-registry"
+    },
+    {
+      "internalName": "Screen Launcher",
+      "id": "screen-launcher-registry"
+    },
+    {
+      "internalName": "Shotgun (Avenger CCW)",
+      "id": "shotgun-avenger-ccw-registry"
+    },
+    {
+      "internalName": "Shotgun (Combat)",
+      "id": "shotgun-combat-registry"
+    },
+    {
+      "internalName": "Sneak Suit (Camo)",
+      "id": "sneak-suit-camo-registry"
+    },
+    {
+      "internalName": "Sneak Suit (Camo/ECM)",
+      "id": "sneak-suit-camo-ecm-registry"
+    },
+    {
+      "internalName": "Sneak Suit (Camo/IR)",
+      "id": "sneak-suit-camo-ir-registry"
+    },
+    {
+      "internalName": "Sneak Suit (Camo/IR/ECM)",
+      "id": "sneak-suit-camo-ir-ecm-registry"
+    },
+    {
+      "internalName": "Sneak Suit (ECM)",
+      "id": "sneak-suit-ecm-registry"
+    },
+    {
+      "internalName": "Sneak Suit (IR)",
+      "id": "sneak-suit-ir-registry"
+    },
+    {
+      "internalName": "Sneak Suit (IR/ECM)",
+      "id": "sneak-suit-ir-ecm-registry"
+    },
+    {
+      "internalName": "Sniper Rifle (Bolt Action)",
+      "id": "sniper-rifle-bolt-action-registry"
+    },
+    {
+      "internalName": "Sniper Rifle (Minolta 9000 Advanced Sniper System)",
+      "id": "sniper-rifle-minolta-9000-advanced-sniper-system-registry"
+    },
+    {
+      "internalName": "Snowsuit",
+      "id": "snowsuit-registry"
+    },
+    {
+      "internalName": "Sonic Stunner",
+      "id": "sonic-stunner-registry"
+    },
+    {
+      "internalName": "Spacesuit",
+      "id": "spacesuit-registry"
+    },
+    {
+      "internalName": "Spacesuit, Combat",
+      "id": "spacesuit-combat-registry"
+    },
+    {
+      "internalName": "Stunstick",
+      "id": "stunstick-registry"
+    },
+    {
+      "internalName": "Sub-Capital Cannon (Heavy)",
+      "id": "sub-capital-cannon-heavy-registry"
+    },
+    {
+      "internalName": "Sub-Capital Cannon (Light)",
+      "id": "sub-capital-cannon-light-registry"
+    },
+    {
+      "internalName": "Sub-Capital Cannon (Medium)",
+      "id": "sub-capital-cannon-medium-registry"
+    },
+    {
+      "internalName": "Sub-Capital Laser /1",
+      "id": "sub-capital-laser-1-registry"
+    },
+    {
+      "internalName": "Sub-Capital Laser /2",
+      "id": "sub-capital-laser-2-registry"
+    },
+    {
+      "internalName": "Sub-Capital Laser /3",
+      "id": "sub-capital-laser-3-registry"
+    },
+    {
+      "internalName": "Sub-Capital Missile Launcher (Manta Ray)",
+      "id": "sub-capital-missile-launcher-manta-ray-registry"
+    },
+    {
+      "internalName": "Sub-Capital Missile Launcher (Piranha)",
+      "id": "sub-capital-missile-launcher-piranha-registry"
+    },
+    {
+      "internalName": "Sub-Capital Missile Launcher (Stingray)",
+      "id": "sub-capital-missile-launcher-stingray-registry"
+    },
+    {
+      "internalName": "Sub-Capital Missile Launcher (Swordfish)",
+      "id": "sub-capital-missile-launcher-swordfish-registry"
+    },
+    {
+      "internalName": "Submachine Gun",
+      "id": "submachine-gun-registry"
+    },
+    {
+      "internalName": "Support Laser",
+      "id": "support-laser-registry"
+    },
+    {
+      "internalName": "Support Laser (ER Heavy, Clan)",
+      "id": "support-laser-er-heavy-clan-registry"
+    },
+    {
+      "internalName": "Support Laser (ER, IS)",
+      "id": "support-laser-er-is-registry"
+    },
+    {
+      "internalName": "Support Laser (ER, Semi-Portable)",
+      "id": "support-laser-er-semi-portable-registry"
+    },
+    {
+      "internalName": "Support Laser (Heavy)",
+      "id": "support-laser-heavy-registry"
+    },
+    {
+      "internalName": "Support Laser (Semi-Portable)",
+      "id": "support-laser-semi-portable-registry"
+    },
+    {
+      "internalName": "Support PPC (Snub-Nose)",
+      "id": "support-ppc-snub-nose-registry"
+    },
+    {
+      "internalName": "Support Pulse Laser",
+      "id": "support-pulse-laser-registry"
+    },
+    {
+      "internalName": "TSEMP Repeating Cannon",
+      "id": "tsemp-repeating-cannon-registry"
+    },
+    {
+      "internalName": "Tanker's Smock",
+      "id": "tanker-s-smock-registry"
+    },
+    {
+      "internalName": "Taser Ammo",
+      "id": "taser-ammo-registry"
+    },
+    {
+      "internalName": "Taurian Concordat/Calderon Infantry Kit",
+      "id": "taurian-concordat-calderon-infantry-kit-registry"
+    },
+    {
+      "internalName": "Tele-operated Missile (Killer Whale-T)",
+      "id": "tele-operated-missile-killer-whale-t-registry"
+    },
+    {
+      "internalName": "Tele-operated Missile (Kraken T)",
+      "id": "tele-operated-missile-kraken-t-registry"
+    },
+    {
+      "internalName": "Tranq Gun",
+      "id": "tranq-gun-registry"
+    },
+    {
+      "internalName": "VehicleJumpJet",
+      "id": "vehiclejumpjet"
+    },
+    {
+      "internalName": "Wire-Guided Missile Launcher",
+      "id": "wire-guided-missile-launcher-registry"
+    },
+    {
+      "internalName": "Word of Blake Infantry Kit",
+      "id": "word-of-blake-infantry-kit-registry"
+    }
+  ]
+}

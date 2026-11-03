@@ -108,17 +108,94 @@ describe('converted vehicle and aerospace equipment identities', () => {
     },
   );
 
+  // L-EQ3/java-registry.json at MegaMek 48fcb2f6, keyed by these native identities.
   it.each([
-    'clermediumlaserprototype',
-    'clrocketlauncher15prototype',
-    'is-ammo-lrm-15-artemis-capable',
-    'is-ammo-srm-4-narc-capable',
-    'clan-ammo-lrm-15',
-    'is-streak-srm-6-ammo',
-    'clan-ultra-ac-20-ammo:omni',
-    'totally-unknown-ammo:omni',
-  ])('does not substitute a different item for missing variant %s', (id) => {
-    expect(getEquipmentEntry(id)).toBeUndefined();
-    expect(resolveEquipmentBV(id).resolved).toBe(false);
+    [
+      'clermediumlaserprototype',
+      'CLERMediumLaserPrototype',
+      'clermediumlaserprototype-registry',
+      62,
+      1.5,
+      1,
+      undefined,
+    ],
+    [
+      'clrocketlauncher15prototype',
+      'CLRocketLauncher15Prototype',
+      'clrocketlauncher15prototype-registry',
+      18,
+      1,
+      2,
+      undefined,
+    ],
+    [
+      'is-ammo-lrm-15-artemis-capable',
+      'IS Ammo LRM-15 Artemis-capable',
+      'is-ammo-lrm-15-artemis-capable-registry',
+      17,
+      1,
+      1,
+      8,
+    ],
+    [
+      'is-ammo-srm-4-narc-capable',
+      'IS Ammo SRM-4 Narc-capable',
+      'is-ammo-srm-4-narc-capable-registry',
+      5,
+      1,
+      1,
+      25,
+    ],
+    [
+      'clan-ammo-lrm-15',
+      'Clan Ammo LRM-15',
+      'clan-ammo-lrm-15-registry',
+      21,
+      1,
+      1,
+      8,
+    ],
+    [
+      'is-streak-srm-6-ammo',
+      'IS Streak SRM 6 Ammo',
+      'is-streak-srm-6-ammo-registry',
+      11,
+      1,
+      1,
+      15,
+    ],
+    [
+      'clan-ultra-ac-20-ammo:omni',
+      'Clan Ultra AC/20 Ammo',
+      'clan-ultra-ac-20-ammo-registry',
+      42,
+      1,
+      1,
+      5,
+    ],
+  ] as const)(
+    'resolves the added Java variant %s',
+    (input, native, id, battleValue, weight, criticalSlots, shotsPerTon) => {
+      expect(getEquipmentEntry(input)).toMatchObject({
+        id,
+        battleValue,
+        weight,
+        criticalSlots,
+        shotsPerTon,
+        special: expect.arrayContaining([
+          expect.stringContaining(': ' + native),
+        ]),
+      });
+      expect(resolveEquipmentBV(input)).toMatchObject({
+        resolved: true,
+        battleValue,
+      });
+    },
+  );
+  it('does not substitute a different item for a missing variant', () => {
+    expect(getEquipmentEntry('totally-unknown-ammo:omni')).toBeUndefined();
+    expect(resolveEquipmentBV('totally-unknown-ammo:omni').resolved).toBe(
+      false,
+    );
   });
 });

@@ -1,6 +1,12 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+import {
+  expectJavaCatalogAddition,
+  javaCatalogAdditionById,
+} from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
+import { getEquipmentEntry } from '@/utils/construction/equipmentBVResolver';
+
 // Known missing targets: these DIRECT_ALIAS_MAP entries point to catalog IDs that
 // don't exist yet. They are documented here so the test suite passes while tracking
 // the gaps. When catalog entries are added, remove them from this set.
@@ -17,6 +23,11 @@ const KNOWN_MISSING_TARGETS = new Set([
 // targets are often BA (Battle Armor) variants while DIRECT_ALIAS_MAP targets are
 // standard Mech-scale equivalents.
 const KNOWN_CONFLICTS = new Set([
+  'isbpod', // Java ISBPod addition; source facts asserted below, old b-pod lookup retained.
+  'clbpod', // Java ISBPod owns the Clan lookup spelling too.
+  'issrm4os', // Java ISSRM4OS addition; old srm-4 lookup retained.
+  'islongtomcannon', // Java ISLongTomCannon addition; old long-tom lookup retained.
+  'sniper', // Approved native Sniper artillery reroute; artillery/Sniper.java, BV 85.
   // These legacy name mappings target absent IDs; the aliases select the
   // represented pinned Java identity (covered by sourceAliases tests).
   'binary laser (blazer) cannon',
@@ -176,7 +187,7 @@ describe('DIRECT_ALIAS_MAP validation', () => {
         const details = unexpectedMissing
           .map((e) => `  ${e.key} → ${e.target}`)
           .join('\n');
-        fail(
+        throw new Error(
           `Found ${unexpectedMissing.length} DIRECT_ALIAS_MAP entries with targets NOT in equipment catalog:\n${details}`,
         );
       }
@@ -221,6 +232,23 @@ describe('DIRECT_ALIAS_MAP validation', () => {
 
       for (const entry of aliasEntries) {
         const nmTarget = nameMappingsIndex.get(entry.key.toLowerCase());
+        if (!catalogIds.has(entry.target) && nmTarget) {
+          // A formerly missing variant is now a pinned Java addition, not a fuzzy substitution.
+          expect(javaCatalogAdditionById.has(nmTarget)).toBe(true);
+          expectJavaCatalogAddition(getEquipmentEntry(entry.key), 'bv');
+          continue;
+        }
+        if (
+          nmTarget &&
+          javaCatalogAdditionById.has(nmTarget) &&
+          catalogIds.has(entry.target) &&
+          entry.key.toLowerCase() !== 'sniper'
+        ) {
+          expectJavaCatalogAddition(getEquipmentEntry(nmTarget), 'bv');
+          expect(getEquipmentEntry(entry.key)?.id).toBe(entry.target);
+        }
+        if (entry.key.toLowerCase() === 'sniper')
+          expectJavaCatalogAddition(getEquipmentEntry('Sniper'), 'bv');
         if (nmTarget && nmTarget !== entry.target) {
           if (!KNOWN_CONFLICTS.has(entry.key.toLowerCase())) {
             unexpectedConflicts.push({
@@ -239,7 +267,7 @@ describe('DIRECT_ALIAS_MAP validation', () => {
               `  ${c.key}: ALIAS→${c.aliasTarget} vs NAME-MAP→${c.nameMappingTarget}`,
           )
           .join('\n');
-        fail(
+        throw new Error(
           `Found ${unexpectedConflicts.length} NEW conflicts between DIRECT_ALIAS_MAP and name-mappings.json:\n${details}`,
         );
       }

@@ -76,12 +76,17 @@ function toTurretConfig(
 
 /**
  * Heuristic: decide whether an equipment entry is ammo based on its id.
- * The vehicle store does not tag ammo separately, so we fall back to the
- * same pattern used elsewhere in the codebase.
+ * Legacy untagged mounts retain this ID-based fallback. Explicit mounted
+ * ammunition kind is consumed by isAmmoMount below.
  */
 function isAmmo(equipmentId: string): boolean {
   const n = equipmentId.toLowerCase();
   return n.includes('ammo') || n.startsWith('ammo-');
+}
+
+/** Shared mount classification for editor-state and domain-unit BV paths. */
+function isAmmoMount(item: IVehicleMountedEquipment): boolean {
+  return item.isAmmo ?? isAmmo(item.equipmentId);
 }
 
 /**
@@ -184,7 +189,7 @@ export function toVehicleBVInput(state: VehicleBVStateSubset): VehicleBVInput {
         id: item.equipmentId,
         location: String(item.location),
       });
-    } else if (isAmmo(item.equipmentId)) {
+    } else if (isAmmoMount(item)) {
       ammo.push({
         id: item.equipmentId,
         location: String(item.location),
@@ -337,7 +342,7 @@ export function toVehicleBVInputFromUnit(
         id: item.equipmentId,
         location: String(item.location),
       });
-    } else if (isAmmo(item.equipmentId)) {
+    } else if (isAmmoMount(item)) {
       ammo.push({
         id: item.equipmentId,
         location: String(item.location),

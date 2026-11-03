@@ -44,7 +44,9 @@
         "NARC",
         "Artillery",
         "AMS",
-        "Energy"
+        "Energy",
+        "Capital",
+        "Other"
       ],
       "description": "Ammunition category. 'Energy' covers chemical-laser ammo and similar energy-weapon consumables."
     },
@@ -64,7 +66,8 @@
         "Swarm",
         "Tandem-Charge",
         "Extended Range",
-        "High Explosive"
+        "High Explosive",
+        "Other"
       ],
       "description": "Ammunition variant type"
     },
@@ -185,6 +188,11 @@
         ]
       },
       "description": "Unit types that can use this ammunition. If omitted, defaults to BattleMech, Vehicle, Aerospace."
+    },
+    "kgPerShot": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Mass of one round in kilograms, from pinned AmmoType.getKgPerShot (not inferred from shotsPerTon)."
     }
   },
   "additionalProperties": false
