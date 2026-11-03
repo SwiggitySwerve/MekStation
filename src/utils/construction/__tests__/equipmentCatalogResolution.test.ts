@@ -53,16 +53,16 @@ it.each(javaCatalogAdditions)(
 
 const baselineResolution = JSON.parse(
   readFileSync('scripts/equipment-catalog/resolution-before.json', 'utf8'),
-) as { names: string[]; results: { equipment: (string | null)[] } };
-const baselineIndexes = new Map(
-  baselineResolution.names.map((name, index) => [name, index]),
-);
+) as { apis: string[]; resolved: Record<string, Record<string, number[]>> };
+const equipmentApi = baselineResolution.apis.indexOf('equipment');
 it.each(removedAllowlistRows)(
   'each removed unresolved id resolves to the added Java record: $family/$input',
   (row) => {
-    const index = baselineIndexes.get(row.input);
-    expect(index).toBeDefined();
-    expect(baselineResolution.results.equipment[index ?? -1]).toBeNull();
+    // The compact baseline keeps only resolved entries; it now pins the record.
+    const baselineTarget = Object.entries(
+      baselineResolution.resolved[row.input] ?? {},
+    ).find(([, apis]) => apis.includes(equipmentApi))?.[0];
+    expect(baselineTarget).toBe(row.id);
     const item = getEquipmentEntry(row.input);
     expect(item?.id).toBe(row.id);
     expectJavaCatalogAddition(item, 'bv');
