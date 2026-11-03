@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 /**
  * Catalog-driven BattleMech combat validation anchors.
  *
@@ -5,12 +6,15 @@
  * ranged weapon and ammo catalog entry must be visible to combat-facing tests,
  * while physical weapons and missing mechanics are tracked as explicit gaps.
  */
-
-import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 
+import {
+  expectJavaCatalogAddition,
+  javaCatalogAdditions,
+  javaCatalogAdditionById,
+} from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
 import { buildUtilityCommands } from '@/components/gameplay/TacticalActionDock/commands/utilityCommands';
 import { getWeaponData } from '@/engine/adapters/CompendiumAdapter';
 import { WEAPON_DATABASE } from '@/engine/adapters/CompendiumWeaponData';
@@ -1231,6 +1235,7 @@ function countBy<T extends string>(values: readonly T[]): Record<T, number> {
 function ammoCompatibilityGapClass(
   ammo: IAmmoCatalogEntry & Record<string, unknown>,
 ): AmmoCompatibilityGapClass | null {
+  if (javaCatalogAdditionById.has(ammo.id)) expectJavaCatalogAddition(ammo);
   if (ammo.compatibleWeaponIds.length > 0) return null;
 
   const text = itemText(ammo).toLowerCase();
@@ -1263,7 +1268,11 @@ function ammoCompatibilityGapClass(
   if (UNSUPPORTED_ROTARY_AC_10_20_AMMO_ID_SET.has(ammo.id)) {
     return 'unsupported-rotary-ac-10-20-ammo';
   }
-  if (ammo.rulesLevel === 'STANDARD' || ammo.rulesLevel === 'ADVANCED') {
+  if (
+    ammo.rulesLevel === 'STANDARD' ||
+    ammo.rulesLevel === 'ADVANCED' ||
+    ammo.rulesLevel === 'INTRODUCTORY'
+  ) {
     return 'battlemech-ammo-missing-compatible-weapon-refs';
   }
   if (ammo.rulesLevel === 'EXPERIMENTAL') {
@@ -1401,8 +1410,13 @@ function zeroDamageClassification(
   | 'defensive-system'
   | 'standard-special-effect'
   | 'nonstandard-data-gap'
+  | 'java-zero-damage'
   | null {
   if (item.damage !== 0) return null;
+  if (javaCatalogAdditionById.has(String(item.id))) {
+    expectJavaCatalogAddition(item);
+    return 'java-zero-damage';
+  }
 
   const rulesLevel = typeof item.rulesLevel === 'string' ? item.rulesLevel : '';
   const text = itemText(item);
@@ -1874,7 +1888,50 @@ function expectLifecycleActionEligibilityAndPsrResolutionSupportTracked(): void 
   );
 }
 
+function addedAmmoIds(classification: string | null): string[] {
+  return javaCatalogAdditions
+    .filter((row) => row.kind === 'ammunition')
+    .flatMap((row) => {
+      if (!isAmmoEntry(row.values))
+        throw Error('Incomplete Java ammo fixture: ' + row.native);
+      return ammoCompatibilityGapClass(row.values) === classification
+        ? [row.values.id]
+        : [];
+    })
+    .sort();
+}
+function withAddedAmmoGroups(
+  previous: Readonly<Record<string, readonly string[]>>,
+): Record<string, string[]> {
+  return Object.fromEntries(
+    Object.entries(previous).map(([group, ids]) => [
+      group,
+      [...ids, ...addedAmmoIds(group)].sort(),
+    ]),
+  );
+}
+function withAddedAmmoCounts(
+  previous: Record<string, number>,
+): Record<string, number> {
+  const result = { ...previous };
+  for (const row of javaCatalogAdditions.filter(
+    (row) => row.kind === 'ammunition',
+  )) {
+    if (!isAmmoEntry(row.values))
+      throw Error('Incomplete Java ammo fixture: ' + row.native);
+    const group = ammoCompatibilityGapClass(row.values);
+    if (group) result[group] = (result[group] ?? 0) + 1;
+  }
+  return result;
+}
+
 export {
+  addedAmmoIds,
+  withAddedAmmoGroups,
+  withAddedAmmoCounts,
+  expectJavaCatalogAddition,
+  javaCatalogAdditions,
+  javaCatalogAdditionById,
   ACTION_ELIGIBILITY_COMBAT_SUPPORT,
   AMMUNITION_CATALOG_FILES,
   AMMUNITION_COMPATIBILITY_SUPPORT,

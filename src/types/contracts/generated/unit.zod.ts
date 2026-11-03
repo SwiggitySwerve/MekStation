@@ -18,10 +18,13 @@ const UnitSchemaVersion = z
   .regex(new RegExp('^1\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?![\\s\\S])'), {
     error: unitVersionError,
   })
-  .default(CURRENT_UNIT_SCHEMA_VERSION)
+  .optional()
   .describe(
     'Portable unit document version: strict MAJOR.MINOR.PATCH, supported major 1. Missing means 1.0.0; minor additions must be optional.',
   );
+export const unitSchemaVersionOf = (unit: {
+  readonly schemaVersion?: string;
+}) => unit.schemaVersion ?? CURRENT_UNIT_SCHEMA_VERSION;
 const SchemaDef_standardArmorType = z
   .enum([
     'STANDARD',

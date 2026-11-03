@@ -11,6 +11,8 @@ legality, equipment availability, combat support nor numerical parity.
 ## Versions and identity
 
 `schemaVersion` is optional on input; absence means `"1.0.0"` (major 1).
+Readers report that through the generated `unitSchemaVersionOf` and never add
+the field to a loaded record, so unversioned catalogs keep their on-disk shape.
 Explicit versions are strings of three decimal components without leading zeros,
 prerelease or build suffixes. Readers accept every `1.MINOR.PATCH` and retain
 the declared version; all other majors fail with the found version and supported

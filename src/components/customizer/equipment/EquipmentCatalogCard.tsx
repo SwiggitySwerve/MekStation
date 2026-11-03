@@ -281,7 +281,7 @@ const plainField = (text: string): StatField => ({ text });
 
 /**
  * One phone stat line: unbreakable fields joined by a dot, so a narrow row
- * wraps between fields and never inside one.
+ * truncates visually while its title preserves the full line.
  */
 function StatLine({
   fields,
@@ -289,7 +289,10 @@ function StatLine({
   fields: readonly StatField[];
 }): React.ReactElement {
   return (
-    <span>
+    <span
+      className="min-w-0 truncate"
+      title={fields.map((field) => field.text).join(' · ')}
+    >
       {fields.map((field, index) => (
         <React.Fragment key={field.text}>
           {index > 0 && ' '}

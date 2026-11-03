@@ -1,0 +1,3662 @@
+[
+  {
+    "family": "battlemechs",
+    "input": "clrocketlauncher10prototype",
+    "id": "clrocketlauncher10prototype-registry",
+    "native": "CLRocketLauncher10Prototype"
+  },
+  {
+    "family": "battlemechs",
+    "input": "clrocketlauncher15prototype",
+    "id": "clrocketlauncher15prototype-registry",
+    "native": "CLRocketLauncher15Prototype"
+  },
+  {
+    "family": "battlemechs",
+    "input": "light-blazer",
+    "id": "light-blazer-registry",
+    "native": "Light Blazer"
+  },
+  {
+    "family": "battlemechs",
+    "input": "thumper",
+    "id": "isthumper-registry",
+    "native": "ISThumper"
+  },
+  {
+    "family": "battlemechs",
+    "input": "tsemp-repeating-cannon",
+    "id": "tsemp-repeating-cannon-registry",
+    "native": "TSEMP Repeating Cannon"
+  },
+  {
+    "family": "vehicles",
+    "input": "autocannon-20-primitive",
+    "id": "autocannon-20-primitive-registry",
+    "native": "Autocannon/20 Primitive"
+  },
+  {
+    "family": "vehicles",
+    "input": "autocannon-bearhunter-superheavy:omni:size:1.0",
+    "id": "autocannon-bearhunter-superheavy-registry",
+    "native": "Autocannon (Bearhunter Superheavy)"
+  },
+  {
+    "family": "vehicles",
+    "input": "autocannon-semi-portable:size:1.0",
+    "id": "autocannon-semi-portable-registry",
+    "native": "Autocannon (Semi-Portable)"
+  },
+  {
+    "family": "vehicles",
+    "input": "cl-heavy-flamer-ammo",
+    "id": "cl-heavy-flamer-ammo-registry",
+    "native": "CL Heavy Flamer Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-lrm-10",
+    "id": "clan-ammo-lrm-10-registry",
+    "native": "Clan Ammo LRM-10"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-lrm-10-clan-artemis-capable",
+    "id": "clan-ammo-lrm-10-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-10 (Clan) Artemis-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-lrm-10-clan-artemis-v-capable",
+    "id": "clan-ammo-lrm-10-clan-artemis-v-capable-registry",
+    "native": "Clan Ammo LRM-10 (Clan) Artemis V-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-lrm-10:omni",
+    "id": "clan-ammo-lrm-10-registry",
+    "native": "Clan Ammo LRM-10"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-lrm-15",
+    "id": "clan-ammo-lrm-15-registry",
+    "native": "Clan Ammo LRM-15"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-lrm-15-clan-artemis-capable",
+    "id": "clan-ammo-lrm-15-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-15 (Clan) Artemis-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-lrm-15-clan-artemis-capable:omni",
+    "id": "clan-ammo-lrm-15-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-15 (Clan) Artemis-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-lrm-15-clan-artemis-v-capable",
+    "id": "clan-ammo-lrm-15-clan-artemis-v-capable-registry",
+    "native": "Clan Ammo LRM-15 (Clan) Artemis V-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-lrm-20",
+    "id": "clan-ammo-lrm-20-registry",
+    "native": "Clan Ammo LRM-20"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-lrm-20-clan-artemis-capable",
+    "id": "clan-ammo-lrm-20-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-lrm-20-clan-artemis-v-capable",
+    "id": "clan-ammo-lrm-20-clan-artemis-v-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis V-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-lrm-20-clan-artemis-v-capable:omni",
+    "id": "clan-ammo-lrm-20-clan-artemis-v-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis V-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-lrm-20:omni",
+    "id": "clan-ammo-lrm-20-registry",
+    "native": "Clan Ammo LRM-20"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-lrm-5",
+    "id": "clan-ammo-lrm-5-registry",
+    "native": "Clan Ammo LRM-5"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-sc-mortar-8",
+    "id": "clan-ammo-sc-mortar-8-registry",
+    "native": "Clan Ammo SC Mortar-8"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-srm-2",
+    "id": "clan-ammo-srm-2-registry",
+    "native": "Clan Ammo SRM-2"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-srm-2:omni",
+    "id": "clan-ammo-srm-2-registry",
+    "native": "Clan Ammo SRM-2"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-srm-4",
+    "id": "clan-ammo-srm-4-registry",
+    "native": "Clan Ammo SRM-4"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-srm-6",
+    "id": "clan-ammo-srm-6-registry",
+    "native": "Clan Ammo SRM-6"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ammo-srm-6:omni",
+    "id": "clan-ammo-srm-6-registry",
+    "native": "Clan Ammo SRM-6"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-lb-10-x-cluster-ammo",
+    "id": "clan-lb-10-x-cluster-ammo-registry",
+    "native": "Clan LB 10-X Cluster Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-lb-20-x-cluster-ammo",
+    "id": "clan-lb-20-x-cluster-ammo-registry",
+    "native": "Clan LB 20-X Cluster Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-lb-20-x-cluster-ammo:omni",
+    "id": "clan-lb-20-x-cluster-ammo-registry",
+    "native": "Clan LB 20-X Cluster Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ultra-ac-10-ammo",
+    "id": "clan-ultra-ac-10-ammo-registry",
+    "native": "Clan Ultra AC/10 Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ultra-ac-10-ammo:omni",
+    "id": "clan-ultra-ac-10-ammo-registry",
+    "native": "Clan Ultra AC/10 Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ultra-ac-2-ammo",
+    "id": "clan-ultra-ac-2-ammo-registry",
+    "native": "Clan Ultra AC/2 Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ultra-ac-20-ammo",
+    "id": "clan-ultra-ac-20-ammo-registry",
+    "native": "Clan Ultra AC/20 Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ultra-ac-20-ammo:omni",
+    "id": "clan-ultra-ac-20-ammo-registry",
+    "native": "Clan Ultra AC/20 Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "clan-ultra-ac-5-ammo",
+    "id": "clan-ultra-ac-5-ammo-registry",
+    "native": "Clan Ultra AC/5 Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "clarrowivhomingammo",
+    "id": "clarrowivhomingammo-registry",
+    "native": "CLArrowIVHomingAmmo"
+  },
+  {
+    "family": "vehicles",
+    "input": "clermediumlaserprototype",
+    "id": "clermediumlaserprototype-registry",
+    "native": "CLERMediumLaserPrototype"
+  },
+  {
+    "family": "vehicles",
+    "input": "clheavyflamer",
+    "id": "clheavyflamer-registry",
+    "native": "CLHeavyFlamer"
+  },
+  {
+    "family": "vehicles",
+    "input": "clheavymg",
+    "id": "clheavymg-registry",
+    "native": "CLHeavyMG"
+  },
+  {
+    "family": "vehicles",
+    "input": "clheavymg:omni",
+    "id": "clheavymg-registry",
+    "native": "CLHeavyMG"
+  },
+  {
+    "family": "vehicles",
+    "input": "clrocketlauncher10prototype",
+    "id": "clrocketlauncher10prototype-registry",
+    "native": "CLRocketLauncher10Prototype"
+  },
+  {
+    "family": "vehicles",
+    "input": "clrocketlauncher15prototype",
+    "id": "clrocketlauncher15prototype-registry",
+    "native": "CLRocketLauncher15Prototype"
+  },
+  {
+    "family": "vehicles",
+    "input": "clrotaryac5-ammo",
+    "id": "clrotaryac5-ammo-registry",
+    "native": "CLRotaryAC5 Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "clwerppc",
+    "id": "clwerppc-registry",
+    "native": "CLWERPPC"
+  },
+  {
+    "family": "vehicles",
+    "input": "flamer-heavy:size:1.0",
+    "id": "flamer-heavy-registry",
+    "native": "Flamer (Heavy)"
+  },
+  {
+    "family": "vehicles",
+    "input": "hyper-assault-gauss-rifle-20-ammo",
+    "id": "hyper-assault-gauss-rifle-20-ammo-registry",
+    "native": "Hyper-Assault Gauss Rifle/20 Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "hyper-assault-gauss-rifle-20-ammo:omni",
+    "id": "hyper-assault-gauss-rifle-20-ammo-registry",
+    "native": "Hyper-Assault Gauss Rifle/20 Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "hyper-assault-gauss-rifle-30-ammo",
+    "id": "hyper-assault-gauss-rifle-30-ammo-registry",
+    "native": "Hyper-Assault Gauss Rifle/30 Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "hyper-assault-gauss-rifle-40-ammo",
+    "id": "hyper-assault-gauss-rifle-40-ammo-registry",
+    "native": "Hyper-Assault Gauss Rifle/40 Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "hyper-assault-gauss-rifle-40-ammo:omni",
+    "id": "hyper-assault-gauss-rifle-40-ammo-registry",
+    "native": "Hyper-Assault Gauss Rifle/40 Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "infantryassaultriflept:size:10.0",
+    "id": "infantryassaultrifle-registry",
+    "native": "InfantryAssaultRifle"
+  },
+  {
+    "family": "vehicles",
+    "input": "infantryautogl:size:1.0",
+    "id": "infantryautogl-registry",
+    "native": "InfantryAutoGL"
+  },
+  {
+    "family": "vehicles",
+    "input": "infantryheavygrenadelauncher:size:1.0",
+    "id": "infantryheavygrenadelauncher-registry",
+    "native": "InfantryHeavyGrenadeLauncher"
+  },
+  {
+    "family": "vehicles",
+    "input": "infantryhrr:size:1.0",
+    "id": "infantryhrr-registry",
+    "native": "InfantryHRR"
+  },
+  {
+    "family": "vehicles",
+    "input": "infantrysrmlight:size:1.0",
+    "id": "infantrysrmlight-registry",
+    "native": "InfantrySRMLight"
+  },
+  {
+    "family": "vehicles",
+    "input": "infantrystandardsrm:size:1.0",
+    "id": "infantrystandardsrm-registry",
+    "native": "InfantryStandardSRM"
+  },
+  {
+    "family": "vehicles",
+    "input": "infantrytag:size:1.0",
+    "id": "infantrytag-registry",
+    "native": "InfantryTAG"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-heavy-rifle",
+    "id": "is-ammo-heavy-rifle-registry",
+    "native": "IS Ammo Heavy Rifle"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-hvac-10",
+    "id": "is-ammo-hvac-10-registry",
+    "native": "IS Ammo HVAC/10"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-hvac-2",
+    "id": "is-ammo-hvac-2-registry",
+    "native": "IS Ammo HVAC/2"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-hvac-5",
+    "id": "is-ammo-hvac-5-registry",
+    "native": "IS Ammo HVAC/5"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-light-rifle",
+    "id": "is-ammo-light-rifle-registry",
+    "native": "IS Ammo Light Rifle"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-lrm-10-artemis-capable",
+    "id": "is-ammo-lrm-10-artemis-capable-registry",
+    "native": "IS Ammo LRM-10 Artemis-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-lrm-10-narc-capable",
+    "id": "is-ammo-lrm-10-narc-capable-registry",
+    "native": "IS Ammo LRM-10 Narc-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-lrm-15-artemis-capable",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-lrm-15-artemis-capable:omni",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-lrm-20-artemis-capable",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-lrm-5-artemis-capable",
+    "id": "is-ammo-lrm-5-artemis-capable-registry",
+    "native": "IS Ammo LRM-5 Artemis-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-medium-rifle",
+    "id": "is-ammo-medium-rifle-registry",
+    "native": "IS Ammo Medium Rifle"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-3-lrm",
+    "id": "is-ammo-mml-3-lrm-registry",
+    "native": "IS Ammo MML-3 LRM"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-3-lrm:omni",
+    "id": "is-ammo-mml-3-lrm-registry",
+    "native": "IS Ammo MML-3 LRM"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-3-srm",
+    "id": "is-ammo-mml-3-srm-registry",
+    "native": "IS Ammo MML-3 SRM"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-3-srm:omni",
+    "id": "is-ammo-mml-3-srm-registry",
+    "native": "IS Ammo MML-3 SRM"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-5-lrm",
+    "id": "is-ammo-mml-5-lrm-registry",
+    "native": "IS Ammo MML-5 LRM"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-5-lrm-artemis-capable",
+    "id": "is-ammo-mml-5-lrm-artemis-capable-registry",
+    "native": "IS Ammo MML-5 LRM Artemis-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-5-srm",
+    "id": "is-ammo-mml-5-srm-registry",
+    "native": "IS Ammo MML-5 SRM"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-5-srm-artemis-capable",
+    "id": "is-ammo-mml-5-srm-artemis-capable-registry",
+    "native": "IS Ammo MML-5 SRM Artemis-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-7-lrm",
+    "id": "is-ammo-mml-7-lrm-registry",
+    "native": "IS Ammo MML-7 LRM"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-7-lrm-artemis-capable",
+    "id": "is-ammo-mml-7-lrm-artemis-capable-registry",
+    "native": "IS Ammo MML-7 LRM Artemis-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-7-lrm-narc-capable",
+    "id": "is-ammo-mml-7-lrm-narc-capable-registry",
+    "native": "IS Ammo MML-7 LRM Narc-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-7-lrm:omni",
+    "id": "is-ammo-mml-7-lrm-registry",
+    "native": "IS Ammo MML-7 LRM"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-7-srm",
+    "id": "is-ammo-mml-7-srm-registry",
+    "native": "IS Ammo MML-7 SRM"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-7-srm-artemis-capable",
+    "id": "is-ammo-mml-7-srm-artemis-capable-registry",
+    "native": "IS Ammo MML-7 SRM Artemis-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-7-srm-narc-capable",
+    "id": "is-ammo-mml-7-srm-narc-capable-registry",
+    "native": "IS Ammo MML-7 SRM Narc-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-7-srm:omni",
+    "id": "is-ammo-mml-7-srm-registry",
+    "native": "IS Ammo MML-7 SRM"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-9-lrm",
+    "id": "is-ammo-mml-9-lrm-registry",
+    "native": "IS Ammo MML-9 LRM"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-9-lrm-artemis-capable",
+    "id": "is-ammo-mml-9-lrm-artemis-capable-registry",
+    "native": "IS Ammo MML-9 LRM Artemis-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-9-lrm:omni",
+    "id": "is-ammo-mml-9-lrm-registry",
+    "native": "IS Ammo MML-9 LRM"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-9-srm",
+    "id": "is-ammo-mml-9-srm-registry",
+    "native": "IS Ammo MML-9 SRM"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-9-srm-artemis-capable",
+    "id": "is-ammo-mml-9-srm-artemis-capable-registry",
+    "native": "IS Ammo MML-9 SRM Artemis-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-mml-9-srm:omni",
+    "id": "is-ammo-mml-9-srm-registry",
+    "native": "IS Ammo MML-9 SRM"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-sc-mortar-1",
+    "id": "is-ammo-sc-mortar-1-registry",
+    "native": "IS Ammo SC Mortar-1"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-sc-mortar-2",
+    "id": "is-ammo-sc-mortar-2-registry",
+    "native": "IS Ammo SC Mortar-2"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-sc-mortar-8",
+    "id": "is-ammo-sc-mortar-8-registry",
+    "native": "IS Ammo SC Mortar-8"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-srm-2-narc-capable",
+    "id": "is-ammo-srm-2-narc-capable-registry",
+    "native": "IS Ammo SRM-2 Narc-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-srm-4-artemis-capable",
+    "id": "is-ammo-srm-4-artemis-capable-registry",
+    "native": "IS Ammo SRM-4 Artemis-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-srm-4-narc-capable",
+    "id": "is-ammo-srm-4-narc-capable-registry",
+    "native": "IS Ammo SRM-4 Narc-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-srm-6-artemis-capable",
+    "id": "is-ammo-srm-6-artemis-capable-registry",
+    "native": "IS Ammo SRM-6 Artemis-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-srm-6-narc-capable",
+    "id": "is-ammo-srm-6-narc-capable-registry",
+    "native": "IS Ammo SRM-6 Narc-capable"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-thunderbolt-10",
+    "id": "is-ammo-thunderbolt-10-registry",
+    "native": "IS Ammo Thunderbolt-10"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-thunderbolt-15",
+    "id": "is-ammo-thunderbolt-15-registry",
+    "native": "IS Ammo Thunderbolt-15"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-thunderbolt-15:omni",
+    "id": "is-ammo-thunderbolt-15-registry",
+    "native": "IS Ammo Thunderbolt-15"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-thunderbolt-20",
+    "id": "is-ammo-thunderbolt-20-registry",
+    "native": "IS Ammo Thunderbolt-20"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-ammo-thunderbolt-5",
+    "id": "is-ammo-thunderbolt-5-registry",
+    "native": "IS Ammo Thunderbolt-5"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-lb-2-x-cluster-ammo",
+    "id": "is-lb-2-x-cluster-ammo-registry",
+    "native": "IS LB 2-X Cluster Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-lb-5-x-cluster-ammo",
+    "id": "is-lb-5-x-cluster-ammo-registry",
+    "native": "IS LB 5-X Cluster Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-streak-srm-2-ammo",
+    "id": "is-streak-srm-2-ammo-registry",
+    "native": "IS Streak SRM 2 Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-streak-srm-4-ammo",
+    "id": "is-streak-srm-4-ammo-registry",
+    "native": "IS Streak SRM 4 Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-streak-srm-4-ammo:omni",
+    "id": "is-streak-srm-4-ammo-registry",
+    "native": "IS Streak SRM 4 Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-streak-srm-6-ammo",
+    "id": "is-streak-srm-6-ammo-registry",
+    "native": "IS Streak SRM 6 Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-streak-srm-6-ammo:omni",
+    "id": "is-streak-srm-6-ammo-registry",
+    "native": "IS Streak SRM 6 Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-vehicle-flamer-ammo",
+    "id": "is-vehicle-flamer-ammo-registry",
+    "native": "IS Vehicle Flamer Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "is-vehicular-stealth",
+    "id": "is-vehicular-stealth-registry",
+    "native": "IS Vehicular Stealth"
+  },
+  {
+    "family": "vehicles",
+    "input": "isapds-ammo",
+    "id": "isapds-ammo-registry",
+    "native": "ISAPDS Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "isarrowivclusterammo",
+    "id": "isarrowivclusterammo-registry",
+    "native": "ISArrowIVClusterAmmo"
+  },
+  {
+    "family": "vehicles",
+    "input": "isarrowivhomingammo",
+    "id": "isarrowivhomingammo-registry",
+    "native": "ISArrowIVHomingAmmo"
+  },
+  {
+    "family": "vehicles",
+    "input": "isarrowivhomingammo:omni",
+    "id": "isarrowivhomingammo-registry",
+    "native": "ISArrowIVHomingAmmo"
+  },
+  {
+    "family": "vehicles",
+    "input": "isc3sensors",
+    "id": "isc3sensors-registry",
+    "native": "ISC3Sensors"
+  },
+  {
+    "family": "vehicles",
+    "input": "iscruisemissile50ammo",
+    "id": "iscruisemissile50ammo-registry",
+    "native": "ISCruiseMissile50Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "islongtom",
+    "id": "islongtom-registry",
+    "native": "ISLongTom"
+  },
+  {
+    "family": "vehicles",
+    "input": "ismagshotgr-ammo",
+    "id": "ismagshotgr-ammo-registry",
+    "native": "ISMagshotGR Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "ismagshotgr-ammo:omni",
+    "id": "ismagshotgr-ammo-registry",
+    "native": "ISMagshotGR Ammo"
+  },
+  {
+    "family": "vehicles",
+    "input": "issniper",
+    "id": "issniper-registry",
+    "native": "ISSniper"
+  },
+  {
+    "family": "vehicles",
+    "input": "issrm2ios",
+    "id": "issrm2ios-registry",
+    "native": "ISSRM2IOS"
+  },
+  {
+    "family": "vehicles",
+    "input": "issrm4ios",
+    "id": "issrm4ios-registry",
+    "native": "ISSRM4IOS"
+  },
+  {
+    "family": "vehicles",
+    "input": "issrt2os",
+    "id": "issrt2os-registry",
+    "native": "ISSRT2OS"
+  },
+  {
+    "family": "vehicles",
+    "input": "isthumper",
+    "id": "isthumper-registry",
+    "native": "ISThumper"
+  },
+  {
+    "family": "vehicles",
+    "input": "laser-rifle-mauser-iic-ias:omni:size:1.0",
+    "id": "laser-rifle-mauser-iic-ias-registry",
+    "native": "Laser Rifle (Mauser IIC IAS)"
+  },
+  {
+    "family": "vehicles",
+    "input": "machine-gun-semi-portable:size:1.0",
+    "id": "machine-gun-semi-portable-registry",
+    "native": "Machine Gun (Semi-Portable)"
+  },
+  {
+    "family": "vehicles",
+    "input": "machine-gun-support:size:1.0",
+    "id": "machine-gun-support-registry",
+    "native": "Machine Gun (Support)"
+  },
+  {
+    "family": "vehicles",
+    "input": "machine-gun-supportpt:size:1.0",
+    "id": "machine-gun-support-registry",
+    "native": "Machine Gun (Support)"
+  },
+  {
+    "family": "vehicles",
+    "input": "plasma-rifle-man-portable:size:1.0",
+    "id": "plasma-rifle-man-portable-registry",
+    "native": "Plasma Rifle (Man-Portable)"
+  },
+  {
+    "family": "vehicles",
+    "input": "rocketlauncher20prototype",
+    "id": "rocketlauncher20prototype-registry",
+    "native": "RocketLauncher20Prototype"
+  },
+  {
+    "family": "vehicles",
+    "input": "support-laser-heavy:size:1.0",
+    "id": "support-laser-heavy-registry",
+    "native": "Support Laser (Heavy)"
+  },
+  {
+    "family": "vehicles",
+    "input": "support-laser-semi-portable:omni:size:1.0",
+    "id": "support-laser-semi-portable-registry",
+    "native": "Support Laser (Semi-Portable)"
+  },
+  {
+    "family": "vehicles",
+    "input": "support-laser:size:1.0",
+    "id": "support-laser-registry",
+    "native": "Support Laser"
+  },
+  {
+    "family": "vehicles",
+    "input": "support-laser:size:2.0",
+    "id": "support-laser-registry",
+    "native": "Support Laser"
+  },
+  {
+    "family": "vehicles",
+    "input": "vehiclejumpjet",
+    "id": "vehiclejumpjet",
+    "native": "VehicleJumpJet"
+  },
+  {
+    "family": "vehicles",
+    "input": "vehiclejumpjet:omni",
+    "id": "vehiclejumpjet",
+    "native": "VehicleJumpJet"
+  },
+  {
+    "family": "aerospace",
+    "input": "autocannon-10-primitive",
+    "id": "autocannon-10-primitive-registry",
+    "native": "Autocannon/10 Primitive"
+  },
+  {
+    "family": "aerospace",
+    "input": "centurion-weapon-system",
+    "id": "centurion-weapon-system-registry",
+    "native": "Centurion Weapon System"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ammo-lrm-10-clan-artemis-capable:omni",
+    "id": "clan-ammo-lrm-10-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-10 (Clan) Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ammo-lrm-10:omni",
+    "id": "clan-ammo-lrm-10-registry",
+    "native": "Clan Ammo LRM-10"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ammo-lrm-15-clan-artemis-capable",
+    "id": "clan-ammo-lrm-15-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-15 (Clan) Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ammo-lrm-15-clan-artemis-capable:omni",
+    "id": "clan-ammo-lrm-15-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-15 (Clan) Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ammo-lrm-15-clan-artemis-v-capable:omni",
+    "id": "clan-ammo-lrm-15-clan-artemis-v-capable-registry",
+    "native": "Clan Ammo LRM-15 (Clan) Artemis V-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ammo-lrm-15:omni",
+    "id": "clan-ammo-lrm-15-registry",
+    "native": "Clan Ammo LRM-15"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ammo-lrm-20-clan-artemis-capable:omni",
+    "id": "clan-ammo-lrm-20-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ammo-lrm-20-clan-artemis-v-capable",
+    "id": "clan-ammo-lrm-20-clan-artemis-v-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis V-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ammo-lrm-20-clan-artemis-v-capable:omni",
+    "id": "clan-ammo-lrm-20-clan-artemis-v-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis V-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ammo-lrm-20:omni",
+    "id": "clan-ammo-lrm-20-registry",
+    "native": "Clan Ammo LRM-20"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ammo-lrm-5:omni",
+    "id": "clan-ammo-lrm-5-registry",
+    "native": "Clan Ammo LRM-5"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ammo-srm-4:omni",
+    "id": "clan-ammo-srm-4-registry",
+    "native": "Clan Ammo SRM-4"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ammo-srm-6-clan-artemis-capable",
+    "id": "clan-ammo-srm-6-clan-artemis-capable-registry",
+    "native": "Clan Ammo SRM-6 (Clan) Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ammo-srm-6-clan-artemis-capable:omni",
+    "id": "clan-ammo-srm-6-clan-artemis-capable-registry",
+    "native": "Clan Ammo SRM-6 (Clan) Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ammo-srm-6:omni",
+    "id": "clan-ammo-srm-6-registry",
+    "native": "Clan Ammo SRM-6"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ferro-lamellor",
+    "id": "clan-ferro-lamellor-registry",
+    "native": "Clan Ferro-Lamellor"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-lb-10-x-cluster-ammo:omni",
+    "id": "clan-lb-10-x-cluster-ammo-registry",
+    "native": "Clan LB 10-X Cluster Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-lb-20-x-cluster-ammo:omni",
+    "id": "clan-lb-20-x-cluster-ammo-registry",
+    "native": "Clan LB 20-X Cluster Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-reflective",
+    "id": "clan-reflective-registry",
+    "native": "Clan Reflective"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ultra-ac-10-ammo",
+    "id": "clan-ultra-ac-10-ammo-registry",
+    "native": "Clan Ultra AC/10 Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ultra-ac-10-ammo:omni",
+    "id": "clan-ultra-ac-10-ammo-registry",
+    "native": "Clan Ultra AC/10 Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ultra-ac-20-ammo",
+    "id": "clan-ultra-ac-20-ammo-registry",
+    "native": "Clan Ultra AC/20 Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "clan-ultra-ac-20-ammo:omni",
+    "id": "clan-ultra-ac-20-ammo-registry",
+    "native": "Clan Ultra AC/20 Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "clermediumlaserprototype",
+    "id": "clermediumlaserprototype-registry",
+    "native": "CLERMediumLaserPrototype"
+  },
+  {
+    "family": "aerospace",
+    "input": "clheavymg:omni",
+    "id": "clheavymg-registry",
+    "native": "CLHeavyMG"
+  },
+  {
+    "family": "aerospace",
+    "input": "clrocketlauncher15prototype",
+    "id": "clrocketlauncher15prototype-registry",
+    "native": "CLRocketLauncher15Prototype"
+  },
+  {
+    "family": "aerospace",
+    "input": "clrotaryac5-ammo",
+    "id": "clrotaryac5-ammo-registry",
+    "native": "CLRotaryAC5 Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "clrotaryac5-ammo:omni",
+    "id": "clrotaryac5-ammo-registry",
+    "native": "CLRotaryAC5 Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "external-stores-hardpoint",
+    "id": "external-stores-hardpoint-registry",
+    "native": "External Stores Hardpoint"
+  },
+  {
+    "family": "aerospace",
+    "input": "hyper-assault-gauss-rifle-20-ammo:omni",
+    "id": "hyper-assault-gauss-rifle-20-ammo-registry",
+    "native": "Hyper-Assault Gauss Rifle/20 Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "hyper-assault-gauss-rifle-30-ammo:omni",
+    "id": "hyper-assault-gauss-rifle-30-ammo-registry",
+    "native": "Hyper-Assault Gauss Rifle/30 Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "hyper-assault-gauss-rifle-40-ammo",
+    "id": "hyper-assault-gauss-rifle-40-ammo-registry",
+    "native": "Hyper-Assault Gauss Rifle/40 Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "hyper-assault-gauss-rifle-40-ammo:omni",
+    "id": "hyper-assault-gauss-rifle-40-ammo-registry",
+    "native": "Hyper-Assault Gauss Rifle/40 Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "improvedlargepulselaser",
+    "id": "improvedlargepulselaser-registry",
+    "native": "ImprovedLargePulseLaser"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-hvac-10",
+    "id": "is-ammo-hvac-10-registry",
+    "native": "IS Ammo HVAC/10"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-lrm-10-artemis-capable",
+    "id": "is-ammo-lrm-10-artemis-capable-registry",
+    "native": "IS Ammo LRM-10 Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-lrm-10-artemis-capable:omni",
+    "id": "is-ammo-lrm-10-artemis-capable-registry",
+    "native": "IS Ammo LRM-10 Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-lrm-15-artemis-capable",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-lrm-15-artemis-capable:omni",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-lrm-20-artemis-capable",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-lrm-20-artemis-capable:omni",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-lrm-5-artemis-capable",
+    "id": "is-ammo-lrm-5-artemis-capable-registry",
+    "native": "IS Ammo LRM-5 Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-3-lrm",
+    "id": "is-ammo-mml-3-lrm-registry",
+    "native": "IS Ammo MML-3 LRM"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-3-srm",
+    "id": "is-ammo-mml-3-srm-registry",
+    "native": "IS Ammo MML-3 SRM"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-5-lrm",
+    "id": "is-ammo-mml-5-lrm-registry",
+    "native": "IS Ammo MML-5 LRM"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-5-lrm-artemis-capable",
+    "id": "is-ammo-mml-5-lrm-artemis-capable-registry",
+    "native": "IS Ammo MML-5 LRM Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-5-lrm:omni",
+    "id": "is-ammo-mml-5-lrm-registry",
+    "native": "IS Ammo MML-5 LRM"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-5-srm",
+    "id": "is-ammo-mml-5-srm-registry",
+    "native": "IS Ammo MML-5 SRM"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-5-srm-artemis-capable",
+    "id": "is-ammo-mml-5-srm-artemis-capable-registry",
+    "native": "IS Ammo MML-5 SRM Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-5-srm:omni",
+    "id": "is-ammo-mml-5-srm-registry",
+    "native": "IS Ammo MML-5 SRM"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-7-lrm",
+    "id": "is-ammo-mml-7-lrm-registry",
+    "native": "IS Ammo MML-7 LRM"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-7-lrm-artemis-capable",
+    "id": "is-ammo-mml-7-lrm-artemis-capable-registry",
+    "native": "IS Ammo MML-7 LRM Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-7-lrm-artemis-capable:omni",
+    "id": "is-ammo-mml-7-lrm-artemis-capable-registry",
+    "native": "IS Ammo MML-7 LRM Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-7-lrm:omni",
+    "id": "is-ammo-mml-7-lrm-registry",
+    "native": "IS Ammo MML-7 LRM"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-7-srm",
+    "id": "is-ammo-mml-7-srm-registry",
+    "native": "IS Ammo MML-7 SRM"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-7-srm-artemis-capable",
+    "id": "is-ammo-mml-7-srm-artemis-capable-registry",
+    "native": "IS Ammo MML-7 SRM Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-7-srm-artemis-capable:omni",
+    "id": "is-ammo-mml-7-srm-artemis-capable-registry",
+    "native": "IS Ammo MML-7 SRM Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-7-srm:omni",
+    "id": "is-ammo-mml-7-srm-registry",
+    "native": "IS Ammo MML-7 SRM"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-9-lrm-artemis-capable:omni",
+    "id": "is-ammo-mml-9-lrm-artemis-capable-registry",
+    "native": "IS Ammo MML-9 LRM Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-9-lrm:omni",
+    "id": "is-ammo-mml-9-lrm-registry",
+    "native": "IS Ammo MML-9 LRM"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-9-srm-artemis-capable:omni",
+    "id": "is-ammo-mml-9-srm-artemis-capable-registry",
+    "native": "IS Ammo MML-9 SRM Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-mml-9-srm:omni",
+    "id": "is-ammo-mml-9-srm-registry",
+    "native": "IS Ammo MML-9 SRM"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-srm-4-artemis-capable",
+    "id": "is-ammo-srm-4-artemis-capable-registry",
+    "native": "IS Ammo SRM-4 Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-srm-4-artemis-capable:omni",
+    "id": "is-ammo-srm-4-artemis-capable-registry",
+    "native": "IS Ammo SRM-4 Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-srm-6-artemis-capable",
+    "id": "is-ammo-srm-6-artemis-capable-registry",
+    "native": "IS Ammo SRM-6 Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-srm-6-artemis-capable:omni",
+    "id": "is-ammo-srm-6-artemis-capable-registry",
+    "native": "IS Ammo SRM-6 Artemis-capable"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-thunderbolt-10:omni",
+    "id": "is-ammo-thunderbolt-10-registry",
+    "native": "IS Ammo Thunderbolt-10"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-ammo-thunderbolt-20:omni",
+    "id": "is-ammo-thunderbolt-20-registry",
+    "native": "IS Ammo Thunderbolt-20"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-lb-2-x-cluster-ammo:omni",
+    "id": "is-lb-2-x-cluster-ammo-registry",
+    "native": "IS LB 2-X Cluster Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-reflective",
+    "id": "is-reflective-registry",
+    "native": "IS Reflective"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-streak-srm-2-ammo",
+    "id": "is-streak-srm-2-ammo-registry",
+    "native": "IS Streak SRM 2 Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-streak-srm-2-ammo:omni",
+    "id": "is-streak-srm-2-ammo-registry",
+    "native": "IS Streak SRM 2 Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-streak-srm-4-ammo",
+    "id": "is-streak-srm-4-ammo-registry",
+    "native": "IS Streak SRM 4 Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-streak-srm-4-ammo:omni",
+    "id": "is-streak-srm-4-ammo-registry",
+    "native": "IS Streak SRM 4 Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-streak-srm-6-ammo",
+    "id": "is-streak-srm-6-ammo-registry",
+    "native": "IS Streak SRM 6 Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-streak-srm-6-ammo:omni",
+    "id": "is-streak-srm-6-ammo-registry",
+    "native": "IS Streak SRM 6 Ammo"
+  },
+  {
+    "family": "aerospace",
+    "input": "is-vehicular-stealth",
+    "id": "is-vehicular-stealth-registry",
+    "native": "IS Vehicular Stealth"
+  },
+  {
+    "family": "aerospace",
+    "input": "isarrowivhomingammo",
+    "id": "isarrowivhomingammo-registry",
+    "native": "ISArrowIVHomingAmmo"
+  },
+  {
+    "family": "aerospace",
+    "input": "issrm4ios",
+    "id": "issrm4ios-registry",
+    "native": "ISSRM4IOS"
+  },
+  {
+    "family": "aerospace",
+    "input": "issrm6os",
+    "id": "issrm6os-registry",
+    "native": "ISSRM6OS"
+  },
+  {
+    "family": "aerospace",
+    "input": "isultraac5prototype",
+    "id": "isultraac5prototype-registry",
+    "native": "ISUltraAC5Prototype"
+  },
+  {
+    "family": "capital",
+    "input": "autocannon-10-primitive",
+    "id": "autocannon-10-primitive-registry",
+    "native": "Autocannon/10 Primitive"
+  },
+  {
+    "family": "capital",
+    "input": "b-autocannon-10-primitive",
+    "id": "autocannon-10-primitive-registry",
+    "native": "Autocannon/10 Primitive"
+  },
+  {
+    "family": "capital",
+    "input": "b-capital-missile-launcher-ar10-launcher",
+    "id": "capital-missile-launcher-ar10-launcher-registry",
+    "native": "Capital Missile Launcher (AR10 Launcher)"
+  },
+  {
+    "family": "capital",
+    "input": "b-capital-missile-launcher-barracuda",
+    "id": "capital-missile-launcher-barracuda-registry",
+    "native": "Capital Missile Launcher (Barracuda)"
+  },
+  {
+    "family": "capital",
+    "input": "b-capital-missile-launcher-killer-whale",
+    "id": "capital-missile-launcher-killer-whale-registry",
+    "native": "Capital Missile Launcher (Killer Whale)"
+  },
+  {
+    "family": "capital",
+    "input": "b-capital-missile-launcher-white-shark",
+    "id": "capital-missile-launcher-white-shark-registry",
+    "native": "Capital Missile Launcher (White Shark)"
+  },
+  {
+    "family": "capital",
+    "input": "b-islongtom",
+    "id": "islongtom-registry",
+    "native": "ISLongTom"
+  },
+  {
+    "family": "capital",
+    "input": "b-naval-autocannon-nac-10",
+    "id": "naval-autocannon-nac-10-registry",
+    "native": "Naval Autocannon (NAC/10)"
+  },
+  {
+    "family": "capital",
+    "input": "b-naval-autocannon-nac-20",
+    "id": "naval-autocannon-nac-20-registry",
+    "native": "Naval Autocannon (NAC/20)"
+  },
+  {
+    "family": "capital",
+    "input": "b-naval-autocannon-nac-25",
+    "id": "naval-autocannon-nac-25-registry",
+    "native": "Naval Autocannon (NAC/25)"
+  },
+  {
+    "family": "capital",
+    "input": "b-naval-autocannon-nac-30",
+    "id": "naval-autocannon-nac-30-registry",
+    "native": "Naval Autocannon (NAC/30)"
+  },
+  {
+    "family": "capital",
+    "input": "b-naval-autocannon-nac-35",
+    "id": "naval-autocannon-nac-35-registry",
+    "native": "Naval Autocannon (NAC/35)"
+  },
+  {
+    "family": "capital",
+    "input": "b-naval-autocannon-nac-40",
+    "id": "naval-autocannon-nac-40-registry",
+    "native": "Naval Autocannon (NAC/40)"
+  },
+  {
+    "family": "capital",
+    "input": "b-naval-laser-35",
+    "id": "naval-laser-35-registry",
+    "native": "Naval Laser 35"
+  },
+  {
+    "family": "capital",
+    "input": "b-naval-laser-45",
+    "id": "naval-laser-45-registry",
+    "native": "Naval Laser 45"
+  },
+  {
+    "family": "capital",
+    "input": "b-naval-laser-55",
+    "id": "naval-laser-55-registry",
+    "native": "Naval Laser 55"
+  },
+  {
+    "family": "capital",
+    "input": "b-naval-ppc-heavy",
+    "id": "naval-ppc-heavy-registry",
+    "native": "Naval PPC (Heavy)"
+  },
+  {
+    "family": "capital",
+    "input": "b-naval-ppc-light",
+    "id": "naval-ppc-light-registry",
+    "native": "Naval PPC (Light)"
+  },
+  {
+    "family": "capital",
+    "input": "b-naval-ppc-medium",
+    "id": "naval-ppc-medium-registry",
+    "native": "Naval PPC (Medium)"
+  },
+  {
+    "family": "capital",
+    "input": "b-screen-launcher",
+    "id": "screen-launcher-registry",
+    "native": "Screen Launcher"
+  },
+  {
+    "family": "capital",
+    "input": "b-sub-capital-cannon-heavy",
+    "id": "sub-capital-cannon-heavy-registry",
+    "native": "Sub-Capital Cannon (Heavy)"
+  },
+  {
+    "family": "capital",
+    "input": "b-sub-capital-cannon-light",
+    "id": "sub-capital-cannon-light-registry",
+    "native": "Sub-Capital Cannon (Light)"
+  },
+  {
+    "family": "capital",
+    "input": "b-sub-capital-cannon-medium",
+    "id": "sub-capital-cannon-medium-registry",
+    "native": "Sub-Capital Cannon (Medium)"
+  },
+  {
+    "family": "capital",
+    "input": "b-sub-capital-laser-1",
+    "id": "sub-capital-laser-1-registry",
+    "native": "Sub-Capital Laser /1"
+  },
+  {
+    "family": "capital",
+    "input": "b-sub-capital-laser-2",
+    "id": "sub-capital-laser-2-registry",
+    "native": "Sub-Capital Laser /2"
+  },
+  {
+    "family": "capital",
+    "input": "b-sub-capital-laser-3",
+    "id": "sub-capital-laser-3-registry",
+    "native": "Sub-Capital Laser /3"
+  },
+  {
+    "family": "capital",
+    "input": "b-sub-capital-missile-launcher-manta-ray",
+    "id": "sub-capital-missile-launcher-manta-ray-registry",
+    "native": "Sub-Capital Missile Launcher (Manta Ray)"
+  },
+  {
+    "family": "capital",
+    "input": "b-sub-capital-missile-launcher-piranha",
+    "id": "sub-capital-missile-launcher-piranha-registry",
+    "native": "Sub-Capital Missile Launcher (Piranha)"
+  },
+  {
+    "family": "capital",
+    "input": "b-sub-capital-missile-launcher-stingray",
+    "id": "sub-capital-missile-launcher-stingray-registry",
+    "native": "Sub-Capital Missile Launcher (Stingray)"
+  },
+  {
+    "family": "capital",
+    "input": "b-tele-operated-missile-kraken-t",
+    "id": "tele-operated-missile-kraken-t-registry",
+    "native": "Tele-operated Missile (Kraken T)"
+  },
+  {
+    "family": "capital",
+    "input": "capital-missile-launcher-ar10-launcher",
+    "id": "capital-missile-launcher-ar10-launcher-registry",
+    "native": "Capital Missile Launcher (AR10 Launcher)"
+  },
+  {
+    "family": "capital",
+    "input": "capital-missile-launcher-barracuda",
+    "id": "capital-missile-launcher-barracuda-registry",
+    "native": "Capital Missile Launcher (Barracuda)"
+  },
+  {
+    "family": "capital",
+    "input": "capital-missile-launcher-killer-whale",
+    "id": "capital-missile-launcher-killer-whale-registry",
+    "native": "Capital Missile Launcher (Killer Whale)"
+  },
+  {
+    "family": "capital",
+    "input": "capital-missile-launcher-white-shark",
+    "id": "capital-missile-launcher-white-shark-registry",
+    "native": "Capital Missile Launcher (White Shark)"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-15-clan-artemis-capable:16",
+    "id": "clan-ammo-lrm-15-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-15 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-15-clan-artemis-capable:64",
+    "id": "clan-ammo-lrm-15-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-15 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-15-clan-artemis-capable:8",
+    "id": "clan-ammo-lrm-15-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-15 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-15:64",
+    "id": "clan-ammo-lrm-15-registry",
+    "native": "Clan Ammo LRM-15"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20-clan-artemis-capable:12",
+    "id": "clan-ammo-lrm-20-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20-clan-artemis-capable:18",
+    "id": "clan-ammo-lrm-20-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20-clan-artemis-capable:24",
+    "id": "clan-ammo-lrm-20-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20-clan-artemis-capable:36",
+    "id": "clan-ammo-lrm-20-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20-clan-artemis-capable:48",
+    "id": "clan-ammo-lrm-20-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20-clan-artemis-capable:54",
+    "id": "clan-ammo-lrm-20-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20-clan-artemis-capable:6",
+    "id": "clan-ammo-lrm-20-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20-clan-artemis-capable:60",
+    "id": "clan-ammo-lrm-20-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20-clan-artemis-capable:600",
+    "id": "clan-ammo-lrm-20-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20-clan-artemis-capable:72",
+    "id": "clan-ammo-lrm-20-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20-clan-artemis-v-capable:24",
+    "id": "clan-ammo-lrm-20-clan-artemis-v-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis V-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20-clan-artemis-v-capable:42",
+    "id": "clan-ammo-lrm-20-clan-artemis-v-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis V-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20-clan-artemis-v-capable:504",
+    "id": "clan-ammo-lrm-20-clan-artemis-v-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis V-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20-clan-artemis-v-capable:60",
+    "id": "clan-ammo-lrm-20-clan-artemis-v-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis V-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20-clan-artemis-v-capable:600",
+    "id": "clan-ammo-lrm-20-clan-artemis-v-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis V-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20-clan-artemis-v-capable:900",
+    "id": "clan-ammo-lrm-20-clan-artemis-v-capable-registry",
+    "native": "Clan Ammo LRM-20 (Clan) Artemis V-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20:12",
+    "id": "clan-ammo-lrm-20-registry",
+    "native": "Clan Ammo LRM-20"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20:24",
+    "id": "clan-ammo-lrm-20-registry",
+    "native": "Clan Ammo LRM-20"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20:30",
+    "id": "clan-ammo-lrm-20-registry",
+    "native": "Clan Ammo LRM-20"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-lrm-20:36",
+    "id": "clan-ammo-lrm-20-registry",
+    "native": "Clan Ammo LRM-20"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-srm-6-clan-artemis-capable:30",
+    "id": "clan-ammo-srm-6-clan-artemis-capable-registry",
+    "native": "Clan Ammo SRM-6 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-srm-6-clan-artemis-capable:60",
+    "id": "clan-ammo-srm-6-clan-artemis-capable-registry",
+    "native": "Clan Ammo SRM-6 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-srm-6:15",
+    "id": "clan-ammo-srm-6-registry",
+    "native": "Clan Ammo SRM-6"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ammo-srm-6:60",
+    "id": "clan-ammo-srm-6-registry",
+    "native": "Clan Ammo SRM-6"
+  },
+  {
+    "family": "capital",
+    "input": "clan-lb-10-x-cluster-ammo:10",
+    "id": "clan-lb-10-x-cluster-ammo-registry",
+    "native": "Clan LB 10-X Cluster Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "clan-lb-10-x-cluster-ammo:30",
+    "id": "clan-lb-10-x-cluster-ammo-registry",
+    "native": "Clan LB 10-X Cluster Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "clan-lb-20-x-cluster-ammo:10",
+    "id": "clan-lb-20-x-cluster-ammo-registry",
+    "native": "Clan LB 20-X Cluster Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "clan-lb-20-x-cluster-ammo:15",
+    "id": "clan-lb-20-x-cluster-ammo-registry",
+    "native": "Clan LB 20-X Cluster Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ultra-ac-10-ammo:10",
+    "id": "clan-ultra-ac-10-ammo-registry",
+    "native": "Clan Ultra AC/10 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ultra-ac-10-ammo:100",
+    "id": "clan-ultra-ac-10-ammo-registry",
+    "native": "Clan Ultra AC/10 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ultra-ac-20-ammo:20",
+    "id": "clan-ultra-ac-20-ammo-registry",
+    "native": "Clan Ultra AC/20 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ultra-ac-20-ammo:25",
+    "id": "clan-ultra-ac-20-ammo-registry",
+    "native": "Clan Ultra AC/20 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ultra-ac-20-ammo:40",
+    "id": "clan-ultra-ac-20-ammo-registry",
+    "native": "Clan Ultra AC/20 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ultra-ac-20-ammo:50",
+    "id": "clan-ultra-ac-20-ammo-registry",
+    "native": "Clan Ultra AC/20 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ultra-ac-20-ammo:60",
+    "id": "clan-ultra-ac-20-ammo-registry",
+    "native": "Clan Ultra AC/20 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ultra-ac-5-ammo:20",
+    "id": "clan-ultra-ac-5-ammo-registry",
+    "native": "Clan Ultra AC/5 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ultra-ac-5-ammo:40",
+    "id": "clan-ultra-ac-5-ammo-registry",
+    "native": "Clan Ultra AC/5 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "clan-ultra-ac-5-ammo:80",
+    "id": "clan-ultra-ac-5-ammo-registry",
+    "native": "Clan Ultra AC/5 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "hyper-assault-gauss-rifle-30-ammo:20",
+    "id": "hyper-assault-gauss-rifle-30-ammo-registry",
+    "native": "Hyper-Assault Gauss Rifle/30 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "hyper-assault-gauss-rifle-40-ammo:24",
+    "id": "hyper-assault-gauss-rifle-40-ammo-registry",
+    "native": "Hyper-Assault Gauss Rifle/40 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "hyper-assault-gauss-rifle-40-ammo:42",
+    "id": "hyper-assault-gauss-rifle-40-ammo-registry",
+    "native": "Hyper-Assault Gauss Rifle/40 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "hyper-assault-gauss-rifle-40-ammo:60",
+    "id": "hyper-assault-gauss-rifle-40-ammo-registry",
+    "native": "Hyper-Assault Gauss Rifle/40 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-10-artemis-capable:12",
+    "id": "is-ammo-lrm-10-artemis-capable-registry",
+    "native": "IS Ammo LRM-10 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-10-artemis-capable:24",
+    "id": "is-ammo-lrm-10-artemis-capable-registry",
+    "native": "IS Ammo LRM-10 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-15-artemis-capable:136",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-15-artemis-capable:144",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-15-artemis-capable:152",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-15-artemis-capable:16",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-15-artemis-capable:168",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-15-artemis-capable:24",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-15-artemis-capable:32",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-15-artemis-capable:40",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-15-artemis-capable:48",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-15-artemis-capable:56",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-15-artemis-capable:64",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-15-artemis-capable:72",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-15-artemis-capable:96",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-20-artemis-capable:12",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-20-artemis-capable:144",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-20-artemis-capable:150",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-20-artemis-capable:18",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-20-artemis-capable:24",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-20-artemis-capable:30",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-20-artemis-capable:36",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-20-artemis-capable:42",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-20-artemis-capable:48",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-20-artemis-capable:60",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-20-artemis-capable:72",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-20-artemis-capable:78",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-20-artemis-capable:80",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-lrm-20-artemis-capable:96",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-mml-9-lrm-artemis-capable:104",
+    "id": "is-ammo-mml-9-lrm-artemis-capable-registry",
+    "native": "IS Ammo MML-9 LRM Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-mml-9-lrm-artemis-capable:208",
+    "id": "is-ammo-mml-9-lrm-artemis-capable-registry",
+    "native": "IS Ammo MML-9 LRM Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-mml-9-lrm-artemis-capable:26",
+    "id": "is-ammo-mml-9-lrm-artemis-capable-registry",
+    "native": "IS Ammo MML-9 LRM Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-mml-9-lrm-artemis-capable:39",
+    "id": "is-ammo-mml-9-lrm-artemis-capable-registry",
+    "native": "IS Ammo MML-9 LRM Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-mml-9-lrm-artemis-capable:44",
+    "id": "is-ammo-mml-9-lrm-artemis-capable-registry",
+    "native": "IS Ammo MML-9 LRM Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-mml-9-lrm-artemis-capable:78",
+    "id": "is-ammo-mml-9-lrm-artemis-capable-registry",
+    "native": "IS Ammo MML-9 LRM Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-mml-9-srm-artemis-capable:176",
+    "id": "is-ammo-mml-9-srm-artemis-capable-registry",
+    "native": "IS Ammo MML-9 SRM Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-mml-9-srm-artemis-capable:22",
+    "id": "is-ammo-mml-9-srm-artemis-capable-registry",
+    "native": "IS Ammo MML-9 SRM Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-mml-9-srm-artemis-capable:33",
+    "id": "is-ammo-mml-9-srm-artemis-capable-registry",
+    "native": "IS Ammo MML-9 SRM Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-mml-9-srm-artemis-capable:44",
+    "id": "is-ammo-mml-9-srm-artemis-capable-registry",
+    "native": "IS Ammo MML-9 SRM Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-mml-9-srm-artemis-capable:52",
+    "id": "is-ammo-mml-9-srm-artemis-capable-registry",
+    "native": "IS Ammo MML-9 SRM Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-mml-9-srm-artemis-capable:66",
+    "id": "is-ammo-mml-9-srm-artemis-capable-registry",
+    "native": "IS Ammo MML-9 SRM Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-mml-9-srm-artemis-capable:88",
+    "id": "is-ammo-mml-9-srm-artemis-capable-registry",
+    "native": "IS Ammo MML-9 SRM Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-srm-4-artemis-capable:25",
+    "id": "is-ammo-srm-4-artemis-capable-registry",
+    "native": "IS Ammo SRM-4 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-srm-6-artemis-capable:15",
+    "id": "is-ammo-srm-6-artemis-capable-registry",
+    "native": "IS Ammo SRM-6 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-srm-6-artemis-capable:240",
+    "id": "is-ammo-srm-6-artemis-capable-registry",
+    "native": "IS Ammo SRM-6 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-srm-6-artemis-capable:30",
+    "id": "is-ammo-srm-6-artemis-capable-registry",
+    "native": "IS Ammo SRM-6 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-ammo-srm-6-artemis-capable:45",
+    "id": "is-ammo-srm-6-artemis-capable-registry",
+    "native": "IS Ammo SRM-6 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "is-streak-srm-2-ammo:100",
+    "id": "is-streak-srm-2-ammo-registry",
+    "native": "IS Streak SRM 2 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "is-streak-srm-2-ammo:50",
+    "id": "is-streak-srm-2-ammo-registry",
+    "native": "IS Streak SRM 2 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "is-streak-srm-4-ammo:25",
+    "id": "is-streak-srm-4-ammo-registry",
+    "native": "IS Streak SRM 4 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "is-streak-srm-6-ammo:15",
+    "id": "is-streak-srm-6-ammo-registry",
+    "native": "IS Streak SRM 6 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "is-streak-srm-6-ammo:60",
+    "id": "is-streak-srm-6-ammo-registry",
+    "native": "IS Streak SRM 6 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "is-streak-srm-6-ammo:75",
+    "id": "is-streak-srm-6-ammo-registry",
+    "native": "IS Streak SRM 6 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "iscruisemissile120ammo:10",
+    "id": "iscruisemissile120ammo-registry",
+    "native": "ISCruiseMissile120Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "iscruisemissile50ammo:10",
+    "id": "iscruisemissile50ammo-registry",
+    "native": "ISCruiseMissile50Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "iscruisemissile50ammo:20",
+    "id": "iscruisemissile50ammo-registry",
+    "native": "ISCruiseMissile50Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "iscruisemissile70ammo:30",
+    "id": "iscruisemissile70ammo-registry",
+    "native": "ISCruiseMissile70Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "naval-autocannon-nac-10",
+    "id": "naval-autocannon-nac-10-registry",
+    "native": "Naval Autocannon (NAC/10)"
+  },
+  {
+    "family": "capital",
+    "input": "naval-autocannon-nac-20",
+    "id": "naval-autocannon-nac-20-registry",
+    "native": "Naval Autocannon (NAC/20)"
+  },
+  {
+    "family": "capital",
+    "input": "naval-autocannon-nac-25",
+    "id": "naval-autocannon-nac-25-registry",
+    "native": "Naval Autocannon (NAC/25)"
+  },
+  {
+    "family": "capital",
+    "input": "naval-autocannon-nac-30",
+    "id": "naval-autocannon-nac-30-registry",
+    "native": "Naval Autocannon (NAC/30)"
+  },
+  {
+    "family": "capital",
+    "input": "naval-autocannon-nac-35",
+    "id": "naval-autocannon-nac-35-registry",
+    "native": "Naval Autocannon (NAC/35)"
+  },
+  {
+    "family": "capital",
+    "input": "naval-autocannon-nac-40",
+    "id": "naval-autocannon-nac-40-registry",
+    "native": "Naval Autocannon (NAC/40)"
+  },
+  {
+    "family": "capital",
+    "input": "naval-laser-35",
+    "id": "naval-laser-35-registry",
+    "native": "Naval Laser 35"
+  },
+  {
+    "family": "capital",
+    "input": "naval-laser-45",
+    "id": "naval-laser-45-registry",
+    "native": "Naval Laser 45"
+  },
+  {
+    "family": "capital",
+    "input": "naval-laser-55",
+    "id": "naval-laser-55-registry",
+    "native": "Naval Laser 55"
+  },
+  {
+    "family": "capital",
+    "input": "naval-ppc-heavy",
+    "id": "naval-ppc-heavy-registry",
+    "native": "Naval PPC (Heavy)"
+  },
+  {
+    "family": "capital",
+    "input": "naval-ppc-light",
+    "id": "naval-ppc-light-registry",
+    "native": "Naval PPC (Light)"
+  },
+  {
+    "family": "capital",
+    "input": "naval-ppc-medium",
+    "id": "naval-ppc-medium-registry",
+    "native": "Naval PPC (Medium)"
+  },
+  {
+    "family": "capital",
+    "input": "r-b-capital-missile-launcher-ar10-launcher",
+    "id": "capital-missile-launcher-ar10-launcher-registry",
+    "native": "Capital Missile Launcher (AR10 Launcher)"
+  },
+  {
+    "family": "capital",
+    "input": "r-b-screen-launcher",
+    "id": "screen-launcher-registry",
+    "native": "Screen Launcher"
+  },
+  {
+    "family": "capital",
+    "input": "r-b-sub-capital-cannon-light",
+    "id": "sub-capital-cannon-light-registry",
+    "native": "Sub-Capital Cannon (Light)"
+  },
+  {
+    "family": "capital",
+    "input": "r-b-sub-capital-laser-2",
+    "id": "sub-capital-laser-2-registry",
+    "native": "Sub-Capital Laser /2"
+  },
+  {
+    "family": "capital",
+    "input": "r-b-sub-capital-missile-launcher-piranha",
+    "id": "sub-capital-missile-launcher-piranha-registry",
+    "native": "Sub-Capital Missile Launcher (Piranha)"
+  },
+  {
+    "family": "capital",
+    "input": "r-b-sub-capital-missile-launcher-stingray",
+    "id": "sub-capital-missile-launcher-stingray-registry",
+    "native": "Sub-Capital Missile Launcher (Stingray)"
+  },
+  {
+    "family": "capital",
+    "input": "r-capital-missile-launcher-ar10-launcher",
+    "id": "capital-missile-launcher-ar10-launcher-registry",
+    "native": "Capital Missile Launcher (AR10 Launcher)"
+  },
+  {
+    "family": "capital",
+    "input": "r-clan-ammo-lrm-15-clan-artemis-capable:16",
+    "id": "clan-ammo-lrm-15-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-15 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "r-clan-ammo-lrm-15-clan-artemis-capable:64",
+    "id": "clan-ammo-lrm-15-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-15 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "r-clan-ammo-lrm-15-clan-artemis-capable:8",
+    "id": "clan-ammo-lrm-15-clan-artemis-capable-registry",
+    "native": "Clan Ammo LRM-15 (Clan) Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "r-clan-ultra-ac-10-ammo:40",
+    "id": "clan-ultra-ac-10-ammo-registry",
+    "native": "Clan Ultra AC/10 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "r-clan-ultra-ac-5-ammo:20",
+    "id": "clan-ultra-ac-5-ammo-registry",
+    "native": "Clan Ultra AC/5 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "r-clan-ultra-ac-5-ammo:40",
+    "id": "clan-ultra-ac-5-ammo-registry",
+    "native": "Clan Ultra AC/5 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "r-hyper-assault-gauss-rifle-30-ammo:20",
+    "id": "hyper-assault-gauss-rifle-30-ammo-registry",
+    "native": "Hyper-Assault Gauss Rifle/30 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "r-is-ammo-lrm-10-artemis-capable:12",
+    "id": "is-ammo-lrm-10-artemis-capable-registry",
+    "native": "IS Ammo LRM-10 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "r-is-ammo-lrm-10-artemis-capable:36",
+    "id": "is-ammo-lrm-10-artemis-capable-registry",
+    "native": "IS Ammo LRM-10 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "r-is-ammo-lrm-15-artemis-capable:16",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "r-is-ammo-lrm-15-artemis-capable:64",
+    "id": "is-ammo-lrm-15-artemis-capable-registry",
+    "native": "IS Ammo LRM-15 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "r-is-ammo-lrm-20-artemis-capable:12",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "r-is-ammo-lrm-20-artemis-capable:18",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "r-is-ammo-lrm-20-artemis-capable:30",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "r-is-ammo-lrm-20-artemis-capable:36",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "r-is-ammo-lrm-20-artemis-capable:48",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "r-is-ammo-lrm-20-artemis-capable:72",
+    "id": "is-ammo-lrm-20-artemis-capable-registry",
+    "native": "IS Ammo LRM-20 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "r-is-ammo-srm-4-artemis-capable:25",
+    "id": "is-ammo-srm-4-artemis-capable-registry",
+    "native": "IS Ammo SRM-4 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "r-is-ammo-srm-6-artemis-capable:45",
+    "id": "is-ammo-srm-6-artemis-capable-registry",
+    "native": "IS Ammo SRM-6 Artemis-capable"
+  },
+  {
+    "family": "capital",
+    "input": "r-is-streak-srm-2-ammo:50",
+    "id": "is-streak-srm-2-ammo-registry",
+    "native": "IS Streak SRM 2 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "r-is-streak-srm-4-ammo:75",
+    "id": "is-streak-srm-4-ammo-registry",
+    "native": "IS Streak SRM 4 Ammo"
+  },
+  {
+    "family": "capital",
+    "input": "r-sub-capital-cannon-light",
+    "id": "sub-capital-cannon-light-registry",
+    "native": "Sub-Capital Cannon (Light)"
+  },
+  {
+    "family": "capital",
+    "input": "r-sub-capital-laser-2",
+    "id": "sub-capital-laser-2-registry",
+    "native": "Sub-Capital Laser /2"
+  },
+  {
+    "family": "capital",
+    "input": "r-sub-capital-missile-launcher-piranha",
+    "id": "sub-capital-missile-launcher-piranha-registry",
+    "native": "Sub-Capital Missile Launcher (Piranha)"
+  },
+  {
+    "family": "capital",
+    "input": "r-sub-capital-missile-launcher-stingray",
+    "id": "sub-capital-missile-launcher-stingray-registry",
+    "native": "Sub-Capital Missile Launcher (Stingray)"
+  },
+  {
+    "family": "capital",
+    "input": "screen-launcher",
+    "id": "screen-launcher-registry",
+    "native": "Screen Launcher"
+  },
+  {
+    "family": "capital",
+    "input": "sub-capital-cannon-heavy",
+    "id": "sub-capital-cannon-heavy-registry",
+    "native": "Sub-Capital Cannon (Heavy)"
+  },
+  {
+    "family": "capital",
+    "input": "sub-capital-cannon-light",
+    "id": "sub-capital-cannon-light-registry",
+    "native": "Sub-Capital Cannon (Light)"
+  },
+  {
+    "family": "capital",
+    "input": "sub-capital-cannon-medium",
+    "id": "sub-capital-cannon-medium-registry",
+    "native": "Sub-Capital Cannon (Medium)"
+  },
+  {
+    "family": "capital",
+    "input": "sub-capital-laser-1",
+    "id": "sub-capital-laser-1-registry",
+    "native": "Sub-Capital Laser /1"
+  },
+  {
+    "family": "capital",
+    "input": "sub-capital-laser-2",
+    "id": "sub-capital-laser-2-registry",
+    "native": "Sub-Capital Laser /2"
+  },
+  {
+    "family": "capital",
+    "input": "sub-capital-laser-3",
+    "id": "sub-capital-laser-3-registry",
+    "native": "Sub-Capital Laser /3"
+  },
+  {
+    "family": "capital",
+    "input": "sub-capital-missile-launcher-manta-ray",
+    "id": "sub-capital-missile-launcher-manta-ray-registry",
+    "native": "Sub-Capital Missile Launcher (Manta Ray)"
+  },
+  {
+    "family": "capital",
+    "input": "sub-capital-missile-launcher-piranha",
+    "id": "sub-capital-missile-launcher-piranha-registry",
+    "native": "Sub-Capital Missile Launcher (Piranha)"
+  },
+  {
+    "family": "capital",
+    "input": "sub-capital-missile-launcher-stingray",
+    "id": "sub-capital-missile-launcher-stingray-registry",
+    "native": "Sub-Capital Missile Launcher (Stingray)"
+  },
+  {
+    "family": "capital",
+    "input": "tele-operated-missile-kraken-t",
+    "id": "tele-operated-missile-kraken-t-registry",
+    "native": "Tele-operated Missile (Kraken T)"
+  },
+  {
+    "family": "battlearmor",
+    "input": "ba-magnetic-clamp",
+    "id": "ba-magnetic-clamp-registry",
+    "native": "BA-Magnetic Clamp"
+  },
+  {
+    "family": "battlearmor",
+    "input": "bacargolifter",
+    "id": "bacargolifter-registry",
+    "native": "BACargoLifter"
+  },
+  {
+    "family": "battlearmor",
+    "input": "bacl-ammo-lrm-3",
+    "id": "bacl-ammo-lrm-3-registry",
+    "native": "BACL Ammo LRM-3"
+  },
+  {
+    "family": "battlearmor",
+    "input": "bacl-ammo-lrm-4",
+    "id": "bacl-ammo-lrm-4-registry",
+    "native": "BACL Ammo LRM-4"
+  },
+  {
+    "family": "battlearmor",
+    "input": "bacl-ammo-lrm-5",
+    "id": "bacl-ammo-lrm-5-registry",
+    "native": "BACL Ammo LRM-5"
+  },
+  {
+    "family": "battlearmor",
+    "input": "baclermediumpulselaser",
+    "id": "baclermediumpulselaser-registry",
+    "native": "BACLERMediumPulseLaser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "baisangelecmsuite",
+    "id": "baisangelecmsuite-registry",
+    "native": "BAISAngelECMSuite"
+  },
+  {
+    "family": "battlearmor",
+    "input": "bamechanicaljumpbooster",
+    "id": "bamechanicaljumpbooster-registry",
+    "native": "BAMechanicalJumpBooster"
+  },
+  {
+    "family": "battlearmor",
+    "input": "baminelauncher",
+    "id": "baminelauncher-registry",
+    "native": "BAMineLauncher"
+  },
+  {
+    "family": "battlearmor",
+    "input": "battle-armor-lb-x-ac",
+    "id": "battle-armor-lb-x-ac-registry",
+    "native": "Battle Armor LB-X AC"
+  },
+  {
+    "family": "battlearmor",
+    "input": "camo-system",
+    "id": "camo-system-registry",
+    "native": "Camo System"
+  },
+  {
+    "family": "battlearmor",
+    "input": "cl-ba-ecm",
+    "id": "cl-ba-ecm-registry",
+    "native": "CL BA ECM"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clan-ba-fire-resistant",
+    "id": "clan-ba-fire-resistant-registry",
+    "native": "Clan BA Fire Resistant"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clan-ba-laser-reflective-reflec-glazed",
+    "id": "clan-ba-laser-reflective-reflec-glazed-registry",
+    "native": "Clan BA Laser Reflective (Reflec/Glazed)"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clan-ba-reactive-blazer",
+    "id": "clan-ba-reactive-blazer-registry",
+    "native": "Clan BA Reactive (Blazer)"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clan-ba-stealth-basic",
+    "id": "clan-ba-stealth-basic-registry",
+    "native": "Clan BA Stealth (Basic)"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clan-ba-stealth-improved",
+    "id": "clan-ba-stealth-improved-registry",
+    "native": "Clan BA Stealth (Improved)"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clan-ba-stealth-standard",
+    "id": "clan-ba-stealth-standard-registry",
+    "native": "Clan BA Stealth (Standard)"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbaermediumlaser",
+    "id": "clbaermediumlaser-registry",
+    "native": "CLBAERMediumLaser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbaermicrolaser",
+    "id": "clbaermicrolaser-registry",
+    "native": "CLBAERMicroLaser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbaersmalllaser",
+    "id": "clbaersmalllaser-registry",
+    "native": "CLBAERSmallLaser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbaersmallpulselaser",
+    "id": "clbaersmallpulselaser-registry",
+    "native": "CLBAERSmallPulseLaser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbaflamer",
+    "id": "clbaflamer-registry",
+    "native": "CLBAFlamer"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbaheavyflamer",
+    "id": "clbaheavyflamer-registry",
+    "native": "CLBAHeavyFlamer"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbaheavygrenadelauncher",
+    "id": "clbaheavygrenadelauncher-registry",
+    "native": "CLBAHeavyGrenadeLauncher"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbaheavymortar",
+    "id": "clbaheavymortar-registry",
+    "native": "CLBAHeavyMortar"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbaheavysmalllaser",
+    "id": "clbaheavysmalllaser-registry",
+    "native": "CLBAHeavySmallLaser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbalightmortar",
+    "id": "clbalightmortar-registry",
+    "native": "CLBALightMortar"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbalighttag",
+    "id": "clbalighttag-registry",
+    "native": "CLBALightTAG"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbalrm5",
+    "id": "clbalrm5-registry",
+    "native": "CLBALRM5"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbamediumpulselaser",
+    "id": "clbamediumpulselaser-registry",
+    "native": "CLBAMediumPulseLaser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbamicrobomb",
+    "id": "clbamicrobomb-registry",
+    "native": "CLBAMicroBomb"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbamicropulselaser",
+    "id": "clbamicropulselaser-registry",
+    "native": "CLBAMicroPulseLaser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbamyomerbooster",
+    "id": "clbamyomerbooster-registry",
+    "native": "CLBAMyomerBooster"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbasmall-laser",
+    "id": "clbasmall-laser-registry",
+    "native": "CLBASmall Laser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbasmallpulselaser",
+    "id": "clbasmallpulselaser-registry",
+    "native": "CLBASmallPulseLaser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbasrm2",
+    "id": "clbasrm2-registry",
+    "native": "CLBASRM2"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbasrm4",
+    "id": "clbasrm4-registry",
+    "native": "CLBASRM4"
+  },
+  {
+    "family": "battlearmor",
+    "input": "clbasrm6",
+    "id": "clbasrm6-registry",
+    "native": "CLBASRM6"
+  },
+  {
+    "family": "battlearmor",
+    "input": "climprovedsensors",
+    "id": "climprovedsensors-registry",
+    "native": "CLImprovedSensors"
+  },
+  {
+    "family": "battlearmor",
+    "input": "infantryassaultrifle",
+    "id": "infantryassaultrifle-registry",
+    "native": "InfantryAssaultRifle"
+  },
+  {
+    "family": "battlearmor",
+    "input": "is-ba-advanced",
+    "id": "is-ba-advanced-registry",
+    "native": "IS BA Advanced"
+  },
+  {
+    "family": "battlearmor",
+    "input": "is-ba-ecm",
+    "id": "is-ba-ecm-registry",
+    "native": "IS BA ECM"
+  },
+  {
+    "family": "battlearmor",
+    "input": "is-ba-laser-reflective-reflec-glazed",
+    "id": "is-ba-laser-reflective-reflec-glazed-registry",
+    "native": "IS BA Laser Reflective (Reflec/Glazed)"
+  },
+  {
+    "family": "battlearmor",
+    "input": "is-ba-mimetic",
+    "id": "is-ba-mimetic-registry",
+    "native": "IS BA Mimetic"
+  },
+  {
+    "family": "battlearmor",
+    "input": "is-ba-reactive-blazer",
+    "id": "is-ba-reactive-blazer-registry",
+    "native": "IS BA Reactive (Blazer)"
+  },
+  {
+    "family": "battlearmor",
+    "input": "is-ba-stealth-basic",
+    "id": "is-ba-stealth-basic-registry",
+    "native": "IS BA Stealth (Basic)"
+  },
+  {
+    "family": "battlearmor",
+    "input": "is-ba-stealth-improved",
+    "id": "is-ba-stealth-improved-registry",
+    "native": "IS BA Stealth (Improved)"
+  },
+  {
+    "family": "battlearmor",
+    "input": "is-ba-stealth-prototype",
+    "id": "is-ba-stealth-prototype-registry",
+    "native": "IS BA Stealth (Prototype)"
+  },
+  {
+    "family": "battlearmor",
+    "input": "is-ba-stealth-standard",
+    "id": "is-ba-stealth-standard-registry",
+    "native": "IS BA Stealth (Standard)"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbaapds",
+    "id": "isbaapds-registry",
+    "native": "ISBAAPDS"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbaermediumlaser",
+    "id": "isbaermediumlaser-registry",
+    "native": "ISBAERMediumLaser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbaersmalllaser",
+    "id": "isbaersmalllaser-registry",
+    "native": "ISBAERSmallLaser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbafiredrakeneedler",
+    "id": "isbafiredrakeneedler-registry",
+    "native": "ISBAFireDrakeNeedler"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbaheavymachinegun",
+    "id": "isbaheavymachinegun-registry",
+    "native": "ISBAHeavyMachineGun"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbalrm5",
+    "id": "isbalrm5-registry",
+    "native": "ISBALRM5"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbamediumlaser",
+    "id": "isbamediumlaser-registry",
+    "native": "ISBAMediumLaser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbamediumpulselaser",
+    "id": "isbamediumpulselaser-registry",
+    "native": "ISBAMediumPulseLaser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbamediumvsplaser",
+    "id": "isbamediumvsplaser-registry",
+    "native": "ISBAMediumVSPLaser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbamicrogrenadelauncher",
+    "id": "isbamicrogrenadelauncher-registry",
+    "native": "ISBAMicroGrenadeLauncher"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbaplasmarifle",
+    "id": "isbaplasmarifle-registry",
+    "native": "ISBAPlasmaRifle"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbaremotesensordispenser",
+    "id": "isbaremotesensordispenser-registry",
+    "native": "ISBARemoteSensorDispenser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbarl1",
+    "id": "isbarl1-registry",
+    "native": "ISBARL1"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbarl2",
+    "id": "isbarl2-registry",
+    "native": "ISBARL2"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbarl4",
+    "id": "isbarl4-registry",
+    "native": "ISBARL4"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbarl5",
+    "id": "isbarl5-registry",
+    "native": "ISBARL5"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbasmalllaser",
+    "id": "isbasmalllaser-registry",
+    "native": "ISBASmallLaser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbasmallpulselaser",
+    "id": "isbasmallpulselaser-registry",
+    "native": "ISBASmallPulseLaser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbasrm2",
+    "id": "isbasrm2-registry",
+    "native": "ISBASRM2"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbasrm2os",
+    "id": "isbasrm2os-registry",
+    "native": "ISBASRM2OS"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbasrm3os",
+    "id": "isbasrm3os-registry",
+    "native": "ISBASRM3OS"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbasrm4",
+    "id": "isbasrm4-registry",
+    "native": "ISBASRM4"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbasrm4os",
+    "id": "isbasrm4os-registry",
+    "native": "ISBASRM4OS"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbasrm6os",
+    "id": "isbasrm6os-registry",
+    "native": "ISBASRM6OS"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbasupportppc",
+    "id": "isbasupportppc-registry",
+    "native": "ISBASupportPPC"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbataser",
+    "id": "isbataser-registry",
+    "native": "ISBATaser"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbatubeartillery",
+    "id": "isbatubeartillery-registry",
+    "native": "ISBATubeArtillery"
+  },
+  {
+    "family": "battlearmor",
+    "input": "isbatubeartilleryammo",
+    "id": "isbatubeartilleryammo-registry",
+    "native": "ISBATubeArtilleryAmmo"
+  },
+  {
+    "family": "battlearmor",
+    "input": "laser-rifle-mauser-960",
+    "id": "laser-rifle-mauser-960-registry",
+    "native": "Laser Rifle (Mauser 960)"
+  },
+  {
+    "family": "battlearmor",
+    "input": "laser-rifle-mauser-iic-ias",
+    "id": "laser-rifle-mauser-iic-ias-registry",
+    "native": "Laser Rifle (Mauser IIC IAS)"
+  },
+  {
+    "family": "infantry",
+    "input": "antimekgear",
+    "id": "antimekgear-registry",
+    "native": "AntiMekGear"
+  },
+  {
+    "family": "infantry",
+    "input": "auto-pistol",
+    "id": "auto-pistol-registry",
+    "native": "Auto-Pistol"
+  },
+  {
+    "family": "infantry",
+    "input": "auto-pistol-magnum",
+    "id": "auto-pistol-magnum-registry",
+    "native": "Auto-Pistol (Magnum)"
+  },
+  {
+    "family": "infantry",
+    "input": "auto-pistol-nambu",
+    "id": "auto-pistol-nambu-registry",
+    "native": "Auto-Pistol (Nambu)"
+  },
+  {
+    "family": "infantry",
+    "input": "auto-pistol-serrek-7875d",
+    "id": "auto-pistol-serrek-7875d-registry",
+    "native": "Auto-Pistol (Serrek 7875D)"
+  },
+  {
+    "family": "infantry",
+    "input": "auto-shotgun",
+    "id": "auto-shotgun-registry",
+    "native": "Auto-Shotgun"
+  },
+  {
+    "family": "infantry",
+    "input": "autocannon-bearhunter-superheavy",
+    "id": "autocannon-bearhunter-superheavy-registry",
+    "native": "Autocannon (Bearhunter Superheavy)"
+  },
+  {
+    "family": "infantry",
+    "input": "autocannon-semi-portable",
+    "id": "autocannon-semi-portable-registry",
+    "native": "Autocannon (Semi-Portable)"
+  },
+  {
+    "family": "infantry",
+    "input": "blade-dagger-knife-bayonet",
+    "id": "blade-dagger-knife-bayonet-registry",
+    "native": "Blade (Dagger/Knife/Bayonet)"
+  },
+  {
+    "family": "infantry",
+    "input": "blade-vibro-blade",
+    "id": "blade-vibro-blade-registry",
+    "native": "Blade (Vibro-blade)"
+  },
+  {
+    "family": "infantry",
+    "input": "blade-vibro-katana",
+    "id": "blade-vibro-katana-registry",
+    "native": "Blade (Vibro-katana)"
+  },
+  {
+    "family": "infantry",
+    "input": "ceres-arms-crowdbuster",
+    "id": "ceres-arms-crowdbuster-registry",
+    "native": "Ceres Arms Crowdbuster"
+  },
+  {
+    "family": "infantry",
+    "input": "clan-lb-10-x-cluster-ammo",
+    "id": "clan-lb-10-x-cluster-ammo-registry",
+    "native": "Clan LB 10-X Cluster Ammo"
+  },
+  {
+    "family": "infantry",
+    "input": "clan-lb-20-x-cluster-ammo",
+    "id": "clan-lb-20-x-cluster-ammo-registry",
+    "native": "Clan LB 20-X Cluster Ammo"
+  },
+  {
+    "family": "infantry",
+    "input": "clan-ultra-ac-10-ammo",
+    "id": "clan-ultra-ac-10-ammo-registry",
+    "native": "Clan Ultra AC/10 Ammo"
+  },
+  {
+    "family": "infantry",
+    "input": "clan-ultra-ac-2-ammo",
+    "id": "clan-ultra-ac-2-ammo-registry",
+    "native": "Clan Ultra AC/2 Ammo"
+  },
+  {
+    "family": "infantry",
+    "input": "clan-ultra-ac-20-ammo",
+    "id": "clan-ultra-ac-20-ammo-registry",
+    "native": "Clan Ultra AC/20 Ammo"
+  },
+  {
+    "family": "infantry",
+    "input": "clan-ultra-ac-5-ammo",
+    "id": "clan-ultra-ac-5-ammo-registry",
+    "native": "Clan Ultra AC/5 Ammo"
+  },
+  {
+    "family": "infantry",
+    "input": "clrotaryac2-ammo",
+    "id": "clrotaryac2-ammo-registry",
+    "native": "CLRotaryAC2 Ammo"
+  },
+  {
+    "family": "infantry",
+    "input": "clrotaryac5-ammo",
+    "id": "clrotaryac5-ammo-registry",
+    "native": "CLRotaryAC5 Ammo"
+  },
+  {
+    "family": "infantry",
+    "input": "elephant-gun",
+    "id": "elephant-gun-registry",
+    "native": "Elephant Gun"
+  },
+  {
+    "family": "infantry",
+    "input": "fire-extinguisher",
+    "id": "fire-extinguisher-registry",
+    "native": "Fire Extinguisher"
+  },
+  {
+    "family": "infantry",
+    "input": "flamer-heavy",
+    "id": "flamer-heavy-registry",
+    "native": "Flamer (Heavy)"
+  },
+  {
+    "family": "infantry",
+    "input": "flamer-man-portable",
+    "id": "flamer-man-portable-registry",
+    "native": "Flamer (Man-Portable)"
+  },
+  {
+    "family": "infantry",
+    "input": "gauss-cannon-grand-mauler",
+    "id": "gauss-cannon-grand-mauler-registry",
+    "native": "Gauss Cannon (Grand Mauler)"
+  },
+  {
+    "family": "infantry",
+    "input": "gauss-rifle-gungnir-heavy-support",
+    "id": "gauss-rifle-gungnir-heavy-support-registry",
+    "native": "Gauss Rifle (Gungnir Heavy Support)"
+  },
+  {
+    "family": "infantry",
+    "input": "gauss-rifle-thunderstroke",
+    "id": "gauss-rifle-thunderstroke-registry",
+    "native": "Gauss Rifle (Thunderstroke)"
+  },
+  {
+    "family": "infantry",
+    "input": "gauss-rifle-thunderstroke-ii",
+    "id": "gauss-rifle-thunderstroke-ii-registry",
+    "native": "Gauss Rifle (Thunderstroke II)"
+  },
+  {
+    "family": "infantry",
+    "input": "gauss-rifle-tsunami-heavy",
+    "id": "gauss-rifle-tsunami-heavy-registry",
+    "native": "Gauss Rifle (Tsunami Heavy)"
+  },
+  {
+    "family": "infantry",
+    "input": "gauss-submachine-gun",
+    "id": "gauss-submachine-gun-registry",
+    "native": "Gauss Submachine Gun"
+  },
+  {
+    "family": "infantry",
+    "input": "grenade-launcher",
+    "id": "grenade-launcher-registry",
+    "native": "Grenade Launcher"
+  },
+  {
+    "family": "infantry",
+    "input": "grenade-launcher-compact",
+    "id": "grenade-launcher-compact-registry",
+    "native": "Grenade Launcher (Compact)"
+  },
+  {
+    "family": "infantry",
+    "input": "gyrojet-rifle",
+    "id": "gyrojet-rifle-registry",
+    "native": "Gyrojet Rifle"
+  },
+  {
+    "family": "infantry",
+    "input": "gyroslug-rifle",
+    "id": "gyroslug-rifle-registry",
+    "native": "Gyroslug Rifle"
+  },
+  {
+    "family": "infantry",
+    "input": "infantryassaultrifle",
+    "id": "infantryassaultrifle-registry",
+    "native": "InfantryAssaultRifle"
+  },
+  {
+    "family": "infantry",
+    "input": "infantryautogl",
+    "id": "infantryautogl-registry",
+    "native": "InfantryAutoGL"
+  },
+  {
+    "family": "infantry",
+    "input": "infantryautoglinferno",
+    "id": "infantryautoglinferno-registry",
+    "native": "InfantryAutoGLInferno"
+  },
+  {
+    "family": "infantry",
+    "input": "infantryfederatedbarrettm42b",
+    "id": "infantryfederatedbarrettm42b-registry",
+    "native": "InfantryFederatedBarrettM42B"
+  },
+  {
+    "family": "infantry",
+    "input": "infantryfederatedbarrettm61a",
+    "id": "infantryfederatedbarrettm61a-registry",
+    "native": "InfantryFederatedBarrettM61A"
+  },
+  {
+    "family": "infantry",
+    "input": "infantryheavygrenadelauncherinferno",
+    "id": "infantryheavygrenadelauncherinferno-registry",
+    "native": "InfantryHeavyGrenadeLauncherInferno"
+  },
+  {
+    "family": "infantry",
+    "input": "infantryheavymortar",
+    "id": "infantryheavymortar-registry",
+    "native": "InfantryHeavyMortar"
+  },
+  {
+    "family": "infantry",
+    "input": "infantryheavysrm",
+    "id": "infantryheavysrm-registry",
+    "native": "InfantryHeavySRM"
+  },
+  {
+    "family": "infantry",
+    "input": "infantryhrr",
+    "id": "infantryhrr-registry",
+    "native": "InfantryHRR"
+  },
+  {
+    "family": "infantry",
+    "input": "infantrylightmortar",
+    "id": "infantrylightmortar-registry",
+    "native": "InfantryLightMortar"
+  },
+  {
+    "family": "infantry",
+    "input": "infantrylrm",
+    "id": "infantrylrm-registry",
+    "native": "InfantryLRM"
+  },
+  {
+    "family": "infantry",
+    "input": "infantrylrr",
+    "id": "infantrylrr-registry",
+    "native": "InfantryLRR"
+  },
+  {
+    "family": "infantry",
+    "input": "infantryminigrenadeinferno",
+    "id": "infantryminigrenadeinferno-registry",
+    "native": "InfantryMiniGrenadeInferno"
+  },
+  {
+    "family": "infantry",
+    "input": "infantrymrr",
+    "id": "infantrymrr-registry",
+    "native": "InfantryMRR"
+  },
+  {
+    "family": "infantry",
+    "input": "infantryoneshotmrm",
+    "id": "infantryoneshotmrm-registry",
+    "native": "InfantryOneShotMRM"
+  },
+  {
+    "family": "infantry",
+    "input": "infantrysrmlight",
+    "id": "infantrysrmlight-registry",
+    "native": "InfantrySRMLight"
+  },
+  {
+    "family": "infantry",
+    "input": "infantrystandardsrm",
+    "id": "infantrystandardsrm-registry",
+    "native": "InfantryStandardSRM"
+  },
+  {
+    "family": "infantry",
+    "input": "infantrytag",
+    "id": "infantrytag-registry",
+    "native": "InfantryTAG"
+  },
+  {
+    "family": "infantry",
+    "input": "is-ammo-heavy-rifle",
+    "id": "is-ammo-heavy-rifle-registry",
+    "native": "IS Ammo Heavy Rifle"
+  },
+  {
+    "family": "infantry",
+    "input": "is-ammo-hvac-10",
+    "id": "is-ammo-hvac-10-registry",
+    "native": "IS Ammo HVAC/10"
+  },
+  {
+    "family": "infantry",
+    "input": "is-ammo-hvac-2",
+    "id": "is-ammo-hvac-2-registry",
+    "native": "IS Ammo HVAC/2"
+  },
+  {
+    "family": "infantry",
+    "input": "is-ammo-hvac-5",
+    "id": "is-ammo-hvac-5-registry",
+    "native": "IS Ammo HVAC/5"
+  },
+  {
+    "family": "infantry",
+    "input": "is-ammo-light-rifle",
+    "id": "is-ammo-light-rifle-registry",
+    "native": "IS Ammo Light Rifle"
+  },
+  {
+    "family": "infantry",
+    "input": "is-ammo-medium-rifle",
+    "id": "is-ammo-medium-rifle-registry",
+    "native": "IS Ammo Medium Rifle"
+  },
+  {
+    "family": "infantry",
+    "input": "is-lb-2-x-cluster-ammo",
+    "id": "is-lb-2-x-cluster-ammo-registry",
+    "native": "IS LB 2-X Cluster Ammo"
+  },
+  {
+    "family": "infantry",
+    "input": "is-lb-5-x-cluster-ammo",
+    "id": "is-lb-5-x-cluster-ammo-registry",
+    "native": "IS LB 5-X Cluster Ammo"
+  },
+  {
+    "family": "infantry",
+    "input": "islongtom",
+    "id": "islongtom-registry",
+    "native": "ISLongTom"
+  },
+  {
+    "family": "infantry",
+    "input": "issniper",
+    "id": "issniper-registry",
+    "native": "ISSniper"
+  },
+  {
+    "family": "infantry",
+    "input": "isthumper",
+    "id": "isthumper-registry",
+    "native": "ISThumper"
+  },
+  {
+    "family": "infantry",
+    "input": "laser-hellbore-assault",
+    "id": "laser-hellbore-assault-registry",
+    "native": "Laser (Hellbore Assault)"
+  },
+  {
+    "family": "infantry",
+    "input": "laser-pistol-blazer",
+    "id": "laser-pistol-blazer-registry",
+    "native": "Laser Pistol (Blazer)"
+  },
+  {
+    "family": "infantry",
+    "input": "laser-pistol-sunbeam",
+    "id": "laser-pistol-sunbeam-registry",
+    "native": "Laser Pistol (Sunbeam)"
+  },
+  {
+    "family": "infantry",
+    "input": "laser-rifle",
+    "id": "laser-rifle-registry",
+    "native": "Laser Rifle"
+  },
+  {
+    "family": "infantry",
+    "input": "laser-rifle-blazer",
+    "id": "laser-rifle-blazer-registry",
+    "native": "Laser Rifle (Blazer)"
+  },
+  {
+    "family": "infantry",
+    "input": "laser-rifle-ebony-assault",
+    "id": "laser-rifle-ebony-assault-registry",
+    "native": "Laser Rifle (Ebony Assault)"
+  },
+  {
+    "family": "infantry",
+    "input": "laser-rifle-er",
+    "id": "laser-rifle-er-registry",
+    "native": "Laser Rifle (ER)"
+  },
+  {
+    "family": "infantry",
+    "input": "laser-rifle-intek",
+    "id": "laser-rifle-intek-registry",
+    "native": "Laser Rifle (Intek)"
+  },
+  {
+    "family": "infantry",
+    "input": "laser-rifle-magna",
+    "id": "laser-rifle-magna-registry",
+    "native": "Laser Rifle (Magna)"
+  },
+  {
+    "family": "infantry",
+    "input": "laser-rifle-marx-xx",
+    "id": "laser-rifle-marx-xx-registry",
+    "native": "Laser Rifle (Marx XX)"
+  },
+  {
+    "family": "infantry",
+    "input": "laser-rifle-mauser-1200-lss",
+    "id": "laser-rifle-mauser-1200-lss-registry",
+    "native": "Laser Rifle (Mauser 1200 LSS)"
+  },
+  {
+    "family": "infantry",
+    "input": "laser-rifle-mauser-960",
+    "id": "laser-rifle-mauser-960-registry",
+    "native": "Laser Rifle (Mauser 960)"
+  },
+  {
+    "family": "infantry",
+    "input": "laser-rifle-mauser-iic-ias",
+    "id": "laser-rifle-mauser-iic-ias-registry",
+    "native": "Laser Rifle (Mauser IIC IAS)"
+  },
+  {
+    "family": "infantry",
+    "input": "laser-rifle-maxell-pl-10",
+    "id": "laser-rifle-maxell-pl-10-registry",
+    "native": "Laser Rifle (Maxell PL-10)"
+  },
+  {
+    "family": "infantry",
+    "input": "machine-gun-portable",
+    "id": "machine-gun-portable-registry",
+    "native": "Machine Gun (Portable)"
+  },
+  {
+    "family": "infantry",
+    "input": "machine-gun-semi-portable",
+    "id": "machine-gun-semi-portable-registry",
+    "native": "Machine Gun (Semi-Portable)"
+  },
+  {
+    "family": "infantry",
+    "input": "machine-gun-support",
+    "id": "machine-gun-support-registry",
+    "native": "Machine Gun (Support)"
+  },
+  {
+    "family": "infantry",
+    "input": "needler-pistol",
+    "id": "needler-pistol-registry",
+    "native": "Needler Pistol"
+  },
+  {
+    "family": "infantry",
+    "input": "needler-rifle",
+    "id": "needler-rifle-registry",
+    "native": "Needler Rifle"
+  },
+  {
+    "family": "infantry",
+    "input": "needler-rifle-shredder-heavy",
+    "id": "needler-rifle-shredder-heavy-registry",
+    "native": "Needler Rifle (Shredder Heavy)"
+  },
+  {
+    "family": "infantry",
+    "input": "particle-cannon-semi-portable",
+    "id": "particle-cannon-semi-portable-registry",
+    "native": "Particle Cannon (Semi-Portable)"
+  },
+  {
+    "family": "infantry",
+    "input": "particle-cannon-support",
+    "id": "particle-cannon-support-registry",
+    "native": "Particle Cannon (Support)"
+  },
+  {
+    "family": "infantry",
+    "input": "plasma-rifle-man-portable",
+    "id": "plasma-rifle-man-portable-registry",
+    "native": "Plasma Rifle (Man-Portable)"
+  },
+  {
+    "family": "infantry",
+    "input": "rifle-bolt-action",
+    "id": "rifle-bolt-action-registry",
+    "native": "Rifle (Bolt-Action)"
+  },
+  {
+    "family": "infantry",
+    "input": "rifle-federated-long",
+    "id": "rifle-federated-long-registry",
+    "native": "Rifle (Federated Long)"
+  },
+  {
+    "family": "infantry",
+    "input": "rifle-imperator-ax-22-assault",
+    "id": "rifle-imperator-ax-22-assault-registry",
+    "native": "Rifle (Imperator AX-22 Assault)"
+  },
+  {
+    "family": "infantry",
+    "input": "rifle-makeshift",
+    "id": "rifle-makeshift-registry",
+    "native": "Rifle (Makeshift)"
+  },
+  {
+    "family": "infantry",
+    "input": "rifle-striker-carbine",
+    "id": "rifle-striker-carbine-registry",
+    "native": "Rifle (Striker Carbine)"
+  },
+  {
+    "family": "infantry",
+    "input": "rifle-tk-assault",
+    "id": "rifle-tk-assault-registry",
+    "native": "Rifle (TK Assault)"
+  },
+  {
+    "family": "infantry",
+    "input": "rifle-zeus-heavy",
+    "id": "rifle-zeus-heavy-registry",
+    "native": "Rifle (Zeus Heavy)"
+  },
+  {
+    "family": "infantry",
+    "input": "rocket-launcher-v-law",
+    "id": "rocket-launcher-v-law-registry",
+    "native": "Rocket Launcher (V-LAW)"
+  },
+  {
+    "family": "infantry",
+    "input": "shotgun-avenger-ccw",
+    "id": "shotgun-avenger-ccw-registry",
+    "native": "Shotgun (Avenger CCW)"
+  },
+  {
+    "family": "infantry",
+    "input": "shotgun-combat",
+    "id": "shotgun-combat-registry",
+    "native": "Shotgun (Combat)"
+  },
+  {
+    "family": "infantry",
+    "input": "smg-gunther-mp-20",
+    "id": "smg-gunther-mp-20-registry",
+    "native": "SMG (Gunther MP-20)"
+  },
+  {
+    "family": "infantry",
+    "input": "sniper-rifle-bolt-action",
+    "id": "sniper-rifle-bolt-action-registry",
+    "native": "Sniper Rifle (Bolt Action)"
+  },
+  {
+    "family": "infantry",
+    "input": "sniper-rifle-minolta-9000-advanced-sniper-system",
+    "id": "sniper-rifle-minolta-9000-advanced-sniper-system-registry",
+    "native": "Sniper Rifle (Minolta 9000 Advanced Sniper System)"
+  },
+  {
+    "family": "infantry",
+    "input": "sonic-stunner",
+    "id": "sonic-stunner-registry",
+    "native": "Sonic Stunner"
+  },
+  {
+    "family": "infantry",
+    "input": "stunstick",
+    "id": "stunstick-registry",
+    "native": "Stunstick"
+  },
+  {
+    "family": "infantry",
+    "input": "submachine-gun",
+    "id": "submachine-gun-registry",
+    "native": "Submachine Gun"
+  },
+  {
+    "family": "infantry",
+    "input": "support-laser",
+    "id": "support-laser-registry",
+    "native": "Support Laser"
+  },
+  {
+    "family": "infantry",
+    "input": "support-laser-heavy",
+    "id": "support-laser-heavy-registry",
+    "native": "Support Laser (Heavy)"
+  },
+  {
+    "family": "infantry",
+    "input": "support-laser-semi-portable",
+    "id": "support-laser-semi-portable-registry",
+    "native": "Support Laser (Semi-Portable)"
+  },
+  {
+    "family": "infantry",
+    "input": "support-ppc-snub-nose",
+    "id": "support-ppc-snub-nose-registry",
+    "native": "Support PPC (Snub-Nose)"
+  },
+  {
+    "family": "infantry",
+    "input": "support-pulse-laser",
+    "id": "support-pulse-laser-registry",
+    "native": "Support Pulse Laser"
+  },
+  {
+    "family": "infantry",
+    "input": "tranq-gun",
+    "id": "tranq-gun-registry",
+    "native": "Tranq Gun"
+  },
+  {
+    "family": "protomechs",
+    "input": "clan-electric-discharge-protomech",
+    "id": "clan-electric-discharge-protomech",
+    "native": "Clan Electric Discharge ProtoMech"
+  },
+  {
+    "family": "protomechs",
+    "input": "clmyomerbooster",
+    "id": "clmyomerbooster-registry",
+    "native": "CLMyomerBooster"
+  },
+  {
+    "family": "protomechs",
+    "input": "eiinterface",
+    "id": "eiinterface-registry",
+    "native": "EIInterface"
+  },
+  {
+    "family": "protomechs",
+    "input": "fusillade",
+    "id": "fusillade-registry",
+    "native": "Fusillade"
+  },
+  {
+    "family": "protomechs",
+    "input": "protomechjumpjet",
+    "id": "protomechjumpjet-registry",
+    "native": "ProtoMechJumpJet"
+  }
+]

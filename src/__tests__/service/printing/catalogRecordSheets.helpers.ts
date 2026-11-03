@@ -6,6 +6,10 @@ import { z } from 'zod';
 import type { IRecordSheetEquipment } from '@/types/printing';
 import type { IRecordSheetData } from '@/types/printing';
 
+import {
+  expectJavaCatalogAddition,
+  javaCatalogAdditionById,
+} from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
 import { buildAerospaceUnitObject } from '@/components/customizer/aerospace/buildAerospaceUnitObject';
 import { buildBattleArmorUnitObject } from '@/components/customizer/battlearmor/buildBattleArmorUnitObject';
 import { buildInfantryUnitObject } from '@/components/customizer/infantry/buildInfantryUnitObject';
@@ -14,6 +18,7 @@ import { buildProtoMechUnitObject } from '@/components/customizer/protomech/buil
 import { buildVehicleUnitObject } from '@/components/customizer/vehicle/buildVehicleUnitObject';
 import { getCalculationService } from '@/services/construction/CalculationService';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { parseWeaponCategory } from '@/services/equipment/EquipmentParsers';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { SVG_TEMPLATES } from '@/services/printing/recordsheet/constants';
 import {
@@ -52,6 +57,7 @@ import { WeaponCategory } from '@/types/equipment';
 import { calculateBattleArmorBVFromState } from '@/utils/construction/battlearmor/battleArmorBVAdapter';
 import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
 import { contractUnitToBVUnit } from '@/utils/construction/contractBVUnitAdapter';
+import { isLegacyEquipmentId } from '@/utils/construction/equipmentBVCatalogData';
 import { getEquipmentEntry } from '@/utils/construction/equipmentBVResolver';
 import { mapInfantryDefinition } from '@/utils/construction/infantry/libraryMapping';
 import { computeVehicleBVFromState } from '@/utils/construction/vehicle/vehicleBVAdapter';
@@ -467,17 +473,23 @@ function checkEquipment(
   check('equipmentCount', equipment.length, mounts.length);
   mounts.forEach((mount, index) => {
     const entry = getEquipmentEntry(mount.equipmentId);
+    const added = entry && javaCatalogAdditionById.get(entry.id);
+    if (added) expectJavaCatalogAddition(entry, 'bv');
     const exact = weapons.find(
-      (w) => w.id === mount.equipmentId || w.name === mount.name,
+      (w) =>
+        w.id === mount.equipmentId ||
+        (isLegacyEquipmentId(w.id) && w.name === mount.name),
     );
     const weapon = mount.isAmmo
       ? undefined
-      : (exact ?? weapons.find((w) => w.id === entry?.id));
+      : ((added ? weapons.find((w) => w.id === entry?.id) : undefined) ??
+        exact ??
+        weapons.find((w) => w.id === entry?.id));
     const printed = equipment[index];
     check(`equipmentLocation.${index}`, printed?.location, mount.location);
     check(`equipmentName.${index}`, printed?.name, mount.name);
     if (weapon) {
-      const expected = [
+      let expected = [
         weapon.heat,
         weapon.category === WeaponCategory.MISSILE
           ? formatMissileDamage(mount.name, weapon.damage)
@@ -489,6 +501,36 @@ function checkEquipment(
         weapon.ranges?.long ?? '-',
         true,
       ];
+      if (added?.kind === 'weapons') {
+        // Pinned Java facts own these newly resolved rows, including fractional
+        // infantry damage and explicit variable-damage sentinels.
+        const facts = z
+          .object({
+            heat: z.number(),
+            damage: z.union([z.number(), z.string()]),
+            category: z.string(),
+            ranges: z.object({
+              minimum: z.number(),
+              short: z.number(),
+              medium: z.number(),
+              long: z.number(),
+            }),
+          })
+          .parse(added.values);
+        const category = parseWeaponCategory(facts.category);
+        expected = [
+          facts.heat,
+          category === WeaponCategory.MISSILE
+            ? formatMissileDamage(mount.name, facts.damage)
+            : String(facts.damage),
+          getDamageCode(category),
+          facts.ranges.minimum,
+          facts.ranges.short,
+          facts.ranges.medium,
+          facts.ranges.long,
+          true,
+        ];
+      }
       check(
         `${exact ? 'weaponStats' : 'weaponAliasStats'}.${index}`,
         [
@@ -504,12 +546,13 @@ function checkEquipment(
         expected,
       );
     } else {
-      const ammo = ammunition.find(
-        (a) =>
-          a.id === mount.equipmentId ||
-          a.name === mount.name ||
-          a.id === entry?.id,
-      );
+      const ammo =
+        ammunition.find(
+          (a) => a.id === mount.equipmentId || a.id === entry?.id,
+        ) ??
+        ammunition.find(
+          (a) => isLegacyEquipmentId(a.id) && a.name === mount.name,
+        );
       if (ammo)
         check(
           `ammoStats.${index}`,

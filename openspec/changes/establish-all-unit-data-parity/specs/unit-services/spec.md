@@ -11,7 +11,7 @@ families, field units, technology/year semantics, extensions and provenance.
 #### Scenario: Legacy and compatible documents
 
 - **WHEN** a unit document omits `schemaVersion`
-- **THEN** its parsed version SHALL be `1.0.0` without rewriting catalogs
+- **THEN** the reader SHALL report version `1.0.0` without adding the field to the loaded record or rewriting catalogs
 - **WHEN** its version is any strict `1.MINOR.PATCH` string
 - **THEN** the reader SHALL accept and retain that version
 - **AND** minor changes SHALL introduce only additive optional fields

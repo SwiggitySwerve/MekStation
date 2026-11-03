@@ -17,6 +17,7 @@ import {
 
 import atlas from '../../../../public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json';
 import { projectCustomCombatSnapshot } from '../CustomCombatSnapshot';
+import { unitSchemaVersionOf } from '../generated/unit.zod';
 import { UnitContract } from '../index';
 
 const identity = {
@@ -56,17 +57,19 @@ const unitTypes = [
 ];
 
 it.each(unitTypes)(
-  'defaults absent %s schemaVersion to 1.0.0 and retains compatible versions',
+  'reads absent %s schemaVersion as 1.0.0 without adding it and retains compatible versions',
   (unitType) => {
     const unit = { ...atlas, unitType };
-    expect(UnitContract.parse(unit).schemaVersion).toBe('1.0.0');
+    const legacy = UnitContract.parse(unit);
+    expect(legacy).not.toHaveProperty('schemaVersion');
+    expect(unitSchemaVersionOf(legacy)).toBe('1.0.0');
     for (const schemaVersion of ['1.0.0', '1.9.23', '1.123456789.0']) {
       const parsed = UnitContract.parse({
         ...unit,
         schemaVersion,
         'org.example:note': { text: 'retain' },
       });
-      expect(parsed.schemaVersion).toBe(schemaVersion);
+      expect(unitSchemaVersionOf(parsed)).toBe(schemaVersion);
       expect(parsed['org.example:note']).toEqual({ text: 'retain' });
     }
     expect(unit).not.toHaveProperty('schemaVersion');

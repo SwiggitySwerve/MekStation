@@ -1,5 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
+import javaWeapons from '../public/data/equipment/official/weapons/java-registry.json';
+
 test.use({ serviceWorkers: 'block' });
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() =>
@@ -377,6 +379,58 @@ test('add and place cancels cleanly and persists with one undo on desktop and mo
   });
 });
 
+test('real Mech Mortar damage stays accessible in two phone stat lines @customizer', async ({
+  page,
+}) => {
+  const mortar = javaWeapons.items.find(
+    (item) => item.id === 'is-mech-mortar-1-registry',
+  );
+  if (!mortar) throw new Error('Missing pinned Mech Mortar entry');
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await loadAtlas(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  const search = page.getByRole('textbox', {
+    name: 'Search equipment',
+    exact: true,
+  });
+  await search.fill(mortar.name);
+  const row = page
+    .getByTestId('equipment-catalog-row')
+    .filter({ has: details(page, mortar.name) });
+  const stats = row.getByTestId('equipment-catalog-stats');
+  const combat = stats.locator(':scope > span').first();
+  const fullText = `Damage ${mortar.damage} · Range ${mortar.ranges.short}/${mortar.ranges.medium}/${mortar.ranges.long} · Min ${mortar.ranges.minimum}`;
+  await expect(combat).toHaveAttribute('title', fullText);
+  await expect(combat).toContainText(`Damage ${mortar.damage}`);
+  await expect(combat).toHaveCSS('text-overflow', 'ellipsis');
+  await expect(combat).toHaveCSS('white-space', 'nowrap');
+  expect((await stats.boundingBox())?.height).toBeLessThanOrEqual(40);
+  const mortarHeight = (await row.boundingBox())?.height;
+  expect(mortarHeight).toBeDefined();
+  await search.fill('Small Laser');
+  const shortRow = page
+    .getByTestId('equipment-catalog-row')
+    .filter({ has: details(page, 'Small Laser') });
+  await expect(shortRow).toBeVisible();
+  expect((await shortRow.boundingBox())?.height).toBe(mortarHeight);
+  await search.fill(mortar.name);
+  await row
+    .getByRole('button', { name: `Add ${mortar.name}`, exact: true })
+    .click();
+  const warning =
+    "1 error: Overweight by 2.0 t · 1 warning: 'Mech Mortar 1 has no ammunition";
+  const summary = page.getByTestId('tab-issue-notice-summary');
+  await expect(summary).toHaveText(warning);
+  await expect(summary).toHaveAttribute('title', warning);
+  await expect(summary).toHaveAccessibleName(warning);
+  expect((await summary.boundingBox())?.height).toBeLessThanOrEqual(40);
+  await expect(
+    page.getByRole('button', { name: 'Show All Issues', exact: true }),
+  ).toBeVisible();
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await expect(summary).toHaveCSS('display', 'inline');
+});
+
 test('catalog rows stay dense and column-aligned on desktop and mobile @customizer', async ({
   page,
 }, testInfo) => {
@@ -481,7 +535,24 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   ).toHaveText('Min');
   await expect(
     firstRow.locator('[data-catalog-column="minimumRange"]'),
-  ).toHaveText('4');
+  ).toHaveText('6');
+  // Pinned Java registry [IS Mech Mortar-1], mortars/innerSphere/ISMekMortar1.java at 48fcb2f6:
+  // this addition sorts ahead of the former first row.
+  expect(await rowName(firstRow)).toBe("'Mech Mortar 1");
+  expect(
+    javaWeapons.items.find((item) => item.id === 'is-mech-mortar-1-registry'),
+  ).toMatchObject({
+    battleValue: 10,
+    weight: 2,
+    criticalSlots: 1,
+    ranges: { minimum: 6 },
+  });
+  await expect(firstRow.locator('[data-catalog-column="weight"]')).toHaveText(
+    '2.0',
+  );
+  await expect(
+    firstRow.locator('[data-catalog-column="criticalSlots"]'),
+  ).toHaveText('1');
   const internalGaps = await firstRow.evaluate((row) => {
     const columns = [
       'name',

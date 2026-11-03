@@ -122,6 +122,13 @@ export const MiscEquipmentContract = z
         'Specific locations where this equipment can be mounted. If omitted, any valid equipment location is allowed.',
       )
       .optional(),
+    damageDivisor: z
+      .number()
+      .gte(0)
+      .describe(
+        'Intrinsic infantry armor-kit incoming-damage divisor, before trooper or mount modifiers.',
+      )
+      .optional(),
   })
   .strict()
   .describe(

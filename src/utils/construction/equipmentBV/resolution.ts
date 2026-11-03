@@ -19,6 +19,10 @@ import type {
 } from './types';
 
 import {
+  isLegacyEquipmentId,
+  preferRegistryEquipment,
+} from '../equipmentBVCatalogData';
+import {
   loadEquipmentCatalog,
   loadCatalogForEquipmentId,
   loadAmmunitionCatalog,
@@ -171,7 +175,11 @@ export function getAmmunitionWeightEntry(
   const normalize = (name: string) =>
     name.toLowerCase().replace(/[^a-z0-9]/g, '');
   for (const entry of catalog.values())
-    if (entry.weight !== undefined && entry.shotsPerTon !== undefined)
+    if (
+      isLegacyEquipmentId(entry.id) &&
+      entry.weight !== undefined &&
+      entry.shotsPerTon !== undefined
+    )
       addAmmunitionAliases(
         {
           ...entry,
@@ -184,8 +192,12 @@ export function getAmmunitionWeightEntry(
         normalize,
       );
   const alias = aliases.get(ammunitionAliasKey(ammoId, normalize) ?? '');
-  const entry =
-    (alias ? catalog.get(alias) : undefined) ?? getAmmunitionEntry(ammoId);
+  const imported = getAmmunitionEntry(ammoId);
+  const entry = preferRegistryEquipment(
+    (alias ? catalog.get(alias) : undefined) ?? imported,
+    imported,
+    ammoId,
+  );
   return entry?.weight !== undefined &&
     isPhysicalAmmunitionBin({ ...entry, weight: entry.weight })
     ? entry

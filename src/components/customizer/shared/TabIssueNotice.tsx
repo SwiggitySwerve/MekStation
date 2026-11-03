@@ -81,7 +81,9 @@ export function TabIssueNotice({
         </span>
         <span className="min-w-0">
           <span
-            className={`${BUILD_STATUS_KIND_TEXT_CLASS[notice.severity]} font-medium`}
+            className={`${BUILD_STATUS_KIND_TEXT_CLASS[notice.severity]} font-medium max-sm:line-clamp-2`}
+            role="note"
+            title={notice.summary}
             data-testid="tab-issue-notice-summary"
           >
             {notice.summary}
