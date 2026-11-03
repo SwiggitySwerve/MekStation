@@ -313,6 +313,7 @@ for (const viewport of VIEWPORTS) {
         page,
       }, testInfo) => {
         const { dialog, row } = await findRow(page, unit);
+        await page.addStyleTag({ content: 'nextjs-portal { display: none; }' });
         await expect(row).toContainText(unit.family);
         await row.dblclick();
         await expect(dialog).toBeHidden();
@@ -465,6 +466,12 @@ for (const viewport of VIEWPORTS) {
           const diagram = page
             .getByTestId('vehicle-armor-allocation-section')
             .getByTestId('vehicle-armor-diagram');
+          const captions = diagram.locator(
+            ':scope > .grid [aria-label*=" armor:"] > div > span:first-child',
+          );
+          await expect(captions).not.toHaveCount(0);
+          for (const caption of await captions.all())
+            await expect(caption).toHaveCSS('text-transform', 'none');
           if (unit.panel === 'six-side') {
             await expect(
               diagram.getByTestId('vehicle-six-side-armor-diagram'),

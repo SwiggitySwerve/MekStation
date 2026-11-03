@@ -319,6 +319,7 @@ export function VehicleArmorDiagram({
           return (
             <div key={key} className="flex flex-col gap-1">
               <ArmorLocationBlock
+                className="[&_span]:normal-case"
                 label={label}
                 current={current}
                 max={max}
