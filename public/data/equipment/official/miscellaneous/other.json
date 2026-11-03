@@ -3713,7 +3713,7 @@
       "rulesLevel": "STANDARD",
       "weight": 0.005,
       "criticalSlots": 1,
-      "costCBills": 0,
+      "costCBills": 500,
       "battleValue": 0,
       "introductionYear": 2100,
       "special": []
