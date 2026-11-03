@@ -41,6 +41,34 @@ const CAPITAL_LOCATIONS: Readonly<Record<string, CapitalArc>> = {
   LBS: CapitalArc.LEFT_BROADSIDE,
   RBS: CapitalArc.RIGHT_BROADSIDE,
 };
+/** Native physical/rear arc mapping shared by BV and capital sheet consumers. */
+export function largeAerospaceMountArc(
+  mount: {
+    readonly equipmentId: string;
+    readonly location?: string;
+    readonly arc?: string;
+  },
+  capitalType?: CapitalShipBVType,
+  applyRear = true,
+): CapitalArc | undefined {
+  const tag = (mount.location ?? mount.arc ?? '').toUpperCase();
+  const physical =
+    (capitalType ? CAPITAL_LOCATIONS[tag] : undefined) ?? LOCATIONS[tag];
+  if (
+    applyRear &&
+    !capitalType &&
+    mount.equipmentId.trim().toLowerCase().startsWith('r-')
+  ) {
+    if (physical === CapitalArc.FRONT_LEFT) return CapitalArc.AFT_LEFT;
+    if (physical === CapitalArc.FRONT_RIGHT) return CapitalArc.AFT_RIGHT;
+  }
+  return physical;
+}
+
+function largeAerospaceMountToken(id: string): string {
+  return id.trim().toLowerCase().replace(/^r-/, '').replace(/^b-/, '');
+}
+
 const ENERGY_SUBTYPES = new Set([
   'Laser',
   'ER Laser',
@@ -103,8 +131,7 @@ export function resolveLargeAerospaceMountBV(
       unresolved.push({ mountIndex, equipmentId: mount.equipmentId, reason });
     };
     const raw = mount.equipmentId.trim().toLowerCase();
-    const rear = raw.startsWith('r-');
-    const token = raw.replace(/^r-/, '').replace(/^b-/, '');
+    const token = largeAerospaceMountToken(mount.equipmentId);
     const [id, quantity, ...extra] = token.split(':');
     if (extra.length || (quantity !== undefined && !/^\d+$/.test(quantity))) {
       fail('Unsupported mount suffix or ammunition quantity');
@@ -117,9 +144,7 @@ export function resolveLargeAerospaceMountBV(
       return;
     }
     const entry = getEquipmentEntry(id);
-    const tag = (mount.location ?? mount.arc ?? '').toUpperCase();
-    const physicalLocation =
-      (capitalType ? CAPITAL_LOCATIONS[tag] : undefined) ?? LOCATIONS[tag];
+    const physicalLocation = largeAerospaceMountArc(mount, capitalType, false);
     if (
       quantity === undefined &&
       (entry?.id === 'artemisiv' || entry?.id === 'artemisv')
@@ -143,12 +168,7 @@ export function resolveLargeAerospaceMountBV(
       ].includes(entry.id)
     )
       return;
-    let location = physicalLocation;
-    // JumpShip filters use location alone; DropShip filters inspect rear mounting.
-    if (!capitalType && rear && location === CapitalArc.FRONT_LEFT)
-      location = CapitalArc.AFT_LEFT;
-    if (!capitalType && rear && location === CapitalArc.FRONT_RIGHT)
-      location = CapitalArc.AFT_RIGHT;
+    const location = largeAerospaceMountArc(mount, capitalType);
     const arc = arcs.find((a) => a.arc === location);
     if (!arc || physicalLocation === undefined) {
       fail('Unsupported firing arc');
@@ -229,4 +249,62 @@ export function resolveDropShipMountBV(
   mounts: NonNullable<IDropShipBVUnit['equipment']>,
 ): IDropShipMountBV {
   return resolveLargeAerospaceMountBV(mounts);
+}
+
+/** Source (B) boundaries retain the first weapon; unknown tokens stay visible. */
+interface ILargeAerospaceSourceBay {
+  arc: string;
+  number: number;
+  indices: number[];
+}
+
+export function groupLargeAerospaceMounts(
+  mounts: NonNullable<IDropShipBVUnit['equipment']>,
+  capitalType?: CapitalShipBVType,
+): ILargeAerospaceSourceBay[] {
+  const bays: ILargeAerospaceSourceBay[] = [];
+  const numbers = new Map<string, number>();
+  mounts.forEach((mount, index) => {
+    const arc =
+      largeAerospaceMountArc(mount, capitalType) ??
+      mount.location ??
+      'Unknown arc';
+    const previous = bays.at(-1);
+    const starts = /^(?:r-)?b-/i.test(mount.equipmentId.trim());
+    if (starts || previous?.arc !== arc) {
+      const number = (numbers.get(arc) ?? 0) + Number(starts);
+      numbers.set(arc, number);
+      bays.push({ arc, number, indices: [] });
+    }
+    bays.at(-1)!.indices.push(index);
+  });
+  return bays;
+}
+
+/** An affected arc has no complete heat figure; never publish its partial sum. */
+export function largeAerospaceHeatByArc(
+  resolution: IDropShipMountBV,
+  mounts: NonNullable<IDropShipBVUnit['equipment']>,
+  capitalType?: CapitalShipBVType,
+): readonly { arc: CapitalArc; heat: number | undefined }[] {
+  const unresolved = resolution.unresolved.map((u) =>
+    largeAerospaceMountArc(mounts[u.mountIndex], capitalType),
+  );
+  const defensive = new Map<CapitalArc, number>();
+  for (const mount of mounts) {
+    const id = largeAerospaceMountToken(mount.equipmentId).split(':')[0];
+    const kind = getAerospaceDefensiveEquipmentKind(id);
+    const arc = largeAerospaceMountArc(mount, capitalType);
+    if (kind && kind !== 'amsAmmo' && arc)
+      defensive.set(
+        arc,
+        (defensive.get(arc) ?? 0) + (getEquipmentEntry(id)?.heat ?? 0),
+      );
+  }
+  return resolution.arcs.map((a) => ({
+    arc: a.arc,
+    heat: unresolved.some((arc) => arc === undefined || arc === a.arc)
+      ? undefined
+      : a.heat + (defensive.get(a.arc) ?? 0),
+  }));
 }
