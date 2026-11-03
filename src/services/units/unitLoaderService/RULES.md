@@ -1,5 +1,10 @@
 # Unit definition loading
 
+Native `CLAN_XL` retains its explicit engine technology. Unresolved MTF
+critical-slot lookup removes `(OMNIPOD)` before the rear marker, matching
+pinned MtfFile.java:1010-1020. Already resolved decorated spellings retain
+their catalog IDs, including specialized ammunition bin identities.
+
 This module owns validated definition loading and editor-session admission.
 `UnitIndex.UNIT_FAMILIES` owns the catalog family names. The definition family
 registry owns their accepted contract discriminators and available store mapper.
