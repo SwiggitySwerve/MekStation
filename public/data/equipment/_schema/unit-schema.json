@@ -179,6 +179,28 @@
             "ENDO_COMPOSITE_CLAN"
           ],
           "description": "Internal structure type"
+        },
+        "locationTonnage": {
+          "type": "object",
+          "description": "FrankenMek only: structure tonnage per location (MegaMek MtfFile.java:669-691)",
+          "propertyNames": {
+            "enum": [
+              "HEAD",
+              "CENTER_TORSO",
+              "LEFT_TORSO",
+              "RIGHT_TORSO",
+              "LEFT_ARM",
+              "RIGHT_ARM",
+              "LEFT_LEG",
+              "RIGHT_LEG",
+              "FRONT_LEFT_LEG",
+              "FRONT_RIGHT_LEG",
+              "REAR_LEFT_LEG",
+              "REAR_RIGHT_LEG",
+              "CENTER_LEG"
+            ]
+          },
+          "additionalProperties": { "type": "integer", "minimum": 1 }
         }
       },
       "additionalProperties": false
