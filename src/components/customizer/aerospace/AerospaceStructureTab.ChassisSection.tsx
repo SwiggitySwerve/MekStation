@@ -19,6 +19,7 @@ import {
   SUBTYPE_OPTIONS,
   TONNAGE_OPTIONS,
 } from './AerospaceStructureTab.constants';
+import { FixedWingSupportFields } from './FixedWingSupportFields';
 
 interface ChassisSectionProps {
   readOnly: boolean;
@@ -31,6 +32,7 @@ export function ChassisSection({
   const techBase = useAerospaceStore((s) => s.techBase);
   const aerospaceSubType = useAerospaceStore((s) => s.aerospaceSubType);
   const isOmni = useAerospaceStore((s) => s.isOmni);
+  const isFixedWingSupport = useAerospaceStore((s) => s.isFixedWingSupport);
 
   const setTonnage = useAerospaceStore((s) => s.setTonnage);
   const setAerospaceSubType = useAerospaceStore((s) => s.setAerospaceSubType);
@@ -72,7 +74,7 @@ export function ChassisSection({
         <select
           value={aerospaceSubType}
           onChange={handleSubTypeChange}
-          disabled={readOnly}
+          disabled={readOnly || isFixedWingSupport}
           className={`${cs.select.full} mt-1`}
           data-testid="aerospace-subtype-select"
         >
@@ -80,8 +82,9 @@ export function ChassisSection({
         </select>
       </div>
 
+      {isFixedWingSupport && <FixedWingSupportFields readOnly={readOnly} />}
       {/* Tonnage */}
-      <div className="mb-4">
+      <div hidden={isFixedWingSupport} className="mb-4">
         <label className={cs.text.label}>Tonnage</label>
         <select
           value={tonnage}

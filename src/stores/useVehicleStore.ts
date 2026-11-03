@@ -135,6 +135,7 @@ export function createVehicleStore(
         setArmorType: (type) =>
           set({
             armorType: type,
+            usesBarArmor: false,
             isModified: true,
             lastModifiedAt: Date.now(),
           }),
@@ -311,6 +312,8 @@ export function createVehicleStore(
           turret: state.turret,
           secondaryTurret: state.secondaryTurret,
           armorType: state.armorType,
+          usesBarArmor: state.usesBarArmor,
+          armorTechRating: state.armorTechRating,
           armorTonnage: state.armorTonnage,
           armorAllocation: state.armorAllocation,
           isSuperheavy: state.isSuperheavy,
