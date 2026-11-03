@@ -351,7 +351,7 @@
       "criticalSlots": 2,
       "costCBills": 8500,
       "battleValue": 15,
-      "introductionYear": 3072,
+      "introductionYear": 3054,
       "special": []
     },
     {
@@ -1070,7 +1070,7 @@
       "ammoPerTon": 5,
       "costCBills": 650000,
       "battleValue": 329,
-      "introductionYear": 3079,
+      "introductionYear": 3012,
       "special": ["artillery"]
     },
     {
@@ -1106,7 +1106,7 @@
       "ammoPerTon": 20,
       "costCBills": 200000,
       "battleValue": 41,
-      "introductionYear": 3079,
+      "introductionYear": 3012,
       "special": ["artillery"]
     },
     {
