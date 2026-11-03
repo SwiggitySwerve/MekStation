@@ -1,0 +1,83 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`committed catalog record-sheet model parity aerospace: checks every indexed unit and records every mismatch/rejection 1`] = `
+{
+  "counts": {
+    "BV.source": 44,
+    "equipmentUnresolved": 166,
+    "template": 39,
+  },
+  "rejected": 0,
+  "residualDigest": "e683d7d512cd77a03b79c58e4b678f6f1d2191b2d6091ae86f9194c1972ba9e1",
+  "total": 620,
+}
+`;
+
+exports[`committed catalog record-sheet model parity battlearmor: checks every indexed unit and records every mismatch/rejection 1`] = `
+{
+  "counts": {
+    "BV": 1188,
+    "tonnage": 1188,
+  },
+  "rejected": 0,
+  "residualDigest": "4fa222bfbf1a01c22dd72346c26f506d35cac7ef3fff4afdf1a0a02909afdcec",
+  "total": 1188,
+}
+`;
+
+exports[`committed catalog record-sheet model parity battlemechs: checks every indexed unit and records every mismatch/rejection 1`] = `
+{
+  "counts": {
+    "armor.total": 6,
+  },
+  "rejected": 0,
+  "residualDigest": "414e5360ba3b5dd6f0ad1fc0e8e332033a5d71011e655cffd81c2eaac62a31f3",
+  "total": 4263,
+}
+`;
+
+exports[`committed catalog record-sheet model parity infantry: checks every indexed unit and records every mismatch/rejection 1`] = `
+{
+  "counts": {
+    "BV": 1820,
+  },
+  "rejected": 0,
+  "residualDigest": "3227375eb54db195101f560da93fc1f9b2c22a16713f5d6449f19f88224e6ca4",
+  "total": 1820,
+}
+`;
+
+exports[`committed catalog record-sheet model parity protomechs: checks every indexed unit and records every mismatch/rejection 1`] = `
+{
+  "counts": {
+    "BV": 86,
+    "equipmentCount": 86,
+    "structure.L": 5,
+    "structure.LA": 5,
+    "structure.RA": 5,
+    "template": 8,
+    "topology": 86,
+  },
+  "rejected": 0,
+  "residualDigest": "b2363b9d02af2fc588a3fb280b04880982a8977e2d5aa70cce45dc0d0e0c67fc",
+  "total": 86,
+}
+`;
+
+exports[`committed catalog record-sheet model parity vehicles: checks every indexed unit and records every mismatch/rejection 1`] = `
+{
+  "counts": {
+    "BV.source": 182,
+    "armor.FRONT_LEFT": 37,
+    "armor.FRONT_RIGHT": 37,
+    "armor.REAR_LEFT": 37,
+    "armor.REAR_RIGHT": 37,
+    "equipmentUnresolved": 447,
+    "motion": 7,
+    "template.weightTier": 26,
+  },
+  "rejected": 68,
+  "residualDigest": "7301251b22dbe2b7dca4250855f35627936294dd74b148a121d1809a533a6f6e",
+  "total": 1444,
+}
+`;
