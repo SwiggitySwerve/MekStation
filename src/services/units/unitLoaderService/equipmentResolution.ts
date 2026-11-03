@@ -15,6 +15,7 @@ import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
 import { isAmmunitionEquipmentId } from '@/utils/construction/equipmentBV/catalogLoader';
 import { normalizeEquipmentId as normalizeCatalogEquipmentId } from '@/utils/construction/equipmentBV/normalization';
+import { nativeIdentityId } from '@/utils/construction/equipmentBV/sourceLookupAliases';
 
 type TechHint = 'clan' | 'is';
 
@@ -274,6 +275,11 @@ export function resolveEquipmentId(
   unitTechBaseMode: TechBaseMode,
   locationCriticalSlots: ReadonlyArray<string | null> | undefined,
 ): IResolvedEquipment {
+  const identity = nativeIdentityId(id);
+  const exact = identity
+    ? getEquipmentLookupService().getById(identity)
+    : undefined;
+  if (exact) return { equipmentDef: exact, resolvedId: exact.id };
   const normalizedId = normalizeEquipmentId(id, unitTechBase);
 
   // The normalization owner deliberately keeps missing ammo variants unresolved.

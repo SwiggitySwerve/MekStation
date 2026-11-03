@@ -18,6 +18,7 @@ import {
   DIRECT_ALIAS_MAP,
   NORMALIZATION_PATTERNS,
 } from './normalizationPatterns';
+import { nativeIdentityId } from './sourceLookupAliases';
 
 type EquipmentCatalogLookup = ReadonlyMap<string, unknown>;
 
@@ -106,6 +107,9 @@ export function normalizeEquipmentId(
   const lookupBase = catalog.has(base)
     ? base
     : base.replace(/^(?:r-|b-|\([rb]\)\s*)+/, '');
+  const identity = nativeIdentityId(lookupBase);
+  if (!catalog.has(rawLower) && identity && catalog.has(identity))
+    return identity;
   const lower = catalog.has(rawLower)
     ? rawLower
     : catalog.has(lookupBase) ||

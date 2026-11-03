@@ -8,6 +8,7 @@
  */
 
 import { TechBase } from '@/types/enums/TechBase';
+import { nativeIdentityId } from '@/utils/construction/equipmentBV/sourceLookupAliases';
 import { logger } from '@/utils/logger';
 
 import {
@@ -243,6 +244,10 @@ export class EquipmentNameMapper {
    * Map an MTF equipment name to a canonical ID
    */
   mapName = (mtfName: string, techBase?: TechBase): INameMappingResult => {
+    const identity = nativeIdentityId(mtfName);
+    if (identity && this.registry.lookup(identity).found) {
+      return { success: true, equipmentId: identity, confidence: 'exact' };
+    }
     // Clean up the name
     const cleanName = this.cleanMtfName(mtfName);
 

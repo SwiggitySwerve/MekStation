@@ -1,5 +1,6 @@
 import { TechBase } from '@/types/enums/TechBase';
 import { IEquipmentItem } from '@/types/equipment';
+import { nativeIdentityId } from '@/utils/construction/equipmentBV/sourceLookupAliases';
 
 import { getAllEquipmentItemsForResolver } from './EquipmentNameResolverData';
 import {
@@ -47,10 +48,13 @@ export class EquipmentNameResolver {
     const { cleanType } = stripQuantityPrefix(itemType);
     const typeToLookup = cleanType || itemType;
 
-    let directId = MEGAMEKLAB_TYPE_MAP[itemType];
+    let directId: string | undefined =
+      nativeIdentityId(typeToLookup) ?? MEGAMEKLAB_TYPE_MAP[itemType];
     if (!directId && typeToLookup !== itemType) {
       directId = MEGAMEKLAB_TYPE_MAP[typeToLookup];
     }
+
+    directId ??= nativeIdentityId(itemName);
 
     if (directId) {
       const equipment = this.equipmentById.get(directId);
