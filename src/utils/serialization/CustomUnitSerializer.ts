@@ -42,7 +42,10 @@ import { UnitContract, type IUnitContract } from '@/types/contracts';
 import { RULES_LEVEL_TAGS as RULES_LEVEL } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
-import { aerospaceEditorSchema } from '@/types/unit/AerospaceSerialization';
+import {
+  aerospaceEditorSchema,
+  serializeAerospaceArmorIdentity,
+} from '@/types/unit/AerospaceSerialization';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
 
@@ -351,11 +354,9 @@ export function serializeCustomAerospaceState(
   family: 'aerospace';
   aerospaceEditor: ReturnType<typeof aerospaceEditorSchema.parse>;
 } {
+  const smallCraft = state.aerospaceSubType === AerospaceSubType.SMALL_CRAFT;
   const arc = (location: Parameters<typeof aerospaceContractArc>[0]) =>
-    aerospaceContractArc(
-      location,
-      state.aerospaceSubType === AerospaceSubType.SMALL_CRAFT,
-    );
+    aerospaceContractArc(location, smallCraft);
   const aerospaceEditor = aerospaceEditorSchema.parse({
     ...state,
     name: [identity.chassis, identity.variant].filter(Boolean).join(' '),
@@ -404,7 +405,7 @@ export function serializeCustomAerospaceState(
       count: state.heatSinks,
     },
     armor: {
-      type: ARMOR_TYPE[state.armorType],
+      ...serializeAerospaceArmorIdentity(ARMOR_TYPE[state.armorType], state),
       byArc: Object.fromEntries(
         Object.entries(state.armorAllocation).map(([location, points]) => [
           arc(location as Parameters<typeof arc>[0]),

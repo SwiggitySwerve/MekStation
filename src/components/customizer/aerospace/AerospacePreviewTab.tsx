@@ -46,6 +46,7 @@ export function AerospacePreviewTab({
   const year = useAerospaceStore((s) => s.year);
   const unitType = useAerospaceStore((s) => s.unitType);
   const motionType = useAerospaceStore((s) => s.motionType);
+  const barRating = useAerospaceStore((s) => s.barRating);
   const isFixedWingSupport = useAerospaceStore((s) => s.isFixedWingSupport);
   const structuralIntegrity = useAerospaceStore((s) => s.structuralIntegrity);
   const fuelPoints = useAerospaceStore((s) => s.fuelPoints);
@@ -72,6 +73,7 @@ export function AerospacePreviewTab({
         year,
         unitType,
         isFixedWingSupport,
+        barRating,
         motionType,
         structuralIntegrity,
         fuelPoints,
@@ -96,6 +98,7 @@ export function AerospacePreviewTab({
       year,
       unitType,
       isFixedWingSupport,
+      barRating,
       motionType,
       structuralIntegrity,
       fuelPoints,

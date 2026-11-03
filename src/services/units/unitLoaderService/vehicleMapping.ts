@@ -31,7 +31,7 @@ import {
 import {
   computeFlankMP,
   computeStoredVehicleEngineRating,
-  getSupportVehicleSizeIndex,
+  isLargeSupportVehicle,
 } from '@/utils/construction/vehicle/engine';
 import {
   getPrimaryVehicleTurretType,
@@ -296,7 +296,7 @@ export function normalizeVehicleConfiguration(
     secondaryTurret,
     isSuperheavy:
       unitType === UnitType.SUPPORT_VEHICLE
-        ? getSupportVehicleSizeIndex(tonnage, motionType) === 2
+        ? isLargeSupportVehicle(tonnage, motionType)
         : unitType === UnitType.VEHICLE &&
           isSuperHeavyTank(motionType, tonnage),
     isTrailer: definition.isTrailer ?? false,
