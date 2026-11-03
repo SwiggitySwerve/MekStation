@@ -14,7 +14,10 @@ import { createHeatSinkEquipmentList } from '@/utils/equipment/heatSinkEquipment
 import { generateUnitId } from '@/utils/uuid';
 
 import { mapMechLocation } from './componentMappers';
-import { resolveEquipmentId } from './equipmentResolution';
+import {
+  parseCriticalSlotToken,
+  resolveEquipmentId,
+} from './equipmentResolution';
 
 export type UnitCriticalSlots = Readonly<
   Record<string, ReadonlyArray<string | null>>
@@ -42,17 +45,6 @@ const HEAT_SINK_TYPE_BY_ID: Readonly<Partial<Record<string, HeatSinkType>>> = {
   'compact-heat-sink': HeatSinkType.COMPACT,
   'laser-heat-sink': HeatSinkType.LASER,
 };
-
-function parseCriticalSlotToken(token: string): {
-  readonly lookupToken: string;
-  readonly isRearMounted: boolean;
-} {
-  const rearSuffix = / *[(](?:R|Rear)[)] *$/i;
-  return {
-    lookupToken: token.replace(rearSuffix, '').trim(),
-    isRearMounted: rearSuffix.test(token),
-  };
-}
 
 function resolveRegistryEquipmentId(token: string): string | undefined {
   const separatorVariant = token.replaceAll('-', ' ');
