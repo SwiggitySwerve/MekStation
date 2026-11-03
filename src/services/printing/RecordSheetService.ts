@@ -37,6 +37,7 @@ import {
 } from './recordsheet/dataExtractors';
 import { extractAerospaceData } from './recordsheet/dataExtractors.aerospace';
 import { extractBattleArmorData } from './recordsheet/dataExtractors.battleArmor';
+import { extractCapitalData } from './recordsheet/dataExtractors.capital';
 import { extractInfantryData } from './recordsheet/dataExtractors.infantry';
 import { extractProtoMechData } from './recordsheet/dataExtractors.protoMech';
 import { extractVehicleData } from './recordsheet/dataExtractors.vehicle';
@@ -45,12 +46,16 @@ import {
   isRecordSheetDispatchTarget,
   type IRecordSheetDispatchTarget,
   type IRecordSheetUnitInput,
+  type RecordSheetPrintableData,
+  type ExtractRecordSheetData,
+  type ExtractRecordSheetDataByType,
 } from './recordsheet/dispatchTarget';
 import { getMechType } from './recordsheet/mechTypeUtils';
 import { buildSPASection } from './recordsheet/spaSection';
 import { IUnitConfig } from './recordsheet/types';
 import { SVGRecordSheetRenderer } from './svgRecordSheetRenderer';
 import { renderToCanvasHighDPI } from './svgRecordSheetRenderer/canvas';
+import { renderCapitalSheetPages } from './svgRecordSheetRenderer/capitalRenderer';
 import { renderRecordSheetSVG } from './svgRecordSheetRenderer/renderer';
 import {
   isTemplatedUnit,
@@ -59,6 +64,7 @@ import {
 import { readSvgRootSize } from './svgRecordSheetRenderer/svgGeometry';
 
 export type { IUnitConfig };
+export type { RecordSheetPrintableData } from './recordsheet/dispatchTarget';
 
 /**
  * Lazily import the `jsPDF` constructor.
@@ -140,11 +146,14 @@ function ensurePrintSvgViewBox(svgString: string): string {
 }
 
 function buildPrintDocumentHtml(
-  svgString: string,
+  svgString: string | readonly string[],
   paperSize: PaperSize,
 ): string {
   const { width, height } = PAPER_DIMENSIONS[paperSize];
-  const printSvg = ensurePrintSvgViewBox(svgString);
+  const printSvg =
+    typeof svgString === 'string'
+      ? ensurePrintSvgViewBox(svgString)
+      : svgString.map(ensurePrintSvgViewBox).join('');
   return `<!DOCTYPE html>
 <html>
   <head>
@@ -157,6 +166,8 @@ function buildPrintDocumentHtml(
         width: ${width}pt;
         height: ${height}pt;
       }
+      body > svg { break-after: page; page-break-after: always; }
+      body > svg:last-child { break-after: auto; page-break-after: auto; }
       body > svg,
       body > img {
         display: block;
@@ -191,32 +202,6 @@ function openBrowserPrintWindow(): BrowserPrintWindow | null {
   return window.open('', '_blank');
 }
 
-type ExtractRecordSheetData = {
-  (
-    unit: IUnitConfig,
-    pilotAbilities?: readonly IPilotAbilityRef[],
-  ): IMechRecordSheetData;
-  (
-    target: IRecordSheetDispatchTarget,
-    pilotAbilities?: readonly IPilotAbilityRef[],
-  ): IRecordSheetData;
-  (
-    unit: IRecordSheetUnitInput,
-    pilotAbilities?: readonly IPilotAbilityRef[],
-  ): IRecordSheetData;
-};
-
-type ExtractRecordSheetDataByType = {
-  (
-    target: IRecordSheetDispatchTarget,
-    pilotAbilities?: readonly IPilotAbilityRef[],
-  ): IRecordSheetData;
-  (
-    unit: IRecordSheetUnitInput,
-    pilotAbilities?: readonly IPilotAbilityRef[],
-  ): IRecordSheetData;
-};
-
 /**
  * Record Sheet Service class
  *
@@ -226,6 +211,7 @@ type ExtractRecordSheetDataByType = {
  * backward compatibility.
  */
 export class RecordSheetService {
+  extractCapitalData = extractCapitalData;
   // ── Data extraction ──────────────────────────────────────────────────────
 
   /**
@@ -275,9 +261,6 @@ export class RecordSheetService {
     targetOrUnit: IRecordSheetDispatchTarget | IRecordSheetUnitInput,
     pilotAbilities?: readonly IPilotAbilityRef[],
   ): IRecordSheetData => {
-    if (isRecordSheetDispatchTarget(targetOrUnit)) {
-      return this.extractData(targetOrUnit, pilotAbilities);
-    }
     return this.extractData(targetOrUnit, pilotAbilities);
   }) as ExtractRecordSheetDataByType;
 
@@ -321,7 +304,7 @@ export class RecordSheetService {
    */
   renderPreview = async (
     canvas: HTMLCanvasElement,
-    data: IRecordSheetData,
+    data: RecordSheetPrintableData,
     paperSize: PaperSize = PaperSize.LETTER,
   ): Promise<void> => {
     const svgString = await this.getSVGString(data, paperSize);
@@ -339,10 +322,21 @@ export class RecordSheetService {
    * Mechs go through the MegaMek template pipeline; others use the per-type
    * string renderers.
    */
+  getSVGPages = async (
+    data: RecordSheetPrintableData,
+    paperSize: PaperSize = PaperSize.LETTER,
+  ): Promise<string[]> => {
+    return data.unitType === 'capital'
+      ? renderCapitalSheetPages(data, paperSize)
+      : [await this.getSVGString(data, paperSize)];
+  };
+
   getSVGString = async (
-    data: IRecordSheetData,
+    data: RecordSheetPrintableData,
     paperSize: PaperSize = PaperSize.LETTER,
   ): Promise<string> => {
+    if (data.unitType === 'capital')
+      return (await this.getSVGPages(data, paperSize))[0];
     if (data.unitType === 'mech') {
       return this.getMechSVGString(data, paperSize);
     }
@@ -355,7 +349,7 @@ export class RecordSheetService {
    * Rasterizes the shared SVG at bounded 4x and embeds a lossless PNG.
    */
   exportPDF = async (
-    data: IRecordSheetData,
+    data: RecordSheetPrintableData,
     options: IPDFExportOptions = {
       paperSize: PaperSize.LETTER,
       includePilotData: false,
@@ -364,23 +358,27 @@ export class RecordSheetService {
     const { paperSize, filename } = options;
     const { width, height } = PAPER_DIMENSIONS[paperSize];
     const canvas = document.createElement('canvas');
-    const svgString = await this.getSVGString(data, paperSize);
-    await renderToCanvasHighDPI(
-      svgString,
-      canvas,
-      PDF_DPI_MULTIPLIER,
-      paperSize,
-    );
-
+    const pages = await this.getSVGPages(data, paperSize);
     const PDF = await getJsPDFConstructor();
     const pdf = new PDF({
       orientation: 'portrait',
       unit: 'pt',
       format: paperSize === PaperSize.A4 ? 'a4' : 'letter',
     });
-
-    const imgData = canvas.toDataURL('image/png');
-    pdf.addImage(imgData, 'PNG', 0, 0, width, height, undefined, 'FAST');
+    for (const [index, svg] of pages.entries()) {
+      await renderToCanvasHighDPI(svg, canvas, PDF_DPI_MULTIPLIER, paperSize);
+      if (index) pdf.addPage();
+      pdf.addImage(
+        canvas.toDataURL('image/png'),
+        'PNG',
+        0,
+        0,
+        width,
+        height,
+        undefined,
+        'FAST',
+      );
+    }
 
     const pdfFilename =
       filename ||
@@ -438,7 +436,7 @@ export class RecordSheetService {
    * do not discard a window reserved after rasterization.
    */
   printRecordSheet = async (
-    data: IRecordSheetData,
+    data: RecordSheetPrintableData,
     paperSize: PaperSize,
   ): Promise<void> => {
     const printWindow = openBrowserPrintWindow();
@@ -464,11 +462,11 @@ export class RecordSheetService {
     };
 
     try {
-      const svgString = await this.getSVGString(data, paperSize);
+      const pages = await this.getSVGPages(data, paperSize);
       if (typeof windowDoc.open === 'function') {
         windowDoc.open();
       }
-      windowDoc.write(buildPrintDocumentHtml(svgString, paperSize));
+      windowDoc.write(buildPrintDocumentHtml(pages, paperSize));
       windowDoc.close();
       await waitForPrintWindowReady(windowDoc);
 
