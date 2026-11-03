@@ -20,6 +20,7 @@ import {
 import {
   calculateInfantryBVFromUnit,
   computeInfantryBVFromState,
+  getInfantryKitDivisor,
   type InfantryStateLike,
 } from '../infantryBVAdapter';
 import { findWeaponById } from '../weaponTable';
@@ -189,5 +190,25 @@ describe('infantry BV adapter unit motion resolution', () => {
     const direct = computeInfantryBVFromState(baseState({ infantryMotive }));
 
     expect(adapted).toEqual(direct);
+  });
+});
+
+describe('infantry armor kit divisors come from the generated catalog', () => {
+  it.each([
+    ['Clan Armor Kit (All)', 2], // MiscType.createClanArmorKit
+    ['MekWarrior Kit (Basic)', 0.5],
+    // Java aliases whose name mapping still targets the legacy record.
+    ['HeatSuit', 1],
+    ['MyomerSuit', 2],
+    // Deprecated for removal, so absent from the generated registry.
+    ['Vintage Bomb Suit', 1], // MiscType.java:3706-3716
+    ['BulletproofVest', 1], // MiscType.java:3684-3700
+  ])('%s', (kit, divisor) => {
+    expect(getInfantryKitDivisor(kit)).toBe(divisor);
+  });
+
+  it('recognizes only Java kit names, not normalized catalog variants', () => {
+    expect(getInfantryKitDivisor('ablativestandard')).toBeUndefined();
+    expect(getInfantryKitDivisor('Heat Suit [IS]')).toBeUndefined();
   });
 });
