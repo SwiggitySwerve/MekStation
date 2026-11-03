@@ -1,3 +1,5 @@
+import type { VehicleEngineType } from '@/types/construction/EngineType';
+import type { IVehicleTurretSourceContext } from '@/types/unit/VehicleInterfaces';
 /**
  * Vehicle Construction Validation Pipeline
  *
@@ -11,17 +13,16 @@
  *   VAL-VEHICLE-POWER-AMP — power amps present when required
  */
 
-import type { VehicleEngineType } from '@/types/construction/EngineType';
-import type { IVehicleTurretSourceContext } from '@/types/unit/VehicleInterfaces';
-
 import {
   getVehicleMaxTonnage,
   getVehicleMinTonnage,
 } from '@/services/construction/constructionConstants';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { normalizeEquipmentId } from '@/utils/construction/equipmentBV/normalization';
 import { isValidWeight } from '@/utils/physical/weightUtils';
 
 import { validateVehicleArmorLocations } from './armor';
@@ -289,4 +290,27 @@ export function validateVehicleConstruction(
     warnings,
     computedWeights,
   };
+}
+
+/** TestTank.java:979-981,1079-1089: CASE flags require the body, for CV and SV. */
+export function validateVehicleCaseLocations(
+  equipment: readonly {
+    readonly equipmentId: string;
+    readonly location: string;
+  }[],
+): string[] {
+  return equipment.flatMap((item) => {
+    const id = normalizeEquipmentId(item.equipmentId).replace(/[^a-z]/g, '');
+    if (
+      !/^(?:is|cl|clan)?case(?:ii|pprototype)?$/.test(id) ||
+      item.location === VehicleLocation.BODY
+    )
+      return [];
+    const name = id.endsWith('ii')
+      ? 'CASE II'
+      : id.endsWith('prototype')
+        ? 'CASE-P (Prototype)'
+        : 'CASE';
+    return [name + ' must be mounted in the body.'];
+  });
 }

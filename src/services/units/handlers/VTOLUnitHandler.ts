@@ -1,3 +1,4 @@
+import { VTOL_TONNAGE } from '@/services/construction/constructionConstants';
 /**
  * VTOL Unit Handler
  *
@@ -6,8 +7,6 @@
  *
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
-
-import { VTOL_TONNAGE } from '@/services/construction/constructionConstants';
 import {
   blkVehicleArmorLengthError,
   resolveBlkVehicleArmor,
@@ -39,6 +38,7 @@ import {
   getVehicleMountFlags,
   getPrimaryVehicleTurretConfiguration,
 } from '@/utils/construction/vehicle/equipmentMounts';
+import { validateVehicleCaseLocations } from '@/utils/construction/vehicle/vehicleValidation';
 
 import {
   AbstractUnitTypeHandler,
@@ -312,6 +312,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
    */
   protected validateTypeSpecificRules(unit: IVTOL): UnitValidationMessages {
     const { errors, warnings, infos } = createValidationMessages();
+    errors.push(...validateVehicleCaseLocations(unit.equipment));
 
     pushTonnageRangeErrors(errors, unit.tonnage, {
       label: 'VTOL',

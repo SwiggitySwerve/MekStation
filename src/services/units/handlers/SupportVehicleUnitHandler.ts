@@ -1,3 +1,4 @@
+import { getSupportVehicleMaxTonnage } from '@/services/construction/constructionConstants';
 /**
  * Support Vehicle Unit Handler
  *
@@ -7,8 +8,6 @@
  *
  * @see openspec/changes/add-multi-unit-type-support/tasks.md
  */
-
-import { getSupportVehicleMaxTonnage } from '@/services/construction/constructionConstants';
 import {
   blkEquipmentBlockLocation,
   blkVehicleArmorLengthError,
@@ -46,6 +45,7 @@ import {
   getVehicleMountFlags,
 } from '@/utils/construction/vehicle/equipmentMounts';
 import { computeSupportVehicleWeight } from '@/utils/construction/vehicle/supportWeight';
+import { validateVehicleCaseLocations } from '@/utils/construction/vehicle/vehicleValidation';
 
 import {
   AbstractUnitTypeHandler,
@@ -61,6 +61,7 @@ import {
   getRawTagString,
   getVehicleWeightClass,
   serializeConfigurationWithRulesLevel,
+  withConstructionDiagnostics,
 } from './unitHandlerShared';
 
 // ============================================================================
@@ -398,7 +399,8 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
       unitType: UnitType.SUPPORT_VEHICLE,
       weightClass,
     });
-    return { ...unit, totalWeight: this.calculateWeight(unit) };
+    const weighted = { ...unit, totalWeight: this.calculateWeight(unit) };
+    return withConstructionDiagnostics(weighted, this.validate(weighted));
   }
 
   /**
@@ -429,6 +431,7 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
     unit: ISupportVehicle,
   ): UnitValidationMessages {
     const { errors, warnings, infos } = createValidationMessages();
+    errors.push(...validateVehicleCaseLocations(unit.equipment));
 
     // Tonnage validation by size class
     if (unit.sizeClass === SupportVehicleSizeClass.SMALL && unit.tonnage > 5) {

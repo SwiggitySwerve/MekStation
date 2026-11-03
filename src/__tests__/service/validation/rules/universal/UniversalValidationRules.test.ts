@@ -1,3 +1,4 @@
+import { mapArmorAllocation } from '@/services/units/unitLoaderService/componentMappers';
 import {
   EntityIdRequired,
   EntityNameRequired,
@@ -23,6 +24,9 @@ import {
   UnitCategory,
   IValidatableUnit,
 } from '@/types/validation/UnitValidationInterfaces';
+import { buildArmorByLocation } from '@/utils/validation/armorValidationUtils';
+
+import locust from '../../../../../../public/data/units/battlemechs/3-succession-wars/standard/Locust LCT-1P.json';
 
 describe('UniversalValidationRules', () => {
   const createBaseUnit = (
@@ -312,6 +316,28 @@ describe('UniversalValidationRules', () => {
       },
     });
 
+    // Pinned TestMek.java:682-713 has armor maxima and no minimum-coverage check.
+    it('keeps the Java-valid Locust LCT-1P legal with one point of arm armor', () => {
+      const armorByLocation = buildArmorByLocation(
+        mapArmorAllocation(locust.armor.allocation),
+        locust.tonnage,
+      );
+      const result = ArmorAllocationWarning.validate(
+        createContext(createBaseUnit({ armorByLocation })),
+      );
+      expect(result.errors).toEqual([]);
+      expect(result.warnings).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            message: expect.stringContaining(
+              'Left Arm has critical armor (1/6',
+            ),
+          }),
+        ]),
+      );
+      expect(result.passed).toBe(true);
+    });
+
     it('should pass with no errors/warnings when armor is fully allocated', () => {
       const unit = createBaseUnit({
         totalArmorPoints: 100,
@@ -323,7 +349,7 @@ describe('UniversalValidationRules', () => {
       expect(result.warnings).toHaveLength(0);
     });
 
-    it('should emit errors when armor is below 20% (critical)', () => {
+    it('should warn without rejecting construction when armor is below 20%', () => {
       const armorByLocation = createFullArmorAllocation(10, 10);
       armorByLocation.head = { current: 0, max: 9, displayName: 'Head' }; // 0% - critical
       armorByLocation.centerTorso = {
@@ -337,10 +363,11 @@ describe('UniversalValidationRules', () => {
         armorByLocation,
       });
       const result = ArmorAllocationWarning.validate(createContext(unit));
-      expect(result.passed).toBe(false);
-      expect(result.errors).toHaveLength(2);
-      expect(result.errors[0].message).toContain('has no armor');
-      expect(result.errors[1].message).toContain('critical armor');
+      expect(result.passed).toBe(true);
+      expect(result.errors).toHaveLength(0);
+      expect(result.warnings).toHaveLength(2);
+      expect(result.warnings[0].message).toContain('has no armor');
+      expect(result.warnings[1].message).toContain('critical armor');
     });
 
     it('should emit warnings when armor is between 20-40% (low)', () => {
