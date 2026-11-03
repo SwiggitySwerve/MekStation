@@ -42,7 +42,7 @@ interface OpenCase {
     | 'battlearmor-customizer'
     | 'infantry-customizer';
   bv?: string;
-  panel?: 'six-side' | 'dual-turret';
+  panel?: 'six-side' | 'dual-turret' | 'fixed-wing-support';
   tabs: string[];
   tonnage: string;
   armor: string;
@@ -50,6 +50,18 @@ interface OpenCase {
 }
 
 const OPEN_CASES: OpenCase[] = [
+  {
+    label: 'fixed-wing support',
+    chassis: 'Boomerang Spotter Plane',
+    model: '',
+    family: 'Aerospace',
+    shell: 'aerospace-customizer',
+    tabs: [...COMMON_TABS, 'Velocity', ...TAIL_TABS],
+    tonnage: '5.0 t',
+    armor: '0',
+    movement: '4/6',
+    panel: 'fixed-wing-support',
+  },
   {
     label: 'SuperHeavy vehicle',
     chassis: 'Burke II Superheavy Tank',
@@ -353,7 +365,53 @@ for (const viewport of VIEWPORTS) {
             statusItem(shell, 'BV').locator('span').nth(1),
           ).toHaveText(unit.bv);
 
-        if (unit.panel) {
+        if (unit.panel === 'fixed-wing-support') {
+          await section(page, 'Structure');
+          const fields = page.getByTestId('fixed-wing-support-fields');
+          await expect(
+            fields.getByRole('combobox', { name: 'BAR', exact: true }),
+          ).toHaveValue('2');
+          await expect(
+            fields.getByRole('combobox', { name: 'Structural Tech Rating' }),
+          ).toHaveValue('');
+          await expect(
+            fields.getByRole('combobox', { name: 'Engine Tech Rating' }),
+          ).toHaveValue('');
+          await expect(
+            fields.getByRole('spinbutton', {
+              name: 'Fixed-Wing Support Tonnage',
+            }),
+          ).toHaveValue('4.999');
+          await expect(fields.getByLabel('Available Item Slots')).toHaveText(
+            '5',
+          );
+          await expect(fields.getByLabel('Fire-Control Type')).toHaveText(
+            'None',
+          );
+          for (const height of await fields
+            .locator('input,select')
+            .evaluateAll((nodes) =>
+              nodes.map((node) => node.getBoundingClientRect().height),
+            ))
+            expect(height).toBeGreaterThanOrEqual(44);
+          for (const [index, name] of [
+            'tonnage',
+            'bar',
+            'structure-tech',
+            'engine-tech',
+          ].entries())
+            await fields
+              .locator('label')
+              .nth(index)
+              .screenshot({
+                path: testInfo.outputPath(`fws-${name}-${viewport.name}.png`),
+                animations: 'disabled',
+              });
+          await fields.locator('dl').screenshot({
+            path: testInfo.outputPath(`fws-facts-${viewport.name}.png`),
+            animations: 'disabled',
+          });
+        } else if (unit.panel) {
           await section(page, 'Armor');
           const diagram = page
             .getByTestId('vehicle-armor-allocation-section')
@@ -420,12 +478,18 @@ for (const viewport of VIEWPORTS) {
               }),
             ).toHaveValue('32');
           }
-          await page
-            .getByTestId('vehicle-armor-allocation-section')
-            .screenshot({
-              path: testInfo.outputPath(`armor-panel-${viewport.name}.png`),
-              animations: 'disabled',
-            });
+          const graphic =
+            unit.panel === 'six-side'
+              ? diagram.getByTestId('vehicle-six-side-armor-diagram')
+              : diagram.locator('svg[aria-hidden="true"]');
+          await graphic.screenshot({
+            path: testInfo.outputPath(`armor-diagram-${viewport.name}.png`),
+            animations: 'disabled',
+          });
+          await diagram.locator(':scope > .grid').screenshot({
+            path: testInfo.outputPath(`armor-controls-${viewport.name}.png`),
+            animations: 'disabled',
+          });
         }
 
         await page.screenshot({
