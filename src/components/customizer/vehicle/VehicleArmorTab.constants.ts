@@ -1,13 +1,4 @@
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import {
-  VehicleLocation,
-  VTOLLocation,
-} from '@/types/construction/UnitLocation';
-
-export interface VehicleArmorLocationOption {
-  location: VehicleLocation | VTOLLocation;
-  label: string;
-}
 
 export const ARMOR_TYPE_OPTIONS: { value: ArmorTypeEnum; label: string }[] = [
   { value: ArmorTypeEnum.STANDARD, label: 'Standard' },
@@ -21,12 +12,4 @@ export const ARMOR_TYPE_OPTIONS: { value: ArmorTypeEnum; label: string }[] = [
   { value: ArmorTypeEnum.REFLECTIVE, label: 'Reflective (Laser)' },
   { value: ArmorTypeEnum.FERRO_LAMELLOR, label: 'Ferro-Lamellor' },
   { value: ArmorTypeEnum.BALLISTIC_REINFORCED, label: 'Ballistic-Reinforced' },
-];
-
-export const BASE_VEHICLE_LOCATIONS: VehicleArmorLocationOption[] = [
-  { location: VehicleLocation.FRONT, label: 'Front' },
-  { location: VehicleLocation.LEFT, label: 'Left Side' },
-  { location: VehicleLocation.RIGHT, label: 'Right Side' },
-  { location: VehicleLocation.REAR, label: 'Rear' },
-  { location: VehicleLocation.TURRET, label: 'Turret' },
 ];
