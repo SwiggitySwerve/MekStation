@@ -26,3 +26,11 @@ The official-corpus regression suite in
 conversion, unknown retention, configuration exclusions and shared-ID browser
 preservation. Corpus-wide list and normalization comparisons are lane evidence,
 not a permanent CI gate.
+
+Native Java lookup corrections are owned by
+`utils/construction/equipmentBV/sourceLookupAliases.ts` through
+`nativeIdentityId`. Exact catalog IDs remain stable. Proven native names
+precede fuzzy aliases and unit-tech preferences across loading, conversion, BV,
+hydration and printing. Missing Java identities require catalog generation;
+never substitute a related technology or unit-family variant. FU-79's pinned
+identity review supplies the corrections and defers unrepresented identities.
