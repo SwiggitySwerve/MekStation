@@ -1,4 +1,5 @@
 import { MechLocation } from '@/types/construction';
+import { getCockpitSystemSlots } from '@/types/construction/CockpitType';
 import {
   EngineType,
   getEngineDefinition,
@@ -20,19 +21,16 @@ export function getFixedSlotNames(
   engineType: EngineType,
   gyroType: GyroType,
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): ReadonlyMap<number, string> {
   const slots = new Map<number, string>();
+  const cockpit = getCockpitSystemSlots(cockpitType);
   const put = (index: number, name: string): void => {
     slots.set(index, name);
   };
   switch (location) {
     case MechLocation.HEAD:
-      put(0, 'Life Support');
-      put(1, 'Sensors');
-      put(2, 'Standard Cockpit');
-      put(4, 'Sensors');
-      put(5, 'Life Support');
-      break;
+      return cockpit.head;
     case MechLocation.CENTER_TORSO: {
       const engine = getEngineDefinition(engineType)?.ctSlots ?? 6;
       const gyro = getGyroDefinition(gyroType)?.criticalSlots ?? 4;
@@ -40,16 +38,23 @@ export function getFixedSlotNames(
       for (let i = 0; i < gyro; i++)
         put(3 + i, getGyroDefinition(gyroType)?.name ?? 'Gyro');
       for (let i = 3; i < engine; i++) put(gyro + i, 'Engine');
+      // Mek.java:5810-5820: getFirstEmptyCrit after engine and gyro.
+      for (const name of cockpit.centerTorso) {
+        let index = 0;
+        while (slots.has(index)) index++;
+        put(index, name);
+      }
       break;
     }
     case MechLocation.LEFT_TORSO:
     case MechLocation.RIGHT_TORSO:
+      cockpit.sideTorso.forEach((name, index) => put(index, name));
       for (
         let i = 0;
         i < (getEngineDefinition(engineType)?.sideTorsoSlots ?? 0);
         i++
       )
-        put(i, 'Engine');
+        put(cockpit.sideTorso.length + i, 'Engine');
       break;
     case MechLocation.LEFT_ARM:
     case MechLocation.RIGHT_ARM:

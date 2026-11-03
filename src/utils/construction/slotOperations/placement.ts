@@ -72,6 +72,7 @@ export function getEquipmentSlotIssues(
   engineType: EngineType,
   gyroType: GyroType,
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): ICriticalSlotIssue[] {
   const issues: ICriticalSlotIssue[] = [];
   const locations = getLocationsForConfig(configuration);
@@ -115,6 +116,7 @@ export function getEquipmentSlotIssues(
       engineType,
       gyroType,
       armActuators,
+      cockpitType,
     );
     const slots = item.slots ?? [];
     for (const index of slots) {

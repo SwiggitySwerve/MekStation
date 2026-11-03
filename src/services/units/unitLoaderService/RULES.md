@@ -165,3 +165,7 @@ registry owns their accepted contract discriminators and available store mapper.
   zero rounds. The separate field-gun/BV lane owns expanded support and parity.
 - Legacy infantry stores retain their previous BV path. Library states feed the
   current source-aware infantry BV owner; no calculator rules are changed here.
+
+Armored source critical lookup removes the outer `(ARMORED)` marker before the OmniPod and rear markers, as MtfFile.java:952-956,1010-1020 do. Identity qualifiers such as `(OS)` stay part of the name. Established raw decorated identities and explicit assignments keep precedence. This lookup step does not model armored component mass or BV.
+
+`CockpitType.getCockpitSystemSlots` owns cockpit head and auxiliary system positions, and cockpit slot counts must match it. Slot validation receives the selected cockpit, so small and torso-mounted cockpits never inherit standard head occupancy. The four canon exceptions and intro-year behaviour are unchanged.

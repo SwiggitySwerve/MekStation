@@ -41,6 +41,7 @@ export function useEquipmentValidation(): EquipmentValidationData {
   const equipment = useUnitStore((s) => s.equipment);
   const engineType = useUnitStore((s) => s.engineType);
   const gyroType = useUnitStore((s) => s.gyroType);
+  const cockpitType = useUnitStore((s) => s.cockpitType);
   const configuration = useUnitStore((s) => s.configuration);
   const armActuators = useUnitStore((s) => s.armActuators);
 
@@ -60,7 +61,16 @@ export function useEquipmentValidation(): EquipmentValidationData {
         engineType,
         gyroType,
         armActuators,
+        cockpitType,
       ),
     };
-  }, [equipment, configuration, engineType, gyroType, armActuators, isReady]);
+  }, [
+    equipment,
+    configuration,
+    engineType,
+    gyroType,
+    armActuators,
+    cockpitType,
+    isReady,
+  ]);
 }
