@@ -22,6 +22,7 @@ export interface PreviewToolbarActions {
 interface PreviewTabFrameProps {
   className?: string;
   testId?: string;
+  pageCount?: number;
   toolbarActions: PreviewToolbarActions;
   children: React.ReactNode;
 }
@@ -29,13 +30,14 @@ interface PreviewTabFrameProps {
 export function PreviewTabFrame({
   className = '',
   testId,
+  pageCount: pageTotal = 1,
   toolbarActions,
   children,
 }: PreviewTabFrameProps): React.ReactElement {
   // The toolbar owns the zoom controls; the sheet viewer below follows them.
   const { width, height } = PAPER_DIMENSIONS[toolbarActions.paperSize];
   const zoomState = useRecordSheetPreviewZoom(width, height);
-  const pageCount = '1 page';
+  const pageCount = `${pageTotal} ${pageTotal === 1 ? 'page' : 'pages'}`;
 
   return (
     <div

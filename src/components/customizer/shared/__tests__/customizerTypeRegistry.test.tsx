@@ -26,7 +26,10 @@ import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import { AerospacePreviewTab } from '../../aerospace/AerospacePreviewTab';
 import { BattleArmorPreviewTab } from '../../battlearmor/BattleArmorPreviewTab';
-import { CapitalShipShell } from '../../capital/CapitalShipCustomizer';
+import {
+  CapitalShipShell,
+  CapitalRecordSheetPreview,
+} from '../../capital/CapitalShipCustomizer';
 import { InfantryPreviewTab } from '../../infantry/InfantryPreviewTab';
 import { ProtoMechPreviewTab } from '../../protomech/ProtoMechPreviewTab';
 import {
@@ -118,8 +121,13 @@ describe('customizerTypeRegistry — capital ships (UL-14)', () => {
       expect(d.label).toBe('CapitalShip');
       expect(d.Shell).toBe(CapitalShipShell);
       expect(d.OverviewComponent).not.toBe(OverviewTab);
-      expect(d.PreviewComponent).not.toBe(PreviewTab);
-      expect(d.tabs.map((tab) => tab.id)).toEqual(['overview', 'structure']);
+      expect(d.PreviewComponent).toBe(CapitalRecordSheetPreview);
+      expect(d.RecordSheetPreviewComponent).toBe(CapitalRecordSheetPreview);
+      expect(d.tabs.map((tab) => tab.id)).toEqual([
+        'overview',
+        'structure',
+        'preview',
+      ]);
     },
   );
 

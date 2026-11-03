@@ -1,4 +1,6 @@
 import { expect, test, type Page, type Locator } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 
 import {
   installPrintHarness,
@@ -260,7 +262,7 @@ async function expectNoCapitalEdits(shell: ReturnType<Page['getByTestId']>) {
     .getByRole('button', { disabled: false })
     .all())
     await expect(button).toHaveAccessibleName(
-      /^(Section: (Overview|Structure), [12] of 2|Scroll tabs (left|right))$/,
+      /^(Section: (Overview|Structure|Preview), [123] of 3|Scroll tabs (left|right))$/,
     );
 }
 
@@ -639,7 +641,7 @@ for (const viewport of VIEWPORTS) {
           await expect(page.getByTestId(other)).toHaveCount(0);
         await expect(shell.getByText(/^Read-Only$/)).toBeVisible();
         const tabs = shell.getByRole('tab', { includeHidden: true });
-        await expect(tabs).toHaveCount(2);
+        await expect(tabs).toHaveCount(3);
         const panel = shell.getByRole('tabpanel');
         const label =
           unit.scope === 'complete' ? 'Battle Value' : 'Defensive BV';
@@ -1149,9 +1151,10 @@ test.describe('library persistence and printing', () => {
         });
       }
 
-      test('capital is read-only without save or printable sheet @customizer', async ({
+      test('capital remains read-only and prints its record sheet @customizer', async ({
         page,
       }, info) => {
+        await installPrintHarness(page);
         await page.goto('/customizer');
         await library(page, 'Crucible Station', '');
         const shell = page.getByTestId('capital-ship-customizer');
@@ -1162,16 +1165,56 @@ test.describe('library persistence and printing', () => {
         await expect(
           page.getByRole('button', { name: 'Save active unit to library' }),
         ).toHaveCount(0);
-        // Current capital viewer exposes Overview/Structure only; no print route.
+        if (process.env.RECORD_SHEET_PINNED_ASSETS)
+          await page.route('**/record-sheets/**', async (route) => {
+            const relative = new URL(route.request().url()).pathname.replace(
+              '/record-sheets/',
+              '',
+            );
+            await route.fulfill({
+              contentType: 'image/svg+xml',
+              body: readFileSync(
+                path.join(process.env.RECORD_SHEET_PINNED_ASSETS!, relative),
+              ),
+            });
+          });
         await expect(
           shell.getByRole('tab', { includeHidden: true }),
-        ).toHaveCount(2);
-        await expect(
-          page.getByRole('tab', { name: 'Preview', exact: true }),
-        ).toHaveCount(0);
-        await expect(
-          page.getByRole('button', { name: 'Print', exact: true }),
-        ).toHaveCount(0);
+        ).toHaveCount(3);
+        await section(page, 'Preview');
+        const images = shell.getByRole('img', {
+          name: /Crucible Station record sheet page/,
+        });
+        await expect(images.first()).toBeVisible();
+        const count = await images.count();
+        expect(count).toBeGreaterThan(1);
+        const source = await images
+          .first()
+          .evaluate((el) =>
+            decodeURIComponent((el as HTMLImageElement).src.split(',')[1]),
+          );
+        expect(source).toContain(
+          'data-capital-template="spacestation_default"',
+        );
+        expect(source).toContain('(complete)');
+        await page.getByRole('button', { name: 'Print', exact: true }).click();
+        await expect
+          .poll(async () => (await printCaptures(page)).length)
+          .toBe(1);
+        const capture = (await printCaptures(page))[0];
+        expect(capture.sheetCount).toBe(count);
+        expect(capture.typeName).toBe('Crucible Station');
+        await expectPrintWindowClosesAfterPrint(page);
+        const downloadPromise = page.waitForEvent('download');
+        await page
+          .getByRole('button', { name: 'Download PDF', exact: true })
+          .click();
+        const download = await downloadPromise;
+        const filename = info.outputPath('capital-record-sheets.pdf');
+        await download.saveAs(filename);
+        const pdf = readFileSync(filename).toString('latin1');
+        expect(pdf.startsWith('%PDF')).toBe(true);
+        expect(pdf.match(/\/Type\s*\/Page(?!s)/g)).toHaveLength(count);
         await noOverflow(page);
         await page.screenshot({
           path: info.outputPath(`capital-${viewport.width}.png`),
