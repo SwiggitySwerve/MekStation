@@ -10,21 +10,28 @@
 
 import type { CustomCombatSnapshot } from '@/types/contracts/CustomCombatSnapshot';
 
-import { parseCustomCombatDefinition } from './customCombatDefinition';
+import { customCombatSnapshotFamily } from '@/types/contracts/CustomCombatSnapshot';
+import {
+  formatUnitReference,
+  parseUnitReference,
+} from '@/types/unit/UnitIndex';
+
+import {
+  parseCustomCombatDefinition,
+  isCustomCombatReference as isCustomCombatId,
+} from './customCombatDefinition';
 import { getUnitRepository } from './UnitRepository';
-
-const CUSTOM_ID_PREFIX = 'custom-';
-
-function isCustomCombatId(id: string): boolean {
-  return id.startsWith(CUSTOM_ID_PREFIX);
-}
 
 export function readServerCustomCombatDefinition(
   id: string,
 ): CustomCombatSnapshot | null {
   if (!isCustomCombatId(id)) return null;
-  const record = getUnitRepository().getById(id);
-  if (!record || record.id !== id || !isCustomCombatId(record.id)) {
+  const record = getUnitRepository().getById(parseUnitReference(id).id);
+  if (
+    !record ||
+    record.id !== parseUnitReference(id).id ||
+    !isCustomCombatId(record.id)
+  ) {
     return null;
   }
   try {
@@ -47,11 +54,12 @@ export function readServerCustomCombatDefinition(
 export function listServerCustomCombatRefs(): string[] {
   return getUnitRepository()
     .list()
-    .map((row) => row.id)
-    .filter(
-      (id) =>
-        isCustomCombatId(id) && readServerCustomCombatDefinition(id) !== null,
-    );
+    .flatMap((row) => {
+      const snapshot = readServerCustomCombatDefinition(row.id);
+      return snapshot
+        ? [formatUnitReference(row.id, customCombatSnapshotFamily(snapshot))]
+        : [];
+    });
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

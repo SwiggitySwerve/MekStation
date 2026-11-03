@@ -10,7 +10,7 @@
   "year": 3073,
   "tonnage": 100,
   "engine": {
-    "type": "XL",
+    "type": "CLAN_XL",
     "rating": 300
   },
   "gyro": {
@@ -43,7 +43,7 @@
     }
   },
   "heatSinks": {
-    "type": "SINGLE",
+    "type": "LASER",
     "count": 16
   },
   "movement": {
@@ -52,32 +52,32 @@
   },
   "equipment": [
     {
-      "id": "1-clrotaryac2",
+      "id": "rotary-ac-2",
       "location": "LEFT_ARM"
     },
     {
-      "id": "1-clrotaryac2",
+      "id": "rotary-ac-2",
       "location": "LEFT_ARM"
     },
     {
-      "id": "1-clrotaryac2",
+      "id": "rotary-ac-2",
       "location": "RIGHT_ARM"
     },
     {
-      "id": "1-clrotaryac2",
+      "id": "rotary-ac-2",
       "location": "RIGHT_ARM"
     },
     {
-      "id": "1-clstreaklrm10",
+      "id": "streak-lrm-10",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-large-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "streak-lrm-10",
       "location": "RIGHT_TORSO"
-    },
-    {
-      "id": "1-clstreaklrm10",
-      "location": "LEFT_TORSO"
-    },
-    {
-      "id": "1-clerlargelaser",
-      "location": "LEFT_TORSO"
     }
   ],
   "criticalSlots": {
@@ -110,52 +110,52 @@
       "CLCASEII"
     ],
     "LEFT_TORSO": [
-      "Engine",
-      "Engine",
-      "CLLaser Heat Sink",
-      "CLLaser Heat Sink",
-      "CLLaser Heat Sink",
-      "CLLaser Heat Sink",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Laser Heat Sink",
+      "Laser Heat Sink",
+      "Laser Heat Sink",
+      "Laser Heat Sink",
       "CLStreakLRM10",
       "CLStreakLRM10",
       "CLERLargeLaser",
-      "CLStreakLRM10 Ammo",
+      "Clan Streak LRM 10 Ammo",
       "CLCASEII",
-      "Endo-Composite"
+      "Clan Endo-Composite"
     ],
     "RIGHT_TORSO": [
-      "Engine",
-      "Engine",
-      "CLLaser Heat Sink",
-      "CLLaser Heat Sink",
-      "CLLaser Heat Sink",
-      "CLLaser Heat Sink",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Laser Heat Sink",
+      "Laser Heat Sink",
+      "Laser Heat Sink",
+      "Laser Heat Sink",
       "CLStreakLRM10",
       "CLStreakLRM10",
-      "CLStreakLRM10 Ammo",
+      "Clan Streak LRM 10 Ammo",
       "CLCASEII",
-      "Endo-Composite",
+      "Clan Endo-Composite",
       null
     ],
     "CENTER_TORSO": [
-      "Engine",
-      "Engine",
-      "Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
       "Gyro",
       "Gyro",
       "Gyro",
       "Gyro",
-      "Engine",
-      "Engine",
-      "Engine",
-      "Endo-Composite",
-      "Reflective"
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Clan Endo-Composite",
+      "Clan Reflective"
     ],
     "HEAD": [
       "Life Support",
       "Sensors",
       "Cockpit",
-      "Endo-Composite",
+      "Clan Endo-Composite",
       "Sensors",
       "Life Support"
     ],
@@ -164,37 +164,38 @@
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      "Reflective",
-      "Reflective"
+      "Clan Reflective",
+      "Clan Reflective"
     ],
     "RIGHT_LEG": [
       "Hip",
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      "Reflective",
-      "Reflective"
+      "Clan Reflective",
+      "Clan Reflective"
     ]
   },
   "quirks": [
-    "difficult_maintain",
-    "poor_performance",
-    "prototype",
     "ext_twist",
+    "difficult_maintain",
+    "prototype",
+    "poor_performance",
     "pro_actuator"
   ],
   "fluff": {
-    "overview": "The Bane is a BattleMech that is based upon a Star League prototype that was never put into production. Tagged the Kraken by Inner Sphere forces who opposed it.",
-    "capabilities": "The Bane was first built in 2827. It was originally a significant part of many Clan toumans, but was gradually relegated to second-line status following the introduction of the OmniMech. As such, it is still critical to many defensive units. The design uses a lightweight XL Engine so that it can mount the arsenal that it does. Nineteen tons of armor protects this venerable assault 'Mech.",
-    "deployment": "A Clan Jade Falcon variant that uses Experimental Technology extensively, the Kraken-XR was first spotted at Olivetti Weaponry on Sudeten. The standard Kraken skeleton was replaced by an Endo-Composite Structure to save weight while keeping strength. The Kraken-XR uses sixteen Laser Heat Sinks, and carries nineteen tons of Reflective Armor for protection. The weapons load appears to be a cross between the Bane 2 and Bane 3 variants, consisting of a pair of Rotary AC/2s in each arm and a Streak LRM-10 in each torso. A single ER Large Laser acts as a backup weapon in case the ammunition runs dry. For more protection the Kraken-XR mounts CASE II in each ammunition bay.",
-    "manufacturer": "Tokasha MechWorks Alpha, Olivetti Weapons",
-    "primaryFactory": "Tokasha, Sudeten",
+    "overview": "<p>The Kraken-XR is an experimental refit of the venerable Bane assault BattleMech, developed by an adjunct wing of Clan Jade Falcon's Olivetti Weaponry factory on Sudeten. With a project start date of 3073, the Kraken-XR was designed as a technology demonstrator, incorporating numerous experimental systems that had not yet reached full production status. Like the Cougar-XR developed concurrently, the design was built on a proven chassis as a Clan standby platform for evaluating advanced technologies under field conditions.</p><p>The high resource cost and experimental nature of its components limited construction to no more than three prototypes, making the Kraken-XR one of the rarest Bane derivatives in existence. Whether the design will ever see full-scale production remains an open question, though several of the technologies it validated subsequently appeared in later production variants of the Bane.</p>",
+    "capabilities": "<p>The Kraken-XR replaces the standard Bane's internal structure with an endo-composite skeleton, reducing weight while maintaining structural integrity at the cost of increased bulk. The experimental chassis is protected by nineteen tons of laser reflective armor, which disperses laser energy across its surface but provides reduced protection against ballistic and missile weapons compared to standard plating. Sixteen laser heat sinks represent another experimental system, dissipating heat through focused light emission rather than traditional thermal exchange.</p><p>The weapons loadout combines elements of earlier Bane variants, four Rotary Autocannon/2s provide high-volume fire at range while two Streak LRM-10s add guided missile support. An extended-range large laser serves as an ammunition-independent backup weapon. CASE II protects each ammunition bay, a practical concession given the volatile experimental systems distributed throughout the chassis.</p><p>The combination of so many unproven technologies makes the Kraken-XR notoriously difficult to maintain and prone to intermittent performance issues, significantly limiting its tactical utility despite impressive theoretical capabilities on paper.</p>",
+    "history": "<p>The Kraken-XR's development began in 3073 at Olivetti Weaponry on Sudeten, part of a broader Clan Jade Falcon initiative to evaluate experimental technologies within established chassis designs. The concurrent Cougar-XR program suggests a systematic effort to test new systems across multiple weight classes simultaneously, gathering comparative data on how experimental components performed in both medium and assault platforms.</p><p>The Kraken-XR drew upon the proven Bane as a stable foundation for integrating endo-composite structure, laser heat sinks, laser reflective armor, and rotary autocannons, technologies that would individually find their way into later production designs. The extreme resource requirements and technological complexity limited construction to approximately three prototypes, which served the Falcon scientists' research needs during the Jihad era.</p><p>The engineering data gathered from the Kraken-XR program likely contributed to subsequent Bane variants. The Bane 5, introduced around 3105, incorporated several technologies first tested on the Kraken-XR (including endo-composite structure and rotary autocannons) in production-ready form. The refit line at Olivetti Weaponry that produced the Kraken-XR prototypes was destroyed during the Wars of Reaving and was never restored for this specific variant.</p>",
+    "deployment": "<p>The Kraken-XR emerged from Olivetti Weaponry's experimental refit division on Sudeten in 3073, built almost entirely from non-production components. The endo-composite structure, laser heat sinks, laser reflective armor, and rotary autocannons each represent advanced technologies being evaluated for potential future adoption. Only three Kraken-XR prototypes are believed to have been constructed, serving primarily as field test chassis to determine the viability of fitting multiple experimental systems into a single assault-weight platform. The Jade Falcons' use of reflective armor (previously observed only on the Night Gyr OmniMech) and the combination with other cutting-edge systems suggests the Kraken-XR's true purpose was technology validation rather than front-line combat deployment.</p>",
+    "manufacturer": "Refit - Olivetti Weaponry",
+    "primaryFactory": "Sudeten",
     "systemManufacturer": {
-      "CHASSIS": "Type AXT, Mk. XX",
-      "ENGINE": "Fusion 300 XL",
-      "ARMOR": "Forging C745",
-      "COMMUNICATIONS": "JNE Integrated",
-      "TARGETING": "Series VI TTS"
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "COMMUNICATIONS": "JNE",
+      "TARGETING": "Unknown"
     }
   },
   "mulId": 4463,

@@ -77,17 +77,8 @@ const SOURCE_TYPES: Record<UnitFamily, Record<string, number>> = {
   infantry: { Infantry: 1820 },
   protomechs: { ProtoMech: 86 },
 };
-// Owner question remains open; never silently treat this old catalog as pinned.
-const MECH_DRIFT = { missing: 74, extra: 36 };
-const EXPECTED_TYPES = {
-  ...SOURCE_TYPES,
-  battlemechs: {
-    BattleMech:
-      SOURCE_TYPES.battlemechs.BattleMech -
-      MECH_DRIFT.missing +
-      MECH_DRIFT.extra,
-  },
-};
+// Owner ruling 2026-11-02: regenerate every pinned Mek, removing stale designs.
+const EXPECTED_TYPES = SOURCE_TYPES;
 const STORE_READERS = {
   battlemechs: getUnitStore,
   vehicles: getVehicleStore,

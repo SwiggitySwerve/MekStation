@@ -52,32 +52,32 @@
   },
   "equipment": [
     {
-      "id": "er-medium-laser",
-      "location": "RIGHT_ARM"
+      "id": "mrm-10",
+      "location": "LEFT_ARM"
     },
     {
       "id": "er-medium-laser",
       "location": "LEFT_ARM"
     },
     {
-      "id": "small-laser",
-      "location": "HEAD"
+      "id": "mrm-10",
+      "location": "RIGHT_ARM"
     },
     {
-      "id": "ultra-ac-5",
-      "location": "RIGHT_TORSO"
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
     },
     {
       "id": "ultra-ac-5",
       "location": "LEFT_TORSO"
     },
     {
-      "id": "mrm-10",
-      "location": "RIGHT_ARM"
+      "id": "ultra-ac-5",
+      "location": "RIGHT_TORSO"
     },
     {
-      "id": "mrm-10",
-      "location": "LEFT_ARM"
+      "id": "small-laser",
+      "location": "HEAD"
     }
   ],
   "criticalSlots": {
@@ -176,5 +176,5 @@
       null
     ]
   },
-  "source": "Videogame (Apocryphal)"
+  "source": "Apocryphal (Videogame)"
 }

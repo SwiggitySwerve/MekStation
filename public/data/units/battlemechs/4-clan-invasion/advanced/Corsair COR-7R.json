@@ -52,36 +52,36 @@
   },
   "equipment": [
     {
-      "id": "ac-20",
-      "location": "RIGHT_TORSO"
-    },
-    {
-      "id": "large-laser",
-      "location": "RIGHT_ARM"
-    },
-    {
-      "id": "large-laser",
-      "location": "RIGHT_ARM"
-    },
-    {
-      "id": "rocket-launcher-10",
-      "location": "HEAD"
-    },
-    {
-      "id": "rocket-launcher-10",
-      "location": "CENTER_TORSO"
-    },
-    {
-      "id": "rocket-launcher-10",
-      "location": "CENTER_TORSO"
-    },
-    {
       "id": "rocket-launcher-20",
       "location": "LEFT_ARM"
     },
     {
+      "id": "large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
       "id": "rocket-launcher-20",
       "location": "LEFT_TORSO"
+    },
+    {
+      "id": "ac-20",
+      "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "CENTER_TORSO"
+    },
+    {
+      "id": "rocket-launcher-10",
+      "location": "HEAD"
     }
   ],
   "criticalSlots": {
@@ -180,5 +180,5 @@
       "Heat Sink"
     ]
   },
-  "source": "Videogame (Apocryphal)"
+  "source": "Apocryphal (Videogame)"
 }

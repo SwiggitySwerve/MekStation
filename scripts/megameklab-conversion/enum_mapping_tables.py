@@ -176,6 +176,7 @@ ARMOR_TYPE_MAP: Dict[str, str] = {
     "IS Ferro-Fibrous": "FERRO_FIBROUS",
     "Clan Ferro-Fibrous": "FERRO_FIBROUS_CLAN",
     "Ferro-Fibrous(Clan)": "FERRO_FIBROUS_CLAN",
+    "Ferro-Lamellor(Clan)": "FERRO_LAMELLOR",
     "Light Ferro-Fibrous": "LIGHT_FERRO_FIBROUS",
     "Light Ferro-Fibrous Armor": "LIGHT_FERRO_FIBROUS",
     "Heavy Ferro-Fibrous": "HEAVY_FERRO_FIBROUS",
@@ -290,6 +291,8 @@ MECH_CONFIG_MAP: Dict[str, str] = {
     "QuadVee": "QuadVee",
     "Biped Omnimech": "Biped",
     "Quad Omnimech": "Quad",
+    "Quad OmniMek": "Quad",
+    "QuadVee OmniMek": "QuadVee",
 }
 
 ERA_MAP: Dict[int, str] = {

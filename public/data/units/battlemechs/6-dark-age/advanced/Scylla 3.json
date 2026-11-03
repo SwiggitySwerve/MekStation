@@ -10,7 +10,7 @@
   "year": 3082,
   "tonnage": 100,
   "engine": {
-    "type": "XL",
+    "type": "CLAN_XL",
     "rating": 400
   },
   "gyro": {
@@ -18,10 +18,10 @@
   },
   "cockpit": "STANDARD",
   "structure": {
-    "type": "ENDO_STEEL"
+    "type": "ENDO_STEEL_CLAN"
   },
   "armor": {
-    "type": "FERRO_FIBROUS",
+    "type": "FERRO_FIBROUS_CLAN",
     "allocation": {
       "LEFT_ARM": 32,
       "RIGHT_ARM": 32,
@@ -43,7 +43,7 @@
     }
   },
   "heatSinks": {
-    "type": "DOUBLE",
+    "type": "DOUBLE_CLAN",
     "count": 16
   },
   "movement": {
@@ -52,20 +52,20 @@
   },
   "equipment": [
     {
-      "id": "1-clerppc",
-      "location": "RIGHT_TORSO"
+      "id": "lb-20-x-ac",
+      "location": "LEFT_ARM"
     },
     {
-      "id": "1-clheavylargelaser",
-      "location": "LEFT_TORSO"
-    },
-    {
-      "id": "1-clhag30",
+      "id": "hag-30",
       "location": "RIGHT_ARM"
     },
     {
-      "id": "1-cllbxac20",
-      "location": "LEFT_ARM"
+      "id": "heavy-large-laser",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "er-ppc",
+      "location": "RIGHT_TORSO"
     }
   ],
   "criticalSlots": {
@@ -95,47 +95,47 @@
       "CLHAG30",
       "CLHAG30",
       "CLHAG30",
-      "CLHAG30 Ammo"
+      "Hyper-Assault Gauss Rifle/30 Ammo"
     ],
     "LEFT_TORSO": [
-      "Engine",
-      "Engine",
+      "Fusion Engine",
+      "Fusion Engine",
       "CLHeavyLargeLaser",
       "CLHeavyLargeLaser",
       "CLHeavyLargeLaser",
-      "CLLBXAC20 Ammo",
-      "CLLBXAC20 CL Ammo",
-      "Endo-Steel",
-      "Endo-Steel",
-      "Endo-Steel",
-      "Endo-Steel",
-      "Endo-Steel"
+      "Clan LB 20-X AC Ammo",
+      "Clan LB 20-X Cluster Ammo",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel",
+      "Clan Endo Steel"
     ],
     "RIGHT_TORSO": [
-      "Engine",
-      "Engine",
+      "Fusion Engine",
+      "Fusion Engine",
       "CLERPPC",
       "CLERPPC",
-      "CLHAG30 Ammo",
-      "CLHAG30 Ammo",
-      "Ferro-Fibrous",
-      "Ferro-Fibrous",
-      "Ferro-Fibrous",
-      "Ferro-Fibrous",
-      "Ferro-Fibrous",
+      "Hyper-Assault Gauss Rifle/30 Ammo",
+      "Hyper-Assault Gauss Rifle/30 Ammo",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous",
       null
     ],
     "CENTER_TORSO": [
-      "Engine",
-      "Engine",
-      "Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
       "Gyro",
       "Gyro",
       "Gyro",
       "Gyro",
-      "Engine",
-      "Engine",
-      "Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
       null,
       null
     ],
@@ -152,20 +152,35 @@
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      "Endo-Steel",
-      "Endo-Steel"
+      "Clan Endo Steel",
+      "Clan Endo Steel"
     ],
     "RIGHT_LEG": [
       "Hip",
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      "Ferro-Fibrous",
-      "Ferro-Fibrous"
+      "Clan Ferro-Fibrous",
+      "Clan Ferro-Fibrous"
     ]
   },
   "quirks": ["oversized"],
+  "fluff": {
+    "overview": "<p>The Scylla is a Clan Steel Viper assault BattleMech introduced in 3062, created by extensively refitting the Golden Century-era Storm Giant with new weapons and electronics. Named after the sea monster of Greek mythology, the Scylla emerged during a period of aggressive Steel Viper expansion following their ejection from the Inner Sphere. The pressing need for equipment drove the Vipers to turn to their stockpiles of aging Storm Giants stored in Brian Caches, rebuilding them into a highly mobile assault platform with jump capability. Produced at the Novy Minsky Armaments Plant on New Kent, the Scylla served the Steel Vipers during their final years of existence before the Clan's annihilation in 3075, after which surviving examples were captured and refitted by other Clans.</p>",
+    "capabilities": "<p>The Scylla retains the Storm Giant's New Kent Type 50 XL 400 engine, giving it a top speed of approximately 65 kilometers per hour, remarkable for a 100-ton assault 'Mech. The addition of four Pryzhok WM15 jump jets allows the Scylla to leap up to 120 meters, a capability that stuns opponents who do not expect such maneuverability from a design of this mass. This agility comes at a cost, however, as the Scylla's weapons array is especially lighter than those of comparable assault 'Mechs.</p><p>The primary armament consists of twin Type XX \"Great Bow\" LRM-20 launchers, providing devastating mid-to-long-range firepower but with limited ammunition. A Type KOV LB 10-X autocannon supplements the missiles with versatile cluster or solid shot capability. A head-mounted Series 7K extended-range large laser provides additional long-range reach, though many pilots avoid using it due to heat buildup near the cockpit despite the 'Mech's otherwise efficient heat dissipation system. A pair of torso-mounted Series 2c ER medium lasers round out the arsenal for close and medium range engagements. Fifteen and a half tons of Compound V9 ferro-fibrous armor provide solid protection across the Viper NK12 Endo Steel frame, and seventeen double heat sinks manage the design's thermal load.</p>",
+    "history": "<p>The Scylla's origins lie in the turbulent period following Clan Steel Viper's ejection from the Inner Sphere occupation zones. Returning to the Kerensky Cluster bitter and aggressive, the Steel Vipers embarked on a campaign of territorial expansion against neighboring Clans. The internal political upheaval wracking the Clan since 3060, including Khan Perigard Zalman's decision to integrate freeborn warriors, created an urgent demand for war materiel that existing production could not meet.</p><p>The solution came from the Vipers' Brian Caches, where stocks of Golden Century-era Storm Giants awaited reactivation. Beginning in 3062, the Novy Minsky Armaments Plant on New Kent began pulling these ancient assault 'Mechs from storage and extensively refitting them with upgraded electronics, new weapons systems, and jump jets. The resulting Scylla retained the Storm Giant's proven engine and frame while transforming it into a highly mobile assault platform.</p><p>The Scylla saw immediate combat deployment with the Tenth Assault Cluster, proving effective against Clan Ice Hellion incursions on New Kent. The design's unexpected agility for its tonnage repeatedly caught opponents off guard, particularly during the 3064 offensive across the Shandrake Massif that routed the Hell's Horses' 175th Assault Cluster. The Ice Hellions' formal complaint to the Grand Council, and the dismissive response from other Clans, underscored both the Scylla's effectiveness and the Steel Vipers' growing reputation for aggressive, unconventional warfare.</p><p>The Scylla's service with the Steel Vipers ended abruptly with the Clan's annihilation during the Wars of Reaving in 3075. Surviving examples were claimed as isorla by victorious Clans, most particularly Clan Hell's Horses and Clan Jade Falcon. Both Clans subsequently developed their own refits of the captured 'Mechs, the Hell's Horses producing the Scylla 2 with its distinctive hyper-assault Gauss rifles around 3079, and the Jade Falcons introducing the heavier-armed Scylla 3 by 3082. These post-Viper variants reflect each Clan's distinct combat philosophies applied to the same robust chassis.</p>",
+    "deployment": "<p>A Clan Jade Falcon refit appearing around 3082, the Scylla 3 takes the design in a radically different direction. The jump jets are removed entirely, and the weapons suite is replaced with a HAG/30, an LB 20-X autocannon, an ER PPC, and a heavy large laser, creating a devastating long-range fire support platform. The removal of one heat sink was necessary to accommodate the heavier armament. This configuration sacrifices the Scylla's signature maneuverability for overwhelming firepower at all ranges, reflecting the Jade Falcons' preference for direct, heavy-hitting engagement doctrines.</p>",
+    "manufacturer": "Unknown",
+    "primaryFactory": "Various",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "COMMUNICATIONS": "Unknown",
+      "TARGETING": "GEG"
+    }
+  },
   "mulId": 5724,
   "role": "Brawler",
-  "source": "RS:3067u"
+  "source": "TR:3067"
 }

@@ -77,6 +77,30 @@ it('hydrates mounted Targeting Computer equipment into combat state', () => {
   ).toBe(true);
 });
 
+// Ruling item 3; pinned Kiso K-3N-KRHQ CommandMech.mtf:97-99 repeats one 3-ton system.
+it.each([
+  'Communications Equipment:SIZE:3.0',
+  'Communications Equipment (3 tons)',
+])(
+  'hydrates repeated communications critical slots without summing their size: %s',
+  (descriptor) => {
+    const unit: IFullUnit = {
+      id: 'communications-critical-source',
+      chassis: 'Kiso',
+      variant: 'Test',
+      tonnage: 100,
+      techBase: 'Inner Sphere',
+      era: '3075',
+      unitType: 'BattleMech',
+      criticalSlots: { RIGHT_TORSO: [descriptor, descriptor, descriptor] },
+    };
+    expect(hydrateInitiativeEquipmentFromFullUnit(unit)).toMatchObject({
+      workingCommunicationsTonnage: 3,
+      communicationsMode: 'Default',
+    });
+  },
+);
+
 it('hydrates initiative equipment from official command-console BattleMech critical slots', async () => {
   const service = getNodeCanonicalUnitService();
   const fullUnit = await service.getById('kiso-k-3n-krhq-commandmech');

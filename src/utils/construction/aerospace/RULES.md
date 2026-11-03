@@ -401,7 +401,21 @@ crew and transporter slots remain unrepresented, rather than assuming Mek
 critical slots are SV slots (`TestSupportVehicle:1027-1038,1110-1116,1570-1655`).
 Thunderbolt 20 uses its native five slots; no catalog is edited.
 
-Newly admitted large FWS uses support-vehicle BV through the shared dispatcher.
-Small/medium source BV retains its published projection to preserve the other
-aerospace rows required by this routing slice. Store, library and save identity
-are unchanged; broader BV corrections are outside this admission change.
+FWS BV uses the FU57/61 `isFixedWingSupport` family marker across all sizes
+(`FixedWingSupport.java:130-138`, factory `BVCalculator.java:103-119`, pin
+48fcb2f6). The BV adapter combines this marker with the legacy support hint.
+BAR/10 scales armor before the support type factor of one; zero BAR is retained
+(`BVCalculator.java:426-463`, `AeroBVCalculator.java:118-138`). Native and canonical
+contract inputs both carry BAR to this owner.
+
+Source ammo classification survives catalog aliases. Ammo is excluded from the
+forward/rear weapon pool, accumulated by native ammo type/rack and capped by
+matching weapon BV before speed (`BVCalculator.java:1045-1091,1190-1247`). The
+existing exact-key ammo API remains the non-FWS compatibility path. The shared
+support fire-control owner in `vehicleBVOffensive.ts` supplies basic/advanced/no
+FCS factors to both weapons and capped ammo (`BVCalculator.java:966-976`).
+
+Unresolved prototype weapons remain unresolved. Correct BAR can expose their
+previously compensating armor error; evidence names every farther total and
+enforces that no exact aerospace result loses exactness. Catalog values and
+introduction years remain with their data owners.

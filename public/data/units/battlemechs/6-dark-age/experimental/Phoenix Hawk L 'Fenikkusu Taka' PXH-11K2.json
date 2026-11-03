@@ -1,7 +1,7 @@
 {
-  "id": "phoenix-hawk-l-fenikkusu-taka-pxh-11k2",
-  "chassis": "Phoenix Hawk L",
-  "model": "'Fenikkusu Taka' PXH-11K2",
+  "id": "phoenix-hawk-l-fenikkusu-taka-pxh-11k2-bdd65eb8",
+  "chassis": "Phoenix Hawk L 'Fenikkusu Taka'",
+  "model": "PXH-11K2",
   "unitType": "BattleMech",
   "configuration": "Biped",
   "techBase": "INNER_SPHERE",
@@ -52,20 +52,20 @@
   },
   "equipment": [
     {
-      "id": "er-medium-laser",
-      "location": "RIGHT_ARM"
-    },
-    {
-      "id": "er-medium-laser",
-      "location": "RIGHT_ARM"
+      "id": "mml-3",
+      "location": "LEFT_ARM"
     },
     {
       "id": "snub-nose-ppc",
       "location": "RIGHT_ARM"
     },
     {
-      "id": "mml-3",
-      "location": "LEFT_ARM"
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "er-medium-laser",
+      "location": "RIGHT_ARM"
     }
   ],
   "criticalSlots": {
@@ -77,8 +77,8 @@
       "ISDoubleHeatSink",
       "ISMML3",
       "ISMML3",
-      "IS Endo-Steel",
-      "IS Endo-Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
       null,
       null,
       null
@@ -93,8 +93,8 @@
       "PPC Capacitor",
       "ISERMediumLaser",
       "ISERMediumLaser",
-      "IS Endo-Steel",
-      "IS Endo-Steel",
+      "IS Endo Steel",
+      "IS Endo Steel",
       null
     ],
     "LEFT_TORSO": [
@@ -106,10 +106,10 @@
       "Jump Jet",
       "IS Ammo MML-3 LRM",
       "IS Ammo MML-3 SRM",
-      "IS Coolant Pod",
+      "Coolant Pod",
       "ISCASEII",
-      "IS Endo-Steel",
-      "IS Endo-Steel"
+      "IS Endo Steel",
+      "IS Endo Steel"
     ],
     "RIGHT_TORSO": [
       "Fusion Engine",
@@ -121,9 +121,9 @@
       "Jump Jet",
       "Jump Jet",
       "Jump Jet",
-      "IS Endo-Steel",
-      "IS Endo-Steel",
-      "IS Endo-Steel"
+      "IS Endo Steel",
+      "IS Endo Steel",
+      "IS Endo Steel"
     ],
     "CENTER_TORSO": [
       "Fusion Engine",
@@ -143,7 +143,7 @@
       "Life Support",
       "Sensors",
       "Cockpit",
-      "IS Endo-Steel",
+      "IS Endo Steel",
       "Sensors",
       "Life Support"
     ],
@@ -152,20 +152,36 @@
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      "IS Endo-Steel",
-      "IS Endo-Steel"
+      "IS Endo Steel",
+      "IS Endo Steel"
     ],
     "RIGHT_LEG": [
       "Hip",
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      "IS Endo-Steel",
-      "IS Endo-Steel"
+      "IS Endo Steel",
+      "IS Endo Steel"
     ]
   },
   "quirks": ["poor_sealing"],
+  "fluff": {
+    "overview": "<p>Following the Second Combine-Dominion War, the Draconis Combine Mustered Soldiery required a new light BattleMech platform to replace its aging Panther fleet. Cosby BattleMech and Myomer Research Firm submitted a proposal that attempted to replicate the Phoenix Hawk's success at a lighter weight class, using cheap and commonly available weapon kits on a thirty-five-ton chassis. The result, alternately known as the <b>Fenikkusu Taka</b>, retained the movement profile of its heavier predecessor while offering armament well-suited to anti-infantry and urban operations.</p><p>Widely accepted among Regulars line regiments, the Phoenix Hawk L has become a popular addition to reconnaissance lances and highly-mobile combined-arms companies throughout the DCMS. Its mobility curve and ease of use are regarded as superior to most Combine Panthers still in service.</p>",
+    "capabilities": "<p>The Phoenix Hawk L is powered by a GM 210 XL engine that propels the thirty-five-ton chassis to 97 kilometers per hour, matching the speed of its heavier namesake. Six Rawlings 55 jump jets provide 180 meters of jump capability, granting exceptional vertical mobility for a light 'Mech. Six and a half tons of standard armor with CASE protection provides reasonable survivability, while a full-head ejection system ensures pilot safety.</p><p>The design's most prominent weapon is the Matabushi Stunner TSEMP cannon, capable of temporarily disabling enemy 'Mechs and vehicles through electromagnetic disruption. This is supplemented by a Shigunga 3-tube MML-3 launcher offering munition flexibility, a Victory 23E ER medium laser for reliable energy firepower, and three Sperry Browning heavy machine guns for devastating anti-infantry work. The Sipher CommCon SCU-4 communications system and Matabushi Sentinel targeting suite provide adequate battlefield awareness for the Phoenix Hawk L's intended role.</p><p>The combination of speed, jump capability, and the TSEMP cannon makes the Phoenix Hawk L particularly effective at isolating and neutralizing individual targets. However, the design's light armor means prolonged exposure to concentrated fire remains dangerous.</p>",
+    "history": "<p>The Phoenix Hawk L entered production at Cosby BattleMech and Myomer Research Firm on Kajikazawa in the early thirty-second century, filling an urgent need for modern light 'Mechs in the DCMS following losses sustained during the Second Combine-Dominion War. The design proved its worth almost immediately during operations on Palmyra, where elements of the Seventh New Samarkand Regulars employed the Phoenix Hawk L in the Battle of Fire Valley. Three units moved across forested slopes to prevent Davion infantry from retreating, with one using its TSEMP cannon to disable a Hanse main battle tank while another finished it with missiles and machine gun fire.</p><p>On Twombly, a strike lance of Phoenix Hawk Ls stumbled into a firebase established by the Twenty-seventh Avalon Hussars. Rather than withdraw, the lance chose to fight, ranging the perimeter and using superior mobility to engage on their own terms. During the engagement, one Phoenix Hawk L danced around a Templar III's superior firepower before delivering a TSEMP strike to the heavy 'Mech's damaged leg, causing it to stumble and fall.</p><p>The DCMS subsequently deployed Phoenix Hawk Ls during operations on Sakhara V, Royal, and Raman, where a snub-nose PPC variant saw its first combat deployment. The design has also been encountered by Republic forces, with at least one damaged example being used for a sabotage operation behind Combine lines on Deneb Algedi, demonstrating the chassis's versatility even in a compromised state. The Fifth Sword of Light has been particularly enthusiastic about integrating the Phoenix Hawk L into its independent strike lance concept, known as <b>shiroi ken</b>.</p>",
+    "deployment": "<p>Produced during the Combine's invasion of the Federated Suns in the 3140s, this variant is a heavily armed variant that replaces the right arm TSEMP cannon with a snub-nose PPC fitted with a PPC capacitor for devastating concentrated strikes. The heavy machine guns are dropped in favor of a second ER medium laser in the right arm, while the MML-3 launcher is retained for flexible munition support. This configuration trades the PXH-11K's disabling capability for raw destructive firepower, making it better suited to direct combat engagements where eliminating targets outweighs the tactical value of disabling them.</p>",
+    "manufacturer": "Unknown",
+    "primaryFactory": "Unknown",
+    "systemManufacturer": {
+      "CHASSIS": "Unknown",
+      "ENGINE": "GM",
+      "ARMOR": "Durallex",
+      "JUMP_JET": "Rawlings",
+      "COMMUNICATIONS": "Sipher",
+      "TARGETING": "Matabushi"
+    }
+  },
   "mulId": 6391,
   "role": "Striker",
-  "source": "TR:3145:DC"
+  "source": "TR:3145:DC,TR:3150"
 }

@@ -43,7 +43,7 @@
     }
   },
   "heatSinks": {
-    "type": "DOUBLE",
+    "type": "DOUBLE_CLAN",
     "count": 12
   },
   "movement": {
@@ -156,9 +156,9 @@
     "LEFT_ARM": [
       "Shoulder",
       "Upper Arm Actuator",
-      "CLMediumPulseLaser (omnipod)",
-      "CLMediumPulseLaser (omnipod)",
-      "CLPlasmaCannon (omnipod)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "CLPlasmaCannon (OMNIPOD)",
       "Clan Endo Steel",
       "Clan Endo Steel",
       "Clan Endo Steel",
@@ -170,9 +170,9 @@
     "RIGHT_ARM": [
       "Shoulder",
       "Upper Arm Actuator",
-      "CLMediumPulseLaser (omnipod)",
-      "CLMediumPulseLaser (omnipod)",
-      "CLPlasmaCannon (omnipod)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "CLMediumPulseLaser (OMNIPOD)",
+      "CLPlasmaCannon (OMNIPOD)",
       "Clan Ferro-Fibrous",
       "Clan Ferro-Fibrous",
       "Clan Ferro-Fibrous",
@@ -184,30 +184,30 @@
     "LEFT_TORSO": [
       "Fusion Engine",
       "Fusion Engine",
-      "CLAPGaussRifle (omnipod)",
-      "CLAPGaussRifle (omnipod)",
-      "CLAPGaussRifle (omnipod)",
-      "CLAPGaussRifle (omnipod)",
-      "CLMG (omnipod)",
-      "CLMG (omnipod)",
-      "CLMG (omnipod)",
-      "CLMG (omnipod)",
-      "CLMGA (omnipod)",
-      "Clan Machine Gun Ammo - Half (omnipod)"
+      "CLAPGaussRifle (OMNIPOD)",
+      "CLAPGaussRifle (OMNIPOD)",
+      "CLAPGaussRifle (OMNIPOD)",
+      "CLAPGaussRifle (OMNIPOD)",
+      "CLMG (OMNIPOD)",
+      "CLMG (OMNIPOD)",
+      "CLMG (OMNIPOD)",
+      "CLMG (OMNIPOD)",
+      "CLMGA (OMNIPOD)",
+      "Clan Machine Gun Ammo - Half (OMNIPOD)"
     ],
     "RIGHT_TORSO": [
       "Fusion Engine",
       "Fusion Engine",
-      "CLAPGaussRifle (omnipod)",
-      "CLAPGaussRifle (omnipod)",
-      "CLAPGaussRifle (omnipod)",
-      "CLAPGaussRifle (omnipod)",
-      "CLMG (omnipod)",
-      "CLMG (omnipod)",
-      "CLMG (omnipod)",
-      "CLMG (omnipod)",
-      "CLMGA (omnipod)",
-      "CLAPGaussRifle Ammo (omnipod)"
+      "CLAPGaussRifle (OMNIPOD)",
+      "CLAPGaussRifle (OMNIPOD)",
+      "CLAPGaussRifle (OMNIPOD)",
+      "CLAPGaussRifle (OMNIPOD)",
+      "CLMG (OMNIPOD)",
+      "CLMG (OMNIPOD)",
+      "CLMG (OMNIPOD)",
+      "CLMG (OMNIPOD)",
+      "CLMGA (OMNIPOD)",
+      "CLAPGaussRifle Ammo (OMNIPOD)"
     ],
     "CENTER_TORSO": [
       "Fusion Engine",
@@ -220,14 +220,14 @@
       "Fusion Engine",
       "Fusion Engine",
       "Fusion Engine",
-      "CLPlasmaCannonAmmo (omnipod)",
-      "CLPlasmaCannonAmmo (omnipod)"
+      "CLPlasmaCannonAmmo (OMNIPOD)",
+      "CLPlasmaCannonAmmo (OMNIPOD)"
     ],
     "HEAD": [
       "Life Support",
       "Sensors",
       "Cockpit",
-      "CLPlasmaCannon (omnipod)",
+      "CLPlasmaCannon (OMNIPOD)",
       "Sensors",
       "Life Support"
     ],
@@ -244,28 +244,24 @@
       "Upper Leg Actuator",
       "Lower Leg Actuator",
       "Foot Actuator",
-      "CLDoubleHeatSink (omnipod)",
-      "CLDoubleHeatSink (omnipod)"
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)"
     ]
   },
-  "quirks": [
-    "ext_twist",
-    "multi_trac",
-    "bad_rep_clan"
-  ],
+  "quirks": ["ext_twist", "bad_rep_clan", "multi_trac"],
   "fluff": {
-    "overview": "The backbone of The Society's military forces, the Septicemia was a utilitarian medium-class workhorse. Devoid of the more experimental technology utilized by the Cephalus and Osteon to allow it to be built in higher volumes, the Septicemia saves weight with an XL Engine, Endo Steel chassis, and nine tons of Ferro-Fibrous armor. While the location of its weaponry in its torsos hampers its ability to carry Battle Armor, this was intentional to try and ensure hand actuators were retained to maximize its physical combat abilities.",
-    "capabilities": "The fourth variant is primarily for use against non-'Mech forces. Three Plasma Cannons can drive a 'Mech's heat up, but are devastating against conventional vehicles. Eight AP Gauss Rifles and two Machine Gun Arrays, each of which have four Machine Guns, can effortlessly annihilate unarmored infantry. Four Medium Pulse Lasers are effective against hardened targets, including battle armor.",
-    "history": "Despite its role in the Wars of Reaving, the Septicemia would see service after the conflict in the toumans of the four surviving Homeworld Clans. Avoiding extinction unlike the Cephalus and Osteon due to the capture of its production plant and lack of integrated Nova Combined Electronic Warfare System, while the other surviving Clans would push for a renaming of the Septicemia to excise its Taint (Void and Codex being popular suggestions), Khan Magnus DelVillar from Clan Stone Lion successfully campaigned against any moves to rename or remodel the design, citing that it would serve as a constant reminder of the dark crucible from which the Clans had emerged.",
-    "deployment": "Planning their OmniMech forces around a single mass-produced design intended to work in concert with two rarer but cutting-edge units, the Septicemia was built using proven technology with a focus towards mutual support on the battlefield, its every aspect intended to allow it to engage the Clan toumans using methods of warfare they found dezgra. Appearing during the Wars of Reaving when Clan warriors were even more intent on an exceedingly strict adherence of zellbrigen to avoid accusations of Taint, the Septicemia would prove frighteningly effective, earning it the nickname of \"Pariah\" by the Clan Diamond Shark forces that first faced it on Babylon in 3072.",
+    "overview": "<p>The backbone of The Society's military forces, the Septicemia was a utilitarian medium-class workhorse designed for mass production. Devoid of the more experimental technology utilized by the Cephalus and Osteon to allow it to be built in higher volumes, the Septicemia saves weight with an XL Engine, Endo Steel chassis, and nine tons of Ferro-Fibrous armor. While the location of its weaponry in its torsos hampers its ability to carry Battle Armor, this was intentional to try and ensure hand actuators were retained to maximize its physical combat abilities against Clan opponents.</p>",
+    "capabilities": "<p>With an armor layout geared to resist most common Clan weaponry, the Septicemia's speed and pod space proved more than adequate. Its overall weapon selection focused on the presumption of mutually supporting fields of fire, while most configurations attempted to wield hand actuators to encourage their MechWarriors to engage in physical combat. Every aspect of the Septicemia was geared toward engaging the Clans using methods of warfare they found distasteful and dishonorable. While many Clans had begun taking a more Spheroid approach to warfare, many opponents still demonstrated limited adaptability when confronted with the exact opposite of their preferred combat dogma. This was amplified by the Trials of Reaving taking place, where Clans and warriors intent on proving they were not tainted adhered very strictly to the Clan tenets of warfare.</p><p>The extent to which the Clans grew to hate the design (especially Clan Diamond Shark, whose warriors were particularly vexed by it) led to its nickname: \"Pariah\".</p>",
+    "history": "<p>Planning their OmniMech forces around a single mass-produced design intended to work in concert with two rarer but cutting-edge units, the Septicemia was built using proven technology with a focus towards mutual support on the battlefield, its every aspect intended to allow it to engage the Clan toumans using methods of warfare they found dezgra. Appearing during the Wars of Reaving when Clan warriors were even more intent on an exceedingly strict adherence of zellbrigen to avoid accusations of Taint, the Septicemia would prove frighteningly effective, earning it the nickname of \"Pariah\" by the Clan Diamond Shark forces that first faced it on Babylon in 3072.</p><p>Despite its role in the Wars of Reaving, the Septicemia would see service after the conflict in the toumans of the four surviving Homeworld Clans. Avoiding extinction unlike the Cephalus and Osteon due to the capture of its production plant and lack of integrated Nova Combined Electronic Warfare System, while the other surviving Clans would push for a renaming of the Septicemia to excise its Taint (Void and Codex being popular suggestions), Khan Magnus DelVillar from Clan Stone Lion successfully campaigned against any moves to rename or remodel the design, citing that it would serve as a constant reminder of the dark crucible from which the Clans had emerged.</p>",
+    "deployment": "<p>The fourth variant is primarily for use against non-'Mech forces, excelling in the anti-infantry and anti-vehicle role. Three Plasma Cannons can drive a 'Mech's heat up, but are most effective against infantry and vehicles. Four Medium Pulse Lasers provide backup, while AP Gauss Rifles and Machine Gun Arrays mounted in each side torso devastate conventional forces with withering suppressive fire.</p>",
     "manufacturer": "Kerensky Memorial Manufacturing",
     "primaryFactory": "Strana Mechty",
     "systemManufacturer": {
-      "CHASSIS": "55T Battle Epsilon-5 Profile Endo-Steel",
-      "ENGINE": "275 Type II XL",
-      "ARMOR": "Compound SJ8CW Ferro-Fibrous",
-      "COMMUNICATIONS": "GBX Series Integrated II",
-      "TARGETING": "Cat’s Eye MD7"
+      "CHASSIS": "Unknown",
+      "ENGINE": "Unknown",
+      "ARMOR": "Unknown",
+      "COMMUNICATIONS": "GBX",
+      "TARGETING": "Cat's Eye"
     }
   },
   "mulId": 5021,

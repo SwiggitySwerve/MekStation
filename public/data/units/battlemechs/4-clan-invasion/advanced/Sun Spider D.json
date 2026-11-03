@@ -43,7 +43,7 @@
     }
   },
   "heatSinks": {
-    "type": "DOUBLE",
+    "type": "DOUBLE_CLAN",
     "count": 14
   },
   "movement": {
@@ -53,11 +53,11 @@
   "equipment": [
     {
       "id": "ultra-ac-20",
-      "location": "RIGHT_ARM"
+      "location": "LEFT_ARM"
     },
     {
       "id": "ultra-ac-20",
-      "location": "LEFT_ARM"
+      "location": "RIGHT_ARM"
     },
     {
       "id": "heavy-machine-gun",
@@ -73,28 +73,28 @@
       "Shoulder",
       "Upper Arm Actuator",
       "Clan Endo Steel",
-      "CLUltraAC20",
-      "CLUltraAC20",
-      "CLUltraAC20",
-      "CLUltraAC20",
-      "CLUltraAC20",
-      "CLUltraAC20",
-      "CLUltraAC20",
-      "CLUltraAC20",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
       null
     ],
     "RIGHT_ARM": [
       "Shoulder",
       "Upper Arm Actuator",
       "Clan Endo Steel",
-      "CLUltraAC20",
-      "CLUltraAC20",
-      "CLUltraAC20",
-      "CLUltraAC20",
-      "CLUltraAC20",
-      "CLUltraAC20",
-      "CLUltraAC20",
-      "CLUltraAC20",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
+      "CLUltraAC20 (OMNIPOD)",
       null
     ],
     "LEFT_TORSO": [
@@ -104,8 +104,8 @@
       "Clan Endo Steel",
       "Clan Ferro-Fibrous",
       "Clan Ferro-Fibrous",
-      "CLECMSuite",
-      "Clan Ultra AC/20 Ammo",
+      "CLECMSuite (OMNIPOD)",
+      "Clan Ultra AC/20 Ammo (OMNIPOD)",
       null,
       null,
       null,
@@ -118,10 +118,10 @@
       "Clan Endo Steel",
       "Clan Ferro-Fibrous",
       "Clan Ferro-Fibrous",
-      "CLHeavyMG",
-      "CLHeavyMG",
-      "Clan Heavy Machine Gun Ammo - Full",
-      "Clan Ultra AC/20 Ammo",
+      "CLHeavyMG (OMNIPOD)",
+      "CLHeavyMG (OMNIPOD)",
+      "Clan Heavy Machine Gun Ammo - Full (OMNIPOD)",
+      "Clan Ultra AC/20 Ammo (OMNIPOD)",
       null,
       null
     ],
@@ -153,7 +153,7 @@
       "Lower Leg Actuator",
       "Foot Actuator",
       "Clan Ferro-Fibrous",
-      "Clan Ultra AC/20 Ammo"
+      "Clan Ultra AC/20 Ammo (OMNIPOD)"
     ],
     "RIGHT_LEG": [
       "Hip",
@@ -161,8 +161,8 @@
       "Lower Leg Actuator",
       "Foot Actuator",
       "Clan Ferro-Fibrous",
-      "Clan Ultra AC/20 Ammo"
+      "Clan Ultra AC/20 Ammo (OMNIPOD)"
     ]
   },
-  "source": "Videogame (Apocryphal)"
+  "source": "Apocryphal (Videogame)"
 }
