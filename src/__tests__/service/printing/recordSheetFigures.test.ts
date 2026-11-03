@@ -11,7 +11,7 @@ import fs from 'fs';
 import path from 'path';
 import React from 'react';
 
-import type { IRecordSheetData } from '@/types/printing';
+import type { RecordSheetPrintableData } from '@/services/printing/RecordSheetService';
 
 import { buildAerospaceUnitObject } from '@/components/customizer/aerospace/buildAerospaceUnitObject';
 import { BattleArmorPreviewTab } from '@/components/customizer/battlearmor/BattleArmorPreviewTab';
@@ -547,19 +547,19 @@ for (const family of smallPreviewCases)
     it(`${family.name} ${index ? 'toolbar and canvas' : 'standalone canvas'} retains current BV-only inputs`, async () => {
       const active = family.create();
       const singleton = getRecordSheetService();
-      const rendered: IRecordSheetData[] = [];
+      const rendered: RecordSheetPrintableData[] = [];
       const preview = jest
         .spyOn(singleton, 'renderPreview')
         .mockImplementation(async (_canvas, data) => {
           rendered.push(data);
         });
-      const printed: IRecordSheetData[] = [];
+      const printed: RecordSheetPrintableData[] = [];
       const print = jest
         .spyOn(singleton, 'printRecordSheet')
         .mockImplementation(async (data) => {
           printed.push(data);
         });
-      const exported: IRecordSheetData[] = [];
+      const exported: RecordSheetPrintableData[] = [];
       const pdf = jest
         .spyOn(singleton, 'exportPDF')
         .mockImplementation(async (data) => {

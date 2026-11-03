@@ -31,6 +31,16 @@ families, field units, technology/year semantics, extensions and provenance.
 - **AND** the field SHALL NOT enter recorded combat snapshots
 - **AND** the exact 21-key BattleMech construction and recorded bytes SHALL remain unchanged
 
+#### Scenario: Explicit legacy migration and generated examples
+
+- **WHEN** a consumer explicitly migrates an unversioned or current legacy document
+- **THEN** one version-keyed owner SHALL normalize older armor/BAR layouts and remove retired turret mass caches without changing points or live turret configuration
+- **AND** it SHALL preserve unknown extensions, refuse conflicting identities/facts and reject unsupported majors before migration
+- **AND** a family-less reference SHALL mean BattleMech while non-Mech references SHALL carry family
+- **WHEN** the committed examples are regenerated from real catalog designs through the serializers
+- **THEN** one example per family SHALL validate, round-trip and reproduce deterministically
+- **AND** the capital example SHALL use document serialization without adding capital editing
+
 ### Requirement: Immutable source inventory
 
 The conversion boundary SHALL enumerate the pinned source tree independently of working-tree edits and directory-based family assumptions. It SHALL retain repository identity, resolved commit, relative path, format, Git blob identity and SHA-256 for each source definition, and explicitly list other entries. An inventory SHALL NOT claim successful entity loading or numerical parity.
