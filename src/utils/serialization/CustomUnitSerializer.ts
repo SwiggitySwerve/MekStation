@@ -47,6 +47,7 @@ import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
 
 import { isRearLoc } from '../../../scripts/validate-bv-normalizers';
+import { aerospaceSupportSaveFields } from './CustomUnitSerializer.aerospace';
 
 const ENGINE_TYPE = {
   [EngineType.STANDARD]: 'FUSION',
@@ -351,6 +352,10 @@ export function serializeCustomAerospaceState(
   family: 'aerospace';
   aerospaceEditor: ReturnType<typeof aerospaceEditorSchema.parse>;
 } {
+  const support = aerospaceSupportSaveFields(
+    state,
+    ARMOR_TYPE[state.armorType],
+  );
   const arc = (location: Parameters<typeof aerospaceContractArc>[0]) =>
     aerospaceContractArc(
       location,
@@ -396,6 +401,7 @@ export function serializeCustomAerospaceState(
     // Keep the exact editor rating in the validated extension, without clamping.
     engine: { type: ENGINE_TYPE[state.engineType] },
     movement: { safeThrust: state.safeThrust, maxThrust: state.maxThrust },
+    ...support.metadata,
     fuel: state.fuelPoints,
     structuralIntegrity: state.structuralIntegrity,
     cockpit: state.cockpitType.toUpperCase().replaceAll(' ', '_'),
@@ -404,7 +410,7 @@ export function serializeCustomAerospaceState(
       count: state.heatSinks,
     },
     armor: {
-      type: ARMOR_TYPE[state.armorType],
+      ...support.armor,
       byArc: Object.fromEntries(
         Object.entries(state.armorAllocation).map(([location, points]) => [
           arc(location as Parameters<typeof arc>[0]),

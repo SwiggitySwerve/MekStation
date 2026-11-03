@@ -266,6 +266,13 @@ export function mapAerospaceDefinitionToState(
     year: definition.year ?? base.year,
     rulesLevel: mapRulesLevel(definition.rulesLevel ?? 'STANDARD'),
     isFixedWingSupport,
+    ...(isFixedWingSupport
+      ? {
+          barRating: definition.armor?.barRating,
+          structuralTechRating: definition.structuralTechRating,
+          engineTechRating: definition.engineTechRating,
+        }
+      : {}),
     motionType:
       definition.motionType === 'SPHEROID'
         ? AerospaceMotionType.SPHEROID

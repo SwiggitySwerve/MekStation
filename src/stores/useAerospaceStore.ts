@@ -203,7 +203,7 @@ const createAerospaceChassisActions = (
   set: AerospaceStoreSet,
 ): Pick<
   AerospaceActions,
-  'setTonnage' | 'setIsOmni' | 'setAerospaceSubType'
+  'setTonnage' | 'setIsOmni' | 'setAerospaceSubType' | 'setSupportRating'
 > => ({
   setTonnage: (tonnage) =>
     set((state) =>
@@ -217,6 +217,7 @@ const createAerospaceChassisActions = (
         }),
       }),
     ),
+  setSupportRating: (field, value) => set(modifiedPatch({ [field]: value })),
   setIsOmni: (isOmni) => set(modifiedPatch({ isOmni })),
   setAerospaceSubType: (aerospaceSubType) =>
     set(modifiedPatch({ aerospaceSubType })),
@@ -279,7 +280,7 @@ const createAerospaceFuelActions = (
 });
 
 const AEROSPACE_PERSIST_KEYS =
-  'tonnage techBase unitType aerospaceSubType isFixedWingSupport motionType isOmni engineType aerospaceEngineType engineRating safeThrust fuelTons structuralIntegrity cockpitType heatSinks doubleHeatSinks armorType armorTonnage armorAllocation hasBombBay bombCapacity hasReinforcedCockpit hasEjectionSeat crew equipment isModified createdAt lastModifiedAt'.split(
+  'tonnage techBase unitType aerospaceSubType isFixedWingSupport barRating structuralTechRating engineTechRating motionType isOmni engineType aerospaceEngineType engineRating safeThrust fuelTons structuralIntegrity cockpitType heatSinks doubleHeatSinks armorType armorTonnage armorAllocation hasBombBay bombCapacity hasReinforcedCockpit hasEjectionSeat crew equipment isModified createdAt lastModifiedAt'.split(
     ' ',
   ) as ReadonlyArray<keyof AerospaceStore>;
 

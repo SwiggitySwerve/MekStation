@@ -84,6 +84,10 @@ const BAR_WEIGHT_PER_POINT: Record<number, readonly number[]> = {
   10: [0, 0, 0, 0.063, 0.056, 0.052],
 };
 
+export function getSupportVehicleBarRatings(): number[] {
+  return Object.keys(BAR_WEIGHT_PER_POINT).map(Number);
+}
+
 /**
  * Armor tonnage of BAR support-vehicle armor points: the points' weight by
  * armor tech rating, rounded up to a kilogram (units under 5 t) or a half ton
