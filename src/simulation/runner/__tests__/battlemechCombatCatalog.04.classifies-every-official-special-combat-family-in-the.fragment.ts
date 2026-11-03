@@ -1,3 +1,5 @@
+import { expectJavaCatalogAddition } from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
+
 import type {
   AmmoCompatibilityGapClass,
   AmmoCompatibilitySupportId,
@@ -188,7 +190,10 @@ it('classifies every official special combat family in the catalog', () => {
 
   expect(ultraACs).toHaveLength(8);
   expect(rotaryACs).toHaveLength(4);
-  expect(lbxACs).toHaveLength(8);
+  expectJavaCatalogAddition(
+    lbxACs.find((item) => item.id === 'battle-armor-lb-x-ac-registry'),
+  );
+  expect(lbxACs).toHaveLength(9);
   expect(streakLaunchers).toHaveLength(61);
   expect(mmlLaunchers).toHaveLength(4);
   expect(narcLaunchers).toHaveLength(10);
@@ -201,7 +206,13 @@ it('classifies every official special combat family in the catalog', () => {
     mml: ids(mmlLaunchers),
     'rotary-ac': ids(rotaryACs),
     'ultra-ac': ids(ultraACs),
-  }).toEqual(EXPECTED_MULTI_MODE_SPECIAL_WEAPON_FAMILY_IDS);
+  }).toEqual({
+    ...EXPECTED_MULTI_MODE_SPECIAL_WEAPON_FAMILY_IDS,
+    'lb-x-ac': [
+      ...EXPECTED_MULTI_MODE_SPECIAL_WEAPON_FAMILY_IDS['lb-x-ac'],
+      'battle-armor-lb-x-ac-registry',
+    ].sort(),
+  });
   expect({
     'damage-capable': ids(streakLaunchers.filter((item) => item.damage !== 0)),
     'zero-damage-data-gap': ids(

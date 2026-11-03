@@ -6,6 +6,11 @@
  */
 
 import {
+  isLegacyEquipmentId,
+  registryPreviousId,
+  resolveRegistryId,
+} from '../equipmentBVCatalogData';
+import {
   loadCatalogForEquipmentId,
   isAmmunitionEquipmentId,
   loadNameMappings,
@@ -21,7 +26,7 @@ import {
 import { nativeIdentityId } from './sourceLookupAliases';
 
 type EquipmentCatalogLookup = ReadonlyMap<string, unknown>;
-
+const legacyCatalogs = new WeakMap<object, EquipmentCatalogLookup>();
 function firstCatalogMatch(
   catalog: EquipmentCatalogLookup,
   candidates: readonly (string | undefined)[],
@@ -32,14 +37,23 @@ function firstCatalogMatch(
   );
 }
 
+function mappedCatalogId(
+  catalog: EquipmentCatalogLookup,
+  id: string | undefined,
+  name: string,
+): string | undefined {
+  const target = id && (catalog.has(id) ? id : registryPreviousId(id, name));
+  return target && catalog.has(target) ? target : undefined;
+}
+
 function firstMappedCatalogMatch(
   catalog: EquipmentCatalogLookup,
   mappings: Record<string, string>,
   keys: readonly string[],
 ): string | undefined {
   for (const key of keys) {
-    const mapped = mappings[key];
-    if (mapped && catalog.has(mapped)) return mapped;
+    const mapped = mappedCatalogId(catalog, mappings[key], key);
+    if (mapped) return mapped;
   }
   return undefined;
 }
@@ -50,8 +64,8 @@ function firstLowerMappedCatalogMatch(
   keys: readonly string[],
 ): string | undefined {
   for (const key of keys) {
-    const mapped = mappings.get(key);
-    if (mapped && catalog.has(mapped)) return mapped;
+    const mapped = mappedCatalogId(catalog, mappings.get(key), key);
+    if (mapped) return mapped;
   }
   return undefined;
 }
@@ -93,8 +107,14 @@ function clanPrefixCatalogMatch(
 export function normalizeEquipmentId(
   equipmentId: string,
   catalog: EquipmentCatalogLookup = loadCatalogForEquipmentId(equipmentId),
+  includeRegistry = true,
 ): string {
+  const fullCatalog = catalog;
   const rawLower = equipmentId.toLowerCase().trim();
+  catalog =
+    legacyCatalogs.get(fullCatalog) ??
+    new Map([...fullCatalog].filter(([id]) => isLegacyEquipmentId(id)));
+  legacyCatalogs.set(fullCatalog, catalog);
   // BLK qualifiers describe the mount, not its EquipmentType.
   const qualifiedBase = rawLower.replace(
     /(?::(?:omni|size:\d+(?:\.\d+)?|shots\d+#|body|la|ra|tu|apm|dwp|sswm))+$/,
@@ -107,15 +127,21 @@ export function normalizeEquipmentId(
   const lookupBase = catalog.has(base)
     ? base
     : base.replace(/^(?:r-|b-|\([rb]\)\s*)+/, '');
-  const identity = nativeIdentityId(lookupBase);
-  if (!catalog.has(rawLower) && identity && catalog.has(identity))
-    return identity;
   const lower = catalog.has(rawLower)
     ? rawLower
     : catalog.has(lookupBase) ||
         firstDirectAliasCatalogMatch(catalog, [lookupBase])
       ? lookupBase
       : lookupBase.replace(/(?:-?\((?:st|pt)\)|-?(?:st|pt))$/, '').trim();
+  const explicit = resolveRegistryId(lower);
+  const generated =
+    includeRegistry && explicit && fullCatalog.has(explicit)
+      ? explicit
+      : undefined;
+  if (generated && registryPreviousId(generated, equipmentId)) return generated;
+  const identity = nativeIdentityId(lookupBase);
+  if (!catalog.has(rawLower) && identity && catalog.has(identity))
+    return identity;
   const stripped = lower.replace(/^\d+-/, '').replace(/-\d+$/, '');
 
   // Preserve rack numbers and tech/munition variants before general instance-ID
@@ -142,7 +168,7 @@ export function normalizeEquipmentId(
       const instanceId = normalizeEquipmentId(stripped, catalog);
       if (catalog.has(instanceId)) return instanceId;
     }
-    return lower;
+    return generated ?? lower;
   }
 
   const directCatalogId = firstCatalogMatch(catalog, [
@@ -216,7 +242,8 @@ export function normalizeEquipmentId(
     if (originalMappedId) return originalMappedId;
   }
 
-  return stripped || lower;
+  const fallback = stripped || lower;
+  return generated ?? (isLegacyEquipmentId(fallback) ? fallback : rawLower);
 }
 
 export function getOrBuildLowerMappings(

@@ -1,6 +1,11 @@
 import { TechBase } from '@/types/enums/TechBase';
 import { IEquipmentItem } from '@/types/equipment';
 import { nativeIdentityId } from '@/utils/construction/equipmentBV/sourceLookupAliases';
+import {
+  isLegacyEquipmentId,
+  resolveRegistryId,
+  preferRegistryEquipment,
+} from '@/utils/construction/equipmentBVCatalogData';
 
 import { getAllEquipmentItemsForResolver } from './EquipmentNameResolverData';
 import {
@@ -31,6 +36,7 @@ export class EquipmentNameResolver {
     const allEquipment = getAllEquipmentItemsForResolver();
     for (const item of allEquipment) {
       this.equipmentById.set(item.id, item);
+      if (!isLegacyEquipmentId(item.id)) continue;
       this.equipmentByName.set(item.name.toLowerCase(), item);
       this.normalizedNameMap.set(normalizeName(item.name), item);
     }
@@ -39,6 +45,28 @@ export class EquipmentNameResolver {
   };
 
   resolve = (
+    itemType: string,
+    itemName: string,
+    techBase?: TechBase,
+  ): EquipmentResolution => {
+    const previous = this.resolveLegacy(itemType, itemName, techBase);
+    const id = resolveRegistryId(itemType) ?? resolveRegistryId(itemName);
+    const equipment = preferRegistryEquipment(
+      previous.equipment,
+      id ? this.equipmentById.get(id) : undefined,
+      itemType,
+    );
+    return equipment && equipment !== previous.equipment
+      ? {
+          ...previous,
+          found: true,
+          equipment,
+          equipmentId: equipment.id,
+          confidence: 'exact',
+        }
+      : previous;
+  };
+  private resolveLegacy = (
     itemType: string,
     itemName: string,
     techBase?: TechBase,
@@ -58,7 +86,7 @@ export class EquipmentNameResolver {
 
     if (directId) {
       const equipment = this.equipmentById.get(directId);
-      if (equipment) {
+      if (equipment && isLegacyEquipmentId(equipment.id)) {
         return {
           found: true,
           equipmentId: directId,
@@ -112,7 +140,7 @@ export class EquipmentNameResolver {
       const techPrefix = techBase === TechBase.CLAN ? 'clan-' : '';
       const techSuffixedId = techPrefix + normalizeName(itemName);
       const byTechId = this.equipmentById.get(techSuffixedId);
-      if (byTechId) {
+      if (byTechId && isLegacyEquipmentId(byTechId.id)) {
         return {
           found: true,
           equipmentId: byTechId.id,

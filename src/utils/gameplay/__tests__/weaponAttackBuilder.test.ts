@@ -1,3 +1,4 @@
+import type { IWeapon } from '@/simulation/ai/types';
 /**
  * Tests for weaponAttackBuilder — ensures producers can no longer silently
  * default to Medium-Laser stats when weapon data is missing, and that real
@@ -6,8 +7,11 @@
  * @spec openspec/changes/wire-real-weapon-data/proposal.md
  */
 
-import type { IWeapon } from '@/simulation/ai/types';
-
+import {
+  expectJavaCatalogAddition,
+  javaCatalogAdditions,
+  javaCatalogAdditionById,
+} from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
 import { getWeaponData } from '@/engine/adapters/CompendiumAdapter.weaponData';
 import { createMinimalUnitState } from '@/simulation/runner/SimulationRunnerSupport';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
@@ -288,7 +292,27 @@ const unknownCapacityMissiles = [
 
 describe('missile classification reaches the existing specialist to-hit rule', () => {
   it('covers the captured unknown-capacity catalog set', () => {
-    expect(unknownCapacityMissiles).toHaveLength(73);
+    // Every newly counted weapon is checked against its pinned Java registry facts.
+    const added = javaCatalogAdditions.filter(
+      (row) =>
+        row.kind === 'weapons' && isMissileWeapon(String(row.values.name)),
+    );
+    for (const { id } of unknownCapacityMissiles.filter((row) =>
+      javaCatalogAdditionById.has(row.id),
+    )) {
+      expectJavaCatalogAddition(
+        WEAPON_CATALOG_FILES.flatMap((file) => file.items ?? []).find(
+          (item) => item.id === id,
+        ),
+      );
+    }
+    expect(
+      unknownCapacityMissiles
+        .filter((row) => javaCatalogAdditionById.has(row.id))
+        .map((row) => row.id)
+        .sort(),
+    ).toEqual(added.map((row) => String(row.values.id)).sort());
+    expect(unknownCapacityMissiles).toHaveLength(73 + added.length);
     expect(unknownCapacityMissiles.map(({ id }) => id)).toEqual(
       expect.arrayContaining([
         'clan-srm-1',

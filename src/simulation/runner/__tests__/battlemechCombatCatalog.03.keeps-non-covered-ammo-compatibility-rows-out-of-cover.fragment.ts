@@ -17,6 +17,7 @@ import type {
 } from './battlemechCombatCatalog.test-helpers';
 
 import {
+  addedAmmoIds,
   ACTION_ELIGIBILITY_COMBAT_SUPPORT,
   AMMUNITION_CATALOG_FILES,
   AMMUNITION_COMPATIBILITY_SUPPORT,
@@ -179,12 +180,18 @@ it('keeps non-covered ammo compatibility rows out of covered ammo coverage', () 
   const emptyCompatibleClassifications = [
     {
       classification: 'experimental-empty-compatible-row',
-      expectedIds: EXPECTED_EXPERIMENTAL_EMPTY_COMPATIBLE_AMMO_IDS,
+      expectedIds: [
+        ...EXPECTED_EXPERIMENTAL_EMPTY_COMPATIBLE_AMMO_IDS,
+        ...addedAmmoIds('experimental-empty-compatible-row'),
+      ].sort(),
       rulesLevel: 'EXPERIMENTAL',
     },
     {
       classification: 'unofficial-empty-compatible-row',
-      expectedIds: EXPECTED_UNOFFICIAL_EMPTY_COMPATIBLE_AMMO_IDS,
+      expectedIds: [
+        ...EXPECTED_UNOFFICIAL_EMPTY_COMPATIBLE_AMMO_IDS,
+        ...addedAmmoIds('unofficial-empty-compatible-row'),
+      ].sort(),
       rulesLevel: 'UNOFFICIAL',
     },
   ] satisfies readonly {
@@ -196,7 +203,7 @@ it('keeps non-covered ammo compatibility rows out of covered ammo coverage', () 
   }[];
 
   expect(Array.from(compatibleAmmoIds).sort()).toEqual(
-    EXPECTED_BATTLEMECH_COMPATIBLE_AMMO_IDS,
+    [...EXPECTED_BATTLEMECH_COMPATIBLE_AMMO_IDS, ...addedAmmoIds(null)].sort(),
   );
 
   for (const {

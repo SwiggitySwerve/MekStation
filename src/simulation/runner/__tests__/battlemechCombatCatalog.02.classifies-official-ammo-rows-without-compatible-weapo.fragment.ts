@@ -17,6 +17,9 @@ import type {
 } from './battlemechCombatCatalog.test-helpers';
 
 import {
+  addedAmmoIds,
+  withAddedAmmoGroups,
+  withAddedAmmoCounts,
   ACTION_ELIGIBILITY_COMBAT_SUPPORT,
   AMMUNITION_CATALOG_FILES,
   AMMUNITION_COMPATIBILITY_SUPPORT,
@@ -208,7 +211,7 @@ it('classifies official ammo rows without compatible weapon refs as explicit gap
       'unsupported-rotary-ac-10-20-ammo',
     ),
     'duplicate-runtime-id': ammoIdsByGapClass('duplicate-runtime-id'),
-  }).toEqual(EXPECTED_BATTLEMECH_AMMO_GAP_IDS);
+  }).toEqual(withAddedAmmoGroups(EXPECTED_BATTLEMECH_AMMO_GAP_IDS));
   expect({
     'non-battlemech-aerospace-capital-ammo': ammoIdsByGapClass(
       'non-battlemech-aerospace-capital-ammo',
@@ -223,12 +226,18 @@ it('classifies official ammo rows without compatible weapon refs as explicit gap
     'unsupported-artillery-ammo': ammoIdsByGapClass(
       'unsupported-artillery-ammo',
     ),
-  }).toEqual(EXPECTED_SCOPE_SPLIT_AMMO_GAP_IDS);
+  }).toEqual(withAddedAmmoGroups(EXPECTED_SCOPE_SPLIT_AMMO_GAP_IDS));
   expect(ammoIdsByGapClass('experimental-empty-compatible-row')).toEqual(
-    EXPECTED_EXPERIMENTAL_EMPTY_COMPATIBLE_AMMO_IDS,
+    [
+      ...EXPECTED_EXPERIMENTAL_EMPTY_COMPATIBLE_AMMO_IDS,
+      ...addedAmmoIds('experimental-empty-compatible-row'),
+    ].sort(),
   );
   expect(ammoIdsByGapClass('unofficial-empty-compatible-row')).toEqual(
-    EXPECTED_UNOFFICIAL_EMPTY_COMPATIBLE_AMMO_IDS,
+    [
+      ...EXPECTED_UNOFFICIAL_EMPTY_COMPATIBLE_AMMO_IDS,
+      ...addedAmmoIds('unofficial-empty-compatible-row'),
+    ].sort(),
   );
   const experimentalEmptyCompatibleAmmo = ammoItems.filter(
     (ammo) =>
@@ -244,10 +253,12 @@ it('classifies official ammo rows without compatible weapon refs as explicit gap
   ];
 
   expect(experimentalEmptyCompatibleAmmo).toHaveLength(
-    EXPECTED_EXPERIMENTAL_EMPTY_COMPATIBLE_AMMO_IDS.length,
+    EXPECTED_EXPERIMENTAL_EMPTY_COMPATIBLE_AMMO_IDS.length +
+      addedAmmoIds('experimental-empty-compatible-row').length,
   );
   expect(unofficialEmptyCompatibleAmmo).toHaveLength(
-    EXPECTED_UNOFFICIAL_EMPTY_COMPATIBLE_AMMO_IDS.length,
+    EXPECTED_UNOFFICIAL_EMPTY_COMPATIBLE_AMMO_IDS.length +
+      addedAmmoIds('unofficial-empty-compatible-row').length,
   );
   expect(
     nonstandardEmptyCompatibleAmmo.filter(
@@ -267,20 +278,22 @@ it('classifies official ammo rows without compatible weapon refs as explicit gap
   expect(
     countBy(nonstandardEmptyCompatibleAmmo.map((ammo) => ammo.rulesLevel)),
   ).toEqual({
-    EXPERIMENTAL: 39,
-    UNOFFICIAL: 98, // was 101: the three half-ton MG records now declare compatible weapons (owner ruling 2026-11-02 q1)
+    EXPERIMENTAL: 39 + addedAmmoIds('experimental-empty-compatible-row').length,
+    UNOFFICIAL: 98 + addedAmmoIds('unofficial-empty-compatible-row').length, // was 101: the three half-ton MG records now declare compatible weapons (owner ruling 2026-11-02 q1)
   });
-  expect(countBy(gapClasses)).toEqual({
-    'duplicate-runtime-id': 12,
-    'experimental-empty-compatible-row': 39,
-    'non-battlemech-aerospace-capital-ammo': 8,
-    'non-battlemech-battle-armor': 17,
-    'non-battlemech-protomech': 38,
-    'unsupported-aquatic-torpedo-ammo': 11,
-    'unsupported-artillery-ammo': 9,
-    'unsupported-rotary-ac-10-20-ammo': 2,
-    'unofficial-empty-compatible-row': 98,
-  });
+  expect(countBy(gapClasses)).toEqual(
+    withAddedAmmoCounts({
+      'duplicate-runtime-id': 12,
+      'experimental-empty-compatible-row': 39,
+      'non-battlemech-aerospace-capital-ammo': 8,
+      'non-battlemech-battle-armor': 17,
+      'non-battlemech-protomech': 38,
+      'unsupported-aquatic-torpedo-ammo': 11,
+      'unsupported-artillery-ammo': 9,
+      'unsupported-rotary-ac-10-20-ammo': 2,
+      'unofficial-empty-compatible-row': 98,
+    }),
+  );
   expect(supportIdsByLevel(ammoCompatibilitySupport, 'helper-only')).toEqual(
     [],
   );

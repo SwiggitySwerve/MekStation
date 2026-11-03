@@ -1,3 +1,9 @@
+import {
+  expectJavaCatalogAddition,
+  javaCatalogAdditions,
+  javaCatalogAdditionById,
+} from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
+
 import type {
   AmmoCompatibilityGapClass,
   AmmoCompatibilitySupportId,
@@ -17,6 +23,7 @@ import type {
 } from './battlemechCombatCatalog.test-helpers';
 
 import {
+  addedAmmoIds,
   ACTION_ELIGIBILITY_COMBAT_SUPPORT,
   AMMUNITION_CATALOG_FILES,
   AMMUNITION_COMPATIBILITY_SUPPORT,
@@ -195,7 +202,18 @@ it('maps every official ranged weapon into a non-synthetic AI weapon', () => {
     }
 
     const aiWeapon = toAIWeapon(catalogWeapon, 0);
-    if (aiWeapon.name === 'Medium Laser' && item.id !== 'medium-laser') {
+    const added = javaCatalogAdditionById.get(String(item.id));
+    if (added) expectJavaCatalogAddition(item);
+    if (item.id === 'isbamediumlaser-registry') {
+      // Java ISBAMediumLaser is genuinely named Medium Laser; its generated id is preserved.
+      expect(aiWeapon.id).toBe('isbamediumlaser-registry-0');
+      expect(aiWeapon.name).toBe(added?.values.name);
+    }
+    if (
+      aiWeapon.name === 'Medium Laser' &&
+      item.id !== 'medium-laser' &&
+      item.id !== 'isbamediumlaser-registry'
+    ) {
       failures.push(`${item.id}: mapped to synthetic medium laser`);
     }
     if (!Number.isFinite(aiWeapon.damage)) {
@@ -206,7 +224,10 @@ it('maps every official ranged weapon into a non-synthetic AI weapon', () => {
         `${item.id}: numeric damage drift ${item.damage} -> ${aiWeapon.damage}`,
       );
     }
-    if (typeof item.damage === 'string' && aiWeapon.damage <= 0) {
+    if (typeof added?.java.damage === 'number' && added.java.damage < 0) {
+      // Java's negative sentinel requires a separate combat implementation. Do not invent fixed damage.
+      expect(aiWeapon.damage).toBe(0);
+    } else if (typeof item.damage === 'string' && aiWeapon.damage <= 0) {
       failures.push(`${item.id}: parsed string damage to ${aiWeapon.damage}`);
     }
     if (typeof item.damage === 'number' && aiWeapon.damage <= 0) {
@@ -329,7 +350,10 @@ it('classifies zero-damage official ranged weapons as explicit non-damage behavi
 
   // 268 -> 129: the 139 missile launchers that carried a numeric damage 0
   // placeholder now use N/missile (pinned MegaMek per-missile damage).
-  expect(zeroDamageItems).toHaveLength(129);
+  const addedZero = javaCatalogAdditions.filter(
+    (row) => row.kind === 'weapons' && row.java.damage === 0,
+  );
+  expect(zeroDamageItems).toHaveLength(129 + addedZero.length);
   expect(unclassified).toEqual([]);
   expect(
     ids(
@@ -347,10 +371,17 @@ it('classifies zero-damage official ranged weapons as explicit non-damage behavi
   ).toEqual(EXPECTED_ZERO_DAMAGE_RANGED_WEAPON_IDS['standard-special-effect']);
   expect(
     ids(zeroDamageItems.filter((item) => item.rulesLevel === 'STANDARD')),
-  ).toEqual(EXPECTED_ZERO_DAMAGE_RANGED_WEAPON_IDS['standard-rows']);
+  ).toEqual(
+    [
+      ...EXPECTED_ZERO_DAMAGE_RANGED_WEAPON_IDS['standard-rows'],
+      ...addedZero
+        .filter((row) => row.values.rulesLevel === 'STANDARD')
+        .map((row) => String(row.values.id)),
+    ].sort(),
+  );
 });
 
-it('keeps variable missile damage from mapping to zero', () => {
+it('keeps existing missile damage positive and pins new Java variable-damage gaps', () => {
   const stringDamageEntries: Array<[string, number]> = rangedWeaponItems
     .filter(isStringDamageWeapon)
     .map((item) => [item.id, resolveCatalogDamage(item.damage, item.id)]);
@@ -360,9 +391,24 @@ it('keeps variable missile damage from mapping to zero', () => {
     ),
   );
 
-  expect(stringDamageResolutions).toEqual(EXPECTED_STRING_DAMAGE_RESOLUTIONS);
+  const addedVariable: Record<string, number> = Object.fromEntries(
+    javaCatalogAdditions
+      .filter(
+        (row) =>
+          row.kind === 'weapons' &&
+          typeof row.java.damage === 'number' &&
+          row.java.damage < 0,
+      )
+      .map((row) => [row.values.id, 0]),
+  );
+  expect(stringDamageResolutions).toEqual({
+    ...EXPECTED_STRING_DAMAGE_RESOLUTIONS,
+    ...addedVariable,
+  });
   expect(
-    Object.values(stringDamageResolutions).every((damage) => damage > 0),
+    Object.entries(stringDamageResolutions).every(([id, damage]) =>
+      Object.hasOwn(addedVariable, id) ? damage === 0 : damage > 0,
+    ),
   ).toBe(true);
   expect(resolveCatalogDamage('1/missile', 'lrm-20')).toBe(20);
   expect(resolveCatalogDamage('2/missile', 'srm-6')).toBe(12);
@@ -448,7 +494,9 @@ it('turns every compatible official ammo row into a consumable combat ammo bin',
     .map((ammo) => ammo.id)
     .sort();
 
-  expect(compatibleAmmoIds).toEqual(EXPECTED_BATTLEMECH_COMPATIBLE_AMMO_IDS);
+  expect(compatibleAmmoIds).toEqual(
+    [...EXPECTED_BATTLEMECH_COMPATIBLE_AMMO_IDS, ...addedAmmoIds(null)].sort(),
+  );
 
   for (const ammo of ammoItems) {
     for (const weaponId of ammo.compatibleWeaponIds) {
