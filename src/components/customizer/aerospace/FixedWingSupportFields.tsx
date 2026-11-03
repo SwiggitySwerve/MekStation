@@ -66,7 +66,7 @@ export function FixedWingSupportFields({
           step="any"
           value={tonnage}
           onChange={(e) => setTonnage(Number(e.target.value))}
-          className={`${cs.input.full} mt-1`}
+          className={`${cs.input.full} mt-1 min-h-11`}
         />
       </label>
       <p className="text-text-theme-secondary text-xs">
@@ -84,7 +84,7 @@ export function FixedWingSupportFields({
                 e.target.value === '' ? undefined : Number(e.target.value),
               )
             }
-            className={`${cs.select.full} mt-1`}
+            className={`${cs.select.full} mt-1 min-h-11`}
           >
             <option value="">Unknown</option>
             {options.map((option) => (
