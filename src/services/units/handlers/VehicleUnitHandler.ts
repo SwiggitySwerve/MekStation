@@ -47,6 +47,7 @@ import {
   getSecondaryVehicleTurretConfiguration,
   getVehicleMountFlags,
 } from '@/utils/construction/vehicle/equipmentMounts';
+import { validateVehicleCaseLocations } from '@/utils/construction/vehicle/vehicleValidation';
 
 import {
   AbstractUnitTypeHandler,
@@ -62,6 +63,7 @@ import {
   getVehicleWeightClass,
   mapLocationEquipment,
   pushTonnageRangeErrors,
+  withConstructionDiagnostics,
 } from './unitHandlerShared';
 import {
   getBooleanFromRawTags,
@@ -357,13 +359,14 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     // Determine weight class
     const weightClass = getVehicleWeightClass(commonFields.tonnage);
 
-    return combineCommonUnitFields<IVehicle>({
+    const unit = combineCommonUnitFields<IVehicle>({
       commonFields,
       typeSpecificFields,
       idPrefix: 'vehicle',
       unitType: UnitType.VEHICLE,
       weightClass,
     });
+    return withConstructionDiagnostics(unit, this.validate(unit));
   }
 
   /**
@@ -393,6 +396,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
    */
   protected validateTypeSpecificRules(unit: IVehicle): UnitValidationMessages {
     const { errors, warnings, infos } = createValidationMessages();
+    errors.push(...validateVehicleCaseLocations(unit.equipment));
 
     // Tonnage limits
     pushTonnageRangeErrors(errors, unit.tonnage, {
