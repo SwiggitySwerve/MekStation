@@ -353,7 +353,7 @@ for (const viewport of VIEWPORTS) {
             .getByText('Required Mechanism Mass', { exact: true })
             .locator('..')
             .getByRole('definition'),
-        ).toHaveText('3.5 t');
+        ).toHaveText('2.5 t');
         await panel.screenshot({
           path: info.outputPath(`cold-equipment-${viewport.name}.png`),
           animations: 'disabled',
@@ -449,7 +449,7 @@ for (const viewport of VIEWPORTS) {
         if (unit.panel === 'omni') {
           await section(page, 'Turret');
           for (const [name, allowance, required, remaining] of [
-            ['Primary Turret', '2.5 t', '3.5 t', '-1.0 t'],
+            ['Primary Turret', '2.5 t', '2.5 t', '0.0 t'],
             ['Secondary Turret', '3 t', '3.0 t', '0.0 t'],
           ]) {
             const panel = page.getByRole('region', { name: name + ' Figures' });
