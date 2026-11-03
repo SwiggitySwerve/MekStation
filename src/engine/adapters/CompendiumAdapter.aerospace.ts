@@ -30,7 +30,11 @@ import type { IAdaptedUnit, IAdaptUnitOptions } from '../types';
 
 import { applyInitialDamageToArmor } from './CompendiumAdapter.armor';
 import { unitHeightFromUnitData } from './CompendiumAdapter.movementHeight';
-import { extractWeapons, ammoFromWeapons } from './CompendiumAdapter.weapons';
+import {
+  extractWeapons,
+  ammoFromWeapons,
+  ammoConstructionFromState,
+} from './CompendiumAdapter.weapons';
 
 export function tryAdaptAerospaceUnit(
   fullUnit: IFullUnit,
@@ -144,6 +148,7 @@ export function tryAdaptAerospaceUnit(
     destroyedEquipment: [],
     ammo: ammoFromWeapons(weapons, ammoState),
     ammoState,
+    ammoConstruction: ammoConstructionFromState(ammoState),
     pilotWounds: 0,
     pilotConscious: true,
     destroyed: false,
