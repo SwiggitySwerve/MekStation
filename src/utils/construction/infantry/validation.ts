@@ -328,7 +328,10 @@ export function validateInfantrySource(unit: IInfantry): string[] {
   const guns = values('Field Guns Equipment').filter(
     (name) => name && !/ammo/i.test(name),
   );
-  let crew = 0;
+  // Editor documents declare no source list; their parsed guns carry the crew.
+  let crew = values('Field Guns Equipment').length
+    ? 0
+    : unit.fieldGuns.reduce((total, gun) => total + gun.crew, 0);
   for (const name of guns) {
     // Legacy catalog cannon IDs contain full-artillery stats. Keep source cannon
     // masses distinct (LongTomCannon:71, SniperCannon:76, ThumperCannon:76).
