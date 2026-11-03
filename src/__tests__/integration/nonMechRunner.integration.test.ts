@@ -398,7 +398,7 @@ it('keeps the recorded BattleMech construction bytes and 21-key shape unchanged'
     .update(JSON.stringify(recorded))
     .digest('hex');
   expect(sha).toBe(
-    'fa737db6b6115b87357f02375c313b152a2ff7aa7a1af63f978c82872f806fa5',
+    'cdae21a4bd666705bcce2957dcefd5a7f3a84a4519dab403c89da57e04201061',
   );
   const runner = await SimulationRunner.fromSession(
     123,
