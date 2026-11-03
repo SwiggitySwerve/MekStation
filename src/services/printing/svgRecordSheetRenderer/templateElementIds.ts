@@ -131,6 +131,12 @@ export const VEHICLE_TEMPLATE_IDS = {
   armorPipsFT: 'armorPipsFT',
   /** Rotor armor pip group (VTOL templates only). */
   armorPipsRO: 'armorPipsRO',
+  /** Superheavy six-side hull and primary/rear dual turret (PrintTank). */
+  armorPipsFRLS: 'armorPipsFRLS',
+  armorPipsFRRS: 'armorPipsFRRS',
+  armorPipsRRLS: 'armorPipsRRLS',
+  armorPipsRRRS: 'armorPipsRRRS',
+  armorPipsRT: 'armorPipsRT',
 
   // --- Structure pip-group containers (one per side) ---
   /** Aggregate structure pip group. IdConstants.STRUCTURE_PIPS. */
@@ -151,6 +157,11 @@ export const VEHICLE_TEMPLATE_IDS = {
   textArmor_TU: 'textArmor_TU',
   textArmor_FT: 'textArmor_FT',
   textArmor_RO: 'textArmor_RO',
+  textArmor_FRLS: 'textArmor_FRLS',
+  textArmor_FRRS: 'textArmor_FRRS',
+  textArmor_RRLS: 'textArmor_RRLS',
+  textArmor_RRRS: 'textArmor_RRRS',
+  textArmor_RT: 'textArmor_RT',
 } as const;
 
 /**

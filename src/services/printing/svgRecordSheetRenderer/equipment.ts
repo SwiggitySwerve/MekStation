@@ -25,9 +25,16 @@ type EquipmentColumns = {
 export function renderEquipmentTable(
   svgDoc: Document,
   equipment: readonly IRecordSheetEquipment[],
+  options: { readonly fitAll?: boolean } = {},
 ): void {
   const inventoryArea = svgDoc.getElementById(ELEMENT_IDS.INVENTORY);
-  if (!inventoryArea) return;
+  if (!inventoryArea) {
+    if (options.fitAll && equipment.length)
+      throw new Error(
+        'Canonical record-sheet template has no inventory region.',
+      );
+    return;
+  }
 
   const x = parseFloat(inventoryArea.getAttribute('x') || '3');
   const y = parseFloat(inventoryArea.getAttribute('y') || '87.5');
@@ -41,7 +48,11 @@ export function renderEquipmentTable(
     'font-family: Eurostile, Arial, sans-serif; font-size: 7px;',
   );
 
-  const rowHeight = 9;
+  const rowHeight = options.fitAll
+    ? Math.min(9, (height - 30) / Math.max(1, equipment.length))
+    : 9;
+  if (options.fitAll && !(rowHeight > 0))
+    throw new Error('Canonical inventory region is too short.');
   const headerY = y + 10;
   const startY = y + 22;
   const maxRows = Math.floor((height - 30) / rowHeight);
@@ -61,9 +72,26 @@ export function renderEquipmentTable(
 
   appendEquipmentHeaders(svgDoc, group, cols, headerY);
 
-  const displayEquipment = equipment.slice(0, maxRows);
+  const displayEquipment = options.fitAll
+    ? equipment
+    : equipment.slice(0, maxRows);
   displayEquipment.forEach((eq, index) => {
-    appendEquipmentRow(svgDoc, group, cols, eq, startY + index * rowHeight);
+    const row = options.fitAll ? svgDoc.createElementNS(SVG_NS, 'g') : group;
+    if (options.fitAll) {
+      row.setAttribute('data-equipment-id', eq.id);
+      group.appendChild(row);
+    }
+    appendEquipmentRow(
+      svgDoc,
+      row,
+      cols,
+      eq,
+      startY + index * rowHeight,
+      options.fitAll,
+    );
+    if (options.fitAll)
+      for (const text of row.querySelectorAll('text'))
+        text.setAttribute('font-size', `${Math.min(6, rowHeight * 0.8)}px`);
   });
 
   const parent = inventoryArea.parentNode;
@@ -103,22 +131,28 @@ function appendEquipmentRow(
   cols: EquipmentColumns,
   equipment: IRecordSheetEquipment,
   rowY: number,
+  complete = false,
 ): void {
   group.appendChild(
     createEquipmentText(
       svgDoc,
       cols.qty,
       rowY,
-      String(equipment.quantity || 1),
+      String(complete ? equipment.quantity : equipment.quantity || 1),
       false,
     ),
   );
 
   const name =
-    equipment.name.length > 16
+    !complete && equipment.name.length > 16
       ? equipment.name.substring(0, 14) + '..'
       : equipment.name;
-  group.appendChild(createEquipmentText(svgDoc, cols.name, rowY, name, false));
+  const nameText = createEquipmentText(svgDoc, cols.name, rowY, name, false);
+  if (complete && name.length > 16) {
+    nameText.setAttribute('textLength', String(cols.loc - cols.name - 4));
+    nameText.setAttribute('lengthAdjust', 'spacingAndGlyphs');
+  }
+  group.appendChild(nameText);
   group.appendChild(
     createEquipmentText(svgDoc, cols.loc, rowY, equipment.locationAbbr, false),
   );
@@ -134,7 +168,13 @@ function appendEquipmentRow(
         svgDoc,
         cols.dmg,
         rowY,
-        equipment.ammoCount ? `(${equipment.ammoCount})` : '-',
+        (
+          complete
+            ? equipment.ammoCount !== undefined
+            : Boolean(equipment.ammoCount)
+        )
+          ? `(${equipment.ammoCount})`
+          : '-',
         false,
       ),
     );

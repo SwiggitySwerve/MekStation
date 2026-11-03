@@ -13,7 +13,10 @@
  *   (Requirement: Per-Family Record Sheet Adapters)
  */
 
-import type { IAerospaceRecordSheetData } from '@/types/printing';
+import type {
+  IAerospaceRecordSheetData,
+  IRecordSheetEquipment,
+} from '@/types/printing';
 
 import type { PipFill, TextBindings } from '../templateRecordSheetRenderer';
 
@@ -37,6 +40,7 @@ export interface AerospacePipCounts {
 
 /** The result of binding an aerospace unit to its canonical template. */
 export interface AerospaceBindings {
+  readonly inventory: readonly IRecordSheetEquipment[];
   /** Text injections keyed by template element ID. */
   readonly texts: TextBindings;
   /** Pip-group fills keyed by template pip-group element ID. */
@@ -143,5 +147,5 @@ export function bindAerospace(
     }
   }
 
-  return { texts, pips, pipCounts };
+  return { texts, pips, pipCounts, inventory: data.equipment };
 }

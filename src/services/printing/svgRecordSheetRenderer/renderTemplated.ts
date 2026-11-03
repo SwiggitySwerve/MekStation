@@ -30,6 +30,7 @@ import type {
   IInfantryRecordSheetData,
   IProtoMechRecordSheetData,
   IVehicleRecordSheetData,
+  IRecordSheetEquipment,
 } from '@/types/printing';
 
 import { PaperSize } from '@/types/printing';
@@ -41,6 +42,7 @@ import { renderAerospaceSVG } from './aerospaceRenderer';
 import { bindBattleArmor } from './battlearmor/bindings';
 import { selectBattleArmorTemplate } from './battlearmor/selectTemplate';
 import { renderBattleArmorSVG } from './battleArmorRenderer';
+import { renderEquipmentTable } from './equipment';
 import { bindInfantry } from './infantry/bindings';
 import { selectInfantryTemplate } from './infantry/selectTemplate';
 import { renderInfantrySVG } from './infantryRenderer';
@@ -118,10 +120,19 @@ function applyPipFill(doc: Document, group: Element, fill: PipFill): void {
 async function renderViaTemplate(
   templateKey: string,
   paperSize: PaperSize,
-  bindings: { texts: TextBindings; pips: readonly PipFill[] },
+  bindings: {
+    texts: TextBindings;
+    pips: readonly PipFill[];
+    inventory?: readonly IRecordSheetEquipment[];
+  },
 ): Promise<string> {
   const renderer = new TemplateRecordSheetRenderer();
   await renderer.loadTemplate(templatePath(templateKey, paperSize));
+  // Resolve the inventory region before mount detaches the SVG from its document.
+  if (bindings.inventory)
+    renderEquipmentTable(renderer.document, bindings.inventory, {
+      fitAll: true,
+    });
   // Mount off-screen so geometry / web-font measurement is valid, then
   // gate text measurement on font readiness before binding.
   renderer.mount();
