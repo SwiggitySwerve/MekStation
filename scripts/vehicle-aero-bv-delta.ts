@@ -90,6 +90,11 @@ export function calculateRow(raw: unknown): IComputedRow {
               total: result.breakdown.final,
               defensive: result.breakdown.defensive,
               offensive: result.breakdown.offensive,
+              terms: numericTerms({
+                ...result.breakdown,
+                ...result.breakdown.perTrooper.defensive,
+                ...result.breakdown.perTrooper.offensive,
+              }),
             },
           };
         if (result?.kind === 'infantry')
@@ -100,6 +105,11 @@ export function calculateRow(raw: unknown): IComputedRow {
               total: result.breakdown.final,
               defensive: result.breakdown.defensiveBV,
               offensive: result.breakdown.platoonBV,
+              terms: {
+                ...numericTerms(result.breakdown),
+                ammoBV: result.breakdown.fieldGunAmmoBV,
+                speedFactor: result.breakdown.motiveMultiplier,
+              },
             },
           };
         throw new Error('Source dispatcher returned no BA or infantry result');
@@ -115,6 +125,7 @@ export function calculateRow(raw: unknown): IComputedRow {
           total: b.final,
           defensive: b.defensiveBV,
           offensive: b.offensiveBV,
+          terms: numericTerms(b),
         },
       };
     }
