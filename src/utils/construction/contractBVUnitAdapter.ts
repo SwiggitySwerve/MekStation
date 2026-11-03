@@ -91,6 +91,7 @@ export interface IContractBVVehicle {
 
 /** Domain-shaped aerospace value accepted by `calculateBattleValueForUnit`. */
 export interface IContractBVAerospace {
+  readonly barRating?: number;
   readonly heatCapacity?: number;
   readonly isSupportVehicle: boolean;
   readonly techBase?: string;
@@ -260,6 +261,7 @@ function contractAerospaceToBVUnit(
   if (unit.structuralIntegrity === undefined) {
     throw new Error('Aerospace unit has no structuralIntegrity');
   }
+  const fixedWingSupport = unit.subType === 'FixedWingSupport';
   return {
     unitType: unit.unitType as IContractBVAerospace['unitType'],
     heatCapacity: unit.heatSinks
@@ -268,7 +270,10 @@ function contractAerospaceToBVUnit(
           unit.heatSinks.count,
         )
       : undefined,
-    isSupportVehicle: unit.subType === 'FixedWingSupport',
+    isSupportVehicle: fixedWingSupport,
+    ...(fixedWingSupport && unit.armor.barRating !== undefined
+      ? { barRating: unit.armor.barRating }
+      : {}),
     techBase: unit.techBase,
     sourceTechType: unit.sourceTechType,
     year: unit.year,

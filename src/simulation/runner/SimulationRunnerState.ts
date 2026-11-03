@@ -32,6 +32,12 @@ import { hasSPA } from '@/utils/gameplay/spaModifiers';
 
 import type { ISimulationConfig } from '../core/types';
 
+import {
+  nativeRunnerConstruction,
+  runnerUnitId,
+  runnerPilotRef,
+  type IRunnerHydratedUnitData,
+} from './SimulationRunner.nativeUnits';
 import { DEFAULT_GUNNERY, DEFAULT_PILOTING } from './SimulationRunnerConstants';
 import { createMinimalUnitState } from './SimulationRunnerSupport';
 import {
@@ -44,7 +50,6 @@ import {
   hydratePilotAbilitiesFromFullUnit,
   hydrateTargetingComputerEquipmentFromFullUnit,
   weaponLocationByIdFromWeapons,
-  type IHydratedUnitData,
 } from './UnitHydration';
 
 /**
@@ -54,7 +59,7 @@ import {
  * carry real catalog armor + structure (and pilot skills); when absent,
  * the legacy synthetic `createMinimalUnitState` path is used.
  */
-export type UnitHydrationMap = ReadonlyMap<string, IHydratedUnitData>;
+export type UnitHydrationMap = ReadonlyMap<string, IRunnerHydratedUnitData>;
 
 function createSideUnits(
   units: Record<string, IUnitGameState>,
@@ -67,10 +72,9 @@ function createSideUnits(
     side === GameSide.Player
       ? config.unitCount.player
       : config.unitCount.opponent;
-  const prefix = side === GameSide.Player ? 'player' : 'opponent';
 
   for (let i = 0; i < count; i++) {
-    const id = `${prefix}-${i + 1}`;
+    const id = runnerUnitId(side, i);
     const position = { q: i - 1, r: rowPosition };
     const hydrated = hydration?.get(id);
     if (hydrated) {
@@ -79,12 +83,14 @@ function createSideUnits(
       // weapons / pilot skills, not position). This keeps map-radius-driven
       // formation logic in one place — the runner — instead of forking it
       // into the hydration-data builder.
-      units[id] = createHydratedUnitState({
+      const data = {
         ...hydrated,
         runnerUnitId: id,
         side,
         position,
-      });
+      };
+      units[id] =
+        nativeRunnerConstruction(data)?.state ?? createHydratedUnitState(data);
     } else {
       units[id] = createMinimalUnitState(id, side, position);
     }
@@ -252,12 +258,20 @@ export function synthesizeGameUnits(
       side === GameSide.Player
         ? config.unitCount.player
         : config.unitCount.opponent;
-    const prefix = side === GameSide.Player ? 'player' : 'opponent';
 
     for (let i = 0; i < count; i++) {
-      const id = `${prefix}-${i + 1}`;
+      const id = runnerUnitId(side, i);
       const hydrated = hydration?.get(id);
       if (hydrated !== undefined) {
+        const native = nativeRunnerConstruction({
+          ...hydrated,
+          runnerUnitId: id,
+          side,
+        });
+        if (native) {
+          result.push(native.unit);
+          continue;
+        }
         // Hydrated path: real catalog data on the unit.
         const fullUnit = hydrated.fullUnit as {
           chassis?: string;
@@ -276,11 +290,12 @@ export function synthesizeGameUnits(
         const targetingComputerEquipment =
           hydrateTargetingComputerEquipmentFromFullUnit(hydrated.fullUnit);
         result.push({
+          ...hydrated.sourceUnit,
           id,
-          name,
+          name: hydrated.sourceUnit?.name ?? name,
           side,
-          unitRef: fullUnit.unitRef ?? id,
-          pilotRef: `pilot-${id}`,
+          unitRef: hydrated.sourceUnit?.unitRef ?? fullUnit.unitRef ?? id,
+          pilotRef: hydrated.sourceUnit?.pilotRef ?? runnerPilotRef(id),
           gunnery: hydrated.gunnery ?? DEFAULT_GUNNERY,
           piloting: hydrated.piloting ?? DEFAULT_PILOTING,
           heatSinks: heatSinks.count,
