@@ -151,7 +151,7 @@
       "criticalSlots": 1,
       "costPerTon": 0,
       "battleValue": 0,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 3060,
       "special": []
     }
