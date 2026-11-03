@@ -323,6 +323,17 @@ export function sumCappedAmmoBV(
   return total;
 }
 
+/** Artillery and its cannon share legacy family keys (`sniper`, `thumper`,
+ * `long-tom`) but are separate Java pools, e.g. SNIPER:20 and SNIPER_CANNON:10
+ * (BVCalculator.java:1190-1240), so both sides use the native group.
+ */
+function artilleryCapGroup(id: string): string | undefined {
+  const group = getNativeAmmoBVGroup(id);
+  return group && /^(?:SNIPER|THUMPER|LONG_TOM)(?:_CANNON)?:/.test(group)
+    ? group
+    : undefined;
+}
+
 export function calculateAmmoBVWithExcessiveCap(
   weapons: Array<{ id: string; bv: number }>,
   ammo: Array<{ id: string; bv: number; weaponType: string }>,
@@ -331,13 +342,16 @@ export function calculateAmmoBVWithExcessiveCap(
 
   const weaponBVByType: Record<string, number> = {};
   for (const weapon of weapons) {
-    const weaponType = normalizeEquipmentId(weapon.id);
+    const weaponType =
+      artilleryCapGroup(weapon.id) ?? normalizeEquipmentId(weapon.id);
     addBVToAmmoCapGroup(weaponBVByType, weaponType, weapon.bv);
   }
 
   const ammoBVByType: Record<string, number> = {};
   for (const ammoEntry of ammo) {
-    const normalizedType = normalizeEquipmentId(ammoEntry.weaponType);
+    const normalizedType =
+      artilleryCapGroup(ammoEntry.id) ??
+      normalizeEquipmentId(ammoEntry.weaponType);
     addBVToAmmoCapGroup(ammoBVByType, normalizedType, ammoEntry.bv);
   }
 
