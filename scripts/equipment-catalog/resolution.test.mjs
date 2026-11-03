@@ -352,7 +352,22 @@ if (process.argv.includes('--capture')) {
   writeFileSync(output, JSON.stringify(snapshot) + '\n');
 } else {
   test('every previously resolved catalog/native input retains its API identity', async (t) => {
-    const before = read(resolve(here, 'resolution-before.json'));
+    const beforeFile =
+      process.env.CATALOG_RESOLUTION_BEFORE ??
+      resolve(here, 'resolution-before.json');
+    const before = read(beforeFile);
+    // #2607 strips the pod (OMNIPOD) and rear markers from a critical-slot token
+    // before lookup, as Java MtfFile.java:1010-1020 does, so a pod-mounted form
+    // follows its bare name's approved reroute.
+    const require = createRequire(resolve(process.cwd(), 'package.json'));
+    require('tsx/cjs');
+    const { parseCriticalSlotToken } = require(
+      resolve(
+        process.cwd(),
+        'src/services/units/unitLoaderService/equipmentResolution',
+      ),
+    );
+    const bareName = (name) => parseCriticalSlotToken(name).lookupToken;
     const file =
       process.env.CATALOG_RESOLUTION_AFTER ??
       resolve(tmpdir(), `catalog-resolution-${process.pid}.json`);
@@ -369,7 +384,7 @@ if (process.argv.includes('--capture')) {
         '--root',
         process.cwd(),
         '--inputs',
-        resolve(here, 'resolution-before.json'),
+        beforeFile,
         '--output',
         file,
       ],
@@ -409,7 +424,7 @@ if (process.argv.includes('--capture')) {
         if (newTarget === oldTarget) return;
         const route = APPROVED_JAVA_REROUTES.find(
           (route) =>
-            route.name.toLowerCase() === name.toLowerCase() &&
+            route.name.toLowerCase() === bareName(name).toLowerCase() &&
             route.oldTarget === oldTarget,
         );
         const row = { api, name, oldTarget, newTarget };
@@ -433,6 +448,17 @@ if (process.argv.includes('--capture')) {
           route.name,
         );
     }
+    for (const name of [
+      'IS LB 2-X AC Ammo',
+      'IS LB 5-X AC Ammo',
+      'IS LB 5-X Cluster Ammo',
+    ])
+      for (const api of ['unitLoaderAmmoIS', 'unitLoaderAmmoClan'])
+        assert.equal(
+          after.results[api][indexes.get(`${name} (OMNIPOD)`)],
+          after.results[api][indexes.get(name)],
+          `${api} ${name} (OMNIPOD) follows its bare form`,
+        );
     assert.deepEqual(shifts, [], JSON.stringify(shifts.slice(0, 30), null, 2));
   });
 }
