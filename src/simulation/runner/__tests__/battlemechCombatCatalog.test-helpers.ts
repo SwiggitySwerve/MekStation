@@ -724,21 +724,14 @@ const EXPECTED_STRING_DAMAGE_RESOLUTIONS = {
 } satisfies Record<string, number>;
 
 const EXPECTED_ZERO_DAMAGE_RANGED_WEAPON_IDS = {
-  'defensive-system': ['ams', 'clan-ams', 'clan-laser-ams', 'laser-ams'],
+  'defensive-system': ['ams'],
   'standard-special-effect': [
     'clan-narc',
     'clan-plasma-cannon',
     'inarc',
     'narc',
   ],
-  'standard-rows': [
-    'ams',
-    'clan-ams',
-    'clan-narc',
-    'clan-plasma-cannon',
-    'inarc',
-    'narc',
-  ],
+  'standard-rows': ['ams', 'clan-narc', 'clan-plasma-cannon', 'inarc', 'narc'],
 } satisfies Record<string, readonly string[]>;
 
 const EXPECTED_MULTI_MODE_SPECIAL_WEAPON_FAMILY_IDS = {
