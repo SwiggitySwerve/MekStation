@@ -37,6 +37,49 @@ export function parseHeatSinks(lines: string[]): {
   return { type: 'Single', count: 10 };
 }
 
+/** MTF location codes for mek body locations (armor and structure lines). */
+const MTF_LOCATION_CODES: Readonly<Record<string, string>> = {
+  LA: 'LEFT_ARM',
+  RA: 'RIGHT_ARM',
+  LT: 'LEFT_TORSO',
+  RT: 'RIGHT_TORSO',
+  CT: 'CENTER_TORSO',
+  HD: 'HEAD',
+  LL: 'LEFT_LEG',
+  RL: 'RIGHT_LEG',
+  FLL: 'FRONT_LEFT_LEG',
+  FRL: 'FRONT_RIGHT_LEG',
+  RLL: 'REAR_LEFT_LEG',
+  RRL: 'REAR_RIGHT_LEG',
+  CL: 'CENTER_LEG',
+};
+
+/** FrankenMek structure tonnage per location (MtfFile.java:362-411,669-702).
+ * Hybrid structure, or a value with its own type, is `<type>:<tonnage>`;
+ * otherwise the value is the tonnage. Internal points come from
+ * calcTotalStructure, the single owner of the per-location table.
+ */
+export function parseFrankenStructureTonnage(
+  lines: string[],
+  config: string,
+  structure: string,
+): Record<string, number> | undefined {
+  if (!config.includes('FrankenMek')) return undefined;
+  const hybrid = structure.trim().toLowerCase() === 'hybrid';
+  const tonnage: Record<string, number> = {};
+  for (const [code, location] of Object.entries(MTF_LOCATION_CODES)) {
+    const value = parseField(lines, `${code} structure`);
+    if (!value) continue;
+    const raw = hybrid || value.includes(':') ? value.split(':').pop() : value;
+    if (!/^\s*\d+\s*$/.test(raw ?? ''))
+      throw new Error(
+        `Invalid FrankenMek structure tonnage for ${code}: ${raw}`,
+      );
+    tonnage[location] = Number(raw);
+  }
+  return Object.keys(tonnage).length ? tonnage : undefined;
+}
+
 export function parseArmor(lines: string[]): {
   type: string;
   allocation: Record<string, number | { front: number; rear: number }>;
@@ -46,22 +89,15 @@ export function parseArmor(lines: string[]): {
     {};
 
   const armorFields: Record<string, string> = {
-    'LA armor': 'LEFT_ARM',
-    'RA armor': 'RIGHT_ARM',
-    'LT armor': 'LEFT_TORSO',
-    'RT armor': 'RIGHT_TORSO',
-    'CT armor': 'CENTER_TORSO',
-    'HD armor': 'HEAD',
-    'LL armor': 'LEFT_LEG',
-    'RL armor': 'RIGHT_LEG',
+    ...Object.fromEntries(
+      Object.entries(MTF_LOCATION_CODES).map(([code, location]) => [
+        `${code} armor`,
+        location,
+      ]),
+    ),
     'RTL armor': 'LEFT_TORSO_REAR',
     'RTR armor': 'RIGHT_TORSO_REAR',
     'RTC armor': 'CENTER_TORSO_REAR',
-    'FLL armor': 'FRONT_LEFT_LEG',
-    'FRL armor': 'FRONT_RIGHT_LEG',
-    'RLL armor': 'REAR_LEFT_LEG',
-    'RRL armor': 'REAR_RIGHT_LEG',
-    'CL armor': 'CENTER_LEG',
   };
 
   const frontValues: Record<string, number> = {};
