@@ -18,6 +18,7 @@ import {
   MiscEquipmentCategory,
 } from '@/types/equipment/MiscEquipmentTypes';
 import { IWeapon, WeaponCategory } from '@/types/equipment/weapons/interfaces';
+import { nativeIdentityId } from '@/utils/construction/equipmentBV/sourceLookupAliases';
 
 import {
   createSingleton,
@@ -243,6 +244,9 @@ export class EquipmentRegistry {
         category: this.idToTypeMap.get(idOrName) || null,
       };
     }
+
+    const identity = nativeIdentityId(idOrName);
+    if (identity && this.loader.getById(identity)) return this.lookup(identity);
 
     // Try name lookup
     const id = this.nameToIdMap.get(idOrName);

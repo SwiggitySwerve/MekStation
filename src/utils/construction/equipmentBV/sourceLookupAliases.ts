@@ -37,3 +37,29 @@ export const SOURCE_LOOKUP_ALIASES: Readonly<Record<string, string>> = {
   'myomer,-vest': 'myomer-vest',
   'ba-compact-narc-ammo': 'compact-narc-ammo',
 };
+
+/** Exact native identities at MegaMek 48fcb2f6; FU-79 IDENTITY-REVIEW.md. */
+const NATIVE_IDENTITY_CORRECTIONS: Readonly<Record<string, string>> = {
+  clerflamer: 'clan-er-flamer',
+  'is heavy machine gun ammo': 'heavy-machine-gun-ammo-full',
+  'is light machine gun ammo': 'light-machine-gun-ammo-full',
+  'is machine gun ammo': 'ammo-mg-full',
+  'is narc beacon': 'narc',
+  iserflamer: 'er-flamer',
+  isnarcbeacon: 'narc',
+  novacews: 'nova-combined-electronic-warfare-system-cews',
+  'small vsp laser': 'small-vsp-laser',
+  'is lb 10-x ac ammo': 'lb-10-x-ammo',
+  'is lb 2-x ac ammo': 'lb-2-x-ammo',
+  'is lb 20-x ac ammo': 'lb-20-x-ammo',
+  'is lb 5-x ac ammo': 'lb-5-x-ammo',
+  'is streak srm 2 ammo': 'streak-srm-ammo',
+};
+
+/** Native identity precedes fuzzy aliases and unit-tech preferences. */
+export function nativeIdentityId(name: string): string | undefined {
+  const key = name.toLowerCase().trim();
+  return Object.prototype.hasOwnProperty.call(NATIVE_IDENTITY_CORRECTIONS, key)
+    ? NATIVE_IDENTITY_CORRECTIONS[key]
+    : undefined;
+}
