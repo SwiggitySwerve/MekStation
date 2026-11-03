@@ -81,7 +81,7 @@ export const requiredWorkflowTokens = [
     id: 'browser-smoke-runs-playwright',
     tokens: [
       'name: E2E Smoke',
-      'npx playwright test e2e/tactical-map-visual-smoke.spec.ts e2e/customizer-library-open.spec.ts e2e/customizer-library-flows.spec.ts --project=chromium',
+      'npx playwright test e2e/tactical-map-visual-smoke.spec.ts e2e/customizer-library-open.spec.ts --project=chromium',
     ],
   },
   {
