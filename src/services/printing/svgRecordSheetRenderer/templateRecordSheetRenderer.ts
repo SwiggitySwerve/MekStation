@@ -256,8 +256,20 @@ export class TemplateRecordSheetRenderer {
       if (fill.count <= 0) {
         continue;
       }
-      const group = this.elementById(fill.groupId);
+      let group = this.elementById(fill.groupId);
       if (group) {
+        // Some canonical pip regions are bare rects; SVG shapes cannot contain pips.
+        if (group.tagName.toLowerCase() === 'rect') {
+          const wrapper = doc.createElementNS(
+            'http://www.w3.org/2000/svg',
+            'g',
+          );
+          wrapper.setAttribute('id', fill.groupId);
+          group.removeAttribute('id');
+          group.parentNode?.insertBefore(wrapper, group);
+          wrapper.appendChild(group);
+          group = wrapper;
+        }
         applicator(doc, group, fill);
         continue;
       }

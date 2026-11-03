@@ -77,12 +77,17 @@ export function getMainArcsForSubType(
  */
 export function normalizeArcLocation(
   location: AerospaceArc | string,
+  subType?: AerospaceSubType,
 ): AerospaceArc | null {
-  if (isAerospaceArc(location)) {
-    return location;
+  const arc = isAerospaceArc(location)
+    ? location
+    : (LEGACY_ARC_LOCATION_MAP[location] ?? null);
+  // Editor stores use wing keys for all four-arc hulls. Native craft use sides.
+  if (subType === AerospaceSubType.SMALL_CRAFT) {
+    if (arc === AerospaceArc.LEFT_WING) return AerospaceArc.LEFT_SIDE;
+    if (arc === AerospaceArc.RIGHT_WING) return AerospaceArc.RIGHT_SIDE;
   }
-
-  return LEGACY_ARC_LOCATION_MAP[location] ?? null;
+  return arc;
 }
 
 // ============================================================================
@@ -124,7 +129,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
 
   for (const item of input.equipment) {
     if (getAerospaceDefensiveEquipmentKind(item.id)) continue;
-    const arc = normalizeArcLocation(item.location);
+    const arc = normalizeArcLocation(item.location, input.subType);
     if (arc === null) continue;
     const entry = getEquipmentEntry(item.id);
     if (entry?.id === 'artemisiv' || entry?.id === 'artemisv') {
