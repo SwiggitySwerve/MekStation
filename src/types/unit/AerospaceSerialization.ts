@@ -22,6 +22,7 @@ export const aerospaceEditorSchema = z.object({
   name: z.string(),
   weightClass: z.enum(WeightClass),
   isFixedWingSupport: z.boolean().optional(),
+  barRating: z.number().int().min(1).max(10).optional(),
   engineType: z.enum(EngineType),
   aerospaceEngineType: z.enum(AerospaceEngineType),
   engineRating: z.number().nonnegative(),
@@ -59,3 +60,20 @@ export const aerospaceEditorSchema = z.object({
     }),
   ),
 });
+
+/** Project support armor identity into the catalog contract without losing BAR. */
+export function serializeAerospaceArmorIdentity(
+  type: string,
+  context: {
+    readonly isFixedWingSupport?: boolean;
+    readonly barRating?: number;
+  },
+): { type: string; barRating: number | undefined } {
+  return {
+    type:
+      context.isFixedWingSupport && context.barRating !== undefined
+        ? 'BAR'
+        : type,
+    barRating: context.barRating,
+  };
+}

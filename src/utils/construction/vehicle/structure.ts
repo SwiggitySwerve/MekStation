@@ -15,6 +15,8 @@ import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import type { VehicleTurretKind } from './vehicleBVTypes';
 
+import { isLargeSupportVehicle } from './engine';
+
 /** Installed layout facts, before fixed-key armor maps add absent locations. */
 export interface VehicleBVStructureLayout {
   tonnage: number;
@@ -38,15 +40,14 @@ export function computeVehicleBVStructurePoints(
       : installed(layout.turretKind)
         ? 1
         : 0;
+  const sixSideHull = layout.isSupportVehicle
+    ? isLargeSupportVehicle(layout.tonnage, layout.motionType)
+    : isSuperHeavyTank(layout.motionType, layout.tonnage);
   const count = locations
     ? new Set(locations.filter((location) => location.toLowerCase() !== 'body'))
         .size
-    : (layout.motionType === GroundMotionType.VTOL
-        ? 5
-        : !layout.isSupportVehicle &&
-            isSuperHeavyTank(layout.motionType, layout.tonnage)
-          ? 6
-          : 4) + turrets;
+    : (layout.motionType === GroundMotionType.VTOL ? 5 : sixSideHull ? 6 : 4) +
+      turrets;
   return computeVehicleLocationStructurePoints(layout.tonnage) * count;
 }
 

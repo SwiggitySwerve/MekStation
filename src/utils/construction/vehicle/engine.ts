@@ -251,6 +251,14 @@ export function getSupportVehicleSizeIndex(
       : 1;
 }
 
+/** Shared large-support chassis classification for layout and editor projection. */
+export function isLargeSupportVehicle(
+  tonnage: number,
+  motionType: GroundMotionType,
+): boolean {
+  return getSupportVehicleSizeIndex(tonnage, motionType) === 2;
+}
+
 /** D: MegaMekLab's new support vehicle (SVMainUI.java:307); engine follows. */
 export const DEFAULT_SUPPORT_ENGINE_TECH_RATING = 3;
 
