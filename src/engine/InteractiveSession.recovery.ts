@@ -6,8 +6,13 @@ import type {
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IHexGrid } from '@/types/gameplay/HexGridInterfaces';
 
-import { customCombatSnapshotSchema } from '@/types/contracts/CustomCombatSnapshot';
+import { isCustomCombatReference } from '@/services/units/customCombatDefinition';
+import {
+  recordedCustomCombatSnapshotSchema,
+  snapshotRefError,
+} from '@/types/contracts/CustomCombatSnapshot';
 import { GameEventType } from '@/types/gameplay/GameSessionInterfaces';
+import { parseUnitReference } from '@/types/unit/UnitIndex';
 import { applyTerrainOverridesToGrid } from '@/utils/gameplay/terrainState';
 
 import type {
@@ -19,8 +24,6 @@ import type {
 import { adaptUnit } from './adapters/CompendiumAdapter';
 import { createGridFromHexTerrain } from './GameEngine.helpers';
 
-const CUSTOM_COMBAT_ID_PREFIX = 'custom-';
-
 /**
  * Injected construction authority. Server callers pass
  * `readServerCustomCombatDefinition`; browser callers may omit it so
@@ -28,9 +31,7 @@ const CUSTOM_COMBAT_ID_PREFIX = 'custom-';
  */
 export type ReadCustomCombatDefinition = CustomUnitDefinitionReader;
 
-export function isCustomCombatUnitRef(unitRef: string): boolean {
-  return unitRef.startsWith(CUSTOM_COMBAT_ID_PREFIX);
-}
+export const isCustomCombatUnitRef = isCustomCombatReference;
 
 /**
  * Validate a PRESENT recorded snapshot with the strict schema. Unknown
@@ -46,15 +47,16 @@ export function requireRecordedCustomCombatSnapshot(
       'Recorded custom construction requires a custom unit reference',
     );
   }
-  const parsed = customCombatSnapshotSchema.safeParse(payload);
+  const parsed = recordedCustomCombatSnapshotSchema.safeParse(payload);
   if (!parsed.success) {
     throw new Error(
       `Recorded custom construction snapshot is invalid for unitRef '${unitRef}'`,
     );
   }
-  if (parsed.data.id !== unitRef) {
+  const error = snapshotRefError(parsed.data, unitRef);
+  if (error) {
     throw new Error(
-      `Recorded custom construction identity mismatch: snapshot id '${parsed.data.id}' !== unitRef '${unitRef}'`,
+      `Recorded custom construction ${error} mismatch: snapshot id '${parsed.data.id}', unitRef '${unitRef}'`,
     );
   }
   return parsed.data;
@@ -63,7 +65,7 @@ export function requireRecordedCustomCombatSnapshot(
 export function detachCustomCombatSnapshot(
   snapshot: CustomCombatSnapshot,
 ): CustomCombatSnapshot {
-  return customCombatSnapshotSchema.parse(
+  return recordedCustomCombatSnapshotSchema.parse(
     JSON.parse(JSON.stringify(snapshot)) as unknown,
   );
 }
@@ -133,7 +135,7 @@ async function attachRecordedCustomCombatSnapshot(
       `Custom unit '${unit.id}' (unitRef '${unit.unitRef}') has no recorded snapshot and no authoritative definition reader`,
     );
   }
-  const live = await readCustom(unit.unitRef);
+  const live = await readCustom(parseUnitReference(unit.unitRef).id);
   if (live === null) {
     throw new Error(
       `Custom unit '${unit.id}' (unitRef '${unit.unitRef}') has no recorded snapshot and no authoritative definition`,

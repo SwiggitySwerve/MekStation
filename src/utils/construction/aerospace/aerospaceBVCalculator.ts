@@ -15,7 +15,10 @@ import {
   getArmorBVMultiplier,
   getPilotSkillModifier,
 } from '../../../types/validation/BattleValue';
+import { getOffensiveBVRole } from '../battleValueEquipment';
 import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
+import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
+import { supportFireControlFactor } from '../vehicle/vehicleBVOffensive';
 import { calculateAerospaceArcContributions } from './aerospaceBVArcs';
 import {
   calculateAerospaceAmmoBV,
@@ -51,7 +54,11 @@ export function calculateAerospaceDefensiveBV(
   const capital = isCapitalShipBVType(input.subType);
   // BVCalculator.java:461-463: SmallCraft inherits the ordinary armor factor.
   const armorBV =
-    input.totalArmorPoints * (capital ? 25 : 2.5) * armorMultiplier;
+    input.totalArmorPoints *
+    (capital ? 25 : 2.5) *
+    armorMultiplier *
+    // BVCalculator.java:431-452; FixedWingSupport.java:101-108.
+    (input.isSupportVehicle ? (input.barRating ?? 10) / 10 : 1);
 
   // AeroBVCalculator.java:64-70; aircraft and DropShips use SI x 2.
   // @spec establish-all-unit-data-parity: Aerospace Defensive BV
@@ -143,12 +150,43 @@ export function calculateAerospaceOffensiveBV(input: IAerospaceBVInput): {
   speedFactor: number;
   offensive: number;
 } {
-  const { contributions, primaryArc, weaponFirePoolBV, fuselageWeaponBV } =
-    calculateAerospaceArcContributions(input);
-
-  const ammoBV = input.ammo
-    ? calculateAerospaceAmmoBV(input.equipment, input.ammo)
-    : 0;
+  // BVCalculator.java:1045-1091: ammo is not part of the forward/rear pool.
+  // Preserve the legacy non-support input contract outside this FWS slice.
+  const firingInput = input.isSupportVehicle
+    ? {
+        ...input,
+        equipment: input.equipment.filter(
+          (item) =>
+            !(item.isAmmo ?? isAmmunitionEquipmentId(item.id)) &&
+            getOffensiveBVRole(item.id) !== 'equipment',
+        ),
+      }
+    : input;
+  const arcs = calculateAerospaceArcContributions(firingInput);
+  // BVCalculator.java:966-976,1072-1084. Uniform FCS preserves arc ordering.
+  const fireControl = supportFireControlFactor({
+    isSupportVehicle: input.isSupportVehicle,
+    chassisEquipment: input.equipment.map((item) => item.id),
+  });
+  const primaryArc = arcs.primaryArc;
+  const contributions =
+    fireControl === 1
+      ? arcs.contributions
+      : arcs.contributions.map((arc) => ({
+          ...arc,
+          rawBV: arc.rawBV * fireControl,
+          weightedBV: arc.weightedBV * fireControl,
+        }));
+  const weaponFirePoolBV = arcs.weaponFirePoolBV * fireControl;
+  const fuselageWeaponBV = arcs.fuselageWeaponBV * fireControl;
+  const ammoBV =
+    (input.ammo
+      ? calculateAerospaceAmmoBV(
+          firingInput.equipment,
+          input.ammo,
+          input.isSupportVehicle === true,
+        )
+      : 0) * fireControl;
   const offensiveEquipmentBV = input.offensiveEquipmentBV ?? 0;
 
   const { avgThrust, speedFactor } = calculateAerospaceSpeedFactor(

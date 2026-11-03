@@ -158,9 +158,7 @@ public class VehicleAeroReferenceExporter {
         Map<String, Object> result = new TreeMap<>(Map.of("mode", "ignoreC3=true,ignoreSkill=true,ignoreTAG=true", "total", total,
             "calculatorClass", calculator.getClass().getName(), "aggregates", aggregates));
         if (Boolean.getBoolean("bv.terms")) {
-            if (entity instanceof Infantry || entity instanceof ProtoMek) {
-                result.put("termsUnsupported", "BA, infantry and ProtoMek probes deferred (bounded first slice)");
-            } else {
+            {
                 BVCalculator probe = (BVCalculator) Class.forName("megamek.common.battleValue.Trace" + calculator.getClass().getSimpleName())
                     .getConstructor(Entity.class).newInstance(entity);
                 int tracedTotal = probe.calculateBV(true, true, true, new TextCalculationReport());

@@ -77,7 +77,7 @@ it('hydrates Extended Fuel Tank critical text as secondary-effect-gated explosiv
   );
 });
 
-it('hydrates official tonnage-suffixed Extended Fuel Tank critical text as represented explosive equipment', async () => {
+it('hydrates pinned Extended Fuel Tank slots with their multiplicity and explosive metadata', async () => {
   const service = getNodeCanonicalUnitService();
   const carbine = await service.getById('carbine-con-8h-haulermech');
   const vampyr = await service.getById('vampyr-sc-v-1-salvagemech');
@@ -92,24 +92,20 @@ it('hydrates official tonnage-suffixed Extended Fuel Tank critical text as repre
     hydrateCriticalSlotManifestFromFullUnit(vampyr) ?? {},
   ).flat();
 
-  expect(carbineSlots).toContainEqual(
-    expect.objectContaining({
-      componentType: 'equipment',
-      componentName: 'Extended Fuel Tank (1 ton)',
-      explosionDamage: 20,
-      explosionRequiresSecondaryEffects: true,
-    }),
-  );
-  expect(vampyrSlots).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({
-        componentType: 'equipment',
-        componentName: 'Extended Fuel Tank (3 tons)',
-        explosionDamage: 20,
-        explosionRequiresSecondaryEffects: true,
-      }),
-    ]),
-  );
+  // Ruling item 3; pinned Carbine CON-8H HaulerMech.mtf:126 and
+  // Vampyr SC-V-1 SalvageMech.mtf:96-98 have one and three unsuffixed slots.
+  const fuelSlot = expect.objectContaining({
+    componentType: 'equipment',
+    componentName: 'Extended Fuel Tank',
+    explosionDamage: 20,
+    explosionRequiresSecondaryEffects: true,
+  });
+  expect(
+    carbineSlots.filter((slot) => slot.componentName === 'Extended Fuel Tank'),
+  ).toEqual([fuelSlot]);
+  expect(
+    vampyrSlots.filter((slot) => slot.componentName === 'Extended Fuel Tank'),
+  ).toEqual([fuelSlot, fuelSlot, fuelSlot]);
 });
 
 it('hydrates official Blue Shield Particle Field Damper critical text as represented explosive equipment', async () => {

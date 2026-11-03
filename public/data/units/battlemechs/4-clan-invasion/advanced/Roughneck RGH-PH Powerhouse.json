@@ -60,24 +60,24 @@
       "location": "LEFT_ARM"
     },
     {
-      "id": "mrm-10",
-      "location": "CENTER_TORSO"
-    },
-    {
-      "id": "srm-6",
-      "location": "LEFT_TORSO"
-    },
-    {
-      "id": "srm-6",
-      "location": "LEFT_TORSO"
-    },
-    {
       "id": "lb-5-x-ac",
       "location": "RIGHT_ARM"
     },
     {
+      "id": "srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-6",
+      "location": "LEFT_TORSO"
+    },
+    {
       "id": "lb-5-x-ac",
       "location": "RIGHT_TORSO"
+    },
+    {
+      "id": "mrm-10",
+      "location": "CENTER_TORSO"
     }
   ],
   "criticalSlots": {
@@ -176,5 +176,5 @@
       "IS Endo Steel"
     ]
   },
-  "source": "Videogame (Apocryphal)"
+  "source": "Apocryphal (Videogame)"
 }

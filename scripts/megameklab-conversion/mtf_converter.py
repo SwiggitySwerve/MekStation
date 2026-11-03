@@ -15,6 +15,7 @@ import os
 import json
 import re
 import argparse
+import hashlib
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple, Union
 from enum_mappings import (
@@ -118,7 +119,8 @@ def dataclass_to_dict(obj: Any) -> Any:
         return obj
 
 
-def convert_directory(source_dir: str, output_dir: str, era_filter: Optional[str] = None) -> Tuple[int, int]:
+def convert_directory(source_dir: str, output_dir: str, era_filter: Optional[str] = None,
+                      *, preserve_ids_from: Optional[str] = None) -> Tuple[int, int]:
     """
     Convert all MTF files in a directory.
     
@@ -134,8 +136,20 @@ def convert_directory(source_dir: str, output_dir: str, era_filter: Optional[str
     source_path = Path(source_dir)
     output_path = Path(output_dir)
     parser = MTFParser()
+    preserved_ids = {}
+    if preserve_ids_from:
+        with open(Path(preserve_ids_from) / 'index.json', encoding='utf-8') as f:
+            for row in json.load(f)['units']:
+                shipped = row
+                if 'path' in row:
+                    with open(Path(preserve_ids_from) / row['path'], encoding='utf-8') as definition:
+                        shipped = json.load(definition)
+                preserved_ids[(shipped['chassis'], shipped['model'])] = shipped['id']
+    reserved_ids = set(preserved_ids.values())
+    seen_ids = set()
+    seen_paths = set()
     
-    for mtf_file in source_path.rglob('*.mtf'):
+    for mtf_file in sorted(source_path.rglob('*.mtf')):
         try:
             # Parse the file to get era and rules level
             unit = parser.parse_file(str(mtf_file))
@@ -144,6 +158,14 @@ def convert_directory(source_dir: str, output_dir: str, era_filter: Optional[str
                 fail_count += 1
                 print(f"Failed to parse: {mtf_file}")
                 continue
+            identity = (unit.chassis, unit.model)
+            if identity in preserved_ids:
+                unit.id = preserved_ids[identity]
+            elif unit.id in reserved_ids:
+                # Moving text between chassis/model can reuse a retired slug.
+                # Keep stale references missing rather than bind a new identity.
+                suffix = hashlib.sha256('\0'.join(identity).encode('utf-8')).hexdigest()[:8]
+                unit.id = f'{unit.id}-{suffix}'
             
             # Get era folder from unit's year
             era_folder = get_era_folder_name(unit.era)
@@ -163,6 +185,10 @@ def convert_directory(source_dir: str, output_dir: str, era_filter: Optional[str
                 safe_name = safe_name.replace(char, '-')
             json_filename = f"{safe_name}.json"
             json_file = output_path / era_folder / rules_folder / json_filename
+            if unit.id in seen_ids or json_file in seen_paths:
+                raise ValueError(f'Duplicate unit id or output path: {unit.id}, {json_file}')
+            seen_ids.add(unit.id)
+            seen_paths.add(json_file)
             
             # Convert dataclasses to dicts
             unit_dict = dataclass_to_dict(unit)
@@ -179,7 +205,7 @@ def convert_directory(source_dir: str, output_dir: str, era_filter: Optional[str
     return success_count, fail_count
 
 
-def generate_index(output_dir: str) -> Dict[str, Any]:
+def generate_index(output_dir: str, generated_at: Optional[str] = None) -> Dict[str, Any]:
     """Generate an index.json for all converted units."""
     output_path = Path(output_dir)
     units: List[Dict[str, Any]] = []
@@ -207,7 +233,7 @@ def generate_index(output_dir: str) -> Dict[str, Any]:
     # Sort by chassis then model
     units.sort(key=lambda x: (x['chassis'], x['model']))
 
-    index = index_envelope(units)
+    index = index_envelope(units, generated_at)
     
     # Write index
     index_path = output_path / 'index.json'
@@ -222,6 +248,8 @@ def main():
     parser.add_argument('--output', '-o', required=True, help='Output directory for JSON files')
     parser.add_argument('--era', '-e', help='Filter by era folder name')
     parser.add_argument('--generate-index', '-i', action='store_true', help='Generate index.json after conversion')
+    parser.add_argument('--preserve-ids-from', help='Existing catalog directory whose index preserves same-design ids')
+    parser.add_argument('--generated-at', help='Fixed index timestamp for reproducible regeneration')
     parser.add_argument('--regenerate-text', action='store_true', help='Regenerate corrupt text and paths from UTF-8 MTF sources, preserving shipped IDs and construction data')
     parser.add_argument('--check', action='store_true', help='Check text regeneration and index consistency without writing (requires --regenerate-text)')
     
@@ -240,15 +268,18 @@ def main():
     print(f"Converting MTF files from: {args.source}")
     print(f"Output directory: {args.output}")
     
-    success, failed = convert_directory(args.source, args.output, args.era)
+    success, failed = convert_directory(args.source, args.output, args.era,
+                                        preserve_ids_from=args.preserve_ids_from)
     
     print(f"\nConversion complete:")
     print(f"  Successful: {success}")
     print(f"  Failed: {failed}")
+    if failed:
+        raise SystemExit(1)
     
     if args.generate_index:
         print("\nGenerating index...")
-        index = generate_index(args.output)
+        index = generate_index(args.output, args.generated_at)
         print(f"Index generated with {index['totalUnits']} units")
 
 

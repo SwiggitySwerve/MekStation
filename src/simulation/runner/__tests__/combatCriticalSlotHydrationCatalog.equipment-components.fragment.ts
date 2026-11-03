@@ -61,10 +61,10 @@ describe('BattleMech critical-slot hydration support catalog', () => {
       'extended-fuel-tank',
     );
     expect(equipmentNameMappings['Fuel Tank']).toBe('bafueltank');
+    // Ruling item 3; pinned Carbine CON-8H HaulerMech.mtf:126 and
+    // Vampyr SC-V-1 SalvageMech.mtf:96-98 use unsuffixed Extended Fuel Tank.
     expect(uniqueBattleMechFuelOrIncendiaryCriticalSlotNames()).toEqual([
       'Extended Fuel Tank',
-      'Extended Fuel Tank (1 ton)',
-      'Extended Fuel Tank (3 tons)',
       'LAM Fuel Tank',
     ]);
   });

@@ -1,0 +1,182 @@
+{
+  "id": "urbanmech-um-r60g",
+  "chassis": "UrbanMech",
+  "model": "UM-R60G",
+  "unitType": "BattleMech",
+  "configuration": "Biped",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "SUCCESSION_WARS",
+  "year": 2912,
+  "tonnage": 30,
+  "engine": {
+    "type": "FUSION",
+    "rating": 120
+  },
+  "gyro": {
+    "type": "STANDARD"
+  },
+  "cockpit": "STANDARD",
+  "structure": {
+    "type": "STANDARD"
+  },
+  "armor": {
+    "type": "STANDARD",
+    "allocation": {
+      "LEFT_ARM": 10,
+      "RIGHT_ARM": 10,
+      "LEFT_TORSO": {
+        "front": 8,
+        "rear": 4
+      },
+      "RIGHT_TORSO": {
+        "front": 8,
+        "rear": 4
+      },
+      "CENTER_TORSO": {
+        "front": 11,
+        "rear": 8
+      },
+      "HEAD": 9,
+      "LEFT_LEG": 12,
+      "RIGHT_LEG": 12
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 10
+  },
+  "movement": {
+    "walk": 4,
+    "jump": 4
+  },
+  "equipment": [
+    {
+      "id": "large-laser",
+      "location": "RIGHT_ARM"
+    },
+    {
+      "id": "srm-4",
+      "location": "LEFT_TORSO"
+    },
+    {
+      "id": "srm-4",
+      "location": "RIGHT_TORSO"
+    }
+  ],
+  "criticalSlots": {
+    "LEFT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_ARM": [
+      "Shoulder",
+      "Upper Arm Actuator",
+      "Large Laser",
+      "Large Laser",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "LEFT_TORSO": [
+      "Heat Sink",
+      "Jump Jet",
+      "Jump Jet",
+      "SRM 4",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "RIGHT_TORSO": [
+      "Heat Sink",
+      "Jump Jet",
+      "Jump Jet",
+      "SRM 4",
+      "IS Ammo SRM-4",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "CENTER_TORSO": [
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Gyro",
+      "Fusion Engine",
+      "Fusion Engine",
+      "Fusion Engine",
+      null,
+      null
+    ],
+    "HEAD": [
+      "Life Support",
+      "Sensors",
+      "Cockpit",
+      null,
+      "Sensors",
+      "Life Support"
+    ],
+    "LEFT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink"
+    ],
+    "RIGHT_LEG": [
+      "Hip",
+      "Upper Leg Actuator",
+      "Lower Leg Actuator",
+      "Foot Actuator",
+      "Heat Sink",
+      "Heat Sink"
+    ]
+  },
+  "quirks": ["ext_twist", "no_arms", "low_profile"],
+  "fluff": {
+    "overview": "<p>The UrbanMech was introduced in 2675 by Orguss Industries to fill a specialized niche: urban combat and defense. Designed as a cheap, easily produced garrison 'Mech, the design paired heavy armor protection rivaling many medium BattleMechs with jump jets for mobility in confined city streets. The trade-off was an anemic powerplant, making the UrbanMech the slowest light 'Mech ever fielded.</p><p>This severe limitation relegated the design to urban environments where its low, stocky profile and heavy armor could shine. The UrbanMech earned a reputation as an effective ambusher, capable of surprising heavier opponents in the close confines of city fighting. Mass-produced throughout the Star League era, the design survived the Succession Wars largely because military planners dismissed it as a liability, sparing it from the technological devastation that claimed so many other designs.</p>",
+    "capabilities": "<p>The UrbanMech's primary armament is the Imperator-B Class 10 autocannon, a reliable weapon well-suited to the design's hit-and-run fighting style. With low heat buildup and proven reliability, the autocannon allows MechWarriors to engage targets of opportunity before withdrawing to new positions. A single Harmon small laser provides backup capability, primarily useful for suppressing infantry rather than engaging armored targets. Limited ammunition capacity (typically enough for approximately two minutes of sustained combat) reinforces the 'Mech's doctrine of brief, decisive engagements rather than prolonged firefights.</p><p>The design's six tons of Durallex Medium armor provide protection comparable to many medium 'Mechs, allowing the UrbanMech to absorb significant punishment while executing tactical withdrawals. Standard doctrine calls for UrbanMech lances to split into individual units, occupying buildings to snipe at enemy formations before falling back to the next defensive line. The Pitban 6000 jump jets provide sixty meters of jumping capability, essential for navigating urban terrain and accessing elevated firing positions.</p><p>The UrbanMech's greatest weakness remains its abysmal ground speed. Any commander foolish or desperate enough to deploy the design in open terrain invites disaster, as faster opponents can dictate engagement ranges at will. Within its intended urban environment, however, the confined spaces limit enemy mobility advantages while the 'Mech's low profile makes it a frustratingly difficult target.</p>",
+    "history": "<p>Orguss Industries produced large numbers of UrbanMechs from 2675 until the destruction of their Marcus facility in 2837 during the Second Succession War. Throughout the Star League era, the design served admirably in its intended role of suppressing urban guerrillas and hostile light 'Mechs in heavily populated areas. When fighting erupted in the close confines of Star League cities, UrbanMechs often found themselves engaging medium and even heavy 'Mechs with surprising success, using classic ambush tactics to offset their limitations.</p><p>The Succession Wars paradoxically ensured the UrbanMech's survival. Most military leaders viewed the slow design as a liability, relegating their stockpiles to garrison duty or stripping them for parts. This dismissive attitude spared the UrbanMech from the intense combat that destroyed so many contemporaries. While other designs were consigned to history, large numbers of UrbanMechs remained in service across the Inner Sphere.</p><p>The Capellan Confederation emerged as the design's primary operator following the Fourth Succession War. Desperate for any BattleMech to replenish catastrophic losses, the Confederation deployed UrbanMechs in front-line formations, a practice unique among the Successor States. The Confederation Reserve Cavalry, Capellan Defense Force, St. Ives Lancers, and Tikonov Republican Guard all fielded significant numbers of the design. Outside Capellan space, the Federated Suns' Capellan March Militia operated the largest concentration of UrbanMechs, largely composed of captured Capellan equipment.</p><p>The recovery of lostech prompted the Confederation to prioritize upgrading the UrbanMech, producing the UM-R63 field modification kit before 3050. Other Successor States followed with their own variants, though with considerably less urgency. The prohibitive cost of replacing the design's engine meant even the Confederation limited upgrades to weapons and armor improvements. During the Word of Blake Jihad, Hellespont Industrials reactivated a shuttered facility on Betelgeuse to resume UrbanMech production alongside primitive retrotech designs for material-starved garrison forces. This plant continued producing new variants throughout the Dark Age, supporting the Capellan Confederation's secret military expansion before its war against the Republic of the Sphere.</p>",
+    "deployment": "<p>A standardized field modification developed during the Succession Wars, the -R60G utilized salvaged engines and gyros from destroyed Wasps and Stingers to dramatically improve the UrbanMech's ground speed. The original autocannon was replaced with a large laser and paired SRM-4 launchers, creating a more mobile striker variant. While the modification required significant technical expertise and compatible salvage, the resulting 'Mech proved far more versatile than the standard model, capable of operating effectively outside urban terrain.</p>",
+    "manufacturer": "Field Refit",
+    "primaryFactory": "Various",
+    "systemManufacturer": {
+      "CHASSIS": "Republic",
+      "ENGINE": "Leenex",
+      "ARMOR": "Durallex",
+      "JUMP_JET": "Pitban",
+      "COMMUNICATIONS": "Dalban",
+      "TARGETING": "Dalban"
+    }
+  },
+  "role": "Brawler",
+  "source": "TR:3025C"
+}

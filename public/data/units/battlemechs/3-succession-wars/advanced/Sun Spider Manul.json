@@ -43,7 +43,7 @@
     }
   },
   "heatSinks": {
-    "type": "DOUBLE",
+    "type": "DOUBLE_CLAN",
     "count": 21
   },
   "movement": {
@@ -52,8 +52,8 @@
   },
   "equipment": [
     {
-      "id": "er-large-laser",
-      "location": "RIGHT_ARM"
+      "id": "er-ppc",
+      "location": "LEFT_ARM"
     },
     {
       "id": "er-large-laser",
@@ -64,15 +64,15 @@
       "location": "RIGHT_ARM"
     },
     {
-      "id": "er-ppc",
-      "location": "LEFT_ARM"
+      "id": "er-large-laser",
+      "location": "RIGHT_ARM"
     },
     {
       "id": "er-small-laser",
       "location": "LEFT_TORSO"
     },
     {
-      "id": "ams",
+      "id": "anti-missile-system",
       "location": "RIGHT_TORSO"
     }
   ],
@@ -81,13 +81,13 @@
       "Shoulder",
       "Upper Arm Actuator",
       "Clan Endo Steel",
-      "CLERPPC",
-      "CLERPPC",
-      "CLERLargeLaser",
-      "CLDoubleHeatSink",
-      "CLDoubleHeatSink",
-      "CLDoubleHeatSink",
-      "CLDoubleHeatSink",
+      "CLERPPC (OMNIPOD)",
+      "CLERPPC (OMNIPOD)",
+      "CLERLargeLaser (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
       null,
       null
     ],
@@ -95,13 +95,13 @@
       "Shoulder",
       "Upper Arm Actuator",
       "Clan Endo Steel",
-      "CLERPPC",
-      "CLERPPC",
-      "CLERLargeLaser",
-      "CLDoubleHeatSink",
-      "CLDoubleHeatSink",
-      "CLDoubleHeatSink",
-      "CLDoubleHeatSink",
+      "CLERPPC (OMNIPOD)",
+      "CLERPPC (OMNIPOD)",
+      "CLERLargeLaser (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
       null,
       null
     ],
@@ -112,11 +112,11 @@
       "Clan Endo Steel",
       "Clan Ferro-Fibrous",
       "Clan Ferro-Fibrous",
-      "CLERSmallLaser",
-      "CLDoubleHeatSink",
-      "CLDoubleHeatSink",
-      "CLDoubleHeatSink",
-      "CLDoubleHeatSink",
+      "CLERSmallLaser (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
       null
     ],
     "RIGHT_TORSO": [
@@ -126,10 +126,10 @@
       "Clan Endo Steel",
       "Clan Ferro-Fibrous",
       "Clan Ferro-Fibrous",
-      "CLAntiMissileSystem",
-      "CLAMS Ammo",
-      "CLDoubleHeatSink",
-      "CLDoubleHeatSink",
+      "CLAntiMissileSystem (OMNIPOD)",
+      "CLAMS Ammo (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
+      "CLDoubleHeatSink (OMNIPOD)",
       null,
       null
     ],
@@ -172,5 +172,5 @@
       null
     ]
   },
-  "source": "Videogame (Apocryphal)"
+  "source": "Apocryphal (Videogame)"
 }

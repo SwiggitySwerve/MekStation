@@ -35,7 +35,7 @@ function recordedSnapshot() {
     { ...atlas, id: SOURCE_ID },
     SOURCE_ID,
   );
-  if (!snapshot) {
+  if (!snapshot || snapshot.unitType !== 'BattleMech') {
     throw new Error('expected Atlas construction to project to a snapshot');
   }
   return snapshot;
@@ -163,6 +163,8 @@ describe('custom combat recorded construction', () => {
     const recoveredUnit = recovered
       .getSession()
       .units.find((unit) => unit.id === INSTANCE_ID);
+    if (recoveredUnit?.customUnitDefinition?.unitType !== 'BattleMech')
+      throw new Error('Expected recorded Mech construction');
     expect(recoveredUnit?.unitRef).toBe(SOURCE_ID);
     expect(recoveredUnit?.customUnitDefinition).toEqual(snapshot);
     expect(recoveredUnit?.customUnitDefinition?.armor.allocation.LEFT_ARM).toBe(
