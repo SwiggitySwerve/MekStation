@@ -744,7 +744,7 @@
       "ranges": { "minimum": 0, "short": 1, "medium": 2, "long": 3 },
       "weight": 1.5,
       "criticalSlots": 1,
-      "costCBills": 12500,
+      "costCBills": 25000,
       "battleValue": 14,
       "introductionYear": 3115
     },
@@ -760,7 +760,7 @@
       "ranges": { "minimum": 0, "short": 3, "medium": 6, "long": 9 },
       "weight": 2.5,
       "criticalSlots": 2,
-      "costCBills": 62500,
+      "costCBills": 100000,
       "battleValue": 65,
       "introductionYear": 3115
     },

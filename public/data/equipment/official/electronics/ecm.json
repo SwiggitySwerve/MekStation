@@ -53,7 +53,7 @@
       "rulesLevel": "ADVANCED",
       "weight": 1.5,
       "criticalSlots": 2,
-      "costCBills": 600000,
+      "costCBills": 500000,
       "battleValue": 68,
       "introductionYear": 3059,
       "special": ["Combined ECM and Active Probe", "4 hex probe range"]
