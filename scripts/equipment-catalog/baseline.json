@@ -31,13 +31,13 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 1,
     "id": "ac-5",
-    "sha256": "2129106361ee9bb136dcd129c4066d58ed1bd55234ed67f7906a6663bfc5cd6e",
+    "sha256": "a406195af8c77d7f57af77cb72c51a991bdb5d781255921bb20650652ca0596b",
     "item": {
       "id": "ac-5",
       "name": "AC/5",
       "category": "Ballistic",
       "subType": "Autocannon",
-      "techBase": "INNER_SPHERE",
+      "techBase": "BOTH",
       "rulesLevel": "INTRODUCTORY",
       "damage": 5,
       "heat": 1,
@@ -52,7 +52,7 @@
       "ammoPerTon": 20,
       "costCBills": 125000,
       "battleValue": 70,
-      "introductionYear": 2250
+      "introductionYear": 2240
     }
   },
   {
@@ -11997,7 +11997,7 @@
     "file": "weapons/energy-laser.json",
     "index": 2,
     "id": "large-laser",
-    "sha256": "2513789f452a7f240782f070b121c69c98dd891d5c7a1b2f231e0718c229de67",
+    "sha256": "644e3ee46ec8cd46d9bfd656feb37a48dbac4894eae656fd15672de7e17883dc",
     "item": {
       "id": "large-laser",
       "name": "Large Laser",
@@ -12017,7 +12017,7 @@
       "criticalSlots": 2,
       "costCBills": 100000,
       "battleValue": 123,
-      "introductionYear": 2316
+      "introductionYear": 2306
     }
   },
   {
@@ -13071,7 +13071,7 @@
     "file": "weapons/energy-laser.json",
     "index": 40,
     "id": "small-re-engineered-laser",
-    "sha256": "c7c4d7420236091fd23d3a9aec8e2c2a1bd3ef6b223b9630b2fa2d7144e0966f",
+    "sha256": "0ac324975ebeea3b4521fd0242ab85ebe474ef0593de2ccfa17d642dfcab3c44",
     "item": {
       "id": "small-re-engineered-laser",
       "name": "Small Re-engineered Laser",
@@ -13091,14 +13091,14 @@
       "criticalSlots": 1,
       "costCBills": 12500,
       "battleValue": 14,
-      "introductionYear": 3130
+      "introductionYear": 3115
     }
   },
   {
     "file": "weapons/energy-laser.json",
     "index": 41,
     "id": "medium-re-engineered-laser",
-    "sha256": "a0f6b363b4c15dbb2fb0e2416026bfdb2a6465bbefd2053eeb1e823076fc1086",
+    "sha256": "f29ea41f811ec42011c49239698b490f559df9f625b88bbf445d55a2c6398ec3",
     "item": {
       "id": "medium-re-engineered-laser",
       "name": "Medium Re-engineered Laser",
@@ -13118,7 +13118,7 @@
       "criticalSlots": 2,
       "costCBills": 62500,
       "battleValue": 65,
-      "introductionYear": 3130
+      "introductionYear": 3115
     }
   },
   {
@@ -13179,13 +13179,13 @@
     "file": "weapons/energy-ppc.json",
     "index": 0,
     "id": "ppc",
-    "sha256": "7cef1c7828d0efc5927194b4aeda9dcb44576ddad576a52ce86ed72959721a93",
+    "sha256": "cc1e518959bfd3d8d1ca9ffcd783d60bf1b152539d28717022e425e7057f427d",
     "item": {
       "id": "ppc",
       "name": "PPC",
       "category": "Energy",
       "subType": "PPC",
-      "techBase": "INNER_SPHERE",
+      "techBase": "BOTH",
       "rulesLevel": "INTRODUCTORY",
       "damage": 10,
       "heat": 10,
@@ -13199,7 +13199,7 @@
       "criticalSlots": 3,
       "costCBills": 200000,
       "battleValue": 176,
-      "introductionYear": 2460
+      "introductionYear": 2435
     }
   },
   {
@@ -13235,7 +13235,7 @@
     "file": "weapons/energy-ppc.json",
     "index": 2,
     "id": "light-ppc",
-    "sha256": "f8a7d2cd9326c3374432c584d0989c2347cdb383c0c62cc102a43b31018ed600",
+    "sha256": "dcdbd34df7c23aa40e6ce4a98b83e5a87fd541633cf69550f3559b2f5e494e6f",
     "item": {
       "id": "light-ppc",
       "name": "Light PPC",
@@ -13255,14 +13255,14 @@
       "criticalSlots": 2,
       "costCBills": 150000,
       "battleValue": 88,
-      "introductionYear": 3067
+      "introductionYear": 3064
     }
   },
   {
     "file": "weapons/energy-ppc.json",
     "index": 3,
     "id": "heavy-ppc",
-    "sha256": "bf6a5894de6956e4fc89004b0f1d49a71d1fcac0058eaa4e8ac00b46c9ad08ed",
+    "sha256": "ada58ba4ac725fe71e1df38232783dfdf11851622fd796eb35f90854a4210699",
     "item": {
       "id": "heavy-ppc",
       "name": "Heavy PPC",
@@ -13282,7 +13282,7 @@
       "criticalSlots": 4,
       "costCBills": 250000,
       "battleValue": 317,
-      "introductionYear": 3067
+      "introductionYear": 3062
     }
   },
   {
@@ -16478,7 +16478,7 @@
     "file": "ammunition/gauss.json",
     "index": 10,
     "id": "ammo-light-n-gauss",
-    "sha256": "67b2220e95d823be18e9ac4d836a40d944ac86d10adf283d52e0b83cebe9ee5b",
+    "sha256": "0ed5d7f285cec34aa5aedcf381f95663a0c397a2497d7bbb94807ddb10b023ed",
     "item": {
       "id": "ammo-light-n-gauss",
       "name": "Light N-Gauss Ammo",
@@ -16488,7 +16488,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
-      "weight": 1,
+      "weight": 0.2,
       "criticalSlots": 1,
       "costPerTon": 45000,
       "battleValue": 378,
@@ -16503,7 +16503,7 @@
     "file": "ammunition/gauss.json",
     "index": 11,
     "id": "ammo-medium-n-gauss",
-    "sha256": "ca026e8b2b0cadd289cf9bb47ba5ad597128c2ef9e590a1baf946fb0c2882246",
+    "sha256": "693870d54fc183c6c5d0962ab4d80d5e6907fb6bce4ca559e3312b9cc81f053f",
     "item": {
       "id": "ammo-medium-n-gauss",
       "name": "Medium N-Gauss Ammo",
@@ -16513,7 +16513,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
-      "weight": 1,
+      "weight": 0.4,
       "criticalSlots": 1,
       "costPerTon": 75000,
       "battleValue": 630,
@@ -22490,7 +22490,7 @@
     "file": "miscellaneous/other.json",
     "index": 40,
     "id": "clan-armor-kit-all",
-    "sha256": "0b507710b089ce832318a906eacb66ca17813965ccb36e72d01abf6393f9e602",
+    "sha256": "7c72d462e4ae23d4c5187d30232ff56103a3181d5939baa7309146eeb06696c1",
     "item": {
       "id": "clan-armor-kit-all",
       "name": "Clan Armor Kit (All)",
@@ -22501,7 +22501,7 @@
       "criticalSlots": 0,
       "costCBills": 5560,
       "battleValue": 0,
-      "introductionYear": 2900,
+      "introductionYear": 2845,
       "special": []
     }
   },
@@ -22799,12 +22799,12 @@
     "file": "miscellaneous/other.json",
     "index": 56,
     "id": "generic-infantry-kit",
-    "sha256": "f0f82e6084c37caa1d61100594005f9d9d56cffae286846f0e958c5d291e6030",
+    "sha256": "f9aa5d89ba2e65a1abd497036ea18477754b46a93c0c6a361dd49e40f3fe6157",
     "item": {
       "id": "generic-infantry-kit",
       "name": "Generic Infantry Kit",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
+      "techBase": "BOTH",
       "rulesLevel": "STANDARD",
       "weight": 0,
       "criticalSlots": 0,
@@ -26618,13 +26618,13 @@
     "file": "miscellaneous/other.json",
     "index": 255,
     "id": "baarmoredglove",
-    "sha256": "431e533523de57332c3f3e193462bfb053843007b7959c8f7f6ca8430efc2441",
+    "sha256": "b32e8e2a1c35ce9566f8977a6893927305f17c3e4f19f521beeca8d78c9fe825",
     "item": {
       "id": "baarmoredglove",
       "name": "BA Manipulators [Armored Gloves]",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
       "weight": 0,
       "criticalSlots": 0,
       "costCBills": 2500,
@@ -26637,18 +26637,18 @@
     "file": "miscellaneous/other.json",
     "index": 256,
     "id": "babasicmanipulator",
-    "sha256": "0bd512628601735f01fcde51231e020b7528216d841c647f329b1fa90fa56251",
+    "sha256": "d7193507b3ef49d53f6676619dad53d75d0c9fd786dadbc16ef3fa3fe03572d9",
     "item": {
       "id": "babasicmanipulator",
       "name": "BA Manipulators [Manipulator (Basic)]",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
       "weight": 0,
       "criticalSlots": 0,
       "costCBills": 5000,
       "battleValue": 0,
-      "introductionYear": 2110,
+      "introductionYear": 2100,
       "special": []
     }
   },
@@ -26656,18 +26656,18 @@
     "file": "miscellaneous/other.json",
     "index": 257,
     "id": "babattleclaw",
-    "sha256": "3b4b1c7fa98f3fae27e516abebcb0c45ccdca96dbd1db9c4f1b3e5191107573a",
+    "sha256": "ed9954a1f555c2d26e262b344ccc8e12d0583fb40d8fba6018b483829e0738d9",
     "item": {
       "id": "babattleclaw",
       "name": "BA Manipulators [Battle Claw]",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
       "weight": 0.015,
       "criticalSlots": 0,
       "costCBills": 10000,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 2860,
       "special": []
     }
   },
@@ -26865,12 +26865,12 @@
     "file": "miscellaneous/other.json",
     "index": 268,
     "id": "jump-jet-ba",
-    "sha256": "88bba2d2e3dfd5a8b82366274f0967b45098aad4a181f65272c1e223dc8423aa",
+    "sha256": "788775c8b710c5a7fb039c9374c16d384443f0c18075300cb510ed3063e60f5d",
     "item": {
       "id": "jump-jet-ba",
       "name": "Jump Jet [BA]",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
+      "techBase": "BOTH",
       "rulesLevel": "STANDARD",
       "weight": 0,
       "criticalSlots": 0,
@@ -27093,16 +27093,16 @@
     "file": "miscellaneous/other.json",
     "index": 280,
     "id": "baapmount",
-    "sha256": "ffb8b17037f1c5f01ac3ab96c963b63ba0b2b5ab2d211a7e08c1ef024572c1fa",
+    "sha256": "ae02944901a1f5808c310ffffca6c75aaf8d9499667c793c418c2358a738b476",
     "item": {
       "id": "baapmount",
       "name": "Anti-Personnel Weapon Mount",
       "category": "Miscellaneous",
-      "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
       "weight": 0.005,
       "criticalSlots": 1,
-      "costCBills": 0,
+      "costCBills": 500,
       "battleValue": 0,
       "introductionYear": 2100,
       "special": []
