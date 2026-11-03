@@ -18,7 +18,7 @@
       "criticalSlots": 3,
       "costCBills": 200000,
       "battleValue": 176,
-      "introductionYear": 2460
+      "introductionYear": 2435
     },
     {
       "id": "er-ppc",
@@ -52,7 +52,7 @@
       "criticalSlots": 2,
       "costCBills": 150000,
       "battleValue": 88,
-      "introductionYear": 3067
+      "introductionYear": 3064
     },
     {
       "id": "heavy-ppc",
@@ -68,7 +68,7 @@
       "criticalSlots": 4,
       "costCBills": 250000,
       "battleValue": 317,
-      "introductionYear": 3067
+      "introductionYear": 3062
     },
     {
       "id": "snub-nose-ppc",
