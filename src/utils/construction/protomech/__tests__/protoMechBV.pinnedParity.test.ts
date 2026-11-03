@@ -9,8 +9,7 @@ import * as path from 'path';
 import { BlkParserService } from '@/services/conversion/BlkParserService';
 import { ProtoMechUnitHandler } from '@/services/units/handlers/ProtoMechUnitHandler';
 import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
-import { resolveAmmoBV } from '@/utils/construction/equipmentBVResolver';
-import { PROTO_AMMO_STOPGAP } from '@/utils/construction/protomech/protoMechAmmo';
+import { getProtoAmmo } from '@/utils/construction/protomech/protoMechAmmo';
 
 const parser = new BlkParserService();
 const handler = new ProtoMechUnitHandler();
@@ -111,14 +110,21 @@ describe('ProtoMek ammo BV (ProtoMekBVCalculator.getAmmoBV, AmmoType.getKgPerSho
   });
 });
 
-describe('ProtoMek ammo stopgap table vs the equipment catalog', () => {
-  it.each(Object.entries(PROTO_AMMO_STOPGAP))(
-    '%s agrees with the catalog entry it resolves to',
-    (name, [, bv]) => {
-      const catalog = resolveAmmoBV(name);
-      if (catalog.resolved) expect(catalog.battleValue).toBe(bv);
-    },
-  );
+describe('ProtoMek ammo facts come from the generated catalog record', () => {
+  it.each([
+    // AmmoType.java line of each kgPerShot; LRM-3 is not 1000 / shots per ton.
+    ['Clan Ammo ProtoMech LRM-3', 24.99, 4, 'LRM:3'], // :9255
+    ['Clan Ammo SRM-1', 10, 2, 'SRM:1'], // :9912
+    ['Clan Streak SRM 2 Ammo', 10, 5, 'SRM_STREAK:2'], // :10443
+    ['CLPlasmaCannonAmmo', 100, 21, 'PLASMA:2'], // :12230
+    ['Clan Machine Gun Ammo - Proto', 5, 1, 'MG:2'], // :14376
+  ])('%s', (name, kgPerShot, battleValue, group) => {
+    expect(getProtoAmmo(name)).toEqual({ kgPerShot, battleValue, group });
+  });
+
+  it('leaves names without a generated per-shot record to the ton-bin path', () => {
+    expect(getProtoAmmo('Not An Ammo')).toBeUndefined();
+  });
 });
 
 // The full 86-source sweep needs the pinned mm-data checkout; it runs where the

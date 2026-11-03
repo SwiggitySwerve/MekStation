@@ -40,6 +40,7 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
 
   const weaponsForAmmo: Array<{ id: string; bv: number }> = [];
   const ammoForCap: Array<{ id: string; bv: number; weaponType: string }> = [];
+  const ammoMounts: string[] = [];
 
   for (const mount of unit.equipment) {
     const nativeBV = resolveProtoOffensiveEquipmentBV(
@@ -73,28 +74,31 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
       continue;
     }
 
-    if (kind === 'ammo') {
-      const protoAmmo = resolveProtoAmmoBV(mount.equipmentId);
-      if (protoAmmo) {
-        ammoForCap.push({
-          id: mount.equipmentId,
-          bv: protoAmmo.battleValue,
-          weaponType: protoAmmo.weaponType,
-        });
-        continue;
-      }
-      const resolved = resolveEquipmentBV(mount.equipmentId);
-      if (resolved.resolved) {
-        const weaponType = normalizeEquipmentId(mount.equipmentId)
-          .replace(/-ammo$/, '')
-          .replace(/^ammo-/, '');
-        ammoForCap.push({
-          id: mount.equipmentId,
-          bv: resolved.battleValue,
-          weaponType,
-        });
-      }
+    if (kind === 'ammo') ammoMounts.push(mount.equipmentId);
+  }
+
+  // Ammo pairs with the unit's weapons, so it resolves after them, in mount order.
+  const weaponIds = weaponsForAmmo.map((w) => w.id);
+  for (const equipmentId of ammoMounts) {
+    const protoAmmo = resolveProtoAmmoBV(equipmentId, weaponIds);
+    if (protoAmmo) {
+      ammoForCap.push({
+        id: equipmentId,
+        bv: protoAmmo.battleValue,
+        weaponType: protoAmmo.weaponType,
+      });
       continue;
+    }
+    const resolved = resolveEquipmentBV(equipmentId);
+    if (resolved.resolved) {
+      const weaponType = normalizeEquipmentId(equipmentId)
+        .replace(/-ammo$/, '')
+        .replace(/^ammo-/, '');
+      ammoForCap.push({
+        id: equipmentId,
+        bv: resolved.battleValue,
+        weaponType,
+      });
     }
   }
 

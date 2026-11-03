@@ -149,11 +149,23 @@ describe('catalog missile launcher hydration', () => {
     expect(hydrate(id).damage).toBe(total);
   });
 
+  // Pinned 48fcb2f64: WeaponType.java:799,922; ISFluidGun.java:58-68.
   it('leaves non-launcher zero-damage catalog rows at 0', () => {
-    for (const id of ['ams', 'clan-ams', 'narc', 'cruisemissile120']) {
+    for (const id of ['ams', 'fluid-gun', 'narc', 'cruisemissile120']) {
       expect(hydrate(id).damage).toBe(0);
     }
   });
+
+  // Pinned 48fcb2f64, weapons/other/: clan/CLAMS.java:67 (2),
+  // innerSphere/ISLaserAMS.java:67 and clan/CLLaserAMS.java:66 (3 each).
+  it.each([
+    ['clan-ams', 2],
+    ['laser-ams', 3],
+    ['clan-laser-ams', 3],
+  ] as const)(
+    '%s preserves its Java manual-operation damage %d',
+    (id, damage) => expect(hydrate(id).damage).toBe(damage),
+  );
 
   it('leaves the LRT/SRT torpedoes (ids lrtorpedoN, srmt1os) unchanged', () => {
     expect(hydrate('lrtorpedo10').damage).toBe(0);

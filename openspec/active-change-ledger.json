@@ -89,6 +89,12 @@
       "status": "in-progress",
       "reason": "Owner-authorized source parity under L-VAL-MECH: low armor remains advice and native vehicle CASE is body-only. Fixed 9815-source validity/BV evidence and tests are recorded in unit-loading/L-VAL-MECH. Other construction disagreements remain open; canonical sync/archive and full validity parity are not claimed.",
       "lastReviewed": "2026-11-03"
+    },
+    {
+      "name": "repair-source-critical-topology",
+      "status": "in-progress",
+      "reason": "L-VAL-MECH native cockpit topology and armored critical marker: slot validation uses the selected cockpit through CockpitType.getCockpitSystemSlots. Editor grid, auto-fill, loadout and preview consumers follow. Full validity parity remains open.",
+      "lastReviewed": "2026-11-03"
     }
   ]
 }

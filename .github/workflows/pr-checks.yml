@@ -511,7 +511,8 @@ jobs:
     name: Schema Bridge
     needs: [detect-changes, install-deps]
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # The equipment catalog resolution guard adds about 2.5 minutes.
+    timeout-minutes: 10
 
     steps:
       - name: Skip (no code changes)
@@ -545,6 +546,10 @@ jobs:
       - name: Test schema generator fail-closed definitions
         if: needs.detect-changes.outputs.code == 'true'
         run: node --test scripts/__tests__/schema-local-definitions.test.mjs
+
+      - name: Test equipment catalog generator and resolution guards
+        if: needs.detect-changes.outputs.code == 'true'
+        run: node --test scripts/equipment-catalog/*.test.mjs
 
       - name: Test source inventory and Python conversion boundaries
         if: needs.detect-changes.outputs.code == 'true'

@@ -31,9 +31,16 @@ export function getFixedSlotIndices(
   engineType: EngineType,
   gyroType: GyroType,
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): Set<number> {
   return new Set(
-    getFixedSlotNames(location, engineType, gyroType, armActuators).keys(),
+    getFixedSlotNames(
+      location,
+      engineType,
+      gyroType,
+      armActuators,
+      cockpitType,
+    ).keys(),
   );
 }
 
@@ -43,6 +50,7 @@ export function getAvailableSlotIndices(
   gyroType: GyroType,
   equipment: readonly IMountedEquipmentInstance[],
   armActuators?: ArmActuatorConfig,
+  cockpitType?: string,
 ): number[] {
   const totalSlots = LOCATION_SLOT_COUNTS[location] || 0;
   const fixedSlots = getFixedSlotIndices(
@@ -50,6 +58,7 @@ export function getAvailableSlotIndices(
     engineType,
     gyroType,
     armActuators,
+    cockpitType,
   );
 
   const usedSlots = new Set<number>();

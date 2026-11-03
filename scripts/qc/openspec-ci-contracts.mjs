@@ -69,6 +69,15 @@ export const requiredWorkflowTokens = [
     ],
   },
   {
+    // The generator tests include the resolution snapshot, additive-only and
+    // category guards for the equipment catalog (#2580).
+    id: 'equipment-catalog-generator-tests-run',
+    tokens: [
+      'name: Test equipment catalog generator and resolution guards',
+      'node --test scripts/equipment-catalog/*.test.mjs',
+    ],
+  },
+  {
     id: 'combat-and-bv-gates-run',
     tokens: [
       'name: Validate BV Parity',
