@@ -23,6 +23,7 @@ import type {
   ITurretConfiguration,
 } from '@/types/unit/VehicleInterfaces';
 
+import { getVehicleEquipmentLocationAbbr } from '@/services/printing/recordsheet/equipmentLocations';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
@@ -112,6 +113,10 @@ function toArmorAllocation(
     Front: 'Front',
     Left: 'Left Side',
     Right: 'Right Side',
+    'Front Left': 'Front Left',
+    'Front Right': 'Front Right',
+    'Rear Left': 'Rear Left',
+    'Rear Right': 'Rear Right',
     Rear: 'Rear',
     Turret: 'Turret',
     'Turret 2': 'Turret 2',
@@ -172,6 +177,10 @@ export function buildVehicleUnitObject(
       equipmentId: eq.equipmentId,
       name: eq.name,
       location: String(eq.location),
+      locationAbbr: getVehicleEquipmentLocationAbbr(
+        String(eq.location),
+        turretType === TurretType.DUAL,
+      ),
     })),
   };
 }

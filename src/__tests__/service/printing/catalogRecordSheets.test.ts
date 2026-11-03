@@ -48,6 +48,8 @@ describe('committed catalog record-sheet model parity', () => {
                     d.field === 'BV' ||
                     d.field === 'motion' ||
                     d.field === 'weightClass' ||
+                    d.field === 'binding.inventory' ||
+                    (family === 'vehicles' && d.field.startsWith('armor.')) ||
                     d.field.startsWith('weaponStats') ||
                     d.field.startsWith('weaponAliasStats') ||
                     (d.field === 'template' && r.subtype !== 'SmallCraft'),

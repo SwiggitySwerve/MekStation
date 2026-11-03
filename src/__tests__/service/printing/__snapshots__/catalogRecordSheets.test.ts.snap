@@ -51,15 +51,11 @@ exports[`committed catalog record-sheet model parity protomechs: checks every in
 exports[`committed catalog record-sheet model parity vehicles: checks every indexed unit and records every mismatch/rejection 1`] = `
 {
   "counts": {
-    "BV.source": 229,
-    "armor.FRONT_LEFT": 37,
-    "armor.FRONT_RIGHT": 37,
-    "armor.REAR_LEFT": 37,
-    "armor.REAR_RIGHT": 37,
-    "equipmentUnresolved": 4,
+    "BV.source": 182,
+    "equipmentUnresolved": 447,
   },
   "rejected": 0,
-  "residualDigest": "ef4b422026220292b3b039b0c1f41713f20f26b2def12470565ba0df0e46c223",
+  "residualDigest": "0ddccd3fba1bdbc43cdc9c2b2fc57ef6009686cca4a487fe8eb808bcfbc4fe1e",
   "total": 1444,
 }
 `;

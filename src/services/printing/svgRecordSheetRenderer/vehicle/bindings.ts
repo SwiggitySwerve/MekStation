@@ -13,7 +13,10 @@
  *   (Requirement: Per-Family Record Sheet Adapters)
  */
 
-import type { IVehicleRecordSheetData } from '@/types/printing';
+import type {
+  IVehicleRecordSheetData,
+  IRecordSheetEquipment,
+} from '@/types/printing';
 import type { RecordSheetVehicleArmorLocation } from '@/types/printing/RecordSheetVehicleTypes';
 
 import type { PipFill, TextBindings } from '../templateRecordSheetRenderer';
@@ -42,10 +45,16 @@ export interface VehiclePipCounts {
   readonly FT?: number;
   /** Rotor armor points (VTOLs). */
   readonly RO?: number;
+  readonly FRLS?: number;
+  readonly FRRS?: number;
+  readonly RRLS?: number;
+  readonly RRRS?: number;
+  readonly RT?: number;
 }
 
 /** The result of binding a vehicle to its canonical template. */
 export interface VehicleBindings {
+  readonly inventory: readonly IRecordSheetEquipment[];
   /** Text injections keyed by template element ID. */
   readonly texts: TextBindings;
   /** Pip-group fills keyed by template pip-group element ID. */
@@ -66,6 +75,10 @@ const LOCATION_TO_CODE: Record<
   Front: 'FR',
   'Left Side': 'LS',
   'Right Side': 'RS',
+  'Front Left': 'FRLS',
+  'Front Right': 'FRRS',
+  'Rear Left': 'RRLS',
+  'Rear Right': 'RRRS',
   Rear: 'RR',
   Turret: 'TU',
   'Turret 2': 'FT',
@@ -83,6 +96,11 @@ const ARMOR_PIP_GROUP: Record<keyof VehiclePipCounts, string> = {
   TU: VEHICLE_TEMPLATE_IDS.armorPipsTU,
   FT: VEHICLE_TEMPLATE_IDS.armorPipsFT,
   RO: VEHICLE_TEMPLATE_IDS.armorPipsRO,
+  FRLS: VEHICLE_TEMPLATE_IDS.armorPipsFRLS,
+  FRRS: VEHICLE_TEMPLATE_IDS.armorPipsFRRS,
+  RRLS: VEHICLE_TEMPLATE_IDS.armorPipsRRLS,
+  RRRS: VEHICLE_TEMPLATE_IDS.armorPipsRRRS,
+  RT: VEHICLE_TEMPLATE_IDS.armorPipsRT,
 };
 
 /** Template armor value-text element ID per location code. */
@@ -94,6 +112,11 @@ const ARMOR_TEXT: Record<keyof VehiclePipCounts, string> = {
   TU: VEHICLE_TEMPLATE_IDS.textArmor_TU,
   FT: VEHICLE_TEMPLATE_IDS.textArmor_FT,
   RO: VEHICLE_TEMPLATE_IDS.textArmor_RO,
+  FRLS: VEHICLE_TEMPLATE_IDS.textArmor_FRLS,
+  FRRS: VEHICLE_TEMPLATE_IDS.textArmor_FRRS,
+  RRLS: VEHICLE_TEMPLATE_IDS.textArmor_RRLS,
+  RRRS: VEHICLE_TEMPLATE_IDS.textArmor_RRRS,
+  RT: VEHICLE_TEMPLATE_IDS.textArmor_RT,
 };
 
 /**
@@ -108,7 +131,14 @@ export function computeVehiclePipCounts(
 ): VehiclePipCounts {
   const counts: Partial<Record<keyof VehiclePipCounts, number>> = {};
   for (const loc of data.armorLocations) {
-    const code = LOCATION_TO_CODE[loc.location];
+    let code = LOCATION_TO_CODE[loc.location];
+    if (
+      code === 'TU' &&
+      data.isSuperheavy &&
+      data.motionType !== 'VTOL' &&
+      data.turretConfig === 'Dual'
+    )
+      code = 'RT';
     if (code && loc.current >= 0) {
       // On dual-turret sheets TU is the primary/rear turret and FT is
       // the secondary/front turret; identity never depends on array order.
@@ -169,5 +199,5 @@ export function bindVehicle(data: IVehicleRecordSheetData): VehicleBindings {
     }
   }
 
-  return { texts, pips, pipCounts };
+  return { texts, pips, pipCounts, inventory: data.equipment };
 }
