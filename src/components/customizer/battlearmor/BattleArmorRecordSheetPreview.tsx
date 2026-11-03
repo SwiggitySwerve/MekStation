@@ -38,6 +38,7 @@ export function BattleArmorRecordSheetPreview({
   scale = 0.75,
   className = '',
 }: BattleArmorRecordSheetPreviewProps): React.ReactElement {
+  const source = useBattleArmorStore((s) => s);
   const id = useBattleArmorStore((s) => s.id);
   const name = useBattleArmorStore((s) => s.name);
   const chassis = useBattleArmorStore((s) => s.chassis);
@@ -56,6 +57,7 @@ export function BattleArmorRecordSheetPreview({
   const unitObject = useMemo(
     () =>
       buildBattleArmorUnitObject({
+        source,
         id,
         name,
         chassis,
@@ -72,6 +74,7 @@ export function BattleArmorRecordSheetPreview({
         umuMP,
       }),
     [
+      source,
       id,
       name,
       chassis,

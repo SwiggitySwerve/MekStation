@@ -36,6 +36,7 @@ export function InfantryPreviewTab({
 }: InfantryPreviewTabProps): React.ReactElement {
   const [paperSize, setPaperSize] = useState<PaperSize>(PaperSize.LETTER);
 
+  const source = useInfantryStore((s) => s);
   const id = useInfantryStore((s) => s.id);
   const name = useInfantryStore((s) => s.name);
   const chassis = useInfantryStore((s) => s.chassis);
@@ -58,6 +59,7 @@ export function InfantryPreviewTab({
   const unitObject = useMemo(
     () =>
       buildInfantryUnitObject({
+        source,
         id,
         name,
         chassis,
@@ -78,6 +80,7 @@ export function InfantryPreviewTab({
         hasAntiMechTraining,
       }),
     [
+      source,
       id,
       name,
       chassis,

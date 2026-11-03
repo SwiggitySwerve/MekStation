@@ -235,7 +235,9 @@ export function verifyCatalogUnit(
       );
     } else if (family === 'battlearmor') {
       const state = mapBattleArmorDefinitionToState(source);
-      data = service.extractData(buildBattleArmorUnitObject(state));
+      data = service.extractData(
+        buildBattleArmorUnitObject({ ...state, source: state }),
+      );
       if (data.unitType !== 'battlearmor')
         throw new Error('Wrong sheet family');
       check(
@@ -259,7 +261,9 @@ export function verifyCatalogUnit(
     } else if (family === 'infantry') {
       const config = mapInfantryDefinition(source);
       const state = { ...createDefaultInfantryState(config), ...config };
-      data = service.extractData(buildInfantryUnitObject(state));
+      data = service.extractData(
+        buildInfantryUnitObject({ ...state, source: state }),
+      );
       if (data.unitType !== 'infantry') throw new Error('Wrong sheet family');
       check(
         'BV',
@@ -277,7 +281,9 @@ export function verifyCatalogUnit(
       row.template = selectInfantryTemplate(data);
     } else if (family === 'protomechs') {
       const state = mapProtoMechDefinitionToState(source);
-      data = service.extractData(buildProtoMechUnitObject(state));
+      data = service.extractData(
+        buildProtoMechUnitObject({ ...state, source: state }),
+      );
       if (data.unitType !== 'protomech') throw new Error('Wrong sheet family');
       check(
         'BV',

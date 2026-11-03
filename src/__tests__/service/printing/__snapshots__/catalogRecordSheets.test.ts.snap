@@ -15,51 +15,36 @@ exports[`committed catalog record-sheet model parity aerospace: checks every ind
 
 exports[`committed catalog record-sheet model parity battlearmor: checks every indexed unit and records every mismatch/rejection 1`] = `
 {
-  "counts": {
-    "BV": 1188,
-    "tonnage": 1188,
-  },
+  "counts": {},
   "rejected": 0,
-  "residualDigest": "4fa222bfbf1a01c22dd72346c26f506d35cac7ef3fff4afdf1a0a02909afdcec",
+  "residualDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
   "total": 1188,
 }
 `;
 
 exports[`committed catalog record-sheet model parity battlemechs: checks every indexed unit and records every mismatch/rejection 1`] = `
 {
-  "counts": {
-    "armor.total": 6,
-  },
+  "counts": {},
   "rejected": 0,
-  "residualDigest": "414e5360ba3b5dd6f0ad1fc0e8e332033a5d71011e655cffd81c2eaac62a31f3",
+  "residualDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
   "total": 4263,
 }
 `;
 
 exports[`committed catalog record-sheet model parity infantry: checks every indexed unit and records every mismatch/rejection 1`] = `
 {
-  "counts": {
-    "BV": 1820,
-  },
+  "counts": {},
   "rejected": 0,
-  "residualDigest": "3227375eb54db195101f560da93fc1f9b2c22a16713f5d6449f19f88224e6ca4",
+  "residualDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
   "total": 1820,
 }
 `;
 
 exports[`committed catalog record-sheet model parity protomechs: checks every indexed unit and records every mismatch/rejection 1`] = `
 {
-  "counts": {
-    "BV": 86,
-    "equipmentCount": 86,
-    "structure.L": 5,
-    "structure.LA": 5,
-    "structure.RA": 5,
-    "template": 8,
-    "topology": 86,
-  },
+  "counts": {},
   "rejected": 0,
-  "residualDigest": "b2363b9d02af2fc588a3fb280b04880982a8977e2d5aa70cce45dc0d0e0c67fc",
+  "residualDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
   "total": 86,
 }
 `;
