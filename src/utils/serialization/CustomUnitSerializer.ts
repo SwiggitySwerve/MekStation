@@ -5,17 +5,21 @@ import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipme
 import type { Era } from '@/types/temporal/Era';
 import type {
   ISerializedArmor,
-  ISerializedCriticalSlots,
   ISerializedEquipment,
   ISerializedUnit,
 } from '@/types/unit/UnitSerialization';
 
+import {
+  buildEditableMechBVInput,
+  projectEditableMech,
+} from '@/services/construction/editableMechProjection';
 import {
   blkEngineName,
   encodeBlkEngine,
 } from '@/services/conversion/blkEngineIdentity';
 import { serializeVehicleTurretContext } from '@/services/conversion/vehicleTurretContext';
 import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
+import { getCriticalSlotsForLocation } from '@/services/units/unitLoaderService/criticalSlotEquipment';
 import { vehicleEditorSchema } from '@/services/units/unitLoaderService/vehicleMapping';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { CockpitType } from '@/types/construction/CockpitType';
@@ -41,6 +45,8 @@ import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
 import { aerospaceEditorSchema } from '@/types/unit/AerospaceSerialization';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
+
+import { isRearLoc } from '../../../scripts/validate-bv-normalizers';
 
 const ENGINE_TYPE = {
   [EngineType.STANDARD]: 'FUSION',
@@ -164,7 +170,12 @@ function serializeEquipment(
   }));
 }
 
-function serializeCriticalSlots(state: UnitState): ISerializedCriticalSlots {
+function serializeCriticalSlots(state: UnitState, walk: number) {
+  // Reuse the source-aware projection: editor mounts alone cannot represent
+  // original critical-grid details such as the Atlas's rear laser markers.
+  const projected = state.bvContext
+    ? buildEditableMechBVInput(projectEditableMech(state, walk)).criticalSlots
+    : undefined;
   const result: Record<string, (string | null)[]> = {};
   const locations = getLocationsForConfig(state.configuration);
   for (const location of [MechLocation.LEFT_ARM, MechLocation.RIGHT_ARM]) {
@@ -185,16 +196,16 @@ function serializeCriticalSlots(state: UnitState): ISerializedCriticalSlots {
   }
 
   for (const item of state.equipment) {
-    if (!item.location || !item.slots) {
-      continue;
-    }
+    if (!item.location || !item.slots) continue;
+    const sourceSlots = getCriticalSlotsForLocation(projected, item.location);
 
     const locationSlots =
       result[item.location] ??
       Array.from({ length: LOCATION_SLOT_COUNTS[item.location] }, () => null);
     for (const slot of item.slots) {
       if (slot >= 0 && slot < locationSlots.length) {
-        locationSlots[slot] = item.name;
+        locationSlots[slot] =
+          item.name + (isRearLoc(sourceSlots?.[slot] ?? '') ? ' (R)' : '');
       }
     }
     result[item.location] = locationSlots;
@@ -250,7 +261,7 @@ export function serializeCustomUnitState(
       enhancements: state.enhancement ? [state.enhancement] : [],
     },
     equipment: serializeEquipment(state.equipment),
-    criticalSlots: serializeCriticalSlots(state),
+    criticalSlots: serializeCriticalSlots(state, walk),
     isOmni: state.isOmni,
     baseChassisHeatSinks: state.baseChassisHeatSinks,
     clanName: state.clanName || undefined,
