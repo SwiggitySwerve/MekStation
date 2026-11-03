@@ -15,8 +15,8 @@ Explicit versions are strings of three decimal components without leading zeros,
 prerelease or build suffixes. Readers accept every `1.MINOR.PATCH` and retain
 the declared version; all other majors fail with the found version and supported
 major in the diagnostic. Minor versions add optional fields only; patches clarify
-compatible behavior; breaking changes require a major increment. No migrations
-are defined here. The generated `CURRENT_UNIT_SCHEMA_VERSION` owns the current
+compatible behavior; breaking changes require a major increment. Explicit legacy
+migration is described below. The generated `CURRENT_UNIT_SCHEMA_VERSION` owns the current
 write version, derived from the schema default. Existing editable-family library
 serializers write it on save, including when the input had no version.
 
@@ -119,9 +119,40 @@ extension preservation across editing is not yet guaranteed.
 source-origin document with immutable repository/commit/path/blob and original
 byte hashes. `sourceDefinition` is only an application lookup reference; `source`
 is publication text. Neither carries that provenance contract or replaces its
-hashes. This slice introduces no embedded provenance envelope, migration,
-recoverable source bundle, example collection or independent consumer.
+hashes. There is no embedded provenance envelope or recoverable source bundle.
 
 Recorded combat construction has its own strict contract. `schemaVersion` does
 not enter it; BattleMech snapshots retain their exact 21 keys and bytes. A saved
 unit document and a recorded combat snapshot are distinct serialization surfaces.
+
+## Explicit migration and generated examples
+
+`migratePortableUnitDocument` in `src/utils/serialization/portableUnitDocument.ts`
+is the single version-keyed migration owner. Call it explicitly with a string
+reference or `{id, family}`; a bare string or omitted reference family means
+BattleMech. The reference and document must agree. Existing loader APIs retain
+their read behavior; this operation does not silently migrate stored libraries.
+
+Unversioned and `1.0.0` legacy documents normalize to `1.0.0`: older flat armor
+plus `armorType`, or root `armorAllocation`, become a nested armor object; native
+allocation maps become `byLocation` or `byArc`. Vehicle/aerospace `BAR_N` becomes
+`BAR` plus its explicit rating, and legacy root/editor BAR ratings are lifted.
+Armor points, explicit zero and live turret configuration remain unchanged.
+Only retired turret `currentWeight` and `maxWeight` caches are removed, at root
+and inside `vehicleEditor`. Conflicting old/new declarations fail. Migration
+copies data and preserves other opaque extensions; it computes no mass or BV.
+
+Compatible newer minor versions retain their version and opaque data on read.
+`serializePortableUnitDocument` normalizes and writes the current version from
+the generated constant. Other majors and malformed versions fail before migration;
+no historical major-zero protocol is invented.
+
+There is one committed [example per family](examples/). Regenerate with
+`node --import tsx scripts/generate-portable-unit-examples.ts`; `--check` refuses
+drift. The six editable examples pass through their production family serializers;
+the read-only capital example uses validated document serialization. Examples
+validate and round-trip through the portable boundary. Stable fixture mount IDs
+replace transient editor IDs without changing equipment identities.
+The opaque `org.mekstation:example` annotation identifies the real catalog JSON
+path and its byte hash, not original MTF/BLK provenance. Examples retain source
+design identities in their own collection; they are not new catalog entries.

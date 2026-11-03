@@ -1,0 +1,135 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "bandit-motorized-point-rifle",
+  "chassis": "Bandit Motorized Point",
+  "model": "(Rifle)",
+  "variant": "(Rifle)",
+  "unitType": "Infantry",
+  "techBase": "CLAN",
+  "rulesLevel": "ADVANCED",
+  "era": "SUCCESSION_WARS",
+  "year": 2830,
+  "equipment": [
+    {
+      "id": "clothing,-leather-synthetic-hide",
+      "name": "Clothing, Leather/Synthetic Hide",
+      "location": "TROOPERS",
+      "isRearMounted": false
+    }
+  ],
+  "fluff": {
+    "overview": "<p>Bandit caste motorized Points are irregular Clan formations drawn from the lowest social strata, fielding warriors deemed unfit for proper Touman service. Mounted on light vehicles for raiding speed, these Points carry assault rifles backed by disposable two-shot SRM launchers that provide a short-range anti-armor punch. Bandit forces lack the discipline and training of garrison solahma, but their willingness to fight for survival makes them unpredictable opponents in the peripheral zones between Clan occupation worlds.</p>"
+  },
+  "source": "TR:3085",
+  "motionType": "MOTORIZED",
+  "platoon": {
+    "squadSize": 5,
+    "squadCount": 5,
+    "totalTroopers": 25
+  },
+  "primaryWeapon": {
+    "id": "infantryassaultrifle",
+    "name": "InfantryAssaultRifle"
+  },
+  "armorKit": "Clothing, Leather/Synthetic Hide",
+  "motiveType": "Motorized",
+  "customArmorDamageDivisor": 1,
+  "damageDivisor": 1,
+  "armorFlags": [],
+  "effectiveArmorFlags": [],
+  "specializations": 0,
+  "augmentations": [],
+  "prostheticEnhancements": {},
+  "prostheticEnhancementCounts": {},
+  "secondaryWeapon": {
+    "id": "infantrystandardsrm",
+    "name": "InfantryStandardSRM",
+    "count": 1
+  },
+  "family": "infantry",
+  "smallUnitEditor": {
+    "name": "Bandit Motorized Point (Rifle)",
+    "chassis": "Bandit Motorized Point",
+    "model": "(Rifle)",
+    "mulId": "-1",
+    "year": 2830,
+    "rulesLevel": "Advanced",
+    "techBase": "Clan",
+    "librarySource": {
+      "schemaVersion": "1.0.0",
+      "id": "bandit-motorized-point-rifle",
+      "chassis": "Bandit Motorized Point",
+      "model": "(Rifle)",
+      "unitType": "Infantry",
+      "techBase": "CLAN",
+      "rulesLevel": "ADVANCED",
+      "era": "SUCCESSION_WARS",
+      "year": 2830,
+      "equipment": [
+        {
+          "id": "clothing,-leather-synthetic-hide",
+          "name": "Clothing, Leather/Synthetic Hide",
+          "location": "TROOPERS",
+          "isRearMounted": false
+        }
+      ],
+      "fluff": {
+        "overview": "<p>Bandit caste motorized Points are irregular Clan formations drawn from the lowest social strata, fielding warriors deemed unfit for proper Touman service. Mounted on light vehicles for raiding speed, these Points carry assault rifles backed by disposable two-shot SRM launchers that provide a short-range anti-armor punch. Bandit forces lack the discipline and training of garrison solahma, but their willingness to fight for survival makes them unpredictable opponents in the peripheral zones between Clan occupation worlds.</p>"
+      },
+      "source": "TR:3085",
+      "motionType": "MOTORIZED",
+      "platoon": {
+        "squadSize": 5,
+        "squadCount": 5,
+        "totalTroopers": 25
+      },
+      "primaryWeapon": {
+        "id": "infantryassaultrifle",
+        "name": "InfantryAssaultRifle"
+      },
+      "armorKit": "Clothing, Leather/Synthetic Hide",
+      "motiveType": "Motorized",
+      "customArmorDamageDivisor": 1,
+      "damageDivisor": 1,
+      "armorFlags": [],
+      "effectiveArmorFlags": [],
+      "specializations": 0,
+      "augmentations": [],
+      "prostheticEnhancements": {},
+      "prostheticEnhancementCounts": {},
+      "secondaryWeapon": {
+        "id": "infantrystandardsrm",
+        "name": "InfantryStandardSRM",
+        "count": 1
+      }
+    },
+    "unitType": "Infantry",
+    "umuMP": 0,
+    "squadSize": 5,
+    "numberOfSquads": 5,
+    "motionType": "Motorized",
+    "infantryMotive": "Motorized",
+    "platoonComposition": {
+      "squads": 5,
+      "troopersPerSquad": 5
+    },
+    "groundMP": 3,
+    "jumpMP": 0,
+    "primaryWeapon": "InfantryAssaultRifle",
+    "primaryWeaponId": "infantryassaultrifle",
+    "secondaryWeapon": "InfantryStandardSRM",
+    "secondaryWeaponId": "infantrystandardsrm",
+    "secondaryWeaponCount": 1,
+    "armorKit": "None",
+    "damageDivisor": 1,
+    "specialization": "None",
+    "hasAntiMechTraining": false,
+    "isAugmented": false,
+    "augmentationType": "",
+    "fieldGuns": []
+  },
+  "org.mekstation:example": {
+    "source": "infantry/bandit-motorized-point-rifle.json",
+    "sha256": "52d69820b97670e639a1af8538d3b6fe2ffdcb34f97b378f97e37440305dbd2d"
+  }
+}
