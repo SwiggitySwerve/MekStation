@@ -10,6 +10,7 @@ import {
   IMountedEquipmentInstance,
 } from '@/types/equipment/MountedEquipment';
 import { isLegacyEquipmentId } from '@/utils/construction/equipmentBVCatalogData';
+import { isWeaponCategory } from '@/utils/equipment/ammunitionCompatibility';
 import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
 import { createHeatSinkEquipmentList } from '@/utils/equipment/heatSinkEquipmentUtils';
 import { generateUnitId } from '@/utils/uuid';
@@ -173,6 +174,40 @@ function claim(
   slots.forEach((slot) => claimed.add(slot.index));
 }
 
+/** Mek.getInnerLocation (Mek.java:489-496); quad legs map like arms. */
+const INNER_LOCATION: Partial<Record<MechLocation, MechLocation>> = {
+  [MechLocation.LEFT_TORSO]: MechLocation.CENTER_TORSO,
+  [MechLocation.RIGHT_TORSO]: MechLocation.CENTER_TORSO,
+  [MechLocation.CENTER_LEG]: MechLocation.CENTER_TORSO,
+  [MechLocation.LEFT_ARM]: MechLocation.LEFT_TORSO,
+  [MechLocation.LEFT_LEG]: MechLocation.LEFT_TORSO,
+  [MechLocation.FRONT_LEFT_LEG]: MechLocation.LEFT_TORSO,
+  [MechLocation.REAR_LEFT_LEG]: MechLocation.LEFT_TORSO,
+  [MechLocation.RIGHT_ARM]: MechLocation.RIGHT_TORSO,
+  [MechLocation.RIGHT_LEG]: MechLocation.RIGHT_TORSO,
+  [MechLocation.FRONT_RIGHT_LEG]: MechLocation.RIGHT_TORSO,
+  [MechLocation.REAR_RIGHT_LEG]: MechLocation.RIGHT_TORSO,
+  [MechLocation.HEAD]: MechLocation.CENTER_TORSO,
+};
+
+/** Locations a split weapon may continue into (MtfFile.java:1093-1095). */
+function splitPartners(location: MechLocation): MechLocation[] {
+  const inner = INNER_LOCATION[location];
+  const outer = (Object.keys(INNER_LOCATION) as MechLocation[]).filter(
+    (candidate) => INNER_LOCATION[candidate] === location,
+  );
+  return inner ? [inner, ...outer] : outer;
+}
+
+/** WeaponType.isSplittableOverCriticalSlots (WeaponType.java:2619-2621). */
+function isSplittable(item: IMountedEquipmentInstance): boolean {
+  return (
+    item.criticalSlots >= 8 &&
+    item.category !== EquipmentCategory.PHYSICAL_WEAPON &&
+    isWeaponCategory(item.category)
+  );
+}
+
 function restoreSerializedHeatSink(
   source: ISerializedEquipmentPlacement,
   item: IMountedEquipmentInstance,
@@ -240,6 +275,33 @@ export function restoreCriticalSlotEquipment(
       item.equipmentId,
       item.criticalSlots,
     );
+    if (matching.length > 0 && matching.length < item.criticalSlots) {
+      if (!isSplittable(item)) return item;
+      for (const partner of splitPartners(item.location)) {
+        const claimedAtPartner = claimedSlotsFor(claimed, partner);
+        const rest = takeMatchingSlots(
+          resolvedByLocation.get(partner) ?? [],
+          claimedAtPartner,
+          item.equipmentId,
+          item.criticalSlots - matching.length,
+        );
+        if (matching.length + rest.length !== item.criticalSlots) continue;
+        claim(claimedAtLocation, matching);
+        claim(claimedAtPartner, rest);
+        return {
+          ...item,
+          slots: matching.map((slot) => slot.index),
+          splitSlots: {
+            location: partner,
+            slots: rest.map((slot) => slot.index),
+          },
+          isRearMounted:
+            source.isRearMounted ??
+            [...matching, ...rest].some((slot) => slot.isRearMounted),
+        };
+      }
+      return item;
+    }
     if (matching.length !== item.criticalSlots) return item;
 
     claim(claimedAtLocation, matching);

@@ -520,14 +520,15 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
         }
 
         // HVAC (Hyper-Velocity Autocannon) — explosive per MegaMek HVACWeapon.java
-        // Special handling: 1 BV total regardless of actual slot count
+        // 1 BV per mounted weapon regardless of slot count
+        // (MekBVCalculator.java:252-253), so one entry per instance.
         if (
           (lo.includes('hvac') ||
             lo.includes('hyper velocity') ||
             lo.includes('hypervelocity')) &&
           !lo.includes('ammo')
         ) {
-          if (ml)
+          if (ml && clean !== prevSlotClean)
             r.explosive.push({
               location: ml,
               slots: 1,

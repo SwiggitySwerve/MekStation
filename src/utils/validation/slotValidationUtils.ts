@@ -30,6 +30,11 @@ export interface IEquipmentSlotInfo {
   readonly location?: MechLocation;
   /** Critical slot indices in the location (undefined = unallocated) */
   readonly slots?: readonly number[];
+  /** A split weapon's slots in its second location */
+  readonly splitSlots?: {
+    readonly location: MechLocation;
+    readonly slots: readonly number[];
+  };
 }
 
 /**
@@ -113,6 +118,13 @@ export function buildSlotsByLocation(
         };
       }
     }
+    const split = item.splitSlots;
+    const splitUsage = split ? slotsByLocation[split.location] : undefined;
+    if (split && splitUsage)
+      slotsByLocation[split.location] = {
+        ...splitUsage,
+        used: splitUsage.used + split.slots.length,
+      };
   }
 
   return slotsByLocation;

@@ -16,20 +16,36 @@ import type { ArmActuatorConfig } from './topology';
 
 import { getFixedSlotIndices } from './queries';
 
+/** The item's slots per location, including a split weapon's second part. */
+export function getSlotParts(
+  item: IMountedEquipmentInstance,
+): ReadonlyArray<{ location: MechLocation; slots: readonly number[] }> {
+  if (!item.location) return [];
+  const parts = [
+    { location: item.location as MechLocation, slots: item.slots ?? [] },
+  ];
+  return item.splitSlots ? [...parts, item.splitSlots] : parts;
+}
+
+/** TestMek.java:462-477 counts a split weapon's slots in both locations. */
 export function hasAssignedCriticalSlots(
   item: IMountedEquipmentInstance,
 ): boolean {
   if (!item.location) return false;
   if (item.criticalSlots === 0) return true;
-  const slots = item.slots ?? [];
+  const parts = getSlotParts(item);
   return (
-    slots.length === item.criticalSlots &&
-    new Set(slots).size === slots.length &&
-    slots.every(
-      (index) =>
-        Number.isInteger(index) &&
-        index >= 0 &&
-        index < (LOCATION_SLOT_COUNTS[item.location as MechLocation] ?? 0),
+    parts.reduce((total, part) => total + part.slots.length, 0) ===
+      item.criticalSlots &&
+    parts.every(
+      ({ location, slots }) =>
+        new Set(slots).size === slots.length &&
+        slots.every(
+          (index) =>
+            Number.isInteger(index) &&
+            index >= 0 &&
+            index < (LOCATION_SLOT_COUNTS[location] ?? 0),
+        ),
     )
   );
 }
@@ -111,37 +127,38 @@ export function getEquipmentSlotIssues(
         item,
         `${item.name} in ${location} needs ${item.criticalSlots} distinct critical slots.`,
       );
-    const fixed = getFixedSlotIndices(
-      location,
-      engineType,
-      gyroType,
-      armActuators,
-      cockpitType,
-    );
-    const slots = item.slots ?? [];
-    for (const index of slots) {
-      if (
-        !Number.isInteger(index) ||
-        index < 0 ||
-        index >= LOCATION_SLOT_COUNTS[location]
-      )
-        add(item, `${item.name} has an invalid slot in ${location}.`);
-      if (fixed.has(index))
-        add(
-          item,
-          `${item.name} overlaps a fixed system in ${location}, slot ${index + 1}.`,
-        );
-      const key = `${location}:${index}`;
-      const other = occupants.get(key);
-      if (other && other.instanceId !== item.instanceId) {
-        const message = `${item.name} and ${other.name} overlap in ${location}, slot ${index + 1}.`;
-        add(item, message);
-        add(other, message);
-      } else occupants.set(key, item);
+    for (const { location: partLocation, slots } of getSlotParts(item)) {
+      const fixed = getFixedSlotIndices(
+        partLocation,
+        engineType,
+        gyroType,
+        armActuators,
+        cockpitType,
+      );
+      for (const index of slots) {
+        if (
+          !Number.isInteger(index) ||
+          index < 0 ||
+          index >= LOCATION_SLOT_COUNTS[partLocation]
+        )
+          add(item, `${item.name} has an invalid slot in ${partLocation}.`);
+        if (fixed.has(index))
+          add(
+            item,
+            `${item.name} overlaps a fixed system in ${partLocation}, slot ${index + 1}.`,
+          );
+        const key = `${partLocation}:${index}`;
+        const other = occupants.get(key);
+        if (other && other.instanceId !== item.instanceId) {
+          const message = `${item.name} and ${other.name} overlap in ${partLocation}, slot ${index + 1}.`;
+          add(item, message);
+          add(other, message);
+        } else occupants.set(key, item);
+      }
+      const sorted = [...slots].sort((a, b) => a - b);
+      if (sorted.some((index, i) => i > 0 && index !== sorted[i - 1] + 1))
+        add(item, `${item.name} needs contiguous slots in ${partLocation}.`);
     }
-    const sorted = [...slots].sort((a, b) => a - b);
-    if (sorted.some((index, i) => i > 0 && index !== sorted[i - 1] + 1))
-      add(item, `${item.name} needs contiguous slots in ${location}.`);
   }
   return issues;
 }

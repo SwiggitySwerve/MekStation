@@ -7,6 +7,7 @@ export {
   parseEngine,
   parseHeatSinks,
   parseArmor,
+  parseFrankenStructureTonnage,
 } from './MTFParser.components';
 export {
   mapEraFromYear,
