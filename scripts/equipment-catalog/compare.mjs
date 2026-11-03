@@ -186,15 +186,10 @@ export function sweep(input) {
     for (const [range, value] of Object.entries(fact.ranges ?? {}))
       expected[`ranges.${range}`] = value;
     if (fact.shots !== undefined) expected.shotsPerTon = fact.shots;
-    if (fact.compatible) {
-      expected.compatibleWeaponIds = [
-        ...new Set(
-          fact.compatible.flatMap(
-            (name) => represented.get(name) ?? [`java:${name}`],
-          ),
-        ),
-      ];
-    }
+    const compatible = fact.compatible?.flatMap(
+      (name) => represented.get(name) ?? [`java:${name}`],
+    );
+    if (compatible) expected.compatibleWeaponIds = [...new Set(compatible)];
     const observed = { ...item };
     for (const [range, value] of Object.entries(item.ranges ?? {}))
       observed[`ranges.${range}`] = value;
@@ -257,10 +252,8 @@ function main() {
   const owner = '../../src/utils/construction/equipmentBVResolver.ts';
   register();
   const { getEquipmentEntry } = createRequire(import.meta.url)(owner);
-  const unitFiles = execFileSync(
-    'git',
-    ['ls-files', '-z', 'public/data/units'],
-    { encoding: 'utf8' },
+  const unitFiles = String(
+    execFileSync('git', ['ls-files', '-z', 'public/data/units']),
   ).split('\0');
   const units = unitFiles
     .filter((file) => file.endsWith('.json'))
