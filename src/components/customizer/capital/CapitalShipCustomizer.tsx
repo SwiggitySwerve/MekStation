@@ -22,6 +22,10 @@ import {
   type ICapitalShipRow,
   type ICapitalShipView,
 } from '@/services/units/unitLoaderService/capitalShipView';
+import { useTabManagerStore } from '@/stores/useTabManagerStore';
+import { PaperSize } from '@/types/printing';
+
+import { CapitalPreviewTab } from './CapitalPreviewTab';
 
 const CapitalShipViewContext = createContext<ICapitalShipView | null>(null);
 
@@ -244,12 +248,24 @@ export function CapitalStructurePanel({
   );
 }
 
-/** No record sheet exists for capital ships yet. */
-export function CapitalRecordSheetNotice(): React.ReactElement {
+/** Context-backed preview also supports the registry's active-tab entry point. */
+export function CapitalRecordSheetPreview({
+  paperSize,
+  className,
+}: {
+  paperSize?: PaperSize;
+  className?: string;
+}): React.ReactElement {
+  const tabId = useTabManagerStore((state) => state.activeTabId);
+  const view =
+    useContext(CapitalShipViewContext) ??
+    (tabId ? getCapitalShipView(tabId) : undefined);
   return (
-    <p className="text-text-theme-secondary p-4 text-sm">
-      Record sheets are not available for capital ships yet.
-    </p>
+    <CapitalPreviewTab
+      view={view ?? null}
+      paperSize={paperSize}
+      className={className}
+    />
   );
 }
 
@@ -265,6 +281,12 @@ export const CAPITAL_SHIP_TABS: TabSpec[] = [
     label: 'Structure',
     icon: CUSTOMIZER_TAB_ICONS.structure,
     component: CapitalStructurePanel,
+  },
+  {
+    id: 'preview',
+    label: 'Preview',
+    icon: CUSTOMIZER_TAB_ICONS.preview,
+    component: CapitalRecordSheetPreview,
   },
 ];
 

@@ -81,7 +81,7 @@ import {
   CAPITAL_SHIP_TABS,
   CapitalArmorPanel,
   CapitalOverviewPanel,
-  CapitalRecordSheetNotice,
+  CapitalRecordSheetPreview,
   CapitalShipShell,
 } from '../capital/CapitalShipCustomizer';
 import { InfantryCustomizer } from '../infantry/InfantryCustomizer';
@@ -428,9 +428,9 @@ function buildDescriptors(): CustomizerTypeDescriptor[] {
     tabs: CAPITAL_SHIP_TABS,
     Shell: CapitalShipShell,
     OverviewComponent: CapitalOverviewPanel,
-    PreviewComponent: CapitalRecordSheetNotice,
+    PreviewComponent: CapitalRecordSheetPreview,
     ArmorDiagramComponent: CapitalArmorPanel,
-    RecordSheetPreviewComponent: CapitalRecordSheetNotice,
+    RecordSheetPreviewComponent: CapitalRecordSheetPreview,
   };
 
   return [
