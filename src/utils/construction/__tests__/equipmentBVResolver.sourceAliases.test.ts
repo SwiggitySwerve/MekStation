@@ -1,4 +1,10 @@
 import {
+  expectJavaCatalogAddition,
+  javaCatalogAdditions,
+  javaCatalogAdditionById,
+} from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
+
+import {
   getEquipmentEntry,
   normalizeEquipmentId,
 } from '../equipmentBVResolver';
@@ -60,7 +66,10 @@ describe('pinned native lookup identities', () => {
     ['CLAPGaussRifle Ammo', 'apgaussrifle'],
     ['clapgaussrifle-ammo', 'apgaussrifle'],
   ])('%s selects exactly %s', (native, canonical) => {
-    expect(getEquipmentEntry(native)?.id).toBe(canonical);
+    const entry = getEquipmentEntry(native);
+    expect(entry?.id).toBe(canonical);
+    if (javaCatalogAdditionById.has(canonical))
+      expectJavaCatalogAddition(entry, 'bv');
   });
 
   it('keeps vehicle and fusion flamers distinct', () => {
@@ -109,10 +118,13 @@ describe('pinned native lookup identities', () => {
     ['(B) Naval Laser 55', 'naval-laser-55-registry'],
     ['ISBAERMediumLaser:LA', 'isbaermediumlaser-registry'],
     ['Clan Ammo LRM-15 (10)', 'clan-ammo-lrm-15-registry'],
-    ['Sniper', 'sniper'],
-    ['ISSniper', 'sniper'],
+    ['Sniper', 'issniper-registry'],
+    ['ISSniper', 'issniper-registry'],
   ])('parses mount metadata in %s', (native, canonical) => {
-    expect(getEquipmentEntry(native)?.id).toBe(canonical);
+    const entry = getEquipmentEntry(native);
+    expect(entry?.id).toBe(canonical);
+    if (javaCatalogAdditionById.has(canonical))
+      expectJavaCatalogAddition(entry, 'bv');
   });
 
   it.each([

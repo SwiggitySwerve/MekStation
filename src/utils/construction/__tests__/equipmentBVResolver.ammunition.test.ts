@@ -1,6 +1,10 @@
+import {
+  expectJavaCatalogAddition,
+  javaCatalogAdditions,
+  javaCatalogAdditionById,
+} from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
 import { normalizeEquipmentId as normalizeMTFId } from '@/services/conversion/MTFParser.mapping';
 
-import equipmentIndex from '../../../../public/data/equipment/official/index.json';
 /** @spec openspec/changes/establish-all-unit-data-parity/specs/equipment-services/spec.md */
 import { processCritAmmoSlot } from '../../../../scripts/validate-bv-crit-scan-ammo';
 import { createEmptyCritScan } from '../../../../scripts/validate-bv-crit-scan-types';
@@ -83,8 +87,13 @@ it.each(collisions)(
 
 it('resolves every ammunition record including IDs shared with weapons', () => {
   const entries = AMMUNITION_CATALOG_FILES.flatMap((file) => file.items ?? []);
-  expect(entries).toHaveLength(equipmentIndex.totalItems.ammunition);
+  expect(entries).toHaveLength(
+    289 +
+      javaCatalogAdditions.filter((row) => row.kind === 'ammunition').length,
+  );
   for (const entry of entries) {
+    if (javaCatalogAdditionById.has(String(entry.id)))
+      expectJavaCatalogAddition(entry);
     if (typeof entry.id !== 'string' || typeof entry.battleValue !== 'number') {
       throw new Error('Invalid ammunition catalog fixture');
     }
@@ -98,10 +107,10 @@ it('resolves every ammunition record including IDs shared with weapons', () => {
 
 it.each([
   ['LB 2-X AC Ammo', 'clan-lb-2-x-ac', 6],
-  ['IS LB 2-X AC Ammo', 'is-lb-2-x-ac-ammo', 5],
-  ['IS LB 5-X AC Ammo', 'is-lb-5-x-ac-ammo', 10],
-  ['IS LB 2-X Cluster Ammo', 'is-lb-2-x-cluster-ammo', 5],
-  ['IS LB 5-X Cluster Ammo', 'is-lb-5-x-cluster-ammo', 10],
+  ['IS LB 2-X AC Ammo', 'is-lb-2-x-ac-ammo-registry', 5],
+  ['IS LB 5-X AC Ammo', 'is-lb-5-x-ac-ammo-registry', 10],
+  ['IS LB 2-X Cluster Ammo', 'is-lb-2-x-cluster-ammo-registry', 5],
+  ['IS LB 5-X Cluster Ammo', 'is-lb-5-x-cluster-ammo-registry', 10],
   ['Clan LB 2-X AC Ammo', 'clan-lb-2-x-ac', 6],
   ['Clan LB 5-X AC Ammo', 'clan-lb-5-x-ac', 12],
   ['Clan LB 2-X Cluster Ammo', 'clan-lb-2-x-cluster', 6],
@@ -110,6 +119,8 @@ it.each([
 ] as const)('resolves tech-specific ammo aliases: %s', (name, id, bv) => {
   for (const spelling of [name, name.toLowerCase(), name.toUpperCase()]) {
     expect(normalizeEquipmentId(spelling)).toBe(id);
+    if (javaCatalogAdditionById.has(id))
+      expectJavaCatalogAddition(getAmmunitionEntry(spelling), 'bv');
     expect(resolveAmmoBV(spelling)).toEqual({
       resolved: true,
       battleValue: bv,

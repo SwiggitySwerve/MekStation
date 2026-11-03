@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { expectJavaCatalogAddition } from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
 import { BlkParserService } from '@/services/conversion/BlkParserService';
 import { mapCapitalDefinitionToView } from '@/services/units/unitLoaderService/capitalShipView';
 import { getUnitTypeRegistry } from '@/services/units/UnitTypeRegistry';
@@ -13,6 +14,7 @@ import {
   sourceArmor,
   type Source,
 } from '@/utils/construction/aerospace/sourceWeight';
+import { getEquipmentEntry } from '@/utils/construction/equipmentBVResolver';
 
 import { initializeUnitTypeHandlers } from '../initializeHandlers';
 import fixtures from './fixtures/aerospace-capital-validity.json';
@@ -196,12 +198,22 @@ it.each(fixtures.validCapitalKeys)(
   (name) => {
     const definition = capitals.find((c) => key(c.chassis + c.model) === name);
     expect(definition).toBeDefined();
-    expect(
-      mapCapitalDefinitionToView(UnitContract.parse(definition), 'valid-view')
-        .constructionErrors,
-    ).toEqual(
-      (fixtures.viewerCatalogDisagreements as Record<string, string[]>)[name] ??
-        [],
-    );
+    const disagreements: Readonly<Record<string, readonly string[]>> =
+      fixtures.viewerCatalogDisagreements;
+    const errors = mapCapitalDefinitionToView(
+      UnitContract.parse(definition),
+      'valid-view',
+    ).constructionErrors;
+    if (name === 'eaglefrigate') {
+      // CAT-Q1b corrected ammo-heavy-n-gauss to Java's 0.5 t/shot; no overweight exception remains.
+      for (const native of [
+        'Naval Laser 35',
+        'Naval Laser 45',
+        'Naval Autocannon (NAC/35)',
+      ])
+        expectJavaCatalogAddition(getEquipmentEntry(native), 'bv');
+      expect(errors).toEqual([]);
+    }
+    expect(errors).toEqual(disagreements[name] ?? []);
   },
 );

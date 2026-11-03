@@ -28,6 +28,8 @@ describe('committed catalog record-sheet model parity', () => {
         rejected: rows.filter((r) => r.rejection).length,
         counts,
       };
+      // New Java-value assertions must not become accepted snapshot rejections.
+      expect(summary.rejected).toBe(0);
       if (process.env.RECORD_SHEET_AUDIT)
         fs.writeFileSync(
           `${process.env.RECORD_SHEET_AUDIT}/${family}.json`,

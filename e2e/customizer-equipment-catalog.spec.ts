@@ -1,5 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
+import javaWeapons from '../public/data/equipment/official/weapons/java-registry.json';
+
 test.use({ serviceWorkers: 'block' });
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() =>
@@ -481,7 +483,24 @@ test('catalog rows stay dense and column-aligned on desktop and mobile @customiz
   ).toHaveText('Min');
   await expect(
     firstRow.locator('[data-catalog-column="minimumRange"]'),
-  ).toHaveText('4');
+  ).toHaveText('6');
+  // Pinned Java registry [IS Mech Mortar-1], mortars/innerSphere/ISMekMortar1.java at 48fcb2f6:
+  // this addition sorts ahead of the former first row.
+  expect(await rowName(firstRow)).toBe("'Mech Mortar 1");
+  expect(
+    javaWeapons.items.find((item) => item.id === 'is-mech-mortar-1-registry'),
+  ).toMatchObject({
+    battleValue: 10,
+    weight: 2,
+    criticalSlots: 1,
+    ranges: { minimum: 6 },
+  });
+  await expect(firstRow.locator('[data-catalog-column="weight"]')).toHaveText(
+    '2.0',
+  );
+  await expect(
+    firstRow.locator('[data-catalog-column="criticalSlots"]'),
+  ).toHaveText('1');
   const internalGaps = await firstRow.evaluate((row) => {
     const columns = [
       'name',
