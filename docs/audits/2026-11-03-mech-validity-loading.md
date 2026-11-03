@@ -39,3 +39,5 @@ Remaining first-error classes:
 | VAL-BM-001   |    17 |
 
 The remaining detailed records and all 18 locally-only-valid units, including Java diagnostics, are preserved in causes.json and pr1-after-causes.json. Split critical locations, cockpit-specific fixed topology, catalog facts and native tonnage constraints need separate bounded changes. The independent armor/CASE correction is tracked in #2608. No unknown identity or unrepresented construction fact is replaced with an assumed legal result.
+
+The later #2609 merge only moves equipment initialization in asynchronous loadUnit. This harness initializes both services explicitly and calls synchronous mapToUnitState and source handlers; the fixed paired calculations remain unchanged. See pr1-main-impact.json.
