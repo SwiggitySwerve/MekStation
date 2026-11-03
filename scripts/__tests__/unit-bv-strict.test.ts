@@ -95,12 +95,100 @@ const oracleFor = (
   },
 });
 
+it('transports ProtoMech stages and reports a compensating offense error', () => {
+  const source = protos[0];
+  const row = calculateRow({
+    path: source.path.replace('data/mekfiles/', ''),
+    sha256: source.sha256,
+    unit: null,
+    sourceText: source.content,
+  });
+  const figure = row.figure as IFigure;
+  expect(figure.terms?.physicalWeaponBV).toBe(0);
+  expect(figure.terms?.armorBV).toEqual(expect.any(Number));
+  const stages = {
+    armorBV: 0,
+    structureBV: 0,
+    defensiveEquipmentBV: 0,
+    explosivePenalty: 0,
+    typeModifier: 1,
+    defensiveFactor: 1,
+    weaponBV: 40,
+    ammoBV: 0,
+    offensiveEquipmentBV: 0,
+    weightBV: 0,
+    speedFactor: 1,
+    offensiveTypeModifier: 1,
+    summaryModifier: 1,
+    adjustment: 0,
+  };
+  const reference = {
+    path: row.path,
+    sha256: row.sha256,
+    concreteFamily: 'ProtoMek',
+    battleValue: {
+      total: figure.total ?? 0,
+      aggregates: {
+        defensiveValue: figure.defensive,
+        offensiveValue: figure.offensive ?? 0,
+      },
+      terms: stages,
+    },
+  };
+  const result = buildDeltaReport(
+    [
+      {
+        ...row,
+        figure: { ...figure, terms: { ...stages, weaponBV: 39, ammoBV: 1 } },
+      },
+    ],
+    [reference],
+    ['protomeks'],
+    true,
+  );
+  expect(result.ok).toBe(false);
+  expect(result.rows[0].firstTermDifference?.term).toBe('weaponBV');
+});
+
 describe.each([
   ['battlearmor', 'BattleArmor'],
   ['infantry', 'Infantry'],
 ])('%s source rows use the real dispatcher path', (folder, type) => {
   const row = personnelRow(folder, type);
   const ours = row.figure as IFigure;
+
+  it('transports numeric breakdown terms and fails on compensating term errors', () => {
+    expect(ours.terms?.armorBV ?? ours.terms?.primaryBV).toEqual(
+      expect.any(Number),
+    );
+    const terms = {
+      armorBV: 0,
+      structureBV: 0,
+      defensiveEquipmentBV: 0,
+      explosivePenalty: 0,
+      typeModifier: 1,
+      defensiveFactor: 1,
+      weaponBV: 40,
+      ammoBV: 0,
+      offensiveEquipmentBV: 0,
+      weightBV: 0,
+      speedFactor: 1,
+      offensiveTypeModifier: 1,
+      summaryModifier: 1,
+      adjustment: 0,
+    };
+    const reference = {
+      ...oracleFor(folder, ours),
+      battleValue: { ...oracleFor(folder, ours).battleValue, terms },
+    };
+    const changed = {
+      ...row,
+      figure: { ...ours, terms: { ...terms, weaponBV: 39, ammoBV: 1 } },
+    };
+    const result = buildDeltaReport([changed], [reference], [folder], true);
+    expect(result.ok).toBe(false);
+    expect(result.rows[0].firstTermDifference?.term).toBe('weaponBV');
+  });
 
   it('counts an oracle with the same figures as exact', () => {
     expect(row.reason).toBeUndefined();
@@ -314,6 +402,21 @@ it('exposes the real ProtoMech handler breakdown without changing its total', ()
     const parsed = handler.parse(document.data.document);
     if (!parsed.success) throw new Error(parsed.error.errors.join('; '));
     const breakdown = handler.calculateBVBreakdown(parsed.data.unit);
+    const row = calculateRow({
+      path: source.path.replace('data/mekfiles/', ''),
+      sha256: source.sha256,
+      unit: null,
+      sourceText: source.content,
+    });
+    for (const key of [
+      'armorBV',
+      'structureBV',
+      'weaponBV',
+      'ammoBV',
+      'offensiveEquipmentBV',
+      'speedFactor',
+    ] as const)
+      expect(row.figure?.terms?.[key]).toBe(breakdown[key]);
     expect(breakdown.final).toBe(handler.calculateBV(parsed.data.unit));
     expect(breakdown.defensiveBV).toBeGreaterThan(0);
     expect(breakdown.offensiveBV).toBeGreaterThan(0);
