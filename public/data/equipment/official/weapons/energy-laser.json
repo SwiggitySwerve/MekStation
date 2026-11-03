@@ -50,7 +50,7 @@
       "criticalSlots": 2,
       "costCBills": 100000,
       "battleValue": 123,
-      "introductionYear": 2316
+      "introductionYear": 2306
     },
     {
       "id": "er-small-laser",
@@ -746,7 +746,7 @@
       "criticalSlots": 1,
       "costCBills": 12500,
       "battleValue": 14,
-      "introductionYear": 3130
+      "introductionYear": 3115
     },
     {
       "id": "medium-re-engineered-laser",
@@ -762,7 +762,7 @@
       "criticalSlots": 2,
       "costCBills": 62500,
       "battleValue": 65,
-      "introductionYear": 3130
+      "introductionYear": 3115
     },
     {
       "id": "large-re-engineered-laser",
