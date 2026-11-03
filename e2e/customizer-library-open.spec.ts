@@ -443,6 +443,7 @@ test.describe('library persistence and printing', () => {
       model: '',
       section: 'Armor',
       total: 176,
+      edit: 13,
       sheet: 'textArmor_RR',
     },
     {
@@ -635,7 +636,9 @@ test.describe('library persistence and printing', () => {
             unit.family === 'fighter' || unit.family === 'small craft'
               ? 'Thrust'
               : 'Movement',
-            'BV',
+            unit.family === 'fighter' || unit.family === 'small craft'
+              ? 'Battle Value'
+              : 'BV',
           ];
     return Promise.all(
       labels.map(async (label) => {
@@ -843,7 +846,13 @@ test.describe('library persistence and printing', () => {
               ).toBe(true);
               await page.goto(`/units/${savedId}`);
               await expect(
-                page.getByText('Unit not found', { exact: true }),
+                page.getByRole('heading', {
+                  name: 'Unit Not Found',
+                  exact: true,
+                }),
+              ).toBeVisible();
+              await expect(
+                page.getByText(`Unit "${savedId}" not found`, { exact: true }),
               ).toBeVisible();
               await page.screenshot({
                 path: info.outputPath(`removed-${viewport.width}.png`),
