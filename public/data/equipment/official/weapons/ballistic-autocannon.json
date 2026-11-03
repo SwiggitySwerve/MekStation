@@ -22,7 +22,7 @@
       "name": "AC/5",
       "category": "Ballistic",
       "subType": "Autocannon",
-      "techBase": "INNER_SPHERE",
+      "techBase": "BOTH",
       "rulesLevel": "INTRODUCTORY",
       "damage": 5,
       "heat": 1,
@@ -32,7 +32,7 @@
       "ammoPerTon": 20,
       "costCBills": 125000,
       "battleValue": 70,
-      "introductionYear": 2250
+      "introductionYear": 2240
     },
     {
       "id": "ac-10",

@@ -40,6 +40,8 @@ scripts/**
 !scripts/verify-equipment-availability.ts
 !scripts/equipment-availability/
 !scripts/equipment-availability/**
+!scripts/equipment-catalog/
+!scripts/equipment-catalog/**
 !scripts/
 !scripts/AGENTS.md
 !scripts/equipment-catalog/

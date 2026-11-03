@@ -3,11 +3,11 @@
 exports[`committed catalog record-sheet model parity aerospace: checks every indexed unit and records every mismatch/rejection 1`] = `
 {
   "counts": {
-    "BV.source": 44,
-    "template": 39,
+    "BV.source": 21,
+    "equipmentUnresolved": 166,
   },
   "rejected": 0,
-  "residualDigest": "7f0e175255294853667ccd00e887e97361161e93f17a618a16001fa244f6e6ec",
+  "residualDigest": "96201865fbdb03544fb9f10bf10877d02f2e91c6adb0f12fce49acab1ac3f9e8",
   "total": 620,
 }
 `;
@@ -51,11 +51,11 @@ exports[`committed catalog record-sheet model parity protomechs: checks every in
 exports[`committed catalog record-sheet model parity vehicles: checks every indexed unit and records every mismatch/rejection 1`] = `
 {
   "counts": {
-    "BV.source": 229,
-    "equipmentUnresolved": 4,
+    "BV.source": 182,
+    "equipmentUnresolved": 447,
   },
   "rejected": 0,
-  "residualDigest": "a8a2387f44dd85f6715c31abbc51fcbd9d3cbd8671f88f4b96a0ae80121517e3",
+  "residualDigest": "0ddccd3fba1bdbc43cdc9c2b2fc57ef6009686cca4a487fe8eb808bcfbc4fe1e",
   "total": 1444,
 }
 `;
