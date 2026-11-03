@@ -15,7 +15,10 @@ import { createHeatSinkEquipmentList } from '@/utils/equipment/heatSinkEquipment
 import { generateUnitId } from '@/utils/uuid';
 
 import { mapMechLocation } from './componentMappers';
-import { resolveEquipmentId } from './equipmentResolution';
+import {
+  parseCriticalSlotToken,
+  resolveEquipmentId,
+} from './equipmentResolution';
 
 export type UnitCriticalSlots = Readonly<
   Record<string, ReadonlyArray<string | null>>
@@ -44,17 +47,6 @@ const HEAT_SINK_TYPE_BY_ID: Readonly<Partial<Record<string, HeatSinkType>>> = {
   'laser-heat-sink': HeatSinkType.LASER,
 };
 
-function parseCriticalSlotToken(token: string): {
-  readonly lookupToken: string;
-  readonly isRearMounted: boolean;
-} {
-  const rearSuffix = / *[(](?:R|Rear)[)] *$/i;
-  return {
-    lookupToken: token.replace(rearSuffix, '').trim(),
-    isRearMounted: rearSuffix.test(token),
-  };
-}
-
 function resolveRegistryEquipmentId(token: string): string | undefined {
   const separatorVariant = token.replaceAll('-', ' ');
   for (const candidate of [token, separatorVariant]) {
@@ -67,6 +59,25 @@ function resolveRegistryEquipmentId(token: string): string | undefined {
       return match.equipment.id;
   }
   return undefined;
+}
+
+function resolveSlotIdentity(
+  token: string,
+  unitTechBase: TechBase,
+  unitTechBaseMode: TechBaseMode,
+  entries: ReadonlyArray<string | null>,
+): Pick<IResolvedCriticalSlot, 'equipmentDef' | 'equipmentId'> {
+  const resolved = resolveEquipmentId(
+    token,
+    unitTechBase,
+    unitTechBaseMode,
+    entries,
+  );
+  const registryId = resolveRegistryEquipmentId(token);
+  const equipmentDef =
+    resolved.equipmentDef ??
+    (registryId ? getEquipmentLookupService().getById(registryId) : undefined);
+  return { equipmentDef, equipmentId: equipmentDef?.id ?? registryId };
 }
 
 export function getCriticalSlotsForLocation(
@@ -97,19 +108,22 @@ function resolveCriticalSlots(
         if (typeof entry !== 'string') return { index, isRearMounted: false };
 
         const { lookupToken, isRearMounted } = parseCriticalSlotToken(entry);
-        const resolved = resolveEquipmentId(
-          lookupToken,
+        const original = resolveSlotIdentity(
+          entry,
           unitTechBase,
           unitTechBaseMode,
           entries,
         );
-        const registryId = resolveRegistryEquipmentId(lookupToken);
-        const equipmentDef =
-          resolved.equipmentDef ??
-          (registryId
-            ? getEquipmentLookupService().getById(registryId)
-            : undefined);
-        const equipmentId = equipmentDef?.id ?? registryId;
+        // Preserve established decorated identities, including specialized ammo.
+        const { equipmentDef, equipmentId } =
+          original.equipmentId || lookupToken === entry
+            ? original
+            : resolveSlotIdentity(
+                lookupToken,
+                unitTechBase,
+                unitTechBaseMode,
+                entries,
+              );
         const heatSinkType =
           equipmentId && HEAT_SINK_EQUIPMENT_IDS.includes(equipmentId)
             ? HEAT_SINK_TYPE_BY_ID[equipmentId]

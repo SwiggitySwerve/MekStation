@@ -23,6 +23,19 @@ import {
 
 type TechHint = 'clan' | 'is';
 
+export function parseCriticalSlotToken(token: string): {
+  readonly lookupToken: string;
+  readonly isRearMounted: boolean;
+} {
+  const rearSuffix = / *[(](?:R|Rear)[)] *$/i;
+  // MtfFile.java:1010-1020: strip the pod marker before the rear marker.
+  const mountName = token.replace(/\s*\(OMNIPOD\)\s*$/i, '');
+  return {
+    lookupToken: mountName.replace(rearSuffix, '').trim(),
+    isRearMounted: rearSuffix.test(mountName),
+  };
+}
+
 interface IResolvedEquipment {
   equipmentDef: IEquipmentItem | undefined;
   resolvedId: string;
@@ -258,7 +271,9 @@ export function inferPreferredTechBaseFromCriticalSlots(
       continue;
     }
 
-    const normalizedToken = normalizeMatchKey(entry);
+    const normalizedToken = normalizeMatchKey(
+      parseCriticalSlotToken(entry).lookupToken,
+    );
     const strippedToken = stripTechPrefixFromNormalizedKey(
       normalizedToken,
       hint,

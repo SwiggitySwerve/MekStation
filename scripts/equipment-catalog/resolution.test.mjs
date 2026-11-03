@@ -353,6 +353,17 @@ if (process.argv.includes('--capture')) {
 } else {
   test('every previously resolved catalog/native input retains its API identity', async (t) => {
     const before = read(resolve(here, 'resolution-before.json'));
+    const require = createRequire(resolve(process.cwd(), 'package.json'));
+    require('tsx/cjs');
+    const { parseCriticalSlotToken } = require(
+      resolve(
+        process.cwd(),
+        'src/services/units/unitLoaderService/equipmentResolution',
+      ),
+    );
+    // #2607 shares pinned MtfFile.java:1010-1020 mount-suffix parsing: an
+    // OMNIPOD marker changes the mount, not the approved EquipmentType identity.
+    const bareName = (name) => parseCriticalSlotToken(name).lookupToken;
     const file =
       process.env.CATALOG_RESOLUTION_AFTER ??
       resolve(tmpdir(), `catalog-resolution-${process.pid}.json`);
@@ -409,17 +420,14 @@ if (process.argv.includes('--capture')) {
         if (newTarget === oldTarget) return;
         const route = APPROVED_JAVA_REROUTES.find(
           (route) =>
-            route.name.toLowerCase() === name.toLowerCase() &&
+            route.name.toLowerCase() === bareName(name).toLowerCase() &&
             route.oldTarget === oldTarget,
         );
         const row = { api, name, oldTarget, newTarget };
         if (route && newTarget === route.newTarget) allowed.push(row);
         else shifts.push(row);
       });
-    writeFileSync(
-      file.replace(/\.json$/, '-shifts.json'),
-      JSON.stringify({ shifts, allowed, gains }, null, 2) + '\n',
-    );
+
     for (const route of APPROVED_JAVA_REROUTES) {
       assert.equal(
         after.results.equipment[indexes.get(route.name)],
@@ -433,6 +441,37 @@ if (process.argv.includes('--capture')) {
           route.name,
         );
     }
+    const qualifiedPairs = [];
+    for (const api of ['unitLoaderAmmoIS', 'unitLoaderAmmoClan']) {
+      before.names.forEach((name, index) => {
+        const bare = bareName(name);
+        if (bare === name) return;
+        const route = APPROVED_JAVA_REROUTES.find(
+          (route) =>
+            route.name.toLowerCase() === bare.toLowerCase() &&
+            route.oldTarget === before.results[api][index],
+        );
+        if (!route) return;
+        const target = after.results[api][indexes.get(name)];
+        assert.equal(target, route.newTarget, api + ': ' + name);
+        assert.equal(
+          target,
+          after.results[api][indexes.get(bare)],
+          api + ': qualified and bare identities differ',
+        );
+        qualifiedPairs.push({ api, name, bare, target });
+      });
+    }
+    assert.equal(
+      qualifiedPairs.length,
+      6,
+      'All six pinned OMNIPOD/tech-mode results must match their bare form',
+    );
+    writeFileSync(
+      file.replace(/\.json$/, '-shifts.json'),
+      JSON.stringify({ shifts, allowed, gains, qualifiedPairs }, null, 2) +
+        '\n',
+    );
     assert.deepEqual(shifts, [], JSON.stringify(shifts.slice(0, 30), null, 2));
   });
 }

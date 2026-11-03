@@ -20,6 +20,7 @@ import {
   TurretType,
   type IVehicleMountedEquipment,
 } from '@/types/unit/VehicleInterfaces';
+import { parseVehicleEditor } from '@/types/unit/VehicleSerialization';
 import {
   getPrimaryVehicleTurretType,
   getVehicleMountFlags,
@@ -63,6 +64,7 @@ export interface IContractBVSource {
     readonly barRatingByLocation?: Readonly<Record<string, number>>;
   };
   readonly equipment?: readonly { id: string; location: string }[];
+  readonly vehicleEditor?: unknown;
 }
 
 /** Domain-shaped vehicle value accepted by `calculateBattleValueForUnit`. */
@@ -167,15 +169,23 @@ export function contractVehicleToBVUnit(
   );
   if (!motionType) throw new Error(`Unknown motionType: ${unit.motionType}`);
 
+  const editor = parseVehicleEditor(
+    unit.vehicleEditor,
+    unit.equipment?.length ?? 0,
+  );
   const isTank = unitType === UnitType.VEHICLE;
   const equipment = (unit.equipment ?? []).map((item, index) => {
     const location = resolveVehicleContractLocation(item.location);
     const flags = getVehicleMountFlags(
       item.location === 'SPONSON' ? 'Sponson Turret' : location,
     );
+    const savedMount = editor?.mounts[index];
     return {
       id: `mount-${index}`,
       equipmentId: item.id,
+      ...(savedMount?.isAmmo === undefined
+        ? {}
+        : { isAmmo: savedMount.isAmmo }),
       name: item.id,
       location,
       isRearMounted: isTank && flags.isRearMounted,

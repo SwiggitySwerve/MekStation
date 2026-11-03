@@ -459,7 +459,12 @@ function checkSourceBV(
 
 function checkEquipment(
   equipment: readonly IRecordSheetEquipment[],
-  mounts: readonly { equipmentId: string; name: string; location: string }[],
+  mounts: readonly {
+    equipmentId: string;
+    name: string;
+    location: string;
+    isAmmo?: boolean;
+  }[],
   check: (field: string, actual: unknown, expected: unknown) => void,
 ) {
   const lookup = getEquipmentLookupService();
@@ -475,10 +480,11 @@ function checkEquipment(
         w.id === mount.equipmentId ||
         (isLegacyEquipmentId(w.id) && w.name === mount.name),
     );
-    const weapon =
-      (added ? weapons.find((w) => w.id === entry?.id) : undefined) ??
-      exact ??
-      weapons.find((w) => w.id === entry?.id);
+    const weapon = mount.isAmmo
+      ? undefined
+      : ((added ? weapons.find((w) => w.id === entry?.id) : undefined) ??
+        exact ??
+        weapons.find((w) => w.id === entry?.id));
     const printed = equipment[index];
     check(`equipmentLocation.${index}`, printed?.location, mount.location);
     check(`equipmentName.${index}`, printed?.name, mount.name);

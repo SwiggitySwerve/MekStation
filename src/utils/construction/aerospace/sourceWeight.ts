@@ -12,6 +12,7 @@ import {
   getEquipmentEntry,
   getAmmunitionWeightEntry,
 } from '../equipmentBVResolver';
+import { capitalDriveWeight } from './capitalStructure';
 import { aerospaceBays } from './sourceBays';
 import { cockpitTons, heatSinkExtraTons } from './weightBreakdown';
 export type Source = Pick<
@@ -215,9 +216,7 @@ export function aerospaceSourceWeight(s: Source) {
     fuel = fuelTons + Math.ceil(fuelTons * 0.02);
     sinks = Math.max(0, hs - Math.floor(45 + Math.sqrt(engine * 2)));
     extras =
-      Math.ceil(
-        tons * ([0.95, 0.4525, 0.5, 0, 0.95][Number(tags.kf_core ?? 1)] ?? 0),
-      ) +
+      capitalDriveWeight(tons, Number(tags.kf_core ?? 1)) +
       (Number(tags.sail ?? 1) !== 0 ? Math.ceil(tons / 20000) + 30 : 0) +
       (Number(tags.lfbattery ?? 0) !== 0 ? tons * 0.01 : 0) +
       lines(tags.grav_decks)

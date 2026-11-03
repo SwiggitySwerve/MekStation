@@ -31,6 +31,7 @@ const ENGINE_TYPE_BY_NORMALIZED_VALUE: Readonly<Record<string, EngineType>> = {
   XLIS: EngineType.XL_IS,
   XLENGINEIS: EngineType.XL_IS,
   XLCLAN: EngineType.XL_CLAN,
+  CLANXL: EngineType.XL_CLAN,
   XLENGINECLAN: EngineType.XL_CLAN,
   LIGHT: EngineType.LIGHT,
   LIGHTENGINE: EngineType.LIGHT,
