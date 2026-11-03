@@ -355,7 +355,9 @@ for (const viewport of VIEWPORTS) {
 
         if (unit.panel) {
           await section(page, 'Armor');
-          const diagram = page.getByTestId('vehicle-armor-diagram');
+          const diagram = page
+            .getByTestId('vehicle-armor-allocation-section')
+            .getByTestId('vehicle-armor-diagram');
           if (unit.panel === 'six-side') {
             await expect(
               diagram.getByTestId('vehicle-six-side-armor-diagram'),
@@ -418,6 +420,12 @@ for (const viewport of VIEWPORTS) {
               }),
             ).toHaveValue('32');
           }
+          await page
+            .getByTestId('vehicle-armor-allocation-section')
+            .screenshot({
+              path: testInfo.outputPath(`armor-panel-${viewport.name}.png`),
+              animations: 'disabled',
+            });
         }
 
         await page.screenshot({
