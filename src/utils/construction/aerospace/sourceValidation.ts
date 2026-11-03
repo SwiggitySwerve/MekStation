@@ -1,5 +1,7 @@
 import type { Source } from './sourceWeight';
 
+import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
+import { getEquipmentEntry } from '../equipmentBVResolver';
 import { aerospaceBays } from './sourceBays';
 import {
   aerospaceSourceWeight,
@@ -10,6 +12,52 @@ import {
   sourcePoints,
 } from './sourceWeight';
 
+/** MegaMek 48fcb2f6 TestEntity.hasIncorrectIntroYear:1471-1512, called by TestAero:828 and
+ * TestSupportVehicle:1221 only (not TestSmallCraft or TestAdvancedAerospace). Margin 5:
+ * TestXMLOption.introYearMargin:85-86. Equipment loop only: ammunition is skipped (:1490), a
+ * unit year or its original build year (:1612-1618) may satisfy a component, and a component
+ * with no date for the unit's tech side is never flagged. Armor, engine and cockpit dates
+ * (:1513-1607) are not ported; no pinned aerospace source depends on them.
+ */
+const INTRO_YEAR_MARGIN = 5;
+const INTRO_YEAR_FAMILIES =
+  /^(?:aerospacefighter|convfighter|fixedwingsupport)$/;
+export function validateEquipmentIntroYears(s: Source): string[] {
+  if (
+    !INTRO_YEAR_FAMILIES.test(s.unitType.toLowerCase().replace(/[^a-z]/g, ''))
+  )
+    return [];
+  const years = [s.year, s.originalBuildYear].filter(
+    (y): y is number => typeof y === 'number',
+  );
+  const clan = sourceClan(s),
+    mixed = /mixed/i.test(s.type);
+  const errors: string[] = [],
+    seen = new Set<string>();
+  for (const [key, value] of Object.entries(s.rawTags)) {
+    if (!/equipment$/i.test(key)) continue;
+    const mounts = Array.isArray(value)
+      ? value
+      : value.split(/\r?\n/).filter(Boolean);
+    for (const raw of mounts) {
+      const name = raw
+        .replace(/^(?:(?:\(R\)|\(B\))\s*)+/i, '')
+        .replace(/^(?:r-|b-)+/i, '')
+        .split(':')[0];
+      if (isAmmunitionEquipmentId(name) || /ammo/i.test(name)) continue;
+      const entry = getEquipmentEntry(name);
+      if (!entry || entry.introductionYear === undefined || seen.has(entry.id))
+        continue;
+      seen.add(entry.id);
+      if (!mixed && (entry.techBase === 'CLAN') !== clan) continue;
+      const intro = entry.introductionYear;
+      if (!years.some((y) => intro <= y + INTRO_YEAR_MARGIN))
+        errors.push(`${entry.name} has intro date of ${intro}`);
+    }
+  }
+  return errors;
+}
+
 /** MegaMek 48fcb2f6 TestAdvancedAerospace:870-959; TestSmallCraft:776-814.
  * Source facts are immutable; legacy/editor snapshots without them keep their contract.
  */
@@ -17,6 +65,7 @@ export function validateAerospaceSource(s: Source): string[] {
   const errors: string[] = [],
     capital = advanced(s),
     small = large(s);
+  errors.push(...validateEquipmentIntroYears(s));
   const bays = aerospaceBays(s.transporters ?? [], sourceClan(s)),
     mass = aerospaceSourceWeight(s);
   if (mass !== undefined && mass > s.tonnage)
