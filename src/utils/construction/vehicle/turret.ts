@@ -163,6 +163,39 @@ export function computeVehicleTurretMechanismWeight(
 // Turret Eligibility
 // =============================================================================
 
+/** S10/S12: explicit per-turret allowance, never a total pod budget.
+ * Tank.java:3135-3169; TestTank.java:182-234,842-879 (48fcb2f6).
+ */
+export function getVehicleTurretMechanismFigures(
+  context: VehicleTurretMechanismContext,
+): VehicleTurretMechanismResult & {
+  allowance: number | null;
+  required: number | null;
+  remaining: number | null;
+} {
+  const assigned = computeVehicleTurretMechanismWeight(context);
+  const required = computeVehicleTurretMechanismWeight({
+    ...context,
+    baseChassisWeight: undefined,
+  }).weight;
+  const allowance =
+    context.isOmni &&
+    context.baseChassisWeight !== undefined &&
+    Number.isFinite(context.baseChassisWeight) &&
+    context.baseChassisWeight >= 0
+      ? context.baseChassisWeight
+      : null;
+  return {
+    ...assigned,
+    allowance,
+    required,
+    remaining:
+      allowance !== null && required !== null && assigned.issues.length === 0
+        ? allowance - required
+        : null,
+  };
+}
+
 export interface TurretEligibilityResult {
   isEligible: boolean;
   errors: Array<{ ruleId: string; message: string }>;

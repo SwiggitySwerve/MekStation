@@ -1,9 +1,11 @@
 import React from 'react';
 
+import type { getVehicleTurretMechanismFigures } from '@/utils/construction/vehicle/turret';
+
 import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { useVehicleStore } from '@/stores/useVehicleStore';
-import { computeVehicleMountedWeightBreakdown } from '@/utils/construction/vehicle/mountedWeight';
+import { computeVehicleMountedWeightFigures } from '@/utils/construction/vehicle/mountedWeight';
 
 import { customizerStyles as cs } from '../styles';
 import { formatVehicleWeight } from './VehicleStatusBar.utils';
@@ -14,7 +16,7 @@ interface TurretFigurePanelProps {
   mounted: number | null;
   equipment: number | null;
   mechanism: number | null;
-  allowance: number | undefined;
+  summary: ReturnType<typeof getVehicleTurretMechanismFigures>;
   isOmni: boolean;
   overloaded: boolean | null;
   isReady: boolean;
@@ -27,27 +29,43 @@ export function TurretFigurePanel({
   mounted,
   equipment,
   mechanism,
-  allowance,
+  summary,
   isOmni,
   overloaded,
   isReady,
 }: TurretFigurePanelProps): React.ReactElement {
-  const pending =
-    !isReady &&
-    equipment === null &&
-    (allowance === undefined || Number.isFinite(allowance));
+  const pending = !isReady && equipment === null && summary.issues.length === 0;
   const allowanceText = !isOmni
     ? 'Not applicable'
-    : allowance === undefined
-      ? 'Not supplied'
-      : Number.isFinite(allowance)
-        ? `${allowance} t`
-        : 'Unknown';
+    : summary.allowance === null
+      ? 'Unknown'
+      : `${summary.allowance} t`;
   const figures = [
     ['Mounted Equipment', formatVehicleWeight(mounted, !isReady)],
     ['Qualifying Equipment', formatVehicleWeight(equipment, !isReady)],
     ['Mechanism Weight', formatVehicleWeight(mechanism, pending)],
     ['Omni Allowance', allowanceText],
+    ...(isOmni
+      ? [
+          [
+            'Required Mechanism Mass',
+            formatVehicleWeight(
+              summary.required,
+              !isReady && equipment === null && summary.issues.length === 0,
+            ),
+          ],
+          [
+            'Remaining Allowance',
+            formatVehicleWeight(
+              summary.remaining,
+              !isReady &&
+                summary.required === null &&
+                summary.allowance !== null &&
+                summary.issues.length === 0,
+            ),
+          ],
+        ]
+      : []),
   ];
   return (
     <section
@@ -97,7 +115,7 @@ export function VehicleTurretFigures({
   );
   const { isReady } = useEquipmentRegistry();
   const lookup = getEquipmentLookupService();
-  const weights = computeVehicleMountedWeightBreakdown(
+  const weights = computeVehicleMountedWeightFigures(
     {
       unitType,
       turret,
@@ -117,7 +135,7 @@ export function VehicleTurretFigures({
         mounted={weights.turretMounted}
         equipment={weights.turretEquipment}
         mechanism={weights.turret}
-        allowance={baseChassisTurretWeight}
+        summary={weights.primarySummary}
         isOmni={isOmni}
         overloaded={weights.primaryAllowanceOverloaded}
         isReady={isReady}
@@ -129,7 +147,7 @@ export function VehicleTurretFigures({
           mounted={weights.secondaryTurretMounted}
           equipment={weights.secondaryTurretEquipment}
           mechanism={weights.secondaryTurret}
-          allowance={baseChassisSecondaryTurretWeight}
+          summary={weights.secondarySummary}
           isOmni={isOmni}
           overloaded={weights.secondaryAllowanceOverloaded}
           isReady={isReady}

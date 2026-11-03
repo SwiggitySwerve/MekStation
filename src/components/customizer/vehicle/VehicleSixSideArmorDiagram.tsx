@@ -1,13 +1,15 @@
 import type { VehicleArmorLocation } from '@/utils/construction/vehicle/editorArmor';
 
 /** Presentation coordinates only; installed sides and armor come from construction. */
-const REGIONS: Readonly<Record<string, readonly [string, number, number]>> = {
-  Front: ['10,55 120,0 230,55 180,80 120,50 60,80', 120, 30],
-  'Front Right': ['230,55 230,110 180,110 180,80', 204, 84],
-  'Front Left': ['10,55 60,80 60,110 10,110', 36, 84],
-  'Rear Right': ['230,110 230,165 180,140 180,110', 204, 139],
-  'Rear Left': ['10,110 60,110 60,140 10,165', 36, 139],
-  Rear: ['10,165 60,140 120,170 180,140 230,165 120,220', 120, 192],
+const REGIONS: Readonly<
+  Record<string, readonly [string, number, number, number]>
+> = {
+  Front: ['10,55 120,0 230,55 180,80 120,50 60,80', 120, 40, 23],
+  'Front Right': ['230,55 230,110 180,110 180,80', 205, 82.5, 95.5],
+  'Front Left': ['10,55 60,80 60,110 10,110', 35, 82.5, 95.5],
+  'Rear Right': ['230,110 230,165 180,140 180,110', 205, 137.5, 150.5],
+  'Rear Left': ['10,110 60,110 60,140 10,165', 35, 137.5, 150.5],
+  Rear: ['10,165 60,140 120,170 180,140 230,165 120,220', 120, 180, 193],
 };
 
 export function VehicleSixSideArmorDiagram({
@@ -32,7 +34,7 @@ export function VehicleSixSideArmorDiagram({
       {locations.map(({ location, label }) => {
         const region = REGIONS[location];
         if (!region) return null;
-        const [points, x, y] = region;
+        const [points, x, y, valueY] = region;
         return (
           <g key={location}>
             <polygon
@@ -46,7 +48,7 @@ export function VehicleSixSideArmorDiagram({
             </foreignObject>
             <text
               x={x}
-              y={y + 13}
+              y={valueY}
               textAnchor="middle"
               className="fill-cyan-400 text-[10px]"
             >

@@ -45,6 +45,7 @@ export function AerospaceStructureTab({
   // Sub-type and validation inputs — pulled here because the orchestrator
   // owns the small-craft-only branches and the cross-section validation call.
   const tonnage = useAerospaceStore((s) => s.tonnage);
+  const isFixedWingSupport = useAerospaceStore((s) => s.isFixedWingSupport);
   const aerospaceSubType = useAerospaceStore((s) => s.aerospaceSubType);
   const aerospaceEngineType = useAerospaceStore((s) => s.aerospaceEngineType);
   const safeThrust = useAerospaceStore((s) => s.safeThrust);
@@ -83,6 +84,7 @@ export function AerospaceStructureTab({
     () =>
       validateAerospaceUnit({
         tonnage,
+        isFixedWingSupport,
         subType: aerospaceSubType,
         engineType: aerospaceEngineType,
         safeThrust,
@@ -94,6 +96,7 @@ export function AerospaceStructureTab({
       }),
     [
       tonnage,
+      isFixedWingSupport,
       aerospaceSubType,
       aerospaceEngineType,
       safeThrust,

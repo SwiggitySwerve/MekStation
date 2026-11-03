@@ -7,7 +7,7 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3.2
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { useVehicleStore } from '@/stores/useVehicleStore';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
@@ -47,6 +47,9 @@ export function VehicleArmorTab({
   const turret = useVehicleStore((s) => s.turret);
   const secondaryTurret = useVehicleStore((s) => s.secondaryTurret);
   const armorType = useVehicleStore((s) => s.armorType);
+  const usesBarArmor = useVehicleStore((s) => s.usesBarArmor);
+  const barRating = useVehicleStore((s) => s.barRating);
+  const armorTechRating = useVehicleStore((s) => s.armorTechRating);
   const armorTonnage = useVehicleStore((s) => s.armorTonnage);
   const armorAllocation = useVehicleStore((s) => s.armorAllocation);
 
@@ -64,15 +67,28 @@ export function VehicleArmorTab({
   const isVTOL = motionType === GroundMotionType.VTOL;
   const hasTurret = turret !== null;
   const hasSecondaryTurret = Boolean(secondaryTurret);
-  const armorProfile = {
-    hasTurret,
-    isVTOL,
-    hasSecondaryTurret,
-    isSuperheavy,
-    isSupport: unitType === UnitType.SUPPORT_VEHICLE,
-    isChinTurret: turret?.type === TurretType.CHIN,
-    motionType,
-  };
+  const armorProfile = useMemo(
+    () => ({
+      hasTurret,
+      isVTOL,
+      hasSecondaryTurret,
+      isSuperheavy,
+      isSupport: unitType === UnitType.SUPPORT_VEHICLE,
+      isChinTurret: turret?.type === TurretType.CHIN,
+      motionType,
+      usesBarArmor,
+    }),
+    [
+      hasTurret,
+      isVTOL,
+      hasSecondaryTurret,
+      isSuperheavy,
+      unitType,
+      turret?.type,
+      motionType,
+      usesBarArmor,
+    ],
+  );
   const layout = getVehicleArmorEditorLayout(armorProfile);
   const {
     availablePoints,
@@ -85,6 +101,8 @@ export function VehicleArmorTab({
     tonnage,
     armorType,
     armorTonnage,
+    barRating,
+    armorTechRating,
     armorAllocation,
     profile: armorProfile,
   });
@@ -92,7 +110,8 @@ export function VehicleArmorTab({
   // Handlers
   const handleArmorTypeChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setArmorType(e.target.value as ArmorTypeEnum);
+      if (e.target.value !== 'BAR')
+        setArmorType(e.target.value as ArmorTypeEnum);
     },
     [setArmorType],
   );
@@ -136,12 +155,13 @@ export function VehicleArmorTab({
           <div className="mb-4">
             <label className={cs.text.label}>Armor Type</label>
             <select
-              value={armorType}
+              value={usesBarArmor ? 'BAR' : armorType}
               onChange={handleArmorTypeChange}
               disabled={readOnly}
               className={`${cs.select.full} mt-1`}
               data-testid="vehicle-armor-type-select"
             >
+              {usesBarArmor && <option value="BAR">BAR {barRating}</option>}
               <SelectOptions options={ARMOR_TYPE_OPTIONS} />
             </select>
           </div>

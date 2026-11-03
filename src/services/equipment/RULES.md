@@ -34,3 +34,6 @@ precede fuzzy aliases and unit-tech preferences across loading, conversion, BV,
 hydration and printing. Missing Java identities require catalog generation;
 never substitute a related technology or unit-family variant. FU-79's pinned
 identity review supplies the corrections and defers unrepresented identities.
+
+Explicitly registered custom name mappings retain precedence over the native
+source defaults. Native corrections precede inferred tech and fuzzy fallbacks.

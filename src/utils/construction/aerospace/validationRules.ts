@@ -31,6 +31,7 @@ import {
 } from '../../../types/unit/AerospaceInterfaces';
 import { maxArcArmorPoints } from './armorArcCalculations';
 import { validateBombBays, type IBombBay } from './bombBays';
+import { validateFixedWingSupportTonnage } from './fixedWingSupport';
 import { minFuelTons } from './fuelCalculations';
 import { maxSI } from './siCalculations';
 import {
@@ -248,6 +249,7 @@ export type AeroValidationRuleId = (typeof AERO_VALIDATION_RULE_IDS)[number];
 // ============================================================================
 
 export interface AerospaceValidationInput {
+  readonly isFixedWingSupport?: boolean;
   readonly tonnage: number;
   readonly subType: AerospaceSubType;
   readonly engineType: AerospaceEngineType;
@@ -278,7 +280,12 @@ export function validateAerospaceUnit(
   input: AerospaceValidationInput,
 ): AerospaceValidationError[] {
   const errors: AerospaceValidationError[] = [
-    ...validateTonnage(input.tonnage, input.subType),
+    ...(input.isFixedWingSupport
+      ? validateFixedWingSupportTonnage(input.tonnage).map((message) => ({
+          ruleId: 'VAL-AERO-TONNAGE',
+          message,
+        }))
+      : validateTonnage(input.tonnage, input.subType)),
     ...validateThrust(input.engineType, input.safeThrust, input.subType),
     ...validateSI(input.structuralIntegrity, input.subType),
     ...validateFuel(input.fuelTons, input.subType),
