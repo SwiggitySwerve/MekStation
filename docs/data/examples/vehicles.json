@@ -104,6 +104,7 @@
       },
       {
         "name": "Machine Gun Ammo [Half]",
+        "isAmmo": true,
         "isTurretMounted": false,
         "isSponsonMounted": false,
         "isChinTurretMounted": false,
@@ -111,6 +112,7 @@
       },
       {
         "name": "AC/5 Ammo",
+        "isAmmo": true,
         "isTurretMounted": false,
         "isSponsonMounted": false,
         "isChinTurretMounted": false,
