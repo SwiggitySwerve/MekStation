@@ -22,7 +22,7 @@
       "name": "AC/5",
       "category": "Ballistic",
       "subType": "Autocannon",
-      "techBase": "INNER_SPHERE",
+      "techBase": "BOTH",
       "rulesLevel": "INTRODUCTORY",
       "damage": 5,
       "heat": 1,

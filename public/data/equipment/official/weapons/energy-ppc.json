@@ -9,7 +9,7 @@
       "name": "PPC",
       "category": "Energy",
       "subType": "PPC",
-      "techBase": "INNER_SPHERE",
+      "techBase": "BOTH",
       "rulesLevel": "INTRODUCTORY",
       "damage": 10,
       "heat": 10,
