@@ -61,6 +61,7 @@ export type IHydratedC3EquipmentData = IC3EquipmentMountState;
 
 export interface IUnitEquipmentEntry {
   readonly id: string;
+  readonly name?: string;
   readonly location: string;
   readonly isRearMounted?: boolean;
   readonly linkedEquipment?: readonly string[];

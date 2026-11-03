@@ -12,6 +12,7 @@
 import { useMemo } from 'react';
 
 import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
+import { calculateRatedWalkMP } from '@/utils/construction/engineCalculations';
 import {
   JumpJetType,
   getMaxJumpMP,
@@ -37,6 +38,8 @@ export interface MovementCalculationsInput {
   tonnage: number;
   /** Current engine rating */
   engineRating: number;
+  /** Cockpit type; primitive cockpits rescale the rating */
+  cockpitType?: string;
   /** Current jump MP */
   jumpMP: number;
   /** Jump jet type */
@@ -91,8 +94,12 @@ export function calculateRunMP(walkMP: number): number {
 /**
  * Calculate Walk MP from engine rating and tonnage.
  */
-export function calculateWalkMP(engineRating: number, tonnage: number): number {
-  return Math.floor(engineRating / tonnage);
+export function calculateWalkMP(
+  engineRating: number,
+  tonnage: number,
+  cockpitType = '',
+): number {
+  return calculateRatedWalkMP(engineRating, tonnage, cockpitType);
 }
 
 /**
@@ -131,12 +138,13 @@ export function calculateEngineRating(walkMP: number, tonnage: number): number {
 export function useMovementCalculations(
   input: MovementCalculationsInput,
 ): MovementCalculationsResult {
-  const { tonnage, engineRating, jumpJetType, enhancement } = input;
+  const { tonnage, engineRating, cockpitType, jumpJetType, enhancement } =
+    input;
 
   // Derive Walk MP from engine rating
   const walkMP = useMemo(
-    () => calculateWalkMP(engineRating, tonnage),
-    [engineRating, tonnage],
+    () => calculateWalkMP(engineRating, tonnage, cockpitType),
+    [engineRating, tonnage, cockpitType],
   );
 
   // Calculate Run MP

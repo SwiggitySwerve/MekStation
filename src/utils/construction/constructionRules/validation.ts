@@ -39,7 +39,12 @@ export function validateConstruction(
 
   // Step 3: Engine
   steps.push(
-    calculateEngine(config.tonnage, config.engineRating, config.engineType),
+    calculateEngine(
+      config.tonnage,
+      config.engineRating,
+      config.engineType,
+      config.cockpitType,
+    ),
   );
 
   // Step 4: Gyro

@@ -19,6 +19,11 @@ export function useVehicleRecordSheetUnit(): IVehicleRecordSheetUnitInput {
   const year = useVehicleStore((s) => s.year);
   const unitType = useVehicleStore((s) => s.unitType);
   const motionType = useVehicleStore((s) => s.motionType);
+  const structureType = useVehicleStore((s) => s.structureType);
+  const hasEnvironmentalSealing = useVehicleStore(
+    (s) => s.hasEnvironmentalSealing,
+  );
+  const hasFlotationHull = useVehicleStore((s) => s.hasFlotationHull);
   const cruiseMP = useVehicleStore((s) => s.cruiseMP);
   const flankMP = useVehicleStore((s) => s.flankMP);
   const armorType = useVehicleStore((s) => s.armorType);
@@ -42,6 +47,9 @@ export function useVehicleRecordSheetUnit(): IVehicleRecordSheetUnitInput {
         year,
         unitType,
         motionType,
+        structureType,
+        hasEnvironmentalSealing,
+        hasFlotationHull,
         cruiseMP,
         flankMP,
         armorType,
@@ -62,6 +70,9 @@ export function useVehicleRecordSheetUnit(): IVehicleRecordSheetUnitInput {
       year,
       unitType,
       motionType,
+      structureType,
+      hasEnvironmentalSealing,
+      hasFlotationHull,
       cruiseMP,
       flankMP,
       armorType,

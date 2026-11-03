@@ -11,7 +11,10 @@
  */
 
 import type { IBattleArmorRecordSheetUnitInput } from '@/services/printing/recordsheet/dispatchTarget';
+import type { BattleArmorState } from '@/stores/battleArmorState';
 import type { ManipulatorType } from '@/types/unit/PersonnelInterfaces';
+
+import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
 
 import {
   buildRecordSheetUnitIdentity,
@@ -20,6 +23,7 @@ import {
 
 /** Store fields the battle armor unit-object builder reads. */
 export interface BattleArmorUnitObjectInput extends RecordSheetUnitIdentityInput {
+  source?: BattleArmorState;
   squadSize: number;
   armorPerTrooper: number;
   leftManipulator: ManipulatorType;
@@ -34,12 +38,21 @@ export interface BattleArmorUnitObjectInput extends RecordSheetUnitIdentityInput
  * service.
  *
  * One synthetic trooper entry is emitted per squad member, each carrying the
- * uniform per-trooper armor value from the store. Battle armor has no unit
- * tonnage, so `tonnage` is reported as 0 (the extractor never relies on it).
+ * uniform per-trooper armor value from the store. The canonical default
+ * transport tonnage is the squad size (pinned BattleArmor.getWeight).
  */
 export function buildBattleArmorUnitObject(
   input: BattleArmorUnitObjectInput,
 ): IBattleArmorRecordSheetUnitInput {
+  const source = input.source;
+  const bv = source
+    ? calculateBattleValueForUnit({
+        unitType: source.unitType,
+        editorState: source,
+      })
+    : undefined;
+  if (source && bv?.kind !== 'battlearmor')
+    throw new TypeError('Expected battle armor BV');
   const troopers = Array.from({ length: input.squadSize }, (_, i) => ({
     index: i + 1,
     armorPips: input.armorPerTrooper,
@@ -47,7 +60,8 @@ export function buildBattleArmorUnitObject(
   }));
 
   return {
-    ...buildRecordSheetUnitIdentity({ ...input, tonnage: 0 }),
+    ...buildRecordSheetUnitIdentity({ ...input, tonnage: input.squadSize }),
+    battleValue: bv?.breakdown.final,
     // Dispatch hint — resolves to the 'battlearmor' kind.
     unitType: 'battlearmor',
     squadSize: input.squadSize,
