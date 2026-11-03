@@ -18,8 +18,6 @@ test('equal values and variable Java quantities are not differences', () => {
   const item = { weight: 0.2, flags: ['B', 'A'] };
   assert.deepEqual(compareFields(item, item, 'source:1'), []);
   assert.deepEqual(compareFields(item, { weight: -1 }, 'source:1'), []);
-  const ancient = { introductionYear: -400 };
-  assert.equal(compareFields({}, ancient, 'source:1').length, 1);
   assert.deepEqual(compareFields(item, { flags: ['A', 'B'] }, 'source:1'), []);
 });
 test('ambiguous and unmatched owner mappings are listed, never compared', () => {

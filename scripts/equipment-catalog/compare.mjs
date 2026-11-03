@@ -201,6 +201,8 @@ export function sweep(input) {
     for (const [field, value] of Object.entries(expected))
       if (variableQuantity(field, value))
         variable.push({ id: item.id, field, java: value });
+    for (const field of ['bvError', 'tonsError'])
+      if (row[field]) variable.push({ id: item.id, field, java: row[field] });
     const impact = {};
     for (const unit of units)
       if (unit.ids.has(item.id))
