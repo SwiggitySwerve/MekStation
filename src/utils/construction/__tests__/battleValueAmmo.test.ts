@@ -163,3 +163,46 @@ describe('ammunition bin family derivation', () => {
     expect(extractWeaponTypeFromAmmoId(id)).toBe(family);
   });
 });
+
+// Java pools are ammoType:rackSize (BVCalculator.java:1190-1240): the Sniper and
+// Thumper cannons are not the Sniper and Thumper artillery pieces. Rows traced in
+// CAT-Q2 (cannon-cap-trace.json) from the pinned Koschei KSC-6L and Shockwave SKW-8X.
+describe('artillery cannon ammunition cap pools', () => {
+  it('caps Sniper Cannon ammo by the Sniper Cannon, not Sniper artillery', () => {
+    const bin = { id: 'ISSniperCannonAmmo', bv: 10, weaponType: 'sniper' };
+    expect(
+      calculateAmmoBVWithExcessiveCap(
+        [{ id: 'sniper-cannon', bv: 77 }],
+        [bin, bin],
+      ),
+    ).toBe(20);
+  });
+
+  it('caps Thumper Cannon ammo by the Thumper Cannon', () => {
+    const uac = { id: 'IS Ultra AC/10 Ammo', bv: 26, weaponType: 'uac-10' };
+    expect(
+      calculateAmmoBVWithExcessiveCap(
+        [
+          { id: 'thumper-cannon', bv: 41 },
+          { id: 'uac-10', bv: 210 },
+        ],
+        [{ id: 'ISThumperCannonAmmo', bv: 5, weaponType: 'thumper' }, uac, uac],
+      ),
+    ).toBe(57);
+  });
+
+  it('keeps artillery ammo and cannon weapons in separate pools', () => {
+    expect(
+      calculateAmmoBVWithExcessiveCap(
+        [{ id: 'sniper-cannon', bv: 77 }],
+        [{ id: 'ISSniperAmmo', bv: 11, weaponType: 'sniper' }],
+      ),
+    ).toBe(0);
+    expect(
+      calculateAmmoBVWithExcessiveCap(
+        [{ id: 'issniper-registry', bv: 85 }],
+        [{ id: 'ISSniperAmmo', bv: 11, weaponType: 'sniper' }],
+      ),
+    ).toBe(11);
+  });
+});
