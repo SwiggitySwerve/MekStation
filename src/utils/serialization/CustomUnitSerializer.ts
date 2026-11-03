@@ -46,6 +46,8 @@ import { aerospaceEditorSchema } from '@/types/unit/AerospaceSerialization';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
 
+import { isRearLoc } from '../../../scripts/validate-bv-normalizers';
+
 const ENGINE_TYPE = {
   [EngineType.STANDARD]: 'FUSION',
   [EngineType.XL_IS]: 'XL',
@@ -194,9 +196,8 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
   }
 
   for (const item of state.equipment) {
-    if (!item.location || !item.slots) {
-      continue;
-    }
+    if (!item.location || !item.slots) continue;
+    const sourceSlots = getCriticalSlotsForLocation(projected, item.location);
 
     const locationSlots =
       result[item.location] ??
@@ -204,8 +205,7 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
     for (const slot of item.slots) {
       if (slot >= 0 && slot < locationSlots.length) {
         locationSlots[slot] =
-          getCriticalSlotsForLocation(projected, item.location)?.[slot] ??
-          item.name;
+          item.name + (isRearLoc(sourceSlots?.[slot] ?? '') ? ' (R)' : '');
       }
     }
     result[item.location] = locationSlots;
