@@ -26,6 +26,8 @@ export interface EquipmentCatalogEntry {
   heat?: number;
   weight?: number;
   criticalSlots?: number;
+  /** Java getIntroductionDate: prototype date, minus 5 when flagged approximate (TechAdvancement.java:731). */
+  introductionYear?: number;
   special?: readonly string[];
   variableEquipmentId?: string;
   battleValue: number;
