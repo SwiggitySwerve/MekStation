@@ -46,6 +46,7 @@ scripts/**
 !scripts/AGENTS.md
 !scripts/expand-unit-type-requirements.mjs
 !scripts/schema-local-definitions.mjs
+!scripts/portable_unit_reader.py
 !scripts/expand-source-provenance-variants.mjs
 !scripts/print-combat-validation-gaps.ts
 !scripts/vehicle-aero-bv-delta.ts
