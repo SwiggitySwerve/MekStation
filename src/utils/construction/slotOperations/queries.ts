@@ -68,6 +68,8 @@ export function getAvailableSlotIndices(
         usedSlots.add(slot);
       }
     }
+    if (eq.splitSlots?.location === location)
+      eq.splitSlots.slots.forEach((slot) => usedSlots.add(slot));
   }
 
   const available: number[] = [];
