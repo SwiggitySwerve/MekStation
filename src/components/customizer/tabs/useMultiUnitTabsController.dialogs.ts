@@ -6,15 +6,8 @@ import { useToast } from '@/components/shared/Toast';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { recordUnitLibrarySave } from '@/stores/unit/unitEditSnapshot';
 import { getUnitStore } from '@/stores/unitStoreRegistry';
-import { Era } from '@/types/temporal/Era';
 import { logger } from '@/utils/logger';
-import {
-  serializeCustomUnitState,
-  serializeCustomVehicleState,
-  serializeCustomAerospaceState,
-  serializeCustomSmallUnitState,
-} from '@/utils/serialization/CustomUnitSerializer';
-import { getEraForYear } from '@/utils/temporal/eraUtils';
+import { serializeCustomLibraryState } from '@/utils/serialization/CustomLibrarySerializer';
 
 import {
   getLibrarySaveDisabledReason,
@@ -187,21 +180,12 @@ export function useDialogHandlers(
         'configuration' in state ? getUnitStore(saveDialog.tabId) : undefined;
 
       try {
-        const era = getEraForYear(state.year) ?? Era.LATE_SUCCESSION_WARS;
         const identity = {
           id: overwriteId ?? saveDialog.tabId,
           chassis,
           variant,
-          era,
         };
-        const unitData =
-          'configuration' in state
-            ? serializeCustomUnitState(state, identity)
-            : 'aerospaceSubType' in state
-              ? serializeCustomAerospaceState(state, identity)
-              : 'pointSize' in state || 'squadSize' in state
-                ? serializeCustomSmallUnitState(state, identity)
-                : serializeCustomVehicleState(state, identity);
+        const unitData = serializeCustomLibraryState(state, identity);
 
         // The legacy API type names persisted data as IFullUnit even though
         // this path writes the canonical ISerializedUnit contract.

@@ -194,7 +194,10 @@ function editInput(page: Page, unit: FlowCase) {
       )
       .getByRole('spinbutton');
   if (unit.family === 'ProtoMech')
-    return page.getByTestId('proto-armor-input-Head');
+    return page.getByRole('spinbutton', {
+      name: 'Head armor value',
+      exact: true,
+    });
   return page.getByRole('spinbutton', {
     name: 'Head front armor',
     exact: true,
@@ -383,7 +386,8 @@ for (const viewport of [
               if (family === 'ProtoMech')
                 return doc.getElementById(selector)?.querySelectorAll('circle')
                   .length;
-              return Number(doc.getElementById(selector)?.textContent?.trim());
+              const text = doc.getElementById(selector)?.textContent?.trim();
+              return family === 'mech' ? text : Number(text);
             },
             { svg, selector: unit.sheet, family: unit.family },
           );
@@ -392,7 +396,9 @@ for (const viewport of [
               ? 24
               : unit.family === 'infantry'
                 ? 18
-                : edited,
+                : unit.family === 'mech'
+                  ? `( ${edited} )`
+                  : edited,
           );
           expect(svg).toContain(chassis);
           await expectPrintWindowClosesAfterPrint(page);
