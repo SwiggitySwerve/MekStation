@@ -74,8 +74,57 @@ export function mapCockpitType(s: string): CockpitType {
   return 'standard';
 }
 
-export function calcTotalStructure(ton: number, config?: string): number {
+type StructurePart = 'head' | 'centerTorso' | 'sideTorso' | 'arm' | 'leg';
+const FRANKEN_PARTS: Readonly<Record<string, StructurePart>> = {
+  HEAD: 'head',
+  CENTER_TORSO: 'centerTorso',
+  LEFT_TORSO: 'sideTorso',
+  RIGHT_TORSO: 'sideTorso',
+  LEFT_ARM: 'arm',
+  RIGHT_ARM: 'arm',
+  LEFT_LEG: 'leg',
+  RIGHT_LEG: 'leg',
+  FRONT_LEFT_LEG: 'leg',
+  FRONT_RIGHT_LEG: 'leg',
+  REAR_LEFT_LEG: 'leg',
+  REAR_RIGHT_LEG: 'leg',
+  CENTER_LEG: 'leg',
+};
+
+/** FrankenMek locations take the internal points of their own structure
+ * tonnage (Mek.java:1062-1087); unlisted locations use the unit tonnage.
+ */
+function calcFrankenStructure(
+  ton: number,
+  config: string,
+  locationTonnage: Readonly<Record<string, number>>,
+): number {
+  const limbs =
+    config === 'quad' || config === 'quadvee'
+      ? ['FRONT_LEFT_LEG', 'FRONT_RIGHT_LEG', 'REAR_LEFT_LEG', 'REAR_RIGHT_LEG']
+      : ['LEFT_ARM', 'RIGHT_ARM', 'LEFT_LEG', 'RIGHT_LEG'].concat(
+          config === 'tripod' ? ['CENTER_LEG'] : [],
+        );
+  return ['HEAD', 'CENTER_TORSO', 'LEFT_TORSO', 'RIGHT_TORSO', ...limbs].reduce(
+    (sum, location) => {
+      const row = STRUCTURE_POINTS_TABLE[locationTonnage[location] ?? ton] as
+        | Record<StructurePart, number>
+        | undefined;
+      if (!row) throw new Error(`No structure table row for ${location}`);
+      return sum + row[FRANKEN_PARTS[location]];
+    },
+    0,
+  );
+}
+
+export function calcTotalStructure(
+  ton: number,
+  config?: string,
+  locationTonnage?: Readonly<Record<string, number>>,
+): number {
   const cfgLower = config?.toLowerCase() ?? '';
+  if (locationTonnage)
+    return calcFrankenStructure(ton, cfgLower, locationTonnage);
   const isQuad = cfgLower === 'quad' || cfgLower === 'quadvee';
   const isTripod = cfgLower === 'tripod';
   const limbIS = (t: { arm: number; leg: number }) =>
