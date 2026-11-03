@@ -20,6 +20,7 @@ import { ceilToHalfTon } from '../../physical/weightUtils';
 import {
   calculateEngineWeight,
   calculateIntegralHeatSinks,
+  calculateRatedWalkMP,
   validateEngineRating,
 } from '../engineCalculations';
 import { calculateGyroWeight, getGyroCriticalSlots } from '../gyroCalculations';
@@ -74,6 +75,7 @@ export function calculateEngine(
   tonnage: number,
   engineRating: number,
   engineType: EngineType,
+  cockpitType = '',
 ): ConstructionStepResult {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -83,7 +85,7 @@ export function calculateEngine(
     errors.push(...ratingValidation.errors);
   }
 
-  const walkMP = Math.floor(engineRating / tonnage);
+  const walkMP = calculateRatedWalkMP(engineRating, tonnage, cockpitType);
   if (walkMP < 1) {
     errors.push(
       `Engine rating ${engineRating} provides less than 1 walk MP for ${tonnage}t mech`,

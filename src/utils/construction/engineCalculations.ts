@@ -212,13 +212,18 @@ export function calculateEngineRating(tonnage: number, walkMP: number): number {
  *
  * @param rating - Engine rating
  * @param tonnage - Unit tonnage
+ * @param cockpitType - Cockpit; primitive cockpits rescale the rating
  * @returns Walk MP
  */
-export function calculateWalkMP(rating: number, tonnage: number): number {
+export function calculateWalkMP(
+  rating: number,
+  tonnage: number,
+  cockpitType = '',
+): number {
   if (tonnage <= 0 || rating <= 0) {
     return 0;
   }
-  return calculateRatedWalkMP(rating, tonnage);
+  return calculateRatedWalkMP(rating, tonnage, cockpitType);
 }
 
 /** Raw rating conversion; callers retain their existing invalid-input policy. */

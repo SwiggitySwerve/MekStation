@@ -397,6 +397,9 @@ it('keeps the recorded BattleMech construction bytes and 21-key shape unchanged'
     .createHash('sha256')
     .update(JSON.stringify(recorded))
     .digest('hex');
+  // Repinned after #2581 regenerated the Atlas AS7-D catalog entry: the only
+  // snapshot change is quirks order (distracting before command_mech), which
+  // is the order in the pinned mm-data Atlas AS7-D.mtf.
   expect(sha).toBe(
     'cdae21a4bd666705bcce2957dcefd5a7f3a84a4519dab403c89da57e04201061',
   );

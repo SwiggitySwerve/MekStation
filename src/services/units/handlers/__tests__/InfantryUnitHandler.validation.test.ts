@@ -179,23 +179,28 @@ describe('InfantryUnitHandler', () => {
     });
 
     describe('field gun crew size validation', () => {
-      it('should fail if field gun crew exceeds squad size', () => {
-        const doc = createMockBlkDocument({
-          squadSize: 1, // Squad size of 1, but field gun needs crew of 2
-          equipmentByLocation: {
-            Platoon: ['Light Field Gun'],
-          },
-        });
-        const result = handler.parse(doc);
+      // TestInfantry.java:295-299 (48fcb2f64): all guns' crew against the platoon.
+      const editorGuns = (guns: string[]) => {
+        const result = handler.parse(
+          createMockBlkDocument({
+            squadSize: 1, // platoon of 4; a Light Field Gun needs 2 crew
+            equipmentByLocation: { Platoon: guns },
+          }),
+        );
         expect(result.success).toBe(true);
+        return handler.validate(result.data!.unit);
+      };
 
-        const validation = handler.validate(result.data!.unit);
-        expect(validation.isValid).toBe(false);
-        expect(
-          validation.errors.some((e) =>
-            e.includes('requires more crew than squad size'),
-          ),
-        ).toBe(true);
+      it('accepts editor field guns whose crew fits the platoon but not one squad', () => {
+        const validation = editorGuns(['Light Field Gun']);
+        expect(validation.errors).toEqual([]);
+        expect(validation.isValid).toBe(true);
+      });
+
+      it('rejects editor field guns whose total crew exceeds the platoon', () => {
+        expect(editorGuns(Array(3).fill('Light Field Gun')).errors).toEqual([
+          'Insufficient troopers to operate the field guns!',
+        ]);
       });
 
       it('should pass if squad size accommodates field gun crew', () => {
