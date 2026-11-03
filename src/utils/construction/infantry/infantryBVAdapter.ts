@@ -26,6 +26,11 @@ import {
 } from '@/types/unit/InfantryInterfaces';
 import { IInfantry, InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
 
+import registryMisc from '../../../../public/data/equipment/official/miscellaneous/java-registry.json';
+import {
+  loadEquipmentCatalog,
+  loadNameMappings,
+} from '../equipmentBV/catalogLoader';
 import {
   calculateInfantryBV,
   IInfantryBVBreakdown,
@@ -375,9 +380,9 @@ export function calculateInfantryBVFromUnit(
  */
 type SourceTags = Readonly<Record<string, string | string[]>>;
 
-// Runtime stopgap until the equipment catalog exposes infantry kit divisors.
-// Python conversion owns its independent offline boundary; aliases match that pin.
-const KIT_DIVISORS = new Map<string, number>();
+// Java kit names (MiscType.create*InfArmor). Python conversion keeps its own
+// offline copy of the names; both take divisors from the generated registry.
+const KIT_NAMES = new Set<string>();
 for (const alias of (
   'Ablative, Standard|ISAblativeStandard|Ablative, Concealed|ISAblativeConcealed|Ablative/Flak, Standard|' +
   'ISAblativeFlakStandard|CLAblativeFlakStandard|Ablative/Flak, Concealed|ISAblativeFlakConcealed|' +
@@ -393,12 +398,12 @@ for (const alias of (
   'Free Rasalhague Republic Infantry Kit|FRRKit|Free Worlds League Infantry Kit|MarikKit|' +
   'Lyran Commonwealth Infantry Kit|SteinerKit|Magistracy of Canopus Infantry Kit|CanopianKit|' +
   'Taurian Concordat/Calderon Infantry Kit|TaurianKit|Generic Infantry Kit|GenericKit|' +
-  'Vintage Bulletproof Vest|BulletproofVest|Vintage Bomb Suit|BombSuit|DEST Infiltration Suit|DESTSuit|' +
+  'DEST Infiltration Suit|DESTSuit|' +
   'Sneak Suit (Camo)|ISSneakSuitCamo|Sneak Suit (IR)|ISSneakSuitIR|Sneak Suit (ECM)|ISSneakSuitECM|' +
   'Sneak Suit (Camo/IR)|ISSneakSuitCamoIR|Sneak Suit (Camo/ECM)|ISSneakSuitCamoECM|Sneak Suit (IR/ECM)|' +
   'ISSneakSuitIRECM|Sneak Suit (Camo/IR/ECM)|ISSneakSuitCamoIRECM'
 ).split('|'))
-  KIT_DIVISORS.set(alias.toLowerCase(), 1.0);
+  KIT_NAMES.add(alias.toLowerCase());
 
 for (const alias of (
   'Ballistic Plate, Standard|ISBallisticPlateStandard|CLBallisticPlateStandard|Environment Suit, Hostile|' +
@@ -411,13 +416,54 @@ for (const alias of (
   'Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit|SteinerKit3060|Marian Hegemony Infantry Kit|' +
   'MarianKit|SLDF Infantry Kit|SLDFKit|Word of Blake Infantry Kit|WoBKit'
 ).split('|'))
-  KIT_DIVISORS.set(alias.toLowerCase(), 2.0);
+  KIT_NAMES.add(alias.toLowerCase());
 
 for (const alias of (
   'Clothing, Light (e.g. Summer Wear/None)|ClothingLightNone|MekWarrior Kit (Basic)|MekWarriorKitBasic|' +
   'MechWarrior Cooling Vest (Only)|MechWarriorCoolingVest'
 ).split('|'))
-  KIT_DIVISORS.set(alias.toLowerCase(), 0.5);
+  KIT_NAMES.add(alias.toLowerCase());
+
+// MiscType.java:3684-3716: deprecated for removal, so not generated.
+const DEPRECATED_KITS = new Set(
+  'vintage bulletproof vest|bulletproofvest|vintage bomb suit|bombsuit'.split(
+    '|',
+  ),
+);
+const KIT_DIVISORS_BY_NAME = new Map(
+  (
+    registryMisc.items as ReadonlyArray<{
+      name: string;
+      damageDivisor?: number;
+    }>
+  )
+    .filter((item) => item.damageDivisor !== undefined)
+    .map((item) => [item.name.toLowerCase(), item.damageDivisor as number]),
+);
+let lowerNameMappings: Map<string, string> | undefined;
+
+/** Generated damageDivisor of a Java kit name; undefined for anything else.
+ * A Java alias whose name mapping keeps a legacy record reaches the generated
+ * record through that record's name, which is the Java internal name.
+ */
+export function getInfantryKitDivisor(name: string): number | undefined {
+  const key = name.toLowerCase();
+  if (DEPRECATED_KITS.has(key)) return 1;
+  if (!KIT_NAMES.has(key)) return undefined;
+  lowerNameMappings ??= new Map(
+    Object.entries(loadNameMappings()).map(([alias, id]) => [
+      alias.toLowerCase(),
+      id,
+    ]),
+  );
+  const mapped = loadEquipmentCatalog().get(lowerNameMappings.get(key) ?? '');
+  const divisor =
+    KIT_DIVISORS_BY_NAME.get(key) ??
+    KIT_DIVISORS_BY_NAME.get(mapped?.name.toLowerCase() ?? '');
+  if (divisor === undefined)
+    throw new Error(`No generated divisor for infantry kit ${name}`);
+  return divisor;
+}
 
 function values(tags: SourceTags, key: string): string[] {
   const raw = tags[key];
@@ -441,9 +487,9 @@ export function resolveInfantryProtection(tags: SourceTags): {
   const kitNames = [
     ...values(tags, 'armorKit'),
     ...values(tags, 'Troopers Equipment'),
-  ].filter((name) => KIT_DIVISORS.has(name.toLowerCase()));
+  ].filter((name) => getInfantryKitDivisor(name) !== undefined);
   const kitName = kitNames[0];
-  const kit = kitName ? KIT_DIVISORS.get(kitName.toLowerCase()) : undefined;
+  const kit = kitName ? getInfantryKitDivisor(kitName) : undefined;
   let divisor = kit ?? custom;
   const augmentations = values(tags, 'augmentation');
   const hasArmor =

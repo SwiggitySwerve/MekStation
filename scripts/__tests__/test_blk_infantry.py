@@ -145,6 +145,19 @@ class InfantryTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.convert(change(body, tag, 'Unknown Equipment'))
 
+    def test_kit_divisors_come_from_the_generated_catalog(self):
+        import blk_infantry_armor as armor
+        registry = Path(__file__).resolve().parents[2] / 'public/data/equipment/official/miscellaneous/java-registry.json'
+        generated = {item['name']: item['damageDivisor'] for item in
+                     json.loads(registry.read_text(encoding='utf-8'))['items'] if 'damageDivisor' in item}
+        self.assertEqual(len(generated), 57)
+        for name, divisor in generated.items():
+            self.assertEqual(armor.kit_divisor(name), divisor, name)
+        self.assertEqual((armor.kit_divisor('HeatSuit'), armor.kit_divisor('MyomerSuit')), (1.0, 2.0))
+        # MiscType.java:3684-3716: deprecated for removal, so not in the generated registry.
+        self.assertEqual((armor.kit_divisor('Vintage Bomb Suit'), armor.kit_divisor('BulletproofVest')), (1.0, 1.0))
+        self.assertIsNone(armor.kit_divisor('ablativestandard'))
+
     def test_prosthetic_slots_are_not_dropped(self):
         body = next(f['body'] for f in FIXTURES if '<prostheticEnhancement1>' in f['body'])
         self.assertEqual(self.convert(body)['prostheticEnhancements'], {'prostheticEnhancement1': 'BALLISTIC', 'prostheticEnhancement2': 'GRAPPLER'})

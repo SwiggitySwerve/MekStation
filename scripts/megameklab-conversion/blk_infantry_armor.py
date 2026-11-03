@@ -1,72 +1,87 @@
 """Infantry armor kit source facts: MegaMek 48fcb2f6 MiscType.create*InfArmor.
 
 Aliases share one kit record; do not infer kit properties from display names.
+Damage divisors come from the generated Java registry (scripts/equipment-catalog).
 """
+import json
+from pathlib import Path
 
-# (name, lookup aliases): (damage divisor, kit flags).
+_REGISTRY = Path(__file__).resolve().parents[2] / 'public/data/equipment/official/miscellaneous/java-registry.json'
+_DIVISORS = {item['name']: float(item['damageDivisor'])
+             for item in json.loads(_REGISTRY.read_text(encoding='utf-8'))['items'] if 'damageDivisor' in item}
+# MiscType.java:3684-3716: deprecated for removal, so not generated.
+_DIVISORS.update({'Vintage Bulletproof Vest': 1.0, 'Vintage Bomb Suit': 1.0})
+
+# (Java internal name, lookup aliases): kit flags.
 _KITS = {
-    ('Ablative, Standard', 'ISAblativeStandard'): (1.0, ('encumberingarmor',)),
-    ('Ablative, Concealed', 'ISAblativeConcealed'): (1.0, ()),
-    ('Ablative/Flak, Standard', 'ISAblativeFlakStandard', 'CLAblativeFlakStandard'): (1.0, ()),
-    ('Ablative/Flak, Concealed', 'ISAblativeFlakConcealed', 'CLAblativeFlakConcealed'): (1.0, ()),
-    ('Ballistic Plate, Standard', 'ISBallisticPlateStandard', 'CLBallisticPlateStandard'): (2.0, ('encumberingarmor',)),
-    ('Ballistic Plate, Concealed', 'BallisticPlateConcealed'): (1.0, ()),
-    ('Clothing, Fatigues/Civilian/Non-Armored', 'Fatigues'): (1.0, ()),
-    ('Clothing, Leather/Synthetic Hide', 'ClothingLeather'): (1.0, ()),
-    ('Clothing, Light (e.g. Summer Wear/None)', 'ClothingLightNone'): (0.5, ()),
-    ('Engineering Suit', 'ISEngineeringSuit', 'CLEngineeringSuit'): (1.0, ('encumberingarmor', 'spacesuit')),
-    ('Environment Suit, Light', 'ISEnvironmentSuitLight', 'CLEnvironmentSuitLight'): (1.0, ('encumberingarmor', 'spacesuit')),
-    ('Environment Suit, Hostile', 'ISEnvironmentSuitHostile', 'CLEnvironmentSuitHostile'): (2.0, ('encumberingarmor', 'spacesuit')),
-    ('Environment Suit, Marine', 'ISEnvironmentSuitMarine', 'CLEnvironmentSuitMarine'): (2.0, ('spacesuit',)),
-    ('Flak, Standard', 'ISFlakStandard'): (1.0, ()),
-    ('Flak, Concealed', 'ISFlakConcealed'): (1.0, ()),
-    ('Heat Suit', 'HeatSuit'): (1.0, ()),
-    ('MechWarrior Combat Suit', 'ISMechWarriorCombatSuit'): (1.0, ()),
-    ('MekWarrior Kit (Basic)', 'MekWarriorKitBasic'): (0.5, ('encumberingarmor',)),
-    ('MekWarrior Kit (Advanced)', 'MekWarriorKitAdvanced'): (1.0, ('encumberingarmor',)),
-    ('MekWarrior Kit (Clan)', 'MekWarriorKitClan'): (1.0, ()),
-    ('Aerospace Fighter Pilot Kit', 'AerospacePilotKit'): (1.0, ('spacesuit',)),
-    ("Tanker's Smock", 'TankersSmock'): (2.0, ()),
-    ('MechWarrior Cooling Suit', 'ISMechWarriorCoolingSuit'): (1.0, ()),
-    ('MechWarrior Cooling Vest (Only)', 'MechWarriorCoolingVest'): (0.5, ()),
-    ('Myomer, Suit', 'MyomerSuit'): (2.0, ('encumberingarmor',)),
-    ('Myomer, Vest', 'MyomerVest'): (2.0, ()),
-    ('Neo-Chainmail', 'NeoChainmail'): (1.0, ()),
-    ('Parka',): (1.0, ()),
-    ('Snowsuit', 'SnowSuit'): (1.0, ('encumberingarmor',)),
-    ('Spacesuit',): (1.0, ('encumberingarmor', 'spacesuit')),
-    ('Spacesuit, Combat', 'SpacesuitCombat'): (1.0, ('encumberingarmor', 'spacesuit')),
-    ('Capellan Confederation Armor Kit (3050)', 'LiaoKit'): (1.0, ()),
-    ('Clan Armor Kit (All)', 'ClanKit'): (2.0, ()),
-    ('ComStar Infantry Kit', 'CSInfKit', 'ComstarKit'): (2.0, ()),
-    ('Draconis Combine Infantry Kit', 'KuritaKit'): (1.0, ()),
-    ('Federated Suns Infantry Kit', 'DavionKit'): (1.0, ()),
-    ('Fed Suns/Fed Commonwealth Infantry Kit (3030-3066)', 'Fed Suns/Fed Commonweath Infantry Kit (3030-3066)', 'DavionKit3030', 'EarlyFedComKit'): (2.0, ()),
-    ('Fed Suns Infantry Kit (3067+)', 'DavionKit3067', 'LateDavionKit'): (2.0, ('encumberingarmor',)),
-    ('Free Rasalhague Republic Infantry Kit', 'FRRKit'): (1.0, ()),
-    ('Free Worlds League Infantry Kit', 'MarikKit'): (1.0, ()),
-    ('Free Worlds League Infantry Kit (3035+)', 'MarikKit3035', 'LateMarikKit'): (2.0, ('encumberingarmor',)),
-    ('Lyran Commonwealth Infantry Kit', 'SteinerKit'): (1.0, ()),
-    ('Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit', 'SteinerKit3060'): (2.0, ()),
-    ('Magistracy of Canopus Infantry Kit', 'CanopianKit'): (1.0, ()),
-    ('Marian Hegemony Infantry Kit', 'MarianKit'): (2.0, ()),
-    ('SLDF Infantry Kit', 'SLDFKit'): (2.0, ()),
-    ('Taurian Concordat/Calderon Infantry Kit', 'TaurianKit'): (1.0, ()),
-    ('Word of Blake Infantry Kit', 'WoBKit'): (2.0, ()),
-    ('Generic Infantry Kit', 'GenericKit'): (1.0, ()),
-    ('Vintage Bulletproof Vest', 'BulletproofVest'): (1.0, ()),
-    ('Vintage Bomb Suit', 'BombSuit'): (1.0, ('encumberingarmor',)),
-    ('DEST Infiltration Suit', 'DESTSuit'): (1.0, ('dest',)),
-    ('Sneak Suit (Camo)', 'ISSneakSuitCamo'): (1.0, ('sneakcamo',)),
-    ('Sneak Suit (IR)', 'ISSneakSuitIR'): (1.0, ('sneakir',)),
-    ('Sneak Suit (ECM)', 'ISSneakSuitECM'): (1.0, ('sneakecm',)),
-    ('Sneak Suit (Camo/IR)', 'ISSneakSuitCamoIR'): (1.0, ('sneakcamo', 'sneakir')),
-    ('Sneak Suit (Camo/ECM)', 'ISSneakSuitCamoECM'): (1.0, ('sneakcamo', 'sneakecm')),
-    ('Sneak Suit (IR/ECM)', 'ISSneakSuitIRECM'): (1.0, ('sneakir', 'sneakecm')),
-    ('Sneak Suit (Camo/IR/ECM)', 'ISSneakSuitCamoIRECM'): (1.0, ('sneakcamo', 'sneakir', 'sneakecm')),
+    ('Ablative, Standard', 'ISAblativeStandard'): ('encumberingarmor',),
+    ('Ablative, Concealed', 'ISAblativeConcealed'): (),
+    ('Ablative/Flak, Standard', 'ISAblativeFlakStandard', 'CLAblativeFlakStandard'): (),
+    ('Ablative/Flak, Concealed', 'ISAblativeFlakConcealed', 'CLAblativeFlakConcealed'): (),
+    ('Ballistic Plate, Standard', 'ISBallisticPlateStandard', 'CLBallisticPlateStandard'): ('encumberingarmor',),
+    ('Ballistic Plate, Concealed', 'BallisticPlateConcealed'): (),
+    ('Clothing, Fatigues/Civilian/Non-Armored', 'Fatigues'): (),
+    ('Clothing, Leather/Synthetic Hide', 'ClothingLeather'): (),
+    ('Clothing, Light (e.g. Summer Wear/None)', 'ClothingLightNone'): (),
+    ('Engineering Suit', 'ISEngineeringSuit', 'CLEngineeringSuit'): ('encumberingarmor', 'spacesuit'),
+    ('Environment Suit, Light', 'ISEnvironmentSuitLight', 'CLEnvironmentSuitLight'): ('encumberingarmor', 'spacesuit'),
+    ('Environment Suit, Hostile', 'ISEnvironmentSuitHostile', 'CLEnvironmentSuitHostile'): ('encumberingarmor', 'spacesuit'),
+    ('Environment Suit, Marine', 'ISEnvironmentSuitMarine', 'CLEnvironmentSuitMarine'): ('spacesuit',),
+    ('Flak, Standard', 'ISFlakStandard'): (),
+    ('Flak, Concealed', 'ISFlakConcealed'): (),
+    ('Heat Suit', 'HeatSuit'): (),
+    ('MechWarrior Combat Suit', 'ISMechWarriorCombatSuit'): (),
+    ('MekWarrior Kit (Basic)', 'MekWarriorKitBasic'): ('encumberingarmor',),
+    ('MekWarrior Kit (Advanced)', 'MekWarriorKitAdvanced'): ('encumberingarmor',),
+    ('MekWarrior Kit (Clan)', 'MekWarriorKitClan'): (),
+    ('Aerospace Fighter Pilot Kit', 'AerospacePilotKit'): ('spacesuit',),
+    ("Tanker's Smock", 'TankersSmock'): (),
+    ('MechWarrior Cooling Suit', 'ISMechWarriorCoolingSuit'): (),
+    ('MechWarrior Cooling Vest (Only)', 'MechWarriorCoolingVest'): (),
+    ('Myomer, Suit', 'MyomerSuit'): ('encumberingarmor',),
+    ('Myomer, Vest', 'MyomerVest'): (),
+    ('Neo-Chainmail', 'NeoChainmail'): (),
+    ('Parka',): (),
+    ('Snowsuit', 'SnowSuit'): ('encumberingarmor',),
+    ('Spacesuit',): ('encumberingarmor', 'spacesuit'),
+    ('Spacesuit, Combat', 'SpacesuitCombat'): ('encumberingarmor', 'spacesuit'),
+    ('Capellan Confederation Armor Kit (3050)', 'LiaoKit'): (),
+    ('Clan Armor Kit (All)', 'ClanKit'): (),
+    ('ComStar Infantry Kit', 'CSInfKit', 'ComstarKit'): (),
+    ('Draconis Combine Infantry Kit', 'KuritaKit'): (),
+    ('Federated Suns Infantry Kit', 'DavionKit'): (),
+    ('Fed Suns/Fed Commonwealth Infantry Kit (3030-3066)', 'Fed Suns/Fed Commonweath Infantry Kit (3030-3066)', 'DavionKit3030', 'EarlyFedComKit'): (),
+    ('Fed Suns Infantry Kit (3067+)', 'DavionKit3067', 'LateDavionKit'): ('encumberingarmor',),
+    ('Free Rasalhague Republic Infantry Kit', 'FRRKit'): (),
+    ('Free Worlds League Infantry Kit', 'MarikKit'): (),
+    ('Free Worlds League Infantry Kit (3035+)', 'MarikKit3035', 'LateMarikKit'): ('encumberingarmor',),
+    ('Lyran Commonwealth Infantry Kit', 'SteinerKit'): (),
+    ('Lyran Alliance/Lyran Commonwealth (3060+) Infantry Kit', 'SteinerKit3060'): (),
+    ('Magistracy of Canopus Infantry Kit', 'CanopianKit'): (),
+    ('Marian Hegemony Infantry Kit', 'MarianKit'): (),
+    ('SLDF Infantry Kit', 'SLDFKit'): (),
+    ('Taurian Concordat/Calderon Infantry Kit', 'TaurianKit'): (),
+    ('Word of Blake Infantry Kit', 'WoBKit'): (),
+    ('Generic Infantry Kit', 'GenericKit'): (),
+    ('Vintage Bulletproof Vest', 'BulletproofVest'): (),
+    ('Vintage Bomb Suit', 'BombSuit'): ('encumberingarmor',),
+    ('DEST Infiltration Suit', 'DESTSuit'): ('dest',),
+    ('Sneak Suit (Camo)', 'ISSneakSuitCamo'): ('sneakcamo',),
+    ('Sneak Suit (IR)', 'ISSneakSuitIR'): ('sneakir',),
+    ('Sneak Suit (ECM)', 'ISSneakSuitECM'): ('sneakecm',),
+    ('Sneak Suit (Camo/IR)', 'ISSneakSuitCamoIR'): ('sneakcamo', 'sneakir'),
+    ('Sneak Suit (Camo/ECM)', 'ISSneakSuitCamoECM'): ('sneakcamo', 'sneakecm'),
+    ('Sneak Suit (IR/ECM)', 'ISSneakSuitIRECM'): ('sneakir', 'sneakecm'),
+    ('Sneak Suit (Camo/IR/ECM)', 'ISSneakSuitCamoIRECM'): ('sneakcamo', 'sneakir', 'sneakecm'),
 }
-ARMOR_KITS = {alias.lower(): (names[0], divisor, flags)
-              for names, (divisor, flags) in _KITS.items() for alias in names}
+ARMOR_KITS = {alias.lower(): (names[0], _DIVISORS[names[0]], flags)
+              for names, flags in _KITS.items() for alias in names}
+
+
+def kit_divisor(name):
+    """Generated damage divisor of a Java kit name, or None."""
+    kit = ARMOR_KITS.get(name.lower())
+    return kit[1] if kit else None
 
 
 def infantry_armor(legacy_kit, equipment, custom_divisor, custom_flags, augmentations, beast_divisor, custom_name=None):

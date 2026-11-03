@@ -30,7 +30,7 @@ import {
   getProtoMPCaps,
   isMyomerBoosterLegal,
 } from './movementCaps';
-import { PROTO_AMMO_STOPGAP } from './protoMechAmmo';
+import { getProtoAmmo } from './protoMechAmmo';
 import {
   getProtoWeightClass,
   isChassisLegalForTonnage,
@@ -139,9 +139,9 @@ function getProtoMinimumWeight(unit: IProtoMech): number | undefined {
       continue;
     const syntax = readBlkProtoEquipmentEntry(mount.equipmentId);
     if (!syntax.lookupName || syntax.errors.length) continue;
-    const ammo = PROTO_AMMO_STOPGAP[syntax.lookupName];
+    const ammo = getProtoAmmo(syntax.lookupName);
     if (ammo && syntax.shots !== undefined) {
-      weight += Math.ceil(ammo[0] * syntax.shots) / 1000;
+      weight += Math.ceil(ammo.kgPerShot * syntax.shots) / 1000;
       continue;
     }
     const entry = getEquipmentEntry(syntax.lookupName);
