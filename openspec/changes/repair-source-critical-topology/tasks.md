@@ -1,0 +1,5 @@
+- [x] Reproduce the small, torso-mounted and armored-marker failures on real mechs (red).
+- [x] Give the cockpit owner its slot positions, match the counts, pass the cockpit to validation, and kill one mutant per rule.
+- [x] Prove all-family validity agreement and unchanged BV on one fixed main.
+- [x] Run the validation and customizer suites, both TypeScript projects, lint, formatting and OpenSpec gates.
+- [ ] Wire the editor grid, auto-fill, loadout and preview consumers to the same owner (follow-up).

@@ -23,6 +23,45 @@ export enum CockpitType {
 }
 
 /**
+ * Fixed cockpit system positions (0-based) for the selected cockpit, shared by
+ * slot topology and the derived head/other slot counts below. Pinned MegaMek
+ * 48fcb2f64 Mek.java:5692-5702 (small), 5719-5727 (command console) and
+ * 5797-5838 (torso-mounted: head sensors, the first two free center-torso
+ * slots, and life support at side-torso slot 0 ahead of the engine).
+ */
+export function getCockpitSystemSlots(type: string = CockpitType.STANDARD): {
+  readonly head: ReadonlyMap<number, string>;
+  readonly centerTorso: readonly string[];
+  readonly sideTorso: readonly string[];
+} {
+  if (type === CockpitType.TORSO_MOUNTED)
+    return {
+      head: new Map([
+        [0, 'Sensors'],
+        [1, 'Sensors'],
+      ]),
+      centerTorso: ['Torso-Mounted Cockpit', 'Sensors'],
+      sideTorso: ['Life Support'],
+    };
+  const head = new Map([
+    [0, 'Life Support'],
+    [1, 'Sensors'],
+    [2, 'Standard Cockpit'],
+    [4, 'Sensors'],
+    [5, 'Life Support'],
+  ]);
+  if (type === CockpitType.SMALL) {
+    head.delete(4);
+    head.delete(5);
+    head.set(2, 'Small Cockpit');
+    head.set(3, 'Sensors');
+  } else if (type === CockpitType.COMMAND_CONSOLE) {
+    head.set(3, 'Command Console');
+  }
+  return { head, centerTorso: [], sideTorso: [] };
+}
+
+/**
  * Cockpit definition with all characteristics
  */
 export interface CockpitDefinition {
@@ -80,8 +119,8 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.ADVANCED,
     weight: 4,
-    headSlots: 4, // sensors (2), life support (2)
-    otherSlots: 2, // cockpit in CT
+    headSlots: 2, // sensors (2); Mek.java:5800-5805
+    otherSlots: 4, // CT cockpit + sensors, life support per side torso
     introductionYear: 3053,
   },
   {
