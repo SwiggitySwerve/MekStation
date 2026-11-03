@@ -1,13 +1,13 @@
 /**
  * VAL-UNIV-013: Per-Location Armor Validation
- * ERROR: Locations with armor below 20% of maximum (critical)
+ * WARNING: Locations with armor below 20% of maximum (critical)
  * WARNING: Locations with armor between 20-40% of maximum (low)
  *
  * Thresholds align with ArmorFills.tsx status colors:
  * - HEALTHY: >= 60%
  * - MODERATE: >= 40%
  * - LOW: >= 20% (warning)
- * - CRITICAL: < 20% (error)
+ * - CRITICAL: < 20% (warning)
  *
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
@@ -27,6 +27,7 @@ import {
   createEmptyRuleResult,
 } from '../ruleResults';
 
+// TestMek.java:682-713 checks maxima, with no minimum armor requirement.
 const ARMOR_ALLOCATION_VALIDATION_ARMOR_CATEGORY = ValidationCategory.ARMOR;
 
 /**
@@ -46,7 +47,6 @@ export const ArmorAllocationValidation: IUnitValidationRuleDefinition = {
 
   validate(context: IUnitValidationContext): IUnitValidationRuleResult {
     const { unit } = context;
-    const errors: IUnitValidationError[] = [];
     const warnings: IUnitValidationError[] = [];
 
     if (!unit.armorByLocation) {
@@ -54,7 +54,7 @@ export const ArmorAllocationValidation: IUnitValidationRuleDefinition = {
     }
 
     const armor = unit.armorByLocation;
-    const CRITICAL_THRESHOLD = 0.2; // < 20% = error
+    const CRITICAL_THRESHOLD = 0.2; // < 20% = warning
     const LOW_THRESHOLD = 0.4; // < 40% but >= 20% = warning
 
     // Check each location - uses displayName from the armor entry
@@ -66,12 +66,12 @@ export const ArmorAllocationValidation: IUnitValidationRuleDefinition = {
 
       const ratio = locationArmor.current / locationArmor.max;
 
-      // ERROR: Location has critical armor (< 20%)
+      // WARNING: Location has critical armor (< 20%)
       if (ratio < CRITICAL_THRESHOLD) {
         addRuleDiagnostic(
-          errors,
+          warnings,
           this,
-          UnitValidationSeverity.ERROR,
+          UnitValidationSeverity.WARNING,
           locationArmor.current === 0
             ? `${displayName} has no armor - will be destroyed on first hit`
             : `${displayName} has critical armor (${locationArmor.current}/${locationArmor.max}, ${Math.round(ratio * 100)}%)`,
@@ -100,6 +100,6 @@ export const ArmorAllocationValidation: IUnitValidationRuleDefinition = {
       }
     }
 
-    return createRuleResult(this, { errors, warnings });
+    return createRuleResult(this, { warnings });
   },
 };
