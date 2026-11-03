@@ -922,7 +922,7 @@
       "weight": 3,
       "criticalSlots": 2,
       "costCBills": 120000,
-      "battleValue": 5,
+      "battleValue": 5.175,
       "introductionYear": 3084,
       "special": []
     },
@@ -2027,7 +2027,7 @@
       "category": "Miscellaneous",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "weight": 0,
+      "weight": 1,
       "criticalSlots": 1,
       "costCBills": 25000,
       "battleValue": 0,
@@ -2673,7 +2673,7 @@
       "weight": 0,
       "criticalSlots": 1,
       "costCBills": 25000,
-      "battleValue": 0,
+      "battleValue": 1,
       "introductionYear": 3080,
       "special": ["Variable weight"]
     },
@@ -3480,7 +3480,7 @@
       "weight": 0.035,
       "criticalSlots": 0,
       "costCBills": 12500,
-      "battleValue": 1,
+      "battleValue": 1.5,
       "introductionYear": 3055,
       "special": []
     },
@@ -3493,7 +3493,7 @@
       "weight": 0.04,
       "criticalSlots": 0,
       "costCBills": 31250,
-      "battleValue": 1,
+      "battleValue": 1.5,
       "introductionYear": 3055,
       "special": []
     },
@@ -3935,7 +3935,7 @@
       "weight": 0.5,
       "criticalSlots": 1,
       "costCBills": 10000,
-      "battleValue": 5,
+      "battleValue": 15,
       "introductionYear": 1950,
       "special": ["smoke"]
     },
@@ -3946,7 +3946,7 @@
       "techBase": "INNER_SPHERE",
       "rulesLevel": "EXPERIMENTAL",
       "weight": 3,
-      "criticalSlots": 4,
+      "criticalSlots": 2,
       "costCBills": 300000,
       "battleValue": 64,
       "introductionYear": 3137,
