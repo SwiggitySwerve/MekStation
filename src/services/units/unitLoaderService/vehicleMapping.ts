@@ -11,19 +11,20 @@ import { getUnitIndexWeightClass } from '@/services/units/unitWeightClass';
 import { setTurretTypeLogic } from '@/stores/useVehicleStore.actions';
 import {
   createDefaultVehicleState,
+  createVehicleMountedEquipment,
   type VehicleState,
 } from '@/stores/vehicleState';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { UnitContract } from '@/types/contracts';
 import { TechBase } from '@/types/enums/TechBase';
-import { WeightClass } from '@/types/enums/WeightClass';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   TurretType,
   IVehicleMountedEquipment,
 } from '@/types/unit/VehicleInterfaces';
+import { parseVehicleEditor } from '@/types/unit/VehicleSerialization';
 import {
   computeVehicleArmorWeight,
   getSupportVehicleBarArmorWeight,
@@ -37,7 +38,6 @@ import {
   getPrimaryVehicleTurretType,
   getVehicleMountFlags,
 } from '@/utils/construction/vehicle/equipmentMounts';
-import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 import { generateUnitId } from '@/utils/uuid';
 
 import {
@@ -51,49 +51,7 @@ import { isDefinitionForFamily } from './definitionTypes';
 import { resolveEquipmentId } from './equipmentResolution';
 import { UnsupportedUnitConfigurationError } from './movementConfiguration';
 
-/** Saved editor facts absent from, or not derivable from, the catalog contract.
- * Canonical armor, engine, movement and equipment identities stay in that contract. */
-const turretSchema = z
-  .object({
-    type: z.enum(TurretType),
-    rotationArc: z.number().nonnegative(),
-  })
-  .nullable();
-export const vehicleEditorSchema = z.object({
-  name: z.string(),
-  weightClass: z.enum(WeightClass),
-  flankMP: z.number().nonnegative(),
-  armorTonnage: z.number().nonnegative(),
-  turret: turretSchema,
-  secondaryTurret: turretSchema,
-  hasNoControlSystems: z.boolean().optional(),
-  isSuperheavy: z.boolean(),
-  hasEnvironmentalSealing: z.boolean(),
-  hasFlotationHull: z.boolean(),
-  isAmphibious: z.boolean(),
-  hasTrailerHitch: z.boolean(),
-  structureType: z.enum(VehicleStructureType),
-  crewSize: z.number().int().nonnegative(),
-  passengerSlots: z.number().int().nonnegative(),
-  barRating: z.number().nullable(),
-  powerAmpWeight: z.number().nonnegative(),
-  mounts: z.array(
-    z.object({
-      name: z.string(),
-      isTurretMounted: z.boolean(),
-      isSponsonMounted: z.boolean(),
-      isChinTurretMounted: z.boolean().optional(),
-      isPintleTurretMounted: z.boolean().optional(),
-      resolutionWarning: z
-        .object({
-          code: z.literal('unresolved-equipment'),
-          sourceId: z.string(),
-          attemptedId: z.string(),
-        })
-        .optional(),
-    }),
-  ),
-});
+export { vehicleEditorSchema } from '@/types/unit/VehicleSerialization';
 
 type UnsupportedVehicleField =
   | 'unitType'
@@ -318,12 +276,12 @@ export function normalizeVehicleConfiguration(
 export function mapToVehicleState(input: unknown): VehicleState {
   const definition = UnitContract.parse(input);
   const configuration = normalizeVehicleConfiguration(definition);
-  if (definition.vehicleEditor !== undefined) {
-    const { mounts, ...editor } = vehicleEditorSchema.parse(
-      definition.vehicleEditor,
-    );
-    if (mounts.length !== configuration.equipment.length)
-      throw new TypeError('Saved vehicle mount count does not match equipment');
+  const savedEditor = parseVehicleEditor(
+    definition.vehicleEditor,
+    configuration.equipment.length,
+  );
+  if (savedEditor) {
+    const { mounts, ...editor } = savedEditor;
     Object.assign(configuration, editor);
     configuration.equipment = configuration.equipment.map((item, index) => ({
       ...item,
@@ -377,10 +335,15 @@ export function mapVehicleEquipment(
       techBaseMode,
       undefined,
     );
+    const identity = equipmentDef
+      ? createVehicleMountedEquipment(equipmentDef, `mount-${index}`)
+      : {
+          id: `mount-${index}`,
+          equipmentId: item.id,
+          name: item.name ?? item.id,
+        };
     return {
-      id: `mount-${index}`,
-      equipmentId: equipmentDef?.id ?? item.id,
-      name: equipmentDef?.name ?? item.name ?? item.id,
+      ...identity,
       location,
       ...flags,
       isRearMounted: item.isRearMounted || flags.isRearMounted,

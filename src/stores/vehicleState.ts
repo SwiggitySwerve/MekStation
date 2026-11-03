@@ -21,7 +21,7 @@ import {
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
-import { IEquipmentItem } from '@/types/equipment';
+import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
@@ -117,6 +117,7 @@ export function createVehicleMountedEquipment(
     id: instanceId,
     equipmentId: item.id,
     name: item.name,
+    ...(item.category === EquipmentCategory.AMMUNITION ? { isAmmo: true } : {}),
     location: location ?? VehicleLocation.BODY,
     isRearMounted: false,
     isTurretMounted,
