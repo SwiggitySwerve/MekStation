@@ -10,6 +10,7 @@ export interface ISimpleEquipmentInput {
   readonly equipmentId?: string;
   readonly name: string;
   readonly location: string;
+  readonly locationAbbr?: string;
   readonly heat?: number;
   readonly damage?: number | string;
   readonly ranges?: {
@@ -52,7 +53,8 @@ export function mapSimpleRecordSheetEquipment(
       id: eq.id ?? String(index),
       name: eq.name,
       location: eq.location,
-      locationAbbr: eq.location.substring(0, 3).toUpperCase(),
+      locationAbbr:
+        eq.locationAbbr ?? eq.location.substring(0, 3).toUpperCase(),
       heat: eq.heat ?? resolved?.heat ?? '-',
       damage: eq.damage ?? resolved?.damage ?? '-',
       damageCode: resolved?.damageCode,

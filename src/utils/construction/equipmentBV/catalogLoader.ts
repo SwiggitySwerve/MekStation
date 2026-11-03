@@ -59,6 +59,9 @@ function toCatalogEntry(
       typeof item.damage === 'number' || typeof item.damage === 'string'
         ? item.damage
         : undefined,
+    ...(typeof item.introductionYear === 'number'
+      ? { introductionYear: item.introductionYear }
+      : {}),
   };
 }
 

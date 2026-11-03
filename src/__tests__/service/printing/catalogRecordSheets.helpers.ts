@@ -159,6 +159,10 @@ export function verifyCatalogUnit(
       )) {
         const label: Record<string, string> = {
           FRONT: 'Front',
+          FRONT_LEFT: 'Front Left',
+          FRONT_RIGHT: 'Front Right',
+          REAR_LEFT: 'Rear Left',
+          REAR_RIGHT: 'Rear Right',
           LEFT: 'Left Side',
           RIGHT: 'Right Side',
           REAR: 'Rear',
@@ -176,6 +180,8 @@ export function verifyCatalogUnit(
         bindings.texts.bv,
         String(data.header.battleValue.toLocaleString()),
       );
+      if (data.equipment.length)
+        check('binding.inventory', bindings.inventory, data.equipment);
       stage = 'template';
       row.template = selectVehicleTemplate(data);
       const subtype = {
@@ -242,13 +248,26 @@ export function verifyCatalogUnit(
           points,
         );
       checkEquipment(data.equipment, state.equipment, check);
-      bindAerospace(data);
+      const bindings = bindAerospace(data);
+      if (data.equipment.length)
+        check('binding.inventory', bindings.inventory, data.equipment);
+      check(
+        'binding.SI',
+        bindings.pips.find((p) => p.groupId === 'siPips')?.count ?? 0,
+        data.structuralIntegrity,
+      );
+      if (!data.isConventional)
+        check(
+          'binding.heat',
+          bindings.pips.find((p) => p.groupId === 'heatSinkPips')?.count ?? 0,
+          data.heatSinks.count,
+        );
       row.template = selectAerospaceTemplate(data);
       check(
         'template',
         row.template,
         state.unitType === 'Small Craft'
-          ? 'small-craft-template-unavailable'
+          ? `smallcraft_${state.motionType === 'Spheroid' ? 'spheroid' : 'aerodyne'}_default`
           : state.unitType === 'Conventional Fighter'
             ? 'fighter_conventional'
             : 'fighter_aerospace',

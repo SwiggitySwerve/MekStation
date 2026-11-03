@@ -15,9 +15,12 @@ import type { IAerospaceRecordSheetUnitInput } from '@/services/printing/records
 import type { IAerospaceArmorAllocation } from '@/stores/aerospaceState';
 import type { IAerospaceMountedEquipment } from '@/types/unit/AerospaceInterfaces';
 
+import { getAerospaceEquipmentLocationAbbr } from '@/services/printing/recordsheet/equipmentLocations';
+import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { getTotalAerospaceArmor } from '@/stores/aerospaceState';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
+import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
 
@@ -33,6 +36,7 @@ export interface AerospaceUnitObjectInput extends RecordSheetUnitIdentityWithTon
     | UnitType.CONVENTIONAL_FIGHTER
     | UnitType.SMALL_CRAFT;
   isFixedWingSupport?: boolean;
+  motionType?: AerospaceMotionType;
   structuralIntegrity: number;
   fuelPoints: number;
   safeThrust: number;
@@ -91,8 +95,11 @@ export function buildAerospaceUnitObject(
     ...buildRecordSheetUnitIdentity(input),
     battleValue: bv.breakdown.final,
     isConventional: input.unitType === UnitType.CONVENTIONAL_FIGHTER,
-    // Dispatch hint — resolves to the 'aerospace' kind for both sub-types.
-    // There is no small craft sheet yet; small craft use the aerospace sheet.
+    smallCraftMotionType:
+      input.unitType === UnitType.SMALL_CRAFT
+        ? (input.motionType ?? AerospaceMotionType.AERODYNE)
+        : undefined,
+    // Small craft share the aerospace extractor, with explicit hull context.
     unitType:
       input.unitType === UnitType.SMALL_CRAFT
         ? UnitType.AEROSPACE
@@ -113,6 +120,12 @@ export function buildAerospaceUnitObject(
       equipmentId: eq.equipmentId,
       name: eq.name,
       location: String(eq.location),
+      locationAbbr: getAerospaceEquipmentLocationAbbr(
+        aerospaceContractArc(
+          eq.location,
+          input.unitType === UnitType.SMALL_CRAFT,
+        ),
+      ),
     })),
   };
 }

@@ -1,3 +1,5 @@
+import type { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
+
 import type {
   IMechRecordSheetData,
   IRecordSheetEquipment,
@@ -83,6 +85,8 @@ export interface IAerospaceRecordSheetData {
    * selection (`fighter_conventional` vs `fighter_aerospace`).
    */
   readonly isConventional?: boolean;
+  /** Present only for small craft; selects the pinned hull-specific sheet. */
+  readonly smallCraftMotionType?: AerospaceMotionType;
   /** Structural Integrity — the aerospace equivalent of internal structure. */
   readonly structuralIntegrity: number;
   readonly fuelPoints: number;

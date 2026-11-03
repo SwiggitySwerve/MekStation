@@ -13,11 +13,17 @@
  *   (Requirement: Per-Family Record Sheet Adapters)
  */
 
-import type { IAerospaceRecordSheetData } from '@/types/printing';
+import type {
+  IAerospaceRecordSheetData,
+  IRecordSheetEquipment,
+} from '@/types/printing';
 
 import type { PipFill, TextBindings } from '../templateRecordSheetRenderer';
 
-import { AEROSPACE_TEMPLATE_IDS } from '../templateElementIds';
+import {
+  AEROSPACE_TEMPLATE_IDS,
+  VEHICLE_TEMPLATE_IDS,
+} from '../templateElementIds';
 
 /**
  * Per-arc armor pip counts for an aerospace / conventional fighter.
@@ -37,6 +43,7 @@ export interface AerospacePipCounts {
 
 /** The result of binding an aerospace unit to its canonical template. */
 export interface AerospaceBindings {
+  readonly inventory: readonly IRecordSheetEquipment[];
   /** Text injections keyed by template element ID. */
   readonly texts: TextBindings;
   /** Pip-group fills keyed by template pip-group element ID. */
@@ -116,7 +123,10 @@ export function bindAerospace(
     [AEROSPACE_TEMPLATE_IDS.mpRun]: String(data.maxThrust),
     [AEROSPACE_TEMPLATE_IDS.textSI]: String(data.structuralIntegrity),
     [AEROSPACE_TEMPLATE_IDS.hsType]: data.heatSinks.type,
-    [AEROSPACE_TEMPLATE_IDS.hsCount]: String(data.heatSinks.count),
+    [AEROSPACE_TEMPLATE_IDS.hsCount]:
+      data.heatSinks.capacity === data.heatSinks.count
+        ? String(data.heatSinks.count)
+        : `${data.heatSinks.count} (${data.heatSinks.capacity})`,
   };
 
   // Pilot skills, when present.
@@ -125,9 +135,23 @@ export function bindAerospace(
     texts[AEROSPACE_TEMPLATE_IDS.pilotingSkill0] = String(data.pilot.piloting);
   }
 
+  const armorText = data.smallCraftMotionType
+    ? {
+        ...ARMOR_TEXT,
+        LWG: VEHICLE_TEMPLATE_IDS.textArmor_LS,
+        RWG: VEHICLE_TEMPLATE_IDS.textArmor_RS,
+      }
+    : ARMOR_TEXT;
+  const armorGroups = data.smallCraftMotionType
+    ? {
+        ...ARMOR_PIP_GROUP,
+        LWG: VEHICLE_TEMPLATE_IDS.armorPipsLS,
+        RWG: VEHICLE_TEMPLATE_IDS.armorPipsRS,
+      }
+    : ARMOR_PIP_GROUP;
   // Armor value-text labels per arc.
   for (const code of Object.keys(pipCounts) as (keyof AerospacePipCounts)[]) {
-    texts[ARMOR_TEXT[code]] = String(pipCounts[code]);
+    texts[armorText[code]] = String(pipCounts[code]);
   }
 
   // --- Pip fills — one per armed arc ---
@@ -136,12 +160,23 @@ export function bindAerospace(
     const count = pipCounts[code];
     if (count > 0) {
       pips.push({
-        groupId: ARMOR_PIP_GROUP[code],
+        groupId: armorGroups[code],
         count,
         className: 'pip armor',
       });
     }
   }
 
-  return { texts, pips, pipCounts };
+  pips.push({
+    groupId: AEROSPACE_TEMPLATE_IDS.siPips,
+    count: data.structuralIntegrity,
+    className: 'pip structure',
+  });
+  if (!data.isConventional)
+    pips.push({
+      groupId: AEROSPACE_TEMPLATE_IDS.heatSinkPips,
+      count: data.heatSinks.count,
+      className: 'pip heat-sink',
+    });
+  return { texts, pips, pipCounts, inventory: data.equipment };
 }
