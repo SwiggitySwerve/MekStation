@@ -12,7 +12,6 @@ import path from 'path';
 import React from 'react';
 
 import type { RecordSheetPrintableData } from '@/services/printing/RecordSheetService';
-import type { IRecordSheetData } from '@/types/printing';
 
 import { buildAerospaceUnitObject } from '@/components/customizer/aerospace/buildAerospaceUnitObject';
 import { BattleArmorPreviewTab } from '@/components/customizer/battlearmor/BattleArmorPreviewTab';
