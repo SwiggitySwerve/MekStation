@@ -1,4 +1,5 @@
 import { MechLocation } from '@/types/construction';
+import { getStandardCockpitHeadSlots } from '@/types/construction/CockpitType';
 import {
   EngineType,
   getEngineDefinition,
@@ -27,12 +28,7 @@ export function getFixedSlotNames(
   };
   switch (location) {
     case MechLocation.HEAD:
-      put(0, 'Life Support');
-      put(1, 'Sensors');
-      put(2, 'Standard Cockpit');
-      put(4, 'Sensors');
-      put(5, 'Life Support');
-      break;
+      return getStandardCockpitHeadSlots();
     case MechLocation.CENTER_TORSO: {
       const engine = getEngineDefinition(engineType)?.ctSlots ?? 6;
       const gyro = getGyroDefinition(gyroType)?.criticalSlots ?? 4;

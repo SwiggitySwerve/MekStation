@@ -22,6 +22,17 @@ export enum CockpitType {
   SUPER_HEAVY = 'Superheavy',
 }
 
+/** Standard head occupancy, shared by metadata and physical slot topology. */
+export function getStandardCockpitHeadSlots(): ReadonlyMap<number, string> {
+  return new Map([
+    [0, 'Life Support'],
+    [1, 'Sensors'],
+    [2, 'Standard Cockpit'],
+    [4, 'Sensors'],
+    [5, 'Life Support'],
+  ]);
+}
+
 /**
  * Cockpit definition with all characteristics
  */
@@ -50,7 +61,7 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.INTRODUCTORY,
     weight: 3,
-    headSlots: 5, // life support (2), sensors (2), cockpit (1)
+    headSlots: getStandardCockpitHeadSlots().size, // same physical head layout
     otherSlots: 0,
     introductionYear: 2439,
   },
