@@ -44,8 +44,6 @@ scripts/**
 !scripts/equipment-catalog/**
 !scripts/
 !scripts/AGENTS.md
-!scripts/equipment-catalog/
-!scripts/equipment-catalog/**
 !scripts/expand-unit-type-requirements.mjs
 !scripts/schema-local-definitions.mjs
 !scripts/expand-source-provenance-variants.mjs
@@ -158,8 +156,18 @@ data/
 /public/data/*
 !/public/data/equipment/
 /public/data/equipment/*
-# Reviewed catalog generation and commit hooks must be able to stage this tree.
+# Only the reviewed generator's outputs (CAT-Q2) are allowlisted; the rest of
+# official/ stays ignored, so new hand-written catalog files can't be staged.
 !/public/data/equipment/official/
+/public/data/equipment/official/*
+!/public/data/equipment/official/ammunition/
+!/public/data/equipment/official/miscellaneous/
+!/public/data/equipment/official/weapons/
+/public/data/equipment/official/ammunition/*
+/public/data/equipment/official/miscellaneous/*
+/public/data/equipment/official/weapons/*
+!/public/data/equipment/official/*/java-registry.json
+!/public/data/equipment/registry-routing.json
 !/public/data/equipment/_schema/
 /public/data/equipment/_schema/*
 !/public/data/equipment/_schema/unit-schema.json
