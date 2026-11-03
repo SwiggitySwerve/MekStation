@@ -1,14 +1,16 @@
 /**
- * Strict biped BattleMech construction snapshot for custom combat.
- *
- * Built from the generated BattleMech/Omni/Industrial contract
- * (`UnitContract.options[0]`). Projection `.strip()` drops library metadata.
- * Recorded/replay validation is `.strict()` including nested movement.
+ * Strict saved combat construction; the original Mech record stays pinned.
  *
  * @spec openspec/changes/enable-saved-custom-unit-combat/specs/custom-unit-combat/spec.md
  */
 
 import { z } from 'zod';
+
+import type { UnitFamily } from '@/types/unit/UnitIndex';
+
+import { UNIT_DEFINITION_FAMILIES } from '@/services/units/unitLoaderService/definitionTypes';
+import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { parseUnitReference } from '@/types/unit/UnitIndex';
 
 import { UnitContract } from './generated/unit.zod';
 
@@ -103,14 +105,109 @@ export const customCombatSnapshotSchema = mech
   })
   .strict();
 
-export type CustomCombatSnapshot = z.infer<typeof customCombatSnapshotSchema>;
+// Keep the Mech object above unchanged: callers pin its exact 21-key shape.
+const native = UnitContract.options[1].def.left;
+const mp = mech.shape.movement.shape.walk;
+const nativeMovement = native.shape.movement
+  .unwrap()
+  .extend({
+    cruiseMP: mp.optional(),
+    flankMP: mp.optional(),
+    safeThrust: mp.optional(),
+    maxThrust: mp.optional(),
+  })
+  .strict();
+const nativeSnapshot = native
+  .omit({
+    fluff: true,
+    source: true,
+    mulId: true,
+    role: true,
+    sourceDefinition: true,
+    configuration: true,
+    gyro: true,
+    criticalSlots: true,
+  })
+  .required({
+    chassis: true,
+    tonnage: true,
+    engine: true,
+    armor: true,
+    equipment: true,
+  })
+  .extend({ movement: nativeMovement, motionType: z.string().min(1) })
+  .strict();
+const vehicleSnapshot = nativeSnapshot
+  .extend({
+    family: z.literal('vehicles'),
+    unitType: z.enum(UNIT_DEFINITION_FAMILIES.vehicles.unitTypes),
+    motionType: z.enum(GroundMotionType),
+    movement: nativeMovement.extend({ cruiseMP: mp }),
+  })
+  .refine(
+    (value) =>
+      value.armor.byLocation !== undefined &&
+      UnitContract.safeParse(value).success,
+    'Vehicle armor.byLocation required',
+  );
+const aerospaceSnapshot = nativeSnapshot
+  .extend({
+    family: z.literal('aerospace'),
+    unitType: z.enum(UNIT_DEFINITION_FAMILIES.aerospace.unitTypes),
+    subType: z.string().optional(),
+    structuralIntegrity: ARMOR_POINTS.optional(),
+    movement: nativeMovement.extend({ safeThrust: mp }),
+    fuel: native.shape.fuel.unwrap(),
+    heatSinks: native.shape.heatSinks.unwrap(),
+  })
+  .refine(
+    (value) =>
+      value.armor.byArc !== undefined && UnitContract.safeParse(value).success,
+    'Aerospace armor.byArc required',
+  );
+
+const snapshotSchemas = [
+  customCombatSnapshotSchema,
+  vehicleSnapshot,
+  aerospaceSnapshot,
+] as const;
+export const recordedCustomCombatSnapshotSchema = z.union(snapshotSchemas);
+export type CustomCombatSnapshot = z.infer<
+  typeof recordedCustomCombatSnapshotSchema
+>;
+
+export function customCombatSnapshotFamily(
+  snapshot: CustomCombatSnapshot,
+): UnitFamily {
+  return 'family' in snapshot ? snapshot.family : 'battlemechs';
+}
+
+export function isCustomCombatReference(reference: string): boolean {
+  return parseUnitReference(reference).id.startsWith('custom-');
+}
+
+export function snapshotRefError(
+  snapshot: CustomCombatSnapshot,
+  ref: string,
+): 'identity' | 'family' | null {
+  const { id, family } = parseUnitReference(ref);
+  if (!isCustomCombatReference(ref) || snapshot.id !== id) return 'identity';
+  return (family ?? 'battlemechs') === customCombatSnapshotFamily(snapshot)
+    ? null
+    : 'family';
+}
 
 /** Strip unknown/library keys, then accept only the strict recorded snapshot. */
 export function projectCustomCombatSnapshot(
   payload: unknown,
 ): CustomCombatSnapshot | null {
-  const projected = customCombatSnapshotSchema.strip().safeParse(payload);
-  if (!projected.success) return null;
-  const recorded = customCombatSnapshotSchema.safeParse(projected.data);
-  return recorded.success ? recorded.data : null;
+  for (const schema of snapshotSchemas) {
+    const projected = schema.strip().safeParse(payload);
+    if (!projected.success) continue;
+    const recorded = recordedCustomCombatSnapshotSchema.safeParse(
+      projected.data,
+    );
+    if (recorded.success) return recorded.data;
+  }
+  return null;
 }
