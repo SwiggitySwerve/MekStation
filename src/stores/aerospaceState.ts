@@ -176,7 +176,6 @@ export interface AerospaceState {
    * safe thrust alone (FixedWingSupport.java:135-138).
    */
   isFixedWingSupport?: boolean;
-  barRating?: number;
   structuralTechRating?: number;
   engineTechRating?: number;
 
@@ -254,6 +253,8 @@ export interface AerospaceState {
 
   /** Armor type */
   armorType: ArmorTypeEnum;
+  /** Source support-aircraft Barrier Armor Rating, retained for shared BV. */
+  barRating?: number;
 
   /** Total armor tonnage allocated */
   armorTonnage: number;

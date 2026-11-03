@@ -21,7 +21,6 @@ import { serializeVehicleTurretContext } from '@/services/conversion/vehicleTurr
 import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { getCriticalSlotsForLocation } from '@/services/units/unitLoaderService/criticalSlotEquipment';
 import { vehicleEditorSchema } from '@/services/units/unitLoaderService/vehicleMapping';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { CockpitType } from '@/types/construction/CockpitType';
 import {
   LOCATION_SLOT_COUNTS,
@@ -48,18 +47,7 @@ import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology'
 
 import { isRearLoc } from '../../../scripts/validate-bv-normalizers';
 import { aerospaceSupportSaveFields } from './CustomUnitSerializer.aerospace';
-
-const ENGINE_TYPE = {
-  [EngineType.STANDARD]: 'FUSION',
-  [EngineType.XL_IS]: 'XL',
-  [EngineType.XL_CLAN]: 'CLAN_XL',
-  [EngineType.LIGHT]: 'LIGHT',
-  [EngineType.XXL]: 'XXL',
-  [EngineType.COMPACT]: 'COMPACT',
-  [EngineType.ICE]: 'ICE',
-  [EngineType.FUEL_CELL]: 'FUEL_CELL',
-  [EngineType.FISSION]: 'FISSION',
-} as const satisfies Readonly<Record<EngineType, string>>;
+import { ARMOR_TYPE, ENGINE_TYPE } from './CustomUnitSerializer.tags';
 
 const GYRO_TYPE = {
   [GyroType.STANDARD]: 'STANDARD',
@@ -88,20 +76,6 @@ const STRUCTURE_TYPE = {
   [InternalStructureType.COMPOSITE]: 'COMPOSITE',
   [InternalStructureType.INDUSTRIAL]: 'INDUSTRIAL',
 } as const satisfies Readonly<Record<InternalStructureType, string>>;
-
-const ARMOR_TYPE = {
-  [ArmorTypeEnum.STANDARD]: 'STANDARD',
-  [ArmorTypeEnum.FERRO_FIBROUS_IS]: 'FERRO_FIBROUS',
-  [ArmorTypeEnum.FERRO_FIBROUS_CLAN]: 'FERRO_FIBROUS_CLAN',
-  [ArmorTypeEnum.LIGHT_FERRO]: 'LIGHT_FERRO_FIBROUS',
-  [ArmorTypeEnum.HEAVY_FERRO]: 'HEAVY_FERRO_FIBROUS',
-  [ArmorTypeEnum.STEALTH]: 'STEALTH',
-  [ArmorTypeEnum.REACTIVE]: 'REACTIVE',
-  [ArmorTypeEnum.REFLECTIVE]: 'REFLECTIVE',
-  [ArmorTypeEnum.HARDENED]: 'HARDENED',
-  [ArmorTypeEnum.FERRO_LAMELLOR]: 'FERRO_LAMELLOR',
-  [ArmorTypeEnum.BALLISTIC_REINFORCED]: 'BALLISTIC_REINFORCED',
-} as const satisfies Readonly<Record<ArmorTypeEnum, string>>;
 
 const HEAT_SINK_TYPE = {
   [HeatSinkType.SINGLE]: 'SINGLE',
@@ -356,11 +330,9 @@ export function serializeCustomAerospaceState(
     state,
     ARMOR_TYPE[state.armorType],
   );
+  const smallCraft = state.aerospaceSubType === AerospaceSubType.SMALL_CRAFT;
   const arc = (location: Parameters<typeof aerospaceContractArc>[0]) =>
-    aerospaceContractArc(
-      location,
-      state.aerospaceSubType === AerospaceSubType.SMALL_CRAFT,
-    );
+    aerospaceContractArc(location, smallCraft);
   const aerospaceEditor = aerospaceEditorSchema.parse({
     ...state,
     name: [identity.chassis, identity.variant].filter(Boolean).join(' '),

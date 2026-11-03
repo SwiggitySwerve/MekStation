@@ -1,12 +1,14 @@
 import type { AerospaceState } from '@/stores/aerospaceState';
 
+import { serializeAerospaceArmorIdentity } from '@/types/unit/AerospaceSerialization';
+
 /** Canonical support metadata; ordinary aerospace payloads keep their shape. */
 export function aerospaceSupportSaveFields(
   state: AerospaceState,
   armorType: string,
 ): {
   metadata: { structuralTechRating?: number; engineTechRating?: number };
-  armor: { type: string; barRating?: number };
+  armor: ReturnType<typeof serializeAerospaceArmorIdentity>;
 } {
   return {
     metadata: state.isFixedWingSupport
@@ -15,12 +17,6 @@ export function aerospaceSupportSaveFields(
           engineTechRating: state.engineTechRating,
         }
       : {},
-    armor: {
-      type:
-        state.isFixedWingSupport && state.barRating !== undefined
-          ? 'BAR'
-          : armorType,
-      ...(state.isFixedWingSupport ? { barRating: state.barRating } : {}),
-    },
+    armor: serializeAerospaceArmorIdentity(armorType, state),
   };
 }

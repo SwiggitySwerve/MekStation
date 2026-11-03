@@ -394,8 +394,21 @@ for (const viewport of VIEWPORTS) {
               nodes.map((node) => node.getBoundingClientRect().height),
             ))
             expect(height).toBeGreaterThanOrEqual(44);
-          await fields.screenshot({
-            path: testInfo.outputPath(`fws-panel-${viewport.name}.png`),
+          for (const [index, name] of [
+            'tonnage',
+            'bar',
+            'structure-tech',
+            'engine-tech',
+          ].entries())
+            await fields
+              .locator('label')
+              .nth(index)
+              .screenshot({
+                path: testInfo.outputPath(`fws-${name}-${viewport.name}.png`),
+                animations: 'disabled',
+              });
+          await fields.locator('dl').screenshot({
+            path: testInfo.outputPath(`fws-facts-${viewport.name}.png`),
             animations: 'disabled',
           });
         } else if (unit.panel) {
@@ -465,12 +478,18 @@ for (const viewport of VIEWPORTS) {
               }),
             ).toHaveValue('32');
           }
-          await page
-            .getByTestId('vehicle-armor-allocation-section')
-            .screenshot({
-              path: testInfo.outputPath(`armor-panel-${viewport.name}.png`),
-              animations: 'disabled',
-            });
+          const graphic =
+            unit.panel === 'six-side'
+              ? diagram.getByTestId('vehicle-six-side-armor-diagram')
+              : diagram.locator('svg[aria-hidden="true"]');
+          await graphic.screenshot({
+            path: testInfo.outputPath(`armor-diagram-${viewport.name}.png`),
+            animations: 'disabled',
+          });
+          await diagram.locator(':scope > .grid').screenshot({
+            path: testInfo.outputPath(`armor-controls-${viewport.name}.png`),
+            animations: 'disabled',
+          });
         }
 
         await page.screenshot({
