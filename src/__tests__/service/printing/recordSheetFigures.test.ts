@@ -5,6 +5,7 @@ import {
   screen,
   waitFor,
   cleanup,
+  renderHook,
 } from '@testing-library/react';
 import fs from 'fs';
 import path from 'path';
@@ -24,14 +25,17 @@ import { buildProtoMechUnitObject } from '@/components/customizer/protomech/buil
 import { ProtoMechPreviewTab } from '@/components/customizer/protomech/ProtoMechPreviewTab';
 import { ProtoMechRecordSheetPreview } from '@/components/customizer/protomech/ProtoMechRecordSheetPreview';
 import { buildVehicleUnitObject } from '@/components/customizer/vehicle/buildVehicleUnitObject';
+import { useVehicleRecordSheetUnit } from '@/components/customizer/vehicle/useVehicleRecordSheetUnit';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { extractAerospaceData } from '@/services/printing/recordsheet/dataExtractors.aerospace';
 import { mapSimpleRecordSheetEquipment } from '@/services/printing/recordsheet/simpleEquipmentMapper';
 import { getRecordSheetService } from '@/services/printing/RecordSheetService';
 import { RecordSheetService } from '@/services/printing/RecordSheetService';
 import { selectAerospaceTemplate } from '@/services/printing/svgRecordSheetRenderer/aerospace/selectTemplate';
+import { selectVehicleTemplate } from '@/services/printing/svgRecordSheetRenderer/vehicle/selectTemplate';
 import { parseUnit } from '@/services/units/unitLoaderService/unitContractAdapter';
 import { unitLoaderService } from '@/services/units/unitLoaderService/unitLoader';
+import { mapToVehicleState } from '@/services/units/unitLoaderService/vehicleMapping';
 import { createDefaultAerospaceState } from '@/stores/aerospaceState';
 import { createDefaultBattleArmorState } from '@/stores/battleArmorState';
 import {
@@ -55,6 +59,10 @@ import {
   ProtoMechStoreContext,
   createProtoMechStore,
 } from '@/stores/useProtoMechStore';
+import {
+  createVehicleStore,
+  VehicleStoreContext,
+} from '@/stores/useVehicleStore';
 import { createDefaultVehicleState } from '@/stores/vehicleState';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
@@ -64,6 +72,7 @@ import {
 } from '@/types/construction/UnitLocation';
 import { UnitContract } from '@/types/contracts';
 import { TechBase } from '@/types/enums/TechBase';
+import { VehicleRecordSheetDataSchema } from '@/types/printing/RecordSheetSchemas';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { BAArmorType } from '@/types/unit/BattleArmorInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
@@ -148,23 +157,24 @@ it('prints aerospace BV from the dispatcher', () => {
   expect(data.header.battleValue).toBeGreaterThan(0);
 });
 
-it.each([GroundMotionType.SUBMARINE, GroundMotionType.RAIL])(
-  'preserves %s motion instead of printing Tracked',
-  (motionType) => {
-    const data = service.extractData(
-      buildVehicleUnitObject({
-        ...createDefaultVehicleState({
-          name: 'Test Vehicle',
-          tonnage: 50,
-          techBase: TechBase.INNER_SPHERE,
-        }),
-        motionType,
-        unitType: UnitType.SUPPORT_VEHICLE,
+it.each([
+  GroundMotionType.SUBMARINE,
+  GroundMotionType.RAIL,
+  GroundMotionType.HYDROFOIL,
+])('preserves %s motion instead of printing Tracked', (motionType) => {
+  const data = service.extractData(
+    buildVehicleUnitObject({
+      ...createDefaultVehicleState({
+        name: 'Test Vehicle',
+        tonnage: 50,
+        techBase: TechBase.INNER_SPHERE,
       }),
-    );
-    expect(data.unitType === 'vehicle' && data.motionType).toBe(motionType);
-  },
-);
+      motionType,
+      unitType: UnitType.SUPPORT_VEHICLE,
+    }),
+  );
+  expect(data.unitType === 'vehicle' && data.motionType).toBe(motionType);
+});
 
 it('prints vehicle BV from the construction owner', () => {
   const state = createDefaultVehicleState({
@@ -176,6 +186,68 @@ it('prints vehicle BV from the construction owner', () => {
   expect(data.header.battleValue).toBe(computeVehicleBVFromState(state).final);
   expect(data.header.battleValue).toBeGreaterThan(0);
 });
+
+it('preserves the vehicle owner weight flag through live preview/export and schema', () => {
+  const store = createVehicleStore(
+    createDefaultVehicleState({
+      name: 'Weight flag',
+      tonnage: 50,
+      techBase: TechBase.INNER_SPHERE,
+    }),
+  );
+  const { result, unmount } = renderHook(useVehicleRecordSheetUnit, {
+    wrapper: ({ children }) =>
+      React.createElement(
+        VehicleStoreContext.Provider,
+        { value: store },
+        children,
+      ),
+  });
+  try {
+    for (const isSuperheavy of [false, true, false]) {
+      act(() => store.setState({ isSuperheavy }));
+      expect(result.current).toMatchObject({ isSuperheavy });
+      const data = VehicleRecordSheetDataSchema.parse(
+        service.extractData(result.current),
+      );
+      expect(data).toMatchObject({ isSuperheavy });
+      expect(selectVehicleTemplate(data)).toBe(
+        `vehicle_noturret_${isSuperheavy ? 'superheavy' : 'standard'}`,
+      );
+    }
+  } finally {
+    unmount();
+  }
+});
+
+it.each([
+  ['adelante-passenger-cargo-train', true, 'vehicle_noturret_superheavy'],
+  ['koi-heavy-transport', true, 'vehicle_noturret_superheavy'],
+  ['cormorant-medium-cargo-craft', false, 'wige_noturret_standard'],
+  ['flatbed-railcar', false, 'vehicle_noturret_standard'],
+  ['atlantia-luxury-yacht', false, 'naval_noturret_standard'],
+] as const)(
+  'selects the pinned support chassis tier for %s',
+  (id, isSuperheavy, template) => {
+    const entry = catalog('vehicles').find((e) => e.id === id);
+    expect(entry).toBeDefined();
+    const source: unknown = JSON.parse(
+      fs.readFileSync(
+        path.join(
+          process.cwd(),
+          'public/data/units/vehicles',
+          entry?.path ?? 'missing',
+        ),
+        'utf8',
+      ),
+    );
+    const state = mapToVehicleState(source);
+    expect(state.isSuperheavy).toBe(isSuperheavy);
+    const data = service.extractData(buildVehicleUnitObject(state));
+    if (data.unitType !== 'vehicle') throw new Error('Wrong sheet');
+    expect(selectVehicleTemplate(data)).toBe(template);
+  },
+);
 
 it('does not invent weapon stats for an unknown partial name', () => {
   const state = createDefaultVehicleState({

@@ -14,15 +14,21 @@ export const RECORD_SHEET_VEHICLE_ARMOR_LOCATIONS = [
 export type RecordSheetVehicleArmorLocation =
   (typeof RECORD_SHEET_VEHICLE_ARMOR_LOCATIONS)[number];
 
+/** Shared by the compile-time contract and the renderer boundary schema. */
+export const RECORD_SHEET_VEHICLE_MOTION_TYPES = [
+  'Tracked',
+  'Wheeled',
+  'Hover',
+  'VTOL',
+  'WiGE',
+  'Naval',
+  'Hydrofoil',
+  'Submarine',
+  'Rail',
+] as const;
+
 export type RecordSheetVehicleMotionType =
-  | 'Tracked'
-  | 'Wheeled'
-  | 'Hover'
-  | 'VTOL'
-  | 'WiGE'
-  | 'Naval'
-  | 'Submarine'
-  | 'Rail';
+  (typeof RECORD_SHEET_VEHICLE_MOTION_TYPES)[number];
 
 export type RecordSheetVehicleTurretConfig =
   | 'None'
@@ -38,6 +44,8 @@ export function assertSupportedVehicleTurretLayout(
   turretConfig: RecordSheetVehicleTurretConfig,
 ): void {
   if (motionType === 'VTOL' && turretConfig === 'Dual') {
-    throw new Error('Dual-turret VTOL record sheets are not supported.');
+    throw new Error(
+      'Dual-turret VTOL record sheets are not supported: the pinned MegaMekLab assets have no matching template.',
+    );
   }
 }

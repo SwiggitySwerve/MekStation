@@ -8,14 +8,21 @@
  *   (Requirement: Per-Family Record Sheet Adapters)
  */
 
+import fs from 'fs';
+import path from 'path';
+
 import type {
   IRecordSheetHeader,
   IVehicleRecordSheetData,
 } from '@/types/printing';
 
 import { getMmDataAssetService } from '@/services/assets/MmDataAssetService';
+import { PaperSize } from '@/types/printing';
+import { VehicleRecordSheetDataSchema } from '@/types/printing/RecordSheetSchemas';
 
+import assetConfig from '../../../../../../config/mm-data-assets.json';
 import { layoutPipsInGroup } from '../../pipEngine';
+import { renderVehicleTemplated } from '../../renderTemplated';
 import { TemplateRecordSheetRenderer } from '../../templateRecordSheetRenderer';
 import { bindVehicle, computeVehiclePipCounts } from '../bindings';
 import { selectVehicleTemplate } from '../selectTemplate';
@@ -106,6 +113,11 @@ describe('selectVehicleTemplate', () => {
         vehicle({ motionType: 'VTOL', turretConfig: 'Dual' }),
       ),
     ).toThrow(/dual-turret VTOL/i);
+    expect(() =>
+      selectVehicleTemplate(
+        vehicle({ motionType: 'VTOL', turretConfig: 'Dual' }),
+      ),
+    ).toThrow(/pinned MegaMekLab assets have no matching template/);
   });
 
   it('treats Wheeled / Hover as the ground-vehicle subtype', () => {
@@ -117,17 +129,93 @@ describe('selectVehicleTemplate', () => {
     );
   });
 
-  it('rejects out-of-scope Naval / Submarine / WiGE motion types', () => {
-    expect(() =>
-      selectVehicleTemplate(vehicle({ motionType: 'Naval' })),
-    ).toThrow('not in Wave-1 scope');
-    expect(() =>
-      selectVehicleTemplate(vehicle({ motionType: 'Submarine' })),
-    ).toThrow('not in Wave-1 scope');
-    expect(() =>
-      selectVehicleTemplate(vehicle({ motionType: 'WiGE' })),
-    ).toThrow('not in Wave-1 scope');
+  // PrintTank.getSVGFileName at MML 62bf19360382049e2e6a1e8f24e859e27bdc5878.
+  const layouts = [
+    ['Tracked', false, 'vehicle', 'standard'],
+    ['Tracked', true, 'vehicle', 'superheavy'],
+    ['Wheeled', true, 'vehicle', 'superheavy'],
+    ['Hover', true, 'vehicle', 'superheavy'],
+    ['Hydrofoil', false, 'naval', 'standard'],
+    ['Hydrofoil', true, 'naval', 'superheavy'],
+    ['Naval', false, 'naval', 'standard'],
+    ['Naval', true, 'naval', 'superheavy'],
+    ['Submarine', false, 'submarine', 'standard'],
+    ['Submarine', true, 'submarine', 'superheavy'],
+    ['WiGE', false, 'wige', 'standard'],
+    ['WiGE', true, 'vehicle', 'superheavy'],
+    ['Rail', false, 'vehicle', 'standard'],
+    ['Rail', true, 'vehicle', 'superheavy'],
+    ['VTOL', true, 'vtol', 'standard'],
+  ] as const;
+  for (const [motionType, isSuperheavy, subtype, weight] of layouts)
+    for (const [turretConfig, turret] of [
+      ['None', 'noturret'],
+      ['Single', 'turret'],
+      ['Dual', 'dualturret'],
+    ] as const) {
+      if (motionType === 'VTOL' && turretConfig === 'Dual') continue;
+      it(`selects pinned ${motionType}/${isSuperheavy}/${turretConfig} and registers both papers`, () => {
+        const data = vehicle({
+          ...{ motionType, isSuperheavy },
+          turretConfig,
+          // The explicit owner flag, rather than tonnage, decides the tier.
+          header: header({ tonnage: isSuperheavy ? 50 : 150 }),
+        });
+        const key = `${subtype}_${turret}_${weight}`;
+        expect(selectVehicleTemplate(data)).toBe(key);
+        expect(() => VehicleRecordSheetDataSchema.parse(data)).not.toThrow();
+        const parsed = VehicleRecordSheetDataSchema.parse(data);
+        expect(parsed).toMatchObject({ motionType, isSuperheavy });
+        expect(selectVehicleTemplate(parsed)).toBe(key);
+        for (const dir of ['templates_us', 'templates_iso'] as const)
+          expect(assetConfig.patterns[dir]).toContain(`${key}.svg`);
+      });
+    }
+
+  it('retains the standard tier for legacy payloads without a flag', () => {
+    expect(
+      selectVehicleTemplate(vehicle({ header: header({ tonnage: 150 }) })),
+    ).toBe('vehicle_turret_standard');
   });
+
+  // Opt-in proof against the full read-only pinned SVGs, never downloaded by tests.
+  if (process.env.RECORD_SHEET_PINNED_ASSETS)
+    for (const [motionType, , subtype] of layouts.filter((row) => !row[1]))
+      for (const paper of [PaperSize.LETTER, PaperSize.A4])
+        it(`renders pinned ${motionType} ${paper} through the asset path`, async () => {
+          const dir = paper === PaperSize.A4 ? 'templates_iso' : 'templates_us';
+          const key = `${subtype}_turret_standard`;
+          const load = jest
+            .spyOn(getMmDataAssetService(), 'loadSVG')
+            .mockImplementation(async (assetPath) => {
+              expect(assetPath).toBe(`/record-sheets/${dir}/${key}.svg`);
+              return fs.readFileSync(
+                path.join(
+                  process.env.RECORD_SHEET_PINNED_ASSETS ?? '',
+                  dir,
+                  `${key}.svg`,
+                ),
+                'utf8',
+              );
+            });
+          try {
+            const svg = await renderVehicleTemplated(
+              vehicle({ motionType }),
+              paper,
+            );
+            expect(load).toHaveBeenCalledTimes(1);
+            const doc = new DOMParser().parseFromString(svg, 'image/svg+xml');
+            expect(doc.getElementById('movementType')?.textContent).toBe(
+              motionType,
+            );
+            expect(
+              doc.getElementById('armorPipsFR')?.querySelectorAll('circle'),
+            ).toHaveLength(40);
+            expect(doc.getElementById('textArmor_TU')?.textContent).toBe('40');
+          } finally {
+            load.mockRestore();
+          }
+        });
 });
 
 describe('bindVehicle — PipCounts', () => {
