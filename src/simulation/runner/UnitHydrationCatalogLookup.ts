@@ -1,4 +1,5 @@
 import { normalizeEquipmentId as normalizeCatalogEquipmentId } from '@/utils/construction/equipmentBV/normalization';
+import { nativeIdentityId } from '@/utils/construction/equipmentBV/sourceLookupAliases';
 import { NAME_MAPPINGS_DATA } from '@/utils/construction/equipmentBVCatalogData';
 
 import type {
@@ -154,6 +155,8 @@ export function buildWeaponLookupFromCatalogFiles(
   addSourceBackedWeaponAliases(map);
 
   return (id: string) => {
+    const identity = nativeIdentityId(id);
+    if (identity) return map.get(identity) ?? null;
     const canonical = normalizeCatalogEquipmentId(id);
     const normalized = normalizeEquipmentSignalKey(id);
     return (
@@ -235,7 +238,7 @@ export function buildAmmoLookupFromCatalogFiles(
   }
 
   return (idOrName: string) =>
-    byAlias.get(idOrName) ??
+    byAlias.get(nativeIdentityId(idOrName) ?? idOrName) ??
     byAlias.get(normalizeCatalogEquipmentId(idOrName)) ??
     byAlias.get(normalizeAmmoLookupKey(idOrName)) ??
     null;

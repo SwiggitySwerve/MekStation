@@ -5,6 +5,7 @@
  */
 
 import { IAmmunition, IWeapon, WeaponCategory } from '@/types/equipment';
+import { nativeIdentityId } from '@/utils/construction/equipmentBV/sourceLookupAliases';
 
 /**
  * Get damage type code based on weapon category
@@ -76,6 +77,9 @@ export function lookupWeapon(
     if (byId) return byId;
   }
 
+  const identity = nativeIdentityId(id ?? '') ?? nativeIdentityId(name);
+  if (identity) return weapons.find((weapon) => weapon.id === identity);
+
   // Try exact name match
   const byName = weapons.find((w) => w.name === name);
   if (byName) return byName;
@@ -108,8 +112,10 @@ export function lookupAmmoShots(
   id?: string,
 ): number | undefined {
   const lowerName = name.toLowerCase();
+  const identity = nativeIdentityId(id ?? '') ?? nativeIdentityId(name);
   const match =
     (id ? ammunition.find((a) => a.id === id) : undefined) ??
+    (identity ? ammunition.find((a) => a.id === identity) : undefined) ??
     ammunition.find((a) => a.name.toLowerCase() === lowerName);
   return match?.shotsPerTon;
 }
