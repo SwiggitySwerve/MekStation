@@ -20,7 +20,6 @@ import {
 import { serializeVehicleTurretContext } from '@/services/conversion/vehicleTurretContext';
 import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { getCriticalSlotsForLocation } from '@/services/units/unitLoaderService/criticalSlotEquipment';
-import { vehicleEditorSchema } from '@/services/units/unitLoaderService/vehicleMapping';
 import { CockpitType } from '@/types/construction/CockpitType';
 import {
   LOCATION_SLOT_COUNTS,
@@ -42,6 +41,7 @@ import { RULES_LEVEL_TAGS as RULES_LEVEL } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
 import { aerospaceEditorSchema } from '@/types/unit/AerospaceSerialization';
+import { vehicleEditorSchema } from '@/types/unit/VehicleSerialization';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
 

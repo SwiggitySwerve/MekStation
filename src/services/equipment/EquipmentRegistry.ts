@@ -19,6 +19,11 @@ import {
 } from '@/types/equipment/MiscEquipmentTypes';
 import { IWeapon, WeaponCategory } from '@/types/equipment/weapons/interfaces';
 import { nativeIdentityId } from '@/utils/construction/equipmentBV/sourceLookupAliases';
+import {
+  isLegacyEquipmentId,
+  preferRegistryEquipment,
+  resolveRegistryId,
+} from '@/utils/construction/equipmentBVCatalogData';
 
 import {
   createSingleton,
@@ -160,6 +165,7 @@ export class EquipmentRegistry {
     // Map weapons
     this.loader.getAllWeapons().forEach((weapon) => {
       this.registerEquipment(weapon.id, weapon.name, EquipmentType.WEAPON);
+      if (!isLegacyEquipmentId(weapon.id)) return;
       addCommonWeaponAliases(
         weapon.id,
         weapon.name,
@@ -172,6 +178,7 @@ export class EquipmentRegistry {
     // Map ammunition
     this.loader.getAllAmmunition().forEach((ammo) => {
       this.registerEquipment(ammo.id, ammo.name, EquipmentType.AMMUNITION);
+      if (!isLegacyEquipmentId(ammo.id)) return;
       addAmmunitionAliases(
         ammo,
         this.nameToIdMap,
@@ -195,11 +202,14 @@ export class EquipmentRegistry {
         equipment.name,
         EquipmentType.MISCELLANEOUS,
       );
+      if (!isLegacyEquipmentId(equipment.id)) return;
       addMiscEquipmentAliases(equipment, this.nameToIdMap);
     });
 
     // Add static alias mappings for known variants
     addStaticAliasMappings(this.nameToIdMap);
+    for (const [name, id] of this.nameToIdMap)
+      if (!isLegacyEquipmentId(id)) this.nameToIdMap.delete(name);
   }
 
   /**
@@ -213,6 +223,7 @@ export class EquipmentRegistry {
     // Map by ID
     this.idToTypeMap.set(id, category);
 
+    if (!isLegacyEquipmentId(id)) return;
     // Map by name (normalized)
     const normalizedName = this.normalizeName(name);
     this.nameToIdMap.set(normalizedName, id);
@@ -235,9 +246,26 @@ export class EquipmentRegistry {
    * Look up equipment by ID or name
    */
   lookup = (idOrName: string): IEquipmentLookupResult => {
+    const previous = this.lookupLegacy(idOrName),
+      explicit = resolveRegistryId(idOrName);
+    const imported = explicit ? this.loader.getById(explicit) : null;
+    const equipment = preferRegistryEquipment(
+      previous.equipment,
+      imported ?? undefined,
+      idOrName,
+    );
+    return equipment && equipment !== previous.equipment
+      ? {
+          found: true,
+          equipment,
+          category: this.idToTypeMap.get(equipment.id) ?? null,
+        }
+      : previous;
+  };
+  private lookupLegacy = (idOrName: string): IEquipmentLookupResult => {
     // Try direct ID lookup first
     const byId = this.loader.getById(idOrName);
-    if (byId) {
+    if (byId && isLegacyEquipmentId(idOrName)) {
       return {
         found: true,
         equipment: byId,
@@ -282,7 +310,7 @@ export class EquipmentRegistry {
     if (legacyId) {
       // Try direct lookup with parsed ID
       const byLegacyId = this.loader.getById(legacyId);
-      if (byLegacyId) {
+      if (byLegacyId && isLegacyEquipmentId(legacyId)) {
         return {
           found: true,
           equipment: byLegacyId,

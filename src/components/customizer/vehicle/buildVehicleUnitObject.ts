@@ -175,6 +175,7 @@ export function buildVehicleUnitObject(
     equipment: input.equipment.map((eq) => ({
       id: eq.id,
       equipmentId: eq.equipmentId,
+      isAmmo: eq.isAmmo,
       name: eq.name,
       location: String(eq.location),
       locationAbbr: getVehicleEquipmentLocationAbbr(

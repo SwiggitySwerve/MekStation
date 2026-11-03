@@ -9,6 +9,7 @@ import {
   createMountedEquipment,
   IMountedEquipmentInstance,
 } from '@/types/equipment/MountedEquipment';
+import { isLegacyEquipmentId } from '@/utils/construction/equipmentBVCatalogData';
 import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
 import { createHeatSinkEquipmentList } from '@/utils/equipment/heatSinkEquipmentUtils';
 import { generateUnitId } from '@/utils/uuid';
@@ -50,7 +51,12 @@ function resolveRegistryEquipmentId(token: string): string | undefined {
   const separatorVariant = token.replaceAll('-', ' ');
   for (const candidate of [token, separatorVariant]) {
     const match = getEquipmentRegistry().lookup(candidate);
-    if (match.found && match.equipment) return match.equipment.id;
+    if (
+      match.found &&
+      match.equipment &&
+      (candidate === token || isLegacyEquipmentId(match.equipment.id))
+    )
+      return match.equipment.id;
   }
   return undefined;
 }

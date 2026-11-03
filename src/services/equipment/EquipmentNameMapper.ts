@@ -252,8 +252,12 @@ export class EquipmentNameMapper {
     const key = cleanName.toLowerCase();
     const mappedId = this.customMappings.get(key);
     const identity = nativeIdentityId(mtfName);
+    // CAT-Q2 merge approval (2026-11-03): registry selection applies only the five
+    // approved reroutes; explicit custom mappings below retain #2603 precedence.
     const nativeId =
-      identity && this.registry.lookup(identity).found ? identity : undefined;
+      identity && this.registry.lookup(identity).found
+        ? (this.registry.lookup(mtfName).equipment?.id ?? identity)
+        : undefined;
     const staticId =
       mappedId && this.explicitMappings.has(key)
         ? mappedId
