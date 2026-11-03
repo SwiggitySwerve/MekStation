@@ -55,6 +55,25 @@ function resolveRegistryEquipmentId(token: string): string | undefined {
   return undefined;
 }
 
+function resolveSlotIdentity(
+  token: string,
+  unitTechBase: TechBase,
+  unitTechBaseMode: TechBaseMode,
+  entries: ReadonlyArray<string | null>,
+): Pick<IResolvedCriticalSlot, 'equipmentDef' | 'equipmentId'> {
+  const resolved = resolveEquipmentId(
+    token,
+    unitTechBase,
+    unitTechBaseMode,
+    entries,
+  );
+  const registryId = resolveRegistryEquipmentId(token);
+  const equipmentDef =
+    resolved.equipmentDef ??
+    (registryId ? getEquipmentLookupService().getById(registryId) : undefined);
+  return { equipmentDef, equipmentId: equipmentDef?.id ?? registryId };
+}
+
 export function getCriticalSlotsForLocation(
   criticalSlots: UnitCriticalSlots | undefined,
   location: MechLocation | undefined,
@@ -83,19 +102,22 @@ function resolveCriticalSlots(
         if (typeof entry !== 'string') return { index, isRearMounted: false };
 
         const { lookupToken, isRearMounted } = parseCriticalSlotToken(entry);
-        const resolved = resolveEquipmentId(
-          lookupToken,
+        const original = resolveSlotIdentity(
+          entry,
           unitTechBase,
           unitTechBaseMode,
           entries,
         );
-        const registryId = resolveRegistryEquipmentId(lookupToken);
-        const equipmentDef =
-          resolved.equipmentDef ??
-          (registryId
-            ? getEquipmentLookupService().getById(registryId)
-            : undefined);
-        const equipmentId = equipmentDef?.id ?? registryId;
+        // Preserve established decorated identities, including specialized ammo.
+        const { equipmentDef, equipmentId } =
+          original.equipmentId || lookupToken === entry
+            ? original
+            : resolveSlotIdentity(
+                lookupToken,
+                unitTechBase,
+                unitTechBaseMode,
+                entries,
+              );
         const heatSinkType =
           equipmentId && HEAT_SINK_EQUIPMENT_IDS.includes(equipmentId)
             ? HEAT_SINK_TYPE_BY_ID[equipmentId]
