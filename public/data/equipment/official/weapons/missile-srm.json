@@ -992,7 +992,7 @@
       "weight": 0.5,
       "criticalSlots": 0,
       "ammoPerTon": 100,
-      "costCBills": 0,
+      "costCBills": 15000,
       "battleValue": 20,
       "introductionYear": 3060,
       "special": []
@@ -1016,7 +1016,7 @@
       "weight": 1.5,
       "criticalSlots": 0,
       "ammoPerTon": 100,
-      "costCBills": 0,
+      "costCBills": 45000,
       "battleValue": 59,
       "introductionYear": 3060,
       "special": []
@@ -1040,7 +1040,7 @@
       "weight": 2.5,
       "criticalSlots": 0,
       "ammoPerTon": 100,
-      "costCBills": 0,
+      "costCBills": 75000,
       "battleValue": 99,
       "introductionYear": 3060,
       "special": []

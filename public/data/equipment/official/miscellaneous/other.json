@@ -170,7 +170,7 @@
       "rulesLevel": "EXPERIMENTAL",
       "weight": 1,
       "criticalSlots": 1,
-      "costCBills": 100000,
+      "costCBills": 10000,
       "battleValue": 0,
       "introductionYear": 3072,
       "special": []
@@ -657,7 +657,7 @@
       "rulesLevel": "EXPERIMENTAL",
       "weight": 0,
       "criticalSlots": 0,
-      "costCBills": 360,
+      "costCBills": 1830,
       "battleValue": 0,
       "introductionYear": 3035,
       "special": []
@@ -3947,7 +3947,7 @@
       "rulesLevel": "EXPERIMENTAL",
       "weight": 3,
       "criticalSlots": 2,
-      "costCBills": 300000,
+      "costCBills": 200000,
       "battleValue": 64,
       "introductionYear": 3137,
       "special": ["point-defense"]

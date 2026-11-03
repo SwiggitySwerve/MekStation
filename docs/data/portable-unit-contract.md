@@ -158,3 +158,15 @@ replace transient editor IDs without changing equipment identities.
 The opaque `org.mekstation:example` annotation identifies the real catalog JSON
 path and its byte hash, not original MTF/BLK provenance. Examples retain source
 design identities in their own collection; they are not new catalog entries.
+
+## Independent conformance
+
+`scripts/portable_unit_reader.py` is a second consumer written only from this
+document and the JSON Schema; it imports the Python standard library and
+`jsonschema`, never application loaders or converters. It reads absent
+`schemaVersion` as `1.0.0` without adding the field, checks `unitType` against
+the lookup family and `family:id` references, keeps battle armor `tonnage` as an
+integer nominal trooper count equal to `squadSize`, and keeps missing, stored,
+complete and defensive-only BV distinct. Run `python scripts/portable_unit_reader.py`
+to read every committed catalog record and one example per family; its tests in
+`scripts/__tests__/test_portable_unit_reader.py` run with `test:conversion:python`.

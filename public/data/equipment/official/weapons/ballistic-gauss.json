@@ -69,7 +69,7 @@
       "weight": 0.5,
       "criticalSlots": 1,
       "ammoPerTon": 40,
-      "costCBills": 10000,
+      "costCBills": 8500,
       "battleValue": 21,
       "introductionYear": 3069,
       "isExplosive": true
