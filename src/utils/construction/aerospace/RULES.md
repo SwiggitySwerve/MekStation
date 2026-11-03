@@ -419,3 +419,5 @@ Unresolved prototype weapons remain unresolved. Correct BAR can expose their
 previously compensating armor error; evidence names every farther total and
 enforces that no exact aerospace result loses exactness. Catalog values and
 introduction years remain with their data owners.
+
+capitalStructure owns KF drive mass and KF/sail integrity from Jumpship.java:806-818,849-855 and Warship.java:120-134 at 48fcb2f6. Source weight reuses the drive mass table with its existing default range; capital sheets pass the actual primitive jump range. DropShips have no KF/sail integrity; stations have no KF drive. largeAerospaceMountArc is the common physical/rear arc boundary for BV and sheets; groupLargeAerospaceMounts preserves source bay markers and equipment order without catalog aliases.
