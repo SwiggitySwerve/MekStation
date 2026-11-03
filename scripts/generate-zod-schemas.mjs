@@ -96,6 +96,8 @@ function generateOne(shape) {
   );
   const json = prepared.schema;
   // Unit versions share one schema fact across union branches and writers.
+  // The schema default is read through unitSchemaVersionOf, never injected
+  // into parsed records, so unversioned catalogs keep their on-disk shape.
   const version =
     shape.stem === 'unit' ? json.properties.schemaVersion : undefined;
   const versionDeclaration = version
@@ -105,8 +107,10 @@ const unitVersionError = (issue: { input?: unknown }) =>
   '; expected MAJOR.MINOR.PATCH with supported major ' + CURRENT_UNIT_SCHEMA_VERSION.split('.')[0];
 const UnitSchemaVersion = z.string({ error: unitVersionError })
   .regex(new RegExp(${JSON.stringify(version.pattern)}), { error: unitVersionError })
-  .default(CURRENT_UNIT_SCHEMA_VERSION)
+  .optional()
   .describe(${JSON.stringify(version.description)});
+export const unitSchemaVersionOf = (unit: { readonly schemaVersion?: string }) =>
+  unit.schemaVersion ?? CURRENT_UNIT_SCHEMA_VERSION;
 `
     : '';
   // Use ESM module output and emit a named export plus an inferred type.
