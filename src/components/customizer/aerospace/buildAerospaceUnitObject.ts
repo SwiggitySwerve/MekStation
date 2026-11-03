@@ -36,6 +36,7 @@ export interface AerospaceUnitObjectInput extends RecordSheetUnitIdentityWithTon
     | UnitType.CONVENTIONAL_FIGHTER
     | UnitType.SMALL_CRAFT;
   isFixedWingSupport?: boolean;
+  barRating?: number;
   motionType?: AerospaceMotionType;
   structuralIntegrity: number;
   fuelPoints: number;

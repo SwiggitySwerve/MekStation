@@ -251,6 +251,8 @@ export interface AerospaceState {
 
   /** Armor type */
   armorType: ArmorTypeEnum;
+  /** Source support-aircraft Barrier Armor Rating, retained for shared BV. */
+  barRating?: number;
 
   /** Total armor tonnage allocated */
   armorTonnage: number;

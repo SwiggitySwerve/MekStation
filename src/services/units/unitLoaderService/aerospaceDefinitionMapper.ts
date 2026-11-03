@@ -296,6 +296,7 @@ export function mapAerospaceDefinitionToState(
     heatSinkPool: heatSinks * (doubleHeatSinks ? 2 : 1),
     doubleHeatSinks: doubleHeatSinks ?? false,
     armorType,
+    barRating: definition.armor?.barRating,
     armorTonnage: Math.ceil((armorPoints / pointsPerTon) * 2) / 2,
     armorAllocation,
     hasBombBay: definition.hasBombBay === true,
