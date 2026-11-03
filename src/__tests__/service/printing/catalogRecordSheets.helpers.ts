@@ -251,12 +251,23 @@ export function verifyCatalogUnit(
       const bindings = bindAerospace(data);
       if (data.equipment.length)
         check('binding.inventory', bindings.inventory, data.equipment);
+      check(
+        'binding.SI',
+        bindings.pips.find((p) => p.groupId === 'siPips')?.count ?? 0,
+        data.structuralIntegrity,
+      );
+      if (!data.isConventional)
+        check(
+          'binding.heat',
+          bindings.pips.find((p) => p.groupId === 'heatSinkPips')?.count ?? 0,
+          data.heatSinks.count,
+        );
       row.template = selectAerospaceTemplate(data);
       check(
         'template',
         row.template,
         state.unitType === 'Small Craft'
-          ? 'small-craft-template-unavailable'
+          ? `smallcraft_${state.motionType === 'Spheroid' ? 'spheroid' : 'aerodyne'}_default`
           : state.unitType === 'Conventional Fighter'
             ? 'fighter_conventional'
             : 'fighter_aerospace',

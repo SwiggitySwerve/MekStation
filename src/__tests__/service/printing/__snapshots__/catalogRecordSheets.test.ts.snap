@@ -3,12 +3,11 @@
 exports[`committed catalog record-sheet model parity aerospace: checks every indexed unit and records every mismatch/rejection 1`] = `
 {
   "counts": {
-    "BV.source": 44,
+    "BV.source": 21,
     "equipmentUnresolved": 166,
-    "template": 39,
   },
   "rejected": 0,
-  "residualDigest": "e683d7d512cd77a03b79c58e4b678f6f1d2191b2d6091ae86f9194c1972ba9e1",
+  "residualDigest": "96201865fbdb03544fb9f10bf10877d02f2e91c6adb0f12fce49acab1ac3f9e8",
   "total": 620,
 }
 `;

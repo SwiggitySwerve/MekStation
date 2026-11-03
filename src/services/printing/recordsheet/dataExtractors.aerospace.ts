@@ -5,6 +5,8 @@
  * fighter unit configuration.
  */
 
+import type { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
+
 import { mapHeatSinkType } from '@/services/conversion/ValueMappings';
 import {
   IAerospaceRecordSheetData,
@@ -26,6 +28,7 @@ import {
 /** Aerospace-specific unit config fields. */
 export interface IAerospaceUnitConfig extends IBaseRecordSheetUnitConfig {
   isConventional?: boolean;
+  smallCraftMotionType?: AerospaceMotionType;
   /** Structural Integrity points. */
   structuralIntegrity?: number;
   /** Total fuel points (standard aerospace: 400). */
@@ -83,6 +86,7 @@ export function extractAerospaceData(
   return {
     unitType: 'aerospace',
     isConventional: unit.isConventional ?? false,
+    smallCraftMotionType: unit.smallCraftMotionType,
     header: extractHeader(unit),
     structuralIntegrity: unit.structuralIntegrity ?? 0,
     fuelPoints: unit.fuelPoints ?? 400,

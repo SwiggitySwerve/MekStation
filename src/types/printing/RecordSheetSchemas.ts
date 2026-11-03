@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { AerospaceMotionType } from '@/types/unit/BaseUnitInterfaces';
+
 import {
   RECORD_SHEET_VEHICLE_ARMOR_LOCATIONS,
   RECORD_SHEET_VEHICLE_MOTION_TYPES,
@@ -175,6 +177,8 @@ export const AerospaceArcArmorSchema = z.object({
 
 export const AerospaceRecordSheetDataSchema = z.object({
   unitType: z.literal('aerospace'),
+  isConventional: z.boolean().optional(),
+  smallCraftMotionType: z.enum(AerospaceMotionType).optional(),
   header: RecordSheetHeaderSchema,
   structuralIntegrity: z.number(),
   fuelPoints: z.number(),
