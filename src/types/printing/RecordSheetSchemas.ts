@@ -1,6 +1,9 @@
 import { z } from 'zod';
 
-import { RECORD_SHEET_VEHICLE_ARMOR_LOCATIONS } from './RecordSheetVehicleTypes';
+import {
+  RECORD_SHEET_VEHICLE_ARMOR_LOCATIONS,
+  RECORD_SHEET_VEHICLE_MOTION_TYPES,
+} from './RecordSheetVehicleTypes';
 
 // =============================================================================
 // Zod schemas — runtime boundary for extractor -> renderer payloads
@@ -150,16 +153,8 @@ export const VehicleLocationArmorSchema = z.object({
 export const VehicleRecordSheetDataSchema = z.object({
   unitType: z.literal('vehicle'),
   header: RecordSheetHeaderSchema,
-  motionType: z.enum([
-    'Tracked',
-    'Wheeled',
-    'Hover',
-    'VTOL',
-    'WiGE',
-    'Naval',
-    'Submarine',
-    'Rail',
-  ]),
+  motionType: z.enum(RECORD_SHEET_VEHICLE_MOTION_TYPES),
+  isSuperheavy: z.boolean().optional(),
   turretConfig: z.enum(['None', 'Single', 'Dual', 'Front', 'Rear', 'Sponson']),
   cruiseMP: z.number(),
   flankMP: z.number(),

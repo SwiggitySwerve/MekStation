@@ -58,11 +58,9 @@ exports[`committed catalog record-sheet model parity vehicles: checks every inde
     "armor.REAR_LEFT": 37,
     "armor.REAR_RIGHT": 37,
     "equipmentUnresolved": 447,
-    "motion": 7,
-    "template.weightTier": 26,
   },
-  "rejected": 68,
-  "residualDigest": "7301251b22dbe2b7dca4250855f35627936294dd74b148a121d1809a533a6f6e",
+  "rejected": 0,
+  "residualDigest": "6cd6f5318739dc591862d4bd3c8e2e387cc320de0bcba08db473c9cd26b11a45",
   "total": 1444,
 }
 `;

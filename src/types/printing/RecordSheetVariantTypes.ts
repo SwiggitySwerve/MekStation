@@ -44,6 +44,8 @@ export interface IVehicleRecordSheetData {
   readonly header: IRecordSheetHeader;
   /** Motion type governs movement rules and record-sheet layout variant. */
   readonly motionType: RecordSheetVehicleMotionType;
+  /** Owner-supplied chassis class; legacy payloads default to standard. */
+  readonly isSuperheavy?: boolean;
   /** Turret layout determines whether weapons render in turret or hull groups. */
   readonly turretConfig: RecordSheetVehicleTurretConfig;
   readonly cruiseMP: number;
