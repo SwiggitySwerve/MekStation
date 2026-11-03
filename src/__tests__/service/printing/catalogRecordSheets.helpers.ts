@@ -150,6 +150,7 @@ export function verifyCatalogUnit(
         [state.cruiseMP, state.flankMP],
       );
       check('motion', data.motionType, state.motionType);
+      check('weightClass', data.isSuperheavy, state.isSuperheavy);
       const armor = Object.fromEntries(
         data.armorLocations.map((a) => [a.location, a.current]),
       );
@@ -177,12 +178,31 @@ export function verifyCatalogUnit(
       );
       stage = 'template';
       row.template = selectVehicleTemplate(data);
-      if ((source.tonnage ?? 0) > 100)
-        check(
-          'template.weightTier',
-          row.template,
-          'dedicated-heavy/support-template',
-        );
+      const subtype = {
+        Tracked: 'vehicle',
+        Wheeled: 'vehicle',
+        Hover: 'vehicle',
+        Rail: 'vehicle',
+        Maglev: 'vehicle',
+        Hydrofoil: 'naval',
+        Naval: 'naval',
+        Submarine: 'submarine',
+        WiGE: state.isSuperheavy ? 'vehicle' : 'wige',
+        VTOL: 'vtol',
+      }[state.motionType];
+      const turret = {
+        None: 'noturret',
+        Single: 'turret',
+        Dual: 'dualturret',
+        Front: 'turret',
+        Rear: 'turret',
+        Sponson: 'turret',
+      }[data.turretConfig];
+      const weight =
+        state.isSuperheavy && state.motionType !== 'VTOL'
+          ? 'superheavy'
+          : 'standard';
+      check('template', row.template, `${subtype}_${turret}_${weight}`);
     } else if (family === 'aerospace') {
       if (!isDefinitionForFamily('aerospace', source))
         throw new Error('Wrong catalog family');

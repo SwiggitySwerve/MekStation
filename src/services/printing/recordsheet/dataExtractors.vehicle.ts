@@ -34,6 +34,8 @@ import {
 export interface IVehicleUnitConfig extends IBaseRecordSheetUnitConfig {
   /** Combat vehicle motion type — defaults to 'Tracked' when absent. */
   motionType?: RecordSheetVehicleMotionType;
+  /** Construction owner classification, never inferred from tonnage here. */
+  isSuperheavy?: boolean;
   /** Explicit installed turret layout — defaults to None when absent. */
   turretConfig?: RecordSheetVehicleTurretConfig;
   /** Cruise MP (walk equivalent). */
@@ -107,6 +109,7 @@ export function extractVehicleData(
     unitType: 'vehicle',
     header: extractHeader(unit),
     motionType,
+    isSuperheavy: unit.isSuperheavy ?? false,
     turretConfig,
     cruiseMP: unit.cruiseMP ?? 0,
     flankMP: unit.flankMP ?? 0,

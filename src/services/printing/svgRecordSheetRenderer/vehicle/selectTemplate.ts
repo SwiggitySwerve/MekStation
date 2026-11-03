@@ -1,53 +1,40 @@
 /**
- * Vehicle / VTOL family — canonical template selection.
- *
- * Pure function mapping an `IVehicleRecordSheetData` to a Wave-1
- * `templateKey`, mirroring MegaMekLab `PrintTank.getSVGFileName()`:
- * the key has the form `{subtype}_{turret}_{weight}`.
- *
- * Wave-1 scope: only the `vehicle` and `vtol` subtypes at the
- * `standard` weight tier. Naval / submarine / WiGE / superheavy are
- * out of scope and rejected with a clear error so a mis-routed unit
- * fails loudly rather than rendering the wrong sheet.
- *
+ * Canonical PrintTank template selection.
+ * MegaMekLab 62bf19360382049e2e6a1e8f24e859e27bdc5878,
+ * PrintTank.getSVGFileName: Hydrofoil uses naval; Rail uses vehicle;
+ * superheavy WiGE uses vehicle. The construction owner supplies the tier.
  * @spec openspec/changes/add-templated-vehicle-aero-proto-record-sheets/specs/record-sheet-export/spec.md
- *   (Requirement: Per-Family Record Sheet Adapters — vehicle/VTOL keys)
+ *   (Requirement: Per-Family Record Sheet Adapters)
  */
 
 import type { IVehicleRecordSheetData } from '@/types/printing';
 
 import { assertSupportedVehicleTurretLayout } from '@/types/printing/RecordSheetVehicleTypes';
 
-/** The five Wave-1 vehicle / VTOL template keys. */
-export type VehicleTemplateKey =
-  | 'vehicle_noturret_standard'
-  | 'vehicle_turret_standard'
-  | 'vehicle_dualturret_standard'
-  | 'vtol_noturret_standard'
-  | 'vtol_turret_standard';
+type TurretSegment = 'noturret' | 'turret' | 'dualturret';
+type WeightSegment = 'standard' | 'superheavy';
 
-/**
- * Map a vehicle's motion type to the template subtype segment.
- * Wave-1 supports `vehicle` (ground) and `vtol` only.
- */
-function subtypeFor(data: IVehicleRecordSheetData): 'vehicle' | 'vtol' {
-  if (data.motionType === 'VTOL') {
-    return 'vtol';
+export type VehicleTemplateKey =
+  | `${'vehicle' | 'naval' | 'submarine'}_${TurretSegment}_${WeightSegment}`
+  | `wige_${TurretSegment}_standard`
+  | `vtol_${'noturret' | 'turret'}_standard`;
+
+function subtypeFor(
+  data: IVehicleRecordSheetData,
+): 'vehicle' | 'vtol' | 'naval' | 'submarine' | 'wige' {
+  switch (data.motionType) {
+    case 'VTOL':
+      return 'vtol';
+    case 'Naval':
+    case 'Hydrofoil':
+      return 'naval';
+    case 'Submarine':
+      return 'submarine';
+    case 'WiGE':
+      return data.isSuperheavy ? 'vehicle' : 'wige';
+    default:
+      return 'vehicle';
   }
-  // Tracked / Wheeled / Hover all render on the ground-vehicle template.
-  // Naval / Submarine / WiGE / Rail are out of Wave-1 scope.
-  if (
-    data.motionType === 'Naval' ||
-    data.motionType === 'Submarine' ||
-    data.motionType === 'WiGE' ||
-    data.motionType === 'Rail'
-  ) {
-    throw new Error(
-      `Vehicle motion type "${data.motionType}" is not in Wave-1 scope ` +
-        `(only Tracked / Wheeled / Hover / VTOL are templated).`,
-    );
-  }
-  return 'vehicle';
 }
 
 /**
@@ -79,12 +66,12 @@ function turretFor(
 }
 
 /**
- * Select the canonical Wave-1 template key for a vehicle / VTOL unit.
+ * Select a pinned canonical vehicle template for either paper size.
  *
  * VTOLs use the `noturret` or `turret` key. Dual-turret VTOLs are
  * rejected because no matching canonical template is supported.
  *
- * @throws when the unit's motion type is outside Wave-1 scope.
+ * @throws for dual-turret VTOLs: the pinned assets have no such sheet.
  */
 export function selectVehicleTemplate(
   data: IVehicleRecordSheetData,
@@ -93,6 +80,7 @@ export function selectVehicleTemplate(
   const subtype = subtypeFor(data);
   const turret = turretFor(data);
 
-  // Weight tier is always `standard` for Wave-1 (superheavy excluded).
-  return `${subtype}_${turret}_standard` as VehicleTemplateKey;
+  const weight =
+    data.isSuperheavy && subtype !== 'vtol' ? 'superheavy' : 'standard';
+  return `${subtype}_${turret}_${weight}` as VehicleTemplateKey;
 }
