@@ -1,18 +1,52 @@
 import { useCallback, useState } from 'react';
 
 import type { TabInfo } from '@/stores/useTabManagerStore';
+import type { IUnitContract } from '@/types/contracts';
+import type { ISerializedUnit } from '@/types/unit/UnitSerialization';
 
 import { useToast } from '@/components/shared/Toast';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
 import { recordUnitLibrarySave } from '@/stores/unit/unitEditSnapshot';
 import { getUnitStore } from '@/stores/unitStoreRegistry';
+import { Era } from '@/types/temporal/Era';
 import { logger } from '@/utils/logger';
-import { serializeCustomLibraryState } from '@/utils/serialization/CustomLibrarySerializer';
+import {
+  type CustomUnitSaveIdentity,
+  serializeCustomUnitState,
+  serializeCustomVehicleState,
+  serializeCustomAerospaceState,
+  serializeCustomSmallUnitState,
+} from '@/utils/serialization/CustomUnitSerializer';
+import { getEraForYear } from '@/utils/temporal/eraUtils';
 
 import {
   getLibrarySaveDisabledReason,
   getLibrarySaveStore,
 } from './MultiUnitTabsUnitState';
+
+/** Route dialog readiness and writes through the same family serializers. */
+export function serializeCustomLibraryState(
+  state: ReturnType<
+    NonNullable<ReturnType<typeof getLibrarySaveStore>>['getState']
+  >,
+  identity: Omit<CustomUnitSaveIdentity, 'era'> = {
+    id: state.id,
+    chassis: state.chassis,
+    variant: state.model,
+  },
+): ISerializedUnit | IUnitContract {
+  const saveIdentity = {
+    ...identity,
+    era: getEraForYear(state.year) ?? Era.LATE_SUCCESSION_WARS,
+  };
+  return 'configuration' in state
+    ? serializeCustomUnitState(state, saveIdentity)
+    : 'aerospaceSubType' in state
+      ? serializeCustomAerospaceState(state, saveIdentity)
+      : 'pointSize' in state || 'squadSize' in state
+        ? serializeCustomSmallUnitState(state, saveIdentity)
+        : serializeCustomVehicleState(state, saveIdentity);
+}
 
 export interface CloseDialogState {
   isOpen: boolean;

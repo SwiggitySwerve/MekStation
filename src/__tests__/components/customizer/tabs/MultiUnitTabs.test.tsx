@@ -459,11 +459,11 @@ describe('MultiUnitTabs', () => {
       );
     });
 
-    it('gives unsupported unit families an accessible disabled reason', () => {
-      const vehicleTab = { ...mockTab1, unitType: UnitType.DROPSHIP };
+    it('does not expose a Save control for read-only capital units', () => {
+      const capitalTab = { ...mockTab1, unitType: UnitType.DROPSHIP };
       mockTabManager = createMockTabManager({
-        tabs: [vehicleTab],
-        activeTabId: vehicleTab.id,
+        tabs: [capitalTab],
+        activeTabId: capitalTab.id,
       });
 
       renderWithToast(
@@ -472,18 +472,11 @@ describe('MultiUnitTabs', () => {
         </MultiUnitTabs>,
       );
 
-      const saveButton = screen.getByRole('button', {
-        name: 'Save active unit to library',
-      });
-      expect(saveButton).toBeDisabled();
-      expect(saveButton).toHaveAccessibleDescription(
-        expect.stringMatching(/not available.*browser draft remains open/i),
-      );
-      // The instant hint leads with the reason instead of a native title.
-      expect(saveButton).not.toHaveAttribute('title');
-      expect(saveButton.querySelector('[data-toolbar-hint]')).toHaveTextContent(
-        /not available/i,
-      );
+      expect(
+        screen.queryByRole('button', {
+          name: 'Save active unit to library',
+        }),
+      ).not.toBeInTheDocument();
     });
   });
 

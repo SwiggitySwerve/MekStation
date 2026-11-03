@@ -18,7 +18,6 @@ import { getUnitStore } from '@/stores/unitStoreRegistry';
 import { useTabManagerStore } from '@/stores/useTabManagerStore';
 import { UnitStoreContext } from '@/stores/useUnitStore';
 import { logger } from '@/utils/logger';
-import { serializeCustomLibraryState } from '@/utils/serialization/CustomLibrarySerializer';
 
 import { CustomizerCommandBar } from '../CustomizerCommandBar';
 import { UnitEditControls } from '../shared/UnitEditControls';
@@ -55,6 +54,7 @@ import { NewTabModal } from './NewTabModal';
 import { SavedHistoryDialog } from './SavedHistoryDialog';
 import { TabBar } from './TabBar';
 import { useMultiUnitTabsController } from './useMultiUnitTabsController';
+import { serializeCustomLibraryState } from './useMultiUnitTabsController.dialogs';
 
 interface MultiUnitTabsProps {
   children: React.ReactNode;
