@@ -464,7 +464,7 @@
       "criticalSlots": 3,
       "costCBills": 200000,
       "battleValue": 137,
-      "introductionYear": 3085
+      "introductionYear": 3064
     },
     {
       "id": "small-heavy-laser",
@@ -794,7 +794,7 @@
       "criticalSlots": 4,
       "costCBills": 200000,
       "battleValue": 222,
-      "introductionYear": 3077
+      "introductionYear": 2812
     }
   ]
 }
