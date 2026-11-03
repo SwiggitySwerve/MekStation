@@ -1,7 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { useRouter } from 'next/router';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import React from 'react';
 
+import { buildBattleMechPreviewProjection } from '@/components/customizer/preview/recordSheetPreview.logic';
 import { UnitEditStatusSlot } from '@/components/customizer/shared/UnitEditStatusSlot';
 import {
   MultiUnitTabs,
@@ -10,6 +13,12 @@ import {
 import { ToastProvider } from '@/components/shared/Toast';
 import { DEFAULT_TAB } from '@/hooks/useCustomizerRouter';
 import { useUnitValidation } from '@/hooks/useUnitValidation';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import {
+  UnitLoaderService,
+  parseUnit,
+} from '@/services/units/unitLoaderService';
 import { getUnitStore } from '@/stores/unitStoreRegistry';
 import {
   useTabManagerStore,
@@ -21,12 +30,25 @@ import {
   UnitStoreContext,
   useUnitStoreApi,
 } from '@/stores/useUnitStore';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBase } from '@/types/enums/TechBase';
+import { Era } from '@/types/temporal/Era';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { serializeCustomUnitState } from '@/utils/serialization/CustomUnitSerializer';
 
 // Mock dependencies
 jest.mock('next/router', () => ({
   useRouter: jest.fn(),
+}));
+
+jest.mock('@/services/equipment/EquipmentFileReader', () => ({
+  readJsonFile: async (file: string) =>
+    JSON.parse(
+      readFileSync(
+        join(process.cwd(), 'public/data/equipment/official', file),
+        'utf8',
+      ),
+    ),
 }));
 
 jest.mock('@/stores/useTabManagerStore', () => ({
@@ -459,11 +481,11 @@ describe('MultiUnitTabs', () => {
       );
     });
 
-    it('gives unsupported unit families an accessible disabled reason', () => {
-      const vehicleTab = { ...mockTab1, unitType: UnitType.DROPSHIP };
+    it('does not expose a Save control for read-only capital units', () => {
+      const capitalTab = { ...mockTab1, unitType: UnitType.DROPSHIP };
       mockTabManager = createMockTabManager({
-        tabs: [vehicleTab],
-        activeTabId: vehicleTab.id,
+        tabs: [capitalTab],
+        activeTabId: capitalTab.id,
       });
 
       renderWithToast(
@@ -472,18 +494,11 @@ describe('MultiUnitTabs', () => {
         </MultiUnitTabs>,
       );
 
-      const saveButton = screen.getByRole('button', {
-        name: 'Save active unit to library',
-      });
-      expect(saveButton).toBeDisabled();
-      expect(saveButton).toHaveAccessibleDescription(
-        expect.stringMatching(/not available.*browser draft remains open/i),
-      );
-      // The instant hint leads with the reason instead of a native title.
-      expect(saveButton).not.toHaveAttribute('title');
-      expect(saveButton.querySelector('[data-toolbar-hint]')).toHaveTextContent(
-        /not available/i,
-      );
+      expect(
+        screen.queryByRole('button', {
+          name: 'Save active unit to library',
+        }),
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -679,5 +694,53 @@ describe('MultiUnitTabs', () => {
       );
       expect(mockTabManager.openNewTabModal).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe('Atlas library BV round trip (real serializer and loader)', () => {
+  beforeAll(async () => {
+    await getEquipmentLookupService().initialize();
+    await getEquipmentRegistry().initialize();
+  });
+
+  it.each([
+    [9, 1897],
+    [8, 1894],
+  ])('head armor %i preserves BV %i after save and reopen', (head, oracle) => {
+    const loader = new UnitLoaderService();
+    const original = parseUnit(
+      JSON.parse(
+        readFileSync(
+          join(
+            process.cwd(),
+            'public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json',
+          ),
+          'utf8',
+        ),
+      ),
+    );
+    const loaded = loader.mapToUnitState(original, true);
+    const state = {
+      ...loaded,
+      armorAllocation: { ...loaded.armorAllocation, [MechLocation.HEAD]: head },
+    };
+    const saved = serializeCustomUnitState(state, {
+      id: state.id,
+      chassis: 'Saved Atlas',
+      variant: 'AS7-D',
+      era: Era.STAR_LEAGUE,
+    });
+    const reopened = loader.mapToUnitState(
+      parseUnit(JSON.parse(JSON.stringify(saved))),
+      false,
+    );
+    const bv = (value: typeof state) =>
+      buildBattleMechPreviewProjection(value).battleValue;
+    expect(bv(state)).toBe(oracle);
+    expect(bv(reopened)).toBe(oracle);
+    expect(saved.criticalSlots[MechLocation.CENTER_TORSO]?.slice(10)).toEqual([
+      'Medium Laser (R)',
+      'Medium Laser (R)',
+    ]);
   });
 });

@@ -15,7 +15,9 @@ import { UnsavedChangesDialog } from '@/components/customizer/dialogs/UnsavedCha
 import { useToast } from '@/components/shared/Toast';
 import { useUnitValidation } from '@/hooks/useUnitValidation';
 import { getUnitStore } from '@/stores/unitStoreRegistry';
+import { useTabManagerStore } from '@/stores/useTabManagerStore';
 import { UnitStoreContext } from '@/stores/useUnitStore';
+import { logger } from '@/utils/logger';
 
 import { CustomizerCommandBar } from '../CustomizerCommandBar';
 import { UnitEditControls } from '../shared/UnitEditControls';
@@ -47,10 +49,12 @@ const ImportDialog: ComponentType<ImportDialogProps<IExportableUnit>> = dynamic(
 );
 
 import { MultiUnitTabsEmptyState } from './MultiUnitTabsEmptyState';
+import { getLibrarySaveStore } from './MultiUnitTabsUnitState';
 import { NewTabModal } from './NewTabModal';
 import { SavedHistoryDialog } from './SavedHistoryDialog';
 import { TabBar } from './TabBar';
 import { useMultiUnitTabsController } from './useMultiUnitTabsController';
+import { serializeCustomLibraryState } from './useMultiUnitTabsController.dialogs';
 
 interface MultiUnitTabsProps {
   children: React.ReactNode;
@@ -77,6 +81,35 @@ function StoreValidatedSaveUnitDialog(
 export function TargetedSaveUnitDialog(
   props: TargetedSaveUnitDialogProps,
 ): React.ReactElement {
+  const unitType = useTabManagerStore(
+    (s) => s.tabs.find((tab) => tab.id === props.currentUnitId)?.unitType,
+  );
+  const state =
+    props.isOpen && props.currentUnitId
+      ? getLibrarySaveStore(props.currentUnitId, unitType)?.getState()
+      : undefined;
+  if (state && !('configuration' in state)) {
+    // Native saves use the validated editor/contract serializers. Construction
+    // diagnostics in the native editors remain separate from persistence.
+    let isValid = false;
+    try {
+      serializeCustomLibraryState(state);
+      isValid = true;
+    } catch (error) {
+      logger.warn('Native library payload is not ready to save', error);
+    }
+    return (
+      <SaveUnitDialog
+        {...props}
+        constructionValidation={{
+          isValid,
+          isLoading: false,
+          isValidating: false,
+          errorCount: isValid ? 0 : 1,
+        }}
+      />
+    );
+  }
   const targetStore = props.currentUnitId
     ? getUnitStore(props.currentUnitId)
     : undefined;
@@ -206,11 +239,13 @@ export function MultiUnitTabs({
           onOpenSavedHistory={openSavedHistory}
           savedHistoryDisabledReason={savedHistoryDisabledReason}
           actions={
-            <UnitSaveAction
-              unitId={activeTabId}
-              disabledReason={librarySaveDisabledReason}
-              onSave={openSaveDialog}
-            />
+            !librarySaveDisabledReason && (
+              <UnitSaveAction
+                unitId={activeTabId}
+                disabledReason={librarySaveDisabledReason}
+                onSave={openSaveDialog}
+              />
+            )
           }
         />
       </CustomizerCommandBar>
