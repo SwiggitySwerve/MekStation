@@ -53,14 +53,10 @@ exports[`committed catalog record-sheet model parity vehicles: checks every inde
 {
   "counts": {
     "BV.source": 182,
-    "armor.FRONT_LEFT": 37,
-    "armor.FRONT_RIGHT": 37,
-    "armor.REAR_LEFT": 37,
-    "armor.REAR_RIGHT": 37,
     "equipmentUnresolved": 447,
   },
   "rejected": 0,
-  "residualDigest": "6cd6f5318739dc591862d4bd3c8e2e387cc320de0bcba08db473c9cd26b11a45",
+  "residualDigest": "0ddccd3fba1bdbc43cdc9c2b2fc57ef6009686cca4a487fe8eb808bcfbc4fe1e",
   "total": 1444,
 }
 `;
