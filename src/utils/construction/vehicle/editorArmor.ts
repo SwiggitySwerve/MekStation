@@ -13,6 +13,9 @@ import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import {
   computeVehicleArmorPoints,
+  computeSupportVehicleBarArmorPointsFromTonnage,
+  getSupportVehicleBarArmorWeight,
+  resolveSupportVehicleArmorTechRating,
   getTotalVehicleArmor,
   getTankMaxTotalArmor,
   getSupportVehicleMaxTotalArmor,
@@ -31,10 +34,12 @@ export interface IVehicleArmorProfile {
   readonly isSupport?: boolean;
   readonly isChinTurret?: boolean;
   readonly motionType?: GroundMotionType;
+  readonly usesBarArmor?: boolean;
 }
 
 /** BLKTankFile / BLKLargeSupportTankFile six-side layout; Tank.java:127-130
- * identifies Turret as rear and Turret 2 as front, matching record sheets. */
+ * identifies Turret as rear and Turret 2 as front, matching record sheets.
+ * BLKLargeSupportTankFile:124-137 keeps Body outside the six/eight armor entries. */
 export function getVehicleArmorEditorLayout(profile: IVehicleArmorProfile): {
   locations: { location: VehicleArmorLocation; label: string }[];
   isSixSide: boolean;
@@ -75,15 +80,21 @@ export function getVehicleArmorEditorLayout(profile: IVehicleArmorProfile): {
     });
   if (profile.isVTOL)
     locations.push({ location: VTOLLocation.ROTOR, label: 'Rotor' });
-  if (profile.isSupport)
+  if (profile.isSupport && !isSixSide)
     locations.push({ location: VehicleLocation.BODY, label: 'Body' });
-  return { locations, isSixSide, canAutoAllocate: !isSixSide };
+  return {
+    locations,
+    isSixSide,
+    canAutoAllocate: !isSixSide && !profile.usesBarArmor,
+  };
 }
 
 export function getVehicleArmorEditorFigures(input: {
   tonnage: number;
   armorType: ArmorTypeEnum;
   armorTonnage: number;
+  barRating?: number | null;
+  armorTechRating?: number;
   armorAllocation: Record<string, number>;
   profile: IVehicleArmorProfile;
 }): {
@@ -94,23 +105,42 @@ export function getVehicleArmorEditorFigures(input: {
   unallocatedPoints: number;
   wastedPoints: number;
 } {
-  const availablePoints = computeVehicleArmorPoints(
-    input.armorTonnage,
-    input.armorType,
-  );
+  const maxTotalArmor = getMaxVehicleArmor(input);
+  const bar =
+    input.profile.usesBarArmor && input.barRating != null
+      ? input.barRating
+      : undefined;
+  const rating = resolveSupportVehicleArmorTechRating(input.armorTechRating);
+  const availablePoints =
+    bar === undefined
+      ? computeVehicleArmorPoints(input.armorTonnage, input.armorType)
+      : computeSupportVehicleBarArmorPointsFromTonnage(
+          input.armorTonnage,
+          bar,
+          rating,
+          maxTotalArmor,
+        );
   const allocatedPoints = getTotalVehicleArmor(
     input.armorAllocation,
     input.profile.hasTurret,
     input.profile.hasSecondaryTurret,
   );
-  const maxTotalArmor = getMaxVehicleArmor(input);
   return {
     availablePoints,
     allocatedPoints,
     maxTotalArmor,
-    maxUsefulTonnage: ceilToHalfTon(
-      maxTotalArmor / (getArmorDefinition(input.armorType)?.pointsPerTon ?? 16),
-    ),
+    maxUsefulTonnage:
+      bar === undefined
+        ? ceilToHalfTon(
+            maxTotalArmor /
+              (getArmorDefinition(input.armorType)?.pointsPerTon ?? 16),
+          )
+        : getSupportVehicleBarArmorWeight(
+            maxTotalArmor,
+            bar,
+            rating,
+            input.tonnage < 5,
+          ),
     unallocatedPoints: availablePoints - allocatedPoints,
     wastedPoints: Math.max(0, availablePoints - maxTotalArmor),
   };

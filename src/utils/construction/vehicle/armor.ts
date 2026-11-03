@@ -120,14 +120,38 @@ export function getSupportVehicleBarArmorPoints(
   kilogramStandard: boolean,
   maxPoints: number,
 ): number {
-  const perPoint = BAR_WEIGHT_PER_POINT[bar]?.[armorTechRating] ?? 0;
-  if (perPoint === 0) return 0; // Java: (int) NaN
   const weight = getSupportVehicleBarArmorWeight(
     allocated,
     bar,
     armorTechRating,
     kilogramStandard,
   );
+  return computeSupportVehicleBarArmorPointsFromTonnage(
+    weight,
+    bar,
+    armorTechRating,
+    maxPoints,
+  );
+}
+
+/** Preserve the mapper's established armor -> structural -> F fallback. */
+export function resolveSupportVehicleArmorTechRating(
+  armorTechRating?: number,
+  structuralTechRating?: number,
+): number {
+  return armorTechRating ?? structuralTechRating ?? 5;
+}
+
+/** The same BAR table division, for an editor's explicit armor tonnage.
+ * TestEntity.java:1148-1152 (48fcb2f6); source API rounding remains above. */
+export function computeSupportVehicleBarArmorPointsFromTonnage(
+  weight: number,
+  bar: number,
+  armorTechRating: number,
+  maxPoints: number,
+): number {
+  const perPoint = BAR_WEIGHT_PER_POINT[bar]?.[armorTechRating] ?? 0;
+  if (perPoint === 0) return 0; // Java: (int) NaN
   return Math.min(Math.floor(weight / perPoint), maxPoints);
 }
 

@@ -289,9 +289,13 @@ export function serializeCustomVehicleState(
     clanEngine: state.engineType === EngineType.XL_CLAN,
     engineTechRating: state.engineTechRating,
     structuralTechRating: state.structuralTechRating,
+    ...(state.armorTechRating === undefined
+      ? {}
+      : { armorTechRating: state.armorTechRating }),
     movement: { cruiseMP: state.cruiseMP, flankMP: state.flankMP },
     armor: {
-      type: ARMOR_TYPE[state.armorType],
+      type: state.usesBarArmor ? 'BAR' : ARMOR_TYPE[state.armorType],
+      ...(state.usesBarArmor ? { barRating: state.barRating } : {}),
       byLocation: Object.fromEntries(
         Object.entries(state.armorAllocation).map(([location, points]) => [
           locationTag(location),

@@ -24,7 +24,7 @@
  *        Requirement: Vehicle Diagram Geometry
  */
 
-import React, { useCallback, useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useMemo, useLayoutEffect, useRef } from 'react';
 import { shallow } from 'zustand/vanilla/shallow';
 
 import { useVehicleStore, useVehicleStoreApi } from '@/stores/useVehicleStore';
@@ -38,7 +38,7 @@ import { TurretType } from '@/types/unit/VehicleInterfaces';
 import {
   getMaxVehicleArmorForLocation,
   getVehicleArmorEditorLayout,
-  calculateArmorPoints,
+  getVehicleArmorEditorFigures,
   type VehicleArmorLocation,
 } from '@/utils/construction/vehicle/editorArmor';
 
@@ -83,6 +83,9 @@ export function VehicleArmorDiagram({
   const tonnage = useVehicleStore((s) => s.tonnage);
   const armorTonnage = useVehicleStore((s) => s.armorTonnage);
   const armorType = useVehicleStore((s) => s.armorType);
+  const usesBarArmor = useVehicleStore((s) => s.usesBarArmor);
+  const barRating = useVehicleStore((s) => s.barRating);
+  const armorTechRating = useVehicleStore((s) => s.armorTechRating);
   const isSuperheavy = useVehicleStore((s) => s.isSuperheavy);
   const setLocationArmor = useVehicleStore((s) => s.setLocationArmor);
 
@@ -92,15 +95,28 @@ export function VehicleArmorDiagram({
   const hasTurret = turret !== null;
   const hasSecondaryTurret = Boolean(secondaryTurret);
   const isChinTurret = turret?.type === TurretType.CHIN;
-  const armorProfile = {
-    hasTurret,
-    isVTOL,
-    hasSecondaryTurret,
-    isSuperheavy,
-    isSupport,
-    isChinTurret,
-    motionType,
-  };
+  const armorProfile = useMemo(
+    () => ({
+      hasTurret,
+      isVTOL,
+      hasSecondaryTurret,
+      isSuperheavy,
+      isSupport,
+      isChinTurret,
+      motionType,
+      usesBarArmor,
+    }),
+    [
+      hasTurret,
+      isVTOL,
+      hasSecondaryTurret,
+      isSuperheavy,
+      isSupport,
+      isChinTurret,
+      motionType,
+      usesBarArmor,
+    ],
+  );
   const layout = getVehicleArmorEditorLayout(armorProfile);
 
   const handleChange = useCallback(
@@ -115,8 +131,16 @@ export function VehicleArmorDiagram({
     [setLocationArmor, tonnage, armorProfile],
   );
 
-  // Available points derived from armor tonnage (standard 16 pts/ton for display)
-  const availablePoints = calculateArmorPoints(armorTonnage, armorType);
+  // The shared armor owner supplies points, including native BAR armor.
+  const { availablePoints } = getVehicleArmorEditorFigures({
+    tonnage,
+    armorType,
+    armorTonnage,
+    barRating,
+    armorTechRating,
+    armorAllocation,
+    profile: armorProfile,
+  });
 
   const handleAutoAllocate = useCallback(() => {
     const state = storeApi.getState();
@@ -182,7 +206,7 @@ export function VehicleArmorDiagram({
 
       {!layout.canAutoAllocate && (
         <p className="text-text-theme-secondary text-xs">
-          Automatic allocation is unavailable for six-side armor.
+          Automatic allocation is unavailable for this armor layout.
         </p>
       )}
       {/* Top-down vehicle schematic */}
@@ -306,6 +330,7 @@ export function VehicleArmorDiagram({
                 label={label}
                 value={current}
                 max={max}
+                className="min-h-11 min-w-11"
                 groupId="vehicle-armor"
                 data-testid={`vehicle-armor-input-${key}`}
                 onChange={(next) =>
