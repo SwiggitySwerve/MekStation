@@ -76,7 +76,7 @@ print(json.dumps(units))`,
     expect(units).toHaveLength(45);
     for (const unit of units) {
       const parsed = UnitContract.parse(unit);
-      expect(parsed).toEqual(unit);
+      expect(parsed).toEqual({ ...unit, schemaVersion: '1.0.0' });
       for (const invalid of [
         { ...parsed, damageDivisor: -1 },
         { ...parsed, specializations: 'Mountain' },

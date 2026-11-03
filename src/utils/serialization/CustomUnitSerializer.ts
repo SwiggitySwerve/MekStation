@@ -38,6 +38,7 @@ import {
   SuperHeavyVehicleLocation,
 } from '@/types/construction/UnitLocation';
 import { UnitContract, type IUnitContract } from '@/types/contracts';
+import { CURRENT_UNIT_SCHEMA_VERSION } from '@/types/contracts/generated/unit.zod';
 import { RULES_LEVEL_TAGS as RULES_LEVEL } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
@@ -192,7 +193,7 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
 export function serializeCustomUnitState(
   state: UnitState,
   identity: CustomUnitSaveIdentity,
-): ISerializedUnit {
+): ISerializedUnit & { readonly schemaVersion: string } {
   const walk =
     state.tonnage > 0 ? Math.floor(state.engineRating / state.tonnage) : 0;
   const numericMulId = Number(state.mulId);
@@ -202,6 +203,7 @@ export function serializeCustomUnitState(
       : state.mulId;
 
   return {
+    schemaVersion: CURRENT_UNIT_SCHEMA_VERSION,
     id: identity.id,
     chassis: identity.chassis,
     model: identity.variant,
@@ -269,6 +271,7 @@ export function serializeCustomVehicleState(
     mounts: state.equipment,
   });
   const definition = UnitContract.parse({
+    schemaVersion: CURRENT_UNIT_SCHEMA_VERSION,
     id: identity.id,
     family: 'vehicles',
     chassis: identity.chassis,
@@ -356,6 +359,7 @@ export function serializeCustomAerospaceState(
     }),
   });
   const definition = UnitContract.parse({
+    schemaVersion: CURRENT_UNIT_SCHEMA_VERSION,
     id: identity.id,
     chassis: identity.chassis,
     model: identity.variant,

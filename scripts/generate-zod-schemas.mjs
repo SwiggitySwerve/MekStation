@@ -95,6 +95,20 @@ function generateOne(shape) {
     JSON.parse(readFileSync(sourcePath, 'utf-8')),
   );
   const json = prepared.schema;
+  // Unit versions share one schema fact across union branches and writers.
+  const version =
+    shape.stem === 'unit' ? json.properties.schemaVersion : undefined;
+  const versionDeclaration = version
+    ? `export const CURRENT_UNIT_SCHEMA_VERSION = ${JSON.stringify(version.default)};
+const unitVersionError = (issue: { input?: unknown }) =>
+  'Invalid schemaVersion ' + JSON.stringify(issue.input) +
+  '; expected MAJOR.MINOR.PATCH with supported major ' + CURRENT_UNIT_SCHEMA_VERSION.split('.')[0];
+const UnitSchemaVersion = z.string({ error: unitVersionError })
+  .regex(new RegExp(${JSON.stringify(version.pattern)}), { error: unitVersionError })
+  .default(CURRENT_UNIT_SCHEMA_VERSION)
+  .describe(${JSON.stringify(version.description)});
+`
+    : '';
   // Use ESM module output and emit a named export plus an inferred type.
   const schema =
     shape.stem === 'unit'
@@ -106,12 +120,15 @@ function generateOne(shape) {
     module: 'esm',
     name: shape.exportName,
     type: true,
-    parserOverride: prepared.parserOverride,
+    parserOverride: (candidate) =>
+      version && JSON.stringify(candidate) === JSON.stringify(version)
+        ? 'UnitSchemaVersion'
+        : prepared.parserOverride(candidate),
   });
-  if (prepared.declarations)
+  if (prepared.declarations || versionDeclaration)
     body = body.replace(
       /(import[^\n]+\n)/,
-      '$1' + prepared.declarations + '\n',
+      '$1' + versionDeclaration + prepared.declarations + '\n',
     );
   return HEADER(sourceRel) + '\n' + body;
 }

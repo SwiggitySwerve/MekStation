@@ -7,6 +7,21 @@
 // these files match the JSON Schema source via `--check` mode.
 
 import { z } from 'zod';
+export const CURRENT_UNIT_SCHEMA_VERSION = '1.0.0';
+const unitVersionError = (issue: { input?: unknown }) =>
+  'Invalid schemaVersion ' +
+  JSON.stringify(issue.input) +
+  '; expected MAJOR.MINOR.PATCH with supported major ' +
+  CURRENT_UNIT_SCHEMA_VERSION.split('.')[0];
+const UnitSchemaVersion = z
+  .string({ error: unitVersionError })
+  .regex(new RegExp('^1\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?![\\s\\S])'), {
+    error: unitVersionError,
+  })
+  .default(CURRENT_UNIT_SCHEMA_VERSION)
+  .describe(
+    'Portable unit document version: strict MAJOR.MINOR.PATCH, supported major 1. Missing means 1.0.0; minor additions must be optional.',
+  );
 const SchemaDef_standardArmorType = z
   .enum([
     'STANDARD',
@@ -76,6 +91,7 @@ export const UnitContract = z
   .union([
     z
       .object({
+        schemaVersion: UnitSchemaVersion,
         id: z
           .string()
           .regex(new RegExp('^\\S+$'))
@@ -523,6 +539,7 @@ export const UnitContract = z
       ),
     z
       .object({
+        schemaVersion: UnitSchemaVersion,
         id: z
           .string()
           .regex(new RegExp('^\\S+$'))

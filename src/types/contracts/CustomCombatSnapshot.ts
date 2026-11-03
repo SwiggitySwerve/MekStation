@@ -60,6 +60,7 @@ const BATTLEMECH_ARMOR_TYPES = [
  */
 export const customCombatSnapshotSchema = mech
   .omit({
+    schemaVersion: true,
     fluff: true,
     source: true,
     mulId: true,
@@ -119,6 +120,7 @@ const nativeMovement = native.shape.movement
   .strict();
 const nativeSnapshot = native
   .omit({
+    schemaVersion: true,
     fluff: true,
     source: true,
     mulId: true,
@@ -201,6 +203,13 @@ export function snapshotRefError(
 export function projectCustomCombatSnapshot(
   payload: unknown,
 ): CustomCombatSnapshot | null {
+  if (
+    typeof payload === 'object' &&
+    payload !== null &&
+    'schemaVersion' in payload &&
+    !mech.shape.schemaVersion.safeParse(payload.schemaVersion).success
+  )
+    return null;
   for (const schema of snapshotSchemas) {
     const projected = schema.strip().safeParse(payload);
     if (!projected.success) continue;
