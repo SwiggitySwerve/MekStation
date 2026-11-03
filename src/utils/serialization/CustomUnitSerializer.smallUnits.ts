@@ -12,6 +12,7 @@ import {
   ProtoMechLocation,
 } from '@/types/construction/UnitLocation';
 import { UnitContract, type IUnitContract } from '@/types/contracts';
+import { CURRENT_UNIT_SCHEMA_VERSION } from '@/types/contracts/generated/unit.zod';
 import { RULES_LEVEL_TAGS as RULES_LEVEL } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
@@ -205,6 +206,7 @@ export function serializeCustomSmallUnitState(
   const definition = UnitContract.parse({
     ...source,
     ...patch,
+    schemaVersion: CURRENT_UNIT_SCHEMA_VERSION,
     id: identity.id,
     chassis: identity.chassis,
     model: identity.variant,

@@ -1,5 +1,36 @@
 ## ADDED Requirements
 
+### Requirement: Versioned portable unit documents
+
+The canonical unit JSON Schema SHALL own the portable document version and its
+generated reader. Saved editable designs SHALL write the current version from
+one exported constant. Identity SHALL remain `(family, id)`; a family-less
+reference SHALL mean BattleMech. The contract documentation SHALL describe all
+families, field units, technology/year semantics, extensions and provenance.
+
+#### Scenario: Legacy and compatible documents
+
+- **WHEN** a unit document omits `schemaVersion`
+- **THEN** the reader SHALL report version `1.0.0` without adding the field to the loaded record or rewriting catalogs
+- **WHEN** its version is any strict `1.MINOR.PATCH` string
+- **THEN** the reader SHALL accept and retain that version
+- **AND** minor changes SHALL introduce only additive optional fields
+- **AND** breaking changes SHALL require a different major
+
+#### Scenario: Unsupported or malformed version
+
+- **WHEN** a document declares another major or violates `MAJOR.MINOR.PATCH` syntax
+- **THEN** validation SHALL reject it with the found version and supported major
+- **AND** leading zeros, prerelease and build suffixes SHALL be rejected
+- **AND** combat projection SHALL reject an invalid document version before stripping library metadata
+
+#### Scenario: Save and recorded combat compatibility
+
+- **WHEN** any supported editable family is saved
+- **THEN** its document SHALL carry the current `schemaVersion`
+- **AND** the field SHALL NOT enter recorded combat snapshots
+- **AND** the exact 21-key BattleMech construction and recorded bytes SHALL remain unchanged
+
 ### Requirement: Immutable source inventory
 
 The conversion boundary SHALL enumerate the pinned source tree independently of working-tree edits and directory-based family assumptions. It SHALL retain repository identity, resolved commit, relative path, format, Git blob identity and SHA-256 for each source definition, and explicitly list other entries. An inventory SHALL NOT claim successful entity loading or numerical parity.
