@@ -2,12 +2,11 @@ import {
   VehicleLocation,
   VTOLLocation,
 } from '@/types/construction/UnitLocation';
-
 import {
   getMaxVehicleArmor,
   getMaxVehicleArmorForLocation,
   type VehicleArmorLocation,
-} from '../VehicleArmorTab.utils';
+} from '@/utils/construction/vehicle/editorArmor';
 
 const TONNAGE = 50;
 

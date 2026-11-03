@@ -7,35 +7,25 @@
  * @spec openspec/changes/add-multi-unit-type-support/tasks.md Phase 3.2
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 
 import { useVehicleStore } from '@/stores/useVehicleStore';
-import { getTotalVehicleArmor } from '@/stores/vehicleState';
-import {
-  ArmorTypeEnum,
-  getArmorDefinition,
-} from '@/types/construction/ArmorType';
-import {
-  VehicleLocation,
-  VTOLLocation,
-} from '@/types/construction/UnitLocation';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
+import {
+  getVehicleArmorEditorLayout,
+  getVehicleArmorEditorFigures,
+  getMaxVehicleArmorForLocation,
+  type VehicleArmorLocation,
+} from '@/utils/construction/vehicle/editorArmor';
 import { formatTons } from '@/utils/formatting';
-import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import { customizerStyles as cs } from '../styles';
 import { SelectOptions } from '../tabs/SelectOptions';
 import { VehicleArmorDiagram } from './VehicleArmorDiagram';
-import {
-  ARMOR_TYPE_OPTIONS,
-  BASE_VEHICLE_LOCATIONS,
-} from './VehicleArmorTab.constants';
-import {
-  calculateArmorPoints,
-  getMaxVehicleArmor,
-  getMaxVehicleArmorForLocation,
-  type VehicleArmorLocation,
-} from './VehicleArmorTab.utils';
+import { ARMOR_TYPE_OPTIONS } from './VehicleArmorTab.constants';
 
 interface VehicleArmorTabProps {
   /** Read-only mode */
@@ -67,40 +57,37 @@ export function VehicleArmorTab({
   const autoAllocateArmor = useVehicleStore((s) => s.autoAllocateArmor);
   const clearAllArmor = useVehicleStore((s) => s.clearAllArmor);
 
+  const isSuperheavy = useVehicleStore((s) => s.isSuperheavy);
+  const unitType = useVehicleStore((s) => s.unitType);
+
   // Derived state
   const isVTOL = motionType === GroundMotionType.VTOL;
   const hasTurret = turret !== null;
-  const hasSecondaryTurret = secondaryTurret !== null;
-  const armorProfile = useMemo(
-    () => ({ hasTurret, isVTOL, hasSecondaryTurret }),
-    [hasTurret, isVTOL, hasSecondaryTurret],
-  );
-
-  // Calculate derived values
-  const armorDef = useMemo(() => getArmorDefinition(armorType), [armorType]);
-  const pointsPerTon = armorDef?.pointsPerTon ?? 16;
-  const availablePoints = useMemo(
-    () => calculateArmorPoints(armorTonnage, armorType),
-    [armorTonnage, armorType],
-  );
-  const allocatedPoints = useMemo(
-    () => getTotalVehicleArmor(armorAllocation, hasTurret, hasSecondaryTurret),
-    [armorAllocation, hasTurret, hasSecondaryTurret],
-  );
-  const maxTotalArmor = useMemo(
-    () => getMaxVehicleArmor({ tonnage, profile: armorProfile }),
-    [tonnage, armorProfile],
-  );
-
-  // Calculate max useful tonnage
-  const maxUsefulTonnage = useMemo(
-    () => ceilToHalfTon(maxTotalArmor / pointsPerTon),
-    [maxTotalArmor, pointsPerTon],
-  );
-
-  // Points status
-  const unallocatedPoints = availablePoints - allocatedPoints;
-  const wastedPoints = Math.max(0, availablePoints - maxTotalArmor);
+  const hasSecondaryTurret = Boolean(secondaryTurret);
+  const armorProfile = {
+    hasTurret,
+    isVTOL,
+    hasSecondaryTurret,
+    isSuperheavy,
+    isSupport: unitType === UnitType.SUPPORT_VEHICLE,
+    isChinTurret: turret?.type === TurretType.CHIN,
+    motionType,
+  };
+  const layout = getVehicleArmorEditorLayout(armorProfile);
+  const {
+    availablePoints,
+    allocatedPoints,
+    maxTotalArmor,
+    maxUsefulTonnage,
+    unallocatedPoints,
+    wastedPoints,
+  } = getVehicleArmorEditorFigures({
+    tonnage,
+    armorType,
+    armorTonnage,
+    armorAllocation,
+    profile: armorProfile,
+  });
 
   // Handlers
   const handleArmorTypeChange = useCallback(
@@ -134,20 +121,6 @@ export function VehicleArmorTab({
   const handleMaximizeArmor = useCallback(() => {
     setArmorTonnage(maxUsefulTonnage);
   }, [setArmorTonnage, maxUsefulTonnage]);
-
-  // Build location list based on vehicle type
-  const locations = useMemo(() => {
-    const locs = [...BASE_VEHICLE_LOCATIONS];
-    // Filter out turret if no turret
-    const filtered = locs.filter(
-      (l) => l.location !== VehicleLocation.TURRET || hasTurret,
-    );
-    // Add rotor for VTOLs
-    if (isVTOL) {
-      filtered.push({ location: VTOLLocation.ROTOR, label: 'Rotor' });
-    }
-    return filtered;
-  }, [hasTurret, isVTOL]);
 
   return (
     <div
@@ -250,7 +223,9 @@ export function VehicleArmorTab({
           <div className="flex gap-2">
             <button
               onClick={autoAllocateArmor}
-              disabled={readOnly || availablePoints === 0}
+              disabled={
+                readOnly || availablePoints === 0 || !layout.canAutoAllocate
+              }
               className={cs.button.action}
             >
               Auto-Allocate
@@ -277,7 +252,7 @@ export function VehicleArmorTab({
           <h3 className={cs.text.sectionTitle}>Location Allocation</h3>
 
           <div className="space-y-3">
-            {locations.map(({ location, label }) => {
+            {layout.locations.map(({ location, label }) => {
               const currentValue = armorAllocation[location] ?? 0;
               const maxValue = getMaxVehicleArmorForLocation({
                 tonnage,
@@ -286,9 +261,10 @@ export function VehicleArmorTab({
               });
 
               return (
-                <div key={location} className="flex items-center gap-3">
+                <div key={location} className="flex min-w-0 items-center gap-2">
                   <span className={`${cs.text.label} w-24`}>{label}</span>
                   <input
+                    aria-label={`${label} armor slider`}
                     type="range"
                     value={currentValue}
                     onChange={(e) =>
@@ -300,10 +276,11 @@ export function VehicleArmorTab({
                     min={0}
                     max={maxValue}
                     disabled={readOnly || maxValue === 0}
-                    className="flex-1"
+                    className="min-w-0 flex-1"
                   />
-                  <div className="flex w-20 items-center gap-1">
+                  <div className="flex shrink-0 items-center gap-1">
                     <input
+                      aria-label={`${label} armor allocation`}
                       type="number"
                       value={currentValue}
                       onChange={(e) =>
@@ -326,7 +303,7 @@ export function VehicleArmorTab({
 
           {/* Vehicle Armor Diagram */}
           <div className="mt-6">
-            <VehicleArmorDiagram />
+            <VehicleArmorDiagram readOnly={readOnly} />
           </div>
         </section>
       </div>
