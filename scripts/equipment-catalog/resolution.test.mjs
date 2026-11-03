@@ -411,10 +411,19 @@ if (process.argv.includes('--capture')) {
     const shifts = [],
       allowed = [],
       gains = {};
+    const beforeIndexes = new Map(before.names.map((name, i) => [name, i]));
     for (const [api, previous] of Object.entries(before.results))
-      previous.forEach((oldTarget, index) => {
+      previous.forEach((recorded, index) => {
         const name = before.names[index],
           newTarget = after.results[api][indexes.get(name)];
+        // #2607 strips pod/rear markers in critical-slot lookup, so a newly
+        // resolved pod-qualified slot is checked against its bare name's old
+        // target (#2613), not counted as a gain.
+        const oldTarget =
+          recorded ??
+          (newTarget && api.startsWith('unitLoaderAmmo')
+            ? previous[beforeIndexes.get(bareName(name))]
+            : null);
         if (oldTarget === null || oldTarget === undefined) {
           if (newTarget) gains[api] = (gains[api] ?? 0) + 1;
           return;
@@ -453,12 +462,19 @@ if (process.argv.includes('--capture')) {
       'IS LB 5-X AC Ammo',
       'IS LB 5-X Cluster Ammo',
     ])
-      for (const api of ['unitLoaderAmmoIS', 'unitLoaderAmmoClan'])
+      for (const api of ['unitLoaderAmmoIS', 'unitLoaderAmmoClan']) {
         assert.equal(
           after.results[api][indexes.get(`${name} (OMNIPOD)`)],
           after.results[api][indexes.get(name)],
           `${api} ${name} (OMNIPOD) follows its bare form`,
         );
+        assert.ok(
+          allowed.some(
+            (row) => row.api === api && row.name === `${name} (OMNIPOD)`,
+          ),
+          `${api} ${name} (OMNIPOD) is a checked change, not a gain`,
+        );
+      }
     assert.deepEqual(shifts, [], JSON.stringify(shifts.slice(0, 30), null, 2));
   });
 }
