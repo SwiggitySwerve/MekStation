@@ -47,8 +47,8 @@ import {
   adaptVehicleConstruction,
   isVehicleDefinition,
 } from './CompendiumAdapter.vehicle';
-import { getWeaponData } from './CompendiumAdapter.weaponData';
 import {
+  ammoConstructionFromState,
   ammoFromWeapons,
   type AdaptableEquipmentItem,
   extractWeapons,
@@ -148,14 +148,7 @@ export function adaptUnitFromData(
   const criticalSlotManifest = vehicle
     ? undefined
     : hydrateCriticalSlotManifestFromFullUnit(fullUnit, weapons);
-  const ammoConstruction = Object.values(ammoState).map((bin) => ({
-    binId: bin.binId,
-    weaponType: bin.weaponType,
-    location: bin.location,
-    maxRounds: bin.maxRounds,
-    damagePerRound: getWeaponData(bin.weaponType)?.damage ?? 1,
-    isExplosive: bin.isExplosive,
-  }));
+  const ammoConstruction = ammoConstructionFromState(ammoState);
 
   const adapted: IAdaptedUnit = {
     id: fullUnit.id,

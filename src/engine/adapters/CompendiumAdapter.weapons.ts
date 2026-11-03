@@ -1,4 +1,6 @@
 import type { IWeapon } from '@/simulation/ai/types';
+import type { IAmmoSlotState } from '@/types/gameplay';
+import type { IAmmoConstructionData } from '@/utils/gameplay/ammoTracking';
 
 import {
   VehicleLocation,
@@ -30,6 +32,19 @@ export type AdaptableEquipmentItem = Readonly<Record<string, unknown>> & {
   readonly name?: string;
   readonly location?: string;
 };
+
+export function ammoConstructionFromState(
+  ammoState: Record<string, IAmmoSlotState>,
+): IAmmoConstructionData[] {
+  return Object.values(ammoState).map((bin) => ({
+    binId: bin.binId,
+    weaponType: bin.weaponType,
+    location: bin.location,
+    maxRounds: bin.maxRounds,
+    damagePerRound: getWeaponData(bin.weaponType)?.damage ?? 1,
+    isExplosive: bin.isExplosive,
+  }));
+}
 
 export function extractWeapons(
   equipment: readonly AdaptableEquipmentItem[],

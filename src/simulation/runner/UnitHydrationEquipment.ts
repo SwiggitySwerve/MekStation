@@ -90,6 +90,7 @@ export function equipmentEntriesFromFullUnit(
       {
         id: entry.id,
         location: entry.location,
+        ...(typeof entry.name === 'string' ? { name: entry.name } : {}),
         ...(entry.isRearMounted !== undefined
           ? { isRearMounted: entry.isRearMounted }
           : {}),
