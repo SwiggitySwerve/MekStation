@@ -16,7 +16,7 @@ import type { VehicleControlsLiftContext } from './controlsLift';
 
 import { computeTurretEquipmentWeight } from './equipmentMounts';
 import { isPowerAmplifierEnergyWeapon } from './powerAmplifier';
-import { computeVehicleTurretMechanismWeight } from './turret';
+import { getVehicleTurretMechanismFigures } from './turret';
 
 export type EquipmentResolver = (
   equipmentId: string,
@@ -50,10 +50,13 @@ export interface VehicleMountedWeightBreakdown {
 }
 
 /** @spec openspec/changes/establish-all-unit-data-parity/specs/vehicle-unit-system/spec.md */
-export function computeVehicleMountedWeightBreakdown(
+export function computeVehicleMountedWeightFigures(
   state: VehicleMountedWeightState,
   resolve: EquipmentResolver,
-): VehicleMountedWeightBreakdown {
+): VehicleMountedWeightBreakdown & {
+  primarySummary: ReturnType<typeof getVehicleTurretMechanismFigures>;
+  secondarySummary: ReturnType<typeof getVehicleTurretMechanismFigures>;
+} {
   const unresolvedMountIds: string[] = [];
   const issues: string[] = [];
   const mounted = state.equipment.map((mount) => {
@@ -107,7 +110,7 @@ export function computeVehicleMountedWeightBreakdown(
     basis: number | null,
     allowance: number | undefined,
   ) =>
-    computeVehicleTurretMechanismWeight({
+    getVehicleTurretMechanismFigures({
       type: configuration?.type ?? TurretType.NONE,
       equipmentWeight: basis,
       isOmni: state.isOmni,
@@ -137,9 +140,24 @@ export function computeVehicleMountedWeightBreakdown(
     energyWeapons,
     turret: primaryMechanism.weight,
     secondaryTurret: secondaryMechanism.weight,
+    primarySummary: primaryMechanism,
+    secondarySummary: secondaryMechanism,
     primaryAllowanceOverloaded: primaryMechanism.allowanceOverloaded,
     secondaryAllowanceOverloaded: secondaryMechanism.allowanceOverloaded,
     unresolvedMountIds,
     issues,
   };
+}
+
+/** Preserve the existing weight result shape for validation and status consumers. */
+export function computeVehicleMountedWeightBreakdown(
+  state: VehicleMountedWeightState,
+  resolve: EquipmentResolver,
+): VehicleMountedWeightBreakdown {
+  const {
+    primarySummary: _primary,
+    secondarySummary: _secondary,
+    ...weights
+  } = computeVehicleMountedWeightFigures(state, resolve);
+  return weights;
 }

@@ -42,7 +42,7 @@ interface OpenCase {
     | 'battlearmor-customizer'
     | 'infantry-customizer';
   bv?: string;
-  panel?: 'six-side' | 'dual-turret' | 'fixed-wing-support';
+  panel?: 'six-side' | 'dual-turret' | 'fixed-wing-support' | 'omni';
   tabs: string[];
   tonnage: string;
   armor: string;
@@ -50,6 +50,30 @@ interface OpenCase {
 }
 
 const OPEN_CASES: OpenCase[] = [
+  {
+    label: 'large support tank',
+    chassis: 'Brunel Dump Truck',
+    model: '',
+    family: 'Vehicles',
+    shell: 'vehicle-customizer',
+    tabs: [...COMMON_TABS.slice(0, 3), 'Turret', 'Equipment', ...TAIL_TABS],
+    tonnage: '150.0 t',
+    armor: '83',
+    movement: '3/5',
+    panel: 'six-side',
+  },
+  {
+    label: 'Omni vehicle',
+    chassis: 'Gulltoppr OmniMonitor',
+    model: '(Prime)',
+    family: 'Vehicles',
+    shell: 'vehicle-customizer',
+    tabs: [...COMMON_TABS.slice(0, 3), 'Turret', 'Equipment', ...TAIL_TABS],
+    tonnage: '190.0 t',
+    armor: '704',
+    movement: '2/3',
+    panel: 'omni',
+  },
   {
     label: 'fixed-wing support',
     chassis: 'Boomerang Spotter Plane',
@@ -289,6 +313,7 @@ for (const viewport of VIEWPORTS) {
         page,
       }, testInfo) => {
         const { dialog, row } = await findRow(page, unit);
+        await page.addStyleTag({ content: 'nextjs-portal { display: none; }' });
         await expect(row).toContainText(unit.family);
         await row.dblclick();
         await expect(dialog).toBeHidden();
@@ -365,7 +390,32 @@ for (const viewport of VIEWPORTS) {
             statusItem(shell, 'BV').locator('span').nth(1),
           ).toHaveText(unit.bv);
 
-        if (unit.panel === 'fixed-wing-support') {
+        if (unit.panel === 'omni') {
+          await section(page, 'Turret');
+          for (const [name, allowance, required, remaining] of [
+            ['Primary Turret', '2.5 t', '3.5 t', '-1.0 t'],
+            ['Secondary Turret', '3 t', '3.0 t', '0.0 t'],
+          ]) {
+            const panel = page.getByRole('region', { name: name + ' Figures' });
+            for (const [label, expected] of [
+              ['Omni Allowance', allowance],
+              ['Required Mechanism Mass', required],
+              ['Remaining Allowance', remaining],
+            ])
+              await expect(
+                panel
+                  .getByText(label, { exact: true })
+                  .locator('..')
+                  .getByRole('definition'),
+              ).toHaveText(expected);
+            await panel.screenshot({
+              path: testInfo.outputPath(
+                `${name.replaceAll(' ', '-')}-${viewport.name}.png`,
+              ),
+              animations: 'disabled',
+            });
+          }
+        } else if (unit.panel === 'fixed-wing-support') {
           await section(page, 'Structure');
           const fields = page.getByTestId('fixed-wing-support-fields');
           await expect(
@@ -416,6 +466,12 @@ for (const viewport of VIEWPORTS) {
           const diagram = page
             .getByTestId('vehicle-armor-allocation-section')
             .getByTestId('vehicle-armor-diagram');
+          const captions = diagram.locator(
+            ':scope > .grid [aria-label*=" armor:"] > div > span:first-child',
+          );
+          await expect(captions).not.toHaveCount(0);
+          for (const caption of await captions.all())
+            await expect(caption).toHaveCSS('text-transform', 'none');
           if (unit.panel === 'six-side') {
             await expect(
               diagram.getByTestId('vehicle-six-side-armor-diagram'),
@@ -440,7 +496,8 @@ for (const viewport of VIEWPORTS) {
                 nodes.map((node) => {
                   const rect = node.getBoundingClientRect(),
                     region = node
-                      .closest('foreignObject')
+                      .closest('g')
+                      ?.querySelector('polygon')
                       ?.getBoundingClientRect();
                   if (!region) throw Error('Missing rendered label region');
                   return {
@@ -478,6 +535,12 @@ for (const viewport of VIEWPORTS) {
               }),
             ).toHaveValue('32');
           }
+          for (const height of await diagram
+            .getByRole('spinbutton')
+            .evaluateAll((nodes) =>
+              nodes.map((node) => node.getBoundingClientRect().height),
+            ))
+            expect(height).toBeGreaterThanOrEqual(44);
           const graphic =
             unit.panel === 'six-side'
               ? diagram.getByTestId('vehicle-six-side-armor-diagram')
