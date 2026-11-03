@@ -41,6 +41,7 @@ import {
 export interface VehicleUnitObjectInput extends RecordSheetUnitIdentityWithTonnageInput {
   unitType: UnitType.VEHICLE | UnitType.VTOL | UnitType.SUPPORT_VEHICLE;
   motionType: GroundMotionType;
+  isSuperheavy?: boolean;
   structureType?: string;
   hasEnvironmentalSealing?: boolean;
   hasFlotationHull?: boolean;
@@ -83,6 +84,8 @@ function toMotionLabel(
       return 'VTOL';
     case GroundMotionType.NAVAL:
       return 'Naval';
+    case GroundMotionType.HYDROFOIL:
+      return 'Hydrofoil';
     case GroundMotionType.SUBMARINE:
       return 'Submarine';
     case GroundMotionType.RAIL:
@@ -151,6 +154,7 @@ export function buildVehicleUnitObject(
     // Dispatch hint — resolves to the 'vehicle' kind for all three sub-types.
     unitType: input.unitType,
     motionType: toMotionLabel(input.motionType),
+    isSuperheavy: input.isSuperheavy ?? false,
     turretConfig: TURRET_LABEL[turretType],
     cruiseMP: input.cruiseMP,
     flankMP: input.flankMP,

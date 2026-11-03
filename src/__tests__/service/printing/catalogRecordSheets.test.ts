@@ -44,7 +44,8 @@ describe('committed catalog record-sheet model parity', () => {
                 .filter(
                   (d) =>
                     d.field === 'BV' ||
-                    (d.field === 'motion' && d.expected !== 'Hydrofoil') ||
+                    d.field === 'motion' ||
+                    d.field === 'weightClass' ||
                     d.field.startsWith('weaponStats') ||
                     d.field.startsWith('weaponAliasStats') ||
                     (d.field === 'template' && r.subtype !== 'SmallCraft'),
@@ -54,6 +55,10 @@ describe('committed catalog record-sheet model parity', () => {
             .slice(0, 10),
         ).toEqual([]);
       }
+      if (family === 'vehicles')
+        expect(
+          rows.filter((r) => r.stage === 'template' && r.rejection),
+        ).toEqual([]);
       const residual = rows.filter((r) => r.rejection || r.differences.length);
       const digest = createHash('sha256')
         .update(JSON.stringify(residual))

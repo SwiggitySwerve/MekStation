@@ -19,6 +19,7 @@ export function useVehicleRecordSheetUnit(): IVehicleRecordSheetUnitInput {
   const year = useVehicleStore((s) => s.year);
   const unitType = useVehicleStore((s) => s.unitType);
   const motionType = useVehicleStore((s) => s.motionType);
+  const isSuperheavy = useVehicleStore((s) => s.isSuperheavy);
   const structureType = useVehicleStore((s) => s.structureType);
   const hasEnvironmentalSealing = useVehicleStore(
     (s) => s.hasEnvironmentalSealing,
@@ -47,6 +48,7 @@ export function useVehicleRecordSheetUnit(): IVehicleRecordSheetUnitInput {
         year,
         unitType,
         motionType,
+        isSuperheavy,
         structureType,
         hasEnvironmentalSealing,
         hasFlotationHull,
@@ -70,6 +72,7 @@ export function useVehicleRecordSheetUnit(): IVehicleRecordSheetUnitInput {
       year,
       unitType,
       motionType,
+      isSuperheavy,
       structureType,
       hasEnvironmentalSealing,
       hasFlotationHull,
