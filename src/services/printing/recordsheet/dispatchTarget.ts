@@ -1,3 +1,7 @@
+import type { IPilotAbilityRef } from '@/types/pilot';
+import type { IRecordSheetData, IMechRecordSheetData } from '@/types/printing';
+
+import { UnsupportedUnitTypeError } from '@/types/printing';
 /**
  * Discriminated dispatch helpers for RecordSheetService.extractData.
  *
@@ -6,10 +10,9 @@
  * without scattering casts through the service switch.
  */
 
-import { UnsupportedUnitTypeError } from '@/types/printing';
-
 import type { IAerospaceUnitConfig } from './dataExtractors.aerospace';
 import type { IBattleArmorUnitConfig } from './dataExtractors.battleArmor';
+import type { ICapitalRecordSheetData } from './dataExtractors.capital';
 import type { IInfantryUnitConfig } from './dataExtractors.infantry';
 import type { IProtoMechUnitConfig } from './dataExtractors.protoMech';
 import type { IVehicleUnitConfig } from './dataExtractors.vehicle';
@@ -169,3 +172,33 @@ export function dispatchTargetFromUnit(
 
   throw new UnsupportedUnitTypeError(unit.type ?? unit.unitType ?? 'unknown');
 }
+
+export type RecordSheetPrintableData =
+  | IRecordSheetData
+  | ICapitalRecordSheetData;
+
+export type ExtractRecordSheetData = {
+  (
+    unit: IUnitConfig,
+    pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IMechRecordSheetData;
+  (
+    target: IRecordSheetDispatchTarget,
+    pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IRecordSheetData;
+  (
+    unit: IRecordSheetUnitInput | IRecordSheetDispatchTarget,
+    pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IRecordSheetData;
+};
+
+export type ExtractRecordSheetDataByType = {
+  (
+    target: IRecordSheetDispatchTarget,
+    pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IRecordSheetData;
+  (
+    unit: IRecordSheetUnitInput,
+    pilotAbilities?: readonly IPilotAbilityRef[],
+  ): IRecordSheetData;
+};

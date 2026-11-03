@@ -1,3 +1,5 @@
+import { getRecordSheetService } from '@/services/printing/RecordSheetService';
+import { PaperSize } from '@/types/printing';
 /**
  * UL-14: capital ships open read-only. Real catalog definitions open through
  * the library path, then the customizer router mounts the read-only capital
@@ -281,4 +283,40 @@ it('opens an invalid ship and displays its construction diagnostics without edit
     ),
   ).toBeInTheDocument();
   expectNoEditControls(container);
+});
+
+it('opens the capital Preview and exports the same scoped payload', async () => {
+  mount(await openCapital('crucible-station'));
+  const preview = screen.getByRole('tab', { name: 'Preview' });
+  const service = getRecordSheetService();
+  const pages = jest
+    .spyOn(service, 'getSVGPages')
+    .mockResolvedValue(['<svg xmlns="http://www.w3.org/2000/svg"/>']);
+  const print = jest
+    .spyOn(service, 'printRecordSheet')
+    .mockResolvedValue(undefined);
+  const pdf = jest.spyOn(service, 'exportPDF').mockResolvedValue(undefined);
+  try {
+    await userEvent.click(preview);
+    expect(
+      await screen.findByRole('img', {
+        name: 'Crucible Station record sheet page 1',
+      }),
+    ).toBeInTheDocument();
+    const data = pages.mock.calls[0][0];
+    expect(data.unitType).toBe('capital');
+    await userEvent.click(screen.getByRole('button', { name: /^Print$/ }));
+    expect(print).toHaveBeenCalledWith(data, PaperSize.LETTER);
+    await userEvent.click(
+      screen.getByRole('button', { name: /^Download PDF$/ }),
+    );
+    expect(pdf).toHaveBeenCalledWith(data, {
+      paperSize: PaperSize.LETTER,
+      includePilotData: false,
+    });
+  } finally {
+    pages.mockRestore();
+    print.mockRestore();
+    pdf.mockRestore();
+  }
 });
