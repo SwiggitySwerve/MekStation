@@ -1,8 +1,4 @@
 import {
-  ArmorTypeEnum,
-  getArmorDefinition,
-} from '@/types/construction/ArmorType';
-import {
   VehicleLocation,
   VTOLLocation,
 } from '@/types/construction/UnitLocation';
@@ -53,14 +49,7 @@ const VEHICLE_ARMOR_LIMIT_RESOLVERS: ReadonlyMap<
   [VTOLLocation.ROTOR, ({ profile }) => (profile.isVTOL ? 2 : 0)],
 ]);
 
-export function calculateArmorPoints(
-  tonnage: number,
-  armorType: ArmorTypeEnum,
-): number {
-  const def = getArmorDefinition(armorType);
-  const pointsPerTon = def?.pointsPerTon ?? 16;
-  return Math.floor(tonnage * pointsPerTon);
-}
+export { computeVehicleArmorPoints as calculateArmorPoints } from './armor';
 
 export function getMaxVehicleArmorForLocation(
   input: IGetMaxVehicleArmorForLocationInput | number,

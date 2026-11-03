@@ -20,6 +20,12 @@ import {
   VTOLLocation,
 } from '@/types/construction/UnitLocation';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import {
+  calculateArmorPoints,
+  getMaxVehicleArmor,
+  getMaxVehicleArmorForLocation,
+  type VehicleArmorLocation,
+} from '@/utils/construction/vehicle/editorArmor';
 import { formatTons } from '@/utils/formatting';
 import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
@@ -30,12 +36,6 @@ import {
   ARMOR_TYPE_OPTIONS,
   BASE_VEHICLE_LOCATIONS,
 } from './VehicleArmorTab.constants';
-import {
-  calculateArmorPoints,
-  getMaxVehicleArmor,
-  getMaxVehicleArmorForLocation,
-  type VehicleArmorLocation,
-} from './VehicleArmorTab.utils';
 
 interface VehicleArmorTabProps {
   /** Read-only mode */

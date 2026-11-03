@@ -35,14 +35,14 @@ import {
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import {
+  getMaxVehicleArmorForLocation,
+  type VehicleArmorLocation,
+} from '@/utils/construction/vehicle/editorArmor';
 
 import { ArmorAllocationInput } from '../armor/ArmorAllocationInput';
 import { ArmorLocationBlock } from '../armor/ArmorLocationBlock';
 import { useCustomizerConfirmation } from '../dialogs/CustomizerConfirmationProvider';
-import {
-  getMaxVehicleArmorForLocation,
-  type VehicleArmorLocation,
-} from './VehicleArmorTab.utils';
 
 // =============================================================================
 // Types
