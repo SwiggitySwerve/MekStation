@@ -145,10 +145,10 @@ it('preserves explicit absent-turret charges, raw fractional allowances and zero
   );
   expect(panel().getByText('No turret installed.')).toBeInTheDocument();
   act(() => store.setState({ baseChassisTurretWeight: -1 }));
-  expect(value('Omni Allowance')).toHaveTextContent('-1 t');
+  expect(value('Omni Allowance')).toHaveTextContent('Unknown');
   expect(value('Mechanism Weight')).toHaveTextContent('0.0 t');
   act(() => store.setState({ baseChassisTurretWeight: undefined }));
-  expect(value('Omni Allowance')).toHaveTextContent('Not supplied');
+  expect(value('Omni Allowance')).toHaveTextContent('Unknown');
 });
 
 it('shows Loading then Unknown and resolves after a real mount edit', () => {

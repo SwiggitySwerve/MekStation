@@ -27,6 +27,7 @@ import {
 import {
   computeVehicleArmorWeight,
   getSupportVehicleBarArmorWeight,
+  resolveSupportVehicleArmorTechRating,
 } from '@/utils/construction/vehicle/armor';
 import {
   computeFlankMP,
@@ -213,6 +214,10 @@ export function normalizeVehicleConfiguration(
     (sum, points) => sum + points,
     0,
   );
+  const armorTechRating = resolveSupportVehicleArmorTechRating(
+    definition.armorTechRating,
+    definition.structuralTechRating,
+  );
   const barRating =
     unitType === UnitType.SUPPORT_VEHICLE
       ? (armor.barRating ?? defaults.barRating)
@@ -287,11 +292,15 @@ export function normalizeVehicleConfiguration(
             barRating,
             // Same fallback as SupportVehicleUnitHandler: armor, then
             // structural tech rating, then F (index 5).
-            definition.armorTechRating ?? definition.structuralTechRating ?? 5,
+            armorTechRating,
             tonnage < 5, // RoundWeight.usesKilogramStandard: small support
           )
         : computeVehicleArmorWeight(totalArmor, armorType),
     barRating,
+    usesBarArmor:
+      unitType === UnitType.SUPPORT_VEHICLE ? armor.type === 'BAR' : undefined,
+    armorTechRating:
+      unitType === UnitType.SUPPORT_VEHICLE ? armorTechRating : undefined,
     turret: configuredTurret,
     secondaryTurret,
     isSuperheavy:
