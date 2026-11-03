@@ -125,3 +125,5 @@ On the same merged code, restoring only the 50 catalog scalars reproduces the ol
 | sm2-heavy-artillery-vehicle-ltc                | 1098 / 1303 | 1201 / 1406 | LongTomCannon.java:73 |
 
 Five Long Tom artillery rows above (four mobile-long-tom-artillery variants and paladin-defense-system) retain a pre-existing native Long Tom to cannon identity mismatch. This snapshot records the residuals; it does not establish their correctness. No alias or frozen owner changes are included. Fixed-source BV/validity tables remain the original paired measurement; CI repairs change tests only.
+
+The main-merge Omni panel regression also pinned the old 30 t Long Tom Cannon mass. LongTomCannon.java:71 sets 20 t; the primary turret load is 21 t (20 t cannon plus two 0.5 t AMS), and its 10% mechanism rounds up to 2.5 t, equal to the declared 2.5 t allowance. Update required mass 3.5 to 2.5 t and remaining allowance -1.0 to 0.0 t. The secondary-turret negative-allowance warning, real mount removal and save/reopen controls remain covered.

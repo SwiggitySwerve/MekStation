@@ -189,6 +189,8 @@ describe.each([390, 1440])('support and Omni panels at %ipx', (width) => {
     ] as const)
       expect(loaded.armorAllocation[label]).toBe(points);
   });
+  // Pinned 48fcb2f64: LongTomCannon.java:71 sets 20 t, so the primary
+  // turret's 21 t of equipment rounds up to 2.5 t, matching its source allowance.
   it('shows independent Omni allowances, required masses and remaining values after a real mount edit and save', () => {
     const store = createVehicleStore(catalog('Gulltoppr OmniMonitor (Prime)'));
     const { unmount } = render(tree(store, <VehicleTurretTab />));
@@ -197,15 +199,15 @@ describe.each([390, 1440])('support and Omni panels at %ipx', (width) => {
     );
     expect(
       value('Primary Turret', 'Required Mechanism Mass'),
-    ).toHaveTextContent('3.5 t');
+    ).toHaveTextContent('2.5 t');
     expect(value('Primary Turret', 'Remaining Allowance')).toHaveTextContent(
-      '-1.0 t',
+      '0.0 t',
     );
     expect(
       within(
         screen.getByRole('region', { name: 'Primary Turret Figures' }),
-      ).getByText('Mechanism allowance exceeded.'),
-    ).toBeInTheDocument();
+      ).queryByText('Mechanism allowance exceeded.'),
+    ).not.toBeInTheDocument();
     expect(value('Secondary Turret', 'Omni Allowance')).toHaveTextContent(
       '3 t',
     );
@@ -315,7 +317,7 @@ it('keeps independently known required mass when an explicit allowance is unavai
     );
     expect(
       value('Primary Turret', 'Required Mechanism Mass'),
-    ).toHaveTextContent('3.5 t');
+    ).toHaveTextContent('2.5 t');
     expect(value('Primary Turret', 'Remaining Allowance')).toHaveTextContent(
       'Unknown',
     );
