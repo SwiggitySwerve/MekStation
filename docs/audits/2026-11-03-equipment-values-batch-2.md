@@ -100,3 +100,28 @@ Diagnostic changes affect 38 rows (BipedMek). Across those rows, 55 after messag
 | meks/XTRs/Mercenaries/Schwerer Gustav.mtf          | false        | true        | true       |
 | meks/XTRs/Republic III/Osprey OSP-36.mtf           | false        | true        | true       |
 | meks/XTRs/Royal Fantasy/Vulpes VLP-1DX _Beast_.mtf | false        | true        | true       |
+
+## CI expectation repair
+
+Reproduced all three failed suites after one main merge (main fbcf6bba90f49fd389b06ef7d8e755e4b0659b9b). Hydration preserves Java manual-operation AMS damage. The zero-damage set is 129 minus three AMS records, Mek Taser and Hammel Marksman, plus Fluid Gun: 125. The value table above cites every changed fact.
+
+On the same merged code, restoring only the 50 catalog scalars reproduces the old vehicle snapshot. After correction, BV-source residuals fall 160 to 159; unresolved equipment remains 447 and no unit is rejected. Only these 14 residual rows change (sheet BV / source-adapter BV):
+
+| Catalog unit                                   | Before      | After       | Cited value           |
+| ---------------------------------------------- | ----------- | ----------- | --------------------- |
+| aithon-assault-transport                       | 1440 / 1563 | 1543 / 1666 | LongTomCannon.java:73 |
+| bardiche-heavy-strike-tank                     | 1369 / 1410 | agree       | AmmoType.java:10816   |
+| destrier-siege-vehicle                         | 2440 / 2693 | 2599 / 2852 | LongTomCannon.java:73 |
+| gulltoppr-omnimonitor-b                        | 2450 / 2702 | 2608 / 2861 | LongTomCannon.java:73 |
+| gulltoppr-omnimonitor-prime                    | 2977 / 3072 | 3056 / 3151 | LongTomCannon.java:73 |
+| mobile-long-tom-artillery-+carriagesunofficial | 1252 / 904  | 1411 / 904  | LongTomCannon.java:73 |
+| mobile-long-tom-artillery-lt-mob-25            | 693 / 283   | 796 / 283   | LongTomCannon.java:73 |
+| mobile-long-tom-artillery-lt-mob-25f           | 584 / 266   | 687 / 266   | LongTomCannon.java:73 |
+| mobile-long-tom-artillery-lt-mob-95            | 1129 / 781  | 1288 / 781  | LongTomCannon.java:73 |
+| padilla-tube-artillery-tank-ltc                | 718 / 882   | 821 / 985   | LongTomCannon.java:73 |
+| paladin-defense-system                         | 1406 / 845  | 1564 / 845  | LongTomCannon.java:73 |
+| rommel-tank-howitzer-production                | 1119 / 1242 | 1222 / 1345 | LongTomCannon.java:73 |
+| rommel-tank-howitzer-prototype                 | 1199 / 1383 | 1315 / 1498 | LongTomCannon.java:73 |
+| sm2-heavy-artillery-vehicle-ltc                | 1098 / 1303 | 1201 / 1406 | LongTomCannon.java:73 |
+
+Five Long Tom artillery rows above (four mobile-long-tom-artillery variants and paladin-defense-system) retain a pre-existing native Long Tom to cannon identity mismatch. This snapshot records the residuals; it does not establish their correctness. No alias or frozen owner changes are included. Fixed-source BV/validity tables remain the original paired measurement; CI repairs change tests only.
