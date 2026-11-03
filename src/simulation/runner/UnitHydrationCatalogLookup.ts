@@ -1,5 +1,9 @@
 import { normalizeEquipmentId as normalizeCatalogEquipmentId } from '@/utils/construction/equipmentBV/normalization';
-import { NAME_MAPPINGS_DATA } from '@/utils/construction/equipmentBVCatalogData';
+import {
+  isLegacyEquipmentId,
+  preferRegistryEquipment,
+  NAME_MAPPINGS_DATA,
+} from '@/utils/construction/equipmentBVCatalogData';
 
 import type {
   AmmoLookup,
@@ -135,8 +139,10 @@ function addSourceBackedWeaponAliases(
 
 export function buildWeaponLookupFromCatalogFiles(
   files: readonly { items?: readonly unknown[] }[],
+  allowRegistry = true,
 ): WeaponLookup {
   const map = new Map<string, ICatalogWeaponStats>();
+  const generated = new Map<string, ICatalogWeaponStats>();
 
   for (const file of files) {
     for (const raw of file.items ?? []) {
@@ -144,6 +150,10 @@ export function buildWeaponLookupFromCatalogFiles(
       if (candidate === null) continue;
 
       const { techBase: _techBase, ...weapon } = candidate;
+      if (!isLegacyEquipmentId(weapon.id)) {
+        generated.set(weapon.id, weapon);
+        continue;
+      }
       map.set(weapon.id, weapon);
       addWeaponAlias(map, weapon.id, weapon);
       addWeaponAlias(map, weapon.name, weapon);
@@ -155,15 +165,17 @@ export function buildWeaponLookupFromCatalogFiles(
 
   return (id: string) => {
     const canonical = normalizeCatalogEquipmentId(id);
+    const previous = normalizeCatalogEquipmentId(id, undefined, false);
     const normalized = normalizeEquipmentSignalKey(id);
-    return (
+    const legacy =
       map.get(id) ??
-      map.get(canonical) ??
+      map.get(previous) ??
       map.get(normalizeCriticalSlotText(id)) ??
       map.get(normalized) ??
       map.get(normalizedWithoutTechPrefix(normalized)) ??
-      null
-    );
+      null;
+    const imported = allowRegistry ? generated.get(canonical) : undefined;
+    return preferRegistryEquipment(legacy, imported, id);
   };
 }
 
@@ -220,13 +232,15 @@ export function buildAmmoLookupFromCatalogFiles(
       if (ammo === null) continue;
 
       byId.set(ammo.id, ammo);
+      if (!isLegacyEquipmentId(ammo.id)) continue;
       addAmmoAlias(byAlias, ammo.id, ammo);
       addAmmoAlias(byAlias, ammo.name, ammo);
     }
   }
 
   for (const [alias, mappedId] of Object.entries(NAME_MAPPINGS_DATA)) {
-    if (typeof mappedId !== 'string') continue;
+    if (typeof mappedId !== 'string' || !isLegacyEquipmentId(mappedId))
+      continue;
     const ammo = byId.get(mappedId);
     if (ammo) {
       addAmmoAlias(byAlias, alias, ammo);
@@ -234,9 +248,15 @@ export function buildAmmoLookupFromCatalogFiles(
     }
   }
 
-  return (idOrName: string) =>
-    byAlias.get(idOrName) ??
-    byAlias.get(normalizeCatalogEquipmentId(idOrName)) ??
-    byAlias.get(normalizeAmmoLookupKey(idOrName)) ??
-    null;
+  return (idOrName: string) => {
+    const canonical = normalizeCatalogEquipmentId(idOrName);
+    const previous = normalizeCatalogEquipmentId(idOrName, undefined, false);
+    const legacy =
+      byAlias.get(idOrName) ??
+      byAlias.get(previous) ??
+      byAlias.get(normalizeAmmoLookupKey(idOrName)) ??
+      null;
+    const imported = byId.get(canonical);
+    return preferRegistryEquipment(legacy, imported, idOrName);
+  };
 }

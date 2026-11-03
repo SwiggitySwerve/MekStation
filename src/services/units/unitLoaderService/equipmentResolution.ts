@@ -1,3 +1,4 @@
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 /**
  * Unit Loader Service - Equipment Resolution
  *
@@ -6,8 +7,6 @@
  *
  * @spec openspec/specs/unit-services/spec.md
  */
-
-import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
@@ -15,6 +14,11 @@ import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
 import { isAmmunitionEquipmentId } from '@/utils/construction/equipmentBV/catalogLoader';
 import { normalizeEquipmentId as normalizeCatalogEquipmentId } from '@/utils/construction/equipmentBV/normalization';
+import {
+  isRegistryEquipment,
+  isLegacyEquipmentId,
+  preferRegistryEquipment,
+} from '@/utils/construction/equipmentBVCatalogData';
 
 type TechHint = 'clan' | 'is';
 
@@ -108,9 +112,14 @@ function resolveCandidate(
   equipmentDef: IEquipmentItem | undefined,
   resolvedId: string,
 ): IResolvedEquipment | null {
-  return equipmentDef ? { equipmentDef, resolvedId } : null;
+  return legacyDefinition(equipmentDef) ? { equipmentDef, resolvedId } : null;
 }
 
+function legacyDefinition(
+  item: IEquipmentItem | undefined,
+): IEquipmentItem | undefined {
+  return item && isLegacyEquipmentId(item.id) ? item : undefined;
+}
 function buildEquipmentVariantCandidates(
   normalizedId: string,
 ): IEquipmentVariantCandidates {
@@ -129,8 +138,8 @@ function buildEquipmentVariantCandidates(
     baseId,
     isId,
     clanId,
-    isDef: lookupService.getById(isId),
-    clanDef: lookupService.getById(clanId),
+    isDef: legacyDefinition(lookupService.getById(isId)),
+    clanDef: legacyDefinition(lookupService.getById(clanId)),
   };
 }
 
@@ -271,10 +280,31 @@ export function normalizeEquipmentId(
 export function resolveEquipmentId(
   id: string,
   unitTechBase: TechBase,
+  mode: TechBaseMode,
+  slots: ReadonlyArray<string | null> | undefined,
+): IResolvedEquipment {
+  const previous = resolveLegacyEquipmentId(id, unitTechBase, mode, slots);
+  const target = normalizeCatalogEquipmentId(id);
+  const imported = isRegistryEquipment(target)
+    ? getEquipmentLookupService().getById(target)
+    : undefined;
+  // Preserve the complete original variant/registry fallback chain before importing.
+  const registryId = getEquipmentRegistry().lookup(id).equipment?.id;
+  const legacy =
+    previous.equipmentDef ??
+    legacyDefinition(
+      registryId ? getEquipmentLookupService().getById(registryId) : undefined,
+    );
+  const equipmentDef = preferRegistryEquipment(legacy, imported, id);
+  return { equipmentDef, resolvedId: equipmentDef?.id ?? previous.resolvedId };
+}
+function resolveLegacyEquipmentId(
+  id: string,
+  _unitTechBase: TechBase,
   unitTechBaseMode: TechBaseMode,
   locationCriticalSlots: ReadonlyArray<string | null> | undefined,
 ): IResolvedEquipment {
-  const normalizedId = normalizeEquipmentId(id, unitTechBase);
+  const normalizedId = normalizeCatalogEquipmentId(id, undefined, false);
 
   // The normalization owner deliberately keeps missing ammo variants unresolved.
   // Do not reclassify them through weapon variants or registry aliases; ammo and
@@ -285,6 +315,7 @@ export function resolveEquipmentId(
         .getAllEquipment()
         .find(
           (item) =>
+            legacyDefinition(item) &&
             item.id === normalizedId &&
             item.category === EquipmentCategory.AMMUNITION,
         ),

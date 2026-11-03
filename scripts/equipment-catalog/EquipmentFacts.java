@@ -27,6 +27,7 @@ public class EquipmentFacts {
             row.put("isExplosive", type.isExplosive(null));
             row.put("kind", type instanceof AmmoType ? "ammunition" : type instanceof WeaponType ? "weapons" : "miscellaneous");
             if (type instanceof WeaponType weapon) {
+                row.put("isPrototype", weapon.hasFlag(WeaponType.F_PROTOTYPE));
                 row.put("category", type.getClass().getName().contains(".artillery.") ? "Artillery" : weapon.hasFlag(WeaponType.F_ENERGY) ? "Energy" : weapon.hasFlag(WeaponType.F_MISSILE) ? "Missile" : "Ballistic");
                 row.put("damage", weapon instanceof InfantryWeapon infantry ? infantry.getInfantryDamage() : weapon.getDamage());
                 var allowed = new ArrayList<String>();
@@ -66,7 +67,7 @@ public class EquipmentFacts {
                     var candidate = weapons.nextElement();
                     if (candidate instanceof WeaponType weapon && AmmoType.isAmmoValid(ammo, weapon)) compatible.add(weapon);
                 }
-                row.put("compatible", compatible.stream().sorted(Comparator.comparing((WeaponType weapon) -> weapon.hasFlag(WeaponType.F_BA_WEAPON) != ammo.hasFlag(AmmoType.F_BATTLEARMOR)).thenComparing(weapon -> weapon.getTechBase() != type.getTechBase()).thenComparing(EquipmentType::getInternalName)).map(EquipmentType::getInternalName).toList());
+                row.put("compatible", compatible.stream().sorted(Comparator.comparing((WeaponType weapon) -> weapon.hasFlag(WeaponType.F_BA_WEAPON) != ammo.hasFlag(AmmoType.F_BATTLEARMOR)).thenComparing(weapon -> weapon.hasFlag(WeaponType.F_ONE_SHOT)).thenComparingInt(weapon -> weapon.getTechBase() == type.getTechBase() ? 0 : weapon.getTechBase() == megamek.common.enums.TechBase.ALL ? 1 : 2).thenComparing(EquipmentType::getInternalName)).map(EquipmentType::getInternalName).toList());
             }
             if (type instanceof MiscType misc && misc.hasFlag(MiscType.F_ARMOR_KIT)) row.put("damageDivisor", misc.getDamageDivisor());
             rows.put(type.getInternalName(), row);

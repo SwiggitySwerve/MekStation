@@ -1,14 +1,28 @@
 {
   "canonicalIds": {
     "VehicleJumpJet": "vehiclejumpjet",
-    "ISLongTomCannon": "long-tom-cannon",
-    "ISThumper": "thumper"
+    "ISThumper": "isthumper-registry",
+    "Clan Electric Discharge ProtoMech": "clan-electric-discharge-protomech"
   },
   "reroute": {
-    "IS LB 2-X AC Ammo": "is-lb-2-x-ac-ammo",
-    "IS LB 5-X AC Ammo": "is-lb-5-x-ac-ammo",
-    "IS LB 2-X Cluster Ammo": "is-lb-2-x-cluster-ammo",
-    "IS LB 5-X Cluster Ammo": "is-lb-5-x-cluster-ammo",
-    "ISSniper": "sniper"
+    "IS LB 2-X AC Ammo": "is-lb-2-x-ac-ammo-registry",
+    "IS LB 5-X AC Ammo": "is-lb-5-x-ac-ammo-registry",
+    "IS LB 2-X Cluster Ammo": "is-lb-2-x-cluster-ammo-registry",
+    "IS LB 5-X Cluster Ammo": "is-lb-5-x-cluster-ammo-registry",
+    "ISSniper": "issniper-registry"
+  },
+  "previousIds": {
+    "is-lb-2-x-ac-ammo-registry": "clan-lb-2-x-ac",
+    "is-lb-5-x-ac-ammo-registry": "clan-lb-5-x-ac",
+    "is-lb-2-x-cluster-ammo-registry": "clan-lb-2-x-cluster",
+    "is-lb-5-x-cluster-ammo-registry": "clan-lb-5-x-cluster",
+    "issniper-registry": "sniper-cannon"
+  },
+  "nativeNames": {
+    "is-lb-2-x-ac-ammo-registry": "IS LB 2-X AC Ammo",
+    "is-lb-5-x-ac-ammo-registry": "IS LB 5-X AC Ammo",
+    "is-lb-2-x-cluster-ammo-registry": "IS LB 2-X Cluster Ammo",
+    "is-lb-5-x-cluster-ammo-registry": "IS LB 5-X Cluster Ammo",
+    "issniper-registry": "Sniper"
   }
 }

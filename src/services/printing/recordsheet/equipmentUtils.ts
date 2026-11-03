@@ -5,6 +5,11 @@
  */
 
 import { IAmmunition, IWeapon, WeaponCategory } from '@/types/equipment';
+import {
+  isLegacyEquipmentId,
+  resolveRegistryId,
+  preferRegistryEquipment,
+} from '@/utils/construction/equipmentBVCatalogData';
 
 /**
  * Get damage type code based on weapon category
@@ -76,6 +81,10 @@ export function lookupWeapon(
     if (byId) return byId;
   }
 
+  // Imported records only enter through exact ids/owned Java aliases.
+  const exact = resolveRegistryId(id ?? name) ?? resolveRegistryId(name);
+  const imported = weapons.find((w) => w.id === exact);
+  weapons = weapons.filter((w) => isLegacyEquipmentId(w.id));
   // Try exact name match
   const byName = weapons.find((w) => w.name === name);
   if (byName) return byName;
@@ -85,7 +94,7 @@ export function lookupWeapon(
   const byLowerName = weapons.find((w) => w.name.toLowerCase() === lowerName);
   if (byLowerName) return byLowerName;
 
-  if (!allowPartial) return undefined;
+  if (!allowPartial) return imported;
 
   // Try partial match (weapon name contains the search name)
   const byPartial = weapons.find(
@@ -94,7 +103,7 @@ export function lookupWeapon(
       lowerName.includes(w.name.toLowerCase()),
   );
 
-  return byPartial;
+  return preferRegistryEquipment(byPartial, imported, id ?? name);
 }
 
 /**
@@ -110,8 +119,12 @@ export function lookupAmmoShots(
   const lowerName = name.toLowerCase();
   const match =
     (id ? ammunition.find((a) => a.id === id) : undefined) ??
-    ammunition.find((a) => a.name.toLowerCase() === lowerName);
-  return match?.shotsPerTon;
+    ammunition.find(
+      (a) => isLegacyEquipmentId(a.id) && a.name.toLowerCase() === lowerName,
+    );
+  const exact = resolveRegistryId(id ?? name) ?? resolveRegistryId(name);
+  const imported = ammunition.find((a) => a.id === exact);
+  return preferRegistryEquipment(match, imported, id ?? name)?.shotsPerTon;
 }
 
 /**

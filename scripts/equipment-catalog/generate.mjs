@@ -1,11 +1,16 @@
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { hash as hashBytes } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { require as tsxRequire } from 'tsx/cjs/api';
 
 import routing from '../../public/data/equipment/registry-routing.json' with { type: 'json' };
+const { normalizeEquipmentId } = tsxRequire(
+  '../../src/utils/construction/equipmentBV/normalization.ts',
+  import.meta.url,
+);
 
 export const revision = '48fcb2f64a1b3f2d575707ce5653dad64927b587';
 const techBases = { IS: 'INNER_SPHERE', CLAN: 'CLAN', ALL: 'BOTH' };
@@ -19,18 +24,6 @@ const number = (value, label) => {
   return value;
 };
 
-export function assertAdditive(before, after) {
-  for (const id of new Set(before.map((entry) => entry.id))) {
-    const entries = after.filter((entry) => entry.id === id);
-    assert(entries.length, `Removed existing id ${id}`);
-    assert.equal(
-      JSON.stringify(entries),
-      JSON.stringify(before.filter((entry) => entry.id === id)),
-      `Changed existing id ${id}`,
-    );
-  }
-}
-
 export function generateEntries(java, gaps, facts, lookups, before, mappings) {
   const selected = new Set(gaps.map((gap) => gap.java.internalName));
   for (const [name, fact] of Object.entries(facts))
@@ -40,7 +33,8 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
   assert.equal(types.size, java.length, 'Duplicate Java internal name');
   for (const name of Object.keys(routing.reroute))
     if (types.has(name)) selected.add(name);
-  const ids = new Set(before.map((entry) => entry.id));
+  const originalCatalog = new Map(before.map((entry) => [entry.id, entry]));
+  const ids = new Set(originalCatalog.keys());
   const identities = new Map();
   for (const name of [...selected].sort()) {
     assert(types.has(name), `Unregistered gap ${name}`);
@@ -53,26 +47,34 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
     identities.set(name, id);
   }
   const known = new Map(identities);
+  const existingAliases = new Map(
+    Object.entries(mappings).map(([name, id]) => [
+      name.toLowerCase(),
+      { name, id },
+    ]),
+  );
   for (const type of java) {
     if (known.has(type.internalName)) continue;
     const id = [type.internalName, ...type.aliases]
-      .map((alias) => mappings[alias])
+      .flatMap((alias) => [
+        existingAliases.get(alias.toLowerCase())?.id,
+        normalizeEquipmentId(alias, originalCatalog, false),
+      ])
       .find((id) => {
         const entry = before.find((entry) => entry.id === id);
         return (
           entry &&
+          (facts[type.internalName]?.kind !== 'weapons' || entry.ranges) &&
           entry.battleValue === type.bv &&
           entry.weight === type.tons &&
-          [techBases[type.tech], 'BOTH'].includes(entry.techBase)
+          (type.tech === 'ALL' ||
+            [techBases[type.tech], 'BOTH'].includes(entry.techBase))
         );
       });
     if (id) known.set(type.internalName, id);
   }
   const items = [];
   const aliases = {};
-  const existingAliases = new Set(
-    Object.keys(mappings).map((key) => key.toLowerCase()),
-  );
   for (const [name, id] of identities) {
     const type = types.get(name),
       fact = facts[name];
@@ -91,7 +93,7 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
     const entry = {
       id,
       name: type.name,
-      category: fact.kind === 'weapons' ? fact.category : 'Miscellaneous',
+      category: fact.category ?? 'Miscellaneous',
       techBase: techBases[type.tech],
       rulesLevel:
         fact.rulesLevel === 'INTRO' ? 'INTRODUCTORY' : fact.rulesLevel,
@@ -107,7 +109,6 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
       if (fact[key] !== -1 && fact[key] !== undefined)
         entry[key] = number(fact[key], key);
     if (fact.kind === 'ammunition') {
-      entry.category = fact.category;
       entry.variant =
         {
           M_STANDARD: 'Standard',
@@ -153,35 +154,28 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
     items.push({ kind: fact.kind, entry, internalName: name });
     const gap = gaps.find((gap) => gap.java.internalName === name);
     const inputs = gap?.inputs?.map((input) => input.id) ?? [];
-    for (const alias of new Set([
-      name,
-      type.name,
-      ...type.aliases,
-      ...inputs,
-    ])) {
+    const names = [name, type.name, ...type.aliases, ...inputs];
+    for (const alias of new Set(names)) {
+      const aliasKey = alias.toLowerCase();
       const sourceName = [name, ...type.aliases].find(
         (native) => slug(native) === alias,
       );
       const owner =
-        lookups[alias.toLowerCase()]?.default ??
+        lookups[aliasKey]?.default ??
         lookups[sourceName?.toLowerCase()]?.default;
-      if (
-        (owner
-          ? owner !== name
-          : !inputs.includes(alias) ||
-            gaps.some(
-              (gap) =>
-                gap.java.internalName !== name &&
-                gap.inputs?.some((input) => input.id === alias),
-            )) ||
-        (existingAliases.has(alias.toLowerCase()) &&
-          !(
-            Object.hasOwn(routing.reroute, name) &&
-            (type.tech !== 'IS' || alias.toLowerCase().startsWith('is'))
-          ))
-      )
-        continue;
-      aliases[alias] = id;
+      if (owner !== name) continue;
+      const previous = existingAliases.get(aliasKey);
+      if (previous && originalCatalog.has(previous.id)) {
+        if (
+          previous.id !== routing.previousIds[id] ||
+          routing.nativeNames[id]?.toLowerCase() !== aliasKey
+        )
+          continue;
+        if (type.tech === 'IS' && !aliasKey.startsWith('is')) continue;
+      }
+      const aliasName = previous?.name ?? alias;
+      aliases[aliasName] = id;
+      existingAliases.set(aliasKey, { name: aliasName, id });
     }
   }
   return { items, aliases };
@@ -212,17 +206,14 @@ function runGenerator() {
   const before = originals.flatMap(
     (file) => read(`${root}/official/${file}`).items,
   );
-  const mappings = read(`${root}/name-mappings.json`);
+  const mappings = read(new URL('./protected-aliases.json', import.meta.url));
   const result = generateEntries(
     read(registryFile),
     read(gapsFile),
     read(factsFile),
     read(`${registryFile}.lookups.json`),
     before,
-    {
-      ...read(new URL('./protected-aliases.json', import.meta.url)),
-      ...mappings,
-    },
+    mappings,
   );
   for (const kind of ['weapons', 'ammunition', 'miscellaneous']) {
     const items = result.items
@@ -241,11 +232,22 @@ function runGenerator() {
     index.totalItems[kind] = originals
       .filter((file) => file.startsWith(`${kind}/`))
       .reduce(
-        (total, file) => total + read(`${root}/official/${file}`).items.length,
+        (total, file) =>
+          total +
+          read(`${root}/official/${file}`).items.filter(
+            (item) => kind !== 'weapons' || item.ranges,
+          ).length,
         items.length,
       );
   }
-  write(`${root}/name-mappings.json`, { ...mappings, ...result.aliases });
+  const addedIds = new Set(result.items.map((item) => item.entry.id));
+  const originalMappings = Object.fromEntries(
+    Object.entries(mappings).filter(([, id]) => !addedIds.has(id)),
+  );
+  write(`${root}/name-mappings.json`, {
+    ...originalMappings,
+    ...result.aliases,
+  });
   write(`${root}/official/index.json`, index);
   write(new URL('./provenance.json', import.meta.url), {
     revision,
@@ -255,7 +257,7 @@ function runGenerator() {
       id: entry.id,
     })),
   });
-  const format = spawnSync(
+  execFileSync(
     process.execPath,
     [
       'node_modules/oxfmt/bin/oxfmt',
@@ -269,6 +271,5 @@ function runGenerator() {
     ],
     { stdio: 'inherit', windowsHide: true },
   );
-  if (format.status !== 0) throw Error(`oxfmt failed: ${format.status}`);
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) runGenerator();

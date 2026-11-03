@@ -19,10 +19,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportMk1LightAAWeapon.java: AA Weapon (Mk. 1, Light)"
@@ -46,10 +46,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 4,
-        "minimum": 0,
+        "extreme": 8,
         "short": 2,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 4
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportMk2PortableAAWeapon.java: AA Weapon (Mk. 2, Man-Portable)"
@@ -72,10 +72,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolAutoPistolWeapon.java: Auto-Pistol"
@@ -98,10 +98,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolMauserAutoPistolWeapon.java: Auto-Pistol (M&G)"
@@ -124,10 +124,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolMagnumAutoPistolWeapon.java: Auto-Pistol (Magnum)"
@@ -150,10 +150,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolNambuAutoPistolWeapon.java: Auto-Pistol (Nambu)"
@@ -176,10 +176,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolSerrekAutoPistolWeapon.java: Auto-Pistol (Serrek 7875D)"
@@ -202,10 +202,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/shotgun/InfantryShotgunAutomaticWeapon.java: Auto-Shotgun"
@@ -228,10 +228,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/clan/InfantrySupportClanBearhunterAutocannonWeapon.java: Autocannon (Bearhunter Superheavy)"
@@ -254,10 +254,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportPortableAutocannonWeapon.java: Autocannon (Semi-Portable)"
@@ -294,10 +294,10 @@
       "heat": 3,
       "ranges": {
         "long": 15,
-        "medium": 10,
-        "minimum": 0,
+        "extreme": 20,
         "short": 5,
-        "extreme": 20
+        "minimum": 0,
+        "medium": 10
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISAC10Primitive.java: Autocannon/10 Primitive"
@@ -334,10 +334,10 @@
       "heat": 7,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISAC20Primitive.java: Autocannon/20 Primitive"
@@ -374,10 +374,10 @@
       "heat": 1,
       "ranges": {
         "long": 18,
-        "medium": 12,
-        "minimum": 3,
+        "extreme": 24,
         "short": 6,
-        "extreme": 24
+        "minimum": 3,
+        "medium": 12
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISAC5Primitive.java: Autocannon/5 Primitive"
@@ -400,10 +400,10 @@
       "heat": 6,
       "ranges": {
         "long": 14,
-        "medium": 9,
-        "minimum": 0,
+        "extreme": 21,
         "short": 5,
-        "extreme": 21
+        "minimum": 0,
+        "medium": 9
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBAERPulseLaserMedium.java: BACLERMediumPulseLaser"
@@ -426,10 +426,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBAPopUpMineLauncher.java: BAMineLauncher"
@@ -452,10 +452,10 @@
       "heat": 0,
       "ranges": {
         "long": 8,
-        "medium": 5,
-        "minimum": 0,
+        "extreme": 12,
         "short": 2,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 5
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/CLBALBX.java: Battle Armor LB-X AC"
@@ -478,10 +478,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/archaic/InfantryArchaicDaggerWeapon.java: Blade (Dagger/Knife/Bayonet)"
@@ -504,10 +504,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/archaic/InfantryArchaicVibroBladeWeapon.java: Blade (Vibro-blade)"
@@ -530,10 +530,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/archaic/InfantryArchaicVibroKatanaWeapon.java: Blade (Vibro-katana)"
@@ -556,10 +556,10 @@
       "heat": 5,
       "ranges": {
         "long": 15,
-        "medium": 10,
-        "minimum": 0,
+        "extreme": 20,
         "short": 5,
-        "extreme": 20
+        "minimum": 0,
+        "medium": 10
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBALaserERMedium.java: CLBAERMediumLaser"
@@ -582,10 +582,10 @@
       "heat": 1,
       "ranges": {
         "long": 4,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 6,
         "short": 1,
-        "extreme": 6
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBALaserERMicro.java: CLBAERMicroLaser"
@@ -608,10 +608,10 @@
       "heat": 2,
       "ranges": {
         "long": 6,
-        "medium": 4,
-        "minimum": 0,
+        "extreme": 8,
         "short": 2,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 4
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBALaserERSmall.java: CLBAERSmallLaser"
@@ -634,10 +634,10 @@
       "heat": 3,
       "ranges": {
         "long": 6,
-        "medium": 4,
-        "minimum": 0,
+        "extreme": 8,
         "short": 2,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 4
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBAERPulseLaserSmall.java: CLBAERSmallPulseLaser"
@@ -660,10 +660,10 @@
       "heat": 3,
       "ranges": {
         "long": 3,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 4,
         "short": 1,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/CLBAFlamer.java: CLBAFlamer"
@@ -686,10 +686,10 @@
       "heat": 5,
       "ranges": {
         "long": 4,
-        "medium": 3,
-        "minimum": 0,
+        "extreme": 6,
         "short": 2,
-        "extreme": 6
+        "minimum": 0,
+        "medium": 3
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/CLBAFlamerHeavy.java: CLBAHeavyFlamer"
@@ -712,10 +712,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 4,
         "short": 1,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/CLBAGrenadeLauncherHeavy.java: CLBAHeavyGrenadeLauncher"
@@ -738,10 +738,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 4,
-        "minimum": 2,
+        "extreme": 8,
         "short": 2,
-        "extreme": 8
+        "minimum": 2,
+        "medium": 4
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/CLBAMortarHeavy.java: CLBAHeavyMortar"
@@ -764,10 +764,10 @@
       "heat": 3,
       "ranges": {
         "long": 3,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 4,
         "short": 1,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBALaserHeavySmall.java: CLBAHeavySmallLaser"
@@ -790,10 +790,10 @@
       "heat": 2,
       "ranges": {
         "long": 21,
-        "medium": 14,
-        "minimum": 0,
+        "extreme": 28,
         "short": 7,
-        "extreme": 28
+        "minimum": 0,
+        "medium": 14
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/lrm/CLBALRM5.java: CLBALRM5"
@@ -816,10 +816,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 2,
-        "minimum": 1,
+        "extreme": 4,
         "short": 1,
-        "extreme": 4
+        "minimum": 1,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/CLBAMortarLight.java: CLBALightMortar"
@@ -842,10 +842,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/CLBALightTAG.java: CLBALightTAG"
@@ -868,10 +868,10 @@
       "heat": 4,
       "ranges": {
         "long": 12,
-        "medium": 8,
-        "minimum": 0,
+        "extreme": 16,
         "short": 4,
-        "extreme": 16
+        "minimum": 0,
+        "medium": 8
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBAPulseLaserMedium.java: CLBAMediumPulseLaser"
@@ -894,10 +894,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/CLBAMicroBomb.java: CLBAMicroBomb"
@@ -920,10 +920,10 @@
       "heat": 1,
       "ranges": {
         "long": 3,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 4,
         "short": 1,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBAPulseLaserMicro.java: CLBAMicroPulseLaser"
@@ -946,10 +946,10 @@
       "heat": 2,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM2.java: CLBASRM2"
@@ -972,10 +972,10 @@
       "heat": 3,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM4.java: CLBASRM4"
@@ -998,10 +998,10 @@
       "heat": 4,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM6.java: CLBASRM6"
@@ -1024,10 +1024,10 @@
       "heat": 1,
       "ranges": {
         "long": 3,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 4,
         "short": 1,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBALaserSmall.java: CLBASmall Laser"
@@ -1050,10 +1050,10 @@
       "heat": 2,
       "ranges": {
         "long": 6,
-        "medium": 4,
-        "minimum": 0,
+        "extreme": 8,
         "short": 2,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 4
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/laser/CLBAPulseLaserSmall.java: CLBASmallPulseLaser"
@@ -1091,10 +1091,10 @@
       "heat": 5,
       "ranges": {
         "long": 12,
-        "medium": 8,
-        "minimum": 0,
+        "extreme": 16,
         "short": 4,
-        "extreme": 16
+        "minimum": 0,
+        "medium": 8
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLERLaserMediumPrototype.java: CLERMediumLaserPrototype"
@@ -1125,10 +1125,10 @@
       "heat": 5,
       "ranges": {
         "long": 4,
-        "medium": 3,
-        "minimum": 0,
+        "extreme": 6,
         "short": 2,
-        "extreme": 6
+        "minimum": 0,
+        "medium": 3
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/flamers/clan/CLHeavyFlamer.java: CLHeavyFlamer"
@@ -1166,10 +1166,10 @@
       "heat": 0,
       "ranges": {
         "long": 2,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 2,
         "short": 1,
-        "extreme": 2
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/mgs/clan/CLHeavyMG.java: CLHeavyMG"
@@ -1206,10 +1206,10 @@
       "heat": 3,
       "ranges": {
         "long": 18,
-        "medium": 11,
-        "minimum": 0,
+        "extreme": 27,
         "short": 5,
-        "extreme": 27
+        "minimum": 0,
+        "medium": 11
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/PrototypeRL10.java: CLRocketLauncher10Prototype"
@@ -1246,10 +1246,10 @@
       "heat": 4,
       "ranges": {
         "long": 15,
-        "medium": 9,
-        "minimum": 0,
+        "extreme": 22,
         "short": 4,
-        "extreme": 22
+        "minimum": 0,
+        "medium": 9
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/PrototypeRL15.java: CLRocketLauncher15Prototype"
@@ -1289,10 +1289,10 @@
       "heat": 15,
       "ranges": {
         "long": 23,
-        "medium": 14,
-        "minimum": 0,
+        "extreme": 34,
         "short": 7,
-        "extreme": 34
+        "minimum": 0,
+        "medium": 14
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/ppc/clan/CLEnhancedPPC.java: CLWERPPC"
@@ -1315,10 +1315,10 @@
       "heat": 20,
       "ranges": {
         "long": 40,
-        "medium": 30,
-        "minimum": 0,
+        "extreme": 50,
         "short": 20,
-        "extreme": 50
+        "minimum": 0,
+        "medium": 30
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/AR10Weapon.java: Capital Missile Launcher (AR10 Launcher)"
@@ -1341,10 +1341,10 @@
       "heat": 10,
       "ranges": {
         "long": 40,
-        "medium": 30,
-        "minimum": 0,
+        "extreme": 50,
         "short": 20,
-        "extreme": 50
+        "minimum": 0,
+        "medium": 30
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissBarracudaWeapon.java: Capital Missile Launcher (Barracuda)"
@@ -1367,10 +1367,10 @@
       "heat": 20,
       "ranges": {
         "long": 21,
-        "medium": 14,
-        "minimum": 0,
+        "extreme": 28,
         "short": 7,
-        "extreme": 28
+        "minimum": 0,
+        "medium": 14
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissKillerWhaleWeapon.java: Capital Missile Launcher (Killer Whale)"
@@ -1393,10 +1393,10 @@
       "heat": 15,
       "ranges": {
         "long": 36,
-        "medium": 24,
-        "minimum": 0,
+        "extreme": 48,
         "short": 12,
-        "extreme": 48
+        "minimum": 0,
+        "medium": 24
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissWhiteSharkWeapon.java: Capital Missile Launcher (White Shark)"
@@ -1435,10 +1435,10 @@
       "heat": 4,
       "ranges": {
         "long": 18,
-        "medium": 12,
-        "minimum": 0,
+        "extreme": 24,
         "short": 6,
-        "extreme": 24
+        "minimum": 0,
+        "medium": 12
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/innerSphere/ISCenturionWeaponSystem.java: Centurion Weapon System"
@@ -1461,10 +1461,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/shotgun/InfantryShotgunCeresCrowdbusterWeapon.java: Ceres Arms Crowdbuster"
@@ -1494,10 +1494,10 @@
       "heat": 10,
       "ranges": {
         "long": 21,
-        "medium": 14,
-        "minimum": 6,
+        "extreme": 28,
         "short": 7,
-        "extreme": 28
+        "minimum": 6,
+        "medium": 14
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/mortars/clan/CLMekMortar8.java: Clan Mech Mortar-8"
@@ -1520,10 +1520,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleElephantGunWeapon.java: Elephant Gun"
@@ -1545,10 +1545,10 @@
       "heat": 0,
       "ranges": {
         "long": 1,
-        "medium": 1,
-        "minimum": 0,
+        "extreme": 1,
         "short": 1,
-        "extreme": 1
+        "minimum": 0,
+        "medium": 1
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/innerSphere/ISFireExtinguisher.java: Fire Extinguisher"
@@ -1571,10 +1571,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/heavy/InfantrySupportHeavyFlamerWeapon.java: Flamer (Heavy)"
@@ -1597,10 +1597,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportPortableFlamerWeapon.java: Flamer (Man-Portable)"
@@ -1624,10 +1624,10 @@
       "heat": 0,
       "ranges": {
         "long": 15,
-        "medium": 10,
-        "minimum": 4,
+        "extreme": 20,
         "short": 5,
-        "extreme": 20
+        "minimum": 4,
+        "medium": 10
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/clan/CLFussilade.java: Fusillade"
@@ -1650,10 +1650,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/gauss/InfantrySupportGrandMaulerGaussCannonWeapon.java: Gauss Cannon (Grand Mauler)"
@@ -1676,10 +1676,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 12,
         "short": 0,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/gauss/InfantrySupportGungnirHeavyGaussWeapon.java: Gauss Rifle (Gungnir Heavy Support)"
@@ -1702,10 +1702,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleThunderstrokeIIWeapon.java: Gauss Rifle (Thunderstroke II)"
@@ -1729,10 +1729,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleThunderstrokeWeapon.java: Gauss Rifle (Thunderstroke)"
@@ -1755,10 +1755,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportTsunamiHeavyGaussRifleWeapon.java: Gauss Rifle (Tsunami Heavy)"
@@ -1781,10 +1781,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/gauss/InfantrySupportDavidLightGaussRifleWeapon.java: Gauss Rifle, Light (David)"
@@ -1807,10 +1807,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 12,
         "short": 0,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/gauss/InfantrySupportKingDavidLightGaussRifleWeapon.java: Gauss Rifle, Light (King David)"
@@ -1833,10 +1833,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/smg/InfantrySMGClanGaussWeapon.java: Gauss Submachine Gun"
@@ -1859,10 +1859,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/grenadeLauncher/InfantrySupportGrenadeLauncherWeapon.java: Grenade Launcher"
@@ -1885,10 +1885,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/grenadeLauncher/InfantrySupportGrenadeLauncherCompactWeapon.java: Grenade Launcher (Compact)"
@@ -1911,10 +1911,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleGyrojetRifleWeapon.java: Gyrojet Rifle"
@@ -1937,10 +1937,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleGyroslugRifleWeapon.java: Gyroslug Rifle"
@@ -1971,10 +1971,10 @@
       "heat": 1,
       "ranges": {
         "long": 21,
-        "medium": 14,
-        "minimum": 6,
+        "extreme": 28,
         "short": 7,
-        "extreme": 28
+        "minimum": 6,
+        "medium": 14
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/mortars/innerSphere/ISMekMortar1.java: IS Mech Mortar-1"
@@ -2005,10 +2005,10 @@
       "heat": 2,
       "ranges": {
         "long": 21,
-        "medium": 14,
-        "minimum": 6,
+        "extreme": 28,
         "short": 7,
-        "extreme": 28
+        "minimum": 6,
+        "medium": 14
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/mortars/innerSphere/ISMekMortar2.java: IS Mech Mortar-2"
@@ -2031,10 +2031,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBAAPDS.java: ISBAAPDS"
@@ -2057,10 +2057,10 @@
       "heat": 5,
       "ranges": {
         "long": 12,
-        "medium": 8,
-        "minimum": 0,
+        "extreme": 16,
         "short": 4,
-        "extreme": 16
+        "minimum": 0,
+        "medium": 8
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/laser/ISBALaserERMedium.java: ISBAERMediumLaser"
@@ -2083,10 +2083,10 @@
       "heat": 0,
       "ranges": {
         "long": 5,
-        "medium": 4,
-        "minimum": 0,
+        "extreme": 7,
         "short": 2,
-        "extreme": 7
+        "minimum": 0,
+        "medium": 4
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/laser/ISBALaserERSmall.java: ISBAERSmallLaser"
@@ -2109,10 +2109,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 4,
         "short": 1,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBAFiredrakeNeedler.java: ISBAFireDrakeNeedler"
@@ -2135,10 +2135,10 @@
       "heat": 0,
       "ranges": {
         "long": 2,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 2,
         "short": 1,
-        "extreme": 2
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBAMGHeavy.java: ISBAHeavyMachineGun"
@@ -2161,10 +2161,10 @@
       "heat": 2,
       "ranges": {
         "long": 21,
-        "medium": 14,
-        "minimum": 6,
+        "extreme": 28,
         "short": 7,
-        "extreme": 28
+        "minimum": 6,
+        "medium": 14
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM5.java: ISBALRM5"
@@ -2187,10 +2187,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/laser/ISBALaserMedium.java: ISBAMediumLaser"
@@ -2213,10 +2213,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 4,
-        "minimum": 0,
+        "extreme": 8,
         "short": 2,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 4
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/laser/ISBALaserPulseMedium.java: ISBAMediumPulseLaser"
@@ -2239,10 +2239,10 @@
       "heat": 7,
       "ranges": {
         "long": 9,
-        "medium": 5,
-        "minimum": 0,
+        "extreme": 13,
         "short": 2,
-        "extreme": 13
+        "minimum": 0,
+        "medium": 5
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/laser/ISBALaserVSPMedium.java: ISBAMediumVSPLaser"
@@ -2265,10 +2265,10 @@
       "heat": 0,
       "ranges": {
         "long": 2,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 2,
         "short": 1,
-        "extreme": 2
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBAGrenadeLauncherMicro.java: ISBAMicroGrenadeLauncher"
@@ -2291,10 +2291,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 4,
-        "minimum": 0,
+        "extreme": 8,
         "short": 2,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 4
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBAPlasmaRifle.java: ISBAPlasmaRifle"
@@ -2317,10 +2317,10 @@
       "heat": 0,
       "ranges": {
         "long": 12,
-        "medium": 7,
-        "minimum": 0,
+        "extreme": 18,
         "short": 3,
-        "extreme": 18
+        "minimum": 0,
+        "medium": 7
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/barl/ISBARL1.java: ISBARL1"
@@ -2343,10 +2343,10 @@
       "heat": 0,
       "ranges": {
         "long": 12,
-        "medium": 7,
-        "minimum": 0,
+        "extreme": 18,
         "short": 3,
-        "extreme": 18
+        "minimum": 0,
+        "medium": 7
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/barl/ISBARL2.java: ISBARL2"
@@ -2369,10 +2369,10 @@
       "heat": 0,
       "ranges": {
         "long": 12,
-        "medium": 7,
-        "minimum": 0,
+        "extreme": 18,
         "short": 3,
-        "extreme": 18
+        "minimum": 0,
+        "medium": 7
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/barl/ISBARL4.java: ISBARL4"
@@ -2395,10 +2395,10 @@
       "heat": 0,
       "ranges": {
         "long": 12,
-        "medium": 7,
-        "minimum": 0,
+        "extreme": 18,
         "short": 3,
-        "extreme": 18
+        "minimum": 0,
+        "medium": 7
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/barl/ISBARL5.java: ISBARL5"
@@ -2421,10 +2421,10 @@
       "heat": 2,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM2.java: ISBASRM2"
@@ -2447,10 +2447,10 @@
       "heat": 2,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM2OS.java: ISBASRM2OS"
@@ -2473,10 +2473,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM3OS.java: ISBASRM3OS"
@@ -2499,10 +2499,10 @@
       "heat": 3,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM4.java: ISBASRM4"
@@ -2525,10 +2525,10 @@
       "heat": 3,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM4OS.java: ISBASRM4OS"
@@ -2551,10 +2551,10 @@
       "heat": 4,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM6OS.java: ISBASRM6OS"
@@ -2577,10 +2577,10 @@
       "heat": 1,
       "ranges": {
         "long": 3,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 4,
         "short": 1,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/laser/ISBALaserSmall.java: ISBASmallLaser"
@@ -2603,10 +2603,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 4,
         "short": 1,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/laser/ISBALaserPulseSmall.java: ISBASmallPulseLaser"
@@ -2629,10 +2629,10 @@
       "heat": 0,
       "ranges": {
         "long": 7,
-        "medium": 5,
-        "minimum": 0,
+        "extreme": 10,
         "short": 2,
-        "extreme": 10
+        "minimum": 0,
+        "medium": 5
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBASupportPPC.java: ISBASupportPPC"
@@ -2655,10 +2655,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 4,
         "short": 1,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBATaser.java: ISBATaser"
@@ -2681,10 +2681,10 @@
       "heat": 0,
       "ranges": {
         "long": 2,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 2,
         "short": 2,
-        "extreme": 2
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/ISBATubeArtillery.java: ISBATubeArtillery"
@@ -2714,10 +2714,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/defensivePods/ISBPod.java: ISBPod"
@@ -2754,17 +2754,17 @@
       "heat": 20,
       "ranges": {
         "long": 30,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 30,
         "short": 1,
-        "extreme": 30
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/artillery/LongTom.java: ISLongTom"
       ]
     },
     {
-      "id": "long-tom-cannon",
+      "id": "islongtomcannon-registry",
       "name": "Long Tom Cannon",
       "category": "Artillery",
       "techBase": "BOTH",
@@ -2794,10 +2794,10 @@
       "heat": 20,
       "ranges": {
         "long": 20,
-        "medium": 13,
-        "minimum": 4,
+        "extreme": 30,
         "short": 6,
-        "extreme": 30
+        "minimum": 4,
+        "medium": 13
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/artillery/LongTomCannon.java: ISLongTomCannon"
@@ -2835,10 +2835,10 @@
       "heat": 24,
       "ranges": {
         "long": 25,
-        "medium": 15,
-        "minimum": 0,
+        "extreme": 37,
         "short": 8,
-        "extreme": 37
+        "minimum": 0,
+        "medium": 15
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lasers/innerSphere/ISRISCHyperLaser.java: ISRISCHyperLaser"
@@ -2876,10 +2876,10 @@
       "heat": 2,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/oneShot/ISSRM2IOS.java: ISSRM2IOS"
@@ -2917,10 +2917,10 @@
       "heat": 3,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/oneShot/ISSRM4IOS.java: ISSRM4IOS"
@@ -2958,10 +2958,10 @@
       "heat": 3,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/oneShot/ISSRM4OS.java: ISSRM4OS"
@@ -2999,10 +2999,10 @@
       "heat": 4,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/oneShot/ISSRM6OS.java: ISSRM6OS"
@@ -3040,17 +3040,17 @@
       "heat": 2,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/oneShot/ISSRT2OS.java: ISSRT2OS"
       ]
     },
     {
-      "id": "sniper",
+      "id": "issniper-registry",
       "name": "Sniper",
       "category": "Artillery",
       "techBase": "BOTH",
@@ -3080,17 +3080,17 @@
       "heat": 10,
       "ranges": {
         "long": 18,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 18,
         "short": 1,
-        "extreme": 18
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/artillery/Sniper.java: ISSniper"
       ]
     },
     {
-      "id": "thumper",
+      "id": "isthumper-registry",
       "name": "Thumper",
       "category": "Artillery",
       "techBase": "BOTH",
@@ -3120,10 +3120,10 @@
       "heat": 5,
       "ranges": {
         "long": 21,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 21,
         "short": 1,
-        "extreme": 21
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/artillery/Thumper.java: ISThumper"
@@ -3162,10 +3162,10 @@
       "heat": 1,
       "ranges": {
         "long": 20,
-        "medium": 13,
-        "minimum": 2,
+        "extreme": 26,
         "short": 6,
-        "extreme": 26
+        "minimum": 2,
+        "medium": 13
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/innerSphere/ISUAC5Prototype.java: ISUltraAC5Prototype"
@@ -3205,10 +3205,10 @@
       "heat": 10,
       "ranges": {
         "long": 10,
-        "medium": 7,
-        "minimum": 0,
+        "extreme": 15,
         "short": 3,
-        "extreme": 15
+        "minimum": 0,
+        "medium": 7
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lasers/clan/large/CLImprovedPulseLaserLarge.java: ImprovedLargePulseLaser"
@@ -3231,10 +3231,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 4,
         "short": 1,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleAutoRifleWeapon.java: InfantryAssaultRifle"
@@ -3257,10 +3257,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/grenadeLauncher/InfantrySupportGrenadeLauncherAutoWeapon.java: InfantryAutoGL"
@@ -3283,10 +3283,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/grenadeLauncher/InfantrySupportGrenadeLauncherAutoInfernoWeapon.java: InfantryAutoGLInferno"
@@ -3309,10 +3309,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleFederatedBarrettM42BWeapon.java: InfantryFederatedBarrettM42B"
@@ -3335,10 +3335,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleFederatedBarrettM61ALaserWeapon.java: InfantryFederatedBarrettM61A"
@@ -3361,10 +3361,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/recoillessRifle/InfantrySupportRecoillessRifleHeavyWeapon.java: InfantryHRR"
@@ -3387,10 +3387,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/heavy/InfantrySupportHeavyGrenadeLauncherWeapon.java: InfantryHeavyGrenadeLauncher"
@@ -3413,10 +3413,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/heavy/InfantrySupportHeavyGrenadeLauncherInfernoWeapon.java: InfantryHeavyGrenadeLauncherInferno"
@@ -3439,10 +3439,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 12,
         "short": 0,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/mortar/InfantrySupportMortarHeavyWeapon.java: InfantryHeavyMortar"
@@ -3465,10 +3465,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/srm/InfantrySupportSRMHeavyWeapon.java: InfantryHeavySRM"
@@ -3491,10 +3491,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 12,
         "short": 0,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportLRMWeapon.java: InfantryLRM"
@@ -3517,10 +3517,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/recoillessRifle/InfantrySupportRecoillessRifleLightWeapon.java: InfantryLRR"
@@ -3543,10 +3543,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/mortar/InfantrySupportMortarLightWeapon.java: InfantryLightMortar"
@@ -3569,10 +3569,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/recoillessRifle/InfantrySupportRecoillessRifleMediumWeapon.java: InfantryMRR"
@@ -3595,10 +3595,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/grenade/InfantryGrenadeMiniInfernoWeapon.java: InfantryMiniGrenadeInferno"
@@ -3621,10 +3621,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportOneShotMRMWeapon.java: InfantryOneShotMRM"
@@ -3647,10 +3647,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/srm/InfantrySupportSRMLightWeapon.java: InfantrySRMLight"
@@ -3673,10 +3673,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/srm/InfantrySupportSRMStandardWeapon.java: InfantryStandardSRM"
@@ -3700,10 +3700,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportTAGWeapon.java: InfantryTAG"
@@ -3726,10 +3726,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/laser/InfantrySupportHellboreAssaultLaserWeapon.java: Laser (Hellbore Assault)"
@@ -3752,10 +3752,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolBlazerPistolWeapon.java: Laser Pistol (Blazer)"
@@ -3778,10 +3778,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolSunbeamLaserPistolWeapon.java: Laser Pistol (Sunbeam)"
@@ -3804,10 +3804,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleLaserWeapon.java: Laser Rifle"
@@ -3830,10 +3830,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleBlazerRifleWeapon.java: Laser Rifle (Blazer)"
@@ -3856,10 +3856,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 12,
         "short": 0,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleSunbeamStarfireERLaserWeapon.java: Laser Rifle (ER [Sunbeam Starfire])"
@@ -3882,10 +3882,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 12,
         "short": 0,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleClanERLaserWeapon.java: Laser Rifle (ER)"
@@ -3908,10 +3908,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleEbonyAssaultLaserWeapon.java: Laser Rifle (Ebony Assault)"
@@ -3934,10 +3934,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 12,
         "short": 0,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleIntekLaserWeapon.java: Laser Rifle (Intek)"
@@ -3960,10 +3960,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleMagnaLaserWeapon.java: Laser Rifle (Magna)"
@@ -3986,10 +3986,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 12,
         "short": 0,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleMarxXXLaserWeapon.java: Laser Rifle (Marx XX)"
@@ -4012,10 +4012,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleMauser1200LSSWeapon.java: Laser Rifle (Mauser 1200 LSS)"
@@ -4038,10 +4038,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleMauser960LaserWeapon.java: Laser Rifle (Mauser 960)"
@@ -4064,10 +4064,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 12,
         "short": 0,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleClanMauserIICIASWeapon.java: Laser Rifle (Mauser IIC IAS)"
@@ -4090,10 +4090,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleMaxellPL10LaserWeapon.java: Laser Rifle (Maxell PL-10)"
@@ -4130,10 +4130,10 @@
       "heat": 6,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lasers/innerSphere/ISLBinaryLaserCannon.java: Light Blazer"
@@ -4156,10 +4156,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 2,
-        "minimum": 0,
+        "extreme": 4,
         "short": 1,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 2
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/mg/InfantrySupportMGPortableWeapon.java: Machine Gun (Portable)"
@@ -4182,10 +4182,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/mg/InfantrySupportMGSemiPortableWeapon.java: Machine Gun (Semi-Portable)"
@@ -4208,10 +4208,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 4,
-        "minimum": 0,
+        "extreme": 8,
         "short": 2,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 4
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/mg/InfantrySupportMGSupportWeapon.java: Machine Gun (Support)"
@@ -4244,10 +4244,10 @@
       "heat": 90,
       "ranges": {
         "long": 40,
-        "medium": 24,
-        "minimum": 0,
+        "extreme": 0,
         "short": 12,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 24
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/MassDriverHeavy.java: Mass Driver (Heavy)"
@@ -4280,10 +4280,10 @@
       "heat": 30,
       "ranges": {
         "long": 40,
-        "medium": 24,
-        "minimum": 0,
+        "extreme": 0,
         "short": 12,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 24
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/MassDriverLight.java: Mass Driver (Light)"
@@ -4316,10 +4316,10 @@
       "heat": 60,
       "ranges": {
         "long": 40,
-        "medium": 24,
-        "minimum": 0,
+        "extreme": 0,
         "short": 12,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 24
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/MassDriverMedium.java: Mass Driver (Medium)"
@@ -4356,10 +4356,10 @@
       "heat": 0,
       "ranges": {
         "long": 1,
-        "medium": 1,
-        "minimum": 0,
+        "extreme": 1,
         "short": 1,
-        "extreme": 1
+        "minimum": 0,
+        "medium": 1
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/autoCannons/innerSphere/ISNailAndRivetGun.java: Nail/Rivet Gun"
@@ -4382,10 +4382,10 @@
       "heat": 30,
       "ranges": {
         "long": 33,
-        "medium": 22,
-        "minimum": 0,
+        "extreme": 44,
         "short": 11,
-        "extreme": 44
+        "minimum": 0,
+        "medium": 22
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC10Weapon.java: Naval Autocannon (NAC/10)"
@@ -4408,10 +4408,10 @@
       "heat": 60,
       "ranges": {
         "long": 31,
-        "medium": 21,
-        "minimum": 0,
+        "extreme": 42,
         "short": 11,
-        "extreme": 42
+        "minimum": 0,
+        "medium": 21
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC20Weapon.java: Naval Autocannon (NAC/20)"
@@ -4434,10 +4434,10 @@
       "heat": 85,
       "ranges": {
         "long": 30,
-        "medium": 20,
-        "minimum": 0,
+        "extreme": 40,
         "short": 10,
-        "extreme": 40
+        "minimum": 0,
+        "medium": 20
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC25Weapon.java: Naval Autocannon (NAC/25)"
@@ -4460,10 +4460,10 @@
       "heat": 100,
       "ranges": {
         "long": 27,
-        "medium": 18,
-        "minimum": 0,
+        "extreme": 36,
         "short": 9,
-        "extreme": 36
+        "minimum": 0,
+        "medium": 18
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC30Weapon.java: Naval Autocannon (NAC/30)"
@@ -4486,10 +4486,10 @@
       "heat": 120,
       "ranges": {
         "long": 21,
-        "medium": 14,
-        "minimum": 0,
+        "extreme": 28,
         "short": 7,
-        "extreme": 28
+        "minimum": 0,
+        "medium": 14
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC35Weapon.java: Naval Autocannon (NAC/35)"
@@ -4512,10 +4512,10 @@
       "heat": 135,
       "ranges": {
         "long": 18,
-        "medium": 12,
-        "minimum": 0,
+        "extreme": 24,
         "short": 6,
-        "extreme": 24
+        "minimum": 0,
+        "medium": 12
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC40Weapon.java: Naval Autocannon (NAC/40)"
@@ -4547,10 +4547,10 @@
       "heat": 52,
       "ranges": {
         "long": 33,
-        "medium": 22,
-        "minimum": 0,
+        "extreme": 44,
         "short": 11,
-        "extreme": 44
+        "minimum": 0,
+        "medium": 22
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NL35Weapon.java: Naval Laser 35"
@@ -4582,10 +4582,10 @@
       "heat": 70,
       "ranges": {
         "long": 36,
-        "medium": 24,
-        "minimum": 0,
+        "extreme": 48,
         "short": 12,
-        "extreme": 48
+        "minimum": 0,
+        "medium": 24
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NL45Weapon.java: Naval Laser 45"
@@ -4617,10 +4617,10 @@
       "heat": 85,
       "ranges": {
         "long": 39,
-        "medium": 26,
-        "minimum": 0,
+        "extreme": 52,
         "short": 13,
-        "extreme": 52
+        "minimum": 0,
+        "medium": 26
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NL55Weapon.java: Naval Laser 55"
@@ -4652,10 +4652,10 @@
       "heat": 225,
       "ranges": {
         "long": 39,
-        "medium": 26,
-        "minimum": 0,
+        "extreme": 52,
         "short": 13,
-        "extreme": 52
+        "minimum": 0,
+        "medium": 26
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NPPCWeaponHeavy.java: Naval PPC (Heavy)"
@@ -4687,10 +4687,10 @@
       "heat": 105,
       "ranges": {
         "long": 33,
-        "medium": 22,
-        "minimum": 0,
+        "extreme": 44,
         "short": 11,
-        "extreme": 44
+        "minimum": 0,
+        "medium": 22
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NPPCWeaponLight.java: Naval PPC (Light)"
@@ -4722,10 +4722,10 @@
       "heat": 135,
       "ranges": {
         "long": 36,
-        "medium": 24,
-        "minimum": 0,
+        "extreme": 48,
         "short": 12,
-        "extreme": 48
+        "minimum": 0,
+        "medium": 24
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NPPCWeaponMedium.java: Naval PPC (Medium)"
@@ -4748,10 +4748,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolNeedlerPistolWeapon.java: Needler Pistol"
@@ -4774,10 +4774,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleNeedlerWeapon.java: Needler Rifle"
@@ -4800,10 +4800,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleMGFlechetteNeedlerWeapon.java: Needler Rifle (M&G Flechette)"
@@ -4826,10 +4826,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleShredderHeavyNeedlerWeapon.java: Needler Rifle (Shredder Heavy)"
@@ -4852,10 +4852,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportFiredrakeNeedlerWeapon.java: Needler, Support (Firedrake)"
@@ -4878,10 +4878,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportSemiPortablePPCWeapon.java: Particle Cannon (Semi-Portable)"
@@ -4904,10 +4904,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 12,
         "short": 0,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/heavy/InfantrySupportHeavyPPCWeapon.java: Particle Cannon (Support)"
@@ -4930,10 +4930,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolSternsnachtPistolWeapon.java: Pistol (Sternsnacht Heavy [Claymore])"
@@ -4956,10 +4956,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportPortablePlasmaWeapon.java: Plasma Rifle (Man-Portable)"
@@ -4982,10 +4982,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRiflePulseLaserWeapon.java: Pulse Laser Rifle (Inner Sphere)"
@@ -5008,10 +5008,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleBoltActionWeapon.java: Rifle (Bolt-Action)"
@@ -5034,10 +5034,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleFederatedLongWeapon.java: Rifle (Federated Long)"
@@ -5060,10 +5060,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleImperatorAX22AssaultWeapon.java: Rifle (Imperator AX-22 Assault)"
@@ -5086,10 +5086,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleMauserG150Weapon.java: Rifle (M&G G-150)"
@@ -5112,10 +5112,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleMakeshiftWeapon.java: Rifle (Makeshift)"
@@ -5138,10 +5138,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleStrikerCarbineRifleWeapon.java: Rifle (Striker Carbine)"
@@ -5164,10 +5164,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleTKAssaultWeapon.java: Rifle (TK Assault)"
@@ -5190,10 +5190,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/rifle/InfantryRifleZeusHeavyWeapon.java: Rifle (Zeus Heavy)"
@@ -5216,10 +5216,10 @@
       "heat": 0,
       "ranges": {
         "long": 3,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 4,
         "short": 0,
-        "extreme": 4
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportRocketLauncherVLAWWeapon.java: Rocket Launcher (V-LAW)"
@@ -5256,10 +5256,10 @@
       "heat": 5,
       "ranges": {
         "long": 12,
-        "medium": 7,
-        "minimum": 0,
+        "extreme": 18,
         "short": 3,
-        "extreme": 18
+        "minimum": 0,
+        "medium": 7
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/PrototypeRL20.java: RocketLauncher20Prototype"
@@ -5282,10 +5282,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/smg/InfantrySMGGuntherMP20Weapon.java: SMG (Gunther MP-20)"
@@ -5307,10 +5307,10 @@
       "heat": 10,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/ScreenLauncherWeapon.java: Screen Launcher"
@@ -5333,10 +5333,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/shotgun/InfantryShotgunAvengerCCWWeapon.java: Shotgun (Avenger CCW)"
@@ -5359,10 +5359,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/shotgun/InfantryShotgunCombatWeapon.java: Shotgun (Combat)"
@@ -5385,10 +5385,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/sniperRifle/InfantrySniperRifleSniperWeapon.java: Sniper Rifle (Bolt Action)"
@@ -5411,10 +5411,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/sniperRifle/InfantrySniperRifleMinolta9000Weapon.java: Sniper Rifle (Minolta 9000 Advanced Sniper System)"
@@ -5437,10 +5437,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolSonicStunnerWeapon.java: Sonic Stunner"
@@ -5463,10 +5463,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/archaic/InfantryArchaicStunstickWeapon.java: Stunstick"
@@ -5488,10 +5488,10 @@
       "heat": 42,
       "ranges": {
         "long": 33,
-        "medium": 22,
-        "minimum": 0,
+        "extreme": 44,
         "short": 11,
-        "extreme": 44
+        "minimum": 0,
+        "medium": 22
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapCannonWeaponHeavy.java: Sub-Capital Cannon (Heavy)"
@@ -5513,10 +5513,10 @@
       "heat": 12,
       "ranges": {
         "long": 33,
-        "medium": 22,
-        "minimum": 0,
+        "extreme": 44,
         "short": 11,
-        "extreme": 44
+        "minimum": 0,
+        "medium": 22
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapCannonWeaponLight.java: Sub-Capital Cannon (Light)"
@@ -5538,10 +5538,10 @@
       "heat": 30,
       "ranges": {
         "long": 33,
-        "medium": 22,
-        "minimum": 0,
+        "extreme": 44,
         "short": 11,
-        "extreme": 44
+        "minimum": 0,
+        "medium": 22
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapCannonWeaponMedium.java: Sub-Capital Cannon (Medium)"
@@ -5578,10 +5578,10 @@
       "heat": 24,
       "ranges": {
         "long": 33,
-        "medium": 22,
-        "minimum": 0,
+        "extreme": 44,
         "short": 11,
-        "extreme": 44
+        "minimum": 0,
+        "medium": 22
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapLaserWeapon1.java: Sub-Capital Laser /1"
@@ -5618,10 +5618,10 @@
       "heat": 28,
       "ranges": {
         "long": 33,
-        "medium": 22,
-        "minimum": 0,
+        "extreme": 44,
         "short": 11,
-        "extreme": 44
+        "minimum": 0,
+        "medium": 22
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapLaserWeapon2.java: Sub-Capital Laser /2"
@@ -5658,10 +5658,10 @@
       "heat": 32,
       "ranges": {
         "long": 33,
-        "medium": 22,
-        "minimum": 0,
+        "extreme": 44,
         "short": 11,
-        "extreme": 44
+        "minimum": 0,
+        "medium": 22
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapLaserWeapon3.java: Sub-Capital Laser /3"
@@ -5692,10 +5692,10 @@
       "heat": 21,
       "ranges": {
         "long": 21,
-        "medium": 14,
-        "minimum": 0,
+        "extreme": 28,
         "short": 7,
-        "extreme": 28
+        "minimum": 0,
+        "medium": 14
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapMissileMantaRayWeapon.java: Sub-Capital Missile Launcher (Manta Ray)"
@@ -5726,10 +5726,10 @@
       "heat": 9,
       "ranges": {
         "long": 21,
-        "medium": 14,
-        "minimum": 0,
+        "extreme": 28,
         "short": 7,
-        "extreme": 28
+        "minimum": 0,
+        "medium": 14
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapMissilePiranhaWeapon.java: Sub-Capital Missile Launcher (Piranha)"
@@ -5760,10 +5760,10 @@
       "heat": 9,
       "ranges": {
         "long": 21,
-        "medium": 14,
-        "minimum": 0,
+        "extreme": 28,
         "short": 7,
-        "extreme": 28
+        "minimum": 0,
+        "medium": 14
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapMissileStingrayWeapon.java: Sub-Capital Missile Launcher (Stingray)"
@@ -5794,10 +5794,10 @@
       "heat": 15,
       "ranges": {
         "long": 21,
-        "medium": 14,
-        "minimum": 0,
+        "extreme": 28,
         "short": 7,
-        "extreme": 28
+        "minimum": 0,
+        "medium": 14
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapMissileSwordfishWeapon.java: Sub-Capital Missile Launcher (Swordfish)"
@@ -5820,10 +5820,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/smg/InfantrySMGWeapon.java: Submachine Gun"
@@ -5846,10 +5846,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 6,
-        "minimum": 0,
+        "extreme": 12,
         "short": 3,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 6
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/laser/InfantrySupportLaserWeapon.java: Support Laser"
@@ -5872,10 +5872,10 @@
       "heat": 0,
       "ranges": {
         "long": 21,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 28,
         "short": 0,
-        "extreme": 28
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/clan/InfantrySupportClanERHeavyLaserWeapon.java: Support Laser (ER Heavy, Clan)"
@@ -5898,10 +5898,10 @@
       "heat": 0,
       "ranges": {
         "long": 12,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 16,
         "short": 0,
-        "extreme": 16
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/laser/InfantrySupportERLaserWeapon.java: Support Laser (ER, IS)"
@@ -5924,10 +5924,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 12,
         "short": 0,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/clan/InfantrySupportClanSemiPortableERLaserWeapon.java: Support Laser (ER, Semi-Portable)"
@@ -5950,10 +5950,10 @@
       "heat": 0,
       "ranges": {
         "long": 15,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 20,
         "short": 0,
-        "extreme": 20
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/heavy/InfantrySupportHeavyLaserWeapon.java: Support Laser (Heavy)"
@@ -5976,10 +5976,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 12,
         "short": 0,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/laser/InfantrySupportSemiPortableLaserWeapon.java: Support Laser (Semi-Portable)"
@@ -6002,10 +6002,10 @@
       "heat": 0,
       "ranges": {
         "long": 15,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 20,
         "short": 0,
-        "extreme": 20
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportSnubNoseSupportPPCWeapon.java: Support PPC (Snub-Nose)"
@@ -6028,10 +6028,10 @@
       "heat": 0,
       "ranges": {
         "long": 9,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 12,
         "short": 0,
-        "extreme": 12
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/laser/InfantrySupportPulseLaserWeapon.java: Support Pulse Laser"
@@ -6070,10 +6070,10 @@
       "heat": 10,
       "ranges": {
         "long": 15,
-        "medium": 10,
-        "minimum": 0,
+        "extreme": 20,
         "short": 5,
-        "extreme": 20
+        "minimum": 0,
+        "medium": 10
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/innerSphere/ISTSEMPRepeatingCannon.java: TSEMP Repeating Cannon"
@@ -6095,10 +6095,10 @@
       "heat": 20,
       "ranges": {
         "long": 21,
-        "medium": 14,
-        "minimum": 0,
+        "extreme": 28,
         "short": 7,
-        "extreme": 28
+        "minimum": 0,
+        "medium": 14
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissTeleKillerWhaleWeapon.java: Tele-operated Missile (Killer Whale-T)"
@@ -6120,10 +6120,10 @@
       "heat": 50,
       "ranges": {
         "long": 34,
-        "medium": 22,
-        "minimum": 0,
+        "extreme": 46,
         "short": 11,
-        "extreme": 46
+        "minimum": 0,
+        "medium": 22
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissTeleKrakenWeapon.java: Tele-operated Missile (Kraken T)"
@@ -6146,10 +6146,10 @@
       "heat": 0,
       "ranges": {
         "long": 0,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 0,
         "short": 0,
-        "extreme": 0
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/pistol/InfantryPistolTranqGunWeapon.java: Tranq Gun"
@@ -6172,10 +6172,10 @@
       "heat": 0,
       "ranges": {
         "long": 6,
-        "medium": 0,
-        "minimum": 0,
+        "extreme": 8,
         "short": 0,
-        "extreme": 8
+        "minimum": 0,
+        "medium": 0
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportWireGuidedMissileWeapon.java: Wire-Guided Missile Launcher"

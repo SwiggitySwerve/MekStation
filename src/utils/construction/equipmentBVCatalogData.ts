@@ -35,6 +35,7 @@ import weaponsMissileMrm from '../../../public/data/equipment/official/weapons/m
 import weaponsMissileOther from '../../../public/data/equipment/official/weapons/missile-other.json';
 import weaponsMissileSrm from '../../../public/data/equipment/official/weapons/missile-srm.json';
 import weaponsPhysical from '../../../public/data/equipment/official/weapons/physical.json';
+import registryRouting from '../../../public/data/equipment/registry-routing.json';
 import { parseNameMappings } from './equipmentBV/nameMappingsContractAdapter';
 
 interface CatalogDataFile {
@@ -97,3 +98,44 @@ export const AMMUNITION_CATALOG_FILES: readonly CatalogDataFile[] = [
 // so any future drift in `name-mappings.json` (e.g. a non-string value
 // sneaking in via an audit) fails loudly with a Zod issue path.
 export const NAME_MAPPINGS_DATA = parseNameMappings(nameMappings);
+
+// Imported Java identities are exact-only; adding candidates must not change
+// established alias synthesis, prefix stripping or fuzzy consumer fallbacks.
+const registryIds = new Set(
+  [...registryWeapons.items, ...registryAmmo.items, ...registryMisc.items].map(
+    (item) => item.id,
+  ),
+);
+const registryNames = new Map<string, string>();
+for (const [name, id] of Object.entries(NAME_MAPPINGS_DATA))
+  if (typeof id === 'string' && registryIds.has(id))
+    registryNames.set(name.toLowerCase(), id);
+export const isRegistryEquipment = (id: string): boolean => registryIds.has(id);
+export const isLegacyEquipmentId = (id: string): boolean =>
+  !isRegistryEquipment(id);
+const previousRegistryIds = new Map(
+  Object.entries(registryRouting.previousIds),
+);
+export const registryPreviousId = (
+  id: string,
+  name?: string,
+): string | undefined =>
+  name === undefined ||
+  Object.entries(registryRouting.nativeNames).some(
+    ([target, native]) =>
+      target === id && native.toLowerCase() === name.trim().toLowerCase(),
+  )
+    ? previousRegistryIds.get(id)
+    : undefined;
+export function preferRegistryEquipment<
+  T extends { id: string } | null | undefined,
+>(previous: T, imported: NonNullable<T> | undefined, name: string): T {
+  return imported &&
+    (!previous || registryPreviousId(imported.id, name) === previous.id)
+    ? imported
+    : previous;
+}
+export const resolveRegistryId = (name: string): string | undefined => {
+  const key = name.toLowerCase().trim();
+  return registryIds.has(key) ? key : registryNames.get(key);
+};
