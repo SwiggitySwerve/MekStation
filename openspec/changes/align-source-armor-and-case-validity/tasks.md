@@ -1,0 +1,4 @@
+- [x] Add real Locust and Bellona behavioral regressions and observe red.
+- [x] Update the armor advice rule and vehicle CASE placement owner.
+- [x] Kill one mutant per rule; run full-family validity and unchanged-BV proof.
+- [x] Run validation/customizer suites, both TypeScript projects, lint, formatting and OpenSpec gates.
