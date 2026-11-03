@@ -21,7 +21,6 @@ import { serializeVehicleTurretContext } from '@/services/conversion/vehicleTurr
 import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { getCriticalSlotsForLocation } from '@/services/units/unitLoaderService/criticalSlotEquipment';
 import { vehicleEditorSchema } from '@/services/units/unitLoaderService/vehicleMapping';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { CockpitType } from '@/types/construction/CockpitType';
 import {
   LOCATION_SLOT_COUNTS,
@@ -42,26 +41,13 @@ import { UnitContract, type IUnitContract } from '@/types/contracts';
 import { RULES_LEVEL_TAGS as RULES_LEVEL } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
-import {
-  aerospaceEditorSchema,
-  serializeAerospaceArmorIdentity,
-} from '@/types/unit/AerospaceSerialization';
+import { aerospaceEditorSchema } from '@/types/unit/AerospaceSerialization';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
 
 import { isRearLoc } from '../../../scripts/validate-bv-normalizers';
-
-const ENGINE_TYPE = {
-  [EngineType.STANDARD]: 'FUSION',
-  [EngineType.XL_IS]: 'XL',
-  [EngineType.XL_CLAN]: 'CLAN_XL',
-  [EngineType.LIGHT]: 'LIGHT',
-  [EngineType.XXL]: 'XXL',
-  [EngineType.COMPACT]: 'COMPACT',
-  [EngineType.ICE]: 'ICE',
-  [EngineType.FUEL_CELL]: 'FUEL_CELL',
-  [EngineType.FISSION]: 'FISSION',
-} as const satisfies Readonly<Record<EngineType, string>>;
+import { aerospaceSupportSaveFields } from './CustomUnitSerializer.aerospace';
+import { ARMOR_TYPE, ENGINE_TYPE } from './CustomUnitSerializer.tags';
 
 const GYRO_TYPE = {
   [GyroType.STANDARD]: 'STANDARD',
@@ -90,20 +76,6 @@ const STRUCTURE_TYPE = {
   [InternalStructureType.COMPOSITE]: 'COMPOSITE',
   [InternalStructureType.INDUSTRIAL]: 'INDUSTRIAL',
 } as const satisfies Readonly<Record<InternalStructureType, string>>;
-
-const ARMOR_TYPE = {
-  [ArmorTypeEnum.STANDARD]: 'STANDARD',
-  [ArmorTypeEnum.FERRO_FIBROUS_IS]: 'FERRO_FIBROUS',
-  [ArmorTypeEnum.FERRO_FIBROUS_CLAN]: 'FERRO_FIBROUS_CLAN',
-  [ArmorTypeEnum.LIGHT_FERRO]: 'LIGHT_FERRO_FIBROUS',
-  [ArmorTypeEnum.HEAVY_FERRO]: 'HEAVY_FERRO_FIBROUS',
-  [ArmorTypeEnum.STEALTH]: 'STEALTH',
-  [ArmorTypeEnum.REACTIVE]: 'REACTIVE',
-  [ArmorTypeEnum.REFLECTIVE]: 'REFLECTIVE',
-  [ArmorTypeEnum.HARDENED]: 'HARDENED',
-  [ArmorTypeEnum.FERRO_LAMELLOR]: 'FERRO_LAMELLOR',
-  [ArmorTypeEnum.BALLISTIC_REINFORCED]: 'BALLISTIC_REINFORCED',
-} as const satisfies Readonly<Record<ArmorTypeEnum, string>>;
 
 const HEAT_SINK_TYPE = {
   [HeatSinkType.SINGLE]: 'SINGLE',
@@ -317,9 +289,13 @@ export function serializeCustomVehicleState(
     clanEngine: state.engineType === EngineType.XL_CLAN,
     engineTechRating: state.engineTechRating,
     structuralTechRating: state.structuralTechRating,
+    ...(state.armorTechRating === undefined
+      ? {}
+      : { armorTechRating: state.armorTechRating }),
     movement: { cruiseMP: state.cruiseMP, flankMP: state.flankMP },
     armor: {
-      type: ARMOR_TYPE[state.armorType],
+      type: state.usesBarArmor ? 'BAR' : ARMOR_TYPE[state.armorType],
+      ...(state.usesBarArmor ? { barRating: state.barRating } : {}),
       byLocation: Object.fromEntries(
         Object.entries(state.armorAllocation).map(([location, points]) => [
           locationTag(location),
@@ -354,6 +330,10 @@ export function serializeCustomAerospaceState(
   family: 'aerospace';
   aerospaceEditor: ReturnType<typeof aerospaceEditorSchema.parse>;
 } {
+  const support = aerospaceSupportSaveFields(
+    state,
+    ARMOR_TYPE[state.armorType],
+  );
   const smallCraft = state.aerospaceSubType === AerospaceSubType.SMALL_CRAFT;
   const arc = (location: Parameters<typeof aerospaceContractArc>[0]) =>
     aerospaceContractArc(location, smallCraft);
@@ -397,6 +377,7 @@ export function serializeCustomAerospaceState(
     // Keep the exact editor rating in the validated extension, without clamping.
     engine: { type: ENGINE_TYPE[state.engineType] },
     movement: { safeThrust: state.safeThrust, maxThrust: state.maxThrust },
+    ...support.metadata,
     fuel: state.fuelPoints,
     structuralIntegrity: state.structuralIntegrity,
     cockpit: state.cockpitType.toUpperCase().replaceAll(' ', '_'),
@@ -405,7 +386,7 @@ export function serializeCustomAerospaceState(
       count: state.heatSinks,
     },
     armor: {
-      ...serializeAerospaceArmorIdentity(ARMOR_TYPE[state.armorType], state),
+      ...support.armor,
       byArc: Object.fromEntries(
         Object.entries(state.armorAllocation).map(([location, points]) => [
           arc(location as Parameters<typeof arc>[0]),
