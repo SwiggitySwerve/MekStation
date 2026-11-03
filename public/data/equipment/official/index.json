@@ -15,7 +15,8 @@
       "physical": "weapons/physical.json",
       "energy-laser": "weapons/energy-laser.json",
       "energy-ppc": "weapons/energy-ppc.json",
-      "energy-other": "weapons/energy-other.json"
+      "energy-other": "weapons/energy-other.json",
+      "java-registry": "weapons/java-registry.json"
     },
     "ammunition": {
       "artillery": "ammunition/artillery.json",
@@ -27,7 +28,8 @@
       "mrm": "ammunition/mrm.json",
       "narc": "ammunition/narc.json",
       "other": "ammunition/other.json",
-      "srm": "ammunition/srm.json"
+      "srm": "ammunition/srm.json",
+      "java-registry": "ammunition/java-registry.json"
     },
     "electronics": {
       "ecm": "electronics/ecm.json",
@@ -41,13 +43,14 @@
       "movement": "miscellaneous/movement.json",
       "myomer": "miscellaneous/myomer.json",
       "defensive": "miscellaneous/defensive.json",
-      "other": "miscellaneous/other.json"
+      "other": "miscellaneous/other.json",
+      "java-registry": "miscellaneous/java-registry.json"
     }
   },
   "totalItems": {
-    "weapons": 468,
-    "ammunition": 289,
+    "weapons": 684,
+    "ammunition": 422,
     "electronics": 40,
-    "miscellaneous": 322
+    "miscellaneous": 418
   }
 }

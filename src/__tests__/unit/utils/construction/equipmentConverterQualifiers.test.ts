@@ -48,14 +48,38 @@ describe('native converted equipment qualifiers and aliases', () => {
     expect(getEquipmentEntry('CLAPGaussRifle Ammo')?.id).toBe('apgaussrifle');
   });
 
+  it.each(['cargo:SIZE:bogus', 'cargo:SIZE:-1.0', 'cargo:SIZE:1.0garbage'])(
+    'does not invent a catalog identity for %s',
+    (input) => {
+      expect(getEquipmentEntry(input)).toBeUndefined();
+    },
+  );
+  // Pinned Java registry CLERMediumLaserPrototype, Clan Ammo LRM-15 (Clan) Artemis-capable, InfantryTAG.
   it.each([
-    'clermediumlaserprototype:OMNI:SIZE:1.0',
-    'clan-ammo-lrm-15-clan-artemis-capable:OMNI',
-    'infantrytag:SIZE:1.0',
-    'cargo:SIZE:bogus',
-    'cargo:SIZE:-1.0',
-    'cargo:SIZE:1.0garbage',
-  ])('does not invent a catalog identity for %s', (input) => {
-    expect(getEquipmentEntry(input)).toBeUndefined();
-  });
+    [
+      'clermediumlaserprototype:OMNI:SIZE:1.0',
+      'clermediumlaserprototype-registry',
+      62,
+      1.5,
+      1,
+    ],
+    [
+      'clan-ammo-lrm-15-clan-artemis-capable:OMNI',
+      'clan-ammo-lrm-15-clan-artemis-capable-registry',
+      21,
+      1,
+      1,
+    ],
+    ['infantrytag:SIZE:1.0', 'infantrytag-registry', 0, 0.02, 0],
+  ] as const)(
+    'resolves the added qualified Java variant %s',
+    (input, id, battleValue, weight, criticalSlots) => {
+      expect(getEquipmentEntry(input)).toMatchObject({
+        id,
+        battleValue,
+        weight,
+        criticalSlots,
+      });
+    },
+  );
 });

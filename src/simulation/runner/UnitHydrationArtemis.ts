@@ -1,3 +1,9 @@
+import {
+  isLegacyEquipmentId,
+  registryPreviousId,
+  preferRegistryEquipment,
+} from '@/utils/construction/equipmentBVCatalogData';
+
 import type { IWeapon } from '../ai/types';
 import type {
   ICatalogWeaponStats,
@@ -123,11 +129,24 @@ export function catalogWeaponStatsForEquipmentEntry(
   entry: IUnitEquipmentEntry,
   weaponLookup: WeaponLookup,
 ): ICatalogWeaponStats | null {
+  const legacy = (name: string) => {
+    const result = weaponLookup(name);
+    const prior = result && registryPreviousId(result.id, name);
+    return result && !isLegacyEquipmentId(result.id)
+      ? prior
+        ? weaponLookup(prior)
+        : null
+      : result;
+  };
   const normalizedEntryId = normalizeEquipmentSignalKey(entry.id);
-  return (
-    weaponLookup(entry.id) ??
-    weaponLookup(normalizedEntryId) ??
-    weaponLookup(normalizedWithoutTechPrefix(normalizedEntryId))
+  const previous =
+    legacy(entry.id) ??
+    legacy(normalizedEntryId) ??
+    legacy(normalizedWithoutTechPrefix(normalizedEntryId));
+  return preferRegistryEquipment(
+    previous,
+    weaponLookup(entry.id) ?? undefined,
+    entry.id,
   );
 }
 

@@ -1,0 +1,161 @@
+{
+  "revision": "48fcb2f64a1b3f2d575707ce5653dad64927b587",
+  "java": {
+    "javaClass": "megamek.common.equipment.AmmoType",
+    "internalName": "Clan Ammo ProtoMech LRM-3",
+    "name": "LRM 3 Ammo",
+    "aliases": [
+      "Clan Ammo ProtoMech LRM-3",
+      "Clan Ammo LRM-3",
+      "CLLRM3 Ammo",
+      "Clan LRM 3 Ammo"
+    ],
+    "tech": "CLAN",
+    "bv": 4,
+    "tons": 1
+  },
+  "facts": {
+    "Clan Ammo ProtoMech LRM-3": {
+      "criticalSlots": 1,
+      "cost": 0,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": true,
+      "kind": "ammunition",
+      "shots": 100,
+      "kgPerShot": 24.99,
+      "usedByProto": true,
+      "ammoType": "LRM",
+      "category": "LRM",
+      "munitions": ["M_STANDARD"],
+      "rackSize": 3,
+      "compatible": [
+        "CLLRM3",
+        "CLLRM3OS",
+        "CLBALRM3",
+        "ISBALRM3",
+        "CLBALRM3OS",
+        "ISBALRM3OS"
+      ]
+    }
+  },
+  "lookups": {
+    "clan ammo protomech lrm-3": {
+      "UNKNOWN": "Clan Ammo ProtoMech LRM-3",
+      "ALL": "Clan Ammo ProtoMech LRM-3",
+      "IS": "Clan Ammo ProtoMech LRM-3",
+      "CLAN": "Clan Ammo ProtoMech LRM-3",
+      "default": "Clan Ammo ProtoMech LRM-3"
+    },
+    "lrm 3 ammo": {
+      "UNKNOWN": "Clan Ammo ProtoMech LRM-3",
+      "ALL": "Clan Ammo ProtoMech LRM-3",
+      "IS": "Clan Ammo ProtoMech LRM-3",
+      "CLAN": "Clan Ammo ProtoMech LRM-3",
+      "default": "Clan Ammo ProtoMech LRM-3"
+    },
+    "clan ammo lrm-3": {
+      "UNKNOWN": "Clan Ammo ProtoMech LRM-3",
+      "ALL": "Clan Ammo ProtoMech LRM-3",
+      "IS": "Clan Ammo ProtoMech LRM-3",
+      "CLAN": "Clan Ammo ProtoMech LRM-3",
+      "default": "Clan Ammo ProtoMech LRM-3"
+    },
+    "cllrm3 ammo": {
+      "UNKNOWN": "Clan Ammo ProtoMech LRM-3",
+      "ALL": "Clan Ammo ProtoMech LRM-3",
+      "IS": "Clan Ammo ProtoMech LRM-3",
+      "CLAN": "Clan Ammo ProtoMech LRM-3",
+      "default": "Clan Ammo ProtoMech LRM-3"
+    },
+    "clan lrm 3 ammo": {
+      "UNKNOWN": "Clan Ammo ProtoMech LRM-3",
+      "ALL": "Clan Ammo ProtoMech LRM-3",
+      "IS": "Clan Ammo ProtoMech LRM-3",
+      "CLAN": "Clan Ammo ProtoMech LRM-3",
+      "default": "Clan Ammo ProtoMech LRM-3"
+    }
+  },
+  "intrinsicExamples": [
+    {
+      "java": {
+        "javaClass": "megamek.common.equipment.MiscType",
+        "internalName": "Ablative, Standard",
+        "name": "Ablative, Standard",
+        "aliases": ["Ablative, Standard", "ISAblativeStandard"],
+        "tech": "ALL",
+        "bv": 0,
+        "tons": 0
+      },
+      "facts": {
+        "Ablative, Standard": {
+          "criticalSlots": 0,
+          "cost": 1000,
+          "rulesLevel": "STANDARD",
+          "introductionYear": 2100,
+          "extinctionYear": -1,
+          "reintroductionYear": -1,
+          "isExplosive": false,
+          "kind": "miscellaneous",
+          "damageDivisor": 1
+        }
+      },
+      "techBase": "BOTH",
+      "damageDivisor": 1
+    },
+    {
+      "java": {
+        "javaClass": "megamek.common.weapons.prototypes.clan.CLERLaserSmallPrototype",
+        "internalName": "CLERSmallLaserPrototype",
+        "name": "Prototype ER Small Laser (CP)",
+        "aliases": ["CLERSmallLaserPrototype", "Prototype ER Small Laser"],
+        "tech": "CLAN",
+        "bv": 17,
+        "tons": 0.5
+      },
+      "facts": {
+        "CLERSmallLaserPrototype": {
+          "criticalSlots": 1,
+          "cost": 11250,
+          "rulesLevel": "EXPERIMENTAL",
+          "introductionYear": 2814,
+          "extinctionYear": 2830,
+          "reintroductionYear": -1,
+          "isExplosive": false,
+          "kind": "weapons",
+          "isPrototype": true,
+          "category": "Energy",
+          "damage": 3,
+          "allowedUnitTypes": [
+            "BattleMech",
+            "OmniMech",
+            "IndustrialMech",
+            "Vehicle",
+            "VTOL",
+            "Support Vehicle",
+            "Aerospace",
+            "Conventional Fighter",
+            "Small Craft",
+            "DropShip",
+            "JumpShip",
+            "WarShip",
+            "Space Station"
+          ],
+          "heat": 2,
+          "ranges": {
+            "long": 5,
+            "extreme": 7,
+            "short": 2,
+            "minimum": 0,
+            "medium": 4
+          },
+          "ammoType": "NA",
+          "rackSize": 0
+        }
+      },
+      "techBase": "CLAN"
+    }
+  ]
+}

@@ -28,6 +28,8 @@ export const AmmunitionContract = z
         'Artillery',
         'AMS',
         'Energy',
+        'Capital',
+        'Other',
       ])
       .describe(
         "Ammunition category. 'Energy' covers chemical-laser ammo and similar energy-weapon consumables.",
@@ -48,6 +50,7 @@ export const AmmunitionContract = z
         'Tandem-Charge',
         'Extended Range',
         'High Explosive',
+        'Other',
       ])
       .describe('Ammunition variant type'),
     techBase: z
@@ -143,6 +146,13 @@ export const AmmunitionContract = z
       )
       .describe(
         'Unit types that can use this ammunition. If omitted, defaults to BattleMech, Vehicle, Aerospace.',
+      )
+      .optional(),
+    kgPerShot: z
+      .number()
+      .gte(0)
+      .describe(
+        'Mass of one round in kilograms, from pinned AmmoType.getKgPerShot (not inferred from shotsPerTon).',
       )
       .optional(),
   })

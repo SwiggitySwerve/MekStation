@@ -1,5 +1,6 @@
 import { initializeUnitValidationRules } from '@/services/validation/initializeUnitValidation';
 import { validateUnit } from '@/services/validation/UnitValidationOrchestrator';
+import { AmmunitionContract } from '@/types/contracts/generated/ammunition.zod';
 import { TechBase, RulesLevel, Era } from '@/types/enums';
 import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
@@ -9,8 +10,13 @@ import {
   UnitCategory,
   UnitValidationSeverity,
 } from '@/types/validation/UnitValidationInterfaces';
+import { getAmmunitionEntry } from '@/utils/construction/equipmentBV';
+import { AMMUNITION_CATALOG_FILES } from '@/utils/construction/equipmentBVCatalogData';
 import { getFixTabsForCategory } from '@/utils/validation/validationNavigation';
 
+import javaAmmo from '../../../../../../public/data/equipment/official/ammunition/java-registry.json';
+import javaWeapons from '../../../../../../public/data/equipment/official/weapons/java-registry.json';
+import atlas from '../../../../../../public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json';
 import { MissingAmmunitionRule } from '../MissingAmmunitionRule';
 
 const weapon: IEquipmentItem = {
@@ -62,6 +68,77 @@ function run(input: IValidatableUnit) {
     cache: new Map(),
   });
 }
+
+it('legitimately warns after adding the real Mech Mortar to Atlas, until compatible shells are carried', () => {
+  // Pinned ISMekMortar1.java:61-71; MekMortarWeapon.java:70;
+  // AmmoType.java:11920-11933 (MEK_MORTAR, rack 1, 24 shots, BV 1.2).
+  const source = javaWeapons.items.find(
+    (item) => item.id === 'is-mech-mortar-1-registry',
+  );
+  const shells = javaAmmo.items.find(
+    (item) => item.id === 'is-ammo-sc-mortar-1-registry',
+  );
+  if (!source || !shells) throw new Error('Missing pinned mortar records');
+  expect([source.battleValue, source.weight, source.criticalSlots]).toEqual([
+    10, 2, 1,
+  ]);
+  expect([shells.battleValue, shells.weight, shells.shotsPerTon]).toEqual([
+    1.2, 1, 24,
+  ]);
+  expect(shells.compatibleWeaponIds).toEqual([source.id]);
+  const mortar: IEquipmentItem = {
+    ...weapon,
+    ...source,
+    category: EquipmentCategory.MISSILE_WEAPON,
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.STANDARD,
+    ammoPerTon: undefined,
+  };
+  const compatible: IEquipmentItem = {
+    ...ammo,
+    ...shells,
+    category: EquipmentCategory.AMMUNITION,
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.STANDARD,
+  };
+  const nativeAmmo = [
+    ...new Set(
+      Object.values(atlas.criticalSlots)
+        .flat()
+        .filter(
+          (token): token is string =>
+            typeof token === 'string' && token.includes('Ammo'),
+        ),
+    ),
+  ];
+  expect(nativeAmmo.sort()).toEqual([
+    'IS Ammo AC/20',
+    'IS Ammo LRM-20',
+    'IS Ammo SRM-6',
+  ]);
+  const carried = nativeAmmo.map((name) => {
+    const entry = getAmmunitionEntry(name);
+    if (!entry) throw new Error(`Unresolved Atlas ammunition: ${name}`);
+    const definition = AmmunitionContract.parse(
+      AMMUNITION_CATALOG_FILES.flatMap((file) => file.items ?? []).find(
+        (item) => item.id === entry.id,
+      ),
+    );
+    return {
+      ...ammo,
+      id: entry.id,
+      name: entry.name,
+      compatibleWeaponIds: definition.compatibleWeaponIds,
+      weight: entry.weight ?? 1,
+    };
+  });
+  const catalog = [mortar, compatible, ...carried];
+  const ids = [...carried.map((item) => item.id), mortar.id];
+  expect(
+    run(unit(ids, catalog)).warnings.map((issue) => issue.message),
+  ).toEqual(["'Mech Mortar 1 has no ammunition"]);
+  expect(run(unit([...ids, compatible.id], catalog)).warnings).toEqual([]);
+});
 
 it('warns without making the unit illegal and navigates to Equipment', () => {
   const result = run(unit(['ac-20']));

@@ -2,7 +2,10 @@ import {
   buildWeaponLookupFromCatalogFiles,
   resolveCatalogDamage,
 } from '@/simulation/runner/UnitHydration';
-import { WEAPON_CATALOG_FILES } from '@/utils/construction/equipmentBVCatalogData';
+import {
+  preferRegistryEquipment,
+  WEAPON_CATALOG_FILES,
+} from '@/utils/construction/equipmentBVCatalogData';
 
 import type { IWeaponData } from '../types';
 
@@ -15,8 +18,16 @@ import {
 const officialWeaponLookup =
   buildWeaponLookupFromCatalogFiles(WEAPON_CATALOG_FILES);
 
-function getOfficialWeaponData(equipmentId: string): IWeaponData | undefined {
-  const catalogWeapon = officialWeaponLookup(equipmentId);
+const fallbackWeaponLookup = buildWeaponLookupFromCatalogFiles(
+  WEAPON_CATALOG_FILES,
+  false,
+);
+
+function getOfficialWeaponData(
+  equipmentId: string,
+  lookup = officialWeaponLookup,
+): IWeaponData | undefined {
+  const catalogWeapon = lookup(equipmentId);
   if (!catalogWeapon) return undefined;
 
   return {
@@ -44,15 +55,15 @@ export function canonicalizeWeaponId(equipmentId: string): string {
   if (WEAPON_ID_ALIASES[normalized]) {
     return WEAPON_ID_ALIASES[normalized];
   }
-  if (officialWeaponLookup(normalized) || WEAPON_DATABASE[normalized]) {
+  if (fallbackWeaponLookup(normalized) || WEAPON_DATABASE[normalized]) {
     return normalized;
   }
   for (const pattern of CLAN_PREFIX_PATTERNS) {
     if (pattern.test(normalized)) {
       const stripped = normalized.replace(pattern, '');
       const expandedClan = `clan-${stripped}`;
-      if (officialWeaponLookup(expandedClan)) return expandedClan;
-      if (officialWeaponLookup(stripped)) return stripped;
+      if (fallbackWeaponLookup(expandedClan)) return expandedClan;
+      if (fallbackWeaponLookup(stripped)) return stripped;
       if (WEAPON_DATABASE[stripped]) return stripped;
       if (WEAPON_ID_ALIASES[stripped]) return WEAPON_ID_ALIASES[stripped];
     }
@@ -62,5 +73,9 @@ export function canonicalizeWeaponId(equipmentId: string): string {
 
 export function getWeaponData(equipmentId: string): IWeaponData | undefined {
   const canonicalId = canonicalizeWeaponId(equipmentId);
-  return getOfficialWeaponData(canonicalId) ?? WEAPON_DATABASE[canonicalId];
+  const legacy =
+    getOfficialWeaponData(canonicalId, fallbackWeaponLookup) ??
+    WEAPON_DATABASE[canonicalId];
+  const imported = getOfficialWeaponData(equipmentId);
+  return preferRegistryEquipment(legacy, imported, equipmentId);
 }

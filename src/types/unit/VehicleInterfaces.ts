@@ -58,6 +58,8 @@ export interface IVehicleTurretSourceContext {
  * Vehicle-mounted equipment item
  */
 export interface IVehicleMountedEquipment extends IUnitMountedEquipmentIdentity {
+  /** Explicit kind survives canonical IDs shared by ammunition and launchers. */
+  readonly isAmmo?: boolean;
   /** Location where mounted */
   readonly location: VehicleLocation | VTOLLocation | SuperHeavyVehicleLocation;
   /** Is this rear-facing */
