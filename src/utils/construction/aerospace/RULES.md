@@ -419,3 +419,7 @@ Unresolved prototype weapons remain unresolved. Correct BAR can expose their
 previously compensating armor error; evidence names every farther total and
 enforces that no exact aerospace result loses exactness. Catalog values and
 introduction years remain with their data owners.
+
+### Fixed-wing support editor facts (UL-15)
+
+The existing chassis section transports canonical BAR, structural and engine tech ratings through the aerospace store, browser draft and shared serializer. Absent ratings remain Unknown; no catalog ratings are invented. Fire-control classification delegates to the shared support BV owner (BVCalculator.java:966-976). `getFixedWingSupportLimits` and `validateFixedWingSupportTonnage` share FixedWingSupport.java:325-349 / TestSupportVehicle:1570-1655 limits with source validation; the component contains no tonnage or slot formula. BAR choices come from the existing support armor table.

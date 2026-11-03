@@ -37,6 +37,7 @@ import weaponsMissileSrm from '../../../public/data/equipment/official/weapons/m
 import weaponsPhysical from '../../../public/data/equipment/official/weapons/physical.json';
 import registryRouting from '../../../public/data/equipment/registry-routing.json';
 import { parseNameMappings } from './equipmentBV/nameMappingsContractAdapter';
+import { nativeIdentityId } from './equipmentBV/sourceLookupAliases';
 
 interface CatalogDataFile {
   items?: Array<Record<string, unknown>>;
@@ -124,7 +125,8 @@ export const registryPreviousId = (
     ([target, native]) =>
       target === id && native.toLowerCase() === name.trim().toLowerCase(),
   )
-    ? previousRegistryIds.get(id)
+    ? ((name === undefined ? undefined : nativeIdentityId(name)) ??
+      previousRegistryIds.get(id))
     : undefined;
 export function preferRegistryEquipment<
   T extends { id: string } | null | undefined,

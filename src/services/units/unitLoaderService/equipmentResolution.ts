@@ -14,6 +14,7 @@ import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
 import { isAmmunitionEquipmentId } from '@/utils/construction/equipmentBV/catalogLoader';
 import { normalizeEquipmentId as normalizeCatalogEquipmentId } from '@/utils/construction/equipmentBV/normalization';
+import { nativeIdentityId } from '@/utils/construction/equipmentBV/sourceLookupAliases';
 import {
   isRegistryEquipment,
   isLegacyEquipmentId,
@@ -300,7 +301,9 @@ export function resolveEquipmentId(
     ? lookup.getById(target)
     : undefined;
   // Recovery must retain the legacy ammo/category boundary and exclude imports.
-  const registryId = getEquipmentRegistry().lookup(id).equipment?.id;
+  const registryId =
+    nativeIdentityId(id.replaceAll('-', ' ')) ??
+    getEquipmentRegistry().lookup(id).equipment?.id;
   const legacy =
     previous.equipmentDef ??
     legacyDefinition(lookup.getById(registryId ?? ''), id);
@@ -313,6 +316,11 @@ function resolveLegacyEquipmentId(
   unitTechBaseMode: TechBaseMode,
   locationCriticalSlots: ReadonlyArray<string | null> | undefined,
 ): IResolvedEquipment {
+  const identity = nativeIdentityId(id);
+  const exact = identity
+    ? legacyDefinition(getEquipmentLookupService().getById(identity), id)
+    : undefined;
+  if (exact) return { equipmentDef: exact, resolvedId: exact.id };
   const normalizedId = normalizeCatalogEquipmentId(id, undefined, false);
 
   // The normalization owner deliberately keeps missing ammo variants unresolved.

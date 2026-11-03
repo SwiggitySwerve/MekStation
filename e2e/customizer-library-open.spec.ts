@@ -42,6 +42,7 @@ interface OpenCase {
     | 'battlearmor-customizer'
     | 'infantry-customizer';
   bv?: string;
+  panel?: 'six-side' | 'dual-turret' | 'fixed-wing-support' | 'omni';
   tabs: string[];
   tonnage: string;
   armor: string;
@@ -49,6 +50,67 @@ interface OpenCase {
 }
 
 const OPEN_CASES: OpenCase[] = [
+  {
+    label: 'large support tank',
+    chassis: 'Brunel Dump Truck',
+    model: '',
+    family: 'Vehicles',
+    shell: 'vehicle-customizer',
+    tabs: [...COMMON_TABS.slice(0, 3), 'Turret', 'Equipment', ...TAIL_TABS],
+    tonnage: '150.0 t',
+    armor: '83',
+    movement: '3/5',
+    panel: 'six-side',
+  },
+  {
+    label: 'Omni vehicle',
+    chassis: 'Gulltoppr OmniMonitor',
+    model: '(Prime)',
+    family: 'Vehicles',
+    shell: 'vehicle-customizer',
+    tabs: [...COMMON_TABS.slice(0, 3), 'Turret', 'Equipment', ...TAIL_TABS],
+    tonnage: '190.0 t',
+    armor: '704',
+    movement: '2/3',
+    panel: 'omni',
+  },
+  {
+    label: 'fixed-wing support',
+    chassis: 'Boomerang Spotter Plane',
+    model: '',
+    family: 'Aerospace',
+    shell: 'aerospace-customizer',
+    tabs: [...COMMON_TABS, 'Velocity', ...TAIL_TABS],
+    tonnage: '5.0 t',
+    armor: '0',
+    movement: '4/6',
+    panel: 'fixed-wing-support',
+  },
+  {
+    label: 'SuperHeavy vehicle',
+    chassis: 'Burke II Superheavy Tank',
+    model: '',
+    family: 'Vehicles',
+    shell: 'vehicle-customizer',
+    tabs: [...COMMON_TABS.slice(0, 3), 'Turret', 'Equipment', ...TAIL_TABS],
+    tonnage: '140.0 t',
+    armor: '107',
+    movement: '2/3',
+    panel: 'six-side',
+  },
+  {
+    label: 'dual-turret vehicle',
+    chassis: 'Arrow IV Assault Vehicle',
+    model: '',
+    family: 'Vehicles',
+    shell: 'vehicle-customizer',
+    tabs: [...COMMON_TABS.slice(0, 3), 'Turret', 'Equipment', ...TAIL_TABS],
+    tonnage: '80.0 t',
+    armor: '267',
+    movement: '3/5',
+    panel: 'dual-turret',
+  },
+
   {
     label: 'infantry',
     chassis: 'AA Jump Infantry',
@@ -246,11 +308,68 @@ for (const viewport of VIEWPORTS) {
   test.describe(`library open, ${viewport.name} layout`, () => {
     test.use({ viewport: { width: viewport.width, height: viewport.height } });
 
+    test('waits for cold equipment before opening an Omni vehicle @customizer', async ({
+      page,
+    }, info) => {
+      let release!: () => void;
+      let blocked = false;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const pattern = '**/data/equipment/official/weapons/ballistic-other.json';
+      await page.route(pattern, async (route) => {
+        blocked = true;
+        await gate;
+        await route.continue();
+      });
+      try {
+        const unit = OPEN_CASES.find((candidate) => candidate.panel === 'omni');
+        if (!unit) throw Error('Missing Omni catalog fixture');
+        const { dialog, row } = await findRow(page, unit);
+        await page.addStyleTag({ content: 'nextjs-portal { display: none; }' });
+        await expect.poll(() => blocked).toBe(true);
+        const definition = page.waitForResponse((response) =>
+          /gulltoppr/i.test(response.url()),
+        );
+        await row.dblclick();
+        await (await definition).finished();
+        await page.evaluate(
+          () =>
+            new Promise<void>((resolve) =>
+              requestAnimationFrame(() => resolve()),
+            ),
+        );
+        await expect(
+          dialog.getByRole('button', { name: /Loading Unit/ }),
+        ).toBeVisible();
+        release();
+        await expect(dialog).toBeHidden();
+        await section(page, 'Turret');
+        const panel = page.getByRole('region', {
+          name: 'Primary Turret Figures',
+        });
+        await expect(
+          panel
+            .getByText('Required Mechanism Mass', { exact: true })
+            .locator('..')
+            .getByRole('definition'),
+        ).toHaveText('3.5 t');
+        await panel.screenshot({
+          path: info.outputPath(`cold-equipment-${viewport.name}.png`),
+          animations: 'disabled',
+        });
+      } finally {
+        release();
+        await page.unroute(pattern);
+      }
+    });
+
     for (const unit of OPEN_CASES) {
       test(`opens a ${unit.label} with its own shell and figures @customizer`, async ({
         page,
       }, testInfo) => {
         const { dialog, row } = await findRow(page, unit);
+        await page.addStyleTag({ content: 'nextjs-portal { display: none; }' });
         await expect(row).toContainText(unit.family);
         await row.dblclick();
         await expect(dialog).toBeHidden();
@@ -326,6 +445,171 @@ for (const viewport of VIEWPORTS) {
           await expect(
             statusItem(shell, 'BV').locator('span').nth(1),
           ).toHaveText(unit.bv);
+
+        if (unit.panel === 'omni') {
+          await section(page, 'Turret');
+          for (const [name, allowance, required, remaining] of [
+            ['Primary Turret', '2.5 t', '3.5 t', '-1.0 t'],
+            ['Secondary Turret', '3 t', '3.0 t', '0.0 t'],
+          ]) {
+            const panel = page.getByRole('region', { name: name + ' Figures' });
+            for (const [label, expected] of [
+              ['Omni Allowance', allowance],
+              ['Required Mechanism Mass', required],
+              ['Remaining Allowance', remaining],
+            ])
+              await expect(
+                panel
+                  .getByText(label, { exact: true })
+                  .locator('..')
+                  .getByRole('definition'),
+              ).toHaveText(expected);
+            await panel.screenshot({
+              path: testInfo.outputPath(
+                `${name.replaceAll(' ', '-')}-${viewport.name}.png`,
+              ),
+              animations: 'disabled',
+            });
+          }
+        } else if (unit.panel === 'fixed-wing-support') {
+          await section(page, 'Structure');
+          const fields = page.getByTestId('fixed-wing-support-fields');
+          await expect(
+            fields.getByRole('combobox', { name: 'BAR', exact: true }),
+          ).toHaveValue('2');
+          await expect(
+            fields.getByRole('combobox', { name: 'Structural Tech Rating' }),
+          ).toHaveValue('');
+          await expect(
+            fields.getByRole('combobox', { name: 'Engine Tech Rating' }),
+          ).toHaveValue('');
+          await expect(
+            fields.getByRole('spinbutton', {
+              name: 'Fixed-Wing Support Tonnage',
+            }),
+          ).toHaveValue('4.999');
+          await expect(fields.getByLabel('Available Item Slots')).toHaveText(
+            '5',
+          );
+          await expect(fields.getByLabel('Fire-Control Type')).toHaveText(
+            'None',
+          );
+          for (const height of await fields
+            .locator('input,select')
+            .evaluateAll((nodes) =>
+              nodes.map((node) => node.getBoundingClientRect().height),
+            ))
+            expect(height).toBeGreaterThanOrEqual(44);
+          for (const [index, name] of [
+            'tonnage',
+            'bar',
+            'structure-tech',
+            'engine-tech',
+          ].entries())
+            await fields
+              .locator('label')
+              .nth(index)
+              .screenshot({
+                path: testInfo.outputPath(`fws-${name}-${viewport.name}.png`),
+                animations: 'disabled',
+              });
+          await fields.locator('dl').screenshot({
+            path: testInfo.outputPath(`fws-facts-${viewport.name}.png`),
+            animations: 'disabled',
+          });
+        } else if (unit.panel) {
+          await section(page, 'Armor');
+          const diagram = page
+            .getByTestId('vehicle-armor-allocation-section')
+            .getByTestId('vehicle-armor-diagram');
+          const captions = diagram.locator(
+            ':scope > .grid [aria-label*=" armor:"] > div > span:first-child',
+          );
+          await expect(captions).not.toHaveCount(0);
+          for (const caption of await captions.all())
+            await expect(caption).toHaveCSS('text-transform', 'none');
+          if (unit.panel === 'six-side') {
+            await expect(
+              diagram.getByTestId('vehicle-six-side-armor-diagram'),
+            ).toBeVisible();
+            for (const label of [
+              'Front',
+              'Front Right',
+              'Front Left',
+              'Rear Right',
+              'Rear Left',
+              'Rear',
+            ])
+              await expect(
+                diagram.getByRole('spinbutton', {
+                  name: label + ' armor value',
+                  exact: true,
+                }),
+              ).toBeEnabled();
+            const offsets = await diagram
+              .getByTestId('six-side-label')
+              .evaluateAll((nodes) =>
+                nodes.map((node) => {
+                  const rect = node.getBoundingClientRect(),
+                    region = node
+                      .closest('g')
+                      ?.querySelector('polygon')
+                      ?.getBoundingClientRect();
+                  if (!region) throw Error('Missing rendered label region');
+                  return {
+                    x: Math.abs(
+                      rect.left +
+                        rect.width / 2 -
+                        region.left -
+                        region.width / 2,
+                    ),
+                    y: Math.abs(
+                      rect.top +
+                        rect.height / 2 -
+                        region.top -
+                        region.height / 2,
+                    ),
+                  };
+                }),
+              );
+            expect(offsets).toHaveLength(6);
+            for (const offset of offsets) {
+              expect(offset.x).toBeLessThanOrEqual(1.5);
+              expect(offset.y).toBeLessThanOrEqual(1.5);
+            }
+          } else {
+            await expect(
+              diagram.getByRole('spinbutton', {
+                name: 'Rear Turret armor value',
+                exact: true,
+              }),
+            ).toHaveValue('52');
+            await expect(
+              diagram.getByRole('spinbutton', {
+                name: 'Front Turret armor value',
+                exact: true,
+              }),
+            ).toHaveValue('32');
+          }
+          for (const height of await diagram
+            .getByRole('spinbutton')
+            .evaluateAll((nodes) =>
+              nodes.map((node) => node.getBoundingClientRect().height),
+            ))
+            expect(height).toBeGreaterThanOrEqual(44);
+          const graphic =
+            unit.panel === 'six-side'
+              ? diagram.getByTestId('vehicle-six-side-armor-diagram')
+              : diagram.locator('svg[aria-hidden="true"]');
+          await graphic.screenshot({
+            path: testInfo.outputPath(`armor-diagram-${viewport.name}.png`),
+            animations: 'disabled',
+          });
+          await diagram.locator(':scope > .grid').screenshot({
+            path: testInfo.outputPath(`armor-controls-${viewport.name}.png`),
+            animations: 'disabled',
+          });
+        }
 
         await page.screenshot({
           path: testInfo.outputPath(
@@ -415,6 +699,53 @@ for (const viewport of VIEWPORTS) {
   });
 }
 
+/** Reach controls by browser Tab order; never programmatically focus them. */
+async function tabTo(page: Page, target: Locator) {
+  for (let i = 0; i < 160; i++) {
+    if (await target.evaluate((el) => el === document.activeElement)) return;
+    await page.keyboard.press('Tab');
+  }
+  await expect(target).toBeFocused();
+}
+
+async function activate(page: Page, target: Locator, keyboard: boolean) {
+  if (!keyboard) return target.click();
+  await tabTo(page, target);
+  await page.keyboard.press('Enter');
+}
+
+async function fill(
+  page: Page,
+  target: Locator,
+  value: string,
+  keyboard: boolean,
+) {
+  if (!keyboard) return target.fill(value);
+  await tabTo(page, target);
+  await page.keyboard.press('ControlOrMeta+A');
+  await page.keyboard.insertText(value);
+  await page.keyboard.press('Tab');
+}
+
+async function section(page: Page, name: string, keyboard = false) {
+  const selector = page.getByRole('button', { name: /^Section:/ });
+  const narrow = await selector.isVisible();
+  if (narrow) await activate(page, selector, keyboard);
+  const tabs = page.getByRole('tablist', { name: 'Unit configuration tabs' });
+  const target = tabs.getByRole('tab', { name, exact: true });
+  if (!keyboard) return target.click();
+  // The section tablist uses roving tabindex.
+  await tabTo(page, tabs.getByRole('tab', { selected: true }));
+  for (
+    let i = 0;
+    i < 12 && !(await target.evaluate((el) => el === document.activeElement));
+    i++
+  )
+    await page.keyboard.press(narrow ? 'ArrowDown' : 'ArrowRight');
+  await expect(target).toBeFocused();
+  await page.keyboard.press('Enter');
+}
+
 test.describe('library persistence and printing', () => {
   // Real catalog, SQLite save API and sheet renderer throughout. The print
   // harness only records the real popup document instead of opening an OS dialog.
@@ -498,53 +829,6 @@ test.describe('library persistence and printing', () => {
     },
   ] as const;
   type FlowCase = (typeof cases)[number];
-
-  /** Reach controls by browser Tab order; never programmatically focus them. */
-  async function tabTo(page: Page, target: Locator) {
-    for (let i = 0; i < 160; i++) {
-      if (await target.evaluate((el) => el === document.activeElement)) return;
-      await page.keyboard.press('Tab');
-    }
-    await expect(target).toBeFocused();
-  }
-
-  async function activate(page: Page, target: Locator, keyboard: boolean) {
-    if (!keyboard) return target.click();
-    await tabTo(page, target);
-    await page.keyboard.press('Enter');
-  }
-
-  async function fill(
-    page: Page,
-    target: Locator,
-    value: string,
-    keyboard: boolean,
-  ) {
-    if (!keyboard) return target.fill(value);
-    await tabTo(page, target);
-    await page.keyboard.press('ControlOrMeta+A');
-    await page.keyboard.insertText(value);
-    await page.keyboard.press('Tab');
-  }
-
-  async function section(page: Page, name: string, keyboard = false) {
-    const selector = page.getByRole('button', { name: /^Section:/ });
-    const narrow = await selector.isVisible();
-    if (narrow) await activate(page, selector, keyboard);
-    const tabs = page.getByRole('tablist', { name: 'Unit configuration tabs' });
-    const target = tabs.getByRole('tab', { name, exact: true });
-    if (!keyboard) return target.click();
-    // The section tablist uses roving tabindex.
-    await tabTo(page, tabs.getByRole('tab', { selected: true }));
-    for (
-      let i = 0;
-      i < 12 && !(await target.evaluate((el) => el === document.activeElement));
-      i++
-    )
-      await page.keyboard.press(narrow ? 'ArrowDown' : 'ArrowRight');
-    await expect(target).toBeFocused();
-    await page.keyboard.press('Enter');
-  }
 
   async function library(
     page: Page,

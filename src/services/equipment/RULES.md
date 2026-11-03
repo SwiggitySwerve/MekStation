@@ -65,3 +65,14 @@ merged-main resolution snapshot and exact-id/fallback assertions in ordinary Jes
 UnitLoader registry recovery also preserves the ammunition/non-ammunition
 boundary. Synthetic registry responses in that snapshot guard both category
 directions and reject generated entries from recovery candidates.
+
+Native Java lookup corrections are owned by
+`utils/construction/equipmentBV/sourceLookupAliases.ts` through
+`nativeIdentityId`. Exact catalog IDs remain stable. Proven native names
+precede fuzzy aliases and unit-tech preferences across loading, conversion, BV,
+hydration and printing. Missing Java identities require catalog generation;
+never substitute a related technology or unit-family variant. FU-79's pinned
+identity review supplies the corrections and defers unrepresented identities.
+
+Explicitly registered custom name mappings retain precedence over the native
+source defaults. Native corrections precede inferred tech and fuzzy fallbacks.

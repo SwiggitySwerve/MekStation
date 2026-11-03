@@ -15,14 +15,14 @@ const option = (flag) => process.argv[process.argv.indexOf(flag) + 1];
 export const APPROVED_JAVA_REROUTES = [
   {
     name: 'IS LB 2-X AC Ammo',
-    oldTarget: 'clan-lb-2-x-ac',
+    oldTarget: 'lb-2-x-ammo',
     newTarget: 'is-lb-2-x-ac-ammo-registry',
     reason:
-      'L-EQ3/java-registry.json at pinned 48fcb2f6; AmmoType.createISLB2XAmmo, BV 5; CAT-Q1 HANDBACK shared Clan records note',
+      'L-EQ3/java-registry.json at pinned 48fcb2f6; AmmoType.createISLB2XAmmo, BV 5; CAT-Q1 HANDBACK shared Clan records note; main #2600 native identity is retained as the before target',
   },
   {
     name: 'IS LB 5-X AC Ammo',
-    oldTarget: 'clan-lb-5-x-ac',
+    oldTarget: 'lb-5-x-ammo',
     newTarget: 'is-lb-5-x-ac-ammo-registry',
     reason:
       'L-EQ3/java-registry.json at pinned 48fcb2f6; AmmoType.createISLB5XAmmo, BV 10; CAT-Q1 HANDBACK shared Clan records note',

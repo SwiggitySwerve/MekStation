@@ -5,6 +5,7 @@
  */
 
 import { IAmmunition, IWeapon, WeaponCategory } from '@/types/equipment';
+import { nativeIdentityId } from '@/utils/construction/equipmentBV/sourceLookupAliases';
 import {
   isLegacyEquipmentId,
   resolveRegistryId,
@@ -85,6 +86,14 @@ export function lookupWeapon(
   const exact = resolveRegistryId(id ?? name) ?? resolveRegistryId(name);
   const imported = weapons.find((w) => w.id === exact);
   weapons = weapons.filter((w) => isLegacyEquipmentId(w.id));
+  const identity = nativeIdentityId(id ?? '') ?? nativeIdentityId(name);
+  if (identity)
+    return preferRegistryEquipment(
+      weapons.find((weapon) => weapon.id === identity),
+      imported,
+      id ?? name,
+    );
+
   // Try exact name match
   const byName = weapons.find((w) => w.name === name);
   if (byName) return byName;
@@ -117,8 +126,10 @@ export function lookupAmmoShots(
   id?: string,
 ): number | undefined {
   const lowerName = name.toLowerCase();
+  const identity = nativeIdentityId(id ?? '') ?? nativeIdentityId(name);
   const match =
     (id ? ammunition.find((a) => a.id === id) : undefined) ??
+    (identity ? ammunition.find((a) => a.id === identity) : undefined) ??
     ammunition.find(
       (a) => isLegacyEquipmentId(a.id) && a.name.toLowerCase() === lowerName,
     );

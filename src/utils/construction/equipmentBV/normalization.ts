@@ -23,6 +23,7 @@ import {
   DIRECT_ALIAS_MAP,
   NORMALIZATION_PATTERNS,
 } from './normalizationPatterns';
+import { nativeIdentityId } from './sourceLookupAliases';
 
 type EquipmentCatalogLookup = ReadonlyMap<string, unknown>;
 const legacyCatalogs = new WeakMap<object, EquipmentCatalogLookup>();
@@ -138,6 +139,9 @@ export function normalizeEquipmentId(
       ? explicit
       : undefined;
   if (generated && registryPreviousId(generated, equipmentId)) return generated;
+  const identity = nativeIdentityId(lookupBase);
+  if (!catalog.has(rawLower) && identity && catalog.has(identity))
+    return identity;
   const stripped = lower.replace(/^\d+-/, '').replace(/-\d+$/, '');
 
   // Preserve rack numbers and tech/munition variants before general instance-ID

@@ -17,6 +17,7 @@ import {
 import {
   VehicleLocation,
   VTOLLocation,
+  SuperHeavyVehicleLocation,
 } from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
@@ -225,6 +226,8 @@ export interface VehicleState extends IVehicleTurretSourceContext {
 
   /** Total armor tonnage allocated */
   armorTonnage: number;
+  usesBarArmor?: boolean;
+  armorTechRating?: number;
 
   /** Per-location armor allocation */
   armorAllocation: IVehicleArmorAllocation | IVTOLArmorAllocation;
@@ -328,7 +331,7 @@ export interface VehicleActions
   setArmorType: (type: ArmorTypeEnum) => void;
   setArmorTonnage: (tonnage: number) => void;
   setLocationArmor: (
-    location: VehicleLocation | VTOLLocation,
+    location: VehicleLocation | VTOLLocation | SuperHeavyVehicleLocation,
     points: number,
   ) => void;
   autoAllocateArmor: () => void;

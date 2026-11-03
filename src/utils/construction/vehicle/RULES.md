@@ -478,3 +478,14 @@ Existing explicit and nonempty-equipment chin compatibility remains supported.
 Raw allowance parsing stays in `projectCombatVehicleTurretSource`; both combat
 handlers carry its independent facts and messages without altering the document.
 Allowances do not install turrets or make incomplete combat totals available.
+
+## Armor editor subtype projection
+
+`editorArmor.ts` owns the installed location list, labels, editor limits and
+summary figures. Six-side hulls reuse BLK_SUPERHEAVY_ARMOR_LOCATIONS
+(SuperHeavyTank.java:66-74; LargeSupportTank.java:65-72 at the pin above).
+Dual turrets use Tank.java:127-130: Turret is rear, Turret 2 front.
+`armor.ts` totals the union of canonical installed locations once, excluding
+Body and uninstalled turrets. Six-side controls use the existing tank/support
+global armor limit owners; legacy ordinary editor limits remain unchanged.
+The four-side auto-allocation action is not exposed for a six-side layout.
