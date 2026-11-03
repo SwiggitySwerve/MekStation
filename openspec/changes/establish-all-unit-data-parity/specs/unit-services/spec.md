@@ -41,6 +41,13 @@ families, field units, technology/year semantics, extensions and provenance.
 - **THEN** one example per family SHALL validate, round-trip and reproduce deterministically
 - **AND** the capital example SHALL use document serialization without adding capital editing
 
+#### Scenario: Independent consumer conformance
+
+- **WHEN** a reader built only from the contract document and JSON Schema reads every committed catalog record and example
+- **THEN** each SHALL conform with its `(family, id)` identity, and an absent version SHALL read as `1.0.0` without adding the field
+- **AND** battle armor tonnage SHALL remain a nominal trooper count, and missing, stored, complete and defensive-only BV SHALL stay distinct
+- **AND** the reader SHALL import no application loader or converter, and its tests SHALL run in CI
+
 ### Requirement: Immutable source inventory
 
 The conversion boundary SHALL enumerate the pinned source tree independently of working-tree edits and directory-based family assumptions. It SHALL retain repository identity, resolved commit, relative path, format, Git blob identity and SHA-256 for each source definition, and explicitly list other entries. An inventory SHALL NOT claim successful entity loading or numerical parity.
