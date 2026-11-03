@@ -11,16 +11,20 @@
  */
 
 import type { IInfantryRecordSheetUnitInput } from '@/services/printing/recordsheet/dispatchTarget';
+import type { InfantryState } from '@/stores/infantryState';
 import type { IInfantryFieldGun } from '@/types/unit/InfantryInterfaces';
 
+import { calculateInfantryTransportWeight } from '@/stores/infantryState';
 import { IPlatoonComposition } from '@/types/unit/InfantryInterfaces';
 import {
   InfantryArmorKit,
   InfantrySpecialization,
 } from '@/types/unit/PersonnelInterfaces';
+import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
 
 /** Store fields the infantry unit-object builder reads. */
 export interface InfantryUnitObjectInput {
+  source?: InfantryState;
   id: string;
   name: string;
   chassis: string;
@@ -44,19 +48,28 @@ export interface InfantryUnitObjectInput {
 /**
  * Build the discriminated infantry unit object for the record-sheet service.
  *
- * Infantry has no unit tonnage, so `tonnage` is reported as 0 (the extractor
- * never relies on it). The platoon composition drives platoon size in the
- * extractor; weapons and field guns pass through by name / id.
+ * The full source supplies nominal BV and transport tonnage through their
+ * owners. Legacy partial inputs retain zero tonnage. Composition, weapons
+ * and field guns pass through by name / id.
  */
 export function buildInfantryUnitObject(
   input: InfantryUnitObjectInput,
 ): IInfantryRecordSheetUnitInput {
+  const bv = input.source
+    ? calculateBattleValueForUnit({
+        unitType: input.source.unitType,
+        editorState: input.source,
+      })
+    : undefined;
+  if (input.source && bv?.kind !== 'infantry')
+    throw new TypeError('Expected infantry BV');
   return {
     id: input.id,
     name: input.name,
     chassis: input.chassis || input.name.split(' ')[0] || 'Unknown',
     model: input.model || input.name.split(' ').slice(1).join(' ') || 'Custom',
-    tonnage: 0,
+    tonnage: input.source ? calculateInfantryTransportWeight(input.source) : 0,
+    battleValue: bv?.breakdown.final,
     techBase: String(input.techBase),
     rulesLevel: String(input.rulesLevel),
     era: `Year ${input.year}`,

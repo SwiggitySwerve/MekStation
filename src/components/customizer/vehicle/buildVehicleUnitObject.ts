@@ -28,7 +28,9 @@ import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { getInstalledArmorAllocation } from '@/utils/construction/vehicle/armor';
+import { VehicleStructureType } from '@/utils/construction/vehicle/structure';
 import { getInstalledVehicleTurretType } from '@/utils/construction/vehicle/turret';
+import { computeVehicleBVFromState } from '@/utils/construction/vehicle/vehicleBVAdapter';
 
 import {
   buildRecordSheetUnitIdentity,
@@ -39,6 +41,9 @@ import {
 export interface VehicleUnitObjectInput extends RecordSheetUnitIdentityWithTonnageInput {
   unitType: UnitType.VEHICLE | UnitType.VTOL | UnitType.SUPPORT_VEHICLE;
   motionType: GroundMotionType;
+  structureType?: string;
+  hasEnvironmentalSealing?: boolean;
+  hasFlotationHull?: boolean;
   cruiseMP: number;
   flankMP: number;
   armorType: ArmorTypeEnum;
@@ -78,6 +83,10 @@ function toMotionLabel(
       return 'VTOL';
     case GroundMotionType.NAVAL:
       return 'Naval';
+    case GroundMotionType.SUBMARINE:
+      return 'Submarine';
+    case GroundMotionType.RAIL:
+      return 'Rail';
     case GroundMotionType.WIGE:
       return 'WiGE';
     case GroundMotionType.TRACKED:
@@ -134,6 +143,11 @@ export function buildVehicleUnitObject(
   );
   return {
     ...buildRecordSheetUnitIdentity(input),
+    battleValue: computeVehicleBVFromState({
+      ...input,
+      armorAllocation: { ...input.armorAllocation },
+      structureType: input.structureType ?? VehicleStructureType.STANDARD,
+    }).final,
     // Dispatch hint — resolves to the 'vehicle' kind for all three sub-types.
     unitType: input.unitType,
     motionType: toMotionLabel(input.motionType),
@@ -151,6 +165,7 @@ export function buildVehicleUnitObject(
     barRating: input.barRating ?? undefined,
     equipment: input.equipment.map((eq) => ({
       id: eq.id,
+      equipmentId: eq.equipmentId,
       name: eq.name,
       location: String(eq.location),
     })),

@@ -68,6 +68,7 @@ export function lookupWeapon(
   weapons: readonly IWeapon[],
   name: string,
   id?: string,
+  allowPartial = true,
 ): IWeapon | undefined {
   // First try exact id match
   if (id) {
@@ -83,6 +84,8 @@ export function lookupWeapon(
   const lowerName = name.toLowerCase();
   const byLowerName = weapons.find((w) => w.name.toLowerCase() === lowerName);
   if (byLowerName) return byLowerName;
+
+  if (!allowPartial) return undefined;
 
   // Try partial match (weapon name contains the search name)
   const byPartial = weapons.find(

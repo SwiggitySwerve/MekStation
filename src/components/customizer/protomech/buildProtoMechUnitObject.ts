@@ -11,9 +11,12 @@
  */
 
 import type { IProtoMechRecordSheetUnitInput } from '@/services/printing/recordsheet/dispatchTarget';
+import type { ProtoMechState } from '@/stores/protoMechState';
 import type { IProtoMechArmorAllocation } from '@/stores/protoMechState';
 
 import { ProtoMechLocation } from '@/types/construction/UnitLocation';
+import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
+import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
 
 import {
   buildRecordSheetUnitIdentity,
@@ -31,6 +34,7 @@ type ProtoLoc =
 
 /** Store fields the protomech unit-object builder reads. */
 export interface ProtoMechUnitObjectInput extends RecordSheetUnitIdentityWithTonnageInput {
+  source?: ProtoMechState;
   pointSize: number;
   armorByLocation: IProtoMechArmorAllocation;
   mainGunWeaponId: string | undefined;
@@ -77,6 +81,15 @@ function toArmorByLocation(
 export function buildProtoMechUnitObject(
   input: ProtoMechUnitObjectInput,
 ): IProtoMechRecordSheetUnitInput {
+  const source = input.source;
+  const bv = source
+    ? calculateBattleValueForUnit({
+        unitType: source.unitType,
+        editorState: source,
+      })
+    : undefined;
+  if (source && bv?.kind !== 'protomech')
+    throw new TypeError('Expected ProtoMech BV');
   const armorByLocation = toArmorByLocation(input.armorByLocation);
   const protos = Array.from({ length: input.pointSize }, (_, i) => ({
     index: i + 1,
@@ -85,6 +98,15 @@ export function buildProtoMechUnitObject(
 
   return {
     ...buildRecordSheetUnitIdentity(input),
+    battleValue: bv?.breakdown.final,
+    isQuad: source?.chassisType === ProtoChassis.QUAD,
+    hasMainGun: source?.hasMainGun,
+    equipment: source?.equipment.map(({ id, equipmentId, name, location }) => ({
+      id,
+      equipmentId,
+      name,
+      location,
+    })),
     // Dispatch hint — resolves to the 'protomech' kind.
     unitType: 'protomech',
     pointSize: input.pointSize,
@@ -92,6 +114,8 @@ export function buildProtoMechUnitObject(
     mainGun: input.mainGunWeaponId,
     walkMP: input.walkMP,
     jumpMP: input.jumpMP,
-    isGlider: input.glidingWings,
+    isGlider: source
+      ? source.chassisType === ProtoChassis.GLIDER
+      : input.glidingWings,
   };
 }

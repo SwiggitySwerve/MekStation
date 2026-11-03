@@ -10,6 +10,7 @@
  * @spec openspec/changes/add-protomech-battle-value/specs/battle-value-system/spec.md
  */
 
+import type { BattleArmorState } from '@/stores/battleArmorState';
 import type {
   IAerospace,
   IConventionalFighter,
@@ -24,6 +25,14 @@ import type {
 import type { IProtoMechUnit } from '@/types/unit/ProtoMechInterfaces';
 import type { IVehicleUnit } from '@/types/unit/VehicleInterfaces';
 
+import {
+  computeInfantryStateBV,
+  type InfantryState,
+} from '@/stores/infantryState';
+import {
+  computeProtoMechBVFromState,
+  type ProtoMechState,
+} from '@/stores/protoMechState';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { isVehicleUnitShape } from '@/types/unit/VehicleInterfaces';
 
@@ -45,7 +54,10 @@ import {
   type IDropShipBVBreakdown,
   type ILargeAerospaceBVBreakdown,
 } from './aerospace/dropShipComplete';
-import { calculateBattleArmorBVFromUnit } from './battlearmor/battleArmorBVAdapter';
+import {
+  calculateBattleArmorBVFromUnit,
+  calculateBattleArmorBVFromState,
+} from './battlearmor/battleArmorBVAdapter';
 import { calculateInfantryBVFromUnit as _calculateInfantryBVFromUnit } from './infantry/infantryBVAdapter';
 import {
   calculateProtoMechBV as _calculateProtoMechBV,
@@ -196,6 +208,24 @@ export type {
   AerospaceBVDispatchInput,
 } from './aerospace/aerospaceBV';
 
+// Baseline construction BV for pure state snapshots, not store APIs. Skill overrides use the existing unit projections.
+export type IEditorUnitBVSource =
+  | {
+      readonly unitType: UnitType.BATTLE_ARMOR;
+      readonly editorState: BattleArmorState;
+    }
+  | {
+      readonly unitType: UnitType.INFANTRY;
+      readonly editorState: InfantryState;
+    }
+  | {
+      readonly unitType: UnitType.PROTOMECH;
+      readonly editorState: ProtoMechState;
+    };
+function isEditorBVSource(unit: unknown): unit is IEditorUnitBVSource {
+  return unit !== null && typeof unit === 'object' && 'editorState' in unit;
+}
+
 /**
  * Options accepted by `calculateBattleValueForUnit`.
  *
@@ -279,6 +309,9 @@ type AerospaceDispatchUnit =
  * @param options Optional per-type overrides (skill, etc.).
  */
 export function calculateBattleValueForUnit(
+  unit: IEditorUnitBVSource,
+): UnitBVResult;
+export function calculateBattleValueForUnit(
   unit: ICapitalShipBVUnit,
   options?: IUnitBVOptions,
 ): UnitBVResult;
@@ -324,11 +357,18 @@ export function calculateBattleValueForUnit(
     | AerospaceDispatchUnit,
   options?: IUnitBVOptions,
 ): UnitBVResult | undefined {
-  if (unit?.unitType === UnitType.BATTLE_ARMOR) {
-    const breakdown = calculateBattleArmorBVFromUnit(
-      unit as IBattleArmor,
-      options,
+  const editor = isEditorBVSource(unit) ? unit.editorState : undefined;
+  if (editor && editor.unitType !== unit.unitType)
+    throw new TypeError('BV editor family mismatch');
+  if (editor && options && Object.keys(options).length)
+    throw new TypeError(
+      'Editor BV uses baseline skills; use a unit projection for overrides',
     );
+  if (unit?.unitType === UnitType.BATTLE_ARMOR) {
+    const breakdown =
+      editor?.unitType === UnitType.BATTLE_ARMOR
+        ? calculateBattleArmorBVFromState(editor, options)
+        : calculateBattleArmorBVFromUnit(unit as IBattleArmor, options);
     return {
       kind: 'battlearmor',
       breakdown: {
@@ -352,17 +392,21 @@ export function calculateBattleValueForUnit(
     };
   }
   if (unit && (unit as IProtoMechUnit).unitType === UnitType.PROTOMECH) {
-    const breakdown = _calculateProtoMechBV(
-      _toBVProtoMech(unit as IProtoMechUnit | IProtoMech),
-      options ?? {},
-    );
+    const breakdown =
+      editor?.unitType === UnitType.PROTOMECH
+        ? computeProtoMechBVFromState(editor)
+        : _calculateProtoMechBV(
+            _toBVProtoMech(unit as IProtoMechUnit | IProtoMech),
+            options ?? {},
+          );
     return { kind: 'protomech', breakdown };
   }
   if (unit && (unit as IInfantry).unitType === UnitType.INFANTRY) {
-    const breakdown = _calculateInfantryBVFromUnit(unit as IInfantry, {
-      gunnery: options?.gunnery,
-      piloting: options?.piloting,
-    });
+    const breakdown =
+      editor?.unitType === UnitType.INFANTRY
+        ? computeInfantryStateBV(editor)
+        : _calculateInfantryBVFromUnit(unit as IInfantry, options);
+    if (!breakdown) throw new TypeError('Infantry BV is unavailable');
     return { kind: 'infantry', breakdown };
   }
   // Vehicle dispatch — covers VEHICLE, VTOL, and SUPPORT_VEHICLE via the

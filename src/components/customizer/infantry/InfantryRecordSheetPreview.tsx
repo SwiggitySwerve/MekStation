@@ -38,6 +38,7 @@ export function InfantryRecordSheetPreview({
   scale = 0.75,
   className = '',
 }: InfantryRecordSheetPreviewProps): React.ReactElement {
+  const source = useInfantryStore((s) => s);
   const id = useInfantryStore((s) => s.id);
   const name = useInfantryStore((s) => s.name);
   const chassis = useInfantryStore((s) => s.chassis);
@@ -60,6 +61,7 @@ export function InfantryRecordSheetPreview({
   const unitObject = useMemo(
     () =>
       buildInfantryUnitObject({
+        source,
         id,
         name,
         chassis,
@@ -80,6 +82,7 @@ export function InfantryRecordSheetPreview({
         hasAntiMechTraining,
       }),
     [
+      source,
       id,
       name,
       chassis,
