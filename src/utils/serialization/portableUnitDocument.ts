@@ -3,7 +3,10 @@ import { z } from 'zod';
 import { isDefinitionForFamily } from '@/services/units/unitLoaderService/definitionTypes';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import { UnitContract } from '@/types/contracts';
-import { CURRENT_UNIT_SCHEMA_VERSION } from '@/types/contracts/generated/unit.zod';
+import {
+  CURRENT_UNIT_SCHEMA_VERSION,
+  unitSchemaVersionOf,
+} from '@/types/contracts/generated/unit.zod';
 import {
   isUnitFamily,
   parseUnitReference,
@@ -118,7 +121,9 @@ export function migratePortableUnitDocument(
   reference: PortableUnitReference,
 ) {
   const source = record.parse(input);
-  const version = versionSchema.parse(source.schemaVersion);
+  const version = unitSchemaVersionOf({
+    schemaVersion: versionSchema.parse(source.schemaVersion),
+  });
   const ref =
     typeof reference === 'string' ? parseUnitReference(reference) : reference;
   const family = ref.family ?? 'battlemechs';

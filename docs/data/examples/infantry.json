@@ -56,7 +56,6 @@
     "rulesLevel": "Advanced",
     "techBase": "Clan",
     "librarySource": {
-      "schemaVersion": "1.0.0",
       "id": "bandit-motorized-point-rifle",
       "chassis": "Bandit Motorized Point",
       "model": "(Rifle)",

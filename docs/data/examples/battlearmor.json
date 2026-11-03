@@ -144,7 +144,6 @@
     "rulesLevel": "Advanced",
     "techBase": "Inner Sphere",
     "librarySource": {
-      "schemaVersion": "1.0.0",
       "id": "achileus-light-battle-armor-wobsqd4",
       "chassis": "Achileus Light Battle Armor",
       "model": "(WoB)(Sqd4)",
