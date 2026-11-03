@@ -1,6 +1,8 @@
 import { useCallback, useState } from 'react';
 
 import type { TabInfo } from '@/stores/useTabManagerStore';
+import type { IUnitContract } from '@/types/contracts';
+import type { ISerializedUnit } from '@/types/unit/UnitSerialization';
 
 import { useToast } from '@/components/shared/Toast';
 import { customUnitApiService } from '@/services/units/CustomUnitApiService';
@@ -9,6 +11,7 @@ import { getUnitStore } from '@/stores/unitStoreRegistry';
 import { Era } from '@/types/temporal/Era';
 import { logger } from '@/utils/logger';
 import {
+  type CustomUnitSaveIdentity,
   serializeCustomUnitState,
   serializeCustomVehicleState,
   serializeCustomAerospaceState,
@@ -20,6 +23,30 @@ import {
   getLibrarySaveDisabledReason,
   getLibrarySaveStore,
 } from './MultiUnitTabsUnitState';
+
+/** Route dialog readiness and writes through the same family serializers. */
+export function serializeCustomLibraryState(
+  state: ReturnType<
+    NonNullable<ReturnType<typeof getLibrarySaveStore>>['getState']
+  >,
+  identity: Omit<CustomUnitSaveIdentity, 'era'> = {
+    id: state.id,
+    chassis: state.chassis,
+    variant: state.model,
+  },
+): ISerializedUnit | IUnitContract {
+  const saveIdentity = {
+    ...identity,
+    era: getEraForYear(state.year) ?? Era.LATE_SUCCESSION_WARS,
+  };
+  return 'configuration' in state
+    ? serializeCustomUnitState(state, saveIdentity)
+    : 'aerospaceSubType' in state
+      ? serializeCustomAerospaceState(state, saveIdentity)
+      : 'pointSize' in state || 'squadSize' in state
+        ? serializeCustomSmallUnitState(state, saveIdentity)
+        : serializeCustomVehicleState(state, saveIdentity);
+}
 
 export interface CloseDialogState {
   isOpen: boolean;
@@ -187,21 +214,12 @@ export function useDialogHandlers(
         'configuration' in state ? getUnitStore(saveDialog.tabId) : undefined;
 
       try {
-        const era = getEraForYear(state.year) ?? Era.LATE_SUCCESSION_WARS;
         const identity = {
           id: overwriteId ?? saveDialog.tabId,
           chassis,
           variant,
-          era,
         };
-        const unitData =
-          'configuration' in state
-            ? serializeCustomUnitState(state, identity)
-            : 'aerospaceSubType' in state
-              ? serializeCustomAerospaceState(state, identity)
-              : 'pointSize' in state || 'squadSize' in state
-                ? serializeCustomSmallUnitState(state, identity)
-                : serializeCustomVehicleState(state, identity);
+        const unitData = serializeCustomLibraryState(state, identity);
 
         // The legacy API type names persisted data as IFullUnit even though
         // this path writes the canonical ISerializedUnit contract.

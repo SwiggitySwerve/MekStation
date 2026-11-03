@@ -35,6 +35,7 @@ function pickPersistedUnitState(state: UnitStore) {
   return {
     ...pickPersistedUnitIdentityWithClanName(state),
     sourceDefinition: state.sourceDefinition,
+    bvContext: state.bvContext,
     librarySave: state.librarySave,
     role: state.role,
     fluff: state.fluff,
