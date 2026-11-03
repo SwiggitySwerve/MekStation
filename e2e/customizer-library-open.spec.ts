@@ -308,6 +308,62 @@ for (const viewport of VIEWPORTS) {
   test.describe(`library open, ${viewport.name} layout`, () => {
     test.use({ viewport: { width: viewport.width, height: viewport.height } });
 
+    test('waits for cold equipment before opening an Omni vehicle @customizer', async ({
+      page,
+    }, info) => {
+      let release!: () => void;
+      let blocked = false;
+      const gate = new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      const pattern = '**/data/equipment/official/weapons/ballistic-other.json';
+      await page.route(pattern, async (route) => {
+        blocked = true;
+        await gate;
+        await route.continue();
+      });
+      try {
+        const unit = OPEN_CASES.find((candidate) => candidate.panel === 'omni');
+        if (!unit) throw Error('Missing Omni catalog fixture');
+        const { dialog, row } = await findRow(page, unit);
+        await page.addStyleTag({ content: 'nextjs-portal { display: none; }' });
+        await expect.poll(() => blocked).toBe(true);
+        const definition = page.waitForResponse((response) =>
+          /gulltoppr/i.test(response.url()),
+        );
+        await row.dblclick();
+        await (await definition).finished();
+        await page.evaluate(
+          () =>
+            new Promise<void>((resolve) =>
+              requestAnimationFrame(() => resolve()),
+            ),
+        );
+        await expect(
+          dialog.getByRole('button', { name: /Loading Unit/ }),
+        ).toBeVisible();
+        release();
+        await expect(dialog).toBeHidden();
+        await section(page, 'Turret');
+        const panel = page.getByRole('region', {
+          name: 'Primary Turret Figures',
+        });
+        await expect(
+          panel
+            .getByText('Required Mechanism Mass', { exact: true })
+            .locator('..')
+            .getByRole('definition'),
+        ).toHaveText('3.5 t');
+        await panel.screenshot({
+          path: info.outputPath(`cold-equipment-${viewport.name}.png`),
+          animations: 'disabled',
+        });
+      } finally {
+        release();
+        await page.unroute(pattern);
+      }
+    });
+
     for (const unit of OPEN_CASES) {
       test(`opens a ${unit.label} with its own shell and figures @customizer`, async ({
         page,
