@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "scorpion-light-tank",
+  "chassis": "Scorpion Light Tank",
+  "model": "",
+  "variant": "",
+  "unitType": "Vehicle",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "INTRODUCTORY",
+  "era": "Early Succession Wars",
+  "year": 2807,
+  "tonnage": 25,
+  "engine": {
+    "type": "ICE",
+    "rating": 100
+  },
+  "armor": {
+    "type": "STANDARD",
+    "byLocation": {
+      "FRONT": 16,
+      "LEFT": 11,
+      "RIGHT": 11,
+      "REAR": 10,
+      "TURRET": 16,
+      "TURRET_2": 0,
+      "BODY": 0
+    }
+  },
+  "movement": {
+    "cruiseMP": 4,
+    "flankMP": 6
+  },
+  "equipment": [
+    {
+      "id": "machine-gun",
+      "name": "Machine Gun",
+      "location": "TURRET",
+      "isRearMounted": false,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "ac-5",
+      "name": "AC/5",
+      "location": "TURRET",
+      "isRearMounted": false,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "machine-gun-ammo-half",
+      "name": "Machine Gun Ammo [Half]",
+      "location": "BODY",
+      "isRearMounted": false,
+      "isOmniPodMounted": false
+    },
+    {
+      "id": "ac-5-ammo",
+      "name": "AC/5 Ammo",
+      "location": "BODY",
+      "isRearMounted": false,
+      "isOmniPodMounted": false
+    }
+  ],
+  "isOmni": false,
+  "isTrailer": false,
+  "clanEngine": false,
+  "mulId": "2847",
+  "family": "vehicles",
+  "motionType": "Tracked",
+  "vehicleEditor": {
+    "name": "Scorpion Light Tank",
+    "weightClass": "Light",
+    "flankMP": 6,
+    "armorTonnage": 4,
+    "turret": {
+      "type": "Single",
+      "rotationArc": 360
+    },
+    "secondaryTurret": null,
+    "hasNoControlSystems": false,
+    "isSuperheavy": false,
+    "hasEnvironmentalSealing": false,
+    "hasFlotationHull": false,
+    "isAmphibious": false,
+    "hasTrailerHitch": false,
+    "structureType": "Standard",
+    "crewSize": 0,
+    "passengerSlots": 0,
+    "barRating": null,
+    "powerAmpWeight": 0,
+    "mounts": [
+      {
+        "name": "Machine Gun",
+        "isTurretMounted": true,
+        "isSponsonMounted": false,
+        "isChinTurretMounted": false,
+        "isPintleTurretMounted": false
+      },
+      {
+        "name": "AC/5",
+        "isTurretMounted": true,
+        "isSponsonMounted": false,
+        "isChinTurretMounted": false,
+        "isPintleTurretMounted": false
+      },
+      {
+        "name": "Machine Gun Ammo [Half]",
+        "isAmmo": true,
+        "isTurretMounted": false,
+        "isSponsonMounted": false,
+        "isChinTurretMounted": false,
+        "isPintleTurretMounted": false
+      },
+      {
+        "name": "AC/5 Ammo",
+        "isAmmo": true,
+        "isTurretMounted": false,
+        "isSponsonMounted": false,
+        "isChinTurretMounted": false,
+        "isPintleTurretMounted": false
+      }
+    ]
+  },
+  "org.mekstation:example": {
+    "source": "vehicles/Scorpion Light Tank.json",
+    "sha256": "a4aa2654d51c2090225d2ecb619e30897b855623754769769deb34490864d77e"
+  }
+}

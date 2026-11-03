@@ -1,0 +1,211 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "chippewa-chp-w5",
+  "chassis": "Chippewa",
+  "model": "CHP-W5",
+  "variant": "CHP-W5",
+  "unitType": "Aerospace",
+  "techBase": "INNER_SPHERE",
+  "rulesLevel": "STANDARD",
+  "era": "Star League",
+  "year": 2584,
+  "tonnage": 90,
+  "engine": {
+    "type": "FUSION"
+  },
+  "cockpit": "STANDARD",
+  "armor": {
+    "type": "STANDARD",
+    "byArc": {
+      "NOSE": 43,
+      "LEFT_WING": 24,
+      "RIGHT_WING": 24,
+      "AFT": 29
+    }
+  },
+  "heatSinks": {
+    "type": "SINGLE",
+    "count": 25
+  },
+  "movement": {
+    "safeThrust": 5,
+    "maxThrust": 8
+  },
+  "equipment": [
+    {
+      "id": "lrm-15",
+      "name": "LRM 15",
+      "location": "NOSE",
+      "isRearMounted": false
+    },
+    {
+      "id": "lrm-15",
+      "name": "LRM 15",
+      "location": "NOSE",
+      "isRearMounted": false
+    },
+    {
+      "id": "srm-6",
+      "name": "SRM 6",
+      "location": "NOSE",
+      "isRearMounted": false
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE",
+      "isRearMounted": false
+    },
+    {
+      "id": "medium-laser",
+      "name": "Medium Laser",
+      "location": "NOSE",
+      "isRearMounted": false
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "LEFT_WING",
+      "isRearMounted": false
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "LEFT_WING",
+      "isRearMounted": false
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "RIGHT_WING",
+      "isRearMounted": false
+    },
+    {
+      "id": "large-laser",
+      "name": "Large Laser",
+      "location": "RIGHT_WING",
+      "isRearMounted": false
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT",
+      "isRearMounted": false
+    },
+    {
+      "id": "small-laser",
+      "name": "Small Laser",
+      "location": "AFT",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lrm-15",
+      "name": "IS Ammo LRM-15",
+      "location": "FUSELAGE",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lrm-15",
+      "name": "IS Ammo LRM-15",
+      "location": "FUSELAGE",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lrm-15",
+      "name": "IS Ammo LRM-15",
+      "location": "FUSELAGE",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-lrm-15",
+      "name": "IS Ammo LRM-15",
+      "location": "FUSELAGE",
+      "isRearMounted": false
+    },
+    {
+      "id": "is-ammo-srm-6",
+      "name": "IS Ammo SRM-6",
+      "location": "FUSELAGE",
+      "isRearMounted": false
+    }
+  ],
+  "isOmni": false,
+  "fuel": 400,
+  "mulId": "584",
+  "family": "aerospace",
+  "subType": "AerospaceFighter",
+  "motionType": "AERODYNE",
+  "structuralIntegrity": 9,
+  "hasBombBay": false,
+  "bombCapacity": 0,
+  "aerospaceEditor": {
+    "name": "Chippewa CHP-W5",
+    "weightClass": "Assault",
+    "isFixedWingSupport": false,
+    "engineType": "Standard Fusion",
+    "aerospaceEngineType": "Fusion",
+    "engineRating": 450,
+    "fuelTons": 5,
+    "structuralIntegrity": 9,
+    "heatSinkPool": 25,
+    "armorTonnage": 7.5,
+    "hasReinforcedCockpit": false,
+    "hasEjectionSeat": true,
+    "crew": null,
+    "bays": [],
+    "mounts": [
+      {
+        "name": "LRM 15"
+      },
+      {
+        "name": "LRM 15"
+      },
+      {
+        "name": "SRM 6"
+      },
+      {
+        "name": "Medium Laser"
+      },
+      {
+        "name": "Medium Laser"
+      },
+      {
+        "name": "Large Laser"
+      },
+      {
+        "name": "Large Laser"
+      },
+      {
+        "name": "Large Laser"
+      },
+      {
+        "name": "Large Laser"
+      },
+      {
+        "name": "Small Laser"
+      },
+      {
+        "name": "Small Laser"
+      },
+      {
+        "name": "IS Ammo LRM-15"
+      },
+      {
+        "name": "IS Ammo LRM-15"
+      },
+      {
+        "name": "IS Ammo LRM-15"
+      },
+      {
+        "name": "IS Ammo LRM-15"
+      },
+      {
+        "name": "IS Ammo SRM-6"
+      }
+    ]
+  },
+  "org.mekstation:example": {
+    "source": "aerospace/Chippewa CHP-W5.json",
+    "sha256": "1ca6709b040c68553796f2a26ace8e5e8292af062859dc8c3bd3ecf59cbe27ba"
+  }
+}
