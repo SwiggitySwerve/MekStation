@@ -1,8 +1,8 @@
 # BattleMech validity: native loading facts
 
-Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587; mm-data 50f7efef0c9f775b0258f8283525ed4f906e1985. Fixed comparison base f6aacf32922f554493a0d26665b0e3f95285fd40.
+Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587; mm-data 50f7efef0c9f775b0258f8283525ed4f906e1985. Fixed comparison base 76966d062bf27d61f0ea987957c54f26c92bcbcb.
 
-The 9,815-row construction-validity harness reproduces the editor projections and real source handlers. First rejecting errors classify every Java-valid rejected mech; multiple errors can affect the same unit. Java reports no construction diagnostic on these valid rows.
+The 9,815-row construction-validity harness reproduces the editor projections and real source handlers. First rejecting errors classify every Java-valid rejected mech; multiple errors can affect the same unit. Java diagnostics are retained verbatim. Four Java-valid corpus mechs carry diagnostics under the canon/design-quirk exception in TestMek.java:779-782; Java validity is not inferred from empty text. See JAVA-VALID-EXCEPTIONS.json.
 
 | First rejecting rule | Before |
 | -------------------- | -----: |
@@ -25,7 +25,7 @@ MtfFile.java:1010-1020 removes (OMNIPOD) before the rear marker and equipment lo
 | protomeks   |     85 -> 85 |       1 -> 1 |          0 -> 0 |           0 -> 0 |       0 -> 0 |
 | vehicles    | 1420 -> 1420 |       9 -> 9 |          0 -> 0 |         15 -> 15 |       0 -> 0 |
 
-1,133 additional mechs now agree with Java. Every source still loads, no row newly disagrees, and all 9,815 strict-comparator BV/status rows remain unchanged. Canonical unit data, catalogs and validator rules are untouched. The subsequent main merge contains only #2603 custom-alias precedence; its default 42,527-name snapshot was unchanged, so it does not alter this source-corpus measurement.
+1,133 additional mechs now agree with Java. Every source still loads, no row newly disagrees, and all 9,815 strict-comparator BV/status rows remain unchanged. Canonical unit data, catalogs and validator rules are untouched. Both phases were refreshed on the same merged source base by restoring only the three executable loading files changed by this PR to that base for the before run, then restoring final bytes in finally. Incoming main changes are present in both phases.
 
 Four real-unit/projection regressions fail before and pass after. Three mutants are killed: wrong Clan XL identity, retained pod suffix, and decorated mixed-tech hint. Both TypeScript projects, lint, repository formatting, and mech validation/customizer suites are recorded in L-VAL-MECH evidence.
 
