@@ -11,19 +11,13 @@ const { normalizeEquipmentId } = tsxRequire(
   '../../src/utils/construction/equipmentBV/normalization.ts',
   import.meta.url,
 );
-
 export const revision = '48fcb2f64a1b3f2d575707ce5653dad64927b587';
 const techBases = { IS: 'INNER_SPHERE', CLAN: 'CLAN', ALL: 'BOTH' };
-const slug = (name) =>
-  name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+const slug = (name) => (name.toLowerCase().match(/[a-z0-9]+/g) ?? []).join('-');
 const number = (value, label) => {
   assert(Number.isFinite(value), `Missing/nonfinite ${label}`);
   return value;
 };
-
 export function generateEntries(java, gaps, facts, lookups, before, mappings) {
   const selected = new Set(gaps.map((gap) => gap.java.internalName));
   for (const [name, fact] of Object.entries(facts))
@@ -47,12 +41,9 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
     identities.set(name, id);
   }
   const known = new Map(identities);
-  const existingAliases = new Map(
-    Object.entries(mappings).map(([name, id]) => [
-      name.toLowerCase(),
-      { name, id },
-    ]),
-  );
+  const existingAliases = new Map();
+  for (const [name, id] of Object.entries(mappings))
+    existingAliases.set(name.toLowerCase(), { name, id });
   for (const type of java) {
     if (known.has(type.internalName)) continue;
     const id = [type.internalName, ...type.aliases]
@@ -65,8 +56,8 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
         return (
           entry &&
           (facts[type.internalName]?.kind !== 'weapons' || entry.ranges) &&
-          entry.battleValue === type.bv &&
-          entry.weight === type.tons &&
+          (entry.name === type.name ||
+            (entry.battleValue === type.bv && entry.weight === type.tons)) &&
           (type.tech === 'ALL' ||
             [techBases[type.tech], 'BOTH'].includes(entry.techBase))
         );
@@ -119,13 +110,13 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
         }[fact.munitions?.join(',')] ?? 'Other';
       entry.shotsPerTon = number(fact.shots, `${name}.shots`);
       entry.kgPerShot = number(fact.kgPerShot, `${name}.kgPerShot`);
-      entry.compatibleWeaponIds = [
-        ...new Set(
+      entry.compatibleWeaponIds = Array.from(
+        new Set(
           (fact.compatible ?? [])
             .map((weapon) => known.get(weapon))
             .filter(Boolean),
         ),
-      ];
+      );
       entry.costPerTon = fixed(fact.cost, 'cost');
       entry.isExplosive = fact.isExplosive;
       notes.push(`Java ammoType:rackSize ${fact.ammoType}:${fact.rackSize}`);
@@ -180,17 +171,13 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
   }
   return { items, aliases };
 }
-
 function runGenerator() {
   const read = (file) => JSON.parse(readFileSync(file, 'utf8'));
   const write = (file, value) =>
     writeFileSync(file, JSON.stringify(value, null, 2) + '\n');
   const hash = (file) => hashBytes('sha256', readFileSync(file));
   const [registryFile, gapsFile, factsFile] = process.argv.slice(2);
-  if (!factsFile)
-    throw Error(
-      'Usage: node scripts/equipment-catalog/generate.mjs <java-registry.json> <catalog-gaps-by-java.json> <java-facts.json>',
-    );
+  assert(factsFile, 'Usage: generate.mjs <registry> <gaps> <facts>');
   const inputs = [...process.argv.slice(2), `${registryFile}.lookups.json`];
   const hashes = read(new URL('./source-pins.json', import.meta.url));
   for (const file of inputs) {
@@ -200,12 +187,11 @@ function runGenerator() {
   }
   const root = resolve('public/data/equipment'),
     index = read(`${root}/official/index.json`);
-  const originals = Object.values(index.files)
-    .flatMap(Object.values)
-    .filter((file) => !file.endsWith('/java-registry.json'));
-  const before = originals.flatMap(
-    (file) => read(`${root}/official/${file}`).items,
-  );
+  const originalItems = (kind) =>
+    Object.values(index.files[kind])
+      .filter((file) => !file.endsWith('/java-registry.json'))
+      .flatMap((file) => read(`${root}/official/${file}`).items);
+  const before = Object.keys(index.files).flatMap(originalItems);
   const mappings = read(new URL('./protected-aliases.json', import.meta.url));
   const result = generateEntries(
     read(registryFile),
@@ -229,16 +215,10 @@ function runGenerator() {
       items,
     });
     index.files[kind]['java-registry'] = `${kind}/java-registry.json`;
-    index.totalItems[kind] = originals
-      .filter((file) => file.startsWith(`${kind}/`))
-      .reduce(
-        (total, file) =>
-          total +
-          read(`${root}/official/${file}`).items.filter(
-            (item) => kind !== 'weapons' || item.ranges,
-          ).length,
-        items.length,
-      );
+    index.totalItems[kind] =
+      items.length +
+      originalItems(kind).filter((item) => kind !== 'weapons' || item.ranges)
+        .length;
   }
   const addedIds = new Set(result.items.map((item) => item.entry.id));
   const originalMappings = Object.fromEntries(

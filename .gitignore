@@ -156,6 +156,8 @@ data/
 /public/data/*
 !/public/data/equipment/
 /public/data/equipment/*
+# Reviewed catalog generation and commit hooks must be able to stage this tree.
+!/public/data/equipment/official/
 !/public/data/equipment/_schema/
 /public/data/equipment/_schema/*
 !/public/data/equipment/_schema/unit-schema.json

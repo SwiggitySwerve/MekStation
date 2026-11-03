@@ -299,6 +299,39 @@ async function capture(root, inputs) {
           fallbackLeaks.push({ api: 'findSimilar', name, target });
     }
   }
+  // Synthetic registry responses exercise boundaries that real catalog names
+  // alone cannot cover, including the Missing Special Ammo regression.
+  const service = getEquipmentLookupService();
+  const originals = [service.getById, service.getAllEquipment, registry.lookup];
+  const categoryFailures = [];
+  try {
+    for (const [name, candidate] of [
+      ['Missing Special Ammo', originals[0].call(service, 'medium-laser')],
+      [
+        'Missing Special Weapon',
+        service
+          .getAllEquipment()
+          .find((item) => item.category === 'Ammunition'),
+      ],
+      ...generated.map(({ id }) => [
+        'Missing Special Weapon',
+        originals[0].call(service, id),
+      ]),
+    ]) {
+      assert(candidate, `Missing category probe candidate: ${name}`);
+      service.getById = (id) =>
+        name.endsWith('Ammo') || id === candidate.id ? candidate : undefined;
+      service.getAllEquipment = () => [candidate];
+      registry.lookup = () => ({ found: true, equipment: candidate });
+      for (const api of ['unitLoaderIS', 'unitLoaderClan', 'unitLoaderMixed']) {
+        const target = apis[api](name);
+        if (target)
+          categoryFailures.push({ api, name, candidate: candidate.id, target });
+      }
+    }
+  } finally {
+    [service.getById, service.getAllEquipment, registry.lookup] = originals;
+  }
   return {
     baseline: inputs.baseline,
     provenance: inputs.provenance,
@@ -306,6 +339,7 @@ async function capture(root, inputs) {
     results,
     directFailures,
     fallbackLeaks,
+    categoryFailures,
   };
 }
 
@@ -353,6 +387,11 @@ if (process.argv.includes('--capture')) {
       after.fallbackLeaks,
       [],
       'Generated entries never join fallback candidates',
+    );
+    assert.deepEqual(
+      after.categoryFailures,
+      [],
+      'Registry recovery preserves category and generated-entry boundaries',
     );
     const shifts = [],
       allowed = [],

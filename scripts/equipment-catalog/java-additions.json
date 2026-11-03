@@ -2197,7 +2197,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: BACL Ammo LRM-5",
         "Java ammoType:rackSize LRM:5",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLBALRM5 (OS), ISBALRM5OS, CLLRM5 (IOS), CLLRM5 (OS), LRM 5 (OS), LRM 5 (I-OS)"
+        "Unrepresented compatible Java weapons: CLBALRM5 (OS), ISBALRM5OS, CLLRM5 (IOS), LRM 5 (I-OS)"
       ],
       "battleValue": 7,
       "weight": 1,
@@ -2213,7 +2213,8 @@
         "clbalrm5-registry",
         "isbalrm5-registry",
         "clan-lrm-5",
-        "lrm-5"
+        "lrm-5",
+        "balrm5-os"
       ]
     },
     "java": {
@@ -5625,7 +5626,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo LRM-10",
         "Java ammoType:rackSize LRM:10",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLLRM10 (IOS), LRM 10 (OS), LRM 10 (I-OS)"
+        "Unrepresented compatible Java weapons: CLLRM10 (IOS), LRM 10 (I-OS)"
       ],
       "battleValue": 14,
       "weight": 1,
@@ -5684,7 +5685,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo LRM-10 (Clan) Artemis V-capable",
         "Java ammoType:rackSize LRM:10",
         "Java munitions: M_ARTEMIS_V_CAPABLE",
-        "Unrepresented compatible Java weapons: CLLRM10 (IOS), LRM 10 (OS), LRM 10 (I-OS)"
+        "Unrepresented compatible Java weapons: CLLRM10 (IOS), LRM 10 (I-OS)"
       ],
       "battleValue": 14,
       "weight": 1,
@@ -5754,7 +5755,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo LRM-10 (Clan) Artemis-capable",
         "Java ammoType:rackSize LRM:10",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: CLLRM10 (IOS), LRM 10 (OS), LRM 10 (I-OS)"
+        "Unrepresented compatible Java weapons: CLLRM10 (IOS), LRM 10 (I-OS)"
       ],
       "battleValue": 14,
       "weight": 1,
@@ -5824,7 +5825,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo LRM-15",
         "Java ammoType:rackSize LRM:15",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLLRM15 (IOS), LRM 15 (OS), LRM 15 (I-OS)"
+        "Unrepresented compatible Java weapons: CLLRM15 (IOS), LRM 15 (I-OS)"
       ],
       "battleValue": 21,
       "weight": 1,
@@ -5883,7 +5884,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo LRM-15 (Clan) Artemis V-capable",
         "Java ammoType:rackSize LRM:15",
         "Java munitions: M_ARTEMIS_V_CAPABLE",
-        "Unrepresented compatible Java weapons: CLLRM15 (IOS), LRM 15 (OS), LRM 15 (I-OS)"
+        "Unrepresented compatible Java weapons: CLLRM15 (IOS), LRM 15 (I-OS)"
       ],
       "battleValue": 21,
       "weight": 1,
@@ -5953,7 +5954,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo LRM-15 (Clan) Artemis-capable",
         "Java ammoType:rackSize LRM:15",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: CLLRM15 (IOS), LRM 15 (OS), LRM 15 (I-OS)"
+        "Unrepresented compatible Java weapons: CLLRM15 (IOS), LRM 15 (I-OS)"
       ],
       "battleValue": 21,
       "weight": 1,
@@ -6023,7 +6024,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo LRM-20",
         "Java ammoType:rackSize LRM:20",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLLRM20 (IOS), LRM 20 (OS), LRM 20 (I-OS)"
+        "Unrepresented compatible Java weapons: CLLRM20 (IOS), LRM 20 (I-OS)"
       ],
       "battleValue": 27,
       "weight": 1,
@@ -6082,7 +6083,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo LRM-20 (Clan) Artemis V-capable",
         "Java ammoType:rackSize LRM:20",
         "Java munitions: M_ARTEMIS_V_CAPABLE",
-        "Unrepresented compatible Java weapons: CLLRM20 (IOS), LRM 20 (OS), LRM 20 (I-OS)"
+        "Unrepresented compatible Java weapons: CLLRM20 (IOS), LRM 20 (I-OS)"
       ],
       "battleValue": 27,
       "weight": 1,
@@ -6152,7 +6153,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo LRM-20 (Clan) Artemis-capable",
         "Java ammoType:rackSize LRM:20",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: CLLRM20 (IOS), LRM 20 (OS), LRM 20 (I-OS)"
+        "Unrepresented compatible Java weapons: CLLRM20 (IOS), LRM 20 (I-OS)"
       ],
       "battleValue": 27,
       "weight": 1,
@@ -6222,7 +6223,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo LRM-5",
         "Java ammoType:rackSize LRM:5",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLLRM5 (IOS), CLLRM5 (OS), LRM 5 (OS), LRM 5 (I-OS), CLBALRM5 (OS), ISBALRM5OS"
+        "Unrepresented compatible Java weapons: CLLRM5 (IOS), LRM 5 (I-OS), CLBALRM5 (OS), ISBALRM5OS"
       ],
       "battleValue": 7,
       "weight": 1,
@@ -6237,6 +6238,7 @@
       "compatibleWeaponIds": [
         "clan-lrm-5",
         "lrm-5",
+        "balrm5-os",
         "clbalrm5-registry",
         "isbalrm5-registry"
       ]
@@ -6709,7 +6711,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-2",
         "Java ammoType:rackSize SRM:2",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM2 (IOS), CLSRM2 (OS), ISSRM2OS, CLBASRM2 (OS)"
+        "Unrepresented compatible Java weapons: CLSRM2 (IOS), ISSRM2OS, CLBASRM2 (OS)"
       ],
       "battleValue": 3,
       "weight": 1,
@@ -6724,6 +6726,7 @@
       "compatibleWeaponIds": [
         "clan-srm-2",
         "srm-2",
+        "basrm2-os",
         "issrm2ios-registry",
         "clbasrm2-registry",
         "isbasrm2-registry",
@@ -6779,7 +6782,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-3",
         "Java ammoType:rackSize SRM:3",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM3, CLSRM3OS, CLBASRM3, ISBASRM3, CLBASRM3 (OS)"
+        "Unrepresented compatible Java weapons: CLSRM3, CLSRM3OS, ISBASRM3, CLBASRM3 (OS)"
       ],
       "battleValue": 4,
       "weight": 1,
@@ -6791,7 +6794,7 @@
       "shotsPerTon": 100,
       "kgPerShot": 30,
       "isExplosive": true,
-      "compatibleWeaponIds": ["isbasrm3os-registry"]
+      "compatibleWeaponIds": ["basrm3", "isbasrm3os-registry"]
     },
     "java": {
       "javaClass": "megamek.common.equipment.AmmoType",
@@ -6838,7 +6841,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-4",
         "Java ammoType:rackSize SRM:4",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM4 (IOS), CLSRM4 (OS), CLBASRM4 (OS)"
+        "Unrepresented compatible Java weapons: CLSRM4 (IOS), CLBASRM4 (OS)"
       ],
       "battleValue": 5,
       "weight": 1,
@@ -6853,6 +6856,7 @@
       "compatibleWeaponIds": [
         "clan-srm-4",
         "srm-4",
+        "basrm4-os",
         "issrm4ios-registry",
         "issrm4os-registry",
         "clbasrm4-registry",
@@ -6909,7 +6913,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-4 (Clan) Artemis-capable",
         "Java ammoType:rackSize SRM:4",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: CLSRM4 (IOS), CLSRM4 (OS), CLBASRM4 (OS)"
+        "Unrepresented compatible Java weapons: CLSRM4 (IOS), CLBASRM4 (OS)"
       ],
       "battleValue": 5,
       "weight": 1,
@@ -6924,6 +6928,7 @@
       "compatibleWeaponIds": [
         "clan-srm-4",
         "srm-4",
+        "basrm4-os",
         "issrm4ios-registry",
         "issrm4os-registry",
         "clbasrm4-registry",
@@ -7050,7 +7055,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-6",
         "Java ammoType:rackSize SRM:6",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM6 (IOS), CLSRM6 (OS), ISSRM6IOS, ISBASRM6, CLBASRM6 (OS)"
+        "Unrepresented compatible Java weapons: CLSRM6 (IOS), ISSRM6IOS, ISBASRM6, CLBASRM6 (OS)"
       ],
       "battleValue": 7,
       "weight": 1,
@@ -7065,6 +7070,7 @@
       "compatibleWeaponIds": [
         "clan-srm-6",
         "srm-6",
+        "basrm6-os",
         "issrm6os-registry",
         "clbasrm6-registry",
         "isbasrm6os-registry"
@@ -7119,7 +7125,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-6 (Clan) Artemis-capable",
         "Java ammoType:rackSize SRM:6",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: CLSRM6 (IOS), CLSRM6 (OS), ISSRM6IOS, ISBASRM6, CLBASRM6 (OS)"
+        "Unrepresented compatible Java weapons: CLSRM6 (IOS), ISSRM6IOS, ISBASRM6, CLBASRM6 (OS)"
       ],
       "battleValue": 7,
       "weight": 1,
@@ -7134,6 +7140,7 @@
       "compatibleWeaponIds": [
         "clan-srm-6",
         "srm-6",
+        "basrm6-os",
         "issrm6os-registry",
         "clbasrm6-registry",
         "isbasrm6os-registry"
@@ -7770,7 +7777,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Light Machine Gun Ammo - Proto",
         "Java ammoType:rackSize MG_LIGHT:1",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: ISLMGA, Light Machine Gun"
+        "Unrepresented compatible Java weapons: ISLMGA"
       ],
       "battleValue": 1,
       "weight": 1,
@@ -7782,7 +7789,11 @@
       "shotsPerTon": 200,
       "kgPerShot": 5,
       "isExplosive": true,
-      "compatibleWeaponIds": ["lmga", "clan-light-machine-gun"]
+      "compatibleWeaponIds": [
+        "lmga",
+        "clan-light-machine-gun",
+        "light-machine-gun"
+      ]
     },
     "java": {
       "javaClass": "megamek.common.equipment.AmmoType",
@@ -11107,7 +11118,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo LRM-10 Artemis-capable",
         "Java ammoType:rackSize LRM:10",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: LRM 10 (I-OS), LRM 10 (OS), CLLRM10 (IOS)"
+        "Unrepresented compatible Java weapons: LRM 10 (I-OS), CLLRM10 (IOS)"
       ],
       "battleValue": 11,
       "weight": 1,
@@ -11177,7 +11188,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo LRM-10 Narc-capable",
         "Java ammoType:rackSize LRM:10",
         "Java munitions: M_NARC_CAPABLE",
-        "Unrepresented compatible Java weapons: LRM 10 (I-OS), LRM 10 (OS), CLLRM10 (IOS)"
+        "Unrepresented compatible Java weapons: LRM 10 (I-OS), CLLRM10 (IOS)"
       ],
       "battleValue": 11,
       "weight": 1,
@@ -11247,7 +11258,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo LRM-15 Artemis-capable",
         "Java ammoType:rackSize LRM:15",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: LRM 15 (I-OS), LRM 15 (OS), CLLRM15 (IOS)"
+        "Unrepresented compatible Java weapons: LRM 15 (I-OS), CLLRM15 (IOS)"
       ],
       "battleValue": 17,
       "weight": 1,
@@ -11317,7 +11328,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo LRM-20 Artemis-capable",
         "Java ammoType:rackSize LRM:20",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: LRM 20 (I-OS), LRM 20 (OS), CLLRM20 (IOS)"
+        "Unrepresented compatible Java weapons: LRM 20 (I-OS), CLLRM20 (IOS)"
       ],
       "battleValue": 23,
       "weight": 1,
@@ -11387,7 +11398,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo LRM-5 Artemis-capable",
         "Java ammoType:rackSize LRM:5",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: LRM 5 (I-OS), LRM 5 (OS), CLLRM5 (IOS), CLLRM5 (OS), ISBALRM5OS, CLBALRM5 (OS)"
+        "Unrepresented compatible Java weapons: LRM 5 (I-OS), CLLRM5 (IOS), ISBALRM5OS, CLBALRM5 (OS)"
       ],
       "battleValue": 6,
       "weight": 1,
@@ -11402,6 +11413,7 @@
       "compatibleWeaponIds": [
         "lrm-5",
         "clan-lrm-5",
+        "balrm5-os",
         "isbalrm5-registry",
         "clbalrm5-registry"
       ]
@@ -12648,7 +12660,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo SRM-2 Narc-capable",
         "Java ammoType:rackSize SRM:2",
         "Java munitions: M_NARC_CAPABLE",
-        "Unrepresented compatible Java weapons: ISSRM2OS, CLSRM2 (IOS), CLSRM2 (OS), CLBASRM2 (OS)"
+        "Unrepresented compatible Java weapons: ISSRM2OS, CLSRM2 (IOS), CLBASRM2 (OS)"
       ],
       "battleValue": 3,
       "weight": 1,
@@ -12664,6 +12676,7 @@
         "srm-2",
         "clan-srm-2",
         "issrm2ios-registry",
+        "basrm2-os",
         "isbasrm2-registry",
         "clbasrm2-registry",
         "isbasrm2os-registry"
@@ -12729,7 +12742,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo SRM-4 Artemis-capable",
         "Java ammoType:rackSize SRM:4",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: CLSRM4 (IOS), CLSRM4 (OS), CLBASRM4 (OS)"
+        "Unrepresented compatible Java weapons: CLSRM4 (IOS), CLBASRM4 (OS)"
       ],
       "battleValue": 5,
       "weight": 1,
@@ -12746,6 +12759,7 @@
         "clan-srm-4",
         "issrm4ios-registry",
         "issrm4os-registry",
+        "basrm4-os",
         "isbasrm4-registry",
         "clbasrm4-registry",
         "isbasrm4os-registry"
@@ -12811,7 +12825,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo SRM-4 Narc-capable",
         "Java ammoType:rackSize SRM:4",
         "Java munitions: M_NARC_CAPABLE",
-        "Unrepresented compatible Java weapons: CLSRM4 (IOS), CLSRM4 (OS), CLBASRM4 (OS)"
+        "Unrepresented compatible Java weapons: CLSRM4 (IOS), CLBASRM4 (OS)"
       ],
       "battleValue": 5,
       "weight": 1,
@@ -12828,6 +12842,7 @@
         "clan-srm-4",
         "issrm4ios-registry",
         "issrm4os-registry",
+        "basrm4-os",
         "isbasrm4-registry",
         "clbasrm4-registry",
         "isbasrm4os-registry"
@@ -12893,7 +12908,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo SRM-6 Artemis-capable",
         "Java ammoType:rackSize SRM:6",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: ISSRM6IOS, CLSRM6 (IOS), CLSRM6 (OS), ISBASRM6, CLBASRM6 (OS)"
+        "Unrepresented compatible Java weapons: ISSRM6IOS, CLSRM6 (IOS), ISBASRM6, CLBASRM6 (OS)"
       ],
       "battleValue": 7,
       "weight": 1,
@@ -12909,6 +12924,7 @@
         "srm-6",
         "clan-srm-6",
         "issrm6os-registry",
+        "basrm6-os",
         "clbasrm6-registry",
         "isbasrm6os-registry"
       ]
@@ -12973,7 +12989,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo SRM-6 Narc-capable",
         "Java ammoType:rackSize SRM:6",
         "Java munitions: M_NARC_CAPABLE",
-        "Unrepresented compatible Java weapons: ISSRM6IOS, CLSRM6 (IOS), CLSRM6 (OS), ISBASRM6, CLBASRM6 (OS)"
+        "Unrepresented compatible Java weapons: ISSRM6IOS, CLSRM6 (IOS), ISBASRM6, CLBASRM6 (OS)"
       ],
       "battleValue": 7,
       "weight": 1,
@@ -12989,6 +13005,7 @@
         "srm-6",
         "clan-srm-6",
         "issrm6os-registry",
+        "basrm6-os",
         "clbasrm6-registry",
         "isbasrm6os-registry"
       ]

@@ -670,7 +670,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 23,
     "id": "clan-rac-5",
-    "sha256": "9e0317d7303ed02447253ed110b717b9dc83084d293f393c06d91e7483da8cf7",
+    "sha256": "dd42bc0601c4efcb01fe23a07f35a81f98729c6dc4ba4962e297b45421a3f29a",
     "item": {
       "id": "clan-rac-5",
       "name": "Rotary AC/5 (Clan)",
@@ -691,7 +691,7 @@
       "ammoPerTon": 20,
       "costCBills": 275000,
       "battleValue": 345,
-      "introductionYear": 3104,
+      "introductionYear": 3073,
       "special": ["Can fire 1-6 shots"]
     }
   },
@@ -879,7 +879,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 30,
     "id": "hyper-velocity-auto-cannon-10",
-    "sha256": "c9f561629ae863c98f1babf76ab934b8e3dfb45a2e90d01cc41756b7acc7ced3",
+    "sha256": "d7a153a91973e0df551c05f9d2c6621940b1851811665879290f865ad031f1fb",
     "item": {
       "id": "hyper-velocity-auto-cannon-10",
       "name": "HVAC/10",
@@ -900,7 +900,7 @@
       "criticalSlots": 6,
       "costCBills": 230000,
       "battleValue": 158,
-      "introductionYear": 3079,
+      "introductionYear": 3059,
       "special": []
     }
   },
@@ -1411,7 +1411,7 @@
     "file": "weapons/ballistic-gauss.json",
     "index": 15,
     "id": "improvedheavygaussrifle",
-    "sha256": "534328bf9396e1e5f973540999f9a22265284d362bea7d7c4e70596dd22b7a73",
+    "sha256": "53e57f8b49b218c504f7f4acedbc63507bced49f129c2492a91450d663ef8e04",
     "item": {
       "id": "improvedheavygaussrifle",
       "name": "Improved Heavy Gauss Rifle",
@@ -1432,7 +1432,7 @@
       "criticalSlots": 11,
       "costCBills": 700000,
       "battleValue": 385,
-      "introductionYear": 3081,
+      "introductionYear": 3065,
       "special": []
     }
   },
@@ -6755,7 +6755,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 87,
     "id": "enhanced-lrm-5",
-    "sha256": "8c1a24066a75d0a0b609da8bc3867bfa207b46e2f835c89c38f1e32db8d2963d",
+    "sha256": "271b03478c47789b36e41381b194f6dba190a5a7f345e165cb268d82a63a290d",
     "item": {
       "id": "enhanced-lrm-5",
       "name": "Enhanced LRM 5",
@@ -6777,7 +6777,7 @@
       "ammoPerTon": 24,
       "costCBills": 37500,
       "battleValue": 52,
-      "introductionYear": 3082,
+      "introductionYear": 3058,
       "special": []
     }
   },
@@ -12670,7 +12670,7 @@
     "file": "weapons/energy-laser.json",
     "index": 26,
     "id": "bombast-laser",
-    "sha256": "e57595dfcb764caf03c571b367f438f21a83cde3a7117cc6aa538658ec57257a",
+    "sha256": "ac23657992efec031f178e0b871ce7f9a0fcfc6a3bb49d65dfeaabd7cd8b7f23",
     "item": {
       "id": "bombast-laser",
       "name": "Bombast Laser",
@@ -12690,7 +12690,7 @@
       "criticalSlots": 3,
       "costCBills": 200000,
       "battleValue": 137,
-      "introductionYear": 3085
+      "introductionYear": 3064
     }
   },
   {
@@ -13152,7 +13152,7 @@
     "file": "weapons/energy-laser.json",
     "index": 43,
     "id": "blazer-cannon",
-    "sha256": "e047078aa33fd11ccb15fb9c78c650692c32a7ced072bc9218fb7e8da894e6cf",
+    "sha256": "86a2cbd55455b12ceab7a94c6e13ca88bf3d79ac7e1ba72d28c6af81508cb73a",
     "item": {
       "id": "blazer-cannon",
       "name": "Binary Laser (Blazer) Cannon",
@@ -13172,7 +13172,7 @@
       "criticalSlots": 4,
       "costCBills": 200000,
       "battleValue": 222,
-      "introductionYear": 3077
+      "introductionYear": 2812
     }
   },
   {
@@ -20505,7 +20505,7 @@
     "file": "electronics/ecm.json",
     "index": 2,
     "id": "angel-ecm",
-    "sha256": "a91da1b6e39bceb4b86a6eb6d8332e0d56931884d0900ad68580e7b168d67944",
+    "sha256": "56ca5b8e633484262cb3faacf3ae49a41c47e105b89840075d37cd7033eb2a84",
     "item": {
       "id": "angel-ecm",
       "name": "Angel ECM Suite",
@@ -20516,7 +20516,7 @@
       "criticalSlots": 2,
       "costCBills": 750000,
       "battleValue": 100,
-      "introductionYear": 3080,
+      "introductionYear": 3057,
       "special": ["6 hex ECM bubble", "Enhanced protection vs active probes"]
     }
   },
@@ -20524,7 +20524,7 @@
     "file": "electronics/ecm.json",
     "index": 3,
     "id": "watchdog-cews",
-    "sha256": "6be60dc5bb675fe59420b10d1a89a5ba6669276cee399403985597a992114de2",
+    "sha256": "a6fdf58d39669f0c194294394d872c607329bb6f1193ca9f3b81d68f620ce43e",
     "item": {
       "id": "watchdog-cews",
       "name": "Watchdog CEWS",
@@ -20535,7 +20535,7 @@
       "criticalSlots": 2,
       "costCBills": 600000,
       "battleValue": 68,
-      "introductionYear": 3080,
+      "introductionYear": 3059,
       "special": ["Combined ECM and Active Probe", "4 hex probe range"]
     }
   },
@@ -20642,7 +20642,7 @@
     "file": "electronics/ecm.json",
     "index": 9,
     "id": "watchdog-composite-electronic-warfare-system-cews",
-    "sha256": "ccc47a85e2da016bdc4c3ed2716d28de6e7c8d3b4019c3a0c82089c0ec4e46f6",
+    "sha256": "ff18d871ede192fe7b6ccae3373f90a872bbd95d443b5f9d4210dbff798925c3",
     "item": {
       "id": "watchdog-composite-electronic-warfare-system-cews",
       "name": "Watchdog Composite Electronic Warfare System (CEWS)",
@@ -20653,7 +20653,7 @@
       "criticalSlots": 2,
       "costCBills": 500000,
       "battleValue": 68,
-      "introductionYear": 3080,
+      "introductionYear": 3059,
       "special": []
     }
   },
@@ -21942,7 +21942,7 @@
     "file": "miscellaneous/other.json",
     "index": 12,
     "id": "modulararmor",
-    "sha256": "a4b81c86e1b6dce1f5fb4f9a941eacf9c6052f5d60affb24a29f916df6487ad1",
+    "sha256": "51d48d371f81f05806af40d09e8cd6e5fe1a1c84e67bb2ed96a60a6fde287d97",
     "item": {
       "id": "modulararmor",
       "name": "Modular Armor",
@@ -21953,7 +21953,7 @@
       "criticalSlots": 1,
       "costCBills": 100000,
       "battleValue": 0,
-      "introductionYear": 3096,
+      "introductionYear": 3072,
       "special": []
     }
   },
@@ -24116,7 +24116,7 @@
     "file": "miscellaneous/other.json",
     "index": 124,
     "id": "advanced-fire-control",
-    "sha256": "440490b339cf107546ca8398317a6979b6af9a73464bcb4b4b76cfc0a2aaca6c",
+    "sha256": "8b8606ab2da5375644e1b3bd2543ffefe65db8a178c2d6fc7f0a41d1eaa19615",
     "item": {
       "id": "advanced-fire-control",
       "name": "Advanced Fire Control",
@@ -24127,7 +24127,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2300,
+      "introductionYear": 2100,
       "special": ["Variable weight"]
     }
   },

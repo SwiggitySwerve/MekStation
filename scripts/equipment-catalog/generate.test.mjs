@@ -234,3 +234,49 @@ test('Java ALL technology does not put one-shot launchers ahead of standard ammo
     assert.equal(row.shotsPerTon, shots);
   }
 });
+
+test('cannon ammo retains its exact weapon identity despite separately tracked legacy mass errors', () => {
+  // Pinned SniperCannon.java:76-78 and ThumperCannon.java:76-78;
+  // existing records stay unchanged while their new ammo references them.
+  for (const [id, name, bv, tons, existingTons] of [
+    ['sniper-cannon', 'Sniper Cannon', 77, 15, 20],
+    ['thumper-cannon', 'Thumper Cannon', 41, 10, 15],
+  ]) {
+    const weapon = {
+      internalName: name,
+      name,
+      aliases: [name],
+      tech: 'IS',
+      bv,
+      tons,
+    };
+    const before = [
+      {
+        id,
+        name,
+        battleValue: bv,
+        weight: existingTons,
+        techBase: 'INNER_SPHERE',
+        ranges: { short: 4, medium: 8, long: 12 },
+      },
+    ];
+    const original = JSON.stringify(before);
+    const { items } = generateEntries(
+      [java, weapon],
+      gaps,
+      {
+        ...facts,
+        [java.internalName]: {
+          ...facts[java.internalName],
+          compatible: [name],
+        },
+        [name]: { kind: 'weapons' },
+      },
+      lookups,
+      before,
+      { [name]: id },
+    );
+    assert.deepEqual(items[0].entry.compatibleWeaponIds, [id]);
+    assert.equal(JSON.stringify(before), original);
+  }
+});

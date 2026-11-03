@@ -117,8 +117,15 @@ function resolveCandidate(
 
 function legacyDefinition(
   item: IEquipmentItem | undefined,
+  request?: string,
 ): IEquipmentItem | undefined {
-  return item && isLegacyEquipmentId(item.id) ? item : undefined;
+  return item &&
+    isLegacyEquipmentId(item.id) &&
+    (!request ||
+      isAmmunitionEquipmentId(request) ===
+        (item.category === EquipmentCategory.AMMUNITION))
+    ? item
+    : undefined;
 }
 function buildEquipmentVariantCandidates(
   normalizedId: string,
@@ -208,7 +215,10 @@ function resolveRegistryLookupToken(token: string): IResolvedEquipment | null {
   }
 
   const resolvedId = lookupResult.equipment.id;
-  const resolvedEquipment = getEquipmentLookupService().getById(resolvedId);
+  const resolvedEquipment = legacyDefinition(
+    getEquipmentLookupService().getById(resolvedId),
+    token,
+  );
 
   return resolveCandidate(resolvedEquipment, resolvedId);
 }
@@ -285,17 +295,16 @@ export function resolveEquipmentId(
 ): IResolvedEquipment {
   const previous = resolveLegacyEquipmentId(id, unitTechBase, mode, slots);
   const target = normalizeCatalogEquipmentId(id);
-  const imported = isRegistryEquipment(target)
-    ? getEquipmentLookupService().getById(target)
+  const lookup = getEquipmentLookupService();
+  const added = isRegistryEquipment(target)
+    ? lookup.getById(target)
     : undefined;
-  // Preserve the complete original variant/registry fallback chain before importing.
+  // Recovery must retain the legacy ammo/category boundary and exclude imports.
   const registryId = getEquipmentRegistry().lookup(id).equipment?.id;
   const legacy =
     previous.equipmentDef ??
-    legacyDefinition(
-      registryId ? getEquipmentLookupService().getById(registryId) : undefined,
-    );
-  const equipmentDef = preferRegistryEquipment(legacy, imported, id);
+    legacyDefinition(lookup.getById(registryId ?? ''), id);
+  const equipmentDef = preferRegistryEquipment(legacy, added, id);
   return { equipmentDef, resolvedId: equipmentDef?.id ?? previous.resolvedId };
 }
 function resolveLegacyEquipmentId(

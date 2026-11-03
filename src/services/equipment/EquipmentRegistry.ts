@@ -223,7 +223,6 @@ export class EquipmentRegistry {
     this.idToTypeMap.set(id, category);
 
     if (!isLegacyEquipmentId(id)) return;
-
     // Map by name (normalized)
     const normalizedName = this.normalizeName(name);
     this.nameToIdMap.set(normalizedName, id);

@@ -98,7 +98,6 @@ export const AMMUNITION_CATALOG_FILES: readonly CatalogDataFile[] = [
 // so any future drift in `name-mappings.json` (e.g. a non-string value
 // sneaking in via an audit) fails loudly with a Zod issue path.
 export const NAME_MAPPINGS_DATA = parseNameMappings(nameMappings);
-
 // Imported Java identities are exact-only; adding candidates must not change
 // established alias synthesis, prefix stripping or fuzzy consumer fallbacks.
 const registryIds = new Set(

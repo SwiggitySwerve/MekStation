@@ -62,3 +62,6 @@ records from displacing existing Mech/Clan lookups (the original regression was
 BV normalizer, registry and suggestions, hydration, Compendium, MegaMekLab
 conversion, and record sheets. `equipmentCatalogResolution.test.ts` runs the
 merged-main resolution snapshot and exact-id/fallback assertions in ordinary Jest CI.
+UnitLoader registry recovery also preserves the ammunition/non-ammunition
+boundary. Synthetic registry responses in that snapshot guard both category
+directions and reject generated entries from recovery candidates.
