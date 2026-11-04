@@ -405,6 +405,13 @@ Exact registered AmmoType identities select the ammo namespace even when their
 names lack the word ammo (Coolant Pod and ISC3Sensors). Registry metadata,
 not weapon prefix stripping, supplies that classification.
 
+The existing getWeaponLinkBVMultiplier owner includes Prototype (1.1) and
+RISC LPM (1.15), alongside IV/V/Apollo. The legacy Artemis facade retains its
+admission guard. Vehicle and aircraft source mounts share module linking;
+Apollo delegates to its existing owner, and RISC prefers its preceding
+eligible IS non-pulse laser and adds two heat. Mek consumers retain rounding.
+BVCalculator.java:861-877; MekFileParser.java:359-388,424-449,499-528 (48fcb2f64).
+
 Registry-route approval uses the same stripped lookup token as identity
 resolution. Mount qualifiers and rear markers cannot change the underlying
 registered type. The BV boundary uses the existing native IS Streak SRM-2 BV-4, 50-shot
@@ -422,3 +429,7 @@ this does not enable fuzzy matching over registry names. The canonical C3
 sensor launcher alias uses the imported BV-30 MissileWeapon, not C3 Master.
 Obsolete Mek fallback copies are removed. ISC3RemoteSensorLauncher.java:69-80
 at MegaMek pin 48fcb2f64; the imported catalog remains the value owner.
+
+The owner-approved basrm3 value batch corrects only Clan BA SRM-3 BV from
+21 to 30 (CLBASRM3.java:66, MegaMek pin 48fcb2f64). The same frozen CAT-Q2
+baseline row and item hash change exactly; no other catalog value changes.

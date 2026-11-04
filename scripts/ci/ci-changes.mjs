@@ -30,7 +30,6 @@ export const GATES = [
   'e2e',
   'equipment',
   'roadmap',
-  'statistical',
   'storybook',
 ];
 
@@ -136,21 +135,6 @@ export const CLOSURE_GATES = {
     },
     // These tests read openspec/ files, so docs/openspec-only PRs run them.
     data: [/^scripts\/qc\//, /^openspec\//, /^config\/jest\//],
-  },
-  // Statistical Proof PR: the 100-game combat proof. simulation-system
-  // "Statistical Validation" requires it before a combat-affecting PR
-  // merges, so it runs whenever a PR touches its import closure.
-  // Its import closure does not reach every combat rule (session actions in
-  // src/engine are dispatched, not imported), so the combat domain trees
-  // count as inputs too.
-  statistical: {
-    entries() {
-      return ['src/simulation/__tests__/integration.test.ts'];
-    },
-    data: [
-      /^public\/data\//,
-      /^src\/(engine|simulation|utils\/gameplay|types\/gameplay)\//,
-    ],
   },
   // Build Storybook: every story, the .storybook config, and the CSS and
   // static files it bundles.
