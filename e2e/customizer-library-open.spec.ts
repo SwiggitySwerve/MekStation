@@ -686,7 +686,11 @@ for (const viewport of VIEWPORTS) {
               .getByRole('tab', { name: section, exact: true })
               .click();
             await expect(
-              panel.getByRole('heading', { name: 'Hull', exact: true }),
+              panel.getByRole('heading', {
+                name: 'Hull',
+                level: 3,
+                exact: true,
+              }),
             ).toBeVisible();
           }
           await expectNoCapitalEdits(shell);
