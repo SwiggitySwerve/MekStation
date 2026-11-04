@@ -49,7 +49,9 @@ const cases = [
   ['IS LB 2-X AC Ammo', 'is-lb-2-x-ac-ammo-registry'],
   ['IS LB 20-X AC Ammo', 'lb-20-x-ammo'],
   ['IS LB 5-X AC Ammo', 'is-lb-5-x-ac-ammo-registry'],
-  ['IS Streak SRM 2 Ammo', 'streak-srm-ammo'],
+  // Follow-up 89: the generated IS record (AmmoType.java:10617, BV 4, 50 shots)
+  // replaces the generic Streak SRM ammo that stood in for it before CAT-Q2.
+  ['IS Streak SRM 2 Ammo', 'is-streak-srm-2-ammo-registry'],
 ];
 const loader = getEquipmentLoader();
 const registry = getEquipmentRegistry();
