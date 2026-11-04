@@ -78,3 +78,12 @@ export function isDirectFireBVWeapon(id: string): boolean {
     !id.includes('clan-tag')
   );
 }
+
+/** BVCalculator.java:839-856: grouped additions follow arc weighting. */
+export function calculateArcWeaponBV(
+  bv: number,
+  factor: number,
+  addition = 0,
+): number {
+  return bv * factor + addition;
+}

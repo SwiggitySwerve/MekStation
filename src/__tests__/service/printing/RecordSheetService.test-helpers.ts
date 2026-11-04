@@ -282,7 +282,6 @@ describe('RecordSheetService', () => {
 
       // Mock document.createElement
       const originalCreateElement = document.createElement.bind(document);
-      // @ts-expect-error - Mocking createElement for canvas testing
       document.createElement = jest.fn((tag: string) => {
         if (tag === 'canvas') {
           return mockCanvas;
@@ -301,7 +300,6 @@ describe('RecordSheetService', () => {
       const data = service.extractData(unit);
 
       const originalCreateElement = document.createElement.bind(document);
-      // @ts-expect-error - Mocking createElement for canvas testing
       document.createElement = jest.fn((tag: string) => {
         if (tag === 'canvas') {
           return mockCanvas;
@@ -323,7 +321,6 @@ describe('RecordSheetService', () => {
       const data = service.extractData(unit);
 
       const originalCreateElement = document.createElement.bind(document);
-      // @ts-expect-error - Mocking createElement for canvas testing
       document.createElement = jest.fn((tag: string) => {
         if (tag === 'canvas') {
           return mockCanvas;

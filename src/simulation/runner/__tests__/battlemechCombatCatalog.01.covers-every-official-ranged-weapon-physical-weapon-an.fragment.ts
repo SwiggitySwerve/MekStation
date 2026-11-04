@@ -2,6 +2,7 @@ import {
   expectJavaCatalogAddition,
   javaCatalogAdditions,
   javaCatalogAdditionById,
+  javaAdditionRunnerDamage,
 } from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
 
 import type {
@@ -227,13 +228,12 @@ it('maps every official ranged weapon into a non-synthetic AI weapon', () => {
         `${item.id}: numeric damage drift ${item.damage} -> ${aiWeapon.damage}`,
       );
     }
-    if (
-      typeof added?.java.damage === 'number' &&
-      added.java.damage < 0 &&
-      !prototypeDamageByName.has(added.native)
-    ) {
-      // Unprojected variable sentinels remain zero until their combat rules are sourced.
-      expect(aiWeapon.damage).toBe(0);
+    if (typeof added?.java.damage === 'number' && added.java.damage < 0) {
+      // Java sentinels: cluster-table launchers, artillery and the pinned
+      // prototype projectiles carry their handler damage (follow-up 95,
+      // prototype-damage.json); the others still need their own combat
+      // implementation and stay 0.
+      expect(aiWeapon.damage).toBe(javaAdditionRunnerDamage(added));
     } else if (typeof item.damage === 'string' && aiWeapon.damage <= 0) {
       failures.push(`${item.id}: parsed string damage to ${aiWeapon.damage}`);
     }
@@ -407,9 +407,10 @@ it('keeps existing missile damage positive and pins new Java variable-damage gap
           row.kind === 'weapons' &&
           typeof row.java.damage === 'number' &&
           row.java.damage < 0 &&
+          typeof row.values.damage === 'string' &&
           !prototypeDamageByName.has(row.native),
       )
-      .map((row) => [row.values.id, 0]),
+      .map((row) => [String(row.values.id), javaAdditionRunnerDamage(row)]),
   );
   expect(stringDamageResolutions).toEqual({
     ...EXPECTED_STRING_DAMAGE_RESOLUTIONS,
@@ -417,7 +418,9 @@ it('keeps existing missile damage positive and pins new Java variable-damage gap
   });
   expect(
     Object.entries(stringDamageResolutions).every(([id, damage]) =>
-      Object.hasOwn(addedVariable, id) ? damage === 0 : damage > 0,
+      Object.hasOwn(addedVariable, id)
+        ? damage === addedVariable[id]
+        : damage > 0,
     ),
   ).toBe(true);
   expect(resolveCatalogDamage('1/missile', 'lrm-20')).toBe(20);
