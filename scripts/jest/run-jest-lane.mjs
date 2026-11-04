@@ -11,6 +11,9 @@ const perfSensitiveTests = [
   'src/simulation/__tests__/swarm-pilot-skills-batch.test.ts',
   'src/simulation/__tests__/swarm-throughput.test.ts',
   'src/components/gameplay/__tests__/perfBudgets.test.tsx',
+  // Stays in the unit shards for its functional assertions; its broadcast
+  // wall-clock budget is asserted only here (SIMULATION_PERF_ASSERTIONS=true).
+  'src/lib/multiplayer/server/__tests__/fogOfWar.test.ts',
 ];
 
 const lanes = {

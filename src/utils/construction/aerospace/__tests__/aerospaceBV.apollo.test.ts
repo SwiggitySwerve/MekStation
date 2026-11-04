@@ -30,6 +30,18 @@ const mounts = (ids: string[], location = Arc.NOSE) =>
 const pool = (value: IAerospaceBVInput) =>
   calculateAerospaceOffensiveBV(value).weaponFirePoolBV;
 
+it('links a rear-marked MRM and controller at their physical wing', () => {
+  expect(
+    pool(
+      input([
+        { id: 'medium-laser', location: Arc.NOSE },
+        { id: 'mrm-10', location: Arc.LEFT_WING, isRearMounted: true },
+        { id: 'isapollo', location: Arc.LEFT_WING, isRearMounted: true },
+      ]),
+    ),
+  ).toBeCloseTo(87.4, 8);
+});
+
 // MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
 // MekFileParser.java:499-528; BVCalculator.java:860-876;
 // HeatTrackingBVCalculator.java:81-86,111-145.

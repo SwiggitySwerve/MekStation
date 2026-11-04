@@ -353,6 +353,14 @@ export function mapVehicleEquipment(
         };
     return {
       ...identity,
+      ...(identity.equipmentId === item.id
+        ? {}
+        : {
+            sourceIdentity: {
+              sourceId: item.id,
+              resolvedId: identity.equipmentId,
+            },
+          }),
       location,
       ...flags,
       isRearMounted: item.isRearMounted || flags.isRearMounted,

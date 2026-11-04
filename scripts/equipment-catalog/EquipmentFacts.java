@@ -47,6 +47,7 @@ public class EquipmentFacts {
                 row.put("shots", ammo.getShots());
                 row.put("kgPerShot", ammo.getKgPerShot());
                 row.put("usedByProto", protoAmmo.contains(type.getInternalName()));
+                row.put("battleArmor", ammo.hasFlag(AmmoType.F_BATTLEARMOR));
                 row.put("ammoType", ammo.getAmmoType().name());
                 row.put("category", switch (ammo.getAmmoType().name()) {
                     case "AC", "AC_ULTRA", "AC_LBX", "AC_ROTARY", "HYPER_VELOCITY", "RIFLE" -> "Autocannon";

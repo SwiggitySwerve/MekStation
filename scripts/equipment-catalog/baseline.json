@@ -18006,7 +18006,7 @@
     "file": "ammunition/lrm.json",
     "index": 61,
     "id": "ba-ammo-lrm-1",
-    "sha256": "4cdb7bba545207d1675a146766bd296e0a74246bfc0454abe9c99f076e9cac41",
+    "sha256": "8adb894cd9b50368db0b7745b8e69a43e3a2bdb53bdb4a3c7bcbc88d22b4ab23",
     "item": {
       "id": "ba-ammo-lrm-1",
       "name": "BA LRM 1 Ammo",
@@ -18016,6 +18016,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 8.3,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -18029,7 +18030,7 @@
     "file": "ammunition/lrm.json",
     "index": 62,
     "id": "ba-ammo-lrm-2",
-    "sha256": "2dcf199a15555f8efb08756a823a08c2b179f0c85f63b88d220a6e782e321025",
+    "sha256": "8a1f6c4ef1287ad53e6f90b30a249254a06a80c19b965dfaa30cd601d8fdf17d",
     "item": {
       "id": "ba-ammo-lrm-2",
       "name": "BA LRM 2 Ammo",
@@ -18039,6 +18040,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 16.6,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -18052,7 +18054,7 @@
     "file": "ammunition/lrm.json",
     "index": 63,
     "id": "ba-ammo-lrm-3",
-    "sha256": "4195b1cba8c38c9fc36f8b69976be5e2d1ec4670a24bc27d3bf9100babdf94d7",
+    "sha256": "2163c14b18e10f0369791b537854a79a487dd396c804cde2ff425201d05bf1f5",
     "item": {
       "id": "ba-ammo-lrm-3",
       "name": "BA LRM 3 Ammo",
@@ -18062,6 +18064,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 25,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -18075,7 +18078,7 @@
     "file": "ammunition/lrm.json",
     "index": 64,
     "id": "ba-ammo-lrm-4",
-    "sha256": "4132a086d8a6ecb6ae952704e4fb9745518ca896574166ad75adc3c903784a8d",
+    "sha256": "b8d1be5723656a67f04768a896462745c9ef6ba36f621a2f0b5430897bce5cea",
     "item": {
       "id": "ba-ammo-lrm-4",
       "name": "BA LRM 4 Ammo",
@@ -18085,6 +18088,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 33.4,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -18098,7 +18102,7 @@
     "file": "ammunition/lrm.json",
     "index": 65,
     "id": "ba-ammo-lrm-5",
-    "sha256": "98a2d271e70f0521a8e7f71230f388e49b85d84b4ff6162d2c454303e4f9d50d",
+    "sha256": "8c4fdc20e66a03c6af52a204f3b42c28085711cfb3b9793e600fdfdf8736eb9b",
     "item": {
       "id": "ba-ammo-lrm-5",
       "name": "BA LRM 5 Ammo",
@@ -18108,6 +18112,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 41.5,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -18530,7 +18535,7 @@
     "file": "ammunition/mrm.json",
     "index": 5,
     "id": "mrm-1",
-    "sha256": "6ea0de33bd56b3ff0634a9ac03e1aa3d2e17185a1402d595e2f6e556e8947115",
+    "sha256": "dd985e7d1cf3fa1377d6c902f30b4e11c622b0894280b6f064cb54d8e2065032",
     "item": {
       "id": "mrm-1",
       "name": "MRM 1 Ammo",
@@ -18540,6 +18545,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 5,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -18553,7 +18559,7 @@
     "file": "ammunition/mrm.json",
     "index": 6,
     "id": "mrm-2",
-    "sha256": "2044f98eb367b840774e6576586d9f736ab9ca36aea72bbad90d0b56855bb979",
+    "sha256": "097c1b11121b62f7cf53c5a5689de42cf0f791f0a23ca74dab88b094deb1195c",
     "item": {
       "id": "mrm-2",
       "name": "MRM 2 Ammo",
@@ -18563,6 +18569,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 10,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -18576,7 +18583,7 @@
     "file": "ammunition/mrm.json",
     "index": 7,
     "id": "mrm-3",
-    "sha256": "5661124c2dbb24273b686203ecf73a3682b4cc5c850fb16d284e314b1049aa6a",
+    "sha256": "34386b3fbf46c12eb18afe851f1c9e159cc047cf0843a512eb1f9f1eed02afd3",
     "item": {
       "id": "mrm-3",
       "name": "MRM 3 Ammo",
@@ -18586,6 +18593,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 15,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -18599,7 +18607,7 @@
     "file": "ammunition/mrm.json",
     "index": 8,
     "id": "mrm-4",
-    "sha256": "3f56f4b0f1e39ab16c6879d0a3537dd50879d8891181ee0655fcf670fefebfd5",
+    "sha256": "aebebf62aceff36fbe9ba805f99cad1d2b67f7cbd672609f681bdb246b0d8be1",
     "item": {
       "id": "mrm-4",
       "name": "MRM 4 Ammo",
@@ -18609,6 +18617,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 20,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -18622,7 +18631,7 @@
     "file": "ammunition/mrm.json",
     "index": 9,
     "id": "mrm-5",
-    "sha256": "94f564cb235e9ac031730512e86da7d2728be3c16ac5f49c288bfca335cc1263",
+    "sha256": "6c7178f6da774645bd359ef6437547de27248e86da062617fcbcb95f1de4467c",
     "item": {
       "id": "mrm-5",
       "name": "MRM 5 Ammo",
@@ -18632,6 +18641,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 25,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -18831,7 +18841,7 @@
     "file": "ammunition/narc.json",
     "index": 8,
     "id": "compact-narc-ammo",
-    "sha256": "dea95d852b15d190fc20a1441439f027e1fe9718f7c9825513b85d18346f82ef",
+    "sha256": "2376ad4569d54b28244e1f2f8c854fc3ea08f9ad3c54870df96a622d860a7b49",
     "item": {
       "id": "compact-narc-ammo",
       "name": "Compact Narc Ammo",
@@ -18841,6 +18851,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 10,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -20192,7 +20203,7 @@
     "file": "ammunition/srm.json",
     "index": 23,
     "id": "ba-srm1",
-    "sha256": "cd47961268dee52566147b9c1e2b1403c7d7306e1c5b9554e5c00ea79a7b7ee5",
+    "sha256": "e6f0a132e3c0182590a44e1c108c8578c1caa876cdbe2c01526961789f0720cd",
     "item": {
       "id": "ba-srm1",
       "name": "BA SRM 1 Ammo",
@@ -20202,6 +20213,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 10,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -20215,7 +20227,7 @@
     "file": "ammunition/srm.json",
     "index": 24,
     "id": "ba-srm2",
-    "sha256": "8d23fc5867241602a226018809272e7ca279cbe286bcf17c9bc8efe7a53135de",
+    "sha256": "e07ab1adc57eb8989622c57b43608fdb6f872b1519be54a804db313dbfe4e2e9",
     "item": {
       "id": "ba-srm2",
       "name": "BA SRM 2 Ammo",
@@ -20225,6 +20237,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 20,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -20238,7 +20251,7 @@
     "file": "ammunition/srm.json",
     "index": 25,
     "id": "ba-srm3",
-    "sha256": "8b58a1b24aedcb34938275247cc8be6ca19723fc57fe40cae0fb0b8952b96e35",
+    "sha256": "bd8c27caa47c9225feec56674acb4ce5dc2c715f5f17fda1fce9f7e131e9bcaa",
     "item": {
       "id": "ba-srm3",
       "name": "BA SRM 3 Ammo",
@@ -20248,6 +20261,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 30,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -20261,7 +20275,7 @@
     "file": "ammunition/srm.json",
     "index": 26,
     "id": "ba-srm4",
-    "sha256": "d0b33e785b7281b5eeb0da42fc3dff3118e50f49e582cad85324194092073e64",
+    "sha256": "70b9199405de76fa36af9165c0ff8f20521bb4555274bb281e6876561cda5da9",
     "item": {
       "id": "ba-srm4",
       "name": "BA SRM 4 Ammo",
@@ -20271,6 +20285,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 40,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -20284,7 +20299,7 @@
     "file": "ammunition/srm.json",
     "index": 27,
     "id": "ba-srm5",
-    "sha256": "322d216efaa7f07b64e73e087fb1a6eb06acc4bd1bdaf0db46fd26ff37fa84ed",
+    "sha256": "85e7b1bf387c60c5bbfabe6944474bf8154d2505d2b3473b8e74f0f3a77718d3",
     "item": {
       "id": "ba-srm5",
       "name": "BA SRM 5 Ammo",
@@ -20294,6 +20309,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 50,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -20307,7 +20323,7 @@
     "file": "ammunition/srm.json",
     "index": 28,
     "id": "ba-srm6",
-    "sha256": "193acad38d419b214d8b28de696c888de3eca346cb98e7fbb0526d2bbaca482c",
+    "sha256": "d89ecbfcf9f8f9aa98825491063c306869014e1e6d5422f9405479f99fa77e7d",
     "item": {
       "id": "ba-srm6",
       "name": "BA SRM 6 Ammo",
@@ -20317,6 +20333,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 60,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -20330,7 +20347,7 @@
     "file": "ammunition/srm.json",
     "index": 29,
     "id": "ba-advanced-srm-1",
-    "sha256": "78683833e6a3dc399cd5552537024aa02e7a5809b26c4f28ff26fe5c7cc6a702",
+    "sha256": "31899590aa331a68a285b72f7815c6c5bd641acd12b2c2335abe8713411e8692",
     "item": {
       "id": "ba-advanced-srm-1",
       "name": "Advanced SRM 1 Ammo",
@@ -20340,6 +20357,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 10,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -20353,7 +20371,7 @@
     "file": "ammunition/srm.json",
     "index": 30,
     "id": "ba-advanced-srm-2",
-    "sha256": "6a688d274ecb0b9e5f514679d93637140d0ee344b1befdc13973d6ad37853581",
+    "sha256": "df2fb4784cb4c8701de9f1b8f309a73b71fdc2aa48a9cf5b18e9b2760181f124",
     "item": {
       "id": "ba-advanced-srm-2",
       "name": "Advanced SRM 2 Ammo",
@@ -20363,6 +20381,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 20,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -20376,7 +20395,7 @@
     "file": "ammunition/srm.json",
     "index": 31,
     "id": "ba-advanced-srm-3",
-    "sha256": "71657011b3dbefdf0942ce3a5611502cdcc4405b4b5aaaa9054d22f235c58fd6",
+    "sha256": "cadbb2f453ab3b727009a40ef1255b98c9b1fd27c07fb90be8b5a691e2611a34",
     "item": {
       "id": "ba-advanced-srm-3",
       "name": "Advanced SRM 3 Ammo",
@@ -20386,6 +20405,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 30,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -20399,7 +20419,7 @@
     "file": "ammunition/srm.json",
     "index": 32,
     "id": "ba-advanced-srm-4",
-    "sha256": "a42461755f749a11d291884d5afa6fc8970bf66cab20e625461cbd75356980d0",
+    "sha256": "2d6bc9efc5d89db592f273fc24528219f63785843b846e6ce363441d924f67db",
     "item": {
       "id": "ba-advanced-srm-4",
       "name": "Advanced SRM 4 Ammo",
@@ -20409,6 +20429,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 40,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -20422,7 +20443,7 @@
     "file": "ammunition/srm.json",
     "index": 33,
     "id": "ba-advanced-srm-5",
-    "sha256": "22e0791ce517e4d9054525179fe5e8c34c31f4b177f4d170ec4140989384db6d",
+    "sha256": "d7e971903b3dbc7935456daf671ad3f65bd899b50cfb7148167b343659be8dac",
     "item": {
       "id": "ba-advanced-srm-5",
       "name": "Advanced SRM 5 Ammo",
@@ -20432,6 +20453,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 50,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -20445,7 +20467,7 @@
     "file": "ammunition/srm.json",
     "index": 34,
     "id": "ba-advanced-srm-6",
-    "sha256": "06dc86c6b01228a08d89dcfb554e37b8df8cf8c6847452c8287ae93e9a7a8339",
+    "sha256": "9a2b5fbb52121eeb863fd8bab4e798a02a25f13e3220bc3a9ecba6a252179972",
     "item": {
       "id": "ba-advanced-srm-6",
       "name": "Advanced SRM 6 Ammo",
@@ -20455,6 +20477,7 @@
       "rulesLevel": "UNOFFICIAL",
       "compatibleWeaponIds": [],
       "shotsPerTon": 1,
+      "kgPerShot": 60,
       "weight": 1,
       "criticalSlots": 1,
       "costPerTon": 0,
@@ -27455,7 +27478,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 255,
+    "index": 274,
     "id": "alamomissile-registry",
     "sha256": "cfe240a775dabbd8a2dc46f0b146f6e7b282e0dbc86aeb723087ba112c8181dc",
     "item": {
@@ -27486,7 +27509,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 256,
+    "index": 275,
     "id": "capital-missile-launcher-kraken-registry",
     "sha256": "ae2c241f05afa29b16c8095e3ab45720ed79e65f2d94441184f55e50ab3cd7e3",
     "item": {
@@ -27517,7 +27540,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 257,
+    "index": 276,
     "id": "naval-gauss-heavy-registry",
     "sha256": "73618b1b2241e0439a394ca9f35c380c10fa5732111a101b5c0b70790f180096",
     "item": {
@@ -27558,7 +27581,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 258,
+    "index": 277,
     "id": "naval-gauss-light-registry",
     "sha256": "83dec15b4fb4c0101a1c59e49010f7e494145713867748ab0fbfd4796e6d5ed9",
     "item": {
@@ -27599,7 +27622,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 259,
+    "index": 278,
     "id": "naval-gauss-medium-registry",
     "sha256": "9974b7026b3f8e256bc434742c212d65b063a67454f44b9fd9d64c950ea35a86",
     "item": {
@@ -27640,7 +27663,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 260,
+    "index": 279,
     "id": "tele-operated-missile-barracuda-t-registry",
     "sha256": "2cf8378d98761afe449c0648f6a2fe9415948b134a1ccbe34083a39a317664e6",
     "item": {
@@ -27671,7 +27694,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 261,
+    "index": 280,
     "id": "tele-operated-missile-white-shark-t-registry",
     "sha256": "1a108620d91fed7a8bad4d52043b9a44c5765bb11e566292345ffe09f007f0e3",
     "item": {
@@ -28338,7 +28361,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 262,
+    "index": 281,
     "id": "autocannon-2p-registry",
     "sha256": "7368869373f9982fed74a7a9e85b368953b09c48d9cca04aa08438abb8946b6d",
     "item": {
@@ -28384,7 +28407,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 263,
+    "index": 282,
     "id": "bombrlp-registry",
     "sha256": "df6d5acbf8adfd218c5b3810963dcd4cf112feb69dc629f165f193fb32cbffd4",
     "item": {
@@ -28424,7 +28447,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 264,
+    "index": 283,
     "id": "clersmalllaserprototype-registry",
     "sha256": "06f9f4c447dacd51762747068112c4d9442958b48534148e456d891d348e95f4",
     "item": {
@@ -28471,7 +28494,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 265,
+    "index": 284,
     "id": "cllbxac20prototype-registry",
     "sha256": "41d757862352b52546d63e8f2f8fd6c66b6c7ae93971896a2c37b02f7a66bd2c",
     "item": {
@@ -28518,7 +28541,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 266,
+    "index": 285,
     "id": "cllbxac2prototype-registry",
     "sha256": "1812a2e7d7aecaf716dce89fd693607f1ccf2a25936e987de2de2585b8792ca3",
     "item": {
@@ -28565,7 +28588,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 267,
+    "index": 286,
     "id": "cllbxac5prototype-registry",
     "sha256": "c083d2c2d7fc01f94c8849dacd607fc549d51416471b258304e6c60521ece237",
     "item": {
@@ -28612,7 +28635,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 268,
+    "index": 287,
     "id": "clstreaksrm4prototype-registry",
     "sha256": "73215d376c646bb5fdeb81d8d8daae01530d6cfe0b05297b2983522f8d73606a",
     "item": {
@@ -28660,7 +28683,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 269,
+    "index": 288,
     "id": "clstreaksrm6prototype-registry",
     "sha256": "269a43469710db9eeb32b2e2d6ab306701c235ba950376a29f528001d3c29e47",
     "item": {
@@ -28708,7 +28731,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 270,
+    "index": 289,
     "id": "clultraac10prototype-registry",
     "sha256": "bac49a251a5c0a0c315ae99a509a3da036f6aae1fdc40142ff06332364eb1d19",
     "item": {
@@ -28755,7 +28778,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 271,
+    "index": 290,
     "id": "clultraac20prototype-registry",
     "sha256": "83f87976dcfd423d8059cd6d9a87ef3d0b7ff07d615b9f70d25130a8e4af5c19",
     "item": {
@@ -28802,7 +28825,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 272,
+    "index": 291,
     "id": "clultraac2prototype-registry",
     "sha256": "8749f9ac4ca98a554d4c29bcce30e038e8e2d349b7564916c6ce1f88fa472f69",
     "item": {
@@ -28850,7 +28873,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 273,
+    "index": 292,
     "id": "iserlargelaserprototype-registry",
     "sha256": "e5d8de6cf6760a0c18f559bf29d5c9f7ab693e8b12d0b64f778e8d2e51e4a0ae",
     "item": {
@@ -28898,7 +28921,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 274,
+    "index": 293,
     "id": "isgaussrifleprototype-registry",
     "sha256": "ca9ae3b5e538da2c75f883183d63fce782bb2a90eaf3e8073fbf7c10f17f03a6",
     "item": {
@@ -28947,7 +28970,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 275,
+    "index": 294,
     "id": "islbxac10prototype-registry",
     "sha256": "f4b3fafe94efb19de0afb005b619f9a38dae4847dd05d4252701fbbb95ad2279",
     "item": {
@@ -28996,7 +29019,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 276,
+    "index": 295,
     "id": "islargepulselaserprototype-registry",
     "sha256": "01f6406b1ea753a350baa80aa6af926f2328b9fe6e658dad9c3211c0e5402d97",
     "item": {
@@ -29044,7 +29067,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 277,
+    "index": 296,
     "id": "ismediumpulselaserprototype-registry",
     "sha256": "d5d0d6b8826573da36b0b7a70766bce7889f4d85c0137b04f70825fb94999ebc",
     "item": {
@@ -29092,7 +29115,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 278,
+    "index": 297,
     "id": "ismediumpulselaserrecovered-registry",
     "sha256": "d848d268313af24ea8ea509da95dae196b4b92be66ee0537a5f56f84d5e00446",
     "item": {
@@ -29140,7 +29163,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 279,
+    "index": 298,
     "id": "isnarcbeaconprototype-registry",
     "sha256": "66c085f2726a2a1921631158fc3b6de65bf7fefad7c554c66be9323a03dbc3a0",
     "item": {
@@ -29188,7 +29211,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 280,
+    "index": 299,
     "id": "isprimitivelongtom-registry",
     "sha256": "07d41359b946493a30efb2e54f08773cab2f21c3f4d928ad7359e71cd1438846",
     "item": {
@@ -29235,7 +29258,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 281,
+    "index": 300,
     "id": "isprototypetag-registry",
     "sha256": "17e4be8a7b1652afc483fb962298c2e18505b0ef24132b2e37e8ca65dea8fb27",
     "item": {
@@ -29282,7 +29305,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 282,
+    "index": 301,
     "id": "issmallpulselaserprototype-registry",
     "sha256": "5b86ddd888e39cf4fbdfe3f850a06be58e2b42b06d3c011a883628a86ff6d5b0",
     "item": {
@@ -29330,7 +29353,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 283,
+    "index": 302,
     "id": "primitive-prototype-lrm-10-registry",
     "sha256": "ed35fb1b2fe8ae802853b9e598e062ddb0fa5b17d7c9cd67e99e9be08b62174e",
     "item": {
@@ -29377,7 +29400,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 284,
+    "index": 303,
     "id": "primitive-prototype-lrm-15-registry",
     "sha256": "5e709be01e3c5575368e0641c038ea41f55cfe8b6176c5658bd3354b39741c86",
     "item": {
@@ -29424,7 +29447,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 285,
+    "index": 304,
     "id": "primitive-prototype-lrm-20-registry",
     "sha256": "6ccde97aff6bcf3c653fcaa6d292df858e18b385803c66c56122b273d61fa0ce",
     "item": {
@@ -29471,7 +29494,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 286,
+    "index": 305,
     "id": "primitive-prototype-lrm-5-registry",
     "sha256": "31bc5ce2274922a17dfe5d85733a41154b064edb4c4baf2da1c8b46e3a869ddb",
     "item": {
@@ -29518,7 +29541,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 287,
+    "index": 306,
     "id": "primitive-prototype-large-laser-registry",
     "sha256": "612c2c932d0a3adbab581902886880d1ab1c98727c97c4d211ff8368237755c8",
     "item": {
@@ -29565,7 +29588,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 288,
+    "index": 307,
     "id": "primitive-prototype-medium-laser-registry",
     "sha256": "3ec2f6809d7dd71734f201dfba1f49e74497ddddd07bfd78d6e5b58a9a0e33ad",
     "item": {
@@ -29612,7 +29635,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 289,
+    "index": 308,
     "id": "primitive-prototype-ppc-registry",
     "sha256": "83749eb11bf607e8e5d1769a87e1f2c00375d0e4e3823adb459e96128feafcf4",
     "item": {
@@ -29659,7 +29682,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 290,
+    "index": 309,
     "id": "primitive-prototype-srm-2-registry",
     "sha256": "4350a0a0778fde5da75d8624a33c8d915324392b8fd6d7796a4b2f732900be72",
     "item": {
@@ -29706,7 +29729,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 291,
+    "index": 310,
     "id": "primitive-prototype-srm-4-registry",
     "sha256": "0fa8c3e4fad4790dac9df063a7dbc3d87a9c67add4c6254146107feb4ee089f5",
     "item": {
@@ -29753,7 +29776,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 292,
+    "index": 311,
     "id": "primitive-prototype-srm-6-registry",
     "sha256": "96142da7a0057a8ee1a66236924cca688cc02da4f1e65a089ad66f6ee1922740",
     "item": {
@@ -29800,7 +29823,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 293,
+    "index": 312,
     "id": "primitive-prototype-small-laser-registry",
     "sha256": "4a9fc9251cd4c38685d9f4c8a5d3aeed332a2ee9d7b0e8edb543ba290c9cad9e",
     "item": {
@@ -29847,7 +29870,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 294,
+    "index": 313,
     "id": "prototypearrowiv-registry",
     "sha256": "71d67cf72c3ad27f804beef0197dd35ed5750a4d0f478e493d9543f10ff80f6b",
     "item": {

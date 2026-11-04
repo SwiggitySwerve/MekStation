@@ -434,6 +434,166 @@ export const APPROVED_JAVA_REROUTES = [
     reason: 'Follow-up 92 slice 4; mapper tag form of the route above',
     tagForm: true,
   })),
+  // Follow-up 92 slice 5: one-shot launchers and one-off names resolved to stand-in records.
+  ...[
+    [
+      'lrm-5-i-os-registry',
+      'lrm5-ios',
+      'weapons/lrms/innerSphere/oneShot/ISLRM5IOS.java:56',
+      ['LRM 5 (I-OS)'],
+    ],
+    [
+      'lrm-10-i-os-registry',
+      'lrm10-ios',
+      'weapons/lrms/innerSphere/oneShot/ISLRM10IOS.java:56',
+      ['LRM 10 (I-OS)'],
+    ],
+    [
+      'lrm-15-i-os-registry',
+      'lrm15-ios',
+      'weapons/lrms/innerSphere/oneShot/ISLRM15IOS.java:56',
+      ['LRM 15 (I-OS)'],
+    ],
+    [
+      'lrm-20-i-os-registry',
+      'lrm20-ios',
+      'weapons/lrms/innerSphere/oneShot/ISLRM20IOS.java:56',
+      ['LRM 20 (I-OS)'],
+    ],
+    [
+      'cllrm2os-registry',
+      'balrm2os',
+      'weapons/lrms/clan/oneShot/CLLRM2OS.java:57',
+      ['LRM 2 (OS)'],
+    ],
+    [
+      'cllrm3os-registry',
+      'balrm3os',
+      'weapons/lrms/clan/oneShot/CLLRM3OS.java:57',
+      ['LRM 3 (OS)'],
+    ],
+    [
+      'cllrm4os-registry',
+      'balrm4os',
+      'weapons/lrms/clan/oneShot/CLLRM4OS.java:57',
+      ['LRM 4 (OS)'],
+    ],
+    [
+      'cllrm5-os-registry',
+      'balrm5-os',
+      'weapons/lrms/clan/oneShot/CLLRM5OS.java:56',
+      ['Clan LRM 5 (OS)'],
+    ],
+    [
+      'clsrm2-os-registry',
+      'basrm2-os',
+      'weapons/srms/clan/oneShot/CLSRM2OS.java:63',
+      ['Clan SRM 2 (OS)'],
+    ],
+    [
+      'clsrm4-os-registry',
+      'basrm4-os',
+      'weapons/srms/clan/oneShot/CLSRM4OS.java:63',
+      ['Clan SRM 4 (OS)'],
+    ],
+    [
+      'clsrm6-os-registry',
+      'basrm6-os',
+      'weapons/srms/clan/oneShot/CLSRM6OS.java:63',
+      ['Clan SRM 6 (OS)'],
+    ],
+    [
+      'clsrm1os-registry',
+      'basrm1os',
+      'weapons/srms/clan/oneShot/CLSRM1OS.java:64',
+      ['SRM 1 (OS)'],
+    ],
+    [
+      'clsrm3os-registry',
+      'basrm3-os',
+      'weapons/srms/clan/oneShot/CLSRM3OS.java:64',
+      ['SRM 3 (OS)'],
+    ],
+    [
+      'clsrm5os-registry',
+      'basrm5os',
+      'weapons/srms/clan/oneShot/CLSRM5OS.java:64',
+      ['SRM 5 (OS)'],
+    ],
+    [
+      'issrm6ios-registry',
+      'srm6-ios',
+      'weapons/srms/innerSphere/oneShot/ISSRM6IOS.java:57',
+      ['SRM 6 (I-OS)'],
+    ],
+    [
+      'isstreaksrm2ios-registry',
+      'streaksrm2-ios',
+      'weapons/srms/innerSphere/streak/oneShot/ISStreakSRM2IOS.java:58',
+      ['Streak SRM 2 (I-OS)'],
+    ],
+    [
+      'isstreaksrm4ios-registry',
+      'streaksrm4-ios',
+      'weapons/srms/innerSphere/streak/oneShot/ISStreakSRM4IOS.java:57',
+      ['Streak SRM 4 (I-OS)'],
+    ],
+    [
+      'isstreaksrm6ios-registry',
+      'streaksrm6-ios',
+      'weapons/srms/innerSphere/streak/oneShot/ISStreakSRM6IOS.java:57',
+      ['Streak SRM 6 (I-OS)'],
+    ],
+    [
+      'isc3remotesensorlauncher-registry',
+      'c3-master',
+      'weapons/c3/ISC3RemoteSensorLauncher.java:70',
+      ['ISC3RemoteSensorLauncher'],
+    ],
+  ].flatMap(([newTarget, oldTarget, source, names]) =>
+    names.map((name) => ({
+      name,
+      oldTarget,
+      newTarget,
+      reason: `Follow-up 92 slice 5; pinned 48fcb2f6 ${source}`,
+      weapon: true,
+    })),
+  ),
+  // EquipmentNameMapper's tech-tag form; Java's CLAN lookup is the same item.
+  ...[
+    ['LRM 10 (I-OS) (Clan)', 'lrm10-ios', 'lrm-10-i-os-registry'],
+    ['LRM 15 (I-OS) (Clan)', 'lrm15-ios', 'lrm-15-i-os-registry'],
+    ['LRM 2 (OS) (Clan)', 'balrm2os', 'cllrm2os-registry'],
+    ['LRM 20 (I-OS) (Clan)', 'lrm20-ios', 'lrm-20-i-os-registry'],
+    ['LRM 3 (OS) (Clan)', 'balrm3os', 'cllrm3os-registry'],
+    ['LRM 4 (OS) (Clan)', 'balrm4os', 'cllrm4os-registry'],
+    ['LRM 5 (I-OS) (Clan)', 'lrm5-ios', 'lrm-5-i-os-registry'],
+    ['SRM 1 (OS) (Clan)', 'basrm1os', 'clsrm1os-registry'],
+    ['SRM 3 (OS) (Clan)', 'basrm3-os', 'clsrm3os-registry'],
+    ['SRM 5 (OS) (Clan)', 'basrm5os', 'clsrm5os-registry'],
+    ['SRM 6 (I-OS) (Clan)', 'srm6-ios', 'issrm6ios-registry'],
+    [
+      'Streak SRM 2 (I-OS) (Clan)',
+      'streaksrm2-ios',
+      'isstreaksrm2ios-registry',
+    ],
+    [
+      'Streak SRM 4 (I-OS) (Clan)',
+      'streaksrm4-ios',
+      'isstreaksrm4ios-registry',
+    ],
+    [
+      'Streak SRM 6 (I-OS) (Clan)',
+      'streaksrm6-ios',
+      'isstreaksrm6ios-registry',
+    ],
+  ].map(([name, oldTarget, newTarget]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    reason: 'Follow-up 92 slice 5; mapper tag form of the route above',
+    tagForm: true,
+  })),
 ];
 async function capture(root, inputs) {
   process.chdir(root);

@@ -377,3 +377,9 @@ rear weighting, before TC and heat sorting; linked PPCs gain five heat
 Unlinked capacitors contribute no offense. Legacy Mech/vehicle projections
 retain their distinct unintegrated-capacitor contract in getOffensiveBVRole.
 Enforcement: aerospaceBV.ppcCapacitors.test.ts and the all-family corpus proof.
+
+B-Pods remain weapons when their native display name or converted alias
+contains plural `Pods`. Ammunition names (including Narc/iNarc pods) keep the
+ammo namespace. Existing aliases and native name mappings resolve identity.
+Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
+ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.

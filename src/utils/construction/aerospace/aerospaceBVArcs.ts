@@ -31,6 +31,7 @@ import {
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
 import { getAerospaceDefensiveEquipmentKind } from './aerospaceBVEquipment';
+import { isRearMountedAerospaceEquipment } from './aerospaceMountFlags';
 
 const DIRECT_AEROSPACE_ARCS: ReadonlySet<AerospaceArc> = new Set(
   Object.values(AerospaceArc),
@@ -153,7 +154,9 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     if (getAerospaceDefensiveEquipmentKind(item.id)) continue;
     const location = normalizeArcLocation(item.location, input.subType);
     if (location === null) continue;
-    const arc = location;
+    const arc = isRearMountedAerospaceEquipment(item.id, item.isRearMounted)
+      ? AerospaceArc.AFT
+      : location;
     const entry = getEquipmentEntry(item.id);
     if (entry?.id === 'apollo') {
       apollo.push({ location });

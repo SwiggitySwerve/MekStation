@@ -41,6 +41,7 @@ import {
   type MechLocation,
 } from '../../../utils/construction/battleValueCalculations';
 import { resolveEquipmentBV } from '../../../utils/construction/equipmentBVResolver';
+import { getModularArmorBVPoints } from '../battleValueDefensive';
 import { calculateOffensiveSpeedFactor } from '../battleValueMovement';
 import { buildMechBVWeapons } from './weaponInputs';
 
@@ -64,7 +65,8 @@ export function calculateUnitBV(
   const cs = scanCrits(unit, unitId);
 
   // Modular Armor: each slot adds 10 armor points for BV calculation
-  if (cs.modularArmorSlots > 0) totalArmor += cs.modularArmorSlots * 10;
+  if (cs.modularArmorSlots > 0)
+    totalArmor += getModularArmorBVPoints(cs.modularArmorSlots);
 
   // Interface Cockpit: no gyro, so gyro BV = 0
   if (cs.detectedInterfaceCockpit) gyroType = 'none';
