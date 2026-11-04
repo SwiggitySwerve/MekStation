@@ -433,6 +433,13 @@ export function getNativeAmmoBVGroup(id: string): string | undefined {
     /^(lrm|srm|mml|mrm|atm|iatm|lac|ac|autocannon)(\d+)/,
   );
   return rack
-    ? `${rack[1] === 'autocannon' ? 'AC' : rack[1].toUpperCase()}:${rack[2]}`
+    ? nativeAmmoBVKey(
+        rack[1] === 'autocannon' ? 'AC' : rack[1].toUpperCase(),
+        rack[2],
+      )
     : undefined;
+}
+
+function nativeAmmoBVKey(ammoType: string, rackSize: number | string): string {
+  return `${ammoType}:${rackSize}`;
 }
