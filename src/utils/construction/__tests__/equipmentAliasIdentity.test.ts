@@ -78,3 +78,127 @@ describe('IS BattleArmor LRM/SRM names follow their Java identity (follow-up 92)
     },
   );
 });
+
+describe('IS torpedo names follow their Java identity (follow-up 92)', () => {
+  const cases: Array<[string, string[]]> = [
+    // weapons/srms/innerSphere/torpedo/ISSRT2.java
+    ['srt-2-registry', ['IS SRT 2', 'ISSRT2']],
+    // weapons/srms/innerSphere/torpedo/ISSRT4.java
+    ['srt-4-registry', ['IS SRT 4', 'ISSRT4']],
+    // weapons/srms/innerSphere/torpedo/ISSRT6.java
+    ['srt-6-registry', ['IS SRT 6', 'ISSRT6']],
+    // weapons/lrms/innerSphere/torpedo/ISLRT10.java
+    ['lrt-10-registry', ['ISLRTorpedo10']],
+    // weapons/lrms/innerSphere/torpedo/ISLRT15.java
+    ['lrt-15-registry', ['ISLRTorpedo15']],
+    // weapons/lrms/innerSphere/torpedo/ISLRT20.java
+    ['lrt-20-registry', ['ISLRTorpedo20']],
+    // weapons/lrms/innerSphere/torpedo/ISLRT5.java
+    ['lrt-5-registry', ['ISLRTorpedo5']],
+    // weapons/lrms/innerSphere/torpedo/oneShot/ISLRT10IOS.java
+    ['lrt-10-i-os-registry', ['LRT 10 (I-OS)']],
+    // weapons/lrms/innerSphere/torpedo/oneShot/ISLRT15IOS.java
+    ['lrt-15-i-os-registry', ['LRT 15 (I-OS)']],
+    // weapons/lrms/innerSphere/torpedo/oneShot/ISLRT20IOS.java
+    ['lrt-20-i-os-registry', ['LRT 20 (I-OS)']],
+    // weapons/lrms/innerSphere/torpedo/oneShot/ISLRT5IOS.java
+    ['lrt-5-i-os-registry', ['LRT 5 (I-OS)']],
+    // weapons/srms/innerSphere/torpedo/oneShot/ISSRT2IOS.java
+    ['issrt2ios-registry', ['SRT 2 (I-OS)']],
+    // weapons/srms/innerSphere/torpedo/oneShot/ISSRT4IOS.java
+    ['issrt4ios-registry', ['SRT 4 (I-OS)']],
+    // weapons/srms/innerSphere/torpedo/oneShot/ISSRT6IOS.java
+    ['issrt6ios-registry', ['SRT 6 (I-OS)']],
+  ];
+  it.each(cases.flatMap(([id, names]) => names.map((name) => [name, id])))(
+    '%s resolves to %s',
+    (name, id) => {
+      expect(getEquipmentEntry(name)?.id).toBe(id);
+    },
+  );
+
+  // Java's CLAN lookup owns a different item for these names (follow-up 93).
+  it.each([
+    ['LRT 10', 'lrtorpedo10'],
+    ['LRT 10 (OS)', 'lrtorpedo10-os'],
+    ['LRT 15', 'lrtorpedo15'],
+    ['LRT 15 (OS)', 'lrtorpedo15-os'],
+    ['LRT 20', 'lrtorpedo20'],
+    ['LRT 20 (OS)', 'lrtorpedo20-os'],
+    ['LRT 5', 'lrtorpedo5'],
+    ['LRT 5 (OS)', 'lrtorpedo5-os'],
+    ['SRT 2', 'srt2'],
+    ['SRT 4', 'srt4'],
+    ['SRT 4 (OS)', 'srt4-os'],
+    ['SRT 6', 'srt6'],
+    ['SRT 6 (OS)', 'srt6-os'],
+  ])('keeps tech-dependent %s on %s', (name, id) => {
+    expect(getEquipmentEntry(name)?.id).toBe(id);
+  });
+});
+
+describe('MRM names follow their Java identity (follow-up 92)', () => {
+  const cases: Array<[string, string[]]> = [
+    // weapons/unofficial/innerSphere/mrm/ISMRM1.java
+    ['mrm-1-registry', ['IS MRM 1', 'ISMRM1', 'MRM 1']],
+    // weapons/unofficial/innerSphere/mrm/ISMRM2.java
+    ['mrm-2-registry', ['IS MRM 2', 'ISMRM2', 'MRM 2']],
+    // weapons/unofficial/innerSphere/mrm/ISMRM3.java
+    ['mrm-3-registry', ['IS MRM 3', 'ISMRM3', 'MRM 3']],
+    // weapons/unofficial/innerSphere/mrm/ISMRM4.java
+    ['mrm-4-registry', ['IS MRM 4', 'ISMRM4', 'MRM 4']],
+    // weapons/unofficial/innerSphere/mrm/ISMRM5.java
+    ['mrm-5-registry', ['IS MRM 5', 'ISMRM5', 'MRM 5']],
+    // weapons/unofficial/innerSphere/mrm/oneShot/ISMRM1OS.java
+    ['mrm-1-os-registry', ['MRM 1 (OS)']],
+    // weapons/unofficial/innerSphere/mrm/oneShot/ISMRM2OS.java
+    ['mrm-2-os-registry', ['MRM 2 (OS)']],
+    // weapons/unofficial/innerSphere/mrm/oneShot/ISMRM3OS.java
+    ['mrm-3-os-registry', ['MRM 3 (OS)']],
+    // weapons/unofficial/innerSphere/mrm/oneShot/ISMRM4OS.java
+    ['mrm-4-os-registry', ['MRM 4 (OS)']],
+    // weapons/unofficial/innerSphere/mrm/oneShot/ISMRM5OS.java
+    ['mrm-5-os-registry', ['MRM 5 (OS)']],
+  ];
+  it.each(cases.flatMap(([id, names]) => names.map((name) => [name, id])))(
+    '%s resolves to %s',
+    (name, id) => {
+      expect(getEquipmentEntry(name)?.id).toBe(id);
+    },
+  );
+
+  // Exact catalog ids win: mrm-1..5 are the MRM ammo records, although Java's
+  // weapon lookup names MRM-1..5 match them case-insensitively.
+  it.each([1, 2, 3, 4, 5])('keeps exact ammo id mrm-%d', (rack) => {
+    expect(getEquipmentEntry(`mrm-${rack}`)?.id).toBe(`mrm-${rack}`);
+    expect(getEquipmentEntry(`MRM-${rack}`)?.id).toBe(`mrm-${rack}`);
+  });
+});
+
+describe('Narc one-shot names follow their Java identity (follow-up 92)', () => {
+  const cases: Array<[string, string[]]> = [
+    // weapons/other/innerSphere/ISNarcIOS.java
+    ['isnarcbeacon-i-os-registry', ['Narc (I-OS)']],
+    // weapons/other/innerSphere/ISNarcOS.java
+    ['isnarcbeacon-os-registry', ['Narc (OS)']],
+  ];
+  it.each(cases.flatMap(([id, names]) => names.map((name) => [name, id])))(
+    '%s resolves to %s',
+    (name, id) => {
+      expect(getEquipmentEntry(name)?.id).toBe(id);
+    },
+  );
+
+  // Left for follow-up 93 (tech-aware routing): Java's CLAN lookup owns a
+  // different item, or an MTF pairs the name with such a display name.
+  it.each([
+    ['Heavy Machine Gun Array', 'hmga'],
+    ['Light Machine Gun Array', 'lmga'],
+    ['Machine Gun Array', 'mga'],
+    ['ISHMGA', 'hmga'],
+    ['ISLMGA', 'lmga'],
+    ['ISMGA', 'mga'],
+  ])('keeps tech-dependent %s on %s', (name, id) => {
+    expect(getEquipmentEntry(name)?.id).toBe(id);
+  });
+});

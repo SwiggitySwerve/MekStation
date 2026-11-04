@@ -1248,6 +1248,14 @@
       "id": "ismagshotgr-ammo-registry"
     },
     {
+      "internalName": "ISNarcBeacon (I-OS)",
+      "id": "isnarcbeacon-i-os-registry"
+    },
+    {
+      "internalName": "ISNarcBeacon (OS)",
+      "id": "isnarcbeacon-os-registry"
+    },
+    {
       "internalName": "ISRISCHyperLaser",
       "id": "isrischyperlaser-registry"
     },
@@ -1268,8 +1276,20 @@
       "id": "issrm6os-registry"
     },
     {
+      "internalName": "ISSRT2IOS",
+      "id": "issrt2ios-registry"
+    },
+    {
       "internalName": "ISSRT2OS",
       "id": "issrt2os-registry"
+    },
+    {
+      "internalName": "ISSRT4IOS",
+      "id": "issrt4ios-registry"
+    },
+    {
+      "internalName": "ISSRT6IOS",
+      "id": "issrt6ios-registry"
     },
     {
       "internalName": "ISSniper",
@@ -1368,6 +1388,38 @@
       "id": "infantrytag-registry"
     },
     {
+      "internalName": "LRT 10",
+      "id": "lrt-10-registry"
+    },
+    {
+      "internalName": "LRT 10 (I-OS)",
+      "id": "lrt-10-i-os-registry"
+    },
+    {
+      "internalName": "LRT 15",
+      "id": "lrt-15-registry"
+    },
+    {
+      "internalName": "LRT 15 (I-OS)",
+      "id": "lrt-15-i-os-registry"
+    },
+    {
+      "internalName": "LRT 20",
+      "id": "lrt-20-registry"
+    },
+    {
+      "internalName": "LRT 20 (I-OS)",
+      "id": "lrt-20-i-os-registry"
+    },
+    {
+      "internalName": "LRT 5",
+      "id": "lrt-5-registry"
+    },
+    {
+      "internalName": "LRT 5 (I-OS)",
+      "id": "lrt-5-i-os-registry"
+    },
+    {
       "internalName": "Laser (Hellbore Assault)",
       "id": "laser-hellbore-assault-registry"
     },
@@ -1438,6 +1490,46 @@
     {
       "internalName": "Lyran Commonwealth Infantry Kit",
       "id": "lyran-commonwealth-infantry-kit-registry"
+    },
+    {
+      "internalName": "MRM 1",
+      "id": "mrm-1-registry"
+    },
+    {
+      "internalName": "MRM 1 (OS)",
+      "id": "mrm-1-os-registry"
+    },
+    {
+      "internalName": "MRM 2",
+      "id": "mrm-2-registry"
+    },
+    {
+      "internalName": "MRM 2 (OS)",
+      "id": "mrm-2-os-registry"
+    },
+    {
+      "internalName": "MRM 3",
+      "id": "mrm-3-registry"
+    },
+    {
+      "internalName": "MRM 3 (OS)",
+      "id": "mrm-3-os-registry"
+    },
+    {
+      "internalName": "MRM 4",
+      "id": "mrm-4-registry"
+    },
+    {
+      "internalName": "MRM 4 (OS)",
+      "id": "mrm-4-os-registry"
+    },
+    {
+      "internalName": "MRM 5",
+      "id": "mrm-5-registry"
+    },
+    {
+      "internalName": "MRM 5 (OS)",
+      "id": "mrm-5-os-registry"
     },
     {
       "internalName": "Machine Gun (Portable)",
@@ -1654,6 +1746,18 @@
     {
       "internalName": "SMG (Gunther MP-20)",
       "id": "smg-gunther-mp-20-registry"
+    },
+    {
+      "internalName": "SRT 2",
+      "id": "srt-2-registry"
+    },
+    {
+      "internalName": "SRT 4",
+      "id": "srt-4-registry"
+    },
+    {
+      "internalName": "SRT 6",
+      "id": "srt-6-registry"
     },
     {
       "internalName": "Screen Launcher",
