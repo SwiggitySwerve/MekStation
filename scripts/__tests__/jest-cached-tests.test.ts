@@ -48,7 +48,7 @@ const lib = require('../jest/cached-tests.js') as {
     keyer: { keyFor: (file: string) => Keyed };
     store: Store;
     execute: (files: string[]) => Promise<Run>;
-    mode: 'use' | 'record';
+    mode: 'use' | 'record' | 'off';
     verifyHits: number;
     seed: string;
   }) => Promise<Report>;
@@ -353,6 +353,85 @@ describe('test result cache key: false-hit regressions', () => {
     expect(keyOf(root, 'src/__tests__/read.test.ts').key).not.toBe(before.key);
   });
 
+  it('refuses a key when a symlink sits inside a data domain it would follow', () => {
+    const root = gitRepo(
+      {
+        'fixtures/value.txt': '1',
+        'src/link.test.ts': [
+          "import * as fs from 'node:fs';",
+          "import * as path from 'node:path';",
+          "test('x', () => fs.readFileSync(path.join(process.cwd(), 'gen', 'link', 'value.txt')));",
+        ].join('\n'),
+      },
+      'gen/\n',
+    );
+    write(root, { 'gen/anchor.txt': 'a' });
+    try {
+      fs.symlinkSync(
+        path.join(root, 'fixtures'),
+        path.join(root, 'gen', 'link'),
+        'junction',
+      );
+    } catch {
+      return; // this platform/user cannot create links: nothing to assert
+    }
+    expect(keyOf(root, 'src/link.test.ts').unkeyable).toMatch(/symlink/);
+  });
+
+  it.each([
+    ['a concatenated literal name', "process.env['FEATURE_' + 'Z']"],
+    [
+      'a const initialised by a concatenation',
+      "const NAME = 'FEATURE_' + 'Z';\nconst v = process.env[NAME];",
+    ],
+    [
+      'an identifier bound twice (shadowing)',
+      "const NAME = 'FEATURE_Z';\nfunction f() { let NAME = 'OTHER'; return process.env[NAME]; }",
+    ],
+    ['a template literal name', 'process.env[`FEATURE_${suffix}`]'],
+  ])('refuses to key process.env read through %s', (_label, body) => {
+    const root = makeRepo({
+      'src/t.test.ts': `${body}\ntest('x', () => {});\n`,
+    });
+    expect(keyOf(root, 'src/t.test.ts').unkeyable).toMatch(/process\.env/);
+  });
+
+  it('keeps Jest option order and the --ci flag in the key', () => {
+    const root = makeRepo({ 'src/a.test.ts': "test('x', () => {});\n" });
+    const index = lib.buildFileIndex(root);
+    const keyWith = (execOptions: string[]) =>
+      lib
+        .createKeyer({ root, index, env: {}, execOptions })
+        .keyFor('src/a.test.ts').key;
+    expect(keyWith(['--a', '--b'])).not.toBe(keyWith(['--b', '--a']));
+    expect(keyWith(['--ci'])).not.toBe(keyWith([]));
+  });
+
+  it('sees an import whose module string follows a line comment', () => {
+    const root = makeRepo({
+      'src/dep.ts': 'export const x = 1;\n',
+      'src/a.test.ts':
+        "import { x } from // note\n  './dep';\ntest('x', () => x);\n",
+    });
+    const before = keyOf(root, 'src/a.test.ts').key;
+    write(root, { 'src/dep.ts': 'export const x = 2;\n' });
+    expect(keyOf(root, 'src/a.test.ts').key).not.toBe(before);
+  });
+
+  it('counts template-literal parent segments when widening a __dirname read', () => {
+    const root = makeRepo({
+      'src/value.txt': '1',
+      'src/__tests__/read.test.ts': [
+        "import * as fs from 'node:fs';",
+        "import * as path from 'node:path';",
+        "test('x', () => fs.readFileSync(path.join(__dirname, `..`, 'value.txt')));",
+      ].join('\n'),
+    });
+    const before = keyOf(root, 'src/__tests__/read.test.ts').key;
+    write(root, { 'src/value.txt': '2' });
+    expect(keyOf(root, 'src/__tests__/read.test.ts').key).not.toBe(before);
+  });
+
   it('keys on the full Node version, not just the major', () => {
     const root = makeRepo({ 'src/a.test.ts': "test('x', () => {});\n" });
     const index = lib.buildFileIndex(root);
@@ -380,16 +459,19 @@ describe('runCached', () => {
     const storeDir = path.join(root, '.cache');
     const calls: string[][] = [];
     const outcome = new Map<string, 'passed' | 'failed'>();
+    // Jest can report every suite as passed and still exit non-zero (obsolete
+    // snapshot under --ci, coverage threshold); `forceExit` simulates that.
+    const knobs = { forceExit: null as number | null };
     const execute = async (run: string[]): Promise<Run> => {
       calls.push(run);
       const results = new Map<string, 'passed' | 'failed'>();
       for (const file of run) results.set(file, outcome.get(file) ?? 'passed');
       const failed = [...results.values()].includes('failed');
-      return { exitCode: failed ? 1 : 0, results };
+      return { exitCode: knobs.forceExit ?? (failed ? 1 : 0), results };
     };
     const go = (
       overrides: Partial<{
-        mode: 'use' | 'record';
+        mode: 'use' | 'record' | 'off';
         verifyHits: number;
         seed: string;
         keyer: { keyFor: (file: string) => Keyed };
@@ -410,7 +492,7 @@ describe('runCached', () => {
         verifyHits: overrides.verifyHits ?? 0,
         seed: overrides.seed ?? 's',
       });
-    return { root, calls, outcome, go };
+    return { root, calls, outcome, knobs, go };
   }
 
   it('skips every file on a second identical run', async () => {
@@ -432,15 +514,19 @@ describe('runCached', () => {
     expect(calls[1].sort()).toEqual(['src/a.test.ts', 'src/b.test.ts']);
   });
 
-  it('never records or skips a file that failed', async () => {
+  it('never records or skips a file that failed, and records nothing from a failing run', async () => {
     const { outcome, calls, go } = setup();
     outcome.set('src/b.test.ts', 'failed');
     const first = await go();
     expect(first.exitCode).toBe(1);
     outcome.delete('src/b.test.ts');
+    // The failing run exited non-zero, so even its passing files were not
+    // recorded (Jest cannot tell us which of them the non-zero exit concerns).
     const second = await go();
-    expect(second).toMatchObject({ hits: 2, executed: 1, exitCode: 0 });
-    expect(calls[1]).toEqual(['src/b.test.ts']);
+    expect(second).toMatchObject({ hits: 0, executed: 3, exitCode: 0 });
+    expect(calls[1]).toEqual(files);
+    // the clean run did record them
+    expect(await go()).toMatchObject({ hits: 3, executed: 0 });
   });
 
   it('record mode runs everything even with hits, and keeps recording', async () => {
@@ -469,12 +555,46 @@ describe('runCached', () => {
     // (a hidden input the key cannot see). Sampling must notice.
     outcome.set('src/c.test.ts', 'failed');
     const report = await go({ verifyHits: 3 });
-    expect(report.stale).toEqual(['src/c.test.ts']);
+    expect(report.stale).toContain('src/c.test.ts');
     expect(report.exitCode).not.toBe(0);
-    // evicted: the next run executes it instead of trusting the stale pass
+    // The verification run exited non-zero, so every sampled entry is evicted
+    // (not only the failing file): the next run executes them all again.
     outcome.delete('src/c.test.ts');
     const next = await go();
-    expect(next).toMatchObject({ hits: 2, executed: 1 });
+    expect(next).toMatchObject({ hits: 0, executed: 3, exitCode: 0 });
+  });
+
+  it('records nothing from a run that exited non-zero, even if every suite reported passed', async () => {
+    const { knobs, go, calls } = setup();
+    knobs.forceExit = 1; // e.g. an obsolete snapshot under --ci
+    const first = await go();
+    expect(first.exitCode).toBe(1);
+    knobs.forceExit = null;
+    const second = await go();
+    expect(second).toMatchObject({ hits: 0, executed: 3, exitCode: 0 });
+    expect(calls).toHaveLength(2);
+  });
+
+  it('treats a verification run that exits non-zero as stale and evicts the sampled entries', async () => {
+    const { knobs, go } = setup();
+    await go(); // recorded
+    knobs.forceExit = 1; // every suite "passes" but the run fails
+    const report = await go({ verifyHits: 2 });
+    expect(report.stale).toHaveLength(2);
+    expect(report.exitCode).not.toBe(0);
+    knobs.forceExit = null;
+    const next = await go();
+    expect(next).toMatchObject({ hits: 1, executed: 2 });
+  });
+
+  it("mode 'off' neither reads nor writes the cache", async () => {
+    const { go } = setup();
+    const off = await go({ mode: 'off' });
+    expect(off).toMatchObject({ hits: 0, executed: 3, exitCode: 0 });
+    // nothing was recorded: a 'use' run now executes everything
+    expect(await go()).toMatchObject({ hits: 0, executed: 3 });
+    // and 'off' ignores entries that exist
+    expect(await go({ mode: 'off' })).toMatchObject({ hits: 0, executed: 3 });
   });
 
   it('fails open: a keying error means the file runs', async () => {
@@ -541,6 +661,25 @@ describe('cache mode and sampling', () => {
       },
       'use',
     ],
+    [
+      {
+        uncached: false,
+        passthrough: ['--ci', '--maxWorkers=4'],
+        env: { GITHUB_EVENT_NAME: 'pull_request' },
+      },
+      'use',
+    ],
+    // options that select extra inputs or change results: not cached at all
+    [
+      {
+        uncached: false,
+        passthrough: ['--setupFilesAfterEnv=./extra.js'],
+        env: {},
+      },
+      'off',
+    ],
+    [{ uncached: false, passthrough: ['--testTimeout=1'], env: {} }, 'off'],
+    [{ uncached: true, passthrough: ['--injectGlobals'], env: {} }, 'off'],
   ])('resolveMode %#', (input, expected) => {
     expect(lib.resolveMode(input)).toBe(expected);
   });

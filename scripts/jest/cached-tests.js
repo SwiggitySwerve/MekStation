@@ -85,10 +85,18 @@ const IGNORED_NOISE_SEGMENTS = new Set([
   'release',
   '.claude',
 ]);
-// Jest options that cannot change what a test file reports; every other option
-// (--testTimeout, -t, --testNamePattern, --bail, ...) is part of the key.
+// Jest options. Only these can be passed through with the cache on:
+//  - KEYED ones change results (--ci changes missing-snapshot behaviour); they
+//    go into the key in the order given;
+//  - NEUTRAL ones cannot change what a test file reports.
+// Any other option (--testTimeout, -t, --setupFilesAfterEnv=..., --injectGlobals,
+// ...) can change a result through inputs the key cannot follow (extra files,
+// order-sensitive flags), so a run that passes one is not cached at all.
+const KEYED_JEST_OPTIONS = /^--ci$/;
 const NEUTRAL_JEST_OPTIONS =
-  /^(?:--ci|--no-coverage|--silent|--verbose|--runInBand|-i|--colors|--no-colors|--maxWorkers(?:=.*)?|--cacheDirectory(?:=.*)?|--shard(?:=.*)?|--json|--outputFile(?:=.*)?)$/;
+  /^(?:--coverage(?:=true)?|--no-coverage|--silent|--verbose|--runInBand|-i|--colors|--no-colors|--maxWorkers=\d+|--cacheDirectory=.*|--json|--outputFile=.*)$/;
+const isUnsupportedJestOption = (arg) =>
+  !KEYED_JEST_OPTIONS.test(arg) && !NEUTRAL_JEST_OPTIONS.test(arg);
 // Source files whose fs reads are known not to touch repo inputs, so they do
 // not force a whole-repo key. Add to this list only with the reason.
 const HERMETIC_FS_READERS = new Set([
@@ -118,14 +126,28 @@ function walk(root, dir, out) {
   })) {
     if (['node_modules', '.git', '.next'].includes(entry.name)) continue;
     const rel = dir ? `${dir}/${entry.name}` : entry.name;
-    if (entry.isDirectory()) walk(root, rel, out);
+    if (entry.isSymbolicLink()) out.symlinks.add(rel);
+    else if (entry.isDirectory()) walk(root, rel, out);
     else if (entry.isFile()) out.set(rel, hashFile(root, rel));
+  }
+}
+
+/** Record `rel` as a symlink when it is one (its target is not followed or keyed). */
+function noteSymlink(root, rel, index) {
+  try {
+    if (fs.lstatSync(path.join(root, rel)).isSymbolicLink())
+      index.symlinks.add(rel);
+  } catch {
+    // vanished between listing and lstat: nothing to note
   }
 }
 
 /** git blob ids for tracked files (no reads), content hashes for dirty ones. */
 function buildFileIndex(root, excludePrefix = null) {
   const index = new Map();
+  // Symlinks are inputs whose targets this index does not follow; a key whose
+  // data domain contains one is refused (see keyFor).
+  index.symlinks = new Set();
   try {
     const git = (args) =>
       execFileSync('git', args, {
@@ -135,8 +157,10 @@ function buildFileIndex(root, excludePrefix = null) {
         stdio: ['ignore', 'pipe', 'ignore'],
       });
     for (const row of git(['ls-files', '-s', '-z']).split('\0')) {
-      const match = /^\d+ ([0-9a-f]+) \d+\t([\s\S]*)$/.exec(row);
-      if (match) index.set(match[2], `git:${match[1]}`);
+      const match = /^(\d+) ([0-9a-f]+) \d+\t([\s\S]*)$/.exec(row);
+      if (!match) continue;
+      index.set(match[3], `git:${match[2]}`);
+      if (match[1] === '120000') index.symlinks.add(match[3]);
     }
     // modified, deleted and untracked-but-not-ignored files
     for (const rel of git([
@@ -147,6 +171,7 @@ function buildFileIndex(root, excludePrefix = null) {
       '-z',
     ]).split('\0')) {
       if (!rel) continue;
+      noteSymlink(root, rel, index);
       const digest = hashFile(root, rel);
       if (digest) index.set(rel, digest);
       else index.delete(rel);
@@ -164,6 +189,7 @@ function buildFileIndex(root, excludePrefix = null) {
     ]).split('\0')) {
       if (!entry) continue;
       if (!entry.endsWith('/')) {
+        noteSymlink(root, entry, index);
         const digest = hashFile(root, entry);
         if (digest) index.set(entry, digest);
       } else if (
@@ -175,6 +201,7 @@ function buildFileIndex(root, excludePrefix = null) {
     if (index.size === 0) throw new Error('empty git index');
   } catch {
     index.clear();
+    index.symlinks.clear();
     walk(root, '', index);
   }
   // The result cache lives in the tree; it must never feed its own keys.
@@ -236,14 +263,44 @@ const FS_READ =
 const FS_EXISTS = /\b(?:statSync|lstatSync|existsSync|accessSync)\b/;
 const CHILD_PROCESS = /child_process|\b(?:execSync|execFileSync|spawnSync)\b/;
 const OWN_DIR = /\b(?:__dirname|__filename)\b/;
-const ENV_NAMED =
-  /process\.env\??\.([A-Za-z_][A-Za-z0-9_]*)|process\.env\[\s*['"]([^'"]+)['"]\s*\]/g;
-// process.env[<expr>] with a non-literal <expr>: the name is only known when
-// <expr> is an identifier bound to a string literal by a `const` in the same
-// file; any other computed read cannot be keyed.
-const ENV_COMPUTED = /process\.env\[\s*([^\]'"][^\]]*?)\s*\]/g;
+const ENV_DOT = /process\.env\??\.([A-Za-z_][A-Za-z0-9_]*)/g;
+const ENV_BRACKET_OPEN = /process\.env(?:\?\.)?\[/g;
 const ENV_BARE = /process\.env(?![.\[\w?])/;
-const PARENT_SEGMENT = /\.\.(?=[\/\\'"])/g;
+// `..` as a path segment, in a quoted or template-literal string
+const PARENT_SEGMENT = /\.\.(?=[\/\\'"`])/g;
+
+/** Text between the `[` that ends at `open` and its matching `]`, or null. */
+function bracketContent(code, open) {
+  let depth = 1;
+  for (let i = open; i < code.length; i += 1) {
+    const ch = code[i];
+    if (ch === '[') depth += 1;
+    else if (ch === ']' && --depth === 0) return code.slice(open, i);
+  }
+  return null;
+}
+
+/**
+ * The string a `const <id> = '<literal>'` binds, only when that is the single
+ * binding of <id> in the file (no let/var/function/class/import of the same
+ * name) and the literal is the whole initializer (`'a' + 'b'` is refused).
+ * Shadowing by a function parameter is not detected.
+ */
+function resolveStringConst(code, id) {
+  const esc = escapeRegex(id);
+  const bindings =
+    code.match(
+      new RegExp(`\\b(?:const|let|var|function|class)\\s+${esc}\\b`, 'g'),
+    ) || [];
+  const imported = new RegExp(
+    `\\bimport\\b[^;]*?\\b${esc}\\b[^;]*?\\bfrom\\b`,
+  ).test(code);
+  if (bindings.length !== 1 || imported) return null;
+  const decl = new RegExp(
+    `\\bconst\\s+${esc}\\s*(?::[^=;]+)?=\\s*(['"])([^'"\\\\\\n]*)\\1\\s*(?=[;\\n,)}]|$)`,
+  ).exec(code);
+  return decl ? decl[2] : null;
+}
 
 /** One matcher per repo top-level name: [regex, prefix to digest]. */
 function buildNameMatchers(index) {
@@ -264,7 +321,9 @@ function analyzeSource(text, rel, nameMatchers) {
   // raw text and text with every block comment removed: the union can only add
   // specs, so neither a comment nor over-stripping can hide an import
   const noBlocks = text.replace(/\/\*[\s\S]*?\*\//g, ' ');
-  for (const source of [text, noBlocks]) {
+  // ... and with line comments removed too, so `from // note \n './dep'` is seen
+  const noComments = noBlocks.replace(/\/\/[^\n]*/g, ' ');
+  for (const source of [text, noBlocks, noComments]) {
     for (const pattern of IMPORT_PATTERNS) {
       for (const match of source.matchAll(pattern)) specs.add(match[1]);
     }
@@ -275,8 +334,7 @@ function analyzeSource(text, rel, nameMatchers) {
     for (const match of code.matchAll(pattern)) codeSpecs.add(match[1]);
   }
   const envNames = new Set();
-  for (const match of text.matchAll(ENV_NAMED))
-    envNames.add(match[1] ?? match[2]);
+  for (const match of text.matchAll(ENV_DOT)) envNames.add(match[1]);
   const usesFs = FS_READ.test(code);
   const tokens = new Set();
   if (usesFs || FS_EXISTS.test(code)) {
@@ -295,15 +353,20 @@ function analyzeSource(text, rel, nameMatchers) {
       tokens.add(kept.length === 0 ? '' : `${kept.join('/')}/`);
     }
   }
+  // Every process.env[<expr>] read must name its variable unambiguously: a lone
+  // string literal, or an identifier bound once to a lone string literal.
   let envUnresolved = false;
-  for (const match of code.matchAll(ENV_COMPUTED)) {
-    const arg = match[1].trim();
-    const decl = /^[A-Za-z_$][\w$]*$/.test(arg)
-      ? new RegExp(
-          `\\bconst\\s+${escapeRegex(arg)}\\s*(?::[^=;]+)?=\\s*['"]([^'"]+)['"]`,
-        ).exec(code)
-      : null;
-    if (decl) envNames.add(decl[1]);
+  for (const match of code.matchAll(ENV_BRACKET_OPEN)) {
+    const arg = (
+      bracketContent(code, match.index + match[0].length) ?? ''
+    ).trim();
+    const literal = /^(['"])([^'"\\\n]+)\1$/.exec(arg);
+    const name = literal
+      ? literal[2]
+      : /^[A-Za-z_$][\w$]*$/.test(arg)
+        ? resolveStringConst(code, arg)
+        : null;
+    if (name) envNames.add(name);
     else envUnresolved = true;
   }
   return {
@@ -384,7 +447,7 @@ function createKeyer({
       v: KEY_VERSION,
       node: nodeVersion, // full version: a patch update can change results
       platform: `${process.platform}-${process.arch}`,
-      execOptions: [...execOptions].sort(),
+      execOptions, // order is significant for some Jest flags
       files: GLOBAL_FILES.map((f) => [f, index.get(f) ?? null]),
       env: [...index.keys()]
         .filter((f) => f.startsWith('.env'))
@@ -435,6 +498,12 @@ function createKeyer({
         why.push(`fs reads but no named directory in ${fsFiles[0]}`);
       }
       const repoWide = why.length > 0;
+      // A symlink inside a data domain points somewhere this key does not follow.
+      const domainPrefixes = repoWide ? [''] : [...domains];
+      for (const link of index.symlinks ?? []) {
+        if (domainPrefixes.some((prefix) => link.startsWith(prefix)))
+          return { unkeyable: `symlink ${link} inside a data domain` };
+      }
 
       const envEntries = [
         ...envNames,
@@ -574,9 +643,17 @@ async function runCached({
   if (misses.length > 0) {
     const run = await execute(misses.map((k) => k.file));
     report.exitCode = run.exitCode;
-    for (const k of misses) {
-      if (k.key && run.results.get(k.file) === 'passed')
-        store.put(k.key, { file: k.file, passedAt: new Date().toISOString() });
+    // Record passes only from a run that exited 0: Jest can report a suite as
+    // passed and still exit 1 (obsolete snapshot under --ci, coverage threshold,
+    // open handles), and a pass from such a run must never be reused.
+    if (run.exitCode === 0 && mode !== 'off') {
+      for (const k of misses) {
+        if (k.key && run.results.get(k.file) === 'passed')
+          store.put(k.key, {
+            file: k.file,
+            passedAt: new Date().toISOString(),
+          });
+      }
     }
     if (run.exitCode !== 0) return report; // a real failure: do not spend time verifying
   }
@@ -592,7 +669,8 @@ async function runCached({
     const rerun = await execute(sample);
     for (const file of sample) {
       report.verified.push(file);
-      if (rerun.results.get(file) !== 'passed') {
+      // A suite reported as passed by a run that exited non-zero is not a pass.
+      if (rerun.exitCode !== 0 || rerun.results.get(file) !== 'passed') {
         report.stale.push(file);
         store.remove(hits.find((k) => k.file === file).key);
       }
@@ -607,7 +685,12 @@ async function runCached({
 // CLI
 // ---------------------------------------------------------------------------
 
+/**
+ * 'use' skips hits; 'record' runs everything but still records passes; 'off'
+ * runs everything and neither reads nor writes the cache.
+ */
 function resolveMode({ uncached, passthrough, env }) {
+  if (passthrough.some(isUnsupportedJestOption)) return 'off';
   if (uncached) return 'record';
   if (env.GITHUB_EVENT_NAME === 'schedule') return 'record';
   if (env.GITHUB_EVENT_NAME === 'push' && env.GITHUB_REF === 'refs/heads/main')
@@ -741,7 +824,7 @@ async function main(argv) {
       index: buildFileIndex(root, cacheRel),
       execOptions: [
         ...values.project.map((project) => `project=${project}`),
-        ...passthrough.filter((arg) => !NEUTRAL_JEST_OPTIONS.test(arg)),
+        ...passthrough.filter((arg) => KEYED_JEST_OPTIONS.test(arg)),
       ],
     });
     report = await runCached({
