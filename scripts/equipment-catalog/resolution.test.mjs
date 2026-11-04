@@ -13,6 +13,17 @@ const option = (flag) => process.argv[process.argv.indexOf(flag) + 1];
 // These five Java identities are the coordinator-approved exceptions. All other
 // previously resolved inputs, including consumer fallback results, are frozen.
 export const APPROVED_JAVA_REROUTES = [
+  ...[
+    ['CLRotaryAC10', 'rotaryac10'],
+    ['mrm-1', 'mrm-1'],
+  ].map(([name, oldTarget]) => ({
+    name,
+    oldTarget,
+    newTarget: null,
+    weapon: true,
+    reason:
+      'Opus G2-O5: pinned WeaponType/AmmoType boundary; unrepresented weapon aliases cannot select ammo',
+  })),
   {
     name: 'IS LB 2-X AC Ammo',
     oldTarget: 'lb-2-x-ammo',
@@ -1019,7 +1030,7 @@ if (process.argv.includes('--capture')) {
       if (route.tagForm) continue;
       assert.equal(
         targetOf(after, 'equipment', route.name),
-        route.newTarget,
+        route.newTarget ?? undefined,
         route.name,
       );
       if (!route.weapon)

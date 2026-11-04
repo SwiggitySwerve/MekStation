@@ -383,3 +383,13 @@ contains plural `Pods`. Ammunition names (including Narc/iNarc pods) keep the
 ammo namespace. Existing aliases and native name mappings resolve identity.
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
 ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.
+
+The non-ammunition BV catalog contains weapons, electronics and misc entries
+only. Ammo remains available through explicit ammunition lookup, including
+`getEquipmentEntry` names marked as ammo. Unrepresented weapon aliases return
+undefined, never the BV of a bin sharing a short ID (WeaponType/AmmoType at
+MegaMek pin 48fcb2f64). No missing catalog weapon is fabricated.
+
+Exact registered AmmoType identities select the ammo namespace even when their
+names lack the word ammo (Coolant Pod and ISC3Sensors). Registry metadata,
+not weapon prefix stripping, supplies that classification.

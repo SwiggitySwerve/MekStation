@@ -7,6 +7,7 @@ import type { EquipmentCatalogEntry, RawCatalogFile } from './types';
  */
 
 import capitalBVFacts from '../../../../scripts/equipment-catalog/capital-bv.json';
+import { resolveRegistryId } from '../equipmentBVCatalogData';
 import {
   AMMUNITION_CATALOG_FILES,
   ELECTRONICS_CATALOG_FILES,
@@ -122,10 +123,6 @@ export function loadEquipmentCatalog(): Map<string, EquipmentCatalogEntry> {
     appendCatalogFile(catalog, file, false);
   }
 
-  for (const file of AMMUNITION_CATALOG_FILES) {
-    appendCatalogFile(catalog, file, false);
-  }
-
   catalogCache = catalog;
   return catalog;
 }
@@ -145,7 +142,7 @@ export function initializeCatalog(
 ): void {
   catalogCache = new Map();
   // Explicit generic entries keep precedence over ammunition with the same ID.
-  for (const entry of [...ammunitionEntries, ...entries]) {
+  for (const entry of entries) {
     catalogCache.set(entry.id, entry);
   }
   ammunitionCache = new Map(
@@ -170,9 +167,11 @@ export function loadAmmunitionCatalog(): Map<string, EquipmentCatalogEntry> {
 
 /** Ammo and weapons can share an ID (for example mrm-20) in the source files. */
 export function isAmmunitionEquipmentId(equipmentId: string): boolean {
+  const registryId = resolveRegistryId(equipmentId);
   // ISBPod.java:49-53 (48fcb2f64) registers B-Pods as a WeaponType.
   return (
     /ammo/i.test(equipmentId) ||
+    (registryId !== undefined && loadAmmunitionCatalog().has(registryId)) ||
     (/pods/i.test(equipmentId) && !/\bb-pods\b/i.test(equipmentId))
   );
 }
