@@ -21,6 +21,8 @@ test('all 33 audited prototype-only Java records are selected without mounted ga
     assert.equal(item.entry.battleValue, native.bv);
     assert.equal(item.entry.weight, native.tons);
     assert.equal(item.entry.heat, fact.heat);
+    if (native.internalName.startsWith('CLStreakSRM'))
+      assert.equal(item.entry.damage, '2/missile');
     assert.deepEqual(item.entry.ranges, fact.ranges);
     assert(item.entry.special[0].includes(fixture.revision));
     assert(

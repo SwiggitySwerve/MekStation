@@ -30807,7 +30807,7 @@
       "extinctionYear": 2831,
       "costCBills": 60000,
       "subType": "CLStreakSRM4Prototype",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 3,
       "ranges": {
         "long": 9,
@@ -30817,7 +30817,8 @@
         "medium": 6
       },
       "special": [
-        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLStreakSRM4Prototype.java: CLStreakSRM4Prototype"
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLStreakSRM4Prototype.java: CLStreakSRM4Prototype",
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/handlers/srm/SRMHandler.java#L66"
       ]
     },
     "java": {
@@ -30898,7 +30899,7 @@
       "extinctionYear": 2831,
       "costCBills": 120000,
       "subType": "CLStreakSRM6Prototype",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 4,
       "ranges": {
         "long": 9,
@@ -30908,7 +30909,8 @@
         "medium": 6
       },
       "special": [
-        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLStreakSRM6Prototype.java: CLStreakSRM6Prototype"
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLStreakSRM6Prototype.java: CLStreakSRM6Prototype",
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/handlers/srm/SRMHandler.java#L66"
       ]
     },
     "java": {

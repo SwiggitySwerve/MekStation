@@ -8,6 +8,7 @@ import { require as tsxRequire } from 'tsx/cjs/api';
 
 import routing from '../../public/data/equipment/registry-routing.json' with { type: 'json' };
 import capitalSource from './capital-source.json' with { type: 'json' };
+import prototypeDamage from './prototype-damage.json' with { type: 'json' };
 const { normalizeEquipmentId } = tsxRequire(
   '../../src/utils/construction/equipmentBV/normalization.ts',
   import.meta.url,
@@ -154,6 +155,8 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
           fact.damage < 0
             ? `Java variable damage (${fact.damage})`
             : number(fact.damage, 'damage');
+        entry.damage = prototypeDamage.values[name] ?? entry.damage;
+        if (prototypeDamage.values[name]) notes.push(prototypeDamage.source);
         entry.heat = number(fact.heat, 'heat');
         entry.ranges = fact.ranges;
       }
@@ -253,6 +256,7 @@ function runGenerator() {
     ...process.argv.slice(2),
     `${registryFile}.lookups.json`,
     fileURLToPath(new URL('./capital-source.json', import.meta.url)),
+    fileURLToPath(new URL('./prototype-damage.json', import.meta.url)),
   ];
   const hashes = read(new URL('./source-pins.json', import.meta.url));
   for (const file of inputs) {

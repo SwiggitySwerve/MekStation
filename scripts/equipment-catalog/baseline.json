@@ -28614,7 +28614,7 @@
     "file": "weapons/java-registry.json",
     "index": 268,
     "id": "clstreaksrm4prototype-registry",
-    "sha256": "696422f3ae0497beb3d885d115cbb4a480c2a01d74812493e54b361fae345ede",
+    "sha256": "73215d376c646bb5fdeb81d8d8daae01530d6cfe0b05297b2983522f8d73606a",
     "item": {
       "id": "clstreaksrm4prototype-registry",
       "name": "Prototype Streak SRM 4",
@@ -28643,7 +28643,7 @@
       "extinctionYear": 2831,
       "costCBills": 60000,
       "subType": "CLStreakSRM4Prototype",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 3,
       "ranges": {
         "long": 9,
@@ -28653,7 +28653,8 @@
         "medium": 6
       },
       "special": [
-        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLStreakSRM4Prototype.java: CLStreakSRM4Prototype"
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLStreakSRM4Prototype.java: CLStreakSRM4Prototype",
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/handlers/srm/SRMHandler.java#L66"
       ]
     }
   },
@@ -28661,7 +28662,7 @@
     "file": "weapons/java-registry.json",
     "index": 269,
     "id": "clstreaksrm6prototype-registry",
-    "sha256": "847ec3a44e633cb1d10bbc17102ad9ebcd5d26444f6b9648dd454aa1199d4669",
+    "sha256": "269a43469710db9eeb32b2e2d6ab306701c235ba950376a29f528001d3c29e47",
     "item": {
       "id": "clstreaksrm6prototype-registry",
       "name": "Prototype Streak SRM 6",
@@ -28690,7 +28691,7 @@
       "extinctionYear": 2831,
       "costCBills": 120000,
       "subType": "CLStreakSRM6Prototype",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 4,
       "ranges": {
         "long": 9,
@@ -28700,7 +28701,8 @@
         "medium": 6
       },
       "special": [
-        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLStreakSRM6Prototype.java: CLStreakSRM6Prototype"
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLStreakSRM6Prototype.java: CLStreakSRM6Prototype",
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/handlers/srm/SRMHandler.java#L66"
       ]
     }
   },
