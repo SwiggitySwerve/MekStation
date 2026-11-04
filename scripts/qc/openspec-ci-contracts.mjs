@@ -88,8 +88,10 @@ export const requiredWorkflowTokens = [
   {
     id: 'browser-smoke-runs-playwright',
     tokens: [
-      'name: Run tactical-map visual smoke and library suites',
-      'node scripts/playwright/run-playwright.mjs test e2e/tactical-map-visual-smoke.spec.ts e2e/customizer-library-open.spec.ts --project=chromium',
+      'name: Run tactical-map visual smoke',
+      'node scripts/playwright/run-playwright.mjs test e2e/tactical-map-visual-smoke.spec.ts --project=chromium',
+      'name: Run customizer library suite',
+      'node scripts/playwright/run-playwright.mjs test e2e/customizer-library-open.spec.ts --project=chromium',
     ],
   },
   {
@@ -166,7 +168,8 @@ export const requiredWorkflowJobContracts = [
     changeGateIf: E2E_CHANGE_GATE_IF,
     uploadFailureIf: `failure() && (${E2E_CHANGE_GATE_IF})`,
     extraStepIfs: {
-      'Run tactical-map visual smoke and library suites': `\${{ !cancelled() && (${E2E_CHANGE_GATE_IF}) }}`,
+      'Run customizer library suite': `\${{ !cancelled() && (${E2E_CHANGE_GATE_IF}) }}`,
+      'Run tactical-map visual smoke': `\${{ !cancelled() && (${E2E_CHANGE_GATE_IF}) }}`,
       'Upload library-open screenshots': `always() && (${E2E_CHANGE_GATE_IF})`,
     },
     setupAction: {

@@ -6,7 +6,7 @@ Pull-request E2E was the critical path of PR Checks: E2E Smoke ran 113 tests on 
 
 - Replace the `e2e-smoke`, `seam-anchors`, and `customizer-regressions` pull-request jobs with two jobs:
   - `e2e-build` fetches and strictly validates the record-sheet assets in its own checkout, builds the E2E-mode production app once, and uploads the standalone server as the `e2e-build` artifact;
-  - `e2e`, a fixed three-shard matrix, runs every per-PR browser spec against that standalone server. The seam trust anchors and the customizer regressions keep `--retries=0`, `--trace=retain-on-failure`, and one worker. The tactical-map smoke and library suites keep the config's CI retries and run on four workers.
+  - `e2e`, a fixed three-shard matrix, runs every per-PR browser spec against that standalone server. The seam trust anchors and the customizer regressions keep `--retries=0`, `--trace=retain-on-failure`, and one worker. The smoke suites keep the config's CI retries: the customizer library suite stays on one worker, because its flows share the server database, and the tactical-map visual smoke runs on four.
 - Require both jobs in the `lint-and-test` aggregator. Branch-protection context names are unchanged.
 - Re-scope the job-scoped CI contract to the two owning jobs: it also pins the six gate spec paths, the shard selector, and the `[1, 2, 3]` matrix, so no spec or shard can be dropped silently.
 

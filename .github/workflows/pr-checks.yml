@@ -680,8 +680,9 @@ jobs:
   #     `trace: 'on-first-retry'` records nothing at zero retries. They
   #     run on one worker, as before: under 4 workers the customizer
   #     packs time out (run 41810648418).
-  #   - smoke specs (tactical-map visual smoke, library open) keep the
-  #     config's CI retries and use all 4 vCPUs of the runner.
+  #   - smoke specs keep the config's CI retries. The library suite runs
+  #     on one worker (its flows share the server database); the
+  #     tactical-map visual smoke uses all 4 vCPUs of the runner.
   # Each group is sharded on its own, so every shard runs a slice of
   # both. Step gating keeps docs- and openspec-only PRs green.
   # ---------------------------------------------------------------
@@ -753,19 +754,30 @@ jobs:
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-gates
         run: node scripts/playwright/run-playwright.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/3 --output=test-results/gates
 
-      - name: Run tactical-map visual smoke and library suites
+      # The library flows save and reopen units through the shared server
+      # database, and both viewport variants of a family save the same
+      # chassis, so they run on one worker as before (run 41813722683).
+      - name: Run customizer library suite
         if: ${{ !cancelled() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') }}
         env:
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
           HOSTNAME: '127.0.0.1'
-        run: node scripts/playwright/run-playwright.mjs test e2e/tactical-map-visual-smoke.spec.ts e2e/customizer-library-open.spec.ts --project=chromium --workers=4 --shard=${{ matrix.shard }}/3 --output=test-results/smoke
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-library
+        run: node scripts/playwright/run-playwright.mjs test e2e/customizer-library-open.spec.ts --project=chromium --workers=1 --shard=${{ matrix.shard }}/3 --output=test-results/library
+
+      - name: Run tactical-map visual smoke
+        if: ${{ !cancelled() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') }}
+        env:
+          MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
+          HOSTNAME: '127.0.0.1'
+        run: node scripts/playwright/run-playwright.mjs test e2e/tactical-map-visual-smoke.spec.ts --project=chromium --workers=4 --shard=${{ matrix.shard }}/3 --output=test-results/smoke
 
       - name: Upload library-open screenshots
         if: always() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
         uses: actions/upload-artifact@v7
         with:
           name: library-open-screenshots-${{ matrix.shard }}
-          path: test-results/smoke/**/*.png
+          path: test-results/library/**/*.png
           if-no-files-found: ignore
           retention-days: 7
 
@@ -777,6 +789,7 @@ jobs:
           path: |
             playwright-report
             playwright-report-gates
+            playwright-report-library
             test-results
           retention-days: 7
 
