@@ -18056,6 +18056,80 @@
     }
   },
   {
+    "native": "ISSRT2IOS",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/oneShot/ISSRT2IOS.java: ISSRT2IOS",
+    "values": {
+      "id": "issrt2ios-registry",
+      "name": "SRT 2 (I-OS)",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/oneShot/ISSRT2IOS.java: ISSRT2IOS"
+      ],
+      "battleValue": 4,
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3056,
+      "subType": "ISSRT2IOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.innerSphere.torpedo.oneShot.ISSRT2IOS",
+      "internalName": "ISSRT2IOS",
+      "name": "SRT 2 (I-OS)",
+      "aliases": ["ISSRT2IOS", "ISSRT2 (IOS)", "IS SRT 2 (IOS)", "IOS SRT-2"],
+      "tech": "IS",
+      "bv": 4,
+      "tons": 0.5,
+      "criticalSlots": 1,
+      "cost": 8000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3056,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 2,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      },
+      "ammoType": "SRM_TORPEDO",
+      "rackSize": 2
+    }
+  },
+  {
     "native": "ISSRT2OS",
     "kind": "weapons",
     "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/oneShot/ISSRT2OS.java: ISSRT2OS",
@@ -18127,6 +18201,154 @@
       },
       "ammoType": "SRM_TORPEDO",
       "rackSize": 2
+    }
+  },
+  {
+    "native": "ISSRT4IOS",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/oneShot/ISSRT4IOS.java: ISSRT4IOS",
+    "values": {
+      "id": "issrt4ios-registry",
+      "name": "SRT 4 (I-OS)",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/oneShot/ISSRT4IOS.java: ISSRT4IOS"
+      ],
+      "battleValue": 8,
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3056,
+      "subType": "ISSRT4IOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 3,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.innerSphere.torpedo.oneShot.ISSRT4IOS",
+      "internalName": "ISSRT4IOS",
+      "name": "SRT 4 (I-OS)",
+      "aliases": ["ISSRT4IOS", "ISSRT4 (IOS)", "IS SRT 4 (IOS)", "IOS SRT-4"],
+      "tech": "IS",
+      "bv": 8,
+      "tons": 1.5,
+      "criticalSlots": 1,
+      "cost": 48000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3056,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 3,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      },
+      "ammoType": "SRM_TORPEDO",
+      "rackSize": 4
+    }
+  },
+  {
+    "native": "ISSRT6IOS",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/oneShot/ISSRT6IOS.java: ISSRT6IOS",
+    "values": {
+      "id": "issrt6ios-registry",
+      "name": "SRT 6 (I-OS)",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/oneShot/ISSRT6IOS.java: ISSRT6IOS"
+      ],
+      "battleValue": 12,
+      "weight": 2.5,
+      "criticalSlots": 2,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3056,
+      "subType": "ISSRT6IOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 4,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.innerSphere.torpedo.oneShot.ISSRT6IOS",
+      "internalName": "ISSRT6IOS",
+      "name": "SRT 6 (I-OS)",
+      "aliases": ["ISSRT6IOS", "ISSRT6 (IOS)", "IS SRT 6 (IOS)", "IOS SRT-6"],
+      "tech": "IS",
+      "bv": 12,
+      "tons": 2.5,
+      "criticalSlots": 2,
+      "cost": 64000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3056,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 4,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      },
+      "ammoType": "SRM_TORPEDO",
+      "rackSize": 6
     }
   },
   {
@@ -19725,6 +19947,639 @@
       },
       "ammoType": "NA",
       "rackSize": 0
+    }
+  },
+  {
+    "native": "LRT 10",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/ISLRT10.java: LRT 10",
+    "values": {
+      "id": "lrt-10-registry",
+      "name": "LRT 10",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/ISLRT10.java: LRT 10"
+      ],
+      "battleValue": 90,
+      "weight": 5,
+      "criticalSlots": 2,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2370,
+      "subType": "ISLRT10",
+      "damage": "Java variable damage (-2)",
+      "heat": 4,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.lrms.innerSphere.torpedo.ISLRT10",
+      "internalName": "LRT 10",
+      "name": "LRT 10",
+      "aliases": [
+        "LRT 10",
+        "IS LRT-10",
+        "ISLRTorpedo10",
+        "IS LRT 10",
+        "ISLRT10"
+      ],
+      "tech": "IS",
+      "bv": 90,
+      "tons": 5,
+      "criticalSlots": 2,
+      "cost": 100000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2370,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 4,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      },
+      "ammoType": "LRM_TORPEDO",
+      "rackSize": 10
+    }
+  },
+  {
+    "native": "LRT 10 (I-OS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/oneShot/ISLRT10IOS.java: LRT 10 (I-OS)",
+    "values": {
+      "id": "lrt-10-i-os-registry",
+      "name": "LRT 10 (I-OS)",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/oneShot/ISLRT10IOS.java: LRT 10 (I-OS)"
+      ],
+      "battleValue": 18,
+      "weight": 4.5,
+      "criticalSlots": 2,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3056,
+      "subType": "ISLRT10IOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 4,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.lrms.innerSphere.torpedo.oneShot.ISLRT10IOS",
+      "internalName": "LRT 10 (I-OS)",
+      "name": "LRT 10 (I-OS)",
+      "aliases": [
+        "LRT 10 (I-OS)",
+        "IS IOS LRT-10",
+        "ISLRTorpedo10 (IOS)",
+        "IS LRT 10 (IOS)",
+        "ISLRT10IOS"
+      ],
+      "tech": "IS",
+      "bv": 18,
+      "tons": 4.5,
+      "criticalSlots": 2,
+      "cost": 80000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3056,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 4,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      },
+      "ammoType": "LRM_TORPEDO",
+      "rackSize": 10
+    }
+  },
+  {
+    "native": "LRT 15",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/ISLRT15.java: LRT 15",
+    "values": {
+      "id": "lrt-15-registry",
+      "name": "LRT 15",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/ISLRT15.java: LRT 15"
+      ],
+      "battleValue": 136,
+      "weight": 7,
+      "criticalSlots": 3,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2370,
+      "subType": "ISLRT15",
+      "damage": "Java variable damage (-2)",
+      "heat": 5,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.lrms.innerSphere.torpedo.ISLRT15",
+      "internalName": "LRT 15",
+      "name": "LRT 15",
+      "aliases": [
+        "LRT 15",
+        "IS LRT-15",
+        "ISLRTorpedo15",
+        "IS LRT 15",
+        "ISLRT15"
+      ],
+      "tech": "IS",
+      "bv": 136,
+      "tons": 7,
+      "criticalSlots": 3,
+      "cost": 175000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2370,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 5,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      },
+      "ammoType": "LRM_TORPEDO",
+      "rackSize": 15
+    }
+  },
+  {
+    "native": "LRT 15 (I-OS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/oneShot/ISLRT15IOS.java: LRT 15 (I-OS)",
+    "values": {
+      "id": "lrt-15-i-os-registry",
+      "name": "LRT 15 (I-OS)",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/oneShot/ISLRT15IOS.java: LRT 15 (I-OS)"
+      ],
+      "battleValue": 27,
+      "weight": 6.5,
+      "criticalSlots": 3,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3056,
+      "subType": "ISLRT15IOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 5,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.lrms.innerSphere.torpedo.oneShot.ISLRT15IOS",
+      "internalName": "LRT 15 (I-OS)",
+      "name": "LRT 15 (I-OS)",
+      "aliases": [
+        "LRT 15 (I-OS)",
+        "IS IOS LRT-15",
+        "ISLRTorpedo15 (IOS)",
+        "IS LRT 15 (IOS)",
+        "ISLRT15IOS"
+      ],
+      "tech": "IS",
+      "bv": 27,
+      "tons": 6.5,
+      "criticalSlots": 3,
+      "cost": 140000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3056,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 5,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      },
+      "ammoType": "LRM_TORPEDO",
+      "rackSize": 15
+    }
+  },
+  {
+    "native": "LRT 20",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/ISLRT20.java: LRT 20",
+    "values": {
+      "id": "lrt-20-registry",
+      "name": "LRT 20",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/ISLRT20.java: LRT 20"
+      ],
+      "battleValue": 181,
+      "weight": 10,
+      "criticalSlots": 5,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2370,
+      "subType": "ISLRT20",
+      "damage": "Java variable damage (-2)",
+      "heat": 6,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.lrms.innerSphere.torpedo.ISLRT20",
+      "internalName": "LRT 20",
+      "name": "LRT 20",
+      "aliases": [
+        "LRT 20",
+        "IS LRT-20",
+        "ISLRTorpedo20",
+        "IS LRT 20",
+        "ISLRT20"
+      ],
+      "tech": "IS",
+      "bv": 181,
+      "tons": 10,
+      "criticalSlots": 5,
+      "cost": 250000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2370,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 6,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      },
+      "ammoType": "LRM_TORPEDO",
+      "rackSize": 20
+    }
+  },
+  {
+    "native": "LRT 20 (I-OS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/oneShot/ISLRT20IOS.java: LRT 20 (I-OS)",
+    "values": {
+      "id": "lrt-20-i-os-registry",
+      "name": "LRT 20 (I-OS)",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/oneShot/ISLRT20IOS.java: LRT 20 (I-OS)"
+      ],
+      "battleValue": 36,
+      "weight": 9.5,
+      "criticalSlots": 5,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3056,
+      "subType": "ISLRT20IOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 6,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.lrms.innerSphere.torpedo.oneShot.ISLRT20IOS",
+      "internalName": "LRT 20 (I-OS)",
+      "name": "LRT 20 (I-OS)",
+      "aliases": [
+        "LRT 20 (I-OS)",
+        "IS IOS LRT-20",
+        "ISLRTorpedo20 (IOS)",
+        "IS LRT 20 (IOS)",
+        "ISLRT20IOS"
+      ],
+      "tech": "IS",
+      "bv": 36,
+      "tons": 9.5,
+      "criticalSlots": 5,
+      "cost": 200000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3056,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 6,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      },
+      "ammoType": "LRM_TORPEDO",
+      "rackSize": 20
+    }
+  },
+  {
+    "native": "LRT 5",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/ISLRT5.java: LRT 5",
+    "values": {
+      "id": "lrt-5-registry",
+      "name": "LRT 5",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/ISLRT5.java: LRT 5"
+      ],
+      "battleValue": 45,
+      "weight": 2,
+      "criticalSlots": 1,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2370,
+      "subType": "ISLRT5",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.lrms.innerSphere.torpedo.ISLRT5",
+      "internalName": "LRT 5",
+      "name": "LRT 5",
+      "aliases": ["LRT 5", "IS LRT-5", "ISLRTorpedo5", "IS LRT 5", "ISLRT5"],
+      "tech": "IS",
+      "bv": 45,
+      "tons": 2,
+      "criticalSlots": 1,
+      "cost": 30000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2370,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 2,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      },
+      "ammoType": "LRM_TORPEDO",
+      "rackSize": 5
+    }
+  },
+  {
+    "native": "LRT 5 (I-OS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/oneShot/ISLRT5IOS.java: LRT 5 (I-OS)",
+    "values": {
+      "id": "lrt-5-i-os-registry",
+      "name": "LRT 5 (I-OS)",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/oneShot/ISLRT5IOS.java: LRT 5 (I-OS)"
+      ],
+      "battleValue": 9,
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3056,
+      "subType": "ISLRT5IOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.lrms.innerSphere.torpedo.oneShot.ISLRT5IOS",
+      "internalName": "LRT 5 (I-OS)",
+      "name": "LRT 5 (I-OS)",
+      "aliases": [
+        "LRT 5 (I-OS)",
+        "IS IOS LRT-5",
+        "ISLRTorpedo5 (IOS)",
+        "IS LRT 5 (IOS)"
+      ],
+      "tech": "IS",
+      "bv": 9,
+      "tons": 1.5,
+      "criticalSlots": 1,
+      "cost": 24000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3056,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 2,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      },
+      "ammoType": "LRM_TORPEDO",
+      "rackSize": 5
     }
   },
   {
@@ -23968,6 +24823,228 @@
       },
       "ammoType": "INFANTRY",
       "rackSize": 0
+    }
+  },
+  {
+    "native": "SRT 2",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/ISSRT2.java: SRT 2",
+    "values": {
+      "id": "srt-2-registry",
+      "name": "SRT 2",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/ISSRT2.java: SRT 2"
+      ],
+      "battleValue": 21,
+      "weight": 1,
+      "criticalSlots": 1,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2660,
+      "subType": "ISSRT2",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.innerSphere.torpedo.ISSRT2",
+      "internalName": "SRT 2",
+      "name": "SRT 2",
+      "aliases": ["SRT 2", "IS SRT-2", "ISSRT2", "IS SRT 2"],
+      "tech": "IS",
+      "bv": 21,
+      "tons": 1,
+      "criticalSlots": 1,
+      "cost": 10000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2660,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 2,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      },
+      "ammoType": "SRM_TORPEDO",
+      "rackSize": 2
+    }
+  },
+  {
+    "native": "SRT 4",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/ISSRT4.java: SRT 4",
+    "values": {
+      "id": "srt-4-registry",
+      "name": "SRT 4",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/ISSRT4.java: SRT 4"
+      ],
+      "battleValue": 39,
+      "weight": 2,
+      "criticalSlots": 1,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2660,
+      "subType": "ISSRT4",
+      "damage": "Java variable damage (-2)",
+      "heat": 3,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.innerSphere.torpedo.ISSRT4",
+      "internalName": "SRT 4",
+      "name": "SRT 4",
+      "aliases": ["SRT 4", "IS SRT-4", "ISSRT4", "IS SRT 4"],
+      "tech": "IS",
+      "bv": 39,
+      "tons": 2,
+      "criticalSlots": 1,
+      "cost": 60000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2660,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 3,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      },
+      "ammoType": "SRM_TORPEDO",
+      "rackSize": 4
+    }
+  },
+  {
+    "native": "SRT 6",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/ISSRT6.java: SRT 6",
+    "values": {
+      "id": "srt-6-registry",
+      "name": "SRT 6",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/ISSRT6.java: SRT 6"
+      ],
+      "battleValue": 59,
+      "weight": 3,
+      "criticalSlots": 2,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2660,
+      "subType": "ISSRT6",
+      "damage": "Java variable damage (-2)",
+      "heat": 4,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.innerSphere.torpedo.ISSRT6",
+      "internalName": "SRT 6",
+      "name": "SRT 6",
+      "aliases": ["SRT 6", "IS SRT-6", "ISSRT6", "IS SRT 6"],
+      "tech": "IS",
+      "bv": 59,
+      "tons": 3,
+      "criticalSlots": 2,
+      "cost": 80000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2660,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 4,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      },
+      "ammoType": "SRM_TORPEDO",
+      "rackSize": 6
     }
   },
   {
