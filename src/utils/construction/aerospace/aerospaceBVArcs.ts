@@ -8,6 +8,10 @@ import {
   AerospaceArc,
   AerospaceSubType,
 } from '../../../types/unit/AerospaceInterfaces';
+import {
+  getNativeAmmoBVGroup,
+  getMachineGunArrayBVGroup,
+} from '../battleValueAmmo';
 import { getOffensiveBVRole } from '../battleValueEquipment';
 import {
   calculateBaseHeatEfficiency,
@@ -25,6 +29,7 @@ import {
   linkMountedWeaponBVModifiers,
   getMountedBVLinkType,
   linkPPCCapacitorBVWeapons,
+  linkAerospaceMachineGunArrayBVWeapons,
 } from '../equipmentBV/weaponLinks';
 import {
   getWeaponLinkBVMultiplier,
@@ -140,6 +145,9 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     location: AerospaceArc;
     id: string;
     targeted: boolean;
+    baseBV: number;
+    ammoGroup?: string;
+    arrayGroup?: string;
     capacitorBV?: number;
     bv: number;
     heat: number;
@@ -163,20 +171,29 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
       continue;
     }
     const resolved = resolveEquipmentBV(item.id);
-    if (!resolved.resolved || resolved.battleValue === 0) continue;
+    const arrayGroup = getMachineGunArrayBVGroup(entry?.id ?? '');
+    if (!resolved.resolved || (resolved.battleValue === 0 && !arrayGroup))
+      continue;
 
     if (arc !== AerospaceArc.FUSELAGE && !rawByArc.has(arc)) continue;
+    const ammunition = item.isAmmo || isAmmunitionEquipmentId(item.id);
     const targeted = Boolean(
       targetingComputerMounted &&
       entry &&
-      !item.isAmmo &&
-      !isAmmunitionEquipmentId(item.id) &&
+      !ammunition &&
+      !arrayGroup &&
       getOffensiveBVRole(item.id) === 'weapon' &&
       isDirectFireBVWeapon(entry.id),
     );
     weapons.push({
       id: entry?.id ?? item.id,
       targeted,
+      baseBV: resolved.battleValue,
+      arrayGroup,
+      ammoGroup: ammunition
+        ? undefined
+        : (getNativeAmmoBVGroup(item.id) ??
+          getNativeAmmoBVGroup(entry?.name ?? '')),
       arc,
       location,
       bv: targeted
@@ -188,6 +205,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     });
   }
   // MekFileParser.java:425-449; BVCalculator.java:860-872.
+  linkAerospaceMachineGunArrayBVWeapons(weapons);
   linkMountedWeaponBVModifiers(
     weapons,
     input.equipment.flatMap((item) => {
