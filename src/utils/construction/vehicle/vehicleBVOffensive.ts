@@ -269,6 +269,7 @@ export function calculateVehicleOffensiveBV(
     offensiveEquipmentBV,
     speedFactor,
     turretModifier,
+    weightBV,
     total,
   };
 }
