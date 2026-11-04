@@ -85,6 +85,7 @@ jobs:
           src/simulation/__tests__/simulation-combat-integration.test.ts
           src/simulation/__tests__/swarm-pilot-skills-batch.test.ts
           src/simulation/__tests__/swarm-throughput.test.ts
+          src/lib/multiplayer/server/__tests__/fogOfWar.test.ts
         env:
           # E-2: force the perfIt wall-clock budget tests to execute in
           # CI. Without this lane the perf assertions ran nowhere: unit
