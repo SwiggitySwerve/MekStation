@@ -113,6 +113,8 @@ export interface IBattleArmorBVInput {
   hasMagneticClamp?: boolean;
   /** Camouflage adds 0.2 to the defensive factor, independently of armor. */
   hasCamoSystem?: boolean;
+  /** Per-trooper sensor/ECM/AMS bonus, added before the defensive factor. */
+  defensiveEquipmentBV?: number;
   canAntiMek?: boolean;
   unresolvedEquipment?: readonly string[];
 
@@ -212,14 +214,24 @@ export function calculateBADefensiveBV(
         ? 0.2
         : 0;
   const bonus = 0.1 + stealth + (input.hasCamoSystem ? 0.2 : 0);
+  // BVCalculator.java:274-281: defensive equipment precedes the factor.
+  const defensiveEquipmentBV = input.defensiveEquipmentBV ?? 0;
+  const base = armorBV + defensiveEquipmentBV;
   // Preserve the public breakdown: moveBV is the ground/system premium;
   // jumpBV is only the additional premium over ground TMM (including UMU).
-  const moveBV = armorBV * (groundTMM / 10 + bonus);
-  const jumpBV = armorBV * ((tmm - groundTMM) / 10);
+  const moveBV = base * (groundTMM / 10 + bonus);
+  const jumpBV = base * ((tmm - groundTMM) / 10);
   const antiMechBonus = 0;
-  const total = armorBV * (1 + tmm / 10 + bonus);
+  const total = base * (1 + tmm / 10 + bonus);
 
-  return { armorBV, moveBV, jumpBV, antiMechBonus, total };
+  return {
+    armorBV,
+    defensiveEquipmentBV,
+    moveBV,
+    jumpBV,
+    antiMechBonus,
+    total,
+  };
 }
 
 // =============================================================================
