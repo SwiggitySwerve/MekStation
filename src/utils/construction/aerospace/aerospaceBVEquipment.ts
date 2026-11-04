@@ -9,6 +9,7 @@ import {
 } from '../battleValueEquipment';
 import { isNonExplosiveAmmo } from '../battleValueExplosivePenalties';
 import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
+import { isPPCCapacitorCompatibleBVWeapon } from '../equipmentBV/weaponLinks';
 import { getEquipmentEntry, getAmmunitionEntry } from '../equipmentBVResolver';
 export { getDefensiveEquipmentKind as getAerospaceDefensiveEquipmentKind };
 
@@ -56,19 +57,7 @@ export function calculateMountedAerospaceExplosivePenalty(
     }
     if (!entry) continue;
     // MekFileParser.java:90-93; prototype PPCs lack the compatibility flag.
-    if (
-      [
-        'ppc',
-        'er-ppc',
-        'light-ppc',
-        'heavy-ppc',
-        'snub-nose-ppc',
-        'improved-ppc',
-        'enhanced-ppc',
-        'clan-er-ppc',
-      ].includes(entry.id) &&
-      (entry.id !== 'clan-er-ppc' || (input.year ?? 0) >= 3101)
-    )
+    if (isPPCCapacitorCompatibleBVWeapon(entry.id, input.year))
       ppcs.set(item.location, (ppcs.get(item.location) ?? 0) + 1);
     if (entry.id === 'ppc-capacitor')
       capacitors.set(item.location, (capacitors.get(item.location) ?? 0) + 1);

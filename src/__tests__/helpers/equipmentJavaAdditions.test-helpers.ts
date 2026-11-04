@@ -5,12 +5,29 @@ interface IJavaCatalogAddition {
   kind: string;
   source: string;
   values: Record<string, unknown>;
-  java: { damage?: number; bv: number; tons: number; criticalSlots: number };
+  java: {
+    damage?: number;
+    rackSize?: number;
+    bv: number;
+    tons: number;
+    criticalSlots: number;
+  };
 }
 export const javaCatalogAdditions: readonly IJavaCatalogAddition[] = rawRows;
 export const javaCatalogAdditionById = new Map(
   javaCatalogAdditions.map((row) => [String(row.values.id), row]),
 );
+/**
+ * Combat-runner damage a generated weapon must reach: its fixed Java damage,
+ * or the pinned handler damage per hit times the Java rack size for
+ * cluster-table launchers (follow-up 95). Other Java sentinels stay 0.
+ */
+export function javaAdditionRunnerDamage(row: IJavaCatalogAddition): number {
+  const damage = row.values.damage;
+  if (typeof damage === 'number') return damage;
+  const perHit = /^(\d+)\/missile$/.exec(String(damage));
+  return perHit ? Number(perHit[1]) * Number(row.java.rackSize) : 0;
+}
 /** Values come from pinned Java registry/facts; each fixture retains its native record and source citation. */
 export function expectJavaCatalogAddition(
   item: unknown,
