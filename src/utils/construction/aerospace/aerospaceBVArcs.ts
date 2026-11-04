@@ -151,20 +151,21 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
 
   for (const item of input.equipment) {
     if (getAerospaceDefensiveEquipmentKind(item.id)) continue;
-    const arc = normalizeArcLocation(item.location, input.subType);
-    if (arc === null) continue;
+    const location = normalizeArcLocation(item.location, input.subType);
+    if (location === null) continue;
+    const arc = location;
     const entry = getEquipmentEntry(item.id);
     if (entry?.id === 'apollo') {
-      apollo.push({ location: arc });
+      apollo.push({ location });
       continue;
     }
     if (entry?.id === 'ppc-capacitor') {
-      capacitors.push({ location: arc });
+      capacitors.push({ location });
       continue;
     }
     if (entry?.id === 'artemisiv' || entry?.id === 'artemisv') {
       links.push({
-        location: arc,
+        location,
         type: entry.id === 'artemisiv' ? 'iv' : 'v',
       });
       continue;
@@ -185,7 +186,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
       id: entry?.id ?? item.id,
       targeted,
       arc,
-      location: arc,
+      location,
       bv: targeted
         ? applyTargetingComputerBV(resolved.battleValue)
         : resolved.battleValue,
