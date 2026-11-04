@@ -71,3 +71,8 @@ weapon pool exists. The legacy matcher remains the fallback for mixed native
 and canonical launcher inputs, including torpedo Meks. Artillery and cannon
 pools stay distinct. Vehicle flamers use their separate BV-5 catalog identity
 (ISVehicleFlamer.java:77; BVCalculator.java:1199,1233 at pin 48fcb2f64).
+
+getMachineGunArrayBVGroup maps canonical array identities to their gun caliber
+and reuses getNativeAmmoBVGroup. Native MG type/rack strings stay defined once;
+ordinary ammo matching behavior is unchanged. The array linker consumes those
+plain group facts. Source: MekFileParser.java:928-944, pin 48fcb2f64.

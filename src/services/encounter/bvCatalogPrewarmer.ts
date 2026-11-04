@@ -20,18 +20,6 @@
  *   adapter preserves source inputs for the shared mech BV owner.
  *   Calculation failures propagate instead of silently excluding valid units.
  *
- * Caching
- * -------
- * Reading the BV report and stamping every catalog entry is cheap (single
- * disk read of one JSON file plus an O(N) merge), but we still write a
- * derived cache to `.cache/swarm-bv-cache.json` keyed on catalog version
- * + total units so that subsequent CLI runs skip the merge entirely.
- *
- * The cache file is intentionally outside `public/` so that:
- *   - It does not ship with the Next.js app bundle
- *   - It does not pollute the catalog source-of-truth
- *   - It is safe to gitignore (covered by `.cache/` in .gitignore)
- *
  * @see openspec/changes/archive/2026-05-06-add-encounter-swarm-harness/design.md D2
  * @see scripts/validate-bv.ts (Tier 1 source generator)
  * @see src/services/encounter/randomForceGenerator.ts (consumer)
@@ -44,21 +32,6 @@ import type { IUnitIndexEntry } from '../../types/unit/UnitIndex';
 import type { ICanonicalUnitService } from '../units/CanonicalUnitService';
 
 import { calculateUnitBV } from '../../utils/construction/bvAdapter';
-
-// =============================================================================
-// Disk cache shape
-// =============================================================================
-
-interface BVCacheFile {
-  /** Version stamp from the catalog index (so we invalidate on regen). */
-  readonly catalogVersion: string;
-  /** Unit count from the catalog index (additional invalidation guard). */
-  readonly catalogTotalUnits: number;
-  /** Map of unit id → computed BV. */
-  readonly bvByUnitId: Record<string, number>;
-  /** ISO timestamp of when this cache was written, for debugging. */
-  readonly generatedAt: string;
-}
 
 // =============================================================================
 // BV report shape (Tier 1 source)
@@ -82,11 +55,11 @@ interface BVReportFile {
 // =============================================================================
 
 export interface PrewarmOptions {
-  /** Override the cache file path (mainly for testing). */
+  /** @deprecated Disk BV caches are ignored; retained for call compatibility. */
   readonly cacheFilePath?: string;
   /** Override the BV report path (mainly for testing). */
   readonly bvReportPath?: string;
-  /** Disable disk caching entirely. Useful for tests or stale-cache debugging. */
+  /** @deprecated Disk BV caching has been removed. */
   readonly skipCache?: boolean;
   /** Progress callback fired every `progressEveryN` units processed. */
   readonly onProgress?: (processed: number, total: number) => void;
@@ -108,7 +81,6 @@ export interface PrewarmResult {
 }
 
 interface PrewarmPaths {
-  readonly cacheFilePath: string;
   readonly bvReportPath: string;
 }
 
@@ -121,14 +93,13 @@ interface BVReportLookup {
  * Enrich the catalog index with computed BV values.
  *
  * Resolution order:
- *   1. Disk cache hit (matches catalog version + total units) → return as-is.
  *   2. Read `validation-output/bv-validation-report.json` and stamp BV
  *      from `calculatedBV` per `unitId`.
  *   3. For any catalog entries the report did not cover, fall back to
  *      `calculateUnitBV` via the catalog service. Absent units return bv: 0;
  *      calculation failures propagate to the caller.
  *
- * The result is persisted to the disk cache for the next run.
+ * Each call reads the report and computes uncovered units; derived totals are not cached.
  *
  * @param catalog - The raw index entries from `ICanonicalUnitService.getIndex()`.
  *                  Mutated copies are returned, never the input array.
@@ -141,20 +112,10 @@ interface BVReportLookup {
 export async function prewarmCatalogBV(
   catalog: readonly IUnitIndexEntry[],
   catalogService: ICanonicalUnitService,
-  catalogVersion: string,
+  _catalogVersion: string,
   options: PrewarmOptions = {},
 ): Promise<PrewarmResult> {
-  const { cacheFilePath, bvReportPath } = resolvePrewarmPaths(options);
-
-  // -- Try disk cache first --------------------------------------------------
-  if (!options.skipCache) {
-    const cached = buildCachedPrewarmResult(
-      catalog,
-      catalogVersion,
-      cacheFilePath,
-    );
-    if (cached !== null) return cached;
-  }
+  const { bvReportPath } = resolvePrewarmPaths(options);
 
   // -- Tier 1: read the BV validation report --------------------------------
   const { bvByUnitId, reportHits } = buildBVReportLookup(bvReportPath);
@@ -196,16 +157,6 @@ export async function prewarmCatalogBV(
     }
   }
 
-  // -- Persist cache --------------------------------------------------------
-  if (!options.skipCache) {
-    tryWriteCache(cacheFilePath, {
-      catalogVersion,
-      catalogTotalUnits: catalog.length,
-      bvByUnitId,
-      generatedAt: new Date().toISOString(),
-    });
-  }
-
   return {
     catalog: enriched,
     populated,
@@ -221,39 +172,12 @@ export async function prewarmCatalogBV(
 
 function resolvePrewarmPaths(options: PrewarmOptions): PrewarmPaths {
   return {
-    cacheFilePath:
-      options.cacheFilePath ??
-      path.resolve(process.cwd(), '.cache/swarm-bv-cache.json'),
     bvReportPath:
       options.bvReportPath ??
       path.resolve(
         process.cwd(),
         'validation-output/bv-validation-report.json',
       ),
-  };
-}
-
-function buildCachedPrewarmResult(
-  catalog: readonly IUnitIndexEntry[],
-  catalogVersion: string,
-  cacheFilePath: string,
-): PrewarmResult | null {
-  const cached = tryReadCache(cacheFilePath, catalogVersion, catalog.length);
-  if (cached === null) return null;
-
-  const enriched = catalog.map(
-    (entry): IUnitIndexEntry => ({
-      ...entry,
-      bv: cached.bvByUnitId[entry.id] ?? entry.bv ?? 0,
-    }),
-  );
-  const populated = enriched.filter((e) => (e.bv ?? 0) > 0).length;
-  return {
-    catalog: enriched,
-    populated,
-    skipped: enriched.length - populated,
-    fromCache: true,
-    source: 'cache',
   };
 }
 
@@ -314,54 +238,5 @@ function tryReadBVReport(reportPath: string): BVReportFile | null {
     return parsed;
   } catch {
     return null;
-  }
-}
-
-/**
- * Read the cache file if present and matching the requested catalog version.
- * Returns null on any miss (file missing, parse error, version mismatch,
- * unit-count mismatch) so the caller knows to rebuild from scratch.
- */
-function tryReadCache(
-  cacheFilePath: string,
-  expectedVersion: string,
-  expectedTotalUnits: number,
-): BVCacheFile | null {
-  try {
-    if (!fs.existsSync(cacheFilePath)) {
-      return null;
-    }
-    const raw = fs.readFileSync(cacheFilePath, 'utf-8');
-    const parsed = JSON.parse(raw) as BVCacheFile;
-    if (parsed.catalogVersion !== expectedVersion) {
-      return null;
-    }
-    if (parsed.catalogTotalUnits !== expectedTotalUnits) {
-      return null;
-    }
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Write the cache file. Errors are logged but not thrown — a failed write
- * just means the next run will rebuild, which is annoying but not fatal.
- */
-function tryWriteCache(cacheFilePath: string, cache: BVCacheFile): void {
-  try {
-    const dir = path.dirname(cacheFilePath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(cacheFilePath, JSON.stringify(cache, null, 2), 'utf-8');
-  } catch (err) {
-    // Log to stderr so CLI users see the warning but don't break the run.
-    // eslint-disable-next-line no-console
-    console.warn(
-      `[bvCatalogPrewarmer] Failed to write cache to ${cacheFilePath}:`,
-      err,
-    );
   }
 }

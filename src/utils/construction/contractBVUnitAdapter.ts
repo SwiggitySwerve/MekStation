@@ -69,6 +69,7 @@ export interface IContractBVSource {
 
 /** Domain-shaped vehicle value accepted by `calculateBattleValueForUnit`. */
 export interface IContractBVVehicle {
+  readonly year?: number;
   readonly structureLocations: readonly string[];
   readonly internalStructureType: number;
   readonly hasStealth: boolean;
@@ -218,6 +219,7 @@ export function contractVehicleToBVUnit(
 
   return {
     unitType,
+    year: unit.year,
     structureLocations: Object.keys(armorByLocation),
     internalStructureType: unit.internalType ?? 0,
     hasStealth: hasVehicleStealth(unit.armor.type),
