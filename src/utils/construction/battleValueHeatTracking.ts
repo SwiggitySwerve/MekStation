@@ -6,6 +6,7 @@ import type {
 import { EngineType } from '../../types/construction/EngineType';
 import { calculateAmmoBVWithExcessiveCap } from './battleValueAmmo';
 import { calculateOffensiveSpeedFactor } from './battleValueMovement';
+import { applyTargetingComputerBV } from './battleValueWeapons';
 import { getArtemisBVMultiplier } from './equipmentBVResolver';
 
 function applyWeaponBVModifiers(
@@ -31,7 +32,7 @@ function applyWeaponBVModifiers(
   modifiedBV *= getArtemisBVMultiplier(weapon.artemisType);
 
   if (hasTC && weapon.isDirectFire) {
-    modifiedBV *= 1.25;
+    modifiedBV = applyTargetingComputerBV(modifiedBV);
   }
 
   return modifiedBV;
