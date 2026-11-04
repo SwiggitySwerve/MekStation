@@ -393,7 +393,6 @@ export const DIRECT_ALIAS_MAP: Record<string, string> = {
   'c3-boosted-system-master': 'c3-boosted-master',
   'c3-computer-[master]': 'c3-master',
   'c3-remote-sensor-launcher': 'c3-master',
-  isc3remotesensorlauncher: 'c3-master',
   'plasma-cannon': 'clan-plasma-cannon',
   'silver-bullet-gauss-rifle': 'sbgr',
   taser: 'battlemech-taser',
