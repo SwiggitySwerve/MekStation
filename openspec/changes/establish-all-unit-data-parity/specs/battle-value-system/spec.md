@@ -937,8 +937,14 @@ count eligible non-missile, non-infantry, non-body weapons a second time and
 count vibro/magnetic claws only in the anti-Mek pool. Heavy/assault, quad,
 underwater and burdened suits SHALL NOT receive anti-Mek offense. The pool
 SHALL use the shared offensive speed factor with MP equal to maximum walk,
-jump or active UMU. Unsupported identities and native ammunition lacking
-kgPerShot SHALL remain explicitly unresolved, not invented ton bins.
+jump or active UMU. Walk, jump and UMU MP for BV (offense and defensive TMM)
+SHALL follow BattleArmor.java:446-567 without DWP or burden: a myomer booster
+adds 2 walk (1 at heavy or assault), otherwise a mechanical jump booster adds
+1; UMU suits SHALL have no jump MP and SHALL use their jumping MP as UMU MP;
+a mechanical jump booster SHALL give 1 jump without jump jets; with jump MP, a
+partial wing and a jump booster SHALL each add 1. Unsupported identities and
+native ammunition lacking kgPerShot SHALL remain explicitly unresolved, not
+invented ton bins.
 
 #### Scenario: Manipulator melee BV
 
@@ -965,3 +971,9 @@ kgPerShot SHALL remain explicitly unresolved, not invented ton bins.
 - **GIVEN** a native ammunition mount whose catalog lacks per-shot mass
 - **WHEN** native mount values are projected
 - **THEN** its identity and missing kgPerShot SHALL be reported and no one-ton BV SHALL be invented
+
+#### Scenario: Partial wing raises BV movement
+
+- **GIVEN** the pinned four-trooper Kage Light (Vibro-Claw) source with walk 1, jump 3, a partial wing and two vibro claws
+- **WHEN** BV is computed
+- **THEN** jump MP SHALL be 4, offense SHALL equal `2 * 0.88 = 1.76` per trooper and final BV SHALL equal 114

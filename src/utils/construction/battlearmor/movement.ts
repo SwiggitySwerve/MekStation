@@ -40,6 +40,61 @@ export function extraMPMassKg(
   return extras * BA_EXTRA_MP_MASS_KG[weightClass];
 }
 
+// Java internal and lookup names, EquipmentTypeLookup.java:97-103 and
+// MiscType.java:11906-12035 (pin 48fcb2f64).
+const nameSet = (...names: string[]) =>
+  new Set(names.map((name) => name.toLowerCase()));
+const MYOMER_BOOSTER = nameSet(
+  'CLBAMyomerBooster',
+  'CLBAMB',
+  'BAMyomerBooster',
+);
+const MECHANICAL_JUMP_BOOSTER = nameSet(
+  'BAMechanicalJumpBooster',
+  'ISMechanicalJumpBooster',
+  'CLMechanicalJumpBooster',
+);
+const PARTIAL_WING = nameSet('BAPartialWing');
+const JUMP_BOOSTER = nameSet(
+  'BAJumpBooster',
+  'ISBAJumpBooster',
+  'CLBAJumpBooster',
+);
+
+/**
+ * Movement for BA battle value: BattleArmor.java:446-567 under
+ * MPCalculationSetting.BV_CALCULATION (no DWP or burden), with UMU MP from
+ * the jumping MP of UMU suits (Infantry.java:301-308, BVCalculator.java:307-343).
+ */
+export function battleArmorBVMovement(input: {
+  readonly groundMP: number;
+  readonly jumpMP: number;
+  readonly umuMP?: number;
+  readonly umuMotion: boolean;
+  readonly weightClass: BAWeightClass;
+  /** Native equipment names, without mount qualifiers. */
+  readonly equipment: readonly string[];
+}): { groundMP: number; jumpMP: number; umuMP: number } {
+  const names = input.equipment.map((name) => name.toLowerCase());
+  const has = (set: ReadonlySet<string>) => names.some((n) => set.has(n));
+  const mechanicalBooster = has(MECHANICAL_JUMP_BOOSTER);
+  const heavy =
+    input.weightClass === BAWeightClass.HEAVY ||
+    input.weightClass === BAWeightClass.ASSAULT;
+  const groundMP =
+    input.groundMP +
+    (has(MYOMER_BOOSTER) ? (heavy ? 1 : 2) : mechanicalBooster ? 1 : 0);
+  let jumpMP = input.umuMotion ? 0 : input.jumpMP;
+  if (jumpMP === 0 && mechanicalBooster) jumpMP = 1;
+  if (jumpMP > 0 && has(PARTIAL_WING)) jumpMP++;
+  if (jumpMP > 0 && has(JUMP_BOOSTER)) jumpMP++;
+  // The data model keeps a UMU suit's MP in jumpMP (BLK jumpingMP).
+  const umuMP = input.umuMotion
+    ? Math.max(input.umuMP ?? 0, input.jumpMP)
+    : (input.umuMP ?? 0);
+  return { groundMP, jumpMP, umuMP };
+}
+
 export interface MovementValidationResult {
   readonly isValid: boolean;
   readonly errors: readonly string[];

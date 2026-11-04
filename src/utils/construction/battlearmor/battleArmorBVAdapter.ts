@@ -16,6 +16,7 @@
 
 import type { BattleArmorState } from '@/stores/battleArmorState';
 
+import { SquadMotionType } from '@/types/unit/BaseUnitInterfaces';
 import {
   BAArmorType,
   BAManipulator,
@@ -34,6 +35,7 @@ import {
   type IBattleArmorBVInput,
 } from './battleArmorBV';
 import { canMakeBAAntiMekAttacks, projectBAMounts } from './battleArmorMounts';
+import { battleArmorBVMovement } from './movement';
 
 // -----------------------------------------------------------------------------
 // Enum mapping: personnel-facing -> construction-facing
@@ -122,9 +124,14 @@ export function buildBattleArmorBVInput(
   return {
     weightClass: toBAWeightClass(state.weightClass),
     squadSize: state.squadSize,
-    groundMP: state.groundMP,
-    jumpMP: state.jumpMP,
-    umuMP: state.umuMP,
+    ...battleArmorBVMovement({
+      groundMP: state.groundMP,
+      jumpMP: state.jumpMP,
+      umuMP: state.umuMP,
+      umuMotion: state.motionType === SquadMotionType.UMU,
+      weightClass: toBAWeightClass(state.weightClass),
+      equipment: state.equipment.map((m) => m.equipmentId.split(':')[0]),
+    }),
     armorPointsPerTrooper: state.armorPerTrooper,
     armorType: state.baArmorType ?? BAArmorType.STANDARD,
     manipulators: {

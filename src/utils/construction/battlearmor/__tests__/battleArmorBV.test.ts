@@ -529,3 +529,122 @@ it.each(['Trooper 2', 'Squad'])(
     expect(b.breakdown.offensive).toBe(0);
   },
 );
+
+// Real sources (mm-data 50f7efef) reduced to their BV tags; UL-16b oracle
+// values. BV movement: BattleArmor.java:446-567, Infantry.java:301-308 and
+// BVCalculator.java:307-343 under MPCalculationSetting.BV_CALCULATION.
+const movementSource = (tags: Record<string, string>) =>
+  Object.entries({
+    UnitType: 'BattleArmor',
+    Name: 'Fixture',
+    year: '3145',
+    armor_type: '28',
+    'Trooper Count': '4',
+    chassis: 'biped',
+    ...tags,
+  })
+    .map(([tag, value]) => `<${tag}>\n${value}\n</${tag}>`)
+    .join('\n');
+it.each([
+  // battlearmor/3075/Afreet Med BA (JF) (Sqd4).blk: jump booster, jump 3 -> 4.
+  [
+    'jump booster',
+    movementSource({
+      type: 'Clan Level 2',
+      motion_type: 'Jump',
+      cruiseMP: '1',
+      jumpingMP: '3',
+      armor_type: '35',
+      armor: '5',
+      weightclass: '2',
+      'Point Equipment':
+        'CLBAAPGaussRifle:RA\nBABattleClawVibro:LA\nBABattleClawVibro:RA\nBAJumpBooster:Body',
+      slotless_equipment: 'BAJumpJet',
+    }),
+    24.05,
+    38.72,
+    326,
+  ],
+  // battlearmor/3058Uu/Kage Light BA (Vibro-Claw) (Sqd4).blk: partial wing.
+  [
+    'partial wing',
+    movementSource({
+      type: 'IS Level 2',
+      motion_type: 'Jump',
+      cruiseMP: '1',
+      jumpingMP: '3',
+      armor_type: '31',
+      armor: '5',
+      weightclass: '1',
+      'Squad Equipment':
+        'BABattleClawVibro:LA\nBABattleClawVibro:RA\nBAPartialWing:Body',
+      slotless_equipment: 'BAJumpJet',
+    }),
+    20.25,
+    1.76,
+    114,
+  ],
+  // battlearmor/3145/Clans/Buraq Fast BA (HK) (Sqd4).blk without its improved
+  // sensors: medium myomer booster, walk 5 -> 7 (TMM 3, speed 1.24).
+  // (18.5 * 1.4 + 4 * 1.24) * 5.2 = 160.472.
+  [
+    'myomer booster',
+    movementSource({
+      type: 'Clan Level 3',
+      motion_type: 'Leg',
+      cruiseMP: '5',
+      armor: '7',
+      weightclass: '2',
+      chassis: 'quad',
+      'Point Equipment':
+        'CLBAMyomerBooster:Body\nMachine Gun (Bearhunter AC):Body',
+    }),
+    25.9,
+    4.96,
+    160,
+  ],
+  // battlearmor/3145/Davion/Sea Fox Amphibious Armor (Sqd4).blk: UMU motion
+  // reads jumpingMP as UMU MP; the mechanical booster adds walk 1 and jump 1.
+  [
+    'UMU with mechanical jump booster',
+    movementSource({
+      type: 'Mixed (IS Chassis) Experimental',
+      motion_type: 'UMU',
+      cruiseMP: '2',
+      jumpingMP: '3',
+      armor_type: '31',
+      armor: '5',
+      weightclass: '1',
+      'Squad Equipment':
+        'BACuttingTorch:RA\nISBASRM1OS:LA\nCLBALightMG:Body\nBAExtendedLifeSupport:Body\nBAMechanicalJumpBooster:Body\nBAArmoredGlove:RA\nBAArmoredGlove:LA\nInfantryAssaultRifle:APM:RA',
+      slotless_equipment: 'BAUMU',
+    }),
+    18.9,
+    6.16,
+    130,
+  ],
+])('uses Java BV movement for %s', (_name, source, defense, offense, total) => {
+  const unit = load(source);
+  const b = calculateBattleValueForUnit(unit);
+  if (b?.kind !== 'battlearmor') throw new Error('Missing BA dispatch');
+  expect(b.breakdown.defensive).toBeCloseTo(defense, 10);
+  expect(b.breakdown.offensive).toBeCloseTo(offense, 10);
+  expect(b.breakdown.final).toBe(total);
+  expect(handler.calculateBV(unit)).toBe(total);
+});
+
+it('gives heavy myomer boosters one MP and mechanical boosters none on top', () => {
+  // BattleArmor.java:449-455: +1 at heavy or above, +2 below; a mechanical
+  // jump booster adds walk MP only without a myomer booster.
+  const base = movementSource({
+    type: 'Clan Level 3',
+    motion_type: 'Leg',
+    cruiseMP: '2',
+    armor: '0',
+    weightclass: '3',
+    'Point Equipment': 'CLBAMyomerBooster:Body\nBAMechanicalJumpBooster:Body',
+  });
+  const input = buildBattleArmorBVInputFromUnit(load(base));
+  expect(input.groundMP).toBe(3);
+  expect(input.jumpMP).toBe(1);
+});
