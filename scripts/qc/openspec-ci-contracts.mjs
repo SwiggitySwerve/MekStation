@@ -167,6 +167,9 @@ export const requiredWorkflowJobContracts = [
       "needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'",
     changeGateIf: E2E_CHANGE_GATE_IF,
     uploadFailureIf: `failure() && (${E2E_CHANGE_GATE_IF})`,
+    // The gate writes its own report folder (the smoke suites write the
+    // default one after it), and the failure upload must carry it.
+    uploadPaths: ['test-results', 'playwright-report-gates'],
     extraStepIfs: {
       'Run customizer library suite': `\${{ !cancelled() && (${E2E_CHANGE_GATE_IF}) }}`,
       'Run tactical-map visual smoke': `\${{ !cancelled() && (${E2E_CHANGE_GATE_IF}) }}`,
@@ -182,6 +185,7 @@ export const requiredWorkflowJobContracts = [
         env: {
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js',
           HOSTNAME: '127.0.0.1',
+          PLAYWRIGHT_HTML_OUTPUT_DIR: 'playwright-report-gates',
         },
       },
     ],

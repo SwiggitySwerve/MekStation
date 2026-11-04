@@ -462,6 +462,16 @@ describe('OpenSpec CI quality QC validator', () => {
         'workflow-job-condition-invalid',
       ],
       [
+        'shard matrix exclusion',
+        GATE_JOB,
+        (block: string) =>
+          block.replace(
+            '        shard: [1, 2, 3]',
+            '        shard: [1, 2, 3]\n        exclude:\n          - shard: 3',
+          ),
+        'workflow-job-condition-invalid',
+      ],
+      [
         'required in-job step order',
         BUILD_JOB,
         (block: string) =>
@@ -568,6 +578,22 @@ describe('OpenSpec CI quality QC validator', () => {
         GATE_JOB,
         (block: string) =>
           block.replace("HOSTNAME: '127.0.0.1'", "HOSTNAME: 'localhost'"),
+      ],
+      [
+        // The smoke suites run next and write the default report folder.
+        'gate report written to the shared report folder',
+        GATE_JOB,
+        (block: string) =>
+          block.replace(
+            '          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-gates\n',
+            '',
+          ),
+      ],
+      [
+        'gate report dropped from the failure upload',
+        GATE_JOB,
+        (block: string) =>
+          block.replace('            playwright-report-gates\n', ''),
       ],
       [
         'failure report upload replaced by echo',
