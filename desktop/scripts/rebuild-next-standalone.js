@@ -143,6 +143,28 @@ function verifyRootNodeRuntime(nextStandaloneDir) {
   }
 }
 
+function verifyElectronNativeRuntime(electronBinaryPath, directory) {
+  execFileSync(
+    electronBinaryPath,
+    [
+      '-e',
+      [
+        "const Database = require('better-sqlite3');",
+        "const db = new Database(':memory:');",
+        "const row = db.prepare('select 1 as x').get();",
+        "if (row.x !== 1) throw new Error('Unexpected sqlite result');",
+        'db.close();',
+        "console.log('[rebuild-next-standalone] better-sqlite3 runtime check: OK');",
+      ].join(' '),
+    ],
+    {
+      cwd: directory,
+      env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
+      stdio: 'inherit',
+    },
+  );
+}
+
 async function main() {
   const desktopDir = path.join(__dirname, '..');
   const rootDir = path.join(__dirname, '..', '..');
@@ -211,26 +233,7 @@ async function main() {
   assertRootNativeBindingsUnchanged(rootNativeBindingSnapshots);
   verifyRootNodeRuntime(nextStandaloneDir);
 
-  // Sanity check: ensure the rebuilt native binding actually loads under Electron's ABI.
-  execFileSync(
-    electronBinaryPath,
-    [
-      '-e',
-      [
-        "const Database = require('better-sqlite3');",
-        "const db = new Database(':memory:');",
-        "const row = db.prepare('select 1 as x').get();",
-        "if (row.x !== 1) throw new Error('Unexpected sqlite result');",
-        'db.close();',
-        "console.log('[rebuild-next-standalone] better-sqlite3 runtime check: OK');",
-      ].join(' '),
-    ],
-    {
-      cwd: electronStandaloneDir,
-      env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
-      stdio: 'inherit',
-    },
-  );
+  verifyElectronNativeRuntime(electronBinaryPath, electronStandaloneDir);
 
   console.log('[rebuild-next-standalone] Done');
 }
