@@ -2,7 +2,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
-import { assignSlots, insertField, vehicleSlots } from './vehicle-slots.mjs';
+import {
+  assignSlots,
+  insertField,
+  motiveCompatibility,
+  vehicleSlots,
+} from './vehicle-slots.mjs';
 
 const fact = (tankSlots, supportVehicleSlots, kind = 'weapons', flags) => ({
   kind,
@@ -152,4 +157,60 @@ test('committed records carry pinned Java vehicle slots; ammunition never does',
     ['blue-shield-particle-field-damper', null, null],
   ])
     assert.deepEqual(byId.get(id)?.vehicleSlots, { tank, supportVehicle }, id);
+});
+
+test('Java motive restrictions become motiveCompatibility, unrestricted items none', () => {
+  const restricted = {
+    motiveIncompatible: ['WHEELED'],
+    motiveIncompatibleSupport: [],
+  };
+  assert.deepEqual(motiveCompatibility(restricted), {
+    incompatibleCombat: ['WHEELED'],
+    incompatibleSupport: [],
+  });
+  assert.equal(
+    motiveCompatibility({
+      motiveIncompatible: [],
+      motiveIncompatibleSupport: [],
+    }),
+    null,
+  );
+  assert.throws(() => motiveCompatibility({ kind: 'weapons' }));
+  const text = `{\n  "items": [\n    {\n      "id": "x",\n      "criticalSlots": 1,\n      "vehicleSlots": { "tank": 1, "supportVehicle": 1 },\n      "weight": 1\n    }\n  ]\n}\n`;
+  const value = motiveCompatibility(restricted);
+  const once = insertField(text, 'x', value, 'motiveCompatibility');
+  assert.match(
+    once,
+    /"vehicleSlots": \{[^}]*\},\n {6}"motiveCompatibility": \{"incompatibleCombat":\["WHEELED"\],"incompatibleSupport":\[\]\},\n {6}"weight"/,
+  );
+  assert.equal(insertField(once, 'x', value, 'motiveCompatibility'), once);
+});
+
+test('committed imagers carry the pinned Java motive restrictions', () => {
+  const items = JSON.parse(
+    readFileSync(
+      'public/data/equipment/official/miscellaneous/java-registry.json',
+      'utf8',
+    ),
+  ).items.concat(
+    JSON.parse(
+      readFileSync(
+        'public/data/equipment/official/miscellaneous/other.json',
+        'utf8',
+      ),
+    ).items,
+  );
+  // MiscType.java:6437 (F_INFRARED_IMAGER); TestTank.java:522-526 allows it only
+  // on VTOLs and aerodynes, so every other ground mode is incompatible.
+  const ground =
+    'TRACKED WHEELED HOVER NAVAL HYDROFOIL SUBMARINE WIGE RAIL MAGLEV'.split(
+      ' ',
+    );
+  assert.deepEqual(
+    items.find((item) => item.id === 'infraredimager')?.motiveCompatibility,
+    {
+      incompatibleCombat: ground,
+      incompatibleSupport: ground,
+    },
+  );
 });
