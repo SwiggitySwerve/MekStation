@@ -159,3 +159,8 @@ export function calculateAerospaceFinalBV(
     ),
   };
 }
+
+/** Explicit ammunition facts and physical source-bin identity are additive. */
+export function isAerospaceAmmo(item: IAerospaceBVEquipment): boolean {
+  return item.isAmmo === true || isAmmunitionEquipmentId(item.id);
+}

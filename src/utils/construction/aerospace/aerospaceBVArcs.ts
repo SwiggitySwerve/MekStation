@@ -22,7 +22,6 @@ import {
   hasBVTargetingComputer,
   isDirectFireBVWeapon,
 } from '../battleValueWeapons';
-import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
 import {
   isArtemisCompatibleBVWeapon,
   linkArtemisBVWeapons,
@@ -35,6 +34,7 @@ import {
   getEquipmentEntry,
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
+import { isAerospaceAmmo } from './aerospaceBVCalculations';
 import { getAerospaceDefensiveEquipmentKind } from './aerospaceBVEquipment';
 import { isRearMountedAerospaceEquipment } from './aerospaceMountFlags';
 
@@ -187,7 +187,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
       continue;
 
     if (arc !== AerospaceArc.FUSELAGE && !rawByArc.has(arc)) continue;
-    const ammunition = item.isAmmo || isAmmunitionEquipmentId(item.id);
+    const ammunition = isAerospaceAmmo(item);
     const targeted = Boolean(
       targetingComputerMounted &&
       entry &&
