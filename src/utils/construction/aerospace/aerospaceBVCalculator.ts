@@ -48,6 +48,7 @@ export function calculateAerospaceDefensiveBV(
   defensiveEquipmentBV: number;
   explosivePenalties: number;
   defensiveFactor: number;
+  typeModifier: number;
   defensive: number;
 } {
   const armorMultiplier = getArmorBVMultiplier(input.armorType);
@@ -112,6 +113,7 @@ export function calculateAerospaceDefensiveBV(
     siBV,
     defensiveEquipmentBV,
     explosivePenalties,
+    typeModifier,
     defensiveFactor,
     defensive,
   };
