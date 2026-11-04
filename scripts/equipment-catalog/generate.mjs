@@ -183,6 +183,8 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
         lookups[aliasKey]?.default ??
         lookups[sourceName?.toLowerCase()]?.default;
       if (owner !== name) continue;
+      const priorId = normalizeEquipmentId(alias, originalCatalog, false);
+      if (prototypes.includes(name) && originalCatalog.has(priorId)) continue;
       const previous = existingAliases.get(aliasKey);
       if (previous && originalCatalog.has(previous.id)) {
         // Same route semantics as registryPreviousId (equipmentBVCatalogData.ts).

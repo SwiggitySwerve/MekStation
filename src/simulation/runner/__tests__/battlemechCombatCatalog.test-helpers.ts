@@ -764,6 +764,8 @@ const EXPECTED_STREAK_WEAPON_FAMILY_IDS = {
     'clan-streak-srm-2',
     'clan-streak-srm-4',
     'clan-streak-srm-6',
+    'clstreaksrm4prototype-registry',
+    'clstreaksrm6prototype-registry',
     'iosstreaklrm10',
     'iosstreaklrm15',
     'iosstreaklrm20',
@@ -838,6 +840,7 @@ const EXPECTED_DESIGNATOR_DEFENSIVE_SPECIAL_FAMILY_IDS = {
     // Follow-up 92 slice 4: pinned Java ISNarcIOS / ISNarcOS additions.
     'isnarcbeacon-i-os-registry',
     'isnarcbeacon-os-registry',
+    'isnarcbeaconprototype-registry',
     'narc',
     'narcbeacon',
     'narcbeacon-i-os',
