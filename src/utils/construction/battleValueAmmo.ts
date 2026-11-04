@@ -353,7 +353,10 @@ export function calculateAmmoBVWithExcessiveCap(
   if (!ammo || ammo.length === 0) return 0;
 
   const weaponBVByType: Record<string, number> = {};
+  const nativeWeaponBVByType: Record<string, number> = {};
   for (const weapon of weapons) {
+    const native = getNativeAmmoBVGroup(weapon.id);
+    if (native) addBVToAmmoCapGroup(nativeWeaponBVByType, native, weapon.bv);
     const weaponType =
       artilleryCapGroup(weapon.id) ?? normalizeEquipmentId(weapon.id);
     addBVToAmmoCapGroup(weaponBVByType, weaponType, weapon.bv);
@@ -361,14 +364,21 @@ export function calculateAmmoBVWithExcessiveCap(
 
   const ammoBVByType: Record<string, number> = {};
   for (const ammoEntry of ammo) {
+    const native =
+      getNativeAmmoBVGroup(ammoEntry.id) ??
+      getNativeAmmoBVGroup(ammoEntry.weaponType);
     const normalizedType =
-      artilleryCapGroup(ammoEntry.id) ??
-      normalizeEquipmentId(ammoEntry.weaponType);
+      native && nativeWeaponBVByType[native] !== undefined
+        ? native
+        : (artilleryCapGroup(ammoEntry.id) ??
+          normalizeEquipmentId(ammoEntry.weaponType));
     addBVToAmmoCapGroup(ammoBVByType, normalizedType, ammoEntry.bv);
   }
 
   return sumCappedAmmoBV(ammoBVByType, (ammoType) => {
-    const matchingWeaponBV = findMatchingWeaponBV(ammoType, weaponBVByType);
+    const matchingWeaponBV =
+      nativeWeaponBVByType[ammoType] ??
+      findMatchingWeaponBV(ammoType, weaponBVByType);
     return matchingWeaponBV === 0 ? undefined : matchingWeaponBV;
   });
 }
