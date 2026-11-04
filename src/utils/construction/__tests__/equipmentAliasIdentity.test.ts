@@ -26,3 +26,18 @@ describe('native equipment names follow their Java identity', () => {
     );
   });
 });
+
+describe('IS Streak SRM ammo follows its Java identity (follow-up 89)', () => {
+  it.each([
+    // equipment/AmmoType.java:10617, :10649, :10679 (IS items; same owner for every tech)
+    ['IS Streak SRM 2 Ammo', 'is-streak-srm-2-ammo-registry'],
+    ['IS Streak SRM 4 Ammo', 'is-streak-srm-4-ammo-registry'],
+    ['IS Streak SRM 6 Ammo', 'is-streak-srm-6-ammo-registry'],
+  ])('%s resolves to %s', (name, id) => {
+    expect(getEquipmentEntry(name)?.id).toBe(id);
+  });
+
+  it('keeps the Clan Streak SRM ammo names on the Clan records', () => {
+    expect(getEquipmentEntry('Clan Streak SRM 2 Ammo')?.id).toMatch(/^clan-/);
+  });
+});

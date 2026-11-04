@@ -94,6 +94,40 @@ export const APPROVED_JAVA_REROUTES = [
     reason: 'Follow-up 79; mapper tag form of the route above',
     tagForm: true,
   })),
+  // Follow-up 89: IS Streak SRM ammo resolved to the generic or Clan records.
+  ...[
+    [
+      'IS Streak SRM 2 Ammo',
+      'streak-srm-ammo',
+      'is-streak-srm-2-ammo-registry',
+      ':10617',
+    ],
+    [
+      'IS Streak SRM 4 Ammo',
+      'clan-streak-srm-4',
+      'is-streak-srm-4-ammo-registry',
+      ':10649',
+    ],
+    [
+      'IS Streak SRM 6 Ammo',
+      'clan-streak-srm-6',
+      'is-streak-srm-6-ammo-registry',
+      ':10679',
+    ],
+  ].map(([name, oldTarget, newTarget, line]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    reason: `Follow-up 89; pinned 48fcb2f6 equipment/AmmoType.java${line}`,
+  })),
+  {
+    name: 'IS Streak SRM 2 Ammo',
+    oldTarget: 100,
+    newTarget: 50,
+    reason:
+      'Follow-up 89; printed shots per ton follow the IS record (AmmoType.java:10628 shots = 50)',
+    tagForm: true,
+  },
 ];
 async function capture(root, inputs) {
   process.chdir(root);
