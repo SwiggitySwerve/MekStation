@@ -76,6 +76,8 @@ export interface IInfantryBVBreakdown {
 
 export interface BADefensiveBVBreakdown {
   readonly armorBV: number;
+  /** Sensor/ECM/AMS bonus, added before the defensive factor. */
+  readonly defensiveEquipmentBV: number;
   readonly moveBV: number;
   readonly jumpBV: number;
   readonly antiMechBonus: number;

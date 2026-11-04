@@ -174,7 +174,8 @@ const OPEN_CASES: OpenCase[] = [
     tonnage: '4',
     armor: '6',
     movement: '1/3J/0U',
-    bv: '133',
+    // UL-16b oracle (MegaMek 48fcb2f64): (16 + 2 sensors/ECM) * 1.6 * 5.2.
+    bv: '150',
   },
   {
     label: 'BattleMech',
