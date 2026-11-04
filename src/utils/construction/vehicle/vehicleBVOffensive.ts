@@ -31,7 +31,7 @@ import {
   isArtemisCompatibleBVWeapon,
   linkMountedWeaponBVModifiers,
   linkPPCCapacitorBVWeapons,
-  linkAerospaceMachineGunArrayBVWeapons,
+  linkMachineGunArrayBVWeapons,
 } from '../equipmentBV/weaponLinks';
 import {
   getEquipmentEntry,
@@ -225,7 +225,7 @@ export function calculateVehicleOffensiveBV(
     arrayGroup: getMachineGunArrayBVGroup(getEquipmentEntry(w.id)?.id ?? w.id),
     ammoGroup: getNativeAmmoBVGroup(w.id),
   }));
-  linkAerospaceMachineGunArrayBVWeapons(arrays);
+  linkMachineGunArrayBVWeapons(arrays);
   arrays.forEach((w, i) => {
     if (w.arrayGroup && mounts[i].bvOverride === undefined)
       mounts[i].bvOverride = w.bv;
