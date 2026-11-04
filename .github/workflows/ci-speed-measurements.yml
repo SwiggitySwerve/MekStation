@@ -1,0 +1,130 @@
+# Temporary measurement branch only. Never merge or publish a release.
+name: CI speed measurements (temporary)
+on:
+  pull_request:
+    paths: ['.github/workflows/ci-speed-measurements.yml']
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: Exact source commit to measure
+        type: string
+        default: eca4a06022b3c9b2dc18682d37641f52c62150e0
+permissions:
+  contents: read
+concurrency:
+  group: ci-speed-measurement-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      SKIP_NOTARIZATION: 'true'
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Freeze the same source as the local baseline despite unrelated merges.
+          ref: ${{ inputs.source_ref || 'eca4a06022b3c9b2dc18682d37641f52c62150e0' }}
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22.22.0'
+      - name: Record runner and source
+        run: |
+          mkdir -p ci-speed-artifacts
+          {
+            git rev-parse HEAD
+            node --version
+            npm --version
+            uname -a
+            nproc
+            sha256sum package-lock.json desktop/package-lock.json
+          } > ci-speed-artifacts/environment.txt
+      - name: Measure fresh npm ci
+        run: /usr/bin/time -p -o ci-speed-artifacts/root-fresh-time.txt npm ci --cache "$RUNNER_TEMP/npm-root-fresh" > ci-speed-artifacts/root-fresh-install.log 2>&1
+      - name: Save measured dependency tree
+        uses: actions/cache/save@v5
+        with:
+          path: node_modules
+          key: ci-speed-measured-modules-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Prepare cached restore
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const workspace = fs.realpathSync(process.env.GITHUB_WORKSPACE);
+          const target = path.resolve(workspace, 'node_modules');
+          if (path.dirname(target) !== workspace || fs.lstatSync(target).isSymbolicLink()) {
+            throw new Error('Dependency cleanup must stay in the owned runner checkout');
+          }
+          fs.rmSync(target, { recursive: true });
+          fs.writeFileSync('ci-speed-artifacts/cache-restore-start.txt', String(Date.now()));
+          NODE
+      - name: Restore cached dependency tree
+        uses: actions/cache/restore@v5
+        with:
+          path: node_modules
+          key: ci-speed-measured-modules-${{ github.run_id }}-${{ github.run_attempt }}
+          fail-on-cache-miss: true
+      - name: Record cached restore
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const started = Number(fs.readFileSync('ci-speed-artifacts/cache-restore-start.txt', 'utf8'));
+          for (const file of ['node_modules/next/package.json', 'node_modules/jest/package.json']) {
+            if (!fs.existsSync(file)) throw new Error(`Restore is incomplete: ${file}`);
+          }
+          fs.writeFileSync('ci-speed-artifacts/cache-restore.json', JSON.stringify({ seconds: (Date.now() - started) / 1000, method: 'cache restore plus action/step startup; no npm ci' }, null, 2));
+          NODE
+      - name: Measure cached-tarball npm ci
+        run: /usr/bin/time -p -o ci-speed-artifacts/root-cached-time.txt npm ci --cache "$RUNNER_TEMP/npm-root-fresh" > ci-speed-artifacts/root-cached-install.log 2>&1
+      - name: Install desktop
+        working-directory: desktop
+        run: /usr/bin/time -p -o ../ci-speed-artifacts/desktop-install-time.txt npm ci --cache "$RUNNER_TEMP/npm-desktop" > ../ci-speed-artifacts/desktop-install.log 2>&1
+      - name: Fetch required pinned record-sheet assets
+        run: npm run fetch:assets
+      - name: Build complete standalone
+        run: |
+          /usr/bin/time -p -o ci-speed-artifacts/next-build-time.txt npm run build > ci-speed-artifacts/next-build.log 2>&1
+          test -f .next/standalone/.next/BUILD_ID
+      - name: Rebuild native binding
+        working-directory: desktop
+        run: /usr/bin/time -p -o ../ci-speed-artifacts/native-time.txt npm run rebuild:next-standalone > ../ci-speed-artifacts/native.log 2>&1
+      - name: Measure unpacked Linux build
+        working-directory: desktop
+        run: /usr/bin/time -p -o ../ci-speed-artifacts/linux-pack-time.txt npx electron-builder --dir --publish never > ../ci-speed-artifacts/linux-pack.log 2>&1
+      - name: Build nonpublishing Linux portable installer
+        working-directory: desktop
+        run: /usr/bin/time -p -o ../ci-speed-artifacts/linux-installer-time.txt npx electron-builder --linux tar.gz --publish never > ../ci-speed-artifacts/linux-installer.log 2>&1
+      - name: Record sizes, contributors and catalog identity
+        run: |
+          for target in .next/standalone .next/static desktop/release/linux-unpacked; do
+            du -sh "$target"
+            du -ab "$target" | sort -rn | sed -n '1,30p'
+            find "$target" -type f -printf '%s\t%p\n' | sort -rn | sed -n '1,30p'
+          done > ci-speed-artifacts/sizes-and-top30.txt
+          du -sh desktop/release/*.tar.gz >> ci-speed-artifacts/sizes-and-top30.txt
+          sha256sum desktop/release/*.tar.gz > ci-speed-artifacts/installer-sha256.txt
+          (cd public/data && find . -type f -print0 | sort -z | xargs -0 sha256sum) > ci-speed-artifacts/source-data.sha256
+          (cd desktop/release/linux-unpacked/resources/next-standalone/public/data && find . -type f -print0 | sort -z | xargs -0 sha256sum) > ci-speed-artifacts/packaged-data.sha256
+          diff -u ci-speed-artifacts/source-data.sha256 ci-speed-artifacts/packaged-data.sha256
+      - name: Upload complete web build
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-speed-web-build
+          include-hidden-files: true
+          path: |
+            .next/standalone
+            .next/static
+            desktop/dist
+            public/record-sheets
+          retention-days: 1
+      - name: Upload measurements and Linux installer
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-speed-linux-measurements
+          path: |
+            ci-speed-artifacts
+            desktop/release/*.tar.gz
+          retention-days: 1
