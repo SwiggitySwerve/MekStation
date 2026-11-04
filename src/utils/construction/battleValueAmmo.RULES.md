@@ -54,6 +54,12 @@ the MML rack. Listed weapon BV supplies each cap; supported one-shot identities
 are excluded through the shared weapon-heat classifier. Legacy key APIs retain
 their compatibility policy for other callers. Catalog values remain authoritative.
 
+Physical native bin resolution retains `:ShotsN#` before normalizing identity.
+Positive native counts seed original/max/remaining shots, including duplicate
+mounts; native zero leaves the default capacity. Compatibility `:N` quantities
+retain their empty `:0` behavior. Pinned MegaMek
+48fcb2f64a1b3f2d575707ce5653dad64927b587, BLKFile.java:279-291,361-365.
+
 The native ammo-group owner resolves the ambiguous canonical `long-tom` ID
 through its catalog name, Long Tom Cannon. Native `ISLongTom` remains artillery;
 the groups stay LONG_TOM_CANNON:20 and LONG_TOM:25 for every shared consumer.

@@ -47,7 +47,10 @@ import {
   getSecondaryVehicleTurretConfiguration,
   getVehicleMountFlags,
 } from '@/utils/construction/vehicle/equipmentMounts';
-import { vehicleArmorIntroYearErrors } from '@/utils/construction/vehicle/introYear';
+import {
+  vehicleArmorIntroYearErrors,
+  vehicleEngineIntroYearErrors,
+} from '@/utils/construction/vehicle/introYear';
 import { validateVehicleCaseLocations } from '@/utils/construction/vehicle/vehicleValidation';
 
 import {
@@ -441,6 +444,14 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
         year: unit.metadata.year,
         armorCode: unit.armorType,
         armorTechLevel: unit.armorTechLevel,
+        clan: /clan/i.test(String(unit.techBase)),
+        mixed: /mixed/i.test(String(unit.techBase)),
+      }),
+      ...vehicleEngineIntroYearErrors({
+        year: unit.metadata.year,
+        engineCode: unit.engineType,
+        engineRating: unit.engineRating,
+        clanEngine: unit.clanEngine === true,
         clan: /clan/i.test(String(unit.techBase)),
         mixed: /mixed/i.test(String(unit.techBase)),
       }),
