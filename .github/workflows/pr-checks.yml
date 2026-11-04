@@ -754,7 +754,10 @@ jobs:
         include:
           - os: windows-latest
             platform: win
-          - os: macos-latest
+          # Pinned: since 2026-11-04 ~14:45Z no `macos-latest` job here was
+          # acquired by a hosted runner ("not acquired ... after multiple
+          # attempts"), which cancelled the leg and failed Lint and Test.
+          - os: macos-15
             platform: mac
     timeout-minutes: 30
 
