@@ -800,6 +800,32 @@
       ]
     },
     {
+      "id": "clbalrm5-os-registry",
+      "name": "LRM 5 (OS)",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.125,
+      "criticalSlots": 3,
+      "battleValue": 11,
+      "introductionYear": 3053,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 15000,
+      "subType": "CLBALRM5OS",
+      "damage": "1/missile",
+      "heat": 2,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 0,
+        "medium": 14
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/lrm/CLBALRM5OS.java: CLBALRM5 (OS)"
+      ]
+    },
+    {
       "id": "clbalightmortar-registry",
       "name": "Mortar (Light)",
       "category": "Ballistic",
@@ -953,6 +979,58 @@
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM2.java: CLBASRM2"
+      ]
+    },
+    {
+      "id": "clbasrm2-os-registry",
+      "name": "SRM 2 (OS)",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.04,
+      "criticalSlots": 2,
+      "battleValue": 4,
+      "introductionYear": 2860,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 5000,
+      "subType": "CLBASRM2OS",
+      "damage": "2/missile",
+      "heat": 2,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM2OS.java: CLBASRM2 (OS)"
+      ]
+    },
+    {
+      "id": "clbasrm3-os-registry",
+      "name": "SRM 3 (OS)",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.06,
+      "criticalSlots": 2,
+      "battleValue": 6,
+      "introductionYear": 2860,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 7500,
+      "subType": "CLBASRM3OS",
+      "damage": "2/missile",
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM3OS.java: CLBASRM3 (OS)"
       ]
     },
     {

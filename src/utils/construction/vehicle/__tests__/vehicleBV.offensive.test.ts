@@ -170,7 +170,7 @@ describe('Vehicle final BV', () => {
       }),
     );
     expect(bv.pilotMultiplier).toBe(1.32);
-    expect(bv.final).toBe(Math.round(464.2 * 1.32));
+    expect(bv.final).toBe(Math.round(464 * 1.32));
   });
 
   it('breakdown contains required fields per spec', () => {

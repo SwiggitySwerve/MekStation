@@ -65,6 +65,7 @@ describe.each(native)('ProtoMek SRM %i', (rack, bv) => {
 
 it.each([
   ['basrm1', 15],
+  // Corrected to Java CLBASRM3 bv = 30 (CLBASRM3.java:66), which resolves here.
   ['basrm3', 30],
   ['basrm5', 47],
 ] as const)(

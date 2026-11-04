@@ -497,3 +497,17 @@ compatible PPC at the same location. Capacitors add no flat weapon BV.
 The linked native addition follows drone scaling and precedes TC scaling
 (BVCalculator.java:845-882; MiscType.java:1322-1347, pin 48fcb2f64).
 Contract and editor adapters carry the year for the shared Clan PPC gate.
+
+## Native six-side rear weighting
+
+CombatVehicleBVCalculator.java:123-125 (48fcb2f64) excludes Tank turret
+indices 5/6 even on SuperHeavyTank and LargeSupportTank. Those indices are
+Rear Left/Rear on the six-side layouts, so their weapons keep full BV.
+This preserves the pinned inherited index check, not a physical turret claim.
+The existing construction owner supplies the hull classification.
+
+Vehicle and ordinary aerospace summaries use calculateBaseBV followed by
+calculateAdjustedBV. Chassis/cockpit factors precede the base integer round;
+crew skill follows it and receives a final round. Vehicle skill lookup uses
+the existing shared table with the same floor and clamp. BVCalculator.java:
+1253,167 at MegaMek pin 48fcb2f64 owns this order.
