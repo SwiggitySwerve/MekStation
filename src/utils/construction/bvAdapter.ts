@@ -55,7 +55,7 @@ export function calculateUnitBV(source: unknown): number {
     source.unitType !== 'Quad'
   ) {
     const result = calculateBattleValueForUnit(projectNonMechSource(source));
-    if (!result) return 0;
+    if (!result) throw new Error(`Unsupported BV unitType: ${source.unitType}`);
     return requirePositiveBV(result.breakdown.final, source.unitType);
   }
   // Legacy JSON is checked here before entering the shared mech owner.
