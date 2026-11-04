@@ -2,9 +2,12 @@ import type { BVWeaponLinkType } from './resolution';
 
 import { hasNativeWeaponBVFlag } from './nativeWeaponFlags';
 import { getEquipmentEntry } from './resolution';
-/** Closed catalog subset carrying native F_ARTEMIS_COMPATIBLE. */
+
+/** Pinned native F_ARTEMIS_COMPATIBLE, including inherited weapon flags. */
 export function isArtemisCompatibleBVWeapon(id: string): boolean {
-  return /^(?:clan-)?(?:(?:lrm|srm|mml)-|(?:lr|sr)torpedo)\d+$/.test(id);
+  return (
+    hasNativeWeaponBVFlag(getEquipmentEntry(id)?.id ?? id, 'artemis') === true
+  );
 }
 
 /** First compatible unlinked launcher at the same physical location.
