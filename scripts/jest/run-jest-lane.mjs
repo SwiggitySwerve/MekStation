@@ -20,6 +20,17 @@ const lanes = {
     },
     args: ['jest', '--watchAll=false'],
   },
+  // Whole-catalog suites and roadmap tooling tests, split out of `unit` by
+  // JEST_SPLIT_CORPUS (config/jest/corpus-suites.js). CI runs them as their own
+  // jobs; locally, `test:corpus` / `test:roadmap` run just those.
+  corpus: {
+    env: { JEST_SPLIT_CORPUS: 'true' },
+    args: ['jest', '--selectProjects', 'corpus', '--watchAll=false'],
+  },
+  roadmap: {
+    env: { JEST_SPLIT_CORPUS: 'true' },
+    args: ['jest', '--selectProjects', 'roadmap', '--watchAll=false'],
+  },
   'perf-sensitive': {
     env: {
       SIMULATION_PERF_ASSERTIONS: 'true',
