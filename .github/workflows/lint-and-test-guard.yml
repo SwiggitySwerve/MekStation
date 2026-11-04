@@ -1,0 +1,37 @@
+name: Lint and Test Guard
+
+# `Lint and Test` is the only required check. If GitHub ever finishes a PR
+# Checks run without creating that job (run 41817202190), this posts a
+# failed `Lint and Test` check on the run's head commit, so a missing report
+# can never look mergeable, even to an admin merge.
+# scripts/ci/lint-and-test-guard.mjs holds the decision.
+
+on:
+  workflow_run:
+    workflows: [PR Checks]
+    types: [completed]
+
+permissions:
+  actions: read
+  checks: write
+  contents: read
+
+jobs:
+  guard:
+    name: Require a Lint and Test conclusion
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout the guard script from the default branch
+        uses: actions/checkout@v6
+        with:
+          sparse-checkout: scripts/ci
+          persist-credentials: false
+
+      - name: Report a failed Lint and Test when the run never created it
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: node scripts/ci/lint-and-test-guard.mjs --repo "$REPO" --run "$RUN_ID" --sha "$HEAD_SHA"

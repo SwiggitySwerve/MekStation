@@ -13,32 +13,21 @@
  *   comment), which is the failure mode the loose form allows.
  */
 
-export const requiredProtectedContexts = [
-  'Lint and Test',
-  'Build Test / win',
-  'Build Test / mac',
-  'Build Test / linux',
-];
+// Live branch protection requires only the aggregator; it needs every
+// fan-out job, Build Test included (CI-SPEED slice 5).
+export const requiredProtectedContexts = ['Lint and Test'];
 
 export const requiredAggregatorNeeds = [
-  'lint',
-  'format-check',
-  'typecheck',
+  'detect-changes',
+  'static-checks',
   'unit-test-shards',
-  'perf-smoke-tests',
-  'statistical-proof-pr',
-  'perf-budget-pr',
-  'coverage-floor',
-  'a11y-tests',
-  'validate-bv',
+  'corpus-tests',
+  'simulation-checks',
   'validate-combat',
-  'storybook-build',
   'schema-bridge',
-  'determinism-audit',
-  'e2e-build',
+  'prepare-build',
+  'build-test',
   'e2e',
-  'desktop-typecheck',
-  'desktop-tests',
 ];
 
 export const requiredWorkflowTokens = [
@@ -97,9 +86,9 @@ export const requiredWorkflowTokens = [
     id: 'desktop-build-required-platforms',
     tokens: [
       'name: Build Test / ${{ matrix.platform }}',
-      'platform: linux',
       'platform: win',
       'platform: mac',
+      'name: Test Electron build (linux pack mode)',
       'npx electron-builder --dir --publish never',
     ],
   },
@@ -107,18 +96,17 @@ export const requiredWorkflowTokens = [
 
 /**
  * The per-PR browser gates (add-customizer-pr-regression-gate, and the seam
- * trust anchors of add-seam-trust-anchor-journeys).
+ * trust anchors of add-seam-trust-anchor-journeys) run in the `e2e` job, a
+ * fixed two-shard matrix. Every token is scoped to that job block, so the
+ * contract pins the gate itself, not the workflow's vocabulary:
  *
- * The gates run in two jobs, and every token is scoped to its own job block
- * so the contract pins the gate itself, not the workflow's vocabulary:
- *
- * - `e2e-build` fetches the record-sheet assets in THIS job's checkout,
- *   validates them strictly, and builds the E2E-mode production app once.
- *   A missing template fails here instead of degrading to the CDN fallback;
- *   the build copies the assets into the standalone public/ the shards serve.
- * - `e2e` runs the exact six-spec gate invocation through the repo runner
- *   wrapper against that standalone server, in every shard of a fixed
- *   three-shard matrix, so no pack and no shard can be dropped;
+ * - each shard fetches the record-sheet assets in ITS OWN checkout and
+ *   validates them strictly before building, so a missing template fails
+ *   instead of degrading to the CDN fallback;
+ * - each shard builds the E2E-mode production app and serves it from
+ *   `.next/standalone/server.js`;
+ * - the exact six-spec gate invocation through the repo runner wrapper, in
+ *   every shard of the fixed matrix, so no pack and no shard can be dropped;
  *   `--retries=0`, so a flaky regression is never retried to green;
  *   `--trace=retain-on-failure`, because the config's
  *   `trace: 'on-first-retry'` produces nothing at zero retries.
@@ -128,14 +116,28 @@ const E2E_CHANGE_GATE_IF =
 
 export const requiredWorkflowJobContracts = [
   {
-    id: 'customizer-regressions-build',
-    jobId: 'e2e-build',
-    jobName: 'E2E Build',
+    id: 'customizer-regressions-gate',
+    jobId: 'e2e',
+    jobName: 'E2E (${{ matrix.shard }}/2)',
     requiredNeeds: ['detect-changes'],
-    timeoutMinutes: 15,
+    timeoutMinutes: 25,
+    matrixShards: [1, 2],
     skipIf:
       "needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'",
     changeGateIf: E2E_CHANGE_GATE_IF,
+    uploadFailureIf: `failure() && (${E2E_CHANGE_GATE_IF})`,
+    // The gate writes its own report folder (the smoke suites write theirs
+    // after it), and the failure upload must carry it.
+    uploadPaths: [
+      'test-results',
+      'playwright-report',
+      'playwright-report-gates',
+    ],
+    extraStepIfs: {
+      'Run customizer library suite': `\${{ !cancelled() && (${E2E_CHANGE_GATE_IF}) }}`,
+      'Run tactical-map visual smoke': `\${{ !cancelled() && (${E2E_CHANGE_GATE_IF}) }}`,
+      'Upload library-open screenshots': `always() && (${E2E_CHANGE_GATE_IF})`,
+    },
     setupAction: {
       uses: './.github/actions/setup-node-and-install',
       with: { 'fetch-assets': 'true' },
@@ -153,38 +155,9 @@ export const requiredWorkflowJobContracts = [
           NEXT_PUBLIC_E2E_TEST: 'true',
         },
       },
-    ],
-  },
-  {
-    id: 'customizer-regressions-gate',
-    jobId: 'e2e',
-    jobName: 'E2E (${{ matrix.shard }}/3)',
-    requiredNeeds: ['detect-changes', 'e2e-build'],
-    timeoutMinutes: 20,
-    matrixShards: [1, 2, 3],
-    skipIf:
-      "needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'",
-    changeGateIf: E2E_CHANGE_GATE_IF,
-    uploadFailureIf: `failure() && (${E2E_CHANGE_GATE_IF})`,
-    // The gate writes its own report folder (the smoke suites write the
-    // default one after it), and the failure upload must carry it.
-    uploadPaths: [
-      'test-results',
-      'playwright-report',
-      'playwright-report-gates',
-    ],
-    extraStepIfs: {
-      'Run customizer library suite': `\${{ !cancelled() && (${E2E_CHANGE_GATE_IF}) }}`,
-      'Run tactical-map visual smoke': `\${{ !cancelled() && (${E2E_CHANGE_GATE_IF}) }}`,
-      'Upload library-open screenshots': `always() && (${E2E_CHANGE_GATE_IF})`,
-    },
-    setupAction: {
-      uses: './.github/actions/setup-node-and-install',
-    },
-    requiredRuns: [
       {
         id: 'browser-gates-playwright',
-        run: 'node scripts/playwright/run-playwright.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/3 --output=test-results/gates',
+        run: 'node scripts/playwright/run-playwright.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates',
         env: {
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js',
           HOSTNAME: '127.0.0.1',
