@@ -223,19 +223,24 @@ describe('BlkExportServiceCore.formatters', () => {
   });
 
   // ============================================================================
-  // formatArmorTypeCode() — must emit numeric code "0".."8" per MegaMek
+  // formatArmorTypeCode() — MegaMek 48fcb2f6 EquipmentType.T_ARMOR_* codes
+  // (EquipmentType.java:85-112). BLK stealth is the vehicle code 22
+  // (T_ARMOR_STEALTH_VEHICLE); the Ferro-Fibrous side comes from the unit's
+  // tech base (BLKTankFile.java:284-300, ArmorType.of(id, isClan)).
   // ============================================================================
   describe('formatArmorTypeCode()', () => {
     it.each([
       [ArmorTypeEnum.STANDARD, '0'],
       [ArmorTypeEnum.FERRO_FIBROUS_IS, '1'],
-      [ArmorTypeEnum.FERRO_FIBROUS_CLAN, '2'],
-      [ArmorTypeEnum.LIGHT_FERRO, '3'],
-      [ArmorTypeEnum.HEAVY_FERRO, '4'],
-      [ArmorTypeEnum.STEALTH, '5'],
-      [ArmorTypeEnum.REACTIVE, '6'],
-      [ArmorTypeEnum.REFLECTIVE, '7'],
-      [ArmorTypeEnum.HARDENED, '8'],
+      [ArmorTypeEnum.FERRO_FIBROUS_CLAN, '1'],
+      [ArmorTypeEnum.REACTIVE, '2'],
+      [ArmorTypeEnum.REFLECTIVE, '3'],
+      [ArmorTypeEnum.HARDENED, '4'],
+      [ArmorTypeEnum.LIGHT_FERRO, '5'],
+      [ArmorTypeEnum.HEAVY_FERRO, '6'],
+      [ArmorTypeEnum.FERRO_LAMELLOR, '16'],
+      [ArmorTypeEnum.STEALTH, '22'],
+      [ArmorTypeEnum.BALLISTIC_REINFORCED, '26'],
     ])('formats %s to "%s"', (input, expected) => {
       expect(formatArmorTypeCode(input)).toBe(expected);
     });
