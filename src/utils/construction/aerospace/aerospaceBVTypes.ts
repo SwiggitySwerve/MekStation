@@ -32,6 +32,7 @@ export interface IAerospaceBVEquipment {
   readonly location: AerospaceArc | string;
   /** Source identity survives aliases whose catalog id omits "ammo". */
   readonly isAmmo?: boolean;
+  readonly isRearMounted?: boolean;
 }
 
 /**

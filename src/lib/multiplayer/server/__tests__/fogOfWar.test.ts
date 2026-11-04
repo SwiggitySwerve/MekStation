@@ -23,6 +23,19 @@ import {
 const PLAYER_A = 'pid_a';
 const PLAYER_B = 'pid_b';
 
+// The broadcast budget below is a wall-clock assertion. A multi-worker unit
+// shard measures CPU contention rather than the filter (CI run 41856478801:
+// 18.7 ms against a 15 ms budget under 4 workers), so it is asserted only where
+// a perf lane pins it: SIMULATION_PERF_ASSERTIONS=true (the Simulation Checks
+// "wall-clock budgets" step, the nightly perf job, `npm run test:perf-sensitive`)
+// or an explicit FOG_OF_WAR_BROADCAST_BUDGET_MS. Same pattern as the simulation
+// integration suites; the filtering itself is still asserted in every run.
+const BROADCAST_BUDGET_MS =
+  Number(process.env.FOG_OF_WAR_BROADCAST_BUDGET_MS) || 15;
+const assertBroadcastBudget =
+  Boolean(process.env.FOG_OF_WAR_BROADCAST_BUDGET_MS) ||
+  process.env.SIMULATION_PERF_ASSERTIONS === 'true';
+
 type TestCanSeeUnit = (
   playerId: string,
   unitId: string,
@@ -399,22 +412,28 @@ describe('fog-of-war event filtering', () => {
       return Number(unitId.split('-')[1]) % 2 === 0;
     };
 
+    let delivered = 0;
     const start = performance.now();
     for (const playerId of playerIds) {
       for (const event of events) {
-        filterEventForPlayer(event, playerId, state, {
+        const filtered = filterEventForPlayer(event, playerId, state, {
           fogOfWar: true,
           cache,
           canSeeUnit,
         });
+        if (filtered !== null) delivered += 1;
       }
     }
     const elapsedMs = performance.now() - start;
 
-    // Budget widened from 5 → 15ms after repeated CI flakes on github runners
-    // (consistently 6-8ms in practice, with occasional spikes). Keeps the
-    // smoke check while tolerating CI runner jitter.
-    expect(elapsedMs).toBeLessThan(15);
+    // Functional: none of the eight players owns a side, so each is an observer
+    // and receives exactly the heat events of the sixteen units it can see.
+    expect(delivered).toBe(playerIds.length * 16);
+
+    // Budget: 15 ms (consistently 6-8 ms on an idle runner), asserted only in a
+    // perf lane; see the note at the top of the file.
+    if (assertBroadcastBudget)
+      expect(elapsedMs).toBeLessThan(BROADCAST_BUDGET_MS);
   });
 
   it('keeps direct visibility checks below the sub-millisecond target', () => {
