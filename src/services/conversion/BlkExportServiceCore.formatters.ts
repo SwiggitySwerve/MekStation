@@ -1,7 +1,7 @@
 import type { ProtoMechState } from '@/stores/protoMechState';
+import type { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import type { VehicleEngineType } from '@/types/construction/EngineType';
 
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
 import {
   AerospaceLocation,
   VehicleLocation,
@@ -24,6 +24,7 @@ import {
 } from '@/types/unit/PersonnelInterfaces';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
 
+import { encodeBlkArmorType } from './BlkArmorCodes';
 import { encodeBlkEngine } from './blkEngineIdentity';
 
 export function formatMotionType(motionType: GroundMotionType): string {
@@ -88,18 +89,7 @@ export function formatEngineTypeCode(engineType: VehicleEngineType): string {
 }
 
 export function formatArmorTypeCode(armorType: ArmorTypeEnum): string {
-  const codes: Record<string, string> = {
-    [ArmorTypeEnum.STANDARD]: '0',
-    [ArmorTypeEnum.FERRO_FIBROUS_IS]: '1',
-    [ArmorTypeEnum.FERRO_FIBROUS_CLAN]: '2',
-    [ArmorTypeEnum.LIGHT_FERRO]: '3',
-    [ArmorTypeEnum.HEAVY_FERRO]: '4',
-    [ArmorTypeEnum.STEALTH]: '5',
-    [ArmorTypeEnum.REACTIVE]: '6',
-    [ArmorTypeEnum.REFLECTIVE]: '7',
-    [ArmorTypeEnum.HARDENED]: '8',
-  };
-  return codes[armorType] || '0';
+  return String(encodeBlkArmorType(armorType));
 }
 
 export function formatArmorTechCode(techBase: TechBase): string {
