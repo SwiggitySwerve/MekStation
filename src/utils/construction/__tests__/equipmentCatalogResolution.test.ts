@@ -1,4 +1,3 @@
-import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
 import {
@@ -14,28 +13,11 @@ import {
 } from '../equipmentBVCatalogData';
 import { getEquipmentEntry } from '../equipmentBVResolver';
 
-it('preserves merged-main lookup results except the five approved Java reroutes', () => {
-  execFileSync(
-    process.execPath,
-    ['--test', 'scripts/equipment-catalog/resolution.test.mjs'],
-    {
-      env: { ...process.env, NODE_ENV: 'test' },
-      windowsHide: true,
-      timeout: 360_000,
-    },
-  );
-}, 370_000);
-
-it('keeps every existing catalog record and validates generated Java additions', () => {
-  execFileSync(
-    process.execPath,
-    ['--test', 'scripts/equipment-catalog/generate.test.mjs'],
-    {
-      windowsHide: true,
-      timeout: 30_000,
-    },
-  );
-}, 35_000);
+// The resolution guard and generator tests (scripts/equipment-catalog/*.test.mjs)
+// run as node:test files in Schema Bridge ("Test equipment catalog generator and
+// resolution guards", pr-checks.yml, registered in openspec-ci-contracts.mjs).
+// Re-spawning them here cost ~3.5 min per run and, when a loaded machine hit
+// the spawn timeout, crashed the Jest worker on a circular spawn error (check 5).
 
 const generatedCatalogItems = [
   ...WEAPON_CATALOG_FILES,
