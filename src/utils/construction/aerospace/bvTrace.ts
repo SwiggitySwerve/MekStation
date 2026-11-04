@@ -2,12 +2,13 @@ import type { IAerospaceBVBreakdown } from '@/types/unit/BVBreakdownTypes';
 
 import { calculateBaseBV } from '../battleValueTotals';
 
-/** Read-only aircraft trace. The existing owner has no weight or offensive
- * type adjustment, and its summary uses subTypeMultiplier. Unsupported native
- * cockpit/drone effects and mount/ammo details remain visible as differences.
+/** Read-only aircraft trace. Actual summary facts may replace the legacy
+ * compatibility projection; omission preserves its previous output.
+ * Mount and ammo details remain the calculation owners' responsibility.
  */
 export function aerospaceBVTerms(
   b: IAerospaceBVBreakdown,
+  summary?: { baseBV: number; summaryModifier: number },
 ): IAerospaceBVBreakdown & {
   weightBV: number;
   offensiveTypeModifier: number;
@@ -18,9 +19,10 @@ export function aerospaceBVTerms(
     ...b,
     weightBV: 0,
     offensiveTypeModifier: 1,
-    summaryModifier: b.subTypeMultiplier,
+    summaryModifier: summary?.summaryModifier ?? b.subTypeMultiplier,
     adjustment:
       b.final -
-      calculateBaseBV(b.defensive, b.offensive, [b.subTypeMultiplier]),
+      (summary?.baseBV ??
+        calculateBaseBV(b.defensive, b.offensive, [b.subTypeMultiplier])),
   };
 }

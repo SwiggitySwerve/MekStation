@@ -1442,42 +1442,6 @@ The StateCycleDetector SHALL include each unit's `position` field in its snapsho
 **THEN** `scenario.turnLimit` SHALL be 50 (the caller's explicit value)
 **AND** the auto-scaling SHALL only apply when the caller leaves `turnLimit` undefined
 
-### Requirement: Statistical Validation
-
-The system SHALL validate game balance through statistical analysis, and the statistical combat proofs SHALL be gated in the blocking pull-request lane, not only in a non-gating nightly run. A pull request that changes combat-affecting code SHALL NOT merge unless a statistical batch large enough to exercise the existence assertions has passed as a required check, OR a passing full nightly statistical batch is enforced as a documented merge requirement for those PRs. The PR-lane batch MAY be bounded by PR-sized time caps; the full nightly batch is retained as the high-confidence run.
-
-**Priority**: High
-
-#### Scenario: Win rate distribution
-
-**GIVEN** 1000 simulations with balanced forces
-**WHEN** computing win rates
-**THEN** player wins SHALL be 40-60%
-**AND** opponent wins SHALL be 40-60%
-**AND** draws SHALL be <10%
-
-#### Scenario: Violation rate threshold
-
-**GIVEN** 1000 simulations
-**WHEN** counting violations
-**THEN** critical violations SHALL be <5% of games
-**AND** all violations SHALL be reproducible with seed
-
-#### Scenario: Statistical proofs run in the blocking PR lane
-
-- **GIVEN** the PR CI configuration
-- **WHEN** a pull request that touches combat-affecting code runs CI
-- **THEN** a required check SHALL execute the statistical proofs with `SIMULATION_COUNT >= STATISTICAL_PROOF_GAME_MIN`, so the existence assertions actually run
-- **AND** that required check SHALL be a member of the `lint-and-test` aggregator's `needs` set so branch protection enforces it
-- **OR**, where a passing full nightly statistical batch is enforced as the documented merge requirement instead, the absence of a passing nightly batch SHALL block the merge.
-
-#### Scenario: Combat-touching PR cannot merge without a statistical proof having passed
-
-- **GIVEN** a pull request that modifies combat math, damage resolution, or the simulation runner
-- **WHEN** no statistical proof, PR-lane batch or required nightly batch, has passed for that change
-- **THEN** the merge SHALL be blocked
-- **AND** a green build that exercised zero statistical combat coverage SHALL NOT be sufficient to merge.
-
 ### Requirement: Programmatic Exclusion
 
 The system SHALL provide a function to check whether a violation is a known limitation, and that suppression SHALL be opt-in per detector rather than applied to any violation whose message text matches a broad pattern. A violation SHALL be suppressed only when its emitting invariant is explicitly designated as a legacy generic detector via an allowlist of suppressible invariant names or an explicit legacy marker on the violation. A violation from any detector not so designated SHALL be surfaced. Category patterns used for classification SHALL match whole tokens or phrases so incidental substrings such as "discharge" matching a "charge" pattern, or "loss"/"close" matching a "los" pattern, do NOT trigger a known-limitation classification.
@@ -1562,3 +1526,45 @@ The runner-level 1,000-run / 60-second throughput target and the worker-thread-f
 - **WHEN** the step-cost helpers are invoked per hex per step
 - **THEN** the helpers SHALL NOT allocate a fresh per-call options object or per-call result object for each invocation on the hot path
 - **AND** `findPath` itself SHALL remain functionally unchanged — its throughput recovers from the reduced allocation / GC pressure of its callees, not from edits to the pathfinder
+
+### Requirement: Statistical Validation On Main And Nightly
+
+The system SHALL validate game balance through statistical analysis. The statistical combat proofs, with a batch large enough to exercise the existence assertions, SHALL run on every push to main and on the nightly schedule as a step of a job in the `lint-and-test` aggregator's `needs` set, so a statistical regression fails the required check on main for the push that introduced it and on the next nightly run. Pull-request runs SHALL NOT execute them: the batch costs about three minutes on most combat-touching pull requests, and main and nightly carry it instead (CI-SPEED, 2026-11-04). The main-push batch MAY be bounded by CI-sized time caps; the full nightly batch is retained as the high-confidence run.
+
+**Priority**: High
+
+#### Scenario: Win rate distribution
+
+**GIVEN** 1000 simulations with balanced forces
+**WHEN** computing win rates
+**THEN** player wins SHALL be 40-60%
+**AND** opponent wins SHALL be 40-60%
+**AND** draws SHALL be <10%
+
+#### Scenario: Violation rate threshold
+
+**GIVEN** 1000 simulations
+**WHEN** counting violations
+**THEN** critical violations SHALL be <5% of games
+**AND** all violations SHALL be reproducible with seed
+
+#### Scenario: Statistical proofs run on every main push and nightly
+
+- **GIVEN** the PR Checks configuration
+- **WHEN** it runs for a push to main, the nightly schedule or a manual dispatch
+- **THEN** a job in the `lint-and-test` aggregator's `needs` set SHALL execute the statistical proofs with `SIMULATION_COUNT >= STATISTICAL_PROOF_GAME_MIN`, so the existence assertions actually run
+- **AND** a failing proof SHALL fail that run's `Lint and Test` check
+
+#### Scenario: Pull requests do not run the statistical batch
+
+- **GIVEN** the PR Checks configuration
+- **WHEN** it runs for a pull request
+- **THEN** the statistical proof step SHALL NOT execute
+- **AND** every other combat check the pull request's changes trigger SHALL still run
+
+#### Scenario: A statistical regression is caught on main
+
+- **GIVEN** a merged change that breaks a statistical existence assertion
+- **WHEN** the push to main, or the next nightly run, executes PR Checks
+- **THEN** its statistical proof step SHALL fail
+- **AND** that run's `Lint and Test` check SHALL conclude failure, so main shows red at that commit range
