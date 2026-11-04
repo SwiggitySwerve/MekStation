@@ -169,6 +169,9 @@ module.exports = createJestConfig({
         ]
       : []),
   ],
+  // Duration-weighted `--shard` plus slowest-first ordering; weights are the
+  // committed config/jest/test-durations.json (refresh: `npm run test:durations`).
+  testSequencer: '<rootDir>/config/jest/duration-sequencer.js',
   // GitHub-hosted Linux runners have 4 vCPUs; Jest's default (cores - 1) leaves
   // one idle while workers wait on file IO. Locally keep the default.
   ...(process.env.CI ? { maxWorkers: '100%' } : {}),
