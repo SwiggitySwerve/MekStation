@@ -11,6 +11,7 @@ A PR Checks run started 33 jobs, and the public repository gets 20 concurrent Gi
 - `Lint and Test` accepts a skip only for those jobs, and only when every gate it names for the job was off.
 - Wire Lane B's `JEST_SPLIT_CORPUS` projects: three unit shards without the whole-catalog suites, a two-shard `corpus-tests` lane gated on the corpus suites' import closure and catalog data, and the `roadmap` project as a gated Static Checks step. The split selects exactly the same 3,080 test files. The unit shards restore a Jest transform cache from main.
 - Add `Lint and Test Guard`: when a PR Checks run finishes without creating `Lint and Test` (run 41817202190, PR #2660), it reports a failed `Lint and Test` check on the head commit, so a missing required check cannot be admin-merged as if green.
+- Run the per-PR browser gates in two `e2e` shards that each validate the record-sheet assets and build the E2E-mode app themselves, instead of an `e2e-build` job plus three shards. Pack Linux Electron in `prepare-build` right after the build, and start the Windows and macOS `Build Test` legs only when desktop packaging inputs changed. The required branch-protection context stays `Lint and Test` alone, as configured on the repository, and the setup scripts now say so.
 - Upload `web-build` with hidden files, so its standalone server includes `.next/standalone/.next`.
 - In the setup composite, restore the npm download cache only when node_modules misses, run `npm ci --prefer-offline --no-audit --no-fund`, and let jobs that neither build Next nor pack Electron skip those two caches.
 
@@ -22,9 +23,10 @@ None.
 
 ### Modified Capabilities
 
+- `e2e-testing`: the browser gates run in a two-shard `e2e` job whose shards each validate the assets and build the E2E-mode app; the job-scoped contract pins that job.
 - `journey-qc`: the hardened aggregator may accept a skip of a job that was gated off by `detect-changes`; every other skip, failure or cancellation still fails it, and a run that never creates the aggregator is reported as failed by a guard workflow.
 - `simulation-system`: the perf-smoke throughput budget is set by the `simulation-checks` job's perf-smoke step.
 
 ## Impact
 
-`.github/workflows/pr-checks.yml`, `.github/actions/setup-node-and-install/action.yml`, `scripts/qc/openspec-ci-contracts.mjs`, `scripts/qc/validate-restore-ci-correctness-teeth.mjs`, `.github/workflows/lint-and-test-guard.yml` with `scripts/ci/lint-and-test-guard.mjs` and `scripts/__tests__/build-validation-gates.test.ts`. Branch protection still requires only `Lint and Test`, and the `Build Test / *` names are unchanged.
+`.github/workflows/pr-checks.yml`, `.github/actions/setup-node-and-install/action.yml`, `scripts/qc/openspec-ci-contracts.mjs`, `scripts/qc/validate-restore-ci-correctness-teeth.mjs`, `.github/workflows/lint-and-test-guard.yml` with `scripts/ci/lint-and-test-guard.mjs` and `scripts/__tests__/build-validation-gates.test.ts`, `scripts/__tests__/openspec-ci-quality-qc.test.ts`, `scripts/__tests__/tsrs-side-check.test.ts`, `scripts/__tests__/typescript-toolchain.test.ts`, `.github/scripts/setup-branch-protection.{sh,ps1}`. Branch protection still requires only `Lint and Test`.

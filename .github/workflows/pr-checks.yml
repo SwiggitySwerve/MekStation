@@ -480,29 +480,42 @@ jobs:
           retention-days: 7
 
   # ---------------------------------------------------------------
-  # e2e-build builds the E2E-mode production app ONCE per run and
-  # hands it to every Playwright shard, so no shard compiles Next and
-  # no shard runs `next dev` (which compiled each route on demand).
-  # It is a separate build from prepare-build on purpose:
-  # NEXT_PUBLIC_E2E_* are inlined at build time, and a non-E2E
-  # production build swaps the tactical-map E2E harness for an empty
-  # stub (next.config.ts), so the Electron pack must not consume this
-  # one. The record-sheet assets are fetched and strictly validated in
-  # THIS job's checkout, and the build copies them into the standalone
-  # public/ the shards serve, so a missing template fails here instead
-  # of degrading to the CDN fallback. Step gating keeps docs- and
-  # openspec-only PRs green for the lint-and-test aggregator.
+  # e2e runs every per-PR Playwright gate in 2 shards. Each shard
+  # fetches and strictly validates the record-sheet assets in its own
+  # checkout (a missing template fails here instead of degrading to the
+  # CDN fallback) and builds the E2E-mode production app itself: a
+  # separate build job plus an artifact hop took one more runner than a
+  # second build costs (CI-SPEED slice 5, 12-job budget).
+  # NEXT_PUBLIC_E2E_* are inlined at build time, and a non-E2E production
+  # build swaps the tactical-map E2E harness for an empty stub
+  # (next.config.ts), so this build is not prepare-build's.
+  #   - gate specs (the seam trust anchors, design R4, and the
+  #     customizer regressions) run with --retries=0, so a flaky
+  #     anchor can never retry to green, and with
+  #     --trace=retain-on-failure, because the config's
+  #     `trace: 'on-first-retry'` records nothing at zero retries. They
+  #     run on one worker, as before: under 4 workers the customizer
+  #     packs time out (run 41810648418).
+  #   - smoke specs keep the config's CI retries. The library suite runs
+  #     on one worker (its flows share the server database); the
+  #     tactical-map visual smoke uses all 4 vCPUs of the runner.
+  # Each group is sharded on its own, so every shard runs a slice of
+  # both. Step gating keeps docs- and openspec-only PRs green.
   # ---------------------------------------------------------------
-  e2e-build:
-    name: E2E Build
+  e2e:
+    name: E2E (${{ matrix.shard }}/2)
     needs: detect-changes
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
 
     steps:
       - name: Skip (no code or e2e changes)
         if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'
-        run: echo "No code or e2e changes — skipping the E2E build."
+        run: echo "No code or e2e changes — skipping E2E."
 
       - name: Checkout code
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
@@ -526,67 +539,6 @@ jobs:
           NEXT_PUBLIC_E2E_TEST: 'true'
         run: npm run build
 
-      # One zstd tarball instead of tens of thousands of zip entries:
-      # keeps symlinks and modes in the standalone node_modules and makes
-      # the upload and download a single stream.
-      - name: Pack standalone build
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        run: tar -cf - .next/standalone | zstd -T0 -3 -q -o "$RUNNER_TEMP/e2e-build.tar.zst"
-
-      - name: Upload E2E build
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        uses: actions/upload-artifact@v7
-        with:
-          name: e2e-build
-          path: ${{ runner.temp }}/e2e-build.tar.zst
-          compression-level: 0
-          retention-days: 1
-
-  # ---------------------------------------------------------------
-  # e2e runs every per-PR Playwright gate against the E2E Build's
-  # standalone server, in 3 shards. It replaces the former E2E Smoke,
-  # Seam Anchors and Customizer Regressions jobs with the same spec
-  # files and the same retry policy:
-  #   - gate specs (the seam trust anchors, design R4, and the
-  #     customizer regressions) run with --retries=0, so a flaky
-  #     anchor can never retry to green, and with
-  #     --trace=retain-on-failure, because the config's
-  #     `trace: 'on-first-retry'` records nothing at zero retries. They
-  #     run on one worker, as before: under 4 workers the customizer
-  #     packs time out (run 41810648418).
-  #   - smoke specs keep the config's CI retries. The library suite runs
-  #     on one worker (its flows share the server database); the
-  #     tactical-map visual smoke uses all 4 vCPUs of the runner.
-  # Each group is sharded on its own, so every shard runs a slice of
-  # both. Step gating keeps docs- and openspec-only PRs green.
-  # ---------------------------------------------------------------
-  e2e:
-    name: E2E (${{ matrix.shard }}/3)
-    needs: [detect-changes, e2e-build]
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3]
-
-    steps:
-      - name: Skip (no code or e2e changes)
-        if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'
-        run: echo "No code or e2e changes — skipping E2E."
-
-      - name: Checkout code
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-          skip-nextjs-cache: 'true'
-          build-caches: 'false'
-
       - name: Resolve Playwright version for browser cache key
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
         id: playwright-version
@@ -609,25 +561,14 @@ jobs:
         if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
-      - name: Download E2E build
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        uses: actions/download-artifact@v8
-        with:
-          name: e2e-build
-          path: ${{ runner.temp }}
-
-      - name: Unpack E2E build
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        run: zstd -dc -q "$RUNNER_TEMP/e2e-build.tar.zst" | tar -xf - && test -f .next/standalone/server.js
-
       - name: Run seam anchor and customizer regression gates
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
         env:
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
           HOSTNAME: '127.0.0.1'
-          # The smoke step writes the default report folder.
+          # The smoke steps write their own report folders.
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-gates
-        run: node scripts/playwright/run-playwright.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/3 --output=test-results/gates
+        run: node scripts/playwright/run-playwright.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates
 
       # The library flows save and reopen units through the shared server
       # database, and both viewport variants of a family save the same
@@ -638,14 +579,14 @@ jobs:
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
           HOSTNAME: '127.0.0.1'
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-library
-        run: node scripts/playwright/run-playwright.mjs test e2e/customizer-library-open.spec.ts --project=chromium --workers=1 --shard=${{ matrix.shard }}/3 --output=test-results/library
+        run: node scripts/playwright/run-playwright.mjs test e2e/customizer-library-open.spec.ts --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/library
 
       - name: Run tactical-map visual smoke
         if: ${{ !cancelled() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') }}
         env:
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
           HOSTNAME: '127.0.0.1'
-        run: node scripts/playwright/run-playwright.mjs test e2e/tactical-map-visual-smoke.spec.ts --project=chromium --workers=4 --shard=${{ matrix.shard }}/3 --output=test-results/smoke
+        run: node scripts/playwright/run-playwright.mjs test e2e/tactical-map-visual-smoke.spec.ts --project=chromium --workers=4 --shard=${{ matrix.shard }}/2 --output=test-results/smoke
 
       - name: Upload library-open screenshots
         if: always() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
@@ -692,7 +633,6 @@ jobs:
         schema-bridge,
         prepare-build,
         build-test,
-        e2e-build,
         e2e,
       ]
     runs-on: ubuntu-latest
@@ -708,7 +648,7 @@ jobs:
              "validate-combat": ["combat"],
              "schema-bridge": ["code"],
              "prepare-build": ["code"],
-             "build-test": ["code"]}
+             "build-test": ["desktop"]}
         shell: bash
         run: |
           echo "$NEEDS_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value.result)"'
@@ -729,15 +669,17 @@ jobs:
           fi
           echo "All fan-out checks passed or were gated off"
 
-  # prepare-build runs on code changes only. On docs/openspec-only PRs it
-  # and build-test skip; Lint and Test accepts that skip because the
-  # `code` gate was off.
+  # prepare-build builds the production app and packs the Linux Electron
+  # app from that build on the same runner (no artifact round trip). It
+  # uploads `web-build` only when win/mac pack too. Code PRs only; on
+  # docs/openspec-only PRs it and build-test skip, and Lint and Test
+  # accepts that because the `code` gate was off.
   prepare-build:
-    name: Prepare Build Artifacts
+    name: Build and Linux Pack
     needs: detect-changes
     if: needs.detect-changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout code
@@ -760,6 +702,7 @@ jobs:
         run: npm run build
 
       - name: Upload web build artifacts
+        if: needs.detect-changes.outputs.desktop == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: web-build
@@ -773,59 +716,61 @@ jobs:
           # this the artifact silently drops it (Lane C, run 41790472413).
           include-hidden-files: true
 
-  # build-test runs whenever prepare-build does, so the per-platform
-  # checks ("Build Test / win", etc.) report on every code PR.
-  # Work is gated per-step on RUN_BUILD_TEST: Linux packs on every code
-  # change; win/mac add ~8 job-minutes (native module rebuild) and only
-  # run when detect-changes.outputs.desktop flags packaging inputs.
+      - name: Rebuild native modules for Linux
+        working-directory: desktop
+        run: npm run rebuild:next-standalone
+
+      - name: Test Electron build (linux pack mode)
+        working-directory: desktop
+        run: npx electron-builder --dir --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          SKIP_NOTARIZATION: 'true'
+          ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/desktop/.electron-cache
+
+      - name: Verify linux build output
+        working-directory: desktop
+        run: test -d release/linux-unpacked
+
+  # build-test packs Windows and macOS (native module rebuild, the slowest
+  # legs) only when detect-changes.outputs.desktop flags packaging inputs;
+  # otherwise neither leg takes a runner. Linux packs in prepare-build on
+  # every code change.
   build-test:
     name: Build Test / ${{ matrix.platform }}
     needs: [detect-changes, prepare-build]
+    if: needs.detect-changes.outputs.desktop == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
         include:
-          - os: ubuntu-latest
-            platform: linux
           - os: windows-latest
             platform: win
           - os: macos-latest
             platform: mac
     timeout-minutes: 30
-    env:
-      RUN_BUILD_TEST: ${{ needs.detect-changes.outputs.code == 'true' && (matrix.platform == 'linux' || needs.detect-changes.outputs.desktop == 'true') }}
 
     steps:
-      - name: Skip (no code changes, or no desktop changes on win/mac)
-        if: env.RUN_BUILD_TEST != 'true'
-        run: echo "No code changes, or no desktop packaging changes on ${{ matrix.platform }} — skipping build."
-
       - name: Checkout code
-        if: env.RUN_BUILD_TEST == 'true'
         uses: actions/checkout@v6
 
       - name: Setup Node + caches + install deps
-        if: env.RUN_BUILD_TEST == 'true'
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
           skip-nextjs-cache: 'true'
 
       - name: Download build artifacts
-        if: env.RUN_BUILD_TEST == 'true'
         uses: actions/download-artifact@v8
         with:
           name: web-build
 
       - name: Restore artifact structure
-        if: env.RUN_BUILD_TEST == 'true'
         shell: bash
         run: |
-          # Move downloaded artifacts to their correct locations
-          # download-artifact extracts to current directory preserving structure
-          # Verify the artifacts are in place
+          # download-artifact extracts to the current directory, preserving
+          # structure. Verify the artifacts are in place.
           test -d .next/standalone || { echo "Missing .next/standalone"; exit 1; }
           test -d public/record-sheets || { echo "Missing public/record-sheets"; exit 1; }
           test -d .next/static || { echo "Missing .next/static"; exit 1; }
@@ -833,13 +778,11 @@ jobs:
           test -f .next/standalone/.next/BUILD_ID || { echo "Missing .next/standalone/.next/BUILD_ID"; exit 1; }
 
       - name: Rebuild native modules for platform
-        if: env.RUN_BUILD_TEST == 'true'
         working-directory: desktop
         shell: bash
         run: npm run rebuild:next-standalone
 
       - name: Test Electron build (pack mode)
-        if: env.RUN_BUILD_TEST == 'true'
         working-directory: desktop
         shell: bash
         run: npx electron-builder --dir --publish never
@@ -849,21 +792,13 @@ jobs:
           ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/desktop/.electron-cache
 
       - name: Verify build output
-        if: env.RUN_BUILD_TEST == 'true'
         working-directory: desktop
         shell: bash
         run: |
           if [ "${{ matrix.platform }}" = "win" ]; then
             test -d release/win-unpacked || exit 1
             test -f release/win-unpacked/"MekStation.exe" || exit 1
-          elif [ "${{ matrix.platform }}" = "mac" ]; then
-            mac_dirs="$(compgen -G "release/mac*")"
-            if [ -n "$mac_dirs" ]; then
-              mac_apps="$(compgen -G "release/mac*/MekStation.app")"
-              [ -n "$mac_apps" ] || exit 1
-            else
-              exit 1
-            fi
           else
-            test -d release/linux-unpacked || exit 1
+            mac_apps="$(compgen -G "release/mac*/MekStation.app")"
+            [ -n "$mac_apps" ] || exit 1
           fi

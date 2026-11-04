@@ -12,12 +12,12 @@ const validatorPath = path.resolve(
 const workflowPath = path.resolve(repoRoot, '.github/workflows/pr-checks.yml');
 
 /**
- * The per-PR browser gates live in two jobs: `e2e-build` builds the E2E-mode
- * production app once, and the `e2e` shard matrix runs the exact gate
- * invocation below against it. The validator scopes each contract to its
- * job, so the mutations below move / weaken them and prove it still fails.
+ * The per-PR browser gates live in the `e2e` shard matrix: each shard
+ * validates the record-sheet assets, builds the E2E-mode production app and
+ * runs the exact gate invocation below against it. The validator scopes the
+ * contract to that job, so the mutations below move / weaken it and prove it
+ * still fails.
  */
-const BUILD_JOB = 'e2e-build';
 const GATE_JOB = 'e2e';
 const CHANGE_GATE_IF =
   "needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'";
@@ -30,7 +30,7 @@ const GATE_COMMAND =
   'e2e/customizer-record-sheet-rendering.spec.ts ' +
   'e2e/customizer-edit-recovery.spec.ts ' +
   '--project=chromium --retries=0 --trace=retain-on-failure ' +
-  '--workers=1 --shard=${{ matrix.shard }}/3 --output=test-results/gates';
+  '--workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates';
 
 interface ValidatorManifest {
   status: string;
@@ -113,7 +113,7 @@ describe('OpenSpec CI quality QC validator', () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('workflowContracts=9/9');
-    expect(result.stdout).toContain('protectedContexts=4');
+    expect(result.stdout).toContain('protectedContexts=1');
     expect(result.stdout).toMatch(/activeOpenSpecChanges=\d+/);
     expect(result.stdout).toMatch(/accountedActiveOpenSpecChanges=\d+/);
     expect(result.stdout).toContain('errors=0');
@@ -133,12 +133,7 @@ describe('OpenSpec CI quality QC validator', () => {
 
     expect(manifest.status).toBe('pass');
     expect(manifest.unaccountedActiveOpenSpecChanges).toEqual([]);
-    expect(manifest.protectedContexts).toEqual([
-      'Lint and Test',
-      'Build Test / win',
-      'Build Test / mac',
-      'Build Test / linux',
-    ]);
+    expect(manifest.protectedContexts).toEqual(['Lint and Test']);
     expect(manifest.aggregatorNeeds.actual).toEqual(
       expect.arrayContaining(manifest.aggregatorNeeds.expected),
     );
@@ -173,13 +168,13 @@ describe('OpenSpec CI quality QC validator', () => {
     );
   });
 
-  it('rejects branch protection that drops a required build context', () => {
+  it('rejects branch protection that drops the required aggregator context', () => {
     const branchProtection = fs
       .readFileSync(
         path.join(repoRoot, '.github', 'scripts', 'setup-branch-protection.sh'),
         'utf-8',
       )
-      .replace('"Build Test / linux"', '"Build Test / docs"');
+      .replace('"Lint and Test"', '"Lint and Docs"');
     const branchProtectionPath = path.join(
       tempDir,
       'setup-branch-protection.sh',
@@ -197,7 +192,7 @@ describe('OpenSpec CI quality QC validator', () => {
     expect(manifest.errors).toContainEqual(
       expect.objectContaining({
         code: 'branch-protection-context-missing',
-        context: 'Build Test / linux',
+        context: 'Lint and Test',
       }),
     );
   });
@@ -251,27 +246,18 @@ describe('OpenSpec CI quality QC validator', () => {
       );
     }
 
-    it('accepts the shipped e2e-build and e2e jobs', () => {
+    it('accepts the shipped e2e job', () => {
       const manifest = runWithWorkflow(readWorkflow());
 
       expect(jobErrors(manifest)).toEqual([]);
-      expect(manifest.workflowJobContracts).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({
-            id: 'customizer-regressions-build',
-            jobId: BUILD_JOB,
-            present: true,
-          }),
-          expect.objectContaining({
-            id: 'customizer-regressions-gate',
-            jobId: GATE_JOB,
-            present: true,
-          }),
-        ]),
-      );
-      expect(manifest.aggregatorNeeds.actual).toEqual(
-        expect.arrayContaining([BUILD_JOB, GATE_JOB]),
-      );
+      expect(manifest.workflowJobContracts).toEqual([
+        expect.objectContaining({
+          id: 'customizer-regressions-gate',
+          jobId: GATE_JOB,
+          present: true,
+        }),
+      ]);
+      expect(manifest.aggregatorNeeds.actual).toContain(GATE_JOB);
     });
 
     it('rejects the gate command when it only exists outside the gate job', () => {
@@ -354,7 +340,7 @@ describe('OpenSpec CI quality QC validator', () => {
     it.each([
       [
         'NEXT_PUBLIC_E2E_TEST env',
-        BUILD_JOB,
+        GATE_JOB,
         (block: string) =>
           block.replace(
             "          NEXT_PUBLIC_E2E_TEST: 'true'",
@@ -363,17 +349,10 @@ describe('OpenSpec CI quality QC validator', () => {
         'workflow-job-condition-invalid',
       ],
       [
-        '20-minute gate timeout',
+        '25-minute gate timeout',
         GATE_JOB,
         (block: string) =>
-          block.replace('    timeout-minutes: 20', '    timeout-minutes: 19'),
-        'workflow-job-condition-invalid',
-      ],
-      [
-        '15-minute build timeout',
-        BUILD_JOB,
-        (block: string) =>
-          block.replace('    timeout-minutes: 15', '    timeout-minutes: 14'),
+          block.replace('    timeout-minutes: 25', '    timeout-minutes: 24'),
         'workflow-job-condition-invalid',
       ],
       [
@@ -381,26 +360,16 @@ describe('OpenSpec CI quality QC validator', () => {
         GATE_JOB,
         (block: string) =>
           block.replace(
-            '    name: E2E (${{ matrix.shard }}/3)',
-            '    name: E2E Gate (${{ matrix.shard }}/3)',
+            '    name: E2E (${{ matrix.shard }}/2)',
+            '    name: E2E Gate (${{ matrix.shard }}/2)',
           ),
-        'workflow-job-token-missing',
-      ],
-      [
-        'build job name',
-        BUILD_JOB,
-        (block: string) =>
-          block.replace('    name: E2E Build', '    name: E2E Prebuild'),
         'workflow-job-token-missing',
       ],
       [
         'required needs',
         GATE_JOB,
         (block: string) =>
-          block.replace(
-            '    needs: [detect-changes, e2e-build]',
-            '    needs: [detect-changes]',
-          ),
+          block.replace('    needs: detect-changes', '    needs: []'),
         'workflow-job-token-missing',
       ],
       [
@@ -458,7 +427,7 @@ describe('OpenSpec CI quality QC validator', () => {
         'shard matrix',
         GATE_JOB,
         (block: string) =>
-          block.replace('        shard: [1, 2, 3]', '        shard: [1, 2]'),
+          block.replace('        shard: [1, 2]', '        shard: [1]'),
         'workflow-job-condition-invalid',
       ],
       [
@@ -466,14 +435,14 @@ describe('OpenSpec CI quality QC validator', () => {
         GATE_JOB,
         (block: string) =>
           block.replace(
-            '        shard: [1, 2, 3]',
-            '        shard: [1, 2, 3]\n        exclude:\n          - shard: 3',
+            '        shard: [1, 2]',
+            '        shard: [1, 2]\n        exclude:\n          - shard: 2',
           ),
         'workflow-job-condition-invalid',
       ],
       [
         'required in-job step order',
-        BUILD_JOB,
+        GATE_JOB,
         (block: string) =>
           block.replace(
             /(\n      - name: Validate record-sheet assets[\s\S]*?\n        run: npm run validate:assets:strict\n)(\n      - name: Build production app[\s\S]*?\n        run: npm run build\n)/,
@@ -497,17 +466,8 @@ describe('OpenSpec CI quality QC validator', () => {
         GATE_JOB,
         (block: string) =>
           block.replace(
-            '    name: E2E (${{ matrix.shard }}/3)',
-            '    if: false\n    name: E2E (${{ matrix.shard }}/3)',
-          ),
-      ],
-      [
-        'disabled build job',
-        BUILD_JOB,
-        (block: string) =>
-          block.replace(
-            '    name: E2E Build',
-            '    if: false\n    name: E2E Build',
+            '    name: E2E (${{ matrix.shard }}/2)',
+            '    if: false\n    name: E2E (${{ matrix.shard }}/2)',
           ),
       ],
       [
@@ -515,8 +475,8 @@ describe('OpenSpec CI quality QC validator', () => {
         GATE_JOB,
         (block: string) =>
           block.replace(
-            '    name: E2E (${{ matrix.shard }}/3)',
-            '    continue-on-error: ${{ true }}\n    name: E2E (${{ matrix.shard }}/3)',
+            '    name: E2E (${{ matrix.shard }}/2)',
+            '    continue-on-error: ${{ true }}\n    name: E2E (${{ matrix.shard }}/2)',
           ),
       ],
       [
@@ -539,7 +499,7 @@ describe('OpenSpec CI quality QC validator', () => {
       ],
       [
         'disabled setup with misleading gate terms',
-        BUILD_JOB,
+        GATE_JOB,
         (block: string) =>
           block.replace(
             '      - name: Setup Node + caches + install deps\n        if: ' +
@@ -560,7 +520,7 @@ describe('OpenSpec CI quality QC validator', () => {
       ],
       [
         'production hooks removed',
-        BUILD_JOB,
+        GATE_JOB,
         (block: string) =>
           block.replace(
             "NEXT_PUBLIC_E2E_MODE: 'true'",
@@ -680,12 +640,12 @@ describe('OpenSpec CI quality QC validator', () => {
       );
     });
 
-    it('rejects an E2E build whose own checkout does not fetch record-sheet assets', () => {
-      const unfetched = mutateJob(readWorkflow(), BUILD_JOB, (block) =>
+    it('rejects an E2E shard whose own checkout does not fetch record-sheet assets', () => {
+      const unfetched = mutateJob(readWorkflow(), GATE_JOB, (block) =>
         block.replace("\n          fetch-assets: 'true'", ''),
       );
 
-      // Other jobs still fetch assets; the E2E build's own checkout does not.
+      // Other jobs still fetch assets; the E2E shard's own checkout does not.
       expect(unfetched).toContain("fetch-assets: 'true'");
 
       const manifest = runWithWorkflow(unfetched);
@@ -693,14 +653,14 @@ describe('OpenSpec CI quality QC validator', () => {
       expect(manifest.errors).toContainEqual(
         expect.objectContaining({
           code: 'workflow-job-token-missing',
-          jobId: BUILD_JOB,
+          jobId: GATE_JOB,
           missing: ["fetch-assets: 'true'"],
         }),
       );
     });
 
-    it('rejects an E2E build without the strict record-sheet asset check', () => {
-      const unchecked = mutateJob(readWorkflow(), BUILD_JOB, (block) =>
+    it('rejects an E2E shard without the strict record-sheet asset check', () => {
+      const unchecked = mutateJob(readWorkflow(), GATE_JOB, (block) =>
         block.replace(
           'run: npm run validate:assets:strict',
           'run: echo "assets assumed present"',
@@ -715,13 +675,13 @@ describe('OpenSpec CI quality QC validator', () => {
       expect(manifest.errors).toContainEqual(
         expect.objectContaining({
           code: 'workflow-job-token-missing',
-          jobId: BUILD_JOB,
+          jobId: GATE_JOB,
           missing: ['run: npm run validate:assets:strict'],
         }),
       );
     });
 
-    it.each([BUILD_JOB, GATE_JOB])('rejects a deleted %s job', (jobId) => {
+    it.each([GATE_JOB])('rejects a deleted %s job', (jobId) => {
       const deleted = mutateJob(readWorkflow(), jobId, () => '\n');
 
       const manifest = runWithWorkflow(deleted);
@@ -731,7 +691,7 @@ describe('OpenSpec CI quality QC validator', () => {
       );
     });
 
-    it.each([BUILD_JOB, GATE_JOB])(
+    it.each([GATE_JOB])(
       'rejects an aggregator that stops requiring %s',
       (jobId) => {
         const unwired = readWorkflow().replace(`        ${jobId},\n`, '');
