@@ -17,7 +17,11 @@ import {
   calculateAmmoBVWithExcessiveCap,
   type OffensiveBVConfig,
 } from '../battleValueOffensive';
-import { isDirectFireBVWeapon } from '../battleValueWeapons';
+import {
+  applyTargetingComputerBV,
+  hasBVTargetingComputer,
+  isDirectFireBVWeapon,
+} from '../battleValueWeapons';
 import { isOneShotBVWeapon } from '../equipmentBV/weaponHeat';
 import {
   isArtemisCompatibleBVWeapon,
@@ -109,7 +113,7 @@ function calculateWeaponBVEntry(
     targetingComputerMounted &&
     isDirectFireBVWeapon(normalizeEquipmentId(weapon.id))
   ) {
-    adjustedBV *= 1.25;
+    adjustedBV = applyTargetingComputerBV(adjustedBV);
   } else if (isWeaponType && !weapon.isInfantry) {
     adjustedBV *= fireControlFactor;
   }
@@ -184,9 +188,7 @@ export function calculateVehicleOffensiveBV(
 ): VehicleOffensiveBVBreakdown {
   const fireControlFactor = supportFireControlFactor(input);
   const targetingComputerMounted =
-    (input.chassisEquipment ?? []).some(
-      (id) => getEquipmentEntry(id)?.category === 'Targeting',
-    ) ||
+    hasBVTargetingComputer(input.chassisEquipment ?? []) ||
     (input.offensiveEquipment ?? []).some(
       (entry) => entry.isTargetingComputer === true,
     );
