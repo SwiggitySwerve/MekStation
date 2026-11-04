@@ -636,10 +636,12 @@ jobs:
         run: |
           (
             status=0
-            # nice: the gate suite (zero retries) keeps CPU priority; its PDF
-            # export timed out at 30 s when both suites competed equally
-            # (run 41892612923). Children (server, browser) inherit it.
-            nice -n 10 node scripts/playwright/run-playwright.mjs test e2e/customizer-library-open.spec.ts --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/library > "$RUNNER_TEMP/library.log" 2>&1 || status=$?
+            # The gate suite (zero retries) must keep CPU: its PDF export hit
+            # the 30 s test timeout when both suites shared all 4 vCPUs
+            # (runs 41892612923, 41897057339, the second under nice alone).
+            # The library suite and its server and browser (children
+            # inherit both) are confined to cores 2-3 at low priority.
+            taskset -c 2,3 nice -n 10 node scripts/playwright/run-playwright.mjs test e2e/customizer-library-open.spec.ts --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/library > "$RUNNER_TEMP/library.log" 2>&1 || status=$?
             echo "$status" > "$RUNNER_TEMP/library.exit"
           ) > /dev/null 2>&1 &
 
