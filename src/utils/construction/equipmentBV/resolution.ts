@@ -37,16 +37,17 @@ export function getArtemisBVMultiplier(type?: 'iv' | 'v'): number {
 }
 
 /** BVCalculator.java:860-876 at 48fcb2f64: only a linked launcher is modified. */
-export function getWeaponLinkBVMultiplier(
-  type?: 'iv' | 'v' | 'apollo',
-): number {
+export type BVWeaponLinkType = 'iv' | 'v' | 'proto' | 'apollo' | 'risc';
+export function getWeaponLinkBVMultiplier(type?: BVWeaponLinkType): number {
   return type === 'iv'
     ? 1.2
     : type === 'v'
       ? 1.3
-      : type === 'apollo'
-        ? 1.15
-        : 1;
+      : type === 'proto'
+        ? 1.1
+        : type === 'apollo' || type === 'risc'
+          ? 1.15
+          : 1;
 }
 
 function applyBVHeatOverride(

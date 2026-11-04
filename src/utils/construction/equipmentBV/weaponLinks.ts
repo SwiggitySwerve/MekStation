@@ -1,3 +1,5 @@
+import type { BVWeaponLinkType } from './resolution';
+
 import { hasNativeWeaponBVFlag } from './nativeWeaponFlags';
 import { getEquipmentEntry } from './resolution';
 
@@ -127,7 +129,7 @@ export function linkApolloBVWeapons<Location>(
   weapons: {
     id: string;
     location: Location;
-    artemisType?: 'iv' | 'v';
+    artemisType?: BVWeaponLinkType;
     apolloLinked?: boolean;
   }[],
   links: readonly { location: Location }[],
@@ -135,9 +137,84 @@ export function linkApolloBVWeapons<Location>(
   linkBVWeapons(
     weapons,
     links,
-    (w) => !w.artemisType && !w.apolloLinked && /^mrm-\d+$/.test(w.id),
+    (w) =>
+      !w.artemisType &&
+      !w.apolloLinked &&
+      hasNativeWeaponBVFlag(getEquipmentEntry(w.id)?.id ?? w.id, 'apollo') ===
+        true,
     (w) => {
       w.apolloLinked = true;
     },
   );
+}
+
+/** Native module identities; MekFileParser.java:359-388,424-449,499-528. */
+export function getMountedBVLinkType(id: string): BVWeaponLinkType | undefined {
+  const types: Readonly<Record<string, BVWeaponLinkType>> = {
+    artemisiv: 'iv',
+    artemisv: 'v',
+    artemisivproto: 'proto',
+    apollo: 'apollo',
+    risclaserpulsemodule: 'risc',
+  };
+  const key = getEquipmentEntry(id)?.id ?? id;
+  return Object.hasOwn(types, key) ? types[key] : undefined;
+}
+export function linkMountedWeaponBVModifiers<Location>(
+  weapons: {
+    id: string;
+    location: Location;
+    compatible: boolean;
+    artemisType?: BVWeaponLinkType;
+    apolloLinked?: boolean;
+  }[],
+  mounts: readonly { id: string; location: Location }[],
+): void {
+  const order = new Map<(typeof weapons)[number], number>();
+  mounts.forEach((mount, index) => {
+    const id = getEquipmentEntry(mount.id)?.id ?? mount.id;
+    const weapon = weapons.find(
+      (w) =>
+        !order.has(w) &&
+        (getEquipmentEntry(w.id)?.id ?? w.id) === id &&
+        w.location === mount.location,
+    );
+    if (weapon) order.set(weapon, index);
+  });
+  mounts.forEach((mount, index) => {
+    const type = getMountedBVLinkType(mount.id);
+    if (!type) return;
+    if (type === 'apollo') {
+      linkApolloBVWeapons(weapons, [mount]);
+      weapons.forEach((w) => {
+        if (w.apolloLinked && !w.artemisType) w.artemisType = 'apollo';
+      });
+      return;
+    }
+    const eligible = (w: (typeof weapons)[number]) =>
+      !w.artemisType &&
+      (type === 'risc'
+        ? hasNativeWeaponBVFlag(
+            getEquipmentEntry(w.id)?.id ?? w.id,
+            'riscLaser',
+          ) === true
+        : w.compatible);
+    const previous =
+      type === 'risc'
+        ? weapons.find(
+            (w) =>
+              order.get(w) === index - 1 &&
+              w.location === mount.location &&
+              eligible(w),
+          )
+        : undefined;
+    linkBVWeapons(
+      weapons,
+      [mount],
+      (w) => eligible(w) && (!previous || w === previous),
+      (w) => {
+        w.artemisType = type;
+      },
+    );
+  });
 }
