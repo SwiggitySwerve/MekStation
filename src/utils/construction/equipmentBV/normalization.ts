@@ -21,6 +21,9 @@ import {
   ABBREVIATION_MAP,
   AMMUNITION_NORMALIZATION_PATTERNS,
   DIRECT_ALIAS_MAP,
+  BV_MOUNT_QUALIFIERS,
+  BV_MOUNT_MARKERS,
+  BV_AMMO_QUANTITY,
   NORMALIZATION_PATTERNS,
 } from './normalizationPatterns';
 import { nativeIdentityId } from './sourceLookupAliases';
@@ -116,17 +119,14 @@ export function normalizeEquipmentId(
     new Map([...fullCatalog].filter(([id]) => isLegacyEquipmentId(id)));
   legacyCatalogs.set(fullCatalog, catalog);
   // BLK qualifiers describe the mount, not its EquipmentType.
-  const qualifiedBase = rawLower.replace(
-    /(?::(?:omni|size:\d+(?:\.\d+)?|shots\d+#|body|la|ra|tu|apm|dwp|sswm))+$/,
-    '',
-  );
+  const qualifiedBase = rawLower.replace(BV_MOUNT_QUALIFIERS, '');
   const base = isAmmunitionEquipmentId(qualifiedBase)
-    ? qualifiedBase.replace(/(?:\s+\(\d+\)|:\d+)$/, '')
+    ? qualifiedBase.replace(BV_AMMO_QUANTITY, '')
     : qualifiedBase;
   // BLK mount markers occur in native tokens and converted IDs.
   const lookupBase = catalog.has(base)
     ? base
-    : base.replace(/^(?:r-|b-|\([rb]\)\s*)+/, '');
+    : base.replace(BV_MOUNT_MARKERS, '');
   const lower = catalog.has(rawLower)
     ? rawLower
     : catalog.has(lookupBase) ||

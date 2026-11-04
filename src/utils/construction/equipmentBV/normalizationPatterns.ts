@@ -1,3 +1,9 @@
+// Mount syntax shared by namespace selection and identity normalization.
+export const BV_MOUNT_QUALIFIERS =
+  /(?::(?:omni|size:\d+(?:\.\d+)?|shots\d+#|body|la|ra|tu|apm|dwp|sswm))+$/;
+export const BV_MOUNT_MARKERS = /^(?:r-|b-|\([rb]\)\s*)+/;
+export const BV_AMMO_QUANTITY = /(?:\s+\(\d+\)|:\d+)$/;
+
 /**
  * Equipment BV Resolver - Normalization Patterns
  *
