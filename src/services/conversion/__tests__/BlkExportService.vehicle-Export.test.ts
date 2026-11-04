@@ -242,13 +242,15 @@ describe('BlkExportService', () => {
       const testCases: [ArmorTypeEnum, string][] = [
         [ArmorTypeEnum.STANDARD, '0'],
         [ArmorTypeEnum.FERRO_FIBROUS_IS, '1'],
-        [ArmorTypeEnum.FERRO_FIBROUS_CLAN, '2'],
-        [ArmorTypeEnum.LIGHT_FERRO, '3'],
-        [ArmorTypeEnum.HEAVY_FERRO, '4'],
-        [ArmorTypeEnum.STEALTH, '5'],
-        [ArmorTypeEnum.REACTIVE, '6'],
-        [ArmorTypeEnum.REFLECTIVE, '7'],
-        [ArmorTypeEnum.HARDENED, '8'],
+        [ArmorTypeEnum.FERRO_FIBROUS_CLAN, '1'],
+        [ArmorTypeEnum.REACTIVE, '2'],
+        [ArmorTypeEnum.REFLECTIVE, '3'],
+        [ArmorTypeEnum.HARDENED, '4'],
+        [ArmorTypeEnum.LIGHT_FERRO, '5'],
+        [ArmorTypeEnum.HEAVY_FERRO, '6'],
+        [ArmorTypeEnum.FERRO_LAMELLOR, '16'],
+        [ArmorTypeEnum.STEALTH, '22'],
+        [ArmorTypeEnum.BALLISTIC_REINFORCED, '26'],
       ];
 
       for (const [armorType, expectedCode] of testCases) {
