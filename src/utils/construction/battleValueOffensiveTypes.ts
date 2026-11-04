@@ -48,6 +48,7 @@ export interface OffensiveBVResult {
   weightBonus: number;
   speedFactor: number;
   totalOffensiveBV: number;
+  offensiveTypeModifier?: number;
   heatEfficiency?: number;
   moveHeat?: number;
   rawWeaponBV?: number;

@@ -352,3 +352,9 @@ launcher (MekFileParser.java:425-449). The existing multiplier owner supplies
 1.2/1.3 before arc weighting and heat sorting (BVCalculator.java:860-872).
 Mech's older critical-grid/location heuristic is retained as a separate input
 projection; vehicles already consume explicit links. No catalog flags added.
+
+The BV heat override also accepts native `Ultra Autocannon` display names,
+including the imported IS Ultra AC/5 prototype. Its catalog firing heat stays
+1; BV uses 2 and still applies one-shot heat reduction first. Pinned MegaMek
+48fcb2f64a1b3f2d575707ce5653dad64927b587: ISUAC5Prototype.java:62-71,
+UACWeapon.java:65; HeatTrackingBVCalculator.java:170-180.

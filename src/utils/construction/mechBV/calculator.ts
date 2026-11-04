@@ -15,7 +15,7 @@ import { scanCrits } from '../../../../scripts/validate-bv-crit-scan';
 import { CLAN_CHASSIS_MIXED_UNITS } from '../../../../scripts/validate-bv-known-units';
 import { deriveBvHeatAndMovement } from '../../../../scripts/validate-bv-movement-derived';
 import { toMechLoc } from '../../../../scripts/validate-bv-normalizers';
-import { calculatePhysicalWeaponBV } from '../../../../scripts/validate-bv-physical-weapons';
+import { calculatePhysicalBVTotal } from '../../../../scripts/validate-bv-physical-weapons';
 import {
   getArmorBAR,
   mapArmorType,
@@ -328,15 +328,7 @@ export function calculateUnitBV(
   }
   const defResult = calculateDefensiveBV(defCfg);
 
-  let physicalWeaponBV = 0;
-  for (const pw of cs.physicalWeapons) {
-    let bv = calculatePhysicalWeaponBV(pw.type, unit.tonnage, cs.hasTSM);
-    bv = Math.round(bv * 1000.0) / 1000.0;
-    const pwLocUpper = pw.location.toUpperCase();
-    if (cs.aesLocs.some((aLoc) => aLoc.toUpperCase() === pwLocUpper))
-      bv *= 1.25;
-    physicalWeaponBV += bv;
-  }
+  const physicalWeaponBV = calculatePhysicalBVTotal(cs, unit.tonnage);
 
   // Mine Dispensers: BV=8 each, offensive equipment per MegaMek
   // Misc equipment with offensive BV (Bridge Layers, etc.)
@@ -472,6 +464,9 @@ export function calculateUnitBV(
       offensiveBV: offResult.totalOffensiveBV,
       // Modifiers
       cockpitModifier: finalCockpitMod,
+      offensiveTypeModifier: offResult.offensiveTypeModifier,
+      summaryModifier: finalCockpitMod * riscKitMod,
+      totalExplosivePenalty,
       cockpitType: effectiveCockpit,
       // Context
       techBase: unit.techBase,

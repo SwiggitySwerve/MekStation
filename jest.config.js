@@ -1,5 +1,12 @@
 const nextJest = require('next/jest');
 
+const {
+  corpusSuites,
+  roadmapSuites,
+  toIgnorePattern,
+  toTestMatch,
+} = require('./config/jest/corpus-suites');
+
 const createJestConfig = nextJest({
   // Provide the path to your Next.js app to load next.config.js and .env files
   dir: './',
@@ -70,6 +77,18 @@ if (process.env.JEST_EXCLUDE_PERF_SENSITIVE === 'true') {
   );
 }
 
+// JEST_SPLIT_CORPUS=true moves the whole-catalog `corpus` suites and the
+// `roadmap` tooling suites out of `unit` into their own projects (see
+// config/jest/corpus-suites.js). Default (unset) leaves every suite in `unit`
+// and registers no extra project, so a bare `jest` runs each file exactly once
+// either way.
+const splitCorpus = process.env.JEST_SPLIT_CORPUS === 'true';
+if (splitCorpus) {
+  unitTestPathIgnorePatterns.push(
+    ...[...corpusSuites, ...roadmapSuites].map(toIgnorePattern),
+  );
+}
+
 // =============================================================================
 // Unit project (existing test surface)
 // =============================================================================
@@ -91,6 +110,20 @@ const unitJestConfig = {
   transformIgnorePatterns: sharedTransformIgnorePatterns,
   transform: sharedTransform,
 };
+
+// =============================================================================
+// Corpus + roadmap projects (only registered when JEST_SPLIT_CORPUS=true)
+//
+// Same environment as `unit`; they differ only in which files they select.
+// `--selectProjects corpus` / `--selectProjects roadmap` run them alone.
+// =============================================================================
+
+const splitProject = (displayName, suites) => ({
+  ...unitJestConfig,
+  displayName,
+  testMatch: suites.map(toTestMatch),
+  testPathIgnorePatterns: sharedTestPathIgnorePatterns,
+});
 
 // =============================================================================
 // A11y project (axe-based accessibility tests)
@@ -126,7 +159,22 @@ const a11yJestConfig = {
 // =============================================================================
 
 module.exports = createJestConfig({
-  projects: [unitJestConfig, a11yJestConfig],
+  projects: [
+    unitJestConfig,
+    a11yJestConfig,
+    ...(splitCorpus
+      ? [
+          splitProject('corpus', corpusSuites),
+          splitProject('roadmap', roadmapSuites),
+        ]
+      : []),
+  ],
+  // Duration-weighted `--shard` plus slowest-first ordering; weights are the
+  // committed config/jest/test-durations.json (refresh: `npm run test:durations`).
+  testSequencer: '<rootDir>/config/jest/duration-sequencer.js',
+  // GitHub-hosted Linux runners have 4 vCPUs; Jest's default (cores - 1) leaves
+  // one idle while workers wait on file IO. Locally keep the default.
+  ...(process.env.CI ? { maxWorkers: '100%' } : {}),
   // Coverage globally — applies to both projects.
   // Ratcheted on 2026-04-25 after Tier 1 BV-core invariant tests landed
   // (PR-C1: ~110 new tests for battleValue*, aerospace, engine/gyro/heat-sink/

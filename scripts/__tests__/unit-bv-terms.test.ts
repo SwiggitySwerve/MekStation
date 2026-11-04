@@ -18,7 +18,7 @@ test('aerospace adapter transports existing SI, weapon-pool and penalty terms', 
   expect(terms?.weaponBV).toBe(
     (terms?.weaponFirePoolBV ?? NaN) + (terms?.fuselageWeaponBV ?? NaN),
   );
-  expect(terms?.summaryModifier).toBeUndefined();
+  expect(terms?.summaryModifier).toBe(1);
 });
 
 const terms = {
@@ -69,6 +69,25 @@ test('per-term mode detects compensating errors hidden by exact aggregates', () 
   expect(result.ok).toBe(false);
   expect(result.rows[0].firstTermDifference?.term).toBe('armorBV');
   expect(result.errors).toContain('term-mismatch: vehicles/unit.blk: armorBV');
+});
+
+test('family summaries count complete term matches and first differences separately', () => {
+  expect(report().byFamily.vehicles).toMatchObject({
+    termMatched: 1,
+    firstTermDifferences: {},
+  });
+  const missing = report({ ...ours, figure: { ...ours.figure, terms: {} } });
+  expect(missing.byFamily.vehicles).toMatchObject({
+    exact: 1,
+    termMatched: 0,
+    firstTermDifferences: { armorBV: 1 },
+  });
+  expect(report(ours, ref, false).byFamily.vehicles).not.toHaveProperty(
+    'termMatched',
+  );
+  expect(
+    buildDeltaReport([], [ref], ['vehicles'], true).byFamily.vehicles,
+  ).toMatchObject({ termMatched: 0, firstTermDifferences: {} });
 });
 test('per-term mode fails closed on missing maps, required terms, and detail terms', () => {
   for (const missing of [undefined, {}, { ...terms, armorBV: undefined }]) {

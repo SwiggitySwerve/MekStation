@@ -12,16 +12,25 @@ const validatorPath = path.resolve(
 const workflowPath = path.resolve(repoRoot, '.github/workflows/pr-checks.yml');
 
 /**
- * The exact customizer gate invocation the workflow must carry. The
- * validator scopes this to the `customizer-regressions` job, so the
- * mutations below move / weaken it and prove the contract still fails.
+ * The per-PR browser gates live in the `e2e` shard matrix: each shard
+ * validates the record-sheet assets, builds the E2E-mode production app and
+ * runs the exact gate invocation below against it. The validator scopes the
+ * contract to that job, so the mutations below move / weaken it and prove it
+ * still fails.
  */
-const CUSTOMIZER_GATE_COMMAND =
+const GATE_JOB = 'e2e';
+const CHANGE_GATE_IF =
+  "needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'";
+const GATE_COMMAND =
   'run: node scripts/playwright/run-playwright.mjs test ' +
+  'e2e/active-session-recovery.spec.ts ' +
+  'e2e/seam-roster-materialization-handoff.spec.ts ' +
+  'e2e/seam-fresh-construction-no-instant-defeat.spec.ts ' +
   'e2e/customizer-equipment-catalog.spec.ts ' +
   'e2e/customizer-record-sheet-rendering.spec.ts ' +
   'e2e/customizer-edit-recovery.spec.ts ' +
-  '--project=chromium --retries=0 --trace=retain-on-failure';
+  '--project=chromium --retries=0 --trace=retain-on-failure ' +
+  '--workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates';
 
 interface ValidatorManifest {
   status: string;
@@ -39,14 +48,18 @@ function readWorkflow(): string {
   return fs.readFileSync(workflowPath, 'utf-8');
 }
 
-/** Rewrite only the `customizer-regressions` job block. */
-function mutateCustomizerJob(
+/** Rewrite only one job block: from its key to the next top-level job key. */
+function mutateJob(
   workflow: string,
+  jobId: string,
   mutate: (block: string) => string,
 ): string {
-  const start = workflow.indexOf('\n  customizer-regressions:\n');
+  const start = workflow.indexOf(`\n  ${jobId}:\n`);
   expect(start).toBeGreaterThan(-1);
-  const end = workflow.indexOf('\n  desktop-typecheck:\n', start);
+  const next = /\n {2}[a-z0-9-]+:\n/g;
+  next.lastIndex = start + 1;
+  const match = next.exec(workflow);
+  const end = match ? match.index : workflow.length;
   expect(end).toBeGreaterThan(start);
   const block = workflow.slice(start, end);
   const mutated = mutate(block);
@@ -100,7 +113,7 @@ describe('OpenSpec CI quality QC validator', () => {
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain('workflowContracts=9/9');
-    expect(result.stdout).toContain('protectedContexts=4');
+    expect(result.stdout).toContain('protectedContexts=1');
     expect(result.stdout).toMatch(/activeOpenSpecChanges=\d+/);
     expect(result.stdout).toMatch(/accountedActiveOpenSpecChanges=\d+/);
     expect(result.stdout).toContain('errors=0');
@@ -120,12 +133,7 @@ describe('OpenSpec CI quality QC validator', () => {
 
     expect(manifest.status).toBe('pass');
     expect(manifest.unaccountedActiveOpenSpecChanges).toEqual([]);
-    expect(manifest.protectedContexts).toEqual([
-      'Lint and Test',
-      'Build Test / win',
-      'Build Test / mac',
-      'Build Test / linux',
-    ]);
+    expect(manifest.protectedContexts).toEqual(['Lint and Test']);
     expect(manifest.aggregatorNeeds.actual).toEqual(
       expect.arrayContaining(manifest.aggregatorNeeds.expected),
     );
@@ -160,13 +168,13 @@ describe('OpenSpec CI quality QC validator', () => {
     );
   });
 
-  it('rejects branch protection that drops a required build context', () => {
+  it('rejects branch protection that drops the required aggregator context', () => {
     const branchProtection = fs
       .readFileSync(
         path.join(repoRoot, '.github', 'scripts', 'setup-branch-protection.sh'),
         'utf-8',
       )
-      .replace('"Build Test / linux"', '"Build Test / docs"');
+      .replace('"Lint and Test"', '"Lint and Docs"');
     const branchProtectionPath = path.join(
       tempDir,
       'setup-branch-protection.sh',
@@ -184,7 +192,7 @@ describe('OpenSpec CI quality QC validator', () => {
     expect(manifest.errors).toContainEqual(
       expect.objectContaining({
         code: 'branch-protection-context-missing',
-        context: 'Build Test / linux',
+        context: 'Lint and Test',
       }),
     );
   });
@@ -217,7 +225,7 @@ describe('OpenSpec CI quality QC validator', () => {
     );
   });
 
-  describe('customizer browser regression gate', () => {
+  describe('per-PR browser regression gates', () => {
     function runWithWorkflow(workflow: string): ValidatorManifest {
       const mutatedPath = path.join(tempDir, 'pr-checks.yml');
       writeText(mutatedPath, workflow);
@@ -227,33 +235,42 @@ describe('OpenSpec CI quality QC validator', () => {
       return JSON.parse(result.stdout) as ValidatorManifest;
     }
 
-    it('accepts the shipped customizer-regressions job', () => {
+    function expectJobError(
+      manifest: ValidatorManifest,
+      code: string,
+      jobId: string,
+    ): void {
+      expect(manifest.status).toBe('fail');
+      expect(manifest.errors).toContainEqual(
+        expect.objectContaining({ code, jobId }),
+      );
+    }
+
+    it('accepts the shipped e2e job', () => {
       const manifest = runWithWorkflow(readWorkflow());
 
       expect(jobErrors(manifest)).toEqual([]);
-      expect(manifest.workflowJobContracts).toContainEqual(
+      expect(manifest.workflowJobContracts).toEqual([
         expect.objectContaining({
           id: 'customizer-regressions-gate',
-          jobId: 'customizer-regressions',
+          jobId: GATE_JOB,
           present: true,
         }),
-      );
-      expect(manifest.aggregatorNeeds.actual).toContain(
-        'customizer-regressions',
-      );
+      ]);
+      expect(manifest.aggregatorNeeds.actual).toContain(GATE_JOB);
     });
 
-    it('rejects the gate command when it only exists outside the customizer job', () => {
-      const relocated = mutateCustomizerJob(readWorkflow(), (block) =>
+    it('rejects the gate command when it only exists outside the gate job', () => {
+      const relocated = mutateJob(readWorkflow(), GATE_JOB, (block) =>
         block.replace(
-          CUSTOMIZER_GATE_COMMAND,
-          'run: echo "customizer regressions ran somewhere else"',
+          GATE_COMMAND,
+          'run: echo "browser gates ran somewhere else"',
         ),
-      ).concat(`\n# ${CUSTOMIZER_GATE_COMMAND}\n`);
+      ).concat(`\n# ${GATE_COMMAND}\n`);
 
       // The exact command is still a substring of the workflow: only its
       // job scope changed.
-      expect(relocated).toContain(CUSTOMIZER_GATE_COMMAND);
+      expect(relocated).toContain(GATE_COMMAND);
 
       const manifest = runWithWorkflow(relocated);
 
@@ -262,75 +279,68 @@ describe('OpenSpec CI quality QC validator', () => {
         expect.objectContaining({
           code: 'workflow-job-token-missing',
           id: 'customizer-regressions-gate',
-          jobId: 'customizer-regressions',
-          missing: [CUSTOMIZER_GATE_COMMAND],
+          jobId: GATE_JOB,
+          missing: [GATE_COMMAND],
         }),
       );
     });
 
     it('rejects an in-job comment or echo that only mentions the gate command', () => {
-      const commented = mutateCustomizerJob(readWorkflow(), (block) =>
+      const commented = mutateJob(readWorkflow(), GATE_JOB, (block) =>
         block
-          .replace(
-            CUSTOMIZER_GATE_COMMAND,
-            'run: echo "customizer gate moved to a comment"',
-          )
-          .concat(
-            '      # ' + CUSTOMIZER_GATE_COMMAND + String.fromCharCode(10),
-          ),
+          .replace(GATE_COMMAND, 'run: echo "browser gates moved to a comment"')
+          .concat('      # ' + GATE_COMMAND + String.fromCharCode(10)),
       );
       const manifest = runWithWorkflow(commented);
       expect(manifest.errors).toContainEqual(
         expect.objectContaining({
           code: 'workflow-job-token-missing',
-          jobId: 'customizer-regressions',
-          missing: [CUSTOMIZER_GATE_COMMAND],
+          jobId: GATE_JOB,
+          missing: [GATE_COMMAND],
         }),
       );
     });
 
     it('rejects a gate step disabled with if false', () => {
-      const disabled = mutateCustomizerJob(readWorkflow(), (block) =>
+      const disabled = mutateJob(readWorkflow(), GATE_JOB, (block) =>
         block.replace(
-          '      - name: Run customizer browser regressions' +
+          '      - name: Run seam anchor and customizer regression gates' +
             String.fromCharCode(10) +
-            "        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'",
-          '      - name: Run customizer browser regressions' +
+            '        if: ' +
+            CHANGE_GATE_IF,
+          '      - name: Run seam anchor and customizer regression gates' +
             String.fromCharCode(10) +
             '        if: false',
         ),
       );
-      const manifest = runWithWorkflow(disabled);
-      expect(manifest.errors).toContainEqual(
-        expect.objectContaining({
-          code: 'workflow-job-condition-invalid',
-          jobId: 'customizer-regressions',
-        }),
+      expectJobError(
+        runWithWorkflow(disabled),
+        'workflow-job-condition-invalid',
+        GATE_JOB,
       );
     });
 
     it('rejects a gate step that continues on error', () => {
-      const nonBlocking = mutateCustomizerJob(readWorkflow(), (block) =>
+      const nonBlocking = mutateJob(readWorkflow(), GATE_JOB, (block) =>
         block.replace(
-          '        ' + CUSTOMIZER_GATE_COMMAND,
+          '        ' + GATE_COMMAND,
           '        continue-on-error: true' +
             String.fromCharCode(10) +
             '        ' +
-            CUSTOMIZER_GATE_COMMAND,
+            GATE_COMMAND,
         ),
       );
-      const manifest = runWithWorkflow(nonBlocking);
-      expect(manifest.errors).toContainEqual(
-        expect.objectContaining({
-          code: 'workflow-job-condition-invalid',
-          jobId: 'customizer-regressions',
-        }),
+      expectJobError(
+        runWithWorkflow(nonBlocking),
+        'workflow-job-condition-invalid',
+        GATE_JOB,
       );
     });
 
     it.each([
       [
         'NEXT_PUBLIC_E2E_TEST env',
+        GATE_JOB,
         (block: string) =>
           block.replace(
             "          NEXT_PUBLIC_E2E_TEST: 'true'",
@@ -339,31 +349,32 @@ describe('OpenSpec CI quality QC validator', () => {
         'workflow-job-condition-invalid',
       ],
       [
-        '20-minute timeout',
+        '25-minute gate timeout',
+        GATE_JOB,
         (block: string) =>
-          block.replace('    timeout-minutes: 20', '    timeout-minutes: 19'),
+          block.replace('    timeout-minutes: 25', '    timeout-minutes: 24'),
         'workflow-job-condition-invalid',
       ],
       [
-        'job name',
+        'gate job name',
+        GATE_JOB,
         (block: string) =>
           block.replace(
-            '    name: Customizer Regressions',
-            '    name: Customizer Regression Gate',
+            '    name: E2E (${{ matrix.shard }}/2)',
+            '    name: E2E Gate (${{ matrix.shard }}/2)',
           ),
         'workflow-job-token-missing',
       ],
       [
         'required needs',
+        GATE_JOB,
         (block: string) =>
-          block.replace(
-            '    needs: [detect-changes, install-deps]',
-            '    needs: [detect-changes]',
-          ),
+          block.replace('    needs: detect-changes', '    needs: []'),
         'workflow-job-token-missing',
       ],
       [
         'skip condition',
+        GATE_JOB,
         (block: string) =>
           block.replace(
             "        if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'",
@@ -373,15 +384,17 @@ describe('OpenSpec CI quality QC validator', () => {
       ],
       [
         'upload failure condition',
+        GATE_JOB,
         (block: string) =>
           block.replace(
-            "        if: failure() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')",
+            '        if: failure() && (' + CHANGE_GATE_IF + ')',
             '        if: failure()',
           ),
         'workflow-job-condition-invalid',
       ],
       [
         'setup action identity',
+        GATE_JOB,
         (block: string) =>
           block.replace(
             '        uses: ./.github/actions/setup-node-and-install',
@@ -391,15 +404,45 @@ describe('OpenSpec CI quality QC validator', () => {
       ],
       [
         'cache condition',
+        GATE_JOB,
         (block: string) =>
           block.replace(
-            "      - name: Cache Playwright chromium browser\n        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'",
+            '      - name: Cache Playwright chromium browser\n        if: ' +
+              CHANGE_GATE_IF,
             '      - name: Cache Playwright chromium browser\n        if: always()',
           ),
         'workflow-job-condition-invalid',
       ],
       [
+        'smoke suite condition',
+        GATE_JOB,
+        (block: string) =>
+          block.replace(
+            '        if: ${{ !cancelled() && (' + CHANGE_GATE_IF + ') }}',
+            '        if: always()',
+          ),
+        'workflow-job-condition-invalid',
+      ],
+      [
+        'shard matrix',
+        GATE_JOB,
+        (block: string) =>
+          block.replace('        shard: [1, 2]', '        shard: [1]'),
+        'workflow-job-condition-invalid',
+      ],
+      [
+        'shard matrix exclusion',
+        GATE_JOB,
+        (block: string) =>
+          block.replace(
+            '        shard: [1, 2]',
+            '        shard: [1, 2]\n        exclude:\n          - shard: 2',
+          ),
+        'workflow-job-condition-invalid',
+      ],
+      [
         'required in-job step order',
+        GATE_JOB,
         (block: string) =>
           block.replace(
             /(\n      - name: Validate record-sheet assets[\s\S]*?\n        run: npm run validate:assets:strict\n)(\n      - name: Build production app[\s\S]*?\n        run: npm run build\n)/,
@@ -409,65 +452,66 @@ describe('OpenSpec CI quality QC validator', () => {
       ],
     ] as const)(
       'rejects the individually weakened %s contract',
-      (_label, mutate, expectedCode) => {
+      (_label, jobId, mutate, expectedCode) => {
         const manifest = runWithWorkflow(
-          mutateCustomizerJob(readWorkflow(), mutate),
+          mutateJob(readWorkflow(), jobId, mutate),
         );
-        expect(manifest.status).toBe('fail');
-        expect(manifest.errors).toContainEqual(
-          expect.objectContaining({
-            code: expectedCode,
-            jobId: 'customizer-regressions',
-          }),
-        );
+        expectJobError(manifest, expectedCode, jobId);
       },
     );
 
     it.each([
       [
-        'disabled job',
+        'disabled gate job',
+        GATE_JOB,
         (block: string) =>
           block.replace(
-            '    name: Customizer Regressions',
-            '    if: false\n    name: Customizer Regressions',
+            '    name: E2E (${{ matrix.shard }}/2)',
+            '    if: false\n    name: E2E (${{ matrix.shard }}/2)',
           ),
       ],
       [
         'ignored job failure expression',
+        GATE_JOB,
         (block: string) =>
           block.replace(
-            '    name: Customizer Regressions',
-            '    continue-on-error: ${{ true }}\n    name: Customizer Regressions',
+            '    name: E2E (${{ matrix.shard }}/2)',
+            '    continue-on-error: ${{ true }}\n    name: E2E (${{ matrix.shard }}/2)',
           ),
       ],
       [
         'ignored step failure string',
+        GATE_JOB,
         (block: string) =>
           block.replace(
-            '        ' + CUSTOMIZER_GATE_COMMAND,
-            "        continue-on-error: 'true'\n        " +
-              CUSTOMIZER_GATE_COMMAND,
+            '        ' + GATE_COMMAND,
+            "        continue-on-error: 'true'\n        " + GATE_COMMAND,
           ),
       ],
       [
         'ignored step failure expression',
+        GATE_JOB,
         (block: string) =>
           block.replace(
-            '        ' + CUSTOMIZER_GATE_COMMAND,
-            '        continue-on-error: ${{ true }}\n        ' +
-              CUSTOMIZER_GATE_COMMAND,
+            '        ' + GATE_COMMAND,
+            '        continue-on-error: ${{ true }}\n        ' + GATE_COMMAND,
           ),
       ],
       [
         'disabled setup with misleading gate terms',
+        GATE_JOB,
         (block: string) =>
           block.replace(
-            "      - name: Setup Node + caches + install deps\n        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'",
-            "      - name: Setup Node + caches + install deps\n        if: false && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')",
+            '      - name: Setup Node + caches + install deps\n        if: ' +
+              CHANGE_GATE_IF,
+            '      - name: Setup Node + caches + install deps\n        if: false && (' +
+              CHANGE_GATE_IF +
+              ')',
           ),
       ],
       [
         'unnamed unguarded step',
+        GATE_JOB,
         (block: string) =>
           block.replace(
             '    steps:',
@@ -476,6 +520,7 @@ describe('OpenSpec CI quality QC validator', () => {
       ],
       [
         'production hooks removed',
+        GATE_JOB,
         (block: string) =>
           block.replace(
             "NEXT_PUBLIC_E2E_MODE: 'true'",
@@ -484,120 +529,123 @@ describe('OpenSpec CI quality QC validator', () => {
       ],
       [
         'development server substituted',
+        GATE_JOB,
         (block: string) =>
           block.replace('node .next/standalone/server.js', 'node server.js'),
       ],
       [
         'invalid standalone hostname',
+        GATE_JOB,
         (block: string) =>
           block.replace("HOSTNAME: '127.0.0.1'", "HOSTNAME: 'localhost'"),
       ],
       [
-        'artifact upload replaced by echo',
+        // The smoke suites run next and write the default report folder.
+        'gate report written to the shared report folder',
+        GATE_JOB,
         (block: string) =>
           block.replace(
-            'uses: actions/upload-artifact@v7',
-            'run: echo upload-artifact',
+            '          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-gates\n',
+            '',
           ),
       ],
-    ] as const)('rejects %s', (_label, mutate) => {
+      [
+        'smoke report dropped from the failure upload',
+        GATE_JOB,
+        (block: string) => block.replace('            playwright-report\n', ''),
+      ],
+      [
+        'gate report dropped from the failure upload',
+        GATE_JOB,
+        (block: string) =>
+          block.replace('            playwright-report-gates\n', ''),
+      ],
+      [
+        'failure report upload replaced by echo',
+        GATE_JOB,
+        (block: string) =>
+          block.replace(
+            /(- name: Upload Playwright report\n        if: [^\n]*\n        )uses: actions\/upload-artifact@v7/,
+            '$1run: echo upload-artifact',
+          ),
+      ],
+    ] as const)('rejects %s', (_label, jobId, mutate) => {
       const manifest = runWithWorkflow(
-        mutateCustomizerJob(readWorkflow(), mutate),
+        mutateJob(readWorkflow(), jobId, mutate),
       );
-      expect(manifest.status).toBe('fail');
-      expect(manifest.errors).toContainEqual(
-        expect.objectContaining({
-          code: 'workflow-job-condition-invalid',
-          jobId: 'customizer-regressions',
-        }),
-      );
+      expectJobError(manifest, 'workflow-job-condition-invalid', jobId);
     });
 
     it('rejects the gate command when only an environment value mentions it', () => {
       const manifest = runWithWorkflow(
-        mutateCustomizerJob(readWorkflow(), (block) =>
+        mutateJob(readWorkflow(), GATE_JOB, (block) =>
           block
-            .replace(
-              '        ' + CUSTOMIZER_GATE_COMMAND,
-              '        run: echo missing',
-            )
+            .replace('        ' + GATE_COMMAND, '        run: echo missing')
             .replace(
               "          HOSTNAME: '127.0.0.1'",
               "          HOSTNAME: '127.0.0.1'" +
                 String.fromCharCode(10) +
                 '          PREVIOUS_COMMAND: ' +
-                JSON.stringify(CUSTOMIZER_GATE_COMMAND),
+                JSON.stringify(GATE_COMMAND),
             ),
         ),
       );
-      expect(manifest.status).toBe('fail');
-      expect(manifest.errors).toContainEqual(
-        expect.objectContaining({
-          code: 'workflow-job-token-missing',
-          jobId: 'customizer-regressions',
-        }),
-      );
+      expectJobError(manifest, 'workflow-job-token-missing', GATE_JOB);
       expect(
         manifest.errors.some((error) => error.code === 'workflow-yaml-invalid'),
       ).toBe(false);
     });
 
-    it('rejects a customizer gate that allows Playwright retries', () => {
-      const retrying = mutateCustomizerJob(readWorkflow(), (block) =>
-        block.replace(' --retries=0', ''),
+    it.each([
+      [
+        'allows Playwright retries',
+        (block: string) => block.replace(' --retries=0', ''),
+      ],
+      [
+        // `--retries=0` plus the config default `trace: 'on-first-retry'`
+        // records nothing, so a failure would ship no trace.
+        'keeps the retry-only trace mode',
+        (block: string) =>
+          block.replace(
+            ' --trace=retain-on-failure',
+            ' --trace=on-first-retry',
+          ),
+      ],
+      [
+        'drops a customizer spec pack',
+        (block: string) =>
+          block.replace(' e2e/customizer-equipment-catalog.spec.ts', ''),
+      ],
+      [
+        'drops a seam trust anchor',
+        (block: string) =>
+          block.replace(' e2e/seam-roster-materialization-handoff.spec.ts', ''),
+      ],
+      [
+        'runs one shard for every matrix leg',
+        (block: string) =>
+          block.replace(' --shard=${{ matrix.shard }}/2', ' --shard=1/2'),
+      ],
+    ] as const)('rejects a browser gate that %s', (_label, mutate) => {
+      const manifest = runWithWorkflow(
+        mutateJob(readWorkflow(), GATE_JOB, mutate),
       );
-
-      const manifest = runWithWorkflow(retrying);
 
       expect(manifest.errors).toContainEqual(
         expect.objectContaining({
           code: 'workflow-job-token-missing',
-          jobId: 'customizer-regressions',
-          missing: [CUSTOMIZER_GATE_COMMAND],
+          jobId: GATE_JOB,
+          missing: [GATE_COMMAND],
         }),
       );
     });
 
-    it('rejects a customizer gate that keeps the retry-only trace mode', () => {
-      // `--retries=0` plus the config default `trace: 'on-first-retry'`
-      // records nothing, so a failure would ship no trace.
-      const untraced = mutateCustomizerJob(readWorkflow(), (block) =>
-        block.replace(' --trace=retain-on-failure', ' --trace=on-first-retry'),
-      );
-
-      const manifest = runWithWorkflow(untraced);
-
-      expect(manifest.errors).toContainEqual(
-        expect.objectContaining({
-          code: 'workflow-job-token-missing',
-          jobId: 'customizer-regressions',
-          missing: [CUSTOMIZER_GATE_COMMAND],
-        }),
-      );
-    });
-
-    it('rejects a customizer gate that drops one of the three spec packs', () => {
-      const halved = mutateCustomizerJob(readWorkflow(), (block) =>
-        block.replace(' e2e/customizer-equipment-catalog.spec.ts', ''),
-      );
-
-      const manifest = runWithWorkflow(halved);
-
-      expect(manifest.errors).toContainEqual(
-        expect.objectContaining({
-          code: 'workflow-job-token-missing',
-          jobId: 'customizer-regressions',
-          missing: [CUSTOMIZER_GATE_COMMAND],
-        }),
-      );
-    });
-
-    it('rejects a customizer gate whose own checkout does not fetch record-sheet assets', () => {
-      const unfetched = mutateCustomizerJob(readWorkflow(), (block) =>
+    it('rejects an E2E shard whose own checkout does not fetch record-sheet assets', () => {
+      const unfetched = mutateJob(readWorkflow(), GATE_JOB, (block) =>
         block.replace("\n          fetch-assets: 'true'", ''),
       );
 
-      // Other jobs still fetch assets; the gate's own checkout does not.
+      // Other jobs still fetch assets; the E2E shard's own checkout does not.
       expect(unfetched).toContain("fetch-assets: 'true'");
 
       const manifest = runWithWorkflow(unfetched);
@@ -605,14 +653,14 @@ describe('OpenSpec CI quality QC validator', () => {
       expect(manifest.errors).toContainEqual(
         expect.objectContaining({
           code: 'workflow-job-token-missing',
-          jobId: 'customizer-regressions',
+          jobId: GATE_JOB,
           missing: ["fetch-assets: 'true'"],
         }),
       );
     });
 
-    it('rejects a customizer gate without the strict record-sheet asset check', () => {
-      const unchecked = mutateCustomizerJob(readWorkflow(), (block) =>
+    it('rejects an E2E shard without the strict record-sheet asset check', () => {
+      const unchecked = mutateJob(readWorkflow(), GATE_JOB, (block) =>
         block.replace(
           'run: npm run validate:assets:strict',
           'run: echo "assets assumed present"',
@@ -627,49 +675,37 @@ describe('OpenSpec CI quality QC validator', () => {
       expect(manifest.errors).toContainEqual(
         expect.objectContaining({
           code: 'workflow-job-token-missing',
-          jobId: 'customizer-regressions',
+          jobId: GATE_JOB,
           missing: ['run: npm run validate:assets:strict'],
         }),
       );
     });
 
-    it('rejects a deleted customizer-regressions job', () => {
-      const workflow = readWorkflow();
-      const start = workflow.indexOf('\n  customizer-regressions:\n');
-      const end = workflow.indexOf('\n  desktop-typecheck:\n', start);
-      const deleted = workflow.slice(0, start) + workflow.slice(end);
+    it.each([GATE_JOB])('rejects a deleted %s job', (jobId) => {
+      const deleted = mutateJob(readWorkflow(), jobId, () => '\n');
 
       const manifest = runWithWorkflow(deleted);
 
       expect(manifest.errors).toContainEqual(
-        expect.objectContaining({
-          code: 'workflow-job-missing',
-          id: 'customizer-regressions-gate',
-          jobId: 'customizer-regressions',
-        }),
+        expect.objectContaining({ code: 'workflow-job-missing', jobId }),
       );
     });
 
-    it('rejects an aggregator that stops requiring the customizer gate', () => {
-      const unwired = readWorkflow().replace(
-        '        customizer-regressions,\n',
-        '',
-      );
+    it.each([GATE_JOB])(
+      'rejects an aggregator that stops requiring %s',
+      (jobId) => {
+        const unwired = readWorkflow().replace(`        ${jobId},\n`, '');
 
-      // The job still exists — it just no longer blocks "Lint and Test".
-      expect(unwired).toContain('\n  customizer-regressions:\n');
+        // The job still exists — it just no longer blocks "Lint and Test".
+        expect(unwired).toContain(`\n  ${jobId}:\n`);
 
-      const manifest = runWithWorkflow(unwired);
+        const manifest = runWithWorkflow(unwired);
 
-      expect(manifest.aggregatorNeeds.actual).not.toContain(
-        'customizer-regressions',
-      );
-      expect(manifest.errors).toContainEqual(
-        expect.objectContaining({
-          code: 'aggregator-need-missing',
-          jobId: 'customizer-regressions',
-        }),
-      );
-    });
+        expect(manifest.aggregatorNeeds.actual).not.toContain(jobId);
+        expect(manifest.errors).toContainEqual(
+          expect.objectContaining({ code: 'aggregator-need-missing', jobId }),
+        );
+      },
+    );
   });
 });

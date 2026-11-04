@@ -60,6 +60,7 @@ scripts/**
 !scripts/e2e/relaunching-server.mjs
 !scripts/jest/
 !scripts/jest/run-jest-lane.mjs
+!scripts/jest/update-test-durations.mjs
 !scripts/lib/
 !scripts/lib/**
 !scripts/next/
@@ -68,6 +69,8 @@ scripts/**
 !scripts/playwright/**
 !scripts/qc/
 !scripts/qc/**
+!scripts/ci/
+!scripts/ci/**
 !scripts/megameklab-conversion/
 !scripts/megameklab-conversion/append_pinned_bv_references.py
 !scripts/megameklab-conversion/blk_aerospace_tables.py

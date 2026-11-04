@@ -253,20 +253,19 @@ describe('advisory tsrs side-check', () => {
     }
   });
 
-  it('keeps the isolated, exact-pinned check advisory and outside every other job dependency', () => {
+  it('keeps the isolated, exact-pinned check advisory inside the read-only Static Checks job', () => {
     const workflow = invoke('parseWorkflow', [
       fs.readFileSync(
         path.join(root, '.github/workflows/pr-checks.yml'),
         'utf8',
       ),
     ]);
-    const job = workflow.jobs['tsrs-side-check'];
-    expect(job.name).toBe('tsrs Side-Check (advisory)');
+    // The side-check runs as two steps of Static Checks: a read-only,
+    // non-persisted token, and each step advisory with its own timeout.
+    const job = workflow.jobs['static-checks'];
     expect(job['runs-on']).toBe('ubuntu-latest');
-    expect(job['continue-on-error']).toBe(true);
-    expect(job['timeout-minutes']).toBe(15);
     expect(job.permissions).toEqual({ contents: 'read' });
-    expect(job.steps).toContainEqual({
+    expect(job.steps[0]).toMatchObject({
       name: 'Checkout code',
       uses: 'actions/checkout@v6',
       with: { 'persist-credentials': false },
@@ -276,30 +275,33 @@ describe('advisory tsrs side-check', () => {
         uses: './.github/actions/setup-node-and-install',
       }),
     );
-    const commands = job.steps
-      .map((step: { run?: string }) => step.run ?? '')
-      .join('\n');
     const script = fs.readFileSync(
       path.join(root, 'scripts/qc/tsrs-side-check.mjs'),
       'utf8',
     );
     const version = /TSRS_VERSION = '([^']+)'/.exec(script)?.[1];
     expect(version).toBeDefined();
-    expect(commands).toContain(
+    const tsrsSteps = job.steps.filter(
+      (step: { run?: string }) => step.run?.includes('tsrs') ?? false,
+    );
+    expect(tsrsSteps.map((step: { run: string }) => step.run)).toEqual([
       `npm install --no-save --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/tsrs" tsrs@${version}`,
-    );
-    expect(commands).toContain(
       'node scripts/qc/tsrs-side-check.mjs "$RUNNER_TEMP/tsrs"',
-    );
-    for (const other of Object.values(workflow.jobs) as Array<{
-      needs?: string | string[];
-    }>) {
-      expect([other.needs].flat()).not.toContain('tsrs-side-check');
+    ]);
+    for (const step of tsrsSteps) {
+      expect(step['continue-on-error']).toBe(true);
+      expect(step['timeout-minutes']).toBeGreaterThan(0);
+      expect(step.name).toContain('(advisory)');
+    }
+    // Every other step of the job is blocking.
+    for (const step of job.steps) {
+      if (tsrsSteps.includes(step)) continue;
+      expect(step['continue-on-error']).toBeUndefined();
     }
     const protection = fs.readFileSync(
       path.join(root, '.github/scripts/setup-branch-protection.sh'),
       'utf8',
     );
-    expect(protection).not.toContain(job.name);
+    expect(protection).not.toContain('tsrs');
   });
 });

@@ -17,6 +17,8 @@ import {
 } from '../../../types/validation/BattleValue';
 import { getOffensiveBVRole } from '../battleValueEquipment';
 import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
+import { calculateAdjustedBV } from '../battleValuePilot';
+import { calculateBaseBV, getCockpitModifier } from '../battleValueTotals';
 import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
 import { supportFireControlFactor } from '../vehicle/vehicleBVOffensive';
 import { calculateAerospaceArcContributions } from './aerospaceBVArcs';
@@ -29,6 +31,7 @@ import {
   calculateMountedAerospaceExplosivePenalty,
 } from './aerospaceBVEquipment';
 import { isCapitalShipBVType } from './aerospaceBVTypes';
+import { aerospaceBVTerms } from './bvTrace';
 
 // ============================================================================
 // BV Helpers
@@ -48,6 +51,7 @@ export function calculateAerospaceDefensiveBV(
   defensiveEquipmentBV: number;
   explosivePenalties: number;
   defensiveFactor: number;
+  typeModifier: number;
   defensive: number;
 } {
   const armorMultiplier = getArmorBVMultiplier(input.armorType);
@@ -112,6 +116,7 @@ export function calculateAerospaceDefensiveBV(
     siBV,
     defensiveEquipmentBV,
     explosivePenalties,
+    typeModifier,
     defensiveFactor,
     defensive,
   };
@@ -262,14 +267,26 @@ export function calculateAerospaceBV(
 
   const subTypeAdjusted =
     (defensive.defensive + offensive.offensive) * subTypeMultiplier;
-  const final = Math.round(subTypeAdjusted * pilotMultiplier);
+  // AeroBVCalculator.java:162-180; BVCalculator.java:1252-1294.
+  // Small cockpits scale the complete sum, then round base before crew skill.
+  const final = input.hasSmallCockpit
+    ? calculateAdjustedBV(
+        calculateBaseBV(defensive.defensive, offensive.offensive, [
+          subTypeMultiplier,
+          getCockpitModifier('small'),
+        ]),
+        input.pilotGunnery ?? 4,
+        input.pilotPiloting ?? 5,
+      )
+    : Math.round(subTypeAdjusted * pilotMultiplier);
 
-  return {
+  return aerospaceBVTerms({
     armorBV: defensive.armorBV,
     siBV: defensive.siBV,
     defensiveEquipmentBV: defensive.defensiveEquipmentBV,
     explosivePenalties: defensive.explosivePenalties,
     defensiveFactor: defensive.defensiveFactor,
+    typeModifier: defensive.typeModifier,
     defensive: defensive.defensive,
 
     arcContributions: offensive.arcContributions,
@@ -285,7 +302,7 @@ export function calculateAerospaceBV(
     subTypeMultiplier,
     pilotMultiplier,
     final,
-  };
+  });
 }
 
 // ============================================================================
