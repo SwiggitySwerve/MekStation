@@ -419,3 +419,7 @@ this does not enable fuzzy matching over registry names. The canonical C3
 sensor launcher alias uses the imported BV-30 MissileWeapon, not C3 Master.
 Obsolete Mek fallback copies are removed. ISC3RemoteSensorLauncher.java:69-80
 at MegaMek pin 48fcb2f64; the imported catalog remains the value owner.
+
+The owner-approved basrm3 value batch corrects only Clan BA SRM-3 BV from
+21 to 30 (CLBASRM3.java:66, MegaMek pin 48fcb2f64). The same frozen CAT-Q2
+baseline row and item hash change exactly; no other catalog value changes.
