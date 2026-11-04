@@ -1,5 +1,12 @@
 # Combat-vehicle construction rules
 
+## Heat-neutral weapon load
+
+`heatSinks.ts` owns the represented raw weapon heat shared by support payload
+and combat composition. It preserves the support owner's energy/ammunition and
+plasma classification (MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587,
+TestEntity.java:945-950). BV heat adjustments do not apply to construction.
+
 ## Defensive BV type modifier
 
 `vehicleBVTypeModifier.ts` owns the motion-type defensive multiplier and its
