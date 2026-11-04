@@ -200,6 +200,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         techBase: weapon.techBase,
         rulesLevel: weapon.rulesLevel,
         weight: weapon.weight,
+        heat: weapon.heat,
         criticalSlots: weapon.criticalSlots,
         costCBills: weapon.costCBills,
         battleValue: weapon.battleValue,
