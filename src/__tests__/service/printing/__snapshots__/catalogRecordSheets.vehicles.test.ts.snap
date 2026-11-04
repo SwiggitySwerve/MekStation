@@ -3,11 +3,11 @@
 exports[`committed catalog record-sheet model parity vehicles: checks every indexed unit and records every mismatch/rejection 1`] = `
 {
   "counts": {
-    "BV.source": 181,
+    "BV.source": 7,
     "equipmentUnresolved": 4,
   },
   "rejected": 0,
-  "residualDigest": "5d8ccddf3e9f8c0d2a59a6cef31831aa7a6597b10c1810956a1b7b7f53aaec8c",
+  "residualDigest": "730873068433ea747c95475f6e5e38329dddbef117e285769134f9b7685974e6",
   "total": 1444,
 }
 `;

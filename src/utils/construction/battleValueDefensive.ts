@@ -112,3 +112,9 @@ export function calculateDefensiveBV(
     totalDefensiveBV,
   };
 }
+
+export const MODULAR_ARMOR_BV_ID = 'modulararmor';
+/** Undamaged construction mounts. MiscType.java:2524-2543 (48fcb2f64). */
+export function getModularArmorBVPoints(count: number): number {
+  return count * 10;
+}

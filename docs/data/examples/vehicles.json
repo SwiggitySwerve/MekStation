@@ -97,6 +97,10 @@
       },
       {
         "name": "AC/5",
+        "sourceIdentity": {
+          "sourceId": "autocannon-5",
+          "resolvedId": "ac-5"
+        },
         "isTurretMounted": true,
         "isSponsonMounted": false,
         "isChinTurretMounted": false,
@@ -105,6 +109,10 @@
       {
         "name": "Machine Gun Ammo [Half]",
         "isAmmo": true,
+        "sourceIdentity": {
+          "sourceId": "is-machine-gun-ammo-half",
+          "resolvedId": "machine-gun-ammo-half"
+        },
         "isTurretMounted": false,
         "isSponsonMounted": false,
         "isChinTurretMounted": false,
@@ -113,6 +121,10 @@
       {
         "name": "AC/5 Ammo",
         "isAmmo": true,
+        "sourceIdentity": {
+          "sourceId": "is-ammo-ac-5",
+          "resolvedId": "ac-5-ammo"
+        },
         "isTurretMounted": false,
         "isSponsonMounted": false,
         "isChinTurretMounted": false,
