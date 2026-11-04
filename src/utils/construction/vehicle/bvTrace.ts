@@ -6,7 +6,10 @@ import { calculateBaseBV } from '../battleValueTotals';
  * CombatVehicle inherits the empty offensive type stage at MegaMek 48fcb2f6.
  * Native mount identities and ammo type/rack details remain unavailable.
  */
-export function vehicleBVTerms(b: IVehicleBVBreakdown) {
+export function vehicleBVTerms(b: IVehicleBVBreakdown): IVehicleBVBreakdown & {
+  offensiveTypeModifier: number;
+  adjustment: number | undefined;
+} {
   return {
     ...b,
     offensiveTypeModifier: 1,
