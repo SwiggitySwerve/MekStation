@@ -237,6 +237,39 @@ describe('test result cache key', () => {
     expect(keyOf(root, 'src/t.test.ts').key).not.toBe(before.key);
   });
 
+  it('still names a directory written on a line of a multiline template that starts with //', () => {
+    const root = makeRepo({
+      'public/a.json': '{}',
+      'docs/readme.md': 'x',
+      'other/z.txt': 'x',
+      'src/t.test.ts': [
+        "import * as fs from 'node:fs';",
+        'const target = `',
+        '//public/a.json',
+        '`;',
+        "test('reads', () => { fs.readFileSync('docs/readme.md', 'utf8'); fs.readFileSync(target.trim()); });",
+      ].join('\n'),
+    });
+    const before = keyOf(root, 'src/t.test.ts');
+    expect(before.domains).toEqual(['docs/', 'public/']);
+    write(root, { 'public/a.json': '{"changed":true}' });
+    expect(keyOf(root, 'src/t.test.ts').key).not.toBe(before.key);
+  });
+
+  it('keeps a mention in a file with an unbalanced backtick, where comments cannot be told from template text', () => {
+    const root = makeRepo({
+      'public/a.json': '{}',
+      'docs/readme.md': 'x',
+      'src/t.test.ts': [
+        "import * as fs from 'node:fs';",
+        '// a lone ` here',
+        '// /public/a.json is mentioned only in this comment',
+        "test('reads', () => { fs.readFileSync('docs/readme.md', 'utf8'); });",
+      ].join('\n'),
+    });
+    expect(keyOf(root, 'src/t.test.ts').domains).toEqual(['docs/', 'public/']);
+  });
+
   it('keys on the env vars the closure reads, and refuses a bare process.env', () => {
     const root = makeRepo({
       'src/lib/flag.ts': 'export const on = process.env.FEATURE_X === "1";\n',

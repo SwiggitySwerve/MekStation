@@ -264,6 +264,18 @@ const DYNAMIC_LOAD = /(?<![.\w$])(?:require|import)\s*\(\s*(?!['"]|\w+\s*[:?])/;
 // specs found in raw text still join the closure either way.
 const stripComments = (text) =>
   text.replace(/^[ \t]*\/\*[\s\S]*?\*\//gm, '').replace(/^[ \t]*\/\/.*$/gm, '');
+// The same for naming a data directory, where a wrongly stripped line means a
+// missed input. A line that starts with `//` or `/*` inside a multiline template
+// literal is template text, not a comment, so: with an odd number of backticks
+// anywhere the file is ambiguous (keep it raw), and a comment is dropped only
+// when an even number of backticks precede it (it sits outside any template).
+const stripCommentsForNames = (text) => {
+  const ticks = (s) => (s.match(/`/g) || []).length;
+  if (ticks(text) % 2 === 1) return text;
+  const outside = (match, offset) =>
+    ticks(text.slice(0, offset)) % 2 === 0 ? '' : match;
+  return text.replace(/^[ \t]*(?:\/\*[\s\S]*?\*\/|\/\/.*$)/gm, outside);
+};
 // Content reads: with no named directory in the closure these force a
 // whole-repo key. Existence checks (existsSync & co) only add named
 // directories when present; a bare existsSync(dir) is how code guards a
@@ -463,8 +475,9 @@ function analyzeSource(text, rel, nameMatchers) {
     // Named directories come from code, not comments: a JSDoc line that mentions
     // `src/utils/...` is not a read of `src/`, and counting it made every such
     // file re-run on any change to that directory.
+    const named = stripCommentsForNames(text);
     for (const [matcher, prefix] of nameMatchers) {
-      if (matcher.test(code)) tokens.add(prefix);
+      if (matcher.test(named)) tokens.add(prefix);
     }
     if (OWN_DIR.test(code)) {
       // A path built from __dirname can climb out of the directory: widen to the
