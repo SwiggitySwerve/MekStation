@@ -129,6 +129,95 @@ export const APPROVED_JAVA_REROUTES = [
       'Follow-up 89; printed shots per ton follow the IS record (AmmoType.java:10628 shots = 50)',
     tagForm: true,
   },
+  // Follow-up 92 slice 1: IS BattleArmor LRM/SRM resolved to the generic BA records.
+  ...[
+    [
+      'isbalrm1-registry',
+      'balrm1',
+      'weapons/battleArmor/innerSphere/lrm/ISBALRM1.java:64',
+      ['IS BA LRM 1', 'ISBALRM1'],
+    ],
+    [
+      'isbalrm2-registry',
+      'balrm2',
+      'weapons/battleArmor/innerSphere/lrm/ISBALRM2.java:64',
+      ['IS BA LRM 2', 'ISBALRM2'],
+    ],
+    [
+      'isbalrm3-registry',
+      'balrm3',
+      'weapons/battleArmor/innerSphere/lrm/ISBALRM3.java:64',
+      ['IS BA LRM 3', 'IS BA LRM3', 'ISBALRM3'],
+    ],
+    [
+      'isbalrm4-registry',
+      'balrm4',
+      'weapons/battleArmor/innerSphere/lrm/ISBALRM4.java:64',
+      ['IS BA LRM 4', 'ISBALRM4'],
+    ],
+    [
+      'isbalrm1os-registry',
+      'balrm1os',
+      'weapons/battleArmor/innerSphere/lrm/ISBALRM1OS.java:64',
+      ['IS BA LRM1 OS', 'ISBALRM1OS'],
+    ],
+    [
+      'isbalrm2os-registry',
+      'balrm2os',
+      'weapons/battleArmor/innerSphere/lrm/ISBALRM2OS.java:64',
+      ['IS BA LRM2 OS', 'ISBALRM2OS'],
+    ],
+    [
+      'isbalrm3os-registry',
+      'balrm3os',
+      'weapons/battleArmor/innerSphere/lrm/ISBALRM3OS.java:64',
+      ['IS BA LRM3 OS', 'ISBALRM3OS'],
+    ],
+    [
+      'isbalrm4os-registry',
+      'balrm4os',
+      'weapons/battleArmor/innerSphere/lrm/ISBALRM4OS.java:64',
+      ['IS BA LRM4 OS', 'ISBALRM4OS'],
+    ],
+    [
+      'isbasrm1-registry',
+      'basrm1',
+      'weapons/battleArmor/innerSphere/srm/ISBASRM1.java:56',
+      ['IS BA SRM 1', 'ISBASRM1'],
+    ],
+    [
+      'isbasrm3-registry',
+      'basrm3',
+      'weapons/battleArmor/innerSphere/srm/ISBASRM3.java:56',
+      ['IS BA SRM 3', 'ISBASRM3'],
+    ],
+    [
+      'isbasrm5-registry',
+      'basrm5',
+      'weapons/battleArmor/innerSphere/srm/ISBASRM5.java:56',
+      ['IS BA SRM 5', 'ISBASRM5'],
+    ],
+    [
+      'isbasrm1os-registry',
+      'basrm1os',
+      'weapons/battleArmor/innerSphere/srm/ISBASRM1OS.java:56',
+      ['IS BA SRM1 OS', 'ISBASRM1OS'],
+    ],
+    [
+      'isbasrm5os-registry',
+      'basrm5os',
+      'weapons/battleArmor/innerSphere/srm/ISBASRM5OS.java:56',
+      ['IS BA SRM5 OS', 'ISBASRM5OS'],
+    ],
+  ].flatMap(([newTarget, oldTarget, source, names]) =>
+    names.map((name) => ({
+      name,
+      oldTarget,
+      newTarget,
+      reason: `Follow-up 92 slice 1; pinned 48fcb2f6 ${source}`,
+      weapon: true,
+    })),
+  ),
 ];
 async function capture(root, inputs) {
   process.chdir(root);
