@@ -85,3 +85,23 @@ export function linkPPCCapacitorBVWeapons<Location>(
     },
   );
 }
+
+/** MekFileParser.java:499-528: source-order, same-location MRM links. */
+export function linkApolloBVWeapons<Location>(
+  weapons: {
+    id: string;
+    location: Location;
+    artemisType?: 'iv' | 'v';
+    apolloLinked?: boolean;
+  }[],
+  links: readonly { location: Location }[],
+): void {
+  linkBVWeapons(
+    weapons,
+    links,
+    (w) => !w.artemisType && !w.apolloLinked && /^mrm-\d+$/.test(w.id),
+    (w) => {
+      w.apolloLinked = true;
+    },
+  );
+}

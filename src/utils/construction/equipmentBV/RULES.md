@@ -369,3 +369,11 @@ rear weighting, before TC and heat sorting; linked PPCs gain five heat
 Unlinked capacitors contribute no offense. Legacy Mech/vehicle projections
 retain their distinct unintegrated-capacitor contract in getOffensiveBVRole.
 Enforcement: aerospaceBV.ppcCapacitors.test.ts and the all-family corpus proof.
+
+getWeaponLinkBVMultiplier owns IV/V/Apollo factors; getArtemisBVMultiplier
+preserves the existing IV/V API as a wrapper. Ordinary aircraft link Apollo to
+one MRM at the same physical location in source order, before direction and
+heat sorting. Unmatched controllers do not alter weapons or ammo.
+Source: MegaMek 48fcb2f64, MekFileParser.java:499-528 and BVCalculator.java:860-876.
+aerospaceBV.apollo.test.ts enforces native Oni, location/source-order matching,
+incompatible launchers, Omni aliases, dominance and heat-sort order.

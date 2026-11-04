@@ -22,10 +22,11 @@ import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
 import {
   isArtemisCompatibleBVWeapon,
   linkArtemisBVWeapons,
+  linkApolloBVWeapons,
   linkPPCCapacitorBVWeapons,
 } from '../equipmentBV/weaponLinks';
 import {
-  getArtemisBVMultiplier,
+  getWeaponLinkBVMultiplier,
   getEquipmentEntry,
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
@@ -142,15 +143,21 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     heat: number;
     compatible: boolean;
     artemisType?: 'iv' | 'v';
+    apolloLinked?: boolean;
   }[] = [];
   const links: { location: AerospaceArc; type: 'iv' | 'v' }[] = [];
   const capacitors: { location: AerospaceArc }[] = [];
+  const apollo: { location: AerospaceArc }[] = [];
 
   for (const item of input.equipment) {
     if (getAerospaceDefensiveEquipmentKind(item.id)) continue;
     const arc = normalizeArcLocation(item.location, input.subType);
     if (arc === null) continue;
     const entry = getEquipmentEntry(item.id);
+    if (entry?.id === 'apollo') {
+      apollo.push({ location: arc });
+      continue;
+    }
     if (entry?.id === 'ppc-capacitor') {
       capacitors.push({ location: arc });
       continue;
@@ -190,8 +197,11 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
   // MekFileParser.java:425-449; BVCalculator.java:860-872.
   linkArtemisBVWeapons(weapons, links);
   linkPPCCapacitorBVWeapons(weapons, capacitors, input.year);
+  linkApolloBVWeapons(weapons, apollo);
   for (const weapon of weapons) {
-    weapon.bv *= getArtemisBVMultiplier(weapon.artemisType);
+    weapon.bv *= getWeaponLinkBVMultiplier(
+      weapon.apolloLinked ? 'apollo' : weapon.artemisType,
+    );
     if (weapon.capacitorBV !== undefined) {
       if (weapon.targeted)
         weapon.capacitorBV = applyTargetingComputerBV(weapon.capacitorBV);
