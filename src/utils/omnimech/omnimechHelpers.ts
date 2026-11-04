@@ -133,8 +133,7 @@ export function isOmniFixedOnly(equipment: IMountedEquipmentInstance): boolean {
   const lowerName = equipment.name.toLowerCase();
   for (const fixedName of OMNI_FIXED_ONLY_EQUIPMENT) {
     if (lowerName.includes(fixedName.toLowerCase())) {
-      // CI-SPEED red-path probe (PR #2690): wrong on purpose, reverted next.
-      return false;
+      return true;
     }
   }
 
