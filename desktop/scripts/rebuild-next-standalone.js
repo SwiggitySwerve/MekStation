@@ -18,13 +18,7 @@ const fs = require('fs');
 const { execFileSync } = require('child_process');
 const crypto = require('crypto');
 
-const nativeModules = [
-  {
-    name: 'better-sqlite3',
-    buildSources: ['binding.gyp', 'deps', 'src'],
-    runtimeBinding: path.join('build', 'Release', 'better_sqlite3.node'),
-  },
-];
+const { nativeModules } = require('./electron-native-modules');
 
 function resolveElectronStandaloneDir(desktopDir) {
   const override = process.env.MEKSTATION_ELECTRON_STANDALONE_DIR;
@@ -208,7 +202,7 @@ async function main() {
     electronVersion,
     force: true,
     headerURL: 'https://electronjs.org/headers',
-    onlyModules: ['better-sqlite3'],
+    onlyModules: nativeModules.map(({ name }) => name),
   });
 
   // Sanity check: the root standalone output must remain usable by plain Node.
