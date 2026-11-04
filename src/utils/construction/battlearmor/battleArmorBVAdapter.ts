@@ -116,8 +116,13 @@ export function buildBattleArmorBVInput(
   > & { equipment: readonly IBattleArmorMountedEquipment[] },
   options: { gunnery?: number; piloting?: number } = {},
 ): IBattleArmorBVInput {
-  const { weapons, ammo, hasMagneticClamp, unresolvedEquipment } =
-    partitionBAEquipment(state.equipment, state.squadSize);
+  const {
+    weapons,
+    ammo,
+    hasMagneticClamp,
+    unresolvedEquipment,
+    defensiveEquipmentBV,
+  } = partitionBAEquipment(state.equipment, state.squadSize);
 
   return {
     weightClass: toBAWeightClass(state.weightClass),
@@ -135,6 +140,7 @@ export function buildBattleArmorBVInput(
     ammo,
     hasMagneticClamp,
     unresolvedEquipment,
+    defensiveEquipmentBV,
     canAntiMek: canMakeBAAntiMekAttacks({
       ...state,
       baWeightClass: state.weightClass,

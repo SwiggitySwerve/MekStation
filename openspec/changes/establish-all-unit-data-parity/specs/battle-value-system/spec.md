@@ -868,13 +868,17 @@ remain available and equal 1 for these turret kinds.
 ### Requirement: Per-Trooper Defensive BV
 
 BA defensive BV SHALL apply the pinned MegaMek armor/internal and movement
-factor per trooper: `(1 + max(0, armor) * rate) * factor`. The armor rate SHALL
-be 3.5 for reactive, reflective or fire-resistant armor and 2.5 otherwise.
+factor per trooper: `(1 + max(0, armor) * rate + systems) * factor`. The armor
+rate SHALL be 3.5 for reactive, reflective or fire-resistant armor and 2.5
+otherwise. `systems` SHALL follow BattleArmorBVCalculator.java:280-326: 1 for
+improved sensors, 1 for another active probe, 1 for the first ECM (2 when it
+is an Angel ECM), plus AMS BV, whole for squad mounts and divided by the
+squad size otherwise. AMS SHALL NOT count as offense.
 The factor SHALL be `1 + max(runTMM, jumpTMM, umuTMM)/10 + 0.1 + stealth + camo`.
 Improved stealth and mimetic armor SHALL add 0.3, other stealth SHALL add 0.2,
 and camouflage SHALL independently add 0.2. Clamps and weight class SHALL NOT
-add defensive BV. Unresolved defensive equipment and effective movement
-SHALL remain explicit limits on the parity claim.
+add defensive BV. Effective movement SHALL remain an explicit limit on the
+parity claim.
 
 #### Scenario: Armor BV with Standard armor
 
@@ -900,6 +904,12 @@ SHALL remain explicit limits on the parity claim.
 - **WHEN** defensive BV is computed
 - **THEN** defense SHALL equal `13.5 * 1.1 = 14.85`
 - **AND** changing weight class alone SHALL NOT change this defensive value
+
+#### Scenario: Defensive systems precede the factor
+
+- **GIVEN** a 4-trooper squad with 6 improved stealth armor points, jump 3, improved sensors and a BA ECM
+- **WHEN** defensive BV is computed
+- **THEN** defensive equipment SHALL equal 2 and defense SHALL equal `(16 + 2) * 1.6 = 28.8`
 
 ### Requirement: Squad-Scale BV
 

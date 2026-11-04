@@ -369,6 +369,7 @@ export function createDefaultBattleArmorState(
       perTrooper: {
         defensive: {
           armorBV: 0,
+          defensiveEquipmentBV: 0,
           moveBV: 0,
           jumpBV: 0,
           antiMechBonus: 0,
