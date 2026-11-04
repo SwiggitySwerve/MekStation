@@ -3245,6 +3245,510 @@
         "Java ammoType:rackSize TASER:1",
         "Java munitions: M_STANDARD"
       ]
+    },
+    {
+      "id": "alamomissile-ammo-registry",
+      "name": "Std. Nuclear Weapon (Type II/Alamo)",
+      "category": "Other",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 1,
+      "criticalSlots": 1,
+      "battleValue": 100,
+      "introductionYear": 2200,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["alamomissile-registry"],
+      "costPerTon": 1000000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/enums/BombType.java: AlamoMissile Ammo",
+        "Java ammoType:rackSize ALAMO:1",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-ar10-barracuda-t-registry",
+      "name": "AR10 Barracuda (Tele-Operated) Ammo",
+      "category": "Capital",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 30,
+      "criticalSlots": 1,
+      "battleValue": 65,
+      "introductionYear": 3048,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": [
+        "capital-missile-launcher-ar10-launcher-registry"
+      ],
+      "costPerTon": 8000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 Barracuda-T",
+        "Java ammoType:rackSize AR10:0",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-ar10-killer-whale-t-registry",
+      "name": "AR10 Killer Whale (Tele-Operated) Ammo",
+      "category": "Capital",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 50,
+      "criticalSlots": 1,
+      "battleValue": 96,
+      "introductionYear": 3048,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": [
+        "capital-missile-launcher-ar10-launcher-registry"
+      ],
+      "costPerTon": 20000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 Killer Whale-T",
+        "Java ammoType:rackSize AR10:0",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-ar10-peacemaker-registry",
+      "name": "AR10 Peacemaker Ammo",
+      "category": "Capital",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 50,
+      "criticalSlots": 1,
+      "battleValue": 10000,
+      "introductionYear": 2300,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": [
+        "capital-missile-launcher-ar10-launcher-registry"
+      ],
+      "costPerTon": 40000000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 Peacemaker",
+        "Java ammoType:rackSize AR10:0",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-ar10-santa-anna-registry",
+      "name": "AR10 Santa Anna Ammo",
+      "category": "Capital",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 40,
+      "criticalSlots": 1,
+      "battleValue": 1000,
+      "introductionYear": 2300,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": [
+        "capital-missile-launcher-ar10-launcher-registry"
+      ],
+      "costPerTon": 15000000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 Santa Anna",
+        "Java ammoType:rackSize AR10:0",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-ar10-white-shark-t-registry",
+      "name": "AR10 White Shark (Tele-Operated) Ammo",
+      "category": "Capital",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 40,
+      "criticalSlots": 1,
+      "battleValue": 72,
+      "introductionYear": 3048,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": [
+        "capital-missile-launcher-ar10-launcher-registry"
+      ],
+      "costPerTon": 14000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 White Shark-T",
+        "Java ammoType:rackSize AR10:0",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-alamo-registry",
+      "name": "Alamo Ammo",
+      "category": "Other",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 1,
+      "criticalSlots": 1,
+      "battleValue": 100,
+      "introductionYear": 2200,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["alamomissile-registry"],
+      "costPerTon": 1000000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Alamo",
+        "Java ammoType:rackSize ALAMO:1",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-barracuda-registry",
+      "name": "Barracuda Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 30,
+      "criticalSlots": 1,
+      "battleValue": 65,
+      "introductionYear": 2195,
+      "reintroductionYear": 3051,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["capital-missile-launcher-barracuda-registry"],
+      "costPerTon": 8000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Barracuda",
+        "Java ammoType:rackSize BARRACUDA:0",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-barracuda-t-registry",
+      "name": "Barracuda (Tele-Operated) Ammo",
+      "category": "Other",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 30,
+      "criticalSlots": 1,
+      "battleValue": 65,
+      "introductionYear": 3053,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["tele-operated-missile-barracuda-t-registry"],
+      "costPerTon": 8000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Barracuda-T",
+        "Java ammoType:rackSize BARRACUDA_T:0",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-heavy-n-gauss-registry",
+      "name": "Heavy N-Gauss Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "battleValue": 756,
+      "introductionYear": 2435,
+      "reintroductionYear": 3052,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-gauss-heavy-registry"],
+      "costPerTon": 90000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Heavy N-Gauss",
+        "Java ammoType:rackSize HEAVY_NGAUSS:0",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-kraken-registry",
+      "name": "Kraken Ammo",
+      "category": "Other",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 100,
+      "criticalSlots": 1,
+      "battleValue": 288,
+      "introductionYear": 3053,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["capital-missile-launcher-kraken-registry"],
+      "costPerTon": 55000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Kraken",
+        "Java ammoType:rackSize KRAKENM:0",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-light-n-gauss-registry",
+      "name": "Light N-Gauss Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.2,
+      "criticalSlots": 1,
+      "battleValue": 378,
+      "introductionYear": 2435,
+      "reintroductionYear": 3052,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-gauss-light-registry"],
+      "costPerTon": 45000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Light N-Gauss",
+        "Java ammoType:rackSize LIGHT_NGAUSS:0",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-medium-n-gauss-registry",
+      "name": "Medium N-Gauss Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.4,
+      "criticalSlots": 1,
+      "battleValue": 630,
+      "introductionYear": 2435,
+      "reintroductionYear": 3052,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-gauss-medium-registry"],
+      "costPerTon": 75000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Medium N-Gauss",
+        "Java ammoType:rackSize MED_NGAUSS:0",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-nac-10-registry",
+      "name": "NAC/10 Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.2,
+      "criticalSlots": 1,
+      "battleValue": 237,
+      "introductionYear": 2095,
+      "reintroductionYear": 3051,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-autocannon-nac-10-registry"],
+      "costPerTon": 30000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/10",
+        "Java ammoType:rackSize NAC:10",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-nac-20-registry",
+      "name": "NAC/20 Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.4,
+      "criticalSlots": 1,
+      "battleValue": 474,
+      "introductionYear": 2095,
+      "reintroductionYear": 3051,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-autocannon-nac-20-registry"],
+      "costPerTon": 60000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/20",
+        "Java ammoType:rackSize NAC:20",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-nac-25-registry",
+      "name": "NAC/25 Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.6,
+      "criticalSlots": 1,
+      "battleValue": 593,
+      "introductionYear": 2095,
+      "reintroductionYear": 3051,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-autocannon-nac-25-registry"],
+      "costPerTon": 75000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/25",
+        "Java ammoType:rackSize NAC:25",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-nac-30-registry",
+      "name": "NAC/30 Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.8,
+      "criticalSlots": 1,
+      "battleValue": 711,
+      "introductionYear": 2095,
+      "reintroductionYear": 3051,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-autocannon-nac-30-registry"],
+      "costPerTon": 90000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/30",
+        "Java ammoType:rackSize NAC:30",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-nac-35-registry",
+      "name": "NAC/35 Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "battleValue": 620,
+      "introductionYear": 2095,
+      "reintroductionYear": 3051,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-autocannon-nac-35-registry"],
+      "costPerTon": 105000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/35",
+        "Java ammoType:rackSize NAC:35",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-nac-40-registry",
+      "name": "NAC/40 Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 1.2,
+      "criticalSlots": 1,
+      "battleValue": 708,
+      "introductionYear": 2095,
+      "reintroductionYear": 3051,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-autocannon-nac-40-registry"],
+      "costPerTon": 120000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/40",
+        "Java ammoType:rackSize NAC:40",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-peacemaker-registry",
+      "name": "Peacemaker Ammo",
+      "category": "Capital",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 50,
+      "criticalSlots": 1,
+      "battleValue": 10000,
+      "introductionYear": 2300,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["capital-missile-launcher-killer-whale-registry"],
+      "costPerTon": 40000000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Peacemaker",
+        "Java ammoType:rackSize KILLER_WHALE:0",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-santa-anna-registry",
+      "name": "Santa Anna Ammo",
+      "category": "Capital",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 40,
+      "criticalSlots": 1,
+      "battleValue": 1000,
+      "introductionYear": 2300,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["capital-missile-launcher-white-shark-registry"],
+      "costPerTon": 15000000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Santa Anna",
+        "Java ammoType:rackSize WHITE_SHARK:0",
+        "Java munitions: M_STANDARD"
+      ]
+    },
+    {
+      "id": "ammo-white-shark-t-registry",
+      "name": "White Shark (Tele-Operated) Ammo",
+      "category": "Other",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 40,
+      "criticalSlots": 1,
+      "battleValue": 72,
+      "introductionYear": 3053,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["tele-operated-missile-white-shark-t-registry"],
+      "costPerTon": 14000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo White Shark-T",
+        "Java ammoType:rackSize WHITE_SHARK_T:0",
+        "Java munitions: M_STANDARD"
+      ]
     }
   ]
 }
