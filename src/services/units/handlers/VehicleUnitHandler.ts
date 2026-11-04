@@ -51,6 +51,7 @@ import {
   vehicleArmorIntroYearErrors,
   vehicleEngineIntroYearErrors,
 } from '@/utils/construction/vehicle/introYear';
+import { combatVehicleSlotErrors } from '@/utils/construction/vehicle/itemSlots';
 import { validateVehicleCaseLocations } from '@/utils/construction/vehicle/vehicleValidation';
 
 import {
@@ -285,6 +286,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       limitedAmphibious,
       hasTrailerHitch,
       isTrailer,
+      transporters: document.transporters ?? [],
       errors,
       warnings,
     };
@@ -454,6 +456,17 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
         clanEngine: unit.clanEngine === true,
         clan: /clan/i.test(String(unit.techBase)),
         mixed: /mixed/i.test(String(unit.techBase)),
+      }),
+    );
+
+    errors.push(
+      ...combatVehicleSlotErrors({
+        ...unit,
+        jumpMP: unit.movement.jumpMP,
+        engineCode: unit.engineType,
+        clanEngine: unit.clanEngine === true,
+        armorCode: unit.armorType,
+        clan: /clan/i.test(String(unit.techBase)),
       }),
     );
 

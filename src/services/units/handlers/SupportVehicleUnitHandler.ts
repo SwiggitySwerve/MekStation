@@ -44,6 +44,7 @@ import {
   getPrimaryVehicleTurretConfiguration,
   getVehicleMountFlags,
 } from '@/utils/construction/vehicle/equipmentMounts';
+import { supportVehicleSlotErrors } from '@/utils/construction/vehicle/itemSlots';
 import { computeSupportVehicleWeight } from '@/utils/construction/vehicle/supportWeight';
 import { validateVehicleCaseLocations } from '@/utils/construction/vehicle/vehicleValidation';
 
@@ -483,6 +484,17 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
         );
       }
     }
+
+    errors.push(
+      ...supportVehicleSlotErrors({
+        ...unit,
+        jumpMP: unit.movement.jumpMP,
+        engineCode: unit.engineType,
+        clanEngine: true,
+        armorCode: unit.armorType,
+        clan: true,
+      }),
+    );
 
     const unresolved = computeSupportVehicleWeight(unit).unresolved;
     if (unresolved.length)
