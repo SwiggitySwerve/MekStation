@@ -19,3 +19,9 @@ its cap remains the combined listed weapon BV, including duplicate bins.
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
 AmmoType.java:12242-12254; BVCalculator.java:570-572,629-635.
 The unchanged Padilla contract regression pins defense 647.36 and total 1155.
+
+Represented Artillery entries are offensive weapons. They enter weapon heat,
+fire-control, rear weighting and matching ammo caps rather than flat misc BV.
+Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587: Sniper.java:52-76,
+ArtilleryWeapon.java:60; BVCalculator.java:834-836,936-952.
+The rear-Sniper contract regression pins weapon BV 218.5 and total 792.
