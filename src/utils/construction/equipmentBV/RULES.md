@@ -383,3 +383,10 @@ contains plural `Pods`. Ammunition names (including Narc/iNarc pods) keep the
 ammo namespace. Existing aliases and native name mappings resolve identity.
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
 ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.
+
+The existing getWeaponLinkBVMultiplier owner includes Prototype (1.1) and
+RISC LPM (1.15), alongside IV/V/Apollo. The legacy Artemis facade retains its
+admission guard. Vehicle and aircraft source mounts share module linking;
+Apollo delegates to its existing owner, and RISC prefers its preceding
+eligible IS non-pulse laser and adds two heat. Mek consumers retain rounding.
+BVCalculator.java:861-877; MekFileParser.java:359-388,424-449,499-528 (48fcb2f64).
