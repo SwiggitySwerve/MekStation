@@ -9,7 +9,20 @@
     "IS LB 5-X AC Ammo": "is-lb-5-x-ac-ammo-registry",
     "IS LB 2-X Cluster Ammo": "is-lb-2-x-cluster-ammo-registry",
     "IS LB 5-X Cluster Ammo": "is-lb-5-x-cluster-ammo-registry",
-    "ISSniper": "issniper-registry"
+    "ISSniper": "issniper-registry",
+    "ISBALRM1": "isbalrm1-registry",
+    "ISBALRM2": "isbalrm2-registry",
+    "ISBALRM3": "isbalrm3-registry",
+    "ISBALRM4": "isbalrm4-registry",
+    "ISBALRM1OS": "isbalrm1os-registry",
+    "ISBALRM2OS": "isbalrm2os-registry",
+    "ISBALRM3OS": "isbalrm3os-registry",
+    "ISBALRM4OS": "isbalrm4os-registry",
+    "ISBASRM1": "isbasrm1-registry",
+    "ISBASRM3": "isbasrm3-registry",
+    "ISBASRM5": "isbasrm5-registry",
+    "ISBASRM1OS": "isbasrm1os-registry",
+    "ISBASRM5OS": "isbasrm5os-registry"
   },
   "previousIds": {
     "is-lb-2-x-ac-ammo-registry": "clan-lb-2-x-ac",
@@ -44,6 +57,59 @@
     },
     "is-streak-srm-6-ammo-registry": {
       "IS Streak SRM 6 Ammo": "clan-streak-srm-6"
+    },
+    "isbalrm1-registry": {
+      "IS BA LRM 1": "balrm1",
+      "ISBALRM1": "balrm1"
+    },
+    "isbalrm2-registry": {
+      "IS BA LRM 2": "balrm2",
+      "ISBALRM2": "balrm2"
+    },
+    "isbalrm3-registry": {
+      "IS BA LRM 3": "balrm3",
+      "IS BA LRM3": "balrm3",
+      "ISBALRM3": "balrm3"
+    },
+    "isbalrm4-registry": {
+      "IS BA LRM 4": "balrm4",
+      "ISBALRM4": "balrm4"
+    },
+    "isbalrm1os-registry": {
+      "IS BA LRM1 OS": "balrm1os",
+      "ISBALRM1OS": "balrm1os"
+    },
+    "isbalrm2os-registry": {
+      "IS BA LRM2 OS": "balrm2os",
+      "ISBALRM2OS": "balrm2os"
+    },
+    "isbalrm3os-registry": {
+      "IS BA LRM3 OS": "balrm3os",
+      "ISBALRM3OS": "balrm3os"
+    },
+    "isbalrm4os-registry": {
+      "IS BA LRM4 OS": "balrm4os",
+      "ISBALRM4OS": "balrm4os"
+    },
+    "isbasrm1-registry": {
+      "IS BA SRM 1": "basrm1",
+      "ISBASRM1": "basrm1"
+    },
+    "isbasrm3-registry": {
+      "IS BA SRM 3": "basrm3",
+      "ISBASRM3": "basrm3"
+    },
+    "isbasrm5-registry": {
+      "IS BA SRM 5": "basrm5",
+      "ISBASRM5": "basrm5"
+    },
+    "isbasrm1os-registry": {
+      "IS BA SRM1 OS": "basrm1os",
+      "ISBASRM1OS": "basrm1os"
+    },
+    "isbasrm5os-registry": {
+      "IS BA SRM5 OS": "basrm5os",
+      "ISBASRM5OS": "basrm5os"
     }
   }
 }

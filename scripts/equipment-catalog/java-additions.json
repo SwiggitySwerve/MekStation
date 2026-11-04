@@ -2079,7 +2079,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: BACL Ammo LRM-3",
         "Java ammoType:rackSize LRM:3",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: ISBALRM3, ISBALRM3OS, CLLRM3OS"
+        "Unrepresented compatible Java weapons: CLLRM3OS"
       ],
       "battleValue": 4,
       "weight": 1,
@@ -2091,7 +2091,13 @@
       "shotsPerTon": 1,
       "kgPerShot": 25,
       "isExplosive": true,
-      "compatibleWeaponIds": ["balrm3", "balrm3os", "clan-lrm-3"]
+      "compatibleWeaponIds": [
+        "balrm3",
+        "isbalrm3-registry",
+        "balrm3os",
+        "isbalrm3os-registry",
+        "clan-lrm-3"
+      ]
     },
     "java": {
       "javaClass": "megamek.common.equipment.AmmoType",
@@ -2138,7 +2144,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: BACL Ammo LRM-4",
         "Java ammoType:rackSize LRM:4",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: ISBALRM4, ISBALRM4OS, CLLRM4OS"
+        "Unrepresented compatible Java weapons: CLLRM4OS"
       ],
       "battleValue": 6,
       "weight": 1,
@@ -2150,7 +2156,13 @@
       "shotsPerTon": 1,
       "kgPerShot": 33.3,
       "isExplosive": true,
-      "compatibleWeaponIds": ["balrm4", "balrm4os", "clan-lrm-4"]
+      "compatibleWeaponIds": [
+        "balrm4",
+        "isbalrm4-registry",
+        "balrm4os",
+        "isbalrm4os-registry",
+        "clan-lrm-4"
+      ]
     },
     "java": {
       "javaClass": "megamek.common.equipment.AmmoType",
@@ -6348,7 +6360,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo ProtoMech LRM-2",
         "Java ammoType:rackSize LRM:2",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLLRM2OS, ISBALRM2, ISBALRM2OS"
+        "Unrepresented compatible Java weapons: CLLRM2OS"
       ],
       "battleValue": 3,
       "weight": 1,
@@ -6360,7 +6372,13 @@
       "shotsPerTon": 100,
       "kgPerShot": 16.66,
       "isExplosive": true,
-      "compatibleWeaponIds": ["clan-lrm-2", "balrm2", "balrm2os"]
+      "compatibleWeaponIds": [
+        "clan-lrm-2",
+        "balrm2",
+        "isbalrm2-registry",
+        "balrm2os",
+        "isbalrm2os-registry"
+      ]
     },
     "java": {
       "javaClass": "megamek.common.equipment.AmmoType",
@@ -6412,7 +6430,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo ProtoMech LRM-3",
         "Java ammoType:rackSize LRM:3",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLLRM3OS, ISBALRM3, ISBALRM3OS"
+        "Unrepresented compatible Java weapons: CLLRM3OS"
       ],
       "battleValue": 4,
       "weight": 1,
@@ -6424,7 +6442,13 @@
       "shotsPerTon": 100,
       "kgPerShot": 24.99,
       "isExplosive": true,
-      "compatibleWeaponIds": ["clan-lrm-3", "balrm3", "balrm3os"]
+      "compatibleWeaponIds": [
+        "clan-lrm-3",
+        "balrm3",
+        "isbalrm3-registry",
+        "balrm3os",
+        "isbalrm3os-registry"
+      ]
     },
     "java": {
       "javaClass": "megamek.common.equipment.AmmoType",
@@ -6476,7 +6500,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo ProtoMech LRM-4",
         "Java ammoType:rackSize LRM:4",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLLRM4OS, ISBALRM4, ISBALRM4OS"
+        "Unrepresented compatible Java weapons: CLLRM4OS"
       ],
       "battleValue": 6,
       "weight": 1,
@@ -6488,7 +6512,13 @@
       "shotsPerTon": 100,
       "kgPerShot": 33.32,
       "isExplosive": true,
-      "compatibleWeaponIds": ["clan-lrm-4", "balrm4", "balrm4os"]
+      "compatibleWeaponIds": [
+        "clan-lrm-4",
+        "balrm4",
+        "isbalrm4-registry",
+        "balrm4os",
+        "isbalrm4os-registry"
+      ]
     },
     "java": {
       "javaClass": "megamek.common.equipment.AmmoType",
@@ -6652,7 +6682,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-1",
         "Java ammoType:rackSize SRM:1",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM1, CLSRM1OS, ISBASRM1, ISBASRM1OS"
+        "Unrepresented compatible Java weapons: CLSRM1, CLSRM1OS"
       ],
       "battleValue": 2,
       "weight": 1,
@@ -6664,7 +6694,12 @@
       "shotsPerTon": 100,
       "kgPerShot": 10,
       "isExplosive": true,
-      "compatibleWeaponIds": ["basrm1", "basrm1os"]
+      "compatibleWeaponIds": [
+        "basrm1",
+        "isbasrm1-registry",
+        "basrm1os",
+        "isbasrm1os-registry"
+      ]
     },
     "java": {
       "javaClass": "megamek.common.equipment.AmmoType",
@@ -6782,7 +6817,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-3",
         "Java ammoType:rackSize SRM:3",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM3, CLSRM3OS, ISBASRM3, CLBASRM3 (OS)"
+        "Unrepresented compatible Java weapons: CLSRM3, CLSRM3OS, CLBASRM3 (OS)"
       ],
       "battleValue": 4,
       "weight": 1,
@@ -6794,7 +6829,11 @@
       "shotsPerTon": 100,
       "kgPerShot": 30,
       "isExplosive": true,
-      "compatibleWeaponIds": ["basrm3", "isbasrm3os-registry"]
+      "compatibleWeaponIds": [
+        "basrm3",
+        "isbasrm3-registry",
+        "isbasrm3os-registry"
+      ]
     },
     "java": {
       "javaClass": "megamek.common.equipment.AmmoType",
@@ -6996,7 +7035,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-5",
         "Java ammoType:rackSize SRM:5",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM5, CLSRM5OS, ISBASRM5, ISBASRM5OS"
+        "Unrepresented compatible Java weapons: CLSRM5, CLSRM5OS"
       ],
       "battleValue": 6,
       "weight": 1,
@@ -7008,7 +7047,12 @@
       "shotsPerTon": 100,
       "kgPerShot": 50,
       "isExplosive": true,
-      "compatibleWeaponIds": ["basrm5", "basrm5os"]
+      "compatibleWeaponIds": [
+        "basrm5",
+        "isbasrm5-registry",
+        "basrm5os",
+        "isbasrm5os-registry"
+      ]
     },
     "java": {
       "javaClass": "megamek.common.equipment.AmmoType",
@@ -14910,6 +14954,486 @@
     }
   },
   {
+    "native": "ISBALRM1",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM1.java: ISBALRM1",
+    "values": {
+      "id": "isbalrm1-registry",
+      "name": "LRM 1",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM1.java: ISBALRM1"
+      ],
+      "battleValue": 14,
+      "weight": 0.06,
+      "criticalSlots": 2,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "subType": "ISBALRM1",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.battleArmor.innerSphere.lrm.ISBALRM1",
+      "internalName": "ISBALRM1",
+      "name": "LRM 1",
+      "aliases": ["ISBALRM1", "IS BA LRM-1", "IS BA LRM 1"],
+      "tech": "IS",
+      "bv": 14,
+      "tons": 0.06,
+      "criticalSlots": 2,
+      "cost": 6000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": ["Battle Armor"],
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "ammoType": "LRM",
+      "rackSize": 1
+    }
+  },
+  {
+    "native": "ISBALRM1OS",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM1OS.java: ISBALRM1OS",
+    "values": {
+      "id": "isbalrm1os-registry",
+      "name": "LRM 1 (OS)",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM1OS.java: ISBALRM1OS"
+      ],
+      "battleValue": 3,
+      "weight": 0.04,
+      "criticalSlots": 3,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "subType": "ISBALRM1OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.battleArmor.innerSphere.lrm.ISBALRM1OS",
+      "internalName": "ISBALRM1OS",
+      "name": "LRM 1 (OS)",
+      "aliases": ["ISBALRM1OS", "IS BA LRM1 OS"],
+      "tech": "IS",
+      "bv": 3,
+      "tons": 0.04,
+      "criticalSlots": 3,
+      "cost": 3000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": ["Battle Armor"],
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "ammoType": "LRM",
+      "rackSize": 1
+    }
+  },
+  {
+    "native": "ISBALRM2",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM2.java: ISBALRM2",
+    "values": {
+      "id": "isbalrm2-registry",
+      "name": "LRM 2",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM2.java: ISBALRM2"
+      ],
+      "battleValue": 20,
+      "weight": 0.12,
+      "criticalSlots": 2,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "subType": "ISBALRM2",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.battleArmor.innerSphere.lrm.ISBALRM2",
+      "internalName": "ISBALRM2",
+      "name": "LRM 2",
+      "aliases": ["ISBALRM2", "IS BA LRM-2", "IS BA LRM 2"],
+      "tech": "IS",
+      "bv": 20,
+      "tons": 0.12,
+      "criticalSlots": 2,
+      "cost": 12000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": ["Battle Armor"],
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "ammoType": "LRM",
+      "rackSize": 2
+    }
+  },
+  {
+    "native": "ISBALRM2OS",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM2OS.java: ISBALRM2OS",
+    "values": {
+      "id": "isbalrm2os-registry",
+      "name": "LRM 2 (OS)",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM2OS.java: ISBALRM2OS"
+      ],
+      "battleValue": 4,
+      "weight": 0.08,
+      "criticalSlots": 3,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "subType": "ISBALRM2OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.battleArmor.innerSphere.lrm.ISBALRM2OS",
+      "internalName": "ISBALRM2OS",
+      "name": "LRM 2 (OS)",
+      "aliases": ["ISBALRM2OS", "IS BA LRM2 OS"],
+      "tech": "IS",
+      "bv": 4,
+      "tons": 0.08,
+      "criticalSlots": 3,
+      "cost": 6000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": ["Battle Armor"],
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "ammoType": "LRM",
+      "rackSize": 2
+    }
+  },
+  {
+    "native": "ISBALRM3",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM3.java: ISBALRM3",
+    "values": {
+      "id": "isbalrm3-registry",
+      "name": "LRM 3",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM3.java: ISBALRM3"
+      ],
+      "battleValue": 29,
+      "weight": 0.18,
+      "criticalSlots": 3,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "subType": "ISBALRM3",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.battleArmor.innerSphere.lrm.ISBALRM3",
+      "internalName": "ISBALRM3",
+      "name": "LRM 3",
+      "aliases": ["ISBALRM3", "IS BA LRM-3", "IS BA LRM3", "IS BA LRM 3"],
+      "tech": "IS",
+      "bv": 29,
+      "tons": 0.18,
+      "criticalSlots": 3,
+      "cost": 18000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": ["Battle Armor"],
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "ammoType": "LRM",
+      "rackSize": 3
+    }
+  },
+  {
+    "native": "ISBALRM3OS",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM3OS.java: ISBALRM3OS",
+    "values": {
+      "id": "isbalrm3os-registry",
+      "name": "LRM 3 (OS)",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM3OS.java: ISBALRM3OS"
+      ],
+      "battleValue": 6,
+      "weight": 0.12,
+      "criticalSlots": 4,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "subType": "ISBALRM3OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.battleArmor.innerSphere.lrm.ISBALRM3OS",
+      "internalName": "ISBALRM3OS",
+      "name": "LRM 3 (OS)",
+      "aliases": ["ISBALRM3OS", "IS BA LRM3 OS"],
+      "tech": "IS",
+      "bv": 6,
+      "tons": 0.12,
+      "criticalSlots": 4,
+      "cost": 9000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": ["Battle Armor"],
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "ammoType": "LRM",
+      "rackSize": 3
+    }
+  },
+  {
+    "native": "ISBALRM4",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM4.java: ISBALRM4",
+    "values": {
+      "id": "isbalrm4-registry",
+      "name": "LRM 4",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM4.java: ISBALRM4"
+      ],
+      "battleValue": 38,
+      "weight": 0.24,
+      "criticalSlots": 3,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "subType": "ISBALRM4",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.battleArmor.innerSphere.lrm.ISBALRM4",
+      "internalName": "ISBALRM4",
+      "name": "LRM 4",
+      "aliases": ["ISBALRM4", "IS BA LRM-4", "IS BA LRM 4"],
+      "tech": "IS",
+      "bv": 38,
+      "tons": 0.24,
+      "criticalSlots": 3,
+      "cost": 12000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": ["Battle Armor"],
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "ammoType": "LRM",
+      "rackSize": 4
+    }
+  },
+  {
+    "native": "ISBALRM4OS",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM4OS.java: ISBALRM4OS",
+    "values": {
+      "id": "isbalrm4os-registry",
+      "name": "LRM 4 (OS)",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM4OS.java: ISBALRM4OS"
+      ],
+      "battleValue": 8,
+      "weight": 0.16,
+      "criticalSlots": 5,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "subType": "ISBALRM4OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.battleArmor.innerSphere.lrm.ISBALRM4OS",
+      "internalName": "ISBALRM4OS",
+      "name": "LRM 4 (OS)",
+      "aliases": ["ISBALRM4OS", "IS BA LRM4 OS"],
+      "tech": "IS",
+      "bv": 8,
+      "tons": 0.16,
+      "criticalSlots": 5,
+      "cost": 12000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3050,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": ["Battle Armor"],
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "ammoType": "LRM",
+      "rackSize": 4
+    }
+  },
+  {
     "native": "ISBALRM5",
     "kind": "weapons",
     "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM5.java: ISBALRM5",
@@ -15588,6 +16112,126 @@
     }
   },
   {
+    "native": "ISBASRM1",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM1.java: ISBASRM1",
+    "values": {
+      "id": "isbasrm1-registry",
+      "name": "SRM 1",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM1.java: ISBASRM1"
+      ],
+      "battleValue": 15,
+      "weight": 0.06,
+      "criticalSlots": 1,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3045,
+      "subType": "ISBASRM1",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.battleArmor.innerSphere.srm.ISBASRM1",
+      "internalName": "ISBASRM1",
+      "name": "SRM 1",
+      "aliases": ["ISBASRM1", "IS BA SRM-1", "IS BA SRM 1"],
+      "tech": "IS",
+      "bv": 15,
+      "tons": 0.06,
+      "criticalSlots": 1,
+      "cost": 5000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3045,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": ["Battle Armor"],
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "ammoType": "SRM",
+      "rackSize": 1
+    }
+  },
+  {
+    "native": "ISBASRM1OS",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM1OS.java: ISBASRM1OS",
+    "values": {
+      "id": "isbasrm1os-registry",
+      "name": "SRM 1 (OS)",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM1OS.java: ISBASRM1OS"
+      ],
+      "battleValue": 3,
+      "weight": 0.05,
+      "criticalSlots": 2,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3045,
+      "subType": "ISBASRM1OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.battleArmor.innerSphere.srm.ISBASRM1OS",
+      "internalName": "ISBASRM1OS",
+      "name": "SRM 1 (OS)",
+      "aliases": ["ISBASRM1OS", "IS BA SRM1 OS"],
+      "tech": "IS",
+      "bv": 3,
+      "tons": 0.05,
+      "criticalSlots": 2,
+      "cost": 2500,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3045,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": ["Battle Armor"],
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "ammoType": "SRM",
+      "rackSize": 1
+    }
+  },
+  {
     "native": "ISBASRM2",
     "kind": "weapons",
     "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM2.java: ISBASRM2",
@@ -15710,6 +16354,66 @@
       },
       "ammoType": "SRM",
       "rackSize": 2
+    }
+  },
+  {
+    "native": "ISBASRM3",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM3.java: ISBASRM3",
+    "values": {
+      "id": "isbasrm3-registry",
+      "name": "SRM 3",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM3.java: ISBASRM3"
+      ],
+      "battleValue": 30,
+      "weight": 0.18,
+      "criticalSlots": 2,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3045,
+      "subType": "ISBASRM3",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.battleArmor.innerSphere.srm.ISBASRM3",
+      "internalName": "ISBASRM3",
+      "name": "SRM 3",
+      "aliases": ["ISBASRM3", "IS BA SRM-3", "IS BA SRM 3"],
+      "tech": "IS",
+      "bv": 30,
+      "tons": 0.18,
+      "criticalSlots": 2,
+      "cost": 15000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3045,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": ["Battle Armor"],
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "ammoType": "SRM",
+      "rackSize": 3
     }
   },
   {
@@ -15895,6 +16599,126 @@
       },
       "ammoType": "SRM",
       "rackSize": 4
+    }
+  },
+  {
+    "native": "ISBASRM5",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM5.java: ISBASRM5",
+    "values": {
+      "id": "isbasrm5-registry",
+      "name": "SRM 5",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM5.java: ISBASRM5"
+      ],
+      "battleValue": 47,
+      "weight": 0.3,
+      "criticalSlots": 3,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3045,
+      "subType": "ISBASRM5",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.battleArmor.innerSphere.srm.ISBASRM5",
+      "internalName": "ISBASRM5",
+      "name": "SRM 5",
+      "aliases": ["ISBASRM5", "IS BA SRM-5", "IS BA SRM 5"],
+      "tech": "IS",
+      "bv": 47,
+      "tons": 0.3,
+      "criticalSlots": 3,
+      "cost": 25000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3045,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": ["Battle Armor"],
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "ammoType": "SRM",
+      "rackSize": 5
+    }
+  },
+  {
+    "native": "ISBASRM5OS",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM5OS.java: ISBASRM5OS",
+    "values": {
+      "id": "isbasrm5os-registry",
+      "name": "SRM 5 (OS)",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM5OS.java: ISBASRM5OS"
+      ],
+      "battleValue": 9,
+      "weight": 0.175,
+      "criticalSlots": 3,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3045,
+      "subType": "ISBASRM5OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.battleArmor.innerSphere.srm.ISBASRM5OS",
+      "internalName": "ISBASRM5OS",
+      "name": "SRM 5 (OS)",
+      "aliases": ["ISBASRM5OS", "IS BA SRM5 OS"],
+      "tech": "IS",
+      "bv": 9,
+      "tons": 0.175,
+      "criticalSlots": 3,
+      "cost": 12500,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3045,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": ["Battle Armor"],
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "ammoType": "SRM",
+      "rackSize": 5
     }
   },
   {
