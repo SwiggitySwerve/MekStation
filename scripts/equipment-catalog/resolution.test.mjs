@@ -23,6 +23,149 @@ export const APPROVED_JAVA_REROUTES = [
         'Opus G2-O1/G1-O2: ISVehicleFlamer.java:77 at pinned 48fcb2f64, separate BV-5 vehicle flamer',
     })),
   ),
+  ...[
+    ['MRM-1', 'mrm-1', null],
+    ['MRM-2', 'mrm-2', null],
+    ['MRM-3', 'mrm-3', null],
+    ['MRM-4', 'mrm-4', null],
+    ['MRM-5', 'mrm-5', null],
+  ].flatMap(([name, oldTarget, newTarget]) =>
+    ['unitLoaderAmmoIS', 'unitLoaderAmmoClan'].map((api) => ({
+      api,
+      name,
+      oldTarget,
+      newTarget,
+      literalName: true,
+      reason:
+        'Opus G2-O5 exact Java source identity; ISMRM1..5.java:57-63 and AmmoType.java:15093-15236 at48fcb2f64',
+    })),
+  ),
+  ...[
+    ['Coolant Pod', 'coolant-pod', 'coolant-pod-registry'],
+    ['Coolant Pod:OMNI', 'coolant-pod', 'coolant-pod-registry'],
+    ['MRM-1', 'mrm-1', 'mrm-1-registry'],
+    ['MRM-2', 'mrm-2', 'mrm-2-registry'],
+    ['MRM-3', 'mrm-3', 'mrm-3-registry'],
+    ['MRM-4', 'mrm-4', 'mrm-4-registry'],
+    ['MRM-5', 'mrm-5', 'mrm-5-registry'],
+  ].flatMap(([name, oldTarget, newTarget]) =>
+    ['unitLoaderIS', 'unitLoaderClan', 'unitLoaderMixed'].map((api) => ({
+      api,
+      name,
+      oldTarget,
+      newTarget,
+      literalName: true,
+      reason:
+        'Opus G2-O5 exact Java source identity; ISMRM1..5.java:57-63 and AmmoType.java:15093-15236 at48fcb2f64',
+    })),
+  ),
+  ...[
+    ['CLRotaryAC10', 'rotaryac10'],
+    ['CLRotaryAC20', 'rotaryac20'],
+  ].map(([name, oldTarget]) => ({
+    name,
+    oldTarget,
+    newTarget: null,
+    weapon: true,
+    reason:
+      'Opus G2-O5 WeaponType aliases cannot use an AmmoType bin; pin48fcb2f64',
+  })),
+  ...[
+    [
+      '(R) IS Streak SRM 2 Ammo:50',
+      'streak-srm-ammo',
+      'is-streak-srm-2-ammo-registry',
+      false,
+    ],
+    [
+      '(R) IS Streak SRM 4 Ammo:75',
+      'clan-streak-srm-4',
+      'is-streak-srm-4-ammo-registry',
+      false,
+    ],
+    [
+      'IS LB 2-X AC Ammo:OMNI',
+      'lb-2-x-ammo',
+      'is-lb-2-x-ac-ammo-registry',
+      false,
+    ],
+    [
+      'IS LB 2-X Cluster Ammo:OMNI',
+      'clan-lb-2-x-cluster',
+      'is-lb-2-x-cluster-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 2 Ammo:100',
+      'streak-srm-ammo',
+      'is-streak-srm-2-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 2 Ammo:50',
+      'streak-srm-ammo',
+      'is-streak-srm-2-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 2 Ammo:OMNI',
+      'streak-srm-ammo',
+      'is-streak-srm-2-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 4 Ammo:25',
+      'clan-streak-srm-4',
+      'is-streak-srm-4-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 4 Ammo:OMNI',
+      'clan-streak-srm-4',
+      'is-streak-srm-4-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 6 Ammo:15',
+      'clan-streak-srm-6',
+      'is-streak-srm-6-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 6 Ammo:60',
+      'clan-streak-srm-6',
+      'is-streak-srm-6-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 6 Ammo:75',
+      'clan-streak-srm-6',
+      'is-streak-srm-6-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 6 Ammo:OMNI',
+      'clan-streak-srm-6',
+      'is-streak-srm-6-ammo-registry',
+      false,
+    ],
+    ['ISBALRM2OS:Body', 'balrm2os', 'isbalrm2os-registry', true],
+    ['ISBALRM3:Body', 'balrm3', 'isbalrm3-registry', true],
+    ['ISBASRM1:RA', 'basrm1', 'isbasrm1-registry', true],
+    ['ISBASRM1OS:LA', 'basrm1os', 'isbasrm1os-registry', true],
+    ['ISBASRM1OS:RA', 'basrm1os', 'isbasrm1os-registry', true],
+    ['ISBASRM3:Body', 'basrm3', 'isbasrm3-registry', true],
+    ['ISBASRM5:Body', 'basrm5', 'isbasrm5-registry', true],
+    ['ISBASRM5OS:Body', 'basrm5os', 'isbasrm5os-registry', true],
+  ].map(([name, oldTarget, newTarget, weapon]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    weapon,
+    literalName: true,
+    reason:
+      'Opus G2-O4 exact qualified EquipmentType; pin48fcb2f64 AmmoType.java and native IS BA LRM/SRM registrations',
+  })),
 
   ...['c3-remote-sensor-launcher'].map((name) => ({
     name,
@@ -1003,7 +1146,9 @@ if (process.argv.includes('--capture')) {
       if (newTarget === oldTarget) return;
       const route = APPROVED_JAVA_REROUTES.find(
         (route) =>
-          route.name.toLowerCase() === bareName(name).toLowerCase() &&
+          (!route.api || route.api === api) &&
+          route.name.toLowerCase() ===
+            (route.literalName ? name : bareName(name)).toLowerCase() &&
           route.oldTarget === oldTarget,
       );
       const row = { api, name, oldTarget, newTarget };
@@ -1036,9 +1181,17 @@ if (process.argv.includes('--capture')) {
     );
     for (const route of APPROVED_JAVA_REROUTES) {
       if (route.tagForm) continue;
+      if (route.api) {
+        assert.equal(
+          targetOf(after, route.api, route.name),
+          route.newTarget ?? undefined,
+          route.api + ' ' + route.name,
+        );
+        continue;
+      }
       assert.equal(
         targetOf(after, 'equipment', route.name),
-        route.newTarget,
+        route.newTarget ?? undefined,
         route.name,
       );
       if (!route.weapon)

@@ -100,5 +100,9 @@ exports.default = async function afterPack(context) {
   await rmWithRetry(publicDestDir);
   await cpWithRetry(publicSrcDir, publicDestDir);
 
+  const { pruneDeploymentFiles } =
+    await import('../../../scripts/next/deployment-files.mjs');
+  pruneDeploymentFiles(path.join(resourcesDir, 'next-standalone'));
+
   console.log('[afterPack] Public assets copy complete');
 };

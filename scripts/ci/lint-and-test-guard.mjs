@@ -7,9 +7,14 @@
 // check blocks a normal merge but not an admin merge, so when the job is
 // missing this posts a failed `Lint and Test` check on the run's head commit.
 // A re-run that creates the real job reports a newer conclusion over it.
+// Only a run that concluded success or failure can have missed the gate: a
+// cancelled or skipped run was superseded or never started, so it has no
+// gate to miss (run 41902456406, a dispatch cancelled while pending, posted
+// a false failure on a green head).
 //
 // Usage: node scripts/ci/lint-and-test-guard.mjs --repo <owner/name>
-//          --run <run id> --sha <head sha> [--dry-run]
+//          --run <run id> --sha <head sha> --conclusion <run conclusion>
+//          [--dry-run]
 // Needs GH_TOKEN with checks:write (unless --dry-run) and actions:read.
 
 import { execFileSync } from 'node:child_process';
@@ -20,6 +25,14 @@ export const AGGREGATOR = 'Lint and Test';
 /** True when no job of the run's latest attempt is the aggregator. */
 export function aggregatorMissing(jobs) {
   return !jobs.some((job) => job.name === AGGREGATOR);
+}
+
+/** True when a run that finished (success or failure) never created the aggregator. */
+export function shouldReportMissing({ conclusion, jobs }) {
+  return (
+    (conclusion === 'success' || conclusion === 'failure') &&
+    aggregatorMissing(jobs)
+  );
 }
 
 function arg(name) {
@@ -35,9 +48,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const repo = arg('repo');
   const run = arg('run');
   const sha = arg('sha');
-  if (!repo || !run || !sha) {
+  const conclusion = arg('conclusion');
+  if (!repo || !run || !sha || !conclusion) {
     console.error(
-      'usage: --repo <owner/name> --run <id> --sha <sha> [--dry-run]',
+      'usage: --repo <owner/name> --run <id> --sha <sha> --conclusion <conclusion> [--dry-run]',
     );
     process.exit(2);
   }
@@ -51,8 +65,12 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     .split('\n')
     .filter(Boolean)
     .map((line) => JSON.parse(line));
-  if (!aggregatorMissing(jobs)) {
-    console.log(`${AGGREGATOR} reported in run ${run} (${jobs.length} jobs).`);
+  if (!shouldReportMissing({ conclusion, jobs })) {
+    console.log(
+      aggregatorMissing(jobs)
+        ? `Run ${run} concluded ${conclusion}: no ${AGGREGATOR} gate to report.`
+        : `${AGGREGATOR} reported in run ${run} (${jobs.length} jobs).`,
+    );
     process.exit(0);
   }
   const summary = `PR Checks run ${run} finished without a ${AGGREGATOR} job, so nothing proved its fan-out checks passed. Re-run PR Checks.`;

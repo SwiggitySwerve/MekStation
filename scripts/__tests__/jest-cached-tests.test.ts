@@ -834,6 +834,27 @@ describe('runCached', () => {
     expect(next).toMatchObject({ hits: 1, executed: 2 });
   });
 
+  it('a rejected entry stays rejected when a seed with its pass is restored first', async () => {
+    // CI restores main's seed and then the PR's own entries into one
+    // directory; extracting the PR's archive cannot delete files, so an
+    // eviction must be a file that overwrites main's pass, not a deletion.
+    const { root, outcome, go } = setup();
+    const storeDir = path.join(root, '.cache');
+    await go(); // every file recorded as a pass
+    const mainSeed = path.join(root, 'main-seed');
+    fs.cpSync(storeDir, mainSeed, { recursive: true });
+    outcome.set('src/c.test.ts', 'failed'); // a hidden input breaks c
+    expect((await go({ verifyHits: 3 })).stale).toContain('src/c.test.ts');
+    const prEntries = path.join(root, 'pr-entries');
+    fs.cpSync(storeDir, prEntries, { recursive: true });
+    fs.rmSync(storeDir, { recursive: true });
+    fs.cpSync(mainSeed, storeDir, { recursive: true }); // restore main first
+    fs.cpSync(prEntries, storeDir, { recursive: true }); // then the PR's
+    const next = await go(); // no sampling: only the store decides
+    expect(next.exitCode).not.toBe(0);
+    expect(next.executed).toBe(3);
+  });
+
   it("mode 'off' neither reads nor writes the cache", async () => {
     const { go } = setup();
     const off = await go({ mode: 'off' });

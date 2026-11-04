@@ -1,0 +1,133 @@
+name: Desktop Packs
+
+# Packs the Windows and macOS Electron apps (pack mode, unsigned) on every
+# push to main, nightly and on demand. Pull requests pack them in PR Checks
+# `build-test` when their changes reach desktop packaging inputs. This runs
+# in its own workflow so a macOS leg waiting for a runner never holds PR
+# Checks' main concurrency group (run 41923023147, 2026-11-04); a pack
+# failure shows red on main through this workflow's own check.
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    # Daily at 09:30 UTC, with PR Checks' nightly run.
+    - cron: '30 9 * * *'
+  workflow_dispatch:
+
+# The running pack is never cancelled. A newer push replaces only a run
+# still pending, and the tip it packs contains every replaced commit, so
+# a macOS shortage queues at most one more run.
+concurrency:
+  group: desktop-packs-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  web-build:
+    name: Web Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '22'
+          fetch-assets: 'true'
+
+      - name: Validate assets
+        run: npm run validate:assets:strict
+
+      - name: Build Next.js application
+        run: npm run build
+
+      - name: Build Electron TypeScript
+        working-directory: desktop
+        run: npm run build
+
+      - name: Upload web build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: web-build
+          path: |
+            .next/standalone
+            .next/static
+            desktop/dist
+            public/record-sheets
+          retention-days: 1
+          # The standalone server lives in .next/standalone/.next; without
+          # this the artifact silently drops it (Lane C, run 41790472413).
+          include-hidden-files: true
+
+  pack:
+    name: Desktop Pack / ${{ matrix.platform }}
+    needs: web-build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform: win
+          - os: macos-15
+            platform: mac
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '22'
+          skip-nextjs-cache: 'true'
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: web-build
+
+      - name: Restore artifact structure
+        shell: bash
+        run: |
+          test -d .next/standalone || { echo "Missing .next/standalone"; exit 1; }
+          test -d public/record-sheets || { echo "Missing public/record-sheets"; exit 1; }
+          test -d .next/static || { echo "Missing .next/static"; exit 1; }
+          test -d desktop/dist || { echo "Missing desktop/dist"; exit 1; }
+          test -f .next/standalone/.next/BUILD_ID || { echo "Missing .next/standalone/.next/BUILD_ID"; exit 1; }
+
+      - name: Rebuild native modules for platform
+        working-directory: desktop
+        shell: bash
+        run: npm run rebuild:next-standalone
+
+      - name: Test Electron build (pack mode)
+        working-directory: desktop
+        shell: bash
+        run: npx electron-builder --dir --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          SKIP_NOTARIZATION: 'true'
+          ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/desktop/.electron-cache
+
+      - name: Verify build output
+        working-directory: desktop
+        shell: bash
+        run: |
+          if [ "${{ matrix.platform }}" = "win" ]; then
+            test -d release/win-unpacked || exit 1
+            test -f release/win-unpacked/"MekStation.exe" || exit 1
+          else
+            mac_apps="$(compgen -G "release/mac*/MekStation.app")"
+            [ -n "$mac_apps" ] || exit 1
+          fi

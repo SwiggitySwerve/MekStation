@@ -118,3 +118,24 @@ export const MODULAR_ARMOR_BV_ID = 'modulararmor';
 export function getModularArmorBVPoints(count: number): number {
   return count * 10;
 }
+
+/** Native MegaMek codes are not local ArmorType enum ordinals. */
+export function getNativeArmorBVMultiplier(type: string | number): number {
+  const names: Readonly<Record<number, string>> = {
+    2: 'reactive',
+    3: 'reflective',
+    4: 'hardened',
+    16: 'ferro-lamellor',
+    23: 'anti-penetrative',
+    24: 'heat-dissipating',
+    26: 'ballistic-reinforced',
+  };
+  const name =
+    typeof type === 'number'
+      ? (names[type] ?? 'standard')
+      : type
+          .toLowerCase()
+          .replace(/_/g, '-')
+          .replace(/^anti-penetrative-ablation$/, 'anti-penetrative');
+  return getArmorBVMultiplier(name);
+}

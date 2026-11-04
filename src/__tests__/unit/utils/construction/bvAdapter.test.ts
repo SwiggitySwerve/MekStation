@@ -79,12 +79,14 @@ describe('bvAdapter', () => {
       expect(() => calculateUnitBV(vehicleData)).toThrow();
     });
 
-    it('returns 0 for AeroSpaceFighter unit type', () => {
+    it('rejects an unsupported AeroSpaceFighter unit type', () => {
       const aeroData: UnitData = {
         ...createMinimalBattleMech(),
         unitType: 'AeroSpaceFighter',
       };
-      expect(calculateUnitBV(aeroData)).toBe(0);
+      expect(() => calculateUnitBV(aeroData)).toThrow(
+        'Unsupported BV unitType: AeroSpaceFighter',
+      );
     });
 
     it('accepts Biped as a valid unit type', () => {

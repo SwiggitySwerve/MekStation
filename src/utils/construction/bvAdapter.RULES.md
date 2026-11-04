@@ -5,7 +5,7 @@ already projected domain/editor values. Recognized serialized contracts are
 validated and routed through existing family projections before dispatch.
 Vehicle, aircraft and capital construction use `contractUnitToBVUnit`; personnel
 and ProtoMechs use their existing definition mappers and editor BV entry.
-Domain values retain their direct dispatcher path; unsupported types retain 0.
+Domain values retain their direct dispatcher path; unsupported types fail explicitly.
 Projection and calculator errors propagate. This boundary defines no BV formula.
 
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
@@ -16,3 +16,8 @@ sources pin 403 and 296 respectively; other families retain their mapper results
 Force totals and pre-battle summaries call this boundary for every family.
 They never read combat projections or stored totals for BV. Pinned
 BVCalculator.java:103-139 selects the calculator for every loaded family.
+
+Unknown unit types fail explicitly with `Unsupported BV unitType`. The flat
+legacy BATTLEARMOR shape is unsupported rather than a valid zero-BV unit.
+Recognized contracts keep the existing projections and positive-BV guard.
+Pinned BVCalculator.java:103-139 selects a recognized entity calculator.
