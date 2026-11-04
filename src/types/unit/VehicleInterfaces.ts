@@ -143,6 +143,9 @@ export interface IVehicle extends IGroundUnit, IVehicleTurretSourceContext {
   /** Is this a trailer (no engine) */
   readonly isTrailer: boolean;
 
+  /** BLK `armor_tech_level` (TechConstants level), when the source states it. */
+  readonly armorTechLevel?: number;
+
   /**
    * Last-computed BV 2.0 breakdown for this combat vehicle.
    *

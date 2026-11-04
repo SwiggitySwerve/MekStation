@@ -184,3 +184,75 @@ export function getArmorDefinition(
 ): ArmorDefinition | undefined {
   return ARMOR_DEFINITIONS.find((def) => def.type === type);
 }
+
+/**
+ * Armor introduction dates MegaMek 48fcb2f6 uses in the intro-year check
+ * (TestEntity.hasIncorrectIntroYear:1512-1552), per BLK armor code
+ * (EquipmentType.T_ARMOR_*, EquipmentType.java:85-112) and armor variant.
+ * TechAdvancement.getIntroductionDate:691-699 takes the prototype date, else
+ * production; an approximate phase is 5 years earlier (:720-735, :95).
+ * A side without a date is never flagged. Java looks the armor up by
+ * "IS <name>" or "Clan <name>" (EquipmentType.getArmorTypeName:1086-1089) and
+ * skips a name no armor registers (hasIncorrectIntroYear:1534-1537): only the
+ * variants below resolve. Standard ("IS Standard") never does (:358-362).
+ */
+const JAVA_ARMOR_INTRODUCTION: Readonly<
+  Record<string, { readonly is?: number; readonly clan?: number }>
+> = {
+  '1': { is: 2557, clan: 2557 }, // IS Ferro-Fibrous :408-410
+  '1:clan': { clan: 2815 }, // Clan Ferro-Fibrous :445 (2820, approximate)
+  '2': { is: 3063 }, // IS Reactive :813
+  '2:clan': { clan: 3065 }, // Clan Reactive :845
+  '3': { is: 3058 }, // IS Reflective :878
+  '3:clan': { clan: 3061 }, // Clan Reflective :911
+  '4': { is: 3047, clan: 3061 }, // IS Hardened :939-941
+  '4:clan': { is: 3047, clan: 3061 }, // "Clan Hardened" lookup, same type
+  '5': { is: 3050 }, // Light Ferro-Fibrous :477 (3055, approximate)
+  '6': { is: 3051 }, // Heavy Ferro-Fibrous :508 (3056, approximate)
+  '8': { is: 3046 }, // Mek Stealth :977 (3051, approximate)
+  '16:clan': { clan: 3070 }, // Clan Ferro-Lamellor :1038
+  '22': { is: 3067 }, // Vehicular Stealth :1008 (production; no prototype)
+  '26': { is: 3115 }, // Ballistic-Reinforced :1157 (3120, approximate)
+};
+
+/** Java armor names for the intro-year message (ArmorType.java `armor.name`). */
+const JAVA_ARMOR_NAMES: Readonly<Record<string, string>> = {
+  '1': 'Ferro-Fibrous',
+  '2': 'Reactive',
+  '3': 'Reflective',
+  '4': 'Hardened',
+  '5': 'Light Ferro-Fibrous',
+  '6': 'Heavy Ferro-Fibrous',
+  '8': 'Stealth',
+  '16': 'Ferro-Lamellor',
+  '22': 'Vehicular Stealth',
+  '26': 'Ballistic-Reinforced',
+};
+
+/**
+ * The Java intro date and name of a BLK armor code, or undefined when the code
+ * or the unit's tech side has no date. `clanArmor` picks the armor variant;
+ * the date side follows the unit, and a mixed-tech unit takes the earliest
+ * side (TestEntity.hasIncorrectIntroYear:1543-1546).
+ */
+export function javaArmorIntroduction(
+  code: number,
+  clanArmor: boolean,
+  clanUnit: boolean,
+  mixed: boolean,
+): { readonly name: string; readonly year: number } | undefined {
+  const dates = JAVA_ARMOR_INTRODUCTION[clanArmor ? `${code}:clan` : `${code}`];
+  const name = JAVA_ARMOR_NAMES[`${code}`];
+  if (!dates || !name) return undefined;
+  const sides = [dates.is, dates.clan].filter(
+    (year): year is number => year !== undefined,
+  );
+  const year = mixed
+    ? sides.length > 0
+      ? Math.min(...sides)
+      : undefined
+    : clanUnit
+      ? dates.clan
+      : dates.is;
+  return year === undefined ? undefined : { name, year };
+}

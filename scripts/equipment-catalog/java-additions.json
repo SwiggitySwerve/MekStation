@@ -17683,6 +17683,163 @@
     }
   },
   {
+    "native": "ISNarcBeacon (I-OS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/innerSphere/ISNarcIOS.java: ISNarcBeacon (I-OS)",
+    "values": {
+      "id": "isnarcbeacon-i-os-registry",
+      "name": "Narc (I-OS)",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/innerSphere/ISNarcIOS.java: ISNarcBeacon (I-OS)"
+      ],
+      "battleValue": 6,
+      "weight": 2.5,
+      "criticalSlots": 2,
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3056,
+      "subType": "ISNarcIOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.other.innerSphere.ISNarcIOS",
+      "internalName": "ISNarcBeacon (I-OS)",
+      "name": "Narc (I-OS)",
+      "aliases": [
+        "ISNarcBeacon (I-OS)",
+        "IS I-OS Narc Beacon",
+        "IS Narc Missile Beacon (I-OS)"
+      ],
+      "tech": "IS",
+      "bv": 6,
+      "tons": 2.5,
+      "criticalSlots": 2,
+      "cost": 100000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3056,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "ammoType": "NARC",
+      "rackSize": 1
+    }
+  },
+  {
+    "native": "ISNarcBeacon (OS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/innerSphere/ISNarcOS.java: ISNarcBeacon (OS)",
+    "values": {
+      "id": "isnarcbeacon-os-registry",
+      "name": "Narc (OS)",
+      "category": "Missile",
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/innerSphere/ISNarcOS.java: ISNarcBeacon (OS)"
+      ],
+      "battleValue": 6,
+      "weight": 3.5,
+      "criticalSlots": 2,
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2660,
+      "subType": "ISNarcOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      }
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.other.innerSphere.ISNarcOS",
+      "internalName": "ISNarcBeacon (OS)",
+      "name": "Narc (OS)",
+      "aliases": [
+        "ISNarcBeacon (OS)",
+        "IS OS Narc Beacon",
+        "IS Narc Missile Beacon (OS)"
+      ],
+      "tech": "ALL",
+      "bv": 6,
+      "tons": 3.5,
+      "criticalSlots": 2,
+      "cost": 100000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2660,
+      "extinctionYear": -1,
+      "reintroductionYear": 3035,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "ammoType": "NARC",
+      "rackSize": 1
+    }
+  },
+  {
     "native": "ISRISCHyperLaser",
     "kind": "weapons",
     "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lasers/innerSphere/ISRISCHyperLaser.java: ISRISCHyperLaser",
