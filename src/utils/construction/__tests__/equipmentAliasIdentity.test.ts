@@ -174,3 +174,31 @@ describe('MRM names follow their Java identity (follow-up 92)', () => {
     expect(getEquipmentEntry(`MRM-${rack}`)?.id).toBe(`mrm-${rack}`);
   });
 });
+
+describe('Narc one-shot names follow their Java identity (follow-up 92)', () => {
+  const cases: Array<[string, string[]]> = [
+    // weapons/other/innerSphere/ISNarcIOS.java
+    ['isnarcbeacon-i-os-registry', ['Narc (I-OS)']],
+    // weapons/other/innerSphere/ISNarcOS.java
+    ['isnarcbeacon-os-registry', ['Narc (OS)']],
+  ];
+  it.each(cases.flatMap(([id, names]) => names.map((name) => [name, id])))(
+    '%s resolves to %s',
+    (name, id) => {
+      expect(getEquipmentEntry(name)?.id).toBe(id);
+    },
+  );
+
+  // Left for follow-up 93 (tech-aware routing): Java's CLAN lookup owns a
+  // different item, or an MTF pairs the name with such a display name.
+  it.each([
+    ['Heavy Machine Gun Array', 'hmga'],
+    ['Light Machine Gun Array', 'lmga'],
+    ['Machine Gun Array', 'mga'],
+    ['ISHMGA', 'hmga'],
+    ['ISLMGA', 'lmga'],
+    ['ISMGA', 'mga'],
+  ])('keeps tech-dependent %s on %s', (name, id) => {
+    expect(getEquipmentEntry(name)?.id).toBe(id);
+  });
+});

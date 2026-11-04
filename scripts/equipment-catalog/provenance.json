@@ -1248,6 +1248,14 @@
       "id": "ismagshotgr-ammo-registry"
     },
     {
+      "internalName": "ISNarcBeacon (I-OS)",
+      "id": "isnarcbeacon-i-os-registry"
+    },
+    {
+      "internalName": "ISNarcBeacon (OS)",
+      "id": "isnarcbeacon-os-registry"
+    },
+    {
       "internalName": "ISRISCHyperLaser",
       "id": "isrischyperlaser-registry"
     },
