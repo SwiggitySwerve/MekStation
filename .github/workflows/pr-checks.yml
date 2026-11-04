@@ -72,19 +72,28 @@ jobs:
         run: node --test scripts/ci/ci-changes.test.mjs
 
   # ---------------------------------------------------------------
-  # install-deps runs first so the other lint/test/type/build jobs
-  # can reuse a single `npm ci`. It populates the node_modules cache
-  # keyed on (OS, node version, lockfile hash); fan-out jobs restore
-  # from that cache and skip `npm ci` entirely on a hit.
+  # static-checks runs the short checks that used to take a runner
+  # each (lint, format, roadmap ledger, determinism, typecheck, desktop
+  # typecheck and tests, a11y, BV parity, Storybook, tsrs) on one
+  # runner, so a PR run needs far fewer of the 20 concurrent jobs the
+  # repository gets. Every check step runs even when an earlier one
+  # fails (`!cancelled()`), so one run reports every failure. Gated
+  # steps keep their old change-detection gates. It always runs: lint,
+  # format, the roadmap ledger and typecheck cover docs/openspec-only
+  # PRs too.
   # ---------------------------------------------------------------
-  install-deps:
-    name: Install Dependencies
+  static-checks:
+    name: Static Checks
+    needs: detect-changes
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 20
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          # The roadmap ledger validator reads history.
+          fetch-depth: 0
 
       - name: Setup Node + caches + install deps
         uses: ./.github/actions/setup-node-and-install
@@ -92,168 +101,131 @@ jobs:
           node-version: '22'
           fetch-assets: 'true'
 
-  lint:
-    name: Lint
-    needs: install-deps
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-
-      - name: Run linter
+      - name: Lint
+        if: ${{ !cancelled() }}
         run: npm run lint
 
-  format-check:
-    name: Format Check
-    needs: install-deps
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-
-      - name: Check formatting
+      - name: Format Check
+        if: ${{ !cancelled() }}
         run: npm run format:check
 
       - name: Check generated work list after formatting
+        if: ${{ !cancelled() }}
         run: node --test scripts/__tests__/v220-format.test.mjs
 
-  validate-roadmap:
-    name: Validate Roadmap Ledger
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
       - name: Validate roadmap ledger
+        if: ${{ !cancelled() }}
         run: node openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs
 
       - name: Validate ledger validator tests
+        if: ${{ !cancelled() }}
         run: node --test openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.test.mjs
 
       - name: Check v2.2.0 step map and fixtures
+        if: ${{ !cancelled() }}
         run: |
           node scripts/qc/generate-v220-steps.mjs --check
           node --test scripts/__tests__/v220-steps.test.mjs
           node --test scripts/__tests__/v220-evidence.test.mjs
 
-  typecheck:
-    name: Type Check
-    needs: install-deps
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
+      # Per add-combat-fidelity-suite (Phase 0, Requirement: Audit of
+      # Unseeded Dice in Combat Pipeline), `Math.random()` is forbidden
+      # inside `src/utils/gameplay/` and `src/simulation/` outside the
+      # `defaultD6Roller` definition site (`src/utils/gameplay/diceTypes.ts`).
+      # Allowlist (legitimate non-dice entropy paths):
+      #   - src/utils/gameplay/diceTypes.ts        — defaultD6Roller (the seam)
+      #   - src/utils/gameplay/aerospace/criticalHits.ts — unused dead path
+      #   - src/utils/gameplay/terrainGenerator.ts — seed fallback for procgen
+      #   - src/simulation/QuickResolveService.ts  — crypto.getRandomValues fallback
+      # Failures print the offending file and line.
+      - name: Audit Math.random() in combat pipeline
+        if: ${{ !cancelled() }}
+        run: node scripts/qc/audit-combat-determinism.mjs
 
       - name: Generate Next.js route types
+        if: ${{ !cancelled() }}
         run: npx next typegen
 
-      - name: Run type check
+      - name: Type Check
+        if: ${{ !cancelled() }}
         run: npm run typecheck
 
-  # Advisory only: never add this job to lint-and-test.needs or branch protection.
-  tsrs-side-check:
-    name: tsrs Side-Check (advisory)
-    needs: install-deps
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    continue-on-error: true
-    permissions:
-      contents: read
+      - name: Desktop Type Check
+        if: ${{ !cancelled() }}
+        working-directory: desktop
+        run: npm run type-check
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - name: Desktop Tests
+        if: ${{ !cancelled() }}
+        working-directory: desktop
+        run: npm test -- --runInBand
+
+      # Gates accessibility regressions for in-scope components. Runs the
+      # dedicated `a11y` Jest project — see jest.config.js for the
+      # `**/*.a11y.test.(ts|tsx)` glob and jest.setup.a11y.ts for
+      # `expect(...).toHaveNoViolations()` matchers.
+      - name: A11y Tests
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
+        run: npx jest --selectProjects a11y --ci --maxWorkers=4
+
+      - name: Validate BV Parity
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
+        run: npm run validate:bv
+
+      - name: Restore Storybook cache
+        if: ${{ !cancelled() && needs.detect-changes.outputs.storybook == 'true' }}
+        uses: actions/cache/restore@v5
         with:
-          persist-credentials: false
+          path: node_modules/.cache/storybook
+          key: ${{ runner.os }}-storybook-${{ hashFiles('package-lock.json', '.storybook/**') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-storybook-${{ hashFiles('package-lock.json', '.storybook/**') }}-
 
-      - name: Setup Node + caches + install deps
-        uses: ./.github/actions/setup-node-and-install
+      - name: Build Storybook
+        if: ${{ !cancelled() && needs.detect-changes.outputs.storybook == 'true' }}
+        run: npm run storybook:build
+
+      - name: Save Storybook cache
+        if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.detect-changes.outputs.storybook == 'true' }}
+        uses: actions/cache/save@v5
         with:
-          node-version: '22'
+          path: node_modules/.cache/storybook
+          key: ${{ runner.os }}-storybook-${{ hashFiles('package-lock.json', '.storybook/**') }}-${{ github.sha }}
 
-      - name: Install isolated pinned tsrs
+      # tsrs side-check: advisory only. continue-on-error keeps it from ever
+      # failing this job, so it never blocks Lint and Test.
+      - name: Install isolated pinned tsrs (advisory)
+        if: ${{ !cancelled() }}
+        continue-on-error: true
         run: npm install --no-save --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/tsrs" tsrs@0.18.0-ts7.1.0-dev.20260929
 
-      - name: Compare TS7 and verified tsrs diagnostics
+      - name: Compare TS7 and verified tsrs diagnostics (advisory)
+        if: ${{ !cancelled() }}
+        continue-on-error: true
         run: node scripts/qc/tsrs-side-check.mjs "$RUNNER_TEMP/tsrs"
 
-  unit-test-shards:
-    name: Unit Tests (${{ matrix.shard }}/6)
-    needs: install-deps
+  # ---------------------------------------------------------------
+  # simulation-checks runs the simulation wall-clock and coverage lanes
+  # one after another on one runner (never alongside other work, so the
+  # perf budgets measure an idle runner). Code-only.
+  # ---------------------------------------------------------------
+  simulation-checks:
+    name: Simulation Checks
+    needs: detect-changes
+    if: needs.detect-changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2, 3, 4, 5, 6]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
       - name: Setup Node + caches + install deps
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-
-      - name: Run unit test shard
-        run: npx jest --selectProjects unit --ci --shard=${{ matrix.shard }}/6
-        env:
-          JEST_EXCLUDE_PERF_SENSITIVE: 'true'
-
-  perf-smoke-tests:
-    name: Perf Smoke Tests
-    needs: [detect-changes, install-deps]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Skip (no code changes)
-        if: needs.detect-changes.outputs.code != 'true'
-        run: echo "No code changes — skipping."
-
-      - name: Checkout code
-        if: needs.detect-changes.outputs.code == 'true'
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.code == 'true'
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
 
       - name: Run CI-sized perf-sensitive simulation tests
-        if: needs.detect-changes.outputs.code == 'true'
         run: >-
           npx jest --selectProjects unit --ci --runInBand --runTestsByPath
           src/simulation/__tests__/integration.test.ts
@@ -274,64 +246,8 @@ jobs:
           SWARM_THROUGHPUT_RUN_COUNT: '25'
           SWARM_THROUGHPUT_TIME_BUDGET_MS: '15000'
 
-  statistical-proof-pr:
-    name: Statistical Proof PR
-    needs: [detect-changes, install-deps]
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-      - name: Skip (no statistical proof inputs changed)
-        if: needs.detect-changes.outputs.statistical != 'true'
-        run: echo "No statistical proof inputs changed — skipping."
-
-      - name: Checkout code
-        if: needs.detect-changes.outputs.statistical == 'true'
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.statistical == 'true'
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-
-      # simulation-system "Statistical Validation": a PR that touches the
-      # proof's inputs cannot merge without it; main and nightly always run it.
-      - name: Run 100-game statistical combat proofs
-        if: needs.detect-changes.outputs.statistical == 'true'
-        run: >-
-          npx jest --selectProjects unit --ci --runInBand --runTestsByPath
-          src/simulation/__tests__/integration.test.ts
-        env:
-          SIMULATION_COUNT: '100'
-          SIMULATION_PROFILE_AVG_GAME_BUDGET_MS: '4500'
-          SIMULATION_PROFILE_GAME_COUNT: '10'
-          SIMULATION_PROFILE_RUNNER_BUDGET_MS: '4000'
-          SIMULATION_PROFILE_TIME_BUDGET_MS: '60000'
-
-  perf-budget-pr:
-    name: Perf Budget PR
-    needs: [detect-changes, install-deps]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Skip (no code changes)
-        if: needs.detect-changes.outputs.code != 'true'
-        run: echo "No code changes — skipping."
-
-      - name: Checkout code
-        if: needs.detect-changes.outputs.code == 'true'
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.code == 'true'
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-
       - name: Run simulation wall-clock budgets
-        if: needs.detect-changes.outputs.code == 'true'
+        if: ${{ !cancelled() }}
         run: >-
           npx jest --selectProjects unit --ci --runInBand --runTestsByPath
           src/simulation/__tests__/simulation.test.ts
@@ -339,29 +255,8 @@ jobs:
           SIMULATION_PERF_ASSERTIONS: 'true'
           SIMULATION_COUNT: '10'
 
-  coverage-floor:
-    name: Coverage Floor
-    needs: [detect-changes, install-deps]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Skip (no code changes)
-        if: needs.detect-changes.outputs.code != 'true'
-        run: echo "No code changes — skipping."
-
-      - name: Checkout code
-        if: needs.detect-changes.outputs.code == 'true'
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.code == 'true'
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-
       - name: Generate combat/simulation coverage summary
-        if: needs.detect-changes.outputs.code == 'true'
+        if: ${{ !cancelled() }}
         run: >-
           npx jest --selectProjects unit --ci --coverage
           --coverageDirectory=coverage/combat-simulation
@@ -380,114 +275,101 @@ jobs:
           SIMULATION_COUNT: '5'
 
       - name: Enforce combat/simulation coverage floors
-        if: needs.detect-changes.outputs.code == 'true'
+        if: ${{ !cancelled() }}
         run: node scripts/qc/validate-combat-simulation-coverage.mjs --summary=coverage/combat-simulation/coverage-summary.json
 
-  a11y-tests:
-    name: A11y Tests
-    needs: [detect-changes, install-deps]
+  # Four shards on the runner's 4 vCPUs (Jest defaults to 3 workers in
+  # CI). The Jest transform cache is restored from main's last run: its
+  # entries are keyed by file content and transformer config, so a stale
+  # entry can never stand in for changed source. Main pushes and the
+  # nightly run save it.
+  unit-test-shards:
+    name: Unit Tests (${{ matrix.shard }}/4)
+    needs: detect-changes
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
 
     steps:
-      - name: Skip (no code changes)
-        if: needs.detect-changes.outputs.code != 'true'
-        run: echo "No code changes — skipping."
-
       - name: Checkout code
-        if: needs.detect-changes.outputs.code == 'true'
         uses: actions/checkout@v6
 
       - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.code == 'true'
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
 
-      - name: Run a11y tests (axe-core)
-        if: needs.detect-changes.outputs.code == 'true'
-        # Gates accessibility regressions for in-scope components. Runs
-        # the dedicated `a11y` Jest project — see jest.config.js for the
-        # `**/*.a11y.test.(ts|tsx)` glob and jest.setup.a11y.ts for
-        # `expect(...).toHaveNoViolations()` matchers.
-        run: npx jest --selectProjects a11y --ci
+      - name: Restore Jest transform cache
+        uses: actions/cache/restore@v5
+        with:
+          path: .jest-cache
+          key: ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*') }}-${{ matrix.shard }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*') }}-${{ matrix.shard }}-
 
-  validate-bv:
-    name: Validate BV Parity
-    needs: [detect-changes, install-deps]
+      - name: Run unit test shard
+        run: npx jest --selectProjects unit --ci --shard=${{ matrix.shard }}/4 --maxWorkers=4 --cacheDirectory=.jest-cache
+        env:
+          JEST_EXCLUDE_PERF_SENSITIVE: 'true'
+
+      - name: Save Jest transform cache
+        if: ${{ !cancelled() && github.event_name != 'pull_request' }}
+        uses: actions/cache/save@v5
+        with:
+          path: .jest-cache
+          key: ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*') }}-${{ matrix.shard }}-${{ github.sha }}
+
+  statistical-proof-pr:
+    name: Statistical Proof PR
+    needs: detect-changes
+    if: needs.detect-changes.outputs.statistical == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
     steps:
-      - name: Skip (no code changes)
-        if: needs.detect-changes.outputs.code != 'true'
-        run: echo "No code changes — skipping."
-
       - name: Checkout code
-        if: needs.detect-changes.outputs.code == 'true'
         uses: actions/checkout@v6
 
       - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.code == 'true'
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
-          fetch-assets: 'true'
 
-      - name: Validate BV parity
-        if: needs.detect-changes.outputs.code == 'true'
-        run: npm run validate:bv
+      # simulation-system "Statistical Validation": a PR that touches the
+      # proof's inputs cannot merge without it; main and nightly always run it.
+      - name: Run 100-game statistical combat proofs
+        run: >-
+          npx jest --selectProjects unit --ci --runInBand --runTestsByPath
+          src/simulation/__tests__/integration.test.ts
+        env:
+          SIMULATION_COUNT: '100'
+          SIMULATION_PROFILE_AVG_GAME_BUDGET_MS: '4500'
+          SIMULATION_PROFILE_GAME_COUNT: '10'
+          SIMULATION_PROFILE_RUNNER_BUDGET_MS: '4000'
+          SIMULATION_PROFILE_TIME_BUDGET_MS: '60000'
 
   validate-combat:
     name: Validate Combat Suite
-    needs: [detect-changes, install-deps]
+    needs: detect-changes
+    if: needs.detect-changes.outputs.combat == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
     steps:
-      - name: Skip (no combat suite inputs changed)
-        if: needs.detect-changes.outputs.combat != 'true'
-        run: echo "No combat suite inputs changed — skipping."
-
       - name: Checkout code
-        if: needs.detect-changes.outputs.combat == 'true'
         uses: actions/checkout@v6
 
       - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.combat == 'true'
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
           fetch-assets: 'true'
 
       - name: Validate combat catalog/test/spec consistency
-        if: needs.detect-changes.outputs.combat == 'true'
         run: npm run validate:combat
-
-  storybook-build:
-    name: Build Storybook
-    needs: [detect-changes, install-deps]
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-      - name: Skip (no Storybook inputs changed)
-        if: needs.detect-changes.outputs.storybook != 'true'
-        run: echo "No Storybook inputs changed — skipping."
-
-      - name: Checkout code
-        if: needs.detect-changes.outputs.storybook == 'true'
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.storybook == 'true'
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-
-      - name: Build Storybook
-        if: needs.detect-changes.outputs.storybook == 'true'
-        run: npm run storybook:build
 
   # ---------------------------------------------------------------
   # schema-bridge gates the cross-language schema contract:
@@ -496,48 +378,39 @@ jobs:
   #      non-strict; PR-A2 will flip to --strict --shape all)
   # The TypeScript round-trip contract suites (src/types/contracts) run
   # in the unit shards. The equipment catalog guard runs when a changed
-  # file is in its inputs (`equipment`). The job runs in parallel after
-  # install-deps and is included in the `lint-and-test` aggregator so
-  # branch protection picks it up.
+  # file is in its inputs (`equipment`). The job runs on code changes and
+  # is included in the `lint-and-test` aggregator so branch protection
+  # picks it up.
   # ---------------------------------------------------------------
   schema-bridge:
     name: Schema Bridge
-    needs: [detect-changes, install-deps]
+    needs: detect-changes
+    if: needs.detect-changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     # The equipment catalog resolution guard adds about 4 minutes.
     timeout-minutes: 10
 
     steps:
-      - name: Skip (no code changes)
-        if: needs.detect-changes.outputs.code != 'true'
-        run: echo "No code changes — skipping."
-
       - name: Checkout code
-        if: needs.detect-changes.outputs.code == 'true'
         uses: actions/checkout@v6
 
       - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.code == 'true'
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
 
       - name: Setup Python
-        if: needs.detect-changes.outputs.code == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Install Python schema-bridge deps
-        if: needs.detect-changes.outputs.code == 'true'
         run: pip install jsonschema
 
       - name: Verify generated Zod matches JSON Schema
-        if: needs.detect-changes.outputs.code == 'true'
         run: npm run schema:gen-check
 
       - name: Test schema generator fail-closed definitions
-        if: needs.detect-changes.outputs.code == 'true'
         run: node --test scripts/__tests__/schema-local-definitions.test.mjs
 
       - name: Test equipment catalog generator and resolution guards
@@ -545,18 +418,16 @@ jobs:
         run: node --test scripts/equipment-catalog/*.test.mjs
 
       - name: Test source inventory and Python conversion boundaries
-        if: needs.detect-changes.outputs.code == 'true'
         run: npm run test:conversion:python
 
       - name: Validate full corpus (all 6 shapes, strict)
-        if: needs.detect-changes.outputs.code == 'true'
         # PR-A2 flips the gate to --shape all --strict. Drift in any of
         # weapon / ammunition / electronics / misc_equipment /
         # physical_weapon / unit fails the build immediately.
         run: python scripts/megameklab-conversion/run_schema_validation_only.py --shape all --strict
 
       - name: Upload schema-bridge report
-        if: always() && needs.detect-changes.outputs.code == 'true'
+        if: always()
         uses: actions/upload-artifact@v7
         with:
           name: schema-bridge-report
@@ -564,200 +435,29 @@ jobs:
           retention-days: 7
 
   # ---------------------------------------------------------------
-  # determinism-audit gates non-determinism in the combat pipeline.
-  # Per add-combat-fidelity-suite (Phase 0, Requirement: Audit of
-  # Unseeded Dice in Combat Pipeline), `Math.random()` is forbidden
-  # inside `src/utils/gameplay/` and `src/simulation/` outside the
-  # `defaultD6Roller` definition site (`src/utils/gameplay/diceTypes.ts`).
-  #
-  # Allowlist (legitimate non-dice entropy paths):
-  #   - src/utils/gameplay/diceTypes.ts        — defaultD6Roller (the seam)
-  #   - src/utils/gameplay/aerospace/criticalHits.ts — unused dead path
-  #   - src/utils/gameplay/terrainGenerator.ts — seed fallback for procgen
-  #   - src/simulation/QuickResolveService.ts  — crypto.getRandomValues fallback
-  #
-  # Failures print the offending file and line so CI logs identify the
-  # regression site directly.
+  # e2e-build builds the E2E-mode production app ONCE per run and
+  # hands it to every Playwright shard, so no shard compiles Next and
+  # no shard runs `next dev` (which compiled each route on demand).
+  # It is a separate build from prepare-build on purpose:
+  # NEXT_PUBLIC_E2E_* are inlined at build time, and a non-E2E
+  # production build swaps the tactical-map E2E harness for an empty
+  # stub (next.config.ts), so the Electron pack must not consume this
+  # one. The record-sheet assets are fetched and strictly validated in
+  # THIS job's checkout, and the build copies them into the standalone
+  # public/ the shards serve, so a missing template fails here instead
+  # of degrading to the CDN fallback. Step gating keeps docs- and
+  # openspec-only PRs green for the lint-and-test aggregator.
   # ---------------------------------------------------------------
-  determinism-audit:
-    name: Determinism Audit
-    needs: install-deps
-    runs-on: ubuntu-latest
-    timeout-minutes: 2
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Audit Math.random() in combat pipeline
-        run: node scripts/qc/audit-combat-determinism.mjs
-
-  # ---------------------------------------------------------------
-  # e2e-smoke runs the tactical-map Playwright gate spec in a real
-  # chromium browser against the self-booted Next dev server
-  # (playwright.config.ts webServer). Closes audit finding E-1: the
-  # Playwright suite previously ran in NO CI workflow, so e2e
-  # assertions drifted from production unseen. Bounded to ONE spec
-  # file and ONE project to keep the lane inside the PR budget.
-  # The job always runs (so the lint-and-test aggregator's needs
-  # chain stays green), but its work is gated per-step on the
-  # detect-changes code/e2e filters — docs/openspec-only PRs no-op.
-  # ---------------------------------------------------------------
-  e2e-smoke:
-    name: E2E Smoke
-    needs: [detect-changes, install-deps]
+  e2e-build:
+    name: E2E Build
+    needs: detect-changes
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
       - name: Skip (no code or e2e changes)
         if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'
-        run: echo "No code or e2e changes — skipping e2e smoke."
-
-      - name: Checkout code
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-
-      - name: Resolve Playwright version for browser cache key
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        id: playwright-version
-        shell: bash
-        run: echo "version=$(node -e "console.log(require('@playwright/test/package.json').version)")" >> "$GITHUB_OUTPUT"
-
-      - name: Cache Playwright chromium browser
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        id: playwright-cache
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
-
-      - name: Install Playwright chromium browser
-        if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
-
-      - name: Install Playwright system dependencies (browser cached)
-        if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
-
-      - name: Fetch record-sheet assets for library flows
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        run: npm run fetch:assets
-
-      - name: Validate record-sheet assets for library flows
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        run: npm run validate:assets:strict
-
-      - name: Run tactical-map visual smoke and library suites
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        run: npx playwright test e2e/tactical-map-visual-smoke.spec.ts e2e/customizer-library-open.spec.ts --project=chromium
-
-      - name: Upload library-open screenshots
-        if: always() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
-        uses: actions/upload-artifact@v7
-        with:
-          name: library-open-screenshots
-          path: test-results/**/*.png
-          if-no-files-found: ignore
-          retention-days: 7
-
-      - name: Upload Playwright report
-        if: failure() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
-        uses: actions/upload-artifact@v7
-        with:
-          name: playwright-report
-          path: |
-            playwright-report
-            test-results
-          retention-days: 7
-
-  # ---------------------------------------------------------------
-  # seam-anchors runs the three W2 seam trust anchor journeys in a
-  # real chromium browser against the self-booted Next dev server —
-  # the per-PR seam gate (W6 design D2). Advisory until wired into
-  # the lint-and-test aggregator (D2.4 staged landing). The job
-  # always runs, but its work is gated per-step on the
-  # detect-changes code/e2e filters — docs/openspec-only PRs no-op.
-  # The invocation carries an explicit --retries=0: the config's CI
-  # default is `retries: 2`, and a gate must never retry a flaky
-  # anchor to green (design R4).
-  # ---------------------------------------------------------------
-  seam-anchors:
-    name: Seam Anchors
-    needs: [detect-changes, install-deps]
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    steps:
-      - name: Skip (no code or e2e changes)
-        if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'
-        run: echo "No code or e2e changes — skipping seam anchors."
-
-      - name: Checkout code
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-
-      - name: Resolve Playwright version for browser cache key
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        id: playwright-version
-        shell: bash
-        run: echo "version=$(node -e "console.log(require('@playwright/test/package.json').version)")" >> "$GITHUB_OUTPUT"
-
-      - name: Cache Playwright chromium browser
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        id: playwright-cache
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
-
-      - name: Install Playwright chromium browser
-        if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
-
-      - name: Install Playwright system dependencies (browser cached)
-        if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
-
-      - name: Run seam trust anchor journeys
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        run: npx playwright test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts --project=chromium --retries=0
-
-      - name: Upload Playwright report
-        if: failure() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
-        uses: actions/upload-artifact@v7
-        with:
-          name: seam-anchors-report
-          path: |
-            playwright-report
-            test-results
-          retention-days: 7
-
-  # Production customizer coverage: catalog (3), record sheets (6), edit recovery (3).
-  # Assets belong to this checkout. Zero retries retain failure traces.
-  # Step gating lets documentation-only PRs satisfy the required aggregator.
-  customizer-regressions:
-    name: Customizer Regressions
-    needs: [detect-changes, install-deps]
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    steps:
-      - name: Skip (no code or e2e changes)
-        if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'
-        run: echo "No code or e2e changes — skipping customizer regressions."
+        run: echo "No code or e2e changes — skipping the E2E build."
 
       - name: Checkout code
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
@@ -781,6 +481,66 @@ jobs:
           NEXT_PUBLIC_E2E_TEST: 'true'
         run: npm run build
 
+      # One zstd tarball instead of tens of thousands of zip entries:
+      # keeps symlinks and modes in the standalone node_modules and makes
+      # the upload and download a single stream.
+      - name: Pack standalone build
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        run: tar -cf - .next/standalone | zstd -T0 -3 -q -o "$RUNNER_TEMP/e2e-build.tar.zst"
+
+      - name: Upload E2E build
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-build
+          path: ${{ runner.temp }}/e2e-build.tar.zst
+          compression-level: 0
+          retention-days: 1
+
+  # ---------------------------------------------------------------
+  # e2e runs every per-PR Playwright gate against the E2E Build's
+  # standalone server, in 3 shards. It replaces the former E2E Smoke,
+  # Seam Anchors and Customizer Regressions jobs with the same spec
+  # files and the same retry policy:
+  #   - gate specs (the seam trust anchors, design R4, and the
+  #     customizer regressions) run with --retries=0, so a flaky
+  #     anchor can never retry to green, and with
+  #     --trace=retain-on-failure, because the config's
+  #     `trace: 'on-first-retry'` records nothing at zero retries. They
+  #     run on one worker, as before: under 4 workers the customizer
+  #     packs time out (run 41810648418).
+  #   - smoke specs keep the config's CI retries. The library suite runs
+  #     on one worker (its flows share the server database); the
+  #     tactical-map visual smoke uses all 4 vCPUs of the runner.
+  # Each group is sharded on its own, so every shard runs a slice of
+  # both. Step gating keeps docs- and openspec-only PRs green.
+  # ---------------------------------------------------------------
+  e2e:
+    name: E2E (${{ matrix.shard }}/3)
+    needs: [detect-changes, e2e-build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+
+    steps:
+      - name: Skip (no code or e2e changes)
+        if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'
+        run: echo "No code or e2e changes — skipping E2E."
+
+      - name: Checkout code
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '22'
+          skip-nextjs-cache: 'true'
+
       - name: Resolve Playwright version for browser cache key
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
         id: playwright-version
@@ -803,152 +563,157 @@ jobs:
         if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
-      - name: Run customizer browser regressions
+      - name: Download E2E build
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: actions/download-artifact@v8
+        with:
+          name: e2e-build
+          path: ${{ runner.temp }}
+
+      - name: Unpack E2E build
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        run: zstd -dc -q "$RUNNER_TEMP/e2e-build.tar.zst" | tar -xf - && test -f .next/standalone/server.js
+
+      - name: Run seam anchor and customizer regression gates
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
         env:
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
           HOSTNAME: '127.0.0.1'
-        run: node scripts/playwright/run-playwright.mjs test e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure
+          # The smoke step writes the default report folder.
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-gates
+        run: node scripts/playwright/run-playwright.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/3 --output=test-results/gates
+
+      # The library flows save and reopen units through the shared server
+      # database, and both viewport variants of a family save the same
+      # chassis, so they run on one worker as before (run 41813722683).
+      - name: Run customizer library suite
+        if: ${{ !cancelled() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') }}
+        env:
+          MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
+          HOSTNAME: '127.0.0.1'
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-library
+        run: node scripts/playwright/run-playwright.mjs test e2e/customizer-library-open.spec.ts --project=chromium --workers=1 --shard=${{ matrix.shard }}/3 --output=test-results/library
+
+      - name: Run tactical-map visual smoke
+        if: ${{ !cancelled() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') }}
+        env:
+          MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
+          HOSTNAME: '127.0.0.1'
+        run: node scripts/playwright/run-playwright.mjs test e2e/tactical-map-visual-smoke.spec.ts --project=chromium --workers=4 --shard=${{ matrix.shard }}/3 --output=test-results/smoke
+
+      - name: Upload library-open screenshots
+        if: always() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
+        uses: actions/upload-artifact@v7
+        with:
+          name: library-open-screenshots-${{ matrix.shard }}
+          path: test-results/library/**/*.png
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Upload Playwright report
         if: failure() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
         uses: actions/upload-artifact@v7
         with:
-          name: customizer-regressions-report
+          name: e2e-report-${{ matrix.shard }}
           path: |
             playwright-report
+            playwright-report-gates
+            playwright-report-library
             test-results
           retention-days: 7
 
-  desktop-typecheck:
-    name: Desktop Type Check
-    needs: install-deps
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-
-      - name: Run desktop type check
-        working-directory: desktop
-        run: npm run type-check
-
-  desktop-tests:
-    name: Desktop Tests
-    needs: install-deps
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-
-      - name: Run desktop Jest suite
-        working-directory: desktop
-        run: npm test -- --runInBand
-
-  # Aggregator that preserves the "Lint and Test" required-check name
-  # from before the fan-out. Runs UNCONDITIONALLY (if: always()) and
-  # fails unless every needed job's result is 'success' — GitHub counts
-  # a needs-skipped required check as passing, so without the assertion
-  # a failed fan-out job skips this aggregator and the PR shows green
-  # (the run-29059132882 hole; W6 design D2.3/R10). 'skipped' and
-  # 'cancelled' results are defects too: no needed job carries a
-  # job-level `if:` (verified in W6 task 1.1), so anything other than
-  # 'success' means a real failure upstream.
+  # Aggregator that preserves the "Lint and Test" required-check name.
+  # Runs UNCONDITIONALLY (if: always()): GitHub counts a needs-skipped
+  # required check as passing, so without it a failed fan-out job would
+  # skip this aggregator and the PR would show green (the
+  # run-29059132882 hole; W6 design D2.3/R10). A needed job passes when
+  # its result is 'success'. It may be 'skipped' only when it carries a
+  # job-level `if:` on detect-changes gates and every gate it names
+  # below was 'false' for this run; any other skip, a failure or a
+  # cancellation fails this check. Add every new job to `needs`, and a
+  # job-level-gated job to GATES too.
   lint-and-test:
     name: Lint and Test
     if: always()
     needs:
       [
-        lint,
-        format-check,
-        validate-roadmap,
-        typecheck,
+        detect-changes,
+        static-checks,
         unit-test-shards,
-        perf-smoke-tests,
+        simulation-checks,
         statistical-proof-pr,
-        perf-budget-pr,
-        coverage-floor,
-        a11y-tests,
-        validate-bv,
         validate-combat,
-        storybook-build,
         schema-bridge,
-        determinism-audit,
-        e2e-smoke,
-        seam-anchors,
-        customizer-regressions,
-        desktop-typecheck,
-        desktop-tests,
+        prepare-build,
+        build-test,
+        e2e-build,
+        e2e,
       ]
     runs-on: ubuntu-latest
     timeout-minutes: 1
     steps:
-      - name: Assert every fan-out check succeeded
+      - name: Assert every fan-out check succeeded or was gated off
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
+          # Job id -> the detect-changes gates whose all-'false' allows a skip.
+          GATES: >-
+            {"simulation-checks": ["code"],
+             "statistical-proof-pr": ["statistical"],
+             "validate-combat": ["combat"],
+             "schema-bridge": ["code"],
+             "prepare-build": ["code"],
+             "build-test": ["code"]}
         shell: bash
         run: |
-          failed=$(echo "$NEEDS_JSON" | jq -r 'to_entries[] | select(.value.result != "success") | "\(.key)=\(.value.result)"')
+          echo "$NEEDS_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value.result)"'
+          failed=$(echo "$NEEDS_JSON" | jq -r --argjson gates "$GATES" '
+            .["detect-changes"].outputs as $out
+            | to_entries[]
+            | select(
+                .value.result != "success"
+                and (.value.result != "skipped"
+                  or ($gates[.key] == null)
+                  or ($out == null)
+                  or ($gates[.key] | any(.[]; $out[.] != "false"))))
+            | "\(.key)=\(.value.result)"')
           if [ -n "$failed" ]; then
-            echo "Non-success needed jobs:"
+            echo "Needed jobs that neither passed nor were gated off:"
             echo "$failed"
             exit 1
           fi
-          echo "All fan-out checks passed"
+          echo "All fan-out checks passed or were gated off"
 
-  # prepare-build always runs (to satisfy branch-protection required check
-  # names), but its work is gated per-step on detect-changes.outputs.code.
-  # Docs/openspec-only PRs early-exit with a no-op step.
+  # prepare-build runs on code changes only. On docs/openspec-only PRs it
+  # and build-test skip; Lint and Test accepts that skip because the
+  # `code` gate was off.
   prepare-build:
     name: Prepare Build Artifacts
     needs: detect-changes
+    if: needs.detect-changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
-      - name: Skip (no code changes)
-        if: needs.detect-changes.outputs.code != 'true'
-        run: echo "No code changes — skipping build."
-
       - name: Checkout code
-        if: needs.detect-changes.outputs.code == 'true'
         uses: actions/checkout@v6
 
       - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.code == 'true'
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
           fetch-assets: 'true'
 
       - name: Validate assets
-        if: needs.detect-changes.outputs.code == 'true'
         run: npm run validate:assets:strict
 
       - name: Build Next.js application
-        if: needs.detect-changes.outputs.code == 'true'
         run: npm run build
 
       - name: Build Electron TypeScript
-        if: needs.detect-changes.outputs.code == 'true'
         working-directory: desktop
         run: npm run build
 
       - name: Upload web build artifacts
-        if: needs.detect-changes.outputs.code == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: web-build
@@ -958,9 +723,12 @@ jobs:
             desktop/dist
             public/record-sheets
           retention-days: 1
+          # The standalone server lives in .next/standalone/.next; without
+          # this the artifact silently drops it (Lane C, run 41790472413).
+          include-hidden-files: true
 
-  # build-test always runs so the per-platform required checks
-  # ("Build Test / win", etc.) report SUCCESS on docs-only PRs.
+  # build-test runs whenever prepare-build does, so the per-platform
+  # checks ("Build Test / win", etc.) report on every code PR.
   # Work is gated per-step on RUN_BUILD_TEST: Linux packs on every code
   # change; win/mac add ~8 job-minutes (native module rebuild) and only
   # run when detect-changes.outputs.desktop flags packaging inputs.
@@ -1016,6 +784,7 @@ jobs:
           test -d public/record-sheets || { echo "Missing public/record-sheets"; exit 1; }
           test -d .next/static || { echo "Missing .next/static"; exit 1; }
           test -d desktop/dist || { echo "Missing desktop/dist"; exit 1; }
+          test -f .next/standalone/.next/BUILD_ID || { echo "Missing .next/standalone/.next/BUILD_ID"; exit 1; }
 
       - name: Rebuild native modules for platform
         if: env.RUN_BUILD_TEST == 'true'
