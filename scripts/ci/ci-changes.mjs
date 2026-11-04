@@ -198,19 +198,24 @@ function toRel(root, abs) {
   return path.relative(root, abs).split(path.sep).join('/');
 }
 
-function resolveBase(root, base) {
-  for (const suffix of RESOLVE_SUFFIXES) {
-    const candidate = base + suffix;
-    if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
-      return candidate;
-    }
-  }
-  // A '.js' specifier that names a TypeScript source.
+/** Every file an import base could name, in resolution order. */
+function importCandidates(base) {
+  // The last two: a '.js' specifier that names a TypeScript source.
   const stripped = base.replace(/\.(c|m)?js$/, '');
-  for (const suffix of ['.ts', '.tsx']) {
-    if (fs.existsSync(stripped + suffix)) return stripped + suffix;
-  }
-  return null;
+  return [
+    ...RESOLVE_SUFFIXES.map((suffix) => base + suffix),
+    stripped + '.ts',
+    stripped + '.tsx',
+  ];
+}
+
+function resolveBase(root, base) {
+  return (
+    importCandidates(base).find(
+      (candidate) =>
+        fs.existsSync(candidate) && fs.statSync(candidate).isFile(),
+    ) ?? null
+  );
 }
 
 function importBase(fromFile, root, specifier) {
@@ -244,7 +249,7 @@ export function importClosure(root, entries) {
       if (!base) continue;
       const resolved = resolveBase(root, base);
       if (!resolved) {
-        for (const suffix of RESOLVE_SUFFIXES) missing.add(base + suffix);
+        for (const candidate of importCandidates(base)) missing.add(candidate);
         continue;
       }
       if (!seen.has(resolved)) stack.push(resolved);

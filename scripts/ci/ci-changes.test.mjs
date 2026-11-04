@@ -94,11 +94,13 @@ test('deleting a file a check imports or cites still runs the check', () => {
     // this change deleted both files.
     fs.writeFileSync(
       path.join(dir, 'src', 'entry.test.ts'),
-      "import { x } from './gone';\nconst ref = 'src/cited.ts#L3';\n",
+      "import { x } from './gone';\nimport { y } from './esm-gone.js';\nconst ref = 'src/cited.ts#L3';\n",
     );
     const closure = importClosure(dir, ['src/entry.test.ts']);
     assert.ok(closure.has('src/gone.ts'));
     assert.ok(closure.has('src/gone/index.tsx'));
+    // A '.js' specifier naming a deleted TypeScript source.
+    assert.ok(closure.has('src/esm-gone.ts'));
     assert.ok(referencedFiles(dir, ['src/entry.test.ts']).has('src/cited.ts'));
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
