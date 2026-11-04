@@ -13,6 +13,36 @@ const option = (flag) => process.argv[process.argv.indexOf(flag) + 1];
 // These five Java identities are the coordinator-approved exceptions. All other
 // previously resolved inputs, including consumer fallback results, are frozen.
 export const APPROVED_JAVA_REROUTES = [
+  ...[
+    [
+      '(R) IS Streak SRM 2 Ammo:50',
+      'streak-srm-ammo',
+      'is-streak-srm-2-ammo-registry',
+    ],
+    [
+      '(R) IS Streak SRM 4 Ammo:75',
+      'clan-streak-srm-4',
+      'is-streak-srm-4-ammo-registry',
+    ],
+    ['IS LB 2-X AC Ammo:OMNI', 'lb-2-x-ammo', 'is-lb-2-x-ac-ammo-registry'],
+    [
+      'IS LB 2-X Cluster Ammo:OMNI',
+      'clan-lb-2-x-cluster',
+      'is-lb-2-x-cluster-ammo-registry',
+    ],
+    [
+      'IS Streak SRM 2 Ammo:100',
+      'streak-srm-ammo',
+      'is-streak-srm-2-ammo-registry',
+    ],
+  ].map(([name, oldTarget, newTarget]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    literalName: true,
+    reason:
+      'Opus G2-O4 exact qualified AmmoType identity; pin 48fcb2f64 AmmoType.java, LB2-X:5105-5115; Streak2:10628',
+  })),
   {
     name: 'IS LB 2-X AC Ammo',
     oldTarget: 'lb-2-x-ammo',
@@ -984,7 +1014,8 @@ if (process.argv.includes('--capture')) {
       if (newTarget === oldTarget) return;
       const route = APPROVED_JAVA_REROUTES.find(
         (route) =>
-          route.name.toLowerCase() === bareName(name).toLowerCase() &&
+          route.name.toLowerCase() ===
+            (route.literalName ? name : bareName(name)).toLowerCase() &&
           route.oldTarget === oldTarget,
       );
       const row = { api, name, oldTarget, newTarget };
