@@ -772,6 +772,10 @@ const EXPECTED_STREAK_WEAPON_FAMILY_IDS = {
     'iosstreaklrm15',
     'iosstreaklrm20',
     'iosstreaklrm5',
+    // Follow-up 92 slice 5: pinned Java ISStreakSRM2/4/6IOS additions.
+    'isstreaksrm2ios-registry',
+    'isstreaksrm4ios-registry',
+    'isstreaksrm6ios-registry',
     'osstreaklrm10',
     'osstreaklrm15',
     'osstreaklrm20',

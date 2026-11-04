@@ -48,7 +48,26 @@
     "MRM 4 (OS)": "mrm-4-os-registry",
     "MRM 5 (OS)": "mrm-5-os-registry",
     "ISNarcBeacon (I-OS)": "isnarcbeacon-i-os-registry",
-    "ISNarcBeacon (OS)": "isnarcbeacon-os-registry"
+    "ISNarcBeacon (OS)": "isnarcbeacon-os-registry",
+    "LRM 5 (I-OS)": "lrm-5-i-os-registry",
+    "LRM 10 (I-OS)": "lrm-10-i-os-registry",
+    "LRM 15 (I-OS)": "lrm-15-i-os-registry",
+    "LRM 20 (I-OS)": "lrm-20-i-os-registry",
+    "CLLRM2OS": "cllrm2os-registry",
+    "CLLRM3OS": "cllrm3os-registry",
+    "CLLRM4OS": "cllrm4os-registry",
+    "CLLRM5 (OS)": "cllrm5-os-registry",
+    "CLSRM2 (OS)": "clsrm2-os-registry",
+    "CLSRM4 (OS)": "clsrm4-os-registry",
+    "CLSRM6 (OS)": "clsrm6-os-registry",
+    "CLSRM1OS": "clsrm1os-registry",
+    "CLSRM3OS": "clsrm3os-registry",
+    "CLSRM5OS": "clsrm5os-registry",
+    "ISSRM6IOS": "issrm6ios-registry",
+    "ISStreakSRM2IOS": "isstreaksrm2ios-registry",
+    "ISStreakSRM4IOS": "isstreaksrm4ios-registry",
+    "ISStreakSRM6IOS": "isstreaksrm6ios-registry",
+    "ISC3RemoteSensorLauncher": "isc3remotesensorlauncher-registry"
   },
   "previousIds": {
     "is-lb-2-x-ac-ammo-registry": "clan-lb-2-x-ac",
@@ -227,6 +246,63 @@
     },
     "isnarcbeacon-os-registry": {
       "Narc (OS)": "narcbeacon-os"
+    },
+    "lrm-5-i-os-registry": {
+      "LRM 5 (I-OS)": "lrm5-ios"
+    },
+    "lrm-10-i-os-registry": {
+      "LRM 10 (I-OS)": "lrm10-ios"
+    },
+    "lrm-15-i-os-registry": {
+      "LRM 15 (I-OS)": "lrm15-ios"
+    },
+    "lrm-20-i-os-registry": {
+      "LRM 20 (I-OS)": "lrm20-ios"
+    },
+    "cllrm2os-registry": {
+      "LRM 2 (OS)": "balrm2os"
+    },
+    "cllrm3os-registry": {
+      "LRM 3 (OS)": "balrm3os"
+    },
+    "cllrm4os-registry": {
+      "LRM 4 (OS)": "balrm4os"
+    },
+    "cllrm5-os-registry": {
+      "Clan LRM 5 (OS)": "balrm5-os"
+    },
+    "clsrm2-os-registry": {
+      "Clan SRM 2 (OS)": "basrm2-os"
+    },
+    "clsrm4-os-registry": {
+      "Clan SRM 4 (OS)": "basrm4-os"
+    },
+    "clsrm6-os-registry": {
+      "Clan SRM 6 (OS)": "basrm6-os"
+    },
+    "clsrm1os-registry": {
+      "SRM 1 (OS)": "basrm1os"
+    },
+    "clsrm3os-registry": {
+      "SRM 3 (OS)": "basrm3-os"
+    },
+    "clsrm5os-registry": {
+      "SRM 5 (OS)": "basrm5os"
+    },
+    "issrm6ios-registry": {
+      "SRM 6 (I-OS)": "srm6-ios"
+    },
+    "isstreaksrm2ios-registry": {
+      "Streak SRM 2 (I-OS)": "streaksrm2-ios"
+    },
+    "isstreaksrm4ios-registry": {
+      "Streak SRM 4 (I-OS)": "streaksrm4-ios"
+    },
+    "isstreaksrm6ios-registry": {
+      "Streak SRM 6 (I-OS)": "streaksrm6-ios"
+    },
+    "isc3remotesensorlauncher-registry": {
+      "ISC3RemoteSensorLauncher": "c3-master"
     }
   }
 }

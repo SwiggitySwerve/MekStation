@@ -334,6 +334,22 @@
       "id": "climprovedsensors-registry"
     },
     {
+      "internalName": "CLLRM2OS",
+      "id": "cllrm2os-registry"
+    },
+    {
+      "internalName": "CLLRM3OS",
+      "id": "cllrm3os-registry"
+    },
+    {
+      "internalName": "CLLRM4OS",
+      "id": "cllrm4os-registry"
+    },
+    {
+      "internalName": "CLLRM5 (OS)",
+      "id": "cllrm5-os-registry"
+    },
+    {
       "internalName": "CLMediumChemLaserAmmo",
       "id": "clmediumchemlaserammo-registry"
     },
@@ -360,6 +376,30 @@
     {
       "internalName": "CLRotaryAC5 Ammo",
       "id": "clrotaryac5-ammo-registry"
+    },
+    {
+      "internalName": "CLSRM1OS",
+      "id": "clsrm1os-registry"
+    },
+    {
+      "internalName": "CLSRM2 (OS)",
+      "id": "clsrm2-os-registry"
+    },
+    {
+      "internalName": "CLSRM3OS",
+      "id": "clsrm3os-registry"
+    },
+    {
+      "internalName": "CLSRM4 (OS)",
+      "id": "clsrm4-os-registry"
+    },
+    {
+      "internalName": "CLSRM5OS",
+      "id": "clsrm5os-registry"
+    },
+    {
+      "internalName": "CLSRM6 (OS)",
+      "id": "clsrm6-os-registry"
     },
     {
       "internalName": "CLTargeting Computer",
@@ -1218,6 +1258,10 @@
       "id": "isbpod-registry"
     },
     {
+      "internalName": "ISC3RemoteSensorLauncher",
+      "id": "isc3remotesensorlauncher-registry"
+    },
+    {
       "internalName": "ISC3Sensors",
       "id": "isc3sensors-registry"
     },
@@ -1274,6 +1318,10 @@
       "id": "issrm4os-registry"
     },
     {
+      "internalName": "ISSRM6IOS",
+      "id": "issrm6ios-registry"
+    },
+    {
       "internalName": "ISSRM6OS",
       "id": "issrm6os-registry"
     },
@@ -1296,6 +1344,18 @@
     {
       "internalName": "ISSniper",
       "id": "issniper-registry"
+    },
+    {
+      "internalName": "ISStreakSRM2IOS",
+      "id": "isstreaksrm2ios-registry"
+    },
+    {
+      "internalName": "ISStreakSRM4IOS",
+      "id": "isstreaksrm4ios-registry"
+    },
+    {
+      "internalName": "ISStreakSRM6IOS",
+      "id": "isstreaksrm6ios-registry"
     },
     {
       "internalName": "ISTargeting Computer",
@@ -1388,6 +1448,22 @@
     {
       "internalName": "InfantryTAG",
       "id": "infantrytag-registry"
+    },
+    {
+      "internalName": "LRM 10 (I-OS)",
+      "id": "lrm-10-i-os-registry"
+    },
+    {
+      "internalName": "LRM 15 (I-OS)",
+      "id": "lrm-15-i-os-registry"
+    },
+    {
+      "internalName": "LRM 20 (I-OS)",
+      "id": "lrm-20-i-os-registry"
+    },
+    {
+      "internalName": "LRM 5 (I-OS)",
+      "id": "lrm-5-i-os-registry"
     },
     {
       "internalName": "LRT 10",
