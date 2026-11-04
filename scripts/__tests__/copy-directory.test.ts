@@ -23,7 +23,12 @@ function fixture(): string {
   fs.chmodSync(path.join(root, 'input/readonly.bin'), 0o444);
   return root;
 }
-function run(root: string, setup = '') {
+function run(
+  root: string,
+  setup = '',
+  filter = 'undefined',
+  captureErrors = false,
+) {
   return spawnSync(
     process.execPath,
     [
@@ -33,8 +38,20 @@ function run(root: string, setup = '') {
        import { copyDirectory } from ${JSON.stringify(moduleUrl)};
        const root = ${JSON.stringify(root)};
        ${setup}
-       fs.cpSync(path.join(root, 'input'), path.join(root, 'expected'), { recursive: true, force: true });
-       await copyDirectory(path.join(root, 'input'), path.join(root, 'actual'));
+       const filter = ${filter};
+       async function copy(operation) {
+         try { await operation(); return null; }
+         catch (error) {
+           if (!${captureErrors}) throw error;
+           return { code: error.code, syscall: error.syscall };
+         }
+       }
+       const expectedError = await copy(() => fs.cpSync(path.join(root, 'input'), path.join(root, 'expected'), { recursive: true, force: true, filter }));
+       const actualError = await copy(() => copyDirectory(path.join(root, 'input'), path.join(root, 'actual'), { filter }));
+       if (expectedError || actualError) {
+         console.log(JSON.stringify({ expectedError, actualError }));
+         process.exit(0);
+       }
        function snapshot(directory, relative = '', rows = [{ name: '.', directory: true, mode: fs.lstatSync(directory).mode }]) {
          for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
            const file = path.join(directory, entry.name), name = path.posix.join(relative, entry.name);
@@ -56,6 +73,44 @@ afterEach(() => {
 });
 
 describe('standalone complete directory copying', () => {
+  it.each([false, true])(
+    'filters files and directories like fs.cpSync (linked tree: %s)',
+    (linked) => {
+      const root = fixture();
+      const result = run(
+        root,
+        `fs.writeFileSync(path.join(root, 'input/skip.map'), 'debug map');
+         fs.mkdirSync(path.join(root, 'input/__tests__'));
+         fs.writeFileSync(path.join(root, 'input/__tests__/fixture.json'), '{}');
+         ${linked ? "fs.symlinkSync(path.join(root, 'input/nested'), path.join(root, 'input/linked'), process.platform === 'win32' ? 'junction' : 'dir');" : ''}`,
+        "(file) => !file.endsWith('.map') && path.basename(file) !== '__tests__'",
+        true,
+      );
+      expect(result.stderr).toBe('');
+      expect(result.status).toBe(0);
+      const output = JSON.parse(result.stdout);
+      if (output.expectedError || output.actualError) {
+        // Node 22's filtered cp uses symlinkSync without the junction type on
+        // Windows. Without symlink privileges, preserve its permission failure.
+        expect(linked).toBe(true);
+        expect(process.platform).toBe('win32');
+        expect(output.expectedError).toEqual({
+          code: 'EPERM',
+          syscall: 'symlink',
+        });
+        expect(output.actualError).toEqual(output.expectedError);
+        return;
+      }
+      expect(output.actual).toEqual(output.expected);
+      expect(
+        output.actual.some(
+          ({ name }: { name: string }) =>
+            name.includes('__tests__') || name.endsWith('.map'),
+        ),
+      ).toBe(false);
+    },
+  );
+
   (process.platform === 'win32' ? it.skip : it).each([0o700, 0o555])(
     'uses default directory permissions like fs.cpSync for source mode %s',
     (mode) => {

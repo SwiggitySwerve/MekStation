@@ -21,6 +21,9 @@ files:
   - '!**/*.map'
   - '!**/*.d.ts'
   - '!**/*.d.ts.map'
+  - '!**/__tests__/**/*'
+  - '!**/*.test.*'
+  - '!**/*.spec.*'
 
 # Extra resources to include (outside of app.asar)
 extraResources:
@@ -29,6 +32,11 @@ extraResources:
   # This payload already includes `.next/static` after `npm run build` hydration.
   - from: '.tmp/next-standalone-electron'
     to: 'next-standalone'
+    # afterPack copies the canonical public tree once, with retries.
+    filter:
+      - '**/*'
+      - '!public{,/**/*}'
+      - '!node_modules{,/**/*}'
   # electron-builder 26 excludes a directory whose relative path is exactly
   # `node_modules`; root this FileSet inside the standalone dependency tree so
   # the packaged server retains its complete runtime closure.

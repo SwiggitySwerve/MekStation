@@ -316,3 +316,6 @@ release-upload*/
 .review/
 /file-analysis-report.txt
 *.tmp.[0-9]*
+
+# Verified Electron native bindings, keyed by source and toolchain
+desktop/.electron-native-cache/

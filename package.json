@@ -304,6 +304,7 @@
     "node-mocks-http": "^1.17.2",
     "oxfmt": "^0.28.0",
     "oxlint": "^1.43.0",
+    "picomatch": "4.0.7",
     "playwright": "^1.57.0",
     "sharp": "^0.35.3",
     "storybook": "^8.6.18",
