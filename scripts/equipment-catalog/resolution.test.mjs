@@ -43,6 +43,14 @@ export const APPROVED_JAVA_REROUTES = [
     reason:
       'Opus G2-O4 exact qualified AmmoType identity; pin 48fcb2f64 AmmoType.java, LB2-X:5105-5115; Streak2:10628',
   })),
+  ...['c3-remote-sensor-launcher'].map((name) => ({
+    name,
+    oldTarget: 'c3-master',
+    newTarget: 'isc3remotesensorlauncher-registry',
+    weapon: true,
+    reason:
+      'Opus G2-O2: pinned 48fcb2f64 ISC3RemoteSensorLauncher.java:69-80, separate BV-30 MissileWeapon',
+  })),
   {
     name: 'IS LB 2-X AC Ammo',
     oldTarget: 'lb-2-x-ammo',

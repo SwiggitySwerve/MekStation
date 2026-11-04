@@ -1,3 +1,5 @@
+import { getPilotSkillModifier } from '@/types/validation/BattleValue';
+
 import type {
   IAerospaceBVAmmo,
   IAerospaceBVEquipment,
@@ -8,6 +10,8 @@ import {
   getNativeAmmoBVGroup,
   sumCappedAmmoBV,
 } from '../battleValueAmmo';
+import { calculateAdjustedBV } from '../battleValuePilot';
+import { calculateBaseBV, getCockpitModifier } from '../battleValueTotals';
 import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
 import { getEquipmentEntry, resolveEquipmentBV } from '../equipmentBVResolver';
 import { getAerospaceDefensiveEquipmentKind } from './aerospaceBVEquipment';
@@ -99,32 +103,59 @@ export function calculateAerospaceAmmoBV(
   });
 }
 
-// ============================================================================
+/** Shared crew table with G4/P5 defaults. */
+export function getAerospacePilotMultiplier(
+  gunnery: number | undefined,
+  piloting: number | undefined,
+): number {
+  const g = gunnery ?? 4;
+  const p = piloting ?? 5;
+  return getPilotSkillModifier(g, p);
+}
 
-// Defensive BV
+export interface IAerospaceFinalOptions {
+  readonly gunnery?: number;
+  readonly piloting?: number;
+  readonly cockpit?: string;
+  readonly hasDroneOperatingSystem?: boolean;
+}
 
-// ============================================================================
-
-/**
-
- * Compute the aerospace defensive BV components.
-
- *
-
- * armorBV = totalArmor × 2.5 × armorMultiplier
-
- * siBV = SI × 2 (pinned MegaMek AeroBVCalculator.java:64-70)
-
- * defensiveFactor = 1 (no thrust multiplier)
-
- * defensive = (armorBV + siBV + defEquipBV − explosive) × aircraftTypeModifier × defensiveFactor
-
- *
-
- * Small Craft inherits the ordinary 2.5 BV per armor point (BVCalculator.java:461-463).
-
- *
-
- * @spec battle-value-system spec: Aerospace Defensive BV
-
- */
+/** Pinned BVCalculator/Aero summary, then BVCalculator.adjustBV. */
+export function calculateAerospaceFinalBV(
+  defensive: number,
+  offensive: number,
+  options: IAerospaceFinalOptions = {},
+): {
+  baseBV: number;
+  pilotMultiplier: number;
+  final: number;
+  summaryModifier: number;
+} {
+  const drone = options.hasDroneOperatingSystem;
+  const aeroCockpit =
+    options.cockpit === 'SMALL' || options.cockpit === 'COMMAND_CONSOLE';
+  const summaryFactors = [
+    getCockpitModifier(drone ? 'drone-operating-system' : 'standard'),
+    getCockpitModifier(
+      aeroCockpit ? 'small' : drone ? 'drone-operating-system' : 'standard',
+    ),
+  ];
+  const baseBV = calculateBaseBV(defensive, offensive, summaryFactors);
+  // Crew.java:233-234 and BVCalculator.java:1307-1313 default to G4/P5.
+  return {
+    baseBV,
+    summaryModifier: summaryFactors.reduce(
+      (product, factor) => product * factor,
+      1,
+    ),
+    pilotMultiplier: getAerospacePilotMultiplier(
+      options.gunnery,
+      options.piloting,
+    ),
+    final: calculateAdjustedBV(
+      baseBV,
+      options.gunnery ?? 4,
+      options.piloting ?? 5,
+    ),
+  };
+}

@@ -399,3 +399,9 @@ Registry-route approval uses the same stripped lookup token as identity
 resolution. Mount qualifiers and rear markers cannot change the underlying
 registered type. The exact IS Streak SRM-2 bin is the imported BV-4, 50-shot
 identity (AmmoType.java; pin 48fcb2f64), not generic Streak SRM ammunition.
+
+Explicit direct aliases may select an existing registry ID at the BV boundary;
+this does not enable fuzzy matching over registry names. The canonical C3
+sensor launcher alias uses the imported BV-30 MissileWeapon, not C3 Master.
+Obsolete Mek fallback copies are removed. ISC3RemoteSensorLauncher.java:69-80
+at MegaMek pin 48fcb2f64; the imported catalog remains the value owner.
