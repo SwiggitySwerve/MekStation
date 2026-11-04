@@ -7,10 +7,17 @@ import {
   AerospaceArc,
   AerospaceSubType,
 } from '../../../types/unit/AerospaceInterfaces';
+import { getOffensiveBVRole } from '../battleValueEquipment';
 import {
   calculateBaseHeatEfficiency,
   calculateHeatTrackedWeapons,
 } from '../battleValueHeatTracking';
+import {
+  applyTargetingComputerBV,
+  hasBVTargetingComputer,
+  isDirectFireBVWeapon,
+} from '../battleValueWeapons';
+import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
 import {
   isArtemisCompatibleBVWeapon,
   linkArtemisBVWeapons,
@@ -110,6 +117,11 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
   fuselageWeaponBV: number;
 } {
   const mainArcs = getMainArcsForSubType(input.subType);
+  // Keep support FCS on its existing path. BVCalculator.java:880-891 applies
+  // the ordinary aircraft TC bonus before direction selection and heat sorting.
+  const targetingComputerMounted =
+    !input.isSupportVehicle &&
+    hasBVTargetingComputer(input.equipment.map((item) => item.id));
 
   // Compute raw BV per main arc.
   const rawByArc = new Map<AerospaceArc, number>();
@@ -146,7 +158,15 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     weapons.push({
       arc,
       location: arc,
-      bv: resolved.battleValue,
+      bv:
+        targetingComputerMounted &&
+        entry &&
+        !item.isAmmo &&
+        !isAmmunitionEquipmentId(item.id) &&
+        getOffensiveBVRole(item.id) === 'weapon' &&
+        isDirectFireBVWeapon(entry.id)
+          ? applyTargetingComputerBV(resolved.battleValue)
+          : resolved.battleValue,
       heat: resolved.heat,
       compatible:
         entry?.category === 'Missile' && isArtemisCompatibleBVWeapon(entry.id),

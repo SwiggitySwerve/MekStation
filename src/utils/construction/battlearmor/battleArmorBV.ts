@@ -27,6 +27,7 @@ import {
   calculateOffensiveSpeedFactorForMP,
 } from '../battleValueMovement';
 import { resolveEquipmentBV } from '../equipmentBVResolver';
+export { battleArmorBVTerms } from './bvTrace';
 
 const BA_ARMOR_BV_MULTIPLIERS: Readonly<Record<BAArmorType, number>> = {
   [BAArmorType.STANDARD]: 1.0,
@@ -222,7 +223,8 @@ export function calculateBADefensiveBV(
   const moveBV = base * (groundTMM / 10 + bonus);
   const jumpBV = base * ((tmm - groundTMM) / 10);
   const antiMechBonus = 0;
-  const total = base * (1 + tmm / 10 + bonus);
+  const defensiveFactor = 1 + tmm / 10 + bonus;
+  const total = base * defensiveFactor;
 
   return {
     armorBV,
@@ -231,6 +233,7 @@ export function calculateBADefensiveBV(
     jumpBV,
     antiMechBonus,
     total,
+    defensiveFactor,
   };
 }
 
@@ -299,7 +302,7 @@ export function calculateBAOffensiveBV(
   );
   const total = (weaponBV + ammoBV + manipulatorBV) * speed;
 
-  return { weaponBV, ammoBV, manipulatorBV, total };
+  return { weaponBV, ammoBV, manipulatorBV, total, speedFactor: speed };
 }
 
 // =============================================================================
@@ -338,6 +341,7 @@ export function calculateBattleArmorBV(
   return {
     perTrooper,
     squadSize,
+    squadFactor,
     squadTotal,
     pilotMultiplier,
     final,

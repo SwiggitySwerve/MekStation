@@ -1,0 +1,626 @@
+[
+  {
+    "path": "dropships/ProtoTypes/IS/Merlin R1.blk",
+    "sha256": "75b591f5dd0252b2b93e8f3874ea6b1fb8f3c87ce07bc96a3947ee9841322c7c",
+    "unit": {
+      "id": "merlin-r1",
+      "unitType": "DropShip",
+      "tonnage": 2500,
+      "structuralIntegrity": 20,
+      "movement": {
+        "maxThrust": 9,
+        "safeThrust": 6
+      },
+      "heatSinks": {
+        "count": 140,
+        "type": "DOUBLE"
+      },
+      "armor": {
+        "byArc": {
+          "AFT": 230,
+          "LEFT_SIDE": 200,
+          "NOSE": 250,
+          "RIGHT_SIDE": 200
+        },
+        "type": "AEROSPACE"
+      },
+      "equipment": [
+        {
+          "id": "b-sub-capital-laser-1",
+          "location": "NOSE"
+        },
+        {
+          "id": "sub-capital-laser-1",
+          "location": "NOSE"
+        },
+        {
+          "id": "sub-capital-laser-1",
+          "location": "NOSE"
+        },
+        {
+          "id": "sub-capital-laser-1",
+          "location": "NOSE"
+        },
+        {
+          "id": "b-islargexpulselaser",
+          "location": "LEFT_SIDE"
+        },
+        {
+          "id": "islargexpulselaser",
+          "location": "LEFT_SIDE"
+        },
+        {
+          "id": "islargexpulselaser",
+          "location": "LEFT_SIDE"
+        },
+        {
+          "id": "islargexpulselaser",
+          "location": "LEFT_SIDE"
+        },
+        {
+          "id": "b-islaserantimissilesystem",
+          "location": "LEFT_SIDE"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "LEFT_SIDE"
+        },
+        {
+          "id": "r-b-islargexpulselaser",
+          "location": "LEFT_SIDE"
+        },
+        {
+          "id": "r-islargexpulselaser",
+          "location": "LEFT_SIDE"
+        },
+        {
+          "id": "r-b-islaserantimissilesystem",
+          "location": "LEFT_SIDE"
+        },
+        {
+          "id": "r-islaserantimissilesystem",
+          "location": "LEFT_SIDE"
+        },
+        {
+          "id": "b-islargexpulselaser",
+          "location": "RIGHT_SIDE"
+        },
+        {
+          "id": "islargexpulselaser",
+          "location": "RIGHT_SIDE"
+        },
+        {
+          "id": "islargexpulselaser",
+          "location": "RIGHT_SIDE"
+        },
+        {
+          "id": "islargexpulselaser",
+          "location": "RIGHT_SIDE"
+        },
+        {
+          "id": "b-islaserantimissilesystem",
+          "location": "RIGHT_SIDE"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "RIGHT_SIDE"
+        },
+        {
+          "id": "r-b-islargexpulselaser",
+          "location": "RIGHT_SIDE"
+        },
+        {
+          "id": "r-islargexpulselaser",
+          "location": "RIGHT_SIDE"
+        },
+        {
+          "id": "r-b-islaserantimissilesystem",
+          "location": "RIGHT_SIDE"
+        },
+        {
+          "id": "r-islaserantimissilesystem",
+          "location": "RIGHT_SIDE"
+        },
+        {
+          "id": "b-islargexpulselaser",
+          "location": "AFT"
+        },
+        {
+          "id": "islargexpulselaser",
+          "location": "AFT"
+        },
+        {
+          "id": "b-islaserantimissilesystem",
+          "location": "AFT"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "AFT"
+        }
+      ]
+    },
+    "expected": {
+      "total": 6115,
+      "defensive": 2690,
+      "offensive": 3424.5,
+      "weaponBV": 2283,
+      "ammoBV": 0
+    }
+  },
+  {
+    "path": "warship/3057/Clan/Aegis Heavy Cruiser (2843).blk",
+    "sha256": "4aa9c3916a2df9ad7025d1b5fd16e580e578f241cbed55e793f337966f0d2a25",
+    "unit": {
+      "id": "aegis-heavy-cruiser-2843",
+      "unitType": "WarShip",
+      "tonnage": 750000,
+      "structuralIntegrity": 75,
+      "movement": {
+        "maxThrust": 3,
+        "safeThrust": 2
+      },
+      "heatSinks": {
+        "count": 2046,
+        "type": "DOUBLE"
+      },
+      "armor": {
+        "byArc": {
+          "AFT": 91,
+          "AFT_LEFT_SIDE": 101,
+          "AFT_RIGHT_SIDE": 101,
+          "FRONT_LEFT_SIDE": 101,
+          "FRONT_RIGHT_SIDE": 101,
+          "NOSE": 91
+        },
+        "type": "FERRO_CARBIDE"
+      },
+      "equipment": [
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "NOSE"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "NOSE"
+        },
+        {
+          "id": "ammo-nac-35:20",
+          "location": "NOSE"
+        },
+        {
+          "id": "b-capital-missile-launcher-white-shark",
+          "location": "FRONT_LEFT_SIDE"
+        },
+        {
+          "id": "capital-missile-launcher-white-shark",
+          "location": "FRONT_LEFT_SIDE"
+        },
+        {
+          "id": "capital-missile-launcher-white-shark",
+          "location": "FRONT_LEFT_SIDE"
+        },
+        {
+          "id": "ammo-white-shark:30",
+          "location": "FRONT_LEFT_SIDE"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "FRONT_LEFT_SIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "FRONT_LEFT_SIDE"
+        },
+        {
+          "id": "ammo-nac-35:20",
+          "location": "FRONT_LEFT_SIDE"
+        },
+        {
+          "id": "b-capital-missile-launcher-white-shark",
+          "location": "FRONT_RIGHT_SIDE"
+        },
+        {
+          "id": "capital-missile-launcher-white-shark",
+          "location": "FRONT_RIGHT_SIDE"
+        },
+        {
+          "id": "capital-missile-launcher-white-shark",
+          "location": "FRONT_RIGHT_SIDE"
+        },
+        {
+          "id": "ammo-white-shark:30",
+          "location": "FRONT_RIGHT_SIDE"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "FRONT_RIGHT_SIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "FRONT_RIGHT_SIDE"
+        },
+        {
+          "id": "ammo-nac-35:20",
+          "location": "FRONT_RIGHT_SIDE"
+        },
+        {
+          "id": "b-naval-laser-45",
+          "location": "AFT"
+        },
+        {
+          "id": "naval-laser-45",
+          "location": "AFT"
+        },
+        {
+          "id": "naval-laser-45",
+          "location": "AFT"
+        },
+        {
+          "id": "naval-laser-45",
+          "location": "AFT"
+        },
+        {
+          "id": "b-capital-missile-launcher-white-shark",
+          "location": "AFT"
+        },
+        {
+          "id": "capital-missile-launcher-white-shark",
+          "location": "AFT"
+        },
+        {
+          "id": "ammo-white-shark:20",
+          "location": "AFT"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "AFT"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "AFT"
+        },
+        {
+          "id": "ammo-nac-35:20",
+          "location": "AFT"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "AFT"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "AFT"
+        },
+        {
+          "id": "ammo-nac-35:20",
+          "location": "AFT"
+        },
+        {
+          "id": "b-naval-laser-55",
+          "location": "AFT_LEFT_SIDE"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_LEFT_SIDE"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_LEFT_SIDE"
+        },
+        {
+          "id": "b-naval-autocannon-nac-20",
+          "location": "AFT_LEFT_SIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "AFT_LEFT_SIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "AFT_LEFT_SIDE"
+        },
+        {
+          "id": "ammo-nac-20:30",
+          "location": "AFT_LEFT_SIDE"
+        },
+        {
+          "id": "b-naval-autocannon-nac-20",
+          "location": "AFT_LEFT_SIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "AFT_LEFT_SIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "AFT_LEFT_SIDE"
+        },
+        {
+          "id": "ammo-nac-20:30",
+          "location": "AFT_LEFT_SIDE"
+        },
+        {
+          "id": "b-capital-missile-launcher-barracuda",
+          "location": "AFT_LEFT_SIDE"
+        },
+        {
+          "id": "ammo-barracuda:10",
+          "location": "AFT_LEFT_SIDE"
+        },
+        {
+          "id": "b-naval-laser-55",
+          "location": "AFT_RIGHT_SIDE"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_RIGHT_SIDE"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_RIGHT_SIDE"
+        },
+        {
+          "id": "b-naval-autocannon-nac-20",
+          "location": "AFT_RIGHT_SIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "AFT_RIGHT_SIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "AFT_RIGHT_SIDE"
+        },
+        {
+          "id": "ammo-nac-20:30",
+          "location": "AFT_RIGHT_SIDE"
+        },
+        {
+          "id": "b-naval-autocannon-nac-20",
+          "location": "AFT_RIGHT_SIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "AFT_RIGHT_SIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "AFT_RIGHT_SIDE"
+        },
+        {
+          "id": "ammo-nac-20:30",
+          "location": "AFT_RIGHT_SIDE"
+        },
+        {
+          "id": "b-capital-missile-launcher-barracuda",
+          "location": "AFT_RIGHT_SIDE"
+        },
+        {
+          "id": "ammo-barracuda:10",
+          "location": "AFT_RIGHT_SIDE"
+        },
+        {
+          "id": "b-naval-laser-55",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "ammo-nac-35:20",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "ammo-nac-35:20",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "b-naval-autocannon-nac-20",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "ammo-nac-20:30",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "b-naval-autocannon-nac-20",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "ammo-nac-20:30",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "b-capital-missile-launcher-barracuda",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "ammo-barracuda:10",
+          "location": "LEFT_BROADSIDE"
+        },
+        {
+          "id": "b-naval-laser-55",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "ammo-nac-35:20",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "ammo-nac-35:20",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "b-naval-autocannon-nac-20",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "ammo-nac-20:30",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "b-naval-autocannon-nac-20",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "ammo-nac-20:30",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "b-capital-missile-launcher-barracuda",
+          "location": "RIGHT_BROADSIDE"
+        },
+        {
+          "id": "ammo-barracuda:10",
+          "location": "RIGHT_BROADSIDE"
+        }
+      ]
+    },
+    "expected": {
+      "total": 187814,
+      "defensive": 12920,
+      "offensive": 174894.335,
+      "weaponBV": 119852,
+      "ammoBV": 107283.5
+    }
+  },
+  {
+    "path": "spacestation/TRO 3057R/BattleSat System Defense Station (3089).blk",
+    "sha256": "9f5ffe0748e00f689a578b9d70b9fdf58de05dab92cb5fffed38ccad9cb36f7c",
+    "unit": {
+      "id": "battlesat-system-defense-station-3089",
+      "unitType": "Space Station",
+      "tonnage": 2000,
+      "structuralIntegrity": 1,
+      "movement": {
+        "maxThrust": 0,
+        "safeThrust": 0
+      },
+      "heatSinks": {
+        "count": 72,
+        "type": "DOUBLE"
+      },
+      "armor": {
+        "byArc": {
+          "AFT": 10,
+          "AFT_LEFT_SIDE": 10,
+          "AFT_RIGHT_SIDE": 10,
+          "FRONT_LEFT_SIDE": 10,
+          "FRONT_RIGHT_SIDE": 10,
+          "NOSE": 10
+        },
+        "type": "IMPROVED_FERRO_ALUMINUM"
+      },
+      "equipment": [
+        {
+          "id": "b-sub-capital-laser-1",
+          "location": "AFT"
+        },
+        {
+          "id": "sub-capital-laser-1",
+          "location": "AFT"
+        },
+        {
+          "id": "sub-capital-laser-1",
+          "location": "AFT"
+        },
+        {
+          "id": "sub-capital-laser-1",
+          "location": "AFT"
+        },
+        {
+          "id": "sub-capital-laser-1",
+          "location": "AFT"
+        },
+        {
+          "id": "sub-capital-laser-1",
+          "location": "AFT"
+        }
+      ]
+    },
+    "expected": {
+      "total": 1690,
+      "defensive": 1064,
+      "offensive": 625.68,
+      "weaponBV": 1422,
+      "ammoBV": 0
+    }
+  }
+]

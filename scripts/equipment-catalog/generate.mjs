@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 import { require as tsxRequire } from 'tsx/cjs/api';
 
 import routing from '../../public/data/equipment/registry-routing.json' with { type: 'json' };
+import capitalSource from './capital-source.json' with { type: 'json' };
+import prototypeDamage from './prototype-damage.json' with { type: 'json' };
 const { normalizeEquipmentId } = tsxRequire(
   '../../src/utils/construction/equipmentBV/normalization.ts',
   import.meta.url,
@@ -53,10 +55,25 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
   assert.equal(types.size, java.length, 'Duplicate Java internal name');
   for (const name of Object.keys(routing.reroute))
     if (types.has(name)) selected.add(name);
+  const legacySelected = new Set(selected);
+  const extra = Object.keys(capitalSource)
+    .filter((name) => types.has(name) && !selected.has(name))
+    .sort();
+  const prototypes = Object.entries(facts)
+    .filter(
+      ([name, fact]) =>
+        fact.isPrototype &&
+        types.has(name) &&
+        !selected.has(name) &&
+        !extra.includes(name),
+    )
+    .map(([name]) => name)
+    .sort();
+  const ordered = [...selected].sort().concat(extra, prototypes);
   const originalCatalog = new Map(before.map((entry) => [entry.id, entry]));
   const ids = new Set(originalCatalog.keys());
   const identities = new Map();
-  for (const name of [...selected].sort()) {
+  for (const name of ordered) {
     assert(types.has(name), `Unregistered gap ${name}`);
     const id =
       routing.reroute[name] ??
@@ -66,12 +83,14 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
     ids.add(id);
     identities.set(name, id);
   }
-  const known = new Map(identities);
+  const legacyKnown = new Map(
+    [...identities].filter(([name]) => legacySelected.has(name)),
+  );
   const existingAliases = new Map();
   for (const [name, id] of Object.entries(mappings))
     existingAliases.set(name.toLowerCase(), { name, id });
   for (const type of java) {
-    if (known.has(type.internalName)) continue;
+    if (legacyKnown.has(type.internalName)) continue;
     const id = [type.internalName, ...type.aliases]
       .flatMap((alias) => [
         existingAliases.get(alias.toLowerCase())?.id,
@@ -88,8 +107,9 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
             [techBases[type.tech], 'BOTH'].includes(entry.techBase))
         );
       });
-    if (id) known.set(type.internalName, id);
+    if (id) legacyKnown.set(type.internalName, id);
   }
+  const known = new Map([...legacyKnown, ...identities]);
   const items = [];
   const aliases = {};
   for (const [name, id] of identities) {
@@ -125,6 +145,8 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
     for (const key of ['extinctionYear', 'reintroductionYear'])
       if (fact[key] !== -1 && fact[key] !== undefined)
         entry[key] = number(fact[key], key);
+    // Preserve existing ammo records when newly represented weapons are added.
+    const compatibleIds = legacySelected.has(name) ? legacyKnown : known;
     if (fact.kind === 'ammunition') {
       entry.variant =
         {
@@ -139,7 +161,7 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
       entry.compatibleWeaponIds = Array.from(
         new Set(
           (fact.compatible ?? [])
-            .map((weapon) => known.get(weapon))
+            .map((weapon) => compatibleIds.get(weapon))
             .filter(Boolean),
         ),
       );
@@ -147,15 +169,16 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
       entry.isExplosive = fact.isExplosive;
       notes.push(`Java ammoType:rackSize ${fact.ammoType}:${fact.rackSize}`);
       notes.push(`Java munitions: ${(fact.munitions ?? []).join(',')}`);
-      if (fact.compatible?.some((weapon) => !known.has(weapon)))
+      if (fact.compatible?.some((weapon) => !compatibleIds.has(weapon)))
         notes.push(
-          `Unrepresented compatible Java weapons: ${fact.compatible.filter((weapon) => !known.has(weapon)).join(', ')}`,
+          `Unrepresented compatible Java weapons: ${fact.compatible.filter((weapon) => !compatibleIds.has(weapon)).join(', ')}`,
         );
     } else {
       entry.costCBills = fixed(fact.cost, 'cost');
       if (fact.kind === 'weapons') {
         entry.subType = type.javaClass.split('.').at(-1);
-        entry.damage = weaponDamage(fact);
+        entry.damage = prototypeDamage.values[name] ?? weaponDamage(fact);
+        if (prototypeDamage.values[name]) notes.push(prototypeDamage.source);
         entry.heat = number(fact.heat, 'heat');
         entry.ranges = fact.ranges;
       }
@@ -167,7 +190,14 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
     entry.special = notes;
     items.push({ kind: fact.kind, entry, internalName: name });
     const gap = gaps.find((gap) => gap.java.internalName === name);
-    const inputs = gap?.inputs?.map((input) => input.id) ?? [];
+    const inputs =
+      gap?.inputs?.map(({ id }) => {
+        const bare =
+          fact.kind === 'ammunition' && capitalSource[name]
+            ? id.replace(/:\d+$/, '')
+            : id;
+        return originalCatalog.has(bare.toLowerCase()) ? id : bare;
+      }) ?? [];
     const names = [name, type.name, ...type.aliases, ...inputs];
     for (const alias of new Set(names)) {
       const aliasKey = alias.toLowerCase();
@@ -178,6 +208,8 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
         lookups[aliasKey]?.default ??
         lookups[sourceName?.toLowerCase()]?.default;
       if (owner !== name) continue;
+      const priorId = normalizeEquipmentId(alias, originalCatalog, false);
+      if (prototypes.includes(name) && originalCatalog.has(priorId)) continue;
       const previous = existingAliases.get(aliasKey);
       if (previous && originalCatalog.has(previous.id)) {
         // Same route semantics as registryPreviousId (equipmentBVCatalogData.ts).
@@ -204,6 +236,37 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
   }
   return { items, aliases };
 }
+export function generateCapitalBVFacts(items, originalEntries = []) {
+  const facts = Object.fromEntries(
+    items
+      .filter(({ internalName }) => capitalSource[internalName])
+      .map(({ internalName, entry }) => [
+        entry.id,
+        {
+          ...capitalSource[internalName],
+          source: entry.special[0],
+        },
+      ]),
+  );
+  for (const { entry } of items) {
+    if (!facts[entry.id]) continue;
+    for (const previous of originalEntries) {
+      const sameFiringFacts =
+        entry.shotsPerTon !== undefined
+          ? previous.shotsPerTon === entry.shotsPerTon
+          : previous.ranges &&
+            previous.category === entry.category &&
+            previous.heat === entry.heat;
+      if (
+        previous.name === entry.name &&
+        previous.battleValue === entry.battleValue &&
+        sameFiringFacts
+      )
+        facts[previous.id] = facts[entry.id];
+    }
+  }
+  return facts;
+}
 function runGenerator() {
   const read = (file) => JSON.parse(readFileSync(file, 'utf8'));
   const write = (file, value) =>
@@ -211,7 +274,12 @@ function runGenerator() {
   const hash = (file) => hashBytes('sha256', readFileSync(file));
   const [registryFile, gapsFile, factsFile] = process.argv.slice(2);
   assert(factsFile, 'Usage: generate.mjs <registry> <gaps> <facts>');
-  const inputs = [...process.argv.slice(2), `${registryFile}.lookups.json`];
+  const inputs = [
+    ...process.argv.slice(2),
+    `${registryFile}.lookups.json`,
+    fileURLToPath(new URL('./capital-source.json', import.meta.url)),
+    fileURLToPath(new URL('./prototype-damage.json', import.meta.url)),
+  ];
   const hashes = read(new URL('./source-pins.json', import.meta.url));
   for (const file of inputs) {
     const name = file.replaceAll('\\', '/').split('/').at(-1);
@@ -234,6 +302,26 @@ function runGenerator() {
     before,
     mappings,
   );
+  const expectationsFile = new URL('./java-additions.json', import.meta.url);
+  const expectations = read(expectationsFile);
+  const expectedIds = new Set(expectations.map((row) => row.values.id));
+  const sourceTypes = new Map(
+    read(registryFile).map((row) => [row.internalName, row]),
+  );
+  const sourceFacts = read(factsFile);
+  for (const { kind, entry, internalName } of result.items)
+    if (!expectedIds.has(entry.id))
+      expectations.push({
+        native: internalName,
+        kind,
+        source: entry.special[0],
+        values: entry,
+        java: {
+          ...sourceTypes.get(internalName),
+          ...sourceFacts[internalName],
+        },
+      });
+  write(expectationsFile, expectations);
   for (const kind of ['weapons', 'ammunition', 'miscellaneous']) {
     const items = result.items
       .filter((item) => item.kind === kind)
@@ -253,6 +341,10 @@ function runGenerator() {
       originalItems(kind).filter((item) => kind !== 'weapons' || item.ranges)
         .length;
   }
+  write(
+    new URL('./capital-bv.json', import.meta.url),
+    generateCapitalBVFacts(result.items, before),
+  );
   const addedIds = new Set(result.items.map((item) => item.entry.id));
   const originalMappings = Object.fromEntries(
     Object.entries(mappings).filter(([, id]) => !addedIds.has(id)),
@@ -280,7 +372,9 @@ function runGenerator() {
       ...['weapons', 'ammunition', 'miscellaneous'].map(
         (kind) => `${root}/official/${kind}/java-registry.json`,
       ),
-      'scripts/equipment-catalog/*.json',
+      ...['provenance.json', 'capital-bv.json', 'java-additions.json'].map(
+        (name) => fileURLToPath(new URL(name, import.meta.url)),
+      ),
     ],
     { stdio: 'inherit', windowsHide: true },
   );

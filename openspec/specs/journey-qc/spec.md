@@ -2,7 +2,9 @@
 
 ## Purpose
 Defines repeatable journey-level QC for major MekStation user flows, including scenario catalogs, configurable run commands, evidence bundles, bug extraction, log search, validation graph lookup, and explicit known-gap accounting.
+
 ## Requirements
+
 ### Requirement: Required Journey Scenario Catalog
 
 The system SHALL define a versioned journey scenario catalog for the required player journeys: `character-build`, `mek-build`, `combat-1v1`, `combat-4v4`, `contract-campaign`, `campaign-short`, and `campaign-long`. Each scenario entry MUST declare its supported tiers, execution mode, configurable parameters, required steps, expected terminal state, evidence assertions, and explicit known limitation references when applicable. Each scenario entry MUST also declare a `subsystems` facet: an array of gameplay-subsystem tags drawn from the closed six-tag vocabulary shared with the flow-audit registry (`navigation`, `combat`, `economy`, `maintenance`, `personnel`, `experience` — the same literal set; a guard test SHALL assert the catalog validator's allowed set and the flow registry's subsystem vocabulary are identical), with no duplicate members. The facet MAY be an explicitly authored empty array only for a journey whose surface lies outside the gameplay-subsystem taxonomy (construction journeys); the catalog validator SHALL reject a missing `subsystems` field, an unknown tag, or a duplicated tag, naming the journey id and the offending value. The catalog is the facet's single home: downstream surfaces (graph queries, lane tooling) SHALL resolve a journey's subsystems by joining the catalog, never by duplicating the facet into another registry.
@@ -572,13 +574,13 @@ Journey QC SHALL include a fresh-construction trust anchor journey that launches
 
 ### Requirement: Seam Anchor Pull-Request Gate
 
-Pull-request CI SHALL execute all three seam trust anchor journeys (per the "Seam Trust Anchor Journeys" requirement) on every code-touching pull request, as a dedicated workflow job that runs the three anchor specs in a **single** Playwright invocation under the desktop chromium project — one shared webServer boot, never one invocation per spec — with test retries explicitly disabled in the invocation, overriding any CI-default retry configuration, so an anchor that fails on first attempt can never retry to green inside the gate; and that mirrors the existing smoke job's change-detection guards so documentation-only pull requests no-op with the check reporting success. The job SHALL become pull-request-blocking exclusively through membership in the existing required aggregator check's `needs` set — the same mechanism the e2e-testing "PR-Gated Coverage Floor" requirement contracts — and because a dependent job whose `needs` entry fails is skipped by default while a skipped required check reports as passing, the aggregator SHALL be hardened, without changing its job id, check-run name, or `needs` shape, to run unconditionally and fail explicitly unless every member of its `needs` set concluded success: a failed or skipped fan-out job SHALL produce a failed aggregator check, never a skipped one. The change wiring the gate SHALL NOT rename or repurpose any existing workflow job or check-run name and SHALL NOT modify the branch-protection required-context list: designating any check as independently required is a manual repository-settings action performed by a human administrator, never a repository file change, and any future proposal to so designate this job SHALL name that manual step and its rollback explicitly. The job SHALL land as a non-blocking sibling first and join the aggregator's `needs` set only after recorded burn-in evidence — at least three green runs on real code-touching pull requests with the job's wall-clock recorded against the change's published budget, where green means first-attempt green: a run whose report records a retried or flaky result is a burn-in failure; an anchor that fails or flakes during burn-in SHALL block the gate wiring and be triaged as an anchor stability defect under the anchors' own stability obligations, never retried away or sliced out of the gate. The wired gate's blocking authority SHALL be proven red-path before it is trusted: recorded evidence of a deliberately failed anchor on a never-merged pull request showing the anchor job concluding failure, the aggregator check concluding failure rather than skipped, and the pull request reporting un-mergeable at that commit; if the exercise shows the pull request mergeable, the `needs` wiring SHALL be reverted and the gate treated as undelivered. The headless invariant jest suites guarding the same seams SHALL remain unconditionally scheduled in the pull-request unit-test lane: they SHALL NOT be added to any conditional exclusion pattern, and the gate SHALL NOT duplicate their execution in the anchor job.
+Pull-request CI SHALL execute all three seam trust anchor journeys (per the "Seam Trust Anchor Journeys" requirement) on every code-touching pull request, in the e2e-testing browser-gate job (`e2e`, per the e2e-testing "PR-Gated Customizer Browser Regressions" requirement): each shard of that job's fixed matrix runs its slice of the three anchor specs, together with the customizer gate specs, in a **single** Playwright invocation under the desktop chromium project against the production build of the `e2e-build` job — one webServer boot per shard, never one invocation per spec — so the shards together run every anchor exactly once, with test retries explicitly disabled in the invocation, overriding any CI-default retry configuration, so an anchor that fails on first attempt can never retry to green inside the gate; and that job uses the same change-detection guards as the smoke suites so documentation-only pull requests no-op with the check reporting success. The job SHALL become pull-request-blocking exclusively through membership in the existing required aggregator check's `needs` set — the same mechanism the e2e-testing "PR-Gated Coverage Floor" requirement contracts — and because a dependent job whose `needs` entry fails is skipped by default while a skipped required check reports as passing, the aggregator SHALL be hardened, without changing its job id, check-run name, or `needs` shape, to run unconditionally and fail explicitly unless every member of its `needs` set concluded success: a failed or skipped fan-out job SHALL produce a failed aggregator check, never a skipped one. A change that wires or relocates the gate SHALL NOT rename or repurpose the required aggregator's job id or check-run name and SHALL NOT modify the branch-protection required-context list: designating any check as independently required is a manual repository-settings action performed by a human administrator, never a repository file change, and any future proposal to so designate this job SHALL name that manual step and its rollback explicitly. The gate SHALL first have landed as a non-blocking sibling and joined the aggregator's `needs` set only after recorded burn-in evidence — at least three green runs on real code-touching pull requests with the job's wall-clock recorded against the change's published budget, where green means first-attempt green: a run whose report records a retried or flaky result is a burn-in failure; an anchor that fails or flakes during burn-in SHALL block the gate wiring and be triaged as an anchor stability defect under the anchors' own stability obligations, never retried away or sliced out of the gate. A change that relocates the already-wired gate into another job SHALL keep it blocking throughout, and SHALL record on the relocating pull request at least three first-attempt-green runs of the new job with its wall-clock, plus the red-path proof below. The wired gate's blocking authority SHALL be proven red-path before it is trusted: recorded evidence of a deliberately failed anchor on a never-merged pull request showing the anchor job concluding failure, the aggregator check concluding failure rather than skipped, and the pull request reporting un-mergeable at that commit; if the exercise shows the pull request mergeable, the `needs` wiring SHALL be reverted and the gate treated as undelivered. The headless invariant jest suites guarding the same seams SHALL remain unconditionally scheduled in the pull-request unit-test lane: they SHALL NOT be added to any conditional exclusion pattern, and the gate SHALL NOT duplicate their execution in the anchor job.
 
 #### Scenario: An anchor failure blocks the pull request
 
-- **GIVEN** the seam-anchor job is a member of the hardened required aggregator's `needs` set
+- **GIVEN** the `e2e` job is a member of the hardened required aggregator's `needs` set
 - **WHEN** any of the three anchor specs fails on a code-touching pull request
-- **THEN** the seam-anchor job SHALL fail on that first attempt, with retries disabled
+- **THEN** the `e2e` shard that runs it SHALL fail on that first attempt, with retries disabled
 - **AND** the aggregator's required check SHALL run and conclude failure — never skipped — so the pull request cannot merge
 
 #### Scenario: A failed fan-out job cannot skip the aggregator to green
@@ -591,34 +593,41 @@ Pull-request CI SHALL execute all three seam trust anchor journeys (per the "Sea
 #### Scenario: A flaky anchor cannot retry to green
 
 - **GIVEN** a CI Playwright configuration whose default enables retries on CI runners
-- **WHEN** the seam-anchor job invokes the anchor specs
+- **WHEN** the `e2e` job invokes the anchor specs
 - **THEN** the invocation SHALL explicitly disable retries
 - **AND** a burn-in run whose report records a retried or flaky result SHALL be treated as a failed burn-in that blocks the gate wiring
 
 #### Scenario: Blocking authority is proven red-path, never assumed
 
-- **WHEN** the gate wiring is delivered
+- **WHEN** the gate wiring is delivered or relocated
 - **THEN** recorded evidence SHALL exist of a deliberately failed anchor on a never-merged pull request, showing the aggregator check concluded failure and the merge state blocked at that commit
 - **AND** if that exercise shows the pull request mergeable, the `needs` wiring SHALL be reverted and the gate reported undelivered
 
 #### Scenario: Existing check names and branch protection are untouched
 
-- **WHEN** the seam-anchor gate change is diffed against the prior workflow
-- **THEN** every pre-existing check-run name SHALL be unchanged, with the new job's name appearing as a pure addition
+- **WHEN** a change that wires or relocates the seam-anchor gate is diffed against the prior workflow
+- **THEN** the required aggregator's job id and check-run name SHALL be unchanged
 - **AND** the branch-protection required-context list SHALL be identical before and after
 
 #### Scenario: Documentation-only pull requests are not taxed
 
 - **GIVEN** a pull request touching only documentation or OpenSpec files
-- **WHEN** the seam-anchor job runs
+- **WHEN** the `e2e` job runs
 - **THEN** its work steps SHALL no-op under the change-detection guard within seconds
 - **AND** the job SHALL still report success so the aggregator's `needs` chain stays green
 
 #### Scenario: Burn-in precedes blocking
 
-- **WHEN** the seam-anchor job is first added to the pull-request workflow
+- **WHEN** the seam-anchor gate is first added to the pull-request workflow
 - **THEN** it SHALL NOT yet be a member of the aggregator's `needs` set
 - **AND** the `needs` membership SHALL land only with recorded evidence of at least three green runs on real code-touching pull requests and the measured job wall-clock
+
+#### Scenario: A relocated gate stays blocking with fresh burn-in evidence
+
+- **GIVEN** the seam-anchor gate is already a member of the aggregator's `needs` set
+- **WHEN** a change moves its invocation into another job
+- **THEN** the new job SHALL be a member of the aggregator's `needs` set in that same change, so the anchors never run non-blocking
+- **AND** that change's pull request SHALL record at least three first-attempt-green runs of the new job with its wall-clock, plus the red-path proof
 
 #### Scenario: The headless invariants cannot be silently excluded
 
@@ -829,4 +838,3 @@ Journey QC SHALL expose `scripts/qc/run-camp01-authority-receipt.mjs` through `q
 - **WHEN** `cleanup` receives a validated exact-main receipt identity
 - **THEN** it SHALL remove only the recorded proof target plus any subject-matched owned target/ref, publish and reopen `wave-cleanup.json`, then delete the internal target state
 - **AND** unknown commands/options or mode-incompatible inputs SHALL fail
-

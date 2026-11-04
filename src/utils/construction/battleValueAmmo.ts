@@ -1,4 +1,7 @@
-import { isAmmunitionEquipmentId } from './equipmentBV/catalogLoader';
+import {
+  isAmmunitionEquipmentId,
+  getCapitalEquipmentBVFacts,
+} from './equipmentBV/catalogLoader';
 import {
   getAmmunitionWeightEntry,
   normalizeEquipmentId,
@@ -14,8 +17,10 @@ export function resolveNativeAmmoBin(
   name?: string,
 ): { ammoId: string; shots: number } | undefined {
   if (!isAmmunitionEquipmentId(id)) return undefined;
+  // BLKFile.java:279-291,361-365 (48fcb2f64): retain shots before identity lookup.
+  const nativeCount = id.match(/:shots(\d+)#/i);
   const token = id.replace(/:omni$/i, '');
-  const override = token.match(/:(\d+)$/);
+  const override = nativeCount ?? token.match(/:(\d+)$/);
   const entry =
     getAmmunitionWeightEntry(token.replace(/:\d+$/, '')) ??
     (name
@@ -24,7 +29,13 @@ export function resolveNativeAmmoBin(
         )
       : undefined);
   if (!entry) return undefined;
-  const shots = override ? Number(override[1]) : entry.shotsPerTon;
+  // A native zero leaves AmmoMounted at its default; legacy :0 is an empty bin.
+  const shots =
+    nativeCount && Number(nativeCount[1]) === 0
+      ? entry.shotsPerTon
+      : override
+        ? Number(override[1])
+        : entry.shotsPerTon;
   return shots !== undefined && Number.isSafeInteger(shots) && shots >= 0
     ? { ammoId: entry.id, shots }
     : undefined;
@@ -433,6 +444,21 @@ export function getNativeAmmoBVGroup(id: string): string | undefined {
     /^(lrm|srm|mml|mrm|atm|iatm|lac|ac|autocannon)(\d+)/,
   );
   return rack
-    ? `${rack[1] === 'autocannon' ? 'AC' : rack[1].toUpperCase()}:${rack[2]}`
+    ? nativeAmmoBVKey(
+        rack[1] === 'autocannon' ? 'AC' : rack[1].toUpperCase(),
+        rack[2],
+      )
     : undefined;
+}
+
+function nativeAmmoBVKey(ammoType: string, rackSize: number | string): string {
+  return `${ammoType}:${rackSize}`;
+}
+
+/** LargeAeroBVCalculator.assembleAmmo: native enum/rack keys for capital pools. */
+export function getLargeAerospaceAmmoBVGroup(id: string): string | undefined {
+  const capital = getCapitalEquipmentBVFacts(id);
+  if (capital && !['NA', 'SCREEN_LAUNCHER'].includes(capital.ammoType))
+    return nativeAmmoBVKey(capital.ammoType, capital.rackSize);
+  return getCatalogAmmoBVGroup(id);
 }

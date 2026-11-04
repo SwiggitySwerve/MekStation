@@ -1,4 +1,16 @@
-import { resolveEquipmentBV } from './equipmentBVResolver';
+import { getEquipmentEntry, resolveEquipmentBV } from './equipmentBVResolver';
+
+/** Shared bonus for an already eligible mount. MegaMek 48fcb2f64,
+ * BVCalculator.java:880-882. Callers retain their eligibility contracts.
+ */
+export function applyTargetingComputerBV(bv: number): number {
+  return bv * 1.25;
+}
+
+/** Catalog-backed chassis capability, including native and Omni aliases. */
+export function hasBVTargetingComputer(ids: readonly string[]): boolean {
+  return ids.some((id) => getEquipmentEntry(id)?.category === 'Targeting');
+}
 
 export function getWeaponBV(weaponId: string): number {
   return resolveEquipmentBV(weaponId).battleValue;
@@ -28,7 +40,7 @@ export function calculateOffensiveBV(
       !weaponId.includes('srm') &&
       !weaponId.includes('mrm')
     ) {
-      bv *= 1.25;
+      bv = applyTargetingComputerBV(bv);
     }
 
     total += bv;
