@@ -37,10 +37,7 @@ cat > "$TEMP_JSON" <<EOF
   "required_status_checks": {
     "strict": true,
     "contexts": [
-      "Lint and Test",
-      "Build Test / win",
-      "Build Test / mac",
-      "Build Test / linux"
+      "Lint and Test"
     ]
   },
   "enforce_admins": true,

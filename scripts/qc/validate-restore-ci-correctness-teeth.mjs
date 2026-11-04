@@ -8,55 +8,64 @@ const workflow = readFileSync(workflowPath, 'utf8');
 
 const checks = [
   {
-    label: 'statistical-proof-pr job exists',
-    passes: /^  statistical-proof-pr:/m.test(workflow),
-  },
-  {
-    label: 'statistical-proof-pr runs integration.test.ts',
+    label: 'simulation-checks runs the statistical proof',
     passes:
-      /statistical-proof-pr:[\s\S]*src\/simulation\/__tests__\/integration\.test\.ts/.test(
+      /simulation-checks:[\s\S]*Run 100-game statistical combat proofs/.test(
         workflow,
       ),
   },
   {
-    label: 'statistical-proof-pr uses SIMULATION_COUNT 100',
-    passes: /statistical-proof-pr:[\s\S]*SIMULATION_COUNT:\s*'100'/.test(
-      workflow,
-    ),
-  },
-  {
-    label: 'statistical-proof-pr allows contended profiling budget',
+    label: 'statistical proof runs integration.test.ts',
     passes:
-      /statistical-proof-pr:[\s\S]*SIMULATION_PROFILE_TIME_BUDGET_MS:\s*'60000'/.test(
+      /Run 100-game statistical combat proofs[\s\S]*src\/simulation\/__tests__\/integration\.test\.ts/.test(
         workflow,
       ),
   },
   {
-    label: 'perf-budget-pr job exists',
-    passes: /^  perf-budget-pr:/m.test(workflow),
-  },
-  {
-    label: 'perf-budget-pr enables SIMULATION_PERF_ASSERTIONS',
-    passes: /perf-budget-pr:[\s\S]*SIMULATION_PERF_ASSERTIONS:\s*'true'/.test(
-      workflow,
-    ),
-  },
-  {
-    label: 'coverage-floor job exists',
-    passes: /^  coverage-floor:/m.test(workflow),
-  },
-  {
-    label: 'coverage-floor uses coverage validator',
+    label: 'statistical proof uses SIMULATION_COUNT 100',
     passes:
-      /coverage-floor:[\s\S]*validate-combat-simulation-coverage\.mjs/.test(
+      /Run 100-game statistical combat proofs[\s\S]*SIMULATION_COUNT:\s*'100'/.test(
         workflow,
       ),
   },
   {
-    label: 'coverage-floor excludes perf-sensitive assertions',
-    passes: /coverage-floor:[\s\S]*JEST_EXCLUDE_PERF_SENSITIVE:\s*'true'/.test(
-      workflow,
-    ),
+    label: 'statistical proof allows contended profiling budget',
+    passes:
+      /Run 100-game statistical combat proofs[\s\S]*SIMULATION_PROFILE_TIME_BUDGET_MS:\s*'60000'/.test(
+        workflow,
+      ),
+  },
+  {
+    label: 'simulation-checks job exists',
+    passes: /^  simulation-checks:/m.test(workflow),
+  },
+  {
+    label: 'simulation-checks perf budgets enable SIMULATION_PERF_ASSERTIONS',
+    passes:
+      /simulation-checks:[\s\S]*SIMULATION_PERF_ASSERTIONS:\s*'true'/.test(
+        workflow,
+      ),
+  },
+  {
+    label: 'simulation-checks runs the coverage floor',
+    passes:
+      /simulation-checks:[\s\S]*Enforce combat\/simulation coverage floors/.test(
+        workflow,
+      ),
+  },
+  {
+    label: 'coverage floor uses coverage validator',
+    passes:
+      /simulation-checks:[\s\S]*validate-combat-simulation-coverage\.mjs/.test(
+        workflow,
+      ),
+  },
+  {
+    label: 'coverage floor excludes perf-sensitive assertions',
+    passes:
+      /simulation-checks:[\s\S]*JEST_EXCLUDE_PERF_SENSITIVE:\s*'true'/.test(
+        workflow,
+      ),
   },
 ];
 
@@ -65,11 +74,7 @@ const aggregatorMatch = workflow.match(
 );
 const aggregatorNeeds = aggregatorMatch?.[1] ?? '';
 
-for (const job of [
-  'statistical-proof-pr',
-  'perf-budget-pr',
-  'coverage-floor',
-]) {
+for (const job of ['simulation-checks']) {
   checks.push({
     label: `lint-and-test needs ${job}`,
     passes: aggregatorNeeds.includes(job),

@@ -353,6 +353,12 @@ launcher (MekFileParser.java:425-449). The existing multiplier owner supplies
 Mech's older critical-grid/location heuristic is retained as a separate input
 projection; vehicles already consume explicit links. No catalog flags added.
 
+The BV heat override also accepts native `Ultra Autocannon` display names,
+including the imported IS Ultra AC/5 prototype. Its catalog firing heat stays
+1; BV uses 2 and still applies one-shot heat reduction first. Pinned MegaMek
+48fcb2f64a1b3f2d575707ce5653dad64927b587: ISUAC5Prototype.java:62-71,
+UACWeapon.java:65; HeatTrackingBVCalculator.java:170-180.
+
 B-Pods remain weapons when their native display name or converted alias
 contains plural `Pods`. Ammunition names (including Narc/iNarc pods) keep the
 ammo namespace. Existing aliases and native name mappings resolve identity.
