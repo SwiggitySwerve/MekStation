@@ -6,6 +6,10 @@ import path from 'node:path';
 
 import { copyDirectory } from './next/copy-directory.mjs';
 import {
+  isDeploymentFile,
+  pruneDeploymentFiles,
+} from './next/deployment-files.mjs';
+import {
   collectRuntimePackages,
   collectTurbopackExternals,
   createPackageSourcePreflight,
@@ -30,8 +34,8 @@ const megaMekBVCacheRelativePath = path.join(
   'megamek-bv-cache.json',
 );
 
-const runtimeModuleDirs = ['tsx', 'esbuild', 'ws'];
-const runtimeScopedDirs = ['@esbuild'];
+// tsx owns its nested compiler and platform binary through its package graph.
+const runtimeModuleDirs = ['tsx', 'ws'];
 
 function rel(filePath) {
   return path.relative(root, filePath);
@@ -104,7 +108,9 @@ async function copyDir(source, target, label = 'directory') {
   assertSafeDestinationPath(standaloneDir, target, label);
   assertDistinctRealpaths(source, target, label);
   fs.rmSync(target, { recursive: true, force: true });
-  await copyDirectory(source, target);
+  await copyDirectory(source, target, {
+    filter: (input) => isDeploymentFile(path.relative(root, input)),
+  });
 }
 
 function extractNextConfig(generatedServer) {
@@ -129,13 +135,6 @@ async function copyRuntimeLoaders(runtimePackages) {
       `runtime package ${relative}`,
     );
   }
-  for (const dirName of runtimeScopedDirs) {
-    await copyDir(
-      path.join(root, 'node_modules', dirName),
-      path.join(standaloneDir, 'node_modules', dirName),
-      `runtime loader ${dirName}`,
-    );
-  }
 }
 
 async function copyPublicAssets() {
@@ -157,13 +156,17 @@ async function copyPublicAssets() {
   );
 }
 
-function copyMegaMekBVCache() {
-  const source = path.join(root, megaMekBVCacheRelativePath);
-  const target = path.join(standaloneDir, megaMekBVCacheRelativePath);
-  assertExists(source, 'MegaMek BV cache');
+function copyRuntimeFile(relative, label) {
+  const source = path.join(root, relative);
+  const target = path.join(standaloneDir, relative);
+  assertExists(source, label);
   fs.mkdirSync(path.dirname(target), { recursive: true });
   fs.copyFileSync(source, target);
-  assertExists(target, 'standalone MegaMek BV cache');
+  assertExists(target, `standalone ${label}`);
+}
+
+function copyMegaMekBVCache() {
+  copyRuntimeFile(megaMekBVCacheRelativePath, 'MegaMek BV cache');
 }
 
 async function copyNextStaticAssets() {
@@ -190,10 +193,6 @@ function validateHydrationDestinations(runtimePackages = []) {
       path.join(standaloneDir, 'node_modules', dirName),
       `runtime loader ${dirName}`,
     ]),
-    ...runtimeScopedDirs.map((dirName) => [
-      path.join(standaloneDir, 'node_modules', dirName),
-      `runtime loader ${dirName}`,
-    ]),
     ...runtimePackages.map((source) => [
       path.join(standaloneDir, path.relative(root, source)),
       `runtime package ${rel(source)}`,
@@ -217,11 +216,6 @@ function validateHydrationDestinations(runtimePackages = []) {
       'standalone source tree',
     ],
     ...runtimeModuleDirs.map((dirName) => [
-      path.join(root, 'node_modules', dirName),
-      path.join(standaloneDir, 'node_modules', dirName),
-      `runtime loader ${dirName}`,
-    ]),
-    ...runtimeScopedDirs.map((dirName) => [
       path.join(root, 'node_modules', dirName),
       path.join(standaloneDir, 'node_modules', dirName),
       `runtime loader ${dirName}`,
@@ -259,12 +253,7 @@ async function main() {
   assertExists(path.join(root, 'public'), 'public assets');
   assertExists(path.join(root, 'src'), 'source tree');
   assertExists(path.join(root, 'node_modules', 'tsx'), 'tsx runtime loader');
-  assertExists(path.join(root, 'node_modules', 'esbuild'), 'esbuild runtime');
   assertExists(path.join(root, 'node_modules', 'ws'), 'WebSocket runtime');
-  assertExists(
-    path.join(root, 'node_modules', '@esbuild'),
-    'esbuild native package scope',
-  );
   validateHydrationDestinations();
   const preflightSource = createPackageSourcePreflight(root);
   const runtimePackages = await collectRuntimePackages(
@@ -272,10 +261,22 @@ async function main() {
     runtimeModuleDirs,
     preflightSource,
   );
-  for (const scope of runtimeScopedDirs) {
-    preflightSource(path.join(root, 'node_modules', scope));
+  for (const file of runtimePackages.files) {
+    if (!isDeploymentFile(rel(file))) {
+      throw new Error(
+        `Required runtime input excluded by deployment policy: ${rel(file)}`,
+      );
+    }
+    if (!isPathOutside(nextDir, file)) {
+      throw new Error(
+        `Runtime input comes from generated Next output: ${rel(file)}`,
+      );
+    }
   }
-  validateHydrationDestinations(runtimePackages.directories);
+  validateHydrationDestinations([
+    ...runtimePackages.directories,
+    ...runtimePackages.files,
+  ]);
   const aliasRoot = path.join(
     standaloneDir,
     path.relative(root, nextDir),
@@ -341,6 +342,12 @@ async function main() {
     'standalone source tree',
   );
   await copyRuntimeLoaders(runtimePackages.directories);
+  for (const source of runtimePackages.files) {
+    copyRuntimeFile(
+      path.relative(root, source),
+      `runtime repository input ${rel(source)}`,
+    );
+  }
   for (const {
     source,
     target,
@@ -378,6 +385,8 @@ async function main() {
   copyMegaMekBVCache();
   await copyNextStaticAssets();
 
+  pruneDeploymentFiles(standaloneDir);
+
   const requireStandalone = createRequire(generatedServerPath);
   for (const request of runtimePackages.requests) {
     const resolved = requireStandalone.resolve(request);
@@ -404,7 +413,7 @@ async function main() {
         ok: true,
         hydratedStandaloneServer: rel(generatedServerPath),
         nextConfig: rel(standaloneConfigPath),
-        runtimeLoaders: [...runtimeModuleDirs, ...runtimeScopedDirs],
+        runtimeLoaders: runtimeModuleDirs,
         runtimePackages: runtimePackages.directories.map(rel),
         publicAssets: rel(path.join(standaloneDir, 'public')),
         megaMekBVCache: rel(
