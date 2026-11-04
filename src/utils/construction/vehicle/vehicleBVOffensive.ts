@@ -1,3 +1,5 @@
+import { SuperHeavyVehicleLocation } from '@/types/construction/UnitLocation';
+
 import type {
   VehicleWeaponMount,
   VehicleAmmoMount,
@@ -35,6 +37,7 @@ import {
   normalizeEquipmentId,
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
+import { hasSixSideVehicleHull } from './structure';
 import { calculateVehicleSpeedFactor } from './vehicleBVMovement';
 
 // =============================================================================
@@ -232,6 +235,11 @@ export function calculateVehicleOffensiveBV(
   mounts.forEach((w, i) => {
     w.capacitorBV = ppcs[i].capacitorBV;
   });
+  const sixSideHull = hasSixSideVehicleHull(input);
+  const legacyTurretLocations = new Set<string>([
+    SuperHeavyVehicleLocation.REAR_LEFT.toLowerCase(),
+    SuperHeavyVehicleLocation.REAR.toLowerCase(),
+  ]);
   const value = (
     w: VehicleWeaponMount & { capacitorBV?: number },
     rear: boolean,
@@ -242,7 +250,8 @@ export function calculateVehicleOffensiveBV(
       fireControlFactor,
       primaryTurretMult,
       secondaryTurretMult,
-      rear,
+      rear &&
+        !(sixSideHull && legacyTurretLocations.has(w.location.toLowerCase())),
       drone,
       w.capacitorBV,
     );
