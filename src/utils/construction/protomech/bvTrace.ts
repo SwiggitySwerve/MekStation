@@ -5,7 +5,15 @@ import type { IProtoMechBVBreakdown } from '@/types/unit/BVBreakdownTypes';
  * type/weight stages at MegaMek 48fcb2f6; the local summary has no chassis
  * adjustment. Native mount identities and ammo groups are unavailable here.
  */
-export function protoMechBVTerms(b: IProtoMechBVBreakdown) {
+export function protoMechBVTerms(
+  b: IProtoMechBVBreakdown,
+): IProtoMechBVBreakdown & {
+  typeModifier: number;
+  offensiveTypeModifier: number;
+  summaryModifier: number;
+  weightBV: number;
+  adjustment: number;
+} {
   return {
     ...b,
     typeModifier: 1,

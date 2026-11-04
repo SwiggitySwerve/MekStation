@@ -93,6 +93,7 @@ export interface IContractBVVehicle {
 
 /** Domain-shaped aerospace value accepted by `calculateBattleValueForUnit`. */
 export interface IContractBVAerospace {
+  readonly cockpit?: string;
   readonly barRating?: number;
   readonly heatCapacity?: number;
   readonly isSupportVehicle: boolean;
@@ -284,6 +285,7 @@ function contractAerospaceToBVUnit(
         )
       : undefined,
     isSupportVehicle: fixedWingSupport,
+    ...(unit.cockpit === undefined ? {} : { cockpit: unit.cockpit }),
     ...(fixedWingSupport && unit.armor.barRating !== undefined
       ? { barRating: unit.armor.barRating }
       : {}),

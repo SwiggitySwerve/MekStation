@@ -5,6 +5,9 @@ import type { IVehicleArmorAllocation } from '@/stores/vehicleState';
  *
  * Keeps the BV calculator free of store/React dependencies so it remains
  * easy to unit test and callable from the parity harness.
+ * Editor BV uses the native contract owner. A matching source/resolved ID pair
+ * restores the original token and native kind for BV; inventory keeps its
+ * canonical ID and physical ammo marker. Replacing the ID expires that pair.
  *
  * @spec openspec/changes/add-vehicle-battle-value/specs/vehicle-unit-system/spec.md
  */
