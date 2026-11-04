@@ -61,6 +61,7 @@ scripts/**
 !scripts/jest/
 !scripts/jest/run-jest-lane.mjs
 !scripts/jest/update-test-durations.mjs
+!scripts/jest/cached-tests.js
 !scripts/lib/
 !scripts/lib/**
 !scripts/next/
@@ -319,3 +320,6 @@ release-upload*/
 
 # Verified Electron native bindings, keyed by source and toolchain
 desktop/.electron-native-cache/
+
+# Jest per-file result cache (npm run test:cached)
+.jest-result-cache/

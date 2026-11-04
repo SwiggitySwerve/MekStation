@@ -35,6 +35,9 @@ export const vehicleEditorSchema = z.object({
     z.object({
       name: z.string(),
       isAmmo: z.boolean().optional(),
+      sourceIdentity: z
+        .object({ sourceId: z.string(), resolvedId: z.string() })
+        .optional(),
       isTurretMounted: z.boolean(),
       isSponsonMounted: z.boolean(),
       isChinTurretMounted: z.boolean().optional(),
@@ -49,6 +52,10 @@ export const vehicleEditorSchema = z.object({
     }),
   ),
 });
+
+export type VehicleSourceIdentity = NonNullable<
+  z.output<typeof vehicleEditorSchema>['mounts'][number]['sourceIdentity']
+>;
 
 /** Parse saved editor facts and reject misaligned mount metadata at the boundary. */
 export function parseVehicleEditor(

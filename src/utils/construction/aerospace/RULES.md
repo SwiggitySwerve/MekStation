@@ -441,3 +441,9 @@ and BVCalculator.java:1252-1294 own this order.
 Enforcement: aerospaceBV.smallCockpit.test.ts covers native Cheetah, editor
 transport, standard/primitive compatibility and the base/pilot rounding seam.
 Console and drone summary handling remain separate unresolved parity classes.
+
+Ordinary aerospace adds undamaged modular armor capacity before armor BV
+multipliers, BAR and aircraft type scaling. Canonical mount identity and the
+ten-point rule use battleValueDefensive.ts; other mounted defense rules do not
+change. aerospaceBV.modularArmor.test.ts pins native Drake, Omni aliases,
+support BAR ordering and the no-modular-armor path. Patchwork is separate.
