@@ -59,7 +59,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 2,
     "id": "ac-10",
-    "sha256": "6fa3b08b8e748e081daca0068fe4acbcf3cc68b77b5a7d281fa40f1992ddfa32",
+    "sha256": "36312c3eabc8700213d6b4aa45719fb9e3c3b589bd70cd05eb557ed6acc3afdf",
     "item": {
       "id": "ac-10",
       "name": "AC/10",
@@ -80,14 +80,14 @@
       "ammoPerTon": 10,
       "costCBills": 200000,
       "battleValue": 123,
-      "introductionYear": 2460
+      "introductionYear": 2443
     }
   },
   {
     "file": "weapons/ballistic-autocannon.json",
     "index": 3,
     "id": "ac-20",
-    "sha256": "2cd1668959f535e327154deb9856d9d9bd61602078106481772bf66303edfe22",
+    "sha256": "8d9d0208605f23cad5e3e0b85d65fa3430d04f81987a7f2ca2dd04763cc87dbb",
     "item": {
       "id": "ac-20",
       "name": "AC/20",
@@ -108,7 +108,7 @@
       "ammoPerTon": 5,
       "costCBills": 300000,
       "battleValue": 178,
-      "introductionYear": 2500
+      "introductionYear": 2488
     }
   },
   {
@@ -641,7 +641,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 22,
     "id": "clan-rac-2",
-    "sha256": "fcc26464673f1503a41b0ea46a0acb3f54b2fd77dfb90a878a3867119e68a3bd",
+    "sha256": "e749ad8e4892483f67c78669c0f2ff74f5e676c8b4fcd91a53af0d3ddc86d3c7",
     "item": {
       "id": "clan-rac-2",
       "name": "Rotary AC/2 (Clan)",
@@ -662,7 +662,7 @@
       "ammoPerTon": 45,
       "costCBills": 175000,
       "battleValue": 161,
-      "introductionYear": 3104,
+      "introductionYear": 3073,
       "special": ["Can fire 1-6 shots"]
     }
   },
@@ -727,7 +727,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 25,
     "id": "lac-5",
-    "sha256": "35d921779f99754ba29d7bbb23c106f901f8efafcf3818dd9b872a52b7dba24a",
+    "sha256": "1580e86b7fa6dda3a97d22dc10d891f94d0a1ec830fbc3ffdc78fd05a370f198",
     "item": {
       "id": "lac-5",
       "name": "Light AC/5",
@@ -748,7 +748,7 @@
       "ammoPerTon": 20,
       "costCBills": 150000,
       "battleValue": 62,
-      "introductionYear": 3068
+      "introductionYear": 3057
     }
   },
   {
@@ -2309,7 +2309,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 15,
     "id": "magshotgr",
-    "sha256": "5fa560748d87bcf5ba507fc9fdcdaf2c4ef15a98cef20e24d1eb274c7da1cf72",
+    "sha256": "d7c58983c106e4d7ab590dc3b9395fabc1135c478adc0b313a4f01fed93cb508",
     "item": {
       "id": "magshotgr",
       "name": "Magshot",
@@ -2330,7 +2330,7 @@
       "criticalSlots": 2,
       "costCBills": 8500,
       "battleValue": 15,
-      "introductionYear": 3072,
+      "introductionYear": 3054,
       "special": []
     }
   },
@@ -3490,7 +3490,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 57,
     "id": "long-tom",
-    "sha256": "b89d9290bf008065deca88e5ed132207bff9f9106becfc2ab099e38bb75e7184",
+    "sha256": "2b2f5828374c38f3e165e0ed4dadfdf0e05bc9fb593f2ef8642234287187ea00",
     "item": {
       "id": "long-tom",
       "name": "Long Tom Cannon",
@@ -3511,7 +3511,7 @@
       "ammoPerTon": 5,
       "costCBills": 650000,
       "battleValue": 329,
-      "introductionYear": 3079,
+      "introductionYear": 3012,
       "special": ["artillery"]
     }
   },
@@ -3548,7 +3548,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 59,
     "id": "thumper-cannon",
-    "sha256": "5c460809c3863df551e4c68412c0628c0f3452a205047b3e6a0ddc1cf2a2702f",
+    "sha256": "1888501cba0bb7d2a8772ebf2c725b338e63ce865690f22712894430e898bce3",
     "item": {
       "id": "thumper-cannon",
       "name": "Thumper Cannon",
@@ -3569,7 +3569,7 @@
       "ammoPerTon": 20,
       "costCBills": 200000,
       "battleValue": 41,
-      "introductionYear": 3079,
+      "introductionYear": 3012,
       "special": ["artillery"]
     }
   },
@@ -6695,7 +6695,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 85,
     "id": "enhanced-lrm-15",
-    "sha256": "0e6909e1d1ffd0697f43102407d343d3a45cb0166d727d3b73e5ab129c52b150",
+    "sha256": "28519560b60f1c7a0d43561d6f01fcbc93324f225b691e89f39f44f7f985c759",
     "item": {
       "id": "enhanced-lrm-15",
       "name": "Enhanced LRM 15",
@@ -6717,7 +6717,7 @@
       "ammoPerTon": 8,
       "costCBills": 218750,
       "battleValue": 157,
-      "introductionYear": 3082,
+      "introductionYear": 3058,
       "special": []
     }
   },
@@ -9090,7 +9090,7 @@
     "file": "weapons/missile-other.json",
     "index": 46,
     "id": "thunderbolt-15",
-    "sha256": "a6048836da2d92c18bba8e5e91c197c961140c4725066f5003e0b0926cb0fd9b",
+    "sha256": "2a42a916bbc596c7404d6c5cf2163b9c45a5ad7874035f06ca1049a3696cf56a",
     "item": {
       "id": "thunderbolt-15",
       "name": "Thunderbolt 15",
@@ -9110,7 +9110,7 @@
       "criticalSlots": 3,
       "costCBills": 325000,
       "battleValue": 229,
-      "introductionYear": 3072,
+      "introductionYear": 3052,
       "special": []
     }
   },
@@ -11647,7 +11647,7 @@
     "file": "weapons/missile-srm.json",
     "index": 54,
     "id": "clan-srm-1",
-    "sha256": "2796ce7daaf8a7a75eb5d401e1902579a49fa83779c60fe943de5dda2fdc09a9",
+    "sha256": "2adc3e19628dc5c176094a87fba84cbcd2fe350dbd67e4121d39f2e92f1d1da8",
     "item": {
       "id": "clan-srm-1",
       "name": "SRM 1 (ProtoMech)",
@@ -11666,6 +11666,7 @@
       },
       "weight": 0.25,
       "criticalSlots": 0,
+      "ammoPerTon": 100,
       "costCBills": 10000,
       "battleValue": 15,
       "introductionYear": 3050,
@@ -11676,7 +11677,7 @@
     "file": "weapons/missile-srm.json",
     "index": 55,
     "id": "clan-srm-3",
-    "sha256": "6e8cfafe7d3d27019b09f99a8f4f8a1b377ad7080438a91da70ab16c599b3710",
+    "sha256": "e036c24e8334162db90578255cd39c67d2d5de56ece00791f562df0dbdebad36",
     "item": {
       "id": "clan-srm-3",
       "name": "SRM 3 (ProtoMech)",
@@ -11695,6 +11696,7 @@
       },
       "weight": 0.75,
       "criticalSlots": 0,
+      "ammoPerTon": 100,
       "costCBills": 30000,
       "battleValue": 30,
       "introductionYear": 3050,
@@ -11705,7 +11707,7 @@
     "file": "weapons/missile-srm.json",
     "index": 56,
     "id": "clan-srm-5",
-    "sha256": "22e4168ddb51b5c74d046ff369d046ee7a5c7f464321a5bbb98808a801d20e9e",
+    "sha256": "c2f9727ccd81a64078df04080ccdae682a9ef20d1b7ce4275724a2c41c5376f3",
     "item": {
       "id": "clan-srm-5",
       "name": "SRM 5 (ProtoMech)",
@@ -11724,6 +11726,7 @@
       },
       "weight": 1.25,
       "criticalSlots": 0,
+      "ammoPerTon": 100,
       "costCBills": 50000,
       "battleValue": 47,
       "introductionYear": 3050,
@@ -13289,7 +13292,7 @@
     "file": "weapons/energy-ppc.json",
     "index": 4,
     "id": "snub-nose-ppc",
-    "sha256": "f3f1023cf3469915220dc49bdd02c2b2c28ecd95cb621931df88683f698013f3",
+    "sha256": "eaa36861cfb770971a64daa0e8161de73a0b41f8a5b3b7b7860e0cd49f965311",
     "item": {
       "id": "snub-nose-ppc",
       "name": "Snub-Nose PPC",
@@ -13309,7 +13312,7 @@
       "criticalSlots": 2,
       "costCBills": 300000,
       "battleValue": 165,
-      "introductionYear": 2784,
+      "introductionYear": 2695,
       "extinctionYear": 2790,
       "reintroductionYear": 3067
     }
@@ -13401,7 +13404,7 @@
     "file": "weapons/energy-other.json",
     "index": 1,
     "id": "tsemp-cannon",
-    "sha256": "2bbe6c1f3bbb688d48cea8c4f1a9d95d4617c345b1dbd2913e1c299688306189",
+    "sha256": "79c228d996f6c7d86720f32a2f7ba549045d224a690e73dc3f1a9ecc4ecdfd17",
     "item": {
       "id": "tsemp-cannon",
       "name": "TSEMP Cannon",
@@ -13421,7 +13424,7 @@
       "criticalSlots": 5,
       "costCBills": 800000,
       "battleValue": 488,
-      "introductionYear": 3109
+      "introductionYear": 3080
     }
   },
   {
@@ -13682,7 +13685,7 @@
     "file": "weapons/energy-other.json",
     "index": 11,
     "id": "battlemech-taser",
-    "sha256": "fbd223c63715c846160a296e0d8a24084aabdc2ec287f66fb472df2691224a0b",
+    "sha256": "ba626340301a6d9725cb7681c4249bf2c7a304bd779e68db92d7510ffdec58ba",
     "item": {
       "id": "battlemech-taser",
       "name": "BattleMech Taser",
@@ -13702,7 +13705,7 @@
       "criticalSlots": 3,
       "costCBills": 200000,
       "battleValue": 40,
-      "introductionYear": 3084,
+      "introductionYear": 3065,
       "special": ["Shuts down target"]
     }
   },
@@ -20957,7 +20960,7 @@
     "file": "electronics/c3.json",
     "index": 3,
     "id": "c3-boosted-master",
-    "sha256": "6cfc9574c2543d2da7a357459a29d0d5034121238408ee70ca1919f2802320ec",
+    "sha256": "0fd901d22530a82f7108d6b027c1ca3fbd37bfd9f59566e10c41f904d71ea6aa",
     "item": {
       "id": "c3-boosted-master",
       "name": "C3 Boosted Master",
@@ -20968,7 +20971,7 @@
       "criticalSlots": 6,
       "costCBills": 3000000,
       "battleValue": 0,
-      "introductionYear": 3100,
+      "introductionYear": 3073,
       "special": ["Coordinates up to 3 C3 slaves", "Extended range"]
     }
   },
@@ -21671,7 +21674,7 @@
     "file": "miscellaneous/defensive.json",
     "index": 4,
     "id": "reactive-armor",
-    "sha256": "7247ac6a2c8f68a564cf971bb8fbe77522627aeee4e45d8843101456caf2f494",
+    "sha256": "3499114d3819fcd167f7e288a3f0185f7406c0f09e409d699936fca2340dd57c",
     "item": {
       "id": "reactive-armor",
       "name": "Reactive Armor",
@@ -21682,7 +21685,7 @@
       "criticalSlots": 14,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3081,
+      "introductionYear": 3063,
       "special": [
         "Reduced damage from missiles and ballistics",
         "Increased damage from energy"
