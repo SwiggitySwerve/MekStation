@@ -18,7 +18,7 @@ test('aerospace adapter transports existing SI, weapon-pool and penalty terms', 
   expect(terms?.weaponBV).toBe(
     (terms?.weaponFirePoolBV ?? NaN) + (terms?.fuselageWeaponBV ?? NaN),
   );
-  expect(terms?.summaryModifier).toBeUndefined();
+  expect(terms?.summaryModifier).toBe(1);
 });
 
 const terms = {
