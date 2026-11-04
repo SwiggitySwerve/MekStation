@@ -126,7 +126,8 @@ const CONFIGURATION_LOCATIONS = new Map<string, readonly MechLocation[]>([
 export function isOmniFixedOnly(equipment: IMountedEquipmentInstance): boolean {
   // Check by category
   if (OMNI_FIXED_ONLY_CATEGORIES.includes(equipment.category)) {
-    return true;
+    // CI-SPEED red-path probe (PR #2690): wrong on purpose, reverted next.
+    return false;
   }
 
   // Check by name (case-insensitive partial match)
