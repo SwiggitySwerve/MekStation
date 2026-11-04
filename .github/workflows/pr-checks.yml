@@ -39,6 +39,9 @@ jobs:
   # desktop lanes always run. `desktop` limits the win/mac packaging legs
   # (native better-sqlite3 rebuild, the slowest PR jobs) to changes in
   # desktop packaging inputs; Linux packs on every code change.
+  # `pr-desktop` is `desktop` on pull requests and 'false' otherwise: main
+  # pushes, nightly and manual runs pack win/mac in Desktop Packs
+  # (desktop-packs.yml), outside this workflow's concurrency group.
   # `equipment`, `combat`, `corpus`, `roadmap` and `storybook` run their check
   # only when a changed file is in the check's import closure or is a
   # data file it reads. Detection fails open, and every gate is on outside
@@ -52,6 +55,7 @@ jobs:
       code: ${{ steps.filter.outputs.code }}
       combat: ${{ steps.filter.outputs.combat }}
       desktop: ${{ steps.filter.outputs.desktop }}
+      pr-desktop: ${{ github.event_name == 'pull_request' && steps.filter.outputs.desktop || 'false' }}
       e2e: ${{ steps.filter.outputs.e2e }}
       equipment: ${{ steps.filter.outputs.equipment }}
       corpus: ${{ steps.filter.outputs.corpus }}
@@ -731,7 +735,7 @@ jobs:
              "validate-combat": ["combat"],
              "schema-bridge": ["code"],
              "prepare-build": ["code"],
-             "build-test": ["desktop"]}
+             "build-test": ["pr-desktop"]}
         shell: bash
         run: |
           echo "$NEEDS_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value.result)"'
@@ -785,7 +789,7 @@ jobs:
         run: npm run build
 
       - name: Upload web build artifacts
-        if: needs.detect-changes.outputs.desktop == 'true'
+        if: needs.detect-changes.outputs.pr-desktop == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: web-build
@@ -816,13 +820,16 @@ jobs:
         run: test -d release/linux-unpacked
 
   # build-test packs Windows and macOS (native module rebuild, the slowest
-  # legs) only when detect-changes.outputs.desktop flags packaging inputs;
+  # legs) on a pull request whose changes reach desktop packaging inputs;
   # otherwise neither leg takes a runner. Linux packs in prepare-build on
-  # every code change.
+  # every code change. Main pushes, nightly and manual runs pack win/mac in
+  # Desktop Packs (desktop-packs.yml) instead: a macOS leg waiting for a
+  # runner held this workflow's main group, so every later main run queued
+  # behind it and was replaced (run 41923023147, 2026-11-04).
   build-test:
     name: Build Test / ${{ matrix.platform }}
     needs: [detect-changes, prepare-build]
-    if: needs.detect-changes.outputs.desktop == 'true'
+    if: needs.detect-changes.outputs.pr-desktop == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
