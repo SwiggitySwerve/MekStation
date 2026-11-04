@@ -17,8 +17,10 @@ export function resolveNativeAmmoBin(
   name?: string,
 ): { ammoId: string; shots: number } | undefined {
   if (!isAmmunitionEquipmentId(id)) return undefined;
+  // BLKFile.java:279-291,361-365 (48fcb2f64): retain shots before identity lookup.
+  const nativeCount = id.match(/:shots(\d+)#/i);
   const token = id.replace(/:omni$/i, '');
-  const override = token.match(/:(\d+)$/);
+  const override = nativeCount ?? token.match(/:(\d+)$/);
   const entry =
     getAmmunitionWeightEntry(token.replace(/:\d+$/, '')) ??
     (name
@@ -27,7 +29,13 @@ export function resolveNativeAmmoBin(
         )
       : undefined);
   if (!entry) return undefined;
-  const shots = override ? Number(override[1]) : entry.shotsPerTon;
+  // A native zero leaves AmmoMounted at its default; legacy :0 is an empty bin.
+  const shots =
+    nativeCount && Number(nativeCount[1]) === 0
+      ? entry.shotsPerTon
+      : override
+        ? Number(override[1])
+        : entry.shotsPerTon;
   return shots !== undefined && Number.isSafeInteger(shots) && shots >= 0
     ? { ammoId: entry.id, shots }
     : undefined;
