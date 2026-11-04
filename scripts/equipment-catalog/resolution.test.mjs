@@ -47,7 +47,53 @@ export const APPROVED_JAVA_REROUTES = [
     newTarget: 'issniper-registry',
     reason:
       'L-EQ3/java-registry.json[ISSniper] at pinned 48fcb2f6; weapons/artillery/Sniper.java, BV 85; CAT-Q1 HANDBACK Helepolis/Orion note',
+    weapon: true,
   },
+  // Follow-up 79 alias identity fixes: each native name's Java default lookup
+  // owner is the same for every tech (L-EQ3 java-registry.json.lookups.json).
+  ...[
+    [
+      'ISBAHeavyMG',
+      'baheavymg',
+      'isbaheavymachinegun-registry',
+      'weapons/battleArmor/innerSphere/ISBAMGHeavy.java:55',
+    ],
+    [
+      'ISSRM4OS',
+      'srm-4',
+      'issrm4os-registry',
+      'weapons/srms/innerSphere/oneShot/ISSRM4OS.java:60',
+    ],
+    [
+      'SRM 2 (I-OS)',
+      'srm2-ios',
+      'issrm2ios-registry',
+      'weapons/srms/innerSphere/oneShot/ISSRM2IOS.java:61',
+    ],
+    [
+      'SRM 4 (I-OS)',
+      'srm4-ios',
+      'issrm4ios-registry',
+      'weapons/srms/innerSphere/oneShot/ISSRM4IOS.java:61',
+    ],
+  ].map(([name, oldTarget, newTarget, source]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    reason: `Follow-up 79; pinned 48fcb2f6 ${source}`,
+    weapon: true,
+  })),
+  // EquipmentNameMapper's tech-tag form; Java's CLAN lookup is the same item.
+  ...[
+    ['SRM 2 (I-OS) (Clan)', 'srm2-ios', 'issrm2ios-registry'],
+    ['SRM 4 (I-OS) (Clan)', 'srm4-ios', 'issrm4ios-registry'],
+  ].map(([name, oldTarget, newTarget]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    reason: 'Follow-up 79; mapper tag form of the route above',
+    tagForm: true,
+  })),
 ];
 async function capture(root, inputs) {
   process.chdir(root);
@@ -470,12 +516,13 @@ if (process.argv.includes('--capture')) {
       JSON.stringify({ shifts, allowed, gains }, null, 2) + '\n',
     );
     for (const route of APPROVED_JAVA_REROUTES) {
+      if (route.tagForm) continue;
       assert.equal(
         targetOf(after, 'equipment', route.name),
         route.newTarget,
         route.name,
       );
-      if (route.name !== 'Sniper')
+      if (!route.weapon)
         assert.equal(
           targetOf(after, 'ammunition', route.name),
           route.newTarget,
