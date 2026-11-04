@@ -27,7 +27,13 @@ export function vaultMintResponse(issued: {
   readonly wireToken: string;
   readonly playerId: string;
   readonly displayName: string;
-}) {
+}): {
+  token: string;
+  playerId: string;
+  displayName: string;
+  publicKey: string;
+  expiresAt: string;
+} {
   const { publicKey, expiresAt } = JSON.parse(
     Buffer.from(issued.wireToken, 'base64').toString('utf8'),
   ) as { publicKey: string; expiresAt: string };
