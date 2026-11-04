@@ -67,7 +67,10 @@
     "ISStreakSRM2IOS": "isstreaksrm2ios-registry",
     "ISStreakSRM4IOS": "isstreaksrm4ios-registry",
     "ISStreakSRM6IOS": "isstreaksrm6ios-registry",
-    "ISC3RemoteSensorLauncher": "isc3remotesensorlauncher-registry"
+    "ISC3RemoteSensorLauncher": "isc3remotesensorlauncher-registry",
+    "CLBALRM5 (OS)": "clbalrm5-os-registry",
+    "CLBASRM2 (OS)": "clbasrm2-os-registry",
+    "CLBASRM3 (OS)": "clbasrm3-os-registry"
   },
   "previousIds": {
     "is-lb-2-x-ac-ammo-registry": "clan-lb-2-x-ac",

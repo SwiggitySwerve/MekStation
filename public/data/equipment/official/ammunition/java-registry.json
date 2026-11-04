@@ -492,6 +492,7 @@
       "compatibleWeaponIds": [
         "clbalrm5-registry",
         "isbalrm5-registry",
+        "clbalrm5-os-registry",
         "clan-lrm-5",
         "lrm-5",
         "cllrm5-os-registry",
@@ -504,7 +505,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: BACL Ammo LRM-5",
         "Java ammoType:rackSize LRM:5",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLBALRM5 (OS), ISBALRM5OS, CLLRM5 (IOS)"
+        "Unrepresented compatible Java weapons: ISBALRM5OS, CLLRM5 (IOS)"
       ]
     },
     {
@@ -933,7 +934,8 @@
         "balrm5-os",
         "lrm-5-i-os-registry",
         "clbalrm5-registry",
-        "isbalrm5-registry"
+        "isbalrm5-registry",
+        "clbalrm5-os-registry"
       ],
       "costPerTon": 30000,
       "isExplosive": true,
@@ -941,7 +943,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo LRM-5",
         "Java ammoType:rackSize LRM:5",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLLRM5 (IOS), CLBALRM5 (OS), ISBALRM5OS"
+        "Unrepresented compatible Java weapons: CLLRM5 (IOS), ISBALRM5OS"
       ]
     },
     {
@@ -1147,6 +1149,7 @@
         "issrm2ios-registry",
         "clbasrm2-registry",
         "isbasrm2-registry",
+        "clbasrm2-os-registry",
         "isbasrm2os-registry"
       ],
       "costPerTon": 27000,
@@ -1155,7 +1158,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-2",
         "Java ammoType:rackSize SRM:2",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM2 (IOS), ISSRM2OS, CLBASRM2 (OS)"
+        "Unrepresented compatible Java weapons: CLSRM2 (IOS), ISSRM2OS"
       ]
     },
     {
@@ -1175,6 +1178,7 @@
         "clsrm3os-registry",
         "basrm3",
         "isbasrm3-registry",
+        "clbasrm3-os-registry",
         "isbasrm3os-registry"
       ],
       "costPerTon": 0,
@@ -1183,7 +1187,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-3",
         "Java ammoType:rackSize SRM:3",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM3, CLBASRM3 (OS)"
+        "Unrepresented compatible Java weapons: CLSRM3"
       ]
     },
     {
@@ -2090,7 +2094,8 @@
         "balrm5-os",
         "cllrm5-os-registry",
         "isbalrm5-registry",
-        "clbalrm5-registry"
+        "clbalrm5-registry",
+        "clbalrm5-os-registry"
       ],
       "costPerTon": 60000,
       "isExplosive": true,
@@ -2098,7 +2103,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo LRM-5 Artemis-capable",
         "Java ammoType:rackSize LRM:5",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: CLLRM5 (IOS), ISBALRM5OS, CLBALRM5 (OS)"
+        "Unrepresented compatible Java weapons: CLLRM5 (IOS), ISBALRM5OS"
       ]
     },
     {
@@ -2607,7 +2612,8 @@
         "clsrm2-os-registry",
         "isbasrm2-registry",
         "clbasrm2-registry",
-        "isbasrm2os-registry"
+        "isbasrm2os-registry",
+        "clbasrm2-os-registry"
       ],
       "costPerTon": 54000,
       "isExplosive": true,
@@ -2615,7 +2621,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo SRM-2 Narc-capable",
         "Java ammoType:rackSize SRM:2",
         "Java munitions: M_NARC_CAPABLE",
-        "Unrepresented compatible Java weapons: ISSRM2OS, CLSRM2 (IOS), CLBASRM2 (OS)"
+        "Unrepresented compatible Java weapons: ISSRM2OS, CLSRM2 (IOS)"
       ]
     },
     {
