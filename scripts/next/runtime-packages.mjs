@@ -222,8 +222,23 @@ export async function collectRuntimePackages(
       visit(name, path.resolve(root, input));
     }
   }
+  // src and public already have owning copy boundaries. Supplement them with
+  // imported repository files (for example catalog facts under scripts/).
+  const sourceRoots = ['src', 'public'].map((directory) =>
+    path.join(root, directory),
+  );
+  const files = Object.keys(metafile.inputs)
+    .map((input) => path.resolve(root, input))
+    .filter(
+      (file) =>
+        path.relative(root, file) !== 'server.js' &&
+        sourceRoots.every((directory) => isOutside(directory, file)),
+    )
+    .sort();
+  for (const file of files) preflightSource(file);
   return {
     requests: [...requests].sort(),
+    files,
     // Parents first: replacing a package must not erase its nested versions.
     directories: [...directories].sort(
       (a, b) =>
