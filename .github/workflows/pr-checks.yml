@@ -17,10 +17,11 @@ on:
   workflow_dispatch:
 
 # A new push to the same PR supersedes the in-flight run; without this,
-# superseded runs burn to completion (~52 job-minutes each). Main runs are
-# never cancelled: a newer main push waits for the running one.
+# superseded runs burn to completion (~52 job-minutes each). Every other
+# run (main pushes, nightly, manual) gets a group of its own, so none is
+# cancelled or replaced while pending: each main commit is checked.
 concurrency:
-  group: pr-checks-${{ github.ref }}
+  group: pr-checks-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:

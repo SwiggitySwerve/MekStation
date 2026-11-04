@@ -134,18 +134,23 @@ export const CLOSURE_GATES = {
     entries(root) {
       return jestSuites(root).roadmapSuites;
     },
-    data: [/^scripts\/qc\//, /^openspec\//, /^config\/jest\//],
     // These tests read openspec/ files, so docs/openspec-only PRs run them.
-    withoutCode: true,
+    data: [/^scripts\/qc\//, /^openspec\//, /^config\/jest\//],
   },
   // Statistical Proof PR: the 100-game combat proof. simulation-system
   // "Statistical Validation" requires it before a combat-affecting PR
   // merges, so it runs whenever a PR touches its import closure.
+  // Its import closure does not reach every combat rule (session actions in
+  // src/engine are dispatched, not imported), so the combat domain trees
+  // count as inputs too.
   statistical: {
     entries() {
       return ['src/simulation/__tests__/integration.test.ts'];
     },
-    data: [/^public\/data\//],
+    data: [
+      /^public\/data\//,
+      /^src\/(engine|simulation|utils\/gameplay|types\/gameplay)\//,
+    ],
   },
   // Build Storybook: every story, the .storybook config, and the CSS and
   // static files it bundles.
@@ -226,36 +231,44 @@ function toRel(root, abs) {
   return path.relative(root, abs).split(path.sep).join('/');
 }
 
-function resolveBase(root, base) {
-  for (const suffix of RESOLVE_SUFFIXES) {
-    const candidate = base + suffix;
-    if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
-      return candidate;
-    }
-  }
-  // A '.js' specifier that names a TypeScript source.
+/** Every file an import base could name, in resolution order. */
+function importCandidates(base) {
+  // The last two: a '.js' specifier that names a TypeScript source.
   const stripped = base.replace(/\.(c|m)?js$/, '');
-  for (const suffix of ['.ts', '.tsx']) {
-    if (fs.existsSync(stripped + suffix)) return stripped + suffix;
-  }
-  return null;
+  return [
+    ...RESOLVE_SUFFIXES.map((suffix) => base + suffix),
+    stripped + '.ts',
+    stripped + '.tsx',
+  ];
 }
 
-function resolveImport(root, fromFile, specifier) {
-  let base;
+function resolveBase(root, base) {
+  return (
+    importCandidates(base).find(
+      (candidate) =>
+        fs.existsSync(candidate) && fs.statSync(candidate).isFile(),
+    ) ?? null
+  );
+}
+
+function importBase(fromFile, root, specifier) {
   if (specifier.startsWith('@/')) {
-    base = path.join(root, 'src', specifier.slice(2));
-  } else if (specifier.startsWith('.')) {
-    base = path.resolve(path.dirname(fromFile), specifier);
-  } else {
-    return null; // a package: covered by the package-lock.json global rule
+    return path.join(root, 'src', specifier.slice(2));
   }
-  return resolveBase(root, base);
+  if (specifier.startsWith('.')) {
+    return path.resolve(path.dirname(fromFile), specifier);
+  }
+  return null; // a package: covered by the package-lock.json global rule
 }
 
-/** Repo-relative paths of every local file the entries import, transitively. */
+/**
+ * Repo-relative paths of every local file the entries import, transitively.
+ * A local import that resolves to nothing (its file deleted in this change)
+ * contributes every path it could have named, so the deletion still counts.
+ */
 export function importClosure(root, entries) {
   const seen = new Set();
+  const missing = new Set();
   const stack = entries.map((entry) => path.resolve(root, entry));
   while (stack.length > 0) {
     const file = stack.pop();
@@ -265,20 +278,47 @@ export function importClosure(root, entries) {
     const text = fs.readFileSync(file, 'utf8');
     for (const m of text.matchAll(IMPORT_RE)) {
       const specifier = m[1] ?? m[2] ?? m[3] ?? m[4] ?? m[5];
-      const resolved = resolveImport(root, file, specifier);
-      if (resolved && !seen.has(resolved)) stack.push(resolved);
+      const base = importBase(file, root, specifier);
+      if (!base) continue;
+      const resolved = resolveBase(root, base);
+      if (!resolved) {
+        for (const candidate of importCandidates(base)) missing.add(candidate);
+        continue;
+      }
+      if (!seen.has(resolved)) stack.push(resolved);
     }
   }
-  return new Set([...seen].map((file) => toRel(root, file)));
+  return new Set([...seen, ...missing].map((file) => toRel(root, file)));
 }
 
 // One process decides once, but the tests call decide() many times.
 const closureCache = new Map();
 
+// Repo files a closure file names by path in its text, e.g. catalog source
+// references ('src/x.ts#L10-L20') that tests read to check line anchors.
+const SRC_PATH_RE = /src\/[A-Za-z0-9_.\/-]+?\.(?:tsx?|mjs|cjs|js|json)\b/g;
+
+export function referencedFiles(root, files) {
+  const found = new Set();
+  for (const file of files) {
+    if (!/\.(ts|tsx|js|jsx|mjs|cjs)$/.test(file)) continue;
+    // Closures also hold candidate paths of deleted imports; nothing to read.
+    if (!fs.existsSync(path.join(root, file))) continue;
+    const text = fs.readFileSync(path.join(root, file), 'utf8');
+    for (const m of text.matchAll(SRC_PATH_RE)) {
+      // Kept even when missing: deleting a cited file breaks its anchor.
+      found.add(m[0]);
+    }
+  }
+  return found;
+}
+
 function gateClosure(root, name, gate) {
   const key = `${root}|${name}`;
   if (!closureCache.has(key)) {
-    closureCache.set(key, importClosure(root, gate.entries(root)));
+    const closure = importClosure(root, gate.entries(root));
+    for (const file of referencedFiles(root, closure)) closure.add(file);
+    closureCache.set(key, closure);
   }
   return closureCache.get(key);
 }
@@ -308,10 +348,8 @@ export function decide(root, changed) {
     e2e: changed.some((file) => matchesAny(file, E2E)),
   };
   for (const [name, gate] of Object.entries(CLOSURE_GATES)) {
-    if (!code && !gate.withoutCode) {
-      gates[name] = false;
-      continue;
-    }
+    // Runtime data rules apply whether or not code changed (an OpenSpec-only
+    // change to the combat spec still runs Validate Combat Suite).
     const closure = gateClosure(root, name, gate);
     gates[name] = changed.some(
       (file) => closure.has(file) || matchesAny(file, gate.data),
