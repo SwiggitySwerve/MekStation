@@ -18,14 +18,14 @@ on:
 
 # A new push to the same PR supersedes the in-flight run; without this,
 # superseded runs burn to completion. Main pushes, nightly and manual runs
-# share one group that never cancels the running run: a newer one replaces
-# only a run still pending, and the tip it checks contains every replaced
-# commit (nightly is the backstop). Per-commit main runs queued five deep
-# at ~5 merges an hour (2026-11-04) and starved pull requests of the 20
-# shared runners. A failing coalesced run: re-run PR Checks on the
-# intermediate SHAs (`gh workflow run pr-checks.yml --ref <sha>`).
+# each get their own group, so none is cancelled or replaced: every main
+# commit gets its own result, and its unit and corpus shards save the Jest
+# result seed that pull requests restore minutes after the merge. A shared
+# main group replaced every run still pending, and the run in progress made
+# the next one wait for its slowest job, so PRs restored a seed several
+# merges old (CI-SPEED lane B, 2026-11-04).
 concurrency:
-  group: pr-checks-${{ github.event_name == 'pull_request' && github.ref || 'main' }}
+  group: pr-checks-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
@@ -364,13 +364,26 @@ jobs:
       # sampled skips are re-run to prove the cache honest. Main pushes,
       # nightly and manual runs run every file uncached and record passes.
       # Any doubt runs the file.
-      - name: Restore Jest result cache
+      # Main's newest seed, then (on a PR) the PR's own earlier passes on
+      # top. Entries are files named by their key, so the two merge. The
+      # `main`/`pr` prefixes keep a PR's own entry from shadowing a newer
+      # main seed (the cache searches the PR's ref before main's).
+      - name: Restore Jest result seed from main
         uses: actions/cache/restore@v5
         with:
           path: .jest-result-cache
-          key: ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-${{ github.run_id }}
+          key: ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-main-${{ github.run_id }}
           restore-keys: |
-            ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-
+            ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-main-
+
+      - name: Restore this PR's Jest results
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/cache/restore@v5
+        with:
+          path: .jest-result-cache
+          key: ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-pr-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-pr-
 
       - name: Run unit test shard
         run: >-
@@ -383,14 +396,16 @@ jobs:
           JEST_EXCLUDE_PERF_SENSITIVE: 'true'
           JEST_SPLIT_CORPUS: 'true'
 
-      # Every run saves: a PR's later pushes reuse its own passes, and PRs
-      # read main's. Cache scoping keeps a PR's entries out of main's runs.
+      # Saved straight after the tests, even if the run is then cancelled:
+      # a PR's later pushes reuse its own passes, and PRs read main's.
+      # Cache scoping keeps a PR's entries out of main's runs. Only passes
+      # are recorded, so a failing shard adds nothing.
       - name: Save Jest result cache
-        if: ${{ !cancelled() }}
+        if: ${{ always() }}
         uses: actions/cache/save@v5
         with:
           path: .jest-result-cache
-          key: ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-${{ github.run_id }}
+          key: ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-${{ github.event_name == 'pull_request' && 'pr' || 'main' }}-${{ github.run_id }}
 
       - name: Save Jest transform cache
         if: ${{ !cancelled() && github.event_name != 'pull_request' }}
@@ -425,13 +440,26 @@ jobs:
           node-version: '22'
           build-caches: 'false'
 
-      - name: Restore Jest result cache
+      # Main's newest seed, then (on a PR) the PR's own earlier passes on
+      # top. Entries are files named by their key, so the two merge. The
+      # `main`/`pr` prefixes keep a PR's own entry from shadowing a newer
+      # main seed (the cache searches the PR's ref before main's).
+      - name: Restore Jest result seed from main
         uses: actions/cache/restore@v5
         with:
           path: .jest-result-cache
-          key: ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-${{ github.run_id }}
+          key: ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-main-${{ github.run_id }}
           restore-keys: |
-            ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-
+            ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-main-
+
+      - name: Restore this PR's Jest results
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/cache/restore@v5
+        with:
+          path: .jest-result-cache
+          key: ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-pr-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-pr-
 
       - name: Run corpus test shard
         run: >-
@@ -444,11 +472,11 @@ jobs:
           JEST_SPLIT_CORPUS: 'true'
 
       - name: Save Jest result cache
-        if: ${{ !cancelled() }}
+        if: ${{ always() }}
         uses: actions/cache/save@v5
         with:
           path: .jest-result-cache
-          key: ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-${{ github.run_id }}
+          key: ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-${{ github.event_name == 'pull_request' && 'pr' || 'main' }}-${{ github.run_id }}
 
   validate-combat:
     name: Validate Combat Suite
