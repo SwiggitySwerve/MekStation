@@ -27,6 +27,18 @@ export interface VehicleBVStructureLayout {
   secondaryTurretKind?: VehicleTurretKind;
 }
 
+/** The existing construction owner decides Tank versus six-side native layout. */
+export function hasSixSideVehicleHull(
+  layout: Pick<
+    VehicleBVStructureLayout,
+    'tonnage' | 'motionType' | 'isSupportVehicle'
+  >,
+): boolean {
+  return layout.isSupportVehicle
+    ? isLargeSupportVehicle(layout.tonnage, layout.motionType)
+    : isSuperHeavyTank(layout.motionType, layout.tonnage);
+}
+
 /** Tank.autoSetInternal; SuperHeavyTank changes the layout, not points per location. */
 export function computeVehicleBVStructurePoints(
   layout: VehicleBVStructureLayout,
@@ -40,9 +52,7 @@ export function computeVehicleBVStructurePoints(
       : installed(layout.turretKind)
         ? 1
         : 0;
-  const sixSideHull = layout.isSupportVehicle
-    ? isLargeSupportVehicle(layout.tonnage, layout.motionType)
-    : isSuperHeavyTank(layout.motionType, layout.tonnage);
+  const sixSideHull = hasSixSideVehicleHull(layout);
   const count = locations
     ? new Set(locations.filter((location) => location.toLowerCase() !== 'body'))
         .size
