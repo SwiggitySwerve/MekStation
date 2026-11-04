@@ -10,6 +10,7 @@ import { InfantryUnitHandler } from '../src/services/units/handlers/InfantryUnit
 import { ProtoMechUnitHandler } from '../src/services/units/handlers/ProtoMechUnitHandler';
 import { UnitTypeRegistry } from '../src/services/units/UnitTypeRegistry';
 import { UnitContract } from '../src/types/contracts/generated/unit.zod';
+import { battleArmorBVTerms } from '../src/utils/construction/battlearmor/battleArmorBV';
 import { calculateBattleValueForUnit } from '../src/utils/construction/battleValueCalculations';
 import {
   calculateUnitBV as runtimeBV,
@@ -95,6 +96,7 @@ export function calculateRow(raw: unknown): IComputedRow {
                 ...result.breakdown,
                 ...result.breakdown.perTrooper.defensive,
                 ...result.breakdown.perTrooper.offensive,
+                ...battleArmorBVTerms(result.breakdown),
               }),
             },
           };

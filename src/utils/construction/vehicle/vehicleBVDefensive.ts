@@ -60,14 +60,15 @@ export function calculateVehicleDefensiveBV(
 
   const baseDef =
     armorBV + structureBV + defensiveEquipmentBV - explosivePenalty;
-  const total =
-    baseDef * getVehicleDefensiveTypeModifier(input) * defensiveFactor;
+  const typeModifier = getVehicleDefensiveTypeModifier(input);
+  const total = baseDef * typeModifier * defensiveFactor;
 
   return {
     armorBV,
     structureBV,
     defensiveEquipmentBV,
     explosivePenalty,
+    typeModifier,
     defensiveFactor,
     tmm,
     total,
