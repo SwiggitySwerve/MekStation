@@ -1,0 +1,225 @@
+{
+  "java": [
+    {
+      "javaClass": "megamek.common.weapons.capitalWeapons.naval.NGaussWeaponLight",
+      "internalName": "Naval Gauss (Light)",
+      "name": "Naval Gauss (Light)",
+      "aliases": [
+        "Naval Gauss (Light)",
+        "LightNGauss",
+        "CLLightNGauss",
+        "Light N-Gauss (Clan)"
+      ],
+      "tech": "ALL",
+      "bv": 3024.0,
+      "tons": 4500.0
+    },
+    {
+      "javaClass": "megamek.common.weapons.capitalWeapons.naval.NGaussWeaponMedium",
+      "internalName": "Naval Gauss (Medium)",
+      "name": "Naval Gauss (Medium)",
+      "aliases": [
+        "Naval Gauss (Medium)",
+        "MediumNGauss",
+        "CLMediumNGauss",
+        "Medium N-Gauss (Clan)"
+      ],
+      "tech": "ALL",
+      "bv": 5040.0,
+      "tons": 5500.0
+    },
+    {
+      "javaClass": "megamek.common.weapons.capitalWeapons.naval.NGaussWeaponHeavy",
+      "internalName": "Naval Gauss (Heavy)",
+      "name": "Naval Gauss (Heavy)",
+      "aliases": [
+        "Naval Gauss (Heavy)",
+        "HeavyNGauss",
+        "CLHeavyNGauss",
+        "Heavy N-Gauss (Clan)"
+      ],
+      "tech": "ALL",
+      "bv": 6048.0,
+      "tons": 7000.0
+    },
+    {
+      "javaClass": "megamek.common.equipment.AmmoType",
+      "internalName": "Ammo Light N-Gauss",
+      "name": "Light N-Gauss Ammo",
+      "aliases": ["Ammo Light N-Gauss", "LightNGauss Ammo"],
+      "tech": "ALL",
+      "bv": 378.0,
+      "tons": 0.2
+    },
+    {
+      "javaClass": "megamek.common.equipment.AmmoType",
+      "internalName": "Ammo Medium N-Gauss",
+      "name": "Medium N-Gauss Ammo",
+      "aliases": ["Ammo Medium N-Gauss", "MediumNGauss Ammo"],
+      "tech": "ALL",
+      "bv": 630.0,
+      "tons": 0.4
+    },
+    {
+      "javaClass": "megamek.common.equipment.AmmoType",
+      "internalName": "Ammo Heavy N-Gauss",
+      "name": "Heavy N-Gauss Ammo",
+      "aliases": ["Ammo Heavy N-Gauss", "HeavyNGauss Ammo"],
+      "tech": "ALL",
+      "bv": 756.0,
+      "tons": 0.5
+    }
+  ],
+  "facts": {
+    "Naval Gauss (Light)": {
+      "criticalSlots": 0.0,
+      "cost": 20300000.0,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2435,
+      "extinctionYear": -1,
+      "reintroductionYear": 3052,
+      "isExplosive": true,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Ballistic",
+      "damage": 15,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 9,
+      "ranges": {
+        "long": 40,
+        "extreme": 56,
+        "short": 14,
+        "minimum": 0,
+        "medium": 28
+      },
+      "ammoType": "LIGHT_NGAUSS",
+      "rackSize": 0
+    },
+    "Naval Gauss (Medium)": {
+      "criticalSlots": 0.0,
+      "cost": 30350000.0,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2435,
+      "extinctionYear": -1,
+      "reintroductionYear": 3052,
+      "isExplosive": true,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Ballistic",
+      "damage": 25,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 15,
+      "ranges": {
+        "long": 39,
+        "extreme": 52,
+        "short": 13,
+        "minimum": 0,
+        "medium": 26
+      },
+      "ammoType": "MED_NGAUSS",
+      "rackSize": 0
+    },
+    "Naval Gauss (Heavy)": {
+      "criticalSlots": 0.0,
+      "cost": 50050000.0,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2435,
+      "extinctionYear": -1,
+      "reintroductionYear": 3052,
+      "isExplosive": true,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Ballistic",
+      "damage": 30,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 18,
+      "ranges": {
+        "long": 36,
+        "extreme": 48,
+        "short": 12,
+        "minimum": 0,
+        "medium": 24
+      },
+      "ammoType": "HEAVY_NGAUSS",
+      "rackSize": 0
+    },
+    "Ammo Light N-Gauss": {
+      "criticalSlots": 1.0,
+      "cost": 45000.0,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2435,
+      "extinctionYear": -1,
+      "reintroductionYear": 3052,
+      "isExplosive": true,
+      "kind": "ammunition",
+      "shots": 1,
+      "kgPerShot": 1000.0,
+      "usedByProto": false,
+      "ammoType": "LIGHT_NGAUSS",
+      "category": "Other",
+      "munitions": ["M_STANDARD"],
+      "rackSize": 0,
+      "compatible": ["Naval Gauss (Light)"]
+    },
+    "Ammo Medium N-Gauss": {
+      "criticalSlots": 1.0,
+      "cost": 75000.0,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2435,
+      "extinctionYear": -1,
+      "reintroductionYear": 3052,
+      "isExplosive": true,
+      "kind": "ammunition",
+      "shots": 1,
+      "kgPerShot": 1000.0,
+      "usedByProto": false,
+      "ammoType": "MED_NGAUSS",
+      "category": "Other",
+      "munitions": ["M_STANDARD"],
+      "rackSize": 0,
+      "compatible": ["Naval Gauss (Medium)"]
+    },
+    "Ammo Heavy N-Gauss": {
+      "criticalSlots": 1.0,
+      "cost": 90000.0,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2435,
+      "extinctionYear": -1,
+      "reintroductionYear": 3052,
+      "isExplosive": true,
+      "kind": "ammunition",
+      "shots": 1,
+      "kgPerShot": 1000.0,
+      "usedByProto": false,
+      "ammoType": "HEAVY_NGAUSS",
+      "category": "Other",
+      "munitions": ["M_STANDARD"],
+      "rackSize": 0,
+      "compatible": ["Naval Gauss (Heavy)"]
+    }
+  }
+}
