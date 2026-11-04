@@ -10,6 +10,7 @@ import { InfantryUnitHandler } from '../src/services/units/handlers/InfantryUnit
 import { ProtoMechUnitHandler } from '../src/services/units/handlers/ProtoMechUnitHandler';
 import { UnitTypeRegistry } from '../src/services/units/UnitTypeRegistry';
 import { UnitContract } from '../src/types/contracts/generated/unit.zod';
+import { battleArmorBVTerms } from '../src/utils/construction/battlearmor/battleArmorBV';
 import { calculateBattleValueForUnit } from '../src/utils/construction/battleValueCalculations';
 import {
   calculateUnitBV as runtimeBV,
@@ -19,6 +20,7 @@ import {
   contractUnitToBVUnit,
   type IContractBVSource,
 } from '../src/utils/construction/contractBVUnitAdapter';
+import { mechBVTerms } from '../src/utils/construction/mechBV/bvTrace';
 import { protoMechBVTerms } from '../src/utils/construction/protomech';
 import {
   buildDeltaReport,
@@ -95,6 +97,7 @@ export function calculateRow(raw: unknown): IComputedRow {
                 ...result.breakdown,
                 ...result.breakdown.perTrooper.defensive,
                 ...result.breakdown.perTrooper.offensive,
+                ...battleArmorBVTerms(result.breakdown),
               }),
             },
           };
@@ -165,14 +168,7 @@ export function calculateRow(raw: unknown): IComputedRow {
           defensive: result.breakdown?.defensiveBV ?? NaN,
           offensive: result.breakdown?.offensiveBV ?? NaN,
           terms: result.breakdown
-            ? {
-                ...numericTerms(result.breakdown),
-                structureBV:
-                  result.breakdown.structureBV + result.breakdown.gyroBV,
-                defensiveEquipmentBV: result.breakdown.defensiveEquipBV,
-                offensiveEquipmentBV: result.breakdown.offEquipBV,
-                weightBV: result.breakdown.weightBonus,
-              }
+            ? numericTerms(mechBVTerms(result.breakdown))
             : undefined,
         },
         runtimeTotal,

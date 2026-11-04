@@ -24,6 +24,7 @@ describe('DropShip final stage and complete scope (MegaMek 48fcb2f64)', () => {
     ).toMatchObject({ baseBV: 1, final: 2 });
     expect(calculateDropShipFinalBV(1632, 2339.75)).toEqual({
       baseBV: 3972,
+      summaryModifier: 1,
       pilotMultiplier: 1,
       final: 3972,
     });
