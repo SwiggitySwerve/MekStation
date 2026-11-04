@@ -28,6 +28,7 @@ import { getPilotSkillModifier } from '@/types/validation/BattleValue';
 import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
 import { calculateAmmoBVWithExcessiveCap } from '../battleValueOffensive';
 import { resolveAmmoBV, resolveEquipmentBV } from '../equipmentBVResolver';
+import { infantryBVTerms } from './bvTrace';
 import {
   infantryDefensiveFactor,
   infantrySpecializationModifier,
@@ -354,6 +355,7 @@ export function calculateInfantryBV(
   const troopers = Math.max(0, input.totalTroopers);
   let platoonCore =
     perTrooper * troopers * motiveMultiplier * antiMechMultiplier;
+  let sourceCoreWeaponBV: number | undefined;
   if (source) {
     const repeat =
       ((primary?.archaic ? 0 : primaryBV) +
@@ -365,7 +367,8 @@ export function calculateInfantryBV(
       (source.augmentations.includes('tsm_implant') ? 0.1 : 0) +
       (source.augmentations.includes('suicide_implants') ? 0.12 : 0) +
       (source.prostheticDamage ?? 0);
-    platoonCore = (perTrooper + repeat + bonus) * troopers * motiveMultiplier;
+    sourceCoreWeaponBV = (perTrooper + repeat + bonus) * troopers;
+    platoonCore = sourceCoreWeaponBV * motiveMultiplier;
   }
 
   const fieldGunResult = calculateInfantryFieldGunBV(input.fieldGuns);
@@ -379,19 +382,31 @@ export function calculateInfantryBV(
     input.piloting,
   );
   // InfantryBVCalculator.java:65-113, 247-301; BVCalculator.java:1253-1276.
-  const defensiveBV =
+  const structureBV =
     troopers *
-    (1.5 * (input.damageDivisor ?? 1) +
-      (input.hasPheromoneEffuser ? 0.05 : 0)) *
-    infantryDefensiveFactor(source, input.armorFlags, input.hasArmorKit);
-  const baseBV =
-    (defensiveBV + platoonBV) *
-    infantrySpecializationModifier(source?.specializations ?? 0);
+    (1.5 * (input.damageDivisor ?? 1) + (input.hasPheromoneEffuser ? 0.05 : 0));
+  const defensiveFactor = infantryDefensiveFactor(
+    source,
+    input.armorFlags,
+    input.hasArmorKit,
+  );
+  const defensiveBV = structureBV * defensiveFactor;
+  const summaryModifier = infantrySpecializationModifier(
+    source?.specializations ?? 0,
+  );
+  const baseBV = (defensiveBV + platoonBV) * summaryModifier;
   const final = Math.round(
     (source ? Math.round(baseBV) : baseBV) * pilotMultiplier,
   );
 
-  return {
+  return infantryBVTerms({
+    baseBV,
+    structureBV,
+    defensiveFactor,
+    summaryModifier,
+    ...(sourceCoreWeaponBV === undefined
+      ? {}
+      : { weaponBV: sourceCoreWeaponBV + fieldGunResult.weaponBV }),
     defensiveBV,
     perTrooper,
     motiveMultiplier,
@@ -406,5 +421,5 @@ export function calculateInfantryBV(
     fieldGunWeaponBV: fieldGunResult.weaponBV,
     fieldGunAmmoBV: fieldGunResult.ammoBV,
     troopers,
-  };
+  });
 }
