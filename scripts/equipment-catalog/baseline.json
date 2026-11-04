@@ -27455,7 +27455,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 253,
+    "index": 255,
     "id": "alamomissile-registry",
     "sha256": "cfe240a775dabbd8a2dc46f0b146f6e7b282e0dbc86aeb723087ba112c8181dc",
     "item": {
@@ -27486,7 +27486,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 254,
+    "index": 256,
     "id": "capital-missile-launcher-kraken-registry",
     "sha256": "ae2c241f05afa29b16c8095e3ab45720ed79e65f2d94441184f55e50ab3cd7e3",
     "item": {
@@ -27517,7 +27517,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 255,
+    "index": 257,
     "id": "naval-gauss-heavy-registry",
     "sha256": "73618b1b2241e0439a394ca9f35c380c10fa5732111a101b5c0b70790f180096",
     "item": {
@@ -27558,7 +27558,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 256,
+    "index": 258,
     "id": "naval-gauss-light-registry",
     "sha256": "83dec15b4fb4c0101a1c59e49010f7e494145713867748ab0fbfd4796e6d5ed9",
     "item": {
@@ -27599,7 +27599,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 257,
+    "index": 259,
     "id": "naval-gauss-medium-registry",
     "sha256": "9974b7026b3f8e256bc434742c212d65b063a67454f44b9fd9d64c950ea35a86",
     "item": {
@@ -27640,7 +27640,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 258,
+    "index": 260,
     "id": "tele-operated-missile-barracuda-t-registry",
     "sha256": "2cf8378d98761afe449c0648f6a2fe9415948b134a1ccbe34083a39a317664e6",
     "item": {
@@ -27671,7 +27671,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 259,
+    "index": 261,
     "id": "tele-operated-missile-white-shark-t-registry",
     "sha256": "1a108620d91fed7a8bad4d52043b9a44c5765bb11e566292345ffe09f007f0e3",
     "item": {

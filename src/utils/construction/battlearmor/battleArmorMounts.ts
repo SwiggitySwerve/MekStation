@@ -12,9 +12,56 @@ import {
 
 import type { BAWeaponBVMount, BAAmmoBVMount } from './battleArmorBV';
 
-import { getEquipmentEntry } from '../equipmentBVResolver';
+import { getEquipmentEntry, resolveEquipmentBV } from '../equipmentBVResolver';
 
 const isMagneticClamp = (name: string) => /magnetic.?clamp/i.test(name);
+
+// Java internal and lookup names of the BA systems that
+// BattleArmorBVCalculator.java:280-326 values (pin 48fcb2f64).
+const nameSet = (...names: string[]) =>
+  new Set(names.map((name) => name.toLowerCase()));
+// Sensor.java:94-95; MiscType.java:11270-11303.
+const IMPROVED_SENSORS = nameSet(
+  'ISImprovedSensors',
+  'IS BA Improved Sensors',
+  'ISBAImprovedSensors',
+  'CLImprovedSensors',
+  'Clan BA Improved Sensors',
+  'CLBAImprovedSensors',
+);
+// Other F_BAP: Sensor.java:96-97; MiscType.java:10941-10980.
+const ACTIVE_PROBES = nameSet(
+  'ISBALightActiveProbe',
+  'ISBAActiveProbe',
+  'IS BA Light Active Probe',
+  'CLBALightActiveProbe',
+  'CLBAActiveProbe',
+  'Clan BA Light Active Probe',
+);
+// F_ANGEL_ECM: MiscType.java:11002-11044.
+const ANGEL_ECM = nameSet(
+  'BAISAngelECMSuite',
+  'BA IS Angel ECM Suite',
+  'BAISAngelECM',
+  'ISBAAngelECM',
+  'BACLAngelECMSuite',
+  'BA CL Angel ECM Suite',
+  'BACLAngelECM',
+  'CLBAAngelECM',
+);
+// F_ECM: MiscType.java:11117-11163; BattleArmor.java:264.
+const ECM = nameSet(
+  'IS BA ECM',
+  'ECM Suite (Light)',
+  'ISBAECM',
+  'ISSingle-Hex ECM',
+  'CL BA ECM',
+  'CLBAECM',
+  'CLSingle-Hex ECM',
+  ...ANGEL_ECM,
+);
+// F_AMS: ISBAAPDS.java:57-64.
+const AMS = nameSet('ISBAAPDS');
 const nativeParts = (mount: IBattleArmorMountedEquipment) =>
   mount.equipmentId.split(':');
 
@@ -83,10 +130,19 @@ export function projectBAMounts(
   ammo: BAAmmoBVMount[];
   unresolvedEquipment: string[];
   hasMagneticClamp: boolean;
+  defensiveEquipmentBV: number;
 } {
   const weapons: BAWeaponBVMount[] = [];
   const ammo: BAAmmoBVMount[] = [];
   const unresolvedEquipment: string[] = [];
+  // BattleArmorBVCalculator.java:285-304: one point each for improved
+  // sensors and an active probe; only the first ECM counts (Angel 2).
+  const names = equipment.map((m) => nativeParts(m)[0].toLowerCase());
+  const firstECM = names.find((name) => ECM.has(name));
+  let defensiveEquipmentBV =
+    (names.some((name) => IMPROVED_SENSORS.has(name)) ? 1 : 0) +
+    (names.some((name) => ACTIVE_PROBES.has(name)) ? 1 : 0) +
+    (firstECM === undefined ? 0 : ANGEL_ECM.has(firstECM) ? 2 : 1);
   for (const mount of equipment) {
     const [id, ...qualifiers] = nativeParts(mount);
     if (id === 'InfantryAssaultRifle') continue; // BattleArmorBVCalculator.java:115-120.
@@ -110,6 +166,22 @@ export function projectBAMounts(
       unresolvedEquipment.push(`${mount.equipmentId}: unsupported qualifier`);
       continue;
     }
+    const native = id.toLowerCase();
+    if (AMS.has(native)) {
+      // BattleArmorBVCalculator.java:310-320; AMS is never offense
+      // (BVCalculator.java:943). Squad mounts count whole, others per trooper.
+      const bv = resolveEquipmentBV(id).battleValue;
+      defensiveEquipmentBV += /^Trooper \d+$/i.test(mount.unitLocation ?? '')
+        ? bv / Math.max(1, squadSize)
+        : bv;
+      continue;
+    }
+    if (
+      IMPROVED_SENSORS.has(native) ||
+      ACTIVE_PROBES.has(native) ||
+      ECM.has(native)
+    )
+      continue;
     if (/ammo/i.test(id)) {
       unresolvedEquipment.push(
         `${mount.equipmentId}: missing kgPerShot / native ammo pool`,
@@ -152,5 +224,6 @@ export function projectBAMounts(
     ammo,
     unresolvedEquipment,
     hasMagneticClamp: equipment.some((m) => isMagneticClamp(m.equipmentId)),
+    defensiveEquipmentBV,
   };
 }

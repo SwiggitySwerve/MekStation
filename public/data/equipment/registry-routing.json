@@ -46,7 +46,9 @@
     "MRM 2 (OS)": "mrm-2-os-registry",
     "MRM 3 (OS)": "mrm-3-os-registry",
     "MRM 4 (OS)": "mrm-4-os-registry",
-    "MRM 5 (OS)": "mrm-5-os-registry"
+    "MRM 5 (OS)": "mrm-5-os-registry",
+    "ISNarcBeacon (I-OS)": "isnarcbeacon-i-os-registry",
+    "ISNarcBeacon (OS)": "isnarcbeacon-os-registry"
   },
   "previousIds": {
     "is-lb-2-x-ac-ammo-registry": "clan-lb-2-x-ac",
@@ -219,6 +221,12 @@
     },
     "mrm-5-os-registry": {
       "MRM 5 (OS)": "bamrm5os"
+    },
+    "isnarcbeacon-i-os-registry": {
+      "Narc (I-OS)": "narcbeacon-i-os"
+    },
+    "isnarcbeacon-os-registry": {
+      "Narc (OS)": "narcbeacon-os"
     }
   }
 }
