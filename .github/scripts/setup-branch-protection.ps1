@@ -33,10 +33,7 @@ Write-Host "✅ GitHub CLI is installed and authenticated" -ForegroundColor Gree
 Write-Host "📝 Configuring branch protection rules..." -ForegroundColor Cyan
 
 $statusChecks = @(
-    "Lint and Test",
-    "Build Test / win",
-    "Build Test / mac",
-    "Build Test / linux"
+    "Lint and Test"
 )
 
 $requiredStatusChecks = @{

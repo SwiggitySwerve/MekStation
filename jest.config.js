@@ -169,6 +169,9 @@ module.exports = createJestConfig({
         ]
       : []),
   ],
+  // Duration-weighted `--shard` plus slowest-first ordering; weights are the
+  // committed config/jest/test-durations.json (refresh: `npm run test:durations`).
+  testSequencer: '<rootDir>/config/jest/duration-sequencer.js',
   // Coverage globally — applies to both projects.
   // Ratcheted on 2026-04-25 after Tier 1 BV-core invariant tests landed
   // (PR-C1: ~110 new tests for battleValue*, aerospace, engine/gyro/heat-sink/
