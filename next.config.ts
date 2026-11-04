@@ -8,6 +8,7 @@ import { createRequire } from 'node:module';
 import { join, resolve, sep } from 'node:path';
 
 import { buildSecurityHeaders } from './desktop/electron/securityPolicy';
+import { deploymentTraceExcludes } from './scripts/next/deployment-files.mjs';
 
 const FALLBACK_APP_VERSION = '0.0.0';
 const FALLBACK_BUILD_NUMBER = '0';
@@ -134,6 +135,9 @@ const nextConfig = (phase: string): NextConfig => ({
   // that is the main checkout, which nests the standalone server under
   // .next/standalone/.claude/worktrees/<name>/ and breaks the hydrate step.
   outputFileTracingRoot: process.cwd(),
+  outputFileTracingExcludes: {
+    '/*': deploymentTraceExcludes,
+  },
 
   // Retain Next's ESM externals policy for the remaining --webpack commands.
   experimental: {

@@ -17,14 +17,13 @@ const path = require('path');
 const fs = require('fs');
 const { execFileSync } = require('child_process');
 const crypto = require('crypto');
+const {
+  nativeBindingCacheKey,
+  restoreNativeBinding,
+  saveNativeBinding,
+} = require('./electron-native-cache');
 
-const nativeModules = [
-  {
-    name: 'better-sqlite3',
-    buildSources: ['binding.gyp', 'deps', 'src'],
-    runtimeBinding: path.join('build', 'Release', 'better_sqlite3.node'),
-  },
-];
+const { nativeModules } = require('./electron-native-modules');
 
 function resolveElectronStandaloneDir(desktopDir) {
   const override = process.env.MEKSTATION_ELECTRON_STANDALONE_DIR;
@@ -37,10 +36,13 @@ function resolveElectronStandaloneDir(desktopDir) {
   return path.join(desktopDir, '.tmp', 'next-standalone-electron');
 }
 
-function copyStandaloneForElectron(sourceDir, targetDir) {
+async function copyStandaloneForElectron(sourceDir, targetDir) {
+  // The shared copier is ESM; this packaging entry remains CommonJS.
+  const { copyDirectory } =
+    await import('../../scripts/next/copy-directory.mjs');
   fs.rmSync(targetDir, { recursive: true, force: true });
   fs.mkdirSync(path.dirname(targetDir), { recursive: true });
-  fs.cpSync(sourceDir, targetDir, { recursive: true, force: true });
+  await copyDirectory(sourceDir, targetDir);
 }
 
 function hydrateStandaloneBuildSources(rootDir, electronStandaloneDir) {
@@ -149,13 +151,58 @@ function verifyRootNodeRuntime(nextStandaloneDir) {
   }
 }
 
+function verifyElectronNativeRuntime(electronBinaryPath, directory) {
+  // Sanity check: ensure the rebuilt native binding actually loads under Electron's ABI.
+  execFileSync(
+    electronBinaryPath,
+    [
+      '-e',
+      [
+        "const Database = require('better-sqlite3');",
+        "const db = new Database(':memory:');",
+        "const row = db.prepare('select 1 as x').get();",
+        "if (row.x !== 1) throw new Error('Unexpected sqlite result');",
+        'db.close();',
+        "console.log('[rebuild-next-standalone] better-sqlite3 runtime check: OK');",
+      ].join(' '),
+    ],
+    {
+      cwd: directory,
+      env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
+      stdio: 'inherit',
+    },
+  );
+}
+
+function bindingCacheEntries(rootDir, imageDir, electronVersion) {
+  const toolchain = {
+    rootLock: hashFile(path.join(rootDir, 'package-lock.json')),
+    desktopLock: hashFile(path.join(rootDir, 'desktop', 'package-lock.json')),
+  };
+  return nativeModules.map((nativeModule) => ({
+    key: nativeBindingCacheKey(
+      path.join(rootDir, 'node_modules', nativeModule.name),
+      nativeModule.buildSources,
+      electronVersion,
+      toolchain,
+    ),
+    binding: path.join(
+      imageDir,
+      'node_modules',
+      nativeModule.name,
+      nativeModule.runtimeBinding,
+    ),
+  }));
+}
+
 async function main() {
   const desktopDir = path.join(__dirname, '..');
   const rootDir = path.join(__dirname, '..', '..');
   const nextStandaloneDir = path.join(rootDir, '.next', 'standalone');
   const electronStandaloneDir = resolveElectronStandaloneDir(desktopDir);
 
-  if (!fs.existsSync(nextStandaloneDir)) {
+  const cacheKeyOnly = process.argv.includes('--cache-key');
+  if (!cacheKeyOnly && !fs.existsSync(nextStandaloneDir)) {
     console.error(
       `[rebuild-next-standalone] Missing Next standalone output at: ${nextStandaloneDir}\n` +
         `Run 'npm run build' in the repo root first (Next output: standalone).`,
@@ -163,6 +210,25 @@ async function main() {
     process.exit(1);
   }
 
+  const electronVersion = require('electron/package.json').version;
+  const cacheEntries = bindingCacheEntries(
+    rootDir,
+    electronStandaloneDir,
+    electronVersion,
+  );
+  const cacheDir = path.join(desktopDir, '.electron-native-cache');
+  if (cacheKeyOnly) {
+    const key = crypto
+      .createHash('sha256')
+      .update(cacheEntries.map((entry) => entry.key).join('|'))
+      .digest('hex');
+    console.log(
+      `electron-native-v1-${process.platform}-${process.arch}-${key}`,
+    );
+    return;
+  }
+
+  const hydrateStarted = Date.now();
   execFileSync(
     process.execPath,
     [
@@ -179,21 +245,26 @@ async function main() {
   );
 
   console.log(
+    `[rebuild-next-standalone] Standalone hydration: ${Date.now() - hydrateStarted} ms`,
+  );
+
+  console.log(
     `[rebuild-next-standalone] Preparing isolated Electron standalone copy\n` +
       `  source=${nextStandaloneDir}\n` +
       `  target=${electronStandaloneDir}`,
   );
   const rootNativeBindingSnapshots =
     snapshotRootNativeBindings(nextStandaloneDir);
-  copyStandaloneForElectron(nextStandaloneDir, electronStandaloneDir);
+  const copyStarted = Date.now();
+  await copyStandaloneForElectron(nextStandaloneDir, electronStandaloneDir);
+  console.log(
+    `[rebuild-next-standalone] Electron image copy: ${Date.now() - copyStarted} ms`,
+  );
 
-  // Resolve Electron version from the installed desktop devDependency.
-  // This ensures we rebuild against the exact Electron version used for packaging.
-  const electronVersion = require('electron/package.json').version;
   const electronBinaryPath = require('electron');
 
   console.log(
-    `[rebuild-next-standalone] Rebuilding native modules in ${electronStandaloneDir}\n` +
+    `[rebuild-next-standalone] Preparing native modules in ${electronStandaloneDir}\n` +
       `  electronVersion=${electronVersion} arch=${process.arch}`,
   );
 
@@ -201,15 +272,36 @@ async function main() {
 
   // Rebuild native modules for Electron with the same rebuilder electron-builder uses.
   // `npm rebuild` can silently leave host-Node ABI bindings in the standalone tree.
-  const { rebuild } = await import('@electron/rebuild');
-  await rebuild({
-    arch: process.arch,
-    buildPath: electronStandaloneDir,
-    electronVersion,
-    force: true,
-    headerURL: 'https://electronjs.org/headers',
-    onlyModules: ['better-sqlite3'],
-  });
+  let cacheHit = false;
+  try {
+    if (
+      cacheEntries.every((entry) =>
+        restoreNativeBinding(cacheDir, entry.key, entry.binding),
+      )
+    ) {
+      verifyElectronNativeRuntime(electronBinaryPath, electronStandaloneDir);
+      cacheHit = true;
+      console.log(
+        '[rebuild-next-standalone] Native cache hit; Electron ABI probe passed',
+      );
+    }
+  } catch (error) {
+    console.warn(
+      '[rebuild-next-standalone] Native cache rejected; rebuilding:',
+      error.message,
+    );
+  }
+  if (!cacheHit) {
+    const { rebuild } = await import('@electron/rebuild');
+    await rebuild({
+      arch: process.arch,
+      buildPath: electronStandaloneDir,
+      electronVersion,
+      force: true,
+      headerURL: 'https://electronjs.org/headers',
+      onlyModules: nativeModules.map(({ name }) => name),
+    });
+  }
 
   // Sanity check: the root standalone output must remain usable by plain Node.
   // Electron rebuilds are isolated to the desktop/.tmp copy so service runs and
@@ -217,26 +309,19 @@ async function main() {
   assertRootNativeBindingsUnchanged(rootNativeBindingSnapshots);
   verifyRootNodeRuntime(nextStandaloneDir);
 
-  // Sanity check: ensure the rebuilt native binding actually loads under Electron's ABI.
-  execFileSync(
-    electronBinaryPath,
-    [
-      '-e',
-      [
-        "const Database = require('better-sqlite3');",
-        "const db = new Database(':memory:');",
-        "const row = db.prepare('select 1 as x').get();",
-        "if (row.x !== 1) throw new Error('Unexpected sqlite result');",
-        'db.close();',
-        "console.log('[rebuild-next-standalone] better-sqlite3 runtime check: OK');",
-      ].join(' '),
-    ],
-    {
-      cwd: electronStandaloneDir,
-      env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' },
-      stdio: 'inherit',
-    },
-  );
+  if (!cacheHit) {
+    verifyElectronNativeRuntime(electronBinaryPath, electronStandaloneDir);
+    for (const entry of cacheEntries) {
+      try {
+        saveNativeBinding(cacheDir, entry.key, entry.binding);
+      } catch (error) {
+        console.warn(
+          '[rebuild-next-standalone] Native cache write failed; verified build is usable:',
+          error.message,
+        );
+      }
+    }
+  }
 
   console.log('[rebuild-next-standalone] Done');
 }
