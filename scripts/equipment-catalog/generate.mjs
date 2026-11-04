@@ -110,6 +110,16 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
     if (id) legacyKnown.set(type.internalName, id);
   }
   const known = new Map([...legacyKnown, ...identities]);
+  // Java BA ammo (AmmoType.F_BATTLEARMOR, AmmoType.java:282) is valued per
+  // shot (BattleArmorBVCalculator.java:329-331). Its existing records gain
+  // only the intrinsic kgPerShot fact; unrepresented types are not added here.
+  const perShot = {};
+  for (const [name, id] of known)
+    if (facts[name]?.battleArmor === true && originalCatalog.has(id)) {
+      const kg = number(facts[name].kgPerShot, `${name}.kgPerShot`);
+      assert((perShot[id] ?? kg) === kg, `Conflicting kgPerShot for ${id}`);
+      perShot[id] = kg;
+    }
   const items = [];
   const aliases = {};
   for (const [name, id] of identities) {
@@ -234,7 +244,7 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
       existingAliases.set(aliasKey, { name: aliasName, id });
     }
   }
-  return { items, aliases };
+  return { items, aliases, perShot };
 }
 export function generateCapitalBVFacts(items, originalEntries = []) {
   const facts = Object.fromEntries(
@@ -322,6 +332,30 @@ function runGenerator() {
         },
       });
   write(expectationsFile, expectations);
+  // Additive kgPerShot on existing ammunition records (baseline.json tracks them).
+  const perShotFiles = [];
+  for (const file of Object.values(index.files.ammunition)) {
+    if (file.endsWith('/java-registry.json')) continue;
+    const data = read(`${root}/official/${file}`);
+    let changed = false;
+    data.items = data.items.map((item) => {
+      const kg = result.perShot[item.id];
+      if (kg === undefined) return item;
+      if (item.kgPerShot !== undefined) {
+        assert.equal(item.kgPerShot, kg, `kgPerShot differs: ${item.id}`);
+        return item;
+      }
+      changed = true;
+      const entries = Object.entries(item);
+      const at = entries.findIndex(([key]) => key === 'shotsPerTon') + 1;
+      entries.splice(at || entries.length, 0, ['kgPerShot', kg]);
+      return Object.fromEntries(entries);
+    });
+    if (changed) {
+      write(`${root}/official/${file}`, data);
+      perShotFiles.push(`${root}/official/${file}`);
+    }
+  }
   for (const kind of ['weapons', 'ammunition', 'miscellaneous']) {
     const items = result.items
       .filter((item) => item.kind === kind)
@@ -369,6 +403,7 @@ function runGenerator() {
       '--write',
       `${root}/official/index.json`,
       `${root}/name-mappings.json`,
+      ...perShotFiles,
       ...['weapons', 'ammunition', 'miscellaneous'].map(
         (kind) => `${root}/official/${kind}/java-registry.json`,
       ),
