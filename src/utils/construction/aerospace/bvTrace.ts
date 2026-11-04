@@ -6,7 +6,14 @@ import { calculateBaseBV } from '../battleValueTotals';
  * type adjustment, and its summary uses subTypeMultiplier. Unsupported native
  * cockpit/drone effects and mount/ammo details remain visible as differences.
  */
-export function aerospaceBVTerms(b: IAerospaceBVBreakdown) {
+export function aerospaceBVTerms(
+  b: IAerospaceBVBreakdown,
+): IAerospaceBVBreakdown & {
+  weightBV: number;
+  offensiveTypeModifier: number;
+  summaryModifier: number;
+  adjustment: number;
+} {
   return {
     ...b,
     weightBV: 0,
