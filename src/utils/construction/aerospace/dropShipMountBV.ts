@@ -21,6 +21,7 @@ import {
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
 import { getAerospaceDefensiveEquipmentKind } from './aerospaceBVEquipment';
+import { isRearMountedAerospaceEquipment } from './aerospaceMountFlags';
 import { getLargeAerospaceArcs } from './largeAerospaceFirePool';
 
 const LOCATIONS: Readonly<Record<string, CapitalArc>> = {
@@ -61,7 +62,7 @@ export function largeAerospaceMountArc(
   if (
     applyRear &&
     !capitalType &&
-    mount.equipmentId.trim().toLowerCase().startsWith('r-')
+    isRearMountedAerospaceEquipment(mount.equipmentId)
   ) {
     if (physical === CapitalArc.FRONT_LEFT) return CapitalArc.AFT_LEFT;
     if (physical === CapitalArc.FRONT_RIGHT) return CapitalArc.AFT_RIGHT;
