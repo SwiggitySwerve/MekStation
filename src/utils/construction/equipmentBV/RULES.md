@@ -383,3 +383,7 @@ contains plural `Pods`. Ammunition names (including Narc/iNarc pods) keep the
 ammo namespace. Existing aliases and native name mappings resolve identity.
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
 ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.
+
+The owner-approved basrm3 value batch corrects only Clan BA SRM-3 BV from
+21 to 30 (CLBASRM3.java:66, MegaMek pin 48fcb2f64). The same frozen CAT-Q2
+baseline row and item hash change exactly; no other catalog value changes.

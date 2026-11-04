@@ -10844,7 +10844,7 @@
     "file": "weapons/missile-srm.json",
     "index": 27,
     "id": "basrm3",
-    "sha256": "a0e98aac7f1d40d41b059257166a6efedd5dca56365aa20e344d0bb6198cd686",
+    "sha256": "2d6ef6a2c569f2bf6e4bc75f2a2517c3bc17bb5e674204ca914bc8ac5d7f988a",
     "item": {
       "id": "basrm3",
       "name": "SRM 3",
@@ -10865,7 +10865,7 @@
       "criticalSlots": 2,
       "ammoPerTon": 1,
       "costCBills": 15000,
-      "battleValue": 21,
+      "battleValue": 30,
       "introductionYear": 2868,
       "special": []
     }
