@@ -1,0 +1,10 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`committed catalog record-sheet model parity aerospace: checks every indexed unit and records every mismatch/rejection 1`] = `
+{
+  "counts": {},
+  "rejected": 0,
+  "residualDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "total": 620,
+}
+`;
