@@ -4,7 +4,16 @@ import type { ILargeAerospaceBVBreakdown } from './dropShipComplete';
  * The complete composition has no separate offensive equipment/weight/type
  * additions. Arc weapon totals need no aircraft fuselage term.
  */
-export function largeAerospaceBVTerms(b: ILargeAerospaceBVBreakdown) {
+export function largeAerospaceBVTerms(
+  b: ILargeAerospaceBVBreakdown,
+): ILargeAerospaceBVBreakdown &
+  Partial<{
+    weaponBV: number;
+    offensiveEquipmentBV: number;
+    weightBV: number;
+    offensiveTypeModifier: number;
+    adjustment: number;
+  }> {
   if (b.calculationScope !== 'complete') return b;
   return {
     ...b,
