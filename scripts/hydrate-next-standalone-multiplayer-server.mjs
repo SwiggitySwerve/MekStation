@@ -157,13 +157,17 @@ async function copyPublicAssets() {
   );
 }
 
-function copyMegaMekBVCache() {
-  const source = path.join(root, megaMekBVCacheRelativePath);
-  const target = path.join(standaloneDir, megaMekBVCacheRelativePath);
-  assertExists(source, 'MegaMek BV cache');
+function copyRuntimeFile(relative, label) {
+  const source = path.join(root, relative);
+  const target = path.join(standaloneDir, relative);
+  assertExists(source, label);
   fs.mkdirSync(path.dirname(target), { recursive: true });
   fs.copyFileSync(source, target);
-  assertExists(target, 'standalone MegaMek BV cache');
+  assertExists(target, `standalone ${label}`);
+}
+
+function copyMegaMekBVCache() {
+  copyRuntimeFile(megaMekBVCacheRelativePath, 'MegaMek BV cache');
 }
 
 async function copyNextStaticAssets() {
