@@ -36,7 +36,17 @@
     "LRT 5 (I-OS)": "lrt-5-i-os-registry",
     "ISSRT2IOS": "issrt2ios-registry",
     "ISSRT4IOS": "issrt4ios-registry",
-    "ISSRT6IOS": "issrt6ios-registry"
+    "ISSRT6IOS": "issrt6ios-registry",
+    "MRM 1": "mrm-1-registry",
+    "MRM 2": "mrm-2-registry",
+    "MRM 3": "mrm-3-registry",
+    "MRM 4": "mrm-4-registry",
+    "MRM 5": "mrm-5-registry",
+    "MRM 1 (OS)": "mrm-1-os-registry",
+    "MRM 2 (OS)": "mrm-2-os-registry",
+    "MRM 3 (OS)": "mrm-3-os-registry",
+    "MRM 4 (OS)": "mrm-4-os-registry",
+    "MRM 5 (OS)": "mrm-5-os-registry"
   },
   "previousIds": {
     "is-lb-2-x-ac-ammo-registry": "clan-lb-2-x-ac",
@@ -169,6 +179,46 @@
     },
     "issrt6ios-registry": {
       "SRT 6 (I-OS)": "srt6-ios"
+    },
+    "mrm-1-registry": {
+      "IS MRM 1": "bamrm1",
+      "ISMRM1": "bamrm1",
+      "MRM 1": "bamrm1"
+    },
+    "mrm-2-registry": {
+      "IS MRM 2": "bamrm2",
+      "ISMRM2": "bamrm2",
+      "MRM 2": "bamrm2"
+    },
+    "mrm-3-registry": {
+      "IS MRM 3": "bamrm3",
+      "ISMRM3": "bamrm3",
+      "MRM 3": "bamrm3"
+    },
+    "mrm-4-registry": {
+      "IS MRM 4": "bamrm4",
+      "ISMRM4": "bamrm4",
+      "MRM 4": "bamrm4"
+    },
+    "mrm-5-registry": {
+      "IS MRM 5": "bamrm5",
+      "ISMRM5": "bamrm5",
+      "MRM 5": "bamrm5"
+    },
+    "mrm-1-os-registry": {
+      "MRM 1 (OS)": "bamrm1os"
+    },
+    "mrm-2-os-registry": {
+      "MRM 2 (OS)": "bamrm2os"
+    },
+    "mrm-3-os-registry": {
+      "MRM 3 (OS)": "bamrm3os"
+    },
+    "mrm-4-os-registry": {
+      "MRM 4 (OS)": "bamrm4os"
+    },
+    "mrm-5-os-registry": {
+      "MRM 5 (OS)": "bamrm5os"
     }
   }
 }
