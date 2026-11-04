@@ -530,6 +530,126 @@ it.each(['Trooper 2', 'Squad'])(
   },
 );
 
+// Real sources (mm-data 50f7efef), reduced to their BV tags; UL-16b oracle totals.
+// BattleArmorBVCalculator.java:280-326: improved sensors +1, active probe +1,
+// the first ECM +1 (Angel +2), plus AMS BV, all before the defensive factor.
+const blk = (tags: Record<string, string>) =>
+  Object.entries({
+    UnitType: 'BattleArmor',
+    Name: 'Fixture',
+    year: '3132',
+    ...tags,
+  })
+    .map(([tag, value]) => `<${tag}>\n${value}\n</${tag}>`)
+    .join('\n');
+it.each([
+  // battlearmor/XTRs/Republic III/Aegis Point Defense Suit (Sqd4).blk
+  [
+    'APDS (AMS, not offense)',
+    blk({
+      type: 'IS Level 3',
+      motion_type: 'Leg',
+      cruiseMP: '3',
+      armor_type: '33',
+      armor: '6',
+      'Trooper Count': '4',
+      weightclass: '2',
+      chassis: 'biped',
+      'Squad Equipment':
+        'BABasicManipulator:LA\nBABasicManipulator:RA\nBAAPMount:LA\nInfantryAssaultRifle:APM\nISBAAPDS:RA',
+    }),
+    7,
+    34.5,
+    179,
+  ],
+  // battlearmor/3145/Marik/Leonidas BA (David LGR) (Sqd4).blk
+  [
+    'Angel ECM',
+    blk({
+      type: 'IS Level 2',
+      motion_type: 'Leg',
+      cruiseMP: '3',
+      armor_type: '32',
+      armor: '6',
+      'Trooper Count': '4',
+      weightclass: '2',
+      chassis: 'biped',
+      'Squad Equipment':
+        'BADavidLightGaussRifle:RA\nBAAPMount:RA\nInfantryAssaultRifle:APM:RA\nBAHeavyBattleClaw:LA\nBAISAngelECMSuite:Body',
+      slotless_equipment: 'BAJumpJet',
+    }),
+    2,
+    25.2,
+    187,
+  ],
+  // battlearmor/3058Uu/Achileus BA (Sqd 4) [WoB].blk
+  [
+    'improved sensors and ECM',
+    blk({
+      type: 'IS Level 3',
+      motion_type: 'Jump',
+      cruiseMP: '1',
+      jumpingMP: '3',
+      armor_type: '33',
+      armor: '6',
+      'Trooper Count': '4',
+      weightclass: '1',
+      chassis: 'biped',
+      'Squad Equipment':
+        'BAAPMount:LA\nInfantryAssaultRifle:APM:LA\nISImprovedSensors:Body\nIS BA ECM:Body\nBABasicManipulator:LA\nBABasicManipulator:RA',
+      slotless_equipment: 'BAJumpJet',
+    }),
+    2,
+    28.8,
+    150,
+  ],
+  // battlearmor/TRO VA/Resgate PA(L) (Sqd4).blk
+  [
+    'Clan improved sensors',
+    blk({
+      type: 'Clan Level 2',
+      motion_type: 'Jump',
+      cruiseMP: '3',
+      jumpingMP: '3',
+      armor_type: '35',
+      armor: '2',
+      'Trooper Count': '4',
+      weightclass: '0',
+      chassis: 'biped',
+      'Point Equipment':
+        'BASalvageArm:LA\nBABasicManipulator:RA\nCLImprovedSensors:Body',
+      slotless_equipment: 'BAJumpJet',
+    }),
+    1,
+    11.7,
+    61,
+  ],
+])(
+  'adds BA defensive systems before the factor: %s',
+  (_name, source, equipmentBV, defense, total) => {
+    const unit = load(source);
+    const b = calculateBattleValueForUnit(unit);
+    if (b?.kind !== 'battlearmor') throw new Error('Missing BA dispatch');
+    expect(b.breakdown.perTrooper.defensive.defensiveEquipmentBV).toBe(
+      equipmentBV,
+    );
+    expect(b.breakdown.defensive).toBeCloseTo(defense, 10);
+    expect(b.breakdown.final).toBe(total);
+    expect(handler.calculateBV(unit)).toBe(total);
+  },
+);
+
+it('counts only the first ECM and one bonus per sensor kind', () => {
+  // BattleArmorBVCalculator.java:285-304; ISBALightActiveProbe is F_BAP
+  // (MiscType.java:10941-10951), not improved sensors.
+  const unit = load(
+    armedAchileus(
+      'IS BA ECM:Body\nBAISAngelECMSuite:Body\nISImprovedSensors:Body\nISImprovedSensors:Body\nISBALightActiveProbe:Body',
+    ),
+  );
+  expect(buildBattleArmorBVInputFromUnit(unit).defensiveEquipmentBV).toBe(3);
+});
+
 // Real sources (mm-data 50f7efef) reduced to their BV tags; UL-16b oracle
 // values. BV movement: BattleArmor.java:446-567, Infantry.java:301-308 and
 // BVCalculator.java:307-343 under MPCalculationSetting.BV_CALCULATION.

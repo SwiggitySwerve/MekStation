@@ -835,6 +835,9 @@ const EXPECTED_DESIGNATOR_DEFENSIVE_SPECIAL_FAMILY_IDS = {
     'improvednarc',
     'improvednarc-os',
     'inarc',
+    // Follow-up 92 slice 4: pinned Java ISNarcIOS / ISNarcOS additions.
+    'isnarcbeacon-i-os-registry',
+    'isnarcbeacon-os-registry',
     'narc',
     'narcbeacon',
     'narcbeacon-i-os',
