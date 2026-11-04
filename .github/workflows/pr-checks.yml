@@ -68,8 +68,8 @@ jobs:
         id: filter
         run: node scripts/ci/ci-changes.mjs
 
-      - name: Test change detection
-        run: node --test scripts/ci/ci-changes.test.mjs
+      - name: Test change detection and the Lint and Test guard
+        run: node --test scripts/ci/*.test.mjs
 
   # ---------------------------------------------------------------
   # static-checks runs the short checks that used to take a runner
