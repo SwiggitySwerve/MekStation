@@ -12,6 +12,8 @@ const nativeOutputs = nativeModules.map(({ name, runtimeBinding }) => {
 // Build traces and development material are inputs to packaging, not runtime
 // assets. Keep this list shared by tracing, hydration and Electron packaging.
 export const deploymentTraceExcludes = [
+  // Never trace a previous desktop build or its caches back into the image.
+  './desktop/{dist,release,release-test,.tmp,.electron-cache,.electron-native-cache}{,/**/*}',
   // Hydration owns the complete public copy; avoid tracing it for every route.
   './public/**/*',
   '**/*.nft.json',
@@ -47,7 +49,7 @@ export function isDeploymentFile(relative) {
       normalized === native.file || native.file.startsWith(`${normalized}/`)
     );
   }
-  return !excluded(normalized);
+  return !excluded(normalized) && !excluded(`./${normalized}`);
 }
 
 /** Remove non-runtime inputs from an already isolated, physical output tree.

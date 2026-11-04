@@ -771,3 +771,57 @@ describe('standalone loader closure', () => {
     },
   );
 });
+
+describe('generated desktop outputs', () => {
+  it('prunes previous build products while preserving canonical public paths', () => {
+    const root = makeTempRoot();
+    prepareStandaloneFixture(root);
+    const image = path.join(root, '.next/standalone');
+    const outputs = [
+      'dist',
+      'release',
+      'release-test',
+      '.tmp',
+      '.electron-cache',
+      '.electron-native-cache',
+    ];
+    for (const directory of outputs)
+      writeFile(
+        path.join(image, 'desktop', directory, 'old/manifest.json'),
+        '{}',
+      );
+    const publicPath = 'public/desktop/release/retained.json';
+    writeFile(path.join(root, publicPath), '{"retain":"public bytes"}\r\n');
+    const result = runHydrator(root);
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+    for (const directory of outputs)
+      expect(fs.existsSync(path.join(image, 'desktop', directory))).toBe(false);
+    expect(fs.readFileSync(path.join(image, publicPath))).toEqual(
+      fs.readFileSync(path.join(root, publicPath)),
+    );
+    expect(
+      fs.existsSync(
+        path.join(image, 'public/data/units/battlemechs/index.json'),
+      ),
+    ).toBe(true);
+  });
+
+  it('refuses required runtime imports from generated outputs before changing the image', () => {
+    const root = makeTempRoot();
+    prepareStandaloneFixture(root);
+    writeFile(path.join(root, 'desktop/release/facts.json'), '{"value":42}');
+    addRuntimeImport(
+      root,
+      "export { default } from '../desktop/release/facts.json';",
+    );
+    const server = path.join(root, '.next/standalone/server.js');
+    const before = fs.readFileSync(server);
+    const result = runHydrator(root);
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain(
+      'Required runtime input excluded by deployment policy',
+    );
+    expect(fs.readFileSync(server)).toEqual(before);
+  });
+});

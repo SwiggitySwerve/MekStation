@@ -262,6 +262,11 @@ async function main() {
     preflightSource,
   );
   for (const file of runtimePackages.files) {
+    if (!isDeploymentFile(rel(file))) {
+      throw new Error(
+        `Required runtime input excluded by deployment policy: ${rel(file)}`,
+      );
+    }
     if (!isPathOutside(nextDir, file)) {
       throw new Error(
         `Runtime input comes from generated Next output: ${rel(file)}`,
