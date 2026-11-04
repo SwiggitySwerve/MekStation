@@ -51,6 +51,14 @@ const qc = (name: string): string => path.join(repoRoot, 'scripts/qc', name);
 const FOLD = qc('roadmap-unit-fold.mjs');
 const CLOSURE = qc('roadmap-unit-closure.mjs');
 const MAIN_PROOF = qc('roadmap-main-proof.mjs');
+/**
+ * A hang guard for spawned children, not a time budget. Closure and proof
+ * children run the real roadmap validator and Git; alone they take up to about
+ * 30 s, and several times that on a loaded machine (check 5: a 1,436 s suite).
+ * ROADMAP_TEST_CHILD_TIMEOUT_MS overrides it for a slower or faster runner.
+ */
+const CHILD_TIMEOUT_MS =
+  Number(process.env.ROADMAP_TEST_CHILD_TIMEOUT_MS) || 180_000;
 
 const LEDGER_NAME = '2026-09-12-roadmap-completion';
 const SOURCE_LEDGER = path.join(repoRoot, 'openspec/planning', LEDGER_NAME);
@@ -137,7 +145,7 @@ function run(
   const result = spawnSync(process.execPath, [script, ...args], {
     cwd,
     encoding: 'utf8',
-    timeout: 30000,
+    timeout: CHILD_TIMEOUT_MS,
     env: {
       ...process.env,
       ...extraEnv,
@@ -147,7 +155,9 @@ function run(
   return {
     status: result.status,
     stdout: result.stdout ?? '',
-    stderr: result.stderr ?? '',
+    stderr:
+      (result.stderr ?? '') +
+      (result.error ? `\n[spawn] ${result.error.message}` : ''),
   };
 }
 
@@ -1903,7 +1913,7 @@ syncBuiltinESMExports();
     const result = spawnSync(process.execPath, args, {
       cwd: repo,
       encoding: 'utf8',
-      timeout: 30000,
+      timeout: CHILD_TIMEOUT_MS,
       env: {
         ...process.env,
         PMP_CASE: scenario,
