@@ -31,6 +31,18 @@ import type { IMatchMeta } from '../IMatchStore';
 import { DurableMatchStore } from '../DurableMatchStore';
 import { IntentRateLimiter } from '../reconnection/IntentRateLimiter';
 
+// The append-latency ceiling is a wall-clock assertion. A multi-worker unit
+// shard measures CPU and disk contention, not the store, so it is asserted only
+// where a perf lane pins it: SIMULATION_PERF_ASSERTIONS=true (the Simulation
+// Checks "wall-clock budgets" step, the nightly perf job,
+// `npm run test:perf-sensitive`) or an explicit MATCH_STORE_APPEND_BUDGET_MS.
+// Same pattern as fogOfWar.test.ts and the simulation integration suites; the
+// 1000 appends and the round-trip checks below run in every unit shard.
+const APPEND_BUDGET_MS = Number(process.env.MATCH_STORE_APPEND_BUDGET_MS) || 5;
+const assertAppendBudget =
+  Boolean(process.env.MATCH_STORE_APPEND_BUDGET_MS) ||
+  process.env.SIMULATION_PERF_ASSERTIONS === 'true';
+
 function makeMeta(matchId: string): IMatchMeta {
   const now = new Date().toISOString();
   return {
@@ -85,7 +97,7 @@ describe('M2 — Durable store stress + rate-limit budget', () => {
     // class; 5ms/append catches a pathological regression (e.g. a
     // missing transaction batching, a full-table scan) without being
     // flaky on a slow CI runner.
-    expect(perAppendMs).toBeLessThan(5);
+    if (assertAppendBudget) expect(perAppendMs).toBeLessThan(APPEND_BUDGET_MS);
 
     // The full log round-trips intact and in order.
     const events = await store.getEvents('stress-match');
