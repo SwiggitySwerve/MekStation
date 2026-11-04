@@ -256,14 +256,54 @@ describe('test result cache key', () => {
     expect(keyOf(root, 'src/t.test.ts').key).not.toBe(before.key);
   });
 
-  it('keeps a mention in a file with an unbalanced backtick, where comments cannot be told from template text', () => {
+  it('still names a directory on a // line of a template that holds escaped backticks', () => {
     const root = makeRepo({
       'public/a.json': '{}',
       'docs/readme.md': 'x',
       'src/t.test.ts': [
         "import * as fs from 'node:fs';",
-        '// a lone ` here',
+        'const target = `a \\` b',
+        '//public/a.json',
+        'c \\` d`;',
+        "test('reads', () => { fs.readFileSync('docs/readme.md', 'utf8'); fs.readFileSync(target.trim()); });",
+      ].join('\n'),
+    });
+    const before = keyOf(root, 'src/t.test.ts');
+    expect(before.domains).toEqual(['docs/', 'public/']);
+    write(root, { 'public/a.json': '{"changed":true}' });
+    expect(keyOf(root, 'src/t.test.ts').key).not.toBe(before.key);
+  });
+
+  it('drops a trailing comment after code, and keeps code inside a template expression', () => {
+    const root = makeRepo({
+      'public/a.json': '{}',
+      'docs/readme.md': 'x',
+      'other/z.txt': 'x',
+      'src/t.test.ts': [
+        "import * as fs from 'node:fs';",
+        "test('reads', () => {",
+        "  fs.readFileSync(`${'docs/readme.md'}`, 'utf8'); // not /public/a.json",
+        '});',
+      ].join('\n'),
+    });
+    expect(keyOf(root, 'src/t.test.ts').domains).toEqual(['docs/']);
+  });
+
+  it.each([
+    [
+      'an apostrophe in JSX text (a string that never ends)',
+      "const a = <p>it's</p>;",
+    ],
+    ['a regex literal', 'const re = /x+/;'],
+    ['an unterminated template', 'const t = `abc'],
+  ])('keeps comment mentions when it cannot classify %s', (_name, line) => {
+    const root = makeRepo({
+      'public/a.json': '{}',
+      'docs/readme.md': 'x',
+      'src/t.test.ts': [
+        "import * as fs from 'node:fs';",
         '// /public/a.json is mentioned only in this comment',
+        line,
         "test('reads', () => { fs.readFileSync('docs/readme.md', 'utf8'); });",
       ].join('\n'),
     });
