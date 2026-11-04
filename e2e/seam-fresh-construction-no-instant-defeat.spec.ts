@@ -357,10 +357,6 @@ async function driveAdvancesAndCaptureMarkers(
 }
 
 test.describe('Fresh Construction No-Instant-Defeat Trust Anchor', () => {
-  // CI-SPEED red-path probe (PR #2654): reverted in the next commit.
-  test.beforeEach(() => {
-    throw new Error('CI-SPEED red-path probe: deliberate anchor failure');
-  });
   test('seeded construction yields distinct identities, no instant defeat, and same-seed marker equality', async ({
     page,
   }) => {
