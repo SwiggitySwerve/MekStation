@@ -7478,6 +7478,211 @@
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/InfantrySupportWireGuidedMissileWeapon.java: Wire-Guided Missile Launcher"
       ]
+    },
+    {
+      "id": "alamomissile-registry",
+      "name": "Alamo Missile",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3071,
+      "costCBills": 0,
+      "subType": "AlamoMissileWeapon",
+      "damage": 10,
+      "heat": 0,
+      "ranges": {
+        "long": 24,
+        "extreme": 40,
+        "short": 6,
+        "minimum": 0,
+        "medium": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/AlamoMissileWeapon.java: AlamoMissile"
+      ]
+    },
+    {
+      "id": "capital-missile-launcher-kraken-registry",
+      "name": "Capital Missile Launcher (Kraken)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 190,
+      "criticalSlots": 0,
+      "battleValue": 1914,
+      "introductionYear": 3053,
+      "costCBills": 455000,
+      "subType": "CapMissKrakenWeapon",
+      "damage": 10,
+      "heat": 50,
+      "ranges": {
+        "long": 34,
+        "extreme": 46,
+        "short": 11,
+        "minimum": 0,
+        "medium": 22
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissKrakenWeapon.java: Capital Missile Launcher (Kraken)"
+      ]
+    },
+    {
+      "id": "naval-gauss-heavy-registry",
+      "name": "Naval Gauss (Heavy)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 7000,
+      "criticalSlots": 0,
+      "battleValue": 6048,
+      "introductionYear": 2435,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "reintroductionYear": 3052,
+      "costCBills": 50050000,
+      "subType": "NGaussWeaponHeavy",
+      "damage": 30,
+      "heat": 18,
+      "ranges": {
+        "long": 36,
+        "extreme": 48,
+        "short": 12,
+        "minimum": 0,
+        "medium": 24
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NGaussWeaponHeavy.java: Naval Gauss (Heavy)"
+      ]
+    },
+    {
+      "id": "naval-gauss-light-registry",
+      "name": "Naval Gauss (Light)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 4500,
+      "criticalSlots": 0,
+      "battleValue": 3024,
+      "introductionYear": 2435,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "reintroductionYear": 3052,
+      "costCBills": 20300000,
+      "subType": "NGaussWeaponLight",
+      "damage": 15,
+      "heat": 9,
+      "ranges": {
+        "long": 40,
+        "extreme": 56,
+        "short": 14,
+        "minimum": 0,
+        "medium": 28
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NGaussWeaponLight.java: Naval Gauss (Light)"
+      ]
+    },
+    {
+      "id": "naval-gauss-medium-registry",
+      "name": "Naval Gauss (Medium)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 5500,
+      "criticalSlots": 0,
+      "battleValue": 5040,
+      "introductionYear": 2435,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "reintroductionYear": 3052,
+      "costCBills": 30350000,
+      "subType": "NGaussWeaponMedium",
+      "damage": 25,
+      "heat": 15,
+      "ranges": {
+        "long": 39,
+        "extreme": 52,
+        "short": 13,
+        "minimum": 0,
+        "medium": 26
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NGaussWeaponMedium.java: Naval Gauss (Medium)"
+      ]
+    },
+    {
+      "id": "tele-operated-missile-barracuda-t-registry",
+      "name": "Tele-operated Missile (Barracuda-T)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 100,
+      "criticalSlots": 0,
+      "battleValue": 461,
+      "introductionYear": 3053,
+      "costCBills": 100000,
+      "subType": "CapMissTeleBarracudaWeapon",
+      "damage": 2,
+      "heat": 10,
+      "ranges": {
+        "long": 40,
+        "extreme": 50,
+        "short": 20,
+        "minimum": 0,
+        "medium": 30
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissTeleBarracudaWeapon.java: Tele-operated Missile (Barracuda-T)"
+      ]
+    },
+    {
+      "id": "tele-operated-missile-white-shark-t-registry",
+      "name": "Tele-operated Missile (White Shark-T)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 130,
+      "criticalSlots": 0,
+      "battleValue": 692,
+      "introductionYear": 3053,
+      "costCBills": 145000,
+      "subType": "CapMissTeleWhiteSharkWeapon",
+      "damage": 3,
+      "heat": 15,
+      "ranges": {
+        "long": 36,
+        "extreme": 48,
+        "short": 12,
+        "minimum": 0,
+        "medium": 24
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissTeleWhiteSharkWeapon.java: Tele-operated Missile (White Shark-T)"
+      ]
     }
   ]
 }

@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { require as tsxRequire } from 'tsx/cjs/api';
 
 import routing from '../../public/data/equipment/registry-routing.json' with { type: 'json' };
+import capitalSource from './capital-source.json' with { type: 'json' };
 const { normalizeEquipmentId } = tsxRequire(
   '../../src/utils/construction/equipmentBV/normalization.ts',
   import.meta.url,
@@ -27,10 +28,15 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
   assert.equal(types.size, java.length, 'Duplicate Java internal name');
   for (const name of Object.keys(routing.reroute))
     if (types.has(name)) selected.add(name);
+  const legacySelected = new Set(selected);
+  const extra = Object.keys(capitalSource)
+    .filter((name) => types.has(name) && !selected.has(name))
+    .sort();
+  const ordered = [...selected].sort().concat(extra);
   const originalCatalog = new Map(before.map((entry) => [entry.id, entry]));
   const ids = new Set(originalCatalog.keys());
   const identities = new Map();
-  for (const name of [...selected].sort()) {
+  for (const name of ordered) {
     assert(types.has(name), `Unregistered gap ${name}`);
     const id =
       routing.reroute[name] ??
@@ -40,12 +46,14 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
     ids.add(id);
     identities.set(name, id);
   }
-  const known = new Map(identities);
+  const legacyKnown = new Map(
+    [...identities].filter(([name]) => legacySelected.has(name)),
+  );
   const existingAliases = new Map();
   for (const [name, id] of Object.entries(mappings))
     existingAliases.set(name.toLowerCase(), { name, id });
   for (const type of java) {
-    if (known.has(type.internalName)) continue;
+    if (legacyKnown.has(type.internalName)) continue;
     const id = [type.internalName, ...type.aliases]
       .flatMap((alias) => [
         existingAliases.get(alias.toLowerCase())?.id,
@@ -62,8 +70,9 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
             [techBases[type.tech], 'BOTH'].includes(entry.techBase))
         );
       });
-    if (id) known.set(type.internalName, id);
+    if (id) legacyKnown.set(type.internalName, id);
   }
+  const known = new Map([...legacyKnown, ...identities]);
   const items = [];
   const aliases = {};
   for (const [name, id] of identities) {
@@ -99,6 +108,8 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
     for (const key of ['extinctionYear', 'reintroductionYear'])
       if (fact[key] !== -1 && fact[key] !== undefined)
         entry[key] = number(fact[key], key);
+    // Preserve existing ammo records when newly represented weapons are added.
+    const compatibleIds = legacySelected.has(name) ? legacyKnown : known;
     if (fact.kind === 'ammunition') {
       entry.variant =
         {
@@ -113,7 +124,7 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
       entry.compatibleWeaponIds = Array.from(
         new Set(
           (fact.compatible ?? [])
-            .map((weapon) => known.get(weapon))
+            .map((weapon) => compatibleIds.get(weapon))
             .filter(Boolean),
         ),
       );
@@ -121,9 +132,9 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
       entry.isExplosive = fact.isExplosive;
       notes.push(`Java ammoType:rackSize ${fact.ammoType}:${fact.rackSize}`);
       notes.push(`Java munitions: ${(fact.munitions ?? []).join(',')}`);
-      if (fact.compatible?.some((weapon) => !known.has(weapon)))
+      if (fact.compatible?.some((weapon) => !compatibleIds.has(weapon)))
         notes.push(
-          `Unrepresented compatible Java weapons: ${fact.compatible.filter((weapon) => !known.has(weapon)).join(', ')}`,
+          `Unrepresented compatible Java weapons: ${fact.compatible.filter((weapon) => !compatibleIds.has(weapon)).join(', ')}`,
         );
     } else {
       entry.costCBills = fixed(fact.cost, 'cost');
@@ -181,6 +192,19 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
   }
   return { items, aliases };
 }
+export function generateCapitalBVFacts(items) {
+  return Object.fromEntries(
+    items
+      .filter(({ internalName }) => capitalSource[internalName])
+      .map(({ internalName, entry }) => [
+        entry.id,
+        {
+          ...capitalSource[internalName],
+          source: entry.special[0],
+        },
+      ]),
+  );
+}
 function runGenerator() {
   const read = (file) => JSON.parse(readFileSync(file, 'utf8'));
   const write = (file, value) =>
@@ -188,7 +212,11 @@ function runGenerator() {
   const hash = (file) => hashBytes('sha256', readFileSync(file));
   const [registryFile, gapsFile, factsFile] = process.argv.slice(2);
   assert(factsFile, 'Usage: generate.mjs <registry> <gaps> <facts>');
-  const inputs = [...process.argv.slice(2), `${registryFile}.lookups.json`];
+  const inputs = [
+    ...process.argv.slice(2),
+    `${registryFile}.lookups.json`,
+    fileURLToPath(new URL('./capital-source.json', import.meta.url)),
+  ];
   const hashes = read(new URL('./source-pins.json', import.meta.url));
   for (const file of inputs) {
     const name = file.replaceAll('\\', '/').split('/').at(-1);
@@ -230,6 +258,10 @@ function runGenerator() {
       originalItems(kind).filter((item) => kind !== 'weapons' || item.ranges)
         .length;
   }
+  write(
+    new URL('./capital-bv.json', import.meta.url),
+    generateCapitalBVFacts(result.items),
+  );
   const addedIds = new Set(result.items.map((item) => item.entry.id));
   const originalMappings = Object.fromEntries(
     Object.entries(mappings).filter(([, id]) => !addedIds.has(id)),
@@ -257,7 +289,9 @@ function runGenerator() {
       ...['weapons', 'ammunition', 'miscellaneous'].map(
         (kind) => `${root}/official/${kind}/java-registry.json`,
       ),
-      'scripts/equipment-catalog/*.json',
+      ...['provenance.json', 'capital-bv.json'].map((name) =>
+        fileURLToPath(new URL(name, import.meta.url)),
+      ),
     ],
     { stdio: 'inherit', windowsHide: true },
   );
