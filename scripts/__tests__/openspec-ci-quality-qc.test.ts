@@ -49,6 +49,24 @@ function readWorkflow(): string {
 }
 
 /** Rewrite only one job block: from its key to the next top-level job key. */
+/**
+ * Apply a mutation to the gate step only (from its `- name:` line to the
+ * next step), so a string that also appears in another step of the job
+ * (the background library suite shares the server env and shard flag)
+ * cannot absorb it.
+ */
+function inGateStep(block: string, mutate: (step: string) => string): string {
+  const start = block.indexOf(
+    '      - name: Run seam anchor and customizer regression gates\n',
+  );
+  expect(start).toBeGreaterThan(-1);
+  const end = block.indexOf('\n      - name: ', start + 1);
+  const step = block.slice(start, end);
+  const mutated = mutate(step);
+  expect(mutated).not.toBe(step);
+  return block.slice(0, start) + mutated + block.slice(end);
+}
+
 function mutateJob(
   workflow: string,
   jobId: string,
@@ -531,13 +549,17 @@ describe('OpenSpec CI quality QC validator', () => {
         'development server substituted',
         GATE_JOB,
         (block: string) =>
-          block.replace('node .next/standalone/server.js', 'node server.js'),
+          inGateStep(block, (step) =>
+            step.replace('node .next/standalone/server.js', 'node server.js'),
+          ),
       ],
       [
         'invalid standalone hostname',
         GATE_JOB,
         (block: string) =>
-          block.replace("HOSTNAME: '127.0.0.1'", "HOSTNAME: 'localhost'"),
+          inGateStep(block, (step) =>
+            step.replace("HOSTNAME: '127.0.0.1'", "HOSTNAME: 'localhost'"),
+          ),
       ],
       [
         // The smoke suites run next and write the default report folder.
@@ -624,7 +646,9 @@ describe('OpenSpec CI quality QC validator', () => {
       [
         'runs one shard for every matrix leg',
         (block: string) =>
-          block.replace(' --shard=${{ matrix.shard }}/2', ' --shard=1/2'),
+          inGateStep(block, (step) =>
+            step.replace(' --shard=${{ matrix.shard }}/2', ' --shard=1/2'),
+          ),
       ],
     ] as const)('rejects a browser gate that %s', (_label, mutate) => {
       const manifest = runWithWorkflow(
