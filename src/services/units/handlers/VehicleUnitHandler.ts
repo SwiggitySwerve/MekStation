@@ -47,6 +47,7 @@ import {
   getSecondaryVehicleTurretConfiguration,
   getVehicleMountFlags,
 } from '@/utils/construction/vehicle/equipmentMounts';
+import { vehicleArmorIntroYearErrors } from '@/utils/construction/vehicle/introYear';
 import { validateVehicleCaseLocations } from '@/utils/construction/vehicle/vehicleValidation';
 
 import {
@@ -243,6 +244,10 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       hasVehicleEquipmentFeature(equipment, 'limitedamphibious');
     const hasTrailerHitch = getBooleanFromRawTags(rawTags, 'trailerhitch');
     const isTrailer = getBooleanFromRawTags(rawTags, 'trailer');
+    const armorTechLevel = Number.parseInt(
+      String(rawTags.armor_tech_level ?? ''),
+      10,
+    );
 
     // Internal structure type
     const internalStructureType = document.internalType || 0;
@@ -273,6 +278,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       hasEnvironmentalSealing,
       hasFlotationHull,
       isAmphibious,
+      ...(Number.isInteger(armorTechLevel) ? { armorTechLevel } : {}),
       limitedAmphibious,
       hasTrailerHitch,
       isTrailer,
@@ -429,6 +435,16 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
         `Total armor (${unit.totalArmorPoints}) exceeds maximum (${unit.maxArmorPoints})`,
       );
     }
+
+    errors.push(
+      ...vehicleArmorIntroYearErrors({
+        year: unit.metadata.year,
+        armorCode: unit.armorType,
+        armorTechLevel: unit.armorTechLevel,
+        clan: /clan/i.test(String(unit.techBase)),
+        mixed: /mixed/i.test(String(unit.techBase)),
+      }),
+    );
 
     // Motion type specific validations
     if (unit.motionType === GroundMotionType.HOVER && unit.tonnage > 50) {
