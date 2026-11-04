@@ -7,7 +7,7 @@ exports[`committed catalog record-sheet model parity vehicles: checks every inde
     "equipmentUnresolved": 4,
   },
   "rejected": 0,
-  "residualDigest": "5d8ccddf3e9f8c0d2a59a6cef31831aa7a6597b10c1810956a1b7b7f53aaec8c",
+  "residualDigest": "ecda5390a351a330fb93b53d51f172202ffff882ff1a9678c5dab91efaa58806",
   "total": 1444,
 }
 `;
