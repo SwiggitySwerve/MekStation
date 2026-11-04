@@ -462,3 +462,10 @@ multipliers, BAR and aircraft type scaling. Canonical mount identity and the
 ten-point rule use battleValueDefensive.ts; other mounted defense rules do not
 change. aerospaceBV.modularArmor.test.ts pins native Drake, Omni aliases,
 support BAR ordering and the no-modular-armor path. Patchwork is separate.
+
+The pure aerospaceBVCalculations owner supplies final summary and crew rounding
+to ordinary small cockpits and large craft. Existing exports remain facades.
+The trace adapter optionally accepts actual base/summary facts; omitting them
+preserves its prior compatibility output. Java pin 48fcb2f64:
+BVCalculator.java:1252-1294,1307-1313; AeroBVCalculator.java:162-180.
+Enforcement: aerospaceBV.summaryOwner.test.ts and all-family report equality.
