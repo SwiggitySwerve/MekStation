@@ -401,3 +401,9 @@ facts; weaponLinks.ts owns compatibility and source-order physical linking.
 The generator maps existing catalog identities without modifying catalogs.
 ExtendedLRMWeapon.java:52; LRMWeapon.java:72; MekFileParser.java:424-449
 (MegaMek pin 48fcb2f64). Missing flag identities are incompatible.
+
+Explicit direct aliases may select an existing registry ID at the BV boundary;
+this does not enable fuzzy matching over registry names. The canonical C3
+sensor launcher alias uses the imported BV-30 MissileWeapon, not C3 Master.
+Obsolete Mek fallback copies are removed. ISC3RemoteSensorLauncher.java:69-80
+at MegaMek pin 48fcb2f64; the imported catalog remains the value owner.
