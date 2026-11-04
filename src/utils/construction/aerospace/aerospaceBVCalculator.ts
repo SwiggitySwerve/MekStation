@@ -24,6 +24,7 @@ import { supportFireControlFactor } from '../vehicle/vehicleBVOffensive';
 import { calculateAerospaceArcContributions } from './aerospaceBVArcs';
 import {
   calculateAerospaceAmmoBV,
+  isAerospaceOffensiveMisc,
   calculateAerospaceFinalBV,
   getAerospacePilotMultiplier,
   sumWeaponBV,
@@ -200,7 +201,9 @@ export function calculateAerospaceOffensiveBV(input: IAerospaceBVInput): {
           input.isSupportVehicle === true,
         )
       : 0) * fireControl;
-  const offensiveEquipmentBV = input.offensiveEquipmentBV ?? 0;
+  const offensiveEquipmentBV =
+    input.offensiveEquipmentBV ??
+    sumWeaponBV(input.equipment.filter(isAerospaceOffensiveMisc));
 
   const { avgThrust, speedFactor } = calculateAerospaceSpeedFactor(
     input.safeThrust,
@@ -273,40 +276,49 @@ export function calculateAerospaceBV(
     input.pilotPiloting,
   );
 
-  // BVCalculator.java:1253,167: shared aerospace summary rounds before crew skill.
-  const final = calculateAerospaceFinalBV(
+  // AeroBVCalculator.java:162-180; BVCalculator.java:1253,167.
+  // Preserve shared base-before-crew rounding and expose actual summary facts.
+  const summary = calculateAerospaceFinalBV(
     defensive.defensive,
     offensive.offensive,
     {
-      cockpit: input.hasSmallCockpit ? 'SMALL' : undefined,
+      cockpit: input.hasSmallCockpit
+        ? 'SMALL'
+        : input.hasCommandConsole
+          ? 'COMMAND_CONSOLE'
+          : undefined,
       gunnery: input.pilotGunnery,
       piloting: input.pilotPiloting,
     },
-  ).final;
+  );
+  const final = summary.final;
 
-  return aerospaceBVTerms({
-    armorBV: defensive.armorBV,
-    siBV: defensive.siBV,
-    defensiveEquipmentBV: defensive.defensiveEquipmentBV,
-    explosivePenalties: defensive.explosivePenalties,
-    defensiveFactor: defensive.defensiveFactor,
-    typeModifier: defensive.typeModifier,
-    defensive: defensive.defensive,
+  return aerospaceBVTerms(
+    {
+      armorBV: defensive.armorBV,
+      siBV: defensive.siBV,
+      defensiveEquipmentBV: defensive.defensiveEquipmentBV,
+      explosivePenalties: defensive.explosivePenalties,
+      defensiveFactor: defensive.defensiveFactor,
+      typeModifier: defensive.typeModifier,
+      defensive: defensive.defensive,
 
-    arcContributions: offensive.arcContributions,
-    primaryArc: offensive.primaryArc,
-    weaponFirePoolBV: offensive.weaponFirePoolBV,
-    fuselageWeaponBV: offensive.fuselageWeaponBV,
-    ammoBV: offensive.ammoBV,
-    offensiveEquipmentBV: offensive.offensiveEquipmentBV,
-    avgThrust: offensive.avgThrust,
-    speedFactor: offensive.speedFactor,
-    offensive: offensive.offensive,
+      arcContributions: offensive.arcContributions,
+      primaryArc: offensive.primaryArc,
+      weaponFirePoolBV: offensive.weaponFirePoolBV,
+      fuselageWeaponBV: offensive.fuselageWeaponBV,
+      ammoBV: offensive.ammoBV,
+      offensiveEquipmentBV: offensive.offensiveEquipmentBV,
+      avgThrust: offensive.avgThrust,
+      speedFactor: offensive.speedFactor,
+      offensive: offensive.offensive,
 
-    subTypeMultiplier,
-    pilotMultiplier,
-    final,
-  });
+      subTypeMultiplier,
+      pilotMultiplier,
+      final,
+    },
+    summary,
+  );
 }
 
 // ============================================================================
