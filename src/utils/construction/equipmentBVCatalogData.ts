@@ -116,18 +116,27 @@ export const isLegacyEquipmentId = (id: string): boolean =>
 const previousRegistryIds = new Map(
   Object.entries(registryRouting.previousIds),
 );
+// A route is one native name (previous id in previousIds) or, for approved
+// alias identity fixes, { native name: previous id } (follow-up 79).
+const registryRoutes = registryRouting.nativeNames as Readonly<
+  Record<string, string | Readonly<Record<string, string>>>
+>;
 export const registryPreviousId = (
   id: string,
   name?: string,
-): string | undefined =>
-  name === undefined ||
-  Object.entries(registryRouting.nativeNames).some(
-    ([target, native]) =>
-      target === id && native.toLowerCase() === name.trim().toLowerCase(),
-  )
-    ? ((name === undefined ? undefined : nativeIdentityId(name)) ??
-      previousRegistryIds.get(id))
+): string | undefined => {
+  if (name === undefined) return previousRegistryIds.get(id);
+  const key = name.trim().toLowerCase();
+  const route = registryRoutes[id];
+  if (typeof route === 'string')
+    return route.toLowerCase() === key
+      ? (nativeIdentityId(name) ?? previousRegistryIds.get(id))
+      : undefined;
+  const native = Object.keys(route ?? {}).find((n) => n.toLowerCase() === key);
+  return native && route
+    ? (nativeIdentityId(name) ?? route[native])
     : undefined;
+};
 export function preferRegistryEquipment<
   T extends { id: string } | null | undefined,
 >(previous: T, imported: NonNullable<T> | undefined, name: string): T {

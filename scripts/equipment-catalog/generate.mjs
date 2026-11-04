@@ -157,12 +157,22 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
       if (owner !== name) continue;
       const previous = existingAliases.get(aliasKey);
       if (previous && originalCatalog.has(previous.id)) {
-        if (
-          previous.id !== routing.previousIds[id] ||
-          routing.nativeNames[id]?.toLowerCase() !== aliasKey
-        )
-          continue;
-        if (type.tech === 'IS' && !aliasKey.startsWith('is')) continue;
+        // Same route semantics as registryPreviousId (equipmentBVCatalogData.ts).
+        const route = routing.nativeNames[id];
+        if (route !== undefined && typeof route === 'object') {
+          // An approved per-name identity fix names its exact previous id.
+          const native = Object.keys(route).find(
+            (n) => n.toLowerCase() === aliasKey,
+          );
+          if (!native || route[native] !== previous.id) continue;
+        } else {
+          if (
+            previous.id !== routing.previousIds[id] ||
+            route?.toLowerCase() !== aliasKey
+          )
+            continue;
+          if (type.tech === 'IS' && !aliasKey.startsWith('is')) continue;
+        }
       }
       const aliasName = previous?.name ?? alias;
       aliases[aliasName] = id;
