@@ -112,6 +112,8 @@ export interface BAOffensiveBVBreakdown {
   readonly weaponBV: number;
   readonly ammoBV: number;
   readonly manipulatorBV: number;
+  /** Trooper-located offensive equipment, added before the speed factor. */
+  readonly offensiveEquipmentBV: number;
   readonly total: number;
 }
 
