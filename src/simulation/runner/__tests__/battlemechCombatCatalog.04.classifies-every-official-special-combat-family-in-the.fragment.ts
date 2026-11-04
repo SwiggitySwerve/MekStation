@@ -196,7 +196,7 @@ it('classifies every official special combat family in the catalog', () => {
   expect(lbxACs).toHaveLength(9);
   expect(streakLaunchers).toHaveLength(61);
   expect(mmlLaunchers).toHaveLength(4);
-  expect(narcLaunchers).toHaveLength(10);
+  expect(narcLaunchers).toHaveLength(12);
   expect(amsSystems).toHaveLength(4);
   expect(plasmaCannons).toHaveLength(1);
   expect(tagDesignators).toHaveLength(4);

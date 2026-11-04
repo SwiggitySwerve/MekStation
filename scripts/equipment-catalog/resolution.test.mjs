@@ -400,6 +400,40 @@ export const APPROVED_JAVA_REROUTES = [
       weapon: true,
     })),
   ),
+  // Follow-up 92 slice 4: IS Narc one-shot names resolved to the generic Narc records.
+  ...[
+    [
+      'isnarcbeacon-i-os-registry',
+      'narcbeacon-i-os',
+      'weapons/other/innerSphere/ISNarcIOS.java:57',
+      ['Narc (I-OS)'],
+    ],
+    [
+      'isnarcbeacon-os-registry',
+      'narcbeacon-os',
+      'weapons/other/innerSphere/ISNarcOS.java:57',
+      ['Narc (OS)'],
+    ],
+  ].flatMap(([newTarget, oldTarget, source, names]) =>
+    names.map((name) => ({
+      name,
+      oldTarget,
+      newTarget,
+      reason: `Follow-up 92 slice 4; pinned 48fcb2f6 ${source}`,
+      weapon: true,
+    })),
+  ),
+  // EquipmentNameMapper's tech-tag form; Java's CLAN lookup is the same item.
+  ...[
+    ['Narc (I-OS) (Clan)', 'narcbeacon-i-os', 'isnarcbeacon-i-os-registry'],
+    ['Narc (OS) (Clan)', 'narcbeacon-os', 'isnarcbeacon-os-registry'],
+  ].map(([name, oldTarget, newTarget]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    reason: 'Follow-up 92 slice 4; mapper tag form of the route above',
+    tagForm: true,
+  })),
 ];
 async function capture(root, inputs) {
   process.chdir(root);

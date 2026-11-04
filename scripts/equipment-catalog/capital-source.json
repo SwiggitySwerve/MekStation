@@ -1,0 +1,474 @@
+{
+  "AlamoMissile": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [10.0, 10.0, 0.0, 0.0],
+    "ammoType": "ALAMO",
+    "rackSize": 1
+  },
+  "AlamoMissile Ammo": {
+    "ammoType": "ALAMO",
+    "rackSize": 1
+  },
+  "Ammo AR10 Barracuda": {
+    "ammoType": "AR10",
+    "rackSize": 0
+  },
+  "Ammo AR10 Barracuda-T": {
+    "ammoType": "AR10",
+    "rackSize": 0
+  },
+  "Ammo AR10 Killer Whale": {
+    "ammoType": "AR10",
+    "rackSize": 0
+  },
+  "Ammo AR10 Killer Whale-T": {
+    "ammoType": "AR10",
+    "rackSize": 0
+  },
+  "Ammo AR10 Peacemaker": {
+    "ammoType": "AR10",
+    "rackSize": 0
+  },
+  "Ammo AR10 Santa Anna": {
+    "ammoType": "AR10",
+    "rackSize": 0
+  },
+  "Ammo AR10 White Shark": {
+    "ammoType": "AR10",
+    "rackSize": 0
+  },
+  "Ammo AR10 White Shark-T": {
+    "ammoType": "AR10",
+    "rackSize": 0
+  },
+  "Ammo Alamo": {
+    "ammoType": "ALAMO",
+    "rackSize": 1
+  },
+  "Ammo Barracuda": {
+    "ammoType": "BARRACUDA",
+    "rackSize": 0
+  },
+  "Ammo Barracuda-T": {
+    "ammoType": "BARRACUDA_T",
+    "rackSize": 0
+  },
+  "Ammo Heavy Mass Driver": {
+    "ammoType": "HMASS",
+    "rackSize": 0
+  },
+  "Ammo Heavy N-Gauss": {
+    "ammoType": "HEAVY_NGAUSS",
+    "rackSize": 0
+  },
+  "Ammo Heavy SCC": {
+    "ammoType": "SCC",
+    "rackSize": 7
+  },
+  "Ammo Killer Whale": {
+    "ammoType": "KILLER_WHALE",
+    "rackSize": 0
+  },
+  "Ammo Killer Whale-T": {
+    "ammoType": "KILLER_WHALE_T",
+    "rackSize": 0
+  },
+  "Ammo Kraken": {
+    "ammoType": "KRAKENM",
+    "rackSize": 0
+  },
+  "Ammo KrakenT": {
+    "ammoType": "KRAKEN_T",
+    "rackSize": 0
+  },
+  "Ammo Light Mass Driver": {
+    "ammoType": "LMASS",
+    "rackSize": 0
+  },
+  "Ammo Light N-Gauss": {
+    "ammoType": "LIGHT_NGAUSS",
+    "rackSize": 0
+  },
+  "Ammo Light SCC": {
+    "ammoType": "SCC",
+    "rackSize": 2
+  },
+  "Ammo Manta Ray": {
+    "ammoType": "MANTA_RAY",
+    "rackSize": 0
+  },
+  "Ammo Medium Mass Driver": {
+    "ammoType": "MMASS",
+    "rackSize": 0
+  },
+  "Ammo Medium N-Gauss": {
+    "ammoType": "MED_NGAUSS",
+    "rackSize": 0
+  },
+  "Ammo Medium SCC": {
+    "ammoType": "SCC",
+    "rackSize": 5
+  },
+  "Ammo NAC/10": {
+    "ammoType": "NAC",
+    "rackSize": 10
+  },
+  "Ammo NAC/20": {
+    "ammoType": "NAC",
+    "rackSize": 20
+  },
+  "Ammo NAC/25": {
+    "ammoType": "NAC",
+    "rackSize": 25
+  },
+  "Ammo NAC/30": {
+    "ammoType": "NAC",
+    "rackSize": 30
+  },
+  "Ammo NAC/35": {
+    "ammoType": "NAC",
+    "rackSize": 35
+  },
+  "Ammo NAC/40": {
+    "ammoType": "NAC",
+    "rackSize": 40
+  },
+  "Ammo Peacemaker": {
+    "ammoType": "KILLER_WHALE",
+    "rackSize": 0
+  },
+  "Ammo Piranha": {
+    "ammoType": "PIRANHA",
+    "rackSize": 0
+  },
+  "Ammo Santa Anna": {
+    "ammoType": "WHITE_SHARK",
+    "rackSize": 0
+  },
+  "Ammo Screen": {
+    "ammoType": "SCREEN_LAUNCHER",
+    "rackSize": 0
+  },
+  "Ammo Stingray": {
+    "ammoType": "STINGRAY",
+    "rackSize": 0
+  },
+  "Ammo Swordfish": {
+    "ammoType": "SWORDFISH",
+    "rackSize": 0
+  },
+  "Ammo White Shark": {
+    "ammoType": "WHITE_SHARK",
+    "rackSize": 0
+  },
+  "Ammo White Shark-T": {
+    "ammoType": "WHITE_SHARK_T",
+    "rackSize": 0
+  },
+  "Capital Missile Launcher (AR10 Launcher)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [2.0, 2.0, 2.0, 2.0],
+    "ammoType": "AR10",
+    "rackSize": 0
+  },
+  "Capital Missile Launcher (Barracuda)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [2.0, 2.0, 2.0, 2.0],
+    "ammoType": "BARRACUDA",
+    "rackSize": 0
+  },
+  "Capital Missile Launcher (Killer Whale)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [4.0, 4.0, 4.0, 4.0],
+    "ammoType": "KILLER_WHALE",
+    "rackSize": 0
+  },
+  "Capital Missile Launcher (Kraken)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [10.0, 10.0, 10.0, 10.0],
+    "ammoType": "KRAKENM",
+    "rackSize": 0
+  },
+  "Capital Missile Launcher (White Shark)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [3.0, 3.0, 3.0, 3.0],
+    "ammoType": "WHITE_SHARK",
+    "rackSize": 0
+  },
+  "Mass Driver (Heavy)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [140.0, 140.0, 140.0, 0.0],
+    "ammoType": "HMASS",
+    "rackSize": 0
+  },
+  "Mass Driver (Light)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [60.0, 60.0, 60.0, 0.0],
+    "ammoType": "LMASS",
+    "rackSize": 0
+  },
+  "Mass Driver (Medium)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [100.0, 100.0, 100.0, 0.0],
+    "ammoType": "MMASS",
+    "rackSize": 0
+  },
+  "Naval Autocannon (NAC/10)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [10.0, 10.0, 10.0, 0.0],
+    "ammoType": "NAC",
+    "rackSize": 10
+  },
+  "Naval Autocannon (NAC/20)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [20.0, 20.0, 20.0, 0.0],
+    "ammoType": "NAC",
+    "rackSize": 20
+  },
+  "Naval Autocannon (NAC/25)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [25.0, 25.0, 25.0, 0.0],
+    "ammoType": "NAC",
+    "rackSize": 25
+  },
+  "Naval Autocannon (NAC/30)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [30.0, 30.0, 30.0, 0.0],
+    "ammoType": "NAC",
+    "rackSize": 30
+  },
+  "Naval Autocannon (NAC/35)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [35.0, 35.0, 0.0, 0.0],
+    "ammoType": "NAC",
+    "rackSize": 35
+  },
+  "Naval Autocannon (NAC/40)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [40.0, 40.0, 0.0, 0.0],
+    "ammoType": "NAC",
+    "rackSize": 40
+  },
+  "Naval Gauss (Heavy)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [30.0, 30.0, 30.0, 30.0],
+    "ammoType": "HEAVY_NGAUSS",
+    "rackSize": 0
+  },
+  "Naval Gauss (Light)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [15.0, 15.0, 15.0, 15.0],
+    "ammoType": "LIGHT_NGAUSS",
+    "rackSize": 0
+  },
+  "Naval Gauss (Medium)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [25.0, 25.0, 25.0, 25.0],
+    "ammoType": "MED_NGAUSS",
+    "rackSize": 0
+  },
+  "Naval Laser 35": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [3.5, 3.5, 3.5, 0.0],
+    "ammoType": "NA",
+    "rackSize": 0
+  },
+  "Naval Laser 45": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [4.5, 4.5, 4.5, 4.5],
+    "ammoType": "NA",
+    "rackSize": 0
+  },
+  "Naval Laser 55": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [5.5, 5.5, 5.5, 5.5],
+    "ammoType": "NA",
+    "rackSize": 0
+  },
+  "Naval PPC (Heavy)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [15.0, 15.0, 15.0, 15.0],
+    "ammoType": "NA",
+    "rackSize": 0
+  },
+  "Naval PPC (Light)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [7.0, 7.0, 7.0, 0.0],
+    "ammoType": "NA",
+    "rackSize": 0
+  },
+  "Naval PPC (Medium)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [9.0, 9.0, 9.0, 9.0],
+    "ammoType": "NA",
+    "rackSize": 0
+  },
+  "Screen Launcher": {
+    "isCapital": false,
+    "isSubCapital": false,
+    "isScreen": true,
+    "damageByRange": [15.0, 0.0, 0.0, 0.0],
+    "ammoType": "SCREEN_LAUNCHER",
+    "rackSize": 0
+  },
+  "Sub-Capital Cannon (Heavy)": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [7.0, 7.0, 0.0, 0.0],
+    "ammoType": "SCC",
+    "rackSize": 7
+  },
+  "Sub-Capital Cannon (Light)": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [2.0, 2.0, 2.0, 0.0],
+    "ammoType": "SCC",
+    "rackSize": 2
+  },
+  "Sub-Capital Cannon (Medium)": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [5.0, 5.0, 0.0, 0.0],
+    "ammoType": "SCC",
+    "rackSize": 5
+  },
+  "Sub-Capital Laser /1": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [1.0, 1.0, 1.0, 0.0],
+    "ammoType": "NA",
+    "rackSize": 0
+  },
+  "Sub-Capital Laser /2": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [2.0, 2.0, 0.0, 0.0],
+    "ammoType": "NA",
+    "rackSize": 0
+  },
+  "Sub-Capital Laser /3": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [3.0, 3.0, 0.0, 0.0],
+    "ammoType": "NA",
+    "rackSize": 0
+  },
+  "Sub-Capital Missile Launcher (Manta Ray)": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [5.0, 0.0, 0.0, 0.0],
+    "ammoType": "MANTA_RAY",
+    "rackSize": 0
+  },
+  "Sub-Capital Missile Launcher (Piranha)": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [3.0, 3.0, 3.0, 0.0],
+    "ammoType": "PIRANHA",
+    "rackSize": 0
+  },
+  "Sub-Capital Missile Launcher (Stingray)": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [3.5, 3.5, 0.0, 0.0],
+    "ammoType": "STINGRAY",
+    "rackSize": 0
+  },
+  "Sub-Capital Missile Launcher (Swordfish)": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [4.0, 0.0, 0.0, 0.0],
+    "ammoType": "SWORDFISH",
+    "rackSize": 0
+  },
+  "Tele-operated Missile (Barracuda-T)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [2.0, 2.0, 2.0, 2.0],
+    "ammoType": "BARRACUDA_T",
+    "rackSize": 0
+  },
+  "Tele-operated Missile (Killer Whale-T)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [4.0, 4.0, 4.0, 4.0],
+    "ammoType": "KILLER_WHALE_T",
+    "rackSize": 0
+  },
+  "Tele-operated Missile (Kraken T)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [10.0, 10.0, 10.0, 10.0],
+    "ammoType": "KRAKEN_T",
+    "rackSize": 0
+  },
+  "Tele-operated Missile (White Shark-T)": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [3.0, 3.0, 3.0, 3.0],
+    "ammoType": "WHITE_SHARK_T",
+    "rackSize": 0
+  }
+}

@@ -13,3 +13,9 @@ Drone weapon 0.8 precedes links; summary 0.95 precedes skill/rounding
 
 LRTWeapon.java:62 and SRTWeapon.java:68 also carry Artemis-compatible flags;
 the canonical link classifier includes those torpedo identities.
+
+Represented `ISAPDS Ammo` bins join the shared AMS/APDS defensive pool;
+its cap remains the combined listed weapon BV, including duplicate bins.
+Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
+AmmoType.java:12242-12254; BVCalculator.java:570-572,629-635.
+The unchanged Padilla contract regression pins defense 647.36 and total 1155.
