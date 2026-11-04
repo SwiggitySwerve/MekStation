@@ -951,9 +951,13 @@ SHALL follow BattleArmor.java:446-567 without DWP or burden: a myomer booster
 adds 2 walk (1 at heavy or assault), otherwise a mechanical jump booster adds
 1; UMU suits SHALL have no jump MP and SHALL use their jumping MP as UMU MP;
 a mechanical jump booster SHALL give 1 jump without jump jets; with jump MP, a
-partial wing and a jump booster SHALL each add 1. Unsupported identities and
-native ammunition lacking kgPerShot SHALL remain explicitly unresolved, not
-invented ton bins.
+partial wing and a jump booster SHALL each add 1. BA ammunition SHALL be
+valued per shot, `kgPerShot * shots / 1000 * BV per ton`, for every trooper
+when squad-mounted and for its trooper otherwise;
+it SHALL count only in the pool of a launcher with the same Java
+ammoType:rackSize, capped at that launcher BV, and one-shot launchers SHALL
+NOT form a pool. Unsupported identities and native ammunition lacking
+kgPerShot SHALL remain explicitly unresolved, not invented ton bins.
 
 #### Scenario: Manipulator melee BV
 
@@ -980,6 +984,12 @@ invented ton bins.
 - **GIVEN** a native ammunition mount whose catalog lacks per-shot mass
 - **WHEN** native mount values are projected
 - **THEN** its identity and missing kgPerShot SHALL be reported and no one-ton BV SHALL be invented
+
+#### Scenario: Per-shot BA ammunition
+
+- **GIVEN** the pinned four-trooper Cavalier [SRM] source with an SRM-1 launcher and four BA SRM-1 shots
+- **WHEN** BV is computed
+- **THEN** ammo BV SHALL equal `10 * 4 / 1000 * 2 = 0.08` per trooper and final BV SHALL equal 219
 
 #### Scenario: Partial wing raises BV movement
 

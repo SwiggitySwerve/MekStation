@@ -12,6 +12,8 @@ import {
 
 import type { BAWeaponBVMount, BAAmmoBVMount } from './battleArmorBV';
 
+import { getNativeAmmoBVGroup } from '../battleValueAmmo';
+import { AMMUNITION_CATALOG_FILES } from '../equipmentBVCatalogData';
 import { getEquipmentEntry, resolveEquipmentBV } from '../equipmentBVResolver';
 
 const isMagneticClamp = (name: string) => /magnetic.?clamp/i.test(name);
@@ -62,6 +64,23 @@ const ECM = nameSet(
 );
 // F_AMS: ISBAAPDS.java:57-64.
 const AMS = nameSet('ISBAAPDS');
+// Java per-shot mass of BA ammo records (AmmoType.F_BATTLEARMOR).
+const KG_PER_SHOT = new Map(
+  AMMUNITION_CATALOG_FILES.flatMap((file) => file.items ?? [])
+    .filter((item) => typeof item.kgPerShot === 'number')
+    .map((item) => [String(item.id), Number(item.kgPerShot)]),
+);
+/** Java ammoType:rackSize pool of a BA ammo or weapon name, e.g. SRM:2. */
+function baAmmoPool(native: string): string | undefined {
+  const bare = native
+    .replace(/\s*\(OS\)$|OS$/i, '')
+    .replace(/^(?:IS|CL)?\s*(?:BA\s*-?\s*)?(?:CL\s*)?(?:Ammo\s*)?/i, '');
+  const advanced = /^Advanced\s*SRM\s*-?\s*(\d)/i.exec(bare);
+  if (advanced) return `SRM_ADVANCED:${advanced[1]}`;
+  if (/^Tube\s*Artillery/i.test(bare)) return 'BA_TUBE:3';
+  if (/^Compact\s*Narc/i.test(bare)) return 'NARC:4';
+  return getNativeAmmoBVGroup(bare);
+}
 const nativeParts = (mount: IBattleArmorMountedEquipment) =>
   mount.equipmentId.split(':');
 
@@ -143,6 +162,9 @@ export function projectBAMounts(
     (names.some((name) => IMPROVED_SENSORS.has(name)) ? 1 : 0) +
     (names.some((name) => ACTIVE_PROBES.has(name)) ? 1 : 0) +
     (firstECM === undefined ? 0 : ANGEL_ECM.has(firstECM) ? 2 : 1);
+  // Per-trooper ammo BV and launcher BV by pool (BVCalculator.java:1189-1243).
+  const ammoPools = new Map<string, number>();
+  const weaponPools = new Map<string, number>();
   for (const mount of equipment) {
     const [id, ...qualifiers] = nativeParts(mount);
     if (id === 'InfantryAssaultRifle') continue; // BattleArmorBVCalculator.java:115-120.
@@ -183,8 +205,29 @@ export function projectBAMounts(
     )
       continue;
     if (/ammo/i.test(id)) {
-      unresolvedEquipment.push(
-        `${mount.equipmentId}: missing kgPerShot / native ammo pool`,
+      // BattleArmorBVCalculator.java:251-254,329-331: squad ammo counts for
+      // every trooper, trooper ammo for its trooper, at kgPerShot per shot.
+      const entry = getEquipmentEntry(id);
+      const kg = entry && KG_PER_SHOT.get(entry.id);
+      const shots = Number(
+        /^Shots(\d+)#$/.exec(
+          qualifiers.find((q) => /^Shots\d+#$/.test(q)) ?? '',
+        )?.[1],
+      );
+      const pool = baAmmoPool(id);
+      if (!entry || kg === undefined || !pool || !Number.isFinite(shots)) {
+        unresolvedEquipment.push(
+          `${mount.equipmentId}: missing kgPerShot / native ammo pool`,
+        );
+        continue;
+      }
+      const share = /^Trooper \d+$/i.test(mount.unitLocation ?? '')
+        ? 1 / Math.max(1, squadSize)
+        : 1;
+      ammoPools.set(
+        pool,
+        (ammoPools.get(pool) ?? 0) +
+          ((kg * shots) / 1000) * entry.battleValue * share,
       );
       continue;
     }
@@ -204,6 +247,10 @@ export function projectBAMounts(
     const infantry =
       qualifiers.includes('APM') || mount.isAPMount || /^Infantry/i.test(id);
     if ((personal || support) && infantry) continue;
+    // Launchers cap their ammo pool; one-shots are not in it (BVCalculator.java:1225-1232).
+    const pool = baAmmoPool(id);
+    if (pool && !infantry && !/(?:OS|\(OS\))$/i.test(id))
+      weaponPools.set(pool, (weaponPools.get(pool) ?? 0) + entry.battleValue);
     const quantity = personal || support ? 1 / Math.max(1, squadSize) : 1;
     weapons.push({
       id: entry.id,
@@ -218,6 +265,13 @@ export function projectBAMounts(
           !qualifiers.includes('Body') &&
           mount.location !== BattleArmorLocation.BODY),
     });
+  }
+  // BVCalculator.java:1057-1079: ammo without a launcher is dropped and
+  // excess ammo is capped at the launchers' BV.
+  for (const [pool, bv] of ammoPools) {
+    const cap = weaponPools.get(pool);
+    if (cap !== undefined)
+      ammo.push({ id: pool, bvOverride: Math.min(bv, cap) });
   }
   return {
     weapons,

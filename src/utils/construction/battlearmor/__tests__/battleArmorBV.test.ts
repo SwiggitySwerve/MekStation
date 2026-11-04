@@ -414,7 +414,8 @@ it.each(['quad', 'heavy', 'umu'])(
 
 it('keeps native ammo without per-shot mass and unknown identities explicit', () => {
   const input = buildBattleArmorBVInputFromUnit(
-    load(armedAchileus('IS MRM 1 Ammo:Shots10#\nUnknown BA Fixture:RA')),
+    // Mech ammo has no BA per-shot mass (only F_BATTLEARMOR ammo carries it).
+    load(armedAchileus('IS Ammo SRM-2:Shots10#\nUnknown BA Fixture:RA')),
   );
   expect(input.unresolvedEquipment).toEqual(
     expect.arrayContaining([
@@ -767,4 +768,50 @@ it('gives heavy myomer boosters one MP and mechanical boosters none on top', () 
   const input = buildBattleArmorBVInputFromUnit(load(base));
   expect(input.groundMP).toBe(3);
   expect(input.jumpMP).toBe(1);
+});
+
+// battlearmor/3058Uu/Cavalier BA [SRM] (Sqd4).blk, reduced to its BV tags.
+// BA ammo is valued per shot, kgPerShot * shots / 1000 * BV per ton
+// (BattleArmorBVCalculator.java:329-331; AmmoType.java:17103-17105), and
+// pooled with the launchers of the same ammoType:rackSize
+// (BVCalculator.java:1045-1096,1189-1243).
+const cavalier = (squad: string) =>
+  blk({
+    type: 'IS Level 2',
+    motion_type: 'Jump',
+    cruiseMP: '1',
+    jumpingMP: '3',
+    armor_type: '28',
+    armor: '9',
+    'Trooper Count': '4',
+    weightclass: '2',
+    chassis: 'biped',
+    'Squad Equipment': squad,
+    slotless_equipment: 'BAJumpJet',
+  });
+
+it('values BA ammo per shot in the pool of its launcher', () => {
+  const unit = load(
+    cavalier('ISBASRM1:RA\nBA-SRM1 Ammo:Body:Shots4#\nBABattleClaw:LA'),
+  );
+  const b = calculateBattleValueForUnit(unit);
+  if (b?.kind !== 'battlearmor') throw new Error('Missing BA dispatch');
+  // UL-16b: 10 kg * 4 / 1000 * 2 = 0.08; (15 + 0.08) * 0.77; total 219.
+  expect(b.breakdown.perTrooper.offensive.ammoBV).toBeCloseTo(0.08, 10);
+  expect(b.breakdown.offensive).toBeCloseTo(11.6116, 10);
+  expect(b.breakdown.final).toBe(219);
+  expect(handler.calculateBV(unit)).toBe(219);
+});
+
+it('drops BA ammo without a launcher in its pool', () => {
+  // BVCalculator.java:1057-1064: ammo without a matching weapon is skipped.
+  const input = buildBattleArmorBVInputFromUnit(
+    load(cavalier('BA-SRM1 Ammo:Body:Shots4#\nBABattleClaw:LA')),
+  );
+  expect(calculateBAOffensiveBV(input).ammoBV).toBe(0);
+  // A one-shot launcher is not in the pool either (BVCalculator.java:1225-1232).
+  const oneShot = buildBattleArmorBVInputFromUnit(
+    load(cavalier('ISBASRM1OS:RA\nBA-SRM1 Ammo:Body:Shots4#\nBABattleClaw:LA')),
+  );
+  expect(calculateBAOffensiveBV(oneShot).ammoBV).toBe(0);
 });
