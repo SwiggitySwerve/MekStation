@@ -11,7 +11,10 @@ import type {
 } from './aerospaceBVTypes';
 
 import { HeatSinkType } from '../../../types/construction/HeatSinkType';
-import { AerospaceSubType } from '../../../types/unit/AerospaceInterfaces';
+import {
+  AerospaceCockpitType,
+  AerospaceSubType,
+} from '../../../types/unit/AerospaceInterfaces';
 import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import { extractWeaponTypeFromAmmoId } from '../battleValueAmmo';
 import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
@@ -37,6 +40,8 @@ export type AerospaceBVDispatchInput = (
   | ISmallCraft
   | IAerospaceUnit
 ) & {
+  readonly cockpit?: string;
+  readonly cockpitType?: AerospaceCockpitType;
   readonly isSupportVehicle?: boolean;
   readonly isFixedWingSupport?: boolean;
   readonly barRating?: number;
@@ -130,6 +135,9 @@ export function buildAerospaceBVInputFromUnit(
   return {
     subType: unitTypeToAerospaceSubType(unit.unitType),
     isSupportVehicle: supportVehicle,
+    hasSmallCockpit:
+      unit.cockpit?.toUpperCase() === 'SMALL' ||
+      unit.cockpitType === AerospaceCockpitType.SMALL,
     barRating:
       unit.barRating ??
       (supportVehicle && unit.nativeAerospaceConstruction
