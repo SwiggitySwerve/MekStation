@@ -169,9 +169,6 @@ module.exports = createJestConfig({
         ]
       : []),
   ],
-  // GitHub-hosted Linux runners have 4 vCPUs; Jest's default (cores - 1) leaves
-  // one idle while workers wait on file IO. Locally keep the default.
-  ...(process.env.CI ? { maxWorkers: '100%' } : {}),
   // Coverage globally — applies to both projects.
   // Ratcheted on 2026-04-25 after Tier 1 BV-core invariant tests landed
   // (PR-C1: ~110 new tests for battleValue*, aerospace, engine/gyro/heat-sink/
