@@ -1,9 +1,25 @@
+import {
+  isDefinitionForFamily,
+  UNIT_DEFINITION_FAMILIES,
+} from '@/services/units/unitLoaderService/definitionTypes';
+import {
+  mapBattleArmorDefinitionToState,
+  mapProtoMechDefinitionToState,
+} from '@/services/units/unitLoaderService/smallUnitDefinitionMapper';
+import { createDefaultInfantryState } from '@/stores/infantryState';
+import { UnitContract } from '@/types/contracts';
 import { isMechUnit } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 /** Runtime BV entry point. Rules: openspec/specs/battle-value-system/spec.md. */
 import type { UnitData as MechBVInput } from '../../../scripts/validate-bv-types';
 
 import { calculateBattleValueForUnit } from './battleValueCalculations';
+import {
+  contractUnitToBVUnit,
+  type IContractBVSource,
+} from './contractBVUnitAdapter';
+import { mapInfantryDefinition } from './infantry/libraryMapping';
 import { calculateUnitBV as calculateMechBV } from './mechBV/calculator';
 
 export type UnitJsonArmorAllocation = MechBVInput['armor']['allocation'];
@@ -38,7 +54,7 @@ export function calculateUnitBV(source: unknown): number {
     source.unitType !== 'Biped' &&
     source.unitType !== 'Quad'
   ) {
-    const result = calculateBattleValueForUnit(source);
+    const result = calculateBattleValueForUnit(projectNonMechSource(source));
     if (!result) return 0;
     return requirePositiveBV(result.breakdown.final, source.unitType);
   }
@@ -111,4 +127,49 @@ function requirePositiveBV(bv: unknown, unitType: string, id?: string): number {
   if (typeof bv !== 'number' || !Number.isFinite(bv) || bv <= 0)
     throw new Error(`Invalid ${unitType} BV${id ? ` for ${id}` : ''}: ${bv}`);
   return bv;
+}
+
+/** BLKTankFile.java:200-233; BVCalculator.java:103-139 (48fcb2f64).
+ * Serialized construction facts must reach their existing family projection.
+ */
+function projectNonMechSource(source: { readonly unitType: string }) {
+  const supported = Object.values(UNIT_DEFINITION_FAMILIES).some(
+    ({ unitTypes }) => unitTypes.some((type) => type === source.unitType),
+  );
+  const serialized =
+    'platoon' in source ||
+    ('armor' in source &&
+      source.armor !== null &&
+      typeof source.armor === 'object' &&
+      !Array.isArray(source.armor));
+  if (!supported || !serialized) return source;
+  const unit = UnitContract.parse(source);
+  if (isDefinitionForFamily('battlearmor', unit))
+    return {
+      unitType: UnitType.BATTLE_ARMOR,
+      editorState: mapBattleArmorDefinitionToState(unit),
+    };
+  if (isDefinitionForFamily('protomechs', unit))
+    return {
+      unitType: UnitType.PROTOMECH,
+      editorState: mapProtoMechDefinitionToState(unit),
+    };
+  if (isDefinitionForFamily('infantry', unit)) {
+    const config = mapInfantryDefinition(unit);
+    return {
+      unitType: UnitType.INFANTRY,
+      editorState: { ...createDefaultInfantryState(config), ...config },
+    };
+  }
+  const { tonnage, movement, armor } = unit;
+  if (tonnage === undefined)
+    throw new Error('Missing required BV fact: tonnage');
+  if (!movement) throw new Error('Missing required BV fact: movement');
+  if (!armor) throw new Error('Missing required BV fact: armor');
+  return contractUnitToBVUnit({
+    ...unit,
+    tonnage,
+    armor,
+    movement: movement as IContractBVSource['movement'],
+  });
 }
