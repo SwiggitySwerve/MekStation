@@ -71,6 +71,9 @@ jobs:
 
       - name: Filter paths
         id: filter
+        env:
+          # A push to main gates only the win/mac pack legs on its own diff.
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
         run: node scripts/ci/ci-changes.mjs
 
       - name: Test change detection and the Lint and Test guard
