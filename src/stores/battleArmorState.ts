@@ -379,6 +379,7 @@ export function createDefaultBattleArmorState(
           weaponBV: 0,
           ammoBV: 0,
           manipulatorBV: 0,
+          offensiveEquipmentBV: 0,
           total: 0,
         },
         total: 0,

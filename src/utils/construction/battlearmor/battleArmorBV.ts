@@ -116,6 +116,8 @@ export interface IBattleArmorBVInput {
   hasCamoSystem?: boolean;
   /** Per-trooper sensor/ECM/AMS bonus, added before the defensive factor. */
   defensiveEquipmentBV?: number;
+  /** Per-trooper offensive equipment, averaged over the squad. */
+  offensiveEquipmentBV?: number;
   canAntiMek?: boolean;
   unresolvedEquipment?: readonly string[];
 
@@ -300,9 +302,19 @@ export function calculateBAOffensiveBV(
   const speed = calculateOffensiveSpeedFactorForMP(
     Math.max(input.groundMP, input.jumpMP, input.umuMP ?? 0),
   );
-  const total = (weaponBV + ammoBV + manipulatorBV) * speed;
+  // BVCalculator.java:283-292: offensive equipment precedes the speed factor.
+  const offensiveEquipmentBV = input.offensiveEquipmentBV ?? 0;
+  const total =
+    (weaponBV + ammoBV + manipulatorBV + offensiveEquipmentBV) * speed;
 
-  return { weaponBV, ammoBV, manipulatorBV, total, speedFactor: speed };
+  return {
+    weaponBV,
+    ammoBV,
+    manipulatorBV,
+    offensiveEquipmentBV,
+    total,
+    speedFactor: speed,
+  };
 }
 
 // =============================================================================
