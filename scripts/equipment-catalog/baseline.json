@@ -27452,5 +27452,2443 @@
       "introductionYear": 3137,
       "special": ["point-defense"]
     }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 255,
+    "id": "alamomissile-registry",
+    "sha256": "cfe240a775dabbd8a2dc46f0b146f6e7b282e0dbc86aeb723087ba112c8181dc",
+    "item": {
+      "id": "alamomissile-registry",
+      "name": "Alamo Missile",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 3071,
+      "costCBills": 0,
+      "subType": "AlamoMissileWeapon",
+      "damage": 10,
+      "heat": 0,
+      "ranges": {
+        "long": 24,
+        "extreme": 40,
+        "short": 6,
+        "minimum": 0,
+        "medium": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/AlamoMissileWeapon.java: AlamoMissile"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 256,
+    "id": "capital-missile-launcher-kraken-registry",
+    "sha256": "ae2c241f05afa29b16c8095e3ab45720ed79e65f2d94441184f55e50ab3cd7e3",
+    "item": {
+      "id": "capital-missile-launcher-kraken-registry",
+      "name": "Capital Missile Launcher (Kraken)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 190,
+      "criticalSlots": 0,
+      "battleValue": 1914,
+      "introductionYear": 3053,
+      "costCBills": 455000,
+      "subType": "CapMissKrakenWeapon",
+      "damage": 10,
+      "heat": 50,
+      "ranges": {
+        "long": 34,
+        "extreme": 46,
+        "short": 11,
+        "minimum": 0,
+        "medium": 22
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissKrakenWeapon.java: Capital Missile Launcher (Kraken)"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 257,
+    "id": "naval-gauss-heavy-registry",
+    "sha256": "73618b1b2241e0439a394ca9f35c380c10fa5732111a101b5c0b70790f180096",
+    "item": {
+      "id": "naval-gauss-heavy-registry",
+      "name": "Naval Gauss (Heavy)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 7000,
+      "criticalSlots": 0,
+      "battleValue": 6048,
+      "introductionYear": 2435,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "reintroductionYear": 3052,
+      "costCBills": 50050000,
+      "subType": "NGaussWeaponHeavy",
+      "damage": 30,
+      "heat": 18,
+      "ranges": {
+        "long": 36,
+        "extreme": 48,
+        "short": 12,
+        "minimum": 0,
+        "medium": 24
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NGaussWeaponHeavy.java: Naval Gauss (Heavy)"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 258,
+    "id": "naval-gauss-light-registry",
+    "sha256": "83dec15b4fb4c0101a1c59e49010f7e494145713867748ab0fbfd4796e6d5ed9",
+    "item": {
+      "id": "naval-gauss-light-registry",
+      "name": "Naval Gauss (Light)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 4500,
+      "criticalSlots": 0,
+      "battleValue": 3024,
+      "introductionYear": 2435,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "reintroductionYear": 3052,
+      "costCBills": 20300000,
+      "subType": "NGaussWeaponLight",
+      "damage": 15,
+      "heat": 9,
+      "ranges": {
+        "long": 40,
+        "extreme": 56,
+        "short": 14,
+        "minimum": 0,
+        "medium": 28
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NGaussWeaponLight.java: Naval Gauss (Light)"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 259,
+    "id": "naval-gauss-medium-registry",
+    "sha256": "9974b7026b3f8e256bc434742c212d65b063a67454f44b9fd9d64c950ea35a86",
+    "item": {
+      "id": "naval-gauss-medium-registry",
+      "name": "Naval Gauss (Medium)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 5500,
+      "criticalSlots": 0,
+      "battleValue": 5040,
+      "introductionYear": 2435,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "reintroductionYear": 3052,
+      "costCBills": 30350000,
+      "subType": "NGaussWeaponMedium",
+      "damage": 25,
+      "heat": 15,
+      "ranges": {
+        "long": 39,
+        "extreme": 52,
+        "short": 13,
+        "minimum": 0,
+        "medium": 26
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NGaussWeaponMedium.java: Naval Gauss (Medium)"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 260,
+    "id": "tele-operated-missile-barracuda-t-registry",
+    "sha256": "2cf8378d98761afe449c0648f6a2fe9415948b134a1ccbe34083a39a317664e6",
+    "item": {
+      "id": "tele-operated-missile-barracuda-t-registry",
+      "name": "Tele-operated Missile (Barracuda-T)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 100,
+      "criticalSlots": 0,
+      "battleValue": 461,
+      "introductionYear": 3053,
+      "costCBills": 100000,
+      "subType": "CapMissTeleBarracudaWeapon",
+      "damage": 2,
+      "heat": 10,
+      "ranges": {
+        "long": 40,
+        "extreme": 50,
+        "short": 20,
+        "minimum": 0,
+        "medium": 30
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissTeleBarracudaWeapon.java: Tele-operated Missile (Barracuda-T)"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 261,
+    "id": "tele-operated-missile-white-shark-t-registry",
+    "sha256": "1a108620d91fed7a8bad4d52043b9a44c5765bb11e566292345ffe09f007f0e3",
+    "item": {
+      "id": "tele-operated-missile-white-shark-t-registry",
+      "name": "Tele-operated Missile (White Shark-T)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 130,
+      "criticalSlots": 0,
+      "battleValue": 692,
+      "introductionYear": 3053,
+      "costCBills": 145000,
+      "subType": "CapMissTeleWhiteSharkWeapon",
+      "damage": 3,
+      "heat": 15,
+      "ranges": {
+        "long": 36,
+        "extreme": 48,
+        "short": 12,
+        "minimum": 0,
+        "medium": 24
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissTeleWhiteSharkWeapon.java: Tele-operated Missile (White Shark-T)"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 262,
+    "id": "autocannon-2p-registry",
+    "sha256": "7368869373f9982fed74a7a9e85b368953b09c48d9cca04aa08438abb8946b6d",
+    "item": {
+      "id": "autocannon-2p-registry",
+      "name": "Primitive Prototype Autocannon/2",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 6,
+      "criticalSlots": 1,
+      "battleValue": 37,
+      "introductionYear": 2290,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 75000,
+      "subType": "ISAC2Primitive",
+      "damage": 2,
+      "heat": 1,
+      "ranges": {
+        "long": 24,
+        "extreme": 32,
+        "short": 8,
+        "minimum": 4,
+        "medium": 16
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISAC2Primitive.java: Autocannon/2p"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 263,
+    "id": "bombrlp-registry",
+    "sha256": "df6d5acbf8adfd218c5b3810963dcd4cf112feb69dc629f165f193fb32cbffd4",
+    "item": {
+      "id": "bombrlp-registry",
+      "name": "Rocket Launcher (Prototype) Pod",
+      "category": "Missile",
+      "techBase": "BOTH",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 1,
+      "criticalSlots": 0,
+      "battleValue": 0,
+      "introductionYear": 2315,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 0,
+      "subType": "BombISRLP10",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 18,
+        "extreme": 22,
+        "short": 5,
+        "minimum": 0,
+        "medium": 11
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/bombs/BombISRLP10.java: BombRLP"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 264,
+    "id": "clersmalllaserprototype-registry",
+    "sha256": "06f9f4c447dacd51762747068112c4d9442958b48534148e456d891d348e95f4",
+    "item": {
+      "id": "clersmalllaserprototype-registry",
+      "name": "Prototype ER Small Laser (CP)",
+      "category": "Energy",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "battleValue": 17,
+      "introductionYear": 2814,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2830,
+      "costCBills": 11250,
+      "subType": "CLERLaserSmallPrototype",
+      "damage": 3,
+      "heat": 2,
+      "ranges": {
+        "long": 5,
+        "extreme": 7,
+        "short": 2,
+        "minimum": 0,
+        "medium": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLERLaserSmallPrototype.java: CLERSmallLaserPrototype"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 265,
+    "id": "cllbxac20prototype-registry",
+    "sha256": "41d757862352b52546d63e8f2f8fd6c66b6c7ae93971896a2c37b02f7a66bd2c",
+    "item": {
+      "id": "cllbxac20prototype-registry",
+      "name": "Prototype LB 20-X Autocannon",
+      "category": "Ballistic",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 14,
+      "criticalSlots": 12,
+      "battleValue": 237,
+      "introductionYear": 2815,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2831,
+      "costCBills": 600000,
+      "subType": "CLLB20XACPrototype",
+      "damage": 20,
+      "heat": 6,
+      "ranges": {
+        "long": 12,
+        "extreme": 16,
+        "short": 4,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLLB20XACPrototype.java: CLLBXAC20Prototype"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 266,
+    "id": "cllbxac2prototype-registry",
+    "sha256": "1812a2e7d7aecaf716dce89fd693607f1ccf2a25936e987de2de2585b8792ca3",
+    "item": {
+      "id": "cllbxac2prototype-registry",
+      "name": "Prototype LB 2-X Autocannon",
+      "category": "Ballistic",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 6,
+      "criticalSlots": 5,
+      "battleValue": 42,
+      "introductionYear": 2815,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2831,
+      "costCBills": 150000,
+      "subType": "CLLB2XACPrototype",
+      "damage": 2,
+      "heat": 1,
+      "ranges": {
+        "long": 27,
+        "extreme": 36,
+        "short": 9,
+        "minimum": 4,
+        "medium": 18
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLLB2XACPrototype.java: CLLBXAC2Prototype"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 267,
+    "id": "cllbxac5prototype-registry",
+    "sha256": "c083d2c2d7fc01f94c8849dacd607fc549d51416471b258304e6c60521ece237",
+    "item": {
+      "id": "cllbxac5prototype-registry",
+      "name": "Prototype LB 5-X Autocannon",
+      "category": "Ballistic",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 8,
+      "criticalSlots": 6,
+      "battleValue": 83,
+      "introductionYear": 2815,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2830,
+      "costCBills": 250000,
+      "subType": "CLLB5XACPrototype",
+      "damage": 5,
+      "heat": 1,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 3,
+        "medium": 14
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLLB5XACPrototype.java: CLLBXAC5Prototype"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 268,
+    "id": "clstreaksrm4prototype-registry",
+    "sha256": "696422f3ae0497beb3d885d115cbb4a480c2a01d74812493e54b361fae345ede",
+    "item": {
+      "id": "clstreaksrm4prototype-registry",
+      "name": "Prototype Streak SRM 4",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 3,
+      "criticalSlots": 2,
+      "battleValue": 59,
+      "introductionYear": 2814,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2831,
+      "costCBills": 60000,
+      "subType": "CLStreakSRM4Prototype",
+      "damage": "Java variable damage (-2)",
+      "heat": 3,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLStreakSRM4Prototype.java: CLStreakSRM4Prototype"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 269,
+    "id": "clstreaksrm6prototype-registry",
+    "sha256": "847ec3a44e633cb1d10bbc17102ad9ebcd5d26444f6b9648dd454aa1199d4669",
+    "item": {
+      "id": "clstreaksrm6prototype-registry",
+      "name": "Prototype Streak SRM 6",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 4.5,
+      "criticalSlots": 2,
+      "battleValue": 89,
+      "introductionYear": 2814,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2831,
+      "costCBills": 120000,
+      "subType": "CLStreakSRM6Prototype",
+      "damage": "Java variable damage (-2)",
+      "heat": 4,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLStreakSRM6Prototype.java: CLStreakSRM6Prototype"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 270,
+    "id": "clultraac10prototype-registry",
+    "sha256": "bac49a251a5c0a0c315ae99a509a3da036f6aae1fdc40142ff06332364eb1d19",
+    "item": {
+      "id": "clultraac10prototype-registry",
+      "name": "Prototype Ultra Autocannon/10",
+      "category": "Ballistic",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 13,
+      "criticalSlots": 8,
+      "battleValue": 210,
+      "introductionYear": 2815,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2830,
+      "costCBills": 320000,
+      "subType": "CLUAC10Prototype",
+      "damage": 10,
+      "heat": 4,
+      "ranges": {
+        "long": 18,
+        "extreme": 24,
+        "short": 6,
+        "minimum": 0,
+        "medium": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLUAC10Prototype.java: CLUltraAC10Prototype"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 271,
+    "id": "clultraac20prototype-registry",
+    "sha256": "83f87976dcfd423d8059cd6d9a87ef3d0b7ff07d615b9f70d25130a8e4af5c19",
+    "item": {
+      "id": "clultraac20prototype-registry",
+      "name": "Prototype Ultra Autocannon/20",
+      "category": "Ballistic",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 15,
+      "criticalSlots": 11,
+      "battleValue": 281,
+      "introductionYear": 2815,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2830,
+      "costCBills": 480000,
+      "subType": "CLUAC20Prototype",
+      "damage": 20,
+      "heat": 8,
+      "ranges": {
+        "long": 10,
+        "extreme": 14,
+        "short": 3,
+        "minimum": 0,
+        "medium": 7
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLUAC20Prototype.java: CLUltraAC20Prototype"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 272,
+    "id": "clultraac2prototype-registry",
+    "sha256": "8749f9ac4ca98a554d4c29bcce30e038e8e2d349b7564916c6ce1f88fa472f69",
+    "item": {
+      "id": "clultraac2prototype-registry",
+      "name": "Prototype Ultra Autocannon/2",
+      "category": "Ballistic",
+      "techBase": "CLAN",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 7,
+      "criticalSlots": 4,
+      "battleValue": 56,
+      "introductionYear": 2815,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2832,
+      "costCBills": 120000,
+      "subType": "CLUAC2Prototype",
+      "damage": 2,
+      "heat": 1,
+      "ranges": {
+        "long": 25,
+        "extreme": 34,
+        "short": 8,
+        "minimum": 3,
+        "medium": 17
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/clan/CLUAC2Prototype.java: CLUltraAC2Prototype"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 273,
+    "id": "iserlargelaserprototype-registry",
+    "sha256": "e5d8de6cf6760a0c18f559bf29d5c9f7ab693e8b12d0b64f778e8d2e51e4a0ae",
+    "item": {
+      "id": "iserlargelaserprototype-registry",
+      "name": "Prototype ER Large Laser",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 5,
+      "criticalSlots": 2,
+      "battleValue": 136,
+      "introductionYear": 3030,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 3042,
+      "costCBills": 600000,
+      "subType": "ISERLaserLargePrototype",
+      "damage": 8,
+      "heat": 12,
+      "ranges": {
+        "long": 19,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 0,
+        "medium": 14
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/innerSphere/ISERLaserLargePrototype.java: ISERLargeLaserPrototype"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 274,
+    "id": "isgaussrifleprototype-registry",
+    "sha256": "ca9ae3b5e538da2c75f883183d63fce782bb2a90eaf3e8073fbf7c10f17f03a6",
+    "item": {
+      "id": "isgaussrifleprototype-registry",
+      "name": "Prototype Gauss Rifle",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 15,
+      "criticalSlots": 8,
+      "battleValue": 320,
+      "introductionYear": 2587,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2595,
+      "reintroductionYear": 3033,
+      "costCBills": 1200000,
+      "subType": "ISGaussRiflePrototype",
+      "damage": 15,
+      "heat": 1,
+      "ranges": {
+        "long": 22,
+        "extreme": 33,
+        "short": 7,
+        "minimum": 2,
+        "medium": 15
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/innerSphere/ISGaussRiflePrototype.java: ISGaussRiflePrototype"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 275,
+    "id": "islbxac10prototype-registry",
+    "sha256": "f4b3fafe94efb19de0afb005b619f9a38dae4847dd05d4252701fbbb95ad2279",
+    "item": {
+      "id": "islbxac10prototype-registry",
+      "name": "Prototype LB 10-X Autocannon",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 11,
+      "criticalSlots": 7,
+      "battleValue": 148,
+      "introductionYear": 2590,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2600,
+      "reintroductionYear": 3030,
+      "costCBills": 2000000,
+      "subType": "ISLB10XACPrototype",
+      "damage": 10,
+      "heat": 2,
+      "ranges": {
+        "long": 18,
+        "extreme": 24,
+        "short": 6,
+        "minimum": 0,
+        "medium": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/innerSphere/ISLB10XACPrototype.java: ISLBXAC10Prototype"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 276,
+    "id": "islargepulselaserprototype-registry",
+    "sha256": "01f6406b1ea753a350baa80aa6af926f2328b9fe6e658dad9c3211c0e5402d97",
+    "item": {
+      "id": "islargepulselaserprototype-registry",
+      "name": "Prototype Large Pulse Laser",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 7,
+      "criticalSlots": 2,
+      "battleValue": 108,
+      "introductionYear": 2595,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2614,
+      "costCBills": 875000,
+      "subType": "ISPulseLaserLargePrototype",
+      "damage": 9,
+      "heat": 10,
+      "ranges": {
+        "long": 10,
+        "extreme": 15,
+        "short": 3,
+        "minimum": 0,
+        "medium": 7
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/innerSphere/ISPulseLaserLargePrototype.java: ISLargePulseLaserPrototype"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 277,
+    "id": "ismediumpulselaserprototype-registry",
+    "sha256": "d5d0d6b8826573da36b0b7a70766bce7889f4d85c0137b04f70825fb94999ebc",
+    "item": {
+      "id": "ismediumpulselaserprototype-registry",
+      "name": "Prototype Medium Pulse Laser",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 2,
+      "criticalSlots": 1,
+      "battleValue": 43,
+      "introductionYear": 2595,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2614,
+      "costCBills": 300000,
+      "subType": "ISPulseLaserMediumPrototype",
+      "damage": 6,
+      "heat": 4,
+      "ranges": {
+        "long": 6,
+        "extreme": 8,
+        "short": 2,
+        "minimum": 0,
+        "medium": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/innerSphere/ISPulseLaserMediumPrototype.java: ISMediumPulseLaserPrototype"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 278,
+    "id": "ismediumpulselaserrecovered-registry",
+    "sha256": "d848d268313af24ea8ea509da95dae196b4b92be66ee0537a5f56f84d5e00446",
+    "item": {
+      "id": "ismediumpulselaserrecovered-registry",
+      "name": "Medium Pulse Laser (Recovered Prototype)",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 2,
+      "criticalSlots": 1,
+      "battleValue": 48,
+      "introductionYear": 3031,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 3042,
+      "costCBills": 240000,
+      "subType": "ISPulseLaserMediumRecovered",
+      "damage": 6,
+      "heat": 4,
+      "ranges": {
+        "long": 6,
+        "extreme": 8,
+        "short": 2,
+        "minimum": 0,
+        "medium": 4
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/innerSphere/ISPulseLaserMediumRecovered.java: ISMediumPulseLaserRecovered"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 279,
+    "id": "isnarcbeaconprototype-registry",
+    "sha256": "66c085f2726a2a1921631158fc3b6de65bf7fefad7c554c66be9323a03dbc3a0",
+    "item": {
+      "id": "isnarcbeaconprototype-registry",
+      "name": "Prototype Narc Missile Beacon",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 3,
+      "criticalSlots": 2,
+      "battleValue": 15,
+      "introductionYear": 2580,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2592,
+      "costCBills": 300000,
+      "subType": "ISNarcPrototype",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/innerSphere/ISNarcPrototype.java: ISNarcBeaconPrototype"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 280,
+    "id": "isprimitivelongtom-registry",
+    "sha256": "07d41359b946493a30efb2e54f08773cab2f21c3f4d928ad7359e71cd1438846",
+    "item": {
+      "id": "isprimitivelongtom-registry",
+      "name": "Primitive Prototype Long Tom Artillery",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 30,
+      "criticalSlots": 30,
+      "battleValue": 368,
+      "introductionYear": 2445,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2505,
+      "costCBills": 450000,
+      "subType": "ISLongTomPrimitive",
+      "damage": "Java variable damage (-5)",
+      "heat": 20,
+      "ranges": {
+        "long": 30,
+        "extreme": 30,
+        "short": 1,
+        "minimum": 0,
+        "medium": 2
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISLongTomPrimitive.java: ISPrimitiveLongTom"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 281,
+    "id": "isprototypetag-registry",
+    "sha256": "17e4be8a7b1652afc483fb962298c2e18505b0ef24132b2e37e8ca65dea8fb27",
+    "item": {
+      "id": "isprototypetag-registry",
+      "name": "Prototype TAG",
+      "category": "Ballistic",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "battleValue": 0,
+      "introductionYear": 2593,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2605,
+      "costCBills": 150000,
+      "subType": "ISPrototypeTAG",
+      "damage": 0,
+      "heat": 0,
+      "ranges": {
+        "long": 15,
+        "extreme": 18,
+        "short": 5,
+        "minimum": 0,
+        "medium": 9
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/innerSphere/ISPrototypeTAG.java: ISProtoTypeTAG"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 282,
+    "id": "issmallpulselaserprototype-registry",
+    "sha256": "5b86ddd888e39cf4fbdfe3f850a06be58e2b42b06d3c011a883628a86ff6d5b0",
+    "item": {
+      "id": "issmallpulselaserprototype-registry",
+      "name": "Prototype Small Pulse Laser",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 1,
+      "criticalSlots": 1,
+      "battleValue": 11,
+      "introductionYear": 2595,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2614,
+      "costCBills": 80000,
+      "subType": "ISPulseLaserSmallPrototype",
+      "damage": 3,
+      "heat": 2,
+      "ranges": {
+        "long": 3,
+        "extreme": 4,
+        "short": 1,
+        "minimum": 0,
+        "medium": 2
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/innerSphere/ISPulseLaserSmallPrototype.java: ISSmallPulseLaserPrototype"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 283,
+    "id": "primitive-prototype-lrm-10-registry",
+    "sha256": "ed35fb1b2fe8ae802853b9e598e062ddb0fa5b17d7c9cd67e99e9be08b62174e",
+    "item": {
+      "id": "primitive-prototype-lrm-10-registry",
+      "name": "Primitive Prototype LRM 10",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 5,
+      "criticalSlots": 2,
+      "battleValue": 90,
+      "introductionYear": 2295,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 100000,
+      "subType": "ISLRM10Primitive",
+      "damage": "Java variable damage (-2)",
+      "heat": 4,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISLRM10Primitive.java: Primitive Prototype LRM 10"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 284,
+    "id": "primitive-prototype-lrm-15-registry",
+    "sha256": "5e709be01e3c5575368e0641c038ea41f55cfe8b6176c5658bd3354b39741c86",
+    "item": {
+      "id": "primitive-prototype-lrm-15-registry",
+      "name": "Primitive Prototype LRM 15",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 7,
+      "criticalSlots": 3,
+      "battleValue": 136,
+      "introductionYear": 2295,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 175000,
+      "subType": "ISLRM15Primitive",
+      "damage": "Java variable damage (-2)",
+      "heat": 5,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISLRM15Primitive.java: Primitive Prototype LRM 15"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 285,
+    "id": "primitive-prototype-lrm-20-registry",
+    "sha256": "6ccde97aff6bcf3c653fcaa6d292df858e18b385803c66c56122b273d61fa0ce",
+    "item": {
+      "id": "primitive-prototype-lrm-20-registry",
+      "name": "Primitive Prototype LRM 20",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 10,
+      "criticalSlots": 5,
+      "battleValue": 181,
+      "introductionYear": 2295,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 250000,
+      "subType": "ISLRM20Primitive",
+      "damage": "Java variable damage (-2)",
+      "heat": 6,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISLRM20Primitive.java: Primitive Prototype LRM 20"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 286,
+    "id": "primitive-prototype-lrm-5-registry",
+    "sha256": "31bc5ce2274922a17dfe5d85733a41154b064edb4c4baf2da1c8b46e3a869ddb",
+    "item": {
+      "id": "primitive-prototype-lrm-5-registry",
+      "name": "Primitive Prototype LRM 5",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 2,
+      "criticalSlots": 1,
+      "battleValue": 45,
+      "introductionYear": 2295,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 30000,
+      "subType": "ISLRM5Primitive",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISLRM5Primitive.java: Primitive Prototype LRM 5"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 287,
+    "id": "primitive-prototype-large-laser-registry",
+    "sha256": "612c2c932d0a3adbab581902886880d1ab1c98727c97c4d211ff8368237755c8",
+    "item": {
+      "id": "primitive-prototype-large-laser-registry",
+      "name": "Primitive Prototype Large Laser",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 5,
+      "criticalSlots": 2,
+      "battleValue": 123,
+      "introductionYear": 2306,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 100000,
+      "subType": "ISLaserPrimitiveLarge",
+      "damage": 8,
+      "heat": 12,
+      "ranges": {
+        "long": 15,
+        "extreme": 20,
+        "short": 5,
+        "minimum": 0,
+        "medium": 10
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISLaserPrimitiveLarge.java: Primitive Prototype Large Laser"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 288,
+    "id": "primitive-prototype-medium-laser-registry",
+    "sha256": "3ec2f6809d7dd71734f201dfba1f49e74497ddddd07bfd78d6e5b58a9a0e33ad",
+    "item": {
+      "id": "primitive-prototype-medium-laser-registry",
+      "name": "Primitive Prototype Medium Laser",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 1,
+      "criticalSlots": 1,
+      "battleValue": 46,
+      "introductionYear": 2290,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 40000,
+      "subType": "ISLaserPrimitiveMedium",
+      "damage": 5,
+      "heat": 5,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISLaserPrimitiveMedium.java: Primitive Prototype Medium Laser"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 289,
+    "id": "primitive-prototype-ppc-registry",
+    "sha256": "83749eb11bf607e8e5d1769a87e1f2c00375d0e4e3823adb459e96128feafcf4",
+    "item": {
+      "id": "primitive-prototype-ppc-registry",
+      "name": "Primitive Prototype PPC",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 7,
+      "criticalSlots": 3,
+      "battleValue": 176,
+      "introductionYear": 2439,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 200000,
+      "subType": "ISPPCPrimitive",
+      "damage": 10,
+      "heat": 15,
+      "ranges": {
+        "long": 18,
+        "extreme": 24,
+        "short": 6,
+        "minimum": 3,
+        "medium": 12
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISPPCPrimitive.java: Primitive Prototype PPC"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 290,
+    "id": "primitive-prototype-srm-2-registry",
+    "sha256": "4350a0a0778fde5da75d8624a33c8d915324392b8fd6d7796a4b2f732900be72",
+    "item": {
+      "id": "primitive-prototype-srm-2-registry",
+      "name": "Primitive Prototype SRM 2",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 1,
+      "criticalSlots": 1,
+      "battleValue": 21,
+      "introductionYear": 2365,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 10000,
+      "subType": "ISSRM2Primitive",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISSRM2Primitive.java: Primitive Prototype SRM 2"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 291,
+    "id": "primitive-prototype-srm-4-registry",
+    "sha256": "0fa8c3e4fad4790dac9df063a7dbc3d87a9c67add4c6254146107feb4ee089f5",
+    "item": {
+      "id": "primitive-prototype-srm-4-registry",
+      "name": "Primitive Prototype SRM 4",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 2,
+      "criticalSlots": 1,
+      "battleValue": 39,
+      "introductionYear": 2365,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 60000,
+      "subType": "ISSRM4Primitive",
+      "damage": "Java variable damage (-2)",
+      "heat": 3,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISSRM4Primitive.java: Primitive Prototype SRM 4"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 292,
+    "id": "primitive-prototype-srm-6-registry",
+    "sha256": "96142da7a0057a8ee1a66236924cca688cc02da4f1e65a089ad66f6ee1922740",
+    "item": {
+      "id": "primitive-prototype-srm-6-registry",
+      "name": "Primitive Prototype SRM 6",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 3,
+      "criticalSlots": 2,
+      "battleValue": 59,
+      "introductionYear": 2365,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 80000,
+      "subType": "ISSRM6Primitive",
+      "damage": "Java variable damage (-2)",
+      "heat": 4,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISSRM6Primitive.java: Primitive Prototype SRM 6"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 293,
+    "id": "primitive-prototype-small-laser-registry",
+    "sha256": "4a9fc9251cd4c38685d9f4c8a5d3aeed332a2ee9d7b0e8edb543ba290c9cad9e",
+    "item": {
+      "id": "primitive-prototype-small-laser-registry",
+      "name": "Primitive Prototype Small Laser",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "battleValue": 9,
+      "introductionYear": 2290,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 11250,
+      "subType": "ISLaserPrimitiveSmall",
+      "damage": 3,
+      "heat": 2,
+      "ranges": {
+        "long": 3,
+        "extreme": 4,
+        "short": 1,
+        "minimum": 0,
+        "medium": 2
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/primitive/ISLaserPrimitiveSmall.java: Primitive Prototype Small Laser"
+      ]
+    }
+  },
+  {
+    "file": "weapons/java-registry.json",
+    "index": 294,
+    "id": "prototypearrowiv-registry",
+    "sha256": "71d67cf72c3ad27f804beef0197dd35ed5750a4d0f478e493d9543f10ff80f6b",
+    "item": {
+      "id": "prototypearrowiv-registry",
+      "name": "Prototype Arrow IV",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 16,
+      "criticalSlots": 16,
+      "battleValue": 240,
+      "introductionYear": 2593,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2618,
+      "reintroductionYear": 3044,
+      "costCBills": 1800000,
+      "subType": "PrototypeArrowIV",
+      "damage": "Java variable damage (-5)",
+      "heat": 10,
+      "ranges": {
+        "long": 8,
+        "extreme": 8,
+        "short": 1,
+        "minimum": 0,
+        "medium": 2
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/prototypes/PrototypeArrowIV.java: ProtoTypeArrowIV"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 133,
+    "id": "alamomissile-ammo-registry",
+    "sha256": "39fb5abfe75d0e03ed160bca42dcf4c38a2e0814facf73e7f891a1a1da480b6c",
+    "item": {
+      "id": "alamomissile-ammo-registry",
+      "name": "Std. Nuclear Weapon (Type II/Alamo)",
+      "category": "Other",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 1,
+      "criticalSlots": 1,
+      "battleValue": 100,
+      "introductionYear": 2200,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["alamomissile-registry"],
+      "costPerTon": 1000000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/enums/BombType.java: AlamoMissile Ammo",
+        "Java ammoType:rackSize ALAMO:1",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 134,
+    "id": "ammo-ar10-barracuda-t-registry",
+    "sha256": "c56da41822c02b4b5a0e7d19dcc6622632225b1e2379fd79ce3d5409949f369c",
+    "item": {
+      "id": "ammo-ar10-barracuda-t-registry",
+      "name": "AR10 Barracuda (Tele-Operated) Ammo",
+      "category": "Capital",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 30,
+      "criticalSlots": 1,
+      "battleValue": 65,
+      "introductionYear": 3048,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": [
+        "capital-missile-launcher-ar10-launcher-registry"
+      ],
+      "costPerTon": 8000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 Barracuda-T",
+        "Java ammoType:rackSize AR10:0",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 135,
+    "id": "ammo-ar10-killer-whale-t-registry",
+    "sha256": "aa3df9d026298c635df58cb549dfb685ee317784c7f60f337288ce423fb7c263",
+    "item": {
+      "id": "ammo-ar10-killer-whale-t-registry",
+      "name": "AR10 Killer Whale (Tele-Operated) Ammo",
+      "category": "Capital",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 50,
+      "criticalSlots": 1,
+      "battleValue": 96,
+      "introductionYear": 3048,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": [
+        "capital-missile-launcher-ar10-launcher-registry"
+      ],
+      "costPerTon": 20000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 Killer Whale-T",
+        "Java ammoType:rackSize AR10:0",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 136,
+    "id": "ammo-ar10-peacemaker-registry",
+    "sha256": "2e54a741ae4016951813d70fa8a270dcc86f6f18a063b0dc48ff79780a9d8475",
+    "item": {
+      "id": "ammo-ar10-peacemaker-registry",
+      "name": "AR10 Peacemaker Ammo",
+      "category": "Capital",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 50,
+      "criticalSlots": 1,
+      "battleValue": 10000,
+      "introductionYear": 2300,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": [
+        "capital-missile-launcher-ar10-launcher-registry"
+      ],
+      "costPerTon": 40000000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 Peacemaker",
+        "Java ammoType:rackSize AR10:0",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 137,
+    "id": "ammo-ar10-santa-anna-registry",
+    "sha256": "8cf179457c4d538cc05e0c9f2fa60127af2a92177ecabd5ada46b36553808f13",
+    "item": {
+      "id": "ammo-ar10-santa-anna-registry",
+      "name": "AR10 Santa Anna Ammo",
+      "category": "Capital",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 40,
+      "criticalSlots": 1,
+      "battleValue": 1000,
+      "introductionYear": 2300,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": [
+        "capital-missile-launcher-ar10-launcher-registry"
+      ],
+      "costPerTon": 15000000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 Santa Anna",
+        "Java ammoType:rackSize AR10:0",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 138,
+    "id": "ammo-ar10-white-shark-t-registry",
+    "sha256": "b5633b199ba0715bb6b76890bf74ad70d751d4963d835111c9caf712bfcd9618",
+    "item": {
+      "id": "ammo-ar10-white-shark-t-registry",
+      "name": "AR10 White Shark (Tele-Operated) Ammo",
+      "category": "Capital",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 40,
+      "criticalSlots": 1,
+      "battleValue": 72,
+      "introductionYear": 3048,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": [
+        "capital-missile-launcher-ar10-launcher-registry"
+      ],
+      "costPerTon": 14000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 White Shark-T",
+        "Java ammoType:rackSize AR10:0",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 139,
+    "id": "ammo-alamo-registry",
+    "sha256": "b313795c4220b3710853ee128d7b9d6f633ed6fbb48f77bc5605c898711e081f",
+    "item": {
+      "id": "ammo-alamo-registry",
+      "name": "Alamo Ammo",
+      "category": "Other",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 1,
+      "criticalSlots": 1,
+      "battleValue": 100,
+      "introductionYear": 2200,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["alamomissile-registry"],
+      "costPerTon": 1000000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Alamo",
+        "Java ammoType:rackSize ALAMO:1",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 140,
+    "id": "ammo-barracuda-registry",
+    "sha256": "8e56cb2d68fde4a2df995b51d3e5d107d1d9fb491f6a3047c987abf381a35c78",
+    "item": {
+      "id": "ammo-barracuda-registry",
+      "name": "Barracuda Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 30,
+      "criticalSlots": 1,
+      "battleValue": 65,
+      "introductionYear": 2195,
+      "reintroductionYear": 3051,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["capital-missile-launcher-barracuda-registry"],
+      "costPerTon": 8000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Barracuda",
+        "Java ammoType:rackSize BARRACUDA:0",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 141,
+    "id": "ammo-barracuda-t-registry",
+    "sha256": "50fd7970ace76f2beba28572282a8cabbb1849786556e2a959ba4d065821cf94",
+    "item": {
+      "id": "ammo-barracuda-t-registry",
+      "name": "Barracuda (Tele-Operated) Ammo",
+      "category": "Other",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 30,
+      "criticalSlots": 1,
+      "battleValue": 65,
+      "introductionYear": 3053,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["tele-operated-missile-barracuda-t-registry"],
+      "costPerTon": 8000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Barracuda-T",
+        "Java ammoType:rackSize BARRACUDA_T:0",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 142,
+    "id": "ammo-heavy-n-gauss-registry",
+    "sha256": "05fffe6269a2ee539ac4fc703206f92dc87197523bbd91d88e00dc608936ee6e",
+    "item": {
+      "id": "ammo-heavy-n-gauss-registry",
+      "name": "Heavy N-Gauss Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "battleValue": 756,
+      "introductionYear": 2435,
+      "reintroductionYear": 3052,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-gauss-heavy-registry"],
+      "costPerTon": 90000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Heavy N-Gauss",
+        "Java ammoType:rackSize HEAVY_NGAUSS:0",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 143,
+    "id": "ammo-kraken-registry",
+    "sha256": "9be34001d49a363b0703301c663ed4a3f057e8678acace7b95c5772d50f15af6",
+    "item": {
+      "id": "ammo-kraken-registry",
+      "name": "Kraken Ammo",
+      "category": "Other",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 100,
+      "criticalSlots": 1,
+      "battleValue": 288,
+      "introductionYear": 3053,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["capital-missile-launcher-kraken-registry"],
+      "costPerTon": 55000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Kraken",
+        "Java ammoType:rackSize KRAKENM:0",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 144,
+    "id": "ammo-light-n-gauss-registry",
+    "sha256": "a0162ca8eb0eabd5d4a52d15c8b36fdab43c0ae5813d1107cf3f7c9c43397f6c",
+    "item": {
+      "id": "ammo-light-n-gauss-registry",
+      "name": "Light N-Gauss Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.2,
+      "criticalSlots": 1,
+      "battleValue": 378,
+      "introductionYear": 2435,
+      "reintroductionYear": 3052,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-gauss-light-registry"],
+      "costPerTon": 45000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Light N-Gauss",
+        "Java ammoType:rackSize LIGHT_NGAUSS:0",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 145,
+    "id": "ammo-medium-n-gauss-registry",
+    "sha256": "a6847d12c7b4c48c8a37cf163bee932c7cdab75ea5b7368a9c281241e9149e7f",
+    "item": {
+      "id": "ammo-medium-n-gauss-registry",
+      "name": "Medium N-Gauss Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.4,
+      "criticalSlots": 1,
+      "battleValue": 630,
+      "introductionYear": 2435,
+      "reintroductionYear": 3052,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-gauss-medium-registry"],
+      "costPerTon": 75000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Medium N-Gauss",
+        "Java ammoType:rackSize MED_NGAUSS:0",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 146,
+    "id": "ammo-nac-10-registry",
+    "sha256": "1860fd4bed021483c974e6e4a25df208a9f1ffee6f055b2c12c5d2cc9fd2028d",
+    "item": {
+      "id": "ammo-nac-10-registry",
+      "name": "NAC/10 Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.2,
+      "criticalSlots": 1,
+      "battleValue": 237,
+      "introductionYear": 2095,
+      "reintroductionYear": 3051,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-autocannon-nac-10-registry"],
+      "costPerTon": 30000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/10",
+        "Java ammoType:rackSize NAC:10",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 147,
+    "id": "ammo-nac-20-registry",
+    "sha256": "aa9cd40b0fe845a9204e75dac5d34e81a8b53c28b8314e39179fdec32a584829",
+    "item": {
+      "id": "ammo-nac-20-registry",
+      "name": "NAC/20 Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.4,
+      "criticalSlots": 1,
+      "battleValue": 474,
+      "introductionYear": 2095,
+      "reintroductionYear": 3051,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-autocannon-nac-20-registry"],
+      "costPerTon": 60000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/20",
+        "Java ammoType:rackSize NAC:20",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 148,
+    "id": "ammo-nac-25-registry",
+    "sha256": "8c20ed9ed2f806b062da1d1bf79b56191427b9b7e76db3a06083b8280e812b97",
+    "item": {
+      "id": "ammo-nac-25-registry",
+      "name": "NAC/25 Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.6,
+      "criticalSlots": 1,
+      "battleValue": 593,
+      "introductionYear": 2095,
+      "reintroductionYear": 3051,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-autocannon-nac-25-registry"],
+      "costPerTon": 75000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/25",
+        "Java ammoType:rackSize NAC:25",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 149,
+    "id": "ammo-nac-30-registry",
+    "sha256": "9f639c3653aa33f79439f701dff0ab3a0eb209b16ab26f2119620e0be9a82f1a",
+    "item": {
+      "id": "ammo-nac-30-registry",
+      "name": "NAC/30 Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.8,
+      "criticalSlots": 1,
+      "battleValue": 711,
+      "introductionYear": 2095,
+      "reintroductionYear": 3051,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-autocannon-nac-30-registry"],
+      "costPerTon": 90000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/30",
+        "Java ammoType:rackSize NAC:30",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 150,
+    "id": "ammo-nac-35-registry",
+    "sha256": "db963d4e79bc4432d2af0c5c810feb0fb7753f72975c603fabfef369f00e9639",
+    "item": {
+      "id": "ammo-nac-35-registry",
+      "name": "NAC/35 Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "battleValue": 620,
+      "introductionYear": 2095,
+      "reintroductionYear": 3051,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-autocannon-nac-35-registry"],
+      "costPerTon": 105000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/35",
+        "Java ammoType:rackSize NAC:35",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 151,
+    "id": "ammo-nac-40-registry",
+    "sha256": "20f7c1f4182c46f7edf9d9c161509147d2081a07656c4a35afab65fd7dcc1187",
+    "item": {
+      "id": "ammo-nac-40-registry",
+      "name": "NAC/40 Ammo",
+      "category": "Other",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 1.2,
+      "criticalSlots": 1,
+      "battleValue": 708,
+      "introductionYear": 2095,
+      "reintroductionYear": 3051,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["naval-autocannon-nac-40-registry"],
+      "costPerTon": 120000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/40",
+        "Java ammoType:rackSize NAC:40",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 152,
+    "id": "ammo-peacemaker-registry",
+    "sha256": "5e94d099e8e72402d847501b2e52a46281950d9aea34b72336f95f9d3dc8b15e",
+    "item": {
+      "id": "ammo-peacemaker-registry",
+      "name": "Peacemaker Ammo",
+      "category": "Capital",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 50,
+      "criticalSlots": 1,
+      "battleValue": 10000,
+      "introductionYear": 2300,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["capital-missile-launcher-killer-whale-registry"],
+      "costPerTon": 40000000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Peacemaker",
+        "Java ammoType:rackSize KILLER_WHALE:0",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 153,
+    "id": "ammo-santa-anna-registry",
+    "sha256": "d5eb728223e12f5777eba8fe6b0e63e4c206a53fdcdbc811cc6bfa0951c6846e",
+    "item": {
+      "id": "ammo-santa-anna-registry",
+      "name": "Santa Anna Ammo",
+      "category": "Capital",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "EXPERIMENTAL",
+      "weight": 40,
+      "criticalSlots": 1,
+      "battleValue": 1000,
+      "introductionYear": 2300,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["capital-missile-launcher-white-shark-registry"],
+      "costPerTon": 15000000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Santa Anna",
+        "Java ammoType:rackSize WHITE_SHARK:0",
+        "Java munitions: M_STANDARD"
+      ]
+    }
+  },
+  {
+    "file": "ammunition/java-registry.json",
+    "index": 154,
+    "id": "ammo-white-shark-t-registry",
+    "sha256": "63ede485a9d49b3e2e20679c27b2df111920393845a5c1e99198ab3a5db0db6c",
+    "item": {
+      "id": "ammo-white-shark-t-registry",
+      "name": "White Shark (Tele-Operated) Ammo",
+      "category": "Other",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 40,
+      "criticalSlots": 1,
+      "battleValue": 72,
+      "introductionYear": 3053,
+      "variant": "Standard",
+      "shotsPerTon": 1,
+      "kgPerShot": 1000,
+      "compatibleWeaponIds": ["tele-operated-missile-white-shark-t-registry"],
+      "costPerTon": 14000,
+      "isExplosive": true,
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo White Shark-T",
+        "Java ammoType:rackSize WHITE_SHARK_T:0",
+        "Java munitions: M_STANDARD"
+      ]
+    }
   }
 ]

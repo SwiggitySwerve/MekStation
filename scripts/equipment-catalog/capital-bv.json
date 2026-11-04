@@ -1,0 +1,635 @@
+{
+  "ammo-ar10-barracuda-registry": {
+    "ammoType": "AR10",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 Barracuda"
+  },
+  "ammo-ar10-killer-whale-registry": {
+    "ammoType": "AR10",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 Killer Whale"
+  },
+  "ammo-ar10-white-shark-registry": {
+    "ammoType": "AR10",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 White Shark"
+  },
+  "ammo-heavy-mass-driver-registry": {
+    "ammoType": "HMASS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Heavy Mass Driver"
+  },
+  "ammo-heavy-scc-registry": {
+    "ammoType": "SCC",
+    "rackSize": 7,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Heavy SCC"
+  },
+  "ammo-killer-whale-registry": {
+    "ammoType": "KILLER_WHALE",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Killer Whale"
+  },
+  "ammo-killer-whale-t-registry": {
+    "ammoType": "KILLER_WHALE_T",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Killer Whale-T"
+  },
+  "ammo-krakent-registry": {
+    "ammoType": "KRAKEN_T",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo KrakenT"
+  },
+  "ammo-light-mass-driver-registry": {
+    "ammoType": "LMASS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Light Mass Driver"
+  },
+  "ammo-light-scc-registry": {
+    "ammoType": "SCC",
+    "rackSize": 2,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Light SCC"
+  },
+  "ammo-manta-ray-registry": {
+    "ammoType": "MANTA_RAY",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Manta Ray"
+  },
+  "ammo-medium-mass-driver-registry": {
+    "ammoType": "MMASS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Medium Mass Driver"
+  },
+  "ammo-medium-scc-registry": {
+    "ammoType": "SCC",
+    "rackSize": 5,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Medium SCC"
+  },
+  "ammo-piranha-registry": {
+    "ammoType": "PIRANHA",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Piranha"
+  },
+  "ammo-screen-registry": {
+    "ammoType": "SCREEN_LAUNCHER",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Screen"
+  },
+  "ammo-stingray-registry": {
+    "ammoType": "STINGRAY",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Stingray"
+  },
+  "ammo-swordfish-registry": {
+    "ammoType": "SWORDFISH",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Swordfish"
+  },
+  "ammo-white-shark-registry": {
+    "ammoType": "WHITE_SHARK",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo White Shark"
+  },
+  "capital-missile-launcher-ar10-launcher-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [2, 2, 2, 2],
+    "ammoType": "AR10",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/AR10Weapon.java: Capital Missile Launcher (AR10 Launcher)"
+  },
+  "capital-missile-launcher-barracuda-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [2, 2, 2, 2],
+    "ammoType": "BARRACUDA",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissBarracudaWeapon.java: Capital Missile Launcher (Barracuda)"
+  },
+  "capital-missile-launcher-killer-whale-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [4, 4, 4, 4],
+    "ammoType": "KILLER_WHALE",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissKillerWhaleWeapon.java: Capital Missile Launcher (Killer Whale)"
+  },
+  "capital-missile-launcher-white-shark-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [3, 3, 3, 3],
+    "ammoType": "WHITE_SHARK",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissWhiteSharkWeapon.java: Capital Missile Launcher (White Shark)"
+  },
+  "mass-driver-heavy-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [140, 140, 140, 0],
+    "ammoType": "HMASS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/MassDriverHeavy.java: Mass Driver (Heavy)"
+  },
+  "mass-driver-light-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [60, 60, 60, 0],
+    "ammoType": "LMASS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/MassDriverLight.java: Mass Driver (Light)"
+  },
+  "mass-driver-medium-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [100, 100, 100, 0],
+    "ammoType": "MMASS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/MassDriverMedium.java: Mass Driver (Medium)"
+  },
+  "naval-autocannon-nac-10-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [10, 10, 10, 0],
+    "ammoType": "NAC",
+    "rackSize": 10,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC10Weapon.java: Naval Autocannon (NAC/10)"
+  },
+  "naval-autocannon-nac-20-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [20, 20, 20, 0],
+    "ammoType": "NAC",
+    "rackSize": 20,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC20Weapon.java: Naval Autocannon (NAC/20)"
+  },
+  "naval-autocannon-nac-25-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [25, 25, 25, 0],
+    "ammoType": "NAC",
+    "rackSize": 25,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC25Weapon.java: Naval Autocannon (NAC/25)"
+  },
+  "naval-autocannon-nac-30-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [30, 30, 30, 0],
+    "ammoType": "NAC",
+    "rackSize": 30,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC30Weapon.java: Naval Autocannon (NAC/30)"
+  },
+  "naval-autocannon-nac-35-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [35, 35, 0, 0],
+    "ammoType": "NAC",
+    "rackSize": 35,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC35Weapon.java: Naval Autocannon (NAC/35)"
+  },
+  "naval-autocannon-nac-40-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [40, 40, 0, 0],
+    "ammoType": "NAC",
+    "rackSize": 40,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NAC40Weapon.java: Naval Autocannon (NAC/40)"
+  },
+  "naval-laser-35-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [3.5, 3.5, 3.5, 0],
+    "ammoType": "NA",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NL35Weapon.java: Naval Laser 35"
+  },
+  "naval-laser-45-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [4.5, 4.5, 4.5, 4.5],
+    "ammoType": "NA",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NL45Weapon.java: Naval Laser 45"
+  },
+  "naval-laser-55-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [5.5, 5.5, 5.5, 5.5],
+    "ammoType": "NA",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NL55Weapon.java: Naval Laser 55"
+  },
+  "naval-ppc-heavy-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [15, 15, 15, 15],
+    "ammoType": "NA",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NPPCWeaponHeavy.java: Naval PPC (Heavy)"
+  },
+  "naval-ppc-light-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [7, 7, 7, 0],
+    "ammoType": "NA",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NPPCWeaponLight.java: Naval PPC (Light)"
+  },
+  "naval-ppc-medium-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [9, 9, 9, 9],
+    "ammoType": "NA",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NPPCWeaponMedium.java: Naval PPC (Medium)"
+  },
+  "screen-launcher-registry": {
+    "isCapital": false,
+    "isSubCapital": false,
+    "isScreen": true,
+    "damageByRange": [15, 0, 0, 0],
+    "ammoType": "SCREEN_LAUNCHER",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/ScreenLauncherWeapon.java: Screen Launcher"
+  },
+  "sub-capital-cannon-heavy-registry": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [7, 7, 0, 0],
+    "ammoType": "SCC",
+    "rackSize": 7,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapCannonWeaponHeavy.java: Sub-Capital Cannon (Heavy)"
+  },
+  "sub-capital-cannon-light-registry": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [2, 2, 2, 0],
+    "ammoType": "SCC",
+    "rackSize": 2,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapCannonWeaponLight.java: Sub-Capital Cannon (Light)"
+  },
+  "sub-capital-cannon-medium-registry": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [5, 5, 0, 0],
+    "ammoType": "SCC",
+    "rackSize": 5,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapCannonWeaponMedium.java: Sub-Capital Cannon (Medium)"
+  },
+  "sub-capital-laser-1-registry": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [1, 1, 1, 0],
+    "ammoType": "NA",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapLaserWeapon1.java: Sub-Capital Laser /1"
+  },
+  "sub-capital-laser-2-registry": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [2, 2, 0, 0],
+    "ammoType": "NA",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapLaserWeapon2.java: Sub-Capital Laser /2"
+  },
+  "sub-capital-laser-3-registry": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [3, 3, 0, 0],
+    "ammoType": "NA",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapLaserWeapon3.java: Sub-Capital Laser /3"
+  },
+  "sub-capital-missile-launcher-manta-ray-registry": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [5, 0, 0, 0],
+    "ammoType": "MANTA_RAY",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapMissileMantaRayWeapon.java: Sub-Capital Missile Launcher (Manta Ray)"
+  },
+  "sub-capital-missile-launcher-piranha-registry": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [3, 3, 3, 0],
+    "ammoType": "PIRANHA",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapMissilePiranhaWeapon.java: Sub-Capital Missile Launcher (Piranha)"
+  },
+  "sub-capital-missile-launcher-stingray-registry": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [3.5, 3.5, 0, 0],
+    "ammoType": "STINGRAY",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapMissileStingrayWeapon.java: Sub-Capital Missile Launcher (Stingray)"
+  },
+  "sub-capital-missile-launcher-swordfish-registry": {
+    "isCapital": true,
+    "isSubCapital": true,
+    "isScreen": false,
+    "damageByRange": [4, 0, 0, 0],
+    "ammoType": "SWORDFISH",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/subCapitalWeapons/SubCapMissileSwordfishWeapon.java: Sub-Capital Missile Launcher (Swordfish)"
+  },
+  "tele-operated-missile-killer-whale-t-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [4, 4, 4, 4],
+    "ammoType": "KILLER_WHALE_T",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissTeleKillerWhaleWeapon.java: Tele-operated Missile (Killer Whale-T)"
+  },
+  "tele-operated-missile-kraken-t-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [10, 10, 10, 10],
+    "ammoType": "KRAKEN_T",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissTeleKrakenWeapon.java: Tele-operated Missile (Kraken T)"
+  },
+  "alamomissile-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [10, 10, 0, 0],
+    "ammoType": "ALAMO",
+    "rackSize": 1,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/AlamoMissileWeapon.java: AlamoMissile"
+  },
+  "alamomissile-ammo-registry": {
+    "ammoType": "ALAMO",
+    "rackSize": 1,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/enums/BombType.java: AlamoMissile Ammo"
+  },
+  "ammo-ar10-barracuda-t-registry": {
+    "ammoType": "AR10",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 Barracuda-T"
+  },
+  "ammo-ar10-killer-whale-t-registry": {
+    "ammoType": "AR10",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 Killer Whale-T"
+  },
+  "ammo-ar10-peacemaker-registry": {
+    "ammoType": "AR10",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 Peacemaker"
+  },
+  "ammo-ar10-santa-anna-registry": {
+    "ammoType": "AR10",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 Santa Anna"
+  },
+  "ammo-ar10-white-shark-t-registry": {
+    "ammoType": "AR10",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo AR10 White Shark-T"
+  },
+  "ammo-alamo-registry": {
+    "ammoType": "ALAMO",
+    "rackSize": 1,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Alamo"
+  },
+  "ammo-barracuda-registry": {
+    "ammoType": "BARRACUDA",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Barracuda"
+  },
+  "ammo-barracuda-t-registry": {
+    "ammoType": "BARRACUDA_T",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Barracuda-T"
+  },
+  "ammo-heavy-n-gauss-registry": {
+    "ammoType": "HEAVY_NGAUSS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Heavy N-Gauss"
+  },
+  "ammo-kraken-registry": {
+    "ammoType": "KRAKENM",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Kraken"
+  },
+  "ammo-light-n-gauss-registry": {
+    "ammoType": "LIGHT_NGAUSS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Light N-Gauss"
+  },
+  "ammo-medium-n-gauss-registry": {
+    "ammoType": "MED_NGAUSS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Medium N-Gauss"
+  },
+  "ammo-nac-10-registry": {
+    "ammoType": "NAC",
+    "rackSize": 10,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/10"
+  },
+  "ammo-nac-20-registry": {
+    "ammoType": "NAC",
+    "rackSize": 20,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/20"
+  },
+  "ammo-nac-25-registry": {
+    "ammoType": "NAC",
+    "rackSize": 25,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/25"
+  },
+  "ammo-nac-30-registry": {
+    "ammoType": "NAC",
+    "rackSize": 30,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/30"
+  },
+  "ammo-nac-35-registry": {
+    "ammoType": "NAC",
+    "rackSize": 35,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/35"
+  },
+  "ammo-nac-40-registry": {
+    "ammoType": "NAC",
+    "rackSize": 40,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/40"
+  },
+  "ammo-peacemaker-registry": {
+    "ammoType": "KILLER_WHALE",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Peacemaker"
+  },
+  "ammo-santa-anna-registry": {
+    "ammoType": "WHITE_SHARK",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Santa Anna"
+  },
+  "ammo-white-shark-t-registry": {
+    "ammoType": "WHITE_SHARK_T",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo White Shark-T"
+  },
+  "capital-missile-launcher-kraken-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [10, 10, 10, 10],
+    "ammoType": "KRAKENM",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissKrakenWeapon.java: Capital Missile Launcher (Kraken)"
+  },
+  "naval-gauss-heavy-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [30, 30, 30, 30],
+    "ammoType": "HEAVY_NGAUSS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NGaussWeaponHeavy.java: Naval Gauss (Heavy)"
+  },
+  "naval-gauss-light-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [15, 15, 15, 15],
+    "ammoType": "LIGHT_NGAUSS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NGaussWeaponLight.java: Naval Gauss (Light)"
+  },
+  "naval-gauss-medium-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [25, 25, 25, 25],
+    "ammoType": "MED_NGAUSS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NGaussWeaponMedium.java: Naval Gauss (Medium)"
+  },
+  "tele-operated-missile-barracuda-t-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [2, 2, 2, 2],
+    "ammoType": "BARRACUDA_T",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissTeleBarracudaWeapon.java: Tele-operated Missile (Barracuda-T)"
+  },
+  "tele-operated-missile-white-shark-t-registry": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [3, 3, 3, 3],
+    "ammoType": "WHITE_SHARK_T",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/CapMissTeleWhiteSharkWeapon.java: Tele-operated Missile (White Shark-T)"
+  },
+  "ammo-barracuda": {
+    "ammoType": "BARRACUDA",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Barracuda"
+  },
+  "ammo-barracuda-t": {
+    "ammoType": "BARRACUDA_T",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Barracuda-T"
+  },
+  "ammo-heavy-n-gauss": {
+    "ammoType": "HEAVY_NGAUSS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Heavy N-Gauss"
+  },
+  "ammo-light-n-gauss": {
+    "ammoType": "LIGHT_NGAUSS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Light N-Gauss"
+  },
+  "ammo-medium-n-gauss": {
+    "ammoType": "MED_NGAUSS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo Medium N-Gauss"
+  },
+  "ammo-nac-10": {
+    "ammoType": "NAC",
+    "rackSize": 10,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/10"
+  },
+  "ammo-nac-20": {
+    "ammoType": "NAC",
+    "rackSize": 20,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/20"
+  },
+  "ammo-nac-25": {
+    "ammoType": "NAC",
+    "rackSize": 25,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/25"
+  },
+  "ammo-nac-30": {
+    "ammoType": "NAC",
+    "rackSize": 30,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/30"
+  },
+  "ammo-nac-35": {
+    "ammoType": "NAC",
+    "rackSize": 35,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/35"
+  },
+  "ammo-nac-40": {
+    "ammoType": "NAC",
+    "rackSize": 40,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Ammo NAC/40"
+  },
+  "naval-gauss-heavy": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [30, 30, 30, 30],
+    "ammoType": "HEAVY_NGAUSS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NGaussWeaponHeavy.java: Naval Gauss (Heavy)"
+  },
+  "naval-gauss-light": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [15, 15, 15, 15],
+    "ammoType": "LIGHT_NGAUSS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NGaussWeaponLight.java: Naval Gauss (Light)"
+  },
+  "naval-gauss-medium": {
+    "isCapital": true,
+    "isSubCapital": false,
+    "isScreen": false,
+    "damageByRange": [25, 25, 25, 25],
+    "ammoType": "MED_NGAUSS",
+    "rackSize": 0,
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/capitalWeapons/naval/NGaussWeaponMedium.java: Naval Gauss (Medium)"
+  }
+}
