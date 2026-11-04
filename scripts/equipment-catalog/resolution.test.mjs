@@ -151,6 +151,103 @@ export const APPROVED_JAVA_REROUTES = [
     reason:
       'Opus G2-O5 named WeaponType/AmmoType boundary at pin 48fcb2f64; explicit ammo lookup retains these bins',
   })),
+  ...[
+    [
+      '(R) IS Streak SRM 2 Ammo:50',
+      'streak-srm-ammo',
+      'is-streak-srm-2-ammo-registry',
+      false,
+    ],
+    [
+      '(R) IS Streak SRM 4 Ammo:75',
+      'clan-streak-srm-4',
+      'is-streak-srm-4-ammo-registry',
+      false,
+    ],
+    [
+      'IS LB 2-X AC Ammo:OMNI',
+      'lb-2-x-ammo',
+      'is-lb-2-x-ac-ammo-registry',
+      false,
+    ],
+    [
+      'IS LB 2-X Cluster Ammo:OMNI',
+      'clan-lb-2-x-cluster',
+      'is-lb-2-x-cluster-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 2 Ammo:100',
+      'streak-srm-ammo',
+      'is-streak-srm-2-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 2 Ammo:50',
+      'streak-srm-ammo',
+      'is-streak-srm-2-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 2 Ammo:OMNI',
+      'streak-srm-ammo',
+      'is-streak-srm-2-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 4 Ammo:25',
+      'clan-streak-srm-4',
+      'is-streak-srm-4-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 4 Ammo:OMNI',
+      'clan-streak-srm-4',
+      'is-streak-srm-4-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 6 Ammo:15',
+      'clan-streak-srm-6',
+      'is-streak-srm-6-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 6 Ammo:60',
+      'clan-streak-srm-6',
+      'is-streak-srm-6-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 6 Ammo:75',
+      'clan-streak-srm-6',
+      'is-streak-srm-6-ammo-registry',
+      false,
+    ],
+    [
+      'IS Streak SRM 6 Ammo:OMNI',
+      'clan-streak-srm-6',
+      'is-streak-srm-6-ammo-registry',
+      false,
+    ],
+    ['ISBALRM2OS:Body', 'balrm2os', 'isbalrm2os-registry', true],
+    ['ISBALRM3:Body', 'balrm3', 'isbalrm3-registry', true],
+    ['ISBASRM1:RA', 'basrm1', 'isbasrm1-registry', true],
+    ['ISBASRM1OS:LA', 'basrm1os', 'isbasrm1os-registry', true],
+    ['ISBASRM1OS:RA', 'basrm1os', 'isbasrm1os-registry', true],
+    ['ISBASRM3:Body', 'basrm3', 'isbasrm3-registry', true],
+    ['ISBASRM5:Body', 'basrm5', 'isbasrm5-registry', true],
+    ['ISBASRM5OS:Body', 'basrm5os', 'isbasrm5os-registry', true],
+  ].map(([name, oldTarget, newTarget, weapon]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    weapon,
+    literalName: true,
+    reason:
+      'Opus G2-O4 exact qualified EquipmentType; pin48fcb2f64 AmmoType.java and native IS BA LRM/SRM registrations',
+  })),
+
   ...['c3-remote-sensor-launcher'].map((name) => ({
     name,
     oldTarget: 'c3-master',

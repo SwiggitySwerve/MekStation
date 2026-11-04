@@ -405,6 +405,11 @@ Exact registered AmmoType identities select the ammo namespace even when their
 names lack the word ammo (Coolant Pod and ISC3Sensors). Registry metadata,
 not weapon prefix stripping, supplies that classification.
 
+Registry-route approval uses the same stripped lookup token as identity
+resolution. Mount qualifiers and rear markers cannot change the underlying
+registered type. The BV boundary uses the existing native IS Streak SRM-2 BV-4, 50-shot
+bin (AmmoType.java; pin48fcb2f64); loader identity contracts stay unchanged.
+
 Weapon flags are generated from the pinned Java WeaponType runtime, including
 inherited F_ARTEMIS_COMPATIBLE. nativeWeaponFlags.ts stores only these source
 facts; weaponLinks.ts owns compatibility and source-order physical linking.
