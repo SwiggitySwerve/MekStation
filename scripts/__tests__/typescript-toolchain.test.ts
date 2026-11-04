@@ -27,10 +27,10 @@ describe('TypeScript compiler gates', () => {
     const pkg = manifest();
     const workflow = read('.github/workflows/pr-checks.yml');
     const typeCheckJob = workflow.match(
-      /\n  typecheck:\r?\n[\s\S]*?(?=\n  [\w-]+:)/,
+      /\n  static-checks:\r?\n[\s\S]*?(?=\n  [\w-]+:)/,
     )?.[0];
     const typeCheck = typeCheckJob?.match(
-      /- name: Run type check\r?\n(?:\s+if:[^\r\n]+\r?\n)?\s+run: ([^\r\n]+)/,
+      /- name: Type Check\r?\n(?:\s+if:[^\r\n]+\r?\n)?\s+run: ([^\r\n]+)/,
     );
     expect(typeCheck).toBeTruthy();
     expect(typeCheck?.[1]).toBe('npm run typecheck');
