@@ -505,3 +505,9 @@ indices 5/6 even on SuperHeavyTank and LargeSupportTank. Those indices are
 Rear Left/Rear on the six-side layouts, so their weapons keep full BV.
 This preserves the pinned inherited index check, not a physical turret claim.
 The existing construction owner supplies the hull classification.
+
+Vehicle and ordinary aerospace summaries use calculateBaseBV followed by
+calculateAdjustedBV. Chassis/cockpit factors precede the base integer round;
+crew skill follows it and receives a final round. Vehicle skill lookup uses
+the existing shared table with the same floor and clamp. BVCalculator.java:
+1253,167 at MegaMek pin 48fcb2f64 owns this order.
