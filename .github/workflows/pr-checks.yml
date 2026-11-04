@@ -353,6 +353,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*', 'config/jest/**') }}-unit-${{ matrix.shard }}-
 
+      # 4 workers on the runner's 4 vCPUs: Lane B measured 10-20% faster unit
+      # shards than Jest's default 3 (JOBS.md 0a); corpus/roadmap keep 3.
       # Lane B's per-file result cache (scripts/jest/cached-tests.js): on a
       # pull request a test file whose inputs (import closure, snapshot, data
       # it reads, env, config) match an earlier pass is skipped, and 3
@@ -373,7 +375,7 @@ jobs:
           --shard ${{ matrix.shard }}/3 --verify-hits 3
           ${{ github.event_name != 'pull_request' && '--uncached' || '' }}
           --report jest-results-unit-${{ matrix.shard }}.json
-          -- --ci --cacheDirectory=.jest-cache
+          -- --ci --cacheDirectory=.jest-cache --maxWorkers=4
         env:
           JEST_EXCLUDE_PERF_SENSITIVE: 'true'
           JEST_SPLIT_CORPUS: 'true'
