@@ -122,8 +122,9 @@ export const APPROVED_JAVA_REROUTES = [
   })),
   {
     name: 'IS Streak SRM 2 Ammo',
-    oldTarget: '100',
-    newTarget: '50',
+    // Numeric targets are typed `#<json>` since cc0397c9e.
+    oldTarget: '#100',
+    newTarget: '#50',
     reason:
       'Follow-up 89; printed shots per ton follow the IS record (AmmoType.java:10628 shots = 50)',
     tagForm: true,
