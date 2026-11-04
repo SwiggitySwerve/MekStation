@@ -14,6 +14,7 @@ import {
   extractWeaponTypeFromAmmoId,
   getCatalogAmmoBVGroup,
   getNativeAmmoBVGroup,
+  getMachineGunArrayBVGroup,
 } from '../battleValueAmmo';
 import { getOffensiveBVRole, hasBVDroneOS } from '../battleValueEquipment';
 import {
@@ -30,6 +31,7 @@ import {
   isArtemisCompatibleBVWeapon,
   linkMountedWeaponBVModifiers,
   linkPPCCapacitorBVWeapons,
+  linkAerospaceMachineGunArrayBVWeapons,
 } from '../equipmentBV/weaponLinks';
 import {
   getEquipmentEntry,
@@ -120,6 +122,7 @@ function calculateWeaponBVEntry(
   if (
     isWeaponType &&
     targetingComputerMounted &&
+    !getMachineGunArrayBVGroup(normalizeEquipmentId(weapon.id)) &&
     isDirectFireBVWeapon(normalizeEquipmentId(weapon.id))
   ) {
     adjustedBV = applyTargetingComputerBV(adjustedBV);
@@ -215,6 +218,18 @@ export function calculateVehicleOffensiveBV(
       ),
       isTurretMounted: w.isTurretMounted || /turret|chin/i.test(w.location),
     }));
+  const arrays = mounts.map((w) => ({
+    location: w.location,
+    baseBV: resolveMountBattleValue(w),
+    bv: resolveMountBattleValue(w),
+    arrayGroup: getMachineGunArrayBVGroup(getEquipmentEntry(w.id)?.id ?? w.id),
+    ammoGroup: getNativeAmmoBVGroup(w.id),
+  }));
+  linkAerospaceMachineGunArrayBVWeapons(arrays);
+  arrays.forEach((w, i) => {
+    if (w.arrayGroup && mounts[i].bvOverride === undefined)
+      mounts[i].bvOverride = w.bv;
+  });
   linkMountedWeaponBVModifiers(mounts, input.armorEquipment ?? input.weapons);
   const capacitorMounts = (input.armorEquipment ?? input.weapons).filter(
     (m) => getEquipmentEntry(m.id)?.id === 'ppc-capacitor',
