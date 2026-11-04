@@ -78,7 +78,8 @@ it('uses the independently loaded official catalog for lookup and final PPC prin
   expect(
     lookup.getAllWeapons().find((weapon) => weapon.id === 'ppc'),
   ).toMatchObject({ name: 'PPC', heat: 10, damage: 10 });
-  expect(lookup.getById('ppc')).toMatchObject({ name: 'PPC' });
+  // Construction needs raw heat, before the separate BV heat modifiers.
+  expect(lookup.getById('ppc')).toMatchObject({ name: 'PPC', heat: 10 });
   expect(lookup.getAllAmmunition()).toEqual(
     getEquipmentLoader().getAllAmmunition(),
   );
