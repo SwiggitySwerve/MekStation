@@ -139,6 +139,14 @@ export function normalizeEquipmentId(
       ? explicit
       : undefined;
   if (generated && registryPreviousId(generated, equipmentId)) return generated;
+  const registryAlias = DIRECT_ALIAS_MAP[lower];
+  if (
+    includeRegistry &&
+    registryAlias &&
+    resolveRegistryId(registryAlias) === registryAlias &&
+    fullCatalog.has(registryAlias)
+  )
+    return registryAlias;
   const identity = nativeIdentityId(lookupBase);
   if (!catalog.has(rawLower) && identity && catalog.has(identity))
     return identity;
