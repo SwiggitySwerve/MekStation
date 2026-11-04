@@ -17,6 +17,7 @@ import {
   hasBVTargetingComputer,
   isDirectFireBVWeapon,
 } from '../battleValueWeapons';
+import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
 import {
   isArtemisCompatibleBVWeapon,
   linkArtemisBVWeapons,
@@ -161,6 +162,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
         targetingComputerMounted &&
         entry &&
         !item.isAmmo &&
+        !isAmmunitionEquipmentId(item.id) &&
         getOffensiveBVRole(item.id) === 'weapon' &&
         isDirectFireBVWeapon(entry.id)
           ? applyTargetingComputerBV(resolved.battleValue)

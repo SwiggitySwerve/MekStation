@@ -47,13 +47,21 @@ it('matches Batu Prime weapon, offensive and total Java values, including rear a
   expect(result.final).toBe(2495);
 });
 
-it.each(['istargeting-computer', 'cltargeting-computer:omni'])(
-  '%s boosts direct-fire weapons without boosting missiles, ammo or miscellaneous mounts',
-  (computer) => {
+// Plasma ammo has the Energy category; BVCalculator.java:935-949 still excludes
+// AmmoType bins before weapon modifiers.
+it.each(
+  ['istargeting-computer', 'cltargeting-computer:omni'].flatMap((computer) =>
+    ['is-ammo-lrm-10', 'clplasmacannonammo:omni', 'isplasmarifleammo:omni'].map(
+      (ammo) => [computer, ammo],
+    ),
+  ),
+)(
+  '%s excludes %s, missiles and miscellaneous mounts from the direct-fire bonus',
+  (computer, ammo) => {
     const equipment = [
       { id: 'medium-laser', location: Arc.NOSE },
       { id: 'lrm-10', location: Arc.NOSE },
-      { id: 'is-ammo-lrm-10', location: Arc.FUSELAGE },
+      { id: ammo, location: Arc.FUSELAGE },
       { id: 'machine-gun', location: Arc.NOSE },
       { id: 'ppc-capacitor', location: Arc.NOSE },
     ];
