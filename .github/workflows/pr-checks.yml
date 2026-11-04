@@ -5,25 +5,39 @@ on:
     branches:
       - main
     types: [opened, synchronize, reopened, ready_for_review]
+  # Pushes to main, the nightly schedule and manual runs check everything,
+  # including the checks pull requests path-gate or leave to main
+  # (scripts/ci/ci-changes.mjs turns every gate on outside pull requests).
+  push:
+    branches:
+      - main
+  schedule:
+    # Daily at 09:30 UTC, after Nightly Validation starts.
+    - cron: '30 9 * * *'
+  workflow_dispatch:
 
 # A new push to the same PR supersedes the in-flight run; without this,
-# superseded runs burn to completion (~52 job-minutes each).
+# superseded runs burn to completion (~52 job-minutes each). Main runs are
+# never cancelled: a newer main push waits for the running one.
 concurrency:
   group: pr-checks-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   # ---------------------------------------------------------------
-  # detect-changes gates the expensive jobs. Docs/openspec-only PRs
-  # no-op the build, browser, and code-only check jobs; lint, format,
-  # unit shards (some read openspec/docs files), and desktop lanes
-  # always run. `combat` adds the openspec specs/changes that
-  # validate:combat reads. `desktop` limits the win/mac packaging legs
+  # detect-changes gates the expensive jobs (scripts/ci/ci-changes.mjs).
+  # Docs/openspec-only PRs no-op the build, browser, and code-only check
+  # jobs; lint, format, unit shards (some read openspec/docs files), and
+  # desktop lanes always run. `desktop` limits the win/mac packaging legs
   # (native better-sqlite3 rebuild, the slowest PR jobs) to changes in
   # desktop packaging inputs; Linux packs on every code change.
+  # `equipment`, `combat`, `statistical` and `storybook` run their check
+  # only when a changed file is in the check's import closure or is a
+  # data file it reads. Detection fails open, and every gate is on outside
+  # pull requests, so main and the nightly schedule run every check.
   # ---------------------------------------------------------------
   detect-changes:
     name: Detect Changes
@@ -34,53 +48,28 @@ jobs:
       combat: ${{ steps.filter.outputs.combat }}
       desktop: ${{ steps.filter.outputs.desktop }}
       e2e: ${{ steps.filter.outputs.e2e }}
+      equipment: ${{ steps.filter.outputs.equipment }}
+      statistical: ${{ steps.filter.outputs.statistical }}
+      storybook: ${{ steps.filter.outputs.storybook }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          # A pull_request run checks out the merge commit; its first
+          # parent is the base branch tip the change is diffed against.
+          fetch-depth: 2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
       - name: Filter paths
         id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            code: &code
-              - 'src/**'
-              - 'public/**'
-              - 'desktop/**'
-              - 'scripts/**'
-              - 'config/**'
-              - 'package.json'
-              - 'package-lock.json'
-              - 'next.config.*'
-              - 'tsconfig.json'
-              - 'jest.config.*'
-              - 'jest.setup.*'
-              - '.babelrc*'
-              - 'server.js'
-              - 'electron-builder.yml'
-              - 'tailwind.config.*'
-              - 'postcss.config.*'
-              - '.storybook/**'
-              - '.github/workflows/**'
-              - '.github/actions/**'
-            combat:
-              - *code
-              - 'openspec/specs/**'
-              - 'openspec/changes/**'
-            desktop:
-              - 'desktop/**'
-              - 'electron-builder.yml'
-              - 'package.json'
-              - 'package-lock.json'
-              - 'server.js'
-              - 'next.config.*'
-              - 'scripts/next/**'
-              - 'scripts/hydrate-next-standalone-multiplayer-server.mjs'
-              - '.github/workflows/pr-checks.yml'
-              - '.github/actions/**'
-            e2e:
-              - 'e2e/**'
-              - 'playwright.config.*'
+        run: node scripts/ci/ci-changes.mjs
+
+      - name: Test change detection
+        run: node --test scripts/ci/ci-changes.test.mjs
 
   # ---------------------------------------------------------------
   # install-deps runs first so the other lint/test/type/build jobs
@@ -292,22 +281,24 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: Skip (no code changes)
-        if: needs.detect-changes.outputs.code != 'true'
-        run: echo "No code changes — skipping."
+      - name: Skip (no statistical proof inputs changed)
+        if: needs.detect-changes.outputs.statistical != 'true'
+        run: echo "No statistical proof inputs changed — skipping."
 
       - name: Checkout code
-        if: needs.detect-changes.outputs.code == 'true'
+        if: needs.detect-changes.outputs.statistical == 'true'
         uses: actions/checkout@v6
 
       - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.code == 'true'
+        if: needs.detect-changes.outputs.statistical == 'true'
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
 
+      # simulation-system "Statistical Validation": a PR that touches the
+      # proof's inputs cannot merge without it; main and nightly always run it.
       - name: Run 100-game statistical combat proofs
-        if: needs.detect-changes.outputs.code == 'true'
+        if: needs.detect-changes.outputs.statistical == 'true'
         run: >-
           npx jest --selectProjects unit --ci --runInBand --runTestsByPath
           src/simulation/__tests__/integration.test.ts
@@ -454,9 +445,9 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: Skip (no code or openspec spec changes)
+      - name: Skip (no combat suite inputs changed)
         if: needs.detect-changes.outputs.combat != 'true'
-        run: echo "No code or openspec spec changes — skipping."
+        run: echo "No combat suite inputs changed — skipping."
 
       - name: Checkout code
         if: needs.detect-changes.outputs.combat == 'true'
@@ -480,22 +471,22 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: Skip (no code changes)
-        if: needs.detect-changes.outputs.code != 'true'
-        run: echo "No code changes — skipping."
+      - name: Skip (no Storybook inputs changed)
+        if: needs.detect-changes.outputs.storybook != 'true'
+        run: echo "No Storybook inputs changed — skipping."
 
       - name: Checkout code
-        if: needs.detect-changes.outputs.code == 'true'
+        if: needs.detect-changes.outputs.storybook == 'true'
         uses: actions/checkout@v6
 
       - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.code == 'true'
+        if: needs.detect-changes.outputs.storybook == 'true'
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
 
       - name: Build Storybook
-        if: needs.detect-changes.outputs.code == 'true'
+        if: needs.detect-changes.outputs.storybook == 'true'
         run: npm run storybook:build
 
   # ---------------------------------------------------------------
@@ -503,15 +494,17 @@ jobs:
   #   1. Generated Zod matches the canonical JSON Schema source
   #   2. Python validator passes on the corpus (PR-A1 = weapon only,
   #      non-strict; PR-A2 will flip to --strict --shape all)
-  #   3. TypeScript round-trip Jest tests pass for the weapon shape
-  # The job runs in parallel after install-deps and is included in
-  # the `lint-and-test` aggregator so branch protection picks it up.
+  # The TypeScript round-trip contract suites (src/types/contracts) run
+  # in the unit shards. The equipment catalog guard runs when a changed
+  # file is in its inputs (`equipment`). The job runs in parallel after
+  # install-deps and is included in the `lint-and-test` aggregator so
+  # branch protection picks it up.
   # ---------------------------------------------------------------
   schema-bridge:
     name: Schema Bridge
     needs: [detect-changes, install-deps]
     runs-on: ubuntu-latest
-    # The equipment catalog resolution guard adds about 2.5 minutes.
+    # The equipment catalog resolution guard adds about 4 minutes.
     timeout-minutes: 10
 
     steps:
@@ -548,7 +541,7 @@ jobs:
         run: node --test scripts/__tests__/schema-local-definitions.test.mjs
 
       - name: Test equipment catalog generator and resolution guards
-        if: needs.detect-changes.outputs.code == 'true'
+        if: needs.detect-changes.outputs.equipment == 'true'
         run: node --test scripts/equipment-catalog/*.test.mjs
 
       - name: Test source inventory and Python conversion boundaries
@@ -561,12 +554,6 @@ jobs:
         # weapon / ammunition / electronics / misc_equipment /
         # physical_weapon / unit fails the build immediately.
         run: python scripts/megameklab-conversion/run_schema_validation_only.py --shape all --strict
-
-      - name: Run cross-language schema-bridge Jest tests
-        if: needs.detect-changes.outputs.code == 'true'
-        # All 6 contract test suites (weapon + unit + ammunition +
-        # electronics + misc-equipment + physical-weapon).
-        run: npx jest src/types/contracts --ci --no-coverage
 
       - name: Upload schema-bridge report
         if: always() && needs.detect-changes.outputs.code == 'true'
