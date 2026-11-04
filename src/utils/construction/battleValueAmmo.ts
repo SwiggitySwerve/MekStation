@@ -1,6 +1,7 @@
 import { isAmmunitionEquipmentId } from './equipmentBV/catalogLoader';
 import {
   getAmmunitionWeightEntry,
+  getEquipmentEntry,
   normalizeEquipmentId,
 } from './equipmentBVResolver';
 
@@ -365,7 +366,10 @@ export function calculateAmmoBVWithExcessiveCap(
  * Legacy alias-key APIs retain their separate compatibility contract.
  */
 export function getNativeAmmoBVGroup(id: string): string | undefined {
-  const token = id
+  // LongTomCannon.java:69-72 (48fcb2f64): canonical long-tom names the cannon.
+  const sourceId =
+    id.toLowerCase() === 'long-tom' ? (getEquipmentEntry(id)?.name ?? id) : id;
+  const token = sourceId
     .toLowerCase()
     .split(':')[0]
     .replace(/ammo|pods|[^a-z0-9]/g, '')
