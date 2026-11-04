@@ -59,3 +59,9 @@ Positive native counts seed original/max/remaining shots, including duplicate
 mounts; native zero leaves the default capacity. Compatibility `:N` quantities
 retain their empty `:0` behavior. Pinned MegaMek
 48fcb2f64a1b3f2d575707ce5653dad64927b587, BLKFile.java:279-291,361-365.
+
+The native ammo-group owner resolves the ambiguous canonical `long-tom` ID
+through its catalog name, Long Tom Cannon. Native `ISLongTom` remains artillery;
+the groups stay LONG_TOM_CANNON:20 and LONG_TOM:25 for every shared consumer.
+Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
+LongTomCannon.java:69-72; BVCalculator.java:1189-1240.
