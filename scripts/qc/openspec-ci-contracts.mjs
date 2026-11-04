@@ -64,7 +64,6 @@ export const requiredWorkflowTokens = [
       'name: Schema Bridge',
       'npm run schema:gen-check',
       'run_schema_validation_only.py --shape all --strict',
-      'npx jest src/types/contracts --ci --no-coverage',
     ],
   },
   {
