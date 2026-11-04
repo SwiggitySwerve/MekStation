@@ -944,7 +944,11 @@ squad-support weapons SHALL divide by shooting strength, and trooper-specific
 mounts SHALL contribute only to their bearer. Anti-Mek-capable suits SHALL
 count eligible non-missile, non-infantry, non-body weapons a second time and
 count vibro/magnetic claws only in the anti-Mek pool. Heavy/assault, quad,
-underwater and burdened suits SHALL NOT receive anti-Mek offense. The pool
+underwater and burdened suits SHALL NOT receive anti-Mek offense; a
+body-mounted BA rocket launcher (a one-shot missile with linked ammo) SHALL
+burden an Inner Sphere suit. Equipment with BV that is not a weapon SHALL add
+offense only for the trooper whose location carries it, averaged over the
+squad (BattleArmorBVCalculator.java:223-226). The pool
 SHALL use the shared offensive speed factor with MP equal to maximum walk,
 jump or active UMU. Walk, jump and UMU MP for BV (offense and defensive TMM)
 SHALL follow BattleArmor.java:446-567 without DWP or burden: a myomer booster

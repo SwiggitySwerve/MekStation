@@ -102,7 +102,7 @@ integer nonnegative sink count, represented sink type and supported cockpit.
 Missing facts retain defense and explicit reasons; partial offense is withheld.
 `battleValueTotals.calculateBaseBV` owns sum/modifier/base rounding, shared with
 mechs and ProtoMechs. `battleValuePilot.calculateAdjustedBV` owns skill/final
-rounding; fighters retain their existing distinct single-rounding behavior.
+rounding; fighters without a small cockpit retain their legacy single rounding.
 
 Pinned BVCalculator.java:1159-1185 applies drone 0.95; AeroBVCalculator.java:162-181
 then applies 0.95 for small/command-console cockpit OR drone (two factors total
@@ -193,6 +193,21 @@ contract dispatch, both wing/side topologies, combined-group selection,
 strong rear groups, Fuselage ties and empty/unknown locations. Sabre remains
 unresolved in production catalog data. UL-19-offense's 620-source comparison
 asserts unchanged inputs, raw arcs and unrelated breakdown fields.
+
+## Ordinary rear-mounted weapons
+
+aerospaceMountFlags.ts owns the native R- marker shared with the existing
+large-craft mount boundary. Ordinary aircraft preserve physical location for
+controller links while rear-marked weapons join Aft before dominance and heat
+sorting (AeroBVCalculator.java:152-158, pin 48fcb2f64). Unmarked side mounts
+remain forward. aerospaceBV.rearMounted.test.ts pins native Aquarius, both
+marker states and same-side Artemis linking on a rear-mounted launcher.
+
+The unit BV adapter also retains the editor's existing isRearMounted flag:
+the definition mapper consumes the raw R- prefix when building editor mounts.
+An explicit editor flag takes precedence; absent flags retain native marker
+classification. The committed craft record-sheet suite verifies store-to-sheet
+BV against the source owner.
 
 ## Offensive speed
 
@@ -429,3 +444,21 @@ The existing chassis section transports canonical BAR, structural and engine tec
 ## Capital catalog valuation
 
 The equipment catalog owns BV and heat; `capital-bv.json` supplies native capital/sub-capital flags, range attack values, and ammo enum/rack keys. Matching existing IDs retain their values and share the native facts only when name, BV, and firing facts agree. `getLargeAerospaceAmmoBVGroup` adds capital keys to the large-craft path and reuses the ordinary ammo-group owner. LargeAeroBVCalculator.java:69-122,293-358 caps ammo separately per arc and multiplies whole-ton shot ratios. BVCalculator.java:800-914 uses weapon BV without a capital damage multiplier. MiscType.java:9467-9529 and BVCalculator.countMiscAsOffensiveWeapon exclude mobile HPG from offense. Screen launchers/ammo and unsupported links still withhold complete scope. The three catalog traces pin full weapon, ammo, defense, offense and rounded totals from L-ORC2.
+
+## Ordinary aircraft small cockpits
+
+The contract adapter preserves native cockpit identity; the aerospace adapter
+recognizes native SMALL and the editor Small enum. The calculator applies the
+shared small-cockpit modifier to the sum of defense and offense, rounds base,
+then uses the shared pilot adjustment. Both raw pools remain unchanged.
+MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587, AeroBVCalculator.java:162-180
+and BVCalculator.java:1252-1294 own this order.
+Enforcement: aerospaceBV.smallCockpit.test.ts covers native Cheetah, editor
+transport, standard/primitive compatibility and the base/pilot rounding seam.
+Console and drone summary handling remain separate unresolved parity classes.
+
+Ordinary aerospace adds undamaged modular armor capacity before armor BV
+multipliers, BAR and aircraft type scaling. Canonical mount identity and the
+ten-point rule use battleValueDefensive.ts; other mounted defense rules do not
+change. aerospaceBV.modularArmor.test.ts pins native Drake, Omni aliases,
+support BAR ordering and the no-modular-armor path. Patchwork is separate.

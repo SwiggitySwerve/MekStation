@@ -64,6 +64,17 @@ const ECM = nameSet(
 );
 // F_AMS: ISBAAPDS.java:57-64.
 const AMS = nameSet('ISBAAPDS');
+// BA rocket launchers are one-shot missiles with linked ammo
+// (ISBARL1-5.java; RLWeapon.java:55-69; MissileWeapon.java:69).
+const ROCKET_LAUNCHERS = nameSet(
+  ...[1, 2, 3, 4, 5].flatMap((n) => [
+    `ISBARL${n}`,
+    `BARL${n}`,
+    `BA RL ${n}`,
+    `ISBARocketLauncher${n}`,
+    `IS BA RLauncher-${n}`,
+  ]),
+);
 // Java per-shot mass of BA ammo records (AmmoType.F_BATTLEARMOR).
 const KG_PER_SHOT = new Map(
   AMMUNITION_CATALOG_FILES.flatMap((file) => file.items ?? [])
@@ -135,7 +146,9 @@ export function canMakeBAAntiMekAttacks(
         (m.equipmentId.includes(':Body') ||
           m.location === BattleArmorLocation.BODY) &&
         getEquipmentEntry(nativeParts(m)[0])?.category === 'Missile' &&
-        (hasAmmo || /(?:OS|\(OS\))$/i.test(nativeParts(m)[0])),
+        (hasAmmo ||
+          /(?:OS|\(OS\))$/i.test(nativeParts(m)[0]) ||
+          ROCKET_LAUNCHERS.has(nativeParts(m)[0].toLowerCase())),
     )
   );
 }
@@ -150,6 +163,7 @@ export function projectBAMounts(
   unresolvedEquipment: string[];
   hasMagneticClamp: boolean;
   defensiveEquipmentBV: number;
+  offensiveEquipmentBV: number;
 } {
   const weapons: BAWeaponBVMount[] = [];
   const ammo: BAAmmoBVMount[] = [];
@@ -162,6 +176,7 @@ export function projectBAMounts(
     (names.some((name) => IMPROVED_SENSORS.has(name)) ? 1 : 0) +
     (names.some((name) => ACTIVE_PROBES.has(name)) ? 1 : 0) +
     (firstECM === undefined ? 0 : ANGEL_ECM.has(firstECM) ? 2 : 1);
+  let offensiveEquipmentBV = 0;
   // Per-trooper ammo BV and launcher BV by pool (BVCalculator.java:1189-1243).
   const ammoPools = new Map<string, number>();
   const weaponPools = new Map<string, number>();
@@ -237,19 +252,29 @@ export function projectBAMounts(
       continue;
     }
     const claw = /battleclaw.*(?:vibro|magnet)/i.test(id);
+    const personal = /^Trooper \d+$/i.test(mount.unitLocation ?? '');
     if (
       !claw &&
       !['Ballistic', 'Energy', 'Missile', 'Physical'].includes(entry.category)
-    )
+    ) {
+      // Valued equipment counts only for the trooper carrying it
+      // (BattleArmorBVCalculator.java:223-226; BVCalculator.java:978-1043).
+      if (personal && entry.battleValue > 0)
+        offensiveEquipmentBV += entry.battleValue / Math.max(1, squadSize);
       continue;
-    const personal = /^Trooper \d+$/i.test(mount.unitLocation ?? '');
+    }
     const support = qualifiers.includes('SSWM');
     const infantry =
       qualifiers.includes('APM') || mount.isAPMount || /^Infantry/i.test(id);
     if ((personal || support) && infantry) continue;
     // Launchers cap their ammo pool; one-shots are not in it (BVCalculator.java:1225-1232).
     const pool = baAmmoPool(id);
-    if (pool && !infantry && !/(?:OS|\(OS\))$/i.test(id))
+    if (
+      pool &&
+      !infantry &&
+      !/(?:OS|\(OS\))$/i.test(id) &&
+      !ROCKET_LAUNCHERS.has(id.toLowerCase())
+    )
       weaponPools.set(pool, (weaponPools.get(pool) ?? 0) + entry.battleValue);
     const quantity = personal || support ? 1 / Math.max(1, squadSize) : 1;
     weapons.push({
@@ -279,5 +304,6 @@ export function projectBAMounts(
     unresolvedEquipment,
     hasMagneticClamp: equipment.some((m) => isMagneticClamp(m.equipmentId)),
     defensiveEquipmentBV,
+    offensiveEquipmentBV,
   };
 }

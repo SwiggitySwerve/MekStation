@@ -32,6 +32,7 @@ export interface IAerospaceBVEquipment {
   readonly location: AerospaceArc | string;
   /** Source identity survives aliases whose catalog id omits "ammo". */
   readonly isAmmo?: boolean;
+  readonly isRearMounted?: boolean;
 }
 
 /**
@@ -51,6 +52,7 @@ export interface IAerospaceBVAmmo {
  * from construction code, the status bar, or parity harnesses with equal ease.
  */
 export interface IAerospaceBVInput {
+  readonly hasSmallCockpit?: boolean;
   readonly subType: AerospaceSubType;
   readonly techBase?: string;
   readonly year?: number;

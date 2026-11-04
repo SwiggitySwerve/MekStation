@@ -93,6 +93,7 @@ export interface IContractBVVehicle {
 
 /** Domain-shaped aerospace value accepted by `calculateBattleValueForUnit`. */
 export interface IContractBVAerospace {
+  readonly cockpit?: string;
   readonly barRating?: number;
   readonly heatCapacity?: number;
   readonly isSupportVehicle: boolean;
@@ -183,6 +184,9 @@ export function contractVehicleToBVUnit(
     return {
       id: `mount-${index}`,
       equipmentId: item.id,
+      ...(savedMount?.sourceIdentity
+        ? { sourceIdentity: savedMount.sourceIdentity }
+        : {}),
       ...(savedMount?.isAmmo === undefined
         ? {}
         : { isAmmo: savedMount.isAmmo }),
@@ -281,6 +285,7 @@ function contractAerospaceToBVUnit(
         )
       : undefined,
     isSupportVehicle: fixedWingSupport,
+    ...(unit.cockpit === undefined ? {} : { cockpit: unit.cockpit }),
     ...(fixedWingSupport && unit.armor.barRating !== undefined
       ? { barRating: unit.armor.barRating }
       : {}),

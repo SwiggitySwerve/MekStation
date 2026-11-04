@@ -14,6 +14,7 @@ import {
 } from '../battleValueHeatTracking';
 import {
   applyTargetingComputerBV,
+  calculateArcWeaponBV,
   hasBVTargetingComputer,
   isDirectFireBVWeapon,
 } from '../battleValueWeapons';
@@ -21,6 +22,7 @@ import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
 import {
   isArtemisCompatibleBVWeapon,
   linkArtemisBVWeapons,
+  linkPPCCapacitorBVWeapons,
 } from '../equipmentBV/weaponLinks';
 import {
   getArtemisBVMultiplier,
@@ -28,6 +30,7 @@ import {
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
 import { getAerospaceDefensiveEquipmentKind } from './aerospaceBVEquipment';
+import { isRearMountedAerospaceEquipment } from './aerospaceMountFlags';
 
 const DIRECT_AEROSPACE_ARCS: ReadonlySet<AerospaceArc> = new Set(
   Object.values(AerospaceArc),
@@ -125,6 +128,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
 
   // Compute raw BV per main arc.
   const rawByArc = new Map<AerospaceArc, number>();
+  const additions = new Map<AerospaceArc, number>();
   for (const arc of mainArcs) {
     rawByArc.set(arc, 0);
   }
@@ -132,21 +136,32 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
   const weapons: {
     arc: AerospaceArc;
     location: AerospaceArc;
+    id: string;
+    targeted: boolean;
+    capacitorBV?: number;
     bv: number;
     heat: number;
     compatible: boolean;
     artemisType?: 'iv' | 'v';
   }[] = [];
   const links: { location: AerospaceArc; type: 'iv' | 'v' }[] = [];
+  const capacitors: { location: AerospaceArc }[] = [];
 
   for (const item of input.equipment) {
     if (getAerospaceDefensiveEquipmentKind(item.id)) continue;
-    const arc = normalizeArcLocation(item.location, input.subType);
-    if (arc === null) continue;
+    const location = normalizeArcLocation(item.location, input.subType);
+    if (location === null) continue;
+    const arc = isRearMountedAerospaceEquipment(item.id, item.isRearMounted)
+      ? AerospaceArc.AFT
+      : location;
     const entry = getEquipmentEntry(item.id);
+    if (entry?.id === 'ppc-capacitor') {
+      capacitors.push({ location });
+      continue;
+    }
     if (entry?.id === 'artemisiv' || entry?.id === 'artemisv') {
       links.push({
-        location: arc,
+        location,
         type: entry.id === 'artemisiv' ? 'iv' : 'v',
       });
       continue;
@@ -155,18 +170,22 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     if (!resolved.resolved || resolved.battleValue === 0) continue;
 
     if (arc !== AerospaceArc.FUSELAGE && !rawByArc.has(arc)) continue;
+    const targeted = Boolean(
+      targetingComputerMounted &&
+      entry &&
+      !item.isAmmo &&
+      !isAmmunitionEquipmentId(item.id) &&
+      getOffensiveBVRole(item.id) === 'weapon' &&
+      isDirectFireBVWeapon(entry.id),
+    );
     weapons.push({
+      id: entry?.id ?? item.id,
+      targeted,
       arc,
-      location: arc,
-      bv:
-        targetingComputerMounted &&
-        entry &&
-        !item.isAmmo &&
-        !isAmmunitionEquipmentId(item.id) &&
-        getOffensiveBVRole(item.id) === 'weapon' &&
-        isDirectFireBVWeapon(entry.id)
-          ? applyTargetingComputerBV(resolved.battleValue)
-          : resolved.battleValue,
+      location,
+      bv: targeted
+        ? applyTargetingComputerBV(resolved.battleValue)
+        : resolved.battleValue,
       heat: resolved.heat,
       compatible:
         entry?.category === 'Missile' && isArtemisCompatibleBVWeapon(entry.id),
@@ -174,8 +193,19 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
   }
   // MekFileParser.java:425-449; BVCalculator.java:860-872.
   linkArtemisBVWeapons(weapons, links);
+  linkPPCCapacitorBVWeapons(weapons, capacitors, input.year);
   for (const weapon of weapons) {
     weapon.bv *= getArtemisBVMultiplier(weapon.artemisType);
+    if (weapon.capacitorBV !== undefined) {
+      if (weapon.targeted)
+        weapon.capacitorBV = applyTargetingComputerBV(weapon.capacitorBV);
+      weapon.heat += 5;
+      additions.set(
+        weapon.arc,
+        (additions.get(weapon.arc) ?? 0) + weapon.capacitorBV,
+      );
+    }
+    weapon.bv += weapon.capacitorBV ?? 0;
     if (weapon.arc === AerospaceArc.FUSELAGE) fuselageWeaponBV += weapon.bv;
     else rawByArc.set(weapon.arc, (rawByArc.get(weapon.arc) ?? 0) + weapon.bv);
   }
@@ -215,7 +245,11 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
   ) {
     const weighted = weapons.map((w) => ({
       ...w,
-      bv: w.bv * (w.arc === AerospaceArc.AFT ? rearWeight : forwardWeight),
+      bv: calculateArcWeaponBV(
+        w.bv - (w.capacitorBV ?? 0),
+        w.arc === AerospaceArc.AFT ? rearWeight : forwardWeight,
+        w.capacitorBV,
+      ),
     }));
     for (const { weapon, adjustedBV } of calculateHeatTrackedWeapons(
       weighted,
@@ -228,8 +262,11 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     }
   }
   fuselageWeaponBV =
-    fuselageWeaponBV * forwardWeight -
-    (heatPenalty.get(AerospaceArc.FUSELAGE) ?? 0);
+    calculateArcWeaponBV(
+      fuselageWeaponBV - (additions.get(AerospaceArc.FUSELAGE) ?? 0),
+      forwardWeight,
+      additions.get(AerospaceArc.FUSELAGE),
+    ) - (heatPenalty.get(AerospaceArc.FUSELAGE) ?? 0);
 
   const contributions: IAerospaceArcContribution[] = [];
   let weaponFirePoolBV = 0;
@@ -243,7 +280,12 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     } else {
       weight = forwardWeight;
     }
-    const weightedBV = rawBV * weight - (heatPenalty.get(arc) ?? 0);
+    const weightedBV =
+      calculateArcWeaponBV(
+        rawBV - (additions.get(arc) ?? 0),
+        weight,
+        additions.get(arc),
+      ) - (heatPenalty.get(arc) ?? 0);
     weaponFirePoolBV += weightedBV;
     contributions.push({
       arc,

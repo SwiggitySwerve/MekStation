@@ -28,6 +28,7 @@ const DEFENSIVE_MISC_IDS: ReadonlySet<string> = new Set([
   'risc-viral-jammer-homing',
   'm-pod',
   'b-pod',
+  'isbpod-registry',
 ]);
 
 type DefensiveKind = 'equipment' | 'ams' | 'amsAmmo';
@@ -100,7 +101,10 @@ export function getOffensiveBVRole(
   const entry = getEquipmentEntry(id);
   if (
     !entry ||
-    ['Energy', 'Ballistic', 'Missile', 'TAG'].includes(entry.category)
+    // Sniper.java:52-76; BVCalculator.java:936-952 (48fcb2f64): WeaponType.
+    ['Energy', 'Ballistic', 'Missile', 'TAG', 'Artillery'].includes(
+      entry.category,
+    )
   )
     return 'weapon';
   return /vibroblade|vibroclaw|magnetclaw/.test(entry.id) ||

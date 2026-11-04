@@ -22,11 +22,18 @@ const catalogFamilies = [
   'protomechs',
 ];
 
+// battlemechs (~4,300 units, 4-5 min as one file) is three interleaved slices.
+const recordSheetSuites = catalogFamilies.flatMap((family) =>
+  family === 'battlemechs'
+    ? [1, 2, 3].map(
+        (n) =>
+          `src/__tests__/service/printing/catalogRecordSheets.battlemechs.${n}.test.ts`,
+      )
+    : [`src/__tests__/service/printing/catalogRecordSheets.${family}.test.ts`],
+);
+
 const corpusSuites = [
-  ...catalogFamilies.map(
-    (family) =>
-      `src/__tests__/service/printing/catalogRecordSheets.${family}.test.ts`,
-  ),
+  ...recordSheetSuites,
   'src/services/units/__tests__/realCatalog.battlemechs.1.test.ts',
   'src/services/units/__tests__/realCatalog.battlemechs.2.test.ts',
   'src/services/units/__tests__/realCatalog.battlemechs.3.test.ts',

@@ -18,15 +18,18 @@
 
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const GATES = [
   'code',
   'combat',
+  'corpus',
   'desktop',
   'e2e',
   'equipment',
+  'roadmap',
   'statistical',
   'storybook',
 ];
@@ -110,6 +113,30 @@ export const CLOSURE_GATES = {
       /^scripts\/lib\//,
     ],
   },
+  // Corpus Tests: the whole-catalog Jest suites (Lane B's `corpus` project,
+  // config/jest/corpus-suites.js). They replay the committed catalog and the
+  // converter/catalog tooling outputs.
+  corpus: {
+    entries(root) {
+      return jestSuites(root).corpusSuites;
+    },
+    data: [
+      /^public\/data\//,
+      /^scripts\/megameklab-conversion\//,
+      /^scripts\/equipment-catalog\//,
+      /^scripts\/validate-bv-[^/]*\.ts$/,
+      /^config\/jest\//,
+    ],
+  },
+  // The `roadmap` Jest project: tooling tests that spawn scripts/qc tools
+  // against temp ledgers and read openspec/ files.
+  roadmap: {
+    entries(root) {
+      return jestSuites(root).roadmapSuites;
+    },
+    // These tests read openspec/ files, so docs/openspec-only PRs run them.
+    data: [/^scripts\/qc\//, /^openspec\//, /^config\/jest\//],
+  },
   // Statistical Proof PR: the 100-game combat proof. simulation-system
   // "Statistical Validation" requires it before a combat-affecting PR
   // merges, so it runs whenever a PR touches its import closure.
@@ -163,6 +190,12 @@ const RESOLVE_SUFFIXES = [
 
 const IMPORT_RE =
   /(?:import|export)\s[^'"`;]*?from\s*['"]([^'"]+)['"]|import\(\s*['"]([^'"]+)['"]\s*\)|require\(\s*['"]([^'"]+)['"]\s*\)|jest\.(?:mock|requireActual)\(\s*['"]([^'"]+)['"]|^\s*import\s*['"]([^'"]+)['"]/gm;
+
+function jestSuites(root) {
+  return createRequire(import.meta.url)(
+    path.join(root, 'config', 'jest', 'corpus-suites.js'),
+  );
+}
 
 function listFiles(root, dir, pattern) {
   const abs = path.join(root, dir);
@@ -285,6 +318,12 @@ function gateClosure(root, name, gate) {
   if (!closureCache.has(key)) {
     const closure = importClosure(root, gate.entries(root));
     for (const file of referencedFiles(root, closure)) closure.add(file);
+    // A Jest suite's own snapshot file is an input of that suite.
+    for (const file of [...closure]) {
+      if (!/\.test\.(ts|tsx|js|jsx)$/.test(file)) continue;
+      const dir = path.posix.dirname(file);
+      closure.add(`${dir}/__snapshots__/${path.posix.basename(file)}.snap`);
+    }
     closureCache.set(key, closure);
   }
   return closureCache.get(key);
@@ -336,6 +375,7 @@ function changedFiles(root, base, head) {
 }
 
 export function detect(root, env, base = 'HEAD^1', head = 'HEAD') {
+  if (env.GITHUB_EVENT_NAME === 'push') return detectPush(root, env, head);
   if (env.GITHUB_EVENT_NAME && env.GITHUB_EVENT_NAME !== 'pull_request') {
     return allGates(true, `event ${env.GITHUB_EVENT_NAME} checks everything`);
   }
@@ -350,6 +390,33 @@ export function detect(root, env, base = 'HEAD^1', head = 'HEAD') {
   } catch (error) {
     return allGates(true, `detection failed, failing open: ${error.message}`);
   }
+}
+
+/**
+ * A push to main checks everything except the Windows/macOS packaging legs,
+ * which run only when the pushed commits change desktop packaging inputs,
+ * as on pull requests (the nightly schedule packs every platform). macOS
+ * runners are scarce: a pack leg that is never acquired fails the run.
+ * The diff is the push's own (GITHUB_EVENT_BEFORE..head); if it cannot be
+ * read, desktop stays on.
+ */
+function detectPush(root, env, head) {
+  const all = allGates(true, 'push checks everything');
+  const before = env.GITHUB_EVENT_BEFORE ?? '';
+  if (!/^[0-9a-f]{40}$/.test(before) || /^0+$/.test(before)) {
+    all.reason += '; no previous commit, so desktop stays on';
+    return all;
+  }
+  try {
+    const changed = changedFiles(root, before, head);
+    const global = changed.some((file) => matchesAny(file, GLOBAL));
+    all.gates.desktop =
+      global || changed.some((file) => matchesAny(file, DESKTOP));
+    all.reason += `; desktop from ${changed.length} pushed file(s)`;
+  } catch (error) {
+    all.reason += `; push diff failed, desktop stays on: ${error.message}`;
+  }
+  return all;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

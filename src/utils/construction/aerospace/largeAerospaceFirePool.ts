@@ -2,6 +2,7 @@ import { CapitalArc } from '@/types/unit/CapitalShipInterfaces';
 
 import { sumCappedAmmoBV } from '../battleValueAmmo';
 import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
+import { calculateArcWeaponBV } from '../battleValueWeapons';
 
 // LargeAeroBVCalculator's BV_LOC_* order also resolves primary-arc ties.
 export const LARGE_AEROSPACE_ARCS = [
@@ -169,7 +170,11 @@ export function calculateLargeAerospaceFirePool(
       (key) => arc.weaponBVByAmmoType?.[key],
     );
     heat += arc.heat;
-    const weightedWeaponBV = arc.weaponBV * weight + arc.arcIndependentWeaponBV;
+    const weightedWeaponBV = calculateArcWeaponBV(
+      arc.weaponBV,
+      weight,
+      arc.arcIndependentWeaponBV,
+    );
     const weightedAmmoBV = ammoBV * weight;
     return {
       arc: arc.arc,

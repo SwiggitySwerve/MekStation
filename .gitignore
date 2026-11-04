@@ -60,6 +60,8 @@ scripts/**
 !scripts/e2e/relaunching-server.mjs
 !scripts/jest/
 !scripts/jest/run-jest-lane.mjs
+!scripts/jest/update-test-durations.mjs
+!scripts/jest/cached-tests.js
 !scripts/lib/
 !scripts/lib/**
 !scripts/next/
@@ -315,3 +317,6 @@ release-upload*/
 .review/
 /file-analysis-report.txt
 *.tmp.[0-9]*
+
+# Jest per-file result cache (npm run test:cached)
+.jest-result-cache/

@@ -1,3 +1,3 @@
 import { defineCatalogFamilyParity } from './catalogRecordSheets.helpers';
 
-defineCatalogFamilyParity('battlemechs');
+defineCatalogFamilyParity('battlemechs', 0, 3);
