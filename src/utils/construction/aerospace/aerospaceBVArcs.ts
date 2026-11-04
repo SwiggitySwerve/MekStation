@@ -170,11 +170,11 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     if (!resolved.resolved || resolved.battleValue === 0) continue;
 
     if (arc !== AerospaceArc.FUSELAGE && !rawByArc.has(arc)) continue;
+    const ammunition = item.isAmmo || isAmmunitionEquipmentId(item.id);
     const targeted = Boolean(
       targetingComputerMounted &&
       entry &&
-      !item.isAmmo &&
-      !isAmmunitionEquipmentId(item.id) &&
+      !ammunition &&
       getOffensiveBVRole(item.id) === 'weapon' &&
       isDirectFireBVWeapon(entry.id),
     );
