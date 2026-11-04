@@ -2209,7 +2209,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: BACL Ammo LRM-5",
         "Java ammoType:rackSize LRM:5",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLBALRM5 (OS), ISBALRM5OS, CLLRM5 (IOS)"
+        "Unrepresented compatible Java weapons: ISBALRM5OS, CLLRM5 (IOS)"
       ],
       "battleValue": 7,
       "weight": 1,
@@ -2224,6 +2224,7 @@
       "compatibleWeaponIds": [
         "clbalrm5-registry",
         "isbalrm5-registry",
+        "clbalrm5-os-registry",
         "clan-lrm-5",
         "lrm-5",
         "cllrm5-os-registry",
@@ -3678,6 +3679,68 @@
     }
   },
   {
+    "native": "CLBALRM5 (OS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/lrm/CLBALRM5OS.java: CLBALRM5 (OS)",
+    "values": {
+      "id": "clbalrm5-os-registry",
+      "name": "LRM 5 (OS)",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.125,
+      "criticalSlots": 3,
+      "battleValue": 11,
+      "introductionYear": 3053,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 15000,
+      "subType": "CLBALRM5OS",
+      "damage": "1/missile",
+      "heat": 2,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 0,
+        "medium": 14
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/lrm/CLBALRM5OS.java: CLBALRM5 (OS)"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.battleArmor.clan.lrm.CLBALRM5OS",
+      "internalName": "CLBALRM5 (OS)",
+      "name": "LRM 5 (OS)",
+      "aliases": ["CLBALRM5 (OS)", "CLBALRM5OS"],
+      "tech": "CLAN",
+      "bv": 11,
+      "tons": 0.125,
+      "criticalSlots": 3,
+      "cost": 15000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3053,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": ["Battle Armor"],
+      "heat": 2,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 0,
+        "medium": 14
+      },
+      "ammoType": "LRM",
+      "rackSize": 5
+    }
+  },
+  {
     "native": "CLBALightMortar",
     "kind": "weapons",
     "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/CLBAMortarLight.java: CLBALightMortar",
@@ -4086,6 +4149,140 @@
       },
       "ammoType": "SRM",
       "rackSize": 2
+    }
+  },
+  {
+    "native": "CLBASRM2 (OS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM2OS.java: CLBASRM2 (OS)",
+    "values": {
+      "id": "clbasrm2-os-registry",
+      "name": "SRM 2 (OS)",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.04,
+      "criticalSlots": 2,
+      "battleValue": 4,
+      "introductionYear": 2860,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 5000,
+      "subType": "CLBASRM2OS",
+      "damage": "2/missile",
+      "heat": 2,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM2OS.java: CLBASRM2 (OS)"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.battleArmor.clan.srm.CLBASRM2OS",
+      "internalName": "CLBASRM2 (OS)",
+      "name": "SRM 2 (OS)",
+      "aliases": [
+        "CLBASRM2 (OS)",
+        "CLBASRM2OS",
+        "Clan BA OS SRM-2",
+        "Clan BA SRM 2 (OS)"
+      ],
+      "tech": "CLAN",
+      "bv": 4,
+      "tons": 0.04,
+      "criticalSlots": 2,
+      "cost": 5000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2860,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": ["Battle Armor"],
+      "heat": 2,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "ammoType": "SRM",
+      "rackSize": 2
+    }
+  },
+  {
+    "native": "CLBASRM3 (OS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM3OS.java: CLBASRM3 (OS)",
+    "values": {
+      "id": "clbasrm3-os-registry",
+      "name": "SRM 3 (OS)",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.06,
+      "criticalSlots": 2,
+      "battleValue": 6,
+      "introductionYear": 2860,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 7500,
+      "subType": "CLBASRM3OS",
+      "damage": "2/missile",
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/clan/srm/CLBASRM3OS.java: CLBASRM3 (OS)"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.battleArmor.clan.srm.CLBASRM3OS",
+      "internalName": "CLBASRM3 (OS)",
+      "name": "SRM 3 (OS)",
+      "aliases": [
+        "CLBASRM3 (OS)",
+        "Clan BA SRM 3 (OS)",
+        "Clan BA OS SRM-3",
+        "CLBASRM3OS"
+      ],
+      "tech": "CLAN",
+      "bv": 6,
+      "tons": 0.06,
+      "criticalSlots": 2,
+      "cost": 7500,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2860,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": ["Battle Armor"],
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "ammoType": "SRM",
+      "rackSize": 3
     }
   },
   {
@@ -6948,7 +7145,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo LRM-5",
         "Java ammoType:rackSize LRM:5",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLLRM5 (IOS), CLBALRM5 (OS), ISBALRM5OS"
+        "Unrepresented compatible Java weapons: CLLRM5 (IOS), ISBALRM5OS"
       ],
       "battleValue": 7,
       "weight": 1,
@@ -6967,7 +7164,8 @@
         "balrm5-os",
         "lrm-5-i-os-registry",
         "clbalrm5-registry",
-        "isbalrm5-registry"
+        "isbalrm5-registry",
+        "clbalrm5-os-registry"
       ]
     },
     "java": {
@@ -7462,7 +7660,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-2",
         "Java ammoType:rackSize SRM:2",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM2 (IOS), ISSRM2OS, CLBASRM2 (OS)"
+        "Unrepresented compatible Java weapons: CLSRM2 (IOS), ISSRM2OS"
       ],
       "battleValue": 3,
       "weight": 1,
@@ -7481,6 +7679,7 @@
         "issrm2ios-registry",
         "clbasrm2-registry",
         "isbasrm2-registry",
+        "clbasrm2-os-registry",
         "isbasrm2os-registry"
       ]
     },
@@ -7533,7 +7732,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-3",
         "Java ammoType:rackSize SRM:3",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM3, CLBASRM3 (OS)"
+        "Unrepresented compatible Java weapons: CLSRM3"
       ],
       "battleValue": 4,
       "weight": 1,
@@ -7549,6 +7748,7 @@
         "clsrm3os-registry",
         "basrm3",
         "isbasrm3-registry",
+        "clbasrm3-os-registry",
         "isbasrm3os-registry"
       ]
     },
@@ -12185,7 +12385,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo LRM-5 Artemis-capable",
         "Java ammoType:rackSize LRM:5",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: CLLRM5 (IOS), ISBALRM5OS, CLBALRM5 (OS)"
+        "Unrepresented compatible Java weapons: CLLRM5 (IOS), ISBALRM5OS"
       ],
       "battleValue": 6,
       "weight": 1,
@@ -12204,7 +12404,8 @@
         "balrm5-os",
         "cllrm5-os-registry",
         "isbalrm5-registry",
-        "clbalrm5-registry"
+        "clbalrm5-registry",
+        "clbalrm5-os-registry"
       ]
     },
     "java": {
@@ -13449,7 +13650,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo SRM-2 Narc-capable",
         "Java ammoType:rackSize SRM:2",
         "Java munitions: M_NARC_CAPABLE",
-        "Unrepresented compatible Java weapons: ISSRM2OS, CLSRM2 (IOS), CLBASRM2 (OS)"
+        "Unrepresented compatible Java weapons: ISSRM2OS, CLSRM2 (IOS)"
       ],
       "battleValue": 3,
       "weight": 1,
@@ -13468,7 +13669,8 @@
         "clsrm2-os-registry",
         "isbasrm2-registry",
         "clbasrm2-registry",
-        "isbasrm2os-registry"
+        "isbasrm2os-registry",
+        "clbasrm2-os-registry"
       ]
     },
     "java": {

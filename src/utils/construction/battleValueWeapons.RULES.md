@@ -24,3 +24,11 @@ calculateArcWeaponBV owns weapon arc weighting plus grouped additions outside
 that weight (BVCalculator.java:839-856, pin 48fcb2f64). Large craft retain their
 grouped-arc contract; ordinary aircraft use it per weapon before heat and for
 their arc totals. Capacitor additions include TC once before this shared stage.
+
+# Direct-fire BV ownership
+
+`isDirectFireBVWeapon` owns production TC eligibility. Represented identities
+use pinned native F_DIRECT_FIRE facts; unrepresented legacy IDs retain their
+existing compatibility policy. The shared bonus remains 1.25. Rocket-launcher
+IDs such as rl10 are ineligible (BVCalculator.java:880; RLWeapon.java at pin
+48fcb2f64). The generated fact owner is equipmentBV/nativeWeaponFlags.ts.

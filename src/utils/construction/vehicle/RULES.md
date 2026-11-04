@@ -511,3 +511,9 @@ AERO-RES2 owner, for source-order/location/caliber selection and derived array
 BV. The vehicle consumer projects that value before its direction/fire-control
 modifiers; arrays receive no TC bonus. BVCalculator.java:807-816 and
 MekFileParser.java:928-944 at pin48fcb2f64. No second MGA rule is introduced.
+
+Vehicle and ordinary aerospace summaries use calculateBaseBV followed by
+calculateAdjustedBV. Chassis/cockpit factors precede the base integer round;
+crew skill follows it and receives a final round. Vehicle skill lookup uses
+the existing shared table with the same floor and clamp. BVCalculator.java:
+1253,167 at MegaMek pin 48fcb2f64 owns this order.
