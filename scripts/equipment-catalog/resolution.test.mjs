@@ -14,18 +14,11 @@ const option = (flag) => process.argv[process.argv.indexOf(flag) + 1];
 // previously resolved inputs, including consumer fallback results, are frozen.
 export const APPROVED_JAVA_REROUTES = [
   ...[
-    ['APGaussRifle', 'apgaussrifle', null],
-    ['EnhancedLRM10', 'enhancedlrm10', null],
-    ['EnhancedLRM15', 'enhancedlrm15', null],
-    ['EnhancedLRM20', 'enhancedlrm20', null],
-    ['EnhancedLRM5', 'enhancedlrm5', null],
     ['MRM-1', 'mrm-1', null],
     ['MRM-2', 'mrm-2', null],
     ['MRM-3', 'mrm-3', null],
     ['MRM-4', 'mrm-4', null],
     ['MRM-5', 'mrm-5', null],
-    ['RotaryAC2', 'rotaryac2', null],
-    ['RotaryAC5', 'rotaryac5', null],
   ].flatMap(([name, oldTarget, newTarget]) =>
     ['unitLoaderAmmoIS', 'unitLoaderAmmoClan'].map((api) => ({
       api,
@@ -34,7 +27,7 @@ export const APPROVED_JAVA_REROUTES = [
       newTarget,
       literalName: true,
       reason:
-        'Opus G2-O5 native source context; ISMRM1..5.java:57-63, AmmoType.java:15093-15236 at48fcb2f64',
+        'Opus G2-O5 exact Java source identity; ISMRM1..5.java:57-63 and AmmoType.java:15093-15236 at48fcb2f64',
     })),
   ),
   ...[
@@ -53,21 +46,7 @@ export const APPROVED_JAVA_REROUTES = [
       newTarget,
       literalName: true,
       reason:
-        'Opus G2-O5 native source context; ISMRM1..5.java:57-63, AmmoType.java:15093-15236 at48fcb2f64',
-    })),
-  ),
-  ...[
-    ['RotaryAC2', 'rotaryac2', 'clan-rac-2'],
-    ['RotaryAC5', 'rotaryac5', 'clan-rac-5'],
-  ].flatMap(([name, oldTarget, newTarget]) =>
-    ['unitLoaderClan'].map((api) => ({
-      api,
-      name,
-      oldTarget,
-      newTarget,
-      literalName: true,
-      reason:
-        'Opus G2-O5 native source context; ISMRM1..5.java:57-63, AmmoType.java:15093-15236 at48fcb2f64',
+        'Opus G2-O5 exact Java source identity; ISMRM1..5.java:57-63 and AmmoType.java:15093-15236 at48fcb2f64',
     })),
   ),
   ...[
@@ -79,7 +58,7 @@ export const APPROVED_JAVA_REROUTES = [
     newTarget: null,
     weapon: true,
     reason:
-      'Opus G2-O5 WeaponType lookup cannot use a legacy AmmoType alias; pin48fcb2f64',
+      'Opus G2-O5 WeaponType aliases cannot use an AmmoType bin; pin48fcb2f64',
   })),
   ...[
     [

@@ -87,3 +87,17 @@ it.each([1, 2, 3, 4, 5])(
     }
   },
 );
+
+it.each(['apgaussrifle', 'clan-streak-lrm-10'])(
+  'preserves the established canonical ammo input %s',
+  (id) => {
+    expect(
+      resolveEquipmentId(
+        id,
+        TechBase.INNER_SPHERE,
+        TechBaseMode.INNER_SPHERE,
+        undefined,
+      ).equipmentDef?.id,
+    ).toBe(id);
+  },
+);

@@ -12,7 +12,7 @@ import {
 } from '../equipmentBVCatalogData';
 import {
   loadCatalogForEquipmentId,
-  loadCatalogForNativeEquipmentName,
+  loadEquipmentCatalog,
   isAmmunitionEquipmentId,
   loadNameMappings,
   getLowerMappingsCache,
@@ -35,9 +35,13 @@ export function normalizeNativeEquipmentName(
   equipmentName: string,
   includeRegistry = true,
 ): string {
+  const nativeId = resolveRegistryId(equipmentName);
+  const weapons = loadEquipmentCatalog();
   return normalizeEquipmentId(
     equipmentName,
-    loadCatalogForNativeEquipmentName(equipmentName),
+    nativeId && weapons.has(nativeId)
+      ? weapons
+      : loadCatalogForEquipmentId(equipmentName),
     includeRegistry,
   );
 }

@@ -196,13 +196,6 @@ export function loadCatalogForEquipmentId(
   if (equipment.has(key)) return equipment;
   const ammunition = loadAmmunitionCatalog();
   if (ammunition.has(key)) return ammunition;
-  return loadCatalogForNativeEquipmentName(equipmentId);
-}
-
-/** Source names use Java's namespace; canonical catalog IDs retain exact identity. */
-export function loadCatalogForNativeEquipmentName(
-  equipmentId: string,
-): Map<string, EquipmentCatalogEntry> {
   return isAmmunitionEquipmentId(equipmentId)
     ? loadAmmunitionCatalog()
     : loadEquipmentCatalog();
