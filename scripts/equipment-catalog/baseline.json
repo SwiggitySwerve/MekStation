@@ -9033,7 +9033,7 @@
     "file": "weapons/missile-other.json",
     "index": 44,
     "id": "rl-5",
-    "sha256": "715913dc05949621e078a1292043b31676388904efe6cc30979d0d7de7b3b899",
+    "sha256": "22909e2a8196dc7e94bfd293d2972ae598271a54e714f4a83994a276cb9971b2",
     "item": {
       "id": "rl-5",
       "name": "Rocket Launcher 5",
@@ -9050,8 +9050,8 @@
         "long": 12,
         "extreme": 18
       },
-      "weight": 7,
-      "criticalSlots": 2,
+      "weight": 0.125,
+      "criticalSlots": 4,
       "costCBills": 0,
       "battleValue": 6,
       "introductionYear": 3064,
