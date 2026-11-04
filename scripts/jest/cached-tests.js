@@ -17,8 +17,11 @@
  *     the `..` segments in the file,
  *   - the whole repo when the closure spawns child processes or has a dynamic
  *     require/import or an unresolvable relative import,
- *   - the env vars it reads (process.env.NAME, or process.env[NAME] when NAME is
- *     a same-file string const) plus NODE_ENV, TZ, JEST_*,
+ *   - the env vars it reads: process.env.NAME; process.env[X] where X is a
+ *     single-binding same-file `const X = 'NAME'` (optionally `as const`); or
+ *     process.env[param] inside a non-exported helper `readEnv(param)` that is
+ *     only ever called, in the same file, with string literals. Plus NODE_ENV, TZ,
+ *     JEST_*,
  *   - package*.json, tsconfig.json, jest.config.js, config/jest/, .env*,
  *     every __mocks__ file, the full Node version and platform,
  *   - the selected projects and the Jest options that are keyed (--ci), in the
@@ -304,9 +307,121 @@ function resolveStringConst(code, id) {
   ).test(code);
   if (bindings.length !== 1 || imported) return null;
   const decl = new RegExp(
-    `\\bconst\\s+${esc}\\s*(?::[^=;]+)?=\\s*(['"])([^'"\\\\\\n]*)\\1\\s*(?=[;\\n,)}]|$)`,
+    `\\bconst\\s+${esc}\\s*(?::[^=;]+)?=\\s*(['"])([^'"\\\\\\n]*)\\1\\s*(?:as\\s+const\\s*)?(?=[;\\n,)}]|$)`,
   ).exec(code);
   return decl ? decl[2] : null;
+}
+
+/** Index of the bracket that closes the one at `open` (naive depth count), or -1. */
+function matchingClose(code, open) {
+  const opener = code[open];
+  const closer = { '(': ')', '{': '}' }[opener];
+  let depth = 0;
+  for (let i = open; i < code.length; i += 1) {
+    if (code[i] === opener) depth += 1;
+    else if (code[i] === closer && --depth === 0) return i;
+  }
+  return -1;
+}
+
+// A simple TypeScript type annotation: `string`, `string | undefined`, `Foo<Bar>[]`.
+const SIMPLE_TYPE = String.raw`[A-Za-z_$][\w$.<>\[\]| ]*`;
+
+/**
+ * Every function in `code` shaped `function H(param...) {...}`,
+ * `const H = (param...) => ...` or `const H = function (param...) {...}` whose
+ * FIRST parameter is exactly the plain identifier `param` (no default, rest or
+ * destructuring), with the source range of its body.
+ */
+function helpersTakingParam(code, param) {
+  const found = [];
+  const declaration =
+    /(?:\bfunction\s+([A-Za-z_$][\w$]*)\s*|\bconst\s+([A-Za-z_$][\w$]*)\s*(?::[^=]+)?=\s*(?:async\s+)?(function\s*)?)\(/g;
+  const firstParam = new RegExp(
+    `^\\s*${escapeRegex(param)}\\s*\\??\\s*(?::\\s*${SIMPLE_TYPE})?\\s*(?:,|$)`,
+  );
+  const typed = `^\\s*(?::\\s*${SIMPLE_TYPE})?\\s*`;
+  for (const match of code.matchAll(declaration)) {
+    const open = match.index + match[0].length - 1;
+    const close = matchingClose(code, open);
+    if (close < 0 || !firstParam.test(code.slice(open + 1, close))) continue;
+    const afterParams = code.slice(close + 1);
+    const block = new RegExp(`${typed}\\{`).exec(afterParams);
+    const arrow = new RegExp(`${typed}=>\\s*`).exec(afterParams);
+    let bodyStart;
+    let bodyEnd;
+    if (block && (match[1] || match[3])) {
+      // function declaration, or `const H = function (...) {`
+      bodyStart = close + 1 + block[0].length - 1;
+      bodyEnd = matchingClose(code, bodyStart);
+    } else if (arrow && match[2] && !match[3]) {
+      bodyStart = close + 1 + arrow[0].length;
+      if (code[bodyStart] === '{') {
+        bodyEnd = matchingClose(code, bodyStart);
+      } else {
+        // expression body: up to the end of the statement on that line
+        const stop = code.slice(bodyStart).search(/[;\n]/);
+        bodyEnd = stop < 0 ? code.length : bodyStart + stop;
+      }
+    } else continue;
+    if (bodyEnd < 0) continue;
+    const name = match[1] ?? match[2];
+    found.push({
+      name,
+      nameAt: match.index + match[0].indexOf(name),
+      bodyStart,
+      bodyEnd,
+    });
+  }
+  return found;
+}
+
+/**
+ * The names a small env-reading helper is called with: the read
+ * `process.env[param]` at `accessIndex` must sit inside the BODY of
+ * `function readEnv(param) {...}` (or `const readEnv = (param) => ...`), and is
+ * resolved to the string literals of every `readEnv('LITERAL')` call in the same
+ * file. Everything else is refused (null), because another file, another
+ * function, a rewritten parameter or a non-literal argument could name a
+ * variable this scan cannot see:
+ *  - the read must be inside that helper's body (a later method or closure with
+ *    its own `param` is a different read and stays unkeyable);
+ *  - `param` must occur exactly once in the body, as that read's key (so no
+ *    reassignment, destructuring, shadowing or other use of the parameter);
+ *  - the helper has a single binding and is not exported;
+ *  - every other mention of the helper is a call whose first argument is a lone
+ *    string literal (passing it as a value, aliasing it, `readEnv(x)` refuse).
+ */
+function resolveAccessorLiterals(code, param, accessIndex) {
+  const owner = helpersTakingParam(code, param).find(
+    (candidate) =>
+      accessIndex >= candidate.bodyStart && accessIndex < candidate.bodyEnd,
+  );
+  if (!owner) return null;
+  const body = code.slice(owner.bodyStart, owner.bodyEnd);
+  const uses = body.match(new RegExp(`\\b${escapeRegex(param)}\\b`, 'g')) || [];
+  if (uses.length !== 1) return null;
+  const h = escapeRegex(owner.name);
+  const exported =
+    new RegExp(
+      `\\bexport\\s+(?:default\\s+)?(?:async\\s+)?(?:function|const|let|var)\\s+${h}\\b`,
+    ).test(code) ||
+    new RegExp(`\\bexport\\s+default\\s+${h}\\b`).test(code) ||
+    new RegExp(`\\bexport\\s*\\{[^}]*\\b${h}\\b`).test(code);
+  const bindings =
+    code.match(
+      new RegExp(`\\b(?:const|let|var|function|class)\\s+${h}\\b`, 'g'),
+    ) || [];
+  if (exported || bindings.length !== 1) return null;
+  const names = [];
+  const call = new RegExp(`^${h}\\s*\\(\\s*(['"])([^'"\\\\\\n]+)\\1\\s*[,)]`);
+  for (const mention of code.matchAll(new RegExp(`\\b${h}\\b`, 'g'))) {
+    if (mention.index === owner.nameAt) continue;
+    const literal = call.exec(code.slice(mention.index));
+    if (!literal) return null;
+    names.push(literal[2]);
+  }
+  return names;
 }
 
 /** One matcher per repo top-level name: [regex, prefix to digest]. */
@@ -368,12 +483,18 @@ function analyzeSource(text, rel, nameMatchers) {
       bracketContent(code, match.index + match[0].length) ?? ''
     ).trim();
     const literal = /^(['"])([^'"\\\n]+)\1$/.exec(arg);
+    const identifier = /^[A-Za-z_$][\w$]*$/.test(arg);
     const name = literal
       ? literal[2]
-      : /^[A-Za-z_$][\w$]*$/.test(arg)
+      : identifier
         ? resolveStringConst(code, arg)
         : null;
+    const viaHelper =
+      !name && identifier
+        ? resolveAccessorLiterals(code, arg, match.index)
+        : null;
     if (name) envNames.add(name);
+    else if (viaHelper) viaHelper.forEach((helped) => envNames.add(helped));
     else envUnresolved = true;
   }
   return {

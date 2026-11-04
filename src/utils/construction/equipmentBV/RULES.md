@@ -327,6 +327,17 @@ ProtoMech bins. Both spellings live in the alias table; quantity parsing does
 not define another identity rule. Focused qualifier tests enforce the shared
 identity, and the pinned corpus comparison checks Mech BV regression.
 
+## Aircraft machine-gun arrays
+
+Aircraft MG arrays use the native no-critical-slot fallback: up to four unused
+same-location/same-rack MGs in source order. Gun rack identity reuses the native
+ammo-group owner with raw source spelling, falling back to resolved gun name.
+Array BV is 0.67 times linked gun base BV, in addition to the guns themselves;
+the catalog array base zero remains valid. Arrays lack F_DIRECT_FIRE and do
+not gain aircraft TC. Mech critical-slot assignment stays outside this input
+contract. Source: pin 48fcb2f64, MekFileParser.java:928-944,
+BVCalculator.java:807-816, CLMGA.java:74-88. Tests: aerospaceBV.machineGunArrays.
+
 ## One-shot BV heat
 
 `weaponHeat.ts` owns one-shot identity projection and heat /4. The shared
@@ -374,7 +385,7 @@ catalog capacitor value (MiscType.java:1322-1347). Clan ER PPCs require 3101
 (MekFileParser.java:90-93,471-497). Ordinary aircraft apply that addition after
 rear weighting, before TC and heat sorting; linked PPCs gain five heat
 (BVCalculator.java:853-882; HeatTrackingBVCalculator.java:211-214, pin 48fcb2f64).
-Unlinked capacitors contribute no offense. Legacy Mech/vehicle projections
+Unlinked capacitors contribute no offense. Legacy Mech projections
 retain their distinct unintegrated-capacitor contract in getOffensiveBVRole.
 Enforcement: aerospaceBV.ppcCapacitors.test.ts and the all-family corpus proof.
 
