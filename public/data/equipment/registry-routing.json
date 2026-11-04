@@ -35,6 +35,15 @@
     },
     "issrm4ios-registry": {
       "SRM 4 (I-OS)": "srm4-ios"
+    },
+    "is-streak-srm-2-ammo-registry": {
+      "IS Streak SRM 2 Ammo": "clan-streak-srm-2"
+    },
+    "is-streak-srm-4-ammo-registry": {
+      "IS Streak SRM 4 Ammo": "clan-streak-srm-4"
+    },
+    "is-streak-srm-6-ammo-registry": {
+      "IS Streak SRM 6 Ammo": "clan-streak-srm-6"
     }
   }
 }
