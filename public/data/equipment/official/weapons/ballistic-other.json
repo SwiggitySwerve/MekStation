@@ -337,7 +337,7 @@
       "category": "Ballistic",
       "subType": "Gauss",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "STANDARD",
       "damage": 2,
       "heat": 1,
       "ranges": {

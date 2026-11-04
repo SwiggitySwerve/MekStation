@@ -128,7 +128,7 @@
       "name": "Battle Armor C3",
       "category": "C3 System",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "EXPERIMENTAL",
+      "rulesLevel": "ADVANCED",
       "weight": 0.25,
       "criticalSlots": 1,
       "costCBills": 62500,
