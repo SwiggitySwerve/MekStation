@@ -15,11 +15,16 @@ import {
   getArmorBVMultiplier,
   getPilotSkillModifier,
 } from '../../../types/validation/BattleValue';
+import {
+  getModularArmorBVPoints,
+  MODULAR_ARMOR_BV_ID,
+} from '../battleValueDefensive';
 import { getOffensiveBVRole } from '../battleValueEquipment';
 import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
 import { calculateAdjustedBV } from '../battleValuePilot';
 import { calculateBaseBV, getCockpitModifier } from '../battleValueTotals';
 import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
+import { getEquipmentEntry } from '../equipmentBVResolver';
 import { supportFireControlFactor } from '../vehicle/vehicleBVOffensive';
 import { calculateAerospaceArcContributions } from './aerospaceBVArcs';
 import {
@@ -57,8 +62,13 @@ export function calculateAerospaceDefensiveBV(
   const armorMultiplier = getArmorBVMultiplier(input.armorType);
   const capital = isCapitalShipBVType(input.subType);
   // BVCalculator.java:461-463: SmallCraft inherits the ordinary armor factor.
+  const modularArmorPoints = getModularArmorBVPoints(
+    input.equipment.filter(
+      (item) => getEquipmentEntry(item.id)?.id === MODULAR_ARMOR_BV_ID,
+    ).length,
+  );
   const armorBV =
-    input.totalArmorPoints *
+    (input.totalArmorPoints + modularArmorPoints) *
     (capital ? 25 : 2.5) *
     armorMultiplier *
     // BVCalculator.java:431-452; FixedWingSupport.java:101-108.
