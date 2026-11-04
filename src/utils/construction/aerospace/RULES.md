@@ -450,3 +450,9 @@ controller links while rear-marked weapons join Aft before dominance and heat
 sorting (AeroBVCalculator.java:152-158, pin 48fcb2f64). Unmarked side mounts
 remain forward. aerospaceBV.rearMounted.test.ts pins native Aquarius, both
 marker states and same-side Artemis linking on a rear-mounted launcher.
+
+The unit BV adapter also retains the editor's existing isRearMounted flag:
+the definition mapper consumes the raw R- prefix when building editor mounts.
+An explicit editor flag takes precedence; absent flags retain native marker
+classification. The committed
+craft record-sheet suite verifies store-to-sheet BV against the source owner.

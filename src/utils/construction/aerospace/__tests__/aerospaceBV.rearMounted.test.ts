@@ -75,3 +75,18 @@ it('retains the physical side for controller linking while firing to the rear', 
     ]),
   ).toBe(131);
 });
+
+it.each([
+  ['medium-laser', true, 199],
+  ['r-medium-laser', false, 222],
+] as const)(
+  'retains the explicit editor flag on %s: %s',
+  (id, isRearMounted, expected) => {
+    expect(
+      pool([
+        ...mounts(['ppc'], Arc.NOSE),
+        { id, location: Arc.LEFT_SIDE, isRearMounted },
+      ]),
+    ).toBe(expected);
+  },
+);

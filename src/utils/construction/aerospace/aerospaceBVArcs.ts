@@ -151,7 +151,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     if (getAerospaceDefensiveEquipmentKind(item.id)) continue;
     const location = normalizeArcLocation(item.location, input.subType);
     if (location === null) continue;
-    const arc = isRearMountedAerospaceEquipment(item.id)
+    const arc = isRearMountedAerospaceEquipment(item.id, item.isRearMounted)
       ? AerospaceArc.AFT
       : location;
     const entry = getEquipmentEntry(item.id);
