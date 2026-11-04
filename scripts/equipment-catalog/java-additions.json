@@ -3633,7 +3633,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3053,
       "subType": "CLBALRM5",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 2,
       "ranges": {
         "long": 21,
@@ -4044,7 +4044,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 2860,
       "subType": "CLBASRM2",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 2,
       "ranges": {
         "long": 9,
@@ -4104,7 +4104,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 2860,
       "subType": "CLBASRM4",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 3,
       "ranges": {
         "long": 9,
@@ -4164,7 +4164,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 2860,
       "subType": "CLBASRM6",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 4,
       "ranges": {
         "long": 9,
@@ -4750,7 +4750,7 @@
       "rulesLevel": "EXPERIMENTAL",
       "introductionYear": 2095,
       "subType": "PrototypeRL10",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 3,
       "ranges": {
         "long": 18,
@@ -4824,7 +4824,7 @@
       "rulesLevel": "EXPERIMENTAL",
       "introductionYear": 2095,
       "subType": "PrototypeRL15",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 4,
       "ranges": {
         "long": 15,
@@ -14971,7 +14971,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3050,
       "subType": "ISBALRM1",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 21,
@@ -15031,7 +15031,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3050,
       "subType": "ISBALRM1OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 21,
@@ -15091,7 +15091,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3050,
       "subType": "ISBALRM2",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 21,
@@ -15151,7 +15151,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3050,
       "subType": "ISBALRM2OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 21,
@@ -15211,7 +15211,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3050,
       "subType": "ISBALRM3",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 21,
@@ -15271,7 +15271,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3050,
       "subType": "ISBALRM3OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 21,
@@ -15331,7 +15331,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3050,
       "subType": "ISBALRM4",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 21,
@@ -15391,7 +15391,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3050,
       "subType": "ISBALRM4OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 21,
@@ -15451,7 +15451,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3050,
       "subType": "ISBALRM5",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 2,
       "ranges": {
         "long": 21,
@@ -15825,7 +15825,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3045,
       "subType": "ISBARL1",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 12,
@@ -15891,7 +15891,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3045,
       "subType": "ISBARL2",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 12,
@@ -15957,7 +15957,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3045,
       "subType": "ISBARL4",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 12,
@@ -16023,7 +16023,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3045,
       "subType": "ISBARL5",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 12,
@@ -16129,7 +16129,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3045,
       "subType": "ISBASRM1",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 0,
       "ranges": {
         "long": 9,
@@ -16189,7 +16189,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3045,
       "subType": "ISBASRM1OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 0,
       "ranges": {
         "long": 9,
@@ -16249,7 +16249,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3045,
       "subType": "ISBASRM2",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 2,
       "ranges": {
         "long": 9,
@@ -16309,7 +16309,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3045,
       "subType": "ISBASRM2OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 2,
       "ranges": {
         "long": 9,
@@ -16374,7 +16374,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3045,
       "subType": "ISBASRM3",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 0,
       "ranges": {
         "long": 9,
@@ -16434,7 +16434,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3045,
       "subType": "ISBASRM3OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 0,
       "ranges": {
         "long": 9,
@@ -16494,7 +16494,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3045,
       "subType": "ISBASRM4",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 3,
       "ranges": {
         "long": 9,
@@ -16554,7 +16554,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3045,
       "subType": "ISBASRM4OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 3,
       "ranges": {
         "long": 9,
@@ -16619,7 +16619,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3045,
       "subType": "ISBASRM5",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 0,
       "ranges": {
         "long": 9,
@@ -16679,7 +16679,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3045,
       "subType": "ISBASRM5OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 0,
       "ranges": {
         "long": 9,
@@ -16739,7 +16739,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3045,
       "subType": "ISBASRM6OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 4,
       "ranges": {
         "long": 9,
@@ -17487,7 +17487,7 @@
       "rulesLevel": "ADVANCED",
       "introductionYear": 2445,
       "subType": "LongTom",
-      "damage": "Java variable damage (-5)",
+      "damage": 25,
       "heat": 20,
       "ranges": {
         "long": 30,
@@ -17932,7 +17932,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3056,
       "subType": "ISSRM2IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 2,
       "ranges": {
         "long": 9,
@@ -18007,7 +18007,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3056,
       "subType": "ISSRM4IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 3,
       "ranges": {
         "long": 9,
@@ -18082,7 +18082,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 2660,
       "subType": "ISSRM4OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 3,
       "ranges": {
         "long": 9,
@@ -18156,7 +18156,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 2660,
       "subType": "ISSRM6OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 4,
       "ranges": {
         "long": 9,
@@ -18230,7 +18230,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3056,
       "subType": "ISSRT2IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 2,
       "ranges": {
         "long": 0,
@@ -18304,7 +18304,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 2660,
       "subType": "ISSRT2OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 2,
       "ranges": {
         "long": 0,
@@ -18378,7 +18378,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3056,
       "subType": "ISSRT4IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 3,
       "ranges": {
         "long": 0,
@@ -18452,7 +18452,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3056,
       "subType": "ISSRT6IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 4,
       "ranges": {
         "long": 0,
@@ -18526,7 +18526,7 @@
       "rulesLevel": "ADVANCED",
       "introductionYear": 1950,
       "subType": "Sniper",
-      "damage": "Java variable damage (-5)",
+      "damage": 20,
       "heat": 10,
       "ranges": {
         "long": 18,
@@ -18650,7 +18650,7 @@
       "rulesLevel": "ADVANCED",
       "introductionYear": 1950,
       "subType": "Thumper",
-      "damage": "Java variable damage (-5)",
+      "damage": 15,
       "heat": 5,
       "ranges": {
         "long": 21,
@@ -20124,7 +20124,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 2370,
       "subType": "ISLRT10",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 4,
       "ranges": {
         "long": 0,
@@ -20204,7 +20204,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3056,
       "subType": "ISLRT10IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 4,
       "ranges": {
         "long": 0,
@@ -20284,7 +20284,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 2370,
       "subType": "ISLRT15",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 5,
       "ranges": {
         "long": 0,
@@ -20364,7 +20364,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3056,
       "subType": "ISLRT15IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 5,
       "ranges": {
         "long": 0,
@@ -20444,7 +20444,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 2370,
       "subType": "ISLRT20",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 6,
       "ranges": {
         "long": 0,
@@ -20524,7 +20524,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3056,
       "subType": "ISLRT20IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 6,
       "ranges": {
         "long": 0,
@@ -20604,7 +20604,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 2370,
       "subType": "ISLRT5",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 2,
       "ranges": {
         "long": 0,
@@ -20678,7 +20678,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 3056,
       "subType": "ISLRT5IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 2,
       "ranges": {
         "long": 0,
@@ -21867,7 +21867,7 @@
       "rulesLevel": "UNOFFICIAL",
       "introductionYear": 3057,
       "subType": "ISMRM1",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -21941,7 +21941,7 @@
       "rulesLevel": "UNOFFICIAL",
       "introductionYear": 3057,
       "subType": "ISMRM1OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -22015,7 +22015,7 @@
       "rulesLevel": "UNOFFICIAL",
       "introductionYear": 3057,
       "subType": "ISMRM2",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -22089,7 +22089,7 @@
       "rulesLevel": "UNOFFICIAL",
       "introductionYear": 3057,
       "subType": "ISMRM2OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -22163,7 +22163,7 @@
       "rulesLevel": "UNOFFICIAL",
       "introductionYear": 3057,
       "subType": "ISMRM3",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -22237,7 +22237,7 @@
       "rulesLevel": "UNOFFICIAL",
       "introductionYear": 3057,
       "subType": "ISMRM3OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -22311,7 +22311,7 @@
       "rulesLevel": "UNOFFICIAL",
       "introductionYear": 3057,
       "subType": "ISMRM4",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -22385,7 +22385,7 @@
       "rulesLevel": "UNOFFICIAL",
       "introductionYear": 3057,
       "subType": "ISMRM4OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -22459,7 +22459,7 @@
       "rulesLevel": "UNOFFICIAL",
       "introductionYear": 3057,
       "subType": "ISMRM5",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -22533,7 +22533,7 @@
       "rulesLevel": "UNOFFICIAL",
       "introductionYear": 3057,
       "subType": "ISMRM5OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -25564,7 +25564,7 @@
       "rulesLevel": "EXPERIMENTAL",
       "introductionYear": 2095,
       "subType": "PrototypeRL20",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 5,
       "ranges": {
         "long": 12,
@@ -25740,7 +25740,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 2660,
       "subType": "ISSRT2",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 2,
       "ranges": {
         "long": 0,
@@ -25814,7 +25814,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 2660,
       "subType": "ISSRT4",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 3,
       "ranges": {
         "long": 0,
@@ -25888,7 +25888,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 2660,
       "subType": "ISSRT6",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 4,
       "ranges": {
         "long": 0,
