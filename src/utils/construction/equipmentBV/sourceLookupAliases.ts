@@ -69,7 +69,7 @@ const NATIVE_IDENTITY_CORRECTIONS: Readonly<Record<string, string>> = {
   'is lb 2-x ac ammo': 'lb-2-x-ammo',
   'is lb 20-x ac ammo': 'lb-20-x-ammo',
   'is lb 5-x ac ammo': 'lb-5-x-ammo',
-  'is streak srm 2 ammo': 'streak-srm-ammo',
+  'is streak srm 2 ammo': 'is-streak-srm-2-ammo-registry',
 };
 
 /** Native identity precedes fuzzy aliases and unit-tech preferences. */

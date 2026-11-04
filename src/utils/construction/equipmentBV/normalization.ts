@@ -138,7 +138,7 @@ export function normalizeEquipmentId(
     includeRegistry && explicit && fullCatalog.has(explicit)
       ? explicit
       : undefined;
-  if (generated && registryPreviousId(generated, equipmentId)) return generated;
+  if (generated && registryPreviousId(generated, lower)) return generated;
   const identity = nativeIdentityId(lookupBase);
   if (!catalog.has(rawLower) && identity && catalog.has(identity))
     return identity;

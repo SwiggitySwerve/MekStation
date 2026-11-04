@@ -383,3 +383,8 @@ contains plural `Pods`. Ammunition names (including Narc/iNarc pods) keep the
 ammo namespace. Existing aliases and native name mappings resolve identity.
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
 ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.
+
+Registry-route approval uses the same stripped lookup token as identity
+resolution. Mount qualifiers and rear markers cannot change the underlying
+registered type. The exact IS Streak SRM-2 bin is the imported BV-4, 50-shot
+identity (AmmoType.java; pin 48fcb2f64), not generic Streak SRM ammunition.
