@@ -28,6 +28,7 @@ const DEFENSIVE_MISC_IDS: ReadonlySet<string> = new Set([
   'risc-viral-jammer-homing',
   'm-pod',
   'b-pod',
+  'isbpod-registry',
 ]);
 
 type DefensiveKind = 'equipment' | 'ams' | 'amsAmmo';

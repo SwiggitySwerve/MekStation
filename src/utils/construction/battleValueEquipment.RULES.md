@@ -19,3 +19,8 @@ its cap remains the combined listed weapon BV, including duplicate bins.
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
 AmmoType.java:12242-12254; BVCalculator.java:570-572,629-635.
 The unchanged Padilla contract regression pins defense 647.36 and total 1155.
+
+Native B-Pod display-name resolution can select the imported ISBPod identity.
+Both that identity and legacy `b-pod` retain the native defensive F_B_POD role.
+Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
+ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.

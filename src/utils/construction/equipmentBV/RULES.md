@@ -352,3 +352,9 @@ launcher (MekFileParser.java:425-449). The existing multiplier owner supplies
 1.2/1.3 before arc weighting and heat sorting (BVCalculator.java:860-872).
 Mech's older critical-grid/location heuristic is retained as a separate input
 projection; vehicles already consume explicit links. No catalog flags added.
+
+B-Pods remain weapons when their native display name or converted alias
+contains plural `Pods`. Ammunition names (including Narc/iNarc pods) keep the
+ammo namespace. Existing aliases and native name mappings resolve identity.
+Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
+ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.
