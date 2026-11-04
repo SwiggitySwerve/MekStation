@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
-import * as generator from './generate.mjs';
+import { generateEntries, generateCapitalBVFacts } from './generate.mjs';
 
 const read = (path) => JSON.parse(readFileSync(new URL(path, import.meta.url)));
 // Pinned NGaussWeaponLight.java and AmmoType.java; actual extracted inputs.
@@ -15,23 +15,14 @@ const names = [
 const fixture = read('./capital-fixture.json');
 
 test('capital weapons and matching ammo are selected without mounted gap tokens', () => {
-  const result = generator.generateEntries(
-    fixture.java,
-    [],
-    fixture.facts,
-    {},
-    [],
-    {},
-  );
+  const result = generateEntries(fixture.java, [], fixture.facts, {}, [], {});
   for (const name of names) {
     const weapon = result.items.find((item) => item.internalName === name);
     assert(weapon, name);
     const native = fixture.java.find((row) => row.internalName === name);
     assert.equal(weapon.entry.battleValue, native.bv);
     assert.equal(weapon.entry.heat, fixture.facts[name].heat);
-    const supplement = generator.generateCapitalBVFacts(result.items)[
-      weapon.entry.id
-    ];
+    const supplement = generateCapitalBVFacts(result.items)[weapon.entry.id];
     assert.equal(supplement.isCapital, true);
     assert.deepEqual(supplement.damageByRange, rows[name].damageByRange);
     assert(weapon.entry.special[0].includes('/48fcb2f64'));
@@ -49,7 +40,7 @@ test('capital weapons and matching ammo are selected without mounted gap tokens'
   assert.equal(
     JSON.stringify(result),
     JSON.stringify(
-      generator.generateEntries(fixture.java, [], fixture.facts, {}, [], {}),
+      generateEntries(fixture.java, [], fixture.facts, {}, [], {}),
     ),
   );
 });
@@ -83,7 +74,7 @@ test('existing capital IDs receive facts only when native name, BV and firing fa
     { ...ammo, id: 'wrong-shots', shotsPerTon: 2 },
   ];
   const frozen = JSON.stringify(before);
-  const result = generator.generateEntries(
+  const result = generateEntries(
     fixture.java,
     [],
     fixture.facts,
@@ -91,11 +82,31 @@ test('existing capital IDs receive facts only when native name, BV and firing fa
     before,
     {},
   );
-  const supplement = generator.generateCapitalBVFacts(result.items, before);
+  const supplement = generateCapitalBVFacts(result.items, before);
   assert.equal(supplement[legacy.id]?.isCapital, true);
   assert.equal(supplement[legacy.id]?.ammoType, 'LIGHT_NGAUSS');
   assert.equal(supplement[ammo.id]?.ammoType, 'LIGHT_NGAUSS');
   assert.equal(supplement['wrong-heat'], undefined);
   assert.equal(supplement['wrong-shots'], undefined);
   assert.equal(JSON.stringify(before), frozen);
+});
+
+test('capital ammo quantities retain their registered bare Java identity', () => {
+  const java = fixture.java.find(
+    (row) => row.internalName === 'Ammo Light N-Gauss',
+  );
+  const lookups = {
+    [java.internalName.toLowerCase()]: { default: java.internalName },
+  };
+  const gap = { java, inputs: [{ id: 'ammo-light-n-gauss:3' }] };
+  const { aliases } = generateEntries(
+    [java],
+    [gap],
+    fixture.facts,
+    lookups,
+    [],
+    {},
+  );
+  assert.equal(aliases['ammo-light-n-gauss'], 'ammo-light-n-gauss-registry');
+  assert.equal(aliases['ammo-light-n-gauss:3'], undefined);
 });

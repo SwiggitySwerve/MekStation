@@ -155,7 +155,14 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
     entry.special = notes;
     items.push({ kind: fact.kind, entry, internalName: name });
     const gap = gaps.find((gap) => gap.java.internalName === name);
-    const inputs = gap?.inputs?.map((input) => input.id) ?? [];
+    const inputs =
+      gap?.inputs?.map(({ id }) => {
+        const bare =
+          fact.kind === 'ammunition' && capitalSource[name]
+            ? id.replace(/:\d+$/, '')
+            : id;
+        return originalCatalog.has(bare.toLowerCase()) ? id : bare;
+      }) ?? [];
     const names = [name, type.name, ...type.aliases, ...inputs];
     for (const alias of new Set(names)) {
       const aliasKey = alias.toLowerCase();
@@ -257,6 +264,26 @@ function runGenerator() {
     before,
     mappings,
   );
+  const expectationsFile = new URL('./java-additions.json', import.meta.url);
+  const expectations = read(expectationsFile);
+  const expectedIds = new Set(expectations.map((row) => row.values.id));
+  const sourceTypes = new Map(
+    read(registryFile).map((row) => [row.internalName, row]),
+  );
+  const sourceFacts = read(factsFile);
+  for (const { kind, entry, internalName } of result.items)
+    if (!expectedIds.has(entry.id))
+      expectations.push({
+        native: internalName,
+        kind,
+        source: entry.special[0],
+        values: entry,
+        java: {
+          ...sourceTypes.get(internalName),
+          ...sourceFacts[internalName],
+        },
+      });
+  write(expectationsFile, expectations);
   for (const kind of ['weapons', 'ammunition', 'miscellaneous']) {
     const items = result.items
       .filter((item) => item.kind === kind)
@@ -307,8 +334,8 @@ function runGenerator() {
       ...['weapons', 'ammunition', 'miscellaneous'].map(
         (kind) => `${root}/official/${kind}/java-registry.json`,
       ),
-      ...['provenance.json', 'capital-bv.json'].map((name) =>
-        fileURLToPath(new URL(name, import.meta.url)),
+      ...['provenance.json', 'capital-bv.json', 'java-additions.json'].map(
+        (name) => fileURLToPath(new URL(name, import.meta.url)),
       ),
     ],
     { stdio: 'inherit', windowsHide: true },
