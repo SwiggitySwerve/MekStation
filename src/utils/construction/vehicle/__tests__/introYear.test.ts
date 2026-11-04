@@ -44,6 +44,14 @@ it.each([
     { year: 3060, armorCode: 22, armorTechLevel: 7, ...IS },
     ['Vehicular Stealth armor has intro date of 3067'],
   ],
+  // Java skips armor names no armor registers: "IS Standard" (Standard
+  // registers "Standard Armor", ArmorType.java:358-362) and Clan-tech Light
+  // Ferro-Fibrous ("Clan Light Ferro-Fibrous"), so neither is ever flagged.
+  [{ year: 2100, armorCode: 0, armorTechLevel: 1, ...IS }, []],
+  [
+    { year: 3000, armorCode: 5, armorTechLevel: 2, clan: true, mixed: false },
+    [],
+  ],
   // Patchwork and codes without a ported date are not checked.
   [{ year: 2000, armorCode: 7, ...IS }, []],
   [{ year: 2000, armorCode: 43, ...IS }, []],
