@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports -- a CommonJS CLI */
 /**
  * Per-test-file result cache for Jest (`npm run test:cached`), after T3 Code's
  * `test:cached`: skip a test file when an earlier run already passed with the
@@ -11,19 +12,26 @@
  *     the Jest setup files),
  *   - the "data inputs" it can read: if any closure file uses fs read APIs,
  *     the digest of every repo directory the closure names (public/data/,
- *     openspec/, docs/, ... and the closure file's own directory when it uses
- *     __dirname), or of the WHOLE repo when it names none,
+ *     openspec/, docs/, ...), or of the WHOLE repo when it names none; a file
+ *     using __dirname adds its own directory, widened to the ancestor reached by
+ *     the `..` segments in the file,
  *   - the whole repo when the closure spawns child processes or has a dynamic
  *     require/import or an unresolvable relative import,
- *   - the env vars it reads (process.env.NAME) plus NODE_ENV, TZ, JEST_*,
+ *   - the env vars it reads (process.env.NAME, or process.env[NAME] when NAME is
+ *     a same-file string const) plus NODE_ENV, TZ, JEST_*,
  *   - package*.json, tsconfig.json, jest.config.js, config/jest/, .env*,
- *     every __mocks__ file, the Node version and platform.
+ *     every __mocks__ file, the full Node version and platform,
+ *   - the Jest options that can change a result (--testTimeout, -t, ...) and the
+ *     selected projects; neutral ones (--ci, --maxWorkers, ...) are left out.
+ * Files ignored by git (.env.local, fetched or generated data) are hashed too,
+ * except build output and dependency directories.
  *
- * FAIL OPEN. An exception while keying, a bare `process.env` / `process.env[x]`,
- * an unreadable cache: the file runs. Reads that the scan cannot see (a path
- * built from a variable in a closure that also names a directory) are the one
- * residual gap; --verify-hits and the always-uncached main/nightly runs are
- * the backstops for it.
+ * FAIL OPEN. An exception while keying, a bare `process.env`, a computed
+ * process.env[...] whose name is not a same-file const, an unreadable cache: the
+ * file runs. Every existing resolution candidate (.js and .ts) of an import joins
+ * the closure. Reads that the scan cannot see (a path built from a variable in a
+ * closure that also names a directory) are the one residual gap; --verify-hits
+ * and the always-uncached main/nightly runs are the backstops for it.
  *
  * MODES. `use` (PR default) skips hits. `record` runs every file and still
  * records passes; it is forced on main pushes, scheduled runs and --coverage,
@@ -62,6 +70,25 @@ const GLOBAL_FILES = [
 ];
 const GLOBAL_PREFIXES = ['config/jest/'];
 const FIXED_ENV = ['NODE_ENV', 'TZ'];
+// Ignored directories (any path segment) that are build output, dependencies or
+// tool state: never test inputs, and large. Every other ignored file is hashed.
+const IGNORED_NOISE_SEGMENTS = new Set([
+  'node_modules',
+  '.next',
+  'coverage',
+  '.jest-result-cache',
+  'playwright-report',
+  'test-results',
+  'storybook-static',
+  'dist',
+  'out',
+  'release',
+  '.claude',
+]);
+// Jest options that cannot change what a test file reports; every other option
+// (--testTimeout, -t, --testNamePattern, --bail, ...) is part of the key.
+const NEUTRAL_JEST_OPTIONS =
+  /^(?:--ci|--no-coverage|--silent|--verbose|--runInBand|-i|--colors|--no-colors|--maxWorkers(?:=.*)?|--cacheDirectory(?:=.*)?|--shard(?:=.*)?|--json|--outputFile(?:=.*)?)$/;
 // Source files whose fs reads are known not to touch repo inputs, so they do
 // not force a whole-repo key. Add to this list only with the reason.
 const HERMETIC_FS_READERS = new Set([
@@ -124,6 +151,27 @@ function buildFileIndex(root, excludePrefix = null) {
       if (digest) index.set(rel, digest);
       else index.delete(rel);
     }
+    // Ignored files are still inputs (.env.local, fetched or generated data).
+    // Hash their contents too, except directories that are build output or
+    // dependencies and are never test data.
+    for (const entry of git([
+      'ls-files',
+      '-o',
+      '-i',
+      '--exclude-standard',
+      '--directory',
+      '-z',
+    ]).split('\0')) {
+      if (!entry) continue;
+      if (!entry.endsWith('/')) {
+        const digest = hashFile(root, entry);
+        if (digest) index.set(entry, digest);
+      } else if (
+        !entry.split('/').some((segment) => IGNORED_NOISE_SEGMENTS.has(segment))
+      ) {
+        walk(root, entry.replace(/\/$/, ''), index);
+      }
+    }
     if (index.size === 0) throw new Error('empty git index');
   } catch {
     index.clear();
@@ -163,7 +211,9 @@ function createDigests(index) {
 // ---------------------------------------------------------------------------
 
 const IMPORT_PATTERNS = [
-  /\b(?:import|export)\b[^'"`;()]*?\bfrom\s*['"]([^'"\n]+)['"]/g,
+  // any `from '<spec>'` (import/export ... from), whatever sits before it, so a
+  // comment with parentheses inside the braces cannot hide the import
+  /\bfrom\s*['"]([^'"\n]+)['"]/g,
   /\bimport\s*['"]([^'"\n]+)['"]/g,
   /\b(?:import|require(?:\.resolve)?|jest\.(?:mock|doMock|unmock|dontMock|requireActual|requireMock|createMockFromModule|setMock))\s*\(\s*['"]([^'"\n]+)['"]/g,
 ];
@@ -188,11 +238,12 @@ const CHILD_PROCESS = /child_process|\b(?:execSync|execFileSync|spawnSync)\b/;
 const OWN_DIR = /\b(?:__dirname|__filename)\b/;
 const ENV_NAMED =
   /process\.env\??\.([A-Za-z_][A-Za-z0-9_]*)|process\.env\[\s*['"]([^'"]+)['"]\s*\]/g;
-// process.env[CONSTANT]: the name is not at the call site, so every
-// SCREAMING_SNAKE string literal in the closure is treated as a possible name.
-const ENV_COMPUTED = /process\.env\[\s*(?!['"])/;
+// process.env[<expr>] with a non-literal <expr>: the name is only known when
+// <expr> is an identifier bound to a string literal by a `const` in the same
+// file; any other computed read cannot be keyed.
+const ENV_COMPUTED = /process\.env\[\s*([^\]'"][^\]]*?)\s*\]/g;
 const ENV_BARE = /process\.env(?![.\[\w?])/;
-const ENV_NAME_LITERAL = /['"]([A-Z][A-Z0-9_]{2,})['"]/g;
+const PARENT_SEGMENT = /\.\.(?=[\/\\'"])/g;
 
 /** One matcher per repo top-level name: [regex, prefix to digest]. */
 function buildNameMatchers(index) {
@@ -210,8 +261,13 @@ function buildNameMatchers(index) {
 
 function analyzeSource(text, rel, nameMatchers) {
   const specs = new Set();
-  for (const pattern of IMPORT_PATTERNS) {
-    for (const match of text.matchAll(pattern)) specs.add(match[1]);
+  // raw text and text with every block comment removed: the union can only add
+  // specs, so neither a comment nor over-stripping can hide an import
+  const noBlocks = text.replace(/\/\*[\s\S]*?\*\//g, ' ');
+  for (const source of [text, noBlocks]) {
+    for (const pattern of IMPORT_PATTERNS) {
+      for (const match of source.matchAll(pattern)) specs.add(match[1]);
+    }
   }
   const codeSpecs = new Set();
   const code = stripComments(text);
@@ -228,21 +284,33 @@ function analyzeSource(text, rel, nameMatchers) {
       if (matcher.test(text)) tokens.add(prefix);
     }
     if (OWN_DIR.test(code)) {
-      const dir = path.posix.dirname(rel);
-      tokens.add(dir === '.' ? '' : `${dir}/`);
+      // A path built from __dirname can climb out of the directory: widen to the
+      // ancestor reached by the file's `..` segments ('' = the whole repo).
+      const up = (code.match(PARENT_SEGMENT) || []).length;
+      const parts = path.posix
+        .dirname(rel)
+        .split('/')
+        .filter((p) => p !== '.');
+      const kept = parts.slice(0, Math.max(0, parts.length - up));
+      tokens.add(kept.length === 0 ? '' : `${kept.join('/')}/`);
     }
   }
-  const envComputed = ENV_COMPUTED.test(code);
-  const envLiterals = new Set();
-  if (envComputed)
-    for (const match of code.matchAll(ENV_NAME_LITERAL))
-      envLiterals.add(match[1]);
+  let envUnresolved = false;
+  for (const match of code.matchAll(ENV_COMPUTED)) {
+    const arg = match[1].trim();
+    const decl = /^[A-Za-z_$][\w$]*$/.test(arg)
+      ? new RegExp(
+          `\\bconst\\s+${escapeRegex(arg)}\\s*(?::[^=;]+)?=\\s*['"]([^'"]+)['"]`,
+        ).exec(code)
+      : null;
+    if (decl) envNames.add(decl[1]);
+    else envUnresolved = true;
+  }
   return {
     specs: [...specs],
     codeSpecs,
     envNames,
-    envLiterals,
-    envComputed,
+    envUnresolved,
     usesFs,
     tokens,
     dynamicLoad: DYNAMIC_LOAD.test(code),
@@ -255,7 +323,13 @@ function analyzeSource(text, rel, nameMatchers) {
 // Keyer
 // ---------------------------------------------------------------------------
 
-function createKeyer({ root, index, env = process.env }) {
+function createKeyer({
+  root,
+  index,
+  env = process.env,
+  nodeVersion = process.versions.node,
+  execOptions = [],
+}) {
   const digests = createDigests(index);
   // Repo top-level names count as "named data" evidence for fs-reading code.
   const nameMatchers = buildNameMatchers(index);
@@ -290,14 +364,17 @@ function createKeyer({ root, index, env = process.env }) {
       base = spec;
     else return 'external';
     const stem = base.replace(/\.(?:[cm]?js|jsx)$/, '');
-    const candidates = [
-      base,
-      ...RESOLVE_EXTENSIONS.map((ext) => base + ext),
-      ...RESOLVE_EXTENSIONS.map((ext) => `${stem}${ext}`),
-      ...RESOLVE_EXTENSIONS.map((ext) => `${base}/index${ext}`),
-    ];
-    const hit = candidates.find(isFile);
-    if (hit) return hit;
+    // Every existing candidate joins the closure, whichever extension Jest's
+    // moduleFileExtensions order would pick first (a .js and a .ts can coexist).
+    const hits = [
+      ...new Set([
+        base,
+        ...RESOLVE_EXTENSIONS.map((ext) => base + ext),
+        ...RESOLVE_EXTENSIONS.map((ext) => `${stem}${ext}`),
+        ...RESOLVE_EXTENSIONS.map((ext) => `${base}/index${ext}`),
+      ]),
+    ].filter(isFile);
+    if (hits.length > 0) return hits;
     // bare spec that is not an in-repo path (e.g. 'scripts' package-like name)
     return spec.startsWith('.') || spec.startsWith('@/') ? null : 'external';
   }
@@ -305,8 +382,9 @@ function createKeyer({ root, index, env = process.env }) {
   const globalDigest = sha(
     JSON.stringify({
       v: KEY_VERSION,
-      node: process.versions.node.split('.')[0],
+      node: nodeVersion, // full version: a patch update can change results
       platform: `${process.platform}-${process.arch}`,
+      execOptions: [...execOptions].sort(),
       files: GLOBAL_FILES.map((f) => [f, index.get(f) ?? null]),
       env: [...index.keys()]
         .filter((f) => f.startsWith('.env'))
@@ -327,8 +405,6 @@ function createKeyer({ root, index, env = process.env }) {
       const envNames = new Set(FIXED_ENV);
       const why = [];
       const fsFiles = [];
-      let anyEnvComputed = false;
-      const envLiterals = new Set();
 
       while (queue.length > 0) {
         const rel = queue.pop();
@@ -338,9 +414,11 @@ function createKeyer({ root, index, env = process.env }) {
         if (!info) continue;
         if (info.envBare)
           return { unkeyable: `${rel}: uses process.env as a whole object` };
+        if (info.envUnresolved)
+          return {
+            unkeyable: `${rel}: reads process.env[...] with a name that is not a same-file string const`,
+          };
         info.envNames.forEach((name) => envNames.add(name));
-        if (info.envComputed) anyEnvComputed = true;
-        info.envLiterals.forEach((name) => envLiterals.add(name));
         if (info.dynamicLoad) why.push(`dynamic require/import in ${rel}`);
         if (info.childProcess) why.push(`child process in ${rel}`);
         if (info.usesFs && !HERMETIC_FS_READERS.has(rel)) fsFiles.push(rel);
@@ -350,13 +428,12 @@ function createKeyer({ root, index, env = process.env }) {
           if (target === null) {
             if (info.codeSpecs.has(spec))
               why.push(`unresolved import '${spec}' in ${rel}`);
-          } else if (target !== 'external') queue.push(target);
+          } else if (target !== 'external') queue.push(...[target].flat());
         }
       }
       if (fsFiles.length > 0 && domains.size === 0) {
         why.push(`fs reads but no named directory in ${fsFiles[0]}`);
       }
-      if (anyEnvComputed) envLiterals.forEach((name) => envNames.add(name));
       const repoWide = why.length > 0;
 
       const envEntries = [
@@ -659,7 +736,14 @@ async function main(argv) {
     const cacheRel =
       toPosix(path.relative(root, path.resolve(root, values['cache-dir']))) +
       '/';
-    const keyer = createKeyer({ root, index: buildFileIndex(root, cacheRel) });
+    const keyer = createKeyer({
+      root,
+      index: buildFileIndex(root, cacheRel),
+      execOptions: [
+        ...values.project.map((project) => `project=${project}`),
+        ...passthrough.filter((arg) => !NEUTRAL_JEST_OPTIONS.test(arg)),
+      ],
+    });
     report = await runCached({
       files,
       keyer,

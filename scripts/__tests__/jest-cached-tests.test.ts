@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
+import { execFileSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -38,6 +39,8 @@ const lib = require('../jest/cached-tests.js') as {
     root: string;
     index: Map<string, string>;
     env?: Record<string, string | undefined>;
+    nodeVersion?: string;
+    execOptions?: string[];
   }) => { keyFor: (file: string) => Keyed };
   createStore: (dir: string) => Store;
   runCached: (opts: {
@@ -238,6 +241,127 @@ describe('test result cache key', () => {
     expect(afterLock).not.toBe(before);
     write(root, { 'jest.config.js': 'module.exports = { x: 1 };\n' });
     expect(keyOf(root, 'src/a.test.ts').key).not.toBe(afterLock);
+  });
+});
+
+// Each case below was a way for a stale pass to be reused (code review of the
+// first version); every one must now change the key or make the file unkeyable.
+describe('test result cache key: false-hit regressions', () => {
+  const git = (root: string, ...args: string[]) =>
+    execFileSync('git', args, { cwd: root, stdio: 'ignore' });
+  const gitRepo = (tracked: Record<string, string>, ignore: string): string => {
+    const root = makeRepo({ ...tracked, '.gitignore': ignore });
+    git(root, 'init', '-q');
+    git(root, 'add', '-A');
+    return root;
+  };
+
+  it('hashes git-ignored data and .env files, which are inputs too', () => {
+    const root = gitRepo(
+      {
+        'src/gen.test.ts': [
+          "import * as fs from 'node:fs';",
+          "import * as path from 'node:path';",
+          "test('x', () => fs.readFileSync(path.join(process.cwd(), 'gen', 'data.json')));",
+        ].join('\n'),
+      },
+      'gen/\n.env.local\n',
+    );
+    write(root, { 'gen/data.json': '{"a":1}', '.env.local': 'A=1' });
+    const before = keyOf(root, 'src/gen.test.ts');
+    expect(before.repoWide).toBe(false); // gen/ is a named directory
+    write(root, { 'gen/data.json': '{"a":2}' });
+    const afterData = keyOf(root, 'src/gen.test.ts').key;
+    expect(afterData).not.toBe(before.key);
+    write(root, { '.env.local': 'A=2' });
+    expect(keyOf(root, 'src/gen.test.ts').key).not.toBe(afterData);
+  });
+
+  it('keys process.env[NAME] on a same-file string const and refuses any other computed name', () => {
+    const root = makeRepo({
+      'src/lib/local.ts':
+        "const NAME = 'FEATURE_Z';\nexport const on = process.env[NAME] === '1';\n",
+      'src/lib/consts.ts': "export const NAME = 'FEATURE_Z';\n",
+      'src/lib/imported.ts':
+        "import { NAME } from './consts';\nexport const on = process.env[NAME];\n",
+      'src/local.test.ts':
+        "import { on } from './lib/local';\ntest('x', () => on);\n",
+      'src/imported.test.ts':
+        "import { on } from './lib/imported';\ntest('x', () => on);\n",
+    });
+    const off = keyOf(root, 'src/local.test.ts', { FEATURE_Z: '0' }).key;
+    expect(keyOf(root, 'src/local.test.ts', { FEATURE_Z: '1' }).key).not.toBe(
+      off,
+    );
+    expect(keyOf(root, 'src/imported.test.ts').unkeyable).toMatch(
+      /process\.env\[/,
+    );
+  });
+
+  it('puts the Jest options that can change a result, and the projects, in the key', () => {
+    const root = makeRepo({ 'src/a.test.ts': "test('x', () => {});\n" });
+    const index = lib.buildFileIndex(root);
+    const keyWith = (execOptions: string[]) =>
+      lib
+        .createKeyer({ root, index, env: {}, execOptions })
+        .keyFor('src/a.test.ts').key;
+    expect(keyWith(['--testTimeout=1'])).not.toBe(keyWith([]));
+    expect(keyWith(['-t', 'only this'])).not.toBe(keyWith([]));
+    expect(keyWith(['project=unit'])).not.toBe(keyWith(['project=a11y']));
+  });
+
+  it('includes every existing candidate when an import resolves to both .js and .ts', () => {
+    const root = makeRepo({
+      'src/lib/x.js': 'exports.x = 1;\n',
+      'src/lib/x.ts': 'export const x = 1;\n',
+      'src/a.test.ts': "import { x } from './lib/x';\ntest('x', () => x);\n",
+    });
+    const before = keyOf(root, 'src/a.test.ts').key;
+    write(root, { 'src/lib/x.js': 'exports.x = 2;\n' });
+    expect(keyOf(root, 'src/a.test.ts').key).not.toBe(before);
+    write(root, { 'src/lib/x.js': 'exports.x = 1;\n' });
+    write(root, { 'src/lib/x.ts': 'export const x = 2;\n' });
+    expect(keyOf(root, 'src/a.test.ts').key).not.toBe(before);
+  });
+
+  it('still finds an import whose braces hold a comment with parentheses', () => {
+    const root = makeRepo({
+      'src/dep.ts': 'export const x = 1;\n',
+      'src/a.test.ts':
+        "import {\n  /* comment (units) */ x,\n} from './dep';\ntest('x', () => x);\n",
+    });
+    const before = keyOf(root, 'src/a.test.ts').key;
+    write(root, { 'src/dep.ts': 'export const x = 2;\n' });
+    expect(keyOf(root, 'src/a.test.ts').key).not.toBe(before);
+  });
+
+  it('widens a __dirname read to the ancestor its parent segments reach', () => {
+    const root = makeRepo({
+      'src/value.txt': '1',
+      'other.txt': 'x',
+      'src/__tests__/read.test.ts': [
+        "import * as fs from 'node:fs';",
+        "import * as path from 'node:path';",
+        "test('x', () => fs.readFileSync(path.join(__dirname, '../value.txt')));",
+      ].join('\n'),
+    });
+    const before = keyOf(root, 'src/__tests__/read.test.ts');
+    expect(before.repoWide).toBe(false);
+    write(root, { 'other.txt': 'y' });
+    expect(keyOf(root, 'src/__tests__/read.test.ts').key).toBe(before.key);
+    write(root, { 'src/value.txt': '2' });
+    expect(keyOf(root, 'src/__tests__/read.test.ts').key).not.toBe(before.key);
+  });
+
+  it('keys on the full Node version, not just the major', () => {
+    const root = makeRepo({ 'src/a.test.ts': "test('x', () => {});\n" });
+    const index = lib.buildFileIndex(root);
+    const keyFor = (nodeVersion: string) =>
+      lib
+        .createKeyer({ root, index, env: {}, nodeVersion })
+        .keyFor('src/a.test.ts').key;
+    expect(keyFor('22.22.0')).not.toBe(keyFor('22.22.1'));
+    expect(keyFor('22.22.0')).toBe(keyFor('22.22.0'));
   });
 });
 
