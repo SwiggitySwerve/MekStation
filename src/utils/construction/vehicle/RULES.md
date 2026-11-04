@@ -1,5 +1,9 @@
 # Combat-vehicle construction rules
 
+## BV input identity
+
+Vehicle editor BV delegates to `calculateVehicleBVFromUnit`, the contract dispatch owner, through one shared input builder and equipment partition. Resolved mounts retain their source ID with the resolved ID it belongs to; BV uses that source identity while the mount is unchanged, inferring its kind from the original token exactly as native contract mounts do. The resolved ammo marker still supplies physical sheet stats and classifies canonical mounts without a source alias. Saved editor metadata preserves this pair, and replacing the equipment ID stops applying the old source identity. Armor and movement transport remain separate input-fidelity concerns. `recordSheetVehicleAmmoKind.test.ts` covers resolved Asher/Athena BV, C3 sensor bins, save/reload, removed ammo and replacement IDs; the catalog audit records remaining source-input differences per unit.
+
 ## Defensive BV type modifier
 
 `vehicleBVTypeModifier.ts` owns the motion-type defensive multiplier and its

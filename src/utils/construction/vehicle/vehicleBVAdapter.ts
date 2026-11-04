@@ -12,11 +12,10 @@ import type { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import type {
   IVehicleMountedEquipment,
   IVehicleUnit,
-  ISupportVehicle,
 } from '@/types/unit/VehicleInterfaces';
 
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
-import { TurretType, isSupportVehicle } from '@/types/unit/VehicleInterfaces';
+import { TurretType } from '@/types/unit/VehicleInterfaces';
 
 import {
   getDefensiveEquipmentKind,
@@ -168,61 +167,22 @@ export interface VehicleBVStateSubset {
  * Convert a vehicle store state subset into `VehicleBVInput`.
  */
 export function toVehicleBVInput(state: VehicleBVStateSubset): VehicleBVInput {
-  const flankMP = computeFlankMP(state.cruiseMP);
-  const totalArmorPoints = sumArmorAllocation(state.armorAllocation);
-  const totalStructurePoints = computeVehicleBVStructurePoints({
-    tonnage: state.tonnage,
-    motionType: state.motionType,
-    isSupportVehicle: state.unitType === UnitType.SUPPORT_VEHICLE,
-    turretKind: toTurretConfig(state.turret?.type)?.kind,
-    secondaryTurretKind: toTurretConfig(state.secondaryTurret?.type)?.kind,
-  });
+  return toVehicleBVInputFromUnit(vehicleBVUnitFromState(state), state);
+}
 
-  const weapons: VehicleWeaponMount[] = [];
-  const ammo: VehicleBVInput['ammo'] = [];
-  const defensiveEquipment: VehicleBVInput['defensiveEquipment'] = [];
-  const offensiveEquipment: VehicleBVInput['offensiveEquipment'] = [];
-
-  for (const item of state.equipment) {
-    if (getDefensiveEquipmentKind(item.equipmentId)) {
-      defensiveEquipment.push({
-        id: item.equipmentId,
-        location: String(item.location),
-      });
-    } else if (isAmmoMount(item)) {
-      ammo.push({
-        id: item.equipmentId,
-        location: String(item.location),
-      });
-    } else if (getOffensiveBVRole(item.equipmentId) === 'equipment') {
-      offensiveEquipment.push({
-        id: item.equipmentId,
-        location: String(item.location),
-      });
-    } else if (isLikelyWeapon(item.equipmentId)) {
-      weapons.push({
-        id: item.equipmentId,
-        location: String(item.location),
-        isRearMounted: item.isRearMounted,
-        isTurretMounted: item.isTurretMounted,
-        isSponsonMounted: item.isSponsonMounted,
-      });
-    }
-  }
-
+function vehicleBVUnitFromState(
+  state: VehicleBVStateSubset,
+): VehicleBVUnitSubset {
   return {
+    unitType: state.unitType ?? UnitType.VEHICLE,
     motionType: state.motionType,
-    isSupportVehicle: state.unitType === UnitType.SUPPORT_VEHICLE,
-    chassisEquipment: state.equipment.map((item) => item.equipmentId),
-    hasEnvironmentalSealing: state.hasEnvironmentalSealing,
-    hasFlotationHull: state.hasFlotationHull,
-    hasStealth: hasVehicleStealth(state.armorType),
-    cruiseMP: state.cruiseMP,
-    flankMP,
-    jumpMP: 0,
     tonnage: state.tonnage,
-    totalArmorPoints,
-    totalStructurePoints,
+    movement: {
+      cruiseMP: state.cruiseMP,
+      flankMP: computeFlankMP(state.cruiseMP),
+      jumpMP: 0,
+    },
+    totalArmorPoints: sumArmorAllocation(state.armorAllocation),
     armorType: state.armorType,
     armorByLocation: Object.fromEntries(
       Object.entries(state.armorAllocation).map(([location, value]) => [
@@ -232,21 +192,13 @@ export function toVehicleBVInput(state: VehicleBVStateSubset): VehicleBVInput {
     ),
     armorTypeByLocation: state.armorTypeByLocation,
     barRatingByLocation: state.barRatingByLocation,
-    armorEquipment: state.equipment.map((item) => ({
-      id: item.equipmentId,
-      location: String(item.location),
-    })),
-    structureType: state.structureType,
+    internalStructureType: state.structureType,
     barRating: state.barRating,
-    weapons,
-    ammo,
-    defensiveEquipment,
-    offensiveEquipment,
-    explosivePenalty: 0,
-    turret: toTurretConfig(state.turret?.type),
-    secondaryTurret: toTurretConfig(state.secondaryTurret?.type),
-    gunnery: state.gunnery ?? 4,
-    piloting: state.piloting ?? 5,
+    turret: state.turret ?? undefined,
+    secondaryTurret: state.secondaryTurret ?? undefined,
+    hasEnvironmentalSealing: state.hasEnvironmentalSealing,
+    hasFlotationHull: state.hasFlotationHull,
+    equipment: state.equipment,
   };
 }
 
@@ -256,7 +208,7 @@ export function toVehicleBVInput(state: VehicleBVStateSubset): VehicleBVInput {
 export function computeVehicleBVFromState(
   state: VehicleBVStateSubset,
 ): IVehicleBVBreakdown {
-  return calculateVehicleBV(toVehicleBVInput(state));
+  return calculateVehicleBVFromUnit(vehicleBVUnitFromState(state), state);
 }
 
 // -----------------------------------------------------------------------------
@@ -293,21 +245,42 @@ function sumUnitArmor(
   return sum > 0 ? sum : totalArmorPoints;
 }
 
+/** Facts read by the shared contract/editor BV input owner. */
+export interface VehicleBVUnitSubset
+  extends
+    Pick<
+      IVehicleUnit,
+      | 'motionType'
+      | 'tonnage'
+      | 'movement'
+      | 'totalArmorPoints'
+      | 'equipment'
+      | 'structureLocations'
+    >,
+    Pick<
+      VehicleBVInput,
+      | 'armorType'
+      | 'armorTypeByLocation'
+      | 'barRatingByLocation'
+      | 'barRating'
+      | 'hasEnvironmentalSealing'
+      | 'hasFlotationHull'
+    > {
+  unitType: UnitType;
+  armorByLocation?: Record<string, number>;
+  internalStructureType?: string | number;
+  hasStealth?: boolean;
+  turret?: { type: TurretType };
+  chinTurret?: { type: TurretType };
+  secondaryTurret?: { type: TurretType };
+}
+
 /**
- * Build a `VehicleBVInput` directly from an {@link IVehicleUnit}.
- *
- * This is the unit-shape entry point used by the per-unit dispatcher
- * (`calculateBattleValueForUnit`). The full store-driven adapter remains the
- * preferred path inside the customizer; this adapter is intentionally
- * conservative for unresolved items, while both adapters use the shared
- * defensive-equipment partition for represented catalog identities.
- *
+ * One BV input owner for contract units and editor snapshots.
  * @spec openspec/changes/add-vehicle-battle-value/specs/battle-value-system/spec.md
- *       — Requirement: Vehicle BV Dispatch
  */
 export function toVehicleBVInputFromUnit(
-  unit: IVehicleUnit &
-    Pick<VehicleBVInput, 'armorTypeByLocation' | 'barRatingByLocation'>,
+  unit: VehicleBVUnitSubset,
   options: VehicleBVUnitOptions = {},
 ): VehicleBVInput {
   const cruiseMP = unit.movement.cruiseMP;
@@ -318,20 +291,23 @@ export function toVehicleBVInputFromUnit(
   // `totalArmorPoints` is the backstop when it is missing or empty (legacy
   // fixtures). The map holds only the layout's locations, so the extra values
   // of an armor array MegaMek refuses are not summed.
-  const armorByLocation = (unit as { armorByLocation?: Record<string, number> })
-    .armorByLocation;
+  const armorByLocation = unit.armorByLocation;
   const totalArmorPoints = sumUnitArmor(armorByLocation, unit.totalArmorPoints);
 
   // BAR rating is only meaningful for support vehicles. Combat vehicles and
   // VTOLs pass `null` so the calculator skips BAR scaling.
-  const barRating = isSupportVehicle(unit)
-    ? (unit as ISupportVehicle).barRating
-    : null;
+  const barRating =
+    unit.unitType === UnitType.SUPPORT_VEHICLE ? unit.barRating : null;
 
   // Shared defensive identities take precedence over the ammo/weapon fallback.
   // Vehicles without an equipment array (legacy fixtures) get an empty list.
-  const rawEquipment: ReadonlyArray<IVehicleMountedEquipment> =
-    unit.equipment ?? [];
+  // Infer an original token's kind just as native contract mounts do.
+  const rawEquipment = (unit.equipment ?? []).map((item) => {
+    const source = item.sourceIdentity;
+    return source && source.resolvedId === item.equipmentId
+      ? { ...item, equipmentId: source.sourceId, isAmmo: undefined }
+      : item;
+  });
   const weapons: VehicleWeaponMount[] = [];
   const ammo: VehicleBVInput['ammo'] = [];
   const defensiveEquipment: VehicleBVInput['defensiveEquipment'] = [];
@@ -366,17 +342,16 @@ export function toVehicleBVInputFromUnit(
   // Turret kind comes from `IVehicle.turret` — VTOLs use `chinTurret`,
   // support vehicles have no turret. We map all of these to the BV-side
   // `VehicleBVTurret` shape with a single helper.
-  const primaryTurret = (unit as { turret?: { type: TurretType } }).turret;
-  const chinTurret = (unit as { chinTurret?: { type: TurretType } }).chinTurret;
-  const secondary = (unit as { secondaryTurret?: { type: TurretType } })
-    .secondaryTurret;
+  const primaryTurret = unit.turret;
+  const chinTurret = unit.chinTurret;
+  const secondary = unit.secondaryTurret;
   const turret =
     toTurretConfig(primaryTurret?.type) ?? toTurretConfig(chinTurret?.type);
   const secondaryTurret = toTurretConfig(secondary?.type);
   const totalStructurePoints = computeVehicleBVStructurePoints({
     tonnage: unit.tonnage,
     motionType: unit.motionType,
-    isSupportVehicle: isSupportVehicle(unit),
+    isSupportVehicle: unit.unitType === UnitType.SUPPORT_VEHICLE,
     structureLocations: unit.structureLocations,
     turretKind: turret?.kind,
     secondaryTurretKind: secondaryTurret?.kind,
@@ -384,7 +359,7 @@ export function toVehicleBVInputFromUnit(
 
   return {
     motionType: unit.motionType as GroundMotionType,
-    isSupportVehicle: isSupportVehicle(unit),
+    isSupportVehicle: unit.unitType === UnitType.SUPPORT_VEHICLE,
     chassisEquipment: rawEquipment.map((item) => item.equipmentId),
     hasStealth:
       'hasStealth' in unit
@@ -408,9 +383,10 @@ export function toVehicleBVInputFromUnit(
         ? armorByLocation
         : undefined,
     armorTypeByLocation: unit.armorTypeByLocation,
-    barRatingByLocation: isSupportVehicle(unit)
-      ? unit.barRatingByLocation
-      : undefined,
+    barRatingByLocation:
+      unit.unitType === UnitType.SUPPORT_VEHICLE
+        ? unit.barRatingByLocation
+        : undefined,
     armorEquipment: rawEquipment.map((item) => ({
       id: item.equipmentId,
       location: String(item.location),
@@ -437,7 +413,7 @@ export function toVehicleBVInputFromUnit(
  * without callers needing to know about the lower-level `VehicleBVInput`.
  */
 export function calculateVehicleBVFromUnit(
-  unit: IVehicleUnit,
+  unit: VehicleBVUnitSubset,
   options: VehicleBVUnitOptions = {},
 ): IVehicleBVBreakdown {
   return calculateVehicleBV(toVehicleBVInputFromUnit(unit, options));
