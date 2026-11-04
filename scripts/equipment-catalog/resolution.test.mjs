@@ -218,6 +218,117 @@ export const APPROVED_JAVA_REROUTES = [
       weapon: true,
     })),
   ),
+  // Follow-up 92 slice 2: IS torpedo names resolved to the legacy torpedo records.
+  ...[
+    [
+      'srt-2-registry',
+      'srt2',
+      'weapons/srms/innerSphere/torpedo/ISSRT2.java:56',
+      ['IS SRT 2', 'ISSRT2'],
+    ],
+    [
+      'srt-4-registry',
+      'srt4',
+      'weapons/srms/innerSphere/torpedo/ISSRT4.java:56',
+      ['IS SRT 4', 'ISSRT4'],
+    ],
+    [
+      'srt-6-registry',
+      'srt6',
+      'weapons/srms/innerSphere/torpedo/ISSRT6.java:56',
+      ['IS SRT 6', 'ISSRT6'],
+    ],
+    [
+      'lrt-10-registry',
+      'lrtorpedo10',
+      'weapons/lrms/innerSphere/torpedo/ISLRT10.java:57',
+      ['ISLRTorpedo10'],
+    ],
+    [
+      'lrt-15-registry',
+      'lrtorpedo15',
+      'weapons/lrms/innerSphere/torpedo/ISLRT15.java:57',
+      ['ISLRTorpedo15'],
+    ],
+    [
+      'lrt-20-registry',
+      'lrtorpedo20',
+      'weapons/lrms/innerSphere/torpedo/ISLRT20.java:57',
+      ['ISLRTorpedo20'],
+    ],
+    [
+      'lrt-5-registry',
+      'lrtorpedo5',
+      'weapons/lrms/innerSphere/torpedo/ISLRT5.java:57',
+      ['ISLRTorpedo5'],
+    ],
+    [
+      'lrt-10-i-os-registry',
+      'lrtorpedo10-ios',
+      'weapons/lrms/innerSphere/torpedo/oneShot/ISLRT10IOS.java:57',
+      ['LRT 10 (I-OS)'],
+    ],
+    [
+      'lrt-15-i-os-registry',
+      'lrtorpedo15-ios',
+      'weapons/lrms/innerSphere/torpedo/oneShot/ISLRT15IOS.java:57',
+      ['LRT 15 (I-OS)'],
+    ],
+    [
+      'lrt-20-i-os-registry',
+      'lrtorpedo20-ios',
+      'weapons/lrms/innerSphere/torpedo/oneShot/ISLRT20IOS.java:57',
+      ['LRT 20 (I-OS)'],
+    ],
+    [
+      'lrt-5-i-os-registry',
+      'lrtorpedo5-ios',
+      'weapons/lrms/innerSphere/torpedo/oneShot/ISLRT5IOS.java:57',
+      ['LRT 5 (I-OS)'],
+    ],
+    [
+      'issrt2ios-registry',
+      'srt2-ios',
+      'weapons/srms/innerSphere/torpedo/oneShot/ISSRT2IOS.java:57',
+      ['SRT 2 (I-OS)'],
+    ],
+    [
+      'issrt4ios-registry',
+      'srt4-ios',
+      'weapons/srms/innerSphere/torpedo/oneShot/ISSRT4IOS.java:57',
+      ['SRT 4 (I-OS)'],
+    ],
+    [
+      'issrt6ios-registry',
+      'srt6-ios',
+      'weapons/srms/innerSphere/torpedo/oneShot/ISSRT6IOS.java:57',
+      ['SRT 6 (I-OS)'],
+    ],
+  ].flatMap(([newTarget, oldTarget, source, names]) =>
+    names.map((name) => ({
+      name,
+      oldTarget,
+      newTarget,
+      reason: `Follow-up 92 slice 2; pinned 48fcb2f6 ${source}`,
+      weapon: true,
+    })),
+  ),
+  // EquipmentNameMapper's tech-tag form; Java's CLAN lookup is the same item.
+  ...[
+    ['LRT 10 (I-OS) (Clan)', 'lrtorpedo10-ios', 'lrt-10-i-os-registry'],
+    ['LRT 15 (I-OS) (Clan)', 'lrtorpedo15-ios', 'lrt-15-i-os-registry'],
+    ['LRT 20 (I-OS) (Clan)', 'lrtorpedo20-ios', 'lrt-20-i-os-registry'],
+    ['LRT 5 (I-OS) (Clan)', 'lrtorpedo5-ios', 'lrt-5-i-os-registry'],
+    ['SRT 2 (I-OS) (Clan)', 'srt2-ios', 'issrt2ios-registry'],
+    ['SRT 4 (I-OS) (Clan)', 'srt4-ios', 'issrt4ios-registry'],
+    ['SRT 6 (I-OS) (Clan)', 'srt6-ios', 'issrt6ios-registry'],
+  ].map(([name, oldTarget, newTarget]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    reason: 'Follow-up 92 slice 2; mapper tag form of the route above',
+    tagForm: true,
+  })),
 ];
 async function capture(root, inputs) {
   process.chdir(root);

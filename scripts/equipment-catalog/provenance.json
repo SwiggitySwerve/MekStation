@@ -1268,8 +1268,20 @@
       "id": "issrm6os-registry"
     },
     {
+      "internalName": "ISSRT2IOS",
+      "id": "issrt2ios-registry"
+    },
+    {
       "internalName": "ISSRT2OS",
       "id": "issrt2os-registry"
+    },
+    {
+      "internalName": "ISSRT4IOS",
+      "id": "issrt4ios-registry"
+    },
+    {
+      "internalName": "ISSRT6IOS",
+      "id": "issrt6ios-registry"
     },
     {
       "internalName": "ISSniper",
@@ -1366,6 +1378,38 @@
     {
       "internalName": "InfantryTAG",
       "id": "infantrytag-registry"
+    },
+    {
+      "internalName": "LRT 10",
+      "id": "lrt-10-registry"
+    },
+    {
+      "internalName": "LRT 10 (I-OS)",
+      "id": "lrt-10-i-os-registry"
+    },
+    {
+      "internalName": "LRT 15",
+      "id": "lrt-15-registry"
+    },
+    {
+      "internalName": "LRT 15 (I-OS)",
+      "id": "lrt-15-i-os-registry"
+    },
+    {
+      "internalName": "LRT 20",
+      "id": "lrt-20-registry"
+    },
+    {
+      "internalName": "LRT 20 (I-OS)",
+      "id": "lrt-20-i-os-registry"
+    },
+    {
+      "internalName": "LRT 5",
+      "id": "lrt-5-registry"
+    },
+    {
+      "internalName": "LRT 5 (I-OS)",
+      "id": "lrt-5-i-os-registry"
     },
     {
       "internalName": "Laser (Hellbore Assault)",
@@ -1654,6 +1698,18 @@
     {
       "internalName": "SMG (Gunther MP-20)",
       "id": "smg-gunther-mp-20-registry"
+    },
+    {
+      "internalName": "SRT 2",
+      "id": "srt-2-registry"
+    },
+    {
+      "internalName": "SRT 4",
+      "id": "srt-4-registry"
+    },
+    {
+      "internalName": "SRT 6",
+      "id": "srt-6-registry"
     },
     {
       "internalName": "Screen Launcher",
