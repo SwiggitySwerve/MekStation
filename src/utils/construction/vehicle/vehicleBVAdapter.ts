@@ -147,6 +147,7 @@ function sumArmorAllocation(
  * avoids coupling the BV adapter to the full store schema.
  */
 export interface VehicleBVStateSubset {
+  year?: number;
   unitType?: UnitType;
   hasEnvironmentalSealing?: boolean;
   hasFlotationHull?: boolean;
@@ -179,6 +180,7 @@ function vehicleBVUnitFromState(
   return {
     unitType: state.unitType ?? UnitType.VEHICLE,
     motionType: state.motionType,
+    year: state.year,
     tonnage: state.tonnage,
     movement: {
       cruiseMP: state.cruiseMP,
@@ -269,6 +271,8 @@ export interface VehicleBVUnitSubset
       | 'hasEnvironmentalSealing'
       | 'hasFlotationHull'
     > {
+  year?: number;
+  metadata?: Pick<IVehicleUnit['metadata'], 'year'>;
   unitType: UnitType;
   armorByLocation?: Record<string, number>;
   internalStructureType?: string | number;
@@ -362,6 +366,7 @@ export function toVehicleBVInputFromUnit(
 
   return {
     motionType: unit.motionType as GroundMotionType,
+    year: unit.year ?? unit.metadata?.year,
     isSupportVehicle: unit.unitType === UnitType.SUPPORT_VEHICLE,
     chassisEquipment: rawEquipment.map((item) => item.equipmentId),
     hasStealth:
