@@ -5,6 +5,7 @@ import {
   expectJavaCatalogAddition,
   javaCatalogAdditionById,
 } from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
+import { registryPreviousId } from '@/utils/construction/equipmentBVCatalogData';
 import { getEquipmentEntry } from '@/utils/construction/equipmentBVResolver';
 
 // Known missing targets: these DIRECT_ALIAS_MAP entries point to catalog IDs that
@@ -241,11 +242,14 @@ describe('DIRECT_ALIAS_MAP validation', () => {
         if (
           nmTarget &&
           javaCatalogAdditionById.has(nmTarget) &&
-          catalogIds.has(entry.target) &&
-          entry.key.toLowerCase() !== 'sniper'
+          catalogIds.has(entry.target)
         ) {
           expectJavaCatalogAddition(getEquipmentEntry(nmTarget), 'bv');
-          expect(getEquipmentEntry(entry.key)?.id).toBe(entry.target);
+          // Only an approved route (registry-routing.json nativeNames) moves the
+          // name to its Java record; every other alias keeps its catalog target.
+          expect(getEquipmentEntry(entry.key)?.id).toBe(
+            registryPreviousId(nmTarget, entry.key) ? nmTarget : entry.target,
+          );
         }
         if (entry.key.toLowerCase() === 'sniper')
           expectJavaCatalogAddition(getEquipmentEntry('Sniper'), 'bv');
