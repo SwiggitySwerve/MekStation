@@ -9,9 +9,55 @@ import {
   calculateLargeAerospaceFirePool,
   getLargeAerospaceArcs,
 } from '../largeAerospaceFirePool';
+import catalogTraces from './fixtures/capitalCatalogTraces.json';
 
 /** @spec establish-all-unit-data-parity: Capital ship defensive BV dispatch */
 describe('capital offense and complete scope (MegaMek 48fcb2f64)', () => {
+  it.each(catalogTraces)(
+    'catalog capital trace: $path',
+    ({ unit, expected }) => {
+      const byArc: Record<string, number> = Object.fromEntries(
+        Object.entries(unit.armor.byArc).map(([arc, points]) => {
+          if (typeof points !== 'number')
+            throw new Error('Invalid trace armor');
+          return [arc, points];
+        }),
+      );
+      const result = calculateBattleValueForUnit(
+        contractUnitToBVUnit({ ...unit, armor: { ...unit.armor, byArc } }),
+      );
+      if (result?.kind !== 'capital-ship' && result?.kind !== 'dropship')
+        throw new Error('Expected large aerospace dispatch');
+      expect(result.breakdown.unresolvedMounts).toEqual([]);
+      expect(result.breakdown.calculationScope).toBe('complete');
+      if (result.breakdown.calculationScope !== 'complete')
+        throw new Error('Expected complete capital catalog valuation');
+      expect(result.breakdown.defensive).toBeCloseTo(expected.defensive, 8);
+      expect(result.breakdown.offensive).toBeCloseTo(expected.offensive, 8);
+      expect(result.breakdown.weaponFirePoolBV).toBeCloseTo(
+        expected.weaponBV,
+        8,
+      );
+      expect(result.breakdown.ammoBV).toBeCloseTo(expected.ammoBV, 8);
+      expect(result.breakdown.final).toBe(expected.total);
+    },
+  );
+
+  it('catalog mobile HPG equipment carries no offensive BV or heat', () => {
+    // MiscType.java:9467-9529 and BVCalculator.countMiscAsOffensiveWeapon (48fcb2f64).
+    const result = resolveLargeAerospaceMountBV(
+      [
+        { equipmentId: 'ISMobileHPG', location: 'HULL' },
+        { equipmentId: 'ISGroundMobileHPG', location: 'HULL' },
+      ],
+      UnitType.WARSHIP,
+    );
+    expect(result.unresolved).toEqual([]);
+    expect(
+      result.arcs.every((arc) => arc.weaponBV === 0 && arc.heat === 0),
+    ).toBe(true);
+  });
+
   const input = (bv: number[], heatCapacity: number) => ({
     isWarship: true,
     maxThrust: 3,
@@ -145,7 +191,7 @@ describe('capital offense and complete scope (MegaMek 48fcb2f64)', () => {
     },
   );
 
-  it('records unresolved capital bays, links, quantities and defensive qualifiers', () => {
+  it('resolves capital bays and quantities while retaining unsupported link and defensive qualifiers', () => {
     const result = calculateBattleValueForUnit({
       unitType: UnitType.WARSHIP,
       structuralIntegrity: 0,
@@ -168,9 +214,9 @@ describe('capital offense and complete scope (MegaMek 48fcb2f64)', () => {
       final: undefined,
     });
     expect(result.breakdown.unresolvedMounts.map((m) => m.mountIndex)).toEqual([
-      0, 1, 2, 3, 4,
+      3, 4,
     ]);
-    expect(result.breakdown.incompleteReasons).toHaveLength(5);
+    expect(result.breakdown.incompleteReasons).toHaveLength(2);
   });
 
   it.each([
