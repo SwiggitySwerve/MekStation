@@ -2,6 +2,13 @@ import { getAmmunitionEntry, getEquipmentEntry } from '../equipmentBVResolver';
 
 // MegaMek 48fcb2f64 separates WeaponType and AmmoType, including shared names.
 describe('weapon and ammunition BV lookup boundaries', () => {
+  it.each([
+    ['Coolant Pod:OMNI', 'coolant-pod-registry'],
+    ['(R) Coolant Pod:OMNI', 'coolant-pod-registry'],
+    ['ISC3Sensors:OMNI', 'isc3sensors-registry'],
+  ])('preserves qualified native ammunition %s', (name, expected) => {
+    expect(getEquipmentEntry(name)?.id).toBe(expected);
+  });
   it.each(['coolant-pod-registry', 'isc3sensors-registry'])(
     'retains the explicitly registered native ammo identity %s',
     (id) => expect(getEquipmentEntry(id)?.id).toBe(id),

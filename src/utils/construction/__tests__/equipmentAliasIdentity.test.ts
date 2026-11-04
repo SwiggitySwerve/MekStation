@@ -3,7 +3,7 @@
  * (follow-up 79, CAT-SWEEP ALIAS-MISMATCHES.md). Expected identity is the pinned
  * MegaMek 48fcb2f6 default lookup owner of each name.
  */
-import { getEquipmentEntry } from '../equipmentBVResolver';
+import { getEquipmentEntry, getAmmunitionEntry } from '../equipmentBVResolver';
 
 describe('native equipment names follow their Java identity', () => {
   it.each([
@@ -167,12 +167,15 @@ describe('MRM names follow their Java identity (follow-up 92)', () => {
     },
   );
 
-  // Exact catalog ids win: mrm-1..5 are the MRM ammo records, although Java's
-  // weapon lookup names MRM-1..5 match them case-insensitively.
-  it.each([1, 2, 3, 4, 5])('keeps exact ammo id mrm-%d', (rack) => {
-    expect(getEquipmentEntry(`mrm-${rack}`)?.id).toBe(`mrm-${rack}`);
-    expect(getEquipmentEntry(`MRM-${rack}`)?.id).toBe(`mrm-${rack}`);
-  });
+  // ISMRM1..5.java: unmarked names are weapons; typed ammo lookup remains separate.
+  it.each([1, 2, 3, 4, 5])(
+    'separates the MRM-%d weapon and ammunition identities',
+    (rack) => {
+      expect(getEquipmentEntry(`mrm-${rack}`)?.id).toBe(`mrm-${rack}-registry`);
+      expect(getEquipmentEntry(`MRM-${rack}`)?.id).toBe(`mrm-${rack}-registry`);
+      expect(getAmmunitionEntry(`mrm-${rack}`)?.id).toBe(`mrm-${rack}`);
+    },
+  );
 });
 
 describe('Narc one-shot names follow their Java identity (follow-up 92)', () => {

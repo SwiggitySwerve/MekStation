@@ -15,6 +15,11 @@ import {
   NAME_MAPPINGS_DATA,
   WEAPON_CATALOG_FILES,
 } from './catalogData';
+import {
+  BV_MOUNT_QUALIFIERS,
+  BV_MOUNT_MARKERS,
+  BV_AMMO_QUANTITY,
+} from './normalizationPatterns';
 
 let catalogCache: Map<string, EquipmentCatalogEntry> | null = null;
 let ammunitionCache: Map<string, EquipmentCatalogEntry> | null = null;
@@ -167,7 +172,14 @@ export function loadAmmunitionCatalog(): Map<string, EquipmentCatalogEntry> {
 
 /** Ammo and weapons can share an ID (for example mrm-20) in the source files. */
 export function isAmmunitionEquipmentId(equipmentId: string): boolean {
-  const registryId = resolveRegistryId(equipmentId);
+  const registryId = resolveRegistryId(
+    equipmentId
+      .toLowerCase()
+      .trim()
+      .replace(BV_MOUNT_QUALIFIERS, '')
+      .replace(BV_MOUNT_MARKERS, '')
+      .replace(BV_AMMO_QUANTITY, ''),
+  );
   // ISBPod.java:49-53 (48fcb2f64) registers B-Pods as a WeaponType.
   return (
     /ammo/i.test(equipmentId) ||
