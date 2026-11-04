@@ -124,6 +124,7 @@ export function buildBattleArmorBVInput(
     hasMagneticClamp,
     unresolvedEquipment,
     defensiveEquipmentBV,
+    offensiveEquipmentBV,
   } = partitionBAEquipment(state.equipment, state.squadSize);
 
   return {
@@ -148,6 +149,7 @@ export function buildBattleArmorBVInput(
     hasMagneticClamp,
     unresolvedEquipment,
     defensiveEquipmentBV,
+    offensiveEquipmentBV,
     canAntiMek: canMakeBAAntiMekAttacks({
       ...state,
       baWeightClass: state.weightClass,

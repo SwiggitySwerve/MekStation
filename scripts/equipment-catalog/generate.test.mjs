@@ -280,3 +280,55 @@ test('cannon ammo retains its exact weapon identity despite separately tracked l
     assert.equal(JSON.stringify(before), original);
   }
 });
+
+test('Java BA ammo records gain only per-shot mass; unrepresented types are not added', () => {
+  // AmmoType.F_BATTLEARMOR (AmmoType.java:282) ammo is valued per shot,
+  // BattleArmorBVCalculator.java:329-331 and AmmoType.java:17103-17105.
+  const name = java.internalName;
+  const baFacts = (battleArmor) => ({
+    ...facts,
+    [name]: { ...facts[name], usedByProto: false, battleArmor },
+  });
+  const existing = [
+    {
+      id: 'old-ba-ammo',
+      name: java.name,
+      battleValue: 4,
+      weight: 1,
+      techBase: 'CLAN',
+    },
+  ];
+  const mappings = { [name]: 'old-ba-ammo' };
+  const run = (battleArmor, before) =>
+    generateEntries(
+      [java],
+      [],
+      baFacts(battleArmor),
+      lookups,
+      before,
+      mappings,
+    );
+  const represented = run(true, existing);
+  assert.deepEqual(represented.items, []);
+  assert.deepEqual(represented.perShot, { 'old-ba-ammo': 24.99 });
+  const missing = run(true, []);
+  assert.deepEqual([missing.items, missing.perShot], [[], {}]);
+  const notBA = run(false, existing);
+  assert.deepEqual([notBA.items, notBA.perShot], [[], {}]);
+});
+
+test('committed BA ammo records carry the pinned Java per-shot mass', () => {
+  const rows = ['srm.json', 'mrm.json'].flatMap(
+    (file) =>
+      JSON.parse(
+        readFileSync(`public/data/equipment/official/ammunition/${file}`),
+      ).items,
+  );
+  // AmmoType.java BA SRM-2/SRM-4 (20/40 kg) and IS MRM 1 Ammo (5 kg).
+  for (const [id, kg] of [
+    ['ba-srm2', 20],
+    ['ba-srm4', 40],
+    ['mrm-1', 5],
+  ])
+    assert.equal(rows.find((row) => row.id === id)?.kgPerShot, kg, id);
+});
