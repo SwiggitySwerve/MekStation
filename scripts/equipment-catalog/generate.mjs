@@ -32,7 +32,17 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
   const extra = Object.keys(capitalSource)
     .filter((name) => types.has(name) && !selected.has(name))
     .sort();
-  const ordered = [...selected].sort().concat(extra);
+  const prototypes = Object.entries(facts)
+    .filter(
+      ([name, fact]) =>
+        fact.isPrototype &&
+        types.has(name) &&
+        !selected.has(name) &&
+        !extra.includes(name),
+    )
+    .map(([name]) => name)
+    .sort();
+  const ordered = [...selected].sort().concat(extra, prototypes);
   const originalCatalog = new Map(before.map((entry) => [entry.id, entry]));
   const ids = new Set(originalCatalog.keys());
   const identities = new Map();
