@@ -460,8 +460,11 @@ function analyzeSource(text, rel, nameMatchers) {
   const usesFs = FS_READ.test(code);
   const tokens = new Set();
   if (usesFs || FS_EXISTS.test(code)) {
+    // Named directories come from code, not comments: a JSDoc line that mentions
+    // `src/utils/...` is not a read of `src/`, and counting it made every such
+    // file re-run on any change to that directory.
     for (const [matcher, prefix] of nameMatchers) {
-      if (matcher.test(text)) tokens.add(prefix);
+      if (matcher.test(code)) tokens.add(prefix);
     }
     if (OWN_DIR.test(code)) {
       // A path built from __dirname can climb out of the directory: widen to the

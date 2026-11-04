@@ -212,6 +212,31 @@ describe('test result cache key', () => {
     expect(before.repoWide).toBe(false);
   });
 
+  it('names a data directory from code, not from a comment that mentions it', () => {
+    const root = makeRepo({
+      'src/lib/noted.ts': [
+        '/**',
+        ' * Mirrors what `src/utils/other` does with the cache.',
+        ' */',
+        "import * as fs from 'node:fs';",
+        "export const read = () => fs.readFileSync(process.cwd() + '/public/a.json', 'utf8');",
+      ].join('\n'),
+      'public/a.json': '{}',
+      'src/utils/other.ts': 'export const v = 1;\n',
+      'src/t.test.ts':
+        "import { read } from './lib/noted';\ntest('x', () => read());\n",
+    });
+    const before = keyOf(root, 'src/t.test.ts');
+    expect(before.repoWide).toBe(false);
+    expect(before.domains).toEqual(['public/']);
+    // a change under src/ outside the closure no longer moves the key...
+    write(root, { 'src/utils/other.ts': 'export const v = 2;\n' });
+    expect(keyOf(root, 'src/t.test.ts').key).toBe(before.key);
+    // ...but the directory the code does read still does
+    write(root, { 'public/a.json': '{"x":1}' });
+    expect(keyOf(root, 'src/t.test.ts').key).not.toBe(before.key);
+  });
+
   it('keys on the env vars the closure reads, and refuses a bare process.env', () => {
     const root = makeRepo({
       'src/lib/flag.ts': 'export const on = process.env.FEATURE_X === "1";\n',
