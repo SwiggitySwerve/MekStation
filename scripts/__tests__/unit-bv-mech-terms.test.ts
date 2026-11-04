@@ -2,6 +2,7 @@ import type { UnitData } from '../validate-bv-types';
 
 import { mechBVTerms } from '../../src/utils/construction/mechBV/bvTrace';
 import { calculateUnitBV } from '../validate-bv-calculator';
+import { calculatePhysicalBVTotal } from '../validate-bv-physical-weapons';
 
 const unit: UnitData = {
   id: 'trace-probe',
@@ -63,4 +64,20 @@ test('mech summary retains the existing RISC modifier before final rounding', ()
   expect(calculateUnitBV(unit, 'battleaxe-bkx-risc').breakdown).toMatchObject({
     summaryModifier: 1.01,
   });
+});
+
+test('physical aggregation preserves per-mount rounding, TSM and case-insensitive AES', () => {
+  expect(
+    calculatePhysicalBVTotal(
+      {
+        physicalWeapons: [
+          { type: 'hatchet', location: 'la' },
+          { type: 'sword', location: 'ra' },
+        ],
+        hasTSM: true,
+        aesLocs: ['LA'],
+      },
+      55,
+    ),
+  ).toBe(65.4);
 });

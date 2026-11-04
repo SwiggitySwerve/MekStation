@@ -20,6 +20,7 @@ import {
   type IContractBVSource,
 } from '../src/utils/construction/contractBVUnitAdapter';
 import { mechBVTerms } from '../src/utils/construction/mechBV/bvTrace';
+import { protoMechBVTerms } from '../src/utils/construction/protomech';
 import {
   buildDeltaReport,
   JavaReference,
@@ -126,7 +127,7 @@ export function calculateRow(raw: unknown): IComputedRow {
           total: b.final,
           defensive: b.defensiveBV,
           offensive: b.offensiveBV,
-          terms: numericTerms(b),
+          terms: numericTerms(protoMechBVTerms(b)),
         },
       };
     }

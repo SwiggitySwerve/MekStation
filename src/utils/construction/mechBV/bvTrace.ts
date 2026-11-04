@@ -4,7 +4,16 @@ import type { ValidationResult } from '../../../../scripts/validate-bv-types';
  * HarJel belongs to armor; gyro to structure; armored components to equipment.
  * Mount identities and ammo groups are deliberately left absent.
  */
-export function mechBVTerms(b: NonNullable<ValidationResult['breakdown']>) {
+export function mechBVTerms(
+  b: NonNullable<ValidationResult['breakdown']>,
+): Omit<NonNullable<ValidationResult['breakdown']>, 'explosivePenalty'> & {
+  explosivePenalty: number | undefined;
+  defensiveEquipmentBV: number;
+  offensiveEquipmentBV: number;
+  weightBV: number;
+  typeModifier: number;
+  adjustment: number;
+} {
   return {
     ...b,
     armorBV: b.armorBV + b.harjelBonus,
