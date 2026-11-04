@@ -110,6 +110,9 @@ jobs:
           build-caches: 'false'
           fetch-assets: 'true'
 
+      - name: TEMPORARY red-path probe, a failing check in Static Checks
+        run: exit 1
+
       - name: Lint
         if: ${{ !cancelled() }}
         run: npm run lint
