@@ -32,29 +32,29 @@ const checks = [
       ),
   },
   {
-    label: 'perf-budget-pr job exists',
-    passes: /^  perf-budget-pr:/m.test(workflow),
+    label: 'simulation-checks job exists',
+    passes: /^  simulation-checks:/m.test(workflow),
   },
   {
-    label: 'perf-budget-pr enables SIMULATION_PERF_ASSERTIONS',
-    passes: /perf-budget-pr:[\s\S]*SIMULATION_PERF_ASSERTIONS:\s*'true'/.test(
+    label: 'simulation-checks perf budgets enable SIMULATION_PERF_ASSERTIONS',
+    passes: /simulation-checks:[\s\S]*SIMULATION_PERF_ASSERTIONS:\s*'true'/.test(
       workflow,
     ),
   },
   {
-    label: 'coverage-floor job exists',
-    passes: /^  coverage-floor:/m.test(workflow),
+    label: 'simulation-checks runs the coverage floor',
+    passes: /simulation-checks:[\s\S]*Enforce combat\/simulation coverage floors/.test(workflow),
   },
   {
-    label: 'coverage-floor uses coverage validator',
+    label: 'coverage floor uses coverage validator',
     passes:
-      /coverage-floor:[\s\S]*validate-combat-simulation-coverage\.mjs/.test(
+      /simulation-checks:[\s\S]*validate-combat-simulation-coverage\.mjs/.test(
         workflow,
       ),
   },
   {
-    label: 'coverage-floor excludes perf-sensitive assertions',
-    passes: /coverage-floor:[\s\S]*JEST_EXCLUDE_PERF_SENSITIVE:\s*'true'/.test(
+    label: 'coverage floor excludes perf-sensitive assertions',
+    passes: /simulation-checks:[\s\S]*JEST_EXCLUDE_PERF_SENSITIVE:\s*'true'/.test(
       workflow,
     ),
   },
@@ -67,8 +67,7 @@ const aggregatorNeeds = aggregatorMatch?.[1] ?? '';
 
 for (const job of [
   'statistical-proof-pr',
-  'perf-budget-pr',
-  'coverage-floor',
+  'simulation-checks',
 ]) {
   checks.push({
     label: `lint-and-test needs ${job}`,

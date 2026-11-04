@@ -99,6 +99,7 @@ jobs:
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
+          build-caches: 'false'
           fetch-assets: 'true'
 
       - name: Lint
@@ -224,6 +225,7 @@ jobs:
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
+          build-caches: 'false'
 
       - name: Run CI-sized perf-sensitive simulation tests
         run: >-
@@ -301,6 +303,7 @@ jobs:
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
+          build-caches: 'false'
 
       - name: Restore Jest transform cache
         uses: actions/cache/restore@v5
@@ -337,6 +340,7 @@ jobs:
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
+          build-caches: 'false'
 
       # simulation-system "Statistical Validation": a PR that touches the
       # proof's inputs cannot merge without it; main and nightly always run it.
@@ -366,6 +370,7 @@ jobs:
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
+          build-caches: 'false'
           fetch-assets: 'true'
 
       - name: Validate combat catalog/test/spec consistency
@@ -398,6 +403,7 @@ jobs:
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
+          build-caches: 'false'
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -540,6 +546,7 @@ jobs:
         with:
           node-version: '22'
           skip-nextjs-cache: 'true'
+          build-caches: 'false'
 
       - name: Resolve Playwright version for browser cache key
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'

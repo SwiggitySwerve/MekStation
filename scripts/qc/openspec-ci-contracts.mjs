@@ -21,24 +21,17 @@ export const requiredProtectedContexts = [
 ];
 
 export const requiredAggregatorNeeds = [
-  'lint',
-  'format-check',
-  'typecheck',
+  'detect-changes',
+  'static-checks',
   'unit-test-shards',
-  'perf-smoke-tests',
+  'simulation-checks',
   'statistical-proof-pr',
-  'perf-budget-pr',
-  'coverage-floor',
-  'a11y-tests',
-  'validate-bv',
   'validate-combat',
-  'storybook-build',
   'schema-bridge',
-  'determinism-audit',
+  'prepare-build',
+  'build-test',
   'e2e-build',
   'e2e',
-  'desktop-typecheck',
-  'desktop-tests',
 ];
 
 export const requiredWorkflowTokens = [
