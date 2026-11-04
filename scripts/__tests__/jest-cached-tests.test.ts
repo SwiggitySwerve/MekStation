@@ -237,6 +237,85 @@ describe('test result cache key', () => {
     expect(keyOf(root, 'src/t.test.ts').key).not.toBe(before.key);
   });
 
+  describe('narrowing a named directory to the literal paths read', () => {
+    const reader = (body: string) =>
+      [
+        "import * as fs from 'node:fs';",
+        "import * as path from 'node:path';",
+        `test('reads', () => { ${body} });`,
+      ].join('\n');
+    const tree = {
+      'data/sub/a.json': '{"v":1}',
+      'data/sub/deeper/b.json': '{}',
+      'data/other/c.json': '{}',
+      'docs/note.md': 'x',
+    };
+
+    it('keys a file literal on its directory, not the whole top-level dir', () => {
+      const root = makeRepo({
+        ...tree,
+        'src/t.test.ts': reader(
+          "fs.readFileSync(path.join(process.cwd(), 'data/sub/a.json'), 'utf8');",
+        ),
+      });
+      const before = keyOf(root, 'src/t.test.ts');
+      expect(before.domains).toEqual(['data/sub/']);
+      write(root, { 'data/other/c.json': '{"changed":true}' });
+      expect(keyOf(root, 'src/t.test.ts').key).toBe(before.key);
+      // a sibling and a subdirectory file are still inputs
+      write(root, { 'data/sub/deeper/b.json': '{"changed":true}' });
+      const afterDeeper = keyOf(root, 'src/t.test.ts').key;
+      expect(afterDeeper).not.toBe(before.key);
+      write(root, { 'data/sub/new.json': '{}' });
+      expect(keyOf(root, 'src/t.test.ts').key).not.toBe(afterDeeper);
+    });
+
+    it('keys a directory literal and a partial file name on the directory they start in', () => {
+      const root = makeRepo({
+        ...tree,
+        'src/t.test.ts': reader(
+          "fs.readdirSync(path.join(process.cwd(), 'data/sub')); fs.readFileSync('data/other/c-' + 'x', 'utf8');",
+        ),
+      });
+      expect(keyOf(root, 'src/t.test.ts').domains).toEqual([
+        'data/other/',
+        'data/sub/',
+      ]);
+    });
+
+    it.each([
+      [
+        'a bare directory name',
+        "fs.readdirSync(path.join(process.cwd(), 'data'));",
+      ],
+      [
+        'a bare name beside a literal',
+        "fs.readdirSync(path.join(process.cwd(), 'data')); fs.readFileSync('data/sub/a.json', 'utf8');",
+      ],
+      [
+        'a ".." segment',
+        "fs.readFileSync('data/sub/../other/c.json', 'utf8');",
+      ],
+      [
+        'a template with an expression',
+        "fs.readFileSync(`data/${'sub'}/a.json`, 'utf8');",
+      ],
+      [
+        'a path nested in a longer one',
+        "fs.readFileSync('../data/sub/a.json', 'utf8');",
+      ],
+    ])('keeps the whole directory for %s', (_name, body) => {
+      const root = makeRepo({
+        ...tree,
+        'src/t.test.ts': reader(body),
+      });
+      const before = keyOf(root, 'src/t.test.ts');
+      expect(before.domains).toEqual(['data/']);
+      write(root, { 'data/other/c.json': '{"changed":true}' });
+      expect(keyOf(root, 'src/t.test.ts').key).not.toBe(before.key);
+    });
+  });
+
   it('keys on the env vars the closure reads, and refuses a bare process.env', () => {
     const root = makeRepo({
       'src/lib/flag.ts': 'export const on = process.env.FEATURE_X === "1";\n',

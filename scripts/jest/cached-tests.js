@@ -12,7 +12,10 @@
  *     the Jest setup files),
  *   - the "data inputs" it can read: if any closure file uses fs read APIs,
  *     the digest of every repo directory the closure names (public/data/,
- *     openspec/, docs/, ...), or of the WHOLE repo when it names none; a file
+ *     openspec/, docs/, ...; narrowed to the directory of a literal like
+ *     'scripts/data-migration/x.json' only when every mention of the top-level
+ *     name in that file is such a literal), or of the WHOLE repo when it names
+ *     none; a file
  *     using __dirname adds its own directory, widened to the ancestor reached by
  *     the `..` segments in the file,
  *   - the whole repo when the closure spawns child processes or has a dynamic
@@ -438,7 +441,40 @@ function buildNameMatchers(index) {
   ]);
 }
 
-function analyzeSource(text, rel, nameMatchers) {
+/**
+ * Narrow a top-level directory token to the directories the file's string
+ * literals actually name. Only when EVERY mention of `name` in the code is a
+ * plain `'name/...'` literal (no `..`/`.` segment, no `${}`, no backslash): any
+ * other mention (`'name'`, `path.join(x, 'name', ...)`, `'../name/..'`) could
+ * reach anywhere under it, so the caller keeps the whole directory. A literal
+ * that names a file contributes the file's directory (siblings stay inputs); one
+ * that names a partial file name contributes the directory it starts in.
+ * @returns {Set<string> | null} directory prefixes ending in '/', or null.
+ */
+function refineNamedDir(code, name, matcher, isDir) {
+  const literal = new RegExp(
+    `(['"\`])${escapeRegex(name)}/([^'"\`\\\\\\n$]*)\\1`,
+    'g',
+  );
+  const starts = new Set();
+  const dirs = new Set();
+  for (const match of code.matchAll(literal)) {
+    const rest = match[2];
+    if (rest.split('/').some((segment) => segment === '.' || segment === '..'))
+      return null;
+    starts.add(match.index);
+    const full = `${name}/${rest}`;
+    const asDir = full.endsWith('/') ? full : `${full}/`;
+    dirs.add(isDir(asDir) ? asDir : full.slice(0, full.lastIndexOf('/') + 1));
+  }
+  const mentions = new RegExp(matcher.source, 'g');
+  for (const match of code.matchAll(mentions)) {
+    if (!starts.has(match.index)) return null;
+  }
+  return dirs.size > 0 ? dirs : null;
+}
+
+function analyzeSource(text, rel, nameMatchers, isDir) {
   const specs = new Set();
   // raw text and text with every block comment removed: the union can only add
   // specs, so neither a comment nor over-stripping can hide an import
@@ -464,7 +500,11 @@ function analyzeSource(text, rel, nameMatchers) {
     // `src/utils/...` is not a read of `src/`, and counting it made every such
     // file re-run on any change to that directory.
     for (const [matcher, prefix] of nameMatchers) {
-      if (matcher.test(code)) tokens.add(prefix);
+      if (!matcher.test(code)) continue;
+      const refined = prefix.endsWith('/')
+        ? refineNamedDir(code, prefix.slice(0, -1), matcher, isDir)
+        : null;
+      for (const token of refined ?? [prefix]) tokens.add(token);
     }
     if (OWN_DIR.test(code)) {
       // A path built from __dirname can climb out of the directory: widen to the
@@ -531,6 +571,12 @@ function createKeyer({
     nameMatchers.map(([, prefix]) => prefix.replace(/\/$/, '')),
   );
   const analysisCache = new Map();
+  const dirPrefixes = new Set();
+  for (const file of index.keys()) {
+    for (let at = file.indexOf('/'); at !== -1; at = file.indexOf('/', at + 1))
+      dirPrefixes.add(file.slice(0, at + 1));
+  }
+  const isDir = (prefix) => dirPrefixes.has(prefix);
   const isFile = (rel) => index.has(rel);
   const digestOf = (rel) => index.get(rel) ?? hashFile(root, rel);
 
@@ -542,6 +588,7 @@ function createKeyer({
           fs.readFileSync(path.join(root, rel), 'utf8'),
           rel,
           nameMatchers,
+          isDir,
         );
       }
       analysisCache.set(rel, info);
