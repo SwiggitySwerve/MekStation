@@ -329,6 +329,77 @@ export const APPROVED_JAVA_REROUTES = [
     reason: 'Follow-up 92 slice 2; mapper tag form of the route above',
     tagForm: true,
   })),
+  // Follow-up 92 slice 3: unofficial IS MRM names resolved to the BattleArmor MRM records.
+  ...[
+    [
+      'mrm-1-registry',
+      'bamrm1',
+      'weapons/unofficial/innerSphere/mrm/ISMRM1.java:56',
+      ['IS MRM 1', 'ISMRM1', 'MRM 1'],
+    ],
+    [
+      'mrm-2-registry',
+      'bamrm2',
+      'weapons/unofficial/innerSphere/mrm/ISMRM2.java:56',
+      ['IS MRM 2', 'ISMRM2', 'MRM 2'],
+    ],
+    [
+      'mrm-3-registry',
+      'bamrm3',
+      'weapons/unofficial/innerSphere/mrm/ISMRM3.java:56',
+      ['IS MRM 3', 'ISMRM3', 'MRM 3'],
+    ],
+    [
+      'mrm-4-registry',
+      'bamrm4',
+      'weapons/unofficial/innerSphere/mrm/ISMRM4.java:56',
+      ['IS MRM 4', 'ISMRM4', 'MRM 4'],
+    ],
+    [
+      'mrm-5-registry',
+      'bamrm5',
+      'weapons/unofficial/innerSphere/mrm/ISMRM5.java:56',
+      ['IS MRM 5', 'ISMRM5', 'MRM 5'],
+    ],
+    [
+      'mrm-1-os-registry',
+      'bamrm1os',
+      'weapons/unofficial/innerSphere/mrm/oneShot/ISMRM1OS.java:56',
+      ['MRM 1 (OS)'],
+    ],
+    [
+      'mrm-2-os-registry',
+      'bamrm2os',
+      'weapons/unofficial/innerSphere/mrm/oneShot/ISMRM2OS.java:56',
+      ['MRM 2 (OS)'],
+    ],
+    [
+      'mrm-3-os-registry',
+      'bamrm3os',
+      'weapons/unofficial/innerSphere/mrm/oneShot/ISMRM3OS.java:56',
+      ['MRM 3 (OS)'],
+    ],
+    [
+      'mrm-4-os-registry',
+      'bamrm4os',
+      'weapons/unofficial/innerSphere/mrm/oneShot/ISMRM4OS.java:56',
+      ['MRM 4 (OS)'],
+    ],
+    [
+      'mrm-5-os-registry',
+      'bamrm5os',
+      'weapons/unofficial/innerSphere/mrm/oneShot/ISMRM5OS.java:56',
+      ['MRM 5 (OS)'],
+    ],
+  ].flatMap(([newTarget, oldTarget, source, names]) =>
+    names.map((name) => ({
+      name,
+      oldTarget,
+      newTarget,
+      reason: `Follow-up 92 slice 3; pinned 48fcb2f6 ${source}`,
+      weapon: true,
+    })),
+  ),
 ];
 async function capture(root, inputs) {
   process.chdir(root);

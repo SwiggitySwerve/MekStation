@@ -1484,6 +1484,46 @@
       "id": "lyran-commonwealth-infantry-kit-registry"
     },
     {
+      "internalName": "MRM 1",
+      "id": "mrm-1-registry"
+    },
+    {
+      "internalName": "MRM 1 (OS)",
+      "id": "mrm-1-os-registry"
+    },
+    {
+      "internalName": "MRM 2",
+      "id": "mrm-2-registry"
+    },
+    {
+      "internalName": "MRM 2 (OS)",
+      "id": "mrm-2-os-registry"
+    },
+    {
+      "internalName": "MRM 3",
+      "id": "mrm-3-registry"
+    },
+    {
+      "internalName": "MRM 3 (OS)",
+      "id": "mrm-3-os-registry"
+    },
+    {
+      "internalName": "MRM 4",
+      "id": "mrm-4-registry"
+    },
+    {
+      "internalName": "MRM 4 (OS)",
+      "id": "mrm-4-os-registry"
+    },
+    {
+      "internalName": "MRM 5",
+      "id": "mrm-5-registry"
+    },
+    {
+      "internalName": "MRM 5 (OS)",
+      "id": "mrm-5-os-registry"
+    },
+    {
       "internalName": "Machine Gun (Portable)",
       "id": "machine-gun-portable-registry"
     },

@@ -136,3 +136,41 @@ describe('IS torpedo names follow their Java identity (follow-up 92)', () => {
     expect(getEquipmentEntry(name)?.id).toBe(id);
   });
 });
+
+describe('MRM names follow their Java identity (follow-up 92)', () => {
+  const cases: Array<[string, string[]]> = [
+    // weapons/unofficial/innerSphere/mrm/ISMRM1.java
+    ['mrm-1-registry', ['IS MRM 1', 'ISMRM1', 'MRM 1']],
+    // weapons/unofficial/innerSphere/mrm/ISMRM2.java
+    ['mrm-2-registry', ['IS MRM 2', 'ISMRM2', 'MRM 2']],
+    // weapons/unofficial/innerSphere/mrm/ISMRM3.java
+    ['mrm-3-registry', ['IS MRM 3', 'ISMRM3', 'MRM 3']],
+    // weapons/unofficial/innerSphere/mrm/ISMRM4.java
+    ['mrm-4-registry', ['IS MRM 4', 'ISMRM4', 'MRM 4']],
+    // weapons/unofficial/innerSphere/mrm/ISMRM5.java
+    ['mrm-5-registry', ['IS MRM 5', 'ISMRM5', 'MRM 5']],
+    // weapons/unofficial/innerSphere/mrm/oneShot/ISMRM1OS.java
+    ['mrm-1-os-registry', ['MRM 1 (OS)']],
+    // weapons/unofficial/innerSphere/mrm/oneShot/ISMRM2OS.java
+    ['mrm-2-os-registry', ['MRM 2 (OS)']],
+    // weapons/unofficial/innerSphere/mrm/oneShot/ISMRM3OS.java
+    ['mrm-3-os-registry', ['MRM 3 (OS)']],
+    // weapons/unofficial/innerSphere/mrm/oneShot/ISMRM4OS.java
+    ['mrm-4-os-registry', ['MRM 4 (OS)']],
+    // weapons/unofficial/innerSphere/mrm/oneShot/ISMRM5OS.java
+    ['mrm-5-os-registry', ['MRM 5 (OS)']],
+  ];
+  it.each(cases.flatMap(([id, names]) => names.map((name) => [name, id])))(
+    '%s resolves to %s',
+    (name, id) => {
+      expect(getEquipmentEntry(name)?.id).toBe(id);
+    },
+  );
+
+  // Exact catalog ids win: mrm-1..5 are the MRM ammo records, although Java's
+  // weapon lookup names MRM-1..5 match them case-insensitively.
+  it.each([1, 2, 3, 4, 5])('keeps exact ammo id mrm-%d', (rack) => {
+    expect(getEquipmentEntry(`mrm-${rack}`)?.id).toBe(`mrm-${rack}`);
+    expect(getEquipmentEntry(`MRM-${rack}`)?.id).toBe(`mrm-${rack}`);
+  });
+});
