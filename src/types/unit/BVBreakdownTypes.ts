@@ -97,6 +97,7 @@ export interface IInfantryBVBreakdown extends Readonly<
 }
 
 export interface BADefensiveBVBreakdown {
+  readonly defensiveFactor?: number;
   readonly armorBV: number;
   /** Sensor/ECM/AMS bonus, added before the defensive factor. */
   readonly defensiveEquipmentBV: number;
@@ -107,6 +108,7 @@ export interface BADefensiveBVBreakdown {
 }
 
 export interface BAOffensiveBVBreakdown {
+  readonly speedFactor?: number;
   readonly weaponBV: number;
   readonly ammoBV: number;
   readonly manipulatorBV: number;
@@ -120,6 +122,7 @@ export interface BAPerTrooperBV {
 }
 
 export interface IBABreakdown {
+  readonly squadFactor?: number;
   readonly perTrooper: BAPerTrooperBV;
   readonly squadSize: number;
   readonly squadTotal: number;
