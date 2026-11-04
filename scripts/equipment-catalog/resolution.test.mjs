@@ -14,6 +14,64 @@ const option = (flag) => process.argv[process.argv.indexOf(flag) + 1];
 // previously resolved inputs, including consumer fallback results, are frozen.
 export const APPROVED_JAVA_REROUTES = [
   ...[
+    ['APGaussRifle', 'apgaussrifle', null],
+    ['EnhancedLRM10', 'enhancedlrm10', null],
+    ['EnhancedLRM15', 'enhancedlrm15', null],
+    ['EnhancedLRM20', 'enhancedlrm20', null],
+    ['EnhancedLRM5', 'enhancedlrm5', null],
+    ['MRM-1', 'mrm-1', null],
+    ['MRM-2', 'mrm-2', null],
+    ['MRM-3', 'mrm-3', null],
+    ['MRM-4', 'mrm-4', null],
+    ['MRM-5', 'mrm-5', null],
+    ['RotaryAC2', 'rotaryac2', null],
+    ['RotaryAC5', 'rotaryac5', null],
+  ].flatMap(([name, oldTarget, newTarget]) =>
+    ['unitLoaderAmmoIS', 'unitLoaderAmmoClan'].map((api) => ({
+      api,
+      name,
+      oldTarget,
+      newTarget,
+      literalName: true,
+      reason:
+        'Opus G2-O5 explicit critical-recovery/loader namespace result; WeaponType/AmmoType pin48fcb2f64',
+    })),
+  ),
+  ...[
+    ['Coolant Pod', 'coolant-pod', 'coolant-pod-registry'],
+    ['Coolant Pod:OMNI', 'coolant-pod', 'coolant-pod-registry'],
+    ['MRM-1', 'mrm-1', 'bamrm1'],
+    ['MRM-2', 'mrm-2', 'bamrm2'],
+    ['MRM-3', 'mrm-3', 'bamrm3'],
+    ['MRM-4', 'mrm-4', 'bamrm4'],
+    ['MRM-5', 'mrm-5', 'bamrm5'],
+  ].flatMap(([name, oldTarget, newTarget]) =>
+    ['unitLoaderIS', 'unitLoaderClan', 'unitLoaderMixed'].map((api) => ({
+      api,
+      name,
+      oldTarget,
+      newTarget,
+      literalName: true,
+      reason:
+        'Opus G2-O5 explicit critical-recovery/loader namespace result; WeaponType/AmmoType pin48fcb2f64',
+    })),
+  ),
+  ...[
+    ['RotaryAC2', 'rotaryac2', 'clan-rac-2'],
+    ['RotaryAC5', 'rotaryac5', 'clan-rac-5'],
+  ].flatMap(([name, oldTarget, newTarget]) =>
+    ['unitLoaderClan'].map((api) => ({
+      api,
+      name,
+      oldTarget,
+      newTarget,
+      literalName: true,
+      reason:
+        'Opus G2-O5 explicit critical-recovery/loader namespace result; WeaponType/AmmoType pin48fcb2f64',
+    })),
+  ),
+
+  ...[
     'ba-advanced-srm-1',
     'ba-advanced-srm-2',
     'ba-advanced-srm-3',
@@ -1072,7 +1130,9 @@ if (process.argv.includes('--capture')) {
       if (newTarget === oldTarget) return;
       const route = APPROVED_JAVA_REROUTES.find(
         (route) =>
-          route.name.toLowerCase() === bareName(name).toLowerCase() &&
+          (!route.api || route.api === api) &&
+          route.name.toLowerCase() ===
+            (route.literalName ? name : bareName(name)).toLowerCase() &&
           route.oldTarget === oldTarget,
       );
       const row = { api, name, oldTarget, newTarget };
@@ -1105,6 +1165,14 @@ if (process.argv.includes('--capture')) {
     );
     for (const route of APPROVED_JAVA_REROUTES) {
       if (route.tagForm) continue;
+      if (route.api) {
+        assert.equal(
+          targetOf(after, route.api, route.name),
+          route.newTarget ?? undefined,
+          route.api + ' ' + route.name,
+        );
+        continue;
+      }
       assert.equal(
         targetOf(after, 'equipment', route.name),
         route.newTarget ?? undefined,

@@ -32,3 +32,12 @@ describe('weapon and ammunition BV lookup boundaries', () => {
     expect(getEquipmentEntry('MRM 20 Ammo')?.category).not.toBe('Missile');
   });
 });
+
+it.each([
+  ['APGaussRifle', 'apgaussrifle'],
+  ['EnhancedLRM10', 'enhancedlrm10'],
+  ['RotaryAC2', 'rotaryac2'],
+])('retains typed ammunition for the unmarked %s alias', (name, id) => {
+  expect(getAmmunitionEntry(name)?.id).toBe(id);
+  expect(getEquipmentEntry(name)?.id).not.toBe(id);
+});
