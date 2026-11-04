@@ -9,7 +9,10 @@ import { BlkParserService } from '@/services/conversion/BlkParserService';
 import { VehicleUnitHandler } from '@/services/units/handlers/VehicleUnitHandler';
 import vehicleSources from '@/services/units/unitLoaderService/__tests__/fixtures/vehicles.pinned.json';
 
-import { vehicleArmorIntroYearErrors } from '../introYear';
+import {
+  vehicleArmorIntroYearErrors,
+  vehicleEngineIntroYearErrors,
+} from '../introYear';
 
 const IS = { clan: false, mixed: false };
 
@@ -94,4 +97,44 @@ describe('combat vehicle handler', () => {
       'Reactive armor has intro date of 3063',
     );
   });
+});
+
+// Engine part (:1594-1607). BLK engine_type is BLKFile's code (0 FUSION, 1 ICE,
+// blk-engine-codes.json), not the Java Engine constant. Java flags exactly two
+// pinned vehicles this way: Ground Car (1950, FUSION, rating 10) and Jeep
+// (1950, ICE, rating 15), both "has intro date of 2100" (DATE_ES).
+const ENGINE_IS = { clanEngine: false, clan: false, mixed: false };
+it.each([
+  [
+    { year: 1950, engineCode: 0, engineRating: 10, ...ENGINE_IS },
+    ['10 Fusion has intro date of 2100'],
+  ],
+  [
+    { year: 1950, engineCode: 1, engineRating: 15, ...ENGINE_IS },
+    ['15 ICE has intro date of 2100'],
+  ],
+  // Inside the margin (2100 <= 2095 + 5).
+  [{ year: 2095, engineCode: 0, engineRating: 10, ...ENGINE_IS }, []],
+  // Clan XL (Engine.java:876, 2824 approximate) on a Clan unit.
+  [
+    {
+      year: 2800,
+      engineCode: 2,
+      engineRating: 200,
+      clanEngine: true,
+      clan: true,
+      mixed: false,
+    },
+    ['200 XL has intro date of 2819'],
+  ],
+  // A rating above 400 is Large (Engine.java:259): Large Fusion 2630 (:815).
+  [
+    { year: 2600, engineCode: 0, engineRating: 420, ...ENGINE_IS },
+    ['420 Fusion has intro date of 2630'],
+  ],
+  // No engine (NONE, code 8) is never checked; an unknown code is a parse error.
+  [{ year: 1000, engineCode: 8, engineRating: 0, ...ENGINE_IS }, []],
+  [{ year: 1000, engineCode: 99, engineRating: 10, ...ENGINE_IS }, []],
+] as const)('engine %j', (source, expected) => {
+  expect(vehicleEngineIntroYearErrors(source)).toEqual(expected);
 });
