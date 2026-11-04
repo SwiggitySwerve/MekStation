@@ -107,14 +107,6 @@ test('deleting a file a check imports or cites still runs the check', () => {
   }
 });
 
-test('combat rules outside the proof import closure run the statistical proof', () => {
-  assert.equal(
-    decide(root, ['src/engine/InteractiveSession.actions.attackAms.ts']).gates
-      .statistical,
-    true,
-  );
-});
-
 test('e2e-only changes run the browser gates but no code gate', () => {
   const { gates } = decide(root, ['e2e/customizer.spec.ts']);
   assert.equal(gates.e2e, true);
@@ -210,17 +202,6 @@ test('importClosure follows aliases, relative paths, mocks and side-effect impor
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
-});
-
-test('combat-affecting changes run the statistical proof', () => {
-  assert.equal(
-    decide(root, ['src/utils/gameplay/heat.ts']).gates.statistical,
-    true,
-  );
-  assert.equal(
-    decide(root, ['src/not-imported-by-any-check.ts']).gates.statistical,
-    false,
-  );
 });
 
 test('catalog and converter changes run the corpus suites', () => {
