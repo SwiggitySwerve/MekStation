@@ -466,3 +466,15 @@ export function getLargeAerospaceAmmoBVGroup(id: string): string | undefined {
     return nativeAmmoBVKey(capital.ammoType, capital.rackSize);
   return getCatalogAmmoBVGroup(id);
 }
+
+const MG_ARRAY_GUN_IDS: Readonly<Record<string, string>> = {
+  mga: 'machine-gun',
+  lmga: 'light-machine-gun',
+  hmga: 'heavy-machine-gun',
+};
+/** Array caliber reuses the authoritative native ammo type/rack projection. */
+export function getMachineGunArrayBVGroup(id: string): string | undefined {
+  if (!Object.hasOwn(MG_ARRAY_GUN_IDS, id)) return undefined;
+  const gun = MG_ARRAY_GUN_IDS[id];
+  return gun ? getNativeAmmoBVGroup(gun) : undefined;
+}

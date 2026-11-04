@@ -1,5 +1,6 @@
 import { applyOneShotBVHeat } from '../src/utils/construction/equipmentBV/weaponHeat';
 import {
+  getEquipmentEntry,
   normalizeEquipmentId,
   resolveEquipmentBV,
 } from '../src/utils/construction/equipmentBVResolver';
@@ -106,10 +107,6 @@ const FALLBACK_WEAPON_BV: Record<string, { bv: number; heat: number }> = {
   // ISRemoteSensorDispenser - not a weapon, 0 BV
   isremotesensordispenser: { bv: 0, heat: 0 },
   'remote-sensor-dispenser': { bv: 0, heat: 0 },
-  // C3 Remote Sensor Launcher IS a weapon (extends MissileWeapon) per MegaMek ISC3RemoteSensorLauncher.java
-  'c3-remote-sensor-launcher': { bv: 30, heat: 0 },
-  isc3remotesensorlauncher: { bv: 30, heat: 0 },
-  c3remotesensorlauncher: { bv: 30, heat: 0 },
   // IS SRM-4 One-Shot (missing variant)
   'issrm4-os': { bv: 39, heat: 3 },
   // Clan Heavy Lasers (alternate IDs)
@@ -377,13 +374,7 @@ export function resolveWeaponForUnit(
 export function isWeaponEquip(id: string): boolean {
   const lo = id.toLowerCase();
   if (lo.includes('ammo')) return false;
-  // C3 Remote Sensor Launcher IS a weapon (BV=30, extends MissileWeapon in MegaMek)
-  // despite containing 'c3' and 'remote-sensor' which would be caught by the exclusion list
-  if (
-    lo.includes('c3remotesensorlauncher') ||
-    lo.includes('c3-remote-sensor-launcher') ||
-    lo.includes('c3 remote sensor launcher')
-  )
+  if (getEquipmentEntry(id)?.id === 'isc3remotesensorlauncher-registry')
     return true;
   const nw = [
     'heatsink',

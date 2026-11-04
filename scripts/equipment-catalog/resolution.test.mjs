@@ -13,6 +13,14 @@ const option = (flag) => process.argv[process.argv.indexOf(flag) + 1];
 // These five Java identities are the coordinator-approved exceptions. All other
 // previously resolved inputs, including consumer fallback results, are frozen.
 export const APPROVED_JAVA_REROUTES = [
+  ...['c3-remote-sensor-launcher'].map((name) => ({
+    name,
+    oldTarget: 'c3-master',
+    newTarget: 'isc3remotesensorlauncher-registry',
+    weapon: true,
+    reason:
+      'Opus G2-O2: pinned 48fcb2f64 ISC3RemoteSensorLauncher.java:69-80, separate BV-30 MissileWeapon',
+  })),
   {
     name: 'IS LB 2-X AC Ammo',
     oldTarget: 'lb-2-x-ammo',
