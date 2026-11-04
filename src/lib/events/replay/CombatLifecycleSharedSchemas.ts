@@ -43,6 +43,7 @@ import {
   SquadMotionType,
 } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { INFANTRY_BV_TRACE_FIELDS } from '@/types/unit/BVBreakdownTypes';
 import {
   InfantryArmorKit,
   InfantrySpecialization,
@@ -380,8 +381,16 @@ const infantryFieldGunSchema = z
   .object({ equipmentId: z.string(), name: z.string(), crew: finiteNumber })
   .strict();
 
+const infantryBVTraceShape = Object.fromEntries(
+  INFANTRY_BV_TRACE_FIELDS.map((key) => [key, finiteNumber.optional()]),
+) as Record<
+  (typeof INFANTRY_BV_TRACE_FIELDS)[number],
+  z.ZodOptional<typeof finiteNumber>
+>;
+
 const infantryBVBreakdownSchema = z
   .object({
+    ...infantryBVTraceShape,
     defensiveBV: finiteNumber.optional(),
     perTrooper: finiteNumber,
     motiveMultiplier: finiteNumber,
