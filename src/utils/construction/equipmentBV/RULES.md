@@ -370,6 +370,14 @@ including the imported IS Ultra AC/5 prototype. Its catalog firing heat stays
 48fcb2f64a1b3f2d575707ce5653dad64927b587: ISUAC5Prototype.java:62-71,
 UACWeapon.java:65; HeatTrackingBVCalculator.java:170-180.
 
+getWeaponLinkBVMultiplier owns IV/V/Apollo factors; getArtemisBVMultiplier
+preserves the existing IV/V API as a wrapper. Ordinary aircraft link Apollo to
+one MRM at the same physical location in source order, before direction and
+heat sorting. Unmatched controllers do not alter weapons or ammo.
+Source: MegaMek 48fcb2f64, MekFileParser.java:499-528 and BVCalculator.java:860-876.
+aerospaceBV.apollo.test.ts enforces native Oni, location/source-order matching,
+incompatible launchers, Omni aliases, dominance and heat-sort order.
+
 PPC capacitors share weaponLinks.ts compatibility/year gating with aircraft
 explosive penalties. Links choose the first unlinked eligible PPC at the same
 physical location. Native linked additions depend on PPC type, not the generic
