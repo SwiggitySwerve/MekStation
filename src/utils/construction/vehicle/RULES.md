@@ -497,3 +497,9 @@ compatible PPC at the same location. Capacitors add no flat weapon BV.
 The linked native addition follows drone scaling and precedes TC scaling
 (BVCalculator.java:845-882; MiscType.java:1322-1347, pin 48fcb2f64).
 Contract and editor adapters carry the year for the shared Clan PPC gate.
+
+Vehicles call weaponLinks.linkAerospaceMachineGunArrayBVWeapons, the shared
+AERO-RES2 owner, for source-order/location/caliber selection and derived array
+BV. The vehicle consumer projects that value before its direction/fire-control
+modifiers; arrays receive no TC bonus. BVCalculator.java:807-816 and
+MekFileParser.java:928-944 at pin48fcb2f64. No second MGA rule is introduced.
