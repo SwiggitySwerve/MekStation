@@ -14,6 +14,10 @@ inputs:
     description: Fetch mm-data assets after install
     required: false
     default: 'false'
+  build-caches:
+    description: Restore the Next.js build and Electron download caches (only jobs that build Next or pack Electron need them)
+    required: false
+    default: 'true'
 
 outputs:
   node-modules-cache-hit:
@@ -23,14 +27,12 @@ outputs:
 runs:
   using: composite
   steps:
+    # The npm download cache is only restored when node_modules misses:
+    # on a hit npm ci never runs, so restoring ~280 MB of tarballs is waste.
     - name: Setup Node.js
       uses: actions/setup-node@v6
       with:
         node-version: ${{ inputs.node-version }}
-        cache: npm
-        cache-dependency-path: |
-          package-lock.json
-          desktop/package-lock.json
 
     - name: Cache node_modules
       id: node-modules-cache
@@ -41,8 +43,17 @@ runs:
           desktop/node_modules
         key: ${{ runner.os }}-node${{ inputs.node-version }}-modules-${{ hashFiles('package-lock.json', 'desktop/package-lock.json') }}
 
+    - name: Cache npm downloads (node_modules miss only)
+      if: steps.node-modules-cache.outputs.cache-hit != 'true'
+      uses: actions/cache@v5
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json', 'desktop/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-npm-
+
     - name: Cache Next.js build cache (.next/cache)
-      if: inputs.skip-nextjs-cache != 'true'
+      if: inputs.skip-nextjs-cache != 'true' && inputs.build-caches == 'true'
       uses: actions/cache@v5
       with:
         path: .next/cache
@@ -52,6 +63,7 @@ runs:
           ${{ runner.os }}-nextjs-
 
     - name: Cache Electron downloads (desktop/.electron-cache)
+      if: inputs.build-caches == 'true'
       uses: actions/cache@v5
       with:
         path: |
@@ -79,13 +91,13 @@ runs:
     - name: Install root dependencies
       if: steps.node-modules-cache.outputs.cache-hit != 'true'
       shell: bash
-      run: npm ci
+      run: npm ci --prefer-offline --no-audit --no-fund
 
     - name: Install desktop dependencies
       if: steps.node-modules-cache.outputs.cache-hit != 'true'
       shell: bash
       working-directory: desktop
-      run: npm ci
+      run: npm ci --prefer-offline --no-audit --no-fund
 
     - name: Fetch mm-data assets
       if: inputs.fetch-assets == 'true' && steps.mm-data-cache.outputs.cache-hit != 'true'

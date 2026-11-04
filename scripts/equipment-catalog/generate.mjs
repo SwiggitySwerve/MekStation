@@ -16,6 +16,32 @@ const { normalizeEquipmentId } = tsxRequire(
 export const revision = '48fcb2f64a1b3f2d575707ce5653dad64927b587';
 const techBases = { IS: 'INNER_SPHERE', CLAN: 'CLAN', ALL: 'BOTH' };
 const slug = (name) => (name.toLowerCase().match(/[a-z0-9]+/g) ?? []).join('-');
+// Java damage per hit of cluster-table launchers (DAMAGE_BY_CLUSTERTABLE, -2), by
+// ammo type; the combat runner multiplies "<n>/missile" by the rack size.
+// MissileWeaponHandler.java:308-318 (LRM via LRMHandler.java:489, MRM, RL, and
+// LRT via MissileWeapon.java:84): 1. SRMHandler.java:66-78 (SRM, SRT) and
+// StreakHandler.java:79-88 (Streak SRM): 2.
+const missileDamagePerHit = {
+  LRM: 1,
+  LRM_TORPEDO: 1,
+  MRM: 1,
+  ROCKET_LAUNCHER: 1,
+  SRM: 2,
+  SRM_STREAK: 2,
+  SRM_TORPEDO: 2,
+};
+// Artillery (DAMAGE_ARTILLERY, -5) deals its rack size per hit
+// (ArtilleryWeaponDistantFireHandler.java:746-747).
+const artilleryAmmoTypes = new Set(['LONG_TOM', 'SNIPER', 'THUMPER']);
+const weaponDamage = (fact) => {
+  if (fact.damage === -2 && missileDamagePerHit[fact.ammoType])
+    return `${missileDamagePerHit[fact.ammoType]}/missile`;
+  if (fact.damage === -5 && artilleryAmmoTypes.has(fact.ammoType))
+    return number(fact.rackSize, 'rackSize');
+  return fact.damage < 0
+    ? `Java variable damage (${fact.damage})`
+    : number(fact.damage, 'damage');
+};
 const number = (value, label) => {
   assert(Number.isFinite(value), `Missing/nonfinite ${label}`);
   return value;
@@ -151,11 +177,7 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
       entry.costCBills = fixed(fact.cost, 'cost');
       if (fact.kind === 'weapons') {
         entry.subType = type.javaClass.split('.').at(-1);
-        entry.damage =
-          fact.damage < 0
-            ? `Java variable damage (${fact.damage})`
-            : number(fact.damage, 'damage');
-        entry.damage = prototypeDamage.values[name] ?? entry.damage;
+        entry.damage = prototypeDamage.values[name] ?? weaponDamage(fact);
         if (prototypeDamage.values[name]) notes.push(prototypeDamage.source);
         entry.heat = number(fact.heat, 'heat');
         entry.ranges = fact.ranges;
