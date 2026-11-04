@@ -47,6 +47,86 @@ export const APPROVED_JAVA_REROUTES = [
     newTarget: 'issniper-registry',
     reason:
       'L-EQ3/java-registry.json[ISSniper] at pinned 48fcb2f6; weapons/artillery/Sniper.java, BV 85; CAT-Q1 HANDBACK Helepolis/Orion note',
+    weapon: true,
+  },
+  // Follow-up 79 alias identity fixes: each native name's Java default lookup
+  // owner is the same for every tech (L-EQ3 java-registry.json.lookups.json).
+  ...[
+    [
+      'ISBAHeavyMG',
+      'baheavymg',
+      'isbaheavymachinegun-registry',
+      'weapons/battleArmor/innerSphere/ISBAMGHeavy.java:55',
+    ],
+    [
+      'ISSRM4OS',
+      'srm-4',
+      'issrm4os-registry',
+      'weapons/srms/innerSphere/oneShot/ISSRM4OS.java:60',
+    ],
+    [
+      'SRM 2 (I-OS)',
+      'srm2-ios',
+      'issrm2ios-registry',
+      'weapons/srms/innerSphere/oneShot/ISSRM2IOS.java:61',
+    ],
+    [
+      'SRM 4 (I-OS)',
+      'srm4-ios',
+      'issrm4ios-registry',
+      'weapons/srms/innerSphere/oneShot/ISSRM4IOS.java:61',
+    ],
+  ].map(([name, oldTarget, newTarget, source]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    reason: `Follow-up 79; pinned 48fcb2f6 ${source}`,
+    weapon: true,
+  })),
+  // EquipmentNameMapper's tech-tag form; Java's CLAN lookup is the same item.
+  ...[
+    ['SRM 2 (I-OS) (Clan)', 'srm2-ios', 'issrm2ios-registry'],
+    ['SRM 4 (I-OS) (Clan)', 'srm4-ios', 'issrm4ios-registry'],
+  ].map(([name, oldTarget, newTarget]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    reason: 'Follow-up 79; mapper tag form of the route above',
+    tagForm: true,
+  })),
+  // Follow-up 89: IS Streak SRM ammo resolved to the generic or Clan records.
+  ...[
+    [
+      'IS Streak SRM 2 Ammo',
+      'streak-srm-ammo',
+      'is-streak-srm-2-ammo-registry',
+      ':10617',
+    ],
+    [
+      'IS Streak SRM 4 Ammo',
+      'clan-streak-srm-4',
+      'is-streak-srm-4-ammo-registry',
+      ':10649',
+    ],
+    [
+      'IS Streak SRM 6 Ammo',
+      'clan-streak-srm-6',
+      'is-streak-srm-6-ammo-registry',
+      ':10679',
+    ],
+  ].map(([name, oldTarget, newTarget, line]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    reason: `Follow-up 89; pinned 48fcb2f6 equipment/AmmoType.java${line}`,
+  })),
+  {
+    name: 'IS Streak SRM 2 Ammo',
+    oldTarget: '100',
+    newTarget: '50',
+    reason:
+      'Follow-up 89; printed shots per ton follow the IS record (AmmoType.java:10628 shots = 50)',
+    tagForm: true,
   },
 ];
 async function capture(root, inputs) {
@@ -223,15 +303,19 @@ async function capture(root, inputs) {
     .filter((name) => typeof name === 'string' && name.trim())
     .sort();
   // Lookups run API by API as before; the snapshot keeps only resolved
-  // entries, keyed by name, as { target: [indexes into apis] }.
+  // entries, keyed by name, as { target: [indexes into apis] }. Object keys
+  // are strings, so a non-string target (printingAmmoShots' shot counts) is
+  // stored as `#<json>`; a 15 -> "15" type change then shows as a shift.
   const results = Object.values(apis).map((lookup) =>
     ordered.map((name) => lookup(name) ?? null),
   );
+  const targetKey = (target) =>
+    typeof target === 'string' ? target : `#${JSON.stringify(target)}`;
   const resolved = {};
   ordered.forEach((name, i) => {
     const row = {};
     results.forEach((rows, k) => {
-      if (rows[i] !== null) (row[rows[i]] ??= []).push(k);
+      if (rows[i] !== null) (row[targetKey(rows[i])] ??= []).push(k);
     });
     if (Object.keys(row).length) resolved[name] = row;
   });
@@ -466,12 +550,13 @@ if (process.argv.includes('--capture')) {
       JSON.stringify({ shifts, allowed, gains }, null, 2) + '\n',
     );
     for (const route of APPROVED_JAVA_REROUTES) {
+      if (route.tagForm) continue;
       assert.equal(
         targetOf(after, 'equipment', route.name),
         route.newTarget,
         route.name,
       );
-      if (route.name !== 'Sniper')
+      if (!route.weapon)
         assert.equal(
           targetOf(after, 'ammunition', route.name),
           route.newTarget,

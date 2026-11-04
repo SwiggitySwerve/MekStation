@@ -180,14 +180,13 @@ describe('catalog missile launcher hydration', () => {
 describe('catalog missile launcher ammunition and ranges (pinned MegaMek runtime)', () => {
   const rows = Object.entries(MISSILE_ORACLE);
 
-  // The ProtoMech SRM records already carry the right damage and ranges; they keep no
-  // ammoPerTon (unknown capacity), which missileAmmoReadiness.test.ts uses as its fixture.
-  it('has an oracle row for every launcher except the three ProtoMech SRM racks', () => {
+  // Sweep batch 5 gave the three ProtoMech SRM racks their Java ammoPerTon (100).
+  it('has an oracle row for every launcher', () => {
     const covered = new Set(Object.keys(MISSILE_ORACLE));
     const missing = launchers()
       .map(({ item }) => item.id)
       .filter((id) => !covered.has(id));
-    expect(missing.sort()).toEqual(['clan-srm-1', 'clan-srm-3', 'clan-srm-5']);
+    expect(missing).toEqual([]);
   });
 
   it.each(rows.map(([id, row]) => [id, row[0], row] as const))(

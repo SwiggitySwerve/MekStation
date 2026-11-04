@@ -23,6 +23,27 @@
     "is-lb-5-x-ac-ammo-registry": "IS LB 5-X AC Ammo",
     "is-lb-2-x-cluster-ammo-registry": "IS LB 2-X Cluster Ammo",
     "is-lb-5-x-cluster-ammo-registry": "IS LB 5-X Cluster Ammo",
-    "issniper-registry": "Sniper"
+    "issniper-registry": "Sniper",
+    "isbaheavymachinegun-registry": {
+      "ISBAHeavyMG": "baheavymg"
+    },
+    "issrm4os-registry": {
+      "ISSRM4OS": "srm-4"
+    },
+    "issrm2ios-registry": {
+      "SRM 2 (I-OS)": "srm2-ios"
+    },
+    "issrm4ios-registry": {
+      "SRM 4 (I-OS)": "srm4-ios"
+    },
+    "is-streak-srm-2-ammo-registry": {
+      "IS Streak SRM 2 Ammo": "clan-streak-srm-2"
+    },
+    "is-streak-srm-4-ammo-registry": {
+      "IS Streak SRM 4 Ammo": "clan-streak-srm-4"
+    },
+    "is-streak-srm-6-ammo-registry": {
+      "IS Streak SRM 6 Ammo": "clan-streak-srm-6"
+    }
   }
 }

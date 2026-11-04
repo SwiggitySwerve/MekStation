@@ -28,10 +28,11 @@ export function parseCriticalSlotToken(token: string): {
   readonly isRearMounted: boolean;
 } {
   const rearSuffix = / *[(](?:R|Rear)[)] *$/i;
-  // MtfFile.java:952-956,1010-1020: armor, then pod, then rear markers.
+  // MtfFile.java:952-956,1010-1021: armor, pod, Mek turret, then rear markers.
   const mountName = token
     .replace(/\s*\(ARMORED\)\s*$/i, '')
-    .replace(/\s*\(OMNIPOD\)\s*$/i, '');
+    .replace(/\s*\(OMNIPOD\)\s*$/i, '')
+    .replace(/\s*\(T\)\s*$/i, '');
   return {
     lookupToken: mountName.replace(rearSuffix, '').trim(),
     isRearMounted: rearSuffix.test(mountName),
