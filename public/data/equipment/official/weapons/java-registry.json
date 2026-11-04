@@ -786,7 +786,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 30000,
       "subType": "CLBALRM5",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 2,
       "ranges": {
         "long": 21,
@@ -942,7 +942,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 10000,
       "subType": "CLBASRM2",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 2,
       "ranges": {
         "long": 9,
@@ -968,7 +968,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 20000,
       "subType": "CLBASRM4",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 3,
       "ranges": {
         "long": 9,
@@ -994,7 +994,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 30000,
       "subType": "CLBASRM6",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 4,
       "ranges": {
         "long": 9,
@@ -1202,7 +1202,7 @@
       ],
       "costCBills": 15000,
       "subType": "PrototypeRL10",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 3,
       "ranges": {
         "long": 18,
@@ -1242,7 +1242,7 @@
       ],
       "costCBills": 30000,
       "subType": "PrototypeRL15",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 4,
       "ranges": {
         "long": 15,
@@ -2157,7 +2157,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 6000,
       "subType": "ISBALRM1",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 21,
@@ -2183,7 +2183,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 3000,
       "subType": "ISBALRM1OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 21,
@@ -2209,7 +2209,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 12000,
       "subType": "ISBALRM2",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 21,
@@ -2235,7 +2235,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 6000,
       "subType": "ISBALRM2OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 21,
@@ -2261,7 +2261,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 18000,
       "subType": "ISBALRM3",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 21,
@@ -2287,7 +2287,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 9000,
       "subType": "ISBALRM3OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 21,
@@ -2313,7 +2313,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 12000,
       "subType": "ISBALRM4",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 21,
@@ -2339,7 +2339,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 12000,
       "subType": "ISBALRM4OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 21,
@@ -2365,7 +2365,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 30000,
       "subType": "ISBALRM5",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 2,
       "ranges": {
         "long": 21,
@@ -2521,7 +2521,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 1500,
       "subType": "ISBARL1",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 12,
@@ -2547,7 +2547,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 3000,
       "subType": "ISBARL2",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 12,
@@ -2573,7 +2573,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 6000,
       "subType": "ISBARL4",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 12,
@@ -2599,7 +2599,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 6000,
       "subType": "ISBARL5",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 12,
@@ -2625,7 +2625,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 5000,
       "subType": "ISBASRM1",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 0,
       "ranges": {
         "long": 9,
@@ -2651,7 +2651,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 2500,
       "subType": "ISBASRM1OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 0,
       "ranges": {
         "long": 9,
@@ -2677,7 +2677,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 10000,
       "subType": "ISBASRM2",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 2,
       "ranges": {
         "long": 9,
@@ -2703,7 +2703,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 5000,
       "subType": "ISBASRM2OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 2,
       "ranges": {
         "long": 9,
@@ -2729,7 +2729,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 15000,
       "subType": "ISBASRM3",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 0,
       "ranges": {
         "long": 9,
@@ -2755,7 +2755,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 7500,
       "subType": "ISBASRM3OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 0,
       "ranges": {
         "long": 9,
@@ -2781,7 +2781,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 2000,
       "subType": "ISBASRM4",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 3,
       "ranges": {
         "long": 9,
@@ -2807,7 +2807,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 10000,
       "subType": "ISBASRM4OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 3,
       "ranges": {
         "long": 9,
@@ -2833,7 +2833,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 25000,
       "subType": "ISBASRM5",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 0,
       "ranges": {
         "long": 9,
@@ -2859,7 +2859,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 12500,
       "subType": "ISBASRM5OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 0,
       "ranges": {
         "long": 9,
@@ -2885,7 +2885,7 @@
       "allowedUnitTypes": ["Battle Armor"],
       "costCBills": 15000,
       "subType": "ISBASRM6OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 4,
       "ranges": {
         "long": 9,
@@ -3088,7 +3088,7 @@
       ],
       "costCBills": 450000,
       "subType": "LongTom",
-      "damage": "Java variable damage (-5)",
+      "damage": 25,
       "heat": 20,
       "ranges": {
         "long": 30,
@@ -3292,7 +3292,7 @@
       ],
       "costCBills": 8000,
       "subType": "ISSRM2IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 2,
       "ranges": {
         "long": 9,
@@ -3333,7 +3333,7 @@
       ],
       "costCBills": 48000,
       "subType": "ISSRM4IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 3,
       "ranges": {
         "long": 9,
@@ -3374,7 +3374,7 @@
       "reintroductionYear": 3030,
       "costCBills": 30000,
       "subType": "ISSRM4OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 3,
       "ranges": {
         "long": 9,
@@ -3415,7 +3415,7 @@
       "reintroductionYear": 3030,
       "costCBills": 40000,
       "subType": "ISSRM6OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 4,
       "ranges": {
         "long": 9,
@@ -3455,7 +3455,7 @@
       ],
       "costCBills": 8000,
       "subType": "ISSRT2IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 2,
       "ranges": {
         "long": 0,
@@ -3496,7 +3496,7 @@
       "reintroductionYear": 3030,
       "costCBills": 5000,
       "subType": "ISSRT2OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 2,
       "ranges": {
         "long": 0,
@@ -3536,7 +3536,7 @@
       ],
       "costCBills": 48000,
       "subType": "ISSRT4IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 3,
       "ranges": {
         "long": 0,
@@ -3576,7 +3576,7 @@
       ],
       "costCBills": 64000,
       "subType": "ISSRT6IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 4,
       "ranges": {
         "long": 0,
@@ -3616,7 +3616,7 @@
       ],
       "costCBills": 300000,
       "subType": "Sniper",
-      "damage": "Java variable damage (-5)",
+      "damage": 20,
       "heat": 10,
       "ranges": {
         "long": 18,
@@ -3656,7 +3656,7 @@
       ],
       "costCBills": 187500,
       "subType": "Thumper",
-      "damage": "Java variable damage (-5)",
+      "damage": 15,
       "heat": 5,
       "ranges": {
         "long": 21,
@@ -4276,7 +4276,7 @@
       ],
       "costCBills": 100000,
       "subType": "ISLRT10",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 4,
       "ranges": {
         "long": 0,
@@ -4316,7 +4316,7 @@
       ],
       "costCBills": 80000,
       "subType": "ISLRT10IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 4,
       "ranges": {
         "long": 0,
@@ -4356,7 +4356,7 @@
       ],
       "costCBills": 175000,
       "subType": "ISLRT15",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 5,
       "ranges": {
         "long": 0,
@@ -4396,7 +4396,7 @@
       ],
       "costCBills": 140000,
       "subType": "ISLRT15IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 5,
       "ranges": {
         "long": 0,
@@ -4436,7 +4436,7 @@
       ],
       "costCBills": 250000,
       "subType": "ISLRT20",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 6,
       "ranges": {
         "long": 0,
@@ -4476,7 +4476,7 @@
       ],
       "costCBills": 200000,
       "subType": "ISLRT20IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 6,
       "ranges": {
         "long": 0,
@@ -4516,7 +4516,7 @@
       ],
       "costCBills": 30000,
       "subType": "ISLRT5",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 2,
       "ranges": {
         "long": 0,
@@ -4556,7 +4556,7 @@
       ],
       "costCBills": 24000,
       "subType": "ISLRT5IOS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 2,
       "ranges": {
         "long": 0,
@@ -5026,7 +5026,7 @@
       ],
       "costCBills": 0,
       "subType": "ISMRM1",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -5066,7 +5066,7 @@
       ],
       "costCBills": 0,
       "subType": "ISMRM1OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -5106,7 +5106,7 @@
       ],
       "costCBills": 0,
       "subType": "ISMRM2",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -5146,7 +5146,7 @@
       ],
       "costCBills": 0,
       "subType": "ISMRM2OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -5186,7 +5186,7 @@
       ],
       "costCBills": 0,
       "subType": "ISMRM3",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -5226,7 +5226,7 @@
       ],
       "costCBills": 0,
       "subType": "ISMRM3OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -5266,7 +5266,7 @@
       ],
       "costCBills": 0,
       "subType": "ISMRM4",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -5306,7 +5306,7 @@
       ],
       "costCBills": 0,
       "subType": "ISMRM4OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -5346,7 +5346,7 @@
       ],
       "costCBills": 0,
       "subType": "ISMRM5",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -5386,7 +5386,7 @@
       ],
       "costCBills": 0,
       "subType": "ISMRM5OS",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 0,
       "ranges": {
         "long": 15,
@@ -6512,7 +6512,7 @@
       ],
       "costCBills": 45000,
       "subType": "PrototypeRL20",
-      "damage": "Java variable damage (-2)",
+      "damage": "1/missile",
       "heat": 5,
       "ranges": {
         "long": 12,
@@ -6578,7 +6578,7 @@
       ],
       "costCBills": 10000,
       "subType": "ISSRT2",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 2,
       "ranges": {
         "long": 0,
@@ -6618,7 +6618,7 @@
       ],
       "costCBills": 60000,
       "subType": "ISSRT4",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 3,
       "ranges": {
         "long": 0,
@@ -6658,7 +6658,7 @@
       ],
       "costCBills": 80000,
       "subType": "ISSRT6",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 4,
       "ranges": {
         "long": 0,

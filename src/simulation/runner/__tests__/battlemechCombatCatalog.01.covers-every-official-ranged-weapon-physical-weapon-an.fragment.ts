@@ -2,6 +2,7 @@ import {
   expectJavaCatalogAddition,
   javaCatalogAdditions,
   javaCatalogAdditionById,
+  javaAdditionRunnerDamage,
 } from '@/__tests__/helpers/equipmentJavaAdditions.test-helpers';
 
 import type {
@@ -225,8 +226,10 @@ it('maps every official ranged weapon into a non-synthetic AI weapon', () => {
       );
     }
     if (typeof added?.java.damage === 'number' && added.java.damage < 0) {
-      // Java's negative sentinel requires a separate combat implementation. Do not invent fixed damage.
-      expect(aiWeapon.damage).toBe(0);
+      // Java sentinels: cluster-table launchers and artillery carry the pinned
+      // handler damage (follow-up 95); the others still need their own combat
+      // implementation and stay 0.
+      expect(aiWeapon.damage).toBe(javaAdditionRunnerDamage(added));
     } else if (typeof item.damage === 'string' && aiWeapon.damage <= 0) {
       failures.push(`${item.id}: parsed string damage to ${aiWeapon.damage}`);
     }
@@ -399,9 +402,10 @@ it('keeps existing missile damage positive and pins new Java variable-damage gap
         (row) =>
           row.kind === 'weapons' &&
           typeof row.java.damage === 'number' &&
-          row.java.damage < 0,
+          row.java.damage < 0 &&
+          typeof row.values.damage === 'string',
       )
-      .map((row) => [row.values.id, 0]),
+      .map((row) => [String(row.values.id), javaAdditionRunnerDamage(row)]),
   );
   expect(stringDamageResolutions).toEqual({
     ...EXPECTED_STRING_DAMAGE_RESOLUTIONS,
@@ -409,7 +413,9 @@ it('keeps existing missile damage positive and pins new Java variable-damage gap
   });
   expect(
     Object.entries(stringDamageResolutions).every(([id, damage]) =>
-      Object.hasOwn(addedVariable, id) ? damage === 0 : damage > 0,
+      Object.hasOwn(addedVariable, id)
+        ? damage === addedVariable[id]
+        : damage > 0,
     ),
   ).toBe(true);
   expect(resolveCatalogDamage('1/missile', 'lrm-20')).toBe(20);
