@@ -25,6 +25,7 @@ import { InfantryMotive } from '@/types/unit/InfantryInterfaces';
 import { IInfantry, InfantryArmorKit } from '@/types/unit/PersonnelInterfaces';
 import { getPilotSkillModifier } from '@/types/validation/BattleValue';
 
+import { getNativeAmmoBVGroup } from '../battleValueAmmo';
 import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
 import { calculateAmmoBVWithExcessiveCap } from '../battleValueOffensive';
 import { resolveAmmoBV, resolveEquipmentBV } from '../equipmentBVResolver';
@@ -262,7 +263,7 @@ export function calculateInfantryFieldGunBV(
         ? gun.bvOverride
         : resolveEquipmentBV(gun.id).battleValue;
     weaponBV += gunBV;
-    weapons.push({ id: gun.id, bv: gunBV });
+    weapons.push({ id: getNativeAmmoBVGroup(gun.id) ?? gun.id, bv: gunBV });
 
     for (const bin of gun.ammo ?? []) {
       const resolved = resolveAmmoBV(bin.id);
@@ -273,9 +274,10 @@ export function calculateInfantryFieldGunBV(
       ammoEntries.push({
         id: bin.id,
         bv: binBV,
-        // weaponTypeOverride lets callers route e.g. `isammo-lrm-15` to the LRM-15 weapon family.
-        // When absent, we pass the ammo id itself — the helper normalizes via the resolver.
-        weaponType: bin.weaponTypeOverride ?? (resolved.weaponType || bin.id),
+        weaponType:
+          getNativeAmmoBVGroup(bin.weaponTypeOverride ?? bin.id) ??
+          bin.weaponTypeOverride ??
+          (resolved.weaponType || bin.id),
       });
     }
   }

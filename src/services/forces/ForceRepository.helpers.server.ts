@@ -1,4 +1,3 @@
-import { adaptUnitFromData } from '@/engine/adapters/CompendiumAdapter';
 import { parseUnitReference } from '@/types/unit/UnitIndex';
 import { calculateUnitBV } from '@/utils/construction/bvAdapter';
 
@@ -40,13 +39,7 @@ export const resolveNodeCanonicalUnitStats: CanonicalUnitStatsResolver = (
   const unit = getNodeCanonicalUnitService().getByIdSync(unitId);
   if (!unit) return missingUnitStats(unitId);
 
-  // Non-mech contracts need the same construction projection as combat.
-  const bv =
-    reference.family && reference.family !== 'battlemechs'
-      ? adaptUnitFromData(unit, { family: reference.family }).bv
-      : calculateUnitBV(unit);
-  if (bv === undefined)
-    throw new Error(`Force BV is unavailable for ${unitId}`);
+  const bv = calculateUnitBV(unit);
   return {
     bv,
     tonnage: entry.tonnage,
