@@ -19,3 +19,8 @@ before forward/rear dominance and heat sorting. Ammo, miscellaneous mounts
 and defensive equipment do not receive it. Support-vehicle FCS remains outside
 this aircraft slice. Pinned `BVCalculator.java:690-699,880-891` and
 `HeatTrackingBVCalculator.java:81-86,111-145` define this ordering.
+
+calculateArcWeaponBV owns weapon arc weighting plus grouped additions outside
+that weight (BVCalculator.java:839-856, pin 48fcb2f64). Large craft retain their
+grouped-arc contract; ordinary aircraft use it per weapon before heat and for
+their arc totals. Capacitor additions include TC once before this shared stage.

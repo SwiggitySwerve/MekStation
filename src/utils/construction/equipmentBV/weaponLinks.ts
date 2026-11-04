@@ -67,3 +67,21 @@ function linkBVWeapons<
     return false;
   });
 }
+
+/** First unlinked compatible PPC at the same physical location, in source order. */
+export function linkPPCCapacitorBVWeapons<Location>(
+  weapons: { id: string; location: Location; capacitorBV?: number }[],
+  links: readonly { location: Location }[],
+  year?: number,
+): void {
+  linkBVWeapons(
+    weapons,
+    links,
+    (w) =>
+      w.capacitorBV === undefined &&
+      isPPCCapacitorCompatibleBVWeapon(w.id, year),
+    (w) => {
+      w.capacitorBV = PPC_CAPACITOR_BV[w.id];
+    },
+  );
+}
