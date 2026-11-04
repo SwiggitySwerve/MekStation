@@ -1,6 +1,7 @@
 /* Maps pinned WeaponType flag facts to existing catalog identities; never writes catalogs. */
-const fs = require('node:fs');
-const path = require('node:path');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 const key = (value) => value.toLowerCase().replace(/[^a-z0-9]/g, '');
 const mask = (row) =>
   Number(row.directFire) |
@@ -66,7 +67,7 @@ function generate(input, catalog) {
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([name, bits]) => `${name}:${bits}`)
       .join(' ');
-  const source = `// Generated from MegaMek 48fcb2f64 WeaponType flags; regenerate with\n// scripts/equipment-catalog/weapon-bv-flags.cjs <pinned-facts.json> <output.ts>.\n// Packed tables keep generated facts separate from the lookup rule.\nconst canonical = unpack(${JSON.stringify(packed(canonical))});\nconst native = unpack(${JSON.stringify(packed(aliases))});\nconst bits = { directFire: 1, artemis: 2, riscLaser: 4, apollo: 8 } as const;\n\nfunction unpack(data: string): ReadonlyMap<string, number> {\n  return new Map(data.split(' ').map(item => {\n    const [id, value] = item.split(':');\n    return [id, Number(value)] as const;\n  }));\n}\n\nexport function hasNativeWeaponBVFlag(id: string, flag: keyof typeof bits): boolean | undefined {\n  const value = canonical.get(id) ?? native.get(id.toLowerCase().replace(/[^a-z0-9]/g, ''));\n  return value === undefined ? undefined : (value & bits[flag]) !== 0;\n}\n`;
+  const source = `// Generated from MegaMek 48fcb2f64 WeaponType flags; regenerate with\n// scripts/equipment-catalog/weapon-bv-flags.mjs <pinned-facts.json> <output.ts>.\n// Packed tables keep generated facts separate from the lookup rule.\nconst canonical = unpack(${JSON.stringify(packed(canonical))});\nconst native = unpack(${JSON.stringify(packed(aliases))});\nconst bits = { directFire: 1, artemis: 2, riscLaser: 4, apollo: 8 } as const;\n\nfunction unpack(data: string): ReadonlyMap<string, number> {\n  return new Map(data.split(' ').map(item => {\n    const [id, value] = item.split(':');\n    return [id, Number(value)] as const;\n  }));\n}\n\nexport function hasNativeWeaponBVFlag(id: string, flag: keyof typeof bits): boolean | undefined {\n  const value = canonical.get(id) ?? native.get(id.toLowerCase().replace(/[^a-z0-9]/g, ''));\n  return value === undefined ? undefined : (value & bits[flag]) !== 0;\n}\n`;
   return {
     source,
     unmapped,
@@ -78,7 +79,10 @@ function generate(input, catalog) {
   };
 }
 
-if (require.main === module) {
+if (
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+) {
   const [input, output] = process.argv.slice(2);
   if (!input || !output)
     throw Error('Expected pinned facts JSON and output TS paths');
@@ -102,4 +106,4 @@ if (require.main === module) {
   );
   console.log(JSON.stringify(result.counts));
 }
-module.exports = { generate };
+export { generate };
