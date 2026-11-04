@@ -11647,7 +11647,7 @@
     "file": "weapons/missile-srm.json",
     "index": 54,
     "id": "clan-srm-1",
-    "sha256": "2796ce7daaf8a7a75eb5d401e1902579a49fa83779c60fe943de5dda2fdc09a9",
+    "sha256": "2adc3e19628dc5c176094a87fba84cbcd2fe350dbd67e4121d39f2e92f1d1da8",
     "item": {
       "id": "clan-srm-1",
       "name": "SRM 1 (ProtoMech)",
@@ -11666,6 +11666,7 @@
       },
       "weight": 0.25,
       "criticalSlots": 0,
+      "ammoPerTon": 100,
       "costCBills": 10000,
       "battleValue": 15,
       "introductionYear": 3050,
@@ -11676,7 +11677,7 @@
     "file": "weapons/missile-srm.json",
     "index": 55,
     "id": "clan-srm-3",
-    "sha256": "6e8cfafe7d3d27019b09f99a8f4f8a1b377ad7080438a91da70ab16c599b3710",
+    "sha256": "e036c24e8334162db90578255cd39c67d2d5de56ece00791f562df0dbdebad36",
     "item": {
       "id": "clan-srm-3",
       "name": "SRM 3 (ProtoMech)",
@@ -11695,6 +11696,7 @@
       },
       "weight": 0.75,
       "criticalSlots": 0,
+      "ammoPerTon": 100,
       "costCBills": 30000,
       "battleValue": 30,
       "introductionYear": 3050,
@@ -11705,7 +11707,7 @@
     "file": "weapons/missile-srm.json",
     "index": 56,
     "id": "clan-srm-5",
-    "sha256": "22e4168ddb51b5c74d046ff369d046ee7a5c7f464321a5bbb98808a801d20e9e",
+    "sha256": "c2f9727ccd81a64078df04080ccdae682a9ef20d1b7ce4275724a2c41c5376f3",
     "item": {
       "id": "clan-srm-5",
       "name": "SRM 5 (ProtoMech)",
@@ -11724,6 +11726,7 @@
       },
       "weight": 1.25,
       "criticalSlots": 0,
+      "ammoPerTon": 100,
       "costCBills": 50000,
       "battleValue": 47,
       "introductionYear": 3050,
@@ -21671,7 +21674,7 @@
     "file": "miscellaneous/defensive.json",
     "index": 4,
     "id": "reactive-armor",
-    "sha256": "7247ac6a2c8f68a564cf971bb8fbe77522627aeee4e45d8843101456caf2f494",
+    "sha256": "3499114d3819fcd167f7e288a3f0185f7406c0f09e409d699936fca2340dd57c",
     "item": {
       "id": "reactive-armor",
       "name": "Reactive Armor",
@@ -21682,7 +21685,7 @@
       "criticalSlots": 14,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3081,
+      "introductionYear": 3063,
       "special": [
         "Reduced damage from missiles and ballistics",
         "Increased damage from energy"
