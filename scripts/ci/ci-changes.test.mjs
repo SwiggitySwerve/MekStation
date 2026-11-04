@@ -222,3 +222,8 @@ test('combat-affecting changes run the statistical proof', () => {
     false,
   );
 });
+
+// CI-SPEED red-path probe (PR #2663): reverted in the next commit.
+test('red-path probe: Detect Changes must fail', () => {
+  assert.fail('CI-SPEED red-path probe: deliberate detector test failure');
+});
