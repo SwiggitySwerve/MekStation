@@ -50,8 +50,7 @@ jobs:
       desktop: ${{ steps.filter.outputs.desktop }}
       e2e: ${{ steps.filter.outputs.e2e }}
       equipment: ${{ steps.filter.outputs.equipment }}
-      # TEMPORARY red-path probe (PR #2666): force the corpus gate off.
-      corpus: 'false'
+      corpus: ${{ steps.filter.outputs.corpus }}
       roadmap: ${{ steps.filter.outputs.roadmap }}
       statistical: ${{ steps.filter.outputs.statistical }}
       storybook: ${{ steps.filter.outputs.storybook }}
@@ -110,9 +109,6 @@ jobs:
           node-version: '22'
           build-caches: 'false'
           fetch-assets: 'true'
-
-      - name: TEMPORARY red-path probe, a failing check
-        run: exit 1
 
       - name: Lint
         if: ${{ !cancelled() }}
