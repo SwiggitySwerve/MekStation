@@ -374,7 +374,7 @@ catalog capacitor value (MiscType.java:1322-1347). Clan ER PPCs require 3101
 (MekFileParser.java:90-93,471-497). Ordinary aircraft apply that addition after
 rear weighting, before TC and heat sorting; linked PPCs gain five heat
 (BVCalculator.java:853-882; HeatTrackingBVCalculator.java:211-214, pin 48fcb2f64).
-Unlinked capacitors contribute no offense. Legacy Mech/vehicle projections
+Unlinked capacitors contribute no offense. Legacy Mech projections
 retain their distinct unintegrated-capacitor contract in getOffensiveBVRole.
 Enforcement: aerospaceBV.ppcCapacitors.test.ts and the all-family corpus proof.
 
