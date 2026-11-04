@@ -383,3 +383,9 @@ contains plural `Pods`. Ammunition names (including Narc/iNarc pods) keep the
 ammo namespace. Existing aliases and native name mappings resolve identity.
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
 ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.
+
+Explicit direct aliases may select an existing registry ID at the BV boundary;
+this does not enable fuzzy matching over registry names. The canonical C3
+sensor launcher alias uses the imported BV-30 MissileWeapon, not C3 Master.
+Obsolete Mek fallback copies are removed. ISC3RemoteSensorLauncher.java:69-80
+at MegaMek pin 48fcb2f64; the imported catalog remains the value owner.
