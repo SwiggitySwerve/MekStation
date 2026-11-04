@@ -51,6 +51,7 @@ export interface IAerospaceBVAmmo {
  * from construction code, the status bar, or parity harnesses with equal ease.
  */
 export interface IAerospaceBVInput {
+  readonly hasSmallCockpit?: boolean;
   readonly subType: AerospaceSubType;
   readonly techBase?: string;
   readonly year?: number;
