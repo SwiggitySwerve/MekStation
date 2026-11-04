@@ -617,6 +617,29 @@ jobs:
         if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
+      # The two one-worker suites run side by side: the library suite starts
+      # here in the background against its own server on port 3601 (its
+      # Playwright run id gives it its own runtime dir and SQLite files), the
+      # gate suite below runs on 3600, and "Run customizer library suite"
+      # waits for it and fails the job with its exit code. Neither suite arms
+      # e2e fault sentinels, the one server-side state the run id does not
+      # key.
+      - name: Start customizer library suite (background, port 3601)
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        env:
+          MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
+          HOSTNAME: '127.0.0.1'
+          MEKSTATION_E2E_PORT: '3601'
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-library
+        # Processes started in a step keep running into later steps; the
+        # runner only cleans up orphans at the end of the job.
+        run: |
+          (
+            status=0
+            node scripts/playwright/run-playwright.mjs test e2e/customizer-library-open.spec.ts --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/library > "$RUNNER_TEMP/library.log" 2>&1 || status=$?
+            echo "$status" > "$RUNNER_TEMP/library.exit"
+          ) > /dev/null 2>&1 &
+
       - name: Run seam anchor and customizer regression gates
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
         env:
@@ -626,16 +649,18 @@ jobs:
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-gates
         run: node scripts/playwright/run-playwright.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates
 
-      # The library flows save and reopen units through the shared server
+      # The library flows save and reopen units through their server's
       # database, and both viewport variants of a family save the same
-      # chassis, so they run on one worker as before (run 41813722683).
+      # chassis, so the suite stays on one worker (run 41813722683). This
+      # step waits for the background run, prints its log and fails with its
+      # exit code.
       - name: Run customizer library suite
         if: ${{ !cancelled() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') }}
-        env:
-          MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
-          HOSTNAME: '127.0.0.1'
-          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-library
-        run: node scripts/playwright/run-playwright.mjs test e2e/customizer-library-open.spec.ts --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/library
+        timeout-minutes: 15
+        run: |
+          while [ ! -f "$RUNNER_TEMP/library.exit" ]; do sleep 2; done
+          cat "$RUNNER_TEMP/library.log"
+          exit "$(cat "$RUNNER_TEMP/library.exit")"
 
       - name: Run tactical-map visual smoke
         if: ${{ !cancelled() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') }}
