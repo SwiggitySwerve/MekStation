@@ -67,11 +67,18 @@ export function serializeAerospaceArmorIdentity(
   context: {
     readonly isFixedWingSupport?: boolean;
     readonly barRating?: number;
+    readonly armorTypeByArc?: Readonly<Record<string, number>>;
   },
-): { type: string; barRating: number | undefined } {
+): {
+  type: string;
+  barRating: number | undefined;
+  typeByArc?: Readonly<Record<string, number>>;
+} {
   return {
-    type:
-      context.isFixedWingSupport && context.barRating !== undefined
+    ...(context.armorTypeByArc ? { typeByArc: context.armorTypeByArc } : {}),
+    type: context.armorTypeByArc
+      ? 'PATCHWORK'
+      : context.isFixedWingSupport && context.barRating !== undefined
         ? 'BAR'
         : type,
     barRating: context.barRating,
