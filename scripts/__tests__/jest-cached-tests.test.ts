@@ -526,12 +526,82 @@ describe('test result cache key: env reads through constants and helpers', () =>
       'a call through a template literal',
       'function readEnv(name: string) { return process.env[name]; }\nexport const value = readEnv(`APP_${1}`);',
     ],
+    // review of this change (Sol, round 1)
+    [
+      'a later method with its own parameter of the same name',
+      "function readEnv(name: string) { return process.env[name]; }\nexport const value = readEnv('APP_A');\nexport const api = { read(name: string) { return process.env[name]; } };",
+    ],
+    [
+      'a destructuring write to the parameter',
+      "function readEnv(name: string) { [name] = name.split(':'); return process.env[name]; }\nexport const value = readEnv('APP_B:optional');",
+    ],
+    [
+      'an inner function that shadows the parameter',
+      "function readEnv(name: string) { const inner = (name: string) => process.env[name]; return inner('X'); }\nexport const value = readEnv('APP_A');",
+    ],
+    [
+      'a default value on the parameter',
+      "function readEnv(name: string = 'APP_X') { return process.env[name]; }\nexport const value = readEnv('APP_A');",
+    ],
+    [
+      'a destructured first parameter',
+      "function readEnv({ name }: { name: string }) { return process.env[name]; }\nexport const value = readEnv({ name: 'APP_A' });",
+    ],
+    [
+      'the parameter used for something else as well',
+      "function readEnv(name: string) { console.log(name); return process.env[name]; }\nexport const value = readEnv('APP_A');",
+    ],
   ])('refuses a helper read it cannot follow: %s', (_label, source) => {
     const root = makeRepo({
       'src/lib/v.ts': source,
       'src/a.test.ts': testFile('./lib/v'),
     });
     expect(keyWithEnv(root, {}).unkeyable).toMatch(/process\.env\[/);
+  });
+
+  it('keys the real appVersion.ts helper on all five names it is called with', () => {
+    const root = makeRepo({
+      'src/constants/appVersion.ts': [
+        "const FALLBACK_APP_VERSION = '0.0.0';",
+        '',
+        'function readEnv(name: string): string | undefined {',
+        '  const value = process.env[name];',
+        "  if (typeof value !== 'string') {",
+        '    return undefined;',
+        '  }',
+        '',
+        '  const trimmed = value.trim();',
+        '  return trimmed.length > 0 ? trimmed : undefined;',
+        '}',
+        '',
+        'export const APP_VERSION =',
+        "  readEnv('NEXT_PUBLIC_APP_VERSION') ??",
+        "  readEnv('APP_VERSION') ??",
+        "  readEnv('npm_package_version') ??",
+        '  FALLBACK_APP_VERSION;',
+        '',
+        'export const BUILD_VERSION =',
+        "  readEnv('NEXT_PUBLIC_BUILD_VERSION') ??",
+        "  readEnv('BUILD_VERSION') ??",
+        '  APP_VERSION;',
+      ].join('\n'),
+      'src/a.test.ts': testFile('./constants/appVersion').replace(
+        '{ value }',
+        '{ APP_VERSION as value }',
+      ),
+    });
+    const base = keyWithEnv(root, {});
+    expect(base.unkeyable).toBeUndefined();
+    for (const name of [
+      'NEXT_PUBLIC_APP_VERSION',
+      'APP_VERSION',
+      'npm_package_version',
+      'NEXT_PUBLIC_BUILD_VERSION',
+      'BUILD_VERSION',
+    ]) {
+      expect(keyWithEnv(root, { [name]: '9.9.9' }).key).not.toBe(base.key);
+    }
+    expect(keyWithEnv(root, { UNRELATED: 'z' }).key).toBe(base.key);
   });
 
   it('a changed env value turns a cache hit into a miss, and an unchanged one stays a hit', async () => {
