@@ -100,13 +100,13 @@ export function computeSupportPayloadWeights(
     }
     // TestEntity.java:938-982: heat-neutral weapon load; small SVs need no sinks.
     const heat = weapon
-      ? getVehicleHeatNeutralWeaponHeat({
+      ? (getVehicleHeatNeutralWeaponHeat({
           ...item,
           category:
             item.category === 'Energy'
               ? EquipmentCategory.ENERGY_WEAPON
               : EquipmentCategory.BALLISTIC_WEAPON,
-        })
+        }) ?? 0)
       : 0;
     return { ...mount, ammo, weapon, weight, heat, energy, id: item.id };
   });

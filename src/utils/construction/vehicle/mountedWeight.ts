@@ -15,6 +15,7 @@ import { isValidWeight } from '@/utils/physical/weightUtils';
 import type { VehicleControlsLiftContext } from './controlsLift';
 
 import { computeTurretEquipmentWeight } from './equipmentMounts';
+import { getVehicleHeatNeutralWeaponHeat } from './heatSinks';
 import { isPowerAmplifierEnergyWeapon } from './powerAmplifier';
 import { getVehicleTurretMechanismFigures } from './turret';
 
@@ -54,6 +55,7 @@ export function computeVehicleMountedWeightFigures(
   state: VehicleMountedWeightState,
   resolve: EquipmentResolver,
 ): VehicleMountedWeightBreakdown & {
+  rawWeaponHeat: number | null;
   primarySummary: ReturnType<typeof getVehicleTurretMechanismFigures>;
   secondarySummary: ReturnType<typeof getVehicleTurretMechanismFigures>;
 } {
@@ -69,6 +71,7 @@ export function computeVehicleMountedWeightFigures(
     }
     return {
       weight,
+      heat: item === undefined ? null : getVehicleHeatNeutralWeaponHeat(item),
       isAmmunition: item?.category === EquipmentCategory.AMMUNITION,
       // An unresolved definition has unknown classification as well as mass.
       needsAmplifier: item === undefined || isPowerAmplifierEnergyWeapon(item),
@@ -89,6 +92,11 @@ export function computeVehicleMountedWeightFigures(
     return null;
   };
   const equipment = sum(mounted, 'Equipment');
+  const rawWeaponHeat = mounted.reduce<number | null>(
+    (total, mount) =>
+      total === null || mount.heat === null ? null : total + mount.heat,
+    0,
+  );
   const primary = mounted.filter((mount) => mount.inPrimaryTurret);
   const secondary = mounted.filter((mount) => mount.inSecondaryTurret);
   const turretMounted = sum(primary, 'Primary mounted equipment');
@@ -132,6 +140,7 @@ export function computeVehicleMountedWeightFigures(
     ...secondaryMechanism.issues.map((issue) => `Secondary turret: ${issue}`),
   );
   return {
+    rawWeaponHeat,
     equipment,
     turretEquipment,
     secondaryTurretEquipment,
@@ -155,6 +164,7 @@ export function computeVehicleMountedWeightBreakdown(
   resolve: EquipmentResolver,
 ): VehicleMountedWeightBreakdown {
   const {
+    rawWeaponHeat: _heat,
     primarySummary: _primary,
     secondarySummary: _secondary,
     ...weights

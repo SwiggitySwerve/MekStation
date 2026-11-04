@@ -124,6 +124,7 @@ function calculateWeightBreakdown(
     | 'cruiseMP'
     | 'structureType'
     | 'armorTonnage'
+    | 'armorType'
     | 'equipment'
     | 'turret'
     | 'secondaryTurret'
@@ -337,6 +338,7 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
           cruiseMP,
           structureType,
           armorTonnage,
+          armorType,
           equipment,
           turret,
           secondaryTurret,
@@ -359,6 +361,7 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
       cruiseMP,
       structureType,
       armorTonnage,
+      armorType,
       equipment,
       turret,
       secondaryTurret,

@@ -6,6 +6,12 @@
 and combat composition. It preserves the support owner's energy/ammunition and
 plasma classification (MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587,
 TestEntity.java:945-950). BV heat adjustments do not apply to construction.
+Combat composition charges one ton per required sink beyond the engine's free
+10 (fusion), 5 (fission), 1 (fuel cell), or 0 (other) sinks (Engine.java:480-493;
+TestTank.java:264-270). Stealth adds 10 heat (TestEntity.java:980-981). Missing
+qualifying weapon heat makes the combat budget unavailable. Support retains its
+existing missing-heat fallback and mass outputs. Linked capacitors, insulators
+and misc heat remain unrepresented; this does not authorize handler totals.
 
 ## Defensive BV type modifier
 
