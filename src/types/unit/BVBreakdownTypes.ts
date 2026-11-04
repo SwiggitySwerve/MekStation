@@ -9,6 +9,7 @@ export interface IAerospaceArcContribution {
 }
 
 export interface IAerospaceBVBreakdown {
+  readonly typeModifier?: number;
   readonly armorBV: number;
   readonly siBV: number;
   readonly defensiveEquipmentBV: number;
