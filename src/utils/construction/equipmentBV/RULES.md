@@ -395,6 +395,11 @@ ammo namespace. Existing aliases and native name mappings resolve identity.
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
 ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.
 
+Registry-route approval uses the same stripped lookup token as identity
+resolution. Mount qualifiers and rear markers cannot change the underlying
+registered type. The BV boundary uses the existing native IS Streak SRM-2 BV-4, 50-shot
+bin (AmmoType.java; pin48fcb2f64); loader identity contracts stay unchanged.
+
 Weapon flags are generated from the pinned Java WeaponType runtime, including
 inherited F_ARTEMIS_COMPATIBLE. nativeWeaponFlags.ts stores only these source
 facts; weaponLinks.ts owns compatibility and source-order physical linking.
