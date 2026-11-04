@@ -187,3 +187,11 @@ describe('Role Base Salary Mapping', () => {
     });
   });
 });
+
+// RED PATH (PR #2717, temporary): proves a failing test still fails a
+// cached PR run and is never served from the result cache.
+describe('red path', () => {
+  it('fails on purpose', () => {
+    expect(1).toBe(2);
+  });
+});
