@@ -64,3 +64,14 @@ it('uses shared array links without changing caller mounts', () => {
     ).weaponBV,
   ).toBe(0);
 });
+
+it('retains an explicit caller array BV override', () => {
+  const input = baseInput({
+    weapons: [
+      { id: 'machine-gun', location: 'Front' },
+      { id: 'machine-gun', location: 'Front' },
+      { id: 'mga', location: 'Front', bvOverride: 42 },
+    ],
+  });
+  expect(calculateVehicleOffensiveBV(input).weaponBV).toBe(52);
+});

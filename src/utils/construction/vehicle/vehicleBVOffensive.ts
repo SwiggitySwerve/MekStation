@@ -220,7 +220,8 @@ export function calculateVehicleOffensiveBV(
   }));
   linkAerospaceMachineGunArrayBVWeapons(arrays);
   arrays.forEach((w, i) => {
-    if (w.arrayGroup) mounts[i].bvOverride = w.bv;
+    if (w.arrayGroup && mounts[i].bvOverride === undefined)
+      mounts[i].bvOverride = w.bv;
   });
   const links = (input.armorEquipment ?? input.weapons).flatMap((m) => {
     const id = getEquipmentEntry(m.id)?.id;
