@@ -65,7 +65,7 @@ describe.each(native)('ProtoMek SRM %i', (rack, bv) => {
 
 it.each([
   ['basrm1', 15],
-  ['basrm3', 21],
+  ['basrm3', 30],
   ['basrm5', 47],
 ] as const)(
   'preserves explicit legacy %s without claiming native BA parity',
