@@ -12,13 +12,17 @@ import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory, IEquipmentItem } from '@/types/equipment';
-import { isAmmunitionEquipmentId } from '@/utils/construction/equipmentBV/catalogLoader';
-import { normalizeEquipmentId as normalizeCatalogEquipmentId } from '@/utils/construction/equipmentBV/normalization';
+import {
+  isAmmunitionEquipmentId,
+  loadAmmunitionCatalog,
+} from '@/utils/construction/equipmentBV/catalogLoader';
+import { normalizeNativeEquipmentName as normalizeCatalogEquipmentId } from '@/utils/construction/equipmentBV/normalization';
 import { nativeIdentityId } from '@/utils/construction/equipmentBV/sourceLookupAliases';
 import {
   isRegistryEquipment,
   isLegacyEquipmentId,
   preferRegistryEquipment,
+  resolveRegistryId,
 } from '@/utils/construction/equipmentBVCatalogData';
 
 type TechHint = 'clan' | 'is';
@@ -325,7 +329,14 @@ export function resolveEquipmentId(
   const legacy =
     previous.equipmentDef ??
     legacyDefinition(lookup.getById(registryId ?? ''), id);
-  const equipmentDef = preferRegistryEquipment(legacy, added, id);
+  // MtfFile/BLKFile names use Java's exact registry, even when our catalog
+  // reserves that spelling for an ammo ID (ISMRM1.java:57-63, 48fcb2f64).
+  const nativeAmmoIdCollision =
+    loadAmmunitionCatalog().has(id.toLowerCase().trim()) &&
+    resolveRegistryId(id) === target;
+  const equipmentDef =
+    (nativeAmmoIdCollision ? added : undefined) ??
+    preferRegistryEquipment(legacy, added, id);
   return { equipmentDef, resolvedId: equipmentDef?.id ?? previous.resolvedId };
 }
 function resolveLegacyEquipmentId(
@@ -339,7 +350,7 @@ function resolveLegacyEquipmentId(
     ? legacyDefinition(getEquipmentLookupService().getById(identity), id)
     : undefined;
   if (exact) return { equipmentDef: exact, resolvedId: exact.id };
-  const normalizedId = normalizeCatalogEquipmentId(id, undefined, false);
+  const normalizedId = normalizeCatalogEquipmentId(id, false);
 
   // The normalization owner deliberately keeps missing ammo variants unresolved.
   // Do not reclassify them through weapon variants or registry aliases; ammo and

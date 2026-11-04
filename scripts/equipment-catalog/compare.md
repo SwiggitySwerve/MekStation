@@ -17,3 +17,13 @@ and writes `capital-bv.json`, keyed by catalog ID. This supplement adds missing
 facts while preserving all existing catalog values and ammo compatibility lists.
 New selections append after the original selection so frozen row indices remain
 stable. BV, heat and shots per ton continue to come from the equipment entries.
+
+## Vehicle slots
+
+`SweepFacts.java` also writes `tankSlots` and `supportVehicleSlots` (null where
+Java computes them from the unit). Run
+`node scripts/equipment-catalog/vehicle-slots.mjs <registry.json> <facts.json>`
+after `generate.mjs`: it adds `vehicleSlots` to every non-ammo record whose
+Java types (same alias owner) agree, and folds exactly that field into
+`baseline.json`. Reruns are no-ops. Ammo is counted per distinct type instead.
+Tests: `node --test scripts/equipment-catalog/vehicle-slots.test.mjs`.

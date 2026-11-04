@@ -39,7 +39,10 @@ jobs:
   # desktop lanes always run. `desktop` limits the win/mac packaging legs
   # (native better-sqlite3 rebuild, the slowest PR jobs) to changes in
   # desktop packaging inputs; Linux packs on every code change.
-  # `equipment`, `combat`, `statistical` and `storybook` run their check
+  # `pr-desktop` is `desktop` on pull requests and 'false' otherwise: main
+  # pushes, nightly and manual runs pack win/mac in Desktop Packs
+  # (desktop-packs.yml), outside this workflow's concurrency group.
+  # `equipment`, `combat`, `corpus`, `roadmap` and `storybook` run their check
   # only when a changed file is in the check's import closure or is a
   # data file it reads. Detection fails open, and every gate is on outside
   # pull requests, so main and the nightly schedule run every check.
@@ -52,11 +55,11 @@ jobs:
       code: ${{ steps.filter.outputs.code }}
       combat: ${{ steps.filter.outputs.combat }}
       desktop: ${{ steps.filter.outputs.desktop }}
+      pr-desktop: ${{ github.event_name == 'pull_request' && steps.filter.outputs.desktop || 'false' }}
       e2e: ${{ steps.filter.outputs.e2e }}
       equipment: ${{ steps.filter.outputs.equipment }}
       corpus: ${{ steps.filter.outputs.corpus }}
       roadmap: ${{ steps.filter.outputs.roadmap }}
-      statistical: ${{ steps.filter.outputs.statistical }}
       storybook: ${{ steps.filter.outputs.storybook }}
     steps:
       - name: Checkout code
@@ -232,7 +235,7 @@ jobs:
   # simulation-checks runs the simulation wall-clock, coverage and
   # statistical-proof lanes one after another on one runner (never
   # alongside other work, so the perf budgets measure an idle runner).
-  # Code-only; the 100-game proof also needs its own inputs changed.
+  # Code-only; the 100-game proof runs only outside pull requests.
   # ---------------------------------------------------------------
   simulation-checks:
     name: Simulation Checks
@@ -307,10 +310,10 @@ jobs:
         if: ${{ !cancelled() }}
         run: node scripts/qc/validate-combat-simulation-coverage.mjs --summary=coverage/combat-simulation/coverage-summary.json
 
-      # simulation-system "Statistical Validation": a PR that touches the
-      # proof's inputs cannot merge without it; main and nightly always run it.
+      # simulation-system "Statistical Validation": the 100-game proof runs on
+      # every main push and nightly (and on demand), not on pull requests.
       - name: Run 100-game statistical combat proofs
-        if: ${{ !cancelled() && needs.detect-changes.outputs.statistical == 'true' }}
+        if: ${{ !cancelled() && github.event_name != 'pull_request' }}
         run: >-
           npx jest --selectProjects unit --ci --runInBand --runTestsByPath
           src/simulation/__tests__/integration.test.ts
@@ -364,13 +367,26 @@ jobs:
       # sampled skips are re-run to prove the cache honest. Main pushes,
       # nightly and manual runs run every file uncached and record passes.
       # Any doubt runs the file.
-      - name: Restore Jest result cache
+      # Main's newest seed, then (on a PR) the PR's own earlier passes on
+      # top. Entries are files named by their key, so the two merge. The
+      # `main`/`pr` prefixes keep a PR's own entry from shadowing a newer
+      # main seed (the cache searches the PR's ref before main's).
+      - name: Restore Jest result seed from main
         uses: actions/cache/restore@v5
         with:
           path: .jest-result-cache
-          key: ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-${{ github.run_id }}
+          key: ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-main-${{ github.run_id }}
           restore-keys: |
-            ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-
+            ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-main-
+
+      - name: Restore this PR's Jest results
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/cache/restore@v5
+        with:
+          path: .jest-result-cache
+          key: ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-pr-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-pr-
 
       - name: Run unit test shard
         run: >-
@@ -383,14 +399,16 @@ jobs:
           JEST_EXCLUDE_PERF_SENSITIVE: 'true'
           JEST_SPLIT_CORPUS: 'true'
 
-      # Every run saves: a PR's later pushes reuse its own passes, and PRs
-      # read main's. Cache scoping keeps a PR's entries out of main's runs.
+      # Saved straight after the tests, even if the run is then cancelled:
+      # a PR's later pushes reuse its own passes, and PRs read main's.
+      # Cache scoping keeps a PR's entries out of main's runs. Only passes
+      # are recorded, so a failing shard adds nothing.
       - name: Save Jest result cache
-        if: ${{ !cancelled() }}
+        if: ${{ always() }}
         uses: actions/cache/save@v5
         with:
           path: .jest-result-cache
-          key: ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-${{ github.run_id }}
+          key: ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-${{ github.event_name == 'pull_request' && 'pr' || 'main' }}-${{ github.run_id }}
 
       - name: Save Jest transform cache
         if: ${{ !cancelled() && github.event_name != 'pull_request' }}
@@ -425,13 +443,26 @@ jobs:
           node-version: '22'
           build-caches: 'false'
 
-      - name: Restore Jest result cache
+      # Main's newest seed, then (on a PR) the PR's own earlier passes on
+      # top. Entries are files named by their key, so the two merge. The
+      # `main`/`pr` prefixes keep a PR's own entry from shadowing a newer
+      # main seed (the cache searches the PR's ref before main's).
+      - name: Restore Jest result seed from main
         uses: actions/cache/restore@v5
         with:
           path: .jest-result-cache
-          key: ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-${{ github.run_id }}
+          key: ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-main-${{ github.run_id }}
           restore-keys: |
-            ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-
+            ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-main-
+
+      - name: Restore this PR's Jest results
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/cache/restore@v5
+        with:
+          path: .jest-result-cache
+          key: ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-pr-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-pr-
 
       - name: Run corpus test shard
         run: >-
@@ -444,11 +475,11 @@ jobs:
           JEST_SPLIT_CORPUS: 'true'
 
       - name: Save Jest result cache
-        if: ${{ !cancelled() }}
+        if: ${{ always() }}
         uses: actions/cache/save@v5
         with:
           path: .jest-result-cache
-          key: ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-${{ github.run_id }}
+          key: ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-${{ github.event_name == 'pull_request' && 'pr' || 'main' }}-${{ github.run_id }}
 
   validate-combat:
     name: Validate Combat Suite
@@ -704,7 +735,7 @@ jobs:
              "validate-combat": ["combat"],
              "schema-bridge": ["code"],
              "prepare-build": ["code"],
-             "build-test": ["desktop"]}
+             "build-test": ["pr-desktop"]}
         shell: bash
         run: |
           echo "$NEEDS_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value.result)"'
@@ -758,7 +789,7 @@ jobs:
         run: npm run build
 
       - name: Upload web build artifacts
-        if: needs.detect-changes.outputs.desktop == 'true'
+        if: needs.detect-changes.outputs.pr-desktop == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: web-build
@@ -789,13 +820,16 @@ jobs:
         run: test -d release/linux-unpacked
 
   # build-test packs Windows and macOS (native module rebuild, the slowest
-  # legs) only when detect-changes.outputs.desktop flags packaging inputs;
+  # legs) on a pull request whose changes reach desktop packaging inputs;
   # otherwise neither leg takes a runner. Linux packs in prepare-build on
-  # every code change.
+  # every code change. Main pushes, nightly and manual runs pack win/mac in
+  # Desktop Packs (desktop-packs.yml) instead: a macOS leg waiting for a
+  # runner held this workflow's main group, so every later main run queued
+  # behind it and was replaced (run 41923023147, 2026-11-04).
   build-test:
     name: Build Test / ${{ matrix.platform }}
     needs: [detect-changes, prepare-build]
-    if: needs.detect-changes.outputs.desktop == 'true'
+    if: needs.detect-changes.outputs.pr-desktop == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false

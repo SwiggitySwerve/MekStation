@@ -1,3 +1,4 @@
+import type { BVWeaponLinkType } from '../equipmentBV/resolution';
 import type {
   IAerospaceArcContribution,
   IAerospaceBVInput,
@@ -24,10 +25,10 @@ import {
 } from '../battleValueWeapons';
 import {
   isArtemisCompatibleBVWeapon,
-  linkArtemisBVWeapons,
-  linkApolloBVWeapons,
+  linkMountedWeaponBVModifiers,
+  getMountedBVLinkType,
   linkPPCCapacitorBVWeapons,
-  linkAerospaceMachineGunArrayBVWeapons,
+  linkMachineGunArrayBVWeapons,
 } from '../equipmentBV/weaponLinks';
 import {
   getWeaponLinkBVMultiplier,
@@ -154,12 +155,10 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     bv: number;
     heat: number;
     compatible: boolean;
-    artemisType?: 'iv' | 'v';
+    artemisType?: BVWeaponLinkType;
     apolloLinked?: boolean;
   }[] = [];
-  const links: { location: AerospaceArc; type: 'iv' | 'v' }[] = [];
   const capacitors: { location: AerospaceArc }[] = [];
-  const apollo: { location: AerospaceArc }[] = [];
 
   for (const item of input.equipment) {
     if (getAerospaceDefensiveEquipmentKind(item.id)) continue;
@@ -169,19 +168,9 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
       ? AerospaceArc.AFT
       : location;
     const entry = getEquipmentEntry(item.id);
-    if (entry?.id === 'apollo') {
-      apollo.push({ location });
-      continue;
-    }
+    if (getMountedBVLinkType(item.id)) continue;
     if (entry?.id === 'ppc-capacitor') {
       capacitors.push({ location });
-      continue;
-    }
-    if (entry?.id === 'artemisiv' || entry?.id === 'artemisv') {
-      links.push({
-        location,
-        type: entry.id === 'artemisiv' ? 'iv' : 'v',
-      });
       continue;
     }
     if (isAerospaceOffensiveMisc(item)) continue;
@@ -220,14 +209,18 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     });
   }
   // MekFileParser.java:425-449; BVCalculator.java:860-872.
-  linkAerospaceMachineGunArrayBVWeapons(weapons);
-  linkArtemisBVWeapons(weapons, links);
+  linkMachineGunArrayBVWeapons(weapons);
+  linkMountedWeaponBVModifiers(
+    weapons,
+    input.equipment.flatMap((item) => {
+      const location = normalizeArcLocation(item.location, input.subType);
+      return location === null ? [] : [{ id: item.id, location }];
+    }),
+  );
   linkPPCCapacitorBVWeapons(weapons, capacitors, input.year);
-  linkApolloBVWeapons(weapons, apollo);
   for (const weapon of weapons) {
-    weapon.bv *= getWeaponLinkBVMultiplier(
-      weapon.apolloLinked ? 'apollo' : weapon.artemisType,
-    );
+    weapon.bv *= getWeaponLinkBVMultiplier(weapon.artemisType);
+    if (weapon.artemisType === 'risc') weapon.heat += 2;
     if (weapon.capacitorBV !== undefined) {
       if (weapon.targeted)
         weapon.capacitorBV = applyTargetingComputerBV(weapon.capacitorBV);

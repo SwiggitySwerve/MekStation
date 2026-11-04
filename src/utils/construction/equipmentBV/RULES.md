@@ -327,16 +327,20 @@ ProtoMech bins. Both spellings live in the alias table; quantity parsing does
 not define another identity rule. Focused qualifier tests enforce the shared
 identity, and the pinned corpus comparison checks Mech BV regression.
 
-## Aircraft machine-gun arrays
+## Shared machine-gun-array links
 
-Aircraft MG arrays use the native no-critical-slot fallback: up to four unused
+`linkMachineGunArrayBVWeapons` owns the native no-critical-slot fallback for
+all families: up to four unused
 same-location/same-rack MGs in source order. Gun rack identity reuses the native
 ammo-group owner with raw source spelling, falling back to resolved gun name.
 Array BV is 0.67 times linked gun base BV, in addition to the guns themselves;
 the catalog array base zero remains valid. Arrays lack F_DIRECT_FIRE and do
 not gain aircraft TC. Mech critical-slot assignment stays outside this input
 contract. Source: pin 48fcb2f64, MekFileParser.java:928-944,
-BVCalculator.java:807-816, CLMGA.java:74-88. Tests: aerospaceBV.machineGunArrays.
+BVCalculator.java:807-816, CLMGA.java:74-88. Aircraft and vehicle consumers
+project plain mount facts into this one owner; the previous aircraft export
+is a compatibility alias. Tests: equipmentBV.machineGunArrayLinks,
+aerospaceBV.machineGunArrays and vehicleBV.machineGunArrays (Puma PAT-007).
 
 ## One-shot BV heat
 
@@ -356,7 +360,7 @@ Tech-qualified Mech candidate lookups retain the original source identity at
 the resolver boundary, so a source I-OS flag survives a different Clan catalog
 spelling. Crossbow T's SRM2/6 I-OS regressions enforce this retained fact.
 
-`weaponLinks.ts` owns the represented LRM/SRM/MML Artemis compatibility and
+`weaponLinks.ts` owns native F_ARTEMIS_COMPATIBLE lookup and
 first-unlinked/same-physical-location assignment for aircraft and large craft.
 Links follow source order; rear flags and list adjacency do not select the
 launcher (MekFileParser.java:425-449). The existing multiplier owner supplies
@@ -395,8 +399,49 @@ ammo namespace. Existing aliases and native name mappings resolve identity.
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
 ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.
 
+The non-ammunition BV catalog contains weapons, electronics and misc entries
+only. Ammo remains available through explicit ammunition lookup, including
+`getEquipmentEntry` names marked as ammo. Unrepresented weapon aliases return
+undefined, never the BV of a bin sharing a short ID (WeaponType/AmmoType at
+MegaMek pin 48fcb2f64). No missing catalog weapon is fabricated.
+
+Exact registered AmmoType identities select the ammo namespace even when their
+names lack the word ammo (Coolant Pod and ISC3Sensors). Registry metadata,
+not weapon prefix stripping, supplies that classification.
+
+The existing getWeaponLinkBVMultiplier owner includes Prototype (1.1) and
+RISC LPM (1.15), alongside IV/V/Apollo. The legacy Artemis facade retains its
+admission guard. Vehicle and aircraft source mounts share module linking;
+Apollo delegates to its existing owner, and RISC prefers its preceding
+eligible IS non-pulse laser and adds two heat. Mek consumers retain rounding.
+BVCalculator.java:861-877; MekFileParser.java:359-388,424-449,499-528 (48fcb2f64).
+
+Registry-route approval uses the same stripped lookup token as identity
+resolution. Mount qualifiers and rear markers cannot change the underlying
+registered type. The BV boundary uses the existing native IS Streak SRM-2 BV-4, 50-shot
+bin (AmmoType.java; pin48fcb2f64); loader identity contracts stay unchanged.
+
+Weapon flags are generated from the pinned Java WeaponType runtime, including
+inherited F_ARTEMIS_COMPATIBLE. nativeWeaponFlags.ts stores only these source
+facts; weaponLinks.ts owns compatibility and source-order physical linking.
+The generator maps existing catalog identities without modifying catalogs.
+ExtendedLRMWeapon.java:52; LRMWeapon.java:72; MekFileParser.java:424-449
+(MegaMek pin 48fcb2f64). Missing flag identities are incompatible.
+
 Explicit direct aliases may select an existing registry ID at the BV boundary;
 this does not enable fuzzy matching over registry names. The canonical C3
 sensor launcher alias uses the imported BV-30 MissileWeapon, not C3 Master.
 Obsolete Mek fallback copies are removed. ISC3RemoteSensorLauncher.java:69-80
 at MegaMek pin 48fcb2f64; the imported catalog remains the value owner.
+
+The owner-approved basrm3 value batch corrects only Clan BA SRM-3 BV from
+21 to 30 (CLBASRM3.java:66, MegaMek pin 48fcb2f64). The same frozen CAT-Q2
+baseline row and item hash change exactly; no other catalog value changes.
+
+Exact catalog IDs (case-insensitive) keep their declared weapon/misc/ammo
+identity. Source text uses normalizeNativeEquipmentName instead: MTF and BLK
+both call EquipmentType.get with tech preference (MtfFile.java:1210-1211;
+BLKFile.java:248-249). MRM-1 names the unofficial ISMRM1 weapon (:57-63),
+ISBAMRM1 names the BA weapon (:67-70), and IS MRM 1 Ammo names the one-shot
+BA bin (AmmoType.java:15093-15107); the same separation holds for racks2-5.
+Catalog IDs mrm-1..5 remain ammo. All citations use MegaMek48fcb2f64.

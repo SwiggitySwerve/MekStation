@@ -214,6 +214,27 @@ describe('Lint and Test aggregator', () => {
   });
 
   itJq(
+    'accepts skipped win/mac packs outside a PR, where Desktop Packs runs them',
+    () => {
+      // Main push: every gate is on, but pr-desktop is 'false', so build-test
+      // skips and Lint and Test does not wait on a macOS runner.
+      expect(
+        blocking({
+          ...detect({ code: 'true', desktop: 'true', 'pr-desktop': 'false' }),
+          'build-test': { result: 'skipped' },
+        }),
+      ).toEqual([]);
+      // A PR whose changes reach packaging inputs cannot skip them.
+      expect(
+        blocking({
+          ...detect({ code: 'true', desktop: 'true', 'pr-desktop': 'true' }),
+          'build-test': { result: 'skipped' },
+        }),
+      ).toEqual(['build-test=skipped']);
+    },
+  );
+
+  itJq(
     'fails an ungated skip, a failure, a cancellation and a failed detection',
     () => {
       expect(

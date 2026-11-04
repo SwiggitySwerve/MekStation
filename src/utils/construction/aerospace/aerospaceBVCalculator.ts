@@ -276,21 +276,22 @@ export function calculateAerospaceBV(
     input.pilotPiloting,
   );
 
-  const subTypeAdjusted =
-    (defensive.defensive + offensive.offensive) * subTypeMultiplier;
-  // AeroBVCalculator.java:162-180; BVCalculator.java:1252-1294.
-  // Small cockpits scale the complete sum, then round base before crew skill.
-  const summary =
-    input.hasSmallCockpit || input.hasCommandConsole
-      ? calculateAerospaceFinalBV(defensive.defensive, offensive.offensive, {
-          cockpit: input.hasSmallCockpit ? 'SMALL' : 'COMMAND_CONSOLE',
-          gunnery: input.pilotGunnery,
-          piloting: input.pilotPiloting,
-        })
-      : undefined;
-  const final = summary
-    ? summary.final
-    : Math.round(subTypeAdjusted * pilotMultiplier);
+  // AeroBVCalculator.java:162-180; BVCalculator.java:1253,167.
+  // Preserve shared base-before-crew rounding and expose actual summary facts.
+  const summary = calculateAerospaceFinalBV(
+    defensive.defensive,
+    offensive.offensive,
+    {
+      cockpit: input.hasSmallCockpit
+        ? 'SMALL'
+        : input.hasCommandConsole
+          ? 'COMMAND_CONSOLE'
+          : undefined,
+      gunnery: input.pilotGunnery,
+      piloting: input.pilotPiloting,
+    },
+  );
+  const final = summary.final;
 
   return aerospaceBVTerms(
     {
