@@ -5,3 +5,15 @@ Use L-EQ3's registry and CAT-Q2's `EquipmentFacts.java` enriched by `SweepFacts.
 Compile both Java files against the pinned runtime; run `SweepFacts <facts.json> <mm-data/mekfiles>`.
 The existing BV alias owner maps items; ambiguous or unmatched items are never compared. Native getters own approximate dates. Variable quantities and getter errors stay separate; missing catalog fields appear as null. Compatibility uses represented IDs and `java:` names for unrepresented weapons.
 The tool only writes deterministic reports, with field groups and committed-unit counts per family (units, not mounts). Callers verify input provenance. Corrections require direct source review; schema omissions are not correction candidates.
+
+## Capital additions
+
+`CapitalFacts.java` extracts capital/sub-capital flags, screen class, range-bracket
+attack values and native ammo type/rack keys from the same pinned runtime.
+It excludes bay containers and includes every ammo variant of those weapon types.
+Format `capital-source.json` with oxfmt before recording its source-pins hash.
+The existing generator selects these identities without requiring mounted gaps,
+and writes `capital-bv.json`, keyed by catalog ID. This supplement adds missing
+facts while preserving all existing catalog values and ammo compatibility lists.
+New selections append after the original selection so frozen row indices remain
+stable. BV, heat and shots per ton continue to come from the equipment entries.
