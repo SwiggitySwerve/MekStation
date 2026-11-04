@@ -119,6 +119,7 @@ export function buildAerospaceBVInputFromUnit(
       readonly equipmentId?: string;
       readonly id?: string;
       readonly location?: string;
+      readonly isRearMounted?: boolean;
     };
     const id = item.equipmentId ?? item.id;
     const location = item.location;
@@ -128,6 +129,7 @@ export function buildAerospaceBVInputFromUnit(
     equipment.push({
       id,
       location,
+      isRearMounted: item.isRearMounted,
       ...(supportVehicle && ammo ? { isAmmo: true } : {}),
     });
   }

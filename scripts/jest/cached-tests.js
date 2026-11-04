@@ -21,21 +21,28 @@
  *     a same-file string const) plus NODE_ENV, TZ, JEST_*,
  *   - package*.json, tsconfig.json, jest.config.js, config/jest/, .env*,
  *     every __mocks__ file, the full Node version and platform,
- *   - the Jest options that can change a result (--testTimeout, -t, ...) and the
- *     selected projects; neutral ones (--ci, --maxWorkers, ...) are left out.
+ *   - the selected projects and the Jest options that are keyed (--ci), in the
+ *     order given. Only --ci and a few neutral options (--maxWorkers=N,
+ *     --cacheDirectory=..., --json, --outputFile=..., --silent, --coverage, ...)
+ *     may be passed through; any other option puts the run in 'off' mode.
  * Files ignored by git (.env.local, fetched or generated data) are hashed too,
- * except build output and dependency directories.
+ * except build output and dependency directories; a symlink inside a data
+ * domain makes the file unkeyable.
  *
  * FAIL OPEN. An exception while keying, a bare `process.env`, a computed
- * process.env[...] whose name is not a same-file const, an unreadable cache: the
- * file runs. Every existing resolution candidate (.js and .ts) of an import joins
- * the closure. Reads that the scan cannot see (a path built from a variable in a
- * closure that also names a directory) are the one residual gap; --verify-hits
- * and the always-uncached main/nightly runs are the backstops for it.
+ * process.env[...] whose name is not a lone string literal or a single-binding
+ * same-file string const, an unreadable cache: the file runs. Every existing
+ * resolution candidate (.js and .ts) of an import joins the closure. Reads that
+ * the scan cannot see (a path built from a variable in a closure that also names
+ * a directory) are the one residual gap; --verify-hits and the always-uncached
+ * main/nightly runs are the backstops for it.
  *
  * MODES. `use` (PR default) skips hits. `record` runs every file and still
  * records passes; it is forced on main pushes, scheduled runs and --coverage,
- * so main/nightly are always uncached and keep the cache seeded.
+ * so main/nightly are always uncached and keep the cache seeded. `off` (any
+ * pass-through option that can change a result or pull in extra files, such as
+ * --testTimeout or --setupFilesAfterEnv) runs everything and neither reads nor
+ * writes the cache. Passes are recorded only from a jest run that exited 0.
  *
  *   node scripts/jest/cached-tests.js [--project unit]... [--shard 2/6]
  *     [--verify-hits 3] [--cache-dir .jest-result-cache] [--uncached]
