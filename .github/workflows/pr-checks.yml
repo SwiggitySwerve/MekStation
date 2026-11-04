@@ -606,171 +606,29 @@ jobs:
         run: node scripts/qc/audit-combat-determinism.mjs
 
   # ---------------------------------------------------------------
-  # e2e-smoke runs the tactical-map Playwright gate spec in a real
-  # chromium browser against the self-booted Next dev server
-  # (playwright.config.ts webServer). Closes audit finding E-1: the
-  # Playwright suite previously ran in NO CI workflow, so e2e
-  # assertions drifted from production unseen. Bounded to ONE spec
-  # file and ONE project to keep the lane inside the PR budget.
-  # The job always runs (so the lint-and-test aggregator's needs
-  # chain stays green), but its work is gated per-step on the
-  # detect-changes code/e2e filters — docs/openspec-only PRs no-op.
+  # e2e-build builds the E2E-mode production app ONCE per run and
+  # hands it to every Playwright shard, so no shard compiles Next and
+  # no shard runs `next dev` (which compiled each route on demand).
+  # It is a separate build from prepare-build on purpose:
+  # NEXT_PUBLIC_E2E_* are inlined at build time, and a non-E2E
+  # production build swaps the tactical-map E2E harness for an empty
+  # stub (next.config.ts), so the Electron pack must not consume this
+  # one. The record-sheet assets are fetched and strictly validated in
+  # THIS job's checkout, and the build copies them into the standalone
+  # public/ the shards serve, so a missing template fails here instead
+  # of degrading to the CDN fallback. Step gating keeps docs- and
+  # openspec-only PRs green for the lint-and-test aggregator.
   # ---------------------------------------------------------------
-  e2e-smoke:
-    name: E2E Smoke
-    needs: [detect-changes, install-deps]
+  e2e-build:
+    name: E2E Build
+    needs: detect-changes
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
       - name: Skip (no code or e2e changes)
         if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'
-        run: echo "No code or e2e changes — skipping e2e smoke."
-
-      - name: Checkout code
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-
-      - name: Resolve Playwright version for browser cache key
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        id: playwright-version
-        shell: bash
-        run: echo "version=$(node -e "console.log(require('@playwright/test/package.json').version)")" >> "$GITHUB_OUTPUT"
-
-      - name: Cache Playwright chromium browser
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        id: playwright-cache
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
-
-      - name: Install Playwright chromium browser
-        if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
-
-      - name: Install Playwright system dependencies (browser cached)
-        if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
-
-      - name: Fetch record-sheet assets for library flows
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        run: npm run fetch:assets
-
-      - name: Validate record-sheet assets for library flows
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        run: npm run validate:assets:strict
-
-      - name: Run tactical-map visual smoke and library suites
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        run: npx playwright test e2e/tactical-map-visual-smoke.spec.ts e2e/customizer-library-open.spec.ts --project=chromium
-
-      - name: Upload library-open screenshots
-        if: always() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
-        uses: actions/upload-artifact@v7
-        with:
-          name: library-open-screenshots
-          path: test-results/**/*.png
-          if-no-files-found: ignore
-          retention-days: 7
-
-      - name: Upload Playwright report
-        if: failure() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
-        uses: actions/upload-artifact@v7
-        with:
-          name: playwright-report
-          path: |
-            playwright-report
-            test-results
-          retention-days: 7
-
-  # ---------------------------------------------------------------
-  # seam-anchors runs the three W2 seam trust anchor journeys in a
-  # real chromium browser against the self-booted Next dev server —
-  # the per-PR seam gate (W6 design D2). Advisory until wired into
-  # the lint-and-test aggregator (D2.4 staged landing). The job
-  # always runs, but its work is gated per-step on the
-  # detect-changes code/e2e filters — docs/openspec-only PRs no-op.
-  # The invocation carries an explicit --retries=0: the config's CI
-  # default is `retries: 2`, and a gate must never retry a flaky
-  # anchor to green (design R4).
-  # ---------------------------------------------------------------
-  seam-anchors:
-    name: Seam Anchors
-    needs: [detect-changes, install-deps]
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    steps:
-      - name: Skip (no code or e2e changes)
-        if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'
-        run: echo "No code or e2e changes — skipping seam anchors."
-
-      - name: Checkout code
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-
-      - name: Resolve Playwright version for browser cache key
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        id: playwright-version
-        shell: bash
-        run: echo "version=$(node -e "console.log(require('@playwright/test/package.json').version)")" >> "$GITHUB_OUTPUT"
-
-      - name: Cache Playwright chromium browser
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        id: playwright-cache
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
-
-      - name: Install Playwright chromium browser
-        if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
-
-      - name: Install Playwright system dependencies (browser cached)
-        if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
-
-      - name: Run seam trust anchor journeys
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        run: npx playwright test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts --project=chromium --retries=0
-
-      - name: Upload Playwright report
-        if: failure() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
-        uses: actions/upload-artifact@v7
-        with:
-          name: seam-anchors-report
-          path: |
-            playwright-report
-            test-results
-          retention-days: 7
-
-  # Production customizer coverage: catalog (3), record sheets (6), edit recovery (3).
-  # Assets belong to this checkout. Zero retries retain failure traces.
-  # Step gating lets documentation-only PRs satisfy the required aggregator.
-  customizer-regressions:
-    name: Customizer Regressions
-    needs: [detect-changes, install-deps]
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    steps:
-      - name: Skip (no code or e2e changes)
-        if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'
-        run: echo "No code or e2e changes — skipping customizer regressions."
+        run: echo "No code or e2e changes — skipping the E2E build."
 
       - name: Checkout code
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
@@ -794,6 +652,66 @@ jobs:
           NEXT_PUBLIC_E2E_TEST: 'true'
         run: npm run build
 
+      # One zstd tarball instead of tens of thousands of zip entries:
+      # keeps symlinks and modes in the standalone node_modules and makes
+      # the upload and download a single stream.
+      - name: Pack standalone build
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        run: tar -cf - .next/standalone | zstd -T0 -3 -q -o "$RUNNER_TEMP/e2e-build.tar.zst"
+
+      - name: Upload E2E build
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-build
+          path: ${{ runner.temp }}/e2e-build.tar.zst
+          compression-level: 0
+          retention-days: 1
+
+  # ---------------------------------------------------------------
+  # e2e runs every per-PR Playwright gate against the E2E Build's
+  # standalone server, in 3 shards. It replaces the former E2E Smoke,
+  # Seam Anchors and Customizer Regressions jobs with the same spec
+  # files and the same retry policy:
+  #   - gate specs (the seam trust anchors, design R4, and the
+  #     customizer regressions) run with --retries=0, so a flaky
+  #     anchor can never retry to green, and with
+  #     --trace=retain-on-failure, because the config's
+  #     `trace: 'on-first-retry'` records nothing at zero retries. They
+  #     run on one worker, as before: under 4 workers the customizer
+  #     packs time out (run 41810648418).
+  #   - smoke specs keep the config's CI retries. The library suite runs
+  #     on one worker (its flows share the server database); the
+  #     tactical-map visual smoke uses all 4 vCPUs of the runner.
+  # Each group is sharded on its own, so every shard runs a slice of
+  # both. Step gating keeps docs- and openspec-only PRs green.
+  # ---------------------------------------------------------------
+  e2e:
+    name: E2E (${{ matrix.shard }}/3)
+    needs: [detect-changes, e2e-build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+
+    steps:
+      - name: Skip (no code or e2e changes)
+        if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'
+        run: echo "No code or e2e changes — skipping E2E."
+
+      - name: Checkout code
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '22'
+          skip-nextjs-cache: 'true'
+
       - name: Resolve Playwright version for browser cache key
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
         id: playwright-version
@@ -816,20 +734,62 @@ jobs:
         if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
-      - name: Run customizer browser regressions
+      - name: Download E2E build
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: actions/download-artifact@v8
+        with:
+          name: e2e-build
+          path: ${{ runner.temp }}
+
+      - name: Unpack E2E build
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        run: zstd -dc -q "$RUNNER_TEMP/e2e-build.tar.zst" | tar -xf - && test -f .next/standalone/server.js
+
+      - name: Run seam anchor and customizer regression gates
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
         env:
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
           HOSTNAME: '127.0.0.1'
-        run: node scripts/playwright/run-playwright.mjs test e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure
+          # The smoke step writes the default report folder.
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-gates
+        run: node scripts/playwright/run-playwright.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/3 --output=test-results/gates
+
+      # The library flows save and reopen units through the shared server
+      # database, and both viewport variants of a family save the same
+      # chassis, so they run on one worker as before (run 41813722683).
+      - name: Run customizer library suite
+        if: ${{ !cancelled() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') }}
+        env:
+          MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
+          HOSTNAME: '127.0.0.1'
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-library
+        run: node scripts/playwright/run-playwright.mjs test e2e/customizer-library-open.spec.ts --project=chromium --workers=1 --shard=${{ matrix.shard }}/3 --output=test-results/library
+
+      - name: Run tactical-map visual smoke
+        if: ${{ !cancelled() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') }}
+        env:
+          MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
+          HOSTNAME: '127.0.0.1'
+        run: node scripts/playwright/run-playwright.mjs test e2e/tactical-map-visual-smoke.spec.ts --project=chromium --workers=4 --shard=${{ matrix.shard }}/3 --output=test-results/smoke
+
+      - name: Upload library-open screenshots
+        if: always() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
+        uses: actions/upload-artifact@v7
+        with:
+          name: library-open-screenshots-${{ matrix.shard }}
+          path: test-results/library/**/*.png
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Upload Playwright report
         if: failure() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
         uses: actions/upload-artifact@v7
         with:
-          name: customizer-regressions-report
+          name: e2e-report-${{ matrix.shard }}
           path: |
             playwright-report
+            playwright-report-gates
+            playwright-report-library
             test-results
           retention-days: 7
 
@@ -900,9 +860,8 @@ jobs:
         storybook-build,
         schema-bridge,
         determinism-audit,
-        e2e-smoke,
-        seam-anchors,
-        customizer-regressions,
+        e2e-build,
+        e2e,
         desktop-typecheck,
         desktop-tests,
       ]

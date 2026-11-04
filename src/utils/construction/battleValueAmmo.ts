@@ -1,4 +1,7 @@
-import { isAmmunitionEquipmentId } from './equipmentBV/catalogLoader';
+import {
+  isAmmunitionEquipmentId,
+  getCapitalEquipmentBVFacts,
+} from './equipmentBV/catalogLoader';
 import {
   getAmmunitionWeightEntry,
   normalizeEquipmentId,
@@ -433,6 +436,21 @@ export function getNativeAmmoBVGroup(id: string): string | undefined {
     /^(lrm|srm|mml|mrm|atm|iatm|lac|ac|autocannon)(\d+)/,
   );
   return rack
-    ? `${rack[1] === 'autocannon' ? 'AC' : rack[1].toUpperCase()}:${rack[2]}`
+    ? nativeAmmoBVKey(
+        rack[1] === 'autocannon' ? 'AC' : rack[1].toUpperCase(),
+        rack[2],
+      )
     : undefined;
+}
+
+function nativeAmmoBVKey(ammoType: string, rackSize: number | string): string {
+  return `${ammoType}:${rackSize}`;
+}
+
+/** LargeAeroBVCalculator.assembleAmmo: native enum/rack keys for capital pools. */
+export function getLargeAerospaceAmmoBVGroup(id: string): string | undefined {
+  const capital = getCapitalEquipmentBVFacts(id);
+  if (capital && !['NA', 'SCREEN_LAUNCHER'].includes(capital.ammoType))
+    return nativeAmmoBVKey(capital.ammoType, capital.rackSize);
+  return getCatalogAmmoBVGroup(id);
 }

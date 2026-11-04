@@ -1,3 +1,4 @@
+import type { EquipmentCatalogEntry, RawCatalogFile } from './types';
 /**
  * Equipment BV Resolver - Catalog Loading
  *
@@ -5,8 +6,7 @@
  * Provides initialization and reset functions for testing and browser contexts.
  */
 
-import type { EquipmentCatalogEntry, RawCatalogFile } from './types';
-
+import capitalBVFacts from '../../../../scripts/equipment-catalog/capital-bv.json';
 import {
   AMMUNITION_CATALOG_FILES,
   ELECTRONICS_CATALOG_FILES,
@@ -199,4 +199,24 @@ export function getLowerMappingsCache(): Map<string, string> | null {
 
 export function setLowerMappingsCache(cache: Map<string, string> | null): void {
   lowerMappingsCache = cache;
+}
+
+export interface ICapitalEquipmentBVFacts {
+  readonly isCapital?: boolean;
+  readonly isSubCapital?: boolean;
+  readonly isScreen?: boolean;
+  readonly damageByRange?: readonly number[];
+  readonly source: string;
+  readonly ammoType: string;
+  readonly rackSize: number;
+}
+const CAPITAL_BV_FACTS: ReadonlyMap<string, ICapitalEquipmentBVFacts> = new Map(
+  Object.entries(capitalBVFacts),
+);
+
+/** Native capital scale and ammo keys, generated from MegaMek 48fcb2f64. */
+export function getCapitalEquipmentBVFacts(
+  id: string,
+): ICapitalEquipmentBVFacts | undefined {
+  return CAPITAL_BV_FACTS.get(id);
 }
