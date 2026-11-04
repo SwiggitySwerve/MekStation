@@ -20,6 +20,7 @@ import {
   contractUnitToBVUnit,
   type IContractBVSource,
 } from '../src/utils/construction/contractBVUnitAdapter';
+import { mechBVTerms } from '../src/utils/construction/mechBV/bvTrace';
 import { protoMechBVTerms } from '../src/utils/construction/protomech';
 import {
   buildDeltaReport,
@@ -167,14 +168,7 @@ export function calculateRow(raw: unknown): IComputedRow {
           defensive: result.breakdown?.defensiveBV ?? NaN,
           offensive: result.breakdown?.offensiveBV ?? NaN,
           terms: result.breakdown
-            ? {
-                ...numericTerms(result.breakdown),
-                structureBV:
-                  result.breakdown.structureBV + result.breakdown.gyroBV,
-                defensiveEquipmentBV: result.breakdown.defensiveEquipBV,
-                offensiveEquipmentBV: result.breakdown.offEquipBV,
-                weightBV: result.breakdown.weightBonus,
-              }
+            ? numericTerms(mechBVTerms(result.breakdown))
             : undefined,
         },
         runtimeTotal,
