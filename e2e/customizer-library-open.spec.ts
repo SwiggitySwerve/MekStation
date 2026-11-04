@@ -240,10 +240,10 @@ const OPEN_CASES: OpenCase[] = [
 const CAPITAL_CASES = [
   { chassis: 'Crucible Station', model: '', scope: 'complete', bv: '2,004' },
   {
-    chassis: 'Aegis Heavy Cruiser',
-    model: '(2372)',
+    chassis: 'Gaajian System Patrol Boat',
+    model: '(2485)',
     scope: 'defensive-only',
-    bv: '12,920',
+    bv: '1,864',
   },
 ] as const;
 
