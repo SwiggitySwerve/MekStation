@@ -18,14 +18,14 @@ on:
 
 # A new push to the same PR supersedes the in-flight run; without this,
 # superseded runs burn to completion. Main pushes, nightly and manual runs
-# each get their own group, so none is cancelled or replaced: every main
-# commit gets its own result, and its unit and corpus shards save the Jest
-# result seed that pull requests restore minutes after the merge. A shared
-# main group replaced every run still pending, and the run in progress made
-# the next one wait for its slowest job, so PRs restored a seed several
-# merges old (CI-SPEED lane B, 2026-11-04).
+# share one group that never cancels the running run: a newer one replaces
+# only a run still pending, and the tip it checks contains every replaced
+# commit (nightly is the backstop). Per-commit main runs queued five deep
+# at ~5 merges an hour (2026-11-04) and starved pull requests of the 20
+# shared runners. A failing coalesced run: re-run PR Checks on the
+# intermediate SHAs (`gh workflow run pr-checks.yml --ref <sha>`).
 concurrency:
-  group: pr-checks-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  group: pr-checks-${{ github.event_name == 'pull_request' && github.ref || 'main' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
