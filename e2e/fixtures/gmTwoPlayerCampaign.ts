@@ -14,6 +14,31 @@ const ROLES = ['future-gm', 'future-player-1', 'future-player-2'] as const;
 const guards = require('../../scripts/qc/gm-two-player-campaign-core.cjs');
 import { openEvidenceBundle } from './gmTwoPlayerEvidence';
 import { openSqliteEvidenceReader } from './sqliteEvidenceReader';
+/**
+ * The vault mint route's 200 body for a wire token this fixture already
+ * issued. Specs that replay it must answer in the server's full shape
+ * (src/pages/api/multiplayer/auth/token.ts): since LSC-2 (#2329-#2332) the
+ * co-op client rejects a mint without a matching `expiresAt` as INVALID_TOKEN
+ * (mintCoopCredential in src/lib/campaign/coop/localSeatCredentialStore.ts),
+ * so a short stub never sends the create-match request. The signed wire token
+ * carries `publicKey` and `expiresAt`, so the replay needs no re-signing.
+ */
+export function vaultMintResponse(issued: {
+  readonly wireToken: string;
+  readonly playerId: string;
+  readonly displayName: string;
+}) {
+  const { publicKey, expiresAt } = JSON.parse(
+    Buffer.from(issued.wireToken, 'base64').toString('utf8'),
+  ) as { publicKey: string; expiresAt: string };
+  return {
+    token: issued.wireToken,
+    playerId: issued.playerId,
+    displayName: issued.displayName,
+    publicKey,
+    expiresAt,
+  };
+}
 type Identity = { id: string; playerId: string; authFingerprint: string };
 type Client = {
   ownerRunId: string;

@@ -34,7 +34,10 @@
 
 import { expect, test, type Page } from '@playwright/test';
 
-import { createGmTwoPlayerCampaignFixture } from './fixtures/gmTwoPlayerCampaign';
+import {
+  createGmTwoPlayerCampaignFixture,
+  vaultMintResponse,
+} from './fixtures/gmTwoPlayerCampaign';
 
 const GUEST_SPEND_AMOUNT = 50_000;
 const STORAGE_PREFIX = 'mekstation.gm-two-player.fixture.';
@@ -186,11 +189,7 @@ async function reuseFixtureIssuedToken(
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({
-        token: issued.wireToken,
-        playerId: issued.playerId,
-        displayName: issued.displayName,
-      }),
+      body: JSON.stringify(vaultMintResponse(issued)),
     });
   });
 }
