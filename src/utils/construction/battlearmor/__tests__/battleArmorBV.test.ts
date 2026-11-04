@@ -768,3 +768,78 @@ it('gives heavy myomer boosters one MP and mechanical boosters none on top', () 
   expect(input.groundMP).toBe(3);
   expect(input.jumpMP).toBe(1);
 });
+
+// battlearmor/3058Uu/Fa Shih BA [Flamer] (Sqd4).blk, reduced to its BV tags.
+// Each trooper's own ISBAMineDispenser (8 BV) is offensive equipment for that
+// trooper only: BattleArmorBVCalculator.java:223-226, BVCalculator.java:978-1043.
+const faShih = blk({
+  type: 'IS Level 3',
+  motion_type: 'Jump',
+  cruiseMP: '1',
+  jumpingMP: '3',
+  armor_type: '28',
+  armor: '7',
+  'Trooper Count': '4',
+  weightclass: '2',
+  chassis: 'biped',
+  'Squad Equipment':
+    'CLBAFlamer:RA\nBA-Magnetic Clamp:Body\nBAAPMount:LA\nInfantryAssaultRifle:APM:LA\nBABasicManipulatorMineClearance:LA\nBABasicManipulatorMineClearance:RA',
+  'Trooper 1 Equipment': 'ISBAMineDispenser:Body',
+  'Trooper 2 Equipment': 'ISBAMineDispenser:Body',
+  'Trooper 3 Equipment': 'ISBAMineDispenser:Body',
+  'Trooper 4 Equipment': 'ISBAMineDispenser:Body',
+  slotless_equipment: 'BAJumpJet',
+});
+
+it('counts trooper-located offensive equipment for its trooper only', () => {
+  const unit = load(faShih);
+  const b = calculateBattleValueForUnit(unit);
+  if (b?.kind !== 'battlearmor') throw new Error('Missing BA dispatch');
+  // UL-16b: (5 + 5 anti-Mek + 8) * 0.77 = 13.86; total 197.
+  expect(b.breakdown.perTrooper.offensive.offensiveEquipmentBV).toBe(8);
+  expect(b.breakdown.offensive).toBeCloseTo(13.86, 10);
+  expect(b.breakdown.final).toBe(197);
+  expect(handler.calculateBV(unit)).toBe(197);
+  // The same equipment in the squad location is not this trooper's.
+  const squad = faShih
+    .replace(
+      /<Trooper \d Equipment>\nISBAMineDispenser:Body\n<\/Trooper \d Equipment>\n?/g,
+      '',
+    )
+    .replace(
+      'BAJumpJet\n</slotless_equipment>',
+      'BAJumpJet\n</slotless_equipment>\n<Squad Equipment>\nISBAMineDispenser:Body\n</Squad Equipment>',
+    );
+  expect(
+    buildBattleArmorBVInputFromUnit(load(squad)).offensiveEquipmentBV,
+  ).toBe(0);
+});
+
+// battlearmor/3075/Asura Med BA(Sqd4).blk: a body-mounted BA rocket launcher
+// is a one-shot missile with linked ammo, so the IS suit is burdened and makes
+// no anti-Mek attacks (BattleArmor.java:954-988; ISBARL4.java:72;
+// RLWeapon.java:55-69; MissileWeapon.java:69).
+it('treats a body-mounted IS BA rocket launcher as a burden', () => {
+  const unit = load(
+    blk({
+      type: 'IS Level 2',
+      motion_type: 'Jump',
+      cruiseMP: '1',
+      jumpingMP: '3',
+      armor_type: '30',
+      armor: '7',
+      'Trooper Count': '4',
+      weightclass: '2',
+      chassis: 'biped',
+      'Squad Equipment':
+        'CLBAMedium Recoilless Rifle:RA\nBABattleClaw:LA\nISBARL4:Body',
+      slotless_equipment: 'BAJumpJet',
+    }),
+  );
+  expect(unit.canAntiMech).toBe(false);
+  const b = calculateBattleValueForUnit(unit);
+  if (b?.kind !== 'battlearmor') throw new Error('Missing BA dispatch');
+  // UL-16b: 24.05 + (19 + 5) * 0.77 = 42.53 per trooper; total 221.
+  expect(b.breakdown.offensive).toBeCloseTo(18.48, 10);
+  expect(b.breakdown.final).toBe(221);
+});

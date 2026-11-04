@@ -375,6 +375,7 @@ function changedFiles(root, base, head) {
 }
 
 export function detect(root, env, base = 'HEAD^1', head = 'HEAD') {
+  if (env.GITHUB_EVENT_NAME === 'push') return detectPush(root, env, head);
   if (env.GITHUB_EVENT_NAME && env.GITHUB_EVENT_NAME !== 'pull_request') {
     return allGates(true, `event ${env.GITHUB_EVENT_NAME} checks everything`);
   }
@@ -389,6 +390,33 @@ export function detect(root, env, base = 'HEAD^1', head = 'HEAD') {
   } catch (error) {
     return allGates(true, `detection failed, failing open: ${error.message}`);
   }
+}
+
+/**
+ * A push to main checks everything except the Windows/macOS packaging legs,
+ * which run only when the pushed commits change desktop packaging inputs,
+ * as on pull requests (the nightly schedule packs every platform). macOS
+ * runners are scarce: a pack leg that is never acquired fails the run.
+ * The diff is the push's own (GITHUB_EVENT_BEFORE..head); if it cannot be
+ * read, desktop stays on.
+ */
+function detectPush(root, env, head) {
+  const all = allGates(true, 'push checks everything');
+  const before = env.GITHUB_EVENT_BEFORE ?? '';
+  if (!/^[0-9a-f]{40}$/.test(before) || /^0+$/.test(before)) {
+    all.reason += '; no previous commit, so desktop stays on';
+    return all;
+  }
+  try {
+    const changed = changedFiles(root, before, head);
+    const global = changed.some((file) => matchesAny(file, GLOBAL));
+    all.gates.desktop =
+      global || changed.some((file) => matchesAny(file, DESKTOP));
+    all.reason += `; desktop from ${changed.length} pushed file(s)`;
+  } catch (error) {
+    all.reason += `; push diff failed, desktop stays on: ${error.message}`;
+  }
+  return all;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

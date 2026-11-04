@@ -9,6 +9,10 @@ import type {
   VehicleDefensiveBVBreakdown,
 } from './vehicleBVTypes';
 
+import {
+  getModularArmorBVPoints,
+  MODULAR_ARMOR_BV_ID,
+} from '../battleValueDefensive';
 import { calculateMountedDefensiveEquipmentBV } from '../battleValueEquipment';
 import { getEquipmentEntry } from '../equipmentBVResolver';
 import { calculateVehicleBVDefensiveTMM } from './vehicleBVMovement';
@@ -109,11 +113,13 @@ function calculateArmorBV(input: VehicleBVInput, blueShield: boolean): number {
       .replace(/^(clan|is|cl)/, ''),
   }));
   const modular = (location?: string) =>
-    equipment.filter(
-      (e) =>
-        e.id === 'modulararmor' &&
-        (location === undefined || e.location === location),
-    ).length * 10;
+    getModularArmorBVPoints(
+      equipment.filter(
+        (e) =>
+          e.id === MODULAR_ARMOR_BV_ID &&
+          (location === undefined || e.location === location),
+      ).length,
+    );
   const multiplier = (type: string | number) =>
     armorMultiplier(type) + (blueShield ? 0.2 : 0);
   // SupportTank's BAR array starts at zero when loadSVArmor has no rating.
