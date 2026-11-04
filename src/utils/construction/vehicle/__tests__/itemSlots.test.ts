@@ -102,6 +102,31 @@ describe('vehicle item slots (Tank.getFreeSlots, TestSupportVehicle)', () => {
     ).toEqual(['Not enough item slots available! Using 1 slot(s) too many.']);
   });
 
+  it('counts armor listed as equipment once, through the armor type', () => {
+    // Luduan Scout Vehicle (mm-data 3145/Liao), valid in Java: 25 t, 10 slots.
+    // Its BLK lists "IS Vehicular Stealth"; Tank.java:2604-2606 skips armor
+    // types and :2700 charges vehicular stealth 2 through the armor code.
+    const luduan: VehicleSlotUnit = {
+      ...bandit,
+      tonnage: 25,
+      techBase: 'INNER_SPHERE',
+      armorType: 22,
+      armorTechLevel: 5,
+      transporters: [],
+      equipment: [
+        ['IS Vehicular Stealth', 'Body'],
+        ['ISMagshotGR Ammo', 'Body'],
+        ['ISAngelECMSuite', 'Body'],
+        ['BloodhoundActiveProbe', 'Body'],
+        ['ISMagshotGR', 'Turret'],
+        ['ISMagshotGR', 'Turret'],
+        ['ISMagshotGR', 'Turret'],
+        ['ISTAG', 'Turret'],
+      ].map(([equipmentId, location]) => ({ equipmentId, location })),
+    };
+    expect(combatVehicleSlotErrors(luduan)).toEqual([]);
+  });
+
   it('abstains when a mount is unresolved or its Java slots depend on the unit', () => {
     const unresolved = {
       ...bandit,
