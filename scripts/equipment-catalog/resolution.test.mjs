@@ -392,15 +392,19 @@ async function capture(root, inputs) {
     .filter((name) => typeof name === 'string' && name.trim())
     .sort();
   // Lookups run API by API as before; the snapshot keeps only resolved
-  // entries, keyed by name, as { target: [indexes into apis] }.
+  // entries, keyed by name, as { target: [indexes into apis] }. Object keys
+  // are strings, so a non-string target (printingAmmoShots' shot counts) is
+  // stored as `#<json>`; a 15 -> "15" type change then shows as a shift.
   const results = Object.values(apis).map((lookup) =>
     ordered.map((name) => lookup(name) ?? null),
   );
+  const targetKey = (target) =>
+    typeof target === 'string' ? target : `#${JSON.stringify(target)}`;
   const resolved = {};
   ordered.forEach((name, i) => {
     const row = {};
     results.forEach((rows, k) => {
-      if (rows[i] !== null) (row[rows[i]] ??= []).push(k);
+      if (rows[i] !== null) (row[targetKey(rows[i])] ??= []).push(k);
     });
     if (Object.keys(row).length) resolved[name] = row;
   });

@@ -15,6 +15,16 @@ const cases: Record<string, Record<string, Row[]>> = {
       ['introductionYear', 3063, 'equipment/ArmorType.java:813'],
     ],
   },
+  'weapons/missile-other.json': {
+    'rl-5': [
+      ['weight', 0.125, 'weapons/battleArmor/innerSphere/barl/ISBARL5.java:69'],
+      [
+        'criticalSlots',
+        4,
+        'weapons/battleArmor/innerSphere/barl/ISBARL5.java:70',
+      ],
+    ],
+  },
 };
 
 describe('equipment catalog batch 5 matches pinned Java', () => {

@@ -32,7 +32,10 @@ import {
   type Page,
 } from '@playwright/test';
 
-import { createGmTwoPlayerCampaignFixture } from './fixtures/gmTwoPlayerCampaign';
+import {
+  createGmTwoPlayerCampaignFixture,
+  vaultMintResponse,
+} from './fixtures/gmTwoPlayerCampaign';
 
 type Fixture = Awaited<ReturnType<typeof createGmTwoPlayerCampaignFixture>>;
 type Client = Fixture['clients'][number];
@@ -298,11 +301,7 @@ async function reuseFixtureIssuedToken(
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({
-        token: issued.wireToken,
-        playerId: issued.playerId,
-        displayName: issued.displayName,
-      }),
+      body: JSON.stringify(vaultMintResponse(issued)),
     });
   });
 }

@@ -830,8 +830,8 @@
         "long": 12,
         "extreme": 18
       },
-      "weight": 7,
-      "criticalSlots": 2,
+      "weight": 0.125,
+      "criticalSlots": 4,
       "costCBills": 0,
       "battleValue": 6,
       "introductionYear": 3064,
