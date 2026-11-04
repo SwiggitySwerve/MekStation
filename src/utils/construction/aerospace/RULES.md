@@ -332,7 +332,7 @@ Sources: MegaMek 48fcb2f64, WarShipBVCalculator.determineFront/processWeapons
 and JumpShipBVCalculator.offensiveSpeedFactorMP (JumpShip fixed MP 1,
 station 0 despite both having zero thrust). Heat and local caps reuse LargeAero.
 The mount owner supports capital location tags and bay-start multiplicity;
-capital/sub-capital identities use the generated pinned-Java scale and type/rack facts.
+capital/sub-capital identities lacking catalog facts remain indexed unresolved.
 Capital defensive qualifiers/shot quantities absent from defense are unresolved.
 `dropShipComplete.ts` composes both families through the existing final owner,
 with Crew.java:233-234 / BVCalculator.java:1307-1313 no-pilot defaults G4/P5.
@@ -425,7 +425,3 @@ capitalStructure owns KF drive mass and KF/sail integrity from Jumpship.java:806
 ### Fixed-wing support editor facts (UL-15)
 
 The existing chassis section transports canonical BAR, structural and engine tech ratings through the aerospace store, browser draft and shared serializer. Absent ratings remain Unknown; no catalog ratings are invented. Fire-control classification delegates to the shared support BV owner (BVCalculator.java:966-976). `getFixedWingSupportLimits` and `validateFixedWingSupportTonnage` share FixedWingSupport.java:325-349 / TestSupportVehicle:1570-1655 limits with source validation; the component contains no tonnage or slot formula. BAR choices come from the existing support armor table.
-
-## Capital catalog valuation
-
-The equipment catalog owns BV and heat; `capital-bv.json` supplies native capital/sub-capital flags, range attack values, and ammo enum/rack keys. Matching existing IDs retain their values and share the native facts only when name, BV, and firing facts agree. `getLargeAerospaceAmmoBVGroup` adds capital keys to the large-craft path and reuses the ordinary ammo-group owner. LargeAeroBVCalculator.java:69-122,293-358 caps ammo separately per arc and multiplies whole-ton shot ratios. BVCalculator.java:800-914 uses weapon BV without a capital damage multiplier. MiscType.java:9467-9529 and BVCalculator.countMiscAsOffensiveWeapon exclude mobile HPG from offense. Screen launchers/ammo and unsupported links still withhold complete scope. The three catalog traces pin full weapon, ammo, defense, offense and rounded totals from L-ORC2.
