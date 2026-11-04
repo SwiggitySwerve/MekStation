@@ -32,6 +32,7 @@ import {
 } from './controlsLift';
 import { validateVehicleCrew } from './crew';
 import { validateVehicleEngine } from './engine';
+import { supportVehicleSlotErrors, type VehicleSlotUnit } from './itemSlots';
 import { validatePowerAmplifiers } from './powerAmplifier';
 import {
   computeVehicleStructureWeight,
@@ -313,4 +314,14 @@ export function validateVehicleCaseLocations(
         : 'CASE';
     return [name + ' must be mounted in the body.'];
   });
+}
+
+/** Support vehicles: CASE locations, then TestSupportVehicle's item slots. */
+export function validateSupportVehicleEquipment(
+  unit: VehicleSlotUnit,
+): string[] {
+  return [
+    ...validateVehicleCaseLocations(unit.equipment),
+    ...supportVehicleSlotErrors(unit),
+  ];
 }

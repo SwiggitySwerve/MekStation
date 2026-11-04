@@ -1,12 +1,12 @@
 import {
   combatVehicleSlotErrors,
   supportVehicleSlotErrors,
-  type VehicleSlotSource,
+  type VehicleSlotUnit,
 } from '../itemSlots';
 
 // Bandit (C) Hovercraft G (mm-data 3058Uu): pinned Java reports
 // "Using 2 slot(s) too many" against 15 available (TestTank.java:331-337).
-const bandit: VehicleSlotSource = {
+const bandit: VehicleSlotUnit = {
   tonnage: 50,
   equipment: [
     ...Array(4).fill('CLHeavyMG:OMNI'),
@@ -20,19 +20,19 @@ const bandit: VehicleSlotSource = {
     'Clan Heavy Machine Gun Ammo - Full:OMNI',
     'Clan Light Machine Gun Ammo - Half:OMNI',
   ].map((equipmentId) => ({ equipmentId, location: 'Body' })),
-  jumpMP: 0,
-  engineCode: 0,
+  movement: { jumpMP: 0 },
+  engineType: 0,
   engineRating: 250,
   clanEngine: false,
-  armorCode: 1,
+  armorType: 1,
   armorTechLevel: 6,
-  clan: true,
+  techBase: 'CLAN',
   transporters: ['troopspace:5.0', 'BattleArmorHandles - troopers:-1'],
 };
 
 // Brunel Dump Truck AC20 (Operation Klondike), a 150-ton LargeSupportTank:
 // Java reports 14 too many against 20 and Basic Fire Control outside the body.
-const brunel: VehicleSlotSource = {
+const brunel: VehicleSlotUnit = {
   tonnage: 150,
   equipment: [
     ['IS Ammo MG - Full', 'Body'],
@@ -47,12 +47,12 @@ const brunel: VehicleSlotSource = {
     ['Autocannon/20', 'Rear'],
     ['Autocannon/20', 'Rear'],
   ].map(([equipmentId, location]) => ({ equipmentId, location })),
-  jumpMP: 0,
-  engineCode: 1,
+  movement: { jumpMP: 0 },
+  engineType: 1,
   engineRating: 150,
   clanEngine: false,
-  armorCode: 0,
-  clan: false,
+  armorType: 0,
+  techBase: 'INNER_SPHERE',
   transporters: [],
 };
 
@@ -89,10 +89,10 @@ describe('vehicle item slots (Tank.getFreeSlots, TestSupportVehicle)', () => {
       ...bandit,
       tonnage: 10,
       transporters: [],
-      engineCode: 2,
+      engineType: 2,
       clanEngine: false,
-      armorCode: 6,
-      jumpMP: 3,
+      armorType: 6,
+      movement: { jumpMP: 3 },
     };
     expect(
       combatVehicleSlotErrors({ ...tank, equipment: [...jets, laser] }),

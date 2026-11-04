@@ -335,18 +335,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
       );
     }
 
-    // IVTOL carries neither clan_engine nor armor_tech_level: the Clan side is
-    // the smaller cost, so the check stays a lower bound.
-    errors.push(
-      ...combatVehicleSlotErrors({
-        ...unit,
-        jumpMP: unit.movement.jumpMP,
-        engineCode: unit.engineType,
-        clanEngine: true,
-        armorCode: unit.armorType,
-        clan: true,
-      }),
-    );
+    errors.push(...combatVehicleSlotErrors(unit, true));
 
     // Rotor cannot be armored beyond 2 points
     const rotorArmor = unit.armorByLocation?.[VTOLLocation.ROTOR] || 0;

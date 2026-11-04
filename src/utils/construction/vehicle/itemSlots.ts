@@ -18,20 +18,21 @@ import {
  * known weapon) count once. A mount that is unresolved or whose Java cost needs the unit
  * (null) makes the check abstain.
  */
-export interface VehicleSlotSource {
+export interface VehicleSlotUnit {
   readonly tonnage: number;
   readonly equipment: readonly {
     readonly equipmentId: string;
-    readonly location?: string;
+    readonly location: string;
   }[];
-  readonly jumpMP: number;
-  readonly engineCode: number;
+  readonly movement: { readonly jumpMP: number };
+  /** BLK engine_type and armor_type codes. */
+  readonly engineType: number;
   readonly engineRating: number;
-  readonly clanEngine: boolean;
-  readonly armorCode: number;
+  readonly clanEngine?: boolean;
+  readonly armorType: number;
   /** BLK `armor_tech_level`; absent means the unit's side (BLKTankFile.java:291-298). */
   readonly armorTechLevel?: number;
-  readonly clan: boolean;
+  readonly techBase?: unknown;
   readonly transporters?: readonly string[];
 }
 
@@ -84,13 +85,13 @@ function records() {
 interface Mounts {
   readonly items: {
     readonly record: SlotRecord;
-    readonly location?: string;
+    readonly location: string;
     /** The record is the other tech base's type (CLCASE -> IS `case`): cost unknown, 0. */
     readonly crossTech: boolean;
   }[];
   readonly ammo: (SlotRecord | undefined)[];
 }
-function resolve(source: VehicleSlotSource): Mounts | undefined {
+function resolve(source: VehicleSlotUnit): Mounts | undefined {
   const items: Mounts['items'] = [],
     ammo: Mounts['ammo'] = [];
   for (const { equipmentId, location } of source.equipment) {
@@ -138,10 +139,9 @@ function transportSlots(transporters: readonly string[] = []): number {
   );
 }
 
-/** Tank.java:2617-2642. Unknown Clan side takes the smaller cost. */
-function engineSlots(source: VehicleSlotSource): number {
-  const name = blkEngineName(source.engineCode);
-  const clan = source.clanEngine;
+/** Tank.java:2617-2642. */
+function engineSlots(source: VehicleSlotUnit, clan: boolean): number {
+  const name = blkEngineName(source.engineType);
   let slots = { LIGHT: 1, XL: clan ? 1 : 2, XXL: clan ? 2 : 4 }[name] ?? 0;
   if (source.engineRating > 400) slots++;
   if (name === 'COMPACT') slots--;
@@ -149,15 +149,16 @@ function engineSlots(source: VehicleSlotSource): number {
 }
 
 /** Tank.java:2677-2704 (non-patchwork; patchwork counts 0 here). */
-function armorSlots(source: VehicleSlotSource): number {
+function armorSlots(source: VehicleSlotUnit, unitClan: boolean): number {
   const clan =
     source.armorTechLevel === undefined
-      ? source.clan
+      ? unitClan
       : CLAN_TECH_LEVELS.has(source.armorTechLevel);
-  if (source.armorCode === 1 || source.armorCode === 2) return clan ? 1 : 2;
-  if (source.armorCode === 6) return 3;
-  if (source.armorCode === 22) return 2;
-  return [3, 4, 5, 16, 23, 26].includes(source.armorCode) ? 1 : 0;
+  const code = source.armorType;
+  if (code === 1 || code === 2) return clan ? 1 : 2;
+  if (code === 6) return 3;
+  if (code === 22) return 2;
+  return [3, 4, 5, 16, 23, 26].includes(code) ? 1 : 0;
 }
 
 function overrun(used: number, available: number): string[] {
@@ -172,14 +173,19 @@ function fireControlErrors(mounts: Mounts): string[] {
   return mounts.items
     .filter(
       ({ record, location }) =>
-        FIRE_CONTROL.has(record.id) &&
-        location !== undefined &&
-        location !== 'Body',
+        FIRE_CONTROL.has(record.id) && location !== 'Body',
     )
     .map(({ record }) => `${record.name} must be mounted in the body.`);
 }
 
-export function combatVehicleSlotErrors(source: VehicleSlotSource): string[] {
+/**
+ * `sideUnknown`: the unit carries neither clan_engine nor armor_tech_level
+ * (IVTOL), so both take the Clan side, the smaller cost.
+ */
+export function combatVehicleSlotErrors(
+  source: VehicleSlotUnit,
+  sideUnknown = false,
+): string[] {
   const mounts = resolve(source);
   if (!mounts) return [];
   let used = 0,
@@ -193,17 +199,19 @@ export function combatVehicleSlotErrors(source: VehicleSlotSource): string[] {
     cargo ||= CARGO.has(record.id);
     used += tank;
   }
-  used += source.jumpMP > 0 ? 1 : 0;
+  used += source.movement.jumpMP > 0 ? 1 : 0;
   used += mounts.items.some(({ record }) => FUEL.has(record.id)) ? 1 : 0;
-  used += engineSlots(source) + ammoSlots(mounts.ammo);
-  used += transportSlots(source.transporters) + armorSlots(source);
+  const clan = sideUnknown || /clan/i.test(String(source.techBase));
+  used += engineSlots(source, sideUnknown || source.clanEngine === true);
+  used += ammoSlots(mounts.ammo) + transportSlots(source.transporters);
+  used += armorSlots(source, clan);
   return [
     ...overrun(used, 5 + Math.floor(source.tonnage / 5)),
     ...fireControlErrors(mounts),
   ];
 }
 
-export function supportVehicleSlotErrors(source: VehicleSlotSource): string[] {
+export function supportVehicleSlotErrors(source: VehicleSlotUnit): string[] {
   const mounts = resolve(source);
   if (!mounts) return [];
   let used = 0;

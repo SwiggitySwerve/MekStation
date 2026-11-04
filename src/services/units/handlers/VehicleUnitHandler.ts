@@ -459,16 +459,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       }),
     );
 
-    errors.push(
-      ...combatVehicleSlotErrors({
-        ...unit,
-        jumpMP: unit.movement.jumpMP,
-        engineCode: unit.engineType,
-        clanEngine: unit.clanEngine === true,
-        armorCode: unit.armorType,
-        clan: /clan/i.test(String(unit.techBase)),
-      }),
-    );
+    errors.push(...combatVehicleSlotErrors(unit));
 
     // Motion type specific validations
     if (unit.motionType === GroundMotionType.HOVER && unit.tonnage > 50) {
