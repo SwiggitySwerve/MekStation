@@ -397,8 +397,8 @@ ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.
 
 Registry-route approval uses the same stripped lookup token as identity
 resolution. Mount qualifiers and rear markers cannot change the underlying
-registered type. The exact IS Streak SRM-2 bin is the imported BV-4, 50-shot
-identity (AmmoType.java; pin 48fcb2f64), not generic Streak SRM ammunition.
+registered type. The BV boundary uses the existing native IS Streak SRM-2 BV-4, 50-shot
+bin (AmmoType.java; pin48fcb2f64); loader identity contracts stay unchanged.
 
 Explicit direct aliases may select an existing registry ID at the BV boundary;
 this does not enable fuzzy matching over registry names. The canonical C3

@@ -128,15 +128,14 @@ export const registryPreviousId = (
   if (name === undefined) return previousRegistryIds.get(id);
   const key = name.trim().toLowerCase();
   const route = registryRoutes[id];
-  // Route metadata names the retired identity, even after its alias is corrected.
-  const identity = nativeIdentityId(name);
-  const previousIdentity = identity === id ? undefined : identity;
   if (typeof route === 'string')
     return route.toLowerCase() === key
-      ? (previousIdentity ?? previousRegistryIds.get(id))
+      ? (nativeIdentityId(name) ?? previousRegistryIds.get(id))
       : undefined;
   const native = Object.keys(route ?? {}).find((n) => n.toLowerCase() === key);
-  return native && route ? (previousIdentity ?? route[native]) : undefined;
+  return native && route
+    ? (nativeIdentityId(name) ?? route[native])
+    : undefined;
 };
 export function preferRegistryEquipment<
   T extends { id: string } | null | undefined,
