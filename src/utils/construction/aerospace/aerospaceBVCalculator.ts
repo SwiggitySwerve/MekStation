@@ -11,24 +11,21 @@ import {
   AerospaceSubType,
 } from '../../../types/unit/AerospaceInterfaces';
 import { UnitType } from '../../../types/unit/BattleMechInterfaces';
-import {
-  getArmorBVMultiplier,
-  getPilotSkillModifier,
-} from '../../../types/validation/BattleValue';
+import { getArmorBVMultiplier } from '../../../types/validation/BattleValue';
 import {
   getModularArmorBVPoints,
   MODULAR_ARMOR_BV_ID,
 } from '../battleValueDefensive';
 import { getOffensiveBVRole } from '../battleValueEquipment';
 import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
-import { calculateAdjustedBV } from '../battleValuePilot';
-import { calculateBaseBV, getCockpitModifier } from '../battleValueTotals';
 import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
 import { getEquipmentEntry } from '../equipmentBVResolver';
 import { supportFireControlFactor } from '../vehicle/vehicleBVOffensive';
 import { calculateAerospaceArcContributions } from './aerospaceBVArcs';
 import {
   calculateAerospaceAmmoBV,
+  calculateAerospaceFinalBV,
+  getAerospacePilotMultiplier,
   sumWeaponBV,
 } from './aerospaceBVCalculations';
 import {
@@ -46,6 +43,7 @@ import { aerospaceBVTerms } from './bvTrace';
  * Compute the aerospace defensive pool without a thrust multiplier.
  * Pinned MegaMek AeroBVCalculator.java:137-138 leaves processDefensiveFactor
  * empty. Its separate aircraft type modifier scales the complete pool first.
+ * @spec battle-value-system spec: Aerospace Defensive BV
  * @spec establish-all-unit-data-parity: Aerospace Defensive BV
  */
 export function calculateAerospaceDefensiveBV(
@@ -275,15 +273,16 @@ export function calculateAerospaceBV(
     input.pilotPiloting,
   );
 
-  // BVCalculator.java:1253,167: round complete base before applying crew skill.
-  const final = calculateAdjustedBV(
-    calculateBaseBV(defensive.defensive, offensive.offensive, [
-      subTypeMultiplier,
-      ...(input.hasSmallCockpit ? [getCockpitModifier('small')] : []),
-    ]),
-    input.pilotGunnery ?? 4,
-    input.pilotPiloting ?? 5,
-  );
+  // BVCalculator.java:1253,167: shared aerospace summary rounds before crew skill.
+  const final = calculateAerospaceFinalBV(
+    defensive.defensive,
+    offensive.offensive,
+    {
+      cockpit: input.hasSmallCockpit ? 'SMALL' : undefined,
+      gunnery: input.pilotGunnery,
+      piloting: input.pilotPiloting,
+    },
+  ).final;
 
   return aerospaceBVTerms({
     armorBV: defensive.armorBV,
@@ -318,14 +317,7 @@ export function calculateAerospaceBV(
  * Resolve pilot gunnery/piloting into the shared 9×9 BV multiplier table.
  * Defaults to 4/5 (baseline) when skills are undefined.
  */
-export function getAerospacePilotMultiplier(
-  gunnery: number | undefined,
-  piloting: number | undefined,
-): number {
-  const g = gunnery ?? 4;
-  const p = piloting ?? 5;
-  return getPilotSkillModifier(g, p);
-}
+export { getAerospacePilotMultiplier } from './aerospaceBVCalculations';
 
 /**
  * Sum weapon BV across every mounted item regardless of arc.

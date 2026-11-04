@@ -327,6 +327,17 @@ ProtoMech bins. Both spellings live in the alias table; quantity parsing does
 not define another identity rule. Focused qualifier tests enforce the shared
 identity, and the pinned corpus comparison checks Mech BV regression.
 
+## Aircraft machine-gun arrays
+
+Aircraft MG arrays use the native no-critical-slot fallback: up to four unused
+same-location/same-rack MGs in source order. Gun rack identity reuses the native
+ammo-group owner with raw source spelling, falling back to resolved gun name.
+Array BV is 0.67 times linked gun base BV, in addition to the guns themselves;
+the catalog array base zero remains valid. Arrays lack F_DIRECT_FIRE and do
+not gain aircraft TC. Mech critical-slot assignment stays outside this input
+contract. Source: pin 48fcb2f64, MekFileParser.java:928-944,
+BVCalculator.java:807-816, CLMGA.java:74-88. Tests: aerospaceBV.machineGunArrays.
+
 ## One-shot BV heat
 
 `weaponHeat.ts` owns one-shot identity projection and heat /4. The shared
@@ -383,3 +394,9 @@ contains plural `Pods`. Ammunition names (including Narc/iNarc pods) keep the
 ammo namespace. Existing aliases and native name mappings resolve identity.
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
 ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.
+
+Explicit direct aliases may select an existing registry ID at the BV boundary;
+this does not enable fuzzy matching over registry names. The canonical C3
+sensor launcher alias uses the imported BV-30 MissileWeapon, not C3 Master.
+Obsolete Mek fallback copies are removed. ISC3RemoteSensorLauncher.java:69-80
+at MegaMek pin 48fcb2f64; the imported catalog remains the value owner.
