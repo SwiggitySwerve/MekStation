@@ -20,7 +20,7 @@ export function battleArmorBVTerms(
     defensiveFactor: d.defensiveFactor,
     weaponBV: o.weaponBV + o.manipulatorBV,
     ammoBV: o.ammoBV,
-    offensiveEquipmentBV: 0,
+    offensiveEquipmentBV: o.offensiveEquipmentBV,
     weightBV: 0,
     speedFactor: o.speedFactor,
     offensiveTypeModifier: 1,

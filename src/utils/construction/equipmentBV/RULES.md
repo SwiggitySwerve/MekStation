@@ -370,8 +370,8 @@ Unlinked capacitors contribute no offense. Legacy Mech/vehicle projections
 retain their distinct unintegrated-capacitor contract in getOffensiveBVRole.
 Enforcement: aerospaceBV.ppcCapacitors.test.ts and the all-family corpus proof.
 
-Long Tom native Java names retain `islongtom-registry` through editor loading;
-canonical `long-tom` remains the cannon BV identity. Exact native corrections
-precede legacy aliases while preserving the weapon/ammunition boundary.
+B-Pods remain weapons when their native display name or converted alias
+contains plural `Pods`. Ammunition names (including Narc/iNarc pods) keep the
+ammo namespace. Existing aliases and native name mappings resolve identity.
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
-LongTom.java:57-74; LongTomCannon.java:60-75.
+ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.

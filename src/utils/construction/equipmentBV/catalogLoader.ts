@@ -170,7 +170,11 @@ export function loadAmmunitionCatalog(): Map<string, EquipmentCatalogEntry> {
 
 /** Ammo and weapons can share an ID (for example mrm-20) in the source files. */
 export function isAmmunitionEquipmentId(equipmentId: string): boolean {
-  return /ammo|pods/i.test(equipmentId);
+  // ISBPod.java:49-53 (48fcb2f64) registers B-Pods as a WeaponType.
+  return (
+    /ammo/i.test(equipmentId) ||
+    (/pods/i.test(equipmentId) && !/\bb-pods\b/i.test(equipmentId))
+  );
 }
 
 export function loadCatalogForEquipmentId(

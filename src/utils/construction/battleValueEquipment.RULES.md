@@ -25,3 +25,8 @@ fire-control, rear weighting and matching ammo caps rather than flat misc BV.
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587: Sniper.java:52-76,
 ArtilleryWeapon.java:60; BVCalculator.java:834-836,936-952.
 The rear-Sniper contract regression pins weapon BV 218.5 and total 792.
+
+Native B-Pod display-name resolution can select the imported ISBPod identity.
+Both that identity and legacy `b-pod` retain the native defensive F_B_POD role.
+Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
+ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.
