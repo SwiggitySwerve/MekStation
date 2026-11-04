@@ -489,3 +489,11 @@ Dual turrets use Tank.java:127-130: Turret is rear, Turret 2 front.
 Body and uninstalled turrets. Six-side controls use the existing tank/support
 global armor limit owners; legacy ordinary editor limits remain unchanged.
 The four-side auto-allocation action is not exposed for a six-side layout.
+
+## Linked PPC capacitors
+
+Vehicle offense uses equipmentBV/weaponLinks.ts for the first unlinked
+compatible PPC at the same location. Capacitors add no flat weapon BV.
+The linked native addition follows drone scaling and precedes TC scaling
+(BVCalculator.java:845-882; MiscType.java:1322-1347, pin 48fcb2f64).
+Contract and editor adapters carry the year for the shared Clan PPC gate.
