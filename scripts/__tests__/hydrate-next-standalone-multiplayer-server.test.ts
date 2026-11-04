@@ -557,3 +557,271 @@ describe('hydrate-next-standalone-multiplayer-server', () => {
     ).toBe(before);
   });
 });
+
+describe('repository-local runtime inputs', () => {
+  it('preflights imported file destinations before changing the image', () => {
+    const root = makeTempRoot();
+    const outside = makeTempRoot();
+    prepareStandaloneFixture(root);
+    writeFile(path.join(root, 'runtime-inputs/facts.json'), '{"value":42}');
+    addRuntimeImport(
+      root,
+      "export { default } from '../runtime-inputs/facts.json';",
+    );
+    const image = path.join(root, '.next/standalone');
+    const before = fs.readFileSync(path.join(image, 'server.js'));
+    writeFile(path.join(outside, 'sentinel'), 'preserve');
+    fs.symlinkSync(
+      outside,
+      path.join(image, 'runtime-inputs'),
+      process.platform === 'win32' ? 'junction' : 'dir',
+    );
+
+    const result = runHydrator(root);
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('symlink or junction');
+    expect(fs.readFileSync(path.join(image, 'server.js'))).toEqual(before);
+    expect(fs.readdirSync(outside)).toEqual(['sentinel']);
+  });
+
+  it('copies repository-local runtime JSON outside src into the isolated image', () => {
+    const root = makeTempRoot();
+    prepareStandaloneFixture(root);
+    const relative = 'scripts/runtime-facts.json';
+    const contents = '{"value":42,"source":"repository runtime input"}\r\n';
+    writeFile(path.join(root, relative), contents);
+    addRuntimeImport(
+      root,
+      "export { default } from '../scripts/runtime-facts.json';",
+    );
+
+    const result = runHydrator(root);
+    expect(result.status).toBe(0);
+    const image = path.join(root, '.next/standalone');
+    expect(fs.existsSync(path.join(image, relative))).toBe(true);
+    expect(fs.readFileSync(path.join(image, relative))).toEqual(
+      fs.readFileSync(path.join(root, relative)),
+    );
+    const probe = spawnSync(
+      NODE,
+      ['-e', "console.log(require('./scripts/runtime-facts.json').value)"],
+      {
+        cwd: image,
+        encoding: 'utf8',
+      },
+    );
+    expect(probe.status).toBe(0);
+    expect(probe.stdout.trim()).toBe('42');
+  });
+});
+
+describe('standalone deployment contents', () => {
+  it('keeps public bytes and native runtime files while dropping build inputs', () => {
+    const root = makeTempRoot();
+    prepareStandaloneFixture(root);
+    const image = path.join(root, '.next/standalone');
+    const catalog = 'public/data/units/vehicles/Büffel.test.json';
+    const contents = '{"chassis":"Büffel","weight":50}\r\n';
+    writeFile(path.join(root, catalog), contents);
+    writeFile(path.join(root, 'public/source.js.map'), 'public asset');
+    writeFile(path.join(root, 'src/__tests__/fixture.json'), '{}');
+    writeFile(path.join(root, 'src/component.stories.tsx'), 'export {};');
+    writeFile(path.join(root, '.next/static/chunks/app.js.map'), '{}');
+    const trace = '.next/server/pages/probe.js.nft.json';
+    writeFile(path.join(root, trace), '{"files":[]}');
+    writeFile(path.join(image, trace), '{"files":[]}');
+    addRuntimeImport(root, "export { default } from 'better-sqlite3';");
+    writePackage(
+      root,
+      'node_modules/better-sqlite3',
+      {
+        name: 'better-sqlite3',
+        main: 'lib/index.cjs',
+      },
+      {
+        'lib/index.cjs': 'module.exports = 42;',
+        'build/Release/better_sqlite3.node': 'native binding',
+        'deps/sqlite3.c': 'native build source',
+        'src/database.cc': 'native build source',
+        'README.md': 'development documentation',
+      },
+    );
+
+    const result = runHydrator(root);
+    expect(result.status).toBe(0);
+    for (const file of [
+      trace,
+      'src/__tests__/fixture.json',
+      'src/component.stories.tsx',
+      '.next/static/chunks/app.js.map',
+      'node_modules/better-sqlite3/deps/sqlite3.c',
+      'node_modules/better-sqlite3/src/database.cc',
+    ])
+      expect(fs.existsSync(path.join(image, file))).toBe(false);
+    expect(fs.readFileSync(path.join(image, catalog))).toEqual(
+      fs.readFileSync(path.join(root, catalog)),
+    );
+    expect(
+      fs.readFileSync(path.join(image, 'public/source.js.map'), 'utf8'),
+    ).toBe('public asset');
+    expect(
+      fs.readFileSync(
+        path.join(image, 'node_modules/better-sqlite3/README.md'),
+        'utf8',
+      ),
+    ).toBe('development documentation');
+    expect(fs.existsSync(path.join(root, trace))).toBe(true);
+    expect(fs.existsSync(path.join(image, 'src/index.ts'))).toBe(true);
+    expect(
+      fs.existsSync(
+        path.join(
+          image,
+          'node_modules/better-sqlite3/build/Release/better_sqlite3.node',
+        ),
+      ),
+    ).toBe(true);
+    const probe = spawnSync(
+      NODE,
+      ['-e', "console.log(require('better-sqlite3'))"],
+      {
+        cwd: image,
+        encoding: 'utf8',
+      },
+    );
+    expect(probe.status).toBe(0);
+    expect(probe.stdout.trim()).toBe('42');
+  });
+});
+
+describe('standalone loader closure', () => {
+  it.each([false, true])(
+    'keeps nested loader tools and preserves Next-traced root tools (traced: %s)',
+    (traced) => {
+      const root = makeTempRoot();
+      prepareStandaloneFixture(root);
+      writePackage(
+        root,
+        'node_modules/tsx',
+        {
+          name: 'tsx',
+          main: 'index.js',
+          dependencies: { esbuild: '1.0.0' },
+        },
+        { 'index.js': "module.exports = require('esbuild');" },
+      );
+      writePackage(
+        root,
+        'node_modules/tsx/node_modules/esbuild',
+        {
+          name: 'esbuild',
+          main: 'index.js',
+          dependencies: { '@esbuild/test-platform': '1.0.0' },
+        },
+        { 'index.js': "module.exports = require('@esbuild/test-platform');" },
+      );
+      writePackage(
+        root,
+        'node_modules/tsx/node_modules/@esbuild/test-platform',
+        {
+          name: '@esbuild/test-platform',
+          main: 'index.js',
+        },
+        { 'index.js': 'module.exports = 42;' },
+      );
+      const image = path.join(root, '.next/standalone');
+      if (traced)
+        writePackage(
+          root,
+          '.next/standalone/node_modules/esbuild',
+          {
+            name: 'esbuild',
+            main: 'index.js',
+          },
+          { 'index.js': 'module.exports = 99;' },
+        );
+
+      const result = runHydrator(root);
+      expect(result.stderr).toBe('');
+      expect(result.status).toBe(0);
+      expect(fs.existsSync(path.join(image, 'node_modules/esbuild'))).toBe(
+        traced,
+      );
+      expect(fs.existsSync(path.join(image, 'node_modules/@esbuild'))).toBe(
+        false,
+      );
+      expect(
+        fs.existsSync(
+          path.join(image, 'node_modules/tsx/node_modules/esbuild/index.js'),
+        ),
+      ).toBe(true);
+      if (traced)
+        expect(
+          fs.readFileSync(
+            path.join(image, 'node_modules/esbuild/index.js'),
+            'utf8',
+          ),
+        ).toBe('module.exports = 99;');
+      const probe = spawnSync(NODE, ['-e', "console.log(require('tsx'))"], {
+        cwd: image,
+        encoding: 'utf8',
+      });
+      expect(probe.stderr).toBe('');
+      expect(probe.status).toBe(0);
+      expect(probe.stdout.trim()).toBe('42');
+    },
+  );
+});
+
+describe('generated desktop outputs', () => {
+  it('prunes previous build products while preserving canonical public paths', () => {
+    const root = makeTempRoot();
+    prepareStandaloneFixture(root);
+    const image = path.join(root, '.next/standalone');
+    const outputs = [
+      'dist',
+      'release',
+      'release-test',
+      '.tmp',
+      '.electron-cache',
+      '.electron-native-cache',
+    ];
+    for (const directory of outputs)
+      writeFile(
+        path.join(image, 'desktop', directory, 'old/manifest.json'),
+        '{}',
+      );
+    const publicPath = 'public/desktop/release/retained.json';
+    writeFile(path.join(root, publicPath), '{"retain":"public bytes"}\r\n');
+    const result = runHydrator(root);
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+    for (const directory of outputs)
+      expect(fs.existsSync(path.join(image, 'desktop', directory))).toBe(false);
+    expect(fs.readFileSync(path.join(image, publicPath))).toEqual(
+      fs.readFileSync(path.join(root, publicPath)),
+    );
+    expect(
+      fs.existsSync(
+        path.join(image, 'public/data/units/battlemechs/index.json'),
+      ),
+    ).toBe(true);
+  });
+
+  it('refuses required runtime imports from generated outputs before changing the image', () => {
+    const root = makeTempRoot();
+    prepareStandaloneFixture(root);
+    writeFile(path.join(root, 'desktop/release/facts.json'), '{"value":42}');
+    addRuntimeImport(
+      root,
+      "export { default } from '../desktop/release/facts.json';",
+    );
+    const server = path.join(root, '.next/standalone/server.js');
+    const before = fs.readFileSync(server);
+    const result = runHydrator(root);
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain(
+      'Required runtime input excluded by deployment policy',
+    );
+    expect(fs.readFileSync(server)).toEqual(before);
+  });
+});
