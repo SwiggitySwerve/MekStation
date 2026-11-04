@@ -73,3 +73,14 @@ detail key in sorted order, reporting `firstTermDifference`. Missing or nonfinit
 values fail, even when totals match. Existing MekStation breakdowns expose only
 some terms; those omissions remain failures rather than inferred neutral values.
 Aggregate mode remains available without the flag.
+
+In term mode each family also reports `termMatched` (joined rows with every
+required stage and oracle detail matching) and `firstTermDifferences` (counts
+by first failing key). These counts do not replace the aggregate gates. Rows
+without a hash join never count as term matches. Aggregate mode retains its
+existing summary shape.
+
+The ProtoMech trace adapter maps `physicalWeaponBV` to `weightBV`, exposes
+the documented inherited empty type stages, carries the existing chassis
+summary factor and reports the final adjustment from the rounded base. It
+does not invent native weapon, misc-equipment or ammo-group detail keys.
