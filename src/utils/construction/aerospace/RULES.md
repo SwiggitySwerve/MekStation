@@ -469,3 +469,11 @@ The trace adapter optionally accepts actual base/summary facts; omitting them
 preserves its prior compatibility output. Java pin 48fcb2f64:
 BVCalculator.java:1252-1294,1307-1313; AeroBVCalculator.java:162-180.
 Enforcement: aerospaceBV.summaryOwner.test.ts and all-family report equality.
+
+Positive offensive miscellaneous mounts enter the equipment stage after weapon
+direction and heat, before speed (BVCalculator.java:990-1038, pin 48fcb2f64).
+Controllers remain input facts and are collected before misc exclusion. Physical
+ammo never becomes misc. Explicit offensiveEquipmentBV overrides the automatic
+sum. Command consoles share the small-cockpit summary owner; actual summary
+facts reach bvTrace without changing the neutral compatibility subtype field.
+Enforcement: aerospaceBV.miscConsole.test.ts, native Hellcat and Zhen Niao.
