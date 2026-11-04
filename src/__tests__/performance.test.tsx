@@ -32,6 +32,23 @@ function generateViolations(count: number): IViolation[] {
   }));
 }
 
+// The render budgets below are wall-clock assertions. A multi-worker unit shard
+// measures CPU contention, not the components, so they are asserted only where
+// a perf lane pins them: SIMULATION_PERF_ASSERTIONS=true (the Simulation Checks
+// "wall-clock budgets" step, the nightly perf job, `npm run test:perf-sensitive`)
+// or an explicit VIRTUALIZED_RENDER_BUDGET_MS (which also pins the budget). Same
+// pattern as fogOfWar.test.ts and the simulation integration suites; every
+// render still runs and is checked for its test id in every unit shard.
+const RENDER_BUDGET_MS =
+  Number(process.env.VIRTUALIZED_RENDER_BUDGET_MS) || 500;
+const assertRenderBudget =
+  Boolean(process.env.VIRTUALIZED_RENDER_BUDGET_MS) ||
+  process.env.SIMULATION_PERF_ASSERTIONS === 'true';
+
+function expectWithinRenderBudget(elapsedMs: number): void {
+  if (assertRenderBudget) expect(elapsedMs).toBeLessThan(RENDER_BUDGET_MS);
+}
+
 describe('Performance Tests', () => {
   describe('VirtualizedTimeline', () => {
     it('should render 1000 events with a median mount time <500ms', () => {
@@ -57,7 +74,7 @@ describe('Performance Tests', () => {
           `Timeline mount samples (ms): ${samples.join(', ')}; median: ${median}\n`,
         );
       }
-      expect(median).toBeLessThan(500);
+      expectWithinRenderBudget(median);
     });
 
     it('should render 5000 events in <500ms', () => {
@@ -67,7 +84,8 @@ describe('Performance Tests', () => {
       render(<VirtualizedTimeline events={events} />);
       const end = performance.now();
 
-      expect(end - start).toBeLessThan(500);
+      expect(screen.getByTestId('virtualized-timeline')).toBeInTheDocument();
+      expectWithinRenderBudget(end - start);
     });
 
     it('should render empty state when no events provided', () => {
@@ -109,7 +127,7 @@ describe('Performance Tests', () => {
       render(<VirtualizedViolationLog violations={violations} />);
       const end = performance.now();
 
-      expect(end - start).toBeLessThan(500);
+      expectWithinRenderBudget(end - start);
       expect(
         screen.getByTestId('virtualized-violation-log'),
       ).toBeInTheDocument();
@@ -122,7 +140,10 @@ describe('Performance Tests', () => {
       render(<VirtualizedViolationLog violations={violations} />);
       const end = performance.now();
 
-      expect(end - start).toBeLessThan(500);
+      expect(
+        screen.getByTestId('virtualized-violation-log'),
+      ).toBeInTheDocument();
+      expectWithinRenderBudget(end - start);
     });
 
     it('should render empty state when no violations provided', () => {
