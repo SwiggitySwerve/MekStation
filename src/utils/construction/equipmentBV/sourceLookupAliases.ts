@@ -36,6 +36,22 @@ export const SOURCE_LOOKUP_ALIASES: Readonly<Record<string, string>> = {
   'ablative-flak,-concealed': 'ablative-flak-concealed',
   'myomer,-vest': 'myomer-vest',
   'ba-compact-narc-ammo': 'compact-narc-ammo',
+  // weapons/battleArmor/clan/CLBARecoillessRifle{Light,Medium,Heavy}.java:59-65
+  'clbalight recoilless rifle': 'balight-recoilless-rifle',
+  clbalightrecoillessrifle: 'balight-recoilless-rifle',
+  isbalightrecoillessrifle: 'balight-recoilless-rifle',
+  'islight recoilless rifle': 'balight-recoilless-rifle',
+  'isbalight recoilless rifle': 'balight-recoilless-rifle',
+  'clbamedium recoilless rifle': 'bamedium-recoilless-rifle',
+  clbamediumrecoillessrifle: 'bamedium-recoilless-rifle',
+  isbamediumrecoillessrifle: 'bamedium-recoilless-rifle',
+  'is ba medium recoilless rifle': 'bamedium-recoilless-rifle',
+  'isbamedium recoilless rifle': 'bamedium-recoilless-rifle',
+  'clbaheavy recoilless rifle': 'baheavy-recoilless-rifle',
+  clbaheavyrecoillessrifle: 'baheavy-recoilless-rifle',
+  isbaheavyrecoillessrifle: 'baheavy-recoilless-rifle',
+  'isheavy recoilless rifle': 'baheavy-recoilless-rifle',
+  'isbaheavy recoilless rifle': 'baheavy-recoilless-rifle',
 };
 
 /** Exact native identities at MegaMek 48fcb2f6; FU-79 IDENTITY-REVIEW.md. */
