@@ -399,6 +399,16 @@ ammo namespace. Existing aliases and native name mappings resolve identity.
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
 ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.
 
+The non-ammunition BV catalog contains weapons, electronics and misc entries
+only. Ammo remains available through explicit ammunition lookup, including
+`getEquipmentEntry` names marked as ammo. Unrepresented weapon aliases return
+undefined, never the BV of a bin sharing a short ID (WeaponType/AmmoType at
+MegaMek pin 48fcb2f64). No missing catalog weapon is fabricated.
+
+Exact registered AmmoType identities select the ammo namespace even when their
+names lack the word ammo (Coolant Pod and ISC3Sensors). Registry metadata,
+not weapon prefix stripping, supplies that classification.
+
 The existing getWeaponLinkBVMultiplier owner includes Prototype (1.1) and
 RISC LPM (1.15), alongside IV/V/Apollo. The legacy Artemis facade retains its
 admission guard. Vehicle and aircraft source mounts share module linking;
@@ -427,3 +437,11 @@ at MegaMek pin 48fcb2f64; the imported catalog remains the value owner.
 The owner-approved basrm3 value batch corrects only Clan BA SRM-3 BV from
 21 to 30 (CLBASRM3.java:66, MegaMek pin 48fcb2f64). The same frozen CAT-Q2
 baseline row and item hash change exactly; no other catalog value changes.
+
+Exact catalog IDs (case-insensitive) keep their declared weapon/misc/ammo
+identity. Source text uses normalizeNativeEquipmentName instead: MTF and BLK
+both call EquipmentType.get with tech preference (MtfFile.java:1210-1211;
+BLKFile.java:248-249). MRM-1 names the unofficial ISMRM1 weapon (:57-63),
+ISBAMRM1 names the BA weapon (:67-70), and IS MRM 1 Ammo names the one-shot
+BA bin (AmmoType.java:15093-15107); the same separation holds for racks2-5.
+Catalog IDs mrm-1..5 remain ammo. All citations use MegaMek48fcb2f64.
