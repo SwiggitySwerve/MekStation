@@ -192,8 +192,8 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
   }
   return { items, aliases };
 }
-export function generateCapitalBVFacts(items) {
-  return Object.fromEntries(
+export function generateCapitalBVFacts(items, originalEntries = []) {
+  const facts = Object.fromEntries(
     items
       .filter(({ internalName }) => capitalSource[internalName])
       .map(({ internalName, entry }) => [
@@ -204,6 +204,24 @@ export function generateCapitalBVFacts(items) {
         },
       ]),
   );
+  for (const { entry } of items) {
+    if (!facts[entry.id]) continue;
+    for (const previous of originalEntries) {
+      const sameFiringFacts =
+        entry.shotsPerTon !== undefined
+          ? previous.shotsPerTon === entry.shotsPerTon
+          : previous.ranges &&
+            previous.category === entry.category &&
+            previous.heat === entry.heat;
+      if (
+        previous.name === entry.name &&
+        previous.battleValue === entry.battleValue &&
+        sameFiringFacts
+      )
+        facts[previous.id] = facts[entry.id];
+    }
+  }
+  return facts;
 }
 function runGenerator() {
   const read = (file) => JSON.parse(readFileSync(file, 'utf8'));
@@ -260,7 +278,7 @@ function runGenerator() {
   }
   write(
     new URL('./capital-bv.json', import.meta.url),
-    generateCapitalBVFacts(result.items),
+    generateCapitalBVFacts(result.items, before),
   );
   const addedIds = new Set(result.items.map((item) => item.entry.id));
   const originalMappings = Object.fromEntries(

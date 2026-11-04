@@ -60,3 +60,42 @@ test('capital supplement retains native scale and damage at each range', () => {
   assert.equal(rows['Sub-Capital Laser /1'].isSubCapital, true);
   assert(!Object.keys(rows).some((name) => name.endsWith(' Bay')));
 });
+
+test('existing capital IDs receive facts only when native name, BV and firing facts agree', () => {
+  const legacy = {
+    id: 'naval-gauss-light',
+    name: 'Naval Gauss (Light)',
+    category: 'Ballistic',
+    battleValue: 3024,
+    heat: 9,
+    ranges: { short: 14, medium: 28, long: 40 },
+  };
+  const ammo = {
+    id: 'ammo-light-n-gauss',
+    name: 'Light N-Gauss Ammo',
+    battleValue: 378,
+    shotsPerTon: 1,
+  };
+  const before = [
+    legacy,
+    { ...legacy, id: 'wrong-heat', heat: 10 },
+    ammo,
+    { ...ammo, id: 'wrong-shots', shotsPerTon: 2 },
+  ];
+  const frozen = JSON.stringify(before);
+  const result = generator.generateEntries(
+    fixture.java,
+    [],
+    fixture.facts,
+    {},
+    before,
+    {},
+  );
+  const supplement = generator.generateCapitalBVFacts(result.items, before);
+  assert.equal(supplement[legacy.id]?.isCapital, true);
+  assert.equal(supplement[legacy.id]?.ammoType, 'LIGHT_NGAUSS');
+  assert.equal(supplement[ammo.id]?.ammoType, 'LIGHT_NGAUSS');
+  assert.equal(supplement['wrong-heat'], undefined);
+  assert.equal(supplement['wrong-shots'], undefined);
+  assert.equal(JSON.stringify(before), frozen);
+});
