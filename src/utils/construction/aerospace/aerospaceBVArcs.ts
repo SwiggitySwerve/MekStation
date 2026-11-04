@@ -34,7 +34,10 @@ import {
   getEquipmentEntry,
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
-import { isAerospaceAmmo } from './aerospaceBVCalculations';
+import {
+  isAerospaceAmmo,
+  isAerospaceOffensiveMisc,
+} from './aerospaceBVCalculations';
 import { getAerospaceDefensiveEquipmentKind } from './aerospaceBVEquipment';
 import { isRearMountedAerospaceEquipment } from './aerospaceMountFlags';
 
@@ -181,6 +184,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
       });
       continue;
     }
+    if (isAerospaceOffensiveMisc(item)) continue;
     const resolved = resolveEquipmentBV(item.id);
     const arrayGroup = getMachineGunArrayBVGroup(entry?.id ?? '');
     if (!resolved.resolved || (resolved.battleValue === 0 && !arrayGroup))

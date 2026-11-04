@@ -10,6 +10,7 @@ import {
   getNativeAmmoBVGroup,
   sumCappedAmmoBV,
 } from '../battleValueAmmo';
+import { getOffensiveBVRole } from '../battleValueEquipment';
 import { calculateAdjustedBV } from '../battleValuePilot';
 import { calculateBaseBV, getCockpitModifier } from '../battleValueTotals';
 import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
@@ -163,4 +164,14 @@ export function calculateAerospaceFinalBV(
 /** Explicit ammunition facts and physical source-bin identity are additive. */
 export function isAerospaceAmmo(item: IAerospaceBVEquipment): boolean {
   return item.isAmmo === true || isAmmunitionEquipmentId(item.id);
+}
+
+/** BVCalculator.java:990-1038: positive offensive misc stays outside arcs. */
+export function isAerospaceOffensiveMisc(item: IAerospaceBVEquipment): boolean {
+  return (
+    !isAerospaceAmmo(item) &&
+    !getAerospaceDefensiveEquipmentKind(item.id) &&
+    getOffensiveBVRole(item.id) === 'equipment' &&
+    resolveEquipmentBV(item.id).battleValue > 0
+  );
 }
