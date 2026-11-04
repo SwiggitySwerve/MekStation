@@ -274,6 +274,10 @@
       "id": "clbalrm5-registry"
     },
     {
+      "internalName": "CLBALRM5 (OS)",
+      "id": "clbalrm5-os-registry"
+    },
+    {
       "internalName": "CLBALightMortar",
       "id": "clbalightmortar-registry"
     },
@@ -300,6 +304,14 @@
     {
       "internalName": "CLBASRM2",
       "id": "clbasrm2-registry"
+    },
+    {
+      "internalName": "CLBASRM2 (OS)",
+      "id": "clbasrm2-os-registry"
+    },
+    {
+      "internalName": "CLBASRM3 (OS)",
+      "id": "clbasrm3-os-registry"
     },
     {
       "internalName": "CLBASRM4",

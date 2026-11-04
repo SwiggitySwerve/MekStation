@@ -1,8 +1,5 @@
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
-import {
-  getArmorBVMultiplier,
-  getStructureBVMultiplier,
-} from '@/types/validation/BattleValue';
+import { getStructureBVMultiplier } from '@/types/validation/BattleValue';
 
 import type {
   VehicleBVInput,
@@ -11,6 +8,7 @@ import type {
 
 import {
   getModularArmorBVPoints,
+  getNativeArmorBVMultiplier,
   MODULAR_ARMOR_BV_ID,
 } from '../battleValueDefensive';
 import { calculateMountedDefensiveEquipmentBV } from '../battleValueEquipment';
@@ -79,27 +77,6 @@ export function calculateVehicleDefensiveBV(
   };
 }
 
-/** Native MegaMek codes are not local ArmorType enum ordinals. */
-function armorMultiplier(type: string | number): number {
-  const names: Readonly<Record<number, string>> = {
-    2: 'reactive',
-    3: 'reflective',
-    4: 'hardened',
-    16: 'ferro-lamellor',
-    23: 'anti-penetrative',
-    24: 'heat-dissipating',
-    26: 'ballistic-reinforced',
-  };
-  const name =
-    typeof type === 'number'
-      ? (names[type] ?? 'standard')
-      : type
-          .toLowerCase()
-          .replace(/_/g, '-')
-          .replace(/^anti-penetrative-ablation$/, 'anti-penetrative');
-  return getArmorBVMultiplier(name);
-}
-
 /** BVCalculator.processArmor for original, undamaged construction inputs. */
 function calculateArmorBV(input: VehicleBVInput, blueShield: boolean): number {
   const patchwork =
@@ -121,7 +98,7 @@ function calculateArmorBV(input: VehicleBVInput, blueShield: boolean): number {
       ).length,
     );
   const multiplier = (type: string | number) =>
-    armorMultiplier(type) + (blueShield ? 0.2 : 0);
+    getNativeArmorBVMultiplier(type) + (blueShield ? 0.2 : 0);
   // SupportTank's BAR array starts at zero when loadSVArmor has no rating.
   const bar = (input.barRating ?? (input.isSupportVehicle ? 0 : 10)) / 10;
   const hasHarJel = equipment.some((e) => e.id.includes('harjelii'));

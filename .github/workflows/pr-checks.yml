@@ -39,7 +39,7 @@ jobs:
   # desktop lanes always run. `desktop` limits the win/mac packaging legs
   # (native better-sqlite3 rebuild, the slowest PR jobs) to changes in
   # desktop packaging inputs; Linux packs on every code change.
-  # `equipment`, `combat`, `statistical` and `storybook` run their check
+  # `equipment`, `combat`, `corpus`, `roadmap` and `storybook` run their check
   # only when a changed file is in the check's import closure or is a
   # data file it reads. Detection fails open, and every gate is on outside
   # pull requests, so main and the nightly schedule run every check.
@@ -56,7 +56,6 @@ jobs:
       equipment: ${{ steps.filter.outputs.equipment }}
       corpus: ${{ steps.filter.outputs.corpus }}
       roadmap: ${{ steps.filter.outputs.roadmap }}
-      statistical: ${{ steps.filter.outputs.statistical }}
       storybook: ${{ steps.filter.outputs.storybook }}
     steps:
       - name: Checkout code
@@ -232,7 +231,7 @@ jobs:
   # simulation-checks runs the simulation wall-clock, coverage and
   # statistical-proof lanes one after another on one runner (never
   # alongside other work, so the perf budgets measure an idle runner).
-  # Code-only; the 100-game proof also needs its own inputs changed.
+  # Code-only; the 100-game proof runs only outside pull requests.
   # ---------------------------------------------------------------
   simulation-checks:
     name: Simulation Checks
@@ -307,10 +306,10 @@ jobs:
         if: ${{ !cancelled() }}
         run: node scripts/qc/validate-combat-simulation-coverage.mjs --summary=coverage/combat-simulation/coverage-summary.json
 
-      # simulation-system "Statistical Validation": a PR that touches the
-      # proof's inputs cannot merge without it; main and nightly always run it.
+      # simulation-system "Statistical Validation": the 100-game proof runs on
+      # every main push and nightly (and on demand), not on pull requests.
       - name: Run 100-game statistical combat proofs
-        if: ${{ !cancelled() && needs.detect-changes.outputs.statistical == 'true' }}
+        if: ${{ !cancelled() && github.event_name != 'pull_request' }}
         run: >-
           npx jest --selectProjects unit --ci --runInBand --runTestsByPath
           src/simulation/__tests__/integration.test.ts

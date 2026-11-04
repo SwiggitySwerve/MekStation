@@ -1,3 +1,4 @@
+import type { BVWeaponLinkType } from '../equipmentBV/resolution';
 import type {
   IAerospaceArcContribution,
   IAerospaceBVInput,
@@ -7,6 +8,10 @@ import {
   AerospaceArc,
   AerospaceSubType,
 } from '../../../types/unit/AerospaceInterfaces';
+import {
+  getNativeAmmoBVGroup,
+  getMachineGunArrayBVGroup,
+} from '../battleValueAmmo';
 import { getOffensiveBVRole } from '../battleValueEquipment';
 import {
   calculateBaseHeatEfficiency,
@@ -21,9 +26,10 @@ import {
 import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
 import {
   isArtemisCompatibleBVWeapon,
-  linkArtemisBVWeapons,
-  linkApolloBVWeapons,
+  linkMountedWeaponBVModifiers,
+  getMountedBVLinkType,
   linkPPCCapacitorBVWeapons,
+  linkAerospaceMachineGunArrayBVWeapons,
 } from '../equipmentBV/weaponLinks';
 import {
   getWeaponLinkBVMultiplier,
@@ -139,16 +145,17 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     location: AerospaceArc;
     id: string;
     targeted: boolean;
+    baseBV: number;
+    ammoGroup?: string;
+    arrayGroup?: string;
     capacitorBV?: number;
     bv: number;
     heat: number;
     compatible: boolean;
-    artemisType?: 'iv' | 'v';
+    artemisType?: BVWeaponLinkType;
     apolloLinked?: boolean;
   }[] = [];
-  const links: { location: AerospaceArc; type: 'iv' | 'v' }[] = [];
   const capacitors: { location: AerospaceArc }[] = [];
-  const apollo: { location: AerospaceArc }[] = [];
 
   for (const item of input.equipment) {
     if (getAerospaceDefensiveEquipmentKind(item.id)) continue;
@@ -158,36 +165,35 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
       ? AerospaceArc.AFT
       : location;
     const entry = getEquipmentEntry(item.id);
-    if (entry?.id === 'apollo') {
-      apollo.push({ location });
-      continue;
-    }
+    if (getMountedBVLinkType(item.id)) continue;
     if (entry?.id === 'ppc-capacitor') {
       capacitors.push({ location });
       continue;
     }
-    if (entry?.id === 'artemisiv' || entry?.id === 'artemisv') {
-      links.push({
-        location,
-        type: entry.id === 'artemisiv' ? 'iv' : 'v',
-      });
-      continue;
-    }
     const resolved = resolveEquipmentBV(item.id);
-    if (!resolved.resolved || resolved.battleValue === 0) continue;
+    const arrayGroup = getMachineGunArrayBVGroup(entry?.id ?? '');
+    if (!resolved.resolved || (resolved.battleValue === 0 && !arrayGroup))
+      continue;
 
     if (arc !== AerospaceArc.FUSELAGE && !rawByArc.has(arc)) continue;
+    const ammunition = item.isAmmo || isAmmunitionEquipmentId(item.id);
     const targeted = Boolean(
       targetingComputerMounted &&
       entry &&
-      !item.isAmmo &&
-      !isAmmunitionEquipmentId(item.id) &&
+      !ammunition &&
+      !arrayGroup &&
       getOffensiveBVRole(item.id) === 'weapon' &&
       isDirectFireBVWeapon(entry.id),
     );
     weapons.push({
       id: entry?.id ?? item.id,
       targeted,
+      baseBV: resolved.battleValue,
+      arrayGroup,
+      ammoGroup: ammunition
+        ? undefined
+        : (getNativeAmmoBVGroup(item.id) ??
+          getNativeAmmoBVGroup(entry?.name ?? '')),
       arc,
       location,
       bv: targeted
@@ -199,13 +205,18 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     });
   }
   // MekFileParser.java:425-449; BVCalculator.java:860-872.
-  linkArtemisBVWeapons(weapons, links);
+  linkAerospaceMachineGunArrayBVWeapons(weapons);
+  linkMountedWeaponBVModifiers(
+    weapons,
+    input.equipment.flatMap((item) => {
+      const location = normalizeArcLocation(item.location, input.subType);
+      return location === null ? [] : [{ id: item.id, location }];
+    }),
+  );
   linkPPCCapacitorBVWeapons(weapons, capacitors, input.year);
-  linkApolloBVWeapons(weapons, apollo);
   for (const weapon of weapons) {
-    weapon.bv *= getWeaponLinkBVMultiplier(
-      weapon.apolloLinked ? 'apollo' : weapon.artemisType,
-    );
+    weapon.bv *= getWeaponLinkBVMultiplier(weapon.artemisType);
+    if (weapon.artemisType === 'risc') weapon.heat += 2;
     if (weapon.capacitorBV !== undefined) {
       if (weapon.targeted)
         weapon.capacitorBV = applyTargetingComputerBV(weapon.capacitorBV);

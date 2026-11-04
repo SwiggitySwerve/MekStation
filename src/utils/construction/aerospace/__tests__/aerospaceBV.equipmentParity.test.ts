@@ -143,7 +143,8 @@ describe('aerospace defensive equipment and final sum parity', () => {
     expect(result.pilotMultiplier).toBe(control.pilotMultiplier);
     expect(result.final).toBe(
       Math.round(
-        (result.defensive + result.offensive) * result.pilotMultiplier,
+        Math.round(result.defensive + result.offensive) *
+          result.pilotMultiplier,
       ),
     );
   });

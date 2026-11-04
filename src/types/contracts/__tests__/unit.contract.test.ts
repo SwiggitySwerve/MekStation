@@ -31,7 +31,10 @@ import path from 'node:path';
 
 import { UnitContract } from '@/types/contracts';
 
-const REPO_ROOT = path.resolve(__dirname, '..', '..', '..', '..');
+// cwd is the repo root under Jest (as unit.tonnage.contract.test.ts relies on).
+// Climbing out of __dirname with `..` made the cache key cover the whole repo,
+// so this 76 s suite re-ran on every change anywhere; it reads only public/data.
+const REPO_ROOT = process.cwd();
 const UNITS_ROOT = path.join(REPO_ROOT, 'public', 'data', 'units');
 
 function readUnit(relPath: string): unknown {

@@ -2,6 +2,7 @@ import type { CritScan } from './validate-bv-crit-scan';
 import type { UnitData } from './validate-bv-types';
 
 import { applyTargetingComputerBV } from '../src/utils/construction/battleValueWeapons';
+import { getWeaponLinkBVMultiplier } from '../src/utils/construction/equipmentBV/resolution';
 import { toMechLoc } from './validate-bv-normalizers';
 import { isArmLoc } from './validate-bv-unit-derived';
 
@@ -159,7 +160,7 @@ export function applyWeaponPostScanModifiers(
     for (const w of weapons) {
       if (a <= 0) break;
       if (w.name.includes('mrm')) {
-        w.bv = Math.round(w.bv * 1.15);
+        w.bv = Math.round(w.bv * getWeaponLinkBVMultiplier('apollo'));
         a--;
       }
     }
@@ -233,7 +234,7 @@ export function applyWeaponPostScanModifiers(
             lpmLoc.toUpperCase().replace(/[_\s-]+/g, ''),
       );
       if (!laserInLoc) continue;
-      laserInLoc.bv = laserInLoc.bv * 1.15;
+      laserInLoc.bv *= getWeaponLinkBVMultiplier('risc');
       laserInLoc.heat += 2;
       laserInLoc.riscLPMApplied = true;
     }

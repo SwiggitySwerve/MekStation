@@ -1,3 +1,4 @@
+import { hasNativeWeaponBVFlag } from './equipmentBV/nativeWeaponFlags';
 import { getEquipmentEntry, resolveEquipmentBV } from './equipmentBVResolver';
 
 /** Shared bonus for an already eligible mount. MegaMek 48fcb2f64,
@@ -51,6 +52,12 @@ export function calculateOffensiveBV(
 
 /** Direct-fire classification for normalized BV weapon identifiers. */
 export function isDirectFireBVWeapon(id: string): boolean {
+  const native = hasNativeWeaponBVFlag(
+    getEquipmentEntry(id)?.id ?? id,
+    'directFire',
+  );
+  if (native !== undefined) return native;
+  // Unrepresented legacy IDs keep their existing compatibility policy.
   return (
     !id.includes('lrm') &&
     !id.includes('srm') &&

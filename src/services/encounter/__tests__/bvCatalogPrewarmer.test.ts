@@ -11,6 +11,7 @@ import type {
   IUnitQueryCriteria,
 } from '@/types/unit/UnitIndex';
 
+import { getNodeCanonicalUnitService } from '@/services/units/NodeCanonicalUnitService';
 import { Era } from '@/types/enums/Era';
 import { TechBase } from '@/types/enums/TechBase';
 import { WeightClass } from '@/types/enums/WeightClass';
@@ -69,7 +70,7 @@ describe('prewarmCatalogBV public report and cache boundaries', () => {
     ).rejects.toThrow(/movement/);
   });
 
-  it('uses the injected report path and invalidates cache on version or catalog count changes', async () => {
+  it('reads fresh report values even when index version and count are unchanged', async () => {
     const root = tempRoot();
     const service = unusedCatalogService();
     const first = fixtureEntry('fixture-alpha');
@@ -92,17 +93,7 @@ describe('prewarmCatalogBV public report and cache boundaries', () => {
       expect(initial.fromCache).toBe(false);
       expect(initial.source).toBe('report');
       expect(initial.catalog.map((entry) => entry.bv)).toEqual([101, 202]);
-      expect(fs.existsSync(cachePath)).toBe(true);
-      expect(JSON.parse(fs.readFileSync(cachePath, 'utf8'))).toEqual(
-        expect.objectContaining({
-          catalogVersion: 'catalog-v1',
-          catalogTotalUnits: 2,
-          bvByUnitId: {
-            [first.id]: 101,
-            [second.id]: 202,
-          },
-        }),
-      );
+      expect(fs.existsSync(cachePath)).toBe(false);
 
       writeReport(reportPath, [
         { unitId: first.id, calculatedBV: 303 },
@@ -113,9 +104,9 @@ describe('prewarmCatalogBV public report and cache boundaries', () => {
         cacheFilePath: cachePath,
       });
 
-      expect(cacheHit.fromCache).toBe(true);
-      expect(cacheHit.source).toBe('cache');
-      expect(cacheHit.catalog.map((entry) => entry.bv)).toEqual([101, 202]);
+      expect(cacheHit.fromCache).toBe(false);
+      expect(cacheHit.source).toBe('report');
+      expect(cacheHit.catalog.map((entry) => entry.bv)).toEqual([303, 404]);
 
       const versionMiss = await prewarmCatalogBV(
         catalog,
@@ -145,6 +136,33 @@ describe('prewarmCatalogBV public report and cache boundaries', () => {
       expect(countMiss.source).toBe('report');
       expect(countMiss.catalog.map((entry) => entry.bv)).toEqual([303]);
       expect(service.getById).not.toHaveBeenCalled();
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+  it('ignores an old disk total and computes current pinned Java Atlas BV', async () => {
+    const root = tempRoot(),
+      service = getNodeCanonicalUnitService();
+    const entry = service
+      .getIndexSync()
+      .find((unit) => unit.id === 'atlas-as7-d');
+    expect(entry).toBeDefined();
+    try {
+      const cacheFilePath = path.join(root, 'stale.json');
+      fs.writeFileSync(
+        cacheFilePath,
+        JSON.stringify({
+          catalogVersion: '1.0.0',
+          catalogTotalUnits: 1,
+          bvByUnitId: { 'atlas-as7-d': 1 },
+        }),
+      );
+      const result = await prewarmCatalogBV([entry!], service, '1.0.0', {
+        cacheFilePath,
+        bvReportPath: path.join(root, 'missing-report.json'),
+      });
+      expect(result.fromCache).toBe(false);
+      expect(result.catalog[0].bv).toBe(1897);
     } finally {
       fs.rmSync(root, { recursive: true, force: true });
     }
