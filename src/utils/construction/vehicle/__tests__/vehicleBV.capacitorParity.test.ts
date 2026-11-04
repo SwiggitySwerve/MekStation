@@ -1,7 +1,14 @@
 import { getNodeCanonicalUnitService } from '@/services/units/NodeCanonicalUnitService';
+import { UnitContract } from '@/types/contracts';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { calculateUnitBV } from '@/utils/construction/bvAdapter';
+import {
+  contractUnitToBVUnit,
+  type IContractBVSource,
+} from '@/utils/construction/contractBVUnitAdapter';
 
+import { toVehicleBVInputFromUnit } from '../vehicleBVAdapter';
 import { calculateVehicleOffensiveBV } from '../vehicleBVOffensive';
 import { type VehicleBVInput } from '../vehicleBVTypes';
 
@@ -48,4 +55,43 @@ describe('vehicle linked PPC capacitor BV', () => {
         base,
     ).toBeCloseTo(44 * 1.25);
   });
+});
+
+it('uses domain metadata year for the native Clan PPC capacitor gate', () => {
+  const source = UnitContract.parse(
+    getNodeCanonicalUnitService().getByIdSync(
+      'vehicles:schrek-ii-x-ppc-carrier',
+    ),
+  );
+  if (source.unitType !== UnitType.VEHICLE)
+    throw new Error('Expected a vehicle source fixture');
+  if (source.tonnage === undefined || !source.movement || !source.armor)
+    throw new Error('Missing fixture facts');
+  const vehicle = contractUnitToBVUnit({
+    ...source,
+    tonnage: source.tonnage,
+    armor: source.armor,
+    movement: source.movement as IContractBVSource['movement'],
+  });
+  if (vehicle.unitType !== UnitType.VEHICLE)
+    throw new Error('Expected a vehicle fixture');
+  const linkedBV = (year: number) => {
+    const input = toVehicleBVInputFromUnit({
+      ...vehicle,
+      year: undefined,
+      metadata: { year },
+    });
+    const weapons = [
+      { id: 'clan-er-ppc', location: 'turret' },
+      { id: 'ppc-capacitor', location: 'turret' },
+    ];
+    return calculateVehicleOffensiveBV({
+      ...input,
+      weapons,
+      armorEquipment: weapons,
+      chassisEquipment: [],
+      offensiveEquipment: [],
+    }).weaponBV;
+  };
+  expect(linkedBV(3101) - linkedBV(3100)).toBeCloseTo(136);
 });

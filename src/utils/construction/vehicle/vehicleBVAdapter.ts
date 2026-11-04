@@ -272,6 +272,7 @@ export interface VehicleBVUnitSubset
       | 'hasFlotationHull'
     > {
   year?: number;
+  metadata?: Pick<IVehicleUnit['metadata'], 'year'>;
   unitType: UnitType;
   armorByLocation?: Record<string, number>;
   internalStructureType?: string | number;
@@ -365,7 +366,7 @@ export function toVehicleBVInputFromUnit(
 
   return {
     motionType: unit.motionType as GroundMotionType,
-    year: unit.year,
+    year: unit.year ?? unit.metadata?.year,
     isSupportVehicle: unit.unitType === UnitType.SUPPORT_VEHICLE,
     chassisEquipment: rawEquipment.map((item) => item.equipmentId),
     hasStealth:
