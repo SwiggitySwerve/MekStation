@@ -52,9 +52,8 @@ for (const report of positionals) {
     process.exit(1);
   }
   for (const result of parsed.testResults) {
-    const { start, end, runtime } = result.perfStats ?? {};
-    const ms =
-      runtime ?? (end !== undefined && start !== undefined ? end - start : NaN);
+    // `jest --json` reports each file's startTime/endTime (epoch ms).
+    const ms = result.endTime - result.startTime;
     if (!Number.isFinite(ms)) continue;
     filesSeen += 1;
     const file = toRepoPath(root, result.name);

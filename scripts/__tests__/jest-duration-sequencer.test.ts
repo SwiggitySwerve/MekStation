@@ -176,7 +176,10 @@ describe('update-test-durations CLI', () => {
       const out = path.join(dir, 'out.json');
       const result = (name: string, runtime: number) => ({
         name: path.join(dir, ...name.split('/')),
-        perfStats: { start: 0, end: runtime, runtime },
+        // shape of a real `jest --json` testResults entry
+        status: 'passed',
+        startTime: 1793799486082,
+        endTime: 1793799486082 + runtime,
       });
       fs.writeFileSync(
         report,

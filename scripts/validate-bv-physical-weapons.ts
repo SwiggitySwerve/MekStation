@@ -1,3 +1,4 @@
+import type { CritScan } from './validate-bv-crit-scan-types';
 export type PhysicalWeaponType =
   | 'backhoe'
   | 'buzzsaw'
@@ -130,4 +131,21 @@ export function calculatePhysicalWeaponBV(
 ): number {
   const rule = PHYSICAL_WEAPON_BV_RULES[type as PhysicalWeaponType];
   return rule ? rule(tonnage, hasTSM ? 2 : 1) : 0;
+}
+
+/** Preserve mount order, per-mount rounding and AES before accumulation. */
+export function calculatePhysicalBVTotal(
+  crit: Pick<CritScan, 'physicalWeapons' | 'hasTSM' | 'aesLocs'>,
+  tonnage: number,
+): number {
+  let physicalWeaponBV = 0;
+  for (const pw of crit.physicalWeapons) {
+    let bv = calculatePhysicalWeaponBV(pw.type, tonnage, crit.hasTSM);
+    bv = Math.round(bv * 1000.0) / 1000.0;
+    const pwLocUpper = pw.location.toUpperCase();
+    if (crit.aesLocs.some((aLoc) => aLoc.toUpperCase() === pwLocUpper))
+      bv *= 1.25;
+    physicalWeaponBV += bv;
+  }
+  return physicalWeaponBV;
 }
