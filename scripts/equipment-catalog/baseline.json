@@ -1411,14 +1411,14 @@
     "file": "weapons/ballistic-gauss.json",
     "index": 15,
     "id": "improvedheavygaussrifle",
-    "sha256": "53e57f8b49b218c504f7f4acedbc63507bced49f129c2492a91450d663ef8e04",
+    "sha256": "b364f4aea53d84ab6e28bb1c640e01e23da950bf6494b5f191ee4f2e28b6c367",
     "item": {
       "id": "improvedheavygaussrifle",
       "name": "Improved Heavy Gauss Rifle",
       "category": "Ballistic",
       "subType": "Gauss",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "EXPERIMENTAL",
+      "rulesLevel": "STANDARD",
       "damage": 22,
       "heat": 2,
       "ranges": {
@@ -2309,14 +2309,14 @@
     "file": "weapons/ballistic-other.json",
     "index": 15,
     "id": "magshotgr",
-    "sha256": "ab2a4f378ced345533db49a5c6508118321e34b3167065bd0b9e716245374bdb",
+    "sha256": "5fa560748d87bcf5ba507fc9fdcdaf2c4ef15a98cef20e24d1eb274c7da1cf72",
     "item": {
       "id": "magshotgr",
       "name": "Magshot",
       "category": "Ballistic",
       "subType": "Gauss",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "STANDARD",
       "damage": 2,
       "heat": 1,
       "ranges": {
@@ -5549,14 +5549,14 @@
     "file": "weapons/missile-lrm.json",
     "index": 46,
     "id": "streaklrm15",
-    "sha256": "9a99dfa37fd9abb6b516c9ee1c443e37a3399d50c618bcb876a740a3560fa3e8",
+    "sha256": "7d21b8ab1ada9dc630b36a333012382d7d2a38d04aca09e56614fffc91141850",
     "item": {
       "id": "streaklrm15",
       "name": "Streak LRM 15",
       "category": "Missile",
       "subType": "LRM",
       "techBase": "CLAN",
-      "rulesLevel": "ADVANCED",
+      "rulesLevel": "STANDARD",
       "damage": "1/missile",
       "heat": 5,
       "ranges": {
@@ -7928,7 +7928,7 @@
     "file": "weapons/missile-other.json",
     "index": 5,
     "id": "inarc",
-    "sha256": "2fe084a313a458278afccbc7883c0d86c5e500f06f31ae5b15105c9b8c709482",
+    "sha256": "aadf007f687949c3ce80a0b30c3e92ed3fad9f371bc323ce355b1d8fd6945e83",
     "item": {
       "id": "inarc",
       "name": "iNARC Launcher",
@@ -7950,7 +7950,7 @@
       "costCBills": 250000,
       "battleValue": 75,
       "introductionYear": 3062,
-      "isExplosive": true,
+      "isExplosive": false,
       "special": ["Multiple pod types"]
     }
   },
@@ -8917,7 +8917,7 @@
     "file": "weapons/missile-other.json",
     "index": 40,
     "id": "rl1",
-    "sha256": "c23b9230546ca412f520625a213b3cc401989ae518bd3a21378b6f4f5c4851a1",
+    "sha256": "55ac68a4ec82a5ca4d02ef7f253937fa45a7265683f6a812f466dfba2424a566",
     "item": {
       "id": "rl1",
       "name": "Rocket Launcher 1",
@@ -8934,8 +8934,8 @@
         "long": 12,
         "extreme": 18
       },
-      "weight": 0,
-      "criticalSlots": 0,
+      "weight": 0.025,
+      "criticalSlots": 2,
       "costCBills": 0,
       "battleValue": 2,
       "introductionYear": 3064,
@@ -8946,7 +8946,7 @@
     "file": "weapons/missile-other.json",
     "index": 41,
     "id": "rl2",
-    "sha256": "6cff8acbc6262775e9b203d25a8086ab280366667be9516d7f1da05c5efa4e62",
+    "sha256": "179333a1eff721eecfc0289b128fcc3257f68d18e9c7f76161d3834598bdc57d",
     "item": {
       "id": "rl2",
       "name": "Rocket Launcher 2",
@@ -8963,8 +8963,8 @@
         "long": 12,
         "extreme": 18
       },
-      "weight": 0,
-      "criticalSlots": 0,
+      "weight": 0.05,
+      "criticalSlots": 2,
       "costCBills": 0,
       "battleValue": 3,
       "introductionYear": 3064,
@@ -8975,7 +8975,7 @@
     "file": "weapons/missile-other.json",
     "index": 42,
     "id": "rl3",
-    "sha256": "053123bebacfe92e5bcd7bdf6fe2d7abee83e1facd447a848dc96ab3b59a2216",
+    "sha256": "b61f4e9b0a25ad24b73560eacafc08e93fa08cfeeee17d3a802d99aff2bbca72",
     "item": {
       "id": "rl3",
       "name": "Rocket Launcher 3",
@@ -8992,8 +8992,8 @@
         "long": 12,
         "extreme": 18
       },
-      "weight": 0,
-      "criticalSlots": 0,
+      "weight": 0.075,
+      "criticalSlots": 3,
       "costCBills": 0,
       "battleValue": 4,
       "introductionYear": 3064,
@@ -9004,7 +9004,7 @@
     "file": "weapons/missile-other.json",
     "index": 43,
     "id": "rl4",
-    "sha256": "15d1f8199b5805834f6e52c3df376deae44cb627cbec4b4c0b65319a1c95e0c4",
+    "sha256": "ce54d6f10f1dc9b8191405040b6fe93c44b8ad50743273d39ba2c840a640a397",
     "item": {
       "id": "rl4",
       "name": "Rocket Launcher 4",
@@ -9021,8 +9021,8 @@
         "long": 12,
         "extreme": 18
       },
-      "weight": 0,
-      "criticalSlots": 0,
+      "weight": 0.1,
+      "criticalSlots": 3,
       "costCBills": 0,
       "battleValue": 5,
       "introductionYear": 3064,
@@ -9174,7 +9174,7 @@
     "file": "weapons/missile-other.json",
     "index": 49,
     "id": "thunderbolt-10-i-os",
-    "sha256": "c6fa5ea00dc0b5333d7205f5f570c9269b414fe104e76cf9f3656e128a92a373",
+    "sha256": "2acbf219d35483161b622c108d811b77d1f488b91d80e1013f195c3dac2295e0",
     "item": {
       "id": "thunderbolt-10-i-os",
       "name": "Thunderbolt 10 (I-OS)",
@@ -9191,7 +9191,7 @@
         "long": 0
       },
       "weight": 6.5,
-      "criticalSlots": 0,
+      "criticalSlots": 2,
       "costCBills": 140000,
       "battleValue": 25,
       "introductionYear": 3081,
@@ -9202,7 +9202,7 @@
     "file": "weapons/missile-other.json",
     "index": 50,
     "id": "thunderbolt-10-os",
-    "sha256": "5891b0257aa9c9f8daee9fe701367ddf63c2fe12f3c71b27a1806f3883d2e1b9",
+    "sha256": "768ec86a40a66c96a1ce96b1bce8b34a10f45ec3077ae9bd58f9518b7790502b",
     "item": {
       "id": "thunderbolt-10-os",
       "name": "Thunderbolt 10 (OS)",
@@ -9219,7 +9219,7 @@
         "long": 0
       },
       "weight": 7.5,
-      "criticalSlots": 0,
+      "criticalSlots": 2,
       "costCBills": 87500,
       "battleValue": 25,
       "introductionYear": 3072,
@@ -9230,7 +9230,7 @@
     "file": "weapons/missile-other.json",
     "index": 51,
     "id": "thunderbolt-15-i-os",
-    "sha256": "cf80a666df3ee43ae5969e7c2542fd608315d4d4417b176a14672a7f820350e4",
+    "sha256": "175fe34920a265d035243f618dfa5b41460843ef31bc5f61ce5c17fb96669158",
     "item": {
       "id": "thunderbolt-15-i-os",
       "name": "Thunderbolt 15 (I-OS)",
@@ -9247,7 +9247,7 @@
         "long": 0
       },
       "weight": 10.5,
-      "criticalSlots": 0,
+      "criticalSlots": 3,
       "costCBills": 260000,
       "battleValue": 46,
       "introductionYear": 3081,
@@ -9258,7 +9258,7 @@
     "file": "weapons/missile-other.json",
     "index": 52,
     "id": "thunderbolt-15-os",
-    "sha256": "d54a07750ef044c4ece9ab1b55616c08a30d7a6c75fbad424ace237086747ece",
+    "sha256": "5ced1bd66eb76584514352979890322fb3fd8f8a6bf36556d777f349afd6c99a",
     "item": {
       "id": "thunderbolt-15-os",
       "name": "Thunderbolt 15 (OS)",
@@ -9275,7 +9275,7 @@
         "long": 0
       },
       "weight": 11.5,
-      "criticalSlots": 0,
+      "criticalSlots": 3,
       "costCBills": 162500,
       "battleValue": 46,
       "introductionYear": 3072,
@@ -9286,7 +9286,7 @@
     "file": "weapons/missile-other.json",
     "index": 53,
     "id": "thunderbolt-20-i-os",
-    "sha256": "cc96e006809a577a8ce488a10bea57440679ef6fc7a52abf9feef6c717dc1375",
+    "sha256": "90fb6e2ecf496898f5e804cdc83ed40a8358606b93b377345db019919b0af0b9",
     "item": {
       "id": "thunderbolt-20-i-os",
       "name": "Thunderbolt 20 (I-OS)",
@@ -9303,7 +9303,7 @@
         "long": 0
       },
       "weight": 14.5,
-      "criticalSlots": 0,
+      "criticalSlots": 5,
       "costCBills": 360000,
       "battleValue": 61,
       "introductionYear": 3081,
@@ -9314,7 +9314,7 @@
     "file": "weapons/missile-other.json",
     "index": 54,
     "id": "thunderbolt-20-os",
-    "sha256": "4678806134f53f3dc9a461b8f3bf7655811746c751f44d6c90ada10af452fb32",
+    "sha256": "29146141e156370f026212c6a59432f6bb66f183c0a9e38194283a901480c2ed",
     "item": {
       "id": "thunderbolt-20-os",
       "name": "Thunderbolt 20 (OS)",
@@ -9331,7 +9331,7 @@
         "long": 0
       },
       "weight": 15.5,
-      "criticalSlots": 0,
+      "criticalSlots": 5,
       "costCBills": 225000,
       "battleValue": 61,
       "introductionYear": 3072,
@@ -9342,7 +9342,7 @@
     "file": "weapons/missile-other.json",
     "index": 55,
     "id": "thunderbolt-5-i-os",
-    "sha256": "5d6b2c3b79de2177bad9a091b97e32c0288184d994ab5d81185dddacb6778f88",
+    "sha256": "3b7eae82b8b14da2ac0701c38a11588052ca7388c7a60bd8db858b0f983172c0",
     "item": {
       "id": "thunderbolt-5-i-os",
       "name": "Thunderbolt 5 (I-OS)",
@@ -9359,7 +9359,7 @@
         "long": 0
       },
       "weight": 2.5,
-      "criticalSlots": 0,
+      "criticalSlots": 1,
       "costCBills": 40000,
       "battleValue": 13,
       "introductionYear": 3081,
@@ -9370,7 +9370,7 @@
     "file": "weapons/missile-other.json",
     "index": 56,
     "id": "thunderbolt-5-os",
-    "sha256": "48410abd6858f052c04711d005c937eed16acd9ae7b40b6a0b1eaff3e1d50914",
+    "sha256": "d0ab4e659bd4084ac4051c1b108d3f33f301b430a3d7eb2bd5f6910937a58b54",
     "item": {
       "id": "thunderbolt-5-os",
       "name": "Thunderbolt 5 (OS)",
@@ -9387,7 +9387,7 @@
         "long": 0
       },
       "weight": 3.5,
-      "criticalSlots": 0,
+      "criticalSlots": 1,
       "costCBills": 25000,
       "battleValue": 13,
       "introductionYear": 3072,
@@ -11897,7 +11897,7 @@
     "file": "weapons/physical.json",
     "index": 7,
     "id": "flail",
-    "sha256": "8c480e7276b0d44001f40788f62c6f6657e032fb5848715de11301e5239b56b4",
+    "sha256": "165c2057feb7e33b75ca5b0de7d9445525177d7d1b0010fef409bb3ade22e38e",
     "item": {
       "id": "flail",
       "type": "Flail",
@@ -11908,7 +11908,7 @@
       "tonnageDivisor": 10,
       "damageFormula": "tonnage_divisor",
       "damageDivisor": 4,
-      "criticalSlots": 0,
+      "criticalSlots": 4,
       "requiresLowerArm": true,
       "requiresHand": true,
       "validLocations": ["Left Arm", "Right Arm"],
@@ -11920,7 +11920,7 @@
     "file": "weapons/physical.json",
     "index": 8,
     "id": "wrecking-ball",
-    "sha256": "09193b03224e07922c94022e18fa3e4820bb8161b47d16dd86bf3365103cc520",
+    "sha256": "6ed1768c745be47d0c1430dd968938b93f8b74c81af1f8fff142660486443e83",
     "item": {
       "id": "wrecking-ball",
       "type": "Wrecking Ball",
@@ -11931,7 +11931,7 @@
       "tonnageDivisor": 10,
       "damageFormula": "tonnage_divisor",
       "damageDivisor": 5,
-      "criticalSlots": 0,
+      "criticalSlots": 5,
       "requiresLowerArm": false,
       "requiresHand": false,
       "validLocations": ["Left Torso", "Right Torso"],
@@ -12446,14 +12446,14 @@
     "file": "weapons/energy-laser.json",
     "index": 18,
     "id": "clan-er-medium-pulse-laser",
-    "sha256": "5b4eb8013831e30719fc1910772cc0ebdb3f25db70e8f8f7fac1e8a5c155895d",
+    "sha256": "75a5bc5526f838c6ac46a877a8741ff8e55f6b8918aa9ef7c36edce9b102af4b",
     "item": {
       "id": "clan-er-medium-pulse-laser",
       "name": "ER Medium Pulse Laser (Clan)",
       "category": "Energy",
       "subType": "ER Pulse Laser",
       "techBase": "CLAN",
-      "rulesLevel": "ADVANCED",
+      "rulesLevel": "STANDARD",
       "damage": 7,
       "heat": 6,
       "ranges": {
@@ -12530,14 +12530,14 @@
     "file": "weapons/energy-laser.json",
     "index": 21,
     "id": "medium-x-pulse-laser",
-    "sha256": "1dba6e8b93c15c0bfa7c8eb7c6de55964dcdb5581ad5ec3b1483122765be0259",
+    "sha256": "fa4739f638d61d33865956e5fc5b7d53c9a2d02bc7c33076fa635da564e4b89f",
     "item": {
       "id": "medium-x-pulse-laser",
       "name": "Medium X-Pulse Laser",
       "category": "Energy",
       "subType": "X-Pulse Laser",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "EXPERIMENTAL",
+      "rulesLevel": "STANDARD",
       "damage": 6,
       "heat": 6,
       "ranges": {
@@ -12558,14 +12558,14 @@
     "file": "weapons/energy-laser.json",
     "index": 22,
     "id": "large-x-pulse-laser",
-    "sha256": "e117559734003a7c35f94536c06424a6de49c96a91a89394661a00929e538132",
+    "sha256": "7fa555659870ab9cc882340d727957d8e6040fafede72106ed7e30846ab9a9c2",
     "item": {
       "id": "large-x-pulse-laser",
       "name": "Large X-Pulse Laser",
       "category": "Energy",
       "subType": "X-Pulse Laser",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "EXPERIMENTAL",
+      "rulesLevel": "STANDARD",
       "damage": 9,
       "heat": 14,
       "ranges": {
@@ -12614,14 +12614,14 @@
     "file": "weapons/energy-laser.json",
     "index": 24,
     "id": "medium-vsp-laser",
-    "sha256": "e99e17506d0cb3079f4dce8f0404cd2c85a6bf8d1ece96a15bacd422c8435712",
+    "sha256": "5f0be3da5c659db608813568e05cb48f8d49a986c28468108d694b19fdfcf7cd",
     "item": {
       "id": "medium-vsp-laser",
       "name": "Medium Variable Speed Pulse Laser",
       "category": "Energy",
       "subType": "Variable Speed Pulse Laser",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "EXPERIMENTAL",
+      "rulesLevel": "STANDARD",
       "damage": 9,
       "heat": 7,
       "ranges": {
@@ -12642,14 +12642,14 @@
     "file": "weapons/energy-laser.json",
     "index": 25,
     "id": "large-vsp-laser",
-    "sha256": "fec9c21509ef3271d2a306411b1266b2a8cadab69053358e955f0a23c9b67c96",
+    "sha256": "a00f6253b5d722efcb5bab3cf94e3c063f2d70356897f15d265ea6071c2d2e41",
     "item": {
       "id": "large-vsp-laser",
       "name": "Large Variable Speed Pulse Laser",
       "category": "Energy",
       "subType": "Variable Speed Pulse Laser",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "EXPERIMENTAL",
+      "rulesLevel": "STANDARD",
       "damage": 11,
       "heat": 10,
       "ranges": {
@@ -12697,14 +12697,14 @@
     "file": "weapons/energy-laser.json",
     "index": 27,
     "id": "small-heavy-laser",
-    "sha256": "98984ab2ef41f9677b7744f46b51bede85bf34f3b3694d1cfcc77ccf667e520e",
+    "sha256": "2298a9bbf51293b1c01cadc051041092523a6ab3822f52684193aa8e3c1304ba",
     "item": {
       "id": "small-heavy-laser",
       "name": "Small Heavy Laser (Clan)",
       "category": "Energy",
       "subType": "Heavy Laser",
       "techBase": "CLAN",
-      "rulesLevel": "ADVANCED",
+      "rulesLevel": "STANDARD",
       "damage": 6,
       "heat": 3,
       "ranges": {
@@ -12725,14 +12725,14 @@
     "file": "weapons/energy-laser.json",
     "index": 28,
     "id": "medium-heavy-laser",
-    "sha256": "cb13e6ef04c21997aff5a3cfa30a9ef5d6d00bd502953f2dd5bd1630a6f76399",
+    "sha256": "08e7ce645ee480ec1dd369af83419fd1f686a36cf16df1cd1c3ab1abc3f07c57",
     "item": {
       "id": "medium-heavy-laser",
       "name": "Medium Heavy Laser (Clan)",
       "category": "Energy",
       "subType": "Heavy Laser",
       "techBase": "CLAN",
-      "rulesLevel": "ADVANCED",
+      "rulesLevel": "STANDARD",
       "damage": 10,
       "heat": 7,
       "ranges": {
@@ -12753,14 +12753,14 @@
     "file": "weapons/energy-laser.json",
     "index": 29,
     "id": "large-heavy-laser",
-    "sha256": "c2f1c4278fdf7e2ab2b5f344b1aa27c96599b961b2d8d40d886e096956c0aefb",
+    "sha256": "6693dc7547e535a982402b4004e802355989cbeb08381e79f966e990a261492f",
     "item": {
       "id": "large-heavy-laser",
       "name": "Large Heavy Laser (Clan)",
       "category": "Energy",
       "subType": "Heavy Laser",
       "techBase": "CLAN",
-      "rulesLevel": "ADVANCED",
+      "rulesLevel": "STANDARD",
       "damage": 16,
       "heat": 18,
       "ranges": {
@@ -13401,14 +13401,14 @@
     "file": "weapons/energy-other.json",
     "index": 1,
     "id": "tsemp-cannon",
-    "sha256": "e91b4542940ac864c33c1d80945ec699ba86e6718f3d0a666713c9095cbf6da6",
+    "sha256": "2bbe6c1f3bbb688d48cea8c4f1a9d95d4617c345b1dbd2913e1c299688306189",
     "item": {
       "id": "tsemp-cannon",
       "name": "TSEMP Cannon",
       "category": "Energy",
       "subType": "TSEMP",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "EXPERIMENTAL",
+      "rulesLevel": "ADVANCED",
       "damage": 0,
       "heat": 10,
       "ranges": {
@@ -13456,14 +13456,14 @@
     "file": "weapons/energy-other.json",
     "index": 3,
     "id": "er-flamer",
-    "sha256": "b0d7c21099165eb8db0348815a67f2c9d4eda58472676b0cffcf9abc56303a80",
+    "sha256": "1abe839bdab86bbef9c715439a27c82cf383202e392f142d8fe46bb8f31234e6",
     "item": {
       "id": "er-flamer",
       "name": "ER Flamer",
       "category": "Energy",
       "subType": "Flamer",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "ADVANCED",
+      "rulesLevel": "STANDARD",
       "damage": 2,
       "heat": 4,
       "ranges": {
@@ -13597,14 +13597,14 @@
     "file": "weapons/energy-other.json",
     "index": 8,
     "id": "laser-ams",
-    "sha256": "ef738c8d550bc2e548c64669bad7ba3a119ebbb549bceec4c71f51b794cd64cf",
+    "sha256": "bf397a4890dc2083aac84f9e2ceace918356ebae9a6318e966ef1f596828790e",
     "item": {
       "id": "laser-ams",
       "name": "Laser Anti-Missile System",
       "category": "Energy",
       "subType": "Anti-Missile System",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "ADVANCED",
+      "rulesLevel": "STANDARD",
       "damage": 3,
       "heat": 7,
       "ranges": {
@@ -16273,7 +16273,7 @@
     "file": "ammunition/gauss.json",
     "index": 1,
     "id": "light-gauss-ammo",
-    "sha256": "69bc01fe055929b93fa8eb85a1b8ba830b859581f4a7e2b20ae44f3ed4337861",
+    "sha256": "efcb3bfce1fcdf142a40ae35290ffb85d42efad9cf24d4d4465732166614922d",
     "item": {
       "id": "light-gauss-ammo",
       "name": "Light Gauss Ammo",
@@ -16287,7 +16287,7 @@
       "criticalSlots": 1,
       "costPerTon": 20000,
       "battleValue": 20,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 3056
     }
   },
@@ -16295,7 +16295,7 @@
     "file": "ammunition/gauss.json",
     "index": 2,
     "id": "heavy-gauss-ammo",
-    "sha256": "43349e538d15fca9bd95e4dd427c5a3255777518152468c5a20da58822847888",
+    "sha256": "436246e7ad06b2ff04572f5e402d069f3a2417d7b9c032d9857df6a8e8a6c9f7",
     "item": {
       "id": "heavy-gauss-ammo",
       "name": "Heavy Gauss Ammo",
@@ -16309,7 +16309,7 @@
       "criticalSlots": 1,
       "costPerTon": 20000,
       "battleValue": 43,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 3061
     }
   },
@@ -16339,7 +16339,7 @@
     "file": "ammunition/gauss.json",
     "index": 4,
     "id": "gauss",
-    "sha256": "80c0f8dfa1d8d054a6c522cf98a00ec78ae356daa43fd746d83ebd0f81556021",
+    "sha256": "2900b3cfbbddba7fdfadc5c62399bccd00e096b15090ee6e23fe5a0d46cbfa02",
     "item": {
       "id": "gauss",
       "name": "Gauss Rifle Ammo",
@@ -16353,7 +16353,7 @@
       "criticalSlots": 1,
       "costPerTon": 20000,
       "battleValue": 40,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 2590,
       "special": [],
       "reintroductionYear": 3038
@@ -16363,7 +16363,7 @@
     "file": "ammunition/gauss.json",
     "index": 5,
     "id": "light-gauss",
-    "sha256": "27d8fcc89594d775a077b1cc644741cc33424207b9e7f3b8b54c6d37d20e71c4",
+    "sha256": "c6e5a5d60e037d39a8c3613c6505e4b2878880125cd07b5b1aeab56f6f11a59f",
     "item": {
       "id": "light-gauss",
       "name": "Light Gauss Rifle Ammo",
@@ -16377,7 +16377,7 @@
       "criticalSlots": 1,
       "costPerTon": 20000,
       "battleValue": 20,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 3056,
       "special": []
     }
@@ -16386,7 +16386,7 @@
     "file": "ammunition/gauss.json",
     "index": 6,
     "id": "heavygauss",
-    "sha256": "29075766a58424822dc4e0f6e91288a81d55b01d70ac1bca1a7fa913922dd953",
+    "sha256": "48be573b36e9419060b8d391e41d3ed0cf6ed0b6a96f2ff366bd54af08eebbd6",
     "item": {
       "id": "heavygauss",
       "name": "Heavy Gauss Rifle Ammo",
@@ -16400,7 +16400,7 @@
       "criticalSlots": 1,
       "costPerTon": 20000,
       "battleValue": 43,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 3061,
       "special": []
     }
@@ -16409,7 +16409,7 @@
     "file": "ammunition/gauss.json",
     "index": 7,
     "id": "apgaussrifle",
-    "sha256": "d994d6aff87f16a54a980fcf5bd1363e5b6b60e4652451d09460bb67f8cfc55b",
+    "sha256": "1f2cae842a484969ad00f1b8af97acb7a88e6bfd96bdf33a058025ac74f5d7ab",
     "item": {
       "id": "apgaussrifle",
       "name": "Anti-Personnel Gauss Rifle Ammo",
@@ -16423,7 +16423,7 @@
       "criticalSlots": 1,
       "costPerTon": 1000,
       "battleValue": 3,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 3069,
       "special": []
     }
@@ -16432,7 +16432,7 @@
     "file": "ammunition/gauss.json",
     "index": 8,
     "id": "improvedheavygauss",
-    "sha256": "55485b90f5bc815d935e8fb80919d89feb3c31f3f38dee53408e53afb254c2c6",
+    "sha256": "db76de9961dea1b94e6a84ddf160c0e6ed0c00f98bb3582a4f42f1f154044ea1",
     "item": {
       "id": "improvedheavygauss",
       "name": "Improved Heavy Gauss Rifle Ammo",
@@ -16446,7 +16446,7 @@
       "criticalSlots": 1,
       "costPerTon": 20000,
       "battleValue": 48,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 3081,
       "special": []
     }
@@ -16455,7 +16455,7 @@
     "file": "ammunition/gauss.json",
     "index": 9,
     "id": "silver-bullet-gauss",
-    "sha256": "ac5f6a98800631f5426615cbb019e7ce57155400cd7b23c2ffd50523ecac97ad",
+    "sha256": "26e17c75a450057332728822209d17085edd1e363c40c9b35d3344366e845935",
     "item": {
       "id": "silver-bullet-gauss",
       "name": "Silver Bullet Gauss Rifle Ammo",
@@ -16469,7 +16469,7 @@
       "criticalSlots": 1,
       "costPerTon": 25000,
       "battleValue": 25,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 3080,
       "special": []
     }
@@ -16553,7 +16553,7 @@
     "file": "ammunition/gauss.json",
     "index": 13,
     "id": "impgaussammo",
-    "sha256": "4ce75a7ab973cdd4b66ddd03dc0b504f9501c8d3e3739c794d1d8d04cb278700",
+    "sha256": "e6db0c2d7ddcba14010a6726e3a43d89520580d68b62aa5a278a8a37e9307c80",
     "item": {
       "id": "impgaussammo",
       "name": "Improved Gauss Rifle Ammo",
@@ -16567,7 +16567,7 @@
       "criticalSlots": 1,
       "costPerTon": 20000,
       "battleValue": 40,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 2821,
       "special": [],
       "extinctionYear": 2837,
@@ -18828,7 +18828,7 @@
     "file": "ammunition/narc.json",
     "index": 8,
     "id": "compact-narc-ammo",
-    "sha256": "8c1de7ee2ce472446d01b6386316f3c83f3f5402ce11c41d100adfd925344aff",
+    "sha256": "dea95d852b15d190fc20a1441439f027e1fe9718f7c9825513b85d18346f82ef",
     "item": {
       "id": "compact-narc-ammo",
       "name": "Compact Narc Ammo",
@@ -18842,7 +18842,7 @@
       "criticalSlots": 1,
       "costPerTon": 0,
       "battleValue": 0,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 3060,
       "special": []
     }
@@ -21072,13 +21072,13 @@
     "file": "electronics/c3.json",
     "index": 9,
     "id": "battlearmorc3",
-    "sha256": "6678065e21af4ec991047d21dd804c9aacfacd038876344689056ca2991b5694",
+    "sha256": "7fd54c5a2894d8cdd15fa5a267d05d8d129c642d6725d8eeb366c9d935c4e378",
     "item": {
       "id": "battlearmorc3",
       "name": "Battle Armor C3",
       "category": "C3 System",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "EXPERIMENTAL",
+      "rulesLevel": "ADVANCED",
       "weight": 0.25,
       "criticalSlots": 1,
       "costCBills": 62500,
@@ -21566,7 +21566,7 @@
     "file": "miscellaneous/myomer.json",
     "index": 1,
     "id": "industrial-tsm",
-    "sha256": "3c9f8d5c4d22e4cc7bbab7e0a981c460e493daa95aa838cf42ec3a21bb984aa9",
+    "sha256": "8d666749f1d112af50b7957fc5b3ddce196da5dd13165243b5bf5254bc907fc7",
     "item": {
       "id": "industrial-tsm",
       "name": "Industrial TSM",
@@ -21574,7 +21574,7 @@
       "techBase": "INNER_SPHERE",
       "rulesLevel": "STANDARD",
       "weight": 0,
-      "criticalSlots": 6,
+      "criticalSlots": 12,
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3045,
@@ -21625,13 +21625,13 @@
     "file": "miscellaneous/defensive.json",
     "index": 2,
     "id": "laser-ams",
-    "sha256": "15b01a789964fd27f64162545f0cdddc3226c0a0b7512aee2e8ca82d9cce6239",
+    "sha256": "5d3f44cceb79d120254345f8d8a2a860e2d1069c59ac01817334040a6e56d626",
     "item": {
       "id": "laser-ams",
       "name": "Laser Anti-Missile System",
       "category": "Defensive",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "ADVANCED",
+      "rulesLevel": "STANDARD",
       "weight": 1.5,
       "criticalSlots": 2,
       "costCBills": 225000,
@@ -22490,13 +22490,13 @@
     "file": "miscellaneous/other.json",
     "index": 40,
     "id": "clan-armor-kit-all",
-    "sha256": "7c72d462e4ae23d4c5187d30232ff56103a3181d5939baa7309146eeb06696c1",
+    "sha256": "eb83dc759a412d4dd207418ef4c0522063f956c0d8eea0f939e6921df6e2f930",
     "item": {
       "id": "clan-armor-kit-all",
       "name": "Clan Armor Kit (All)",
       "category": "Miscellaneous",
       "techBase": "CLAN",
-      "rulesLevel": "EXPERIMENTAL",
+      "rulesLevel": "STANDARD",
       "weight": 0,
       "criticalSlots": 0,
       "costCBills": 5560,
@@ -26390,13 +26390,13 @@
     "file": "miscellaneous/other.json",
     "index": 243,
     "id": "vehicular-sponson-turret",
-    "sha256": "36a23db1609b97edef0647f5a0325f07f91996b1c543bfad37033797370b4c4b",
+    "sha256": "7c7a8c2eefc2271b2559f3e5169da0b7ebec72f81b24e4ce9569bdd5f2e6df25",
     "item": {
       "id": "vehicular-sponson-turret",
       "name": "Vehicular Sponson Turret",
       "category": "Miscellaneous",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "EXPERIMENTAL",
+      "rulesLevel": "STANDARD",
       "weight": 0,
       "criticalSlots": 0,
       "costCBills": 0,
@@ -26922,13 +26922,13 @@
     "file": "miscellaneous/other.json",
     "index": 271,
     "id": "jump-booster-ba",
-    "sha256": "5c92d8f8a4a134043cadd9bd5eb95d848e2996f2e01867bdb10e64c942eba5bc",
+    "sha256": "3574c2490a222ef2824485be4caccd56a4b8a959a59f3763d3acd85c22910ecc",
     "item": {
       "id": "jump-booster-ba",
       "name": "Jump Booster [BA]",
       "category": "Miscellaneous",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "STANDARD",
       "weight": 0.125,
       "criticalSlots": 2,
       "costCBills": 75000,
@@ -27131,13 +27131,13 @@
     "file": "miscellaneous/other.json",
     "index": 282,
     "id": "detachable-weapon-pack",
-    "sha256": "2377f68b1149f7e01094f845332354312d81d822df14a364356733ab65d71314",
+    "sha256": "52dfe76779da71627fa2f19e6e65c3cf41c84a02c1b88311b7d7cc37b324dc25",
     "item": {
       "id": "detachable-weapon-pack",
       "name": "Detachable Weapon Pack",
       "category": "Miscellaneous",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "UNOFFICIAL",
+      "rulesLevel": "STANDARD",
       "weight": 0,
       "criticalSlots": 1,
       "costCBills": 18000,

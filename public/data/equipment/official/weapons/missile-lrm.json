@@ -942,7 +942,7 @@
       "category": "Missile",
       "subType": "LRM",
       "techBase": "CLAN",
-      "rulesLevel": "ADVANCED",
+      "rulesLevel": "STANDARD",
       "damage": "1/missile",
       "heat": 5,
       "ranges": {
