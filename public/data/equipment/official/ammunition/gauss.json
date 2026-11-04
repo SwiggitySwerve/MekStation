@@ -30,7 +30,7 @@
       "criticalSlots": 1,
       "costPerTon": 20000,
       "battleValue": 20,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 3056
     },
     {
@@ -46,7 +46,7 @@
       "criticalSlots": 1,
       "costPerTon": 20000,
       "battleValue": 43,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 3061
     },
     {
@@ -78,7 +78,7 @@
       "criticalSlots": 1,
       "costPerTon": 20000,
       "battleValue": 40,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 2590,
       "special": [],
       "reintroductionYear": 3038
@@ -96,7 +96,7 @@
       "criticalSlots": 1,
       "costPerTon": 20000,
       "battleValue": 20,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 3056,
       "special": []
     },
@@ -113,7 +113,7 @@
       "criticalSlots": 1,
       "costPerTon": 20000,
       "battleValue": 43,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 3061,
       "special": []
     },
@@ -130,7 +130,7 @@
       "criticalSlots": 1,
       "costPerTon": 1000,
       "battleValue": 3,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 3069,
       "special": []
     },
@@ -147,7 +147,7 @@
       "criticalSlots": 1,
       "costPerTon": 20000,
       "battleValue": 48,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 3081,
       "special": []
     },
@@ -164,7 +164,7 @@
       "criticalSlots": 1,
       "costPerTon": 25000,
       "battleValue": 25,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 3080,
       "special": []
     },
@@ -238,7 +238,7 @@
       "criticalSlots": 1,
       "costPerTon": 20000,
       "battleValue": 40,
-      "isExplosive": true,
+      "isExplosive": false,
       "introductionYear": 2821,
       "special": [],
       "extinctionYear": 2837,

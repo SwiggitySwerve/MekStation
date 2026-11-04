@@ -37,7 +37,7 @@
       "name": "Laser Anti-Missile System",
       "category": "Defensive",
       "techBase": "INNER_SPHERE",
-      "rulesLevel": "ADVANCED",
+      "rulesLevel": "STANDARD",
       "weight": 1.5,
       "criticalSlots": 2,
       "costCBills": 225000,

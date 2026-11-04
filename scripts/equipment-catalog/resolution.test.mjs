@@ -112,7 +112,13 @@ async function capture(root, inputs) {
   await getEquipmentLookupService().initialize();
   const loader = getEquipmentLoader(),
     mapper = new EquipmentNameMapper();
-  const names = new Set(inputs.names);
+  // Probe the corpus names, every baseline name and (below) catalog names.
+  const probes = resolve(here, 'resolution-inputs.json');
+  const names = new Set([
+    ...(inputs.names ?? []),
+    ...Object.keys(inputs.resolved ?? {}),
+    ...(existsSync(probes) ? read(probes).names : []),
+  ]);
   for (const name of Object.keys(conversion.getMappings())) names.add(name);
   const generatedAliases = new Map();
   const normalize = (name) => name.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -216,12 +222,19 @@ async function capture(root, inputs) {
   const ordered = [...names]
     .filter((name) => typeof name === 'string' && name.trim())
     .sort();
-  const results = Object.fromEntries(
-    Object.entries(apis).map(([api, lookup]) => {
-      const rows = ordered.map((name) => lookup(name) ?? null);
-      return [api, rows];
-    }),
+  // Lookups run API by API as before; the snapshot keeps only resolved
+  // entries, keyed by name, as { target: [indexes into apis] }.
+  const results = Object.values(apis).map((lookup) =>
+    ordered.map((name) => lookup(name) ?? null),
   );
+  const resolved = {};
+  ordered.forEach((name, i) => {
+    const row = {};
+    results.forEach((rows, k) => {
+      if (rows[i] !== null) (row[rows[i]] ??= []).push(k);
+    });
+    if (Object.keys(row).length) resolved[name] = row;
+  });
   const generated = ['weapons', 'ammunition', 'miscellaneous'].flatMap(
     (kind) => {
       const file = resolve(
@@ -335,8 +348,8 @@ async function capture(root, inputs) {
   return {
     baseline: inputs.baseline,
     provenance: inputs.provenance,
-    names: ordered,
-    results,
+    apis: Object.keys(apis),
+    resolved,
     directFailures,
     fallbackLeaks,
     categoryFailures,
@@ -391,8 +404,12 @@ if (process.argv.includes('--capture')) {
       { encoding: 'utf8', maxBuffer: 20e6, windowsHide: true },
     );
     assert.equal(result.status, 0, result.stderr);
-    const after = read(file),
-      indexes = new Map(after.names.map((name, index) => [name, index]));
+    const after = read(file);
+    // Target of (api, name) in a compact snapshot, or undefined if unresolved.
+    const targetOf = (snapshot, api, name) =>
+      Object.entries(snapshot.resolved[name] ?? {}).find(([, used]) =>
+        used.includes(snapshot.apis.indexOf(api)),
+      )?.[0];
     assert.deepEqual(
       after.directFailures,
       [],
@@ -411,39 +428,52 @@ if (process.argv.includes('--capture')) {
     const shifts = [],
       allowed = [],
       gains = {};
-    for (const [api, previous] of Object.entries(before.results))
-      previous.forEach((oldTarget, index) => {
-        const name = before.names[index],
-          newTarget = after.results[api][indexes.get(name)];
-        if (oldTarget === null || oldTarget === undefined) {
-          if (newTarget) gains[api] = (gains[api] ?? 0) + 1;
-          return;
+    const check = (api, name, oldTarget, newTarget) => {
+      // Weapon-only APIs can retain a gun sharing an old ammo id. The canonical
+      // equipment/ammo assertions below require the five exact new ammo/artillery targets.
+      if (newTarget === oldTarget) return;
+      const route = APPROVED_JAVA_REROUTES.find(
+        (route) =>
+          route.name.toLowerCase() === bareName(name).toLowerCase() &&
+          route.oldTarget === oldTarget,
+      );
+      const row = { api, name, oldTarget, newTarget };
+      if (route && newTarget === route.newTarget) allowed.push(row);
+      else shifts.push(row);
+    };
+    for (const [name, row] of Object.entries(before.resolved))
+      for (const [oldTarget, used] of Object.entries(row))
+        for (const k of used) {
+          const api = before.apis[k];
+          check(api, name, oldTarget, targetOf(after, api, name) ?? null);
         }
-        // Weapon-only APIs can retain a gun sharing an old ammo id. The canonical
-        // equipment/ammo assertions below require the five exact new ammo/artillery targets.
-        if (newTarget === oldTarget) return;
-        const route = APPROVED_JAVA_REROUTES.find(
-          (route) =>
-            route.name.toLowerCase() === bareName(name).toLowerCase() &&
-            route.oldTarget === oldTarget,
-        );
-        const row = { api, name, oldTarget, newTarget };
-        if (route && newTarget === route.newTarget) allowed.push(row);
-        else shifts.push(row);
-      });
+    for (const [name, row] of Object.entries(after.resolved))
+      for (const [newTarget, used] of Object.entries(row))
+        for (const k of used) {
+          const api = after.apis[k];
+          if (targetOf(before, api, name) !== undefined) continue;
+          // #2607 strips pod/rear markers in critical-slot lookup, so a newly
+          // resolved pod-qualified slot is checked against its bare name's old
+          // target (#2613), not counted as a gain.
+          const bare = api.startsWith('unitLoaderAmmo')
+            ? targetOf(before, api, bareName(name))
+            : undefined;
+          if (bare !== undefined) check(api, name, bare, newTarget);
+          else gains[api] = (gains[api] ?? 0) + 1;
+        }
     writeFileSync(
       file.replace(/\.json$/, '-shifts.json'),
       JSON.stringify({ shifts, allowed, gains }, null, 2) + '\n',
     );
     for (const route of APPROVED_JAVA_REROUTES) {
       assert.equal(
-        after.results.equipment[indexes.get(route.name)],
+        targetOf(after, 'equipment', route.name),
         route.newTarget,
         route.name,
       );
       if (route.name !== 'Sniper')
         assert.equal(
-          after.results.ammunition[indexes.get(route.name)],
+          targetOf(after, 'ammunition', route.name),
           route.newTarget,
           route.name,
         );
@@ -453,12 +483,20 @@ if (process.argv.includes('--capture')) {
       'IS LB 5-X AC Ammo',
       'IS LB 5-X Cluster Ammo',
     ])
-      for (const api of ['unitLoaderAmmoIS', 'unitLoaderAmmoClan'])
+      for (const api of ['unitLoaderAmmoIS', 'unitLoaderAmmoClan']) {
         assert.equal(
-          after.results[api][indexes.get(`${name} (OMNIPOD)`)],
-          after.results[api][indexes.get(name)],
+          targetOf(after, api, `${name} (OMNIPOD)`),
+          targetOf(after, api, name),
           `${api} ${name} (OMNIPOD) follows its bare form`,
         );
+        assert.ok(
+          targetOf(before, api, `${name} (OMNIPOD)`) !== undefined ||
+            allowed.some(
+              (row) => row.api === api && row.name === `${name} (OMNIPOD)`,
+            ),
+          `${api} ${name} (OMNIPOD) is guarded by the baseline, not a gain`,
+        );
+      }
     assert.deepEqual(shifts, [], JSON.stringify(shifts.slice(0, 30), null, 2));
   });
 }
