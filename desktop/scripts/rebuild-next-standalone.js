@@ -228,6 +228,7 @@ async function main() {
     return;
   }
 
+  const hydrateStarted = Date.now();
   execFileSync(
     process.execPath,
     [
@@ -244,13 +245,21 @@ async function main() {
   );
 
   console.log(
+    `[rebuild-next-standalone] Standalone hydration: ${Date.now() - hydrateStarted} ms`,
+  );
+
+  console.log(
     `[rebuild-next-standalone] Preparing isolated Electron standalone copy\n` +
       `  source=${nextStandaloneDir}\n` +
       `  target=${electronStandaloneDir}`,
   );
   const rootNativeBindingSnapshots =
     snapshotRootNativeBindings(nextStandaloneDir);
+  const copyStarted = Date.now();
   await copyStandaloneForElectron(nextStandaloneDir, electronStandaloneDir);
+  console.log(
+    `[rebuild-next-standalone] Electron image copy: ${Date.now() - copyStarted} ms`,
+  );
 
   const electronBinaryPath = require('electron');
 

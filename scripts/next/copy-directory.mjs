@@ -59,7 +59,7 @@ export async function copyDirectory(source, target, { filter } = {}) {
   if (filter) {
     for (const { target, mode } of directories.toReversed()) {
       try {
-        fs.chmodSync(target, mode);
+        if (fs.statSync(target).mode !== mode) fs.chmodSync(target, mode);
       } catch (error) {
         if (!failed) failure = error;
         failed = true;
