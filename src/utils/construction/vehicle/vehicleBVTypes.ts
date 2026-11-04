@@ -79,6 +79,8 @@ export interface VehicleBVTurret {
  * Input for vehicle BV calculation.
  */
 export interface VehicleBVInput {
+  /** Construction year for native PPC capacitor compatibility. */
+  year?: number;
   /** Motion type — Tracked, Wheeled, Hover, VTOL, Hydrofoil, WiGE, Naval, Submarine, Rail, Maglev. */
   motionType: GroundMotionType;
   /** Support vehicles use the motion base without chassis-equipment additions. */
