@@ -60,6 +60,7 @@ scripts/**
 !scripts/e2e/relaunching-server.mjs
 !scripts/jest/
 !scripts/jest/run-jest-lane.mjs
+!scripts/jest/update-test-durations.mjs
 !scripts/lib/
 !scripts/lib/**
 !scripts/next/
