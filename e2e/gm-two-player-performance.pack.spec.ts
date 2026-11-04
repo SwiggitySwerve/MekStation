@@ -73,7 +73,10 @@ import {
   type ControlledCommandKind,
 } from '@/lib/multiplayer/performance/controlledLoopbackFixture';
 
-import { createGmTwoPlayerCampaignFixture } from './fixtures/gmTwoPlayerCampaign';
+import {
+  createGmTwoPlayerCampaignFixture,
+  vaultMintResponse,
+} from './fixtures/gmTwoPlayerCampaign';
 
 type Fixture = Awaited<ReturnType<typeof createGmTwoPlayerCampaignFixture>>;
 type Client = Fixture['clients'][number];
@@ -962,7 +965,9 @@ async function fulfilMintWith(page: Page, issued: IIssuedToken): Promise<void> {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify(issued),
+      body: JSON.stringify(
+        vaultMintResponse({ ...issued, wireToken: issued.token }),
+      ),
     });
   });
 }
