@@ -29,7 +29,7 @@ import {
   linkMountedWeaponBVModifiers,
   getMountedBVLinkType,
   linkPPCCapacitorBVWeapons,
-  linkAerospaceMachineGunArrayBVWeapons,
+  linkMachineGunArrayBVWeapons,
 } from '../equipmentBV/weaponLinks';
 import {
   getWeaponLinkBVMultiplier,
@@ -205,7 +205,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     });
   }
   // MekFileParser.java:425-449; BVCalculator.java:860-872.
-  linkAerospaceMachineGunArrayBVWeapons(weapons);
+  linkMachineGunArrayBVWeapons(weapons);
   linkMountedWeaponBVModifiers(
     weapons,
     input.equipment.flatMap((item) => {
