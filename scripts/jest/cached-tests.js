@@ -671,7 +671,7 @@ function createStore(dir) {
     get(key) {
       try {
         const entry = JSON.parse(fs.readFileSync(entryPath(key), 'utf8'));
-        return entry && entry.key === key ? entry : null;
+        return entry && entry.key === key && !entry.rejected ? entry : null;
       } catch {
         return null; // missing or corrupt: not a hit
       }
@@ -691,8 +691,13 @@ function createStore(dir) {
         // best effort
       }
     },
+    /**
+     * Reject an entry by overwriting it, not deleting it: CI restores main's
+     * seed and then a PR's own entries into one directory, and a deletion
+     * would let main's pass come back. A later pass on the same key records over it.
+     */
     remove(key) {
-      fs.rmSync(entryPath(key), { force: true });
+      this.put(key, { rejected: true });
     },
     /** Drop entries not used for `days`; keeps the Actions cache from growing forever. */
     prune(days) {
