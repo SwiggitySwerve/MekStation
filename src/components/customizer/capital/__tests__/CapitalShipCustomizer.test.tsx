@@ -45,6 +45,7 @@ const IDS = [
   'union-2708',
   'comitatus-jumpship-2995',
   'aegis-heavy-cruiser-2372',
+  'gaajian-system-patrol-boat-2485',
   'crucible-station',
   'czar-dropship',
 ];
