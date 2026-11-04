@@ -169,7 +169,11 @@ export const requiredWorkflowJobContracts = [
     uploadFailureIf: `failure() && (${E2E_CHANGE_GATE_IF})`,
     // The gate writes its own report folder (the smoke suites write the
     // default one after it), and the failure upload must carry it.
-    uploadPaths: ['test-results', 'playwright-report-gates'],
+    uploadPaths: [
+      'test-results',
+      'playwright-report',
+      'playwright-report-gates',
+    ],
     extraStepIfs: {
       'Run customizer library suite': `\${{ !cancelled() && (${E2E_CHANGE_GATE_IF}) }}`,
       'Run tactical-map visual smoke': `\${{ !cancelled() && (${E2E_CHANGE_GATE_IF}) }}`,
