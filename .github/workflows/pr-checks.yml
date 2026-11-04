@@ -216,16 +216,17 @@ jobs:
         run: node scripts/qc/tsrs-side-check.mjs "$RUNNER_TEMP/tsrs"
 
   # ---------------------------------------------------------------
-  # simulation-checks runs the simulation wall-clock and coverage lanes
-  # one after another on one runner (never alongside other work, so the
-  # perf budgets measure an idle runner). Code-only.
+  # simulation-checks runs the simulation wall-clock, coverage and
+  # statistical-proof lanes one after another on one runner (never
+  # alongside other work, so the perf budgets measure an idle runner).
+  # Code-only; the 100-game proof also needs its own inputs changed.
   # ---------------------------------------------------------------
   simulation-checks:
     name: Simulation Checks
     needs: detect-changes
     if: needs.detect-changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout code
@@ -290,6 +291,20 @@ jobs:
         if: ${{ !cancelled() }}
         run: node scripts/qc/validate-combat-simulation-coverage.mjs --summary=coverage/combat-simulation/coverage-summary.json
 
+      # simulation-system "Statistical Validation": a PR that touches the
+      # proof's inputs cannot merge without it; main and nightly always run it.
+      - name: Run 100-game statistical combat proofs
+        if: ${{ !cancelled() && needs.detect-changes.outputs.statistical == 'true' }}
+        run: >-
+          npx jest --selectProjects unit --ci --runInBand --runTestsByPath
+          src/simulation/__tests__/integration.test.ts
+        env:
+          SIMULATION_COUNT: '100'
+          SIMULATION_PROFILE_AVG_GAME_BUDGET_MS: '4500'
+          SIMULATION_PROFILE_GAME_COUNT: '10'
+          SIMULATION_PROFILE_RUNNER_BUDGET_MS: '4000'
+          SIMULATION_PROFILE_TIME_BUDGET_MS: '60000'
+
   # Three shards. jest.config.js uses every vCPU in CI (Lane B), and
   # JEST_SPLIT_CORPUS moves the whole-catalog suites to corpus-tests and the
   # roadmap tooling suites to Static Checks (config/jest/corpus-suites.js).
@@ -339,19 +354,16 @@ jobs:
           key: ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*', 'config/jest/**') }}-unit-${{ matrix.shard }}-${{ github.sha }}
 
   # The whole-catalog suites (Lane B's `corpus` project) replay the committed
-  # catalog; each takes 30-140 s. They run when a changed file is in their
+  # catalog; each takes 30-140 s, so one runner's 4 workers finish them in
+  # about the time of a unit shard. They run when a changed file is in their
   # import closure or is catalog/converter data, and always on main and
   # nightly.
   corpus-tests:
-    name: Corpus Tests (${{ matrix.shard }}/2)
+    name: Corpus Tests
     needs: detect-changes
     if: needs.detect-changes.outputs.corpus == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2]
 
     steps:
       - name: Checkout code
@@ -363,40 +375,10 @@ jobs:
           node-version: '22'
           build-caches: 'false'
 
-      - name: Run corpus test shard
-        run: npx jest --selectProjects corpus --ci --shard=${{ matrix.shard }}/2
+      - name: Run corpus tests
+        run: npx jest --selectProjects corpus --ci
         env:
           JEST_SPLIT_CORPUS: 'true'
-
-  statistical-proof-pr:
-    name: Statistical Proof PR
-    needs: detect-changes
-    if: needs.detect-changes.outputs.statistical == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-          build-caches: 'false'
-
-      # simulation-system "Statistical Validation": a PR that touches the
-      # proof's inputs cannot merge without it; main and nightly always run it.
-      - name: Run 100-game statistical combat proofs
-        run: >-
-          npx jest --selectProjects unit --ci --runInBand --runTestsByPath
-          src/simulation/__tests__/integration.test.ts
-        env:
-          SIMULATION_COUNT: '100'
-          SIMULATION_PROFILE_AVG_GAME_BUDGET_MS: '4500'
-          SIMULATION_PROFILE_GAME_COUNT: '10'
-          SIMULATION_PROFILE_RUNNER_BUDGET_MS: '4000'
-          SIMULATION_PROFILE_TIME_BUDGET_MS: '60000'
 
   validate-combat:
     name: Validate Combat Suite
@@ -692,7 +674,6 @@ jobs:
         unit-test-shards,
         corpus-tests,
         simulation-checks,
-        statistical-proof-pr,
         validate-combat,
         schema-bridge,
         prepare-build,
@@ -710,7 +691,6 @@ jobs:
           GATES: >-
             {"simulation-checks": ["code"],
              "corpus-tests": ["corpus"],
-             "statistical-proof-pr": ["statistical"],
              "validate-combat": ["combat"],
              "schema-bridge": ["code"],
              "prepare-build": ["code"],
