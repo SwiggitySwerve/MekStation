@@ -221,6 +221,7 @@ export function calculateOffensiveBVWithHeatTracking(
     weightBonus,
     speedFactor,
     totalOffensiveBV,
+    offensiveTypeModifier: typeModifier,
     heatEfficiency,
     moveHeat,
     rawWeaponBV: heatTrackedWeapons.rawWeaponBV,
