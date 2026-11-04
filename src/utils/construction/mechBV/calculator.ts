@@ -472,6 +472,9 @@ export function calculateUnitBV(
       offensiveBV: offResult.totalOffensiveBV,
       // Modifiers
       cockpitModifier: finalCockpitMod,
+      offensiveTypeModifier: offResult.offensiveTypeModifier,
+      summaryModifier: finalCockpitMod * riscKitMod,
+      totalExplosivePenalty,
       cockpitType: effectiveCockpit,
       // Context
       techBase: unit.techBase,
