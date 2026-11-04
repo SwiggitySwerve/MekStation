@@ -12,7 +12,7 @@ export async function copyDirectory(source, target, { filter } = {}) {
     if (filter && !filter(from, to)) return true;
     const stats = fs.lstatSync(from);
     if (!stats.isDirectory() || stats.isSymbolicLink()) return false;
-    directories.push(to);
+    directories.push({ target: to, mode: stats.mode });
     for (const entry of fs.readdirSync(from, { withFileTypes: true })) {
       const input = path.join(from, entry.name);
       const output = path.join(to, entry.name);
@@ -33,8 +33,8 @@ export async function copyDirectory(source, target, { filter } = {}) {
     return;
   }
   // Node 22's no-filter cpSync uses default mkdir permissions, not source modes.
-  for (const directory of directories)
-    fs.mkdirSync(directory, { recursive: true });
+  for (const { target } of directories)
+    fs.mkdirSync(target, { recursive: true });
   let next = 0;
   let failed = false;
   let failure;
@@ -54,5 +54,17 @@ export async function copyDirectory(source, target, { filter } = {}) {
   await Promise.all(
     Array.from({ length: Math.min(8, files.length) }, () => worker()),
   );
+  // Node 22's filtered JS copier restores source directory modes after their
+  // contents, while its unfiltered native copier keeps default mkdir modes.
+  if (filter) {
+    for (const { target, mode } of directories.toReversed()) {
+      try {
+        fs.chmodSync(target, mode);
+      } catch (error) {
+        if (!failed) failure = error;
+        failed = true;
+      }
+    }
+  }
   if (failed) throw failure;
 }

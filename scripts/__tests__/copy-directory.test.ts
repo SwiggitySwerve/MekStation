@@ -111,15 +111,24 @@ describe('standalone complete directory copying', () => {
     },
   );
 
-  (process.platform === 'win32' ? it.skip : it).each([0o700, 0o555])(
-    'uses default directory permissions like fs.cpSync for source mode %s',
-    (mode) => {
+  (process.platform === 'win32' ? it.skip : it).each([
+    [0o700, false],
+    [0o555, false],
+    [0o700, true],
+    [0o555, true],
+  ] as const)(
+    'uses directory permissions like fs.cpSync for source mode %s (filtered: %s)',
+    (mode, filtered) => {
       const root = fixture();
       const directories = ['input', 'input/nested'];
       try {
         for (const directory of directories)
           fs.chmodSync(path.join(root, directory), mode);
-        const result = run(root, 'process.umask(0o022);');
+        const result = run(
+          root,
+          'process.umask(0o022);',
+          filtered ? '() => true' : 'undefined',
+        );
         expect(result.status).toBe(0);
         expect(result.stderr).toBe('');
         const output = JSON.parse(result.stdout);
@@ -134,15 +143,15 @@ describe('standalone complete directory copying', () => {
     },
   );
 
-  (process.platform === 'win32' ? it : it.skip)(
-    'uses default directory permissions like fs.cpSync for a Windows read-only directory',
-    () => {
+  (process.platform === 'win32' ? it : it.skip).each([false, true])(
+    'uses directory permissions like fs.cpSync for a Windows read-only directory (filtered: %s)',
+    (filtered) => {
       const root = fixture();
       const directory = path.join(root, 'input/nested');
       try {
         expect(spawnSync('attrib.exe', ['+r', directory]).status).toBe(0);
         expect(fs.statSync(directory).mode & 0o222).toBe(0);
-        const result = run(root);
+        const result = run(root, '', filtered ? '() => true' : 'undefined');
         expect(result.status).toBe(0);
         expect(result.stderr).toBe('');
         const output = JSON.parse(result.stdout);
