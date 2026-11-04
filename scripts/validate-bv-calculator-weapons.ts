@@ -1,6 +1,7 @@
 import type { CritScan } from './validate-bv-crit-scan';
 import type { UnitData } from './validate-bv-types';
 
+import { applyTargetingComputerBV } from '../src/utils/construction/battleValueWeapons';
 import { toMechLoc } from './validate-bv-normalizers';
 import { isArmLoc } from './validate-bv-unit-derived';
 
@@ -251,7 +252,7 @@ export function applyWeaponPostScanModifiers(
     if (isArmLoc(w.location) || w.isTurret) continue;
     let modBV = w.bv;
     if (w.hasAES) modBV *= 1.25;
-    if (hasTC && w.isDirectFire) modBV *= 1.25;
+    if (hasTC && w.isDirectFire) modBV = applyTargetingComputerBV(modBV);
     if (w.rear) {
       rBV += modBV * 0.5;
     } else {

@@ -5,7 +5,8 @@
     "java-registry.json.lookups.json": "6b97368fc5adee2917b0fbffde5de4a4d4d8cdec6807b4b16ac28d6e2066ebd1",
     "catalog-gaps-by-java.json": "421f332758d4ca6d70525eb19af562d910c6e98676da1cbab53a0f1e2a27678d",
     "java-facts.json": "fec5f307db6a74173a5ad95d99f8183393d48746ef2d6877beccd91661fad427",
-    "capital-source.json": "649ee78e5ca80438369c4d5c361013f7abf10c43d59a4fe02a031aea26ba0822"
+    "capital-source.json": "649ee78e5ca80438369c4d5c361013f7abf10c43d59a4fe02a031aea26ba0822",
+    "prototype-damage.json": "2baec193d7e3074d2c0d0cb92ebbdce10a15b46153eab693b6e49a1099455eaa"
   },
   "identities": [
     {
@@ -2059,6 +2060,138 @@
     {
       "internalName": "Tele-operated Missile (White Shark-T)",
       "id": "tele-operated-missile-white-shark-t-registry"
+    },
+    {
+      "internalName": "Autocannon/2p",
+      "id": "autocannon-2p-registry"
+    },
+    {
+      "internalName": "BombRLP",
+      "id": "bombrlp-registry"
+    },
+    {
+      "internalName": "CLERSmallLaserPrototype",
+      "id": "clersmalllaserprototype-registry"
+    },
+    {
+      "internalName": "CLLBXAC20Prototype",
+      "id": "cllbxac20prototype-registry"
+    },
+    {
+      "internalName": "CLLBXAC2Prototype",
+      "id": "cllbxac2prototype-registry"
+    },
+    {
+      "internalName": "CLLBXAC5Prototype",
+      "id": "cllbxac5prototype-registry"
+    },
+    {
+      "internalName": "CLStreakSRM4Prototype",
+      "id": "clstreaksrm4prototype-registry"
+    },
+    {
+      "internalName": "CLStreakSRM6Prototype",
+      "id": "clstreaksrm6prototype-registry"
+    },
+    {
+      "internalName": "CLUltraAC10Prototype",
+      "id": "clultraac10prototype-registry"
+    },
+    {
+      "internalName": "CLUltraAC20Prototype",
+      "id": "clultraac20prototype-registry"
+    },
+    {
+      "internalName": "CLUltraAC2Prototype",
+      "id": "clultraac2prototype-registry"
+    },
+    {
+      "internalName": "ISERLargeLaserPrototype",
+      "id": "iserlargelaserprototype-registry"
+    },
+    {
+      "internalName": "ISGaussRiflePrototype",
+      "id": "isgaussrifleprototype-registry"
+    },
+    {
+      "internalName": "ISLBXAC10Prototype",
+      "id": "islbxac10prototype-registry"
+    },
+    {
+      "internalName": "ISLargePulseLaserPrototype",
+      "id": "islargepulselaserprototype-registry"
+    },
+    {
+      "internalName": "ISMediumPulseLaserPrototype",
+      "id": "ismediumpulselaserprototype-registry"
+    },
+    {
+      "internalName": "ISMediumPulseLaserRecovered",
+      "id": "ismediumpulselaserrecovered-registry"
+    },
+    {
+      "internalName": "ISNarcBeaconPrototype",
+      "id": "isnarcbeaconprototype-registry"
+    },
+    {
+      "internalName": "ISPrimitiveLongTom",
+      "id": "isprimitivelongtom-registry"
+    },
+    {
+      "internalName": "ISProtoTypeTAG",
+      "id": "isprototypetag-registry"
+    },
+    {
+      "internalName": "ISSmallPulseLaserPrototype",
+      "id": "issmallpulselaserprototype-registry"
+    },
+    {
+      "internalName": "Primitive Prototype LRM 10",
+      "id": "primitive-prototype-lrm-10-registry"
+    },
+    {
+      "internalName": "Primitive Prototype LRM 15",
+      "id": "primitive-prototype-lrm-15-registry"
+    },
+    {
+      "internalName": "Primitive Prototype LRM 20",
+      "id": "primitive-prototype-lrm-20-registry"
+    },
+    {
+      "internalName": "Primitive Prototype LRM 5",
+      "id": "primitive-prototype-lrm-5-registry"
+    },
+    {
+      "internalName": "Primitive Prototype Large Laser",
+      "id": "primitive-prototype-large-laser-registry"
+    },
+    {
+      "internalName": "Primitive Prototype Medium Laser",
+      "id": "primitive-prototype-medium-laser-registry"
+    },
+    {
+      "internalName": "Primitive Prototype PPC",
+      "id": "primitive-prototype-ppc-registry"
+    },
+    {
+      "internalName": "Primitive Prototype SRM 2",
+      "id": "primitive-prototype-srm-2-registry"
+    },
+    {
+      "internalName": "Primitive Prototype SRM 4",
+      "id": "primitive-prototype-srm-4-registry"
+    },
+    {
+      "internalName": "Primitive Prototype SRM 6",
+      "id": "primitive-prototype-srm-6-registry"
+    },
+    {
+      "internalName": "Primitive Prototype Small Laser",
+      "id": "primitive-prototype-small-laser-registry"
+    },
+    {
+      "internalName": "ProtoTypeArrowIV",
+      "id": "prototypearrowiv-registry"
     }
   ]
 }

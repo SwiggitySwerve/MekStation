@@ -154,6 +154,9 @@ export interface IVehicleBVBreakdown {
   final: number;
   /** Chassis summary factor, before pilot adjustment and rounding. */
   summaryModifier?: number;
+  typeModifier?: number;
+  explosivePenalty?: number;
+  weightBV?: number;
 
   /** Raw armor BV (pre-defensive-factor). */
   armorBV: number;
@@ -181,6 +184,7 @@ export interface IVehicleBVBreakdown {
 // =============================================================================
 
 export interface VehicleDefensiveBVBreakdown {
+  typeModifier?: number;
   armorBV: number;
   structureBV: number;
   defensiveEquipmentBV: number;
@@ -195,6 +199,7 @@ export interface VehicleDefensiveBVBreakdown {
 // =============================================================================
 
 export interface VehicleOffensiveBVBreakdown {
+  weightBV?: number;
   weaponBV: number;
   ammoBV: number;
   offensiveEquipmentBV: number;

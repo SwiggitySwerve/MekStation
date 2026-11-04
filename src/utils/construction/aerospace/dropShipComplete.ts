@@ -20,6 +20,7 @@ import {
   type IDropShipMountBV,
 } from './dropShipMountBV';
 import { calculateLargeAerospaceFirePool } from './largeAerospaceFirePool';
+import { largeAerospaceBVTerms } from './largeBVTrace';
 
 interface IDropShipFinalOptions {
   readonly gunnery?: number;
@@ -33,19 +34,29 @@ export function calculateDropShipFinalBV(
   defensive: number,
   offensive: number,
   options: IDropShipFinalOptions = {},
-): { baseBV: number; pilotMultiplier: number; final: number } {
+): {
+  baseBV: number;
+  pilotMultiplier: number;
+  final: number;
+  summaryModifier: number;
+} {
   const drone = options.hasDroneOperatingSystem;
   const aeroCockpit =
     options.cockpit === 'SMALL' || options.cockpit === 'COMMAND_CONSOLE';
-  const baseBV = calculateBaseBV(defensive, offensive, [
+  const summaryFactors = [
     getCockpitModifier(drone ? 'drone-operating-system' : 'standard'),
     getCockpitModifier(
       aeroCockpit ? 'small' : drone ? 'drone-operating-system' : 'standard',
     ),
-  ]);
+  ];
+  const baseBV = calculateBaseBV(defensive, offensive, summaryFactors);
   // Crew.java:233-234 and BVCalculator.java:1307-1313 default to G4/P5.
   return {
     baseBV,
+    summaryModifier: summaryFactors.reduce(
+      (product, factor) => product * factor,
+      1,
+    ),
     pilotMultiplier: getAerospacePilotMultiplier(
       options.gunnery,
       options.piloting,
@@ -126,7 +137,7 @@ export function calculateLargeAerospaceBV(
     maxThrust,
     heatCapacity: calculateHeatDissipation(sinks.type, sinks.count),
   });
-  return {
+  return largeAerospaceBVTerms({
     ...defense,
     ...stage,
     ...calculateDropShipFinalBV(defense.defensive, stage.offensive, {
@@ -139,7 +150,7 @@ export function calculateLargeAerospaceBV(
     calculationScope: 'complete',
     unresolvedMounts: [],
     incompleteReasons: [],
-  };
+  });
 }
 
 /** Existing DropShip entry delegates to the shared composition owner. */
