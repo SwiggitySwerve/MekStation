@@ -34,7 +34,7 @@
       "criticalSlots": 5,
       "costCBills": 800000,
       "battleValue": 488,
-      "introductionYear": 3109
+      "introductionYear": 3080
     },
     {
       "id": "flamer",
@@ -205,7 +205,7 @@
       "criticalSlots": 3,
       "costCBills": 200000,
       "battleValue": 40,
-      "introductionYear": 3084,
+      "introductionYear": 3065,
       "special": ["Shuts down target"]
     },
     {

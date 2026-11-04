@@ -312,15 +312,10 @@ describe('missile classification reaches the existing specialist to-hit rule', (
         .map((row) => row.id)
         .sort(),
     ).toEqual(added.map((row) => String(row.values.id)).sort());
-    expect(unknownCapacityMissiles).toHaveLength(73 + added.length);
+    // Sweep batch 5 gave clan-srm-1/3/5 their Java ammoPerTon (AmmoType.java:9910).
+    expect(unknownCapacityMissiles).toHaveLength(70 + added.length);
     expect(unknownCapacityMissiles.map(({ id }) => id)).toEqual(
-      expect.arrayContaining([
-        'clan-srm-1',
-        'clan-srm-3',
-        'clan-srm-5',
-        'balrm1os',
-        'lrm10-ios',
-      ]),
+      expect.arrayContaining(['balrm1os', 'lrm10-ios']),
     );
   });
 
