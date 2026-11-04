@@ -24,6 +24,7 @@ export const requiredAggregatorNeeds = [
   'detect-changes',
   'static-checks',
   'unit-test-shards',
+  'corpus-tests',
   'simulation-checks',
   'statistical-proof-pr',
   'validate-combat',

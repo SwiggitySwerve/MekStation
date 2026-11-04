@@ -49,6 +49,8 @@ jobs:
       desktop: ${{ steps.filter.outputs.desktop }}
       e2e: ${{ steps.filter.outputs.e2e }}
       equipment: ${{ steps.filter.outputs.equipment }}
+      corpus: ${{ steps.filter.outputs.corpus }}
+      roadmap: ${{ steps.filter.outputs.roadmap }}
       statistical: ${{ steps.filter.outputs.statistical }}
       storybook: ${{ steps.filter.outputs.storybook }}
     steps:
@@ -167,7 +169,15 @@ jobs:
       # `expect(...).toHaveNoViolations()` matchers.
       - name: A11y Tests
         if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
-        run: npx jest --selectProjects a11y --ci --maxWorkers=4
+        run: npx jest --selectProjects a11y --ci
+
+      # The roadmap Jest project (config/jest/corpus-suites.js): tooling tests
+      # that spawn the scripts/qc roadmap tools and read openspec/ files.
+      - name: Roadmap tooling tests
+        if: ${{ !cancelled() && needs.detect-changes.outputs.roadmap == 'true' }}
+        run: npx jest --selectProjects roadmap --ci
+        env:
+          JEST_SPLIT_CORPUS: 'true'
 
       - name: Validate BV Parity
         if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
@@ -280,20 +290,22 @@ jobs:
         if: ${{ !cancelled() }}
         run: node scripts/qc/validate-combat-simulation-coverage.mjs --summary=coverage/combat-simulation/coverage-summary.json
 
-  # Four shards on the runner's 4 vCPUs (Jest defaults to 3 workers in
-  # CI). The Jest transform cache is restored from main's last run: its
-  # entries are keyed by file content and transformer config, so a stale
-  # entry can never stand in for changed source. Main pushes and the
-  # nightly run save it.
+  # Three shards. jest.config.js uses every vCPU in CI (Lane B), and
+  # JEST_SPLIT_CORPUS moves the whole-catalog suites to corpus-tests and the
+  # roadmap tooling suites to Static Checks (config/jest/corpus-suites.js).
+  # The Jest transform cache is restored from main's last run: its entries
+  # are keyed by file content and transformer config, so a stale entry can
+  # never stand in for changed source. Main pushes and the nightly run save
+  # it.
   unit-test-shards:
-    name: Unit Tests (${{ matrix.shard }}/4)
+    name: Unit Tests (${{ matrix.shard }}/3)
     needs: detect-changes
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3]
 
     steps:
       - name: Checkout code
@@ -309,21 +321,52 @@ jobs:
         uses: actions/cache/restore@v5
         with:
           path: .jest-cache
-          key: ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*') }}-${{ matrix.shard }}-${{ github.sha }}
+          key: ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*', 'config/jest/**') }}-unit-${{ matrix.shard }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*') }}-${{ matrix.shard }}-
+            ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*', 'config/jest/**') }}-unit-${{ matrix.shard }}-
 
       - name: Run unit test shard
-        run: npx jest --selectProjects unit --ci --shard=${{ matrix.shard }}/4 --maxWorkers=4 --cacheDirectory=.jest-cache
+        run: npx jest --selectProjects unit --ci --shard=${{ matrix.shard }}/3 --cacheDirectory=.jest-cache
         env:
           JEST_EXCLUDE_PERF_SENSITIVE: 'true'
+          JEST_SPLIT_CORPUS: 'true'
 
       - name: Save Jest transform cache
         if: ${{ !cancelled() && github.event_name != 'pull_request' }}
         uses: actions/cache/save@v5
         with:
           path: .jest-cache
-          key: ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*') }}-${{ matrix.shard }}-${{ github.sha }}
+          key: ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*', 'config/jest/**') }}-unit-${{ matrix.shard }}-${{ github.sha }}
+
+  # The whole-catalog suites (Lane B's `corpus` project) replay the committed
+  # catalog; each takes 30-140 s. They run when a changed file is in their
+  # import closure or is catalog/converter data, and always on main and
+  # nightly.
+  corpus-tests:
+    name: Corpus Tests (${{ matrix.shard }}/2)
+    needs: detect-changes
+    if: needs.detect-changes.outputs.corpus == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '22'
+          build-caches: 'false'
+
+      - name: Run corpus test shard
+        run: npx jest --selectProjects corpus --ci --shard=${{ matrix.shard }}/2
+        env:
+          JEST_SPLIT_CORPUS: 'true'
 
   statistical-proof-pr:
     name: Statistical Proof PR
@@ -647,6 +690,7 @@ jobs:
         detect-changes,
         static-checks,
         unit-test-shards,
+        corpus-tests,
         simulation-checks,
         statistical-proof-pr,
         validate-combat,
@@ -665,6 +709,7 @@ jobs:
           # Job id -> the detect-changes gates whose all-'false' allows a skip.
           GATES: >-
             {"simulation-checks": ["code"],
+             "corpus-tests": ["corpus"],
              "statistical-proof-pr": ["statistical"],
              "validate-combat": ["combat"],
              "schema-bridge": ["code"],

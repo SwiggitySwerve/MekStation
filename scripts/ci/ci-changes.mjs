@@ -18,15 +18,18 @@
 
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const GATES = [
   'code',
   'combat',
+  'corpus',
   'desktop',
   'e2e',
   'equipment',
+  'roadmap',
   'statistical',
   'storybook',
 ];
@@ -110,6 +113,31 @@ export const CLOSURE_GATES = {
       /^scripts\/lib\//,
     ],
   },
+  // Corpus Tests: the whole-catalog Jest suites (Lane B's `corpus` project,
+  // config/jest/corpus-suites.js). They replay the committed catalog and the
+  // converter/catalog tooling outputs.
+  corpus: {
+    entries(root) {
+      return jestSuites(root).corpusSuites;
+    },
+    data: [
+      /^public\/data\//,
+      /^scripts\/megameklab-conversion\//,
+      /^scripts\/equipment-catalog\//,
+      /^scripts\/validate-bv-[^/]*\.ts$/,
+      /^config\/jest\//,
+    ],
+  },
+  // The `roadmap` Jest project: tooling tests that spawn scripts/qc tools
+  // against temp ledgers and read openspec/ files.
+  roadmap: {
+    entries(root) {
+      return jestSuites(root).roadmapSuites;
+    },
+    data: [/^scripts\/qc\//, /^openspec\//, /^config\/jest\//],
+    // These tests read openspec/ files, so docs/openspec-only PRs run them.
+    withoutCode: true,
+  },
   // Statistical Proof PR: the 100-game combat proof. simulation-system
   // "Statistical Validation" requires it before a combat-affecting PR
   // merges, so it runs whenever a PR touches its import closure.
@@ -157,6 +185,12 @@ const RESOLVE_SUFFIXES = [
 
 const IMPORT_RE =
   /(?:import|export)\s[^'"`;]*?from\s*['"]([^'"]+)['"]|import\(\s*['"]([^'"]+)['"]\s*\)|require\(\s*['"]([^'"]+)['"]\s*\)|jest\.(?:mock|requireActual)\(\s*['"]([^'"]+)['"]|^\s*import\s*['"]([^'"]+)['"]/gm;
+
+function jestSuites(root) {
+  return createRequire(import.meta.url)(
+    path.join(root, 'config', 'jest', 'corpus-suites.js'),
+  );
+}
 
 function listFiles(root, dir, pattern) {
   const abs = path.join(root, dir);
@@ -274,7 +308,7 @@ export function decide(root, changed) {
     e2e: changed.some((file) => matchesAny(file, E2E)),
   };
   for (const [name, gate] of Object.entries(CLOSURE_GATES)) {
-    if (!code) {
+    if (!code && !gate.withoutCode) {
       gates[name] = false;
       continue;
     }

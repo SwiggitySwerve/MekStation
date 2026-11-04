@@ -169,3 +169,27 @@ test('combat-affecting changes run the statistical proof', () => {
     false,
   );
 });
+
+test('catalog and converter changes run the corpus suites', () => {
+  assert.equal(
+    decide(root, ['public/data/units/battlemechs/x.json']).gates.corpus,
+    true,
+  );
+  assert.equal(
+    decide(root, ['src/utils/construction/battleValueEquipment.ts']).gates.corpus,
+    true,
+  );
+  assert.equal(
+    decide(root, ['src/not-imported-by-any-check.ts']).gates.corpus,
+    false,
+  );
+});
+
+test('roadmap tooling and openspec changes run the roadmap suites, even without code', () => {
+  assert.equal(decide(root, ['openspec/specs/x/spec.md']).gates.roadmap, true);
+  assert.equal(
+    decide(root, ['scripts/qc/roadmap-loop-proof.mjs']).gates.roadmap,
+    true,
+  );
+  assert.equal(decide(root, ['docs/readme.md']).gates.roadmap, false);
+});
