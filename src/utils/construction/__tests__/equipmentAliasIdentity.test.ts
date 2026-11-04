@@ -202,3 +202,58 @@ describe('Narc one-shot names follow their Java identity (follow-up 92)', () => 
     expect(getEquipmentEntry(name)?.id).toBe(id);
   });
 });
+
+describe('One-shot launchers and one-off names follow their Java identity (follow-up 92)', () => {
+  const cases: Array<[string, string[]]> = [
+    // weapons/lrms/innerSphere/oneShot/ISLRM5IOS.java
+    ['lrm-5-i-os-registry', ['LRM 5 (I-OS)']],
+    // weapons/lrms/innerSphere/oneShot/ISLRM10IOS.java
+    ['lrm-10-i-os-registry', ['LRM 10 (I-OS)']],
+    // weapons/lrms/innerSphere/oneShot/ISLRM15IOS.java
+    ['lrm-15-i-os-registry', ['LRM 15 (I-OS)']],
+    // weapons/lrms/innerSphere/oneShot/ISLRM20IOS.java
+    ['lrm-20-i-os-registry', ['LRM 20 (I-OS)']],
+    // weapons/lrms/clan/oneShot/CLLRM2OS.java
+    ['cllrm2os-registry', ['LRM 2 (OS)']],
+    // weapons/lrms/clan/oneShot/CLLRM3OS.java
+    ['cllrm3os-registry', ['LRM 3 (OS)']],
+    // weapons/lrms/clan/oneShot/CLLRM4OS.java
+    ['cllrm4os-registry', ['LRM 4 (OS)']],
+    // weapons/lrms/clan/oneShot/CLLRM5OS.java
+    ['cllrm5-os-registry', ['Clan LRM 5 (OS)']],
+    // weapons/srms/clan/oneShot/CLSRM2OS.java
+    ['clsrm2-os-registry', ['Clan SRM 2 (OS)']],
+    // weapons/srms/clan/oneShot/CLSRM4OS.java
+    ['clsrm4-os-registry', ['Clan SRM 4 (OS)']],
+    // weapons/srms/clan/oneShot/CLSRM6OS.java
+    ['clsrm6-os-registry', ['Clan SRM 6 (OS)']],
+    // weapons/srms/clan/oneShot/CLSRM1OS.java
+    ['clsrm1os-registry', ['SRM 1 (OS)']],
+    // weapons/srms/clan/oneShot/CLSRM3OS.java
+    ['clsrm3os-registry', ['SRM 3 (OS)']],
+    // weapons/srms/clan/oneShot/CLSRM5OS.java
+    ['clsrm5os-registry', ['SRM 5 (OS)']],
+    // weapons/srms/innerSphere/oneShot/ISSRM6IOS.java
+    ['issrm6ios-registry', ['SRM 6 (I-OS)']],
+    // weapons/srms/innerSphere/streak/oneShot/ISStreakSRM2IOS.java
+    ['isstreaksrm2ios-registry', ['Streak SRM 2 (I-OS)']],
+    // weapons/srms/innerSphere/streak/oneShot/ISStreakSRM4IOS.java
+    ['isstreaksrm4ios-registry', ['Streak SRM 4 (I-OS)']],
+    // weapons/srms/innerSphere/streak/oneShot/ISStreakSRM6IOS.java
+    ['isstreaksrm6ios-registry', ['Streak SRM 6 (I-OS)']],
+    // weapons/c3/ISC3RemoteSensorLauncher.java
+    ['isc3remotesensorlauncher-registry', ['ISC3RemoteSensorLauncher']],
+  ];
+  it.each(cases.flatMap(([id, names]) => names.map((name) => [name, id])))(
+    '%s resolves to %s',
+    (name, id) => {
+      expect(getEquipmentEntry(name)?.id).toBe(id);
+    },
+  );
+
+  // Java's only owner of this name is the infantry support MG (InfantrySupportMGLightWeapon),
+  // which deals less runner damage than balightmg; left unrouted (follow-up 92 slice 5).
+  it('keeps Machine Gun (Light) on its current record', () => {
+    expect(getEquipmentEntry('Machine Gun (Light)')?.id).toBe('balightmg');
+  });
+});
