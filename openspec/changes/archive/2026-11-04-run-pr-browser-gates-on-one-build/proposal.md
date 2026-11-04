@@ -19,6 +19,7 @@ None.
 ### Modified Capabilities
 
 - `e2e-testing`: the PR-gated customizer browser regressions run in the `e2e` shard matrix against one `e2e-build` production build, and the job-scoped gate contract follows them there.
+- `journey-qc`: the seam anchor gate runs in that same `e2e` job, one invocation per shard, and a change that relocates the already-wired gate keeps it blocking, with three first-attempt-green runs and the red-path proof recorded on its pull request. The aggregator hardening and the unconditional headless invariants are unchanged.
 
 ## Non-goals
 
