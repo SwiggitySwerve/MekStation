@@ -56,6 +56,14 @@ export const SOURCE_LOOKUP_ALIASES: Readonly<Record<string, string>> = {
 
 /** Exact native identities at MegaMek 48fcb2f6; FU-79 IDENTITY-REVIEW.md. */
 const NATIVE_IDENTITY_CORRECTIONS: Readonly<Record<string, string>> = {
+  // LongTom.java:57-65 (48fcb2f64): these names are artillery, not the cannon.
+  'long tom': 'islongtom-registry',
+  islongtom: 'islongtom-registry',
+  islongtomartillery: 'islongtom-registry',
+  'is long tom': 'islongtom-registry',
+  cllongtom: 'islongtom-registry',
+  cllongtomartillery: 'islongtom-registry',
+  'clan long tom': 'islongtom-registry',
   clerflamer: 'clan-er-flamer',
   'is heavy machine gun ammo': 'heavy-machine-gun-ammo-full',
   'is light machine gun ammo': 'light-machine-gun-ammo-full',

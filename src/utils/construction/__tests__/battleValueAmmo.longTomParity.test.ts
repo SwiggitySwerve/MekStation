@@ -78,3 +78,62 @@ it('keeps Pillager PLG-4x Anvil at Java 1927 when saved with equivalent IDs', ()
   expect(calculateUnitBV(source, source.id).bv).toBe(1927);
   expect(calculateUnitBV({ ...source, equipment }, source.id).bv).toBe(1927);
 });
+
+// Native LongTom.java:57-74 is a separate 368-BV / LONG_TOM:25 weapon.
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { resolveEquipmentId } from '@/services/units/unitLoaderService/equipmentResolution';
+import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
+import { TechBase } from '@/types/enums/TechBase';
+
+import { resolveEquipmentBV } from '../equipmentBVResolver';
+
+jest.mock('@/services/equipment/EquipmentFileReader', () => ({
+  readJsonFile: async (file: string) =>
+    JSON.parse(
+      readFileSync(
+        path.join(process.cwd(), 'public/data/equipment/official', file),
+        'utf8',
+      ),
+    ),
+}));
+
+beforeAll(async () => {
+  await getEquipmentLookupService().initialize();
+  await getEquipmentRegistry().initialize();
+});
+
+it.each([
+  'ISLongTom',
+  'islongtom',
+  'ISLongTomArtillery',
+  'IS Long Tom',
+  'CLLongTom',
+  'CLLongTomArtillery',
+  'Clan Long Tom',
+  'Long Tom',
+])(
+  '%s retains exact native artillery identity through editor loading',
+  (id) => {
+    const { resolvedId } = resolveEquipmentId(
+      id,
+      TechBase.INNER_SPHERE,
+      TechBaseMode.INNER_SPHERE,
+      undefined,
+    );
+    expect(resolvedId).toBe('islongtom-registry');
+    expect(getNativeAmmoBVGroup(resolvedId)).toBe('LONG_TOM:25');
+    expect(resolveEquipmentBV(resolvedId).battleValue).toBe(368);
+  },
+);
+
+it('keeps the explicit canonical cannon ID stable during editor loading', () => {
+  expect(
+    resolveEquipmentId(
+      'long-tom',
+      TechBase.INNER_SPHERE,
+      TechBaseMode.INNER_SPHERE,
+      undefined,
+    ).resolvedId,
+  ).toBe('long-tom');
+});

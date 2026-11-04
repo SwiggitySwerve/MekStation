@@ -358,3 +358,9 @@ including the imported IS Ultra AC/5 prototype. Its catalog firing heat stays
 1; BV uses 2 and still applies one-shot heat reduction first. Pinned MegaMek
 48fcb2f64a1b3f2d575707ce5653dad64927b587: ISUAC5Prototype.java:62-71,
 UACWeapon.java:65; HeatTrackingBVCalculator.java:170-180.
+
+Long Tom native Java names retain `islongtom-registry` through editor loading;
+canonical `long-tom` remains the cannon BV identity. Exact native corrections
+precede legacy aliases while preserving the weapon/ammunition boundary.
+Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
+LongTom.java:57-74; LongTomCannon.java:60-75.
