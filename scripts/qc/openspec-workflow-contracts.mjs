@@ -106,9 +106,13 @@ export function validateJobTokens(workflowJobs, contract, errors) {
     invalidSteps.push('job timeout must be ' + timeoutMinutes + ' minutes');
   if (contract.matrixShards) {
     // Dropping a shard from the matrix would silently skip that shard's
-    // slice of every spec, so the shard list is part of the contract.
-    const shards = job.strategy?.matrix?.shard;
-    if (JSON.stringify(shards) !== JSON.stringify(contract.matrixShards))
+    // slice of every spec, so the shard list is part of the contract. An
+    // include/exclude override (or any other key) could drop or add legs.
+    const matrix = job.strategy?.matrix;
+    if (
+      JSON.stringify(Object.keys(matrix ?? {})) !== '["shard"]' ||
+      JSON.stringify(matrix.shard) !== JSON.stringify(contract.matrixShards)
+    )
       invalidSteps.push(
         'matrix shards must be ' + JSON.stringify(contract.matrixShards),
       );
@@ -216,16 +220,14 @@ export function validateJobTokens(workflowJobs, contract, errors) {
       'asset setup, strict validation, production build, and browser run must execute in order',
     );
   }
+  const uploadPaths = String(uploadStep?.with?.path ?? '').split(/\s+/);
   if (
     requiresUpload &&
     (uploadStep?.uses !== 'actions/upload-artifact@v7' ||
       uploadStep?.with?.['retention-days'] !== 7 ||
-      !String(uploadStep?.with?.path ?? '')
-        .split(/\s+/)
-        .includes('test-results') ||
-      !String(uploadStep?.with?.path ?? '')
-        .split(/\s+/)
-        .includes('playwright-report'))
+      (contract.uploadPaths ?? ['test-results', 'playwright-report']).some(
+        (required) => !uploadPaths.includes(required),
+      ))
   ) {
     invalidSteps.push(
       'failure artifact upload must retain report and test-results for 7 days',
