@@ -56,6 +56,13 @@ const JUMP_JETS = new Set(
 );
 const FUEL = new Set(['extended-fuel-tank']);
 const CARGO = new Set(['cargo', 'cargo-registry', 'cargo-container-10-tons']);
+// Catalog records of Java ArmorType types: skipped as items (Tank.java:2604-2606,
+// TestSupportVehicle.java:1650-1653); armor is charged once by its code.
+const ARMOR = new Set(
+  'reactive-armor is-reflective-registry clan-reflective-registry stealth-armor is-vehicular-stealth-registry clan-ferro-lamellor-registry clan-electric-discharge-protomech is-ba-advanced-registry is-ba-stealth-basic-registry clan-ba-stealth-basic-registry is-ba-stealth-standard-registry clan-ba-stealth-standard-registry is-ba-stealth-improved-registry clan-ba-stealth-improved-registry is-ba-stealth-prototype-registry clan-ba-fire-resistant-registry is-ba-mimetic-registry is-ba-laser-reflective-reflec-glazed-registry clan-ba-laser-reflective-reflec-glazed-registry is-ba-reactive-blazer-registry clan-ba-reactive-blazer-registry'.split(
+    ' ',
+  ),
+);
 /** TestTank.isBodyEquipment:1079-1093 fire control, via isValidTankLocation:979-980. */
 const FIRE_CONTROL = new Set(['basic-fire-control', 'advanced-fire-control']);
 /** TechConstants.isClan:394-398. */
@@ -191,7 +198,7 @@ export function combatVehicleSlotErrors(
   let used = 0,
     cargo = false;
   for (const { record, crossTech } of mounts.items) {
-    if (crossTech) continue;
+    if (crossTech || ARMOR.has(record.id)) continue;
     const tank = record.vehicleSlots?.tank;
     if (tank === null || tank === undefined) return [];
     if (JUMP_JETS.has(record.id) || FUEL.has(record.id)) continue;
@@ -201,7 +208,8 @@ export function combatVehicleSlotErrors(
   }
   used += source.movement.jumpMP > 0 ? 1 : 0;
   used += mounts.items.some(({ record }) => FUEL.has(record.id)) ? 1 : 0;
-  const clan = sideUnknown || /clan/i.test(String(source.techBase));
+  // Mixed may be a Clan chassis (Java isClan): the Clan side is the lower cost.
+  const clan = sideUnknown || /clan|mixed/i.test(String(source.techBase));
   used += engineSlots(source, sideUnknown || source.clanEngine === true);
   used += ammoSlots(mounts.ammo) + transportSlots(source.transporters);
   used += armorSlots(source, clan);
@@ -216,7 +224,7 @@ export function supportVehicleSlotErrors(source: VehicleSlotUnit): string[] {
   if (!mounts) return [];
   let used = 0;
   for (const { record, crossTech } of mounts.items) {
-    if (crossTech) continue;
+    if (crossTech || ARMOR.has(record.id)) continue;
     const slots = record.vehicleSlots?.supportVehicle;
     if (slots === null || slots === undefined) return [];
     // getMiscEquipSlots:1646-1660: jump jets take one slot together.
