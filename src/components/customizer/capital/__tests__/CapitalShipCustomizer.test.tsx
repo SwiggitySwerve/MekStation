@@ -45,6 +45,7 @@ const IDS = [
   'union-2708',
   'comitatus-jumpship-2995',
   'aegis-heavy-cruiser-2372',
+  'gaajian-system-patrol-boat-2485',
   'crucible-station',
   'czar-dropship',
 ];
@@ -181,17 +182,30 @@ it('shows a complete capital-ship BV (Space Station) as the total', async () => 
 });
 
 it('labels a defensive-only BV and never shows it as the total', async () => {
-  const tab = await openCapital('aegis-heavy-cruiser-2372');
+  const tab = await openCapital('gaajian-system-patrol-boat-2485');
   mount(tab);
   const view = getCapitalShipView(tab.id)!;
-  expect(view.bv).toEqual({ scope: 'defensive-only', defensive: 12920 });
+  expect(view.bv).toEqual({ scope: 'defensive-only', defensive: 1864 });
   expect(bvTerms()).toEqual(['Defensive BV']);
-  expect(row('Defensive BV')).toBe('12,920');
+  expect(row('Defensive BV')).toBe('1,864');
   expect(
     within(bvPanel()).getByText(
       'Full battle value is not available yet. Only the defensive value is calculated for this ship.',
     ),
   ).toBeInTheDocument();
+});
+
+it('shows the newly complete Aegis capital BV as a total', async () => {
+  const tab = await openCapital('aegis-heavy-cruiser-2372');
+  mount(tab);
+  expect(getCapitalShipView(tab.id)?.bv).toMatchObject({
+    scope: 'complete',
+    defensive: 12920,
+    total: 104194,
+  });
+  expect(bvTerms()).toEqual(['Battle Value', 'Defensive', 'Offensive']);
+  expect(row('Battle Value')).toBe('104,194');
+  expect(within(bvPanel()).queryByText(/not available/)).toBeNull();
 });
 
 it('shows tonnage, crew, bays, SI, KF drive and sail, armor and equipment by arc', async () => {

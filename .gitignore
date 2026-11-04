@@ -69,6 +69,8 @@ scripts/**
 !scripts/playwright/**
 !scripts/qc/
 !scripts/qc/**
+!scripts/ci/
+!scripts/ci/**
 !scripts/megameklab-conversion/
 !scripts/megameklab-conversion/append_pinned_bv_references.py
 !scripts/megameklab-conversion/blk_aerospace_tables.py
