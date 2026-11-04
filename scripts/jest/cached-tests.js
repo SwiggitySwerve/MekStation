@@ -17,8 +17,11 @@
  *     the `..` segments in the file,
  *   - the whole repo when the closure spawns child processes or has a dynamic
  *     require/import or an unresolvable relative import,
- *   - the env vars it reads (process.env.NAME, or process.env[NAME] when NAME is
- *     a same-file string const) plus NODE_ENV, TZ, JEST_*,
+ *   - the env vars it reads: process.env.NAME; process.env[X] where X is a
+ *     single-binding same-file `const X = 'NAME'` (optionally `as const`); or
+ *     process.env[param] inside a non-exported helper `readEnv(param)` that is
+ *     only ever called, in the same file, with string literals. Plus NODE_ENV, TZ,
+ *     JEST_*,
  *   - package*.json, tsconfig.json, jest.config.js, config/jest/, .env*,
  *     every __mocks__ file, the full Node version and platform,
  *   - the selected projects and the Jest options that are keyed (--ci), in the
@@ -304,9 +307,62 @@ function resolveStringConst(code, id) {
   ).test(code);
   if (bindings.length !== 1 || imported) return null;
   const decl = new RegExp(
-    `\\bconst\\s+${esc}\\s*(?::[^=;]+)?=\\s*(['"])([^'"\\\\\\n]*)\\1\\s*(?=[;\\n,)}]|$)`,
+    `\\bconst\\s+${esc}\\s*(?::[^=;]+)?=\\s*(['"])([^'"\\\\\\n]*)\\1\\s*(?:as\\s+const\\s*)?(?=[;\\n,)}]|$)`,
   ).exec(code);
   return decl ? decl[2] : null;
+}
+
+/**
+ * The names a small env-reading helper is called with: `process.env[param]`
+ * inside `function readEnv(param) {...}` (or `const readEnv = (param) => ...`)
+ * is resolved to the string literals of every `readEnv('LITERAL')` call in the
+ * same file. Everything else is refused (null), because another file or a
+ * non-literal argument could name a variable this scan cannot see:
+ *  - the helper must have a single binding and must not be exported;
+ *  - the parameter must not be reassigned;
+ *  - every other mention of the helper must be a call whose first argument is a
+ *    lone string literal (passing it as a value, aliasing it, `readEnv(x)` all
+ *    refuse).
+ */
+function resolveAccessorLiterals(code, param, accessIndex) {
+  const p = escapeRegex(param);
+  const declaration = new RegExp(
+    `(?:\\bfunction\\s+([A-Za-z_$][\\w$]*)|\\bconst\\s+([A-Za-z_$][\\w$]*)\\s*(?::[^=]+)?=\\s*(?:async\\s*)?(?:function\\s*)?)\\(\\s*${p}\\b`,
+    'g',
+  );
+  let decl = null;
+  for (const match of code.matchAll(declaration)) {
+    if (match.index >= accessIndex) break;
+    decl = match;
+  }
+  if (!decl) return null;
+  const helper = decl[1] ?? decl[2];
+  const h = escapeRegex(helper);
+  const exported =
+    new RegExp(
+      `\\bexport\\s+(?:default\\s+)?(?:async\\s+)?(?:function|const|let|var)\\s+${h}\\b`,
+    ).test(code) ||
+    new RegExp(`\\bexport\\s+default\\s+${h}\\b`).test(code) ||
+    new RegExp(`\\bexport\\s*\\{[^}]*\\b${h}\\b`).test(code);
+  const bindings =
+    code.match(
+      new RegExp(`\\b(?:const|let|var|function|class)\\s+${h}\\b`, 'g'),
+    ) || [];
+  if (exported || bindings.length !== 1) return null;
+  const reassigned = new RegExp(
+    `\\b${p}\\s*(?:[-+*/%&|^]|\\?\\?|\\|\\||&&)?=(?!=)`,
+  ).test(code.slice(decl.index));
+  if (reassigned) return null;
+  const declaredAt = decl.index + decl[0].indexOf(helper);
+  const names = [];
+  const call = new RegExp(`^${h}\\s*\\(\\s*(['"])([^'"\\\\\\n]+)\\1\\s*[,)]`);
+  for (const mention of code.matchAll(new RegExp(`\\b${h}\\b`, 'g'))) {
+    if (mention.index === declaredAt) continue;
+    const literal = call.exec(code.slice(mention.index));
+    if (!literal) return null;
+    names.push(literal[2]);
+  }
+  return names;
 }
 
 /** One matcher per repo top-level name: [regex, prefix to digest]. */
@@ -368,12 +424,18 @@ function analyzeSource(text, rel, nameMatchers) {
       bracketContent(code, match.index + match[0].length) ?? ''
     ).trim();
     const literal = /^(['"])([^'"\\\n]+)\1$/.exec(arg);
+    const identifier = /^[A-Za-z_$][\w$]*$/.test(arg);
     const name = literal
       ? literal[2]
-      : /^[A-Za-z_$][\w$]*$/.test(arg)
+      : identifier
         ? resolveStringConst(code, arg)
         : null;
+    const viaHelper =
+      !name && identifier
+        ? resolveAccessorLiterals(code, arg, match.index)
+        : null;
     if (name) envNames.add(name);
+    else if (viaHelper) viaHelper.forEach((helped) => envNames.add(helped));
     else envUnresolved = true;
   }
   return {

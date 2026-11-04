@@ -444,6 +444,183 @@ describe('test result cache key: false-hit regressions', () => {
   });
 });
 
+// The two env-read shapes behind ~700 of the repo's ~750 formerly uncacheable
+// unit files: `process.env[CONST]` where CONST is `'LITERAL' as const`, and a
+// small non-exported helper `readEnv(name)` that is only called with literals.
+describe('test result cache key: env reads through constants and helpers', () => {
+  const testFile = (importFrom: string) =>
+    `import { value } from '${importFrom}';\ntest('x', () => value);\n`;
+  const keyWithEnv = (
+    root: string,
+    env: Record<string, string | undefined>,
+    file = 'src/a.test.ts',
+  ) => keyOf(root, file, env);
+
+  it("keys process.env[X] where X is a `'LITERAL' as const` export", () => {
+    const root = makeRepo({
+      'src/lib/flag.ts': [
+        'export const KEY =',
+        "  'FEATURE_A' as const;",
+        "export const value = process.env[KEY] === '1';",
+      ].join('\n'),
+      'src/a.test.ts': testFile('./lib/flag'),
+    });
+    const off = keyWithEnv(root, { FEATURE_A: '0' });
+    expect(off.unkeyable).toBeUndefined();
+    expect(keyWithEnv(root, { FEATURE_A: '1' }).key).not.toBe(off.key);
+    expect(keyWithEnv(root, { FEATURE_A: '0', OTHER: 'x' }).key).toBe(off.key);
+  });
+
+  it.each([
+    [
+      'a function declaration',
+      "function readEnv(name: string) { return process.env[name]; }\nexport const value = readEnv('APP_A') ?? readEnv('APP_B') ?? '0';",
+    ],
+    [
+      'an arrow const',
+      "const readEnv = (name: string): string | undefined => process.env[name];\nexport const value = readEnv('APP_A') ?? readEnv('APP_B') ?? '0';",
+    ],
+  ])(
+    'keys a helper that reads process.env[param] (%s) on every literal it is called with',
+    (_label, source) => {
+      const root = makeRepo({
+        'src/lib/v.ts': source,
+        'src/a.test.ts': testFile('./lib/v'),
+      });
+      const base = keyWithEnv(root, { APP_A: '1', APP_B: '2' });
+      expect(base.unkeyable).toBeUndefined();
+      expect(keyWithEnv(root, { APP_A: '9', APP_B: '2' }).key).not.toBe(
+        base.key,
+      );
+      expect(keyWithEnv(root, { APP_A: '1', APP_B: '9' }).key).not.toBe(
+        base.key,
+      );
+      expect(
+        keyWithEnv(root, { APP_A: '1', APP_B: '2', UNRELATED: 'z' }).key,
+      ).toBe(base.key);
+    },
+  );
+
+  it.each([
+    [
+      'an exported helper (another file may call it with other names)',
+      "export function readEnv(name: string) { return process.env[name]; }\nexport const value = readEnv('APP_A');",
+    ],
+    [
+      'a call with a non-literal argument',
+      'function readEnv(name: string) { return process.env[name]; }\nconst which = String(Math.random());\nexport const value = readEnv(which);',
+    ],
+    [
+      'the helper passed as a value',
+      "function readEnv(name: string) { return process.env[name]; }\nexport const value = ['APP_A'].map(readEnv)[0];",
+    ],
+    [
+      'a reassigned parameter',
+      "function readEnv(name: string) { name = name + '_X'; return process.env[name]; }\nexport const value = readEnv('APP_A');",
+    ],
+    [
+      'a helper bound twice',
+      "function readEnv(name: string) { return process.env[name]; }\nconst readEnv2 = readEnv;\nfunction readEnv(other: string) { return other; }\nexport const value = readEnv('APP_A');",
+    ],
+    [
+      'a call through a template literal',
+      'function readEnv(name: string) { return process.env[name]; }\nexport const value = readEnv(`APP_${1}`);',
+    ],
+  ])('refuses a helper read it cannot follow: %s', (_label, source) => {
+    const root = makeRepo({
+      'src/lib/v.ts': source,
+      'src/a.test.ts': testFile('./lib/v'),
+    });
+    expect(keyWithEnv(root, {}).unkeyable).toMatch(/process\.env\[/);
+  });
+
+  it('a changed env value turns a cache hit into a miss, and an unchanged one stays a hit', async () => {
+    const root = makeRepo({
+      'src/lib/flag.ts':
+        "export const KEY = 'FEATURE_A' as const;\nexport const value = process.env[KEY];\n",
+      'src/a.test.ts': testFile('./lib/flag'),
+    });
+    const store = lib.createStore(path.join(root, '.cache'));
+    const executed: string[][] = [];
+    const execute = async (files: string[]): Promise<Run> => {
+      executed.push(files);
+      return {
+        exitCode: 0,
+        results: new Map(files.map((f) => [f, 'passed' as const])),
+      };
+    };
+    const go = (env: Record<string, string | undefined>, verifyHits = 0) =>
+      lib.runCached({
+        files: ['src/a.test.ts'],
+        keyer: lib.createKeyer({
+          root,
+          index: lib.buildFileIndex(root, '.cache/'),
+          env,
+        }),
+        store,
+        execute,
+        mode: 'use',
+        verifyHits,
+        seed: 's',
+      });
+    expect(await go({ FEATURE_A: '0' })).toMatchObject({
+      hits: 0,
+      executed: 1,
+    });
+    expect(await go({ FEATURE_A: '0' })).toMatchObject({
+      hits: 1,
+      executed: 0,
+    });
+    // the variable this file reads changed: the recorded pass must not be reused
+    expect(await go({ FEATURE_A: '1' })).toMatchObject({
+      hits: 0,
+      executed: 1,
+    });
+    // an unrelated variable changed: still a hit
+    expect(await go({ FEATURE_A: '1', UNRELATED: 'z' })).toMatchObject({
+      hits: 1,
+      executed: 0,
+    });
+  });
+
+  it('--verify-hits still catches a planted wrong result for a file that used to be uncacheable', async () => {
+    const root = makeRepo({
+      'src/lib/v.ts':
+        "function readEnv(name: string) { return process.env[name]; }\nexport const value = readEnv('APP_A');\n",
+      'src/a.test.ts': testFile('./lib/v'),
+    });
+    const store = lib.createStore(path.join(root, '.cache'));
+    let outcome: 'passed' | 'failed' = 'passed';
+    const execute = async (files: string[]): Promise<Run> => ({
+      exitCode: outcome === 'passed' ? 0 : 1,
+      results: new Map(files.map((f) => [f, outcome])),
+    });
+    const go = (verifyHits: number) =>
+      lib.runCached({
+        files: ['src/a.test.ts'],
+        keyer: lib.createKeyer({
+          root,
+          index: lib.buildFileIndex(root, '.cache/'),
+          env: { APP_A: '1' },
+        }),
+        store,
+        execute,
+        mode: 'use',
+        verifyHits,
+        seed: 's',
+      });
+    expect(await go(0)).toMatchObject({ hits: 0, executed: 1 }); // recorded
+    outcome = 'failed'; // an input the key cannot see now makes it fail
+    const report = await go(1);
+    expect(report).toMatchObject({ hits: 1, executed: 0 });
+    expect(report.stale).toEqual(['src/a.test.ts']);
+    expect(report.exitCode).not.toBe(0);
+    // evicted: the next run executes it instead of trusting the stale pass
+    outcome = 'passed';
+    expect(await go(0)).toMatchObject({ hits: 0, executed: 1 });
+  });
+});
+
 describe('runCached', () => {
   const files = ['src/a.test.ts', 'src/b.test.ts', 'src/c.test.ts'];
   const repo = {
