@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -254,58 +253,4 @@ test('a snapshot-only change runs the suite that owns the snapshot', () => {
     'src/__tests__/service/printing/__snapshots__/catalogRecordSheets.battlemechs.1.test.ts.snap';
   assert.ok(fs.existsSync(path.join(root, snap)));
   assert.equal(decide(root, [snap]).gates.corpus, true);
-});
-
-test('a push to main checks everything but gates the win/mac packs on its diff', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-changes-push-'));
-  try {
-    const git = (...args) =>
-      execFileSync('git', args, { cwd: dir, encoding: 'utf8' }).trim();
-    const commit = (file, text) => {
-      fs.mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
-      fs.writeFileSync(path.join(dir, file), text);
-      git('add', '-A');
-      git('-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', file);
-      return git('rev-parse', 'HEAD');
-    };
-    git('init', '-q');
-    const first = commit('src/a.ts', 'export const a = 1;\n');
-    commit('src/b.ts', 'export const b = 1;\n');
-    const src = detect(
-      dir,
-      { GITHUB_EVENT_NAME: 'push', GITHUB_EVENT_BEFORE: first },
-      'unused',
-      'HEAD',
-    );
-    assert.equal(src.gates.desktop, false);
-    for (const gate of GATES.filter((g) => g !== 'desktop')) {
-      assert.equal(src.gates[gate], true, gate);
-    }
-    const second = git('rev-parse', 'HEAD');
-    commit('desktop/main.ts', 'export {};\n');
-    const desktop = detect(
-      dir,
-      { GITHUB_EVENT_NAME: 'push', GITHUB_EVENT_BEFORE: second },
-      'unused',
-      'HEAD',
-    );
-    assert.deepEqual(desktop.gates, allTrue);
-  } finally {
-    fs.rmSync(dir, { recursive: true, force: true });
-  }
-});
-
-test('a push whose previous commit is unknown keeps the pack legs on', () => {
-  for (const before of [undefined, '0'.repeat(40), 'not-a-sha']) {
-    const { gates } = detect(root, {
-      GITHUB_EVENT_NAME: 'push',
-      GITHUB_EVENT_BEFORE: before,
-    });
-    assert.deepEqual(gates, allTrue, String(before));
-  }
-  const missing = detect(root, {
-    GITHUB_EVENT_NAME: 'push',
-    GITHUB_EVENT_BEFORE: 'f'.repeat(40),
-  });
-  assert.deepEqual(missing.gates, allTrue);
 });

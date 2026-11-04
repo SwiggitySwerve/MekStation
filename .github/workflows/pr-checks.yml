@@ -73,9 +73,6 @@ jobs:
 
       - name: Filter paths
         id: filter
-        env:
-          # A push to main gates only the win/mac pack legs on its own diff.
-          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
         run: node scripts/ci/ci-changes.mjs
 
       - name: Test change detection and the Lint and Test guard
@@ -359,11 +356,41 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*', 'config/jest/**') }}-unit-${{ matrix.shard }}-
 
+      # 4 workers on the runner's 4 vCPUs: Lane B measured 10-20% faster unit
+      # shards than Jest's default 3 (JOBS.md 0a); corpus/roadmap keep 3.
+      # Lane B's per-file result cache (scripts/jest/cached-tests.js): on a
+      # pull request a test file whose inputs (import closure, snapshot, data
+      # it reads, env, config) match an earlier pass is skipped, and 3
+      # sampled skips are re-run to prove the cache honest. Main pushes,
+      # nightly and manual runs run every file uncached and record passes.
+      # Any doubt runs the file.
+      - name: Restore Jest result cache
+        uses: actions/cache/restore@v5
+        with:
+          path: .jest-result-cache
+          key: ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-
+
       - name: Run unit test shard
-        run: npx jest --selectProjects unit --ci --shard=${{ matrix.shard }}/3 --cacheDirectory=.jest-cache
+        run: >-
+          node scripts/jest/cached-tests.js --project unit
+          --shard ${{ matrix.shard }}/3 --verify-hits 3
+          ${{ github.event_name != 'pull_request' && '--uncached' || '' }}
+          --report jest-results-unit-${{ matrix.shard }}.json
+          -- --ci --cacheDirectory=.jest-cache --maxWorkers=4
         env:
           JEST_EXCLUDE_PERF_SENSITIVE: 'true'
           JEST_SPLIT_CORPUS: 'true'
+
+      # Every run saves: a PR's later pushes reuse its own passes, and PRs
+      # read main's. Cache scoping keeps a PR's entries out of main's runs.
+      - name: Save Jest result cache
+        if: ${{ !cancelled() }}
+        uses: actions/cache/save@v5
+        with:
+          path: .jest-result-cache
+          key: ${{ runner.os }}-jest-results-unit-${{ matrix.shard }}-${{ github.run_id }}
 
       - name: Save Jest transform cache
         if: ${{ !cancelled() && github.event_name != 'pull_request' }}
@@ -375,9 +402,8 @@ jobs:
   # The whole-catalog suites (Lane B's `corpus` project) replay the committed
   # catalog; together they took 582 s on one runner (run 41835895496), the
   # run's critical path, so they run as two shards. They run when a changed
-  # file is in their
-  # import closure or is catalog/converter data, and always on main and
-  # nightly.
+  # file is in their import closure or is catalog/converter data, and always
+  # on main and nightly.
   corpus-tests:
     name: Corpus Tests (${{ matrix.shard }}/2)
     needs: detect-changes
@@ -399,10 +425,30 @@ jobs:
           node-version: '22'
           build-caches: 'false'
 
+      - name: Restore Jest result cache
+        uses: actions/cache/restore@v5
+        with:
+          path: .jest-result-cache
+          key: ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-
+
       - name: Run corpus test shard
-        run: npx jest --selectProjects corpus --ci --shard=${{ matrix.shard }}/2
+        run: >-
+          node scripts/jest/cached-tests.js --project corpus
+          --shard ${{ matrix.shard }}/2 --verify-hits 1
+          ${{ github.event_name != 'pull_request' && '--uncached' || '' }}
+          --report jest-results-corpus-${{ matrix.shard }}.json
+          -- --ci
         env:
           JEST_SPLIT_CORPUS: 'true'
+
+      - name: Save Jest result cache
+        if: ${{ !cancelled() }}
+        uses: actions/cache/save@v5
+        with:
+          path: .jest-result-cache
+          key: ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-${{ github.run_id }}
 
   validate-combat:
     name: Validate Combat Suite
