@@ -7,6 +7,7 @@
  */
 
 import type { IUnitMountedEquipmentIdentity } from './MountedEquipmentInterfaces';
+import type { VehicleSourceIdentity } from './VehicleSerialization';
 
 import {
   SuperHeavyVehicleLocation,
@@ -58,6 +59,8 @@ export interface IVehicleTurretSourceContext {
  * Vehicle-mounted equipment item
  */
 export interface IVehicleMountedEquipment extends IUnitMountedEquipmentIdentity {
+  /** Preserve source BV identity only while this resolved mount is unchanged. */
+  readonly sourceIdentity?: Readonly<VehicleSourceIdentity>;
   /** Explicit kind survives canonical IDs shared by ammunition and launchers. */
   readonly isAmmo?: boolean;
   /** Location where mounted */

@@ -184,6 +184,9 @@ export function contractVehicleToBVUnit(
     return {
       id: `mount-${index}`,
       equipmentId: item.id,
+      ...(savedMount?.sourceIdentity
+        ? { sourceIdentity: savedMount.sourceIdentity }
+        : {}),
       ...(savedMount?.isAmmo === undefined
         ? {}
         : { isAmmo: savedMount.isAmmo }),

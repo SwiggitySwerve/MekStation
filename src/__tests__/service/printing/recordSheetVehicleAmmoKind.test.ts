@@ -57,6 +57,48 @@ function nativeUnit(raw: ReturnType<typeof definition>) {
     armor: raw.armor,
   });
 }
+it.each([
+  'Asher Hover Scout.json',
+  'Athena Combat Vehicle.json',
+  'Hi-Scout Drone Carrier (Cunnington).json',
+  "Hiryo Armored Infantry Transport 'Hound'.json",
+])('%s prints the contract owner BV after resolving ammunition', (file) => {
+  const raw = definition({ path: file });
+  const state = mapToVehicleState(raw);
+  expect(state.equipment.every((mount) => !mount.resolutionWarning)).toBe(true);
+  const owner = calculateBattleValueForUnit(nativeUnit(raw));
+  if (owner?.kind !== 'vehicle') throw new Error('Wrong BV family');
+  expect(computeVehicleBVFromState(state)).toEqual(owner.breakdown);
+  expect(
+    service.extractData(buildVehicleUnitObject(state)).header.battleValue,
+  ).toBe(owner.breakdown.final);
+  const saved = serializeCustomVehicleState(state, {
+    id: raw.id,
+    chassis: state.chassis,
+    variant: state.model,
+    era: Era.RENAISSANCE,
+  });
+  const restored = mapToVehicleState(saved);
+  expect(
+    restored.equipment.map((e) => [e.equipmentId, e.sourceIdentity]),
+  ).toEqual(state.equipment.map((e) => [e.equipmentId, e.sourceIdentity]));
+  expect(computeVehicleBVFromState(restored)).toEqual(owner.breakdown);
+  const savedOwner = calculateBattleValueForUnit(nativeUnit(saved));
+  expect(savedOwner?.breakdown).toMatchObject({
+    ammoBV: owner.breakdown.ammoBV,
+    weaponBV: owner.breakdown.weaponBV,
+    offensiveEquipmentBV: owner.breakdown.offensiveEquipmentBV,
+    offensive: owner.breakdown.offensive,
+  });
+  const edited = {
+    ...restored,
+    equipment: restored.equipment.filter((e) => !e.isAmmo),
+  };
+  const editedBV = computeVehicleBVFromState(edited);
+  expect(editedBV.ammoBV).toBe(0);
+  expect(buildVehicleUnitObject(edited).battleValue).toBe(editedBV.final);
+  expect(editedBV.final).toBeLessThanOrEqual(owner.breakdown.final);
+});
 it('preserves resolved ammunition kind and owner shot counts for every colliding catalog mount', () => {
   const lookup = getEquipmentLookupService();
   const weapons = new Set(lookup.getAllWeapons().map((w) => w.id));

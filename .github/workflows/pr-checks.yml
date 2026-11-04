@@ -17,11 +17,15 @@ on:
   workflow_dispatch:
 
 # A new push to the same PR supersedes the in-flight run; without this,
-# superseded runs burn to completion (~52 job-minutes each). Every other
-# run (main pushes, nightly, manual) gets a group of its own, so none is
-# cancelled or replaced while pending: each main commit is checked.
+# superseded runs burn to completion. Main pushes, nightly and manual runs
+# share one group that never cancels the running run: a newer one replaces
+# only a run still pending, and the tip it checks contains every replaced
+# commit (nightly is the backstop). Per-commit main runs queued five deep
+# at ~5 merges an hour (2026-11-04) and starved pull requests of the 20
+# shared runners. A failing coalesced run: re-run PR Checks on the
+# intermediate SHAs (`gh workflow run pr-checks.yml --ref <sha>`).
 concurrency:
-  group: pr-checks-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  group: pr-checks-${{ github.event_name == 'pull_request' && github.ref || 'main' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
@@ -69,6 +73,9 @@ jobs:
 
       - name: Filter paths
         id: filter
+        env:
+          # A push to main gates only the win/mac pack legs on its own diff.
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
         run: node scripts/ci/ci-changes.mjs
 
       - name: Test change detection and the Lint and Test guard
@@ -747,7 +754,10 @@ jobs:
         include:
           - os: windows-latest
             platform: win
-          - os: macos-latest
+          # Pinned: since 2026-11-04 ~14:45Z no `macos-latest` job here was
+          # acquired by a hosted runner ("not acquired ... after multiple
+          # attempts"), which cancelled the leg and failed Lint and Test.
+          - os: macos-15
             platform: mac
     timeout-minutes: 30
 

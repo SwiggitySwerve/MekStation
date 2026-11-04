@@ -575,16 +575,27 @@ function checkEquipment(
  * family is its own Jest file (and snapshot file); the describe/test names are
  * identical to the former single catalogRecordSheets.test.ts, so the committed
  * snapshot entries carry over unchanged.
+ *
+ * `part`/`parts` split one family's index into `parts` interleaved slices
+ * (index % parts === part, as in realCatalog.consumer.support) so the largest
+ * family (battlemechs, ~4,300 units) is several files instead of one 4-5 min
+ * file. Every unit is in exactly one slice and every slice asserts the same
+ * things; a slice's snapshot pins its own unit total.
  */
-export function defineCatalogFamilyParity(family: Family): void {
+export function defineCatalogFamilyParity(
+  family: Family,
+  part = 0,
+  parts = 1,
+): void {
   jest.setTimeout(300000);
   beforeAll(initializeEquipment);
 
   describe('committed catalog record-sheet model parity', () => {
-    it(`${family}: checks every indexed unit and records every mismatch/rejection`, () => {
-      const rows = catalog(family).map((entry) =>
-        verifyCatalogUnit(family, entry),
-      );
+    const label = parts === 1 ? family : `${family} (${part + 1}/${parts})`;
+    it(`${label}: checks every indexed unit and records every mismatch/rejection`, () => {
+      const rows = catalog(family)
+        .filter((_, index) => index % parts === part)
+        .map((entry) => verifyCatalogUnit(family, entry));
       const counts: Record<string, number> = {};
       for (const row of rows)
         for (const field of new Set(
@@ -600,7 +611,7 @@ export function defineCatalogFamilyParity(family: Family): void {
       expect(summary.rejected).toBe(0);
       if (process.env.RECORD_SHEET_AUDIT)
         fs.writeFileSync(
-          `${process.env.RECORD_SHEET_AUDIT}/${family}.json`,
+          `${process.env.RECORD_SHEET_AUDIT}/${family}${parts === 1 ? '' : `-${part + 1}-of-${parts}`}.json`,
           JSON.stringify({ summary, rows }, null, 2),
         );
       expect(rows.length).toBeGreaterThan(0);
