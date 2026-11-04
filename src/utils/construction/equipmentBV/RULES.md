@@ -356,7 +356,7 @@ Tech-qualified Mech candidate lookups retain the original source identity at
 the resolver boundary, so a source I-OS flag survives a different Clan catalog
 spelling. Crossbow T's SRM2/6 I-OS regressions enforce this retained fact.
 
-`weaponLinks.ts` owns the represented LRM/SRM/MML Artemis compatibility and
+`weaponLinks.ts` owns native F_ARTEMIS_COMPATIBLE lookup and
 first-unlinked/same-physical-location assignment for aircraft and large craft.
 Links follow source order; rear flags and list adjacency do not select the
 launcher (MekFileParser.java:425-449). The existing multiplier owner supplies
@@ -404,6 +404,13 @@ MegaMek pin 48fcb2f64). No missing catalog weapon is fabricated.
 Exact registered AmmoType identities select the ammo namespace even when their
 names lack the word ammo (Coolant Pod and ISC3Sensors). Registry metadata,
 not weapon prefix stripping, supplies that classification.
+
+Weapon flags are generated from the pinned Java WeaponType runtime, including
+inherited F_ARTEMIS_COMPATIBLE. nativeWeaponFlags.ts stores only these source
+facts; weaponLinks.ts owns compatibility and source-order physical linking.
+The generator maps existing catalog identities without modifying catalogs.
+ExtendedLRMWeapon.java:52; LRMWeapon.java:72; MekFileParser.java:424-449
+(MegaMek pin 48fcb2f64). Missing flag identities are incompatible.
 
 Explicit direct aliases may select an existing registry ID at the BV boundary;
 this does not enable fuzzy matching over registry names. The canonical C3

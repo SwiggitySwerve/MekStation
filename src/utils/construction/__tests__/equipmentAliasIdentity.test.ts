@@ -260,3 +260,29 @@ describe('One-shot launchers and one-off names follow their Java identity (follo
     expect(getEquipmentEntry('Machine Gun (Light)')?.id).toBe('balightmg');
   });
 });
+
+describe('Clan BattleArmor one-shot names follow their Java identity (follow-up 92)', () => {
+  // weapons/battleArmor/clan/lrm/CLBALRM5OS.java, srm/CLBASRM2OS.java, srm/CLBASRM3OS.java
+  it.each([
+    ['CLBALRM5 (OS)', 'clbalrm5-os-registry', 11],
+    ['CLBALRM5OS', 'clbalrm5-os-registry', 11],
+    ['CLBASRM2 (OS)', 'clbasrm2-os-registry', 4],
+    ['CLBASRM2OS', 'clbasrm2-os-registry', 4],
+    ['Clan BA OS SRM-2', 'clbasrm2-os-registry', 4],
+    ['Clan BA SRM 2 (OS)', 'clbasrm2-os-registry', 4],
+    ['CLBASRM3 (OS)', 'clbasrm3-os-registry', 6],
+    ['CLBASRM3OS', 'clbasrm3-os-registry', 6],
+    ['Clan BA SRM 3 (OS)', 'clbasrm3-os-registry', 6],
+    ['Clan BA OS SRM-3', 'clbasrm3-os-registry', 6],
+  ] as const)('%s resolves to %s (BV %d)', (name, id, bv) => {
+    const entry = getEquipmentEntry(name);
+    expect(entry?.id).toBe(id);
+    expect(entry?.battleValue).toBe(bv);
+  });
+
+  // CLBASRM3 resolves to basrm3; Java BV 30 (CLBASRM3.java:66), not CLBASRM2's 21.
+  it('values CLBASRM3 at its Java BV', () => {
+    expect(getEquipmentEntry('CLBASRM3')?.id).toBe('basrm3');
+    expect(getEquipmentEntry('CLBASRM3')?.battleValue).toBe(30);
+  });
+});
