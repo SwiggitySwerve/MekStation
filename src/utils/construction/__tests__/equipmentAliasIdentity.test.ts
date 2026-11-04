@@ -78,3 +78,61 @@ describe('IS BattleArmor LRM/SRM names follow their Java identity (follow-up 92)
     },
   );
 });
+
+describe('IS torpedo names follow their Java identity (follow-up 92)', () => {
+  const cases: Array<[string, string[]]> = [
+    // weapons/srms/innerSphere/torpedo/ISSRT2.java
+    ['srt-2-registry', ['IS SRT 2', 'ISSRT2']],
+    // weapons/srms/innerSphere/torpedo/ISSRT4.java
+    ['srt-4-registry', ['IS SRT 4', 'ISSRT4']],
+    // weapons/srms/innerSphere/torpedo/ISSRT6.java
+    ['srt-6-registry', ['IS SRT 6', 'ISSRT6']],
+    // weapons/lrms/innerSphere/torpedo/ISLRT10.java
+    ['lrt-10-registry', ['ISLRTorpedo10']],
+    // weapons/lrms/innerSphere/torpedo/ISLRT15.java
+    ['lrt-15-registry', ['ISLRTorpedo15']],
+    // weapons/lrms/innerSphere/torpedo/ISLRT20.java
+    ['lrt-20-registry', ['ISLRTorpedo20']],
+    // weapons/lrms/innerSphere/torpedo/ISLRT5.java
+    ['lrt-5-registry', ['ISLRTorpedo5']],
+    // weapons/lrms/innerSphere/torpedo/oneShot/ISLRT10IOS.java
+    ['lrt-10-i-os-registry', ['LRT 10 (I-OS)']],
+    // weapons/lrms/innerSphere/torpedo/oneShot/ISLRT15IOS.java
+    ['lrt-15-i-os-registry', ['LRT 15 (I-OS)']],
+    // weapons/lrms/innerSphere/torpedo/oneShot/ISLRT20IOS.java
+    ['lrt-20-i-os-registry', ['LRT 20 (I-OS)']],
+    // weapons/lrms/innerSphere/torpedo/oneShot/ISLRT5IOS.java
+    ['lrt-5-i-os-registry', ['LRT 5 (I-OS)']],
+    // weapons/srms/innerSphere/torpedo/oneShot/ISSRT2IOS.java
+    ['issrt2ios-registry', ['SRT 2 (I-OS)']],
+    // weapons/srms/innerSphere/torpedo/oneShot/ISSRT4IOS.java
+    ['issrt4ios-registry', ['SRT 4 (I-OS)']],
+    // weapons/srms/innerSphere/torpedo/oneShot/ISSRT6IOS.java
+    ['issrt6ios-registry', ['SRT 6 (I-OS)']],
+  ];
+  it.each(cases.flatMap(([id, names]) => names.map((name) => [name, id])))(
+    '%s resolves to %s',
+    (name, id) => {
+      expect(getEquipmentEntry(name)?.id).toBe(id);
+    },
+  );
+
+  // Java's CLAN lookup owns a different item for these names (follow-up 93).
+  it.each([
+    ['LRT 10', 'lrtorpedo10'],
+    ['LRT 10 (OS)', 'lrtorpedo10-os'],
+    ['LRT 15', 'lrtorpedo15'],
+    ['LRT 15 (OS)', 'lrtorpedo15-os'],
+    ['LRT 20', 'lrtorpedo20'],
+    ['LRT 20 (OS)', 'lrtorpedo20-os'],
+    ['LRT 5', 'lrtorpedo5'],
+    ['LRT 5 (OS)', 'lrtorpedo5-os'],
+    ['SRT 2', 'srt2'],
+    ['SRT 4', 'srt4'],
+    ['SRT 4 (OS)', 'srt4-os'],
+    ['SRT 6', 'srt6'],
+    ['SRT 6 (OS)', 'srt6-os'],
+  ])('keeps tech-dependent %s on %s', (name, id) => {
+    expect(getEquipmentEntry(name)?.id).toBe(id);
+  });
+});
