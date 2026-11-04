@@ -31,6 +31,7 @@ import {
   calculateMountedAerospaceExplosivePenalty,
 } from './aerospaceBVEquipment';
 import { isCapitalShipBVType } from './aerospaceBVTypes';
+import { aerospaceBVTerms } from './bvTrace';
 
 // ============================================================================
 // BV Helpers
@@ -50,6 +51,7 @@ export function calculateAerospaceDefensiveBV(
   defensiveEquipmentBV: number;
   explosivePenalties: number;
   defensiveFactor: number;
+  typeModifier: number;
   defensive: number;
 } {
   const armorMultiplier = getArmorBVMultiplier(input.armorType);
@@ -114,6 +116,7 @@ export function calculateAerospaceDefensiveBV(
     siBV,
     defensiveEquipmentBV,
     explosivePenalties,
+    typeModifier,
     defensiveFactor,
     defensive,
   };
@@ -277,12 +280,13 @@ export function calculateAerospaceBV(
       )
     : Math.round(subTypeAdjusted * pilotMultiplier);
 
-  return {
+  return aerospaceBVTerms({
     armorBV: defensive.armorBV,
     siBV: defensive.siBV,
     defensiveEquipmentBV: defensive.defensiveEquipmentBV,
     explosivePenalties: defensive.explosivePenalties,
     defensiveFactor: defensive.defensiveFactor,
+    typeModifier: defensive.typeModifier,
     defensive: defensive.defensive,
 
     arcContributions: offensive.arcContributions,
@@ -298,7 +302,7 @@ export function calculateAerospaceBV(
     subTypeMultiplier,
     pilotMultiplier,
     final,
-  };
+  });
 }
 
 // ============================================================================

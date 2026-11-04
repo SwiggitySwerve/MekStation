@@ -64,6 +64,9 @@ export interface ValidationResult {
     offensiveBV: number;
     // Modifiers
     cockpitModifier: number;
+    offensiveTypeModifier?: number;
+    summaryModifier?: number;
+    totalExplosivePenalty?: number;
     cockpitType: string;
     // Context
     techBase: string;
