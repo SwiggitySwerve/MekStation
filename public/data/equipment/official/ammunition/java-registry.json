@@ -431,14 +431,20 @@
       "variant": "Standard",
       "shotsPerTon": 1,
       "kgPerShot": 25,
-      "compatibleWeaponIds": ["balrm3", "balrm3os", "clan-lrm-3"],
+      "compatibleWeaponIds": [
+        "balrm3",
+        "isbalrm3-registry",
+        "balrm3os",
+        "isbalrm3os-registry",
+        "clan-lrm-3"
+      ],
       "costPerTon": 0,
       "isExplosive": true,
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: BACL Ammo LRM-3",
         "Java ammoType:rackSize LRM:3",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: ISBALRM3, ISBALRM3OS, CLLRM3OS"
+        "Unrepresented compatible Java weapons: CLLRM3OS"
       ]
     },
     {
@@ -454,14 +460,20 @@
       "variant": "Standard",
       "shotsPerTon": 1,
       "kgPerShot": 33.3,
-      "compatibleWeaponIds": ["balrm4", "balrm4os", "clan-lrm-4"],
+      "compatibleWeaponIds": [
+        "balrm4",
+        "isbalrm4-registry",
+        "balrm4os",
+        "isbalrm4os-registry",
+        "clan-lrm-4"
+      ],
       "costPerTon": 0,
       "isExplosive": true,
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: BACL Ammo LRM-4",
         "Java ammoType:rackSize LRM:4",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: ISBALRM4, ISBALRM4OS, CLLRM4OS"
+        "Unrepresented compatible Java weapons: CLLRM4OS"
       ]
     },
     {
@@ -918,14 +930,20 @@
       "variant": "Standard",
       "shotsPerTon": 100,
       "kgPerShot": 16.66,
-      "compatibleWeaponIds": ["clan-lrm-2", "balrm2", "balrm2os"],
+      "compatibleWeaponIds": [
+        "clan-lrm-2",
+        "balrm2",
+        "isbalrm2-registry",
+        "balrm2os",
+        "isbalrm2os-registry"
+      ],
       "costPerTon": 0,
       "isExplosive": true,
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo ProtoMech LRM-2",
         "Java ammoType:rackSize LRM:2",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLLRM2OS, ISBALRM2, ISBALRM2OS"
+        "Unrepresented compatible Java weapons: CLLRM2OS"
       ]
     },
     {
@@ -941,14 +959,20 @@
       "variant": "Standard",
       "shotsPerTon": 100,
       "kgPerShot": 24.99,
-      "compatibleWeaponIds": ["clan-lrm-3", "balrm3", "balrm3os"],
+      "compatibleWeaponIds": [
+        "clan-lrm-3",
+        "balrm3",
+        "isbalrm3-registry",
+        "balrm3os",
+        "isbalrm3os-registry"
+      ],
       "costPerTon": 0,
       "isExplosive": true,
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo ProtoMech LRM-3",
         "Java ammoType:rackSize LRM:3",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLLRM3OS, ISBALRM3, ISBALRM3OS"
+        "Unrepresented compatible Java weapons: CLLRM3OS"
       ]
     },
     {
@@ -964,14 +988,20 @@
       "variant": "Standard",
       "shotsPerTon": 100,
       "kgPerShot": 33.32,
-      "compatibleWeaponIds": ["clan-lrm-4", "balrm4", "balrm4os"],
+      "compatibleWeaponIds": [
+        "clan-lrm-4",
+        "balrm4",
+        "isbalrm4-registry",
+        "balrm4os",
+        "isbalrm4os-registry"
+      ],
       "costPerTon": 0,
       "isExplosive": true,
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo ProtoMech LRM-4",
         "Java ammoType:rackSize LRM:4",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLLRM4OS, ISBALRM4, ISBALRM4OS"
+        "Unrepresented compatible Java weapons: CLLRM4OS"
       ]
     },
     {
@@ -1032,14 +1062,19 @@
       "variant": "Standard",
       "shotsPerTon": 100,
       "kgPerShot": 10,
-      "compatibleWeaponIds": ["basrm1", "basrm1os"],
+      "compatibleWeaponIds": [
+        "basrm1",
+        "isbasrm1-registry",
+        "basrm1os",
+        "isbasrm1os-registry"
+      ],
       "costPerTon": 0,
       "isExplosive": true,
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-1",
         "Java ammoType:rackSize SRM:1",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM1, CLSRM1OS, ISBASRM1, ISBASRM1OS"
+        "Unrepresented compatible Java weapons: CLSRM1, CLSRM1OS"
       ]
     },
     {
@@ -1086,14 +1121,18 @@
       "variant": "Standard",
       "shotsPerTon": 100,
       "kgPerShot": 30,
-      "compatibleWeaponIds": ["basrm3", "isbasrm3os-registry"],
+      "compatibleWeaponIds": [
+        "basrm3",
+        "isbasrm3-registry",
+        "isbasrm3os-registry"
+      ],
       "costPerTon": 0,
       "isExplosive": true,
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-3",
         "Java ammoType:rackSize SRM:3",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM3, CLSRM3OS, ISBASRM3, CLBASRM3 (OS)"
+        "Unrepresented compatible Java weapons: CLSRM3, CLSRM3OS, CLBASRM3 (OS)"
       ]
     },
     {
@@ -1173,14 +1212,19 @@
       "variant": "Standard",
       "shotsPerTon": 100,
       "kgPerShot": 50,
-      "compatibleWeaponIds": ["basrm5", "basrm5os"],
+      "compatibleWeaponIds": [
+        "basrm5",
+        "isbasrm5-registry",
+        "basrm5os",
+        "isbasrm5os-registry"
+      ],
       "costPerTon": 0,
       "isExplosive": true,
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-5",
         "Java ammoType:rackSize SRM:5",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM5, CLSRM5OS, ISBASRM5, ISBASRM5OS"
+        "Unrepresented compatible Java weapons: CLSRM5, CLSRM5OS"
       ]
     },
     {

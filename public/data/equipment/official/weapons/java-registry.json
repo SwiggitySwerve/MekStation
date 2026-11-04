@@ -2145,6 +2145,214 @@
       ]
     },
     {
+      "id": "isbalrm1-registry",
+      "name": "LRM 1",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.06,
+      "criticalSlots": 2,
+      "battleValue": 14,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 6000,
+      "subType": "ISBALRM1",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM1.java: ISBALRM1"
+      ]
+    },
+    {
+      "id": "isbalrm1os-registry",
+      "name": "LRM 1 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.04,
+      "criticalSlots": 3,
+      "battleValue": 3,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 3000,
+      "subType": "ISBALRM1OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM1OS.java: ISBALRM1OS"
+      ]
+    },
+    {
+      "id": "isbalrm2-registry",
+      "name": "LRM 2",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.12,
+      "criticalSlots": 2,
+      "battleValue": 20,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 12000,
+      "subType": "ISBALRM2",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM2.java: ISBALRM2"
+      ]
+    },
+    {
+      "id": "isbalrm2os-registry",
+      "name": "LRM 2 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.08,
+      "criticalSlots": 3,
+      "battleValue": 4,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 6000,
+      "subType": "ISBALRM2OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM2OS.java: ISBALRM2OS"
+      ]
+    },
+    {
+      "id": "isbalrm3-registry",
+      "name": "LRM 3",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.18,
+      "criticalSlots": 3,
+      "battleValue": 29,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 18000,
+      "subType": "ISBALRM3",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM3.java: ISBALRM3"
+      ]
+    },
+    {
+      "id": "isbalrm3os-registry",
+      "name": "LRM 3 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.12,
+      "criticalSlots": 4,
+      "battleValue": 6,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 9000,
+      "subType": "ISBALRM3OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM3OS.java: ISBALRM3OS"
+      ]
+    },
+    {
+      "id": "isbalrm4-registry",
+      "name": "LRM 4",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.24,
+      "criticalSlots": 3,
+      "battleValue": 38,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 12000,
+      "subType": "ISBALRM4",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM4.java: ISBALRM4"
+      ]
+    },
+    {
+      "id": "isbalrm4os-registry",
+      "name": "LRM 4 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.16,
+      "criticalSlots": 5,
+      "battleValue": 8,
+      "introductionYear": 3050,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 12000,
+      "subType": "ISBALRM4OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 21,
+        "extreme": 28,
+        "short": 7,
+        "minimum": 6,
+        "medium": 14
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/lrm/ISBALRM4OS.java: ISBALRM4OS"
+      ]
+    },
+    {
       "id": "isbalrm5-registry",
       "name": "LRM 5",
       "category": "Missile",
@@ -2405,6 +2613,58 @@
       ]
     },
     {
+      "id": "isbasrm1-registry",
+      "name": "SRM 1",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.06,
+      "criticalSlots": 1,
+      "battleValue": 15,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 5000,
+      "subType": "ISBASRM1",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM1.java: ISBASRM1"
+      ]
+    },
+    {
+      "id": "isbasrm1os-registry",
+      "name": "SRM 1 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.05,
+      "criticalSlots": 2,
+      "battleValue": 3,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 2500,
+      "subType": "ISBASRM1OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM1OS.java: ISBASRM1OS"
+      ]
+    },
+    {
       "id": "isbasrm2-registry",
       "name": "SRM 2",
       "category": "Missile",
@@ -2454,6 +2714,32 @@
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM2OS.java: ISBASRM2OS"
+      ]
+    },
+    {
+      "id": "isbasrm3-registry",
+      "name": "SRM 3",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.18,
+      "criticalSlots": 2,
+      "battleValue": 30,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 15000,
+      "subType": "ISBASRM3",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM3.java: ISBASRM3"
       ]
     },
     {
@@ -2532,6 +2818,58 @@
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM4OS.java: ISBASRM4OS"
+      ]
+    },
+    {
+      "id": "isbasrm5-registry",
+      "name": "SRM 5",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.3,
+      "criticalSlots": 3,
+      "battleValue": 47,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 25000,
+      "subType": "ISBASRM5",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM5.java: ISBASRM5"
+      ]
+    },
+    {
+      "id": "isbasrm5os-registry",
+      "name": "SRM 5 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.175,
+      "criticalSlots": 3,
+      "battleValue": 9,
+      "introductionYear": 3045,
+      "allowedUnitTypes": ["Battle Armor"],
+      "costCBills": 12500,
+      "subType": "ISBASRM5OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/battleArmor/innerSphere/srm/ISBASRM5OS.java: ISBASRM5OS"
       ]
     },
     {
@@ -3009,6 +3347,46 @@
       ]
     },
     {
+      "id": "issrt2ios-registry",
+      "name": "SRT 2 (I-OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "battleValue": 4,
+      "introductionYear": 3056,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 8000,
+      "subType": "ISSRT2IOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/oneShot/ISSRT2IOS.java: ISSRT2IOS"
+      ]
+    },
+    {
       "id": "issrt2os-registry",
       "name": "SRT 2 (OS)",
       "category": "Missile",
@@ -3047,6 +3425,86 @@
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/oneShot/ISSRT2OS.java: ISSRT2OS"
+      ]
+    },
+    {
+      "id": "issrt4ios-registry",
+      "name": "SRT 4 (I-OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "battleValue": 8,
+      "introductionYear": 3056,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 48000,
+      "subType": "ISSRT4IOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 3,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/oneShot/ISSRT4IOS.java: ISSRT4IOS"
+      ]
+    },
+    {
+      "id": "issrt6ios-registry",
+      "name": "SRT 6 (I-OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 2.5,
+      "criticalSlots": 2,
+      "battleValue": 12,
+      "introductionYear": 3056,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 64000,
+      "subType": "ISSRT6IOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 4,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/oneShot/ISSRT6IOS.java: ISSRT6IOS"
       ]
     },
     {
@@ -3710,6 +4168,326 @@
       ]
     },
     {
+      "id": "lrt-10-registry",
+      "name": "LRT 10",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 5,
+      "criticalSlots": 2,
+      "battleValue": 90,
+      "introductionYear": 2370,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 100000,
+      "subType": "ISLRT10",
+      "damage": "Java variable damage (-2)",
+      "heat": 4,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/ISLRT10.java: LRT 10"
+      ]
+    },
+    {
+      "id": "lrt-10-i-os-registry",
+      "name": "LRT 10 (I-OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 4.5,
+      "criticalSlots": 2,
+      "battleValue": 18,
+      "introductionYear": 3056,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 80000,
+      "subType": "ISLRT10IOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 4,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/oneShot/ISLRT10IOS.java: LRT 10 (I-OS)"
+      ]
+    },
+    {
+      "id": "lrt-15-registry",
+      "name": "LRT 15",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 7,
+      "criticalSlots": 3,
+      "battleValue": 136,
+      "introductionYear": 2370,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 175000,
+      "subType": "ISLRT15",
+      "damage": "Java variable damage (-2)",
+      "heat": 5,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/ISLRT15.java: LRT 15"
+      ]
+    },
+    {
+      "id": "lrt-15-i-os-registry",
+      "name": "LRT 15 (I-OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 6.5,
+      "criticalSlots": 3,
+      "battleValue": 27,
+      "introductionYear": 3056,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 140000,
+      "subType": "ISLRT15IOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 5,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/oneShot/ISLRT15IOS.java: LRT 15 (I-OS)"
+      ]
+    },
+    {
+      "id": "lrt-20-registry",
+      "name": "LRT 20",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 10,
+      "criticalSlots": 5,
+      "battleValue": 181,
+      "introductionYear": 2370,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 250000,
+      "subType": "ISLRT20",
+      "damage": "Java variable damage (-2)",
+      "heat": 6,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/ISLRT20.java: LRT 20"
+      ]
+    },
+    {
+      "id": "lrt-20-i-os-registry",
+      "name": "LRT 20 (I-OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 9.5,
+      "criticalSlots": 5,
+      "battleValue": 36,
+      "introductionYear": 3056,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 200000,
+      "subType": "ISLRT20IOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 6,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/oneShot/ISLRT20IOS.java: LRT 20 (I-OS)"
+      ]
+    },
+    {
+      "id": "lrt-5-registry",
+      "name": "LRT 5",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 2,
+      "criticalSlots": 1,
+      "battleValue": 45,
+      "introductionYear": 2370,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 30000,
+      "subType": "ISLRT5",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/ISLRT5.java: LRT 5"
+      ]
+    },
+    {
+      "id": "lrt-5-i-os-registry",
+      "name": "LRT 5 (I-OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "battleValue": 9,
+      "introductionYear": 3056,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 24000,
+      "subType": "ISLRT5IOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 6,
+        "medium": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lrms/innerSphere/torpedo/oneShot/ISLRT5IOS.java: LRT 5 (I-OS)"
+      ]
+    },
+    {
       "id": "laser-hellbore-assault-registry",
       "name": "Laser (Hellbore Assault)",
       "category": "Energy",
@@ -4137,6 +4915,406 @@
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/lasers/innerSphere/ISLBinaryLaserCannon.java: Light Blazer"
+      ]
+    },
+    {
+      "id": "mrm-1-registry",
+      "name": "MRM 1",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 9,
+      "introductionYear": 3057,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 0,
+      "subType": "ISMRM1",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 15,
+        "extreme": 16,
+        "short": 3,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/unofficial/innerSphere/mrm/ISMRM1.java: MRM 1"
+      ]
+    },
+    {
+      "id": "mrm-1-os-registry",
+      "name": "MRM 1 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 2,
+      "introductionYear": 3057,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 0,
+      "subType": "ISMRM1OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 15,
+        "extreme": 16,
+        "short": 3,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/unofficial/innerSphere/mrm/oneShot/ISMRM1OS.java: MRM 1 (OS)"
+      ]
+    },
+    {
+      "id": "mrm-2-registry",
+      "name": "MRM 2",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 13,
+      "introductionYear": 3057,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 0,
+      "subType": "ISMRM2",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 15,
+        "extreme": 16,
+        "short": 3,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/unofficial/innerSphere/mrm/ISMRM2.java: MRM 2"
+      ]
+    },
+    {
+      "id": "mrm-2-os-registry",
+      "name": "MRM 2 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 3,
+      "introductionYear": 3057,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 0,
+      "subType": "ISMRM2OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 15,
+        "extreme": 16,
+        "short": 3,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/unofficial/innerSphere/mrm/oneShot/ISMRM2OS.java: MRM 2 (OS)"
+      ]
+    },
+    {
+      "id": "mrm-3-registry",
+      "name": "MRM 3",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 18,
+      "introductionYear": 3057,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 0,
+      "subType": "ISMRM3",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 15,
+        "extreme": 16,
+        "short": 3,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/unofficial/innerSphere/mrm/ISMRM3.java: MRM 3"
+      ]
+    },
+    {
+      "id": "mrm-3-os-registry",
+      "name": "MRM 3 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 4,
+      "introductionYear": 3057,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 0,
+      "subType": "ISMRM3OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 15,
+        "extreme": 16,
+        "short": 3,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/unofficial/innerSphere/mrm/oneShot/ISMRM3OS.java: MRM 3 (OS)"
+      ]
+    },
+    {
+      "id": "mrm-4-registry",
+      "name": "MRM 4",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 23,
+      "introductionYear": 3057,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 0,
+      "subType": "ISMRM4",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 15,
+        "extreme": 16,
+        "short": 3,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/unofficial/innerSphere/mrm/ISMRM4.java: MRM 4"
+      ]
+    },
+    {
+      "id": "mrm-4-os-registry",
+      "name": "MRM 4 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 45,
+      "introductionYear": 3057,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 0,
+      "subType": "ISMRM4OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 15,
+        "extreme": 16,
+        "short": 3,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/unofficial/innerSphere/mrm/oneShot/ISMRM4OS.java: MRM 4 (OS)"
+      ]
+    },
+    {
+      "id": "mrm-5-registry",
+      "name": "MRM 5",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 28,
+      "introductionYear": 3057,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 0,
+      "subType": "ISMRM5",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 15,
+        "extreme": 16,
+        "short": 3,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/unofficial/innerSphere/mrm/ISMRM5.java: MRM 5"
+      ]
+    },
+    {
+      "id": "mrm-5-os-registry",
+      "name": "MRM 5 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "UNOFFICIAL",
+      "weight": 0,
+      "criticalSlots": 0,
+      "battleValue": 6,
+      "introductionYear": 3057,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 0,
+      "subType": "ISMRM5OS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 15,
+        "extreme": 16,
+        "short": 3,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/unofficial/innerSphere/mrm/oneShot/ISMRM5OS.java: MRM 5 (OS)"
       ]
     },
     {
@@ -5289,6 +6467,126 @@
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/smg/InfantrySMGGuntherMP20Weapon.java: SMG (Gunther MP-20)"
+      ]
+    },
+    {
+      "id": "srt-2-registry",
+      "name": "SRT 2",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "battleValue": 21,
+      "introductionYear": 2660,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 10000,
+      "subType": "ISSRT2",
+      "damage": "Java variable damage (-2)",
+      "heat": 2,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/ISSRT2.java: SRT 2"
+      ]
+    },
+    {
+      "id": "srt-4-registry",
+      "name": "SRT 4",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 2,
+      "criticalSlots": 1,
+      "battleValue": 39,
+      "introductionYear": 2660,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 60000,
+      "subType": "ISSRT4",
+      "damage": "Java variable damage (-2)",
+      "heat": 3,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/ISSRT4.java: SRT 4"
+      ]
+    },
+    {
+      "id": "srt-6-registry",
+      "name": "SRT 6",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 3,
+      "criticalSlots": 2,
+      "battleValue": 59,
+      "introductionYear": 2660,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 80000,
+      "subType": "ISSRT6",
+      "damage": "Java variable damage (-2)",
+      "heat": 4,
+      "ranges": {
+        "long": 0,
+        "extreme": 0,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/torpedo/ISSRT6.java: SRT 6"
       ]
     },
     {

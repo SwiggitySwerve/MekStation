@@ -122,12 +122,284 @@ export const APPROVED_JAVA_REROUTES = [
   })),
   {
     name: 'IS Streak SRM 2 Ammo',
-    oldTarget: '100',
-    newTarget: '50',
+    // Numeric targets are typed `#<json>` since cc0397c9e.
+    oldTarget: '#100',
+    newTarget: '#50',
     reason:
       'Follow-up 89; printed shots per ton follow the IS record (AmmoType.java:10628 shots = 50)',
     tagForm: true,
   },
+  // Follow-up 92 slice 1: IS BattleArmor LRM/SRM resolved to the generic BA records.
+  ...[
+    [
+      'isbalrm1-registry',
+      'balrm1',
+      'weapons/battleArmor/innerSphere/lrm/ISBALRM1.java:64',
+      ['IS BA LRM 1', 'ISBALRM1'],
+    ],
+    [
+      'isbalrm2-registry',
+      'balrm2',
+      'weapons/battleArmor/innerSphere/lrm/ISBALRM2.java:64',
+      ['IS BA LRM 2', 'ISBALRM2'],
+    ],
+    [
+      'isbalrm3-registry',
+      'balrm3',
+      'weapons/battleArmor/innerSphere/lrm/ISBALRM3.java:64',
+      ['IS BA LRM 3', 'IS BA LRM3', 'ISBALRM3'],
+    ],
+    [
+      'isbalrm4-registry',
+      'balrm4',
+      'weapons/battleArmor/innerSphere/lrm/ISBALRM4.java:64',
+      ['IS BA LRM 4', 'ISBALRM4'],
+    ],
+    [
+      'isbalrm1os-registry',
+      'balrm1os',
+      'weapons/battleArmor/innerSphere/lrm/ISBALRM1OS.java:64',
+      ['IS BA LRM1 OS', 'ISBALRM1OS'],
+    ],
+    [
+      'isbalrm2os-registry',
+      'balrm2os',
+      'weapons/battleArmor/innerSphere/lrm/ISBALRM2OS.java:64',
+      ['IS BA LRM2 OS', 'ISBALRM2OS'],
+    ],
+    [
+      'isbalrm3os-registry',
+      'balrm3os',
+      'weapons/battleArmor/innerSphere/lrm/ISBALRM3OS.java:64',
+      ['IS BA LRM3 OS', 'ISBALRM3OS'],
+    ],
+    [
+      'isbalrm4os-registry',
+      'balrm4os',
+      'weapons/battleArmor/innerSphere/lrm/ISBALRM4OS.java:64',
+      ['IS BA LRM4 OS', 'ISBALRM4OS'],
+    ],
+    [
+      'isbasrm1-registry',
+      'basrm1',
+      'weapons/battleArmor/innerSphere/srm/ISBASRM1.java:56',
+      ['IS BA SRM 1', 'ISBASRM1'],
+    ],
+    [
+      'isbasrm3-registry',
+      'basrm3',
+      'weapons/battleArmor/innerSphere/srm/ISBASRM3.java:56',
+      ['IS BA SRM 3', 'ISBASRM3'],
+    ],
+    [
+      'isbasrm5-registry',
+      'basrm5',
+      'weapons/battleArmor/innerSphere/srm/ISBASRM5.java:56',
+      ['IS BA SRM 5', 'ISBASRM5'],
+    ],
+    [
+      'isbasrm1os-registry',
+      'basrm1os',
+      'weapons/battleArmor/innerSphere/srm/ISBASRM1OS.java:56',
+      ['IS BA SRM1 OS', 'ISBASRM1OS'],
+    ],
+    [
+      'isbasrm5os-registry',
+      'basrm5os',
+      'weapons/battleArmor/innerSphere/srm/ISBASRM5OS.java:56',
+      ['IS BA SRM5 OS', 'ISBASRM5OS'],
+    ],
+  ].flatMap(([newTarget, oldTarget, source, names]) =>
+    names.map((name) => ({
+      name,
+      oldTarget,
+      newTarget,
+      reason: `Follow-up 92 slice 1; pinned 48fcb2f6 ${source}`,
+      weapon: true,
+    })),
+  ),
+  // Follow-up 92 slice 2: IS torpedo names resolved to the legacy torpedo records.
+  ...[
+    [
+      'srt-2-registry',
+      'srt2',
+      'weapons/srms/innerSphere/torpedo/ISSRT2.java:56',
+      ['IS SRT 2', 'ISSRT2'],
+    ],
+    [
+      'srt-4-registry',
+      'srt4',
+      'weapons/srms/innerSphere/torpedo/ISSRT4.java:56',
+      ['IS SRT 4', 'ISSRT4'],
+    ],
+    [
+      'srt-6-registry',
+      'srt6',
+      'weapons/srms/innerSphere/torpedo/ISSRT6.java:56',
+      ['IS SRT 6', 'ISSRT6'],
+    ],
+    [
+      'lrt-10-registry',
+      'lrtorpedo10',
+      'weapons/lrms/innerSphere/torpedo/ISLRT10.java:57',
+      ['ISLRTorpedo10'],
+    ],
+    [
+      'lrt-15-registry',
+      'lrtorpedo15',
+      'weapons/lrms/innerSphere/torpedo/ISLRT15.java:57',
+      ['ISLRTorpedo15'],
+    ],
+    [
+      'lrt-20-registry',
+      'lrtorpedo20',
+      'weapons/lrms/innerSphere/torpedo/ISLRT20.java:57',
+      ['ISLRTorpedo20'],
+    ],
+    [
+      'lrt-5-registry',
+      'lrtorpedo5',
+      'weapons/lrms/innerSphere/torpedo/ISLRT5.java:57',
+      ['ISLRTorpedo5'],
+    ],
+    [
+      'lrt-10-i-os-registry',
+      'lrtorpedo10-ios',
+      'weapons/lrms/innerSphere/torpedo/oneShot/ISLRT10IOS.java:57',
+      ['LRT 10 (I-OS)'],
+    ],
+    [
+      'lrt-15-i-os-registry',
+      'lrtorpedo15-ios',
+      'weapons/lrms/innerSphere/torpedo/oneShot/ISLRT15IOS.java:57',
+      ['LRT 15 (I-OS)'],
+    ],
+    [
+      'lrt-20-i-os-registry',
+      'lrtorpedo20-ios',
+      'weapons/lrms/innerSphere/torpedo/oneShot/ISLRT20IOS.java:57',
+      ['LRT 20 (I-OS)'],
+    ],
+    [
+      'lrt-5-i-os-registry',
+      'lrtorpedo5-ios',
+      'weapons/lrms/innerSphere/torpedo/oneShot/ISLRT5IOS.java:57',
+      ['LRT 5 (I-OS)'],
+    ],
+    [
+      'issrt2ios-registry',
+      'srt2-ios',
+      'weapons/srms/innerSphere/torpedo/oneShot/ISSRT2IOS.java:57',
+      ['SRT 2 (I-OS)'],
+    ],
+    [
+      'issrt4ios-registry',
+      'srt4-ios',
+      'weapons/srms/innerSphere/torpedo/oneShot/ISSRT4IOS.java:57',
+      ['SRT 4 (I-OS)'],
+    ],
+    [
+      'issrt6ios-registry',
+      'srt6-ios',
+      'weapons/srms/innerSphere/torpedo/oneShot/ISSRT6IOS.java:57',
+      ['SRT 6 (I-OS)'],
+    ],
+  ].flatMap(([newTarget, oldTarget, source, names]) =>
+    names.map((name) => ({
+      name,
+      oldTarget,
+      newTarget,
+      reason: `Follow-up 92 slice 2; pinned 48fcb2f6 ${source}`,
+      weapon: true,
+    })),
+  ),
+  // EquipmentNameMapper's tech-tag form; Java's CLAN lookup is the same item.
+  ...[
+    ['LRT 10 (I-OS) (Clan)', 'lrtorpedo10-ios', 'lrt-10-i-os-registry'],
+    ['LRT 15 (I-OS) (Clan)', 'lrtorpedo15-ios', 'lrt-15-i-os-registry'],
+    ['LRT 20 (I-OS) (Clan)', 'lrtorpedo20-ios', 'lrt-20-i-os-registry'],
+    ['LRT 5 (I-OS) (Clan)', 'lrtorpedo5-ios', 'lrt-5-i-os-registry'],
+    ['SRT 2 (I-OS) (Clan)', 'srt2-ios', 'issrt2ios-registry'],
+    ['SRT 4 (I-OS) (Clan)', 'srt4-ios', 'issrt4ios-registry'],
+    ['SRT 6 (I-OS) (Clan)', 'srt6-ios', 'issrt6ios-registry'],
+  ].map(([name, oldTarget, newTarget]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    reason: 'Follow-up 92 slice 2; mapper tag form of the route above',
+    tagForm: true,
+  })),
+  // Follow-up 92 slice 3: unofficial IS MRM names resolved to the BattleArmor MRM records.
+  ...[
+    [
+      'mrm-1-registry',
+      'bamrm1',
+      'weapons/unofficial/innerSphere/mrm/ISMRM1.java:56',
+      ['IS MRM 1', 'ISMRM1', 'MRM 1'],
+    ],
+    [
+      'mrm-2-registry',
+      'bamrm2',
+      'weapons/unofficial/innerSphere/mrm/ISMRM2.java:56',
+      ['IS MRM 2', 'ISMRM2', 'MRM 2'],
+    ],
+    [
+      'mrm-3-registry',
+      'bamrm3',
+      'weapons/unofficial/innerSphere/mrm/ISMRM3.java:56',
+      ['IS MRM 3', 'ISMRM3', 'MRM 3'],
+    ],
+    [
+      'mrm-4-registry',
+      'bamrm4',
+      'weapons/unofficial/innerSphere/mrm/ISMRM4.java:56',
+      ['IS MRM 4', 'ISMRM4', 'MRM 4'],
+    ],
+    [
+      'mrm-5-registry',
+      'bamrm5',
+      'weapons/unofficial/innerSphere/mrm/ISMRM5.java:56',
+      ['IS MRM 5', 'ISMRM5', 'MRM 5'],
+    ],
+    [
+      'mrm-1-os-registry',
+      'bamrm1os',
+      'weapons/unofficial/innerSphere/mrm/oneShot/ISMRM1OS.java:56',
+      ['MRM 1 (OS)'],
+    ],
+    [
+      'mrm-2-os-registry',
+      'bamrm2os',
+      'weapons/unofficial/innerSphere/mrm/oneShot/ISMRM2OS.java:56',
+      ['MRM 2 (OS)'],
+    ],
+    [
+      'mrm-3-os-registry',
+      'bamrm3os',
+      'weapons/unofficial/innerSphere/mrm/oneShot/ISMRM3OS.java:56',
+      ['MRM 3 (OS)'],
+    ],
+    [
+      'mrm-4-os-registry',
+      'bamrm4os',
+      'weapons/unofficial/innerSphere/mrm/oneShot/ISMRM4OS.java:56',
+      ['MRM 4 (OS)'],
+    ],
+    [
+      'mrm-5-os-registry',
+      'bamrm5os',
+      'weapons/unofficial/innerSphere/mrm/oneShot/ISMRM5OS.java:56',
+      ['MRM 5 (OS)'],
+    ],
+  ].flatMap(([newTarget, oldTarget, source, names]) =>
+    names.map((name) => ({
+      name,
+      oldTarget,
+      newTarget,
+      reason: `Follow-up 92 slice 3; pinned 48fcb2f6 ${source}`,
+      weapon: true,
+    })),
+  ),
 ];
 async function capture(root, inputs) {
   process.chdir(root);
