@@ -264,93 +264,6 @@ const DYNAMIC_LOAD = /(?<![.\w$])(?:require|import)\s*\(\s*(?!['"]|\w+\s*[:?])/;
 // specs found in raw text still join the closure either way.
 const stripComments = (text) =>
   text.replace(/^[ \t]*\/\*[\s\S]*?\*\//gm, '').replace(/^[ \t]*\/\/.*$/gm, '');
-// The same for naming a data directory, where a wrongly stripped line means a
-// missed input, so this one follows the syntax: it walks the file through
-// strings, templates (with `${}` nesting) and comments, and removes only real
-// comments. Anything it cannot classify returns the file raw (comments kept, so
-// a mention can only be over-counted): a `/` that may open a regex literal, a
-// string that does not end on its line (JSX text with an apostrophe), or an
-// unterminated template, block comment or `${`.
-const stripCommentsForNames = (text) => {
-  const n = text.length;
-  let ambiguous = false;
-  const give = (out) => {
-    ambiguous = true;
-    return { out, i: n };
-  };
-  const scan = (start, inExpression) => {
-    let out = '';
-    let i = start;
-    let depth = 0;
-    let last = '';
-    while (i < n) {
-      const c = text[i];
-      const next = text[i + 1];
-      if (c === '/' && next === '/') {
-        const end = text.indexOf('\n', i);
-        i = end < 0 ? n : end;
-        out += ' ';
-        continue;
-      }
-      if (c === '/' && next === '*') {
-        const end = text.indexOf('*/', i + 2);
-        if (end < 0) return give(out);
-        i = end + 2;
-        out += ' ';
-        continue;
-      }
-      // after an operand this is division; anywhere else it may open a regex
-      if (c === '/' && !/[\w$)\]}'"`]/.test(last)) return give(out);
-      if (c === '"' || c === "'") {
-        let j = i + 1;
-        while (j < n && text[j] !== c && text[j] !== '\n')
-          j += text[j] === '\\' ? 2 : 1;
-        if (text[j] !== c) return give(out);
-        out += text.slice(i, j + 1);
-        i = j + 1;
-        last = c;
-        continue;
-      }
-      if (c === '`') {
-        out += c;
-        i++;
-        for (;;) {
-          if (i >= n) return give(out);
-          const t = text[i];
-          if (t === '\\') {
-            out += text.slice(i, i + 2);
-            i += 2;
-          } else if (t === '`') {
-            out += t;
-            i++;
-            break;
-          } else if (t === '$' && text[i + 1] === '{') {
-            const inner = scan(i + 2, true);
-            if (ambiguous) return inner;
-            out += `\${${inner.out}`;
-            i = inner.i;
-          } else {
-            out += t;
-            i++;
-          }
-        }
-        last = '`';
-        continue;
-      }
-      if (c === '{') depth++;
-      if (c === '}') {
-        if (inExpression && depth === 0) return { out: `${out}}`, i: i + 1 };
-        depth--;
-      }
-      out += c;
-      i++;
-      if (!/\s/.test(c)) last = c;
-    }
-    return inExpression ? give(out) : { out, i };
-  };
-  const result = scan(0, false);
-  return ambiguous ? text : result.out;
-};
 // Content reads: with no named directory in the closure these force a
 // whole-repo key. Existence checks (existsSync & co) only add named
 // directories when present; a bare existsSync(dir) is how code guards a
@@ -547,12 +460,8 @@ function analyzeSource(text, rel, nameMatchers) {
   const usesFs = FS_READ.test(code);
   const tokens = new Set();
   if (usesFs || FS_EXISTS.test(code)) {
-    // Named directories come from code, not comments: a JSDoc line that mentions
-    // `src/utils/...` is not a read of `src/`, and counting it made every such
-    // file re-run on any change to that directory.
-    const named = stripCommentsForNames(text);
     for (const [matcher, prefix] of nameMatchers) {
-      if (matcher.test(named)) tokens.add(prefix);
+      if (matcher.test(text)) tokens.add(prefix);
     }
     if (OWN_DIR.test(code)) {
       // A path built from __dirname can climb out of the directory: widen to the
