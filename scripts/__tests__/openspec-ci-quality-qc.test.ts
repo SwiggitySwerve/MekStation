@@ -624,7 +624,7 @@ describe('OpenSpec CI quality QC validator', () => {
       [
         'runs one shard for every matrix leg',
         (block: string) =>
-          block.replace(' --shard=${{ matrix.shard }}/3', ' --shard=1/3'),
+          block.replace(' --shard=${{ matrix.shard }}/2', ' --shard=1/2'),
       ],
     ] as const)('rejects a browser gate that %s', (_label, mutate) => {
       const manifest = runWithWorkflow(
