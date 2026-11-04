@@ -12,6 +12,7 @@ import {
 } from '../equipmentBVCatalogData';
 import {
   loadCatalogForEquipmentId,
+  loadCatalogForNativeEquipmentName,
   isAmmunitionEquipmentId,
   loadNameMappings,
   getLowerMappingsCache,
@@ -29,6 +30,18 @@ import {
 import { nativeIdentityId } from './sourceLookupAliases';
 
 type EquipmentCatalogLookup = ReadonlyMap<string, unknown>;
+/** MtfFile.java:1210-1211; BLKFile.java:248-249 (48fcb2f64). */
+export function normalizeNativeEquipmentName(
+  equipmentName: string,
+  includeRegistry = true,
+): string {
+  return normalizeEquipmentId(
+    equipmentName,
+    loadCatalogForNativeEquipmentName(equipmentName),
+    includeRegistry,
+  );
+}
+
 const legacyCatalogs = new WeakMap<object, EquipmentCatalogLookup>();
 function firstCatalogMatch(
   catalog: EquipmentCatalogLookup,

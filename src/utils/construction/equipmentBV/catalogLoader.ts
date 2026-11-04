@@ -191,6 +191,18 @@ export function isAmmunitionEquipmentId(equipmentId: string): boolean {
 export function loadCatalogForEquipmentId(
   equipmentId: string,
 ): Map<string, EquipmentCatalogEntry> {
+  const key = equipmentId.toLowerCase().trim();
+  const equipment = loadEquipmentCatalog();
+  if (equipment.has(key)) return equipment;
+  const ammunition = loadAmmunitionCatalog();
+  if (ammunition.has(key)) return ammunition;
+  return loadCatalogForNativeEquipmentName(equipmentId);
+}
+
+/** Source names use Java's namespace; canonical catalog IDs retain exact identity. */
+export function loadCatalogForNativeEquipmentName(
+  equipmentId: string,
+): Map<string, EquipmentCatalogEntry> {
   return isAmmunitionEquipmentId(equipmentId)
     ? loadAmmunitionCatalog()
     : loadEquipmentCatalog();
