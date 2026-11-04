@@ -644,10 +644,14 @@ describe.each(['selector', 'forecast'] as const)(
   'strict missile ammunition in the real %s preview',
   (surface) => {
     const cases = [
+      // Unknown capacity (-1) is set explicitly: since sweep batch 5 these
+      // ProtoMech racks carry their Java ammoPerTon (100) in the catalog.
       ...['clan-srm-1', 'clan-srm-3', 'clan-srm-5'].map((id) => ({
         label: id,
-        makeWeapon: () =>
-          extractWeapons([{ equipmentId: id }], 'preview-proto', {})[0],
+        makeWeapon: () => ({
+          ...extractWeapons([{ equipmentId: id }], 'preview-proto', {})[0],
+          ammoPerTon: -1,
+        }),
       })),
       ...nativeRacks.map((rack) => ({
         label: `pending native LRM ${rack}`,
