@@ -6,7 +6,9 @@ import { calculateBaseBV } from '../battleValueTotals';
  * Empty local structure/type/weight stages are explicit; unsupported
  * native equipment, sections and heterogeneous troopers are not manufactured.
  */
-export function battleArmorBVTerms(b: IBABreakdown) {
+export function battleArmorBVTerms(
+  b: IBABreakdown,
+): Readonly<Record<string, number | undefined>> {
   const d = b.perTrooper.defensive,
     o = b.perTrooper.offensive;
   const trooper = {
