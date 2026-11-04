@@ -26,6 +26,7 @@ import { isOneShotBVWeapon } from '../equipmentBV/weaponHeat';
 import {
   isArtemisCompatibleBVWeapon,
   linkArtemisBVWeapons,
+  linkPPCCapacitorBVWeapons,
 } from '../equipmentBV/weaponLinks';
 import {
   getEquipmentEntry,
@@ -95,6 +96,7 @@ function calculateWeaponBVEntry(
   secondaryTurretMult: number,
   nominalRear = weapon.isRearMounted === true,
   drone = false,
+  capacitorBV = 0,
 ) {
   const listedBV = resolveMountBattleValue(weapon);
   const isWeaponType = getOffensiveBVRole(weapon.id) === 'weapon';
@@ -107,6 +109,7 @@ function calculateWeaponBVEntry(
   }
 
   if (drone) adjustedBV *= 0.8;
+  adjustedBV += capacitorBV;
 
   if (
     isWeaponType &&
@@ -195,13 +198,16 @@ export function calculateVehicleOffensiveBV(
   const primaryTurretMult = turretMultiplier(input.turret);
   const secondaryTurretMult = turretMultiplier(input.secondaryTurret);
   const drone = hasBVDroneOS(input.chassisEquipment);
-  const mounts = input.weapons.map((w) => ({
-    ...w,
-    compatible: isArtemisCompatibleBVWeapon(
-      getEquipmentEntry(w.id)?.id ?? w.id,
-    ),
-    isTurretMounted: w.isTurretMounted || /turret|chin/i.test(w.location),
-  }));
+  const mounts = input.weapons
+    .filter((w) => getEquipmentEntry(w.id)?.id !== 'ppc-capacitor')
+    .map((w) => ({
+      capacitorBV: undefined as number | undefined,
+      ...w,
+      compatible: isArtemisCompatibleBVWeapon(
+        getEquipmentEntry(w.id)?.id ?? w.id,
+      ),
+      isTurretMounted: w.isTurretMounted || /turret|chin/i.test(w.location),
+    }));
   const links = (input.armorEquipment ?? input.weapons).flatMap((m) => {
     const id = getEquipmentEntry(m.id)?.id;
     return id === 'artemisiv' || id === 'artemisv'
@@ -214,7 +220,22 @@ export function calculateVehicleOffensiveBV(
       : [];
   });
   linkArtemisBVWeapons(mounts, links);
-  const value = (w: VehicleWeaponMount, rear: boolean) =>
+  const capacitorMounts = (input.armorEquipment ?? input.weapons).filter(
+    (m) => getEquipmentEntry(m.id)?.id === 'ppc-capacitor',
+  );
+  const ppcs = mounts.map((w) => ({
+    id: getEquipmentEntry(w.id)?.id ?? w.id,
+    location: w.location,
+    capacitorBV: undefined as number | undefined,
+  }));
+  linkPPCCapacitorBVWeapons(ppcs, capacitorMounts, input.year);
+  mounts.forEach((w, i) => {
+    w.capacitorBV = ppcs[i].capacitorBV;
+  });
+  const value = (
+    w: VehicleWeaponMount & { capacitorBV?: number },
+    rear: boolean,
+  ) =>
     calculateWeaponBVEntry(
       w,
       targetingComputerMounted,
@@ -223,6 +244,7 @@ export function calculateVehicleOffensiveBV(
       secondaryTurretMult,
       rear,
       drone,
+      w.capacitorBV,
     );
   const directional = (location: string) =>
     mounts
