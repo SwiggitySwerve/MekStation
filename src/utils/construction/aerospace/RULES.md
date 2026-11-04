@@ -102,7 +102,7 @@ integer nonnegative sink count, represented sink type and supported cockpit.
 Missing facts retain defense and explicit reasons; partial offense is withheld.
 `battleValueTotals.calculateBaseBV` owns sum/modifier/base rounding, shared with
 mechs and ProtoMechs. `battleValuePilot.calculateAdjustedBV` owns skill/final
-rounding; fighters retain their existing distinct single-rounding behavior.
+rounding; fighters without a small cockpit retain their legacy single rounding.
 
 Pinned BVCalculator.java:1159-1185 applies drone 0.95; AeroBVCalculator.java:162-181
 then applies 0.95 for small/command-console cockpit OR drone (two factors total
@@ -429,3 +429,15 @@ The existing chassis section transports canonical BAR, structural and engine tec
 ## Capital catalog valuation
 
 The equipment catalog owns BV and heat; `capital-bv.json` supplies native capital/sub-capital flags, range attack values, and ammo enum/rack keys. Matching existing IDs retain their values and share the native facts only when name, BV, and firing facts agree. `getLargeAerospaceAmmoBVGroup` adds capital keys to the large-craft path and reuses the ordinary ammo-group owner. LargeAeroBVCalculator.java:69-122,293-358 caps ammo separately per arc and multiplies whole-ton shot ratios. BVCalculator.java:800-914 uses weapon BV without a capital damage multiplier. MiscType.java:9467-9529 and BVCalculator.countMiscAsOffensiveWeapon exclude mobile HPG from offense. Screen launchers/ammo and unsupported links still withhold complete scope. The three catalog traces pin full weapon, ammo, defense, offense and rounded totals from L-ORC2.
+
+## Ordinary aircraft small cockpits
+
+The contract adapter preserves native cockpit identity; the aerospace adapter
+recognizes native SMALL and the editor Small enum. The calculator applies the
+shared small-cockpit modifier to the sum of defense and offense, rounds base,
+then uses the shared pilot adjustment. Both raw pools remain unchanged.
+MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587, AeroBVCalculator.java:162-180
+and BVCalculator.java:1252-1294 own this order.
+Enforcement: aerospaceBV.smallCockpit.test.ts covers native Cheetah, editor
+transport, standard/primitive compatibility and the base/pilot rounding seam.
+Console and drone summary handling remain separate unresolved parity classes.
