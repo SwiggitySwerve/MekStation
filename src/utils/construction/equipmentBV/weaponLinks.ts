@@ -35,7 +35,7 @@ export function linkArtemisBVWeapons<
 }
 
 /** No-critical-slot fallback: MekFileParser.java:928-944; BVCalculator.java:807-816. */
-export function linkAerospaceMachineGunArrayBVWeapons<Location>(
+export function linkMachineGunArrayBVWeapons<Location>(
   weapons: {
     location: Location;
     baseBV: number;
@@ -64,6 +64,9 @@ export function linkAerospaceMachineGunArrayBVWeapons<Location>(
     array.bv = base * 0.67;
   }
 }
+
+/** Compatibility export; the shared owner also serves non-aircraft callers. */
+export { linkMachineGunArrayBVWeapons as linkAerospaceMachineGunArrayBVWeapons };
 
 // MekFileParser.java:90-93; MiscType.java:1322-1347 (48fcb2f64).
 const PPC_CAPACITOR_BV: Readonly<Record<string, number>> = {

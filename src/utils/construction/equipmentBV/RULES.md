@@ -327,16 +327,20 @@ ProtoMech bins. Both spellings live in the alias table; quantity parsing does
 not define another identity rule. Focused qualifier tests enforce the shared
 identity, and the pinned corpus comparison checks Mech BV regression.
 
-## Aircraft machine-gun arrays
+## Shared machine-gun-array links
 
-Aircraft MG arrays use the native no-critical-slot fallback: up to four unused
+`linkMachineGunArrayBVWeapons` owns the native no-critical-slot fallback for
+all families: up to four unused
 same-location/same-rack MGs in source order. Gun rack identity reuses the native
 ammo-group owner with raw source spelling, falling back to resolved gun name.
 Array BV is 0.67 times linked gun base BV, in addition to the guns themselves;
 the catalog array base zero remains valid. Arrays lack F_DIRECT_FIRE and do
 not gain aircraft TC. Mech critical-slot assignment stays outside this input
 contract. Source: pin 48fcb2f64, MekFileParser.java:928-944,
-BVCalculator.java:807-816, CLMGA.java:74-88. Tests: aerospaceBV.machineGunArrays.
+BVCalculator.java:807-816, CLMGA.java:74-88. Aircraft and vehicle consumers
+project plain mount facts into this one owner; the previous aircraft export
+is a compatibility alias. Tests: equipmentBV.machineGunArrayLinks,
+aerospaceBV.machineGunArrays and vehicleBV.machineGunArrays (Puma PAT-007).
 
 ## One-shot BV heat
 
