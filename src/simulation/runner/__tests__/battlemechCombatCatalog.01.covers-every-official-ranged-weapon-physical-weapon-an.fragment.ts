@@ -22,6 +22,7 @@ import type {
   PinnedScopeSplitAmmoGapClass,
 } from './battlemechCombatCatalog.test-helpers';
 
+import prototypeDamage from '../../../../scripts/equipment-catalog/prototype-damage.json';
 import {
   addedAmmoIds,
   ACTION_ELIGIBILITY_COMBAT_SUPPORT,
@@ -191,6 +192,8 @@ it('covers every official ranged weapon, physical weapon, and ammo entry', () =>
   expect(ammoIds.size).toBe(ammoItems.length);
 });
 
+const prototypeDamageByName = new Map(Object.entries(prototypeDamage.values));
+
 it('maps every official ranged weapon into a non-synthetic AI weapon', () => {
   const failures: string[] = [];
 
@@ -224,8 +227,12 @@ it('maps every official ranged weapon into a non-synthetic AI weapon', () => {
         `${item.id}: numeric damage drift ${item.damage} -> ${aiWeapon.damage}`,
       );
     }
-    if (typeof added?.java.damage === 'number' && added.java.damage < 0) {
-      // Java's negative sentinel requires a separate combat implementation. Do not invent fixed damage.
+    if (
+      typeof added?.java.damage === 'number' &&
+      added.java.damage < 0 &&
+      !prototypeDamageByName.has(added.native)
+    ) {
+      // Unprojected variable sentinels remain zero until their combat rules are sourced.
       expect(aiWeapon.damage).toBe(0);
     } else if (typeof item.damage === 'string' && aiWeapon.damage <= 0) {
       failures.push(`${item.id}: parsed string damage to ${aiWeapon.damage}`);
@@ -399,7 +406,8 @@ it('keeps existing missile damage positive and pins new Java variable-damage gap
         (row) =>
           row.kind === 'weapons' &&
           typeof row.java.damage === 'number' &&
-          row.java.damage < 0,
+          row.java.damage < 0 &&
+          !prototypeDamageByName.has(row.native),
       )
       .map((row) => [row.values.id, 0]),
   );
