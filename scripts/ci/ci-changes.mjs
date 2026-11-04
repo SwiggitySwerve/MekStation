@@ -318,6 +318,12 @@ function gateClosure(root, name, gate) {
   if (!closureCache.has(key)) {
     const closure = importClosure(root, gate.entries(root));
     for (const file of referencedFiles(root, closure)) closure.add(file);
+    // A Jest suite's own snapshot file is an input of that suite.
+    for (const file of [...closure]) {
+      if (!/\.test\.(ts|tsx|js|jsx)$/.test(file)) continue;
+      const dir = path.posix.dirname(file);
+      closure.add(`${dir}/__snapshots__/${path.posix.basename(file)}.snap`);
+    }
     closureCache.set(key, closure);
   }
   return closureCache.get(key);

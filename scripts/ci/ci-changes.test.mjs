@@ -247,3 +247,10 @@ test('roadmap tooling and openspec changes run the roadmap suites, even without 
   );
   assert.equal(decide(root, ['docs/readme.md']).gates.roadmap, false);
 });
+
+test('a snapshot-only change runs the suite that owns the snapshot', () => {
+  const snap =
+    'src/__tests__/service/printing/__snapshots__/catalogRecordSheets.battlemechs.test.ts.snap';
+  assert.ok(fs.existsSync(path.join(root, snap)));
+  assert.equal(decide(root, [snap]).gates.corpus, true);
+});

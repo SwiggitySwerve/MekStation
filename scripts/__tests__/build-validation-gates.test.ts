@@ -154,7 +154,7 @@ describe('Lint and Test aggregator', () => {
       { input: JSON.stringify(needs), encoding: 'utf8' },
     );
     expect(out.status).toBe(0);
-    return out.stdout.split('\n').filter(Boolean);
+    return out.stdout.split(/\r?\n/).filter(Boolean);
   };
 
   it('needs every job, and every gated job declares its gates', () => {
