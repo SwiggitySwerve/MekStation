@@ -27,6 +27,37 @@ export function linkArtemisBVWeapons<
   );
 }
 
+/** No-critical-slot fallback: MekFileParser.java:928-944; BVCalculator.java:807-816. */
+export function linkAerospaceMachineGunArrayBVWeapons<Location>(
+  weapons: {
+    location: Location;
+    baseBV: number;
+    bv: number;
+    ammoGroup?: string;
+    arrayGroup?: string;
+  }[],
+): void {
+  const used = new Set<(typeof weapons)[number]>();
+  for (const array of weapons) {
+    const group = array.arrayGroup;
+    if (!group) continue;
+    let base = 0;
+    for (let i = 0; i < 4; i++) {
+      const unmatched = linkBVWeapons(
+        weapons,
+        [array],
+        (w) => !used.has(w) && w.ammoGroup === group && !w.arrayGroup,
+        (w) => {
+          used.add(w);
+          base += w.baseBV;
+        },
+      );
+      if (unmatched.length) break;
+    }
+    array.bv = base * 0.67;
+  }
+}
+
 // MekFileParser.java:90-93; MiscType.java:1322-1347 (48fcb2f64).
 const PPC_CAPACITOR_BV: Readonly<Record<string, number>> = {
   'light-ppc': 44,
