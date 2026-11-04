@@ -127,8 +127,12 @@ export const MISSILE_ORACLE: Readonly<Record<string, MissileOracleRow>> = {
   'srm-2': ['SRM 2', 50, 0, 3, 6, 9],
   'srm-4': ['SRM 4', 25, 0, 3, 6, 9],
   'srm-6': ['SRM 6', 15, 0, 3, 6, 9],
+  // Sweep batch 5: AmmoType.java:9910, :9970, :10030 (shots 100); CLSRM1/3/5.java:68-70.
+  'clan-srm-1': ['CLSRM1', 100, 0, 3, 6, 9],
   'clan-srm-2': ['CLSRM2', 50, 0, 3, 6, 9],
+  'clan-srm-3': ['CLSRM3', 100, 0, 3, 6, 9],
   'clan-srm-4': ['CLSRM4', 25, 0, 3, 6, 9],
+  'clan-srm-5': ['CLSRM5', 100, 0, 3, 6, 9],
   'clan-srm-6': ['CLSRM6', 15, 0, 3, 6, 9],
   'streak-srm-2': ['ISStreakSRM2', 50, 0, 3, 6, 9],
   'streak-srm-4': ['ISStreakSRM4', 25, 0, 3, 6, 9],
