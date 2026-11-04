@@ -5,7 +5,13 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { GATES, decide, detect, importClosure } from './ci-changes.mjs';
+import {
+  GATES,
+  decide,
+  detect,
+  importClosure,
+  referencedFiles,
+} from './ci-changes.mjs';
 
 const root = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -77,6 +83,25 @@ test('files a combat catalog cites by path run Validate Combat Suite', () => {
   ]) {
     assert.ok(fs.existsSync(path.join(root, file)), file);
     assert.equal(decide(root, [file]).gates.combat, true, file);
+  }
+});
+
+test('deleting a file a check imports or cites still runs the check', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ci-changes-del-'));
+  try {
+    fs.mkdirSync(path.join(dir, 'src'), { recursive: true });
+    // The importer still names './gone' and cites 'src/cited.ts#L3', but
+    // this change deleted both files.
+    fs.writeFileSync(
+      path.join(dir, 'src', 'entry.test.ts'),
+      "import { x } from './gone';\nconst ref = 'src/cited.ts#L3';\n",
+    );
+    const closure = importClosure(dir, ['src/entry.test.ts']);
+    assert.ok(closure.has('src/gone.ts'));
+    assert.ok(closure.has('src/gone/index.tsx'));
+    assert.ok(referencedFiles(dir, ['src/entry.test.ts']).has('src/cited.ts'));
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
   }
 });
 

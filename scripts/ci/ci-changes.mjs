@@ -213,21 +213,24 @@ function resolveBase(root, base) {
   return null;
 }
 
-function resolveImport(root, fromFile, specifier) {
-  let base;
+function importBase(fromFile, root, specifier) {
   if (specifier.startsWith('@/')) {
-    base = path.join(root, 'src', specifier.slice(2));
-  } else if (specifier.startsWith('.')) {
-    base = path.resolve(path.dirname(fromFile), specifier);
-  } else {
-    return null; // a package: covered by the package-lock.json global rule
+    return path.join(root, 'src', specifier.slice(2));
   }
-  return resolveBase(root, base);
+  if (specifier.startsWith('.')) {
+    return path.resolve(path.dirname(fromFile), specifier);
+  }
+  return null; // a package: covered by the package-lock.json global rule
 }
 
-/** Repo-relative paths of every local file the entries import, transitively. */
+/**
+ * Repo-relative paths of every local file the entries import, transitively.
+ * A local import that resolves to nothing (its file deleted in this change)
+ * contributes every path it could have named, so the deletion still counts.
+ */
 export function importClosure(root, entries) {
   const seen = new Set();
+  const missing = new Set();
   const stack = entries.map((entry) => path.resolve(root, entry));
   while (stack.length > 0) {
     const file = stack.pop();
@@ -237,11 +240,17 @@ export function importClosure(root, entries) {
     const text = fs.readFileSync(file, 'utf8');
     for (const m of text.matchAll(IMPORT_RE)) {
       const specifier = m[1] ?? m[2] ?? m[3] ?? m[4] ?? m[5];
-      const resolved = resolveImport(root, file, specifier);
-      if (resolved && !seen.has(resolved)) stack.push(resolved);
+      const base = importBase(file, root, specifier);
+      if (!base) continue;
+      const resolved = resolveBase(root, base);
+      if (!resolved) {
+        for (const suffix of RESOLVE_SUFFIXES) missing.add(base + suffix);
+        continue;
+      }
+      if (!seen.has(resolved)) stack.push(resolved);
     }
   }
-  return new Set([...seen].map((file) => toRel(root, file)));
+  return new Set([...seen, ...missing].map((file) => toRel(root, file)));
 }
 
 // One process decides once, but the tests call decide() many times.
@@ -251,13 +260,16 @@ const closureCache = new Map();
 // references ('src/x.ts#L10-L20') that tests read to check line anchors.
 const SRC_PATH_RE = /src\/[A-Za-z0-9_.\/-]+?\.(?:tsx?|mjs|cjs|js|json)\b/g;
 
-function referencedFiles(root, files) {
+export function referencedFiles(root, files) {
   const found = new Set();
   for (const file of files) {
     if (!/\.(ts|tsx|js|jsx|mjs|cjs)$/.test(file)) continue;
+    // Closures also hold candidate paths of deleted imports; nothing to read.
+    if (!fs.existsSync(path.join(root, file))) continue;
     const text = fs.readFileSync(path.join(root, file), 'utf8');
     for (const m of text.matchAll(SRC_PATH_RE)) {
-      if (fs.existsSync(path.join(root, m[0]))) found.add(m[0]);
+      // Kept even when missing: deleting a cited file breaks its anchor.
+      found.add(m[0]);
     }
   }
   return found;
