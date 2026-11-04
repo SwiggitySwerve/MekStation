@@ -441,3 +441,12 @@ and BVCalculator.java:1252-1294 own this order.
 Enforcement: aerospaceBV.smallCockpit.test.ts covers native Cheetah, editor
 transport, standard/primitive compatibility and the base/pilot rounding seam.
 Console and drone summary handling remain separate unresolved parity classes.
+
+## Ordinary rear-mounted weapons
+
+aerospaceMountFlags.ts owns the native R- marker shared with the existing
+large-craft mount boundary. Ordinary aircraft preserve physical location for
+controller links while rear-marked weapons join Aft before dominance and heat
+sorting (AeroBVCalculator.java:152-158, pin 48fcb2f64). Unmarked side mounts
+remain forward. aerospaceBV.rearMounted.test.ts pins native Aquarius, both
+marker states and same-side Artemis linking on a rear-mounted launcher.
