@@ -73,6 +73,8 @@ interface IDeltaRow {
   comparison: IFigureComparison | null;
 }
 interface IGroupSummary {
+  readonly termMatched?: number;
+  readonly firstTermDifferences?: Record<string, number>;
   readonly rows: number;
   readonly joined: number;
   readonly exact: number;
@@ -286,6 +288,21 @@ export function buildDeltaReport(
           invalid: count('invalid'),
           runtimeExact: auxiliaryExact('runtimeTotal'),
           handlerExact: auxiliaryExact('handlerTotal'),
+          ...(perTerm
+            ? {
+                termMatched: group.filter(
+                  (row) => row.joined && row.ours && !row.firstTermDifference,
+                ).length,
+                firstTermDifferences: group.reduce<Record<string, number>>(
+                  (counts, row) => {
+                    const term = row.firstTermDifference?.term;
+                    if (term) counts[term] = (counts[term] ?? 0) + 1;
+                    return counts;
+                  },
+                  {},
+                ),
+              }
+            : {}),
         },
       ] as const;
     }),

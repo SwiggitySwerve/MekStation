@@ -56,7 +56,28 @@ export interface IProtoMechBVBreakdown {
   readonly speedFactor: number;
 }
 
-export interface IInfantryBVBreakdown {
+/** Shared optional diagnostic keys for calculations and strict replay payloads. */
+export const INFANTRY_BV_TRACE_FIELDS = [
+  'baseBV',
+  'structureBV',
+  'defensiveFactor',
+  'summaryModifier',
+  'weaponBV',
+  'armorBV',
+  'defensiveEquipmentBV',
+  'explosivePenalty',
+  'typeModifier',
+  'ammoBV',
+  'speedFactor',
+  'offensiveEquipmentBV',
+  'weightBV',
+  'offensiveTypeModifier',
+  'adjustment',
+] as const;
+
+export interface IInfantryBVBreakdown extends Readonly<
+  Partial<Record<(typeof INFANTRY_BV_TRACE_FIELDS)[number], number>>
+> {
   /** Defensive aggregate, including represented source movement and stealth. */
   readonly defensiveBV: number;
   readonly perTrooper: number;

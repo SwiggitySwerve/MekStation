@@ -1,3 +1,5 @@
+import { getNativeAmmoBVGroup } from '@/utils/construction/battleValueAmmo';
+
 import { resolveDropShipMountBV } from '../dropShipMountBV';
 import { calculateLargeAerospaceFirePool } from '../largeAerospaceFirePool';
 
@@ -75,13 +77,23 @@ describe('large-craft mount coverage (MegaMek 48fcb2f64)', () => {
     ).toBe(228);
   });
 
-  it.each([
-    'b-capital-missile-launcher-ar10-launcher',
-    'b-sub-capital-missile-launcher-piranha',
-    'b-screen-launcher',
-    'b-tele-operated-missile-kraken-t',
-  ])('keeps missing catalog weapon %s unresolved', (id) => {
-    expect(resolveDropShipMountBV(mounts([id])).unresolved).toHaveLength(1);
+  it.each<[string, number]>([
+    ['b-capital-missile-launcher-ar10-launcher', 961],
+    ['b-sub-capital-missile-launcher-piranha', 589],
+    ['b-tele-operated-missile-kraken-t', 2306],
+  ])(
+    'values capital catalog weapon %s without a damage-scale multiplier',
+    (id, battleValue) => {
+      const result = resolveDropShipMountBV(mounts([id]));
+      expect(result.unresolved).toEqual([]);
+      expect(result.arcs[0].weaponBV).toBe(battleValue);
+    },
+  );
+
+  it('withholds screen launchers until their defensive stage is represented', () => {
+    expect(
+      resolveDropShipMountBV(mounts(['b-screen-launcher'])).unresolved,
+    ).toHaveLength(1);
   });
 
   it('accepts naval C3 on the hull without inventing a firing arc or force bonus', () => {
@@ -101,5 +113,20 @@ describe('large-craft mount coverage (MegaMek 48fcb2f64)', () => {
     expect(resolveDropShipMountBV(mounts(['gauss'])).unresolved).toHaveLength(
       1,
     );
+  });
+});
+
+describe('native ammo key format compatibility', () => {
+  it.each([
+    ['lrm-05', 'LRM:05'],
+    ['is-autocannon-20', 'AC:20'],
+    ['cl-srm-6', 'SRM:6'],
+    ['unknown', undefined],
+    ['ammo-nac-20', undefined],
+    ['naval-gauss-light', undefined],
+    ['constructor', undefined],
+    ['__proto__', undefined],
+  ])('%s preserves %s', (id, expected) => {
+    expect(getNativeAmmoBVGroup(id)).toBe(expected);
   });
 });

@@ -38,7 +38,9 @@ export function getDefensiveEquipmentKind(
 ): DefensiveKind | undefined {
   const entry = getEquipmentEntry(id);
   if (!entry) return undefined;
-  if (entry.id === 'ams-ammo' || entry.id === 'clan-ams-ammo') return 'amsAmmo';
+  // MegaMek 48fcb2f64: AmmoType.java:12242-12254; BVCalculator.java:570-572.
+  if (['ams-ammo', 'clan-ams-ammo', 'isapds-ammo-registry'].includes(entry.id))
+    return 'amsAmmo';
   if (entry.id === 'ams' || entry.id === 'clan-ams' || entry.id === 'risc-apds')
     return 'ams';
   if (

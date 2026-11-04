@@ -5,7 +5,11 @@ import type { CapitalShipBVType } from './aerospaceBVTypes';
 import type { IDropShipBVUnit } from './dropShipBV';
 import type { ILargeAerospaceArcBV } from './largeAerospaceFirePool';
 
-import { addBVToAmmoCapGroup, getCatalogAmmoBVGroup } from '../battleValueAmmo';
+import {
+  addBVToAmmoCapGroup,
+  getLargeAerospaceAmmoBVGroup,
+} from '../battleValueAmmo';
+import { getCapitalEquipmentBVFacts } from '../equipmentBV/catalogLoader';
 import {
   isArtemisCompatibleBVWeapon,
   linkArtemisBVWeapons,
@@ -162,6 +166,8 @@ export function resolveLargeAerospaceMountBV(
       entry &&
       [
         'nc3',
+        'mobilehpg',
+        'groundmobilehpg',
         'smallnavalcommscannersuite',
         'largenavalcommscannersuite',
         'navaltugadaptor',
@@ -180,7 +186,7 @@ export function resolveLargeAerospaceMountBV(
     }
     if (quantity !== undefined || /ammo|pods/.test(id)) {
       const entry = getLargeAerospaceAmmoEntry(id);
-      const key = entry && getCatalogAmmoBVGroup(entry.id);
+      const key = entry && getLargeAerospaceAmmoBVGroup(entry.id);
       const shots = Number(quantity);
       if (
         !entry ||
@@ -206,12 +212,14 @@ export function resolveLargeAerospaceMountBV(
       fail('Unresolved equipment identity');
       return;
     }
-    const key = getCatalogAmmoBVGroup(entry.id);
+    const key = getLargeAerospaceAmmoBVGroup(entry.id);
+    const capital = getCapitalEquipmentBVFacts(entry.id);
     if (
       !(
         key &&
         (entry.category === 'Ballistic' || entry.category === 'Missile')
       ) &&
+      !(capital?.isCapital || capital?.isSubCapital) &&
       !(entry.category === 'Energy' && ENERGY_SUBTYPES.has(entry.subType ?? ''))
     ) {
       fail('Unsupported weapon, linked modifier or offensive equipment');

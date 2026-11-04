@@ -132,7 +132,7 @@ describe('DropShip raw mount valuation (MegaMek 48fcb2f64)', () => {
     },
   );
 
-  it('reports unsupported capital weapons, links, identities, arcs and quantities', () => {
+  it('reports unsupported links, identities, arcs and quantities', () => {
     const mounts = [
       { equipmentId: 'b-sub-capital-laser-1', location: 'NOSE' },
       { equipmentId: 'ppc-capacitor', location: 'NOSE' },
@@ -145,7 +145,7 @@ describe('DropShip raw mount valuation (MegaMek 48fcb2f64)', () => {
     const before = JSON.stringify(mounts);
     expect(
       resolveDropShipMountBV(mounts).unresolved.map((x) => x.mountIndex),
-    ).toEqual([0, 1, 2, 3, 4, 5, 6]);
+    ).toEqual([1, 2, 3, 4, 5, 6]);
     expect(JSON.stringify(mounts)).toBe(before);
   });
 
