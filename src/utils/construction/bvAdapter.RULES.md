@@ -12,3 +12,7 @@ Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
 BLKTankFile.java:200-233 loads armor/mounts into Tank; BVCalculator.java:103-139
 selects the loaded entity calculator. The unchanged AC/2 Carrier and Astrolux
 sources pin 403 and 296 respectively; other families retain their mapper results.
+
+Force totals and pre-battle summaries call this boundary for every family.
+They never read combat projections or stored totals for BV. Pinned
+BVCalculator.java:103-139 selects the calculator for every loaded family.
