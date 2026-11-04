@@ -9,6 +9,15 @@ const library = pathToFileURL(
   path.join(process.cwd(), 'scripts/qc/roadmap-ledger-lib.mjs'),
 ).href;
 
+/**
+ * A hang guard for spawned children, not a time budget. Capture probes run
+ * the real ledger library and Git; alone the slowest takes about 12 s, and
+ * the 30 s cap timed out under a full local unit run (check 5).
+ * ROADMAP_TEST_CHILD_TIMEOUT_MS overrides it for a slower or faster runner.
+ */
+const CHILD_TIMEOUT_MS =
+  Number(process.env.ROADMAP_TEST_CHILD_TIMEOUT_MS) || 180_000;
+
 function probe(body: string): void {
   // Retain fixtures, including failed attempts, for direct byte inspection.
   const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'native-capture-'));
@@ -44,7 +53,7 @@ function probe(body: string): void {
       fixture,
       expect.getState().currentTestName ?? 'unnamed custody test',
     ],
-    { encoding: 'utf8', timeout: 30_000 },
+    { encoding: 'utf8', timeout: CHILD_TIMEOUT_MS },
   );
   fs.writeFileSync(
     path.join(fixture, 'probe-result.json'),
