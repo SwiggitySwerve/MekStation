@@ -82,6 +82,26 @@ const PROFILE_TIME_BUDGET_MS = readPositiveIntEnv(
   1080000,
 );
 
+// Wall-clock budgets are asserted where a perf lane pins them: the PR "Perf
+// Smoke Tests" job (pr-checks.yml) and the nightly "Full Statistical + Perf
+// Proofs" job (nightly-validation.yml) run this file alone with --runInBand and
+// set every SIMULATION_PROFILE_*_BUDGET_MS. A default multi-worker run measures
+// CPU contention, not the engine (check 5: 3,288 ms/game in a full local run
+// against ~850 ms alone), so it runs the same games without the time check.
+// SIMULATION_PERF_ASSERTIONS=true (the simulation.test.ts perfIt opt-in, also
+// set by the nightly lane) asserts the defaults above in a local run.
+function expectWithinPinnedBudget(
+  budgetEnv: string,
+  elapsedMs: number,
+  budgetMs: number,
+): void {
+  if (
+    process.env[budgetEnv] ||
+    process.env.SIMULATION_PERF_ASSERTIONS === 'true'
+  )
+    expect(elapsedMs).toBeLessThan(budgetMs);
+}
+
 // Statistical proofs are only meaningful at the full batch size: at the CI
 // smoke count (SIMULATION_COUNT=5) batch-wide existence assertions can
 // legitimately observe zero occurrences. Smoke runs keep structure-only
@@ -321,7 +341,11 @@ describe('Simulation System Integration', () => {
       // path, while the batch wall-clock target below remains the
       // authoritative performance gate.
       expect(generatorMs).toBeLessThan(150);
-      expect(runnerMs).toBeLessThan(PROFILE_RUNNER_BUDGET_MS);
+      expectWithinPinnedBudget(
+        'SIMULATION_PROFILE_RUNNER_BUDGET_MS',
+        runnerMs,
+        PROFILE_RUNNER_BUDGET_MS,
+      );
       expect(metricsMs).toBeLessThan(30);
     });
 
@@ -336,7 +360,11 @@ describe('Simulation System Integration', () => {
         const elapsed = Date.now() - startTime;
 
         expect(results).toHaveLength(PROFILE_GAME_COUNT);
-        expect(elapsed).toBeLessThan(PROFILE_TIME_BUDGET_MS);
+        expectWithinPinnedBudget(
+          'SIMULATION_PROFILE_TIME_BUDGET_MS',
+          elapsed,
+          PROFILE_TIME_BUDGET_MS,
+        );
       },
       PROFILE_TIME_BUDGET_MS + 30000,
     );
