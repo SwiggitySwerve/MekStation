@@ -101,8 +101,18 @@ export function validateJobTokens(workflowJobs, contract, errors) {
     invalidSteps.push(
       'job-level continue-on-error must be absent or literal false',
     );
-  if (job['timeout-minutes'] !== 20)
-    invalidSteps.push('job timeout must be 20 minutes');
+  const timeoutMinutes = contract.timeoutMinutes ?? 20;
+  if (job['timeout-minutes'] !== timeoutMinutes)
+    invalidSteps.push('job timeout must be ' + timeoutMinutes + ' minutes');
+  if (contract.matrixShards) {
+    // Dropping a shard from the matrix would silently skip that shard's
+    // slice of every spec, so the shard list is part of the contract.
+    const shards = job.strategy?.matrix?.shard;
+    if (JSON.stringify(shards) !== JSON.stringify(contract.matrixShards))
+      invalidSteps.push(
+        'matrix shards must be ' + JSON.stringify(contract.matrixShards),
+      );
+  }
   const jobShell = runShellFromDefaults(job.defaults);
   if (isUnsafeRunShell(jobShell))
     invalidSteps.push('job defaults.run.shell must be absent or literal bash');
@@ -117,9 +127,11 @@ export function validateJobTokens(workflowJobs, contract, errors) {
   const setupStep = steps.find(
     (step) => step?.uses === contract.setupAction.uses,
   );
+  if (!setupStep) missing.push('uses: ' + contract.setupAction.uses);
+  const requiredFetchAssets = contract.setupAction.with?.['fetch-assets'];
   if (
-    setupStep?.with?.['fetch-assets'] !==
-    contract.setupAction.with['fetch-assets']
+    requiredFetchAssets !== undefined &&
+    setupStep?.with?.['fetch-assets'] !== requiredFetchAssets
   )
     missing.push("fetch-assets: 'true'");
 
@@ -147,14 +159,22 @@ export function validateJobTokens(workflowJobs, contract, errors) {
       );
   }
 
-  const uploadStep = steps.find(
-    (step) => step?.name === 'Upload Playwright report',
-  );
-  if (!uploadStep || uploadStep.if !== contract.uploadFailureIf)
+  // A job without uploadFailureIf (the E2E build) carries no failure report.
+  const requiresUpload = contract.uploadFailureIf !== undefined;
+  const uploadStep = requiresUpload
+    ? steps.find((step) => step?.name === 'Upload Playwright report')
+    : undefined;
+  if (
+    requiresUpload &&
+    (!uploadStep || uploadStep.if !== contract.uploadFailureIf)
+  )
     invalidSteps.push(
       'upload step must use failure() and the code/e2e condition',
     );
 
+  // Named steps that run under a wider condition than the change gate (a
+  // second suite that still runs after the first fails, an always-upload).
+  const extraStepIfs = contract.extraStepIfs ?? {};
   for (const step of steps) {
     const name = step?.name ?? 'unnamed step';
     if (ignoresFailure(step?.['continue-on-error']))
@@ -162,6 +182,8 @@ export function validateJobTokens(workflowJobs, contract, errors) {
     let expectedCondition = contract.changeGateIf;
     if (step === skipStep) expectedCondition = contract.skipIf;
     else if (step === uploadStep) expectedCondition = contract.uploadFailureIf;
+    else if (Object.hasOwn(extraStepIfs, name))
+      expectedCondition = extraStepIfs[name];
     else if (step?.run === 'npx playwright install --with-deps chromium')
       expectedCondition =
         '(' +
@@ -195,14 +217,15 @@ export function validateJobTokens(workflowJobs, contract, errors) {
     );
   }
   if (
-    uploadStep?.uses !== 'actions/upload-artifact@v7' ||
-    uploadStep?.with?.['retention-days'] !== 7 ||
-    !String(uploadStep?.with?.path ?? '')
-      .split(/\s+/)
-      .includes('test-results') ||
-    !String(uploadStep?.with?.path ?? '')
-      .split(/\s+/)
-      .includes('playwright-report')
+    requiresUpload &&
+    (uploadStep?.uses !== 'actions/upload-artifact@v7' ||
+      uploadStep?.with?.['retention-days'] !== 7 ||
+      !String(uploadStep?.with?.path ?? '')
+        .split(/\s+/)
+        .includes('test-results') ||
+      !String(uploadStep?.with?.path ?? '')
+        .split(/\s+/)
+        .includes('playwright-report'))
   ) {
     invalidSteps.push(
       'failure artifact upload must retain report and test-results for 7 days',
