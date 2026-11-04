@@ -60,6 +60,24 @@ test('no route lowers combat-runner damage below its previous target', () => {
   assert.deepEqual(lowered, []);
 });
 
+// Follow-up 93: a tech route sends a name to a per-side record. Neither side may
+// deal less runner damage than the tech-less resolution of that name, or than the
+// pinned Java damage (per hit times rack size, carried in the record's id).
+test('no tech route lowers combat-runner damage', () => {
+  const routesByName = Object.entries(routing.techRoutes ?? {});
+  assert(routesByName.length > 0);
+  const lowered = [];
+  for (const [name, route] of routesByName) {
+    const before = runnerDamage(name) ?? 0;
+    for (const [side, id] of Object.entries(route)) {
+      const after = runnerDamage(id);
+      if (after === undefined || after <= 0 || after < before)
+        lowered.push(`${name} ${side} -> ${id}: ${before} -> ${after}`);
+    }
+  }
+  assert.deepEqual(lowered, []);
+});
+
 // Pinned MegaMek 48fcb2f6 damage of the routed launchers: per missile
 // MissileWeaponHandler.java:308-318 (1), SRMHandler.java:66-78 (2), times the
 // rack size; artillery deals its rack size (ArtilleryWeaponDistantFireHandler.java:746-747).

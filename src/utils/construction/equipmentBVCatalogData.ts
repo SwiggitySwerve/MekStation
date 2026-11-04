@@ -137,6 +137,20 @@ export const registryPreviousId = (
     ? (nativeIdentityId(name) ?? route[native])
     : undefined;
 };
+// Follow-up 93: a name whose pinned Java owner depends on the unit's tech base
+// (java-registry.json.lookups.json IS vs CLAN), keyed by the Java lookup name and
+// the converter's list id, so both sides of a mount reach one identity.
+const techRoutes = new Map(
+  Object.entries(
+    (
+      registryRouting as {
+        techRoutes?: Record<string, { INNER_SPHERE: string; CLAN: string }>;
+      }
+    ).techRoutes ?? {},
+  ).map(([name, route]) => [name.toLowerCase(), route]),
+);
+export const techRouteId = (name: string, clan: boolean): string | undefined =>
+  techRoutes.get(name.trim().toLowerCase())?.[clan ? 'CLAN' : 'INNER_SPHERE'];
 export function preferRegistryEquipment<
   T extends { id: string } | null | undefined,
 >(previous: T, imported: NonNullable<T> | undefined, name: string): T {
