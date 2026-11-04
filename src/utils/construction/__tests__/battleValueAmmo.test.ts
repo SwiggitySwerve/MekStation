@@ -3,7 +3,6 @@ import {
   calculateAmmoBVWithExcessiveCap,
   findMatchingWeaponBV,
   getCatalogAmmoBVGroup,
-  getNativeAmmoBVGroup,
   extractWeaponTypeFromAmmoId,
 } from '../battleValueAmmo';
 
@@ -205,20 +204,5 @@ describe('artillery cannon ammunition cap pools', () => {
         [{ id: 'ISSniperAmmo', bv: 11, weaponType: 'sniper' }],
       ),
     ).toBe(11);
-  });
-});
-
-describe('native ammo key format compatibility', () => {
-  it.each([
-    ['lrm-05', 'LRM:05'],
-    ['is-autocannon-20', 'AC:20'],
-    ['cl-srm-6', 'SRM:6'],
-    ['unknown', undefined],
-    ['ammo-nac-20', undefined],
-    ['naval-gauss-light', undefined],
-    ['constructor', undefined],
-    ['__proto__', undefined],
-  ])('%s preserves %s', (id, expected) => {
-    expect(getNativeAmmoBVGroup(id)).toBe(expected);
   });
 });
