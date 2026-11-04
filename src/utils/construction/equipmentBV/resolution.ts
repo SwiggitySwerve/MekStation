@@ -55,7 +55,8 @@ function applyBVHeatOverride(
     return baseHeat * 0.5;
   }
 
-  if (name.includes('ultra ac') || name.includes('ultra ac/')) {
+  // ISUAC5Prototype.java:62-71; HeatTrackingBVCalculator.java:178-180 (48fcb2f64).
+  if (name.includes('ultra ac') || name.includes('ultra autocannon')) {
     return baseHeat * 2;
   }
   if (name.includes('rotary ac') || name.includes('rotary ac/')) {
