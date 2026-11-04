@@ -33,7 +33,20 @@ import { applyOneShotBVHeat } from './weaponHeat';
 
 /** BVCalculator.processWeapon: apply only to the launcher linked by Artemis. */
 export function getArtemisBVMultiplier(type?: 'iv' | 'v'): number {
-  return type === 'iv' ? 1.2 : type === 'v' ? 1.3 : 1;
+  return type === 'iv' || type === 'v' ? getWeaponLinkBVMultiplier(type) : 1;
+}
+
+/** BVCalculator.java:860-876 at 48fcb2f64: only a linked launcher is modified. */
+export function getWeaponLinkBVMultiplier(
+  type?: 'iv' | 'v' | 'apollo',
+): number {
+  return type === 'iv'
+    ? 1.2
+    : type === 'v'
+      ? 1.3
+      : type === 'apollo'
+        ? 1.15
+        : 1;
 }
 
 function applyBVHeatOverride(
