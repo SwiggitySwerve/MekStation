@@ -309,3 +309,8 @@ test('a push whose previous commit is unknown keeps the pack legs on', () => {
   });
   assert.deepEqual(missing.gates, allTrue);
 });
+
+// CI-SPEED red-path probe: reverted in the next commit.
+test('red-path probe: Detect Changes must fail', () => {
+  assert.fail('CI-SPEED red-path probe: deliberate detector test failure');
+});
