@@ -16,6 +16,7 @@
       "ranges": { "minimum": 3, "short": 6, "medium": 12, "long": 18 },
       "weight": 7,
       "criticalSlots": 3,
+      "vehicleSlots": { "tank": 1, "supportVehicle": 3 },
       "costCBills": 200000,
       "battleValue": 176,
       "introductionYear": 2435
@@ -32,6 +33,7 @@
       "ranges": { "minimum": 0, "short": 7, "medium": 14, "long": 23 },
       "weight": 7,
       "criticalSlots": 3,
+      "vehicleSlots": { "tank": 1, "supportVehicle": 3 },
       "costCBills": 300000,
       "battleValue": 229,
       "introductionYear": 2751,
@@ -50,6 +52,7 @@
       "ranges": { "minimum": 3, "short": 6, "medium": 12, "long": 18 },
       "weight": 3,
       "criticalSlots": 2,
+      "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
       "costCBills": 150000,
       "battleValue": 88,
       "introductionYear": 3064
@@ -66,6 +69,7 @@
       "ranges": { "minimum": 3, "short": 6, "medium": 12, "long": 18 },
       "weight": 10,
       "criticalSlots": 4,
+      "vehicleSlots": { "tank": 1, "supportVehicle": 4 },
       "costCBills": 250000,
       "battleValue": 317,
       "introductionYear": 3062
@@ -82,6 +86,7 @@
       "ranges": { "minimum": 0, "short": 9, "medium": 13, "long": 15 },
       "weight": 6,
       "criticalSlots": 2,
+      "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
       "costCBills": 300000,
       "battleValue": 165,
       "introductionYear": 2695,
@@ -100,6 +105,7 @@
       "ranges": { "minimum": 0, "short": 7, "medium": 14, "long": 23 },
       "weight": 6,
       "criticalSlots": 2,
+      "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
       "costCBills": 300000,
       "battleValue": 412,
       "introductionYear": 2826
@@ -116,6 +122,7 @@
       "ranges": { "minimum": 0, "short": 7, "medium": 14, "long": 23 },
       "weight": 7,
       "criticalSlots": 3,
+      "vehicleSlots": { "tank": 1, "supportVehicle": 3 },
       "costCBills": 300000,
       "battleValue": 329,
       "introductionYear": 2823,

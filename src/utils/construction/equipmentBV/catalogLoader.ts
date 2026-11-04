@@ -7,6 +7,7 @@ import type { EquipmentCatalogEntry, RawCatalogFile } from './types';
  */
 
 import capitalBVFacts from '../../../../scripts/equipment-catalog/capital-bv.json';
+import { resolveRegistryId } from '../equipmentBVCatalogData';
 import {
   AMMUNITION_CATALOG_FILES,
   ELECTRONICS_CATALOG_FILES,
@@ -14,6 +15,11 @@ import {
   NAME_MAPPINGS_DATA,
   WEAPON_CATALOG_FILES,
 } from './catalogData';
+import {
+  BV_MOUNT_QUALIFIERS,
+  BV_MOUNT_MARKERS,
+  BV_AMMO_QUANTITY,
+} from './normalizationPatterns';
 
 let catalogCache: Map<string, EquipmentCatalogEntry> | null = null;
 let ammunitionCache: Map<string, EquipmentCatalogEntry> | null = null;
@@ -122,10 +128,6 @@ export function loadEquipmentCatalog(): Map<string, EquipmentCatalogEntry> {
     appendCatalogFile(catalog, file, false);
   }
 
-  for (const file of AMMUNITION_CATALOG_FILES) {
-    appendCatalogFile(catalog, file, false);
-  }
-
   catalogCache = catalog;
   return catalog;
 }
@@ -145,7 +147,7 @@ export function initializeCatalog(
 ): void {
   catalogCache = new Map();
   // Explicit generic entries keep precedence over ammunition with the same ID.
-  for (const entry of [...ammunitionEntries, ...entries]) {
+  for (const entry of entries) {
     catalogCache.set(entry.id, entry);
   }
   ammunitionCache = new Map(
@@ -170,9 +172,18 @@ export function loadAmmunitionCatalog(): Map<string, EquipmentCatalogEntry> {
 
 /** Ammo and weapons can share an ID (for example mrm-20) in the source files. */
 export function isAmmunitionEquipmentId(equipmentId: string): boolean {
+  const registryId = resolveRegistryId(
+    equipmentId
+      .toLowerCase()
+      .trim()
+      .replace(BV_MOUNT_QUALIFIERS, '')
+      .replace(BV_MOUNT_MARKERS, '')
+      .replace(BV_AMMO_QUANTITY, ''),
+  );
   // ISBPod.java:49-53 (48fcb2f64) registers B-Pods as a WeaponType.
   return (
     /ammo/i.test(equipmentId) ||
+    (registryId !== undefined && loadAmmunitionCatalog().has(registryId)) ||
     (/pods/i.test(equipmentId) && !/\bb-pods\b/i.test(equipmentId))
   );
 }
@@ -180,6 +191,11 @@ export function isAmmunitionEquipmentId(equipmentId: string): boolean {
 export function loadCatalogForEquipmentId(
   equipmentId: string,
 ): Map<string, EquipmentCatalogEntry> {
+  const key = equipmentId.toLowerCase().trim();
+  const equipment = loadEquipmentCatalog();
+  if (equipment.has(key)) return equipment;
+  const ammunition = loadAmmunitionCatalog();
+  if (ammunition.has(key)) return ammunition;
   return isAmmunitionEquipmentId(equipmentId)
     ? loadAmmunitionCatalog()
     : loadEquipmentCatalog();

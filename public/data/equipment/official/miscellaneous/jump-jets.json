@@ -90,6 +90,7 @@
       "rulesLevel": "ADVANCED",
       "weight": 0,
       "criticalSlots": 6,
+      "vehicleSlots": { "tank": 1, "supportVehicle": 8 },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3085,

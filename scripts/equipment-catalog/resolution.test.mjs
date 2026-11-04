@@ -14,6 +14,53 @@ const option = (flag) => process.argv[process.argv.indexOf(flag) + 1];
 // previously resolved inputs, including consumer fallback results, are frozen.
 export const APPROVED_JAVA_REROUTES = [
   ...[
+    ['MRM-1', 'mrm-1', null],
+    ['MRM-2', 'mrm-2', null],
+    ['MRM-3', 'mrm-3', null],
+    ['MRM-4', 'mrm-4', null],
+    ['MRM-5', 'mrm-5', null],
+  ].flatMap(([name, oldTarget, newTarget]) =>
+    ['unitLoaderAmmoIS', 'unitLoaderAmmoClan'].map((api) => ({
+      api,
+      name,
+      oldTarget,
+      newTarget,
+      literalName: true,
+      reason:
+        'Opus G2-O5 exact Java source identity; ISMRM1..5.java:57-63 and AmmoType.java:15093-15236 at48fcb2f64',
+    })),
+  ),
+  ...[
+    ['Coolant Pod', 'coolant-pod', 'coolant-pod-registry'],
+    ['Coolant Pod:OMNI', 'coolant-pod', 'coolant-pod-registry'],
+    ['MRM-1', 'mrm-1', 'mrm-1-registry'],
+    ['MRM-2', 'mrm-2', 'mrm-2-registry'],
+    ['MRM-3', 'mrm-3', 'mrm-3-registry'],
+    ['MRM-4', 'mrm-4', 'mrm-4-registry'],
+    ['MRM-5', 'mrm-5', 'mrm-5-registry'],
+  ].flatMap(([name, oldTarget, newTarget]) =>
+    ['unitLoaderIS', 'unitLoaderClan', 'unitLoaderMixed'].map((api) => ({
+      api,
+      name,
+      oldTarget,
+      newTarget,
+      literalName: true,
+      reason:
+        'Opus G2-O5 exact Java source identity; ISMRM1..5.java:57-63 and AmmoType.java:15093-15236 at48fcb2f64',
+    })),
+  ),
+  ...[
+    ['CLRotaryAC10', 'rotaryac10'],
+    ['CLRotaryAC20', 'rotaryac20'],
+  ].map(([name, oldTarget]) => ({
+    name,
+    oldTarget,
+    newTarget: null,
+    weapon: true,
+    reason:
+      'Opus G2-O5 WeaponType aliases cannot use an AmmoType bin; pin48fcb2f64',
+  })),
+  ...[
     [
       '(R) IS Streak SRM 2 Ammo:50',
       'streak-srm-ammo',
@@ -1120,6 +1167,7 @@ if (process.argv.includes('--capture')) {
       if (newTarget === oldTarget) return;
       const route = APPROVED_JAVA_REROUTES.find(
         (route) =>
+          (!route.api || route.api === api) &&
           route.name.toLowerCase() ===
             (route.literalName ? name : bareName(name)).toLowerCase() &&
           route.oldTarget === oldTarget,
@@ -1161,9 +1209,17 @@ if (process.argv.includes('--capture')) {
     );
     for (const route of APPROVED_JAVA_REROUTES) {
       if (route.tagForm || route.loaderOnly) continue;
+      if (route.api) {
+        assert.equal(
+          targetOf(after, route.api, route.name),
+          route.newTarget ?? undefined,
+          route.api + ' ' + route.name,
+        );
+        continue;
+      }
       assert.equal(
         targetOf(after, 'equipment', route.name),
-        route.newTarget,
+        route.newTarget ?? undefined,
         route.name,
       );
       if (!route.weapon)
