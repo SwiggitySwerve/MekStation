@@ -9,7 +9,11 @@
  * KEY. A file's key hashes (all through git blob ids, so it costs no reads):
  *   - the file and its static import closure (relative, `@/` and in-repo
  *     bare imports; jest.mock/requireActual targets; its __snapshots__ file;
- *     the Jest setup files),
+ *     the Jest setup files). Type-only edges are not followed, because
+ *     @swc/jest erases them without loading the module: `import type`,
+ *     `export type {...} from`, and `import('x').Name` / `typeof import('x')` in
+ *     a type position. A mixed `import { type A, b }`, an `import { type A }`
+ *     with no value part, and every other import() still count,
  *   - the "data inputs" it can read: if any closure file uses fs read APIs,
  *     the digest of every repo directory the closure names (public/data/,
  *     openspec/, docs/, ...), or of the WHOLE repo when it names none; a file
@@ -254,6 +258,41 @@ const IMPORT_PATTERNS = [
   /\bimport\s*['"]([^'"\n]+)['"]/g,
   /\b(?:import|require(?:\.resolve)?|jest\.(?:mock|doMock|unmock|dontMock|requireActual|requireMock|createMockFromModule|setMock))\s*\(\s*['"]([^'"\n]+)['"]/g,
 ];
+// Type-only edges. Jest runs @swc/jest, which erases these without loading
+// the module, so they cannot change a test result (Static Checks still
+// type-checks every PR). Only forms that are unambiguously type-only are
+// blanked; anything else (`import { type A } from` with no value part, `import
+// type from 'x'` whose binding is named `type`, a dynamic import() in an
+// expression) stays a dependency. A spec that is ALSO imported as a value
+// elsewhere in the file stays in the closure through that other occurrence.
+const SPEC = String.raw`(['"])[^'"\n]+\1`;
+const BINDING = String.raw`[A-Za-z_$][\w$]*`;
+const TYPE_ONLY_IMPORTS = [
+  // import type { A } from 'x' / import type A from 'x' / import type * as A from 'x'
+  new RegExp(
+    String.raw`\bimport\s+type\b\s*(?:\{[^}]*\}|\*\s*as\s+${BINDING}|${BINDING})\s*from\s*${SPEC}`,
+    'g',
+  ),
+  // export type { A } from 'x' / export type * from 'x' / export type * as ns from 'x'
+  new RegExp(
+    String.raw`\bexport\s+type\b\s*(?:\{[^}]*\}|\*(?:\s*as\s+${BINDING})?)\s*from\s*${SPEC}`,
+    'g',
+  ),
+  // import('x').Name in a type annotation. A Promise has no PascalCase member and
+  // a call (`.Name(`) is never a type reference, so this is not a runtime load.
+  new RegExp(
+    String.raw`(?<![.\w$])(?<!\bawait\s+)import\s*\(\s*${SPEC}\s*\)\s*\.\s*[A-Z][\w$]*(?![\w$]|\s*\()`,
+    'g',
+  ),
+  // typeof import('x') only where a type is required: a generic argument, an
+  // annotation, `as`, a union/intersection member, `keyof`, or `type X =`.
+  new RegExp(
+    String.raw`(?<=(?:[<:|&]|\bas|\bkeyof|\btype\s+${BINDING}(?:<[^>]*>)?\s*=)\s*)\btypeof\s+import\s*\(\s*${SPEC}\s*\)`,
+    'g',
+  ),
+];
+const blankTypeOnlyImports = (text) =>
+  TYPE_ONLY_IMPORTS.reduce((out, pattern) => out.replace(pattern, ' '), text);
 // A require()/import() whose argument is not a string literal. Not preceded by
 // `.` (method call) and not a typed parameter (`import(content: string)` is an
 // interface method, not a load).
@@ -440,12 +479,14 @@ function buildNameMatchers(index) {
 
 function analyzeSource(text, rel, nameMatchers) {
   const specs = new Set();
+  // type-only edges are not dependencies (see TYPE_ONLY_IMPORTS)
+  const runtime = blankTypeOnlyImports(text);
   // raw text and text with every block comment removed: the union can only add
   // specs, so neither a comment nor over-stripping can hide an import
-  const noBlocks = text.replace(/\/\*[\s\S]*?\*\//g, ' ');
+  const noBlocks = runtime.replace(/\/\*[\s\S]*?\*\//g, ' ');
   // ... and with line comments removed too, so `from // note \n './dep'` is seen
   const noComments = noBlocks.replace(/\/\/[^\n]*/g, ' ');
-  for (const source of [text, noBlocks, noComments]) {
+  for (const source of [runtime, noBlocks, noComments]) {
     for (const pattern of IMPORT_PATTERNS) {
       for (const match of source.matchAll(pattern)) specs.add(match[1]);
     }
@@ -453,7 +494,8 @@ function analyzeSource(text, rel, nameMatchers) {
   const codeSpecs = new Set();
   const code = stripComments(text);
   for (const pattern of IMPORT_PATTERNS) {
-    for (const match of code.matchAll(pattern)) codeSpecs.add(match[1]);
+    for (const match of stripComments(runtime).matchAll(pattern))
+      codeSpecs.add(match[1]);
   }
   const envNames = new Set();
   for (const match of text.matchAll(ENV_DOT)) envNames.add(match[1]);
