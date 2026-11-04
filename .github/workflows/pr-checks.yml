@@ -363,16 +363,21 @@ jobs:
           key: ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*', 'config/jest/**') }}-unit-${{ matrix.shard }}-${{ github.sha }}
 
   # The whole-catalog suites (Lane B's `corpus` project) replay the committed
-  # catalog; each takes 30-140 s, so one runner's 4 workers finish them in
-  # about the time of a unit shard. They run when a changed file is in their
+  # catalog; together they took 582 s on one runner (run 41835895496), the
+  # run's critical path, so they run as two shards. They run when a changed
+  # file is in their
   # import closure or is catalog/converter data, and always on main and
   # nightly.
   corpus-tests:
-    name: Corpus Tests
+    name: Corpus Tests (${{ matrix.shard }}/2)
     needs: detect-changes
     if: needs.detect-changes.outputs.corpus == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
 
     steps:
       - name: Checkout code
@@ -384,8 +389,8 @@ jobs:
           node-version: '22'
           build-caches: 'false'
 
-      - name: Run corpus tests
-        run: npx jest --selectProjects corpus --ci
+      - name: Run corpus test shard
+        run: npx jest --selectProjects corpus --ci --shard=${{ matrix.shard }}/2
         env:
           JEST_SPLIT_CORPUS: 'true'
 

@@ -9,7 +9,7 @@ A PR Checks run started 33 jobs, and the public repository gets 20 concurrent Gi
 - Drop `install-deps`: every job restores the same node_modules cache and runs `npm ci` itself on a miss.
 - Gate `simulation-checks`, `corpus-tests`, `validate-combat`, `schema-bridge` and `prepare-build` with job-level conditions, so a gated-off job never takes a runner.
 - `Lint and Test` accepts a skip only for those jobs, and only when every gate it names for the job was off.
-- Wire Lane B's `JEST_SPLIT_CORPUS` projects: three unit shards without the whole-catalog suites, a one-job `corpus-tests` lane gated on the corpus suites' import closure and catalog data, and the `roadmap` project as a gated Static Checks step. The split selects exactly the same 3,080 test files. The unit shards restore a Jest transform cache from main.
+- Wire Lane B's `JEST_SPLIT_CORPUS` projects: three unit shards without the whole-catalog suites, a two-shard `corpus-tests` lane gated on the corpus suites' import closure and catalog data, and the `roadmap` project as a gated Static Checks step. The split selects exactly the same 3,080 test files. The unit shards restore a Jest transform cache from main.
 - Add `Lint and Test Guard`: when a PR Checks run finishes without creating `Lint and Test` (run 41817202190, PR #2660), it reports a failed `Lint and Test` check on the head commit, so a missing required check cannot be admin-merged as if green.
 - Upload `web-build` with hidden files, so its standalone server includes `.next/standalone/.next`.
 - In the setup composite, restore the npm download cache only when node_modules misses, run `npm ci --prefer-offline --no-audit --no-fund`, and let jobs that neither build Next nor pack Electron skip those two caches.
