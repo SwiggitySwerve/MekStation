@@ -58,8 +58,34 @@ test('documentation and OpenSpec changes skip every code gate', () => {
   assert.equal(gates.e2e, false);
   assert.equal(gates.desktop, false);
   assert.equal(gates.equipment, false);
-  assert.equal(gates.combat, false);
   assert.equal(gates.storybook, false);
+  // Validate Combat Suite reads openspec specs/changes (next test).
+  assert.equal(decide(root, ['docs/readme.md']).gates.combat, false);
+});
+
+test('an OpenSpec-only change to the combat spec runs Validate Combat Suite', () => {
+  const { gates } = decide(root, ['openspec/specs/combat-resolution/spec.md']);
+  assert.equal(gates.code, false);
+  assert.equal(gates.combat, true);
+});
+
+test('files a combat catalog cites by path run Validate Combat Suite', () => {
+  // combatValidationCatalog.test-helpers reads these to check line anchors.
+  for (const file of [
+    'src/components/gameplay/PhysicalAttackPanel.tsx',
+    'src/lib/spa/designation/getDesignationOptions.ts',
+  ]) {
+    assert.ok(fs.existsSync(path.join(root, file)), file);
+    assert.equal(decide(root, [file]).gates.combat, true, file);
+  }
+});
+
+test('combat rules outside the proof import closure run the statistical proof', () => {
+  assert.equal(
+    decide(root, ['src/engine/InteractiveSession.actions.attackAms.ts']).gates
+      .statistical,
+    true,
+  );
 });
 
 test('e2e-only changes run the browser gates but no code gate', () => {

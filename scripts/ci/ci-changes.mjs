@@ -113,11 +113,17 @@ export const CLOSURE_GATES = {
   // Statistical Proof PR: the 100-game combat proof. simulation-system
   // "Statistical Validation" requires it before a combat-affecting PR
   // merges, so it runs whenever a PR touches its import closure.
+  // Its import closure does not reach every combat rule (session actions in
+  // src/engine are dispatched, not imported), so the combat domain trees
+  // count as inputs too.
   statistical: {
     entries() {
       return ['src/simulation/__tests__/integration.test.ts'];
     },
-    data: [/^public\/data\//],
+    data: [
+      /^public\/data\//,
+      /^src\/(engine|simulation|utils\/gameplay|types\/gameplay)\//,
+    ],
   },
   // Build Storybook: every story, the .storybook config, and the CSS and
   // static files it bundles.
@@ -241,10 +247,28 @@ export function importClosure(root, entries) {
 // One process decides once, but the tests call decide() many times.
 const closureCache = new Map();
 
+// Repo files a closure file names by path in its text, e.g. catalog source
+// references ('src/x.ts#L10-L20') that tests read to check line anchors.
+const SRC_PATH_RE = /src\/[A-Za-z0-9_.\/-]+?\.(?:tsx?|mjs|cjs|js|json)\b/g;
+
+function referencedFiles(root, files) {
+  const found = new Set();
+  for (const file of files) {
+    if (!/\.(ts|tsx|js|jsx|mjs|cjs)$/.test(file)) continue;
+    const text = fs.readFileSync(path.join(root, file), 'utf8');
+    for (const m of text.matchAll(SRC_PATH_RE)) {
+      if (fs.existsSync(path.join(root, m[0]))) found.add(m[0]);
+    }
+  }
+  return found;
+}
+
 function gateClosure(root, name, gate) {
   const key = `${root}|${name}`;
   if (!closureCache.has(key)) {
-    closureCache.set(key, importClosure(root, gate.entries(root)));
+    const closure = importClosure(root, gate.entries(root));
+    for (const file of referencedFiles(root, closure)) closure.add(file);
+    closureCache.set(key, closure);
   }
   return closureCache.get(key);
 }
@@ -274,10 +298,8 @@ export function decide(root, changed) {
     e2e: changed.some((file) => matchesAny(file, E2E)),
   };
   for (const [name, gate] of Object.entries(CLOSURE_GATES)) {
-    if (!code) {
-      gates[name] = false;
-      continue;
-    }
+    // Runtime data rules apply whether or not code changed (an OpenSpec-only
+    // change to the combat spec still runs Validate Combat Suite).
     const closure = gateClosure(root, name, gate);
     gates[name] = changed.some(
       (file) => closure.has(file) || matchesAny(file, gate.data),
