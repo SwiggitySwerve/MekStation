@@ -150,8 +150,12 @@ const techRoutes = new Map(
     ).techRoutes ?? {},
   ).map(([name, route]) => [name.toLowerCase(), route]),
 );
+export const techRoute = (
+  name: string,
+): Readonly<{ INNER_SPHERE: string; CLAN: string }> | undefined =>
+  techRoutes.get(name.trim().toLowerCase());
 export const techRouteId = (name: string, clan: boolean): string | undefined =>
-  techRoutes.get(name.trim().toLowerCase())?.[clan ? 'CLAN' : 'INNER_SPHERE'];
+  techRoute(name)?.[clan ? 'CLAN' : 'INNER_SPHERE'];
 export function preferRegistryEquipment<
   T extends { id: string } | null | undefined,
 >(previous: T, imported: NonNullable<T> | undefined, name: string): T {

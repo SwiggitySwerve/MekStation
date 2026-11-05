@@ -85,7 +85,10 @@
     "CLStreakSRM4 (OS)": "clstreaksrm4-os-registry",
     "CLStreakSRM6 (OS)": "clstreaksrm6-os-registry",
     "CLNarcBeacon (OS)": "clnarcbeacon-os-registry",
-    "CLNarcBeacon (I-OS)": "clnarcbeacon-i-os-registry"
+    "CLNarcBeacon (I-OS)": "clnarcbeacon-i-os-registry",
+    "ISMGA": "ismga-registry",
+    "ISLMGA": "islmga-registry",
+    "ISHMGA": "ishmga-registry"
   },
   "previousIds": {
     "is-lb-2-x-ac-ammo-registry": "clan-lb-2-x-ac",
@@ -523,6 +526,42 @@
     "Heavy Machine Gun": {
       "INNER_SPHERE": "heavy-machine-gun",
       "CLAN": "clheavymg-registry"
+    },
+    "machine-gun-array": {
+      "INNER_SPHERE": "ismga-registry",
+      "CLAN": "mga"
+    },
+    "Machine Gun Array": {
+      "INNER_SPHERE": "ismga-registry",
+      "CLAN": "mga"
+    },
+    "ISMGA": {
+      "INNER_SPHERE": "ismga-registry",
+      "CLAN": "ismga-registry"
+    },
+    "light-machine-gun-array": {
+      "INNER_SPHERE": "islmga-registry",
+      "CLAN": "lmga"
+    },
+    "Light Machine Gun Array": {
+      "INNER_SPHERE": "islmga-registry",
+      "CLAN": "lmga"
+    },
+    "ISLMGA": {
+      "INNER_SPHERE": "islmga-registry",
+      "CLAN": "islmga-registry"
+    },
+    "heavy-machine-gun-array": {
+      "INNER_SPHERE": "ishmga-registry",
+      "CLAN": "hmga"
+    },
+    "Heavy Machine Gun Array": {
+      "INNER_SPHERE": "ishmga-registry",
+      "CLAN": "hmga"
+    },
+    "ISHMGA": {
+      "INNER_SPHERE": "ishmga-registry",
+      "CLAN": "ishmga-registry"
     }
   }
 }
