@@ -453,7 +453,12 @@ function resolveLegacyEquipmentId(
   }
 
   const candidates = buildEquipmentVariantCandidates(normalizedId);
-  const ownSide = ownTechSide(id, normalizedId, candidates.baseId);
+  // Only lists without crit slots (vehicles): a mech's list id and its crit
+  // tokens must change sides together, which the slot hints below arbitrate.
+  const ownSide =
+    locationCriticalSlots === undefined
+      ? ownTechSide(id, normalizedId, candidates.baseId)
+      : null;
 
   return (
     (ownSide ? resolveVariantByTechBase(candidates, ownSide) : null) ??
