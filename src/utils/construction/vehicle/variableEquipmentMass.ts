@@ -2,6 +2,7 @@ import { formulaEvaluator } from '@/services/equipment/FormulaEvaluator';
 import { VARIABLE_EQUIPMENT_FORMULAS } from '@/services/equipment/variableEquipmentFormulas';
 import { TechBase, parseTechBase } from '@/types/enums/TechBase';
 
+import { calculateJumpJetWeight, JumpJetType } from '../movementCalculations';
 import { roundSupportComponentWeight } from './supportRounding';
 
 export interface VehicleVariableMassItem {
@@ -27,9 +28,16 @@ export function resolveVehicleAccessoryMass(
   item: VehicleVariableMassItem,
   context?: VehicleVariableMassContext,
 ): number | null | undefined {
-  if (!['vtoljetbooster', 'limitedamphibiouschassis'].includes(item.id))
+  if (
+    !['vtoljetbooster', 'vehiclejumpjet', 'limitedamphibiouschassis'].includes(
+      item.id,
+    )
+  )
     return undefined;
   if (!context) return null;
+  // MiscType.java:496-497,867-889,2004-2012 at the same pin.
+  if (item.id === 'vehiclejumpjet')
+    return calculateJumpJetWeight(context.tonnage, 1, JumpJetType.STANDARD);
   // MiscType.java:702-703 at the same pin.
   if (item.id === 'limitedamphibiouschassis')
     return roundSupportComponentWeight(

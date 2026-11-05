@@ -586,6 +586,14 @@ small-support rounding preserved. Missing engine context is unavailable.
 Pin 48fcb2f64: MiscType.java:518-527; RoundWeight.java:58-68.
 This enables the native accessory independently of the held sized-editor work.
 
+## Vehicle jump-jet mass
+
+Vehicle jump jets reuse calculateJumpJetWeight in movementCalculations.ts for the
+standard jet tier, through resolveVehicleAccessoryMass. MegaMek 48fcb2f64
+MiscType.java:496-497,867-889,2004-2012 charges each mounted jet 0.5 t
+through 55 t, 1 t through 85 t, and 2 t above 85 t. The catalog zero remains
+a variable sentinel; jet count for BV movement retains its existing owner.
+
 ## Limited amphibious chassis mass
 
 The shared variable owner charges rounded tonnage/25 for the native limited
