@@ -87,7 +87,8 @@ export function calculateAerospaceDefensiveBV(
     modularByArc.set(arc, (modularByArc.get(arc) ?? 0) + 1);
     if (armorByArc && !armorByArc.has(arc)) armorByArc.set(arc, 0);
   }
-  const effectiveArmor =
+  const armorFactor = capital ? 25 : 2.5;
+  const effectiveArmorBV =
     input.armorType.toLowerCase() === 'patchwork' && armorByArc
       ? [...armorByArc].reduce(
           (sum, [arc, points]) =>
@@ -96,11 +97,12 @@ export function calculateAerospaceDefensiveBV(
               getModularArmorBVPoints(modularByArc.get(arc) ?? 0)) *
               getNativeArmorBVMultiplier(input.armorTypeByArc?.[arc] ?? 0),
           0,
-        )
-      : (input.totalArmorPoints + modularArmorPoints) * armorMultiplier;
+        ) * armorFactor
+      : (input.totalArmorPoints + modularArmorPoints) *
+        armorFactor *
+        armorMultiplier;
   const armorBV =
-    effectiveArmor *
-    (capital ? 25 : 2.5) *
+    effectiveArmorBV *
     // BVCalculator.java:431-452; FixedWingSupport.java:101-108.
     (input.isSupportVehicle ? (input.barRating ?? 10) / 10 : 1);
 

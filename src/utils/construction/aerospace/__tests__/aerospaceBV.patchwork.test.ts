@@ -115,3 +115,15 @@ it('preserves global armor for handler-shaped lowercase arc facts without patchw
   if (result?.kind !== 'aerospace') throw Error('Expected aircraft');
   expect(result.breakdown.armorBV).toBe(215);
 });
+
+it('preserves the exact global armor multiplication order outside patchwork', () => {
+  expect(
+    calculateAerospaceDefensiveBV({
+      ...input,
+      armorType: 'ferro-lamellor',
+      totalArmorPoints: 273,
+      armorByArc: undefined,
+      armorTypeByArc: undefined,
+    }).armorBV,
+  ).toBe(819);
+});
