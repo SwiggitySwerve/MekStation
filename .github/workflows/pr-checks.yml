@@ -619,13 +619,13 @@ jobs:
           node-version: '22'
           fetch-assets: 'true'
 
-      - name: Validate record-sheet assets
-        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        run: npm run validate:assets:strict
-
       - name: Test E2E shard planning and coverage guards
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
         run: node --test scripts/playwright/ci-e2e-plan.test.mjs
+
+      - name: Validate record-sheet assets
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        run: npm run validate:assets:strict
 
       - name: Build production app
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
