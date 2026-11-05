@@ -10,7 +10,10 @@ import {
   IArmorAllocation,
   createEmptyArmorAllocation,
 } from '@/types/construction/ArmorAllocation';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import {
+  ArmorTypeEnum,
+  getNativeArmorType,
+} from '@/types/construction/ArmorType';
 import {
   CockpitType,
   getNativeCockpitType,
@@ -200,6 +203,8 @@ export function mapArmorType(
   typeStr: string,
   techBase: TechBase,
 ): ArmorTypeEnum {
+  const native = getNativeArmorType(typeStr);
+  if (native) return native;
   const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
 
   if (normalized === 'FERROFIBROUS' || normalized === 'FERRO') {

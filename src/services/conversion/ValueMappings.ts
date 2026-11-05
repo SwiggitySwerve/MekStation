@@ -6,7 +6,10 @@
  * @spec unit-json.plan.md
  */
 
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import {
+  ArmorTypeEnum,
+  getNativeArmorType,
+} from '@/types/construction/ArmorType';
 import {
   CockpitType,
   getNativeCockpitType,
@@ -432,6 +435,8 @@ export function mapArmorType(
   source: string,
   techBase?: TechBase,
 ): ArmorTypeEnum {
+  const native = getNativeArmorType(source);
+  if (native) return native;
   const normalized = source.trim();
 
   // Direct match
