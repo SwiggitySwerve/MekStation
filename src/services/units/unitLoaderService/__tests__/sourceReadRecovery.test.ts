@@ -6,11 +6,13 @@ jest.mock('@/services/equipment/EquipmentLookupService', () => ({
   getEquipmentLookupService: () => ({
     initialize: async () => {},
     getById: () => undefined,
+    getAllEquipment: () => [],
   }),
 }));
 jest.mock('@/services/equipment/EquipmentRegistry', () => ({
   getEquipmentRegistry: () => ({
     initialize: async () => {},
+    isReady: () => true,
     lookup: () => ({ found: false }),
   }),
 }));
