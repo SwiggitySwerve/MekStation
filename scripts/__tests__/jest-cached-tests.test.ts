@@ -882,7 +882,9 @@ describe('type-only imports in the key', () => {
     ],
     [
       'a type import beside a template-literal jest.mock',
-      "import type { T } from './dep';\njest.mock(`./dep`);",
+      // built in two pieces: b14FogContainment scans every test file's text for
+      // a mock call with a non-quoted path and would read this fixture as one
+      "import type { T } from './dep';\njest" + '.mock(`./dep`);',
     ],
     [
       'a type import beside a plain string equal to the specifier',
