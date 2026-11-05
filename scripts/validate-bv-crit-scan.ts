@@ -680,21 +680,12 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
         )
           r.mineDispenserCount++;
 
-        // Bridge Layers: misc equipment with non-zero offensive BV, dedup per slot group.
-        // Light=5, Medium=10, Heavy=20 per MegaMek MiscType.java
-        if (clean !== prevSlotClean) {
-          if (lo.includes('heavybridgelayer') || lo === 'heavy bridge layer')
-            r.miscEquipBV += 20;
-          else if (
-            lo.includes('mediumbridgelayer') ||
-            lo === 'medium bridge layer'
-          )
-            r.miscEquipBV += 10;
-          else if (
-            lo.includes('lightbridgelayer') ||
-            lo === 'light bridge layer'
-          )
-            r.miscEquipBV += 5;
+        // BVCalculator.java:534-536,1004-1006: bridge layers are defensive.
+        if (
+          clean !== prevSlotClean &&
+          getEquipmentEntry(clean)?.id.startsWith('bridge-layer-')
+        ) {
+          r.defEquipIds.push(clean);
         }
 
         prevSlotClean = clean;

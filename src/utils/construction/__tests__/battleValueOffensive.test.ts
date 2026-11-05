@@ -140,15 +140,15 @@ describe('calculateOffensiveBVWithHeatTracking — heat efficiency', () => {
     expect(result.heatEfficiency).toBe(12);
   });
 
-  it('zeroes running heat for ICE / FuelCell engines', () => {
+  it('retains combat running heat for ICE engines (Engine.java:715-724)', () => {
     const result = calculateOffensiveBVWithHeatTracking({
       ...baseConfig,
       engineType: EngineType.ICE,
       weapons: [{ id: 'w', name: 'w', heat: 0, bv: 10 }],
       heatDissipation: 10,
     });
-    expect(result.moveHeat).toBe(0);
-    expect(result.heatEfficiency).toBe(16);
+    expect(result.moveHeat).toBe(2);
+    expect(result.heatEfficiency).toBe(14);
   });
 
   it('uses 6 running heat for XXL engines', () => {
