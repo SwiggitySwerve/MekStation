@@ -619,3 +619,10 @@ Mounted figures consume that same rule before
 summing equipment and turret mass, independently of the held sized-equipment
 editor integration. Missing context is unavailable, not a fixed zero.
 Pin 48fcb2f64: MiscType.java:660-666,702-705; RoundWeight.java:58-68.
+
+## Standard smart robotic control mass
+
+The shared vehicle variable resolver charges standard SRCS at rounded 5% of
+unit tonnage from 10 t upward, and zero below 10 t. It owns the formula for
+the editor and support consumers; the catalog sentinel stays zero. Improved
+and shielded variants are separate rules. Pin 48fcb2f64: MiscType.java:745-767.
