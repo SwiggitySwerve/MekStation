@@ -1732,7 +1732,7 @@
     "file": "weapons/ballistic-machinegun.json",
     "index": 1,
     "id": "light-machine-gun",
-    "sha256": "be5684ce473d26bff705533dd5b83146c45166404d60287a91f54d994603b4e6",
+    "sha256": "be7a442ba71b205fb595e76f71fc391830983eecbdd08042b6edabc0db5e4be2",
     "item": {
       "id": "light-machine-gun",
       "name": "Light Machine Gun",
@@ -1748,7 +1748,7 @@
         "medium": 4,
         "long": 6
       },
-      "weight": 0.25,
+      "weight": 0.5,
       "criticalSlots": 1,
       "vehicleSlots": {
         "tank": 1,
