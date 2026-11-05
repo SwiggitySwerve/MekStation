@@ -10,6 +10,7 @@ import {
   getLargeAerospaceAmmoBVGroup,
   largeAerospaceAmmoBVMultiplier,
 } from '../battleValueAmmo';
+import { isNonOffensiveLargeAerospaceMisc } from '../battleValueEquipment';
 import { getCapitalEquipmentBVFacts } from '../equipmentBV/catalogLoader';
 import {
   isArtemisCompatibleBVWeapon,
@@ -22,7 +23,11 @@ import {
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
 import { getAerospaceDefensiveEquipmentKind } from './aerospaceBVEquipment';
-import { isRearMountedAerospaceEquipment } from './aerospaceMountFlags';
+import {
+  isRearMountedAerospaceEquipment,
+  largeAerospaceMountToken,
+  parseLargeAerospaceMount,
+} from './aerospaceMountFlags';
 import { getLargeAerospaceArcs } from './largeAerospaceFirePool';
 
 const LOCATIONS: Readonly<Record<string, CapitalArc>> = {
@@ -69,10 +74,6 @@ export function largeAerospaceMountArc(
     if (physical === CapitalArc.FRONT_RIGHT) return CapitalArc.AFT_RIGHT;
   }
   return physical;
-}
-
-function largeAerospaceMountToken(id: string): string {
-  return id.trim().toLowerCase().replace(/^r-/, '').replace(/^b-/, '');
 }
 
 const ENERGY_SUBTYPES = new Set([
@@ -137,10 +138,16 @@ export function resolveLargeAerospaceMountBV(
     const fail = (reason: string): void => {
       unresolved.push({ mountIndex, equipmentId: mount.equipmentId, reason });
     };
-    const token = largeAerospaceMountToken(mount.equipmentId);
-    const [id, quantity, ...extra] = token.split(':');
-    if (extra.length || (quantity !== undefined && !/^\d+$/.test(quantity))) {
+    const parsed = parseLargeAerospaceMount(mount.equipmentId);
+    if (!parsed) {
       fail('Unsupported mount suffix or ammunition quantity');
+      return;
+    }
+    const { id, quantity, size } = parsed;
+    if (size !== undefined) {
+      const sized = getEquipmentEntry(id);
+      if (!sized || !isNonOffensiveLargeAerospaceMisc(sized.id, size))
+        fail('Unsupported variable-size equipment');
       return;
     }
     // The shared classifier owns defensive exclusions, including hull electronics.
@@ -148,7 +155,8 @@ export function resolveLargeAerospaceMountBV(
     if (defensiveKind) {
       if (
         quantity !== undefined &&
-        (defensiveKind !== 'amsAmmo' || !Number.isSafeInteger(Number(quantity)))
+        (!['amsAmmo', 'screenAmmo'].includes(defensiveKind) ||
+          !Number.isSafeInteger(Number(quantity)))
       )
         fail('Invalid defensive ammunition quantity');
       return;
@@ -170,14 +178,7 @@ export function resolveLargeAerospaceMountBV(
     if (
       quantity === undefined &&
       entry &&
-      [
-        'nc3',
-        'mobilehpg',
-        'groundmobilehpg',
-        'smallnavalcommscannersuite',
-        'largenavalcommscannersuite',
-        'navaltugadaptor',
-      ].includes(entry.id)
+      isNonOffensiveLargeAerospaceMisc(entry.id)
     )
       return;
     const location = largeAerospaceMountArc(mount, capitalType);
@@ -308,7 +309,7 @@ export function largeAerospaceHeatByArc(
     const id = largeAerospaceMountToken(mount.equipmentId).split(':')[0];
     const kind = getAerospaceDefensiveEquipmentKind(id);
     const arc = largeAerospaceMountArc(mount, capitalType);
-    if (kind && kind !== 'amsAmmo' && arc)
+    if (kind && !['amsAmmo', 'screenAmmo'].includes(kind) && arc)
       defensive.set(
         arc,
         (defensive.get(arc) ?? 0) + (getEquipmentEntry(id)?.heat ?? 0),

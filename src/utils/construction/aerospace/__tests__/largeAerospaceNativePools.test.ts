@@ -4,11 +4,32 @@ import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCal
 import { contractUnitToBVUnit } from '@/utils/construction/contractBVUnitAdapter';
 
 import { calculateAerospaceDefensiveBV } from '../aerospaceBVCalculator';
+import { parseLargeAerospaceMount } from '../aerospaceMountFlags';
 import { resolveLargeAerospaceMountBV } from '../dropShipMountBV';
 import traces from './fixtures/largeAerospaceNativePools.json';
 
 /** MegaMek 48fcb2f64, LargeAeroBVCalculator.java:85-142; UL-16b oracle. */
 describe('large aerospace native ammo identities', () => {
+  it('preserves variable size separately from bin shots and mount flags', () => {
+    expect(parseLargeAerospaceMount('R-B-mash-equipment:size:1.5')).toEqual({
+      id: 'mash-equipment',
+      size: 1.5,
+    });
+    expect(parseLargeAerospaceMount('r-isams-ammo:24')).toEqual({
+      id: 'isams-ammo',
+      quantity: '24',
+    });
+    for (const suffix of ['-1', 'NaN', 'Infinity', '1:24', '']) {
+      expect(
+        parseLargeAerospaceMount(`mash-equipment:size:${suffix}`),
+      ).toBeUndefined();
+    }
+    expect(
+      resolveLargeAerospaceMountBV([
+        { equipmentId: 'medium-laser:size:1', location: 'NOSE' },
+      ]).unresolved,
+    ).toHaveLength(1);
+  });
   it.each(traces)(
     'completes the pinned native design $path',
     ({ unit, expected }) => {
@@ -59,14 +80,62 @@ describe('large aerospace native ammo identities', () => {
     expect(result.arcs[0].weaponBV).toBe(bv);
   });
 
-  it('admits defensive quantities while retaining unsupported screens', () => {
+  it('admits defensive quantities and screens without offensive BV', () => {
     const result = resolveLargeAerospaceMountBV(
       ['b-screen-launcher', 'ammo-screen:20', 'isams-ammo:240'].map(
         (equipmentId) => ({ equipmentId, location: 'NOSE' }),
       ),
       UnitType.WARSHIP,
     );
-    expect(result.unresolved.map((mount) => mount.mountIndex)).toEqual([0, 1]);
+    expect(result.unresolved).toEqual([]);
+    expect(
+      result.arcs.every(
+        (arc) =>
+          arc.weaponBV === 0 &&
+          arc.heat === 0 &&
+          Object.keys(arc.ammoBVByType ?? {}).length === 0,
+      ),
+    ).toBe(true);
+  });
+
+  // BVCalculator.java:549-645,936-951, pin 48fcb2f64.
+  it.each([
+    [0, 160],
+    [1, 180],
+    [20, 320],
+  ])('caps %i screen shots in defense', (shots, expected) => {
+    const equipment = ['b-screen-launcher', `ammo-screen:${shots}`].map(
+      (id) => ({ id, location: 'NOSE' }),
+    );
+    expect(
+      calculateAerospaceDefensiveBV({
+        subType: UnitType.DROPSHIP,
+        structuralIntegrity: 0,
+        totalArmorPoints: 0,
+        armorType: 'standard',
+        equipment,
+      }).defensiveEquipmentBV,
+    ).toBe(expected);
+  });
+
+  it('keeps AMS and screen ammo caps independent', () => {
+    const defense = (ids: string[]) =>
+      calculateAerospaceDefensiveBV({
+        subType: UnitType.DROPSHIP,
+        structuralIntegrity: 0,
+        totalArmorPoints: 0,
+        armorType: 'standard',
+        equipment: ids.map((id) => ({ id, location: 'NOSE' })),
+      }).defensiveEquipmentBV;
+    expect(
+      defense([
+        'isams',
+        'b-screen-launcher',
+        'isams-ammo:240',
+        'ammo-screen:20',
+      ]),
+    ).toBe(384);
+    expect(defense(['isams', 'ammo-screen:20'])).toBe(32);
   });
 
   // BVCalculator.java:560-576,626-631; AmmoType.java:4053-4066, pin 48fcb2f64.

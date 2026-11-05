@@ -10422,5 +10422,3419 @@
       "defensive": 11643.2,
       "offensive": 97257.0
     }
+  },
+  {
+    "path": "dropships/TRO3057R/IS/Hamilcar (3084).blk",
+    "sha256": "3765c30fc86ddf0f114cecdfc1d8412382db3fc70d425b43881d80b728fdf8fc",
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 154,
+          "LEFT_SIDE": 140,
+          "NOSE": 170,
+          "RIGHT_SIDE": 140
+        },
+        "type": "AEROSPACE"
+      },
+      "battleArmor": 0,
+      "chassis": "Hamilcar",
+      "collarType": 0,
+      "crew": 88,
+      "designType": "MILITARY",
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-isgaussrifle",
+          "location": "NOSE",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:40",
+          "location": "NOSE",
+          "name": "IS Gauss Ammo:40"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "NOSE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "b-screen-launcher",
+          "location": "NOSE",
+          "name": "(B) Screen Launcher"
+        },
+        {
+          "id": "screen-launcher",
+          "location": "NOSE",
+          "name": "Screen Launcher"
+        },
+        {
+          "id": "screen-launcher",
+          "location": "NOSE",
+          "name": "Screen Launcher"
+        },
+        {
+          "id": "ammo-screen:30",
+          "location": "NOSE",
+          "name": "Ammo Screen:30"
+        },
+        {
+          "id": "b-isantimissilesystem",
+          "location": "NOSE",
+          "name": "(B) ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "NOSE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "NOSE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "NOSE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "NOSE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isams-ammo:60",
+          "location": "NOSE",
+          "name": "ISAMS Ammo:60"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "b-lrm-20",
+          "location": "LEFT_SIDE",
+          "name": "(B) LRM 20"
+        },
+        {
+          "id": "is-ammo-lrm-20-artemis-capable:12",
+          "location": "LEFT_SIDE",
+          "name": "IS Ammo LRM-20 Artemis-capable:12"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-iserppc",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISERPPC"
+        },
+        {
+          "id": "b-islargevsplaser",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISLargeVSPLaser"
+        },
+        {
+          "id": "r-b-lrm-15",
+          "location": "LEFT_SIDE",
+          "name": "(R) (B) LRM 15"
+        },
+        {
+          "id": "r-is-ammo-lrm-15-artemis-capable:16",
+          "location": "LEFT_SIDE",
+          "name": "(R) IS Ammo LRM-15 Artemis-capable:16"
+        },
+        {
+          "id": "r-isartemisiv",
+          "location": "LEFT_SIDE",
+          "name": "(R) ISArtemisIV"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "b-lrm-20",
+          "location": "RIGHT_SIDE",
+          "name": "(B) LRM 20"
+        },
+        {
+          "id": "is-ammo-lrm-20-artemis-capable:12",
+          "location": "RIGHT_SIDE",
+          "name": "IS Ammo LRM-20 Artemis-capable:12"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-iserppc",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISERPPC"
+        },
+        {
+          "id": "b-islargevsplaser",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISLargeVSPLaser"
+        },
+        {
+          "id": "r-b-lrm-15",
+          "location": "RIGHT_SIDE",
+          "name": "(R) (B) LRM 15"
+        },
+        {
+          "id": "r-is-ammo-lrm-15-artemis-capable:16",
+          "location": "RIGHT_SIDE",
+          "name": "(R) IS Ammo LRM-15 Artemis-capable:16"
+        },
+        {
+          "id": "r-isartemisiv",
+          "location": "RIGHT_SIDE",
+          "name": "(R) ISArtemisIV"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "AFT",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "b-lrm-15",
+          "location": "AFT",
+          "name": "(B) LRM 15"
+        },
+        {
+          "id": "is-ammo-lrm-15-artemis-capable:16",
+          "location": "AFT",
+          "name": "IS Ammo LRM-15 Artemis-capable:16"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-isstreaksrm4",
+          "location": "AFT",
+          "name": "(B) ISStreakSRM4"
+        },
+        {
+          "id": "is-streak-srm-4-ammo:25",
+          "location": "AFT",
+          "name": "IS Streak SRM 4 Ammo:25"
+        }
+      ],
+      "era": "DARK_AGE",
+      "escapePods": 4,
+      "fluff": {
+        "capabilities": "<p>The post-Jihad refit of the Hamilcar reconfigures the bay layout to carry four BattleMechs, five battle armor squads, and two aerospace fighters, along with two small craft bays and 131 tons of cargo. The nose armament is substantially reworked: the Gauss rifle and ER large laser are retained, but the missile launchers are replaced with three Screen Launchers and five anti-missile systems for enhanced defensive capability against capital-grade threats. The wing armament retains the ER large lasers, ER PPCs, and Artemis-equipped LRM-20 and LRM-15 launchers, but replaces the large pulse lasers with large variable-speed pulse lasers for improved accuracy at varying ranges. The aft arc mounts an ER large laser, an Artemis-equipped LRM-15, and a Streak SRM-4. The expanded battle armor capacity and defensive systems reflect lessons learned during the Jihad about boarding actions and anti-missile warfare.</p>",
+        "deployment": "<p>The post-Jihad refit variant reflects the evolving nature of space combat operations, incorporating battle armor transport and enhanced defensive systems developed in response to the Word of Blake's extensive use of capital-grade weapons. The variant serves in Republic-era naval formations where boarding operations and point-defense capability are prioritized over raw offensive firepower.</p>",
+        "history": "<p>The Hamilcar was conceived by a Marik military think tank seeking a new approach to space assault operations. Manufactured at Irian Technologies, the design entered service in 3054 and was immediately met with skepticism. Many observers dismissed the vessel as an ill-conceived raider that was neither a proper fighter carrier nor a proper BattleMech transport. These criticisms overlooked the Hamilcar's true purpose as an integrated zero-gravity combat platform.</p><p>The design's reputation was transformed by a decisive engagement at the Concord system's L2 cargo station in late 3055, when terrorists seized the facility. A Hamilcar dispatched to the system demonstrated the design's intended doctrine flawlessly: launching its fighters as a screen while simultaneously deploying jump-capable BattleMechs against the station. The coordinated assault forced a rapid surrender and proved the viability of the Hamilcar's integrated combat concept. Despite this success, the design's limited fuel capacity, thin armor, and dependence on its fighter screen have kept production numbers modest, and the Hamilcar remains a specialized asset within the Free Worlds League Military's order of battle.</p>",
+        "manufacturer": "Irian Naval Technologies",
+        "overview": "<p>The Hamilcar class DropShip is a unique space assault vessel developed by a Free Worlds League military think tank and manufactured by Irian Naval Systems. First entering service in 3054, this 3,600-ton aerodyne defies easy classification, combining BattleMech and aerospace fighter transport capability in a single hull optimized for zero-gravity assault operations. Initially dismissed by observers as a poorly conceived raider, the Hamilcar proved its worth as an integrated combat platform where the vessel, its embarked BattleMechs, and its fighter screen operate as a coordinated assault unit. Despite its innovative approach, the design remains a niche asset, dependent on its embarked forces to compensate for its own limited defensive capabilities.</p>",
+        "primaryFactory": "Clipperton"
+      },
+      "fuel": 2910,
+      "gunners": 6,
+      "heatSinks": {
+        "count": 58,
+        "type": "DOUBLE"
+      },
+      "id": "hamilcar-3084",
+      "lifeBoats": 0,
+      "marines": 0,
+      "model": "(3084)",
+      "motionType": "AERODYNE",
+      "movement": {
+        "maxThrust": 6,
+        "safeThrust": 4
+      },
+      "officers": 6,
+      "otherPassengers": 0,
+      "passengers": 0,
+      "rulesLevel": "STANDARD",
+      "source": "TR:3057r",
+      "structuralIntegrity": 9,
+      "subType": "DropShip",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 3600,
+      "transporters": [
+        "mekbay:4.0:4:-1::-1:0",
+        "battlearmorbay:5.0:1:2::-1:0",
+        "asfbay:2.0:2:3::-1:0",
+        "cargobay:131.0:0:4::-1:0",
+        "2ndclassquarters:0.0:0:-1::-1:0",
+        "1stclassquarters:60.0:0:-1::-1:0",
+        "crewquarters:210.0:0:-1::-1:0",
+        "smallcraftbay:2.0:1:8::-1:0"
+      ],
+      "unitType": "DropShip",
+      "year": 3084
+    },
+    "expected": {
+      "total": 4842,
+      "defensive": 2703.0,
+      "offensive": 2139.424
+    }
+  },
+  {
+    "path": "jumpships/3057R/IS/Tramp JumpShip (3071).blk",
+    "sha256": "fbde92da7082ee2a9bf3ea9efa85b328ea3766182720d50625ea0610cd7b8dd1",
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 4,
+          "AFT_LEFT_SIDE": 4,
+          "AFT_RIGHT_SIDE": 4,
+          "FRONT_LEFT_SIDE": 4,
+          "FRONT_RIGHT_SIDE": 4,
+          "NOSE": 4
+        },
+        "type": "IMPROVED_FERRO_ALUMINUM"
+      },
+      "battleArmor": 0,
+      "chassis": "Tramp JumpShip",
+      "crew": 34,
+      "designType": "CIVILIAN",
+      "dockingCollars": 3,
+      "driveCoreType": 0,
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-iserlargelaser",
+          "location": "NOSE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "NOSE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-isantimissilesystem",
+          "location": "NOSE",
+          "name": "(B) ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "NOSE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isams-ammo:24",
+          "location": "NOSE",
+          "name": "ISAMS Ammo:24"
+        },
+        {
+          "id": "b-sub-capital-laser-1",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Sub-Capital Laser /1"
+        },
+        {
+          "id": "b-isantimissilesystem",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isams-ammo:24",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISAMS Ammo:24"
+        },
+        {
+          "id": "b-screen-launcher",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Screen Launcher"
+        },
+        {
+          "id": "ammo-screen:10",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Ammo Screen:10"
+        },
+        {
+          "id": "b-sub-capital-laser-1",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Sub-Capital Laser /1"
+        },
+        {
+          "id": "b-isantimissilesystem",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isams-ammo:24",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISAMS Ammo:24"
+        },
+        {
+          "id": "b-screen-launcher",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Screen Launcher"
+        },
+        {
+          "id": "ammo-screen:10",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Ammo Screen:10"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "AFT",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-isantimissilesystem",
+          "location": "AFT",
+          "name": "(B) ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "AFT",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isams-ammo:24",
+          "location": "AFT",
+          "name": "ISAMS Ammo:24"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "b-isantimissilesystem",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isams-ammo:24",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISAMS Ammo:24"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "b-isantimissilesystem",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isams-ammo:24",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISAMS Ammo:24"
+        }
+      ],
+      "era": "CIVIL_WAR",
+      "escapePods": 5,
+      "fluff": {
+        "capabilities": "<p>Designed for high-risk trade in the \"wilder\" reaches of the Periphery, the Tramp is among the most heavily armed civilian JumpShips in existence. Its hull is dotted with a potent mix of offensive and defensive weaponry, including eight ER large lasers and twelve anti-missile systems. While this arsenal can be further supplemented by weapons from the three docked DropShips, the Tramp remains vulnerable in sustained combat due to its fragile armor. The vessel features two small-craft bays, used primarily for shuttles as these have proven unsuitable for the vast majority of modern fighter designs. The vessel has a grav deck of 140 metres wide to the benefit of its the 23 crew members, who have access to decent quarters as well as supplies from its vast stores. This version of the Tramp-class features an armament expanded with a duo of Sub-Capital Lasers /1, while reducing its cargo to a still impressive 2251 tons.</p>",
+        "history": "<p>Originally launched in 2754, the Tramp was popular with frontier traders due to its defensive armament. However, it eventually lost market share to the larger Star Lord class and fell out of production by the 30th century. In 3040, the manufacturer SelaSys Inc. revived the design. Because the Tramp shared a similar size with the Star Lord, SelaSys was able to save significantly on manufacturing costs and resume full-scale production within six years. The revival was marred by a major defect in the drive coils discovered in 3052. This led to a recall of all eleven newly produced ships and a three-year production halt to fix a faulty \"mesh spinner.\" Although production resumed in 3055, the recall severely damaged the ship's reputation. Due to low demand and lingering doubts about its reliability, the Tramp is currently considered relatively easy to acquire. Since 3067, Isesaki Shipping has produced a small number of the class every few years directly for own company use. Surplus ships are often sold to independent buyers and other shipping corporations at auction.</p>",
+        "manufacturer": "Isesaki Shipping, SelaSys Incorporated",
+        "overview": "<p>The Tramp-class JumpShip is a venerable design dating back to 2754. While its integrated weaponry initially made it a favorite for traders navigating the dangerous Periphery, it never achieved widespread production. Despite being similar in scale to the Star Lord, the Tramp is less efficient, supporting only three DropShips compared to the Star Lord\u0092s six. Consequently, by the early 29th century, most shipyards abandoned the design in favor of its more capable rival. Though the \"Succession Wars Downgraded\" variant saw sporadic production, ComStar remained the only major power to consistently field the original Star League-era model.</p>"
+      },
+      "fuel": 1250,
+      "gravDecks": [140],
+      "gunners": 5,
+      "hasHPG": false,
+      "hasLFBattery": false,
+      "hasSail": true,
+      "heatSinks": {
+        "count": 122,
+        "type": "SINGLE"
+      },
+      "id": "tramp-jumpship-3071",
+      "jumpRange": 30,
+      "lifeBoats": 0,
+      "marines": 0,
+      "model": "(3071)",
+      "motionType": "AERODYNE",
+      "movement": {
+        "maxThrust": 0,
+        "safeThrust": 0
+      },
+      "mulId": 7799,
+      "officers": 4,
+      "otherCrew": 0,
+      "passengers": 0,
+      "role": "None",
+      "rulesLevel": "EXPERIMENTAL",
+      "source": "TR:3057r",
+      "structuralIntegrity": 1,
+      "subType": "JumpShip",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 250000,
+      "transporters": [
+        "smallcraftbay:2.0:2:1::-1:0",
+        "1stclassquarters:40.0:0:-1::-1:0",
+        "crewquarters:140.0:0:-1::-1:0",
+        "cargobay:1125.5:1:4::-1:0",
+        "cargobay:1125.5:1:5::-1:0",
+        "dockingcollar",
+        "dockingcollar",
+        "dockingcollar"
+      ],
+      "unitType": "JumpShip",
+      "year": 3071
+    },
+    "expected": {
+      "total": 1788,
+      "defensive": 1332.0,
+      "offensive": 456.03000000000003
+    }
+  },
+  {
+    "path": "warship/3067/Davion/Avalon Cruiser.blk",
+    "sha256": "2e10ae9bf751ce7b9fc9134bbd6ca130c27c1216fc93c38d2ced69d1903e4843",
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 275,
+          "AFT_LEFT_SIDE": 302,
+          "AFT_RIGHT_SIDE": 302,
+          "FRONT_LEFT_SIDE": 310,
+          "FRONT_RIGHT_SIDE": 310,
+          "NOSE": 344
+        },
+        "type": "LAMELLOR_FERRO_CARBIDE"
+      },
+      "battleArmor": 64,
+      "chassis": "Avalon Cruiser",
+      "crew": 311,
+      "designType": "MILITARY",
+      "dockingCollars": 6,
+      "driveCoreType": 1,
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-naval-laser-45",
+          "location": "NOSE",
+          "name": "(B) Naval Laser 45"
+        },
+        {
+          "id": "naval-laser-45",
+          "location": "NOSE",
+          "name": "Naval Laser 45"
+        },
+        {
+          "id": "b-naval-autocannon-nac-20",
+          "location": "NOSE",
+          "name": "(B) Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "NOSE",
+          "name": "Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "ammo-nac-20:100",
+          "location": "NOSE",
+          "name": "Ammo NAC/20:100"
+        },
+        {
+          "id": "b-capital-missile-launcher-ar10-launcher",
+          "location": "NOSE",
+          "name": "(B) Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "NOSE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "ammo-ar10-killer-whale:30",
+          "location": "NOSE",
+          "name": "Ammo AR10 Killer Whale:30"
+        },
+        {
+          "id": "ammo-ar10-barracuda:30",
+          "location": "NOSE",
+          "name": "Ammo AR10 Barracuda:30"
+        },
+        {
+          "id": "b-screen-launcher",
+          "location": "NOSE",
+          "name": "(B) Screen Launcher"
+        },
+        {
+          "id": "ammo-screen:10",
+          "location": "NOSE",
+          "name": "Ammo Screen:10"
+        },
+        {
+          "id": "b-large-laser",
+          "location": "NOSE",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "large-laser",
+          "location": "NOSE",
+          "name": "Large Laser"
+        },
+        {
+          "id": "large-laser",
+          "location": "NOSE",
+          "name": "Large Laser"
+        },
+        {
+          "id": "large-laser",
+          "location": "NOSE",
+          "name": "Large Laser"
+        },
+        {
+          "id": "b-ismediumpulselaser",
+          "location": "NOSE",
+          "name": "(B) ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-isantimissilesystem",
+          "location": "NOSE",
+          "name": "(B) ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "NOSE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "NOSE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isams-ammo:180",
+          "location": "NOSE",
+          "name": "ISAMS Ammo:180"
+        },
+        {
+          "id": "b-lrm-15",
+          "location": "NOSE",
+          "name": "(B) LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "NOSE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "NOSE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "is-ammo-lrm-15-artemis-capable:152",
+          "location": "NOSE",
+          "name": "IS Ammo LRM-15 Artemis-capable:152"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "NOSE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "NOSE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "NOSE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-naval-laser-45",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Naval Laser 45"
+        },
+        {
+          "id": "naval-laser-45",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Laser 45"
+        },
+        {
+          "id": "b-naval-autocannon-nac-40",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/40)"
+        },
+        {
+          "id": "ammo-nac-40:50",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Ammo NAC/40:50"
+        },
+        {
+          "id": "b-naval-gauss-medium",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Naval Gauss (Medium)"
+        },
+        {
+          "id": "ammo-medium-n-gauss:36",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Ammo Medium N-Gauss:36"
+        },
+        {
+          "id": "b-capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "ammo-ar10-killer-whale:40",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Ammo AR10 Killer Whale:40"
+        },
+        {
+          "id": "ammo-ar10-barracuda:40",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Ammo AR10 Barracuda:40"
+        },
+        {
+          "id": "b-large-laser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "large-laser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Large Laser"
+        },
+        {
+          "id": "b-ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-isantimissilesystem",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isams-ammo:120",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISAMS Ammo:120"
+        },
+        {
+          "id": "b-lrm-15",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "is-ammo-lrm-15-artemis-capable:144",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "IS Ammo LRM-15 Artemis-capable:144"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-naval-laser-45",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Naval Laser 45"
+        },
+        {
+          "id": "naval-laser-45",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Laser 45"
+        },
+        {
+          "id": "b-naval-autocannon-nac-40",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/40)"
+        },
+        {
+          "id": "ammo-nac-40:50",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Ammo NAC/40:50"
+        },
+        {
+          "id": "b-naval-gauss-medium",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Naval Gauss (Medium)"
+        },
+        {
+          "id": "ammo-medium-n-gauss:36",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Ammo Medium N-Gauss:36"
+        },
+        {
+          "id": "b-capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "ammo-ar10-killer-whale:40",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Ammo AR10 Killer Whale:40"
+        },
+        {
+          "id": "ammo-ar10-barracuda:40",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Ammo AR10 Barracuda:40"
+        },
+        {
+          "id": "b-large-laser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "large-laser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Large Laser"
+        },
+        {
+          "id": "b-ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-isantimissilesystem",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isams-ammo:120",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISAMS Ammo:120"
+        },
+        {
+          "id": "b-lrm-15",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "is-ammo-lrm-15-artemis-capable:144",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "IS Ammo LRM-15 Artemis-capable:144"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-naval-laser-55",
+          "location": "AFT",
+          "name": "(B) Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "b-naval-autocannon-nac-40",
+          "location": "AFT",
+          "name": "(B) Naval Autocannon (NAC/40)"
+        },
+        {
+          "id": "ammo-nac-40:50",
+          "location": "AFT",
+          "name": "Ammo NAC/40:50"
+        },
+        {
+          "id": "b-ismediumpulselaser",
+          "location": "AFT",
+          "name": "(B) ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-isantimissilesystem",
+          "location": "AFT",
+          "name": "(B) ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "AFT",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "AFT",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "AFT",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isams-ammo:180",
+          "location": "AFT",
+          "name": "ISAMS Ammo:180"
+        },
+        {
+          "id": "b-lrm-15",
+          "location": "AFT",
+          "name": "(B) LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "AFT",
+          "name": "LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "AFT",
+          "name": "LRM 15"
+        },
+        {
+          "id": "is-ammo-lrm-15-artemis-capable:136",
+          "location": "AFT",
+          "name": "IS Ammo LRM-15 Artemis-capable:136"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-naval-autocannon-nac-20",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "ammo-nac-20:50",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Ammo NAC/20:50"
+        },
+        {
+          "id": "b-naval-gauss-medium",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) Naval Gauss (Medium)"
+        },
+        {
+          "id": "ammo-medium-n-gauss:36",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Ammo Medium N-Gauss:36"
+        },
+        {
+          "id": "b-capital-missile-launcher-ar10-launcher",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "ammo-ar10-killer-whale:20",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Ammo AR10 Killer Whale:20"
+        },
+        {
+          "id": "ammo-ar10-barracuda:20",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Ammo AR10 Barracuda:20"
+        },
+        {
+          "id": "b-large-laser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "large-laser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Large Laser"
+        },
+        {
+          "id": "b-ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-isantimissilesystem",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) ISAntiMissileSystem"
+        },
+        {
+          "id": "isams-ammo:60",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISAMS Ammo:60"
+        },
+        {
+          "id": "b-lrm-15",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "AFT_LEFT_SIDE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "AFT_LEFT_SIDE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "is-ammo-lrm-15-artemis-capable:144",
+          "location": "AFT_LEFT_SIDE",
+          "name": "IS Ammo LRM-15 Artemis-capable:144"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-naval-autocannon-nac-20",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "ammo-nac-20:50",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Ammo NAC/20:50"
+        },
+        {
+          "id": "b-naval-gauss-medium",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) Naval Gauss (Medium)"
+        },
+        {
+          "id": "ammo-medium-n-gauss:36",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Ammo Medium N-Gauss:36"
+        },
+        {
+          "id": "b-capital-missile-launcher-ar10-launcher",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "ammo-ar10-killer-whale:20",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Ammo AR10 Killer Whale:20"
+        },
+        {
+          "id": "ammo-ar10-barracuda:20",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Ammo AR10 Barracuda:20"
+        },
+        {
+          "id": "b-large-laser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "large-laser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Large Laser"
+        },
+        {
+          "id": "b-ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-isantimissilesystem",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) ISAntiMissileSystem"
+        },
+        {
+          "id": "isams-ammo:60",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISAMS Ammo:60"
+        },
+        {
+          "id": "b-lrm-15",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "is-ammo-lrm-15-artemis-capable:144",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "IS Ammo LRM-15 Artemis-capable:144"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-naval-autocannon-nac-20",
+          "location": "LEFT_BROADSIDE",
+          "name": "(B) Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "ammo-nac-20:50",
+          "location": "LEFT_BROADSIDE",
+          "name": "Ammo NAC/20:50"
+        },
+        {
+          "id": "b-naval-gauss-medium",
+          "location": "LEFT_BROADSIDE",
+          "name": "(B) Naval Gauss (Medium)"
+        },
+        {
+          "id": "naval-gauss-medium",
+          "location": "LEFT_BROADSIDE",
+          "name": "Naval Gauss (Medium)"
+        },
+        {
+          "id": "ammo-medium-n-gauss:78",
+          "location": "LEFT_BROADSIDE",
+          "name": "Ammo Medium N-Gauss:78"
+        },
+        {
+          "id": "b-screen-launcher",
+          "location": "LEFT_BROADSIDE",
+          "name": "(B) Screen Launcher"
+        },
+        {
+          "id": "ammo-screen:10",
+          "location": "LEFT_BROADSIDE",
+          "name": "Ammo Screen:10"
+        },
+        {
+          "id": "b-ismediumpulselaser",
+          "location": "LEFT_BROADSIDE",
+          "name": "(B) ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "LEFT_BROADSIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-isantimissilesystem",
+          "location": "LEFT_BROADSIDE",
+          "name": "(B) ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "LEFT_BROADSIDE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "LEFT_BROADSIDE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "LEFT_BROADSIDE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isams-ammo:240",
+          "location": "LEFT_BROADSIDE",
+          "name": "ISAMS Ammo:240"
+        },
+        {
+          "id": "b-islbxac10",
+          "location": "LEFT_BROADSIDE",
+          "name": "(B) ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "LEFT_BROADSIDE",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "is-lb-10-x-cluster-ammo:125",
+          "location": "LEFT_BROADSIDE",
+          "name": "IS LB 10-X Cluster Ammo:125"
+        },
+        {
+          "id": "is-lb-10-x-ac-ammo:125",
+          "location": "LEFT_BROADSIDE",
+          "name": "IS LB 10-X AC Ammo:125"
+        },
+        {
+          "id": "b-lrm-15",
+          "location": "LEFT_BROADSIDE",
+          "name": "(B) LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "LEFT_BROADSIDE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "LEFT_BROADSIDE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "LEFT_BROADSIDE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "is-ammo-lrm-15-artemis-capable:168",
+          "location": "LEFT_BROADSIDE",
+          "name": "IS Ammo LRM-15 Artemis-capable:168"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "LEFT_BROADSIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "LEFT_BROADSIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "LEFT_BROADSIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "LEFT_BROADSIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-naval-autocannon-nac-20",
+          "location": "RIGHT_BROADSIDE",
+          "name": "(B) Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "ammo-nac-20:50",
+          "location": "RIGHT_BROADSIDE",
+          "name": "Ammo NAC/20:50"
+        },
+        {
+          "id": "b-naval-gauss-medium",
+          "location": "RIGHT_BROADSIDE",
+          "name": "(B) Naval Gauss (Medium)"
+        },
+        {
+          "id": "naval-gauss-medium",
+          "location": "RIGHT_BROADSIDE",
+          "name": "Naval Gauss (Medium)"
+        },
+        {
+          "id": "ammo-medium-n-gauss:78",
+          "location": "RIGHT_BROADSIDE",
+          "name": "Ammo Medium N-Gauss:78"
+        },
+        {
+          "id": "b-screen-launcher",
+          "location": "RIGHT_BROADSIDE",
+          "name": "(B) Screen Launcher"
+        },
+        {
+          "id": "ammo-screen:10",
+          "location": "RIGHT_BROADSIDE",
+          "name": "Ammo Screen:10"
+        },
+        {
+          "id": "b-ismediumpulselaser",
+          "location": "RIGHT_BROADSIDE",
+          "name": "(B) ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "RIGHT_BROADSIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-isantimissilesystem",
+          "location": "RIGHT_BROADSIDE",
+          "name": "(B) ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "RIGHT_BROADSIDE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "RIGHT_BROADSIDE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "RIGHT_BROADSIDE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isams-ammo:240",
+          "location": "RIGHT_BROADSIDE",
+          "name": "ISAMS Ammo:240"
+        },
+        {
+          "id": "b-islbxac10",
+          "location": "RIGHT_BROADSIDE",
+          "name": "(B) ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "RIGHT_BROADSIDE",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "is-lb-10-x-cluster-ammo:125",
+          "location": "RIGHT_BROADSIDE",
+          "name": "IS LB 10-X Cluster Ammo:125"
+        },
+        {
+          "id": "is-lb-10-x-ac-ammo:125",
+          "location": "RIGHT_BROADSIDE",
+          "name": "IS LB 10-X AC Ammo:125"
+        },
+        {
+          "id": "b-lrm-15",
+          "location": "RIGHT_BROADSIDE",
+          "name": "(B) LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "RIGHT_BROADSIDE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "RIGHT_BROADSIDE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "RIGHT_BROADSIDE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "is-ammo-lrm-15-artemis-capable:168",
+          "location": "RIGHT_BROADSIDE",
+          "name": "IS Ammo LRM-15 Artemis-capable:168"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "RIGHT_BROADSIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "RIGHT_BROADSIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "RIGHT_BROADSIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "RIGHT_BROADSIDE",
+          "name": "ISArtemisIV"
+        }
+      ],
+      "era": "CLAN_INVASION",
+      "escapePods": 35,
+      "fluff": {
+        "capabilities": "<p>Displacing seven hundred and seventy thousand tons, the Avalon mounted fourteen capital missile tubes as its primary armament, a configuration that evolved from the Admiralty's decision to transform the original energy-weapon design into a dedicated missile cruiser. These tubes could deliver a variety of capital missile payloads at extreme range, supported by naval autocannon, naval laser batteries, naval gauss rifles, and an extensive array of anti-missile systems for close defense. Over seventeen hundred tons of advanced ferro-carbide armor sheathed the hull, providing a level of protection that exceeded many vessels of considerably greater displacement.</p><p>The class carried five times the standard fuel capacity of a comparable WarShip, enabling extended independent operations and the ability to sustain an entire task force's fuel requirements on long-range deployments. A lithium-fusion battery system provided a critical second jump capability without recharging, further extending the vessel's strategic reach. Six docking collars accommodated the substantial DropShip escort required by AFFC doctrine, which mandated no fewer than twelve assault DropShips per Avalon deployment, a tactical necessity that reflected the vessel's optimization for ranged combat over close-quarters engagements. The vessel's acceleration was impressive for a cruiser of this displacement. Twelve fighters provided organic screening capability, while sixty-four battle armor marines gave the class a formidable boarding action capacity. Two gravity decks of differing sizes served the crew's living requirements.</p>",
+        "deployment": "<p>The FCS Melissa Davion, lead vessel of the class, entered service during operations along the Capellan border in 3061 before becoming embroiled in the FedCom Civil War. The vessel departed Federated space in 3063 and later led the assault on New Avalon in November 3066. Captured by the Word of Blake in 3069 and recommissioned as the WoBS Beneficence, she served under Blakist colors until her destruction at Circinus in 3081.</p><p>The FCS Simon Davion was seized by Free Skye forces at Hesperus II in 3064 and later conducted orbital bombardment operations before returning to Federated service after the Civil War. The vessel was destroyed at Kathil in May 3070 during a nuclear attack on the shipyards. The FCS Robert Davion never completed fitting out, destroyed at Kathil in December 3062 when rammed by an unmanned DropShip in one of the war's earliest casualties. The FCS Hanse Davion was rushed from the yards and destroyed at New Syrtis in October 3065 alongside the corvette FCS Covenant in a mutual destruction engagement. The FCS Alexander Davion fell during the assault on New Avalon when an enemy corvette activated its KF drive at close range, annihilating both vessels. The FCS Andrew Davion vanished during the Civil War and was never confirmed to have entered operational service.</p><p>The FCS Lucien Davion proved the longest-lived of the class, surrendering after the Battle of New Avalon and subsequently serving as flagship for senior Federated Suns leaders for nearly eight decades. Her destruction at the Palmyra Disaster in 3144 at the hands of McFadden's Sky Storm marked the final extinction of the Avalon class.</p>",
+        "history": "<p>The Avalon program originated in the early 3050s, when the AFFC Admiralty commissioned designs for a new cruiser class to strengthen the Federated Commonwealth's naval forces. Construction delays caused by the enormous costs of postwar rebuilding pushed the program back several years, though the AFFC invested heavily in upgrading the naval yards at Galax, Kathil, and New Syrtis to support the project. The first keel was laid at Kathil's James McKenna Shipyards in early 3057, with Kathil Shipworks and Universal Air contributing manufacturing expertise for the hull and drive systems respectively. The lead vessel entered service in 3061, and additional hulls followed in rapid succession, with seven vessels either completed or under construction by late 3062.</p><p>The FedCom Civil War proved catastrophic for the class. Vessels divided between loyalist and allied factions found themselves on opposing sides of a fratricidal conflict, and the war consumed the class with remarkable speed. Multiple vessels were lost in fleet actions at New Avalon, New Syrtis, and Kathil, with additional hulls destroyed before completion or lost under circumstances that were never fully accounted for. Only three Avalons survived the Civil War intact, and one of those had been captured by a hostile power.</p><p>The Jihad further reduced the class. The captured vessel served under enemy colors until destroyed in 3081, while another fell to enemy action during an assault on the Kathil shipyards in 3070. The sole surviving vessel served the Federated Suns as an irreplaceable flagship for decades, its continued existence evidence of both the design's robustness and the impossibility of replacing it as the shipyards at Kathil had been rendered incapable of producing new hulls. The last Avalon-class cruiser was destroyed in 3144, marking the extinction of what had been intended as the cornerstone of Federated naval power for generations. From seven hulls laid down, none survived to see the ilClan era, a sobering illustration of how quickly even the most capable WarShips could be consumed by the scale and intensity of Inner Sphere conflicts.</p>",
+        "manufacturer": "Kathil Shipworks - McKenna Shipyards|Universal Air",
+        "overview": "<p>The Avalon-class cruiser was designed and constructed at the James McKenna Shipyards above Kathil for the Armed Forces of the Federated Commonwealth, entering service in 3061 as the centerpiece of the realm's renewed naval construction program. The Federated Commonwealth intended the design to anchor a modern capital WarShip capability, harnessing the industrial resources of Kathil's extensive shipbuilding infrastructure to produce a vessel capable of meeting the evolving strategic threats of the thirty-first century.</p><p>Classified as a cruiser, the Avalon nonetheless carried an armament and protection scheme that led many naval officers to regard it as a battlecruiser in all but designation. The class earned a reputation as one of the most formidable WarShips fielded by any Successor State during the era of its introduction. Its combination of advanced armor protection, sustained operational endurance, and overwhelming ranged firepower established a new standard for modern cruiser construction.</p>",
+        "primaryFactory": "Kathil|Kathil"
+      },
+      "fuel": 25000,
+      "gravDecks": [145, 210],
+      "gunners": 52,
+      "hasHPG": false,
+      "hasLFBattery": true,
+      "hasSail": true,
+      "heatSinks": {
+        "count": 937,
+        "type": "DOUBLE"
+      },
+      "id": "avalon-cruiser",
+      "jumpRange": 30,
+      "lifeBoats": 15,
+      "marines": 0,
+      "model": "",
+      "motionType": "AERODYNE",
+      "movement": {
+        "maxThrust": 6,
+        "safeThrust": 4
+      },
+      "mulId": 3757,
+      "officers": 42,
+      "otherCrew": 0,
+      "passengers": 20,
+      "role": "None",
+      "rulesLevel": "ADVANCED",
+      "source": "TR:3067",
+      "structuralIntegrity": 120,
+      "subType": "WarShip",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 770000,
+      "transporters": [
+        "smallcraftbay:6.0:2:1::-1:0",
+        "smallcraftbay:6.0:2:2::-1:0",
+        "dockingcollar",
+        "dockingcollar",
+        "dockingcollar",
+        "dockingcollar",
+        "dockingcollar",
+        "dockingcollar",
+        "2ndclassquarters:448.0:0:-1::-1:0",
+        "1stclassquarters:590.0:0:-1::-1:0",
+        "crewquarters:1484.0:0:-1::-1:0",
+        "cargobay:13855.5:4:12::-1:0"
+      ],
+      "unitType": "WarShip",
+      "year": 3061
+    },
+    "expected": {
+      "total": 158813,
+      "defensive": 40623.200000000004,
+      "offensive": 118189.45599999998
+    }
+  },
+  {
+    "path": "dropships/TRO3057R/IS/Condor (2801).blk",
+    "sha256": "51c1ba249eb0137c5f965790ae3d8ad1fa74e6c9eb354c63d5ebe68e23616972",
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 122,
+          "LEFT_SIDE": 130,
+          "NOSE": 150,
+          "RIGHT_SIDE": 130
+        },
+        "type": "AEROSPACE"
+      },
+      "battleArmor": 0,
+      "chassis": "Condor",
+      "collarType": 0,
+      "crew": 460,
+      "designType": "MILITARY",
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-ppc",
+          "location": "NOSE",
+          "name": "(B) PPC"
+        },
+        {
+          "id": "b-autocannon-5",
+          "location": "NOSE",
+          "name": "(B) Autocannon/5"
+        },
+        {
+          "id": "is-ammo-ac-5:40",
+          "location": "NOSE",
+          "name": "IS Ammo AC/5:40"
+        },
+        {
+          "id": "b-lrm-15",
+          "location": "NOSE",
+          "name": "(B) LRM 15"
+        },
+        {
+          "id": "is-ammo-lrm-15:24",
+          "location": "NOSE",
+          "name": "IS Ammo LRM-15:24"
+        },
+        {
+          "id": "b-medium-laser",
+          "location": "NOSE",
+          "name": "(B) Medium Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "NOSE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "b-autocannon-5",
+          "location": "LEFT_SIDE",
+          "name": "(B) Autocannon/5"
+        },
+        {
+          "id": "is-ammo-ac-5:40",
+          "location": "LEFT_SIDE",
+          "name": "IS Ammo AC/5:40"
+        },
+        {
+          "id": "b-large-laser",
+          "location": "LEFT_SIDE",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "large-laser",
+          "location": "LEFT_SIDE",
+          "name": "Large Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "LEFT_SIDE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "LEFT_SIDE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "b-autocannon-5",
+          "location": "RIGHT_SIDE",
+          "name": "(B) Autocannon/5"
+        },
+        {
+          "id": "is-ammo-ac-5:40",
+          "location": "RIGHT_SIDE",
+          "name": "IS Ammo AC/5:40"
+        },
+        {
+          "id": "b-large-laser",
+          "location": "RIGHT_SIDE",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "large-laser",
+          "location": "RIGHT_SIDE",
+          "name": "Large Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "RIGHT_SIDE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "RIGHT_SIDE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "b-large-laser",
+          "location": "AFT",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "AFT",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "AFT",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "mash-equipment:size:1.0",
+          "location": "HULL",
+          "name": "MASH Equipment:SIZE:1.0"
+        }
+      ],
+      "era": "SUCCESSION_WARS",
+      "escapePods": 8,
+      "fluff": {
+        "capabilities": "<p>The Condor's interior is organized across four decks accessed through a large aft door ramp that opens into an infantry-ready staging area. An oversized cargo elevator connects the ramp to the second deck, which houses mess and recreation facilities alongside a large training area and unusually spacious barracks-style quarters for the infantry complement. Two main cargo holds, one on each side of the fuselage, can accommodate over 750 tons of supplies each, while twenty light vehicle berths provide transport for the battalion's organic support assets.</p><p>The third deck mirrors the second in general layout, though the training area and some barracks give way to a well-equipped medical facility capable of treating six emergency cases simultaneously, with converted barracks serving as a small recovery ward. The uppermost deck contains crew and command facilities, the main computer systems, and a small lounge and conference area for the battalion staff. The compact bridge uses a cockpit-like tandem seating arrangement, accessed through a narrow hallway running between the fire control and communications stations. The Condor's wings are heavily braced with structural supports and contain fuel bunkers, weapon bays, and landing gear, along with considerable hidden space accessible via internal passageways.</p>",
+        "deployment": "<p>The original Condor serves as the primary infantry transport in every Successor State military, forming the backbone of planetary assault infantry operations throughout the Inner Sphere. The vessel is typically deployed as part of larger landing forces, delivering its battalion-strength complement alongside armored and BattleMech formations carried by other DropShips. Condor crews have long been known for their resourcefulness, making extensive use of the undesignated wing cavities for unofficial cargo storage during extended deployments far from established supply lines. The design's proven reliability and durable airframe construction have kept many original-production Condors in active frontline service for decades, with some vessels accumulating impressive service records spanning multiple conflicts.</p>",
+        "history": "<p>The Condor entered service in 2801, early in the First Succession War, when the need for dedicated infantry transports capable of large-scale planetary assault operations became acute. The design's emphasis on troop comfort and medical capability reflected hard-won lessons from the Star League era about the importance of delivering infantry forces in fighting condition rather than merely ferrying bodies between worlds. The robust wing design, with its heavy structural bracing and integrated fuel bunkers, proved remarkably durable in combat conditions.</p><p>Throughout the Succession Wars, the Condor served in the fleets of every Great House, becoming a standard component of planetary assault forces wherever infantry operations were planned. The vessel's unique wing cavities, containing large amounts of accessible but undesignated space, became an open secret among Condor crews, who used these hidden areas to store additional equipment and supplies beyond the vessel's official manifest. This unofficial cargo capacity proved invaluable during extended campaigns where supply lines were uncertain.</p><p>The years following the Fourth Succession War saw two significant developments for the Condor class. Beginning in 3035, approximately two dozen vessels were converted into hospital ships, their cargo bays replaced with treatment wards and their operating theaters greatly expanded. These converted vessels, nicknamed Doves, became prized assets in every fleet that operated them. ComStar acquired the largest share, fielding twelve Doves, with the remainder distributed among the Successor State navies.</p><p>In 3054, Nimakachi Fusion Products Limited began production of an upgraded Condor featuring recovered Star League-era weapons technology. Early production models suffered from electromagnetic interference between the nose-mounted weapons systems, but models produced after late 3055 incorporated a redesigned coolant circuit that resolved the issue. The upgraded design slightly reduced cargo capacity in exchange for improved range and firepower.</p><p>By 3079, Nimakachi had introduced the Stork, a purpose-built civilian cargo variant of the Condor produced at their Dalton facility. The Stork represented a significant departure from the military-focused lineage of the Condor family, leveraging the design's proven airframe for commercial applications in the post-Jihad reconstruction era.</p>",
+        "manufacturer": "Hinsdale Elec|Nimakachi Fusion Products Ltd.",
+        "overview": "<p>The Condor-class DropShip is one of the largest vessels designed specifically for infantry transport, capable of delivering a full battalion of 336 troops along with twenty light support vehicles directly onto the battlefield. Entering service in 2801 during the opening years of the First Succession War, the Condor was built as a military aerodyne with unusually robust wing structures that proved far less susceptible to control surface damage than those of comparable designs. The vessel earned a strong reputation among infantry commanders for its spacious troop accommodations, well-equipped onboard medical facilities, and substantial cargo capacity, making it one of the most valued dedicated infantry transports in the Inner Sphere. Its distinctive broad-winged silhouette became a familiar sight above contested landing zones throughout the Succession Wars and beyond, and the design has since spawned both a hospital ship conversion and a civilian cargo variant, evidence of the fundamental soundness of the original airframe.</p>",
+        "primaryFactory": "Dover|Dalton"
+      },
+      "fuel": 6240,
+      "gunners": 3,
+      "heatSinks": {
+        "count": 90,
+        "type": "SINGLE"
+      },
+      "id": "condor-2801",
+      "lifeBoats": 10,
+      "marines": 0,
+      "model": "(2801)",
+      "motionType": "AERODYNE",
+      "movement": {
+        "maxThrust": 5,
+        "safeThrust": 3
+      },
+      "mulId": 3983,
+      "officers": 4,
+      "otherPassengers": 0,
+      "passengers": 5,
+      "role": "None",
+      "rulesLevel": "STANDARD",
+      "source": "TR:3057r",
+      "structuralIntegrity": 9,
+      "subType": "DropShip",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 4500,
+      "transporters": [
+        "infantrybay:12.0:1:1:Foot:-1:0",
+        "lightvehiclebay:20.0:1:2::-1:0",
+        "crewquarters:175.0:0:-1::-1:0",
+        "1stclassquarters:60.0:0:-1::-1:0",
+        "2ndclassquarters:21.0:0:-1::-1:0",
+        "cargobay:1570.0:1:6::-1:0"
+      ],
+      "unitType": "DropShip",
+      "year": 2801
+    },
+    "expected": {
+      "total": 2584,
+      "defensive": 1348.0,
+      "offensive": 1235.75
+    }
+  },
+  {
+    "path": "dropships/Historicals/Liberation of Terra I and II/Model 96C 'Howdah' .blk",
+    "sha256": "642da73a413b3734a08ecc67548b61a468220bfb92f97488b850964e9991eaaf",
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 280,
+          "LEFT_SIDE": 327,
+          "NOSE": 373,
+          "RIGHT_SIDE": 327
+        },
+        "type": "FERRO_ALUMINUM"
+      },
+      "battleArmor": 0,
+      "chassis": "Model 96C",
+      "collarType": 0,
+      "crew": 57,
+      "designType": "MILITARY",
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-ppc",
+          "location": "NOSE",
+          "name": "(B) PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "NOSE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "NOSE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "NOSE",
+          "name": "PPC"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "NOSE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "NOSE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "NOSE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "b-isgaussrifle",
+          "location": "NOSE",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "NOSE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:48",
+          "location": "NOSE",
+          "name": "IS Gauss Ammo:48"
+        },
+        {
+          "id": "b-lrm-10",
+          "location": "NOSE",
+          "name": "(B) LRM 10"
+        },
+        {
+          "id": "is-ammo-lrm-10-artemis-capable:24",
+          "location": "NOSE",
+          "name": "IS Ammo LRM-10 Artemis-capable:24"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "NOSE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-ppc",
+          "location": "LEFT_SIDE",
+          "name": "(B) PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "LEFT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "LEFT_SIDE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "LEFT_SIDE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "b-isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:48",
+          "location": "LEFT_SIDE",
+          "name": "IS Gauss Ammo:48"
+        },
+        {
+          "id": "b-lrm-10",
+          "location": "LEFT_SIDE",
+          "name": "(B) LRM 10"
+        },
+        {
+          "id": "is-ammo-lrm-10-artemis-capable:24",
+          "location": "LEFT_SIDE",
+          "name": "IS Ammo LRM-10 Artemis-capable:24"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "r-b-ppc",
+          "location": "LEFT_SIDE",
+          "name": "(R) (B) PPC"
+        },
+        {
+          "id": "r-ppc",
+          "location": "LEFT_SIDE",
+          "name": "(R) PPC"
+        },
+        {
+          "id": "r-b-iserlargelaser",
+          "location": "LEFT_SIDE",
+          "name": "(R) (B) ISERLargeLaser"
+        },
+        {
+          "id": "r-iserlargelaser",
+          "location": "LEFT_SIDE",
+          "name": "(R) ISERLargeLaser"
+        },
+        {
+          "id": "r-medium-laser",
+          "location": "LEFT_SIDE",
+          "name": "(R) Medium Laser"
+        },
+        {
+          "id": "r-medium-laser",
+          "location": "LEFT_SIDE",
+          "name": "(R) Medium Laser"
+        },
+        {
+          "id": "r-b-isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "(R) (B) ISGaussRifle"
+        },
+        {
+          "id": "r-isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "(R) ISGaussRifle"
+        },
+        {
+          "id": "r-is-gauss-ammo:48",
+          "location": "LEFT_SIDE",
+          "name": "(R) IS Gauss Ammo:48"
+        },
+        {
+          "id": "b-ppc",
+          "location": "RIGHT_SIDE",
+          "name": "(B) PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "RIGHT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "RIGHT_SIDE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "RIGHT_SIDE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "b-isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:48",
+          "location": "RIGHT_SIDE",
+          "name": "IS Gauss Ammo:48"
+        },
+        {
+          "id": "b-lrm-10",
+          "location": "RIGHT_SIDE",
+          "name": "(B) LRM 10"
+        },
+        {
+          "id": "is-ammo-lrm-10-artemis-capable:24",
+          "location": "RIGHT_SIDE",
+          "name": "IS Ammo LRM-10 Artemis-capable:24"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "r-b-ppc",
+          "location": "RIGHT_SIDE",
+          "name": "(R) (B) PPC"
+        },
+        {
+          "id": "r-ppc",
+          "location": "RIGHT_SIDE",
+          "name": "(R) PPC"
+        },
+        {
+          "id": "r-b-iserlargelaser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) (B) ISERLargeLaser"
+        },
+        {
+          "id": "r-iserlargelaser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) ISERLargeLaser"
+        },
+        {
+          "id": "r-medium-laser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) Medium Laser"
+        },
+        {
+          "id": "r-medium-laser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) Medium Laser"
+        },
+        {
+          "id": "r-b-isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "(R) (B) ISGaussRifle"
+        },
+        {
+          "id": "r-isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "(R) ISGaussRifle"
+        },
+        {
+          "id": "r-is-gauss-ammo:48",
+          "location": "RIGHT_SIDE",
+          "name": "(R) IS Gauss Ammo:48"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "AFT",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "AFT",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "AFT",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "b-lrm-10",
+          "location": "AFT",
+          "name": "(B) LRM 10"
+        },
+        {
+          "id": "is-ammo-lrm-10-artemis-capable:24",
+          "location": "AFT",
+          "name": "IS Ammo LRM-10 Artemis-capable:24"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isnavaltugadaptor",
+          "location": "HULL",
+          "name": "ISNavalTugAdaptor"
+        },
+        {
+          "id": "autotacticalanalysiscomputer:size:20.0",
+          "location": "HULL",
+          "name": "AutoTacticalAnalysisComputer:SIZE:20.0"
+        }
+      ],
+      "era": "STAR_LEAGUE",
+      "escapePods": 10,
+      "fluff": {
+        "capabilities": "<p>The Model 96C Howdah is a specialized SDS drone control vessel based on an early version of the Elephant. Introduced in 2695, the Howdah strips nearly all of the standard Elephant's combat capability and cargo bays, replacing them with sophisticated command and control systems for directing Space Defense System drone networks. The vessel retains two small craft bays and 1,283 tons of cargo capacity, but carries no conventional weapons. Armor protection increases slightly to 1,307 points, and the crew is reduced to just 75 personnel. Two hundred double heat sinks remain from the base design to support the vessel's extensive electronics suite.</p>",
+        "deployment": "<p>The Howdah served exclusively within the Star League's Space Defense System infrastructure, directing automated drone networks from orbital positions. These vessels were among the most closely guarded assets of the Star League Navy, and their fate following the fall of the Star League remains largely unknown.</p>",
+        "history": "<p>Nimakachi Fusion Products Limited began production of the Model 96 in May of 2652, being the only manufacturer able to meet the Star League Navy's demanding dual-role requirements. Just over one hundred Elephants were produced in total, with most attached to major naval fleets and shipyards across the Star League.</p><p>The Elephant's most notable action came during the Amaris Civil War, when fifty of the class were stationed in defense of the shipyards above Titan, Mars, and Venus in the Terra system. Two squadrons of the SLDF's 23rd Wing fought against Rim Worlds Republic forces in the opening days of the conflict, destroying a Republic light cruiser above Mars before being destroyed themselves. The heavy losses during the liberation of the Terran Hegemony severely reduced the number of surviving Elephants.</p><p>During the Succession Wars, ComStar produced a limited number of new Elephants between 2882 and 2994, deploying them to secret fleet bases in the Ross 248 and Luyten 68-28 star systems to assist their Faslane Yardships. Several of these vessels defected to the Word of Blake during the ComStar Schism of 3052. The Word of Blake subsequently expanded their navy, requiring the production of additional Model 96s to meet their growing needs. Intelligence reports indicate that Elephants have been sighted in the Deep Periphery near the Hanseatic League, tied to a project codenamed Erinyes.</p>",
+        "manufacturer": "Nicholas Spacecraft/Ulsop Robotics",
+        "overview": "<p>The Model 96, commonly known as the Elephant, is a Star League era heavy tug class DropShip built to serve a dual role: moving large craft around orbital shipyards and acting as an assault DropShip in support of invasion task forces. Weighing 15,000 tons, this massive Spheroid vessel was developed to meet a dual requirement from the Star League Navy's Department of Procurement, driven by the growing number of WarShips requiring orbital maneuvering support.</p><p>The vessel's distinctive appearance comes from powerful retractable magnetic locks at each point of its reinforced bow, which give the ship the silhouette of an elephant's head. Capable of pushing even the largest WarShips, the Elephant also carries enough firepower and armor for its secondary assault role, along with cargo space for a combined-arms battalion.</p>",
+        "primaryFactory": "New Earth"
+      },
+      "fuel": 21000,
+      "gunners": 9,
+      "heatSinks": {
+        "count": 200,
+        "type": "DOUBLE"
+      },
+      "id": "model-96c-howdah-sds-command-ship",
+      "lifeBoats": 2,
+      "marines": 0,
+      "model": "'Howdah' SDS Command Ship",
+      "motionType": "SPHEROID",
+      "movement": {
+        "maxThrust": 8,
+        "safeThrust": 5
+      },
+      "mulId": 7149,
+      "officers": 9,
+      "otherPassengers": 0,
+      "passengers": 0,
+      "rulesLevel": "EXPERIMENTAL",
+      "source": "His:LoT1",
+      "structuralIntegrity": 25,
+      "subType": "DropShip",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 15000,
+      "transporters": [
+        "smallcraftbay:2.0:2:2::-1:0",
+        "artsasfbay:6.0:4:3::-1:0",
+        "cargobay:1283.0:2:1::-1:0",
+        "steeragequarters:235.0:0:-1::-1:0",
+        "2ndclassquarters:63.0:0:-1::-1:0"
+      ],
+      "unitType": "DropShip",
+      "year": 2695
+    },
+    "expected": {
+      "total": 10768,
+      "defensive": 3317.5,
+      "offensive": 7450.06
+    }
+  },
+  {
+    "path": "spacestation/JHS Terra/Drake SDS Control Station.blk",
+    "sha256": "4adb2b319b7adb839ceb1f0872062abf483d0afa560bbb8d5a88896d170d9f09",
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 18,
+          "AFT_LEFT_SIDE": 18,
+          "AFT_RIGHT_SIDE": 18,
+          "FRONT_LEFT_SIDE": 18,
+          "FRONT_RIGHT_SIDE": 18,
+          "NOSE": 18
+        },
+        "type": "LAMELLOR_FERRO_CARBIDE"
+      },
+      "battleArmor": 12,
+      "chassis": "Drake SDS Control Station",
+      "crew": 115,
+      "designType": "CIVILIAN",
+      "dockingCollars": 0,
+      "driveCoreType": 3,
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-sub-capital-missile-launcher-swordfish",
+          "location": "NOSE",
+          "name": "(B) Sub-Capital Missile Launcher (Swordfish)"
+        },
+        {
+          "id": "ammo-swordfish:20",
+          "location": "NOSE",
+          "name": "Ammo Swordfish:20"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "NOSE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "NOSE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-ismml9",
+          "location": "NOSE",
+          "name": "(B) ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "NOSE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "is-ammo-mml-9-lrm-artemis-capable:78",
+          "location": "NOSE",
+          "name": "IS Ammo MML-9 LRM Artemis-capable:78"
+        },
+        {
+          "id": "is-ammo-mml-9-srm-artemis-capable:66",
+          "location": "NOSE",
+          "name": "IS Ammo MML-9 SRM Artemis-capable:66"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "NOSE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "NOSE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-ismediumpulselaser",
+          "location": "NOSE",
+          "name": "(B) ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-isantimissilesystem",
+          "location": "NOSE",
+          "name": "(B) ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "NOSE",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isams-ammo:48",
+          "location": "NOSE",
+          "name": "ISAMS Ammo:48"
+        },
+        {
+          "id": "b-screen-launcher",
+          "location": "NOSE",
+          "name": "(B) Screen Launcher"
+        },
+        {
+          "id": "ammo-screen:20",
+          "location": "NOSE",
+          "name": "Ammo Screen:20"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-ismml9",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "is-ammo-mml-9-lrm-artemis-capable:78",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "IS Ammo MML-9 LRM Artemis-capable:78"
+        },
+        {
+          "id": "is-ammo-mml-9-srm-artemis-capable:66",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "IS Ammo MML-9 SRM Artemis-capable:66"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-ismml9",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "is-ammo-mml-9-lrm-artemis-capable:78",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "IS Ammo MML-9 LRM Artemis-capable:78"
+        },
+        {
+          "id": "is-ammo-mml-9-srm-artemis-capable:66",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "IS Ammo MML-9 SRM Artemis-capable:66"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "AFT",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-ismml9",
+          "location": "AFT",
+          "name": "(B) ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "AFT",
+          "name": "ISMML9"
+        },
+        {
+          "id": "is-ammo-mml-9-lrm-artemis-capable:78",
+          "location": "AFT",
+          "name": "IS Ammo MML-9 LRM Artemis-capable:78"
+        },
+        {
+          "id": "is-ammo-mml-9-srm-artemis-capable:66",
+          "location": "AFT",
+          "name": "IS Ammo MML-9 SRM Artemis-capable:66"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-ismediumpulselaser",
+          "location": "AFT",
+          "name": "(B) ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-isantimissilesystem",
+          "location": "AFT",
+          "name": "(B) ISAntiMissileSystem"
+        },
+        {
+          "id": "isantimissilesystem",
+          "location": "AFT",
+          "name": "ISAntiMissileSystem"
+        },
+        {
+          "id": "isams-ammo:48",
+          "location": "AFT",
+          "name": "ISAMS Ammo:48"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-ismml9",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "is-ammo-mml-9-lrm-artemis-capable:78",
+          "location": "AFT_LEFT_SIDE",
+          "name": "IS Ammo MML-9 LRM Artemis-capable:78"
+        },
+        {
+          "id": "is-ammo-mml-9-srm-artemis-capable:66",
+          "location": "AFT_LEFT_SIDE",
+          "name": "IS Ammo MML-9 SRM Artemis-capable:66"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-screen-launcher",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) Screen Launcher"
+        },
+        {
+          "id": "ammo-screen:20",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Ammo Screen:20"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-ismml9",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "is-ammo-mml-9-lrm-artemis-capable:78",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "IS Ammo MML-9 LRM Artemis-capable:78"
+        },
+        {
+          "id": "is-ammo-mml-9-srm-artemis-capable:66",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "IS Ammo MML-9 SRM Artemis-capable:66"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-screen-launcher",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) Screen Launcher"
+        },
+        {
+          "id": "ammo-screen:20",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Ammo Screen:20"
+        },
+        {
+          "id": "islargenavalcommscannersuite",
+          "location": "HULL",
+          "name": "ISLargeNavalCommScannerSuite"
+        },
+        {
+          "id": "directtacticalanalysissystem:size:18.0",
+          "location": "HULL",
+          "name": "DirectTacticalAnalysisSystem:SIZE:18.0"
+        }
+      ],
+      "era": "CIVIL_WAR",
+      "escapePods": 0,
+      "fluff": {
+        "capabilities": "<p>At 12,000 tons, the Drake is designed around command and control rather than direct combat power. A Large Naval Comm-Scanner Suite provides monitoring and communications capability across several astronomical units, while the Direct Tactical Analysis Control System coordinates up to eighteen Caspar II drones simultaneously, allowing a single Drake to orchestrate fire from slaved drone assets, drone fighters, and ground-based SDS platforms in a layered integrated response.</p><p>For direct combat, the Drake mounts twenty-three weapon bays across six arcs. Each arc carries paired extended-range large lasers, dual multi-missile launchers with Artemis IV guidance, and a bank of medium pulse lasers providing close-range coverage. The nose arc adds a sub-capital missile launcher for strikes against larger vessels. Anti-missile systems in the nose and aft arcs defend against incoming salvos, while screen launchers in three arcs provide a final deterrent against closing attackers.</p><p>Supporting operations, the Drake carries an unpressurized naval repair bay rated for vessels up to 5,000 tons, four small craft, and approximately 3,700 tons of cargo stores. A single 600-meter grav deck supports a crew of 115, along with twelve battle armor troopers providing internal security. Fifteen lifeboats provide emergency evacuation capacity.</p><p>The Drake's fundamental vulnerability is immobility. Unable to maneuver under fire, it depends entirely on its drone network and defensive armament to hold, and its effectiveness is sharply reduced without its full complement of slaved Caspar IIs.</p>",
+        "deployment": "<p>The Drake served exclusively as a Word of Blake asset from its introduction in 3071 through the end of the Jihad. Deployed above worlds designated as part of the Maginot Line defense network, individual Drake stations acted as command nodes around which clusters of Caspar II drones, drone fighters, and ground-based SDS platforms were organized. Each Drake's effectiveness depended heavily on the availability of its associated drone assets - without a full complement of slaved Caspar IIs, a Drake was little more than a moderately armed orbital platform. Coalition assault planners treated Drake neutralization as a tactical prerequisite for any viable landing operation on Maginot worlds, prioritizing their elimination before committing assault forces. After the Jihad's conclusion, surviving examples came under Republic of the Sphere control along with the broader Terra system infrastructure, though operational details from the Dark Age period remain sparse.</p>",
+        "history": "<p>The Gatekeeper traffic control stations were a Terran Hegemony design that had served as orbital administrative platforms across hundreds of inhabited systems for generations. After the Hegemony's fall, surviving Gatekeepers continued operating largely undisturbed, permanent fixtures of the Inner Sphere's space traffic infrastructure and generally ignored by the Successor States.</p><p>When Precentor Martial Cameron St. Jamais began planning the Maginot Line orbital defense network, these familiar platforms provided an obvious foundation. The Caspar II automated drone program required command nodes capable of coordinating large drone clusters across wide orbital envelopes, and the Gatekeeper's established communications architecture offered a proven starting point. St. Jamais directed the reopening of the Titan Yards section of the O'Neil complex on Terra (the facility that had originally manufactured the Gatekeeper design) and ordered its conversion to produce the heavily modified Drake. The resulting design, entering service in 3071, took the Gatekeeper's frame and communications backbone and transformed it into a dedicated command-and-control platform reinforced for sustained combat operations.</p><p>Drake stations were deployed above Maginot worlds throughout the Jihad, serving as the apex nodes of layered SDS networks that made those worlds extraordinarily costly for Coalition forces to approach. Their drone coordination capability allowed a single station to act as a force multiplier far exceeding what its own weapons suggested, and the Coalition recognized this immediately. Drake stations were designated as high-priority targets in any assault on a defended world, typically assigned to specialized interdiction units before ground operations could begin.</p><p>By the war's end, most Drakes had been destroyed in the intense fighting around Maginot worlds and the final campaigns on Terra itself. The Titan Yards did not survive the conflict, and no new production has been documented since. The few Drakes that survived fell under Republic of the Sphere control along with the broader O'Neil infrastructure, though whether any remain operational through the Dark Age is unknown.</p>",
+        "manufacturer": "O'Neil Yards - Titan Yards",
+        "overview": "<p>The Drake is a Word of Blake orbital control station developed as the command node for the Maginot Line's automated defense network. A substantial modification of the Terran Hegemony's Gatekeeper traffic control stations, it combines the Gatekeeper's proven long-range communications architecture with reinforced armor, upgraded weapons, and sophisticated drone control systems. Introduced in 3071 and manufactured at the O'Neil Yards' Titan Yards section on Terra, each Drake served as the nerve center coordinating a network of Caspar II drones, drone fighters, and ground-based platforms defending a Maginot world. Though modest in size for an orbital platform, the Drake's command and control capabilities made it disproportionately dangerous as the apex node of an integrated layered defense, capable of directing autonomous weapons across a wide orbital envelope while withstanding casual attack from its own defensive armament.</p>",
+        "primaryFactory": "Terra"
+      },
+      "fuel": 5000,
+      "gravDecks": [600],
+      "gunners": 14,
+      "hasHPG": false,
+      "hasLFBattery": false,
+      "hasSail": false,
+      "heatSinks": {
+        "count": 120,
+        "type": "DOUBLE"
+      },
+      "id": "drake-sds-control-station",
+      "isModular": false,
+      "jumpRange": 30,
+      "lifeBoats": 15,
+      "marines": 0,
+      "model": "",
+      "motionType": "AERODYNE",
+      "movement": {
+        "maxThrust": 0,
+        "safeThrust": 0
+      },
+      "mulId": 4097,
+      "officers": 14,
+      "otherCrew": 0,
+      "passengers": 0,
+      "role": "None",
+      "rulesLevel": "EXPERIMENTAL",
+      "source": "JHS:Terra",
+      "structuralIntegrity": 1,
+      "subType": "Space Station",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 12000,
+      "transporters": [
+        "navalrepairunpressurized:5000.0:1:1:f0",
+        "smallcraftbay:4.0:2:2::-1:0",
+        "1stclassquarters:140.0:0:-1::-1:0",
+        "crewquarters:665.0:0:-1::-1:0",
+        "cargobay:3724.5:1:5::-1:0"
+      ],
+      "unitType": "Space Station",
+      "year": 3071
+    },
+    "expected": {
+      "total": 4368,
+      "defensive": 2727.2,
+      "offensive": 1640.8919999999998
+    }
+  },
+  {
+    "path": "dropships/TRO3145/Republic/Duat Military Transport.blk",
+    "sha256": "d317f753f65ffd4f21cd99a0efbeac452a2684a8276cff5ad45890eab31dd1a2",
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 502,
+          "LEFT_SIDE": 505,
+          "NOSE": 520,
+          "RIGHT_SIDE": 505
+        },
+        "type": "HEAVY_FERRO_ALUMINUM"
+      },
+      "battleArmor": 0,
+      "chassis": "Duat Military Transport",
+      "collarType": 0,
+      "crew": 92,
+      "designType": "MILITARY",
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-iscruisemissile50",
+          "location": "NOSE",
+          "name": "(B) ISCruiseMissile50"
+        },
+        {
+          "id": "iscruisemissile50ammo:20",
+          "location": "NOSE",
+          "name": "ISCruiseMissile50Ammo:20"
+        },
+        {
+          "id": "b-iscruisemissile50",
+          "location": "NOSE",
+          "name": "(B) ISCruiseMissile50"
+        },
+        {
+          "id": "iscruisemissile50ammo:20",
+          "location": "NOSE",
+          "name": "ISCruiseMissile50Ammo:20"
+        },
+        {
+          "id": "b-iscruisemissile50",
+          "location": "NOSE",
+          "name": "(B) ISCruiseMissile50"
+        },
+        {
+          "id": "iscruisemissile50ammo:20",
+          "location": "NOSE",
+          "name": "ISCruiseMissile50Ammo:20"
+        },
+        {
+          "id": "b-isgaussrifle",
+          "location": "NOSE",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "NOSE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "NOSE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:48",
+          "location": "NOSE",
+          "name": "IS Gauss Ammo:48"
+        },
+        {
+          "id": "b-ismml9",
+          "location": "NOSE",
+          "name": "(B) ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "NOSE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "NOSE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "is-ammo-mml-9-lrm-artemis-capable:78",
+          "location": "NOSE",
+          "name": "IS Ammo MML-9 LRM Artemis-capable:78"
+        },
+        {
+          "id": "is-ammo-mml-9-srm-artemis-capable:66",
+          "location": "NOSE",
+          "name": "IS Ammo MML-9 SRM Artemis-capable:66"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "NOSE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "NOSE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "NOSE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-islargevsplaser",
+          "location": "NOSE",
+          "name": "(B) ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "NOSE",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "NOSE",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "b-isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:64",
+          "location": "LEFT_SIDE",
+          "name": "IS Gauss Ammo:64"
+        },
+        {
+          "id": "b-ismml9",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "LEFT_SIDE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "LEFT_SIDE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "LEFT_SIDE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "is-ammo-mml-9-lrm-artemis-capable:104",
+          "location": "LEFT_SIDE",
+          "name": "IS Ammo MML-9 LRM Artemis-capable:104"
+        },
+        {
+          "id": "is-ammo-mml-9-srm-artemis-capable:88",
+          "location": "LEFT_SIDE",
+          "name": "IS Ammo MML-9 SRM Artemis-capable:88"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-islargevsplaser",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "LEFT_SIDE",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "LEFT_SIDE",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "LEFT_SIDE",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "b-islaserantimissilesystem",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "LEFT_SIDE",
+          "name": "ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "LEFT_SIDE",
+          "name": "ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "r-b-isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "(R) (B) ISGaussRifle"
+        },
+        {
+          "id": "r-isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "(R) ISGaussRifle"
+        },
+        {
+          "id": "r-isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "(R) ISGaussRifle"
+        },
+        {
+          "id": "r-isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "(R) ISGaussRifle"
+        },
+        {
+          "id": "r-is-gauss-ammo:64",
+          "location": "LEFT_SIDE",
+          "name": "(R) IS Gauss Ammo:64"
+        },
+        {
+          "id": "r-b-islargevsplaser",
+          "location": "LEFT_SIDE",
+          "name": "(R) (B) ISLargeVSPLaser"
+        },
+        {
+          "id": "r-islargevsplaser",
+          "location": "LEFT_SIDE",
+          "name": "(R) ISLargeVSPLaser"
+        },
+        {
+          "id": "r-islargevsplaser",
+          "location": "LEFT_SIDE",
+          "name": "(R) ISLargeVSPLaser"
+        },
+        {
+          "id": "r-islargevsplaser",
+          "location": "LEFT_SIDE",
+          "name": "(R) ISLargeVSPLaser"
+        },
+        {
+          "id": "b-isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:64",
+          "location": "RIGHT_SIDE",
+          "name": "IS Gauss Ammo:64"
+        },
+        {
+          "id": "b-ismml9",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "RIGHT_SIDE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "RIGHT_SIDE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "RIGHT_SIDE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "is-ammo-mml-9-lrm-artemis-capable:104",
+          "location": "RIGHT_SIDE",
+          "name": "IS Ammo MML-9 LRM Artemis-capable:104"
+        },
+        {
+          "id": "is-ammo-mml-9-srm-artemis-capable:88",
+          "location": "RIGHT_SIDE",
+          "name": "IS Ammo MML-9 SRM Artemis-capable:88"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-islargevsplaser",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "RIGHT_SIDE",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "RIGHT_SIDE",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "RIGHT_SIDE",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "b-islaserantimissilesystem",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "RIGHT_SIDE",
+          "name": "ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "RIGHT_SIDE",
+          "name": "ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "r-b-isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "(R) (B) ISGaussRifle"
+        },
+        {
+          "id": "r-isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "(R) ISGaussRifle"
+        },
+        {
+          "id": "r-isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "(R) ISGaussRifle"
+        },
+        {
+          "id": "r-isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "(R) ISGaussRifle"
+        },
+        {
+          "id": "r-is-gauss-ammo:64",
+          "location": "RIGHT_SIDE",
+          "name": "(R) IS Gauss Ammo:64"
+        },
+        {
+          "id": "r-b-islargevsplaser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) (B) ISLargeVSPLaser"
+        },
+        {
+          "id": "r-islargevsplaser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) ISLargeVSPLaser"
+        },
+        {
+          "id": "r-islargevsplaser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) ISLargeVSPLaser"
+        },
+        {
+          "id": "r-islargevsplaser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) ISLargeVSPLaser"
+        },
+        {
+          "id": "b-islargevsplaser",
+          "location": "AFT",
+          "name": "(B) ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "AFT",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "AFT",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "AFT",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "b-islaserantimissilesystem",
+          "location": "AFT",
+          "name": "(B) ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "AFT",
+          "name": "ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "AFT",
+          "name": "ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "isdronecarriercontrolsystem:size:6.0",
+          "location": "HULL",
+          "name": "ISDroneCarrierControlSystem:SIZE:6.0"
+        }
+      ],
+      "era": "DARK_AGE",
+      "escapePods": 4,
+      "fluff": {
+        "capabilities": "<p>The Duat is a military transport DropShip designed to deliver ground forces while providing meaningful defensive capability during orbital insertion and landing operations. Its weapons suite includes a mix of energy weapons and missile systems positioned to provide covering fire across all arcs, with particular emphasis on forward and broadside coverage for approach and landing phases. Armor protection is substantial for a transport, reflecting lessons learned during the Jihad when lightly armored transports suffered catastrophic losses to ground-based aerospace defenses. The drive system provides military-grade acceleration sufficient to maintain formation with combat escorts while still allowing the Duat to execute evasive maneuvers during contested approaches. Internal bay configurations are designed for rapid loading and unloading of BattleMechs, vehicles, and infantry, reducing the vessel's vulnerability during the critical ground-side phase of deployment operations. The design prioritizes survivability and rapid force delivery over raw firepower, though its defensive armament is more than adequate to deter opportunistic attacks by light combat vessels or fighters.</p>",
+        "deployment": "<p>The standard Duat Military Transport serves in its baseline combined-arms transport configuration, delivering BattleMech, vehicle, and infantry formations to planetary surfaces. These vessels typically operate under escort from dedicated combat DropShips and fighter screens during contested landings.</p>",
+        "history": "<p>The Duat was developed as part of the Draconis Combine Mustered Soldiery's post-Jihad rebuilding program. The devastation wrought by the Word of Blake had left the Combine's transport fleet badly depleted, with many surviving vessels dating to the Succession Wars era and lacking the protection needed to operate in a battlefield environment increasingly defined by advanced weapons systems.</p><p>The Combine's naval procurement bureau issued requirements for a modern transport that could survive contested orbital insertions without dedicated WarShip escort, which was no longer available in sufficient numbers. The resulting Duat design incorporated heavier armor than previous Combine transports and a more comprehensive defensive weapons suite, reflecting the hard lessons of the Jihad.</p><p>Production commenced at Combine facilities, with initial deliveries prioritized for frontline formations facing the Rasalhague Dominion along the Combine's coreward border. The Duat saw its first significant combat deployments during the tensions with the Dominion that escalated into open conflict in the early thirty-second century. The type has since proliferated throughout the DCMS, serving in both frontline and garrison naval formations across Combine territory.</p>",
+        "manufacturer": "New Earth Trading Company",
+        "overview": "<p>The Duat is a military transport DropShip developed for the Draconis Combine's naval forces during the early thirty-second century. Named for the ancient Egyptian underworld, the Duat was designed to address the Combine's need for a modern troop transport capable of delivering combined-arms formations to contested landing zones. The design entered service as part of the Combine's broader military modernization program following the devastation of the Jihad, replacing aging transports that had been rendered obsolete by advances in weapons technology and tactical doctrine. The Duat has since become a common sight in Combine naval formations.</p>",
+        "primaryFactory": "New Earth"
+      },
+      "fuel": 3000,
+      "gunners": 10,
+      "heatSinks": {
+        "count": 150,
+        "type": "DOUBLE"
+      },
+      "id": "duat-military-transport",
+      "lifeBoats": 4,
+      "marines": 0,
+      "model": "",
+      "motionType": "SPHEROID",
+      "movement": {
+        "maxThrust": 6,
+        "safeThrust": 4
+      },
+      "mulId": 6696,
+      "officers": 4,
+      "otherPassengers": 0,
+      "passengers": 6,
+      "quirks": ["bad_rep_is"],
+      "role": "None",
+      "rulesLevel": "ADVANCED",
+      "source": "TR:3145:RotS,TR:3145",
+      "structuralIntegrity": 27,
+      "subType": "DropShip",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 8500,
+      "transporters": [
+        "mekbay:6.0:1:-1::-1:0",
+        "battlearmorbay:6.0:1:2::-1:1",
+        "cargobay:220.0:0:4::-1:0",
+        "cargobay:220.0:0:5::-1:0",
+        "cargobay:220.0:0:6::-1:0",
+        "cargobay:220.0:0:7::-1:0",
+        "cargobay:220.0:0:8::-1:0",
+        "cargobay:220.0:0:9::-1:0",
+        "2ndclassquarters:42.0:0:-1::-1:0",
+        "crewquarters:112.0:0:-1::-1:0",
+        "infantrybay:1.0:6:11:Foot:-1:0",
+        "1stclassquarters:40.0:0:-1::-1:0",
+        "cargobay:633.5:0:13::-1:0"
+      ],
+      "unitType": "DropShip",
+      "year": 3131
+    },
+    "expected": {
+      "total": 17643,
+      "defensive": 5539.0,
+      "offensive": 12103.616000000002
+    }
+  },
+  {
+    "path": "dropships/XTRs/Phantoms/Vampire II.blk",
+    "sha256": "8733a125204ca104f45415e55f0b28c60ddea2f25920fc465d76b5f139318487",
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 113,
+          "LEFT_SIDE": 151,
+          "NOSE": 150,
+          "RIGHT_SIDE": 151
+        },
+        "type": "FERRO_ALUMINUM"
+      },
+      "battleArmor": 0,
+      "chassis": "Vampire",
+      "collarType": 0,
+      "crew": 42,
+      "designType": "MILITARY",
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-heavy-ppc",
+          "location": "NOSE",
+          "name": "(B) Heavy PPC"
+        },
+        {
+          "id": "heavy-ppc",
+          "location": "NOSE",
+          "name": "Heavy PPC"
+        },
+        {
+          "id": "heavy-ppc",
+          "location": "NOSE",
+          "name": "Heavy PPC"
+        },
+        {
+          "id": "heavy-ppc",
+          "location": "NOSE",
+          "name": "Heavy PPC"
+        },
+        {
+          "id": "b-islargexpulselaser",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISLargeXPulseLaser"
+        },
+        {
+          "id": "islargexpulselaser",
+          "location": "LEFT_SIDE",
+          "name": "ISLargeXPulseLaser"
+        },
+        {
+          "id": "b-islaserantimissilesystem",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "LEFT_SIDE",
+          "name": "ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "b-islargexpulselaser",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISLargeXPulseLaser"
+        },
+        {
+          "id": "islargexpulselaser",
+          "location": "RIGHT_SIDE",
+          "name": "ISLargeXPulseLaser"
+        },
+        {
+          "id": "b-islaserantimissilesystem",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "RIGHT_SIDE",
+          "name": "ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "AFT",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "communications-equipment:size:0.0",
+          "location": "HULL",
+          "name": "Communications Equipment:SIZE:0.0"
+        }
+      ],
+      "era": "CIVIL_WAR",
+      "escapePods": 0,
+      "fluff": {
+        "capabilities": "<p>The Vampire II is a heavier 600-ton variant created specifically for battle armor infantry deployment. The design replaces the original's jump infantry compartments with four Battle Armor bays and eight tons of cargo. The weapons suite is entirely energy-based, eliminating ammunition dependency. Four Heavy PPCs mounted in the nose provide devastating long-range firepower, while each wing carries two Large X-Pulse Lasers and two Laser Anti-Missile Systems for close defense. The aft arc mounts two ER large lasers.</p><p>Communications equipment in the hull supports coordination with deployed battle armor forces. With ninety-four double heat sinks managing the all-energy weapons load, the Vampire II can sustain fire effectively. The vessel's safe thrust of four is lower than the original's six, reflecting the increased mass, but 565 points of armor provide substantially greater protection. A crew of forty-eight operates the vessel.</p>",
+        "deployment": "<p>The Vampire II entered production in 3070, created specifically for the AFFS Rabid Foxes special operations unit for battle armor infantry deployment. These vessels operate in the same high-speed insertion role as the original Vampire, substituting armored infantry for jump troops while maintaining the design's signature ability to be mistaken for aerospace fighters during approach runs.</p>",
+        "history": "<p>The Vampire was developed by Markesan Astronautics for the Federated Suns, entering service in 2715 as a specialized jump infantry delivery platform. The design proved highly effective during the Border War between the Federated Suns and the Capellan Confederation, where defending troops were thrown into confusion when jump infantry began raining down from what they assumed were fighter bombing runs. Federated Suns Special Forces became particularly fond of the Vampire for its ability to achieve tactical surprise.</p><p>However, the Vampire's high performance came at a significant cost. Its powerful drive system had a relatively short operational lifespan and required maintenance far exceeding that of comparable DropShip engines. When Markesan Astronautics' manufacturing facilities were destroyed during the Draconis Combine's First Succession War thrust toward New Avalon, the several dozen surviving Vampires were gradually grounded and eventually scrapped as their engines failed without replacement parts available.</p><p>The design was considered lost until the recovery of the Hegemony Memory Core during the Jihad enabled Jalastar Aerospace to revive the Vampire. The company began producing updated versions for the AFFS's special forces, incorporating modern weapons technology while retaining the original design's core philosophy of speed and deception. Subsequent variants expanded the concept to include battle armor delivery alongside the traditional jump infantry role.</p>",
+        "manufacturer": "Jalastar Aerospace",
+        "overview": "<p>The Vampire is one of the smallest DropShips ever to see combat, a tiny 400-ton Aerodyne so fast and well-armed that it is frequently mistaken for a heavy aerospace fighter. Conceived as the fastest jump infantry carrier in existence, the Vampire was designed to minimize the time its embarked troops were exposed to enemy interceptors by matching the performance of non-interceptor fighters it might encounter.</p><p>The vessel's distinctive combat profile involves high-speed, low-altitude passes over targets, during which jump infantry deploy through specialized ventral drop hatches. At long range, this gives the Vampire the appearance of a fighter on a bombing run, a deliberate deception that has proven highly effective at sowing confusion among defenders expecting ordnance rather than infantry. This combination of speed, firepower, and tactical surprise has made the Vampire a prized asset for special operations forces.</p>",
+        "primaryFactory": "Panpour"
+      },
+      "fuel": 2660,
+      "gunners": 3,
+      "heatSinks": {
+        "count": 94,
+        "type": "DOUBLE"
+      },
+      "id": "vampire-ii",
+      "lifeBoats": 0,
+      "marines": 0,
+      "model": "II",
+      "motionType": "AERODYNE",
+      "movement": {
+        "maxThrust": 6,
+        "safeThrust": 4
+      },
+      "mulId": 5611,
+      "officers": 3,
+      "otherPassengers": 0,
+      "passengers": 0,
+      "role": "None",
+      "rulesLevel": "EXPERIMENTAL",
+      "source": "XTR:Phantoms",
+      "structuralIntegrity": 7,
+      "subType": "DropShip",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 600,
+      "transporters": [
+        "battlearmorbay:4.0:4:1::-1:0",
+        "2ndclassquarters:0.0:0:-1::-1:0",
+        "1stclassquarters:0.0:0:-1::-1:0",
+        "crewquarters:0.0:0:-1::-1:0",
+        "steeragequarters:90.0:0:-1::-1:0",
+        "cargobay:8.0:1:6::-1:0"
+      ],
+      "unitType": "DropShip",
+      "year": 3070
+    },
+    "expected": {
+      "total": 3716,
+      "defensive": 1606.5,
+      "offensive": 2109.52
+    }
   }
 ]
