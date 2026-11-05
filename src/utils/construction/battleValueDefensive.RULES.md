@@ -1,5 +1,11 @@
 # Defensive BV rules
 
+`calculateDefensiveBV` retains fractional armor BV through the defensive sum
+and movement factor. Armor and BAR multipliers do not round that subtotal.
+Source: MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587,
+BVCalculator.java:429-434,453,461-462. The fractional-armor cases and Warwolf
+Prime defensive rating in battleValueDefensive.test.ts enforce this rule.
+
 battleValueDefensive.ts owns the undamaged modular-armor BV point rule and
 canonical normalized ID. Each construction mount adds ten points before armor
 multipliers and BAR. Mech callers retain their positive-slot guard; vehicle
