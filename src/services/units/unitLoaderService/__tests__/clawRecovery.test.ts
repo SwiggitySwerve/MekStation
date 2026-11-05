@@ -110,13 +110,13 @@ it('retains exact-ID custom formula precedence', async () => {
 
 // MiscType.java:3982-3992 marks native Claws physical; MtfFile.java:1133-1175
 // groups each complete native mount, including mounts absent from the summary.
-it.each([false, true])(
+it.each([undefined, 'claw', 'claws'] as const)(
   'recovers two native Claws without duplicating a listed one (%s)',
-  (listed) => {
+  (listedId) => {
     const state = new UnitLoaderService().mapToUnitState(
       {
         ...cudgel,
-        equipment: listed ? [{ id: 'claw', location: 'LEFT_ARM' }] : [],
+        equipment: listedId ? [{ id: listedId, location: 'LEFT_ARM' }] : [],
         criticalSlots: {
           LEFT_ARM: Array(6).fill('ISClaw'),
           RIGHT_ARM: Array(6).fill('ISClaw'),
@@ -124,8 +124,8 @@ it.each([false, true])(
       },
       true,
     );
-    const mounts = state.equipment.filter(
-      (item) => item.equipmentId === 'claw',
+    const mounts = state.equipment.filter((item) =>
+      ['claw', 'claws'].includes(item.equipmentId),
     );
     expect(mounts).toHaveLength(2);
     for (const [index, location] of [
@@ -133,6 +133,7 @@ it.each([false, true])(
       MechLocation.RIGHT_ARM,
     ].entries()) {
       expect(mounts[index]).toMatchObject({
+        equipmentId: index === 0 && listedId ? listedId : 'claw',
         category: EquipmentCategory.PHYSICAL_WEAPON,
         weight: 6,
         criticalSlots: 6,

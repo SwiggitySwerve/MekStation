@@ -215,3 +215,5 @@ with legacy `claws`: ceil(T/15) mass and nominal criticals, ceil(T\*200) cost
 (688-689,1000-1001,1259-1260; pin 48fcb2f64). Public physical sizing helpers use
 that owner. Crit-only Claws reuse ordinary physical recovery and the shared
 superheavy consumed-entry conversion; existing mounts are reserved first.
+The critical-slot join treats native `claw` and legacy `claws` as that same Java
+type, while retaining the already mounted ID and its exact-ID sizing override.
