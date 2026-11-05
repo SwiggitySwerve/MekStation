@@ -221,6 +221,7 @@ export class UnitLoaderService {
       mapTechBase(serialized.techBase),
       mapTechBaseMode(serialized.techBase),
       serialized.criticalSlots,
+      serialized.tonnage,
     );
     return createUnitSession(
       normalizeUnitConfiguration(serialized, equipment),

@@ -44,12 +44,11 @@ export function mapEquipment(
   unitTechBase: TechBase,
   unitTechBaseMode: TechBaseMode,
   unitCriticalSlots: UnitCriticalSlots | undefined,
+  tonnage?: number,
 ): IMountedEquipmentInstance[] {
-  if (!equipment || equipment.length === 0) {
-    return [];
-  }
+  const serialized = equipment ?? [];
 
-  const mapped = equipment.map((item) => {
+  const mapped = serialized.map((item) => {
     const location = mapMechLocation(item.location);
     const locationCriticalSlots = getCriticalSlotsForLocation(
       unitCriticalSlots,
@@ -116,10 +115,11 @@ export function mapEquipment(
   });
 
   return restoreCriticalSlotEquipment(
-    equipment,
+    serialized,
     mapped,
     unitTechBase,
     unitTechBaseMode,
     unitCriticalSlots,
+    tonnage,
   );
 }
