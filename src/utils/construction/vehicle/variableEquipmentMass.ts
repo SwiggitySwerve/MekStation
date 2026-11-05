@@ -22,9 +22,11 @@ export interface VehicleVariableMassContext {
 
 const CHASSIS_MASS_DIVISORS = new Map<string, number>([
   ['limitedamphibiouschassis', 25],
+  ['fullyamphibiouschassis', 10],
+  ['environmental-sealed-chassis', 10],
 ]);
 
-/** Native engine accessory rule shared with mounted totals. Undefined is a
+/** Native engine, movement and chassis rules shared with mounted totals. Undefined is a
  * different equipment kind; null is a known rule missing its engine context.
  * MiscType.java:518-527 at MegaMek 48fcb2f64 uses the supercharger formula.
  */
@@ -42,7 +44,10 @@ export function resolveVehicleAccessoryMass(
   // MiscType.java:496-497,867-889,2004-2012 at the same pin.
   if (item.id === 'vehiclejumpjet')
     return calculateJumpJetWeight(context.tonnage, 1, JumpJetType.STANDARD);
-  // MiscType.java:702-703 at the same pin.
+  // MiscType.java:660-666: support sealing is charged through structure.
+  if (item.id === 'environmental-sealed-chassis' && context.isSupportVehicle)
+    return 0;
+  // MiscType.java:660-666,702-705 at the same pin.
   if (chassisDivisor !== undefined)
     return roundSupportComponentWeight(
       context.tonnage / chassisDivisor,
