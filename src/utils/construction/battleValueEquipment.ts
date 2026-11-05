@@ -3,6 +3,7 @@ import {
   resolveNativeAmmoBin,
   largeAerospaceAmmoBVMultiplier,
 } from './battleValueAmmo';
+import { getCapitalEquipmentBVFacts } from './equipmentBV/catalogLoader';
 import {
   getEquipmentEntry,
   resolveAmmoBV,
@@ -35,7 +36,7 @@ const DEFENSIVE_MISC_IDS: ReadonlySet<string> = new Set([
   'isbpod-registry',
 ]);
 
-type DefensiveKind = 'equipment' | 'ams' | 'amsAmmo';
+type DefensiveKind = 'equipment' | 'ams' | 'amsAmmo' | 'screen' | 'screenAmmo';
 
 /** Represented Java defensive identities; unresolved equipment stays unresolved. */
 export function getDefensiveEquipmentKind(
@@ -43,6 +44,9 @@ export function getDefensiveEquipmentKind(
 ): DefensiveKind | undefined {
   const entry = getEquipmentEntry(id);
   if (!entry) return undefined;
+  const capital = getCapitalEquipmentBVFacts(entry.id);
+  if (capital?.ammoType === 'SCREEN_LAUNCHER')
+    return capital.isScreen ? 'screen' : 'screenAmmo';
   // MegaMek 48fcb2f64: AmmoType.java:12242-12254; BVCalculator.java:570-572.
   if (['ams-ammo', 'clan-ams-ammo', 'isapds-ammo-registry'].includes(entry.id))
     return 'amsAmmo';
@@ -67,9 +71,11 @@ export function calculateMountedDefensiveEquipmentBV(
   let equipmentBV = 0;
   let amsBV = 0;
   let amsAmmoBV = 0;
+  let screenBV = 0;
+  let screenAmmoBV = 0;
   for (const item of equipment) {
     const kind = getDefensiveEquipmentKind(item.id);
-    if (kind === 'amsAmmo') {
+    if (kind === 'amsAmmo' || kind === 'screenAmmo') {
       const bin = largeAerospace ? resolveNativeAmmoBin(item.id) : undefined;
       const multiplier = bin
         ? largeAerospaceAmmoBVMultiplier(
@@ -77,8 +83,10 @@ export function calculateMountedDefensiveEquipmentBV(
             getEquipmentEntry(bin.ammoId)?.shotsPerTon ?? 0,
           )
         : 1;
-      amsAmmoBV +=
+      const ammoBV =
         (item.bvOverride ?? resolveAmmoBV(item.id).battleValue) * multiplier;
+      if (kind === 'screenAmmo') screenAmmoBV += ammoBV;
+      else amsAmmoBV += ammoBV;
     } else {
       const bonus =
         rotorMast &&
@@ -92,9 +100,15 @@ export function calculateMountedDefensiveEquipmentBV(
         item.bvOverride ?? resolveEquipmentBV(item.id).battleValue + bonus;
       equipmentBV += bv;
       if (kind === 'ams') amsBV += bv;
+      if (kind === 'screen') screenBV += bv;
     }
   }
-  return equipmentBV + sumCappedAmmoBV({ ams: amsAmmoBV }, () => amsBV);
+  return (
+    equipmentBV +
+    sumCappedAmmoBV({ ams: amsAmmoBV, screen: screenAmmoBV }, (key) =>
+      key === 'ams' ? amsBV : screenBV,
+    )
+  );
 }
 /** Legacy raw-critical-name guard; Mech mount collection has a separate contract. */
 export function isMechDefensiveEquipment(id: string): boolean {
