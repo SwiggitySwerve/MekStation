@@ -36,7 +36,8 @@
  *     --cacheDirectory=..., --json, --outputFile=..., --silent, --coverage, ...)
  *     may be passed through; any other option puts the run in 'off' mode.
  * Files ignored by git (.env.local, fetched or generated data) are hashed too,
- * except build output and dependency directories; a symlink inside a data
+ * except build output, dependency directories and the files a test run itself
+ * writes (GENERATED_OUTPUTS: data/, __pycache__, ...); a symlink inside a data
  * domain makes the file unkeyable.
  *
  * FAIL OPEN. An exception while keying, a bare `process.env`, a computed
@@ -122,6 +123,16 @@ const HERMETIC_FS_READERS = new Set([
   // reads E2E fault sentinels from the runtime-created data/.e2e-fault dir
   'src/lib/multiplayer/server/DurableMatchStore.ts',
 ]);
+
+// Git-ignored files that a test run writes into the tree: the app's SQLite database
+// and E2E sentinels (`data/`), the equipment validation report, Python bytecode, and
+// scenario-pack recapture output. Outputs, never inputs: see buildFileIndex.
+const GENERATED_OUTPUTS = [
+  /^data\//,
+  /^equipment-validation-report\.json$/,
+  /(?:^|\/)__pycache__\//,
+  /^\.sisyphus\/scenario-pack-recapture\//,
+];
 
 const sha = (value) => crypto.createHash('sha256').update(value).digest('hex');
 const toPosix = (p) => p.split(path.sep).join('/');
@@ -222,6 +233,16 @@ function buildFileIndex(root, excludePrefix = null) {
     index.clear();
     index.symlinks.clear();
     walk(root, '', index);
+  }
+  // Files a test run (or the app it starts) writes into the tree are outputs, not
+  // inputs, and a fresh checkout, which CI keys, has none: left in, every local run
+  // changed the next run's keys. Tracked files under these paths (digest `git:`) stay.
+  for (const [file, digest] of [...index]) {
+    if (
+      !digest.startsWith('git:') &&
+      GENERATED_OUTPUTS.some((pattern) => pattern.test(file))
+    )
+      index.delete(file);
   }
   // Result caches live in the tree and must never feed keys: this
   // invocation's own (`excludePrefix`) and any other store, which createStore

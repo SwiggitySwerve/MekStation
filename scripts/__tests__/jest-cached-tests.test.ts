@@ -1403,3 +1403,46 @@ describe('result store', () => {
     expect(store.get('abcdef')).toBeNull();
   });
 });
+
+describe('test result cache key: generated outputs are not inputs', () => {
+  // A test run writes the SQLite database, a validation report, Python bytecode and
+  // scenario-pack output into the tree. They are git-ignored, so the index hashed them,
+  // and every local run changed the next run's keys (639 of 3,163 unit keys). A fresh
+  // checkout, which is what CI keys, has none of them.
+  const repo = () =>
+    makeRepo({
+      'package.json': '{}',
+      'scripts/real.json': '{"a":1}',
+      'src/reader.test.ts':
+        "import * as fs from 'fs';\n" +
+        "test('x', () => fs.readFileSync(process.cwd() + '/data/app.db'));\n" +
+        "test('y', () => fs.readFileSync('scripts/real.json'));\n",
+    });
+
+  it('ignores the app database, the validation report, bytecode and recapture output', () => {
+    const root = repo();
+    const before = keyOf(root, 'src/reader.test.ts');
+    write(root, {
+      'data/mekstation.db': 'run 1',
+      'equipment-validation-report.json': '{"at":1}',
+      'scripts/lib/__pycache__/x.cpython-314.pyc': 'bytes 1',
+      '.sisyphus/scenario-pack-recapture/1/results.json': '{}',
+    });
+    const afterRun1 = keyOf(root, 'src/reader.test.ts');
+    write(root, {
+      'data/mekstation.db': 'run 2',
+      'equipment-validation-report.json': '{"at":2}',
+      'scripts/lib/__pycache__/x.cpython-314.pyc': 'bytes 2',
+    });
+    const afterRun2 = keyOf(root, 'src/reader.test.ts');
+    expect(afterRun1.key).toBe(before.key);
+    expect(afterRun2.key).toBe(before.key);
+  });
+
+  it('still keys on a real input in the same domain', () => {
+    const root = repo();
+    const before = keyOf(root, 'src/reader.test.ts');
+    write(root, { 'scripts/real.json': '{"a":2}' });
+    expect(keyOf(root, 'src/reader.test.ts').key).not.toBe(before.key);
+  });
+});
