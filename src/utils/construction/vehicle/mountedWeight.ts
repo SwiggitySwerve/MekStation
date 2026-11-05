@@ -22,6 +22,14 @@ export type EquipmentResolver = (
   equipmentId: string,
 ) => IEquipmentItem | undefined;
 
+const WEAPON_CATEGORIES: readonly EquipmentCategory[] = [
+  EquipmentCategory.ENERGY_WEAPON,
+  EquipmentCategory.BALLISTIC_WEAPON,
+  EquipmentCategory.MISSILE_WEAPON,
+  EquipmentCategory.ARTILLERY,
+  EquipmentCategory.CAPITAL_WEAPON,
+];
+
 /** Raw heat-neutral weapon load: MegaMek 48fcb2f64a1b TestEntity.java:945-950.
  * Unlike BV heat, ammunition-fed flamers/chemical lasers contribute zero;
  * plasma weapons still contribute. Non-weapon plasma-named items do not.
@@ -29,13 +37,7 @@ export type EquipmentResolver = (
 export function getVehicleHeatNeutralWeaponHeat(
   item: Pick<IEquipmentItem, 'category' | 'name' | 'heat' | 'special'>,
 ): number | null {
-  const weapon = [
-    EquipmentCategory.ENERGY_WEAPON,
-    EquipmentCategory.BALLISTIC_WEAPON,
-    EquipmentCategory.MISSILE_WEAPON,
-    EquipmentCategory.ARTILLERY,
-    EquipmentCategory.CAPITAL_WEAPON,
-  ].includes(item.category);
+  const weapon = WEAPON_CATEGORIES.includes(item.category);
   // TestEntity.java:945-950 selects laser/PPC/plasma/flamer flags, not the
   // catalog's broader Energy category. Heavy/vehicle flamers use ammunition.
   const excludedEnergy = /tsemp|taser|(?:heavy|vehicle)\s*flamer/i.test(
