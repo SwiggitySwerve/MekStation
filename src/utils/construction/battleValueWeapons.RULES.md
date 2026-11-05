@@ -11,6 +11,16 @@ exclusion policy; its separate compatibility contract is not changed here.
 `BVCalculator.java:880-882`). The public legacy sum, heat-tracked Mech sum and
 vehicle owner and script-side orientation calculator call it with their existing eligibility, ordering and fire-control
 guards. AES also uses 1.25 but is a separate rule.
+
+`hasBVActuatorEnhancement` owns mounted AES location matching. Physical and
+heat-tracked weapon callers preserve their parsing, rounding and bonus order.
+
+Active vibroblades enter the Mech weapon heat sequence once, with their arm
+AES flag and without TC, and leave the separate flat physical sum.
+validate-bv-physical-weapons.ts owns their forced-active BV heat (3/5/7).
+Pinned 48fcb2f64: HeatTrackingBVCalculator.java:89-103 and
+MekWithArms.java:242-270. validate-bv-vibroblade-heat.test.ts enforces all
+three sizes, overheat weighting, and the existing AES order.
 `hasBVTargetingComputer` owns the catalog-backed chassis capability; vehicle
 explicit mount flags remain authoritative alongside that lookup.
 
@@ -49,6 +59,13 @@ discount; rear weighting starts only after the dominant side is selected.
 Arms and Mek turrets remain excluded. Pinned MegaMek 48fcb2f64
 BVCalculator.java:690-699,764-765,829-882; MekBVCalculator.java:384-405.
 validate-bv-facing.test.ts enforces selection, links, ties and exclusions.
+
+Apollo-linked Mech weapons retain the fractional product from the shared
+getWeaponLinkBVMultiplier owner through orientation, heat sorting, ammo caps
+and offensive movement. Round only the final unit BV, as pinned MegaMek
+48fcb2f64 BVCalculator.java:860-876 does. The existing controller assignment
+guards are unchanged. validate-bv-apollo-precision.test.ts checks all MRM sizes
+and accumulation across separate mounts through the shared Mech calculator.
 
 Magshot's native ISMagshotGR and display-name criticals carry the same
 F_GAUSS explosive eligibility as other Gauss weapons: one BV per occupied
