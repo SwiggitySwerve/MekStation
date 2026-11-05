@@ -307,5 +307,63 @@
     "isc3remotesensorlauncher-registry": {
       "ISC3RemoteSensorLauncher": "c3-master"
     }
+  },
+  "techRoutes": {
+    "lrt-5": {
+      "INNER_SPHERE": "lrt-5-registry",
+      "CLAN": "lrtorpedo5"
+    },
+    "LRT 5": {
+      "INNER_SPHERE": "lrt-5-registry",
+      "CLAN": "lrtorpedo5"
+    },
+    "lrt-10": {
+      "INNER_SPHERE": "lrt-10-registry",
+      "CLAN": "lrtorpedo10"
+    },
+    "LRT 10": {
+      "INNER_SPHERE": "lrt-10-registry",
+      "CLAN": "lrtorpedo10"
+    },
+    "lrt-15": {
+      "INNER_SPHERE": "lrt-15-registry",
+      "CLAN": "lrtorpedo15"
+    },
+    "LRT 15": {
+      "INNER_SPHERE": "lrt-15-registry",
+      "CLAN": "lrtorpedo15"
+    },
+    "lrt-20": {
+      "INNER_SPHERE": "lrt-20-registry",
+      "CLAN": "lrtorpedo20"
+    },
+    "LRT 20": {
+      "INNER_SPHERE": "lrt-20-registry",
+      "CLAN": "lrtorpedo20"
+    },
+    "srt-2": {
+      "INNER_SPHERE": "srt-2-registry",
+      "CLAN": "srt2"
+    },
+    "SRT 2": {
+      "INNER_SPHERE": "srt-2-registry",
+      "CLAN": "srt2"
+    },
+    "srt-4": {
+      "INNER_SPHERE": "srt-4-registry",
+      "CLAN": "srt4"
+    },
+    "SRT 4": {
+      "INNER_SPHERE": "srt-4-registry",
+      "CLAN": "srt4"
+    },
+    "srt-6": {
+      "INNER_SPHERE": "srt-6-registry",
+      "CLAN": "srt6"
+    },
+    "SRT 6": {
+      "INNER_SPHERE": "srt-6-registry",
+      "CLAN": "srt6"
+    }
   }
 }
