@@ -13,13 +13,16 @@ import type {
 import { HeatSinkType } from '../../../types/construction/HeatSinkType';
 import {
   AerospaceCockpitType,
+  type AerospaceArc,
   AerospaceSubType,
 } from '../../../types/unit/AerospaceInterfaces';
 import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import { extractWeaponTypeFromAmmoId } from '../battleValueAmmo';
+import { resolveAerospaceContractArc } from '../contractBVUnitAdapter';
 import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
 import { getAmmunitionEntry } from '../equipmentBVResolver';
 import { calculateHeatDissipation } from '../heatSinkCalculations';
+import { normalizeArcLocation } from './aerospaceBVArcs';
 import { calculateAerospaceBV } from './aerospaceBVCalculator';
 
 // ============================================================================
@@ -41,6 +44,9 @@ export type AerospaceBVDispatchInput = (
   | IAerospaceUnit
 ) & {
   readonly cockpit?: string;
+  readonly armorByArc?: Readonly<Record<string, number>>;
+  readonly armorTypeByArc?: Readonly<Record<string, number>>;
+  readonly armorAllocation?: Readonly<Record<string, number>>;
   readonly cockpitType?: AerospaceCockpitType;
   readonly isSupportVehicle?: boolean;
   readonly isFixedWingSupport?: boolean;
@@ -49,6 +55,24 @@ export type AerospaceBVDispatchInput = (
   readonly sourceTechType?: string;
   readonly year?: number;
 };
+
+/** Normalize represented native and editor armor arc keys once. */
+function normalizeArmorArcs(
+  values: Readonly<Record<string, number>> | undefined,
+  subType: AerospaceSubType,
+): Readonly<Partial<Record<AerospaceArc, number>>> | undefined {
+  if (!values) return undefined;
+  return Object.fromEntries(
+    Object.entries(values).map(([arc, value]): [AerospaceArc, number] => {
+      const normalized =
+        normalizeArcLocation(arc, subType) ??
+        normalizeArcLocation(resolveAerospaceContractArc(arc), subType);
+      if (normalized === null)
+        throw new TypeError('Unknown aerospace armor arc: ' + arc);
+      return [normalized, value];
+    }),
+  );
+}
 
 /**
  * Resolve a numeric or string `armorType` field into the lookup key used by
@@ -134,8 +158,9 @@ export function buildAerospaceBVInputFromUnit(
     });
   }
 
+  const subType = unitTypeToAerospaceSubType(unit.unitType);
   return {
-    subType: unitTypeToAerospaceSubType(unit.unitType),
+    subType,
     isSupportVehicle: supportVehicle,
     hasCommandConsole:
       unit.cockpit?.toUpperCase() === 'COMMAND_CONSOLE' ||
@@ -165,10 +190,16 @@ export function buildAerospaceBVInputFromUnit(
               : HeatSinkType.SINGLE,
             unit.heatSinks,
           )),
-    armorType: resolveAerospaceArmorTypeKey(
-      (unit as { readonly armorType?: string | number }).armorType,
-    ),
+    armorType: unit.armorTypeByArc
+      ? 'patchwork'
+      : resolveAerospaceArmorTypeKey(
+          (unit as { readonly armorType?: string | number }).armorType,
+        ),
     totalArmorPoints: unit.totalArmorPoints,
+    armorByArc: unit.armorTypeByArc
+      ? normalizeArmorArcs(unit.armorByArc ?? unit.armorAllocation, subType)
+      : undefined,
+    armorTypeByArc: normalizeArmorArcs(unit.armorTypeByArc, subType),
     equipment,
     // BVCalculator.java:1190-1247: each bin contributes its own catalog value.
     ammo: equipment
