@@ -48,18 +48,6 @@ export interface GyroDefinition {
  */
 export const GYRO_DEFINITIONS: readonly GyroDefinition[] = [
   {
-    // MegaMek 48fcb2f64 TestMek.java:258-259; Engine.java:639-640.
-    type: GyroType.NONE,
-    sourceTag: NO_GYRO_SOURCE_TAG,
-    name: 'No Gyro',
-    techBase: TechBase.INNER_SPHERE,
-    rulesLevel: RulesLevel.ADVANCED,
-    weightMultiplier: 0,
-    criticalSlots: 0,
-    introductionYear: 0, // No introduction date: Mek.java:3710-3716 placeholder.
-    hitsToDestroy: 0,
-  },
-  {
     type: GyroType.STANDARD,
     name: 'Standard Gyro',
     techBase: TechBase.INNER_SPHERE,
@@ -108,6 +96,18 @@ export const GYRO_DEFINITIONS: readonly GyroDefinition[] = [
     criticalSlots: 4,
     introductionYear: 3076,
     hitsToDestroy: 2,
+  },
+  {
+    // MegaMek 48fcb2f64 TestMek.java:258-259; Engine.java:639-640.
+    type: GyroType.NONE,
+    sourceTag: NO_GYRO_SOURCE_TAG,
+    name: 'No Gyro',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.ADVANCED,
+    weightMultiplier: 0,
+    criticalSlots: 0,
+    introductionYear: 0, // No introduction date: Mek.java:3710-3716 placeholder.
+    hitsToDestroy: 0,
   },
 ] as const;
 

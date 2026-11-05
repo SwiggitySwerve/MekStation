@@ -93,18 +93,6 @@ export interface CockpitDefinition {
  */
 export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
   {
-    // MegaMek 48fcb2f64 TestMek.java:225-246.
-    type: CockpitType.INTERFACE,
-    sourceTag: INTERFACE_COCKPIT_SOURCE_TAG,
-    name: 'Interface Cockpit',
-    techBase: TechBase.INNER_SPHERE,
-    rulesLevel: RulesLevel.EXPERIMENTAL,
-    weight: 4,
-    headSlots: 6,
-    otherSlots: 0,
-    introductionYear: 3074, // Earliest prototype: Mek.java:3818-3825.
-  },
-  {
     type: CockpitType.STANDARD,
     name: 'Standard Cockpit',
     techBase: TechBase.INNER_SPHERE,
@@ -173,6 +161,18 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
     headSlots: 5,
     otherSlots: 0,
     introductionYear: 3076,
+  },
+  {
+    // MegaMek 48fcb2f64 TestMek.java:225-246.
+    type: CockpitType.INTERFACE,
+    sourceTag: INTERFACE_COCKPIT_SOURCE_TAG,
+    name: 'Interface Cockpit',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.EXPERIMENTAL,
+    weight: 4,
+    headSlots: 6,
+    otherSlots: 0,
+    introductionYear: 3074, // Earliest prototype: Mek.java:3818-3825.
   },
 ] as const;
 
