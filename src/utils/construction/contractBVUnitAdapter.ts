@@ -60,6 +60,7 @@ export interface IContractBVSource {
     readonly byLocation?: Readonly<Record<string, number>>;
     readonly byArc?: Readonly<Record<string, number>>;
     readonly barRating?: number;
+    readonly typeByArc?: Readonly<Record<string, number>>;
     readonly typeByLocation?: Readonly<Record<string, number>>;
     readonly barRatingByLocation?: Readonly<Record<string, number>>;
   };
@@ -94,6 +95,8 @@ export interface IContractBVVehicle {
 
 /** Domain-shaped aerospace value accepted by `calculateBattleValueForUnit`. */
 export interface IContractBVAerospace {
+  readonly armorByArc?: Readonly<Record<string, number>>;
+  readonly armorTypeByArc?: Readonly<Record<string, number>>;
   readonly cockpit?: string;
   readonly barRating?: number;
   readonly heatCapacity?: number;
@@ -301,6 +304,8 @@ function contractAerospaceToBVUnit(
       maxThrust: requireFact(unit.movement.maxThrust, 'movement.maxThrust'),
     },
     ...contractAerospaceArmorFacts(unit),
+    armorByArc: unit.armor.byArc,
+    armorTypeByArc: unit.armor.typeByArc,
     equipment: (unit.equipment ?? []).map((item) => ({
       equipmentId: item.id,
       location: resolveAerospaceContractArc(item.location),

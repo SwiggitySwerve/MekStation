@@ -3541,6 +3541,10 @@
       "weight": 1,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["NAVAL", "HYDROFOIL", "SUBMARINE"],
+        "incompatibleSupport": ["NAVAL", "HYDROFOIL", "SUBMARINE"]
+      },
       "battleValue": 2,
       "introductionYear": 3060,
       "allowedUnitTypes": [
@@ -6548,6 +6552,10 @@
       "weight": 0.5,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
+      },
       "battleValue": 1,
       "introductionYear": 2304,
       "allowedUnitTypes": [

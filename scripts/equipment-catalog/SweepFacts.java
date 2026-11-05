@@ -3,6 +3,12 @@ import java.util.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import megamek.common.equipment.*;
 public class SweepFacts {
+    private static final List<megamek.common.units.EntityMovementMode> GROUND_MODES = List.of(
+          megamek.common.units.EntityMovementMode.TRACKED, megamek.common.units.EntityMovementMode.WHEELED,
+          megamek.common.units.EntityMovementMode.HOVER, megamek.common.units.EntityMovementMode.VTOL,
+          megamek.common.units.EntityMovementMode.NAVAL, megamek.common.units.EntityMovementMode.HYDROFOIL,
+          megamek.common.units.EntityMovementMode.SUBMARINE, megamek.common.units.EntityMovementMode.WIGE,
+          megamek.common.units.EntityMovementMode.RAIL, megamek.common.units.EntityMovementMode.MAGLEV);
     @SuppressWarnings("unchecked")
     public static void main(String[] args) throws Exception {
         EquipmentFacts.main(args);
@@ -25,6 +31,15 @@ public class SweepFacts {
             var svSlots = type.getSupportVeeSlots(null);
             row.put("tankSlots", blueShield ? null : type.getTankSlots(null));
             row.put("supportVehicleSlots", bar10 || svSlots == EquipmentType.CRITICAL_SLOTS_VARIABLE ? null : svSlots);
+            // Ground motive modes the item cannot mount on (TestTank.legalForMotiveType, used by
+            // TestTank.correctEntity:376-382 and TestSupportVehicle.correctEntity:1171-1174).
+            for (var support : new boolean[] { false, true }) {
+                var incompatible = new ArrayList<String>();
+                for (var mode : GROUND_MODES)
+                    if (!megamek.common.verifier.TestTank.legalForMotiveType(type, mode, support))
+                        incompatible.add(mode.name());
+                row.put(support ? "motiveIncompatibleSupport" : "motiveIncompatible", incompatible);
+            }
         }
         mapper.writerWithDefaultPrettyPrinter().writeValue(Path.of(args[0]).toFile(), rows);
     }
