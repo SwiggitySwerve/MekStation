@@ -44,6 +44,7 @@ import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
 import { aerospaceEditorSchema } from '@/types/unit/AerospaceSerialization';
 import { vehicleEditorSchema } from '@/types/unit/VehicleSerialization';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
+import { getSlotParts } from '@/utils/construction/slotOperations/parts';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
 
 import { isRearLoc } from '../../../scripts/validate-bv-normalizers';
@@ -184,18 +185,23 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
 
   for (const item of state.equipment) {
     if (!item.location || !item.slots) continue;
-    const sourceSlots = getCriticalSlotsForLocation(projected, item.location);
-
-    const locationSlots =
-      result[item.location] ??
-      Array.from({ length: LOCATION_SLOT_COUNTS[item.location] }, () => null);
-    for (const slot of item.slots) {
-      if (slot >= 0 && slot < locationSlots.length) {
-        locationSlots[slot] =
-          item.name + (isRearLoc(sourceSlots?.[slot] ?? '') ? ' (R)' : '');
+    const parts = getSlotParts(item);
+    // Preserve existing split-weapon serialization while carrying every spreadable part.
+    for (const { location, slots } of item.spreadSlots
+      ? parts
+      : parts.slice(0, 1)) {
+      const sourceSlots = getCriticalSlotsForLocation(projected, location);
+      const locationSlots =
+        result[location] ??
+        Array.from({ length: LOCATION_SLOT_COUNTS[location] }, () => null);
+      for (const slot of slots) {
+        if (slot >= 0 && slot < locationSlots.length) {
+          locationSlots[slot] =
+            item.name + (isRearLoc(sourceSlots?.[slot] ?? '') ? ' (R)' : '');
+        }
       }
+      result[location] = locationSlots;
     }
-    result[item.location] = locationSlots;
   }
 
   return result;

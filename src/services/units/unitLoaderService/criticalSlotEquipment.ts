@@ -14,6 +14,10 @@ import { isLegacyEquipmentId } from '@/utils/construction/equipmentBVCatalogData
 import { isWeaponCategory } from '@/utils/equipment/ammunitionCompatibility';
 import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
 import { createHeatSinkEquipmentList } from '@/utils/equipment/heatSinkEquipmentUtils';
+import {
+  BIPED_LOCATIONS,
+  QUAD_LOCATIONS,
+} from '@/utils/mech/mechLocationRegistry';
 import { generateUnitId } from '@/utils/uuid';
 
 import { mapMechLocation } from './componentMappers';
@@ -231,6 +235,16 @@ function restoreSerializedHeatSink(
     : item;
 }
 
+function isOmniPodSlot(
+  criticalSlots: UnitCriticalSlots | undefined,
+  location: MechLocation,
+  index: number,
+): boolean {
+  const token =
+    getCriticalSlotsForLocation(criticalSlots, location)?.[index] ?? '';
+  return /\(OMNIPOD\)(?:\s*\(ARMORED\))?\s*$/i.test(token);
+}
+
 export function restoreCriticalSlotEquipment(
   serialized: readonly ISerializedEquipmentPlacement[],
   mapped: readonly IMountedEquipmentInstance[],
@@ -380,16 +394,12 @@ export function restoreCriticalSlotEquipment(
           );
           if (matching.length !== count) break;
           claim(claimedAtLocation, matching);
-          const token =
-            getCriticalSlotsForLocation(criticalSlots, location)?.[
-              matching[0].index
-            ] ?? '';
           recovered.push({
             ...createMountedEquipment(
               { ...slot.equipmentDef, ...properties },
               generateUnitId(),
               true,
-              /\(OMNIPOD\)(?:\s*\(ARMORED\))?\s*$/i.test(token),
+              isOmniPodSlot(criticalSlots, location, matching[0].index),
             ),
             location,
             slots: matching.map((s) => s.index),
@@ -442,6 +452,59 @@ export function restoreCriticalSlotEquipment(
           slots: matching.map((match) => match.index),
         });
       }
+    }
+  }
+
+  // MtfFile.java:1053-1068 shares one Talons mount across all native leg cells.
+  const talonParts = Array.from(resolvedByLocation).flatMap(
+    ([location, slots]) => {
+      const matching = slots.filter((slot) => slot.equipmentId === 'talons');
+      return matching.length
+        ? [
+            {
+              location,
+              slots: matching.map((slot) => slot.index),
+              definition: matching[0].equipmentDef,
+            },
+          ]
+        : [];
+    },
+  );
+  const first = talonParts[0];
+  if (tonnage !== undefined && first?.definition) {
+    const isQuad = talonParts.some(
+      (part) =>
+        QUAD_LOCATIONS.includes(part.location) &&
+        !BIPED_LOCATIONS.includes(part.location),
+    );
+    const properties = getEquipmentCalculatorService().calculateProperties(
+      'talons',
+      { tonnage, isQuad },
+    );
+    if (
+      talonParts.reduce((sum, part) => sum + part.slots.length, 0) ===
+      properties.criticalSlots
+    ) {
+      const index = placed.findIndex((item) => item.equipmentId === 'talons');
+      const mount = {
+        ...(placed[index] ??
+          createMountedEquipment(
+            first.definition,
+            generateUnitId(),
+            true,
+            isOmniPodSlot(criticalSlots, first.location, first.slots[0]),
+          )),
+        weight: properties.weight,
+        criticalSlots: properties.criticalSlots,
+        location: first.location,
+        slots: first.slots,
+        splitSlots: undefined,
+        spreadSlots: talonParts
+          .slice(1)
+          .map(({ location, slots }) => ({ location, slots })),
+      };
+      if (index < 0) recovered.push(mount);
+      else placed[index] = mount;
     }
   }
 
