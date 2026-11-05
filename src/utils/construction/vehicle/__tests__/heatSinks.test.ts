@@ -25,6 +25,8 @@ it.each([
   [C.ENERGY_WEAPON, 'Plasma Rifle', 10, ['Requires ammo'], 10],
   [C.BALLISTIC_WEAPON, 'AC/20', 7, undefined, 0],
   [C.MISSILE_WEAPON, 'LRM 20', 6, undefined, 0],
+  [C.AMMUNITION, 'Plasma Rifle Ammo', 10, undefined, 0],
+  [C.MISC_EQUIPMENT, 'Plasma container', 10, undefined, 0],
 ] as const)(
   '%s %s contributes %s raw heat',
   (category, name, heat, special, expected) => {

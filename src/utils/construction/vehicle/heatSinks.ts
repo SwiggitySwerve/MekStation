@@ -7,6 +7,7 @@ import {
   EngineType,
   type VehicleEngineType,
 } from '@/types/construction/EngineType';
+import { EquipmentCategory } from '@/types/equipment';
 import { isValidWeight } from '@/utils/physical/weightUtils';
 
 import { isVehicleFusionEngine } from './engine';
@@ -15,7 +16,15 @@ import { isPowerAmplifierEnergyWeapon } from './powerAmplifier';
 export function getVehicleHeatNeutralWeaponHeat(
   item: Pick<IEquipmentItem, 'category' | 'name' | 'heat' | 'special'>,
 ): number | null {
-  return isPowerAmplifierEnergyWeapon(item) || /plasma/i.test(item.name)
+  const weapon = [
+    EquipmentCategory.ENERGY_WEAPON,
+    EquipmentCategory.BALLISTIC_WEAPON,
+    EquipmentCategory.MISSILE_WEAPON,
+    EquipmentCategory.ARTILLERY,
+    EquipmentCategory.CAPITAL_WEAPON,
+  ].includes(item.category);
+  return isPowerAmplifierEnergyWeapon(item) ||
+    (weapon && /plasma/i.test(item.name))
     ? item.heat !== undefined && isValidWeight(item.heat)
       ? item.heat
       : null
