@@ -435,6 +435,13 @@ Boosters, modified cruise, rail/zero-MP BV special cases and complete BV parity
 remain separate work. This correction establishes only base movement and its
 propagation. It does not regenerate or migrate unit catalogs.
 
+## Sized liquid-storage mass
+
+Liquid storage shares the existing sized cargo/communications rule in the
+variable-mass resolver. Charge component-rounded source size, including
+kilogram rounding for small support. No second formula or catalog value is
+introduced. Pin 48fcb2f64: MiscType.java:839-840; RoundWeight.java:58-68.
+
 ## Support construction weight
 
 `supportWeight.ts` composes structure, engine, armor, source fuel, payload and
@@ -620,9 +627,11 @@ summing equipment and turret mass, independently of the held sized-equipment
 editor integration. Missing context is unavailable, not a fixed zero.
 Pin 48fcb2f64: MiscType.java:660-666,702-705; RoundWeight.java:58-68.
 
-## Sized liquid-storage mass
+## Native VTOL structure mass
 
-Liquid storage shares the existing sized cargo/communications rule in the
-variable-mass resolver. Charge component-rounded source size, including
-kilogram rounding for small support. No second formula or catalog value is
-introduced. Pin 48fcb2f64: MiscType.java:839-840; RoundWeight.java:58-68.
+Pin 48fcb2f64 VTOL.java:729-730 defines superheavy VTOL mass above 30 t.
+TestTank.java:87-95 passes that fact to Structure.java:76-87,102-107:
+standard structure doubles; Endo-Steel follows its native superheavy rule,
+and Composite retains its existing multiplier. This changes structure mass
+only. The Tank layout classifier, rotor locations and BV structure points
+remain independent of this mass threshold.
