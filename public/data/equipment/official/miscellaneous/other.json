@@ -13,6 +13,24 @@
       "weight": 0,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2471,
@@ -27,6 +45,24 @@
       "weight": 0,
       "criticalSlots": 2,
       "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3068,
@@ -41,6 +77,24 @@
       "weight": 0,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 0, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3020,
@@ -56,6 +110,24 @@
       "weight": 0,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 0, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2464,
@@ -71,6 +143,24 @@
       "weight": 0,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3079,
@@ -141,6 +231,30 @@
       "weight": 0,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2100,
@@ -974,6 +1088,10 @@
       "weight": 0,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 0, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL", "RAIL", "MAGLEV"],
+        "incompatibleSupport": ["VTOL", "RAIL", "MAGLEV"]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3083,
@@ -1299,6 +1417,10 @@
       "weight": 0.5,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["NAVAL", "HYDROFOIL", "SUBMARINE"],
+        "incompatibleSupport": ["NAVAL", "HYDROFOIL", "SUBMARINE"]
+      },
       "costCBills": 1500,
       "battleValue": 1,
       "introductionYear": 3055,
@@ -1427,6 +1549,32 @@
       "weight": 0,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 1, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2100,
@@ -1443,6 +1591,32 @@
       "weight": 0,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 1, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2100,
@@ -1459,6 +1633,32 @@
       "weight": 0,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 1, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2100,
@@ -1640,6 +1840,18 @@
       "weight": 7,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 0, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": ["HOVER"]
+      },
       "costCBills": 5000,
       "battleValue": 0,
       "introductionYear": 1950,
@@ -1654,6 +1866,18 @@
       "weight": 1,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 0, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": ["HOVER"]
+      },
       "costCBills": 5000,
       "battleValue": 0,
       "introductionYear": 1950,
@@ -1668,6 +1892,32 @@
       "weight": 1,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 0, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 6000,
       "battleValue": 0,
       "introductionYear": 1950,
@@ -1725,6 +1975,30 @@
       "weight": 5,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 400000,
       "battleValue": 0,
       "introductionYear": 1950,
@@ -1739,6 +2013,30 @@
       "weight": 5,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 250000,
       "battleValue": 0,
       "introductionYear": 2100,
@@ -1767,6 +2065,30 @@
       "weight": 2.5,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 150000,
       "battleValue": 0,
       "introductionYear": 2100,
@@ -1969,6 +2291,10 @@
       "weight": 5,
       "criticalSlots": 6,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
+      },
       "costCBills": 50000,
       "battleValue": 8,
       "introductionYear": 1950,
@@ -1983,6 +2309,10 @@
       "weight": 1,
       "criticalSlots": 2,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
+      },
       "costCBills": 40000,
       "battleValue": 5,
       "introductionYear": 1950,
@@ -1997,6 +2327,10 @@
       "weight": 2,
       "criticalSlots": 4,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
+      },
       "costCBills": 75000,
       "battleValue": 10,
       "introductionYear": 1950,
@@ -2011,6 +2345,10 @@
       "weight": 6,
       "criticalSlots": 12,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
+      },
       "costCBills": 100000,
       "battleValue": 20,
       "introductionYear": 1950,
@@ -2025,6 +2363,28 @@
       "weight": 2,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 50000,
       "battleValue": 10,
       "introductionYear": 1950,
@@ -2039,6 +2399,24 @@
       "weight": 5,
       "criticalSlots": 5,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 100000,
       "battleValue": 7,
       "introductionYear": 1950,
@@ -2053,6 +2431,28 @@
       "weight": 2.5,
       "criticalSlots": 4,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 75000,
       "battleValue": 5,
       "introductionYear": 1950,
@@ -2067,6 +2467,24 @@
       "weight": 7,
       "criticalSlots": 7,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 100000,
       "battleValue": 9,
       "introductionYear": 1950,
@@ -2193,6 +2611,10 @@
       "weight": 10,
       "criticalSlots": 8,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["HOVER", "VTOL", "WIGE", "RAIL", "MAGLEV"],
+        "incompatibleSupport": ["HOVER", "VTOL", "WIGE", "RAIL", "MAGLEV"]
+      },
       "costCBills": 100000,
       "battleValue": 5,
       "introductionYear": 1950,
@@ -2249,6 +2671,24 @@
       "weight": 3,
       "criticalSlots": 4,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 10000,
       "battleValue": 6,
       "introductionYear": 1950,
@@ -2263,6 +2703,30 @@
       "weight": 1,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 1, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 25000,
       "battleValue": 0,
       "introductionYear": 1950,
@@ -2277,6 +2741,10 @@
       "weight": 5,
       "criticalSlots": 5,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
+      },
       "costCBills": 100000,
       "battleValue": 6,
       "introductionYear": 1950,
@@ -2305,6 +2773,10 @@
       "weight": 2,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
+      },
       "costCBills": 75000,
       "battleValue": 5,
       "introductionYear": 2320,
@@ -2319,6 +2791,10 @@
       "weight": 4,
       "criticalSlots": 5,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
+      },
       "costCBills": 110000,
       "battleValue": 8,
       "introductionYear": 1950,
@@ -2347,6 +2823,32 @@
       "weight": 0,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2131,
@@ -2361,6 +2863,32 @@
       "weight": 100,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 50000000,
       "battleValue": 0,
       "introductionYear": 2200,
@@ -2489,6 +3017,32 @@
       "weight": 10,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 1, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 15000,
       "battleValue": 200,
       "introductionYear": 2100,
@@ -2503,6 +3057,10 @@
       "weight": 3,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["HOVER", "VTOL", "WIGE", "RAIL", "MAGLEV"],
+        "incompatibleSupport": ["HOVER", "VTOL", "WIGE", "RAIL", "MAGLEV"]
+      },
       "costCBills": 40000,
       "battleValue": 30,
       "introductionYear": 1950,
@@ -2715,6 +3273,10 @@
       "weight": 0,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 1950,
@@ -2787,6 +3349,24 @@
       "weight": 2,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 1, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 1000,
       "battleValue": 0,
       "introductionYear": 2351,
@@ -2801,6 +3381,24 @@
       "weight": 2,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 1, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 3000,
       "battleValue": 0,
       "introductionYear": 2353,
@@ -2815,6 +3413,24 @@
       "weight": 2.2,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 1, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 5000,
       "battleValue": 0,
       "introductionYear": 2355,
@@ -2829,6 +3445,24 @@
       "weight": 2.5,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 1, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2353,
@@ -2857,6 +3491,30 @@
       "weight": 0.5,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 0, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 50000,
       "battleValue": 0,
       "introductionYear": 1950,
@@ -3068,6 +3726,10 @@
       "weight": 0,
       "criticalSlots": 8,
       "vehicleSlots": { "tank": 0, "supportVehicle": 8 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["SUBMARINE"],
+        "incompatibleSupport": ["SUBMARINE"]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2350,
@@ -3082,6 +3744,26 @@
       "weight": 0,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 0, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2472,
@@ -3096,6 +3778,28 @@
       "weight": 0,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 0, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2472,
@@ -3110,6 +3814,28 @@
       "weight": 0,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 0, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2474,
@@ -3124,6 +3850,30 @@
       "weight": 0,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 0, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2471,
@@ -3138,6 +3888,10 @@
       "weight": 0,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 0, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["SUBMARINE"],
+        "incompatibleSupport": ["SUBMARINE"]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2475,
@@ -3208,6 +3962,30 @@
       "weight": 0,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 0, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2471,
@@ -3222,6 +4000,10 @@
       "weight": 0,
       "criticalSlots": 8,
       "vehicleSlots": { "tank": 0, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["SUBMARINE"],
+        "incompatibleSupport": ["SUBMARINE"]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 1950,
@@ -3376,6 +4158,24 @@
       "weight": 0,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 0, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE"
+        ],
+        "incompatibleSupport": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 1950,
@@ -3488,6 +4288,10 @@
       "weight": 0,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 0, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["NAVAL", "HYDROFOIL", "SUBMARINE"],
+        "incompatibleSupport": ["NAVAL", "HYDROFOIL", "SUBMARINE"]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 1950,
@@ -3824,6 +4628,24 @@
       "weight": 0,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 1, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2100,
@@ -4172,6 +4994,10 @@
       "weight": 1,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["NAVAL", "HYDROFOIL", "SUBMARINE"],
+        "incompatibleSupport": ["NAVAL", "HYDROFOIL", "SUBMARINE"]
+      },
       "costCBills": 2500,
       "battleValue": 2,
       "introductionYear": 3068,

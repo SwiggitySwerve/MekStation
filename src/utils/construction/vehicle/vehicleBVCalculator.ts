@@ -4,7 +4,7 @@ import type { VehicleBVInput, IVehicleBVBreakdown } from './vehicleBVTypes';
 
 import { hasBVDroneOS } from '../battleValueEquipment';
 import { calculateAdjustedBV } from '../battleValuePilot';
-import { calculateBaseBV } from '../battleValueTotals';
+import { calculateBaseBV, getCockpitModifier } from '../battleValueTotals';
 import { vehicleBVTerms } from './bvTrace';
 import { calculateVehicleDefensiveBV } from './vehicleBVDefensive';
 import { calculateVehicleOffensiveBV } from './vehicleBVOffensive';
@@ -28,7 +28,11 @@ export function calculateVehicleBV(input: VehicleBVInput): IVehicleBVBreakdown {
   const piloting = input.piloting ?? 5;
   const pilotMultiplier = getPilotSkillModifier(gunnery, piloting);
 
-  const summaryModifier = hasBVDroneOS(input.chassisEquipment) ? 0.95 : 1;
+  const summaryModifier = getCockpitModifier(
+    hasBVDroneOS(input.chassisEquipment)
+      ? 'drone-operating-system'
+      : 'standard',
+  );
   const final = calculateAdjustedBV(
     calculateBaseBV(def.total, off.total, [summaryModifier]),
     gunnery,

@@ -194,9 +194,9 @@ it('classifies every official special combat family in the catalog', () => {
     lbxACs.find((item) => item.id === 'battle-armor-lb-x-ac-registry'),
   );
   expect(lbxACs).toHaveLength(9);
-  expect(streakLaunchers).toHaveLength(66);
+  expect(streakLaunchers).toHaveLength(75);
   expect(mmlLaunchers).toHaveLength(4);
-  expect(narcLaunchers).toHaveLength(13);
+  expect(narcLaunchers).toHaveLength(15);
   expect(amsSystems).toHaveLength(4);
   expect(plasmaCannons).toHaveLength(1);
   expect(tagDesignators).toHaveLength(4);

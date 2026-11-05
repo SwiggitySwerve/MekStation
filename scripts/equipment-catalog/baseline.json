@@ -2288,7 +2288,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 5,
     "id": "nail-rivet-gun",
-    "sha256": "12b3d3985077c9a73e52cb7c4e21e0da3b0bfdbbc5e0bcb42b9336fb0f0a7311",
+    "sha256": "8a2e965f44d17f62c66b320210b05365d092a228c8331eb91352b6fae976e01d",
     "item": {
       "id": "nail-rivet-gun",
       "name": "Nail/Rivet Gun",
@@ -2309,6 +2309,10 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 1
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
       },
       "costCBills": 7000,
       "battleValue": 1,
@@ -13391,7 +13395,7 @@
     "file": "weapons/physical.json",
     "index": 8,
     "id": "wrecking-ball",
-    "sha256": "e9a21bb781f4bd423b585a9629780d3683d50885ea01d498a5204cd0f6e26359",
+    "sha256": "d27cec36027f1b763f36d2d19a6a2d9c1b370fa6d2fe2ea02dbced351889e79f",
     "item": {
       "id": "wrecking-ball",
       "type": "Wrecking Ball",
@@ -13406,6 +13410,10 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 1
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
       },
       "requiresLowerArm": false,
       "requiresHand": false,
@@ -23432,7 +23440,7 @@
     "file": "miscellaneous/movement.json",
     "index": 2,
     "id": "supercharger",
-    "sha256": "4d11480e8a6d09d0668c14da782032169eed58e1a33a55cb9e6435a990a0e3b2",
+    "sha256": "e657c45c5348786c6bb0c950a8643eb01179ae9cc3b96bb04ba7ae3a708a385a",
     "item": {
       "id": "supercharger",
       "name": "Supercharger",
@@ -23444,6 +23452,10 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 1
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
       },
       "costCBills": 0,
       "battleValue": 0,
@@ -23654,7 +23666,7 @@
     "file": "miscellaneous/other.json",
     "index": 0,
     "id": "jump-jet",
-    "sha256": "f73e7c72604e6d8eddea0e6ed9f0430356b686673fa37610a9ddac3d8a5b9e65",
+    "sha256": "5b6f42529cebb82f30463303d1c9ef6e4eea45758fadeb92735069a9ea754014",
     "item": {
       "id": "jump-jet",
       "name": "Jump Jet",
@@ -23667,6 +23679,24 @@
         "tank": 1,
         "supportVehicle": 1
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2471,
@@ -23677,7 +23707,7 @@
     "file": "miscellaneous/other.json",
     "index": 1,
     "id": "improved-jump-jet",
-    "sha256": "78fd584b4881f2deea17b74ef68642067e1ffae8f7d3bd74823f073346fdb9bb",
+    "sha256": "0092774434ca70fb78736a96d848527da11c3904c93d1c348ae5da92344c2143",
     "item": {
       "id": "improved-jump-jet",
       "name": "Improved Jump Jet",
@@ -23690,6 +23720,24 @@
         "tank": 1,
         "supportVehicle": 2
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3068,
@@ -23700,7 +23748,7 @@
     "file": "miscellaneous/other.json",
     "index": 2,
     "id": "prototype-improved-jump-jet",
-    "sha256": "ea924280f3373f339ccba11b91ba82a763bb3090535aa73b19ac32e3b24e45a6",
+    "sha256": "42e46fb29ebd9f6d45ae16b7413beb05b71799d65a86ea4ba2ab717a60cc633b",
     "item": {
       "id": "prototype-improved-jump-jet",
       "name": "Prototype Improved Jump Jet",
@@ -23713,6 +23761,24 @@
         "tank": 0,
         "supportVehicle": 1
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 3020,
@@ -23724,7 +23790,7 @@
     "file": "miscellaneous/other.json",
     "index": 3,
     "id": "primitive-prototype-jump-jet",
-    "sha256": "b0ad55b278c6364a535385c9070164b969abcfd16025b04174a9fed096a54a42",
+    "sha256": "f8e986552470c8dacb5f2c500e39a18daed9a79d203ae5ae1cf7416920e0917e",
     "item": {
       "id": "primitive-prototype-jump-jet",
       "name": "Primitive Prototype Jump Jet",
@@ -23737,6 +23803,24 @@
         "tank": 0,
         "supportVehicle": 1
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2464,
@@ -23748,7 +23832,7 @@
     "file": "miscellaneous/other.json",
     "index": 4,
     "id": "extended-jump-jet-system",
-    "sha256": "917be46ab5c212d2d1712117401e0e443cd54fc6286f52ad7eff75fcae56beed",
+    "sha256": "81e2af0e3e6c57427c924896cafce651ced6f4d32c4693f4aafe43c697e12b18",
     "item": {
       "id": "extended-jump-jet-system",
       "name": "Extended Jump Jet System",
@@ -23760,6 +23844,24 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 1
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
       },
       "costCBills": 0,
       "battleValue": 0,
@@ -23863,7 +23965,7 @@
     "file": "miscellaneous/other.json",
     "index": 9,
     "id": "vtoljetbooster",
-    "sha256": "213cf11c18b81079207acefe7bf79ab88a5e56cf4cf309cb9f25db79fdcf69de",
+    "sha256": "bc9d6e6bdd5f1de487d540865f4fed904af5d9e41f499d0a1f96e809da37e19f",
     "item": {
       "id": "vtoljetbooster",
       "name": "VTOL Jet Booster",
@@ -23875,6 +23977,30 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 1
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
       },
       "costCBills": 0,
       "battleValue": 0,
@@ -25212,7 +25338,7 @@
     "file": "miscellaneous/other.json",
     "index": 67,
     "id": "armoredmotivesystem",
-    "sha256": "767d714b7dd1ca39e35d75d25459118be30436d1f16136a671388304e6c0fba4",
+    "sha256": "0c6757f8ca9a8e26d7f3e6fd4622e510e71b9b5a7e02e626f7e267138ad08d5d",
     "item": {
       "id": "armoredmotivesystem",
       "name": "Armored Motive System",
@@ -25224,6 +25350,10 @@
       "vehicleSlots": {
         "tank": 0,
         "supportVehicle": 0
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL", "RAIL", "MAGLEV"],
+        "incompatibleSupport": ["VTOL", "RAIL", "MAGLEV"]
       },
       "costCBills": 0,
       "battleValue": 0,
@@ -25744,7 +25874,7 @@
     "file": "miscellaneous/other.json",
     "index": 90,
     "id": "antipersonnelpod",
-    "sha256": "4edb806e1ed0591e2e68a41d51faff699479373faf67888d7fd2153b631616dc",
+    "sha256": "8d1caf9762e573949829cc3db868e19fae382ea200441c87e2c49c280e503e88",
     "item": {
       "id": "antipersonnelpod",
       "name": "Anti-Personnel Pods (A-Pods)",
@@ -25756,6 +25886,10 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 1
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["NAVAL", "HYDROFOIL", "SUBMARINE"],
+        "incompatibleSupport": ["NAVAL", "HYDROFOIL", "SUBMARINE"]
       },
       "costCBills": 1500,
       "battleValue": 1,
@@ -25953,7 +26087,7 @@
     "file": "miscellaneous/other.json",
     "index": 99,
     "id": "shieldedaerosrcs",
-    "sha256": "58ca743562246fd004e43e91ea27640652695fde2fef12d11f29cd8e84528a35",
+    "sha256": "441aaf176513804f51fcbadf3d7e3976e422011cc642d08774f3d92cd971200a",
     "item": {
       "id": "shieldedaerosrcs",
       "name": "Shielded Aerospace Smart Robotic Control System",
@@ -25965,6 +26099,32 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 0
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
       },
       "costCBills": 0,
       "battleValue": 0,
@@ -25978,7 +26138,7 @@
     "file": "miscellaneous/other.json",
     "index": 100,
     "id": "improvedshieldedaerosrcs",
-    "sha256": "ba0599e1fc887ba26b85826088ba0f427e20e8851668914159b9f8208fba9978",
+    "sha256": "5fe41669291fb7a5571ea6d3badd6530279fd98ade8004d3102db722d2d8585e",
     "item": {
       "id": "improvedshieldedaerosrcs",
       "name": "Shielded Aerospace Smart Robotic Control System (Improved)",
@@ -25990,6 +26150,32 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 0
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
       },
       "costCBills": 0,
       "battleValue": 0,
@@ -26003,7 +26189,7 @@
     "file": "miscellaneous/other.json",
     "index": 101,
     "id": "eliteshieldedaerosrcs",
-    "sha256": "2c3dcca666a3c1ac826f7ed18ec8e2a2a2b60637b476102b69eec2bd5e9bd8ec",
+    "sha256": "641d1af79b15da76ede8466442dd8971f5ef466a584df748c2fbabd8e2a12147",
     "item": {
       "id": "eliteshieldedaerosrcs",
       "name": "Shielded Aerospace Smart Robotic Control System (Elite)",
@@ -26015,6 +26201,32 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 0
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
       },
       "costCBills": 0,
       "battleValue": 0,
@@ -26292,7 +26504,7 @@
     "file": "miscellaneous/other.json",
     "index": 113,
     "id": "escape-pod-maritime",
-    "sha256": "3a0b5d0f6c5eecf0f6e0bbc0975d3227761982a0ae0f2318e4b06e5a92f92b84",
+    "sha256": "f38ef7e5c06a8808aabee5df90cd07238ead06a03003f293794870c1d4fdae51",
     "item": {
       "id": "escape-pod-maritime",
       "name": "Escape Pod (Maritime)",
@@ -26305,6 +26517,18 @@
         "tank": 0,
         "supportVehicle": 0
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": ["HOVER"]
+      },
       "costCBills": 5000,
       "battleValue": 0,
       "introductionYear": 1950,
@@ -26315,7 +26539,7 @@
     "file": "miscellaneous/other.json",
     "index": 114,
     "id": "lifeboat-maritime",
-    "sha256": "e30fa26d085e561d81d00226f21beea91a1553f82571092db8771de6cbbe1f8d",
+    "sha256": "231606218b8039337fcbac0d443d12e374993ab1362a6c5c5149910e3dfb4e2a",
     "item": {
       "id": "lifeboat-maritime",
       "name": "Lifeboat (Maritime)",
@@ -26328,6 +26552,18 @@
         "tank": 0,
         "supportVehicle": 0
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": ["HOVER"]
+      },
       "costCBills": 5000,
       "battleValue": 0,
       "introductionYear": 1950,
@@ -26338,7 +26574,7 @@
     "file": "miscellaneous/other.json",
     "index": 115,
     "id": "lifeboat-atmospheric",
-    "sha256": "055f2238694d2b24e0308df79880f1380bd1977fe90730fd3a5e51ce524d47cf",
+    "sha256": "1a74efc7efd930bbe12cb9527a69334431a70b904fdbe4fc0e3f2948dcb802c0",
     "item": {
       "id": "lifeboat-atmospheric",
       "name": "Lifeboat (Atmospheric)",
@@ -26350,6 +26586,32 @@
       "vehicleSlots": {
         "tank": 0,
         "supportVehicle": 0
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
       },
       "costCBills": 6000,
       "battleValue": 0,
@@ -26431,7 +26693,7 @@
     "file": "miscellaneous/other.json",
     "index": 119,
     "id": "lookdownradar",
-    "sha256": "5dbbe34edfcaa403da14b8679469fffd0cda44e3f83086d5b703d2e951aedd26",
+    "sha256": "309ecd84936c5b82097d674e694ccb1658f28f39670fe2fbb28e686258a7d0bf",
     "item": {
       "id": "lookdownradar",
       "name": "Satellite Imager (Look-Down Radar)",
@@ -26444,6 +26706,30 @@
         "tank": 1,
         "supportVehicle": 1
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 400000,
       "battleValue": 0,
       "introductionYear": 1950,
@@ -26454,7 +26740,7 @@
     "file": "miscellaneous/other.json",
     "index": 120,
     "id": "infraredimager",
-    "sha256": "4cef575da301d6af591a73b29e9ef51556b9b2a1d6301c0142d62e6ea2962af5",
+    "sha256": "4a8960a3c4e95c85f5dd491858b94bf12d0de3515698e655b18134c802f0aad9",
     "item": {
       "id": "infraredimager",
       "name": "Satellite Imager (Infrared Imager)",
@@ -26466,6 +26752,30 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 1
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
       },
       "costCBills": 250000,
       "battleValue": 0,
@@ -26500,7 +26810,7 @@
     "file": "miscellaneous/other.json",
     "index": 122,
     "id": "highresimager",
-    "sha256": "a0f6dddcc562b17e94af47d09f84ca1f71d7a67aa6cbb551531f3db3b4c8a675",
+    "sha256": "81d731da7eb25ebff99e0de30cf7ecf12c995de2da9c314876d5c29799436b84",
     "item": {
       "id": "highresimager",
       "name": "Satellite Imager (High-Resolution Imager)",
@@ -26512,6 +26822,30 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 1
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
       },
       "costCBills": 150000,
       "battleValue": 0,
@@ -26828,7 +27162,7 @@
     "file": "miscellaneous/other.json",
     "index": 136,
     "id": "backhoe",
-    "sha256": "b770ba3990f97369cc7fa88fe0a746fa978f34c7f94d4b88c7320de11438dec4",
+    "sha256": "829678149cdfc9a35581c0f91e23f7d79d4a450c94c9a0df8dc2bb8f770d46f3",
     "item": {
       "id": "backhoe",
       "name": "Backhoe",
@@ -26841,6 +27175,10 @@
         "tank": 1,
         "supportVehicle": 1
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
+      },
       "costCBills": 50000,
       "battleValue": 8,
       "introductionYear": 1950,
@@ -26851,7 +27189,7 @@
     "file": "miscellaneous/other.json",
     "index": 137,
     "id": "bridge-layer-light",
-    "sha256": "26ec5be374961051ecbf1e1da1053df7e15111d08e468de3e5b3d05b57ed43a9",
+    "sha256": "bc5b3dfbcd22a31bd7238a8f8371348bf30a18f22c5e8c4d91505acbc720e3c6",
     "item": {
       "id": "bridge-layer-light",
       "name": "Bridge Layer (Light)",
@@ -26864,6 +27202,10 @@
         "tank": 1,
         "supportVehicle": 1
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
+      },
       "costCBills": 40000,
       "battleValue": 5,
       "introductionYear": 1950,
@@ -26874,7 +27216,7 @@
     "file": "miscellaneous/other.json",
     "index": 138,
     "id": "bridge-layer-medium",
-    "sha256": "981107b1b4d0b4db49e784368fccb043d53a2d63adf468620617d940f019d01c",
+    "sha256": "698c63e8974d1ffd7e97339270ca82812d004204f4f4e93c19726b7c78e17607",
     "item": {
       "id": "bridge-layer-medium",
       "name": "Bridge Layer (Medium)",
@@ -26887,6 +27229,10 @@
         "tank": 1,
         "supportVehicle": 1
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
+      },
       "costCBills": 75000,
       "battleValue": 10,
       "introductionYear": 1950,
@@ -26897,7 +27243,7 @@
     "file": "miscellaneous/other.json",
     "index": 139,
     "id": "bridge-layer-heavy",
-    "sha256": "b9d71ea522c876a817b78ff252f92f2a5ef24ae9b5fd4ec8a7012990d2116c75",
+    "sha256": "7447dfd42992e7b48d49539a56b4afe4a7a0ff6b5efa621f659edd2402803c4c",
     "item": {
       "id": "bridge-layer-heavy",
       "name": "Bridge Layer (Heavy)",
@@ -26910,6 +27256,10 @@
         "tank": 1,
         "supportVehicle": 1
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
+      },
       "costCBills": 100000,
       "battleValue": 20,
       "introductionYear": 1950,
@@ -26920,7 +27270,7 @@
     "file": "miscellaneous/other.json",
     "index": 140,
     "id": "bulldozer",
-    "sha256": "f3539d18161e6167d2a1c9e05db06eb343a37fb38d3787dff1680187d8c347a0",
+    "sha256": "ae950a0edea301f7b81d6022965343d4d43334267c3031279e41e77dee03f823",
     "item": {
       "id": "bulldozer",
       "name": "Bulldozer",
@@ -26933,6 +27283,28 @@
         "tank": 1,
         "supportVehicle": 1
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 50000,
       "battleValue": 10,
       "introductionYear": 1950,
@@ -26943,7 +27315,7 @@
     "file": "miscellaneous/other.json",
     "index": 141,
     "id": "chainsaw",
-    "sha256": "9c9cf76760c5d8cbf7cf814eeed7fb02d738a25f9fb7bac00ad64538e500fddb",
+    "sha256": "780a915cbf3e527ebb56bb9116a6245c1b9ed512935afdf0ed94d5fd74d05a6b",
     "item": {
       "id": "chainsaw",
       "name": "Chainsaw",
@@ -26956,6 +27328,24 @@
         "tank": 1,
         "supportVehicle": 1
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 100000,
       "battleValue": 7,
       "introductionYear": 1950,
@@ -26966,7 +27356,7 @@
     "file": "miscellaneous/other.json",
     "index": 142,
     "id": "combine",
-    "sha256": "f6dce0bb4a468579dfa34bc1862b1f67ce71b9d933305e0b3dbe0ef18b9f2219",
+    "sha256": "714ed9e2d674b54770e37cc46ed27a563a01fc44f81d3cb97c3a25054ad61a2a",
     "item": {
       "id": "combine",
       "name": "Combine",
@@ -26979,6 +27369,28 @@
         "tank": 1,
         "supportVehicle": 1
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 75000,
       "battleValue": 5,
       "introductionYear": 1950,
@@ -26989,7 +27401,7 @@
     "file": "miscellaneous/other.json",
     "index": 143,
     "id": "dual-saw",
-    "sha256": "053af8a7a6c0f62b7a1ce710098b2f653386c701b8b704b72f8a3da037d5f35b",
+    "sha256": "4e5939345666989226a365b7a26871b14f08104f4dc72ab187b5737a4bf6f165",
     "item": {
       "id": "dual-saw",
       "name": "Dual Saw",
@@ -27001,6 +27413,24 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 1
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
       },
       "costCBills": 100000,
       "battleValue": 9,
@@ -27196,7 +27626,7 @@
     "file": "miscellaneous/other.json",
     "index": 152,
     "id": "heavy-duty-pile-driver",
-    "sha256": "1436f5cca7486486ee5aa225ee0d61b2fa1b52ca90136a7b0b0f73c145afae1a",
+    "sha256": "d98112d74f499cf3ec3c10a361df596ca9d483ef77474e5bcd03523f5e50cca3",
     "item": {
       "id": "heavy-duty-pile-driver",
       "name": "Heavy-Duty Pile Driver",
@@ -27208,6 +27638,10 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 1
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["HOVER", "VTOL", "WIGE", "RAIL", "MAGLEV"],
+        "incompatibleSupport": ["HOVER", "VTOL", "WIGE", "RAIL", "MAGLEV"]
       },
       "costCBills": 100000,
       "battleValue": 5,
@@ -27288,7 +27722,7 @@
     "file": "miscellaneous/other.json",
     "index": 156,
     "id": "mining-drill",
-    "sha256": "8203a170d9f1293718d4886b27e3c22a491416167ac0384c184edcfdbab62baf",
+    "sha256": "03dcf2bbfd1cc99cd61cc984fbf9b39f75572d32e9cc202b768ccc8c2a8aede6",
     "item": {
       "id": "mining-drill",
       "name": "Mining Drill",
@@ -27301,6 +27735,24 @@
         "tank": 1,
         "supportVehicle": 1
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 10000,
       "battleValue": 6,
       "introductionYear": 1950,
@@ -27311,7 +27763,7 @@
     "file": "miscellaneous/other.json",
     "index": 157,
     "id": "refueling-drogue",
-    "sha256": "35ead759be2bbb8896a8cb56d293688764960b74b89d2911f5bc8e4f5cb5048f",
+    "sha256": "8c55b864dff249799b58905eea4dceae33f89bc2363ef20caf647deea8432a36",
     "item": {
       "id": "refueling-drogue",
       "name": "Refueling Drogue",
@@ -27324,6 +27776,30 @@
         "tank": 1,
         "supportVehicle": 0
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 25000,
       "battleValue": 0,
       "introductionYear": 1950,
@@ -27334,7 +27810,7 @@
     "file": "miscellaneous/other.json",
     "index": 158,
     "id": "rock-cutter",
-    "sha256": "1ea457dababe573b3094fa4b828d64995418bff2529b0a4ead2864743afd552d",
+    "sha256": "3558106f0c35b4176169822c0ebcc1deb94b092a5c39955e9c21bc050f003eb5",
     "item": {
       "id": "rock-cutter",
       "name": "Rock Cutter",
@@ -27346,6 +27822,10 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 1
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
       },
       "costCBills": 100000,
       "battleValue": 6,
@@ -27380,7 +27860,7 @@
     "file": "miscellaneous/other.json",
     "index": 160,
     "id": "spot-welder",
-    "sha256": "ddeb90379a276b29320b9c7a92fbf90d0b7f1c28b3b7d6c52dd025690dd8a012",
+    "sha256": "bf557c12a53b36eef44c7f90e6c83a77c88c08bb3a12500e905a0385f9122bae",
     "item": {
       "id": "spot-welder",
       "name": "Spot Welder",
@@ -27393,6 +27873,10 @@
         "tank": 1,
         "supportVehicle": 1
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
+      },
       "costCBills": 75000,
       "battleValue": 5,
       "introductionYear": 2320,
@@ -27403,7 +27887,7 @@
     "file": "miscellaneous/other.json",
     "index": 161,
     "id": "wrecking-ball",
-    "sha256": "40dcd95c4810e0d201bafb6ca2ebb5df14ee77624b3bbe6ed888425c4d09fbca",
+    "sha256": "9f04bc514f6fe985d2b02450444120b371d323389f8a9b4afdccf49c1c3eaef8",
     "item": {
       "id": "wrecking-ball",
       "name": "Wrecking Ball",
@@ -27415,6 +27899,10 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 1
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
       },
       "costCBills": 110000,
       "battleValue": 8,
@@ -27449,7 +27937,7 @@
     "file": "miscellaneous/other.json",
     "index": 163,
     "id": "lightsail",
-    "sha256": "c41168edc7e2955fffe1dee5c0b3ba02c01acf1a7c3bab977fc14da915cd0394",
+    "sha256": "51900740d66d9e11b2abc418090cb99e1e412ee33d54e533939b89520b90090a",
     "item": {
       "id": "lightsail",
       "name": "Light Sail",
@@ -27462,6 +27950,32 @@
         "tank": 1,
         "supportVehicle": 1
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2131,
@@ -27472,7 +27986,7 @@
     "file": "miscellaneous/other.json",
     "index": 164,
     "id": "smallnavalcommscannersuite",
-    "sha256": "b3d9d88367347c6e4b15809fe34b90ee4ed92381fa073e2127dc3b88a0a02f34",
+    "sha256": "37eb62c1762560eeb62b76dddcc113bc1bcd1d41602a6792f659053067bbaed5",
     "item": {
       "id": "smallnavalcommscannersuite",
       "name": "Naval Comm-Scanner Suite (Small)",
@@ -27484,6 +27998,32 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 1
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
       },
       "costCBills": 50000000,
       "battleValue": 0,
@@ -27681,7 +28221,7 @@
     "file": "miscellaneous/other.json",
     "index": 173,
     "id": "spaceminedispenser",
-    "sha256": "3f88edcf9a938df4c63b657c991df1bf44bb3d9a869841e1b3e19be6bd1ea048",
+    "sha256": "36f45f64888f893c05fe42255ddec78ada929e1a8eb9c1136fe4acfc96de50c7",
     "item": {
       "id": "spaceminedispenser",
       "name": "Space Mine Dispenser",
@@ -27694,6 +28234,32 @@
         "tank": 1,
         "supportVehicle": 0
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 15000,
       "battleValue": 200,
       "introductionYear": 2100,
@@ -27704,7 +28270,7 @@
     "file": "miscellaneous/other.json",
     "index": 174,
     "id": "minesweeper",
-    "sha256": "112dfdbfe8c12dedae1f4b8694d44c73df45bd6ffe5e13893d0d24ed026b4191",
+    "sha256": "3a2ea5efd1d8274b9bf27379e1db0f5e8ec968da37d7fa209b48b43e9c3df7ed",
     "item": {
       "id": "minesweeper",
       "name": "Mine Sweeper",
@@ -27716,6 +28282,10 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 1
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["HOVER", "VTOL", "WIGE", "RAIL", "MAGLEV"],
+        "incompatibleSupport": ["HOVER", "VTOL", "WIGE", "RAIL", "MAGLEV"]
       },
       "costCBills": 40000,
       "battleValue": 30,
@@ -28051,7 +28621,7 @@
     "file": "miscellaneous/other.json",
     "index": 189,
     "id": "mash-equipment",
-    "sha256": "012c85f0d13e549899c983f6076504b9ae5651e0ff37c99181107f55319de6ec",
+    "sha256": "eac86f01b22cae17e7fed3cc603cda0744f256670e0eebf735069cd7ba9bb809",
     "item": {
       "id": "mash-equipment",
       "name": "MASH Equipment",
@@ -28063,6 +28633,10 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 1
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
       },
       "costCBills": 0,
       "battleValue": 0,
@@ -28168,7 +28742,7 @@
     "file": "miscellaneous/other.json",
     "index": 194,
     "id": "veedropchutestd",
-    "sha256": "d7ce13cde7a440f512c46eba9cd488640f136d3f1b7f9ac4e0f272adbfbb67e1",
+    "sha256": "e53defb65bf753beacdc1a054a784a780211433f4faf81fe0269a2e59c1e065c",
     "item": {
       "id": "veedropchutestd",
       "name": "Vehicular DropChute (Standard)",
@@ -28181,6 +28755,24 @@
         "tank": 1,
         "supportVehicle": 0
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 1000,
       "battleValue": 0,
       "introductionYear": 2351,
@@ -28191,7 +28783,7 @@
     "file": "miscellaneous/other.json",
     "index": 195,
     "id": "veedropchutecamo",
-    "sha256": "7ba1b701c112c5c598408fb5f2a75f1ea48233eaec5bd63a93524899492bdfaf",
+    "sha256": "6076232c92a176298da78c073a1ae5de73dadddb1488adb04224ccbc38a08ed5",
     "item": {
       "id": "veedropchutecamo",
       "name": "Vehicular DropChute (Camouflage)",
@@ -28204,6 +28796,24 @@
         "tank": 1,
         "supportVehicle": 0
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 3000,
       "battleValue": 0,
       "introductionYear": 2353,
@@ -28214,7 +28824,7 @@
     "file": "miscellaneous/other.json",
     "index": 196,
     "id": "veedropchutestealth",
-    "sha256": "b5a6b4da83ed203597660f526b7aedc5b02c47e89e19a7d0dff13212391ee8bc",
+    "sha256": "ff2aecc5b201d8cc456fd9d6b5204e9aa7fa22ab9aedfdd48a7e3a4ae824a08f",
     "item": {
       "id": "veedropchutestealth",
       "name": "Vehicular DropChute (Stealth)",
@@ -28227,6 +28837,24 @@
         "tank": 1,
         "supportVehicle": 0
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 5000,
       "battleValue": 0,
       "introductionYear": 2355,
@@ -28237,7 +28865,7 @@
     "file": "miscellaneous/other.json",
     "index": 197,
     "id": "veedropchutereuse",
-    "sha256": "fef283eb572adf264e926b2bd89fb70dae8b438baa3f20e45bc9e5fdb395a64f",
+    "sha256": "dd303e16764ecc14990cd2878e62a4629f07bbed0b716ae3341d9aef71d2da01",
     "item": {
       "id": "veedropchutereuse",
       "name": "Vehicular DropChute (Reusable)",
@@ -28249,6 +28877,24 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 0
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
       },
       "costCBills": 0,
       "battleValue": 0,
@@ -28283,7 +28929,7 @@
     "file": "miscellaneous/other.json",
     "index": 199,
     "id": "mast-mount",
-    "sha256": "c72ce51831fedebc5a38a1557ba418d19b2904a71cce0d322e14344aff616ad4",
+    "sha256": "b6990122126671ac05f31cf3d9dbba2d804e8cad3b04645a4e105e491b3579e6",
     "item": {
       "id": "mast-mount",
       "name": "Mast Mount",
@@ -28295,6 +28941,30 @@
       "vehicleSlots": {
         "tank": 0,
         "supportVehicle": 0
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
       },
       "costCBills": 50000,
       "battleValue": 0,
@@ -28629,7 +29299,7 @@
     "file": "miscellaneous/other.json",
     "index": 214,
     "id": "environmental-sealing-mech",
-    "sha256": "b4c30154c930821bf2141efef1a46e174251b5a56833e1fef6ea12bbb6437f27",
+    "sha256": "cea250363c28be3fef3354547974662b002d92d30fb4f40e46f79e30eeffa618",
     "item": {
       "id": "environmental-sealing-mech",
       "name": "Environmental Sealing (Mech)",
@@ -28642,6 +29312,10 @@
         "tank": 0,
         "supportVehicle": 8
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["SUBMARINE"],
+        "incompatibleSupport": ["SUBMARINE"]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2350,
@@ -28652,7 +29326,7 @@
     "file": "miscellaneous/other.json",
     "index": 215,
     "id": "flotationhull",
-    "sha256": "79ab168ffd4ed8a951846d7fd15e42f4b5d54d1bd9f067e7813bdb5a27446f67",
+    "sha256": "2a06134a26ce5f973db611ec67bde0be55b3a4b6b6bf014c0ce048d9d487be60",
     "item": {
       "id": "flotationhull",
       "name": "Combat Vehicle Chassis Mod (Flotation Hull)",
@@ -28665,6 +29339,26 @@
         "tank": 0,
         "supportVehicle": 0
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2472,
@@ -28675,7 +29369,7 @@
     "file": "miscellaneous/other.json",
     "index": 216,
     "id": "limitedamphibiouschassis",
-    "sha256": "102c68c3ebeb6be3f7815e60c576ae0021047596f5250f680a0f8a7002e14a9f",
+    "sha256": "d9b406230c9425a461e404e84fc941e4640de32e0a241d55c4dbd3ed18ed67ab",
     "item": {
       "id": "limitedamphibiouschassis",
       "name": "Combat Vehicle Chassis Mod [Limited Amphibious]",
@@ -28688,6 +29382,28 @@
         "tank": 0,
         "supportVehicle": 0
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2472,
@@ -28698,7 +29414,7 @@
     "file": "miscellaneous/other.json",
     "index": 217,
     "id": "fullyamphibiouschassis",
-    "sha256": "267b52213222f4e99fe354298a6c8c07787f4239663992ed61bc2c467f0b98ed",
+    "sha256": "70795cf0fdc91484e4196e8ecdf6030ae452deb6fda4f500a4699cd24cf92fd9",
     "item": {
       "id": "fullyamphibiouschassis",
       "name": "Combat Vehicle Chassis Mod [Fully Amphibious]",
@@ -28711,6 +29427,28 @@
         "tank": 0,
         "supportVehicle": 0
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2474,
@@ -28721,7 +29459,7 @@
     "file": "miscellaneous/other.json",
     "index": 218,
     "id": "cvdunebuggychassis",
-    "sha256": "fde8d14a230bcdb4569bca6fab105ec645ddcc01f2156bdc37ea5e458c9fbb67",
+    "sha256": "028b8bcbacfdf4d6f5016f07b79959d704ddbbed7704d0a7eac042288a8b25a0",
     "item": {
       "id": "cvdunebuggychassis",
       "name": "Combat Vehicle Chassis Mod [Dune Buggy]",
@@ -28734,6 +29472,30 @@
         "tank": 0,
         "supportVehicle": 0
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2471,
@@ -28744,7 +29506,7 @@
     "file": "miscellaneous/other.json",
     "index": 219,
     "id": "environmental-sealed-chassis",
-    "sha256": "56de7c3cb981c6be8c0402f705b4c90e2430757e6bbef3dd3f160c8fdfc48bb1",
+    "sha256": "9a470759c7344cc1a0330613761661ca8c6be4e27c89f4d5e279e00129ed0cb1",
     "item": {
       "id": "environmental-sealed-chassis",
       "name": "Combat Vehicle Chassis Mod [Environmental Sealing]",
@@ -28756,6 +29518,10 @@
       "vehicleSlots": {
         "tank": 0,
         "supportVehicle": 0
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["SUBMARINE"],
+        "incompatibleSupport": ["SUBMARINE"]
       },
       "costCBills": 0,
       "battleValue": 0,
@@ -28859,7 +29625,7 @@
     "file": "miscellaneous/other.json",
     "index": 224,
     "id": "svdunebuggychassis",
-    "sha256": "018eab796c5001891485c608612c2a0ae254c3fff5bd9fb877a1e3abb40da91e",
+    "sha256": "589e61af72197494ab9dd0912732c507fcd9e7f47f7f1e5a874799620a79a660",
     "item": {
       "id": "svdunebuggychassis",
       "name": "SV Chassis Mod [Dune Buggy]",
@@ -28872,6 +29638,30 @@
         "tank": 0,
         "supportVehicle": 0
       },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2471,
@@ -28882,7 +29672,7 @@
     "file": "miscellaneous/other.json",
     "index": 225,
     "id": "environmental-sealing",
-    "sha256": "da5f973652647ee7caffa7b5a8fdff816b609686caa833ef3b08a87ad496d430",
+    "sha256": "779e2f20171848627e2f632a45f3053cbcc4778d490d26d6fe4d31db31bccc23",
     "item": {
       "id": "environmental-sealing",
       "name": "Environmental Sealing",
@@ -28894,6 +29684,10 @@
       "vehicleSlots": {
         "tank": 0,
         "supportVehicle": 0
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["SUBMARINE"],
+        "incompatibleSupport": ["SUBMARINE"]
       },
       "costCBills": 0,
       "battleValue": 0,
@@ -29135,7 +29929,7 @@
     "file": "miscellaneous/other.json",
     "index": 236,
     "id": "trailer-hitch",
-    "sha256": "664191bcb43f5a36ac6c555efeec2e41079bac99c060f6f7e92a251df8f12979",
+    "sha256": "7dbbd8c63e64e9cea165f371b05dae16346553a262dd45e7320076e2911d8994",
     "item": {
       "id": "trailer-hitch",
       "name": "Trailer Hitch",
@@ -29147,6 +29941,24 @@
       "vehicleSlots": {
         "tank": 0,
         "supportVehicle": 0
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE"
+        ],
+        "incompatibleSupport": [
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE"
+        ]
       },
       "costCBills": 0,
       "battleValue": 0,
@@ -29319,7 +30131,7 @@
     "file": "miscellaneous/other.json",
     "index": 244,
     "id": "pintle-mount",
-    "sha256": "3537998b6a86d5b88566f52a8d02ec3dd5544a8e248c0a0bd15d2a402425d9a7",
+    "sha256": "49861307cf5f14d17889be430f9fe40cbeaba39050fdd9eb31c7c66019c4df05",
     "item": {
       "id": "pintle-mount",
       "name": "Pintle Mount",
@@ -29331,6 +30143,10 @@
       "vehicleSlots": {
         "tank": 0,
         "supportVehicle": 0
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["NAVAL", "HYDROFOIL", "SUBMARINE"],
+        "incompatibleSupport": ["NAVAL", "HYDROFOIL", "SUBMARINE"]
       },
       "costCBills": 0,
       "battleValue": 0,
@@ -29871,7 +30687,7 @@
     "file": "miscellaneous/other.json",
     "index": 268,
     "id": "jump-jet-ba",
-    "sha256": "2294a2741b832afcf79063ad298f25c975130c98fd4b43e7b61b5051485281f0",
+    "sha256": "0ae9c1d5f3c3159abf52c2b016688ca50c46233217586e81e282d53c553b2a09",
     "item": {
       "id": "jump-jet-ba",
       "name": "Jump Jet [BA]",
@@ -29883,6 +30699,24 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 0
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
       },
       "costCBills": 0,
       "battleValue": 0,
@@ -30438,7 +31272,7 @@
     "file": "miscellaneous/other.json",
     "index": 293,
     "id": "b-pod",
-    "sha256": "9ff706b4e23ad2e578e5f11c328dac713a238122cccabe2866a46b02fa0387d1",
+    "sha256": "30bc68ab4bd94bf195eb1fa871adf491e95c7d98d08ef3a04aea804408bef9bf",
     "item": {
       "id": "b-pod",
       "name": "B-Pod",
@@ -30450,6 +31284,10 @@
       "vehicleSlots": {
         "tank": 1,
         "supportVehicle": 1
+      },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["NAVAL", "HYDROFOIL", "SUBMARINE"],
+        "incompatibleSupport": ["NAVAL", "HYDROFOIL", "SUBMARINE"]
       },
       "costCBills": 2500,
       "battleValue": 2,
@@ -30566,7 +31404,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 277,
+    "index": 292,
     "id": "alamomissile-registry",
     "sha256": "3c7dc5048e0a716d5df245378ee75a61665c402ad3735609b41045d96c76c285",
     "item": {
@@ -30601,7 +31439,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 278,
+    "index": 293,
     "id": "capital-missile-launcher-kraken-registry",
     "sha256": "f79496180ecee6507a5740e498db5828e4fd1f4277f80c79336c61dac831880c",
     "item": {
@@ -30636,7 +31474,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 279,
+    "index": 294,
     "id": "naval-gauss-heavy-registry",
     "sha256": "dfcc0828bbbc83168a96c52f906ca0bee5d36cc7509cde455ae103864f2648b0",
     "item": {
@@ -30681,7 +31519,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 280,
+    "index": 295,
     "id": "naval-gauss-light-registry",
     "sha256": "1ea83ed0660cf51c8e9f4c4ead229dfb75564e679f89c49ea682657304ff3421",
     "item": {
@@ -30726,7 +31564,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 281,
+    "index": 296,
     "id": "naval-gauss-medium-registry",
     "sha256": "6fa783f29a5133e10b253503792d017c38854b95a7decbe9bf2667e56890d7be",
     "item": {
@@ -30771,7 +31609,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 282,
+    "index": 297,
     "id": "tele-operated-missile-barracuda-t-registry",
     "sha256": "895a2bf9e58e5ddbd60d46008e09e510933df55f0c36a9d824834a441ae234da",
     "item": {
@@ -30806,7 +31644,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 283,
+    "index": 298,
     "id": "tele-operated-missile-white-shark-t-registry",
     "sha256": "925859e668ad8c63983d9dcec316c027ec6921be2242406fd3f38fc127e07d5e",
     "item": {
@@ -31477,7 +32315,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 284,
+    "index": 299,
     "id": "autocannon-2p-registry",
     "sha256": "7cb0d0857eea54cbac82da9f540eea85e82b109c5ffacf8bc33e477c23f2b264",
     "item": {
@@ -31527,7 +32365,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 285,
+    "index": 300,
     "id": "bombrlp-registry",
     "sha256": "a0fc1fe27718e7d0c00401af2598f59b8753c811355e7801b8bac642bf687eae",
     "item": {
@@ -31571,7 +32409,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 286,
+    "index": 301,
     "id": "clersmalllaserprototype-registry",
     "sha256": "33d99c5468ae2bf6ead3378d1a072136ff69e10582881a90ce908b5446b8702e",
     "item": {
@@ -31622,7 +32460,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 287,
+    "index": 302,
     "id": "cllbxac20prototype-registry",
     "sha256": "9b454b66310033abf4e86d794347f33bfb7a63fc3a46917472ab040f86faf638",
     "item": {
@@ -31673,7 +32511,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 288,
+    "index": 303,
     "id": "cllbxac2prototype-registry",
     "sha256": "d370469ab01fd6896e7e36c38ff6159684987fb545a80cc9e9132dfbc44c0eaa",
     "item": {
@@ -31724,7 +32562,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 289,
+    "index": 304,
     "id": "cllbxac5prototype-registry",
     "sha256": "eb75a0917307efc49ce88f9730b990da97edfae7cf384b72479265b61e88f968",
     "item": {
@@ -31775,7 +32613,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 290,
+    "index": 305,
     "id": "clstreaksrm4prototype-registry",
     "sha256": "73215d376c646bb5fdeb81d8d8daae01530d6cfe0b05297b2983522f8d73606a",
     "item": {
@@ -31823,7 +32661,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 291,
+    "index": 306,
     "id": "clstreaksrm6prototype-registry",
     "sha256": "269a43469710db9eeb32b2e2d6ab306701c235ba950376a29f528001d3c29e47",
     "item": {
@@ -31871,7 +32709,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 292,
+    "index": 307,
     "id": "clultraac10prototype-registry",
     "sha256": "124379e9c37b2843c0eb777f7911c82d197673bb08fb085899fbda527a7db48d",
     "item": {
@@ -31922,7 +32760,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 293,
+    "index": 308,
     "id": "clultraac20prototype-registry",
     "sha256": "8b226b4bde3da2a21760ab0fd045f25ac7093417fdfbd91bcd7e9a09b9905f45",
     "item": {
@@ -31973,7 +32811,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 294,
+    "index": 309,
     "id": "clultraac2prototype-registry",
     "sha256": "a345890ac02094d6cabfd55018f5e259f06b9470685f30783ad008662fa73c64",
     "item": {
@@ -32025,7 +32863,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 295,
+    "index": 310,
     "id": "iserlargelaserprototype-registry",
     "sha256": "dfa71cff233e543925cbdafeac72ee0fd1d4fb00d54c2361ca1d6dedd227d7b8",
     "item": {
@@ -32077,7 +32915,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 296,
+    "index": 311,
     "id": "isgaussrifleprototype-registry",
     "sha256": "ca9ae3b5e538da2c75f883183d63fce782bb2a90eaf3e8073fbf7c10f17f03a6",
     "item": {
@@ -32126,7 +32964,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 297,
+    "index": 312,
     "id": "islbxac10prototype-registry",
     "sha256": "b9caffc0b60e2a079cbd1c35ed72587675c71380651337ce335bc34d7e9e6a5d",
     "item": {
@@ -32179,7 +33017,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 298,
+    "index": 313,
     "id": "islargepulselaserprototype-registry",
     "sha256": "4c954acb10a92b036d205f44a60165c95ce96992a49864f0b950d81f2a18fca2",
     "item": {
@@ -32231,7 +33069,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 299,
+    "index": 314,
     "id": "ismediumpulselaserprototype-registry",
     "sha256": "6048bd3fd7dbda19b5bc00cbce646a041ac811b36f95ba9f60b4191d8067a6ec",
     "item": {
@@ -32283,7 +33121,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 300,
+    "index": 315,
     "id": "ismediumpulselaserrecovered-registry",
     "sha256": "c81951a0707431ad6f12390387d0c2fa9484a387707e3913cee1b4a865cde0cd",
     "item": {
@@ -32335,7 +33173,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 301,
+    "index": 316,
     "id": "isnarcbeaconprototype-registry",
     "sha256": "40b93265505bcc349be38ee4c751fdbcc0ad3f5ea7383ead020a9e64c0784861",
     "item": {
@@ -32387,7 +33225,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 302,
+    "index": 317,
     "id": "isprimitivelongtom-registry",
     "sha256": "b9517a46d163dce4cbc42d67736b5d19308e636d9d03f47344ee812828c5c366",
     "item": {
@@ -32438,7 +33276,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 303,
+    "index": 318,
     "id": "isprototypetag-registry",
     "sha256": "79dd91fe8b4bfc8b773a80bc1ff6f8590ceb2bf2a9473af477ff347c035cc0c8",
     "item": {
@@ -32489,7 +33327,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 304,
+    "index": 319,
     "id": "issmallpulselaserprototype-registry",
     "sha256": "a44a7cc088406c7b8a65778f6432a8cff64549534c60d524312fc1d30222f879",
     "item": {
@@ -32541,7 +33379,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 305,
+    "index": 320,
     "id": "primitive-prototype-lrm-10-registry",
     "sha256": "f540bfc90648bbde1b7688b2be3e8a6791c418a81a4cd38f6d0727a3a91ebca0",
     "item": {
@@ -32592,7 +33430,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 306,
+    "index": 321,
     "id": "primitive-prototype-lrm-15-registry",
     "sha256": "d5dd042f47f11a0775eb32e1b33eb47823c43f374acaf2cc701345ad090e69a5",
     "item": {
@@ -32643,7 +33481,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 307,
+    "index": 322,
     "id": "primitive-prototype-lrm-20-registry",
     "sha256": "e740af6e9d157cc73ef05613ce1c08c7b27672590c118928feeae3b801ee2236",
     "item": {
@@ -32694,7 +33532,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 308,
+    "index": 323,
     "id": "primitive-prototype-lrm-5-registry",
     "sha256": "1c4f713b9fdb828bdc6d3cc09edbeb1373e1f4901fda372e5d1762093155b39c",
     "item": {
@@ -32745,7 +33583,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 309,
+    "index": 324,
     "id": "primitive-prototype-large-laser-registry",
     "sha256": "0d49c15d3993490b043d30eac75ec822e6cb15014a352061269e58125ac1de98",
     "item": {
@@ -32796,7 +33634,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 310,
+    "index": 325,
     "id": "primitive-prototype-medium-laser-registry",
     "sha256": "1c0ba9e6896708dcfa7e52913a1639c21858c473cec3cfe7d0713c581e4a0d5c",
     "item": {
@@ -32847,7 +33685,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 311,
+    "index": 326,
     "id": "primitive-prototype-ppc-registry",
     "sha256": "70e227188b74b7e440f58241614c75b2c6e4a276519b7573a091af8155517b83",
     "item": {
@@ -32898,7 +33736,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 312,
+    "index": 327,
     "id": "primitive-prototype-srm-2-registry",
     "sha256": "5820db4d84a26996284aa36725db74c6d4a43b04f2b0507c9a2d7ddeb723e300",
     "item": {
@@ -32949,7 +33787,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 313,
+    "index": 328,
     "id": "primitive-prototype-srm-4-registry",
     "sha256": "41aacbdbdbdcf190d5c34aa5b4c25878f41c143dc0548cc8549fc1ec7853b8cd",
     "item": {
@@ -33000,7 +33838,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 314,
+    "index": 329,
     "id": "primitive-prototype-srm-6-registry",
     "sha256": "02049da712d7e495ec17c141d42a9b88bcfa5eb2c255a5f9b6b4392718ab27a2",
     "item": {
@@ -33051,7 +33889,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 315,
+    "index": 330,
     "id": "primitive-prototype-small-laser-registry",
     "sha256": "a7e0e2c98e6bcc052f67ea9a42f3b308b1a0ebdad216bb0178c6f115b0ea6b9c",
     "item": {
@@ -33102,7 +33940,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 316,
+    "index": 331,
     "id": "prototypearrowiv-registry",
     "sha256": "477abc20545967ee4c42c4bbbb292203765b44e73b4a16d344d5d98088ce553e",
     "item": {

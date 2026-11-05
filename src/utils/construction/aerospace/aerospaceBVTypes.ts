@@ -70,6 +70,9 @@ export interface IAerospaceBVInput {
   readonly armorType: string;
   readonly barRating?: number;
   readonly totalArmorPoints: number;
+  /** Canonical AerospaceArc keys; adapters normalize native/editor spellings. */
+  readonly armorByArc?: Readonly<Partial<Record<AerospaceArc, number>>>;
+  readonly armorTypeByArc?: Readonly<Partial<Record<AerospaceArc, number>>>;
   readonly equipment: readonly IAerospaceBVEquipment[];
   readonly ammo?: readonly IAerospaceBVAmmo[];
   /** Additional defensive BV not represented in equipment (mounted items are resolved automatically). */
@@ -94,6 +97,8 @@ export type IAerospaceDefensiveBVInput = Pick<
   | 'armorType'
   | 'barRating'
   | 'totalArmorPoints'
+  | 'armorByArc'
+  | 'armorTypeByArc'
   | 'structuralIntegrity'
   | 'equipment'
   | 'defensiveEquipmentBV'
