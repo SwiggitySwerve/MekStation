@@ -1,7 +1,6 @@
 {
   "battlemechs": [
     "heavy-rifle",
-    "issrm4-os",
     "long-tom-cannon",
     "medium-chemical-laser",
     "prototype-rocket-launcher-20",
@@ -10,24 +9,10 @@
   ],
   "vehicles": [
     "gauss-rifle,-light-king-davidpt:size:1.0",
-    "is-heavy-flamer-ammo:omni",
-    "machine-gun-lightpt:size:1.0",
-    "taser-ammo:omni",
-    "wire-guided-missile-launcher:size:1.0"
+    "machine-gun-lightpt:size:1.0"
   ],
   "aerospace": [],
-  "capital": [
-    "b-autocannon-5-primitive",
-    "b-mass-driver-heavy",
-    "b-mass-driver-light",
-    "b-mass-driver-medium",
-    "b-sub-capital-missile-launcher-swordfish",
-    "b-tele-operated-missile-killer-whale-t",
-    "isenhancedlrm20-ammo-artemis-capable:24",
-    "isenhancedlrm20-ammo-artemis-capable:48",
-    "r-b-autocannon-5-primitive",
-    "r-clan-ammo-srm-4-clan-artemis-capable:25"
-  ],
+  "capital": [],
   "battlearmor": ["isbalightactiveprobe"],
   "infantry": [
     "aa-weapon-mk.-1,-light",

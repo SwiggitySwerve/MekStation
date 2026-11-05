@@ -4,10 +4,10 @@ exports[`committed catalog record-sheet model parity vehicles: checks every inde
 {
   "counts": {
     "BV.source": 7,
-    "equipmentUnresolved": 4,
+    "equipmentUnresolved": 1,
   },
   "rejected": 0,
-  "residualDigest": "730873068433ea747c95475f6e5e38329dddbef117e285769134f9b7685974e6",
+  "residualDigest": "2c85a51546c8f293482b698a8b6917181ab035c26d4c70a6ef5595866e27e98a",
   "total": 1444,
 }
 `;
