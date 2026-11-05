@@ -176,6 +176,16 @@ on weight, heat or BV. Legacy inconsistent turret configurations, primary
 Dual versus the separate secondary toggle, and full mount-state validation
 remain separate work. No catalog data is migrated or regenerated.
 
+## Vehicle-flamer amplifier eligibility
+
+At pin 48fcb2f64 TestTank.java:744-750 excludes VehicleFlamerWeapon from
+the power-amplifier basis, independently of display Requires-ammo metadata.
+Its three native classes are ISVehicleFlamer.java:52, ISHeavyFlamer.java:54
+and CLHeavyFlamer.java:54. The amplifier owner classifies their resolved IDs;
+heat-only inputs without IDs use the native type name. Thermal and support
+consumers call that same classifier. Ordinary and infantry flamers retain
+their separate classification. No catalog values change.
+
 ## Offensive BV mass contribution
 
 `vehicleBVOffensive.ts:calculateVehicleOffensiveBV` owns the offensive mass
