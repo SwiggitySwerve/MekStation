@@ -454,6 +454,13 @@ is inferred from its packaging or substituted for missing catalog data.
 
 ## Support fire control, targeting computers and assembled BV movement
 
+Vehicle mount partitioning uses the shared native ammunition classifier,
+including registry identities without "ammo" in their names. Explicit saved
+mount kinds still take precedence. C3 remote sensors enter the existing capped
+ammo owner with their launcher in C3_REMOTE_SENSOR:1, rather than miscellaneous
+equipment. Pin 48fcb2f64: AmmoType.java:13376-13386;
+BVCalculator.java:1045-1086. Missing launchers contribute no ammo BV.
+
 `vehicleBVOffensive.ts` applies support basic FCS 0.9 (before advanced),
 advanced FCS 1, or absent FCS 0.8 to non-infantry WeaponType mounts and capped
 ammo. Resolved miscellaneous equipment receives neither FCS nor TC scaling.

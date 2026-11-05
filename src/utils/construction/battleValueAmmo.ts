@@ -480,7 +480,7 @@ export function getNativeAmmoBVGroup(id: string): string | undefined {
     [/^narc/, 'NARC:1'],
     [/^(?:vehiculargrenadelauncher|vgl)/, 'VGL:1'],
     [/^(?:battlemechtaser|taser)/, 'TASER:1'],
-    [/^c3sensors/, 'C3_REMOTE_SENSOR:1'],
+    [/^c3(?:sensors|remotesensorlauncher)/, 'C3_REMOTE_SENSOR:1'],
   ];
   for (const [pattern, replacement] of patterns) {
     const match = token.match(pattern);
