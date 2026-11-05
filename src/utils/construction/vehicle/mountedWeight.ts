@@ -14,6 +14,11 @@ import { isValidWeight } from '@/utils/physical/weightUtils';
 
 import type { VehicleControlsLiftContext } from './controlsLift';
 
+import {
+  getMountedBVLinkType,
+  linkLaserInsulatorWeapons,
+  linkPPCCapacitorWeapons,
+} from '../equipmentBV/weaponLinks';
 import { computeTurretEquipmentWeight } from './equipmentMounts';
 import { isPowerAmplifierEnergyWeapon } from './powerAmplifier';
 import { getVehicleTurretMechanismFigures } from './turret';
@@ -22,6 +27,33 @@ export type EquipmentResolver = (
   equipmentId: string,
 ) => IEquipmentItem | undefined;
 
+/** Raw heat-neutral weapon load: MegaMek 48fcb2f64a1b TestEntity.java:945-950.
+ * Unlike BV heat, ammunition-fed flamers/chemical lasers contribute zero;
+ * plasma weapons still contribute. Non-weapon plasma-named items do not.
+ */
+export function getVehicleHeatNeutralWeaponHeat(
+  item: Pick<IEquipmentItem, 'category' | 'name' | 'heat' | 'special'>,
+): number | null {
+  const weapon = [
+    EquipmentCategory.ENERGY_WEAPON,
+    EquipmentCategory.BALLISTIC_WEAPON,
+    EquipmentCategory.MISSILE_WEAPON,
+    EquipmentCategory.ARTILLERY,
+    EquipmentCategory.CAPITAL_WEAPON,
+  ].includes(item.category);
+  // TestEntity.java:945-950 selects laser/PPC/plasma/flamer flags, not the
+  // catalog's broader Energy category. Heavy/vehicle flamers use ammunition.
+  const excludedEnergy = /tsemp|taser|(?:heavy|vehicle)\s*flamer/i.test(
+    item.name,
+  );
+  return (isPowerAmplifierEnergyWeapon(item) && !excludedEnergy) ||
+    (weapon && /plasma/i.test(item.name))
+    ? item.heat !== undefined && isValidWeight(item.heat)
+      ? item.heat
+      : null
+    : 0;
+}
+
 export interface VehicleMountedWeightState
   extends
     IVehicleTurretSourceContext,
@@ -29,6 +61,7 @@ export interface VehicleMountedWeightState
   equipment: readonly IVehicleMountedEquipment[];
   turret: ITurretConfiguration | null;
   secondaryTurret: ITurretConfiguration | null;
+  year?: number;
 }
 
 export interface VehicleMountedWeightBreakdown {
@@ -54,12 +87,13 @@ export function computeVehicleMountedWeightFigures(
   state: VehicleMountedWeightState,
   resolve: EquipmentResolver,
 ): VehicleMountedWeightBreakdown & {
+  rawWeaponHeat: number | null;
   primarySummary: ReturnType<typeof getVehicleTurretMechanismFigures>;
   secondarySummary: ReturnType<typeof getVehicleTurretMechanismFigures>;
 } {
   const unresolvedMountIds: string[] = [];
   const issues: string[] = [];
-  const mounted = state.equipment.map((mount) => {
+  const mounted = state.equipment.map((mount, order) => {
     const item = resolve(mount.equipmentId);
     const weight =
       item !== undefined && isValidWeight(item.weight) ? item.weight : null;
@@ -68,7 +102,17 @@ export function computeVehicleMountedWeightFigures(
       issues.push(`Mount ${mount.id}: unresolved or invalid equipment mass`);
     }
     return {
+      id: item?.id ?? mount.equipmentId,
+      location: mount.location,
+      order,
+      laser:
+        item?.category === EquipmentCategory.ENERGY_WEAPON &&
+        /laser/i.test(item.name),
+      linked: false,
+      insulated: false,
+      capacitor: false,
       weight,
+      heat: item === undefined ? null : getVehicleHeatNeutralWeaponHeat(item),
       isAmmunition: item?.category === EquipmentCategory.AMMUNITION,
       // An unresolved definition has unknown classification as well as mass.
       needsAmplifier: item === undefined || isPowerAmplifierEnergyWeapon(item),
@@ -89,6 +133,41 @@ export function computeVehicleMountedWeightFigures(
     return null;
   };
   const equipment = sum(mounted, 'Equipment');
+  linkLaserInsulatorWeapons(
+    mounted,
+    mounted
+      .filter(
+        (m) =>
+          m.id === 'laserinsulator' || getMountedBVLinkType(m.id) === 'risc',
+      )
+      .map((m) => ({
+        ...m,
+        kind:
+          m.id === 'laserinsulator'
+            ? ('insulator' as const)
+            : ('risc' as const),
+      })),
+  );
+  linkPPCCapacitorWeapons(
+    mounted,
+    mounted.filter((m) => m.id === 'ppc-capacitor'),
+    state.year,
+    (w) => !w.linked,
+    (w) => {
+      w.linked = true;
+      w.capacitor = true;
+    },
+  );
+  const rawWeaponHeat = mounted.reduce<number | null>((total, mount) => {
+    if (total === null || mount.heat === null) return null;
+    // TestEntity.java:951-966 at 48fcb2f64: keep its running-total zero guard.
+    let heat = total + mount.heat;
+    if (mount.insulated) {
+      heat--;
+      if (heat === 0) heat++;
+    }
+    return heat + (mount.capacitor ? 5 : 0);
+  }, 0);
   const primary = mounted.filter((mount) => mount.inPrimaryTurret);
   const secondary = mounted.filter((mount) => mount.inSecondaryTurret);
   const turretMounted = sum(primary, 'Primary mounted equipment');
@@ -132,6 +211,7 @@ export function computeVehicleMountedWeightFigures(
     ...secondaryMechanism.issues.map((issue) => `Secondary turret: ${issue}`),
   );
   return {
+    rawWeaponHeat,
     equipment,
     turretEquipment,
     secondaryTurretEquipment,
@@ -155,6 +235,7 @@ export function computeVehicleMountedWeightBreakdown(
   resolve: EquipmentResolver,
 ): VehicleMountedWeightBreakdown {
   const {
+    rawWeaponHeat: _heat,
     primarySummary: _primary,
     secondarySummary: _secondary,
     ...weights

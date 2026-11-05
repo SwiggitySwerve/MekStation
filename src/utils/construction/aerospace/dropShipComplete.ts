@@ -1,7 +1,7 @@
 import { getHeatSinkDefinition } from '@/types/construction/HeatSinkType';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
-import { getEquipmentEntry } from '../equipmentBVResolver';
+import { hasBVDroneOS } from '../battleValueEquipment';
 import { calculateHeatDissipation } from '../heatSinkCalculations';
 import {
   calculateAerospaceFinalBV as calculateDropShipFinalBV,
@@ -99,8 +99,8 @@ export function calculateLargeAerospaceBV(
     ...calculateDropShipFinalBV(defense.defensive, stage.offensive, {
       ...options,
       cockpit: unit.cockpit,
-      hasDroneOperatingSystem: equipment.some(
-        (m) => getEquipmentEntry(m.equipmentId)?.id === 'droneoperatingsystem',
+      hasDroneOperatingSystem: hasBVDroneOS(
+        equipment.map((m) => m.equipmentId),
       ),
     }),
     calculationScope: 'complete',

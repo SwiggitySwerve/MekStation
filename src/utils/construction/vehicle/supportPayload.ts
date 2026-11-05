@@ -8,6 +8,7 @@ import { getEquipmentEntry } from '@/utils/construction/equipmentBV';
 import { isAmmunitionEquipmentId } from '@/utils/construction/equipmentBV/catalogLoader';
 import { getAmmunitionWeightEntry } from '@/utils/construction/equipmentBV/resolution';
 
+import { getVehicleHeatNeutralWeaponHeat } from './mountedWeight';
 import {
   computePowerAmplifierWeight,
   isPowerAmplifierEnergyWeapon,
@@ -98,8 +99,15 @@ export function computeSupportPayloadWeights(
         unresolved.push(mount.equipmentId);
     }
     // TestEntity.java:938-982: heat-neutral weapon load; small SVs need no sinks.
-    const heat =
-      weapon && (energy || /plasma/i.test(item.name)) ? (item.heat ?? 0) : 0;
+    const heat = weapon
+      ? (getVehicleHeatNeutralWeaponHeat({
+          ...item,
+          category:
+            item.category === 'Energy'
+              ? EquipmentCategory.ENERGY_WEAPON
+              : EquipmentCategory.BALLISTIC_WEAPON,
+        }) ?? 0)
+      : 0;
     return { ...mount, ammo, weapon, weight, heat, energy, id: item.id };
   });
   const sum = (predicate: (mount: (typeof mounts)[number]) => boolean) =>

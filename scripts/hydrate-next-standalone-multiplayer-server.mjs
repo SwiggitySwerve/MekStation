@@ -169,6 +169,88 @@ function copyMegaMekBVCache() {
   copyRuntimeFile(megaMekBVCacheRelativePath, 'MegaMek BV cache');
 }
 
+// The custom server loads src through tsx inside the standalone tree, so every
+// file src imports from outside src must ship with it (public/ is copied whole).
+// #2655's src import of scripts/equipment-catalog/capital-bv.json was missing and
+// the multiplayer runtime failed to load (2026-11-04 nightly). Static relative
+// imports only; test and story files are not runtime closure.
+const SOURCE_FILE = /\.(?:[cm]?[jt]sx?)$/;
+const TEST_FILE =
+  /(?:^|\/)__tests__\/|\.(?:test|spec)\.[cm]?[jt]sx?$|\.test-helpers\.[cm]?[jt]sx?$|\.stories\.[cm]?[jt]sx?$/;
+const RELATIVE_IMPORT =
+  /(?:\bfrom\s*|\bimport\s*\(\s*|\brequire\s*\(\s*|^\s*import\s+)['"](\.{1,2}\/[^'"]+)['"]/gm;
+const RESOLVE_SUFFIXES = ['', '.ts', '.tsx', '.js', '.mjs', '.cjs', '.json'];
+
+function posixRel(filePath) {
+  return rel(filePath).replaceAll(path.sep, '/');
+}
+
+function listSourceFiles(dir) {
+  return fs
+    .readdirSync(dir, { recursive: true, withFileTypes: true })
+    .filter((entry) => entry.isFile() && SOURCE_FILE.test(entry.name))
+    .map((entry) => path.join(entry.parentPath ?? entry.path, entry.name));
+}
+
+function resolveRelativeImport(fromFile, specifier) {
+  const base = path.resolve(path.dirname(fromFile), specifier);
+  const candidates = [
+    ...RESOLVE_SUFFIXES.map((suffix) => base + suffix),
+    ...['index.ts', 'index.tsx', 'index.js'].map((name) =>
+      path.join(base, name),
+    ),
+  ];
+  return {
+    base,
+    file: candidates.find((candidate) =>
+      fs.statSync(candidate, { throwIfNoEntry: false })?.isFile(),
+    ),
+  };
+}
+
+function collectSourceClosure() {
+  const srcDir = path.join(root, 'src');
+  const publicDir = path.join(root, 'public');
+  const shipped = (file) =>
+    !isPathOutside(srcDir, file) || !isPathOutside(publicDir, file);
+  const queue = listSourceFiles(srcDir).filter(
+    (file) => !TEST_FILE.test(posixRel(file)),
+  );
+  const outside = new Set();
+  while (queue.length > 0) {
+    const file = queue.pop();
+    for (const match of fs
+      .readFileSync(file, 'utf8')
+      .matchAll(RELATIVE_IMPORT)) {
+      const { base, file: target } = resolveRelativeImport(file, match[1]);
+      if (!target) {
+        if (!shipped(base))
+          throw new Error(
+            `${posixRel(file)} imports a missing file outside src: ${posixRel(base)}`,
+          );
+        continue;
+      }
+      if (shipped(target) || outside.has(target)) continue;
+      if (isPathOutside(root, target))
+        throw new Error(
+          `${posixRel(file)} imports outside the repository: ${target}`,
+        );
+      outside.add(target);
+      if (SOURCE_FILE.test(target)) queue.push(target);
+    }
+  }
+  return [...outside].sort();
+}
+
+function copySourceClosure(files) {
+  for (const source of files) {
+    const target = path.join(standaloneDir, path.relative(root, source));
+    assertSafeDestinationPath(standaloneDir, target, 'source closure file');
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.copyFileSync(source, target);
+  }
+}
+
 async function copyNextStaticAssets() {
   await copyDir(
     path.join(nextDir, 'static'),
@@ -255,6 +337,7 @@ async function main() {
   assertExists(path.join(root, 'node_modules', 'tsx'), 'tsx runtime loader');
   assertExists(path.join(root, 'node_modules', 'ws'), 'WebSocket runtime');
   validateHydrationDestinations();
+  const sourceClosure = collectSourceClosure();
   const preflightSource = createPackageSourcePreflight(root);
   const runtimePackages = await collectRuntimePackages(
     root,
@@ -341,6 +424,7 @@ async function main() {
     path.join(standaloneDir, 'src'),
     'standalone source tree',
   );
+  copySourceClosure(sourceClosure);
   await copyRuntimeLoaders(runtimePackages.directories);
   for (const source of runtimePackages.files) {
     copyRuntimeFile(
@@ -421,6 +505,7 @@ async function main() {
         ),
         nextStaticAssets: rel(path.join(standaloneDir, '.next', 'static')),
         sourceTree: rel(path.join(standaloneDir, 'src')),
+        sourceClosure: sourceClosure.map(posixRel),
       },
       null,
       2,

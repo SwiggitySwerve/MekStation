@@ -9,7 +9,14 @@
  * KEY. A file's key hashes (all through git blob ids, so it costs no reads):
  *   - the file and its static import closure (relative, `@/` and in-repo
  *     bare imports; jest.mock/requireActual targets; its __snapshots__ file;
- *     the Jest setup files),
+ *     the Jest setup files). Type-only edges are not followed, because
+ *     @swc/jest erases them without loading the module: `import type`,
+ *     `export type {...} from` and the `import('x')` type, as @swc/core's AST
+ *     classifies them (not by text), and only when no other occurrence of the
+ *     same specifier exists in the file. Everything else still counts: a mixed
+ *     `import { type A, b }`, an `import { type A }` with no value part, every
+ *     import() in an expression, a mention in a string or comment. Without
+ *     @swc/core, or if a file does not parse, nothing is dropped,
  *   - the "data inputs" it can read: if any closure file uses fs read APIs,
  *     the digest of every repo directory the closure names (public/data/,
  *     openspec/, docs/, ...), or of the WHOLE repo when it names none; a file
@@ -254,6 +261,248 @@ const IMPORT_PATTERNS = [
   /\bimport\s*['"]([^'"\n]+)['"]/g,
   /\b(?:import|require(?:\.resolve)?|jest\.(?:mock|doMock|unmock|dontMock|requireActual|requireMock|createMockFromModule|setMock))\s*\(\s*['"]([^'"\n]+)['"]/g,
 ];
+// Type-only edges. Jest runs @swc/jest, which erases `import type`, `export type
+// ... from` and the `import('x')` TYPE (TsImportType) without loading the module,
+// so they cannot change a test result (Static Checks still type-checks every PR).
+// Which occurrences are type-only is decided by the same parser, not by text:
+// @swc/core's AST. A specifier is dropped from a file's dependencies only when
+// (a) the string literal equal to it occurs nowhere in the AST except as the
+// module string of those type-only nodes, so no loader call of any shape (`jest.
+// requireActual<T>('x')`, `new URL('x', ...)`, `jest.mock(`x`)`, a plain
+// `require('x')`) can refer to it, and (b) every import-like occurrence of it in
+// the text (IMPORT_PATTERNS, over the raw text and the comment-stripped
+// variants) is one of those nodes. A value import, a mixed `import { type A, b
+// }`, an `import { type A }` with no value part, a dynamic import() in an
+// expression (`void import('x').Foo`, `{ k: typeof import('x') }`), a mention in
+// a string or comment, and a second import of the same module all leave the
+// specifier in. A module may also be loaded under another spelling than its
+// type edge (`jest.requireActual<typeof import('@/x')>('./x')`), so in a parsed
+// file every string literal passed to any call or `new` is resolved as an extra
+// dependency (extraSpecs), and a loader whose argument is not a literal keeps
+// every type-only edge of the file. If @swc/core is missing, the file does not
+// parse, or the walk throws, nothing is dropped.
+let swcParseSync; // undefined: not tried yet; null: unavailable
+// Files worth parsing: type-only syntax, an import(), or a loader called with
+// type arguments (`jest.requireActual<T>('x')`), which IMPORT_PATTERNS cannot see.
+const TYPE_CANDIDATE =
+  /\b(?:import|export)\s+type\b|\bimport\s*\(|\b(?:require(?:\.resolve)?|jest\s*\.\s*\w+)\s*</;
+const JEST_LOADERS = new Set([
+  'mock',
+  'doMock',
+  'unmock',
+  'dontMock',
+  'requireActual',
+  'requireMock',
+  'createMockFromModule',
+  'setMock',
+]);
+/**
+ * Is `callee` a direct loader: `require`, `require.resolve`, `jest.<loader>`,
+ * `<anything>.require` (`module.require`) or `import`?
+ */
+function isLoaderCallee(callee, nameOf) {
+  if (callee?.type === 'Import') return true;
+  if (callee?.type === 'Identifier') return callee.value === 'require';
+  if (callee?.type !== 'MemberExpression') return false;
+  const name = nameOf(callee);
+  if (name === 'require') return true;
+  if (callee.object?.type !== 'Identifier') return false;
+  return callee.object.value === 'require'
+    ? name === 'resolve'
+    : callee.object.value === 'jest' && JEST_LOADERS.has(name);
+}
+// Names through which code can reach a loader without calling it directly:
+// `const load = require`, `[...].map(require)`, `createRequire(url)(p)`, `eval`,
+// `const { requireActual } = jest`. Any reference outside a recognised direct
+// call keeps every type-only edge of the file (see looseLoader).
+const LOADER_NAMES = new Set(['require', 'createRequire', 'eval', 'jest']);
+// Ts* nodes that carry a runtime expression; every other Ts* node is only a type.
+const TS_VALUE_NODES = new Set([
+  'TsAsExpression',
+  'TsNonNullExpression',
+  'TsTypeAssertion',
+  'TsSatisfiesExpression',
+  'TsConstAssertion',
+  'TsInstantiation',
+  'TsParameterProperty',
+  'TsEnumDeclaration',
+  'TsEnumMember',
+  'TsModuleDeclaration',
+  'TsModuleBlock',
+  'TsNamespaceDeclaration',
+  'TsImportEqualsDeclaration',
+  'TsExportAssignment',
+  'TsExternalModuleReference',
+]);
+
+/**
+ * For `text` (or null when it is not parsed): `counts` maps a specifier to its
+ * number of type-only AST occurrences; `literals` maps every string literal
+ * value in the file to how often it occurs, in any position; `callLiterals` is
+ * every string literal passed as an argument to any call or `new`, whatever the
+ * callee (these join the closure as extra dependencies); `looseLoader` says a
+ * loader may be reached in a way this scan cannot follow: a direct loader call
+ * whose argument is not a plain literal, or a reference to `require`,
+ * `createRequire`, `eval` or `jest` that is not a recognised direct call
+ * (outside type positions).
+ */
+function typeOnlySpecCounts(text) {
+  if (!TYPE_CANDIDATE.test(text)) return null;
+  if (swcParseSync === undefined) {
+    try {
+      swcParseSync = require('@swc/core').parseSync;
+    } catch {
+      swcParseSync = null;
+    }
+  }
+  if (!swcParseSync) return null;
+  let ast;
+  try {
+    ast = swcParseSync(text, {
+      syntax: 'typescript',
+      tsx: true,
+      decorators: false,
+    });
+  } catch {
+    return null;
+  }
+  const counts = new Map();
+  const literals = new Map(); // every string (or plain template) literal, anywhere
+  const callLiterals = new Set();
+  const recognised = new Set(); // identifier nodes that are a direct, understood use
+  let looseLoader = false;
+  const bump = (map, value) => map.set(value, (map.get(value) ?? 0) + 1);
+  const add = (literal) => {
+    if (literal && typeof literal.value === 'string')
+      bump(counts, literal.value);
+  };
+  /** The value of a string literal or an expression-less template, else undefined. */
+  const literalValue = (expr) =>
+    expr?.type === 'StringLiteral' && typeof expr.value === 'string'
+      ? expr.value
+      : expr?.type === 'TemplateLiteral' &&
+          expr.expressions?.length === 0 &&
+          expr.quasis?.length === 1
+        ? (expr.quasis[0].cooked ?? expr.quasis[0].raw)
+        : undefined;
+  /** `x.name` or `x['name']`: the member's name when it is a plain identifier or literal. */
+  const memberName = (member) =>
+    member.property?.type === 'Identifier'
+      ? member.property.value
+      : member.property?.type === 'Computed'
+        ? literalValue(member.property.expression)
+        : undefined;
+  const directMembers = new Set(); // `x.require('literal')` callee nodes
+  const visit = (node, inType) => {
+    if (Array.isArray(node)) {
+      for (const item of node) visit(item, inType);
+      return;
+    }
+    if (!node || typeof node !== 'object') return;
+    const type =
+      inType ||
+      (typeof node.type === 'string' &&
+        node.type.startsWith('Ts') &&
+        !TS_VALUE_NODES.has(node.type));
+    const own = literalValue(node);
+    if (own !== undefined) bump(literals, own);
+    if (node.type === 'CallExpression' || node.type === 'NewExpression') {
+      const args = (node.arguments ?? []).map((arg) => arg.expression);
+      for (const arg of args) {
+        const value = literalValue(arg);
+        if (value !== undefined) callLiterals.add(value);
+      }
+      if (
+        node.type === 'CallExpression' &&
+        isLoaderCallee(node.callee, memberName) &&
+        literalValue(args[0]) === undefined
+      )
+        looseLoader = true;
+      const callee = node.callee;
+      if (node.type === 'CallExpression') {
+        if (
+          callee?.type === 'MemberExpression' &&
+          memberName(callee) === 'require' &&
+          literalValue(args[0]) !== undefined
+        )
+          directMembers.add(callee);
+        if (callee?.type === 'Identifier' && callee.value === 'require')
+          recognised.add(callee);
+        if (
+          callee?.type === 'MemberExpression' &&
+          callee.object?.type === 'Identifier' &&
+          callee.property?.type === 'Identifier' &&
+          ((callee.object.value === 'require' &&
+            callee.property.value === 'resolve') ||
+            (callee.object.value === 'jest' &&
+              JEST_LOADERS.has(callee.property.value)))
+        )
+          recognised.add(callee.object);
+      }
+    }
+    if (node.type === 'MemberExpression' && !type) {
+      // `module.require.bind(module)`, `module['require'](p)`, `globalThis.require`:
+      // a `require` member is a loader unless it is called with a literal path
+      const name = memberName(node);
+      if (name === 'createRequire') looseLoader = true;
+      if (name === 'require' && !directMembers.has(node)) looseLoader = true;
+    }
+    if (
+      node.type === 'MemberExpression' &&
+      node.property?.type === 'Identifier'
+    ) {
+      recognised.add(node.property); // a property name, not a reference
+      // jest.fn, jest.spyOn, ...: not a loader
+      if (
+        node.object?.type === 'Identifier' &&
+        node.object.value === 'jest' &&
+        !JEST_LOADERS.has(node.property.value)
+      )
+        recognised.add(node.object);
+    }
+    if (
+      node.type === 'Identifier' &&
+      !type &&
+      LOADER_NAMES.has(node.value) &&
+      !recognised.has(node)
+    )
+      looseLoader = true;
+    switch (node.type) {
+      case 'ImportDeclaration':
+      case 'ExportAllDeclaration':
+      case 'ExportNamedDeclaration':
+        if (node.typeOnly) add(node.source);
+        break;
+      case 'TsImportEqualsDeclaration':
+        if (
+          node.isTypeOnly &&
+          node.moduleRef?.type === 'TsExternalModuleReference'
+        )
+          add(node.moduleRef.expression);
+        break;
+      case 'TsImportType':
+        add(node.argument);
+        break;
+    }
+    for (const value of Object.values(node)) visit(value, type);
+  };
+  try {
+    visit(ast, false);
+  } catch {
+    return null; // e.g. a RangeError on a pathologically deep tree: drop nothing
+  }
+  return { counts, literals, callLiterals, looseLoader };
+}
+
+/** Textual import-like occurrences of each specifier in `source`. */
+function countSpecs(source) {
+  const counts = new Map();
+  for (const pattern of IMPORT_PATTERNS) {
+    for (const match of source.matchAll(pattern))
+      counts.set(match[1], (counts.get(match[1]) ?? 0) + 1);
+  }
+  return counts;
+}
 // A require()/import() whose argument is not a string literal. Not preceded by
 // `.` (method call) and not a typed parameter (`import(content: string)` is an
 // interface method, not a load).
@@ -455,6 +704,25 @@ function analyzeSource(text, rel, nameMatchers) {
   for (const pattern of IMPORT_PATTERNS) {
     for (const match of code.matchAll(pattern)) codeSpecs.add(match[1]);
   }
+  // Type-only edges are not dependencies (see typeOnlySpecCounts): drop a
+  // specifier only when the AST accounts for every textual occurrence of it.
+  const typeOnly = typeOnlySpecCounts(text);
+  // A loader this scan cannot follow (computed argument, or require / jest
+  // used as a value) may load anything, including a module named only in a
+  // type: keep every type-only edge of such a file.
+  if (typeOnly && !typeOnly.looseLoader) {
+    const seen = [text, noBlocks, noComments].map(countSpecs);
+    for (const [spec, nodes] of typeOnly.counts) {
+      if (
+        typeOnly.literals.get(spec) === nodes &&
+        seen[0].get(spec) === nodes &&
+        seen.every((counts) => (counts.get(spec) ?? 0) <= nodes)
+      ) {
+        specs.delete(spec);
+        codeSpecs.delete(spec);
+      }
+    }
+  }
   const envNames = new Set();
   for (const match of text.matchAll(ENV_DOT)) envNames.add(match[1]);
   const usesFs = FS_READ.test(code);
@@ -499,6 +767,10 @@ function analyzeSource(text, rel, nameMatchers) {
   }
   return {
     specs: [...specs],
+    // string arguments of any call that the text patterns may not have seen
+    // (`jest.requireActual<T>('./x')`, an aliased loader); resolved like specs
+    // but never reported as unresolved imports
+    extraSpecs: typeOnly ? [...typeOnly.callLiterals] : [],
     codeSpecs,
     envNames,
     envUnresolved,
@@ -620,6 +892,10 @@ function createKeyer({
             if (info.codeSpecs.has(spec))
               why.push(`unresolved import '${spec}' in ${rel}`);
           } else if (target !== 'external') queue.push(...[target].flat());
+        }
+        for (const spec of info.extraSpecs) {
+          const target = resolveSpec(spec, rel);
+          if (target && target !== 'external') queue.push(...[target].flat());
         }
       }
       if (fsFiles.length > 0 && domains.size === 0) {
@@ -1009,6 +1285,7 @@ async function main(argv) {
 }
 
 module.exports = {
+  analyzeSource,
   buildFileIndex,
   createKeyer,
   createStore,

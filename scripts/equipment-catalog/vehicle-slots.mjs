@@ -15,6 +15,21 @@ export function vehicleSlots(fact) {
   return { tank: fact.tankSlots, supportVehicle: fact.supportVehicleSlots };
 }
 
+// Ground movement modes Java rejects the item on (SweepFacts.java, from
+// TestTank.legalForMotiveType); null when it fits every mode.
+export function motiveCompatibility(fact) {
+  assert(
+    fact && 'motiveIncompatible' in fact && 'motiveIncompatibleSupport' in fact,
+  );
+  const value = {
+    incompatibleCombat: fact.motiveIncompatible,
+    incompatibleSupport: fact.motiveIncompatibleSupport,
+  };
+  return value.incompatibleCombat.length || value.incompatibleSupport.length
+    ? value
+    : null;
+}
+
 const techBases = { IS: 'INNER_SPHERE', CLAN: 'CLAN', ALL: 'BOTH' };
 const vehicleFlags = [
   'F_TANK_WEAPON',
@@ -24,8 +39,14 @@ const vehicleFlags = [
 
 // Same identity owner as compare.mjs: every Java alias resolves through the BV
 // alias owner. Candidates keep generate.mjs's tech-base rule and, when any of
-// them mounts on vehicles, only those. Slots are set only when all remaining agree.
-export function assignSlots(items, registry, facts, resolveAlias) {
+// them mounts on vehicles, only those. A value is set only when all remaining agree.
+export function assignSlots(
+  items,
+  registry,
+  facts,
+  resolveAlias,
+  valueOf = vehicleSlots,
+) {
   const targets = new Map();
   for (const row of registry) {
     if (facts[row.internalName]?.kind === 'ammunition') continue;
@@ -51,7 +72,7 @@ export function assignSlots(items, registry, facts, resolveAlias) {
     if (mounted.length) rows = mounted;
     const java = rows.map((row) => row.internalName);
     const values = new Set(
-      java.map((name) => JSON.stringify(vehicleSlots(facts[name]))),
+      java.map((name) => JSON.stringify(valueOf(facts[name]))),
     );
     if (values.size === 1)
       assigned.set(id, { slots: JSON.parse([...values][0]), java });
@@ -65,9 +86,10 @@ export function assignSlots(items, registry, facts, resolveAlias) {
   return { assigned, skipped };
 }
 
-// Inserts `"vehicleSlots": {...}` after the criticalSlots line of every record
-// with this id (miscellaneous/other.json has two "cargo" records), touching nothing else.
-export function insertField(text, id, slots) {
+// Inserts `"<key>": {...}` after the vehicleSlots (or criticalSlots) line of every
+// record with this id (miscellaneous/other.json has two "cargo" records), touching
+// nothing else. Values other than vehicleSlots are laid out by oxfmt afterwards.
+export function insertField(text, id, slots, key = 'vehicleSlots') {
   const marker = `"id": ${JSON.stringify(id)},`;
   const starts = [];
   for (
@@ -77,18 +99,23 @@ export function insertField(text, id, slots) {
   )
     starts.push(text.lastIndexOf('{', at));
   assert(starts.length, `No record ${id}`);
-  const value = `{ "tank": ${slots.tank}, "supportVehicle": ${slots.supportVehicle} }`;
+  const value =
+    key === 'vehicleSlots'
+      ? `{ "tank": ${slots.tank}, "supportVehicle": ${slots.supportVehicle} }`
+      : JSON.stringify(slots);
   for (const start of starts.reverse()) {
     const block = text.slice(start, text.indexOf('\n    }', start));
-    const existing = /\n\s*"vehicleSlots": (\{[^}]*\})/.exec(block);
+    const existing = new RegExp(`\\n\\s*"${key}": (\\{[^}]*\\})`).exec(block);
     if (existing) {
       assert.deepEqual(JSON.parse(existing[1]), slots, `Conflicting ${id}`);
       continue;
     }
-    const line = /\n(\s*)"criticalSlots": [^,\n]+,\n/.exec(block);
+    const line =
+      /\n(\s*)"vehicleSlots": [^\n]+,\n/.exec(block) ??
+      /\n(\s*)"criticalSlots": [^,\n]+,\n/.exec(block);
     assert(line, `No criticalSlots line in ${id}`);
     const cut = start + line.index + line[0].length;
-    text = `${text.slice(0, cut)}${line[1]}"vehicleSlots": ${value},\n${text.slice(cut)}`;
+    text = `${text.slice(0, cut)}${line[1]}"${key}": ${value},\n${text.slice(cut)}`;
   }
   return text;
 }
@@ -107,41 +134,59 @@ function main() {
   const { getEquipmentEntry } = createRequire(import.meta.url)(
     '../../src/utils/construction/equipmentBVResolver.ts',
   );
-  const { assigned, skipped } = assignSlots(
-    items,
+  const args = [
     read(registryFile),
     read(factsFile),
     (name) => getEquipmentEntry(name)?.id,
-  );
+  ];
+  const { assigned, skipped } = assignSlots(items, ...args);
+  const motive = assignSlots(items, ...args, motiveCompatibility).assigned;
+  const fields = { vehicleSlots: assigned, motiveCompatibility: motive };
   for (const file of files) {
     const path = `${root}/${file}`;
     let text = readFileSync(path, 'utf8');
-    for (const item of JSON.parse(text).items) {
-      const match = assigned.get(item.id);
-      if (match) text = insertField(text, item.id, match.slots);
-      else assert(!item.vehicleSlots, `Stale vehicleSlots: ${item.id}`);
-    }
+    for (const item of JSON.parse(text).items)
+      for (const [key, values] of Object.entries(fields)) {
+        const value = values.get(item.id)?.slots;
+        if (value) text = insertField(text, item.id, value, key);
+        else assert(!item[key], `Stale ${key}: ${item.id}`);
+      }
     writeFileSync(path, text);
   }
-  // CAT-Q2's frozen baseline (generate.test.mjs) takes exactly the added field.
+  // CAT-Q2's frozen baseline (generate.test.mjs) takes exactly the added fields.
   const baselineFile = new URL('./baseline.json', import.meta.url);
   const baseline = read(baselineFile);
+  const without = (item) =>
+    JSON.stringify(
+      Object.fromEntries(
+        Object.entries(item).filter(([key]) => !(key in fields)),
+      ),
+    );
   for (const row of baseline) {
     const now = read(`${root}/${row.file}`).items[row.index];
     assert.equal(now?.id, row.id, `Moved ${row.file}:${row.index}`);
-    const { vehicleSlots: added, ...rest } = now;
-    const { vehicleSlots: frozen, ...item } = row.item;
-    assert.equal(JSON.stringify(rest), JSON.stringify(item), row.id);
-    assert(frozen === undefined || added, `Removed ${row.id}.vehicleSlots`);
-    if (added === undefined) continue;
-    assert.deepEqual(added, assigned.get(row.id).slots, row.id);
+    assert.equal(without(now), without(row.item), row.id);
+    for (const [key, values] of Object.entries(fields)) {
+      assert(
+        row.item[key] === undefined || now[key],
+        `Removed ${row.id}.${key}`,
+      );
+      if (now[key])
+        assert.deepEqual(now[key], values.get(row.id).slots, row.id);
+    }
+    if (JSON.stringify(now) === JSON.stringify(row.item)) continue;
     row.item = now;
     row.sha256 = hash('sha256', JSON.stringify(now));
   }
   writeFileSync(baselineFile, JSON.stringify(baseline, null, 2) + '\n');
   execFileSync(
     process.execPath,
-    ['node_modules/oxfmt/bin/oxfmt', '--write', fileURLToPath(baselineFile)],
+    [
+      'node_modules/oxfmt/bin/oxfmt',
+      '--write',
+      fileURLToPath(baselineFile),
+      ...files.map((file) => `${root}/${file}`),
+    ],
     { stdio: 'ignore', windowsHide: true },
   );
   const count = (reason) => skipped.filter((row) => row.reason === reason);
@@ -150,6 +195,9 @@ function main() {
       records: items.length,
       ids: assigned.size + skipped.length,
       assigned: assigned.size,
+      motiveRestricted: [...motive]
+        .filter(([, v]) => v.slots)
+        .map(([id]) => id),
       unmatched: count('unmatched').map((row) => row.id),
       disagree: count('disagree'),
     }),

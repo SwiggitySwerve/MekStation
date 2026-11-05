@@ -500,8 +500,12 @@ it('caps FWS ammunition against weapons without letting bins enlarge the cap', (
   };
   expect(calculateAerospaceBV(input).ammoBV).toBe(320);
   expect(calculateAerospaceBV({ ...input, equipment: [] }).ammoBV).toBe(0);
+  const ordinary = calculateAerospaceBV({ ...input, isSupportVehicle: false });
+  expect(ordinary.weaponFirePoolBV).toBe(320);
+  expect(ordinary.ammoBV).toBe(320);
+  // Omitted ammo retains the legacy flat-input contract.
   expect(
-    calculateAerospaceBV({ ...input, isSupportVehicle: false })
+    calculateAerospaceBV({ ...input, isSupportVehicle: false, ammo: undefined })
       .weaponFirePoolBV,
   ).toBe(340);
   expect(calculateAerospaceBV({ ...input, barRating: 0 }).armorBV).toBe(0);

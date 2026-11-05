@@ -38,7 +38,7 @@ import {
   getVehicleMountFlags,
   getPrimaryVehicleTurretConfiguration,
 } from '@/utils/construction/vehicle/equipmentMounts';
-import { validateVehicleCaseLocations } from '@/utils/construction/vehicle/vehicleValidation';
+import { validateCombatVehicleEquipment } from '@/utils/construction/vehicle/vehicleValidation';
 
 import {
   AbstractUnitTypeHandler,
@@ -172,6 +172,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
       maxArmorPoints: this.calculateMaxArmor(document.tonnage),
       chinTurret,
       equipment,
+      transporters: document.transporters ?? [],
       rotorType,
       rotorHits,
       errors,
@@ -312,7 +313,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
    */
   protected validateTypeSpecificRules(unit: IVTOL): UnitValidationMessages {
     const { errors, warnings, infos } = createValidationMessages();
-    errors.push(...validateVehicleCaseLocations(unit.equipment));
+    errors.push(...validateCombatVehicleEquipment(unit, true));
 
     pushTonnageRangeErrors(errors, unit.tonnage, {
       label: 'VTOL',
