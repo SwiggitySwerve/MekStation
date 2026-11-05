@@ -218,3 +218,23 @@ export function isClanEquipAtLocation(
   }
   return false;
 }
+
+/** Crit tokens at a location that name the IS side of equipId (ISERMediumLaser). */
+export function countISEquipTokensAtLocation(
+  equipId: string,
+  location: string,
+  criticalSlots?: Record<string, (string | null)[]>,
+): number {
+  const slots =
+    criticalSlots?.[location.split(',')[0].toUpperCase()] ??
+    criticalSlots?.[location];
+  const eqNorm = normalizeEquipId(equipId);
+  return (slots ?? []).filter((slot) => {
+    const clean = slot?.replace(/\s*\((omnipod|R)\)/gi, '').trim();
+    return (
+      !!clean &&
+      /^IS[A-Z]/.test(clean) &&
+      normalizeEquipId(clean.slice(2)) === eqNorm
+    );
+  }).length;
+}

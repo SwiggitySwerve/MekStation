@@ -12,7 +12,6 @@ import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment';
 import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
-import { getWeaponById } from '@/utils/equipment/weapons/utilities';
 import { logger } from '@/utils/logger';
 
 import { mapMechLocation } from './componentMappers';
@@ -21,6 +20,7 @@ import {
   restoreCriticalSlotEquipment,
 } from './criticalSlotEquipment';
 import { resolveEquipmentId } from './equipmentResolution';
+import { mountedDefinitionFields } from './mountedDefinitionFields';
 
 type UnitCriticalSlots = Readonly<Record<string, ReadonlyArray<string | null>>>;
 
@@ -64,11 +64,6 @@ export function mapEquipment(
     );
 
     if (equipmentDef) {
-      // Found in database - use full properties
-      const heat =
-        getWeaponById(equipmentDef.id)?.heat ??
-        ('heat' in equipmentDef ? (equipmentDef as { heat: number }).heat : 0);
-
       // Log if we resolved through normalization/aliasing
       if (resolvedId !== item.id) {
         logger.debug(`Equipment ID resolved: "${item.id}" -> "${resolvedId}"`);
@@ -76,13 +71,7 @@ export function mapEquipment(
 
       return {
         instanceId: uuidv4(),
-        equipmentId: equipmentDef.id,
-        name: equipmentDef.name,
-        category: equipmentDef.category,
-        weight: equipmentDef.weight,
-        criticalSlots: equipmentDef.criticalSlots,
-        heat,
-        techBase: equipmentDef.techBase,
+        ...mountedDefinitionFields(equipmentDef),
         location,
         slots: item.slots ? [...item.slots] : undefined,
         isRearMounted: item.isRearMounted ?? false,
