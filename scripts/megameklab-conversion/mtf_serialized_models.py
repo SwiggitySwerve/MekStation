@@ -34,7 +34,7 @@ class SerializedArmor:
 
     type: str
     allocation: Dict[str, Any]
-    locationTypes: Optional[Dict[str, str]] = None
+    typeByLocation: Optional[Dict[str, int]] = None
 
 
 @dataclass

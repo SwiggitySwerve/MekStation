@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from typing import Any, Dict, List, Optional
+from blk_common import BLK_ARMOR_CODE_MAP
 
 from enum_mappings import (
     generate_id_from_name,
@@ -257,7 +258,9 @@ class MTFParser:
                 if data.get('armor_type', '').lower() == 'patchwork' and ':' in value:
                     armor_name, points = value.rsplit(':', 1)
                     data['armor_allocation'][loc_key] = int(points)
-                    data.setdefault('armor_location_types', {})[map_mech_location(loc_key)] = map_armor_type(armor_name)
+                    armor_type = map_armor_type(armor_name).removesuffix('_CLAN')
+                    code = next(code for code, name in BLK_ARMOR_CODE_MAP.items() if name == armor_type)
+                    data.setdefault('armor_location_types', {})[map_mech_location(loc_key)] = code
                 else:
                     data['armor_allocation'][loc_key] = int(value)
             except ValueError:
@@ -351,7 +354,7 @@ class MTFParser:
                       else map_armor_type(data.get('armor_type', 'Standard')))
         armor_allocation = build_armor_allocation(data.get('armor_allocation', {}))
         armor = SerializedArmor(type=armor_type, allocation=armor_allocation,
-                                locationTypes=data.get('armor_location_types'))
+                                typeByLocation=data.get('armor_location_types'))
 
         # Parse movement
         movement = SerializedMovement(

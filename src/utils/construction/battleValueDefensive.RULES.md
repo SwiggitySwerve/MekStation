@@ -1,15 +1,5 @@
 # Defensive BV rules
 
-Patchwork Mech conversion retains `PATCHWORK`, each location's armor points
-and its native type in `armor.locationTypes`. Rear armor uses its torso's type.
-The Mech adapter supplies armor sections to `calculateDefensiveBV`, whose one
-armor formula applies each section's multiplier, BAR and Blue Shield bonus.
-The existing scanner supplies local modular-armor counts; existing setup
-supplies the torso-cockpit contribution. HarJel bonuses use the location type.
-Non-patchwork inputs retain the single-section calculation.
-Source: MtfFile.java:478-483; BVCalculator.java:359-420 at pin 48fcb2f64.
-Tests: test_mtf_patchwork.py and validate-bv-patchwork.test.ts.
-
 `calculateDefensiveBV` retains fractional armor BV through the defensive sum
 and movement factor. Armor and BAR multipliers do not round that subtotal.
 Source: MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587,

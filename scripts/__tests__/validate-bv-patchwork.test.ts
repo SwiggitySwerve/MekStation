@@ -17,10 +17,10 @@ const unit: UnitData = {
   armor: {
     type: 'PATCHWORK',
     allocation: { HEAD: 9, CENTER_TORSO: { front: 30, rear: 5 }, LEFT_LEG: 10 },
-    locationTypes: {
-      HEAD: 'STANDARD',
-      CENTER_TORSO: 'HARDENED',
-      LEFT_LEG: 'REACTIVE',
+    typeByLocation: {
+      HEAD: 0,
+      CENTER_TORSO: 4,
+      LEFT_LEG: 2,
     },
   },
   heatSinks: { type: 'SINGLE', count: 10 },
@@ -41,7 +41,7 @@ it('uses local commercial BAR without lowering the other locations', () => {
       armor: {
         type: 'PATCHWORK',
         allocation: { HEAD: 9, LEFT_LEG: 10 },
-        locationTypes: { HEAD: 'STANDARD', LEFT_LEG: 'COMMERCIAL' },
+        typeByLocation: { HEAD: 0, LEFT_LEG: 10 },
       },
     }).breakdown?.armorBV,
   ).toBe(35);

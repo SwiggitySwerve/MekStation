@@ -23,7 +23,7 @@ export interface UnitData {
   armor: {
     type: string;
     allocation: ArmorAllocation;
-    locationTypes?: Record<string, string>;
+    typeByLocation?: Record<string, number>;
   };
   heatSinks: { type: string; count: number };
   movement: { walk: number; jump: number };

@@ -15,9 +15,10 @@ export interface DefensiveBVConfig {
   runMP: number;
   jumpMP: number;
   armorType?: string;
+  /** Patchwork locations including rear/modular/cockpit points; BVCalculator.java:359-420. */
   armorSections?: readonly {
     points: number;
-    type: string;
+    multiplier: number;
     bar: number;
   }[];
   structureType?: string;
@@ -75,7 +76,7 @@ export function calculateDefensiveBV(
   const armorSections = config.armorSections ?? [
     {
       points: config.totalArmorPoints,
-      type: config.armorType ?? 'standard',
+      multiplier: getArmorBVMultiplier(config.armorType ?? 'standard'),
       bar: config.bar ?? 10,
     },
   ];
@@ -84,7 +85,7 @@ export function calculateDefensiveBV(
       sum +
       (section.points *
         2.5 *
-        (getArmorBVMultiplier(section.type) + blueShieldBonus) *
+        (section.multiplier + blueShieldBonus) *
         section.bar) /
         10,
     0,
@@ -139,10 +140,15 @@ export function getModularArmorBVPoints(count: number): number {
 
 /** Native MegaMek codes are not local ArmorType enum ordinals. */
 export function getNativeArmorBVMultiplier(type: string | number): number {
+  return getArmorBVMultiplier(getNativeArmorName(type));
+}
+
+export function getNativeArmorName(type: string | number): string {
   const names: Readonly<Record<number, string>> = {
     2: 'reactive',
     3: 'reflective',
     4: 'hardened',
+    10: 'commercial',
     16: 'ferro-lamellor',
     23: 'anti-penetrative',
     24: 'heat-dissipating',
@@ -155,5 +161,5 @@ export function getNativeArmorBVMultiplier(type: string | number): number {
           .toLowerCase()
           .replace(/_/g, '-')
           .replace(/^anti-penetrative-ablation$/, 'anti-penetrative');
-  return getArmorBVMultiplier(name);
+  return name;
 }

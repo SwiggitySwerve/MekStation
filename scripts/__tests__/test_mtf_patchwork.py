@@ -1,7 +1,9 @@
 """MtfFile.java:478-483 at 48fcb2f6 retains each patchwork type and point count."""
+import json
 import sys
 import unittest
 from pathlib import Path
+from jsonschema import Draft202012Validator
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'megameklab-conversion'))
 from mtf_converter import MTFParser, dataclass_to_dict
@@ -17,8 +19,11 @@ class PatchworkConversionTest(unittest.TestCase):
         self.assertEqual(armor['type'], 'PATCHWORK')
         self.assertEqual(armor['allocation'], {
             'HEAD': 9, 'CENTER_TORSO': {'front': 30, 'rear': 5}, 'LEFT_LEG': 10})
-        self.assertEqual(armor['locationTypes'], {
-            'HEAD': 'STANDARD', 'CENTER_TORSO': 'HARDENED', 'LEFT_LEG': 'REACTIVE'})
+        self.assertEqual(armor['typeByLocation'], {
+            'HEAD': 0, 'CENTER_TORSO': 4, 'LEFT_LEG': 2})
+        schema = json.loads((Path(__file__).resolve().parents[2] /
+            'public/data/equipment/_schema/unit-schema.json').read_text(encoding='utf-8'))
+        Draft202012Validator({**schema['properties']['armor'], '$defs': schema['$defs']}).validate(armor)
 
     def test_standard_armor_does_not_gain_a_location_type_map(self):
         unit = MTFParser()._parse_lines(
