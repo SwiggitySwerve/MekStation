@@ -1,3 +1,4 @@
+// scratch: measures the result-cache hit rate for a BV edit; never merged.
 /**
  * Equipment BV Resolver - Normalization Logic
  *
