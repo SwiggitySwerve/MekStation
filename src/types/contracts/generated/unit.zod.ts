@@ -203,6 +203,7 @@ export const UnitContract = z
             'SUPERHEAVY',
             'SUPERHEAVY_TRIPOD',
             'INTERFACE',
+            'VRRP',
             'QUADVEE',
             'PRIMITIVE_INDUSTRIAL',
           ])
@@ -687,6 +688,7 @@ export const UnitContract = z
             'SUPERHEAVY',
             'SUPERHEAVY_TRIPOD',
             'INTERFACE',
+            'VRRP',
             'QUADVEE',
             'PRIMITIVE_INDUSTRIAL',
           ])
