@@ -882,6 +882,56 @@ export const APPROVED_JAVA_REROUTES = [
     reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
     loaderOnly: true,
   })),
+  // Follow-up 93: prototype list slugs routed to the Java prototype their crit token names.
+  ...[
+    ['primitive-prototype-ppc', 'ppc', 'primitive-prototype-ppc-registry'],
+    [
+      'prototype-er-medium-laser',
+      'clan-er-medium-laser',
+      'clermediumlaserprototype-registry',
+    ],
+    [
+      'prototype-er-medium-laser',
+      'er-medium-laser',
+      'clermediumlaserprototype-registry',
+    ],
+    [
+      'prototype-er-small-laser',
+      'clan-er-small-laser',
+      'clersmalllaserprototype-registry',
+    ],
+    [
+      'prototype-er-small-laser',
+      'er-small-laser',
+      'clersmalllaserprototype-registry',
+    ],
+    [
+      'prototype-rocket-launcher-20',
+      'rl20',
+      'rocketlauncher20prototype-registry',
+    ],
+    ['prototype-streak-srm-4', 'clan-streak-srm-4', 'streaksrm4prototype'],
+    ['prototype-streak-srm-4', 'streak-srm-4', 'streaksrm4prototype'],
+    ['prototype-streak-srm-6', 'clan-streak-srm-6', 'streaksrm6prototype'],
+    ['prototype-streak-srm-6', 'streak-srm-6', 'streaksrm6prototype'],
+    [
+      'prototype-ultra-autocannon-10',
+      'clan-uac-10',
+      'clultraac10prototype-registry',
+    ],
+    [
+      'prototype-ultra-autocannon-10',
+      'uac-10',
+      'clultraac10prototype-registry',
+    ],
+  ].map(([name, oldTarget, newTarget, api]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    ...(api ? { api } : {}),
+    reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
+    loaderOnly: true,
+  })),
 ];
 async function capture(root, inputs) {
   process.chdir(root);
