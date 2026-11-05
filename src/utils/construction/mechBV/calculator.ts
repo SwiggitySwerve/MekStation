@@ -17,6 +17,7 @@ import { deriveBvHeatAndMovement } from '../../../../scripts/validate-bv-movemen
 import { toMechLoc } from '../../../../scripts/validate-bv-normalizers';
 import { calculatePhysicalBVTotal } from '../../../../scripts/validate-bv-physical-weapons';
 import {
+  calcTotalArmor,
   getArmorBAR,
   mapArmorType,
 } from '../../../../scripts/validate-bv-unit-derived';
@@ -41,8 +42,12 @@ import {
   type MechLocation,
 } from '../../../utils/construction/battleValueCalculations';
 import { resolveEquipmentBV } from '../../../utils/construction/equipmentBVResolver';
-import { getModularArmorBVPoints } from '../battleValueDefensive';
+import {
+  getModularArmorBVPoints,
+  getNativeArmorBVMultiplier,
+} from '../battleValueDefensive';
 import { calculateOffensiveSpeedFactor } from '../battleValueMovement';
+import { deriveMechArmorSections } from './armorInputs';
 import { buildMechBVWeapons } from './weaponInputs';
 
 // === MAIN BV CALCULATION ===
@@ -81,6 +86,10 @@ export function calculateUnitBV(
   const { effectiveHSCount, heatDiss, bvWalk, runMP, jumpMP, jumpHeatMP } =
     deriveBvHeatAndMovement(unit, cs, armorType);
   const hasStealth = armorType === 'stealth';
+  const patchworkTypes =
+    unit.armor.type.toUpperCase() === 'PATCHWORK'
+      ? unit.armor.typeByLocation
+      : undefined;
   // Pinned LandAirMek.getAirMekFlankMP and MekBVCalculator.offensiveSpeedFactorMP.
   // Bimodal LAMs retain ordinary Mek movement; standard LAMs use airborne AirMek MP.
   const airMekFlankMP =
@@ -182,16 +191,13 @@ export function calculateUnitBV(
   // MegaMek calculates armor BV per-location when HarJel is present
   let harjelArmorBonus = 0;
   if (cs.harjelIILocs.length > 0 || cs.harjelIIILocs.length > 0) {
-    const armorMult = getArmorBVMultiplier(hasStealth ? 'standard' : armorType);
     for (const [locName, armorVal] of Object.entries(unit.armor.allocation)) {
+      const armorMult = patchworkTypes
+        ? getNativeArmorBVMultiplier(patchworkTypes[locName] ?? 0)
+        : getArmorBVMultiplier(hasStealth ? 'standard' : armorType);
       const ml = toMechLoc(locName);
       if (!ml) continue;
-      let locArmor: number;
-      if (typeof armorVal === 'number') {
-        locArmor = armorVal;
-      } else {
-        locArmor = (armorVal.front || 0) + (armorVal.rear || 0);
-      }
+      const locArmor = calcTotalArmor({ [locName]: armorVal });
       let locMult = 1.0;
       if (cs.harjelIIILocs.includes(ml)) locMult = 1.2;
       else if (cs.harjelIILocs.includes(ml)) locMult = 1.1;
@@ -318,6 +324,8 @@ export function calculateUnitBV(
     hasVoidSig: cs.hasVoidSig,
     hasBlueShield: cs.hasBlueShield,
   };
+  if (patchworkTypes)
+    defCfg.armorSections = deriveMechArmorSections(unit, setup.totalArmor);
   if (engineBVOverride !== undefined) {
     defCfg.engineMultiplier = engineBVOverride;
     defCfg.engineType = undefined;
