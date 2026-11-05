@@ -332,7 +332,9 @@ test.describe('ux walkthrough audit — desktop', () => {
     try {
       await walk.step('open the customizer', async () => {
         await page.goto('/customizer');
-        await expect(page.getByText('Loading customizer...')).toHaveCount(0, {
+        await expect(
+          page.getByRole('status', { name: 'Loading customizer' }),
+        ).toHaveCount(0, {
           timeout: 30_000,
         });
         await expect(

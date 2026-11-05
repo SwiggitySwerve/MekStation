@@ -18,8 +18,32 @@ const usage = require('../jest/jest-dom-usage.js') as {
   classify: (root: string) => { free: string[]; needs: Map<string, string> };
 };
 
+const cache = require('../jest/cached-tests.js') as {
+  buildFileIndex: (root: string) => Map<string, string>;
+  createKeyer: (opts: {
+    root: string;
+    index: Map<string, string>;
+    env: Record<string, string>;
+  }) => { keyFor: (file: string) => { repoWide?: boolean; why?: string[] } };
+};
+
 const ROOT = path.resolve(__dirname, '..', '..');
 const list = require('../../config/jest/no-jest-dom-tests.json') as string[];
+
+describe('the shared setup closure and the result cache', () => {
+  // Every test file's closure includes jest.setup.js and what it imports. A dynamic
+  // `require(<expression>)` anywhere in it makes the keyer key every test file on the
+  // WHOLE repo, so no PR with any edit ever hits the cache (this happened once).
+  it('keys narrowly: nothing in the setup closure forces a repo-wide key', () => {
+    const keyed = cache
+      .createKeyer({ root: ROOT, index: cache.buildFileIndex(ROOT), env: {} })
+      .keyFor('jest.setup.js');
+    expect({ repoWide: keyed.repoWide, why: keyed.why }).toEqual({
+      repoWide: false,
+      why: [],
+    });
+  });
+});
 
 describe('jest-dom skip list', () => {
   it('stubs every matcher the installed @testing-library/jest-dom registers', () => {

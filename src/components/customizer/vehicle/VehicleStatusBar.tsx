@@ -140,8 +140,10 @@ function calculateWeightBreakdown(
 ): VehicleWeightBreakdown {
   // Before catalog readiness, mounted definitions remain unresolved.
   const lookup = getEquipmentLookupService();
-  return computeVehicleWeightBreakdown(state, (equipmentId) =>
-    catalogReady ? lookup.getById(equipmentId) : undefined,
+  return computeVehicleWeightBreakdown(state, (equipmentId, isAmmo) =>
+    catalogReady
+      ? lookup.getMountedById(equipmentId, isAmmo === true)
+      : undefined,
   );
 }
 

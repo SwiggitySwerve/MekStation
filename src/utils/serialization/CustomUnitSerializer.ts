@@ -98,6 +98,17 @@ const TECH_BASE = {
   [TechBaseMode.MIXED]: 'MIXED',
 } as const satisfies Readonly<Record<TechBaseMode, string>>;
 
+function serializeComponentTechBases(
+  components: UnitState['componentTechBases'],
+): Record<string, 'INNER_SPHERE' | 'CLAN'> {
+  return Object.fromEntries(
+    Object.entries(components).map(([component, techBase]) => [
+      component,
+      techBase === TechBase.CLAN ? 'CLAN' : 'INNER_SPHERE',
+    ]),
+  );
+}
+
 export type CustomUnitSaveIdentity = {
   readonly id: string;
   readonly chassis: string;
@@ -242,6 +253,10 @@ export function serializeCustomUnitState(
     isOmni: state.isOmni,
     baseChassisHeatSinks: state.baseChassisHeatSinks,
     clanName: state.clanName || undefined,
+    componentTechBases:
+      state.techBaseMode === TechBaseMode.MIXED
+        ? serializeComponentTechBases(state.componentTechBases)
+        : undefined,
   };
 }
 
