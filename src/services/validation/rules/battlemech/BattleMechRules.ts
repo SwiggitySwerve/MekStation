@@ -16,6 +16,8 @@ import {
   ENGINE_RATING_INCREMENT,
   ENGINE_RATING_MIN,
 } from '@/services/construction/constructionConstants';
+import { CockpitType } from '@/types/construction/CockpitType';
+import { GyroType } from '@/types/construction/GyroType';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { ValidationCategory } from '@/types/validation/rules/ValidationRuleInterfaces';
 import {
@@ -291,9 +293,22 @@ export const BattleMechCTRequirements: IUnitValidationRuleDefinition = {
   priority: 18,
   applicableUnitTypes: [UnitType.BATTLEMECH, UnitType.OMNIMECH],
 
-  validate(_context: IUnitValidationContext): IUnitValidationRuleResult {
-    // Critical slot data not in IValidatableUnit yet
-    return createEmptyRuleResult(this);
+  validate(context: IUnitValidationContext): IUnitValidationRuleResult {
+    const errors: IUnitValidationError[] = [];
+    // MegaMek 48fcb2f64 TestMek.java:669-673: only interface cockpits omit gyros.
+    if (
+      context.unit.gyroType === GyroType.NONE &&
+      context.unit.cockpitType !== CockpitType.INTERFACE
+    ) {
+      addRuleDiagnostic(
+        errors,
+        this,
+        UnitValidationSeverity.ERROR,
+        'A mech without a gyro requires an interface cockpit.',
+        { field: 'gyroType' },
+      );
+    }
+    return createRuleResult(this, { errors });
   },
 };
 

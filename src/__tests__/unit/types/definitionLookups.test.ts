@@ -1,19 +1,25 @@
-/**
- * Definition Lookup Tests
- *
- * Tests for type definition lookup functions and data integrity.
- *
- * @spec openspec/specs/engine-system/spec.md
- * @spec openspec/specs/gyro-system/spec.md
- * @spec openspec/specs/armor-system/spec.md
- * @spec openspec/specs/heat-sink-system/spec.md
- */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
+import {
+  mapCockpitType as convertCockpit,
+  mapGyroType as convertGyro,
+} from '@/services/conversion/ValueMappings';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import {
+  mapCockpitType,
+  mapGyroType,
+} from '@/services/units/unitLoaderService/componentMappers';
+import { UnitLoaderService } from '@/services/units/unitLoaderService/unitLoader';
+import { BattleMechCTRequirements } from '@/services/validation/rules/battlemech/BattleMechRules';
 import {
   ArmorTypeEnum,
   ARMOR_DEFINITIONS,
   getArmorDefinition,
 } from '@/types/construction/ArmorType';
+import { getCockpitDefinition } from '@/types/construction/CockpitType';
+import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import {
   EngineType,
   ENGINE_DEFINITIONS,
@@ -25,13 +31,31 @@ import {
   GYRO_DEFINITIONS,
   getGyroDefinition,
 } from '@/types/construction/GyroType';
+/**
+ * Definition Lookup Tests
+ *
+ * Tests for type definition lookup functions and data integrity.
+ *
+ * @spec openspec/specs/engine-system/spec.md
+ * @spec openspec/specs/gyro-system/spec.md
+ * @spec openspec/specs/armor-system/spec.md
+ * @spec openspec/specs/heat-sink-system/spec.md
+ */
 import {
   HeatSinkType,
   HEAT_SINK_DEFINITIONS,
   getHeatSinkDefinition,
 } from '@/types/construction/HeatSinkType';
+import { Era } from '@/types/enums/Era';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { UnitCategory } from '@/types/validation/UnitValidationInterfaces';
+import { calculateGyroWeight } from '@/utils/construction/gyroCalculations';
+import { getEquipmentSlotIssues } from '@/utils/construction/slotOperations/placement';
+import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
+
+import ryoken from '../../../../public/data/units/battlemechs/6-dark-age/standard/Ryoken III-XP B.json';
 
 describe('Definition Lookups', () => {
   // ============================================================================
@@ -158,13 +182,15 @@ describe('Definition Lookups', () => {
 
       it('should have valid weight multipliers', () => {
         GYRO_DEFINITIONS.forEach((def) => {
-          expect(def.weightMultiplier).toBeGreaterThan(0);
+          if (def.type === GyroType.NONE) expect(def.weightMultiplier).toBe(0);
+          else expect(def.weightMultiplier).toBeGreaterThan(0);
         });
       });
 
       it('should have valid critical slots', () => {
         GYRO_DEFINITIONS.forEach((def) => {
-          expect(def.criticalSlots).toBeGreaterThan(0);
+          if (def.type === GyroType.NONE) expect(def.criticalSlots).toBe(0);
+          else expect(def.criticalSlots).toBeGreaterThan(0);
           expect(Number.isInteger(def.criticalSlots)).toBe(true);
         });
       });
@@ -342,7 +368,9 @@ describe('Definition Lookups', () => {
       ];
 
       allDefs.forEach((def) => {
-        expect(def.introductionYear).toBeGreaterThan(1900);
+        // Mek.java:3710-3716: no gyro is a placeholder with no intro date.
+        if (def.type === GyroType.NONE) expect(def.introductionYear).toBe(0);
+        else expect(def.introductionYear).toBeGreaterThan(1900);
         expect(def.introductionYear).toBeLessThan(4000);
       });
     });
@@ -360,4 +388,97 @@ describe('Definition Lookups', () => {
       });
     });
   });
+});
+
+jest.mock('@/services/equipment/EquipmentFileReader', () => ({
+  readJsonFile: async (file: string) =>
+    JSON.parse(
+      readFileSync(
+        join(process.cwd(), 'public/data/equipment/official', file),
+        'utf8',
+      ),
+    ),
+}));
+beforeAll(async () => {
+  await getEquipmentRegistry().initialize();
+  await getEquipmentLookupService().initialize();
+});
+
+// MegaMek 48fcb2f64 TestMek.java:225-261: Interface cockpit 4t, no gyro 0t.
+it.each([
+  ['loader', mapCockpitType, mapGyroType],
+  ['converter', convertCockpit, convertGyro],
+] as const)(
+  '%s preserves native interface/no-gyro identities and weights',
+  (_, cockpit, gyro) => {
+    expect(cockpit('INTERFACE')).toBe('Interface');
+    expect(gyro('NONE')).toBe('None');
+    expect(getCockpitDefinition(cockpit('INTERFACE'))?.weight).toBe(4);
+    expect(calculateGyroWeight(330, gyro('NONE'))).toBe(0);
+  },
+);
+
+// Mek.java:5709-5720: both head cockpit cells are occupied.
+it('reserves all six interface head cells', () => {
+  const state = new UnitLoaderService().mapToUnitState(ryoken, true);
+  const head = getFixedSlotNames(
+    MechLocation.HEAD,
+    state.engineType,
+    state.gyroType,
+    undefined,
+    state.cockpitType,
+  );
+  expect([...head.keys()].sort((a, b) => a - b)).toEqual([0, 1, 2, 3, 4, 5]);
+});
+
+// Engine.java:639-640: absent gyro puts all six engine cells together.
+it('restores the no-gyro engine positions and frees native center-torso mounts', () => {
+  const state = new UnitLoaderService().mapToUnitState(ryoken, true);
+  const ct = getFixedSlotNames(
+    MechLocation.CENTER_TORSO,
+    state.engineType,
+    state.gyroType,
+  );
+  expect([...ct.entries()]).toEqual(
+    Array.from({ length: 6 }, (_, i) => [i, 'Engine']),
+  );
+  expect(
+    getEquipmentSlotIssues(
+      state.equipment,
+      state.configuration,
+      state.engineType,
+      state.gyroType,
+      state.armActuators,
+      state.cockpitType,
+    ),
+  ).toEqual([]);
+});
+
+// MegaMek 48fcb2f64 TestMek.java:669-673: no gyro requires an interface cockpit.
+it.each([
+  ['Standard', false],
+  ['Interface', true],
+])('checks no-gyro compatibility with %s', (cockpitType, passed) => {
+  const result = BattleMechCTRequirements.validate({
+    unit: {
+      id: 'interface-test',
+      name: 'Interface test',
+      unitType: UnitType.BATTLEMECH,
+      techBase: TechBase.INNER_SPHERE,
+      rulesLevel: RulesLevel.EXPERIMENTAL,
+      introductionYear: 3143,
+      era: Era.DARK_AGE,
+      weight: 55,
+      cost: 0,
+      battleValue: 0,
+      gyroType: 'None',
+      cockpitType: String(cockpitType),
+    },
+    unitType: UnitType.BATTLEMECH,
+    unitCategory: UnitCategory.MECH,
+    techBase: TechBase.INNER_SPHERE,
+    options: {},
+    cache: new Map(),
+  });
+  expect(result.passed).toBe(passed);
 });
