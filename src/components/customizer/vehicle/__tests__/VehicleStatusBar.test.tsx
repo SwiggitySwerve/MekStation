@@ -170,7 +170,7 @@ describe('VehicleStatusBar — reacts to the store fields it derives from', () =
     expect(weightFree()).toBe(before - 14);
   });
 
-  it('recomputes the hover engine minimum when tonnage changes', () => {
+  it('recomputes the hover engine and superheavy structure above 50 tons', () => {
     const view = renderBar({
       engineRating: 25,
       motionType: GroundMotionType.HOVER,
@@ -181,8 +181,9 @@ describe('VehicleStatusBar — reacts to the store fields it derives from', () =
       engineRating: 25,
       motionType: GroundMotionType.HOVER,
     });
-    // +2 tons, -0.5 each for engine, structure, controls and lift.
-    expect(weightFree()).toBe(before);
+    // +2 tons, -0.5 each for engine, controls and lift; structure 5 -> 10.5.
+    // MegaMek 48fcb2f64 BLKTankFile.java:94-123; Structure.java:102-108.
+    expect(weightFree()).toBe(before - 5);
   });
 
   it('weight free drops when armor tonnage rises', () => {
