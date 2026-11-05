@@ -3232,7 +3232,7 @@
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 240000,
-      "battleValue": 0,
+      "battleValue": -1,
       "introductionYear": 3120,
       "special": []
     },
@@ -3246,7 +3246,7 @@
       "criticalSlots": 2,
       "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
       "costCBills": 360000,
-      "battleValue": 0,
+      "battleValue": -2,
       "introductionYear": 3137,
       "special": []
     },

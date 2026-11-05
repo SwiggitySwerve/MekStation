@@ -338,13 +338,19 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
           lo.includes('harjel3') ||
           lo === 'harjel iii self-repair system'
         ) {
-          if (ml && !r.harjelIIILocs.includes(ml)) r.harjelIIILocs.push(ml);
+          if (ml && !r.harjelIIILocs.includes(ml)) {
+            r.harjelIIILocs.push(ml);
+            r.defEquipIds.push(clean);
+          }
         } else if (
           lo.includes('harjel ii') ||
           lo.includes('harjel2') ||
           lo === 'harjel ii self-repair system'
         ) {
-          if (ml && !r.harjelIILocs.includes(ml)) r.harjelIILocs.push(ml);
+          if (ml && !r.harjelIILocs.includes(ml)) {
+            r.harjelIILocs.push(ml);
+            r.defEquipIds.push(clean);
+          }
         }
 
         // Artemis
