@@ -29,6 +29,7 @@ import {
 import {
   calculateAerospaceAmmoBV,
   isAerospaceOffensiveMisc,
+  isAerospaceAmmo,
   calculateAerospaceFinalBV,
   getAerospacePilotMultiplier,
   sumWeaponBV,
@@ -195,7 +196,7 @@ export function calculateAerospaceOffensiveBV(input: IAerospaceBVInput): {
   offensive: number;
 } {
   // BVCalculator.java:1045-1091: ammo is not part of the forward/rear pool.
-  // Preserve the legacy non-support input contract outside this FWS slice.
+  // Explicit ammo owns bins separately; omitted ammo retains the legacy flat-input contract.
   const firingInput = input.isSupportVehicle
     ? {
         ...input,
@@ -205,7 +206,12 @@ export function calculateAerospaceOffensiveBV(input: IAerospaceBVInput): {
             getOffensiveBVRole(item.id) !== 'equipment',
         ),
       }
-    : input;
+    : input.ammo !== undefined
+      ? {
+          ...input,
+          equipment: input.equipment.filter((item) => !isAerospaceAmmo(item)),
+        }
+      : input;
   const arcs = calculateAerospaceArcContributions(firingInput);
   // BVCalculator.java:966-976,1072-1084. Uniform FCS preserves arc ordering.
   const fireControl = supportFireControlFactor({
@@ -225,11 +231,7 @@ export function calculateAerospaceOffensiveBV(input: IAerospaceBVInput): {
   const fuselageWeaponBV = arcs.fuselageWeaponBV * fireControl;
   const ammoBV =
     (input.ammo
-      ? calculateAerospaceAmmoBV(
-          firingInput.equipment,
-          input.ammo,
-          input.isSupportVehicle === true,
-        )
+      ? calculateAerospaceAmmoBV(firingInput.equipment, input.ammo, true)
       : 0) * fireControl;
   const offensiveEquipmentBV =
     input.offensiveEquipmentBV ??

@@ -154,7 +154,7 @@ export function buildAerospaceBVInputFromUnit(
       id,
       location,
       isRearMounted: item.isRearMounted,
-      ...(supportVehicle && ammo ? { isAmmo: true } : {}),
+      ...(ammo ? { isAmmo: true } : {}),
     });
   }
 
@@ -204,18 +204,16 @@ export function buildAerospaceBVInputFromUnit(
     armorTypeByArc: normalizeArmorArcs(unit.armorTypeByArc, subType),
     equipment,
     // BVCalculator.java:1190-1247: each bin contributes its own catalog value.
-    ammo: supportVehicle
-      ? equipment
-          .filter((item) => item.isAmmo)
-          .map((item) => {
-            const entry = getAmmunitionEntry(item.id.replace(/:OMNI$/i, ''));
-            return {
-              id: item.id,
-              bv: entry?.battleValue ?? 0,
-              weaponType: entry?.name ?? extractWeaponTypeFromAmmoId(item.id),
-            };
-          })
-      : undefined,
+    ammo: equipment
+      .filter((item) => item.isAmmo)
+      .map((item) => {
+        const entry = getAmmunitionEntry(item.id.replace(/:OMNI$/i, ''));
+        return {
+          id: item.id,
+          bv: entry?.battleValue ?? 0,
+          weaponType: entry?.name ?? extractWeaponTypeFromAmmoId(item.id),
+        };
+      }),
     pilotGunnery: options.gunnery,
     pilotPiloting: options.piloting,
   };

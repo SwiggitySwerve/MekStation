@@ -691,6 +691,382 @@ describe('test result cache key: env reads through constants and helpers', () =>
   });
 });
 
+describe('type-only imports in the key', () => {
+  // Jest's own transform options (jest.config.js sharedTransform).
+  const swc = require('@swc/core') as {
+    transformSync: (code: string, options: object) => { code: string };
+  };
+  const compile = (code: string) =>
+    swc.transformSync(code, {
+      filename: 'file.ts',
+      jsc: {
+        parser: { syntax: 'typescript', tsx: true, decorators: false },
+        transform: { react: { runtime: 'automatic' } },
+        target: 'es2022',
+      },
+      module: { type: 'commonjs' },
+    }).code;
+
+  const repoFor = (line: string) => ({
+    'src/dep.ts': 'export const v = 1;\nexport type T = number;\n',
+    'src/t.test.ts': `${line}\ntest('x', () => {});\n`,
+  });
+  const keyAfterDepEdit = (line: string) => {
+    const root = makeRepo(repoFor(line));
+    const before = keyOf(root, 'src/t.test.ts');
+    write(root, {
+      'src/dep.ts': 'export const v = 2;\nexport type T = string;\n',
+    });
+    return { before, after: keyOf(root, 'src/t.test.ts') };
+  };
+
+  // Each of these is erased by @swc/jest without loading './dep'.
+  it.each([
+    ['import type { named }', "import type { T } from './dep';"],
+    ['import type default', "import type D from './dep';"],
+    ['import type namespace', "import type * as ns from './dep';"],
+    [
+      'multiline import type with a comment',
+      "import type {\n  // a note\n  T,\n} from './dep';",
+    ],
+    ['export type { named } from', "export type { T } from './dep';"],
+    ['export type * from', "export type * from './dep';"],
+    ['export type * as ns from', "export type * as ns from './dep';"],
+    [
+      'import().Name annotation',
+      "export const f = (x: import('./dep').T): import('./dep').T => x;",
+    ],
+    [
+      'typeof import in a type alias',
+      "export type R = typeof import('./dep');",
+    ],
+    [
+      'typeof import in a generic argument',
+      "export const m: Array<typeof import('./dep')> = [];",
+    ],
+    [
+      'typeof import after as',
+      "export const g = {} as unknown as typeof import('./dep');",
+    ],
+    [
+      'typeof import in a union',
+      "export type U = string | typeof import('./dep').v;",
+    ],
+    [
+      'typeof import in an annotation',
+      "export interface I { readonly m: typeof import('./dep'); }",
+    ],
+    ['keyof typeof import', "export type K = keyof typeof import('./dep');"],
+    [
+      'typeof import in a parameter annotation',
+      "export function f(x: typeof import('./dep')) { return x; }",
+    ],
+    [
+      'import().Name in a return type',
+      "export function f(): Promise<import('./dep').T> { return null as never; }",
+    ],
+    [
+      'typeof import as a later generic argument',
+      "export type P = Record<string, typeof import('./dep')>;",
+    ],
+    ['import type = require', "import type X = require('./dep');"],
+    // ordinary uses of jest / require are not loader escapes
+    [
+      'with jest.fn and a jest.Mock type in the file',
+      "import type { T } from './dep';\nconst fn = jest.fn();\nexport const w: jest.Mock = fn;",
+    ],
+    [
+      'with typeof require in a type',
+      "import type { T } from './dep';\nexport type R = typeof require;",
+    ],
+    [
+      'with a direct require of another module',
+      "import type { T } from './dep';\nconst fs = require('node:fs');\nexport const r = fs;",
+    ],
+    [
+      'with module.require of another module by literal',
+      "import type { T } from './dep';\nexport const r = module.require('node:fs');",
+    ],
+    [
+      'with require.resolve of another module',
+      "import type { T } from './dep';\nexport const r = require.resolve('node:fs');",
+    ],
+    [
+      'with a jest loader on another module',
+      "import type { T } from './dep';\nconst other = jest.requireActual('node:fs');\nexport const r = other;",
+    ],
+  ])('does not follow %s', (_name, line) => {
+    expect(compile(`${line}\nexport const w = 1;\n`)).not.toContain('./dep');
+    const { before, after } = keyAfterDepEdit(line);
+    expect(before.repoWide).toBe(false);
+    expect(after.key).toBe(before.key);
+  });
+
+  // Value, mixed and ambiguous forms stay dependencies (fail open).
+  it.each([
+    ['a value import', "import { v } from './dep'; void v;"],
+    [
+      'a mixed import { type T, v }',
+      "import { type T, v } from './dep'; void v;",
+    ],
+    [
+      'an inline-type-only import { type T }',
+      "import { type T } from './dep'; export type X = T;",
+    ],
+    ['a default import named type', "import type from './dep'; void type;"],
+    ['a default import named types', "import types from './dep'; void types;"],
+    [
+      'a default import named type beside names',
+      "import type, { v } from './dep'; void v;",
+    ],
+    ['export * from', "export * from './dep';"],
+    ['export { v } from', "export { v } from './dep';"],
+    ['export type in a value re-export', "export { type T, v } from './dep';"],
+    [
+      'a dynamic import in an expression',
+      "const load = () => import('./dep');",
+    ],
+    ['import().then', "void import('./dep').then((m) => m.v);"],
+    ['await import()', "const run = async () => { await import('./dep'); };"],
+    [
+      'await import().Name',
+      "const run = async () => (await import('./dep').T);",
+    ],
+    ['import().name (lower case)', "export const m = import('./dep').v;"],
+    ['import().Name( called', "export const m = import('./dep').T();"],
+    [
+      'typeof import in a value position',
+      "export const t = typeof import('./dep');",
+    ],
+    ['require()', "const m = require('./dep'); void m;"],
+    [
+      'jest.mock beside import type',
+      "import type { T } from './dep';\njest.mock('./dep');",
+    ],
+    [
+      'the same module as a type and as a value',
+      "import type { T } from './dep';\nimport { v } from './dep';\nvoid v;",
+    ],
+    // Sol round 1 on #2730: text that only looks like a type-only import
+    [
+      'a value import after a string that starts "import type {"',
+      "const prefix = 'import type {';\nimport { v } from './dep';\nexport const result = prefix + v;",
+    ],
+    [
+      'a value re-export after a string that starts "export type {"',
+      "const prefix = 'export type {';\nexport { v } from './dep';\nvoid prefix;",
+    ],
+    [
+      'typeof import as an object literal value',
+      "export const status = { moduleType: typeof import('./dep') };",
+    ],
+    [
+      'typeof import in a ternary',
+      "export const t = Math.random() ? 1 : typeof import('./dep');",
+    ],
+    ['typeof import after ||', "export const t = 0 || typeof import('./dep');"],
+    ['typeof import after &&', "export const t = 1 && typeof import('./dep');"],
+    ['void import().Name', "void import('./dep').Foo;"],
+    // Sol round 2 on #2730: loader calls the textual patterns cannot see
+    [
+      'jest.requireActual with a generic typeof import',
+      "const dep = jest.requireActual<typeof import('./dep')>('./dep');\nexport const w = dep.v;",
+    ],
+    [
+      'jest.requireActual with a generic and a template literal',
+      "const dep = jest.requireActual<typeof import('./dep')>(`./dep`);\nexport const w = dep.v;",
+    ],
+    // Sol round 4 on #2730: a loader that escapes as a value
+    [
+      'an aliased loader called with a computed argument',
+      "import type { T } from './dep';\nconst load = require;\nconst p = ['.', 'dep'].join('/');\nexport const result = load(p);",
+    ],
+    [
+      'require passed to map',
+      "import type { T } from '@/dep';\nexport const r = ['./dep'].map(require);",
+    ],
+    [
+      'require passed to Reflect.apply',
+      "import type { T } from '@/dep';\nexport const r = Reflect.apply(require, null, ['./dep']);",
+    ],
+    [
+      'createRequire(...)(computed)',
+      "import type { T } from '@/dep';\nimport { createRequire } from 'node:module';\nconst req = createRequire(import.meta.url);\nexport const r = req(['.', 'dep'].join('/'));",
+    ],
+    [
+      'a destructured jest loader',
+      "import type { T } from '@/dep';\nconst { requireActual } = jest;\nexport const r = requireActual(['.', 'dep'].join('/'));",
+    ],
+    // Sol round 5 on #2730: a `require` member used as a value or by a computed key
+    [
+      'module.require.bind(module) then a computed call',
+      "import type { T } from './dep';\nconst load = module.require.bind(module);\nconst p = ['.', 'dep'].join('/');\nexport const result = load(p);",
+    ],
+    [
+      "module['require'] with a computed argument",
+      "import type { T } from './dep';\nexport const r = module['require'](['.', 'dep'].join('/'));",
+    ],
+    [
+      'globalThis.require taken as a value',
+      "import type { T } from './dep';\nconst r = globalThis.require;\nexport const m = r(['.', 'dep'].join('/'));",
+    ],
+    [
+      'module.require with a computed argument',
+      "import type { T } from './dep';\nexport const r = module.require(['.', 'dep'].join('/'));",
+    ],
+    [
+      'eval',
+      "import type { T } from './dep';\nexport const r = eval(\"require('./dep')\");",
+    ],
+    // Sol round 3 on #2730: the loader names the module with a different spelling
+    [
+      'a generic loader whose argument spells the module differently (@/ vs ./)',
+      "const dep = jest.requireActual<typeof import('@/dep')>('./dep');\nexport const w = dep.v;",
+    ],
+    [
+      'a generic loader whose argument adds the extension',
+      "const dep = jest.requireActual<typeof import('./dep')>('./dep.ts');\nexport const w = dep.v;",
+    ],
+    [
+      'a generic loader with a computed argument',
+      "const p = ['.', 'dep'].join('/');\nconst dep = jest.requireActual<typeof import('./dep')>(p);\nexport const w = dep.v;",
+    ],
+    [
+      'an aliased loader next to a type import of the same file',
+      "import type { T } from './dep';\nconst load = require;\nexport const m = load('./dep.ts');",
+    ],
+    [
+      'a generic loader with no type import at all (a gap on main too)',
+      "const dep = jest.requireActual<{ v: number }>('./dep');\nexport const w = dep.v;",
+    ],
+    [
+      'jest.mock with a generic factory type',
+      "jest.mock<typeof import('./dep')>('./dep', () => ({ v: 1 }));",
+    ],
+    [
+      'a type import beside new URL(spec, import.meta.url)',
+      "import type { T } from './dep';\nexport const u = new URL('./dep', import.meta.url);",
+    ],
+    [
+      'a type import beside a template-literal jest.mock',
+      // built in two pieces: b14FogContainment scans every test file's text for
+      // a mock call with a non-quoted path and would read this fixture as one
+      "import type { T } from './dep';\njest" + '.mock(`./dep`);',
+    ],
+    [
+      'a type import beside a plain string equal to the specifier',
+      "import type { T } from './dep';\nexport const name = './dep';",
+    ],
+    [
+      'a type import of a specifier named in a type literal',
+      "import type { T } from './dep';\nexport type Name = './dep';",
+    ],
+    [
+      'a type import repeated in a string',
+      "import type { T } from './dep';\nexport const s = \"import type { T } from './dep'\";",
+    ],
+    [
+      'a type import repeated in a comment',
+      "import type { T } from './dep';\n// import type { T } from './dep'\nexport const s = 1;",
+    ],
+  ])('still follows %s', (_name, line) => {
+    const { before, after } = keyAfterDepEdit(line);
+    expect(after.key).not.toBe(before.key);
+  });
+
+  it('drops nothing when the file does not parse', () => {
+    const { before, after } = keyAfterDepEdit(
+      "import type { T } from './dep';\nconst = ;\n",
+    );
+    expect(after.key).not.toBe(before.key);
+  });
+
+  it('drops nothing when @swc/core cannot be loaded', () => {
+    const line = "import type { T } from './dep';";
+    const root = makeRepo(repoFor(line));
+    jest.isolateModules(() => {
+      jest.doMock('@swc/core', () => {
+        throw new Error('not installed');
+      });
+      const bare = require('../jest/cached-tests.js') as typeof lib;
+      const key = () =>
+        bare
+          .createKeyer({ root, index: bare.buildFileIndex(root), env: {} })
+          .keyFor('src/t.test.ts').key;
+      const before = key();
+      write(root, { 'src/dep.ts': 'export type T = string;\n' });
+      expect(key()).not.toBe(before);
+    });
+    jest.dontMock('@swc/core');
+  });
+
+  it('control: swc keeps a value import, so the oracle above can fail', () => {
+    expect(compile("import { v } from './dep'; export const w = v;")).toContain(
+      './dep',
+    );
+  });
+
+  it('does not let a type-only import of a missing module force a whole-repo key', () => {
+    const root = makeRepo({
+      'other.txt': 'x',
+      'src/t.test.ts':
+        "import type { Ghost } from './generated/ghost';\ntest('x', () => {});\n",
+    });
+    const before = keyOf(root, 'src/t.test.ts');
+    expect(before.repoWide).toBe(false);
+    write(root, { 'other.txt': 'y' });
+    expect(keyOf(root, 'src/t.test.ts').key).toBe(before.key);
+    // the same import as a value is an unresolved relative import: whole repo
+    write(root, {
+      'src/t.test.ts':
+        "import { Ghost } from './generated/ghost';\ntest('x', () => Ghost);\n",
+    });
+    expect(keyOf(root, 'src/t.test.ts').repoWide).toBe(true);
+  });
+
+  it('keeps a type-only edit a hit end to end, and --verify-hits still catches a planted wrong result', async () => {
+    const root = makeRepo({
+      'src/types.ts': 'export type T = number;\n',
+      'src/a.test.ts':
+        "import type { T } from './types';\ntest('a', () => { const x: T = 1; void x; });\n",
+    });
+    const files = ['src/a.test.ts'];
+    const outcome = new Map<string, 'passed' | 'failed'>();
+    const calls: string[][] = [];
+    const go = (verifyHits = 0) =>
+      lib.runCached({
+        files,
+        keyer: lib.createKeyer({
+          root,
+          index: lib.buildFileIndex(root, '.cache/'),
+          env: {},
+        }),
+        store: lib.createStore(path.join(root, '.cache')),
+        execute: async (run) => {
+          calls.push(run);
+          const results = new Map<string, 'passed' | 'failed'>();
+          for (const file of run)
+            results.set(file, outcome.get(file) ?? 'passed');
+          const failed = [...results.values()].includes('failed');
+          return { exitCode: failed ? 1 : 0, results };
+        },
+        mode: 'use',
+        verifyHits,
+        seed: 's',
+      });
+
+    expect(await go()).toMatchObject({ hits: 0, executed: 1 });
+    write(root, { 'src/types.ts': 'export type T = string;\n' }); // type-only edit
+    expect(await go()).toMatchObject({ hits: 1, executed: 0 });
+    expect(calls).toHaveLength(1); // Jest was not invoked for the hit
+    // A hit that is actually wrong (a hidden input) is still caught by sampling.
+    outcome.set('src/a.test.ts', 'failed');
+    const report = await go(1);
+    expect(report.stale).toEqual(['src/a.test.ts']);
+    expect(report.exitCode).not.toBe(0);
+  });
+});
+
 describe('runCached', () => {
   const files = ['src/a.test.ts', 'src/b.test.ts', 'src/c.test.ts'];
   const repo = {

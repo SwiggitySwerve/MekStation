@@ -478,6 +478,13 @@ sum. Command consoles share the small-cockpit summary owner; actual summary
 facts reach bvTrace without changing the neutral compatibility subtype field.
 Enforcement: aerospaceBV.miscConsole.test.ts, native Hellcat and Zhen Niao.
 
+Native aircraft adapters expose every physical ammo bin separately. With an
+explicit ammo list, ordinary aircraft exclude those bins from arc dominance
+and heat, then use native type/rack caps before speed. Ammo omission retains
+the legacy flat equipment contract. Support FCS/eligibility guards remain.
+Source pin 48fcb2f64: BVCalculator.java:936-963,1045-1091,1190-1247.
+Enforcement: aerospaceBV.ammoPartition.test.ts and all-family comparison.
+
 Patchwork transports current per-arc points and native armor codes through
 contract and editor adapters. Each represented physical arc adds local modular
 capacity before its native multiplier, BAR and aircraft type scaling. Capacity
