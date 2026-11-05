@@ -668,8 +668,10 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
             lo === 'is spikes' ||
             lo === 'clan spikes') &&
           clean !== prevSlotClean
-        )
+        ) {
           r.spikeCount++;
+          if (ml && !r.spikeLocations.includes(ml)) r.spikeLocations.push(ml);
+        }
         // Mine Dispensers: offensive equipment, BV=8 per slot per MegaMek
         // Each crit slot is counted separately (no dedup) — 4 slots = 4 dispensers = 32 BV
         if (
