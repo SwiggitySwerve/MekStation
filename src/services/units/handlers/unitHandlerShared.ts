@@ -105,6 +105,7 @@ interface CombinedCommonUnitFieldOptions extends Omit<
   'techBase' | 'rulesLevel'
 > {
   readonly typeSpecificFields: object;
+  readonly techBase?: TechBase;
   readonly rulesLevel?: RulesLevel;
   readonly rulesLevelParser?: (typeStr: string) => RulesLevel;
 }
@@ -185,6 +186,7 @@ export function buildCommonUnitFields({
 export function combineCommonUnitFields<TUnit>({
   commonFields,
   typeSpecificFields,
+  techBase,
   rulesLevel,
   rulesLevelParser = parseRulesLevelFromType,
   ...options
@@ -193,7 +195,7 @@ export function combineCommonUnitFields<TUnit>({
     ...buildCommonUnitFields({
       commonFields,
       ...options,
-      techBase: parseInnerSphereOrClan(commonFields.techBase),
+      techBase: techBase ?? parseInnerSphereOrClan(commonFields.techBase),
       rulesLevel: rulesLevel ?? rulesLevelParser(commonFields.techBase),
     }),
     ...typeSpecificFields,

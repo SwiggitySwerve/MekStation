@@ -6,8 +6,9 @@
  * @see openspec/changes/add-multi-unit-type-support/tasks.md Phase 2.4
  */
 
+import { isClanSourceChassis } from '@/services/conversion/ValueMappings';
 import { BattleArmorLocation } from '@/types/construction/UnitLocation';
-import { WeightClass } from '@/types/enums';
+import { TechBase, WeightClass } from '@/types/enums';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   SquadMotionType,
@@ -278,6 +279,9 @@ export class BattleArmorUnitHandler extends AbstractUnitTypeHandler<IBattleArmor
       idPrefix: 'battlearmor',
       unitType: UnitType.BATTLE_ARMOR,
       weightClass: WeightClass.LIGHT,
+      techBase: isClanSourceChassis(commonFields.techBase)
+        ? TechBase.CLAN
+        : TechBase.INNER_SPHERE,
       rulesLevelParser: parseRulesLevelThroughAdvancedFromType,
     });
     const result = { ...unit, canAntiMech: canMakeBAAntiMekAttacks(unit) };
