@@ -5,6 +5,7 @@
     "Clan Electric Discharge ProtoMech": "clan-electric-discharge-protomech"
   },
   "reroute": {
+    "TSEMP One-Shot": "tsemp-one-shot-registry",
     "Machine Gun (Light)": "machine-gun-light-registry",
     "IS LB 2-X AC Ammo": "is-lb-2-x-ac-ammo-registry",
     "IS LB 5-X AC Ammo": "is-lb-5-x-ac-ammo-registry",
@@ -635,6 +636,10 @@
     "mech-mortar-8": {
       "INNER_SPHERE": "mech-mortar-8",
       "CLAN": "clan-mech-mortar-8-registry"
+    },
+    "tsemp-one-shot": {
+      "INNER_SPHERE": "tsemp-one-shot-registry",
+      "CLAN": "tsemp-one-shot-registry"
     }
   }
 }
