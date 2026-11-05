@@ -11,7 +11,10 @@ import {
   createEmptyArmorAllocation,
 } from '@/types/construction/ArmorAllocation';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { CockpitType } from '@/types/construction/CockpitType';
+import {
+  CockpitType,
+  getNativeCockpitType,
+} from '@/types/construction/CockpitType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
@@ -132,6 +135,8 @@ export function mapStructureType(
  * Map cockpit type string to CockpitType enum
  */
 export function mapCockpitType(typeStr: string): CockpitType {
+  const native = getNativeCockpitType(typeStr);
+  if (native) return native;
   const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
 
   if (normalized === 'SMALL' || normalized === 'SMALLCOCKPIT') {

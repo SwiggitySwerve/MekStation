@@ -7,7 +7,10 @@
  */
 
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { CockpitType } from '@/types/construction/CockpitType';
+import {
+  CockpitType,
+  getNativeCockpitType,
+} from '@/types/construction/CockpitType';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
@@ -568,6 +571,8 @@ const COCKPIT_TYPE_MAP: Record<string, CockpitType> = {
 };
 
 export function mapCockpitType(source: string): CockpitType {
+  const native = getNativeCockpitType(source);
+  if (native) return native;
   const normalized = source.trim();
 
   // Direct match

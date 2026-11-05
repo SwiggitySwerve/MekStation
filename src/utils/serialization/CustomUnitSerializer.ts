@@ -20,7 +20,10 @@ import {
 import { serializeVehicleTurretContext } from '@/services/conversion/vehicleTurretContext';
 import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { getCriticalSlotsForLocation } from '@/services/units/unitLoaderService/criticalSlotEquipment';
-import { CockpitType } from '@/types/construction/CockpitType';
+import {
+  CockpitType,
+  VRRP_COCKPIT_SOURCE_TAG,
+} from '@/types/construction/CockpitType';
 import {
   LOCATION_SLOT_COUNTS,
   MechLocation,
@@ -66,6 +69,7 @@ const COCKPIT_TYPE = {
   [CockpitType.PRIMITIVE]: 'PRIMITIVE',
   [CockpitType.INDUSTRIAL]: 'INDUSTRIAL',
   [CockpitType.SUPER_HEAVY]: 'SUPERHEAVY',
+  [CockpitType.VRRP]: VRRP_COCKPIT_SOURCE_TAG,
 } as const satisfies Readonly<Record<CockpitType, string>>;
 
 const STRUCTURE_TYPE = {
