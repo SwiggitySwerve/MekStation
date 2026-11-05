@@ -215,7 +215,10 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
 export function serializeCustomUnitState(
   state: UnitState,
   identity: CustomUnitSaveIdentity,
-): ISerializedUnit & { readonly schemaVersion: string } {
+): ISerializedUnit & {
+  readonly schemaVersion: string;
+  readonly lamType?: string;
+} {
   const walk =
     state.tonnage > 0 ? Math.floor(state.engineRating / state.tonnage) : 0;
   const numericMulId = Number(state.mulId);
@@ -232,6 +235,7 @@ export function serializeCustomUnitState(
     variant: identity.variant,
     unitType: state.unitType,
     configuration: state.configuration,
+    lamType: state.lamType,
     techBase: TECH_BASE[state.techBaseMode],
     rulesLevel: RULES_LEVEL[state.rulesLevel],
     era: identity.era,

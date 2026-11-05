@@ -263,6 +263,8 @@ export interface UnitState {
 
   /** Current LAM operating mode (only relevant for LAM configuration) */
   lamMode: LAMMode;
+  /** Native conversion subtype; omitted legacy sources use standard LAM mass. */
+  lamType?: string;
 
   /** Current QuadVee operating mode (only relevant for QuadVee configuration) */
   quadVeeMode: QuadVeeMode;

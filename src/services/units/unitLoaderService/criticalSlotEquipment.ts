@@ -424,7 +424,10 @@ export function restoreCriticalSlotEquipment(
       if (physicalOnly) continue;
 
       if (
-        slot.equipmentDef?.category === EquipmentCategory.AMMUNITION &&
+        slot.equipmentDef &&
+        (slot.equipmentDef.category === EquipmentCategory.AMMUNITION ||
+          // MiscType.java:12413-12420: each native LAM Bomb Bay is a 1t mount.
+          slot.equipmentId === 'bomb-bay') &&
         slot.equipmentDef.criticalSlots > 0
       ) {
         const count = entries(slot.equipmentDef.criticalSlots);
