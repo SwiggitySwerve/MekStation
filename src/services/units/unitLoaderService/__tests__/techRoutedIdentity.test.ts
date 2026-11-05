@@ -23,6 +23,7 @@ import cauldronBorn from '../../../../../public/data/units/battlemechs/5-civil-w
 import pariahAZ from '../../../../../public/data/units/battlemechs/5-civil-war/standard/Pariah (Septicemia) A-Z.json';
 import assassin from '../../../../../public/data/units/battlemechs/6-dark-age/advanced/Assassin ASN-109.json';
 import crossbowT from '../../../../../public/data/units/battlemechs/6-dark-age/advanced/Crossbow T.json';
+import scarecrow from '../../../../../public/data/units/battlemechs/6-dark-age/standard/Scarecrow UCU-F4.json';
 import { resolveEquipmentId } from '../equipmentResolution';
 import { UnitLoaderService } from '../unitLoader';
 
@@ -277,3 +278,29 @@ it.each([
     ).toEqual([]);
   },
 );
+
+// Mixed tech without a matching name marker: Scarecrow UCU-F4 places Clan light
+// MG arrays (crit CLLMGA) under the list id light-machine-gun-array. The side is
+// the one whose route target a crit token at that location resolves to.
+it('routes a mixed-tech unit by the crit token its location carries', () => {
+  expect(
+    resolveEquipmentId(
+      'light-machine-gun-array',
+      TechBase.INNER_SPHERE,
+      TechBaseMode.MIXED,
+      ['CLLightMG', 'CLLMGA'],
+    ).equipmentDef?.id,
+  ).toBe('lmga');
+  expect(
+    resolveEquipmentId(
+      'light-machine-gun-array',
+      TechBase.INNER_SPHERE,
+      TechBaseMode.MIXED,
+      ['ISLMGA'],
+    ).equipmentDef?.id,
+  ).toBe('islmga-registry');
+  const state = new UnitLoaderService().mapToUnitState(scarecrow, true);
+  const arrays = state.equipment.filter((item) => item.equipmentId === 'lmga');
+  expect(arrays).toHaveLength(2);
+  expect(arrays.every((item) => (item.slots?.length ?? 0) > 0)).toBe(true);
+});
