@@ -8,6 +8,7 @@ import type { ILargeAerospaceArcBV } from './largeAerospaceFirePool';
 import {
   addBVToAmmoCapGroup,
   getLargeAerospaceAmmoBVGroup,
+  largeAerospaceAmmoBVMultiplier,
 } from '../battleValueAmmo';
 import { getCapitalEquipmentBVFacts } from '../equipmentBV/catalogLoader';
 import {
@@ -206,7 +207,7 @@ export function resolveLargeAerospaceMountBV(
           arc.ammoBVByType,
           key,
           entry.battleValue *
-            Math.max(1, Math.floor(shots / entry.shotsPerTon)),
+            largeAerospaceAmmoBVMultiplier(shots, entry.shotsPerTon),
         );
       return;
     }
