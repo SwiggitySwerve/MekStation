@@ -45,6 +45,21 @@ test('vehicle adapter emits per-mount weapons and native ammo pools like the Jav
   expect(terms['ammo.cap.SRM:4']).toEqual(expect.any(Number));
 });
 
+test('vehicle adapter omits zero-BV weapons that Java never processes', () => {
+  const source = fixture.units.find((row) =>
+    row.path.includes('DI Multipurpose VTOL'),
+  );
+  expect(source).toBeDefined();
+  const terms =
+    calculateRow({ ...source, sha256: 'a'.repeat(64) }).figure?.terms ?? {};
+  // BVCalculator.countAsOffensiveWeapon (BVCalculator.java:946) skips TAG.
+  expect(
+    Object.keys(terms)
+      .filter((key) => key.startsWith('weapon.'))
+      .map((key) => key.split('.')[2]),
+  ).toEqual(['TU']);
+});
+
 const terms = {
   armorBV: 60,
   structureBV: 0,

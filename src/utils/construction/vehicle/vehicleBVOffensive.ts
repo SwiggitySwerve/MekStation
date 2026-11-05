@@ -312,11 +312,19 @@ export function calculateVehicleOffensiveBV(
     turretModifier,
     weightBV,
     total,
-    weaponMountBV: weaponEntries.map((entry, index) => ({
-      name: entry.id,
-      location: mounts[index].location,
-      bv: entry.finalBV,
-    })),
+    // BVCalculator.countAsOffensiveWeapon (BVCalculator.java:946, 48fcb2f6)
+    // never processes a weapon whose type BV is zero, such as TAG.
+    weaponMountBV: weaponEntries.flatMap((entry, index) =>
+      entry.listedBV > 0 || entry.finalBV !== 0
+        ? [
+            {
+              name: entry.id,
+              location: mounts[index].location,
+              bv: entry.finalBV,
+            },
+          ]
+        : [],
+    ),
     ammoPools: { available: ammoPools.available, cap: ammoPools.cap },
   };
 }
