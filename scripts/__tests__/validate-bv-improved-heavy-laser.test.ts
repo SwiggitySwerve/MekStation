@@ -72,3 +72,22 @@ it('retains local CASE II and transferred arm CASE protection', () => {
     ).toBe(0);
   }
 });
+
+// MekBVCalculator.java:514-523: Clan arm/side CASE retains the exposed CT penalty.
+it('retains native mixed-Clan CASE while charging exposed center-torso slots', () => {
+  const input: UnitData = {
+    ...unit,
+    techBase: 'MIXED',
+    componentTechBases: { chassis: 'CLAN' },
+    engine: { type: 'CLAN_XL', rating: 200 },
+    criticalSlots: Object.fromEntries(
+      ['LEFT_ARM', 'RIGHT_TORSO', 'CENTER_TORSO'].map((location) => [
+        location,
+        Array<string>(3).fill('CLImprovedHeavyLargeLaser'),
+      ]),
+    ),
+  };
+  expect(
+    calculateUnitBV(input, 'unlisted-mixed-clan').breakdown?.explosivePenalty,
+  ).toBe(3);
+});
