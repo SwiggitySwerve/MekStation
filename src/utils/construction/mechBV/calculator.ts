@@ -30,6 +30,7 @@ import {
   EngineType,
   getEngineDefinition,
 } from '../../../types/construction/EngineType';
+import { isBimodalLAM } from '../../../types/construction/lamConfig';
 import {
   getArmorBVMultiplier,
   GYRO_BV_MULTIPLIERS,
@@ -93,8 +94,7 @@ export function calculateUnitBV(
   // Pinned LandAirMek.getAirMekFlankMP and MekBVCalculator.offensiveSpeedFactorMP.
   // Bimodal LAMs retain ordinary Mek movement; standard LAMs use airborne AirMek MP.
   const airMekFlankMP =
-    unit.configuration?.toLowerCase() === 'lam' &&
-    unit.lamType?.toLowerCase() !== 'bimodal'
+    unit.configuration?.toLowerCase() === 'lam' && !isBimodalLAM(unit.lamType)
       ? Math.ceil(jumpMP * 3 * 1.5)
       : undefined;
 

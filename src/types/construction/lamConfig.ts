@@ -8,6 +8,11 @@ import {
 } from './mechConfigHelpers';
 import { MechConfiguration, MechLocation, LAMMode } from './MechConfigTypes';
 
+/** Native subtype shared by construction and BV; retain legacy exact matching. */
+export function isBimodalLAM(type?: string): boolean {
+  return type?.toLowerCase() === 'bimodal';
+}
+
 /**
  * LAM equipment definitions
  * Landing Gear: 3 slots total (1 each in CT, LT, RT)
