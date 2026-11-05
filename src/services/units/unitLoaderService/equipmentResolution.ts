@@ -23,6 +23,7 @@ import {
   isLegacyEquipmentId,
   preferRegistryEquipment,
   resolveRegistryId,
+  techRouteId,
 } from '@/utils/construction/equipmentBVCatalogData';
 
 type TechHint = 'clan' | 'is';
@@ -307,6 +308,34 @@ export function normalizeEquipmentId(
 }
 
 /**
+ * Tech-dependent identities (follow-up 93): the list id and the crit token of one
+ * mount resolve to the pinned Java item for the unit's side. Mixed-tech units use
+ * the location's Clan/IS crit marker for that item, else the unit's tech base.
+ */
+function resolveTechRoutedEquipment(
+  id: string,
+  unitTechBase: TechBase,
+  mode: TechBaseMode,
+  slots: ReadonlyArray<string | null> | undefined,
+): IResolvedEquipment | null {
+  const name = parseCriticalSlotToken(id).lookupToken;
+  const side =
+    mode === TechBaseMode.CLAN
+      ? TechBase.CLAN
+      : mode === TechBaseMode.INNER_SPHERE
+        ? TechBase.INNER_SPHERE
+        : (inferPreferredTechBaseFromCriticalSlots(
+            slots,
+            normalizeMatchKey(name),
+          ) ?? unitTechBase);
+  const routedId = techRouteId(name, side === TechBase.CLAN);
+  const equipmentDef = routedId
+    ? getEquipmentLookupService().getById(routedId)
+    : undefined;
+  return equipmentDef ? { equipmentDef, resolvedId: equipmentDef.id } : null;
+}
+
+/**
  * Attempt to resolve an equipment ID using multiple strategies.
  * Returns the equipment definition if found, or undefined.
  */
@@ -316,6 +345,8 @@ export function resolveEquipmentId(
   mode: TechBaseMode,
   slots: ReadonlyArray<string | null> | undefined,
 ): IResolvedEquipment {
+  const routed = resolveTechRoutedEquipment(id, unitTechBase, mode, slots);
+  if (routed) return routed;
   const previous = resolveLegacyEquipmentId(id, unitTechBase, mode, slots);
   const target = normalizeCatalogEquipmentId(id);
   const lookup = getEquipmentLookupService();

@@ -359,10 +359,12 @@ it('classifies zero-damage official ranged weapons as explicit non-damage behavi
   // CLAMS.java:67; ISLaserAMS.java:67; CLLaserAMS.java:66;
   // ISMekTaser.java:75; InfantrySniperRifleHammelMarksman.java:69;
   // WeaponType.java:799,922 and ISFluidGun.java:58-68. Full paths in batch-2 audit.
+  // Follow-up 93: 125 - 7 Clan LRT 5/10/15/20 and SRT 2/4/6 = 118, which now
+  // carry Java's per-missile damage (MissileWeaponHandler.java:308-318, SRMHandler.java:66-78).
   const addedZero = javaCatalogAdditions.filter(
     (row) => row.kind === 'weapons' && row.java.damage === 0,
   );
-  expect(zeroDamageItems).toHaveLength(125 + addedZero.length);
+  expect(zeroDamageItems).toHaveLength(118 + addedZero.length);
   expect(unclassified).toEqual([]);
   expect(
     ids(
