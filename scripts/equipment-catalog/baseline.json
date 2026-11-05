@@ -28552,7 +28552,7 @@
     "file": "miscellaneous/other.json",
     "index": 186,
     "id": "harjel-repair-systems-harjel-ii",
-    "sha256": "663b975d2f5480ce1fec15ed206618ef9f658b56210dcfb76ff394d49f9c8d7e",
+    "sha256": "53a188e4a96db8ff9b5808843e912d04f473ce369a947a667448203bf12c5459",
     "item": {
       "id": "harjel-repair-systems-harjel-ii",
       "name": "HarJel Repair Systems (HarJel II)",
@@ -28566,7 +28566,7 @@
         "supportVehicle": 1
       },
       "costCBills": 240000,
-      "battleValue": 0,
+      "battleValue": -1,
       "introductionYear": 3120,
       "special": []
     }
@@ -28575,7 +28575,7 @@
     "file": "miscellaneous/other.json",
     "index": 187,
     "id": "harjel-repair-systems-harjel-iii",
-    "sha256": "4b95c539c1eb8fbe02c2989d5f9d550b02d524d3b6e70fd832ebb224b462bbe0",
+    "sha256": "53fe60deb7dcd613c011a5888eee002a25eeaced8b0e396e7ef802dc4e873e4e",
     "item": {
       "id": "harjel-repair-systems-harjel-iii",
       "name": "HarJel Repair Systems (HarJel III)",
@@ -28589,7 +28589,7 @@
         "supportVehicle": 2
       },
       "costCBills": 360000,
-      "battleValue": 0,
+      "battleValue": -2,
       "introductionYear": 3137,
       "special": []
     }

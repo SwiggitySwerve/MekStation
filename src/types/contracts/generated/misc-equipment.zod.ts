@@ -117,7 +117,7 @@ export const MiscEquipmentContract = z
       .describe('Cost in C-Bills (0 for variable cost equipment)'),
     battleValue: z
       .number()
-      .gte(0)
+      .gte(-2)
       .describe('Battle Value (0 for variable BV equipment)'),
     introductionYear: z
       .number()
