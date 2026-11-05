@@ -1,5 +1,12 @@
 # Aerospace construction rules
 
+Drone weapons share the vehicle 0.8 owner before capacitor additions and TC;
+physical ammo keeps its own value. Detection uses the canonical OS owner in
+ordinary and large aircraft. The summary applies the inherited 0.95 followed
+by the Aero 0.95, through the existing final-summary owner. Source pin
+48fcb2f64: BVCalculator.java:845-847,936-963,1159-1182;
+AeroBVCalculator.java:162-180. Enforcement: aerospaceBV.drone.test.ts.
+
 ## DropShip mount valuation
 
 `dropShipMountBV.ts` owns raw DropShip mount-to-arc facts, using the shared

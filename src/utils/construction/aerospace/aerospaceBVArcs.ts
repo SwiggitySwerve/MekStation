@@ -12,13 +12,14 @@ import {
   getNativeAmmoBVGroup,
   getMachineGunArrayBVGroup,
 } from '../battleValueAmmo';
-import { getOffensiveBVRole } from '../battleValueEquipment';
+import { getOffensiveBVRole, hasBVDroneOS } from '../battleValueEquipment';
 import {
   calculateBaseHeatEfficiency,
   calculateHeatTrackedWeapons,
 } from '../battleValueHeatTracking';
 import {
   applyTargetingComputerBV,
+  applyDroneWeaponBV,
   calculateArcWeaponBV,
   hasBVTargetingComputer,
   isDirectFireBVWeapon,
@@ -130,6 +131,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
   fuselageWeaponBV: number;
 } {
   const mainArcs = getMainArcsForSubType(input.subType);
+  const drone = hasBVDroneOS(input.equipment.map((item) => item.id));
   // Keep support FCS on its existing path. BVCalculator.java:880-891 applies
   // the ordinary aircraft TC bonus before direction selection and heat sorting.
   const targetingComputerMounted =
@@ -148,6 +150,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     location: AerospaceArc;
     id: string;
     targeted: boolean;
+    ammunition: boolean;
     baseBV: number;
     ammoGroup?: string;
     arrayGroup?: string;
@@ -192,6 +195,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
     weapons.push({
       id: entry?.id ?? item.id,
       targeted,
+      ammunition,
       baseBV: resolved.battleValue,
       arrayGroup,
       ammoGroup: ammunition
@@ -217,6 +221,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
   );
   linkPPCCapacitorBVWeapons(weapons, capacitors, input.year);
   for (const weapon of weapons) {
+    if (drone && !weapon.ammunition) weapon.bv = applyDroneWeaponBV(weapon.bv);
     weapon.bv *= getWeaponLinkBVMultiplier(weapon.artemisType);
     if (weapon.targeted) weapon.bv = applyTargetingComputerBV(weapon.bv);
     if (weapon.artemisType === 'risc') weapon.heat += 2;

@@ -16,7 +16,7 @@ import {
   getModularArmorBVPoints,
   MODULAR_ARMOR_BV_ID,
 } from '../battleValueDefensive';
-import { getOffensiveBVRole } from '../battleValueEquipment';
+import { getOffensiveBVRole, hasBVDroneOS } from '../battleValueEquipment';
 import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
 import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
 import { getEquipmentEntry } from '../equipmentBVResolver';
@@ -280,6 +280,7 @@ export function calculateAerospaceBV(
 
   // AeroBVCalculator.java:162-180; BVCalculator.java:1253,167.
   // Preserve shared base-before-crew rounding and expose actual summary facts.
+  const drone = hasBVDroneOS(input.equipment.map((item) => item.id));
   const summary = calculateAerospaceFinalBV(
     defensive.defensive,
     offensive.offensive,
@@ -289,6 +290,7 @@ export function calculateAerospaceBV(
         : input.hasCommandConsole
           ? 'COMMAND_CONSOLE'
           : undefined,
+      hasDroneOperatingSystem: drone,
       gunnery: input.pilotGunnery,
       piloting: input.pilotPiloting,
     },
