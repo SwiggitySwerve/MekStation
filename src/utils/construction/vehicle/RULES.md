@@ -554,6 +554,15 @@ Body and uninstalled turrets. Six-side controls use the existing tank/support
 global armor limit owners; legacy ordinary editor limits remain unchanged.
 The four-side auto-allocation action is not exposed for a six-side layout.
 
+## Native miscellaneous heat-neutral load
+
+At pin 48fcb2f64, TestEntity.java:971-979 adds MiscType.getHeat() after all
+weapon and linked-equipment heat. MiscType.java:1423-1435 returns 20 for the
+ground-mobile HPG and 12 for either RISC viral jammer. The mounted thermal
+owner applies these native identities after the weapon running-total guard,
+then the existing engine allowance decides paid sinks. These are native code
+rules; no equipment catalog heat or weight values are edited.
+
 ## Linked PPC capacitors
 
 Vehicle offense uses equipmentBV/weaponLinks.ts for the first unlinked
@@ -620,11 +629,11 @@ summing equipment and turret mass, independently of the held sized-equipment
 editor integration. Missing context is unavailable, not a fixed zero.
 Pin 48fcb2f64: MiscType.java:660-666,702-705; RoundWeight.java:58-68.
 
-## Native miscellaneous heat-neutral load
+## Native VTOL structure mass
 
-At pin 48fcb2f64, TestEntity.java:971-979 adds MiscType.getHeat() after all
-weapon and linked-equipment heat. MiscType.java:1423-1435 returns 20 for the
-ground-mobile HPG and 12 for either RISC viral jammer. The mounted thermal
-owner applies these native identities after the weapon running-total guard,
-then the existing engine allowance decides paid sinks. These are native code
-rules; no equipment catalog heat or weight values are edited.
+Pin 48fcb2f64 VTOL.java:729-730 defines superheavy VTOL mass above 30 t.
+TestTank.java:87-95 passes that fact to Structure.java:76-87,102-107:
+standard structure doubles; Endo-Steel follows its native superheavy rule,
+and Composite retains its existing multiplier. This changes structure mass
+only. The Tank layout classifier, rotor locations and BV structure points
+remain independent of this mass threshold.

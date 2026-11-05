@@ -1,6 +1,9 @@
 import { UnitState, createEmptySelectionMemory } from '@/stores/unitState';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { CockpitType } from '@/types/construction/CockpitType';
+import {
+  CockpitType,
+  getCockpitTypeFromSystems,
+} from '@/types/construction/CockpitType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
@@ -144,9 +147,22 @@ function deriveStructureType(
 }
 
 function deriveCockpitType(serialized: IRawSerializedUnit): CockpitType {
-  return serialized.cockpit
+  const declared = serialized.cockpit
     ? mapCockpitType(serialized.cockpit)
     : CockpitType.STANDARD;
+  if (declared !== CockpitType.STANDARD) return declared;
+  const systems = (location: MechLocation): string[] =>
+    (getCriticalSlotsForLocation(serialized.criticalSlots, location) ?? []).map(
+      (token) => parseCriticalSlotToken(token ?? '').lookupToken.toLowerCase(),
+    );
+  return (
+    getCockpitTypeFromSystems(
+      systems(MechLocation.HEAD),
+      systems(MechLocation.CENTER_TORSO),
+      systems(MechLocation.LEFT_TORSO),
+      systems(MechLocation.RIGHT_TORSO),
+    ) ?? declared
+  );
 }
 
 function deriveHeatSinkState(serialized: IRawSerializedUnit): HeatSinkState {
