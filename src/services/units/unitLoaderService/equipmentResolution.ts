@@ -17,6 +17,7 @@ import {
   loadAmmunitionCatalog,
 } from '@/utils/construction/equipmentBV/catalogLoader';
 import { normalizeNativeEquipmentName as normalizeCatalogEquipmentId } from '@/utils/construction/equipmentBV/normalization';
+import { getAmmunitionEntry } from '@/utils/construction/equipmentBV/resolution';
 import { nativeIdentityId } from '@/utils/construction/equipmentBV/sourceLookupAliases';
 import {
   isRegistryEquipment,
@@ -388,6 +389,24 @@ function resolveTechRoutedEquipment(
 }
 
 /**
+ * A bin on a list without crit slots (vehicles) takes the record the BV owner
+ * resolves it to when that is a pinned Java AmmoType record (Clan Ammo LRM-20,
+ * BV 27), not the legacy record of the same base (IS ammo-lrm-20, BV 23). Mech
+ * lists keep the legacy pairing, which their crit tokens share.
+ */
+function resolveSlotlessAmmo(id: string): IResolvedEquipment | null {
+  if (!isAmmunitionEquipmentId(id)) return null;
+  const native = getAmmunitionEntry(id)?.id;
+  const equipmentDef =
+    native && isRegistryEquipment(native)
+      ? getEquipmentLookupService().getById(native)
+      : undefined;
+  return equipmentDef?.category === EquipmentCategory.AMMUNITION
+    ? { equipmentDef, resolvedId: equipmentDef.id }
+    : null;
+}
+
+/**
  * Attempt to resolve an equipment ID using multiple strategies.
  * Returns the equipment definition if found, or undefined.
  */
@@ -399,6 +418,8 @@ export function resolveEquipmentId(
 ): IResolvedEquipment {
   const routed = resolveTechRoutedEquipment(id, unitTechBase, mode, slots);
   if (routed) return routed;
+  const ammo = slots === undefined ? resolveSlotlessAmmo(id) : null;
+  if (ammo) return ammo;
   const previous = resolveLegacyEquipmentId(id, unitTechBase, mode, slots);
   const target = normalizeCatalogEquipmentId(id);
   const lookup = getEquipmentLookupService();
