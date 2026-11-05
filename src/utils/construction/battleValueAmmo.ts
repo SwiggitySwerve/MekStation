@@ -350,7 +350,23 @@ export function calculateAmmoBVWithExcessiveCap(
   weapons: Array<{ id: string; bv: number }>,
   ammo: Array<{ id: string; bv: number; weaponType: string }>,
 ): number {
-  if (!ammo || ammo.length === 0) return 0;
+  return calculateAmmoBVPools(weapons, ammo).total;
+}
+
+/** The capped total plus the uncapped native pools it was built from, keyed
+ * AmmoType:rackSize like BVCalculator.assembleAmmo's ammoMap and
+ * weaponsForExcessiveAmmo (BVCalculator.java:1189-1242, 48fcb2f64). A bin or
+ * weapon without a native identity is absent from the pools.
+ */
+export function calculateAmmoBVPools(
+  weapons: Array<{ id: string; bv: number }>,
+  ammo: Array<{ id: string; bv: number; weaponType: string }>,
+): {
+  total: number;
+  available: Record<string, number>;
+  cap: Record<string, number>;
+} {
+  const available: Record<string, number> = {};
 
   const weaponBVByType: Record<string, number> = {};
   const nativeWeaponBVByType: Record<string, number> = {};
@@ -363,10 +379,11 @@ export function calculateAmmoBVWithExcessiveCap(
   }
 
   const ammoBVByType: Record<string, number> = {};
-  for (const ammoEntry of ammo) {
+  for (const ammoEntry of ammo ?? []) {
     const native =
       getNativeAmmoBVGroup(ammoEntry.id) ??
       getNativeAmmoBVGroup(ammoEntry.weaponType);
+    if (native) addBVToAmmoCapGroup(available, native, ammoEntry.bv);
     const normalizedType =
       native && nativeWeaponBVByType[native] !== undefined
         ? native
@@ -375,12 +392,13 @@ export function calculateAmmoBVWithExcessiveCap(
     addBVToAmmoCapGroup(ammoBVByType, normalizedType, ammoEntry.bv);
   }
 
-  return sumCappedAmmoBV(ammoBVByType, (ammoType) => {
+  const total = sumCappedAmmoBV(ammoBVByType, (ammoType) => {
     const matchingWeaponBV =
       nativeWeaponBVByType[ammoType] ??
       findMatchingWeaponBV(ammoType, weaponBVByType);
     return matchingWeaponBV === 0 ? undefined : matchingWeaponBV;
   });
+  return { total, available, cap: nativeWeaponBVByType };
 }
 
 /** Native AmmoType/rack identities (BVCalculator.java:1190-1240).
