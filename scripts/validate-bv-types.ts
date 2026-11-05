@@ -1,3 +1,5 @@
+import type { AmmoBVPools } from '../src/utils/construction/battleValueOffensiveTypes';
+
 interface ArmorAllocation {
   [location: string]: number | { front: number; rear: number };
 }
@@ -75,6 +77,8 @@ export interface ValidationResult {
     jumpMP: number;
     weaponCount: number;
     halvedWeaponCount: number;
+    weaponMountBV?: { name: string; location?: string; bv: number }[];
+    ammoPools?: AmmoBVPools;
     // Legacy aliases
     defensiveEquipBV: number;
   };
