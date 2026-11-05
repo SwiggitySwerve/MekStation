@@ -52,6 +52,15 @@ export const SOURCE_LOOKUP_ALIASES: Readonly<Record<string, string>> = {
   isbaheavyrecoillessrifle: 'baheavy-recoilless-rifle',
   'isheavy recoilless rifle': 'baheavy-recoilless-rifle',
   'isbaheavy recoilless rifle': 'baheavy-recoilless-rifle',
+  // Converter slugs (enum_mappings.py:366) for ISRifle{Light,Medium,Heavy}.java
+  // "Rifle (Cannon, ...)", 48fcb2f64.
+  'light-rifle': 'rifle-cannon-light',
+  'medium-rifle': 'rifle-cannon-medium',
+  'heavy-rifle': 'rifle-cannon-heavy',
+  // Converter slugs for AmmoType.java "IS Heavy Flamer Ammo" (:6043-6052) and
+  // "Taser Ammo" (:12270-12278).
+  'is-heavy-flamer-ammo': 'is-heavy-flamer-ammo-registry',
+  'taser-ammo': 'taser-ammo-registry',
 };
 
 /** Exact native identities at MegaMek 48fcb2f6; FU-79 IDENTITY-REVIEW.md. */
