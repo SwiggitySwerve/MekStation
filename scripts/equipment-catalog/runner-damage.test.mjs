@@ -63,6 +63,8 @@ test('no route lowers combat-runner damage below its previous target', () => {
 // Follow-up 93: a tech route sends a name to a per-side record. Neither side may
 // deal less runner damage than the tech-less resolution of that name, or than the
 // pinned Java damage (per hit times rack size, carried in the record's id).
+// Narc beacons deal no damage in Java (NarcHandler.java:174-176 returns 0).
+const javaZeroDamage = (id) => /narc/.test(id);
 test('no tech route lowers combat-runner damage', () => {
   const routesByName = Object.entries(routing.techRoutes ?? {});
   assert(routesByName.length > 0);
@@ -71,7 +73,11 @@ test('no tech route lowers combat-runner damage', () => {
     const before = runnerDamage(name) ?? 0;
     for (const [side, id] of Object.entries(route)) {
       const after = runnerDamage(id);
-      if (after === undefined || after <= 0 || after < before)
+      if (
+        after === undefined ||
+        after < before ||
+        (after <= 0 && !javaZeroDamage(id))
+      )
         lowered.push(`${name} ${side} -> ${id}: ${before} -> ${after}`);
     }
   }

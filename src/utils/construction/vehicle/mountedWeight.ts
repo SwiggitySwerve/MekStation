@@ -14,11 +14,15 @@ import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
 import { isDirectFireBVWeapon } from '@/utils/construction/battleValueWeapons';
-import { getMountedBVLinkType } from '@/utils/construction/equipmentBV/weaponLinks';
 import { isValidWeight } from '@/utils/physical/weightUtils';
 
 import type { VehicleControlsLiftContext } from './controlsLift';
 
+import {
+  getMountedBVLinkType,
+  linkLaserInsulatorWeapons,
+  linkPPCCapacitorWeapons,
+} from '../equipmentBV/weaponLinks';
 import { computeTurretEquipmentWeight } from './equipmentMounts';
 import { isPowerAmplifierEnergyWeapon } from './powerAmplifier';
 import { getVehicleTurretMechanismFigures } from './turret';
@@ -63,6 +67,7 @@ export interface VehicleMountedWeightState
   equipment: readonly IVehicleMountedEquipment[];
   turret: ITurretConfiguration | null;
   secondaryTurret: ITurretConfiguration | null;
+  year?: number;
 }
 
 export interface VehicleMountedWeightBreakdown {
@@ -94,7 +99,7 @@ export function computeVehicleMountedWeightFigures(
 } {
   const unresolvedMountIds: string[] = [];
   const issues: string[] = [];
-  const mounted = state.equipment.map((mount) => {
+  const mounted = state.equipment.map((mount, order) => {
     const item = resolve(mount.equipmentId);
     const weight =
       item !== undefined && isValidWeight(item.weight) ? item.weight : null;
@@ -103,6 +108,15 @@ export function computeVehicleMountedWeightFigures(
       issues.push(`Mount ${mount.id}: unresolved or invalid equipment mass`);
     }
     return {
+      id: item?.id ?? mount.equipmentId,
+      location: mount.location,
+      order,
+      laser:
+        item?.category === EquipmentCategory.ENERGY_WEAPON &&
+        /laser/i.test(item.name),
+      linked: false,
+      insulated: false,
+      capacitor: false,
       weight,
       computerFormula:
         item && /targeting[- ]?computer/i.test(item.id)
@@ -157,11 +171,41 @@ export function computeVehicleMountedWeightFigures(
               );
   }
   const equipment = sum(mounted, 'Equipment');
-  const rawWeaponHeat = mounted.reduce<number | null>(
-    (total, mount) =>
-      total === null || mount.heat === null ? null : total + mount.heat,
-    0,
+  linkLaserInsulatorWeapons(
+    mounted,
+    mounted
+      .filter(
+        (m) =>
+          m.id === 'laserinsulator' || getMountedBVLinkType(m.id) === 'risc',
+      )
+      .map((m) => ({
+        ...m,
+        kind:
+          m.id === 'laserinsulator'
+            ? ('insulator' as const)
+            : ('risc' as const),
+      })),
   );
+  linkPPCCapacitorWeapons(
+    mounted,
+    mounted.filter((m) => m.id === 'ppc-capacitor'),
+    state.year,
+    (w) => !w.linked,
+    (w) => {
+      w.linked = true;
+      w.capacitor = true;
+    },
+  );
+  const rawWeaponHeat = mounted.reduce<number | null>((total, mount) => {
+    if (total === null || mount.heat === null) return null;
+    // TestEntity.java:951-966 at 48fcb2f64: keep its running-total zero guard.
+    let heat = total + mount.heat;
+    if (mount.insulated) {
+      heat--;
+      if (heat === 0) heat++;
+    }
+    return heat + (mount.capacitor ? 5 : 0);
+  }, 0);
   const primary = mounted.filter((mount) => mount.inPrimaryTurret);
   const secondary = mounted.filter((mount) => mount.inSecondaryTurret);
   const turretMounted = sum(primary, 'Primary mounted equipment');

@@ -39,6 +39,18 @@ const ARMOR = {
 };
 
 const NO_EQUIPMENT: readonly unknown[] = [];
+const UNRESOLVED_EQUIPMENT: VehicleStore['equipment'] = Array.from(
+  { length: 3 },
+  (_, index) => ({
+    id: `unresolved-${index}`,
+    equipmentId: `unknown-equipment-${index}`,
+    name: 'Unknown equipment',
+    location: VehicleLocation.FRONT,
+    isRearMounted: false,
+    isTurretMounted: false,
+    isSponsonMounted: false,
+  }),
+);
 const FRONT_40 = { ...ARMOR, [VehicleLocation.FRONT]: 40 };
 
 function makeState(overrides: Record<string, unknown> = {}) {
@@ -101,7 +113,7 @@ describe('VehicleStatusBar — full layout', () => {
   });
 
   it('shows tonnage, motion, movement and equipment count', () => {
-    renderBar({ equipment: [{}, {}, {}] });
+    renderBar({ equipment: UNRESOLVED_EQUIPMENT });
     expect(item('Tonnage')).toEqual(['50.0 t', 'TRK']);
     expect(item('Movement')).toEqual(['4/6', 'Cruise/Flank']);
     expect(item('Equipment')).toEqual(['3', 'items']);
@@ -221,9 +233,9 @@ describe('VehicleStatusBar — reacts to the store fields it derives from', () =
   });
 
   it('keeps the same output across a re-render with equal-valued state', () => {
-    const view = renderBar({ equipment: [{}, {}] });
+    const view = renderBar({ equipment: UNRESOLVED_EQUIPMENT.slice(0, 2) });
     const snapshot = view.container.innerHTML;
-    rerenderBar(view, { equipment: [{}, {}] });
+    rerenderBar(view, { equipment: UNRESOLVED_EQUIPMENT.slice(0, 2) });
     expect(view.container.innerHTML).toBe(snapshot);
   });
 

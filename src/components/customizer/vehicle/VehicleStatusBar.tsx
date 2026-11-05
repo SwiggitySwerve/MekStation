@@ -48,6 +48,7 @@ type VehicleStatusStoreState = Pick<
   | 'unitType'
   | 'techBase'
   | 'transporters'
+  | 'year'
   | 'hasEnvironmentalSealing'
   | 'hasFlotationHull'
   | 'hasNoControlSystems'
@@ -115,6 +116,7 @@ function calculateWeightBreakdown(
     | 'unitType'
     | 'techBase'
     | 'transporters'
+    | 'year'
     | 'hasNoControlSystems'
     | 'tonnage'
     | 'motionType'
@@ -267,6 +269,7 @@ function useVehicleStatusStoreState(): VehicleStatusStoreState {
     unitType: useVehicleStore((s) => s.unitType),
     techBase: useVehicleStore((s) => s.techBase),
     transporters: useVehicleStore((s) => s.transporters),
+    year: useVehicleStore((s) => s.year),
     hasEnvironmentalSealing: useVehicleStore((s) => s.hasEnvironmentalSealing),
     hasFlotationHull: useVehicleStore((s) => s.hasFlotationHull),
     hasNoControlSystems: useVehicleStore((s) => s.hasNoControlSystems),
@@ -300,6 +303,7 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
     unitType,
     techBase,
     transporters,
+    year,
     hasEnvironmentalSealing,
     hasFlotationHull,
     hasNoControlSystems,
@@ -335,6 +339,7 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
           unitType,
           techBase,
           transporters,
+          year,
           hasNoControlSystems,
           tonnage,
           motionType,
@@ -360,6 +365,7 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
       unitType,
       techBase,
       transporters,
+      year,
       hasNoControlSystems,
       tonnage,
       motionType,
