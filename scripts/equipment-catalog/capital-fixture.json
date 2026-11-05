@@ -68,6 +68,15 @@
       "tech": "ALL",
       "bv": 756.0,
       "tons": 0.5
+    },
+    {
+      "javaClass": "megamek.common.weapons.capitalWeapons.MassDriverMedium",
+      "internalName": "Mass Driver (Medium)",
+      "name": "Mass Driver (Medium)",
+      "aliases": ["Mass Driver (Medium)", "MediumMassDriver"],
+      "tech": "IS",
+      "bv": 11760.0,
+      "tons": 50000.0
     }
   ],
   "facts": {
@@ -220,6 +229,38 @@
       "munitions": ["M_STANDARD"],
       "rackSize": 0,
       "compatible": ["Naval Gauss (Heavy)"]
+    },
+    "Mass Driver (Medium)": {
+      "criticalSlots": 0.0,
+      "cost": 280000000.0,
+      "rulesLevel": "EXPERIMENTAL",
+      "introductionYear": 2710,
+      "extinctionYear": 2860,
+      "reintroductionYear": 3066,
+      "isExplosive": true,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Ballistic",
+      "damage": 100,
+      "allowedUnitTypes": [
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 60,
+      "ranges": {
+        "long": 40,
+        "extreme": 0,
+        "short": 12,
+        "minimum": 0,
+        "medium": 24
+      },
+      "ammoType": "MMASS",
+      "rackSize": 0
     }
   }
 }

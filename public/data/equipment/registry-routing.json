@@ -85,7 +85,10 @@
     "CLStreakSRM4 (OS)": "clstreaksrm4-os-registry",
     "CLStreakSRM6 (OS)": "clstreaksrm6-os-registry",
     "CLNarcBeacon (OS)": "clnarcbeacon-os-registry",
-    "CLNarcBeacon (I-OS)": "clnarcbeacon-i-os-registry"
+    "CLNarcBeacon (I-OS)": "clnarcbeacon-i-os-registry",
+    "ISMGA": "ismga-registry",
+    "ISLMGA": "islmga-registry",
+    "ISHMGA": "ishmga-registry"
   },
   "previousIds": {
     "is-lb-2-x-ac-ammo-registry": "clan-lb-2-x-ac",
@@ -491,6 +494,74 @@
     "prototype-rocket-launcher-20": {
       "INNER_SPHERE": "rocketlauncher20prototype-registry",
       "CLAN": "rocketlauncher20prototype-registry"
+    },
+    "ISImprovedNarc": {
+      "INNER_SPHERE": "inarc",
+      "CLAN": "inarc"
+    },
+    "CLNarcBeacon": {
+      "INNER_SPHERE": "clan-narc",
+      "CLAN": "clan-narc"
+    },
+    "CLiATM3": {
+      "INNER_SPHERE": "iatm-3",
+      "CLAN": "iatm-3"
+    },
+    "CLiATM6": {
+      "INNER_SPHERE": "iatm-6",
+      "CLAN": "iatm-6"
+    },
+    "CLiATM9": {
+      "INNER_SPHERE": "iatm-9",
+      "CLAN": "iatm-9"
+    },
+    "CLiATM12": {
+      "INNER_SPHERE": "iatm-12",
+      "CLAN": "iatm-12"
+    },
+    "heavy-machine-gun": {
+      "INNER_SPHERE": "heavy-machine-gun",
+      "CLAN": "clheavymg-registry"
+    },
+    "Heavy Machine Gun": {
+      "INNER_SPHERE": "heavy-machine-gun",
+      "CLAN": "clheavymg-registry"
+    },
+    "machine-gun-array": {
+      "INNER_SPHERE": "ismga-registry",
+      "CLAN": "mga"
+    },
+    "Machine Gun Array": {
+      "INNER_SPHERE": "ismga-registry",
+      "CLAN": "mga"
+    },
+    "ISMGA": {
+      "INNER_SPHERE": "ismga-registry",
+      "CLAN": "ismga-registry"
+    },
+    "light-machine-gun-array": {
+      "INNER_SPHERE": "islmga-registry",
+      "CLAN": "lmga"
+    },
+    "Light Machine Gun Array": {
+      "INNER_SPHERE": "islmga-registry",
+      "CLAN": "lmga"
+    },
+    "ISLMGA": {
+      "INNER_SPHERE": "islmga-registry",
+      "CLAN": "islmga-registry"
+    },
+    "heavy-machine-gun-array": {
+      "INNER_SPHERE": "ishmga-registry",
+      "CLAN": "hmga"
+    },
+    "Heavy Machine Gun Array": {
+      "INNER_SPHERE": "ishmga-registry",
+      "CLAN": "hmga"
+    },
+    "ISHMGA": {
+      "INNER_SPHERE": "ishmga-registry",
+      "CLAN": "ishmga-registry"
     }
   }
 }

@@ -128,7 +128,7 @@ describe('DropShip raw mount valuation (MegaMek 48fcb2f64)', () => {
         { equipmentId: `is-ammo-ac-5:${shots}`, location: 'NOSE' },
       ]);
       expect(result.unresolved).toEqual([]);
-      expect(result.arcs[0].ammoBVByType?.['ac-5'] ?? 0).toBe(bv);
+      expect(result.arcs[0].ammoBVByType?.['AC:5'] ?? 0).toBe(bv);
     },
   );
 

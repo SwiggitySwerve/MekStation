@@ -315,8 +315,9 @@ function contractAerospaceToBVUnit(
 
 function contractLargeAerospaceStageFacts(
   unit: IContractBVSource,
-): Pick<IDropShipBVUnit, 'maxThrust' | 'heatSinks' | 'cockpit'> {
+): Pick<IDropShipBVUnit, 'maxThrust' | 'heatSinks' | 'cockpit' | 'year'> {
   return {
+    year: unit.year,
     ...(unit.movement.maxThrust === undefined
       ? {}
       : { maxThrust: unit.movement.maxThrust }),

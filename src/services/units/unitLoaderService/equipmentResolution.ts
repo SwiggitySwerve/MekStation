@@ -23,6 +23,7 @@ import {
   isLegacyEquipmentId,
   preferRegistryEquipment,
   resolveRegistryId,
+  techRoute,
   techRouteId,
 } from '@/utils/construction/equipmentBVCatalogData';
 
@@ -310,8 +311,26 @@ export function normalizeEquipmentId(
 /**
  * Tech-dependent identities (follow-up 93): the list id and the crit token of one
  * mount resolve to the pinned Java item for the unit's side. Mixed-tech units use
- * the location's Clan/IS crit marker for that item, else the unit's tech base.
+ * the location's Clan/IS crit marker for that item, then the side whose target a
+ * crit token at the location resolves to, else the unit's tech base.
  */
+function techRouteSideFromSlots(
+  route: Readonly<{ INNER_SPHERE: string; CLAN: string }>,
+  slots: ReadonlyArray<string | null> | undefined,
+): TechBase | null {
+  for (const entry of slots ?? []) {
+    if (typeof entry !== 'string') continue;
+    const token = parseCriticalSlotToken(entry).lookupToken;
+    const own = techRoute(token);
+    // A tech-dependent token says nothing about the side; a single-owner one names its id.
+    if (own && own.INNER_SPHERE !== own.CLAN) continue;
+    const tokenId = own ? own.CLAN : normalizeCatalogEquipmentId(token);
+    if (tokenId === route.CLAN) return TechBase.CLAN;
+    if (tokenId === route.INNER_SPHERE) return TechBase.INNER_SPHERE;
+  }
+  return null;
+}
+
 function resolveTechRoutedEquipment(
   id: string,
   unitTechBase: TechBase,
@@ -319,6 +338,8 @@ function resolveTechRoutedEquipment(
   slots: ReadonlyArray<string | null> | undefined,
 ): IResolvedEquipment | null {
   const name = parseCriticalSlotToken(id).lookupToken;
+  const route = techRoute(name);
+  if (!route) return null;
   const side =
     mode === TechBaseMode.CLAN
       ? TechBase.CLAN
@@ -327,7 +348,9 @@ function resolveTechRoutedEquipment(
         : (inferPreferredTechBaseFromCriticalSlots(
             slots,
             normalizeMatchKey(name),
-          ) ?? unitTechBase);
+          ) ??
+          techRouteSideFromSlots(route, slots) ??
+          unitTechBase);
   const routedId = techRouteId(name, side === TechBase.CLAN);
   const equipmentDef = routedId
     ? getEquipmentLookupService().getById(routedId)
