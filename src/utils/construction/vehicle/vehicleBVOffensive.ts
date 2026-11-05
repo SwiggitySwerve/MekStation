@@ -113,7 +113,7 @@ function calculateWeaponBVEntry(
 
   adjustedBV *= getWeaponLinkBVMultiplier(weapon.artemisType);
 
-  if (nominalRear && !weapon.isTurretMounted) {
+  if (nominalRear) {
     adjustedBV *= 0.5;
   }
 
@@ -245,7 +245,9 @@ export function calculateVehicleOffensiveBV(
     w.capacitorBV = ppcs[i].capacitorBV;
   });
   const sixSideHull = hasSixSideVehicleHull(input);
-  const legacyTurretLocations = new Set<string>([
+  // CombatVehicleBVCalculator.java:126-129 (48fcb2f6) excludes Tank indices
+  // 5/6. On six-side hulls these are Rear Left/Rear, not physical turrets 7/8.
+  const tankTurretIndexLocations = new Set<string>([
     SuperHeavyVehicleLocation.REAR_LEFT.toLowerCase(),
     SuperHeavyVehicleLocation.REAR.toLowerCase(),
   ]);
@@ -262,7 +264,9 @@ export function calculateVehicleOffensiveBV(
       primaryTurretMult,
       secondaryTurretMult,
       rear &&
-        !(sixSideHull && legacyTurretLocations.has(w.location.toLowerCase())),
+        !(sixSideHull
+          ? tankTurretIndexLocations.has(w.location.toLowerCase())
+          : w.isTurretMounted),
       drone,
       w.capacitorBV,
     );
