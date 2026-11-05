@@ -238,6 +238,7 @@ export function restoreCriticalSlotEquipment(
   unitTechBaseMode: TechBaseMode,
   criticalSlots: UnitCriticalSlots | undefined,
   tonnage?: number,
+  physicalOnly = false,
 ): IMountedEquipmentInstance[] {
   const normalizedMapped = mapped.map((item, index) =>
     restoreSerializedHeatSink(serialized[index], item),
@@ -392,9 +393,10 @@ export function restoreCriticalSlotEquipment(
         continue;
       }
 
-      // Empty summaries historically skip ammo/heat-sink restoration. Preserve
-      // that contract while admitting the scoped crit-only physical mounts.
-      if (serialized.length === 0) continue;
+      // A unit whose own summary is empty historically skipped ammo/heat-sink
+      // restoration (mapEquipment's early return). mapEquipment passes
+      // physicalOnly to keep that contract; direct callers keep full restoration.
+      if (physicalOnly) continue;
 
       if (
         slot.equipmentDef?.category === EquipmentCategory.AMMUNITION &&
