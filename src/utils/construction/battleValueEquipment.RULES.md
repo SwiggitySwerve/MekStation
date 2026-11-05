@@ -30,3 +30,11 @@ Native B-Pod display-name resolution can select the imported ISBPod identity.
 Both that identity and legacy `b-pod` retain the native defensive F_B_POD role.
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
 ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.
+
+Mech weapon collection honors canonical defensive identities before retaining
+its legacy raw-name fallback. M-Pods use that existing shared role and their
+raw critical mounts enter defensive BV; they do not enter weapon BV or an
+explosion deduction. Pinned 48fcb2f64: BVCalculator.java:522-526,936-946;
+EquipmentType.java:448-460; CoreRulesExplosions.java:241-247.
+validate-bv-mpod-eligibility.test.ts checks raw/canonical agreement and the
+Hachiwara HCA-3T aggregates, retaining every native critical slot in its fixture.

@@ -85,6 +85,7 @@ export function calculateMountedDefensiveEquipmentBV(
 }
 /** Legacy raw-critical-name guard; Mech mount collection has a separate contract. */
 export function isMechDefensiveEquipment(id: string): boolean {
+  if (getDefensiveEquipmentKind(id) !== undefined) return true;
   const lo = id.toLowerCase();
   return (
     /anti-missile|antimissile|ams|ecm|guardian|angel|bap|beagle|probe|bloodhound|null-signature|apds|advanced-point-defense|point-defense-system|chaff-pod|chaffpod/.test(
