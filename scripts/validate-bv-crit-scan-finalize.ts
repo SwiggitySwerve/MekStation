@@ -2,13 +2,13 @@ import type { MechLocation } from '../src/utils/construction/battleValueCalculat
 import type { CritScan } from './validate-bv-crit-scan-types';
 import type { UnitData } from './validate-bv-types';
 
+import { hasClanChassis } from './validate-bv-chassis';
 import {
   countCritHeatSinks,
   detectCritArmorType,
   detectCritGyroType,
 } from './validate-bv-crit-derived';
 import { countCritWeaponMounts } from './validate-bv-crit-weapon-mounts';
-import { CLAN_CHASSIS_MIXED_UNITS } from './validate-bv-known-units';
 import { toMechLoc } from './validate-bv-normalizers';
 
 export function finalizeCritScan(
@@ -55,12 +55,7 @@ function applyClanCaseProtection(
     'LL',
     'RL',
   ];
-  const isClanChassis =
-    unit.techBase === 'CLAN' ||
-    (unit.techBase === 'MIXED' &&
-      unitId !== undefined &&
-      CLAN_CHASSIS_MIXED_UNITS.has(unitId));
-  if (!isClanChassis) return;
+  if (!hasClanChassis(unit, unitId)) return;
 
   for (const loc of allNonHeadLocs) {
     if (!r.caseLocs.includes(loc) && !r.caseIILocs.includes(loc)) {
