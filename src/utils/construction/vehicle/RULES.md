@@ -561,6 +561,15 @@ Body and uninstalled turrets. Six-side controls use the existing tank/support
 global armor limit owners; legacy ordinary editor limits remain unchanged.
 The four-side auto-allocation action is not exposed for a six-side layout.
 
+## Native miscellaneous heat-neutral load
+
+At pin 48fcb2f64, TestEntity.java:971-979 adds MiscType.getHeat() after all
+weapon and linked-equipment heat. MiscType.java:1423-1435 returns 20 for the
+ground-mobile HPG and 12 for either RISC viral jammer. The mounted thermal
+owner applies these native identities after the weapon running-total guard,
+then the existing engine allowance decides paid sinks. These are native code
+rules; no equipment catalog heat or weight values are edited.
+
 ## Linked PPC capacitors
 
 Vehicle offense uses equipmentBV/weaponLinks.ts for the first unlinked
