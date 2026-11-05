@@ -94,3 +94,8 @@ export function calculateArcWeaponBV(
 ): number {
   return bv * factor + addition;
 }
+
+/** Eligible weapon stage before capacitor/TC; BVCalculator.java:845-847. */
+export function applyDroneWeaponBV(bv: number): number {
+  return bv * 0.8;
+}

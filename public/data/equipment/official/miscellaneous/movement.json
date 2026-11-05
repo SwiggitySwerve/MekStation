@@ -45,6 +45,10 @@
       "weight": 0,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["VTOL"],
+        "incompatibleSupport": ["VTOL"]
+      },
       "costCBills": 0,
       "battleValue": 0,
       "introductionYear": 2100,

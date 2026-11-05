@@ -51,8 +51,7 @@ import {
   vehicleArmorIntroYearErrors,
   vehicleEngineIntroYearErrors,
 } from '@/utils/construction/vehicle/introYear';
-import { combatVehicleSlotErrors } from '@/utils/construction/vehicle/itemSlots';
-import { validateVehicleCaseLocations } from '@/utils/construction/vehicle/vehicleValidation';
+import { validateCombatVehicleEquipment } from '@/utils/construction/vehicle/vehicleValidation';
 
 import {
   AbstractUnitTypeHandler,
@@ -407,7 +406,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
    */
   protected validateTypeSpecificRules(unit: IVehicle): UnitValidationMessages {
     const { errors, warnings, infos } = createValidationMessages();
-    errors.push(...validateVehicleCaseLocations(unit.equipment));
+    errors.push(...validateCombatVehicleEquipment(unit));
 
     // Tonnage limits
     pushTonnageRangeErrors(errors, unit.tonnage, {
@@ -458,8 +457,6 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
         mixed: /mixed/i.test(String(unit.techBase)),
       }),
     );
-
-    errors.push(...combatVehicleSlotErrors(unit));
 
     // Motion type specific validations
     if (unit.motionType === GroundMotionType.HOVER && unit.tonnage > 50) {
