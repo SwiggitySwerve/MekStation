@@ -193,24 +193,34 @@ describe('Lint and Test aggregator', () => {
       blocking({
         ...detect({ code: 'true', combat: 'true' }),
         'static-checks': { result: 'success' },
-        'validate-combat': { result: 'success' },
+        'simulation-checks': { result: 'success' },
       }),
     ).toEqual([]);
   });
 
   itJq('accepts a skip only when every gate the job names was off', () => {
+    // docs-only PR: the code gate is off, so the simulation/Linux-pack job
+    // may skip.
     expect(
       blocking({
-        ...detect({ code: 'true', combat: 'false' }),
-        'validate-combat': { result: 'skipped' },
+        ...detect({ code: 'false', combat: 'false' }),
+        'simulation-checks': { result: 'skipped' },
       }),
     ).toEqual([]);
     expect(
       blocking({
-        ...detect({ code: 'true', combat: 'true' }),
-        'validate-combat': { result: 'skipped' },
+        ...detect({ code: 'true', combat: 'false' }),
+        'simulation-checks': { result: 'skipped' },
       }),
-    ).toEqual(['validate-combat=skipped']);
+    ).toEqual(['simulation-checks=skipped']);
+    // The unit shards carry the step-gated corpus and combat suites, so they
+    // can never be skipped, whatever those gates say.
+    expect(
+      blocking({
+        ...detect({ code: 'false', corpus: 'false', combat: 'false' }),
+        'unit-test-shards': { result: 'skipped' },
+      }),
+    ).toEqual(['unit-test-shards=skipped']);
   });
 
   itJq(
@@ -241,20 +251,20 @@ describe('Lint and Test aggregator', () => {
         blocking({
           ...detect({ code: 'false' }),
           'static-checks': { result: 'skipped' },
-          'schema-bridge': { result: 'failure' },
+          'unit-test-shards': { result: 'failure' },
           'build-test': { result: 'cancelled' },
         }),
       ).toEqual([
         'static-checks=skipped',
-        'schema-bridge=failure',
+        'unit-test-shards=failure',
         'build-test=cancelled',
       ]);
       expect(
         blocking({
           'detect-changes': { result: 'failure', outputs: {} },
-          'validate-combat': { result: 'skipped' },
+          'simulation-checks': { result: 'skipped' },
         }),
-      ).toEqual(['detect-changes=failure', 'validate-combat=skipped']);
+      ).toEqual(['detect-changes=failure', 'simulation-checks=skipped']);
     },
   );
 });
