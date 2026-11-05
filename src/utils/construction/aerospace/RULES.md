@@ -1,5 +1,14 @@
 # Aerospace construction rules
 
+The native mount parser preserves `:size:` as a finite nonnegative size,
+separately from ammo shots and bay/rear flags. MASH, communications equipment,
+ATAC, DTAC and drone-carrier controllers are audited non-offensive miscellaneous
+equipment; size changes construction facts, not their zero standalone BV.
+Unknown sized equipment and malformed suffixes remain unresolved.
+Pin 48fcb2f64: BLKFile.java:274-278,361-381;
+MiscType.java:5059-5090,5400-5444,8790-8831,9072-9107;
+BVCalculator.java:955-963. Enforcement: largeAerospaceNativePools.test.ts.
+
 Screens use the shared defensive classifier and cap accumulator. Launcher BV
 and whole-bin screen ammo belong in defense; screen ammo is capped at screen
 launcher BV, independently of AMS/APDS. They supply no offensive BV, ammo cap

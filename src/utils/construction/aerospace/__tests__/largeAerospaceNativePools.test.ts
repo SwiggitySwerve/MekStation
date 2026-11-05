@@ -4,11 +4,32 @@ import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCal
 import { contractUnitToBVUnit } from '@/utils/construction/contractBVUnitAdapter';
 
 import { calculateAerospaceDefensiveBV } from '../aerospaceBVCalculator';
+import { parseLargeAerospaceMount } from '../aerospaceMountFlags';
 import { resolveLargeAerospaceMountBV } from '../dropShipMountBV';
 import traces from './fixtures/largeAerospaceNativePools.json';
 
 /** MegaMek 48fcb2f64, LargeAeroBVCalculator.java:85-142; UL-16b oracle. */
 describe('large aerospace native ammo identities', () => {
+  it('preserves variable size separately from bin shots and mount flags', () => {
+    expect(parseLargeAerospaceMount('R-B-mash-equipment:size:1.5')).toEqual({
+      id: 'mash-equipment',
+      size: 1.5,
+    });
+    expect(parseLargeAerospaceMount('r-isams-ammo:24')).toEqual({
+      id: 'isams-ammo',
+      quantity: '24',
+    });
+    for (const suffix of ['-1', 'NaN', 'Infinity', '1:24', '']) {
+      expect(
+        parseLargeAerospaceMount(`mash-equipment:size:${suffix}`),
+      ).toBeUndefined();
+    }
+    expect(
+      resolveLargeAerospaceMountBV([
+        { equipmentId: 'medium-laser:size:1', location: 'NOSE' },
+      ]).unresolved,
+    ).toHaveLength(1);
+  });
   it.each(traces)(
     'completes the pinned native design $path',
     ({ unit, expected }) => {
