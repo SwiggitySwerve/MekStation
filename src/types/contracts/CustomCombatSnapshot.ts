@@ -83,6 +83,8 @@ export const customCombatSnapshotSchema = mech
     armorTechRating: true,
     internalType: true,
     omniPodHeatSinks: true,
+    // Editor-only Mixed Tech selections; combat reads the components themselves.
+    componentTechBases: true,
   })
   .extend({
     unitType: z.literal('BattleMech'),
@@ -126,6 +128,7 @@ const nativeSnapshot = native
     mulId: true,
     role: true,
     sourceDefinition: true,
+    componentTechBases: true,
     configuration: true,
     gyro: true,
     criticalSlots: true,
