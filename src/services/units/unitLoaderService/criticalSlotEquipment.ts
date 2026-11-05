@@ -322,12 +322,14 @@ export function restoreCriticalSlotEquipment(
     for (const slot of slots) {
       if (claimedAtLocation.has(slot.index) || !slot.equipmentId) continue;
 
-      // FU-101: only the three audited sizing classes; other prerequisites
+      // FU-101: only audited sizing classes; other prerequisites
       // remain with CAT-Q2. MtfFile.java:1133-1175 groups a physical mount.
       if (
         tonnage !== undefined &&
         slot.equipmentDef?.category === EquipmentCategory.PHYSICAL_WEAPON &&
-        ['mace', 'hatchet', 'lance'].includes(slot.equipmentId)
+        ['mace', 'hatchet', 'lance', 'sword', 'retractable-blade'].includes(
+          slot.equipmentId,
+        )
       ) {
         if (handledPhysical.has(slot.equipmentId)) continue;
         handledPhysical.add(slot.equipmentId);
