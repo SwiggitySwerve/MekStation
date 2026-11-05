@@ -56,3 +56,8 @@ and catalog BV in defensive equipment. Each one-slot mount is counted, including
 adjacent mounts. No new alias or value is inferred; unresolved identities stay
 unresolved. Pinned MegaMek 48fcb2f64 MiscType.java:4942-4956 and
 BVCalculator.java:527-543. validate-bv-mass.test.ts checks the shared calculator.
+
+Bridge layers use their resolved catalog BV in defense, once per mounted slot
+run, and contribute no offensive miscellaneous BV. The critical scanner passes
+their identities to the existing defensive equipment owner. Pinned MegaMek
+48fcb2f64: BVCalculator.java:534-536,1004-1006; MiscType.java:7200-7264.
