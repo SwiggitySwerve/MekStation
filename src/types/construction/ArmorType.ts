@@ -27,13 +27,18 @@ export enum ArmorTypeEnum {
   HARDENED = 'Hardened',
   FERRO_LAMELLOR = 'Ferro-Lamellor',
   BALLISTIC_REINFORCED = 'Ballistic-Reinforced',
+  COMMERCIAL = 'Commercial',
 }
+
+export const COMMERCIAL_ARMOR_SOURCE_TAG = 'COMMERCIAL';
 
 /**
  * Armor definition with all characteristics
  */
 export interface ArmorDefinition {
   readonly type: ArmorTypeEnum;
+  /** Native tag for identities absent from legacy mapper aliases. */
+  readonly sourceTag?: string;
   readonly name: string;
   readonly techBase: TechBase;
   readonly rulesLevel: RulesLevel;
@@ -180,7 +185,28 @@ export const ARMOR_DEFINITIONS: readonly ArmorDefinition[] = [
     introductionYear: 3120,
     isSpecial: true,
   },
+  {
+    // 48fcb2f64 ArmorType.java:669-688: 16 * 1.5 points/t; 2290 approximate.
+    type: ArmorTypeEnum.COMMERCIAL,
+    sourceTag: COMMERCIAL_ARMOR_SOURCE_TAG,
+    name: 'Commercial',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.STANDARD,
+    pointsPerTon: 24,
+    criticalSlots: 0,
+    costMultiplier: 0.3,
+    introductionYear: 2285,
+    isSpecial: false,
+  },
 ] as const;
+
+/** Shared native identity; legacy exact and fuzzy mappings retain precedence. */
+export function getNativeArmorType(source: string): ArmorTypeEnum | undefined {
+  const normalized = source.trim().toUpperCase();
+  return ARMOR_DEFINITIONS.find(
+    (definition) => definition.sourceTag === normalized,
+  )?.type;
+}
 
 /**
  * Get armor definition by type

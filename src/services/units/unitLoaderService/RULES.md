@@ -208,3 +208,9 @@ already represented Talons are sized in place rather than duplicated.
 
 Mounted critical-part traversal is owned by slotOperations/parts. Placement
 re-exports its public helper; spreadable recovery must reuse that owner.
+
+Commercial armor retains its native identity through both loaders and custom
+saves. ArmorType owns its 24 points/t, zero slots and 2285 introduction date
+(MegaMek 48fcb2f64 ArmorType.java:669-688); BlkArmorCodes owns code 10
+(EquipmentType.java:95). Do not replace Commercial with Standard or lower
+Standard introduction dates to accommodate industrial source units.

@@ -1,4 +1,7 @@
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import {
+  ArmorTypeEnum,
+  COMMERCIAL_ARMOR_SOURCE_TAG,
+} from '@/types/construction/ArmorType';
 import { EngineType } from '@/types/construction/EngineType';
 
 /** Authoritative enum-to-contract tags shared by the family serializers. */
@@ -26,4 +29,5 @@ export const ARMOR_TYPE = {
   [ArmorTypeEnum.HARDENED]: 'HARDENED',
   [ArmorTypeEnum.FERRO_LAMELLOR]: 'FERRO_LAMELLOR',
   [ArmorTypeEnum.BALLISTIC_REINFORCED]: 'BALLISTIC_REINFORCED',
+  [ArmorTypeEnum.COMMERCIAL]: COMMERCIAL_ARMOR_SOURCE_TAG,
 } as const satisfies Readonly<Record<ArmorTypeEnum, string>>;
