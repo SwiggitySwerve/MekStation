@@ -5,6 +5,15 @@ import { TechBase, parseTechBase } from '@/types/enums/TechBase';
 import { calculateJumpJetWeight, JumpJetType } from '../movementCalculations';
 import { roundSupportComponentWeight } from './supportRounding';
 
+/** Records of MegaMek 48fcb2f6's F_ARMORED_MOTIVE_SYSTEM items: ISArmoredMotiveSystem
+ * (MiscType.java:3909-3929) and CLArmoredMotiveSystem (:3933-3953). The variable-mass
+ * and BV owners key on this set; the mass fraction comes from each record's tech base.
+ */
+export const ARMORED_MOTIVE_SYSTEM_IDS: ReadonlySet<string> = new Set([
+  'armoredmotivesystem',
+  'clarmoredmotivesystem-registry',
+]);
+
 export interface VehicleVariableMassItem {
   readonly id: string;
   readonly weight?: number;
@@ -77,8 +86,9 @@ export function resolveVehicleVariableMass(
   if (item.id === 'boobytrap') return round(tonnage / 10);
   if (item.id === 'dronecarriercontrolsystem') return 2 + size * 0.5;
   if (item.id === 'mash-equipment') return 2.5 + size;
-  // MiscType.java:607-613 (48fcb2f6): armored motive system is 10% Clan, 15% IS.
-  if (item.id === 'armoredmotivesystem')
+  // MiscType.java:607-613 (48fcb2f6): armored motive system is 10% Clan, 15% IS,
+  // by the equipment's own tech base.
+  if (ARMORED_MOTIVE_SYSTEM_IDS.has(item.id))
     return round(
       tonnage * (parseTechBase(item.techBase) === TechBase.CLAN ? 0.1 : 0.15),
     );
