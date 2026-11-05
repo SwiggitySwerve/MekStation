@@ -84,6 +84,7 @@ import {
   CapitalRecordSheetPreview,
   CapitalShipShell,
 } from '../capital/CapitalShipCustomizer';
+import { CustomizerLoadingSkeleton } from '../CustomizerLoadingSkeleton';
 import { InfantryCustomizer } from '../infantry/InfantryCustomizer';
 import { InfantryPlatoonCounter } from '../infantry/InfantryPlatoonCounter';
 import { InfantryPreviewTab } from '../infantry/InfantryPreviewTab';
@@ -235,13 +236,7 @@ function MechShell({
     <ErrorBoundary componentName="BattleMechEditor">
       <UnitStoreProvider
         activeTab={mechActiveTab}
-        fallback={
-          <div className="flex flex-1 items-center justify-center">
-            <div className="text-text-theme-secondary p-8 text-center">
-              <p className="mb-2 text-lg">Loading unit...</p>
-            </div>
-          </div>
-        }
+        fallback={<CustomizerLoadingSkeleton label="Loading unit" />}
       >
         <UnitEditorWithRouting
           key={activeTab.id}
