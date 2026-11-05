@@ -579,3 +579,11 @@ owner supplies installed mass to total and turret figures, with the existing
 small-support rounding preserved. Missing engine context is unavailable.
 Pin 48fcb2f64: MiscType.java:518-527; RoundWeight.java:58-68.
 This enables the native accessory independently of the held sized-editor work.
+
+## Limited amphibious chassis mass
+
+The shared variable owner charges rounded tonnage/25 for the native limited
+amphibious chassis identity. Mounted figures consume that same rule before
+summing equipment and turret mass, independently of the held sized-equipment
+editor integration. Missing context is unavailable, not a fixed zero.
+Pin 48fcb2f64: MiscType.java:702-703; RoundWeight.java:58-68.

@@ -25,8 +25,16 @@ export function resolveVehicleAccessoryMass(
   item: VehicleVariableMassItem,
   context?: VehicleVariableMassContext,
 ): number | null | undefined {
-  if (item.id !== 'vtoljetbooster') return undefined;
+  if (!['vtoljetbooster', 'limitedamphibiouschassis'].includes(item.id))
+    return undefined;
   if (!context) return null;
+  // MiscType.java:702-703 at the same pin.
+  if (item.id === 'limitedamphibiouschassis')
+    return roundSupportComponentWeight(
+      context.tonnage / 25,
+      context.tonnage,
+      context.isSupportVehicle && context.tonnage < 5,
+    );
   return evaluateVehicleMassFormula({ id: 'supercharger' }, context) ?? null;
 }
 
