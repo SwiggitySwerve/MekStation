@@ -27,6 +27,22 @@ import {
 import { isOneShotMissileBVWeapon } from '../equipmentBV/weaponHeat';
 import { normalizeEquipmentId } from '../equipmentBVResolver';
 
+function matchesMarkedWeapon(
+  critName: string,
+  id: string,
+  aliases = true,
+): boolean {
+  const norm = normalizeEquipId(id);
+  return (
+    critName === norm ||
+    critName.includes(norm) ||
+    norm.includes(critName) ||
+    (aliases &&
+      (normalizeEquipmentId(critName) === normalizeEquipmentId(id) ||
+        critName.split('').sort().join('') === norm.split('').sort().join('')))
+  );
+}
+
 /** Builds mounted weapon BV inputs without changing the source critical grid. */
 export function buildMechBVWeapons(
   unit: UnitData,
@@ -53,14 +69,8 @@ export function buildMechBVWeapons(
       .trim();
     const locRearMap = cs.rearWeaponCountByLoc.get(rawLoc);
     if (!locRearMap) continue;
-    const eqNorm = normalizeEquipId(eq.id);
     for (const [critName, count] of Array.from(locRearMap.entries())) {
-      if (
-        count > 0 &&
-        (critName === eqNorm ||
-          critName.includes(eqNorm) ||
-          eqNorm.includes(critName))
-      ) {
+      if (count > 0 && matchesMarkedWeapon(critName, eq.id, false)) {
         locRearMap.set(critName, count - 1);
         break;
       }
@@ -124,21 +134,8 @@ export function buildMechBVWeapons(
         const rawLoc = eq.location.split(',')[0].toUpperCase();
         const locRearMap = cs.rearWeaponCountByLoc.get(rawLoc);
         if (locRearMap) {
-          const eqNorm = normalizeEquipId(eq.id);
-          const eqCanonical = normalizeEquipmentId(eq.id);
-          // Sort-insensitive token match: handles word-order mismatches like
-          // equipment "improved-heavy-medium-laser" vs crit "CLImprovedMediumHeavyLaser"
-          // which normalize to "improvedheavymediumlaser" vs "improvedmediumheavylaser".
-          const sortedEqNorm = eqNorm.split('').sort().join('');
           for (const [critName, count] of Array.from(locRearMap.entries())) {
-            if (
-              count > 0 &&
-              (critName === eqNorm ||
-                critName.includes(eqNorm) ||
-                eqNorm.includes(critName) ||
-                normalizeEquipmentId(critName) === eqCanonical ||
-                critName.split('').sort().join('') === sortedEqNorm)
-            ) {
+            if (count > 0 && matchesMarkedWeapon(critName, eq.id)) {
               thisRear = true;
               locRearMap.set(critName, count - 1);
               break;
@@ -152,18 +149,8 @@ export function buildMechBVWeapons(
         const rawLoc = eq.location.split(',')[0].toUpperCase();
         const locTurretMap = cs.turretWeaponCountByLoc.get(rawLoc);
         if (locTurretMap) {
-          const eqNorm = normalizeEquipId(eq.id);
-          const eqCanonical = normalizeEquipmentId(eq.id);
-          const sortedEqNorm = eqNorm.split('').sort().join('');
           for (const [critName, count] of Array.from(locTurretMap.entries())) {
-            if (
-              count > 0 &&
-              (critName === eqNorm ||
-                critName.includes(eqNorm) ||
-                eqNorm.includes(critName) ||
-                normalizeEquipmentId(critName) === eqCanonical ||
-                critName.split('').sort().join('') === sortedEqNorm)
-            ) {
+            if (count > 0 && matchesMarkedWeapon(critName, eq.id)) {
               thisTurret = true;
               thisRear = false; // turret weapons are never rear
               locTurretMap.set(critName, count - 1);
