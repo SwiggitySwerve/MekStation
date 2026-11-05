@@ -1,4 +1,8 @@
-import { sumCappedAmmoBV } from './battleValueAmmo';
+import {
+  sumCappedAmmoBV,
+  resolveNativeAmmoBin,
+  largeAerospaceAmmoBVMultiplier,
+} from './battleValueAmmo';
 import {
   getEquipmentEntry,
   resolveAmmoBV,
@@ -58,6 +62,7 @@ export function getDefensiveEquipmentKind(
 export function calculateMountedDefensiveEquipmentBV(
   equipment: readonly { id: string; location?: string; bvOverride?: number }[],
   rotorMast = false,
+  largeAerospace = false,
 ): number {
   let equipmentBV = 0;
   let amsBV = 0;
@@ -65,7 +70,15 @@ export function calculateMountedDefensiveEquipmentBV(
   for (const item of equipment) {
     const kind = getDefensiveEquipmentKind(item.id);
     if (kind === 'amsAmmo') {
-      amsAmmoBV += item.bvOverride ?? resolveAmmoBV(item.id).battleValue;
+      const bin = largeAerospace ? resolveNativeAmmoBin(item.id) : undefined;
+      const multiplier = bin
+        ? largeAerospaceAmmoBVMultiplier(
+            bin.shots,
+            getEquipmentEntry(bin.ammoId)?.shotsPerTon ?? 0,
+          )
+        : 1;
+      amsAmmoBV +=
+        (item.bvOverride ?? resolveAmmoBV(item.id).battleValue) * multiplier;
     } else {
       const bonus =
         rotorMast &&

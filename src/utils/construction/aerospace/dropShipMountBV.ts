@@ -8,6 +8,7 @@ import type { ILargeAerospaceArcBV } from './largeAerospaceFirePool';
 import {
   addBVToAmmoCapGroup,
   getLargeAerospaceAmmoBVGroup,
+  largeAerospaceAmmoBVMultiplier,
 } from '../battleValueAmmo';
 import { getCapitalEquipmentBVFacts } from '../equipmentBV/catalogLoader';
 import {
@@ -136,7 +137,6 @@ export function resolveLargeAerospaceMountBV(
     const fail = (reason: string): void => {
       unresolved.push({ mountIndex, equipmentId: mount.equipmentId, reason });
     };
-    const raw = mount.equipmentId.trim().toLowerCase();
     const token = largeAerospaceMountToken(mount.equipmentId);
     const [id, quantity, ...extra] = token.split(':');
     if (extra.length || (quantity !== undefined && !/^\d+$/.test(quantity))) {
@@ -144,9 +144,13 @@ export function resolveLargeAerospaceMountBV(
       return;
     }
     // The shared classifier owns defensive exclusions, including hull electronics.
-    if (getAerospaceDefensiveEquipmentKind(id)) {
-      if (capitalType && raw !== id)
-        fail('Unrepresented defensive mount qualifier or ammunition quantity');
+    const defensiveKind = getAerospaceDefensiveEquipmentKind(id);
+    if (defensiveKind) {
+      if (
+        quantity !== undefined &&
+        (defensiveKind !== 'amsAmmo' || !Number.isSafeInteger(Number(quantity)))
+      )
+        fail('Invalid defensive ammunition quantity');
       return;
     }
     const entry = getEquipmentEntry(id);
@@ -206,7 +210,7 @@ export function resolveLargeAerospaceMountBV(
           arc.ammoBVByType,
           key,
           entry.battleValue *
-            Math.max(1, Math.floor(shots / entry.shotsPerTon)),
+            largeAerospaceAmmoBVMultiplier(shots, entry.shotsPerTon),
         );
       return;
     }
