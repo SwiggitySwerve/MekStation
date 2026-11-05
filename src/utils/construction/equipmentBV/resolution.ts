@@ -179,16 +179,25 @@ export function getCatalogSize(): number {
   return loadEquipmentCatalog().size;
 }
 
-/** Physical-bin aliases reuse the registry owner, including its malformed-half-bin guard.
- * Keep legacy BV identity resolution unchanged; physical construction needs bin size.
+const normalizeAmmunitionWeightName = (name: string) =>
+  name.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+/** The physical-bin alias map is a pure function of the ammunition catalog, so
+ * build it once per catalog instance rather than once per lookup (it ran for
+ * every ammo mount, over the whole catalog). resetCatalogCache and
+ * initializeCatalog install a new Map, which misses here; the size check
+ * covers a Map that grew in place.
  */
-export function getAmmunitionWeightEntry(
-  ammoId: string,
-): EquipmentCatalogEntry | undefined {
-  const catalog = loadAmmunitionCatalog(),
-    aliases = new Map<string, string>();
-  const normalize = (name: string) =>
-    name.toLowerCase().replace(/[^a-z0-9]/g, '');
+const ammunitionWeightAliasCache = new WeakMap<
+  Map<string, EquipmentCatalogEntry>,
+  { size: number; aliases: Map<string, string> }
+>();
+function ammunitionWeightAliases(
+  catalog: Map<string, EquipmentCatalogEntry>,
+): Map<string, string> {
+  const cached = ammunitionWeightAliasCache.get(catalog);
+  if (cached && cached.size === catalog.size) return cached.aliases;
+  const aliases = new Map<string, string>();
   for (const entry of catalog.values())
     if (
       isLegacyEquipmentId(entry.id) &&
@@ -204,9 +213,23 @@ export function getAmmunitionWeightEntry(
             entry.techBase === 'CLAN' ? TechBase.CLAN : TechBase.INNER_SPHERE,
         },
         aliases,
-        normalize,
+        normalizeAmmunitionWeightName,
       );
-  const alias = aliases.get(ammunitionAliasKey(ammoId, normalize) ?? '');
+  ammunitionWeightAliasCache.set(catalog, { size: catalog.size, aliases });
+  return aliases;
+}
+
+/** Physical-bin aliases reuse the registry owner, including its malformed-half-bin guard.
+ * Keep legacy BV identity resolution unchanged; physical construction needs bin size.
+ */
+export function getAmmunitionWeightEntry(
+  ammoId: string,
+): EquipmentCatalogEntry | undefined {
+  const catalog = loadAmmunitionCatalog();
+  const aliases = ammunitionWeightAliases(catalog);
+  const alias = aliases.get(
+    ammunitionAliasKey(ammoId, normalizeAmmunitionWeightName) ?? '',
+  );
   const imported = getAmmunitionEntry(ammoId);
   const entry = preferRegistryEquipment(
     (alias ? catalog.get(alias) : undefined) ?? imported,
