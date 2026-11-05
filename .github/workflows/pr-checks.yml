@@ -524,8 +524,9 @@ jobs:
           key: ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*', 'config/jest/**') }}-unit-${{ matrix.shard }}-${{ github.sha }}
 
       # Corpus half (shards 1 and 2): the whole-catalog suites replay the
-      # committed catalog, with their own result cache (same keys as the
-      # former corpus-tests shards, so main's seeds carry over).
+      # committed catalog, with their own result store. The keys match the
+      # former corpus-tests shards, but the new path changes the cache
+      # version, so the first main run after this change seeds it again.
       - name: Restore corpus Jest result seed from main
         if: ${{ !cancelled() && matrix.shard != 3 && needs.detect-changes.outputs.corpus == 'true' }}
         uses: actions/cache/restore@v5
