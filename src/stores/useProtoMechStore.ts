@@ -26,6 +26,10 @@ import {
   computeProtoWalkMPForRating,
   getProtoMPCaps,
   getProtoWeightClass,
+  PROTO_MAX_STANDARD_TONNAGE,
+  PROTO_MAX_TONNAGE,
+  PROTO_MIN_TONNAGE,
+  PROTO_MIN_ULTRAHEAVY_TONNAGE,
 } from '@/utils/construction/protomech';
 
 import { BV_AFFECTING_KEYS } from './protoMechBvKeys';
@@ -113,7 +117,15 @@ export function createProtoMechStore(
 
           setTonnage: (tonnage) =>
             set((state) => {
-              const clampedTonnage = Math.max(2, Math.min(9, tonnage));
+              // Same ranges as the Structure tab: Ultraheavy 10–15 t, others 2–9 t.
+              const ultraheavy = state.chassisType === ProtoChassis.ULTRAHEAVY;
+              const clampedTonnage = Math.max(
+                ultraheavy ? PROTO_MIN_ULTRAHEAVY_TONNAGE : PROTO_MIN_TONNAGE,
+                Math.min(
+                  ultraheavy ? PROTO_MAX_TONNAGE : PROTO_MAX_STANDARD_TONNAGE,
+                  tonnage,
+                ),
+              );
               const newCruiseMP = Math.max(1, 10 - clampedTonnage);
               return {
                 tonnage: clampedTonnage,
