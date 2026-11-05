@@ -131,6 +131,42 @@ export function linkPPCCapacitorWeapons<
   );
 }
 
+/** MekFileParser.java:360-388: shared insulator/RISC occupancy, predecessor first. */
+export function linkLaserInsulatorWeapons<Location>(
+  weapons: {
+    id: string;
+    location: Location;
+    order: number;
+    laser: boolean;
+    linked: boolean;
+    insulated: boolean;
+  }[],
+  links: readonly {
+    location: Location;
+    order: number;
+    kind: 'insulator' | 'risc';
+  }[],
+): void {
+  for (const link of links)
+    linkBVWeapons(
+      weapons,
+      [link],
+      (w) =>
+        !w.linked && (link.kind === 'insulator' ? w.laser : isRiscLaser(w.id)),
+      (w) => {
+        w.linked = true;
+        w.insulated = link.kind === 'insulator';
+      },
+      () => weapons.find((w) => w.order === link.order - 1),
+    );
+}
+
+function isRiscLaser(id: string): boolean {
+  return (
+    hasNativeWeaponBVFlag(getEquipmentEntry(id)?.id ?? id, 'riscLaser') === true
+  );
+}
+
 /** First unlinked compatible PPC at the same physical location, in source order. */
 export function linkPPCCapacitorBVWeapons<Location>(
   weapons: { id: string; location: Location; capacitorBV?: number }[],
@@ -216,13 +252,7 @@ export function linkMountedWeaponBVModifiers<Location>(
       return;
     }
     const eligible = (w: (typeof weapons)[number]) =>
-      !w.artemisType &&
-      (type === 'risc'
-        ? hasNativeWeaponBVFlag(
-            getEquipmentEntry(w.id)?.id ?? w.id,
-            'riscLaser',
-          ) === true
-        : w.compatible);
+      !w.artemisType && (type === 'risc' ? isRiscLaser(w.id) : w.compatible);
     const previous =
       type === 'risc'
         ? weapons.find(
