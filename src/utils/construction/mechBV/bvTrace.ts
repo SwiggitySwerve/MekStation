@@ -1,5 +1,7 @@
 import type { ValidationResult } from '../../../../scripts/validate-bv-types';
 
+import { ammoPoolTerms, weaponMountTerms } from '../bvTraceTerms';
+
 /** MekStation location -> Mek.getLocationAbbr (Mek, QuadMek, TripodMek at 48fcb2f6). */
 const JAVA_LOCATION: Readonly<Record<string, string>> = {
   HEAD: 'HD',
@@ -17,34 +19,13 @@ const JAVA_LOCATION: Readonly<Record<string, string>> = {
   REAR_RIGHT_LEG: 'RRL',
 };
 
-/** Per-mount weapon values keyed like the Java trace's weapon.<n>.<loc>.<name>;
- * the index is MekStation's processing order, not MegaMek's equipment number.
- * A split mount reports its first location, as Java does.
- */
-function weaponMountTerms(
-  mounts: NonNullable<ValidationResult['breakdown']>['weaponMountBV'],
-): Record<string, number> {
-  const terms: Record<string, number> = {};
-  (mounts ?? []).forEach(({ name, location, bv }, index) => {
-    const raw = (location ?? '')
-      .split(',')[0]
-      .toUpperCase()
-      .replace(/_\(R\)$/, '');
-    terms[`weapon.${index}.${JAVA_LOCATION[raw] ?? raw}.${name}`] = bv;
-  });
-  return terms;
-}
-
-/** Native ammo pools keyed like the Java trace's ammo.available / ammo.cap. */
-function ammoPoolTerms(
-  pools: NonNullable<ValidationResult['breakdown']>['ammoPools'],
-): Record<string, number> {
-  const terms: Record<string, number> = {};
-  for (const [key, bv] of Object.entries(pools?.available ?? {}))
-    terms[`ammo.available.${key}`] = bv;
-  for (const [key, bv] of Object.entries(pools?.cap ?? {}))
-    terms[`ammo.cap.${key}`] = bv;
-  return terms;
+/** A split mount reports its first location, as Java does. */
+function mechLocationAbbr(location: string): string {
+  const raw = location
+    .split(',')[0]
+    .toUpperCase()
+    .replace(/_\(R\)$/, '');
+  return JAVA_LOCATION[raw] ?? raw;
 }
 
 /** Read-only native-stage names; rules remain in the existing Mech BV owner.
@@ -62,7 +43,7 @@ export function mechBVTerms(
 } {
   return {
     ...b,
-    ...weaponMountTerms(b.weaponMountBV),
+    ...weaponMountTerms(b.weaponMountBV, mechLocationAbbr),
     ...ammoPoolTerms(b.ammoPools),
     armorBV: b.armorBV + b.harjelBonus,
     structureBV: b.structureBV + b.gyroBV,

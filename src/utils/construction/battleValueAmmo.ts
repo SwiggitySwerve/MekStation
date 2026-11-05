@@ -353,6 +353,9 @@ export function calculateAmmoBVWithExcessiveCap(
   return calculateAmmoBVPools(weapons, ammo).total;
 }
 
+/** A weapon or bin id that is already a native AmmoType:rackSize key. */
+const NATIVE_KEY = /^[A-Z][A-Z0-9_]*:\d+$/;
+
 /** The capped total plus the uncapped native pools it was built from, keyed
  * AmmoType:rackSize like BVCalculator.assembleAmmo's ammoMap and
  * weaponsForExcessiveAmmo (BVCalculator.java:1189-1242, 48fcb2f64). A bin or
@@ -367,12 +370,16 @@ export function calculateAmmoBVPools(
   cap: Record<string, number>;
 } {
   const available: Record<string, number> = {};
+  const cap: Record<string, number> = {};
 
   const weaponBVByType: Record<string, number> = {};
   const nativeWeaponBVByType: Record<string, number> = {};
   for (const weapon of weapons) {
     const native = getNativeAmmoBVGroup(weapon.id);
     if (native) addBVToAmmoCapGroup(nativeWeaponBVByType, native, weapon.bv);
+    // Vehicle callers pass weapons already keyed by their native group.
+    const reported = native ?? (NATIVE_KEY.test(weapon.id) ? weapon.id : null);
+    if (reported) addBVToAmmoCapGroup(cap, reported, weapon.bv);
     const weaponType =
       artilleryCapGroup(weapon.id) ?? normalizeEquipmentId(weapon.id);
     addBVToAmmoCapGroup(weaponBVByType, weaponType, weapon.bv);
@@ -383,7 +390,10 @@ export function calculateAmmoBVPools(
     const native =
       getNativeAmmoBVGroup(ammoEntry.id) ??
       getNativeAmmoBVGroup(ammoEntry.weaponType);
-    if (native) addBVToAmmoCapGroup(available, native, ammoEntry.bv);
+    const reported =
+      native ??
+      (NATIVE_KEY.test(ammoEntry.weaponType) ? ammoEntry.weaponType : null);
+    if (reported) addBVToAmmoCapGroup(available, reported, ammoEntry.bv);
     const normalizedType =
       native && nativeWeaponBVByType[native] !== undefined
         ? native
@@ -398,7 +408,7 @@ export function calculateAmmoBVPools(
       findMatchingWeaponBV(ammoType, weaponBVByType);
     return matchingWeaponBV === 0 ? undefined : matchingWeaponBV;
   });
-  return { total, available, cap: nativeWeaponBVByType };
+  return { total, available, cap };
 }
 
 /** Native AmmoType/rack identities (BVCalculator.java:1190-1240).

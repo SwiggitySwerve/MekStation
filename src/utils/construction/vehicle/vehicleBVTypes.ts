@@ -1,5 +1,7 @@
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 
+import type { AmmoBVPools } from '../battleValueOffensiveTypes';
+
 // =============================================================================
 // Public Types
 // =============================================================================
@@ -179,6 +181,8 @@ export interface IVehicleBVBreakdown {
   offensiveEquipmentBV: number;
   /** Speed factor scalar. */
   speedFactor: number;
+  weaponMountBV?: VehicleOffensiveBVBreakdown['weaponMountBV'];
+  ammoPools?: AmmoBVPools;
 }
 
 // =============================================================================
@@ -208,4 +212,8 @@ export interface VehicleOffensiveBVBreakdown {
   speedFactor: number;
   turretModifier: number;
   total: number;
+  /** Final value of each weapon mount, in mount order. */
+  weaponMountBV?: { name: string; location?: string; bv: number }[];
+  /** Uncapped native ammo and weapon pools behind ammoBV. */
+  ammoPools?: AmmoBVPools;
 }

@@ -60,5 +60,7 @@ export function calculateVehicleBV(input: VehicleBVInput): IVehicleBVBreakdown {
     ammoBV: off.ammoBV,
     offensiveEquipmentBV: off.offensiveEquipmentBV,
     speedFactor: off.speedFactor,
+    weaponMountBV: off.weaponMountBV,
+    ammoPools: off.ammoPools,
   });
 }

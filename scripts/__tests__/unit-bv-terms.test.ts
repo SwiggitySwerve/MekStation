@@ -21,6 +21,30 @@ test('aerospace adapter transports existing SI, weapon-pool and penalty terms', 
   expect(terms?.summaryModifier).toBe(1);
 });
 
+test('vehicle adapter emits per-mount weapons and native ammo pools like the Java trace', () => {
+  const source = fixture.units.find((row) =>
+    row.path.includes('Prime Mover (Original)'),
+  );
+  expect(source).toBeDefined();
+  const result = calculateRow({ ...source, sha256: 'a'.repeat(64) });
+  expect(result.reason).toBeUndefined();
+  const terms = result.figure?.terms ?? {};
+  const mounts = Object.entries(terms).filter(([key]) =>
+    key.startsWith('weapon.'),
+  );
+  // Tank.java:174 abbreviations: Front FR, Turret TU.
+  expect(mounts.map(([key]) => key.split('.')[2]).sort()).toEqual([
+    'FR',
+    'FR',
+    'TU',
+  ]);
+  expect(mounts.reduce((sum, [, value]) => sum + (value ?? NaN), 0)).toBe(
+    terms.weaponBV,
+  );
+  expect(terms['ammo.available.SRM:4']).toEqual(expect.any(Number));
+  expect(terms['ammo.cap.SRM:4']).toEqual(expect.any(Number));
+});
+
 const terms = {
   armorBV: 60,
   structureBV: 0,
