@@ -110,6 +110,11 @@ export class EquipmentRegistry {
   // findSimilar's [normalized name, id] pairs; rebuilt lazily after the map changes
   private similarIndex: [string, string][] | null = null;
 
+  // findSimilar's answer depends only on the normalized name and the index, so
+  // keep it until the index is dropped. Unresolved names repeat constantly (the
+  // same structural items on every mech), and each miss scans every name.
+  private similarCache = new Map<string, string[]>();
+
   private loader: EquipmentLoaderService;
   private isInitialized = false;
 
@@ -161,6 +166,7 @@ export class EquipmentRegistry {
     this.nameToIdMap.clear();
     this.idToTypeMap.clear();
     this.similarIndex = null;
+    this.similarCache.clear();
 
     // Map weapons
     this.loader.getAllWeapons().forEach((weapon) => {
@@ -346,6 +352,8 @@ export class EquipmentRegistry {
    */
   private findSimilar(name: string): string[] {
     const normalized = this.normalizeName(name);
+    const cached = this.similarCache.get(normalized);
+    if (cached) return [...cached];
     const similar: string[] = [];
 
     // Simple substring matching
@@ -359,11 +367,13 @@ export class EquipmentRegistry {
       ) {
         if (!similar.includes(id)) {
           similar.push(id);
+          if (similar.length === 5) break; // only the first 5 are returned
         }
       }
     }
 
-    return similar.slice(0, 5); // Return top 5 suggestions
+    this.similarCache.set(normalized, similar);
+    return [...similar]; // Return top 5 suggestions
   }
 
   /**
@@ -453,6 +463,7 @@ export class EquipmentRegistry {
     this.nameToIdMap.clear();
     this.idToTypeMap.clear();
     this.similarIndex = null;
+    this.similarCache.clear();
     this.isInitialized = false;
   };
 }
