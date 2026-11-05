@@ -144,7 +144,22 @@ export function hasBVDroneOS(ids: readonly string[] = []): boolean {
 }
 
 /** Audited LargeAero misc exclusions; BVCalculator.java:955-963 (48fcb2f64). */
-export function isNonOffensiveLargeAerospaceMisc(id: string): boolean {
+export function isNonOffensiveLargeAerospaceMisc(
+  id: string,
+  size?: number,
+): boolean {
+  if (size !== undefined)
+    return (
+      Number.isFinite(size) &&
+      size >= 0 &&
+      [
+        'mash-equipment',
+        'communications-equipment',
+        'autotacticalanalysiscomputer',
+        'directtacticalanalysissystem',
+        'isdronecarriercontrolsystem',
+      ].includes(id)
+    );
   return [
     'nc3',
     'mobilehpg',
