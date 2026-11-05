@@ -196,11 +196,9 @@ export function buildAerospaceBVInputFromUnit(
           (unit as { readonly armorType?: string | number }).armorType,
         ),
     totalArmorPoints: unit.totalArmorPoints,
-    armorByArc: normalizeArmorArcs(
-      unit.armorByArc ??
-        (unit.armorTypeByArc ? unit.armorAllocation : undefined),
-      subType,
-    ),
+    armorByArc: unit.armorTypeByArc
+      ? normalizeArmorArcs(unit.armorByArc ?? unit.armorAllocation, subType)
+      : undefined,
     armorTypeByArc: normalizeArmorArcs(unit.armorTypeByArc, subType),
     equipment,
     // BVCalculator.java:1190-1247: each bin contributes its own catalog value.

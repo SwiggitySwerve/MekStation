@@ -103,3 +103,15 @@ it('consumes editor current armor allocation without restoring native points', (
   if (result?.kind !== 'aerospace') throw Error('Expected aircraft');
   expect(result.breakdown.armorBV).toBe(227.5);
 });
+
+it('preserves global armor for handler-shaped lowercase arc facts without patchwork codes', () => {
+  const unit = {
+    ...contractUnitToBVUnit(native),
+    armorType: 'standard',
+    armorTypeByArc: undefined,
+    armorByArc: { nose: 32, leftWing: 20, rightWing: 20, aft: 14 },
+  };
+  const result = calculateBattleValueForUnit(unit);
+  if (result?.kind !== 'aerospace') throw Error('Expected aircraft');
+  expect(result.breakdown.armorBV).toBe(215);
+});
