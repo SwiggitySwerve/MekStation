@@ -405,6 +405,13 @@ The generic 10%-tonnage `maxWeight` capacity, equipment-count display, and
 handler approximations remain separate tracked defects; they are not actual
 Omni mechanism allowances. No catalog data or BV arithmetic changes here.
 
+## Standard smart robotic control mass
+
+The shared vehicle variable resolver charges standard SRCS at rounded 5% of
+unit tonnage from 10 t upward, and zero below 10 t. It owns the formula for
+the editor and support consumers; the catalog sentinel stays zero. Improved
+and shielded variants are separate rules. Pin 48fcb2f64: MiscType.java:745-767.
+
 ## Base flank movement
 
 `engine.ts:computeFlankMP` owns unmodified vehicle flank MP: cruise times 1.5,
