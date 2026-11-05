@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { test } from 'node:test';
 
 import {
+  assertPinnedInputs,
   assignSlots,
   insertField,
   motiveCompatibility,
@@ -213,4 +216,39 @@ test('committed imagers carry the pinned Java motive restrictions', () => {
       incompatibleSupport: ground,
     },
   );
+});
+
+// Follow-up 112: only one sweep-facts extraction reproduces the committed
+// catalog, so vehicle-slots.mjs checks its inputs against source-pins.json the
+// way generate.mjs does, and the generator's provenance records the same pins.
+const pins = JSON.parse(
+  readFileSync(new URL('./source-pins.json', import.meta.url), 'utf8'),
+);
+
+test('the sweep facts that reproduce the catalog are pinned', () => {
+  assert.equal(
+    pins['sweep-facts-3.json'],
+    '2bec8e4219ad3ff34689a40259ce4fd350f22535de2843cfb76066e192e55e49',
+  );
+});
+
+test('a vehicle-slots input that differs from its pin is rejected', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'vehicle-slots-pins-'));
+  const file = join(dir, 'sweep-facts-3.json');
+  writeFileSync(file, '{}');
+  assert.throws(
+    () => assertPinnedInputs([file], pins),
+    /Pinned input changed: sweep-facts-3.json/,
+  );
+  assert.throws(
+    () => assertPinnedInputs([join(dir, 'unpinned.json')], pins),
+    /Pinned input changed: unpinned.json/,
+  );
+});
+
+test('the generator provenance records exactly the pinned inputs', () => {
+  const provenance = JSON.parse(
+    readFileSync(new URL('./provenance.json', import.meta.url), 'utf8'),
+  );
+  assert.deepEqual(provenance.inputs, pins);
 });
