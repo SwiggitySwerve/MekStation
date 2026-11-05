@@ -14,6 +14,13 @@ guards. AES also uses 1.25 but is a separate rule.
 
 `hasBVActuatorEnhancement` owns mounted AES location matching. Physical and
 heat-tracked weapon callers preserve their parsing, rounding and bonus order.
+
+Active vibroblades enter the Mech weapon heat sequence once, with their arm
+AES flag and without TC, and leave the separate flat physical sum.
+validate-bv-physical-weapons.ts owns their forced-active BV heat (3/5/7).
+Pinned 48fcb2f64: HeatTrackingBVCalculator.java:89-103 and
+MekWithArms.java:242-270. validate-bv-vibroblade-heat.test.ts enforces all
+three sizes, overheat weighting, and the existing AES order.
 `hasBVTargetingComputer` owns the catalog-backed chassis capability; vehicle
 explicit mount flags remain authoritative alongside that lookup.
 
