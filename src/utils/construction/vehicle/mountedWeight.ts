@@ -23,8 +23,10 @@ import { computeTurretEquipmentWeight } from './equipmentMounts';
 import { isPowerAmplifierEnergyWeapon } from './powerAmplifier';
 import { getVehicleTurretMechanismFigures } from './turret';
 
+/** `isAmmo`: the mount is a bin; ammo and launcher records can share an id. */
 export type EquipmentResolver = (
   equipmentId: string,
+  isAmmo?: boolean,
 ) => IEquipmentItem | undefined;
 
 /** Raw heat-neutral weapon load: MegaMek 48fcb2f64a1b TestEntity.java:945-950.
@@ -94,7 +96,7 @@ export function computeVehicleMountedWeightFigures(
   const unresolvedMountIds: string[] = [];
   const issues: string[] = [];
   const mounted = state.equipment.map((mount, order) => {
-    const item = resolve(mount.equipmentId);
+    const item = resolve(mount.equipmentId, mount.isAmmo === true);
     const weight =
       item !== undefined && isValidWeight(item.weight) ? item.weight : null;
     if (weight === null) {
