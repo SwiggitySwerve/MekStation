@@ -22,8 +22,8 @@ describe('large-craft mount coverage (MegaMek 48fcb2f64)', () => {
     expect(result.arcs[0]).toMatchObject({
       weaponBV: 434.4,
       heat: 12,
-      weaponBVByAmmoType: { 'lrm-20': 362 },
-      ammoBVByType: { 'lrm-20': 92 },
+      weaponBVByAmmoType: { 'LRM:20': 362 },
+      ammoBVByType: { 'LRM:20': 92 },
     });
   });
 

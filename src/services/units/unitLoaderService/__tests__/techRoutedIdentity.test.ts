@@ -11,10 +11,14 @@ import banshee from '../../../../../public/data/units/battlemechs/1-age-of-war/s
 import cestus from '../../../../../public/data/units/battlemechs/3-succession-wars/standard/Cestus CTS-6Y-EC.json';
 import emperor from '../../../../../public/data/units/battlemechs/3-succession-wars/standard/Emperor EMP-6A-EC.json';
 import enfield from '../../../../../public/data/units/battlemechs/3-succession-wars/standard/Enfield END-6J-EC.json';
+import arcticWolf2 from '../../../../../public/data/units/battlemechs/4-clan-invasion/advanced/Arctic Wolf 2.json';
+import champion from '../../../../../public/data/units/battlemechs/4-clan-invasion/advanced/Champion CHP-3P.json';
+import crossbowC from '../../../../../public/data/units/battlemechs/4-clan-invasion/advanced/Crossbow C.json';
 import daishiC from '../../../../../public/data/units/battlemechs/4-clan-invasion/advanced/Daishi C.json';
 import avatar from '../../../../../public/data/units/battlemechs/5-civil-war/advanced/Avatar AV1-OU.json';
 import linebackerF from '../../../../../public/data/units/battlemechs/5-civil-war/experimental/Linebacker F.json';
 import cauldronBorn from '../../../../../public/data/units/battlemechs/5-civil-war/standard/Cauldron-Born U.json';
+import pariahAZ from '../../../../../public/data/units/battlemechs/5-civil-war/standard/Pariah (Septicemia) A-Z.json';
 import assassin from '../../../../../public/data/units/battlemechs/6-dark-age/advanced/Assassin ASN-109.json';
 import crossbowT from '../../../../../public/data/units/battlemechs/6-dark-age/advanced/Crossbow T.json';
 import { resolveEquipmentId } from '../equipmentResolution';
@@ -193,4 +197,35 @@ it('assigns the Emperor EMP-6A-EC prototype Streak SRM 4 its critical slots', ()
     (item) => item.equipmentId === 'streaksrm4prototype',
   );
   expect(streak.map((item) => item.slots)).toEqual([[10, 11]]);
+});
+
+// Duplicate records: one pinned Java item had two catalog entries, the official
+// one reached by the converter's list id and an unofficial twin reached by the
+// crit token (ISImprovedNarc, CLNarcBeacon, CLiATMn). The crit name now reaches
+// the official record. Java's "Heavy Machine Gun" is tech-dependent
+// (IS "Heavy Machine Gun", CLAN CLHeavyMG): the Clan list id was the IS HMG.
+it.each([
+  ['ISImprovedNarc', IS, 'inarc'],
+  ['CLNarcBeacon', CLAN, 'clan-narc'],
+  ['CLiATM3', CLAN, 'iatm-3'],
+  ['CLiATM6', CLAN, 'iatm-6'],
+  ['CLiATM9', CLAN, 'iatm-9'],
+  ['CLiATM12', CLAN, 'iatm-12'],
+  ['heavy-machine-gun', IS, 'heavy-machine-gun'],
+  ['heavy-machine-gun', CLAN, 'clheavymg-registry'],
+  ['Heavy Machine Gun', CLAN, 'clheavymg-registry'],
+] as const)('%s on a %s unit resolves to %s', (id, [tech, mode], target) => {
+  expect(resolveEquipmentId(id, tech, mode, []).equipmentDef?.id).toBe(target);
+});
+
+it.each([
+  ['Champion CHP-3P (iNarc)', champion, 'inarc'],
+  ['Arctic Wolf 2 (Clan Narc)', arcticWolf2, 'clan-narc'],
+  ['Pariah (Septicemia) A-Z (iATM 12)', pariahAZ, 'iatm-12'],
+  ['Crossbow C (Clan HMG)', crossbowC, 'clheavymg-registry'],
+] as const)('assigns %s its critical slots', (_name, unit, id) => {
+  const state = new UnitLoaderService().mapToUnitState(unit, true);
+  const mounts = state.equipment.filter((item) => item.equipmentId === id);
+  expect(mounts.length).toBeGreaterThan(0);
+  expect(mounts.every((item) => (item.slots?.length ?? 0) > 0)).toBe(true);
 });
