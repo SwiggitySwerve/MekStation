@@ -4069,7 +4069,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 60,
     "id": "mech-mortar-1",
-    "sha256": "45254f60b5b1a3b99e651569483cb7636aa917270fc8df7b142169a9cf57a7cb",
+    "sha256": "42bdb6e944ac21363e09c64e89851abb7e9104afe103d84b7472e4307f04f7ca",
     "item": {
       "id": "mech-mortar-1",
       "name": "Mech Mortar 1",
@@ -4085,7 +4085,7 @@
         "medium": 14,
         "long": 21
       },
-      "weight": 1,
+      "weight": 2,
       "criticalSlots": 1,
       "ammoPerTon": 24,
       "costCBills": 7000,
@@ -4100,7 +4100,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 61,
     "id": "mech-mortar-2",
-    "sha256": "1d71ef78ff18fbe8eff4e56a732869524f8391168ad047bddbd164dbb81b1ef1",
+    "sha256": "c61a081de77033ae64a725683511bb7676b306073003f37f4715e1b9c5f34232",
     "item": {
       "id": "mech-mortar-2",
       "name": "Mech Mortar 2",
@@ -4116,7 +4116,7 @@
         "medium": 14,
         "long": 21
       },
-      "weight": 2,
+      "weight": 5,
       "criticalSlots": 2,
       "ammoPerTon": 12,
       "costCBills": 15000,
@@ -4131,7 +4131,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 62,
     "id": "mech-mortar-4",
-    "sha256": "dde49bd02e8c27730b3e3076f56e72fefd4becabb4c0a76a96cbe9e35ee84df3",
+    "sha256": "d9d6a8cb3161026fd80737cf2773927c959dfc3863495aff8f1ce46c5269069d",
     "item": {
       "id": "mech-mortar-4",
       "name": "Mech Mortar 4",
@@ -4147,7 +4147,7 @@
         "medium": 14,
         "long": 21
       },
-      "weight": 5,
+      "weight": 7,
       "criticalSlots": 3,
       "ammoPerTon": 6,
       "costCBills": 32000,
@@ -4222,7 +4222,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 65,
     "id": "clan-mech-mortar-2",
-    "sha256": "00da95554b04c290c84a2dc2f7006083ff8f0a85b50f94231e1ae365a820c8e1",
+    "sha256": "68bb3523b97b202a7765245be89bb5e9b91505832093c82d44f62ecf83f09236",
     "item": {
       "id": "clan-mech-mortar-2",
       "name": "Mech Mortar 2 (Clan)",
@@ -4238,8 +4238,8 @@
         "medium": 14,
         "long": 21
       },
-      "weight": 2,
-      "criticalSlots": 2,
+      "weight": 2.5,
+      "criticalSlots": 1,
       "ammoPerTon": 12,
       "costCBills": 15000,
       "battleValue": 14,
