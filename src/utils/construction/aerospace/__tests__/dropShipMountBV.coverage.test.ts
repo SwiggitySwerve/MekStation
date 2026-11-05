@@ -90,10 +90,10 @@ describe('large-craft mount coverage (MegaMek 48fcb2f64)', () => {
     },
   );
 
-  it('withholds screen launchers until their defensive stage is represented', () => {
+  it('excludes represented screen launchers from offense', () => {
     expect(
       resolveDropShipMountBV(mounts(['b-screen-launcher'])).unresolved,
-    ).toHaveLength(1);
+    ).toHaveLength(0);
   });
 
   it('accepts naval C3 on the hull without inventing a firing arc or force bonus', () => {
