@@ -25,6 +25,7 @@ import {
   getOffensiveBVRole,
 } from '../battleValueEquipment';
 import { computeFlankMP } from './engine';
+import { getVehicleSourceIdentity } from './equipmentMounts';
 import {
   computeVehicleBVStructurePoints,
   vehicleStructureBVType,
@@ -310,8 +311,8 @@ export function toVehicleBVInputFromUnit(
   // Vehicles without an equipment array (legacy fixtures) get an empty list.
   // Infer an original token's kind just as native contract mounts do.
   const rawEquipment = (unit.equipment ?? []).map((item) => {
-    const source = item.sourceIdentity;
-    return source && source.resolvedId === item.equipmentId
+    const source = getVehicleSourceIdentity(item);
+    return source
       ? { ...item, equipmentId: source.sourceId, isAmmo: undefined }
       : item;
   });

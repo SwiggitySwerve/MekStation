@@ -30,3 +30,11 @@ Native B-Pod display-name resolution can select the imported ISBPod identity.
 Both that identity and legacy `b-pod` retain the native defensive F_B_POD role.
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
 ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.
+
+Construction B-Pods retain their defensive equipment BV without an explosive
+deduction. The weapon flag alone does not establish mounted eligibility:
+EquipmentType.java:448-460 and CoreRulesExplosions.java:241-247 at pin
+48fcb2f64 exclude pods. validate-bv-bpod-eligibility.test.ts enforces the
+separate defensive identity and unrelated explosive deductions. M-Pod's
+legacy offense assignment and explosion deduction remain a separate coupled
+correction so neither half moves compensated totals away from Java.
