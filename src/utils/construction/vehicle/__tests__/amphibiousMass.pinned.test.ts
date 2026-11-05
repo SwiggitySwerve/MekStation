@@ -102,15 +102,14 @@ it.each([
 );
 
 it.each([
-  ['Prowler Multi-Terrain Vehicle', 19, 0],
-  ['Prowler Multi-Terrain Vehicle (Sealed)', 19, 0],
-  ['Ajax Assault Tank (Sealed)', 34, 0],
-  ['MHI Amphibious APC', 4.5, 0],
-  // The separate targeting-computer prerequisite still supplies the last 3 t.
-  ['Manticore II Heavy Tank', 31, 3],
+  ['Prowler Multi-Terrain Vehicle', 5.5],
+  ['Prowler Multi-Terrain Vehicle (Sealed)', 5.5],
+  ['Ajax Assault Tank (Sealed)', 9],
+  ['MHI Amphibious APC', 3.5],
+  ['Manticore II Heavy Tank', 7],
 ])(
-  '%s charges chassis mass in its native editor total',
-  (name, equipment, remaining) => {
+  '%s charges its native chassis contribution independently of other equipment',
+  (name, mass) => {
     const state = mapToVehicleState(
       JSON.parse(
         readFileSync(
@@ -119,10 +118,30 @@ it.each([
         ),
       ),
     );
-    expect(
-      computeVehicleWeightBreakdown(state, (id, isAmmo) =>
-        getEquipmentLookupService().getMountedById(id, isAmmo === true),
-      ),
-    ).toMatchObject({ equipment, remaining });
+    const resolve = (id: string, isAmmo?: boolean) =>
+      getEquipmentLookupService().getMountedById(id, isAmmo === true);
+    const withChassis = computeVehicleWeightBreakdown(state, resolve);
+    const withoutChassis = computeVehicleWeightBreakdown(
+      {
+        ...state,
+        equipment: state.equipment.filter(
+          (m) =>
+            ![
+              'fullyamphibiouschassis',
+              'environmental-sealed-chassis',
+            ].includes(m.equipmentId),
+        ),
+      },
+      resolve,
+    );
+    if (
+      withChassis.equipment === null ||
+      withoutChassis.equipment === null ||
+      withChassis.remaining === null ||
+      withoutChassis.remaining === null
+    )
+      throw Error('Native chassis mass must be known');
+    expect(withChassis.equipment - withoutChassis.equipment).toBe(mass);
+    expect(withoutChassis.remaining - withChassis.remaining).toBe(mass);
   },
 );
