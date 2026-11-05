@@ -245,18 +245,15 @@ export function applyWeaponPostScanModifiers(
   // Applying ×0.67 causes massive regression (units drop 5-10% further below reference).
   // Keep individual MGs at full BV with no MGA reduction to match MUL reference values.
 
-  // determineFront — use fully-modified BV (with TC, rear ×0.5) per MegaMek
+  // determineFront compares modified BV before rear weighting (Java:690-699,764-765).
   // Turret-mounted weapons are excluded from front/rear comparison per MegaMek
   let fBV = 0,
     rBV = 0;
   for (const w of weapons) {
     if (isArmLoc(w.location) || w.isTurret) continue;
-    const modBV = applyWeaponBVModifiers(
-      { ...w, rear: false, artemisType: undefined },
-      hasTC,
-    );
+    const modBV = applyWeaponBVModifiers({ ...w, rear: false }, hasTC);
     if (w.rear) {
-      rBV += modBV * 0.5;
+      rBV += modBV;
     } else {
       fBV += modBV;
     }

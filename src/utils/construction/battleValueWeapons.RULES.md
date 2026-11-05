@@ -44,3 +44,8 @@ applyWeaponBVModifiers in battleValueHeatTracking.ts owns mounted AES,
 rear, Artemis and TC arithmetic for Mech weapons. Orientation selection
 and heat sorting call it with their own stage guards. Its public extraction
 preserves the prior orientation guards before changing that behavior.
+Orientation compares both sides with full mounted modifiers and no rear
+discount; rear weighting starts only after the dominant side is selected.
+Arms and Mek turrets remain excluded. Pinned MegaMek 48fcb2f64
+BVCalculator.java:690-699,764-765,829-882; MekBVCalculator.java:384-405.
+validate-bv-facing.test.ts enforces selection, links, ties and exclusions.
