@@ -328,6 +328,30 @@
     }
   },
   "techRoutes": {
+    "lb-2-x-ac": {
+      "INNER_SPHERE": "lb-2-x-ac",
+      "CLAN": "clan-lb-2-x-ac"
+    },
+    "CLLBXAC2": {
+      "INNER_SPHERE": "clan-lb-2-x-ac",
+      "CLAN": "clan-lb-2-x-ac"
+    },
+    "lb-5-x-ac": {
+      "INNER_SPHERE": "lb-5-x-ac",
+      "CLAN": "clan-lb-5-x-ac"
+    },
+    "CLLBXAC5": {
+      "INNER_SPHERE": "clan-lb-5-x-ac",
+      "CLAN": "clan-lb-5-x-ac"
+    },
+    "lb-10-x-ac": {
+      "INNER_SPHERE": "lb-10-x-ac",
+      "CLAN": "clan-lb-10-x-ac"
+    },
+    "CLLBXAC10": {
+      "INNER_SPHERE": "clan-lb-10-x-ac",
+      "CLAN": "clan-lb-10-x-ac"
+    },
     "lrt-5": {
       "INNER_SPHERE": "lrt-5-registry",
       "CLAN": "lrtorpedo5"
@@ -607,6 +631,10 @@
     "CLArrowIV": {
       "INNER_SPHERE": "clan-arrow-iv-launcher",
       "CLAN": "clan-arrow-iv-launcher"
+    },
+    "mech-mortar-8": {
+      "INNER_SPHERE": "mech-mortar-8",
+      "CLAN": "clan-mech-mortar-8-registry"
     }
   }
 }

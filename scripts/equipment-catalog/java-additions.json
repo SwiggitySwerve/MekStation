@@ -9891,7 +9891,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 2830,
       "subType": "CLMekMortar8",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 10,
       "ranges": {
         "long": 21,
@@ -16001,7 +16001,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 2521,
       "subType": "ISMekMortar1",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 1,
       "ranges": {
         "long": 21,
@@ -16068,7 +16068,7 @@
       "rulesLevel": "STANDARD",
       "introductionYear": 2521,
       "subType": "ISMekMortar2",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 2,
       "ranges": {
         "long": 21,
