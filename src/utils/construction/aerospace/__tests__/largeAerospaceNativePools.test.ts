@@ -1,4 +1,5 @@
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
+import { CapitalArc } from '@/types/unit/CapitalShipInterfaces';
 import { getLargeAerospaceAmmoBVGroup } from '@/utils/construction/battleValueAmmo';
 import { calculateBattleValueForUnit } from '@/utils/construction/battleValueCalculations';
 import { contractUnitToBVUnit } from '@/utils/construction/contractBVUnitAdapter';
@@ -10,6 +11,60 @@ import traces from './fixtures/largeAerospaceNativePools.json';
 
 /** MegaMek 48fcb2f64, LargeAeroBVCalculator.java:85-142; UL-16b oracle. */
 describe('large aerospace native ammo identities', () => {
+  it('uses shared physical-location links for rear PPC capacitors and Apollo', () => {
+    const capacitor = resolveLargeAerospaceMountBV(
+      ['r-b-ppc', 'ppc-capacitor'].map((equipmentId) => ({
+        equipmentId,
+        location: 'LEFT_SIDE',
+      })),
+    );
+    expect(capacitor.unresolved).toEqual([]);
+    expect(
+      capacitor.arcs.find((arc) => arc.arc === CapitalArc.AFT_LEFT),
+    ).toMatchObject({ weaponBV: 176, arcIndependentWeaponBV: 88, heat: 15 });
+    const apollo = resolveLargeAerospaceMountBV(
+      ['r-b-mrm-40', 'isapollo'].map((equipmentId) => ({
+        equipmentId,
+        location: 'LEFT_SIDE',
+      })),
+    );
+    expect(apollo.unresolved).toEqual([]);
+    expect(
+      apollo.arcs.find((arc) => arc.arc === CapitalArc.AFT_LEFT)?.weaponBV,
+    ).toBeCloseTo(257.6, 8);
+  });
+
+  it('reuses MGA valuation and reports unmatched capacitor links', () => {
+    const array = resolveLargeAerospaceMountBV(
+      ['b-mga', ...Array<string>(4).fill('machine-gun')].map((equipmentId) => ({
+        equipmentId,
+        location: 'NOSE',
+      })),
+    );
+    expect(array.unresolved).toEqual([]);
+    expect(array.arcs[0].weaponBV).toBeCloseTo(33.4, 8);
+    expect(
+      resolveLargeAerospaceMountBV(
+        ['ppc', 'ppc-capacitor', 'ppc-capacitor'].map((equipmentId) => ({
+          equipmentId,
+          location: 'NOSE',
+        })),
+      ).unresolved.map((m) => m.mountIndex),
+    ).toEqual([2]);
+  });
+
+  it('preserves the native Clan PPC capacitor introduction year', () => {
+    const mounts = ['clan-er-ppc', 'ppc-capacitor'].map((equipmentId) => ({
+      equipmentId,
+      location: 'NOSE',
+    }));
+    expect(
+      resolveLargeAerospaceMountBV(mounts, undefined, 3100).unresolved,
+    ).toHaveLength(1);
+    expect(
+      resolveLargeAerospaceMountBV(mounts, undefined, 3101).unresolved,
+    ).toEqual([]);
+  });
   it.each([
     'islookdownradar',
     'ishighresimager',

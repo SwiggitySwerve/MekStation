@@ -1,6 +1,7 @@
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { CapitalArc } from '@/types/unit/CapitalShipInterfaces';
 
+import type { BVWeaponLinkType } from '../equipmentBV/resolution';
 import type { CapitalShipBVType } from './aerospaceBVTypes';
 import type { IDropShipBVUnit } from './dropShipBV';
 import type { ILargeAerospaceArcBV } from './largeAerospaceFirePool';
@@ -9,15 +10,19 @@ import {
   addBVToAmmoCapGroup,
   getLargeAerospaceAmmoBVGroup,
   largeAerospaceAmmoBVMultiplier,
+  getMachineGunArrayBVGroup,
 } from '../battleValueAmmo';
 import { isNonOffensiveLargeAerospaceMisc } from '../battleValueEquipment';
 import { getCapitalEquipmentBVFacts } from '../equipmentBV/catalogLoader';
 import {
   isArtemisCompatibleBVWeapon,
-  linkArtemisBVWeapons,
+  getMountedBVLinkType,
+  linkMountedWeaponBVModifiers,
+  linkPPCCapacitorBVWeapons,
+  linkMachineGunArrayBVWeapons,
 } from '../equipmentBV/weaponLinks';
 import {
-  getArtemisBVMultiplier,
+  getWeaponLinkBVMultiplier,
   getEquipmentEntry,
   getLargeAerospaceAmmoEntry,
   resolveEquipmentBV,
@@ -106,11 +111,14 @@ export interface IDropShipMountBV {
 export function resolveLargeAerospaceMountBV(
   mounts: NonNullable<IDropShipBVUnit['equipment']>,
   capitalType?: CapitalShipBVType,
+  year?: number,
 ): IDropShipMountBV {
   const arcs = getLargeAerospaceArcs(capitalType === UnitType.WARSHIP).map(
     (arc) => ({
       arc,
       weaponBV: 0,
+      weaponSelectionBV: 0,
+      arcIndependentWeaponBV: 0,
       heat: 0,
       ammoBVByType: {} as Record<string, number>,
       weaponBVByAmmoType: {} as Record<string, number>,
@@ -122,18 +130,26 @@ export function resolveLargeAerospaceMountBV(
     reason: string;
   }[] = [];
   const weapons: {
+    id: string;
     arc: (typeof arcs)[number];
     location: CapitalArc;
-    battleValue: number;
+    baseBV: number;
+    bv: number;
+    heat: number;
+    rear: boolean;
+    ammoGroup?: string;
+    arrayGroup?: string;
+    capacitorBV?: number;
     compatible: boolean;
-    artemisType?: 'iv' | 'v';
+    artemisType?: BVWeaponLinkType;
   }[] = [];
   const links: {
     mountIndex: number;
     equipmentId: string;
-    location?: CapitalArc;
-    type: 'iv' | 'v';
+    location: CapitalArc;
+    id: string;
   }[] = [];
+  const capacitors: (typeof links)[number][] = [];
   mounts.forEach((mount, mountIndex) => {
     const fail = (reason: string): void => {
       unresolved.push({ mountIndex, equipmentId: mount.equipmentId, reason });
@@ -163,15 +179,22 @@ export function resolveLargeAerospaceMountBV(
     }
     const entry = getEquipmentEntry(id);
     const physicalLocation = largeAerospaceMountArc(mount, capitalType, false);
+    const linkType = entry && getMountedBVLinkType(entry.id);
     if (
       quantity === undefined &&
-      (entry?.id === 'artemisiv' || entry?.id === 'artemisv')
+      entry &&
+      (['iv', 'v', 'apollo'].includes(linkType ?? '') ||
+        entry.id === 'ppc-capacitor')
     ) {
-      links.push({
+      if (physicalLocation === undefined) {
+        fail('Unsupported weapon link location');
+        return;
+      }
+      (entry.id === 'ppc-capacitor' ? capacitors : links).push({
         mountIndex,
         equipmentId: mount.equipmentId,
         location: physicalLocation,
-        type: entry.id === 'artemisiv' ? 'iv' : 'v',
+        id: entry.id,
       });
       return;
     }
@@ -220,11 +243,13 @@ export function resolveLargeAerospaceMountBV(
       return;
     }
     const key = getLargeAerospaceAmmoBVGroup(entry.id);
+    const arrayGroup = getMachineGunArrayBVGroup(entry.id);
     const capital = getCapitalEquipmentBVFacts(entry.id);
     if (
       !(
         key && ['Ballistic', 'Missile', 'Artillery'].includes(entry.category)
       ) &&
+      !arrayGroup &&
       !(capital?.isCapital || capital?.isSubCapital) &&
       !(entry.category === 'Energy' && ENERGY_SUBTYPES.has(entry.subType ?? ''))
     ) {
@@ -233,27 +258,49 @@ export function resolveLargeAerospaceMountBV(
     }
     const value = resolveEquipmentBV(id);
     weapons.push({
+      id: entry.id,
       arc,
       location: physicalLocation,
-      battleValue: value.battleValue,
+      baseBV: value.battleValue,
+      bv: value.battleValue,
+      heat: value.heat,
+      rear: isRearMountedAerospaceEquipment(mount.equipmentId),
+      ammoGroup: key,
+      arrayGroup,
       compatible: isArtemisCompatibleBVWeapon(entry.id),
     });
-    arc.heat += value.heat;
     if (key)
       addBVToAmmoCapGroup(arc.weaponBVByAmmoType, key, value.battleValue);
   });
   // MekFileParser links to the first unlinked compatible launcher in the same
   // physical location, regardless of rear flags or adjacency in the BLK list.
-  for (const link of linkArtemisBVWeapons(weapons, links)) {
+  linkMachineGunArrayBVWeapons(weapons);
+  const unmatched = [
+    ...linkMountedWeaponBVModifiers(weapons, links),
+    ...linkPPCCapacitorBVWeapons(weapons, capacitors, year),
+  ];
+  for (const link of unmatched) {
     unresolved.push({
       mountIndex: link.mountIndex,
       equipmentId: link.equipmentId,
-      reason: 'Unmatched Artemis launcher link',
+      reason: 'Unmatched native weapon link',
     });
   }
-  for (const weapon of weapons)
-    weapon.arc.weaponBV +=
-      weapon.battleValue * getArtemisBVMultiplier(weapon.artemisType);
+  const capacitorGroups = new Set<string>();
+  for (const weapon of weapons) {
+    const value = weapon.bv * getWeaponLinkBVMultiplier(weapon.artemisType);
+    const capacitor = weapon.capacitorBV ?? 0;
+    weapon.arc.weaponSelectionBV += value + capacitor;
+    weapon.arc.weaponBV += value;
+    weapon.arc.heat += weapon.heat + (capacitor ? 5 : 0);
+    const group = `${weapon.id}|${weapon.location}|${weapon.rear}`;
+    // LargeAeroBVCalculator.java:246-269 groups equal mounts before processWeapon;
+    // BVCalculator.java:853-857 adds one capacitor after arc weighting per group.
+    if (capacitor && !capacitorGroups.has(group)) {
+      capacitorGroups.add(group);
+      weapon.arc.arcIndependentWeaponBV += capacitor;
+    }
+  }
   unresolved.sort((a, b) => a.mountIndex - b.mountIndex);
   return { arcs, unresolved };
 }

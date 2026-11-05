@@ -1,5 +1,15 @@
 # Aerospace construction rules
 
+Capital and DropShip modifiers reuse the shared native link owner and MGA helper:
+first compatible unlinked weapons in the same physical location, independent of
+rear/bay markers. Apollo uses the shared 1.15 multiplier; PPC capacitors use the
+shared per-PPC BV and year eligibility and add five heat. Raw ammo caps remain
+unmodified. Java nominal selection sees physical linked weapons; firing groups
+add capacitor BV once per equal native type/location/rear/link group, after arc
+weighting. Unmatched links remain explicit. Pin 48fcb2f64:
+MekFileParser.java:425-528,928-944; BVCalculator.java:807-816,853-877;
+LargeAeroBVCalculator.java:203-269; HeatTrackingBVCalculator.java:170-224.
+
 HULL is a physical location, not a firing arc. The shared equipment-role owner
 admits audited zero-offense radar/imagers, cargo containers, CASPAR I/II
 controllers and SDS self-destruct equipment before firing-arc validation.
