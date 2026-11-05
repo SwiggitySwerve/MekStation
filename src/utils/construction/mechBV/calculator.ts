@@ -17,6 +17,7 @@ import { deriveBvHeatAndMovement } from '../../../../scripts/validate-bv-movemen
 import { toMechLoc } from '../../../../scripts/validate-bv-normalizers';
 import { calculatePhysicalBVTotal } from '../../../../scripts/validate-bv-physical-weapons';
 import {
+  calcTotalArmor,
   getArmorBAR,
   mapArmorType,
 } from '../../../../scripts/validate-bv-unit-derived';
@@ -196,12 +197,7 @@ export function calculateUnitBV(
         : getArmorBVMultiplier(hasStealth ? 'standard' : armorType);
       const ml = toMechLoc(locName);
       if (!ml) continue;
-      let locArmor: number;
-      if (typeof armorVal === 'number') {
-        locArmor = armorVal;
-      } else {
-        locArmor = (armorVal.front || 0) + (armorVal.rear || 0);
-      }
+      const locArmor = calcTotalArmor({ [locName]: armorVal });
       let locMult = 1.0;
       if (cs.harjelIIILocs.includes(ml)) locMult = 1.2;
       else if (cs.harjelIILocs.includes(ml)) locMult = 1.1;
