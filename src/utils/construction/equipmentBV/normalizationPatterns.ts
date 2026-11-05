@@ -138,6 +138,8 @@ export const ABBREVIATION_MAP: Record<string, string> = {
 export const DIRECT_ALIAS_MAP: Record<string, string> = {
   ...SOURCE_LOOKUP_ALIASES,
   heavybridgelayer: 'bridge-layer-heavy',
+  mediumbridgelayer: 'bridge-layer-medium',
+  lightbridgelayer: 'bridge-layer-light',
   hitch: 'trailer-hitch',
   pintleturret: 'pintle-mount',
   sponsonturret: 'vehicular-sponson-turret',
