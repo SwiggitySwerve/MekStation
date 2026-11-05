@@ -77,9 +77,9 @@ export const requiredWorkflowTokens = [
     id: 'browser-smoke-runs-playwright',
     tokens: [
       'name: Run tactical-map visual smoke',
-      'node scripts/playwright/run-playwright.mjs test e2e/tactical-map-visual-smoke.spec.ts --project=chromium',
+      'node scripts/playwright/run-ci-e2e.mjs test e2e/tactical-map-visual-smoke.spec.ts --project=chromium',
       'name: Run customizer library suite',
-      'node scripts/playwright/run-playwright.mjs test e2e/customizer-library-open.spec.ts --project=chromium',
+      'node scripts/playwright/run-ci-e2e.mjs test e2e/customizer-library-open.spec.ts --project=chromium',
     ],
   },
   {
@@ -132,8 +132,10 @@ export const requiredWorkflowJobContracts = [
       'test-results',
       'playwright-report',
       'playwright-report-gates',
+      'playwright-report-smoke',
     ],
     extraStepIfs: {
+      'Upload E2E durations and test census': `always() && (${E2E_CHANGE_GATE_IF})`,
       'Run customizer library suite': `\${{ !cancelled() && (${E2E_CHANGE_GATE_IF}) }}`,
       'Run tactical-map visual smoke': `\${{ !cancelled() && (${E2E_CHANGE_GATE_IF}) }}`,
       'Upload library-open screenshots': `always() && (${E2E_CHANGE_GATE_IF})`,
@@ -157,7 +159,7 @@ export const requiredWorkflowJobContracts = [
       },
       {
         id: 'browser-gates-playwright',
-        run: 'node scripts/playwright/run-playwright.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates',
+        run: 'node scripts/playwright/run-ci-e2e.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates',
         env: {
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js',
           HOSTNAME: '127.0.0.1',

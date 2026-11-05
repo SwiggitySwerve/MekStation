@@ -325,3 +325,6 @@ desktop/.electron-native-cache/
 
 # Jest per-file result cache (npm run test:cached)
 .jest-result-cache/
+
+# Per-invocation E2E duration reports and generated shard plans
+e2e-timings/
