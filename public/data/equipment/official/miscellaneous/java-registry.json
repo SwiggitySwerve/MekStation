@@ -727,6 +727,10 @@
       "weight": 0,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 0, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": ["SUBMARINE"],
+        "incompatibleSupport": ["SUBMARINE"]
+      },
       "battleValue": 0,
       "introductionYear": 2475,
       "costCBills": 0,
@@ -745,6 +749,32 @@
       "weight": 0.2,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 1, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "TRACKED",
+          "WHEELED",
+          "HOVER",
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "WIGE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "battleValue": 0,
       "introductionYear": 1950,
       "costCBills": 5000,
@@ -1411,6 +1441,24 @@
       "weight": 0,
       "criticalSlots": 0,
       "vehicleSlots": { "tank": 1, "supportVehicle": 0 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "battleValue": 0,
       "introductionYear": 3050,
       "costCBills": 0,
@@ -1665,6 +1713,24 @@
       "weight": 0,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
+      "motiveCompatibility": {
+        "incompatibleCombat": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ],
+        "incompatibleSupport": [
+          "VTOL",
+          "NAVAL",
+          "HYDROFOIL",
+          "SUBMARINE",
+          "RAIL",
+          "MAGLEV"
+        ]
+      },
       "battleValue": 0,
       "introductionYear": 2650,
       "extinctionYear": 2840,

@@ -384,6 +384,78 @@ describe('hydrate-next-standalone-multiplayer-server', () => {
     });
   });
 
+  it('copies every file src imports from outside src, transitively, into the standalone tree', () => {
+    // The multiplayer runtime loads src through tsx inside .next/standalone, so
+    // a src import into scripts/ must exist there too. #2655's catalogLoader
+    // import of scripts/equipment-catalog/capital-bv.json was missing and every
+    // socket failed with runtime-unavailable (2026-11-04 nightly, 58 E2E failures).
+    const tmpRoot = makeTempRoot();
+    prepareStandaloneFixture(tmpRoot);
+    writeFile(
+      path.join(tmpRoot, 'src/utils/loader.ts'),
+      [
+        "import facts from '../../scripts/equipment-catalog/capital-bv.json';",
+        "import { helper } from '../../scripts/helpers/setup';",
+        "import catalog from '../../public/data/units/battlemechs/index.json';",
+        "import { z } from 'zod';",
+        'export { facts, helper, catalog, z };',
+      ].join('\n'),
+    );
+    writeFile(
+      path.join(tmpRoot, 'src/utils/__tests__/loader.test.ts'),
+      "import fixture from '../../../scripts/test-only/fixture.json';",
+    );
+    writeFile(
+      path.join(tmpRoot, 'src/components/Bar.stories.tsx'),
+      "import mock from '../../.storybook/mocks/device.tsx';",
+    );
+    writeFile(path.join(tmpRoot, '.storybook/mocks/device.tsx'), '');
+    writeFile(
+      path.join(tmpRoot, 'scripts/equipment-catalog/capital-bv.json'),
+      '{"rows":[1]}',
+    );
+    writeFile(
+      path.join(tmpRoot, 'scripts/helpers/setup.ts'),
+      "export { default as helper } from './nested.json';",
+    );
+    writeFile(path.join(tmpRoot, 'scripts/helpers/nested.json'), '{"n":2}');
+    writeFile(path.join(tmpRoot, 'scripts/test-only/fixture.json'), '{}');
+
+    const result = runHydrator(tmpRoot);
+
+    expect(result.status).toBe(0);
+    const standalone = path.join(tmpRoot, '.next/standalone');
+    for (const file of [
+      'scripts/equipment-catalog/capital-bv.json',
+      'scripts/helpers/setup.ts',
+      'scripts/helpers/nested.json',
+    ])
+      expect(fs.readFileSync(path.join(standalone, file), 'utf8')).toBe(
+        fs.readFileSync(path.join(tmpRoot, file), 'utf8'),
+      );
+    // Test and story imports are not runtime closure.
+    expect(
+      fs.existsSync(path.join(standalone, 'scripts/test-only/fixture.json')),
+    ).toBe(false);
+    expect(
+      fs.existsSync(path.join(standalone, '.storybook/mocks/device.tsx')),
+    ).toBe(false);
+  });
+
+  it('fails before writing when a src import outside src does not exist', () => {
+    const tmpRoot = makeTempRoot();
+    prepareStandaloneFixture(tmpRoot);
+    writeFile(
+      path.join(tmpRoot, 'src/utils/loader.ts'),
+      "import facts from '../../scripts/missing.json';\nexport { facts };",
+    );
+
+    const result = runHydrator(tmpRoot);
+
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain('scripts/missing.json');
+  });
+
   it('rejects a require entry that falls back to the ancestor checkout', () => {
     const root = makeTempRoot();
     prepareStandaloneFixture(root);
