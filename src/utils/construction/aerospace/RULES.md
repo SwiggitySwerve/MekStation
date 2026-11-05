@@ -1,5 +1,15 @@
 # Aerospace construction rules
 
+HULL is a physical location, not a firing arc. The shared equipment-role owner
+admits audited zero-offense radar/imagers, cargo containers, CASPAR I/II
+controllers and SDS self-destruct equipment before firing-arc validation.
+Their native flags are neither the defensive flags nor DRONE_OPERATING_SYSTEM;
+CASPAR controllers do not trigger the 0.8 weapon or 0.95 summary factors.
+Weapons and unknown hull equipment remain unresolved. Pin 48fcb2f64:
+MiscType.java:5298-5400,5447-5468,6367-6460,8675-8705;
+BVCalculator.java:296,516-546,955-963,1159-1182;
+AeroBVCalculator.java:162-180. Native Gaajian, Caspar and Pavise traces enforce it.
+
 The native mount parser preserves `:size:` as a finite nonnegative size,
 separately from ammo shots and bay/rear flags. MASH, communications equipment,
 ATAC, DTAC and drone-carrier controllers are audited non-offensive miscellaneous
