@@ -63,8 +63,9 @@ test('no route lowers combat-runner damage below its previous target', () => {
 // Follow-up 93: a tech route sends a name to a per-side record. Neither side may
 // deal less runner damage than the tech-less resolution of that name, or than the
 // pinned Java damage (per hit times rack size, carried in the record's id).
-// Narc beacons deal no damage in Java (NarcHandler.java:174-176 returns 0).
-const javaZeroDamage = (id) => /narc/.test(id);
+// Narc beacons deal no damage in Java (NarcHandler.java:174-176 returns 0), nor
+// do TSEMP weapons (TSEMPHandler.java:86-87 returns 0; their effect is the EMP).
+const javaZeroDamage = (id) => /narc|tsemp/.test(id);
 test('no tech route lowers combat-runner damage', () => {
   const routesByName = Object.entries(routing.techRoutes ?? {});
   assert(routesByName.length > 0);
