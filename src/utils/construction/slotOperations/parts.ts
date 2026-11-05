@@ -1,13 +1,17 @@
-import type { MechLocation } from '@/types/construction/CriticalSlotAllocation';
-import type { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
+import type {
+  ICriticalSlotPart,
+  IEquipmentSlotAllocation,
+} from '@/types/equipment/MountedEquipment';
 
-/** The item's slots per location, including a split weapon's second part. */
+/** Every location occupied by one mount, including split and spreadable parts. */
 export function getSlotParts(
-  item: IMountedEquipmentInstance,
-): ReadonlyArray<{ location: MechLocation; slots: readonly number[] }> {
-  if (!item.location) return [];
-  const parts = [
-    { location: item.location as MechLocation, slots: item.slots ?? [] },
+  item: IEquipmentSlotAllocation,
+): readonly ICriticalSlotPart[] {
+  return [
+    ...(item.location
+      ? [{ location: item.location, slots: item.slots ?? [] }]
+      : []),
+    ...(item.splitSlots ? [item.splitSlots] : []),
+    ...(item.spreadSlots ?? []),
   ];
-  return item.splitSlots ? [...parts, item.splitSlots] : parts;
 }

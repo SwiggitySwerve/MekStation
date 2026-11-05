@@ -26,6 +26,7 @@ it.each([
   'ISMASS',
   'ISMASS (OMNIPOD)',
   'IS Mass',
+  'Clan Mass',
   'CLMass',
   'MechWarrior Aquatic Survival System (MASS)',
 ])('includes native MASS identity %s in defense', (slot) => {
