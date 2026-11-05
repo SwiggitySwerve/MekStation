@@ -86,6 +86,10 @@ export interface ISerializedUnit {
   readonly isOmni?: boolean;
   readonly baseChassisHeatSinks?: number;
   readonly clanName?: string;
+  /** Mixed Tech per-component selections, keyed by TechBaseComponent. */
+  readonly componentTechBases?: Readonly<
+    Partial<Record<string, 'INNER_SPHERE' | 'CLAN'>>
+  >;
 }
 
 /**
