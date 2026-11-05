@@ -1,5 +1,18 @@
 # Combat-vehicle construction rules
 
+## Linked thermal load
+
+`mountedWeight.ts` uses the existing native pairing owner in
+`equipmentBV/weaponLinks.ts`. Insulators prefer the immediately preceding
+eligible laser, then the first unlinked laser at the same location. RISC modules
+occupy the same link slot. Capacitors use the shared PPC compatibility/year gate.
+The running weapon-heat sum subtracts one for a linked insulator, restores one
+when the sum reaches zero, and adds five for a linked capacitor. Engine-free
+sinks are subtracted afterward by `weightComposition.ts`. This preserves the
+pinned running-total guard rather than replacing it with a per-laser clamp.
+Sources: MegaMek 48fcb2f64a1b, MekFileParser.java:360-388,472-495 and
+TestEntity.java:945-966. Complete handler weight remains unavailable.
+
 ## Defensive BV type modifier
 
 `vehicleBVTypeModifier.ts` owns the motion-type defensive multiplier and its
