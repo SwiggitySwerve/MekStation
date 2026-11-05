@@ -70,7 +70,22 @@
     "ISC3RemoteSensorLauncher": "isc3remotesensorlauncher-registry",
     "CLBALRM5 (OS)": "clbalrm5-os-registry",
     "CLBASRM2 (OS)": "clbasrm2-os-registry",
-    "CLBASRM3 (OS)": "clbasrm3-os-registry"
+    "CLBASRM3 (OS)": "clbasrm3-os-registry",
+    "ISSRM2OS": "issrm2os-registry",
+    "ISStreakSRM2OS": "isstreaksrm2os-registry",
+    "ISStreakSRM4OS": "isstreaksrm4os-registry",
+    "ISStreakSRM6OS": "isstreaksrm6os-registry",
+    "CLSRM2 (IOS)": "clsrm2-ios-registry",
+    "CLSRM4 (IOS)": "clsrm4-ios-registry",
+    "CLSRM6 (IOS)": "clsrm6-ios-registry",
+    "CLStreakSRM2 (IOS)": "clstreaksrm2-ios-registry",
+    "CLStreakSRM4 (IOS)": "clstreaksrm4-ios-registry",
+    "CLStreakSRM6 (IOS)": "clstreaksrm6-ios-registry",
+    "CLStreakSRM2 (OS)": "clstreaksrm2-os-registry",
+    "CLStreakSRM4 (OS)": "clstreaksrm4-os-registry",
+    "CLStreakSRM6 (OS)": "clstreaksrm6-os-registry",
+    "CLNarcBeacon (OS)": "clnarcbeacon-os-registry",
+    "CLNarcBeacon (I-OS)": "clnarcbeacon-i-os-registry"
   },
   "previousIds": {
     "is-lb-2-x-ac-ammo-registry": "clan-lb-2-x-ac",
@@ -364,6 +379,118 @@
     "SRT 6": {
       "INNER_SPHERE": "srt-6-registry",
       "CLAN": "srt6"
+    },
+    "srm-2-i-os": {
+      "INNER_SPHERE": "issrm2ios-registry",
+      "CLAN": "clsrm2-ios-registry"
+    },
+    "srm-2-os": {
+      "INNER_SPHERE": "issrm2os-registry",
+      "CLAN": "clsrm2-os-registry"
+    },
+    "SRM 2 (OS)": {
+      "INNER_SPHERE": "issrm2os-registry",
+      "CLAN": "clsrm2-os-registry"
+    },
+    "streak-srm-2-i-os": {
+      "INNER_SPHERE": "isstreaksrm2ios-registry",
+      "CLAN": "clstreaksrm2-ios-registry"
+    },
+    "streak-srm-2-os": {
+      "INNER_SPHERE": "isstreaksrm2os-registry",
+      "CLAN": "clstreaksrm2-os-registry"
+    },
+    "Streak SRM 2 (OS)": {
+      "INNER_SPHERE": "isstreaksrm2os-registry",
+      "CLAN": "clstreaksrm2-os-registry"
+    },
+    "srm-4-i-os": {
+      "INNER_SPHERE": "issrm4ios-registry",
+      "CLAN": "clsrm4-ios-registry"
+    },
+    "srm-4-os": {
+      "INNER_SPHERE": "issrm4os-registry",
+      "CLAN": "clsrm4-os-registry"
+    },
+    "SRM 4 (OS)": {
+      "INNER_SPHERE": "issrm4os-registry",
+      "CLAN": "clsrm4-os-registry"
+    },
+    "streak-srm-4-i-os": {
+      "INNER_SPHERE": "isstreaksrm4ios-registry",
+      "CLAN": "clstreaksrm4-ios-registry"
+    },
+    "streak-srm-4-os": {
+      "INNER_SPHERE": "isstreaksrm4os-registry",
+      "CLAN": "clstreaksrm4-os-registry"
+    },
+    "Streak SRM 4 (OS)": {
+      "INNER_SPHERE": "isstreaksrm4os-registry",
+      "CLAN": "clstreaksrm4-os-registry"
+    },
+    "srm-6-i-os": {
+      "INNER_SPHERE": "issrm6ios-registry",
+      "CLAN": "clsrm6-ios-registry"
+    },
+    "srm-6-os": {
+      "INNER_SPHERE": "issrm6os-registry",
+      "CLAN": "clsrm6-os-registry"
+    },
+    "SRM 6 (OS)": {
+      "INNER_SPHERE": "issrm6os-registry",
+      "CLAN": "clsrm6-os-registry"
+    },
+    "streak-srm-6-i-os": {
+      "INNER_SPHERE": "isstreaksrm6ios-registry",
+      "CLAN": "clstreaksrm6-ios-registry"
+    },
+    "streak-srm-6-os": {
+      "INNER_SPHERE": "isstreaksrm6os-registry",
+      "CLAN": "clstreaksrm6-os-registry"
+    },
+    "Streak SRM 6 (OS)": {
+      "INNER_SPHERE": "isstreaksrm6os-registry",
+      "CLAN": "clstreaksrm6-os-registry"
+    },
+    "narc-i-os": {
+      "INNER_SPHERE": "isnarcbeacon-i-os-registry",
+      "CLAN": "clnarcbeacon-i-os-registry"
+    },
+    "narc-os": {
+      "INNER_SPHERE": "isnarcbeacon-os-registry",
+      "CLAN": "clnarcbeacon-os-registry"
+    },
+    "issrm4-os": {
+      "INNER_SPHERE": "issrm4os-registry",
+      "CLAN": "issrm4os-registry"
+    },
+    "prototype-er-medium-laser": {
+      "INNER_SPHERE": "clermediumlaserprototype-registry",
+      "CLAN": "clermediumlaserprototype-registry"
+    },
+    "prototype-er-small-laser": {
+      "INNER_SPHERE": "clersmalllaserprototype-registry",
+      "CLAN": "clersmalllaserprototype-registry"
+    },
+    "prototype-streak-srm-4": {
+      "INNER_SPHERE": "streaksrm4prototype",
+      "CLAN": "streaksrm4prototype"
+    },
+    "prototype-streak-srm-6": {
+      "INNER_SPHERE": "streaksrm6prototype",
+      "CLAN": "streaksrm6prototype"
+    },
+    "prototype-ultra-autocannon-10": {
+      "INNER_SPHERE": "clultraac10prototype-registry",
+      "CLAN": "clultraac10prototype-registry"
+    },
+    "primitive-prototype-ppc": {
+      "INNER_SPHERE": "primitive-prototype-ppc-registry",
+      "CLAN": "primitive-prototype-ppc-registry"
+    },
+    "prototype-rocket-launcher-20": {
+      "INNER_SPHERE": "rocketlauncher20prototype-registry",
+      "CLAN": "rocketlauncher20prototype-registry"
     }
   }
 }

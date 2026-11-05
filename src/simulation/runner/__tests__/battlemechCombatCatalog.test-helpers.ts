@@ -774,7 +774,14 @@ const EXPECTED_STREAK_WEAPON_FAMILY_IDS = {
     'clan-streak-srm-2',
     'clan-streak-srm-4',
     'clan-streak-srm-6',
+    // Follow-up 93: pinned Java Clan Streak SRM I-OS/OS and IS Streak SRM OS additions.
+    'clstreaksrm2-ios-registry',
+    'clstreaksrm2-os-registry',
+    'clstreaksrm4-ios-registry',
+    'clstreaksrm4-os-registry',
     'clstreaksrm4prototype-registry',
+    'clstreaksrm6-ios-registry',
+    'clstreaksrm6-os-registry',
     'clstreaksrm6prototype-registry',
     'iosstreaklrm10',
     'iosstreaklrm15',
@@ -782,8 +789,11 @@ const EXPECTED_STREAK_WEAPON_FAMILY_IDS = {
     'iosstreaklrm5',
     // Follow-up 92 slice 5: pinned Java ISStreakSRM2/4/6IOS additions.
     'isstreaksrm2ios-registry',
+    'isstreaksrm2os-registry',
     'isstreaksrm4ios-registry',
+    'isstreaksrm4os-registry',
     'isstreaksrm6ios-registry',
+    'isstreaksrm6os-registry',
     'osstreaklrm10',
     'osstreaklrm15',
     'osstreaklrm20',
@@ -848,6 +858,9 @@ const EXPECTED_DESIGNATOR_DEFENSIVE_SPECIAL_FAMILY_IDS = {
   narc: [
     'bacompactnarc',
     'clan-narc',
+    // Follow-up 93: pinned Java CLNarcBeacon (I-OS) / (OS) additions.
+    'clnarcbeacon-i-os-registry',
+    'clnarcbeacon-os-registry',
     'improvednarc',
     'improvednarc-os',
     'inarc',

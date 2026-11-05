@@ -96,7 +96,36 @@ interface IDeltaReport {
   rows: IDeltaRow[];
 }
 export const AGGREGATE_REL_TOLERANCE = 1e-9;
-function firstTermDifference(java?: IFigure['terms'], ours?: IFigure['terms']) {
+/** The Java trace keys each weapon by entity equipment index and internal name
+ * ("weapon."+getEquipmentNum+"."+getLocationAbbr+"."+getInternalName). Neither
+ * identity exists in MekStation, so both sides compare each location's
+ * per-mount values as a count plus a descending list.
+ */
+const WEAPON_TERM = /^((?:trooper\.\d+\.)?weapon)\.-?\d+\.([^.]+)\./;
+function foldWeaponTerms(terms?: IFigure['terms']): IFigure['terms'] {
+  if (!terms) return terms;
+  const folded: NonNullable<IFigure['terms']> = {};
+  const groups: Record<string, number[]> = {};
+  for (const [key, value] of Object.entries(terms)) {
+    const match = key.match(WEAPON_TERM);
+    if (match && value !== undefined)
+      (groups[`${match[1]}.${match[2]}`] ??= []).push(value);
+    else folded[key] = value;
+  }
+  for (const [group, values] of Object.entries(groups)) {
+    folded[`${group}.count`] = values.length;
+    values
+      .sort((a, b) => b - a)
+      .forEach((value, index) => (folded[`${group}.#${index}`] = value));
+  }
+  return folded;
+}
+function firstTermDifference(
+  javaTerms?: IFigure['terms'],
+  ourTerms?: IFigure['terms'],
+) {
+  const java = foldWeaponTerms(javaTerms);
+  const ours = foldWeaponTerms(ourTerms);
   const keys = [
     ...new Set([...Object.keys(stages), ...Object.keys(java ?? {}).sort()]),
   ];

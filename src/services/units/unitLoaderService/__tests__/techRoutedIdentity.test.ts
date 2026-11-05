@@ -7,8 +7,16 @@ import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
 import { getEquipmentSlotIssues } from '@/utils/construction/slotOperations/placement';
 
+import banshee from '../../../../../public/data/units/battlemechs/1-age-of-war/standard/Banshee BNC-1E.json';
+import cestus from '../../../../../public/data/units/battlemechs/3-succession-wars/standard/Cestus CTS-6Y-EC.json';
+import emperor from '../../../../../public/data/units/battlemechs/3-succession-wars/standard/Emperor EMP-6A-EC.json';
+import enfield from '../../../../../public/data/units/battlemechs/3-succession-wars/standard/Enfield END-6J-EC.json';
+import daishiC from '../../../../../public/data/units/battlemechs/4-clan-invasion/advanced/Daishi C.json';
 import avatar from '../../../../../public/data/units/battlemechs/5-civil-war/advanced/Avatar AV1-OU.json';
+import linebackerF from '../../../../../public/data/units/battlemechs/5-civil-war/experimental/Linebacker F.json';
 import cauldronBorn from '../../../../../public/data/units/battlemechs/5-civil-war/standard/Cauldron-Born U.json';
+import assassin from '../../../../../public/data/units/battlemechs/6-dark-age/advanced/Assassin ASN-109.json';
+import crossbowT from '../../../../../public/data/units/battlemechs/6-dark-age/advanced/Crossbow T.json';
 import { resolveEquipmentId } from '../equipmentResolution';
 import { UnitLoaderService } from '../unitLoader';
 
@@ -81,4 +89,108 @@ it.each([
       state.cockpitType,
     ),
   ).toEqual([]);
+});
+
+// One-shot launchers: the list id (srm-2-i-os) collapsed to the plain launcher
+// while the crit token names the I-OS/OS item. Java: SRM 2 (OS) -> IS ISSRM2OS,
+// CLAN CLSRM2 (OS); Clan I-OS/OS items are CLSRM2 (IOS), CLStreakSRM4 (OS), ...
+it.each([
+  ['srm-2-i-os', IS, 'issrm2ios-registry'],
+  ['srm-2-i-os', CLAN, 'clsrm2-ios-registry'],
+  ['CLSRM2 (IOS)', CLAN, 'clsrm2-ios-registry'],
+  ['srm-2-os', IS, 'issrm2os-registry'],
+  ['SRM 2 (OS)', CLAN, 'clsrm2-os-registry'],
+  ['streak-srm-2-os', IS, 'isstreaksrm2os-registry'],
+  ['streak-srm-4-os', CLAN, 'clstreaksrm4-os-registry'],
+  ['CLStreakSRM4 (OS)', CLAN, 'clstreaksrm4-os-registry'],
+  ['streak-srm-2-i-os', CLAN, 'clstreaksrm2-ios-registry'],
+  ['narc-i-os', CLAN, 'clnarcbeacon-i-os-registry'],
+  ['CLNarcBeacon (I-OS)', CLAN, 'clnarcbeacon-i-os-registry'],
+  ['issrm4-os', IS, 'issrm4os-registry'],
+] as const)(
+  'one-shot %s on a %s unit resolves to %s',
+  (id, [tech, mode], target) => {
+    expect(resolveEquipmentId(id, tech, mode, []).equipmentDef?.id).toBe(
+      target,
+    );
+  },
+);
+
+it.each([
+  ['Crossbow T (Clan SRM I-OS)', crossbowT],
+  ['Daishi C (Clan Streak SRM OS)', daishiC],
+  ['Linebacker F (Clan Narc I-OS)', linebackerF],
+  ['Assassin ASN-109 (IS SRM I-OS)', assassin],
+])('assigns %s one-shots their critical slots', (_name, unit) => {
+  const state = new UnitLoaderService().mapToUnitState(unit, true);
+  const oneShots = state.equipment.filter((item) =>
+    /i?-?os-registry$|ios-registry$/.test(item.equipmentId),
+  );
+  expect(oneShots.length).toBeGreaterThan(0);
+  expect(oneShots.every((item) => (item.slots?.length ?? 0) > 0)).toBe(true);
+  expect(
+    getEquipmentSlotIssues(
+      state.equipment,
+      state.configuration,
+      state.engineType,
+      state.gyroType,
+      state.armActuators,
+      state.cockpitType,
+    ),
+  ).toEqual([]);
+});
+
+// Prototypes: the converter's list slug collapsed to the production item while
+// the crit token reached the pinned Java prototype (one owner each, no IS/Clan
+// split), e.g. CLERMediumLaserPrototype, CLUltraAC10Prototype.
+it.each([
+  ['prototype-er-medium-laser', 'clermediumlaserprototype-registry'],
+  ['prototype-er-small-laser', 'clersmalllaserprototype-registry'],
+  ['prototype-streak-srm-4', 'streaksrm4prototype'],
+  ['prototype-streak-srm-6', 'streaksrm6prototype'],
+  ['prototype-ultra-autocannon-10', 'clultraac10prototype-registry'],
+  ['primitive-prototype-ppc', 'primitive-prototype-ppc-registry'],
+  ['prototype-rocket-launcher-20', 'rocketlauncher20prototype-registry'],
+] as const)(
+  'prototype list id %s resolves to %s for either tech',
+  (id, target) => {
+    for (const [tech, mode] of [IS, CLAN])
+      expect(resolveEquipmentId(id, tech, mode, []).equipmentDef?.id).toBe(
+        target,
+      );
+  },
+);
+
+it.each([
+  ['Cestus CTS-6Y-EC', cestus],
+  ['Enfield END-6J-EC', enfield],
+  ['Banshee BNC-1E', banshee],
+])('assigns %s prototype weapons their critical slots', (_name, unit) => {
+  const state = new UnitLoaderService().mapToUnitState(unit, true);
+  const prototypes = state.equipment.filter((item) =>
+    /prototype/.test(item.equipmentId),
+  );
+  expect(prototypes.length).toBeGreaterThan(0);
+  expect(prototypes.every((item) => (item.slots?.length ?? 0) > 0)).toBe(true);
+  expect(
+    getEquipmentSlotIssues(
+      state.equipment,
+      state.configuration,
+      state.engineType,
+      state.gyroType,
+      state.armActuators,
+      state.cockpitType,
+    ),
+  ).toEqual([]);
+});
+
+// Emperor EMP-6A-EC (mixed tech) also mounts Clan LB-X ACs whose list ids still
+// resolve to the IS item (a separate identity class); its prototype Streak SRM 4
+// now takes both CLStreakSRM4Prototype slots.
+it('assigns the Emperor EMP-6A-EC prototype Streak SRM 4 its critical slots', () => {
+  const state = new UnitLoaderService().mapToUnitState(emperor, true);
+  const streak = state.equipment.filter(
+    (item) => item.equipmentId === 'streaksrm4prototype',
+  );
+  expect(streak.map((item) => item.slots)).toEqual([[10, 11]]);
 });
