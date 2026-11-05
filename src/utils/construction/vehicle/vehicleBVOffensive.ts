@@ -27,6 +27,7 @@ import {
   hasBVTargetingComputer,
   isDirectFireBVWeapon,
 } from '../battleValueWeapons';
+import { hasNativeWeaponBVFlag } from '../equipmentBV/nativeWeaponFlags';
 import { isOneShotBVWeapon } from '../equipmentBV/weaponHeat';
 import {
   isArtemisCompatibleBVWeapon,
@@ -127,7 +128,15 @@ function calculateWeaponBVEntry(
     isDirectFireBVWeapon(normalizeEquipmentId(weapon.id))
   ) {
     adjustedBV = applyTargetingComputerBV(adjustedBV);
-  } else if (isWeaponType && !weapon.isInfantry) {
+  } else if (
+    isWeaponType &&
+    !(
+      hasNativeWeaponBVFlag(
+        getEquipmentEntry(weapon.id)?.id ?? weapon.id,
+        'infantry',
+      ) ?? weapon.isInfantry
+    )
+  ) {
     adjustedBV *= fireControlFactor;
   }
 
