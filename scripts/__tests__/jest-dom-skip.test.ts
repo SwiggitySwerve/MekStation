@@ -77,6 +77,25 @@ describe('skipsJestDom / setUpJestDom', () => {
     );
   });
 
+  it('still installs window.CSS.escape (jest-dom pulls the css.escape polyfill) for a listed file', () => {
+    // user-event calls window.CSS.escape for radio-group keyboard navigation.
+    const css = (window as unknown as { CSS: { escape?: unknown } }).CSS;
+    const original = css.escape;
+    delete css.escape;
+    try {
+      jest.isolateModules(() => {
+        skip.setUpJestDom(
+          { extend: jest.fn() },
+          path.join(ROOT, ...listed.split('/')),
+          jest.fn(),
+        );
+      });
+      expect(typeof css.escape).toBe('function');
+    } finally {
+      css.escape = original;
+    }
+  });
+
   it('loads jest-dom, and extends nothing, for any other file', () => {
     const extend = jest.fn();
     const load = jest.fn();
