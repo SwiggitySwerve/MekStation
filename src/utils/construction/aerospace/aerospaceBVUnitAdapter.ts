@@ -137,6 +137,9 @@ export function buildAerospaceBVInputFromUnit(
   return {
     subType: unitTypeToAerospaceSubType(unit.unitType),
     isSupportVehicle: supportVehicle,
+    hasCommandConsole:
+      unit.cockpit?.toUpperCase() === 'COMMAND_CONSOLE' ||
+      unit.cockpitType === AerospaceCockpitType.COMMAND_CONSOLE,
     hasSmallCockpit:
       unit.cockpit?.toUpperCase() === 'SMALL' ||
       unit.cockpitType === AerospaceCockpitType.SMALL,
