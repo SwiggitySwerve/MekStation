@@ -1,6 +1,4 @@
 import { decodeBlkVehicleEngine } from '@/services/conversion/blkEngineIdentity';
-import { FormulaEvaluator } from '@/services/equipment/FormulaEvaluator';
-import { VARIABLE_EQUIPMENT_FORMULAS } from '@/services/equipment/variableEquipmentFormulas';
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { ISupportVehicle } from '@/types/unit/VehicleInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
@@ -14,8 +12,8 @@ import {
   isPowerAmplifierEnergyWeapon,
   requiresPowerAmplifiers,
 } from './powerAmplifier';
-import { roundSupportComponentWeight } from './supportRounding';
 import { computeTurretWeight } from './turret';
+import { resolveVehicleVariableMass } from './variableEquipmentMass';
 
 /** TestEntity.java:631-667,716-769: sum catalog mount weights by kind.
  */
@@ -69,35 +67,13 @@ export function computeSupportPayloadWeights(
             : EquipmentCategory.MISC_EQUIPMENT,
         special: item.special,
       });
-    let weight = item.weight;
-    // MiscType.java:724-730,820-842. These variable rules have no fixed catalog tonnage.
-    const size = Number(mount.equipmentId.split(/:size:/i)[1] ?? 1);
-    if (item.id === 'droneoperatingsystem') weight = unit.tonnage / 10 + 0.5;
-    else if (item.id === 'boobytrap')
-      weight = roundSupportComponentWeight(unit.tonnage / 10, unit.tonnage);
-    else if (item.id === 'dronecarriercontrolsystem') weight = 2 + size * 0.5;
-    else if (item.id === 'mash-equipment') weight = 2.5 + size;
-    else if (['cargo', 'communications-equipment'].includes(item.id))
-      weight = roundSupportComponentWeight(size, unit.tonnage);
-    else if (
-      item.special?.includes('Variable weight') ||
-      item.variableEquipmentId
-    ) {
-      const formula =
-        VARIABLE_EQUIPMENT_FORMULAS[item.variableEquipmentId ?? item.id];
-      const context = { tonnage: unit.tonnage, engineWeight };
-      if (formula && formula.requiredContext.every((key) => key in context))
-        weight = new FormulaEvaluator().evaluate(
-          unit.tonnage < 5 && formula.weight.type === 'MULTIPLY_ROUND'
-            ? { ...formula.weight, roundTo: 0.001 }
-            : formula.weight,
-          context,
-        );
-      else if (
-        !['basic-fire-control', 'advanced-fire-control'].includes(item.id)
-      )
-        unresolved.push(mount.equipmentId);
-    }
+    const resolvedWeight = resolveVehicleVariableMass(item, mount.equipmentId, {
+      tonnage: unit.tonnage,
+      engineWeight,
+      isSupportVehicle: true,
+    });
+    if (resolvedWeight === undefined) unresolved.push(mount.equipmentId);
+    const weight = resolvedWeight ?? item.weight;
     // TestEntity.java:938-982: heat-neutral weapon load; small SVs need no sinks.
     const heat = weapon
       ? (getVehicleHeatNeutralWeaponHeat({
@@ -121,10 +97,17 @@ export function computeSupportPayloadWeights(
       mount.id === 'basic-fire-control' ||
       mount.id === 'advanced-fire-control'
     )
-      mount.weight = roundSupportComponentWeight(
-        weapons / (mount.id === 'basic-fire-control' ? 20 : 10),
-        unit.tonnage,
-      ); // MiscType.java:700-723
+      mount.weight =
+        resolveVehicleVariableMass(
+          { id: mount.id, weight: mount.weight },
+          mount.equipmentId,
+          {
+            tonnage: unit.tonnage,
+            engineWeight,
+            weaponWeight: weapons,
+            isSupportVehicle: true,
+          },
+        ) ?? mount.weight;
   const miscEquipment = sum((m) => !m.ammo && !m.weapon);
   const heatSinks =
     unit.tonnage < 5 ? 0 : mounts.reduce((n, m) => n + m.heat, 0);
