@@ -98,7 +98,7 @@ it('groups two missing Hatchets but never duplicates an already listed mount', (
   ).toHaveLength(2);
 });
 
-it.each(['Sword', 'PPC'])(
+it.each(['PPC'])(
   'keeps the %s prerequisite class outside this repair',
   (token) => {
     const state = load({
@@ -121,3 +121,29 @@ it('preserves the already listed split AC/20s', () => {
     expect(cannon.splitSlots).toBeDefined();
   }
 });
+
+// MiscType.java:512-517,1075-1083; MtfFile.java:1133-1175 (48fcb2f64).
+it.each([
+  ['Sword', 'sword', 4, 6],
+  ['Retractable Blade', 'retractable-blade', 4.5, 5],
+] as const)(
+  'restores the sized crit-only %s',
+  (token, id, weight, criticalSlots) => {
+    const source = {
+      ...cudgel,
+      equipment: [],
+      criticalSlots: { LEFT_ARM: Array(criticalSlots).fill(token) },
+    };
+    expect(load(source).equipment).toEqual([
+      expect.objectContaining({
+        equipmentId: id,
+        weight,
+        criticalSlots,
+        slots: Array.from({ length: criticalSlots }, (_, i) => i),
+      }),
+    ]);
+    expect(
+      load({ ...source, equipment: [{ id, location: 'LEFT_ARM' }] }).equipment,
+    ).toHaveLength(1);
+  },
+);
