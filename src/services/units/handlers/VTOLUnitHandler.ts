@@ -38,6 +38,7 @@ import {
   getVehicleMountFlags,
   getPrimaryVehicleTurretConfiguration,
 } from '@/utils/construction/vehicle/equipmentMounts';
+import { combatVehicleSlotErrors } from '@/utils/construction/vehicle/itemSlots';
 import { validateVehicleCaseLocations } from '@/utils/construction/vehicle/vehicleValidation';
 
 import {
@@ -172,6 +173,7 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
       maxArmorPoints: this.calculateMaxArmor(document.tonnage),
       chinTurret,
       equipment,
+      transporters: document.transporters ?? [],
       rotorType,
       rotorHits,
       errors,
@@ -332,6 +334,8 @@ export class VTOLUnitHandler extends AbstractUnitTypeHandler<IVTOL> {
         `Total armor (${unit.totalArmorPoints}) exceeds maximum (${unit.maxArmorPoints})`,
       );
     }
+
+    errors.push(...combatVehicleSlotErrors(unit, true));
 
     // Rotor cannot be armored beyond 2 points
     const rotorArmor = unit.armorByLocation?.[VTOLLocation.ROTOR] || 0;
