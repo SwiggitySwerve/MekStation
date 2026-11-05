@@ -1,3 +1,4 @@
+import type { ISerializedUnit } from '../src/types/unit/UnitSerialization';
 import type { AmmoBVPools } from '../src/utils/construction/battleValueOffensiveTypes';
 
 interface ArmorAllocation {
@@ -15,6 +16,7 @@ export interface UnitData {
   configuration: string;
   lamType?: string;
   techBase: string;
+  componentTechBases?: ISerializedUnit['componentTechBases'];
   tonnage: number;
   engine: { type: string; rating: number };
   gyro: { type: string };
