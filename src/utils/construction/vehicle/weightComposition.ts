@@ -39,7 +39,9 @@ import { computeSupportStructureWeight } from './supportWeight';
 export type { EquipmentResolver } from './mountedWeight';
 
 export interface VehicleWeightState
-  extends VehicleControlsLiftContext, VehicleMountedWeightState {
+  extends
+    VehicleControlsLiftContext,
+    Omit<VehicleMountedWeightState, keyof VehicleControlsLiftContext> {
   engineRating: number;
   engineType: VehicleEngineType;
   cruiseMP: number;

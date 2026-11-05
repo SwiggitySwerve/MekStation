@@ -560,3 +560,9 @@ calculateAdjustedBV. Chassis/cockpit factors precede the base integer round;
 crew skill follows it and receives a final round. Vehicle skill lookup uses
 the existing shared table with the same floor and clamp. BVCalculator.java:
 1253,167 at MegaMek pin 48fcb2f64 owns this order.
+
+Vehicle jump jets reuse calculateJumpJetWeight in movementCalculations.ts for the
+standard jet tier, through resolveVehicleAccessoryMass. MegaMek 48fcb2f64
+MiscType.java:496-497,867-889,2004-2012 charges each mounted jet 0.5 t
+through 55 t, 1 t through 85 t, and 2 t above 85 t. The catalog zero remains
+a variable sentinel; jet count for BV movement retains its existing owner.

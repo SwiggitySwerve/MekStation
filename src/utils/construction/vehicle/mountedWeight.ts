@@ -22,6 +22,7 @@ import {
 import { computeTurretEquipmentWeight } from './equipmentMounts';
 import { isPowerAmplifierEnergyWeapon } from './powerAmplifier';
 import { getVehicleTurretMechanismFigures } from './turret';
+import { resolveVehicleAccessoryMass } from './variableEquipmentMass';
 
 /** `isAmmo`: the mount is a bin; ammo and launcher records can share an id. */
 export type EquipmentResolver = (
@@ -64,6 +65,7 @@ export interface VehicleMountedWeightState
   turret: ITurretConfiguration | null;
   secondaryTurret: ITurretConfiguration | null;
   year?: number;
+  tonnage?: number;
 }
 
 export interface VehicleMountedWeightBreakdown {
@@ -111,12 +113,24 @@ export function computeVehicleMountedWeightFigures(
   const issues: string[] = [];
   const mounted = state.equipment.map((mount, order) => {
     const item = resolve(mount.equipmentId, mount.isAmmo === true);
+    const accessoryMass =
+      item &&
+      resolveVehicleAccessoryMass(
+        item,
+        state.tonnage === undefined
+          ? undefined
+          : {
+              tonnage: state.tonnage,
+              isSupportVehicle: state.unitType === UnitType.SUPPORT_VEHICLE,
+            },
+      );
+    const mass = isClanCaseMount(mount, item)
+      ? 0
+      : accessoryMass === undefined
+        ? item?.weight
+        : accessoryMass;
     const weight =
-      item !== undefined && isValidWeight(item.weight)
-        ? isClanCaseMount(mount, item)
-          ? 0
-          : item.weight
-        : null;
+      mass !== null && mass !== undefined && isValidWeight(mass) ? mass : null;
     if (weight === null) {
       unresolvedMountIds.push(mount.id);
       issues.push(`Mount ${mount.id}: unresolved or invalid equipment mass`);
