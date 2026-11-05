@@ -116,16 +116,20 @@ test('capital ammo quantities retain their registered bare Java identity', () =>
 });
 
 test('converted native slugs resolve without gap tokens or replacing existing IDs', () => {
-  const java = fixture.java.find((row) => row.internalName === names[0]);
-  const lookups = { [java.internalName.toLowerCase()]: { default: names[0] } };
+  const java = fixture.java.find(
+    (row) => row.internalName === 'Mass Driver (Medium)',
+  );
+  const lookups = {
+    [java.internalName.toLowerCase()]: { default: java.internalName },
+  };
   const run = (before = []) =>
     generateEntries([java], [], fixture.facts, lookups, before, {});
   assert.equal(
-    run().aliases['naval-gauss-light'],
-    'naval-gauss-light-registry',
+    run().aliases['mass-driver-medium'],
+    'mass-driver-medium-registry',
   );
   assert.equal(
-    run([{ id: 'naval-gauss-light' }]).aliases['naval-gauss-light'],
+    run([{ id: 'mass-driver-medium' }]).aliases['mass-driver-medium'],
     undefined,
   );
   assert.equal(run().aliases['invented-naval-gauss'], undefined);
@@ -144,8 +148,10 @@ test('alias-only generation requires existing IDs and preserves every prior targ
 });
 
 test('punctuation-distinct Java aliases cannot assign an ambiguous converted slug', () => {
-  const java = fixture.java.slice(0, 2).map((row) => ({ ...row }));
-  java[1].aliases = [...java[1].aliases, 'Naval-Gauss (Light)'];
+  const java = ['Mass Driver (Medium)', names[0]].map((name) => ({
+    ...fixture.java.find((row) => row.internalName === name),
+  }));
+  java[1].aliases = [...java[1].aliases, 'Mass-Driver (Medium)'];
   const lookups = Object.fromEntries(
     java.flatMap((row) =>
       [row.internalName, ...row.aliases].map((alias) => [
@@ -155,5 +161,20 @@ test('punctuation-distinct Java aliases cannot assign an ambiguous converted slu
     ),
   );
   const { aliases } = generateEntries(java, [], fixture.facts, lookups, [], {});
+  assert.equal(aliases['mass-driver-medium'], undefined);
+});
+
+// QKD-5M fell from Java-exact 1237 to 1227 when unrelated OS slugs were added.
+test('only the audited capital spellings acquire converted aliases', () => {
+  const java = fixture.java.find((row) => row.internalName === names[0]);
+  const lookups = { [java.internalName.toLowerCase()]: { default: names[0] } };
+  const { aliases } = generateEntries(
+    [java],
+    [],
+    fixture.facts,
+    lookups,
+    [],
+    {},
+  );
   assert.equal(aliases['naval-gauss-light'], undefined);
 });

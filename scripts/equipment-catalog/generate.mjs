@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { require as tsxRequire } from 'tsx/cjs/api';
 
 import routing from '../../public/data/equipment/registry-routing.json' with { type: 'json' };
+import capitalAliasInputs from './capital-alias-inputs.json' with { type: 'json' };
 import capitalSource from './capital-source.json' with { type: 'json' };
 import prototypeDamage from './prototype-damage.json' with { type: 'json' };
 const { normalizeEquipmentId } = tsxRequire(
@@ -16,6 +17,7 @@ const { normalizeEquipmentId } = tsxRequire(
 export const revision = '48fcb2f64a1b3f2d575707ce5653dad64927b587';
 const techBases = { IS: 'INNER_SPHERE', CLAN: 'CLAN', ALL: 'BOTH' };
 const slug = (name) => (name.toLowerCase().match(/[a-z0-9]+/g) ?? []).join('-');
+const convertedCapitalInputs = new Set(capitalAliasInputs);
 // Java damage per hit of cluster-table launchers (DAMAGE_BY_CLUSTERTABLE, -2), by
 // ammo type; the combat runner multiplies "<n>/missile" by the rack size.
 // MissileWeaponHandler.java:308-318 (LRM via LRMHandler.java:489, MRM, RL, and
@@ -221,7 +223,9 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
     // Only native aliases with a unique Java owner may acquire this spelling.
     for (const alias of new Set([
       ...names,
-      ...[name, ...type.aliases].map(slug),
+      ...[name, ...type.aliases]
+        .map(slug)
+        .filter((alias) => convertedCapitalInputs.has(alias)),
     ])) {
       const aliasKey = alias.toLowerCase();
       if (!names.includes(alias) && slugOwners.get(alias)?.size !== 1) continue;
@@ -317,6 +321,7 @@ function runGenerator() {
     `${registryFile}.lookups.json`,
     fileURLToPath(new URL('./capital-source.json', import.meta.url)),
     fileURLToPath(new URL('./prototype-damage.json', import.meta.url)),
+    fileURLToPath(new URL('./capital-alias-inputs.json', import.meta.url)),
   ];
   const hashes = read(new URL('./source-pins.json', import.meta.url));
   for (const file of inputs) {

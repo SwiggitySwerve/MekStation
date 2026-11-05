@@ -1,6 +1,7 @@
 {
   "battlemechs": [
     "heavy-rifle",
+    "issrm4-os",
     "long-tom-cannon",
     "medium-chemical-laser",
     "prototype-rocket-launcher-20",
@@ -9,7 +10,10 @@
   ],
   "vehicles": [
     "gauss-rifle,-light-king-davidpt:size:1.0",
-    "machine-gun-lightpt:size:1.0"
+    "is-heavy-flamer-ammo:omni",
+    "machine-gun-lightpt:size:1.0",
+    "taser-ammo:omni",
+    "wire-guided-missile-launcher:size:1.0"
   ],
   "aerospace": [],
   "capital": [],
