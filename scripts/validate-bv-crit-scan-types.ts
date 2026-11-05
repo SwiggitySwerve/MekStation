@@ -63,6 +63,7 @@ export interface CritScan {
   detectedGyroType: string | null;
   modularArmorSlots: number;
   spikeCount: number;
+  spikeLocations: MechLocation[];
   mineDispenserCount: number;
   /** RISC Viral Jammer (Decoy or Homing): BV=284 each, defensive equipment */
   riscViralJammerCount: number;
@@ -137,6 +138,7 @@ export function createEmptyCritScan(): CritScan {
     shieldArms: [],
     riscAPDS: 0,
     spikeCount: 0,
+    spikeLocations: [],
     mineDispenserCount: 0,
     riscViralJammerCount: 0,
     hasBlueShield: false,

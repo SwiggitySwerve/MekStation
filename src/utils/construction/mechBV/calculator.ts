@@ -335,7 +335,10 @@ export function calculateUnitBV(
   let offensiveEquipBV = cs.mineDispenserCount * 8 + cs.miscEquipBV;
   if (cs.hasRamPlate) {
     const ramDamage = Math.floor(unit.tonnage * runMP * 0.1) / 2;
-    const ramPlateBV = Math.floor(ramDamage) * 1.1;
+    const torsoSpikeBonus = cs.spikeLocations.filter((location) =>
+      ['CT', 'LT', 'RT'].includes(location),
+    ).length;
+    const ramPlateBV = (Math.floor(ramDamage) + torsoSpikeBonus) * 1.1;
     offensiveEquipBV += Math.round(ramPlateBV * 1000.0) / 1000.0;
   }
   // Note: Watchdog CEWS is NOT counted as offensive equipment in MegaMek
