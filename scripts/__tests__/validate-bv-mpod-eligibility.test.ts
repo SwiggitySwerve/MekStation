@@ -12,6 +12,26 @@ import hachiwara from './fixtures/hachiwara-mpod.pinned.json';
 // defense, not weapon BV. EquipmentType.java:448-460 and
 // CoreRulesExplosions.java:241-247 exclude their explosion deduction.
 describe('construction M-Pod defensive role and explosion eligibility', () => {
+  it.each([
+    ['CLAN', 'not-a-legacy-unit', 0],
+    ['INNER_SPHERE', 'alpha-wolf-a', 7],
+  ] as const)(
+    'uses explicit %s chassis CASE before legacy names',
+    (chassis, id, penalty) => {
+      const unit = {
+        ...hachiwara,
+        techBase: 'MIXED',
+        componentTechBases: { chassis },
+        engine: { type: 'FUSION', rating: 200 },
+        equipment: [],
+        criticalSlots: { LEFT_ARM: Array<string>(7).fill('ISGaussRifle') },
+      };
+      expect(calculateUnitBV(unit, id).breakdown?.totalExplosivePenalty).toBe(
+        penalty,
+      );
+    },
+  );
+
   it.each(['M-Pod', 'ISMPod', 'm-pod'])(
     'keeps raw %s consistent with the canonical defensive role',
     (id) => {

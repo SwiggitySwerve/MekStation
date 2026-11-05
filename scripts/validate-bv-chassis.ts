@@ -7,10 +7,8 @@ export function hasClanChassis(
   unit: Pick<ISerializedUnit, 'techBase' | 'componentTechBases'>,
   unitId?: string,
 ): boolean {
-  return (
-    unit.techBase === 'CLAN' ||
-    (unit.techBase === 'MIXED' &&
-      unitId !== undefined &&
-      CLAN_CHASSIS_MIXED_UNITS.has(unitId))
-  );
+  if (unit.techBase !== 'MIXED') return unit.techBase === 'CLAN';
+  const explicit = unit.componentTechBases?.chassis;
+  if (explicit !== undefined) return explicit === 'CLAN';
+  return unitId !== undefined && CLAN_CHASSIS_MIXED_UNITS.has(unitId);
 }

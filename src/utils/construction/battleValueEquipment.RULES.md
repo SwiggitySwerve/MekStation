@@ -39,6 +39,10 @@ Both that identity and legacy `b-pod` retain the native defensive F_B_POD role.
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
 ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.
 
+`validate-bv-chassis.ts` owns implicit CASE and Blue Shield chassis identity.
+Explicit Mixed Tech `componentTechBases.chassis` takes precedence over legacy names.
+Pinned MtfFile.java:867-902; MekBVCalculator.java:514-523 (48fcb2f64).
+
 Construction B-Pods retain their defensive equipment BV without an explosive
 deduction. The weapon flag alone does not establish mounted eligibility:
 EquipmentType.java:448-460 and CoreRulesExplosions.java:241-247 at pin
