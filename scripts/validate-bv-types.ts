@@ -20,7 +20,11 @@ export interface UnitData {
   gyro: { type: string };
   cockpit: string;
   structure: { type: string; locationTonnage?: Record<string, number> };
-  armor: { type: string; allocation: ArmorAllocation };
+  armor: {
+    type: string;
+    allocation: ArmorAllocation;
+    typeByLocation?: Record<string, number>;
+  };
   heatSinks: { type: string; count: number };
   movement: { walk: number; jump: number };
   equipment: Equipment[];
