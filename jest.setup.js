@@ -1,8 +1,14 @@
 // Optional: configure or set up a testing framework before each test.
 // If you delete this file, remove `setupFilesAfterEnv` from `jest.config.js`
 
-// Import Jest DOM matchers
-import '@testing-library/jest-dom';
+// Jest DOM matchers. Importing jest-dom costs ~0.11 s per test file, so test
+// files whose import closure never names one of its matchers (the generated
+// config/jest/no-jest-dom-tests.json) skip it and get throwing stubs instead;
+// every other file, including new ones, loads it as before.
+import { setUpJestDom } from './config/jest/jest-dom-skip';
+setUpJestDom(expect, expect.getState().testPath, () =>
+  require('@testing-library/jest-dom'),
+);
 // Polyfill TextEncoder/TextDecoder for jsdom (used by P2PTransport)
 import { TextEncoder, TextDecoder } from 'util';
 global.TextEncoder = TextEncoder;
