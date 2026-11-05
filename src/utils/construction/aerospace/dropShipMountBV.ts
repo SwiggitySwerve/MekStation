@@ -148,7 +148,8 @@ export function resolveLargeAerospaceMountBV(
     if (defensiveKind) {
       if (
         quantity !== undefined &&
-        (defensiveKind !== 'amsAmmo' || !Number.isSafeInteger(Number(quantity)))
+        (!['amsAmmo', 'screenAmmo'].includes(defensiveKind) ||
+          !Number.isSafeInteger(Number(quantity)))
       )
         fail('Invalid defensive ammunition quantity');
       return;
@@ -308,7 +309,7 @@ export function largeAerospaceHeatByArc(
     const id = largeAerospaceMountToken(mount.equipmentId).split(':')[0];
     const kind = getAerospaceDefensiveEquipmentKind(id);
     const arc = largeAerospaceMountArc(mount, capitalType);
-    if (kind && kind !== 'amsAmmo' && arc)
+    if (kind && !['amsAmmo', 'screenAmmo'].includes(kind) && arc)
       defensive.set(
         arc,
         (defensive.get(arc) ?? 0) + (getEquipmentEntry(id)?.heat ?? 0),

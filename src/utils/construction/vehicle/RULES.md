@@ -179,14 +179,23 @@ remains outside this term's parity claim.
 ## Turret weapon BV
 
 `vehicleBVOffensive.ts` owns the turret weapon BV modifier. Single, Dual and
-Chin and Sponson turrets receive no rotating-turret bonus. Turret weapons remain exempt
-from the rear-facing penalty. The BV dialog consumes `turretModifier`, so it
-remains a compatibility breakdown field with value 1 for these turret kinds.
-Sponson weapons also retain listed BV; pinned Java has no 1.025 factor.
+Chin and Sponson turrets receive no rotating-turret bonus. Ordinary Tank turret
+weapons remain exempt from the rear-facing penalty. The BV dialog consumes
+`turretModifier`, so it remains a compatibility breakdown field with value 1
+for these turret kinds. Sponson equipment receives no separate 1.025 multiplier.
 
 Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`:
-`CombatVehicleBVCalculator.java:123-125` excludes both turret locations from
-the nominal rear filter. Inherited `BVCalculator.java:803-907` applies weapon
+`CombatVehicleBVCalculator.java:126-129` excludes Tank's numeric turret indices
+5/6 (`Tank.java:128-130`). On SuperHeavyTank and LargeSupportTank these indices
+mean Rear Left/Rear, while physical turrets occupy 7/8
+(`SuperHeavyTank.java:69-74`, `LargeSupportTank.java:68-72`). Their physical
+turrets can therefore receive nominal-rear weighting when front BV is smaller
+than rear BV (`BVCalculator.java:690-700`). The owner decides this exemption
+once; weapon valuation applies the resulting half factor without another
+physical-turret guard (`BVCalculator.java:834-837`).
+`vehicleBV.superheavyRearParity.test.ts` enforces Destrier's Java 2551 BV,
+both six-side turret locations, index exemptions, and front/rear ties.
+Inherited `BVCalculator.java:803-907` applies weapon
 modifiers without a turret bonus; its `arcFactor` at lines 779-781 returns 1.
 `vehicleBV.turretParity.test.ts` checks the Tamerlane (Flamer) contract fixture
 (UL-16 Java total 436) and each ordinary turret kind. Other vehicle BV terms
