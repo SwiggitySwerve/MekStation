@@ -188,3 +188,6 @@ Critical lookup also removes a trailing Mek turret marker `(T)` after the OmniPo
 
 Flail and Wrecking Ball use the shared formula owner for fixed mass and slots
 (MiscType.java:4017-4021,7869-7878, pin 48fcb2f64).
+
+Mounted critical-part traversal is owned by slotOperations/parts. Placement
+re-exports its public helper; spreadable recovery must reuse that owner.
