@@ -9,6 +9,9 @@
 import { RulesLevel } from '../enums/RulesLevel';
 import { TechBase } from '../enums/TechBase';
 
+// 48fcb2f64 ArmorType.java:487-510: prototype 3056, approximate by five years.
+const HEAVY_FERRO_INTRODUCTION_YEAR = 3051;
+
 /**
  * Armor type enumeration
  */
@@ -104,7 +107,7 @@ export const ARMOR_DEFINITIONS: readonly ArmorDefinition[] = [
     pointsPerTon: 19.84,
     criticalSlots: 21,
     costMultiplier: 2.0,
-    introductionYear: 3069,
+    introductionYear: HEAVY_FERRO_INTRODUCTION_YEAR,
     isSpecial: false,
   },
   {
@@ -217,7 +220,7 @@ const JAVA_ARMOR_INTRODUCTION: Readonly<
   '4': { is: 3047, clan: 3061 }, // IS Hardened :939-941
   '4:clan': { is: 3047, clan: 3061 }, // "Clan Hardened" lookup, same type
   '5': { is: 3050 }, // Light Ferro-Fibrous :477 (3055, approximate)
-  '6': { is: 3051 }, // Heavy Ferro-Fibrous :508 (3056, approximate)
+  '6': { is: HEAVY_FERRO_INTRODUCTION_YEAR },
   '8': { is: 3046 }, // Mek Stealth :977 (3051, approximate)
   '16:clan': { clan: 3070 }, // Clan Ferro-Lamellor :1038
   '22': { is: 3067 }, // Vehicular Stealth :1008 (production; no prototype)
