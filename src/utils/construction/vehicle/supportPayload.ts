@@ -8,7 +8,7 @@ import { getEquipmentEntry } from '@/utils/construction/equipmentBV';
 import { isAmmunitionEquipmentId } from '@/utils/construction/equipmentBV/catalogLoader';
 import { getAmmunitionWeightEntry } from '@/utils/construction/equipmentBV/resolution';
 
-import { getVehicleHeatNeutralWeaponHeat } from './heatSinks';
+import { getVehicleHeatNeutralWeaponHeat } from './mountedWeight';
 import {
   computePowerAmplifierWeight,
   isPowerAmplifierEnergyWeapon,

@@ -12,7 +12,7 @@ import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory as C } from '@/types/equipment';
 
-import { getVehicleHeatNeutralWeaponHeat } from '../heatSinks';
+import { getVehicleHeatNeutralWeaponHeat } from '../mountedWeight';
 import { computeVehicleWeightBreakdown } from '../weightComposition';
 
 // MegaMek 48fcb2f64a1b TestEntity.java:945-950. These are raw weapon heats,

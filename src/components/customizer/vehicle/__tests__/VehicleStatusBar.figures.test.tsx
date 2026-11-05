@@ -396,17 +396,17 @@ describe('VehicleStatusBar — power amplifiers', () => {
   const ICE = { engineType: EngineType.ICE, ...SMALL_ENGINE };
 
   it('counts the declared power amplifier weight', () => {
-    // 50 - 1 engine - 5 structure - 2 lasers - 1 amps - 2.5 controls
+    // 50 - 1 engine - 5 structure - 2 lasers - 1 amps - 2.5 controls - 6 sinks
     expect(
       weightFree({ ...ICE, equipment: TWO_MEDIUM_LASERS, powerAmpWeight: 1 }),
-    ).toBe(38.5);
+    ).toBe(32.5);
   });
 
   it('reserves the required amplifiers when none are declared', () => {
-    // 2 t of lasers need ceil(0.2 / 0.5) * 0.5 = 0.5 t of amps
+    // 2 t of lasers need 0.5 t of amps and 6 t of heat-neutral sinks.
     expect(
       weightFree({ ...ICE, equipment: TWO_MEDIUM_LASERS, powerAmpWeight: 0 }),
-    ).toBe(39);
+    ).toBe(33);
   });
 
   it.each([

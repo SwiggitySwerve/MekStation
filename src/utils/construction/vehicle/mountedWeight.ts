@@ -15,13 +15,34 @@ import { isValidWeight } from '@/utils/physical/weightUtils';
 import type { VehicleControlsLiftContext } from './controlsLift';
 
 import { computeTurretEquipmentWeight } from './equipmentMounts';
-import { getVehicleHeatNeutralWeaponHeat } from './heatSinks';
 import { isPowerAmplifierEnergyWeapon } from './powerAmplifier';
 import { getVehicleTurretMechanismFigures } from './turret';
 
 export type EquipmentResolver = (
   equipmentId: string,
 ) => IEquipmentItem | undefined;
+
+/** Raw heat-neutral weapon load: MegaMek 48fcb2f64a1b TestEntity.java:945-950.
+ * Unlike BV heat, ammunition-fed flamers/chemical lasers contribute zero;
+ * plasma weapons still contribute. Non-weapon plasma-named items do not.
+ */
+export function getVehicleHeatNeutralWeaponHeat(
+  item: Pick<IEquipmentItem, 'category' | 'name' | 'heat' | 'special'>,
+): number | null {
+  const weapon = [
+    EquipmentCategory.ENERGY_WEAPON,
+    EquipmentCategory.BALLISTIC_WEAPON,
+    EquipmentCategory.MISSILE_WEAPON,
+    EquipmentCategory.ARTILLERY,
+    EquipmentCategory.CAPITAL_WEAPON,
+  ].includes(item.category);
+  return isPowerAmplifierEnergyWeapon(item) ||
+    (weapon && /plasma/i.test(item.name))
+    ? item.heat !== undefined && isValidWeight(item.heat)
+      ? item.heat
+      : null
+    : 0;
+}
 
 export interface VehicleMountedWeightState
   extends

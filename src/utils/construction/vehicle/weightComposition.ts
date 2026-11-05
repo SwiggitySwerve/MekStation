@@ -6,11 +6,15 @@
  */
 
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { type VehicleEngineType } from '@/types/construction/EngineType';
+import {
+  EngineType,
+  type VehicleEngineType,
+} from '@/types/construction/EngineType';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   computeSupportVehicleEngineWeight,
   computeVehicleEngineWeight,
+  isVehicleFusionEngine,
 } from '@/utils/construction/vehicle/engine';
 import {
   computePowerAmplifierWeight,
@@ -25,7 +29,6 @@ import {
   computeVehicleControlsLiftWeights,
   type VehicleControlsLiftContext,
 } from './controlsLift';
-import { computeCombatVehicleHeatSinkWeight } from './heatSinks';
 import {
   computeVehicleMountedWeightFigures,
   type EquipmentResolver,
@@ -75,14 +78,26 @@ export function computeVehicleWeightBreakdown(
     secondarySummary: _secondary,
     ...mounted
   } = computeVehicleMountedWeightFigures(state, resolve);
+  // Engine.java:480-493; TestTank.java:264-270 and TestEntity.java:980-981,
+  // MegaMek 48fcb2f64a1b. Combat sinks weigh one ton beyond the free allowance.
+  const freeHeatSinks = isVehicleFusionEngine(state.engineType)
+    ? 10
+    : state.engineType === EngineType.FISSION
+      ? 5
+      : state.engineType === EngineType.FUEL_CELL
+        ? 1
+        : 0;
   const heatSinks =
     state.unitType === UnitType.SUPPORT_VEHICLE
       ? 0
-      : computeCombatVehicleHeatSinkWeight(
-          rawWeaponHeat,
-          state.engineType,
-          state.armorType === ArmorTypeEnum.STEALTH,
-        );
+      : rawWeaponHeat === null
+        ? null
+        : Math.max(
+            0,
+            rawWeaponHeat +
+              (state.armorType === ArmorTypeEnum.STEALTH ? 10 : 0) -
+              freeHeatSinks,
+          );
   const { equipment, energyWeapons, turret, secondaryTurret } = mounted;
 
   const engineContext = {
