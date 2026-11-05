@@ -69,6 +69,14 @@ export const SOURCE_LOOKUP_ALIASES: Readonly<Record<string, string>> = {
   // (InfantrySupportMGLightWeapon.java:64-72, 1.5 BV); the native name itself
   // keeps the battle-armor balightmg its corpus mounts use.
   'machine-gun-light': 'machine-gun-light-registry',
+  // FU-101 crit tokens with an existing record of Java's values (48fcb2f64):
+  // CLERPulseLaserSmall.java:59 (36 BV, 1.5 t), ISMekTaser.java:70 (40 BV, 4 t),
+  // AmmoType.java:13938 / :14120 / :10867.
+  clersmallpulselaser: 'clan-er-small-pulse-laser',
+  'mek taser': 'battlemech-taser',
+  climpammoac5: 'impammoac5',
+  climpgaussammo: 'impgaussammo',
+  'isinarc explosive pods': 'inarc-explosive-pods',
 };
 
 /** Exact native identities at MegaMek 48fcb2f6; FU-79 IDENTITY-REVIEW.md. */
