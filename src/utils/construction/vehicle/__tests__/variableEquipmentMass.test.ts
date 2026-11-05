@@ -43,7 +43,9 @@ it.each([
     getEquipmentLookupService().getById(id),
   );
   expect(weights).toMatchObject({ equipment });
-  if (name === 'MASH Truck (Small)') expect(weights.remaining).toBe(1.5);
+  // TestEntity.java:1995-2003 charges the retained 1 t transporter as well.
+  if (name === 'MASH Truck (Small)')
+    expect(weights).toMatchObject({ carryingSpace: 1, remaining: 0.5 });
 });
 
 it.each([
