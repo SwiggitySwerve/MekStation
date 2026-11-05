@@ -688,9 +688,14 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
         // Physical weapons — detect first slot only (they span multiple slots)
         const physType = classifyPhysicalWeapon(lo);
         if (physType) {
-          const key = physType + '@' + loc;
+          // Talons are one spreadable mount: MtfFile.java:1053-1068,
+          // MiscType.java:4310-4316 (48fcb2f64). Other mounts retain location.
           if (
-            !r.physicalWeapons.some((pw) => pw.type + '@' + pw.location === key)
+            !r.physicalWeapons.some(
+              (pw) =>
+                pw.type === physType &&
+                (physType === 'talon' || pw.location === loc),
+            )
           ) {
             r.physicalWeapons.push({ type: physType, location: loc });
           }

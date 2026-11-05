@@ -42,3 +42,10 @@ use pinned native F_DIRECT_FIRE facts; unrepresented legacy IDs retain their
 existing compatibility policy. The shared bonus remains 1.25. Rocket-launcher
 IDs such as rl10 are ineligible (BVCalculator.java:880; RLWeapon.java at pin
 48fcb2f64). The generated fact owner is equipmentBV/nativeWeaponFlags.ts.
+
+The Mech critical scanner collects Talons as one spreadable mount across
+limbs. Other physical weapons retain per-location mount identity, per-mount
+rounding and AES before accumulation in validate-bv-physical-weapons.ts.
+Pinned 48fcb2f64: MiscType.java:1401-1404,4310-4316 and
+MtfFile.java:1053-1068. validate-bv-physical-weapons.test.ts enforces biped,
+quad/TSM and mixed-claw cases without changing the damage-based BV formula.
