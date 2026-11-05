@@ -39,3 +39,10 @@ rounding and AES before accumulation in validate-bv-physical-weapons.ts.
 Pinned 48fcb2f64: MiscType.java:1401-1404,4310-4316 and
 MtfFile.java:1053-1068. validate-bv-physical-weapons.test.ts enforces biped,
 quad/TSM and mixed-claw cases without changing the damage-based BV formula.
+
+Apollo-linked Mech weapons retain the fractional product from the shared
+getWeaponLinkBVMultiplier owner through orientation, heat sorting, ammo caps
+and offensive movement. Round only the final unit BV, as pinned MegaMek
+48fcb2f64 BVCalculator.java:860-876 does. The existing controller assignment
+guards are unchanged. validate-bv-apollo-precision.test.ts checks all MRM sizes
+and accumulation across separate mounts through the shared Mech calculator.

@@ -160,7 +160,7 @@ export function applyWeaponPostScanModifiers(
     for (const w of weapons) {
       if (a <= 0) break;
       if (w.name.includes('mrm')) {
-        w.bv = Math.round(w.bv * getWeaponLinkBVMultiplier('apollo'));
+        w.bv *= getWeaponLinkBVMultiplier('apollo');
         a--;
       }
     }
