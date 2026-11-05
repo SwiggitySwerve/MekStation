@@ -1,4 +1,21 @@
+import { getVehicleSourceIdentity } from '../equipmentMounts';
 import { resolveVehicleVariableMass } from '../variableEquipmentMass';
+
+it('keeps source size only while the source/resolved identity pair still matches', () => {
+  const sourceIdentity = {
+    sourceId: 'mash-equipment:size:3',
+    resolvedId: 'mash-equipment',
+  };
+  expect(
+    getVehicleSourceIdentity({ equipmentId: 'mash-equipment', sourceIdentity }),
+  ).toBe(sourceIdentity);
+  expect(
+    getVehicleSourceIdentity({ equipmentId: 'cargo', sourceIdentity }),
+  ).toBeUndefined();
+  expect(
+    getVehicleSourceIdentity({ equipmentId: 'mash-equipment' }),
+  ).toBeUndefined();
+});
 
 // MegaMek 48fcb2f6 MiscType.java:700-730,820-842; RoundWeight.java:58-68.
 it.each([

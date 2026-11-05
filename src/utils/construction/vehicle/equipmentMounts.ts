@@ -21,9 +21,18 @@ import {
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
 import {
+  IVehicleMountedEquipment,
   ITurretConfiguration,
   TurretType,
 } from '@/types/unit/VehicleInterfaces';
+
+/** A source token expires when the resolved equipment ID is replaced. */
+export function getVehicleSourceIdentity(
+  mount: Pick<IVehicleMountedEquipment, 'equipmentId' | 'sourceIdentity'>,
+) {
+  const source = mount.sourceIdentity;
+  return source && source.resolvedId === mount.equipmentId ? source : undefined;
+}
 
 /** Combat-vehicle mount flags from a BLK location label, including sponsons. */
 export function getVehicleMountFlags(
