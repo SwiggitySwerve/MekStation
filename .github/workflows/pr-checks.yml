@@ -586,8 +586,12 @@ jobs:
   #   - smoke specs keep the config's CI retries. The library suite runs
   #     on one worker (its flows share the server database); the
   #     tactical-map visual smoke uses all 4 vCPUs of the runner.
-  # Each group is sharded on its own, so every shard runs a slice of
-  # both. Step gating keeps docs- and openspec-only PRs green.
+  # run-ci-e2e allocates the live census across BOTH shards by recorded
+  # durations (config/playwright/ci-durations.json), across suite boundaries.
+  # Gate files and the serial smoke file remain atomic; independent library
+  # tests keep one worker. A timing miss changes only a weight. Native
+  # --test-list selection and executed reports must match the planned set.
+  # Step gating keeps docs- and openspec-only PRs green.
   # ---------------------------------------------------------------
   e2e:
     name: E2E (${{ matrix.shard }}/2)
@@ -618,6 +622,10 @@ jobs:
       - name: Validate record-sheet assets
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
         run: npm run validate:assets:strict
+
+      - name: Test E2E shard planning and coverage guards
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        run: node --test scripts/playwright/ci-e2e-plan.test.mjs
 
       - name: Build production app
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
@@ -656,7 +664,7 @@ jobs:
           # The smoke steps write their own report folders.
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-gates
           PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/gates.json
-        run: node scripts/playwright/run-playwright.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates
+        run: node scripts/playwright/run-ci-e2e.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates
 
       # The library flows save and reopen units through the shared server
       # database, and both viewport variants of a family save the same
@@ -668,7 +676,7 @@ jobs:
           HOSTNAME: '127.0.0.1'
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-library
           PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/library.json
-        run: node scripts/playwright/run-playwright.mjs test e2e/customizer-library-open.spec.ts --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/library
+        run: node scripts/playwright/run-ci-e2e.mjs test e2e/customizer-library-open.spec.ts --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/library
 
       - name: Run tactical-map visual smoke
         if: ${{ !cancelled() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') }}
@@ -676,7 +684,7 @@ jobs:
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
           HOSTNAME: '127.0.0.1'
           PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/smoke.json
-        run: node scripts/playwright/run-playwright.mjs test e2e/tactical-map-visual-smoke.spec.ts --project=chromium --workers=4 --shard=${{ matrix.shard }}/2 --output=test-results/smoke
+        run: node scripts/playwright/run-ci-e2e.mjs test e2e/tactical-map-visual-smoke.spec.ts --project=chromium --workers=4 --shard=${{ matrix.shard }}/2 --output=test-results/smoke
 
       - name: Upload E2E durations and test census
         if: always() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')

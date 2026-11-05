@@ -22,7 +22,7 @@ const GATE_JOB = 'e2e';
 const CHANGE_GATE_IF =
   "needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'";
 const GATE_COMMAND =
-  'run: node scripts/playwright/run-playwright.mjs test ' +
+  'run: node scripts/playwright/run-ci-e2e.mjs test ' +
   'e2e/active-session-recovery.spec.ts ' +
   'e2e/seam-roster-materialization-handoff.spec.ts ' +
   'e2e/seam-fresh-construction-no-instant-defeat.spec.ts ' +
