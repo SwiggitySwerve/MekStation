@@ -254,7 +254,12 @@ class MTFParser:
             # Armor allocation
             loc_key = key.replace('_armor', '').replace('armor', '').strip().upper()
             try:
-                data['armor_allocation'][loc_key] = int(value)
+                if data.get('armor_type', '').lower() == 'patchwork' and ':' in value:
+                    armor_name, points = value.rsplit(':', 1)
+                    data['armor_allocation'][loc_key] = int(points)
+                    data.setdefault('armor_location_types', {})[map_mech_location(loc_key)] = map_armor_type(armor_name)
+                else:
+                    data['armor_allocation'][loc_key] = int(value)
             except ValueError:
                 pass
         elif key == 'quirk':
@@ -342,9 +347,11 @@ class MTFParser:
         )
 
         # Parse armor
-        armor_type = map_armor_type(data.get('armor_type', 'Standard'))
+        armor_type = ('PATCHWORK' if data.get('armor_type', '').lower() == 'patchwork'
+                      else map_armor_type(data.get('armor_type', 'Standard')))
         armor_allocation = build_armor_allocation(data.get('armor_allocation', {}))
-        armor = SerializedArmor(type=armor_type, allocation=armor_allocation)
+        armor = SerializedArmor(type=armor_type, allocation=armor_allocation,
+                                locationTypes=data.get('armor_location_types'))
 
         # Parse movement
         movement = SerializedMovement(

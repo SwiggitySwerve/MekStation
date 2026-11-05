@@ -17,6 +17,7 @@ import { deriveBvHeatAndMovement } from '../../../../scripts/validate-bv-movemen
 import { toMechLoc } from '../../../../scripts/validate-bv-normalizers';
 import { calculatePhysicalBVTotal } from '../../../../scripts/validate-bv-physical-weapons';
 import {
+  calcTotalArmor,
   getArmorBAR,
   mapArmorType,
 } from '../../../../scripts/validate-bv-unit-derived';
@@ -81,6 +82,10 @@ export function calculateUnitBV(
   const { effectiveHSCount, heatDiss, bvWalk, runMP, jumpMP, jumpHeatMP } =
     deriveBvHeatAndMovement(unit, cs, armorType);
   const hasStealth = armorType === 'stealth';
+  const patchworkTypes =
+    unit.armor.type.toUpperCase() === 'PATCHWORK'
+      ? unit.armor.locationTypes
+      : undefined;
   // Pinned LandAirMek.getAirMekFlankMP and MekBVCalculator.offensiveSpeedFactorMP.
   // Bimodal LAMs retain ordinary Mek movement; standard LAMs use airborne AirMek MP.
   const airMekFlankMP =
@@ -182,8 +187,15 @@ export function calculateUnitBV(
   // MegaMek calculates armor BV per-location when HarJel is present
   let harjelArmorBonus = 0;
   if (cs.harjelIILocs.length > 0 || cs.harjelIIILocs.length > 0) {
-    const armorMult = getArmorBVMultiplier(hasStealth ? 'standard' : armorType);
     for (const [locName, armorVal] of Object.entries(unit.armor.allocation)) {
+      const localType = patchworkTypes?.[locName];
+      const armorMult = getArmorBVMultiplier(
+        localType
+          ? mapArmorType(localType)
+          : hasStealth
+            ? 'standard'
+            : armorType,
+      );
       const ml = toMechLoc(locName);
       if (!ml) continue;
       let locArmor: number;
@@ -318,6 +330,34 @@ export function calculateUnitBV(
     hasVoidSig: cs.hasVoidSig,
     hasBlueShield: cs.hasBlueShield,
   };
+  if (patchworkTypes) {
+    const torsoCockpitArmor =
+      setup.totalArmor - calcTotalArmor(unit.armor.allocation);
+    const locations = new Set([
+      ...Object.keys(unit.armor.allocation),
+      ...Object.keys(unit.criticalSlots ?? {}),
+    ]);
+    defCfg.armorSections = [...locations].map((location) => {
+      const armor = unit.armor.allocation[location] ?? 0;
+      const points =
+        typeof armor === 'number' ? armor : armor.front + armor.rear;
+      const type = mapArmorType(patchworkTypes[location] ?? 'STANDARD');
+      const localScan = scanCrits({
+        ...unit,
+        criticalSlots: {
+          [location]: unit.criticalSlots?.[location] ?? [],
+        },
+      });
+      return {
+        points:
+          points +
+          getModularArmorBVPoints(localScan.modularArmorSlots) +
+          (toMechLoc(location) === 'CT' ? torsoCockpitArmor : 0),
+        type: type === 'stealth' ? 'standard' : type,
+        bar: getArmorBAR(type),
+      };
+    });
+  }
   if (engineBVOverride !== undefined) {
     defCfg.engineMultiplier = engineBVOverride;
     defCfg.engineType = undefined;
