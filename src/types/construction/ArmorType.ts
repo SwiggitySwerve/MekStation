@@ -36,6 +36,8 @@ export interface ArmorDefinition {
   readonly rulesLevel: RulesLevel;
   /** Points per ton */
   readonly pointsPerTon: number;
+  /** Preserve the legacy loader contract until its density correction ships. */
+  readonly legacyLoaderPointsPerTon?: number;
   /** Critical slots required (distributed) */
   readonly criticalSlots: number;
   /** Cost multiplier */
@@ -89,6 +91,7 @@ export const ARMOR_DEFINITIONS: readonly ArmorDefinition[] = [
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.STANDARD,
     pointsPerTon: 17.6,
+    legacyLoaderPointsPerTon: 16.96,
     criticalSlots: 7,
     costMultiplier: 1.25,
     introductionYear: 3067,
@@ -100,6 +103,7 @@ export const ARMOR_DEFINITIONS: readonly ArmorDefinition[] = [
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.ADVANCED,
     pointsPerTon: 24,
+    legacyLoaderPointsPerTon: 19.52,
     criticalSlots: 21,
     costMultiplier: 2.0,
     introductionYear: 3069,
@@ -122,6 +126,7 @@ export const ARMOR_DEFINITIONS: readonly ArmorDefinition[] = [
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.EXPERIMENTAL,
     pointsPerTon: 14,
+    legacyLoaderPointsPerTon: 16,
     criticalSlots: 14,
     costMultiplier: 3.0,
     introductionYear: 3063,
@@ -183,6 +188,12 @@ export function getArmorDefinition(
   type: ArmorTypeEnum,
 ): ArmorDefinition | undefined {
   return ARMOR_DEFINITIONS.find((def) => def.type === type);
+}
+
+/** Compatibility policy in the owner table; loader half-ton rounding stays local. */
+export function getLoaderArmorPointsPerTon(type: ArmorTypeEnum): number {
+  const armor = getArmorDefinition(type);
+  return armor?.legacyLoaderPointsPerTon ?? armor?.pointsPerTon ?? 16;
 }
 
 /**
