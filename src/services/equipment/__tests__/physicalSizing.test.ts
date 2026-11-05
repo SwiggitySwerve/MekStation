@@ -14,6 +14,10 @@ it.each([
   ['retractable-blade', PhysicalWeaponType.RETRACTABLE_BLADE, 20, 1.5, 2],
   ['retractable-blade', PhysicalWeaponType.RETRACTABLE_BLADE, 45, 3, 4],
   ['retractable-blade', PhysicalWeaponType.RETRACTABLE_BLADE, 55, 3.5, 4],
+  ['flail', PhysicalWeaponType.FLAIL, 20, 5, 4],
+  ['flail', PhysicalWeaponType.FLAIL, 100, 5, 4],
+  ['wrecking-ball', PhysicalWeaponType.WRECKING_BALL, 20, 4, 5],
+  ['wrecking-ball', PhysicalWeaponType.WRECKING_BALL, 100, 4, 5],
 ] as const)(
   '%s/%s at %d tons uses pinned mass and slots',
   (id, type, tonnage, weight, criticalSlots) => {
@@ -22,5 +26,16 @@ it.each([
     ).toMatchObject({ weight, criticalSlots });
     expect(calculatePhysicalWeaponWeight(type, tonnage)).toBe(weight);
     expect(calculatePhysicalWeaponSlots(type, tonnage)).toBe(criticalSlots);
+  },
+);
+
+// MiscType.java:4017-4021,7869-7878: fixed tools have fixed construction cost.
+it.each(['flail', 'wrecking-ball'])(
+  '%s retains its fixed native cost',
+  (id) => {
+    expect(
+      getEquipmentCalculatorService().calculateProperties(id, { tonnage: 75 })
+        .costCBills,
+    ).toBe(110000);
   },
 );

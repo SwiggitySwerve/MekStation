@@ -16,6 +16,7 @@ export interface CritScan {
   hasBloodhound: boolean;
   hasPartialWing: boolean;
   hasNullSig: boolean;
+  hasChainDrape: boolean;
   hasVoidSig: boolean;
   hasChameleon: boolean;
   hasImprovedJJ: boolean;
@@ -62,6 +63,7 @@ export interface CritScan {
   detectedGyroType: string | null;
   modularArmorSlots: number;
   spikeCount: number;
+  spikeLocations: MechLocation[];
   mineDispenserCount: number;
   /** RISC Viral Jammer (Decoy or Homing): BV=284 each, defensive equipment */
   riscViralJammerCount: number;
@@ -90,6 +92,7 @@ export function createEmptyCritScan(): CritScan {
     hasBloodhound: false,
     hasPartialWing: false,
     hasNullSig: false,
+    hasChainDrape: false,
     hasVoidSig: false,
     hasChameleon: false,
     hasImprovedJJ: false,
@@ -135,6 +138,7 @@ export function createEmptyCritScan(): CritScan {
     shieldArms: [],
     riscAPDS: 0,
     spikeCount: 0,
+    spikeLocations: [],
     mineDispenserCount: 0,
     riscViralJammerCount: 0,
     hasBlueShield: false,

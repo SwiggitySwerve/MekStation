@@ -52,6 +52,7 @@ function deriveBvWalkMP(unit: UnitData, cs: CritScan): number {
   const walkMP = unit.movement.walk;
   let bvWalk = cs.hasTSM ? walkMP + 1 : walkMP;
   if (cs.hasMediumShield || cs.hasLargeShield) bvWalk = Math.max(0, bvWalk - 1);
+  if (cs.hasChainDrape) bvWalk = Math.max(0, bvWalk - 1);
   return bvWalk;
 }
 

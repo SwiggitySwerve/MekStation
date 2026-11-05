@@ -1,5 +1,6 @@
 import { formulaEvaluator } from '@/services/equipment/FormulaEvaluator';
 import { VARIABLE_EQUIPMENT_FORMULAS } from '@/services/equipment/variableEquipmentFormulas';
+import { TechBase, parseTechBase } from '@/types/enums/TechBase';
 
 import { roundSupportComponentWeight } from './supportRounding';
 
@@ -8,6 +9,7 @@ export interface VehicleVariableMassItem {
   readonly weight?: number;
   readonly special?: readonly string[];
   readonly variableEquipmentId?: string;
+  readonly techBase?: string;
 }
 
 export interface VehicleVariableMassContext {
@@ -58,6 +60,11 @@ export function resolveVehicleVariableMass(
   if (item.id === 'boobytrap') return round(tonnage / 10);
   if (item.id === 'dronecarriercontrolsystem') return 2 + size * 0.5;
   if (item.id === 'mash-equipment') return 2.5 + size;
+  // MiscType.java:607-613 (48fcb2f6): armored motive system is 10% Clan, 15% IS.
+  if (item.id === 'armoredmotivesystem')
+    return round(
+      tonnage * (parseTechBase(item.techBase) === TechBase.CLAN ? 0.1 : 0.15),
+    );
   if (['cargo', 'communications-equipment'].includes(item.id))
     return round(size);
   if (['basic-fire-control', 'advanced-fire-control'].includes(item.id))
