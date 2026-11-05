@@ -8,14 +8,16 @@ import {
   createEmptyCritScan,
   type CritScan,
 } from './validate-bv-crit-scan-types';
-import { toMechLoc } from './validate-bv-normalizers';
+import { normalizeCritName, toMechLoc } from './validate-bv-normalizers';
 import { classifyPhysicalWeapon } from './validate-bv-physical-weapons';
+import { linkSplitExplosiveMounts } from './validate-bv-split-mounts';
 import { resolveWeaponForUnit } from './validate-bv-weapon-resolution';
 
 export type { CritScan } from './validate-bv-crit-scan-types';
 
 export function scanCrits(unit: UnitData, unitId?: string): CritScan {
   const r = createEmptyCritScan();
+  const gaussCriticals = new Map<string, CritScan['explosive']>();
   if (!unit.criticalSlots) return r;
 
   for (const [loc, slots] of Object.entries(unit.criticalSlots)) {
@@ -407,12 +409,18 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
           !lo.includes('ammo') &&
           !lo.includes('ap gauss')
         ) {
-          if (ml)
-            r.explosive.push({
+          if (ml) {
+            const part: CritScan['explosive'][number] = {
               location: ml,
               slots: 1,
               penaltyCategory: 'gauss',
-            });
+            };
+            r.explosive.push(part);
+            const identity = normalizeCritName(clean);
+            const parts = gaussCriticals.get(identity) ?? [];
+            parts.push(part);
+            gaussCriticals.set(identity, parts);
+          }
         }
 
         // Improved Heavy Lasers: 1 BV per slot (reduced penalty) per MekBVCalculator
@@ -721,6 +729,7 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
     }
   }
 
+  linkSplitExplosiveMounts(unit, gaussCriticals);
   finalizeCritScan(unit, unitId, r);
   return r;
 }
