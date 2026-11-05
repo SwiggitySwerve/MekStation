@@ -102,8 +102,17 @@ function jestDomStubs(testPath) {
  * @param {() => void} loadJestDom `() => require('@testing-library/jest-dom')`
  */
 function setUpJestDom(expectApi, testPath, loadJestDom) {
-  if (skipsJestDom(testPath)) expectApi.extend(jestDomStubs(testPath));
-  else loadJestDom();
+  if (!skipsJestDom(testPath)) return loadJestDom();
+  expectApi.extend(jestDomStubs(testPath));
+  // jest-dom's only global side effect besides `expect.extend`: it requires the `css.escape`
+  // polyfill, which defines `window.CSS.escape`. user-event calls it (radio-group keyboard
+  // navigation), so a file that skips jest-dom still needs it. Resolved through jest-dom so
+  // it is found wherever the package manager put it.
+  require(
+    require.resolve('css.escape', {
+      paths: [require.resolve('@testing-library/jest-dom')],
+    }),
+  );
 }
 
 module.exports = {
