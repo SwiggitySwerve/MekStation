@@ -14,6 +14,7 @@ import { UnitType } from '../../../types/unit/BattleMechInterfaces';
 import { getArmorBVMultiplier } from '../../../types/validation/BattleValue';
 import {
   getModularArmorBVPoints,
+  getNativeArmorBVMultiplier,
   MODULAR_ARMOR_BV_ID,
 } from '../battleValueDefensive';
 import { getOffensiveBVRole } from '../battleValueEquipment';
@@ -21,7 +22,10 @@ import { calculateOffensiveSpeedFactorForMP } from '../battleValueMovement';
 import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
 import { getEquipmentEntry } from '../equipmentBVResolver';
 import { supportFireControlFactor } from '../vehicle/vehicleBVOffensive';
-import { calculateAerospaceArcContributions } from './aerospaceBVArcs';
+import {
+  calculateAerospaceArcContributions,
+  normalizeArcLocation,
+} from './aerospaceBVArcs';
 import {
   calculateAerospaceAmmoBV,
   isAerospaceOffensiveMisc,
@@ -62,15 +66,43 @@ export function calculateAerospaceDefensiveBV(
   const armorMultiplier = getArmorBVMultiplier(input.armorType);
   const capital = isCapitalShipBVType(input.subType);
   // BVCalculator.java:461-463: SmallCraft inherits the ordinary armor factor.
-  const modularArmorPoints = getModularArmorBVPoints(
-    input.equipment.filter(
-      (item) => getEquipmentEntry(item.id)?.id === MODULAR_ARMOR_BV_ID,
-    ).length,
+  const modularMounts = input.equipment.filter(
+    (item) => getEquipmentEntry(item.id)?.id === MODULAR_ARMOR_BV_ID,
   );
+  const modularArmorPoints = getModularArmorBVPoints(modularMounts.length);
+  const armorByArc = input.armorByArc && new Map<AerospaceArc, number>();
+  if (armorByArc)
+    for (const arc of Object.values(AerospaceArc)) {
+      const points = input.armorByArc?.[arc];
+      if (points !== undefined) armorByArc.set(arc, points);
+    }
+  const modularByArc = new Map<AerospaceArc, number>();
+  const armorArcSubtype =
+    input.subType === AerospaceSubType.SMALL_CRAFT
+      ? AerospaceSubType.SMALL_CRAFT
+      : undefined;
+  for (const item of modularMounts) {
+    const arc = normalizeArcLocation(item.location, armorArcSubtype);
+    if (arc === null) continue;
+    modularByArc.set(arc, (modularByArc.get(arc) ?? 0) + 1);
+    if (armorByArc && !armorByArc.has(arc)) armorByArc.set(arc, 0);
+  }
+  const armorFactor = capital ? 25 : 2.5;
+  const effectiveArmorBV =
+    input.armorType.toLowerCase() === 'patchwork' && armorByArc
+      ? [...armorByArc].reduce(
+          (sum, [arc, points]) =>
+            sum +
+            (Math.max(0, points) +
+              getModularArmorBVPoints(modularByArc.get(arc) ?? 0)) *
+              getNativeArmorBVMultiplier(input.armorTypeByArc?.[arc] ?? 0),
+          0,
+        ) * armorFactor
+      : (input.totalArmorPoints + modularArmorPoints) *
+        armorFactor *
+        armorMultiplier;
   const armorBV =
-    (input.totalArmorPoints + modularArmorPoints) *
-    (capital ? 25 : 2.5) *
-    armorMultiplier *
+    effectiveArmorBV *
     // BVCalculator.java:431-452; FixedWingSupport.java:101-108.
     (input.isSupportVehicle ? (input.barRating ?? 10) / 10 : 1);
 
