@@ -7,6 +7,7 @@ export interface BvHeatAndMovement {
   bvWalk: number;
   runMP: number;
   jumpMP: number;
+  jumpHeatMP: number;
   partialWingJumpBonus: number;
 }
 
@@ -106,14 +107,24 @@ export function deriveBvHeatAndMovement(
   const heatDiss = deriveHeatDissipation(unit, cs, effectiveHSCount);
   const bvWalk = deriveBvWalkMP(unit, cs);
   const runMP = deriveRunMP(bvWalk, cs, armorType);
-  const { jumpMP, partialWingJumpBonus } = deriveJumpMP(unit, cs);
+  const jets = deriveJumpMP(unit, cs);
+  const boosterMP = cs.mechanicalJumpBoosterMP ?? 0;
+  const mechanicalJumpMP = cs.hasLargeShield
+    ? 0
+    : Math.max(
+        0,
+        boosterMP +
+          partialWingBonus(unit, cs, boosterMP) -
+          (cs.hasMediumShield ? Math.max(1, cs.shieldArms.length) : 0),
+      );
 
   return {
     effectiveHSCount,
     heatDiss,
     bvWalk,
     runMP,
-    jumpMP,
-    partialWingJumpBonus,
+    jumpMP: Math.max(jets.jumpMP, mechanicalJumpMP),
+    jumpHeatMP: Math.max(0, jets.jumpMP - jets.partialWingJumpBonus),
+    partialWingJumpBonus: jets.partialWingJumpBonus,
   };
 }

@@ -1,5 +1,6 @@
 import type { UnitData } from './validate-bv-types';
 
+import { parseEquipmentSizeNumber } from '../src/utils/equipmentSize';
 import { processCritAmmoSlot } from './validate-bv-crit-scan-ammo';
 import { finalizeCritScan } from './validate-bv-crit-scan-finalize';
 import {
@@ -47,6 +48,18 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
           continue;
         const clean = slot.replace(/\s*\(omnipod\)/gi, '').trim();
         const lo = clean.toLowerCase();
+
+        // Spreadable boosters repeat in critical slots; the first mount's size is MP.
+        const booster =
+          /^(?:MechanicalJumpBooster|Jump Booster|Mech Mechanical Jump Boosters):SIZE:(.+)$/i.exec(
+            clean,
+          );
+        if (booster && r.mechanicalJumpBoosterMP === undefined) {
+          const size = parseEquipmentSizeNumber(booster[1].trim());
+          if (size === undefined)
+            throw new Error(`Invalid mechanical jump booster size: ${clean}`);
+          r.mechanicalJumpBoosterMP = Math.max(0, Math.round(size));
+        }
 
         // Armored components: per MegaMek Mek.getArmoredComponentBV():
         // - If equipment BV > 0: add equipmentBV * 0.05 per crit slot
