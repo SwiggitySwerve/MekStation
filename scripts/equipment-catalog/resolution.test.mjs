@@ -2739,6 +2739,18 @@ export const APPROVED_JAVA_REROUTES = [
     reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
     loaderOnly: true,
   })),
+  // Follow-up 93 / VEH-WEIGHT residual: the list id islongtom (ISLongTom) is MegaMek 48fcb2f6's 30 t Long Tom artillery (LongTom.java:58,71), not the 20 t Long Tom Cannon; a loader-only techRoute sends it to islongtom-registry. BV already scores it at 368.
+  ...[
+    ['ISLongTom', 'long-tom', 'islongtom-registry'],
+    ['islongtom', 'long-tom', 'islongtom-registry'],
+  ].map(([name, oldTarget, newTarget, api]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    ...(api ? { api } : {}),
+    reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
+    loaderOnly: true,
+  })),
 ];
 async function capture(root, inputs) {
   process.chdir(root);
