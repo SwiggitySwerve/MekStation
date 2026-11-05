@@ -619,3 +619,12 @@ Mounted figures consume that same rule before
 summing equipment and turret mass, independently of the held sized-equipment
 editor integration. Missing context is unavailable, not a fixed zero.
 Pin 48fcb2f64: MiscType.java:660-666,702-705; RoundWeight.java:58-68.
+
+## Native VTOL structure mass
+
+Pin 48fcb2f64 VTOL.java:729-730 defines superheavy VTOL mass above 30 t.
+TestTank.java:87-95 passes that fact to Structure.java:76-87,102-107:
+standard structure doubles; Endo-Steel follows its native superheavy rule,
+and Composite retains its existing multiplier. This changes structure mass
+only. The Tank layout classifier, rotor locations and BV structure points
+remain independent of this mass threshold.
