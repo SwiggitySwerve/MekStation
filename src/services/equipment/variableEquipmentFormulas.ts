@@ -19,10 +19,11 @@ import {
   plus,
 } from '@/types/equipment/VariableEquipment';
 
+// MegaMek 48fcb2f64, MiscType.java:688-689,1000-1001,1259-1260.
 const CLAW_FORMULAS: IVariableFormulas = {
   weight: ceilDivide('tonnage', 15),
   criticalSlots: equalsWeight(),
-  cost: multiply('weight', 6000),
+  cost: multiplyRound('tonnage', 200, 1),
   damage: floorDivide('tonnage', 7),
   requiredContext: ['tonnage'],
 };
@@ -201,12 +202,13 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<
   },
 
   /**
-   * Claws (Clan)
+   * Claw (native) and Claws (legacy physical record)
    * Weight: ceil(tonnage / 15)
    * Slots: = weight
-   * Cost: weight × 6,000
+   * Cost: ceil(tonnage × 200)
    * Damage: floor(tonnage / 7)
    */
+  claw: CLAW_FORMULAS,
   claws: CLAW_FORMULAS,
 
   /**

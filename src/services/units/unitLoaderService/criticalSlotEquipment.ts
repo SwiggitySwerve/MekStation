@@ -264,7 +264,17 @@ export function restoreCriticalSlotEquipment(
     getEquipmentCritEntries(count, superheavy);
   const normalizedMapped = mapped.map((item, index) => {
     const restored = restoreSerializedHeatSink(serialized[index], item);
-    return { ...restored, criticalSlots: entries(restored.criticalSlots) };
+    const sizing =
+      restored.equipmentId === 'claw' && tonnage !== undefined
+        ? getEquipmentCalculatorService().calculateProperties('claw', {
+            tonnage,
+          })
+        : undefined;
+    return {
+      ...restored,
+      ...(sizing ? { weight: sizing.weight } : {}),
+      criticalSlots: entries(sizing?.criticalSlots ?? restored.criticalSlots),
+    };
   });
   if (!criticalSlots) return normalizedMapped;
 
@@ -359,6 +369,7 @@ export function restoreCriticalSlotEquipment(
           'retractable-blade',
           'flail',
           'wrecking-ball',
+          'claw',
         ].includes(slot.equipmentId)
       ) {
         if (handledPhysical.has(slot.equipmentId)) continue;

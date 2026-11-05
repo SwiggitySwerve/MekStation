@@ -201,3 +201,10 @@ already represented Talons are sized in place rather than duplicated.
 
 Mounted critical-part traversal is owned by slotOperations/parts. Placement
 re-exports its public helper; spreadable recovery must reuse that owner.
+
+Native `claw` keeps its catalog identity and is classified as physical at the
+equipment lookup boundary (MiscType.java:3982-3992). It shares one sizing formula
+with legacy `claws`: ceil(T/15) mass and nominal criticals, ceil(T\*200) cost
+(688-689,1000-1001,1259-1260; pin 48fcb2f64). Public physical sizing helpers use
+that owner. Crit-only Claws reuse ordinary physical recovery and the shared
+superheavy consumed-entry conversion; existing mounts are reserved first.
