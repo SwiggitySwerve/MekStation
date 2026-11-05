@@ -426,14 +426,9 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
 
         // Improved Heavy Lasers: 1 BV per slot (reduced penalty) per MekBVCalculator
         if (
-          (lo.includes('improvedheavylaser') ||
-            lo.includes('improved heavy laser') ||
-            lo.includes('improvedmediumheavylaser') ||
-            lo.includes('improved medium heavy') ||
-            lo.includes('improvedsmallheavylaser') ||
-            lo.includes('improved small heavy') ||
-            lo.includes('improvedlargeheavylaser') ||
-            lo.includes('improved large heavy')) &&
+          /improved(?:heavy(?:small|medium|large)?|(?:small|medium|large)heavy)laser/.test(
+            normalizeCritName(clean),
+          ) &&
           !lo.includes('ammo')
         ) {
           if (ml)
