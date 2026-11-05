@@ -1,0 +1,496 @@
+[
+  {
+    "path": "dropships/HBMPS/Aqueduct Liquid Carrier.blk",
+    "sha256": "91e1e8bdf96eb7af6ef53b16bf728b93db1d470cb7e0a3ba63342416cb0c9020",
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 53,
+          "LEFT_SIDE": 62,
+          "NOSE": 73,
+          "RIGHT_SIDE": 62
+        },
+        "type": "AEROSPACE"
+      },
+      "battleArmor": 0,
+      "chassis": "Aqueduct Liquid Carrier",
+      "collarType": 0,
+      "crew": 46,
+      "designType": "CIVILIAN",
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-large-laser",
+          "location": "NOSE",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "r-b-medium-laser",
+          "location": "LEFT_SIDE",
+          "name": "(R) (B) Medium Laser"
+        },
+        {
+          "id": "r-b-medium-laser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) (B) Medium Laser"
+        },
+        {
+          "id": "b-large-laser",
+          "location": "AFT",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "b-machine-gun",
+          "location": "AFT",
+          "name": "(B) Machine Gun"
+        },
+        {
+          "id": "machine-gun",
+          "location": "AFT",
+          "name": "Machine Gun"
+        },
+        {
+          "id": "is-ammo-mg-full:200",
+          "location": "AFT",
+          "name": "IS Ammo MG - Full:200"
+        }
+      ],
+      "era": "STAR_LEAGUE",
+      "escapePods": 6,
+      "fluff": {
+        "capabilities": "<p>The Aqueduct is a civilian spheroid DropShip optimized entirely for liquid cargo transport. Its hull is dominated by sealed storage tanks designed to carry water, industrial chemicals, fuel, or other liquid commodities in bulk quantities. The vessel mounts only minimal defensive armament, reflecting its purely commercial role and the expectation that it will operate along established trade routes or under military escort when venturing into contested space. Armor protection is correspondingly light, sufficient to ward off opportunistic pirate attacks but inadequate against determined military opposition. The Aqueduct's drive system provides modest acceleration typical of civilian transports, prioritizing fuel efficiency and operational range over speed. Internal systems include specialized pumping equipment, environmental controls to maintain cargo at required temperatures, and contamination prevention measures that allow the vessel to carry potable water and hazardous chemicals in separate tank systems during the same voyage. The design's emphasis on reliability over performance has proven well-suited to its role, with individual ships often serving for decades with minimal refit requirements.</p>",
+        "deployment": "<p>The standard Aqueduct serves in its baseline liquid cargo carrier configuration, transporting water, fuel, and industrial chemicals between worlds. These vessels are most commonly found supporting colonial development operations, orbital construction projects, and military supply chains where bulk liquid transport is required.</p>",
+        "history": "<p>The Aqueduct emerged from the practical necessity of supporting human expansion across the stars. As colonies spread beyond worlds with readily accessible water supplies, the need for dedicated liquid transport vessels became acute. Early attempts to convert standard cargo DropShips for liquid carriage proved inefficient, prompting the development of a purpose-built design with integrated tank systems and specialized handling equipment.</p><p>Multiple manufacturers across the Inner Sphere have produced the Aqueduct over the centuries, with production driven by regional demand rather than centralized military procurement. The design has seen periodic updates to its systems and construction standards, but its fundamental layout has remained largely unchanged, evidence of the soundness of the original concept. During the Succession Wars, Aqueducts became critical military assets despite their civilian origins, as armies discovered that controlling water supplies could be as strategically decisive as controlling territory.</p><p>The Jihad disrupted many established trade routes, increasing demand for Aqueducts capable of reaching isolated worlds cut off from regular commerce. In the post-Jihad era, the design continues to serve across all major factions, with no single power able to claim a monopoly on production or operation.</p>",
+        "manufacturer": "Alshain Naval Yards (Civilian)|Krester Ship Construction|Krester Ship Construction|Krester Ship Construction|Krester Ship Construction",
+        "overview": "<p>The Aqueduct Liquid Carrier is a specialized civilian DropShip designed for the bulk transport of liquid cargo between worlds. Purpose-built to carry water, fuel, and other essential liquids to colonies and industrial installations lacking local supplies, the Aqueduct fills a critical but unglamorous niche in interstellar commerce. The design has been produced by multiple manufacturers across the Inner Sphere, reflecting the universal demand for reliable liquid transport capacity. While lacking the prestige of military vessels or passenger liners, the Aqueduct has earned a reputation as a dependable workhorse among merchant fleets and colonial support operations.</p>",
+        "primaryFactory": "Alshain|Keid|Terra Firma|Thorin|Yorii"
+      },
+      "fuel": 6000,
+      "gunners": 2,
+      "heatSinks": {
+        "count": 118,
+        "type": "SINGLE"
+      },
+      "id": "aqueduct-liquid-carrier",
+      "lifeBoats": 0,
+      "marines": 0,
+      "model": "",
+      "motionType": "SPHEROID",
+      "movement": {
+        "maxThrust": 5,
+        "safeThrust": 3
+      },
+      "mulId": 3712,
+      "officers": 6,
+      "otherPassengers": 0,
+      "passengers": 20,
+      "role": "None",
+      "rulesLevel": "STANDARD",
+      "source": "HB:MPS",
+      "structuralIntegrity": 30,
+      "subType": "DropShip",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 45000,
+      "transporters": [
+        "smallcraftbay:2.0:2:1::-1:0",
+        "mekbay:2.0:1:-1::-1:0",
+        "cargobay:2850.0:2:7::-1:0",
+        "2ndclassquarters:0.0:0:-1::-1:0",
+        "steeragequarters:100.0:0:-1::-1:0",
+        "crewquarters:224.0:0:-1::-1:0",
+        "1stclassquarters:60.0:0:-1::-1:0",
+        "LiquidCargoBay:6500.0:0:8::-1:0",
+        "LiquidCargoBay:6500.0:0:9::-1:0",
+        "LiquidCargoBay:6500.0:0:10::-1:0",
+        "LiquidCargoBay:6500.0:0:11::-1:0"
+      ],
+      "unitType": "DropShip",
+      "year": 2638
+    },
+    "expected": {
+      "defensive": 685.0,
+      "offensive": 233.75,
+      "total": 919
+    }
+  },
+  {
+    "path": "dropships/Other/Buccaneer Rezak.blk",
+    "sha256": "ed62ba97bc2b67f405ce983515fc6a6e051df65cff5da6c33ff3d2920902b4cb",
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 104,
+          "LEFT_SIDE": 156,
+          "NOSE": 211,
+          "RIGHT_SIDE": 156
+        },
+        "type": "HEAVY_FERRO_ALUMINUM"
+      },
+      "battleArmor": 0,
+      "chassis": "Buccaneer",
+      "collarType": 0,
+      "crew": 30,
+      "designType": "MILITARY",
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-iserlargelaser",
+          "location": "NOSE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "NOSE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "NOSE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "NOSE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "NOSE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-iserppc",
+          "location": "NOSE",
+          "name": "(B) ISERPPC"
+        },
+        {
+          "id": "iserppc",
+          "location": "NOSE",
+          "name": "ISERPPC"
+        },
+        {
+          "id": "b-lrm-15",
+          "location": "NOSE",
+          "name": "(B) LRM 15"
+        },
+        {
+          "id": "lrm-15",
+          "location": "NOSE",
+          "name": "LRM 15"
+        },
+        {
+          "id": "is-ammo-lrm-15:24",
+          "location": "NOSE",
+          "name": "IS Ammo LRM-15:24"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:24",
+          "location": "LEFT_SIDE",
+          "name": "IS Gauss Ammo:24"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:24",
+          "location": "RIGHT_SIDE",
+          "name": "IS Gauss Ammo:24"
+        },
+        {
+          "id": "b-isermediumlaser",
+          "location": "AFT",
+          "name": "(B) ISERMediumLaser"
+        },
+        {
+          "id": "isermediumlaser",
+          "location": "AFT",
+          "name": "ISERMediumLaser"
+        },
+        {
+          "id": "isermediumlaser",
+          "location": "AFT",
+          "name": "ISERMediumLaser"
+        },
+        {
+          "id": "b-isstreaksrm6",
+          "location": "AFT",
+          "name": "(B) ISStreakSRM6"
+        },
+        {
+          "id": "is-streak-srm-6-ammo:15",
+          "location": "AFT",
+          "name": "IS Streak SRM 6 Ammo:15"
+        }
+      ],
+      "era": "CLAN_INVASION",
+      "escapePods": 2,
+      "fluff": {
+        "capabilities": "<p>The Rezak is a radical departure from the standard Buccaneer design, converting the humble cargo hauler into a heavily armed combat vessel. The nose concentrates five ER large lasers, two ER PPCs, and two LRM-15 racks, delivering devastating forward firepower. Each wing mounts three ER large lasers and two Gauss rifles, while the aft arc carries three ER medium lasers and a Streak SRM-6. One hundred double heat sinks manage the substantial thermal output. Safe thrust increases to 4g compared to the standard model's 3g. Armor protection more than doubles to 627 points. Cargo capacity drops to 1,844 tons but remains substantial for a vessel of this combat capability. The crew expands to thirty-seven to support the extensive weapons systems.</p>",
+        "deployment": "<p>The Rezak variant emerged from the lawless Antallos system, where pirate bands and freebooters converted captured Buccaneers into combat-capable raiders. These vessels operate primarily in the Periphery, preying on merchant convoys and poorly defended worlds. The Rezak's combination of meaningful cargo capacity and heavy armament makes it particularly suited to the hit-and-run tactics favored by pirate fleets.</p>",
+        "history": "<p>The Buccaneer was designed in the early 2700s to compete for a Star League Defense Force contract for a dedicated BattleMech transport. When the vessel failed to win the military bid, its designers pivoted to the civilian market, making modifications to optimize the hull for merchant cargo operations. This commercial variant proved immensely popular, establishing the Buccaneer as one of the most common cargo haulers in the Inner Sphere within a generation of its introduction.</p><p>The Buccaneer's popularity endured through the Succession Wars, as its rugged construction and ease of maintenance allowed even war-torn Successor States to keep their merchant fleets operational. The vessel's ubiquity made it a frequent target for pirates and raiders, but also ensured that spare parts and experienced crews remained readily available across known space. Despite the design's enduring success, no manufacturer launched an upgraded version incorporating recovered Star League technology for many years, a fact attributed to the Buccaneer's primarily civilian role and the low priority given to merchant vessel modernization during the post-Clan Invasion military buildup.</p>",
+        "manufacturer": "Brigadier Corporation|Dynamico Ltd.|Semier Data Tron",
+        "overview": "<p>The Buccaneer is one of the most widely used cargo haulers in the Inner Sphere. Originally designed in the early twenty-eighth century as a military transport, the 3,500-ton Aerodyne failed to secure a Star League Defense Force contract for a BattleMech carrier and was subsequently redesigned as a civilian merchant vessel. This commercial conversion proved far more successful than its military origins, and the Buccaneer quickly became a staple of interstellar commerce.</p><p>Known for its spacious crew accommodations and generous cargo capacity, the Buccaneer has earned a reputation as one of the most desirable postings in any merchant fleet. The vessel's robust construction and straightforward maintenance requirements have kept it in continuous service for centuries, evidence of the enduring quality of its fundamental design.</p>",
+        "primaryFactory": "Gibson|Delavan|Tharkad"
+      },
+      "fuel": 4800,
+      "gunners": 4,
+      "heatSinks": {
+        "count": 100,
+        "type": "DOUBLE"
+      },
+      "id": "buccaneer-rezak",
+      "lifeBoats": 0,
+      "marines": 0,
+      "model": "Rezak",
+      "motionType": "AERODYNE",
+      "movement": {
+        "maxThrust": 6,
+        "safeThrust": 4
+      },
+      "mulId": 7143,
+      "officers": 3,
+      "originalBuildYear": 2708,
+      "otherPassengers": 0,
+      "passengers": 0,
+      "rulesLevel": "STANDARD",
+      "source": "HTP:Antallos",
+      "structuralIntegrity": 8,
+      "subType": "DropShip",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 3500,
+      "transporters": [
+        "2ndclassquarters:0.0:0:-1::-1:0",
+        "crewquarters:21.0:0:-1::-1:0",
+        "steeragequarters:135.0:0:-1::-1:0",
+        "cargobay:1844.0:1:4::-1:0"
+      ],
+      "unitType": "DropShip",
+      "year": 3065
+    },
+    "expected": {
+      "defensive": 1583.5,
+      "offensive": 3965.9200000000005,
+      "total": 5549
+    }
+  },
+  {
+    "path": "dropships/TRO3057R/Clan/Mule C (2842).blk",
+    "sha256": "7ed2506597b02dabd22a135464f36b667e93619123b727eed25478060813c26b",
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 60,
+          "LEFT_SIDE": 80,
+          "NOSE": 70,
+          "RIGHT_SIDE": 80
+        },
+        "type": "AEROSPACE"
+      },
+      "battleArmor": 0,
+      "chassis": "Mule C",
+      "collarType": 0,
+      "crew": 19,
+      "designType": "MILITARY",
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-clultraac5",
+          "location": "NOSE",
+          "name": "(B) CLUltraAC5"
+        },
+        {
+          "id": "clan-ultra-ac-5-ammo:20",
+          "location": "NOSE",
+          "name": "Clan Ultra AC/5 Ammo:20"
+        },
+        {
+          "id": "b-clermediumlaser",
+          "location": "NOSE",
+          "name": "(B) CLERMediumLaser"
+        },
+        {
+          "id": "b-clersmalllaser",
+          "location": "NOSE",
+          "name": "(B) CLERSmallLaser"
+        },
+        {
+          "id": "clersmalllaser",
+          "location": "NOSE",
+          "name": "CLERSmallLaser"
+        },
+        {
+          "id": "b-clsrm6",
+          "location": "LEFT_SIDE",
+          "name": "(B) CLSRM6"
+        },
+        {
+          "id": "clan-ammo-srm-6:15",
+          "location": "LEFT_SIDE",
+          "name": "Clan Ammo SRM-6:15"
+        },
+        {
+          "id": "b-clermediumlaser",
+          "location": "LEFT_SIDE",
+          "name": "(B) CLERMediumLaser"
+        },
+        {
+          "id": "clermediumlaser",
+          "location": "LEFT_SIDE",
+          "name": "CLERMediumLaser"
+        },
+        {
+          "id": "r-b-clerlargelaser",
+          "location": "LEFT_SIDE",
+          "name": "(R) (B) CLERLargeLaser"
+        },
+        {
+          "id": "r-clermediumlaser",
+          "location": "LEFT_SIDE",
+          "name": "(R) CLERMediumLaser"
+        },
+        {
+          "id": "b-clsrm6",
+          "location": "RIGHT_SIDE",
+          "name": "(B) CLSRM6"
+        },
+        {
+          "id": "clan-ammo-srm-6:15",
+          "location": "RIGHT_SIDE",
+          "name": "Clan Ammo SRM-6:15"
+        },
+        {
+          "id": "b-clermediumlaser",
+          "location": "RIGHT_SIDE",
+          "name": "(B) CLERMediumLaser"
+        },
+        {
+          "id": "clermediumlaser",
+          "location": "RIGHT_SIDE",
+          "name": "CLERMediumLaser"
+        },
+        {
+          "id": "r-b-clerlargelaser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) (B) CLERLargeLaser"
+        },
+        {
+          "id": "r-clermediumlaser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) CLERMediumLaser"
+        },
+        {
+          "id": "b-clerlargelaser",
+          "location": "AFT",
+          "name": "(B) CLERLargeLaser"
+        },
+        {
+          "id": "clermediumlaser",
+          "location": "AFT",
+          "name": "CLERMediumLaser"
+        }
+      ],
+      "era": "SUCCESSION_WARS",
+      "escapePods": 2,
+      "fluff": {
+        "capabilities": "<p>The Mule C represents the Clan-produced variant of the standard Mule, incorporating minor modifications suited to Clan manufacturing processes while preserving the fundamental design. Cargo capacity increases slightly to approximately 8,293 tons through more efficient internal arrangement, while armor decreases marginally to 290 points. The crew complement is reduced by one to 26, reflecting Clan efficiency in shipboard operations. Heat sinks are reduced to 118, and the weapons array is adjusted with Clan-specification equivalents. In all other respects, the Mule C functions identically to its Inner Sphere counterpart, serving the same bulk cargo transport role across Clan merchant routes.</p>",
+        "deployment": "<p>The Mule C has served Clan merchant castes since its introduction around 2842, filling the same bulk cargo role among the Clans that the standard Mule occupies in the Inner Sphere. Clan Diamond Shark and other mercantile Clans operate significant fleets of the type, and the vessel is commonly encountered at Clan trade enclaves throughout the occupation zones and the Clan homeworlds.</p>",
+        "history": "<p>The Mule entered production in 2737, during the final decades of the Star League when interstellar trade volume was at its historical peak. The design filled a critical niche between smaller cargo shuttles and the enormous Mammoth class, offering substantial hauling capacity at a price point accessible to independent operators and mid-sized shipping firms. The Mule quickly became the most popular civilian cargo carrier in the Inner Sphere, a status it would maintain through centuries of conflict and upheaval.</p><p>The Star League's collapse and the onset of the Succession Wars tested the Mule's durability in ways its designers never anticipated. While more complex military vessels became irreplaceable casualties of the conflicts, the Mule's straightforward engineering and widely available components ensured that production could continue even as the Inner Sphere's technological base deteriorated. The drive system proved so reliable and well-understood that it was adapted for use in the Excalibur class military transport when that vessel's original propulsion supply dwindled, further cementing the Mule's importance to the Inner Sphere's industrial base.</p><p>Plans for a comprehensive refit incorporating recovered Star League technology were under consideration by the early 3050s, but the arrival of the Clans and the resulting demand for military DropShip production delayed any upgrades indefinitely. The Mule continued in its original configuration, its proven reliability valued more than ever during a period of heightened military tension. Clan merchants adopted a variant designated the Mule C, incorporating minor modifications suited to Clan production methods while preserving the fundamental design.</p><p>The Word of Blake's Jihad saw the Mule pressed into an entirely new role when Blakist engineers converted several hulls into Pocket WarShip configurations, mounting capital missile launchers and fighter bays in place of cargo holds. These weaponized Mules, including the deceptive Q-Ship variant that retained civilian-grade armor to maintain the appearance of a harmless freighter, represented a dramatic departure from the vessel's peaceful origins. Following the Jihad, the Mule returned to its traditional role, remaining in production at facilities across the Inner Sphere well into the thirty-second century.</p>",
+        "manufacturer": "Alshain Naval Yards (Civilian)|Federated-Boeing Interstellar - Port Simon Shipyards|Kathil Shipworks - McKenna Shipyards|O'Neil Yards - Titan Yards|Tengo Aerospace|Tharkad Aerospace Group",
+        "overview": "<p>The Mule class DropShip is one of the most common civilian vessels in known space, a ubiquitous spheroid cargo transport encountered on virtually every trade route across the Inner Sphere. Designed during the height of the Star League in 2737, the Mule has endured for centuries thanks to its practical and uncomplicated design, affordability, ease of maintenance, and surprisingly spacious crew accommodations. These qualities make the Mule highly attractive to independent traders and small shipping firms, ensuring its continued production long after more sophisticated Star League-era designs fell out of use.</p><p>At 11,200 tons, the Mule carries a generous amount of armor and weaponry for a merchant vessel, boasting an arsenal that rivals those of some small military DropShips. Its cargo capacity of nearly 8,500 tons and versatile interior layout have made it the standard by which all other civilian freighters are measured.</p>",
+        "primaryFactory": "Alshain|Galax|Kathil|Terra|Sarna|Tharkad"
+      },
+      "fuel": 9570,
+      "gunners": 3,
+      "heatSinks": {
+        "count": 118,
+        "type": "SINGLE"
+      },
+      "id": "mule-c-2842",
+      "lifeBoats": 2,
+      "marines": 0,
+      "model": "(2842)",
+      "motionType": "SPHEROID",
+      "movement": {
+        "maxThrust": 5,
+        "safeThrust": 3
+      },
+      "officers": 4,
+      "otherPassengers": 0,
+      "passengers": 0,
+      "rulesLevel": "STANDARD",
+      "source": "TR:3057r",
+      "structuralIntegrity": 10,
+      "subType": "DropShip",
+      "techBase": "CLAN",
+      "tonnage": 11200,
+      "transporters": [
+        "1stclassquarters:40.0:0:-1::-1:0",
+        "2ndclassquarters:0.0:0:-1::-1:0",
+        "crewquarters:105.0:0:-1::-1:0",
+        "cargobay:2764.5:2:4::-1:0",
+        "cargobay:2764.5:2:5::-1:0",
+        "cargobay:2764.5:2:6::-1:0"
+      ],
+      "unitType": "DropShip",
+      "year": 2842
+    },
+    "expected": {
+      "defensive": 745.0,
+      "offensive": 1089.25,
+      "total": 1834
+    }
+  }
+]

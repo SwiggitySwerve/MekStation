@@ -82,6 +82,7 @@ const ENERGY_SUBTYPES = new Set([
   'X-Pulse Laser',
   'PPC',
   'Flamer',
+  'Heavy Laser',
 ]);
 
 export interface IDropShipMountBV {
@@ -217,8 +218,7 @@ export function resolveLargeAerospaceMountBV(
     const capital = getCapitalEquipmentBVFacts(entry.id);
     if (
       !(
-        key &&
-        (entry.category === 'Ballistic' || entry.category === 'Missile')
+        key && ['Ballistic', 'Missile', 'Artillery'].includes(entry.category)
       ) &&
       !(capital?.isCapital || capital?.isSubCapital) &&
       !(entry.category === 'Energy' && ENERGY_SUBTYPES.has(entry.subType ?? ''))

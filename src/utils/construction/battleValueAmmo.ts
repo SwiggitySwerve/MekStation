@@ -474,7 +474,7 @@ export function getLargeAerospaceAmmoBVGroup(id: string): string | undefined {
   const capital = getCapitalEquipmentBVFacts(id);
   if (capital && !['NA', 'SCREEN_LAUNCHER'].includes(capital.ammoType))
     return nativeAmmoBVKey(capital.ammoType, capital.rackSize);
-  return getCatalogAmmoBVGroup(id);
+  return getNativeAmmoBVGroup(id);
 }
 
 const MG_ARRAY_GUN_IDS: Readonly<Record<string, string>> = {
