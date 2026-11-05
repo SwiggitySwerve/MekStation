@@ -51,6 +51,7 @@ import {
   vehicleArmorIntroYearErrors,
   vehicleEngineIntroYearErrors,
 } from '@/utils/construction/vehicle/introYear';
+import { combatVehicleSlotErrors } from '@/utils/construction/vehicle/itemSlots';
 import { validateVehicleCaseLocations } from '@/utils/construction/vehicle/vehicleValidation';
 
 import {
@@ -285,6 +286,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
       limitedAmphibious,
       hasTrailerHitch,
       isTrailer,
+      transporters: document.transporters ?? [],
       errors,
       warnings,
     };
@@ -456,6 +458,8 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
         mixed: /mixed/i.test(String(unit.techBase)),
       }),
     );
+
+    errors.push(...combatVehicleSlotErrors(unit));
 
     // Motion type specific validations
     if (unit.motionType === GroundMotionType.HOVER && unit.tonnage > 50) {

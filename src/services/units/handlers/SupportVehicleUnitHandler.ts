@@ -45,7 +45,7 @@ import {
   getVehicleMountFlags,
 } from '@/utils/construction/vehicle/equipmentMounts';
 import { computeSupportVehicleWeight } from '@/utils/construction/vehicle/supportWeight';
-import { validateVehicleCaseLocations } from '@/utils/construction/vehicle/vehicleValidation';
+import { validateSupportVehicleEquipment } from '@/utils/construction/vehicle/vehicleValidation';
 
 import {
   AbstractUnitTypeHandler,
@@ -431,7 +431,7 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
     unit: ISupportVehicle,
   ): UnitValidationMessages {
     const { errors, warnings, infos } = createValidationMessages();
-    errors.push(...validateVehicleCaseLocations(unit.equipment));
+    errors.push(...validateSupportVehicleEquipment(unit));
 
     // Tonnage validation by size class
     if (unit.sizeClass === SupportVehicleSizeClass.SMALL && unit.tonnage > 5) {
