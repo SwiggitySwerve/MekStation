@@ -23,6 +23,7 @@ import { getCriticalSlotsForLocation } from '@/services/units/unitLoaderService/
 import {
   CockpitType,
   INTERFACE_COCKPIT_SOURCE_TAG,
+  VRRP_COCKPIT_SOURCE_TAG,
 } from '@/types/construction/CockpitType';
 import {
   LOCATION_SLOT_COUNTS,
@@ -72,6 +73,7 @@ const COCKPIT_TYPE = {
   [CockpitType.INDUSTRIAL]: 'INDUSTRIAL',
   [CockpitType.SUPER_HEAVY]: 'SUPERHEAVY',
   [CockpitType.INTERFACE]: INTERFACE_COCKPIT_SOURCE_TAG,
+  [CockpitType.VRRP]: VRRP_COCKPIT_SOURCE_TAG,
 } as const satisfies Readonly<Record<CockpitType, string>>;
 
 const STRUCTURE_TYPE = {
@@ -215,7 +217,10 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
 export function serializeCustomUnitState(
   state: UnitState,
   identity: CustomUnitSaveIdentity,
-): ISerializedUnit & { readonly schemaVersion: string } {
+): ISerializedUnit & {
+  readonly schemaVersion: string;
+  readonly lamType?: string;
+} {
   const walk =
     state.tonnage > 0 ? Math.floor(state.engineRating / state.tonnage) : 0;
   const numericMulId = Number(state.mulId);
@@ -232,6 +237,7 @@ export function serializeCustomUnitState(
     variant: identity.variant,
     unitType: state.unitType,
     configuration: state.configuration,
+    lamType: state.lamType,
     techBase: TECH_BASE[state.techBaseMode],
     rulesLevel: RULES_LEVEL[state.rulesLevel],
     era: identity.era,
