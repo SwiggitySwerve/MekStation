@@ -16,6 +16,7 @@ export interface CritScan {
   hasBloodhound: boolean;
   hasPartialWing: boolean;
   hasNullSig: boolean;
+  hasChainDrape: boolean;
   hasVoidSig: boolean;
   hasChameleon: boolean;
   hasImprovedJJ: boolean;
@@ -90,6 +91,7 @@ export function createEmptyCritScan(): CritScan {
     hasBloodhound: false,
     hasPartialWing: false,
     hasNullSig: false,
+    hasChainDrape: false,
     hasVoidSig: false,
     hasChameleon: false,
     hasImprovedJJ: false,
