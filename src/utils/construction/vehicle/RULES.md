@@ -561,6 +561,15 @@ crew skill follows it and receives a final round. Vehicle skill lookup uses
 the existing shared table with the same floor and clamp. BVCalculator.java:
 1253,167 at MegaMek pin 48fcb2f64 owns this order.
 
+## Combat superheavy structure mass
+
+The structure owner uses the existing native superheavy classifier shared with
+loading and BV layout. Standard non-naval superheavies use tonnage/5; naval and
+submarine standard hulls retain tonnage/10. Superheavy endo doubles its normal
+basis; composite retains tonnage/20. Both total composition and validation pass
+the installed motion type. Pin 48fcb2f64: TestTank.java:88-95;
+Structure.java:75-108; BLKTankFile.java:94-123.
+
 ## VTOL jet-booster mass
 
 The shared variable owner maps native vtoljetbooster to the existing registry's
