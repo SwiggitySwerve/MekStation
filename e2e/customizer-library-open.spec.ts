@@ -242,8 +242,15 @@ const CAPITAL_CASES = [
   {
     chassis: 'Gaajian System Patrol Boat',
     model: '(2485)',
+    scope: 'complete',
+    bv: '3,426',
+  },
+  {
+    chassis: 'Gaajian System Patrol Boat',
+    model: '(2485)',
     scope: 'defensive-only',
     bv: '1,864',
+    unsupportedHull: true,
   },
 ] as const;
 
@@ -624,9 +631,20 @@ for (const viewport of VIEWPORTS) {
     }
 
     for (const unit of CAPITAL_CASES) {
-      test(`opens a ${unit.scope} capital ship read-only @customizer`, async ({
+      test(`opens ${unit.chassis} ${unit.scope} read-only @customizer`, async ({
         page,
       }, testInfo) => {
+        if ('unsupportedHull' in unit) {
+          await page.route('**/data/units/capital/Gaajian*', async (route) => {
+            const response = await route.fetch();
+            const definition = await response.json();
+            definition.equipment.push({
+              id: 'unsupported-hull-fixture',
+              location: 'HULL',
+            });
+            await route.fulfill({ response, json: definition });
+          });
+        }
         const { dialog, row } = await findRow(page, unit);
         await expect(row).toContainText('Capital Ships');
         await row.dblclick();

@@ -9,7 +9,7 @@ import { calculateOffensiveSpeedFactor } from './battleValueMovement';
 import { applyTargetingComputerBV } from './battleValueWeapons';
 import { getArtemisBVMultiplier } from './equipmentBVResolver';
 
-function applyWeaponBVModifiers(
+export function applyWeaponBVModifiers(
   weapon: {
     bv: number;
     rear?: boolean;

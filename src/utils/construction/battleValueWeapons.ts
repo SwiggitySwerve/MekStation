@@ -13,6 +13,15 @@ export function hasBVTargetingComputer(ids: readonly string[]): boolean {
   return ids.some((id) => getEquipmentEntry(id)?.category === 'Targeting');
 }
 
+/** Callers retain their location parsing before testing mounted AES. */
+export function hasBVActuatorEnhancement(
+  locations: readonly string[],
+  location: string,
+): boolean {
+  const key = location.toUpperCase();
+  return locations.some((candidate) => candidate.toUpperCase() === key);
+}
+
 export function getWeaponBV(weaponId: string): number {
   return resolveEquipmentBV(weaponId).battleValue;
 }

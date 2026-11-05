@@ -179,14 +179,23 @@ remains outside this term's parity claim.
 ## Turret weapon BV
 
 `vehicleBVOffensive.ts` owns the turret weapon BV modifier. Single, Dual and
-Chin and Sponson turrets receive no rotating-turret bonus. Turret weapons remain exempt
-from the rear-facing penalty. The BV dialog consumes `turretModifier`, so it
-remains a compatibility breakdown field with value 1 for these turret kinds.
-Sponson weapons also retain listed BV; pinned Java has no 1.025 factor.
+Chin and Sponson turrets receive no rotating-turret bonus. Ordinary Tank turret
+weapons remain exempt from the rear-facing penalty. The BV dialog consumes
+`turretModifier`, so it remains a compatibility breakdown field with value 1
+for these turret kinds. Sponson equipment receives no separate 1.025 multiplier.
 
 Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`:
-`CombatVehicleBVCalculator.java:123-125` excludes both turret locations from
-the nominal rear filter. Inherited `BVCalculator.java:803-907` applies weapon
+`CombatVehicleBVCalculator.java:126-129` excludes Tank's numeric turret indices
+5/6 (`Tank.java:128-130`). On SuperHeavyTank and LargeSupportTank these indices
+mean Rear Left/Rear, while physical turrets occupy 7/8
+(`SuperHeavyTank.java:69-74`, `LargeSupportTank.java:68-72`). Their physical
+turrets can therefore receive nominal-rear weighting when front BV is smaller
+than rear BV (`BVCalculator.java:690-700`). The owner decides this exemption
+once; weapon valuation applies the resulting half factor without another
+physical-turret guard (`BVCalculator.java:834-837`).
+`vehicleBV.superheavyRearParity.test.ts` enforces Destrier's Java 2551 BV,
+both six-side turret locations, index exemptions, and front/rear ties.
+Inherited `BVCalculator.java:803-907` applies weapon
 modifiers without a turret bonus; its `arcFactor` at lines 779-781 returns 1.
 `vehicleBV.turretParity.test.ts` checks the Tamerlane (Flamer) contract fixture
 (UL-16 Java total 436) and each ordinary turret kind. Other vehicle BV terms
@@ -445,13 +454,22 @@ is inferred from its packaging or substituted for missing catalog data.
 
 ## Support fire control, targeting computers and assembled BV movement
 
+Vehicle mount partitioning uses the shared native ammunition classifier,
+including registry identities without "ammo" in their names. Explicit saved
+mount kinds still take precedence. C3 remote sensors enter the existing capped
+ammo owner with their launcher in C3_REMOTE_SENSOR:1, rather than miscellaneous
+equipment. Pin 48fcb2f64: AmmoType.java:13376-13386;
+BVCalculator.java:1045-1086. Missing launchers contribute no ammo BV.
+
 `vehicleBVOffensive.ts` applies support basic FCS 0.9 (before advanced),
 advanced FCS 1, or absent FCS 0.8 to non-infantry WeaponType mounts and capped
 ammo. Resolved miscellaneous equipment receives neither FCS nor TC scaling.
 Direct-fire TC 1.25 replaces weapon FCS scaling; ammo still receives FCS.
 Weight and offensive equipment are not scaled. Mounted Targeting catalog
-entries activate TC. Infantry callers supply the native F_INFANTRY fact;
-unrepresented infantry equipment/metadata remains a catalog boundary gap.
+entries activate TC. The shared generated native flag owner supplies F_INFANTRY
+for resolved weapons; only unrepresented legacy mounts use the caller's fact.
+InfantryWeapon.java:83-87 sets this inherited flag. Native same-name BA guns
+remain distinct; missing identities remain a catalog boundary gap.
 The shared weapon owner retains the existing Mech direct-fire classifier.
 Pin: BVCalculator.java:880-887,966-976,1076-1086 at 48fcb2f64a1b.
 
