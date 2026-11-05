@@ -442,6 +442,13 @@ Boosters, modified cruise, rail/zero-MP BV special cases and complete BV parity
 remain separate work. This correction establishes only base movement and its
 propagation. It does not regenerate or migrate unit catalogs.
 
+## Sized liquid-storage mass
+
+Liquid storage shares the existing sized cargo/communications rule in the
+variable-mass resolver. Charge component-rounded source size, including
+kilogram rounding for small support. No second formula or catalog value is
+introduced. Pin 48fcb2f64: MiscType.java:839-840; RoundWeight.java:58-68.
+
 ## Support construction weight
 
 `supportWeight.ts` composes structure, engine, armor, source fuel, payload and
