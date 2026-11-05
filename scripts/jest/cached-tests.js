@@ -36,7 +36,8 @@
  *     --cacheDirectory=..., --json, --outputFile=..., --silent, --coverage, ...)
  *     may be passed through; any other option puts the run in 'off' mode.
  * Files ignored by git (.env.local, fetched or generated data) are hashed too,
- * except build output and dependency directories; a symlink inside a data
+ * except build output, dependency directories and the files a test run itself
+ * writes (GENERATED_OUTPUTS: data/, __pycache__, ...); a symlink inside a data
  * domain makes the file unkeyable.
  *
  * FAIL OPEN. An exception while keying, a bare `process.env`, a computed
@@ -123,6 +124,17 @@ const HERMETIC_FS_READERS = new Set([
   'src/lib/multiplayer/server/DurableMatchStore.ts',
 ]);
 
+// Git-ignored files that a test run writes into the tree: the app's SQLite database
+// and E2E sentinels (`data/`), the equipment validation report, Python bytecode, and
+// scenario-pack recapture output. Outputs, never inputs: see buildFileIndex.
+const GENERATED_OUTPUTS = [
+  /^data\//,
+  /^equipment-validation-report\.json$/,
+  /(?:^|\/)__pycache__\//,
+  /^\.sisyphus\/scenario-pack-recapture\//,
+  /\.tsbuildinfo$/, // `npm run typecheck` is incremental and writes tsconfig.tsbuildinfo
+];
+
 const sha = (value) => crypto.createHash('sha256').update(value).digest('hex');
 const toPosix = (p) => p.split(path.sep).join('/');
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -167,6 +179,8 @@ function buildFileIndex(root, excludePrefix = null) {
   // Symlinks are inputs whose targets this index does not follow; a key whose
   // data domain contains one is refused (see keyFor).
   index.symlinks = new Set();
+  const tracked = new Set();
+  let gitKnown = true;
   try {
     const git = (args) =>
       execFileSync('git', args, {
@@ -179,6 +193,7 @@ function buildFileIndex(root, excludePrefix = null) {
       const match = /^(\d+) ([0-9a-f]+) \d+\t([\s\S]*)$/.exec(row);
       if (!match) continue;
       index.set(match[3], `git:${match[2]}`);
+      tracked.add(match[3]);
       if (match[1] === '120000') index.symlinks.add(match[3]);
     }
     // modified, deleted and untracked-but-not-ignored files
@@ -221,7 +236,20 @@ function buildFileIndex(root, excludePrefix = null) {
   } catch {
     index.clear();
     index.symlinks.clear();
+    tracked.clear();
+    gitKnown = false;
     walk(root, '', index);
+  }
+  // Files a test run (or the app it starts) writes into the tree are outputs, not
+  // inputs, and a fresh checkout, which CI keys, has none: left in, every local run
+  // changed the next run's keys. Tracked files stay, edited or not (the repo tracks a
+  // few .pyc files), and so does anything that could not be read (null digest). Without
+  // git, tracking is unknown, so nothing is dropped.
+  if (gitKnown) {
+    for (const file of [...index.keys()]) {
+      if (!tracked.has(file) && GENERATED_OUTPUTS.some((p) => p.test(file)))
+        index.delete(file);
+    }
   }
   // Result caches live in the tree and must never feed keys: this
   // invocation's own (`excludePrefix`) and any other store, which createStore
