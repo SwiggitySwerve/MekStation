@@ -36,7 +36,12 @@ export function getVehicleHeatNeutralWeaponHeat(
     EquipmentCategory.ARTILLERY,
     EquipmentCategory.CAPITAL_WEAPON,
   ].includes(item.category);
-  return isPowerAmplifierEnergyWeapon(item) ||
+  // TestEntity.java:945-950 selects laser/PPC/plasma/flamer flags, not the
+  // catalog's broader Energy category. Heavy/vehicle flamers use ammunition.
+  const excludedEnergy = /tsemp|taser|(?:heavy|vehicle)\s*flamer/i.test(
+    item.name,
+  );
+  return (isPowerAmplifierEnergyWeapon(item) && !excludedEnergy) ||
     (weapon && /plasma/i.test(item.name))
     ? item.heat !== undefined && isValidWeight(item.heat)
       ? item.heat

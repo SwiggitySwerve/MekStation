@@ -395,6 +395,39 @@ describe('VehicleStatusBar — power amplifiers', () => {
   // ICE 25: 0.5 * 2.0 = 1 t in both the helper and the old approximation.
   const ICE = { engineType: EngineType.ICE, ...SMALL_ENGINE };
 
+  it('matches both pinned Harasser Laser Platform thermal mass terms', () => {
+    // UL-16b: vehicles/3039u/Harasser Laser Platform.blk, mm-data 50f7efef,
+    // sha256 2b923ec02a4bd7587452244f9f796c2f53bcd5a56a7d9b1b367a5c0c65e4736f.
+    // TestEntity.java:945-950 sums 6 raw heat; Engine.java:480-493 gives ICE
+    // zero free sinks; TestTank.java:264-270 charges 6 t. Separately,
+    // TestTank.java:739-765 charges 0.5 t amplifiers for the 2 t of lasers.
+    const state = {
+      ...createDefaultVehicleState({
+        name: 'Harasser Laser Platform',
+        tonnage: 25,
+        techBase: TechBase.INNER_SPHERE,
+        motionType: GroundMotionType.HOVER,
+      }),
+      engineType: EngineType.ICE,
+      engineRating: 120,
+      cruiseMP: 10,
+      armorTonnage: 1.5,
+      turret: turretConfig(),
+      equipment: [
+        inTurret('medium-laser', 'laser-1'),
+        inTurret('medium-laser', 'laser-2'),
+      ],
+    };
+    const lookup = getEquipmentLookupService();
+    expect(
+      computeVehicleWeightBreakdown(state, (id) => lookup.getById(id)),
+    ).toMatchObject({
+      heatSinks: 6,
+      powerAmplifiers: 0.5,
+      remaining: 0,
+    });
+  });
+
   it('counts the declared power amplifier weight', () => {
     // 50 - 1 engine - 5 structure - 2 lasers - 1 amps - 2.5 controls - 6 sinks
     expect(
