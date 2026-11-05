@@ -6,10 +6,7 @@
     "prototype-rocket-launcher-20",
     "risc-advanced-point-defense-system"
   ],
-  "vehicles": [
-    "machine-gun-lightpt:size:1.0",
-    "wire-guided-missile-launcher:size:1.0"
-  ],
+  "vehicles": ["wire-guided-missile-launcher:size:1.0"],
   "aerospace": [],
   "capital": [],
   "battlearmor": ["isbalightactiveprobe"],
