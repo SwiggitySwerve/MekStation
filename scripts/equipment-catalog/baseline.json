@@ -4251,7 +4251,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 66,
     "id": "clan-mech-mortar-4",
-    "sha256": "768087746d979ffd88366d4d53779740a97de49b8aa0a402cfe9acd9cc681144",
+    "sha256": "ced1e1559e1df29881f51971b735ce1bf57a0a9c795a5e2868670d70bdf3ea27",
     "item": {
       "id": "clan-mech-mortar-4",
       "name": "Mech Mortar 4 (Clan)",
@@ -4267,8 +4267,12 @@
         "medium": 14,
         "long": 21
       },
-      "weight": 5,
-      "criticalSlots": 3,
+      "weight": 3.5,
+      "criticalSlots": 2,
+      "vehicleSlots": {
+        "tank": 1,
+        "supportVehicle": 2
+      },
       "ammoPerTon": 6,
       "costCBills": 32000,
       "battleValue": 26,

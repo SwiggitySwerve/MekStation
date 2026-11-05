@@ -631,6 +631,10 @@
     "CLArrowIV": {
       "INNER_SPHERE": "clan-arrow-iv-launcher",
       "CLAN": "clan-arrow-iv-launcher"
+    },
+    "mech-mortar-8": {
+      "INNER_SPHERE": "mech-mortar-8",
+      "CLAN": "clan-mech-mortar-8-registry"
     }
   }
 }
