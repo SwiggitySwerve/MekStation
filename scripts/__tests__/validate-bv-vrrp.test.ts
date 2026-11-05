@@ -1,5 +1,9 @@
+import { execFileSync } from 'node:child_process';
+import path from 'node:path';
+
 import type { UnitData } from '../validate-bv-types';
 
+import { UnitContract } from '../../src/types/contracts/generated/unit.zod';
 import { getCockpitModifier } from '../../src/utils/construction/battleValueTotals';
 import { calculateUnitBV } from '../validate-bv-calculator';
 import { mapCockpitType } from '../validate-bv-unit-derived';
@@ -43,3 +47,23 @@ it.each([
 ] as const)('retains %s cockpit BV', (name, expected) =>
   expect(getCockpitModifier(mapCockpitType(name))).toBe(expected),
 );
+
+it('retains VRRP through source conversion and the generated unit contract', () => {
+  const code = [
+    'import json,sys',
+    'sys.path.insert(0,"scripts/megameklab-conversion")',
+    'from mtf_converter import MTFParser,dataclass_to_dict',
+    'unit=dataclass_to_dict(MTFParser()._parse_lines(["chassis:Wildfire","model:Test","cockpit:Virtual Reality Piloting Pod"],"source.mtf"))',
+    'print(json.dumps(unit["cockpit"]))',
+  ].join('\n');
+  const cockpit: unknown = JSON.parse(
+    execFileSync('python', ['-B', '-c', code], {
+      cwd: path.resolve(__dirname, '../..'),
+      timeout: 10000,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      encoding: 'utf8',
+    }),
+  );
+  expect(cockpit).toBe('VRRP');
+  expect(UnitContract.options[0].shape.cockpit.parse(cockpit)).toBe('VRRP');
+});
