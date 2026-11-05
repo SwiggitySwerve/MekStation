@@ -194,5 +194,10 @@ spreadable mount across every native leg location, without charging mass per leg
 Mounted slot parts belong to slotOperations/parts; physical slot helpers delegate
 to EquipmentCalculatorService. The optional isQuad sizing context defaults to false.
 
+Spreadable Talons retain one mounted identity and mass, with extra locations in
+spreadSlots. The shared mounted-parts owner feeds validation, free-slot queries and
+custom saves. Reloading reconstructs those locations from the saved native grid;
+already represented Talons are sized in place rather than duplicated.
+
 Mounted critical-part traversal is owned by slotOperations/parts. Placement
 re-exports its public helper; spreadable recovery must reuse that owner.
