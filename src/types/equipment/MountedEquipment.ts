@@ -14,6 +14,12 @@ import type { IEquipmentItem } from './EquipmentItem';
 
 import { EquipmentCategory } from './EquipmentCategory';
 
+/** One location's contribution to a mounted item's critical allocation. */
+export interface ICriticalSlotPart {
+  readonly location: MechLocation;
+  readonly slots: readonly number[];
+}
+
 /**
  * Mounted equipment instance on a unit
  *
@@ -42,10 +48,9 @@ export interface IMountedEquipmentInstance {
   /** Critical slot indices in the location (undefined = unallocated) */
   readonly slots?: readonly number[];
   /** Split weapon's second location and slots (MtfFile.java:1086-1124) */
-  readonly splitSlots?: {
-    readonly location: MechLocation;
-    readonly slots: readonly number[];
-  };
+  readonly splitSlots?: ICriticalSlotPart;
+  /** Additional locations of one spreadable mount (mass is charged once). */
+  readonly spreadSlots?: readonly ICriticalSlotPart[];
   /** Whether mounted facing rear arc */
   readonly isRearMounted: boolean;
   /** Linked ammunition instance ID (for weapons that use ammo) */
@@ -73,6 +78,11 @@ export interface IMountedEquipmentInstance {
    */
   readonly critEntries?: number;
 }
+
+export type IEquipmentSlotAllocation = Pick<
+  IMountedEquipmentInstance,
+  'location' | 'slots' | 'splitSlots' | 'spreadSlots'
+>;
 
 /**
  * Create a mounted equipment instance from an equipment item

@@ -74,6 +74,9 @@ export const SOURCE_LOOKUP_ALIASES: Readonly<Record<string, string>> = {
   // FU-101: the MTF crit token of Clan Mech Mortar-4 (48fcb2f6), which the
   // general normalizer shortens to "clan mech mortar".
   'clan mech mortar-4': 'clan-mech-mortar-4',
+  // Lookup name of ISMASS (MiscType.java:4947-4950, 48fcb2f6), which the
+  // general normalizer leaves as "clan mass".
+  'clan mass': 'mass',
   // FU-101 crit tokens with an existing record of Java's values (48fcb2f64):
   // CLERPulseLaserSmall.java:59 (36 BV, 1.5 t), ISMekTaser.java:70 (40 BV, 4 t),
   // AmmoType.java:13938 / :14120 / :10867.
