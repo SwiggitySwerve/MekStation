@@ -74,10 +74,10 @@ export interface VehicleWeightBreakdown extends VehicleMountedWeightBreakdown {
  * Tonnage of every figure the bar subtracts from the vehicle's tonnage.
  * Unknown mounted terms remain unavailable through the remaining budget.
  */
-export function computeVehicleWeightBreakdown(
+export function computeVehicleWeightFigures(
   state: VehicleWeightState,
   resolve: EquipmentResolver,
-): VehicleWeightBreakdown {
+) {
   const engine = computeVehicleInstalledEngineWeight(state);
   const {
     rawWeaponHeat,
@@ -113,7 +113,11 @@ export function computeVehicleWeightBreakdown(
   const structure =
     state.unitType === UnitType.SUPPORT_VEHICLE
       ? computeSupportStructureWeight(state)
-      : computeVehicleStructureWeight(state.tonnage, state.structureType);
+      : computeVehicleStructureWeight(
+          state.tonnage,
+          state.structureType,
+          state.motionType,
+        );
   const armor = state.armorTonnage;
   // A vehicle that needs amplifiers carries at least the required weight,
   // even before the store has derived `powerAmpWeight`.
@@ -173,6 +177,8 @@ export function computeVehicleWeightBreakdown(
     issues.push('Remaining mass is nonfinite');
   return {
     ...mounted,
+    primarySummary: _primary,
+    secondarySummary: _secondary,
     ...(state.unitType === UnitType.SUPPORT_VEHICLE ? {} : { heatSinks }),
     engine,
     controls,
@@ -185,4 +191,17 @@ export function computeVehicleWeightBreakdown(
     remaining: finiteRemaining,
     isComplete: finiteRemaining !== null,
   };
+}
+
+/** Preserve the existing public breakdown shape for status and validation. */
+export function computeVehicleWeightBreakdown(
+  state: VehicleWeightState,
+  resolve: EquipmentResolver,
+): VehicleWeightBreakdown {
+  const {
+    primarySummary: _primary,
+    secondarySummary: _secondary,
+    ...weights
+  } = computeVehicleWeightFigures(state, resolve);
+  return weights;
 }

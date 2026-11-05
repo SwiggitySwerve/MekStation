@@ -27,10 +27,16 @@ import {
   computeVehicleInstalledEngineWeight,
   type VehicleInstalledEngineState,
 } from './engine';
-import { computeTurretEquipmentWeight } from './equipmentMounts';
+import {
+  computeTurretEquipmentWeight,
+  getVehicleSourceIdentity,
+} from './equipmentMounts';
 import { isPowerAmplifierEnergyWeapon } from './powerAmplifier';
 import { getVehicleTurretMechanismFigures } from './turret';
-import { resolveVehicleAccessoryMass } from './variableEquipmentMass';
+import {
+  resolveVehicleAccessoryMass,
+  resolveVehicleVariableMass,
+} from './variableEquipmentMass';
 
 /** `isAmmo`: the mount is a bin; ammo and launcher records can share an id. */
 export type EquipmentResolver = (
@@ -142,6 +148,7 @@ export function computeVehicleMountedWeightFigures(
   const mounted = state.equipment.map((mount, order) => {
     const item = resolve(mount.equipmentId, mount.isAmmo === true);
     const equipmentId = item?.id ?? mount.equipmentId;
+    const clanCase = isClanCaseMount(mount, item);
     const accessoryMass =
       item &&
       resolveVehicleAccessoryMass(
@@ -154,7 +161,7 @@ export function computeVehicleMountedWeightFigures(
               isSupportVehicle: state.unitType === UnitType.SUPPORT_VEHICLE,
             },
       );
-    const mass = isClanCaseMount(mount, item)
+    const mass = clanCase
       ? 0
       : accessoryMass === undefined
         ? item?.weight
@@ -166,6 +173,11 @@ export function computeVehicleMountedWeightFigures(
       issues.push(`Mount ${mount.id}: unresolved or invalid equipment mass`);
     }
     return {
+      item,
+      clanCase,
+      instanceId: mount.id,
+      sourceId: getVehicleSourceIdentity(mount)?.sourceId ?? mount.equipmentId,
+      weapon: item !== undefined && WEAPON_CATEGORIES.includes(item.category),
       id: equipmentId,
       location: mount.location,
       order,
@@ -211,7 +223,33 @@ export function computeVehicleMountedWeightFigures(
     issues.push(`${label}: summed mass is nonfinite`);
     return null;
   };
-  // MiscType.java:614-616: reuse the formula owner; charge the result before
+  if (state.tonnage !== undefined) {
+    const weaponWeight = sum(
+      mounted.filter((m) => m.weapon),
+      'Fire control basis',
+    );
+    for (const mount of mounted)
+      if (mount.item && !mount.clanCase) {
+        const weight = resolveVehicleVariableMass(mount.item, mount.sourceId, {
+          tonnage: state.tonnage,
+          engineWeight,
+          weaponWeight: weaponWeight ?? undefined,
+          isSupportVehicle: state.unitType === UnitType.SUPPORT_VEHICLE,
+        });
+        // Keep the existing unsupported-rule policy; the complete handler total
+        // remains reserved. Newly computed invalid mass is explicitly unavailable.
+        if (weight !== undefined) {
+          mount.weight = isValidWeight(weight) ? weight : null;
+          if (mount.weight === null) {
+            unresolvedMountIds.push(mount.instanceId);
+            issues.push(
+              `Mount ${mount.instanceId}: invalid variable equipment mass`,
+            );
+          }
+        }
+      }
+  }
+  // MiscType.java:614-616: reuse the formula owner after variable weapon mass;
   // TestTank.java:178-226 derives turret mechanism mass from mounted tonnage.
   if (mounted.some((m) => m.computerFormula)) {
     const directFireWeaponTonnage = sum(

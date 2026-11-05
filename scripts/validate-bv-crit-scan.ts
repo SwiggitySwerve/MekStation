@@ -175,7 +175,12 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
         )
           r.hasActiveProbe = true;
         else if (lo.includes('null') && lo.includes('sig')) r.hasNullSig = true;
-        else if (lo.includes('void') && lo.includes('sig')) r.hasVoidSig = true;
+        else if (
+          /^chaindrape(?:cape|apron|poncho)$/.test(normalizeCritName(clean))
+        ) {
+          r.hasChainDrape = true;
+        } else if (lo.includes('void') && lo.includes('sig'))
+          r.hasVoidSig = true;
         else if (
           lo.includes('chameleon') &&
           (lo.includes('shield') ||
@@ -668,8 +673,10 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
             lo === 'is spikes' ||
             lo === 'clan spikes') &&
           clean !== prevSlotClean
-        )
+        ) {
           r.spikeCount++;
+          if (ml && !r.spikeLocations.includes(ml)) r.spikeLocations.push(ml);
+        }
         // Mine Dispensers: offensive equipment, BV=8 per slot per MegaMek
         // Each crit slot is counted separately (no dedup) — 4 slots = 4 dispensers = 32 BV
         if (

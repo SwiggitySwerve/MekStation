@@ -22,10 +22,12 @@ const convertedCapitalInputs = new Set(capitalAliasInputs);
 // ammo type; the combat runner multiplies "<n>/missile" by the rack size.
 // MissileWeaponHandler.java:308-318 (LRM via LRMHandler.java:489, MRM, RL, and
 // LRT via MissileWeapon.java:84): 1. SRMHandler.java:66-78 (SRM, SRT) and
-// StreakHandler.java:79-88 (Streak SRM): 2.
+// StreakHandler.java:79-88 (Streak SRM): 2. MekMortarHandler.java:126-137 (mech
+// mortar shells, outside the infantry direct-blow case): 2.
 const missileDamagePerHit = {
   LRM: 1,
   LRM_TORPEDO: 1,
+  MEK_MORTAR: 2,
   MRM: 1,
   ROCKET_LAUNCHER: 1,
   SRM: 2,

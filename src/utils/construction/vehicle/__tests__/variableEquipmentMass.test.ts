@@ -1,5 +1,67 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
+import { mapToVehicleState } from '@/services/units/unitLoaderService/vehicleMapping';
+
 import { getVehicleSourceIdentity } from '../equipmentMounts';
+import { computeVehicleMountedWeightFigures } from '../mountedWeight';
 import { resolveVehicleVariableMass } from '../variableEquipmentMass';
+import { computeVehicleWeightBreakdown } from '../weightComposition';
+
+jest.mock('@/services/equipment/EquipmentFileReader', () => ({
+  readJsonFile: async (file: string) =>
+    JSON.parse(
+      readFileSync(
+        join(process.cwd(), 'public/data/equipment/official', file),
+        'utf8',
+      ),
+    ),
+}));
+beforeAll(async () => {
+  await getEquipmentRegistry().initialize();
+  await getEquipmentLookupService().initialize();
+});
+
+// UL-16b at 48fcb2f6: compare native equipment terms independently of
+// still-pending carrying space/reactive armor corrections in other PRs.
+it.each([
+  ['MASH Truck (Small)', 4.5],
+  ['Fulcrum Heavy HoverTank (Hybrid)', 17],
+  ['Fulcrum Heavy HoverTank X', 17],
+  ['Fury Command Tank CX-17', 26.5],
+])('%s uses the shared variable-mass owner', (name, equipment) => {
+  const state = mapToVehicleState(
+    JSON.parse(
+      readFileSync(
+        join(process.cwd(), 'public/data/units/vehicles', `${name}.json`),
+        'utf8',
+      ),
+    ),
+  );
+  const weights = computeVehicleWeightBreakdown(state, (id) =>
+    getEquipmentLookupService().getById(id),
+  );
+  expect(weights).toMatchObject({ equipment });
+  // TestEntity.java:1995-2003 charges the retained 1 t transporter as well.
+  if (name === 'MASH Truck (Small)')
+    expect(weights).toMatchObject({ carryingSpace: 1, remaining: 0.5 });
+});
+
+it.each([
+  ['INNER_SPHERE', 3],
+  ['CLAN', 2],
+  ['Clan', 2],
+])('uses %s armored-motive mass', (techBase, weight) => {
+  expect(
+    resolveVehicleVariableMass(
+      { id: 'armoredmotivesystem', weight: 0, techBase },
+      'armoredmotivesystem',
+      { tonnage: 20, isSupportVehicle: false },
+    ),
+  ).toBe(weight);
+});
 
 it('keeps source size only while the source/resolved identity pair still matches', () => {
   const sourceIdentity = {
@@ -81,4 +143,25 @@ it('preserves fixed mass and reports an unsupported variable formula', () => {
       context,
     ),
   ).toBeUndefined();
+});
+
+it('uses the installed-engine owner for direct mounted supercharger figures', () => {
+  const state = mapToVehicleState(
+    JSON.parse(
+      readFileSync(
+        join(
+          process.cwd(),
+          'public/data/units/vehicles/SM5 Field Commander Prime.json',
+        ),
+        'utf8',
+      ),
+    ),
+  );
+  // UL-16b: 14 t weapons + 4 t ammunition + 1 t supercharger; Clan CASE is zero.
+  // MiscType.java:532-539 at 48fcb2f64 uses the installed engine as its basis.
+  expect(
+    computeVehicleMountedWeightFigures(state, (id, isAmmo) =>
+      getEquipmentLookupService().getMountedById(id, isAmmo === true),
+    ).equipment,
+  ).toBe(19);
 });

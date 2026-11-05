@@ -61,3 +61,9 @@ Bridge layers use their resolved catalog BV in defense, once per mounted slot
 run, and contribute no offensive miscellaneous BV. The critical scanner passes
 their identities to the existing defensive equipment owner. Pinned MegaMek
 48fcb2f64: BVCalculator.java:534-536,1004-1006; MiscType.java:7200-7264.
+
+Ram plates add one damage point per torso location with working spikes after
+halving maximum charge damage and before the 1.1 BV multiplier. Keep distinct
+spike locations in the critical scan; limb spikes and repeated mounts at one
+location do not add extra ram damage. Existing defensive spike BV is unchanged.
+Pinned MegaMek 48fcb2f64: MiscType.java:1405-1418.

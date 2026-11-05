@@ -2679,6 +2679,34 @@ export const APPROVED_JAVA_REROUTES = [
       'Follow-up 93; a slot-less ammo bin takes the BV owner pinned AmmoType record (resolveSlotlessAmmo), unit loader only',
     loaderOnly: true,
   })),
+  // Follow-up 93 / FU-101 class B: list ids and crit tokens of one mount reach the pinned Java item (ISSniper/ISThumper artillery, AC/10 Primitive, CLWERPPC, CLHeavyFlamer).
+  ...[
+    ['ISSniper', 'sniper-cannon', 'issniper-registry'],
+    ['ISThumper', 'thumper-cannon', 'isthumper-registry'],
+    ['ac-10p', 'ac-10', 'autocannon-10-primitive-registry'],
+    ['enhanced-ppc', 'enhanced-er-ppc', 'clwerppc-registry'],
+    ['heavy-flamer', 'heavy-flamer', 'clheavyflamer-registry'],
+    ['issniper', 'sniper-cannon', 'issniper-registry'],
+    ['isthumper', 'thumper-cannon', 'isthumper-registry'],
+  ].map(([name, oldTarget, newTarget, api]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    ...(api ? { api } : {}),
+    reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
+    loaderOnly: true,
+  })),
+  // FU-101 mortar slice: on Clan units mech-mortar-8 reaches Java's Clan Mech Mortar-8 (5 t, 3 slots) instead of the stale 10 t record.
+  ...[
+    ['mech-mortar-8', 'clan-mech-mortar-8', 'clan-mech-mortar-8-registry'],
+  ].map(([name, oldTarget, newTarget, api]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    ...(api ? { api } : {}),
+    reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
+    loaderOnly: true,
+  })),
 ];
 async function capture(root, inputs) {
   process.chdir(root);

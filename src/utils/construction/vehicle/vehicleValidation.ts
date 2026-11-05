@@ -285,6 +285,7 @@ export function validateVehicleConstruction(
     structure: computeVehicleStructureWeight(
       input.tonnage,
       input.structureType,
+      input.motionType,
     ),
     engine: engineResult.engineWeight,
   };

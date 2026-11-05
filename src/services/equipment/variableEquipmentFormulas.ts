@@ -261,9 +261,9 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<
    * Damage: floor(tonnage / 4) + 2
    */
   flail: {
-    weight: ceilDivide('tonnage', 5),
-    criticalSlots: equalsWeight(),
-    cost: multiply('weight', 11000),
+    weight: fixed(5),
+    criticalSlots: fixed(4),
+    cost: fixed(110000),
     damage: plus(floorDivide('tonnage', 4), 2),
     requiredContext: ['tonnage'],
   },
@@ -276,9 +276,9 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<
    * Damage: floor(tonnage / 5) + 3
    */
   'wrecking-ball': {
-    weight: ceilDivide('tonnage', 10),
-    criticalSlots: equalsWeight(),
-    cost: multiply('weight', 11000),
+    weight: fixed(4),
+    criticalSlots: fixed(5),
+    cost: fixed(110000),
     damage: plus(floorDivide('tonnage', 5), 3),
     requiredContext: ['tonnage'],
   },
