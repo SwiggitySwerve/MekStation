@@ -155,15 +155,6 @@ export const AMMO_BV_FALLBACKS: AmmoOverrideEntry[] = [
 ];
 
 export const AMMO_BV_FORCE_OVERRIDES: AmmoOverrideEntry[] = [
-  // Mortar ammo (SC = Semi-Guided Cluster): must override any catalog defaults
-  ['clan-sc-mortar-1-ammo', 1, 'mortar-1'],
-  ['clan-sc-mortar-2-ammo', 2, 'mortar-2'],
-  ['clan-sc-mortar-4-ammo', 4, 'mortar-4'],
-  ['clan-sc-mortar-8-ammo', 8, 'mortar-8'],
-  ['is-sc-mortar-1-ammo', 1, 'mortar-1'],
-  ['is-sc-mortar-2-ammo', 2, 'mortar-2'],
-  ['is-sc-mortar-4-ammo', 4, 'mortar-4'],
-  ['is-sc-mortar-8-ammo', 8, 'mortar-8'],
   // Clan Improved LRM ammo: catalog has correct IS-equivalent BV (6/11/17/23) but
   // extractWeaponTypeFromAmmoId generates wrong weaponType ("animprovedlrmN") from the
   // "clanimprovedlrmNammo" ID. Override to set correct weaponType for ammo-weapon matching.
