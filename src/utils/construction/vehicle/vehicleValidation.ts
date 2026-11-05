@@ -32,7 +32,12 @@ import {
 } from './controlsLift';
 import { validateVehicleCrew } from './crew';
 import { validateVehicleEngine } from './engine';
-import { supportVehicleSlotErrors, type VehicleSlotUnit } from './itemSlots';
+import {
+  combatVehicleSlotErrors,
+  supportVehicleSlotErrors,
+  type VehicleSlotUnit,
+} from './itemSlots';
+import { vehicleMotiveErrors } from './motiveCompatibility';
 import { validatePowerAmplifiers } from './powerAmplifier';
 import {
   computeVehicleStructureWeight,
@@ -316,12 +321,25 @@ export function validateVehicleCaseLocations(
   });
 }
 
-/** Support vehicles: CASE locations, then TestSupportVehicle's item slots. */
+/** Combat vehicles and VTOLs: CASE locations, item slots, motive compatibility. */
+export function validateCombatVehicleEquipment(
+  unit: VehicleSlotUnit & { readonly motionType: GroundMotionType },
+  sideUnknown = false,
+): string[] {
+  return [
+    ...validateVehicleCaseLocations(unit.equipment),
+    ...combatVehicleSlotErrors(unit, sideUnknown),
+    ...vehicleMotiveErrors(unit.equipment, unit.motionType, false),
+  ];
+}
+
+/** Support vehicles: CASE locations, item slots, then motive compatibility. */
 export function validateSupportVehicleEquipment(
-  unit: VehicleSlotUnit,
+  unit: VehicleSlotUnit & { readonly motionType: GroundMotionType },
 ): string[] {
   return [
     ...validateVehicleCaseLocations(unit.equipment),
     ...supportVehicleSlotErrors(unit),
+    ...vehicleMotiveErrors(unit.equipment, unit.motionType, true),
   ];
 }

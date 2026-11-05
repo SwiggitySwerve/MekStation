@@ -370,6 +370,14 @@
       "id": "clmyomerbooster-registry"
     },
     {
+      "internalName": "CLNarcBeacon (I-OS)",
+      "id": "clnarcbeacon-i-os-registry"
+    },
+    {
+      "internalName": "CLNarcBeacon (OS)",
+      "id": "clnarcbeacon-os-registry"
+    },
+    {
       "internalName": "CLPlasmaCannonAmmo",
       "id": "clplasmacannonammo-registry"
     },
@@ -394,12 +402,20 @@
       "id": "clsrm1os-registry"
     },
     {
+      "internalName": "CLSRM2 (IOS)",
+      "id": "clsrm2-ios-registry"
+    },
+    {
       "internalName": "CLSRM2 (OS)",
       "id": "clsrm2-os-registry"
     },
     {
       "internalName": "CLSRM3OS",
       "id": "clsrm3os-registry"
+    },
+    {
+      "internalName": "CLSRM4 (IOS)",
+      "id": "clsrm4-ios-registry"
     },
     {
       "internalName": "CLSRM4 (OS)",
@@ -410,8 +426,36 @@
       "id": "clsrm5os-registry"
     },
     {
+      "internalName": "CLSRM6 (IOS)",
+      "id": "clsrm6-ios-registry"
+    },
+    {
       "internalName": "CLSRM6 (OS)",
       "id": "clsrm6-os-registry"
+    },
+    {
+      "internalName": "CLStreakSRM2 (IOS)",
+      "id": "clstreaksrm2-ios-registry"
+    },
+    {
+      "internalName": "CLStreakSRM2 (OS)",
+      "id": "clstreaksrm2-os-registry"
+    },
+    {
+      "internalName": "CLStreakSRM4 (IOS)",
+      "id": "clstreaksrm4-ios-registry"
+    },
+    {
+      "internalName": "CLStreakSRM4 (OS)",
+      "id": "clstreaksrm4-os-registry"
+    },
+    {
+      "internalName": "CLStreakSRM6 (IOS)",
+      "id": "clstreaksrm6-ios-registry"
+    },
+    {
+      "internalName": "CLStreakSRM6 (OS)",
+      "id": "clstreaksrm6-os-registry"
     },
     {
       "internalName": "CLTargeting Computer",
@@ -1322,6 +1366,10 @@
       "id": "issrm2ios-registry"
     },
     {
+      "internalName": "ISSRM2OS",
+      "id": "issrm2os-registry"
+    },
+    {
       "internalName": "ISSRM4IOS",
       "id": "issrm4ios-registry"
     },
@@ -1362,12 +1410,24 @@
       "id": "isstreaksrm2ios-registry"
     },
     {
+      "internalName": "ISStreakSRM2OS",
+      "id": "isstreaksrm2os-registry"
+    },
+    {
       "internalName": "ISStreakSRM4IOS",
       "id": "isstreaksrm4ios-registry"
     },
     {
+      "internalName": "ISStreakSRM4OS",
+      "id": "isstreaksrm4os-registry"
+    },
+    {
       "internalName": "ISStreakSRM6IOS",
       "id": "isstreaksrm6ios-registry"
+    },
+    {
+      "internalName": "ISStreakSRM6OS",
+      "id": "isstreaksrm6os-registry"
     },
     {
       "internalName": "ISTargeting Computer",

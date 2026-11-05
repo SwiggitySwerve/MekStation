@@ -1145,8 +1145,10 @@
       "compatibleWeaponIds": [
         "clan-srm-2",
         "srm-2",
+        "clsrm2-ios-registry",
         "clsrm2-os-registry",
         "issrm2ios-registry",
+        "issrm2os-registry",
         "clbasrm2-registry",
         "isbasrm2-registry",
         "clbasrm2-os-registry",
@@ -1157,8 +1159,7 @@
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-2",
         "Java ammoType:rackSize SRM:2",
-        "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM2 (IOS), ISSRM2OS"
+        "Java munitions: M_STANDARD"
       ]
     },
     {
@@ -1206,6 +1207,7 @@
       "compatibleWeaponIds": [
         "clan-srm-4",
         "srm-4",
+        "clsrm4-ios-registry",
         "clsrm4-os-registry",
         "issrm4ios-registry",
         "issrm4os-registry",
@@ -1219,7 +1221,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-4",
         "Java ammoType:rackSize SRM:4",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM4 (IOS), CLBASRM4 (OS)"
+        "Unrepresented compatible Java weapons: CLBASRM4 (OS)"
       ]
     },
     {
@@ -1238,6 +1240,7 @@
       "compatibleWeaponIds": [
         "clan-srm-4",
         "srm-4",
+        "clsrm4-ios-registry",
         "clsrm4-os-registry",
         "issrm4ios-registry",
         "issrm4os-registry",
@@ -1251,7 +1254,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-4 (Clan) Artemis-capable",
         "Java ammoType:rackSize SRM:4",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: CLSRM4 (IOS), CLBASRM4 (OS)"
+        "Unrepresented compatible Java weapons: CLBASRM4 (OS)"
       ]
     },
     {
@@ -1299,6 +1302,7 @@
       "compatibleWeaponIds": [
         "clan-srm-6",
         "srm-6",
+        "clsrm6-ios-registry",
         "clsrm6-os-registry",
         "issrm6ios-registry",
         "issrm6os-registry",
@@ -1311,7 +1315,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-6",
         "Java ammoType:rackSize SRM:6",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM6 (IOS), ISBASRM6, CLBASRM6 (OS)"
+        "Unrepresented compatible Java weapons: ISBASRM6, CLBASRM6 (OS)"
       ]
     },
     {
@@ -1330,6 +1334,7 @@
       "compatibleWeaponIds": [
         "clan-srm-6",
         "srm-6",
+        "clsrm6-ios-registry",
         "clsrm6-os-registry",
         "issrm6ios-registry",
         "issrm6os-registry",
@@ -1342,7 +1347,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-6 (Clan) Artemis-capable",
         "Java ammoType:rackSize SRM:6",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: CLSRM6 (IOS), ISBASRM6, CLBASRM6 (OS)"
+        "Unrepresented compatible Java weapons: ISBASRM6, CLBASRM6 (OS)"
       ]
     },
     {
@@ -1567,16 +1572,17 @@
       "compatibleWeaponIds": [
         "clan-streak-srm-2",
         "streak-srm-2",
-        "streaksrm2-os",
-        "isstreaksrm2ios-registry"
+        "clstreaksrm2-ios-registry",
+        "clstreaksrm2-os-registry",
+        "isstreaksrm2ios-registry",
+        "isstreaksrm2os-registry"
       ],
       "costPerTon": 54000,
       "isExplosive": true,
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Streak SRM 2 Ammo",
         "Java ammoType:rackSize SRM_STREAK:2",
-        "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLStreakSRM2 (IOS), ISStreakSRM2OS"
+        "Java munitions: M_STANDARD"
       ]
     },
     {
@@ -1618,16 +1624,17 @@
         "clan-streak-srm-4",
         "streaksrm4prototype",
         "streak-srm-4",
-        "streaksrm4-os",
-        "isstreaksrm4ios-registry"
+        "clstreaksrm4-ios-registry",
+        "clstreaksrm4-os-registry",
+        "isstreaksrm4ios-registry",
+        "isstreaksrm4os-registry"
       ],
       "costPerTon": 54000,
       "isExplosive": true,
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Streak SRM 4 Ammo",
         "Java ammoType:rackSize SRM_STREAK:4",
-        "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLStreakSRM4 (IOS), ISStreakSRM4OS"
+        "Java munitions: M_STANDARD"
       ]
     },
     {
@@ -1669,16 +1676,17 @@
         "clan-streak-srm-6",
         "streaksrm6prototype",
         "streak-srm-6",
-        "streaksrm6-os",
-        "isstreaksrm6ios-registry"
+        "clstreaksrm6-ios-registry",
+        "clstreaksrm6-os-registry",
+        "isstreaksrm6ios-registry",
+        "isstreaksrm6os-registry"
       ],
       "costPerTon": 54000,
       "isExplosive": true,
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Streak SRM 6 Ammo",
         "Java ammoType:rackSize SRM_STREAK:6",
-        "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLStreakSRM6 (IOS), ISStreakSRM6OS"
+        "Java munitions: M_STANDARD"
       ]
     },
     {
@@ -2609,6 +2617,8 @@
         "srm-2",
         "clan-srm-2",
         "issrm2ios-registry",
+        "issrm2os-registry",
+        "clsrm2-ios-registry",
         "clsrm2-os-registry",
         "isbasrm2-registry",
         "clbasrm2-registry",
@@ -2620,8 +2630,7 @@
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo SRM-2 Narc-capable",
         "Java ammoType:rackSize SRM:2",
-        "Java munitions: M_NARC_CAPABLE",
-        "Unrepresented compatible Java weapons: ISSRM2OS, CLSRM2 (IOS)"
+        "Java munitions: M_NARC_CAPABLE"
       ]
     },
     {
@@ -2644,6 +2653,7 @@
         "clan-srm-4",
         "issrm4ios-registry",
         "issrm4os-registry",
+        "clsrm4-ios-registry",
         "clsrm4-os-registry",
         "isbasrm4-registry",
         "clbasrm4-registry",
@@ -2655,7 +2665,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo SRM-4 Artemis-capable",
         "Java ammoType:rackSize SRM:4",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: CLSRM4 (IOS), CLBASRM4 (OS)"
+        "Unrepresented compatible Java weapons: CLBASRM4 (OS)"
       ]
     },
     {
@@ -2678,6 +2688,7 @@
         "clan-srm-4",
         "issrm4ios-registry",
         "issrm4os-registry",
+        "clsrm4-ios-registry",
         "clsrm4-os-registry",
         "isbasrm4-registry",
         "clbasrm4-registry",
@@ -2689,7 +2700,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo SRM-4 Narc-capable",
         "Java ammoType:rackSize SRM:4",
         "Java munitions: M_NARC_CAPABLE",
-        "Unrepresented compatible Java weapons: CLSRM4 (IOS), CLBASRM4 (OS)"
+        "Unrepresented compatible Java weapons: CLBASRM4 (OS)"
       ]
     },
     {
@@ -2712,6 +2723,7 @@
         "clan-srm-6",
         "issrm6ios-registry",
         "issrm6os-registry",
+        "clsrm6-ios-registry",
         "clsrm6-os-registry",
         "clbasrm6-registry",
         "isbasrm6os-registry"
@@ -2722,7 +2734,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo SRM-6 Artemis-capable",
         "Java ammoType:rackSize SRM:6",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: CLSRM6 (IOS), ISBASRM6, CLBASRM6 (OS)"
+        "Unrepresented compatible Java weapons: ISBASRM6, CLBASRM6 (OS)"
       ]
     },
     {
@@ -2745,6 +2757,7 @@
         "clan-srm-6",
         "issrm6ios-registry",
         "issrm6os-registry",
+        "clsrm6-ios-registry",
         "clsrm6-os-registry",
         "clbasrm6-registry",
         "isbasrm6os-registry"
@@ -2755,7 +2768,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo SRM-6 Narc-capable",
         "Java ammoType:rackSize SRM:6",
         "Java munitions: M_NARC_CAPABLE",
-        "Unrepresented compatible Java weapons: CLSRM6 (IOS), ISBASRM6, CLBASRM6 (OS)"
+        "Unrepresented compatible Java weapons: ISBASRM6, CLBASRM6 (OS)"
       ]
     },
     {
@@ -2994,16 +3007,17 @@
       "compatibleWeaponIds": [
         "streak-srm-2",
         "clan-streak-srm-2",
-        "streaksrm2-os",
-        "isstreaksrm2ios-registry"
+        "clstreaksrm2-ios-registry",
+        "clstreaksrm2-os-registry",
+        "isstreaksrm2ios-registry",
+        "isstreaksrm2os-registry"
       ],
       "costPerTon": 54000,
       "isExplosive": true,
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Streak SRM 2 Ammo",
         "Java ammoType:rackSize SRM_STREAK:2",
-        "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLStreakSRM2 (IOS), ISStreakSRM2OS"
+        "Java munitions: M_STANDARD"
       ]
     },
     {
@@ -3024,15 +3038,16 @@
         "clan-streak-srm-4",
         "streaksrm4prototype",
         "isstreaksrm4ios-registry",
-        "streaksrm4-os"
+        "isstreaksrm4os-registry",
+        "clstreaksrm4-ios-registry",
+        "clstreaksrm4-os-registry"
       ],
       "costPerTon": 54000,
       "isExplosive": true,
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Streak SRM 4 Ammo",
         "Java ammoType:rackSize SRM_STREAK:4",
-        "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: ISStreakSRM4OS, CLStreakSRM4 (IOS)"
+        "Java munitions: M_STANDARD"
       ]
     },
     {
@@ -3053,15 +3068,16 @@
         "clan-streak-srm-6",
         "streaksrm6prototype",
         "isstreaksrm6ios-registry",
-        "streaksrm6-os"
+        "isstreaksrm6os-registry",
+        "clstreaksrm6-ios-registry",
+        "clstreaksrm6-os-registry"
       ],
       "costPerTon": 54000,
       "isExplosive": true,
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Streak SRM 6 Ammo",
         "Java ammoType:rackSize SRM_STREAK:6",
-        "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: ISStreakSRM6OS, CLStreakSRM6 (IOS)"
+        "Java munitions: M_STANDARD"
       ]
     },
     {
