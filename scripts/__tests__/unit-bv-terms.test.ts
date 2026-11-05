@@ -136,3 +136,52 @@ test('per-term mode retains aggregate gates, tolerates float order, and is opt-i
     ).ok,
   ).toBe(true);
 });
+test('per-mount weapon terms compare by location, not by equipment index or name', () => {
+  const withWeapons = (
+    java: Record<string, number>,
+    mine: Record<string, number>,
+  ) =>
+    report(
+      { ...ours, figure: { ...ours.figure, terms: { ...terms, ...mine } } },
+      {
+        ...ref,
+        battleValue: { ...ref.battleValue, terms: { ...terms, ...java } },
+      },
+    ).rows[0].firstTermDifference;
+  const java = {
+    'weapon.6.LA.Medium Laser': 23,
+    'weapon.8.RA.Medium Laser': 46,
+    'weapon.9.RA.SRM 6': 59,
+    'trooper.1.weapon.2.SSWM.ISSmallLaser': 9,
+  };
+  expect(
+    withWeapons(java, {
+      'weapon.0.LA.medium-laser': 23,
+      'weapon.1.RA.srm-6': 59,
+      'weapon.2.RA.medium-laser': 46,
+      'trooper.1.weapon.0.SSWM.small-laser': 9,
+    }),
+  ).toBeNull();
+  expect(
+    withWeapons(java, {
+      'weapon.0.LA.medium-laser': 46,
+      'weapon.1.RA.srm-6': 59,
+      'weapon.2.RA.medium-laser': 23,
+      'trooper.1.weapon.0.SSWM.small-laser': 9,
+    }),
+  ).toEqual({ term: 'weapon.LA.#0', java: 23, ours: 46 });
+  expect(
+    withWeapons(java, {
+      'weapon.0.LA.medium-laser': 23,
+      'weapon.1.LA.small-laser': 9,
+      'weapon.2.RA.srm-6': 59,
+      'weapon.3.RA.medium-laser': 46,
+      'trooper.1.weapon.0.SSWM.small-laser': 9,
+    }),
+  ).toEqual({ term: 'weapon.LA.count', java: 1, ours: 2 });
+  expect(withWeapons(java, {})).toEqual({
+    term: 'trooper.1.weapon.SSWM.#0',
+    java: 9,
+    ours: null,
+  });
+});
