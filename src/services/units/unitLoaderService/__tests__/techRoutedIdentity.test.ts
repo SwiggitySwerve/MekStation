@@ -16,6 +16,8 @@ import champion from '../../../../../public/data/units/battlemechs/4-clan-invasi
 import crossbowC from '../../../../../public/data/units/battlemechs/4-clan-invasion/advanced/Crossbow C.json';
 import daishiC from '../../../../../public/data/units/battlemechs/4-clan-invasion/advanced/Daishi C.json';
 import avatar from '../../../../../public/data/units/battlemechs/5-civil-war/advanced/Avatar AV1-OU.json';
+import bombardier from '../../../../../public/data/units/battlemechs/5-civil-war/advanced/Bombardier BMB-14K.json';
+import flea from '../../../../../public/data/units/battlemechs/5-civil-war/advanced/Flea FLE-19.json';
 import linebackerF from '../../../../../public/data/units/battlemechs/5-civil-war/experimental/Linebacker F.json';
 import cauldronBorn from '../../../../../public/data/units/battlemechs/5-civil-war/standard/Cauldron-Born U.json';
 import pariahAZ from '../../../../../public/data/units/battlemechs/5-civil-war/standard/Pariah (Septicemia) A-Z.json';
@@ -229,3 +231,49 @@ it.each([
   expect(mounts.length).toBeGreaterThan(0);
   expect(mounts.every((item) => (item.slots?.length ?? 0) > 0)).toBe(true);
 });
+
+// MG arrays: the shared records mga/lmga/hmga carry Clan values (0.25 t) while
+// Java's ISMGA/ISLMGA/ISHMGA weigh 0.5 t. Java's display names are tech-dependent
+// (Machine Gun Array -> IS ISMGA, CLAN CLMGA); MTFs list the display name and place
+// crits by internal name, so the list id, display name and IS internal name route
+// together (follow-up 92 slice 4 split them by routing ISLMGA alone).
+it.each([
+  ['machine-gun-array', IS, 'ismga-registry'],
+  ['Light Machine Gun Array', IS, 'islmga-registry'],
+  ['ISLMGA', IS, 'islmga-registry'],
+  ['heavy-machine-gun-array', IS, 'ishmga-registry'],
+  ['machine-gun-array', CLAN, 'mga'],
+  ['Light Machine Gun Array', CLAN, 'lmga'],
+  ['CLLMGA', CLAN, 'lmga'],
+] as const)(
+  'MG array %s on a %s unit resolves to %s',
+  (id, [tech, mode], target) => {
+    expect(resolveEquipmentId(id, tech, mode, []).equipmentDef?.id).toBe(
+      target,
+    );
+  },
+);
+
+it.each([
+  ['Flea FLE-19 (IS LMGA)', flea, 'islmga-registry', 0.5],
+  ['Bombardier BMB-14K (IS MGA)', bombardier, 'ismga-registry', 0.5],
+] as const)(
+  'assigns %s its MG array slots at Java weight',
+  (_name, unit, id, weight) => {
+    const state = new UnitLoaderService().mapToUnitState(unit, true);
+    const arrays = state.equipment.filter((item) => item.equipmentId === id);
+    expect(arrays.length).toBeGreaterThan(0);
+    expect(arrays.every((item) => (item.slots?.length ?? 0) > 0)).toBe(true);
+    expect(arrays.every((item) => item.weight === weight)).toBe(true);
+    expect(
+      getEquipmentSlotIssues(
+        state.equipment,
+        state.configuration,
+        state.engineType,
+        state.gyroType,
+        state.armActuators,
+        state.cockpitType,
+      ),
+    ).toEqual([]);
+  },
+);
