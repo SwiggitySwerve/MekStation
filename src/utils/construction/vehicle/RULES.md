@@ -604,3 +604,14 @@ Mounted figures consume that same rule before
 summing equipment and turret mass, independently of the held sized-equipment
 editor integration. Missing context is unavailable, not a fixed zero.
 Pin 48fcb2f64: MiscType.java:660-666,702-705; RoundWeight.java:58-68.
+
+## Native sponson mechanism mass
+
+At pin 48fcb2f64, MiscType.java:563-591 rounds 10% of all qualifying
+sponson-mounted equipment once, then divides it among installed mechanism
+records. Ammo, heat sinks and ArmorType records are excluded from the basis.
+The turret owner reuses its 10% mechanism formula; small support uses the
+shared component rounding owner. An Omni's explicit baseChassisSponsonPintleWeight
+is already an assigned total: divide it without re-rounding. Unknown inputs
+remain unavailable. Native mechanisms enter the equipment term (TestEntity.java:631-665).
+Legacy configured left/right turret figures retain their separate per-side contract.

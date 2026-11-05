@@ -17,6 +17,8 @@ import {
 } from '@/types/unit/VehicleInterfaces';
 import { ceilToHalfTon, isValidWeight } from '@/utils/physical/weightUtils';
 
+import { roundSupportComponentWeight } from './supportRounding';
+
 // Minimum tonnage required for dual turrets
 export const DUAL_TURRET_MIN_TONNAGE = 50;
 
@@ -48,8 +50,12 @@ export function getInstalledVehicleTurretType(
 export function computeTurretWeight(
   turretType: TurretType,
   equipmentWeightInTurret: number,
+  kilograms = false,
 ): number {
   if (equipmentWeightInTurret <= 0) return 0;
+  const round = kilograms
+    ? (weight: number) => roundSupportComponentWeight(weight, 0, true)
+    : ceilToHalfTon;
 
   switch (turretType) {
     case TurretType.NONE:
@@ -60,12 +66,12 @@ export function computeTurretWeight(
     case TurretType.CHIN:
       // Each turret: 10% of its own equipment, rounded independently.
       // This function handles one turret at a time; the caller sums both.
-      return ceilToHalfTon(equipmentWeightInTurret * 0.1);
+      return round(equipmentWeightInTurret * 0.1);
 
     case TurretType.SPONSON_LEFT:
     case TurretType.SPONSON_RIGHT:
       // Each sponson: 5% of its own equipment weight
-      return ceilToHalfTon(equipmentWeightInTurret * 0.05);
+      return round(equipmentWeightInTurret * 0.05);
 
     default:
       return 0;
@@ -76,6 +82,30 @@ export interface VehicleTurretMechanismResult {
   weight: number | null;
   allowanceOverloaded: boolean | null;
   issues: readonly string[];
+}
+
+/** MiscType.java:563-591 at 48fcb2f6. Native equipment records share the
+ * rounded aggregate mechanism, rather than rounding each half independently.
+ * Legacy configured left/right turrets above retain their per-side contract.
+ */
+export function computeVehicleSponsonMechanismWeight(context: {
+  equipmentWeight: number | null;
+  count: number;
+  isOmni?: boolean;
+  baseChassisWeight?: number;
+  kilograms?: boolean;
+}): number | null {
+  const { equipmentWeight, count, isOmni, baseChassisWeight } = context;
+  if (!Number.isSafeInteger(count) || count <= 0) return null;
+  if (isOmni && baseChassisWeight !== undefined) {
+    if (!Number.isFinite(baseChassisWeight)) return null;
+    if (baseChassisWeight >= 0) return baseChassisWeight / count;
+  }
+  if (equipmentWeight === null || !isValidWeight(equipmentWeight)) return null;
+  return (
+    computeTurretWeight(TurretType.SINGLE, equipmentWeight, context.kilograms) /
+    count
+  );
 }
 
 export interface VehicleTurretMechanismContext {

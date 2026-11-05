@@ -49,6 +49,7 @@ export interface IVehicleTurretSourceContext {
   readonly isOmni?: boolean;
   readonly baseChassisTurretWeight?: number;
   readonly baseChassisSecondaryTurretWeight?: number;
+  readonly baseChassisSponsonPintleWeight?: number;
 }
 
 // ============================================================================
