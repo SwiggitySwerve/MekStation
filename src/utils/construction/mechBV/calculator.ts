@@ -393,6 +393,7 @@ export function calculateUnitBV(
       aesArms: armAES,
       aesLegs: hasLegAES ? (isQuad ? 4 : 2) : 0,
       isIndustrialMech,
+      hasIndustrialStructure: structureType === 'industrial',
       hasSCM: cs.hasSCM,
     },
     airMekFlankMP === undefined
