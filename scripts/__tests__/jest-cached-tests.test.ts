@@ -1403,3 +1403,84 @@ describe('result store', () => {
     expect(store.get('abcdef')).toBeNull();
   });
 });
+
+describe('test result cache key: generated outputs are not inputs', () => {
+  // A test run writes the SQLite database, a validation report, Python bytecode and
+  // scenario-pack output into the tree. They are git-ignored, so the index hashed them,
+  // and every local run changed the next run's keys (639 of 3,163 unit keys). A fresh
+  // checkout, which is what CI keys, has none of them.
+  const files = {
+    'package.json': '{}',
+    'scripts/real.json': '{"a":1}',
+    'src/reader.test.ts':
+      "import * as fs from 'fs';\n" +
+      "test('x', () => fs.readFileSync(process.cwd() + '/data/app.db'));\n" +
+      "test('y', () => fs.readFileSync('scripts/real.json'));\n",
+  };
+  const gitIn = (root: string, ...args: string[]) =>
+    execFileSync('git', args, { cwd: root, stdio: 'ignore' });
+  // tracking is known only with git, so the filter applies only to a git checkout
+  const repo = () => {
+    const root = makeRepo(files);
+    gitIn(root, 'init', '-q');
+    gitIn(root, 'add', '-A');
+    return root;
+  };
+
+  it('drops nothing when git cannot say what is tracked', () => {
+    const root = makeRepo(files); // no git repository
+    write(root, { 'scripts/__pycache__/tracked.cpython-314.pyc': 'v0' });
+    const keys = ['v1', 'v2'].map((text) => {
+      write(root, { 'scripts/__pycache__/tracked.cpython-314.pyc': text });
+      return keyOf(root, 'src/reader.test.ts').key;
+    });
+    expect(keys[0]).not.toBe(keys[1]);
+  });
+
+  it('ignores the app database, the validation report, bytecode and recapture output', () => {
+    const root = repo();
+    const before = keyOf(root, 'src/reader.test.ts');
+    write(root, {
+      'data/mekstation.db': 'run 1',
+      'equipment-validation-report.json': '{"at":1}',
+      'scripts/lib/__pycache__/x.cpython-314.pyc': 'bytes 1',
+      '.sisyphus/scenario-pack-recapture/1/results.json': '{}',
+    });
+    const afterRun1 = keyOf(root, 'src/reader.test.ts');
+    write(root, {
+      'data/mekstation.db': 'run 2',
+      'equipment-validation-report.json': '{"at":2}',
+      'scripts/lib/__pycache__/x.cpython-314.pyc': 'bytes 2',
+    });
+    const afterRun2 = keyOf(root, 'src/reader.test.ts');
+    expect(afterRun1.key).toBe(before.key);
+    expect(afterRun2.key).toBe(before.key);
+  });
+
+  it('ignores tsconfig.tsbuildinfo, which the incremental typecheck rewrites', () => {
+    const root = repo();
+    const before = keyOf(root, 'src/reader.test.ts');
+    write(root, { 'tsconfig.tsbuildinfo': 'typecheck 1' });
+    expect(keyOf(root, 'src/reader.test.ts').key).toBe(before.key);
+  });
+
+  it('keeps a tracked file under those paths, including successive unstaged edits', () => {
+    // the repo tracks a few .pyc files; an edited tracked file has a content hash, not git:<blob>
+    const root = repo();
+    write(root, { 'scripts/__pycache__/tracked.cpython-314.pyc': 'v0' });
+    gitIn(root, 'add', '-A');
+    const staged = keyOf(root, 'src/reader.test.ts');
+    write(root, { 'scripts/__pycache__/tracked.cpython-314.pyc': 'v1' });
+    const edit1 = keyOf(root, 'src/reader.test.ts');
+    write(root, { 'scripts/__pycache__/tracked.cpython-314.pyc': 'v2' });
+    const edit2 = keyOf(root, 'src/reader.test.ts');
+    expect(new Set([staged.key, edit1.key, edit2.key]).size).toBe(3);
+  });
+
+  it('still keys on a real input in the same domain', () => {
+    const root = repo();
+    const before = keyOf(root, 'src/reader.test.ts');
+    write(root, { 'scripts/real.json': '{"a":2}' });
+    expect(keyOf(root, 'src/reader.test.ts').key).not.toBe(before.key);
+  });
+});
