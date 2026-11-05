@@ -15,9 +15,12 @@ export { getDefensiveEquipmentKind as getAerospaceDefensiveEquipmentKind };
 
 export function calculateMountedAerospaceDefensiveBV(
   equipment: readonly IAerospaceBVEquipment[],
+  largeAerospace = false,
 ): number {
   return calculateMountedDefensiveEquipmentBV(
     equipment.filter((item) => getDefensiveEquipmentKind(item.id)),
+    false,
+    largeAerospace,
   );
 }
 

@@ -113,7 +113,10 @@ export function calculateAerospaceDefensiveBV(
 
   const defensiveEquipmentBV =
     (input.defensiveEquipmentBV ?? 0) +
-    calculateMountedAerospaceDefensiveBV(input.equipment);
+    calculateMountedAerospaceDefensiveBV(
+      input.equipment,
+      capital || input.subType === UnitType.DROPSHIP,
+    );
   const defensivePool = armorBV + siBV + defensiveEquipmentBV;
   // LargeAeroBVCalculator.processExplosiveEquipment is empty (no minimum).
   const explosivePenalties =

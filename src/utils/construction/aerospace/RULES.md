@@ -1,5 +1,20 @@
 # Aerospace construction rules
 
+Screens use the shared defensive classifier and cap accumulator. Launcher BV
+and whole-bin screen ammo belong in defense; screen ammo is capped at screen
+launcher BV, independently of AMS/APDS. They supply no offensive BV, ammo cap
+or offensive arc heat; the sheet still reports launcher heat on its physical arc.
+Pin 48fcb2f64: BVCalculator.java:516-526,549-645,936-951;
+ScreenLauncherWeapon.java:65-82; AmmoType.java:12875-12885.
+
+Large-craft defensive ammo uses the shared defensive-equipment owner and the
+same whole-bin multiplier as offensive ammo. Zero shots contribute zero;
+positive partial bins count once and excess ammo is capped globally at AMS/APDS
+weapon BV. Bay/rear markers identify physical defensive weapons once, including
+laser AMS. Ordinary aircraft and vehicle callers keep their existing behavior.
+Pin 48fcb2f64: BVCalculator.java:516-576,602-631;
+LargeAeroBVCalculator.java:95-96. Enforcement: largeAerospaceNativePools.test.ts.
+
 Drone weapons share the vehicle 0.8 owner before capacitor additions and TC;
 physical ammo keeps its own value. Detection uses the canonical OS owner in
 ordinary and large aircraft. The summary applies the inherited 0.95 followed
