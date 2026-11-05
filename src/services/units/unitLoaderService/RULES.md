@@ -1,7 +1,6 @@
 # Unit definition loading
 
-FU-101 restores crit-only Mace, Hatchet, Lance, Sword, Retractable Blade,
-Flail and Wrecking Ball mounts. Native groups
+FU-101 restores audited crit-only physical mounts. Native groups
 consume the shared variable-sizing owner's number of slots per mount and reserve
 any groups represented by summary mounts before adding missing instances. Unit
 tonnage is loader context; no sizing arithmetic is copied into slot recovery.
@@ -188,3 +187,9 @@ Critical lookup also removes a trailing Mek turret marker `(T)` after the OmniPo
 
 Flail and Wrecking Ball use the shared formula owner for fixed mass and slots
 (MiscType.java:4017-4021,7869-7878, pin 48fcb2f64).
+
+Talons sizing is one ceil(T/15) mass with four biped or eight quad criticals
+(MiscType.java:688-689,1256-1258,4314; pin 48fcb2f64). Recovery must preserve one
+spreadable mount across every native leg location, without charging mass per leg.
+Mounted slot parts belong to slotOperations/parts; physical slot helpers delegate
+to EquipmentCalculatorService. The optional isQuad sizing context defaults to false.
