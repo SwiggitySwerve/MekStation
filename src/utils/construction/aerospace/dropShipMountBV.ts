@@ -137,7 +137,6 @@ export function resolveLargeAerospaceMountBV(
     const fail = (reason: string): void => {
       unresolved.push({ mountIndex, equipmentId: mount.equipmentId, reason });
     };
-    const raw = mount.equipmentId.trim().toLowerCase();
     const token = largeAerospaceMountToken(mount.equipmentId);
     const [id, quantity, ...extra] = token.split(':');
     if (extra.length || (quantity !== undefined && !/^\d+$/.test(quantity))) {
@@ -145,9 +144,13 @@ export function resolveLargeAerospaceMountBV(
       return;
     }
     // The shared classifier owns defensive exclusions, including hull electronics.
-    if (getAerospaceDefensiveEquipmentKind(id)) {
-      if (capitalType && raw !== id)
-        fail('Unrepresented defensive mount qualifier or ammunition quantity');
+    const defensiveKind = getAerospaceDefensiveEquipmentKind(id);
+    if (defensiveKind) {
+      if (
+        quantity !== undefined &&
+        (defensiveKind !== 'amsAmmo' || !Number.isSafeInteger(Number(quantity)))
+      )
+        fail('Invalid defensive ammunition quantity');
       return;
     }
     const entry = getEquipmentEntry(id);
