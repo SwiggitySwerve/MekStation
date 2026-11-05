@@ -64,7 +64,7 @@ export const GYRO_DEFINITIONS: readonly GyroDefinition[] = [
     rulesLevel: RulesLevel.STANDARD,
     weightMultiplier: 0.5,
     criticalSlots: 6,
-    introductionYear: 3067,
+    introductionYear: 3050, // 48fcb2f64 Mek.java:3677-3684 (3055, approximate).
     hitsToDestroy: 2,
   },
   {
@@ -74,7 +74,7 @@ export const GYRO_DEFINITIONS: readonly GyroDefinition[] = [
     rulesLevel: RulesLevel.ADVANCED,
     weightMultiplier: 1.5,
     criticalSlots: 2,
-    introductionYear: 3068,
+    introductionYear: 3050, // 48fcb2f64 Mek.java:3685-3694 (3055, approximate).
     hitsToDestroy: 2,
   },
   {

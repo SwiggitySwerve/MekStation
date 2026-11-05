@@ -91,6 +91,8 @@ export interface CockpitDefinition {
   readonly otherSlots: number;
   /** Introduction year */
   readonly introductionYear: number;
+  /** Separate Clan date when the same cockpit advances later on that side. */
+  readonly clanIntroductionYear?: number;
 }
 
 /**
@@ -115,7 +117,9 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
     weight: 2,
     headSlots: 4, // life support (1), sensors (2), cockpit (1)
     otherSlots: 0,
-    introductionYear: 3067,
+    // 48fcb2f64 Mek.java:3730-3739: approximate IS prototype; Clan production.
+    introductionYear: 3055,
+    clanIntroductionYear: 3080,
   },
   {
     type: CockpitType.COMMAND_CONSOLE,
@@ -125,7 +129,7 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
     weight: 6,
     headSlots: 6, // life support (2), sensors (2), cockpit (1), console (1)
     otherSlots: 0,
-    introductionYear: 3050,
+    introductionYear: 2620, // 48fcb2f64 Mek.java:3740-3749 (2625, approximate).
   },
   {
     type: CockpitType.TORSO_MOUNTED,
@@ -233,4 +237,21 @@ export function getCockpitDefinition(
   type: CockpitType,
 ): CockpitDefinition | undefined {
   return COCKPIT_DEFINITIONS.find((def) => def.type === type);
+}
+
+/** TestEntity.java:1565-1569: unit side, or earliest introduction for mixed tech. */
+export function getCockpitIntroductionYear(
+  type: CockpitType,
+  techBase: TechBase,
+  mixedTech = false,
+): number | undefined {
+  const definition = getCockpitDefinition(type);
+  if (!definition) return undefined;
+  const clanYear =
+    definition.clanIntroductionYear ?? definition.introductionYear;
+  return mixedTech
+    ? Math.min(definition.introductionYear, clanYear)
+    : techBase === TechBase.CLAN
+      ? clanYear
+      : definition.introductionYear;
 }
