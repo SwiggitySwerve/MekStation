@@ -1,4 +1,6 @@
 import type { CritScan } from './validate-bv-crit-scan-types';
+
+import { hasBVActuatorEnhancement } from '../src/utils/construction/battleValueWeapons';
 export type PhysicalWeaponType =
   | 'backhoe'
   | 'buzzsaw'
@@ -142,9 +144,7 @@ export function calculatePhysicalBVTotal(
   for (const pw of crit.physicalWeapons) {
     let bv = calculatePhysicalWeaponBV(pw.type, tonnage, crit.hasTSM);
     bv = Math.round(bv * 1000.0) / 1000.0;
-    const pwLocUpper = pw.location.toUpperCase();
-    if (crit.aesLocs.some((aLoc) => aLoc.toUpperCase() === pwLocUpper))
-      bv *= 1.25;
+    if (hasBVActuatorEnhancement(crit.aesLocs, pw.location)) bv *= 1.25;
     physicalWeaponBV += bv;
   }
   return physicalWeaponBV;

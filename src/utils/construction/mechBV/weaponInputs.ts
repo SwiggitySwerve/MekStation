@@ -16,7 +16,10 @@ import {
   resolveWeaponForUnit,
 } from '../../../../scripts/validate-bv-weapon-resolution';
 import { normalizeWeaponKey } from '../battleValueAmmo';
-import { isDirectFireBVWeapon } from '../battleValueWeapons';
+import {
+  hasBVActuatorEnhancement,
+  isDirectFireBVWeapon,
+} from '../battleValueWeapons';
 import { isOneShotMissileBVWeapon } from '../equipmentBV/weaponHeat';
 import { normalizeEquipmentId } from '../equipmentBVResolver';
 
@@ -167,9 +170,7 @@ export function buildMechBVWeapons(
       }
 
       const weaponLocUpper = eq.location.split(',')[0].toUpperCase();
-      const weaponHasAES = cs.aesLocs.some(
-        (aLoc) => aLoc.toUpperCase() === weaponLocUpper,
-      );
+      const weaponHasAES = hasBVActuatorEnhancement(cs.aesLocs, weaponLocUpper);
       weapons.push({
         id: normalizeWeaponKey(eq.id),
         name: wid,

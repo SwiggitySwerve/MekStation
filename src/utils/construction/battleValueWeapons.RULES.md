@@ -11,6 +11,9 @@ exclusion policy; its separate compatibility contract is not changed here.
 `BVCalculator.java:880-882`). The public legacy sum, heat-tracked Mech sum and
 vehicle owner and script-side orientation calculator call it with their existing eligibility, ordering and fire-control
 guards. AES also uses 1.25 but is a separate rule.
+
+`hasBVActuatorEnhancement` owns mounted AES location matching. Physical and
+heat-tracked weapon callers preserve their parsing, rounding and bonus order.
 `hasBVTargetingComputer` owns the catalog-backed chassis capability; vehicle
 explicit mount flags remain authoritative alongside that lookup.
 
