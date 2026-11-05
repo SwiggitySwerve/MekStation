@@ -1,8 +1,13 @@
+import { createCalculatedEquipment } from '@/stores/unit/unitEquipmentAddition';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { EquipmentCategory } from '@/types/equipment';
 import {
   calculatePhysicalWeaponSlots,
   calculatePhysicalWeaponWeight,
   PhysicalWeaponType,
 } from '@/types/equipment/PhysicalWeaponTypes';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 
 import { getEquipmentCalculatorService } from '../EquipmentCalculatorService';
 
@@ -37,5 +42,59 @@ it.each(['flail', 'wrecking-ball'])(
       getEquipmentCalculatorService().calculateProperties(id, { tonnage: 75 })
         .costCBills,
     ).toBe(110000);
+  },
+);
+
+// MiscType.java:688-689,1256-1258,4310-4316 (48fcb2f64).
+it.each([
+  [20, false, 2, 4],
+  [60, false, 4, 4],
+  [100, false, 7, 4],
+  [20, true, 2, 8],
+  [60, true, 4, 8],
+  [100, true, 7, 8],
+] as const)(
+  'sizes one Talons mount at %d tons, quad=%s',
+  (tonnage, isQuad, weight, criticalSlots) => {
+    const context = { tonnage, isQuad };
+    expect(
+      getEquipmentCalculatorService().calculateProperties('talons', context),
+    ).toMatchObject({ weight, criticalSlots });
+    expect(
+      calculatePhysicalWeaponWeight(PhysicalWeaponType.TALONS, tonnage),
+    ).toBe(weight);
+    expect(
+      calculatePhysicalWeaponSlots(PhysicalWeaponType.TALONS, tonnage, isQuad),
+    ).toBe(criticalSlots);
+  },
+);
+
+it.each([
+  [MechConfiguration.BIPED, 4],
+  [MechConfiguration.QUAD, 8],
+  [MechConfiguration.QUADVEE, 8],
+] as const)(
+  'forwards chassis context when adding Talons to %s',
+  (configuration, slots) => {
+    const item = {
+      id: 'talons',
+      name: 'Talons',
+      category: EquipmentCategory.PHYSICAL_WEAPON,
+      techBase: TechBase.INNER_SPHERE,
+      rulesLevel: RulesLevel.EXPERIMENTAL,
+      weight: 0,
+      criticalSlots: 0,
+      costCBills: 0,
+      battleValue: 0,
+      introductionYear: 3072,
+      variableEquipmentId: 'talons',
+    };
+    expect(
+      createCalculatedEquipment(item, 'talons', {
+        tonnage: 60,
+        equipment: [],
+        configuration,
+      }),
+    ).toMatchObject({ weight: 4, criticalSlots: slots });
   },
 );

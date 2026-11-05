@@ -27,6 +27,8 @@ export interface IEquipmentQueryCriteria {
  * Context for variable equipment calculations
  */
 export interface IVariableEquipmentContext {
+  /** Quad chassis for spreadable physical equipment sizing (default: biped). */
+  readonly isQuad?: boolean;
   readonly tonnage?: number;
   readonly engineRating?: number;
   readonly engineWeight?: number;
