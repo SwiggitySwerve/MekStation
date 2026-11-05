@@ -24,6 +24,7 @@ export interface OffensiveBVConfig {
   aesArms?: number;
   aesLegs?: number;
   isIndustrialMech?: boolean;
+  hasIndustrialStructure?: boolean;
   umuMP?: number;
   engineType?: EngineType;
   isXXLEngine?: boolean;

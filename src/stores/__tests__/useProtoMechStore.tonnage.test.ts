@@ -8,6 +8,12 @@
 
 import { createNewProtoMechStore } from '@/stores/useProtoMechStore';
 import { ProtoChassis } from '@/types/unit/ProtoMechInterfaces';
+import {
+  computeProtoStructure,
+  validateProtoChassis,
+} from '@/utils/construction/protomech';
+
+type ProtoStore = ReturnType<typeof createNewProtoMechStore>;
 
 describe('ProtoMech store setTonnage', () => {
   it('keeps an Ultraheavy tonnage of 12 t', () => {
@@ -42,5 +48,58 @@ describe('ProtoMech store setTonnage', () => {
 
     store.getState().setTonnage(1);
     expect(store.getState().tonnage).toBe(2);
+  });
+});
+
+/**
+ * Switching chassis moves tonnage into the new chassis range, as MegaMekLab's
+ * PMChassisView.refreshTonnage clamps its spinner after a motive change.
+ * Ultraheavy means tonnage above TestProtoMek.MAX_STD_TONNAGE (9 t), up to
+ * TestProtoMek.MAX_TONNAGE (15 t).
+ */
+describe('ProtoMech store setChassisType', () => {
+  function chassisFindings(state: ReturnType<ProtoStore['getState']>) {
+    return validateProtoChassis({
+      tonnage: state.tonnage,
+      chassisType: state.chassisType,
+      jumpMP: state.jumpMP,
+      myomerBooster: state.hasMyomerBooster,
+    }).findings;
+  }
+
+  it('raises a 5 t ProtoMech to 10 t when it becomes Ultraheavy', () => {
+    const store = createNewProtoMechStore({ tonnage: 5 });
+
+    store.getState().setChassisType(ProtoChassis.ULTRAHEAVY);
+
+    const state = store.getState();
+    expect(state.tonnage).toBe(10);
+    expect(state.structureByLocation).toEqual(
+      computeProtoStructure(10, ProtoChassis.ULTRAHEAVY, state.hasMainGun),
+    );
+    expect(chassisFindings(state)).toEqual([]);
+  });
+
+  it('lowers a 12 t Ultraheavy to 9 t when it becomes a Biped', () => {
+    const store = createNewProtoMechStore({
+      tonnage: 12,
+      chassisType: ProtoChassis.ULTRAHEAVY,
+    });
+
+    store.getState().setChassisType(ProtoChassis.BIPED);
+
+    expect(store.getState().tonnage).toBe(9);
+  });
+
+  it('still reports a Glider above the Light class', () => {
+    const store = createNewProtoMechStore({ tonnage: 9 });
+
+    store.getState().setChassisType(ProtoChassis.GLIDER);
+
+    const state = store.getState();
+    expect(state.tonnage).toBe(9);
+    expect(chassisFindings(state)).toEqual([
+      expect.objectContaining({ severity: 'error' }),
+    ]);
   });
 });

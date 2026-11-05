@@ -232,7 +232,11 @@ it('resolves duplicate equipment IDs once per mount in original order', () => {
     },
     resolve,
   );
-  expect(resolve.mock.calls).toEqual([['laser'], ['laser']]);
+  // The second argument is the mount's ammo flag (ammo and launcher ids can match).
+  expect(resolve.mock.calls).toEqual([
+    ['laser', false],
+    ['laser', false],
+  ]);
   expect(result).toMatchObject({
     equipment: 5,
     energyWeapons: 5,

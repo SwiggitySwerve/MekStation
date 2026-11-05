@@ -27,8 +27,10 @@ import { computeTurretEquipmentWeight } from './equipmentMounts';
 import { isPowerAmplifierEnergyWeapon } from './powerAmplifier';
 import { getVehicleTurretMechanismFigures } from './turret';
 
+/** `isAmmo`: the mount is a bin; ammo and launcher records can share an id. */
 export type EquipmentResolver = (
   equipmentId: string,
+  isAmmo?: boolean,
 ) => IEquipmentItem | undefined;
 
 const WEAPON_CATEGORIES: readonly EquipmentCategory[] = [
@@ -88,6 +90,20 @@ export interface VehicleMountedWeightBreakdown {
   issues: readonly string[];
 }
 
+/** MegaMek 48fcb2f6 has IS CASE 0.5 t (MiscType.java:4709-4715) and Clan CASE
+ * 0 t (:4774-4780). The catalog carries the IS item, which `clcase` resolves to;
+ * like aerospace sourceWeight.ts, the Clan source weighs 0 under that identity.
+ */
+function isClanCaseMount(
+  mount: IVehicleMountedEquipment,
+  item: IEquipmentItem | undefined,
+): boolean {
+  return (
+    item?.id === 'case' &&
+    /^cl(?:an)?[- ]?case(?::omni)?$/i.test(mount.sourceIdentity?.sourceId ?? '')
+  );
+}
+
 /** @spec openspec/changes/establish-all-unit-data-parity/specs/vehicle-unit-system/spec.md */
 export function computeVehicleMountedWeightFigures(
   state: VehicleMountedWeightState,
@@ -100,10 +116,14 @@ export function computeVehicleMountedWeightFigures(
   const unresolvedMountIds: string[] = [];
   const issues: string[] = [];
   const mounted = state.equipment.map((mount, order) => {
-    const item = resolve(mount.equipmentId);
+    const item = resolve(mount.equipmentId, mount.isAmmo === true);
     const equipmentId = item?.id ?? mount.equipmentId;
     const weight =
-      item !== undefined && isValidWeight(item.weight) ? item.weight : null;
+      item !== undefined && isValidWeight(item.weight)
+        ? isClanCaseMount(mount, item)
+          ? 0
+          : item.weight
+        : null;
     if (weight === null) {
       unresolvedMountIds.push(mount.id);
       issues.push(`Mount ${mount.id}: unresolved or invalid equipment mass`);

@@ -310,6 +310,17 @@ export class EquipmentLookupService implements IEquipmentLookupService {
   };
 
   /**
+   * A mount's own record. Some ammunition ids equal their launcher's (mrm-20,
+   * clan-streak-srm-4, clan-lb-10-x-ac, ams), so an ammo mount must not take the
+   * first item with its id.
+   */
+  getMountedById = (id: string, isAmmo: boolean): IEquipmentItem | undefined =>
+    this.getEquipment().find(
+      (e) =>
+        e.id === id && (e.category === EquipmentCategory.AMMUNITION) === isAmmo,
+    ) ?? this.getById(id);
+
+  /**
    * Get all equipment in a given category
    */
   getByCategory = (category: EquipmentCategory): IEquipmentItem[] => {

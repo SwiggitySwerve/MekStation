@@ -43,6 +43,7 @@ import {
   createDefaultAerospaceState,
   createAerospaceMountedEquipment,
   createEmptyAerospaceArmorAllocation,
+  unitTypeForAerospaceSubType,
 } from './aerospaceState';
 
 // Re-export types for convenience
@@ -219,8 +220,15 @@ const createAerospaceChassisActions = (
     ),
   setSupportRating: (field, value) => set(modifiedPatch({ [field]: value })),
   setIsOmni: (isOmni) => set(modifiedPatch({ isOmni })),
+  // MegaMekLab rebuilds the entity when the fighter type changes
+  // (ASStructureTab.fighterTypeChanged), so the unit type follows the Sub-Type.
   setAerospaceSubType: (aerospaceSubType) =>
-    set(modifiedPatch({ aerospaceSubType })),
+    set(
+      modifiedPatch({
+        aerospaceSubType,
+        unitType: unitTypeForAerospaceSubType(aerospaceSubType),
+      }),
+    ),
 });
 
 const createAerospaceEngineActions = (

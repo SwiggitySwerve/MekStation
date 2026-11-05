@@ -34,6 +34,7 @@ class SerializedArmor:
 
     type: str
     allocation: Dict[str, Any]
+    typeByLocation: Optional[Dict[str, int]] = None
 
 
 @dataclass
@@ -110,3 +111,4 @@ class SerializedUnit:
     role: Optional[str] = None
     source: Optional[str] = None
     lamType: Optional[str] = None
+    componentTechBases: Optional[Dict[str, str]] = None
