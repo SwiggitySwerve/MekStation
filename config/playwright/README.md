@@ -32,3 +32,10 @@ node scripts/playwright/record-ci-e2e-durations.mjs RUN_ID path/to/gates.json pa
 Include all suite reports from both shards; multiple runs use comma-separated
 run ids and median observations. `--plan-only` appended to a workflow invocation
 checks its complete native selection without starting a server or browser.
+
+The wrapper overrides step-level `PLAYWRIGHT_HTML_OUTPUT_DIR` and
+`PLAYWRIGHT_JSON_OUTPUT_FILE`: each suite owns `playwright-report-SUITE` and
+`e2e-timings/SUITE.json`. The failure upload includes the smoke HTML folder.
+`e2e-timings/listing-SUITE.json` records each census/selection collection and its
+total wall time, so after-run samples count the listing overhead (up to six
+collections per shard) as well as browser/server time and job setup.

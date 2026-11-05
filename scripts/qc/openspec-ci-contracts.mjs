@@ -132,6 +132,7 @@ export const requiredWorkflowJobContracts = [
       'test-results',
       'playwright-report',
       'playwright-report-gates',
+      'playwright-report-smoke',
     ],
     extraStepIfs: {
       'Upload E2E durations and test census': `always() && (${E2E_CHANGE_GATE_IF})`,

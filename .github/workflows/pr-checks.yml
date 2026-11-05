@@ -575,7 +575,8 @@ jobs:
   # second build costs (CI-SPEED slice 5, 12-job budget).
   # NEXT_PUBLIC_E2E_* are inlined at build time, and a non-E2E production
   # build swaps the tactical-map E2E harness for an empty stub
-  # (next.config.ts), so this build is not prepare-build's.
+  # (next.config.ts), so it needs a separate build from the Linux pack job
+  # (simulation-checks after CI-SPEED lever 3).
   #   - gate specs (the seam trust anchors, design R4, and the
   #     customizer regressions) run with --retries=0, so a flaky
   #     anchor can never retry to green, and with
@@ -591,6 +592,8 @@ jobs:
   # Gate files and the serial smoke file remain atomic; independent library
   # tests keep one worker. A timing miss changes only a weight. Native
   # --test-list selection and executed reports must match the planned set.
+  # The wrapper owns the HTML/JSON report paths and overrides step-level
+  # PLAYWRIGHT_* report env vars; its listing timings upload in e2e-timings.
   # Step gating keeps docs- and openspec-only PRs green.
   # ---------------------------------------------------------------
   e2e:
@@ -713,6 +716,7 @@ jobs:
             playwright-report
             playwright-report-gates
             playwright-report-library
+            playwright-report-smoke
             test-results
           retention-days: 7
 

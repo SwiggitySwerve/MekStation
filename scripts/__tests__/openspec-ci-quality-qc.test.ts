@@ -550,9 +550,15 @@ describe('OpenSpec CI quality QC validator', () => {
           ),
       ],
       [
-        'smoke report dropped from the failure upload',
+        'default report dropped from the failure upload',
         GATE_JOB,
         (block: string) => block.replace('            playwright-report\n', ''),
+      ],
+      [
+        'smoke report dropped from the failure upload',
+        GATE_JOB,
+        (block: string) =>
+          block.replace('            playwright-report-smoke\n', ''),
       ],
       [
         'gate report dropped from the failure upload',

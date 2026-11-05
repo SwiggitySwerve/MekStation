@@ -2,6 +2,7 @@
 import { spawn, spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import { performance } from 'node:perf_hooks';
 import { fileURLToPath } from 'node:url';
 
 import {
@@ -23,8 +24,27 @@ const { suite: requestedSuite, shardIndex } = parseInvocation(
 );
 const output = path.join(root, 'e2e-timings');
 fs.mkdirSync(output, { recursive: true });
+const invocationStarted = performance.now();
+const listings = [];
 
-function listTests(args) {
+function writeListingTimings() {
+  const receipt = {
+    suite: requestedSuite.name,
+    shard: shardIndex,
+    planOnly,
+    listings,
+    listingCount: listings.length,
+    listingMs: listings.reduce((total, { elapsedMs }) => total + elapsedMs, 0),
+    invocationMs: performance.now() - invocationStarted,
+  };
+  fs.writeFileSync(
+    path.join(output, `listing-${requestedSuite.name}.json`),
+    JSON.stringify(receipt, null, 2),
+  );
+}
+
+function listTests(args, phase) {
+  const started = performance.now();
   const result = spawnSync(
     process.execPath,
     [cli, 'test', ...args, '--project=chromium', '--list', '--reporter=json'],
@@ -37,6 +57,20 @@ function listTests(args) {
       env: { ...process.env, PLAYWRIGHT_JSON_OUTPUT_FILE: '' },
     },
   );
+  const listing = {
+    phase,
+    elapsedMs: performance.now() - started,
+    exitCode: result.status,
+  };
+  listings.push(listing);
+  writeListingTimings();
+  console.log(
+    JSON.stringify({
+      suite: requestedSuite.name,
+      shard: shardIndex,
+      e2eListing: listing,
+    }),
+  );
   if (result.error || result.status !== 0)
     throw new Error(
       `Cannot collect E2E census: ${result.error ?? result.stderr}`,
@@ -46,6 +80,7 @@ function listTests(args) {
 
 const tests = listTests(
   CI_SUITES.flatMap(({ files }) => files.map((f) => `e2e/${f}`)),
+  'census',
 );
 const timing = JSON.parse(
   fs.readFileSync(
@@ -82,7 +117,7 @@ async function runTask(task) {
     ...suite.options,
     `--output=test-results/${suite.name}`,
   ];
-  assertSameTests(task.tests, listTests(args));
+  assertSameTests(task.tests, listTests(args, 'selection'));
   const started = Date.now();
   if (planOnly) return;
   const child = spawn(
@@ -158,3 +193,4 @@ for (const task of plan.shards[shardIndex - 1].tasks.filter(
   }
 }
 if (failures.length) process.exitCode = 1;
+writeListingTimings();
