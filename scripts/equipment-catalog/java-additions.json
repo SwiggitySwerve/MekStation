@@ -5140,6 +5140,194 @@
     }
   },
   {
+    "native": "CLNarcBeacon (I-OS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/clan/CLNarcIOS.java: CLNarcBeacon (I-OS)",
+    "values": {
+      "id": "clnarcbeacon-i-os-registry",
+      "name": "Narc (I-OS)",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "battleValue": 6,
+      "introductionYear": 3058,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 100000,
+      "subType": "CLNarcIOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 12,
+        "extreme": 16,
+        "short": 4,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/clan/CLNarcIOS.java: CLNarcBeacon (I-OS)"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.other.clan.CLNarcIOS",
+      "internalName": "CLNarcBeacon (I-OS)",
+      "name": "Narc (I-OS)",
+      "aliases": [
+        "CLNarcBeacon (I-OS)",
+        "Clan I-OS Narc Beacon",
+        "Clan Narc Missile Beacon (I-OS)"
+      ],
+      "tech": "CLAN",
+      "bv": 6,
+      "tons": 1.5,
+      "criticalSlots": 1,
+      "cost": 100000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3058,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 0,
+      "ranges": {
+        "long": 12,
+        "extreme": 16,
+        "short": 4,
+        "minimum": 0,
+        "medium": 8
+      },
+      "ammoType": "NARC",
+      "rackSize": 1
+    }
+  },
+  {
+    "native": "CLNarcBeacon (OS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/clan/CLNarcOS.java: CLNarcBeacon (OS)",
+    "values": {
+      "id": "clnarcbeacon-os-registry",
+      "name": "Narc (OS)",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 2.5,
+      "criticalSlots": 1,
+      "battleValue": 6,
+      "introductionYear": 2815,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 100000,
+      "subType": "CLNarcOS",
+      "damage": "Java variable damage (-2)",
+      "heat": 0,
+      "ranges": {
+        "long": 12,
+        "extreme": 16,
+        "short": 4,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/clan/CLNarcOS.java: CLNarcBeacon (OS)"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.other.clan.CLNarcOS",
+      "internalName": "CLNarcBeacon (OS)",
+      "name": "Narc (OS)",
+      "aliases": [
+        "CLNarcBeacon (OS)",
+        "Clan OS Narc Beacon",
+        "Clan Narc Missile Beacon (OS)"
+      ],
+      "tech": "CLAN",
+      "bv": 6,
+      "tons": 2.5,
+      "criticalSlots": 1,
+      "cost": 100000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2815,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 0,
+      "ranges": {
+        "long": 12,
+        "extreme": 16,
+        "short": 4,
+        "minimum": 0,
+        "medium": 8
+      },
+      "ammoType": "NARC",
+      "rackSize": 1
+    }
+  },
+  {
     "native": "CLPlasmaCannonAmmo",
     "kind": "ammunition",
     "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: CLPlasmaCannonAmmo",
@@ -5509,6 +5697,101 @@
     }
   },
   {
+    "native": "CLSRM2 (IOS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/oneShot/CLSRM2IOS.java: CLSRM2 (IOS)",
+    "values": {
+      "id": "clsrm2-ios-registry",
+      "name": "SRM 2 (I-OS)",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.25,
+      "criticalSlots": 1,
+      "battleValue": 4,
+      "introductionYear": 3058,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 8000,
+      "subType": "CLSRM2IOS",
+      "damage": "2/missile",
+      "heat": 2,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/oneShot/CLSRM2IOS.java: CLSRM2 (IOS)"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.clan.oneShot.CLSRM2IOS",
+      "internalName": "CLSRM2 (IOS)",
+      "name": "SRM 2 (I-OS)",
+      "aliases": [
+        "CLSRM2 (IOS)",
+        "CLSRM2IOS",
+        "Clan IOS SRM-2",
+        "Clan SRM 2 (IOS)"
+      ],
+      "tech": "CLAN",
+      "bv": 4,
+      "tons": 0.25,
+      "criticalSlots": 1,
+      "cost": 8000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3058,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 2,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "ammoType": "SRM",
+      "rackSize": 2
+    }
+  },
+  {
     "native": "CLSRM2 (OS)",
     "kind": "weapons",
     "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/oneShot/CLSRM2OS.java: CLSRM2 (OS)",
@@ -5648,6 +5931,96 @@
     }
   },
   {
+    "native": "CLSRM4 (IOS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/oneShot/CLSRM4IOS.java: CLSRM4 (IOS)",
+    "values": {
+      "id": "clsrm4-ios-registry",
+      "name": "SRM 4 (I-OS)",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "battleValue": 8,
+      "introductionYear": 3058,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 48000,
+      "subType": "CLSRM4IOS",
+      "damage": "2/missile",
+      "heat": 3,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/oneShot/CLSRM4IOS.java: CLSRM4 (IOS)"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.clan.oneShot.CLSRM4IOS",
+      "internalName": "CLSRM4 (IOS)",
+      "name": "SRM 4 (I-OS)",
+      "aliases": ["CLSRM4 (IOS)", "Clan IOS SRM-4", "Clan SRM 4 (IOS)"],
+      "tech": "CLAN",
+      "bv": 8,
+      "tons": 0.5,
+      "criticalSlots": 1,
+      "cost": 48000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3058,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 3,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "ammoType": "SRM",
+      "rackSize": 4
+    }
+  },
+  {
     "native": "CLSRM4 (OS)",
     "kind": "weapons",
     "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/oneShot/CLSRM4OS.java: CLSRM4 (OS)",
@@ -5782,6 +6155,96 @@
     }
   },
   {
+    "native": "CLSRM6 (IOS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/oneShot/CLSRM6IOS.java: CLSRM6 (IOS)",
+    "values": {
+      "id": "clsrm6-ios-registry",
+      "name": "SRM 6 (I-OS)",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 1,
+      "criticalSlots": 1,
+      "battleValue": 12,
+      "introductionYear": 3058,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 64000,
+      "subType": "CLSRM6IOS",
+      "damage": "2/missile",
+      "heat": 4,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/oneShot/CLSRM6IOS.java: CLSRM6 (IOS)"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.clan.oneShot.CLSRM6IOS",
+      "internalName": "CLSRM6 (IOS)",
+      "name": "SRM 6 (I-OS)",
+      "aliases": ["CLSRM6 (IOS)", "Clan IOS SRM-6", "Clan SRM 6 (IOS)"],
+      "tech": "CLAN",
+      "bv": 12,
+      "tons": 1,
+      "criticalSlots": 1,
+      "cost": 64000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3058,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 4,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "ammoType": "SRM",
+      "rackSize": 6
+    }
+  },
+  {
     "native": "CLSRM6 (OS)",
     "kind": "weapons",
     "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/oneShot/CLSRM6OS.java: CLSRM6 (OS)",
@@ -5852,6 +6315,570 @@
         "medium": 6
       },
       "ammoType": "SRM",
+      "rackSize": 6
+    }
+  },
+  {
+    "native": "CLStreakSRM2 (IOS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM2IOS.java: CLStreakSRM2 (IOS)",
+    "values": {
+      "id": "clstreaksrm2-ios-registry",
+      "name": "Streak SRM 2 (I-OS)",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 0.5,
+      "criticalSlots": 1,
+      "battleValue": 8,
+      "introductionYear": 3058,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 12000,
+      "subType": "CLStreakSRM2IOS",
+      "damage": "2/missile",
+      "heat": 2,
+      "ranges": {
+        "long": 12,
+        "extreme": 16,
+        "short": 4,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM2IOS.java: CLStreakSRM2 (IOS)"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.clan.streak.oneShot.CLStreakSRM2IOS",
+      "internalName": "CLStreakSRM2 (IOS)",
+      "name": "Streak SRM 2 (I-OS)",
+      "aliases": [
+        "CLStreakSRM2 (IOS)",
+        "Clan IOS Streak SRM-2",
+        "Clan Streak SRM 2 (IOS)"
+      ],
+      "tech": "CLAN",
+      "bv": 8,
+      "tons": 0.5,
+      "criticalSlots": 1,
+      "cost": 12000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3058,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 2,
+      "ranges": {
+        "long": 12,
+        "extreme": 16,
+        "short": 4,
+        "minimum": 0,
+        "medium": 8
+      },
+      "ammoType": "SRM_STREAK",
+      "rackSize": 2
+    }
+  },
+  {
+    "native": "CLStreakSRM2 (OS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM2OS.java: CLStreakSRM2 (OS)",
+    "values": {
+      "id": "clstreaksrm2-os-registry",
+      "name": "Streak SRM 2 (OS)",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "battleValue": 8,
+      "introductionYear": 2819,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 7500,
+      "subType": "CLStreakSRM2OS",
+      "damage": "2/missile",
+      "heat": 2,
+      "ranges": {
+        "long": 12,
+        "extreme": 16,
+        "short": 4,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM2OS.java: CLStreakSRM2 (OS)"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.clan.streak.oneShot.CLStreakSRM2OS",
+      "internalName": "CLStreakSRM2 (OS)",
+      "name": "Streak SRM 2 (OS)",
+      "aliases": [
+        "CLStreakSRM2 (OS)",
+        "Clan OS Streak SRM-2",
+        "Clan Streak SRM 2 (OS)"
+      ],
+      "tech": "CLAN",
+      "bv": 8,
+      "tons": 1.5,
+      "criticalSlots": 1,
+      "cost": 7500,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2819,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 2,
+      "ranges": {
+        "long": 12,
+        "extreme": 16,
+        "short": 4,
+        "minimum": 0,
+        "medium": 8
+      },
+      "ammoType": "SRM_STREAK",
+      "rackSize": 2
+    }
+  },
+  {
+    "native": "CLStreakSRM4 (IOS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM4IOS.java: CLStreakSRM4 (IOS)",
+    "values": {
+      "id": "clstreaksrm4-ios-registry",
+      "name": "Streak SRM 4 (I-OS)",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "battleValue": 16,
+      "introductionYear": 3058,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 72000,
+      "subType": "CLStreakSRM4IOS",
+      "damage": "2/missile",
+      "heat": 3,
+      "ranges": {
+        "long": 12,
+        "extreme": 16,
+        "short": 4,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM4IOS.java: CLStreakSRM4 (IOS)"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.clan.streak.oneShot.CLStreakSRM4IOS",
+      "internalName": "CLStreakSRM4 (IOS)",
+      "name": "Streak SRM 4 (I-OS)",
+      "aliases": [
+        "CLStreakSRM4 (IOS)",
+        "Clan IOS Streak SRM-4",
+        "Clan Streak SRM 4 (IOS)"
+      ],
+      "tech": "CLAN",
+      "bv": 16,
+      "tons": 1.5,
+      "criticalSlots": 1,
+      "cost": 72000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3058,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 3,
+      "ranges": {
+        "long": 12,
+        "extreme": 16,
+        "short": 4,
+        "minimum": 0,
+        "medium": 8
+      },
+      "ammoType": "SRM_STREAK",
+      "rackSize": 4
+    }
+  },
+  {
+    "native": "CLStreakSRM4 (OS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM4OS.java: CLStreakSRM4 (OS)",
+    "values": {
+      "id": "clstreaksrm4-os-registry",
+      "name": "Streak SRM 4 (OS)",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 2.5,
+      "criticalSlots": 1,
+      "battleValue": 16,
+      "introductionYear": 2819,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 45000,
+      "subType": "CLStreakSRM4OS",
+      "damage": "2/missile",
+      "heat": 3,
+      "ranges": {
+        "long": 12,
+        "extreme": 16,
+        "short": 4,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM4OS.java: CLStreakSRM4 (OS)"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.clan.streak.oneShot.CLStreakSRM4OS",
+      "internalName": "CLStreakSRM4 (OS)",
+      "name": "Streak SRM 4 (OS)",
+      "aliases": [
+        "CLStreakSRM4 (OS)",
+        "Clan OS Streak SRM-4",
+        "Clan Streak SRM 4 (OS)"
+      ],
+      "tech": "CLAN",
+      "bv": 16,
+      "tons": 2.5,
+      "criticalSlots": 1,
+      "cost": 45000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2819,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 3,
+      "ranges": {
+        "long": 12,
+        "extreme": 16,
+        "short": 4,
+        "minimum": 0,
+        "medium": 8
+      },
+      "ammoType": "SRM_STREAK",
+      "rackSize": 4
+    }
+  },
+  {
+    "native": "CLStreakSRM6 (IOS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM6IOS.java: CLStreakSRM6 (IOS)",
+    "values": {
+      "id": "clstreaksrm6-ios-registry",
+      "name": "Streak SRM 6 (I-OS)",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 2.5,
+      "criticalSlots": 2,
+      "battleValue": 24,
+      "introductionYear": 3058,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 96000,
+      "subType": "CLStreakSRM6IOS",
+      "damage": "2/missile",
+      "heat": 4,
+      "ranges": {
+        "long": 12,
+        "extreme": 16,
+        "short": 4,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM6IOS.java: CLStreakSRM6 (IOS)"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.clan.streak.oneShot.CLStreakSRM6IOS",
+      "internalName": "CLStreakSRM6 (IOS)",
+      "name": "Streak SRM 6 (I-OS)",
+      "aliases": [
+        "CLStreakSRM6 (IOS)",
+        "Clan Improved OS Streak SRM-6 (IOS)",
+        "Clan Streak SRM 6 (IOS)"
+      ],
+      "tech": "CLAN",
+      "bv": 24,
+      "tons": 2.5,
+      "criticalSlots": 2,
+      "cost": 96000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3058,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 4,
+      "ranges": {
+        "long": 12,
+        "extreme": 16,
+        "short": 4,
+        "minimum": 0,
+        "medium": 8
+      },
+      "ammoType": "SRM_STREAK",
+      "rackSize": 6
+    }
+  },
+  {
+    "native": "CLStreakSRM6 (OS)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM6OS.java: CLStreakSRM6 (OS)",
+    "values": {
+      "id": "clstreaksrm6-os-registry",
+      "name": "Streak SRM 6 (OS)",
+      "category": "Missile",
+      "techBase": "CLAN",
+      "rulesLevel": "STANDARD",
+      "weight": 3.5,
+      "criticalSlots": 2,
+      "battleValue": 24,
+      "introductionYear": 2819,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 60000,
+      "subType": "CLStreakSRM6OS",
+      "damage": "2/missile",
+      "heat": 4,
+      "ranges": {
+        "long": 12,
+        "extreme": 16,
+        "short": 4,
+        "minimum": 0,
+        "medium": 8
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/clan/streak/oneShot/CLStreakSRM6OS.java: CLStreakSRM6 (OS)"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.clan.streak.oneShot.CLStreakSRM6OS",
+      "internalName": "CLStreakSRM6 (OS)",
+      "name": "Streak SRM 6 (OS)",
+      "aliases": [
+        "CLStreakSRM6 (OS)",
+        "Clan Improved OS Streak SRM-6",
+        "Clan Streak SRM 6 (OS)"
+      ],
+      "tech": "CLAN",
+      "bv": 24,
+      "tons": 3.5,
+      "criticalSlots": 2,
+      "cost": 60000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2819,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 4,
+      "ranges": {
+        "long": 12,
+        "extreme": 16,
+        "short": 4,
+        "minimum": 0,
+        "medium": 8
+      },
+      "ammoType": "SRM_STREAK",
       "rackSize": 6
     }
   },
@@ -7659,8 +8686,7 @@
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-2",
         "Java ammoType:rackSize SRM:2",
-        "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM2 (IOS), ISSRM2OS"
+        "Java munitions: M_STANDARD"
       ],
       "battleValue": 3,
       "weight": 1,
@@ -7675,8 +8701,10 @@
       "compatibleWeaponIds": [
         "clan-srm-2",
         "srm-2",
+        "clsrm2-ios-registry",
         "clsrm2-os-registry",
         "issrm2ios-registry",
+        "issrm2os-registry",
         "clbasrm2-registry",
         "isbasrm2-registry",
         "clbasrm2-os-registry",
@@ -7797,7 +8825,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-4",
         "Java ammoType:rackSize SRM:4",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM4 (IOS), CLBASRM4 (OS)"
+        "Unrepresented compatible Java weapons: CLBASRM4 (OS)"
       ],
       "battleValue": 5,
       "weight": 1,
@@ -7812,6 +8840,7 @@
       "compatibleWeaponIds": [
         "clan-srm-4",
         "srm-4",
+        "clsrm4-ios-registry",
         "clsrm4-os-registry",
         "issrm4ios-registry",
         "issrm4os-registry",
@@ -7869,7 +8898,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-4 (Clan) Artemis-capable",
         "Java ammoType:rackSize SRM:4",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: CLSRM4 (IOS), CLBASRM4 (OS)"
+        "Unrepresented compatible Java weapons: CLBASRM4 (OS)"
       ],
       "battleValue": 5,
       "weight": 1,
@@ -7884,6 +8913,7 @@
       "compatibleWeaponIds": [
         "clan-srm-4",
         "srm-4",
+        "clsrm4-ios-registry",
         "clsrm4-os-registry",
         "issrm4ios-registry",
         "issrm4os-registry",
@@ -8017,7 +9047,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-6",
         "Java ammoType:rackSize SRM:6",
         "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLSRM6 (IOS), ISBASRM6, CLBASRM6 (OS)"
+        "Unrepresented compatible Java weapons: ISBASRM6, CLBASRM6 (OS)"
       ],
       "battleValue": 7,
       "weight": 1,
@@ -8032,6 +9062,7 @@
       "compatibleWeaponIds": [
         "clan-srm-6",
         "srm-6",
+        "clsrm6-ios-registry",
         "clsrm6-os-registry",
         "issrm6ios-registry",
         "issrm6os-registry",
@@ -8088,7 +9119,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Ammo SRM-6 (Clan) Artemis-capable",
         "Java ammoType:rackSize SRM:6",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: CLSRM6 (IOS), ISBASRM6, CLBASRM6 (OS)"
+        "Unrepresented compatible Java weapons: ISBASRM6, CLBASRM6 (OS)"
       ],
       "battleValue": 7,
       "weight": 1,
@@ -8103,6 +9134,7 @@
       "compatibleWeaponIds": [
         "clan-srm-6",
         "srm-6",
+        "clsrm6-ios-registry",
         "clsrm6-os-registry",
         "issrm6ios-registry",
         "issrm6os-registry",
@@ -9119,8 +10151,7 @@
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Streak SRM 2 Ammo",
         "Java ammoType:rackSize SRM_STREAK:2",
-        "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLStreakSRM2 (IOS), ISStreakSRM2OS"
+        "Java munitions: M_STANDARD"
       ],
       "battleValue": 5,
       "weight": 1,
@@ -9135,8 +10166,10 @@
       "compatibleWeaponIds": [
         "clan-streak-srm-2",
         "streak-srm-2",
-        "streaksrm2-os",
-        "isstreaksrm2ios-registry"
+        "clstreaksrm2-ios-registry",
+        "clstreaksrm2-os-registry",
+        "isstreaksrm2ios-registry",
+        "isstreaksrm2os-registry"
       ]
     },
     "java": {
@@ -9242,8 +10275,7 @@
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Streak SRM 4 Ammo",
         "Java ammoType:rackSize SRM_STREAK:4",
-        "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLStreakSRM4 (IOS), ISStreakSRM4OS"
+        "Java munitions: M_STANDARD"
       ],
       "battleValue": 10,
       "weight": 1,
@@ -9259,8 +10291,10 @@
         "clan-streak-srm-4",
         "streaksrm4prototype",
         "streak-srm-4",
-        "streaksrm4-os",
-        "isstreaksrm4ios-registry"
+        "clstreaksrm4-ios-registry",
+        "clstreaksrm4-os-registry",
+        "isstreaksrm4ios-registry",
+        "isstreaksrm4os-registry"
       ]
     },
     "java": {
@@ -9367,8 +10401,7 @@
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: Clan Streak SRM 6 Ammo",
         "Java ammoType:rackSize SRM_STREAK:6",
-        "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLStreakSRM6 (IOS), ISStreakSRM6OS"
+        "Java munitions: M_STANDARD"
       ],
       "battleValue": 15,
       "weight": 1,
@@ -9384,8 +10417,10 @@
         "clan-streak-srm-6",
         "streaksrm6prototype",
         "streak-srm-6",
-        "streaksrm6-os",
-        "isstreaksrm6ios-registry"
+        "clstreaksrm6-ios-registry",
+        "clstreaksrm6-os-registry",
+        "isstreaksrm6ios-registry",
+        "isstreaksrm6os-registry"
       ]
     },
     "java": {
@@ -13649,8 +14684,7 @@
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo SRM-2 Narc-capable",
         "Java ammoType:rackSize SRM:2",
-        "Java munitions: M_NARC_CAPABLE",
-        "Unrepresented compatible Java weapons: ISSRM2OS, CLSRM2 (IOS)"
+        "Java munitions: M_NARC_CAPABLE"
       ],
       "battleValue": 3,
       "weight": 1,
@@ -13666,6 +14700,8 @@
         "srm-2",
         "clan-srm-2",
         "issrm2ios-registry",
+        "issrm2os-registry",
+        "clsrm2-ios-registry",
         "clsrm2-os-registry",
         "isbasrm2-registry",
         "clbasrm2-registry",
@@ -13733,7 +14769,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo SRM-4 Artemis-capable",
         "Java ammoType:rackSize SRM:4",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: CLSRM4 (IOS), CLBASRM4 (OS)"
+        "Unrepresented compatible Java weapons: CLBASRM4 (OS)"
       ],
       "battleValue": 5,
       "weight": 1,
@@ -13750,6 +14786,7 @@
         "clan-srm-4",
         "issrm4ios-registry",
         "issrm4os-registry",
+        "clsrm4-ios-registry",
         "clsrm4-os-registry",
         "isbasrm4-registry",
         "clbasrm4-registry",
@@ -13816,7 +14853,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo SRM-4 Narc-capable",
         "Java ammoType:rackSize SRM:4",
         "Java munitions: M_NARC_CAPABLE",
-        "Unrepresented compatible Java weapons: CLSRM4 (IOS), CLBASRM4 (OS)"
+        "Unrepresented compatible Java weapons: CLBASRM4 (OS)"
       ],
       "battleValue": 5,
       "weight": 1,
@@ -13833,6 +14870,7 @@
         "clan-srm-4",
         "issrm4ios-registry",
         "issrm4os-registry",
+        "clsrm4-ios-registry",
         "clsrm4-os-registry",
         "isbasrm4-registry",
         "clbasrm4-registry",
@@ -13899,7 +14937,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo SRM-6 Artemis-capable",
         "Java ammoType:rackSize SRM:6",
         "Java munitions: M_ARTEMIS_CAPABLE",
-        "Unrepresented compatible Java weapons: CLSRM6 (IOS), ISBASRM6, CLBASRM6 (OS)"
+        "Unrepresented compatible Java weapons: ISBASRM6, CLBASRM6 (OS)"
       ],
       "battleValue": 7,
       "weight": 1,
@@ -13916,6 +14954,7 @@
         "clan-srm-6",
         "issrm6ios-registry",
         "issrm6os-registry",
+        "clsrm6-ios-registry",
         "clsrm6-os-registry",
         "clbasrm6-registry",
         "isbasrm6os-registry"
@@ -13981,7 +15020,7 @@
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Ammo SRM-6 Narc-capable",
         "Java ammoType:rackSize SRM:6",
         "Java munitions: M_NARC_CAPABLE",
-        "Unrepresented compatible Java weapons: CLSRM6 (IOS), ISBASRM6, CLBASRM6 (OS)"
+        "Unrepresented compatible Java weapons: ISBASRM6, CLBASRM6 (OS)"
       ],
       "battleValue": 7,
       "weight": 1,
@@ -13998,6 +15037,7 @@
         "clan-srm-6",
         "issrm6ios-registry",
         "issrm6os-registry",
+        "clsrm6-ios-registry",
         "clsrm6-os-registry",
         "clbasrm6-registry",
         "isbasrm6os-registry"
@@ -15127,8 +16167,7 @@
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Streak SRM 2 Ammo",
         "Java ammoType:rackSize SRM_STREAK:2",
-        "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: CLStreakSRM2 (IOS), ISStreakSRM2OS"
+        "Java munitions: M_STANDARD"
       ],
       "battleValue": 4,
       "weight": 1,
@@ -15143,8 +16182,10 @@
       "compatibleWeaponIds": [
         "streak-srm-2",
         "clan-streak-srm-2",
-        "streaksrm2-os",
-        "isstreaksrm2ios-registry"
+        "clstreaksrm2-ios-registry",
+        "clstreaksrm2-os-registry",
+        "isstreaksrm2ios-registry",
+        "isstreaksrm2os-registry"
       ]
     },
     "java": {
@@ -15195,8 +16236,7 @@
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Streak SRM 4 Ammo",
         "Java ammoType:rackSize SRM_STREAK:4",
-        "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: ISStreakSRM4OS, CLStreakSRM4 (IOS)"
+        "Java munitions: M_STANDARD"
       ],
       "battleValue": 7,
       "weight": 1,
@@ -15213,7 +16253,9 @@
         "clan-streak-srm-4",
         "streaksrm4prototype",
         "isstreaksrm4ios-registry",
-        "streaksrm4-os"
+        "isstreaksrm4os-registry",
+        "clstreaksrm4-ios-registry",
+        "clstreaksrm4-os-registry"
       ]
     },
     "java": {
@@ -15265,8 +16307,7 @@
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/AmmoType.java: IS Streak SRM 6 Ammo",
         "Java ammoType:rackSize SRM_STREAK:6",
-        "Java munitions: M_STANDARD",
-        "Unrepresented compatible Java weapons: ISStreakSRM6OS, CLStreakSRM6 (IOS)"
+        "Java munitions: M_STANDARD"
       ],
       "battleValue": 11,
       "weight": 1,
@@ -15283,7 +16324,9 @@
         "clan-streak-srm-6",
         "streaksrm6prototype",
         "isstreaksrm6ios-registry",
-        "streaksrm6-os"
+        "isstreaksrm6os-registry",
+        "clstreaksrm6-ios-registry",
+        "clstreaksrm6-os-registry"
       ]
     },
     "java": {
@@ -19015,6 +20058,97 @@
     }
   },
   {
+    "native": "ISSRM2OS",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/oneShot/ISSRM2OS.java: ISSRM2OS",
+    "values": {
+      "id": "issrm2os-registry",
+      "name": "SRM 2 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 1.5,
+      "criticalSlots": 1,
+      "battleValue": 4,
+      "introductionYear": 2660,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "reintroductionYear": 3030,
+      "costCBills": 5000,
+      "subType": "ISSRM2OS",
+      "damage": "2/missile",
+      "heat": 2,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/oneShot/ISSRM2OS.java: ISSRM2OS"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.innerSphere.oneShot.ISSRM2OS",
+      "internalName": "ISSRM2OS",
+      "name": "SRM 2 (OS)",
+      "aliases": ["ISSRM2OS", "ISSRM2 (OS)", "IS SRM 2 (OS)", "OS SRM-2"],
+      "tech": "IS",
+      "bv": 4,
+      "tons": 1.5,
+      "criticalSlots": 1,
+      "cost": 5000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2660,
+      "extinctionYear": -1,
+      "reintroductionYear": 3030,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 2,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "ammoType": "SRM",
+      "rackSize": 2
+    }
+  },
+  {
     "native": "ISSRM4IOS",
     "kind": "weapons",
     "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/oneShot/ISSRM4IOS.java: ISSRM4IOS",
@@ -19770,6 +20904,103 @@
     }
   },
   {
+    "native": "ISStreakSRM2OS",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/streak/oneShot/ISStreakSRM2OS.java: ISStreakSRM2OS",
+    "values": {
+      "id": "isstreaksrm2os-registry",
+      "name": "Streak SRM 2 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 2,
+      "criticalSlots": 1,
+      "battleValue": 6,
+      "introductionYear": 2660,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "extinctionYear": 2800,
+      "reintroductionYear": 3035,
+      "costCBills": 7500,
+      "subType": "ISStreakSRM2OS",
+      "damage": "2/missile",
+      "heat": 2,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/streak/oneShot/ISStreakSRM2OS.java: ISStreakSRM2OS"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.innerSphere.streak.oneShot.ISStreakSRM2OS",
+      "internalName": "ISStreakSRM2OS",
+      "name": "Streak SRM 2 (OS)",
+      "aliases": [
+        "ISStreakSRM2OS",
+        "ISStreakSRM2 (OS)",
+        "IS Streak SRM 2 (OS)",
+        "OS Streak SRM-2"
+      ],
+      "tech": "IS",
+      "bv": 6,
+      "tons": 2,
+      "criticalSlots": 1,
+      "cost": 7500,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 2660,
+      "extinctionYear": 2800,
+      "reintroductionYear": 3035,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 2,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "ammoType": "SRM_STREAK",
+      "rackSize": 2
+    }
+  },
+  {
     "native": "ISStreakSRM4IOS",
     "kind": "weapons",
     "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/streak/oneShot/ISStreakSRM4IOS.java: ISStreakSRM4IOS",
@@ -19850,6 +21081,103 @@
     }
   },
   {
+    "native": "ISStreakSRM4OS",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/streak/oneShot/ISStreakSRM4OS.java: ISStreakSRM4OS",
+    "values": {
+      "id": "isstreaksrm4os-registry",
+      "name": "Streak SRM 4 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 3.5,
+      "criticalSlots": 1,
+      "battleValue": 12,
+      "introductionYear": 3055,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 45000,
+      "subType": "ISStreakSRM4OS",
+      "damage": "2/missile",
+      "heat": 3,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/streak/oneShot/ISStreakSRM4OS.java: ISStreakSRM4OS"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.innerSphere.streak.oneShot.ISStreakSRM4OS",
+      "internalName": "ISStreakSRM4OS",
+      "name": "Streak SRM 4 (OS)",
+      "aliases": [
+        "ISStreakSRM4OS",
+        "ISStreakSRM4 (OS)",
+        "IS Streak SRM 4 (OS)",
+        "OS Streak SRM-4"
+      ],
+      "tech": "IS",
+      "bv": 12,
+      "tons": 3.5,
+      "criticalSlots": 1,
+      "cost": 45000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3055,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 3,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "ammoType": "SRM_STREAK",
+      "rackSize": 4
+    }
+  },
+  {
     "native": "ISStreakSRM6IOS",
     "kind": "weapons",
     "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/streak/oneShot/ISStreakSRM6IOS.java: ISStreakSRM6IOS",
@@ -19894,6 +21222,102 @@
       "cost": 96000,
       "rulesLevel": "STANDARD",
       "introductionYear": 3056,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Missile",
+      "damage": -2,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 4,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "ammoType": "SRM_STREAK",
+      "rackSize": 6
+    }
+  },
+  {
+    "native": "ISStreakSRM6OS",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/streak/oneShot/ISStreakSRM6OS.java: ISStreakSRM6OS",
+    "values": {
+      "id": "isstreaksrm6os-registry",
+      "name": "Streak SRM 6 (OS)",
+      "category": "Missile",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "STANDARD",
+      "weight": 5,
+      "criticalSlots": 2,
+      "battleValue": 18,
+      "introductionYear": 3055,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 60000,
+      "subType": "ISStreakSRM6OS",
+      "damage": "2/missile",
+      "heat": 4,
+      "ranges": {
+        "long": 9,
+        "extreme": 12,
+        "short": 3,
+        "minimum": 0,
+        "medium": 6
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/srms/innerSphere/streak/oneShot/ISStreakSRM6OS.java: ISStreakSRM6OS"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.srms.innerSphere.streak.oneShot.ISStreakSRM6OS",
+      "internalName": "ISStreakSRM6OS",
+      "name": "Streak SRM 6 (OS)",
+      "aliases": [
+        "ISStreakSRM6OS",
+        "ISStreakSRM6 (OS)",
+        "IS Streak SRM 6 (OS)"
+      ],
+      "tech": "IS",
+      "bv": 18,
+      "tons": 5,
+      "criticalSlots": 2,
+      "cost": 60000,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 3055,
       "extinctionYear": -1,
       "reintroductionYear": -1,
       "isExplosive": false,
