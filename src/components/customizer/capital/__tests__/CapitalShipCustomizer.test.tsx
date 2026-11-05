@@ -181,10 +181,36 @@ it('shows a complete capital-ship BV (Space Station) as the total', async () => 
   expect(within(bvPanel()).queryByText(/not available/)).toBeNull();
 });
 
-it('labels a defensive-only BV and never shows it as the total', async () => {
+it('shows the newly complete Gaajian BV after admitting hull equipment', async () => {
   const tab = await openCapital('gaajian-system-patrol-boat-2485');
   mount(tab);
-  const view = getCapitalShipView(tab.id)!;
+  expect(getCapitalShipView(tab.id)?.bv).toMatchObject({
+    scope: 'complete',
+    defensive: 1864,
+    total: 3426,
+  });
+  expect(bvTerms()).toEqual(['Battle Value', 'Defensive', 'Offensive']);
+  expect(row('Battle Value')).toBe('3,426');
+  expect(within(bvPanel()).queryByText(/not available/)).toBeNull();
+});
+
+it('labels unsupported hull equipment defensive-only and never shows it as the total', () => {
+  const definition = read(
+    'data/units/capital/Gaajian System Patrol Boat (2485).json',
+  );
+  const view = registerCapitalShipView(
+    mapCapitalDefinitionToView(
+      {
+        ...definition,
+        equipment: [
+          ...definition.equipment,
+          { id: 'unsupported-hull-fixture', location: 'HULL' },
+        ],
+      },
+      'unsupported-hull-tab',
+    ),
+  );
+  mount({ ...view, unitType: UnitType.DROPSHIP } as unknown as TabInfo);
   expect(view.bv).toEqual({ scope: 'defensive-only', defensive: 1864 });
   expect(bvTerms()).toEqual(['Defensive BV']);
   expect(row('Defensive BV')).toBe('1,864');

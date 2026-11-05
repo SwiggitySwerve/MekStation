@@ -1338,12 +1338,24 @@
       "id": "isenhancedlrm20-ammo-artemis-capable-registry"
     },
     {
+      "internalName": "ISHMGA",
+      "id": "ishmga-registry"
+    },
+    {
+      "internalName": "ISLMGA",
+      "id": "islmga-registry"
+    },
+    {
       "internalName": "ISLongTom",
       "id": "islongtom-registry"
     },
     {
       "internalName": "ISLongTomCannon",
       "id": "islongtomcannon-registry"
+    },
+    {
+      "internalName": "ISMGA",
+      "id": "ismga-registry"
     },
     {
       "internalName": "ISMagshotGR Ammo",

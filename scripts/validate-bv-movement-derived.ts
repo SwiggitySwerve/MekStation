@@ -7,6 +7,7 @@ export interface BvHeatAndMovement {
   bvWalk: number;
   runMP: number;
   jumpMP: number;
+  jumpHeatMP: number;
   partialWingJumpBonus: number;
 }
 
@@ -59,6 +60,14 @@ function deriveRunMP(bvWalk: number, cs: CritScan, armorType: string): number {
   return runMP;
 }
 
+function partialWingBonus(
+  unit: UnitData,
+  cs: CritScan,
+  baseJumpMP: number,
+): number {
+  return cs.hasPartialWing && baseJumpMP > 0 ? (unit.tonnage <= 55 ? 2 : 1) : 0;
+}
+
 function deriveJumpMP(
   unit: UnitData,
   cs: CritScan,
@@ -68,8 +77,7 @@ function deriveJumpMP(
     cs.standardJJCrits +
     Math.floor(cs.improvedJJCrits / 2) +
     cs.prototypeIJJCrits;
-  const partialWingJumpBonus =
-    cs.hasPartialWing && baseJumpMP > 0 ? (unit.tonnage <= 55 ? 2 : 1) : 0;
+  const partialWingJumpBonus = partialWingBonus(unit, cs, baseJumpMP);
 
   if (jjMountsFromCrits > 0 && jjMountsFromCrits >= baseJumpMP) {
     return {
@@ -99,14 +107,24 @@ export function deriveBvHeatAndMovement(
   const heatDiss = deriveHeatDissipation(unit, cs, effectiveHSCount);
   const bvWalk = deriveBvWalkMP(unit, cs);
   const runMP = deriveRunMP(bvWalk, cs, armorType);
-  const { jumpMP, partialWingJumpBonus } = deriveJumpMP(unit, cs);
+  const jets = deriveJumpMP(unit, cs);
+  const boosterMP = cs.mechanicalJumpBoosterMP ?? 0;
+  const mechanicalJumpMP = cs.hasLargeShield
+    ? 0
+    : Math.max(
+        0,
+        boosterMP +
+          partialWingBonus(unit, cs, boosterMP) -
+          (cs.hasMediumShield ? Math.max(1, cs.shieldArms.length) : 0),
+      );
 
   return {
     effectiveHSCount,
     heatDiss,
     bvWalk,
     runMP,
-    jumpMP,
-    partialWingJumpBonus,
+    jumpMP: Math.max(jets.jumpMP, mechanicalJumpMP),
+    jumpHeatMP: Math.max(0, jets.jumpMP - jets.partialWingJumpBonus),
+    partialWingJumpBonus: jets.partialWingJumpBonus,
   };
 }

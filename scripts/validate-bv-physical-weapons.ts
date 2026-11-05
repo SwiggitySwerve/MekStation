@@ -1,4 +1,6 @@
 import type { CritScan } from './validate-bv-crit-scan-types';
+
+import { hasBVActuatorEnhancement } from '../src/utils/construction/battleValueWeapons';
 export type PhysicalWeaponType =
   | 'backhoe'
   | 'buzzsaw'
@@ -133,6 +135,17 @@ export function calculatePhysicalWeaponBV(
   return rule ? rule(tonnage, hasTSM ? 2 : 1) : 0;
 }
 
+// MekWithArms.java:242-270 (48fcb2f64): BV forces active blade heat.
+const PHYSICAL_WEAPON_BV_HEAT = new Map<string, number>([
+  ['vibroblade-small', 3],
+  ['vibroblade-medium', 5],
+  ['vibroblade-large', 7],
+]);
+
+export function getPhysicalWeaponBVHeat(type: string): number {
+  return PHYSICAL_WEAPON_BV_HEAT.get(type) ?? 0;
+}
+
 /** Preserve mount order, per-mount rounding and AES before accumulation. */
 export function calculatePhysicalBVTotal(
   crit: Pick<CritScan, 'physicalWeapons' | 'hasTSM' | 'aesLocs'>,
@@ -140,11 +153,11 @@ export function calculatePhysicalBVTotal(
 ): number {
   let physicalWeaponBV = 0;
   for (const pw of crit.physicalWeapons) {
+    // Heat-generating mounts enter the weapon heat sequence instead.
+    if (getPhysicalWeaponBVHeat(pw.type) > 0) continue;
     let bv = calculatePhysicalWeaponBV(pw.type, tonnage, crit.hasTSM);
     bv = Math.round(bv * 1000.0) / 1000.0;
-    const pwLocUpper = pw.location.toUpperCase();
-    if (crit.aesLocs.some((aLoc) => aLoc.toUpperCase() === pwLocUpper))
-      bv *= 1.25;
+    if (hasBVActuatorEnhancement(crit.aesLocs, pw.location)) bv *= 1.25;
     physicalWeaponBV += bv;
   }
   return physicalWeaponBV;

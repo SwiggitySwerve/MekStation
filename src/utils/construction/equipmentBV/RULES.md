@@ -422,7 +422,9 @@ registered type. The BV boundary uses the existing native IS Streak SRM-2 BV-4, 
 bin (AmmoType.java; pin48fcb2f64); loader identity contracts stay unchanged.
 
 Weapon flags are generated from the pinned Java WeaponType runtime, including
-inherited F_ARTEMIS_COMPATIBLE. nativeWeaponFlags.ts stores only these source
+inherited F_ARTEMIS_COMPATIBLE and F_INFANTRY (InfantryWeapon.java:83-87).
+WeaponBVFlags.java extracts these facts; the generator rejects stale envelopes
+without infantry flags. nativeWeaponFlags.ts stores only these source
 facts; weaponLinks.ts owns compatibility and source-order physical linking.
 The generator maps existing catalog identities without modifying catalogs.
 ExtendedLRMWeapon.java:52; LRMWeapon.java:72; MekFileParser.java:424-449

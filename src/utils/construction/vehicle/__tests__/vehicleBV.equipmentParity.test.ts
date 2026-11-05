@@ -52,6 +52,31 @@ function calculate(
   );
 }
 
+// MegaMek 48fcb2f64 AmmoType.java:13376-13386 defines sensors as ammo;
+// BVCalculator.java:1045-1086 caps it by the launcher's native type/rack pool.
+describe.each(['contract', 'store'])(
+  '%s C3 remote sensor ammunition',
+  (mode) => {
+    it.each([1, 3, 6])('classifies and caps %s native bins', (bins) => {
+      const b = calculate(
+        [
+          'ISC3RemoteSensorLauncher',
+          ...Array<string>(bins).fill('ISC3Sensors'),
+        ],
+        mode,
+      );
+      expect(b.weaponBV).toBe(30);
+      expect(b.ammoBV).toBe(Math.min(bins * 6, 30));
+      expect(b.offensiveEquipmentBV).toBe(0);
+    });
+    it('omits ammunition without its matching launcher', () => {
+      const b = calculate(['ISC3Sensors'], mode);
+      expect(b.ammoBV).toBe(0);
+      expect(b.offensiveEquipmentBV).toBe(0);
+    });
+  },
+);
+
 describe.each(['contract', 'store'])(
   '%s vehicle defensive equipment',
   (mode) => {

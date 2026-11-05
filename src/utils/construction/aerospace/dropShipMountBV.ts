@@ -1,6 +1,7 @@
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { CapitalArc } from '@/types/unit/CapitalShipInterfaces';
 
+import type { BVWeaponLinkType } from '../equipmentBV/resolution';
 import type { CapitalShipBVType } from './aerospaceBVTypes';
 import type { IDropShipBVUnit } from './dropShipBV';
 import type { ILargeAerospaceArcBV } from './largeAerospaceFirePool';
@@ -8,20 +9,30 @@ import type { ILargeAerospaceArcBV } from './largeAerospaceFirePool';
 import {
   addBVToAmmoCapGroup,
   getLargeAerospaceAmmoBVGroup,
+  largeAerospaceAmmoBVMultiplier,
+  getMachineGunArrayBVGroup,
 } from '../battleValueAmmo';
+import { isNonOffensiveLargeAerospaceMisc } from '../battleValueEquipment';
 import { getCapitalEquipmentBVFacts } from '../equipmentBV/catalogLoader';
 import {
   isArtemisCompatibleBVWeapon,
-  linkArtemisBVWeapons,
+  getMountedBVLinkType,
+  linkMountedWeaponBVModifiers,
+  linkPPCCapacitorBVWeapons,
+  linkMachineGunArrayBVWeapons,
 } from '../equipmentBV/weaponLinks';
 import {
-  getArtemisBVMultiplier,
+  getWeaponLinkBVMultiplier,
   getEquipmentEntry,
   getLargeAerospaceAmmoEntry,
   resolveEquipmentBV,
 } from '../equipmentBVResolver';
 import { getAerospaceDefensiveEquipmentKind } from './aerospaceBVEquipment';
-import { isRearMountedAerospaceEquipment } from './aerospaceMountFlags';
+import {
+  isRearMountedAerospaceEquipment,
+  largeAerospaceMountToken,
+  parseLargeAerospaceMount,
+} from './aerospaceMountFlags';
 import { getLargeAerospaceArcs } from './largeAerospaceFirePool';
 
 const LOCATIONS: Readonly<Record<string, CapitalArc>> = {
@@ -70,10 +81,6 @@ export function largeAerospaceMountArc(
   return physical;
 }
 
-function largeAerospaceMountToken(id: string): string {
-  return id.trim().toLowerCase().replace(/^r-/, '').replace(/^b-/, '');
-}
-
 const ENERGY_SUBTYPES = new Set([
   'Laser',
   'ER Laser',
@@ -82,6 +89,7 @@ const ENERGY_SUBTYPES = new Set([
   'X-Pulse Laser',
   'PPC',
   'Flamer',
+  'Heavy Laser',
 ]);
 
 export interface IDropShipMountBV {
@@ -103,11 +111,14 @@ export interface IDropShipMountBV {
 export function resolveLargeAerospaceMountBV(
   mounts: NonNullable<IDropShipBVUnit['equipment']>,
   capitalType?: CapitalShipBVType,
+  year?: number,
 ): IDropShipMountBV {
   const arcs = getLargeAerospaceArcs(capitalType === UnitType.WARSHIP).map(
     (arc) => ({
       arc,
       weaponBV: 0,
+      weaponSelectionBV: 0,
+      arcIndependentWeaponBV: 0,
       heat: 0,
       ammoBVByType: {} as Record<string, number>,
       weaponBVByAmmoType: {} as Record<string, number>,
@@ -119,60 +130,78 @@ export function resolveLargeAerospaceMountBV(
     reason: string;
   }[] = [];
   const weapons: {
+    id: string;
     arc: (typeof arcs)[number];
     location: CapitalArc;
-    battleValue: number;
+    baseBV: number;
+    bv: number;
+    heat: number;
+    rear: boolean;
+    ammoGroup?: string;
+    arrayGroup?: string;
+    capacitorBV?: number;
     compatible: boolean;
-    artemisType?: 'iv' | 'v';
+    artemisType?: BVWeaponLinkType;
   }[] = [];
   const links: {
     mountIndex: number;
     equipmentId: string;
-    location?: CapitalArc;
-    type: 'iv' | 'v';
+    location: CapitalArc;
+    id: string;
   }[] = [];
+  const capacitors: (typeof links)[number][] = [];
   mounts.forEach((mount, mountIndex) => {
     const fail = (reason: string): void => {
       unresolved.push({ mountIndex, equipmentId: mount.equipmentId, reason });
     };
-    const raw = mount.equipmentId.trim().toLowerCase();
-    const token = largeAerospaceMountToken(mount.equipmentId);
-    const [id, quantity, ...extra] = token.split(':');
-    if (extra.length || (quantity !== undefined && !/^\d+$/.test(quantity))) {
+    const parsed = parseLargeAerospaceMount(mount.equipmentId);
+    if (!parsed) {
       fail('Unsupported mount suffix or ammunition quantity');
       return;
     }
+    const { id, quantity, size } = parsed;
+    if (size !== undefined) {
+      const sized = getEquipmentEntry(id);
+      if (!sized || !isNonOffensiveLargeAerospaceMisc(sized.id, size))
+        fail('Unsupported variable-size equipment');
+      return;
+    }
     // The shared classifier owns defensive exclusions, including hull electronics.
-    if (getAerospaceDefensiveEquipmentKind(id)) {
-      if (capitalType && raw !== id)
-        fail('Unrepresented defensive mount qualifier or ammunition quantity');
+    const defensiveKind = getAerospaceDefensiveEquipmentKind(id);
+    if (defensiveKind) {
+      if (
+        quantity !== undefined &&
+        (!['amsAmmo', 'screenAmmo'].includes(defensiveKind) ||
+          !Number.isSafeInteger(Number(quantity)))
+      )
+        fail('Invalid defensive ammunition quantity');
       return;
     }
     const entry = getEquipmentEntry(id);
     const physicalLocation = largeAerospaceMountArc(mount, capitalType, false);
+    const linkType = entry && getMountedBVLinkType(entry.id);
     if (
       quantity === undefined &&
-      (entry?.id === 'artemisiv' || entry?.id === 'artemisv')
+      entry &&
+      (['iv', 'v', 'apollo'].includes(linkType ?? '') ||
+        entry.id === 'ppc-capacitor')
     ) {
-      links.push({
+      if (physicalLocation === undefined) {
+        fail('Unsupported weapon link location');
+        return;
+      }
+      (entry.id === 'ppc-capacitor' ? capacitors : links).push({
         mountIndex,
         equipmentId: mount.equipmentId,
         location: physicalLocation,
-        type: entry.id === 'artemisiv' ? 'iv' : 'v',
+        id: entry.id,
       });
       return;
     }
     if (
       quantity === undefined &&
       entry &&
-      [
-        'nc3',
-        'mobilehpg',
-        'groundmobilehpg',
-        'smallnavalcommscannersuite',
-        'largenavalcommscannersuite',
-        'navaltugadaptor',
-      ].includes(entry.id)
+      isNonOffensiveLargeAerospaceMisc(entry.id)
     )
       return;
     const location = largeAerospaceMountArc(mount, capitalType);
@@ -205,7 +234,7 @@ export function resolveLargeAerospaceMountBV(
           arc.ammoBVByType,
           key,
           entry.battleValue *
-            Math.max(1, Math.floor(shots / entry.shotsPerTon)),
+            largeAerospaceAmmoBVMultiplier(shots, entry.shotsPerTon),
         );
       return;
     }
@@ -214,12 +243,13 @@ export function resolveLargeAerospaceMountBV(
       return;
     }
     const key = getLargeAerospaceAmmoBVGroup(entry.id);
+    const arrayGroup = getMachineGunArrayBVGroup(entry.id);
     const capital = getCapitalEquipmentBVFacts(entry.id);
     if (
       !(
-        key &&
-        (entry.category === 'Ballistic' || entry.category === 'Missile')
+        key && ['Ballistic', 'Missile', 'Artillery'].includes(entry.category)
       ) &&
+      !arrayGroup &&
       !(capital?.isCapital || capital?.isSubCapital) &&
       !(entry.category === 'Energy' && ENERGY_SUBTYPES.has(entry.subType ?? ''))
     ) {
@@ -228,27 +258,49 @@ export function resolveLargeAerospaceMountBV(
     }
     const value = resolveEquipmentBV(id);
     weapons.push({
+      id: entry.id,
       arc,
       location: physicalLocation,
-      battleValue: value.battleValue,
+      baseBV: value.battleValue,
+      bv: value.battleValue,
+      heat: value.heat,
+      rear: isRearMountedAerospaceEquipment(mount.equipmentId),
+      ammoGroup: key,
+      arrayGroup,
       compatible: isArtemisCompatibleBVWeapon(entry.id),
     });
-    arc.heat += value.heat;
     if (key)
       addBVToAmmoCapGroup(arc.weaponBVByAmmoType, key, value.battleValue);
   });
   // MekFileParser links to the first unlinked compatible launcher in the same
   // physical location, regardless of rear flags or adjacency in the BLK list.
-  for (const link of linkArtemisBVWeapons(weapons, links)) {
+  linkMachineGunArrayBVWeapons(weapons);
+  const unmatched = [
+    ...linkMountedWeaponBVModifiers(weapons, links),
+    ...linkPPCCapacitorBVWeapons(weapons, capacitors, year),
+  ];
+  for (const link of unmatched) {
     unresolved.push({
       mountIndex: link.mountIndex,
       equipmentId: link.equipmentId,
-      reason: 'Unmatched Artemis launcher link',
+      reason: 'Unmatched native weapon link',
     });
   }
-  for (const weapon of weapons)
-    weapon.arc.weaponBV +=
-      weapon.battleValue * getArtemisBVMultiplier(weapon.artemisType);
+  const capacitorGroups = new Set<string>();
+  for (const weapon of weapons) {
+    const value = weapon.bv * getWeaponLinkBVMultiplier(weapon.artemisType);
+    const capacitor = weapon.capacitorBV ?? 0;
+    weapon.arc.weaponSelectionBV += value + capacitor;
+    weapon.arc.weaponBV += value;
+    weapon.arc.heat += weapon.heat + (capacitor ? 5 : 0);
+    const group = `${weapon.id}|${weapon.location}|${weapon.rear}`;
+    // LargeAeroBVCalculator.java:246-269 groups equal mounts before processWeapon;
+    // BVCalculator.java:853-857 adds one capacitor after arc weighting per group.
+    if (capacitor && !capacitorGroups.has(group)) {
+      capacitorGroups.add(group);
+      weapon.arc.arcIndependentWeaponBV += capacitor;
+    }
+  }
   unresolved.sort((a, b) => a.mountIndex - b.mountIndex);
   return { arcs, unresolved };
 }
@@ -304,7 +356,7 @@ export function largeAerospaceHeatByArc(
     const id = largeAerospaceMountToken(mount.equipmentId).split(':')[0];
     const kind = getAerospaceDefensiveEquipmentKind(id);
     const arc = largeAerospaceMountArc(mount, capitalType);
-    if (kind && kind !== 'amsAmmo' && arc)
+    if (kind && !['amsAmmo', 'screenAmmo'].includes(kind) && arc)
       defensive.set(
         arc,
         (defensive.get(arc) ?? 0) + (getEquipmentEntry(id)?.heat ?? 0),

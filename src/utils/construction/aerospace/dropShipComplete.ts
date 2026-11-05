@@ -56,6 +56,7 @@ export function calculateLargeAerospaceBV(
   const resolution = resolveLargeAerospaceMountBV(
     equipment,
     unit.unitType === UnitType.DROPSHIP ? undefined : unit.unitType,
+    unit.year,
   );
   const reasons = resolution.unresolved.map(
     (m) => `Mount ${m.mountIndex} (${m.equipmentId}): ${m.reason}`,
