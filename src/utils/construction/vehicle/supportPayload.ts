@@ -61,6 +61,8 @@ export function computeSupportPayloadWeights(
     const energy =
       weapon &&
       isPowerAmplifierEnergyWeapon({
+        id: item.id,
+        name: item.name,
         category:
           item.category === 'Energy'
             ? EquipmentCategory.ENERGY_WEAPON
