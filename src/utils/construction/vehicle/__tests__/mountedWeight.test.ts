@@ -20,6 +20,7 @@ const item = (
   id,
   name: id,
   weight,
+  heat: 0, // These fixtures isolate mounted mass from the heat-neutral sink term.
   category,
   special,
   techBase: TechBase.INNER_SPHERE,

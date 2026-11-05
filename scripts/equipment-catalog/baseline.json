@@ -9185,7 +9185,7 @@
     "file": "weapons/missile-other.json",
     "index": 13,
     "id": "lrtorpedo10",
-    "sha256": "79646666a1b3ca41ea02a1631acd588334b5aea0b40153bee49b10611d2b6896",
+    "sha256": "938fe475023617e13edacc56926ed9559769681efff7bc13e5ad63ceb94c471f",
     "item": {
       "id": "lrtorpedo10",
       "name": "LRT 10",
@@ -9193,7 +9193,7 @@
       "subType": "LRM",
       "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 4,
       "ranges": {
         "minimum": 0,
@@ -9345,7 +9345,7 @@
     "file": "weapons/missile-other.json",
     "index": 18,
     "id": "lrtorpedo15",
-    "sha256": "3dab7d8e20f2a0bb61ac1a10b63d9615323a2329529720304907629ad6ae17c8",
+    "sha256": "3a7fa1d7d9058fb6229419f31f7a4424722b298b135d99fca65bbcf15113cf8e",
     "item": {
       "id": "lrtorpedo15",
       "name": "LRT 15",
@@ -9353,7 +9353,7 @@
       "subType": "LRM",
       "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 5,
       "ranges": {
         "minimum": 0,
@@ -9537,7 +9537,7 @@
     "file": "weapons/missile-other.json",
     "index": 24,
     "id": "lrtorpedo20",
-    "sha256": "9f912231dac6903accdc695ac2604f8fb876e670d82c5e4ee4da59bb92a2a7ce",
+    "sha256": "5127b9654e617a7be1becf4f584597aa5ea94161e5893d50aa023a651cdeeb5f",
     "item": {
       "id": "lrtorpedo20",
       "name": "LRT 20",
@@ -9545,7 +9545,7 @@
       "subType": "LRM",
       "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 6,
       "ranges": {
         "minimum": 0,
@@ -9633,7 +9633,7 @@
     "file": "weapons/missile-other.json",
     "index": 27,
     "id": "lrtorpedo5",
-    "sha256": "ff4028f44ba90eae35f0b7bf8fde324a640022a73425bdfa00a0e9f7b47bfbc8",
+    "sha256": "95e982c19e4acfd0b1b4ff34a55a9c8f2d49a8d6894a45dbfdcbb373d05bc7d6",
     "item": {
       "id": "lrtorpedo5",
       "name": "LRT 5",
@@ -9641,7 +9641,7 @@
       "subType": "LRM",
       "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "1/missile",
       "heat": 2,
       "ranges": {
         "minimum": 0,
@@ -10904,7 +10904,7 @@
     "file": "weapons/missile-other.json",
     "index": 67,
     "id": "srt2",
-    "sha256": "ad6e1f6249ef6de74c9c677a6195e20b87c4e924a8e5be151ff9e264cd4a3b31",
+    "sha256": "d8993007b171024735240a8aa9e049241d7e1c18253cb2ad1d1ac8873241dac5",
     "item": {
       "id": "srt2",
       "name": "SRT 2",
@@ -10912,7 +10912,7 @@
       "subType": "SRM",
       "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "2/missile",
       "heat": 2,
       "ranges": {
         "minimum": 0,
@@ -10968,7 +10968,7 @@
     "file": "weapons/missile-other.json",
     "index": 69,
     "id": "srt4",
-    "sha256": "91e6221018e96e0e24692807ec7cacfe15eb328f4d3fdffe302255396654ec9b",
+    "sha256": "a0e656f518d6a3b9e5ecc3aff95e0550cf01c83917a07b68313df3ef38c5cd36",
     "item": {
       "id": "srt4",
       "name": "SRT 4",
@@ -10976,7 +10976,7 @@
       "subType": "SRM",
       "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "2/missile",
       "heat": 3,
       "ranges": {
         "minimum": 0,
@@ -11032,7 +11032,7 @@
     "file": "weapons/missile-other.json",
     "index": 71,
     "id": "srt6",
-    "sha256": "563869e00eaf8038e82453d0c074deb09f8101b6450811f042d241cec0521cec",
+    "sha256": "cecaecd8efd6514983e2d1ea70094174ca89866dfd08e938f36b83e1b83a2478",
     "item": {
       "id": "srt6",
       "name": "SRT 6",
@@ -11040,7 +11040,7 @@
       "subType": "SRM",
       "techBase": "CLAN",
       "rulesLevel": "UNOFFICIAL",
-      "damage": 0,
+      "damage": "2/missile",
       "heat": 4,
       "ranges": {
         "minimum": 0,
