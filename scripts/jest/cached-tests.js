@@ -1119,7 +1119,38 @@ function jestArgs({ projects, shard, passthrough }) {
   ];
 }
 
-function createJestExecutor({ root, baseArgs }) {
+// Windows refuses a command line over 32,767 characters, and every file to run is
+// an argument: a run of more than ~450 files failed to spawn (ENAMETOOLONG) and
+// reported only exit 1, so the cache could not be used locally. There the files
+// go in batches under the limit; elsewhere one Jest run, as before.
+const ARGV_LIMIT = process.platform === 'win32' ? 28000 : Infinity;
+
+/** Split `files` into consecutive batches whose command line stays under `limit`. */
+function batchFiles(files, fixedArgs, limit = ARGV_LIMIT) {
+  const budget = limit - fixedArgs.reduce((sum, a) => sum + a.length + 3, 0);
+  const batches = [];
+  let current = [];
+  let used = 0;
+  for (const file of files) {
+    const cost = file.length + 3; // separator and possible quotes
+    if (current.length > 0 && used + cost > budget) {
+      batches.push(current);
+      current = [];
+      used = 0;
+    }
+    current.push(file);
+    used += cost;
+  }
+  if (current.length > 0) batches.push(current);
+  return batches;
+}
+
+function createJestExecutor({
+  root,
+  baseArgs,
+  spawn = spawnSync,
+  limit = ARGV_LIMIT,
+}) {
   const jestBin = path.join(root, 'node_modules', 'jest', 'bin', 'jest.js');
   const withoutShard = baseArgs.filter((a) => !a.startsWith('--shard'));
   return async (files) => {
@@ -1127,33 +1158,45 @@ function createJestExecutor({ root, baseArgs }) {
       path.join(require('node:os').tmpdir(), 'cached-tests-'),
     );
     const out = path.join(tmp, 'report.json');
-    const result = spawnSync(
+    const fixed = [
       process.execPath,
-      [
-        jestBin,
-        '--json',
-        `--outputFile=${out}`,
-        ...withoutShard,
-        '--runTestsByPath',
-        ...files,
-      ],
-      { cwd: root, stdio: 'inherit' },
-    );
+      jestBin,
+      '--json',
+      `--outputFile=${out}`,
+      ...withoutShard,
+      '--runTestsByPath',
+    ];
     const results = new Map();
+    let exitCode = 0;
     try {
-      const report = JSON.parse(fs.readFileSync(out, 'utf8'));
-      for (const test of report.testResults) {
-        results.set(
-          toPosix(path.relative(root, test.name)),
-          test.status === 'passed' ? 'passed' : 'failed',
-        );
+      // A failing batch does not stop the rest: one Jest run reports every file too.
+      for (const batch of batchFiles(files, fixed, limit)) {
+        const result = spawn(process.execPath, fixed.slice(1).concat(batch), {
+          cwd: root,
+          stdio: 'inherit',
+        });
+        if (result.error)
+          console.error(
+            `[test:cached] could not start jest: ${result.error.message}`,
+          );
+        exitCode = exitCode || (result.status ?? 1);
+        try {
+          const report = JSON.parse(fs.readFileSync(out, 'utf8'));
+          for (const test of report.testResults) {
+            results.set(
+              toPosix(path.relative(root, test.name)),
+              test.status === 'passed' ? 'passed' : 'failed',
+            );
+          }
+        } catch {
+          // no readable report: nothing is recorded, exit code still decides
+        }
+        fs.rmSync(out, { force: true }); // a stale report must not stand in for the next batch
       }
-    } catch {
-      // no readable report: nothing is recorded, exit code still decides
     } finally {
       fs.rmSync(tmp, { recursive: true, force: true });
     }
-    return { exitCode: result.status ?? 1, results };
+    return { exitCode, results };
   };
 }
 
@@ -1286,7 +1329,9 @@ async function main(argv) {
 
 module.exports = {
   analyzeSource,
+  batchFiles,
   buildFileIndex,
+  createJestExecutor,
   createKeyer,
   createStore,
   runCached,
