@@ -10,6 +10,7 @@ from enum_mappings import (
     generate_id_from_name,
     map_armor_type,
     map_cockpit_type,
+    map_chassis_tech_base,
     map_engine_type,
     map_gyro_type,
     map_heat_sink_type,
@@ -382,6 +383,7 @@ class MTFParser:
                 systemManufacturer=data.get('system_manufacturers') if data.get('system_manufacturers') else None
             )
 
+        chassis_tech_base = map_chassis_tech_base(data.get('techbase', ''))
         return SerializedUnit(
             id=unit_id,
             chassis=chassis,
@@ -390,6 +392,7 @@ class MTFParser:
             configuration=map_mech_config(data.get('config', 'Biped')),
             lamType=data.get('lam_type'),
             techBase=map_tech_base(data.get('techbase', 'Inner Sphere')),
+            componentTechBases={'chassis': chassis_tech_base} if chassis_tech_base else None,
             rulesLevel=map_rules_level(data.get('rules_level', '1')),
             era=era,
             year=year,
