@@ -1,7 +1,7 @@
 import type { CritScan } from './validate-bv-crit-scan';
 import type { UnitData } from './validate-bv-types';
 
-import { applyTargetingComputerBV } from '../src/utils/construction/battleValueWeapons';
+import { applyWeaponBVModifiers } from '../src/utils/construction/battleValueHeatTracking';
 import { getWeaponLinkBVMultiplier } from '../src/utils/construction/equipmentBV/resolution';
 import { toMechLoc } from './validate-bv-normalizers';
 import { isArmLoc } from './validate-bv-unit-derived';
@@ -245,17 +245,15 @@ export function applyWeaponPostScanModifiers(
   // Applying ×0.67 causes massive regression (units drop 5-10% further below reference).
   // Keep individual MGs at full BV with no MGA reduction to match MUL reference values.
 
-  // determineFront — use fully-modified BV (with TC, rear ×0.5) per MegaMek
+  // determineFront compares modified BV before rear weighting (Java:690-699,764-765).
   // Turret-mounted weapons are excluded from front/rear comparison per MegaMek
   let fBV = 0,
     rBV = 0;
   for (const w of weapons) {
     if (isArmLoc(w.location) || w.isTurret) continue;
-    let modBV = w.bv;
-    if (w.hasAES) modBV *= 1.25;
-    if (hasTC && w.isDirectFire) modBV = applyTargetingComputerBV(modBV);
+    const modBV = applyWeaponBVModifiers({ ...w, rear: false }, hasTC);
     if (w.rear) {
-      rBV += modBV * 0.5;
+      rBV += modBV;
     } else {
       fBV += modBV;
     }
