@@ -18,6 +18,11 @@ facts while preserving all existing catalog values and ammo compatibility lists.
 New selections append after the original selection so frozen row indices remain
 stable. BV, heat and shots per ton continue to come from the equipment entries.
 
+For registered records missing converted spellings, `generate.mjs` accepts
+`--aliases-only` after its three pinned input paths. It adds Java-owned slugs
+without changing prior alias targets, catalog entries or their frozen baseline.
+Every target must already exist. This preserves fields added by later generators.
+
 ## Vehicle slots
 
 `SweepFacts.java` also writes `tankSlots` and `supportVehicleSlots` (null where
@@ -27,3 +32,8 @@ after `generate.mjs`: it adds `vehicleSlots` to every non-ammo record whose
 Java types (same alias owner) agree, and folds exactly that field into
 `baseline.json`. Reruns are no-ops. Ammo is counted per distinct type instead.
 Tests: `node --test scripts/equipment-catalog/vehicle-slots.test.mjs`.
+
+`capital-alias-inputs.json` is the audited list of eight converted spellings
+from the remaining capital inventory. Only those additional slugs are derived;
+unrelated one-shot aliases remain outside this change. Existing native aliases
+and previously generated gap inputs retain their separate contracts.

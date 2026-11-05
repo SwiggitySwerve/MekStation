@@ -8436,5 +8436,13 @@
   "ISSmallLaserPrimitive": "primitive-prototype-small-laser-registry",
   "ProtoTypeArrowIV": "prototypearrowiv-registry",
   "Prototype Arrow IV": "prototypearrowiv-registry",
-  "ProtoArrowIVSystem": "prototypearrowiv-registry"
+  "ProtoArrowIVSystem": "prototypearrowiv-registry",
+  "autocannon-5-primitive": "autocannon-5-primitive-registry",
+  "clan-ammo-srm-4-clan-artemis-capable": "clan-ammo-srm-4-clan-artemis-capable-registry",
+  "isenhancedlrm20-ammo-artemis-capable": "isenhancedlrm20-ammo-artemis-capable-registry",
+  "mass-driver-heavy": "mass-driver-heavy-registry",
+  "mass-driver-light": "mass-driver-light-registry",
+  "mass-driver-medium": "mass-driver-medium-registry",
+  "sub-capital-missile-launcher-swordfish": "sub-capital-missile-launcher-swordfish-registry",
+  "tele-operated-missile-killer-whale-t": "tele-operated-missile-killer-whale-t-registry"
 }

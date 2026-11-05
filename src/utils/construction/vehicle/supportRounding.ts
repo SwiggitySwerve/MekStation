@@ -13,7 +13,8 @@ export function ceilSupportWeight(weight: number, tonnage: number): number {
 export function roundSupportComponentWeight(
   weight: number,
   tonnage: number,
+  kilograms = tonnage < 5,
 ): number {
-  const step = tonnage < 5 ? 1000 : 2;
+  const step = kilograms ? 1000 : 2;
   return Math.ceil((roundWeightToGrams(weight) / 1e6) * step) / step;
 }
