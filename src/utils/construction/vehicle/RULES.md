@@ -619,3 +619,10 @@ Mounted figures consume that same rule before
 summing equipment and turret mass, independently of the held sized-equipment
 editor integration. Missing context is unavailable, not a fixed zero.
 Pin 48fcb2f64: MiscType.java:660-666,702-705; RoundWeight.java:58-68.
+
+## Sized liquid-storage mass
+
+Liquid storage shares the existing sized cargo/communications rule in the
+variable-mass resolver. Charge component-rounded source size, including
+kilogram rounding for small support. No second formula or catalog value is
+introduced. Pin 48fcb2f64: MiscType.java:839-840; RoundWeight.java:58-68.
