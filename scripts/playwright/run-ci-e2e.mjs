@@ -1,5 +1,6 @@
 // Run one duration-balanced PR shard. The app is built once by its CI job.
 import { spawn, spawnSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
@@ -12,6 +13,11 @@ import {
   parseInvocation,
   planShards,
 } from './ci-e2e-plan.mjs';
+import {
+  assertRuntime,
+  settleSuites,
+  suiteRuntime,
+} from './ci-e2e-runtime.mjs';
 
 const root = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -19,17 +25,26 @@ const root = path.resolve(
 );
 const cli = path.join(root, 'node_modules/@playwright/test/cli.js');
 const planOnly = process.argv.includes('--plan-only');
-const { suite: requestedSuite, shardIndex } = parseInvocation(
+const {
+  suite: requestedSuite,
+  shardIndex,
+  concurrency,
+} = parseInvocation(
   process.argv.slice(2).filter((arg) => arg !== '--plan-only'),
 );
+const scope = requestedSuite?.name ?? 'all';
+const executionId = process.env.GITHUB_RUN_ID ?? randomUUID();
+const attempt = process.env.GITHUB_RUN_ATTEMPT ?? '1';
 const output = path.join(root, 'e2e-timings');
 fs.mkdirSync(output, { recursive: true });
 const invocationStarted = performance.now();
 const listings = [];
+const executions = [];
+let interrupted = false;
 
 function writeListingTimings() {
   const receipt = {
-    suite: requestedSuite.name,
+    suite: scope,
     shard: shardIndex,
     planOnly,
     listings,
@@ -38,12 +53,12 @@ function writeListingTimings() {
     invocationMs: performance.now() - invocationStarted,
   };
   fs.writeFileSync(
-    path.join(output, `listing-${requestedSuite.name}.json`),
+    path.join(output, `listing-${scope}.json`),
     JSON.stringify(receipt, null, 2),
   );
 }
 
-function listTests(args, phase) {
+function listTests(args, phase, suite = scope, environment = {}) {
   const started = performance.now();
   const result = spawnSync(
     process.execPath,
@@ -54,10 +69,11 @@ function listTests(args, phase) {
       stdio: ['ignore', 'pipe', 'pipe'],
       timeout: 120_000,
       maxBuffer: 16 * 1024 * 1024,
-      env: { ...process.env, PLAYWRIGHT_JSON_OUTPUT_FILE: '' },
+      env: { ...process.env, ...environment, PLAYWRIGHT_JSON_OUTPUT_FILE: '' },
     },
   );
   const listing = {
+    suite,
     phase,
     elapsedMs: performance.now() - started,
     exitCode: result.status,
@@ -66,7 +82,7 @@ function listTests(args, phase) {
   writeListingTimings();
   console.log(
     JSON.stringify({
-      suite: requestedSuite.name,
+      suite,
       shard: shardIndex,
       e2eListing: listing,
     }),
@@ -75,10 +91,11 @@ function listTests(args, phase) {
     throw new Error(
       `Cannot collect E2E census: ${result.error ?? result.stderr}`,
     );
-  return collectTests(JSON.parse(result.stdout));
+  const report = JSON.parse(result.stdout);
+  return { tests: collectTests(report), report };
 }
 
-const tests = listTests(
+const { tests } = listTests(
   CI_SUITES.flatMap(({ files }) => files.map((f) => `e2e/${f}`)),
   'census',
 );
@@ -90,7 +107,7 @@ const timing = JSON.parse(
 );
 const plan = planShards(tests, timing);
 fs.writeFileSync(
-  path.join(output, `plan-${requestedSuite.name}.json`),
+  path.join(output, `plan-${scope}.json`),
   JSON.stringify(plan, null, 2),
 );
 console.log(
@@ -106,6 +123,13 @@ console.log(
 
 async function runTask(task) {
   const suite = CI_SUITES.find(({ name }) => name === task.suite);
+  const runtime = suiteRuntime(
+    root,
+    suite.name,
+    shardIndex,
+    executionId,
+    attempt,
+  );
   const list = path.join(output, `${suite.name}.txt`);
   const report = path.join(output, `${suite.name}.json`);
   fs.writeFileSync(list, task.tests.map(({ key }) => key).join('\n') + '\n');
@@ -117,9 +141,19 @@ async function runTask(task) {
     ...suite.options,
     `--output=test-results/${suite.name}`,
   ];
-  assertSameTests(task.tests, listTests(args, 'selection'));
+  const selection = listTests(
+    args,
+    'selection',
+    suite.name,
+    runtime.environment,
+  );
+  assertSameTests(task.tests, selection.tests);
+  assertRuntime(selection.report, runtime);
   const started = Date.now();
   if (planOnly) return;
+  const execution = { ...runtime, startedAt: new Date(started).toISOString() };
+  executions.push(execution);
+  writeExecutionReceipt();
   const child = spawn(
     process.execPath,
     [path.join(root, 'scripts/playwright/run-playwright.mjs'), 'test', ...args],
@@ -127,6 +161,7 @@ async function runTask(task) {
       cwd: root,
       env: {
         ...process.env,
+        ...runtime.environment,
         PLAYWRIGHT_HTML_OUTPUT_DIR: `playwright-report-${suite.name}`,
         PLAYWRIGHT_JSON_OUTPUT_FILE: report,
       },
@@ -138,6 +173,7 @@ async function runTask(task) {
     if (process.platform === 'win32')
       spawnSync('taskkill', ['/PID', String(child.pid), '/T', '/F'], {
         stdio: 'ignore',
+        timeout: 10_000,
       });
     else {
       try {
@@ -147,12 +183,13 @@ async function runTask(task) {
       }
     }
   };
-  const interrupted = () => {
+  const interrupt = () => {
+    interrupted = true;
     kill();
     process.exitCode = 1;
   };
-  process.once('SIGTERM', interrupted);
-  process.once('SIGINT', interrupted);
+  process.once('SIGTERM', interrupt);
+  process.once('SIGINT', interrupt);
   // A stuck browser/server must fail this gate and release its process tree.
   const timeout = setTimeout(kill, 600_000);
   let code;
@@ -163,11 +200,16 @@ async function runTask(task) {
     });
   } finally {
     clearTimeout(timeout);
-    process.removeListener('SIGTERM', interrupted);
-    process.removeListener('SIGINT', interrupted);
+    process.removeListener('SIGTERM', interrupt);
+    process.removeListener('SIGINT', interrupt);
+    execution.completedAt = new Date().toISOString();
+    execution.exitCode = code ?? 1;
+    writeExecutionReceipt();
   }
   if (code !== 0) throw new Error(`${suite.name} failed with exit ${code}`);
-  const observed = collectTests(JSON.parse(fs.readFileSync(report, 'utf8')));
+  const result = JSON.parse(fs.readFileSync(report, 'utf8'));
+  assertRuntime(result, runtime);
+  const observed = collectTests(result);
   assertSameTests(task.tests, observed);
   if (observed.some(({ results }) => results.length === 0))
     throw new Error(`${suite.name} reported unexecuted tests`);
@@ -180,17 +222,26 @@ async function runTask(task) {
   );
 }
 
-const failures = [];
-// Continue collecting evidence from remaining suites when a previous one fails.
-for (const task of plan.shards[shardIndex - 1].tasks.filter(
-  ({ suite }) => suite === requestedSuite.name,
-)) {
-  try {
-    await runTask(task);
-  } catch (error) {
-    failures.push(error);
-    console.error(error);
-  }
+function writeExecutionReceipt() {
+  fs.writeFileSync(
+    path.join(output, 'execution.json'),
+    JSON.stringify(
+      { shard: shardIndex, limit: concurrency, executions },
+      null,
+      2,
+    ),
+  );
 }
+
+// Longest suite first, with independent standalone servers and databases.
+const failures = await settleSuites(
+  plan.shards[shardIndex - 1].tasks.filter(
+    ({ suite }) => !requestedSuite || suite === requestedSuite.name,
+  ),
+  concurrency,
+  runTask,
+  () => interrupted,
+);
+for (const error of failures) console.error(error);
 if (failures.length) process.exitCode = 1;
 writeListingTimings();

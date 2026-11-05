@@ -22,15 +22,7 @@ const GATE_JOB = 'e2e';
 const CHANGE_GATE_IF =
   "needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'";
 const GATE_COMMAND =
-  'run: node scripts/playwright/run-ci-e2e.mjs test ' +
-  'e2e/active-session-recovery.spec.ts ' +
-  'e2e/seam-roster-materialization-handoff.spec.ts ' +
-  'e2e/seam-fresh-construction-no-instant-defeat.spec.ts ' +
-  'e2e/customizer-equipment-catalog.spec.ts ' +
-  'e2e/customizer-record-sheet-rendering.spec.ts ' +
-  'e2e/customizer-edit-recovery.spec.ts ' +
-  '--project=chromium --retries=0 --trace=retain-on-failure ' +
-  '--workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates';
+  'run: node scripts/playwright/run-ci-e2e.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts e2e/customizer-library-open.spec.ts e2e/tactical-map-visual-smoke.spec.ts --project=chromium --gate-retries=0 --gate-trace=retain-on-failure --gate-workers=1 --library-workers=1 --smoke-workers=4 --shard=${{ matrix.shard }}/2 --concurrency=2 --output=test-results';
 
 interface ValidatorManifest {
   status: string;
@@ -304,11 +296,11 @@ describe('OpenSpec CI quality QC validator', () => {
     it('rejects a gate step disabled with if false', () => {
       const disabled = mutateJob(readWorkflow(), GATE_JOB, (block) =>
         block.replace(
-          '      - name: Run seam anchor and customizer regression gates' +
+          '      - name: Run isolated E2E suites' +
             String.fromCharCode(10) +
             '        if: ' +
             CHANGE_GATE_IF,
-          '      - name: Run seam anchor and customizer regression gates' +
+          '      - name: Run isolated E2E suites' +
             String.fromCharCode(10) +
             '        if: false',
         ),
@@ -414,12 +406,13 @@ describe('OpenSpec CI quality QC validator', () => {
         'workflow-job-condition-invalid',
       ],
       [
-        'smoke suite condition',
+        'combined suite condition',
         GATE_JOB,
         (block: string) =>
           block.replace(
-            '        if: ${{ !cancelled() && (' + CHANGE_GATE_IF + ') }}',
-            '        if: always()',
+            '      - name: Run isolated E2E suites\n        if: ' +
+              CHANGE_GATE_IF,
+            '      - name: Run isolated E2E suites\n        if: always()',
           ),
         'workflow-job-condition-invalid',
       ],
@@ -605,7 +598,7 @@ describe('OpenSpec CI quality QC validator', () => {
     it.each([
       [
         'allows Playwright retries',
-        (block: string) => block.replace(' --retries=0', ''),
+        (block: string) => block.replace(' --gate-retries=0', ''),
       ],
       [
         // `--retries=0` plus the config default `trace: 'on-first-retry'`
@@ -613,8 +606,8 @@ describe('OpenSpec CI quality QC validator', () => {
         'keeps the retry-only trace mode',
         (block: string) =>
           block.replace(
-            ' --trace=retain-on-failure',
-            ' --trace=on-first-retry',
+            ' --gate-trace=retain-on-failure',
+            ' --gate-trace=on-first-retry',
           ),
       ],
       [

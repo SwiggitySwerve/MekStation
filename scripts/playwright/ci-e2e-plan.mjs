@@ -36,6 +36,30 @@ export function parseInvocation(argv) {
   const shard = argv.find((arg) => arg.startsWith('--shard='));
   if (!/^--shard=[12]\/2$/.test(shard ?? ''))
     throw new Error('Expected --shard=<1|2>/2');
+  if (argv.some((arg) => arg.startsWith('--concurrency='))) {
+    const expected = [
+      'test',
+      ...CI_SUITES.flatMap(({ files }) => files.map((file) => `e2e/${file}`)),
+      '--project=chromium',
+      ...CI_SUITES[0].options.map((arg) => arg.replace('--', '--gate-')),
+      ...CI_SUITES.map(
+        ({ name, workers }) =>
+          `--${name === 'gates' ? 'gate' : name}-workers=${workers}`,
+      ),
+      shard,
+      '--concurrency=2',
+      '--output=test-results',
+    ];
+    if (JSON.stringify(argv) !== JSON.stringify(expected))
+      throw new Error(
+        'Concurrent PR E2E invocation changed its suite policies',
+      );
+    return {
+      suite: undefined,
+      shardIndex: Number(shard.at(8)),
+      concurrency: 2,
+    };
+  }
   const suite = CI_SUITES.find(({ files }) =>
     files.every((file) => argv.includes(`e2e/${file}`)),
   );
@@ -53,7 +77,7 @@ export function parseInvocation(argv) {
     throw new Error(
       'PR E2E invocation changed its files, workers or retry policy',
     );
-  return { suite, shardIndex: Number(shard.at(8)) };
+  return { suite, shardIndex: Number(shard.at(8)), concurrency: 1 };
 }
 const median = (values) => {
   const sorted = [...values].sort((a, b) => a - b);

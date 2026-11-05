@@ -76,10 +76,9 @@ export const requiredWorkflowTokens = [
   {
     id: 'browser-smoke-runs-playwright',
     tokens: [
-      'name: Run tactical-map visual smoke',
-      'node scripts/playwright/run-ci-e2e.mjs test e2e/tactical-map-visual-smoke.spec.ts --project=chromium',
-      'name: Run customizer library suite',
-      'node scripts/playwright/run-ci-e2e.mjs test e2e/customizer-library-open.spec.ts --project=chromium',
+      'name: Run isolated E2E suites',
+      'e2e/customizer-library-open.spec.ts e2e/tactical-map-visual-smoke.spec.ts',
+      '--concurrency=2',
     ],
   },
   {
@@ -105,7 +104,7 @@ export const requiredWorkflowTokens = [
  *   instead of degrading to the CDN fallback;
  * - each shard builds the E2E-mode production app and serves it from
  *   `.next/standalone/server.js`;
- * - the exact six-spec gate invocation through the repo runner wrapper, in
+ * - the exact eight-spec concurrent invocation through the repo runner wrapper, in
  *   every shard of the fixed matrix, so no pack and no shard can be dropped;
  *   `--retries=0`, so a flaky regression is never retried to green;
  *   `--trace=retain-on-failure`, because the config's
@@ -136,8 +135,6 @@ export const requiredWorkflowJobContracts = [
     ],
     extraStepIfs: {
       'Upload E2E durations and test census': `always() && (${E2E_CHANGE_GATE_IF})`,
-      'Run customizer library suite': `\${{ !cancelled() && (${E2E_CHANGE_GATE_IF}) }}`,
-      'Run tactical-map visual smoke': `\${{ !cancelled() && (${E2E_CHANGE_GATE_IF}) }}`,
       'Upload library-open screenshots': `always() && (${E2E_CHANGE_GATE_IF})`,
     },
     setupAction: {
@@ -159,7 +156,7 @@ export const requiredWorkflowJobContracts = [
       },
       {
         id: 'browser-gates-playwright',
-        run: 'node scripts/playwright/run-ci-e2e.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates',
+        run: 'node scripts/playwright/run-ci-e2e.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts e2e/customizer-library-open.spec.ts e2e/tactical-map-visual-smoke.spec.ts --project=chromium --gate-retries=0 --gate-trace=retain-on-failure --gate-workers=1 --library-workers=1 --smoke-workers=4 --shard=${{ matrix.shard }}/2 --concurrency=2 --output=test-results',
         env: {
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js',
           HOSTNAME: '127.0.0.1',

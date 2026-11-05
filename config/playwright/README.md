@@ -20,7 +20,11 @@ Before execution, the runner verifies its generated native `--test-list` against
 Playwright's actual selection. After execution it verifies the JSON report
 against the same plan. The original gate retries remain zero with retained
 failure traces; library and smoke retain their existing configured retries.
-The three suites still run sequentially in this slice.
+The workflow's concurrent invocation collects the census once and runs the two
+longest suites first. At most two suite processes run at once. Each owns a port,
+readiness runId and absolute application/multiplayer SQLite paths, with server
+reuse disabled. A single production build serves both processes. Gate/library
+worker counts and native retry/trace policies stay unchanged.
 
 CI uploads each shard's plan and JSON reports for three days. Refresh weights
 from downloaded reports, then review and format the generated JSON:
@@ -36,6 +40,10 @@ checks its complete native selection without starting a server or browser.
 The wrapper overrides step-level `PLAYWRIGHT_HTML_OUTPUT_DIR` and
 `PLAYWRIGHT_JSON_OUTPUT_FILE`: each suite owns `playwright-report-SUITE` and
 `e2e-timings/SUITE.json`. The failure upload includes the smoke HTML folder.
-`e2e-timings/listing-SUITE.json` records each census/selection collection and its
-total wall time, so after-run samples count the listing overhead (up to six
-collections per shard) as well as browser/server time and job setup.
+`e2e-timings/listing-all.json` records the single census and each suite's native
+selection preflight, including total listing wall time. `execution.json`
+records suite start/end times, ports and database paths, so hosted proof can
+check overlap and isolation. Each native report must confirm those runtime
+settings. All suites settle even if another fails; a failure, timeout, runtime
+mismatch or changed test census fails the job. Interruption kills only owned
+process trees and stops the queue from starting another suite.
