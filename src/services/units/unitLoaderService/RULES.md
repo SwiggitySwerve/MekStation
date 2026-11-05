@@ -1,6 +1,7 @@
 # Unit definition loading
 
-FU-101 restores crit-only Mace, Hatchet, Lance, Sword and Retractable Blade mounts. Native groups
+FU-101 restores crit-only Mace, Hatchet, Lance, Sword, Retractable Blade,
+Flail and Wrecking Ball mounts. Native groups
 consume the shared variable-sizing owner's number of slots per mount and reserve
 any groups represented by summary mounts before adding missing instances. Unit
 tonnage is loader context; no sizing arithmetic is copied into slot recovery.
@@ -184,3 +185,6 @@ Armored source critical lookup removes the outer `(ARMORED)` marker before the O
 A weapon of eight or more critical slots (WeaponType.java:2619-2621) whose own location holds only part of its source slots continues into one adjacent location: its inner location, or a location whose inner location is its own (MtfFile.java:1086-1124, Mek.java:489-496). The second part is `splitSlots`. Assignment counts and overlap checks include both parts (TestMek.java:462-477), and the free-slot query and slot usage treat the second part as occupied. Superheavy two-per-slot packing and splittable misc equipment are not modelled here.
 
 Critical lookup also removes a trailing Mek turret marker `(T)` after the OmniPod marker and before the rear marker (MtfFile.java:1014-1021). As in Java, `(T)` is only removed when it is the outermost remaining suffix. Turret mounting itself is not modelled here.
+
+Flail and Wrecking Ball use the shared formula owner for fixed mass and slots
+(MiscType.java:4017-4021,7869-7878, pin 48fcb2f64).

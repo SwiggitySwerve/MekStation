@@ -327,9 +327,15 @@ export function restoreCriticalSlotEquipment(
       if (
         tonnage !== undefined &&
         slot.equipmentDef?.category === EquipmentCategory.PHYSICAL_WEAPON &&
-        ['mace', 'hatchet', 'lance', 'sword', 'retractable-blade'].includes(
-          slot.equipmentId,
-        )
+        [
+          'mace',
+          'hatchet',
+          'lance',
+          'sword',
+          'retractable-blade',
+          'flail',
+          'wrecking-ball',
+        ].includes(slot.equipmentId)
       ) {
         if (handledPhysical.has(slot.equipmentId)) continue;
         handledPhysical.add(slot.equipmentId);
