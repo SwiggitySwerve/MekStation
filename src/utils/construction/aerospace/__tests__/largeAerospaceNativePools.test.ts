@@ -10,6 +10,47 @@ import traces from './fixtures/largeAerospaceNativePools.json';
 
 /** MegaMek 48fcb2f64, LargeAeroBVCalculator.java:85-142; UL-16b oracle. */
 describe('large aerospace native ammo identities', () => {
+  it.each([
+    'islookdownradar',
+    'ishighresimager',
+    'isinfraredimager',
+    'cargo-container-10-tons',
+    'caspardronecontrolsystem',
+    'improvedcaspardronecontrolsystem',
+    'caspariidronecontrolsystem',
+    'improvedcaspariidronecontrolsystem',
+    'sdsselfdestructsystem',
+  ])(
+    'excludes audited HULL misc %s without inventing a firing arc',
+    (equipmentId) => {
+      const mounts = [{ equipmentId, location: 'HULL' }];
+      const result = resolveLargeAerospaceMountBV(mounts);
+      expect(result.unresolved).toEqual([]);
+      expect(
+        result.arcs.every((arc) => arc.weaponBV === 0 && arc.heat === 0),
+      ).toBe(true);
+      expect(
+        calculateAerospaceDefensiveBV({
+          subType: UnitType.DROPSHIP,
+          structuralIntegrity: 0,
+          totalArmorPoints: 0,
+          armorType: 'standard',
+          equipment: [{ id: equipmentId, location: 'HULL' }],
+        }).defensiveEquipmentBV,
+      ).toBe(0);
+    },
+  );
+
+  it('keeps weapons and unknown hull equipment unresolved', () => {
+    expect(
+      resolveLargeAerospaceMountBV(
+        ['medium-laser', 'invented-controller'].map((equipmentId) => ({
+          equipmentId,
+          location: 'HULL',
+        })),
+      ).unresolved,
+    ).toHaveLength(2);
+  });
   it('preserves variable size separately from bin shots and mount flags', () => {
     expect(parseLargeAerospaceMount('R-B-mash-equipment:size:1.5')).toEqual({
       id: 'mash-equipment',

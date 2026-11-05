@@ -13146,5 +13146,3961 @@
       "defensive": 2727.2,
       "offensive": 1640.8919999999998
     }
+  },
+  {
+    "path": "dropships/HBHK/Gaajian System Patrol Boat (2485).blk",
+    "sha256": "46438602ea41ec88aafa87628291519ce5314e156b8316bb191c700ce5a9b728",
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 170,
+          "LEFT_SIDE": 180,
+          "NOSE": 206,
+          "RIGHT_SIDE": 180
+        },
+        "type": "AEROSPACE"
+      },
+      "battleArmor": 0,
+      "chassis": "Gaajian System Patrol Boat",
+      "collarType": 0,
+      "crew": 21,
+      "designType": "MILITARY",
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-ppc",
+          "location": "NOSE",
+          "name": "(B) PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "NOSE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "NOSE",
+          "name": "PPC"
+        },
+        {
+          "id": "b-medium-laser",
+          "location": "NOSE",
+          "name": "(B) Medium Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "NOSE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "NOSE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "NOSE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "b-small-laser",
+          "location": "NOSE",
+          "name": "(B) Small Laser"
+        },
+        {
+          "id": "small-laser",
+          "location": "NOSE",
+          "name": "Small Laser"
+        },
+        {
+          "id": "small-laser",
+          "location": "NOSE",
+          "name": "Small Laser"
+        },
+        {
+          "id": "small-laser",
+          "location": "NOSE",
+          "name": "Small Laser"
+        },
+        {
+          "id": "b-large-laser",
+          "location": "LEFT_SIDE",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "large-laser",
+          "location": "LEFT_SIDE",
+          "name": "Large Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "LEFT_SIDE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "LEFT_SIDE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "r-b-medium-laser",
+          "location": "LEFT_SIDE",
+          "name": "(R) (B) Medium Laser"
+        },
+        {
+          "id": "r-medium-laser",
+          "location": "LEFT_SIDE",
+          "name": "(R) Medium Laser"
+        },
+        {
+          "id": "b-large-laser",
+          "location": "RIGHT_SIDE",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "large-laser",
+          "location": "RIGHT_SIDE",
+          "name": "Large Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "RIGHT_SIDE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "RIGHT_SIDE",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "r-b-medium-laser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) (B) Medium Laser"
+        },
+        {
+          "id": "r-medium-laser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) Medium Laser"
+        },
+        {
+          "id": "b-large-laser",
+          "location": "AFT",
+          "name": "(B) Large Laser"
+        },
+        {
+          "id": "large-laser",
+          "location": "AFT",
+          "name": "Large Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "AFT",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "medium-laser",
+          "location": "AFT",
+          "name": "Medium Laser"
+        },
+        {
+          "id": "b-small-laser",
+          "location": "AFT",
+          "name": "(B) Small Laser"
+        },
+        {
+          "id": "small-laser",
+          "location": "AFT",
+          "name": "Small Laser"
+        },
+        {
+          "id": "small-laser",
+          "location": "AFT",
+          "name": "Small Laser"
+        },
+        {
+          "id": "small-laser",
+          "location": "AFT",
+          "name": "Small Laser"
+        },
+        {
+          "id": "islookdownradar",
+          "location": "HULL",
+          "name": "ISLookDownRadar"
+        },
+        {
+          "id": "ishighresimager",
+          "location": "HULL",
+          "name": "ISHighResImager"
+        }
+      ],
+      "era": "AGE_OF_WAR",
+      "escapePods": 4,
+      "fluff": {
+        "capabilities": "<p>The original Gaajian mounts a straightforward weapons array suited to its patrol role. The nose carries three PPCs, four medium lasers, and four small lasers. Each broadside mounts two large lasers and four medium lasers, while the aft arc is defended by two large lasers, two medium lasers, and four small lasers. Sixty-eight single heat sinks manage the thermal output of this energy-focused weapons suite. The vessel carries 736 points of standard armor and has a structural integrity of twelve.</p><p>Beyond its weapons, the Gaajian carries a look-down radar and high-resolution imager in its hull, allowing it to assist ground elements from orbit with tactical surveillance. Two small craft bays provide capacity for shuttles or light patrol craft, and seventy-five tons of cargo space supports extended patrol operations. A crew of seventy-two operates the vessel, sufficient for continuous watch rotations during long-duration system patrols.</p>",
+        "deployment": "<p>The original Gaajian has served exclusively with the Draconis Combine and its predecessor state, the Alliance of Galedon, since 2485. These vessels patrol trade routes and orbital facilities throughout Combine space, enforcing trade laws, deterring piracy, and providing early warning of hostile incursions. Many have served the Draconis Combine Admiralty Port Authority for centuries, becoming institutions within their assigned systems.</p>",
+        "history": "<p>The Gaajian entered service in 2485 with the Alliance of Galedon, predating the formal establishment of the Draconis Combine. When the Combine absorbed the Alliance, the Gaajian fleet transferred seamlessly into the new state's naval forces and continued performing its original mission of system patrol and merchant escort. The Draconis Combine Admiralty Port Authority operated many of these vessels for centuries, with some individual ships accumulating remarkable service records.</p><p>The design proved so effective in its role that it remained in continuous service virtually unchanged through the Age of War, the Star League era, and the Succession Wars. It was not until 3060, with the advent of recovered Star League technology becoming widely available, that the Draconis Combine Admiralty authorized an updated configuration. The modernized variant emerged from the shipyards as a slightly more compact vessel with upgraded weapons and improved point defenses, ensuring the venerable design would remain relevant into the new century.</p>",
+        "manufacturer": "BBP Industries",
+        "overview": "<p>The Gaajian is a small military DropShip that has served as an armed escort and system patrol vessel since before the formation of the Draconis Combine as a nation. Originally designed for the Alliance of Galedon, this 1,500-ton Spheroid was intended to safeguard merchant traffic within star systems, escorting vessels between space stations, JumpShips, and orbital facilities.</p><p>Remarkably long-lived in service, the Gaajian has performed its designed function for centuries with minimal changes to its core configuration. Many individual vessels have accumulated generations of service history, and their crews traditionally record these histories in the form of painted color murals decorating the ship's interior spaces. The Gaajian remains a familiar sight across Combine space, enforcing trade laws and providing early warning of hostile incursions.</p>",
+        "primaryFactory": "New Samarkand"
+      },
+      "fuel": 5000,
+      "gunners": 6,
+      "heatSinks": {
+        "count": 68,
+        "type": "SINGLE"
+      },
+      "id": "gaajian-system-patrol-boat-2485",
+      "lifeBoats": 0,
+      "marines": 42,
+      "model": "(2485)",
+      "motionType": "SPHEROID",
+      "movement": {
+        "maxThrust": 6,
+        "safeThrust": 4
+      },
+      "mulId": 7769,
+      "officers": 3,
+      "otherPassengers": 0,
+      "passengers": 0,
+      "role": "None",
+      "rulesLevel": "STANDARD",
+      "source": "HB:HK",
+      "structuralIntegrity": 12,
+      "subType": "DropShip",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 1500,
+      "transporters": [
+        "smallcraftbay:2.0:2:1::-1:0",
+        "2ndclassquarters:0.0:0:-1::-1:0",
+        "cargobay:75.0:1:6::-1:0",
+        "steeragequarters:260.0:0:-1::-1:0",
+        "crewquarters:21.0:0:-1::-1:0"
+      ],
+      "unitType": "DropShip",
+      "year": 2485
+    },
+    "expected": {
+      "total": 3426,
+      "defensive": 1864.0,
+      "offensive": 1561.8400000000001
+    }
+  },
+  {
+    "path": "warship/Hist LOT I/Capital Drone M-5C 'Caspar'.blk",
+    "sha256": "f70ede45c2ac0c8f20d6876d36c87c9cec7d3754e6b0d5a3c47ed2647b6ca82d",
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 48,
+          "AFT_LEFT_SIDE": 48,
+          "AFT_RIGHT_SIDE": 48,
+          "FRONT_LEFT_SIDE": 48,
+          "FRONT_RIGHT_SIDE": 48,
+          "NOSE": 48
+        },
+        "type": "FERRO_CARBIDE"
+      },
+      "battleArmor": 0,
+      "chassis": "Capital Drone",
+      "crew": 229,
+      "designType": "MILITARY",
+      "dockingCollars": 0,
+      "driveCoreType": 1,
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-naval-laser-55",
+          "location": "NOSE",
+          "name": "(B) Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "NOSE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "NOSE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "NOSE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "b-naval-ppc-heavy",
+          "location": "NOSE",
+          "name": "(B) Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "NOSE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "b-capital-missile-launcher-killer-whale",
+          "location": "NOSE",
+          "name": "(B) Capital Missile Launcher (Killer Whale)"
+        },
+        {
+          "id": "ammo-killer-whale:20",
+          "location": "NOSE",
+          "name": "Ammo Killer Whale:20"
+        },
+        {
+          "id": "b-naval-laser-55",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "b-naval-autocannon-nac-20",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "ammo-nac-20:300",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Ammo NAC/20:300"
+        },
+        {
+          "id": "b-capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "ammo-ar10-barracuda:20",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Ammo AR10 Barracuda:20"
+        },
+        {
+          "id": "ammo-ar10-killer-whale:10",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Ammo AR10 Killer Whale:10"
+        },
+        {
+          "id": "b-naval-laser-55",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "b-naval-autocannon-nac-20",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "ammo-nac-20:300",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Ammo NAC/20:300"
+        },
+        {
+          "id": "b-capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "ammo-ar10-barracuda:20",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Ammo AR10 Barracuda:20"
+        },
+        {
+          "id": "ammo-ar10-killer-whale:10",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Ammo AR10 Killer Whale:10"
+        },
+        {
+          "id": "b-naval-laser-45",
+          "location": "AFT",
+          "name": "(B) Naval Laser 45"
+        },
+        {
+          "id": "naval-laser-45",
+          "location": "AFT",
+          "name": "Naval Laser 45"
+        },
+        {
+          "id": "naval-laser-45",
+          "location": "AFT",
+          "name": "Naval Laser 45"
+        },
+        {
+          "id": "b-capital-missile-launcher-barracuda",
+          "location": "AFT",
+          "name": "(B) Capital Missile Launcher (Barracuda)"
+        },
+        {
+          "id": "capital-missile-launcher-barracuda",
+          "location": "AFT",
+          "name": "Capital Missile Launcher (Barracuda)"
+        },
+        {
+          "id": "ammo-barracuda:40",
+          "location": "AFT",
+          "name": "Ammo Barracuda:40"
+        },
+        {
+          "id": "b-naval-laser-55",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "b-naval-autocannon-nac-20",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "ammo-nac-20:300",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Ammo NAC/20:300"
+        },
+        {
+          "id": "b-naval-laser-55",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "b-naval-autocannon-nac-20",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "naval-autocannon-nac-20",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Autocannon (NAC/20)"
+        },
+        {
+          "id": "ammo-nac-20:300",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Ammo NAC/20:300"
+        },
+        {
+          "id": "caspardronecontrolsystem",
+          "location": "HULL",
+          "name": "CasparDroneControlSystem"
+        },
+        {
+          "id": "sdsselfdestructsystem",
+          "location": "HULL",
+          "name": "SDSSelfDestructSystem"
+        },
+        {
+          "id": "autotacticalanalysiscomputer:size:50.0",
+          "location": "HULL",
+          "name": "AutoTacticalAnalysisComputer:SIZE:50.0"
+        },
+        {
+          "id": "b-naval-laser-55",
+          "location": "LEFT_BROADSIDE",
+          "name": "(B) Naval Laser 55"
+        },
+        {
+          "id": "b-naval-autocannon-nac-25",
+          "location": "LEFT_BROADSIDE",
+          "name": "(B) Naval Autocannon (NAC/25)"
+        },
+        {
+          "id": "naval-autocannon-nac-25",
+          "location": "LEFT_BROADSIDE",
+          "name": "Naval Autocannon (NAC/25)"
+        },
+        {
+          "id": "ammo-nac-25:200",
+          "location": "LEFT_BROADSIDE",
+          "name": "Ammo NAC/25:200"
+        },
+        {
+          "id": "b-naval-autocannon-nac-25",
+          "location": "LEFT_BROADSIDE",
+          "name": "(B) Naval Autocannon (NAC/25)"
+        },
+        {
+          "id": "naval-autocannon-nac-25",
+          "location": "LEFT_BROADSIDE",
+          "name": "Naval Autocannon (NAC/25)"
+        },
+        {
+          "id": "ammo-nac-25:200",
+          "location": "LEFT_BROADSIDE",
+          "name": "Ammo NAC/25:200"
+        },
+        {
+          "id": "b-capital-missile-launcher-ar10-launcher",
+          "location": "LEFT_BROADSIDE",
+          "name": "(B) Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "LEFT_BROADSIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "ammo-ar10-barracuda:40",
+          "location": "LEFT_BROADSIDE",
+          "name": "Ammo AR10 Barracuda:40"
+        },
+        {
+          "id": "ammo-ar10-killer-whale:20",
+          "location": "LEFT_BROADSIDE",
+          "name": "Ammo AR10 Killer Whale:20"
+        },
+        {
+          "id": "b-naval-laser-55",
+          "location": "RIGHT_BROADSIDE",
+          "name": "(B) Naval Laser 55"
+        },
+        {
+          "id": "b-naval-autocannon-nac-25",
+          "location": "RIGHT_BROADSIDE",
+          "name": "(B) Naval Autocannon (NAC/25)"
+        },
+        {
+          "id": "naval-autocannon-nac-25",
+          "location": "RIGHT_BROADSIDE",
+          "name": "Naval Autocannon (NAC/25)"
+        },
+        {
+          "id": "ammo-nac-25:200",
+          "location": "RIGHT_BROADSIDE",
+          "name": "Ammo NAC/25:200"
+        },
+        {
+          "id": "b-naval-autocannon-nac-25",
+          "location": "RIGHT_BROADSIDE",
+          "name": "(B) Naval Autocannon (NAC/25)"
+        },
+        {
+          "id": "naval-autocannon-nac-25",
+          "location": "RIGHT_BROADSIDE",
+          "name": "Naval Autocannon (NAC/25)"
+        },
+        {
+          "id": "ammo-nac-25:200",
+          "location": "RIGHT_BROADSIDE",
+          "name": "Ammo NAC/25:200"
+        },
+        {
+          "id": "b-capital-missile-launcher-ar10-launcher",
+          "location": "RIGHT_BROADSIDE",
+          "name": "(B) Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "RIGHT_BROADSIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "ammo-ar10-barracuda:40",
+          "location": "RIGHT_BROADSIDE",
+          "name": "Ammo AR10 Barracuda:40"
+        },
+        {
+          "id": "ammo-ar10-killer-whale:20",
+          "location": "RIGHT_BROADSIDE",
+          "name": "Ammo AR10 Killer Whale:20"
+        }
+      ],
+      "era": "STAR_LEAGUE",
+      "escapePods": 0,
+      "fluff": {
+        "capabilities": "<p>The M-5 production model is built on a heavily modified Lola II destroyer hull displacing 680,000 tons, with a safe thrust of four and a maximum of six gravities. This acceleration profile is exceptional for a capital vessel, allowing the drone to close rapidly on targets or reposition across a defensive perimeter. Eighteen NL55 naval lasers provide layered coverage across all firing arcs, while paired Heavy Naval PPCs in the nose enable long-range slashing attacks. NAC/20 and NAC/25 naval autocannons form the backbone of the broadside armament, and AR-10, Killer Whale, and Barracuda capital missile launchers deliver flexible engagement capability at all ranges. A bank of 1,250 double heat sinks allows simultaneous broadsides without risk of overheating.</p><p>The autonomous control systems replace all crew requirements, eliminating life support, quarters, and personnel systems to free tonnage for weapons and ammunition. An integrated SDS Drone Control System manages combat functions at the equivalent of Gunnery 3, Piloting 4 skill ratings, while 110 automated marine points provide internal security. The SDS Self-Destruct System prevents capture, though its placement in the engine compartment creates a critical vulnerability where a penetrating hit to the aft section can trigger premature detonation. A Kearny-Fuchida drive with a 1,100-meter jump sail provides interstellar mobility, and 322.5 tons of ferro-carbide armor offers substantial protection for the hull's displacement. Cargo capacity of roughly 1,840 tons accommodates ammunition reserves and spare parts for sustained autonomous operations.</p>",
+        "deployment": "<p>The M-5C command variant served as the tactical coordinator within each SDS network node. Equipped with the Autonomous Tactical Analysis Computer, each M-5C directed formations of standard M-5 drones and lighter M-3 platforms, networking up to fifty subordinate units into cohesive defensive groups. To accommodate the ATAC array, the command variant traded its own drone control computer for the coordination suite, reducing individual accuracy but gaining decisive formation-level advantages. Two additional heavy capital weapons enhanced its bow armament. The loss of an M-5C degraded the combat effectiveness of its entire formation, and SLDF forces during the Liberation of Terra learned to prioritize these command units once they could be distinguished from standard M-5 drones.</p>",
+        "history": "<p>The Capital Drone program grew out of the Star League's broader Space Defense System initiative, which aimed to build an automated defensive network for the Terran Hegemony's most critical worlds without straining the navy's limited supply of trained crews. Early experiments began with the M-1 drone, a modified Ares Mark VII attack craft that entered trials in 2692 and proved autonomous combat operations were viable at the small craft scale. The M-2 adapted Hector DropShip hulls to drone control, and the M-3 scaled the concept to Pentagon-class assault DropShip frames, entering widespread production from 2698. Each generation refined the autonomous control systems and combat protocols needed for capital-class operations.</p><p>The leap to WarShip-scale drones required two intermediate steps. The M-4 program converted ten Baron-class destroyer hulls to validate that capital vessels could function under machine control, though the aging Baron frames proved unsuitable for sustained defensive duty and all ten were scrapped by 2735. The M-6 program attempted to adapt a far larger hull class but failed when engine integration with drone control architecture proved infeasible. The breakthrough came with the M-5, which entered production in 2710 at Nicholas Spacecraft and Ulsop Robotics facilities on New Earth. Designated \"Caspar\" after an ancient Terran military commander, the M-5 achieved the program's central goal: a fully autonomous capital WarShip capable of engaging crewed vessels of comparable or greater displacement. A dedicated command variant followed, networking individual drones into coordinated defensive formations of extraordinary effectiveness.</p><p>At its peak, the SDS deployed over two hundred fifty M-5 units at Terra alone, with most Hegemony worlds maintaining smaller garrisons of drones alongside lighter M-3 platforms and ground-based defenses. The network functioned as intended throughout the Star League era, its mere presence deterring aggression against protected worlds. Senior SLDF officers recognized the strategic implications of a defensive system that required no crew rotation, no shore leave, and no morale considerations, freeing trained naval personnel for offensive fleet operations.</p><p>That calculus changed catastrophically when Stefan Amaris launched his coup against First Lord Richard Cameron in 2766. Amaris forces seized control of the drone network, and the automated defenders built to protect the Hegemony instead fought to preserve the usurper's conquest. During the Liberation of Terra, General Kerensky's SLDF forces suffered devastating losses fighting through dense drone formations originally commissioned by their own government. Waves of drones engaged the liberation fleet with coordinated precision that crewed vessels struggled to match. Only after SLDF technicians devised an electronic jamming system to disrupt drone coordination could Kerensky's fleet overcome the automated defenders. The battles for Terra confirmed both the terrifying effectiveness of the Capital Drone concept and the catastrophic risk of any autonomous weapons system falling into hostile hands.</p><p>The fall of the Star League ended the Capital Drone as an operational system. Surviving units lacking central coordination reverted to basic autonomous protocols, becoming unpredictable hazards scattered across former Hegemony space for centuries. The technology resurfaced during the Jihad, when the Word of Blake developed the Caspar II program using updated drone control systems fitted to new hull designs. Caspar II drones defended Word of Blake holdings as the allied coalition advanced on Terra, forcing coalition naval forces to confront many of the same tactical challenges that had plagued Kerensky's fleet centuries earlier. The coalition's eventual success required significant naval losses, reinforcing the grim lesson that autonomous capital WarShip technology remained a potent threat long after the original SDS infrastructure had crumbled.</p>",
+        "manufacturer": "Nicholas Spacecraft/Ulsop Robotics",
+        "overview": "<p>The Capital Drone was developed by Nicholas Spacecraft and Ulsop Robotics on New Earth as the premier autonomous combat platform of the Star League's Space Defense System. Conceived to defend the Terran Hegemony's most critical worlds without drawing upon the navy's finite supply of trained crews, the program evolved through several generations of increasingly capable unmanned platforms before achieving capital WarShip-scale operations. Fully autonomous and requiring no human crew, the Capital Drone earned a fearsome reputation among Star League naval officers who recognized the strategic implications of an automated defender that never tired, never hesitated, and could be stationed in numbers that crewed fleets could not sustain. The design's combination of speed and firepower for its displacement class made it one of the most formidable weapons in the Star League's arsenal.</p>",
+        "primaryFactory": "New Earth"
+      },
+      "fuel": 2500,
+      "gravDecks": [],
+      "gunners": 48,
+      "hasHPG": false,
+      "hasLFBattery": false,
+      "hasSail": true,
+      "heatSinks": {
+        "count": 1250,
+        "type": "DOUBLE"
+      },
+      "id": "capital-drone-m-5c-caspar",
+      "jumpRange": 30,
+      "lifeBoats": 0,
+      "marines": 0,
+      "model": "M-5C 'Caspar'",
+      "motionType": "AERODYNE",
+      "movement": {
+        "maxThrust": 6,
+        "safeThrust": 4
+      },
+      "mulId": 7148,
+      "officers": 39,
+      "otherCrew": 0,
+      "passengers": 0,
+      "role": "None",
+      "rulesLevel": "ADVANCED",
+      "source": "His:LoT1",
+      "structuralIntegrity": 50,
+      "subType": "WarShip",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 680000,
+      "transporters": ["cargobay:1840.5:1:3::-1:0"],
+      "unitType": "WarShip",
+      "year": 2710
+    },
+    "expected": {
+      "total": 137407,
+      "defensive": 6560.0,
+      "offensive": 130846.80000000002
+    }
+  },
+  {
+    "path": "spacestation/Hist LOT I/M-9 SDS Battle Station 'Pavise'.blk",
+    "sha256": "94f3d73cca46e5159c71295370d0ba57f38e29a044fe7c5aaba81bcefb3485fc",
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 550,
+          "AFT_LEFT_SIDE": 550,
+          "AFT_RIGHT_SIDE": 550,
+          "FRONT_LEFT_SIDE": 550,
+          "FRONT_RIGHT_SIDE": 550,
+          "NOSE": 550
+        },
+        "type": "FERRO_CARBIDE"
+      },
+      "battleArmor": 0,
+      "chassis": "M-9 SDS Battle Station",
+      "crew": 683,
+      "designType": "MILITARY",
+      "dockingCollars": 12,
+      "driveCoreType": 3,
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-naval-gauss-heavy",
+          "location": "NOSE",
+          "name": "(B) Naval Gauss (Heavy)"
+        },
+        {
+          "id": "naval-gauss-heavy",
+          "location": "NOSE",
+          "name": "Naval Gauss (Heavy)"
+        },
+        {
+          "id": "ammo-heavy-n-gauss:200",
+          "location": "NOSE",
+          "name": "Ammo Heavy N-Gauss:200"
+        },
+        {
+          "id": "b-naval-gauss-heavy",
+          "location": "NOSE",
+          "name": "(B) Naval Gauss (Heavy)"
+        },
+        {
+          "id": "naval-gauss-heavy",
+          "location": "NOSE",
+          "name": "Naval Gauss (Heavy)"
+        },
+        {
+          "id": "ammo-heavy-n-gauss:200",
+          "location": "NOSE",
+          "name": "Ammo Heavy N-Gauss:200"
+        },
+        {
+          "id": "b-naval-ppc-heavy",
+          "location": "NOSE",
+          "name": "(B) Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "NOSE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "NOSE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "NOSE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "b-naval-ppc-heavy",
+          "location": "NOSE",
+          "name": "(B) Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "NOSE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "NOSE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "NOSE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "b-naval-laser-55",
+          "location": "NOSE",
+          "name": "(B) Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "NOSE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "NOSE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "NOSE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "NOSE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "NOSE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "NOSE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "NOSE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "NOSE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "NOSE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "NOSE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "NOSE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "NOSE",
+          "name": "(B) Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "NOSE",
+          "name": "Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "ammo-nac-35:200",
+          "location": "NOSE",
+          "name": "Ammo NAC/35:200"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "NOSE",
+          "name": "(B) Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "NOSE",
+          "name": "Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "ammo-nac-35:200",
+          "location": "NOSE",
+          "name": "Ammo NAC/35:200"
+        },
+        {
+          "id": "b-naval-autocannon-nac-10",
+          "location": "NOSE",
+          "name": "(B) Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "NOSE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "NOSE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "NOSE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "NOSE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "ammo-nac-10:500",
+          "location": "NOSE",
+          "name": "Ammo NAC/10:500"
+        },
+        {
+          "id": "b-capital-missile-launcher-ar10-launcher",
+          "location": "NOSE",
+          "name": "(B) Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "NOSE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "NOSE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "NOSE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "ammo-ar10-killer-whale:100",
+          "location": "NOSE",
+          "name": "Ammo AR10 Killer Whale:100"
+        },
+        {
+          "id": "ammo-ar10-white-shark:100",
+          "location": "NOSE",
+          "name": "Ammo AR10 White Shark:100"
+        },
+        {
+          "id": "ammo-ar10-barracuda:100",
+          "location": "NOSE",
+          "name": "Ammo AR10 Barracuda:100"
+        },
+        {
+          "id": "b-ppc",
+          "location": "NOSE",
+          "name": "(B) PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "NOSE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "NOSE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "NOSE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "NOSE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "NOSE",
+          "name": "PPC"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "NOSE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "NOSE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "NOSE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "NOSE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "NOSE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "NOSE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-islargepulselaser",
+          "location": "NOSE",
+          "name": "(B) ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "NOSE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "NOSE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "NOSE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "NOSE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "NOSE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "NOSE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-isgaussrifle",
+          "location": "NOSE",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "NOSE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "NOSE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "NOSE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:160",
+          "location": "NOSE",
+          "name": "IS Gauss Ammo:160"
+        },
+        {
+          "id": "b-islbxac10",
+          "location": "NOSE",
+          "name": "(B) ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "NOSE",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "NOSE",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "NOSE",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "is-lb-10-x-ac-ammo:160",
+          "location": "NOSE",
+          "name": "IS LB 10-X AC Ammo:160"
+        },
+        {
+          "id": "b-lrm-20",
+          "location": "NOSE",
+          "name": "(B) LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "NOSE",
+          "name": "LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "NOSE",
+          "name": "LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "NOSE",
+          "name": "LRM 20"
+        },
+        {
+          "id": "is-ammo-lrm-20-artemis-capable:144",
+          "location": "NOSE",
+          "name": "IS Ammo LRM-20 Artemis-capable:144"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "NOSE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "NOSE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "NOSE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "NOSE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-issmallpulselaser",
+          "location": "NOSE",
+          "name": "(B) ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "NOSE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "NOSE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "NOSE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "NOSE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "NOSE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "NOSE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "NOSE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "NOSE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "NOSE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "NOSE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "NOSE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "b-naval-gauss-heavy",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Naval Gauss (Heavy)"
+        },
+        {
+          "id": "naval-gauss-heavy",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Gauss (Heavy)"
+        },
+        {
+          "id": "ammo-heavy-n-gauss:200",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Ammo Heavy N-Gauss:200"
+        },
+        {
+          "id": "b-naval-gauss-heavy",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Naval Gauss (Heavy)"
+        },
+        {
+          "id": "naval-gauss-heavy",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Gauss (Heavy)"
+        },
+        {
+          "id": "ammo-heavy-n-gauss:200",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Ammo Heavy N-Gauss:200"
+        },
+        {
+          "id": "b-naval-ppc-heavy",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "b-naval-ppc-heavy",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "b-naval-laser-55",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "ammo-nac-35:200",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Ammo NAC/35:200"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "ammo-nac-35:200",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Ammo NAC/35:200"
+        },
+        {
+          "id": "b-naval-autocannon-nac-10",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "ammo-nac-10:500",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Ammo NAC/10:500"
+        },
+        {
+          "id": "b-capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "ammo-ar10-killer-whale:100",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Ammo AR10 Killer Whale:100"
+        },
+        {
+          "id": "ammo-ar10-white-shark:100",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Ammo AR10 White Shark:100"
+        },
+        {
+          "id": "ammo-ar10-barracuda:100",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "Ammo AR10 Barracuda:100"
+        },
+        {
+          "id": "b-ppc",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-islargepulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-isgaussrifle",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:160",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "IS Gauss Ammo:160"
+        },
+        {
+          "id": "b-islbxac10",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "is-lb-10-x-ac-ammo:160",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "IS LB 10-X AC Ammo:160"
+        },
+        {
+          "id": "b-lrm-20",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "LRM 20"
+        },
+        {
+          "id": "is-ammo-lrm-20-artemis-capable:144",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "IS Ammo LRM-20 Artemis-capable:144"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-issmallpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "(B) ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "b-naval-gauss-heavy",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Naval Gauss (Heavy)"
+        },
+        {
+          "id": "naval-gauss-heavy",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Gauss (Heavy)"
+        },
+        {
+          "id": "ammo-heavy-n-gauss:200",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Ammo Heavy N-Gauss:200"
+        },
+        {
+          "id": "b-naval-gauss-heavy",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Naval Gauss (Heavy)"
+        },
+        {
+          "id": "naval-gauss-heavy",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Gauss (Heavy)"
+        },
+        {
+          "id": "ammo-heavy-n-gauss:200",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Ammo Heavy N-Gauss:200"
+        },
+        {
+          "id": "b-naval-ppc-heavy",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "b-naval-ppc-heavy",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "b-naval-laser-55",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "ammo-nac-35:200",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Ammo NAC/35:200"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "ammo-nac-35:200",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Ammo NAC/35:200"
+        },
+        {
+          "id": "b-naval-autocannon-nac-10",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "ammo-nac-10:500",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Ammo NAC/10:500"
+        },
+        {
+          "id": "b-capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "ammo-ar10-killer-whale:100",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Ammo AR10 Killer Whale:100"
+        },
+        {
+          "id": "ammo-ar10-white-shark:100",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Ammo AR10 White Shark:100"
+        },
+        {
+          "id": "ammo-ar10-barracuda:100",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "Ammo AR10 Barracuda:100"
+        },
+        {
+          "id": "b-ppc",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-islargepulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-isgaussrifle",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:160",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "IS Gauss Ammo:160"
+        },
+        {
+          "id": "b-islbxac10",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "is-lb-10-x-ac-ammo:160",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "IS LB 10-X AC Ammo:160"
+        },
+        {
+          "id": "b-lrm-20",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "LRM 20"
+        },
+        {
+          "id": "is-ammo-lrm-20-artemis-capable:144",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "IS Ammo LRM-20 Artemis-capable:144"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-issmallpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "(B) ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "FRONT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "b-naval-gauss-heavy",
+          "location": "AFT",
+          "name": "(B) Naval Gauss (Heavy)"
+        },
+        {
+          "id": "naval-gauss-heavy",
+          "location": "AFT",
+          "name": "Naval Gauss (Heavy)"
+        },
+        {
+          "id": "ammo-heavy-n-gauss:200",
+          "location": "AFT",
+          "name": "Ammo Heavy N-Gauss:200"
+        },
+        {
+          "id": "b-naval-gauss-heavy",
+          "location": "AFT",
+          "name": "(B) Naval Gauss (Heavy)"
+        },
+        {
+          "id": "naval-gauss-heavy",
+          "location": "AFT",
+          "name": "Naval Gauss (Heavy)"
+        },
+        {
+          "id": "ammo-heavy-n-gauss:200",
+          "location": "AFT",
+          "name": "Ammo Heavy N-Gauss:200"
+        },
+        {
+          "id": "b-naval-ppc-heavy",
+          "location": "AFT",
+          "name": "(B) Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "b-naval-ppc-heavy",
+          "location": "AFT",
+          "name": "(B) Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "b-naval-laser-55",
+          "location": "AFT",
+          "name": "(B) Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "AFT",
+          "name": "(B) Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "AFT",
+          "name": "Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "ammo-nac-35:200",
+          "location": "AFT",
+          "name": "Ammo NAC/35:200"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "AFT",
+          "name": "(B) Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "AFT",
+          "name": "Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "ammo-nac-35:200",
+          "location": "AFT",
+          "name": "Ammo NAC/35:200"
+        },
+        {
+          "id": "b-naval-autocannon-nac-10",
+          "location": "AFT",
+          "name": "(B) Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "AFT",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "AFT",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "AFT",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "AFT",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "ammo-nac-10:500",
+          "location": "AFT",
+          "name": "Ammo NAC/10:500"
+        },
+        {
+          "id": "b-capital-missile-launcher-ar10-launcher",
+          "location": "AFT",
+          "name": "(B) Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "AFT",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "AFT",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "AFT",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "ammo-ar10-killer-whale:100",
+          "location": "AFT",
+          "name": "Ammo AR10 Killer Whale:100"
+        },
+        {
+          "id": "ammo-ar10-white-shark:100",
+          "location": "AFT",
+          "name": "Ammo AR10 White Shark:100"
+        },
+        {
+          "id": "ammo-ar10-barracuda:100",
+          "location": "AFT",
+          "name": "Ammo AR10 Barracuda:100"
+        },
+        {
+          "id": "b-ppc",
+          "location": "AFT",
+          "name": "(B) PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "AFT",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "AFT",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "AFT",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "AFT",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "AFT",
+          "name": "PPC"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "AFT",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-islargepulselaser",
+          "location": "AFT",
+          "name": "(B) ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "AFT",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "AFT",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "AFT",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "AFT",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "AFT",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-isgaussrifle",
+          "location": "AFT",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "AFT",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "AFT",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "AFT",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:160",
+          "location": "AFT",
+          "name": "IS Gauss Ammo:160"
+        },
+        {
+          "id": "b-islbxac10",
+          "location": "AFT",
+          "name": "(B) ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "AFT",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "AFT",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "AFT",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "is-lb-10-x-ac-ammo:160",
+          "location": "AFT",
+          "name": "IS LB 10-X AC Ammo:160"
+        },
+        {
+          "id": "b-lrm-20",
+          "location": "AFT",
+          "name": "(B) LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "AFT",
+          "name": "LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "AFT",
+          "name": "LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "AFT",
+          "name": "LRM 20"
+        },
+        {
+          "id": "is-ammo-lrm-20-artemis-capable:144",
+          "location": "AFT",
+          "name": "IS Ammo LRM-20 Artemis-capable:144"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-issmallpulselaser",
+          "location": "AFT",
+          "name": "(B) ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "b-naval-gauss-heavy",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) Naval Gauss (Heavy)"
+        },
+        {
+          "id": "naval-gauss-heavy",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Gauss (Heavy)"
+        },
+        {
+          "id": "ammo-heavy-n-gauss:200",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Ammo Heavy N-Gauss:200"
+        },
+        {
+          "id": "b-naval-gauss-heavy",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) Naval Gauss (Heavy)"
+        },
+        {
+          "id": "naval-gauss-heavy",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Gauss (Heavy)"
+        },
+        {
+          "id": "ammo-heavy-n-gauss:200",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Ammo Heavy N-Gauss:200"
+        },
+        {
+          "id": "b-naval-ppc-heavy",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "b-naval-ppc-heavy",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "b-naval-laser-55",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "ammo-nac-35:200",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Ammo NAC/35:200"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "ammo-nac-35:200",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Ammo NAC/35:200"
+        },
+        {
+          "id": "b-naval-autocannon-nac-10",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "ammo-nac-10:500",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Ammo NAC/10:500"
+        },
+        {
+          "id": "b-capital-missile-launcher-ar10-launcher",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "ammo-ar10-killer-whale:100",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Ammo AR10 Killer Whale:100"
+        },
+        {
+          "id": "ammo-ar10-white-shark:100",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Ammo AR10 White Shark:100"
+        },
+        {
+          "id": "ammo-ar10-barracuda:100",
+          "location": "AFT_LEFT_SIDE",
+          "name": "Ammo AR10 Barracuda:100"
+        },
+        {
+          "id": "b-ppc",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "AFT_LEFT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "AFT_LEFT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "AFT_LEFT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "AFT_LEFT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "AFT_LEFT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-islargepulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-isgaussrifle",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:160",
+          "location": "AFT_LEFT_SIDE",
+          "name": "IS Gauss Ammo:160"
+        },
+        {
+          "id": "b-islbxac10",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "is-lb-10-x-ac-ammo:160",
+          "location": "AFT_LEFT_SIDE",
+          "name": "IS LB 10-X AC Ammo:160"
+        },
+        {
+          "id": "b-lrm-20",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "AFT_LEFT_SIDE",
+          "name": "LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "AFT_LEFT_SIDE",
+          "name": "LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "AFT_LEFT_SIDE",
+          "name": "LRM 20"
+        },
+        {
+          "id": "is-ammo-lrm-20-artemis-capable:144",
+          "location": "AFT_LEFT_SIDE",
+          "name": "IS Ammo LRM-20 Artemis-capable:144"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-issmallpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "(B) ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_LEFT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "b-naval-gauss-heavy",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) Naval Gauss (Heavy)"
+        },
+        {
+          "id": "naval-gauss-heavy",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Gauss (Heavy)"
+        },
+        {
+          "id": "ammo-heavy-n-gauss:200",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Ammo Heavy N-Gauss:200"
+        },
+        {
+          "id": "b-naval-gauss-heavy",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) Naval Gauss (Heavy)"
+        },
+        {
+          "id": "naval-gauss-heavy",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Gauss (Heavy)"
+        },
+        {
+          "id": "ammo-heavy-n-gauss:200",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Ammo Heavy N-Gauss:200"
+        },
+        {
+          "id": "b-naval-ppc-heavy",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "b-naval-ppc-heavy",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "naval-ppc-heavy",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval PPC (Heavy)"
+        },
+        {
+          "id": "b-naval-laser-55",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "naval-laser-55",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Laser 55"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "ammo-nac-35:200",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Ammo NAC/35:200"
+        },
+        {
+          "id": "b-naval-autocannon-nac-35",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "naval-autocannon-nac-35",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Autocannon (NAC/35)"
+        },
+        {
+          "id": "ammo-nac-35:200",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Ammo NAC/35:200"
+        },
+        {
+          "id": "b-naval-autocannon-nac-10",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "naval-autocannon-nac-10",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Naval Autocannon (NAC/10)"
+        },
+        {
+          "id": "ammo-nac-10:500",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Ammo NAC/10:500"
+        },
+        {
+          "id": "b-capital-missile-launcher-ar10-launcher",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "capital-missile-launcher-ar10-launcher",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Capital Missile Launcher (AR10 Launcher)"
+        },
+        {
+          "id": "ammo-ar10-killer-whale:100",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Ammo AR10 Killer Whale:100"
+        },
+        {
+          "id": "ammo-ar10-white-shark:100",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Ammo AR10 White Shark:100"
+        },
+        {
+          "id": "ammo-ar10-barracuda:100",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "Ammo AR10 Barracuda:100"
+        },
+        {
+          "id": "b-ppc",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "ppc",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "PPC"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "b-islargepulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "islargepulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISLargePulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "ismediumpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISMediumPulseLaser"
+        },
+        {
+          "id": "b-isgaussrifle",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:160",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "IS Gauss Ammo:160"
+        },
+        {
+          "id": "b-islbxac10",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "islbxac10",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISLBXAC10"
+        },
+        {
+          "id": "is-lb-10-x-ac-ammo:160",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "IS LB 10-X AC Ammo:160"
+        },
+        {
+          "id": "b-lrm-20",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "LRM 20"
+        },
+        {
+          "id": "lrm-20",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "LRM 20"
+        },
+        {
+          "id": "is-ammo-lrm-20-artemis-capable:144",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "IS Ammo LRM-20 Artemis-capable:144"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-issmallpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "(B) ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "issmallpulselaser",
+          "location": "AFT_RIGHT_SIDE",
+          "name": "ISSmallPulseLaser"
+        },
+        {
+          "id": "improvedcaspardronecontrolsystem",
+          "location": "HULL",
+          "name": "ImprovedCasparDroneControlSystem"
+        },
+        {
+          "id": "islargenavalcommscannersuite",
+          "location": "HULL",
+          "name": "ISLargeNavalCommScannerSuite"
+        },
+        {
+          "id": "autotacticalanalysiscomputer:size:300.0",
+          "location": "HULL",
+          "name": "AutoTacticalAnalysisComputer:SIZE:300.0"
+        }
+      ],
+      "era": "STAR_LEAGUE",
+      "escapePods": 90,
+      "fluff": {
+        "capabilities": "<p>The Pavise's offensive capability was built around identical weapon clusters across all six firing arcs, each mounting heavy naval gauss cannon batteries, heavy naval particle cannon arrays, naval laser banks, naval autocannons in two calibers, and AR-10 bearings-launched capital missile launchers capable of engaging targets at extreme range. Complementing these capital-scale weapons, each arc also fielded layered conventional point defense: particle projector cannons, extended-range large lasers, large pulse lasers, medium pulse lasers, Gauss rifles, LB-X autocannons, LRM batteries with Artemis fire control, and small pulse lasers. This layered architecture ensured the station could engage threats from WarShips to individual fighters across any approach vector with equal lethality, while 7,000 heat sinks provided sufficient thermal management for sustained combat operations.</p><p>Four thousand one hundred twenty-five tons of Ferro-Carbide armor distributed at 550 points across every arc provided protection comparable to the most heavily armored WarShips of the era. The station's Improved Caspar Drone Control System, coordinated by a Large Naval Comm-Scanner Suite and an Autonomous Tactical Analysis Computer rated for up to 300 simultaneous drones, allowed the Pavise to direct an entire SDS fleet without human intervention. Two pressurized naval repair bays (one rated for vessels up to 800,000 tons, one for vessels up to 100,000 tons) provided full repair and rearming capability for DropShip and WarShip-class SDS drones. Twelve docking collars accommodated active vessel traffic, while a dedicated fighter bay for 144 drone craft and a small craft complement of ten rounded out the station's operational capacity.</p><p>The station's inherent limitation was its total immobility. With no meaningful thrust, the Pavise could not maneuver to exploit tactical opportunities or withdraw when threatened. Its defensive automated systems contributed 251 Marine Points of internal protection, but the station's survival ultimately depended on its attendant drone fleet and the firepower advantage that fleet and station together could impose before any attacker could close to decisive range.</p>",
+        "deployment": "<p>The Pavise was positioned as a permanent installation at jump points and in orbit around the most strategically critical worlds throughout the Terran Hegemony. Its placement at standard transit points ensured any vessel entering a protected system would immediately enter the station's detection envelope and, if identified as hostile, its weapons coverage. In high-priority systems, multiple Pavise stations covered all known jump points simultaneously, with Terra itself protected by five stations. The station's fully autonomous operation made it suitable for deployment in distant or sparsely populated systems where maintaining a conventional garrison was logistically impractical, as its automated repair infrastructure allowed the attending drone fleet to sustain itself indefinitely without relying on planetary resupply.</p>",
+        "history": "<p>The M-9 \"Pavise\" entered service in 2720, representing the culmination of decades of development within the M-Series SDS drone program. The station's introduction followed the establishment of the M-5 Caspar drone fleet and the M-3 support vessels, and the Pavise was designed as the central node around which entire SDS networks would be organized. Built by Nicholas Spacecraft and Ulsop Robotics at various facilities across the Hegemony, the stations were positioned at jump points and in high orbit around the most strategically vital worlds, with Terra itself eventually protected by five of the stations covering each principal approach vector.</p><p>In operation, each Pavise served as the administrative and technical heart of its assigned SDS network, coordinating hundreds of drone vessels and providing the maintenance infrastructure that kept them operational across years of continuous deployment. The stations were genuinely self-sufficient, their automated systems could maintain both the attending drone fleet and their own operational requirements without human intervention, though small crews monitored the SDS computer network and provided judgment for situations outside the system's programmed parameters. The station's habitable section, positioned above its paired grav decks, could also accommodate visitors and serve as a space traffic control center for the surrounding volume of space.</p><p>When Stefan Amaris launched his coup against the Cameron family in 2767, the Pavise stations under Amaris-aligned garrison forces became some of the most formidable obstacles General Aleksandr Kerensky faced in his campaign to retake the Hegemony. Their combination of overwhelming firepower, complete automation, and near-indestructibility made direct assault prohibitively costly. The SLDF was forced to develop creative operational approaches to neutralize or bypass Amaris-occupied stations rather than risk conventional engagement, and the price of each such obstacle was measured in lost vessels and personnel across engagements spanning the entire liberation campaign. The stations had done precisely what they were designed to do: hold against any attacker willing to pay the cost of forcing them.</p><p>Following Kerensky's departure with the bulk of the SLDF in 2784, surviving Pavise stations became contested assets of enormous strategic value. The Successor States inheriting pieces of the Hegemony recognized that these stations represented irreplaceable force multipliers, capable of denying entire star systems to enemy fleets without the massive naval commitments conventional defense would require. However, the same immobility that made the stations effective as defensive platforms made them equally vulnerable to a force willing to absorb the cost of attack; without a fleet capable of intercepting aggressors well outside engagement range, a Pavise could not protect itself from massed assault.</p><p>The Succession Wars were devastating to the class. Stations that could be taken intact were coveted prizes, but those that could not be held were destroyed to deny them to rivals. The technical expertise required to maintain the drone control systems and automated repair capacity was also among the most specialized knowledge in the Inner Sphere, and as that expertise dispersed and vanished over the course of the Succession Wars, even physically intact Pavise stations became progressively less capable. No new production has been documented after the fall of the Star League. The Pavise's legacy endured longer than any individual station, standing as one of the most complete demonstrations in SLDF history of what a truly autonomous defense platform could achieve - and of what such a system required to remain viable across the span of human conflict.</p>",
+        "manufacturer": "Nicholas Spacecraft/Ulsop Robotics",
+        "overview": "<p>The M-9 \"Pavise\" was the Star League Defense Force's apex weapons platform; the largest and most formidable member of the M-Series drone program ever deployed. Commissioned in 2720 under First Lord Jonathan Cameron's directive to provide unbreakable automated defense for the Terran Hegemony's most critical star systems, the Pavise served simultaneously as a battle station, SDS command hub, and repair facility for the entire drone fleet. At 1.5 million tons and stretching a kilometer in length with a 200-meter beam, the station was essentially immovable - a deliberate design choice that concentrated its enormous mass entirely into firepower and support capacity. Incoming vessels would often detect it at range as a dim, irregular mass against the stars, its silhouette difficult to categorize until its transponder resolved the contact as something considerably more dangerous than a small moon.</p>",
+        "primaryFactory": "Various"
+      },
+      "fuel": 12500,
+      "gravDecks": [450, 450],
+      "gunners": 276,
+      "hasHPG": false,
+      "hasLFBattery": false,
+      "hasSail": false,
+      "heatSinks": {
+        "count": 7000,
+        "type": "DOUBLE"
+      },
+      "id": "m-9-sds-battle-station-pavise",
+      "isModular": false,
+      "jumpRange": 30,
+      "lifeBoats": 0,
+      "marines": 25,
+      "model": "'Pavise'",
+      "motionType": "AERODYNE",
+      "movement": {
+        "maxThrust": 0,
+        "safeThrust": 0
+      },
+      "mulId": 7150,
+      "officers": 106,
+      "otherCrew": 0,
+      "passengers": 0,
+      "role": "None",
+      "rulesLevel": "EXPERIMENTAL",
+      "source": "His:LoT2,His:LoT1",
+      "structuralIntegrity": 1,
+      "subType": "Space Station",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 1500000,
+      "transporters": [
+        "smallcraftbay:10.0:1:1::-1:0",
+        "artsasfbay:144.0:21:2::-1:0",
+        "artsnavalrepairpressurized:800000.0:1:3:f3",
+        "artsnavalrepairpressurized:100000.0:1:4:f0",
+        "cargobay:50000.0:2:5::-1:0",
+        "1stclassquarters:200.0:0:-1::-1:0",
+        "dockingcollar",
+        "dockingcollar",
+        "dockingcollar",
+        "dockingcollar",
+        "dockingcollar",
+        "dockingcollar",
+        "dockingcollar",
+        "dockingcollar",
+        "dockingcollar",
+        "dockingcollar",
+        "dockingcollar",
+        "dockingcollar",
+        "2ndclassquarters:4606.0:0:-1::-1:0",
+        "cargobay:158662.0:1:20::-1:0"
+      ],
+      "unitType": "Space Station",
+      "year": 2720
+    },
+    "expected": {
+      "total": 300030,
+      "defensive": 57763.99999999999,
+      "offensive": 242266.02400000003
+    }
   }
 ]

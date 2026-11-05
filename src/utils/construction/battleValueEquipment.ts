@@ -167,5 +167,14 @@ export function isNonOffensiveLargeAerospaceMisc(
     'smallnavalcommscannersuite',
     'largenavalcommscannersuite',
     'navaltugadaptor',
+    'islookdownradar',
+    'ishighresimager',
+    'isinfraredimager',
+    'cargo-container-10-tons',
+    'caspardronecontrolsystem',
+    'improvedcaspardronecontrolsystem',
+    'caspariidronecontrolsystem',
+    'improvedcaspariidronecontrolsystem',
+    'sdsselfdestructsystem',
   ].includes(id);
 }
