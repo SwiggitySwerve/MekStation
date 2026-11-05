@@ -8,6 +8,20 @@ import {
 } from './mechConfigHelpers';
 import { MechConfiguration, MechLocation, LAMMode } from './MechConfigTypes';
 
+/** Native subtype shared by construction and BV; retain legacy exact matching. */
+export function isBimodalLAM(type?: string): boolean {
+  return type?.toLowerCase() === 'bimodal';
+}
+
+/**
+ * MegaMek 48fcb2f64 TestMek.java:191-200: conversion equipment uses 10%
+ * (standard) or 15% (bimodal) of tonnage, rounded up to whole tons.
+ * The caller selects LAMs; ordinary mech construction does not pay this mass.
+ */
+export function getLAMConversionWeight(tonnage: number, type?: string): number {
+  return Math.ceil(tonnage * (isBimodalLAM(type) ? 0.15 : 0.1));
+}
+
 /**
  * LAM equipment definitions
  * Landing Gear: 3 slots total (1 each in CT, LT, RT)

@@ -88,6 +88,7 @@ type UnitConfigurationState = Pick<
   | 'unitType'
   | 'configuration'
   | 'lamMode'
+  | 'lamType'
   | 'quadVeeMode'
   | 'isOmni'
   | 'baseChassisHeatSinks'
@@ -236,6 +237,8 @@ function deriveConfigurationState(
           ),
       ) ?? MechConfiguration.BIPED,
     lamMode: LAMMode.MECH,
+    lamType:
+      typeof serialized.lamType === 'string' ? serialized.lamType : undefined,
     quadVeeMode: QuadVeeMode.MECH,
     isOmni: serialized.isOmni ?? false,
     baseChassisHeatSinks: serialized.baseChassisHeatSinks ?? -1,
