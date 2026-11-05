@@ -126,6 +126,8 @@ it('preserves the already listed split AC/20s', () => {
 it.each([
   ['Sword', 'sword', 4, 6],
   ['Retractable Blade', 'retractable-blade', 4.5, 5],
+  ['IS Flail', 'flail', 5, 4],
+  ['IS Wrecking Ball', 'wrecking-ball', 4, 5],
 ] as const)(
   'restores the sized crit-only %s',
   (token, id, weight, criticalSlots) => {
