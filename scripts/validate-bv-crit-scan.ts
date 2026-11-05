@@ -401,6 +401,7 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
         // don't contain 'gauss': CLHAG20/30/40, ISSBGR, etc.)
         if (
           (lo.includes('gauss') ||
+            lo.includes('magshot') ||
             /(?:cl|is)?hag\d/.test(lo) ||
             lo.includes('sbgr') ||
             lo.includes('sbg')) &&

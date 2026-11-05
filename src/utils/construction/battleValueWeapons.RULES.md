@@ -49,3 +49,10 @@ discount; rear weighting starts only after the dominant side is selected.
 Arms and Mek turrets remain excluded. Pinned MegaMek 48fcb2f64
 BVCalculator.java:690-699,764-765,829-882; MekBVCalculator.java:384-405.
 validate-bv-facing.test.ts enforces selection, links, ties and exclusions.
+
+Magshot's native ISMagshotGR and display-name criticals carry the same
+F_GAUSS explosive eligibility as other Gauss weapons: one BV per occupied
+critical, subject to existing CASE protection. Its ammunition remains
+nonexplosive. Pinned MegaMek 48fcb2f64 GaussWeapon.java:54-59,
+ISMagshotGaussRifle.java:59-77 and MekBVCalculator.java:204-215.
+validate-bv-magshot.test.ts includes the Morpheus MASS prerequisite.
