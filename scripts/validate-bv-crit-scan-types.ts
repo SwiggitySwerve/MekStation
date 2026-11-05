@@ -23,6 +23,7 @@ export interface CritScan {
   standardJJCrits: number;
   improvedJJCrits: number;
   prototypeIJJCrits: number;
+  mechanicalJumpBoosterMP?: number;
   hasWatchdog: boolean;
   detectedSmallCockpit: boolean;
   detectedInterfaceCockpit: boolean;

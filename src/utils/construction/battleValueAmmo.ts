@@ -8,6 +8,20 @@ import {
   normalizeEquipmentId,
 } from './equipmentBVResolver';
 
+/** LargeAeroBVCalculator.java:95-96; BVCalculator.java:560-576 (48fcb2f64).
+ * Java integer division counts whole native bins; depleted ammo contributes zero.
+ */
+export function largeAerospaceAmmoBVMultiplier(
+  shots: number,
+  binShots: number,
+): number {
+  return shots === 0
+    ? 0
+    : binShots > 0
+      ? Math.max(1, Math.floor(shots / binShots))
+      : 1;
+}
+
 /** Physical native mounts, not BV cap pools. AmmoMounted.java:49-53 (48fcb2f64)
  * seeds type.getShots(); AmmoType.java:6665,6700-6701 half-bin entries (CAT-Q1)
  * already contain that capacity, without another tonnage multiplier.
