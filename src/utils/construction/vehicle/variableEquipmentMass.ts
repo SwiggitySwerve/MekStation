@@ -17,6 +17,27 @@ export interface VehicleVariableMassContext {
   readonly isSupportVehicle: boolean;
 }
 
+/** Native engine accessory rule shared with mounted totals. Undefined is a
+ * different equipment kind; null is a known rule missing its engine context.
+ * MiscType.java:518-527 at MegaMek 48fcb2f64 uses the supercharger formula.
+ */
+export function resolveVehicleAccessoryMass(
+  item: VehicleVariableMassItem,
+  context?: VehicleVariableMassContext,
+): number | null | undefined {
+  if (!['vtoljetbooster', 'limitedamphibiouschassis'].includes(item.id))
+    return undefined;
+  if (!context) return null;
+  // MiscType.java:702-703 at the same pin.
+  if (item.id === 'limitedamphibiouschassis')
+    return roundSupportComponentWeight(
+      context.tonnage / 25,
+      context.tonnage,
+      context.isSupportVehicle && context.tonnage < 5,
+    );
+  return evaluateVehicleMassFormula({ id: 'supercharger' }, context) ?? null;
+}
+
 /** Unit/size-based mass owner. Undefined retains the caller's explicit legacy
  * unsupported-rule policy; fixed zero remains distinct from an unknown rule.
  * MiscType.java:700-730,820-842 at MegaMek 48fcb2f6; see RULES.md.
@@ -26,7 +47,9 @@ export function resolveVehicleVariableMass(
   sourceId: string,
   context: VehicleVariableMassContext,
 ): number | undefined {
-  const { tonnage, engineWeight, weaponWeight } = context;
+  const accessoryMass = resolveVehicleAccessoryMass(item, context);
+  if (accessoryMass !== undefined) return accessoryMass ?? undefined;
+  const { tonnage, weaponWeight } = context;
   const kilograms = context.isSupportVehicle && tonnage < 5;
   const round = (weight: number) =>
     roundSupportComponentWeight(weight, tonnage, kilograms);
@@ -43,6 +66,15 @@ export function resolveVehicleVariableMass(
       : round(weaponWeight / (item.id === 'basic-fire-control' ? 20 : 10));
   if (!item.special?.includes('Variable weight') && !item.variableEquipmentId)
     return item.weight;
+  return evaluateVehicleMassFormula(item, context);
+}
+
+function evaluateVehicleMassFormula(
+  item: VehicleVariableMassItem,
+  context: VehicleVariableMassContext,
+): number | undefined {
+  const { tonnage, engineWeight } = context;
+  const kilograms = context.isSupportVehicle && tonnage < 5;
   const formula =
     VARIABLE_EQUIPMENT_FORMULAS[item.variableEquipmentId ?? item.id];
   const values: Record<string, number> = { tonnage };

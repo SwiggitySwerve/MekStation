@@ -1696,6 +1696,10 @@
       "id": "mrm-5-os-registry"
     },
     {
+      "internalName": "Machine Gun (Light)",
+      "id": "machine-gun-light-registry"
+    },
+    {
       "internalName": "Machine Gun (Portable)",
       "id": "machine-gun-portable-registry"
     },
