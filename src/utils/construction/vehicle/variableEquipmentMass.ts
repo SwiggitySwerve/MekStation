@@ -86,13 +86,16 @@ export function resolveVehicleVariableMass(
   if (item.id === 'boobytrap') return round(tonnage / 10);
   if (item.id === 'dronecarriercontrolsystem') return 2 + size * 0.5;
   if (item.id === 'mash-equipment') return 2.5 + size;
+  // MiscType.java:745-767 (48fcb2f6): standard vehicle SRCS, not improved SRCS.
+  if (item.id === 'smartroboticcontrolsystem')
+    return tonnage < 10 ? 0 : round(tonnage / 20);
   // MiscType.java:607-613 (48fcb2f6): armored motive system is 10% Clan, 15% IS,
   // by the equipment's own tech base.
   if (ARMORED_MOTIVE_SYSTEM_IDS.has(item.id))
     return round(
       tonnage * (parseTechBase(item.techBase) === TechBase.CLAN ? 0.1 : 0.15),
     );
-  if (['cargo', 'communications-equipment'].includes(item.id))
+  if (['cargo', 'liquid-storage', 'communications-equipment'].includes(item.id))
     return round(size);
   if (['basic-fire-control', 'advanced-fire-control'].includes(item.id))
     return weaponWeight === undefined

@@ -473,6 +473,8 @@ export function restoreCriticalSlotEquipment(
           claimedAtLocation,
           slot.equipmentId,
           count,
+          // Bomb bays are miscellaneous, not ammunition: match each slot by its
+          // own category so the ammo/launcher join (#2837) cannot drop them.
           slot.equipmentDef.category === EquipmentCategory.AMMUNITION,
         );
         if (matching.length !== count) continue;
