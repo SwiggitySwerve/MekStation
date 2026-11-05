@@ -5,6 +5,14 @@ Mech's raw-name guard retains its separate contract. See pinned MegaMek
 `48fcb2f64`: BVCalculator.java:518-646,1000-1031 and
 MiscType.java:1373-1386. Missing catalog data stays unresolved.
 
+Mech weapon collection honors canonical defensive identities before retaining
+its legacy raw-name fallback. M-Pods use that existing shared role and their
+raw critical mounts enter defensive BV; they do not enter weapon BV or an
+explosion deduction. Pinned 48fcb2f64: BVCalculator.java:522-526,936-946;
+EquipmentType.java:448-460; CoreRulesExplosions.java:241-247.
+validate-bv-mpod-eligibility.test.ts checks raw/canonical agreement and the
+Hachiwara HCA-3T aggregates, retaining every native critical slot in its fixture.
+
 Mounted Artemis allocation follows MekFileParser.java:422-457: first unlinked
 compatible launcher in the same location. BVCalculator.java:690-699 selects
 the stronger front/rear pool; 1000-1031 excludes Watchdog via F_BAP.
@@ -30,6 +38,10 @@ Native B-Pod display-name resolution can select the imported ISBPod identity.
 Both that identity and legacy `b-pod` retain the native defensive F_B_POD role.
 Pinned MegaMek 48fcb2f64a1b3f2d575707ce5653dad64927b587:
 ISBPod.java:49-53; BPodWeapon.java:79-80; BVCalculator.java:522-526.
+
+`validate-bv-chassis.ts` owns implicit CASE and Blue Shield chassis identity.
+Explicit Mixed Tech `componentTechBases.chassis` takes precedence over legacy names.
+Pinned MtfFile.java:867-902; MekBVCalculator.java:514-523 (48fcb2f64).
 
 Construction B-Pods retain their defensive equipment BV without an explosive
 deduction. The weapon flag alone does not establish mounted eligibility:
