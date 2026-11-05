@@ -2719,6 +2719,26 @@ export const APPROVED_JAVA_REROUTES = [
       loaderOnly: true,
     }),
   ),
+  // VEH-WEIGHT #2744: the Clan armored motive system token loads Java's CLArmoredMotiveSystem (10%), not the IS record.
+  ...[
+    [
+      'CLArmoredMotiveSystem',
+      'armoredmotivesystem',
+      'clarmoredmotivesystem-registry',
+    ],
+    [
+      'clarmoredmotivesystem',
+      'armoredmotivesystem',
+      'clarmoredmotivesystem-registry',
+    ],
+  ].map(([name, oldTarget, newTarget, api]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    ...(api ? { api } : {}),
+    reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
+    loaderOnly: true,
+  })),
 ];
 async function capture(root, inputs) {
   process.chdir(root);

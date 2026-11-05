@@ -33,6 +33,7 @@ function chassisModification(id: string): ChassisModification | undefined {
     case 'cvdunebuggy':
     case 'cvdunebuggychassis':
     case 'armoredmotivesystem':
+    case 'clarmoredmotivesystem-registry':
       return 'other';
     default:
       return undefined;
