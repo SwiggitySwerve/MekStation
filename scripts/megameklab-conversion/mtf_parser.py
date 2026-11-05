@@ -43,7 +43,7 @@ class MTFParser:
     # Mech locations in order
     MECH_LOCATIONS = [
         "Head", "Center Torso", "Left Torso", "Right Torso",
-        "Left Arm", "Right Arm", "Left Leg", "Right Leg"
+        "Left Arm", "Right Arm", "Left Leg", "Right Leg", "Center Leg"
     ]
 
     def __init__(self):
