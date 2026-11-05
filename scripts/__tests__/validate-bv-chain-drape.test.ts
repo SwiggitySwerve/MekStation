@@ -38,6 +38,16 @@ it.each(['ChainDrapeCape', 'ChainDrapeApron', 'ChainDrapePoncho'])(
 );
 
 it('applies the drape penalty once across multiple locations and clamps zero', () => {
+  const mounted = {
+    ...unit,
+    criticalSlots: {
+      LEFT_TORSO: ['ChainDrapeCape'],
+      RIGHT_TORSO: ['ChainDrapeCape'],
+    },
+  };
+  expect(
+    deriveBvHeatAndMovement(mounted, scanCrits(mounted), 'standard').bvWalk,
+  ).toBe(5);
   const input = {
     ...unit,
     movement: { walk: 0, jump: 0 },

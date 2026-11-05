@@ -175,7 +175,7 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
         )
           r.hasActiveProbe = true;
         else if (lo.includes('null') && lo.includes('sig')) r.hasNullSig = true;
-        if (
+        else if (
           /^chaindrape(?:cape|apron|poncho)$/.test(normalizeCritName(clean))
         ) {
           r.hasChainDrape = true;
