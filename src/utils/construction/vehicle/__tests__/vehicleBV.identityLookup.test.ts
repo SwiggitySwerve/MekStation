@@ -53,6 +53,9 @@ it.each([
   // 4.87 BV each,
   // F_INFANTRY so exempt from support fire control (BVCalculator.java:966-976).
   ['Ibex RV (Militarized-Gauss)', 36],
+  // Ibex RV (Militarized MG): InfantrySupportMGLightWeapon.java:64-72, 1.5 BV
+  // each, also F_INFANTRY; not the 5 BV battle-armor balightmg.
+  ['Ibex RV (Militarized-MG)', 26],
 ])('%s reaches Java’s BV (%d)', (file, java) => {
   expect(bv(file)).toBe(java);
 });
@@ -67,6 +70,7 @@ it.each([
     'gauss-rifle,-light-king-davidpt:size:1.0',
     'gauss-rifle-light-king-david-registry',
   ],
+  ['machine-gun-lightpt:size:1.0', 'machine-gun-light-registry'],
 ])('resolves the converter slug %s to %s', (slug, id) => {
   expect(getEquipmentEntry(slug)?.id).toBe(id);
 });

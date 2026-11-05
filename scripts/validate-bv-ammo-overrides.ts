@@ -90,6 +90,8 @@ export const AMMO_BV_FALLBACKS: AmmoOverrideEntry[] = [
   ['clan-improved-lrm-20-ammo', 23, 'improved-lrm-20'],
   // Fluid Gun
   ['fluid-gun-ammo', 1, 'fluid-gun'],
+  // AmmoType.java:13310-13325 (48fcb2f64): a full nail/rivet bin has BV 1.
+  ['nail-rivet-gun-ammo', 1, 'nail-rivet-gun'],
   // Clan Streak LRM per-size
   ['clan-streak-lrm-5-ammo', 11, 'streak-lrm-5'],
   ['clan-streak-lrm-10-ammo', 22, 'streak-lrm-10'],

@@ -76,3 +76,9 @@ getMachineGunArrayBVGroup maps canonical array identities to their gun caliber
 and reuses getNativeAmmoBVGroup. Native MG type/rack strings stay defined once;
 ordinary ammo matching behavior is unchanged. The array linker consumes those
 plain group facts. Source: MekFileParser.java:928-944, pin 48fcb2f64.
+
+Nail/rivet guns and their bins use NAIL_RIVET_GUN:1, separately from machine
+guns. The existing validator fallback owns full-bin BV 1; existing half-bin
+scaling gives 0.5 once. Native ammunition remains nonexplosive. Pinned MegaMek
+48fcb2f64: AmmoType.java:13310-13360; NailRivetGunWeapon.java:60-78;
+BVCalculator.java:1189-1242. No catalog identity or value changes are required.
