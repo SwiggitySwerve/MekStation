@@ -1342,6 +1342,51 @@ describe('cache mode and sampling', () => {
   });
 });
 
+describe('result stores inside the repo never feed the keys', () => {
+  // CI runs two cached-tests invocations in one job (unit, then corpus), each
+  // with its own --cache-dir in the checkout. A whole-repo key (here: a read
+  // from a path the scanner cannot name) covers every indexed file, so a
+  // store that entered the index would change that key on every run.
+  const blind = [
+    "import * as fs from 'node:fs';",
+    "test('reads', () => { fs.readFileSync(process.argv[2], 'utf8'); });",
+  ].join('\n');
+  const git = (root: string, ...args: string[]) =>
+    execFileSync('git', args, { cwd: root, stdio: 'ignore' });
+
+  it.each([
+    ['an untracked store', 'git', ''],
+    ['a git-ignored store', 'git', '.jest-result-cache-corpus/\n'],
+    ['a store without a git index', 'none', ''],
+  ])('%s does not change any key', (_name, vcs, ignore) => {
+    const root = makeRepo({
+      'other.txt': 'x',
+      'src/blind.test.ts': blind,
+      '.gitignore': `.jest-result-cache/\n${ignore}`,
+    });
+    if (vcs === 'git') {
+      git(root, 'init', '-q');
+      git(root, 'add', '-A');
+    }
+    const own = '.jest-result-cache/';
+    const key = () =>
+      lib
+        .createKeyer({ root, index: lib.buildFileIndex(root, own), env: {} })
+        .keyFor('src/blind.test.ts');
+    lib.createStore(path.join(root, '.jest-result-cache'));
+    const before = key();
+    expect(before.repoWide).toBe(true);
+    // another invocation's store appears, then gains entries
+    const other = lib.createStore(path.join(root, '.jest-result-cache-corpus'));
+    expect(key().key).toBe(before.key);
+    other.put('ab'.repeat(32), { file: 'src/corpus.test.ts' });
+    expect(key().key).toBe(before.key);
+    // a real input still moves the key
+    write(root, { 'other.txt': 'y' });
+    expect(key().key).not.toBe(before.key);
+  });
+});
+
 describe('result store', () => {
   it('returns null for a missing or corrupt entry and prunes by age', () => {
     const root = makeRepo({});
