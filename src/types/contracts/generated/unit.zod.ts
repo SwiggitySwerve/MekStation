@@ -89,6 +89,17 @@ const SchemaDef_capitalUnitType = z.enum([
 ]);
 const SchemaDef_infantryUnitType = z.literal('Infantry');
 const SchemaDef_protoMechUnitType = z.literal('ProtoMech');
+const once = <T>(make: () => T): (() => T) => {
+  let value: T | undefined;
+  return () => (value ??= make());
+};
+const unionBranches1 = once(() => [
+  z.number().int().gte(0),
+  z
+    .object({ front: z.number().int().gte(0), rear: z.number().int().gte(0) })
+    .strict(),
+]);
+const unionBranches2 = once(() => [z.string(), z.null()]);
 
 export const UnitContract = z
   .union([
@@ -232,15 +243,7 @@ export const UnitContract = z
               .record(
                 z.string(),
                 z.any().superRefine((x, ctx) => {
-                  const schemas = [
-                    z.number().int().gte(0),
-                    z
-                      .object({
-                        front: z.number().int().gte(0),
-                        rear: z.number().int().gte(0),
-                      })
-                      .strict(),
-                  ];
+                  const schemas = unionBranches1();
                   const { errors, failed } = schemas.reduce<{
                     errors: z.core.$ZodIssue[];
                     failed: number;
@@ -312,15 +315,7 @@ export const UnitContract = z
                 allocation: z.record(
                   z.string(),
                   z.any().superRefine((x, ctx) => {
-                    const schemas = [
-                      z.number().int().gte(0),
-                      z
-                        .object({
-                          front: z.number().int().gte(0),
-                          rear: z.number().int().gte(0),
-                        })
-                        .strict(),
-                    ];
+                    const schemas = unionBranches1();
                     const { errors, failed } = schemas.reduce<{
                       errors: z.core.$ZodIssue[];
                       failed: number;
@@ -444,7 +439,7 @@ export const UnitContract = z
             z.string(),
             z.array(
               z.any().superRefine((x, ctx) => {
-                const schemas = [z.string(), z.null()];
+                const schemas = unionBranches2();
                 const { errors, failed } = schemas.reduce<{
                   errors: z.core.$ZodIssue[];
                   failed: number;
@@ -729,15 +724,7 @@ export const UnitContract = z
               .record(
                 z.string(),
                 z.any().superRefine((x, ctx) => {
-                  const schemas = [
-                    z.number().int().gte(0),
-                    z
-                      .object({
-                        front: z.number().int().gte(0),
-                        rear: z.number().int().gte(0),
-                      })
-                      .strict(),
-                  ];
+                  const schemas = unionBranches1();
                   const { errors, failed } = schemas.reduce<{
                     errors: z.core.$ZodIssue[];
                     failed: number;
@@ -814,15 +801,7 @@ export const UnitContract = z
                 allocation: z.record(
                   z.string(),
                   z.any().superRefine((x, ctx) => {
-                    const schemas = [
-                      z.number().int().gte(0),
-                      z
-                        .object({
-                          front: z.number().int().gte(0),
-                          rear: z.number().int().gte(0),
-                        })
-                        .strict(),
-                    ];
+                    const schemas = unionBranches1();
                     const { errors, failed } = schemas.reduce<{
                       errors: z.core.$ZodIssue[];
                       failed: number;
@@ -950,7 +929,7 @@ export const UnitContract = z
             z.string(),
             z.array(
               z.any().superRefine((x, ctx) => {
-                const schemas = [z.string(), z.null()];
+                const schemas = unionBranches2();
                 const { errors, failed } = schemas.reduce<{
                   errors: z.core.$ZodIssue[];
                   failed: number;
