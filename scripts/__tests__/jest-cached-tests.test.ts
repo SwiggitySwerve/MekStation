@@ -770,6 +770,27 @@ describe('type-only imports in the key', () => {
       "export type P = Record<string, typeof import('./dep')>;",
     ],
     ['import type = require', "import type X = require('./dep');"],
+    // ordinary uses of jest / require are not loader escapes
+    [
+      'with jest.fn and a jest.Mock type in the file',
+      "import type { T } from './dep';\nconst fn = jest.fn();\nexport const w: jest.Mock = fn;",
+    ],
+    [
+      'with typeof require in a type',
+      "import type { T } from './dep';\nexport type R = typeof require;",
+    ],
+    [
+      'with a direct require of another module',
+      "import type { T } from './dep';\nconst fs = require('node:fs');\nexport const r = fs;",
+    ],
+    [
+      'with require.resolve of another module',
+      "import type { T } from './dep';\nexport const r = require.resolve('node:fs');",
+    ],
+    [
+      'with a jest loader on another module',
+      "import type { T } from './dep';\nconst other = jest.requireActual('node:fs');\nexport const r = other;",
+    ],
   ])('does not follow %s', (_name, line) => {
     expect(compile(`${line}\nexport const w = 1;\n`)).not.toContain('./dep');
     const { before, after } = keyAfterDepEdit(line);
@@ -850,6 +871,35 @@ describe('type-only imports in the key', () => {
     [
       'jest.requireActual with a generic and a template literal',
       "const dep = jest.requireActual<typeof import('./dep')>(`./dep`);\nexport const w = dep.v;",
+    ],
+    // Sol round 4 on #2730: a loader that escapes as a value
+    [
+      'an aliased loader called with a computed argument',
+      "import type { T } from './dep';\nconst load = require;\nconst p = ['.', 'dep'].join('/');\nexport const result = load(p);",
+    ],
+    [
+      'require passed to map',
+      "import type { T } from '@/dep';\nexport const r = ['./dep'].map(require);",
+    ],
+    [
+      'require passed to Reflect.apply',
+      "import type { T } from '@/dep';\nexport const r = Reflect.apply(require, null, ['./dep']);",
+    ],
+    [
+      'createRequire(...)(computed)',
+      "import type { T } from '@/dep';\nimport { createRequire } from 'node:module';\nconst req = createRequire(import.meta.url);\nexport const r = req(['.', 'dep'].join('/'));",
+    ],
+    [
+      'a destructured jest loader',
+      "import type { T } from '@/dep';\nconst { requireActual } = jest;\nexport const r = requireActual(['.', 'dep'].join('/'));",
+    ],
+    [
+      'module.require with a computed argument',
+      "import type { T } from './dep';\nexport const r = module.require(['.', 'dep'].join('/'));",
+    ],
+    [
+      'eval',
+      "import type { T } from './dep';\nexport const r = eval(\"require('./dep')\");",
     ],
     // Sol round 3 on #2730: the loader names the module with a different spelling
     [

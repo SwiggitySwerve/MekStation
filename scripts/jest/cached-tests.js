@@ -296,28 +296,55 @@ const JEST_LOADERS = new Set([
   'createMockFromModule',
   'setMock',
 ]);
-/** Is `callee` the `require`, `require.resolve`, `jest.<loader>` or `import` of a call? */
+/**
+ * Is `callee` a direct loader: `require`, `require.resolve`, `jest.<loader>`,
+ * `<anything>.require` (`module.require`) or `import`?
+ */
 function isLoaderCallee(callee) {
   if (callee?.type === 'Import') return true;
   if (callee?.type === 'Identifier') return callee.value === 'require';
-  if (
-    callee?.type !== 'MemberExpression' ||
-    callee.object?.type !== 'Identifier'
-  )
-    return false;
+  if (callee?.type !== 'MemberExpression') return false;
   const name = callee.property?.type === 'Identifier' && callee.property.value;
+  if (name === 'require') return true;
+  if (callee.object?.type !== 'Identifier') return false;
   return callee.object.value === 'require'
     ? name === 'resolve'
     : callee.object.value === 'jest' && JEST_LOADERS.has(name);
 }
+// Names through which code can reach a loader without calling it directly:
+// `const load = require`, `[...].map(require)`, `createRequire(url)(p)`, `eval`,
+// `const { requireActual } = jest`. Any reference outside a recognised direct
+// call keeps every type-only edge of the file (see looseLoader).
+const LOADER_NAMES = new Set(['require', 'createRequire', 'eval', 'jest']);
+// Ts* nodes that carry a runtime expression; every other Ts* node is only a type.
+const TS_VALUE_NODES = new Set([
+  'TsAsExpression',
+  'TsNonNullExpression',
+  'TsTypeAssertion',
+  'TsSatisfiesExpression',
+  'TsConstAssertion',
+  'TsInstantiation',
+  'TsParameterProperty',
+  'TsEnumDeclaration',
+  'TsEnumMember',
+  'TsModuleDeclaration',
+  'TsModuleBlock',
+  'TsNamespaceDeclaration',
+  'TsImportEqualsDeclaration',
+  'TsExportAssignment',
+  'TsExternalModuleReference',
+]);
 
 /**
  * For `text` (or null when it is not parsed): `counts` maps a specifier to its
  * number of type-only AST occurrences; `literals` maps every string literal
  * value in the file to how often it occurs, in any position; `callLiterals` is
  * every string literal passed as an argument to any call or `new`, whatever the
- * callee (these join the closure as extra dependencies); `computedLoader` says
- * some loader call takes an argument that is not a plain literal.
+ * callee (these join the closure as extra dependencies); `looseLoader` says a
+ * loader may be reached in a way this scan cannot follow: a direct loader call
+ * whose argument is not a plain literal, or a reference to `require`,
+ * `createRequire`, `eval` or `jest` that is not a recognised direct call
+ * (outside type positions).
  */
 function typeOnlySpecCounts(text) {
   if (!TYPE_CANDIDATE.test(text)) return null;
@@ -342,7 +369,8 @@ function typeOnlySpecCounts(text) {
   const counts = new Map();
   const literals = new Map(); // every string (or plain template) literal, anywhere
   const callLiterals = new Set();
-  let computedLoader = false;
+  const recognised = new Set(); // identifier nodes that are a direct, understood use
+  let looseLoader = false;
   const bump = (map, value) => map.set(value, (map.get(value) ?? 0) + 1);
   const add = (literal) => {
     if (literal && typeof literal.value === 'string')
@@ -357,12 +385,17 @@ function typeOnlySpecCounts(text) {
           expr.quasis?.length === 1
         ? (expr.quasis[0].cooked ?? expr.quasis[0].raw)
         : undefined;
-  const visit = (node) => {
+  const visit = (node, inType) => {
     if (Array.isArray(node)) {
-      node.forEach(visit);
+      for (const item of node) visit(item, inType);
       return;
     }
     if (!node || typeof node !== 'object') return;
+    const type =
+      inType ||
+      (typeof node.type === 'string' &&
+        node.type.startsWith('Ts') &&
+        !TS_VALUE_NODES.has(node.type));
     const own = literalValue(node);
     if (own !== undefined) bump(literals, own);
     if (node.type === 'CallExpression' || node.type === 'NewExpression') {
@@ -376,8 +409,44 @@ function typeOnlySpecCounts(text) {
         isLoaderCallee(node.callee) &&
         literalValue(args[0]) === undefined
       )
-        computedLoader = true;
+        looseLoader = true;
+      const callee = node.callee;
+      if (node.type === 'CallExpression') {
+        if (callee?.type === 'Identifier' && callee.value === 'require')
+          recognised.add(callee);
+        if (
+          callee?.type === 'MemberExpression' &&
+          callee.object?.type === 'Identifier' &&
+          callee.property?.type === 'Identifier' &&
+          ((callee.object.value === 'require' &&
+            callee.property.value === 'resolve') ||
+            (callee.object.value === 'jest' &&
+              JEST_LOADERS.has(callee.property.value)))
+        )
+          recognised.add(callee.object);
+      }
     }
+    if (
+      node.type === 'MemberExpression' &&
+      node.property?.type === 'Identifier'
+    ) {
+      recognised.add(node.property); // a property name, not a reference
+      if (node.property.value === 'createRequire' && !type) looseLoader = true;
+      // jest.fn, jest.spyOn, ...: not a loader
+      if (
+        node.object?.type === 'Identifier' &&
+        node.object.value === 'jest' &&
+        !JEST_LOADERS.has(node.property.value)
+      )
+        recognised.add(node.object);
+    }
+    if (
+      node.type === 'Identifier' &&
+      !type &&
+      LOADER_NAMES.has(node.value) &&
+      !recognised.has(node)
+    )
+      looseLoader = true;
     switch (node.type) {
       case 'ImportDeclaration':
       case 'ExportAllDeclaration':
@@ -395,14 +464,14 @@ function typeOnlySpecCounts(text) {
         add(node.argument);
         break;
     }
-    for (const value of Object.values(node)) visit(value);
+    for (const value of Object.values(node)) visit(value, type);
   };
   try {
-    visit(ast);
+    visit(ast, false);
   } catch {
     return null; // e.g. a RangeError on a pathologically deep tree: drop nothing
   }
-  return { counts, literals, callLiterals, computedLoader };
+  return { counts, literals, callLiterals, looseLoader };
 }
 
 /** Textual import-like occurrences of each specifier in `source`. */
@@ -618,9 +687,10 @@ function analyzeSource(text, rel, nameMatchers) {
   // Type-only edges are not dependencies (see typeOnlySpecCounts): drop a
   // specifier only when the AST accounts for every textual occurrence of it.
   const typeOnly = typeOnlySpecCounts(text);
-  // A loader with a computed argument may load anything, including a module
-  // named only in a type: keep every type-only edge of such a file.
-  if (typeOnly && !typeOnly.computedLoader) {
+  // A loader this scan cannot follow (computed argument, or require / jest
+  // used as a value) may load anything, including a module named only in a
+  // type: keep every type-only edge of such a file.
+  if (typeOnly && !typeOnly.looseLoader) {
     const seen = [text, noBlocks, noComments].map(countSpecs);
     for (const [spec, nodes] of typeOnly.counts) {
       if (
