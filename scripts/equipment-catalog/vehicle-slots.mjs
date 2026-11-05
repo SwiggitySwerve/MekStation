@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { hash } from 'node:crypto';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -120,10 +120,24 @@ export function insertField(text, id, slots, key = 'vehicleSlots') {
   return text;
 }
 
+// Same pin check as generate.mjs: only one sweep-facts extraction reproduces the
+// committed catalog (follow-up 112), so an input must match source-pins.json.
+export function assertPinnedInputs(files, pins) {
+  for (const file of files) {
+    const name = file.replaceAll('\\', '/').split('/').at(-1);
+    if (!existsSync(file) || hash('sha256', readFileSync(file)) !== pins[name])
+      throw Error(`Pinned input changed: ${name}`);
+  }
+}
+
 function main() {
   const [registryFile, factsFile] = process.argv.slice(2);
   assert(factsFile, 'Usage: vehicle-slots.mjs <java-registry> <sweep-facts>');
   const read = (file) => JSON.parse(readFileSync(file, 'utf8'));
+  assertPinnedInputs(
+    [registryFile, factsFile],
+    read(new URL('./source-pins.json', import.meta.url)),
+  );
   const root = resolve('public/data/equipment/official');
   const files = Object.entries(read(`${root}/index.json`).files)
     .filter(([kind]) => kind !== 'ammunition')
