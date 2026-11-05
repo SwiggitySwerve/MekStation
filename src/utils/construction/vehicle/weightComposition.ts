@@ -13,8 +13,7 @@ import {
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
-  computeSupportVehicleEngineWeight,
-  computeVehicleEngineWeight,
+  computeVehicleInstalledEngineWeight,
   isVehicleFusionEngine,
 } from '@/utils/construction/vehicle/engine';
 import {
@@ -41,7 +40,9 @@ import { computeSupportStructureWeight } from './supportWeight';
 export type { EquipmentResolver } from './mountedWeight';
 
 export interface VehicleWeightState
-  extends VehicleControlsLiftContext, VehicleMountedWeightState {
+  extends
+    VehicleControlsLiftContext,
+    Omit<VehicleMountedWeightState, keyof VehicleControlsLiftContext> {
   engineRating: number;
   engineType: VehicleEngineType;
   cruiseMP: number;
@@ -77,12 +78,16 @@ export function computeVehicleWeightBreakdown(
   state: VehicleWeightState,
   resolve: EquipmentResolver,
 ): VehicleWeightBreakdown {
+  const engine = computeVehicleInstalledEngineWeight(state);
   const {
     rawWeaponHeat,
     primarySummary: _primary,
     secondarySummary: _secondary,
     ...mounted
-  } = computeVehicleMountedWeightFigures(state, resolve);
+  } = computeVehicleMountedWeightFigures(
+    { ...state, engineWeight: engine },
+    resolve,
+  );
   // Engine.java:480-493; TestTank.java:264-270 and TestEntity.java:980-981,
   // MegaMek 48fcb2f64a1b. Combat sinks weigh one ton beyond the free allowance.
   const freeHeatSinks = isVehicleFusionEngine(state.engineType)
@@ -105,25 +110,6 @@ export function computeVehicleWeightBreakdown(
           );
   const { equipment, energyWeapons, turret, secondaryTurret } = mounted;
 
-  const engineContext = {
-    tonnage: state.tonnage,
-    motionType: state.motionType,
-    cruiseMP: state.cruiseMP,
-    engineTechRating: state.engineTechRating,
-  };
-  // Every support engine takes Java's support table (Engine.getWeightEngine).
-  const engine =
-    state.unitType === UnitType.SUPPORT_VEHICLE
-      ? computeSupportVehicleEngineWeight(
-          state.engineRating,
-          state.engineType,
-          engineContext,
-        )
-      : computeVehicleEngineWeight(
-          state.engineRating,
-          state.engineType,
-          engineContext,
-        );
   const structure =
     state.unitType === UnitType.SUPPORT_VEHICLE
       ? computeSupportStructureWeight(state)
