@@ -1,5 +1,16 @@
 # Unit definition loading
 
+FU-101 restores only crit-only Mace, Hatchet and Lance mounts. Native groups
+consume the shared variable-sizing owner's number of slots per mount and reserve
+any groups represented by summary mounts before adding missing instances. Unit
+tonnage is loader context; no sizing arithmetic is copied into slot recovery.
+Existing summary mounts and ranged/split/rear handling retain their projections.
+An empty summary admits these three classes while retaining its existing skip
+of ammunition and heat-sink restoration. Other physical sizing and identity
+prerequisites remain deferred to the coordinator's catalog lane.
+Pinned MegaMek 48fcb2f64: MtfFile.java:1049-1085,1133-1180;
+MiscType.java:508-515,1075-1081 (Hatchet, Lance, Mace sizing).
+
 Native `CLAN_XL` retains its explicit engine technology. Unresolved MTF
 critical-slot lookup removes `(OMNIPOD)` before the rear marker, matching
 pinned MtfFile.java:1010-1020. Already resolved decorated spellings retain
