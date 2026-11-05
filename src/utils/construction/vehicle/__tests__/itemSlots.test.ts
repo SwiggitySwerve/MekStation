@@ -169,4 +169,41 @@ describe('vehicle item slots (Tank.getFreeSlots, TestSupportVehicle)', () => {
       supportVehicleSlotErrors({ ...brunel, tonnage: 9, equipment }),
     ).toEqual(['Not enough item slots available! Using 1 slot(s) too many.']);
   });
+
+  it("reports Debbie 'The Warcrime Wagon' once its vehicle flamers resolve", () => {
+    // mm-data TOS/Tortuga, an 80-ton SupportTank: pinned Java reports 10 too
+    // many against 13. Its nine "Flamer (Vehicle)" mounts are Java's
+    // ISVehicleFlamer (weapons/flamers/innerSphere/ISVehicleFlamer.java, tech
+    // ALL), the catalog's vehicle-flamer; unresolved, the check abstained.
+    const at = (location: string, names: string[]) =>
+      names.map((equipmentId) => ({ equipmentId, location }));
+    const flamer = 'Flamer (Vehicle)';
+    const mg = 'Machine Gun';
+    const debbie: VehicleSlotUnit = {
+      ...brunel,
+      tonnage: 80,
+      engineType: 1,
+      engineRating: 160,
+      armorType: 45,
+      armorTechLevel: 1,
+      equipment: [
+        ...at('Body', [
+          'Basic Fire Control',
+          ...Array(3).fill('IS Ammo SRM-2'),
+          ...Array(9).fill('IS Vehicle Flamer Ammo'),
+          ...Array(9).fill('IS Ammo MG - Full'),
+        ]),
+        ...at('Front', ['Combine', flamer, mg, mg, 'SRM 2']),
+        ...at('Right', [flamer, flamer, flamer, mg, mg, mg]),
+        ...at('Left', [flamer, flamer, flamer, mg, mg, mg]),
+        ...at('Rear', [flamer, flamer, mg]),
+      ],
+    };
+    // Java 10 (20 weapons + 3 ammo types, fire control 0). The SRM 2 and MG
+    // ammo records have no compatibleWeaponIds, so they are not counted
+    // (lower bound 8).
+    expect(supportVehicleSlotErrors(debbie)).toEqual([
+      'Not enough item slots available! Using 8 slot(s) too many.',
+    ]);
+  });
 });

@@ -405,4 +405,9 @@ export const DIRECT_ALIAS_MAP: Record<string, string> = {
   'mech-taser': 'battlemech-taser',
   ismektaser: 'battlemech-taser',
   'flamer-vehicle': 'vehicle-flamer',
+  // Java's one owner for these spellings, tech ALL (48fcb2f64
+  // weapons/flamers/innerSphere/ISVehicleFlamer.java: "Flamer (Vehicle)").
+  'flamer (vehicle)': 'vehicle-flamer',
+  clvehicleflamer: 'vehicle-flamer',
+  'clan vehicle flamer': 'vehicle-flamer',
 };
