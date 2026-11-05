@@ -10,6 +10,7 @@
 import React, { useMemo } from 'react';
 import { StoreApi } from 'zustand';
 
+import { CustomizerLoadingSkeleton } from '@/components/customizer/CustomizerLoadingSkeleton';
 import { TechBase } from '@/types/enums/TechBase';
 import { logger } from '@/utils/logger';
 
@@ -89,11 +90,7 @@ export function UnitStoreProvider({
 
   // Store not yet created (SSR or error)
   if (!currentStore) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <div className="text-text-theme-secondary">Loading unit...</div>
-      </div>
-    );
+    return <CustomizerLoadingSkeleton label="Loading unit" />;
   }
 
   // Provide store to children
