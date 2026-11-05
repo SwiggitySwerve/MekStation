@@ -59,3 +59,10 @@ discount; rear weighting starts only after the dominant side is selected.
 Arms and Mek turrets remain excluded. Pinned MegaMek 48fcb2f64
 BVCalculator.java:690-699,764-765,829-882; MekBVCalculator.java:384-405.
 validate-bv-facing.test.ts enforces selection, links, ties and exclusions.
+
+Apollo-linked Mech weapons retain the fractional product from the shared
+getWeaponLinkBVMultiplier owner through orientation, heat sorting, ammo caps
+and offensive movement. Round only the final unit BV, as pinned MegaMek
+48fcb2f64 BVCalculator.java:860-876 does. The existing controller assignment
+guards are unchanged. validate-bv-apollo-precision.test.ts checks all MRM sizes
+and accumulation across separate mounts through the shared Mech calculator.
