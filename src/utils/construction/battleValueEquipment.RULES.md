@@ -38,3 +38,9 @@ EquipmentType.java:448-460 and CoreRulesExplosions.java:241-247 at pin
 separate defensive identity and unrelated explosive deductions. M-Pod's
 legacy offense assignment and explosion deduction remain a separate coupled
 correction so neither half moves compensated totals away from Java.
+
+MASS mounts from the critical grid use the existing resolved canonical identity
+and catalog BV in defensive equipment. Each one-slot mount is counted, including
+adjacent mounts. No new alias or value is inferred; unresolved identities stay
+unresolved. Pinned MegaMek 48fcb2f64 MiscType.java:4942-4956 and
+BVCalculator.java:527-543. validate-bv-mass.test.ts checks the shared calculator.
