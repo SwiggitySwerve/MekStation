@@ -4,6 +4,7 @@
  * Tonnage validation, structural weight, remaining tonnage, and armor weight calculations.
  */
 
+import { BATTLEMECH_TONNAGE } from '@/services/construction/constructionConstants';
 import {
   ArmorTypeEnum,
   getArmorDefinition,
@@ -53,12 +54,13 @@ export function getEquipmentCritEntries(
 export function validateTonnage(tonnage: number): ConstructionStepResult {
   const errors: string[] = [];
   const warnings: string[] = [];
+  const { min, max, step } = BATTLEMECH_TONNAGE;
 
-  if (tonnage < 20 || tonnage > 200) {
-    errors.push(`Tonnage must be between 20 and 200 (got ${tonnage})`);
+  if (tonnage < min || tonnage > max) {
+    errors.push(`Tonnage must be between ${min} and ${max} (got ${tonnage})`);
   }
-  if (tonnage % 5 !== 0) {
-    errors.push(`Tonnage must be a multiple of 5 (got ${tonnage})`);
+  if (tonnage % step !== 0) {
+    errors.push(`Tonnage must be a multiple of ${step} (got ${tonnage})`);
   }
   // Warn for tonnages in the "gap" between standard and superheavy (101-104)
   if (tonnage > 100 && tonnage < 105) {
