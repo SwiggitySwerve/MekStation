@@ -474,6 +474,29 @@ The system SHALL provide a tabbed customizer interface for vehicles.
 
 ## ADDED Requirements
 
+### Requirement: Linked combat-vehicle thermal load
+
+The combat weight owner SHALL use shared native equipment pairing before
+subtracting engine-free sinks. BV consumers SHALL retain their existing results.
+
+#### Scenario: Laser insulator pairing and heat
+
+- **WHEN** an insulator is installed
+- **THEN** it SHALL prefer the preceding eligible unlinked laser at the same location, then the first eligible unlinked laser there
+- **AND** RISC laser pulse modules SHALL occupy the same native link slot
+- **AND** the running weapon-heat sum SHALL subtract one for each linked insulator and restore one when the sum reaches zero
+- **AND** Pandion Combat WiGE (3140 Upgrade) SHALL retain its pinned 20-ton total
+
+#### Scenario: PPC capacitor pairing and heat
+
+- **WHEN** a capacitor is installed
+- **THEN** it SHALL pair with the first compatible unlinked PPC at the same location using the existing compatibility and year owner
+- **AND** each linked capacitor SHALL add five heat before the engine allowance
+- **AND** unpaired equipment SHALL NOT modify thermal load
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+MekFileParser.java:360-388,472-495 and TestEntity.java:945-966.
+
 ### Requirement: Vehicle turret armor lifecycle
 
 Selecting no turret SHALL remove both turret configurations and zero both
