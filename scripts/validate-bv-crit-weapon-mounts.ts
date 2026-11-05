@@ -1,6 +1,7 @@
 import type { UnitData } from './validate-bv-types';
 
 import { WEAPON_CATALOG_FILES } from '../src/utils/construction/equipmentBVCatalogData';
+import { getEquipmentEntry } from '../src/utils/construction/equipmentBVResolver';
 import { normalizeCritName } from './validate-bv-normalizers';
 
 export interface CritWeaponMountCounts {
@@ -33,23 +34,65 @@ function getWeaponSlotCounts(): Map<string, number> {
   return _weaponSlotCache;
 }
 
+function markedWeaponIdentity(name: string): { key: string; slots: number } {
+  const clean = name
+    .replace(/^\d+-/, '')
+    .replace(/\s*\((?:R|T|OMNIPOD)\)/gi, '')
+    .trim();
+  const entry = getEquipmentEntry(clean);
+  let identity = normalizeCritName(
+    (entry?.id ?? clean).replace(/-registry$/, '').replace(/^clan-/, ''),
+  );
+  // Legacy lookup can resolve a prototype slug to its ordinary family. Retain
+  // the source kind when comparing it with a native suffix-style identity.
+  if (
+    normalizeCritName(clean).includes('prototype') &&
+    !identity.includes('prototype')
+  ) {
+    identity += 'prototype';
+  }
+  return {
+    key: identity.replace(/^prototype(.+)$/, '$1prototype'),
+    slots:
+      entry?.criticalSlots ||
+      getWeaponSlotCounts().get(normalizeCritName(clean)) ||
+      1,
+  };
+}
+
+/** Consume one marker for the same resolved weapon family, retaining tech-specific
+ * slot counts when assembling mounts. MtfFile.java:1015-1023,1062 (48fcb2f64).
+ */
+export function consumeCritWeaponMount(
+  counts: Map<string, number> | undefined,
+  equipmentId: string,
+): boolean {
+  const key = markedWeaponIdentity(equipmentId).key;
+  const count = counts?.get(key) ?? 0;
+  if (count <= 0) return false;
+  counts!.set(key, count - 1);
+  return true;
+}
+
 function countMarkedWeaponsByLocation(
   unit: UnitData,
   marker: 'R' | 'T',
 ): Map<string, Map<string, number>> {
-  const weaponSlotCounts = getWeaponSlotCounts();
   const countsByLoc = new Map<string, Map<string, number>>();
 
   for (const [loc, slots] of Object.entries(unit.criticalSlots || {})) {
     if (!Array.isArray(slots)) continue;
     const locKey = loc.toUpperCase();
     let previousWeaponNorm: string | null = null;
+    let previousSlotsPerWeapon = 1;
     let runLength = 0;
 
     const flushRun = () => {
       if (previousWeaponNorm && runLength > 0) {
-        const slotsPerWeapon = weaponSlotCounts.get(previousWeaponNorm) ?? 1;
-        const weaponCount = Math.max(1, Math.round(runLength / slotsPerWeapon));
+        const weaponCount = Math.max(
+          1,
+          Math.round(runLength / previousSlotsPerWeapon),
+        );
         if (!countsByLoc.has(locKey)) countsByLoc.set(locKey, new Map());
         const locMap = countsByLoc.get(locKey)!;
         locMap.set(
@@ -82,12 +125,14 @@ function countMarkedWeaponsByLocation(
         runLength = 0;
         continue;
       }
-      const weaponNorm = normalizeCritName(slotClean);
+      const { key: weaponNorm, slots: slotsPerWeapon } =
+        markedWeaponIdentity(slotClean);
       if (weaponNorm === previousWeaponNorm) {
         runLength++;
       } else {
         flushRun();
         previousWeaponNorm = weaponNorm;
+        previousSlotsPerWeapon = slotsPerWeapon;
         runLength = 1;
       }
     }
