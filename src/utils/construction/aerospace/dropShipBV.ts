@@ -14,6 +14,7 @@ export interface IDropShipBVUnit {
   readonly maxThrust?: number;
   readonly heatSinks?: { readonly type: HeatSinkType; readonly count: number };
   readonly cockpit?: string;
+  readonly year?: number;
   readonly equipment?: readonly {
     readonly equipmentId: string;
     readonly location?: string;

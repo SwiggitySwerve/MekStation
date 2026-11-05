@@ -116,14 +116,15 @@ function linkBVWeapons<
 export function linkPPCCapacitorWeapons<
   Location,
   Weapon extends { id: string; location: Location },
+  Link extends { location: Location },
 >(
   weapons: Weapon[],
-  links: readonly { location: Location }[],
+  links: readonly Link[],
   year: number | undefined,
   unlinked: (weapon: Weapon) => boolean,
   assign: (weapon: Weapon) => void,
-): void {
-  linkBVWeapons(
+): Link[] {
+  return linkBVWeapons(
     weapons,
     links,
     (w) => unlinked(w) && isPPCCapacitorCompatibleBVWeapon(w.id, year),
@@ -168,12 +169,15 @@ function isRiscLaser(id: string): boolean {
 }
 
 /** First unlinked compatible PPC at the same physical location, in source order. */
-export function linkPPCCapacitorBVWeapons<Location>(
+export function linkPPCCapacitorBVWeapons<
+  Location,
+  Link extends { location: Location },
+>(
   weapons: { id: string; location: Location; capacitorBV?: number }[],
-  links: readonly { location: Location }[],
+  links: readonly Link[],
   year?: number,
-): void {
-  linkPPCCapacitorWeapons(
+): Link[] {
+  return linkPPCCapacitorWeapons(
     weapons,
     links,
     year,
@@ -185,16 +189,19 @@ export function linkPPCCapacitorBVWeapons<Location>(
 }
 
 /** MekFileParser.java:499-528: source-order, same-location MRM links. */
-export function linkApolloBVWeapons<Location>(
+export function linkApolloBVWeapons<
+  Location,
+  Link extends { location: Location },
+>(
   weapons: {
     id: string;
     location: Location;
     artemisType?: BVWeaponLinkType;
     apolloLinked?: boolean;
   }[],
-  links: readonly { location: Location }[],
-): void {
-  linkBVWeapons(
+  links: readonly Link[],
+): Link[] {
+  return linkBVWeapons(
     weapons,
     links,
     (w) =>
@@ -220,7 +227,10 @@ export function getMountedBVLinkType(id: string): BVWeaponLinkType | undefined {
   const key = getEquipmentEntry(id)?.id ?? id;
   return Object.hasOwn(types, key) ? types[key] : undefined;
 }
-export function linkMountedWeaponBVModifiers<Location>(
+export function linkMountedWeaponBVModifiers<
+  Location,
+  Mount extends { id: string; location: Location },
+>(
   weapons: {
     id: string;
     location: Location;
@@ -228,8 +238,9 @@ export function linkMountedWeaponBVModifiers<Location>(
     artemisType?: BVWeaponLinkType;
     apolloLinked?: boolean;
   }[],
-  mounts: readonly { id: string; location: Location }[],
-): void {
+  mounts: readonly Mount[],
+): Mount[] {
+  const unmatched: Mount[] = [];
   const order = new Map<(typeof weapons)[number], number>();
   mounts.forEach((mount, index) => {
     const id = getEquipmentEntry(mount.id)?.id ?? mount.id;
@@ -245,7 +256,7 @@ export function linkMountedWeaponBVModifiers<Location>(
     const type = getMountedBVLinkType(mount.id);
     if (!type) return;
     if (type === 'apollo') {
-      linkApolloBVWeapons(weapons, [mount]);
+      unmatched.push(...linkApolloBVWeapons(weapons, [mount]));
       weapons.forEach((w) => {
         if (w.apolloLinked && !w.artemisType) w.artemisType = 'apollo';
       });
@@ -262,14 +273,17 @@ export function linkMountedWeaponBVModifiers<Location>(
               eligible(w),
           )
         : undefined;
-    linkBVWeapons(
-      weapons,
-      [mount],
-      eligible,
-      (w) => {
-        w.artemisType = type;
-      },
-      () => previous,
+    unmatched.push(
+      ...linkBVWeapons(
+        weapons,
+        [mount],
+        eligible,
+        (w) => {
+          w.artemisType = type;
+        },
+        () => previous,
+      ),
     );
   });
+  return unmatched;
 }

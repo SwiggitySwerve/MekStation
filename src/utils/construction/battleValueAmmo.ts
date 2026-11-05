@@ -8,6 +8,20 @@ import {
   normalizeEquipmentId,
 } from './equipmentBVResolver';
 
+/** LargeAeroBVCalculator.java:95-96; BVCalculator.java:560-576 (48fcb2f64).
+ * Java integer division counts whole native bins; depleted ammo contributes zero.
+ */
+export function largeAerospaceAmmoBVMultiplier(
+  shots: number,
+  binShots: number,
+): number {
+  return shots === 0
+    ? 0
+    : binShots > 0
+      ? Math.max(1, Math.floor(shots / binShots))
+      : 1;
+}
+
 /** Physical native mounts, not BV cap pools. AmmoMounted.java:49-53 (48fcb2f64)
  * seeds type.getShots(); AmmoType.java:6665,6700-6701 half-bin entries (CAT-Q1)
  * already contain that capacity, without another tonnage multiplier.
@@ -466,7 +480,7 @@ export function getNativeAmmoBVGroup(id: string): string | undefined {
     [/^narc/, 'NARC:1'],
     [/^(?:vehiculargrenadelauncher|vgl)/, 'VGL:1'],
     [/^(?:battlemechtaser|taser)/, 'TASER:1'],
-    [/^c3sensors/, 'C3_REMOTE_SENSOR:1'],
+    [/^c3(?:sensors|remotesensorlauncher)/, 'C3_REMOTE_SENSOR:1'],
   ];
   for (const [pattern, replacement] of patterns) {
     const match = token.match(pattern);
@@ -492,7 +506,7 @@ export function getLargeAerospaceAmmoBVGroup(id: string): string | undefined {
   const capital = getCapitalEquipmentBVFacts(id);
   if (capital && !['NA', 'SCREEN_LAUNCHER'].includes(capital.ammoType))
     return nativeAmmoBVKey(capital.ammoType, capital.rackSize);
-  return getCatalogAmmoBVGroup(id);
+  return getNativeAmmoBVGroup(id);
 }
 
 const MG_ARRAY_GUN_IDS: Readonly<Record<string, string>> = {

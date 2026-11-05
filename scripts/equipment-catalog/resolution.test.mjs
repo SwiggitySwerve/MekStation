@@ -932,6 +932,47 @@ export const APPROVED_JAVA_REROUTES = [
     reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
     loaderOnly: true,
   })),
+  // Follow-up 93: duplicate-record crit names routed to the official record; Clan HMG list id by tech.
+  ...[
+    ['CLNarcBeacon', 'narcbeacon', 'clan-narc'],
+    ['CLiATM12', 'iatm12', 'iatm-12'],
+    ['CLiATM3', 'iatm3', 'iatm-3'],
+    ['CLiATM6', 'iatm6', 'iatm-6'],
+    ['CLiATM9', 'iatm9', 'iatm-9'],
+    ['Heavy Machine Gun', 'heavy-machine-gun', 'clheavymg-registry'],
+    ['ISImprovedNarc', 'improvednarc', 'inarc'],
+    ['clnarcbeacon', 'narcbeacon', 'clan-narc'],
+    ['heavy-machine-gun', 'heavy-machine-gun', 'clheavymg-registry'],
+    ['isimprovednarc', 'improvednarc', 'inarc'],
+  ].map(([name, oldTarget, newTarget, api]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    ...(api ? { api } : {}),
+    reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
+    loaderOnly: true,
+  })),
+  // Follow-up 93: MG arrays routed by tech (list id, display name and IS internal name together).
+  ...[
+    ['Heavy Machine Gun Array', 'hmga', 'ishmga-registry'],
+    ['ISHMGA', 'hmga', 'ishmga-registry'],
+    ['ISLMGA', 'lmga', 'islmga-registry'],
+    ['ISMGA', 'mga', 'ismga-registry'],
+    ['Light Machine Gun Array', 'lmga', 'islmga-registry'],
+    ['Machine Gun Array', 'mga', 'ismga-registry'],
+    ['heavy-machine-gun-array', 'hmga', 'ishmga-registry'],
+    ['islmga', 'lmga', 'islmga-registry'],
+    ['ismga', 'mga', 'ismga-registry'],
+    ['light-machine-gun-array', 'lmga', 'islmga-registry'],
+    ['machine-gun-array', 'mga', 'ismga-registry'],
+  ].map(([name, oldTarget, newTarget, api]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    ...(api ? { api } : {}),
+    reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
+    loaderOnly: true,
+  })),
 ];
 async function capture(root, inputs) {
   process.chdir(root);

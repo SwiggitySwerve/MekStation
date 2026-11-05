@@ -1,5 +1,49 @@
 # Aerospace construction rules
 
+Capital and DropShip modifiers reuse the shared native link owner and MGA helper:
+first compatible unlinked weapons in the same physical location, independent of
+rear/bay markers. Apollo uses the shared 1.15 multiplier; PPC capacitors use the
+shared per-PPC BV and year eligibility and add five heat. Raw ammo caps remain
+unmodified. Java nominal selection sees physical linked weapons; firing groups
+add capacitor BV once per equal native type/location/rear/link group, after arc
+weighting. Unmatched links remain explicit. Pin 48fcb2f64:
+MekFileParser.java:425-528,928-944; BVCalculator.java:807-816,853-877;
+LargeAeroBVCalculator.java:203-269; HeatTrackingBVCalculator.java:170-224.
+
+HULL is a physical location, not a firing arc. The shared equipment-role owner
+admits audited zero-offense radar/imagers, cargo containers, CASPAR I/II
+controllers and SDS self-destruct equipment before firing-arc validation.
+Their native flags are neither the defensive flags nor DRONE_OPERATING_SYSTEM;
+CASPAR controllers do not trigger the 0.8 weapon or 0.95 summary factors.
+Weapons and unknown hull equipment remain unresolved. Pin 48fcb2f64:
+MiscType.java:5298-5400,5447-5468,6367-6460,8675-8705;
+BVCalculator.java:296,516-546,955-963,1159-1182;
+AeroBVCalculator.java:162-180. Native Gaajian, Caspar and Pavise traces enforce it.
+
+The native mount parser preserves `:size:` as a finite nonnegative size,
+separately from ammo shots and bay/rear flags. MASH, communications equipment,
+ATAC, DTAC and drone-carrier controllers are audited non-offensive miscellaneous
+equipment; size changes construction facts, not their zero standalone BV.
+Unknown sized equipment and malformed suffixes remain unresolved.
+Pin 48fcb2f64: BLKFile.java:274-278,361-381;
+MiscType.java:5059-5090,5400-5444,8790-8831,9072-9107;
+BVCalculator.java:955-963. Enforcement: largeAerospaceNativePools.test.ts.
+
+Screens use the shared defensive classifier and cap accumulator. Launcher BV
+and whole-bin screen ammo belong in defense; screen ammo is capped at screen
+launcher BV, independently of AMS/APDS. They supply no offensive BV, ammo cap
+or offensive arc heat; the sheet still reports launcher heat on its physical arc.
+Pin 48fcb2f64: BVCalculator.java:516-526,549-645,936-951;
+ScreenLauncherWeapon.java:65-82; AmmoType.java:12875-12885.
+
+Large-craft defensive ammo uses the shared defensive-equipment owner and the
+same whole-bin multiplier as offensive ammo. Zero shots contribute zero;
+positive partial bins count once and excess ammo is capped globally at AMS/APDS
+weapon BV. Bay/rear markers identify physical defensive weapons once, including
+laser AMS. Ordinary aircraft and vehicle callers keep their existing behavior.
+Pin 48fcb2f64: BVCalculator.java:516-576,602-631;
+LargeAeroBVCalculator.java:95-96. Enforcement: largeAerospaceNativePools.test.ts.
+
 Drone weapons share the vehicle 0.8 owner before capacitor additions and TC;
 physical ammo keeps its own value. Detection uses the canonical OS owner in
 ordinary and large aircraft. The summary applies the inherited 0.95 followed
@@ -451,6 +495,17 @@ The existing chassis section transports canonical BAR, structural and engine tec
 ## Capital catalog valuation
 
 The equipment catalog owns BV and heat; `capital-bv.json` supplies native capital/sub-capital flags, range attack values, and ammo enum/rack keys. Matching existing IDs retain their values and share the native facts only when name, BV, and firing facts agree. `getLargeAerospaceAmmoBVGroup` adds capital keys to the large-craft path and reuses the ordinary ammo-group owner. LargeAeroBVCalculator.java:69-122,293-358 caps ammo separately per arc and multiplies whole-ton shot ratios. BVCalculator.java:800-914 uses weapon BV without a capital damage multiplier. MiscType.java:9467-9529 and BVCalculator.countMiscAsOffensiveWeapon exclude mobile HPG from offense. Screen launchers/ammo and unsupported links still withhold complete scope. The three catalog traces pin full weapon, ammo, defense, offense and rounded totals from L-ORC2.
+
+Ordinary large-craft weapons and bins share `getNativeAmmoBVGroup` enum/rack
+keys, including generated Clan/Artemis bins, MG, ATM, HAG, Streak, extended
+LRM and artillery. Legacy alias-key APIs remain separate. Heavy lasers and
+artillery use their catalog BV and existing heat resolver, just like other
+admitted weapons (LargeAeroBVCalculator.java:85-142; BVCalculator.java:804-914,
+pin 48fcb2f64). Bay markers retain the first weapon, quantities remain shots,
+and ammo caps remain per arc. Screen defense, defensive quantity multipliers,
+unsupported hull mounts and linked modifiers still withhold complete scope.
+`largeAerospaceNativePools.test.ts` pins Aqueduct, Buccaneer Rezak and Mule C
+against the source-hash-joined UL-16b Java oracle.
 
 ## Ordinary aircraft small cockpits
 

@@ -24,6 +24,7 @@ import {
   getDefensiveEquipmentKind,
   getOffensiveBVRole,
 } from '../battleValueEquipment';
+import { isAmmunitionEquipmentId as isAmmo } from '../equipmentBV/catalogLoader';
 import { computeFlankMP } from './engine';
 import { getVehicleSourceIdentity } from './equipmentMounts';
 import {
@@ -76,16 +77,6 @@ function toTurretConfig(
 // -----------------------------------------------------------------------------
 // Equipment → weapon / ammo / equipment partitioning
 // -----------------------------------------------------------------------------
-
-/**
- * Heuristic: decide whether an equipment entry is ammo based on its id.
- * Legacy untagged mounts retain this ID-based fallback. Explicit mounted
- * ammunition kind is consumed by isAmmoMount below.
- */
-function isAmmo(equipmentId: string): boolean {
-  const n = equipmentId.toLowerCase();
-  return n.includes('ammo') || n.startsWith('ammo-');
-}
 
 /** Shared mount classification for editor-state and domain-unit BV paths. */
 function isAmmoMount(item: IVehicleMountedEquipment): boolean {
