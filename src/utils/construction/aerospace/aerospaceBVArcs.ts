@@ -200,9 +200,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
           getNativeAmmoBVGroup(entry?.name ?? '')),
       arc,
       location,
-      bv: targeted
-        ? applyTargetingComputerBV(resolved.battleValue)
-        : resolved.battleValue,
+      bv: resolved.battleValue,
       heat: resolved.heat,
       compatible:
         entry?.category === 'Missile' && isArtemisCompatibleBVWeapon(entry.id),
@@ -220,6 +218,7 @@ export function calculateAerospaceArcContributions(input: IAerospaceBVInput): {
   linkPPCCapacitorBVWeapons(weapons, capacitors, input.year);
   for (const weapon of weapons) {
     weapon.bv *= getWeaponLinkBVMultiplier(weapon.artemisType);
+    if (weapon.targeted) weapon.bv = applyTargetingComputerBV(weapon.bv);
     if (weapon.artemisType === 'risc') weapon.heat += 2;
     if (weapon.capacitorBV !== undefined) {
       if (weapon.targeted)
