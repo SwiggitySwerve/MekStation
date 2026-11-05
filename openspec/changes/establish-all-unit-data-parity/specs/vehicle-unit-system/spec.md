@@ -474,6 +474,28 @@ The system SHALL provide a tabbed customizer interface for vehicles.
 
 ## ADDED Requirements
 
+### Requirement: Shared variable vehicle equipment mass
+
+The combat editor SHALL call the existing shared support variable-mass owner.
+The status total and turret figures SHALL supply the same engine and weapon
+context, with no second formula copy.
+
+#### Scenario: Source-sized MASH equipment
+
+- **WHEN** MASH Truck (Small) is opened from its canonical definition
+- **THEN** its unchanged source `:size:1.0` SHALL produce 3.5 tons of MASH equipment
+- **AND** its equipment subtotal SHALL be Java's 4.5 tons
+- **AND** replacing a resolved mount identity SHALL expire its source size
+
+#### Scenario: Armored motive and engine-dependent equipment
+
+- **WHEN** a vehicle mounts an armored motive system or supercharger
+- **THEN** shared rules SHALL use vehicle tonnage and installed engine mass
+- **AND** support kilogram and combat half-ton rounding SHALL remain distinct
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+MiscType.java:607-613,724-730,820-842 and RoundWeight.java:58-68.
+
 ### Requirement: Linked combat-vehicle thermal load
 
 The combat weight owner SHALL use shared native equipment pairing before

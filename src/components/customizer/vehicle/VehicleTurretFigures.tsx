@@ -5,7 +5,7 @@ import type { getVehicleTurretMechanismFigures } from '@/utils/construction/vehi
 import { useEquipmentRegistry } from '@/hooks/useEquipmentRegistry';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { useVehicleStore } from '@/stores/useVehicleStore';
-import { computeVehicleMountedWeightFigures } from '@/utils/construction/vehicle/mountedWeight';
+import { computeVehicleWeightFigures } from '@/utils/construction/vehicle/weightComposition';
 
 import { customizerStyles as cs } from '../styles';
 import { formatVehicleWeight } from './VehicleStatusBar.utils';
@@ -102,30 +102,12 @@ export function VehicleTurretFigures({
 }: {
   isVTOL: boolean;
 }): React.ReactElement {
-  const unitType = useVehicleStore((s) => s.unitType);
-  const turret = useVehicleStore((s) => s.turret);
-  const secondaryTurret = useVehicleStore((s) => s.secondaryTurret);
-  const equipment = useVehicleStore((s) => s.equipment);
-  const isOmni = useVehicleStore((s) => s.isOmni);
-  const baseChassisTurretWeight = useVehicleStore(
-    (s) => s.baseChassisTurretWeight,
-  );
-  const baseChassisSecondaryTurretWeight = useVehicleStore(
-    (s) => s.baseChassisSecondaryTurretWeight,
-  );
+  const state = useVehicleStore((s) => s);
+  const { turret, secondaryTurret, isOmni } = state;
   const { isReady } = useEquipmentRegistry();
   const lookup = getEquipmentLookupService();
-  const weights = computeVehicleMountedWeightFigures(
-    {
-      unitType,
-      turret,
-      secondaryTurret,
-      equipment,
-      isOmni,
-      baseChassisTurretWeight,
-      baseChassisSecondaryTurretWeight,
-    },
-    (id) => (isReady ? lookup.getById(id) : undefined),
+  const weights = computeVehicleWeightFigures(state, (id) =>
+    isReady ? lookup.getById(id) : undefined,
   );
   return (
     <div className="mt-4 min-w-0 space-y-3">
