@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { mapToVehicleState } from '@/services/units/unitLoaderService/vehicleMapping';
+import { TechBase } from '@/types/enums/TechBase';
 
 import {
   linkLaserInsulatorWeapons,
@@ -35,8 +36,8 @@ const load = (name: string) =>
     ),
   );
 const weights = (name: string) =>
-  computeVehicleWeightBreakdown(load(name), (id) =>
-    getEquipmentLookupService().getById(id),
+  computeVehicleWeightBreakdown(load(name), (id, isAmmo) =>
+    getEquipmentLookupService().getMountedById(id, isAmmo === true),
   );
 
 // MegaMek 48fcb2f64a1b / mm-data 50f7efef; UL-16b exact weight terms.
@@ -50,6 +51,40 @@ it('applies Pandion insulators before the engine allowance (20 t Java)', () => {
 });
 it('charges Schrek II-X three linked capacitors (+15 raw heat)', () => {
   expect(weights('Schrek II-X PPC Carrier')).toMatchObject({ heatSinks: 35 });
+});
+// UL-16b: 6 t reactive armor + 20.5 t equipment, including 1 t Clan TC.
+// The old 7 t armor and missing TC cancel. Both corrections must land together.
+it('keeps Hadur LRM at Java 50 t with computer mass and reactive density coupled', () => {
+  expect(weights('Hadur Fast Support Vehicle (LRM)')).toMatchObject({
+    armor: 6,
+    equipment: 20.5,
+    remaining: 0,
+  });
+});
+// MiscType.java:614-616 at 48fcb2f64: Clan /5, IS /4, next whole ton.
+// Keep the native Clan catalog sentinel; this load requires a 5 t computer.
+it('charges Gulltoppr A its native Clan computer without replacing the zero sentinel', () => {
+  const lookup = getEquipmentLookupService();
+  expect(lookup.getById('clan-targeting-computer')).toMatchObject({
+    techBase: TechBase.CLAN,
+    weight: 0,
+  });
+  expect(load('Gulltoppr OmniMonitor (A)').equipment).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        equipmentId: 'clan-targeting-computer',
+        sourceIdentity: expect.objectContaining({
+          sourceId: 'cltargeting-computer:omni',
+        }),
+      }),
+    ]),
+  );
+  expect(weights('Gulltoppr OmniMonitor (A)')).toMatchObject({
+    equipment: 62,
+    structure: 38,
+    remaining: 0,
+  });
+  expect(lookup.getById('clan-targeting-computer')?.weight).toBe(0);
 });
 it('prefers the immediate predecessor, then falls back to the first unlinked laser', () => {
   const laser = (order: number, location = 'front') => ({

@@ -36,8 +36,6 @@ export interface ArmorDefinition {
   readonly rulesLevel: RulesLevel;
   /** Points per ton */
   readonly pointsPerTon: number;
-  /** Preserve the legacy loader contract until its density correction ships. */
-  readonly legacyLoaderPointsPerTon?: number;
   /** Critical slots required (distributed) */
   readonly criticalSlots: number;
   /** Cost multiplier */
@@ -125,8 +123,8 @@ export const ARMOR_DEFINITIONS: readonly ArmorDefinition[] = [
     name: 'Reactive',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.EXPERIMENTAL,
-    pointsPerTon: 14,
-    legacyLoaderPointsPerTon: 16,
+    // ArmorType.java:61,226,301-302,788-826 at 48fcb2f6: default multiplier 1.
+    pointsPerTon: 16,
     criticalSlots: 14,
     costMultiplier: 3.0,
     introductionYear: 3063,
@@ -193,7 +191,7 @@ export function getArmorDefinition(
 /** Compatibility policy in the owner table; loader half-ton rounding stays local. */
 export function getLoaderArmorPointsPerTon(type: ArmorTypeEnum): number {
   const armor = getArmorDefinition(type);
-  return armor?.legacyLoaderPointsPerTon ?? armor?.pointsPerTon ?? 16;
+  return armor?.pointsPerTon ?? 16;
 }
 
 /**
