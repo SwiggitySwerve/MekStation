@@ -48,7 +48,7 @@ it.each([
   ['Hephaestus Scout Tank B', 7],
   // Java 14 + 4 + 1: the 1 t is the supercharger, still a variable-mass
   // placeholder at 0 here, so this pins the CASE term only.
-  ['SM5 Field Commander Prime', 18],
+  ['SM5 Field Commander Prime', 19],
 ])('charges %s Clan CASE at Java’s 0 t', (file, expected) => {
   expect(equipment(file)).toBe(expected);
 });

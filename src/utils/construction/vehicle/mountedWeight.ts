@@ -119,9 +119,10 @@ export function computeVehicleMountedWeightFigures(
   const issues: string[] = [];
   const mounted = state.equipment.map((mount, order) => {
     const item = resolve(mount.equipmentId, mount.isAmmo === true);
+    const clanCase = isClanCaseMount(mount, item);
     const weight =
       item !== undefined && isValidWeight(item.weight)
-        ? isClanCaseMount(mount, item)
+        ? clanCase
           ? 0
           : item.weight
         : null;
@@ -131,6 +132,7 @@ export function computeVehicleMountedWeightFigures(
     }
     return {
       item,
+      clanCase,
       instanceId: mount.id,
       sourceId: getVehicleSourceIdentity(mount)?.sourceId ?? mount.equipmentId,
       weapon: item !== undefined && WEAPON_CATEGORIES.includes(item.category),
@@ -170,7 +172,7 @@ export function computeVehicleMountedWeightFigures(
       'Fire control basis',
     );
     for (const mount of mounted)
-      if (mount.item) {
+      if (mount.item && !mount.clanCase) {
         const weight = resolveVehicleVariableMass(mount.item, mount.sourceId, {
           tonnage: state.tonnage,
           engineWeight: state.engineWeight,
