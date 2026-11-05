@@ -193,3 +193,6 @@ Talons sizing is one ceil(T/15) mass with four biped or eight quad criticals
 spreadable mount across every native leg location, without charging mass per leg.
 Mounted slot parts belong to slotOperations/parts; physical slot helpers delegate
 to EquipmentCalculatorService. The optional isQuad sizing context defaults to false.
+
+Mounted critical-part traversal is owned by slotOperations/parts. Placement
+re-exports its public helper; spreadable recovery must reuse that owner.
