@@ -1,3 +1,4 @@
+import { getEquipmentCalculatorService } from '@/services/equipment/EquipmentCalculatorService';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
@@ -236,6 +237,7 @@ export function restoreCriticalSlotEquipment(
   unitTechBase: TechBase,
   unitTechBaseMode: TechBaseMode,
   criticalSlots: UnitCriticalSlots | undefined,
+  tonnage?: number,
 ): IMountedEquipmentInstance[] {
   const normalizedMapped = mapped.map((item, index) =>
     restoreSerializedHeatSink(serialized[index], item),
@@ -316,8 +318,81 @@ export function restoreCriticalSlotEquipment(
   const recovered: IMountedEquipmentInstance[] = [];
   for (const [location, slots] of Array.from(resolvedByLocation)) {
     const claimedAtLocation = claimedSlotsFor(claimed, location);
+    const handledPhysical = new Set<string>();
     for (const slot of slots) {
       if (claimedAtLocation.has(slot.index) || !slot.equipmentId) continue;
+
+      // FU-101: only the three audited sizing classes; other prerequisites
+      // remain with CAT-Q2. MtfFile.java:1133-1175 groups a physical mount.
+      if (
+        tonnage !== undefined &&
+        slot.equipmentDef?.category === EquipmentCategory.PHYSICAL_WEAPON &&
+        ['mace', 'hatchet', 'lance'].includes(slot.equipmentId)
+      ) {
+        if (handledPhysical.has(slot.equipmentId)) continue;
+        handledPhysical.add(slot.equipmentId);
+        const properties = getEquipmentCalculatorService().calculateProperties(
+          slot.equipmentId,
+          { tonnage },
+        );
+        const count = properties.criticalSlots;
+        if (count <= 0) continue;
+        const group = slots.filter((s) => s.equipmentId === slot.equipmentId);
+        const existing = placed.filter(
+          (item) =>
+            item.equipmentId === slot.equipmentId &&
+            (item.location === location ||
+              item.splitSlots?.location === location),
+        );
+        // Listed variable mounts may have no explicit slot assignment. Reserve
+        // their native groups without changing their established projections.
+        const reserved = group.filter((s) =>
+          claimedAtLocation.has(s.index),
+        ).length;
+        claim(
+          claimedAtLocation,
+          takeMatchingSlots(
+            slots,
+            claimedAtLocation,
+            slot.equipmentId,
+            Math.max(0, existing.length * count - reserved),
+          ),
+        );
+        const missing = Math.max(
+          0,
+          Math.floor(group.length / count) - existing.length,
+        );
+        for (let n = 0; n < missing; n++) {
+          const matching = takeMatchingSlots(
+            slots,
+            claimedAtLocation,
+            slot.equipmentId,
+            count,
+          );
+          if (matching.length !== count) break;
+          claim(claimedAtLocation, matching);
+          const token =
+            getCriticalSlotsForLocation(criticalSlots, location)?.[
+              matching[0].index
+            ] ?? '';
+          recovered.push({
+            ...createMountedEquipment(
+              { ...slot.equipmentDef, ...properties },
+              generateUnitId(),
+              true,
+              /\(OMNIPOD\)(?:\s*\(ARMORED\))?\s*$/i.test(token),
+            ),
+            location,
+            slots: matching.map((s) => s.index),
+            isRearMounted: matching[0].isRearMounted,
+          });
+        }
+        continue;
+      }
+
+      // Empty summaries historically skip ammo/heat-sink restoration. Preserve
+      // that contract while admitting the scoped crit-only physical mounts.
+      if (serialized.length === 0) continue;
 
       if (
         slot.equipmentDef?.category === EquipmentCategory.AMMUNITION &&
