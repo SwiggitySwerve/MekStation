@@ -655,6 +655,7 @@ jobs:
           HOSTNAME: '127.0.0.1'
           # The smoke steps write their own report folders.
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-gates
+          PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/gates.json
         run: node scripts/playwright/run-playwright.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates
 
       # The library flows save and reopen units through the shared server
@@ -666,6 +667,7 @@ jobs:
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
           HOSTNAME: '127.0.0.1'
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-library
+          PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/library.json
         run: node scripts/playwright/run-playwright.mjs test e2e/customizer-library-open.spec.ts --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/library
 
       - name: Run tactical-map visual smoke
@@ -673,7 +675,17 @@ jobs:
         env:
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
           HOSTNAME: '127.0.0.1'
+          PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/smoke.json
         run: node scripts/playwright/run-playwright.mjs test e2e/tactical-map-visual-smoke.spec.ts --project=chromium --workers=4 --shard=${{ matrix.shard }}/2 --output=test-results/smoke
+
+      - name: Upload E2E durations and test census
+        if: always() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-timings-${{ matrix.shard }}
+          path: e2e-timings
+          if-no-files-found: error
+          retention-days: 3
 
       - name: Upload library-open screenshots
         if: always() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')

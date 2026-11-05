@@ -24,6 +24,10 @@ const campJsonCollection = Boolean(
   process.env.PLAYWRIGHT_JSON_OUTPUT_DIR &&
   process.env.PLAYWRIGHT_JSON_OUTPUT_NAME,
 );
+// CI records durations without replacing the GitHub/HTML failure reporters.
+// Each invocation owns its output file, including concurrent suite runners.
+const jsonCollection =
+  campJsonCollection || Boolean(process.env.PLAYWRIGHT_JSON_OUTPUT_FILE);
 const playwrightResults =
   campRuntimeRouted && process.env.CAMP01_PLAYWRIGHT_OUTPUT_DIR
     ? process.env.CAMP01_PLAYWRIGHT_OUTPUT_DIR
@@ -124,12 +128,12 @@ export default defineConfig({
     ? [
         ['github'],
         ['html', { open: 'never', outputFolder: playwrightHtml }],
-        ...(campJsonCollection ? ([['json']] as const) : []),
+        ...(jsonCollection ? ([['json']] as const) : []),
       ]
     : [
         ['list'],
         ['html', { open: 'on-failure', outputFolder: playwrightHtml }],
-        ...(campJsonCollection ? ([['json']] as const) : []),
+        ...(jsonCollection ? ([['json']] as const) : []),
       ],
 
   outputDir: playwrightResults,
