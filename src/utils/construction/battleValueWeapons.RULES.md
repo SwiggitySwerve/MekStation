@@ -66,3 +66,10 @@ and offensive movement. Round only the final unit BV, as pinned MegaMek
 48fcb2f64 BVCalculator.java:860-876 does. The existing controller assignment
 guards are unchanged. validate-bv-apollo-precision.test.ts checks all MRM sizes
 and accumulation across separate mounts through the shared Mech calculator.
+
+Magshot's native ISMagshotGR and display-name criticals carry the same
+F_GAUSS explosive eligibility as other Gauss weapons: one BV per occupied
+critical, subject to existing CASE protection. Its ammunition remains
+nonexplosive. Pinned MegaMek 48fcb2f64 GaussWeapon.java:54-59,
+ISMagshotGaussRifle.java:59-77 and MekBVCalculator.java:204-215.
+validate-bv-magshot.test.ts includes the Morpheus MASS prerequisite.
