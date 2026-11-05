@@ -209,6 +209,35 @@ function resolveMixedTechVariant(
     : null;
 }
 
+/**
+ * A native name that carries its own tech prefix (CLLRM20, cllrm20, clan-lrm-20,
+ * ISTAG) names one Java item whatever the unit is: the prefix is the side when
+ * removing it leaves the same base item, or when the normalizer kept the Clan
+ * marker (cllightmg -> clan-light-machine-gun). Unit lists without crit slots
+ * (vehicles) otherwise fell back to the IS record on mixed-tech units.
+ */
+function ownTechSide(
+  id: string,
+  normalizedId: string,
+  baseId: string,
+): TechBase | null {
+  const raw = id.toLowerCase().trim();
+  if (/^cl/.test(raw) && normalizedId === `clan-${baseId}`)
+    return TechBase.CLAN;
+  const sides: [RegExp, TechBase][] = [
+    [/^clan-?/, TechBase.CLAN],
+    [/^cl/, TechBase.CLAN],
+    [/^is-?/, TechBase.INNER_SPHERE],
+  ];
+  for (const [prefix, side] of sides) {
+    if (!prefix.test(raw)) continue;
+    const rest = raw.replace(prefix, '');
+    if (rest && normalizeCatalogEquipmentId(rest, false) === baseId)
+      return side;
+  }
+  return null;
+}
+
 function resolveUnitPreferredVariant(
   candidates: IEquipmentVariantCandidates,
   unitTechBaseMode: TechBaseMode,
@@ -424,8 +453,15 @@ function resolveLegacyEquipmentId(
   }
 
   const candidates = buildEquipmentVariantCandidates(normalizedId);
+  // Only lists without crit slots (vehicles): a mech's list id and its crit
+  // tokens must change sides together, which the slot hints below arbitrate.
+  const ownSide =
+    locationCriticalSlots === undefined
+      ? ownTechSide(id, normalizedId, candidates.baseId)
+      : null;
 
   return (
+    (ownSide ? resolveVariantByTechBase(candidates, ownSide) : null) ??
     resolveMixedTechVariant(
       candidates,
       unitTechBaseMode,
