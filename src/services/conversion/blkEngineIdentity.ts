@@ -6,6 +6,8 @@ import {
 import codes from '@/types/formats/blk-engine-codes.json';
 import { ConventionalFighterEngineType } from '@/types/unit/AerospaceInterfaces';
 
+import { isClanSourceChassis } from './ValueMappings';
+
 /** Serialized facts: MegaMek 48fcb2f6 BLKFile.java:80-93,538-568.
  * These are neither Engine ordinals nor generic MTF numeric aliases.
  * @spec openspec/changes/establish-all-unit-data-parity/specs/unit-entity-model/spec.md
@@ -53,7 +55,7 @@ export function isClanBlkEngine(
     const value = Array.isArray(flag) ? flag[0] : flag;
     return value?.trim().toLowerCase() === 'true';
   }
-  return /^clan\b/i.test(type) || /mixed\s*\(clan chassis\)/i.test(type);
+  return isClanSourceChassis(type);
 }
 
 export function decodeBlkConstructionEngine(
