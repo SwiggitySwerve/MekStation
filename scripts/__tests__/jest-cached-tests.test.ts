@@ -1439,6 +1439,29 @@ describe('test result cache key: generated outputs are not inputs', () => {
     expect(afterRun2.key).toBe(before.key);
   });
 
+  it('ignores tsconfig.tsbuildinfo, which the incremental typecheck rewrites', () => {
+    const root = repo();
+    const before = keyOf(root, 'src/reader.test.ts');
+    write(root, { 'tsconfig.tsbuildinfo': 'typecheck 1' });
+    expect(keyOf(root, 'src/reader.test.ts').key).toBe(before.key);
+  });
+
+  it('keeps a tracked file under those paths, including successive unstaged edits', () => {
+    // the repo tracks a few .pyc files; an edited tracked file has a content hash, not git:<blob>
+    const root = repo();
+    write(root, { 'scripts/__pycache__/tracked.cpython-314.pyc': 'v0' });
+    const git = (...args: string[]) =>
+      execFileSync('git', args, { cwd: root, stdio: 'ignore' });
+    git('init', '-q');
+    git('add', '-A');
+    const staged = keyOf(root, 'src/reader.test.ts');
+    write(root, { 'scripts/__pycache__/tracked.cpython-314.pyc': 'v1' });
+    const edit1 = keyOf(root, 'src/reader.test.ts');
+    write(root, { 'scripts/__pycache__/tracked.cpython-314.pyc': 'v2' });
+    const edit2 = keyOf(root, 'src/reader.test.ts');
+    expect(new Set([staged.key, edit1.key, edit2.key]).size).toBe(3);
+  });
+
   it('still keys on a real input in the same domain', () => {
     const root = repo();
     const before = keyOf(root, 'src/reader.test.ts');
