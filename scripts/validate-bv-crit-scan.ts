@@ -1,19 +1,23 @@
 import type { UnitData } from './validate-bv-types';
 
+import { getEquipmentEntry } from '../src/utils/construction/equipmentBVResolver';
+import { parseEquipmentSizeNumber } from '../src/utils/equipmentSize';
 import { processCritAmmoSlot } from './validate-bv-crit-scan-ammo';
 import { finalizeCritScan } from './validate-bv-crit-scan-finalize';
 import {
   createEmptyCritScan,
   type CritScan,
 } from './validate-bv-crit-scan-types';
-import { toMechLoc } from './validate-bv-normalizers';
+import { normalizeCritName, toMechLoc } from './validate-bv-normalizers';
 import { classifyPhysicalWeapon } from './validate-bv-physical-weapons';
+import { linkSplitExplosiveMounts } from './validate-bv-split-mounts';
 import { resolveWeaponForUnit } from './validate-bv-weapon-resolution';
 
 export type { CritScan } from './validate-bv-crit-scan-types';
 
 export function scanCrits(unit: UnitData, unitId?: string): CritScan {
   const r = createEmptyCritScan();
+  const gaussCriticals = new Map<string, CritScan['explosive']>();
   if (!unit.criticalSlots) return r;
 
   for (const [loc, slots] of Object.entries(unit.criticalSlots)) {
@@ -47,6 +51,18 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
           continue;
         const clean = slot.replace(/\s*\(omnipod\)/gi, '').trim();
         const lo = clean.toLowerCase();
+
+        // Spreadable boosters repeat in critical slots; the first mount's size is MP.
+        const booster =
+          /^(?:MechanicalJumpBooster|Jump Booster|Mech Mechanical Jump Boosters):SIZE:(.+)$/i.exec(
+            clean,
+          );
+        if (booster && r.mechanicalJumpBoosterMP === undefined) {
+          const size = parseEquipmentSizeNumber(booster[1].trim());
+          if (size === undefined)
+            throw new Error(`Invalid mechanical jump booster size: ${clean}`);
+          r.mechanicalJumpBoosterMP = Math.max(0, Math.round(size));
+        }
 
         // Armored components: per MegaMek Mek.getArmoredComponentBV():
         // - If equipment BV > 0: add equipmentBV * 0.05 per crit slot
@@ -387,18 +403,25 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
         // don't contain 'gauss': CLHAG20/30/40, ISSBGR, etc.)
         if (
           (lo.includes('gauss') ||
+            lo.includes('magshot') ||
             /(?:cl|is)?hag\d/.test(lo) ||
             lo.includes('sbgr') ||
             lo.includes('sbg')) &&
           !lo.includes('ammo') &&
           !lo.includes('ap gauss')
         ) {
-          if (ml)
-            r.explosive.push({
+          if (ml) {
+            const part: CritScan['explosive'][number] = {
               location: ml,
               slots: 1,
               penaltyCategory: 'gauss',
-            });
+            };
+            r.explosive.push(part);
+            const identity = normalizeCritName(clean);
+            const parts = gaussCriticals.get(identity) ?? [];
+            parts.push(part);
+            gaussCriticals.set(identity, parts);
+          }
         }
 
         // Improved Heavy Lasers: 1 BV per slot (reduced penalty) per MekBVCalculator
@@ -489,21 +512,9 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
             });
         }
 
-        // B-Pod — explosive per MegaMek WeaponType.F_B_POD
-        // Reduced penalty: 1 BV per slot per MekBVCalculator lines 227-228
-        // Note: B-Pod is ALSO defensive equipment (pushed to defEquipIds below),
-        // explosive penalty is a separate deduction from defensive BV.
-        if (
-          (lo.includes('b-pod') || lo === 'isbpod' || lo === 'clbpod') &&
-          !lo.includes('ammo')
-        ) {
-          if (ml)
-            r.explosive.push({
-              location: ml,
-              slots: 1,
-              penaltyCategory: 'reduced',
-            });
-        }
+        // B-Pod's explosive flag is insufficient: pinned EquipmentType.java:
+        // 448-460 consults CoreRulesExplosions.java:241-247, which excludes pods.
+        // Keep its independent defensive-equipment inclusion below.
 
         // M-Pod — explosive per MegaMek WeaponType.F_M_POD
         // Reduced penalty: 1 BV per slot per MekBVCalculator lines 229-230
@@ -581,6 +592,9 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
             r.riscLPMLocs.push(loc);
           }
         }
+
+        // MASS is one critical per mount; use its existing canonical identity and BV.
+        if (getEquipmentEntry(clean)?.id === 'mass') r.defEquipIds.push(clean);
 
         // Defensive equip — push once per equipment instance (skip consecutive duplicate slots for multi-slot items)
         // Regular AMS is 1-crit (each slot = separate weapon). Laser AMS is 2-crit IS / 1-crit Clan → use dedup.
@@ -700,9 +714,14 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
         // Physical weapons — detect first slot only (they span multiple slots)
         const physType = classifyPhysicalWeapon(lo);
         if (physType) {
-          const key = physType + '@' + loc;
+          // Talons are one spreadable mount: MtfFile.java:1053-1068,
+          // MiscType.java:4310-4316 (48fcb2f64). Other mounts retain location.
           if (
-            !r.physicalWeapons.some((pw) => pw.type + '@' + pw.location === key)
+            !r.physicalWeapons.some(
+              (pw) =>
+                pw.type === physType &&
+                (physType === 'talon' || pw.location === loc),
+            )
           ) {
             r.physicalWeapons.push({ type: physType, location: loc });
           }
@@ -711,6 +730,7 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
     }
   }
 
+  linkSplitExplosiveMounts(unit, gaussCriticals);
   finalizeCritScan(unit, unitId, r);
   return r;
 }

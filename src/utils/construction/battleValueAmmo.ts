@@ -8,6 +8,20 @@ import {
   normalizeEquipmentId,
 } from './equipmentBVResolver';
 
+/** LargeAeroBVCalculator.java:95-96; BVCalculator.java:560-576 (48fcb2f64).
+ * Java integer division counts whole native bins; depleted ammo contributes zero.
+ */
+export function largeAerospaceAmmoBVMultiplier(
+  shots: number,
+  binShots: number,
+): number {
+  return shots === 0
+    ? 0
+    : binShots > 0
+      ? Math.max(1, Math.floor(shots / binShots))
+      : 1;
+}
+
 /** Physical native mounts, not BV cap pools. AmmoMounted.java:49-53 (48fcb2f64)
  * seeds type.getShots(); AmmoType.java:6665,6700-6701 half-bin entries (CAT-Q1)
  * already contain that capacity, without another tonnage multiplier.
@@ -350,7 +364,23 @@ export function calculateAmmoBVWithExcessiveCap(
   weapons: Array<{ id: string; bv: number }>,
   ammo: Array<{ id: string; bv: number; weaponType: string }>,
 ): number {
-  if (!ammo || ammo.length === 0) return 0;
+  return calculateAmmoBVPools(weapons, ammo).total;
+}
+
+/** The capped total plus the uncapped native pools it was built from, keyed
+ * AmmoType:rackSize like BVCalculator.assembleAmmo's ammoMap and
+ * weaponsForExcessiveAmmo (BVCalculator.java:1189-1242, 48fcb2f64). A bin or
+ * weapon without a native identity is absent from the pools.
+ */
+export function calculateAmmoBVPools(
+  weapons: Array<{ id: string; bv: number }>,
+  ammo: Array<{ id: string; bv: number; weaponType: string }>,
+): {
+  total: number;
+  available: Record<string, number>;
+  cap: Record<string, number>;
+} {
+  const available: Record<string, number> = {};
 
   const weaponBVByType: Record<string, number> = {};
   const nativeWeaponBVByType: Record<string, number> = {};
@@ -363,10 +393,11 @@ export function calculateAmmoBVWithExcessiveCap(
   }
 
   const ammoBVByType: Record<string, number> = {};
-  for (const ammoEntry of ammo) {
+  for (const ammoEntry of ammo ?? []) {
     const native =
       getNativeAmmoBVGroup(ammoEntry.id) ??
       getNativeAmmoBVGroup(ammoEntry.weaponType);
+    if (native) addBVToAmmoCapGroup(available, native, ammoEntry.bv);
     const normalizedType =
       native && nativeWeaponBVByType[native] !== undefined
         ? native
@@ -375,12 +406,13 @@ export function calculateAmmoBVWithExcessiveCap(
     addBVToAmmoCapGroup(ammoBVByType, normalizedType, ammoEntry.bv);
   }
 
-  return sumCappedAmmoBV(ammoBVByType, (ammoType) => {
+  const total = sumCappedAmmoBV(ammoBVByType, (ammoType) => {
     const matchingWeaponBV =
       nativeWeaponBVByType[ammoType] ??
       findMatchingWeaponBV(ammoType, weaponBVByType);
     return matchingWeaponBV === 0 ? undefined : matchingWeaponBV;
   });
+  return { total, available, cap: nativeWeaponBVByType };
 }
 
 /** Native AmmoType/rack identities (BVCalculator.java:1190-1240).
@@ -448,7 +480,7 @@ export function getNativeAmmoBVGroup(id: string): string | undefined {
     [/^narc/, 'NARC:1'],
     [/^(?:vehiculargrenadelauncher|vgl)/, 'VGL:1'],
     [/^(?:battlemechtaser|taser)/, 'TASER:1'],
-    [/^c3sensors/, 'C3_REMOTE_SENSOR:1'],
+    [/^c3(?:sensors|remotesensorlauncher)/, 'C3_REMOTE_SENSOR:1'],
   ];
   for (const [pattern, replacement] of patterns) {
     const match = token.match(pattern);
@@ -474,7 +506,7 @@ export function getLargeAerospaceAmmoBVGroup(id: string): string | undefined {
   const capital = getCapitalEquipmentBVFacts(id);
   if (capital && !['NA', 'SCREEN_LAUNCHER'].includes(capital.ammoType))
     return nativeAmmoBVKey(capital.ammoType, capital.rackSize);
-  return getCatalogAmmoBVGroup(id);
+  return getNativeAmmoBVGroup(id);
 }
 
 const MG_ARRAY_GUN_IDS: Readonly<Record<string, string>> = {

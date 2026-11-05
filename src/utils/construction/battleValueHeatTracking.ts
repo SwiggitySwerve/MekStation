@@ -4,12 +4,12 @@ import type {
 } from './battleValueOffensiveTypes';
 
 import { EngineType } from '../../types/construction/EngineType';
-import { calculateAmmoBVWithExcessiveCap } from './battleValueAmmo';
+import { calculateAmmoBVPools } from './battleValueAmmo';
 import { calculateOffensiveSpeedFactor } from './battleValueMovement';
 import { applyTargetingComputerBV } from './battleValueWeapons';
 import { getArtemisBVMultiplier } from './equipmentBVResolver';
 
-function applyWeaponBVModifiers(
+export function applyWeaponBVModifiers(
   weapon: {
     bv: number;
     rear?: boolean;
@@ -134,18 +134,29 @@ export function calculateBaseHeatEfficiency(heatDissipation: number): number {
 }
 
 function calculateHeatTrackedWeaponTotals(
-  weapons: readonly { bv: number; heat: number }[],
+  weapons: readonly {
+    name: string;
+    bv: number;
+    heat: number;
+    location?: string;
+  }[],
   heatEfficiency: number,
 ) {
   let weaponBV = 0;
   let rawWeaponBV = 0;
   let halvedWeaponBV = 0;
   let halvedWeaponCount = 0;
+  const weaponMountBV: { name: string; location?: string; bv: number }[] = [];
   for (const {
     weapon,
     adjustedBV,
     heatDiscount,
   } of calculateHeatTrackedWeapons(weapons, heatEfficiency)) {
+    weaponMountBV.push({
+      name: weapon.name,
+      location: weapon.location,
+      bv: adjustedBV,
+    });
     rawWeaponBV += weapon.bv;
     weaponBV += adjustedBV;
     if (heatDiscount) {
@@ -153,7 +164,13 @@ function calculateHeatTrackedWeaponTotals(
       halvedWeaponCount++;
     }
   }
-  return { weaponBV, rawWeaponBV, halvedWeaponBV, halvedWeaponCount };
+  return {
+    weaponBV,
+    rawWeaponBV,
+    halvedWeaponBV,
+    halvedWeaponCount,
+    weaponMountBV,
+  };
 }
 
 function calculateWeightBonus(config: OffensiveBVConfig): number {
@@ -190,10 +207,8 @@ export function calculateOffensiveBVWithHeatTracking(
     heatEfficiency,
   );
 
-  const ammoBV = calculateAmmoBVWithExcessiveCap(
-    config.weapons,
-    config.ammo ?? [],
-  );
+  const ammoPools = calculateAmmoBVPools(config.weapons, config.ammo ?? []);
+  const ammoBV = ammoPools.total;
   const weightBonus = calculateWeightBonus(config);
 
   const speedFactor =
@@ -228,6 +243,8 @@ export function calculateOffensiveBVWithHeatTracking(
     halvedWeaponBV: heatTrackedWeapons.halvedWeaponBV,
     weaponCount: weaponsWithModifiers.length,
     halvedWeaponCount: heatTrackedWeapons.halvedWeaponCount,
+    weaponMountBV: heatTrackedWeapons.weaponMountBV,
+    ammoPools: { available: ammoPools.available, cap: ammoPools.cap },
     physicalWeaponBV,
     offensiveEquipmentBV,
   };

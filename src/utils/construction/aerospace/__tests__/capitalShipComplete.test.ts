@@ -191,7 +191,7 @@ describe('capital offense and complete scope (MegaMek 48fcb2f64)', () => {
     },
   );
 
-  it('resolves capital bays and quantities while retaining unsupported link and defensive qualifiers', () => {
+  it('resolves capital and defensive bays while retaining unsupported links', () => {
     const result = calculateBattleValueForUnit({
       unitType: UnitType.WARSHIP,
       structuralIntegrity: 0,
@@ -214,9 +214,9 @@ describe('capital offense and complete scope (MegaMek 48fcb2f64)', () => {
       final: undefined,
     });
     expect(result.breakdown.unresolvedMounts.map((m) => m.mountIndex)).toEqual([
-      3, 4,
+      4,
     ]);
-    expect(result.breakdown.incompleteReasons).toHaveLength(2);
+    expect(result.breakdown.incompleteReasons).toHaveLength(1);
   });
 
   it.each([

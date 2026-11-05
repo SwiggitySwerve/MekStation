@@ -882,6 +882,97 @@ export const APPROVED_JAVA_REROUTES = [
     reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
     loaderOnly: true,
   })),
+  // Follow-up 93: prototype list slugs routed to the Java prototype their crit token names.
+  ...[
+    ['primitive-prototype-ppc', 'ppc', 'primitive-prototype-ppc-registry'],
+    [
+      'prototype-er-medium-laser',
+      'clan-er-medium-laser',
+      'clermediumlaserprototype-registry',
+    ],
+    [
+      'prototype-er-medium-laser',
+      'er-medium-laser',
+      'clermediumlaserprototype-registry',
+    ],
+    [
+      'prototype-er-small-laser',
+      'clan-er-small-laser',
+      'clersmalllaserprototype-registry',
+    ],
+    [
+      'prototype-er-small-laser',
+      'er-small-laser',
+      'clersmalllaserprototype-registry',
+    ],
+    [
+      'prototype-rocket-launcher-20',
+      'rl20',
+      'rocketlauncher20prototype-registry',
+    ],
+    ['prototype-streak-srm-4', 'clan-streak-srm-4', 'streaksrm4prototype'],
+    ['prototype-streak-srm-4', 'streak-srm-4', 'streaksrm4prototype'],
+    ['prototype-streak-srm-6', 'clan-streak-srm-6', 'streaksrm6prototype'],
+    ['prototype-streak-srm-6', 'streak-srm-6', 'streaksrm6prototype'],
+    [
+      'prototype-ultra-autocannon-10',
+      'clan-uac-10',
+      'clultraac10prototype-registry',
+    ],
+    [
+      'prototype-ultra-autocannon-10',
+      'uac-10',
+      'clultraac10prototype-registry',
+    ],
+  ].map(([name, oldTarget, newTarget, api]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    ...(api ? { api } : {}),
+    reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
+    loaderOnly: true,
+  })),
+  // Follow-up 93: duplicate-record crit names routed to the official record; Clan HMG list id by tech.
+  ...[
+    ['CLNarcBeacon', 'narcbeacon', 'clan-narc'],
+    ['CLiATM12', 'iatm12', 'iatm-12'],
+    ['CLiATM3', 'iatm3', 'iatm-3'],
+    ['CLiATM6', 'iatm6', 'iatm-6'],
+    ['CLiATM9', 'iatm9', 'iatm-9'],
+    ['Heavy Machine Gun', 'heavy-machine-gun', 'clheavymg-registry'],
+    ['ISImprovedNarc', 'improvednarc', 'inarc'],
+    ['clnarcbeacon', 'narcbeacon', 'clan-narc'],
+    ['heavy-machine-gun', 'heavy-machine-gun', 'clheavymg-registry'],
+    ['isimprovednarc', 'improvednarc', 'inarc'],
+  ].map(([name, oldTarget, newTarget, api]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    ...(api ? { api } : {}),
+    reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
+    loaderOnly: true,
+  })),
+  // Follow-up 93: MG arrays routed by tech (list id, display name and IS internal name together).
+  ...[
+    ['Heavy Machine Gun Array', 'hmga', 'ishmga-registry'],
+    ['ISHMGA', 'hmga', 'ishmga-registry'],
+    ['ISLMGA', 'lmga', 'islmga-registry'],
+    ['ISMGA', 'mga', 'ismga-registry'],
+    ['Light Machine Gun Array', 'lmga', 'islmga-registry'],
+    ['Machine Gun Array', 'mga', 'ismga-registry'],
+    ['heavy-machine-gun-array', 'hmga', 'ishmga-registry'],
+    ['islmga', 'lmga', 'islmga-registry'],
+    ['ismga', 'mga', 'ismga-registry'],
+    ['light-machine-gun-array', 'lmga', 'islmga-registry'],
+    ['machine-gun-array', 'mga', 'ismga-registry'],
+  ].map(([name, oldTarget, newTarget, api]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    ...(api ? { api } : {}),
+    reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
+    loaderOnly: true,
+  })),
 ];
 async function capture(root, inputs) {
   process.chdir(root);

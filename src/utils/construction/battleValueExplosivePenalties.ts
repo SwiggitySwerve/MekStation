@@ -39,6 +39,7 @@ export type ExplosivePenaltyCategory =
 
 export interface ExplosiveEquipmentEntry {
   location: MechLocation;
+  additionalLocations?: readonly MechLocation[];
   slots: number;
   penaltyCategory: ExplosivePenaltyCategory;
 }
@@ -107,7 +108,11 @@ export function calculateExplosivePenalties(
   let totalPenalty = 0;
 
   for (const item of config.equipment) {
-    if (!hasExplosiveEquipmentPenalty(item.location, config)) {
+    if (
+      ![item.location, ...(item.additionalLocations ?? [])].some((location) =>
+        hasExplosiveEquipmentPenalty(location, config),
+      )
+    ) {
       continue;
     }
 

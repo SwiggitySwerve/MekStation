@@ -7,6 +7,14 @@
 // these files match the JSON Schema source via `--check` mode.
 
 import { z } from 'zod';
+const once = <T>(make: () => T): (() => T) => {
+  let value: T | undefined;
+  return () => (value ??= make());
+};
+const unionBranches1 = once(() => [
+  z.number().gte(0),
+  z.string().describe("Variable damage like '1/missile'"),
+]);
 
 export const WeaponContract = z
   .object({
@@ -36,10 +44,7 @@ export const WeaponContract = z
     damage: z
       .any()
       .superRefine((x, ctx) => {
-        const schemas = [
-          z.number().gte(0),
-          z.string().describe("Variable damage like '1/missile'"),
-        ];
+        const schemas = unionBranches1();
         const { errors, failed } = schemas.reduce<{
           errors: z.core.$ZodIssue[];
           failed: number;

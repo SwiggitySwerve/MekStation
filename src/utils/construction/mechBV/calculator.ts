@@ -78,14 +78,8 @@ export function calculateUnitBV(
   }
 
   const armorType = cs.detectedArmorType || mapArmorType(unit.armor.type);
-  const {
-    effectiveHSCount,
-    heatDiss,
-    bvWalk,
-    runMP,
-    jumpMP,
-    partialWingJumpBonus,
-  } = deriveBvHeatAndMovement(unit, cs, armorType);
+  const { effectiveHSCount, heatDiss, bvWalk, runMP, jumpMP, jumpHeatMP } =
+    deriveBvHeatAndMovement(unit, cs, armorType);
   const hasStealth = armorType === 'stealth';
   // Pinned LandAirMek.getAirMekFlankMP and MekBVCalculator.offensiveSpeedFactorMP.
   // Bimodal LAMs retain ordinary Mek movement; standard LAMs use airborne AirMek MP.
@@ -349,10 +343,7 @@ export function calculateUnitBV(
   ).length;
   const hasLegAES = cs.aesLocs.some((loc) => loc.toUpperCase().includes('LEG'));
   const isQuad = effectiveConfig?.toLowerCase() === 'quad';
-  // For jump heat calculation, MegaMek's getJumpHeat() subtracts partial wing bonus
-  // from movedMP before computing heat (Mek.java lines 1281-1291).
-  // So jump heat uses jumpMP minus the PW bonus.
-  const jumpHeatMP = Math.max(0, jumpMP - partialWingJumpBonus);
+  // Heat uses jet movement; mechanical boosters only contribute to BV speed/TMM.
   // EC-52: Industrial mech fire control modifier
   // MegaMek Mek.hasAdvancedFireControl() returns false for industrial cockpit types:
   // COCKPIT_INDUSTRIAL, COCKPIT_PRIMITIVE_INDUSTRIAL, COCKPIT_SUPERHEAVY_INDUSTRIAL,
@@ -477,6 +468,8 @@ export function calculateUnitBV(
       jumpMP,
       weaponCount: offResult.weaponCount ?? weapons.length,
       halvedWeaponCount: offResult.halvedWeaponCount ?? 0,
+      weaponMountBV: offResult.weaponMountBV,
+      ammoPools: offResult.ammoPools,
       // Legacy alias
       defensiveEquipBV: totalDefEquipBV,
     },

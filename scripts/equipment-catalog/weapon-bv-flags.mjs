@@ -9,13 +9,7 @@ const mask = (row) =>
   (Number(row.riscLaser) << 2) |
   (Number(row.apollo) << 3);
 
-function generate(input, catalog) {
-  if (
-    input.revision !== '48fcb2f64a1b3f2d575707ce5653dad64927b587' ||
-    !input.weapons
-  )
-    throw Error('Expected the pinned WeaponType facts envelope');
-  const facts = input.weapons;
+function mapFlags(facts, catalog, mask) {
   const aliases = new Map(),
     ambiguous = new Set();
   const byName = new Map();
@@ -62,12 +56,34 @@ function generate(input, catalog) {
     if (values.length === 1) canonical.set(item.id, values[0]);
     else unmapped.push({ id: item.id, name: item.name, values });
   }
+  return { canonical, aliases, unmapped, ambiguous };
+}
+
+function generate(input, catalog) {
+  if (
+    input.revision !== '48fcb2f64a1b3f2d575707ce5653dad64927b587' ||
+    !input.weapons
+  )
+    throw Error('Expected the pinned WeaponType facts envelope');
+  const facts = input.weapons;
+  if (Object.values(facts).some((row) => typeof row.infantry !== 'boolean'))
+    throw Error(
+      'Regenerate pinned facts with WeaponBVFlags.java for F_INFANTRY',
+    );
+  const { canonical, aliases, unmapped, ambiguous } = mapFlags(
+    facts,
+    catalog,
+    mask,
+  );
+  // Resolve the new fact independently: an ambiguous infantry alias must not
+  // erase an already represented direct-fire or linking flag.
+  const infantry = mapFlags(facts, catalog, (row) => Number(row.infantry) << 4);
   const packed = (map) =>
     [...map]
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([name, bits]) => `${name}:${bits}`)
       .join(' ');
-  const source = `// Generated from MegaMek 48fcb2f64 WeaponType flags; regenerate with\n// scripts/equipment-catalog/weapon-bv-flags.mjs <pinned-facts.json> <output.ts>.\n// Packed tables keep generated facts separate from the lookup rule.\nconst canonical = unpack(${JSON.stringify(packed(canonical))});\nconst native = unpack(${JSON.stringify(packed(aliases))});\nconst bits = { directFire: 1, artemis: 2, riscLaser: 4, apollo: 8 } as const;\n\nfunction unpack(data: string): ReadonlyMap<string, number> {\n  return new Map(data.split(' ').map(item => {\n    const [id, value] = item.split(':');\n    return [id, Number(value)] as const;\n  }));\n}\n\nexport function hasNativeWeaponBVFlag(id: string, flag: keyof typeof bits): boolean | undefined {\n  const value = canonical.get(id) ?? native.get(id.toLowerCase().replace(/[^a-z0-9]/g, ''));\n  return value === undefined ? undefined : (value & bits[flag]) !== 0;\n}\n`;
+  const source = `// Generated from MegaMek 48fcb2f64 WeaponType flags; regenerate with\n// scripts/equipment-catalog/weapon-bv-flags.mjs <pinned-facts.json> <output.ts>.\n// Packed tables keep generated facts separate from the lookup rule.\nconst canonical = unpack(${JSON.stringify(packed(canonical))});\nconst native = unpack(${JSON.stringify(packed(aliases))});\nconst infantryCanonical = unpack(${JSON.stringify(packed(infantry.canonical))});\nconst infantryNative = unpack(${JSON.stringify(packed(infantry.aliases))});\nconst bits = { directFire: 1, artemis: 2, riscLaser: 4, apollo: 8, infantry: 16 } as const;\n\nfunction unpack(data: string): ReadonlyMap<string, number> {\n  return new Map(data.split(' ').map(item => {\n    const [id, value] = item.split(':');\n    return [id, Number(value)] as const;\n  }));\n}\n\nexport function hasNativeWeaponBVFlag(id: string, flag: keyof typeof bits): boolean | undefined {\n  const [ids, names] = flag === 'infantry' ? [infantryCanonical, infantryNative] : [canonical, native];\n  const value = ids.get(id) ?? names.get(id.toLowerCase().replace(/[^a-z0-9]/g, ''));\n  return value === undefined ? undefined : (value & bits[flag]) !== 0;\n}\n`;
   return {
     source,
     unmapped,
