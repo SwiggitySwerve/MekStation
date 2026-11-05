@@ -19,6 +19,14 @@ import {
   plus,
 } from '@/types/equipment/VariableEquipment';
 
+const CLAW_FORMULAS: IVariableFormulas = {
+  weight: ceilDivide('tonnage', 15),
+  criticalSlots: equalsWeight(),
+  cost: multiply('weight', 6000),
+  damage: floorDivide('tonnage', 7),
+  requiredContext: ['tonnage'],
+};
+
 /**
  * Variable equipment formulas
  * Maps equipment ID to formula definitions
@@ -199,13 +207,7 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<
    * Cost: weight × 6,000
    * Damage: floor(tonnage / 7)
    */
-  claws: {
-    weight: ceilDivide('tonnage', 15),
-    criticalSlots: equalsWeight(),
-    cost: multiply('weight', 6000),
-    damage: floorDivide('tonnage', 7),
-    requiredContext: ['tonnage'],
-  },
+  claws: CLAW_FORMULAS,
 
   /**
    * Lance
