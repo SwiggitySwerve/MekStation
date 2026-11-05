@@ -37,12 +37,18 @@ test('catalog copies mount, move and persist independently @customizer', async (
     exact: true,
   });
   await search.fill('Small Laser');
-  await page
-    .getByRole('button', { name: 'Details for Small Laser', exact: true })
-    .click();
+  const details = page.getByRole('button', {
+    name: 'Details for Small Laser',
+    exact: true,
+  });
+  await details.click();
+  // Scope to the Small Laser row: the substring search also lists Primitive
+  // Prototype Small Laser (#2652), which has the same 1 / 2 / 3 range.
   await expect(
     page
       .getByRole('region', { name: 'Equipment catalog' })
+      .getByRole('listitem')
+      .filter({ has: details })
       .getByText('1 / 2 / 3', { exact: true }),
   ).toBeVisible();
   const add = page.getByRole('button', {
