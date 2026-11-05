@@ -11,8 +11,8 @@ import {
   deriveDefensiveMovementInputs,
   deriveUnitBvCalculatorSetup,
 } from '../../../../scripts/validate-bv-calculator-setup';
+import { hasClanChassis } from '../../../../scripts/validate-bv-chassis';
 import { scanCrits } from '../../../../scripts/validate-bv-crit-scan';
-import { CLAN_CHASSIS_MIXED_UNITS } from '../../../../scripts/validate-bv-known-units';
 import { deriveBvHeatAndMovement } from '../../../../scripts/validate-bv-movement-derived';
 import { toMechLoc } from '../../../../scripts/validate-bv-normalizers';
 import { calculatePhysicalBVTotal } from '../../../../scripts/validate-bv-physical-weapons';
@@ -148,11 +148,7 @@ export function calculateUnitBV(
   // Counts locations (CT through LL) that are NOT protected, subtracts 1 BV per unprotected loc.
   let blueShieldExplosivePenalty = 0;
   if (cs.hasBlueShield) {
-    const isClan =
-      unit.techBase === 'CLAN' ||
-      (unit.techBase === 'MIXED' &&
-        unitId !== undefined &&
-        CLAN_CHASSIS_MIXED_UNITS.has(unitId));
+    const isClan = hasClanChassis(unit, unitId);
     const engineDef = getEngineDefinition(engineType);
     const sideTorsoSlots = engineDef?.sideTorsoSlots ?? 0;
     const bodyLocs: MechLocation[] = ['CT', 'RT', 'LT', 'RA', 'LA', 'RL', 'LL'];
