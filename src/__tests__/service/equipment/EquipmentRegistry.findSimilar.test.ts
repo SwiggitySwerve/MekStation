@@ -19,15 +19,18 @@ const normalize = (name: string) =>
     .replace(/[^a-z0-9]/g, '')
     .trim();
 
-/** The previous findSimilar, over the registry's own name map. */
+/**
+ * The previous findSimilar, over the registry's own name map. The map's names
+ * are normalized once by the caller (the scan itself, the substring tests and
+ * the first-five cut, is unchanged), not once per probe.
+ */
 function referenceSimilar(
-  nameToIdMap: Map<string, string>,
+  normalizedIndex: [string, string][],
   name: string,
 ): string[] {
   const normalized = normalize(name);
   const similar: string[] = [];
-  for (const [mappedName, id] of nameToIdMap) {
-    const normalizedMapped = normalize(mappedName);
+  for (const [normalizedMapped, id] of normalizedIndex) {
     if (
       normalizedMapped.includes(normalized) ||
       normalized.includes(normalizedMapped)
@@ -67,6 +70,9 @@ describe('EquipmentRegistry suggestions for a not-found name', () => {
       registry as unknown as { nameToIdMap: Map<string, string> }
     ).nameToIdMap;
     expect(nameToIdMap.size).toBeGreaterThan(1000);
+    const normalizedIndex = [...nameToIdMap].map(
+      ([name, id]): [string, string] => [normalize(name), id],
+    );
 
     const probes = new Set<string>(['', 'x', 'zzzz-not-equipment', 'Laser']);
     let step = 0;
@@ -82,7 +88,7 @@ describe('EquipmentRegistry suggestions for a not-found name', () => {
     let withSuggestions = 0;
     let capped = 0;
     for (const probe of probes) {
-      const expected = referenceSimilar(nameToIdMap, probe);
+      const expected = referenceSimilar(normalizedIndex, probe);
       // twice: the second call is served from the remembered answer
       for (let call = 0; call < 2; call++) {
         const result = registry.lookup(probe);
