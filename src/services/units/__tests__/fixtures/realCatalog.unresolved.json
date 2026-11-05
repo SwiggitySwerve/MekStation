@@ -4,7 +4,8 @@
     "long-tom-cannon",
     "medium-chemical-laser",
     "prototype-rocket-launcher-20",
-    "risc-advanced-point-defense-system"
+    "risc-advanced-point-defense-system",
+    "risc-hyper-laser"
   ],
   "vehicles": ["wire-guided-missile-launcher:size:1.0"],
   "aerospace": [],
