@@ -404,5 +404,5 @@ export const DIRECT_ALIAS_MAP: Record<string, string> = {
   taser: 'battlemech-taser',
   'mech-taser': 'battlemech-taser',
   ismektaser: 'battlemech-taser',
-  'flamer-vehicle': 'flamer',
+  'flamer-vehicle': 'vehicle-flamer',
 };
