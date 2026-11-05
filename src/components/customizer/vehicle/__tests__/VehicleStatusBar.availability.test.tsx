@@ -29,6 +29,7 @@ const item = (id: string, weight: number): IEquipmentItem => ({
   id,
   name: id,
   weight,
+  heat: 0, // Synthetic mounts in these availability tests have no heat load.
   category: EquipmentCategory.ENERGY_WEAPON,
   techBase: TechBase.INNER_SPHERE,
   rulesLevel: RulesLevel.STANDARD,

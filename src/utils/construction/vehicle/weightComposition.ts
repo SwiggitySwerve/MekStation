@@ -5,11 +5,16 @@
  * pipeline uses, so the bar and the validator describe the same vehicle.
  */
 
-import { type VehicleEngineType } from '@/types/construction/EngineType';
+import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import {
+  EngineType,
+  type VehicleEngineType,
+} from '@/types/construction/EngineType';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   computeSupportVehicleEngineWeight,
   computeVehicleEngineWeight,
+  isVehicleFusionEngine,
 } from '@/utils/construction/vehicle/engine';
 import {
   computePowerAmplifierWeight,
@@ -25,7 +30,7 @@ import {
   type VehicleControlsLiftContext,
 } from './controlsLift';
 import {
-  computeVehicleMountedWeightBreakdown,
+  computeVehicleMountedWeightFigures,
   type EquipmentResolver,
   type VehicleMountedWeightState,
   type VehicleMountedWeightBreakdown,
@@ -42,10 +47,13 @@ export interface VehicleWeightState
   structuralTechRating?: number;
   structureType: VehicleStructureType;
   armorTonnage: number;
+  armorType?: ArmorTypeEnum;
   powerAmpWeight: number;
 }
 
 export interface VehicleWeightBreakdown extends VehicleMountedWeightBreakdown {
+  /** Combat heat-neutral sinks; support's existing editor terms are unchanged. */
+  heatSinks?: number | null;
   engine: number;
   controls: number;
   lift: number;
@@ -64,7 +72,32 @@ export function computeVehicleWeightBreakdown(
   state: VehicleWeightState,
   resolve: EquipmentResolver,
 ): VehicleWeightBreakdown {
-  const mounted = computeVehicleMountedWeightBreakdown(state, resolve);
+  const {
+    rawWeaponHeat,
+    primarySummary: _primary,
+    secondarySummary: _secondary,
+    ...mounted
+  } = computeVehicleMountedWeightFigures(state, resolve);
+  // Engine.java:480-493; TestTank.java:264-270 and TestEntity.java:980-981,
+  // MegaMek 48fcb2f64a1b. Combat sinks weigh one ton beyond the free allowance.
+  const freeHeatSinks = isVehicleFusionEngine(state.engineType)
+    ? 10
+    : state.engineType === EngineType.FISSION
+      ? 5
+      : state.engineType === EngineType.FUEL_CELL
+        ? 1
+        : 0;
+  const heatSinks =
+    state.unitType === UnitType.SUPPORT_VEHICLE
+      ? 0
+      : rawWeaponHeat === null
+        ? null
+        : Math.max(
+            0,
+            rawWeaponHeat +
+              (state.armorType === ArmorTypeEnum.STEALTH ? 10 : 0) -
+              freeHeatSinks,
+          );
   const { equipment, energyWeapons, turret, secondaryTurret } = mounted;
 
   const engineContext = {
@@ -103,6 +136,8 @@ export function computeVehicleWeightBreakdown(
       ? null
       : Math.max(state.powerAmpWeight, requiredAmps);
   const issues = [...mounted.issues];
+  if (heatSinks === null)
+    issues.push('Heat sink mass is unresolved or invalid');
   if (powerAmplifiers === null)
     issues.push('Power amplifier mass is unresolved or invalid');
 
@@ -112,7 +147,8 @@ export function computeVehicleWeightBreakdown(
     equipment === null ||
     turret === null ||
     secondaryTurret === null ||
-    powerAmplifiers === null
+    powerAmplifiers === null ||
+    heatSinks === null
       ? null
       : engine +
         controls +
@@ -122,7 +158,8 @@ export function computeVehicleWeightBreakdown(
         equipment +
         turret +
         secondaryTurret +
-        powerAmplifiers;
+        powerAmplifiers +
+        heatSinks;
   const remaining = totalUsed === null ? null : state.tonnage - totalUsed;
   const finiteRemaining =
     remaining !== null && Number.isFinite(remaining) ? remaining : null;
@@ -130,6 +167,7 @@ export function computeVehicleWeightBreakdown(
     issues.push('Remaining mass is nonfinite');
   return {
     ...mounted,
+    ...(state.unitType === UnitType.SUPPORT_VEHICLE ? {} : { heatSinks }),
     engine,
     controls,
     lift,
