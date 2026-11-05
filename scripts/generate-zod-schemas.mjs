@@ -30,6 +30,7 @@ import { fileURLToPath } from 'node:url';
 
 import { expandSourceProvenanceVariants } from './expand-source-provenance-variants.mjs';
 import { expandUnitTypeRequirements } from './expand-unit-type-requirements.mjs';
+import { hoistUnionBranches } from './hoist-union-branches.js';
 import { prepareSchemaDefinitions } from './schema-local-definitions.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -129,10 +130,19 @@ export const unitSchemaVersionOf = (unit: { readonly schemaVersion?: string }) =
         ? 'UnitSchemaVersion'
         : prepared.parserOverride(candidate),
   });
-  if (prepared.declarations || versionDeclaration)
+  // A oneOf is rendered as a superRefine that rebuilds its branch schemas on
+  // every validated value; build them once instead (see hoist-union-branches).
+  const hoisted = hoistUnionBranches(body);
+  body = hoisted.body;
+  if (prepared.declarations || versionDeclaration || hoisted.declarations)
     body = body.replace(
       /(import[^\n]+\n)/,
-      '$1' + versionDeclaration + prepared.declarations + '\n',
+      (importLine) =>
+        importLine +
+        versionDeclaration +
+        prepared.declarations +
+        hoisted.declarations +
+        '\n',
     );
   return HEADER(sourceRel) + '\n' + body;
 }
