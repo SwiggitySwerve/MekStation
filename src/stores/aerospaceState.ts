@@ -392,6 +392,20 @@ export interface CreateAerospaceOptions {
 }
 
 /**
+ * Unit type for an aerospace Sub-Type, matching MegaMek's entity types:
+ * AeroSpaceFighter → ETYPE_AEROSPACE_FIGHTER, ConvFighter → ETYPE_CONV_FIGHTER,
+ * SmallCraft → ETYPE_SMALL_CRAFT (megamek/common/units/*.java getEntityType).
+ */
+export function unitTypeForAerospaceSubType(
+  subType: AerospaceSubType,
+): AerospaceState['unitType'] {
+  if (subType === AerospaceSubType.SMALL_CRAFT) return UnitType.SMALL_CRAFT;
+  if (subType === AerospaceSubType.CONVENTIONAL_FIGHTER)
+    return UnitType.CONVENTIONAL_FIGHTER;
+  return UnitType.AEROSPACE;
+}
+
+/**
  * Generate a unique aerospace ID
  */
 export function generateAerospaceId(): string {
@@ -458,11 +472,7 @@ export function createDefaultAerospaceState(
     techBase: options.techBase,
 
     // Unit Type & Configuration
-    unitType: isSmallCraft
-      ? UnitType.SMALL_CRAFT
-      : isConventional
-        ? UnitType.CONVENTIONAL_FIGHTER
-        : UnitType.AEROSPACE,
+    unitType: unitTypeForAerospaceSubType(aerospaceSubType),
     aerospaceSubType,
     motionType: AerospaceMotionType.AERODYNE,
     isOmni: false,
