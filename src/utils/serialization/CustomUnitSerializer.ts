@@ -22,6 +22,7 @@ import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospa
 import { getCriticalSlotsForLocation } from '@/services/units/unitLoaderService/criticalSlotEquipment';
 import {
   CockpitType,
+  INTERFACE_COCKPIT_SOURCE_TAG,
   VRRP_COCKPIT_SOURCE_TAG,
 } from '@/types/construction/CockpitType';
 import {
@@ -29,7 +30,7 @@ import {
   MechLocation,
 } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
-import { GyroType } from '@/types/construction/GyroType';
+import { GyroType, NO_GYRO_SOURCE_TAG } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { getLocationsForConfig } from '@/types/construction/MechConfigurationSystem';
@@ -60,6 +61,7 @@ const GYRO_TYPE = {
   [GyroType.COMPACT]: 'COMPACT',
   [GyroType.HEAVY_DUTY]: 'HEAVY_DUTY',
   [GyroType.SUPERHEAVY]: 'SUPERHEAVY',
+  [GyroType.NONE]: NO_GYRO_SOURCE_TAG,
 } as const satisfies Readonly<Record<GyroType, string>>;
 
 const COCKPIT_TYPE = {
@@ -70,6 +72,7 @@ const COCKPIT_TYPE = {
   [CockpitType.PRIMITIVE]: 'PRIMITIVE',
   [CockpitType.INDUSTRIAL]: 'INDUSTRIAL',
   [CockpitType.SUPER_HEAVY]: 'SUPERHEAVY',
+  [CockpitType.INTERFACE]: INTERFACE_COCKPIT_SOURCE_TAG,
   [CockpitType.VRRP]: VRRP_COCKPIT_SOURCE_TAG,
 } as const satisfies Readonly<Record<CockpitType, string>>;
 

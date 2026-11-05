@@ -20,9 +20,11 @@ export enum CockpitType {
   PRIMITIVE = 'Primitive',
   INDUSTRIAL = 'Industrial',
   SUPER_HEAVY = 'Superheavy',
+  INTERFACE = 'Interface',
   VRRP = 'Virtual Reality Piloting Pod',
 }
 
+export const INTERFACE_COCKPIT_SOURCE_TAG = 'INTERFACE';
 export const VRRP_COCKPIT_SOURCE_TAG = 'VRRP';
 
 /**
@@ -63,6 +65,10 @@ export function getCockpitSystemSlots(type: string = CockpitType.STANDARD): {
     head.set(3, 'Sensors');
   } else if (type === CockpitType.COMMAND_CONSOLE) {
     head.set(3, 'Command Console');
+  } else if (type === CockpitType.INTERFACE) {
+    // MegaMek 48fcb2f64 Mek.java:5709-5720 occupies both cockpit cells.
+    head.set(2, 'Interface Cockpit');
+    head.set(3, 'Interface Cockpit');
   }
   return { head, centerTorso: [], sideTorso: [] };
 }
@@ -160,6 +166,18 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
     headSlots: 5,
     otherSlots: 0,
     introductionYear: 3076,
+  },
+  {
+    // MegaMek 48fcb2f64 TestMek.java:225-246.
+    type: CockpitType.INTERFACE,
+    sourceTag: INTERFACE_COCKPIT_SOURCE_TAG,
+    name: 'Interface Cockpit',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.EXPERIMENTAL,
+    weight: 4,
+    headSlots: 6,
+    otherSlots: 0,
+    introductionYear: 3074, // Earliest prototype: Mek.java:3818-3825.
   },
   {
     // 48fcb2f64 TestMek.java:225-230; Mek.java:5797-5838,3826-3836.

@@ -86,6 +86,8 @@ const GLOBAL_FILES = [
   'next.config.ts',
 ];
 const GLOBAL_PREFIXES = ['config/jest/'];
+// Written by createStore into every result-store directory.
+const STORE_MARKER = '.cached-tests-store';
 const FIXED_ENV = ['NODE_ENV', 'TZ'];
 // Ignored directories (any path segment) that are build output, dependencies or
 // tool state: never test inputs, and large. Every other ignored file is hashed.
@@ -221,10 +223,20 @@ function buildFileIndex(root, excludePrefix = null) {
     index.symlinks.clear();
     walk(root, '', index);
   }
-  // The result cache lives in the tree; it must never feed its own keys.
-  if (excludePrefix) {
+  // Result caches live in the tree and must never feed keys: this
+  // invocation's own (`excludePrefix`) and any other store, which createStore
+  // marks with STORE_MARKER (CI runs the unit and corpus invocations, each
+  // with its own --cache-dir, in one checkout).
+  const excluded = excludePrefix ? [excludePrefix] : [];
+  for (const file of index.keys()) {
+    const slash = file.lastIndexOf('/');
+    if (slash > 0 && file.slice(slash + 1) === STORE_MARKER)
+      excluded.push(file.slice(0, slash + 1));
+  }
+  if (excluded.length > 0) {
     for (const file of [...index.keys()])
-      if (file.startsWith(excludePrefix)) index.delete(file);
+      if (excluded.some((prefix) => file.startsWith(prefix)))
+        index.delete(file);
   }
   return index;
 }
@@ -942,6 +954,17 @@ function createKeyer({
 // ---------------------------------------------------------------------------
 
 function createStore(dir) {
+  // Mark the directory as a result store before any key is computed, so every
+  // invocation's file index leaves it out (buildFileIndex), whatever its name.
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(
+      path.join(dir, STORE_MARKER),
+      'cached-tests result store\n',
+    );
+  } catch {
+    // unwritable: put() fails open later, and the dir holds no entries
+  }
   const entryPath = (key) => path.join(dir, key.slice(0, 2), `${key}.json`);
   return {
     get(key) {

@@ -44,6 +44,7 @@ export const GYRO_COST_MULTIPLIERS: Record<GyroType, number> = {
   [GyroType.COMPACT]: 1.5,
   [GyroType.HEAVY_DUTY]: 2.0,
   [GyroType.SUPERHEAVY]: 1.0,
+  [GyroType.NONE]: 0, // MegaMek 48fcb2f64 MekCostCalculator.java:95-103.
 };
 
 /**
@@ -72,6 +73,7 @@ export const COCKPIT_COSTS: Record<CockpitType, number> = {
   [CockpitType.INDUSTRIAL]: 100000,
   [CockpitType.PRIMITIVE]: 100000,
   [CockpitType.SUPER_HEAVY]: 300000,
+  [CockpitType.INTERFACE]: 200000, // MekCostCalculator.java:54-77 (default).
   [CockpitType.VRRP]: 1250000, // 48fcb2f64 MekCostCalculator.java:65.
 };
 

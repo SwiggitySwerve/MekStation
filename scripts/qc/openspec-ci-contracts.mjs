@@ -17,15 +17,15 @@
 // fan-out job, Build Test included (CI-SPEED slice 5).
 export const requiredProtectedContexts = ['Lint and Test'];
 
+// CI-SPEED round 2 folded Schema Bridge into static-checks, the corpus
+// suites and Validate Combat Suite into unit-test-shards, and Build and
+// Linux Pack into simulation-checks; the token contracts below still pin
+// each of those gates.
 export const requiredAggregatorNeeds = [
   'detect-changes',
   'static-checks',
   'unit-test-shards',
-  'corpus-tests',
   'simulation-checks',
-  'validate-combat',
-  'schema-bridge',
-  'prepare-build',
   'build-test',
   'e2e',
 ];
@@ -50,7 +50,7 @@ export const requiredWorkflowTokens = [
   {
     id: 'schema-bridge-is-strict',
     tokens: [
-      'name: Schema Bridge',
+      'name: Verify generated Zod matches JSON Schema',
       'npm run schema:gen-check',
       'run_schema_validation_only.py --shape all --strict',
     ],
