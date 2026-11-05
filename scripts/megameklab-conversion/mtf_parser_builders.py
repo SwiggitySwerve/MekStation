@@ -60,6 +60,7 @@ def build_armor_allocation(raw_allocation: Dict[str, int]) -> Dict[str, Any]:
         'HD': 'HEAD',
         'LL': 'LEFT_LEG',
         'RL': 'RIGHT_LEG',
+        'CL': 'CENTER_LEG',
         'RTL': 'LEFT_TORSO_REAR',
         'RTR': 'RIGHT_TORSO_REAR',
         'RTC': 'CENTER_TORSO_REAR',
@@ -185,6 +186,7 @@ def build_critical_slots(criticals: Dict[str, List[str]]) -> Dict[str, List[Opti
         'RIGHT_ARM': 12,
         'LEFT_LEG': 6,
         'RIGHT_LEG': 6,
+        'CENTER_LEG': 6,
         # Quad mech legs
         'FRONT_LEFT_LEG': 6,
         'FRONT_RIGHT_LEG': 6,
