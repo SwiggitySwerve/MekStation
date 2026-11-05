@@ -163,14 +163,15 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<
 
   /**
    * Sword
-   * Weight: ceil(tonnage / 15)
-   * Slots: = weight
+   * MegaMek 48fcb2f64, MiscType.java:512-513,1075-1076.
+   * Weight: tonnage / 20 rounded up to 0.5 tons
+   * Slots: ceil(tonnage / 15)
    * Cost: weight × 10,000
    * Damage: floor(tonnage / 10) + 1
    */
   sword: {
-    weight: ceilDivide('tonnage', 15),
-    criticalSlots: equalsWeight(),
+    weight: multiplyRound('tonnage', 0.05, 0.5),
+    criticalSlots: ceilDivide('tonnage', 15),
     cost: multiply('weight', 10000),
     damage: plus(floorDivide('tonnage', 10), 1),
     requiredContext: ['tonnage'],
@@ -238,14 +239,15 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<
 
   /**
    * Retractable Blade
+   * MegaMek 48fcb2f64, MiscType.java:516-517,1082-1083.
    * Weight: tonnage × 0.05 rounded to 0.5 tons
-   * Slots: 1 per arm (fixed)
+   * Slots: 1 + ceil(tonnage / 20)
    * Cost: weight × 10,000
    * Damage: floor(tonnage / 10)
    */
   'retractable-blade': {
-    weight: multiplyRound('tonnage', 0.05, 0.5),
-    criticalSlots: fixed(1),
+    weight: plus(multiplyRound('tonnage', 0.05, 0.5), 0.5),
+    criticalSlots: plus(ceilDivide('tonnage', 20), 1),
     cost: multiply('weight', 10000),
     damage: floorDivide('tonnage', 10),
     requiredContext: ['tonnage'],

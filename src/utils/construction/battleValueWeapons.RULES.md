@@ -73,3 +73,12 @@ critical, subject to existing CASE protection. Its ammunition remains
 nonexplosive. Pinned MegaMek 48fcb2f64 GaussWeapon.java:54-59,
 ISMagshotGaussRifle.java:59-77 and MekBVCalculator.java:204-215.
 validate-bv-magshot.test.ts includes the Morpheus MASS prerequisite.
+
+# Marked weapon identity
+
+The critical-mount owner resolves rear/turret markers to the same catalog
+weapon family consumed by Mech weapon inputs. Match a complete identity;
+medium and ER-medium lasers are distinct. Tech-specific critical counts remain
+on each marked source mount, including one-slot Clan ER large lasers. Explicit
+rear mounts consume their marker before front copies. Pinned MegaMek
+48fcb2f64: MtfFile.java:1015-1023,1062; BVCalculator.java:744-765.
