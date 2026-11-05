@@ -22,6 +22,33 @@ export type EquipmentResolver = (
   equipmentId: string,
 ) => IEquipmentItem | undefined;
 
+/** Raw heat-neutral weapon load: MegaMek 48fcb2f64a1b TestEntity.java:945-950.
+ * Unlike BV heat, ammunition-fed flamers/chemical lasers contribute zero;
+ * plasma weapons still contribute. Non-weapon plasma-named items do not.
+ */
+export function getVehicleHeatNeutralWeaponHeat(
+  item: Pick<IEquipmentItem, 'category' | 'name' | 'heat' | 'special'>,
+): number | null {
+  const weapon = [
+    EquipmentCategory.ENERGY_WEAPON,
+    EquipmentCategory.BALLISTIC_WEAPON,
+    EquipmentCategory.MISSILE_WEAPON,
+    EquipmentCategory.ARTILLERY,
+    EquipmentCategory.CAPITAL_WEAPON,
+  ].includes(item.category);
+  // TestEntity.java:945-950 selects laser/PPC/plasma/flamer flags, not the
+  // catalog's broader Energy category. Heavy/vehicle flamers use ammunition.
+  const excludedEnergy = /tsemp|taser|(?:heavy|vehicle)\s*flamer/i.test(
+    item.name,
+  );
+  return (isPowerAmplifierEnergyWeapon(item) && !excludedEnergy) ||
+    (weapon && /plasma/i.test(item.name))
+    ? item.heat !== undefined && isValidWeight(item.heat)
+      ? item.heat
+      : null
+    : 0;
+}
+
 export interface VehicleMountedWeightState
   extends
     IVehicleTurretSourceContext,
@@ -54,6 +81,7 @@ export function computeVehicleMountedWeightFigures(
   state: VehicleMountedWeightState,
   resolve: EquipmentResolver,
 ): VehicleMountedWeightBreakdown & {
+  rawWeaponHeat: number | null;
   primarySummary: ReturnType<typeof getVehicleTurretMechanismFigures>;
   secondarySummary: ReturnType<typeof getVehicleTurretMechanismFigures>;
 } {
@@ -69,6 +97,7 @@ export function computeVehicleMountedWeightFigures(
     }
     return {
       weight,
+      heat: item === undefined ? null : getVehicleHeatNeutralWeaponHeat(item),
       isAmmunition: item?.category === EquipmentCategory.AMMUNITION,
       // An unresolved definition has unknown classification as well as mass.
       needsAmplifier: item === undefined || isPowerAmplifierEnergyWeapon(item),
@@ -89,6 +118,11 @@ export function computeVehicleMountedWeightFigures(
     return null;
   };
   const equipment = sum(mounted, 'Equipment');
+  const rawWeaponHeat = mounted.reduce<number | null>(
+    (total, mount) =>
+      total === null || mount.heat === null ? null : total + mount.heat,
+    0,
+  );
   const primary = mounted.filter((mount) => mount.inPrimaryTurret);
   const secondary = mounted.filter((mount) => mount.inSecondaryTurret);
   const turretMounted = sum(primary, 'Primary mounted equipment');
@@ -132,6 +166,7 @@ export function computeVehicleMountedWeightFigures(
     ...secondaryMechanism.issues.map((issue) => `Secondary turret: ${issue}`),
   );
   return {
+    rawWeaponHeat,
     equipment,
     turretEquipment,
     secondaryTurretEquipment,
@@ -155,6 +190,7 @@ export function computeVehicleMountedWeightBreakdown(
   resolve: EquipmentResolver,
 ): VehicleMountedWeightBreakdown {
   const {
+    rawWeaponHeat: _heat,
     primarySummary: _primary,
     secondarySummary: _secondary,
     ...weights

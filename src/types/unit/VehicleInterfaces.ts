@@ -143,6 +143,9 @@ export interface IVehicle extends IGroundUnit, IVehicleTurretSourceContext {
   /** Is this a trailer (no engine) */
   readonly isTrailer: boolean;
 
+  /** BLK `transporters` lines (troop space, bays); item slots use them. */
+  readonly transporters?: readonly string[];
+
   /** BLK `armor_tech_level` (TechConstants level), when the source states it. */
   readonly armorTechLevel?: number;
 
@@ -178,6 +181,9 @@ export interface IVTOL extends IGroundUnit, IVehicleTurretSourceContext {
 
   /** Chin turret configuration */
   readonly chinTurret?: ITurretConfiguration;
+
+  /** BLK `transporters` lines (troop space, bays); item slots use them. */
+  readonly transporters?: readonly string[];
 
   /** Rotor type */
   readonly rotorType: string;
