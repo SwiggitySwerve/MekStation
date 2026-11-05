@@ -5,7 +5,10 @@ import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupS
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { mapToVehicleState } from '@/services/units/unitLoaderService/vehicleMapping';
 
-import { resolveVehicleVariableMass } from '../variableEquipmentMass';
+import {
+  resolveVehicleAccessoryMass,
+  resolveVehicleVariableMass,
+} from '../variableEquipmentMass';
 import { computeVehicleWeightBreakdown } from '../weightComposition';
 
 jest.mock('@/services/equipment/EquipmentFileReader', () => ({
@@ -59,4 +62,9 @@ it.each([
   );
   expect(figures.remaining).not.toBeNull();
   expect(state.tonnage - figures.remaining!).toBe(javaTotal);
+});
+
+it('keeps variable jump-jet mass unresolved without a vehicle context', () => {
+  const item = { id: 'vehiclejumpjet', weight: 0 };
+  expect(resolveVehicleAccessoryMass(item)).toBeNull();
 });
