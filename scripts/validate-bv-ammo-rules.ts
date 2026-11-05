@@ -188,7 +188,10 @@ export const AMMO_RESOLUTION_RULES: AmmoResolutionRule[] = [
     re: /^(?:is\s*)?light\s*rifle\s*ammo$/,
     ids: (_) => [`light-rifle-ammo`],
   },
-  { re: /^(?:is\s*)?ammo\s+nail[/-]rivet$/, ids: (_) => [`mg-ammo`] },
+  {
+    re: /^(?:(?:is|cl(?:an)?)\s*)?(?:ammo\s+nail[/-]rivet|nail[ /-]?rivet\s*gun\s*ammo)$/,
+    ids: (_) => ['nail-rivet-gun-ammo'],
+  },
   { re: /^(?:is\s*)?magshotgr\s*ammo$/, ids: (_) => [`magshotgr-ammo`] },
   { re: /^(?:is\s*)?apds\s*ammo$/, ids: (_) => [`ams-ammo`] },
   {

@@ -36696,5 +36696,72 @@
       "ammoType": "ARROWIV_PROTO",
       "rackSize": 20
     }
+  },
+  {
+    "native": "Machine Gun (Light)",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/mg/InfantrySupportMGLightWeapon.java: Machine Gun (Light)",
+    "values": {
+      "id": "machine-gun-light-registry",
+      "name": "Machine Gun (Light)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.007,
+      "criticalSlots": 0,
+      "battleValue": 1.5,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 400,
+      "subType": "InfantrySupportMGLightWeapon",
+      "damage": 0.49,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "extreme": 4,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/mg/InfantrySupportMGLightWeapon.java: Machine Gun (Light)"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.infantry.support.mg.InfantrySupportMGLightWeapon",
+      "internalName": "Machine Gun (Light)",
+      "name": "Machine Gun (Light)",
+      "aliases": [
+        "Machine Gun (Light)",
+        "InfantryLMG",
+        "InfantryLightMachineGun",
+        "Infantry Light Machine Gun"
+      ],
+      "tech": "ALL",
+      "bv": 1.5,
+      "tons": 0.007,
+      "criticalSlots": 0,
+      "cost": 400,
+      "rulesLevel": "STANDARD",
+      "introductionYear": 1950,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": false,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Ballistic",
+      "damage": 0.49,
+      "allowedUnitTypes": ["Infantry"],
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "extreme": 4,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      },
+      "ammoType": "INFANTRY",
+      "rackSize": 0
+    }
   }
 ]

@@ -1,4 +1,4 @@
-/** Support transport mass. Pinned MegaMek 48fcb2f6 TestEntity.java:1995-2003,
+/** Shared vehicle transport mass. Pinned MegaMek 48fcb2f6 TestEntity.java:1995-2003,
  * TestSupportVehicle.java:818-833. Quarters are controls; they are not added twice.
  */
 export function computeSupportTransportWeights(
@@ -44,6 +44,7 @@ export function computeSupportTransportWeights(
         case 'liquidcargobay':
           weight = capacity / 0.91;
           break;
+        case 'insulatedcargobay': // InsulatedCargoBay.java:66-67,109-110.
         case 'refrigeratedcargobay':
           weight = capacity / 0.87;
           break;

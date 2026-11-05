@@ -5,6 +5,7 @@
     "Clan Electric Discharge ProtoMech": "clan-electric-discharge-protomech"
   },
   "reroute": {
+    "Machine Gun (Light)": "machine-gun-light-registry",
     "IS LB 2-X AC Ammo": "is-lb-2-x-ac-ammo-registry",
     "IS LB 5-X AC Ammo": "is-lb-5-x-ac-ammo-registry",
     "IS LB 2-X Cluster Ammo": "is-lb-2-x-cluster-ammo-registry",

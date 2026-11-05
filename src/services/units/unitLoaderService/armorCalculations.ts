@@ -7,7 +7,10 @@
  */
 
 import { IArmorAllocation } from '@/types/construction/ArmorAllocation';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import {
+  ArmorTypeEnum,
+  getLoaderArmorPointsPerTon,
+} from '@/types/construction/ArmorType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 
 type CountedArmorPointField =
@@ -30,29 +33,12 @@ const COUNTED_ARMOR_POINT_FIELDS: readonly CountedArmorPointField[] = [
   MechLocation.RIGHT_LEG,
 ];
 
-const DEFAULT_ARMOR_POINTS_PER_TON = 16;
 const HALF_TON_INCREMENT = 2;
-
-const ARMOR_POINTS_PER_TON_BY_TYPE: Partial<Record<ArmorTypeEnum, number>> = {
-  [ArmorTypeEnum.FERRO_FIBROUS_IS]: 17.92,
-  [ArmorTypeEnum.FERRO_FIBROUS_CLAN]: 19.2,
-  [ArmorTypeEnum.LIGHT_FERRO]: 16.96,
-  [ArmorTypeEnum.HEAVY_FERRO]: 19.52,
-  [ArmorTypeEnum.HARDENED]: 8,
-  [ArmorTypeEnum.FERRO_LAMELLOR]: 14,
-  [ArmorTypeEnum.BALLISTIC_REINFORCED]: 12,
-};
 
 function totalCountedArmorPoints(allocation: IArmorAllocation): number {
   return COUNTED_ARMOR_POINT_FIELDS.reduce(
     (total, field) => total + allocation[field],
     0,
-  );
-}
-
-function pointsPerTonForArmorType(armorType: ArmorTypeEnum): number {
-  return (
-    ARMOR_POINTS_PER_TON_BY_TYPE[armorType] ?? DEFAULT_ARMOR_POINTS_PER_TON
   );
 }
 
@@ -68,6 +54,6 @@ export function calculateArmorTonnage(
   armorType: ArmorTypeEnum,
 ): number {
   return roundUpToNearestHalfTon(
-    totalCountedArmorPoints(allocation) / pointsPerTonForArmorType(armorType),
+    totalCountedArmorPoints(allocation) / getLoaderArmorPointsPerTon(armorType),
   );
 }

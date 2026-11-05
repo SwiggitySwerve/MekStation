@@ -103,3 +103,36 @@ it('keeps IS list ids on the same mixed-tech units on IS records', () => {
   expect([...winston.get('istag')!]).toEqual(['tag']);
   expect([...winston.get('isangelecmsuite')!]).toEqual(['angel-ecm']);
 });
+
+// Follow-up 93 (Clan LRM ammo identity, BV 27 vs 23): the BV owner resolves a
+// vehicle's ammo bin to its pinned MegaMek 48fcb2f6 AmmoType record, but the
+// loader took the legacy record of the same base (IS ammo-lrm-20 for Clan Ammo
+// LRM-20), so a loaded unit carried another bin's BV and shots.
+it.each([
+  // AmmoType.java "Clan Ammo LRM-20": BV 27 (the IS bin is 23).
+  [
+    'Hunter Light Support Tank (Cell)',
+    'clan-ammo-lrm-20',
+    'clan-ammo-lrm-20-registry',
+  ],
+  // "CLRotaryAC5 Ammo": BV 43.
+  [
+    'Fury Command Tank (Fury III)',
+    'clrotaryac5-ammo',
+    'clrotaryac5-ammo-registry',
+  ],
+  // "Clan Ultra AC/10 Ammo".
+  [
+    'Demolisher II Heavy Tank II-X',
+    'clan-ultra-ac-10-ammo',
+    'clan-ultra-ac-10-ammo-registry',
+  ],
+  // "IS Streak SRM 2 Ammo": BV 4, 50 shots (the generic Streak bin is 17).
+  [
+    'Burke Defense Tank (Royal)',
+    'is-streak-srm-2-ammo',
+    'is-streak-srm-2-ammo-registry',
+  ],
+])('%s loads %s as the BV owner’s record (%s)', (file, source, expected) => {
+  expect([...(mounts(file).get(source) ?? [])]).toEqual([expected]);
+});
