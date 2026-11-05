@@ -77,11 +77,13 @@ const turret = { type: TurretType.SINGLE, rotationArc: 360 };
 // MegaMek 48fcb2f6 MiscType.java:614-616,12532-12543;
 // WeaponType.java:2925-2926: direct fire except tasers, plus RISC modules.
 it.each([
-  [TechBase.INNER_SPHERE, 'targeting-computer-is', 4],
-  [TechBase.CLAN, 'targeting-computer-clan', 3],
+  [TechBase.INNER_SPHERE, 'targeting-computer', 'targeting-computer-is', 4],
+  [TechBase.CLAN, 'clan-targeting-computer', 'targeting-computer-clan', 3],
+  [TechBase.INNER_SPHERE, 'targeting-computer', undefined, 4],
+  [TechBase.CLAN, 'clan-targeting-computer', undefined, 3],
 ])(
-  'charges %s targeting-computer mass before turret mechanism mass',
-  (techBase, formula, tons) => {
+  'charges %s %s mass before turret mechanism mass',
+  (techBase, computerId, formula, tons) => {
     const items: Partial<Record<string, IEquipmentItem>> = {
       'large-laser': item('large-laser', 5, C.ENERGY_WEAPON),
       ppc: item('ppc', 7, C.ENERGY_WEAPON),
@@ -91,8 +93,8 @@ it.each([
       'mek-taser': item('mek-taser', 4, C.ENERGY_WEAPON),
       ammo: item('ammo', 1, C.AMMUNITION),
       'machine-gun': item('machine-gun', 0.5, C.BALLISTIC_WEAPON),
-      'targeting-computer': {
-        ...item('targeting-computer', 0, C.MISC_EQUIPMENT),
+      [computerId]: {
+        ...item(computerId, 0, C.MISC_EQUIPMENT),
         techBase,
         variableEquipmentId: formula,
       },
@@ -100,10 +102,10 @@ it.each([
     const equipment = Object.keys(items).map((id) =>
       mount(
         id,
-        id === 'ppc' || id === 'targeting-computer'
+        id === 'ppc' || id === computerId
           ? VehicleLocation.TURRET
           : VehicleLocation.FRONT,
-        id === 'ppc' || id === 'targeting-computer',
+        id === 'ppc' || id === computerId,
       ),
     );
     expect(
