@@ -516,19 +516,8 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
         // 448-460 consults CoreRulesExplosions.java:241-247, which excludes pods.
         // Keep its independent defensive-equipment inclusion below.
 
-        // M-Pod — explosive per MegaMek WeaponType.F_M_POD
-        // Reduced penalty: 1 BV per slot per MekBVCalculator lines 229-230
-        if (
-          (lo.includes('m-pod') || lo === 'ismpod' || lo === 'clmpod') &&
-          !lo.includes('ammo')
-        ) {
-          if (ml)
-            r.explosive.push({
-              location: ml,
-              slots: 1,
-              penaltyCategory: 'reduced',
-            });
-        }
+        // CoreRulesExplosions.java:241-247 (48fcb2f64) excludes M-Pods.
+        // Their defensive BV is collected separately below.
 
         // HVAC (Hyper-Velocity Autocannon) — explosive per MegaMek HVACWeapon.java
         // 1 BV per mounted weapon regardless of slot count
@@ -659,11 +648,15 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
           )
             r.hasMediumShield = true;
         } else if (
-          (lo.includes('b-pod') || lo === 'isbpod' || lo === 'clbpod') &&
+          (lo.includes('b-pod') ||
+            lo === 'isbpod' ||
+            lo === 'clbpod' ||
+            lo.includes('m-pod') ||
+            lo === 'ismpod' ||
+            lo === 'clmpod') &&
           !lo.includes('ammo')
         )
           r.defEquipIds.push(clean);
-        // M-Pod is an offensive weapon (BV=5), NOT defensive equipment — handled via equipment list
         else if (
           (lo.includes('a-pod') ||
             lo.includes('antipersonnel') ||
