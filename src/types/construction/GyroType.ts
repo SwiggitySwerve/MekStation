@@ -18,13 +18,18 @@ export enum GyroType {
   COMPACT = 'Compact Gyro',
   HEAVY_DUTY = 'Heavy-Duty Gyro',
   SUPERHEAVY = 'Superheavy Gyro',
+  NONE = 'None',
 }
+
+export const NO_GYRO_SOURCE_TAG = 'NONE';
 
 /**
  * Gyro definition with all characteristics
  */
 export interface GyroDefinition {
   readonly type: GyroType;
+  /** Native source tag for variants absent from legacy mapper aliases. */
+  readonly sourceTag?: string;
   readonly name: string;
   readonly techBase: TechBase;
   readonly rulesLevel: RulesLevel;
@@ -42,6 +47,18 @@ export interface GyroDefinition {
  * All gyro type definitions
  */
 export const GYRO_DEFINITIONS: readonly GyroDefinition[] = [
+  {
+    // MegaMek 48fcb2f64 TestMek.java:258-259; Engine.java:639-640.
+    type: GyroType.NONE,
+    sourceTag: NO_GYRO_SOURCE_TAG,
+    name: 'No Gyro',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.ADVANCED,
+    weightMultiplier: 0,
+    criticalSlots: 0,
+    introductionYear: 0, // No introduction date: Mek.java:3710-3716 placeholder.
+    hitsToDestroy: 0,
+  },
   {
     type: GyroType.STANDARD,
     name: 'Standard Gyro',
@@ -93,6 +110,13 @@ export const GYRO_DEFINITIONS: readonly GyroDefinition[] = [
     hitsToDestroy: 2,
   },
 ] as const;
+
+/** Shared native identity; legacy exact/fuzzy aliases retain their guards. */
+export function getNativeGyroType(source: string): GyroType | undefined {
+  return GYRO_DEFINITIONS.find(
+    (definition) => definition.sourceTag === source.trim().toUpperCase(),
+  )?.type;
+}
 
 /**
  * Get gyro definition by type

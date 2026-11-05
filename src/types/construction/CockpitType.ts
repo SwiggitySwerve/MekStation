@@ -20,7 +20,10 @@ export enum CockpitType {
   PRIMITIVE = 'Primitive',
   INDUSTRIAL = 'Industrial',
   SUPER_HEAVY = 'Superheavy',
+  INTERFACE = 'Interface',
 }
+
+export const INTERFACE_COCKPIT_SOURCE_TAG = 'INTERFACE';
 
 /**
  * Fixed cockpit system positions (0-based) for the selected cockpit, shared by
@@ -57,6 +60,10 @@ export function getCockpitSystemSlots(type: string = CockpitType.STANDARD): {
     head.set(3, 'Sensors');
   } else if (type === CockpitType.COMMAND_CONSOLE) {
     head.set(3, 'Command Console');
+  } else if (type === CockpitType.INTERFACE) {
+    // MegaMek 48fcb2f64 Mek.java:5709-5720 occupies both cockpit cells.
+    head.set(2, 'Interface Cockpit');
+    head.set(3, 'Interface Cockpit');
   }
   return { head, centerTorso: [], sideTorso: [] };
 }
@@ -66,6 +73,8 @@ export function getCockpitSystemSlots(type: string = CockpitType.STANDARD): {
  */
 export interface CockpitDefinition {
   readonly type: CockpitType;
+  /** Native source tag for variants absent from legacy mapper aliases. */
+  readonly sourceTag?: string;
   readonly name: string;
   readonly techBase: TechBase;
   readonly rulesLevel: RulesLevel;
@@ -83,6 +92,18 @@ export interface CockpitDefinition {
  * All cockpit definitions
  */
 export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
+  {
+    // MegaMek 48fcb2f64 TestMek.java:225-246.
+    type: CockpitType.INTERFACE,
+    sourceTag: INTERFACE_COCKPIT_SOURCE_TAG,
+    name: 'Interface Cockpit',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.EXPERIMENTAL,
+    weight: 4,
+    headSlots: 6,
+    otherSlots: 0,
+    introductionYear: 3074, // Earliest prototype: Mek.java:3818-3825.
+  },
   {
     type: CockpitType.STANDARD,
     name: 'Standard Cockpit',
@@ -154,6 +175,13 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
     introductionYear: 3076,
   },
 ] as const;
+
+/** Shared native identity; legacy exact/fuzzy aliases retain their guards. */
+export function getNativeCockpitType(source: string): CockpitType | undefined {
+  return COCKPIT_DEFINITIONS.find(
+    (definition) => definition.sourceTag === source.trim().toUpperCase(),
+  )?.type;
+}
 
 /**
  * Get cockpit definition by type

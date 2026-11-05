@@ -11,10 +11,13 @@ import {
   createEmptyArmorAllocation,
 } from '@/types/construction/ArmorAllocation';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { CockpitType } from '@/types/construction/CockpitType';
+import {
+  CockpitType,
+  getNativeCockpitType,
+} from '@/types/construction/CockpitType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
-import { GyroType } from '@/types/construction/GyroType';
+import { GyroType, getNativeGyroType } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
@@ -70,6 +73,8 @@ export function mapEngineType(typeStr: string, techBase: TechBase): EngineType {
  * Map gyro type string to GyroType enum
  */
 export function mapGyroType(typeStr: string): GyroType {
+  const native = getNativeGyroType(typeStr);
+  if (native) return native;
   const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
 
   if (normalized === 'XL' || normalized === 'XLGYRO') {
@@ -132,6 +137,8 @@ export function mapStructureType(
  * Map cockpit type string to CockpitType enum
  */
 export function mapCockpitType(typeStr: string): CockpitType {
+  const native = getNativeCockpitType(typeStr);
+  if (native) return native;
   const normalized = typeStr.toUpperCase().replace(/[_\s-]/g, '');
 
   if (normalized === 'SMALL' || normalized === 'SMALLCOCKPIT') {
