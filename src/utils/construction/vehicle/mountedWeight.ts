@@ -6,10 +6,15 @@ import type {
   IVehicleTurretSourceContext,
 } from '@/types/unit/VehicleInterfaces';
 
+import { formulaEvaluator } from '@/services/equipment/FormulaEvaluator';
+import { VARIABLE_EQUIPMENT_FORMULAS } from '@/services/equipment/variableEquipmentFormulas';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
+import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { isDirectFireBVWeapon } from '@/utils/construction/battleValueWeapons';
+import { getMountedBVLinkType } from '@/utils/construction/equipmentBV/weaponLinks';
 import { isValidWeight } from '@/utils/physical/weightUtils';
 
 import type { VehicleControlsLiftContext } from './controlsLift';
@@ -99,6 +104,21 @@ export function computeVehicleMountedWeightFigures(
     }
     return {
       weight,
+      computerFormula:
+        item && /targeting[- ]?computer/i.test(item.id)
+          ? (item.variableEquipmentId ??
+            (item.techBase === TechBase.CLAN
+              ? 'targeting-computer-clan'
+              : 'targeting-computer-is'))
+          : undefined,
+      // WeaponType.java:2925-2926; MiscType.java:12532-12543 (48fcb2f6).
+      computerRelevant:
+        item === undefined ||
+        (WEAPON_CATEGORIES.includes(item.category) &&
+          isDirectFireBVWeapon(item.id) &&
+          !/taser/i.test(item.id)) ||
+        (item.category !== EquipmentCategory.AMMUNITION &&
+          getMountedBVLinkType(item.id) === 'risc'),
       heat: item === undefined ? null : getVehicleHeatNeutralWeaponHeat(item),
       isAmmunition: item?.category === EquipmentCategory.AMMUNITION,
       // An unresolved definition has unknown classification as well as mass.
@@ -119,6 +139,23 @@ export function computeVehicleMountedWeightFigures(
     issues.push(`${label}: summed mass is nonfinite`);
     return null;
   };
+  // MiscType.java:614-616: reuse the formula owner; charge the result before
+  // TestTank.java:178-226 derives turret mechanism mass from mounted tonnage.
+  if (mounted.some((m) => m.computerFormula)) {
+    const directFireWeaponTonnage = sum(
+      mounted.filter((m) => m.computerRelevant),
+      'Targeting computer basis',
+    );
+    for (const mount of mounted)
+      if (mount.computerFormula)
+        mount.weight =
+          directFireWeaponTonnage === null
+            ? null
+            : formulaEvaluator.evaluate(
+                VARIABLE_EQUIPMENT_FORMULAS[mount.computerFormula].weight,
+                { directFireWeaponTonnage },
+              );
+  }
   const equipment = sum(mounted, 'Equipment');
   const rawWeaponHeat = mounted.reduce<number | null>(
     (total, mount) =>

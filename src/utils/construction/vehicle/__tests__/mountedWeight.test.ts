@@ -2,12 +2,16 @@
 import type { IEquipmentItem } from '@/types/equipment';
 import type { IVehicleMountedEquipment } from '@/types/unit/VehicleInterfaces';
 
+import { mapToVehicleState } from '@/services/units/unitLoaderService/vehicleMapping';
+import { createVehicleStore } from '@/stores/useVehicleStore';
 import { createDefaultVehicleState } from '@/stores/vehicleState';
 import { EngineType } from '@/types/construction/EngineType';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { RulesLevel, TechBase } from '@/types/enums';
 import { EquipmentCategory as C } from '@/types/equipment/EquipmentCategory';
+import { Era } from '@/types/temporal/Era';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { serializeCustomVehicleState } from '@/utils/serialization/CustomUnitSerializer';
 
 import { computeVehicleWeightBreakdown } from '../weightComposition';
 
@@ -73,6 +77,100 @@ const base = {
   powerAmpWeight: 0,
 };
 const turret = { type: TurretType.SINGLE, rotationArc: 360 };
+
+// TestEntity.java:1995-2003 at 48fcb2f6: charge non-quarters carrying space.
+it('retains carrying space through canonical save, reopen and store persistence', () => {
+  const identity = {
+    id: 'payload-roundtrip',
+    chassis: 'Payload',
+    variant: 'Test',
+    era: Era.DARK_AGE,
+  };
+  const saved = serializeCustomVehicleState(
+    { ...base, equipment: [] },
+    identity,
+  );
+  const transporters = [
+    'troopspace:3.0',
+    'cargobay:2.0:0:1',
+    'crewquarters:7.0:0:2',
+  ];
+  const loaded = mapToVehicleState({ ...saved, transporters });
+  expect(loaded).toMatchObject({ transporters });
+  const weights = computeVehicleWeightBreakdown(loaded, () => undefined);
+  expect(weights).toMatchObject({ carryingSpace: 5, isComplete: true });
+  const empty = computeVehicleWeightBreakdown(
+    { ...loaded, transporters: [] },
+    () => undefined,
+  );
+  expect(weights.remaining).toBe(empty.remaining! - 5);
+  const resaved = serializeCustomVehicleState(loaded, identity);
+  expect(resaved.transporters).toEqual(transporters);
+  expect(mapToVehicleState(resaved)).toMatchObject({ transporters });
+  const store = createVehicleStore(loaded);
+  store.setState({ transporters: [...transporters] });
+  expect(
+    JSON.parse(localStorage.getItem(`megamek-vehicle-${loaded.id}`)!),
+  ).toMatchObject({ state: { transporters } });
+});
+
+it('keeps unrepresented transporter mass unavailable', () => {
+  expect(
+    computeVehicleWeightBreakdown(
+      { ...base, transporters: ['unrepresentedbay:2.0'] },
+      () => undefined,
+    ),
+  ).toMatchObject({
+    carryingSpace: null,
+    remaining: null,
+    isComplete: false,
+  });
+});
+
+// MegaMek 48fcb2f6 MiscType.java:614-616,12532-12543;
+// WeaponType.java:2925-2926: direct fire except tasers, plus RISC modules.
+it.each([
+  [TechBase.INNER_SPHERE, 'targeting-computer-is', 4],
+  [TechBase.CLAN, 'targeting-computer-clan', 3],
+])(
+  'charges %s targeting-computer mass before turret mechanism mass',
+  (techBase, formula, tons) => {
+    const items: Partial<Record<string, IEquipmentItem>> = {
+      'large-laser': item('large-laser', 5, C.ENERGY_WEAPON),
+      ppc: item('ppc', 7, C.ENERGY_WEAPON),
+      risclaserpulsemodule: item('risclaserpulsemodule', 1, C.MISC_EQUIPMENT),
+      tag: item('tag', 1, C.ENERGY_WEAPON),
+      'lrm-20': item('lrm-20', 10, C.MISSILE_WEAPON),
+      'mek-taser': item('mek-taser', 4, C.ENERGY_WEAPON),
+      ammo: item('ammo', 1, C.AMMUNITION),
+      'machine-gun': item('machine-gun', 0.5, C.BALLISTIC_WEAPON),
+      'targeting-computer': {
+        ...item('targeting-computer', 0, C.MISC_EQUIPMENT),
+        techBase,
+        variableEquipmentId: formula,
+      },
+    };
+    const equipment = Object.keys(items).map((id) =>
+      mount(
+        id,
+        id === 'ppc' || id === 'targeting-computer'
+          ? VehicleLocation.TURRET
+          : VehicleLocation.FRONT,
+        id === 'ppc' || id === 'targeting-computer',
+      ),
+    );
+    expect(
+      computeVehicleWeightBreakdown(
+        { ...base, equipment, turret },
+        (id) => items[id],
+      ),
+    ).toMatchObject({
+      equipment: 29.5 + tons,
+      turretEquipment: 7 + tons,
+      turret: techBase === TechBase.CLAN ? 1 : 1.5,
+    });
+  },
+);
 
 it('keeps mount flags, secondary location, ammunition and amplifier eligibility distinct', () => {
   const calls: string[] = [];
