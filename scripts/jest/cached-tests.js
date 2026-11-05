@@ -266,18 +266,25 @@ const IMPORT_PATTERNS = [
 // so they cannot change a test result (Static Checks still type-checks every PR).
 // Which occurrences are type-only is decided by the same parser, not by text:
 // @swc/core's AST. A specifier is dropped from a file's dependencies only when
-// EVERY import-like occurrence of it in the file's text (IMPORT_PATTERNS, over
-// the raw text and the comment-stripped variants) is one of those AST nodes. A
-// value import, a mixed `import { type A, b }`, an `import { type A }` with no
-// value part, a dynamic import() in an expression (`void import('x').Foo`, `{ k:
-// typeof import('x') }`), a mention in a string or comment, `jest.mock('x')` or a
-// second import of the same module all add a match the AST does not account for,
-// so the specifier stays. If @swc/core is missing or the file does not parse,
-// nothing is dropped.
+// (a) the string literal equal to it occurs nowhere in the AST except as the
+// module string of those type-only nodes, so no loader call of any shape (`jest.
+// requireActual<T>('x')`, `new URL('x', ...)`, `jest.mock(`x`)`, a plain
+// `require('x')`) can refer to it, and (b) every import-like occurrence of it in
+// the text (IMPORT_PATTERNS, over the raw text and the comment-stripped
+// variants) is one of those nodes. A value import, a mixed `import { type A, b
+// }`, an `import { type A }` with no value part, a dynamic import() in an
+// expression (`void import('x').Foo`, `{ k: typeof import('x') }`), a mention in
+// a string or comment, and a second import of the same module all leave the
+// specifier in. If @swc/core is missing or the file does not parse, nothing is
+// dropped.
 let swcParseSync; // undefined: not tried yet; null: unavailable
 const TYPE_CANDIDATE = /\b(?:import|export)\s+type\b|\bimport\s*\(/;
 
-/** Map of specifier -> number of type-only AST occurrences in `text`, or null. */
+/**
+ * `{ counts, literals }` for `text`, or null: `counts` maps a specifier to its
+ * number of type-only AST occurrences; `literals` maps every string literal
+ * value in the file to how often it occurs, in any position.
+ */
 function typeOnlySpecCounts(text) {
   if (!TYPE_CANDIDATE.test(text)) return null;
   if (swcParseSync === undefined) {
@@ -299,9 +306,11 @@ function typeOnlySpecCounts(text) {
     return null;
   }
   const counts = new Map();
+  const literals = new Map(); // every string (or plain template) literal, anywhere
+  const bump = (map, value) => map.set(value, (map.get(value) ?? 0) + 1);
   const add = (literal) => {
     if (literal && typeof literal.value === 'string')
-      counts.set(literal.value, (counts.get(literal.value) ?? 0) + 1);
+      bump(counts, literal.value);
   };
   const visit = (node) => {
     if (Array.isArray(node)) {
@@ -309,6 +318,14 @@ function typeOnlySpecCounts(text) {
       return;
     }
     if (!node || typeof node !== 'object') return;
+    if (node.type === 'StringLiteral' && typeof node.value === 'string')
+      bump(literals, node.value);
+    if (
+      node.type === 'TemplateLiteral' &&
+      node.expressions?.length === 0 &&
+      node.quasis?.length === 1
+    )
+      bump(literals, node.quasis[0].cooked ?? node.quasis[0].raw);
     switch (node.type) {
       case 'ImportDeclaration':
       case 'ExportAllDeclaration':
@@ -329,7 +346,7 @@ function typeOnlySpecCounts(text) {
     for (const value of Object.values(node)) visit(value);
   };
   visit(ast);
-  return counts;
+  return { counts, literals };
 }
 
 /** Textual import-like occurrences of each specifier in `source`. */
@@ -547,8 +564,9 @@ function analyzeSource(text, rel, nameMatchers) {
   const typeOnly = typeOnlySpecCounts(text);
   if (typeOnly) {
     const seen = [text, noBlocks, noComments].map(countSpecs);
-    for (const [spec, nodes] of typeOnly) {
+    for (const [spec, nodes] of typeOnly.counts) {
       if (
+        typeOnly.literals.get(spec) === nodes &&
         seen[0].get(spec) === nodes &&
         seen.every((counts) => (counts.get(spec) ?? 0) <= nodes)
       ) {

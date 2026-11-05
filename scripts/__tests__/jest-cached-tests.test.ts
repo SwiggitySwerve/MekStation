@@ -842,6 +842,35 @@ describe('type-only imports in the key', () => {
     ['typeof import after ||', "export const t = 0 || typeof import('./dep');"],
     ['typeof import after &&', "export const t = 1 && typeof import('./dep');"],
     ['void import().Name', "void import('./dep').Foo;"],
+    // Sol round 2 on #2730: loader calls the textual patterns cannot see
+    [
+      'jest.requireActual with a generic typeof import',
+      "const dep = jest.requireActual<typeof import('./dep')>('./dep');\nexport const w = dep.v;",
+    ],
+    [
+      'jest.requireActual with a generic and a template literal',
+      "const dep = jest.requireActual<typeof import('./dep')>(`./dep`);\nexport const w = dep.v;",
+    ],
+    [
+      'jest.mock with a generic factory type',
+      "jest.mock<typeof import('./dep')>('./dep', () => ({ v: 1 }));",
+    ],
+    [
+      'a type import beside new URL(spec, import.meta.url)',
+      "import type { T } from './dep';\nexport const u = new URL('./dep', import.meta.url);",
+    ],
+    [
+      'a type import beside a template-literal jest.mock',
+      "import type { T } from './dep';\njest.mock(`./dep`);",
+    ],
+    [
+      'a type import beside a plain string equal to the specifier',
+      "import type { T } from './dep';\nexport const name = './dep';",
+    ],
+    [
+      'a type import of a specifier named in a type literal',
+      "import type { T } from './dep';\nexport type Name = './dep';",
+    ],
     [
       'a type import repeated in a string',
       "import type { T } from './dep';\nexport const s = \"import type { T } from './dep'\";",
