@@ -190,6 +190,7 @@ function takeTechTwinSlots(
   slots: readonly IResolvedCriticalSlot[],
   claimed: ReadonlySet<number>,
   equipmentId: string,
+  entries: (count: number) => number,
 ): readonly IResolvedCriticalSlot[] {
   const twinId = equipmentId.startsWith('clan-')
     ? equipmentId.slice(5)
@@ -198,8 +199,9 @@ function takeTechTwinSlots(
     (slot) => slot.equipmentId === twinId,
   )?.equipmentDef;
   if (!twinDef) return [];
-  const twin = takeMatchingSlots(slots, claimed, twinId, twinDef.criticalSlots);
-  return twin.length === twinDef.criticalSlots ? twin : [];
+  const count = entries(twinDef.criticalSlots);
+  const twin = takeMatchingSlots(slots, claimed, twinId, count);
+  return twin.length === count ? twin : [];
 }
 
 /** Mek.getInnerLocation (Mek.java:489-496); quad legs map like arms. */
@@ -343,6 +345,7 @@ export function restoreCriticalSlotEquipment(
             resolvedByLocation.get(item.location) ?? [],
             claimedAtLocation,
             item.equipmentId,
+            entries,
           )
         : [];
     const twinDef = twin[0]?.equipmentDef;
@@ -351,6 +354,7 @@ export function restoreCriticalSlotEquipment(
       return {
         ...item,
         ...mountedDefinitionFields(twinDef),
+        criticalSlots: twin.length,
         slots: twin.map((slot) => slot.index),
         isRearMounted:
           source.isRearMounted ?? twin.some((slot) => slot.isRearMounted),
