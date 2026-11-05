@@ -6,7 +6,11 @@
 import { processCritAmmoSlot } from '../../../../scripts/validate-bv-crit-scan-ammo';
 import { createEmptyCritScan } from '../../../../scripts/validate-bv-crit-scan-types';
 import { AMMUNITION_CATALOG_FILES } from '../equipmentBVCatalogData';
-import { getAmmunitionEntry, resolveEquipmentBV } from '../equipmentBVResolver';
+import {
+  getAmmunitionEntry,
+  getEquipmentEntry,
+  resolveEquipmentBV,
+} from '../equipmentBVResolver';
 
 // [catalog id, pinned Java BV, citation in megamek/common/equipment/AmmoType.java]
 const AMMO_VALUES = [
@@ -117,4 +121,19 @@ describe('half-ton MG ammo matches the pinned Java half-ton types', () => {
     });
     expect(r.ammo.map((a) => a.bv)).toEqual([1]);
   });
+});
+
+// Mech mortars. Standing approval (owner 2026-11-03); pinned MegaMek 48fcb2f6
+// weapons/mortars: [catalog id, tons, critical slots, citation].
+const MORTAR_VALUES = [
+  ['mech-mortar-1', 2, 1, 'innerSphere/ISMekMortar1.java:69-70'],
+  ['mech-mortar-2', 5, 2, 'innerSphere/ISMekMortar2.java:69-70'],
+  ['mech-mortar-4', 7, 3, 'innerSphere/ISMekMortar4.java:69-70'],
+  ['clan-mech-mortar-2', 2.5, 1, 'clan/CLMekMortar2.java:69-70'],
+  ['clan-mech-mortar-4', 3.5, 2, 'clan/CLMekMortar4.java:70-71'],
+] as const;
+
+it.each(MORTAR_VALUES)('%s weighs %s t in %s slots (%s)', (id, tons, slots) => {
+  const entry = getEquipmentEntry(id);
+  expect([entry?.weight, entry?.criticalSlots]).toEqual([tons, slots]);
 });
