@@ -267,6 +267,8 @@ export interface VehicleState extends IVehicleTurretSourceContext {
 
   /** Passenger slots (beyond minimum crew) */
   passengerSlots: number;
+  /** Canonical carrying bays; omitted legacy saves have no represented bays. */
+  transporters?: readonly string[];
 
   /** BAR rating for support vehicles (1–10); null for combat vehicles */
   barRating: number | null;

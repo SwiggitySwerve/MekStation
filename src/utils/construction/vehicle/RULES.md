@@ -569,3 +569,13 @@ submarine standard hulls retain tonnage/10. Superheavy endo doubles its normal
 basis; composite retains tonnage/20. Both total composition and validation pass
 the installed motion type. Pin 48fcb2f64: TestTank.java:88-95;
 Structure.java:75-108; BLKTankFile.java:94-123.
+
+## VTOL jet-booster mass
+
+The shared variable owner maps native vtoljetbooster to the existing registry's
+supercharger engine-weight formula. Its generic and mounted consumers delegate
+to that same accessory rule; no second 10% calculation is defined. The engine
+owner supplies installed mass to total and turret figures, with the existing
+small-support rounding preserved. Missing engine context is unavailable.
+Pin 48fcb2f64: MiscType.java:518-527; RoundWeight.java:58-68.
+This enables the native accessory independently of the held sized-editor work.
