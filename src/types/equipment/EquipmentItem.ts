@@ -36,6 +36,8 @@ export interface IEquipmentItem extends Pick<
   readonly techBase: TechBase;
   readonly rulesLevel: RulesLevel;
   readonly weight: number;
+  /** Raw construction heat, before BV-specific modifiers; absent when unknown. */
+  readonly heat?: number;
   readonly criticalSlots: number;
   readonly costCBills: number;
   readonly battleValue: number;
