@@ -24,6 +24,7 @@ import {
   CockpitType,
   INTERFACE_COCKPIT_SOURCE_TAG,
   VRRP_COCKPIT_SOURCE_TAG,
+  PRIMITIVE_INDUSTRIAL_COCKPIT_SOURCE_TAG,
 } from '@/types/construction/CockpitType';
 import {
   LOCATION_SLOT_COUNTS,
@@ -74,6 +75,7 @@ const COCKPIT_TYPE = {
   [CockpitType.SUPER_HEAVY]: 'SUPERHEAVY',
   [CockpitType.INTERFACE]: INTERFACE_COCKPIT_SOURCE_TAG,
   [CockpitType.VRRP]: VRRP_COCKPIT_SOURCE_TAG,
+  [CockpitType.PRIMITIVE_INDUSTRIAL]: PRIMITIVE_INDUSTRIAL_COCKPIT_SOURCE_TAG,
 } as const satisfies Readonly<Record<CockpitType, string>>;
 
 const STRUCTURE_TYPE = {
