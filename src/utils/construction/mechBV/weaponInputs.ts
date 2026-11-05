@@ -9,6 +9,10 @@ import {
   isRearLoc,
   normalizeEquipId,
 } from '../../../../scripts/validate-bv-normalizers';
+import {
+  calculatePhysicalWeaponBV,
+  getPhysicalWeaponBVHeat,
+} from '../../../../scripts/validate-bv-physical-weapons';
 import { isClanEquipAtLocation } from '../../../../scripts/validate-bv-unit-derived';
 import {
   isDefEquip,
@@ -16,7 +20,10 @@ import {
   resolveWeaponForUnit,
 } from '../../../../scripts/validate-bv-weapon-resolution';
 import { normalizeWeaponKey } from '../battleValueAmmo';
-import { isDirectFireBVWeapon } from '../battleValueWeapons';
+import {
+  hasBVActuatorEnhancement,
+  isDirectFireBVWeapon,
+} from '../battleValueWeapons';
 import { isOneShotMissileBVWeapon } from '../equipmentBV/weaponHeat';
 import { normalizeEquipmentId } from '../equipmentBVResolver';
 
@@ -167,9 +174,7 @@ export function buildMechBVWeapons(
       }
 
       const weaponLocUpper = eq.location.split(',')[0].toUpperCase();
-      const weaponHasAES = cs.aesLocs.some(
-        (aLoc) => aLoc.toUpperCase() === weaponLocUpper,
-      );
+      const weaponHasAES = hasBVActuatorEnhancement(cs.aesLocs, weaponLocUpper);
       weapons.push({
         id: normalizeWeaponKey(eq.id),
         name: wid,
@@ -182,6 +187,23 @@ export function buildMechBVWeapons(
         location: eq.location,
       });
     }
+  }
+  // HeatTrackingBVCalculator.java:89-103 (48fcb2f64): active blades share
+  // the sorted weapon heat budget, including mounted AES but no TC bonus.
+  for (const physical of cs.physicalWeapons) {
+    const heat = getPhysicalWeaponBVHeat(physical.type);
+    if (heat === 0) continue;
+    weapons.push({
+      id: physical.type,
+      name: physical.type,
+      heat,
+      bv: calculatePhysicalWeaponBV(physical.type, unit.tonnage, cs.hasTSM),
+      location: physical.location,
+      rear: false,
+      isTurret: false,
+      hasAES: hasBVActuatorEnhancement(cs.aesLocs, physical.location),
+      isDirectFire: false,
+    });
   }
   if (unresolvedWeapons.length > 0)
     issues.push(`Unresolved weapons (0 BV): ${unresolvedWeapons.join(', ')}`);
