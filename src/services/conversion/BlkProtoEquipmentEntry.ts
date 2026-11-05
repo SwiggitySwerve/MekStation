@@ -1,5 +1,7 @@
 import type { IBlkProtoEquipmentSyntax } from '@/types/formats/BlkProtoEquipmentSource';
 
+import { parseEquipmentSizeNumber } from '@/utils/equipmentSize';
+
 import { trimBlkWhitespace } from './BlkParserService.helpers';
 
 // Decimal zeroes from the pinned Java 21 Character.digit(char, 10) table.
@@ -30,9 +32,8 @@ export function readBlkProtoEquipmentEntry(
   const sizeIndex = name.toUpperCase().indexOf(':SIZE:');
   if (sizeIndex > 0) {
     const size = trimBlkWhitespace(name.slice(sizeIndex + 6));
-    const decimal = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?[df]?$/i;
-    const value = Number(size.replace(/[df]$/i, ''));
-    if (!decimal.test(size) || !Number.isFinite(value)) {
+    const value = parseEquipmentSizeNumber(size);
+    if (value === undefined) {
       return {
         ...syntax,
         errors: [`Invalid ProtoMek equipment size: ${raw}`],
