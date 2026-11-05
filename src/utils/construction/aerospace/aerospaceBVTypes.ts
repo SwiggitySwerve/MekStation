@@ -53,6 +53,7 @@ export interface IAerospaceBVAmmo {
  */
 export interface IAerospaceBVInput {
   readonly hasSmallCockpit?: boolean;
+  readonly hasCommandConsole?: boolean;
   readonly subType: AerospaceSubType;
   readonly techBase?: string;
   readonly year?: number;
