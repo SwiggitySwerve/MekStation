@@ -534,6 +534,21 @@
       "description": "Fluff/flavor text"
     },
     "isOmni": { "type": "boolean" },
+    "componentTechBases": {
+      "type": "object",
+      "description": "BattleMech Mixed Tech per-component tech base selections",
+      "properties": {
+        "chassis": { "$ref": "#/$defs/componentTechBase" },
+        "gyro": { "$ref": "#/$defs/componentTechBase" },
+        "engine": { "$ref": "#/$defs/componentTechBase" },
+        "heatsink": { "$ref": "#/$defs/componentTechBase" },
+        "targeting": { "$ref": "#/$defs/componentTechBase" },
+        "myomer": { "$ref": "#/$defs/componentTechBase" },
+        "movement": { "$ref": "#/$defs/componentTechBase" },
+        "armor": { "$ref": "#/$defs/componentTechBase" }
+      },
+      "additionalProperties": false
+    },
     "omniPodHeatSinks": { "type": "integer", "minimum": 0 },
     "baseChassisTurretWeight": { "type": "number", "minimum": 0 },
     "baseChassisTurret2Weight": { "type": "number", "minimum": 0 },
@@ -860,6 +875,10 @@
     }
   ],
   "$defs": {
+    "componentTechBase": {
+      "type": "string",
+      "enum": ["INNER_SPHERE", "CLAN"]
+    },
     "standardArmorType": {
       "type": "string",
       "enum": [

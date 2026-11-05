@@ -44,6 +44,7 @@ const KNOWN_CONFLICTS = new Set([
   'clermediumpulselaser',
   'clerlargepulselaser',
   'clerflamer',
+  'flamer (vehicle)', // name map -> absent flamer-vehicle; Java ISVehicleFlamer is vehicle-flamer.
 ]);
 
 interface AliasEntry {

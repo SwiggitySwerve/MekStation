@@ -23,6 +23,7 @@ import {
   isLegacyEquipmentId,
   preferRegistryEquipment,
   resolveRegistryId,
+  techRoute,
   techRouteId,
 } from '@/utils/construction/equipmentBVCatalogData';
 
@@ -208,6 +209,35 @@ function resolveMixedTechVariant(
     : null;
 }
 
+/**
+ * A native name that carries its own tech prefix (CLLRM20, cllrm20, clan-lrm-20,
+ * ISTAG) names one Java item whatever the unit is: the prefix is the side when
+ * removing it leaves the same base item, or when the normalizer kept the Clan
+ * marker (cllightmg -> clan-light-machine-gun). Unit lists without crit slots
+ * (vehicles) otherwise fell back to the IS record on mixed-tech units.
+ */
+function ownTechSide(
+  id: string,
+  normalizedId: string,
+  baseId: string,
+): TechBase | null {
+  const raw = id.toLowerCase().trim();
+  if (/^cl/.test(raw) && normalizedId === `clan-${baseId}`)
+    return TechBase.CLAN;
+  const sides: [RegExp, TechBase][] = [
+    [/^clan-?/, TechBase.CLAN],
+    [/^cl/, TechBase.CLAN],
+    [/^is-?/, TechBase.INNER_SPHERE],
+  ];
+  for (const [prefix, side] of sides) {
+    if (!prefix.test(raw)) continue;
+    const rest = raw.replace(prefix, '');
+    if (rest && normalizeCatalogEquipmentId(rest, false) === baseId)
+      return side;
+  }
+  return null;
+}
+
 function resolveUnitPreferredVariant(
   candidates: IEquipmentVariantCandidates,
   unitTechBaseMode: TechBaseMode,
@@ -310,8 +340,26 @@ export function normalizeEquipmentId(
 /**
  * Tech-dependent identities (follow-up 93): the list id and the crit token of one
  * mount resolve to the pinned Java item for the unit's side. Mixed-tech units use
- * the location's Clan/IS crit marker for that item, else the unit's tech base.
+ * the location's Clan/IS crit marker for that item, then the side whose target a
+ * crit token at the location resolves to, else the unit's tech base.
  */
+function techRouteSideFromSlots(
+  route: Readonly<{ INNER_SPHERE: string; CLAN: string }>,
+  slots: ReadonlyArray<string | null> | undefined,
+): TechBase | null {
+  for (const entry of slots ?? []) {
+    if (typeof entry !== 'string') continue;
+    const token = parseCriticalSlotToken(entry).lookupToken;
+    const own = techRoute(token);
+    // A tech-dependent token says nothing about the side; a single-owner one names its id.
+    if (own && own.INNER_SPHERE !== own.CLAN) continue;
+    const tokenId = own ? own.CLAN : normalizeCatalogEquipmentId(token);
+    if (tokenId === route.CLAN) return TechBase.CLAN;
+    if (tokenId === route.INNER_SPHERE) return TechBase.INNER_SPHERE;
+  }
+  return null;
+}
+
 function resolveTechRoutedEquipment(
   id: string,
   unitTechBase: TechBase,
@@ -319,6 +367,8 @@ function resolveTechRoutedEquipment(
   slots: ReadonlyArray<string | null> | undefined,
 ): IResolvedEquipment | null {
   const name = parseCriticalSlotToken(id).lookupToken;
+  const route = techRoute(name);
+  if (!route) return null;
   const side =
     mode === TechBaseMode.CLAN
       ? TechBase.CLAN
@@ -327,7 +377,9 @@ function resolveTechRoutedEquipment(
         : (inferPreferredTechBaseFromCriticalSlots(
             slots,
             normalizeMatchKey(name),
-          ) ?? unitTechBase);
+          ) ??
+          techRouteSideFromSlots(route, slots) ??
+          unitTechBase);
   const routedId = techRouteId(name, side === TechBase.CLAN);
   const equipmentDef = routedId
     ? getEquipmentLookupService().getById(routedId)
@@ -401,8 +453,15 @@ function resolveLegacyEquipmentId(
   }
 
   const candidates = buildEquipmentVariantCandidates(normalizedId);
+  // Only lists without crit slots (vehicles): a mech's list id and its crit
+  // tokens must change sides together, which the slot hints below arbitrate.
+  const ownSide =
+    locationCriticalSlots === undefined
+      ? ownTechSide(id, normalizedId, candidates.baseId)
+      : null;
 
   return (
+    (ownSide ? resolveVariantByTechBase(candidates, ownSide) : null) ??
     resolveMixedTechVariant(
       candidates,
       unitTechBaseMode,

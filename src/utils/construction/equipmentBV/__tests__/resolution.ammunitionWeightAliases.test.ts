@@ -24,13 +24,13 @@ import { getAmmunitionEntry, getAmmunitionWeightEntry } from '../resolution';
  * results did not change by comparing against the previous implementation,
  * reproduced verbatim below, over every real ammunition id and name.
  */
-function legacyAmmunitionWeightEntry(
-  ammoId: string,
-): EquipmentCatalogEntry | undefined {
+const normalize = (name: string) =>
+  name.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+/** The previous implementation's alias-map loop, verbatim. */
+function legacyAliases(): Map<string, string> {
   const catalog = loadAmmunitionCatalog(),
     aliases = new Map<string, string>();
-  const normalize = (name: string) =>
-    name.toLowerCase().replace(/[^a-z0-9]/g, '');
   for (const entry of catalog.values())
     if (
       isLegacyEquipmentId(entry.id) &&
@@ -48,6 +48,20 @@ function legacyAmmunitionWeightEntry(
         aliases,
         normalize,
       );
+  return aliases;
+}
+
+/**
+ * The previous implementation: it rebuilt the map on every call. The map is a
+ * pure function of the catalog, so a map built once for a given catalog is what
+ * every one of those rebuilds produced; callers comparing many probes against
+ * one catalog pass it in instead of paying the rebuild per probe.
+ */
+function legacyAmmunitionWeightEntry(
+  ammoId: string,
+  aliases: Map<string, string> = legacyAliases(),
+): EquipmentCatalogEntry | undefined {
+  const catalog = loadAmmunitionCatalog();
   const alias = aliases.get(ammunitionAliasKey(ammoId, normalize) ?? '');
   const imported = getAmmunitionEntry(ammoId);
   const entry = preferRegistryEquipment(
@@ -91,10 +105,12 @@ describe('getAmmunitionWeightEntry alias map', () => {
     }
     probes.add('not-an-ammo-id');
     expect(probes.size).toBeGreaterThan(1000);
+    const aliases = legacyAliases();
+    expect(aliases.size).toBeGreaterThan(100);
     for (const probe of probes)
       expect([probe, getAmmunitionWeightEntry(probe)]).toEqual([
         probe,
-        legacyAmmunitionWeightEntry(probe),
+        legacyAmmunitionWeightEntry(probe, aliases),
       ]);
   });
 

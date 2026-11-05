@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from typing import Any, Dict, List, Optional
+from blk_common import BLK_ARMOR_CODE_MAP
 
 from enum_mappings import (
     generate_id_from_name,
@@ -43,7 +44,7 @@ class MTFParser:
     # Mech locations in order
     MECH_LOCATIONS = [
         "Head", "Center Torso", "Left Torso", "Right Torso",
-        "Left Arm", "Right Arm", "Left Leg", "Right Leg"
+        "Left Arm", "Right Arm", "Left Leg", "Right Leg", "Center Leg"
     ]
 
     def __init__(self):
@@ -254,7 +255,14 @@ class MTFParser:
             # Armor allocation
             loc_key = key.replace('_armor', '').replace('armor', '').strip().upper()
             try:
-                data['armor_allocation'][loc_key] = int(value)
+                if data.get('armor_type', '').lower() == 'patchwork' and ':' in value:
+                    armor_name, points = value.rsplit(':', 1)
+                    data['armor_allocation'][loc_key] = int(points)
+                    armor_type = map_armor_type(armor_name).removesuffix('_CLAN')
+                    code = next(code for code, name in BLK_ARMOR_CODE_MAP.items() if name == armor_type)
+                    data.setdefault('armor_location_types', {})[map_mech_location(loc_key)] = code
+                else:
+                    data['armor_allocation'][loc_key] = int(value)
             except ValueError:
                 pass
         elif key == 'quirk':
@@ -342,9 +350,11 @@ class MTFParser:
         )
 
         # Parse armor
-        armor_type = map_armor_type(data.get('armor_type', 'Standard'))
+        armor_type = ('PATCHWORK' if data.get('armor_type', '').lower() == 'patchwork'
+                      else map_armor_type(data.get('armor_type', 'Standard')))
         armor_allocation = build_armor_allocation(data.get('armor_allocation', {}))
-        armor = SerializedArmor(type=armor_type, allocation=armor_allocation)
+        armor = SerializedArmor(type=armor_type, allocation=armor_allocation,
+                                typeByLocation=data.get('armor_location_types'))
 
         # Parse movement
         movement = SerializedMovement(

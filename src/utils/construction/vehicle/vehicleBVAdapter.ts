@@ -24,7 +24,9 @@ import {
   getDefensiveEquipmentKind,
   getOffensiveBVRole,
 } from '../battleValueEquipment';
+import { isAmmunitionEquipmentId as isAmmo } from '../equipmentBV/catalogLoader';
 import { computeFlankMP } from './engine';
+import { getVehicleSourceIdentity } from './equipmentMounts';
 import {
   computeVehicleBVStructurePoints,
   vehicleStructureBVType,
@@ -75,16 +77,6 @@ function toTurretConfig(
 // -----------------------------------------------------------------------------
 // Equipment → weapon / ammo / equipment partitioning
 // -----------------------------------------------------------------------------
-
-/**
- * Heuristic: decide whether an equipment entry is ammo based on its id.
- * Legacy untagged mounts retain this ID-based fallback. Explicit mounted
- * ammunition kind is consumed by isAmmoMount below.
- */
-function isAmmo(equipmentId: string): boolean {
-  const n = equipmentId.toLowerCase();
-  return n.includes('ammo') || n.startsWith('ammo-');
-}
 
 /** Shared mount classification for editor-state and domain-unit BV paths. */
 function isAmmoMount(item: IVehicleMountedEquipment): boolean {
@@ -310,8 +302,8 @@ export function toVehicleBVInputFromUnit(
   // Vehicles without an equipment array (legacy fixtures) get an empty list.
   // Infer an original token's kind just as native contract mounts do.
   const rawEquipment = (unit.equipment ?? []).map((item) => {
-    const source = item.sourceIdentity;
-    return source && source.resolvedId === item.equipmentId
+    const source = getVehicleSourceIdentity(item);
+    return source
       ? { ...item, equipmentId: source.sourceId, isAmmo: undefined }
       : item;
   });

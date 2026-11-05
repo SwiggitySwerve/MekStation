@@ -26,6 +26,10 @@ import {
   computeProtoWalkMPForRating,
   getProtoMPCaps,
   getProtoWeightClass,
+  PROTO_MAX_STANDARD_TONNAGE,
+  PROTO_MAX_TONNAGE,
+  PROTO_MIN_TONNAGE,
+  PROTO_MIN_ULTRAHEAVY_TONNAGE,
 } from '@/utils/construction/protomech';
 
 import { BV_AFFECTING_KEYS } from './protoMechBvKeys';
@@ -52,6 +56,23 @@ export type { ProtoMechStore } from './protoMechState';
  * @spec openspec/changes/add-protomech-battle-value/specs/protomech-unit-system/spec.md
  *       — Requirement: ProtoMech BV Breakdown on Unit State
  */
+/**
+ * Tonnage range per chassis, as the Structure tab offers it (getTonnageOptions):
+ * Ultraheavy 10–15 t, others 2–9 t. Java treats tonnage above
+ * TestProtoMek.MAX_STD_TONNAGE (9) as Ultraheavy, up to MAX_TONNAGE (15), and
+ * MegaMekLab clamps into the range on a chassis change (PMChassisView.refreshTonnage).
+ */
+function clampProtoTonnage(tonnage: number, chassisType: ProtoChassis): number {
+  const ultraheavy = chassisType === ProtoChassis.ULTRAHEAVY;
+  return Math.max(
+    ultraheavy ? PROTO_MIN_ULTRAHEAVY_TONNAGE : PROTO_MIN_TONNAGE,
+    Math.min(
+      ultraheavy ? PROTO_MAX_TONNAGE : PROTO_MAX_STANDARD_TONNAGE,
+      tonnage,
+    ),
+  );
+}
+
 export function createProtoMechStore(
   initialState: ProtoMechState,
 ): StoreApi<ProtoMechStore> {
@@ -113,7 +134,10 @@ export function createProtoMechStore(
 
           setTonnage: (tonnage) =>
             set((state) => {
-              const clampedTonnage = Math.max(2, Math.min(9, tonnage));
+              const clampedTonnage = clampProtoTonnage(
+                tonnage,
+                state.chassisType,
+              );
               const newCruiseMP = Math.max(1, 10 - clampedTonnage);
               return {
                 tonnage: clampedTonnage,
@@ -144,7 +168,8 @@ export function createProtoMechStore(
 
           setChassisType: (chassisType) =>
             set((state) => {
-              const weightClass = getProtoWeightClass(state.tonnage);
+              const tonnage = clampProtoTonnage(state.tonnage, chassisType);
+              const weightClass = getProtoWeightClass(tonnage);
               const caps = getProtoMPCaps(weightClass);
               // Clamp walk MP to new caps
               const walkMP = Math.min(state.walkMP, caps.walkMax);
@@ -158,8 +183,9 @@ export function createProtoMechStore(
                   : false;
               return {
                 chassisType,
+                tonnage,
                 structureByLocation: computeProtoStructure(
-                  state.tonnage,
+                  tonnage,
                   chassisType,
                   state.hasMainGun,
                 ),
@@ -167,7 +193,7 @@ export function createProtoMechStore(
                 cruiseMP: walkMP,
                 flankMP: computeRunMP(walkMP, state.hasMyomerBooster),
                 engineRating: computeProtoEngineRating(
-                  state.tonnage,
+                  tonnage,
                   walkMP,
                   chassisType,
                 ),

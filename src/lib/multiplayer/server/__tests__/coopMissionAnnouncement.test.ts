@@ -223,8 +223,23 @@ describe('durable campaign mission announcements', () => {
     }
     expect(countDurableRows(fixture.matchPath)).toEqual(census);
     expect(await fixture.census(meta.matchId)).toEqual(UNANNOUNCED);
-    expect(await Promise.all(paths.map((file) => readFile(file)))).toEqual(
-      before,
+    // Byte for byte, per file. Buffer.equals compares length and every byte
+    // like toEqual did, but toEqual walks the database and WAL files one byte
+    // at a time through Jest's generic deep equality (about 7 s here).
+    const after = await Promise.all(paths.map((file) => readFile(file)));
+    const label = (file: string, index: number) =>
+      `${index}:${path.basename(file)}`;
+    expect(
+      Object.fromEntries(
+        paths.map((file, index) => [
+          label(file, index),
+          after[index].equals(before[index]),
+        ]),
+      ),
+    ).toEqual(
+      Object.fromEntries(
+        paths.map((file, index) => [label(file, index), true]),
+      ),
     );
   });
 

@@ -17,6 +17,7 @@ import { deriveBvHeatAndMovement } from '../../../../scripts/validate-bv-movemen
 import { toMechLoc } from '../../../../scripts/validate-bv-normalizers';
 import { calculatePhysicalBVTotal } from '../../../../scripts/validate-bv-physical-weapons';
 import {
+  calcTotalArmor,
   getArmorBAR,
   mapArmorType,
 } from '../../../../scripts/validate-bv-unit-derived';
@@ -41,8 +42,12 @@ import {
   type MechLocation,
 } from '../../../utils/construction/battleValueCalculations';
 import { resolveEquipmentBV } from '../../../utils/construction/equipmentBVResolver';
-import { getModularArmorBVPoints } from '../battleValueDefensive';
+import {
+  getModularArmorBVPoints,
+  getNativeArmorBVMultiplier,
+} from '../battleValueDefensive';
 import { calculateOffensiveSpeedFactor } from '../battleValueMovement';
+import { deriveMechArmorSections } from './armorInputs';
 import { buildMechBVWeapons } from './weaponInputs';
 
 // === MAIN BV CALCULATION ===
@@ -78,15 +83,13 @@ export function calculateUnitBV(
   }
 
   const armorType = cs.detectedArmorType || mapArmorType(unit.armor.type);
-  const {
-    effectiveHSCount,
-    heatDiss,
-    bvWalk,
-    runMP,
-    jumpMP,
-    partialWingJumpBonus,
-  } = deriveBvHeatAndMovement(unit, cs, armorType);
+  const { effectiveHSCount, heatDiss, bvWalk, runMP, jumpMP, jumpHeatMP } =
+    deriveBvHeatAndMovement(unit, cs, armorType);
   const hasStealth = armorType === 'stealth';
+  const patchworkTypes =
+    unit.armor.type.toUpperCase() === 'PATCHWORK'
+      ? unit.armor.typeByLocation
+      : undefined;
   // Pinned LandAirMek.getAirMekFlankMP and MekBVCalculator.offensiveSpeedFactorMP.
   // Bimodal LAMs retain ordinary Mek movement; standard LAMs use airborne AirMek MP.
   const airMekFlankMP =
@@ -188,16 +191,13 @@ export function calculateUnitBV(
   // MegaMek calculates armor BV per-location when HarJel is present
   let harjelArmorBonus = 0;
   if (cs.harjelIILocs.length > 0 || cs.harjelIIILocs.length > 0) {
-    const armorMult = getArmorBVMultiplier(hasStealth ? 'standard' : armorType);
     for (const [locName, armorVal] of Object.entries(unit.armor.allocation)) {
+      const armorMult = patchworkTypes
+        ? getNativeArmorBVMultiplier(patchworkTypes[locName] ?? 0)
+        : getArmorBVMultiplier(hasStealth ? 'standard' : armorType);
       const ml = toMechLoc(locName);
       if (!ml) continue;
-      let locArmor: number;
-      if (typeof armorVal === 'number') {
-        locArmor = armorVal;
-      } else {
-        locArmor = (armorVal.front || 0) + (armorVal.rear || 0);
-      }
+      const locArmor = calcTotalArmor({ [locName]: armorVal });
       let locMult = 1.0;
       if (cs.harjelIIILocs.includes(ml)) locMult = 1.2;
       else if (cs.harjelIILocs.includes(ml)) locMult = 1.1;
@@ -324,6 +324,8 @@ export function calculateUnitBV(
     hasVoidSig: cs.hasVoidSig,
     hasBlueShield: cs.hasBlueShield,
   };
+  if (patchworkTypes)
+    defCfg.armorSections = deriveMechArmorSections(unit, setup.totalArmor);
   if (engineBVOverride !== undefined) {
     defCfg.engineMultiplier = engineBVOverride;
     defCfg.engineType = undefined;
@@ -349,10 +351,7 @@ export function calculateUnitBV(
   ).length;
   const hasLegAES = cs.aesLocs.some((loc) => loc.toUpperCase().includes('LEG'));
   const isQuad = effectiveConfig?.toLowerCase() === 'quad';
-  // For jump heat calculation, MegaMek's getJumpHeat() subtracts partial wing bonus
-  // from movedMP before computing heat (Mek.java lines 1281-1291).
-  // So jump heat uses jumpMP minus the PW bonus.
-  const jumpHeatMP = Math.max(0, jumpMP - partialWingJumpBonus);
+  // Heat uses jet movement; mechanical boosters only contribute to BV speed/TMM.
   // EC-52: Industrial mech fire control modifier
   // MegaMek Mek.hasAdvancedFireControl() returns false for industrial cockpit types:
   // COCKPIT_INDUSTRIAL, COCKPIT_PRIMITIVE_INDUSTRIAL, COCKPIT_SUPERHEAVY_INDUSTRIAL,
@@ -394,6 +393,7 @@ export function calculateUnitBV(
       aesArms: armAES,
       aesLegs: hasLegAES ? (isQuad ? 4 : 2) : 0,
       isIndustrialMech,
+      hasIndustrialStructure: structureType === 'industrial',
       hasSCM: cs.hasSCM,
     },
     airMekFlankMP === undefined
