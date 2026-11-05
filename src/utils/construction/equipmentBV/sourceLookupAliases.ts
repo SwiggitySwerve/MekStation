@@ -61,6 +61,10 @@ export const SOURCE_LOOKUP_ALIASES: Readonly<Record<string, string>> = {
   // "Taser Ammo" (:12270-12278).
   'is-heavy-flamer-ammo': 'is-heavy-flamer-ammo-registry',
   'taser-ammo': 'taser-ammo-registry',
+  // Converter slug (`pt:size:1.0` stripped) for the infantry
+  // "Gauss Rifle, Light (King David)"
+  // (InfantrySupportKingDavidLightGaussRifleWeapon.java:65-73, 4.87 BV).
+  'gauss-rifle,-light-king-david': 'gauss-rifle-light-king-david-registry',
 };
 
 /** Exact native identities at MegaMek 48fcb2f6; FU-79 IDENTITY-REVIEW.md. */

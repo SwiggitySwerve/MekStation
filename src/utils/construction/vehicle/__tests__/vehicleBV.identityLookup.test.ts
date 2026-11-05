@@ -49,6 +49,10 @@ it.each([
   ['Bolla Stealth Tank Dominus', 898],
   // AmmoType.java:12270-12278, Taser Ammo, 5 BV per bin.
   ['Manteuffel Attack Tank E', 1256],
+  // Ibex RV (Militarized LDGR): InfantrySupportKingDavidLightGaussRifleWeapon.java:65-73,
+  // 4.87 BV each,
+  // F_INFANTRY so exempt from support fire control (BVCalculator.java:966-976).
+  ['Ibex RV (Militarized-Gauss)', 36],
 ])('%s reaches Java’s BV (%d)', (file, java) => {
   expect(bv(file)).toBe(java);
 });
@@ -59,6 +63,10 @@ it.each([
   ['heavy-rifle', 'rifle-cannon-heavy'],
   ['is-heavy-flamer-ammo:omni', 'is-heavy-flamer-ammo-registry'],
   ['taser-ammo:omni', 'taser-ammo-registry'],
+  [
+    'gauss-rifle,-light-king-davidpt:size:1.0',
+    'gauss-rifle-light-king-david-registry',
+  ],
 ])('resolves the converter slug %s to %s', (slug, id) => {
   expect(getEquipmentEntry(slug)?.id).toBe(id);
 });
