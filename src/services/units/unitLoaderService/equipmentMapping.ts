@@ -121,5 +121,6 @@ export function mapEquipment(
     unitTechBaseMode,
     unitCriticalSlots,
     tonnage,
+    serialized.length === 0,
   );
 }
