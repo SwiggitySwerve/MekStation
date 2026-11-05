@@ -102,7 +102,7 @@ it('retains the prototype prefix/suffix alias on Excalibur rear mounts', () => {
     ...unit,
     equipment: [
       { id: 'prototype-er-small-laser', location: 'CENTER_TORSO' },
-      { id: 'ppc', location: 'LEFT_ARM' },
+      { id: 'ppc', location: 'LEFT_TORSO' },
     ],
     criticalSlots: { CENTER_TORSO: ['CLERSmallLaserPrototype (R)'] },
   });

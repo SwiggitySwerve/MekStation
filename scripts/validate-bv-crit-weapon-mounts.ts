@@ -40,9 +40,17 @@ function markedWeaponIdentity(name: string): { key: string; slots: number } {
     .replace(/\s*\((?:R|T|OMNIPOD)\)/gi, '')
     .trim();
   const entry = getEquipmentEntry(clean);
-  const identity = normalizeCritName(
+  let identity = normalizeCritName(
     (entry?.id ?? clean).replace(/-registry$/, '').replace(/^clan-/, ''),
   );
+  // Legacy lookup can resolve a prototype slug to its ordinary family. Retain
+  // the source kind when comparing it with a native suffix-style identity.
+  if (
+    normalizeCritName(clean).includes('prototype') &&
+    !identity.includes('prototype')
+  ) {
+    identity += 'prototype';
+  }
   return {
     key: identity.replace(/^prototype(.+)$/, '$1prototype'),
     slots:
