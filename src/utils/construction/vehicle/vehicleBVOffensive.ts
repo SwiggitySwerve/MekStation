@@ -23,6 +23,7 @@ import {
 } from '../battleValueOffensive';
 import {
   applyTargetingComputerBV,
+  applyDroneWeaponBV,
   hasBVTargetingComputer,
   isDirectFireBVWeapon,
 } from '../battleValueWeapons';
@@ -116,7 +117,7 @@ function calculateWeaponBVEntry(
     adjustedBV *= 0.5;
   }
 
-  if (drone) adjustedBV *= 0.8;
+  if (drone) adjustedBV = applyDroneWeaponBV(adjustedBV);
   adjustedBV += capacitorBV;
 
   if (

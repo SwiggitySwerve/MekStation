@@ -1,5 +1,12 @@
 # Aerospace construction rules
 
+Drone weapons share the vehicle 0.8 owner before capacitor additions and TC;
+physical ammo keeps its own value. Detection uses the canonical OS owner in
+ordinary and large aircraft. The summary applies the inherited 0.95 followed
+by the Aero 0.95, through the existing final-summary owner. Source pin
+48fcb2f64: BVCalculator.java:845-847,936-963,1159-1182;
+AeroBVCalculator.java:162-180. Enforcement: aerospaceBV.drone.test.ts.
+
 ## DropShip mount valuation
 
 `dropShipMountBV.ts` owns raw DropShip mount-to-arc facts, using the shared
@@ -484,3 +491,11 @@ and heat, then use native type/rack caps before speed. Ammo omission retains
 the legacy flat equipment contract. Support FCS/eligibility guards remain.
 Source pin 48fcb2f64: BVCalculator.java:936-963,1045-1091,1190-1247.
 Enforcement: aerospaceBV.ammoPartition.test.ts and all-family comparison.
+
+Patchwork transports current per-arc points and native armor codes through
+contract and editor adapters. Each represented physical arc adds local modular
+capacity before its native multiplier, BAR and aircraft type scaling. Capacity
+at a zero-armor location still counts. Missing arc facts retain the legacy
+total-armor path. Numeric codes use the shared defensive owner, independent of
+editor enum ordinals. Source pin 48fcb2f64, BVCalculator.java:350-420.
+Enforcement: aerospaceBV.patchwork.test.ts and catalog printing source-owner BV.

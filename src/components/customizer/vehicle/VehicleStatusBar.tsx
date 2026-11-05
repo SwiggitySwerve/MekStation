@@ -46,6 +46,7 @@ type VehicleValidation = ReturnType<typeof validateVehicleConstruction>;
 type VehicleStatusStoreState = Pick<
   VehicleStore,
   | 'unitType'
+  | 'year'
   | 'hasEnvironmentalSealing'
   | 'hasFlotationHull'
   | 'hasNoControlSystems'
@@ -111,6 +112,7 @@ function calculateWeightBreakdown(
   state: Pick<
     VehicleStatusStoreState,
     | 'unitType'
+    | 'year'
     | 'hasNoControlSystems'
     | 'tonnage'
     | 'motionType'
@@ -261,6 +263,7 @@ function validateStatusBarState(
 function useVehicleStatusStoreState(): VehicleStatusStoreState {
   return {
     unitType: useVehicleStore((s) => s.unitType),
+    year: useVehicleStore((s) => s.year),
     hasEnvironmentalSealing: useVehicleStore((s) => s.hasEnvironmentalSealing),
     hasFlotationHull: useVehicleStore((s) => s.hasFlotationHull),
     hasNoControlSystems: useVehicleStore((s) => s.hasNoControlSystems),
@@ -292,6 +295,7 @@ function useVehicleStatusStoreState(): VehicleStatusStoreState {
 function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
   const {
     unitType,
+    year,
     hasEnvironmentalSealing,
     hasFlotationHull,
     hasNoControlSystems,
@@ -325,6 +329,7 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
       calculateWeightBreakdown(
         {
           unitType,
+          year,
           hasNoControlSystems,
           tonnage,
           motionType,
@@ -348,6 +353,7 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
       ),
     [
       unitType,
+      year,
       hasNoControlSystems,
       tonnage,
       motionType,

@@ -150,8 +150,18 @@ test('equipment colors survive catalog, grouping, mounting and reload @customize
   expect(new Set(Object.values(colors)).size).toBe(3);
   expect(colors['AC/20 Ammo']).toBe(colors['AC/20']);
   await search.fill('Small Laser');
+  // The search is a substring match, so other lasers can list too (#2652
+  // added Primitive Prototype Small Laser); exactly one row is the Small Laser.
   await expect(
-    page.getByRole('region', { name: 'Equipment catalog' }).locator('li'),
+    page
+      .getByRole('region', { name: 'Equipment catalog' })
+      .getByRole('listitem')
+      .filter({
+        has: page.getByRole('button', {
+          name: 'Details for Small Laser',
+          exact: true,
+        }),
+      }),
   ).toHaveCount(1);
   await page
     .getByRole('button', { name: 'Add Small Laser', exact: true })
