@@ -12,7 +12,13 @@ export interface BvHeatAndMovement {
 }
 
 function deriveEffectiveHeatSinkCount(unit: UnitData, cs: CritScan): number {
-  const engineIntegratedHS = Math.min(10, Math.floor(unit.engine.rating / 25));
+  // Capacity does not create undeclared sinks (MtfFile.java:570-598;
+  // Mek.java:2198-2210, pin 48fcb2f64).
+  const engineIntegratedHS = Math.min(
+    unit.heatSinks.count,
+    10,
+    Math.floor(unit.engine.rating / 25),
+  );
   const critBasedHSCount = engineIntegratedHS + cs.critDHSCount;
   return Math.max(unit.heatSinks.count, critBasedHSCount);
 }
