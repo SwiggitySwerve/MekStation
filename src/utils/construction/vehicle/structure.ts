@@ -197,7 +197,11 @@ export function computeVehicleStructureWeight(
   motionType: GroundMotionType = GroundMotionType.TRACKED,
 ): number {
   const multiplier = STRUCTURE_TYPE_MULTIPLIER[structureType];
-  const superHeavy = isSuperHeavyTank(motionType, tonnage);
+  // TestTank.java:87-95 uses VTOL.isSuperHeavy (VTOL.java:729-730),
+  // independently of the Tank hull-layout classifier.
+  const superHeavy =
+    isSuperHeavyTank(motionType, tonnage) ||
+    (motionType === GroundMotionType.VTOL && tonnage > 30);
   const doubles =
     superHeavy &&
     structureType !== VehicleStructureType.COMPOSITE &&

@@ -395,6 +395,13 @@ The generic 10%-tonnage `maxWeight` capacity, equipment-count display, and
 handler approximations remain separate tracked defects; they are not actual
 Omni mechanism allowances. No catalog data or BV arithmetic changes here.
 
+## Standard smart robotic control mass
+
+The shared vehicle variable resolver charges standard SRCS at rounded 5% of
+unit tonnage from 10 t upward, and zero below 10 t. It owns the formula for
+the editor and support consumers; the catalog sentinel stays zero. Improved
+and shielded variants are separate rules. Pin 48fcb2f64: MiscType.java:745-767.
+
 ## Base flank movement
 
 `engine.ts:computeFlankMP` owns unmodified vehicle flank MP: cruise times 1.5,
@@ -620,9 +627,11 @@ summing equipment and turret mass, independently of the held sized-equipment
 editor integration. Missing context is unavailable, not a fixed zero.
 Pin 48fcb2f64: MiscType.java:660-666,702-705; RoundWeight.java:58-68.
 
-## Standard smart robotic control mass
+## Native VTOL structure mass
 
-The shared vehicle variable resolver charges standard SRCS at rounded 5% of
-unit tonnage from 10 t upward, and zero below 10 t. It owns the formula for
-the editor and support consumers; the catalog sentinel stays zero. Improved
-and shielded variants are separate rules. Pin 48fcb2f64: MiscType.java:745-767.
+Pin 48fcb2f64 VTOL.java:729-730 defines superheavy VTOL mass above 30 t.
+TestTank.java:87-95 passes that fact to Structure.java:76-87,102-107:
+standard structure doubles; Endo-Steel follows its native superheavy rule,
+and Composite retains its existing multiplier. This changes structure mass
+only. The Tank layout classifier, rotor locations and BV structure points
+remain independent of this mass threshold.

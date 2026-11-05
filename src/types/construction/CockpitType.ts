@@ -21,9 +21,11 @@ export enum CockpitType {
   INDUSTRIAL = 'Industrial',
   SUPER_HEAVY = 'Superheavy',
   INTERFACE = 'Interface',
+  VRRP = 'Virtual Reality Piloting Pod',
 }
 
 export const INTERFACE_COCKPIT_SOURCE_TAG = 'INTERFACE';
+export const VRRP_COCKPIT_SOURCE_TAG = 'VRRP';
 
 /**
  * Fixed cockpit system positions (0-based) for the selected cockpit, shared by
@@ -37,13 +39,16 @@ export function getCockpitSystemSlots(type: string = CockpitType.STANDARD): {
   readonly centerTorso: readonly string[];
   readonly sideTorso: readonly string[];
 } {
-  if (type === CockpitType.TORSO_MOUNTED)
+  if (type === CockpitType.TORSO_MOUNTED || type === CockpitType.VRRP)
     return {
       head: new Map([
         [0, 'Sensors'],
         [1, 'Sensors'],
       ]),
-      centerTorso: ['Torso-Mounted Cockpit', 'Sensors'],
+      centerTorso:
+        type === CockpitType.VRRP
+          ? ['Virtual Reality Piloting Pod', 'Life Support']
+          : ['Torso-Mounted Cockpit', 'Sensors'],
       sideTorso: ['Life Support'],
     };
   const head = new Map([
@@ -174,13 +179,51 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
     otherSlots: 0,
     introductionYear: 3074, // Earliest prototype: Mek.java:3818-3825.
   },
+  {
+    // 48fcb2f64 TestMek.java:225-230; Mek.java:5797-5838,3826-3836.
+    type: CockpitType.VRRP,
+    sourceTag: VRRP_COCKPIT_SOURCE_TAG,
+    name: 'Virtual Reality Piloting Pod',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.EXPERIMENTAL,
+    weight: 3,
+    headSlots: 2,
+    otherSlots: 4,
+    introductionYear: 3052,
+  },
 ] as const;
 
 /** Shared native identity; legacy exact/fuzzy aliases retain their guards. */
 export function getNativeCockpitType(source: string): CockpitType | undefined {
+  const normalized = source.trim().toUpperCase();
   return COCKPIT_DEFINITIONS.find(
-    (definition) => definition.sourceTag === source.trim().toUpperCase(),
+    (definition) =>
+      definition.sourceTag !== undefined &&
+      (definition.sourceTag === normalized ||
+        definition.type.toUpperCase() === normalized),
   )?.type;
+}
+
+/** Recover a lost tag only from the complete native VRRP system layout. */
+export function getCockpitTypeFromSystems(
+  head: readonly string[],
+  centerTorso: readonly string[],
+  leftTorso: readonly string[],
+  rightTorso: readonly string[],
+): CockpitType | undefined {
+  // Mek.java:5797-5838: torso cockpits use CT sensors instead of CT life support.
+  if (
+    head[0] === 'sensors' &&
+    head[1] === 'sensors' &&
+    !head.includes('cockpit') &&
+    !head.includes('life support') &&
+    centerTorso.includes('cockpit') &&
+    centerTorso.includes('life support') &&
+    leftTorso[0] === 'life support' &&
+    rightTorso[0] === 'life support'
+  )
+    return CockpitType.VRRP;
+  return undefined;
 }
 
 /**
