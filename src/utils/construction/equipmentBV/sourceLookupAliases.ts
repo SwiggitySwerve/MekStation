@@ -65,6 +65,10 @@ export const SOURCE_LOOKUP_ALIASES: Readonly<Record<string, string>> = {
   // "Gauss Rifle, Light (King David)"
   // (InfantrySupportKingDavidLightGaussRifleWeapon.java:65-73, 4.87 BV).
   'gauss-rifle,-light-king-david': 'gauss-rifle-light-king-david-registry',
+  // Converter slug for the infantry "Machine Gun (Light)"
+  // (InfantrySupportMGLightWeapon.java:64-72, 1.5 BV); the native name itself
+  // keeps the battle-armor balightmg its corpus mounts use.
+  'machine-gun-light': 'machine-gun-light-registry',
 };
 
 /** Exact native identities at MegaMek 48fcb2f6; FU-79 IDENTITY-REVIEW.md. */

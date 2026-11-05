@@ -1,7 +1,12 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import type { IEquipmentItem } from '@/types/equipment';
 
 import { computeVehicleWeightBreakdown as facade } from '@/components/customizer/vehicle/VehicleStatusBar.utils';
 import { BlkParserService } from '@/services/conversion/BlkParserService';
+import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { SupportVehicleUnitHandler } from '@/services/units/handlers/SupportVehicleUnitHandler';
 import vehicleSources from '@/services/units/unitLoaderService/__tests__/fixtures/vehicles.pinned.json';
 import { mapToVehicleState } from '@/services/units/unitLoaderService/vehicleMapping';
@@ -9,9 +14,11 @@ import { createVehicleStore } from '@/stores/useVehicleStore';
 import { createDefaultVehicleState } from '@/stores/vehicleState';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
 import { TechBase } from '@/types/enums/TechBase';
+import { Era } from '@/types/temporal/Era';
 import { GroundMotionType as M } from '@/types/unit/BaseUnitInterfaces';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { serializeCustomVehicleState } from '@/utils/serialization/CustomUnitSerializer';
 
 import {
   computeSupportVehicleWeight,
@@ -22,6 +29,87 @@ import {
   computeVehicleWeightBreakdown,
   type VehicleWeightState,
 } from '../weightComposition';
+
+jest.mock('@/services/equipment/EquipmentFileReader', () => ({
+  readJsonFile: async (file: string) =>
+    JSON.parse(
+      readFileSync(
+        join(process.cwd(), 'public/data/equipment/official', file),
+        'utf8',
+      ),
+    ),
+}));
+
+// TestEntity.java:1995-2003; InsulatedCargoBay.java:66-67,109-110 at 48fcb2f6.
+it.each([
+  'Coolant Truck (Hover)',
+  'Coolant Truck (Tracked)',
+  'Coolant Truck 135-K',
+])('%s charges its native insulated cargo (Java 30 t)', async (name) => {
+  await getEquipmentRegistry().initialize();
+  await getEquipmentLookupService().initialize();
+  const state = mapToVehicleState(
+    JSON.parse(
+      readFileSync(
+        join(process.cwd(), 'public/data/units/vehicles', `${name}.json`),
+        'utf8',
+      ),
+    ),
+  );
+  expect(
+    computeVehicleWeightBreakdown(state, (id) =>
+      getEquipmentLookupService().getById(id),
+    ),
+  ).toMatchObject({ remaining: 0, isComplete: true });
+});
+
+it('keeps carrying-space source facts through save, reopen and persistence', () => {
+  const identity = {
+    id: 'carrying-roundtrip',
+    chassis: 'Carrying',
+    variant: 'Test',
+    era: Era.DARK_AGE,
+  };
+  const state = createDefaultVehicleState({
+    name: 'Carrying Test',
+    tonnage: 50,
+    techBase: TechBase.INNER_SPHERE,
+  });
+  const saved = serializeCustomVehicleState(state, identity);
+  const transporters = [
+    'troopspace:3.0',
+    'cargobay:2.0:0:1',
+    'crewquarters:7.0:0:2',
+  ];
+  const loaded = mapToVehicleState({ ...saved, transporters });
+  expect(loaded).toMatchObject({ transporters });
+  const weights = computeVehicleWeightBreakdown(loaded, () => undefined);
+  expect(weights).toMatchObject({ carryingSpace: 5, isComplete: true });
+  const resaved = serializeCustomVehicleState(loaded, identity);
+  expect(resaved.transporters).toEqual(transporters);
+  expect(mapToVehicleState(resaved)).toMatchObject({ transporters });
+  const store = createVehicleStore(loaded);
+  store.setState({ transporters: [...transporters] });
+  expect(
+    JSON.parse(localStorage.getItem(`megamek-vehicle-${loaded.id}`)!),
+  ).toMatchObject({ state: { transporters } });
+});
+
+it('keeps unsupported carrying-space mass unavailable', () => {
+  expect(
+    computeVehicleWeightBreakdown(
+      {
+        ...createDefaultVehicleState({
+          name: 'Unknown bay',
+          tonnage: 50,
+          techBase: TechBase.INNER_SPHERE,
+        }),
+        transporters: ['unsupportedbay:2.0'],
+      },
+      () => undefined,
+    ),
+  ).toMatchObject({ carryingSpace: null, remaining: null, isComplete: false });
+});
 
 it('preserves the facade and every support composition output', () => {
   const state: VehicleWeightState = {

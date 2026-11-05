@@ -19,6 +19,10 @@ import {
   linkLaserInsulatorWeapons,
   linkPPCCapacitorWeapons,
 } from '../equipmentBV/weaponLinks';
+import {
+  computeVehicleInstalledEngineWeight,
+  type VehicleInstalledEngineState,
+} from './engine';
 import { computeTurretEquipmentWeight } from './equipmentMounts';
 import { isPowerAmplifierEnergyWeapon } from './powerAmplifier';
 import { getVehicleTurretMechanismFigures } from './turret';
@@ -60,12 +64,13 @@ export function getVehicleHeatNeutralWeaponHeat(
 export interface VehicleMountedWeightState
   extends
     IVehicleTurretSourceContext,
-    Pick<VehicleControlsLiftContext, 'unitType'> {
+    Pick<VehicleControlsLiftContext, 'unitType'>,
+    Partial<Omit<VehicleInstalledEngineState, 'unitType'>> {
   equipment: readonly IVehicleMountedEquipment[];
   turret: ITurretConfiguration | null;
   secondaryTurret: ITurretConfiguration | null;
   year?: number;
-  tonnage?: number;
+  engineWeight?: number;
 }
 
 export interface VehicleMountedWeightBreakdown {
@@ -111,6 +116,23 @@ export function computeVehicleMountedWeightFigures(
 } {
   const unresolvedMountIds: string[] = [];
   const issues: string[] = [];
+  const engineWeight =
+    state.engineWeight ??
+    (state.tonnage !== undefined &&
+    state.motionType !== undefined &&
+    state.engineRating !== undefined &&
+    state.engineType !== undefined &&
+    state.cruiseMP !== undefined
+      ? computeVehicleInstalledEngineWeight({
+          tonnage: state.tonnage,
+          motionType: state.motionType,
+          engineRating: state.engineRating,
+          engineType: state.engineType,
+          cruiseMP: state.cruiseMP,
+          engineTechRating: state.engineTechRating,
+          unitType: state.unitType,
+        })
+      : undefined);
   const mounted = state.equipment.map((mount, order) => {
     const item = resolve(mount.equipmentId, mount.isAmmo === true);
     const accessoryMass =
@@ -121,6 +143,7 @@ export function computeVehicleMountedWeightFigures(
           ? undefined
           : {
               tonnage: state.tonnage,
+              engineWeight,
               isSupportVehicle: state.unitType === UnitType.SUPPORT_VEHICLE,
             },
       );
