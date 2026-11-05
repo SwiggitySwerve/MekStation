@@ -765,8 +765,14 @@ async function section(page: Page, name: string, keyboard = false) {
     let i = 0;
     i < 12 && !(await target.evaluate((el) => el === document.activeElement));
     i++
-  )
+  ) {
+    const before = await page.evaluate(() => document.activeElement?.id);
     await page.keyboard.press(narrow ? 'ArrowDown' : 'ArrowRight');
+    // Mech tab changes go through the router; wait for focus to move before the next key.
+    await expect
+      .poll(() => page.evaluate(() => document.activeElement?.id))
+      .not.toBe(before);
+  }
   await expect(target).toBeFocused();
   await page.keyboard.press('Enter');
 }
@@ -969,6 +975,34 @@ test.describe('library persistence and printing', () => {
     ).toBe(true);
   }
 
+  /** The unit tab keeps a long name inside its box (or ellipsized) and its close button on screen. */
+  async function longLabelFits(page: Page, name: string) {
+    const label = page
+      .getByRole('tab', { name, exact: true })
+      .locator('[data-unit-tab-name]');
+    await expect(label).toHaveText(name);
+    expect(
+      await label.evaluate((el) => {
+        const style = getComputedStyle(el);
+        return (
+          el.scrollWidth <= el.clientWidth ||
+          (style.textOverflow === 'ellipsis' && style.overflowX === 'hidden')
+        );
+      }),
+    ).toBe(true);
+    const close = page.getByRole('button', {
+      name: `Close ${name}`,
+      exact: true,
+    });
+    await expect(close).toBeInViewport();
+    // The name must not run under the close button.
+    const [text, button] = await Promise.all([
+      label.boundingBox(),
+      close.boundingBox(),
+    ]);
+    expect(text!.x + text!.width).toBeLessThanOrEqual(button!.x + 0.5);
+  }
+
   const viewports = [
     { width: 390, height: 844 },
     { width: 1440, height: 900 },
@@ -981,7 +1015,9 @@ test.describe('library persistence and printing', () => {
           page,
           request,
         }, info) => {
-          const keyboard = unit.family === 'battle armor';
+          // Keyboard-only at the wide width for every family; battle armor at both.
+          const keyboard =
+            viewport.width === 1440 || unit.family === 'battle armor';
           let savedId: string | undefined;
           try {
             await page.goto('/customizer');
@@ -989,7 +1025,11 @@ test.describe('library persistence and printing', () => {
             await expect(figure(page, unit)).toContainText(String(unit.total));
             await section(page, unit.section, keyboard);
             if (unit.family === 'mech')
-              await page.getByRole('button', { name: /^Head armor:/ }).click();
+              await activate(
+                page,
+                page.getByRole('button', { name: /^Head armor:/ }),
+                keyboard,
+              );
             const input = editInput(page, unit);
             const original = Number(await input.inputValue());
             expect(original).toBeGreaterThan(0);
@@ -1015,7 +1055,8 @@ test.describe('library persistence and printing', () => {
               name: 'Save Unit',
               exact: true,
             });
-            const chassis = `Flow ${unit.chassis} ${Date.now()}-${info.workerIndex}`;
+            // A deliberately long saved name exercises long-label layout.
+            const chassis = `Flow ${unit.chassis} Long Label Layout Check ${Date.now()}-${info.workerIndex}`;
             const model = `Saved ${viewport.width}`;
             await fill(
               page,
@@ -1057,20 +1098,27 @@ test.describe('library persistence and printing', () => {
               }),
               keyboard,
             );
+            // The keyboard path reaches Load Unit by Tab order, which outlasts the default wait.
             const fetched = page.waitForResponse(
               (r) =>
                 r.url().endsWith(`/api/units/custom/${savedId}`) &&
                 r.request().method() === 'GET',
+              { timeout: 60_000 },
             );
             await library(page, chassis, model, true, keyboard);
             expect((await fetched).ok()).toBe(true);
             await section(page, unit.section, keyboard);
             if (unit.family === 'mech')
-              await page.getByRole('button', { name: /^Head armor:/ }).click();
+              await activate(
+                page,
+                page.getByRole('button', { name: /^Head armor:/ }),
+                keyboard,
+              );
             await expect(editInput(page, unit)).toHaveValue(String(edited));
             await expect(figure(page, unit)).toHaveText(figures);
             await expect.poll(() => keyFigures(page, unit)).toEqual(metrics);
             await noOverflow(page);
+            await longLabelFits(page, `${chassis} ${model}`);
             await page.screenshot({
               path: info.outputPath(
                 `saved-${unit.family}-${viewport.width}.png`,
@@ -1173,6 +1221,77 @@ test.describe('library persistence and printing', () => {
           }
         });
       }
+
+      test('an edited canonical unit cannot overwrite its official record @customizer', async ({
+        page,
+        request,
+      }, info) => {
+        // Row 4.2 canonical clone protection: the save dialog refuses the official
+        // name (UnitNameValidator.checkCanonicalConflict), and saving the edit under
+        // a new name leaves the canonical Atlas unchanged when reopened.
+        const unit = cases[0];
+        let savedId: string | undefined;
+        try {
+          await page.goto('/customizer');
+          await library(page, unit.chassis, unit.model);
+          await section(page, unit.section);
+          await page.getByRole('button', { name: /^Head armor:/ }).click();
+          const input = editInput(page, unit);
+          const original = Number(await input.inputValue());
+          await input.fill(String(original - 1));
+          await expect(figure(page, unit)).toContainText(
+            String(unit.total - 1),
+          );
+          await page
+            .getByRole('button', { name: 'Save active unit to library' })
+            .click();
+          const save = page.getByRole('dialog', {
+            name: 'Save Unit',
+            exact: true,
+          });
+          await expect(save.getByLabel('Chassis Name')).toHaveValue(
+            unit.chassis,
+          );
+          await expect(save.getByLabel('Variant Designation')).toHaveValue(
+            unit.model,
+          );
+          await expect(
+            save.getByText(
+              `"${unit.chassis} ${unit.model}" is an official BattleTech unit and cannot be overwritten. Please choose a different name.`,
+              { exact: true },
+            ),
+          ).toBeVisible();
+          const button = save.getByRole('button', {
+            name: 'Save',
+            exact: true,
+          });
+          await expect(button).toBeDisabled();
+          const model = `Clone ${Date.now()}-${info.workerIndex}`;
+          await save.getByLabel('Variant Designation').fill(model);
+          await expect(button).toBeEnabled();
+          const posted = page.waitForResponse(
+            (r) =>
+              r.url().endsWith('/api/units/custom') &&
+              r.request().method() === 'POST',
+          );
+          await button.click();
+          const response = await posted;
+          expect(response.ok()).toBe(true);
+          savedId = (await response.json()).data.id;
+          await expect(save).toBeHidden();
+          await page
+            .getByRole('button', {
+              name: `Close ${unit.chassis} ${model}`,
+              exact: true,
+            })
+            .click();
+          // The official record reopens with its original armor.
+          await library(page, unit.chassis, unit.model);
+          await expect(figure(page, unit)).toContainText(String(unit.total));
+        } finally {
+          if (savedId) await request.delete(`/api/units/custom/${savedId}`);
+        }
+      });
 
       test('capital remains read-only and prints its record sheet @customizer', async ({
         page,
