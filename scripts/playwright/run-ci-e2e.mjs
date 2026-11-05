@@ -213,6 +213,9 @@ async function runTask(task) {
   assertSameTests(task.tests, observed);
   if (observed.some(({ results }) => results.length === 0))
     throw new Error(`${suite.name} reported unexecuted tests`);
+  execution.validated = true;
+  execution.tests = observed.length;
+  writeExecutionReceipt();
   console.log(
     JSON.stringify({
       suite: suite.name,
