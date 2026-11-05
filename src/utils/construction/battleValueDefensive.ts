@@ -15,6 +15,12 @@ export interface DefensiveBVConfig {
   runMP: number;
   jumpMP: number;
   armorType?: string;
+  /** Patchwork locations including rear/modular/cockpit points; BVCalculator.java:359-420. */
+  armorSections?: readonly {
+    points: number;
+    multiplier: number;
+    bar: number;
+  }[];
   structureType?: string;
   gyroType?: string;
   engineType?: EngineType;
@@ -43,14 +49,11 @@ export function calculateDefensiveBV(
   config: DefensiveBVConfig,
 ): DefensiveBVResult {
   const blueShieldBonus = config.hasBlueShield ? 0.2 : 0;
-  const armorMultiplier =
-    getArmorBVMultiplier(config.armorType ?? 'standard') + blueShieldBonus;
   const structureMultiplier =
     getStructureBVMultiplier(config.structureType ?? 'standard') +
     blueShieldBonus;
   const gyroMultiplier = getGyroBVMultiplier(config.gyroType ?? 'standard');
 
-  const bar = config.bar ?? 10;
   const unitIsSuperheavy = config.tonnage > 100;
   const engineMultiplier =
     config.engineMultiplier !== undefined
@@ -70,7 +73,23 @@ export function calculateDefensiveBV(
   const explosivePenalties = config.explosivePenalties ?? 0;
 
   // BVCalculator.java:429-434,453 (48fcb2f64): armor stays unrounded.
-  const armorBV = (config.totalArmorPoints * 2.5 * armorMultiplier * bar) / 10;
+  const armorSections = config.armorSections ?? [
+    {
+      points: config.totalArmorPoints,
+      multiplier: getArmorBVMultiplier(config.armorType ?? 'standard'),
+      bar: config.bar ?? 10,
+    },
+  ];
+  const armorBV = armorSections.reduce(
+    (sum, section) =>
+      sum +
+      (section.points *
+        2.5 *
+        (section.multiplier + blueShieldBonus) *
+        section.bar) /
+        10,
+    0,
+  );
   const structureBV =
     config.totalStructurePoints * 1.5 * structureMultiplier * engineMultiplier;
   const gyroBV = config.tonnage * gyroMultiplier;
@@ -121,10 +140,15 @@ export function getModularArmorBVPoints(count: number): number {
 
 /** Native MegaMek codes are not local ArmorType enum ordinals. */
 export function getNativeArmorBVMultiplier(type: string | number): number {
+  return getArmorBVMultiplier(getNativeArmorName(type));
+}
+
+export function getNativeArmorName(type: string | number): string {
   const names: Readonly<Record<number, string>> = {
     2: 'reactive',
     3: 'reflective',
     4: 'hardened',
+    10: 'commercial',
     16: 'ferro-lamellor',
     23: 'anti-penetrative',
     24: 'heat-dissipating',
@@ -137,5 +161,5 @@ export function getNativeArmorBVMultiplier(type: string | number): number {
           .toLowerCase()
           .replace(/_/g, '-')
           .replace(/^anti-penetrative-ablation$/, 'anti-penetrative');
-  return getArmorBVMultiplier(name);
+  return name;
 }

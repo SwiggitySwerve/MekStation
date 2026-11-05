@@ -42,6 +42,11 @@ export function mapTechBase(source: string): TechBase {
   return TECH_BASE_MAP[normalized] ?? TechBase.INNER_SPHERE;
 }
 
+/** Native chassis technology, independent of mixed equipment (BLKFile.java:691-734). */
+export function isClanSourceChassis(type: string): boolean {
+  return /^clan\b/i.test(type) || /mixed\s*\(clan chassis\)/i.test(type);
+}
+
 // ============================================================================
 // RULES LEVEL MAPPINGS
 // ============================================================================
