@@ -325,7 +325,6 @@ export function createVehicleStore(
           structureType: state.structureType,
           crewSize: state.crewSize,
           passengerSlots: state.passengerSlots,
-          transporters: state.transporters,
           barRating: state.barRating,
           powerAmpWeight: state.powerAmpWeight,
           equipment: state.equipment,

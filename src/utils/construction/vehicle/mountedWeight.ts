@@ -101,6 +101,7 @@ export function computeVehicleMountedWeightFigures(
   const issues: string[] = [];
   const mounted = state.equipment.map((mount, order) => {
     const item = resolve(mount.equipmentId);
+    const equipmentId = item?.id ?? mount.equipmentId;
     const weight =
       item !== undefined && isValidWeight(item.weight) ? item.weight : null;
     if (weight === null) {
@@ -108,7 +109,7 @@ export function computeVehicleMountedWeightFigures(
       issues.push(`Mount ${mount.id}: unresolved or invalid equipment mass`);
     }
     return {
-      id: item?.id ?? mount.equipmentId,
+      id: equipmentId,
       location: mount.location,
       order,
       laser:
@@ -119,7 +120,7 @@ export function computeVehicleMountedWeightFigures(
       capacitor: false,
       weight,
       computerFormula:
-        item && /targeting[- ]?computer/i.test(item.id)
+        item && /targeting[- ]?computer/i.test(equipmentId)
           ? (item.variableEquipmentId ??
             (item.techBase === TechBase.CLAN
               ? 'targeting-computer-clan'
@@ -129,10 +130,10 @@ export function computeVehicleMountedWeightFigures(
       computerRelevant:
         item === undefined ||
         (WEAPON_CATEGORIES.includes(item.category) &&
-          isDirectFireBVWeapon(item.id) &&
-          !/taser/i.test(item.id)) ||
+          isDirectFireBVWeapon(equipmentId) &&
+          !/taser/i.test(equipmentId)) ||
         (item.category !== EquipmentCategory.AMMUNITION &&
-          getMountedBVLinkType(item.id) === 'risc'),
+          getMountedBVLinkType(equipmentId) === 'risc'),
       heat: item === undefined ? null : getVehicleHeatNeutralWeaponHeat(item),
       isAmmunition: item?.category === EquipmentCategory.AMMUNITION,
       // An unresolved definition has unknown classification as well as mass.

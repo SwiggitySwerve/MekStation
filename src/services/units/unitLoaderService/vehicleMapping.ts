@@ -267,7 +267,6 @@ export function normalizeVehicleConfiguration(
         : unitType === UnitType.VEHICLE &&
           isSuperHeavyTank(motionType, tonnage),
     isTrailer: definition.isTrailer ?? false,
-    transporters: definition.transporters,
     ...mapVehicleTurretContext(
       definition.isOmni,
       unitType === UnitType.VTOL,
