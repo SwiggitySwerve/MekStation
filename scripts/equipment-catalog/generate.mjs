@@ -53,6 +53,14 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
       selected.add(name);
   const types = new Map(java.map((row) => [row.internalName, row]));
   assert.equal(types.size, java.length, 'Duplicate Java internal name');
+  const slugOwners = new Map();
+  for (const type of java)
+    for (const alias of [type.internalName, ...type.aliases]) {
+      if (lookups[alias.toLowerCase()]?.default !== type.internalName) continue;
+      const key = slug(alias);
+      if (!slugOwners.has(key)) slugOwners.set(key, new Set());
+      slugOwners.get(key).add(type.internalName);
+    }
   for (const name of Object.keys(routing.reroute))
     if (types.has(name)) selected.add(name);
   const legacySelected = new Set(selected);
@@ -209,8 +217,14 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
         return originalCatalog.has(bare.toLowerCase()) ? id : bare;
       }) ?? [];
     const names = [name, type.name, ...type.aliases, ...inputs];
-    for (const alias of new Set(names)) {
+    // Conversion emits slugs even for registered types absent from the gap list.
+    // Only native aliases with a unique Java owner may acquire this spelling.
+    for (const alias of new Set([
+      ...names,
+      ...[name, ...type.aliases].map(slug),
+    ])) {
       const aliasKey = alias.toLowerCase();
+      if (!names.includes(alias) && slugOwners.get(alias)?.size !== 1) continue;
       const sourceName = [name, ...type.aliases].find(
         (native) => slug(native) === alias,
       );
@@ -219,6 +233,7 @@ export function generateEntries(java, gaps, facts, lookups, before, mappings) {
         lookups[sourceName?.toLowerCase()]?.default;
       if (owner !== name) continue;
       const priorId = normalizeEquipmentId(alias, originalCatalog, false);
+      if (!names.includes(alias) && originalCatalog.has(priorId)) continue;
       if (prototypes.includes(name) && originalCatalog.has(priorId)) continue;
       const previous = existingAliases.get(aliasKey);
       if (previous && originalCatalog.has(previous.id)) {
@@ -277,6 +292,19 @@ export function generateCapitalBVFacts(items, originalEntries = []) {
   }
   return facts;
 }
+/** Existing registry records may need converted spellings without re-emission. */
+export function generateAliasAdditions(aliases, before, existingIds) {
+  const result = { ...before };
+  for (const [name, id] of Object.entries(aliases)) {
+    assert(existingIds.has(id), `Alias target is absent: ${name} -> ${id}`);
+    assert(
+      result[name] === undefined || result[name] === id,
+      `Alias target changed: ${name}`,
+    );
+    result[name] = id;
+  }
+  return result;
+}
 function runGenerator() {
   const read = (file) => JSON.parse(readFileSync(file, 'utf8'));
   const write = (file, value) =>
@@ -285,7 +313,7 @@ function runGenerator() {
   const [registryFile, gapsFile, factsFile] = process.argv.slice(2);
   assert(factsFile, 'Usage: generate.mjs <registry> <gaps> <facts>');
   const inputs = [
-    ...process.argv.slice(2),
+    ...process.argv.slice(2, 5),
     `${registryFile}.lookups.json`,
     fileURLToPath(new URL('./capital-source.json', import.meta.url)),
     fileURLToPath(new URL('./prototype-damage.json', import.meta.url)),
@@ -312,6 +340,29 @@ function runGenerator() {
     before,
     mappings,
   );
+  if (process.argv.includes('--aliases-only')) {
+    const ids = new Set(
+      Object.values(index.files).flatMap((group) =>
+        Object.values(group).flatMap((file) =>
+          read(`${root}/official/${file}`).items.map((item) => item.id),
+        ),
+      ),
+    );
+    write(
+      `${root}/name-mappings.json`,
+      generateAliasAdditions(
+        result.aliases,
+        read(`${root}/name-mappings.json`),
+        ids,
+      ),
+    );
+    execFileSync(
+      process.execPath,
+      ['node_modules/oxfmt/bin/oxfmt', '--write', `${root}/name-mappings.json`],
+      { stdio: 'inherit', windowsHide: true },
+    );
+    return;
+  }
   const expectationsFile = new URL('./java-additions.json', import.meta.url);
   const expectations = read(expectationsFile);
   const expectedIds = new Set(expectations.map((row) => row.values.id));

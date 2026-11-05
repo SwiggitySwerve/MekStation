@@ -2,7 +2,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 
-import { generateEntries, generateCapitalBVFacts } from './generate.mjs';
+import {
+  generateEntries,
+  generateCapitalBVFacts,
+  generateAliasAdditions,
+} from './generate.mjs';
 
 const read = (path) => JSON.parse(readFileSync(new URL(path, import.meta.url)));
 // Pinned NGaussWeaponLight.java and AmmoType.java; actual extracted inputs.
@@ -109,4 +113,47 @@ test('capital ammo quantities retain their registered bare Java identity', () =>
   );
   assert.equal(aliases['ammo-light-n-gauss'], 'ammo-light-n-gauss-registry');
   assert.equal(aliases['ammo-light-n-gauss:3'], undefined);
+});
+
+test('converted native slugs resolve without gap tokens or replacing existing IDs', () => {
+  const java = fixture.java.find((row) => row.internalName === names[0]);
+  const lookups = { [java.internalName.toLowerCase()]: { default: names[0] } };
+  const run = (before = []) =>
+    generateEntries([java], [], fixture.facts, lookups, before, {});
+  assert.equal(
+    run().aliases['naval-gauss-light'],
+    'naval-gauss-light-registry',
+  );
+  assert.equal(
+    run([{ id: 'naval-gauss-light' }]).aliases['naval-gauss-light'],
+    undefined,
+  );
+  assert.equal(run().aliases['invented-naval-gauss'], undefined);
+});
+
+test('alias-only generation requires existing IDs and preserves every prior target', () => {
+  const before = { old: 'existing' };
+  const ids = new Set(['existing', 'other']);
+  assert.deepEqual(generateAliasAdditions({ new: 'existing' }, before, ids), {
+    old: 'existing',
+    new: 'existing',
+  });
+  assert.deepEqual(before, { old: 'existing' });
+  assert.throws(() => generateAliasAdditions({ old: 'other' }, before, ids));
+  assert.throws(() => generateAliasAdditions({ new: 'absent' }, before, ids));
+});
+
+test('punctuation-distinct Java aliases cannot assign an ambiguous converted slug', () => {
+  const java = fixture.java.slice(0, 2).map((row) => ({ ...row }));
+  java[1].aliases = [...java[1].aliases, 'Naval-Gauss (Light)'];
+  const lookups = Object.fromEntries(
+    java.flatMap((row) =>
+      [row.internalName, ...row.aliases].map((alias) => [
+        alias.toLowerCase(),
+        { default: row.internalName },
+      ]),
+    ),
+  );
+  const { aliases } = generateEntries(java, [], fixture.facts, lookups, [], {});
+  assert.equal(aliases['naval-gauss-light'], undefined);
 });
