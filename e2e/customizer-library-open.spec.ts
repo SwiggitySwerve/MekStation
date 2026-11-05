@@ -1156,6 +1156,77 @@ test.describe('library persistence and printing', () => {
         });
       }
 
+      test('an edited canonical unit cannot overwrite its official record @customizer', async ({
+        page,
+        request,
+      }, info) => {
+        // Row 4.2 canonical clone protection: the save dialog refuses the official
+        // name (UnitNameValidator.checkCanonicalConflict), and saving the edit under
+        // a new name leaves the canonical Atlas unchanged when reopened.
+        const unit = cases[0];
+        let savedId: string | undefined;
+        try {
+          await page.goto('/customizer');
+          await library(page, unit.chassis, unit.model);
+          await section(page, unit.section);
+          await page.getByRole('button', { name: /^Head armor:/ }).click();
+          const input = editInput(page, unit);
+          const original = Number(await input.inputValue());
+          await input.fill(String(original - 1));
+          await expect(figure(page, unit)).toContainText(
+            String(unit.total - 1),
+          );
+          await page
+            .getByRole('button', { name: 'Save active unit to library' })
+            .click();
+          const save = page.getByRole('dialog', {
+            name: 'Save Unit',
+            exact: true,
+          });
+          await expect(save.getByLabel('Chassis Name')).toHaveValue(
+            unit.chassis,
+          );
+          await expect(save.getByLabel('Variant Designation')).toHaveValue(
+            unit.model,
+          );
+          await expect(
+            save.getByText(
+              `"${unit.chassis} ${unit.model}" is an official BattleTech unit and cannot be overwritten. Please choose a different name.`,
+              { exact: true },
+            ),
+          ).toBeVisible();
+          const button = save.getByRole('button', {
+            name: 'Save',
+            exact: true,
+          });
+          await expect(button).toBeDisabled();
+          const model = `Clone ${Date.now()}-${info.workerIndex}`;
+          await save.getByLabel('Variant Designation').fill(model);
+          await expect(button).toBeEnabled();
+          const posted = page.waitForResponse(
+            (r) =>
+              r.url().endsWith('/api/units/custom') &&
+              r.request().method() === 'POST',
+          );
+          await button.click();
+          const response = await posted;
+          expect(response.ok()).toBe(true);
+          savedId = (await response.json()).data.id;
+          await expect(save).toBeHidden();
+          await page
+            .getByRole('button', {
+              name: `Close ${unit.chassis} ${model}`,
+              exact: true,
+            })
+            .click();
+          // The official record reopens with its original armor.
+          await library(page, unit.chassis, unit.model);
+          await expect(figure(page, unit)).toContainText(String(unit.total));
+        } finally {
+          if (savedId) await request.delete(`/api/units/custom/${savedId}`);
+        }
+      });
+
       test('capital remains read-only and prints its record sheet @customizer', async ({
         page,
       }, info) => {
