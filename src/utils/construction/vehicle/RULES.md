@@ -1,5 +1,20 @@
 # Combat-vehicle construction rules
 
+## Computer mass and shared reactive armor
+
+`mountedWeight.ts` computes the computer basis from native direct-fire weapons
+except tasers, plus RISC modules, and calls the existing variable-formula owner.
+Computer mass enters equipment and turret mass before mechanism rounding.
+Sources: MegaMek 48fcb2f6, WeaponType.java:2925-2926,
+MiscType.java:614-616,12532-12543, TestTank.java:178-226.
+
+`ArmorType.ts` owns the density table and the loader compatibility policy.
+Reactive uses the default 16 points/t (ArmorType.java:61,226,301-302,788-826).
+The old 14-point density cancels missing computer mass on Hadur LRM; both
+corrections must ship together. Heavy/light ferro retain their previous
+construction and loader densities until a separate no-regression proof permits
+their correction. No authoritative complete vehicle weight check is enabled.
+
 ## Shared unit/size-dependent equipment mass
 
 `variableEquipmentMass.ts` owns the existing support variable rules for MASH,
@@ -380,6 +395,13 @@ The generic 10%-tonnage `maxWeight` capacity, equipment-count display, and
 handler approximations remain separate tracked defects; they are not actual
 Omni mechanism allowances. No catalog data or BV arithmetic changes here.
 
+## Standard smart robotic control mass
+
+The shared vehicle variable resolver charges standard SRCS at rounded 5% of
+unit tonnage from 10 t upward, and zero below 10 t. It owns the formula for
+the editor and support consumers; the catalog sentinel stays zero. Improved
+and shielded variants are separate rules. Pin 48fcb2f64: MiscType.java:745-767.
+
 ## Base flank movement
 
 `engine.ts:computeFlankMP` owns unmodified vehicle flank MP: cruise times 1.5,
@@ -604,3 +626,12 @@ Mounted figures consume that same rule before
 summing equipment and turret mass, independently of the held sized-equipment
 editor integration. Missing context is unavailable, not a fixed zero.
 Pin 48fcb2f64: MiscType.java:660-666,702-705; RoundWeight.java:58-68.
+
+## Native VTOL structure mass
+
+Pin 48fcb2f64 VTOL.java:729-730 defines superheavy VTOL mass above 30 t.
+TestTank.java:87-95 passes that fact to Structure.java:76-87,102-107:
+standard structure doubles; Endo-Steel follows its native superheavy rule,
+and Composite retains its existing multiplier. This changes structure mass
+only. The Tank layout classifier, rotor locations and BV structure points
+remain independent of this mass threshold.

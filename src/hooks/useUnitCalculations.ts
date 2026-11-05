@@ -13,6 +13,7 @@ import { MechLocation } from '@/types/construction';
 import { getCockpitDefinition } from '@/types/construction/CockpitType';
 import { getEngineDefinition } from '@/types/construction/EngineType';
 import { getInternalStructureDefinition } from '@/types/construction/InternalStructureType';
+import { getLAMConversionWeight } from '@/types/construction/lamConfig';
 import {
   MechConfiguration,
   getLocationsForConfig,
@@ -48,6 +49,7 @@ export interface UnitCalculations {
   heatSinkWeight: number;
   armorWeight: number;
   jumpJetWeight: number;
+  conversionWeight: number;
   totalStructuralWeight: number;
 
   // Critical Slots
@@ -86,7 +88,7 @@ export interface UnitCalculations {
  */
 export function useUnitCalculations(
   tonnage: number,
-  selections: IComponentSelections,
+  selections: IComponentSelections & { readonly lamType?: string },
   armorTonnage: number = 0,
   configuration: MechConfiguration = MechConfiguration.BIPED,
 ): UnitCalculations {
@@ -148,6 +150,10 @@ export function useUnitCalculations(
     const jumpJetType = selections.jumpJetType ?? JumpJetType.STANDARD;
     const jumpJetWeight = calculateJumpJetWeight(tonnage, jumpMP, jumpJetType);
     const jumpJetSlots = calculateJumpJetSlots(jumpMP, jumpJetType);
+    const conversionWeight =
+      configuration === MechConfiguration.LAM
+        ? getLAMConversionWeight(tonnage, selections.lamType)
+        : 0;
 
     // Total structural weight (includes armor and jump jets)
     const totalStructuralWeight =
@@ -157,7 +163,8 @@ export function useUnitCalculations(
       cockpitWeight +
       heatSinkWeight +
       armorWeight +
-      jumpJetWeight;
+      jumpJetWeight +
+      conversionWeight;
 
     // =========================================================================
     // Critical Slot Calculations
@@ -231,6 +238,7 @@ export function useUnitCalculations(
       heatSinkWeight,
       armorWeight,
       jumpJetWeight,
+      conversionWeight,
       totalStructuralWeight,
 
       // Critical Slots

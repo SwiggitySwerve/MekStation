@@ -1,6 +1,9 @@
 import { UnitState, createEmptySelectionMemory } from '@/stores/unitState';
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { CockpitType } from '@/types/construction/CockpitType';
+import {
+  CockpitType,
+  getCockpitTypeFromSystems,
+} from '@/types/construction/CockpitType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
@@ -35,6 +38,7 @@ import {
   mapArmorAllocation,
 } from './componentMappers';
 import { getCriticalSlotsForLocation } from './criticalSlotEquipment';
+import { parseCriticalSlotToken } from './equipmentResolution';
 import { mapMovementConfiguration } from './movementConfiguration';
 
 function deriveArmActuators(
@@ -50,14 +54,14 @@ function deriveArmActuators(
     const slots = getCriticalSlotsForLocation(
       serialized.criticalSlots,
       location,
+    )?.map((token) =>
+      parseCriticalSlotToken(token ?? '').lookupToken.toLowerCase(),
     );
     // Equipment-only older saves have no actuator evidence; retain their defaults.
-    if (!slots?.some((token) => token?.toLowerCase() === 'shoulder')) continue;
+    if (!slots?.includes('shoulder')) continue;
     result[location] = {
-      lowerArm: slots.some((token) =>
-        token?.toLowerCase().startsWith('lower arm'),
-      ),
-      hand: slots.some((token) => token?.toLowerCase().startsWith('hand')),
+      lowerArm: slots.some((token) => token.startsWith('lower arm')),
+      hand: slots.some((token) => token.startsWith('hand')),
     };
   }
   return result;
@@ -88,6 +92,7 @@ type UnitConfigurationState = Pick<
   | 'unitType'
   | 'configuration'
   | 'lamMode'
+  | 'lamType'
   | 'quadVeeMode'
   | 'isOmni'
   | 'baseChassisHeatSinks'
@@ -142,9 +147,22 @@ function deriveStructureType(
 }
 
 function deriveCockpitType(serialized: IRawSerializedUnit): CockpitType {
-  return serialized.cockpit
+  const declared = serialized.cockpit
     ? mapCockpitType(serialized.cockpit)
     : CockpitType.STANDARD;
+  if (declared !== CockpitType.STANDARD) return declared;
+  const systems = (location: MechLocation): string[] =>
+    (getCriticalSlotsForLocation(serialized.criticalSlots, location) ?? []).map(
+      (token) => parseCriticalSlotToken(token ?? '').lookupToken.toLowerCase(),
+    );
+  return (
+    getCockpitTypeFromSystems(
+      systems(MechLocation.HEAD),
+      systems(MechLocation.CENTER_TORSO),
+      systems(MechLocation.LEFT_TORSO),
+      systems(MechLocation.RIGHT_TORSO),
+    ) ?? declared
+  );
 }
 
 function deriveHeatSinkState(serialized: IRawSerializedUnit): HeatSinkState {
@@ -236,6 +254,8 @@ function deriveConfigurationState(
           ),
       ) ?? MechConfiguration.BIPED,
     lamMode: LAMMode.MECH,
+    lamType:
+      typeof serialized.lamType === 'string' ? serialized.lamType : undefined,
     quadVeeMode: QuadVeeMode.MECH,
     isOmni: serialized.isOmni ?? false,
     baseChassisHeatSinks: serialized.baseChassisHeatSinks ?? -1,

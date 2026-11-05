@@ -3,7 +3,10 @@ import {
   createEmptyArmorAllocation,
   IArmorAllocation,
 } from '@/types/construction/ArmorAllocation';
-import { ArmorTypeEnum } from '@/types/construction/ArmorType';
+import {
+  ArmorTypeEnum,
+  getArmorDefinition,
+} from '@/types/construction/ArmorType';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 
 function armorAllocationWithPoints(totalPoints: number): IArmorAllocation {
@@ -13,6 +16,17 @@ function armorAllocationWithPoints(totalPoints: number): IArmorAllocation {
 }
 
 describe('UnitLoaderService armor calculations', () => {
+  // ArmorType.java:61,226,301-302,788-826 at MegaMek 48fcb2f6:
+  // reactive keeps the default 16 points/t; it has no efficiency penalty.
+  it('uses the shared 16-point reactive density in construction and loading', () => {
+    expect(getArmorDefinition(ArmorTypeEnum.REACTIVE)?.pointsPerTon).toBe(16);
+    expect(
+      calculateArmorTonnage(
+        armorAllocationWithPoints(96),
+        ArmorTypeEnum.REACTIVE,
+      ),
+    ).toBe(6);
+  });
   it('rounds standard armor up to the nearest half ton', () => {
     expect(
       calculateArmorTonnage(

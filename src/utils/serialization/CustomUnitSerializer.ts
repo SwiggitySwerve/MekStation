@@ -20,13 +20,17 @@ import {
 import { serializeVehicleTurretContext } from '@/services/conversion/vehicleTurretContext';
 import { aerospaceContractArc } from '@/services/units/unitLoaderService/aerospaceDefinitionMapper';
 import { getCriticalSlotsForLocation } from '@/services/units/unitLoaderService/criticalSlotEquipment';
-import { CockpitType } from '@/types/construction/CockpitType';
+import {
+  CockpitType,
+  INTERFACE_COCKPIT_SOURCE_TAG,
+  VRRP_COCKPIT_SOURCE_TAG,
+} from '@/types/construction/CockpitType';
 import {
   LOCATION_SLOT_COUNTS,
   MechLocation,
 } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
-import { GyroType } from '@/types/construction/GyroType';
+import { GyroType, NO_GYRO_SOURCE_TAG } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { getLocationsForConfig } from '@/types/construction/MechConfigurationSystem';
@@ -44,6 +48,7 @@ import { AerospaceSubType } from '@/types/unit/AerospaceInterfaces';
 import { aerospaceEditorSchema } from '@/types/unit/AerospaceSerialization';
 import { vehicleEditorSchema } from '@/types/unit/VehicleSerialization';
 import { JumpJetType } from '@/utils/construction/movementCalculations';
+import { getSlotParts } from '@/utils/construction/slotOperations/parts';
 import { getFixedSlotNames } from '@/utils/construction/slotOperations/topology';
 
 import { isRearLoc } from '../../../scripts/validate-bv-normalizers';
@@ -56,6 +61,7 @@ const GYRO_TYPE = {
   [GyroType.COMPACT]: 'COMPACT',
   [GyroType.HEAVY_DUTY]: 'HEAVY_DUTY',
   [GyroType.SUPERHEAVY]: 'SUPERHEAVY',
+  [GyroType.NONE]: NO_GYRO_SOURCE_TAG,
 } as const satisfies Readonly<Record<GyroType, string>>;
 
 const COCKPIT_TYPE = {
@@ -66,6 +72,8 @@ const COCKPIT_TYPE = {
   [CockpitType.PRIMITIVE]: 'PRIMITIVE',
   [CockpitType.INDUSTRIAL]: 'INDUSTRIAL',
   [CockpitType.SUPER_HEAVY]: 'SUPERHEAVY',
+  [CockpitType.INTERFACE]: INTERFACE_COCKPIT_SOURCE_TAG,
+  [CockpitType.VRRP]: VRRP_COCKPIT_SOURCE_TAG,
 } as const satisfies Readonly<Record<CockpitType, string>>;
 
 const STRUCTURE_TYPE = {
@@ -184,18 +192,23 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
 
   for (const item of state.equipment) {
     if (!item.location || !item.slots) continue;
-    const sourceSlots = getCriticalSlotsForLocation(projected, item.location);
-
-    const locationSlots =
-      result[item.location] ??
-      Array.from({ length: LOCATION_SLOT_COUNTS[item.location] }, () => null);
-    for (const slot of item.slots) {
-      if (slot >= 0 && slot < locationSlots.length) {
-        locationSlots[slot] =
-          item.name + (isRearLoc(sourceSlots?.[slot] ?? '') ? ' (R)' : '');
+    const parts = getSlotParts(item);
+    // Preserve existing split-weapon serialization while carrying every spreadable part.
+    for (const { location, slots } of item.spreadSlots
+      ? parts
+      : parts.slice(0, 1)) {
+      const sourceSlots = getCriticalSlotsForLocation(projected, location);
+      const locationSlots =
+        result[location] ??
+        Array.from({ length: LOCATION_SLOT_COUNTS[location] }, () => null);
+      for (const slot of slots) {
+        if (slot >= 0 && slot < locationSlots.length) {
+          locationSlots[slot] =
+            item.name + (isRearLoc(sourceSlots?.[slot] ?? '') ? ' (R)' : '');
+        }
       }
+      result[location] = locationSlots;
     }
-    result[item.location] = locationSlots;
   }
 
   return result;
@@ -204,7 +217,10 @@ function serializeCriticalSlots(state: UnitState, walk: number) {
 export function serializeCustomUnitState(
   state: UnitState,
   identity: CustomUnitSaveIdentity,
-): ISerializedUnit & { readonly schemaVersion: string } {
+): ISerializedUnit & {
+  readonly schemaVersion: string;
+  readonly lamType?: string;
+} {
   const walk =
     state.tonnage > 0 ? Math.floor(state.engineRating / state.tonnage) : 0;
   const numericMulId = Number(state.mulId);
@@ -221,6 +237,7 @@ export function serializeCustomUnitState(
     variant: identity.variant,
     unitType: state.unitType,
     configuration: state.configuration,
+    lamType: state.lamType,
     techBase: TECH_BASE[state.techBaseMode],
     rulesLevel: RULES_LEVEL[state.rulesLevel],
     era: identity.era,

@@ -21,19 +21,26 @@ beforeAll(async () => {
   await getEquipmentLookupService().initialize();
 });
 
-const equipment = (file: string) =>
-  computeVehicleWeightBreakdown(
-    mapToVehicleState(
-      JSON.parse(
-        readFileSync(
-          join(process.cwd(), 'public/data/units/vehicles', `${file}.json`),
-          'utf8',
-        ),
+const equipment = (file: string, omitCase = false) => {
+  const state = mapToVehicleState(
+    JSON.parse(
+      readFileSync(
+        join(process.cwd(), 'public/data/units/vehicles', file + '.json'),
+        'utf8',
       ),
     ),
+  );
+  return computeVehicleWeightBreakdown(
+    omitCase
+      ? {
+          ...state,
+          equipment: state.equipment.filter((m) => m.equipmentId !== 'case'),
+        }
+      : state,
     (id, isAmmo) =>
       getEquipmentLookupService().getMountedById(id, isAmmo === true),
   ).equipment;
+};
 
 // Follow-up 93 for VEH-WEIGHT (carrying-report.md). MegaMek 48fcb2f6 has two
 // CASE items: IS CASE 0.5 t (MiscType.java:4709-4715) and Clan CASE 0 t
@@ -53,6 +60,10 @@ it.each([
 });
 
 it('keeps IS CASE at 0.5 t', () => {
-  // Winston (Support), mixed tech, mounts ISCASE: unchanged at 30.5 t.
-  expect(equipment('Winston Combat Vehicle (Support)')).toBe(30.5);
+  // MiscType.java:4709-4715: isolate the IS CASE term from computer mass.
+  const withCase = equipment('Winston Combat Vehicle (Support)');
+  const withoutCase = equipment('Winston Combat Vehicle (Support)', true);
+  expect(withCase).not.toBeNull();
+  expect(withoutCase).not.toBeNull();
+  expect(withCase! - withoutCase!).toBe(0.5);
 });

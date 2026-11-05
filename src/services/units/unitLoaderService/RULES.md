@@ -16,6 +16,13 @@ critical-slot lookup removes `(OMNIPOD)` before the rear marker, matching
 pinned MtfFile.java:1010-1020. Already resolved decorated spellings retain
 their catalog IDs, including specialized ammunition bin identities.
 
+Critical-slot joins use both the catalog ID and the ammo/non-ammo category.
+When registry fallback reaches a shared launcher/ammo ID, getMountedById selects
+the token's record through the normalization owner's ammo classification. An
+existing resolved definition retains precedence. Claiming launcher cells cannot
+consume ammo cells with that ID, and recovery reserves existing ammo mounts.
+Pinned MegaMek 48fcb2f64: MtfFile.java:1052-1056,1133-1149.
+
 This module owns validated definition loading and editor-session admission.
 `UnitIndex.UNIT_FAMILIES` owns the catalog family names. The definition family
 registry owns their accepted contract discriminators and available store mapper.
@@ -193,6 +200,11 @@ Talons sizing is one ceil(T/15) mass with four biped or eight quad criticals
 spreadable mount across every native leg location, without charging mass per leg.
 Mounted slot parts belong to slotOperations/parts; physical slot helpers delegate
 to EquipmentCalculatorService. The optional isQuad sizing context defaults to false.
+
+Spreadable Talons retain one mounted identity and mass, with extra locations in
+spreadSlots. The shared mounted-parts owner feeds validation, free-slot queries and
+custom saves. Reloading reconstructs those locations from the saved native grid;
+already represented Talons are sized in place rather than duplicated.
 
 Mounted critical-part traversal is owned by slotOperations/parts. Placement
 re-exports its public helper; spreadable recovery must reuse that owner.

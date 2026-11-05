@@ -117,6 +117,48 @@ jobs:
           build-caches: 'false'
           fetch-assets: 'true'
 
+      - name: Restore Storybook cache
+        if: ${{ !cancelled() && needs.detect-changes.outputs.storybook == 'true' }}
+        uses: actions/cache/restore@v5
+        with:
+          path: node_modules/.cache/storybook
+          key: ${{ runner.os }}-storybook-${{ hashFiles('package-lock.json', '.storybook/**') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-storybook-${{ hashFiles('package-lock.json', '.storybook/**') }}-
+
+      - name: Setup Python for Schema Bridge
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python schema-bridge deps
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
+        run: pip install jsonschema
+
+      # Lever 4 (CI-SPEED round 2): Build Storybook and the two Python
+      # schema-bridge checks (single-threaded) run in the background while
+      # the foreground checks below use the other cores. Each still reports
+      # as its own step, with its output and exit code
+      # (scripts/ci/background-step.mjs); one that never starts or never
+      # finishes fails its step. The corpus validation runs after the
+      # conversion tests, as before.
+      - name: Start Storybook and Python schema-bridge checks in the background
+        if: ${{ !cancelled() }}
+        env:
+          CODE: ${{ needs.detect-changes.outputs.code }}
+          STORYBOOK: ${{ needs.detect-changes.outputs.storybook }}
+        run: |
+          if [ "$STORYBOOK" = true ]; then
+            node scripts/ci/background-step.mjs start storybook -- npm run storybook:build
+          fi
+          if [ "$CODE" = true ]; then
+            node scripts/ci/background-step.mjs start python-conversion -- npm run test:conversion:python
+            # Drift in any of weapon / ammunition / electronics /
+            # misc_equipment / physical_weapon / unit fails the build.
+            node scripts/ci/background-step.mjs start corpus-validation --after python-conversion -- python scripts/megameklab-conversion/run_schema_validation_only.py --shape all --strict
+          fi
+
       - name: Lint
         if: ${{ !cancelled() }}
         run: npm run lint
@@ -196,18 +238,49 @@ jobs:
         if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
         run: npm run validate:bv
 
-      - name: Restore Storybook cache
-        if: ${{ !cancelled() && needs.detect-changes.outputs.storybook == 'true' }}
-        uses: actions/cache/restore@v5
+      # Schema Bridge (folded in, CI-SPEED round 2): the cross-language
+      # schema contract on code changes. Generated Zod must match the
+      # canonical JSON Schema, and the Python validator passes the whole
+      # corpus strictly. The TypeScript round-trip contract suites
+      # (src/types/contracts) run in the unit shards; the equipment catalog
+      # guard runs when a changed file is in its inputs (`equipment`).
+      - name: Verify generated Zod matches JSON Schema
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
+        run: npm run schema:gen-check
+
+      - name: Test schema generator fail-closed definitions
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
+        run: node --test scripts/__tests__/schema-local-definitions.test.mjs
+
+      # The equipment catalog resolution guard adds about 1-4 minutes.
+      - name: Test equipment catalog generator and resolution guards
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' && needs.detect-changes.outputs.equipment == 'true' }}
+        run: node --test scripts/equipment-catalog/*.test.mjs
+
+      # The checks started in the background report here, each as its own
+      # step with its own output and exit code.
+      - name: Test source inventory and Python conversion boundaries
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
+        timeout-minutes: 10
+        run: node scripts/ci/background-step.mjs wait python-conversion
+
+      - name: Validate full corpus (all 6 shapes, strict)
+        if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
+        timeout-minutes: 10
+        run: node scripts/ci/background-step.mjs wait corpus-validation
+
+      - name: Upload schema-bridge report
+        if: ${{ always() && needs.detect-changes.outputs.code == 'true' }}
+        uses: actions/upload-artifact@v7
         with:
-          path: node_modules/.cache/storybook
-          key: ${{ runner.os }}-storybook-${{ hashFiles('package-lock.json', '.storybook/**') }}-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-storybook-${{ hashFiles('package-lock.json', '.storybook/**') }}-
+          name: schema-bridge-report
+          path: validation-output/schema-bridge-report.json
+          retention-days: 7
 
       - name: Build Storybook
         if: ${{ !cancelled() && needs.detect-changes.outputs.storybook == 'true' }}
-        run: npm run storybook:build
+        timeout-minutes: 10
+        run: node scripts/ci/background-step.mjs wait storybook
 
       - name: Save Storybook cache
         if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.detect-changes.outputs.storybook == 'true' }}
@@ -234,15 +307,19 @@ jobs:
   # ---------------------------------------------------------------
   # simulation-checks runs the simulation wall-clock, coverage and
   # statistical-proof lanes one after another on one runner (never
-  # alongside other work, so the perf budgets measure an idle runner).
-  # Code-only; the 100-game proof runs only outside pull requests.
+  # alongside other work, so the perf budgets measure an idle runner),
+  # then builds the production app and packs the Linux Electron app from
+  # that build (folded in from Build and Linux Pack, CI-SPEED round 2; it
+  # runs after the budgets, so they still measure an idle runner). It
+  # uploads `web-build` only when win/mac pack too. Code-only; the
+  # 100-game proof runs only outside pull requests.
   # ---------------------------------------------------------------
   simulation-checks:
-    name: Simulation Checks
+    name: Simulation Checks and Linux Pack
     needs: detect-changes
     if: needs.detect-changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - name: Checkout code
@@ -252,7 +329,7 @@ jobs:
         uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
-          build-caches: 'false'
+          fetch-assets: 'true'
 
       - name: Run CI-sized perf-sensitive simulation tests
         run: >-
@@ -324,9 +401,62 @@ jobs:
           SIMULATION_PROFILE_RUNNER_BUDGET_MS: '4000'
           SIMULATION_PROFILE_TIME_BUDGET_MS: '60000'
 
+      - name: Validate assets
+        if: ${{ !cancelled() }}
+        run: npm run validate:assets:strict
+
+      - name: Build Next.js application
+        if: ${{ !cancelled() }}
+        run: npm run build
+
+      - name: Build Electron TypeScript
+        if: ${{ !cancelled() }}
+        working-directory: desktop
+        run: npm run build
+
+      - name: Upload web build artifacts
+        if: ${{ !cancelled() && needs.detect-changes.outputs.pr-desktop == 'true' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: web-build
+          path: |
+            .next/standalone
+            .next/static
+            desktop/dist
+            public/record-sheets
+          retention-days: 1
+          # The standalone server lives in .next/standalone/.next; without
+          # this the artifact silently drops it (Lane C, run 41790472413).
+          include-hidden-files: true
+
+      - name: Rebuild native modules for Linux
+        if: ${{ !cancelled() }}
+        working-directory: desktop
+        run: npm run rebuild:next-standalone
+
+      - name: Test Electron build (linux pack mode)
+        if: ${{ !cancelled() }}
+        working-directory: desktop
+        run: npx electron-builder --dir --publish never
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          SKIP_NOTARIZATION: 'true'
+          ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/desktop/.electron-cache
+
+      - name: Verify linux build output
+        if: ${{ !cancelled() }}
+        working-directory: desktop
+        run: test -d release/linux-unpacked
+
   # Three shards. jest.config.js uses every vCPU in CI (Lane B), and
-  # JEST_SPLIT_CORPUS moves the whole-catalog suites to corpus-tests and the
-  # roadmap tooling suites to Static Checks (config/jest/corpus-suites.js).
+  # JEST_SPLIT_CORPUS moves the whole-catalog suites to the `corpus` project
+  # and the roadmap tooling suites to Static Checks
+  # (config/jest/corpus-suites.js). Folded in (CI-SPEED round 2), so a PR
+  # needs fewer runners:
+  #   - shards 1 and 2 each run half of the corpus project after the unit
+  #     shard, when a changed file is in its import closure or is
+  #     catalog/converter data (always on main and nightly);
+  #   - shard 3 runs the Validate Combat Suite when combat inputs changed.
   # The Jest transform cache is restored from main's last run: its entries
   # are keyed by file content and transformer config, so a stale entry can
   # never stand in for changed source. Main pushes and the nightly run save
@@ -335,7 +465,7 @@ jobs:
     name: Unit Tests (${{ matrix.shard }}/3)
     needs: detect-changes
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
@@ -350,6 +480,8 @@ jobs:
         with:
           node-version: '22'
           build-caches: 'false'
+          # The Validate Combat Suite (shard 3) reads the record-sheet assets.
+          fetch-assets: ${{ matrix.shard == 3 && 'true' || 'false' }}
 
       - name: Restore Jest transform cache
         uses: actions/cache/restore@v5
@@ -417,154 +549,52 @@ jobs:
           path: .jest-cache
           key: ${{ runner.os }}-jest-${{ hashFiles('package-lock.json', 'jest.config.js', 'jest.setup.*', 'config/jest/**') }}-unit-${{ matrix.shard }}-${{ github.sha }}
 
-  # The whole-catalog suites (Lane B's `corpus` project) replay the committed
-  # catalog; together they took 582 s on one runner (run 41835895496), the
-  # run's critical path, so they run as two shards. They run when a changed
-  # file is in their import closure or is catalog/converter data, and always
-  # on main and nightly.
-  corpus-tests:
-    name: Corpus Tests (${{ matrix.shard }}/2)
-    needs: detect-changes
-    if: needs.detect-changes.outputs.corpus == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2]
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-          build-caches: 'false'
-
-      # Main's newest seed, then (on a PR) the PR's own earlier passes on
-      # top. Entries are files named by their key, so the two merge. The
-      # `main`/`pr` prefixes keep a PR's own entry from shadowing a newer
-      # main seed (the cache searches the PR's ref before main's).
-      - name: Restore Jest result seed from main
+      # Corpus half (shards 1 and 2): the whole-catalog suites replay the
+      # committed catalog, with their own result store. The keys match the
+      # former corpus-tests shards, but the new path changes the cache
+      # version, so the first main run after this change seeds it again.
+      - name: Restore corpus Jest result seed from main
+        if: ${{ !cancelled() && matrix.shard != 3 && needs.detect-changes.outputs.corpus == 'true' }}
         uses: actions/cache/restore@v5
         with:
-          path: .jest-result-cache
+          path: .jest-result-cache-corpus
           key: ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-main-${{ github.run_id }}
           restore-keys: |
             ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-main-
 
-      - name: Restore this PR's Jest results
-        if: ${{ github.event_name == 'pull_request' }}
+      - name: Restore this PR's corpus Jest results
+        if: ${{ !cancelled() && matrix.shard != 3 && needs.detect-changes.outputs.corpus == 'true' && github.event_name == 'pull_request' }}
         uses: actions/cache/restore@v5
         with:
-          path: .jest-result-cache
+          path: .jest-result-cache-corpus
           key: ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-pr-${{ github.run_id }}
           restore-keys: |
             ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-pr-
 
       - name: Run corpus test shard
+        if: ${{ !cancelled() && matrix.shard != 3 && needs.detect-changes.outputs.corpus == 'true' }}
         run: >-
           node scripts/jest/cached-tests.js --project corpus
           --shard ${{ matrix.shard }}/2 --verify-hits 1
+          --cache-dir .jest-result-cache-corpus
           ${{ github.event_name != 'pull_request' && '--uncached' || '' }}
           --report jest-results-corpus-${{ matrix.shard }}.json
           -- --ci
         env:
           JEST_SPLIT_CORPUS: 'true'
 
-      - name: Save Jest result cache
-        if: ${{ always() }}
+      - name: Save corpus Jest result cache
+        if: ${{ always() && matrix.shard != 3 && needs.detect-changes.outputs.corpus == 'true' }}
         uses: actions/cache/save@v5
         with:
-          path: .jest-result-cache
+          path: .jest-result-cache-corpus
           key: ${{ runner.os }}-jest-results-corpus-${{ matrix.shard }}-${{ github.event_name == 'pull_request' && 'pr' || 'main' }}-${{ github.run_id }}
 
-  validate-combat:
-    name: Validate Combat Suite
-    needs: detect-changes
-    if: needs.detect-changes.outputs.combat == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-          build-caches: 'false'
-          fetch-assets: 'true'
-
-      - name: Validate combat catalog/test/spec consistency
+      # Shard 3: combat catalog/test/spec consistency
+      # (scripts/validate-combat-suite.mjs) when combat inputs changed.
+      - name: Validate Combat Suite
+        if: ${{ !cancelled() && matrix.shard == 3 && needs.detect-changes.outputs.combat == 'true' }}
         run: npm run validate:combat
-
-  # ---------------------------------------------------------------
-  # schema-bridge gates the cross-language schema contract:
-  #   1. Generated Zod matches the canonical JSON Schema source
-  #   2. Python validator passes on the corpus (PR-A1 = weapon only,
-  #      non-strict; PR-A2 will flip to --strict --shape all)
-  # The TypeScript round-trip contract suites (src/types/contracts) run
-  # in the unit shards. The equipment catalog guard runs when a changed
-  # file is in its inputs (`equipment`). The job runs on code changes and
-  # is included in the `lint-and-test` aggregator so branch protection
-  # picks it up.
-  # ---------------------------------------------------------------
-  schema-bridge:
-    name: Schema Bridge
-    needs: detect-changes
-    if: needs.detect-changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
-    # The equipment catalog resolution guard adds about 4 minutes.
-    timeout-minutes: 10
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-          build-caches: 'false'
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install Python schema-bridge deps
-        run: pip install jsonschema
-
-      - name: Verify generated Zod matches JSON Schema
-        run: npm run schema:gen-check
-
-      - name: Test schema generator fail-closed definitions
-        run: node --test scripts/__tests__/schema-local-definitions.test.mjs
-
-      - name: Test equipment catalog generator and resolution guards
-        if: needs.detect-changes.outputs.equipment == 'true'
-        run: node --test scripts/equipment-catalog/*.test.mjs
-
-      - name: Test source inventory and Python conversion boundaries
-        run: npm run test:conversion:python
-
-      - name: Validate full corpus (all 6 shapes, strict)
-        # PR-A2 flips the gate to --shape all --strict. Drift in any of
-        # weapon / ammunition / electronics / misc_equipment /
-        # physical_weapon / unit fails the build immediately.
-        run: python scripts/megameklab-conversion/run_schema_validation_only.py --shape all --strict
-
-      - name: Upload schema-bridge report
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: schema-bridge-report
-          path: validation-output/schema-bridge-report.json
-          retention-days: 7
 
   # ---------------------------------------------------------------
   # e2e runs every per-PR Playwright gate in 2 shards. Each shard
@@ -575,7 +605,8 @@ jobs:
   # second build costs (CI-SPEED slice 5, 12-job budget).
   # NEXT_PUBLIC_E2E_* are inlined at build time, and a non-E2E production
   # build swaps the tactical-map E2E harness for an empty stub
-  # (next.config.ts), so this build is not prepare-build's.
+  # (next.config.ts), so it needs a separate build from the Linux pack job
+  # (simulation-checks after CI-SPEED lever 3).
   #   - gate specs (the seam trust anchors, design R4, and the
   #     customizer regressions) run with --retries=0, so a flaky
   #     anchor can never retry to green, and with
@@ -586,8 +617,14 @@ jobs:
   #   - smoke specs keep the config's CI retries. The library suite runs
   #     on one worker (its flows share the server database); the
   #     tactical-map visual smoke uses all 4 vCPUs of the runner.
-  # Each group is sharded on its own, so every shard runs a slice of
-  # both. Step gating keeps docs- and openspec-only PRs green.
+  # run-ci-e2e allocates the live census across BOTH shards by recorded
+  # durations (config/playwright/ci-durations.json), across suite boundaries.
+  # Gate files and the serial smoke file remain atomic; independent library
+  # tests keep one worker. A timing miss changes only a weight. Native
+  # --test-list selection and executed reports must match the planned set.
+  # The wrapper owns the HTML/JSON report paths and overrides step-level
+  # PLAYWRIGHT_* report env vars; its listing timings upload in e2e-timings.
+  # Step gating keeps docs- and openspec-only PRs green.
   # ---------------------------------------------------------------
   e2e:
     name: E2E (${{ matrix.shard }}/2)
@@ -614,6 +651,10 @@ jobs:
         with:
           node-version: '22'
           fetch-assets: 'true'
+
+      - name: Test E2E shard planning and coverage guards
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        run: node --test scripts/playwright/ci-e2e-plan.test.mjs
 
       - name: Validate record-sheet assets
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
@@ -655,7 +696,8 @@ jobs:
           HOSTNAME: '127.0.0.1'
           # The smoke steps write their own report folders.
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-gates
-        run: node scripts/playwright/run-playwright.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates
+          PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/gates.json
+        run: node scripts/playwright/run-ci-e2e.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates
 
       # The library flows save and reopen units through the shared server
       # database, and both viewport variants of a family save the same
@@ -666,14 +708,25 @@ jobs:
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
           HOSTNAME: '127.0.0.1'
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report-library
-        run: node scripts/playwright/run-playwright.mjs test e2e/customizer-library-open.spec.ts --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/library
+          PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/library.json
+        run: node scripts/playwright/run-ci-e2e.mjs test e2e/customizer-library-open.spec.ts --project=chromium --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/library
 
       - name: Run tactical-map visual smoke
         if: ${{ !cancelled() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') }}
         env:
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
           HOSTNAME: '127.0.0.1'
-        run: node scripts/playwright/run-playwright.mjs test e2e/tactical-map-visual-smoke.spec.ts --project=chromium --workers=4 --shard=${{ matrix.shard }}/2 --output=test-results/smoke
+          PLAYWRIGHT_JSON_OUTPUT_FILE: e2e-timings/smoke.json
+        run: node scripts/playwright/run-ci-e2e.mjs test e2e/tactical-map-visual-smoke.spec.ts --project=chromium --workers=4 --shard=${{ matrix.shard }}/2 --output=test-results/smoke
+
+      - name: Upload E2E durations and test census
+        if: always() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-timings-${{ matrix.shard }}
+          path: e2e-timings
+          if-no-files-found: error
+          retention-days: 3
 
       - name: Upload library-open screenshots
         if: always() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
@@ -693,6 +746,7 @@ jobs:
             playwright-report
             playwright-report-gates
             playwright-report-library
+            playwright-report-smoke
             test-results
           retention-days: 7
 
@@ -714,11 +768,7 @@ jobs:
         detect-changes,
         static-checks,
         unit-test-shards,
-        corpus-tests,
         simulation-checks,
-        validate-combat,
-        schema-bridge,
-        prepare-build,
         build-test,
         e2e,
       ]
@@ -731,10 +781,6 @@ jobs:
           # Job id -> the detect-changes gates whose all-'false' allows a skip.
           GATES: >-
             {"simulation-checks": ["code"],
-             "corpus-tests": ["corpus"],
-             "validate-combat": ["combat"],
-             "schema-bridge": ["code"],
-             "prepare-build": ["code"],
              "build-test": ["pr-desktop"]}
         shell: bash
         run: |
@@ -756,79 +802,16 @@ jobs:
           fi
           echo "All fan-out checks passed or were gated off"
 
-  # prepare-build builds the production app and packs the Linux Electron
-  # app from that build on the same runner (no artifact round trip). It
-  # uploads `web-build` only when win/mac pack too. Code PRs only; on
-  # docs/openspec-only PRs it and build-test skip, and Lint and Test
-  # accepts that because the `code` gate was off.
-  prepare-build:
-    name: Build and Linux Pack
-    needs: detect-changes
-    if: needs.detect-changes.outputs.code == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Node + caches + install deps
-        uses: ./.github/actions/setup-node-and-install
-        with:
-          node-version: '22'
-          fetch-assets: 'true'
-
-      - name: Validate assets
-        run: npm run validate:assets:strict
-
-      - name: Build Next.js application
-        run: npm run build
-
-      - name: Build Electron TypeScript
-        working-directory: desktop
-        run: npm run build
-
-      - name: Upload web build artifacts
-        if: needs.detect-changes.outputs.pr-desktop == 'true'
-        uses: actions/upload-artifact@v7
-        with:
-          name: web-build
-          path: |
-            .next/standalone
-            .next/static
-            desktop/dist
-            public/record-sheets
-          retention-days: 1
-          # The standalone server lives in .next/standalone/.next; without
-          # this the artifact silently drops it (Lane C, run 41790472413).
-          include-hidden-files: true
-
-      - name: Rebuild native modules for Linux
-        working-directory: desktop
-        run: npm run rebuild:next-standalone
-
-      - name: Test Electron build (linux pack mode)
-        working-directory: desktop
-        run: npx electron-builder --dir --publish never
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-          SKIP_NOTARIZATION: 'true'
-          ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/desktop/.electron-cache
-
-      - name: Verify linux build output
-        working-directory: desktop
-        run: test -d release/linux-unpacked
-
   # build-test packs Windows and macOS (native module rebuild, the slowest
   # legs) on a pull request whose changes reach desktop packaging inputs;
-  # otherwise neither leg takes a runner. Linux packs in prepare-build on
-  # every code change. Main pushes, nightly and manual runs pack win/mac in
+  # otherwise neither leg takes a runner. Linux packs in simulation-checks
+  # on every code change. Main pushes, nightly and manual runs pack win/mac in
   # Desktop Packs (desktop-packs.yml) instead: a macOS leg waiting for a
   # runner held this workflow's main group, so every later main run queued
   # behind it and was replaced (run 41923023147, 2026-11-04).
   build-test:
     name: Build Test / ${{ matrix.platform }}
-    needs: [detect-changes, prepare-build]
+    needs: [detect-changes, simulation-checks]
     if: needs.detect-changes.outputs.pr-desktop == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
