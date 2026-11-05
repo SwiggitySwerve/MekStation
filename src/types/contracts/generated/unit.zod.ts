@@ -25,6 +25,7 @@ const UnitSchemaVersion = z
 export const unitSchemaVersionOf = (unit: {
   readonly schemaVersion?: string;
 }) => unit.schemaVersion ?? CURRENT_UNIT_SCHEMA_VERSION;
+const SchemaDef_componentTechBase = z.enum(['INNER_SPHERE', 'CLAN']);
 const SchemaDef_standardArmorType = z
   .enum([
     'STANDARD',
@@ -497,6 +498,20 @@ export const UnitContract = z
           .describe('Fluff/flavor text')
           .optional(),
         isOmni: z.boolean().optional(),
+        componentTechBases: z
+          .object({
+            chassis: SchemaDef_componentTechBase.optional(),
+            gyro: SchemaDef_componentTechBase.optional(),
+            engine: SchemaDef_componentTechBase.optional(),
+            heatsink: SchemaDef_componentTechBase.optional(),
+            targeting: SchemaDef_componentTechBase.optional(),
+            myomer: SchemaDef_componentTechBase.optional(),
+            movement: SchemaDef_componentTechBase.optional(),
+            armor: SchemaDef_componentTechBase.optional(),
+          })
+          .strict()
+          .describe('BattleMech Mixed Tech per-component tech base selections')
+          .optional(),
         omniPodHeatSinks: z.number().int().gte(0).optional(),
         baseChassisTurretWeight: z.number().gte(0).optional(),
         baseChassisTurret2Weight: z.number().gte(0).optional(),
@@ -988,6 +1003,20 @@ export const UnitContract = z
           .describe('Fluff/flavor text')
           .optional(),
         isOmni: z.boolean().optional(),
+        componentTechBases: z
+          .object({
+            chassis: SchemaDef_componentTechBase.optional(),
+            gyro: SchemaDef_componentTechBase.optional(),
+            engine: SchemaDef_componentTechBase.optional(),
+            heatsink: SchemaDef_componentTechBase.optional(),
+            targeting: SchemaDef_componentTechBase.optional(),
+            myomer: SchemaDef_componentTechBase.optional(),
+            movement: SchemaDef_componentTechBase.optional(),
+            armor: SchemaDef_componentTechBase.optional(),
+          })
+          .strict()
+          .describe('BattleMech Mixed Tech per-component tech base selections')
+          .optional(),
         omniPodHeatSinks: z.number().int().gte(0).optional(),
         baseChassisTurretWeight: z.number().gte(0).optional(),
         baseChassisTurret2Weight: z.number().gte(0).optional(),
