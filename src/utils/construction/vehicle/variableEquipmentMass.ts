@@ -17,6 +17,19 @@ export interface VehicleVariableMassContext {
   readonly isSupportVehicle: boolean;
 }
 
+/** Native engine accessory rule shared with mounted totals. Undefined is a
+ * different equipment kind; null is a known rule missing its engine context.
+ * MiscType.java:518-527 at MegaMek 48fcb2f64 uses the supercharger formula.
+ */
+export function resolveVehicleAccessoryMass(
+  item: VehicleVariableMassItem,
+  context?: VehicleVariableMassContext,
+): number | null | undefined {
+  if (item.id !== 'vtoljetbooster') return undefined;
+  if (!context) return null;
+  return evaluateVehicleMassFormula({ id: 'supercharger' }, context) ?? null;
+}
+
 /** Unit/size-based mass owner. Undefined retains the caller's explicit legacy
  * unsupported-rule policy; fixed zero remains distinct from an unknown rule.
  * MiscType.java:700-730,820-842 at MegaMek 48fcb2f6; see RULES.md.
@@ -26,6 +39,8 @@ export function resolveVehicleVariableMass(
   sourceId: string,
   context: VehicleVariableMassContext,
 ): number | undefined {
+  const accessoryMass = resolveVehicleAccessoryMass(item, context);
+  if (accessoryMass !== undefined) return accessoryMass ?? undefined;
   const { tonnage, weaponWeight } = context;
   const kilograms = context.isSupportVehicle && tonnage < 5;
   const round = (weight: number) =>
