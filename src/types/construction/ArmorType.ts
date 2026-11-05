@@ -36,8 +36,6 @@ export interface ArmorDefinition {
   readonly rulesLevel: RulesLevel;
   /** Points per ton */
   readonly pointsPerTon: number;
-  /** Preserve the legacy loader contract until its density correction ships. */
-  readonly legacyLoaderPointsPerTon?: number;
   /** Critical slots required (distributed) */
   readonly criticalSlots: number;
   /** Cost multiplier */
@@ -90,8 +88,8 @@ export const ARMOR_DEFINITIONS: readonly ArmorDefinition[] = [
     name: 'Light Ferro-Fibrous',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.STANDARD,
-    pointsPerTon: 17.6,
-    legacyLoaderPointsPerTon: 16.96,
+    // MegaMek 48fcb2f6 ArmorType.java:61,301-302,481-482: 16 * 1.06.
+    pointsPerTon: 16.96,
     criticalSlots: 7,
     costMultiplier: 1.25,
     introductionYear: 3067,
@@ -102,8 +100,8 @@ export const ARMOR_DEFINITIONS: readonly ArmorDefinition[] = [
     name: 'Heavy Ferro-Fibrous',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.ADVANCED,
-    pointsPerTon: 24,
-    legacyLoaderPointsPerTon: 19.52,
+    // MegaMek 48fcb2f6 ArmorType.java:61,301-302,512-513: 16 * 1.24.
+    pointsPerTon: 19.84,
     criticalSlots: 21,
     costMultiplier: 2.0,
     introductionYear: 3069,
@@ -193,7 +191,7 @@ export function getArmorDefinition(
 /** Compatibility policy in the owner table; loader half-ton rounding stays local. */
 export function getLoaderArmorPointsPerTon(type: ArmorTypeEnum): number {
   const armor = getArmorDefinition(type);
-  return armor?.legacyLoaderPointsPerTon ?? armor?.pointsPerTon ?? 16;
+  return armor?.pointsPerTon ?? 16;
 }
 
 /**

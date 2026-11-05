@@ -76,3 +76,9 @@ identity review supplies the corrections and defers unrepresented identities.
 
 Explicitly registered custom name mappings retain precedence over the native
 source defaults. Native corrections precede inferred tech and fuzzy fallbacks.
+
+Physical sizing is owned by variableEquipmentFormulas and EquipmentCalculatorService.
+Sword and Retractable Blade public helpers delegate there; no loader sizing arithmetic
+is copied. Pinned MiscType.java:512-517,1075-1083 (48fcb2f64) uses half-ton
+rounding for blade mass and independent integer critical-slot counts. Other legacy
+PhysicalWeaponTypes sizing helpers keep their compatibility results until ported.

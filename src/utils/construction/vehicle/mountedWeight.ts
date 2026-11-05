@@ -23,9 +23,14 @@ import {
   linkLaserInsulatorWeapons,
   linkPPCCapacitorWeapons,
 } from '../equipmentBV/weaponLinks';
+import {
+  computeVehicleInstalledEngineWeight,
+  type VehicleInstalledEngineState,
+} from './engine';
 import { computeTurretEquipmentWeight } from './equipmentMounts';
 import { isPowerAmplifierEnergyWeapon } from './powerAmplifier';
 import { getVehicleTurretMechanismFigures } from './turret';
+import { resolveVehicleAccessoryMass } from './variableEquipmentMass';
 
 /** `isAmmo`: the mount is a bin; ammo and launcher records can share an id. */
 export type EquipmentResolver = (
@@ -65,11 +70,13 @@ export function getVehicleHeatNeutralWeaponHeat(
 export interface VehicleMountedWeightState
   extends
     IVehicleTurretSourceContext,
-    Pick<VehicleControlsLiftContext, 'unitType'> {
+    Pick<VehicleControlsLiftContext, 'unitType'>,
+    Partial<Omit<VehicleInstalledEngineState, 'unitType'>> {
   equipment: readonly IVehicleMountedEquipment[];
   turret: ITurretConfiguration | null;
   secondaryTurret: ITurretConfiguration | null;
   year?: number;
+  engineWeight?: number;
 }
 
 export interface VehicleMountedWeightBreakdown {
@@ -115,15 +122,45 @@ export function computeVehicleMountedWeightFigures(
 } {
   const unresolvedMountIds: string[] = [];
   const issues: string[] = [];
+  const engineWeight =
+    state.engineWeight ??
+    (state.tonnage !== undefined &&
+    state.motionType !== undefined &&
+    state.engineRating !== undefined &&
+    state.engineType !== undefined &&
+    state.cruiseMP !== undefined
+      ? computeVehicleInstalledEngineWeight({
+          tonnage: state.tonnage,
+          motionType: state.motionType,
+          engineRating: state.engineRating,
+          engineType: state.engineType,
+          cruiseMP: state.cruiseMP,
+          engineTechRating: state.engineTechRating,
+          unitType: state.unitType,
+        })
+      : undefined);
   const mounted = state.equipment.map((mount, order) => {
     const item = resolve(mount.equipmentId, mount.isAmmo === true);
     const equipmentId = item?.id ?? mount.equipmentId;
+    const accessoryMass =
+      item &&
+      resolveVehicleAccessoryMass(
+        item,
+        state.tonnage === undefined
+          ? undefined
+          : {
+              tonnage: state.tonnage,
+              engineWeight,
+              isSupportVehicle: state.unitType === UnitType.SUPPORT_VEHICLE,
+            },
+      );
+    const mass = isClanCaseMount(mount, item)
+      ? 0
+      : accessoryMass === undefined
+        ? item?.weight
+        : accessoryMass;
     const weight =
-      item !== undefined && isValidWeight(item.weight)
-        ? isClanCaseMount(mount, item)
-          ? 0
-          : item.weight
-        : null;
+      mass !== null && mass !== undefined && isValidWeight(mass) ? mass : null;
     if (weight === null) {
       unresolvedMountIds.push(mount.id);
       issues.push(`Mount ${mount.id}: unresolved or invalid equipment mass`);

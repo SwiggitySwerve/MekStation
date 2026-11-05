@@ -323,6 +323,7 @@ export function serializeCustomVehicleState(
     },
     ...serializeVehicleTurretContext(state),
     isTrailer: state.isTrailer,
+    transporters: state.transporters,
     equipment: state.equipment.map((item) => ({
       id: item.equipmentId,
       name: item.name,

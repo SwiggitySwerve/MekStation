@@ -21,6 +21,7 @@ import {
   type VehicleEngineType,
 } from '@/types/construction/EngineType';
 import { GroundMotionType } from '@/types/unit/BaseUnitInterfaces';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   ceilToHalfTon,
   roundWeightToGrams,
@@ -266,6 +267,25 @@ export interface SupportVehicleEngineContext extends CombatVehicleEngineContext 
   readonly cruiseMP: number;
   /** TechRating index, A = 0 to F = 5; omitted means the default D. */
   readonly engineTechRating?: number;
+}
+
+/** Installed engine facts shared by total and mounted-accessory consumers. */
+export interface VehicleInstalledEngineState extends SupportVehicleEngineContext {
+  readonly engineRating: number;
+  readonly engineType: VehicleEngineType;
+  readonly unitType?: UnitType;
+}
+
+export function computeVehicleInstalledEngineWeight(
+  state: VehicleInstalledEngineState,
+): number {
+  return state.unitType === UnitType.SUPPORT_VEHICLE
+    ? computeSupportVehicleEngineWeight(
+        state.engineRating,
+        state.engineType,
+        state,
+      )
+    : computeVehicleEngineWeight(state.engineRating, state.engineType, state);
 }
 
 /**
