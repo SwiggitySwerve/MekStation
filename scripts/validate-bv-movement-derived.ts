@@ -59,6 +59,14 @@ function deriveRunMP(bvWalk: number, cs: CritScan, armorType: string): number {
   return runMP;
 }
 
+function partialWingBonus(
+  unit: UnitData,
+  cs: CritScan,
+  baseJumpMP: number,
+): number {
+  return cs.hasPartialWing && baseJumpMP > 0 ? (unit.tonnage <= 55 ? 2 : 1) : 0;
+}
+
 function deriveJumpMP(
   unit: UnitData,
   cs: CritScan,
@@ -68,8 +76,7 @@ function deriveJumpMP(
     cs.standardJJCrits +
     Math.floor(cs.improvedJJCrits / 2) +
     cs.prototypeIJJCrits;
-  const partialWingJumpBonus =
-    cs.hasPartialWing && baseJumpMP > 0 ? (unit.tonnage <= 55 ? 2 : 1) : 0;
+  const partialWingJumpBonus = partialWingBonus(unit, cs, baseJumpMP);
 
   if (jjMountsFromCrits > 0 && jjMountsFromCrits >= baseJumpMP) {
     return {
