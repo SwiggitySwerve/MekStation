@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import re
 from typing import Any, Dict, List, Optional
+from blk_common import BLK_ARMOR_CODE_MAP
 
 from enum_mappings import (
     generate_id_from_name,
     map_armor_type,
     map_cockpit_type,
+    map_chassis_tech_base,
     map_engine_type,
     map_gyro_type,
     map_heat_sink_type,
@@ -254,7 +256,14 @@ class MTFParser:
             # Armor allocation
             loc_key = key.replace('_armor', '').replace('armor', '').strip().upper()
             try:
-                data['armor_allocation'][loc_key] = int(value)
+                if data.get('armor_type', '').lower() == 'patchwork' and ':' in value:
+                    armor_name, points = value.rsplit(':', 1)
+                    data['armor_allocation'][loc_key] = int(points)
+                    armor_type = map_armor_type(armor_name).removesuffix('_CLAN')
+                    code = next(code for code, name in BLK_ARMOR_CODE_MAP.items() if name == armor_type)
+                    data.setdefault('armor_location_types', {})[map_mech_location(loc_key)] = code
+                else:
+                    data['armor_allocation'][loc_key] = int(value)
             except ValueError:
                 pass
         elif key == 'quirk':
@@ -342,9 +351,11 @@ class MTFParser:
         )
 
         # Parse armor
-        armor_type = map_armor_type(data.get('armor_type', 'Standard'))
+        armor_type = ('PATCHWORK' if data.get('armor_type', '').lower() == 'patchwork'
+                      else map_armor_type(data.get('armor_type', 'Standard')))
         armor_allocation = build_armor_allocation(data.get('armor_allocation', {}))
-        armor = SerializedArmor(type=armor_type, allocation=armor_allocation)
+        armor = SerializedArmor(type=armor_type, allocation=armor_allocation,
+                                typeByLocation=data.get('armor_location_types'))
 
         # Parse movement
         movement = SerializedMovement(
@@ -372,6 +383,7 @@ class MTFParser:
                 systemManufacturer=data.get('system_manufacturers') if data.get('system_manufacturers') else None
             )
 
+        chassis_tech_base = map_chassis_tech_base(data.get('techbase', ''))
         return SerializedUnit(
             id=unit_id,
             chassis=chassis,
@@ -380,6 +392,7 @@ class MTFParser:
             configuration=map_mech_config(data.get('config', 'Biped')),
             lamType=data.get('lam_type'),
             techBase=map_tech_base(data.get('techbase', 'Inner Sphere')),
+            componentTechBases={'chassis': chassis_tech_base} if chassis_tech_base else None,
             rulesLevel=map_rules_level(data.get('rules_level', '1')),
             era=era,
             year=year,

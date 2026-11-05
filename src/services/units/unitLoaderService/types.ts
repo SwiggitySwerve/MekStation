@@ -93,6 +93,10 @@ export interface IRawSerializedUnit {
   /** Originating definition retained across draft and library round trips. */
   readonly sourceDefinition?: IUnitDefinitionReference;
   readonly clanName?: string;
+  /** Mixed Tech per-component selections, keyed by TechBaseComponent. */
+  readonly componentTechBases?: Readonly<
+    Partial<Record<string, 'INNER_SPHERE' | 'CLAN'>>
+  >;
   readonly role?: string;
   readonly fluff?: ISerializedFluff;
   /** Whether this unit is an OmniMech */

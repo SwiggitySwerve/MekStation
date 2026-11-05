@@ -39,6 +39,7 @@ import {
 import { useTabManagerStore, TabInfo } from '@/stores/useTabManagerStore';
 import { logger } from '@/utils/logger';
 
+import { CustomizerLoadingSkeleton } from './CustomizerLoadingSkeleton';
 import { UnitTypeRouter } from './UnitTypeRouter';
 
 // =============================================================================
@@ -221,9 +222,10 @@ function useUnitTabNavigation(
 
 function LoadingCustomizerState(): React.ReactElement {
   return (
-    <div className="bg-surface-deep flex min-h-screen items-center justify-center">
-      <div className="text-text-theme-secondary">Loading customizer...</div>
-    </div>
+    <CustomizerLoadingSkeleton
+      label="Loading customizer"
+      className="min-h-screen"
+    />
   );
 }
 

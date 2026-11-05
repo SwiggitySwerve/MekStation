@@ -7,7 +7,10 @@ import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
 import { EngineType } from '@/types/construction/EngineType';
 import { GyroType } from '@/types/construction/GyroType';
 import { MovementEnhancementType } from '@/types/construction/MovementEnhancement';
-import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
+import {
+  TechBaseComponent,
+  TechBaseMode,
+} from '@/types/construction/TechBaseConfiguration';
 import { UnitContract } from '@/types/contracts';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
@@ -335,5 +338,61 @@ describe('serializeCustomUnitState', () => {
       null,
       null,
     ]);
+  });
+
+  it('keeps Mixed per-component tech bases through save and reopen', () => {
+    const state = createDefaultUnitState({
+      id: '0f2b6f4e-8a1c-4d39-9a77-5f3f1c2d9e10',
+      name: 'Mixed Fixture',
+      tonnage: 50,
+      techBase: TechBase.INNER_SPHERE,
+    });
+    const componentTechBases = {
+      ...state.componentTechBases,
+      [TechBaseComponent.ENGINE]: TechBase.CLAN,
+      [TechBaseComponent.HEATSINK]: TechBase.CLAN,
+      [TechBaseComponent.TARGETING]: TechBase.CLAN,
+    };
+    const serialized = serializeCustomUnitState(
+      { ...state, techBaseMode: TechBaseMode.MIXED, componentTechBases },
+      {
+        id: state.id,
+        chassis: 'Mixed Fixture',
+        variant: 'MX-1',
+        era: Era.RENAISSANCE,
+      },
+    );
+    expect(UnitContract.safeParse(serialized).success).toBe(true);
+
+    const reloaded = new UnitLoaderService().mapToUnitState(
+      parseUnit(serialized),
+      false,
+    );
+    expect(reloaded.techBaseMode).toBe(TechBaseMode.MIXED);
+    expect(reloaded.componentTechBases).toEqual(componentTechBases);
+  });
+
+  it('rejects a saved component tech base outside Inner Sphere and Clan', () => {
+    const state = createDefaultUnitState({
+      id: '0f2b6f4e-8a1c-4d39-9a77-5f3f1c2d9e11',
+      name: 'Mixed Fixture',
+      tonnage: 50,
+      techBase: TechBase.INNER_SPHERE,
+    });
+    const serialized = serializeCustomUnitState(
+      { ...state, techBaseMode: TechBaseMode.MIXED },
+      {
+        id: state.id,
+        chassis: 'Mixed Fixture',
+        variant: 'MX-2',
+        era: Era.RENAISSANCE,
+      },
+    );
+    expect(
+      UnitContract.safeParse({
+        ...serialized,
+        componentTechBases: { engine: 'MIXED' },
+      }).success,
+    ).toBe(false);
   });
 });
