@@ -82,6 +82,3 @@ Sword and Retractable Blade public helpers delegate there; no loader sizing arit
 is copied. Pinned MiscType.java:512-517,1075-1083 (48fcb2f64) uses half-ton
 rounding for blade mass and independent integer critical-slot counts. Other legacy
 PhysicalWeaponTypes sizing helpers keep their compatibility results until ported.
-
-Flail and Wrecking Ball use fixed native mass, slots and cost in the same formula
-registry; their legacy public sizing helpers delegate to the calculator as well.
