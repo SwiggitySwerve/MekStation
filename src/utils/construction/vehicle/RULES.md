@@ -619,3 +619,12 @@ Mounted figures consume that same rule before
 summing equipment and turret mass, independently of the held sized-equipment
 editor integration. Missing context is unavailable, not a fixed zero.
 Pin 48fcb2f64: MiscType.java:660-666,702-705; RoundWeight.java:58-68.
+
+## Native miscellaneous heat-neutral load
+
+At pin 48fcb2f64, TestEntity.java:971-979 adds MiscType.getHeat() after all
+weapon and linked-equipment heat. MiscType.java:1423-1435 returns 20 for the
+ground-mobile HPG and 12 for either RISC viral jammer. The mounted thermal
+owner applies these native identities after the weapon running-total guard,
+then the existing engine allowance decides paid sinks. These are native code
+rules; no equipment catalog heat or weight values are edited.
