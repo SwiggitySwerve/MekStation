@@ -78,11 +78,12 @@ export const CRITICAL_SLOTS_DEFAULT = 12;
 // =====================================================
 
 /**
- * BattleMech tonnage range (20-200, step 5)
- * Standard: 20-100, Superheavy: 105-200
+ * BattleMech tonnage range (10-200, step 5).
+ * Ultralight: 10-15, Standard: 20-100, Superheavy: 105-200.
+ * MegaMek 48fcb2f64: TestMek.java:1814-1820; Mek.java:1068-1069.
  * @spec openspec/specs/superheavy-mech-system/spec.md
  */
-export const BATTLEMECH_TONNAGE = { min: 20, max: 200, step: 5 } as const;
+export const BATTLEMECH_TONNAGE = { min: 10, max: 200, step: 5 } as const;
 
 /** OmniMech tonnage range (same as BattleMech) */
 export const OMNIMECH_TONNAGE = BATTLEMECH_TONNAGE;
