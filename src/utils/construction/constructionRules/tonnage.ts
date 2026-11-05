@@ -46,8 +46,8 @@ export function getEquipmentCritEntries(
 
 /**
  * Step 1: Choose tonnage
- * Valid tonnages: 20-200 in 5-ton increments
- * (20-100 for standard mechs, 105-200 for superheavy)
+ * Valid tonnages: 10-200 in 5-ton increments
+ * (10-15 ultralight, 20-100 standard, 105-200 superheavy)
  *
  * @spec openspec/specs/superheavy-mech-system/spec.md
  */

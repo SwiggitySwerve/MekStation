@@ -328,7 +328,7 @@ describe('StructureTab', () => {
     render(<StructureTab />);
 
     const tonnage = screen.getByRole('spinbutton', { name: 'Tonnage' });
-    expect(tonnage).toHaveAccessibleDescription(/20–200 t/);
+    expect(tonnage).toHaveAccessibleDescription(/10–200 t/);
   });
 
   it('moves Cooling into its own card below Mobility', () => {

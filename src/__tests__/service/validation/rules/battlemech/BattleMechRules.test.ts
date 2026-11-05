@@ -76,7 +76,7 @@ describe('BattleMechRules', () => {
       expect(result.passed).toBe(true);
     });
 
-    it('should pass for minimum tonnage (20 tons)', () => {
+    it('should pass for minimum standard tonnage (20 tons)', () => {
       const result = BattleMechTonnageRange.validate(
         createContext(createBaseUnit({ weight: 20 })),
       );
@@ -104,12 +104,26 @@ describe('BattleMechRules', () => {
       expect(result.passed).toBe(true);
     });
 
-    it('should fail for tonnage below 20', () => {
+    // Pinned 48fcb2f64: TestMek.java:1814-1820 keeps the five-ton step;
+    // Mek.java:1068-1069 includes Exo HMX-1 (10t) / Prey Seeker (15t) sizes.
+    it.each([
+      ['Exo HMX-1 Haulermech', 10],
+      ['Prey Seeker PY-SR10', 15],
+    ])('accepts the native ultralight size for %s', (name, weight) => {
+      for (const unitType of [UnitType.BATTLEMECH, UnitType.OMNIMECH]) {
+        const result = BattleMechTonnageRange.validate(
+          createContext(createBaseUnit({ name, weight, unitType })),
+        );
+        expect(result.passed).toBe(true);
+      }
+    });
+
+    it('should fail for tonnage below 10', () => {
       const result = BattleMechTonnageRange.validate(
-        createContext(createBaseUnit({ weight: 15 })),
+        createContext(createBaseUnit({ weight: 5 })),
       );
       expect(result.passed).toBe(false);
-      expect(result.errors[0].message).toContain('20 and 200');
+      expect(result.errors[0].message).toContain('10 and 200');
     });
 
     it('should fail for tonnage above 200', () => {
@@ -117,7 +131,7 @@ describe('BattleMechRules', () => {
         createContext(createBaseUnit({ weight: 205 })),
       );
       expect(result.passed).toBe(false);
-      expect(result.errors[0].message).toContain('20 and 200');
+      expect(result.errors[0].message).toContain('10 and 200');
     });
 
     it('should fail for tonnage not divisible by 5', () => {
