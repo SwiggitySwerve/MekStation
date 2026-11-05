@@ -1,8 +1,13 @@
+import { createCalculatedEquipment } from '@/stores/unit/unitEquipmentAddition';
+import { RulesLevel } from '@/types/enums/RulesLevel';
+import { TechBase } from '@/types/enums/TechBase';
+import { EquipmentCategory } from '@/types/equipment';
 import {
   calculatePhysicalWeaponSlots,
   calculatePhysicalWeaponWeight,
   PhysicalWeaponType,
 } from '@/types/equipment/PhysicalWeaponTypes';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 
 import { getEquipmentCalculatorService } from '../EquipmentCalculatorService';
 
@@ -61,5 +66,35 @@ it.each([
     expect(
       calculatePhysicalWeaponSlots(PhysicalWeaponType.TALONS, tonnage, isQuad),
     ).toBe(criticalSlots);
+  },
+);
+
+it.each([
+  [MechConfiguration.BIPED, 4],
+  [MechConfiguration.QUAD, 8],
+  [MechConfiguration.QUADVEE, 8],
+] as const)(
+  'forwards chassis context when adding Talons to %s',
+  (configuration, slots) => {
+    const item = {
+      id: 'talons',
+      name: 'Talons',
+      category: EquipmentCategory.PHYSICAL_WEAPON,
+      techBase: TechBase.INNER_SPHERE,
+      rulesLevel: RulesLevel.EXPERIMENTAL,
+      weight: 0,
+      criticalSlots: 0,
+      costCBills: 0,
+      battleValue: 0,
+      introductionYear: 3072,
+      variableEquipmentId: 'talons',
+    };
+    expect(
+      createCalculatedEquipment(item, 'talons', {
+        tonnage: 60,
+        equipment: [],
+        configuration,
+      }),
+    ).toMatchObject({ weight: 4, criticalSlots: slots });
   },
 );
