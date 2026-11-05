@@ -10,6 +10,7 @@ import {
   getLargeAerospaceAmmoBVGroup,
   largeAerospaceAmmoBVMultiplier,
 } from '../battleValueAmmo';
+import { isNonOffensiveLargeAerospaceMisc } from '../battleValueEquipment';
 import { getCapitalEquipmentBVFacts } from '../equipmentBV/catalogLoader';
 import {
   isArtemisCompatibleBVWeapon,
@@ -171,14 +172,7 @@ export function resolveLargeAerospaceMountBV(
     if (
       quantity === undefined &&
       entry &&
-      [
-        'nc3',
-        'mobilehpg',
-        'groundmobilehpg',
-        'smallnavalcommscannersuite',
-        'largenavalcommscannersuite',
-        'navaltugadaptor',
-      ].includes(entry.id)
+      isNonOffensiveLargeAerospaceMisc(entry.id)
     )
       return;
     const location = largeAerospaceMountArc(mount, capitalType);

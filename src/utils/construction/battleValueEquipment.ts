@@ -142,3 +142,15 @@ export function getOffensiveBVRole(
 export function hasBVDroneOS(ids: readonly string[] = []): boolean {
   return ids.some((id) => getEquipmentEntry(id)?.id === 'droneoperatingsystem');
 }
+
+/** Audited LargeAero misc exclusions; BVCalculator.java:955-963 (48fcb2f64). */
+export function isNonOffensiveLargeAerospaceMisc(id: string): boolean {
+  return [
+    'nc3',
+    'mobilehpg',
+    'groundmobilehpg',
+    'smallnavalcommscannersuite',
+    'largenavalcommscannersuite',
+    'navaltugadaptor',
+  ].includes(id);
+}
