@@ -61,11 +61,10 @@ export function calculateAerospaceDefensiveBV(
   const armorMultiplier = getArmorBVMultiplier(input.armorType);
   const capital = isCapitalShipBVType(input.subType);
   // BVCalculator.java:461-463: SmallCraft inherits the ordinary armor factor.
-  const modularArmorPoints = getModularArmorBVPoints(
-    input.equipment.filter(
-      (item) => getEquipmentEntry(item.id)?.id === MODULAR_ARMOR_BV_ID,
-    ).length,
+  const modularMounts = input.equipment.filter(
+    (item) => getEquipmentEntry(item.id)?.id === MODULAR_ARMOR_BV_ID,
   );
+  const modularArmorPoints = getModularArmorBVPoints(modularMounts.length);
   const armorBV =
     (input.totalArmorPoints + modularArmorPoints) *
     (capital ? 25 : 2.5) *

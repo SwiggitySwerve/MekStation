@@ -134,8 +134,9 @@ export function buildAerospaceBVInputFromUnit(
     });
   }
 
+  const subType = unitTypeToAerospaceSubType(unit.unitType);
   return {
-    subType: unitTypeToAerospaceSubType(unit.unitType),
+    subType,
     isSupportVehicle: supportVehicle,
     hasCommandConsole:
       unit.cockpit?.toUpperCase() === 'COMMAND_CONSOLE' ||
