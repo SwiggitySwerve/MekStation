@@ -51,6 +51,15 @@ it('applies Pandion insulators before the engine allowance (20 t Java)', () => {
 it('charges Schrek II-X three linked capacitors (+15 raw heat)', () => {
   expect(weights('Schrek II-X PPC Carrier')).toMatchObject({ heatSinks: 35 });
 });
+// UL-16b: 6 t reactive armor + 20.5 t equipment, including 1 t Clan TC.
+// The old 7 t armor and missing TC cancel. Both corrections must land together.
+it('keeps Hadur LRM at Java 50 t with computer mass and reactive density coupled', () => {
+  expect(weights('Hadur Fast Support Vehicle (LRM)')).toMatchObject({
+    armor: 6,
+    equipment: 20.5,
+    remaining: 0,
+  });
+});
 it('prefers the immediate predecessor, then falls back to the first unlinked laser', () => {
   const laser = (order: number, location = 'front') => ({
     id: 'medium-laser',

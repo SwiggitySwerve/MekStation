@@ -125,8 +125,8 @@ export const ARMOR_DEFINITIONS: readonly ArmorDefinition[] = [
     name: 'Reactive',
     techBase: TechBase.INNER_SPHERE,
     rulesLevel: RulesLevel.EXPERIMENTAL,
-    pointsPerTon: 14,
-    legacyLoaderPointsPerTon: 16,
+    // ArmorType.java:61,226,301-302,788-826 at 48fcb2f6: default multiplier 1.
+    pointsPerTon: 16,
     criticalSlots: 14,
     costMultiplier: 3.0,
     introductionYear: 3063,

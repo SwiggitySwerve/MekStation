@@ -1,5 +1,20 @@
 # Combat-vehicle construction rules
 
+## Computer mass and shared reactive armor
+
+`mountedWeight.ts` computes the computer basis from native direct-fire weapons
+except tasers, plus RISC modules, and calls the existing variable-formula owner.
+Computer mass enters equipment and turret mass before mechanism rounding.
+Sources: MegaMek 48fcb2f6, WeaponType.java:2925-2926,
+MiscType.java:614-616,12532-12543, TestTank.java:178-226.
+
+`ArmorType.ts` owns the density table and the loader compatibility policy.
+Reactive uses the default 16 points/t (ArmorType.java:61,226,301-302,788-826).
+The old 14-point density cancels missing computer mass on Hadur LRM; both
+corrections must ship together. Heavy/light ferro retain their previous
+construction and loader densities until a separate no-regression proof permits
+their correction. No authoritative complete vehicle weight check is enabled.
+
 ## Linked thermal load
 
 `mountedWeight.ts` uses the existing native pairing owner in
