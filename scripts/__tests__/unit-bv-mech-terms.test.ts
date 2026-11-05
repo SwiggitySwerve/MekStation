@@ -89,6 +89,21 @@ test('mech adapter emits each heat-tracked weapon mount under its Java location'
   );
 });
 
+test('mech adapter names the calculator ammo pools like the Java trace', () => {
+  const breakdown = calculateUnitBV(unit).breakdown;
+  if (!breakdown) throw new Error('Missing Mech breakdown');
+  expect(
+    mechBVTerms({
+      ...breakdown,
+      ammoPools: { available: { 'AC:5': 9 }, cap: { 'AC:5': 70, 'MG:2': 5 } },
+    }),
+  ).toMatchObject({
+    'ammo.available.AC:5': 9,
+    'ammo.cap.AC:5': 70,
+    'ammo.cap.MG:2': 5,
+  });
+});
+
 test('mech summary retains the existing RISC modifier before final rounding', () => {
   expect(calculateUnitBV(unit, 'battleaxe-bkx-risc').breakdown).toMatchObject({
     summaryModifier: 1.01,

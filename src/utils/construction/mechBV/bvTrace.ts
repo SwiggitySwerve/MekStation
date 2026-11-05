@@ -35,9 +35,20 @@ function weaponMountTerms(
   return terms;
 }
 
+/** Native ammo pools keyed like the Java trace's ammo.available / ammo.cap. */
+function ammoPoolTerms(
+  pools: NonNullable<ValidationResult['breakdown']>['ammoPools'],
+): Record<string, number> {
+  const terms: Record<string, number> = {};
+  for (const [key, bv] of Object.entries(pools?.available ?? {}))
+    terms[`ammo.available.${key}`] = bv;
+  for (const [key, bv] of Object.entries(pools?.cap ?? {}))
+    terms[`ammo.cap.${key}`] = bv;
+  return terms;
+}
+
 /** Read-only native-stage names; rules remain in the existing Mech BV owner.
  * HarJel belongs to armor; gyro to structure; armored components to equipment.
- * Ammo groups are deliberately left absent.
  */
 export function mechBVTerms(
   b: NonNullable<ValidationResult['breakdown']>,
@@ -52,6 +63,7 @@ export function mechBVTerms(
   return {
     ...b,
     ...weaponMountTerms(b.weaponMountBV),
+    ...ammoPoolTerms(b.ammoPools),
     armorBV: b.armorBV + b.harjelBonus,
     structureBV: b.structureBV + b.gyroBV,
     defensiveEquipmentBV: b.defEquipBV + b.armoredComponentBV,

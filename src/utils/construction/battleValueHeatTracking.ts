@@ -4,7 +4,7 @@ import type {
 } from './battleValueOffensiveTypes';
 
 import { EngineType } from '../../types/construction/EngineType';
-import { calculateAmmoBVWithExcessiveCap } from './battleValueAmmo';
+import { calculateAmmoBVPools } from './battleValueAmmo';
 import { calculateOffensiveSpeedFactor } from './battleValueMovement';
 import { applyTargetingComputerBV } from './battleValueWeapons';
 import { getArtemisBVMultiplier } from './equipmentBVResolver';
@@ -207,10 +207,8 @@ export function calculateOffensiveBVWithHeatTracking(
     heatEfficiency,
   );
 
-  const ammoBV = calculateAmmoBVWithExcessiveCap(
-    config.weapons,
-    config.ammo ?? [],
-  );
+  const ammoPools = calculateAmmoBVPools(config.weapons, config.ammo ?? []);
+  const ammoBV = ammoPools.total;
   const weightBonus = calculateWeightBonus(config);
 
   const speedFactor =
@@ -246,6 +244,7 @@ export function calculateOffensiveBVWithHeatTracking(
     weaponCount: weaponsWithModifiers.length,
     halvedWeaponCount: heatTrackedWeapons.halvedWeaponCount,
     weaponMountBV: heatTrackedWeapons.weaponMountBV,
+    ammoPools: { available: ammoPools.available, cap: ammoPools.cap },
     physicalWeaponBV,
     offensiveEquipmentBV,
   };

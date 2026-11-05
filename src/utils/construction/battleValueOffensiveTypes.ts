@@ -60,4 +60,11 @@ export interface OffensiveBVResult {
   offensiveEquipmentBV?: number;
   /** Heat-tracked value of each mount, in native processing order. */
   weaponMountBV?: { name: string; location?: string; bv: number }[];
+  /** Uncapped native ammo and weapon pools behind ammoBV. */
+  ammoPools?: AmmoBVPools;
+}
+
+export interface AmmoBVPools {
+  available: Record<string, number>;
+  cap: Record<string, number>;
 }
