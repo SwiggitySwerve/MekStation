@@ -11,9 +11,12 @@
  *     bare imports; jest.mock/requireActual targets; its __snapshots__ file;
  *     the Jest setup files). Type-only edges are not followed, because
  *     @swc/jest erases them without loading the module: `import type`,
- *     `export type {...} from`, and `import('x').Name` / `typeof import('x')` in
- *     a type position. A mixed `import { type A, b }`, an `import { type A }`
- *     with no value part, and every other import() still count,
+ *     `export type {...} from` and the `import('x')` type, as @swc/core's AST
+ *     classifies them (not by text), and only when no other occurrence of the
+ *     same specifier exists in the file. Everything else still counts: a mixed
+ *     `import { type A, b }`, an `import { type A }` with no value part, every
+ *     import() in an expression, a mention in a string or comment. Without
+ *     @swc/core, or if a file does not parse, nothing is dropped,
  *   - the "data inputs" it can read: if any closure file uses fs read APIs,
  *     the digest of every repo directory the closure names (public/data/,
  *     openspec/, docs/, ...), or of the WHOLE repo when it names none; a file
@@ -258,41 +261,86 @@ const IMPORT_PATTERNS = [
   /\bimport\s*['"]([^'"\n]+)['"]/g,
   /\b(?:import|require(?:\.resolve)?|jest\.(?:mock|doMock|unmock|dontMock|requireActual|requireMock|createMockFromModule|setMock))\s*\(\s*['"]([^'"\n]+)['"]/g,
 ];
-// Type-only edges. Jest runs @swc/jest, which erases these without loading
-// the module, so they cannot change a test result (Static Checks still
-// type-checks every PR). Only forms that are unambiguously type-only are
-// blanked; anything else (`import { type A } from` with no value part, `import
-// type from 'x'` whose binding is named `type`, a dynamic import() in an
-// expression) stays a dependency. A spec that is ALSO imported as a value
-// elsewhere in the file stays in the closure through that other occurrence.
-const SPEC = String.raw`(['"])[^'"\n]+\1`;
-const BINDING = String.raw`[A-Za-z_$][\w$]*`;
-const TYPE_ONLY_IMPORTS = [
-  // import type { A } from 'x' / import type A from 'x' / import type * as A from 'x'
-  new RegExp(
-    String.raw`\bimport\s+type\b\s*(?:\{[^}]*\}|\*\s*as\s+${BINDING}|${BINDING})\s*from\s*${SPEC}`,
-    'g',
-  ),
-  // export type { A } from 'x' / export type * from 'x' / export type * as ns from 'x'
-  new RegExp(
-    String.raw`\bexport\s+type\b\s*(?:\{[^}]*\}|\*(?:\s*as\s+${BINDING})?)\s*from\s*${SPEC}`,
-    'g',
-  ),
-  // import('x').Name in a type annotation. A Promise has no PascalCase member and
-  // a call (`.Name(`) is never a type reference, so this is not a runtime load.
-  new RegExp(
-    String.raw`(?<![.\w$])(?<!\bawait\s+)import\s*\(\s*${SPEC}\s*\)\s*\.\s*[A-Z][\w$]*(?![\w$]|\s*\()`,
-    'g',
-  ),
-  // typeof import('x') only where a type is required: a generic argument, an
-  // annotation, `as`, a union/intersection member, `keyof`, or `type X =`.
-  new RegExp(
-    String.raw`(?<=(?:[<:|&]|\bas|\bkeyof|\btype\s+${BINDING}(?:<[^>]*>)?\s*=)\s*)\btypeof\s+import\s*\(\s*${SPEC}\s*\)`,
-    'g',
-  ),
-];
-const blankTypeOnlyImports = (text) =>
-  TYPE_ONLY_IMPORTS.reduce((out, pattern) => out.replace(pattern, ' '), text);
+// Type-only edges. Jest runs @swc/jest, which erases `import type`, `export type
+// ... from` and the `import('x')` TYPE (TsImportType) without loading the module,
+// so they cannot change a test result (Static Checks still type-checks every PR).
+// Which occurrences are type-only is decided by the same parser, not by text:
+// @swc/core's AST. A specifier is dropped from a file's dependencies only when
+// EVERY import-like occurrence of it in the file's text (IMPORT_PATTERNS, over
+// the raw text and the comment-stripped variants) is one of those AST nodes. A
+// value import, a mixed `import { type A, b }`, an `import { type A }` with no
+// value part, a dynamic import() in an expression (`void import('x').Foo`, `{ k:
+// typeof import('x') }`), a mention in a string or comment, `jest.mock('x')` or a
+// second import of the same module all add a match the AST does not account for,
+// so the specifier stays. If @swc/core is missing or the file does not parse,
+// nothing is dropped.
+let swcParseSync; // undefined: not tried yet; null: unavailable
+const TYPE_CANDIDATE = /\b(?:import|export)\s+type\b|\bimport\s*\(/;
+
+/** Map of specifier -> number of type-only AST occurrences in `text`, or null. */
+function typeOnlySpecCounts(text) {
+  if (!TYPE_CANDIDATE.test(text)) return null;
+  if (swcParseSync === undefined) {
+    try {
+      swcParseSync = require('@swc/core').parseSync;
+    } catch {
+      swcParseSync = null;
+    }
+  }
+  if (!swcParseSync) return null;
+  let ast;
+  try {
+    ast = swcParseSync(text, {
+      syntax: 'typescript',
+      tsx: true,
+      decorators: false,
+    });
+  } catch {
+    return null;
+  }
+  const counts = new Map();
+  const add = (literal) => {
+    if (literal && typeof literal.value === 'string')
+      counts.set(literal.value, (counts.get(literal.value) ?? 0) + 1);
+  };
+  const visit = (node) => {
+    if (Array.isArray(node)) {
+      node.forEach(visit);
+      return;
+    }
+    if (!node || typeof node !== 'object') return;
+    switch (node.type) {
+      case 'ImportDeclaration':
+      case 'ExportAllDeclaration':
+      case 'ExportNamedDeclaration':
+        if (node.typeOnly) add(node.source);
+        break;
+      case 'TsImportEqualsDeclaration':
+        if (
+          node.isTypeOnly &&
+          node.moduleRef?.type === 'TsExternalModuleReference'
+        )
+          add(node.moduleRef.expression);
+        break;
+      case 'TsImportType':
+        add(node.argument);
+        break;
+    }
+    for (const value of Object.values(node)) visit(value);
+  };
+  visit(ast);
+  return counts;
+}
+
+/** Textual import-like occurrences of each specifier in `source`. */
+function countSpecs(source) {
+  const counts = new Map();
+  for (const pattern of IMPORT_PATTERNS) {
+    for (const match of source.matchAll(pattern))
+      counts.set(match[1], (counts.get(match[1]) ?? 0) + 1);
+  }
+  return counts;
+}
 // A require()/import() whose argument is not a string literal. Not preceded by
 // `.` (method call) and not a typed parameter (`import(content: string)` is an
 // interface method, not a load).
@@ -479,14 +527,12 @@ function buildNameMatchers(index) {
 
 function analyzeSource(text, rel, nameMatchers) {
   const specs = new Set();
-  // type-only edges are not dependencies (see TYPE_ONLY_IMPORTS)
-  const runtime = blankTypeOnlyImports(text);
   // raw text and text with every block comment removed: the union can only add
   // specs, so neither a comment nor over-stripping can hide an import
-  const noBlocks = runtime.replace(/\/\*[\s\S]*?\*\//g, ' ');
+  const noBlocks = text.replace(/\/\*[\s\S]*?\*\//g, ' ');
   // ... and with line comments removed too, so `from // note \n './dep'` is seen
   const noComments = noBlocks.replace(/\/\/[^\n]*/g, ' ');
-  for (const source of [runtime, noBlocks, noComments]) {
+  for (const source of [text, noBlocks, noComments]) {
     for (const pattern of IMPORT_PATTERNS) {
       for (const match of source.matchAll(pattern)) specs.add(match[1]);
     }
@@ -494,8 +540,22 @@ function analyzeSource(text, rel, nameMatchers) {
   const codeSpecs = new Set();
   const code = stripComments(text);
   for (const pattern of IMPORT_PATTERNS) {
-    for (const match of stripComments(runtime).matchAll(pattern))
-      codeSpecs.add(match[1]);
+    for (const match of code.matchAll(pattern)) codeSpecs.add(match[1]);
+  }
+  // Type-only edges are not dependencies (see typeOnlySpecCounts): drop a
+  // specifier only when the AST accounts for every textual occurrence of it.
+  const typeOnly = typeOnlySpecCounts(text);
+  if (typeOnly) {
+    const seen = [text, noBlocks, noComments].map(countSpecs);
+    for (const [spec, nodes] of typeOnly) {
+      if (
+        seen[0].get(spec) === nodes &&
+        seen.every((counts) => (counts.get(spec) ?? 0) <= nodes)
+      ) {
+        specs.delete(spec);
+        codeSpecs.delete(spec);
+      }
+    }
   }
   const envNames = new Set();
   for (const match of text.matchAll(ENV_DOT)) envNames.add(match[1]);
@@ -1051,6 +1111,7 @@ async function main(argv) {
 }
 
 module.exports = {
+  analyzeSource,
   buildFileIndex,
   createKeyer,
   createStore,

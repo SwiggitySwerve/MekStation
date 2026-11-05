@@ -757,6 +757,19 @@ describe('type-only imports in the key', () => {
       "export interface I { readonly m: typeof import('./dep'); }",
     ],
     ['keyof typeof import', "export type K = keyof typeof import('./dep');"],
+    [
+      'typeof import in a parameter annotation',
+      "export function f(x: typeof import('./dep')) { return x; }",
+    ],
+    [
+      'import().Name in a return type',
+      "export function f(): Promise<import('./dep').T> { return null as never; }",
+    ],
+    [
+      'typeof import as a later generic argument',
+      "export type P = Record<string, typeof import('./dep')>;",
+    ],
+    ['import type = require', "import type X = require('./dep');"],
   ])('does not follow %s', (_name, line) => {
     expect(compile(`${line}\nexport const w = 1;\n`)).not.toContain('./dep');
     const { before, after } = keyAfterDepEdit(line);
@@ -809,9 +822,63 @@ describe('type-only imports in the key', () => {
       'the same module as a type and as a value',
       "import type { T } from './dep';\nimport { v } from './dep';\nvoid v;",
     ],
+    // Sol round 1 on #2730: text that only looks like a type-only import
+    [
+      'a value import after a string that starts "import type {"',
+      "const prefix = 'import type {';\nimport { v } from './dep';\nexport const result = prefix + v;",
+    ],
+    [
+      'a value re-export after a string that starts "export type {"',
+      "const prefix = 'export type {';\nexport { v } from './dep';\nvoid prefix;",
+    ],
+    [
+      'typeof import as an object literal value',
+      "export const status = { moduleType: typeof import('./dep') };",
+    ],
+    [
+      'typeof import in a ternary',
+      "export const t = Math.random() ? 1 : typeof import('./dep');",
+    ],
+    ['typeof import after ||', "export const t = 0 || typeof import('./dep');"],
+    ['typeof import after &&', "export const t = 1 && typeof import('./dep');"],
+    ['void import().Name', "void import('./dep').Foo;"],
+    [
+      'a type import repeated in a string',
+      "import type { T } from './dep';\nexport const s = \"import type { T } from './dep'\";",
+    ],
+    [
+      'a type import repeated in a comment',
+      "import type { T } from './dep';\n// import type { T } from './dep'\nexport const s = 1;",
+    ],
   ])('still follows %s', (_name, line) => {
     const { before, after } = keyAfterDepEdit(line);
     expect(after.key).not.toBe(before.key);
+  });
+
+  it('drops nothing when the file does not parse', () => {
+    const { before, after } = keyAfterDepEdit(
+      "import type { T } from './dep';\nconst = ;\n",
+    );
+    expect(after.key).not.toBe(before.key);
+  });
+
+  it('drops nothing when @swc/core cannot be loaded', () => {
+    const line = "import type { T } from './dep';";
+    const root = makeRepo(repoFor(line));
+    jest.isolateModules(() => {
+      jest.doMock('@swc/core', () => {
+        throw new Error('not installed');
+      });
+      const bare = require('../jest/cached-tests.js') as typeof lib;
+      const key = () =>
+        bare
+          .createKeyer({ root, index: bare.buildFileIndex(root), env: {} })
+          .keyFor('src/t.test.ts').key;
+      const before = key();
+      write(root, { 'src/dep.ts': 'export type T = string;\n' });
+      expect(key()).not.toBe(before);
+    });
+    jest.dontMock('@swc/core');
   });
 
   it('control: swc keeps a value import, so the oracle above can fail', () => {
