@@ -563,6 +563,10 @@
     "ISHMGA": {
       "INNER_SPHERE": "ishmga-registry",
       "CLAN": "ishmga-registry"
+    },
+    "mech-mortar-8": {
+      "INNER_SPHERE": "mech-mortar-8",
+      "CLAN": "clan-mech-mortar-8-registry"
     }
   }
 }

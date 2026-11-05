@@ -115,6 +115,10 @@ const JAVA_RUNNER_DAMAGE = {
   'mrm-3-os-registry': 3,
   'mrm-4-os-registry': 4,
   'mrm-5-os-registry': 5,
+  // Mech mortars: MekMortarHandler.java:126-137, 2 per shell, times the rack.
+  'is-mech-mortar-1-registry': 2,
+  'is-mech-mortar-2-registry': 4,
+  'clan-mech-mortar-8-registry': 16,
 };
 
 test('routed launchers deal their pinned Java damage in the combat runner', () => {
