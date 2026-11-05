@@ -300,11 +300,11 @@ const JEST_LOADERS = new Set([
  * Is `callee` a direct loader: `require`, `require.resolve`, `jest.<loader>`,
  * `<anything>.require` (`module.require`) or `import`?
  */
-function isLoaderCallee(callee) {
+function isLoaderCallee(callee, nameOf) {
   if (callee?.type === 'Import') return true;
   if (callee?.type === 'Identifier') return callee.value === 'require';
   if (callee?.type !== 'MemberExpression') return false;
-  const name = callee.property?.type === 'Identifier' && callee.property.value;
+  const name = nameOf(callee);
   if (name === 'require') return true;
   if (callee.object?.type !== 'Identifier') return false;
   return callee.object.value === 'require'
@@ -385,6 +385,14 @@ function typeOnlySpecCounts(text) {
           expr.quasis?.length === 1
         ? (expr.quasis[0].cooked ?? expr.quasis[0].raw)
         : undefined;
+  /** `x.name` or `x['name']`: the member's name when it is a plain identifier or literal. */
+  const memberName = (member) =>
+    member.property?.type === 'Identifier'
+      ? member.property.value
+      : member.property?.type === 'Computed'
+        ? literalValue(member.property.expression)
+        : undefined;
+  const directMembers = new Set(); // `x.require('literal')` callee nodes
   const visit = (node, inType) => {
     if (Array.isArray(node)) {
       for (const item of node) visit(item, inType);
@@ -406,12 +414,18 @@ function typeOnlySpecCounts(text) {
       }
       if (
         node.type === 'CallExpression' &&
-        isLoaderCallee(node.callee) &&
+        isLoaderCallee(node.callee, memberName) &&
         literalValue(args[0]) === undefined
       )
         looseLoader = true;
       const callee = node.callee;
       if (node.type === 'CallExpression') {
+        if (
+          callee?.type === 'MemberExpression' &&
+          memberName(callee) === 'require' &&
+          literalValue(args[0]) !== undefined
+        )
+          directMembers.add(callee);
         if (callee?.type === 'Identifier' && callee.value === 'require')
           recognised.add(callee);
         if (
@@ -426,12 +440,18 @@ function typeOnlySpecCounts(text) {
           recognised.add(callee.object);
       }
     }
+    if (node.type === 'MemberExpression' && !type) {
+      // `module.require.bind(module)`, `module['require'](p)`, `globalThis.require`:
+      // a `require` member is a loader unless it is called with a literal path
+      const name = memberName(node);
+      if (name === 'createRequire') looseLoader = true;
+      if (name === 'require' && !directMembers.has(node)) looseLoader = true;
+    }
     if (
       node.type === 'MemberExpression' &&
       node.property?.type === 'Identifier'
     ) {
       recognised.add(node.property); // a property name, not a reference
-      if (node.property.value === 'createRequire' && !type) looseLoader = true;
       // jest.fn, jest.spyOn, ...: not a loader
       if (
         node.object?.type === 'Identifier' &&

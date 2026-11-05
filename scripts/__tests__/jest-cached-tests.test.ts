@@ -784,6 +784,10 @@ describe('type-only imports in the key', () => {
       "import type { T } from './dep';\nconst fs = require('node:fs');\nexport const r = fs;",
     ],
     [
+      'with module.require of another module by literal',
+      "import type { T } from './dep';\nexport const r = module.require('node:fs');",
+    ],
+    [
       'with require.resolve of another module',
       "import type { T } from './dep';\nexport const r = require.resolve('node:fs');",
     ],
@@ -892,6 +896,19 @@ describe('type-only imports in the key', () => {
     [
       'a destructured jest loader',
       "import type { T } from '@/dep';\nconst { requireActual } = jest;\nexport const r = requireActual(['.', 'dep'].join('/'));",
+    ],
+    // Sol round 5 on #2730: a `require` member used as a value or by a computed key
+    [
+      'module.require.bind(module) then a computed call',
+      "import type { T } from './dep';\nconst load = module.require.bind(module);\nconst p = ['.', 'dep'].join('/');\nexport const result = load(p);",
+    ],
+    [
+      "module['require'] with a computed argument",
+      "import type { T } from './dep';\nexport const r = module['require'](['.', 'dep'].join('/'));",
+    ],
+    [
+      'globalThis.require taken as a value',
+      "import type { T } from './dep';\nconst r = globalThis.require;\nexport const m = r(['.', 'dep'].join('/'));",
     ],
     [
       'module.require with a computed argument',
