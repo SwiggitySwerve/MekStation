@@ -223,15 +223,14 @@ export const VARIABLE_EQUIPMENT_FORMULAS: Readonly<
   },
 
   /**
-   * Talons (Clan)
-   * Weight: ceil(tonnage / 15)
-   * Slots: = weight
+   * Talons: one spreadable mount (MiscType.java:688-689,1256-1258,4314).
+   * Pinned MegaMek 48fcb2f64: weight ceil(tonnage / 15), slots 4 (biped) or 8 (quad).
    * Cost: weight × 6,000
    * Damage: floor(tonnage / 7)
    */
   talons: {
     weight: ceilDivide('tonnage', 15),
-    criticalSlots: equalsWeight(),
+    criticalSlots: plus(multiply('isQuad', 4), 4),
     cost: multiply('weight', 6000),
     damage: floorDivide('tonnage', 7),
     requiredContext: ['tonnage'],

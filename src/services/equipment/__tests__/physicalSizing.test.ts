@@ -39,3 +39,27 @@ it.each(['flail', 'wrecking-ball'])(
     ).toBe(110000);
   },
 );
+
+// MiscType.java:688-689,1256-1258,4310-4316 (48fcb2f64).
+it.each([
+  [20, false, 2, 4],
+  [60, false, 4, 4],
+  [100, false, 7, 4],
+  [20, true, 2, 8],
+  [60, true, 4, 8],
+  [100, true, 7, 8],
+] as const)(
+  'sizes one Talons mount at %d tons, quad=%s',
+  (tonnage, isQuad, weight, criticalSlots) => {
+    const context = { tonnage, isQuad };
+    expect(
+      getEquipmentCalculatorService().calculateProperties('talons', context),
+    ).toMatchObject({ weight, criticalSlots });
+    expect(
+      calculatePhysicalWeaponWeight(PhysicalWeaponType.TALONS, tonnage),
+    ).toBe(weight);
+    expect(
+      calculatePhysicalWeaponSlots(PhysicalWeaponType.TALONS, tonnage, isQuad),
+    ).toBe(criticalSlots);
+  },
+);

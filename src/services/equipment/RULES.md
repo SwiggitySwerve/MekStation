@@ -85,3 +85,9 @@ PhysicalWeaponTypes sizing helpers keep their compatibility results until ported
 
 Flail and Wrecking Ball use fixed native mass, slots and cost in the same formula
 registry; their legacy public sizing helpers delegate to the calculator as well.
+
+Talons size once per spreadable mount: ceil(T/15) mass, with four criticals on
+bipeds or eight on quads (MiscType.java:688-689,1256-1258,4314; pin 48fcb2f64).
+The calculator's optional isQuad context defaults to false and the public physical
+slot helper forwards it. The shared registry owns this arithmetic. Recovery of
+spreadable critical locations follows separately; this sizing change adds no mounts.
