@@ -1,5 +1,6 @@
 import type { UnitData } from './validate-bv-types';
 
+import { getEquipmentEntry } from '../src/utils/construction/equipmentBVResolver';
 import { processCritAmmoSlot } from './validate-bv-crit-scan-ammo';
 import { finalizeCritScan } from './validate-bv-crit-scan-finalize';
 import {
@@ -569,6 +570,9 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
             r.riscLPMLocs.push(loc);
           }
         }
+
+        // MASS is one critical per mount; use its existing canonical identity and BV.
+        if (getEquipmentEntry(clean)?.id === 'mass') r.defEquipIds.push(clean);
 
         // Defensive equip — push once per equipment instance (skip consecutive duplicate slots for multi-slot items)
         // Regular AMS is 1-crit (each slot = separate weapon). Laser AMS is 2-crit IS / 1-crit Clan → use dedup.
