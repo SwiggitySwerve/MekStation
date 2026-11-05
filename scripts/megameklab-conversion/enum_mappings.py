@@ -55,6 +55,12 @@ def map_tech_base(value: str) -> str:
     return TECH_BASE_MAP.get(clean, TECH_BASE_MAP.get(clean.title(), "INNER_SPHERE"))
 
 
+def map_chassis_tech_base(value: str) -> Optional[str]:
+    """MtfFile.java:867-902: retain only an explicitly qualified Mixed chassis."""
+    match = re.fullmatch(r'Mixed\s*\((IS|Clan)\s+Chassis\)', value.strip(), re.IGNORECASE)
+    return map_tech_base(match.group(1).upper()) if match else None
+
+
 # =============================================================================
 # RULES LEVEL MAPPINGS
 # =============================================================================
