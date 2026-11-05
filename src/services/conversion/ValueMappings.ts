@@ -7,9 +7,12 @@
  */
 
 import { ArmorTypeEnum } from '@/types/construction/ArmorType';
-import { CockpitType } from '@/types/construction/CockpitType';
+import {
+  CockpitType,
+  getNativeCockpitType,
+} from '@/types/construction/CockpitType';
 import { EngineType } from '@/types/construction/EngineType';
-import { GyroType } from '@/types/construction/GyroType';
+import { GyroType, getNativeGyroType } from '@/types/construction/GyroType';
 import { HeatSinkType } from '@/types/construction/HeatSinkType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { Era, getEraForYear } from '@/types/enums/Era';
@@ -505,6 +508,8 @@ const GYRO_TYPE_MAP: Record<string, GyroType> = {
 };
 
 export function mapGyroType(source: string): GyroType {
+  const native = getNativeGyroType(source);
+  if (native) return native;
   const normalized = source.trim();
 
   // Direct match
@@ -568,6 +573,8 @@ const COCKPIT_TYPE_MAP: Record<string, CockpitType> = {
 };
 
 export function mapCockpitType(source: string): CockpitType {
+  const native = getNativeCockpitType(source);
+  if (native) return native;
   const normalized = source.trim();
 
   // Direct match
