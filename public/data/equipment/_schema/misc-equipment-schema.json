@@ -109,7 +109,7 @@
     },
     "battleValue": {
       "type": "number",
-      "minimum": 0,
+      "minimum": -2,
       "description": "Battle Value (0 for variable BV equipment)"
     },
     "introductionYear": {

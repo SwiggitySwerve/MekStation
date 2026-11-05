@@ -1,5 +1,7 @@
 /** Native lookup names and converter spellings with exact BV catalog identities. */
 export const SOURCE_LOOKUP_ALIASES: Readonly<Record<string, string>> = {
+  // FU-101: the MTF crit token of ISFluidGun (48fcb2f6: 6 BV, 2 t, 2 slots).
+  'is fluid gun': 'fluid-gun',
   // Pinned EquipmentType lookup names; preserve the registered variant.
   'clapgaussrifle-ammo': 'apgaussrifle',
   'autocannon/2': 'ac-2',
@@ -65,6 +67,21 @@ export const SOURCE_LOOKUP_ALIASES: Readonly<Record<string, string>> = {
   // "Gauss Rifle, Light (King David)"
   // (InfantrySupportKingDavidLightGaussRifleWeapon.java:65-73, 4.87 BV).
   'gauss-rifle,-light-king-david': 'gauss-rifle-light-king-david-registry',
+  // Converter slug for the infantry "Machine Gun (Light)"
+  // (InfantrySupportMGLightWeapon.java:64-72, 1.5 BV); the native name itself
+  // keeps the battle-armor balightmg its corpus mounts use.
+  'machine-gun-light': 'machine-gun-light-registry',
+  // FU-101: the MTF crit token of Clan Mech Mortar-4 (48fcb2f6), which the
+  // general normalizer shortens to "clan mech mortar".
+  'clan mech mortar-4': 'clan-mech-mortar-4',
+  // FU-101 crit tokens with an existing record of Java's values (48fcb2f64):
+  // CLERPulseLaserSmall.java:59 (36 BV, 1.5 t), ISMekTaser.java:70 (40 BV, 4 t),
+  // AmmoType.java:13938 / :14120 / :10867.
+  clersmallpulselaser: 'clan-er-small-pulse-laser',
+  'mek taser': 'battlemech-taser',
+  climpammoac5: 'impammoac5',
+  climpgaussammo: 'impgaussammo',
+  'isinarc explosive pods': 'inarc-explosive-pods',
 };
 
 /** Exact native identities at MegaMek 48fcb2f6; FU-79 IDENTITY-REVIEW.md. */

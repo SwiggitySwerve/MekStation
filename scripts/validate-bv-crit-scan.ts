@@ -175,7 +175,12 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
         )
           r.hasActiveProbe = true;
         else if (lo.includes('null') && lo.includes('sig')) r.hasNullSig = true;
-        else if (lo.includes('void') && lo.includes('sig')) r.hasVoidSig = true;
+        else if (
+          /^chaindrape(?:cape|apron|poncho)$/.test(normalizeCritName(clean))
+        ) {
+          r.hasChainDrape = true;
+        } else if (lo.includes('void') && lo.includes('sig'))
+          r.hasVoidSig = true;
         else if (
           lo.includes('chameleon') &&
           (lo.includes('shield') ||
@@ -333,13 +338,19 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
           lo.includes('harjel3') ||
           lo === 'harjel iii self-repair system'
         ) {
-          if (ml && !r.harjelIIILocs.includes(ml)) r.harjelIIILocs.push(ml);
+          if (ml && !r.harjelIIILocs.includes(ml)) {
+            r.harjelIIILocs.push(ml);
+            r.defEquipIds.push(clean);
+          }
         } else if (
           lo.includes('harjel ii') ||
           lo.includes('harjel2') ||
           lo === 'harjel ii self-repair system'
         ) {
-          if (ml && !r.harjelIILocs.includes(ml)) r.harjelIILocs.push(ml);
+          if (ml && !r.harjelIILocs.includes(ml)) {
+            r.harjelIILocs.push(ml);
+            r.defEquipIds.push(clean);
+          }
         }
 
         // Artemis
@@ -668,8 +679,10 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
             lo === 'is spikes' ||
             lo === 'clan spikes') &&
           clean !== prevSlotClean
-        )
+        ) {
           r.spikeCount++;
+          if (ml && !r.spikeLocations.includes(ml)) r.spikeLocations.push(ml);
+        }
         // Mine Dispensers: offensive equipment, BV=8 per slot per MegaMek
         // Each crit slot is counted separately (no dedup) — 4 slots = 4 dispensers = 32 BV
         if (
@@ -680,21 +693,12 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
         )
           r.mineDispenserCount++;
 
-        // Bridge Layers: misc equipment with non-zero offensive BV, dedup per slot group.
-        // Light=5, Medium=10, Heavy=20 per MegaMek MiscType.java
-        if (clean !== prevSlotClean) {
-          if (lo.includes('heavybridgelayer') || lo === 'heavy bridge layer')
-            r.miscEquipBV += 20;
-          else if (
-            lo.includes('mediumbridgelayer') ||
-            lo === 'medium bridge layer'
-          )
-            r.miscEquipBV += 10;
-          else if (
-            lo.includes('lightbridgelayer') ||
-            lo === 'light bridge layer'
-          )
-            r.miscEquipBV += 5;
+        // BVCalculator.java:534-536,1004-1006: bridge layers are defensive.
+        if (
+          clean !== prevSlotClean &&
+          getEquipmentEntry(clean)?.id.startsWith('bridge-layer-')
+        ) {
+          r.defEquipIds.push(clean);
         }
 
         prevSlotClean = clean;

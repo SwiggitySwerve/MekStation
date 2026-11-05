@@ -1,6 +1,8 @@
 import { formulaEvaluator } from '@/services/equipment/FormulaEvaluator';
 import { VARIABLE_EQUIPMENT_FORMULAS } from '@/services/equipment/variableEquipmentFormulas';
+import { TechBase, parseTechBase } from '@/types/enums/TechBase';
 
+import { calculateJumpJetWeight, JumpJetType } from '../movementCalculations';
 import { roundSupportComponentWeight } from './supportRounding';
 
 export interface VehicleVariableMassItem {
@@ -8,6 +10,7 @@ export interface VehicleVariableMassItem {
   readonly weight?: number;
   readonly special?: readonly string[];
   readonly variableEquipmentId?: string;
+  readonly techBase?: string;
 }
 
 export interface VehicleVariableMassContext {
@@ -15,6 +18,34 @@ export interface VehicleVariableMassContext {
   readonly engineWeight?: number;
   readonly weaponWeight?: number;
   readonly isSupportVehicle: boolean;
+}
+
+/** Native engine accessory rule shared with mounted totals. Undefined is a
+ * different equipment kind; null is a known rule missing its engine context.
+ * MiscType.java:518-527 at MegaMek 48fcb2f64 uses the supercharger formula.
+ */
+export function resolveVehicleAccessoryMass(
+  item: VehicleVariableMassItem,
+  context?: VehicleVariableMassContext,
+): number | null | undefined {
+  if (
+    !['vtoljetbooster', 'vehiclejumpjet', 'limitedamphibiouschassis'].includes(
+      item.id,
+    )
+  )
+    return undefined;
+  if (!context) return null;
+  // MiscType.java:496-497,867-889,2004-2012 at the same pin.
+  if (item.id === 'vehiclejumpjet')
+    return calculateJumpJetWeight(context.tonnage, 1, JumpJetType.STANDARD);
+  // MiscType.java:702-703 at the same pin.
+  if (item.id === 'limitedamphibiouschassis')
+    return roundSupportComponentWeight(
+      context.tonnage / 25,
+      context.tonnage,
+      context.isSupportVehicle && context.tonnage < 5,
+    );
+  return evaluateVehicleMassFormula({ id: 'supercharger' }, context) ?? null;
 }
 
 /** Unit/size-based mass owner. Undefined retains the caller's explicit legacy
@@ -26,7 +57,9 @@ export function resolveVehicleVariableMass(
   sourceId: string,
   context: VehicleVariableMassContext,
 ): number | undefined {
-  const { tonnage, engineWeight, weaponWeight } = context;
+  const accessoryMass = resolveVehicleAccessoryMass(item, context);
+  if (accessoryMass !== undefined) return accessoryMass ?? undefined;
+  const { tonnage, weaponWeight } = context;
   const kilograms = context.isSupportVehicle && tonnage < 5;
   const round = (weight: number) =>
     roundSupportComponentWeight(weight, tonnage, kilograms);
@@ -35,6 +68,11 @@ export function resolveVehicleVariableMass(
   if (item.id === 'boobytrap') return round(tonnage / 10);
   if (item.id === 'dronecarriercontrolsystem') return 2 + size * 0.5;
   if (item.id === 'mash-equipment') return 2.5 + size;
+  // MiscType.java:607-613 (48fcb2f6): armored motive system is 10% Clan, 15% IS.
+  if (item.id === 'armoredmotivesystem')
+    return round(
+      tonnage * (parseTechBase(item.techBase) === TechBase.CLAN ? 0.1 : 0.15),
+    );
   if (['cargo', 'communications-equipment'].includes(item.id))
     return round(size);
   if (['basic-fire-control', 'advanced-fire-control'].includes(item.id))
@@ -43,6 +81,15 @@ export function resolveVehicleVariableMass(
       : round(weaponWeight / (item.id === 'basic-fire-control' ? 20 : 10));
   if (!item.special?.includes('Variable weight') && !item.variableEquipmentId)
     return item.weight;
+  return evaluateVehicleMassFormula(item, context);
+}
+
+function evaluateVehicleMassFormula(
+  item: VehicleVariableMassItem,
+  context: VehicleVariableMassContext,
+): number | undefined {
+  const { tonnage, engineWeight } = context;
+  const kilograms = context.isSupportVehicle && tonnage < 5;
   const formula =
     VARIABLE_EQUIPMENT_FORMULAS[item.variableEquipmentId ?? item.id];
   const values: Record<string, number> = { tonnage };

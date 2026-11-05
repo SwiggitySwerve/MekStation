@@ -1696,6 +1696,10 @@
       "id": "mrm-5-os-registry"
     },
     {
+      "internalName": "Machine Gun (Light)",
+      "id": "machine-gun-light-registry"
+    },
+    {
       "internalName": "Machine Gun (Portable)",
       "id": "machine-gun-portable-registry"
     },
@@ -2066,6 +2070,10 @@
     {
       "internalName": "Support Pulse Laser",
       "id": "support-pulse-laser-registry"
+    },
+    {
+      "internalName": "TSEMP One-Shot",
+      "id": "tsemp-one-shot-registry"
     },
     {
       "internalName": "TSEMP Repeating Cannon",

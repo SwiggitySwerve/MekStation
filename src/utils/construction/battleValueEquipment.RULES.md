@@ -56,3 +56,22 @@ and catalog BV in defensive equipment. Each one-slot mount is counted, including
 adjacent mounts. No new alias or value is inferred; unresolved identities stay
 unresolved. Pinned MegaMek 48fcb2f64 MiscType.java:4942-4956 and
 BVCalculator.java:527-543. validate-bv-mass.test.ts checks the shared calculator.
+
+Bridge layers use their resolved catalog BV in defense, once per mounted slot
+run, and contribute no offensive miscellaneous BV. The critical scanner passes
+their identities to the existing defensive equipment owner. Pinned MegaMek
+48fcb2f64: BVCalculator.java:534-536,1004-1006; MiscType.java:7200-7264.
+
+Ram plates add one damage point per torso location with working spikes after
+halving maximum charge damage and before the 1.1 BV multiplier. Keep distinct
+spike locations in the critical scan; limb spikes and repeated mounts at one
+location do not add extra ram damage. Existing defensive spike BV is unchanged.
+Pinned MegaMek 48fcb2f64: MiscType.java:1405-1418.
+
+HarJel II/III retain their signed catalog BV (-1/-2) in defensive equipment,
+separately from the existing armor bonus. The critical scanner includes one
+repair system per location, including the two-slot HarJel III mount; native
+construction forbids multiple repair systems at one location. Do not clamp
+these values before summing defense or the mech total. Pinned MegaMek 48fcb2f64:
+MiscType.java:8981-8992,9014-9025; BVCalculator.java:596-603;
+TestMek.java:1505-1515.

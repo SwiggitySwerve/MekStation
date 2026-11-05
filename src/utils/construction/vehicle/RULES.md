@@ -12,6 +12,12 @@ combat components use half tons. MegaMek 48fcb2f6, MiscType.java:700-730,820-842
 and RoundWeight.java:58-68 own these terms. Weapon-basis computer mass remains
 its separately gated correction.
 
+The editor and turret panel call the weight owner with installed engine and
+weapon mass before resolving variable mounts. Source size uses the shared
+unchanged-identity guard. Armored motive systems add 10% Clan or 15% IS mass
+with standard component rounding (MiscType.java:607-613). MASH Small has
+Java's 4.5 t equipment term; its carrying-space term remains a separate change.
+
 ## Linked thermal load
 
 `mountedWeight.ts` uses the existing native pairing owner in
@@ -560,3 +566,38 @@ calculateAdjustedBV. Chassis/cockpit factors precede the base integer round;
 crew skill follows it and receives a final round. Vehicle skill lookup uses
 the existing shared table with the same floor and clamp. BVCalculator.java:
 1253,167 at MegaMek pin 48fcb2f64 owns this order.
+
+## Combat superheavy structure mass
+
+The structure owner uses the existing native superheavy classifier shared with
+loading and BV layout. Standard non-naval superheavies use tonnage/5; naval and
+submarine standard hulls retain tonnage/10. Superheavy endo doubles its normal
+basis; composite retains tonnage/20. Both total composition and validation pass
+the installed motion type. Pin 48fcb2f64: TestTank.java:88-95;
+Structure.java:75-108; BLKTankFile.java:94-123.
+
+## VTOL jet-booster mass
+
+The shared variable owner maps native vtoljetbooster to the existing registry's
+supercharger engine-weight formula. Its generic and mounted consumers delegate
+to that same accessory rule; no second 10% calculation is defined. The engine
+owner supplies installed mass to total and turret figures, with the existing
+small-support rounding preserved. Missing engine context is unavailable.
+Pin 48fcb2f64: MiscType.java:518-527; RoundWeight.java:58-68.
+This enables the native accessory independently of the held sized-editor work.
+
+## Vehicle jump-jet mass
+
+Vehicle jump jets reuse calculateJumpJetWeight in movementCalculations.ts for the
+standard jet tier, through resolveVehicleAccessoryMass. MegaMek 48fcb2f64
+MiscType.java:496-497,867-889,2004-2012 charges each mounted jet 0.5 t
+through 55 t, 1 t through 85 t, and 2 t above 85 t. The catalog zero remains
+a variable sentinel; jet count for BV movement retains its existing owner.
+
+## Limited amphibious chassis mass
+
+The shared variable owner charges rounded tonnage/25 for the native limited
+amphibious chassis identity. Mounted figures consume that same rule before
+summing equipment and turret mass, independently of the held sized-equipment
+editor integration. Missing context is unavailable, not a fixed zero.
+Pin 48fcb2f64: MiscType.java:702-703; RoundWeight.java:58-68.

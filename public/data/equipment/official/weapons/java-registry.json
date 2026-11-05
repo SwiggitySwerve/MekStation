@@ -2388,7 +2388,7 @@
       ],
       "costCBills": 70000,
       "subType": "CLMekMortar8",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 10,
       "ranges": {
         "long": 21,
@@ -2883,7 +2883,7 @@
       "reintroductionYear": 3043,
       "costCBills": 7000,
       "subType": "ISMekMortar1",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 1,
       "ranges": {
         "long": 21,
@@ -2917,7 +2917,7 @@
       "reintroductionYear": 3043,
       "costCBills": 15000,
       "subType": "ISMekMortar2",
-      "damage": "Java variable damage (-2)",
+      "damage": "2/missile",
       "heat": 2,
       "ranges": {
         "long": 21,
@@ -7098,6 +7098,33 @@
       ]
     },
     {
+      "id": "machine-gun-light-registry",
+      "name": "Machine Gun (Light)",
+      "category": "Ballistic",
+      "techBase": "BOTH",
+      "rulesLevel": "STANDARD",
+      "weight": 0.007,
+      "criticalSlots": 0,
+      "vehicleSlots": { "tank": 0, "supportVehicle": 1 },
+      "battleValue": 1.5,
+      "introductionYear": 1950,
+      "allowedUnitTypes": ["Infantry"],
+      "costCBills": 400,
+      "subType": "InfantrySupportMGLightWeapon",
+      "damage": 0.49,
+      "heat": 0,
+      "ranges": {
+        "long": 3,
+        "extreme": 4,
+        "short": 0,
+        "minimum": 0,
+        "medium": 0
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/mg/InfantrySupportMGLightWeapon.java: Machine Gun (Light)"
+      ]
+    },
+    {
       "id": "machine-gun-portable-registry",
       "name": "Machine Gun (Portable)",
       "category": "Ballistic",
@@ -9185,6 +9212,48 @@
       },
       "special": [
         "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/infantry/support/laser/InfantrySupportPulseLaserWeapon.java: Support Pulse Laser"
+      ]
+    },
+    {
+      "id": "tsemp-one-shot-registry",
+      "name": "TSEMP One-Shot",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 4,
+      "criticalSlots": 3,
+      "vehicleSlots": { "tank": 1, "supportVehicle": 3 },
+      "battleValue": 98,
+      "introductionYear": 3090,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 500000,
+      "subType": "ISTSEMPOneShot",
+      "damage": 0,
+      "heat": 10,
+      "ranges": {
+        "long": 15,
+        "extreme": 20,
+        "short": 5,
+        "minimum": 0,
+        "medium": 10
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/innerSphere/ISTSEMPOneShot.java: TSEMP One-Shot"
       ]
     },
     {
