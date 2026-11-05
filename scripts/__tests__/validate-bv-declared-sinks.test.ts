@@ -1,5 +1,7 @@
 import type { UnitData } from '../validate-bv-types';
 
+import { EngineType } from '../../src/types/construction/EngineType';
+import { calculateOffensiveBVWithHeatTracking } from '../../src/utils/construction/battleValueHeatTracking';
 import { calculateUnitBV } from '../validate-bv-calculator';
 import { scanCrits } from '../validate-bv-crit-scan';
 import { deriveBvHeatAndMovement } from '../validate-bv-movement-derived';
@@ -52,6 +54,27 @@ it('applies the native Raider-style heat cutoff without changing weapon values',
       { id: 'small-laser', location: 'RIGHT_TORSO' },
     ],
   });
-  expect(result.breakdown?.heatEfficiency).toBe(14);
+  expect(result.breakdown?.heatEfficiency).toBe(12);
   expect(result.breakdown?.weaponBV).toBe(201.5);
 });
+
+// Engine.java:715-724 retains ICE/fuel-cell movement heat on combat Meks.
+it.each([EngineType.ICE, EngineType.FUEL_CELL])(
+  'retains combat running heat and industrial exemption for %s',
+  (engineType) => {
+    for (const industrial of [false, true]) {
+      const result = calculateOffensiveBVWithHeatTracking({
+        weapons: [],
+        tonnage: 50,
+        walkMP: 4,
+        runMP: 6,
+        jumpMP: 0,
+        heatDissipation: 8,
+        engineType,
+        hasIndustrialStructure: industrial,
+      });
+      expect(result.moveHeat).toBe(industrial ? 0 : 2);
+      expect(result.heatEfficiency).toBe(industrial ? 14 : 12);
+    }
+  },
+);
