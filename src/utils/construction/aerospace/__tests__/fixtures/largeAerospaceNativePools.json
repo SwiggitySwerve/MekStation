@@ -13146,5 +13146,695 @@
       "defensive": 2727.2,
       "offensive": 1640.8919999999998
     }
+  },
+  {
+    "path": "dropships/TRO3145/Republic/Duat Military Transport.blk",
+    "sha256": "d317f753f65ffd4f21cd99a0efbeac452a2684a8276cff5ad45890eab31dd1a2",
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 502,
+          "LEFT_SIDE": 505,
+          "NOSE": 520,
+          "RIGHT_SIDE": 505
+        },
+        "type": "HEAVY_FERRO_ALUMINUM"
+      },
+      "battleArmor": 0,
+      "chassis": "Duat Military Transport",
+      "collarType": 0,
+      "crew": 92,
+      "designType": "MILITARY",
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-iscruisemissile50",
+          "location": "NOSE",
+          "name": "(B) ISCruiseMissile50"
+        },
+        {
+          "id": "iscruisemissile50ammo:20",
+          "location": "NOSE",
+          "name": "ISCruiseMissile50Ammo:20"
+        },
+        {
+          "id": "b-iscruisemissile50",
+          "location": "NOSE",
+          "name": "(B) ISCruiseMissile50"
+        },
+        {
+          "id": "iscruisemissile50ammo:20",
+          "location": "NOSE",
+          "name": "ISCruiseMissile50Ammo:20"
+        },
+        {
+          "id": "b-iscruisemissile50",
+          "location": "NOSE",
+          "name": "(B) ISCruiseMissile50"
+        },
+        {
+          "id": "iscruisemissile50ammo:20",
+          "location": "NOSE",
+          "name": "ISCruiseMissile50Ammo:20"
+        },
+        {
+          "id": "b-isgaussrifle",
+          "location": "NOSE",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "NOSE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "NOSE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:48",
+          "location": "NOSE",
+          "name": "IS Gauss Ammo:48"
+        },
+        {
+          "id": "b-ismml9",
+          "location": "NOSE",
+          "name": "(B) ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "NOSE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "NOSE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "is-ammo-mml-9-lrm-artemis-capable:78",
+          "location": "NOSE",
+          "name": "IS Ammo MML-9 LRM Artemis-capable:78"
+        },
+        {
+          "id": "is-ammo-mml-9-srm-artemis-capable:66",
+          "location": "NOSE",
+          "name": "IS Ammo MML-9 SRM Artemis-capable:66"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "NOSE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "NOSE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "NOSE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-islargevsplaser",
+          "location": "NOSE",
+          "name": "(B) ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "NOSE",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "NOSE",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "b-isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:64",
+          "location": "LEFT_SIDE",
+          "name": "IS Gauss Ammo:64"
+        },
+        {
+          "id": "b-ismml9",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "LEFT_SIDE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "LEFT_SIDE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "LEFT_SIDE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "is-ammo-mml-9-lrm-artemis-capable:104",
+          "location": "LEFT_SIDE",
+          "name": "IS Ammo MML-9 LRM Artemis-capable:104"
+        },
+        {
+          "id": "is-ammo-mml-9-srm-artemis-capable:88",
+          "location": "LEFT_SIDE",
+          "name": "IS Ammo MML-9 SRM Artemis-capable:88"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "LEFT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-islargevsplaser",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "LEFT_SIDE",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "LEFT_SIDE",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "LEFT_SIDE",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "b-islaserantimissilesystem",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "LEFT_SIDE",
+          "name": "ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "LEFT_SIDE",
+          "name": "ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "r-b-isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "(R) (B) ISGaussRifle"
+        },
+        {
+          "id": "r-isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "(R) ISGaussRifle"
+        },
+        {
+          "id": "r-isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "(R) ISGaussRifle"
+        },
+        {
+          "id": "r-isgaussrifle",
+          "location": "LEFT_SIDE",
+          "name": "(R) ISGaussRifle"
+        },
+        {
+          "id": "r-is-gauss-ammo:64",
+          "location": "LEFT_SIDE",
+          "name": "(R) IS Gauss Ammo:64"
+        },
+        {
+          "id": "r-b-islargevsplaser",
+          "location": "LEFT_SIDE",
+          "name": "(R) (B) ISLargeVSPLaser"
+        },
+        {
+          "id": "r-islargevsplaser",
+          "location": "LEFT_SIDE",
+          "name": "(R) ISLargeVSPLaser"
+        },
+        {
+          "id": "r-islargevsplaser",
+          "location": "LEFT_SIDE",
+          "name": "(R) ISLargeVSPLaser"
+        },
+        {
+          "id": "r-islargevsplaser",
+          "location": "LEFT_SIDE",
+          "name": "(R) ISLargeVSPLaser"
+        },
+        {
+          "id": "b-isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "ISGaussRifle"
+        },
+        {
+          "id": "is-gauss-ammo:64",
+          "location": "RIGHT_SIDE",
+          "name": "IS Gauss Ammo:64"
+        },
+        {
+          "id": "b-ismml9",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "RIGHT_SIDE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "RIGHT_SIDE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "ismml9",
+          "location": "RIGHT_SIDE",
+          "name": "ISMML9"
+        },
+        {
+          "id": "is-ammo-mml-9-lrm-artemis-capable:104",
+          "location": "RIGHT_SIDE",
+          "name": "IS Ammo MML-9 LRM Artemis-capable:104"
+        },
+        {
+          "id": "is-ammo-mml-9-srm-artemis-capable:88",
+          "location": "RIGHT_SIDE",
+          "name": "IS Ammo MML-9 SRM Artemis-capable:88"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "isartemisiv",
+          "location": "RIGHT_SIDE",
+          "name": "ISArtemisIV"
+        },
+        {
+          "id": "b-islargevsplaser",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "RIGHT_SIDE",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "RIGHT_SIDE",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "RIGHT_SIDE",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "b-islaserantimissilesystem",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "RIGHT_SIDE",
+          "name": "ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "RIGHT_SIDE",
+          "name": "ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "r-b-isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "(R) (B) ISGaussRifle"
+        },
+        {
+          "id": "r-isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "(R) ISGaussRifle"
+        },
+        {
+          "id": "r-isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "(R) ISGaussRifle"
+        },
+        {
+          "id": "r-isgaussrifle",
+          "location": "RIGHT_SIDE",
+          "name": "(R) ISGaussRifle"
+        },
+        {
+          "id": "r-is-gauss-ammo:64",
+          "location": "RIGHT_SIDE",
+          "name": "(R) IS Gauss Ammo:64"
+        },
+        {
+          "id": "r-b-islargevsplaser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) (B) ISLargeVSPLaser"
+        },
+        {
+          "id": "r-islargevsplaser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) ISLargeVSPLaser"
+        },
+        {
+          "id": "r-islargevsplaser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) ISLargeVSPLaser"
+        },
+        {
+          "id": "r-islargevsplaser",
+          "location": "RIGHT_SIDE",
+          "name": "(R) ISLargeVSPLaser"
+        },
+        {
+          "id": "b-islargevsplaser",
+          "location": "AFT",
+          "name": "(B) ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "AFT",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "AFT",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "islargevsplaser",
+          "location": "AFT",
+          "name": "ISLargeVSPLaser"
+        },
+        {
+          "id": "b-islaserantimissilesystem",
+          "location": "AFT",
+          "name": "(B) ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "AFT",
+          "name": "ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "AFT",
+          "name": "ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "isdronecarriercontrolsystem:size:6.0",
+          "location": "HULL",
+          "name": "ISDroneCarrierControlSystem:SIZE:6.0"
+        }
+      ],
+      "era": "DARK_AGE",
+      "escapePods": 4,
+      "fluff": {
+        "capabilities": "<p>The Duat is a military transport DropShip designed to deliver ground forces while providing meaningful defensive capability during orbital insertion and landing operations. Its weapons suite includes a mix of energy weapons and missile systems positioned to provide covering fire across all arcs, with particular emphasis on forward and broadside coverage for approach and landing phases. Armor protection is substantial for a transport, reflecting lessons learned during the Jihad when lightly armored transports suffered catastrophic losses to ground-based aerospace defenses. The drive system provides military-grade acceleration sufficient to maintain formation with combat escorts while still allowing the Duat to execute evasive maneuvers during contested approaches. Internal bay configurations are designed for rapid loading and unloading of BattleMechs, vehicles, and infantry, reducing the vessel's vulnerability during the critical ground-side phase of deployment operations. The design prioritizes survivability and rapid force delivery over raw firepower, though its defensive armament is more than adequate to deter opportunistic attacks by light combat vessels or fighters.</p>",
+        "deployment": "<p>The standard Duat Military Transport serves in its baseline combined-arms transport configuration, delivering BattleMech, vehicle, and infantry formations to planetary surfaces. These vessels typically operate under escort from dedicated combat DropShips and fighter screens during contested landings.</p>",
+        "history": "<p>The Duat was developed as part of the Draconis Combine Mustered Soldiery's post-Jihad rebuilding program. The devastation wrought by the Word of Blake had left the Combine's transport fleet badly depleted, with many surviving vessels dating to the Succession Wars era and lacking the protection needed to operate in a battlefield environment increasingly defined by advanced weapons systems.</p><p>The Combine's naval procurement bureau issued requirements for a modern transport that could survive contested orbital insertions without dedicated WarShip escort, which was no longer available in sufficient numbers. The resulting Duat design incorporated heavier armor than previous Combine transports and a more comprehensive defensive weapons suite, reflecting the hard lessons of the Jihad.</p><p>Production commenced at Combine facilities, with initial deliveries prioritized for frontline formations facing the Rasalhague Dominion along the Combine's coreward border. The Duat saw its first significant combat deployments during the tensions with the Dominion that escalated into open conflict in the early thirty-second century. The type has since proliferated throughout the DCMS, serving in both frontline and garrison naval formations across Combine territory.</p>",
+        "manufacturer": "New Earth Trading Company",
+        "overview": "<p>The Duat is a military transport DropShip developed for the Draconis Combine's naval forces during the early thirty-second century. Named for the ancient Egyptian underworld, the Duat was designed to address the Combine's need for a modern troop transport capable of delivering combined-arms formations to contested landing zones. The design entered service as part of the Combine's broader military modernization program following the devastation of the Jihad, replacing aging transports that had been rendered obsolete by advances in weapons technology and tactical doctrine. The Duat has since become a common sight in Combine naval formations.</p>",
+        "primaryFactory": "New Earth"
+      },
+      "fuel": 3000,
+      "gunners": 10,
+      "heatSinks": {
+        "count": 150,
+        "type": "DOUBLE"
+      },
+      "id": "duat-military-transport",
+      "lifeBoats": 4,
+      "marines": 0,
+      "model": "",
+      "motionType": "SPHEROID",
+      "movement": {
+        "maxThrust": 6,
+        "safeThrust": 4
+      },
+      "mulId": 6696,
+      "officers": 4,
+      "otherPassengers": 0,
+      "passengers": 6,
+      "quirks": ["bad_rep_is"],
+      "role": "None",
+      "rulesLevel": "ADVANCED",
+      "source": "TR:3145:RotS,TR:3145",
+      "structuralIntegrity": 27,
+      "subType": "DropShip",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 8500,
+      "transporters": [
+        "mekbay:6.0:1:-1::-1:0",
+        "battlearmorbay:6.0:1:2::-1:1",
+        "cargobay:220.0:0:4::-1:0",
+        "cargobay:220.0:0:5::-1:0",
+        "cargobay:220.0:0:6::-1:0",
+        "cargobay:220.0:0:7::-1:0",
+        "cargobay:220.0:0:8::-1:0",
+        "cargobay:220.0:0:9::-1:0",
+        "2ndclassquarters:42.0:0:-1::-1:0",
+        "crewquarters:112.0:0:-1::-1:0",
+        "infantrybay:1.0:6:11:Foot:-1:0",
+        "1stclassquarters:40.0:0:-1::-1:0",
+        "cargobay:633.5:0:13::-1:0"
+      ],
+      "unitType": "DropShip",
+      "year": 3131
+    },
+    "expected": {
+      "total": 17643,
+      "defensive": 5539.0,
+      "offensive": 12103.616000000002
+    }
+  },
+  {
+    "path": "dropships/XTRs/Phantoms/Vampire II.blk",
+    "sha256": "8733a125204ca104f45415e55f0b28c60ddea2f25920fc465d76b5f139318487",
+    "unit": {
+      "armor": {
+        "byArc": {
+          "AFT": 113,
+          "LEFT_SIDE": 151,
+          "NOSE": 150,
+          "RIGHT_SIDE": 151
+        },
+        "type": "FERRO_ALUMINUM"
+      },
+      "battleArmor": 0,
+      "chassis": "Vampire",
+      "collarType": 0,
+      "crew": 42,
+      "designType": "MILITARY",
+      "engine": {
+        "type": "ICE"
+      },
+      "equipment": [
+        {
+          "id": "b-heavy-ppc",
+          "location": "NOSE",
+          "name": "(B) Heavy PPC"
+        },
+        {
+          "id": "heavy-ppc",
+          "location": "NOSE",
+          "name": "Heavy PPC"
+        },
+        {
+          "id": "heavy-ppc",
+          "location": "NOSE",
+          "name": "Heavy PPC"
+        },
+        {
+          "id": "heavy-ppc",
+          "location": "NOSE",
+          "name": "Heavy PPC"
+        },
+        {
+          "id": "b-islargexpulselaser",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISLargeXPulseLaser"
+        },
+        {
+          "id": "islargexpulselaser",
+          "location": "LEFT_SIDE",
+          "name": "ISLargeXPulseLaser"
+        },
+        {
+          "id": "b-islaserantimissilesystem",
+          "location": "LEFT_SIDE",
+          "name": "(B) ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "LEFT_SIDE",
+          "name": "ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "b-islargexpulselaser",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISLargeXPulseLaser"
+        },
+        {
+          "id": "islargexpulselaser",
+          "location": "RIGHT_SIDE",
+          "name": "ISLargeXPulseLaser"
+        },
+        {
+          "id": "b-islaserantimissilesystem",
+          "location": "RIGHT_SIDE",
+          "name": "(B) ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "islaserantimissilesystem",
+          "location": "RIGHT_SIDE",
+          "name": "ISLaserAntiMissileSystem"
+        },
+        {
+          "id": "b-iserlargelaser",
+          "location": "AFT",
+          "name": "(B) ISERLargeLaser"
+        },
+        {
+          "id": "iserlargelaser",
+          "location": "AFT",
+          "name": "ISERLargeLaser"
+        },
+        {
+          "id": "communications-equipment:size:0.0",
+          "location": "HULL",
+          "name": "Communications Equipment:SIZE:0.0"
+        }
+      ],
+      "era": "CIVIL_WAR",
+      "escapePods": 0,
+      "fluff": {
+        "capabilities": "<p>The Vampire II is a heavier 600-ton variant created specifically for battle armor infantry deployment. The design replaces the original's jump infantry compartments with four Battle Armor bays and eight tons of cargo. The weapons suite is entirely energy-based, eliminating ammunition dependency. Four Heavy PPCs mounted in the nose provide devastating long-range firepower, while each wing carries two Large X-Pulse Lasers and two Laser Anti-Missile Systems for close defense. The aft arc mounts two ER large lasers.</p><p>Communications equipment in the hull supports coordination with deployed battle armor forces. With ninety-four double heat sinks managing the all-energy weapons load, the Vampire II can sustain fire effectively. The vessel's safe thrust of four is lower than the original's six, reflecting the increased mass, but 565 points of armor provide substantially greater protection. A crew of forty-eight operates the vessel.</p>",
+        "deployment": "<p>The Vampire II entered production in 3070, created specifically for the AFFS Rabid Foxes special operations unit for battle armor infantry deployment. These vessels operate in the same high-speed insertion role as the original Vampire, substituting armored infantry for jump troops while maintaining the design's signature ability to be mistaken for aerospace fighters during approach runs.</p>",
+        "history": "<p>The Vampire was developed by Markesan Astronautics for the Federated Suns, entering service in 2715 as a specialized jump infantry delivery platform. The design proved highly effective during the Border War between the Federated Suns and the Capellan Confederation, where defending troops were thrown into confusion when jump infantry began raining down from what they assumed were fighter bombing runs. Federated Suns Special Forces became particularly fond of the Vampire for its ability to achieve tactical surprise.</p><p>However, the Vampire's high performance came at a significant cost. Its powerful drive system had a relatively short operational lifespan and required maintenance far exceeding that of comparable DropShip engines. When Markesan Astronautics' manufacturing facilities were destroyed during the Draconis Combine's First Succession War thrust toward New Avalon, the several dozen surviving Vampires were gradually grounded and eventually scrapped as their engines failed without replacement parts available.</p><p>The design was considered lost until the recovery of the Hegemony Memory Core during the Jihad enabled Jalastar Aerospace to revive the Vampire. The company began producing updated versions for the AFFS's special forces, incorporating modern weapons technology while retaining the original design's core philosophy of speed and deception. Subsequent variants expanded the concept to include battle armor delivery alongside the traditional jump infantry role.</p>",
+        "manufacturer": "Jalastar Aerospace",
+        "overview": "<p>The Vampire is one of the smallest DropShips ever to see combat, a tiny 400-ton Aerodyne so fast and well-armed that it is frequently mistaken for a heavy aerospace fighter. Conceived as the fastest jump infantry carrier in existence, the Vampire was designed to minimize the time its embarked troops were exposed to enemy interceptors by matching the performance of non-interceptor fighters it might encounter.</p><p>The vessel's distinctive combat profile involves high-speed, low-altitude passes over targets, during which jump infantry deploy through specialized ventral drop hatches. At long range, this gives the Vampire the appearance of a fighter on a bombing run, a deliberate deception that has proven highly effective at sowing confusion among defenders expecting ordnance rather than infantry. This combination of speed, firepower, and tactical surprise has made the Vampire a prized asset for special operations forces.</p>",
+        "primaryFactory": "Panpour"
+      },
+      "fuel": 2660,
+      "gunners": 3,
+      "heatSinks": {
+        "count": 94,
+        "type": "DOUBLE"
+      },
+      "id": "vampire-ii",
+      "lifeBoats": 0,
+      "marines": 0,
+      "model": "II",
+      "motionType": "AERODYNE",
+      "movement": {
+        "maxThrust": 6,
+        "safeThrust": 4
+      },
+      "mulId": 5611,
+      "officers": 3,
+      "otherPassengers": 0,
+      "passengers": 0,
+      "role": "None",
+      "rulesLevel": "EXPERIMENTAL",
+      "source": "XTR:Phantoms",
+      "structuralIntegrity": 7,
+      "subType": "DropShip",
+      "techBase": "INNER_SPHERE",
+      "tonnage": 600,
+      "transporters": [
+        "battlearmorbay:4.0:4:1::-1:0",
+        "2ndclassquarters:0.0:0:-1::-1:0",
+        "1stclassquarters:0.0:0:-1::-1:0",
+        "crewquarters:0.0:0:-1::-1:0",
+        "steeragequarters:90.0:0:-1::-1:0",
+        "cargobay:8.0:1:6::-1:0"
+      ],
+      "unitType": "DropShip",
+      "year": 3070
+    },
+    "expected": {
+      "total": 3716,
+      "defensive": 1606.5,
+      "offensive": 2109.52
+    }
   }
 ]

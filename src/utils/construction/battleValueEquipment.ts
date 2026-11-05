@@ -157,7 +157,7 @@ export function isNonOffensiveLargeAerospaceMisc(
         'communications-equipment',
         'autotacticalanalysiscomputer',
         'directtacticalanalysissystem',
-        'isdronecarriercontrolsystem',
+        'dronecarriercontrolsystem',
       ].includes(id)
     );
   return [
