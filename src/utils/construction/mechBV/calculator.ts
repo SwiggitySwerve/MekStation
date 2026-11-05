@@ -324,9 +324,8 @@ export function calculateUnitBV(
     hasVoidSig: cs.hasVoidSig,
     hasBlueShield: cs.hasBlueShield,
   };
-  if (patchworkTypes) {
+  if (patchworkTypes)
     defCfg.armorSections = deriveMechArmorSections(unit, setup.totalArmor);
-  }
   if (engineBVOverride !== undefined) {
     defCfg.engineMultiplier = engineBVOverride;
     defCfg.engineType = undefined;
