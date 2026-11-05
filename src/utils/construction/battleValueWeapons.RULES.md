@@ -39,9 +39,3 @@ rounding and AES before accumulation in validate-bv-physical-weapons.ts.
 Pinned 48fcb2f64: MiscType.java:1401-1404,4310-4316 and
 MtfFile.java:1053-1068. validate-bv-physical-weapons.test.ts enforces biped,
 quad/TSM and mixed-claw cases without changing the damage-based BV formula.
-
-MASS mounts from the critical grid use the existing resolved canonical identity
-and catalog BV in defensive equipment. Each one-slot mount is counted, including
-adjacent mounts. No new alias or value is inferred; unresolved identities stay
-unresolved. Pinned MegaMek 48fcb2f64 MiscType.java:4942-4956 and
-BVCalculator.java:527-543. validate-bv-mass.test.ts checks the shared calculator.
