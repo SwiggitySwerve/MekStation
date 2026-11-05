@@ -15,6 +15,8 @@
 import dynamic from 'next/dynamic';
 import React from 'react';
 
+import { CustomizerLoadingSkeleton } from '@/components/customizer/CustomizerLoadingSkeleton';
+
 // Dynamically import the customizer content with SSR disabled
 // This prevents hydration issues with Zustand's persist middleware
 const CustomizerWithRouter = dynamic(
@@ -22,9 +24,10 @@ const CustomizerWithRouter = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="bg-surface-deep flex min-h-screen items-center justify-center">
-        <div className="text-text-theme-secondary">Loading customizer...</div>
-      </div>
+      <CustomizerLoadingSkeleton
+        label="Loading customizer"
+        className="min-h-screen"
+      />
     ),
   },
 );

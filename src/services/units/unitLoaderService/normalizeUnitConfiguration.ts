@@ -10,7 +10,10 @@ import {
   LAMMode,
   QuadVeeMode,
 } from '@/types/construction/MechConfigurationSystem';
-import { createDefaultComponentTechBases } from '@/types/construction/TechBaseConfiguration';
+import {
+  createDefaultComponentTechBases,
+  TechBaseComponent,
+} from '@/types/construction/TechBaseConfiguration';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
 import { MechConfiguration, UnitType } from '@/types/unit/BattleMechInterfaces';
@@ -200,6 +203,21 @@ function deriveIdentityState(
   };
 }
 
+/** Saved Mixed Tech selections over the unit-wide default; absent keys keep the default. */
+function deriveComponentTechBases(
+  serialized: IRawSerializedUnit,
+  techBase: TechBase,
+): UnitState['componentTechBases'] {
+  const components = createDefaultComponentTechBases(techBase);
+  for (const component of Object.keys(components) as TechBaseComponent[]) {
+    const saved = serialized.componentTechBases?.[component];
+    if (saved)
+      components[component] =
+        saved === 'CLAN' ? TechBase.CLAN : TechBase.INNER_SPHERE;
+  }
+  return components;
+}
+
 function deriveConfigurationState(
   serialized: IRawSerializedUnit,
   techBase: TechBase,
@@ -222,7 +240,7 @@ function deriveConfigurationState(
     isOmni: serialized.isOmni ?? false,
     baseChassisHeatSinks: serialized.baseChassisHeatSinks ?? -1,
     techBaseMode,
-    componentTechBases: createDefaultComponentTechBases(techBase),
+    componentTechBases: deriveComponentTechBases(serialized, techBase),
     selectionMemory: createEmptySelectionMemory(),
   };
 }
