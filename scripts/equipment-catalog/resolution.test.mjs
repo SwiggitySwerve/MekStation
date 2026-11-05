@@ -756,6 +756,37 @@ export const APPROVED_JAVA_REROUTES = [
     reason: 'Follow-up 92 slice 5; mapper tag form of the route above',
     tagForm: true,
   })),
+  // Follow-up 93: torpedo list ids and Java names, routed by the unit's tech base
+  // (java-registry.json.lookups.json LRT/SRT: IS item vs CLLRTn/CLSRTn).
+  ...[
+    ['LRT 10', 'lrtorpedo10', 'lrt-10-registry'],
+    ['LRT 15', 'lrtorpedo15', 'lrt-15-registry'],
+    ['LRT 20', 'lrtorpedo20', 'lrt-20-registry'],
+    ['LRT 5', 'lrtorpedo5', 'lrt-5-registry'],
+    ['SRT 2', 'srt2', 'srt-2-registry'],
+    ['SRT 4', 'srt4', 'srt-4-registry'],
+    ['SRT 6', 'srt6', 'srt-6-registry'],
+    ['lrt-10', 'clan-lrm-10', 'lrtorpedo10'],
+    ['lrt-10', 'lrm-10', 'lrt-10-registry'],
+    ['lrt-15', 'clan-lrm-15', 'lrtorpedo15'],
+    ['lrt-15', 'lrm-15', 'lrt-15-registry'],
+    ['lrt-20', 'clan-lrm-20', 'lrtorpedo20'],
+    ['lrt-20', 'lrm-20', 'lrt-20-registry'],
+    ['lrt-5', 'clan-lrm-5', 'lrtorpedo5'],
+    ['lrt-5', 'lrm-5', 'lrt-5-registry'],
+    ['srt-2', 'clan-srm-2', 'srt2'],
+    ['srt-2', 'srm-2', 'srt-2-registry'],
+    ['srt-4', 'clan-srm-4', 'srt4'],
+    ['srt-4', 'srm-4', 'srt-4-registry'],
+    ['srt-6', 'clan-srm-6', 'srt6'],
+    ['srt-6', 'srm-6', 'srt-6-registry'],
+  ].map(([name, oldTarget, newTarget]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
+    loaderOnly: true,
+  })),
 ];
 async function capture(root, inputs) {
   process.chdir(root);
@@ -1152,7 +1183,14 @@ if (process.argv.includes('--capture')) {
           route.oldTarget === oldTarget,
       );
       const row = { api, name, oldTarget, newTarget };
-      if (route && newTarget === route.newTarget) allowed.push(row);
+      // loaderOnly (follow-up 93 tech routes): the unit loader knows the tech base;
+      // tech-less APIs must keep their target.
+      if (
+        route &&
+        newTarget === route.newTarget &&
+        (!route.loaderOnly || api.startsWith('unitLoader'))
+      )
+        allowed.push(row);
       else shifts.push(row);
     };
     for (const [name, row] of Object.entries(before.resolved))
@@ -1180,7 +1218,7 @@ if (process.argv.includes('--capture')) {
       JSON.stringify({ shifts, allowed, gains }, null, 2) + '\n',
     );
     for (const route of APPROVED_JAVA_REROUTES) {
-      if (route.tagForm) continue;
+      if (route.tagForm || route.loaderOnly) continue;
       if (route.api) {
         assert.equal(
           targetOf(after, route.api, route.name),

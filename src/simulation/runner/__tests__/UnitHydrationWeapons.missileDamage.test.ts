@@ -167,8 +167,11 @@ describe('catalog missile launcher hydration', () => {
     (id, damage) => expect(hydrate(id).damage).toBe(damage),
   );
 
-  it('leaves the LRT/SRT torpedoes (ids lrtorpedoN, srmt1os) unchanged', () => {
-    expect(hydrate('lrtorpedo10').damage).toBe(0);
+  // Follow-up 93: Clan LRT/SRT carry Java's per-missile damage (CLLRT10: 1 x 10,
+  // MissileWeaponHandler.java:308-318; CLSRT4: 2 x 4, SRMHandler.java:66-78).
+  it('gives Clan LRT/SRT torpedoes Java damage; leaves srmt1os unchanged', () => {
+    expect(hydrate('lrtorpedo10').damage).toBe(10);
+    expect(hydrate('srt4').damage).toBe(8);
     expect(hydrate('srmt1os').damage).toBe(0);
   });
 
