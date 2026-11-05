@@ -452,6 +452,17 @@ The existing chassis section transports canonical BAR, structural and engine tec
 
 The equipment catalog owns BV and heat; `capital-bv.json` supplies native capital/sub-capital flags, range attack values, and ammo enum/rack keys. Matching existing IDs retain their values and share the native facts only when name, BV, and firing facts agree. `getLargeAerospaceAmmoBVGroup` adds capital keys to the large-craft path and reuses the ordinary ammo-group owner. LargeAeroBVCalculator.java:69-122,293-358 caps ammo separately per arc and multiplies whole-ton shot ratios. BVCalculator.java:800-914 uses weapon BV without a capital damage multiplier. MiscType.java:9467-9529 and BVCalculator.countMiscAsOffensiveWeapon exclude mobile HPG from offense. Screen launchers/ammo and unsupported links still withhold complete scope. The three catalog traces pin full weapon, ammo, defense, offense and rounded totals from L-ORC2.
 
+Ordinary large-craft weapons and bins share `getNativeAmmoBVGroup` enum/rack
+keys, including generated Clan/Artemis bins, MG, ATM, HAG, Streak, extended
+LRM and artillery. Legacy alias-key APIs remain separate. Heavy lasers and
+artillery use their catalog BV and existing heat resolver, just like other
+admitted weapons (LargeAeroBVCalculator.java:85-142; BVCalculator.java:804-914,
+pin 48fcb2f64). Bay markers retain the first weapon, quantities remain shots,
+and ammo caps remain per arc. Screen defense, defensive quantity multipliers,
+unsupported hull mounts and linked modifiers still withhold complete scope.
+`largeAerospaceNativePools.test.ts` pins Aqueduct, Buccaneer Rezak and Mule C
+against the source-hash-joined UL-16b Java oracle.
+
 ## Ordinary aircraft small cockpits
 
 The contract adapter preserves native cockpit identity; the aerospace adapter
