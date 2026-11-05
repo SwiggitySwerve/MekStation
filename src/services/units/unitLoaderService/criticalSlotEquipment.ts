@@ -14,6 +14,7 @@ import {
   getEquipmentCritEntries,
   isSuperHeavy,
 } from '@/utils/construction/constructionRules/tonnage';
+import { isAmmunitionEquipmentId } from '@/utils/construction/equipmentBV/catalogLoader';
 import { isLegacyEquipmentId } from '@/utils/construction/equipmentBVCatalogData';
 import { isWeaponCategory } from '@/utils/equipment/ammunitionCompatibility';
 import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
@@ -86,7 +87,12 @@ function resolveSlotIdentity(
   const registryId = resolveRegistryEquipmentId(token);
   const equipmentDef =
     resolved.equipmentDef ??
-    (registryId ? getEquipmentLookupService().getById(registryId) : undefined);
+    (registryId
+      ? getEquipmentLookupService().getMountedById(
+          registryId,
+          isAmmunitionEquipmentId(token),
+        )
+      : undefined);
   return { equipmentDef, equipmentId: equipmentDef?.id ?? registryId };
 }
 
@@ -168,10 +174,15 @@ function takeMatchingSlots(
   claimed: ReadonlySet<number>,
   equipmentId: string,
   count: number,
+  isAmmo = false,
 ): readonly IResolvedCriticalSlot[] {
   return slots
     .filter(
-      (slot) => !claimed.has(slot.index) && slot.equipmentId === equipmentId,
+      (slot) =>
+        !claimed.has(slot.index) &&
+        slot.equipmentId === equipmentId &&
+        (slot.equipmentDef?.category === EquipmentCategory.AMMUNITION) ===
+          isAmmo,
     )
     .slice(0, count);
 }
@@ -300,6 +311,7 @@ export function restoreCriticalSlotEquipment(
       claimedAtLocation,
       item.equipmentId,
       item.criticalSlots,
+      item.category === EquipmentCategory.AMMUNITION,
     );
     if (matching.length > 0 && matching.length < item.criticalSlots) {
       if (!isSplittable(item)) return item;
@@ -310,6 +322,7 @@ export function restoreCriticalSlotEquipment(
           claimedAtPartner,
           item.equipmentId,
           item.criticalSlots - matching.length,
+          item.category === EquipmentCategory.AMMUNITION,
         );
         if (matching.length + rest.length !== item.criticalSlots) continue;
         claim(claimedAtLocation, matching);
@@ -436,6 +449,7 @@ export function restoreCriticalSlotEquipment(
           claimedAtLocation,
           slot.equipmentId,
           count,
+          true,
         );
         if (matching.length !== count) continue;
         claim(claimedAtLocation, matching);
