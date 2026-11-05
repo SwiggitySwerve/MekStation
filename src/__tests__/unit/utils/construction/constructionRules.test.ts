@@ -53,7 +53,8 @@ describe('Construction Rules', () => {
   describe('validateTonnage', () => {
     it('should accept valid tonnages in 5-ton increments', () => {
       const validTonnages = [
-        20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100,
+        10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95,
+        100,
       ];
 
       for (const tonnage of validTonnages) {
@@ -72,11 +73,11 @@ describe('Construction Rules', () => {
       }
     });
 
-    it('should reject tonnage below 20', () => {
-      const result = validateTonnage(15);
+    it('should reject tonnage below 10', () => {
+      const result = validateTonnage(5);
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain(
-        'Tonnage must be between 20 and 200 (got 15)',
+        'Tonnage must be between 10 and 200 (got 5)',
       );
     });
 
@@ -84,7 +85,7 @@ describe('Construction Rules', () => {
       const result = validateTonnage(205);
       expect(result.isValid).toBe(false);
       expect(result.errors).toContain(
-        'Tonnage must be between 20 and 200 (got 205)',
+        'Tonnage must be between 10 and 200 (got 205)',
       );
     });
 
