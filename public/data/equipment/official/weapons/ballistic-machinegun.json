@@ -28,7 +28,7 @@
       "damage": 1,
       "heat": 0,
       "ranges": { "minimum": 0, "short": 2, "medium": 4, "long": 6 },
-      "weight": 0.25,
+      "weight": 0.5,
       "criticalSlots": 1,
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "ammoPerTon": 200,
