@@ -459,8 +459,10 @@ advanced FCS 1, or absent FCS 0.8 to non-infantry WeaponType mounts and capped
 ammo. Resolved miscellaneous equipment receives neither FCS nor TC scaling.
 Direct-fire TC 1.25 replaces weapon FCS scaling; ammo still receives FCS.
 Weight and offensive equipment are not scaled. Mounted Targeting catalog
-entries activate TC. Infantry callers supply the native F_INFANTRY fact;
-unrepresented infantry equipment/metadata remains a catalog boundary gap.
+entries activate TC. The shared generated native flag owner supplies F_INFANTRY
+for resolved weapons; only unrepresented legacy mounts use the caller's fact.
+InfantryWeapon.java:83-87 sets this inherited flag. Native same-name BA guns
+remain distinct; missing identities remain a catalog boundary gap.
 The shared weapon owner retains the existing Mech direct-fire classifier.
 Pin: BVCalculator.java:880-887,966-976,1076-1086 at 48fcb2f64a1b.
 
