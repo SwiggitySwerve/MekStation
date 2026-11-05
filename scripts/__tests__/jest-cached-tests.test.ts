@@ -851,6 +851,27 @@ describe('type-only imports in the key', () => {
       'jest.requireActual with a generic and a template literal',
       "const dep = jest.requireActual<typeof import('./dep')>(`./dep`);\nexport const w = dep.v;",
     ],
+    // Sol round 3 on #2730: the loader names the module with a different spelling
+    [
+      'a generic loader whose argument spells the module differently (@/ vs ./)',
+      "const dep = jest.requireActual<typeof import('@/dep')>('./dep');\nexport const w = dep.v;",
+    ],
+    [
+      'a generic loader whose argument adds the extension',
+      "const dep = jest.requireActual<typeof import('./dep')>('./dep.ts');\nexport const w = dep.v;",
+    ],
+    [
+      'a generic loader with a computed argument',
+      "const p = ['.', 'dep'].join('/');\nconst dep = jest.requireActual<typeof import('./dep')>(p);\nexport const w = dep.v;",
+    ],
+    [
+      'an aliased loader next to a type import of the same file',
+      "import type { T } from './dep';\nconst load = require;\nexport const m = load('./dep.ts');",
+    ],
+    [
+      'a generic loader with no type import at all (a gap on main too)',
+      "const dep = jest.requireActual<{ v: number }>('./dep');\nexport const w = dep.v;",
+    ],
     [
       'jest.mock with a generic factory type',
       "jest.mock<typeof import('./dep')>('./dep', () => ({ v: 1 }));",

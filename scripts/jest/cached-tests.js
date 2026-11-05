@@ -275,15 +275,49 @@ const IMPORT_PATTERNS = [
 // }`, an `import { type A }` with no value part, a dynamic import() in an
 // expression (`void import('x').Foo`, `{ k: typeof import('x') }`), a mention in
 // a string or comment, and a second import of the same module all leave the
-// specifier in. If @swc/core is missing or the file does not parse, nothing is
-// dropped.
+// specifier in. A module may also be loaded under another spelling than its
+// type edge (`jest.requireActual<typeof import('@/x')>('./x')`), so in a parsed
+// file every string literal passed to any call or `new` is resolved as an extra
+// dependency (extraSpecs), and a loader whose argument is not a literal keeps
+// every type-only edge of the file. If @swc/core is missing, the file does not
+// parse, or the walk throws, nothing is dropped.
 let swcParseSync; // undefined: not tried yet; null: unavailable
-const TYPE_CANDIDATE = /\b(?:import|export)\s+type\b|\bimport\s*\(/;
+// Files worth parsing: type-only syntax, an import(), or a loader called with
+// type arguments (`jest.requireActual<T>('x')`), which IMPORT_PATTERNS cannot see.
+const TYPE_CANDIDATE =
+  /\b(?:import|export)\s+type\b|\bimport\s*\(|\b(?:require(?:\.resolve)?|jest\s*\.\s*\w+)\s*</;
+const JEST_LOADERS = new Set([
+  'mock',
+  'doMock',
+  'unmock',
+  'dontMock',
+  'requireActual',
+  'requireMock',
+  'createMockFromModule',
+  'setMock',
+]);
+/** Is `callee` the `require`, `require.resolve`, `jest.<loader>` or `import` of a call? */
+function isLoaderCallee(callee) {
+  if (callee?.type === 'Import') return true;
+  if (callee?.type === 'Identifier') return callee.value === 'require';
+  if (
+    callee?.type !== 'MemberExpression' ||
+    callee.object?.type !== 'Identifier'
+  )
+    return false;
+  const name = callee.property?.type === 'Identifier' && callee.property.value;
+  return callee.object.value === 'require'
+    ? name === 'resolve'
+    : callee.object.value === 'jest' && JEST_LOADERS.has(name);
+}
 
 /**
- * `{ counts, literals }` for `text`, or null: `counts` maps a specifier to its
+ * For `text` (or null when it is not parsed): `counts` maps a specifier to its
  * number of type-only AST occurrences; `literals` maps every string literal
- * value in the file to how often it occurs, in any position.
+ * value in the file to how often it occurs, in any position; `callLiterals` is
+ * every string literal passed as an argument to any call or `new`, whatever the
+ * callee (these join the closure as extra dependencies); `computedLoader` says
+ * some loader call takes an argument that is not a plain literal.
  */
 function typeOnlySpecCounts(text) {
   if (!TYPE_CANDIDATE.test(text)) return null;
@@ -307,25 +341,43 @@ function typeOnlySpecCounts(text) {
   }
   const counts = new Map();
   const literals = new Map(); // every string (or plain template) literal, anywhere
+  const callLiterals = new Set();
+  let computedLoader = false;
   const bump = (map, value) => map.set(value, (map.get(value) ?? 0) + 1);
   const add = (literal) => {
     if (literal && typeof literal.value === 'string')
       bump(counts, literal.value);
   };
+  /** The value of a string literal or an expression-less template, else undefined. */
+  const literalValue = (expr) =>
+    expr?.type === 'StringLiteral' && typeof expr.value === 'string'
+      ? expr.value
+      : expr?.type === 'TemplateLiteral' &&
+          expr.expressions?.length === 0 &&
+          expr.quasis?.length === 1
+        ? (expr.quasis[0].cooked ?? expr.quasis[0].raw)
+        : undefined;
   const visit = (node) => {
     if (Array.isArray(node)) {
       node.forEach(visit);
       return;
     }
     if (!node || typeof node !== 'object') return;
-    if (node.type === 'StringLiteral' && typeof node.value === 'string')
-      bump(literals, node.value);
-    if (
-      node.type === 'TemplateLiteral' &&
-      node.expressions?.length === 0 &&
-      node.quasis?.length === 1
-    )
-      bump(literals, node.quasis[0].cooked ?? node.quasis[0].raw);
+    const own = literalValue(node);
+    if (own !== undefined) bump(literals, own);
+    if (node.type === 'CallExpression' || node.type === 'NewExpression') {
+      const args = (node.arguments ?? []).map((arg) => arg.expression);
+      for (const arg of args) {
+        const value = literalValue(arg);
+        if (value !== undefined) callLiterals.add(value);
+      }
+      if (
+        node.type === 'CallExpression' &&
+        isLoaderCallee(node.callee) &&
+        literalValue(args[0]) === undefined
+      )
+        computedLoader = true;
+    }
     switch (node.type) {
       case 'ImportDeclaration':
       case 'ExportAllDeclaration':
@@ -345,8 +397,12 @@ function typeOnlySpecCounts(text) {
     }
     for (const value of Object.values(node)) visit(value);
   };
-  visit(ast);
-  return { counts, literals };
+  try {
+    visit(ast);
+  } catch {
+    return null; // e.g. a RangeError on a pathologically deep tree: drop nothing
+  }
+  return { counts, literals, callLiterals, computedLoader };
 }
 
 /** Textual import-like occurrences of each specifier in `source`. */
@@ -562,7 +618,9 @@ function analyzeSource(text, rel, nameMatchers) {
   // Type-only edges are not dependencies (see typeOnlySpecCounts): drop a
   // specifier only when the AST accounts for every textual occurrence of it.
   const typeOnly = typeOnlySpecCounts(text);
-  if (typeOnly) {
+  // A loader with a computed argument may load anything, including a module
+  // named only in a type: keep every type-only edge of such a file.
+  if (typeOnly && !typeOnly.computedLoader) {
     const seen = [text, noBlocks, noComments].map(countSpecs);
     for (const [spec, nodes] of typeOnly.counts) {
       if (
@@ -619,6 +677,10 @@ function analyzeSource(text, rel, nameMatchers) {
   }
   return {
     specs: [...specs],
+    // string arguments of any call that the text patterns may not have seen
+    // (`jest.requireActual<T>('./x')`, an aliased loader); resolved like specs
+    // but never reported as unresolved imports
+    extraSpecs: typeOnly ? [...typeOnly.callLiterals] : [],
     codeSpecs,
     envNames,
     envUnresolved,
@@ -740,6 +802,10 @@ function createKeyer({
             if (info.codeSpecs.has(spec))
               why.push(`unresolved import '${spec}' in ${rel}`);
           } else if (target !== 'external') queue.push(...[target].flat());
+        }
+        for (const spec of info.extraSpecs) {
+          const target = resolveSpec(spec, rel);
+          if (target && target !== 'external') queue.push(...[target].flat());
         }
       }
       if (fsFiles.length > 0 && domains.size === 0) {
