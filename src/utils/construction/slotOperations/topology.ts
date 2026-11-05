@@ -5,6 +5,7 @@ import {
   getEngineDefinition,
 } from '@/types/construction/EngineType';
 import { GyroType, getGyroDefinition } from '@/types/construction/GyroType';
+import { getEquipmentCritEntries } from '@/utils/construction/constructionRules/tonnage';
 
 export type ArmActuatorConfig = Readonly<
   Partial<
@@ -25,6 +26,7 @@ export function getFixedSlotNames(
 ): ReadonlyMap<number, string> {
   const slots = new Map<number, string>();
   const cockpit = getCockpitSystemSlots(cockpitType);
+  const superheavy = gyroType === GyroType.SUPERHEAVY;
   const put = (index: number, name: string): void => {
     slots.set(index, name);
   };
@@ -32,8 +34,14 @@ export function getFixedSlotNames(
     case MechLocation.HEAD:
       return cockpit.head;
     case MechLocation.CENTER_TORSO: {
-      const engine = getEngineDefinition(engineType)?.ctSlots ?? 6;
-      const gyro = getGyroDefinition(gyroType)?.criticalSlots ?? 4;
+      const engine = getEquipmentCritEntries(
+        getEngineDefinition(engineType)?.ctSlots ?? 6,
+        superheavy,
+      );
+      const gyro = getEquipmentCritEntries(
+        getGyroDefinition(gyroType)?.criticalSlots ?? 4,
+        superheavy,
+      );
       for (let i = 0; i < Math.min(3, engine); i++) put(i, 'Engine');
       for (let i = 0; i < gyro; i++)
         put(3 + i, getGyroDefinition(gyroType)?.name ?? 'Gyro');
@@ -51,7 +59,11 @@ export function getFixedSlotNames(
       cockpit.sideTorso.forEach((name, index) => put(index, name));
       for (
         let i = 0;
-        i < (getEngineDefinition(engineType)?.sideTorsoSlots ?? 0);
+        i <
+        getEquipmentCritEntries(
+          getEngineDefinition(engineType)?.sideTorsoSlots ?? 0,
+          superheavy,
+        );
         i++
       )
         put(cockpit.sideTorso.length + i, 'Engine');
