@@ -17,6 +17,23 @@ export interface VehicleVariableMassContext {
   readonly isSupportVehicle: boolean;
 }
 
+/** Native chassis accessories shared by mounted and generic mass consumers.
+ * Undefined is another equipment kind; null is a known rule missing context.
+ * MiscType.java:702-703 at MegaMek 48fcb2f64.
+ */
+export function resolveVehicleAccessoryMass(
+  item: VehicleVariableMassItem,
+  context?: VehicleVariableMassContext,
+): number | null | undefined {
+  if (item.id !== 'limitedamphibiouschassis') return undefined;
+  if (!context) return null;
+  return roundSupportComponentWeight(
+    context.tonnage / 25,
+    context.tonnage,
+    context.isSupportVehicle && context.tonnage < 5,
+  );
+}
+
 /** Unit/size-based mass owner. Undefined retains the caller's explicit legacy
  * unsupported-rule policy; fixed zero remains distinct from an unknown rule.
  * MiscType.java:700-730,820-842 at MegaMek 48fcb2f6; see RULES.md.
@@ -26,6 +43,8 @@ export function resolveVehicleVariableMass(
   sourceId: string,
   context: VehicleVariableMassContext,
 ): number | undefined {
+  const accessoryMass = resolveVehicleAccessoryMass(item, context);
+  if (accessoryMass !== undefined) return accessoryMass ?? undefined;
   const { tonnage, engineWeight, weaponWeight } = context;
   const kilograms = context.isSupportVehicle && tonnage < 5;
   const round = (weight: number) =>

@@ -560,3 +560,11 @@ calculateAdjustedBV. Chassis/cockpit factors precede the base integer round;
 crew skill follows it and receives a final round. Vehicle skill lookup uses
 the existing shared table with the same floor and clamp. BVCalculator.java:
 1253,167 at MegaMek pin 48fcb2f64 owns this order.
+
+## Limited amphibious chassis mass
+
+The shared variable owner charges rounded tonnage/25 for the native limited
+amphibious chassis identity. Mounted figures consume that same rule before
+summing equipment and turret mass, independently of the held sized-equipment
+editor integration. Missing context is unavailable, not a fixed zero.
+Pin 48fcb2f64: MiscType.java:702-703; RoundWeight.java:58-68.
