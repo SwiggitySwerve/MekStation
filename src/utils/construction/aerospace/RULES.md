@@ -477,3 +477,11 @@ ammo never becomes misc. Explicit offensiveEquipmentBV overrides the automatic
 sum. Command consoles share the small-cockpit summary owner; actual summary
 facts reach bvTrace without changing the neutral compatibility subtype field.
 Enforcement: aerospaceBV.miscConsole.test.ts, native Hellcat and Zhen Niao.
+
+Patchwork transports current per-arc points and native armor codes through
+contract and editor adapters. Each represented physical arc adds local modular
+capacity before its native multiplier, BAR and aircraft type scaling. Capacity
+at a zero-armor location still counts. Missing arc facts retain the legacy
+total-armor path. Numeric codes use the shared defensive owner, independent of
+editor enum ordinals. Source pin 48fcb2f64, BVCalculator.java:350-420.
+Enforcement: aerospaceBV.patchwork.test.ts and catalog printing source-owner BV.
