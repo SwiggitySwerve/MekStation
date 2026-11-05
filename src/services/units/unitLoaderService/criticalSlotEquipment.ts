@@ -10,6 +10,10 @@ import {
   createMountedEquipment,
   IMountedEquipmentInstance,
 } from '@/types/equipment/MountedEquipment';
+import {
+  getEquipmentCritEntries,
+  isSuperHeavy,
+} from '@/utils/construction/constructionRules/tonnage';
 import { isLegacyEquipmentId } from '@/utils/construction/equipmentBVCatalogData';
 import { isWeaponCategory } from '@/utils/equipment/ammunitionCompatibility';
 import { HEAT_SINK_EQUIPMENT_IDS } from '@/utils/equipment/equipmentConstants';
@@ -240,9 +244,14 @@ export function restoreCriticalSlotEquipment(
   tonnage?: number,
   physicalOnly = false,
 ): IMountedEquipmentInstance[] {
-  const normalizedMapped = mapped.map((item, index) =>
-    restoreSerializedHeatSink(serialized[index], item),
-  );
+  // Mek.java:3484-3492: a superheavy entry holds two ordinary criticals.
+  const superheavy = tonnage !== undefined && isSuperHeavy(tonnage);
+  const entries = (count: number): number =>
+    getEquipmentCritEntries(count, superheavy);
+  const normalizedMapped = mapped.map((item, index) => {
+    const restored = restoreSerializedHeatSink(serialized[index], item);
+    return { ...restored, criticalSlots: entries(restored.criticalSlots) };
+  });
   if (!criticalSlots) return normalizedMapped;
 
   const resolvedByLocation = resolveCriticalSlots(
@@ -344,7 +353,7 @@ export function restoreCriticalSlotEquipment(
           slot.equipmentId,
           { tonnage },
         );
-        const count = properties.criticalSlots;
+        const count = entries(properties.criticalSlots);
         if (count <= 0) continue;
         const group = slots.filter((s) => s.equipmentId === slot.equipmentId);
         const existing = placed.filter(
@@ -386,7 +395,7 @@ export function restoreCriticalSlotEquipment(
             ] ?? '';
           recovered.push({
             ...createMountedEquipment(
-              { ...slot.equipmentDef, ...properties },
+              { ...slot.equipmentDef, ...properties, criticalSlots: count },
               generateUnitId(),
               true,
               /\(OMNIPOD\)(?:\s*\(ARMORED\))?\s*$/i.test(token),
@@ -408,16 +417,20 @@ export function restoreCriticalSlotEquipment(
         slot.equipmentDef?.category === EquipmentCategory.AMMUNITION &&
         slot.equipmentDef.criticalSlots > 0
       ) {
+        const count = entries(slot.equipmentDef.criticalSlots);
         const matching = takeMatchingSlots(
           slots,
           claimedAtLocation,
           slot.equipmentId,
-          slot.equipmentDef.criticalSlots,
+          count,
         );
-        if (matching.length !== slot.equipmentDef.criticalSlots) continue;
+        if (matching.length !== count) continue;
         claim(claimedAtLocation, matching);
         recovered.push({
-          ...createMountedEquipment(slot.equipmentDef, generateUnitId()),
+          ...createMountedEquipment(
+            { ...slot.equipmentDef, criticalSlots: count },
+            generateUnitId(),
+          ),
           location,
           slots: matching.map((match) => match.index),
           isRearMounted: matching.some((match) => match.isRearMounted),
@@ -426,8 +439,15 @@ export function restoreCriticalSlotEquipment(
       }
 
       if (slot.heatSinkType) {
-        const heatSink = createHeatSinkEquipmentList(slot.heatSinkType, 1)[0];
-        if (!heatSink) continue;
+        const baseHeatSink = createHeatSinkEquipmentList(
+          slot.heatSinkType,
+          1,
+        )[0];
+        if (!baseHeatSink) continue;
+        const heatSink = {
+          ...baseHeatSink,
+          criticalSlots: entries(baseHeatSink.criticalSlots),
+        };
         const matching = takeMatchingSlots(
           slots,
           claimedAtLocation,
