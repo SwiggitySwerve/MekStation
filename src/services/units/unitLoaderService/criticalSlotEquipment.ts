@@ -473,7 +473,7 @@ export function restoreCriticalSlotEquipment(
           claimedAtLocation,
           slot.equipmentId,
           count,
-          true,
+          slot.equipmentDef.category === EquipmentCategory.AMMUNITION,
         );
         if (matching.length !== count) continue;
         claim(claimedAtLocation, matching);

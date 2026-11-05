@@ -217,3 +217,6 @@ that owner. Crit-only Claws reuse ordinary physical recovery and the shared
 superheavy consumed-entry conversion; existing mounts are reserved first.
 The critical-slot join treats native `claw` and legacy `claws` as that same Java
 type, while retaining the already mounted ID and its exact-ID sizing override.
+The shared recovery branch passes the recovered item's actual ammo category to
+the slot join. LAM bomb bays are miscellaneous mounts (MiscType.java:12413-12420),
+so they must retain the non-ammo side of that join.
