@@ -6,10 +6,14 @@ import type {
   IVehicleTurretSourceContext,
 } from '@/types/unit/VehicleInterfaces';
 
+import { formulaEvaluator } from '@/services/equipment/FormulaEvaluator';
+import { VARIABLE_EQUIPMENT_FORMULAS } from '@/services/equipment/variableEquipmentFormulas';
 import { VehicleLocation } from '@/types/construction/UnitLocation';
+import { TechBase } from '@/types/enums/TechBase';
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
+import { isDirectFireBVWeapon } from '@/utils/construction/battleValueWeapons';
 import { isValidWeight } from '@/utils/physical/weightUtils';
 
 import type { VehicleControlsLiftContext } from './controlsLift';
@@ -143,6 +147,7 @@ export function computeVehicleMountedWeightFigures(
       : undefined);
   const mounted = state.equipment.map((mount, order) => {
     const item = resolve(mount.equipmentId, mount.isAmmo === true);
+    const equipmentId = item?.id ?? mount.equipmentId;
     const clanCase = isClanCaseMount(mount, item);
     const accessoryMass =
       item &&
@@ -173,7 +178,7 @@ export function computeVehicleMountedWeightFigures(
       instanceId: mount.id,
       sourceId: getVehicleSourceIdentity(mount)?.sourceId ?? mount.equipmentId,
       weapon: item !== undefined && WEAPON_CATEGORIES.includes(item.category),
-      id: item?.id ?? mount.equipmentId,
+      id: equipmentId,
       location: mount.location,
       order,
       laser:
@@ -183,6 +188,21 @@ export function computeVehicleMountedWeightFigures(
       insulated: false,
       capacitor: false,
       weight,
+      computerFormula:
+        item && /targeting[- ]?computer/i.test(equipmentId)
+          ? (item.variableEquipmentId ??
+            (item.techBase === TechBase.CLAN
+              ? 'targeting-computer-clan'
+              : 'targeting-computer-is'))
+          : undefined,
+      // WeaponType.java:2925-2926; MiscType.java:12532-12543 (48fcb2f6).
+      computerRelevant:
+        item === undefined ||
+        (WEAPON_CATEGORIES.includes(item.category) &&
+          isDirectFireBVWeapon(equipmentId) &&
+          !/taser/i.test(equipmentId)) ||
+        (item.category !== EquipmentCategory.AMMUNITION &&
+          getMountedBVLinkType(equipmentId) === 'risc'),
       heat: item === undefined ? null : getVehicleHeatNeutralWeaponHeat(item),
       isAmmunition: item?.category === EquipmentCategory.AMMUNITION,
       // An unresolved definition has unknown classification as well as mass.
@@ -228,6 +248,23 @@ export function computeVehicleMountedWeightFigures(
           }
         }
       }
+  }
+  // MiscType.java:614-616: reuse the formula owner after variable weapon mass;
+  // TestTank.java:178-226 derives turret mechanism mass from mounted tonnage.
+  if (mounted.some((m) => m.computerFormula)) {
+    const directFireWeaponTonnage = sum(
+      mounted.filter((m) => m.computerRelevant),
+      'Targeting computer basis',
+    );
+    for (const mount of mounted)
+      if (mount.computerFormula)
+        mount.weight =
+          directFireWeaponTonnage === null
+            ? null
+            : formulaEvaluator.evaluate(
+                VARIABLE_EQUIPMENT_FORMULAS[mount.computerFormula].weight,
+                { directFireWeaponTonnage },
+              );
   }
   const equipment = sum(mounted, 'Equipment');
   linkLaserInsulatorWeapons(
