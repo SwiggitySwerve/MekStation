@@ -2,7 +2,7 @@ import type { UnitData } from './validate-bv-types';
 
 import { WEAPON_CATALOG_FILES } from '../src/utils/construction/equipmentBVCatalogData';
 import { getEquipmentEntry } from '../src/utils/construction/equipmentBVResolver';
-import { normalizeCritName, normalizeEquipId } from './validate-bv-normalizers';
+import { normalizeCritName } from './validate-bv-normalizers';
 
 export interface CritWeaponMountCounts {
   rearWeaponCountByLoc: Map<string, Map<string, number>>;
@@ -40,10 +40,11 @@ function markedWeaponIdentity(name: string): { key: string; slots: number } {
     .replace(/\s*\((?:R|T|OMNIPOD)\)/gi, '')
     .trim();
   const entry = getEquipmentEntry(clean);
+  const identity = normalizeCritName(
+    (entry?.id ?? clean).replace(/-registry$/, '').replace(/^clan-/, ''),
+  );
   return {
-    key: normalizeEquipId(
-      entry?.id.replace(/^clan-/, '') ?? normalizeCritName(clean),
-    ),
+    key: identity.replace(/^prototype(.+)$/, '$1prototype'),
     slots:
       entry?.criticalSlots ||
       getWeaponSlotCounts().get(normalizeCritName(clean)) ||

@@ -96,3 +96,17 @@ it('counts adjacent one-slot Clan large lasers as distinct rear mounts', () => {
     [2],
   );
 });
+
+it('retains the prototype prefix/suffix alias on Excalibur rear mounts', () => {
+  const weapons = mounted({
+    ...unit,
+    equipment: [
+      { id: 'prototype-er-small-laser', location: 'CENTER_TORSO' },
+      { id: 'ppc', location: 'LEFT_ARM' },
+    ],
+    criticalSlots: { CENTER_TORSO: ['CLERSmallLaserPrototype (R)'] },
+  });
+  expect(weapons.find((w) => w.name === 'prototype-er-small-laser')?.rear).toBe(
+    true,
+  );
+});
