@@ -8,6 +8,7 @@ import { GyroType } from '@/types/construction/GyroType';
 import { InternalStructureType } from '@/types/construction/InternalStructureType';
 import { IMountedEquipmentInstance } from '@/types/equipment/MountedEquipment';
 
+import { getSlotParts } from './parts';
 import { getFixedSlotNames, type ArmActuatorConfig } from './topology';
 
 const SLOTTED_STRUCTURE_TYPES: readonly InternalStructureType[] = [
@@ -62,14 +63,11 @@ export function getAvailableSlotIndices(
   );
 
   const usedSlots = new Set<number>();
-  for (const eq of equipment) {
-    if (eq.location === location && eq.slots) {
-      for (const slot of eq.slots) {
-        usedSlots.add(slot);
-      }
+  for (const item of equipment) {
+    for (const part of getSlotParts(item)) {
+      if (part.location === location)
+        part.slots.forEach((slot) => usedSlots.add(slot));
     }
-    if (eq.splitSlots?.location === location)
-      eq.splitSlots.slots.forEach((slot) => usedSlots.add(slot));
   }
 
   const available: number[] = [];

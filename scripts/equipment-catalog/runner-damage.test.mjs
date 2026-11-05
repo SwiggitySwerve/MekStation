@@ -74,6 +74,13 @@ test('no tech route lowers combat-runner damage', () => {
     const before = runnerDamage(name) ?? 0;
     for (const [side, id] of Object.entries(route)) {
       const after = runnerDamage(id);
+      // Equipment routes (e.g. the armored motive system): neither side fires.
+      if (
+        after === undefined &&
+        runnerDamage(name) === undefined &&
+        !weapon(id)
+      )
+        continue;
       if (
         after === undefined ||
         after < before ||

@@ -1,3 +1,9 @@
+import type { IEquipmentSlotAllocation } from '@/types/equipment/MountedEquipment';
+
+import {
+  MechLocation,
+  LOCATION_SLOT_COUNTS,
+} from '@/types/construction/CriticalSlotAllocation';
 /**
  * Slot Validation Utilities
  *
@@ -6,36 +12,19 @@
  *
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
-
-import {
-  MechLocation,
-  LOCATION_SLOT_COUNTS,
-} from '@/types/construction/CriticalSlotAllocation';
 import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import {
   ISlotsByLocation,
   ISlotLocationEntry,
 } from '@/types/validation/UnitValidationInterfaces';
+import { getSlotParts } from '@/utils/construction/slotOperations/parts';
 import {
   getLocationsForConfiguration as getLocationsFromRegistry,
   BIPED_LOCATIONS,
 } from '@/utils/mech/mechLocationRegistry';
 
-/**
- * Minimal equipment instance interface for slot calculation
- * Uses minimal fields to avoid circular dependency with unitState
- */
-export interface IEquipmentSlotInfo {
-  /** Location where equipment is placed (undefined = unallocated) */
-  readonly location?: MechLocation;
-  /** Critical slot indices in the location (undefined = unallocated) */
-  readonly slots?: readonly number[];
-  /** A split weapon's slots in its second location */
-  readonly splitSlots?: {
-    readonly location: MechLocation;
-    readonly slots: readonly number[];
-  };
-}
+/** Minimal allocation contract shared with placement and serialization. */
+export type IEquipmentSlotInfo = IEquipmentSlotAllocation;
 
 /**
  * Location display names for slot validation
@@ -107,24 +96,15 @@ export function buildSlotsByLocation(
     }
   }
 
-  // Count slots used by equipment in each location
   for (const item of equipment) {
-    if (item.location && item.slots && item.slots.length > 0) {
-      const loc = item.location;
-      if (slotsByLocation[loc]) {
-        slotsByLocation[loc] = {
-          ...slotsByLocation[loc],
-          used: slotsByLocation[loc].used + item.slots.length,
+    for (const part of getSlotParts(item)) {
+      const usage = slotsByLocation[part.location];
+      if (usage)
+        slotsByLocation[part.location] = {
+          ...usage,
+          used: usage.used + part.slots.length,
         };
-      }
     }
-    const split = item.splitSlots;
-    const splitUsage = split ? slotsByLocation[split.location] : undefined;
-    if (split && splitUsage)
-      slotsByLocation[split.location] = {
-        ...splitUsage,
-        used: splitUsage.used + split.slots.length,
-      };
   }
 
   return slotsByLocation;

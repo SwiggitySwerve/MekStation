@@ -77,3 +77,71 @@ it('charges the native Mamono IFV accessory in the editor total', () => {
   expect(withAccessory.equipment - withoutAccessory.equipment).toBe(3);
   expect(withoutAccessory.remaining - withAccessory.remaining).toBe(3);
 });
+
+// MiscType.java:660-666,704-705 at the same pin. Support sealing belongs
+// to its structure modifier; combat chassis modifications weigh 10%.
+it.each([
+  ['fullyamphibiouschassis', 55, false, 5.5],
+  ['fullyamphibiouschassis', 55.01, false, 6],
+  ['fullyamphibiouschassis', 1.3, true, 0.13],
+  ['environmental-sealed-chassis', 55, false, 5.5],
+  ['environmental-sealed-chassis', 55.01, false, 6],
+  ['environmental-sealed-chassis', 1.3, false, 0.5],
+  ['environmental-sealed-chassis', 1.3, true, 0],
+  ['environmental-sealed-chassis', 55, true, 0],
+])(
+  '%s on %s tons with support=%s uses native chassis mass',
+  (id, tonnage, isSupportVehicle, expected) => {
+    expect(
+      resolveVehicleVariableMass({ id: String(id), weight: 0 }, String(id), {
+        tonnage: Number(tonnage),
+        isSupportVehicle: Boolean(isSupportVehicle),
+      }),
+    ).toBe(expected);
+  },
+);
+
+it.each([
+  ['Prowler Multi-Terrain Vehicle', 5.5],
+  ['Prowler Multi-Terrain Vehicle (Sealed)', 5.5],
+  ['Ajax Assault Tank (Sealed)', 9],
+  ['MHI Amphibious APC', 3.5],
+  ['Manticore II Heavy Tank', 7],
+])(
+  '%s charges its native chassis contribution independently of other equipment',
+  (name, mass) => {
+    const state = mapToVehicleState(
+      JSON.parse(
+        readFileSync(
+          join(process.cwd(), 'public/data/units/vehicles', `${name}.json`),
+          'utf8',
+        ),
+      ),
+    );
+    const resolve = (id: string, isAmmo?: boolean) =>
+      getEquipmentLookupService().getMountedById(id, isAmmo === true);
+    const withChassis = computeVehicleWeightBreakdown(state, resolve);
+    const withoutChassis = computeVehicleWeightBreakdown(
+      {
+        ...state,
+        equipment: state.equipment.filter(
+          (m) =>
+            ![
+              'fullyamphibiouschassis',
+              'environmental-sealed-chassis',
+            ].includes(m.equipmentId),
+        ),
+      },
+      resolve,
+    );
+    if (
+      withChassis.equipment === null ||
+      withoutChassis.equipment === null ||
+      withChassis.remaining === null ||
+      withoutChassis.remaining === null
+    )
+      throw Error('Native chassis mass must be known');
+    expect(withChassis.equipment - withoutChassis.equipment).toBe(mass);
+    expect(withoutChassis.remaining - withChassis.remaining).toBe(mass);
+  },
+);
