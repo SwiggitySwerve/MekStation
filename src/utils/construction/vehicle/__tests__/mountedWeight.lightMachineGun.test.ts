@@ -44,5 +44,28 @@ it('charges Demon Medium Tank its two IS light MGs at Java’s 0.5 t', () => {
 
 it('keeps Clan light MGs at 0.25 t', () => {
   // Chalchiuhtotolin (Bombast Laser) mounts four `cllightmg` (clan-light-machine-gun).
-  expect(equipment('Chalchiuhtotolin Support Tank (Bombast Laser)')).toBe(13.5);
+  // Isolate those mounts so the targeting computer and other equipment may change.
+  const state = mapToVehicleState(
+    JSON.parse(
+      readFileSync(
+        join(
+          process.cwd(),
+          'public/data/units/vehicles',
+          'Chalchiuhtotolin Support Tank (Bombast Laser).json',
+        ),
+        'utf8',
+      ),
+    ),
+  );
+  const machineGuns = state.equipment.filter(
+    (mount) => mount.equipmentId === 'clan-light-machine-gun',
+  );
+  expect(machineGuns).toHaveLength(4);
+  expect(
+    computeVehicleWeightBreakdown(
+      { ...state, equipment: machineGuns },
+      (id, isAmmo) =>
+        getEquipmentLookupService().getMountedById(id, isAmmo === true),
+    ).equipment,
+  ).toBe(4 * 0.25);
 });
