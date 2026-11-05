@@ -212,7 +212,7 @@ export function computeVehicleMountedWeightFigures(
       if (mount.item && !mount.clanCase) {
         const weight = resolveVehicleVariableMass(mount.item, mount.sourceId, {
           tonnage: state.tonnage,
-          engineWeight: state.engineWeight,
+          engineWeight,
           weaponWeight: weaponWeight ?? undefined,
           isSupportVehicle: state.unitType === UnitType.SUPPORT_VEHICLE,
         });

@@ -6,6 +6,7 @@ import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { mapToVehicleState } from '@/services/units/unitLoaderService/vehicleMapping';
 
 import { getVehicleSourceIdentity } from '../equipmentMounts';
+import { computeVehicleMountedWeightFigures } from '../mountedWeight';
 import { resolveVehicleVariableMass } from '../variableEquipmentMass';
 import { computeVehicleWeightBreakdown } from '../weightComposition';
 
@@ -142,4 +143,25 @@ it('preserves fixed mass and reports an unsupported variable formula', () => {
       context,
     ),
   ).toBeUndefined();
+});
+
+it('uses the installed-engine owner for direct mounted supercharger figures', () => {
+  const state = mapToVehicleState(
+    JSON.parse(
+      readFileSync(
+        join(
+          process.cwd(),
+          'public/data/units/vehicles/SM5 Field Commander Prime.json',
+        ),
+        'utf8',
+      ),
+    ),
+  );
+  // UL-16b: 14 t weapons + 4 t ammunition + 1 t supercharger; Clan CASE is zero.
+  // MiscType.java:532-539 at 48fcb2f64 uses the installed engine as its basis.
+  expect(
+    computeVehicleMountedWeightFigures(state, (id, isAmmo) =>
+      getEquipmentLookupService().getMountedById(id, isAmmo === true),
+    ).equipment,
+  ).toBe(19);
 });
