@@ -7,6 +7,10 @@ import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 import { TechBase } from '@/types/enums/TechBase';
 import { getEquipmentSlotIssues } from '@/utils/construction/slotOperations/placement';
 
+import banshee from '../../../../../public/data/units/battlemechs/1-age-of-war/standard/Banshee BNC-1E.json';
+import cestus from '../../../../../public/data/units/battlemechs/3-succession-wars/standard/Cestus CTS-6Y-EC.json';
+import emperor from '../../../../../public/data/units/battlemechs/3-succession-wars/standard/Emperor EMP-6A-EC.json';
+import enfield from '../../../../../public/data/units/battlemechs/3-succession-wars/standard/Enfield END-6J-EC.json';
 import daishiC from '../../../../../public/data/units/battlemechs/4-clan-invasion/advanced/Daishi C.json';
 import avatar from '../../../../../public/data/units/battlemechs/5-civil-war/advanced/Avatar AV1-OU.json';
 import linebackerF from '../../../../../public/data/units/battlemechs/5-civil-war/experimental/Linebacker F.json';
@@ -134,4 +138,59 @@ it.each([
       state.cockpitType,
     ),
   ).toEqual([]);
+});
+
+// Prototypes: the converter's list slug collapsed to the production item while
+// the crit token reached the pinned Java prototype (one owner each, no IS/Clan
+// split), e.g. CLERMediumLaserPrototype, CLUltraAC10Prototype.
+it.each([
+  ['prototype-er-medium-laser', 'clermediumlaserprototype-registry'],
+  ['prototype-er-small-laser', 'clersmalllaserprototype-registry'],
+  ['prototype-streak-srm-4', 'streaksrm4prototype'],
+  ['prototype-streak-srm-6', 'streaksrm6prototype'],
+  ['prototype-ultra-autocannon-10', 'clultraac10prototype-registry'],
+  ['primitive-prototype-ppc', 'primitive-prototype-ppc-registry'],
+  ['prototype-rocket-launcher-20', 'rocketlauncher20prototype-registry'],
+] as const)(
+  'prototype list id %s resolves to %s for either tech',
+  (id, target) => {
+    for (const [tech, mode] of [IS, CLAN])
+      expect(resolveEquipmentId(id, tech, mode, []).equipmentDef?.id).toBe(
+        target,
+      );
+  },
+);
+
+it.each([
+  ['Cestus CTS-6Y-EC', cestus],
+  ['Enfield END-6J-EC', enfield],
+  ['Banshee BNC-1E', banshee],
+])('assigns %s prototype weapons their critical slots', (_name, unit) => {
+  const state = new UnitLoaderService().mapToUnitState(unit, true);
+  const prototypes = state.equipment.filter((item) =>
+    /prototype/.test(item.equipmentId),
+  );
+  expect(prototypes.length).toBeGreaterThan(0);
+  expect(prototypes.every((item) => (item.slots?.length ?? 0) > 0)).toBe(true);
+  expect(
+    getEquipmentSlotIssues(
+      state.equipment,
+      state.configuration,
+      state.engineType,
+      state.gyroType,
+      state.armActuators,
+      state.cockpitType,
+    ),
+  ).toEqual([]);
+});
+
+// Emperor EMP-6A-EC (mixed tech) also mounts Clan LB-X ACs whose list ids still
+// resolve to the IS item (a separate identity class); its prototype Streak SRM 4
+// now takes both CLStreakSRM4Prototype slots.
+it('assigns the Emperor EMP-6A-EC prototype Streak SRM 4 its critical slots', () => {
+  const state = new UnitLoaderService().mapToUnitState(emperor, true);
+  const streak = state.equipment.filter(
+    (item) => item.equipmentId === 'streaksrm4prototype',
+  );
+  expect(streak.map((item) => item.slots)).toEqual([[10, 11]]);
 });

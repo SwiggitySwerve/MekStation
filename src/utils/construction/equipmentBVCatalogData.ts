@@ -139,7 +139,8 @@ export const registryPreviousId = (
 };
 // Follow-up 93: a name whose pinned Java owner depends on the unit's tech base
 // (java-registry.json.lookups.json IS vs CLAN), keyed by the Java lookup name and
-// the converter's list id, so both sides of a mount reach one identity.
+// the converter's list id, so both sides of a mount reach one identity. A list id
+// whose Java item has one owner (e.g. a prototype) names the same id for both sides.
 const techRoutes = new Map(
   Object.entries(
     (

@@ -463,6 +463,34 @@
     "issrm4-os": {
       "INNER_SPHERE": "issrm4os-registry",
       "CLAN": "issrm4os-registry"
+    },
+    "prototype-er-medium-laser": {
+      "INNER_SPHERE": "clermediumlaserprototype-registry",
+      "CLAN": "clermediumlaserprototype-registry"
+    },
+    "prototype-er-small-laser": {
+      "INNER_SPHERE": "clersmalllaserprototype-registry",
+      "CLAN": "clersmalllaserprototype-registry"
+    },
+    "prototype-streak-srm-4": {
+      "INNER_SPHERE": "streaksrm4prototype",
+      "CLAN": "streaksrm4prototype"
+    },
+    "prototype-streak-srm-6": {
+      "INNER_SPHERE": "streaksrm6prototype",
+      "CLAN": "streaksrm6prototype"
+    },
+    "prototype-ultra-autocannon-10": {
+      "INNER_SPHERE": "clultraac10prototype-registry",
+      "CLAN": "clultraac10prototype-registry"
+    },
+    "primitive-prototype-ppc": {
+      "INNER_SPHERE": "primitive-prototype-ppc-registry",
+      "CLAN": "primitive-prototype-ppc-registry"
+    },
+    "prototype-rocket-launcher-20": {
+      "INNER_SPHERE": "rocketlauncher20prototype-registry",
+      "CLAN": "rocketlauncher20prototype-registry"
     }
   }
 }
