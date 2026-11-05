@@ -2072,6 +2072,10 @@
       "id": "support-pulse-laser-registry"
     },
     {
+      "internalName": "TSEMP One-Shot",
+      "id": "tsemp-one-shot-registry"
+    },
+    {
       "internalName": "TSEMP Repeating Cannon",
       "id": "tsemp-repeating-cannon-registry"
     },

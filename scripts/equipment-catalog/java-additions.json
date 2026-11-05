@@ -36763,5 +36763,97 @@
       "ammoType": "INFANTRY",
       "rackSize": 0
     }
+  },
+  {
+    "native": "TSEMP One-Shot",
+    "kind": "weapons",
+    "source": "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/innerSphere/ISTSEMPOneShot.java: TSEMP One-Shot",
+    "values": {
+      "id": "tsemp-one-shot-registry",
+      "name": "TSEMP One-Shot",
+      "category": "Energy",
+      "techBase": "INNER_SPHERE",
+      "rulesLevel": "ADVANCED",
+      "weight": 4,
+      "criticalSlots": 3,
+      "battleValue": 98,
+      "introductionYear": 3090,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "costCBills": 500000,
+      "subType": "ISTSEMPOneShot",
+      "damage": 0,
+      "heat": 10,
+      "ranges": {
+        "long": 15,
+        "extreme": 20,
+        "short": 5,
+        "minimum": 0,
+        "medium": 10
+      },
+      "special": [
+        "https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/weapons/other/innerSphere/ISTSEMPOneShot.java: TSEMP One-Shot"
+      ]
+    },
+    "java": {
+      "javaClass": "megamek.common.weapons.other.innerSphere.ISTSEMPOneShot",
+      "internalName": "TSEMP One-Shot",
+      "name": "TSEMP One-Shot",
+      "aliases": ["TSEMP One-Shot", "ISTSEMPOS"],
+      "tech": "IS",
+      "bv": 98,
+      "tons": 4,
+      "criticalSlots": 3,
+      "cost": 500000,
+      "rulesLevel": "ADVANCED",
+      "introductionYear": 3090,
+      "extinctionYear": -1,
+      "reintroductionYear": -1,
+      "isExplosive": true,
+      "kind": "weapons",
+      "isPrototype": false,
+      "category": "Energy",
+      "damage": 0,
+      "allowedUnitTypes": [
+        "BattleMech",
+        "OmniMech",
+        "IndustrialMech",
+        "ProtoMech",
+        "Vehicle",
+        "VTOL",
+        "Support Vehicle",
+        "Aerospace",
+        "Conventional Fighter",
+        "Small Craft",
+        "DropShip",
+        "JumpShip",
+        "WarShip",
+        "Space Station"
+      ],
+      "heat": 10,
+      "ranges": {
+        "long": 15,
+        "extreme": 20,
+        "short": 5,
+        "minimum": 0,
+        "medium": 10
+      },
+      "ammoType": "NA",
+      "rackSize": 0
+    }
   }
 ]

@@ -2707,6 +2707,18 @@ export const APPROVED_JAVA_REROUTES = [
     reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
     loaderOnly: true,
   })),
+  // FU-101: the TSEMP One-Shot list slug loads Java's ISTSEMPOneShot (4 t, 3 slots), not the TSEMP Cannon.
+  ...[['tsemp-one-shot', 'tsemp-cannon', 'tsemp-one-shot-registry']].map(
+    ([name, oldTarget, newTarget, api]) => ({
+      name,
+      oldTarget,
+      newTarget,
+      ...(api ? { api } : {}),
+      reason:
+        'Follow-up 93; registry-routing.json techRoutes, unit loader only',
+      loaderOnly: true,
+    }),
+  ),
 ];
 async function capture(root, inputs) {
   process.chdir(root);
