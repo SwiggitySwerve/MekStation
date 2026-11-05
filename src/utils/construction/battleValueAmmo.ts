@@ -473,6 +473,7 @@ export function getNativeAmmoBVGroup(id: string): string | undefined {
     [/^(?:lightrifle|riflecannonlight)/, 'RIFLE:3'],
     [/^(?:mediumrifle|riflecannonmedium)/, 'RIFLE:6'],
     [/^(?:heavyrifle|riflecannonheavy)/, 'RIFLE:9'],
+    [/^nailrivet/, 'NAIL_RIVET_GUN:1'],
     [/^(?:lightmachinegun|lightmg|lmg)(?:half|full|st|pt)?$/, 'MG_LIGHT:1'],
     [/^(?:heavymachinegun|heavymg|hmg)(?:half|full|st|pt)?$/, 'MG_HEAVY:3'],
     [/^(?:machinegun|mg)(?:half|full|st|pt)?$/, 'MG:2'],
