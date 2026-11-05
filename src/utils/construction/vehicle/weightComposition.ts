@@ -12,8 +12,7 @@ import {
 } from '@/types/construction/EngineType';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
-  computeSupportVehicleEngineWeight,
-  computeVehicleEngineWeight,
+  computeVehicleInstalledEngineWeight,
   isVehicleFusionEngine,
 } from '@/utils/construction/vehicle/engine';
 import {
@@ -100,25 +99,7 @@ export function computeVehicleWeightBreakdown(
           );
   const { equipment, energyWeapons, turret, secondaryTurret } = mounted;
 
-  const engineContext = {
-    tonnage: state.tonnage,
-    motionType: state.motionType,
-    cruiseMP: state.cruiseMP,
-    engineTechRating: state.engineTechRating,
-  };
-  // Every support engine takes Java's support table (Engine.getWeightEngine).
-  const engine =
-    state.unitType === UnitType.SUPPORT_VEHICLE
-      ? computeSupportVehicleEngineWeight(
-          state.engineRating,
-          state.engineType,
-          engineContext,
-        )
-      : computeVehicleEngineWeight(
-          state.engineRating,
-          state.engineType,
-          engineContext,
-        );
+  const engine = computeVehicleInstalledEngineWeight(state);
   const structure =
     state.unitType === UnitType.SUPPORT_VEHICLE
       ? computeSupportStructureWeight(state)

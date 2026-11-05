@@ -26,7 +26,7 @@ export function resolveVehicleVariableMass(
   sourceId: string,
   context: VehicleVariableMassContext,
 ): number | undefined {
-  const { tonnage, engineWeight, weaponWeight } = context;
+  const { tonnage, weaponWeight } = context;
   const kilograms = context.isSupportVehicle && tonnage < 5;
   const round = (weight: number) =>
     roundSupportComponentWeight(weight, tonnage, kilograms);
@@ -43,6 +43,15 @@ export function resolveVehicleVariableMass(
       : round(weaponWeight / (item.id === 'basic-fire-control' ? 20 : 10));
   if (!item.special?.includes('Variable weight') && !item.variableEquipmentId)
     return item.weight;
+  return evaluateVehicleMassFormula(item, context);
+}
+
+function evaluateVehicleMassFormula(
+  item: VehicleVariableMassItem,
+  context: VehicleVariableMassContext,
+): number | undefined {
+  const { tonnage, engineWeight } = context;
+  const kilograms = context.isSupportVehicle && tonnage < 5;
   const formula =
     VARIABLE_EQUIPMENT_FORMULAS[item.variableEquipmentId ?? item.id];
   const values: Record<string, number> = { tonnage };
