@@ -35,6 +35,7 @@ import {
   mapArmorAllocation,
 } from './componentMappers';
 import { getCriticalSlotsForLocation } from './criticalSlotEquipment';
+import { parseCriticalSlotToken } from './equipmentResolution';
 import { mapMovementConfiguration } from './movementConfiguration';
 
 function deriveArmActuators(
@@ -50,14 +51,14 @@ function deriveArmActuators(
     const slots = getCriticalSlotsForLocation(
       serialized.criticalSlots,
       location,
+    )?.map((token) =>
+      parseCriticalSlotToken(token ?? '').lookupToken.toLowerCase(),
     );
     // Equipment-only older saves have no actuator evidence; retain their defaults.
-    if (!slots?.some((token) => token?.toLowerCase() === 'shoulder')) continue;
+    if (!slots?.includes('shoulder')) continue;
     result[location] = {
-      lowerArm: slots.some((token) =>
-        token?.toLowerCase().startsWith('lower arm'),
-      ),
-      hand: slots.some((token) => token?.toLowerCase().startsWith('hand')),
+      lowerArm: slots.some((token) => token.startsWith('lower arm')),
+      hand: slots.some((token) => token.startsWith('hand')),
     };
   }
   return result;
@@ -88,6 +89,7 @@ type UnitConfigurationState = Pick<
   | 'unitType'
   | 'configuration'
   | 'lamMode'
+  | 'lamType'
   | 'quadVeeMode'
   | 'isOmni'
   | 'baseChassisHeatSinks'
@@ -236,6 +238,8 @@ function deriveConfigurationState(
           ),
       ) ?? MechConfiguration.BIPED,
     lamMode: LAMMode.MECH,
+    lamType:
+      typeof serialized.lamType === 'string' ? serialized.lamType : undefined,
     quadVeeMode: QuadVeeMode.MECH,
     isOmni: serialized.isOmni ?? false,
     baseChassisHeatSinks: serialized.baseChassisHeatSinks ?? -1,
