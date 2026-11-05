@@ -117,6 +117,42 @@ test('interrupting the queue prevents launching waiting suites', async () => {
   assert.deepEqual(started, ['a']);
 });
 
+test('zero-retry gates run alone; library and smoke overlap after a gate failure', async () => {
+  const active = new Set();
+  const started = [];
+  let max = 0;
+  let releaseLibrary;
+  const library = new Promise((resolve) => {
+    releaseLibrary = resolve;
+  });
+  const errors = await settleSuites(
+    [
+      { suite: 'smoke', milliseconds: 20 },
+      { suite: 'library', milliseconds: 30 },
+      { suite: 'gates', milliseconds: 1 },
+    ],
+    2,
+    async ({ suite }) => {
+      if (suite === 'gates') assert.equal(active.size, 0);
+      else assert.equal(active.has('gates'), false);
+      active.add(suite);
+      started.push(suite);
+      max = Math.max(max, active.size);
+      try {
+        if (suite === 'gates') throw new Error('gate failed');
+        if (suite === 'library') await library;
+        if (suite === 'smoke') releaseLibrary();
+      } finally {
+        active.delete(suite);
+      }
+    },
+  );
+  assert.deepEqual(started, ['gates', 'library', 'smoke']);
+  assert.equal(max, 2);
+  assert.equal(errors.length, 1);
+  assert.match(errors[0].message, /gate failed/);
+});
+
 test('concurrent invocation keeps all specs, native policies and the two-suite limit', () => {
   const args = [
     'test',

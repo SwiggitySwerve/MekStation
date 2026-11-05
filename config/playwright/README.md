@@ -20,8 +20,9 @@ Before execution, the runner verifies its generated native `--test-list` against
 Playwright's actual selection. After execution it verifies the JSON report
 against the same plan. The original gate retries remain zero with retained
 failure traces; library and smoke retain their existing configured retries.
-The workflow's concurrent invocation collects the census once and runs the two
-longest suites first. At most two suite processes run at once. Each owns a port,
+The workflow's concurrent invocation collects the census once. Zero-retry gates
+run alone: their PDF export timed out beside the library on hosted run 42122831280. After gates settle, library/smoke run longest first with at most two
+suite processes at once. Each owns a port,
 readiness runId and absolute application/multiplayer SQLite paths, with server
 reuse disabled. A single production build serves both processes. Gate/library
 worker counts and native retry/trace policies stay unchanged.

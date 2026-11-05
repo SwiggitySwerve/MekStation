@@ -60,16 +60,24 @@ export async function settleSuites(tasks, limit, run, stopped = () => false) {
     (a, b) => b.milliseconds - a.milliseconds || a.suite.localeCompare(b.suite),
   );
   const errors = [];
+  const execute = async (task) => {
+    try {
+      await run(task);
+    } catch (error) {
+      errors.push(error);
+    }
+  };
+  // The PDF gate exceeded 30s beside the library on hosted run 42122831280.
+  // Give zero-retry gates an idle runner; only library/smoke may overlap.
+  for (const task of queue.filter(({ suite }) => suite === 'gates')) {
+    if (!stopped()) await execute(task);
+  }
+  const parallel = queue.filter(({ suite }) => suite !== 'gates');
   let next = 0;
   await Promise.all(
     Array.from({ length: limit }, async () => {
-      while (next < queue.length && !stopped()) {
-        const task = queue[next++];
-        try {
-          await run(task);
-        } catch (error) {
-          errors.push(error);
-        }
+      while (next < parallel.length && !stopped()) {
+        await execute(parallel[next++]);
       }
     }),
   );

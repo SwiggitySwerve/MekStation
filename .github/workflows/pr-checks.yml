@@ -626,7 +626,8 @@ jobs:
   # PLAYWRIGHT_* report env vars; its listing timings upload in e2e-timings.
   # A single census/build feeds at most two concurrent suite processes. Each
   # suite owns a server port, readiness runId and absolute SQLite paths; the
-  # longest suite starts first. Native flags and result checks stay unchanged.
+  # zero-retry gates run alone; library/smoke use longest-first concurrency.
+  # Native flags and result checks stay unchanged.
   # Step gating keeps docs- and openspec-only PRs green.
   # ---------------------------------------------------------------
   e2e:

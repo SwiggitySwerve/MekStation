@@ -236,7 +236,7 @@ function writeExecutionReceipt() {
   );
 }
 
-// Longest suite first, with independent standalone servers and databases.
+// Gates run alone; remaining suites use longest-first isolated servers/DBs.
 const failures = await settleSuites(
   plan.shards[shardIndex - 1].tasks.filter(
     ({ suite }) => !requestedSuite || suite === requestedSuite.name,
