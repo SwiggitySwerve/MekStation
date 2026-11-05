@@ -13,8 +13,7 @@ import {
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
-  computeSupportVehicleEngineWeight,
-  computeVehicleEngineWeight,
+  computeVehicleInstalledEngineWeight,
   isVehicleFusionEngine,
 } from '@/utils/construction/vehicle/engine';
 import {
@@ -41,8 +40,9 @@ import { computeSupportStructureWeight } from './supportWeight';
 export type { EquipmentResolver } from './mountedWeight';
 
 export interface VehicleWeightState
-  extends VehicleControlsLiftContext, VehicleMountedWeightState {
-  tonnage: number;
+  extends
+    VehicleControlsLiftContext,
+    Omit<VehicleMountedWeightState, keyof VehicleControlsLiftContext> {
   engineRating: number;
   engineType: VehicleEngineType;
   cruiseMP: number;
@@ -78,24 +78,7 @@ export function computeVehicleWeightFigures(
   state: VehicleWeightState,
   resolve: EquipmentResolver,
 ) {
-  const engineContext = {
-    tonnage: state.tonnage,
-    motionType: state.motionType,
-    cruiseMP: state.cruiseMP,
-    engineTechRating: state.engineTechRating,
-  };
-  const engine =
-    state.unitType === UnitType.SUPPORT_VEHICLE
-      ? computeSupportVehicleEngineWeight(
-          state.engineRating,
-          state.engineType,
-          engineContext,
-        )
-      : computeVehicleEngineWeight(
-          state.engineRating,
-          state.engineType,
-          engineContext,
-        );
+  const engine = computeVehicleInstalledEngineWeight(state);
   const {
     rawWeaponHeat,
     primarySummary: _primary,
