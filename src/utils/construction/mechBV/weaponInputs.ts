@@ -5,10 +5,8 @@ import {
   applyWeaponPostScanModifiers,
   type WeaponEntry,
 } from '../../../../scripts/validate-bv-calculator-weapons';
-import {
-  isRearLoc,
-  normalizeEquipId,
-} from '../../../../scripts/validate-bv-normalizers';
+import { consumeCritWeaponMount } from '../../../../scripts/validate-bv-crit-weapon-mounts';
+import { isRearLoc } from '../../../../scripts/validate-bv-normalizers';
 import {
   calculatePhysicalWeaponBV,
   getPhysicalWeaponBVHeat,
@@ -25,23 +23,6 @@ import {
   isDirectFireBVWeapon,
 } from '../battleValueWeapons';
 import { isOneShotMissileBVWeapon } from '../equipmentBV/weaponHeat';
-import { normalizeEquipmentId } from '../equipmentBVResolver';
-
-function matchesMarkedWeapon(
-  critName: string,
-  id: string,
-  aliases = true,
-): boolean {
-  const norm = normalizeEquipId(id);
-  return (
-    critName === norm ||
-    critName.includes(norm) ||
-    norm.includes(critName) ||
-    (aliases &&
-      (normalizeEquipmentId(critName) === normalizeEquipmentId(id) ||
-        critName.split('').sort().join('') === norm.split('').sort().join('')))
-  );
-}
 
 /** Builds mounted weapon BV inputs without changing the source critical grid. */
 export function buildMechBVWeapons(
@@ -69,12 +50,7 @@ export function buildMechBVWeapons(
       .trim();
     const locRearMap = cs.rearWeaponCountByLoc.get(rawLoc);
     if (!locRearMap) continue;
-    for (const [critName, count] of Array.from(locRearMap.entries())) {
-      if (count > 0 && matchesMarkedWeapon(critName, eq.id, false)) {
-        locRearMap.set(critName, count - 1);
-        break;
-      }
-    }
+    consumeCritWeaponMount(locRearMap, eq.id);
   }
 
   for (const eq of unit.equipment) {
@@ -133,30 +109,16 @@ export function buildMechBVWeapons(
       if (!thisRear && unit.criticalSlots) {
         const rawLoc = eq.location.split(',')[0].toUpperCase();
         const locRearMap = cs.rearWeaponCountByLoc.get(rawLoc);
-        if (locRearMap) {
-          for (const [critName, count] of Array.from(locRearMap.entries())) {
-            if (count > 0 && matchesMarkedWeapon(critName, eq.id)) {
-              thisRear = true;
-              locRearMap.set(critName, count - 1);
-              break;
-            }
-          }
-        }
+        thisRear = consumeCritWeaponMount(locRearMap, eq.id);
       }
       // Turret-mounted detection: (T) suffix in crits — excluded from determineFront
       let thisTurret = false;
       if (unit.criticalSlots) {
         const rawLoc = eq.location.split(',')[0].toUpperCase();
         const locTurretMap = cs.turretWeaponCountByLoc.get(rawLoc);
-        if (locTurretMap) {
-          for (const [critName, count] of Array.from(locTurretMap.entries())) {
-            if (count > 0 && matchesMarkedWeapon(critName, eq.id)) {
-              thisTurret = true;
-              thisRear = false; // turret weapons are never rear
-              locTurretMap.set(critName, count - 1);
-              break;
-            }
-          }
+        if (consumeCritWeaponMount(locTurretMap, eq.id)) {
+          thisTurret = true;
+          thisRear = false;
         }
       }
 
