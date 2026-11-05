@@ -4,7 +4,7 @@
  * Computes structure weight and structure points per location for combat vehicles.
  *
  * Rules (TechManual):
- * - Structure weight = 10% of tonnage, rounded up to the nearest half-ton
+ * - Standard structure uses native superheavy and naval rules, rounded to half tons
  * - Endo-Steel or Composite structure: 50% of standard weight
  * - Structure points per location come from the vehicle tonnage table
  */
@@ -194,10 +194,18 @@ export function computeVehicleStructurePoints(
 export function computeVehicleStructureWeight(
   tonnage: number,
   structureType: VehicleStructureType = VehicleStructureType.STANDARD,
+  motionType: GroundMotionType = GroundMotionType.TRACKED,
 ): number {
   const multiplier = STRUCTURE_TYPE_MULTIPLIER[structureType];
+  const superHeavy = isSuperHeavyTank(motionType, tonnage);
+  const doubles =
+    superHeavy &&
+    structureType !== VehicleStructureType.COMPOSITE &&
+    (structureType === VehicleStructureType.ENDO_STEEL ||
+      (motionType !== GroundMotionType.NAVAL &&
+        motionType !== GroundMotionType.SUBMARINE));
   const baseWeight = tonnage * 0.1;
-  return ceilToHalfTon(baseWeight * multiplier);
+  return ceilToHalfTon(baseWeight * multiplier * (doubles ? 2 : 1));
 }
 
 // =============================================================================

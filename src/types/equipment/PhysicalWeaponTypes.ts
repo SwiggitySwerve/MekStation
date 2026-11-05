@@ -217,9 +217,12 @@ export function getPhysicalWeaponDefinition(
 /** Audited sizing delegates to the shared formula registry; identity stays unchanged. */
 function auditedSizing(type: PhysicalWeaponType, tonnage: number) {
   if (
-    ![PhysicalWeaponType.SWORD, PhysicalWeaponType.RETRACTABLE_BLADE].includes(
-      type,
-    )
+    ![
+      PhysicalWeaponType.SWORD,
+      PhysicalWeaponType.RETRACTABLE_BLADE,
+      PhysicalWeaponType.FLAIL,
+      PhysicalWeaponType.WRECKING_BALL,
+    ].includes(type)
   )
     return undefined;
   return getEquipmentCalculatorService().calculateProperties(

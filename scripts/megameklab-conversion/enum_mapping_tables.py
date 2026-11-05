@@ -144,6 +144,8 @@ COCKPIT_TYPE_MAP: Dict[str, str] = {
     "Superheavy Cockpit": "SUPERHEAVY",
     "Superheavy Tripod Cockpit": "SUPERHEAVY_TRIPOD",
     "Interface Cockpit": "INTERFACE",
+    "Virtual Reality Piloting Pod": "VRRP",
+    "VRRP": "VRRP",
     "QuadVee Cockpit": "QUADVEE",
 }
 
