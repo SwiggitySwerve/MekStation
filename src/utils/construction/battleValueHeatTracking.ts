@@ -58,8 +58,6 @@ function usesXXLHeatProfile(config: OffensiveBVConfig): boolean {
 
 function calculateRunningHeat(config: OffensiveBVConfig): number {
   if (config.hasIndustrialStructure) return 0;
-  if (config.engineType === EngineType.ICE) return 0;
-  if (config.engineType === EngineType.FUEL_CELL) return 0;
   return usesXXLHeatProfile(config) ? 6 : 2;
 }
 

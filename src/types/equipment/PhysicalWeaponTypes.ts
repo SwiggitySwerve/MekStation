@@ -1,4 +1,6 @@
 import type { ITemporalEntity } from '@/types/core/ITemporalEntity';
+
+import { getEquipmentCalculatorService } from '@/services/equipment/EquipmentCalculatorService';
 /**
  * Physical Weapon Type Definitions
  *
@@ -212,6 +214,20 @@ export function getPhysicalWeaponDefinition(
   return PHYSICAL_WEAPON_DEFINITIONS.find((w) => w.type === type);
 }
 
+/** Audited sizing delegates to the shared formula registry; identity stays unchanged. */
+function auditedSizing(type: PhysicalWeaponType, tonnage: number) {
+  if (
+    ![PhysicalWeaponType.SWORD, PhysicalWeaponType.RETRACTABLE_BLADE].includes(
+      type,
+    )
+  )
+    return undefined;
+  return getEquipmentCalculatorService().calculateProperties(
+    type.toLowerCase().replaceAll(' ', '-'),
+    { tonnage },
+  );
+}
+
 /**
  * Calculate physical weapon weight
  */
@@ -221,6 +237,9 @@ export function calculatePhysicalWeaponWeight(
 ): number {
   const def = getPhysicalWeaponDefinition(type);
   if (!def) return 0;
+
+  const sizing = auditedSizing(type, mechTonnage);
+  if (sizing) return sizing.weight;
 
   if (def.weightFormula === 'fixed') {
     return def.fixedWeight ?? 0;
@@ -261,6 +280,9 @@ export function calculatePhysicalWeaponSlots(
 ): number {
   const def = getPhysicalWeaponDefinition(type);
   if (!def) return 0;
+
+  const sizing = auditedSizing(type, mechTonnage);
+  if (sizing) return sizing.criticalSlots;
 
   // Most physical weapons take 1 slot per 15 tons (rounded up)
   if (
