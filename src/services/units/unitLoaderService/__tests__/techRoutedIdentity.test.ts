@@ -16,11 +16,14 @@ import champion from '../../../../../public/data/units/battlemechs/4-clan-invasi
 import crossbowC from '../../../../../public/data/units/battlemechs/4-clan-invasion/advanced/Crossbow C.json';
 import daishiC from '../../../../../public/data/units/battlemechs/4-clan-invasion/advanced/Daishi C.json';
 import avatar from '../../../../../public/data/units/battlemechs/5-civil-war/advanced/Avatar AV1-OU.json';
+import bombardier from '../../../../../public/data/units/battlemechs/5-civil-war/advanced/Bombardier BMB-14K.json';
+import flea from '../../../../../public/data/units/battlemechs/5-civil-war/advanced/Flea FLE-19.json';
 import linebackerF from '../../../../../public/data/units/battlemechs/5-civil-war/experimental/Linebacker F.json';
 import cauldronBorn from '../../../../../public/data/units/battlemechs/5-civil-war/standard/Cauldron-Born U.json';
 import pariahAZ from '../../../../../public/data/units/battlemechs/5-civil-war/standard/Pariah (Septicemia) A-Z.json';
 import assassin from '../../../../../public/data/units/battlemechs/6-dark-age/advanced/Assassin ASN-109.json';
 import crossbowT from '../../../../../public/data/units/battlemechs/6-dark-age/advanced/Crossbow T.json';
+import scarecrow from '../../../../../public/data/units/battlemechs/6-dark-age/standard/Scarecrow UCU-F4.json';
 import { resolveEquipmentId } from '../equipmentResolution';
 import { UnitLoaderService } from '../unitLoader';
 
@@ -228,4 +231,76 @@ it.each([
   const mounts = state.equipment.filter((item) => item.equipmentId === id);
   expect(mounts.length).toBeGreaterThan(0);
   expect(mounts.every((item) => (item.slots?.length ?? 0) > 0)).toBe(true);
+});
+
+// MG arrays: the shared records mga/lmga/hmga carry Clan values (0.25 t) while
+// Java's ISMGA/ISLMGA/ISHMGA weigh 0.5 t. Java's display names are tech-dependent
+// (Machine Gun Array -> IS ISMGA, CLAN CLMGA); MTFs list the display name and place
+// crits by internal name, so the list id, display name and IS internal name route
+// together (follow-up 92 slice 4 split them by routing ISLMGA alone).
+it.each([
+  ['machine-gun-array', IS, 'ismga-registry'],
+  ['Light Machine Gun Array', IS, 'islmga-registry'],
+  ['ISLMGA', IS, 'islmga-registry'],
+  ['heavy-machine-gun-array', IS, 'ishmga-registry'],
+  ['machine-gun-array', CLAN, 'mga'],
+  ['Light Machine Gun Array', CLAN, 'lmga'],
+  ['CLLMGA', CLAN, 'lmga'],
+] as const)(
+  'MG array %s on a %s unit resolves to %s',
+  (id, [tech, mode], target) => {
+    expect(resolveEquipmentId(id, tech, mode, []).equipmentDef?.id).toBe(
+      target,
+    );
+  },
+);
+
+it.each([
+  ['Flea FLE-19 (IS LMGA)', flea, 'islmga-registry', 0.5],
+  ['Bombardier BMB-14K (IS MGA)', bombardier, 'ismga-registry', 0.5],
+] as const)(
+  'assigns %s its MG array slots at Java weight',
+  (_name, unit, id, weight) => {
+    const state = new UnitLoaderService().mapToUnitState(unit, true);
+    const arrays = state.equipment.filter((item) => item.equipmentId === id);
+    expect(arrays.length).toBeGreaterThan(0);
+    expect(arrays.every((item) => (item.slots?.length ?? 0) > 0)).toBe(true);
+    expect(arrays.every((item) => item.weight === weight)).toBe(true);
+    expect(
+      getEquipmentSlotIssues(
+        state.equipment,
+        state.configuration,
+        state.engineType,
+        state.gyroType,
+        state.armActuators,
+        state.cockpitType,
+      ),
+    ).toEqual([]);
+  },
+);
+
+// Mixed tech without a matching name marker: Scarecrow UCU-F4 places Clan light
+// MG arrays (crit CLLMGA) under the list id light-machine-gun-array. The side is
+// the one whose route target a crit token at that location resolves to.
+it('routes a mixed-tech unit by the crit token its location carries', () => {
+  expect(
+    resolveEquipmentId(
+      'light-machine-gun-array',
+      TechBase.INNER_SPHERE,
+      TechBaseMode.MIXED,
+      ['CLLightMG', 'CLLMGA'],
+    ).equipmentDef?.id,
+  ).toBe('lmga');
+  expect(
+    resolveEquipmentId(
+      'light-machine-gun-array',
+      TechBase.INNER_SPHERE,
+      TechBaseMode.MIXED,
+      ['ISLMGA'],
+    ).equipmentDef?.id,
+  ).toBe('islmga-registry');
+  const state = new UnitLoaderService().mapToUnitState(scarecrow, true);
+  const arrays = state.equipment.filter((item) => item.equipmentId === 'lmga');
+  expect(arrays).toHaveLength(2);
+  expect(arrays.every((item) => (item.slots?.length ?? 0) > 0)).toBe(true);
 });

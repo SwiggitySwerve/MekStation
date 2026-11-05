@@ -31404,7 +31404,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 292,
+    "index": 295,
     "id": "alamomissile-registry",
     "sha256": "3c7dc5048e0a716d5df245378ee75a61665c402ad3735609b41045d96c76c285",
     "item": {
@@ -31439,7 +31439,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 293,
+    "index": 296,
     "id": "capital-missile-launcher-kraken-registry",
     "sha256": "f79496180ecee6507a5740e498db5828e4fd1f4277f80c79336c61dac831880c",
     "item": {
@@ -31474,7 +31474,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 294,
+    "index": 297,
     "id": "naval-gauss-heavy-registry",
     "sha256": "dfcc0828bbbc83168a96c52f906ca0bee5d36cc7509cde455ae103864f2648b0",
     "item": {
@@ -31519,7 +31519,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 295,
+    "index": 298,
     "id": "naval-gauss-light-registry",
     "sha256": "1ea83ed0660cf51c8e9f4c4ead229dfb75564e679f89c49ea682657304ff3421",
     "item": {
@@ -31564,7 +31564,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 296,
+    "index": 299,
     "id": "naval-gauss-medium-registry",
     "sha256": "6fa783f29a5133e10b253503792d017c38854b95a7decbe9bf2667e56890d7be",
     "item": {
@@ -31609,7 +31609,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 297,
+    "index": 300,
     "id": "tele-operated-missile-barracuda-t-registry",
     "sha256": "895a2bf9e58e5ddbd60d46008e09e510933df55f0c36a9d824834a441ae234da",
     "item": {
@@ -31644,7 +31644,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 298,
+    "index": 301,
     "id": "tele-operated-missile-white-shark-t-registry",
     "sha256": "925859e668ad8c63983d9dcec316c027ec6921be2242406fd3f38fc127e07d5e",
     "item": {
@@ -32315,7 +32315,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 299,
+    "index": 302,
     "id": "autocannon-2p-registry",
     "sha256": "7cb0d0857eea54cbac82da9f540eea85e82b109c5ffacf8bc33e477c23f2b264",
     "item": {
@@ -32365,7 +32365,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 300,
+    "index": 303,
     "id": "bombrlp-registry",
     "sha256": "a0fc1fe27718e7d0c00401af2598f59b8753c811355e7801b8bac642bf687eae",
     "item": {
@@ -32409,7 +32409,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 301,
+    "index": 304,
     "id": "clersmalllaserprototype-registry",
     "sha256": "33d99c5468ae2bf6ead3378d1a072136ff69e10582881a90ce908b5446b8702e",
     "item": {
@@ -32460,7 +32460,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 302,
+    "index": 305,
     "id": "cllbxac20prototype-registry",
     "sha256": "9b454b66310033abf4e86d794347f33bfb7a63fc3a46917472ab040f86faf638",
     "item": {
@@ -32511,7 +32511,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 303,
+    "index": 306,
     "id": "cllbxac2prototype-registry",
     "sha256": "d370469ab01fd6896e7e36c38ff6159684987fb545a80cc9e9132dfbc44c0eaa",
     "item": {
@@ -32562,7 +32562,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 304,
+    "index": 307,
     "id": "cllbxac5prototype-registry",
     "sha256": "eb75a0917307efc49ce88f9730b990da97edfae7cf384b72479265b61e88f968",
     "item": {
@@ -32613,7 +32613,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 305,
+    "index": 308,
     "id": "clstreaksrm4prototype-registry",
     "sha256": "73215d376c646bb5fdeb81d8d8daae01530d6cfe0b05297b2983522f8d73606a",
     "item": {
@@ -32661,7 +32661,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 306,
+    "index": 309,
     "id": "clstreaksrm6prototype-registry",
     "sha256": "269a43469710db9eeb32b2e2d6ab306701c235ba950376a29f528001d3c29e47",
     "item": {
@@ -32709,7 +32709,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 307,
+    "index": 310,
     "id": "clultraac10prototype-registry",
     "sha256": "124379e9c37b2843c0eb777f7911c82d197673bb08fb085899fbda527a7db48d",
     "item": {
@@ -32760,7 +32760,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 308,
+    "index": 311,
     "id": "clultraac20prototype-registry",
     "sha256": "8b226b4bde3da2a21760ab0fd045f25ac7093417fdfbd91bcd7e9a09b9905f45",
     "item": {
@@ -32811,7 +32811,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 309,
+    "index": 312,
     "id": "clultraac2prototype-registry",
     "sha256": "a345890ac02094d6cabfd55018f5e259f06b9470685f30783ad008662fa73c64",
     "item": {
@@ -32863,7 +32863,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 310,
+    "index": 313,
     "id": "iserlargelaserprototype-registry",
     "sha256": "dfa71cff233e543925cbdafeac72ee0fd1d4fb00d54c2361ca1d6dedd227d7b8",
     "item": {
@@ -32915,7 +32915,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 311,
+    "index": 314,
     "id": "isgaussrifleprototype-registry",
     "sha256": "ca9ae3b5e538da2c75f883183d63fce782bb2a90eaf3e8073fbf7c10f17f03a6",
     "item": {
@@ -32964,7 +32964,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 312,
+    "index": 315,
     "id": "islbxac10prototype-registry",
     "sha256": "b9caffc0b60e2a079cbd1c35ed72587675c71380651337ce335bc34d7e9e6a5d",
     "item": {
@@ -33017,7 +33017,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 313,
+    "index": 316,
     "id": "islargepulselaserprototype-registry",
     "sha256": "4c954acb10a92b036d205f44a60165c95ce96992a49864f0b950d81f2a18fca2",
     "item": {
@@ -33069,7 +33069,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 314,
+    "index": 317,
     "id": "ismediumpulselaserprototype-registry",
     "sha256": "6048bd3fd7dbda19b5bc00cbce646a041ac811b36f95ba9f60b4191d8067a6ec",
     "item": {
@@ -33121,7 +33121,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 315,
+    "index": 318,
     "id": "ismediumpulselaserrecovered-registry",
     "sha256": "c81951a0707431ad6f12390387d0c2fa9484a387707e3913cee1b4a865cde0cd",
     "item": {
@@ -33173,7 +33173,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 316,
+    "index": 319,
     "id": "isnarcbeaconprototype-registry",
     "sha256": "40b93265505bcc349be38ee4c751fdbcc0ad3f5ea7383ead020a9e64c0784861",
     "item": {
@@ -33225,7 +33225,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 317,
+    "index": 320,
     "id": "isprimitivelongtom-registry",
     "sha256": "b9517a46d163dce4cbc42d67736b5d19308e636d9d03f47344ee812828c5c366",
     "item": {
@@ -33276,7 +33276,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 318,
+    "index": 321,
     "id": "isprototypetag-registry",
     "sha256": "79dd91fe8b4bfc8b773a80bc1ff6f8590ceb2bf2a9473af477ff347c035cc0c8",
     "item": {
@@ -33327,7 +33327,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 319,
+    "index": 322,
     "id": "issmallpulselaserprototype-registry",
     "sha256": "a44a7cc088406c7b8a65778f6432a8cff64549534c60d524312fc1d30222f879",
     "item": {
@@ -33379,7 +33379,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 320,
+    "index": 323,
     "id": "primitive-prototype-lrm-10-registry",
     "sha256": "f540bfc90648bbde1b7688b2be3e8a6791c418a81a4cd38f6d0727a3a91ebca0",
     "item": {
@@ -33430,7 +33430,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 321,
+    "index": 324,
     "id": "primitive-prototype-lrm-15-registry",
     "sha256": "d5dd042f47f11a0775eb32e1b33eb47823c43f374acaf2cc701345ad090e69a5",
     "item": {
@@ -33481,7 +33481,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 322,
+    "index": 325,
     "id": "primitive-prototype-lrm-20-registry",
     "sha256": "e740af6e9d157cc73ef05613ce1c08c7b27672590c118928feeae3b801ee2236",
     "item": {
@@ -33532,7 +33532,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 323,
+    "index": 326,
     "id": "primitive-prototype-lrm-5-registry",
     "sha256": "1c4f713b9fdb828bdc6d3cc09edbeb1373e1f4901fda372e5d1762093155b39c",
     "item": {
@@ -33583,7 +33583,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 324,
+    "index": 327,
     "id": "primitive-prototype-large-laser-registry",
     "sha256": "0d49c15d3993490b043d30eac75ec822e6cb15014a352061269e58125ac1de98",
     "item": {
@@ -33634,7 +33634,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 325,
+    "index": 328,
     "id": "primitive-prototype-medium-laser-registry",
     "sha256": "1c0ba9e6896708dcfa7e52913a1639c21858c473cec3cfe7d0713c581e4a0d5c",
     "item": {
@@ -33685,7 +33685,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 326,
+    "index": 329,
     "id": "primitive-prototype-ppc-registry",
     "sha256": "70e227188b74b7e440f58241614c75b2c6e4a276519b7573a091af8155517b83",
     "item": {
@@ -33736,7 +33736,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 327,
+    "index": 330,
     "id": "primitive-prototype-srm-2-registry",
     "sha256": "5820db4d84a26996284aa36725db74c6d4a43b04f2b0507c9a2d7ddeb723e300",
     "item": {
@@ -33787,7 +33787,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 328,
+    "index": 331,
     "id": "primitive-prototype-srm-4-registry",
     "sha256": "41aacbdbdbdcf190d5c34aa5b4c25878f41c143dc0548cc8549fc1ec7853b8cd",
     "item": {
@@ -33838,7 +33838,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 329,
+    "index": 332,
     "id": "primitive-prototype-srm-6-registry",
     "sha256": "02049da712d7e495ec17c141d42a9b88bcfa5eb2c255a5f9b6b4392718ab27a2",
     "item": {
@@ -33889,7 +33889,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 330,
+    "index": 333,
     "id": "primitive-prototype-small-laser-registry",
     "sha256": "a7e0e2c98e6bcc052f67ea9a42f3b308b1a0ebdad216bb0178c6f115b0ea6b9c",
     "item": {
@@ -33940,7 +33940,7 @@
   },
   {
     "file": "weapons/java-registry.json",
-    "index": 331,
+    "index": 334,
     "id": "prototypearrowiv-registry",
     "sha256": "477abc20545967ee4c42c4bbbb292203765b44e73b4a16d344d5d98088ce553e",
     "item": {
