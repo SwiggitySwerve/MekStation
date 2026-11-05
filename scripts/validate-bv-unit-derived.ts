@@ -70,6 +70,7 @@ export function mapCockpitType(s: string): CockpitType {
   if (u.includes('COMMANDCONSOLE') || u.includes('COMMAND'))
     return 'command-console';
   if (u.includes('INTERFACE')) return 'interface';
+  if (u === 'VRRP' || u === 'VIRTUALREALITYPILOTINGPOD') return 'vrrp';
   if (u.includes('DRONE')) return 'drone-operating-system';
   return 'standard';
 }

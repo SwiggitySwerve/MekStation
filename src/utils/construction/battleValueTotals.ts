@@ -10,6 +10,7 @@ export type CockpitType =
   | 'small-command-console'
   | 'command-console'
   | 'interface'
+  | 'vrrp'
   | 'drone-operating-system';
 
 export function getCockpitModifier(cockpitType?: CockpitType): number {
@@ -21,6 +22,8 @@ export function getCockpitModifier(cockpitType?: CockpitType): number {
       return 0.95;
     case 'interface':
       return 1.3;
+    case 'vrrp':
+      return 1.4;
     default:
       return 1.0;
   }
