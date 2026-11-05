@@ -326,6 +326,7 @@
       "ranges": { "minimum": 0, "short": 2, "medium": 4, "long": 6 },
       "weight": 1.5,
       "criticalSlots": 1,
+      "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 60000,
       "battleValue": 36,
       "introductionYear": 3057,

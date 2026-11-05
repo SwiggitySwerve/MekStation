@@ -13973,7 +13973,7 @@
     "file": "weapons/energy-laser.json",
     "index": 17,
     "id": "clan-er-small-pulse-laser",
-    "sha256": "05e945f6f709b666cf72474ab36275d009aa41038f6d5a1b786a117f047d6093",
+    "sha256": "c8bf949f3cd0653af1ca75c77a5dafe178b98c8ff94557dfd36dab5a3602f74c",
     "item": {
       "id": "clan-er-small-pulse-laser",
       "name": "ER Small Pulse Laser (Clan)",
@@ -13991,6 +13991,10 @@
       },
       "weight": 1.5,
       "criticalSlots": 1,
+      "vehicleSlots": {
+        "tank": 1,
+        "supportVehicle": 1
+      },
       "costCBills": 60000,
       "battleValue": 36,
       "introductionYear": 3057,

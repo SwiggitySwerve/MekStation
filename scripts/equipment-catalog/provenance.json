@@ -232,6 +232,10 @@
       "id": "clapgaussrifle-ammo-registry"
     },
     {
+      "internalName": "CLArmoredMotiveSystem",
+      "id": "clarmoredmotivesystem-registry"
+    },
+    {
       "internalName": "CLArrowIVHomingAmmo",
       "id": "clarrowivhomingammo-registry"
     },
