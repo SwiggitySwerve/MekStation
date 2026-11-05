@@ -180,6 +180,7 @@ function buildFileIndex(root, excludePrefix = null) {
   // data domain contains one is refused (see keyFor).
   index.symlinks = new Set();
   const tracked = new Set();
+  let gitKnown = true;
   try {
     const git = (args) =>
       execFileSync('git', args, {
@@ -236,15 +237,19 @@ function buildFileIndex(root, excludePrefix = null) {
     index.clear();
     index.symlinks.clear();
     tracked.clear();
+    gitKnown = false;
     walk(root, '', index);
   }
   // Files a test run (or the app it starts) writes into the tree are outputs, not
   // inputs, and a fresh checkout, which CI keys, has none: left in, every local run
   // changed the next run's keys. Tracked files stay, edited or not (the repo tracks a
-  // few .pyc files), and so does anything that could not be read (null digest).
-  for (const file of [...index.keys()]) {
-    if (!tracked.has(file) && GENERATED_OUTPUTS.some((p) => p.test(file)))
-      index.delete(file);
+  // few .pyc files), and so does anything that could not be read (null digest). Without
+  // git, tracking is unknown, so nothing is dropped.
+  if (gitKnown) {
+    for (const file of [...index.keys()]) {
+      if (!tracked.has(file) && GENERATED_OUTPUTS.some((p) => p.test(file)))
+        index.delete(file);
+    }
   }
   // Result caches live in the tree and must never feed keys: this
   // invocation's own (`excludePrefix`) and any other store, which createStore

@@ -1409,15 +1409,33 @@ describe('test result cache key: generated outputs are not inputs', () => {
   // scenario-pack output into the tree. They are git-ignored, so the index hashed them,
   // and every local run changed the next run's keys (639 of 3,163 unit keys). A fresh
   // checkout, which is what CI keys, has none of them.
-  const repo = () =>
-    makeRepo({
-      'package.json': '{}',
-      'scripts/real.json': '{"a":1}',
-      'src/reader.test.ts':
-        "import * as fs from 'fs';\n" +
-        "test('x', () => fs.readFileSync(process.cwd() + '/data/app.db'));\n" +
-        "test('y', () => fs.readFileSync('scripts/real.json'));\n",
+  const files = {
+    'package.json': '{}',
+    'scripts/real.json': '{"a":1}',
+    'src/reader.test.ts':
+      "import * as fs from 'fs';\n" +
+      "test('x', () => fs.readFileSync(process.cwd() + '/data/app.db'));\n" +
+      "test('y', () => fs.readFileSync('scripts/real.json'));\n",
+  };
+  const gitIn = (root: string, ...args: string[]) =>
+    execFileSync('git', args, { cwd: root, stdio: 'ignore' });
+  // tracking is known only with git, so the filter applies only to a git checkout
+  const repo = () => {
+    const root = makeRepo(files);
+    gitIn(root, 'init', '-q');
+    gitIn(root, 'add', '-A');
+    return root;
+  };
+
+  it('drops nothing when git cannot say what is tracked', () => {
+    const root = makeRepo(files); // no git repository
+    write(root, { 'scripts/__pycache__/tracked.cpython-314.pyc': 'v0' });
+    const keys = ['v1', 'v2'].map((text) => {
+      write(root, { 'scripts/__pycache__/tracked.cpython-314.pyc': text });
+      return keyOf(root, 'src/reader.test.ts').key;
     });
+    expect(keys[0]).not.toBe(keys[1]);
+  });
 
   it('ignores the app database, the validation report, bytecode and recapture output', () => {
     const root = repo();
@@ -1450,10 +1468,7 @@ describe('test result cache key: generated outputs are not inputs', () => {
     // the repo tracks a few .pyc files; an edited tracked file has a content hash, not git:<blob>
     const root = repo();
     write(root, { 'scripts/__pycache__/tracked.cpython-314.pyc': 'v0' });
-    const git = (...args: string[]) =>
-      execFileSync('git', args, { cwd: root, stdio: 'ignore' });
-    git('init', '-q');
-    git('add', '-A');
+    gitIn(root, 'add', '-A');
     const staged = keyOf(root, 'src/reader.test.ts');
     write(root, { 'scripts/__pycache__/tracked.cpython-314.pyc': 'v1' });
     const edit1 = keyOf(root, 'src/reader.test.ts');
