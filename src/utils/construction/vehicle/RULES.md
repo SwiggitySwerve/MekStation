@@ -1,5 +1,17 @@
 # Combat-vehicle construction rules
 
+## Shared unit/size-dependent equipment mass
+
+`variableEquipmentMass.ts` owns the existing support variable rules for MASH,
+drone systems, booby traps, cargo, communications and fire-control mass. It calls
+the formula registry for supported generic formulas; there is no second formula
+copy in the support consumer. Source `:size:` metadata is an input to the owner.
+Fixed zero and unsupported variable formulas remain distinct; callers preserve
+their existing unsupported-rule policy. Small support uses kilogram rounding;
+combat components use half tons. MegaMek 48fcb2f6, MiscType.java:700-730,820-842
+and RoundWeight.java:58-68 own these terms. Weapon-basis computer mass remains
+its separately gated correction.
+
 ## Linked thermal load
 
 `mountedWeight.ts` uses the existing native pairing owner in

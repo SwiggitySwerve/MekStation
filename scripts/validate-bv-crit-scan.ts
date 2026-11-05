@@ -489,21 +489,9 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
             });
         }
 
-        // B-Pod — explosive per MegaMek WeaponType.F_B_POD
-        // Reduced penalty: 1 BV per slot per MekBVCalculator lines 227-228
-        // Note: B-Pod is ALSO defensive equipment (pushed to defEquipIds below),
-        // explosive penalty is a separate deduction from defensive BV.
-        if (
-          (lo.includes('b-pod') || lo === 'isbpod' || lo === 'clbpod') &&
-          !lo.includes('ammo')
-        ) {
-          if (ml)
-            r.explosive.push({
-              location: ml,
-              slots: 1,
-              penaltyCategory: 'reduced',
-            });
-        }
+        // B-Pod's explosive flag is insufficient: pinned EquipmentType.java:
+        // 448-460 consults CoreRulesExplosions.java:241-247, which excludes pods.
+        // Keep its independent defensive-equipment inclusion below.
 
         // M-Pod — explosive per MegaMek WeaponType.F_M_POD
         // Reduced penalty: 1 BV per slot per MekBVCalculator lines 229-230
@@ -700,9 +688,14 @@ export function scanCrits(unit: UnitData, unitId?: string): CritScan {
         // Physical weapons — detect first slot only (they span multiple slots)
         const physType = classifyPhysicalWeapon(lo);
         if (physType) {
-          const key = physType + '@' + loc;
+          // Talons are one spreadable mount: MtfFile.java:1053-1068,
+          // MiscType.java:4310-4316 (48fcb2f64). Other mounts retain location.
           if (
-            !r.physicalWeapons.some((pw) => pw.type + '@' + pw.location === key)
+            !r.physicalWeapons.some(
+              (pw) =>
+                pw.type === physType &&
+                (physType === 'talon' || pw.location === loc),
+            )
           ) {
             r.physicalWeapons.push({ type: physType, location: loc });
           }

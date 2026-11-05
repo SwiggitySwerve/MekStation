@@ -69,8 +69,8 @@ export function calculateDefensiveBV(
 
   const explosivePenalties = config.explosivePenalties ?? 0;
 
-  const armorBV =
-    Math.round(config.totalArmorPoints * 2.5 * armorMultiplier * bar) / 10;
+  // BVCalculator.java:429-434,453 (48fcb2f64): armor stays unrounded.
+  const armorBV = (config.totalArmorPoints * 2.5 * armorMultiplier * bar) / 10;
   const structureBV =
     config.totalStructurePoints * 1.5 * structureMultiplier * engineMultiplier;
   const gyroBV = config.tonnage * gyroMultiplier;
