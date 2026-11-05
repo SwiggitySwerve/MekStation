@@ -17,6 +17,13 @@ critical-slot lookup removes `(OMNIPOD)` before the rear marker, matching
 pinned MtfFile.java:1010-1020. Already resolved decorated spellings retain
 their catalog IDs, including specialized ammunition bin identities.
 
+Critical-slot joins use both the catalog ID and the ammo/non-ammo category.
+When registry fallback reaches a shared launcher/ammo ID, getMountedById selects
+the token's record through the normalization owner's ammo classification. An
+existing resolved definition retains precedence. Claiming launcher cells cannot
+consume ammo cells with that ID, and recovery reserves existing ammo mounts.
+Pinned MegaMek 48fcb2f64: MtfFile.java:1052-1056,1133-1149.
+
 This module owns validated definition loading and editor-session admission.
 `UnitIndex.UNIT_FAMILIES` owns the catalog family names. The definition family
 registry owns their accepted contract discriminators and available store mapper.
