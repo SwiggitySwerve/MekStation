@@ -4,7 +4,7 @@
  * Defensive BV = (armorBV + structureBV + gyroBV + defEquipBV - explosivePenalties)
  *                × defensiveFactor
  * where:
- *   armorBV = round(armorPoints × 2.5 × armorMult × bar) / 10
+ *   armorBV = armorPoints × 2.5 × armorMult × bar / 10
  *   structureBV = structurePoints × 1.5 × structureMult × engineMult
  *   gyroBV = tonnage × gyroMult
  *   defensiveFactor = 1 + maxTMM/10  (TMM may be boosted by ECM-style stealth)
@@ -28,7 +28,7 @@ const baseConfig = {
 describe('calculateDefensiveBV — base formula', () => {
   it('computes armor, structure, and gyro BV with standard multipliers', () => {
     const result = calculateDefensiveBV({ ...baseConfig });
-    // armorBV = round(100 × 2.5 × 1.0 × 10) / 10 = 250
+    // armorBV = 100 × 2.5 × 1.0 × 10 / 10 = 250
     expect(result.armorBV).toBe(250);
     // structureBV = 80 × 1.5 × 1.0 × 1.0 = 120
     expect(result.structureBV).toBe(120);
@@ -54,6 +54,51 @@ describe('calculateDefensiveBV — base formula', () => {
 });
 
 describe('calculateDefensiveBV — armor type multipliers', () => {
+  // MegaMek 48fcb2f64, BVCalculator.java:429-434,453,461-462:
+  // keep the armor subtotal unrounded when forming the defensive rating.
+  it.each<[string, number, string, number, boolean, number]>([
+    ['Warwolf Prime reactive armor', 231, 'reactive', 10, false, 866.25],
+    ['Scourge reflective armor', 211, 'reflective', 10, false, 791.25],
+    ['Shugosha commercial BAR 5', 35, 'commercial', 5, false, 43.75],
+    ['reduced BAR with reactive armor', 5, 'reactive', 7, false, 13.125],
+    ['heat-dissipating armor', 111, 'heat-dissipating', 10, false, 305.25],
+    ['reactive armor with Blue Shield', 231, 'reactive', 10, true, 981.75],
+  ])(
+    'preserves fractional BV for %s',
+    (_, points, type, bar, blue, expected) => {
+      const result = calculateDefensiveBV({
+        ...baseConfig,
+        totalArmorPoints: points,
+        armorType: type,
+        bar,
+        hasBlueShield: blue,
+      });
+
+      expect(result.armorBV).toBeCloseTo(expected, 10);
+      expect(result.totalDefensiveBV).toBeCloseTo(
+        (expected + result.structureBV + result.gyroBV) *
+          result.defensiveFactor,
+        10,
+      );
+    },
+  );
+
+  it('carries Warwolf Prime fractional armor into its native defensive rating', () => {
+    const result = calculateDefensiveBV({
+      totalArmorPoints: 231,
+      totalStructurePoints: 114,
+      tonnage: 75,
+      runMP: 8,
+      jumpMP: 3,
+      armorType: 'reactive',
+      engineType: EngineType.XL_CLAN,
+      defensiveEquipmentBV: 45,
+    });
+
+    expect(result.armorBV).toBe(866.25);
+    expect(result.totalDefensiveBV).toBeCloseTo(1400.1, 10);
+  });
+
   it('doubles armor BV for hardened armor (mult 2.0)', () => {
     const result = calculateDefensiveBV({
       ...baseConfig,
