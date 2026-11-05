@@ -122,7 +122,11 @@ export function computeVehicleWeightBreakdown(
   const structure =
     state.unitType === UnitType.SUPPORT_VEHICLE
       ? computeSupportStructureWeight(state)
-      : computeVehicleStructureWeight(state.tonnage, state.structureType);
+      : computeVehicleStructureWeight(
+          state.tonnage,
+          state.structureType,
+          state.motionType,
+        );
   const armor = state.armorTonnage;
   // A vehicle that needs amplifiers carries at least the required weight,
   // even before the store has derived `powerAmpWeight`.
