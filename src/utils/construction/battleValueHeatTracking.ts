@@ -134,18 +134,29 @@ export function calculateBaseHeatEfficiency(heatDissipation: number): number {
 }
 
 function calculateHeatTrackedWeaponTotals(
-  weapons: readonly { bv: number; heat: number }[],
+  weapons: readonly {
+    name: string;
+    bv: number;
+    heat: number;
+    location?: string;
+  }[],
   heatEfficiency: number,
 ) {
   let weaponBV = 0;
   let rawWeaponBV = 0;
   let halvedWeaponBV = 0;
   let halvedWeaponCount = 0;
+  const weaponMountBV: { name: string; location?: string; bv: number }[] = [];
   for (const {
     weapon,
     adjustedBV,
     heatDiscount,
   } of calculateHeatTrackedWeapons(weapons, heatEfficiency)) {
+    weaponMountBV.push({
+      name: weapon.name,
+      location: weapon.location,
+      bv: adjustedBV,
+    });
     rawWeaponBV += weapon.bv;
     weaponBV += adjustedBV;
     if (heatDiscount) {
@@ -153,7 +164,13 @@ function calculateHeatTrackedWeaponTotals(
       halvedWeaponCount++;
     }
   }
-  return { weaponBV, rawWeaponBV, halvedWeaponBV, halvedWeaponCount };
+  return {
+    weaponBV,
+    rawWeaponBV,
+    halvedWeaponBV,
+    halvedWeaponCount,
+    weaponMountBV,
+  };
 }
 
 function calculateWeightBonus(config: OffensiveBVConfig): number {
@@ -228,6 +245,7 @@ export function calculateOffensiveBVWithHeatTracking(
     halvedWeaponBV: heatTrackedWeapons.halvedWeaponBV,
     weaponCount: weaponsWithModifiers.length,
     halvedWeaponCount: heatTrackedWeapons.halvedWeaponCount,
+    weaponMountBV: heatTrackedWeapons.weaponMountBV,
     physicalWeaponBV,
     offensiveEquipmentBV,
   };

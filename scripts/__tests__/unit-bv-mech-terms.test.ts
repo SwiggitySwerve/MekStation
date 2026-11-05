@@ -60,6 +60,35 @@ test('mech adapter partitions existing components into their native stages', () 
   });
 });
 
+test('mech adapter emits each heat-tracked weapon mount under its Java location', () => {
+  const breakdown = calculateUnitBV({
+    ...unit,
+    equipment: [
+      { id: 'medium-laser', location: 'LEFT_ARM' },
+      { id: 'medium-laser', location: 'LEFT_ARM' },
+      { id: 'medium-laser', location: 'RIGHT_ARM' },
+      { id: 'medium-laser', location: 'RIGHT_ARM' },
+      { id: 'ppc', location: 'RIGHT_TORSO' },
+    ],
+  }).breakdown;
+  if (!breakdown) throw new Error('Missing Mech breakdown');
+  const weapons = Object.entries(mechBVTerms(breakdown)).filter(([key]) =>
+    key.startsWith('weapon.'),
+  );
+  // Heat efficiency 14 (10 sinks + 6 - 2 running): PPC 10, ML 13, ML 16, so the
+  // last two lasers in mount order are halved (HeatTrackingBVCalculator:108-147).
+  expect(weapons.map(([key, value]) => [key.split('.')[2], value])).toEqual([
+    ['RT', 176],
+    ['LA', 46],
+    ['LA', 46],
+    ['RA', 23],
+    ['RA', 23],
+  ]);
+  expect(weapons.reduce((sum, [, value]) => sum + Number(value), 0)).toBe(
+    breakdown.weaponBV,
+  );
+});
+
 test('mech summary retains the existing RISC modifier before final rounding', () => {
   expect(calculateUnitBV(unit, 'battleaxe-bkx-risc').breakdown).toMatchObject({
     summaryModifier: 1.01,

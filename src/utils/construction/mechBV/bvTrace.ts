@@ -1,8 +1,43 @@
 import type { ValidationResult } from '../../../../scripts/validate-bv-types';
 
+/** MekStation location -> Mek.getLocationAbbr (Mek, QuadMek, TripodMek at 48fcb2f6). */
+const JAVA_LOCATION: Readonly<Record<string, string>> = {
+  HEAD: 'HD',
+  CENTER_TORSO: 'CT',
+  LEFT_TORSO: 'LT',
+  RIGHT_TORSO: 'RT',
+  LEFT_ARM: 'LA',
+  RIGHT_ARM: 'RA',
+  LEFT_LEG: 'LL',
+  RIGHT_LEG: 'RL',
+  CENTER_LEG: 'CL',
+  FRONT_LEFT_LEG: 'FLL',
+  FRONT_RIGHT_LEG: 'FRL',
+  REAR_LEFT_LEG: 'RLL',
+  REAR_RIGHT_LEG: 'RRL',
+};
+
+/** Per-mount weapon values keyed like the Java trace's weapon.<n>.<loc>.<name>;
+ * the index is MekStation's processing order, not MegaMek's equipment number.
+ * A split mount reports its first location, as Java does.
+ */
+function weaponMountTerms(
+  mounts: NonNullable<ValidationResult['breakdown']>['weaponMountBV'],
+): Record<string, number> {
+  const terms: Record<string, number> = {};
+  (mounts ?? []).forEach(({ name, location, bv }, index) => {
+    const raw = (location ?? '')
+      .split(',')[0]
+      .toUpperCase()
+      .replace(/_\(R\)$/, '');
+    terms[`weapon.${index}.${JAVA_LOCATION[raw] ?? raw}.${name}`] = bv;
+  });
+  return terms;
+}
+
 /** Read-only native-stage names; rules remain in the existing Mech BV owner.
  * HarJel belongs to armor; gyro to structure; armored components to equipment.
- * Mount identities and ammo groups are deliberately left absent.
+ * Ammo groups are deliberately left absent.
  */
 export function mechBVTerms(
   b: NonNullable<ValidationResult['breakdown']>,
@@ -16,6 +51,7 @@ export function mechBVTerms(
 } {
   return {
     ...b,
+    ...weaponMountTerms(b.weaponMountBV),
     armorBV: b.armorBV + b.harjelBonus,
     structureBV: b.structureBV + b.gyroBV,
     defensiveEquipmentBV: b.defEquipBV + b.armoredComponentBV,

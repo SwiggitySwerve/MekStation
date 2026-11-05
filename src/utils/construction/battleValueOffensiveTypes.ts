@@ -10,6 +10,7 @@ export interface OffensiveBVConfig {
     hasAES?: boolean;
     artemisType?: 'iv' | 'v';
     isDirectFire?: boolean;
+    location?: string;
   }>;
   ammo?: Array<{ id: string; bv: number; weaponType: string }>;
   tonnage: number;
@@ -57,4 +58,6 @@ export interface OffensiveBVResult {
   halvedWeaponCount?: number;
   physicalWeaponBV?: number;
   offensiveEquipmentBV?: number;
+  /** Heat-tracked value of each mount, in native processing order. */
+  weaponMountBV?: { name: string; location?: string; bv: number }[];
 }

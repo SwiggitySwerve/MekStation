@@ -75,6 +75,7 @@ export interface ValidationResult {
     jumpMP: number;
     weaponCount: number;
     halvedWeaponCount: number;
+    weaponMountBV?: { name: string; location?: string; bv: number }[];
     // Legacy aliases
     defensiveEquipBV: number;
   };
