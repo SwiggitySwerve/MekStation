@@ -19,13 +19,25 @@ import {
   linkLaserInsulatorWeapons,
   linkPPCCapacitorWeapons,
 } from '../equipmentBV/weaponLinks';
-import { computeTurretEquipmentWeight } from './equipmentMounts';
+import {
+  computeTurretEquipmentWeight,
+  getVehicleSourceIdentity,
+} from './equipmentMounts';
 import { isPowerAmplifierEnergyWeapon } from './powerAmplifier';
 import { getVehicleTurretMechanismFigures } from './turret';
+import { resolveVehicleVariableMass } from './variableEquipmentMass';
 
 export type EquipmentResolver = (
   equipmentId: string,
 ) => IEquipmentItem | undefined;
+
+const WEAPON_CATEGORIES: readonly EquipmentCategory[] = [
+  EquipmentCategory.ENERGY_WEAPON,
+  EquipmentCategory.BALLISTIC_WEAPON,
+  EquipmentCategory.MISSILE_WEAPON,
+  EquipmentCategory.ARTILLERY,
+  EquipmentCategory.CAPITAL_WEAPON,
+];
 
 /** Raw heat-neutral weapon load: MegaMek 48fcb2f64a1b TestEntity.java:945-950.
  * Unlike BV heat, ammunition-fed flamers/chemical lasers contribute zero;
@@ -34,13 +46,7 @@ export type EquipmentResolver = (
 export function getVehicleHeatNeutralWeaponHeat(
   item: Pick<IEquipmentItem, 'category' | 'name' | 'heat' | 'special'>,
 ): number | null {
-  const weapon = [
-    EquipmentCategory.ENERGY_WEAPON,
-    EquipmentCategory.BALLISTIC_WEAPON,
-    EquipmentCategory.MISSILE_WEAPON,
-    EquipmentCategory.ARTILLERY,
-    EquipmentCategory.CAPITAL_WEAPON,
-  ].includes(item.category);
+  const weapon = WEAPON_CATEGORIES.includes(item.category);
   // TestEntity.java:945-950 selects laser/PPC/plasma/flamer flags, not the
   // catalog's broader Energy category. Heavy/vehicle flamers use ammunition.
   const excludedEnergy = /tsemp|taser|(?:heavy|vehicle)\s*flamer/i.test(
@@ -62,6 +68,8 @@ export interface VehicleMountedWeightState
   turret: ITurretConfiguration | null;
   secondaryTurret: ITurretConfiguration | null;
   year?: number;
+  tonnage?: number;
+  engineWeight?: number;
 }
 
 export interface VehicleMountedWeightBreakdown {
@@ -102,6 +110,10 @@ export function computeVehicleMountedWeightFigures(
       issues.push(`Mount ${mount.id}: unresolved or invalid equipment mass`);
     }
     return {
+      item,
+      instanceId: mount.id,
+      sourceId: getVehicleSourceIdentity(mount)?.sourceId ?? mount.equipmentId,
+      weapon: item !== undefined && WEAPON_CATEGORIES.includes(item.category),
       id: item?.id ?? mount.equipmentId,
       location: mount.location,
       order,
@@ -132,6 +144,32 @@ export function computeVehicleMountedWeightFigures(
     issues.push(`${label}: summed mass is nonfinite`);
     return null;
   };
+  if (state.tonnage !== undefined) {
+    const weaponWeight = sum(
+      mounted.filter((m) => m.weapon),
+      'Fire control basis',
+    );
+    for (const mount of mounted)
+      if (mount.item) {
+        const weight = resolveVehicleVariableMass(mount.item, mount.sourceId, {
+          tonnage: state.tonnage,
+          engineWeight: state.engineWeight,
+          weaponWeight: weaponWeight ?? undefined,
+          isSupportVehicle: state.unitType === UnitType.SUPPORT_VEHICLE,
+        });
+        // Keep the existing unsupported-rule policy; the complete handler total
+        // remains reserved. Newly computed invalid mass is explicitly unavailable.
+        if (weight !== undefined) {
+          mount.weight = isValidWeight(weight) ? weight : null;
+          if (mount.weight === null) {
+            unresolvedMountIds.push(mount.instanceId);
+            issues.push(
+              `Mount ${mount.instanceId}: invalid variable equipment mass`,
+            );
+          }
+        }
+      }
+  }
   const equipment = sum(mounted, 'Equipment');
   linkLaserInsulatorWeapons(
     mounted,

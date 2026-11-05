@@ -12,6 +12,12 @@ combat components use half tons. MegaMek 48fcb2f6, MiscType.java:700-730,820-842
 and RoundWeight.java:58-68 own these terms. Weapon-basis computer mass remains
 its separately gated correction.
 
+The editor and turret panel call the weight owner with installed engine and
+weapon mass before resolving variable mounts. Source size uses the shared
+unchanged-identity guard. Armored motive systems add 10% Clan or 15% IS mass
+with standard component rounding (MiscType.java:607-613). MASH Small has
+Java's 4.5 t equipment term; its carrying-space term remains a separate change.
+
 ## Linked thermal load
 
 `mountedWeight.ts` uses the existing native pairing owner in

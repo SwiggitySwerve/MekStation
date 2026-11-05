@@ -40,6 +40,7 @@ export type { EquipmentResolver } from './mountedWeight';
 
 export interface VehicleWeightState
   extends VehicleControlsLiftContext, VehicleMountedWeightState {
+  tonnage: number;
   engineRating: number;
   engineType: VehicleEngineType;
   cruiseMP: number;
@@ -68,16 +69,37 @@ export interface VehicleWeightBreakdown extends VehicleMountedWeightBreakdown {
  * Tonnage of every figure the bar subtracts from the vehicle's tonnage.
  * Unknown mounted terms remain unavailable through the remaining budget.
  */
-export function computeVehicleWeightBreakdown(
+export function computeVehicleWeightFigures(
   state: VehicleWeightState,
   resolve: EquipmentResolver,
-): VehicleWeightBreakdown {
+) {
+  const engineContext = {
+    tonnage: state.tonnage,
+    motionType: state.motionType,
+    cruiseMP: state.cruiseMP,
+    engineTechRating: state.engineTechRating,
+  };
+  const engine =
+    state.unitType === UnitType.SUPPORT_VEHICLE
+      ? computeSupportVehicleEngineWeight(
+          state.engineRating,
+          state.engineType,
+          engineContext,
+        )
+      : computeVehicleEngineWeight(
+          state.engineRating,
+          state.engineType,
+          engineContext,
+        );
   const {
     rawWeaponHeat,
     primarySummary: _primary,
     secondarySummary: _secondary,
     ...mounted
-  } = computeVehicleMountedWeightFigures(state, resolve);
+  } = computeVehicleMountedWeightFigures(
+    { ...state, engineWeight: engine },
+    resolve,
+  );
   // Engine.java:480-493; TestTank.java:264-270 and TestEntity.java:980-981,
   // MegaMek 48fcb2f64a1b. Combat sinks weigh one ton beyond the free allowance.
   const freeHeatSinks = isVehicleFusionEngine(state.engineType)
@@ -100,25 +122,6 @@ export function computeVehicleWeightBreakdown(
           );
   const { equipment, energyWeapons, turret, secondaryTurret } = mounted;
 
-  const engineContext = {
-    tonnage: state.tonnage,
-    motionType: state.motionType,
-    cruiseMP: state.cruiseMP,
-    engineTechRating: state.engineTechRating,
-  };
-  // Every support engine takes Java's support table (Engine.getWeightEngine).
-  const engine =
-    state.unitType === UnitType.SUPPORT_VEHICLE
-      ? computeSupportVehicleEngineWeight(
-          state.engineRating,
-          state.engineType,
-          engineContext,
-        )
-      : computeVehicleEngineWeight(
-          state.engineRating,
-          state.engineType,
-          engineContext,
-        );
   const structure =
     state.unitType === UnitType.SUPPORT_VEHICLE
       ? computeSupportStructureWeight(state)
@@ -167,6 +170,8 @@ export function computeVehicleWeightBreakdown(
     issues.push('Remaining mass is nonfinite');
   return {
     ...mounted,
+    primarySummary: _primary,
+    secondarySummary: _secondary,
     ...(state.unitType === UnitType.SUPPORT_VEHICLE ? {} : { heatSinks }),
     engine,
     controls,
@@ -178,4 +183,17 @@ export function computeVehicleWeightBreakdown(
     remaining: finiteRemaining,
     isComplete: finiteRemaining !== null,
   };
+}
+
+/** Preserve the existing public breakdown shape for status and validation. */
+export function computeVehicleWeightBreakdown(
+  state: VehicleWeightState,
+  resolve: EquipmentResolver,
+): VehicleWeightBreakdown {
+  const {
+    primarySummary: _primary,
+    secondarySummary: _secondary,
+    ...weights
+  } = computeVehicleWeightFigures(state, resolve);
+  return weights;
 }
