@@ -1,5 +1,7 @@
 /** Native lookup names and converter spellings with exact BV catalog identities. */
 export const SOURCE_LOOKUP_ALIASES: Readonly<Record<string, string>> = {
+  // FU-101: the MTF crit token of ISFluidGun (48fcb2f6: 6 BV, 2 t, 2 slots).
+  'is fluid gun': 'fluid-gun',
   // Pinned EquipmentType lookup names; preserve the registered variant.
   'clapgaussrifle-ammo': 'apgaussrifle',
   'autocannon/2': 'ac-2',
