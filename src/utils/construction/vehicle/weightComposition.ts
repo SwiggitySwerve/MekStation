@@ -10,6 +10,7 @@ import {
   EngineType,
   type VehicleEngineType,
 } from '@/types/construction/EngineType';
+import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import {
   computeSupportVehicleEngineWeight,
@@ -35,6 +36,7 @@ import {
   type VehicleMountedWeightState,
   type VehicleMountedWeightBreakdown,
 } from './mountedWeight';
+import { computeSupportTransportWeights } from './supportTransport';
 import { computeSupportStructureWeight } from './supportWeight';
 export type { EquipmentResolver } from './mountedWeight';
 
@@ -50,6 +52,8 @@ export interface VehicleWeightState
   armorTonnage: number;
   armorType?: ArmorTypeEnum;
   powerAmpWeight: number;
+  techBase?: TechBase;
+  transporters?: readonly string[];
 }
 
 export interface VehicleWeightBreakdown extends VehicleMountedWeightBreakdown {
@@ -61,6 +65,7 @@ export interface VehicleWeightBreakdown extends VehicleMountedWeightBreakdown {
   structure: number;
   armor: number;
   powerAmplifiers: number | null;
+  carryingSpace?: number | null;
   remaining: number | null;
   isComplete: boolean;
 }
@@ -139,6 +144,19 @@ export function computeVehicleWeightFigures(
       ? null
       : Math.max(state.powerAmpWeight, requiredAmps);
   const issues = [...mounted.issues];
+  // TestEntity.java:1995-2003 (48fcb2f6): charge non-quarters transport through
+  // the existing bay owner. Combat controls remain the separate 5% term.
+  const transport = computeSupportTransportWeights(
+    state.transporters ?? [],
+    state.techBase === TechBase.CLAN,
+  );
+  const carryingSpace = transport.unresolved.length
+    ? null
+    : transport.carryingSpace;
+  if (carryingSpace === null)
+    issues.push(
+      `Unresolved carrying space: ${transport.unresolved.join(', ')}`,
+    );
   if (heatSinks === null)
     issues.push('Heat sink mass is unresolved or invalid');
   if (powerAmplifiers === null)
@@ -151,6 +169,7 @@ export function computeVehicleWeightFigures(
     turret === null ||
     secondaryTurret === null ||
     powerAmplifiers === null ||
+    carryingSpace === null ||
     heatSinks === null
       ? null
       : engine +
@@ -162,7 +181,8 @@ export function computeVehicleWeightFigures(
         turret +
         secondaryTurret +
         powerAmplifiers +
-        heatSinks;
+        heatSinks +
+        carryingSpace;
   const remaining = totalUsed === null ? null : state.tonnage - totalUsed;
   const finiteRemaining =
     remaining !== null && Number.isFinite(remaining) ? remaining : null;
@@ -179,6 +199,7 @@ export function computeVehicleWeightFigures(
     structure,
     armor,
     powerAmplifiers,
+    ...(state.transporters === undefined ? {} : { carryingSpace }),
     issues,
     remaining: finiteRemaining,
     isComplete: finiteRemaining !== null,
