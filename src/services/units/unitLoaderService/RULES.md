@@ -208,3 +208,9 @@ already represented Talons are sized in place rather than duplicated.
 
 Mounted critical-part traversal is owned by slotOperations/parts. Placement
 re-exports its public helper; spreadable recovery must reuse that owner.
+
+Primitive Industrial cockpit tags retain their own definition through both
+loader paths and custom save/reload. CockpitType owns the native identity,
+five-ton mass and 2295 introduction date (MegaMek 48fcb2f64
+TestMek.java:238-242; Mek.java:3785-3793). Standard and Industrial cockpits are
+not substitutes; source unit catalog data already preserves the distinct tag.

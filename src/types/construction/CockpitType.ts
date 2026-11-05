@@ -22,10 +22,12 @@ export enum CockpitType {
   SUPER_HEAVY = 'Superheavy',
   INTERFACE = 'Interface',
   VRRP = 'Virtual Reality Piloting Pod',
+  PRIMITIVE_INDUSTRIAL = 'Primitive Industrial',
 }
 
 export const INTERFACE_COCKPIT_SOURCE_TAG = 'INTERFACE';
 export const VRRP_COCKPIT_SOURCE_TAG = 'VRRP';
+export const PRIMITIVE_INDUSTRIAL_COCKPIT_SOURCE_TAG = 'PRIMITIVE_INDUSTRIAL';
 
 /**
  * Fixed cockpit system positions (0-based) for the selected cockpit, shared by
@@ -191,6 +193,18 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
     otherSlots: 4,
     introductionYear: 3052,
   },
+  {
+    // 48fcb2f64 Mek.java:3785-3793; TestMek.java:238-242.
+    type: CockpitType.PRIMITIVE_INDUSTRIAL,
+    sourceTag: PRIMITIVE_INDUSTRIAL_COCKPIT_SOURCE_TAG,
+    name: 'Primitive Industrial Cockpit',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.ADVANCED,
+    weight: 5,
+    headSlots: 5,
+    otherSlots: 0,
+    introductionYear: 2295,
+  },
 ] as const;
 
 /** Shared native identity; legacy exact/fuzzy aliases retain their guards. */
@@ -200,7 +214,8 @@ export function getNativeCockpitType(source: string): CockpitType | undefined {
     (definition) =>
       definition.sourceTag !== undefined &&
       (definition.sourceTag === normalized ||
-        definition.type.toUpperCase() === normalized),
+        definition.type.toUpperCase() === normalized ||
+        definition.name.toUpperCase() === normalized),
   )?.type;
 }
 
