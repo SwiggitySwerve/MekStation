@@ -232,6 +232,10 @@
       "id": "clapgaussrifle-ammo-registry"
     },
     {
+      "internalName": "CLArmoredMotiveSystem",
+      "id": "clarmoredmotivesystem-registry"
+    },
+    {
       "internalName": "CLArrowIVHomingAmmo",
       "id": "clarrowivhomingammo-registry"
     },
@@ -2070,6 +2074,10 @@
     {
       "internalName": "Support Pulse Laser",
       "id": "support-pulse-laser-registry"
+    },
+    {
+      "internalName": "TSEMP One-Shot",
+      "id": "tsemp-one-shot-registry"
     },
     {
       "internalName": "TSEMP Repeating Cannon",

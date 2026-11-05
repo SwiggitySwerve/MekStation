@@ -2,7 +2,17 @@ import { formulaEvaluator } from '@/services/equipment/FormulaEvaluator';
 import { VARIABLE_EQUIPMENT_FORMULAS } from '@/services/equipment/variableEquipmentFormulas';
 import { TechBase, parseTechBase } from '@/types/enums/TechBase';
 
+import { calculateJumpJetWeight, JumpJetType } from '../movementCalculations';
 import { roundSupportComponentWeight } from './supportRounding';
+
+/** Records of MegaMek 48fcb2f6's F_ARMORED_MOTIVE_SYSTEM items: ISArmoredMotiveSystem
+ * (MiscType.java:3909-3929) and CLArmoredMotiveSystem (:3933-3953). The variable-mass
+ * and BV owners key on this set; the mass fraction comes from each record's tech base.
+ */
+export const ARMORED_MOTIVE_SYSTEM_IDS: ReadonlySet<string> = new Set([
+  'armoredmotivesystem',
+  'clarmoredmotivesystem-registry',
+]);
 
 export interface VehicleVariableMassItem {
   readonly id: string;
@@ -19,7 +29,13 @@ export interface VehicleVariableMassContext {
   readonly isSupportVehicle: boolean;
 }
 
-/** Native engine accessory rule shared with mounted totals. Undefined is a
+const CHASSIS_MASS_DIVISORS = new Map<string, number>([
+  ['limitedamphibiouschassis', 25],
+  ['fullyamphibiouschassis', 10],
+  ['environmental-sealed-chassis', 10],
+]);
+
+/** Native engine, movement and chassis rules shared with mounted totals. Undefined is a
  * different equipment kind; null is a known rule missing its engine context.
  * MiscType.java:518-527 at MegaMek 48fcb2f64 uses the supercharger formula.
  */
@@ -27,13 +43,23 @@ export function resolveVehicleAccessoryMass(
   item: VehicleVariableMassItem,
   context?: VehicleVariableMassContext,
 ): number | null | undefined {
-  if (!['vtoljetbooster', 'limitedamphibiouschassis'].includes(item.id))
+  const chassisDivisor = CHASSIS_MASS_DIVISORS.get(item.id);
+  if (
+    !['vtoljetbooster', 'vehiclejumpjet'].includes(item.id) &&
+    chassisDivisor === undefined
+  )
     return undefined;
   if (!context) return null;
-  // MiscType.java:702-703 at the same pin.
-  if (item.id === 'limitedamphibiouschassis')
+  // MiscType.java:496-497,867-889,2004-2012 at the same pin.
+  if (item.id === 'vehiclejumpjet')
+    return calculateJumpJetWeight(context.tonnage, 1, JumpJetType.STANDARD);
+  // MiscType.java:660-666: support sealing is charged through structure.
+  if (item.id === 'environmental-sealed-chassis' && context.isSupportVehicle)
+    return 0;
+  // MiscType.java:660-666,702-705 at the same pin.
+  if (chassisDivisor !== undefined)
     return roundSupportComponentWeight(
-      context.tonnage / 25,
+      context.tonnage / chassisDivisor,
       context.tonnage,
       context.isSupportVehicle && context.tonnage < 5,
     );
@@ -60,8 +86,9 @@ export function resolveVehicleVariableMass(
   if (item.id === 'boobytrap') return round(tonnage / 10);
   if (item.id === 'dronecarriercontrolsystem') return 2 + size * 0.5;
   if (item.id === 'mash-equipment') return 2.5 + size;
-  // MiscType.java:607-613 (48fcb2f6): armored motive system is 10% Clan, 15% IS.
-  if (item.id === 'armoredmotivesystem')
+  // MiscType.java:607-613 (48fcb2f6): armored motive system is 10% Clan, 15% IS,
+  // by the equipment's own tech base.
+  if (ARMORED_MOTIVE_SYSTEM_IDS.has(item.id))
     return round(
       tonnage * (parseTechBase(item.techBase) === TechBase.CLAN ? 0.1 : 0.15),
     );

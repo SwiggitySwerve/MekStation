@@ -9,6 +9,7 @@ import {
   createMountedEquipment,
   type IMountedEquipmentInstance,
 } from '@/types/equipment/MountedEquipment';
+import { MechConfiguration } from '@/types/unit/BattleMechInterfaces';
 import {
   calculateTargetingComputerWeight,
   calculateTargetingComputerSlots,
@@ -20,7 +21,8 @@ const TARGETING_COMPUTER_IDS = [
   'clan-targeting-computer',
 ];
 
-type CalculationContext = Pick<UnitState, 'tonnage' | 'equipment'>;
+type CalculationContext = Pick<UnitState, 'tonnage' | 'equipment'> &
+  Partial<Pick<UnitState, 'configuration'>>;
 
 export function createCalculatedEquipment(
   item: IEquipmentItem,
@@ -44,7 +46,12 @@ export function createCalculatedEquipment(
   }
   const properties = getEquipmentCalculatorService().calculateProperties(
     item.variableEquipmentId,
-    { tonnage: state.tonnage },
+    {
+      tonnage: state.tonnage,
+      isQuad:
+        state.configuration === MechConfiguration.QUAD ||
+        state.configuration === MechConfiguration.QUADVEE,
+    },
   );
   return {
     ...mounted,

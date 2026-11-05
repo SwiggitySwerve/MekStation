@@ -159,7 +159,7 @@ export class EquipmentCalculatorService implements IEquipmentCalculatorService {
   private buildFormulaContext(
     context: IVariableEquipmentContext,
   ): FormulaContext {
-    const formulaContext: FormulaContext = {};
+    const formulaContext: FormulaContext = { isQuad: context.isQuad ? 1 : 0 };
 
     // Map all defined properties to formula context
     if (context.tonnage !== undefined) {

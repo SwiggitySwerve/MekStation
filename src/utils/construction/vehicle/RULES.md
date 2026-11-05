@@ -601,10 +601,21 @@ small-support rounding preserved. Missing engine context is unavailable.
 Pin 48fcb2f64: MiscType.java:518-527; RoundWeight.java:58-68.
 This enables the native accessory independently of the held sized-editor work.
 
-## Limited amphibious chassis mass
+## Vehicle jump-jet mass
 
-The shared variable owner charges rounded tonnage/25 for the native limited
-amphibious chassis identity. Mounted figures consume that same rule before
+Vehicle jump jets reuse calculateJumpJetWeight in movementCalculations.ts for the
+standard jet tier, through resolveVehicleAccessoryMass. MegaMek 48fcb2f64
+MiscType.java:496-497,867-889,2004-2012 charges each mounted jet 0.5 t
+through 55 t, 1 t through 85 t, and 2 t above 85 t. The catalog zero remains
+a variable sentinel; jet count for BV movement retains its existing owner.
+
+## Vehicle chassis modification mass
+
+The shared variable owner charges rounded tonnage/25 for limited amphibious
+chassis and tonnage/10 for fully amphibious or environmentally sealed combat
+chassis, using one divisor table and component rounding. Environmental sealing
+adds no equipment mass on support vehicles: their structure owner charges it.
+Mounted figures consume that same rule before
 summing equipment and turret mass, independently of the held sized-equipment
 editor integration. Missing context is unavailable, not a fixed zero.
-Pin 48fcb2f64: MiscType.java:702-703; RoundWeight.java:58-68.
+Pin 48fcb2f64: MiscType.java:660-666,702-705; RoundWeight.java:58-68.
