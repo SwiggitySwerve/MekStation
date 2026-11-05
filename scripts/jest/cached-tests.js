@@ -235,7 +235,8 @@ function buildFileIndex(root, excludePrefix = null) {
   }
   if (excluded.length > 0) {
     for (const file of [...index.keys()])
-      if (excluded.some((prefix) => file.startsWith(prefix))) index.delete(file);
+      if (excluded.some((prefix) => file.startsWith(prefix)))
+        index.delete(file);
   }
   return index;
 }
@@ -957,7 +958,10 @@ function createStore(dir) {
   // invocation's file index leaves it out (buildFileIndex), whatever its name.
   try {
     fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(path.join(dir, STORE_MARKER), 'cached-tests result store\n');
+    fs.writeFileSync(
+      path.join(dir, STORE_MARKER),
+      'cached-tests result store\n',
+    );
   } catch {
     // unwritable: put() fails open later, and the dir holds no entries
   }
