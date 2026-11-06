@@ -65,6 +65,10 @@ const ARMOR = new Set(
 );
 /** TestTank.isBodyEquipment:1079-1093 fire control, via isValidTankLocation:979-980. */
 const FIRE_CONTROL = new Set(['basic-fire-control', 'advanced-fire-control']);
+/** Shared identity of Java ArmorType records, which do not enter mechanism mass. */
+export function isVehicleArmorEquipment(id: string): boolean {
+  return ARMOR.has(id);
+}
 /** TechConstants.isClan:394-398. */
 const CLAN_TECH_LEVELS = new Set([2, 6, 8, 10, 12]);
 

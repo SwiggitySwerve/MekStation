@@ -20,7 +20,13 @@ const planner = require('../../config/jest/shard-planner') as {
     files: string[],
     durations: Durations,
     shardCount: number,
+    preload?: number[],
   ) => { shardOf: Map<string, number>; loads: number[] };
+  preloadFor: (
+    displayNames: unknown[],
+    shardCount: number,
+  ) => number[] | undefined;
+  SHARD_PRELOAD_MS: Record<string, number[]>;
 };
 const DurationSequencer =
   require('../../config/jest/duration-sequencer') as new () => {
@@ -107,6 +113,57 @@ describe('planShards', () => {
   });
 });
 
+describe('shard preload (work a CI job does besides its Jest shard)', () => {
+  const durations = loadAll();
+  function loadAll(): Durations {
+    return planner.loadDurations();
+  }
+  const files = Object.keys(durations).filter((f) => /\.test\.tsx?$/.test(f));
+
+  it('looks the preload up by project name and shard count only', () => {
+    const unit = { name: 'unit', color: 'x' };
+    expect(planner.preloadFor([unit, unit], 3)).toEqual(
+      planner.SHARD_PRELOAD_MS['unit/3'],
+    );
+    expect(planner.preloadFor(['unit'], 3)).toEqual(
+      planner.SHARD_PRELOAD_MS['unit/3'],
+    );
+    expect(planner.preloadFor(['unit'], 4)).toBeUndefined();
+    expect(planner.preloadFor(['corpus'], 3)).toBeUndefined();
+    expect(planner.preloadFor([undefined], 3)).toBeUndefined();
+    // a run that mixes projects is never loaded, whatever the order
+    expect(planner.preloadFor([unit, 'a11y'], 3)).toBeUndefined();
+    expect(planner.preloadFor(['a11y', unit], 3)).toBeUndefined();
+    for (const [key, preload] of Object.entries(planner.SHARD_PRELOAD_MS)) {
+      expect(preload).toHaveLength(Number(key.split('/')[1]));
+    }
+  });
+
+  it('gives the preloaded shard less Jest work and still runs every file exactly once', () => {
+    const preload = planner.SHARD_PRELOAD_MS['unit/3'];
+    const even = planner.planShards(files, durations, 3);
+    const loaded = planner.planShards(files, durations, 3, preload);
+    expect([...loaded.shardOf.keys()].sort()).toEqual([...files].sort());
+    const jest = (plan: typeof even) =>
+      plan.loads.map((load, i) => load - (plan === loaded ? preload[i] : 0));
+    // the shard that carries the Combat suite takes about 400,000 committed ms less
+    // (about 96 s of Jest wall time at 4,157 committed ms per second)
+    expect(jest(even)[2] - jest(loaded)[2]).toBeGreaterThan(350000);
+    // and the totals, preload included, end up level
+    const spread = Math.max(...loaded.loads) - Math.min(...loaded.loads);
+    expect(spread).toBeLessThan(0.02 * Math.max(...loaded.loads));
+  });
+
+  it('an unloaded plan is unchanged by an empty or wrong-length preload', () => {
+    const base = planner.planShards(files, durations, 3);
+    for (const preload of [undefined, [], [1, 2]]) {
+      const plan = planner.planShards(files, durations, 3, preload);
+      expect(plan.loads).toEqual(base.loads);
+      expect([...plan.shardOf]).toEqual([...base.shardOf]);
+    }
+  });
+});
+
 describe('DurationSequencer', () => {
   const rootDir = repoRoot;
   const fake = (repoPath: string): FakeTest => ({
@@ -115,6 +172,45 @@ describe('DurationSequencer', () => {
       config: { rootDir, cache: false },
       hasteFS: { getSize: () => 0 },
     },
+  });
+
+  it('partitions a unit-only list with the preload, and a mixed-project list in any order', () => {
+    const named = (repoPath: string, name: string): FakeTest => {
+      const test = fake(repoPath);
+      (test.context.config as Record<string, unknown>).displayName = {
+        name,
+        color: 'x',
+      };
+      return test;
+    };
+    const listed = fs
+      .readdirSync(path.join(repoRoot, 'scripts/__tests__'))
+      .filter((name) => name.endsWith('.test.ts'))
+      .map((name) => `scripts/__tests__/${name}`);
+    const half = Math.floor(listed.length / 2);
+    const mixed = [
+      ...listed.slice(0, half).map((f) => named(f, 'unit')),
+      ...listed.slice(half).map((f) => named(f, 'a11y')),
+    ];
+    const unitOnly = listed.map((f) => named(f, 'unit'));
+    // each shard process receives its own ordering of the same list (Jest builds it
+    // after asynchronous project discovery), so the plan may not depend on it
+    const orders = [
+      (t: FakeTest[]) => t,
+      (t: FakeTest[]) => [...t].reverse(),
+      (t: FakeTest[]) => [...t.slice(half), ...t.slice(0, half)],
+    ];
+    for (const tests of [unitOnly, mixed]) {
+      const seen: string[] = [];
+      for (let shardIndex = 1; shardIndex <= 3; shardIndex += 1) {
+        seen.push(
+          ...new DurationSequencer()
+            .shard(orders[shardIndex - 1](tests), { shardIndex, shardCount: 3 })
+            .map((t) => t.path),
+        );
+      }
+      expect(seen.sort()).toEqual(tests.map((t) => t.path).sort());
+    }
   });
 
   it('shards partition a real project list with no gaps or overlap', () => {
