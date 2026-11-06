@@ -22,7 +22,8 @@ BV edits must continue building Storybook.
 
 `storybook-gate.test.mjs` exercises each story language, transitive dependencies,
 runtime assets, unknown inputs, and every current closure member. It also executes
-the production Storybook wait command and the workflow's actual aggregator shell
-script: a Storybook failure must fail Static Checks and `Lint and Test`. The test
-requires Bash and jq for that last scenario; GitHub's `ubuntu-latest` supplies
-both. `ci-changes.test.mjs` covers full main/nightly execution and unreadable diffs.
+the production Storybook wait command and the workflow's actual Node aggregator
+entry point and environment: a Storybook failure must fail Static Checks and
+`Lint and Test`. Both commands run on Windows and Linux, so the failure contract
+has no Bash/jq platform skip. `ci-changes.test.mjs` covers full main/nightly
+execution and unreadable diffs.

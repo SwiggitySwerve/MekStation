@@ -6,6 +6,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { readWorkflow } from './budget-workflow.mjs';
 import { CLOSURE_GATES, decide, importClosure } from './ci-changes.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
@@ -110,115 +111,91 @@ test('Storybook retains unrelated PR skips and never skips runtime BV inputs', (
   }
 });
 
-const bashAvailable =
-  spawnSync('bash', ['-c', 'command -v jq'], {
-    stdio: 'ignore',
-    timeout: 10000,
-  }).status === 0;
+test('production Storybook failure fails Static Checks and the required aggregator', () => {
+  const workflow = fs.readFileSync(
+    path.join(root, '.github/workflows/pr-checks.yml'),
+    'utf8',
+  );
+  const staticJob = workflow
+    .split('\n  static-checks:')[1]
+    .split('\n  simulation-checks:')[0];
+  const buildStep = staticJob
+    .split('- name: Build Storybook')[1]
+    .split('\n      - name:')[0];
+  assert.match(buildStep, /outputs\.storybook == 'true'/);
+  assert.doesNotMatch(buildStep, /continue-on-error/);
+  assert.match(
+    buildStep,
+    /run: node scripts\/ci\/background-step\.mjs wait storybook/,
+  );
 
-test(
-  'production Storybook failure fails Static Checks and the required aggregator',
-  {
-    skip:
-      process.platform === 'win32' &&
-      !bashAvailable &&
-      'bash and jq are required (present on ubuntu-latest)',
-  },
-  () => {
-    assert.ok(bashAvailable, 'production gate proof requires Bash and jq');
-    const workflow = fs.readFileSync(
-      path.join(root, '.github/workflows/pr-checks.yml'),
-      'utf8',
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'storybook-failure-'));
+  try {
+    fs.writeFileSync(path.join(dir, 'storybook.started'), 'fixture\n');
+    fs.writeFileSync(path.join(dir, 'storybook.rc'), '23\n');
+    fs.writeFileSync(
+      path.join(dir, 'storybook.log'),
+      'required Storybook failure\n',
     );
-    const staticJob = workflow
-      .split('\n  static-checks:')[1]
-      .split('\n  simulation-checks:')[0];
-    const buildStep = staticJob
-      .split('- name: Build Storybook')[1]
-      .split('\n      - name:')[0];
-    assert.match(buildStep, /outputs\.storybook == 'true'/);
-    assert.doesNotMatch(buildStep, /continue-on-error/);
-    assert.match(
-      buildStep,
-      /run: node scripts\/ci\/background-step\.mjs wait storybook/,
+    const storybook = spawnSync(
+      process.execPath,
+      ['scripts/ci/background-step.mjs', 'wait', 'storybook'],
+      {
+        cwd: root,
+        env: { ...process.env, BACKGROUND_STEP_DIR: dir },
+        encoding: 'utf8',
+        timeout: 10000,
+      },
     );
+    assert.equal(storybook.status, 23, storybook.stderr);
 
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'storybook-failure-'));
-    try {
-      fs.writeFileSync(path.join(dir, 'storybook.started'), 'fixture\n');
-      fs.writeFileSync(path.join(dir, 'storybook.rc'), '23\n');
-      fs.writeFileSync(
-        path.join(dir, 'storybook.log'),
-        'required Storybook failure\n',
-      );
-      const storybook = spawnSync(
-        process.execPath,
-        ['scripts/ci/background-step.mjs', 'wait', 'storybook'],
-        {
-          cwd: root,
-          env: { ...process.env, BACKGROUND_STEP_DIR: dir },
-          encoding: 'utf8',
-          timeout: 10000,
+    const aggregator = readWorkflow(root).jobs['lint-and-test'];
+    assert.equal(aggregator.if, 'always()');
+    assert.ok(aggregator.needs.includes('static-checks'));
+    const step = aggregator.steps.find((entry) =>
+      entry.run?.includes('scripts/ci/budget-aggregate.mjs'),
+    );
+    assert.ok(step, 'execute the current production aggregator entry point');
+    const [command, ...args] = step.run.trim().split(/\s+/);
+    assert.equal(command, 'node');
+    for (const [result, expectedStatus] of [
+      ['success', 0],
+      ['failure', 1],
+      ['skipped', 1],
+      ['cancelled', 1],
+    ]) {
+      const needs = {
+        'detect-changes': {
+          result: 'success',
+          outputs: {
+            storybook: 'true',
+            code: 'false',
+            'pr-desktop': 'false',
+          },
         },
+        'static-checks': { result },
+        'unit-test-shards': { result: 'success' },
+        e2e: { result: 'success' },
+        'simulation-checks': { result: 'skipped' },
+        'build-test': { result: 'skipped' },
+      };
+      const check = spawnSync(process.execPath, args, {
+        cwd: root,
+        env: {
+          ...process.env,
+          ...step.env,
+          NEEDS_JSON: JSON.stringify(needs),
+        },
+        encoding: 'utf8',
+        timeout: 10000,
+      });
+      assert.equal(
+        check.status,
+        expectedStatus,
+        `${result}: ${check.stdout}\n${check.stderr}`,
       );
-      assert.equal(storybook.status, 23, storybook.stderr);
-
-      const aggregator = workflow
-        .split('\n  lint-and-test:')[1]
-        .split('\n  build-test:')[0];
-      assert.match(aggregator, /if: always\(\)/);
-      assert.match(aggregator, /static-checks,/);
-      const script = aggregator
-        .split('        run: |\n')[1]
-        .split('\n')
-        .filter((line) => line.startsWith('          '))
-        .map((line) => line.slice(10))
-        .join('\n');
-      assert.ok(
-        script.includes('jq'),
-        'execute the production aggregator script',
-      );
-      const gates = JSON.parse(
-        aggregator.match(/GATES: >-\s*([\s\S]*?)\n        shell:/)[1].trim(),
-      );
-      for (const [result, expectedStatus] of [
-        ['success', 0],
-        ['failure', 1],
-        ['skipped', 1],
-        ['cancelled', 1],
-      ]) {
-        const needs = {
-          'detect-changes': {
-            result: 'success',
-            outputs: {
-              storybook: 'true',
-              code: 'false',
-              'pr-desktop': 'false',
-            },
-          },
-          'static-checks': { result },
-          'unit-test-shards': { result: 'success' },
-          e2e: { result: 'success' },
-          'simulation-checks': { result: 'skipped' },
-          'build-test': { result: 'skipped' },
-        };
-        const check = spawnSync('bash', ['-e', '-c', script], {
-          env: {
-            ...process.env,
-            NEEDS_JSON: JSON.stringify(needs),
-            GATES: JSON.stringify(gates),
-          },
-          encoding: 'utf8',
-          timeout: 10000,
-        });
-        assert.equal(
-          check.status,
-          expectedStatus,
-          `${result}: ${check.stdout}\n${check.stderr}`,
-        );
-      }
-    } finally {
-      fs.rmSync(dir, { recursive: true, force: true });
     }
-  },
-);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
