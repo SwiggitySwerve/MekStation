@@ -80,12 +80,23 @@ function fixture() {
         conclusion: run.conclusion,
         createdAt: run.created_at,
         startedAt: run.run_started_at,
+        completedAt: '2026-11-02T00:00:10.000Z',
       },
     },
   };
   const github = {
     rest: {
       repos: {
+        getContent: async (args) => {
+          assert.equal(args.ref, run.head_sha);
+          return {
+            data: {
+              encoding: 'base64',
+              content: Buffer.from('source workflow').toString('base64'),
+              sha: 'source-blob',
+            },
+          };
+        },
         get: async () => ({
           data: { full_name: 'owner/repo', default_branch: 'main' },
         }),
@@ -105,6 +116,14 @@ function fixture() {
       repo: 'repo',
       now: '2026-11-05T12:00:00Z',
       validateObservation: (e) => e,
+      workflowGraphFromSource: (source) => {
+        assert.equal(source, 'source workflow');
+        return { jobGraph: { test: [] }, matrixGroups: {} };
+      },
+      collectRun: async (_transport, target) => {
+        assert.deepEqual(Object.keys(target.graphs.graphs), [run.head_sha]);
+        return { observation: structuredClone(envelope.observation) };
+      },
       decode: () => envelope,
     },
     run,
@@ -146,4 +165,31 @@ test('empty live inventory produces no fictitious observations', async () => {
   const f = fixture();
   f.input.github.paginate = async () => [];
   assert.deepEqual((await collectGardenObservations(f.input)).envelopes, []);
+});
+
+test('fresh canonical API mismatch or unavailable source graph blocks stale artifact timing', async () => {
+  for (const mode of ['timing', 'completedAt', 'source']) {
+    const f = fixture();
+    if (mode === 'source')
+      f.input.workflowGraphFromSource = () => {
+        throw new Error('Missing immutable workflow graph');
+      };
+    else
+      f.input.collectRun = async () => ({
+        observation: {
+          ...f.envelope.observation,
+          ...(mode === 'timing'
+            ? { metrics: { elapsedMs: 999 } }
+            : {
+                identity: {
+                  ...f.envelope.observation.identity,
+                  completedAt: '2026-11-02T00:00:11Z',
+                },
+              }),
+        },
+      });
+    const report = await collectGardenObservations(f.input);
+    assert.equal(report.envelopes.length, 0, mode);
+    assert.equal(report.diagnostics.length, 1, mode);
+  }
 });

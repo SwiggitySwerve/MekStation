@@ -14,7 +14,9 @@ branch only. G1 supplies the combined public APIs to `prepareGarden`:
 const api = {
   ...budgetConfig, // budgetDescriptors, ratchetBudgets, serializeBudgets
   ...budgetMetrics, // validateRepositoryMetrics, observedBudgetValues, packageContributors
-  ...ciMetrics, // median, mainMedians
+  ...budgetWorkflow, // workflowGraphFromSource
+  ...ciMetrics, // median, selectMainObservations
+  ...ciReportGithub, // collectRun
   ...ciObservation, // validateObservation
   ...ciTestMetrics, // compareTestFiles
 };
@@ -35,9 +37,14 @@ const prepared = await prepareGarden({
 `config`, its exact-byte digest and `expectedBaseSha` must describe the same
 trusted main checkout. `prepareGarden` collects only canonical observation
 artifacts produced by PR Checks main pushes and binds their metadata to the
-live run attempt. Archives contain exactly one bounded JSON member; extraction
+live run attempt. For each source head it fetches the immutable PR Checks YAML,
+calls G1's `workflowGraphFromSource(text)`, then G2's `collectRun` with fresh
+attempt/jobs API data. The artifact observation must equal that normalization,
+including `identity.completedAt`, timing values and comparison key. A historical
+baseline cannot reuse another head's graph. Archives contain exactly one bounded JSON member; extraction
 and PR code execution are unnecessary. Raw failed/cancelled observations remain
 available to G2's comparator, which excludes them from the successful baseline.
+`packages` and `budgetConfigHash` default to null in G2's envelope.
 G1 validates repository/package evidence and recomputes observed budget values;
 configured caps never substitute for observations.
 
@@ -64,7 +71,7 @@ alone merges. Link each created PR in the orchestration thread.
 ## Weekly evidence and ratchets
 
 The report covers the seven full UTC days ending before today and compares
-them with the preceding seven days. G2 selects complete, successful, comparable
+them with the preceding seven days. G2's `selectMainObservations` selects complete, successful, comparable
 main observations; runner/DAG changes never pool into a common baseline. Only
 the latest attempt of each run counts. Test timings use actual execution data,
 with unknown baselines and incomplete censuses preserved. PR associations are

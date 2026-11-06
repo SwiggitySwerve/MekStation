@@ -50,6 +50,8 @@ export async function prepareGarden({
     repo,
     now,
     validateObservation: api.validateObservation,
+    collectRun: api.collectRun,
+    workflowGraphFromSource: api.workflowGraphFromSource,
   });
   const projected = [],
     contributors = [];

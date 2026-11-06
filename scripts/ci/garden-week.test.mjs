@@ -48,8 +48,8 @@ const api = {
     assert.equal(new Set(values).size, 1);
     return values[0];
   },
-  mainMedians: (samples) => ({
-    included: samples.filter((s) => s.complete).map((s) => s.identity),
+  selectMainObservations: (samples) => ({
+    included: samples.filter((s) => s.complete),
     excluded: [],
   }),
   compareTestFiles: () => ({ files: [], missing: [] }),
@@ -93,8 +93,18 @@ test('six days, two runs per day, missing values/hash, malformed telemetry and d
     if (mode === 'hash') args.envelopes[0].budgetConfigHash = 'c'.repeat(64);
     if (mode === 'invalid') args.envelopes[0].invalid = true;
     if (mode === 'diagnostic') args.diagnostics = ['Artifact download failed'];
-    if (mode === 'duplicate')
+    if (mode === 'duplicate') {
       args.envelopes.push(structuredClone(args.envelopes[0]));
+      args.api = {
+        ...api,
+        selectMainObservations: (samples) => ({
+          included: samples.slice(0, 21),
+          excluded: [
+            { identity: samples.at(-1).identity, reason: 'duplicate attempt' },
+          ],
+        }),
+      };
+    }
     assert.deepEqual(buildGarden(args).proposals, [], mode);
   }
 });
@@ -124,7 +134,7 @@ test('G2 exclusion controls comparability; no complete selected population means
   const args = input();
   args.api = {
     ...api,
-    mainMedians: () => ({
+    selectMainObservations: () => ({
       included: [],
       excluded: [{ reason: 'incompatible' }],
     }),

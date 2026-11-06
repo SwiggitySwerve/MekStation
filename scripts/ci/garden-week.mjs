@@ -21,14 +21,9 @@ export function buildGarden({
   const previous = start - 7 * DAY_MS;
   const valid = [];
   const rejected = [...diagnostics];
-  const seen = new Set();
-  // Reject duplicate source attempts instead of allowing them to inflate a day.
   for (const input of envelopes) {
     try {
       const envelope = api.validateObservation(input);
-      const id = key(envelope.observation.identity);
-      if (seen.has(id)) throw new Error(`Duplicate attempt ${id}`);
-      seen.add(id);
       valid.push(envelope);
     } catch (error) {
       rejected.push(error.message);
@@ -39,15 +34,18 @@ export function buildGarden({
   for (const envelope of valid) {
     const id = envelope.observation.identity;
     const runKey = `${id.repository}/${id.runId}`;
-    if (
-      !latestAttempts.has(runKey) ||
-      latestAttempts.get(runKey).observation.identity.attempt < id.attempt
-    )
-      latestAttempts.set(runKey, envelope);
+    if (!latestAttempts.has(runKey) || latestAttempts.get(runKey) < id.attempt)
+      latestAttempts.set(runKey, id.attempt);
   }
-  const samples = [...latestAttempts.values()].filter((envelope) => {
+  const samples = valid.filter((envelope) => {
+    const identity = envelope.observation.identity;
     const time = Date.parse(envelope.observation.identity.createdAt);
-    return time >= previous && time < end;
+    return (
+      latestAttempts.get(`${identity.repository}/${identity.runId}`) ===
+        identity.attempt &&
+      time >= previous &&
+      time < end
+    );
   });
   // Select the newest observed comparison regime; never pool runners or DAGs.
   const anchor = samples.toSorted(
@@ -56,7 +54,7 @@ export function buildGarden({
       Date.parse(a.observation.identity.createdAt),
   )[0];
   const selected = anchor
-    ? api.mainMedians(
+    ? api.selectMainObservations(
         samples.map((e) => e.observation),
         {
           ...anchor.observation,
@@ -67,9 +65,14 @@ export function buildGarden({
         },
       )
     : { included: [], excluded: [] };
-  const included = new Set(selected.included.map(key));
-  const comparable = samples.filter((e) =>
-    included.has(key(e.observation.identity)),
+  for (const excluded of selected.excluded)
+    if (excluded.reason === 'duplicate attempt')
+      rejected.push(`Duplicate attempt ${key(excluded.identity)}`);
+  const byObservation = new Map(
+    samples.map((envelope) => [envelope.observation, envelope]),
+  );
+  const comparable = selected.included.map((observation) =>
+    byObservation.get(observation),
   );
   const current = comparable.filter(
     (e) => Date.parse(e.observation.identity.createdAt) >= start,
