@@ -176,8 +176,6 @@
   "role": "Skirmisher",
   "source": "XTR:Most Wanted",
   "weaponQuirks": {
-    "LA:2:ISLargeXPulseLaser": [
-      "imp_cooling"
-    ]
+    "LA:2:ISLargeXPulseLaser": ["imp_cooling"]
   }
 }

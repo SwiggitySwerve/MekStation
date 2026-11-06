@@ -176,8 +176,6 @@
   "role": "Striker",
   "source": "TR:3085",
   "weaponQuirks": {
-    "RA:7:ISSNPPC": [
-      "jettison_capable"
-    ]
+    "RA:7:ISSNPPC": ["jettison_capable"]
   }
 }

@@ -180,8 +180,6 @@
   "role": "Skirmisher",
   "source": "TR:3145:LC,TR:DA",
   "weaponQuirks": {
-    "RT:2:CLRotaryAC2": [
-      "exposed_linkage"
-    ]
+    "RT:2:CLRotaryAC2": ["exposed_linkage"]
   }
 }

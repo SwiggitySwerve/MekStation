@@ -180,10 +180,6 @@
   "role": "Striker",
   "source": "TR:3085,TR:DA",
   "weaponQuirks": {
-    "RA:2:ISRotaryAC5": [
-      "exposed_linkage",
-      "static_feed",
-      "mod_weapons"
-    ]
+    "RA:2:ISRotaryAC5": ["exposed_linkage", "static_feed", "mod_weapons"]
   }
 }

@@ -192,11 +192,7 @@
   "role": "Missile Boat",
   "source": "TR:3039",
   "weaponQuirks": {
-    "LL:4:SRM 4": [
-      "stable_weapon"
-    ],
-    "RL:4:SRM 4": [
-      "stable_weapon"
-    ]
+    "LL:4:SRM 4": ["stable_weapon"],
+    "RL:4:SRM 4": ["stable_weapon"]
   }
 }

@@ -195,8 +195,6 @@
   "role": "Striker",
   "source": "RG07,RGv1",
   "weaponQuirks": {
-    "RA:4:CLLRM20": [
-      "jettison_capable"
-    ]
+    "RA:4:CLLRM20": ["jettison_capable"]
   }
 }

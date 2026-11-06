@@ -199,8 +199,6 @@
   "role": "Skirmisher",
   "source": "TR:3039,TR:SW",
   "weaponQuirks": {
-    "RA:4:PPC": [
-      "jettison_capable"
-    ]
+    "RA:4:PPC": ["jettison_capable"]
   }
 }

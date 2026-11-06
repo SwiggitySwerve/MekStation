@@ -204,8 +204,6 @@
   "role": "Striker",
   "source": "TR:3085",
   "weaponQuirks": {
-    "RA:3:CLHeavyLargeLaser": [
-      "stable_weapon"
-    ]
+    "RA:3:CLHeavyLargeLaser": ["stable_weapon"]
   }
 }

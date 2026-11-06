@@ -184,8 +184,6 @@
   "role": "Striker",
   "source": "TR:3145:LC,TR:3145",
   "weaponQuirks": {
-    "LA:2:Autocannon/5": [
-      "no_cooling"
-    ]
+    "LA:2:Autocannon/5": ["no_cooling"]
   }
 }

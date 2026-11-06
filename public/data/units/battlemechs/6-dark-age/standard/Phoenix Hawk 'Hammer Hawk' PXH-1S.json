@@ -168,8 +168,6 @@
   "role": "Skirmisher",
   "source": "ShrapGothic",
   "weaponQuirks": {
-    "RA:5:Large Laser": [
-      "jettison_capable"
-    ]
+    "RA:5:Large Laser": ["jettison_capable"]
   }
 }

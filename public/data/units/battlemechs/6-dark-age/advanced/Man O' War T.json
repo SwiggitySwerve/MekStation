@@ -187,17 +187,9 @@
   "role": "Skirmisher",
   "source": "RG11",
   "weaponQuirks": {
-    "LA:2:CLStreakSRM6": [
-      "stable_weapon"
-    ],
-    "LA:4:CLProtoMechAC8": [
-      "stable_weapon"
-    ],
-    "RA:2:CLStreakSRM6": [
-      "stable_weapon"
-    ],
-    "RA:4:CLProtoMechAC8": [
-      "stable_weapon"
-    ]
+    "LA:2:CLStreakSRM6": ["stable_weapon"],
+    "LA:4:CLProtoMechAC8": ["stable_weapon"],
+    "RA:2:CLStreakSRM6": ["stable_weapon"],
+    "RA:4:CLProtoMechAC8": ["stable_weapon"]
   }
 }

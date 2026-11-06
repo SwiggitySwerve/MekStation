@@ -176,11 +176,7 @@
   "role": "Skirmisher",
   "source": "ShrapGothic",
   "weaponQuirks": {
-    "LA:5:Light Blazer": [
-      "jettison_capable"
-    ],
-    "RT:3:Light Blazer": [
-      "jettison_capable"
-    ]
+    "LA:5:Light Blazer": ["jettison_capable"],
+    "RT:3:Light Blazer": ["jettison_capable"]
   }
 }

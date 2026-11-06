@@ -176,8 +176,6 @@
   "role": "Striker",
   "source": "TR:3145:CC,TR:3150",
   "weaponQuirks": {
-    "LA:4:CLERPPC": [
-      "imp_cooling"
-    ]
+    "LA:4:CLERPPC": ["imp_cooling"]
   }
 }

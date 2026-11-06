@@ -192,11 +192,7 @@
   "role": "Juggernaut",
   "source": "TR:3085",
   "weaponQuirks": {
-    "LT:7:ISStreakSRM4": [
-      "mod_weapons"
-    ],
-    "RT:7:ISStreakSRM6": [
-      "mod_weapons"
-    ]
+    "LT:7:ISStreakSRM4": ["mod_weapons"],
+    "RT:7:ISStreakSRM6": ["mod_weapons"]
   }
 }

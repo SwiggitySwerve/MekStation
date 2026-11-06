@@ -189,8 +189,6 @@
   "role": "Skirmisher",
   "source": "RG18,RGv1",
   "weaponQuirks": {
-    "RA:4:ISUltraAC5": [
-      "jettison_capable"
-    ]
+    "RA:4:ISUltraAC5": ["jettison_capable"]
   }
 }

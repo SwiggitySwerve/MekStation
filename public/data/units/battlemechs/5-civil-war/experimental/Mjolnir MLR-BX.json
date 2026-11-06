@@ -177,8 +177,6 @@
   "role": "Striker",
   "source": "TR:3085,TR:DA",
   "weaponQuirks": {
-    "LA:4:Mace": [
-      "accurate"
-    ]
+    "LA:4:Mace": ["accurate"]
   }
 }

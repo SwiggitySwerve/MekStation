@@ -195,8 +195,6 @@
   "role": "Striker",
   "source": "TR:3055U",
   "weaponQuirks": {
-    "RA:4:CLHeavyLargeLaser": [
-      "jettison_capable"
-    ]
+    "RA:4:CLHeavyLargeLaser": ["jettison_capable"]
   }
 }

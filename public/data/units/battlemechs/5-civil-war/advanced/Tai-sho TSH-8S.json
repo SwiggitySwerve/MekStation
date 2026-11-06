@@ -180,8 +180,6 @@
   "role": "Sniper",
   "source": "TR:3060,TR:J",
   "weaponQuirks": {
-    "RT:0:ISUltraAC10": [
-      "stable_weapon"
-    ]
+    "RT:0:ISUltraAC10": ["stable_weapon"]
   }
 }

@@ -187,17 +187,9 @@
   "role": "Skirmisher",
   "source": "TR:CI",
   "weaponQuirks": {
-    "LA:2:CLSRM6": [
-      "stable_weapon"
-    ],
-    "LA:3:CLLBXAC5": [
-      "stable_weapon"
-    ],
-    "RA:2:CLSRM6": [
-      "stable_weapon"
-    ],
-    "RA:3:CLLBXAC5": [
-      "stable_weapon"
-    ]
+    "LA:2:CLSRM6": ["stable_weapon"],
+    "LA:3:CLLBXAC5": ["stable_weapon"],
+    "RA:2:CLSRM6": ["stable_weapon"],
+    "RA:3:CLLBXAC5": ["stable_weapon"]
   }
 }

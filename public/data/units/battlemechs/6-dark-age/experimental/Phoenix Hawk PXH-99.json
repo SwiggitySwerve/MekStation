@@ -188,8 +188,6 @@
   "role": "Juggernaut",
   "source": "XTR:Caveat",
   "weaponQuirks": {
-    "RA:7:ISLargeXPulseLaser": [
-      "jettison_capable"
-    ]
+    "RA:7:ISLargeXPulseLaser": ["jettison_capable"]
   }
 }

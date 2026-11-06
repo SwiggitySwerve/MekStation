@@ -176,8 +176,6 @@
   "role": "Skirmisher",
   "source": "Gothic",
   "weaponQuirks": {
-    "RA:6:Sword": [
-      "jettison_capable"
-    ]
+    "RA:6:Sword": ["jettison_capable"]
   }
 }

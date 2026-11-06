@@ -198,8 +198,6 @@
   "role": "Skirmisher",
   "source": "RG06,RGv1",
   "weaponQuirks": {
-    "RT:9:ISLargePulseLaser": [
-      "exposed_linkage"
-    ]
+    "RT:9:ISLargePulseLaser": ["exposed_linkage"]
   }
 }

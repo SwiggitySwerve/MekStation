@@ -187,17 +187,9 @@
   "role": "Brawler",
   "source": "RG11",
   "weaponQuirks": {
-    "LA:2:CLRotaryAC2": [
-      "stable_weapon"
-    ],
-    "RA:2:CLImprovedHeavyLargeLaser": [
-      "stable_weapon"
-    ],
-    "RA:5:CLATM3": [
-      "stable_weapon"
-    ],
-    "RA:7:CLATM3": [
-      "stable_weapon"
-    ]
+    "LA:2:CLRotaryAC2": ["stable_weapon"],
+    "RA:2:CLImprovedHeavyLargeLaser": ["stable_weapon"],
+    "RA:5:CLATM3": ["stable_weapon"],
+    "RA:7:CLATM3": ["stable_weapon"]
   }
 }

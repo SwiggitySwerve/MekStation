@@ -193,11 +193,7 @@
   "role": "Skirmisher",
   "source": "TR:3085",
   "weaponQuirks": {
-    "LL:4:ISStreakSRM4": [
-      "stable_weapon"
-    ],
-    "RL:4:ISStreakSRM4": [
-      "stable_weapon"
-    ]
+    "LL:4:ISStreakSRM4": ["stable_weapon"],
+    "RL:4:ISStreakSRM4": ["stable_weapon"]
   }
 }

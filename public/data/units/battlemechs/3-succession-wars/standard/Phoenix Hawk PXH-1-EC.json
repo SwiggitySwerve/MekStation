@@ -185,8 +185,6 @@
   "role": "Skirmisher",
   "source": "TR:GC",
   "weaponQuirks": {
-    "RA:4:Improved Large Laser": [
-      "jettison_capable"
-    ]
+    "RA:4:Improved Large Laser": ["jettison_capable"]
   }
 }

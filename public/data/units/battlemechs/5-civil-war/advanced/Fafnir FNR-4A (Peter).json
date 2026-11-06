@@ -232,8 +232,6 @@
   "role": "Juggernaut",
   "source": "JTP:Tharkad",
   "weaponQuirks": {
-    "RT:1:ISHeavyGaussRifle": [
-      "stable_weapon"
-    ]
+    "RT:1:ISHeavyGaussRifle": ["stable_weapon"]
   }
 }

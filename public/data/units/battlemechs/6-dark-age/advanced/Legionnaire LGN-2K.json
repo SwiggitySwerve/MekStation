@@ -173,8 +173,6 @@
   "role": "Striker",
   "source": "TR:3145",
   "weaponQuirks": {
-    "RT:6:ISERPPC": [
-      "exposed_linkage"
-    ]
+    "RT:6:ISERPPC": ["exposed_linkage"]
   }
 }

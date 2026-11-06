@@ -212,8 +212,6 @@
   "role": "Striker",
   "source": "TR:3145",
   "weaponQuirks": {
-    "RA:3:TSEMP Cannon": [
-      "stable_weapon"
-    ]
+    "RA:3:TSEMP Cannon": ["stable_weapon"]
   }
 }

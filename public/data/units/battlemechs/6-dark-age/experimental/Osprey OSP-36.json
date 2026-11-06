@@ -193,11 +193,7 @@
   "role": "Sniper",
   "source": "XTR:RotS 3",
   "weaponQuirks": {
-    "LA:5:ISERMediumLaser": [
-      "inaccurate"
-    ],
-    "RA:5:ISERMediumLaser": [
-      "inaccurate"
-    ]
+    "LA:5:ISERMediumLaser": ["inaccurate"],
+    "RA:5:ISERMediumLaser": ["inaccurate"]
   }
 }

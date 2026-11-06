@@ -207,17 +207,9 @@
   "role": "Juggernaut",
   "source": "Shrap15",
   "weaponQuirks": {
-    "LT:0:ISRotaryAC2": [
-      "stable_weapon"
-    ],
-    "LT:3:ISRotaryAC2": [
-      "stable_weapon"
-    ],
-    "RT:0:ISRotaryAC2": [
-      "stable_weapon"
-    ],
-    "RT:3:ISRotaryAC2": [
-      "stable_weapon"
-    ]
+    "LT:0:ISRotaryAC2": ["stable_weapon"],
+    "LT:3:ISRotaryAC2": ["stable_weapon"],
+    "RT:0:ISRotaryAC2": ["stable_weapon"],
+    "RT:3:ISRotaryAC2": ["stable_weapon"]
   }
 }

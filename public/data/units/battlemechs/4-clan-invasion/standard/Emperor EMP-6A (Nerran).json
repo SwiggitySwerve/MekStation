@@ -184,8 +184,6 @@
   "mulId": 965,
   "role": "Sniper",
   "weaponQuirks": {
-    "LA:3:Large Laser": [
-      "imp_cooling"
-    ]
+    "LA:3:Large Laser": ["imp_cooling"]
   }
 }

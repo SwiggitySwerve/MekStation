@@ -180,8 +180,6 @@
   "role": "Striker",
   "source": "XTR:Davion",
   "weaponQuirks": {
-    "RT:4:CLRotaryAC5": [
-      "exposed_linkage"
-    ]
+    "RT:4:CLRotaryAC5": ["exposed_linkage"]
   }
 }

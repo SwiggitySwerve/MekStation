@@ -197,8 +197,6 @@
   "role": "Brawler",
   "source": "TR:3145",
   "weaponQuirks": {
-    "RT:3:ISSBGR": [
-      "exposed_linkage"
-    ]
+    "RT:3:ISSBGR": ["exposed_linkage"]
   }
 }

@@ -189,8 +189,6 @@
   "role": "Striker",
   "source": "TR:PP,TR:CI",
   "weaponQuirks": {
-    "RA:7:ISLargePulseLaser": [
-      "jettison_capable"
-    ]
+    "RA:7:ISLargePulseLaser": ["jettison_capable"]
   }
 }

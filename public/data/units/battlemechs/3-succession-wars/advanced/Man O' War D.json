@@ -191,17 +191,9 @@
   "role": "Skirmisher",
   "source": "TR:CI",
   "weaponQuirks": {
-    "LA:4:CLERLargeLaser": [
-      "stable_weapon"
-    ],
-    "LA:5:CLMediumPulseLaser": [
-      "stable_weapon"
-    ],
-    "RA:4:CLERLargeLaser": [
-      "stable_weapon"
-    ],
-    "RA:5:CLMediumPulseLaser": [
-      "stable_weapon"
-    ]
+    "LA:4:CLERLargeLaser": ["stable_weapon"],
+    "LA:5:CLMediumPulseLaser": ["stable_weapon"],
+    "RA:4:CLERLargeLaser": ["stable_weapon"],
+    "RA:5:CLMediumPulseLaser": ["stable_weapon"]
   }
 }

@@ -193,8 +193,6 @@
   "role": "Juggernaut",
   "source": "TR:3058U,TR:SW",
   "weaponQuirks": {
-    "LA:3:ISERPPC": [
-      "imp_cooling"
-    ]
+    "LA:3:ISERPPC": ["imp_cooling"]
   }
 }

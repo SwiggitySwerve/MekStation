@@ -193,8 +193,6 @@
   "role": "Brawler",
   "source": "TR:3085,BattleCorps",
   "weaponQuirks": {
-    "RT:6:ISStreakSRM6": [
-      "exposed_linkage"
-    ]
+    "RT:6:ISStreakSRM6": ["exposed_linkage"]
   }
 }

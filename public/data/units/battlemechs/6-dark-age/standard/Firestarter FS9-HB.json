@@ -180,11 +180,7 @@
   "role": "Scout",
   "source": "Gothic",
   "weaponQuirks": {
-    "LA:5:Flamer": [
-      "exposed_linkage"
-    ],
-    "RA:5:Flamer": [
-      "exposed_linkage"
-    ]
+    "LA:5:Flamer": ["exposed_linkage"],
+    "RA:5:Flamer": ["exposed_linkage"]
   }
 }

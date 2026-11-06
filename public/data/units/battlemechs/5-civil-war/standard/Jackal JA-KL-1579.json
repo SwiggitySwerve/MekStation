@@ -176,8 +176,6 @@
   "role": "Scout",
   "source": "XTR:Marik",
   "weaponQuirks": {
-    "RT:3:ISERPPC": [
-      "imp_cooling"
-    ]
+    "RT:3:ISERPPC": ["imp_cooling"]
   }
 }

@@ -201,11 +201,7 @@
   "role": "Missile Boat",
   "source": "TR:3050,TR:3050U",
   "weaponQuirks": {
-    "RT:6:ISMML5": [
-      "fast_reload"
-    ],
-    "RT:9:ISMML5": [
-      "fast_reload"
-    ]
+    "RT:6:ISMML5": ["fast_reload"],
+    "RT:9:ISMML5": ["fast_reload"]
   }
 }

@@ -196,8 +196,6 @@
   "role": "Skirmisher",
   "source": "TR:3085S,TR:CI",
   "weaponQuirks": {
-    "RA:4:ISRotaryAC2": [
-      "jettison_capable"
-    ]
+    "RA:4:ISRotaryAC2": ["jettison_capable"]
   }
 }

@@ -185,8 +185,6 @@
   "role": "Sniper",
   "source": "RG18,RGv1",
   "weaponQuirks": {
-    "RA:4:ISGaussRifle": [
-      "jettison_capable"
-    ]
+    "RA:4:ISGaussRifle": ["jettison_capable"]
   }
 }

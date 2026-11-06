@@ -181,8 +181,6 @@
   "role": "Skirmisher",
   "source": "TR:3145",
   "weaponQuirks": {
-    "HD:3:CLERLargeLaser": [
-      "accurate"
-    ]
+    "HD:3:CLERLargeLaser": ["accurate"]
   }
 }

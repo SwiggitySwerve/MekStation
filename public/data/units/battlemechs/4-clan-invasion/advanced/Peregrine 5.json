@@ -180,8 +180,6 @@
   "role": "Sniper",
   "source": "TR:3055U",
   "weaponQuirks": {
-    "CT:10:CLHeavyMediumLaser": [
-      "stable_weapon"
-    ]
+    "CT:10:CLHeavyMediumLaser": ["stable_weapon"]
   }
 }

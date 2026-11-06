@@ -177,8 +177,6 @@
   "role": "Brawler",
   "source": "TR:3050,TR:3050U",
   "weaponQuirks": {
-    "RT:3:ISUltraAC10": [
-      "fast_reload"
-    ]
+    "RT:3:ISUltraAC10": ["fast_reload"]
   }
 }

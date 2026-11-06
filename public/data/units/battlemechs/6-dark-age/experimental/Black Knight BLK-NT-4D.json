@@ -204,8 +204,6 @@
   "role": "Juggernaut",
   "source": "TR:3145:FS,TR:DA",
   "weaponQuirks": {
-    "LA:3:CLERPPC": [
-      "accurate"
-    ]
+    "LA:3:CLERPPC": ["accurate"]
   }
 }

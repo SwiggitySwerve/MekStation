@@ -188,8 +188,6 @@
   "role": "Missile Boat",
   "source": "RG04",
   "weaponQuirks": {
-    "RT:3:CLLRM15": [
-      "fast_reload"
-    ]
+    "RT:3:CLLRM15": ["fast_reload"]
   }
 }

@@ -188,8 +188,6 @@
   "role": "Sniper",
   "source": "RG09",
   "weaponQuirks": {
-    "CT:11:CLERLargeLaser": [
-      "em_interference"
-    ]
+    "CT:11:CLERLargeLaser": ["em_interference"]
   }
 }

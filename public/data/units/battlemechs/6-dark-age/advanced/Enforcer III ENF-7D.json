@@ -187,8 +187,6 @@
   "role": "Sniper",
   "source": "XTR:RotS 1,TR:DA",
   "weaponQuirks": {
-    "RA:3:ISLBXAC10": [
-      "fast_reload"
-    ]
+    "RA:3:ISLBXAC10": ["fast_reload"]
   }
 }

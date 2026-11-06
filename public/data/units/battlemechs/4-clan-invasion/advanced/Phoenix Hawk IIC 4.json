@@ -185,17 +185,9 @@
   "role": "Skirmisher",
   "source": "TR:3085S,TR:J",
   "weaponQuirks": {
-    "LT:4:CLATM9": [
-      "fast_reload"
-    ],
-    "LT:8:CLATM9": [
-      "fast_reload"
-    ],
-    "RT:4:CLATM9": [
-      "fast_reload"
-    ],
-    "RT:8:CLATM9": [
-      "fast_reload"
-    ]
+    "LT:4:CLATM9": ["fast_reload"],
+    "LT:8:CLATM9": ["fast_reload"],
+    "RT:4:CLATM9": ["fast_reload"],
+    "RT:8:CLATM9": ["fast_reload"]
   }
 }

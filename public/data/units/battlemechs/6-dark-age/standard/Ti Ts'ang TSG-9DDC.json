@@ -211,8 +211,6 @@
   "role": "Skirmisher",
   "source": "TR:Proto,XTR:Liao",
   "weaponQuirks": {
-    "RA:4:IS Lance": [
-      "jettison_capable"
-    ]
+    "RA:4:IS Lance": ["jettison_capable"]
   }
 }

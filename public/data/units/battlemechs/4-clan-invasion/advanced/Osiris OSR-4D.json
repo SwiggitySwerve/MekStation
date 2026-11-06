@@ -193,8 +193,6 @@
   "role": "Striker",
   "source": "TR:3067,TR:J",
   "weaponQuirks": {
-    "CT:10:ISERMediumLaser": [
-      "direct_torso_mount"
-    ]
+    "CT:10:ISERMediumLaser": ["direct_torso_mount"]
   }
 }

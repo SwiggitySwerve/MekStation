@@ -180,8 +180,6 @@
   "role": "Striker",
   "source": "TR:Proto",
   "weaponQuirks": {
-    "RT:4:ISRotaryAC5": [
-      "exposed_linkage"
-    ]
+    "RT:4:ISRotaryAC5": ["exposed_linkage"]
   }
 }

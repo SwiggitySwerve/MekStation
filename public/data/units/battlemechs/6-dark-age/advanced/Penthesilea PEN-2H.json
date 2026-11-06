@@ -193,14 +193,8 @@
   "role": "Brawler",
   "source": "TR:3085",
   "weaponQuirks": {
-    "CT:9:ISERMediumLaser": [
-      "stable_weapon"
-    ],
-    "CT:10:ISERMediumLaser": [
-      "stable_weapon"
-    ],
-    "CT:11:ISERMediumLaser": [
-      "stable_weapon"
-    ]
+    "CT:9:ISERMediumLaser": ["stable_weapon"],
+    "CT:10:ISERMediumLaser": ["stable_weapon"],
+    "CT:11:ISERMediumLaser": ["stable_weapon"]
   }
 }

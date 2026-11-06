@@ -196,8 +196,6 @@
   "role": "Brawler",
   "source": "TR:3055U,TR:J",
   "weaponQuirks": {
-    "HD:3:ISERMediumLaser": [
-      "direct_torso_mount"
-    ]
+    "HD:3:ISERMediumLaser": ["direct_torso_mount"]
   }
 }

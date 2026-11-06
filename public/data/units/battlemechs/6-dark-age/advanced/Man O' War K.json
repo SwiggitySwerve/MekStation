@@ -195,20 +195,10 @@
   "role": "Skirmisher",
   "source": "RG11",
   "weaponQuirks": {
-    "LA:2:CLImprovedMediumHeavyLaser": [
-      "stable_weapon"
-    ],
-    "LA:4:CLImprovedMediumHeavyLaser": [
-      "stable_weapon"
-    ],
-    "LA:6:CLImprovedMediumHeavyLaser": [
-      "stable_weapon"
-    ],
-    "LA:8:CLImprovedMediumHeavyLaser": [
-      "stable_weapon"
-    ],
-    "RA:4:Hatchet": [
-      "stable_weapon"
-    ]
+    "LA:2:CLImprovedMediumHeavyLaser": ["stable_weapon"],
+    "LA:4:CLImprovedMediumHeavyLaser": ["stable_weapon"],
+    "LA:6:CLImprovedMediumHeavyLaser": ["stable_weapon"],
+    "LA:8:CLImprovedMediumHeavyLaser": ["stable_weapon"],
+    "RA:4:Hatchet": ["stable_weapon"]
   }
 }

@@ -192,8 +192,6 @@
   "role": "Striker",
   "source": "TR:3085S,TR:CI",
   "weaponQuirks": {
-    "RA:4:Hatchet": [
-      "mod_weapons"
-    ]
+    "RA:4:Hatchet": ["mod_weapons"]
   }
 }

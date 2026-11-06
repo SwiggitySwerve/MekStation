@@ -175,8 +175,6 @@
   "role": "Ambusher",
   "source": "XTR:Periphery",
   "weaponQuirks": {
-    "RA:7:ISMediumVibroblade": [
-      "jettison_capable"
-    ]
+    "RA:7:ISMediumVibroblade": ["jettison_capable"]
   }
 }

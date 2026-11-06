@@ -184,11 +184,7 @@
   "role": "Brawler",
   "source": "TR:3039,TR:SW",
   "weaponQuirks": {
-    "LT:1:SRM 6": [
-      "mod_weapons"
-    ],
-    "RT:1:SRM 6": [
-      "mod_weapons"
-    ]
+    "LT:1:SRM 6": ["mod_weapons"],
+    "RT:1:SRM 6": ["mod_weapons"]
   }
 }

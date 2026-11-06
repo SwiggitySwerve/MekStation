@@ -185,8 +185,6 @@
   "role": "Skirmisher",
   "source": "TR:3085",
   "weaponQuirks": {
-    "LA:3:CLPlasmaCannon": [
-      "accurate"
-    ]
+    "LA:3:CLPlasmaCannon": ["accurate"]
   }
 }

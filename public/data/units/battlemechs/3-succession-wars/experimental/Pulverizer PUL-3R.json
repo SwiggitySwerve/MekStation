@@ -184,8 +184,6 @@
   "role": "Brawler",
   "source": "TR:GC",
   "weaponQuirks": {
-    "RT:3:CLWERPPC": [
-      "accurate"
-    ]
+    "RT:3:CLWERPPC": ["accurate"]
   }
 }

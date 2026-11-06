@@ -192,8 +192,6 @@
   "role": "Sniper",
   "source": "TR:3025C",
   "weaponQuirks": {
-    "RT:0:PPC": [
-      "exposed_linkage"
-    ]
+    "RT:0:PPC": ["exposed_linkage"]
   }
 }

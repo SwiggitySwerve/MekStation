@@ -193,14 +193,8 @@
   "role": "Brawler",
   "source": "XTR:SW",
   "weaponQuirks": {
-    "LA:6:Binary Laser (Blazer) Cannon": [
-      "imp_cooling"
-    ],
-    "RA:6:Binary Laser (Blazer) Cannon": [
-      "imp_cooling"
-    ],
-    "RT:6:SRM 6": [
-      "exposed_linkage"
-    ]
+    "LA:6:Binary Laser (Blazer) Cannon": ["imp_cooling"],
+    "RA:6:Binary Laser (Blazer) Cannon": ["imp_cooling"],
+    "RT:6:SRM 6": ["exposed_linkage"]
   }
 }

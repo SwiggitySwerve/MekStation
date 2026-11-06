@@ -193,8 +193,6 @@
   "role": "Striker",
   "source": "RG23",
   "weaponQuirks": {
-    "RT:3:ISERPPC": [
-      "direct_torso_mount"
-    ]
+    "RT:3:ISERPPC": ["direct_torso_mount"]
   }
 }

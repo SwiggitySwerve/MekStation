@@ -184,8 +184,6 @@
   "role": "Striker",
   "source": "RG27",
   "weaponQuirks": {
-    "RA:4:Hatchet": [
-      "mod_weapons"
-    ]
+    "RA:4:Hatchet": ["mod_weapons"]
   }
 }

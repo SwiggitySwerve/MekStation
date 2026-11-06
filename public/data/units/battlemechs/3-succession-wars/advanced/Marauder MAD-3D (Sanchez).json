@@ -184,8 +184,6 @@
   "role": "Sniper",
   "source": "FM:Davion",
   "weaponQuirks": {
-    "RT:3:ISGaussRifle": [
-      "exposed_linkage"
-    ]
+    "RT:3:ISGaussRifle": ["exposed_linkage"]
   }
 }

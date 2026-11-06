@@ -193,8 +193,6 @@
   "role": "Scout",
   "source": "TR:3145:DC,TR:3150",
   "weaponQuirks": {
-    "RA:4:TSEMP Cannon": [
-      "accurate"
-    ]
+    "RA:4:TSEMP Cannon": ["accurate"]
   }
 }

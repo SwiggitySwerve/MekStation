@@ -193,11 +193,7 @@
   "role": "Sniper",
   "source": "TR:3085,BattleCorps",
   "weaponQuirks": {
-    "LT:4:CLHAG20": [
-      "fast_reload"
-    ],
-    "RT:4:CLHAG20": [
-      "fast_reload"
-    ]
+    "LT:4:CLHAG20": ["fast_reload"],
+    "RT:4:CLHAG20": ["fast_reload"]
   }
 }

@@ -176,8 +176,6 @@
   "role": "Juggernaut",
   "source": "TR:Proto",
   "weaponQuirks": {
-    "RA:4:Mace": [
-      "jettison_capable"
-    ]
+    "RA:4:Mace": ["jettison_capable"]
   }
 }

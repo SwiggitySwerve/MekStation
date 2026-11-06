@@ -200,8 +200,6 @@
   "role": "Brawler",
   "source": "TR:3145:FS,TR:DA",
   "weaponQuirks": {
-    "LA:3:ISERPPC": [
-      "accurate"
-    ]
+    "LA:3:ISERPPC": ["accurate"]
   }
 }

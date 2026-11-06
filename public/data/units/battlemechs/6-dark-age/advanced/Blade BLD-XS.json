@@ -180,16 +180,8 @@
   "role": "Striker",
   "source": "TR:3085,TR:DA",
   "weaponQuirks": {
-    "RA:2:Autocannon/10": [
-      "exposed_linkage",
-      "static_feed",
-      "mod_weapons"
-    ],
-    "RA:9:Medium Laser": [
-      "mod_weapons"
-    ],
-    "RA:10:Medium Laser": [
-      "mod_weapons"
-    ]
+    "RA:2:Autocannon/10": ["exposed_linkage", "static_feed", "mod_weapons"],
+    "RA:9:Medium Laser": ["mod_weapons"],
+    "RA:10:Medium Laser": ["mod_weapons"]
   }
 }

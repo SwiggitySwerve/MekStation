@@ -185,8 +185,6 @@
   "role": "Skirmisher",
   "source": "TR:SW",
   "weaponQuirks": {
-    "RT:0:LRM 15": [
-      "fast_reload"
-    ]
+    "RT:0:LRM 15": ["fast_reload"]
   }
 }

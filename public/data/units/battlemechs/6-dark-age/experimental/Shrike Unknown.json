@@ -189,11 +189,7 @@
   "role": "Sniper",
   "source": "TR:3145:C,TR:DA",
   "weaponQuirks": {
-    "LA:3:CLUltraAC5": [
-      "exposed_linkage"
-    ],
-    "LA:6:CLUltraAC5": [
-      "exposed_linkage"
-    ]
+    "LA:3:CLUltraAC5": ["exposed_linkage"],
+    "LA:6:CLUltraAC5": ["exposed_linkage"]
   }
 }

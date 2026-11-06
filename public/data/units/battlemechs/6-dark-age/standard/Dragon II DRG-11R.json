@@ -184,8 +184,6 @@
   "role": "Missile Boat",
   "source": "TR:3145:DC,TR:DA",
   "weaponQuirks": {
-    "RA:3:CLERPPC": [
-      "poor_cooling"
-    ]
+    "RA:3:CLERPPC": ["poor_cooling"]
   }
 }

@@ -185,8 +185,6 @@
   "role": "Skirmisher",
   "source": "TR:SW",
   "weaponQuirks": {
-    "RA:4:Autocannon/10": [
-      "jettison_capable"
-    ]
+    "RA:4:Autocannon/10": ["jettison_capable"]
   }
 }

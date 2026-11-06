@@ -192,8 +192,6 @@
   "role": "Sniper",
   "source": "TR:3150",
   "weaponQuirks": {
-    "HD:3:Medium Laser": [
-      "direct_torso_mount"
-    ]
+    "HD:3:Medium Laser": ["direct_torso_mount"]
   }
 }

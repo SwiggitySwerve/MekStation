@@ -197,23 +197,11 @@
   "role": "Scout",
   "source": "TR:3145:LC,TR:3145",
   "weaponQuirks": {
-    "LA:6:Flamer": [
-      "exposed_linkage"
-    ],
-    "LA:7:Flamer": [
-      "exposed_linkage"
-    ],
-    "LA:8:Flamer": [
-      "exposed_linkage"
-    ],
-    "RA:6:Flamer": [
-      "exposed_linkage"
-    ],
-    "RA:7:Flamer": [
-      "exposed_linkage"
-    ],
-    "RA:8:Flamer": [
-      "exposed_linkage"
-    ]
+    "LA:6:Flamer": ["exposed_linkage"],
+    "LA:7:Flamer": ["exposed_linkage"],
+    "LA:8:Flamer": ["exposed_linkage"],
+    "RA:6:Flamer": ["exposed_linkage"],
+    "RA:7:Flamer": ["exposed_linkage"],
+    "RA:8:Flamer": ["exposed_linkage"]
   }
 }

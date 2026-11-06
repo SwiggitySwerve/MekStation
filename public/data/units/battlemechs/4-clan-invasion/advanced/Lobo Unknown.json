@@ -196,8 +196,6 @@
   "role": "Striker",
   "source": "TR:3067",
   "weaponQuirks": {
-    "HD:3:CLAntiMissileSystem": [
-      "direct_torso_mount"
-    ]
+    "HD:3:CLAntiMissileSystem": ["direct_torso_mount"]
   }
 }

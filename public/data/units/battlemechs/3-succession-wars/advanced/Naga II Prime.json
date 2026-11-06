@@ -184,17 +184,9 @@
   "role": "Brawler",
   "source": "RG26",
   "weaponQuirks": {
-    "LA:2:CLLBXAC10": [
-      "stable_weapon"
-    ],
-    "RA:2:CLUltraAC10": [
-      "stable_weapon"
-    ],
-    "RT:2:CLLRM20": [
-      "stable_weapon"
-    ],
-    "CT:10:CLERSmallLaser": [
-      "stable_weapon"
-    ]
+    "LA:2:CLLBXAC10": ["stable_weapon"],
+    "RA:2:CLUltraAC10": ["stable_weapon"],
+    "RT:2:CLLRM20": ["stable_weapon"],
+    "CT:10:CLERSmallLaser": ["stable_weapon"]
   }
 }

@@ -193,14 +193,8 @@
   "role": "Skirmisher",
   "source": "TR:Proto",
   "weaponQuirks": {
-    "LA:5:Mek Taser": [
-      "exposed_linkage"
-    ],
-    "RA:4:Chain Whip": [
-      "jettison_capable"
-    ],
-    "RT:2:ISStreakSRM6": [
-      "fast_reload"
-    ]
+    "LA:5:Mek Taser": ["exposed_linkage"],
+    "RA:4:Chain Whip": ["jettison_capable"],
+    "RT:2:ISStreakSRM6": ["fast_reload"]
   }
 }

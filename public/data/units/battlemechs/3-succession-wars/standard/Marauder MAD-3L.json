@@ -193,8 +193,6 @@
   "role": "Brawler",
   "source": "TR:3039",
   "weaponQuirks": {
-    "RT:0:Autocannon/5": [
-      "exposed_linkage"
-    ]
+    "RT:0:Autocannon/5": ["exposed_linkage"]
   }
 }

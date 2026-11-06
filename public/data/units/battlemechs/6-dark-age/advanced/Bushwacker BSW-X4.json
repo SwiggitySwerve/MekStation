@@ -192,8 +192,6 @@
   "role": "Sniper",
   "source": "RG02",
   "weaponQuirks": {
-    "CT:10:ISERLargeLaser": [
-      "stable_weapon"
-    ]
+    "CT:10:ISERLargeLaser": ["stable_weapon"]
   }
 }

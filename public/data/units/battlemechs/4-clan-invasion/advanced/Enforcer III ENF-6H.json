@@ -185,8 +185,6 @@
   "role": "Skirmisher",
   "source": "TR:3050,TR:CI",
   "weaponQuirks": {
-    "RA:2:ISUltraAC20": [
-      "fast_reload"
-    ]
+    "RA:2:ISUltraAC20": ["fast_reload"]
   }
 }

@@ -217,8 +217,6 @@
   "role": "Juggernaut",
   "source": "XTR:RotS 2",
   "weaponQuirks": {
-    "RA:3:Bombast Laser": [
-      "em_interference"
-    ]
+    "RA:3:Bombast Laser": ["em_interference"]
   }
 }

@@ -193,8 +193,6 @@
   "role": "Skirmisher",
   "source": "TR:3039,TR:SW",
   "weaponQuirks": {
-    "RA:4:Large Laser": [
-      "jettison_capable"
-    ]
+    "RA:4:Large Laser": ["jettison_capable"]
   }
 }

@@ -188,11 +188,7 @@
   "role": "Skirmisher",
   "source": "TR:3085,TR:DA",
   "weaponQuirks": {
-    "RA:8:ISLargePulseLaser": [
-      "stable_weapon"
-    ],
-    "RA:10:ISLargePulseLaser": [
-      "stable_weapon"
-    ]
+    "RA:8:ISLargePulseLaser": ["stable_weapon"],
+    "RA:10:ISLargePulseLaser": ["stable_weapon"]
   }
 }

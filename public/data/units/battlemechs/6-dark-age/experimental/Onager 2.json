@@ -201,8 +201,6 @@
   "role": "Sniper",
   "source": "TR:3145",
   "weaponQuirks": {
-    "LA:2:CLHAG30": [
-      "exposed_linkage"
-    ]
+    "LA:2:CLHAG30": ["exposed_linkage"]
   }
 }

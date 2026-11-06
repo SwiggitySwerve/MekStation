@@ -201,11 +201,7 @@
   "role": "Scout",
   "source": "TR:3039,TR:SW",
   "weaponQuirks": {
-    "LA:4:Flamer": [
-      "exposed_linkage"
-    ],
-    "RA:4:Flamer": [
-      "exposed_linkage"
-    ]
+    "LA:4:Flamer": ["exposed_linkage"],
+    "RA:4:Flamer": ["exposed_linkage"]
   }
 }

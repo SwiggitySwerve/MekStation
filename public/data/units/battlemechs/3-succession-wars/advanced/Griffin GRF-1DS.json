@@ -183,8 +183,6 @@
   "role": "Missile Boat",
   "source": "TR:3085,RGv1",
   "weaponQuirks": {
-    "RA:7:ISLargePulseLaser": [
-      "jettison_capable"
-    ]
+    "RA:7:ISLargePulseLaser": ["jettison_capable"]
   }
 }

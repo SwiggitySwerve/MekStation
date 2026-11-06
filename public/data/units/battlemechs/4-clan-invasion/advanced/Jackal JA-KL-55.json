@@ -176,8 +176,6 @@
   "role": "Striker",
   "source": "TR:3055U",
   "weaponQuirks": {
-    "RT:6:ISERPPC": [
-      "imp_cooling"
-    ]
+    "RT:6:ISERPPC": ["imp_cooling"]
   }
 }

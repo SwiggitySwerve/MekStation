@@ -189,17 +189,9 @@
   "role": "Sniper",
   "source": "RG15,RGv1",
   "weaponQuirks": {
-    "LT:4:CLLRM20": [
-      "fast_reload"
-    ],
-    "LT:8:CLLRM20": [
-      "fast_reload"
-    ],
-    "RT:4:CLUltraAC10": [
-      "fast_reload"
-    ],
-    "CT:11:CLMG": [
-      "fast_reload"
-    ]
+    "LT:4:CLLRM20": ["fast_reload"],
+    "LT:8:CLLRM20": ["fast_reload"],
+    "RT:4:CLUltraAC10": ["fast_reload"],
+    "CT:11:CLMG": ["fast_reload"]
   }
 }

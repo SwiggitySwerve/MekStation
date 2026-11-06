@@ -183,21 +183,9 @@
   "role": "Sniper",
   "source": "TR:3075,TR:J",
   "weaponQuirks": {
-    "LA:2:CLHAG20": [
-      "exposed_linkage",
-      "static_feed"
-    ],
-    "RA:2:CLHAG20": [
-      "exposed_linkage",
-      "static_feed"
-    ],
-    "LT:2:CLHAG20": [
-      "exposed_linkage",
-      "static_feed"
-    ],
-    "RT:2:CLHAG20": [
-      "exposed_linkage",
-      "static_feed"
-    ]
+    "LA:2:CLHAG20": ["exposed_linkage", "static_feed"],
+    "RA:2:CLHAG20": ["exposed_linkage", "static_feed"],
+    "LT:2:CLHAG20": ["exposed_linkage", "static_feed"],
+    "RT:2:CLHAG20": ["exposed_linkage", "static_feed"]
   }
 }

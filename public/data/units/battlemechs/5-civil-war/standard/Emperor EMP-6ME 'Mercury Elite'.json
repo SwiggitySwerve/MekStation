@@ -193,11 +193,7 @@
   "role": "Juggernaut",
   "source": "JTP:Atreus",
   "weaponQuirks": {
-    "LA:10:ISSNPPC": [
-      "imp_cooling"
-    ],
-    "RA:10:ISSNPPC": [
-      "imp_cooling"
-    ]
+    "LA:10:ISSNPPC": ["imp_cooling"],
+    "RA:10:ISSNPPC": ["imp_cooling"]
   }
 }

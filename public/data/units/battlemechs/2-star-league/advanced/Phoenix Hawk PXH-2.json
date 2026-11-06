@@ -181,8 +181,6 @@
   "role": "Striker",
   "source": "TR:3085,TR:3025",
   "weaponQuirks": {
-    "RA:4:Large Laser": [
-      "jettison_capable"
-    ]
+    "RA:4:Large Laser": ["jettison_capable"]
   }
 }

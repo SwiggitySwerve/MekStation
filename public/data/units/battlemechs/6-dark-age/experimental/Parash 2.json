@@ -181,8 +181,6 @@
   "role": "Striker",
   "source": "TR:3085",
   "weaponQuirks": {
-    "RA:4:CLERLargePulseLaser": [
-      "jettison_capable"
-    ]
+    "RA:4:CLERLargePulseLaser": ["jettison_capable"]
   }
 }

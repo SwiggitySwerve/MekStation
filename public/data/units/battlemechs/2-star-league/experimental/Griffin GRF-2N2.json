@@ -187,8 +187,6 @@
   "role": "Skirmisher",
   "source": "His:OK",
   "weaponQuirks": {
-    "RA:4:PPC": [
-      "jettison_capable"
-    ]
+    "RA:4:PPC": ["jettison_capable"]
   }
 }

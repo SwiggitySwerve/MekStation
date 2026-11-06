@@ -187,8 +187,6 @@
   "role": "Missile Boat",
   "source": "TR:3085,BattleCorps",
   "weaponQuirks": {
-    "RT:8:LRM 10": [
-      "jettison_capable"
-    ]
+    "RT:8:LRM 10": ["jettison_capable"]
   }
 }

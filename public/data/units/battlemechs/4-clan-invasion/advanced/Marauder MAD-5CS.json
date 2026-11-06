@@ -193,8 +193,6 @@
   "role": "Sniper",
   "source": "BoT",
   "weaponQuirks": {
-    "RT:6:ISLBXAC10": [
-      "exposed_linkage"
-    ]
+    "RT:6:ISLBXAC10": ["exposed_linkage"]
   }
 }

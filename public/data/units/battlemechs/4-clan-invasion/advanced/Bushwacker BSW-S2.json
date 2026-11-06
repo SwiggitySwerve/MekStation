@@ -188,8 +188,6 @@
   "role": "Sniper",
   "source": "TR:3058U,TR:CI",
   "weaponQuirks": {
-    "CT:10:ISERLargeLaser": [
-      "stable_weapon"
-    ]
+    "CT:10:ISERLargeLaser": ["stable_weapon"]
   }
 }

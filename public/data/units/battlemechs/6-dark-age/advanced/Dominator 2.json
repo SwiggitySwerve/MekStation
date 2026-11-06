@@ -189,11 +189,7 @@
   "role": "Sniper",
   "source": "RG01",
   "weaponQuirks": {
-    "RA:5:CLERLargeLaser": [
-      "exposed_linkage"
-    ],
-    "RT:6:CLERLargeLaser": [
-      "exposed_linkage"
-    ]
+    "RA:5:CLERLargeLaser": ["exposed_linkage"],
+    "RT:6:CLERLargeLaser": ["exposed_linkage"]
   }
 }

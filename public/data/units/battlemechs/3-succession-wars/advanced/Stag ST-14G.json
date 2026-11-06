@@ -188,8 +188,6 @@
   "role": "Striker",
   "source": "JSBD",
   "weaponQuirks": {
-    "RA:3:ISERLargeLaser": [
-      "stable_weapon"
-    ]
+    "RA:3:ISERLargeLaser": ["stable_weapon"]
   }
 }

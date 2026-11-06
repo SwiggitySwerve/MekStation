@@ -193,8 +193,6 @@
   "role": "Striker",
   "source": "RG11,RGv1",
   "weaponQuirks": {
-    "LA:4:ISERLargeLaser": [
-      "jettison_capable"
-    ]
+    "LA:4:ISERLargeLaser": ["jettison_capable"]
   }
 }

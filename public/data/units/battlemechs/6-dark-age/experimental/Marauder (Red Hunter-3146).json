@@ -193,8 +193,6 @@
   "role": "Juggernaut",
   "source": "RG06,RGv1",
   "weaponQuirks": {
-    "RT:3:CLUltraAC10": [
-      "exposed_linkage"
-    ]
+    "RT:3:CLUltraAC10": ["exposed_linkage"]
   }
 }

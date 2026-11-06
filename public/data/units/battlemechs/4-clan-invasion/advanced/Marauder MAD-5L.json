@@ -193,8 +193,6 @@
   "role": "Sniper",
   "source": "TR:3085S,TR:CI",
   "weaponQuirks": {
-    "RT:6:ISERPPC": [
-      "exposed_linkage"
-    ]
+    "RT:6:ISERPPC": ["exposed_linkage"]
   }
 }

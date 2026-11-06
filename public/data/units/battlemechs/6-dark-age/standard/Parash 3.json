@@ -177,8 +177,6 @@
   "role": "Striker",
   "source": "XTR:RotS 3",
   "weaponQuirks": {
-    "RA:4:CLLargePulseLaser": [
-      "jettison_capable"
-    ]
+    "RA:4:CLLargePulseLaser": ["jettison_capable"]
   }
 }

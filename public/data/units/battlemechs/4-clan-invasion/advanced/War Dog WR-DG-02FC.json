@@ -199,13 +199,7 @@
   "role": "Brawler",
   "source": "TR:3055U,TR:CI",
   "weaponQuirks": {
-    "LL:4:ISStreakSRM2OS": [
-      "fast_reload",
-      "accurate"
-    ],
-    "RL:4:ISStreakSRM2OS": [
-      "fast_reload",
-      "accurate"
-    ]
+    "LL:4:ISStreakSRM2OS": ["fast_reload", "accurate"],
+    "RL:4:ISStreakSRM2OS": ["fast_reload", "accurate"]
   }
 }

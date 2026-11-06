@@ -187,8 +187,6 @@
   "role": "Sniper",
   "source": "RG01,RGv1",
   "weaponQuirks": {
-    "RA:4:ISRotaryAC2": [
-      "jettison_capable"
-    ]
+    "RA:4:ISRotaryAC2": ["jettison_capable"]
   }
 }

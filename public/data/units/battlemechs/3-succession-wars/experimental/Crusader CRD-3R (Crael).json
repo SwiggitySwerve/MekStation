@@ -200,11 +200,7 @@
   "role": "Brawler",
   "source": "RG17,RGv1",
   "weaponQuirks": {
-    "LL:4:SRM 6": [
-      "stable_weapon"
-    ],
-    "RL:4:SRM 6": [
-      "stable_weapon"
-    ]
+    "LL:4:SRM 6": ["stable_weapon"],
+    "RL:4:SRM 6": ["stable_weapon"]
   }
 }

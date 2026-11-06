@@ -188,11 +188,7 @@
   "role": "Juggernaut",
   "source": "XTR:RISC",
   "weaponQuirks": {
-    "LA:3:ISRISCHyperLaser": [
-      "imp_cooling"
-    ],
-    "RA:3:ISRISCHyperLaser": [
-      "imp_cooling"
-    ]
+    "LA:3:ISRISCHyperLaser": ["imp_cooling"],
+    "RA:3:ISRISCHyperLaser": ["imp_cooling"]
   }
 }

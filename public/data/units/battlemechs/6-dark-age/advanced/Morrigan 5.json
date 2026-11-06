@@ -180,8 +180,6 @@
   "role": "Sniper",
   "source": "TR:3145",
   "weaponQuirks": {
-    "RA:3:CLERPPC": [
-      "stable_weapon"
-    ]
+    "RA:3:CLERPPC": ["stable_weapon"]
   }
 }

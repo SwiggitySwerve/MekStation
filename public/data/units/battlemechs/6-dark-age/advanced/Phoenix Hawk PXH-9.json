@@ -189,8 +189,6 @@
   "role": "Striker",
   "source": "RG11,RGv1",
   "weaponQuirks": {
-    "RA:7:ISLargeXPulseLaser": [
-      "jettison_capable"
-    ]
+    "RA:7:ISLargeXPulseLaser": ["jettison_capable"]
   }
 }

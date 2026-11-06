@@ -187,8 +187,6 @@
   "role": "Sniper",
   "source": "TR:3145:Merc,TR:DA",
   "weaponQuirks": {
-    "LT:0:ISLBXAC10": [
-      "accurate"
-    ]
+    "LT:0:ISLBXAC10": ["accurate"]
   }
 }

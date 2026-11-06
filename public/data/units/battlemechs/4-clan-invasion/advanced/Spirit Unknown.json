@@ -187,8 +187,6 @@
   "role": "Striker",
   "source": "TR:3067",
   "weaponQuirks": {
-    "RA:4:CLStreakSRM4": [
-      "jettison_capable"
-    ]
+    "RA:4:CLStreakSRM4": ["jettison_capable"]
   }
 }

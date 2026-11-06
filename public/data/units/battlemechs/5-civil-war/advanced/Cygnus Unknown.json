@@ -191,13 +191,7 @@
   "role": "Brawler",
   "source": "TR:3075,TR:J",
   "weaponQuirks": {
-    "LA:3:CLUltraAC10": [
-      "exposed_linkage",
-      "static_feed"
-    ],
-    "RA:3:CLUltraAC10": [
-      "exposed_linkage",
-      "static_feed"
-    ]
+    "LA:3:CLUltraAC10": ["exposed_linkage", "static_feed"],
+    "RA:3:CLUltraAC10": ["exposed_linkage", "static_feed"]
   }
 }

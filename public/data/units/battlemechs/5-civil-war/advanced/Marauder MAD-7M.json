@@ -194,8 +194,6 @@
   "role": "Brawler",
   "source": "RG06,RGv1",
   "weaponQuirks": {
-    "RT:6:ISLBXAC5": [
-      "exposed_linkage"
-    ]
+    "RT:6:ISLBXAC5": ["exposed_linkage"]
   }
 }

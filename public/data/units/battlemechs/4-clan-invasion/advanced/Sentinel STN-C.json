@@ -176,8 +176,6 @@
   "role": "Sniper",
   "source": "TR:3050,TR:3050U",
   "weaponQuirks": {
-    "RT:0:SRM 2": [
-      "ammo_feed_problems"
-    ]
+    "RT:0:SRM 2": ["ammo_feed_problems"]
   }
 }

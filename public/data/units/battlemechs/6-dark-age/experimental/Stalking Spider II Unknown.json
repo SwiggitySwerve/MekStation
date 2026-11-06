@@ -176,11 +176,7 @@
   "role": "Skirmisher",
   "source": "TR:3145:Merc,TR:DA",
   "weaponQuirks": {
-    "RT:5:CLSRM4": [
-      "ammo_feed_problems"
-    ],
-    "RT:6:CLSRM4": [
-      "ammo_feed_problems"
-    ]
+    "RT:5:CLSRM4": ["ammo_feed_problems"],
+    "RT:6:CLSRM4": ["ammo_feed_problems"]
   }
 }

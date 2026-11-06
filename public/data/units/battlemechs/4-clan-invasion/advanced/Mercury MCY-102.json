@@ -176,11 +176,7 @@
   "role": "Scout",
   "source": "TR:3050,TR:3050U",
   "weaponQuirks": {
-    "RA:4:ISERMediumLaser": [
-      "mod_weapons"
-    ],
-    "HD:3:ISERSmallLaser": [
-      "mod_weapons"
-    ]
+    "RA:4:ISERMediumLaser": ["mod_weapons"],
+    "HD:3:ISERSmallLaser": ["mod_weapons"]
   }
 }

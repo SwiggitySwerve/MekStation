@@ -172,8 +172,6 @@
   "role": "Sniper",
   "source": "TR:3055U,TR:CI",
   "weaponQuirks": {
-    "RT:2:ISGaussRifle": [
-      "stable_weapon"
-    ]
+    "RT:2:ISGaussRifle": ["stable_weapon"]
   }
 }

@@ -188,8 +188,6 @@
   "role": "Striker",
   "source": "TR:3055U",
   "weaponQuirks": {
-    "CT:10:CLERMediumLaser": [
-      "stable_weapon"
-    ]
+    "CT:10:CLERMediumLaser": ["stable_weapon"]
   }
 }

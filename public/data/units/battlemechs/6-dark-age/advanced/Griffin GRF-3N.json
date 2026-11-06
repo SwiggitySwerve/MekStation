@@ -183,8 +183,6 @@
   "role": "Sniper",
   "source": "RG01,RGv1",
   "weaponQuirks": {
-    "RA:4:ISERPPC": [
-      "jettison_capable"
-    ]
+    "RA:4:ISERPPC": ["jettison_capable"]
   }
 }

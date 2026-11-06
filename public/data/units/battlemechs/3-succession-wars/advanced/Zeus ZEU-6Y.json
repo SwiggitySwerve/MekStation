@@ -180,8 +180,6 @@
   "role": "Sniper",
   "source": "XTR:SW",
   "weaponQuirks": {
-    "RT:0:Binary Laser (Blazer) Cannon": [
-      "imp_cooling"
-    ]
+    "RT:0:Binary Laser (Blazer) Cannon": ["imp_cooling"]
   }
 }

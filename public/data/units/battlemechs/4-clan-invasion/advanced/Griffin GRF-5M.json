@@ -187,8 +187,6 @@
   "role": "Missile Boat",
   "source": "TR:3085S,TR:J",
   "weaponQuirks": {
-    "RA:7:ISLightGaussRifle": [
-      "jettison_capable"
-    ]
+    "RA:7:ISLightGaussRifle": ["jettison_capable"]
   }
 }

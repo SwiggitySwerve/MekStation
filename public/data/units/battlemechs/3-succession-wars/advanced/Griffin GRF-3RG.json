@@ -206,8 +206,6 @@
   "role": "Skirmisher",
   "source": "RG01,RGv1",
   "weaponQuirks": {
-    "RA:4:ISLargePulseLaser": [
-      "jettison_capable"
-    ]
+    "RA:4:ISLargePulseLaser": ["jettison_capable"]
   }
 }

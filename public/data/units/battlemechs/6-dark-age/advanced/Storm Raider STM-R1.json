@@ -171,11 +171,7 @@
   "role": "Scout",
   "source": "TR:3145:LC,TR:DA",
   "weaponQuirks": {
-    "LA:4:Autocannon/10": [
-      "jettison_capable"
-    ],
-    "RA:4:Mace": [
-      "jettison_capable"
-    ]
+    "LA:4:Autocannon/10": ["jettison_capable"],
+    "RA:4:Mace": ["jettison_capable"]
   }
 }

@@ -188,8 +188,6 @@
   "role": "Brawler",
   "source": "RG09",
   "weaponQuirks": {
-    "CT:8:Heavy PPC": [
-      "em_interference"
-    ]
+    "CT:8:Heavy PPC": ["em_interference"]
   }
 }

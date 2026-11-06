@@ -172,8 +172,6 @@
   "role": "Missile Boat",
   "source": "TR:3075,TR:J",
   "weaponQuirks": {
-    "RT:3:ISArrowIV": [
-      "exposed_linkage"
-    ]
+    "RT:3:ISArrowIV": ["exposed_linkage"]
   }
 }

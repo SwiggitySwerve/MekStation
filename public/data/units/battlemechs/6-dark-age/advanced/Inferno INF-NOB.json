@@ -188,8 +188,6 @@
   "role": "Missile Boat",
   "source": "RG09",
   "weaponQuirks": {
-    "CT:8:ISERPPC": [
-      "em_interference"
-    ]
+    "CT:8:ISERPPC": ["em_interference"]
   }
 }

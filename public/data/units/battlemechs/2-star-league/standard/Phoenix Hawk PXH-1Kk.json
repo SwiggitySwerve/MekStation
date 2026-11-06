@@ -185,8 +185,6 @@
   "role": "Skirmisher",
   "source": "ER:2750",
   "weaponQuirks": {
-    "RA:4:ISERLargeLaser": [
-      "jettison_capable"
-    ]
+    "RA:4:ISERLargeLaser": ["jettison_capable"]
   }
 }

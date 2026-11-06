@@ -195,26 +195,12 @@
   "role": "Skirmisher",
   "source": "TR:CI",
   "weaponQuirks": {
-    "LA:2:CLUltraAC20": [
-      "stable_weapon"
-    ],
-    "RA:4:CLERMediumLaser": [
-      "stable_weapon"
-    ],
-    "RA:5:CLERMediumLaser": [
-      "stable_weapon"
-    ],
-    "RA:6:CLERMediumLaser": [
-      "stable_weapon"
-    ],
-    "RA:7:CLERMediumLaser": [
-      "stable_weapon"
-    ],
-    "RA:8:CLERMediumLaser": [
-      "stable_weapon"
-    ],
-    "RA:9:CLERMediumLaser": [
-      "stable_weapon"
-    ]
+    "LA:2:CLUltraAC20": ["stable_weapon"],
+    "RA:4:CLERMediumLaser": ["stable_weapon"],
+    "RA:5:CLERMediumLaser": ["stable_weapon"],
+    "RA:6:CLERMediumLaser": ["stable_weapon"],
+    "RA:7:CLERMediumLaser": ["stable_weapon"],
+    "RA:8:CLERMediumLaser": ["stable_weapon"],
+    "RA:9:CLERMediumLaser": ["stable_weapon"]
   }
 }

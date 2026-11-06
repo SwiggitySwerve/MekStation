@@ -183,8 +183,6 @@
   "role": "Skirmisher",
   "source": "CM:Kurita,FM:Kurita",
   "weaponQuirks": {
-    "RA:7:ISLargePulseLaser": [
-      "jettison_capable"
-    ]
+    "RA:7:ISLargePulseLaser": ["jettison_capable"]
   }
 }

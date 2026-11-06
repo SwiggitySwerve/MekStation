@@ -199,17 +199,9 @@
   "role": "Sniper",
   "source": "TR:3050,TR:CI",
   "weaponQuirks": {
-    "LT:6:Autocannon/2": [
-      "stable_weapon"
-    ],
-    "LT:7:Autocannon/2": [
-      "stable_weapon"
-    ],
-    "RT:6:Autocannon/2": [
-      "stable_weapon"
-    ],
-    "RT:7:Autocannon/2": [
-      "stable_weapon"
-    ]
+    "LT:6:Autocannon/2": ["stable_weapon"],
+    "LT:7:Autocannon/2": ["stable_weapon"],
+    "RT:6:Autocannon/2": ["stable_weapon"],
+    "RT:7:Autocannon/2": ["stable_weapon"]
   }
 }

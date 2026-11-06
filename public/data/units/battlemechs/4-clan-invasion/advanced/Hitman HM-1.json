@@ -187,9 +187,6 @@
   "role": "Striker",
   "source": "TR:3055U,TR:J",
   "weaponQuirks": {
-    "HD:3:ISTAG": [
-      "stable_weapon",
-      "accurate"
-    ]
+    "HD:3:ISTAG": ["stable_weapon", "accurate"]
   }
 }

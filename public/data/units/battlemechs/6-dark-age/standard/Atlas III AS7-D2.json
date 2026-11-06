@@ -188,8 +188,6 @@
   "role": "Juggernaut",
   "source": "TR:3145:FS,TR:DA",
   "weaponQuirks": {
-    "RA:4:CLHAG30": [
-      "jettison_capable"
-    ]
+    "RA:4:CLHAG30": ["jettison_capable"]
   }
 }

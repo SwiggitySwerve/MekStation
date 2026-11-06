@@ -207,17 +207,9 @@
   "role": "Juggernaut",
   "source": "TR:3050,TR:CI",
   "weaponQuirks": {
-    "LT:2:ISUltraAC2": [
-      "stable_weapon"
-    ],
-    "LT:5:ISUltraAC2": [
-      "stable_weapon"
-    ],
-    "RT:2:ISUltraAC2": [
-      "stable_weapon"
-    ],
-    "RT:5:ISUltraAC2": [
-      "stable_weapon"
-    ]
+    "LT:2:ISUltraAC2": ["stable_weapon"],
+    "LT:5:ISUltraAC2": ["stable_weapon"],
+    "RT:2:ISUltraAC2": ["stable_weapon"],
+    "RT:5:ISUltraAC2": ["stable_weapon"]
   }
 }

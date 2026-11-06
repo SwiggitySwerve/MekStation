@@ -199,8 +199,6 @@
   "role": "Skirmisher",
   "source": "JTP:NewAvalon",
   "weaponQuirks": {
-    "RA:4:ISERPPC": [
-      "jettison_capable"
-    ]
+    "RA:4:ISERPPC": ["jettison_capable"]
   }
 }

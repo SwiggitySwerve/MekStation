@@ -199,11 +199,7 @@
   "role": "Missile Boat",
   "source": "TR:3085,TR:CI",
   "weaponQuirks": {
-    "CT:10:Medium Laser": [
-      "stable_weapon"
-    ],
-    "CT:11:Medium Laser": [
-      "stable_weapon"
-    ]
+    "CT:10:Medium Laser": ["stable_weapon"],
+    "CT:11:Medium Laser": ["stable_weapon"]
   }
 }

@@ -188,11 +188,7 @@
   "role": "Sniper",
   "source": "TR:3050,TR:CI",
   "weaponQuirks": {
-    "LA:2:ISLBXAC10": [
-      "stable_weapon"
-    ],
-    "RA:2:ISLBXAC10": [
-      "stable_weapon"
-    ]
+    "LA:2:ISLBXAC10": ["stable_weapon"],
+    "RA:2:ISLBXAC10": ["stable_weapon"]
   }
 }

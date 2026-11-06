@@ -194,8 +194,6 @@
   "role": "Skirmisher",
   "source": "TR:3085",
   "weaponQuirks": {
-    "RT:7:ISSNPPC": [
-      "exposed_linkage"
-    ]
+    "RT:7:ISSNPPC": ["exposed_linkage"]
   }
 }

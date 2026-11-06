@@ -181,8 +181,6 @@
   "role": "Brawler",
   "source": "TR:3039,TR:SW",
   "weaponQuirks": {
-    "RT:2:Autocannon/10": [
-      "fast_reload"
-    ]
+    "RT:2:Autocannon/10": ["fast_reload"]
   }
 }

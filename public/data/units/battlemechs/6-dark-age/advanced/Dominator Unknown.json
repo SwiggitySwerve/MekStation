@@ -185,8 +185,6 @@
   "role": "Skirmisher",
   "source": "RG01",
   "weaponQuirks": {
-    "RT:6:CLERLargeLaser": [
-      "exposed_linkage"
-    ]
+    "RT:6:CLERLargeLaser": ["exposed_linkage"]
   }
 }

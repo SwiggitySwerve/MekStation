@@ -199,8 +199,6 @@
   "role": "Brawler",
   "source": "TR:3150",
   "weaponQuirks": {
-    "RA:3:CLERPPC": [
-      "jettison_capable"
-    ]
+    "RA:3:CLERPPC": ["jettison_capable"]
   }
 }

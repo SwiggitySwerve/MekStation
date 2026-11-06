@@ -188,11 +188,7 @@
   "role": "Skirmisher",
   "source": "TR:3075,TR:J",
   "weaponQuirks": {
-    "LA:3:ISStreakSRM6": [
-      "mod_weapons"
-    ],
-    "RA:3:ISStreakSRM6": [
-      "mod_weapons"
-    ]
+    "LA:3:ISStreakSRM6": ["mod_weapons"],
+    "RA:3:ISStreakSRM6": ["mod_weapons"]
   }
 }

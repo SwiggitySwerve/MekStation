@@ -187,11 +187,7 @@
   "role": "Skirmisher",
   "source": "OTP:RC",
   "weaponQuirks": {
-    "RA:2:CLERPPC": [
-      "stable_weapon"
-    ],
-    "RA:4:CLERPPC": [
-      "stable_weapon"
-    ]
+    "RA:2:CLERPPC": ["stable_weapon"],
+    "RA:4:CLERPPC": ["stable_weapon"]
   }
 }

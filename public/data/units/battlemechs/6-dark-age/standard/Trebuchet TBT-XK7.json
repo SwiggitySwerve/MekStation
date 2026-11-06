@@ -188,11 +188,7 @@
   "role": "Skirmisher",
   "source": "XTR:Periphery",
   "weaponQuirks": {
-    "RA:4:Chain Whip": [
-      "jettison_capable"
-    ],
-    "RT:3:ISStreakSRM6": [
-      "fast_reload"
-    ]
+    "RA:4:Chain Whip": ["jettison_capable"],
+    "RT:3:ISStreakSRM6": ["fast_reload"]
   }
 }

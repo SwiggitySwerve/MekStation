@@ -193,8 +193,6 @@
   "role": "Skirmisher",
   "source": "TR:3085,TR:DA",
   "weaponQuirks": {
-    "HD:3:CLAntiMissileSystem": [
-      "direct_torso_mount"
-    ]
+    "HD:3:CLAntiMissileSystem": ["direct_torso_mount"]
   }
 }

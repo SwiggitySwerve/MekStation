@@ -184,11 +184,7 @@
   "role": "Skirmisher",
   "source": "TR:3145",
   "weaponQuirks": {
-    "RA:2:Large Re-engineered Laser": [
-      "stable_weapon"
-    ],
-    "RA:7:Large Re-engineered Laser": [
-      "stable_weapon"
-    ]
+    "RA:2:Large Re-engineered Laser": ["stable_weapon"],
+    "RA:7:Large Re-engineered Laser": ["stable_weapon"]
   }
 }

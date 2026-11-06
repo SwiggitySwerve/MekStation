@@ -176,10 +176,6 @@
   "role": "Skirmisher",
   "source": "TR:3025C",
   "weaponQuirks": {
-    "RA:3:Autocannon/10": [
-      "imp_cooling",
-      "ammo_feed_problems",
-      "fast_reload"
-    ]
+    "RA:3:Autocannon/10": ["imp_cooling", "ammo_feed_problems", "fast_reload"]
   }
 }

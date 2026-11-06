@@ -199,14 +199,8 @@
   "role": "Skirmisher",
   "source": "TR:CI",
   "weaponQuirks": {
-    "LA:4:CLHeavyMediumLaser": [
-      "stable_weapon"
-    ],
-    "LA:6:CLHeavyMediumLaser": [
-      "stable_weapon"
-    ],
-    "RA:3:CLATM12": [
-      "stable_weapon"
-    ]
+    "LA:4:CLHeavyMediumLaser": ["stable_weapon"],
+    "LA:6:CLHeavyMediumLaser": ["stable_weapon"],
+    "RA:3:CLATM12": ["stable_weapon"]
   }
 }

@@ -180,11 +180,7 @@
   "role": "Striker",
   "source": "TR:3075,TR:J",
   "weaponQuirks": {
-    "RA:4:CLHeavyMediumLaser": [
-      "jettison_capable"
-    ],
-    "RA:6:CLHeavyMediumLaser": [
-      "jettison_capable"
-    ]
+    "RA:4:CLHeavyMediumLaser": ["jettison_capable"],
+    "RA:6:CLHeavyMediumLaser": ["jettison_capable"]
   }
 }
