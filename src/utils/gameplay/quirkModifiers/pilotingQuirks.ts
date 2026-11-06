@@ -2,6 +2,10 @@
  * Piloting quirk modifiers.
  */
 
+import {
+  hasActiveDNI,
+  type IActiveDNIOptions,
+} from '@/lib/spa/neuralInterface';
 import { PSRTrigger } from '@/types/gameplay/PSRTriggerCodes';
 
 import { UNIT_QUIRK_IDS, hasQuirk } from './catalog';
@@ -32,6 +36,7 @@ function isStandingUpPSR(reasonCode: PilotingQuirkPSRReason): boolean {
  * @param reasonCode - Canonical PSR reason/trigger for source-scoped quirks
  * @param basePilotingSkill - Unmodified piloting skill before PSR modifiers
  * @param pilotAbilities - Pilot ability identifiers that can gate quirk behavior
+ * @param nativeDNI - Native game mode and verified DNI cockpit hardware
  * @returns Modifier to add to PSR target number
  */
 export function calculatePilotingQuirkPSRModifier(
@@ -40,6 +45,7 @@ export function calculatePilotingQuirkPSRModifier(
   reasonCode?: PilotingQuirkPSRReason,
   basePilotingSkill?: number,
   pilotAbilities: readonly string[] = [],
+  nativeDNI: IActiveDNIOptions = {},
 ): number {
   let modifier = 0;
 
@@ -48,8 +54,11 @@ export function calculatePilotingQuirkPSRModifier(
     modifier -= 1;
   }
 
-  // Hard to Pilot: +1 to all PSRs
-  if (hasQuirk(unitQuirks, UNIT_QUIRK_IDS.HARD_TO_PILOT)) {
+  // MegaMek 48fcb2f64 Entity.java:8939-8946: active native DNI suppresses HTP.
+  if (
+    hasQuirk(unitQuirks, UNIT_QUIRK_IDS.HARD_TO_PILOT) &&
+    !hasActiveDNI(pilotAbilities, nativeDNI)
+  ) {
     modifier += 1;
   }
 
