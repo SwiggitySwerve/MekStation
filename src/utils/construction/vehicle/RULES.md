@@ -664,15 +664,6 @@ summing equipment and turret mass, independently of the held sized-equipment
 editor integration. Missing context is unavailable, not a fixed zero.
 Pin 48fcb2f64: MiscType.java:660-666,702-705; RoundWeight.java:58-68.
 
-## Equipment introduction dates
-
-`equipmentIntroduction.ts` owns the equipment loop and five-year margin shared
-with aerospace and the vehicle armor/engine date checks. The combat handler
-preserves the original build year and supplies both native dates, mounted names
-and tech side. The aerospace family guard remains at its existing boundary.
-Pin48fcb2f6: TestEntity.java:1487-1512,1611-1618; TestTank.java:426-428;
-TestXMLOption.java:85-86. Ammunition and repeated equipment types are skipped.
-
 ## Native VTOL structure mass
 
 Pin 48fcb2f64 VTOL.java:729-730 defines superheavy VTOL mass above 30 t.
