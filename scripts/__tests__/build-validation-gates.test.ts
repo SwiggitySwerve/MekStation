@@ -156,7 +156,6 @@ describe('Lint and Test aggregator', () => {
       timeout: 10000,
       stdio: ['ignore', 'pipe', 'pipe'],
       env: {
-        ...process.env,
         NEEDS_JSON: JSON.stringify(needs),
         GATES_JSON: JSON.stringify(gates),
       },
