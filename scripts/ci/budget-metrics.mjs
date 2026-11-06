@@ -109,5 +109,6 @@ export {
   observedBudgetValues,
   packageContributors,
   validateObservationProducer,
+  OBSERVATION_PRODUCER_SCHEMA,
   observationProducer,
 } from './budget-observation.mjs';

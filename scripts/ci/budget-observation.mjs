@@ -4,42 +4,19 @@ import {
   exactKeys,
   budgetDescriptors,
 } from './budget-config.mjs';
-
-export function validateObservationProducer(producer, source) {
-  exactKeys(
-    producer,
-    [
-      'schema',
-      'repository',
-      'runId',
-      'attempt',
-      'headSha',
-      'sourceRunId',
-      'sourceAttempt',
-    ],
-    'observation producer',
-  );
-  if (
-    producer.schema !== 'mekstation/ci-observation-producer/v1' ||
-    producer.repository !== source.repository ||
-    ![
-      producer.runId,
-      producer.attempt,
-      producer.sourceRunId,
-      producer.sourceAttempt,
-    ].every((n) => Number.isSafeInteger(n) && n > 0) ||
-    !/^[a-f\d]{40}$/.test(producer.headSha) ||
-    producer.sourceRunId !== source.runId ||
-    producer.sourceAttempt !== source.attempt
-  )
-    throw new Error('Observation producer/source identity mismatch');
-  return producer;
-}
+import {
+  OBSERVATION_PRODUCER_SCHEMA,
+  validateObservationProducer,
+} from './ci-observation.mjs';
+export {
+  OBSERVATION_PRODUCER_SCHEMA,
+  validateObservationProducer,
+} from './ci-observation.mjs';
 
 export function observationProducer(producerRun, source) {
   return validateObservationProducer(
     {
-      schema: 'mekstation/ci-observation-producer/v1',
+      schema: OBSERVATION_PRODUCER_SCHEMA,
       ...producerRun,
       sourceRunId: source.runId,
       sourceAttempt: source.attempt,
