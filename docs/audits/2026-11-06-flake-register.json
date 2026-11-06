@@ -14,7 +14,8 @@
     "ci-unspecified": "CI platform/Node not recovered from this receipt",
     "source-described": "Exact environment is in source diagnostic; no cross-incident inference",
     "u89-unit-ci": "GitHub-hosted ubuntu-latest; captured Ubuntu26.04.1 LTS image20261101.186.1, Node22.23.4, cached unit shard2/3, maxWorkers4. No contention telemetry collected.",
-    "2932-chromium": "GitHub-hosted ubuntu-latest; captured Ubuntu26.04 image, Node22.23.4, Playwright Chromium library shard2/2, actualWorkers1. Native failed result retry0; do not infer configured retry policy from that alone."
+    "2932-chromium": "GitHub-hosted ubuntu-latest; captured Ubuntu26.04 image, Node22.23.4, Playwright Chromium library shard2/2, actualWorkers1. Native failed result retry0; do not infer configured retry policy from that alone.",
+    "42205390500-control-chromium": "Two-shard diagnostic control/baseline, GitHub-hosted Linux x64, 4 CPUs, runner image20261101.186.1, Node22.23.4, cached Chromium headless-shell143.0.7499.4/revision1200. Browser binary SHA25620ffc88be1c6f7dc8351bebfaca965ff9a07617bddf696f0b67ef85e5868b29a. Exact environment is from the retained completed audit."
   },
   "latestNightly": {
     "runId": 42072283514,
@@ -641,6 +642,96 @@
       "location": "coordinator-archive",
       "sha256": "d86eb836962d772f23b9cedc5b33ae2078cf182b3c3c5d0af77de789c2ae6c4c",
       "bytes": 867
+    },
+    "42205390500-run": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/run-after.json",
+      "location": "coordinator-archive",
+      "sha256": "581c3baf2b5957fef23e44a68ca54de4f3a05f3d86d4420e7d9bd4e24a28337c",
+      "bytes": 13424
+    },
+    "42205390500-jobs": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/jobs.json",
+      "location": "coordinator-archive",
+      "sha256": "ff43fd4b5c941723e0456878fcbdcfdef9468c6acbd686f36296790c701c0e4b",
+      "bytes": 11537
+    },
+    "42205390500-log": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/job-127850608699.log",
+      "location": "coordinator-archive",
+      "sha256": "83aa3028339c44835ef78f8bf5681b0a606ef705dfc5195f5fff3d0313b08710",
+      "bytes": 120603
+    },
+    "42205390500-kernel": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/artifacts/renderer-diagnostic-2-1/renderer-memory/kernel/gates-3051.jsonl",
+      "location": "coordinator-archive",
+      "sha256": "17b82ae52495ce5fb4ae5b5e13bc21cb06ce95feddf5d656480bd678a1597d5b",
+      "bytes": 131
+    },
+    "42205390500-capture": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/CAPTURE-COMPLETE.json",
+      "location": "coordinator-archive",
+      "sha256": "599d308e5da8342c6928a09aa88332168f5d58d521ba04211a8623ccc1970c1c",
+      "bytes": 52568
+    },
+    "42205390500-audit": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/AUDIT.json",
+      "location": "coordinator-archive",
+      "sha256": "7480b6973683071dd9c9313d5d1b259b0d7f9a3e51c528b2ac95bec3c2a0e587",
+      "bytes": 13515
+    },
+    "42205390500-audit-receipt": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/AUDIT-RECEIPT.json",
+      "location": "coordinator-archive",
+      "sha256": "0584a2a0d4e66854406b65f873e1835a33ae9237b3a9b490c55d43460c2a622e",
+      "bytes": 2550
+    },
+    "42205390500-crash-context": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/CRASH-CONTEXT.json",
+      "location": "coordinator-archive",
+      "sha256": "0da3b70b103361f4b9e978e123dc562ec125c864e5e15576fa695a4fd250eadb",
+      "bytes": 2525
+    },
+    "42205390500-root-view": {
+      "path": "normal-work/G6-flake-register/42205390500-green-job-segv/root-event.json",
+      "location": "coordinator-archive",
+      "sha256": "7557e539d3042aefe6f776b77bd0d76ddccdcdf2ee24c5c9fc2ad4983afbd168",
+      "bytes": 704
+    },
+    "42205390500-local-verification": {
+      "path": "normal-work/G6-flake-register/42205390500-green-job-segv/local-capture-verification.json",
+      "location": "coordinator-archive",
+      "sha256": "8a46d84df0522ea1369f2f96c1183e396abc997d1443f1c496eb26f56e97549a",
+      "bytes": 56796
+    },
+    "42205390500-process-mapping": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/process-context-addendum/MAPPING.json",
+      "location": "coordinator-archive",
+      "sha256": "f0230110d984b01d4a14d2dca96bf24394b3d8856205e3488c0b180566cc36cd",
+      "bytes": 11179
+    },
+    "42205390500-process-mapping-md": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/process-context-addendum/MAPPING.md",
+      "location": "coordinator-archive",
+      "sha256": "986d3576d05b783a297a0e7555a028b1263fbe869d147c6d05577fe51b875241",
+      "bytes": 2234
+    },
+    "42205390500-process-receipt": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/process-context-addendum/RECEIPT.json",
+      "location": "coordinator-archive",
+      "sha256": "64cd2a5df9d28b7285ea00342e8e39ba3931749bba91ad68cf184393fa30d7ff",
+      "bytes": 1357
+    },
+    "42205390500-root-refinement": {
+      "path": "normal-work/G6-flake-register/42205390500-green-job-segv/process-refinement/root-refinement.json",
+      "location": "coordinator-archive",
+      "sha256": "63362efe8cdcd008deccb0538e51c1412e3bc2339e6e6631f3979bb564d7a055",
+      "bytes": 1014
+    },
+    "42205390500-process-verification": {
+      "path": "normal-work/G6-flake-register/42205390500-green-job-segv/process-refinement/verification.json",
+      "location": "coordinator-archive",
+      "sha256": "b19e51c7a36b3b67094e6e44aa18a174212abc2af3dc365c840b67255cbde5c9",
+      "bytes": 539
     }
   },
   "entries": [
@@ -1853,6 +1944,150 @@
         "cause": "not established",
         "fixComplete": false
       }
+    },
+    {
+      "id": "G6-042",
+      "classification": "confirmed-native-crash-with-successful-job",
+      "state": "open; confirmed teardown crash; C low-priority normal-work follow-up; treatment canceled by Root",
+      "test": "Chromium SIGSEGV during browser-context teardown, job stays green; seam-roster-materialization-handoff.spec.ts:113 passed/retry0 with SEGV in its own stderr",
+      "environment": "42205390500-control-chromium",
+      "summary": "Two-shard control run42205390500/a1 on PR#2924 head2a094a3c322662a1d146f8ba64c3d7711b2c8c5b: job127850608699 E2E(1/2) succeeded, but timed browser-main3052 terminated by signal11 during roster browser-context teardown. Log prefix3051 is GNU time wrapper, which later exits139; observed renderer3346 is not a proven victim. Native roster test113 passed/retry0/errors[] and includes SEGV in its own stderr after assertions completed. GNU-time raw signal11 contradicts JSON exitStatus0;136/136 census passed. Exact CDP context/faulting thread, cause and test impact remain unknown.",
+      "owner": "C: low-priority normal-work diagnosis/parser follow-up; A+C: sealed capture/timeline custody; Root: treatment cancellation and PR closure disposition; G6: register only. P7 keyboard remediation is separate.",
+      "nextStep": "C assesses context.close/browser flags or Playwright/Chromium version and whether teardown could overlap retry0 seam/gate assertions. Keep diagnostic parser fix on its branch. Root cancels treatment and closes #2868/#2924; no new run or source fix authorized here. Preserve uncertainty about cause, OOM, historical crash identity and three-shard risk.",
+      "observations": [
+        {
+          "runId": 42205390500,
+          "workflowAttempt": 1,
+          "head": "2a094a3c322662a1d146f8ba64c3d7711b2c8c5b",
+          "jobId": 127850608699,
+          "jobName": "E2E (1/2)",
+          "pr": 2924,
+          "arm": "control",
+          "shards": 2,
+          "hostedRunConclusion": "success",
+          "hostedJobConclusion": "success",
+          "runtimeResult": "confirmed native crash",
+          "source": "42205390500-log",
+          "sourceLines": [1128, 1163],
+          "signal": {
+            "number": 11,
+            "marker": "SEGV_MAPERR 0000000001b0",
+            "at": "2026-11-06T10:52:24.6016209Z"
+          },
+          "processExit": {
+            "exitCode": 139,
+            "signal": null,
+            "at": "2026-11-06T10:52:25.6211178Z",
+            "process": "GNU time wrapper3051; timed browser-main3052 signal11 established by raw kernel receipt and procfs ancestry"
+          },
+          "kernelReceipt": {
+            "source": "42205390500-kernel",
+            "rawSignalLine": 1,
+            "rawSignalText": "Command terminated by signal 11",
+            "jsonExitStatus": 0,
+            "interpretation": "Raw signal and browser exit confirm a crash despite JSON zero; parser discrepancy remains open."
+          },
+          "nativeCensus": {
+            "source": "42205390500-audit",
+            "passed": 136,
+            "total": 136,
+            "attempts": 136,
+            "retries": 0,
+            "skipped": 0,
+            "flaky": 0,
+            "censusSha256": "aa0826f716f4e6a3c92679edbfd6d83e256a85e3de89c9ed631bb81c0ee1eca0"
+          },
+          "timeline": {
+            "source": "42205390500-crash-context",
+            "contextCloseBegin": "2026-11-06T10:52:24.590Z",
+            "contextCloseEnd": "2026-11-06T10:52:24.613Z",
+            "testEnd": "2026-11-06T10:52:24.713Z",
+            "nativeTestStatus": "passed",
+            "interpretation": "Signal occurs during the roster test context-close bracket after its assertions; test-end reports passed. Exact CDP context identity, faulting thread, causal mechanism and impact unresolved."
+          },
+          "logPrefixPid": 3051,
+          "wrapperPid": 3051,
+          "timedBrowserMainPid": 3052,
+          "observedRendererPid": 3346,
+          "rendererIsProvenVictim": false,
+          "nativeTest": {
+            "source": "42205390500-process-mapping",
+            "testId": "5e6b5a20840941c319ec-6c2daf7b94d3dd370066",
+            "file": "e2e/seam-roster-materialization-handoff.spec.ts",
+            "line": 113,
+            "title": "full roster selection reaches pre-battle intact, verified at both the DOM and data layer",
+            "status": "passed",
+            "testRetry": 0,
+            "errors": [],
+            "ownStderrContainsSignal11": true,
+            "assertionsCompletedBeforeSignal": "Root reports assertions completed earlier; retained pre-teardown at10:52:23.926Z precedes close/signal.",
+            "exactCdpContext": null,
+            "faultingThread": null
+          }
+        }
+      ],
+      "sources": [
+        "42205390500-run",
+        "42205390500-jobs",
+        "42205390500-log",
+        "42205390500-kernel",
+        "42205390500-capture",
+        "42205390500-audit",
+        "42205390500-audit-receipt",
+        "42205390500-crash-context",
+        "42205390500-root-view",
+        "42205390500-local-verification",
+        "42205390500-process-mapping",
+        "42205390500-process-mapping-md",
+        "42205390500-process-receipt",
+        "42205390500-root-refinement",
+        "42205390500-process-verification"
+      ],
+      "missingEvidence": [
+        "Cause and test impact are unresolved; passing native census and hosted job do not establish runtime stability.",
+        "No renderer teardown-exit peak or simultaneous process-tree RSS; browser-main maxrss is not renderer peak. Shard2 renderer samples are absent and memory metrics remain null, not zero. No memory/OOM cause or memory equivalence established.",
+        "A single baseline crash does not establish recurrence frequency or baseline-versus-three-shard causation; historical attempts are not independent ordinary PRs.",
+        "Exact CDP context/page-to-renderer mapping and faulting thread are absent. Historical #2868/a5 crash identity and overlap with retry0 seam/gate assertions are unresolved; no three-shard-risk inference."
+      ],
+      "captureCustody": {
+        "owner": "A+C",
+        "status": "SEALED_CRASH_OBSERVED; completed local audit",
+        "source": "42205390500-audit-receipt",
+        "rawFilesVerifiedByG6": 204,
+        "method": "Read/hash existing completed local capture in place; no duplicate remote capture or download."
+      },
+      "rootWorkingView": {
+        "source": "42205390500-root-view",
+        "attribution": "Root via task instruction",
+        "statement": "Crash occurs in two-shard baseline, so historical treatment1/18 versus control0/12 does not establish three-shard causation.",
+        "status": "Attributed working interpretation; causal diagnosis unproved; historical G6-001 counts retained unchanged."
+      },
+      "relatedIncidents": ["G6-001"],
+      "treatmentAuthorized": false,
+      "stabilityClearance": false,
+      "processContextAddendum": {
+        "source": "42205390500-process-mapping",
+        "receipt": "42205390500-process-receipt",
+        "ancestry": "renderer3346 -> zygote3055 -> browser-main3052 -> GNU time3051 -> Playwright worker3038 -> reporter2998",
+        "diagnosticGap": "Frozen parser ignores non-JSON signal text and accepts nonnegative JSON exitStatus; outcome/census guard does not assert clean abnormal-browser exits. This explains missed diagnostic escalation, not the Chromium/Playwright close mechanism."
+      },
+      "historicalConnection": {
+        "incident": "G6-001",
+        "pr": 2868,
+        "runId": 42141557514,
+        "workflowAttempt": 5,
+        "assessment": "POSSIBLY the same seam-roster crash mid-test; identity NOT confirmed.",
+        "attribution": "Root working interpretation; retain historical evidence and denominators."
+      },
+      "rootDisposition": {
+        "source": "42205390500-root-refinement",
+        "treatmentStatus": "canceled",
+        "prClosure": "Root cancels treatment and closes #2868/#2924; no independent PR-state query by G6.",
+        "diagnosticParserFix": "remains on its branch; no merge/completion claim",
+        "followUpPriority": "low-priority normal work",
+        "keyboardRemediation": "P7 separate; G6-041 unchanged"
+      },
+      "treatmentStatus": "canceled by Root"
     }
   ],
   "addenda": [
@@ -1884,6 +2119,18 @@
       "addedAtUtc": "2026-11-06T10:48:03.519003+00:00",
       "incident": "G6-041",
       "scope": "Root-routed exact same-head attempt2 E2E2/2 PASS independently metadata-checked; intermittency CONFIRMED. Original attempt1 evidence sealed; P7 remediation incomplete and causal hypothesis remains separate."
+    },
+    {
+      "addedAtUtc": "2026-11-06T11:13:42.445652+00:00",
+      "incident": "G6-042",
+      "scope": "Finite Root follow-up after PhaseG completion; reused completed local A+C two-shard control capture only. Confirmed native crash with green job; no remote incident reads, rerun, watch, source fix, treatment or cleanup.",
+      "priorReceipts": "All previous entries including G6-041, sources and sealed U89/history receipts retained unchanged. New verification/handback under normal-work/G6-flake-register/42205390500-green-job-segv/."
+    },
+    {
+      "addedAtUtc": "2026-11-06T11:18:26.875439+00:00",
+      "incident": "G6-042",
+      "scope": "Root process-context refinement: wrapper3051 versus timed browser-main3052; renderer3346 not proven victim; roster retry0 passed with own SEGV stderr. Historical #2868/a5 identity only POSSIBLE. Treatment canceled; C low-priority follow-up, P7 separate. Reused/hashed local sealed process-context addendum only.",
+      "priorReceipts": "Original capture/audit seals and G6 verification/history unchanged; additive refinement receipts under42205390500-green-job-segv/process-refinement/."
     }
   ]
 }
