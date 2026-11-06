@@ -83,5 +83,13 @@
     "history": "<p>The Aquila entered service in 3104 and was immediately thrust into the Victoria War, which erupted when the Duchy of Andurien invaded the Capellan Confederation. The Capellans responded with elite units that counterinvaded former League territories, including Oriente Protectorate worlds. On Shuen Wan, a squadron of Aquilas scrambled to defend against Capellan raiders. The unknown fighters caught the attackers off guard, engaging with precise fire at extreme range before the Capellans could effectively return fire. Though only one pilot from the defending squadron survived the engagement, the Aquila's performance helped convince the Capellan forces to withdraw from the world.</p><p>The world of Ipswich has been a recurring battleground where the Aquila has faced Capellan Confederation Armed Forces incursions. During the Victoria War itself, the Red Lancers and Roman's Mounted Fusiliers arrived after taking Shuen Wan from the Protectorate. The First and Sixth Oriente Hussars mounted a desperate defense that included Aquila squadrons, which surprised the invaders with their long-range firepower.</p><p>In 3141, the elite Ducal Guard Air Wing was conducting training maneuvers in the Ipswich system when the First Capellan Defense Force attempted to raid the border world. Guard Aquilas led the counterattack, scattering the Capellan escort formation with concentrated fire at extreme range. The nimble fighters then pursued the enemy through atmospheric engagements. When the Eighth Oriente Hussars Aerospace Wing joined the effort, the combined force drove the raiders back to their JumpShips, disabling two Union-class DropShips that were captured after a difficult boarding operation three days later.</p><p>Production at the Dalton facility has remained steady since the fighter's introduction. The Aquila saw its manufacturing base shift from the independent Oriente Protectorate to the reformed Free Worlds League after reunification, ensuring continued production into the ilClan era.</p>",
     "manufacturer": "Nimakachi Fusion Products Ltd.",
     "primaryFactory": "Dalton"
+  },
+  "weaponQuirks": {
+    "NOS:0:ISLightGaussRifle": [
+      "accurate"
+    ],
+    "NOS:1:ISLightGaussRifle": [
+      "accurate"
+    ]
   }
 }

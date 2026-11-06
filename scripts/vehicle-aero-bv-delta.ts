@@ -29,6 +29,7 @@ import {
   type IComputedRow,
   type IFigure,
 } from './unit-bv-parity';
+import { validateSourceManifest } from './unit-bv-provenance';
 import { calculateUnitBV as gateBV } from './validate-bv-calculator';
 
 const Mech = UnitContract.options[0];
@@ -204,21 +205,17 @@ export function calculateRow(raw: unknown): IComputedRow {
     return { path: input.path, sha256: input.sha256, reason: String(error) };
   }
 }
-const read = (file: string): unknown[] =>
+export const readJsonLines = (file: string): unknown[] =>
   fs
     .readFileSync(file, 'utf8')
     .split(/\r?\n/)
     .filter((line) => line.trim())
     .map((line) => JSON.parse(line) as unknown);
-export function main(): void {
-  const arg = (name: string) => {
-    const index = process.argv.indexOf(name);
-    if (index < 0 || !process.argv[index + 1])
-      throw new Error(`Missing ${name}`);
-    return process.argv[index + 1];
-  };
-  const mekfiles = path.resolve(arg('--mekfiles'));
-  const converted = read(arg('--converted')).map((raw) => {
+export function calculateSources(
+  raws: readonly unknown[],
+  mekfiles: string,
+): IComputedRow[] {
+  return raws.map((raw) => {
     const row = Input.parse(raw);
     const file = path.resolve(mekfiles, row.path);
     const relative = path.relative(mekfiles, file);
@@ -234,23 +231,43 @@ export function main(): void {
       throw new Error(`Source text hash mismatch: ${row.path}`);
     return calculateRow(row);
   });
-  const report = buildDeltaReport(
-    converted,
-    read(arg('--reference')).map((row) => JavaReference.parse(row)),
-    undefined,
-    process.argv.includes('--per-term'),
-  );
-  fs.mkdirSync(arg('--out'), { recursive: true });
+}
+export function writeDeltaReport(
+  report: ReturnType<typeof buildDeltaReport>,
+  out: string,
+): void {
+  fs.mkdirSync(out, { recursive: true });
   const { rows, ...summary } = report;
   fs.writeFileSync(
-    path.join(arg('--out'), 'delta-report.json'),
+    path.join(out, 'delta-report.json'),
     JSON.stringify(summary, null, 2) + '\n',
   );
   fs.writeFileSync(
-    path.join(arg('--out'), 'delta-rows.jsonl'),
+    path.join(out, 'delta-rows.jsonl'),
     rows.map((row) => JSON.stringify(row)).join('\n') + '\n',
   );
   process.stdout.write(JSON.stringify(summary.byFamily, null, 2) + '\n');
+}
+export function main(): void {
+  const arg = (name: string) => {
+    const index = process.argv.indexOf(name);
+    if (index < 0 || !process.argv[index + 1])
+      throw new Error(`Missing ${name}`);
+    return process.argv[index + 1];
+  };
+  const convertedFile = arg('--converted');
+  validateSourceManifest(convertedFile, fs.readFileSync(convertedFile));
+  const converted = calculateSources(
+    readJsonLines(arg('--converted')),
+    path.resolve(arg('--mekfiles')),
+  );
+  const report = buildDeltaReport(
+    converted,
+    readJsonLines(arg('--reference')).map((row) => JavaReference.parse(row)),
+    undefined,
+    process.argv.includes('--per-term'),
+  );
+  writeDeltaReport(report, arg('--out'));
   process.exitCode = report.ok ? 0 : 1;
 }
 

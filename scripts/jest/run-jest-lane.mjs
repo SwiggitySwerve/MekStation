@@ -14,6 +14,7 @@ const perfSensitiveTests = [
   // Stays in the unit shards for its functional assertions; its broadcast
   // wall-clock budget is asserted only here (SIMULATION_PERF_ASSERTIONS=true).
   'src/lib/multiplayer/server/__tests__/fogOfWar.test.ts',
+  'src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts',
   'src/lib/multiplayer/server/__tests__/MatchStoreStress.test.ts',
   'src/__tests__/performance.test.tsx',
 ];

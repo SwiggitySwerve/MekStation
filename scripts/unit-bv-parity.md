@@ -15,6 +15,34 @@ exporter, hashing removes CR only when followed by LF. No other bytes change.
 Folders `ge`, `advancedbuildings`, `handheld`, `battlefieldsupport` and BFS files
 are outside this oracle's scope. There are no per-unit exclusions.
 
+Strict export also writes `sources.ndjson.manifest.json`. The external
+`--converted` CLI requires this receipt before calculating anything: exact
+payload SHA-256, source count, full scope, and hashes of the current converter
+and its data inputs must match. Native source hashes alone cannot detect an
+older converter's saved unit payload. Missing or stale receipts require a
+fresh export; there is no legacy bypass or command to bless old output.
+Converter inputs are conservatively inventoried by
+`megameklab-conversion/strict-provenance-inputs.json`; fingerprints normalize
+CRLF to LF for portable receipts. Changes to any inventoried helper invalidate
+old receipts even if that particular helper did not affect a row.
+The receipt establishes conversion provenance; the oracle still owns corpus
+completeness and parity. A passing native conversion is separate from proof
+of the committed catalog.
+
+Family exports carry their declared family and ordered source folders from
+`strict-families.json`. The pipeline stores each producer's receipt alongside
+its cached source/computed bytes, with a separate receipt integrity hash.
+Before counting a cache hit or sampling `--verify-hits`, it checks the receipt
+through the same verifier against the payload, current converter inputs and
+expected family/folders. Missing or invalid cached receipts run fresh; failed
+fresh production or validation still fails the run. Byte verification includes
+the receipt and retains the existing source/computed checks.
+The combined publication uses the same Python receipt writer as serial and
+family exports. Both writer and verifier use the selected pipeline `--python`.
+Receipts establish validity under unchanged inputs, not physical freshness;
+`execution.json` retains `hit`/`verified` and explicitly labels each family's
+`production` as `fresh` or `cached`.
+
 Mechs use `validate-bv-calculator.calculateUnitBV`; `bvAdapter` runtime totals
 and exact counts are separate fields. ProtoMechs use the handler's existing
 BV breakdown. Vehicle, aerospace and capital contracts use the real dispatcher.
@@ -73,6 +101,50 @@ detail key in sorted order, reporting `firstTermDifference`. Missing or nonfinit
 values fail, even when totals match. Existing MekStation breakdowns expose only
 some terms; those omissions remain failures rather than inferred neutral values.
 Aggregate mode remains available without the flag.
+
+## Bounded full-corpus execution
+
+`unit-bv-pipeline.ts` runs the same conversion, source validation, calculations
+and strict report with 1–4 isolated family workers (default 2). Use one heavy
+queue ticket for the whole command when measuring locally:
+
+```text
+node --require tsx/cjs scripts/unit-bv-pipeline.ts --mekfiles <mekfiles> --reference <oracle.jsonl> --out <scratch> --workers 2
+```
+
+The original two-command path above remains the fresh serial reference.
+`strict-families.json` owns source-folder order for both paths. Family outputs
+are concatenated in that order, independently of worker completion order.
+Missing, failed and extra sources still reach the single strict comparator;
+no family summary or worker exit can replace its full-corpus coverage gate.
+The runner bounds command execution to a shared 13-minute deadline, closes
+child stdin, propagates failures and waits for active family work to finish.
+
+Add `--cache-dir <external-scratch-cache>` to reuse unchanged families. Keys
+hash the complete source-file inventory and bytes for that family, all source
+and script files, equipment/schema data, config, package manifests, TypeScript
+config, the oracle, actual loaded Node dependency packages including binaries,
+the Node executable/version/platform, Python executable and loaded Python
+module/source-cache bytes, and the
+environment (except operational `HEAVY_*` queue metadata). Additions, deletions
+and renames change keys. Unreadable, linked or unknown filesystem inputs or
+unavailable Python runtime identity disable reuse. Corrupt, incompatible or
+mismatched cache entries run fresh; unavailable cache writes preserve the
+fresh result. Source and computed artifacts have independent integrity hashes.
+Binary artifacts retain nonfinite numbers and undefined fields for the strict
+comparator's existing invalid-row diagnostics.
+Computed payloads use deterministic JSON with escaped tags for those values,
+negative zero and array holes; literal tag strings are escaped. V8's binary
+encoding is used only for the disposable cache envelope, since equal values
+can have different V8 encodings.
+
+`--verify-hits N` recalculates the first N actual hits and compares both
+artifacts byte for byte. A disagreement evicts that entry and fails the run.
+`--uncached` disables reads and writes; main push and scheduled runs always
+disable them even if a cache directory is supplied. Cache use never skips the
+final strict report. `sources.ndjson`, `delta-report.json` and `delta-rows.jsonl`
+retain the serial formats and deterministic bytes; `execution.json` separately
+records worker and cache state.
 
 In term mode each family also reports `termMatched` (joined rows with every
 required stage and oracle detail matching) and `firstTermDifferences` (counts

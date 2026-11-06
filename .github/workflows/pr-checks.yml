@@ -50,7 +50,7 @@ jobs:
   detect-changes:
     name: Detect Changes
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 1
     outputs:
       code: ${{ steps.filter.outputs.code }}
       combat: ${{ steps.filter.outputs.combat }}
@@ -79,7 +79,7 @@ jobs:
         run: node scripts/ci/ci-changes.mjs
 
       - name: Test change detection and the Lint and Test guard
-        run: node --test scripts/ci/*.test.mjs
+        run: node --test scripts/ci/ci-changes.test.mjs scripts/ci/lint-and-test-guard.test.mjs
 
   # ---------------------------------------------------------------
   # static-checks runs the short checks that used to take a runner
@@ -96,11 +96,13 @@ jobs:
     name: Static Checks
     needs: detect-changes
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 13
     # Read-only token, not persisted: the advisory tsrs step installs and
     # runs a pinned third-party compiler.
     permissions:
       contents: read
+      actions: read
+      pull-requests: read
 
     steps:
       - name: Checkout code
@@ -125,6 +127,55 @@ jobs:
           key: ${{ runner.os }}-storybook-${{ hashFiles('package-lock.json', '.storybook/**') }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-storybook-${{ hashFiles('package-lock.json', '.storybook/**') }}-
+
+      - name: Enforce deterministic CI budgets and their red paths
+        if: ${{ !cancelled() }}
+        env:
+          PR_LABELS_JSON: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          node --test scripts/ci/*.test.mjs
+          node scripts/ci/budget-check.mjs --report "$RUNNER_TEMP/budget-output/repository.json"
+
+      - name: Test BV converted-input provenance gate
+        if: ${{ !cancelled() }}
+        run: >-
+          npx jest --selectProjects unit --ci --maxWorkers=2 --runTestsByPath
+          scripts/__tests__/unit-bv-provenance.test.ts
+          scripts/__tests__/unit-bv-cache-provenance.test.ts
+
+      - name: Upload deterministic budget census
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-budget-repository
+          path: ${{ runner.temp }}/budget-output/repository.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Prepare source-head graphs and prove advisory reporting read-only
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/ci/budget-github.mjs
+
+      - name: Upload canonical reporter inputs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-budget-inputs
+          path: ${{ runner.temp }}/budget-output/inputs.json
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Upload in-Actions reporter dry-run proof
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-budget-report-proof
+          path: ${{ runner.temp }}/budget-output/report-dry-run.json
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Setup Python for Schema Bridge
         if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
@@ -319,7 +370,7 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 14
 
     steps:
       - name: Checkout code
@@ -358,6 +409,7 @@ jobs:
           npx jest --selectProjects unit --ci --runInBand --runTestsByPath
           src/simulation/__tests__/simulation.test.ts
           src/lib/multiplayer/server/__tests__/fogOfWar.test.ts
+          src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts
           src/lib/multiplayer/server/__tests__/MatchStoreStress.test.ts
           src/__tests__/performance.test.tsx
         env:
@@ -414,6 +466,19 @@ jobs:
         working-directory: desktop
         run: npm run build
 
+      - name: Enforce complete web artifact byte budgets
+        if: ${{ !cancelled() }}
+        run: node scripts/ci/budget-artifacts.mjs --kind web --report "$RUNNER_TEMP/budget-output/web.json"
+
+      - name: Upload complete package census
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-budget-web
+          path: ${{ runner.temp }}/budget-output/web.json
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Upload web build artifacts
         if: ${{ !cancelled() && needs.detect-changes.outputs.pr-desktop == 'true' }}
         uses: actions/upload-artifact@v7
@@ -434,10 +499,10 @@ jobs:
         working-directory: desktop
         run: npm run rebuild:next-standalone
 
-      - name: Test Electron build (linux pack mode)
+      - name: Build complete Linux installer and unpacked application
         if: ${{ !cancelled() }}
         working-directory: desktop
-        run: npx electron-builder --dir --publish never
+        run: npx electron-builder --linux tar.gz --publish never
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
           SKIP_NOTARIZATION: 'true'
@@ -447,6 +512,27 @@ jobs:
         if: ${{ !cancelled() }}
         working-directory: desktop
         run: test -d release/linux-unpacked
+
+      - name: Prepare complete Linux installer inventory
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          mkdir -p desktop/release-upload
+          cp desktop/release/*.tar.gz desktop/release-upload/
+
+      - name: Enforce complete Linux installer byte budget
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: node scripts/ci/budget-artifacts.mjs --kind installers --report "$RUNNER_TEMP/budget-output/installers.json"
+
+      - name: Upload complete installer census
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-budget-installers
+          path: ${{ runner.temp }}/budget-output/installers.json
+          if-no-files-found: error
+          retention-days: 7
 
   # Three shards. jest.config.js uses every vCPU in CI (Lane B), and
   # JEST_SPLIT_CORPUS moves the whole-catalog suites to the `corpus` project
@@ -465,7 +551,7 @@ jobs:
     name: Unit Tests (${{ matrix.shard }}/3)
     needs: detect-changes
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 12
     strategy:
       fail-fast: false
       matrix:
@@ -596,6 +682,15 @@ jobs:
         if: ${{ !cancelled() && matrix.shard == 3 && needs.detect-changes.outputs.combat == 'true' }}
         run: npm run validate:combat
 
+      - name: Upload actual Jest timing and cache observations
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-budget-jest-${{ matrix.shard }}
+          path: jest-results-*.json
+          if-no-files-found: warn
+          retention-days: 7
+
   # ---------------------------------------------------------------
   # e2e-build produces one harness-enabled production build for all shards.
   # Keep it separate from simulation-checks/web-build: Electron and release
@@ -685,7 +780,7 @@ jobs:
     name: E2E (${{ matrix.shard }}/2)
     needs: [detect-changes, e2e-build]
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -840,33 +935,29 @@ jobs:
       ]
     runs-on: ubuntu-latest
     timeout-minutes: 1
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
+      - name: Checkout aggregator contract
+        uses: actions/checkout@v6
       - name: Assert every fan-out check succeeded or was gated off
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
           # Job id -> the detect-changes gates whose all-'false' allows a skip.
-          GATES: >-
-            {"simulation-checks": ["code"],
-             "build-test": ["pr-desktop"]}
-        shell: bash
-        run: |
-          echo "$NEEDS_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value.result)"'
-          failed=$(echo "$NEEDS_JSON" | jq -r --argjson gates "$GATES" '
-            .["detect-changes"].outputs as $out
-            | to_entries[]
-            | select(
-                .value.result != "success"
-                and (.value.result != "skipped"
-                  or ($gates[.key] == null)
-                  or ($out == null)
-                  or ($gates[.key] | any(.[]; $out[.] != "false"))))
-            | "\(.key)=\(.value.result)"')
-          if [ -n "$failed" ]; then
-            echo "Needed jobs that neither passed nor were gated off:"
-            echo "$failed"
-            exit 1
-          fi
-          echo "All fan-out checks passed or were gated off"
+          GATES_JSON: '{"simulation-checks":"code","build-test":"pr-desktop"}'
+        run: node scripts/ci/budget-aggregate.mjs
+
+      - name: Enforce budget-raise approval with read-only live inputs
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { checkBudgetPolicy } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-approval.mjs`);
+            const result = await checkBudgetPolicy({ github, ...context.repo,
+              number: context.payload.pull_request.number, publish: false });
+            core.info(JSON.stringify(result));
+            if (!result.allowed) throw new Error(result.message);
 
   # build-test packs Windows and macOS (native module rebuild, the slowest
   # legs) on a pull request whose changes reach desktop packaging inputs;
@@ -891,7 +982,7 @@ jobs:
           # attempts"), which cancelled the leg and failed Lint and Test.
           - os: macos-15
             platform: mac
-    timeout-minutes: 30
+    timeout-minutes: 5
 
     steps:
       - name: Checkout code

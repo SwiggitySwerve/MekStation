@@ -9,7 +9,7 @@
 
 import React from 'react';
 
-import { AwardCategory, AwardRarity } from '@/types/award/AwardInterfaces';
+import { AwardRarity } from '@/types/award/AwardInterfaces';
 
 import type { IconProps } from './awardIcons.types';
 
@@ -129,29 +129,6 @@ export const AWARD_ICON_MAP: Record<string, IconComponent> = {
  */
 export function getAwardIcon(iconId: string): IconComponent {
   return AWARD_ICON_MAP[iconId] || AWARD_ICON_MAP['default'];
-}
-
-/**
- * Get a default icon for an award category.
- *
- * @param category The award category
- * @returns A suitable default icon
- */
-export function getCategoryDefaultIcon(category: AwardCategory): IconComponent {
-  switch (category) {
-    case AwardCategory.Combat:
-      return SwordsIcon;
-    case AwardCategory.Survival:
-      return ShieldIcon;
-    case AwardCategory.Campaign:
-      return TrophyIcon;
-    case AwardCategory.Service:
-      return MedalIcon;
-    case AwardCategory.Special:
-      return SparklesIcon;
-    default:
-      return AwardIcon;
-  }
 }
 
 /**

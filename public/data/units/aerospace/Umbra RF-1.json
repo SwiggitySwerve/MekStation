@@ -71,5 +71,16 @@
     "history": "<p>The Umbra's origins trace back not to the Republic of the Sphere, but to the Word of Blake's Spectral series development program during the later stages of the Jihad. Word technicians on Terra were working to field a family of advanced unmanned aerospace drones, and the design that would become the Umbra began as a crewed counterpart intended for reservist pilots who lacked the training to handle a full OmniFighter. The project was modeled closely on the Shade and shared several component lines with existing Blakist production programs, but the effort had not reached full assembly before Devlin Stone's Coalition began closing in on Terra.</p><p>When Coalition technical personnel arrived at the New Age Systems Incorporated facility after the fall of Terra, they found a handful of near-operational Umbra prototypes on the factory floor, along with an unusually complete set of blueprints, inventory records, and design documentation. Word technicians, pressed for time during the withdrawal, had not managed to destroy the records before fleeing. The available documentation gave Republic engineers a thorough picture of the design's capabilities and component requirements. Components had been stockpiled from three different worlds during the Blakist program, and with the records intact, Republic procurement officers were able to trace and reestablish each supply relationship rather than reverse-engineering from scratch.</p><p>Republic engineers disassembled the prototypes and set about modifying the facility for sustainable series production. The frame and cockpit electronics were carried forward from the existing Spad lineage, keeping production costs and training overhead low. The power plant and armor came from Master's Wings Aerospace on Gibson, a supplier relationship the Blakists had already established. Weaponry was produced on Terra, drawing on tooling from the existing Griffin BattleMech upgrade program, though the ElectroMax capacitor system had never been tested under actual combat conditions prior to the Umbra's service debut. Working from the preserved documentation rather than rebuilding the design from salvage, Republic engineers moved the Umbra from testing into full production in under five years. The fighter entered service in 3082 as one of the first new aerospace designs of the Republic era, with manufacture centered at Terra to keep the Republic's flagship production within its political core.</p>",
     "manufacturer": "New Age Systems Incorporated",
     "primaryFactory": "Terra"
+  },
+  "weaponQuirks": {
+    "NOS:0:ISSNPPC": [
+      "mod_weapons"
+    ],
+    "NOS:2:ISERMediumLaser": [
+      "mod_weapons"
+    ],
+    "NOS:3:ISERMediumLaser": [
+      "mod_weapons"
+    ]
   }
 }

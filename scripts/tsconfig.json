@@ -22,7 +22,8 @@
     "validate-parity.ts",
     "data-migration/**/*.ts",
     "vehicle-aero-bv-delta.ts",
-    "unit-bv-parity.ts"
+    "unit-bv-parity.ts",
+    "unit-bv-pipeline.ts"
   ],
   "exclude": [
     "node_modules",

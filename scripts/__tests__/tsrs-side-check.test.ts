@@ -264,7 +264,11 @@ describe('advisory tsrs side-check', () => {
     // non-persisted token, and each step advisory with its own timeout.
     const job = workflow.jobs['static-checks'];
     expect(job['runs-on']).toBe('ubuntu-latest');
-    expect(job.permissions).toEqual({ contents: 'read' });
+    expect(job.permissions).toEqual({
+      contents: 'read',
+      actions: 'read',
+      'pull-requests': 'read',
+    });
     expect(job.steps[0]).toMatchObject({
       name: 'Checkout code',
       uses: 'actions/checkout@v6',
@@ -293,9 +297,20 @@ describe('advisory tsrs side-check', () => {
       expect(step['timeout-minutes']).toBeGreaterThan(0);
       expect(step.name).toContain('(advisory)');
     }
-    // Every other step of the job is blocking.
+    const reporter = job.steps.find(
+      (step: { run?: string }) =>
+        step.run === 'node scripts/ci/budget-github.mjs',
+    );
+    expect(reporter).toMatchObject({
+      name: 'Prepare source-head graphs and prove advisory reporting read-only',
+      if: '${{ !cancelled() }}',
+      'continue-on-error': true,
+      env: { GH_TOKEN: '${{ github.token }}' },
+    });
+    // Only the isolated compiler and the explicitly named read-only reporter
+    // are advisory. Every required validation step still blocks this job.
     for (const step of job.steps) {
-      if (tsrsSteps.includes(step)) continue;
+      if (tsrsSteps.includes(step) || step === reporter) continue;
       expect(step['continue-on-error']).toBeUndefined();
     }
     const protection = fs.readFileSync(

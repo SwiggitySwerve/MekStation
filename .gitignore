@@ -53,6 +53,7 @@ scripts/**
 !scripts/vehicle-aero-bv-delta.ts
 !scripts/unit-bv-parity.ts
 !scripts/unit-bv-parity.md
+!scripts/unit-bv-provenance.ts
 !scripts/campaign-authority-cutover.ts
 !scripts/maintenance/
 !scripts/maintenance/scan-maintenance.mjs
@@ -62,6 +63,7 @@ scripts/**
 !scripts/jest/
 !scripts/jest/run-jest-lane.mjs
 !scripts/jest/update-test-durations.mjs
+!scripts/jest/test-file-durations.mjs
 !scripts/jest/cached-tests.js
 !scripts/jest/jest-dom-usage.js
 !scripts/lib/
@@ -86,6 +88,9 @@ scripts/**
 !scripts/megameklab-conversion/blk_conversion_runner.py
 !scripts/megameklab-conversion/blk_schema_writers.py
 !scripts/megameklab-conversion/blk_unit_fields.py
+!scripts/megameklab-conversion/quirk_json.py
+!scripts/megameklab-conversion/quirk_regeneration.py
+!scripts/megameklab-conversion/QUIRK_REGENERATION.md
 !scripts/megameklab-conversion/weapon_quirks.py
 !scripts/megameklab-conversion/weapon_quirks.RULES.md
 !scripts/megameklab-conversion/blk_vehicle_tables.py
@@ -97,6 +102,8 @@ scripts/**
 !scripts/megameklab-conversion/java_reference_exporter.py
 !scripts/megameklab-conversion/java_bv_terms.py
 !scripts/megameklab-conversion/export_vehicle_aero_json.py
+!scripts/megameklab-conversion/strict_provenance.py
+!scripts/megameklab-conversion/strict-provenance-inputs.json
 !scripts/megameklab-conversion/java-reference/
 !scripts/megameklab-conversion/java-reference/*.java
 !scripts/megameklab-conversion/java-reference/bv-stages.json

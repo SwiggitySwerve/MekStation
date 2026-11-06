@@ -1,6 +1,12 @@
 {
   "allowedActiveChanges": [
     {
+      "name": "align-ci-budget-workflow-contracts",
+      "status": "in-progress",
+      "reason": "Root-authorized Phase G workflow contract alignment: preserve aggregation/browser/desktop/advisory guarantees while consuming canonical measured timeout budgets. Hosted proof and canonical sync/archive remain pending.",
+      "lastReviewed": "2026-11-06"
+    },
+    {
       "name": "harden-gm-two-player-campaign-sessions",
       "status": "in-progress",
       "reason": "User-approved declarative-first change for one non-playing GM plus two tactical players: durable command journaling and publication, role-safe live/replay/export projection, reconnect cursors, outcome receipts, append-only correction and rewind, campaign retroactive rebuild, and a strict 80-scenario three-context acceptance program. Implementation is intentionally split into small independently verified PRs with exact-main post-merge regression audits. Its e2e-testing delta adds distinct GM/two-player requirements and does not modify the active add-subsystem-lanes-and-ci requirement names.",

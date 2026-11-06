@@ -12,6 +12,11 @@
  *   satisfied by the same command existing in a different lane (or in a
  *   comment), which is the failure mode the loose form allows.
  */
+import { loadBudgets } from '../ci/budget-config.mjs';
+
+const budgets = loadBudgets(
+  new URL('../../config/ci/budgets.json', import.meta.url),
+);
 
 // Live branch protection requires only the aggregator; it needs every
 // fan-out job, Build Test included (CI-SPEED slice 5).
@@ -89,8 +94,8 @@ export const requiredWorkflowTokens = [
       'name: Build Test / ${{ matrix.platform }}',
       'platform: win',
       'platform: mac',
-      'name: Test Electron build (linux pack mode)',
-      'npx electron-builder --dir --publish never',
+      'name: Build complete Linux installer and unpacked application',
+      'npx electron-builder --linux tar.gz --publish never',
     ],
   },
 ];
@@ -149,7 +154,7 @@ export const requiredWorkflowJobContracts = [
     jobId: 'e2e',
     jobName: 'E2E (${{ matrix.shard }}/2)',
     requiredNeeds: ['detect-changes', 'e2e-build'],
-    timeoutMinutes: 25,
+    timeoutMinutes: budgets.timeouts.e2e.minutes,
     matrixShards: [1, 2],
     skipIf:
       "needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'",

@@ -10,6 +10,9 @@ const validatorPath = path.resolve(
   'scripts/qc/validate-openspec-ci-quality.mjs',
 );
 const workflowPath = path.resolve(repoRoot, '.github/workflows/pr-checks.yml');
+const e2eTimeoutMinutes: number = JSON.parse(
+  fs.readFileSync(path.join(repoRoot, 'config/ci/budgets.json'), 'utf8'),
+).timeouts.e2e.minutes;
 
 /**
  * The per-PR browser gates live in the `e2e` shard matrix: each shard
@@ -355,10 +358,23 @@ describe('OpenSpec CI quality QC validator', () => {
         'workflow-job-condition-invalid',
       ],
       [
-        '25-minute gate timeout',
+        'measured gate timeout shortened',
         GATE_JOB,
         (block: string) =>
-          block.replace('    timeout-minutes: 25', '    timeout-minutes: 24'),
+          block.replace(
+            `    timeout-minutes: ${e2eTimeoutMinutes}`,
+            `    timeout-minutes: ${e2eTimeoutMinutes - 1}`,
+          ),
+        'workflow-job-condition-invalid',
+      ],
+      [
+        'measured gate timeout widened',
+        GATE_JOB,
+        (block: string) =>
+          block.replace(
+            `    timeout-minutes: ${e2eTimeoutMinutes}`,
+            `    timeout-minutes: ${e2eTimeoutMinutes + 1}`,
+          ),
         'workflow-job-condition-invalid',
       ],
       [
