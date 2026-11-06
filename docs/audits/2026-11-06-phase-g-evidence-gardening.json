@@ -434,5 +434,36 @@
     "sha256": "312dfb0addbbbd3b24ae94a5feafa2b020f0468b42dfccc8ef1091db4037166f"
   },
   "evidenceRoot": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-30\\claude-coordinator\\phase-g\\G5",
-  "state": "Phase G incomplete; Root alone merges"
+  "state": "Phase G incomplete; Root alone merges",
+  "finalLegacyCutoff": {
+    "retainedTrees": 133,
+    "removedTrees": 0,
+    "retainedLogicalBytesExcludingAllReparseTargets": 36262398665,
+    "bytesFreed": 0,
+    "linkRecords": 129,
+    "protected12": "retained read-only",
+    "current15": "retained",
+    "coordinatorPrune": {
+      "invocations": 1,
+      "before": 541,
+      "after": 540,
+      "directoryRemovals": 0
+    }
+  },
+  "budgetBootstrap": {
+    "enforced": {
+      "jobs": 10,
+      "unkeyable": 57,
+      "repoWide": 93
+    },
+    "ratchetTargets": {
+      "jobs": 9,
+      "unkeyable": 55,
+      "repoWide": 80
+    },
+    "noPreviousEnforcedBudget": true,
+    "isBudgetRaise": false,
+    "countReduction": "post-Phase-G",
+    "remainingProof": ["package size", "workflow wiring", "all red paths", "CI"]
+  }
 }
