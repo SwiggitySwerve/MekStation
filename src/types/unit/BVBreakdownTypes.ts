@@ -43,6 +43,11 @@ export interface IProtoMechBVMountValue {
 /** Retained public weapon snapshot contract. */
 export type IProtoMechBVWeaponMount = IProtoMechBVMountValue;
 
+/** Actual positive bin value with the existing ammo owner's native group. */
+export interface IProtoMechBVAmmoMount extends IProtoMechBVMountValue {
+  readonly nativeGroup: string;
+}
+
 export interface IProtoMechBVBreakdown {
   readonly defensiveBV: number;
   readonly offensiveBV: number;
@@ -63,6 +68,7 @@ export interface IProtoMechBVBreakdown {
   /** Optional diagnostic snapshot; absent when no weapon was admitted. */
   readonly weaponMountBV?: readonly IProtoMechBVWeaponMount[];
   readonly ammoBV: number;
+  readonly ammoAvailableMountBV?: readonly IProtoMechBVAmmoMount[];
   /** Always zero: ProtoMech offense has no weight-only contribution. */
   readonly physicalWeaponBV: number;
   readonly offensiveEquipmentBV: number;

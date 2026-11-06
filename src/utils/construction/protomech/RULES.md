@@ -60,6 +60,32 @@ Weapon projections, ammo policy, scalar values, modifiers and totals remain
 unchanged. Other miscellaneous/ammo omissions, native equipment order and
 complete construction validity/weight remain separate.
 
+## Positive native ammo availability diagnostics
+
+The existing native ammo resolver owns registry identity, kg-per-shot valuation
+and the equipment-id shot count (`ProtoMekBVCalculator.java:50-52` and
+`AmmoType.java:17103-17105`, pin `48fcb2f64`). Its positive finite result and
+existing publicly recognized weaponType group supply optional
+`ammoAvailableMountBV` facts. The indexed ammo worklist retains actual mount
+references/order without changing admission, resolution, quantities or caps.
+No extra resolver call, parser, formula or identity table is introduced.
+
+`protoMechBVTerms` uses the existing `addBVToAmmoCapGroup` owner to add actual
+bin values in order, then transports `ammo.available.<nativeGroup>` terms.
+The facts never feed arithmetic inputs or alter the Proto exact-key cap policy.
+All old weapon/misc facts, scalar values, modifiers and totals remain intact.
+Missing, nonpositive, nonfinite, unresolved, generic fallback or unsupported
+public-group facts remain absent; no zero or launcher-derived bin is invented.
+In particular, the resolver's unmatched enum-form fallback such as `SRM:2`
+is not recognized by the current shared equipment-identity lookup and remains
+unprojected. That separate identity gap is not repaired or counted as parity.
+
+The represented 79 positive bins on 61 pinned sources supply 71 availability
+terms through these public owners. This scope does not establish native caps,
+general effective-quantity/admission rules, defensive ammo or complete ammo,
+construction, validity, weight or settings parity. Native equipment indices and
+the separately deferred Sprite 3 order remain outside this projection.
+
 ## Offensive BV movement
 
 At MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
