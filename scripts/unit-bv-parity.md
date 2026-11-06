@@ -169,3 +169,19 @@ figures are compared as missing local terms. Local-only breakdown aliases are
 not oracle requirements. Aggregate mode retains its existing report shape,
 and firstTermDifference, firstTermDifferences and all acceptance gates retain
 their previous meaning. Missing quantities never become neutral values.
+
+## Opt-in source-handler validity
+
+Add `--construction-validity` to the guarded serial comparator with a P1
+`--construction-terms` reference. The same source calculation writes separate
+`construction-validity-report.json` and `construction-validity-rows.jsonl`.
+It compares actual BA, infantry and ProtoMech handler validation results,
+including invalid designs and diagnostics. Other local-family projections,
+weight terms/totals, verifier quantities and settings remain explicit gaps;
+reference weight maps marked unsupported retain their reasons; infantry's
+decomposition is applicable but not instrumented. `ok` is scoped to
+validity only; aggregate BV success does not fill missing comparisons. Either
+selected report failing keeps the CLI exit nonzero. Without the flag all
+existing BV report bytes and calculation paths retain their previous contract.
+Runtime/BVmode/settings mismatch rejection is a separate open trust-boundary
+follow-up; recording reference provenance does not enforce that scenario.

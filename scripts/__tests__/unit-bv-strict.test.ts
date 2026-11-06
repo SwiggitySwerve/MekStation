@@ -1,10 +1,12 @@
 import { BlkParserService } from '../../src/services/conversion/BlkParserService';
 import protos from '../../src/services/units/handlers/__tests__/fixtures/native-protomek.json';
+import personnel from '../../src/services/units/handlers/__tests__/fixtures/personnel-validity.json';
 import { ProtoMechUnitHandler } from '../../src/services/units/handlers/ProtoMechUnitHandler';
 import * as dispatcher from '../../src/utils/construction/battleValueCalculations';
 import {
   buildDeltaReport,
   calculateRow,
+  captureConstructionValidity,
   compareFigures,
   FAMILIES,
   sourceHash,
@@ -421,4 +423,45 @@ it('exposes the real ProtoMech handler breakdown without changing its total', ()
     expect(breakdown.defensiveBV).toBeGreaterThan(0);
     expect(breakdown.offensiveBV).toBeGreaterThan(0);
   }
+});
+
+test.each(personnel.rows)(
+  'projects actual source validity for $path',
+  (source) => {
+    const input = { ...source, unit: null, sourceText: source.content };
+    const projected = calculateRow(input, true);
+    expect(projected.constructionValidity).toMatchObject({
+      isValid: source.valid,
+    });
+    const { constructionValidity, ...bv } = projected;
+    expect(constructionValidity).toBeDefined();
+    expect(bv).toEqual(calculateRow(input));
+    expect(calculateRow(input)).not.toHaveProperty('constructionValidity');
+  },
+);
+
+test('projects the existing ProtoMech handler without changing its BV result', () => {
+  const source = protos[0];
+  const input = {
+    path: source.path.replace('data/mekfiles/', ''),
+    sha256: source.sha256,
+    unit: null,
+    sourceText: source.content,
+  };
+  const { constructionValidity, ...bv } = calculateRow(input, true);
+  expect(constructionValidity).toMatchObject({
+    isValid: expect.any(Boolean),
+    errors: expect.any(Array),
+    warnings: expect.any(Array),
+    infos: expect.any(Array),
+  });
+  expect(bv).toEqual(calculateRow(input));
+});
+
+test('captures a thrown construction-validator failure separately from validity', () => {
+  expect(
+    captureConstructionValidity(() => {
+      throw new Error('Validation unavailable');
+    }),
+  ).toEqual({ failure: 'Error: Validation unavailable' });
 });
