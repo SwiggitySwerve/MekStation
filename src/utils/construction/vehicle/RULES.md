@@ -1,5 +1,25 @@
 ﻿# Combat-vehicle construction rules
 
+## Native equipment introduction validation
+
+`equipmentIntroduction.ts` owns the existing shared five-year margin and
+equipment-date loop. Aerospace retains its family admission and source-tag
+projection. Vehicle `introYear.ts` supplies native mount identities, the existing
+tech route and source/build years; combat and support handlers call that owner.
+Resolved catalog introduction dates remain authoritative. Ammo, unavailable
+dates and inapplicable technology sides preserve the existing aerospace guards.
+No validator-side date override table is introduced.
+
+Both native vehicle handlers preserve an explicit `originalBuildYear` and report
+equipment that postdates every applicable source year plus the margin. Repeated
+mounts report a resolved equipment identity once. Native construction-invalid
+designs still parse successfully with validation diagnostics; validity is not
+inferred from their loadability or BV.
+
+Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`TestEntity.java:1487-1512,1611-1618`, `TestTank.java:426-428` and
+`TestSupportVehicle.java:1221-1223` define these checks.
+
 ## Support engine validation routing
 
 `engine.ts:validateVehicleEngine` takes optional family and engine technology

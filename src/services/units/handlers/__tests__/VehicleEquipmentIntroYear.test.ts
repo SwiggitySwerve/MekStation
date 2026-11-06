@@ -1,5 +1,6 @@
 ﻿import { createHash } from 'node:crypto';
 
+/** @spec openspec/changes/establish-all-unit-data-parity/specs/vehicle-unit-system/spec.md */
 import type { IBlkDocument } from '@/types/formats/BlkFormat';
 
 import { BlkParserService } from '@/services/conversion/BlkParserService';

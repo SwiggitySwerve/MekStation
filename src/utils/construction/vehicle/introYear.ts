@@ -3,26 +3,27 @@ import { javaArmorIntroduction } from '@/types/construction/ArmorType';
 import { javaEngineIntroduction } from '@/types/construction/EngineType';
 import { techRouteId } from '@/utils/construction/equipmentBVCatalogData';
 import { getEquipmentEntry } from '@/utils/construction/equipmentBVResolver';
-import { INTRO_YEAR_MARGIN } from '@/utils/construction/equipmentIntroduction';
-import { equipmentIntroductionErrors } from '@/utils/construction/equipmentIntroduction';
+import {
+  equipmentIntroductionErrors,
+  INTRO_YEAR_MARGIN,
+} from '@/utils/construction/equipmentIntroduction';
 
 /** TestEntity.java:1487-1512,1611-1618; both vehicle verifiers call this loop. */
 export function vehicleEquipmentIntroYearErrors(source: {
-  readonly year: number;
+  readonly metadata: { readonly year: number };
   readonly originalBuildYear?: number;
   readonly equipment: readonly { readonly equipmentId: string }[];
-  readonly clan: boolean;
-  readonly mixed: boolean;
+  readonly techBase: string;
 }): string[] {
+  const clan = /clan/i.test(String(source.techBase));
   return equipmentIntroductionErrors({
     equipment: source.equipment.map((mount) => mount.equipmentId),
-    years: [source.year, source.originalBuildYear].filter(
+    years: [source.metadata.year, source.originalBuildYear].filter(
       (year): year is number => typeof year === 'number',
     ),
-    clan: source.clan,
-    mixed: source.mixed,
-    resolve: (name) =>
-      getEquipmentEntry(techRouteId(name, source.clan) ?? name),
+    clan,
+    mixed: /mixed/i.test(String(source.techBase)),
+    resolve: (name) => getEquipmentEntry(techRouteId(name, clan) ?? name),
   });
 }
 

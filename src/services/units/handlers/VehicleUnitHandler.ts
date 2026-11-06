@@ -443,13 +443,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     }
 
     errors.push(
-      ...vehicleEquipmentIntroYearErrors({
-        equipment: unit.equipment,
-        year: unit.metadata.year,
-        originalBuildYear: unit.originalBuildYear,
-        clan: /clan/i.test(String(unit.techBase)),
-        mixed: /mixed/i.test(String(unit.techBase)),
-      }),
+      ...vehicleEquipmentIntroYearErrors(unit),
       ...vehicleArmorIntroYearErrors({
         year: unit.metadata.year,
         armorCode: unit.armorType,
