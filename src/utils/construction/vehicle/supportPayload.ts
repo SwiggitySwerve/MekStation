@@ -1,4 +1,4 @@
-import { decodeBlkVehicleEngine } from '@/services/conversion/blkEngineIdentity';
+﻿import { decodeBlkVehicleEngine } from '@/services/conversion/blkEngineIdentity';
 import { EquipmentCategory } from '@/types/equipment/EquipmentCategory';
 import { ISupportVehicle } from '@/types/unit/VehicleInterfaces';
 import { TurretType } from '@/types/unit/VehicleInterfaces';
@@ -47,13 +47,12 @@ export function computeSupportPayloadWeights(
         energy: false,
       };
     }
-    const weapon = [
-      'Energy',
-      'Ballistic',
-      'Missile',
-      'Artillery',
-      'Capital',
-    ].includes(item.category);
+    // TestEntity.java:716-724,753-769: an artillery ammo category is not a weapon.
+    const weapon =
+      !ammo &&
+      ['Energy', 'Ballistic', 'Missile', 'Artillery', 'Capital'].includes(
+        item.category,
+      );
     if (unit.tonnage < 5 && weapon) {
       unresolved.push(mount.equipmentId);
       return { ...mount, ammo, weapon, weight: 0, heat: 0, energy: false };
