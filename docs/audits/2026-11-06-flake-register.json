@@ -16,7 +16,8 @@
     "u89-unit-ci": "GitHub-hosted ubuntu-latest; captured Ubuntu26.04.1 LTS image20261101.186.1, Node22.23.4, cached unit shard2/3, maxWorkers4. No contention telemetry collected.",
     "2932-chromium": "GitHub-hosted ubuntu-latest; captured Ubuntu26.04 image, Node22.23.4, Playwright Chromium library shard2/2, actualWorkers1. Native failed result retry0; do not infer configured retry policy from that alone.",
     "42205390500-control-chromium": "Two-shard diagnostic control/baseline, GitHub-hosted Linux x64, 4 CPUs, runner image20261101.186.1, Node22.23.4, cached Chromium headless-shell143.0.7499.4/revision1200. Browser binary SHA25620ffc88be1c6f7dc8351bebfaca965ff9a07617bddf696f0b67ef85e5868b29a. Exact environment is from the retained completed audit.",
-    "42219240827-chromium": "GitHub-hosted E2E2/2, ubuntu-26.04 image20261101.186.1, Node22.23.4 (raw job log lines17/18/190), Playwright1.57.0, actualWorkers1 (retained native library report). Failed result retry0; no cross-incident environment inference."
+    "42219240827-chromium": "GitHub-hosted E2E2/2, ubuntu-26.04 image20261101.186.1, Node22.23.4 (raw job log lines17/18/190), Playwright1.57.0, actualWorkers1 (retained native library report). Failed result retry0; no cross-incident environment inference.",
+    "42295033204-chromium": "GitHub-hosted Chromium E2E1/2 and2/2, Ubuntu26.04 image20261101.186.1, Node22.23.4 (retained raw G2 logs). Exact workflow attempt and native retry index not recovered here; null is unknown. Do not infer hosted event order from controlled local reproduction."
   },
   "latestNightly": {
     "runId": 42072283514,
@@ -841,6 +842,90 @@
       "location": "coordinator-archive",
       "sha256": "6a938409522c6df99ba2c3897d8b8124d4b76207f166884af8b31f9ef0a53241",
       "bytes": 3232
+    },
+    "2971-p7-proof": {
+      "path": "normal-work/P7-editors/fill-readiness-42295033204/committed-proof.json",
+      "location": "coordinator-archive",
+      "sha256": "9271c1b9b8482d686e8c377b636b13a2a724b7efbf1afa3243139e9cbb8259c2",
+      "bytes": 4529
+    },
+    "2971-source-evidence": {
+      "path": "normal-work/P7-editors/fill-readiness-42295033204/source-evidence.json",
+      "location": "coordinator-archive",
+      "sha256": "03083023fb2bd7bd617b636d833814b189a15c26f467e6525d9fe243bc1fbf34",
+      "bytes": 2722
+    },
+    "2971-pointer-red": {
+      "path": "normal-work/P7-editors/fill-readiness-42295033204/red-pointer-receipt.json",
+      "location": "coordinator-archive",
+      "sha256": "1028d998aaf058b9a144dfed40f9b72990b790067e90abbf6c3a8db3b2ccb507",
+      "bytes": 1748
+    },
+    "2971-green": {
+      "path": "normal-work/P7-editors/fill-readiness-42295033204/green-receipt.json",
+      "location": "coordinator-archive",
+      "sha256": "1664418254dfce5beae63875dd491f26791a542f6b5f7950de308143f12ad4d6",
+      "bytes": 2387
+    },
+    "2971-committed": {
+      "path": "normal-work/P7-editors/fill-readiness-42295033204/committed-receipt.json",
+      "location": "coordinator-archive",
+      "sha256": "7e40868dc3706cac9eaa02bdf3f66c2361c4c649c8898214dba08ef29fcf697a",
+      "bytes": 2391
+    },
+    "2971-preservation": {
+      "path": "normal-work/P7-editors/fill-readiness-42295033204/preservation.json",
+      "location": "coordinator-archive",
+      "sha256": "57d84167ba3fd0e8f6f2d5b8bca9f9c252c838108c4c727b3d853e6693a6738c",
+      "bytes": 341
+    },
+    "2971-root-event": {
+      "path": "normal-work/G6-flake-register/2971-pointer-and-pdf/root-event.json",
+      "location": "coordinator-archive",
+      "sha256": "c678aa7630e82c1b50c51d83b9836ba4846f4df7778893c135aab088b4feeba9",
+      "bytes": 1146
+    },
+    "2971-local-verification": {
+      "path": "normal-work/G6-flake-register/2971-pointer-and-pdf/verification.json",
+      "location": "coordinator-archive",
+      "sha256": "a5480f1da5c27fb07aa8f39b43b408e683fc1598ec72f6bd7b1968e3b2e62402",
+      "bytes": 3392
+    },
+    "42295033204-shard2-log": {
+      "path": "normal-work/CI-storybook-resume/e2e-failure-128158215217.log",
+      "location": "coordinator-archive",
+      "sha256": "fa346ca945cf4c67df0176bf97227ed69718a5b6f3f2853e5d3b75ec68354fff",
+      "bytes": 157430
+    },
+    "42295033204-shard1-log": {
+      "path": "normal-work/CI-storybook-resume/e2e-failure-128158215294.log",
+      "location": "coordinator-archive",
+      "sha256": "5da10f722499b0bb1ff327ec4ac1b9c1552f324ad8dcfca4da24e5a291e16780",
+      "bytes": 159646
+    },
+    "42295033204-fighter-context": {
+      "path": "normal-work/CI-storybook-resume/e2e-report-2/test-results/library/customizer-library-open-li-3b02a-reopen-and-print-customizer-chromium/error-context.md",
+      "location": "coordinator-archive",
+      "sha256": "5ce2777ef396a034cfee721ce1cfc8742d1113003016859ccc42b908f720aa61",
+      "bytes": 9947
+    },
+    "42295033204-pdf-context": {
+      "path": "normal-work/CI-storybook-resume/e2e-report-1/test-results/gates/customizer-record-sheet-re-de5ee-tter-and-A4-PDFs-customizer-chromium/error-context.md",
+      "location": "coordinator-archive",
+      "sha256": "c7a2ed07181b7ba23f031ac6a651c967c0ce1044b5c5ac6af000057ca6c6d45a",
+      "bytes": 13752
+    },
+    "42295033204-pdf-trace": {
+      "path": "normal-work/CI-storybook-resume/e2e-report-1/test-results/gates/customizer-record-sheet-re-de5ee-tter-and-A4-PDFs-customizer-chromium/trace.zip",
+      "location": "coordinator-archive",
+      "sha256": "dec8c7400a7a232d21dc474686d52b6a7ec41626193a4b51c56c2e6f2804c480",
+      "bytes": 11204042
+    },
+    "42295033204-gates-report": {
+      "path": "normal-work/CI-storybook-resume/e2e-report-1/gates-report.zip",
+      "location": "coordinator-archive",
+      "sha256": "73cee18109fa87d7c6b06f5ca56e526ec65a5473531fb011d329e200977bb183",
+      "bytes": 66533
     }
   },
   "entries": [
@@ -1966,12 +2051,12 @@
     {
       "id": "G6-041",
       "classification": "confirmed-intermittent",
-      "state": "recurrence observed after#2937;#2962 readiness fix merged; hosted cause UNCONFIRMED; Root observation pending",
+      "state": "second recurrence after#2962;#2971 shared pointer/keyboard readiness merged; hosted cause UNCONFIRMED",
       "test": "e2e/customizer-library-open.spec.ts:1065 — library flows1440 > fighter: edit, save, reload, reopen and print",
       "environment": "2932-chromium",
-      "summary": "Same PR head614822610b47c0ab2f8c3148345122f2ac050db6: run42201733032 attempt1/job127838633272 failed and attempt2/job127843972188 E2E2/2 passed, confirming intermittency. Root alone reran. Retained context shows ShiloneFlow Shilone... rather than expected Flow Shilone...; P7 attributes the timeout downstream of this name mismatch. Exact lost-selection/form-event cause and fix completeness remain unproved. Root25-run/date-only hypothesis is separate from confirmed same-head fail/pass. Root reports keyboard guard PR#2937 merged as2f0c45eeb93e99dcba53db75f08b1785efb5e9fd with hosted E2E1/2 and2/2 passing on a1dda6abeebec0b8baf3b64dc6832c4739ff8ecf. PROBABLE cause: stale input prefix accepted by keyboard fill; guarded. Original trace unavailable; causal mechanism remains unproved. Later recurrence on#2951 run42219240827/a1 job127897593926 head45fc5728bd76b5e27526efa7a4b15c7f6df00a6c: infantry Chassis Name retained AA Jump Infantry prefix;#2937 exact-value guard failed as intended. Root merged#2962 known-initial-value readiness fix as7a37f29e15bbd450ce9ad287a28e76baf61b6ff7. P7 controlled DOM race RED then GREEN proves helper readiness weakness, not this hosted event cause; hosted cause UNCONFIRMED and no stability clearance.",
+      "summary": "Same PR head614822610b47c0ab2f8c3148345122f2ac050db6: run42201733032 attempt1/job127838633272 failed and attempt2/job127843972188 E2E2/2 passed, confirming intermittency. Root alone reran. Retained context shows ShiloneFlow Shilone... rather than expected Flow Shilone...; P7 attributes the timeout downstream of this name mismatch. Exact lost-selection/form-event cause and fix completeness remain unproved. Root25-run/date-only hypothesis is separate from confirmed same-head fail/pass. Root reports keyboard guard PR#2937 merged as2f0c45eeb93e99dcba53db75f08b1785efb5e9fd with hosted E2E1/2 and2/2 passing on a1dda6abeebec0b8baf3b64dc6832c4739ff8ecf. PROBABLE cause: stale input prefix accepted by keyboard fill; guarded. Original trace unavailable; causal mechanism remains unproved. Later recurrence on#2951 run42219240827/a1 job127897593926 head45fc5728bd76b5e27526efa7a4b15c7f6df00a6c: infantry Chassis Name retained AA Jump Infantry prefix;#2937 exact-value guard failed as intended. Root merged#2962 known-initial-value readiness fix as7a37f29e15bbd450ce9ad287a28e76baf61b6ff7. P7 controlled DOM race RED then GREEN proves helper readiness weakness, not this hosted event cause; hosted cause UNCONFIRMED and no stability clearance. Second recurrence: PR#2884 run42295033204/job128158215217, fighter390 at headab30d508c7b3976a9dc4539621032f127fd8dc53 retained ShiloneFlow Shilone. P7 source confirms pointer fill returned before#2962 readiness even though initialValue was supplied. Root merged#2971 asbeac60d2e058ae0225e02a548db88d1103298c5d; readiness now precedes both input modes and initialValue is required. Controlled pointer race RED then GREEN; historical hosted sequence remains UNCONFIRMED. Separate same-run PDF timeout is G6-043, not a name-fill diagnosis.",
       "owner": "P7-editors — diagnosis and smallest justified robustness follow-up; Root alone owns rerun/merge; G6 owns capture/register",
-      "nextStep": "Root checks next otherwise-authorized hosted E2E runs for recurrence after#2962. This observation has not been performed or scheduled by G6. P7 retains helper diagnosis ownership; G6 records evidence only. No worker watcher/poll, capture/download, browser or hosted rerun, implementation or stability clearance.",
+      "nextStep": "Root observes future otherwise-authorized hosted E2E for name-fill recurrence, event-driven; not performed or scheduled by G6. P7 retains fill diagnosis. No worker watch/rerun/capture or stability clearance. Separate PDF timeout/remediation belongs to G6-043; do not conflate causes.",
       "observations": [
         {
           "runId": 42201733032,
@@ -2037,6 +2122,27 @@
           "source": "42219240827-log",
           "nativeSource": "42219240827-native",
           "relationshipTo2937": "Recurrence of stale prefix after the exact-value guard; that guard detected the mismatch at line32. This differs from the earlier downstream Close-locator timeout."
+        },
+        {
+          "runId": 42295033204,
+          "workflowAttempt": null,
+          "pr": 2884,
+          "jobId": 128158215217,
+          "jobName": "E2E (2/2)",
+          "head": "ab30d508c7b3976a9dc4539621032f127fd8dc53",
+          "checkedOutMerge": "dff0d7372218dcb25d232213c64e25d2d51dac8b",
+          "proofBase": "33ab2b6122dc0e39cbfad222ca56bc7d02025ddb",
+          "width": 390,
+          "test": "fighter: edit, save, reload, reopen and print",
+          "result": "failed; expected Close Flow Shilone... but retained context shows Close ShiloneFlow Shilone...",
+          "source": "42295033204-shard2-log",
+          "contextSource": "42295033204-fighter-context",
+          "testRetry": null,
+          "expectedCloseName": "Close Flow Shilone Long Label Layout Check 1793999922367-0 Saved 390",
+          "observedCloseName": "Close ShiloneFlow Shilone Long Label Layout Check 1793999922367-0 Saved 390",
+          "mode": "pointer; keyboard=false",
+          "sourceBoundary": "Initial chassis value already supplied; pointer target.fill early return bypassed known-initial readiness. Missing caller argument is not the demonstrated cause.",
+          "hostedCausalSequence": "UNCONFIRMED"
         }
       ],
       "sources": [
@@ -2065,14 +2171,25 @@
         "2962-p7-committed",
         "2962-p7-preservation",
         "2962-root-merge",
-        "2962-local-verification"
+        "2962-local-verification",
+        "2971-p7-proof",
+        "2971-source-evidence",
+        "2971-pointer-red",
+        "2971-green",
+        "2971-committed",
+        "2971-preservation",
+        "2971-root-event",
+        "2971-local-verification",
+        "42295033204-shard2-log",
+        "42295033204-fighter-context"
       ],
       "missingEvidence": [
         "No trace was attached by the failed native result or found in the three retained artifacts.",
         "Root last25PRruns/no-other-hit/date-only hypothesis was not independently re-audited by G6.",
         "Why selection/form interaction retained the old Shilone prefix is unresolved; absent trace prevents exact event reconstruction.",
         "Guard hosted E2E passes are Root-reported at exact proof head; run/job/attempt IDs were not supplied and were not fetched. Original trace remains unavailable, so probable cause is not proven.",
-        "Recurrence has no trace in either retained artifact inventory; screenshot/context and raw/native results show final values, not historical selection/focus event order. Controlled readiness race is proven locally; hosted cause UNCONFIRMED. Root future hosted recurrence observation is pending, not claimed performed."
+        "Recurrence has no trace in either retained artifact inventory; screenshot/context and raw/native results show final values, not historical selection/focus event order. Controlled readiness race is proven locally; hosted cause UNCONFIRMED. Root future hosted recurrence observation is pending, not claimed performed.",
+        "Second recurrence: no hosted event-order reconstruction established. G2 owns retained attachment/embedded-report audit; G6 makes no historical trace-absence claim. Exact workflow attempt/test retry not recovered. Future Root recurrence observation remains pending."
       ],
       "diagnosticFinding": {
         "recordedAtUtc": "2026-11-06T10:44:22.651721+00:00",
@@ -2185,6 +2302,57 @@
           "owner": "Root",
           "state": "pending; not performed or scheduled by G6",
           "action": "Check next otherwise-authorized hosted E2E runs for recurrence."
+        },
+        "stabilityClearance": false
+      },
+      "pointerRecurrence": {
+        "source": "2971-p7-proof",
+        "sourceGap": "Pointer fill early return bypassed known-initial readiness; fighter390 already supplied initialValue.",
+        "fixPr": 2971,
+        "mergeCommit": "beac60d2e058ae0225e02a548db88d1103298c5d",
+        "fix": "Known-initial readiness before both pointer and keyboard replacement; every call must supply initialValue, including explicit empty values.",
+        "proofLineage": {
+          "head": "135ef6fb933ec26972832d63e8d8d17b1b85d6c1",
+          "tree": "660885fa03c474664ff8e847fa3888cddad74387",
+          "integratedMain": "1dcdfd430c1855023eba1e3fa5869bda8f6a852a",
+          "actualBranchBase": "7919d7da52a4ace533978399ff0bc1c30e4d4c05",
+          "initialReadMain": "33ab2b6122dc0e39cbfad222ca56bc7d02025ddb",
+          "sources": [
+            {
+              "file": "e2e/customizer-library-open.spec.ts",
+              "sha256": "d1fcfa376d78326d99b3e109f7f9c88a992d706b6136851f5aba6184afc3bb61"
+            },
+            {
+              "file": "e2e/helpers/keyboardNavigation.ts",
+              "sha256": "a4614a8dfa53b3afa62590d0b0b69bd441bc5501ae85a59c0b29e5d4b11e0ae7"
+            }
+          ]
+        },
+        "controlledRegression": {
+          "authoritativeRedSource": "2971-pointer-red",
+          "redExit": 1,
+          "greenSource": "2971-green",
+          "committedSource": "2971-committed",
+          "greenExit": 0,
+          "committedCases": 5,
+          "retries": 0,
+          "workers": 1,
+          "redPrefix": "ShiloneFlow Shilone",
+          "earlierExploration": "red.* page-world select wrapping was the wrong seam, not behavioral red; retained by P7.",
+          "preserved": "Earlier keyboard race, lost-select-all rejection, healthy text/numeric replacement and explicit empty values in both modes."
+        },
+        "callContract": {
+          "initialValueRequired": true,
+          "callsWithFiveArguments": 11,
+          "existingAssertionsPreserved": 132,
+          "existingTestTitlesPreserved": 10
+        },
+        "hostedCausalSequence": "UNCONFIRMED; controlled race proves helper boundary weakness/correction, not exact hosted events.",
+        "artifactCustody": "G2 retains original logs/reports/context/attachments; G6 hashes existing local files without capture/download or duplicate attachment audit.",
+        "separateTimeoutIncident": "G6-043",
+        "nextObservation": {
+          "owner": "Root",
+          "state": "pending, event-driven; not performed/scheduled by G6"
         },
         "stabilityClearance": false
       }
@@ -2332,6 +2500,56 @@
         "keyboardRemediation": "P7 separate; G6-041 unchanged"
       },
       "treatmentStatus": "canceled by Root"
+    },
+    {
+      "id": "G6-043",
+      "classification": "UNCLASSIFIED",
+      "state": "open; candidate flake; intermittency unconfirmed",
+      "test": "e2e/customizer-record-sheet-rendering.spec.ts:289 — Letter/A4 PDF download",
+      "environment": "42295033204-chromium",
+      "summary": "Separate same-run E2E1/2 failure on PR#2884 run42295033204: PDF test exceeded30000ms and download.saveAs was canceled. Artifact e2e-report-1 ID13541722564 contains retained context/trace. One observed failure is UNCLASSIFIED, candidate flake only; cause and intermittency not established. No linkage to pointer-fill failure or teardown SIGSEGV established.",
+      "owner": "Root: event-driven future recurrence observation; diagnostic/remediation owner unassigned, needsowner. G2: retained artifact custody/audit; G6: register only.",
+      "nextStep": "Root observes future otherwise-authorized hosted runs for recurrence and routes diagnosis if needed. Observation remains pending and has not been performed/scheduled by G6. Preserve PDF budget and raw trace; no worker watcher/rerun/capture or source fix.",
+      "observations": [
+        {
+          "runId": 42295033204,
+          "workflowAttempt": null,
+          "pr": 2884,
+          "jobId": 128158215294,
+          "jobName": "E2E (1/2)",
+          "jobMappingBasis": "Existing G2 raw-log filename plus Complete job name at line35, checkout head at178 and artifact run URL at1032; no new metadata query.",
+          "head": "ab30d508c7b3976a9dc4539621032f127fd8dc53",
+          "checkedOutMerge": "dff0d7372218dcb25d232213c64e25d2d51dac8b",
+          "result": "failed test timeout; download.saveAs canceled",
+          "source": "42295033204-shard1-log",
+          "sourceLines": [856, 858, 860, 869, 870, 1030, 1032],
+          "timeoutMs": 30000,
+          "testRetry": null,
+          "failureLocation": "downloadPdf:220:18; test call:325:22",
+          "artifact": {
+            "name": "e2e-report-1",
+            "id": 13541722564,
+            "sourceLogLines": [1030, 1031, 1032]
+          },
+          "traceSource": "42295033204-pdf-trace",
+          "hypothesis": "candidate flake; not confirmed intermittent"
+        }
+      ],
+      "sources": [
+        "42295033204-shard1-log",
+        "42295033204-pdf-context",
+        "42295033204-pdf-trace",
+        "42295033204-gates-report",
+        "2971-root-event",
+        "2971-local-verification"
+      ],
+      "missingEvidence": [
+        "No same-head fail/pass or recurrence analysis for this PDF failure collected by G6.",
+        "Exact PDF cause and workflow-attempt/test-retry indices unresolved. Retained trace exists but G6 has not analyzed it; G2 attachment audit remains separate.",
+        "Future Root observation pending; no general stability clearance or connection to name-fill/native-crash incidents inferred."
+      ],
+      "relatedHistoricalRisk": "G6-037: earlier proximity-to-budget risk remains a preserved historical record, not a count of this observed timeout.",
+      "stabilityClearance": false
     }
   ],
   "addenda": [
@@ -2387,6 +2605,12 @@
       "incident": "G6-041",
       "scope": "Root-assigned docs/data recurrence addendum after#2962 merge. Reuse existing P7 raw/digest-verified report/timings and committed proof only. Controlled readiness race proven; current hosted cause UNCONFIRMED, earlier probable-prefix cause preserved separately. Root owns next hosted recurrence observation; no child watch/rerun/capture or stability clearance.",
       "priorReceipts": "All previous entries/evidence preserved; new bounded verification under normal-work/G6-flake-register/2962-keyboard-initial-value-recurrence/."
+    },
+    {
+      "addedAtUtc": "2026-11-06T21:55:05.818362+00:00",
+      "incidents": ["G6-041", "G6-043"],
+      "scope": "Root-authorized small docs/data follow-up: pointer readiness bypass/#2971 controlled proof and separate UNCLASSIFIED candidate PDF flake from same run. Local P7/G2 evidence reuse only; no source fixes/downloads/reruns/watchers or stability clearance.",
+      "priorReceipts": "All older entries except current G6-041 status/evidence additions preserved. Earlier prefix probabilities, same-head evidence, G6-037 risk, G6-001 intake and sealed receipts unchanged. New evidence under normal-work/G6-flake-register/2971-pointer-and-pdf/."
     }
   ]
 }
