@@ -326,6 +326,10 @@ function appendQuirkModifier(
     getPSRTrigger(input.psr),
     input.pilotingSkill,
     input.pilotAbilities,
+    {
+      mode: input.neuralInterfaceMode,
+      hasDNICockpitMod: input.hasDNICockpitMod,
+    },
   );
 
   appendModifier(modifiers, 'Piloting quirks', quirkModifier, 'quirk');
