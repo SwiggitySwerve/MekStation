@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'megameklab-conversion'))
-from quirk_regeneration import plan_family, verify_tree, write_family
+from quirk_regeneration import apply_family, plan_family, verify_tree, write_family
 
 
 class QuirkRegenerationTest(unittest.TestCase):
@@ -33,6 +33,17 @@ class QuirkRegenerationTest(unittest.TestCase):
         result = (self.root / 'first/Ship A.json').read_bytes()
         self.assertIn(b'"tonnage":3.000', result)
         self.assertEqual(json.loads(result)['weaponQuirks'], self.record['fields']['weaponQuirks'])
+        self.assertEqual((self.family / 'Ship A.json').read_bytes(), self.raw)
+        apply_family(self.family, self.root / 'first', self.root / 'second')
+        self.assertEqual((self.family / 'Ship A.json').read_bytes(), result)
+
+    def test_failed_second_run_cannot_partially_apply(self):
+        plan, _ = plan_family(self.baseline, 'capital', [self.record])
+        write_family(self.family, self.root / 'first', plan)
+        write_family(self.family, self.root / 'second', plan)
+        (self.root / 'second/index.json').write_bytes(b'{}')
+        with self.assertRaises(ValueError):
+            apply_family(self.family, self.root / 'first', self.root / 'second')
         self.assertEqual((self.family / 'Ship A.json').read_bytes(), self.raw)
 
     def test_ambiguous_conflicting_sources_and_missing_identity_fail_before_writing(self):

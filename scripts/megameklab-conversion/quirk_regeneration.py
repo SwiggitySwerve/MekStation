@@ -73,7 +73,7 @@ def plan_family(baseline: Path, family: str, records: list[dict]):
     unmatched = set(indexed) - matched
     if unmatched:
         raise ValueError(f'Unmatched source identities: {sorted(unmatched)}')
-    plan, expected, actual = {}, [], []
+    plan, expected, actual, provenance = {}, [], [], []
     for path, doc in units.items():
         if not path.is_relative_to(baseline / family):
             continue
@@ -94,11 +94,15 @@ def plan_family(baseline: Path, family: str, records: list[dict]):
             plan[path.relative_to(baseline / family).as_posix()] = after
         expected.append(fields)
         actual.append(json.loads(after))
+        if candidates:
+            provenance.append({'unit': path.relative_to(baseline).as_posix(),
+                               'sources': [{key: r[key] for key in ('path', 'sha256') if key in r}
+                                           for r in candidates]})
     source, output = _counts(expected), _counts(actual)
     if source != output:
         raise ValueError('Source/output quirk census differs')
     return plan, {'family': family, 'unitFiles': len(actual), 'changedFiles': len(plan),
-                  'source': source, 'output': output}
+                  'source': source, 'output': output, 'provenance': provenance}
 
 
 def verify_tree(before: Path, after: Path, *, identical=False):
@@ -129,6 +133,16 @@ def write_family(baseline: Path, output: Path, plan: dict[str, bytes]):
     verify_tree(baseline, output)
 
 
+def apply_family(baseline: Path, first: Path, second: Path):
+    """Validate both independent runs and the current baseline before any write."""
+    verify_tree(first, second, identical=True)
+    verify_tree(baseline, first)
+    changes = [(p.relative_to(first), p.read_bytes()) for p in first.rglob('*')
+               if p.is_file() and p.read_bytes() != (baseline / p.relative_to(first)).read_bytes()]
+    for relative, raw in changes:
+        (baseline / relative).write_bytes(raw)
+
+
 def main():
     cli = argparse.ArgumentParser(description=__doc__)
     commands = cli.add_subparsers(dest='command', required=True)
@@ -140,9 +154,14 @@ def main():
     verify.add_argument('--before', required=True, type=Path)
     verify.add_argument('--after', required=True, type=Path)
     verify.add_argument('--identical', action='store_true')
+    apply = commands.add_parser('apply')
+    for name in ('baseline', 'first', 'second'):
+        apply.add_argument('--' + name, required=True, type=Path)
     args = cli.parse_args()
     if args.command == 'verify':
         verify_tree(args.before, args.after, identical=args.identical)
+    elif args.command == 'apply':
+        apply_family(args.baseline, args.first, args.second)
     else:
         plan, report = plan_family(args.baseline, args.family, source_records(args.repo, args.extracted))
         write_family(args.baseline / args.family, args.output, plan)
