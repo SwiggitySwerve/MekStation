@@ -234,6 +234,8 @@ export function expandJob(id, job) {
 export function workflowMetrics(root, config, workflow = readWorkflow(root)) {
   const jobs = workflow.jobs,
     aggregator = jobs['lint-and-test'];
+  if (Object.values(jobs).some((job) => job['continue-on-error']))
+    throw new Error('Job failure cannot be ignored by the aggregator');
   if (aggregator?.name !== 'Lint and Test' || aggregator.if !== 'always()')
     throw new Error('Unconditional Lint and Test aggregator missing');
   const expected = Object.keys(jobs)
@@ -257,16 +259,20 @@ export function workflowMetrics(root, config, workflow = readWorkflow(root)) {
       '${{ toJSON(github.event.pull_request.labels.*.name) }}'
   )
     throw new Error('Deterministic budget gate disabled or bypassed');
-  const webCheck = jobs['simulation-checks']?.steps?.find((s) =>
-    s.run?.startsWith('node scripts/ci/budget-artifacts.mjs'),
-  );
-  if (
-    webCheck?.run !==
-      'node scripts/ci/budget-artifacts.mjs --kind web --report budget-output/web.json' ||
-    webCheck.if !== '${{ !cancelled() }}' ||
-    webCheck['continue-on-error']
-  )
-    throw new Error('Complete package budget gate disabled or bypassed');
+  for (const command of [
+    'node scripts/ci/budget-artifacts.mjs --kind web --report budget-output/web.json',
+    'mkdir -p desktop/release-upload\ncp desktop/release/*.tar.gz desktop/release-upload/\nnode scripts/ci/budget-artifacts.mjs --kind installers --report budget-output/installers.json',
+  ]) {
+    const packageCheck = jobs['simulation-checks']?.steps?.find(
+      (step) => step.run?.trim() === command,
+    );
+    if (
+      !packageCheck ||
+      packageCheck.if !== '${{ !cancelled() }}' ||
+      packageCheck['continue-on-error']
+    )
+      throw new Error('Complete package budget gate disabled or bypassed');
+  }
   const step = aggregator.steps?.find(
     (s) => s.run === 'node scripts/ci/budget-aggregate.mjs',
   );

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 
-import { loadBudgets, METRICS_SCHEMA } from './budget-config.mjs';
+import { exactKeys, loadBudgets, METRICS_SCHEMA } from './budget-config.mjs';
 import { dependencyViolations } from './budget-dependencies.mjs';
 import {
   collectRepositoryMetrics,
@@ -12,6 +12,22 @@ import {
 
 export function checkRepositoryMetrics(config, metrics, labels) {
   validateRepositoryMetrics(metrics);
+  exactKeys(
+    metrics.workflow.timeouts,
+    Object.keys(config.timeouts),
+    'timeout census',
+  );
+  const profiles = new Map(
+    metrics.workflow.profiles.map((profile) => [profile.id, profile]),
+  );
+  if (
+    profiles.size !== metrics.workflow.profiles.length ||
+    profiles.size !== config.profiles.length ||
+    config.profiles.some(
+      (profile) => profiles.get(profile.id)?.typical !== profile.typical,
+    )
+  )
+    throw new Error('Representative profile census missing or reclassified');
   if (!Array.isArray(labels) || labels.some((l) => typeof l !== 'string'))
     throw new Error('PR labels missing/unknown');
   const violations = [];

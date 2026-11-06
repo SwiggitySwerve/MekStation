@@ -159,6 +159,19 @@ test('dynamic/unknown matrices, conditions and aggregator bypasses fail closed',
         s.run?.includes('budget-artifacts.mjs'),
       ).run += ' || true';
     },
+    (w) => {
+      w.jobs['simulation-checks']['continue-on-error'] = true;
+    },
+    (w) => {
+      w.jobs['simulation-checks'].steps.find((s) =>
+        s.run?.includes('--kind installers'),
+      )['continue-on-error'] = true;
+    },
+    (w) => {
+      w.jobs['simulation-checks'].steps.find((s) =>
+        s.run?.includes('--kind installers'),
+      ).run += ' || true';
+    },
   ]) {
     const next = structuredClone(workflow);
     mutate(next);
@@ -238,6 +251,30 @@ test('cache caps use exact censuses; dependency growth needs explicit label; tim
   metrics.cache.files = [];
   assert.throws(() => checkRepositoryMetrics(config, metrics, []));
   assert.throws(() => checkRepositoryMetrics(config, repository(), null));
+});
+
+test('repository gate rejects omitted/unknown timeouts and omitted/reclassified profiles', () => {
+  for (const mutate of [
+    (metrics) => {
+      delete metrics.workflow.timeouts.e2e;
+    },
+    (metrics) => {
+      metrics.workflow.timeouts.unknown = 1;
+    },
+    (metrics) => {
+      metrics.workflow.profiles.pop();
+    },
+    (metrics) => {
+      metrics.workflow.profiles.push(metrics.workflow.profiles[0]);
+    },
+    (metrics) => {
+      metrics.workflow.profiles.find((p) => p.typical).typical = false;
+    },
+  ]) {
+    const metrics = repository();
+    mutate(metrics);
+    assert.throws(() => checkRepositoryMetrics(config, metrics, []));
+  }
 });
 
 test('observation projections never turn absent package evidence into zero/cap values', () => {
