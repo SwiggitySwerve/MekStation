@@ -18,8 +18,15 @@ inputs:
     description: Restore the Next.js build and Electron download caches (only jobs that build Next or pack Electron need them)
     required: false
     default: 'true'
+  verify-native-modules:
+    description: Load native SQLite and execute an in-memory query after install or restore
+    required: false
+    default: 'false'
 
 outputs:
+  cache-platform:
+    description: Shared OS-release-specific namespace for native modules and browsers
+    value: ${{ steps.cache-platform.outputs.key }}
   node-modules-cache-hit:
     description: Whether node_modules cache was restored (true means npm ci was skipped)
     value: ${{ steps.node-modules-cache.outputs.cache-hit }}
@@ -34,6 +41,13 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
 
+    - name: Resolve native/browser cache platform
+      id: cache-platform
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+      run: node "$ACTION_PATH/cache-platform.mjs"
+
     - name: Cache node_modules
       id: node-modules-cache
       uses: actions/cache@v5
@@ -41,7 +55,7 @@ runs:
         path: |
           node_modules
           desktop/node_modules
-        key: ${{ runner.os }}-node${{ inputs.node-version }}-modules-${{ hashFiles('package-lock.json', 'desktop/package-lock.json') }}
+        key: ${{ steps.cache-platform.outputs.key }}-node${{ inputs.node-version }}-modules-${{ hashFiles('package-lock.json', 'desktop/package-lock.json') }}
 
     - name: Cache npm downloads (node_modules miss only)
       if: steps.node-modules-cache.outputs.cache-hit != 'true'
@@ -103,3 +117,9 @@ runs:
       if: inputs.fetch-assets == 'true' && steps.mm-data-cache.outputs.cache-hit != 'true'
       shell: bash
       run: npm run fetch:assets
+
+    - name: Verify native SQLite module
+      if: inputs.verify-native-modules == 'true'
+      shell: bash
+      run: |
+        node -e 'const Database = require("better-sqlite3"); const db = new Database(":memory:"); try { if (db.prepare("SELECT 42 AS value").get().value !== 42) throw new Error("Native SQLite query failed"); console.log("Native SQLite load/query passed"); } finally { db.close(); }'
