@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Dict
 
 # The shared table retains #2474's native vehicle-stealth code 22 -> STEALTH.
@@ -24,10 +26,14 @@ SC_TYPES = {"SmallCraft"}
 
 # BLKAeroSpaceFighterFile.java:63-66,186-189; ConvFighter and FixedWingSupport
 # use the same BLK indices, distinct from Aero's runtime location indices.
-AERO_ARMOR_ARCS = ["NOSE", "RIGHT_WING", "LEFT_WING", "AFT"]
+_ARMOR_ARCS = json.loads(
+    (Path(__file__).resolve().parents[2] / 'src/types/formats/blk-aerospace-armor.json')
+    .read_text(encoding='utf-8-sig')
+)
+AERO_ARMOR_ARCS = _ARMOR_ARCS['fighter']
 
 # BLKDropshipFile.java:196-199 uses the same BLK order as small craft.
-LARGE_CRAFT_ARMOR_ARCS = ["NOSE", "RIGHT_SIDE", "LEFT_SIDE", "AFT"]
+LARGE_CRAFT_ARMOR_ARCS = _ARMOR_ARCS['largeCraft']
 SC_ARMOR_ARCS = LARGE_CRAFT_ARMOR_ARCS
 
 # EquipmentType.java:104-105,125-126. Large-craft loaders normalize legacy
