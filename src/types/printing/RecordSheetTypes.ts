@@ -6,6 +6,8 @@
  * @spec openspec/specs/record-sheet-export/spec.md
  */
 
+import type { MechCrewRole, MechCrewType } from '../pilot/MechCrewType';
+
 import { MechLocation } from '../construction/CriticalSlotAllocation';
 import { LOCATION_ABBREVIATION_MAP } from '../construction/MechConfigurationSystem';
 export type {
@@ -181,6 +183,16 @@ export interface IRecordSheetPilot {
   readonly edge?: number;
 }
 
+/** Complete native roster; an absent pilot leaves that slot unassigned. */
+export interface IRecordSheetMechCrew {
+  readonly crewType: MechCrewType;
+  readonly slots: readonly {
+    readonly slotIndex: number;
+    readonly role: MechCrewRole;
+    readonly pilot?: Omit<IRecordSheetPilot, 'edge'>;
+  }[];
+}
+
 /**
  * Printable Special Abilities entry — Phase 5 Wave 3.
  * Mirrors `ISPASectionEntry` from the recordsheet helper but is duplicated
@@ -227,6 +239,7 @@ export interface IMechRecordSheetData {
   readonly heatSinks: IRecordSheetHeatSinks;
   readonly criticals: readonly ILocationCriticals[];
   readonly pilot?: IRecordSheetPilot;
+  readonly crew?: IRecordSheetMechCrew;
   /** Phase 5 Wave 3 — printable Special Abilities block. */
   readonly specialAbilities?: readonly IRecordSheetSPAEntry[];
   readonly mechType: MechSubType;

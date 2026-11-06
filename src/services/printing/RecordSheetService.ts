@@ -17,6 +17,7 @@ import {
 import {
   IRecordSheetData,
   IMechRecordSheetData,
+  MechRecordSheetCrewSchema,
   INonMechRecordSheetData,
   PaperSize,
   PAPER_DIMENSIONS,
@@ -292,6 +293,9 @@ export class RecordSheetService {
       heatSinks: extractHeatSinks(unit),
       criticals: extractCriticals(unit),
       pilot: undefined,
+      ...(unit.crew === undefined
+        ? {}
+        : { crew: MechRecordSheetCrewSchema.parse(unit.crew) }),
       specialAbilities: spaBlock.hasContent ? spaBlock.entries : undefined,
       mechType: getMechType(unit.configuration),
     };
