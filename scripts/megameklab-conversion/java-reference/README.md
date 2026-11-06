@@ -22,3 +22,37 @@ Limits:
 - `tagBV` is the `-1.0` sentinel in this BV mode.
 - Load failures are counted in `summary.json` but do not fail the run; drift, missing pinned sources and unreconciled paths do.
 - Only the declared MTF/BLK formats are exported; the three `.bfs` Battlefield Support files under `vehicles/` are out of scope.
+
+## Construction quantities (`--construction-terms`)
+
+This opt-in adds fields under `construction` and preserves `weightMethods`,
+`valid`, `diagnostics` and every BV field. `weightTerms` is a flat numeric map
+in tons, keyed by native method name. `weightTotal` is native
+`calculateWeightExact`; `weightRemainder` is that total minus the term sum.
+`reconstruction` records `ok`, `absoluteTolerance` (1e-9 t) and
+`relativeTolerance` (1e-12). The runner rejects failed captures or reconstruction.
+The check proves the captured sum, not local construction parity.
+
+Audited sources at MegaMek `48fcb2f64` in `megamek/src/megamek/common/verifier/`:
+`TestEntity.java:1011-1032`, `TestSupportVehicle.java:773-775`,
+`TestAero.java:1099-1118`, `TestSmallCraft.java:837-854`,
+`TestAdvancedAerospace.java:982-1005`, `TestBattleArmor.java:1293-1313`.
+Support fuel is additive; patchwork selects allocated armor. BA keys retain the
+native loop's indices as `trooper.<index>.<method>` and a separate native rounding
+contribution. Controls already include cockpit/gyro; misc already includes its
+native subtotals. Those overlapping methods and design capacity are never added.
+
+Infantry's static `TestInfantry.java:565-702` calculation needs a detailed probe.
+Its `weightTermsStatus` has `status: unsupported` and a reason; `reconstruction.ok`
+is false, and no map or remainder is fabricated. Unsupported rows are listed
+separately in `construction-reconstruction.json` and never counted as passes.
+Row 1.3 remains open for infantry terms and further verifier checks.
+
+`verifierQuantities` provides `{value, unit}` for exact/rounded/design weights
+(`t`), armor (`points`) and critical capacity (`slots`). Failed getters retain
+`{status: failed, reason, unit}` and fail the runner. Zero remains a numeric value.
+`settings` records effective zero-argument `TestEntityOption` values, game year
+and ammo tech level. `verifier-config.json` records the actual XML path/hash;
+this records the input rather than asserting a pinned XML hash. Artifact hashes
+include that receipt, the adapter source/bytecode and reconstruction report.
+Use `--per-term --construction-terms` to retain both BV and construction details.

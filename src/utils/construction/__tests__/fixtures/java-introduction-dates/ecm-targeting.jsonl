@@ -1,0 +1,11 @@
+{"file":"electronics/ecm.json","id":"guardian-ecm","year":2595,"java":"ISGuardianECMSuite","citation":"equipment/MiscType.java:5887,5891,5923-5924"}
+{"file":"electronics/ecm.json","id":"clan-ecm","year":2825,"java":"CLECMSuite","citation":"equipment/MiscType.java:5968,5972,6004-6005"}
+{"file":"electronics/ecm.json","id":"guardianecmsuiteprototype","year":2590,"java":"ISGuardianECMSuitePrototype","citation":"equipment/MiscType.java:5931,5935,5962-5963"}
+{"file":"electronics/ecm.json","id":"ecmsuite","year":2825,"java":"CLECMSuite","citation":"equipment/MiscType.java:5968,5972,6004-6005"}
+{"file":"electronics/ecm.json","id":"thbangelecmsuite","year":3057,"java":"ISTHBAngelECMSuite","citation":"equipment/MiscType.java:6064,6069,6096-6097,6098-6099"}
+{"file":"electronics/ecm.json","id":"electronic-warfare-ew-equipment","year":3015,"java":"ISElectronicWarfareEquipment","citation":"equipment/MiscType.java:6106,6108-6109,6131-6132","identityCitation":"equipment/Sensor.java:98"}
+{"file":"electronics/ecm.json","id":"nova-combined-electronic-warfare-system-cews","year":3060,"java":"NovaCEWS","citation":"equipment/MiscType.java:6187,6193,6219-6220"}
+{"file":"electronics/other.json","id":"targeting-computer","year":3047,"java":"ISTargeting Computer","citation":"equipment/MiscType.java:6795,6799,6824-6825"}
+{"file":"electronics/other.json","id":"clan-targeting-computer","year":2845,"java":"CLTargeting Computer","citation":"equipment/MiscType.java:6832,6836,6861-6862"}
+{"file":"electronics/other.json","id":"tag","year":2593,"java":"ISTAG","citation":"weapons/tag/ISTAG.java:53,56,80-81"}
+{"file":"electronics/other.json","id":"clan-tag","year":2823,"java":"CLTAG","citation":"weapons/tag/CLTAG.java:53,56,81-82"}

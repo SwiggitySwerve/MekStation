@@ -11,6 +11,7 @@ import subprocess
 import sys
 from pathlib import Path
 from java_bv_terms import reconstruction_errors, write_probes
+from java_construction_terms import construction_errors
 
 HERE = Path(__file__).resolve().parent
 RUNTIME_REFERENCE = Path('E:/Projects/Personal/MekStation-wt/_reports/2026-10-28/upstream-crosscheck/implementation/runtime-reference')
@@ -121,18 +122,20 @@ def verify_runtime():
             raise ValueError('Runtime class changed: ' + entry['path'])
 
 
-def run_java(mekfiles, paths, out_dir, name, per_term=False):
+def run_java(mekfiles, paths, out_dir, name, per_term=False, construction_terms=False):
     mekfiles, out_dir = Path(mekfiles).resolve(), out_dir.resolve()
     jdk = Path(json.loads((RUNTIME_REFERENCE / 'build-inputs/toolchain-downloads.json').read_text())[0]['extractedRoot'])
     cp = (RUNTIME_REFERENCE / 'build-inputs/runtime-classpath.txt').read_text().strip()
     classes = out_dir / 'classes'
     classes.mkdir(exist_ok=True)
     probes = write_probes(out_dir) if per_term else []
-    subprocess.run([jdk / 'bin/javac.exe', '--release', '21', '-cp', cp, '-d', classes, HERE / 'java-reference/VehicleAeroReferenceExporter.java', *probes], check=True)
+    subprocess.run([jdk / 'bin/javac.exe', '--release', '21', '-cp', cp, '-d', classes,
+                    HERE / 'java-reference/VehicleAeroReferenceExporter.java', HERE / 'java-reference/ConstructionReference.java', *probes], check=True)
     listing, rows_path = out_dir / (name + '.list.txt'), out_dir / (name + '.jsonl')
     listing.write_text('\n'.join(paths) + '\n', encoding='utf-8')
     with (out_dir / (name + '.stdout.log')).open('wb') as stdout, (out_dir / (name + '.stderr.log')).open('wb') as stderr:
-        subprocess.run([jdk / 'bin/java.exe', '-Xmx2g', '-Djava.awt.headless=true', f'-Dbv.terms={str(per_term).lower()}', '-cp', f'{classes};{cp}', 'VehicleAeroReferenceExporter',
+        subprocess.run([jdk / 'bin/java.exe', '-Xmx2g', '-Djava.awt.headless=true', f'-Dbv.terms={str(per_term).lower()}',
+                        f'-Dconstruction.terms={str(construction_terms).lower()}', '-cp', f'{classes};{cp}', 'VehicleAeroReferenceExporter',
                         mekfiles, listing, rows_path], stdout=stdout, stderr=stderr, check=True,
                        cwd=RUNTIME_REFERENCE / 'build-inputs/megamek/megamek')
     return [json.loads(line) for line in rows_path.read_text(encoding='utf-8').splitlines()]
@@ -144,15 +147,22 @@ def main():
     parser.add_argument('--out-dir', required=True, help='scratch output directory, outside the repo')
     parser.add_argument('--selfcheck-only', action='store_true')
     parser.add_argument('--per-term', action='store_true', help='include audited subclass stage probes (bounded family scope)')
+    parser.add_argument('--construction-terms', action='store_true', help='include audited additive native weights, quantities and verifier settings')
     parser.add_argument('--fixture', help='write the combined reference/extra fixture here')
     args = parser.parse_args()
     out_dir = Path(args.out_dir).resolve()
     out_dir.mkdir(parents=True, exist_ok=True)
     verify_runtime()
-    checked = run_java(args.mekfiles, list(KNOWN_REFERENCES), out_dir, 'selfcheck', args.per_term)
+    extra = {'construction_terms': True} if args.construction_terms else {}
+    if args.construction_terms:
+        config = Path(args.mekfiles) / 'UnitVerifierOptions.xml'
+        (out_dir / 'verifier-config.json').write_text(json.dumps({'path': str(config.resolve()), 'sha256': digest(config)}, indent=2) + '\n')
+    checked = run_java(args.mekfiles, list(KNOWN_REFERENCES), out_dir, 'selfcheck', args.per_term, **extra)
     problems = selfcheck(checked)
     if args.per_term:
         problems += [str(error) for error in reconstruction_errors(checked)]
+    if args.construction_terms:
+        problems += [str(error) for error in construction_errors(checked)]
     (out_dir / 'selfcheck.json').write_text(json.dumps({'pass': not problems, 'problems': problems}, indent=2) + '\n')
     if problems:
         sys.exit('Self-check failed, full run not attempted:\n' + '\n'.join(problems))
@@ -160,7 +170,7 @@ def main():
     if args.selfcheck_only:
         return
     sources = list_sources(args.mekfiles)
-    rows = run_java(args.mekfiles, sources, out_dir, 'full', args.per_term)
+    rows = run_java(args.mekfiles, sources, out_dir, 'full', args.per_term, **extra)
     failures = [r for r in rows if r['status'] != 'loaded']
     manifest = load_manifest_rows()
     drift, missing = source_drift(rows, manifest), missing_sources(sources, manifest)
@@ -182,12 +192,24 @@ def main():
             'byFamily': dict(sorted(collections.Counter(r['concreteFamily'] for r in rows if 'terms' in r.get('battleValue', {})).items()))}, indent=2) + '\n')
         if exceptions:
             sys.exit(f'Per-term reconstruction failed: {len(exceptions)} (see reconstruction.json)')
+    if args.construction_terms:
+        exceptions = construction_errors(rows)
+        unsupported = [{'path': r['path'], **r['construction']['weightTermsStatus']} for r in rows
+                       if 'weightTermsStatus' in r.get('construction', {})]
+        (out_dir / 'construction-reconstruction.json').write_text(json.dumps({'exceptions': exceptions, 'unsupported': unsupported}, indent=2) + '\n')
+        if exceptions:
+            sys.exit(f'Construction reconstruction failed: {len(exceptions)} (see construction-reconstruction.json)')
     if drift or missing or not summary['pathsReconciled']:
         sys.exit(f'Corpus run does not match the pinned sources ({len(drift)} drifted, {len(missing)} missing, '
                  f'paths reconciled: {summary["pathsReconciled"]}):\n' + '\n'.join((drift + missing)[:20]))
     hashes = {n: digest(out_dir / n) for n in ('full.jsonl', 'full.list.txt', 'selfcheck.jsonl', 'selfcheck.json', 'summary.json', 'failures.json', 'classes/VehicleAeroReferenceExporter.class')}
     hashes['VehicleAeroReferenceExporter.java'] = digest(HERE / 'java-reference/VehicleAeroReferenceExporter.java')
     hashes['java_reference_exporter.py'] = digest(Path(__file__))
+    if args.construction_terms:
+        for path in (HERE / 'java-reference/ConstructionReference.java', HERE / 'java_construction_terms.py',
+                     out_dir / 'classes/ConstructionReference.class', out_dir / 'verifier-config.json',
+                     out_dir / 'construction-reconstruction.json'):
+            hashes[path.name] = digest(path)
     for name in ('runtime-dependencies.json', 'compiled-runtime-files.json'):
         hashes[name] = digest(RUNTIME_REFERENCE / 'pinned-results' / name)
     if args.per_term:

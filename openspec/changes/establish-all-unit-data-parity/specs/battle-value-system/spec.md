@@ -1,5 +1,54 @@
 ## ADDED Requirements
 
+### Requirement: Mech physical NARC availability diagnostics
+
+The Mech trace SHALL expose `ammo.available.NARC:1` from actual physical source
+bins recognized by existing public native-bin and ammo-resolution owners.
+Only supported NARC bins with positive shots and a genuinely resolved BV of
+zero SHALL supply optional diagnostic facts. The trace SHALL reuse existing
+public grouping and addition owners, preserving original arithmetic ammo lists,
+pools, quantities, explosivity, modifiers, computed values and existing nonzero
+available entries. Missing facts SHALL remain absent; runtime projection SHALL
+NOT obtain values from references or launcher presence. iNARC and other ammo
+groups SHALL retain their existing behavior.
+
+#### Scenario: Genuine zero differs from an absent bin
+
+- **GIVEN** an installed physical ISNarc Pods bin whose public owners resolve six shots and BV 0
+- **WHEN** Mech diagnostic availability is projected
+- **THEN** `ammo.available.NARC:1` SHALL be present with the actual resolved value 0
+- **AND** the original arithmetic ammo inputs, pools and calculated BV SHALL remain unchanged
+
+#### Scenario: Unavailable or excluded source facts
+
+- **GIVEN** no physical bin, an unresolved token, an empty bin, intrinsic one-shot ammo without a physical source bin, or an iNARC bin
+- **WHEN** NARC diagnostic source facts are collected
+- **THEN** none SHALL invent a NARC available value or an optional source fact
+- **AND** an existing nonzero available value SHALL NOT be overwritten by an added genuine zero-valued bin
+
+### Requirement: Mech torpedo cap diagnostic identity
+
+The Mech trace SHALL project raw torpedo launcher caps from actual admitted,
+resolved source mounts using the existing public ammo cap owner and its native
+type/rack identity. It SHALL preserve the legacy arithmetic weapon ids, cap
+pools, ammunition values, modifiers and totals. Optional diagnostic source facts
+SHALL follow existing quantity expansion, mount order, one-shot exclusion and
+pre-modifier values. Absent or unresolved facts SHALL NOT become zero values.
+
+#### Scenario: Torpedo source identity and unchanged arithmetic
+
+- **GIVEN** the pinned Javelin JVN-10U with two SRT 6 mounts, each listed at 59 BV
+- **WHEN** native diagnostic terms are projected
+- **THEN** `ammo.cap.SRM_TORPEDO:6` SHALL equal 118 through the existing cap owner
+- **AND** the arithmetic `ammoPools.cap.SRM:6`, available ammo 14 and all computed BV values SHALL remain unchanged
+
+#### Scenario: Mixed sources and optional facts
+
+- **GIVEN** one ordinary SRM 6 and one SRT 6 with listed BV 59 each
+- **WHEN** diagnostic caps are projected
+- **THEN** the native SRM 6 and SRT 6 diagnostic caps SHALL each equal 59 while the existing arithmetic missile pool remains 118
+- **AND** a unit without an admitted resolved torpedo SHALL retain absent diagnostic source facts and its original cap projection
+
 ### Requirement: Native machine gun array critical links
 
 The shared equipment BV owner SHALL link each array in mounted order to at
