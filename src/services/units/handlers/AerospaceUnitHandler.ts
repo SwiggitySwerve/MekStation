@@ -40,16 +40,6 @@ import {
 } from './unitHandlerShared';
 
 // ============================================================================
-// Constants
-// ============================================================================
-
-/**
- * Aerospace armor arc order for array parsing
- * BLK format: Nose, Left Wing, Right Wing, Aft
- */
-const _AEROSPACE_ARMOR_ARCS = ['nose', 'leftWing', 'rightWing', 'aft'] as const;
-
-// ============================================================================
 // Aerospace Unit Handler
 // ============================================================================
 
