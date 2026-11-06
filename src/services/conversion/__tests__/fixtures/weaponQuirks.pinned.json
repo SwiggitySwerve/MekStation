@@ -1,0 +1,371 @@
+{
+  "mmDataPin": "50f7efef0c9f775b0258f8283525ed4f906e1985",
+  "mtf": {
+    "names": [
+      "accurate",
+      "ammo_feed_problems",
+      "direct_torso_mount",
+      "em_interference",
+      "exposed_linkage",
+      "fast_reload",
+      "imp_cooling",
+      "inaccurate",
+      "jettison_capable",
+      "mod_weapons",
+      "no_cooling",
+      "poor_cooling",
+      "stable_weapon",
+      "static_feed"
+    ],
+    "locations": ["CT", "HD", "LA", "LL", "LT", "RA", "RL", "RT"],
+    "slots": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    "lines": [
+      [
+        "weaponquirk:exposed_linkage:RT:0:PPC",
+        "RT:0:PPC",
+        "exposed_linkage",
+        "meks/3025 CCE/Heavy/Marauder MAD-3J.mtf",
+        34
+      ],
+      [
+        "weaponquirk:imp_cooling:RA:3:Autocannon/10",
+        "RA:3:Autocannon/10",
+        "imp_cooling",
+        "meks/3025 CCE/Medium/Enforcer ENF-5A Enforcer II.mtf",
+        32
+      ],
+      [
+        "weaponquirk:stable_weapon:LL:4:SRM 4",
+        "LL:4:SRM 4",
+        "stable_weapon",
+        "meks/3039u/Crusader CRD-3D.mtf",
+        36
+      ],
+      [
+        "weaponquirk:mod_weapons:LT:1:SRM 6",
+        "LT:1:SRM 6",
+        "mod_weapons",
+        "meks/3039u/Hatamoto-Chi HTM-26T.mtf",
+        34
+      ],
+      [
+        "weaponquirk:direct_torso_mount:CT:10:ISERMediumLaser",
+        "CT:10:ISERMediumLaser",
+        "direct_torso_mount",
+        "meks/3067/Osiris OSR-3D.mtf",
+        33
+      ],
+      [
+        "weaponquirk:static_feed:LA:2:CLHAG40",
+        "LA:2:CLHAG40",
+        "static_feed",
+        "meks/3075/Cygnus 2.mtf",
+        33
+      ],
+      [
+        "weaponquirk:stable_weapon:RL:5:SRM 4",
+        "RL:5:SRM 4",
+        "stable_weapon",
+        "meks/3039u/Crusader CRD-3L.mtf",
+        37
+      ],
+      [
+        "weaponquirk:fast_reload:RT:6:ISMML5",
+        "RT:6:ISMML5",
+        "fast_reload",
+        "meks/3050U/Trebuchet TBT-8B.mtf",
+        33
+      ],
+      [
+        "weaponquirk:accurate:HD:3:ISTAG",
+        "HD:3:ISTAG",
+        "accurate",
+        "meks/3055U/Hitman HM-1.mtf",
+        33
+      ],
+      [
+        "weaponquirk:jettison_capable:RA:7:ISLargePulseLaser",
+        "RA:7:ISLargePulseLaser",
+        "jettison_capable",
+        "meks/3085u/Phoenix/Griffin GRF-1DS.mtf",
+        37
+      ],
+      [
+        "weaponquirk:em_interference:CT:8:Heavy PPC",
+        "CT:8:Heavy PPC",
+        "em_interference",
+        "meks/Rec Guides ilClan/Vol 9/Inferno INF-NO.mtf",
+        35
+      ],
+      [
+        "weaponquirk:ammo_feed_problems:RA:3:Autocannon/10",
+        "RA:3:Autocannon/10",
+        "ammo_feed_problems",
+        "meks/3025 CCE/Medium/Enforcer ENF-5A Enforcer II.mtf",
+        33
+      ],
+      [
+        "weaponquirk:stable_weapon:RA:9:CLERMediumLaser",
+        "RA:9:CLERMediumLaser",
+        "stable_weapon",
+        "meks/3050U/Man O' War (Gargoyle) C.mtf",
+        39
+      ],
+      [
+        "weaponquirk:mod_weapons:CT:11:ISTAG",
+        "CT:11:ISTAG",
+        "mod_weapons",
+        "meks/3050U/Mercury MCY-104.mtf",
+        35
+      ],
+      [
+        "weaponquirk:no_cooling:RA:5:MRM 40",
+        "RA:5:MRM 40",
+        "no_cooling",
+        "meks/3058Uu/O-Bakemono OBK-M12.mtf",
+        34
+      ],
+      [
+        "weaponquirk:poor_cooling:RA:3:ISERPPC",
+        "RA:3:ISERPPC",
+        "poor_cooling",
+        "meks/3145/Kurita/Dragon II DRG-11K.mtf",
+        33
+      ],
+      [
+        "weaponquirk:inaccurate:LA:5:ISERMediumLaser",
+        "LA:5:ISERMediumLaser",
+        "inaccurate",
+        "meks/XTRs/Republic III/Osprey OSP-36.mtf",
+        34
+      ],
+      [
+        "weaponquirk:fast_reload:RA:3:Autocannon/10",
+        "RA:3:Autocannon/10",
+        "fast_reload",
+        "meks/3025 CCE/Medium/Enforcer ENF-5A Enforcer II.mtf",
+        34
+      ],
+      [
+        "weaponquirk:exposed_linkage:LA:7:CLERPPC",
+        "LA:7:CLERPPC",
+        "exposed_linkage",
+        "meks/3150/Shrike Black Rose.mtf",
+        35
+      ],
+      [
+        "weaponquirk:exposed_linkage:LA:9:CLERPPC",
+        "LA:9:CLERPPC",
+        "exposed_linkage",
+        "meks/3150/Shrike Black Rose.mtf",
+        36
+      ]
+    ],
+    "sources": {
+      "meks/3025 CCE/Heavy/Marauder MAD-3J.mtf": "b29496e5caf978bd7d9c62efd0c4303a1dad6aebae20c5377a92553a9e8acdf7",
+      "meks/3025 CCE/Medium/Enforcer ENF-5A Enforcer II.mtf": "d8014529c311d3c177302e8db4c799e24ae9f4959fc1344c258edd735c8cb461",
+      "meks/3039u/Crusader CRD-3D.mtf": "28505d89b4954fef363efecd05860cd8c88eceb1533c1b4f8670d67dfb285d57",
+      "meks/3039u/Hatamoto-Chi HTM-26T.mtf": "5d3243a02a32016507faf477f098945ae78791e37f17503a9a2ec66a68a53880",
+      "meks/3067/Osiris OSR-3D.mtf": "4d7ab4994d23a83589c6f90ce8275c4a3b748d994b7165b2d62d29b4cc33ff30",
+      "meks/3075/Cygnus 2.mtf": "d76fe590c271a203a9f2e5c3cce3204cb68acf9f3c683e23330e0bba4369168b",
+      "meks/3039u/Crusader CRD-3L.mtf": "0906af664d3a019d04b2b092a5d8dac17d93b896d9cdbe7751bcf8e2b52c615e",
+      "meks/3050U/Trebuchet TBT-8B.mtf": "347baecd090c76c0c88e4867cb02e4b6ff16fb670ec2c1ceb85877c315d67e44",
+      "meks/3055U/Hitman HM-1.mtf": "6e132d2351b923f6e8172bcf3a47743b1fc90947e37f08a82b85fd1e62d4a5bb",
+      "meks/3085u/Phoenix/Griffin GRF-1DS.mtf": "bbcf276f5e569640637c87cad4822f412ea2a76b551240374beefb547b39fd8f",
+      "meks/Rec Guides ilClan/Vol 9/Inferno INF-NO.mtf": "b2069875774cca80873cce0f94ad26d085158cd34974b9b38f413ef1f784607e",
+      "meks/3050U/Man O' War (Gargoyle) C.mtf": "0b5ee6a148899c50cdfc1594def2db475c1d8f4e8e518d7c3fe2443402a802ba",
+      "meks/3050U/Mercury MCY-104.mtf": "17947f89e7a12faae1fc881593247043df36164929561ce49ddf921a829b8fee",
+      "meks/3058Uu/O-Bakemono OBK-M12.mtf": "88adf5589ce918f9da059e9a70f490b23f3f2d379448b143afb31bc454e5f908",
+      "meks/3145/Kurita/Dragon II DRG-11K.mtf": "42c3eacd686951198d7578df122961974b770c1b51f93a4acbb424f91399e263",
+      "meks/XTRs/Republic III/Osprey OSP-36.mtf": "c0db140c6f23156a88a351780249560f1b9c4c8965133938615a27524efb63fc",
+      "meks/3150/Shrike Black Rose.mtf": "29caa5f02eef08d80b451d5eacbc1b7a9659379aca647d78fb21936ae4d218d1"
+    }
+  },
+  "blk": {
+    "names": [
+      "accurate",
+      "ammo_feed_problems",
+      "exposed_linkage",
+      "imp_cooling",
+      "inaccurate",
+      "mod_weapons",
+      "no_cooling"
+    ],
+    "locations": [
+      "AFT",
+      "FR",
+      "LS",
+      "LWG",
+      "NOS",
+      "Point",
+      "RR",
+      "RS",
+      "RWG",
+      "Squad",
+      "TU"
+    ],
+    "slots": [0, 1, 2, 3, 4, 5, 6, 7, 9, 11],
+    "lines": [
+      [
+        "accurate:Squad:1:CLBALightMG",
+        "Squad:1:CLBALightMG",
+        "accurate",
+        "battlearmor/3145/Davion/Fusilier BA (Sqd4).blk",
+        52
+      ],
+      [
+        "mod_weapons:NOS:7:AC Bay",
+        "NOS:7:AC Bay",
+        "mod_weapons",
+        "dropships/TRO3145/Merc/Nagasawa.blk",
+        58
+      ],
+      [
+        "no_cooling:AFT:0:ISLaserAntiMissileSystem",
+        "AFT:0:ISLaserAntiMissileSystem",
+        "no_cooling",
+        "fighters/ProtoTypes/Suzaku SU-14.blk",
+        56
+      ],
+      [
+        "ammo_feed_problems:TU:2:CLMediumChemicalLaser",
+        "TU:2:CLMediumChemicalLaser",
+        "ammo_feed_problems",
+        "vehicles/3145/Marik/Red Kite Attack VTOL.blk",
+        60
+      ],
+      [
+        "accurate:Point:3:CLBAERMicroLaser",
+        "Point:3:CLBAERMicroLaser",
+        "accurate",
+        "battlearmor/ProtoTypes/Sylph BA Enhanced (Sqd4).blk",
+        56
+      ],
+      [
+        "mod_weapons:LS:6:LRM Bay",
+        "LS:6:LRM Bay",
+        "mod_weapons",
+        "dropships/TRO3145/Merc/Nagasawa.blk",
+        60
+      ],
+      [
+        "mod_weapons:RS:11:AMS Bay",
+        "RS:11:AMS Bay",
+        "mod_weapons",
+        "dropships/TRO3145/Merc/Nagasawa.blk",
+        64
+      ],
+      [
+        "mod_weapons:FR:4:Small Laser",
+        "FR:4:Small Laser",
+        "mod_weapons",
+        "vehicles/3058Uu/Bandit Hovercraft G.blk",
+        56
+      ],
+      [
+        "exposed_linkage:RR:0:Machine Gun",
+        "RR:0:Machine Gun",
+        "exposed_linkage",
+        "vehicles/3145/Republic/Shandra Advanced Scout Vehicle (Original).blk",
+        57
+      ],
+      [
+        "mod_weapons:AFT:5:Pulse Laser Bay",
+        "AFT:5:Pulse Laser Bay",
+        "mod_weapons",
+        "dropships/TRO3145/Merc/Nagasawa.blk",
+        66
+      ],
+      [
+        "mod_weapons:AFT:9:AMS Bay",
+        "AFT:9:AMS Bay",
+        "mod_weapons",
+        "dropships/TRO3145/Merc/Nagasawa.blk",
+        67
+      ],
+      [
+        "mod_weapons:LWG:0:CLERMediumLaser",
+        "LWG:0:CLERMediumLaser",
+        "mod_weapons",
+        "fighters/ProtoTypes/Corax C.blk",
+        57
+      ],
+      [
+        "mod_weapons:RWG:0:CLERMediumLaser",
+        "RWG:0:CLERMediumLaser",
+        "mod_weapons",
+        "fighters/ProtoTypes/Corax C.blk",
+        58
+      ],
+      [
+        "imp_cooling:LS:0:Large Laser",
+        "LS:0:Large Laser",
+        "imp_cooling",
+        "smallcraft/XTRO/Primitives IV/Intrepid Assault Craft (2331).blk",
+        57
+      ],
+      [
+        "inaccurate:FR:0:Machine Gun",
+        "FR:0:Machine Gun",
+        "inaccurate",
+        "vehicles/ProtoTypes/Phalanx Support Tank (Production).blk",
+        57
+      ],
+      [
+        "mod_weapons:NOS:0:ISUltraAC5",
+        "NOS:0:ISUltraAC5",
+        "mod_weapons",
+        "fighters/XTRs/Succession Wars/Starfire SF-1X.blk",
+        57
+      ],
+      [
+        "mod_weapons:LWG:0:Medium Laser",
+        "LWG:0:Medium Laser",
+        "mod_weapons",
+        "fighters/XTRs/Succession Wars/Starfire SF-1X.blk",
+        58
+      ],
+      [
+        "mod_weapons:LWG:1:Medium Laser",
+        "LWG:1:Medium Laser",
+        "mod_weapons",
+        "fighters/XTRs/Succession Wars/Starfire SF-1X.blk",
+        59
+      ],
+      [
+        "mod_weapons:RWG:0:Medium Laser",
+        "RWG:0:Medium Laser",
+        "mod_weapons",
+        "fighters/XTRs/Succession Wars/Starfire SF-1X.blk",
+        60
+      ],
+      [
+        "mod_weapons:RWG:1:Medium Laser",
+        "RWG:1:Medium Laser",
+        "mod_weapons",
+        "fighters/XTRs/Succession Wars/Starfire SF-1X.blk",
+        61
+      ],
+      [
+        "mod_weapons:AFT:0:Small Laser",
+        "AFT:0:Small Laser",
+        "mod_weapons",
+        "fighters/XTRs/Succession Wars/Starfire SF-1X.blk",
+        62
+      ]
+    ],
+    "sources": {
+      "battlearmor/3145/Davion/Fusilier BA (Sqd4).blk": "f68a411f5db407fb92752377de775a6ff89f7e743aaa8672b186f9f0d7ffd5b4",
+      "dropships/TRO3145/Merc/Nagasawa.blk": "c479c68205809472b7fd972b41ba73b3df128ac6dab1caa72cad9689818b0b26",
+      "fighters/ProtoTypes/Suzaku SU-14.blk": "695af902dbcf992a2965518f98ab799bbfe974100fd89028341f8b343386427b",
+      "vehicles/3145/Marik/Red Kite Attack VTOL.blk": "4cb7756499fd2447f462ab4bb42255bfb57b46302672184dc78bf5b66cc19230",
+      "battlearmor/ProtoTypes/Sylph BA Enhanced (Sqd4).blk": "16eb5aa365c2fd560d800ee15884796db5b1263dba30a78745869d1ec4acc43c",
+      "vehicles/3058Uu/Bandit Hovercraft G.blk": "598b5c0838ea0bb96ee708f5bf4e77f0d5ae54fa203cb703cdec11d25ba8c61f",
+      "vehicles/3145/Republic/Shandra Advanced Scout Vehicle (Original).blk": "dfd22f3a6a5875ac7a150d792b4d2d1db17589989c2ecf743e7905376d8af51a",
+      "fighters/ProtoTypes/Corax C.blk": "a81459bf7eebdc693c1f78057c5d8b66e8c1e582064ec3f410e3834ee05bd134",
+      "smallcraft/XTRO/Primitives IV/Intrepid Assault Craft (2331).blk": "4d5e9aa2841d6c24a0c8ee79412d4d2db629d5b6737e466c9f77406ef48574d5",
+      "vehicles/ProtoTypes/Phalanx Support Tank (Production).blk": "871aa5863c5f43d35685b36d6441a6096bfe3c831535e562004f2662e0b5cad1",
+      "fighters/XTRs/Succession Wars/Starfire SF-1X.blk": "3b7d906f453cc3d53559f94dc6926fd6ae37fef26056abfae68442be53b66fb4"
+    }
+  }
+}

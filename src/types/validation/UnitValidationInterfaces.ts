@@ -8,6 +8,7 @@
  * @spec openspec/specs/unit-validation-framework/spec.md
  */
 
+import type { TechBaseMode } from '../construction/TechBaseConfiguration';
 import type { IEquipmentItem } from '../equipment/EquipmentItem';
 import type { IMountedEquipmentInstance } from '../equipment/MountedEquipment';
 
@@ -80,6 +81,8 @@ export interface IValidatableUnit {
   readonly gyroType?: string;
   readonly cockpitType?: string;
   readonly internalStructureType?: string;
+  readonly armorType?: string;
+  readonly techBaseMode?: TechBaseMode;
   readonly heatSinkCount?: number;
   readonly heatSinkType?: string;
   readonly totalArmorPoints?: number;

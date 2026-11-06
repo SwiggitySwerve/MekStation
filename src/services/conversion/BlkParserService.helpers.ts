@@ -1,3 +1,5 @@
+import { parseBlkWeaponQuirkEntries } from '@/utils/serialization/weaponQuirkParsing';
+
 import {
   BLK_EQUIPMENT_BLOCK_TAGS,
   BLK_UNIT_TYPE_MAP,
@@ -204,16 +206,7 @@ export function parseBlkWeaponQuirks(
 ): Readonly<Record<string, readonly string[]>> | undefined {
   if (value === undefined) return undefined;
   const lines = Array.isArray(value) ? value : splitBlkLines(value);
-  const result: Record<string, string[]> = {};
-  for (const entry of lines) {
-    const colonIdx = entry.indexOf(':');
-    if (colonIdx < 0) continue;
-    const quirkName = entry.substring(0, colonIdx).trim();
-    const weaponName = entry.substring(colonIdx + 1).trim();
-    if (!quirkName || !weaponName) continue;
-    result[weaponName] ??= [];
-    result[weaponName].push(quirkName);
-  }
+  const result = parseBlkWeaponQuirkEntries(lines);
   return Object.keys(result).length > 0 ? result : undefined;
 }
 

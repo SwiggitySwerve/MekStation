@@ -34,6 +34,7 @@ import {
   createEmptyRuleResult,
   addRuleDiagnostic,
 } from '../ruleResults';
+import { BattleMechIntroductionYear } from './BattleMechIntroductionYear';
 
 const BATTLE_MECH_RULES_CONSTRUCTION_CATEGORY = ValidationCategory.CONSTRUCTION;
 const BATTLE_MECH_RULES_MOVEMENT_CATEGORY = ValidationCategory.MOVEMENT;
@@ -344,4 +345,5 @@ export const BATTLEMECH_RULES: readonly IUnitValidationRuleDefinition[] = [
   BattleMechHeadRestrictions,
   BattleMechCTRequirements,
   BattleMechXLEngineSlots,
+  BattleMechIntroductionYear,
 ];
