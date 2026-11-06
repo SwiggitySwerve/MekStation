@@ -623,6 +623,12 @@
       "location": "coordinator-archive",
       "sha256": "a48e72cba14f507629fcba95fed6045777e08cac108b5ca8670102ec1646fb59",
       "bytes": 1097
+    },
+    "2932-p7-findings": {
+      "path": "normal-work/G6-flake-register/2932-library-tab-timeout/P7-findings.json",
+      "location": "coordinator-archive",
+      "sha256": "3e29548c0e74637f912aba0516e3665a10f4aa779a7f21030765a26e3095797e",
+      "bytes": 1803
     }
   },
   "entries": [
@@ -1751,9 +1757,9 @@
       "state": "open; awaiting Root-routed same-head rerun evidence",
       "test": "e2e/customizer-library-open.spec.ts:1065 — library flows1440 > fighter: edit, save, reload, reopen and print",
       "environment": "2932-chromium",
-      "summary": "Native result fails in tabTo at line781: locator.evaluate waits10000ms for the exact Close Flow Shilone Long Label Layout Check1793960765585-0 Saved1440 button. Root suspects a flake; a single failure does not confirm intermittency or prove the date changes unrelated.",
+      "summary": "The locator timeout is downstream of a name mismatch: the retained error-context has tab/button ShiloneFlow Shilone Long Label Layout Check1793960765585-0 Saved1440 (snapshot refs e17/e20), while the test waits for Close Flow Shilone... . P7 reports old-prefix retention and says the160-Tab bound was not hit. Exact lost-selection/form-event cause remains unknown without trace; intermittency remains unconfirmed.",
       "owner": "P7-editors — diagnosis and smallest justified robustness follow-up; Root alone owns rerun/merge; G6 owns capture/register",
-      "nextStep": "P7 reuses retained raw log/native JSON/error-context/screenshot and investigates the160-Tab loop: an absent target stalls target.evaluate for10s before another Tab press. Establish why the locator was absent after reload and select the smallest justified fix. Root routes same-head rerun evidence separately; G6 must not rerun/poll or claim intermittency before that receipt.",
+      "nextStep": "P7 owns behavior-preserving keyboard helper extraction, then an exact-value guard after keyboard insertText before blur with a bounded DOM fault regression reproducing appended prefix. Scope only library spec and e2e/helpers/keyboardNavigation.ts; no direct click/focus, timeout/bound increases,retry,suppression or product-semantics change. Root retains rerun and publication disposition; G6 records evidence only.",
       "observations": [
         {
           "runId": 42201733032,
@@ -1782,14 +1788,37 @@
         "2932-log",
         "2932-library-native",
         "2932-artifact-custody",
-        "2932-context"
+        "2932-context",
+        "2932-p7-findings"
       ],
       "missingEvidence": [
         "Same-head rerun result/attempt/job to confirm or reject intermittency; Root owns routing.",
-        "Cause of absent locator is unknown; helper wait structure alone does not establish cause.",
         "No trace was attached by the failed native result or found in the three retained artifacts.",
-        "Root last25PRruns/no-other-hit/date-only hypothesis was not independently re-audited by G6."
-      ]
+        "Root last25PRruns/no-other-hit/date-only hypothesis was not independently re-audited by G6.",
+        "Why selection/form interaction retained the old Shilone prefix is unresolved; absent trace prevents exact event reconstruction."
+      ],
+      "diagnosticFinding": {
+        "recordedAtUtc": "2026-11-06T10:44:22.651721+00:00",
+        "reportedBy": "P7 via Root-routed instruction",
+        "source": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-30\\claude-coordinator\\normal-work\\G6-flake-register\\2932-library-tab-timeout\\artifacts\\e2e-report-2\\test-results\\library\\customizer-library-open-li-4e256-reopen-and-print-customizer-chromium\\error-context.md",
+        "sourceSha256": "bde70180871e0eea4904ebb2d11253367e7caf7f98fe6bb615d741ed8b3ae195",
+        "expectedCloseName": "Close Flow Shilone Long Label Layout Check 1793960765585-0 Saved 1440",
+        "observedCloseName": "Close ShiloneFlow Shilone Long Label Layout Check 1793960765585-0 Saved 1440",
+        "tabSnapshotRef": "e17",
+        "closeSnapshotRef": "e20",
+        "tabFileLine": 14,
+        "closeFileLine": 17,
+        "verifiedByG6": "Existing retained error-context directly contains the prefixed tab/button names; expected close name is absent. No new downloads.",
+        "screenshot": "P7 reports retained screenshot confirms old-prefix retention; G6 does not claim a separate image inspection.",
+        "interpretation": "P7 identifies the evaluate wait as downstream of mismatched saved name;160-Tab bound was not hit. Exact cause of lost selection/form event remains unknown without trace.",
+        "plannedP7Scope": [
+          "e2e/customizer-library-open.spec.ts",
+          "e2e/helpers/keyboardNavigation.ts"
+        ],
+        "plannedP7Sequence": "Behavior-preserving helper extraction, then exact-value guard after keyboard insertText before blur with bounded DOM fault regression reproducing appended prefix.",
+        "constraints": "No direct click/focus, timeout/bound increase,retry,suppression or product-semantics change; Root owns publication disposition.",
+        "intermittency": "unconfirmed pending Root-routed same-head rerun evidence"
+      }
     }
   ],
   "addenda": [
@@ -1811,6 +1840,11 @@
       "incident": "G6-041",
       "scope": "Finite Root request after PhaseG completion; one fixed failed-job metadata/log capture and three relevant artifacts, no polling/rerun/cleanup. P7 owns diagnosis; Root owns rerun and merge.",
       "priorReceipts": "All sealed/history/U89 receipts remain unchanged. New evidence is under normal-work/G6-flake-register/2932-library-tab-timeout/."
+    },
+    {
+      "addedAtUtc": "2026-11-06T10:44:22.651721+00:00",
+      "incident": "G6-041",
+      "scope": "P7 diagnosis: observed prefixed name in retained context; bounded helper/guard follow-up planned. Intermittency still unconfirmed; no G6 source changes."
     }
   ]
 }
