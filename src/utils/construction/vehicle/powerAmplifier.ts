@@ -20,6 +20,14 @@ import { ceilToHalfTon } from '@/utils/physical/weightUtils';
 
 import { NON_FUSION_ENGINE_TYPES } from './engine';
 
+// TestTank.java:748-749 at 48fcb2f6 excludes the VehicleFlamerWeapon class.
+// ISVehicleFlamer.java:52, ISHeavyFlamer.java:54, CLHeavyFlamer.java:54.
+const VEHICLE_FLAMER_IDS = new Set([
+  'vehicle-flamer',
+  'heavy-flamer',
+  'clheavyflamer-registry',
+]);
+
 // =============================================================================
 // Power Amplifier Weight
 // =============================================================================
@@ -60,11 +68,20 @@ export function requiresPowerAmplifiers(
  * (MegaMek TestTank.getWeightPowerAmp).
  */
 export function isPowerAmplifierEnergyWeapon(
-  item: Pick<IEquipmentItem, 'category' | 'special'>,
+  item: Pick<IEquipmentItem, 'category' | 'special'> &
+    Partial<Pick<IEquipmentItem, 'id' | 'name'>>,
 ): boolean {
+  // Heat-only consumers may have a native name without an equipment id.
+  const vehicleFlamer =
+    item.id !== undefined
+      ? VEHICLE_FLAMER_IDS.has(item.id)
+      : /^(?:vehicleflamer|flamervehicle|heavyflamer)$/.test(
+          item.name?.toLowerCase().replace(/[^a-z0-9]/g, '') ?? '',
+        );
   return (
     item.category === EquipmentCategory.ENERGY_WEAPON &&
-    !item.special?.includes('Requires ammo')
+    !item.special?.includes('Requires ammo') &&
+    !vehicleFlamer
   );
 }
 

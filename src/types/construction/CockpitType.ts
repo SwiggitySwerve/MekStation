@@ -22,10 +22,12 @@ export enum CockpitType {
   SUPER_HEAVY = 'Superheavy',
   INTERFACE = 'Interface',
   VRRP = 'Virtual Reality Piloting Pod',
+  PRIMITIVE_INDUSTRIAL = 'Primitive Industrial',
 }
 
 export const INTERFACE_COCKPIT_SOURCE_TAG = 'INTERFACE';
 export const VRRP_COCKPIT_SOURCE_TAG = 'VRRP';
+export const PRIMITIVE_INDUSTRIAL_COCKPIT_SOURCE_TAG = 'PRIMITIVE_INDUSTRIAL';
 
 /**
  * Fixed cockpit system positions (0-based) for the selected cockpit, shared by
@@ -91,6 +93,8 @@ export interface CockpitDefinition {
   readonly otherSlots: number;
   /** Introduction year */
   readonly introductionYear: number;
+  /** Separate Clan date when the same cockpit advances later on that side. */
+  readonly clanIntroductionYear?: number;
 }
 
 /**
@@ -115,7 +119,9 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
     weight: 2,
     headSlots: 4, // life support (1), sensors (2), cockpit (1)
     otherSlots: 0,
-    introductionYear: 3067,
+    // 48fcb2f64 Mek.java:3730-3739: approximate IS prototype; Clan production.
+    introductionYear: 3055,
+    clanIntroductionYear: 3080,
   },
   {
     type: CockpitType.COMMAND_CONSOLE,
@@ -125,7 +131,7 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
     weight: 6,
     headSlots: 6, // life support (2), sensors (2), cockpit (1), console (1)
     otherSlots: 0,
-    introductionYear: 3050,
+    introductionYear: 2620, // 48fcb2f64 Mek.java:3740-3749 (2625, approximate).
   },
   {
     type: CockpitType.TORSO_MOUNTED,
@@ -191,6 +197,18 @@ export const COCKPIT_DEFINITIONS: readonly CockpitDefinition[] = [
     otherSlots: 4,
     introductionYear: 3052,
   },
+  {
+    // 48fcb2f64 Mek.java:3785-3793; TestMek.java:238-242.
+    type: CockpitType.PRIMITIVE_INDUSTRIAL,
+    sourceTag: PRIMITIVE_INDUSTRIAL_COCKPIT_SOURCE_TAG,
+    name: 'Primitive Industrial Cockpit',
+    techBase: TechBase.INNER_SPHERE,
+    rulesLevel: RulesLevel.ADVANCED,
+    weight: 5,
+    headSlots: 5,
+    otherSlots: 0,
+    introductionYear: 2295,
+  },
 ] as const;
 
 /** Shared native identity; legacy exact/fuzzy aliases retain their guards. */
@@ -200,7 +218,8 @@ export function getNativeCockpitType(source: string): CockpitType | undefined {
     (definition) =>
       definition.sourceTag !== undefined &&
       (definition.sourceTag === normalized ||
-        definition.type.toUpperCase() === normalized),
+        definition.type.toUpperCase() === normalized ||
+        definition.name.toUpperCase() === normalized),
   )?.type;
 }
 
@@ -233,4 +252,21 @@ export function getCockpitDefinition(
   type: CockpitType,
 ): CockpitDefinition | undefined {
   return COCKPIT_DEFINITIONS.find((def) => def.type === type);
+}
+
+/** TestEntity.java:1565-1569: unit side, or earliest introduction for mixed tech. */
+export function getCockpitIntroductionYear(
+  type: CockpitType,
+  techBase: TechBase,
+  mixedTech = false,
+): number | undefined {
+  const definition = getCockpitDefinition(type);
+  if (!definition) return undefined;
+  const clanYear =
+    definition.clanIntroductionYear ?? definition.introductionYear;
+  return mixedTech
+    ? Math.min(definition.introductionYear, clanYear)
+    : techBase === TechBase.CLAN
+      ? clanYear
+      : definition.introductionYear;
 }
