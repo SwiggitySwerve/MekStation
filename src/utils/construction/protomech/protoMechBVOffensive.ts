@@ -47,7 +47,10 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
 
   const weaponsForAmmo: Array<{ id: string; bv: number }> = [];
   const ammoForCap: Array<{ id: string; bv: number; weaponType: string }> = [];
-  const ammoMounts: string[] = [];
+  const ammoMounts: Array<{
+    readonly equipmentIndex: number;
+    readonly mount: IProtoMechUnit['equipment'][number];
+  }> = [];
   const weaponMountBV: IProtoMechBVWeaponMount[] = [];
   const offensiveEquipmentMountBV: IProtoMechBVMountValue[] = [];
 
@@ -99,12 +102,13 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
       continue;
     }
 
-    if (kind === 'ammo') ammoMounts.push(mount.equipmentId);
+    if (kind === 'ammo') ammoMounts.push({ equipmentIndex, mount });
   }
 
   // Ammo pairs with the unit's weapons, so it resolves after them, in mount order.
   const weaponIds = weaponsForAmmo.map((w) => w.id);
-  for (const equipmentId of ammoMounts) {
+  for (const { mount } of ammoMounts) {
+    const equipmentId = mount.equipmentId;
     const protoAmmo = resolveProtoAmmoBV(equipmentId, weaponIds);
     if (protoAmmo) {
       ammoForCap.push({
