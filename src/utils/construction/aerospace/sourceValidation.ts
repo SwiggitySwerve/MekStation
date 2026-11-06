@@ -1,7 +1,6 @@
 import type { Source } from './sourceWeight';
 
-import { isAmmunitionEquipmentId } from '../equipmentBV/catalogLoader';
-import { getEquipmentEntry } from '../equipmentBVResolver';
+import { equipmentIntroductionErrors } from '../equipmentIntroduction';
 import { aerospaceBays } from './sourceBays';
 import {
   aerospaceSourceWeight,
@@ -19,7 +18,6 @@ import {
  * with no date for the unit's tech side is never flagged. Armor, engine and cockpit dates
  * (:1513-1607) are not ported; no pinned aerospace source depends on them.
  */
-const INTRO_YEAR_MARGIN = 5;
 const INTRO_YEAR_FAMILIES =
   /^(?:aerospacefighter|convfighter|fixedwingsupport)$/;
 export function validateEquipmentIntroYears(s: Source): string[] {
@@ -30,32 +28,16 @@ export function validateEquipmentIntroYears(s: Source): string[] {
   const years = [s.year, s.originalBuildYear].filter(
     (y): y is number => typeof y === 'number',
   );
-  const clan = sourceClan(s),
-    mixed = /mixed/i.test(s.type);
-  const errors: string[] = [],
-    seen = new Set<string>();
-  for (const [key, value] of Object.entries(s.rawTags)) {
-    if (!/equipment$/i.test(key)) continue;
-    const mounts = Array.isArray(value)
-      ? value
-      : value.split(/\r?\n/).filter(Boolean);
-    for (const raw of mounts) {
-      const name = raw
-        .replace(/^(?:(?:\(R\)|\(B\))\s*)+/i, '')
-        .replace(/^(?:r-|b-)+/i, '')
-        .split(':')[0];
-      if (isAmmunitionEquipmentId(name) || /ammo/i.test(name)) continue;
-      const entry = getEquipmentEntry(name);
-      if (!entry || entry.introductionYear === undefined || seen.has(entry.id))
-        continue;
-      seen.add(entry.id);
-      if (!mixed && (entry.techBase === 'CLAN') !== clan) continue;
-      const intro = entry.introductionYear;
-      if (!years.some((y) => intro <= y + INTRO_YEAR_MARGIN))
-        errors.push(`${entry.name} has intro date of ${intro}`);
-    }
-  }
-  return errors;
+  return equipmentIntroductionErrors({
+    equipment: Object.entries(s.rawTags)
+      .filter(([key]) => /equipment$/i.test(key))
+      .flatMap(([, value]) =>
+        Array.isArray(value) ? value : value.split(/\r?\n/).filter(Boolean),
+      ),
+    years,
+    clan: sourceClan(s),
+    mixed: /mixed/i.test(s.type),
+  });
 }
 
 /** MegaMek 48fcb2f6 TestAdvancedAerospace:870-959; TestSmallCraft:776-814.
