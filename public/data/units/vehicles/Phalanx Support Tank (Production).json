@@ -88,5 +88,10 @@
       "COMMUNICATIONS": "Garret",
       "TARGETING": "Garret"
     }
+  },
+  "weaponQuirks": {
+    "FR:0:Machine Gun": [
+      "inaccurate"
+    ]
   }
 }

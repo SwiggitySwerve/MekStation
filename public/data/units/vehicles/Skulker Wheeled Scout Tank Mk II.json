@@ -67,5 +67,10 @@
       "COMMUNICATIONS": "Unknown",
       "TARGETING": "Unknown"
     }
+  },
+  "weaponQuirks": {
+    "FR:0:Medium Laser": [
+      "accurate"
+    ]
   }
 }

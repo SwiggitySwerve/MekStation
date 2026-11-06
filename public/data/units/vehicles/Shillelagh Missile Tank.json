@@ -104,5 +104,16 @@
       "COMMUNICATIONS": "Sipher",
       "TARGETING": "Unknown"
     }
+  },
+  "weaponQuirks": {
+    "TU:0:ISMML5": [
+      "accurate"
+    ],
+    "TU:1:ISMML5": [
+      "accurate"
+    ],
+    "TU:2:ISMML5": [
+      "accurate"
+    ]
   }
 }
