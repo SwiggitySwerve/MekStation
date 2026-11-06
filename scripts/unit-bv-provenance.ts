@@ -1,9 +1,17 @@
 import { execFileSync } from 'node:child_process';
-/** External conversion receipts; these checks run before any BV calculation. */
+/** External input/reference evidence; these checks precede BV calculation. */
 import { createHash } from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { z } from 'zod';
+
+import {
+  buildReferenceTrustReport,
+  ReferenceTrustMode,
+  type IReferenceMismatch,
+  type IReferenceTrustReport,
+  type IReferenceTrustMode,
+} from './unit-bv-reference';
 
 const hash = (bytes: Buffer) =>
   createHash('sha256').update(bytes).digest('hex');
@@ -16,6 +24,94 @@ const Manifest = z.object({
   sourcesSha256: digest,
   converterInputs: z.record(z.string(), digest),
 });
+
+const parseJsonLines = (bytes: Buffer): unknown[] =>
+  bytes
+    .toString('utf8')
+    .split(/\r?\n/)
+    .filter((line) => line.trim())
+    .map((line) => JSON.parse(line) as unknown);
+
+export const readJsonLines = (file: string): unknown[] =>
+  parseJsonLines(fs.readFileSync(file));
+
+/** A separately approved policy must never be inferred from the supplied oracle. */
+export function readTrustedReferences(
+  reference: string,
+  policyFile: string | undefined,
+  out: string,
+  mode?: IReferenceTrustMode,
+): unknown[] {
+  const trustMode = ReferenceTrustMode.parse(mode);
+  const failures: IReferenceMismatch[] = [];
+  const read = (file: string | undefined, field: string): Buffer => {
+    try {
+      if (file === undefined)
+        throw new Error('No independently approved policy supplied');
+      return fs.readFileSync(file);
+    } catch (error) {
+      failures.push({
+        field,
+        expected: 'readable evidence',
+        actual: null,
+        reason: String(error),
+      });
+      return Buffer.alloc(0);
+    }
+  };
+  const bytes = read(reference, 'reference');
+  const receipt = read(reference + '.provenance.json', 'referenceProvenance');
+  const policy = read(policyFile, 'expectedReference');
+  const decode = (input: Buffer, field: string, jsonLines = false): unknown => {
+    try {
+      return jsonLines
+        ? parseJsonLines(input)
+        : (JSON.parse(input.toString('utf8')) as unknown);
+    } catch (error) {
+      failures.push({
+        field,
+        expected: 'valid JSON evidence',
+        actual: null,
+        reason: String(error),
+      });
+      return undefined;
+    }
+  };
+  const rows = decode(bytes, 'reference', true);
+  const actual = decode(receipt, 'referenceProvenance');
+  const expected = decode(policy, 'expectedReference');
+  const references: unknown[] = Array.isArray(rows) ? rows : [];
+  const report: IReferenceTrustReport = failures.length
+    ? { ok: false, referenceSha256: hash(bytes), mismatches: failures }
+    : buildReferenceTrustReport(references, expected, actual, hash(bytes));
+  fs.mkdirSync(out, { recursive: true });
+  fs.writeFileSync(
+    path.join(out, 'reference-provenance-report.json'),
+    JSON.stringify(
+      {
+        ...report,
+        mode: trustMode,
+        expectedPolicySha256: hash(policy),
+        provenanceSha256: hash(receipt),
+      },
+      null,
+      2,
+    ) + '\n',
+  );
+  if (!report.ok) {
+    process.stderr.write(
+      `Reference provenance violations (${trustMode}): ${JSON.stringify(report.mismatches)}\n`,
+    );
+    if (trustMode === 'blocking')
+      throw new Error(
+        `Reference provenance rejected: ${report.mismatches.map((issue) => issue.field).join(', ')}`,
+      );
+  }
+  // Report-only changes trust enforcement, not ordinary reference input validity.
+  if (failures.some((issue) => issue.field === 'reference'))
+    throw new Error('Reference input could not be read or decoded');
+  return references;
+}
 
 function callOwner(
   code: string,

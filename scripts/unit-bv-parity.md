@@ -6,7 +6,7 @@ The oracle remains outside the repository. From the repository root:
 
 ```text
 python -B scripts/megameklab-conversion/export_vehicle_aero_json.py <mekfiles> <scratch> --strict
-node node_modules/tsx/dist/cli.mjs scripts/vehicle-aero-bv-delta.ts --converted <scratch>/sources.ndjson --mekfiles <mekfiles> --reference <oracle.jsonl> --out <report-dir>
+node node_modules/tsx/dist/cli.mjs scripts/vehicle-aero-bv-delta.ts --converted <scratch>/sources.ndjson --mekfiles <mekfiles> --reference <oracle.jsonl> --reference-policy <approved-policy.json> --out <report-dir>
 ```
 
 The exporter independently walks every in-scope MTF/BLK source. The runner
@@ -28,6 +28,84 @@ old receipts even if that particular helper did not affect a row.
 The receipt establishes conversion provenance; the oracle still owns corpus
 completeness and parity. A passing native conversion is separate from proof
 of the committed catalog.
+
+Both external comparison entrypoints audit `--reference-policy` and a separate
+`<oracle.jsonl>.provenance.json` actual-evidence sidecar before numerical work.
+The expected policy must be approved independently of the supplied reference.
+Default trust mode is **report-only**: missing evidence and other trust
+violations are recorded and printed while BV proofs and CI retain their
+numerical result. The trust report still has `ok:false` when violations exist;
+a green BV result is not trust acceptance. There is no default policy,
+expectation discovery, or command to bless saved output. Conversion receipts
+do not establish oracle runtime/settings.
+
+The single enforcement toggle is `--reference-trust blocking` (pipeline API
+`referenceTrust: 'blocking'`). After the approved policy covers all 9,815 units
+and is on main, add that flag to proof/CI invocations to reject violations
+before numerical work. Enforcement never activates from policy presence.
+`--reference-trust report-only` explicitly names the default. These are the only
+modes; there is no other legacy bypass. Source hashes, conversion receipts and
+numerical failures remain enforced in both modes. Report-only can audit an
+all-family policy before activation, but its proof must independently assert
+zero trust violations rather than rely on a successful BV exit.
+
+Both version-1 JSON documents contain `runtime`, `crew`, `network` and
+`bvOverrides`. Runtime records `megamekCommit`, `megameklabCommit`, `mmDataCommit`
+(40-character Git hashes), `javaVersion`, and SHA-256 fields
+`dependencyManifestSha256`, `compiledRuntimeManifestSha256`, `exporterSha256`,
+`verifierConfigSha256`. Additional named runtime entries are retained and must
+also match. Crew, network and overrides are nonempty maps of explicitly recorded
+scalar settings; extra or absent fields are violations. For the accepted
+P1 invocation the documented declarations describe freshly loaded default crew,
+no attached game/network, and no campaign/editor/custom-option mutations. These
+are recorded evidence declarations, not new typed crew/network instrumentation.
+The native runtime/exporter manifests and consumed verifier-config receipt supply
+actual artifact identities; the expectation is the separately approved runtime
+and requested configuration, never a copy learned at comparison time.
+
+The actual sidecar additionally records `referenceSha256`, binding its evidence
+to the exact JSONL bytes. The expected policy additionally records
+`battleValueMode` and `verifierSettings`, a map from each source path to its exact
+expected scalar verifier-settings map. Every row must record matching
+`battleValue.mode` and `construction.settings`. Source-dependent settings such as
+`gameYear` and `ammoTechLevel` require their own approved expected values; there
+is no inferred global fallback. Missing/malformed evidence, extra settings,
+unlisted reference paths and absent expected paths are violations. Blocking
+mode fails closed on all of them.
+
+`reference-provenance-report.json` records the reference, actual-sidecar and
+expected-policy hashes, effective mode, and named expected/actual mismatches.
+Violations are also printed to stderr. Blocking rejection stops before source
+calculation, cache work, or numerical report publication. Accepted
+trust leaves the existing source-hash, completeness, numeric and construction
+checks intact; it is not a parity result. Existing native exports can be used
+with their retained provenance and an approved policy without Java re-execution.
+No independently approved full-corpus policy accompanied this implementation.
+Fixed independent tests prove both modes. P1 separately owns the all-9,815
+policy; live policy adoption remains unproved and belongs to the policy owner.
+Actual manifests and native output must not be promoted into expectations.
+Independently undocumented values may be recorded as explicit `null` in a
+proposed policy, with their explanation in the policy owner's companion
+evidence. Null is not an accepted setting value: even paired actual/expected
+nulls fail validation. Omitted required fields, empty evidence maps and missing
+per-source expectations are violations too; blocking mode rejects all of them.
+No unspecified value becomes
+a neutral default or passing comparison. Record non-consumed context such as
+MekHQ's pin separately; this loaded-reference runtime does not establish MekHQ
+compatibility.
+
+Artifact meanings are fixed: `dependencyManifestSha256` and
+`compiledRuntimeManifestSha256` hash the exact consumed runtime's
+`runtime-dependencies.json` and `compiled-runtime-files.json` bytes.
+`exporterSha256` hashes the exact consumed `VehicleAeroReferenceExporter.java`
+source bytes, not the Python entrypoint or a combined receipt. Record Python,
+construction-probe, stage-generator and other independently relevant identities
+as additional named runtime entries; they are compared without dropping extras.
+`verifierConfigSha256` hashes the exact consumed XML bytes; CRLF-normalized
+similarity never substitutes for that digest. `javaVersion` is the complete
+recorded `java --version` output with CRLF converted to LF and outer whitespace
+trimmed when evidence is captured, not the short toolchain label. Comparison
+does not normalize these runtime strings or hashes.
 
 Family exports carry their declared family and ordered source folders from
 `strict-families.json`. The pipeline stores each producer's receipt alongside
@@ -109,7 +187,7 @@ and strict report with 1–4 isolated family workers (default 2). Use one heavy
 queue ticket for the whole command when measuring locally:
 
 ```text
-node --require tsx/cjs scripts/unit-bv-pipeline.ts --mekfiles <mekfiles> --reference <oracle.jsonl> --out <scratch> --workers 2
+node --require tsx/cjs scripts/unit-bv-pipeline.ts --mekfiles <mekfiles> --reference <oracle.jsonl> --reference-policy <approved-policy.json> --out <scratch> --workers 2
 ```
 
 The original two-command path above remains the fresh serial reference.
@@ -183,5 +261,6 @@ decomposition is applicable but not instrumented. `ok` is scoped to
 validity only; aggregate BV success does not fill missing comparisons. Either
 selected report failing keeps the CLI exit nonzero. Without the flag all
 existing BV report bytes and calculation paths retain their previous contract.
-Runtime/BVmode/settings mismatch rejection is a separate open trust-boundary
-follow-up; recording reference provenance does not enforce that scenario.
+Runtime/BV mode/settings mismatches use the independent policy/actual-evidence
+boundary and explicit enforcement mode above. This does not compare local
+construction weights or instrument previously absent crew/network facts.
