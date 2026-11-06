@@ -1,5 +1,6 @@
 import type { CritScan } from '../../../../scripts/validate-bv-crit-scan';
 import type { UnitData } from '../../../../scripts/validate-bv-types';
+import type { OffensiveBVConfig } from '../battleValueOffensiveTypes';
 
 import {
   applyWeaponPostScanModifiers,
@@ -36,7 +37,11 @@ export function buildMechBVWeapons(
   unit: UnitData,
   cs: CritScan,
   issues: string[],
-): { weapons: WeaponEntry[]; hasTC: boolean } {
+): {
+  weapons: WeaponEntry[];
+  hasTC: boolean;
+  ammoCapWeapons: NonNullable<OffensiveBVConfig['ammoCapWeapons']>;
+} {
   // Weapons
   const weapons: WeaponEntry[] = [];
   const unresolvedWeapons: string[] = [];
@@ -182,7 +187,8 @@ export function buildMechBVWeapons(
   if (unresolvedWeapons.length > 0)
     issues.push(`Unresolved weapons (0 BV): ${unresolvedWeapons.join(', ')}`);
 
+  const ammoCapWeapons = weapons.map(({ id, bv }) => ({ id, bv }));
   applyWeaponPostScanModifiers(unit, cs, weapons, hasTC);
 
-  return { weapons, hasTC };
+  return { weapons, hasTC, ammoCapWeapons };
 }

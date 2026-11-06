@@ -1,6 +1,8 @@
 import type { UnitData } from '../validate-bv-types';
 
+import { buildMechBVWeapons } from '../../src/utils/construction/mechBV/weaponInputs';
 import { calculateUnitBV } from '../validate-bv-calculator';
+import { scanCrits } from '../validate-bv-crit-scan';
 
 const unit: UnitData = {
   id: 'apollo-precision',
@@ -53,4 +55,15 @@ it('does not round separate linked mounts before adding them', () => {
     },
   }).breakdown;
   expect(b?.weaponBV).toBeCloseTo(193.2, 10);
+});
+
+it('captures raw cap inputs before Apollo changes the weapon-stage BV', () => {
+  const source = {
+    ...unit,
+    equipment: [{ id: 'mrm-20', location: 'RIGHT_TORSO' }],
+    criticalSlots: { RIGHT_TORSO: ['ISMRM20', 'ISApollo'] },
+  };
+  const built = buildMechBVWeapons(source, scanCrits(source), []);
+  expect(built.ammoCapWeapons).toEqual([{ id: 'mrm-20', bv: 112 }]);
+  expect(built.weapons[0].bv).toBeCloseTo(128.8, 10);
 });
