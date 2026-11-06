@@ -249,6 +249,57 @@ beforeEach(() => {
 // =============================================================================
 
 describe('PilotService.purchaseSPA', () => {
+  it.each([
+    ['iron-man', 'iron_man'],
+    ['iron-will', 'iron_man'],
+    ['iron_will', 'iron-man'],
+    ['iron_man', 'iron-man'],
+  ])(
+    'rejects owned %s when purchasing %s without changing saved data or XP',
+    (storedId, requestedId) => {
+      const pilot = makePilot(500);
+      const saved: IPilot = {
+        ...pilot,
+        abilities: [
+          { abilityId: storedId, acquiredDate: '2026-01-01', xpSpent: 17 },
+          { abilityId: 'unknown-saved-option', acquiredDate: '2026-01-02' },
+        ],
+      };
+      mockPilots.set(pilot.id, saved);
+
+      const result = new PilotService().purchaseSPA(pilot.id, requestedId);
+
+      expect(result).toEqual(
+        expect.objectContaining({
+          success: false,
+          errorCode: PilotErrorCode.ValidationError,
+          error: expect.stringContaining('Pilot already has SPA:'),
+        }),
+      );
+      expect(mockRepo.spendXp).not.toHaveBeenCalled();
+      expect(mockRepo.refundXp).not.toHaveBeenCalled();
+      expect(mockRepo.addAbility).not.toHaveBeenCalled();
+      expect(mockPilots.get(pilot.id)).toEqual(saved);
+    },
+  );
+
+  it('stores the canonical id on a new legacy-alias purchase and retains unknown saved rows', () => {
+    const pilot = makePilot(500);
+    const unknown = {
+      abilityId: 'unknown-saved-option',
+      acquiredDate: '2026-01-02',
+    };
+    mockPilots.set(pilot.id, { ...pilot, abilities: [unknown] });
+
+    const result = new PilotService().purchaseSPA(pilot.id, 'iron-man');
+
+    expect(result.success).toBe(true);
+    expect(mockPilots.get(pilot.id)?.abilities).toEqual([
+      unknown,
+      expect.objectContaining({ abilityId: 'iron_man' }),
+    ]);
+  });
+
   it('debits XP from the pilot pool on a standard purchase', () => {
     const spa = getCheapPurchasable();
     expect(spa).toBeDefined();

@@ -585,6 +585,9 @@ export interface IUnitGameState {
    * installed implant that is not jacked into the unit for this combat state.
    */
   readonly neuralInterfaceActive?: boolean;
+  /** Native game option and construction evidence retained independently. */
+  readonly neuralInterfaceMode?: IGameConfig['neuralInterfaceMode'];
+  readonly hasDNICockpitMod?: IGameUnit['hasDNICockpitMod'];
   /** Flat SPA designation fields consumed by the to-hit modifier pipeline. */
   readonly designatedWeaponType?: string;
   readonly designatedWeaponCategory?: string;

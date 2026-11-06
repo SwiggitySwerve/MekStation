@@ -1,5 +1,18 @@
 ﻿# Combat-vehicle construction rules
 
+## Support engine validation routing
+
+`engine.ts:validateVehicleEngine` takes optional family and engine technology
+context. Construction validation and the status bar transport those facts to
+the existing effective-rating and installed-engine mass owners. Support
+engines use their own rating cap of 500, fractional tonnage and technology
+table; the combat 400-rating error remains combat-only. The default context
+preserves combat callers. No engine formula, support structure or heat rule,
+catalog data, BV arithmetic or complete-weight validity gate changes here.
+
+Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`Engine.java:396-404,453-474,601-603` defines these support quantities.
+
 ## Computer mass and shared reactive armor
 
 `mountedWeight.ts` computes the computer basis from native direct-fire weapons
@@ -478,6 +491,18 @@ shared size-class thresholds (EntityWeightClass.java:80-97). BAR weight reuses
 `armor.ts`. Source fixtures and boundary tests enforce these rules.
 
 ## Offensive ammunition groups
+
+Native launcher identities reach the shared cap owner unchanged. Its native
+type/rack keys are grouping results, not equipment IDs to parse again:
+`GAUSS_LIGHT:0` and `GAUSS_HEAVY:0` must not become `GAUSS:0`. The existing
+vehicle group fallback remains for launchers without represented native keys.
+Regular Gauss bins therefore cannot borrow a light/heavy launcher's cap.
+Pinned MegaMek 48fcb2f64 `BVCalculator.java:1189-1242` supplies separate pools;
+`ISGaussRifle.java:75,83`, `ISLGaussRifle.java:73,81` and
+`ISHGaussRifle.java:76,87` supply types and listed BV 320/159/346.
+`vehicleBV.gaussAmmoPools.test.ts` enforces mixed-caliber separation, duplicate
+launcher accumulation and standalone caliber caps. Synthetic Java component
+references do not establish source quantities, defensive caps or full parity.
 
 `vehicleBVOffensive.ts` selects matching catalog-derived weapon and bin groups
 before calling the shared `calculateAmmoBVWithExcessiveCap` owner. Its common

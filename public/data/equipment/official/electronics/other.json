@@ -15,7 +15,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": null },
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3061,
+      "introductionYear": 3047,
       "special": ["-1 to-hit for direct fire weapons"],
       "variableEquipmentId": "targeting-computer-is"
     },
@@ -29,7 +29,7 @@
       "criticalSlots": 0,
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 2860,
+      "introductionYear": 2845,
       "special": ["-1 to-hit for direct fire weapons"],
       "variableEquipmentId": "targeting-computer-clan"
     },
@@ -44,7 +44,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 50000,
       "battleValue": 0,
-      "introductionYear": 2600,
+      "introductionYear": 2593,
       "special": [
         "Designates targets for homing missiles",
         "Uses small laser ranges"
@@ -63,7 +63,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 50000,
       "battleValue": 0,
-      "introductionYear": 2830,
+      "introductionYear": 2823,
       "special": [
         "Designates targets for homing missiles",
         "Uses small laser ranges"
