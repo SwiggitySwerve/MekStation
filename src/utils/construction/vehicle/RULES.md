@@ -1,5 +1,18 @@
 ﻿# Combat-vehicle construction rules
 
+## Support engine validation routing
+
+`engine.ts:validateVehicleEngine` takes optional family and engine technology
+context. Construction validation and the status bar transport those facts to
+the existing effective-rating and installed-engine mass owners. Support
+engines use their own rating cap of 500, fractional tonnage and technology
+table; the combat 400-rating error remains combat-only. The default context
+preserves combat callers. No engine formula, support structure or heat rule,
+catalog data, BV arithmetic or complete-weight validity gate changes here.
+
+Pinned MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`Engine.java:396-404,453-474,601-603` defines these support quantities.
+
 ## Computer mass and shared reactive armor
 
 `mountedWeight.ts` computes the computer basis from native direct-fire weapons

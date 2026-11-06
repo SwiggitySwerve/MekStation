@@ -24,7 +24,7 @@ import {
   isWeaponEquip,
   resolveWeaponForUnit,
 } from '../../../../scripts/validate-bv-weapon-resolution';
-import { normalizeWeaponKey } from '../battleValueAmmo';
+import { getNativeAmmoBVGroup, normalizeWeaponKey } from '../battleValueAmmo';
 import {
   hasBVActuatorEnhancement,
   isDirectFireBVWeapon,
@@ -44,9 +44,11 @@ export function buildMechBVWeapons(
   weapons: WeaponEntry[];
   hasTC: boolean;
   ammoCapWeapons: NonNullable<OffensiveBVConfig['ammoCapWeapons']>;
+  ammoCapProjectionWeapons?: NonNullable<OffensiveBVConfig['ammoCapWeapons']>;
 } {
   // Weapons
   const weapons: WeaponEntry[] = [];
+  const torpedoSourceIds = new Map<WeaponEntry, string>();
   const unresolvedWeapons: string[] = [];
   let hasTC = cs.hasTC;
 
@@ -157,7 +159,7 @@ export function buildMechBVWeapons(
 
       const weaponLocUpper = eq.location.split(',')[0].toUpperCase();
       const weaponHasAES = hasBVActuatorEnhancement(cs.aesLocs, weaponLocUpper);
-      weapons.push({
+      const weapon: WeaponEntry = {
         id: normalizeWeaponKey(eq.id),
         name: wid,
         heat: res.heat,
@@ -167,7 +169,12 @@ export function buildMechBVWeapons(
         hasAES: weaponHasAES,
         isDirectFire: isDirectFireBVWeapon(wid),
         location: eq.location,
-      });
+      };
+      weapons.push(weapon);
+      // Diagnostic identity only: retain the compatibility id used by arithmetic.
+      const nativeGroup = getNativeAmmoBVGroup(resolveId);
+      if (res.resolved && /^(?:LRM|SRM)_TORPEDO:/.test(nativeGroup ?? ''))
+        torpedoSourceIds.set(weapon, resolveId);
     }
   }
   // HeatTrackingBVCalculator.java:89-103 (48fcb2f64): active blades share
@@ -191,12 +198,21 @@ export function buildMechBVWeapons(
     issues.push(`Unresolved weapons (0 BV): ${unresolvedWeapons.join(', ')}`);
 
   // BVCalculator.java:1230 (48fcb2f64): F_ONE_SHOT weapons supply no ammo cap.
-  const ammoCapWeapons = weapons
-    .filter(({ name }) => !isOneShotBVWeapon(name))
-    .map(({ id, bv }) => ({ id, bv }));
+  const capMounts = weapons.filter(({ name }) => !isOneShotBVWeapon(name));
+  const ammoCapWeapons = capMounts.map(({ id, bv }) => ({ id, bv }));
+  const ammoCapProjectionWeapons = capMounts.some((w) =>
+    torpedoSourceIds.has(w),
+  )
+    ? capMounts.map((w) => ({ id: torpedoSourceIds.get(w) ?? w.id, bv: w.bv }))
+    : undefined;
   applyWeaponPostScanModifiers(unit, cs, weapons, hasTC);
 
-  return { weapons, hasTC, ammoCapWeapons };
+  return {
+    weapons,
+    hasTC,
+    ammoCapWeapons,
+    ...(ammoCapProjectionWeapons && { ammoCapProjectionWeapons }),
+  };
 }
 
 /** Plain weapon inputs for the shared offensive calculator. */
@@ -207,11 +223,20 @@ export function buildMechBVOffensiveInputs(
 ): Pick<
   OffensiveBVConfig,
   'weapons' | 'ammoCapWeapons' | 'hasTargetingComputer'
-> {
-  const { weapons, hasTC, ammoCapWeapons } = buildMechBVWeapons(
-    unit,
-    cs,
-    issues,
-  );
-  return { weapons, ammoCapWeapons, hasTargetingComputer: hasTC };
+> & {
+  ammoCapProjection?: Pick<
+    ReturnType<typeof buildMechBVWeapons>,
+    'ammoCapProjectionWeapons'
+  >;
+} {
+  const { weapons, hasTC, ammoCapWeapons, ammoCapProjectionWeapons } =
+    buildMechBVWeapons(unit, cs, issues);
+  return {
+    weapons,
+    ammoCapWeapons,
+    hasTargetingComputer: hasTC,
+    ...(ammoCapProjectionWeapons && {
+      ammoCapProjection: { ammoCapProjectionWeapons },
+    }),
+  };
 }
