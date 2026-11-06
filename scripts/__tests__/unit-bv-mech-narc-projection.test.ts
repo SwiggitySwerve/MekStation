@@ -100,7 +100,6 @@ test.each([
   { slots: ['ISNarcBeacon'] },
   { slots: ['ISNarcUnknown Pods'] },
   { slots: ['ISNarc Pods:0'] },
-  { slots: ['ISiNarc Pods'] },
   { slots: ['ISCoolantPod'] },
 ])(
   'does not invent a zero from absent, launcher, unresolved, empty or excluded facts: %j',

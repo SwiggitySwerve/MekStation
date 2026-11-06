@@ -2,15 +2,15 @@
 
 ### Requirement: Mech physical NARC availability diagnostics
 
-The Mech trace SHALL expose `ammo.available.NARC:1` from actual physical source
+The Mech trace SHALL expose `ammo.available.NARC:1` and `ammo.available.INARC:1` from actual physical source
 bins recognized by existing public native-bin and ammo-resolution owners.
-Only supported NARC bins with positive shots and a genuinely resolved BV of
+Only supported NARC or iNARC bins with positive shots and a genuinely resolved BV of
 zero SHALL supply optional diagnostic facts. The trace SHALL reuse existing
 public grouping and addition owners, preserving original arithmetic ammo lists,
 pools, quantities, explosivity, modifiers, computed values and existing nonzero
 available entries. Missing facts SHALL remain absent; runtime projection SHALL
-NOT obtain values from references or launcher presence. iNARC and other ammo
-groups SHALL retain their existing behavior.
+NOT obtain values from references or launcher presence. Other ammo groups
+SHALL retain their existing behavior.
 
 #### Scenario: Genuine zero differs from an absent bin
 
@@ -21,10 +21,19 @@ groups SHALL retain their existing behavior.
 
 #### Scenario: Unavailable or excluded source facts
 
-- **GIVEN** no physical bin, an unresolved token, an empty bin, intrinsic one-shot ammo without a physical source bin, or an iNARC bin
+- **GIVEN** no physical bin, an unresolved token, an empty bin, or intrinsic one-shot ammo without a physical source bin
 - **WHEN** NARC diagnostic source facts are collected
 - **THEN** none SHALL invent a NARC available value or an optional source fact
 - **AND** an existing nonzero available value SHALL NOT be overwritten by an added genuine zero-valued bin
+
+#### Scenario: iNARC source values and distinct native groups
+
+- **GIVEN** a represented standard or explosive iNARC physical bin whose public owners resolve four shots and BV 0
+- **WHEN** Mech diagnostic availability is projected
+- **THEN** `ammo.available.INARC:1` SHALL expose that actual value through the existing collector and public grouping owner
+- **AND** an ordinary NARC available key SHALL remain absent unless a real ordinary NARC bin supplies it
+- **AND** ordinary NARC facts SHALL retain their subsequence and physical order among added iNARC facts
+- **AND** original arithmetic ammo lists, pools, quantities, explosivity, modifiers and computed BV SHALL remain unchanged
 
 ### Requirement: Mech torpedo cap diagnostic identity
 
