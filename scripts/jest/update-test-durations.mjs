@@ -17,10 +17,14 @@ import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import { parseArgs } from 'node:util';
 
+import {
+  measureJestFiles,
+  mergeFileDurations,
+} from './test-file-durations.mjs';
+
 const require = createRequire(import.meta.url);
 const {
   DEFAULT_DURATIONS_FILE,
-  toRepoPath,
 } = require('../../config/jest/shard-planner.js');
 
 const { values, positionals } = parseArgs({
@@ -45,21 +49,15 @@ const durations = {};
 let filesSeen = 0;
 for (const report of positionals) {
   const parsed = JSON.parse(fs.readFileSync(report, 'utf8'));
-  if (!Array.isArray(parsed.testResults)) {
-    console.error(
-      `${report}: no testResults array; is it a jest --json report?`,
-    );
+  let measured;
+  try {
+    measured = measureJestFiles(parsed, root);
+  } catch (error) {
+    console.error(`${report}: ${error.message}`);
     process.exit(1);
   }
-  for (const result of parsed.testResults) {
-    // `jest --json` reports each file's startTime/endTime (epoch ms).
-    const ms = result.endTime - result.startTime;
-    if (!Number.isFinite(ms)) continue;
-    filesSeen += 1;
-    const file = toRepoPath(root, result.name);
-    // A file seen twice (overlapping reports) keeps its slower measurement.
-    durations[file] = Math.max(durations[file] ?? 0, ms);
-  }
+  filesSeen += measured.filesSeen;
+  mergeFileDurations(durations, measured.durations);
 }
 
 const sorted = Object.fromEntries(
