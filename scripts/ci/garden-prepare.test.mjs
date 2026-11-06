@@ -55,6 +55,20 @@ test('live empty inventory prepares an honest issue and never calls the budget u
       throw new Error('No observations should be projected');
     },
     api: {
+      budgetTargetGaps: (_config, observed) => {
+        assert.equal(observed['G1 id'], null);
+        return [
+          {
+            id: 'G1 id',
+            enforced: 100,
+            target: 90,
+            configuredGap: 10,
+            observed: null,
+            gapToTarget: null,
+            unit: 'files',
+          },
+        ];
+      },
       budgetDescriptors: () => [{ id: 'G1 id', value: 100, ratchet: true }],
       ratchetBudgets: () => {
         throw new Error('No proposal should be made');
@@ -69,4 +83,9 @@ test('live empty inventory prepares an honest issue and never calls the budget u
   );
   assert.match(result.body, /Association does not establish/);
   assert.equal(result.artifactsScanned, 0);
+  assert.equal(result.report.targetGaps[0].observed, null);
+  assert.match(
+    result.body,
+    /G1 id \| 100 \| 90 \| 10 \| unknown \| unknown \| files/,
+  );
 });

@@ -50,6 +50,8 @@ export async function prepareGarden({
     repo,
     now,
     validateObservation: api.validateObservation,
+    collectRun: api.collectRun,
+    workflowGraphFromSource: api.workflowGraphFromSource,
   });
   const projected = [],
     contributors = [];
@@ -85,6 +87,7 @@ export async function prepareGarden({
     api,
     diagnostics: collected.diagnostics,
   });
+  report.targetGaps = api.budgetTargetGaps(config, report.budgetMedians);
   const includedRuns = new Set(
     report.included.map((identity) => identity.runId),
   );

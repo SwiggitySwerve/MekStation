@@ -94,6 +94,32 @@ export function renderGarden(report, { contributors = null } = {}) {
           .join('\n')
       : 'Unknown: no source PR association evidence.',
     '',
+    '## Enforced baselines and tracked targets',
+    '',
+    'Enforced caps and configured gaps are policy values. Observed medians and their gaps remain unknown without canonical telemetry. A configured baseline is not a measured seven-day result.',
+    report.targetGaps?.length
+      ? table(
+          [
+            'Budget',
+            'Enforced cap',
+            'Target',
+            'Configured gap',
+            'Observed median',
+            'Observed gap',
+            'Unit',
+          ],
+          report.targetGaps.map((row) => [
+            row.id,
+            number(row.enforced),
+            number(row.target),
+            number(row.configuredGap),
+            number(row.observed),
+            number(row.gapToTarget),
+            row.unit,
+          ]),
+        )
+      : 'Unknown: target policy projection unavailable.',
+    '',
     '## Budget ratchet',
     '',
     'Eligibility requires at least three distinct complete comparable main runs per UTC day, the current budget digest, and more than 15% daily median headroom for seven full days. A proposed limit also retains 15% headroom above the largest observed value. Malformed or missing telemetry cannot authorize a proposal.',

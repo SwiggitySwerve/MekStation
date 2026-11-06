@@ -12,9 +12,11 @@ branch only. G1 supplies the combined public APIs to `prepareGarden`:
 
 ```js
 const api = {
-  ...budgetConfig, // budgetDescriptors, ratchetBudgets, serializeBudgets
+  ...budgetConfig, // budgetDescriptors, budgetTargetGaps, ratchetBudgets, serializeBudgets
   ...budgetMetrics, // validateRepositoryMetrics, observedBudgetValues, packageContributors
-  ...ciMetrics, // median, mainMedians
+  ...budgetWorkflow, // workflowGraphFromSource
+  ...ciMetrics, // median, selectMainObservations
+  ...ciReportGithub, // collectRun
   ...ciObservation, // validateObservation
   ...ciTestMetrics, // compareTestFiles
 };
@@ -33,13 +35,42 @@ const prepared = await prepareGarden({
 ```
 
 `config`, its exact-byte digest and `expectedBaseSha` must describe the same
-trusted main checkout. `prepareGarden` collects only canonical observation
-artifacts produced by PR Checks main pushes and binds their metadata to the
-live run attempt. Archives contain exactly one bounded JSON member; extraction
+trusted main checkout. Each canonical observation describes a PR Checks main
+push. Its filename and `observation.identity` identify that completed source
+run; `artifact.workflow_run` identifies the run that actually uploaded it.
+For each source head the collector fetches the immutable PR Checks YAML,
+calls G1's `workflowGraphFromSource(text)`, then G2's `collectRun` with fresh
+attempt/jobs API data. The artifact observation must equal that normalization,
+including `identity.completedAt`, timing values and comparison key. A historical
+baseline cannot reuse another head's graph. Archives contain exactly one bounded JSON member; extraction
 and PR code execution are unnecessary. Raw failed/cancelled observations remain
 available to G2's comparator, which excludes them from the successful baseline.
+`packages` and `budgetConfigHash` default to null in G2's envelope.
+G2 also owns the nullable `producer` stamp and its validator. An unstamped
+legacy/direct-source artifact is accepted only when the actual artifact metadata,
+owning repository IDs, source run/attempt/head and artifact creation time match
+the verified source attempt. A stamp cannot substitute for those API facts.
+
+A final observation uploaded by the Guard has a distinct producer run. Its G2
+stamp must bind that actual run/attempt/head to the unchanged source tuple.
+The live producer must be a completed successful `workflow_run` of
+`.github/workflows/lint-and-test-guard.yml`, in the owning repository on its
+default branch. The collector pins the live default commit and checks that the
+producer commit is its ancestor; a branch string alone never grants trust.
+G1 parses the Guard YAML at that producer SHA, and G2 normalizes fresh producer
+attempt/jobs. Artifact creation must fall inside that actual attempt (job
+completion is compared at GitHub's second precision). Producer/source identities
+remain separate in the retained manifest. Wrong or unavailable evidence rejects
+the artifact; all main-push, source-head graph and fresh source normalization
+checks remain mandatory. No PR or producer code is executed.
+
 G1 validates repository/package evidence and recomputes observed budget values;
 configured caps never substitute for observations.
+G1's `budgetTargetGaps(config, observedMedians)` supplies policy targets and
+observed gaps. The issue displays enforced caps and configured gaps separately
+from observed medians/gaps. Null observations stay unknown. Bootstrap baselines
+are defined by G1; G3 does not classify that initialization as a cap increase.
+Ratchets use descriptor values for enforced caps, rather than tracked targets.
 
 Use separate permission scopes: collection needs `contents: read` and
 `actions: read`; `updateGardenIssue` needs `issues: write` and `contents: read`;
@@ -64,7 +95,7 @@ alone merges. Link each created PR in the orchestration thread.
 ## Weekly evidence and ratchets
 
 The report covers the seven full UTC days ending before today and compares
-them with the preceding seven days. G2 selects complete, successful, comparable
+them with the preceding seven days. G2's `selectMainObservations` selects complete, successful, comparable
 main observations; runner/DAG changes never pool into a common baseline. Only
 the latest attempt of each run counts. Test timings use actual execution data,
 with unknown baselines and incomplete censuses preserved. PR associations are
