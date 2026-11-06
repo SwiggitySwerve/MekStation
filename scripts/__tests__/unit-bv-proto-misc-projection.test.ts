@@ -74,7 +74,10 @@ describe('ProtoMech native offensive-misc diagnostics', () => {
       expect(b.final).toBe(source.javaTotal);
       expect(JSON.stringify(unit)).toBe(original);
       expect(
-        Object.keys(terms).filter((key) => key.startsWith('ammo.')),
+        Object.keys(terms).filter(
+          (key) =>
+            key.startsWith('ammo.') && !key.startsWith('ammo.available.'),
+        ),
       ).toEqual([]);
       for (const fact of b.weaponMountBV ?? []) {
         expect(

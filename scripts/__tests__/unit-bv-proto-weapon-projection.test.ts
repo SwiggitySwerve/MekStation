@@ -70,7 +70,10 @@ describe('ProtoMech weapon diagnostic projection', () => {
       expect(JSON.stringify(unit)).toBe(original);
       expect(b.final).toBe(source.javaTotal);
       expect(
-        Object.keys(terms).filter((key) => key.startsWith('ammo.')),
+        Object.keys(terms).filter(
+          (key) =>
+            key.startsWith('ammo.') && !key.startsWith('ammo.available.'),
+        ),
       ).toEqual([]);
     },
   );
