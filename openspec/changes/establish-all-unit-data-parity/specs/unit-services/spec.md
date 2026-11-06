@@ -119,6 +119,8 @@ Browser and Node unit services SHALL load every upstream-loadable source family 
 - **WHEN** loading encounters an unregistered family, absent family catalog, absent unit, unavailable source or invalid definition
 - **THEN** it SHALL return `unknown-family`, `family-not-found`, `not-found`, `read-failed` or `invalid-definition`, respectively
 - **AND** a definition whose unit type disagrees with its requested family SHALL fail as `invalid-definition`
+- **AND** strict browser and Node canonical reads SHALL propagate indexed-file read and JSON errors so definition readers report `read-failed`, while unknown IDs remain `not-found`
+- **AND** tolerant canonical reads SHALL retain null results for source failures, and a corrected source SHALL load on retry without clearing caches
 - **WHEN** a valid definition has no registered store mapper
 - **THEN** editor loading SHALL return `unsupported-store-family` without initializing equipment or creating a BattleMech store
 - **AND** the customizer SHALL preserve the requested family and keep the load dialog open on failure
