@@ -1,6 +1,6 @@
 # Native single-pilot biped SPA placement
 
-`nativeBipedSPA` owns presentation fitting for the existing single-pilot biped
+`nativeMechSPA` owns presentation fitting for the existing single-pilot biped
 payload only. `recordsheet/spaSection.buildSPASection` remains the sole ability
 resolver, sorter and designation formatter. The native list uses those formatted
 headlines; it does not implement Java PilotOptions, strip local designations, or
@@ -32,7 +32,7 @@ new geometry is invented. Long native lists include all supported headlines;
 legacy descriptions, six-entry cap and `+N more` belong to the unchanged legacy
 layout. The data owner's entries remain unchanged.
 
-Enforcement: `bipedPilotSPA.test.ts` checks serialized SVG geometry, both paper
+Enforcement: `mechPilotSPA.test.ts` checks serialized SVG geometry, both paper
 formats, designated headlines, unchanged sheet fields, native long-list/token
 overflow, missing/empty inputs and legacy configuration behavior. Full-template
 Chromium/PDF proof is recorded separately; DOM tests do not establish pixel or

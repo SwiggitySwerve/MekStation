@@ -8,7 +8,7 @@ import { SVG_NS } from './constants';
  * MML 62bf193: PrintEntity.java:537-550; PrintRecordSheet.java:1084-1143.
  * Native overflow is deliberate parity: no clipping, cap or extra shrink.
  */
-export function renderNativeBipedSPASection(
+export function renderNativeMechSPASection(
   svgDoc: Document,
   block: ISPASectionData,
 ): void {

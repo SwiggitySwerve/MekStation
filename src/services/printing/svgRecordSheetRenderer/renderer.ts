@@ -21,7 +21,7 @@ import { ELEMENT_IDS } from './constants';
 import { renderCriticalSlots } from './criticals';
 import { renderEquipmentTable } from './equipment';
 import { renderInfantrySVG } from './infantryRenderer';
-import { renderNativeBipedSPASection } from './nativeBipedSPA';
+import { renderNativeMechSPASection } from './nativeMechSPA';
 import { renderProtoMechSVG } from './protoMechRenderer';
 import { renderSPASection } from './spaSection';
 import { fillStructurePips } from './structure';
@@ -113,7 +113,7 @@ export class SVGRecordSheetRenderer {
     if (data.specialAbilities && data.specialAbilities.length > 0) {
       const renderAbilities =
         data.mechType === 'biped'
-          ? renderNativeBipedSPASection
+          ? renderNativeMechSPASection
           : renderSPASection;
       renderAbilities(svgDoc, {
         entries: data.specialAbilities,
