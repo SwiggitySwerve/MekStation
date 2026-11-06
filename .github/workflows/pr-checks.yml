@@ -358,6 +358,7 @@ jobs:
           npx jest --selectProjects unit --ci --runInBand --runTestsByPath
           src/simulation/__tests__/simulation.test.ts
           src/lib/multiplayer/server/__tests__/fogOfWar.test.ts
+          src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts
           src/lib/multiplayer/server/__tests__/MatchStoreStress.test.ts
           src/__tests__/performance.test.tsx
         env:
