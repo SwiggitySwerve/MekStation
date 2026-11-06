@@ -22,6 +22,7 @@ jest.mock('../unit-bv-provenance', () => {
     ...actual,
     validateSourceManifest: jest.fn(actual.validateSourceManifest),
     writeSourceManifest: jest.fn(actual.writeSourceManifest),
+    readTrustedReferences: jest.fn(actual.readTrustedReferences),
   };
 });
 
@@ -38,9 +39,13 @@ afterEach(() => {
   fs.rmSync(root, { recursive: true, force: true });
 });
 
-it.each(['push', 'schedule'])(
-  'keeps every family and exact report bytes on %s, bypassing caches',
-  async (event) => {
+it.each([
+  { event: 'push', referenceTrust: 'blocking', positive: false },
+  { event: 'schedule', referenceTrust: 'blocking', positive: false },
+  { event: 'push', referenceTrust: undefined, positive: true },
+] as const)(
+  'keeps exact BV report bytes on $event with $referenceTrust trust',
+  async ({ event, referenceTrust, positive }) => {
     process.env.GITHUB_EVENT_NAME = event;
     const python = execFileSync(
       'python',
@@ -66,7 +71,9 @@ it.each(['push', 'schedule'])(
       computed.push({
         path: row.path,
         sha256: row.sha256,
-        reason: `Unsupported: ${family}`,
+        ...(positive
+          ? { figure: { total: 1, defensive: 1, offensive: 0 } }
+          : { reason: `Unsupported: ${family}` }),
       });
       java.push({
         path: row.path,
@@ -82,6 +89,17 @@ it.each(['push', 'schedule'])(
       reference,
       java.map((row) => JSON.stringify(row)).join('\n') + '\n',
     );
+    // Real reference evidence rejection is exercised by the existing provenance
+    // CLI harness; this fixture isolates pipeline scheduling/report byte contracts.
+    if (positive) {
+      const actual = jest.requireActual<typeof import('../unit-bv-provenance')>(
+        '../unit-bv-provenance',
+      );
+      jest
+        .mocked(provenance.readTrustedReferences)
+        .mockImplementation(actual.readTrustedReferences);
+      jest.spyOn(process.stderr, 'write').mockReturnValue(true);
+    } else jest.mocked(provenance.readTrustedReferences).mockReturnValue(java);
     const run = jest
       .mocked(worker.runCommand)
       .mockImplementation(async (_exe, args) => {
@@ -110,15 +128,30 @@ it.each(['push', 'schedule'])(
       await runPipeline({
         mekfiles: root,
         reference,
+        referencePolicy: path.join(root, 'expected.json'),
+        referenceTrust,
         out,
         python,
         workers: 2,
         cacheDir: path.join(root, 'cache'),
         verifyHits: 7,
         uncached: false,
-        perTerm: true,
+        perTerm: !positive,
       }),
-    ).toBe(false);
+    ).toBe(positive);
+    if (positive) {
+      const trustReport = JSON.parse(
+        fs.readFileSync(
+          path.join(out, 'reference-provenance-report.json'),
+          'utf8',
+        ),
+      );
+      expect(trustReport).toMatchObject({ ok: false, mode: 'report-only' });
+      expect(trustReport.mismatches.length).toBeGreaterThan(0);
+      expect(process.stderr.write).toHaveBeenCalledWith(
+        expect.stringContaining('Reference provenance violations'),
+      );
+    }
     expect(run).toHaveBeenCalledTimes(FAMILIES.length);
     for (const family of Object.keys(families)) {
       expect(validate).toHaveBeenCalledWith(
@@ -153,7 +186,7 @@ it.each(['push', 'schedule'])(
       computed,
       java,
       undefined,
-      true,
+      !positive,
     );
     expect(fs.readFileSync(path.join(out, 'delta-report.json'), 'utf8')).toBe(
       JSON.stringify(expected, null, 2) + '\n',
@@ -184,6 +217,7 @@ it('rejects protected output and invalid options before spawning family work', a
   const options = {
     mekfiles: root,
     reference: 'unused',
+    referencePolicy: 'unused',
     out: path.resolve('public/data/forbidden'),
     python: 'unused',
     workers: 2,
@@ -196,4 +230,32 @@ it('rejects protected output and invalid options before spawning family work', a
     'verify-hits',
   );
   expect(run).not.toHaveBeenCalled();
+});
+
+it('rejects reference configuration before any family work or cache use', async () => {
+  const trust = jest.mocked(provenance.readTrustedReferences);
+  trust.mockImplementation(() => {
+    throw new Error('Reference provenance rejected: crew.state');
+  });
+  await expect(
+    runPipeline({
+      mekfiles: root,
+      reference: 'oracle',
+      referencePolicy: 'approved-policy',
+      referenceTrust: 'blocking',
+      out: path.join(root, 'report'),
+      python: 'unused',
+      workers: 2,
+      verifyHits: 0,
+      uncached: true,
+      perTerm: false,
+    }),
+  ).rejects.toThrow('Reference provenance rejected: crew.state');
+  expect(trust).toHaveBeenCalledWith(
+    'oracle',
+    'approved-policy',
+    path.join(root, 'report'),
+    'blocking',
+  );
+  expect(worker.runCommand).not.toHaveBeenCalled();
 });
