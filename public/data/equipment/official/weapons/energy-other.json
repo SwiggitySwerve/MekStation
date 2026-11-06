@@ -19,7 +19,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
       "costCBills": 260000,
       "battleValue": 210,
-      "introductionYear": 3068
+      "introductionYear": 3056
     },
     {
       "id": "tsemp-cannon",
@@ -71,7 +71,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 15000,
       "battleValue": 16,
-      "introductionYear": 3070,
+      "introductionYear": 3065,
       "special": ["Causes 2 heat to target"]
     },
     {
@@ -199,7 +199,7 @@
       "ammoPerTon": 10,
       "costCBills": 320000,
       "battleValue": 170,
-      "introductionYear": 3069,
+      "introductionYear": 3063,
       "special": ["Causes heat to target"]
     },
     {

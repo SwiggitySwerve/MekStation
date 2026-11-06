@@ -1,0 +1,29 @@
+{"file":"weapons/energy-laser.json","id":"small-laser","year":2290,"java":"Small Laser","citation":"weapons/lasers/innerSphere/small/ISLaserSmall.java:57,93-96"}
+{"file":"weapons/energy-laser.json","id":"medium-laser","year":2290,"java":"Medium Laser","citation":"weapons/lasers/innerSphere/medium/ISLaserMedium.java:57,88-91"}
+{"file":"weapons/energy-laser.json","id":"er-small-laser","year":3052,"java":"ISERSmallLaser","citation":"weapons/lasers/innerSphere/small/ISERLaserSmall.java:57,88-89"}
+{"file":"weapons/energy-laser.json","id":"er-medium-laser","year":3052,"java":"ISERMediumLaser","citation":"weapons/lasers/innerSphere/medium/ISERLaserMedium.java:57,88-89"}
+{"file":"weapons/energy-laser.json","id":"er-large-laser","year":2605,"java":"ISERLargeLaser","citation":"weapons/lasers/innerSphere/large/ISERLaserLarge.java:57,87-88"}
+{"file":"weapons/energy-laser.json","id":"clan-er-small-laser","year":2817,"java":"CLERSmallLaser","citation":"weapons/lasers/clan/small/CLERLaserSmall.java:57,86-87"}
+{"file":"weapons/energy-laser.json","id":"clan-er-medium-laser","year":2817,"java":"CLERMediumLaser","citation":"weapons/lasers/clan/medium/CLERLaserMedium.java:57,86-87"}
+{"file":"weapons/energy-laser.json","id":"clan-er-large-laser","year":2815,"java":"CLERLargeLaser","citation":"weapons/lasers/clan/large/CLERLaserLarge.java:57,88-89"}
+{"file":"weapons/energy-laser.json","id":"small-pulse-laser","year":2595,"java":"ISSmallPulseLaser","citation":"weapons/lasers/innerSphere/small/ISPulseLaserSmall.java:58,91-92"}
+{"file":"weapons/energy-laser.json","id":"medium-pulse-laser","year":2595,"java":"ISMediumPulseLaser","citation":"weapons/lasers/innerSphere/medium/ISPulseLaserMedium.java:58,88-89"}
+{"file":"weapons/energy-laser.json","id":"large-pulse-laser","year":2595,"java":"ISLargePulseLaser","citation":"weapons/lasers/innerSphere/large/ISPulseLaserLarge.java:57,88-89"}
+{"file":"weapons/energy-laser.json","id":"clan-micro-pulse-laser","year":3054,"java":"CLMicroPulseLaser","citation":"weapons/lasers/clan/CLPulseLaserMicro.java:58,90-91"}
+{"file":"weapons/energy-laser.json","id":"clan-small-pulse-laser","year":2820,"java":"CLSmallPulseLaser","citation":"weapons/lasers/clan/small/CLPulseLaserSmall.java:58,90-91"}
+{"file":"weapons/energy-laser.json","id":"clan-medium-pulse-laser","year":2820,"java":"CLMediumPulseLaser","citation":"weapons/lasers/clan/medium/CLPulseLaserMedium.java:57,88-89"}
+{"file":"weapons/energy-laser.json","id":"clan-large-pulse-laser","year":2820,"java":"CLLargePulseLaser","citation":"weapons/lasers/clan/large/CLPulseLaserLarge.java:57,89-90"}
+{"file":"weapons/energy-laser.json","id":"small-vsp-laser","year":3070,"java":"ISSmallVSPLaser","citation":"weapons/lasers/innerSphere/small/ISVariableSpeedPulseLaserSmall.java:60,92-92"}
+{"file":"weapons/energy-laser.json","id":"medium-vsp-laser","year":3070,"java":"ISMediumVSPLaser","citation":"weapons/lasers/innerSphere/medium/ISVariableSpeedPulseLaserMedium.java:59,91-91"}
+{"file":"weapons/energy-laser.json","id":"large-vsp-laser","year":3070,"java":"ISLargeVSPLaser","citation":"weapons/lasers/innerSphere/large/ISVariableSpeedPulseLaserLarge.java:60,93-93"}
+{"file":"weapons/energy-laser.json","id":"small-heavy-laser","year":3057,"java":"CLHeavySmallLaser","citation":"weapons/lasers/clan/small/CLHeavyLaserSmall.java:59,90-91"}
+{"file":"weapons/energy-laser.json","id":"medium-heavy-laser","year":3057,"java":"CLHeavyMediumLaser","citation":"weapons/lasers/clan/medium/CLHeavyLaserMedium.java:59,90-91"}
+{"file":"weapons/energy-laser.json","id":"large-heavy-laser","year":3057,"java":"CLHeavyLargeLaser","citation":"weapons/lasers/clan/large/CLHeavyLaserLarge.java:59,91-92"}
+{"file":"weapons/energy-laser.json","id":"basmallvsplaser","year":3070,"java":"ISBASmallVSPLaser","citation":"weapons/battleArmor/innerSphere/laser/ISBALaserVSPSmall.java:59,90-91"}
+{"file":"weapons/energy-laser.json","id":"improved-large-laser","year":2807,"java":"Improved Large Laser","citation":"weapons/lasers/clan/large/CLImprovedLaserLarge.java:57,82-83"}
+{"file":"weapons/energy-other.json","id":"plasma-rifle","year":3056,"java":"ISPlasmaRifle","citation":"weapons/ppc/innerSphere/ISPlasmaRifle.java:68,98-99"}
+{"file":"weapons/energy-other.json","id":"er-flamer","year":3065,"java":"ER Flamer","citation":"weapons/flamers/innerSphere/ISERFlamer.java:59,87-88"}
+{"file":"weapons/energy-other.json","id":"clan-plasma-cannon","year":3063,"java":"CLPlasmaCannon","citation":"weapons/ppc/clan/CLPlasmaCannon.java:69,98-99"}
+{"file":"weapons/energy-ppc.json","id":"er-ppc","year":2735,"java":"ISERPPC","citation":"weapons/ppc/innerSphere/ISERPPC.java:57,91-94"}
+{"file":"weapons/energy-ppc.json","id":"clan-er-ppc","year":2818,"java":"CLERPPC","citation":"weapons/ppc/clan/CLERPPC.java:57,88-89"}
+{"file":"weapons/energy-ppc.json","id":"enhanced-er-ppc","year":2817,"java":"CLWERPPC","citation":"weapons/ppc/clan/CLEnhancedPPC.java:58,87-88"}
