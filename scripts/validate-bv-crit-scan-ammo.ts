@@ -24,9 +24,9 @@ export function processCritAmmoSlot(args: {
   unitTechBase: string;
 }): void {
   const { r, clean, lo, loc, ml, unitTechBase } = args;
-  // Trace facts only: a real usable NARC bin may have an explicitly resolved BV0.
+  // Trace facts only: a real usable NARC/iNARC bin can have a resolved BV0.
   // Keep the legacy arithmetic ammo admission and explosive handling unchanged.
-  if (getNativeAmmoBVGroup(clean) === 'NARC:1') {
+  if (['NARC:1', 'INARC:1'].includes(getNativeAmmoBVGroup(clean) ?? '')) {
     const ammo = resolveAmmoBV(clean);
     const bin = resolveNativeAmmoBin(clean);
     if (ammo.resolved && ammo.battleValue === 0 && bin && bin.shots > 0) {
