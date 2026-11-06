@@ -6,6 +6,7 @@ import { z } from 'zod';
 import type { IRecordSheetEquipment } from '@/types/printing';
 import type { IRecordSheetData } from '@/types/printing';
 
+import { readCatalogFiles } from '@/__tests__/helpers/catalogFiles.test-helpers';
 import {
   expectJavaCatalogAddition,
   javaCatalogAdditionById,
@@ -118,6 +119,11 @@ export function catalog(family: Family): { id: string; path: string }[] {
 export function verifyCatalogUnit(
   family: Family,
   entry: { id: string; path: string },
+  read: () => string = () =>
+    fs.readFileSync(
+      path.join(process.cwd(), 'public/data/units', family, entry.path),
+      'utf8',
+    ),
 ): CatalogRow {
   const row: CatalogRow = { ...entry, subtype: '', differences: [] };
   const check = (field: string, actual: unknown, expected: unknown) => {
@@ -126,14 +132,7 @@ export function verifyCatalogUnit(
   };
   let stage = 'contract';
   try {
-    const source = UnitContract.parse(
-      JSON.parse(
-        fs.readFileSync(
-          path.join(process.cwd(), 'public/data/units', family, entry.path),
-          'utf8',
-        ),
-      ),
-    );
+    const source = UnitContract.parse(JSON.parse(read()));
     row.subtype = String(
       source.subType ?? source.motionType ?? source.unitType,
     );
@@ -592,10 +591,16 @@ export function defineCatalogFamilyParity(
 
   describe('committed catalog record-sheet model parity', () => {
     const label = parts === 1 ? family : `${family} (${part + 1}/${parts})`;
-    it(`${label}: checks every indexed unit and records every mismatch/rejection`, () => {
-      const rows = catalog(family)
-        .filter((_, index) => index % parts === part)
-        .map((entry) => verifyCatalogUnit(family, entry));
+    it(`${label}: checks every indexed unit and records every mismatch/rejection`, async () => {
+      const entries = catalog(family).filter(
+        (_, index) => index % parts === part,
+      );
+      const rows: CatalogRow[] = [];
+      for await (const { entry, read } of readCatalogFiles(
+        path.join(process.cwd(), 'public/data/units', family),
+        entries,
+      ))
+        rows.push(verifyCatalogUnit(family, entry, read));
       const counts: Record<string, number> = {};
       for (const row of rows)
         for (const field of new Set(
