@@ -13,3 +13,12 @@ matching short, medium or long bracket; independent checks cancel when both
 are present. The native-id port changes lookup only, retaining existing
 range/SPA arithmetic and every legacy quirk id. Parsers and converters carry
 native data; they do not own runtime modifier rules.
+
+`OptionsConstants.java:62,123` names `easy_pilot` and `hard_pilot`.
+Resolve both through the same membership owner, retaining `easy_to_pilot`
+and `hard_to_pilot` saved keys. These are unit design quirks, not pilot SPAs.
+`Entity.java:9989-9995` gates Easy Pilot terrain relief to base piloting >3;
+`TWGameManager.java:17878-17888` applies that same gate to damage PSRs.
+The ordinary non-DNI Hard Pilot path adds +1 (`Entity.java:8939-8946`).
+This identity correction preserves existing PSR arithmetic and eligibility;
+it does not establish parity for unrepresented crew/DNI state or every PSR.
