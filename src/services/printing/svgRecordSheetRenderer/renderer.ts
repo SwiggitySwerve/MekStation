@@ -21,7 +21,7 @@ import { ELEMENT_IDS } from './constants';
 import { renderCriticalSlots } from './criticals';
 import { renderEquipmentTable } from './equipment';
 import { renderInfantrySVG } from './infantryRenderer';
-import { renderNativeBipedSPASection } from './nativeBipedSPA';
+import { renderNativeMechSPASection } from './nativeMechSPA';
 import { renderProtoMechSVG } from './protoMechRenderer';
 import { renderSPASection } from './spaSection';
 import { fillStructurePips } from './structure';
@@ -112,8 +112,8 @@ export class SVGRecordSheetRenderer {
     // Helper skips when there are no resolvable entries.
     if (data.specialAbilities && data.specialAbilities.length > 0) {
       const renderAbilities =
-        data.mechType === 'biped'
-          ? renderNativeBipedSPASection
+        data.mechType === 'biped' || data.mechType === 'quad'
+          ? renderNativeMechSPASection
           : renderSPASection;
       renderAbilities(svgDoc, {
         entries: data.specialAbilities,

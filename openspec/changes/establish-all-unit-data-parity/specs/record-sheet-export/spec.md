@@ -113,3 +113,31 @@ only for this configuration, without changing the extracted SPA entries.
 - **GIVEN** another Mech configuration or a non-Mech sheet
 - **WHEN** it is rendered
 - **THEN** this biped-only correction does not change its SPA output, canonical omissions, fallback renderer or infantry notes route
+
+### Requirement: Native single-pilot quad SPA placement
+
+Single-pilot quad Mech canonical output SHALL use the same native SPA fitting
+owner as biped output, with its own template's existing `spas0` rectangle and
+parent transform. It SHALL preserve the existing resolver's formatted headlines
+and designations without changing the extracted entries or other sheet figures.
+
+#### Scenario: Quad designated ability on Letter and A4
+
+- **GIVEN** a single-pilot quad Mech and supplied Weapon Specialist (PPC)
+- **WHEN** its canonical Letter or A4 SVG and PDF are generated
+- **THEN** `Abilities: Weapon Specialist (PPC)` starts in the quad template's existing `spas0` region
+- **AND** the common pinned MML 62bf193 font selection, float dimensions and space-delimiter wrapping apply unchanged
+- **AND** all non-SPA output retains the same domain-provided figures
+
+#### Scenario: Native quad overflow and empty input
+
+- **GIVEN** a long supported SPA list, an overwide unbroken designation, or empty abilities
+- **WHEN** the quad sheet is rendered
+- **THEN** nonempty lists preserve native vertical or horizontal overflow without clipping, truncation, line caps or additional shrink
+- **AND** empty abilities or a missing `spas0` rectangle emit no substitute block
+
+#### Scenario: Existing configurations and native omissions
+
+- **GIVEN** a biped or another configuration/family
+- **WHEN** the record sheet is rendered
+- **THEN** existing biped output remains unchanged, while LAM, tripod, QuadVee, non-Mech canonical omissions, fallback output and infantry notes retain their previous routes
