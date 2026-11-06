@@ -43,3 +43,22 @@ design quirk, not a pilot SPA.
 This identity correction preserves existing PSR arithmetic and eligibility.
 Both native Easy and Hard identities coexist; the explicit Hard exception
 continues to use the public native DNI owner and actual session inputs.
+
+## Weapon cooling
+
+`weaponQuirks.ts` owns `getWeaponCoolingHeatModifier`; interactive heat and
+autonomous heat phases both consume its delta through their existing calls.
+At the same MegaMek pin,
+[WeaponMounted.java:167-178](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/WeaponMounted.java#L167)
+first applies Improved Cooling as `max(1, heat - 1)`, then independently adds
+1 for Poor Cooling and 2 for No Cooling. The floor applies before additions;
+No Cooling is not a multiplier. `WeaponQuirks.java:81-83` and
+`OptionsConstants.java:106-108` register the native ids.
+
+Native `imp_cooling` and saved `improved_cooling` are one boolean flag here;
+duplicates and both spellings together do not multiply it. Unknown near ids
+do not match. Existing consumers retain their outer zero clamp and per-fired-
+weapon summation. This does not bind source critical slots to runtime mount
+ids, change heat sinks/firing modes, regenerate catalogs or establish complete
+weapon-quirk parity. Those source/runtime and other modifier paths remain
+separate from this bounded cooling correction.
