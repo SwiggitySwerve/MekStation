@@ -4345,7 +4345,7 @@
     "file": "weapons/missile-atm.json",
     "index": 0,
     "id": "atm-3",
-    "sha256": "fe2990140f10ede1cb51611c368d4f5a016dee9e954862c5dc8b9e5422bf9958",
+    "sha256": "0eb55751763f7ee89c2e443bc7dd8c4b604e777d3bcc5ef9b1c70a10fb1b7a91",
     "item": {
       "id": "atm-3",
       "name": "ATM 3",
@@ -4370,7 +4370,7 @@
       "ammoPerTon": 20,
       "costCBills": 50000,
       "battleValue": 53,
-      "introductionYear": 3053,
+      "introductionYear": 3047,
       "special": ["Multiple ammo types"]
     }
   },
@@ -4378,7 +4378,7 @@
     "file": "weapons/missile-atm.json",
     "index": 1,
     "id": "atm-6",
-    "sha256": "100fb32b0ccc83fcc110e3fcbccb3559801bb315003d36dc956c06fb2be1df60",
+    "sha256": "78c7e60e299c80b76c38ad9585d77b056cb8188a60127b6ed0acc32afa4cd1b9",
     "item": {
       "id": "atm-6",
       "name": "ATM 6",
@@ -4403,7 +4403,7 @@
       "ammoPerTon": 10,
       "costCBills": 125000,
       "battleValue": 105,
-      "introductionYear": 3053,
+      "introductionYear": 3047,
       "special": ["Multiple ammo types"]
     }
   },
@@ -4411,7 +4411,7 @@
     "file": "weapons/missile-atm.json",
     "index": 2,
     "id": "atm-9",
-    "sha256": "f8ddd7b0415f3ff0ef8ef00a6d328b2074ef1af9fa9b3997ea2d7a690ab422dd",
+    "sha256": "10bc199b7451a49b243625d8e1f444aec39d43358026df2b1fda830a9167de1b",
     "item": {
       "id": "atm-9",
       "name": "ATM 9",
@@ -4436,7 +4436,7 @@
       "ammoPerTon": 7,
       "costCBills": 225000,
       "battleValue": 147,
-      "introductionYear": 3053,
+      "introductionYear": 3047,
       "special": ["Multiple ammo types"]
     }
   },
@@ -4444,7 +4444,7 @@
     "file": "weapons/missile-atm.json",
     "index": 3,
     "id": "atm-12",
-    "sha256": "7c75a31e83f465caabad23338801a1855feb34781ea91ba67da8af2f55a32051",
+    "sha256": "175947ed7113ee54b50f9cea4104ca530feb1d9e4ae12b8cc1dd1952d18b2bec",
     "item": {
       "id": "atm-12",
       "name": "ATM 12",
@@ -4469,7 +4469,7 @@
       "ammoPerTon": 5,
       "costCBills": 350000,
       "battleValue": 212,
-      "introductionYear": 3053,
+      "introductionYear": 3047,
       "special": ["Multiple ammo types"]
     }
   },
@@ -4613,7 +4613,7 @@
     "file": "weapons/missile-atm.json",
     "index": 8,
     "id": "iatm-3",
-    "sha256": "6e663efc4ae2fe0a572ba6716036e653f26b5534cbfd43809272daf31df78aca",
+    "sha256": "114ee1b0b76728c63ecc795d21353cb39caea1c9113b2d45934bbe3c39ce9d1d",
     "item": {
       "id": "iatm-3",
       "name": "iATM 3",
@@ -4634,7 +4634,7 @@
       "ammoPerTon": 20,
       "costCBills": 50000,
       "battleValue": 83,
-      "introductionYear": 3070,
+      "introductionYear": 3049,
       "special": ["iatm"]
     }
   },
@@ -4642,7 +4642,7 @@
     "file": "weapons/missile-atm.json",
     "index": 9,
     "id": "iatm-6",
-    "sha256": "73f0dce4feda8f09fa9fa16dffdddcb724cb96a3c534f46d4a5603a9e6780f55",
+    "sha256": "1e74e91ba159606d1eb2efbb43a1561890ce091e0b62a59d65580a21cbbee81a",
     "item": {
       "id": "iatm-6",
       "name": "iATM 6",
@@ -4663,7 +4663,7 @@
       "ammoPerTon": 10,
       "costCBills": 250000,
       "battleValue": 165,
-      "introductionYear": 3070,
+      "introductionYear": 3049,
       "special": ["iatm"]
     }
   },
@@ -4671,7 +4671,7 @@
     "file": "weapons/missile-atm.json",
     "index": 10,
     "id": "iatm-9",
-    "sha256": "ea43ad99a9f3c1e60e855f89b90d0b52d12cbb51e593ffb39d76a5d1d5743fed",
+    "sha256": "87709ff9adaf3ca748019b3f4817e7a8351ba2558fd2ed252593f5974a1568f7",
     "item": {
       "id": "iatm-9",
       "name": "iATM 9",
@@ -4692,7 +4692,7 @@
       "ammoPerTon": 7,
       "costCBills": 450000,
       "battleValue": 231,
-      "introductionYear": 3070,
+      "introductionYear": 3049,
       "special": ["iatm"]
     }
   },
@@ -4700,7 +4700,7 @@
     "file": "weapons/missile-atm.json",
     "index": 11,
     "id": "iatm-12",
-    "sha256": "6912b922f998e3e8ea796851470568b45970c7bfdb040fbfc8c7bc2d5e476e97",
+    "sha256": "22e4d6a6e412daa6883e5e67c191422fa9e767ce78bb5f5fbc442133e7b1cfae",
     "item": {
       "id": "iatm-12",
       "name": "iATM 12",
@@ -4721,7 +4721,7 @@
       "ammoPerTon": 5,
       "costCBills": 700000,
       "battleValue": 333,
-      "introductionYear": 3070,
+      "introductionYear": 3049,
       "special": ["iatm"]
     }
   },
@@ -4729,7 +4729,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 0,
     "id": "lrm-5",
-    "sha256": "c908f22202bb1a74de18711e639d5b584e96eaccffb683742f7a9045978eabf3",
+    "sha256": "5f57507548a86a2cac24fdf2e985ed60662b3e06ef732ca3b70cfb3573ab1aa6",
     "item": {
       "id": "lrm-5",
       "name": "LRM 5",
@@ -4754,14 +4754,14 @@
       "ammoPerTon": 24,
       "costCBills": 30000,
       "battleValue": 45,
-      "introductionYear": 2300
+      "introductionYear": 2295
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 1,
     "id": "lrm-10",
-    "sha256": "b78d98dcd371604ed5aa486fda8b437cfe135b36bfe3ac19d76695efc14611ce",
+    "sha256": "007b883cffce4f7614759a0b73971f62c0d3b7d41994fcda641934155275ea2e",
     "item": {
       "id": "lrm-10",
       "name": "LRM 10",
@@ -4786,14 +4786,14 @@
       "ammoPerTon": 12,
       "costCBills": 100000,
       "battleValue": 90,
-      "introductionYear": 2300
+      "introductionYear": 2295
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 2,
     "id": "lrm-15",
-    "sha256": "e40a6990c52886afcce9458eb26c3ba781a629c3ab47f015b377d21167acb3f5",
+    "sha256": "34d5762a291ac696a20c828100a9b4ae7391df3aeb07bd8ba16f3c2a36a192f7",
     "item": {
       "id": "lrm-15",
       "name": "LRM 15",
@@ -4818,14 +4818,14 @@
       "ammoPerTon": 8,
       "costCBills": 175000,
       "battleValue": 136,
-      "introductionYear": 2300
+      "introductionYear": 2295
     }
   },
   {
     "file": "weapons/missile-lrm.json",
     "index": 3,
     "id": "lrm-20",
-    "sha256": "4a4d9ebee2c6e474d7ab8e7001141b052d4f0098d277896114a61dc12b829ea8",
+    "sha256": "27c375f8919a4fd530711ce1baf28c3b3684dba9a2030c5c30b184bc16d33d36",
     "item": {
       "id": "lrm-20",
       "name": "LRM 20",
@@ -4850,7 +4850,7 @@
       "ammoPerTon": 6,
       "costCBills": 250000,
       "battleValue": 181,
-      "introductionYear": 2300
+      "introductionYear": 2295
     }
   },
   {
@@ -4985,7 +4985,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 8,
     "id": "balrm1",
-    "sha256": "33cb912b5b18459bf65d59f2910bad8e1a93faec2709aff94cf0113957a531c2",
+    "sha256": "40bc91cf21c446eb634003e8d78db1943e05dc6544fcb42f4824aba090f2c79e",
     "item": {
       "id": "balrm1",
       "name": "LRM 1",
@@ -5010,7 +5010,7 @@
       "ammoPerTon": 1,
       "costCBills": 6000,
       "battleValue": 17,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -5018,7 +5018,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 9,
     "id": "balrm1os",
-    "sha256": "2db537bd906266f2e77cb12cc47945549aa5b1c84c4161f1d793cc7c75951207",
+    "sha256": "04ef237105d0fa226cb66ec02559c9a809b78219b4f0776e6f79d394a6ddf9e6",
     "item": {
       "id": "balrm1os",
       "name": "LRM 1 (OS)",
@@ -5042,7 +5042,7 @@
       },
       "costCBills": 3000,
       "battleValue": 3,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -5050,7 +5050,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 10,
     "id": "balrm2",
-    "sha256": "96195b450ade6f0e9aeb88536312d023f47d4ea68c7deae4a27b8efced70e044",
+    "sha256": "c635a8359c2b4c33fb0dfc7e295378c0894309d04333904109e15977d223b5c9",
     "item": {
       "id": "balrm2",
       "name": "LRM 2",
@@ -5075,7 +5075,7 @@
       "ammoPerTon": 1,
       "costCBills": 12000,
       "battleValue": 24,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -5083,7 +5083,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 11,
     "id": "balrm2os",
-    "sha256": "7ca478e55bef1fcb0895dfb7756cf6da083e41da7f2af0e5b2a6a9878de95ff7",
+    "sha256": "6f6e56f5fd47d572b5c0888ed813a115bd968325775fe2720fb959cdaa3dd4e4",
     "item": {
       "id": "balrm2os",
       "name": "LRM 2 (OS)",
@@ -5107,7 +5107,7 @@
       },
       "costCBills": 6000,
       "battleValue": 5,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -5115,7 +5115,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 12,
     "id": "balrm3",
-    "sha256": "0a11549ef1bb73523bf61fd8c7e5c99099cb49ed8a8c26ac38836acd1f7f7a80",
+    "sha256": "fed1466e0ea18f2f468152284fec4b050312bc58696679a3e4b9eb547b01cc06",
     "item": {
       "id": "balrm3",
       "name": "LRM 3",
@@ -5140,7 +5140,7 @@
       "ammoPerTon": 1,
       "costCBills": 18000,
       "battleValue": 34,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -5148,7 +5148,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 13,
     "id": "balrm3os",
-    "sha256": "30275186bf4931671a273661b06371fa4c20816baf3e0e12eb50b46a8bc5f69b",
+    "sha256": "9558dc9fe583b70fad0fae1df856053b210146355266ae6b1e2fe3a1f8a9b945",
     "item": {
       "id": "balrm3os",
       "name": "LRM 3 (OS)",
@@ -5172,7 +5172,7 @@
       },
       "costCBills": 9000,
       "battleValue": 7,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -5180,7 +5180,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 14,
     "id": "balrm4",
-    "sha256": "30f9cba56b2327131fe40837506bcf52eb7b1adfd2b52fb81ff011f88e2f19f2",
+    "sha256": "df9337a3932491dfc5badb0524eb88024a41fec8ed2312efe22b6d405d79ed66",
     "item": {
       "id": "balrm4",
       "name": "LRM 4",
@@ -5205,7 +5205,7 @@
       "ammoPerTon": 1,
       "costCBills": 24000,
       "battleValue": 46,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -5213,7 +5213,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 15,
     "id": "balrm4os",
-    "sha256": "d93c28ade48b36b179c505292e71346a6e909f9481ea61462b84255b49536930",
+    "sha256": "49a9360121685e0b8150e44201b17c7df305fc7e1ce4926c8fca6207279b32a3",
     "item": {
       "id": "balrm4os",
       "name": "LRM 4 (OS)",
@@ -5237,7 +5237,7 @@
       },
       "costCBills": 12000,
       "battleValue": 9,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -5245,7 +5245,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 16,
     "id": "balrm5-os",
-    "sha256": "48e716117e1defd64b4046e9f4dd249c738b975320e2b59dbaa15735d7cf391d",
+    "sha256": "e9fc08dd0039d32bd9d8b1885feb561ee8f0e1ea18b887254225742fb14ef219",
     "item": {
       "id": "balrm5-os",
       "name": "LRM 5 (OS)",
@@ -5269,7 +5269,7 @@
       },
       "costCBills": 15000,
       "battleValue": 11,
-      "introductionYear": 3060,
+      "introductionYear": 2660,
       "special": []
     }
   },
@@ -5697,7 +5697,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 29,
     "id": "improved-lrm-10",
-    "sha256": "23843c9f5b64bc564be1eea618555f0d780fc08798a716bd013f8421b271d0cc",
+    "sha256": "36a1aee813c2f5d5d4fede1750d736129857c14af585a4450bfb662b039216bd",
     "item": {
       "id": "improved-lrm-10",
       "name": "Improved LRM 10",
@@ -5722,7 +5722,7 @@
       "ammoPerTon": 12,
       "costCBills": 100000,
       "battleValue": 90,
-      "introductionYear": 2818,
+      "introductionYear": 2815,
       "special": [],
       "extinctionYear": 2831,
       "reintroductionYear": 3080
@@ -5732,7 +5732,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 30,
     "id": "improved-lrm-15",
-    "sha256": "2ee23a41b79ac6fa95b6c3a53b1e82d88e8bddba25bed7eb56b2c6592bb7a726",
+    "sha256": "4f9a2b8f92adcb58d91ca1bb562dce1b182bb0cc08800c92f5903ca843eaff7e",
     "item": {
       "id": "improved-lrm-15",
       "name": "Improved LRM 15",
@@ -5757,7 +5757,7 @@
       "ammoPerTon": 8,
       "costCBills": 175000,
       "battleValue": 136,
-      "introductionYear": 2818,
+      "introductionYear": 2815,
       "special": [],
       "extinctionYear": 2831,
       "reintroductionYear": 3080
@@ -5767,7 +5767,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 31,
     "id": "improved-lrm-20",
-    "sha256": "b40e6411f67da2ecb0287963c78c0dbafcd96c486fefee45409b5ec3291b99dd",
+    "sha256": "a9312c141b95b278b8957cf63106fdf74db6de95d0454235d534856675b74987",
     "item": {
       "id": "improved-lrm-20",
       "name": "Improved LRM 20",
@@ -5792,7 +5792,7 @@
       "ammoPerTon": 6,
       "costCBills": 250000,
       "battleValue": 181,
-      "introductionYear": 2818,
+      "introductionYear": 2815,
       "special": [],
       "extinctionYear": 2831,
       "reintroductionYear": 3080
@@ -5802,7 +5802,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 32,
     "id": "improved-lrm-5",
-    "sha256": "fcf6ec5b540b4c5ae02b911bf8695d8f5c0f373214ff9be3e8416578ab359dd6",
+    "sha256": "ce3d1f63f31a4e4ed847c4d756a707ed79895e24f9b70ce35ad356e5f6be3cf8",
     "item": {
       "id": "improved-lrm-5",
       "name": "Improved LRM 5",
@@ -5827,7 +5827,7 @@
       "ammoPerTon": 24,
       "costCBills": 30000,
       "battleValue": 45,
-      "introductionYear": 2818,
+      "introductionYear": 2815,
       "special": [],
       "extinctionYear": 2831,
       "reintroductionYear": 3080
@@ -6713,7 +6713,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 60,
     "id": "iosstreaklrm10",
-    "sha256": "bfb179303fa063b8522b9a4d22b8b6115a977c279f218da529d49c169687a83c",
+    "sha256": "6ec89b8f4f384fd9b20ceba9c6321c4245aaa030d1253130516533124a215dbd",
     "item": {
       "id": "iosstreaklrm10",
       "name": "Streak LRM 10 (I-OS)",
@@ -6738,7 +6738,7 @@
       },
       "costCBills": 180000,
       "battleValue": 35,
-      "introductionYear": 3081,
+      "introductionYear": 3058,
       "special": []
     }
   },
@@ -6746,7 +6746,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 61,
     "id": "osstreaklrm10",
-    "sha256": "7e0cd2cf3a775f493cb616f38fd48d9cd13f21a09184bc2b5f2951aca3545337",
+    "sha256": "f4ec5c1d4c943b8972486660ac83d408ec243a6f5003b8308bb66a17c967f224",
     "item": {
       "id": "osstreaklrm10",
       "name": "Streak LRM 10 (OS)",
@@ -6771,7 +6771,7 @@
       },
       "costCBills": 112500,
       "battleValue": 35,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -6779,7 +6779,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 62,
     "id": "streaklrm11os",
-    "sha256": "f55203b840457983fc58e6f3b01361a6da6ecff8ab845494f18b8b0117e3806a",
+    "sha256": "29fbcf098f4f35c768594ba5d8648f52a4bbb7d60c5bcebf9f2b140e47ea5670",
     "item": {
       "id": "streaklrm11os",
       "name": "Streak LRM 11 (OS)",
@@ -6804,7 +6804,7 @@
       },
       "costCBills": 165000,
       "battleValue": 190,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -6812,7 +6812,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 63,
     "id": "streaklrm12-os",
-    "sha256": "597480c4569dbd51d965375834396772861622b914c0c0fa82e69724fdb602ea",
+    "sha256": "cc81bbbea94312067b61da2408c5100f43c2a563a6f1ab94df6b906dfcf87a2e",
     "item": {
       "id": "streaklrm12-os",
       "name": "Streak LRM 12 (OS)",
@@ -6837,7 +6837,7 @@
       },
       "costCBills": 180000,
       "battleValue": 207,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -6845,7 +6845,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 64,
     "id": "streaklrm13os",
-    "sha256": "1edbc89935dd3c4255489162adf71781ace81b901997068a69ec29fbe2b82fe3",
+    "sha256": "f231f266731b5178af82a2602ebfaa931b956d835e5ad7d5441fbbb05b00ec3d",
     "item": {
       "id": "streaklrm13os",
       "name": "Streak LRM 13 (OS)",
@@ -6870,7 +6870,7 @@
       },
       "costCBills": 195000,
       "battleValue": 224,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -6878,7 +6878,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 65,
     "id": "streaklrm14os",
-    "sha256": "8505a5c4caf6f51d096637819ef3e571bbbf5da0fbdb759e9341add18d98e3dd",
+    "sha256": "3ea06117ac787fd194227eb0deb4cf3cc33ed80d19adc5086c76c5e2776e0bb3",
     "item": {
       "id": "streaklrm14os",
       "name": "Streak LRM 14 (OS)",
@@ -6903,7 +6903,7 @@
       },
       "costCBills": 210000,
       "battleValue": 241,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -6911,7 +6911,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 66,
     "id": "iosstreaklrm15",
-    "sha256": "a3a2f761eb43878c4373d18fb06b232f6813ca61d9c5a925dede1323f38a4614",
+    "sha256": "2fe4b7bb1f247105b6029df433875f7f574b8d432982b48e586fe3c6895d5f38",
     "item": {
       "id": "iosstreaklrm15",
       "name": "Streak LRM 15 (I-OS)",
@@ -6936,7 +6936,7 @@
       },
       "costCBills": 320000,
       "battleValue": 52,
-      "introductionYear": 3081,
+      "introductionYear": 3058,
       "special": []
     }
   },
@@ -6944,7 +6944,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 67,
     "id": "osstreaklrm15",
-    "sha256": "41e34c6861b4289dee12e16a8177e311692dc44e0a88b11192220df2a30bccfd",
+    "sha256": "8331ad7b57d6e74127e7b8641ee9acd3e9d77757c69e36ed54281acd77e85835",
     "item": {
       "id": "osstreaklrm15",
       "name": "Streak LRM 15 (OS)",
@@ -6969,7 +6969,7 @@
       },
       "costCBills": 200000,
       "battleValue": 52,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -6977,7 +6977,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 68,
     "id": "streaklrm16os",
-    "sha256": "94ddd20948b8d6812901477b8d1e637b1017166922eeeda76acb03a6becf0fa8",
+    "sha256": "439e2796c0c431f1bf5bc3db7e6fe949333125fa4d38ae46e230fa7ea437ee44",
     "item": {
       "id": "streaklrm16os",
       "name": "Streak LRM 16 (OS)",
@@ -7002,7 +7002,7 @@
       },
       "costCBills": 240000,
       "battleValue": 276,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -7010,7 +7010,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 69,
     "id": "streaklrm17os",
-    "sha256": "39145cfffc1cf20d4393b8b9f5846d9f60af135b70762ea52b097991cd502eff",
+    "sha256": "91ebf03ae5d507aa06ffcb1eb361a6f2bec8b5de32a1c8e789d3b18853efb1d9",
     "item": {
       "id": "streaklrm17os",
       "name": "Streak LRM 17 (OS)",
@@ -7035,7 +7035,7 @@
       },
       "costCBills": 255000,
       "battleValue": 293,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -7043,7 +7043,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 70,
     "id": "streaklrm18os",
-    "sha256": "dcd1d42ea711cd8b89d86e4cf09ae94b040205ff3efeddccee76ed72752adb19",
+    "sha256": "977725403df4b4c441db9a0f7db7da526106a37ac5fcc620cd63d420e8036fee",
     "item": {
       "id": "streaklrm18os",
       "name": "Streak LRM 18 (OS)",
@@ -7068,7 +7068,7 @@
       },
       "costCBills": 270000,
       "battleValue": 310,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -7076,7 +7076,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 71,
     "id": "streaklrm19os",
-    "sha256": "3a21cb867bac718fb7c76a5e20da42e0b73b09d8a7b4a0b84dbd82d941f0066b",
+    "sha256": "542562ac1b5be1dc61406c7ae170e9fa03ac45f42f881e28d399abc665e55cf2",
     "item": {
       "id": "streaklrm19os",
       "name": "Streak LRM 19 (OS)",
@@ -7101,7 +7101,7 @@
       },
       "costCBills": 285000,
       "battleValue": 327,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -7109,7 +7109,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 72,
     "id": "streaklrm1os",
-    "sha256": "716dde1b5adba2d281ec7f6b14fe76c5eec4be32de6e749b3d9764bcfb94b1ae",
+    "sha256": "009da1909f67d7ce89fef8bc7774043369112503fd3e7fa4525f5b9f52ead134",
     "item": {
       "id": "streaklrm1os",
       "name": "Streak LRM 1 (OS)",
@@ -7134,7 +7134,7 @@
       },
       "costCBills": 15000,
       "battleValue": 17,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -7142,7 +7142,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 73,
     "id": "iosstreaklrm20",
-    "sha256": "f795fe94be9b228c84038a409b9fddd33795d2571de837a71fdb8765691a03ba",
+    "sha256": "f51432c284e56810599eb6a9b058bdb259e511666a7cbba0ef020965a81e6139",
     "item": {
       "id": "iosstreaklrm20",
       "name": "Streak LRM 20 (I-OS)",
@@ -7167,7 +7167,7 @@
       },
       "costCBills": 480000,
       "battleValue": 69,
-      "introductionYear": 3081,
+      "introductionYear": 3058,
       "special": []
     }
   },
@@ -7175,7 +7175,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 74,
     "id": "osstreaklrm20",
-    "sha256": "394bace2fb73576da1aee50d1dc20f01d70aa1db859e52123cdc20e5362bcb89",
+    "sha256": "624583ed049b9efafb9069a42fc1aee8993a14ccdb3507cc5aaf5796bb29d8ce",
     "item": {
       "id": "osstreaklrm20",
       "name": "Streak LRM 20 (OS)",
@@ -7200,7 +7200,7 @@
       },
       "costCBills": 300000,
       "battleValue": 69,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -7208,7 +7208,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 75,
     "id": "streaklrm2os",
-    "sha256": "0a7395586ed90c9b50776bd9e0cd7edb44f91df760e07698cbff3980221c94a1",
+    "sha256": "682dfaa05a95ba967e461d9a3c68e054725eb0176405aaa947e577c044b326b3",
     "item": {
       "id": "streaklrm2os",
       "name": "Streak LRM 2 (OS)",
@@ -7233,7 +7233,7 @@
       },
       "costCBills": 30000,
       "battleValue": 34,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -7241,7 +7241,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 76,
     "id": "streaklrm3os",
-    "sha256": "d587cdc761498c96dd20deffecddd386c66f4457eeab1a2e31882c661eac4ff7",
+    "sha256": "a35e5dd41948de14ce259c5fb0a77853de6d7b332aed51f8756304ead4754104",
     "item": {
       "id": "streaklrm3os",
       "name": "Streak LRM 3 (OS)",
@@ -7266,7 +7266,7 @@
       },
       "costCBills": 45000,
       "battleValue": 51,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -7274,7 +7274,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 77,
     "id": "streaklrm4os",
-    "sha256": "6b4dbd65f1b4e0ae0db85a694aa0ca88cbfc914a850ac0838d76264474853d92",
+    "sha256": "2a9751a596a9ebdd2a9d138c66f720db98968073f6ac1aa2f041ed0d94e26db9",
     "item": {
       "id": "streaklrm4os",
       "name": "Streak LRM 4 (OS)",
@@ -7299,7 +7299,7 @@
       },
       "costCBills": 60000,
       "battleValue": 68,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -7307,7 +7307,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 78,
     "id": "iosstreaklrm5",
-    "sha256": "f30e3ad86464c8f18a20aae26a172c9c383c9d27ae64bf128141e25240503128",
+    "sha256": "a11ed4bd50d77b6967bf18de09924add698da0fb5e152d0a4ac9d0a368cdf406",
     "item": {
       "id": "iosstreaklrm5",
       "name": "Streak LRM 5 (I-OS)",
@@ -7332,7 +7332,7 @@
       },
       "costCBills": 60000,
       "battleValue": 17,
-      "introductionYear": 3081,
+      "introductionYear": 3058,
       "special": []
     }
   },
@@ -7340,7 +7340,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 79,
     "id": "osstreaklrm5",
-    "sha256": "d6636659f328b8e9244b86b2def438881ad68e094deb96b608fedef92f024ca7",
+    "sha256": "d0e335c6b83329ccfb3153ec18af1da04c1cd27c73d7f4208d8507648bda5a64",
     "item": {
       "id": "osstreaklrm5",
       "name": "Streak LRM 5 (OS)",
@@ -7365,7 +7365,7 @@
       },
       "costCBills": 37500,
       "battleValue": 17,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -7373,7 +7373,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 80,
     "id": "streaklrm6os",
-    "sha256": "148a1b220c1e6b72aeef7a7145e7354d0bf9f7da16d3d8f602e35346d2958f9d",
+    "sha256": "797367157ce0535066072043956d75a29a16274994088652445101a08936b943",
     "item": {
       "id": "streaklrm6os",
       "name": "Streak LRM 6 (OS)",
@@ -7398,7 +7398,7 @@
       },
       "costCBills": 90000,
       "battleValue": 103,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -7406,7 +7406,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 81,
     "id": "streaklrm7os",
-    "sha256": "7ae2fdfe37faab0d05e0f4196f6d5e8eb88c9cc29807fb7cea943d9a5afd307f",
+    "sha256": "b7ddd169dfe74de1d382ffae6950bf72c806b45daf6d256c580ebf86c7ba9b23",
     "item": {
       "id": "streaklrm7os",
       "name": "Streak LRM 7 (OS)",
@@ -7431,7 +7431,7 @@
       },
       "costCBills": 105000,
       "battleValue": 120,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -7439,7 +7439,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 82,
     "id": "streaklrm8os",
-    "sha256": "7d0d1efb449eed22882473056995b5109cc5746ab502d8acde4e43af3543c5fe",
+    "sha256": "65e4e2fd1a1cd87827195ee1c21b580ced09016484682667e707220dac160446",
     "item": {
       "id": "streaklrm8os",
       "name": "Streak LRM 8 (OS)",
@@ -7464,7 +7464,7 @@
       },
       "costCBills": 120000,
       "battleValue": 137,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -7472,7 +7472,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 83,
     "id": "streaklrm9os",
-    "sha256": "72f6ed032457d2f7b1e7b33d979d3e5050ad5a7a72f0d6858f5483e4d9e42d18",
+    "sha256": "328f4d4582fd7b724fd6d710ff704f1fefd4a3bcd1a7bad4198db096cb9e1e1c",
     "item": {
       "id": "streaklrm9os",
       "name": "Streak LRM 9 (OS)",
@@ -7497,7 +7497,7 @@
       },
       "costCBills": 135000,
       "battleValue": 155,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -7573,7 +7573,7 @@
     "file": "weapons/missile-lrm.json",
     "index": 86,
     "id": "enhanced-lrm-20",
-    "sha256": "289773caaca47609c207b4cd09d30fb255421987ade93d496d6a37469fc9249e",
+    "sha256": "ff217ffc4d7461d471808d57058f1e31235cf5b83c2eef5b1cf648bc073a203f",
     "item": {
       "id": "enhanced-lrm-20",
       "name": "Enhanced LRM 20",
@@ -7599,7 +7599,7 @@
       "ammoPerTon": 6,
       "costCBills": 312500,
       "battleValue": 210,
-      "introductionYear": 3082,
+      "introductionYear": 3058,
       "special": []
     }
   },
@@ -8029,7 +8029,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 0,
     "id": "mrm-10",
-    "sha256": "cf32bc9197a01919f27e51d397f4fc35dbd681c79c66abd1c90a9b5f7087b708",
+    "sha256": "29e46d99223de931d8a4d4ff8a5d0ceae32fc4308b84eecfa71c1379680e6893",
     "item": {
       "id": "mrm-10",
       "name": "MRM 10",
@@ -8054,7 +8054,7 @@
       "ammoPerTon": 24,
       "costCBills": 50000,
       "battleValue": 56,
-      "introductionYear": 3058,
+      "introductionYear": 3047,
       "special": ["+1 to-hit penalty"]
     }
   },
@@ -8062,7 +8062,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 1,
     "id": "mrm-20",
-    "sha256": "66895b3e314e381e77f41707cea017126064425370ade038f814ff4ce2df4188",
+    "sha256": "028a962c0aacbec8ddce903d6bf3ea722eed8b7581e0ac754d6f532ba5b58aba",
     "item": {
       "id": "mrm-20",
       "name": "MRM 20",
@@ -8087,7 +8087,7 @@
       "ammoPerTon": 12,
       "costCBills": 125000,
       "battleValue": 112,
-      "introductionYear": 3058,
+      "introductionYear": 3047,
       "special": ["+1 to-hit penalty"]
     }
   },
@@ -8095,7 +8095,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 2,
     "id": "mrm-30",
-    "sha256": "ead46a36bac7a362a159398e7aaaa764fcb50791df3af966e30656d9322dffe0",
+    "sha256": "a76f55bd1f163e3a84921d9c2eb2792b0f7a9b9ebb8ea8e8af5f1a1bb924865d",
     "item": {
       "id": "mrm-30",
       "name": "MRM 30",
@@ -8120,7 +8120,7 @@
       "ammoPerTon": 8,
       "costCBills": 225000,
       "battleValue": 168,
-      "introductionYear": 3058,
+      "introductionYear": 3047,
       "special": ["+1 to-hit penalty"]
     }
   },
@@ -8128,7 +8128,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 3,
     "id": "mrm-40",
-    "sha256": "9269177e0aeb6ac605de7b7be0170b7d1cd4ad912c22f0844cd19122327d8bc0",
+    "sha256": "8af265758cdc6e2f545adbd31dfe667a339afb56096cdbdeb97732e6b5be6c1b",
     "item": {
       "id": "mrm-40",
       "name": "MRM 40",
@@ -8153,7 +8153,7 @@
       "ammoPerTon": 6,
       "costCBills": 350000,
       "battleValue": 224,
-      "introductionYear": 3058,
+      "introductionYear": 3047,
       "special": ["+1 to-hit penalty"]
     }
   },
@@ -8161,7 +8161,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 4,
     "id": "bamrm1",
-    "sha256": "d3ecd963abac354391643771fa345237628fef3e2b43d9edb5bbf47cb36b4f96",
+    "sha256": "e651fdabde2d3a19b08797f3e5f931b306f8042e2d6b94c5494fd42ad48fb5be",
     "item": {
       "id": "bamrm1",
       "name": "MRM 1",
@@ -8187,7 +8187,7 @@
       "ammoPerTon": 1,
       "costCBills": 5000,
       "battleValue": 9,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -8195,7 +8195,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 5,
     "id": "bamrm1os",
-    "sha256": "7e7e2dc5ad5794c8200550fd519f5a9565d99ca5d38a2e7818c41cd895ce927e",
+    "sha256": "ea1f2c594538168e3fa4f8bd8588137d3c981107d98db56414624ed4f6bd06f7",
     "item": {
       "id": "bamrm1os",
       "name": "MRM 1 (OS)",
@@ -8220,7 +8220,7 @@
       },
       "costCBills": 2500,
       "battleValue": 2,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -8228,7 +8228,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 6,
     "id": "bamrm2",
-    "sha256": "11a888f19c37ac8eba38996eec2689a54d4f3711a79c76fdb6d0d8662f92572c",
+    "sha256": "24aad940057a0e518c0a5393f11497ecd5671ffe0f96a5c3a4cc62a7afb2b6c7",
     "item": {
       "id": "bamrm2",
       "name": "MRM 2",
@@ -8254,7 +8254,7 @@
       "ammoPerTon": 1,
       "costCBills": 10000,
       "battleValue": 9,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -8262,7 +8262,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 7,
     "id": "bamrm2os",
-    "sha256": "cb4604dcf32e619b93a273a498620b9a2a1b876a8f847106630d4cd1cf8fefc5",
+    "sha256": "b63d0b77b48d320c55f13168a3c4b3e0c480c57640c6dfe48cfd83e534b69c2c",
     "item": {
       "id": "bamrm2os",
       "name": "MRM 2 (OS)",
@@ -8287,7 +8287,7 @@
       },
       "costCBills": 5000,
       "battleValue": 3,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -8295,7 +8295,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 8,
     "id": "bamrm3",
-    "sha256": "aace4fe7059be9e5cd8ff67028b01dbb44121fc604c3920858d494c27aa9ff7f",
+    "sha256": "a53ca1afb0dde4992a2377e266eb5d50080b487bbb8e6a50ee35ac71ed7d4dd8",
     "item": {
       "id": "bamrm3",
       "name": "MRM 3",
@@ -8321,7 +8321,7 @@
       "ammoPerTon": 1,
       "costCBills": 15000,
       "battleValue": 18,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -8329,7 +8329,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 9,
     "id": "bamrm3os",
-    "sha256": "05184c918e3502e71ea59d5fe3fd9e872530d227f9d8ead050b514bd9a168467",
+    "sha256": "2fb4e2c1543198de37341c1b4f9417779eff9a9e42ddd81a337247f2b70d526a",
     "item": {
       "id": "bamrm3os",
       "name": "MRM 3 (OS)",
@@ -8354,7 +8354,7 @@
       },
       "costCBills": 7500,
       "battleValue": 4,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -8362,7 +8362,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 10,
     "id": "bamrm4",
-    "sha256": "0e9895c2e5a5546fe8372217f74b09a5f5a0c80a024ed17fad746de9b07ba277",
+    "sha256": "472f3ba4ef00b9665877e5a96c85d9d355224465bdea6d0fc2883fa6ef2e9c72",
     "item": {
       "id": "bamrm4",
       "name": "MRM 4",
@@ -8388,7 +8388,7 @@
       "ammoPerTon": 1,
       "costCBills": 20000,
       "battleValue": 23,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -8396,7 +8396,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 11,
     "id": "bamrm4os",
-    "sha256": "aeab7a165ee8a9a8bf722ce5cce4fec8cf1917aac3242211f8e534082d1990f7",
+    "sha256": "014909b203d1daece30c8066e54310d2e3977b933ef669bed26f9c5ae14729f6",
     "item": {
       "id": "bamrm4os",
       "name": "MRM 4 (OS)",
@@ -8421,7 +8421,7 @@
       },
       "costCBills": 10000,
       "battleValue": 5,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -8429,7 +8429,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 12,
     "id": "bamrm5",
-    "sha256": "dbb956d7789ba7076b7a7e80954352a2762d9bcea5f12bb3f5e0d1aacfcf953e",
+    "sha256": "e9323fff0df4f2ee826e0cfd8a58140f9692dad97b3e4568ef7e6f02bd444479",
     "item": {
       "id": "bamrm5",
       "name": "MRM 5",
@@ -8455,7 +8455,7 @@
       "ammoPerTon": 1,
       "costCBills": 25000,
       "battleValue": 28,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -8463,7 +8463,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 13,
     "id": "bamrm5os",
-    "sha256": "656add58977551d8fe723c8c17a2fdee01469f486e730fcf50ebc5afbc7d13db",
+    "sha256": "14b6580b978d4b6451d8140ddb818a07551abd55e7a2a2587be7a09a70b3b1d2",
     "item": {
       "id": "bamrm5os",
       "name": "MRM 5 (OS)",
@@ -8488,7 +8488,7 @@
       },
       "costCBills": 12500,
       "battleValue": 6,
-      "introductionYear": 3060,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -8496,7 +8496,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 14,
     "id": "mrm-10-i-os",
-    "sha256": "33bf53219589a6db557e3f0a9a3c4ec566405f938b989dbbaf0138e9d6d38cbc",
+    "sha256": "e667d149beeda7e6360640e5f13e56b6b216cdc3c05ba7219a785de5b2e05a56",
     "item": {
       "id": "mrm-10-i-os",
       "name": "MRM 10 (I-OS)",
@@ -8521,7 +8521,7 @@
       },
       "costCBills": 40000,
       "battleValue": 11,
-      "introductionYear": 3081,
+      "introductionYear": 3056,
       "special": []
     }
   },
@@ -8529,7 +8529,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 15,
     "id": "mrm-10-os",
-    "sha256": "bc4407f64eb9d4fdbbd7b1da564902dafeb1fb3a81a8a221da434a2c8ece8bb9",
+    "sha256": "523a7cf84c853c73ebe531abf5c57217fc7beff48e6bd894d02d55381db9067d",
     "item": {
       "id": "mrm-10-os",
       "name": "MRM 10 (OS)",
@@ -8554,7 +8554,7 @@
       },
       "costCBills": 25000,
       "battleValue": 11,
-      "introductionYear": 3058,
+      "introductionYear": 3047,
       "special": []
     }
   },
@@ -8562,7 +8562,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 16,
     "id": "mrm-20-i-os",
-    "sha256": "3330232fbc28ecf822ae03b49d8771ba71af6b301553a73a047b38f3856cac1e",
+    "sha256": "e249d8ef237d3f7a5cd69f48648795e33afe2cf5f92b59996e265aa0a2a51e25",
     "item": {
       "id": "mrm-20-i-os",
       "name": "MRM 20 (I-OS)",
@@ -8587,7 +8587,7 @@
       },
       "costCBills": 100000,
       "battleValue": 22,
-      "introductionYear": 3081,
+      "introductionYear": 3056,
       "special": []
     }
   },
@@ -8595,7 +8595,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 17,
     "id": "mrm-20-os",
-    "sha256": "bf8ca297e3ea1ee3a1ecd29d777df96b70cbc2b340c1acc171eb947688ab5091",
+    "sha256": "06378ea61b0245903d805597248681d58c47a616201789ff94a59f4335cd60da",
     "item": {
       "id": "mrm-20-os",
       "name": "MRM 20 (OS)",
@@ -8620,7 +8620,7 @@
       },
       "costCBills": 62500,
       "battleValue": 22,
-      "introductionYear": 3058,
+      "introductionYear": 3047,
       "special": []
     }
   },
@@ -8628,7 +8628,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 18,
     "id": "mrm-30-i-os",
-    "sha256": "961a5772ca714eac21f2d105e89bef488a1dbe8b0e730840e3e7ce199f7081dc",
+    "sha256": "3f0ea79153c48edb069ea4f8ee3d4f6f3811ce72a2223eb228da0d1575ed34d2",
     "item": {
       "id": "mrm-30-i-os",
       "name": "MRM 30 (I-OS)",
@@ -8653,7 +8653,7 @@
       },
       "costCBills": 180000,
       "battleValue": 34,
-      "introductionYear": 3081,
+      "introductionYear": 3056,
       "special": []
     }
   },
@@ -8661,7 +8661,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 19,
     "id": "mrm-30-os",
-    "sha256": "b4bb6ad59b971e20b280077d7a4b1afb35ef01cee141f532a6f55df40b424832",
+    "sha256": "0aad4265ed0e10f3a300ef2c02b5cc5d6c5c5d21529b6093a125a2756283ecaf",
     "item": {
       "id": "mrm-30-os",
       "name": "MRM 30 (OS)",
@@ -8686,7 +8686,7 @@
       },
       "costCBills": 112500,
       "battleValue": 34,
-      "introductionYear": 3058,
+      "introductionYear": 3047,
       "special": []
     }
   },
@@ -8694,7 +8694,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 20,
     "id": "mrm-40-i-os",
-    "sha256": "d52b06db4669104a2b04e4fbad4821781f8ca0b21d341e5508e5a10614d3fe41",
+    "sha256": "08faaff9d6457497931137e2abb8af06febfd82ab114f0f15a5ebc7481c7d952",
     "item": {
       "id": "mrm-40-i-os",
       "name": "MRM 40 (I-OS)",
@@ -8719,7 +8719,7 @@
       },
       "costCBills": 280000,
       "battleValue": 49,
-      "introductionYear": 3081,
+      "introductionYear": 3056,
       "special": []
     }
   },
@@ -8727,7 +8727,7 @@
     "file": "weapons/missile-mrm.json",
     "index": 21,
     "id": "mrm-40-os",
-    "sha256": "e90c99af1afb96aeabde7e17f4bfc4f428354de6c8793f653f3c4ed33d3b8268",
+    "sha256": "0fc4e2586b5f52fc40b355f3745b1689b8ce8b798d5fb38f5bd28bd0906d17ed",
     "item": {
       "id": "mrm-40-os",
       "name": "MRM 40 (OS)",
@@ -8752,7 +8752,7 @@
       },
       "costCBills": 175000,
       "battleValue": 45,
-      "introductionYear": 3058,
+      "introductionYear": 3047,
       "special": []
     }
   },
@@ -8892,7 +8892,7 @@
     "file": "weapons/missile-other.json",
     "index": 4,
     "id": "narc",
-    "sha256": "4a3f553f1b9d1312437c8090bc6c93b4ec0b837e2c4996e29b9ceaff98575edd",
+    "sha256": "3ac3547bd9cac0975922ae0d209cdbd0f777523140822660a46b72dd3a809982",
     "item": {
       "id": "narc",
       "name": "NARC Missile Beacon",
@@ -8917,7 +8917,7 @@
       "ammoPerTon": 6,
       "costCBills": 100000,
       "battleValue": 30,
-      "introductionYear": 2587,
+      "introductionYear": 2575,
       "isExplosive": true,
       "special": ["Homing beacon"],
       "extinctionYear": 2795,
@@ -8928,7 +8928,7 @@
     "file": "weapons/missile-other.json",
     "index": 5,
     "id": "inarc",
-    "sha256": "a4386b820a42f167b747c0d6afb8d6116b0fca686c78bb769f9d229ce9c5d548",
+    "sha256": "27b8b8b1b167ad8081d179ad51aa582f48af0e9481891eeb185b9a60d23222ef",
     "item": {
       "id": "inarc",
       "name": "iNARC Launcher",
@@ -8953,7 +8953,7 @@
       "ammoPerTon": 4,
       "costCBills": 250000,
       "battleValue": 75,
-      "introductionYear": 3062,
+      "introductionYear": 3049,
       "isExplosive": false,
       "special": ["Multiple pod types"]
     }
@@ -8962,7 +8962,7 @@
     "file": "weapons/missile-other.json",
     "index": 6,
     "id": "clan-narc",
-    "sha256": "1cd810351959e3adcb36cf09b84861f45095439fb90527524a49065c73da3854",
+    "sha256": "26184e1684eff9454c8c1f62402920102088354d3500eb8a59e02fb527acf3f9",
     "item": {
       "id": "clan-narc",
       "name": "NARC Missile Beacon (Clan)",
@@ -8983,7 +8983,7 @@
       "ammoPerTon": 6,
       "costCBills": 100000,
       "battleValue": 30,
-      "introductionYear": 2828,
+      "introductionYear": 2815,
       "isExplosive": true,
       "special": ["Homing beacon"]
     }
@@ -8992,7 +8992,7 @@
     "file": "weapons/missile-other.json",
     "index": 7,
     "id": "cruisemissile120",
-    "sha256": "04c3f58ff8334dcd57c293aac5b23e6545248bc09f3e1a0892d810f8d447e697",
+    "sha256": "af4fdbf87fd32fb71a30b4bef671061c6ec5b12befda22fbd27f0f2770f896e9",
     "item": {
       "id": "cruisemissile120",
       "name": "Cruise Missile/120",
@@ -9017,7 +9017,7 @@
       },
       "costCBills": 3000000,
       "battleValue": 2281,
-      "introductionYear": 3095,
+      "introductionYear": 3065,
       "special": []
     }
   },
@@ -9058,7 +9058,7 @@
     "file": "weapons/missile-other.json",
     "index": 9,
     "id": "cruisemissile70",
-    "sha256": "2da10b2bc70f89dbb8550ab29f49532b041046800b6e67b8e7f6b5907464f465",
+    "sha256": "ba7b54ef5b3c81994390c71dd34ad90d54f0ddb8b9d45c1ac1c3a835bcd5a2bb",
     "item": {
       "id": "cruisemissile70",
       "name": "Cruise Missile/70",
@@ -9083,7 +9083,7 @@
       },
       "costCBills": 1250000,
       "battleValue": 1031,
-      "introductionYear": 3095,
+      "introductionYear": 3065,
       "special": []
     }
   },
@@ -9091,7 +9091,7 @@
     "file": "weapons/missile-other.json",
     "index": 10,
     "id": "cruisemissile90",
-    "sha256": "9f5c3e84a006fcdd2aaee17ba25c6b8b0db6ce50c874716872b828ec7e1992c8",
+    "sha256": "e7d1a19a110526290e245ee0fb9a18cbed483adef2698a41a41fecaf3fc4843b",
     "item": {
       "id": "cruisemissile90",
       "name": "Cruise Missile/90",
@@ -9116,7 +9116,7 @@
       },
       "costCBills": 1250000,
       "battleValue": 1530,
-      "introductionYear": 3095,
+      "introductionYear": 3065,
       "special": []
     }
   },
@@ -9124,7 +9124,7 @@
     "file": "weapons/missile-other.json",
     "index": 11,
     "id": "bacompactnarc",
-    "sha256": "154b02d13465dd07d76f40d8a876eb5e3d05db7d4292accef86018f0d03c0e0a",
+    "sha256": "a74056a71db788b2d6a05570d3b288954a63ed344597ea0709c41382e3529147",
     "item": {
       "id": "bacompactnarc",
       "name": "Narc (Compact)",
@@ -9149,7 +9149,7 @@
       },
       "costCBills": 15000,
       "battleValue": 16,
-      "introductionYear": 2875,
+      "introductionYear": 2865,
       "special": []
     }
   },
@@ -9157,7 +9157,7 @@
     "file": "weapons/missile-other.json",
     "index": 12,
     "id": "lrtorpedo1",
-    "sha256": "af26d171864f621cb3247a0915ca9a1365343b600363b8540dc7198288805d4a",
+    "sha256": "23fcb42bc8bbda98488e2208750ffc180adb569d2882ca44cb22885a3ef14740",
     "item": {
       "id": "lrtorpedo1",
       "name": "LRT 1",
@@ -9181,7 +9181,7 @@
       },
       "costCBills": 0,
       "battleValue": 17,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -9189,7 +9189,7 @@
     "file": "weapons/missile-other.json",
     "index": 13,
     "id": "lrtorpedo10",
-    "sha256": "938fe475023617e13edacc56926ed9559769681efff7bc13e5ad63ceb94c471f",
+    "sha256": "955f29de2b7d56a2fbfb0c75a64ef6cd8a7acdfc19f08854fbccbf5f20c80911",
     "item": {
       "id": "lrtorpedo10",
       "name": "LRT 10",
@@ -9213,7 +9213,7 @@
       },
       "costCBills": 100000,
       "battleValue": 109,
-      "introductionYear": 2824,
+      "introductionYear": 2815,
       "special": []
     }
   },
@@ -9221,7 +9221,7 @@
     "file": "weapons/missile-other.json",
     "index": 14,
     "id": "lrtorpedo11",
-    "sha256": "095bf1509d355df7f6bedf8507617a497046d7f229dddf79cdd519378281d1c9",
+    "sha256": "b7a6b290da7c5d939a4af2754b1b3c16fd76f98aa2a4f8b37d14bfb79656e9db",
     "item": {
       "id": "lrtorpedo11",
       "name": "LRT 11",
@@ -9245,7 +9245,7 @@
       },
       "costCBills": 0,
       "battleValue": 139,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -9253,7 +9253,7 @@
     "file": "weapons/missile-other.json",
     "index": 15,
     "id": "lrtorpedo12",
-    "sha256": "684411266769798618d0cd4f37eec834adb11d8e88653f53dafb526251092833",
+    "sha256": "bd13fdb495dd448601b711c42b64d8568824042860d08bf11ebae7057ef110bf",
     "item": {
       "id": "lrtorpedo12",
       "name": "LRT 12",
@@ -9277,7 +9277,7 @@
       },
       "costCBills": 0,
       "battleValue": 141,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -9285,7 +9285,7 @@
     "file": "weapons/missile-other.json",
     "index": 16,
     "id": "lrtorpedo13",
-    "sha256": "3b2c321606ef11b8887b6cfe2475eca6a658f9295825778126c8d2b4739c3e58",
+    "sha256": "baff86767a10f877f0a394b19af03d8fac4a7d9dd25043e5799761c0a9120707",
     "item": {
       "id": "lrtorpedo13",
       "name": "LRT 13",
@@ -9309,7 +9309,7 @@
       },
       "costCBills": 0,
       "battleValue": 161,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -9317,7 +9317,7 @@
     "file": "weapons/missile-other.json",
     "index": 17,
     "id": "lrtorpedo14",
-    "sha256": "ad742de997971128002f8db5c88f283f2a0f33eb4e81b8d41eef1d21668fddc3",
+    "sha256": "796ab9ec466c7d827d6c722302f186be433af86285e9751a7f89ee590c26de38",
     "item": {
       "id": "lrtorpedo14",
       "name": "LRT 14",
@@ -9341,7 +9341,7 @@
       },
       "costCBills": 0,
       "battleValue": 163,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -9349,7 +9349,7 @@
     "file": "weapons/missile-other.json",
     "index": 18,
     "id": "lrtorpedo15",
-    "sha256": "3a7fa1d7d9058fb6229419f31f7a4424722b298b135d99fca65bbcf15113cf8e",
+    "sha256": "5d5f35236292de5e0e86b8c017e8df567f723a3fee309ce0e4c4905586094259",
     "item": {
       "id": "lrtorpedo15",
       "name": "LRT 15",
@@ -9373,7 +9373,7 @@
       },
       "costCBills": 175000,
       "battleValue": 164,
-      "introductionYear": 2824,
+      "introductionYear": 2815,
       "special": []
     }
   },
@@ -9381,7 +9381,7 @@
     "file": "weapons/missile-other.json",
     "index": 19,
     "id": "lrtorpedo16",
-    "sha256": "127db95239d04190560dd09c0fee5f7bef9e6b4a46240d412314689e7cfc1c1a",
+    "sha256": "f2e5b23e6ceb66d979395829b08e4c2812cf1cdbaaba69d9542bdaa99247d11c",
     "item": {
       "id": "lrtorpedo16",
       "name": "LRT 16",
@@ -9405,7 +9405,7 @@
       },
       "costCBills": 0,
       "battleValue": 214,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -9413,7 +9413,7 @@
     "file": "weapons/missile-other.json",
     "index": 20,
     "id": "lrtorpedo17",
-    "sha256": "d52665c4ad7dc1199f714044129846ac91296dfe4514ea38ef718348f1c01b9c",
+    "sha256": "2254369bae17856c63a79dff76ef9b0a88205c44d409eccb3496edd597c3adc6",
     "item": {
       "id": "lrtorpedo17",
       "name": "LRT 17",
@@ -9437,7 +9437,7 @@
       },
       "costCBills": 0,
       "battleValue": 215,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -9445,7 +9445,7 @@
     "file": "weapons/missile-other.json",
     "index": 21,
     "id": "lrtorpedo18",
-    "sha256": "395b1989ff79a18362d1fd2927fc32d9963903235e5731d5e8a8f57278684d56",
+    "sha256": "eeaac354631b840555f196f4c1681bc70c435a08037007cc3b67b391d1953379",
     "item": {
       "id": "lrtorpedo18",
       "name": "LRT 18",
@@ -9469,7 +9469,7 @@
       },
       "costCBills": 0,
       "battleValue": 217,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -9477,7 +9477,7 @@
     "file": "weapons/missile-other.json",
     "index": 22,
     "id": "lrtorpedo19",
-    "sha256": "8ea0080ad73e8d515580f1c743125800ba23eeebeb644c36afc9b213dcf4eef7",
+    "sha256": "1a4ed70e29d58fd94eb91c38e9d60e5443c6f25aec0ffb3eb38a9df6252102b1",
     "item": {
       "id": "lrtorpedo19",
       "name": "LRT 19",
@@ -9501,7 +9501,7 @@
       },
       "costCBills": 0,
       "battleValue": 218,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -9509,7 +9509,7 @@
     "file": "weapons/missile-other.json",
     "index": 23,
     "id": "lrtorpedo2",
-    "sha256": "5f8469171f56222754fc7440c83eb9f097a983df2492c97c5699e8d103e2da51",
+    "sha256": "298240120a9c4fa698a4281e39b29f4ce5748a62e224d06d6c88f7de7a1ff162",
     "item": {
       "id": "lrtorpedo2",
       "name": "LRT 2",
@@ -9533,7 +9533,7 @@
       },
       "costCBills": 0,
       "battleValue": 24,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -9541,7 +9541,7 @@
     "file": "weapons/missile-other.json",
     "index": 24,
     "id": "lrtorpedo20",
-    "sha256": "5127b9654e617a7be1becf4f584597aa5ea94161e5893d50aa023a651cdeeb5f",
+    "sha256": "85e5c459c723ad3b5b9574e86153ad8dae932e998531d37bbd7d3169c1f5df14",
     "item": {
       "id": "lrtorpedo20",
       "name": "LRT 20",
@@ -9565,7 +9565,7 @@
       },
       "costCBills": 250000,
       "battleValue": 220,
-      "introductionYear": 2824,
+      "introductionYear": 2815,
       "special": []
     }
   },
@@ -9573,7 +9573,7 @@
     "file": "weapons/missile-other.json",
     "index": 25,
     "id": "lrtorpedo3",
-    "sha256": "df6a10c25a412c7a8e854b96cce835c9f34707d3e1714d6ca6e7195c0edb906e",
+    "sha256": "f4dfb22af709b2584a15e339401f0b5a41378f646075fbb5650c508cada5f0a1",
     "item": {
       "id": "lrtorpedo3",
       "name": "LRT 3",
@@ -9597,7 +9597,7 @@
       },
       "costCBills": 0,
       "battleValue": 35,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -9605,7 +9605,7 @@
     "file": "weapons/missile-other.json",
     "index": 26,
     "id": "lrtorpedo4",
-    "sha256": "0adfcd8689f88d2ad6955d7bdaac0b589891eecc78ed93b5a4ddb783eafc8222",
+    "sha256": "2d05962f51389ed0e9218d387b4ca0bf5902f435bbec956484eb330cb5af57fe",
     "item": {
       "id": "lrtorpedo4",
       "name": "LRT 4",
@@ -9629,7 +9629,7 @@
       },
       "costCBills": 0,
       "battleValue": 46,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -9637,7 +9637,7 @@
     "file": "weapons/missile-other.json",
     "index": 27,
     "id": "lrtorpedo5",
-    "sha256": "95e982c19e4acfd0b1b4ff34a55a9c8f2d49a8d6894a45dbfdcbb373d05bc7d6",
+    "sha256": "3b49dcc4f9630443143453549efd03c04740f3c1d0f5dae76a3a7aadf82ded55",
     "item": {
       "id": "lrtorpedo5",
       "name": "LRT 5",
@@ -9661,7 +9661,7 @@
       },
       "costCBills": 30000,
       "battleValue": 55,
-      "introductionYear": 2824,
+      "introductionYear": 2815,
       "special": []
     }
   },
@@ -9669,7 +9669,7 @@
     "file": "weapons/missile-other.json",
     "index": 28,
     "id": "lrtorpedo6",
-    "sha256": "cbd6184dbefbb11e4da8ae653b1a06efda15540989570677f282dd33f513d262",
+    "sha256": "194358de63f7988ef3db69e79e5f36a5affebe48e4c9b0abefaf8705e0e51999",
     "item": {
       "id": "lrtorpedo6",
       "name": "LRT 6",
@@ -9693,7 +9693,7 @@
       },
       "costCBills": 0,
       "battleValue": 69,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -9701,7 +9701,7 @@
     "file": "weapons/missile-other.json",
     "index": 29,
     "id": "lrtorpedo7",
-    "sha256": "f6c06988ce5b55e11141f986007aac5a7c454655fb0cb9d9d208e30d8dce7f44",
+    "sha256": "54a1b93e2219728f8e85343a3d4e1cbf39e88489397522c47987cd04d1e3f30e",
     "item": {
       "id": "lrtorpedo7",
       "name": "LRT 7",
@@ -9725,7 +9725,7 @@
       },
       "costCBills": 0,
       "battleValue": 82,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -9733,7 +9733,7 @@
     "file": "weapons/missile-other.json",
     "index": 30,
     "id": "lrtorpedo8",
-    "sha256": "4e1b035f48bb0b6ef8b510fd84807bc109ea416b0a6ee6f21ff6285159112730",
+    "sha256": "431ce6550408ee411dd1fe50a8b762ab1ad4b71df0d15f5c2a00b8306aae1c97",
     "item": {
       "id": "lrtorpedo8",
       "name": "LRT 8",
@@ -9757,7 +9757,7 @@
       },
       "costCBills": 0,
       "battleValue": 93,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -9765,7 +9765,7 @@
     "file": "weapons/missile-other.json",
     "index": 31,
     "id": "lrtorpedo9",
-    "sha256": "2e4df587353f5d6bd16d581f1bbc8ca1c1a44469d6637ef8fc1d0c781d2a776f",
+    "sha256": "838af2ff3899d0c6ff15b92f8eb4b5e12bd07a9b64fe2a78ae6ff837ea01f566",
     "item": {
       "id": "lrtorpedo9",
       "name": "LRT 9",
@@ -9789,7 +9789,7 @@
       },
       "costCBills": 0,
       "battleValue": 95,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -9825,7 +9825,7 @@
     "file": "weapons/missile-other.json",
     "index": 33,
     "id": "lrtorpedo10-os",
-    "sha256": "8f244802a49fb23b1f62bf4de8731afb48587150bdfb86d0c898a5e2468ebe6a",
+    "sha256": "714b30f5ef137e034fd70956c8ecb06ba611fb0858fb54d27d9b78af03c4a70b",
     "item": {
       "id": "lrtorpedo10-os",
       "name": "LRT 10 (OS)",
@@ -9849,7 +9849,7 @@
       },
       "costCBills": 50000,
       "battleValue": 22,
-      "introductionYear": 2824,
+      "introductionYear": 2815,
       "special": []
     }
   },
@@ -9885,7 +9885,7 @@
     "file": "weapons/missile-other.json",
     "index": 35,
     "id": "lrtorpedo15-os",
-    "sha256": "af7d1b6c1575480651ab0b2f46ff40d30e51d26d4adb9e0a8275eab92675bb23",
+    "sha256": "710354154e97bc56826d41004b276494e1a8463d237d91bcf3d050472450cd0e",
     "item": {
       "id": "lrtorpedo15-os",
       "name": "LRT 15 (OS)",
@@ -9909,7 +9909,7 @@
       },
       "costCBills": 87500,
       "battleValue": 33,
-      "introductionYear": 2824,
+      "introductionYear": 2815,
       "special": []
     }
   },
@@ -9945,7 +9945,7 @@
     "file": "weapons/missile-other.json",
     "index": 37,
     "id": "lrtorpedo20-os",
-    "sha256": "c8223728df449c02767216529b85546b87820872740dbdfcafa0153b0f542c62",
+    "sha256": "e8cf8862aede968b468aa3730692599a93a5eb762dd2415203686175c5312570",
     "item": {
       "id": "lrtorpedo20-os",
       "name": "LRT 20 (OS)",
@@ -9969,7 +9969,7 @@
       },
       "costCBills": 125000,
       "battleValue": 44,
-      "introductionYear": 2824,
+      "introductionYear": 2815,
       "special": []
     }
   },
@@ -10005,7 +10005,7 @@
     "file": "weapons/missile-other.json",
     "index": 39,
     "id": "lrtorpedo5-os",
-    "sha256": "7836635915aad78ebf2c4149f7ad77a713071832fb0acb8f9fa202235b5bf7ae",
+    "sha256": "f32ee5b990ab7fa6e6157d0e078fa824be02efdee0913b960952535c372fad89",
     "item": {
       "id": "lrtorpedo5-os",
       "name": "LRT 5 (OS)",
@@ -10029,7 +10029,7 @@
       },
       "costCBills": 15000,
       "battleValue": 11,
-      "introductionYear": 2824,
+      "introductionYear": 2815,
       "special": []
     }
   },
@@ -10202,7 +10202,7 @@
     "file": "weapons/missile-other.json",
     "index": 45,
     "id": "thunderbolt-10",
-    "sha256": "0dc189cdf4390674cdbda87efc9c9f4d39fcd5df4025347352de3fb365e063e7",
+    "sha256": "de6b2fe56fbd21ea4b9e3f7e654f39cb8d65c5e8821734fc8b84680b00228b16",
     "item": {
       "id": "thunderbolt-10",
       "name": "Thunderbolt 10",
@@ -10226,7 +10226,7 @@
       },
       "costCBills": 175000,
       "battleValue": 127,
-      "introductionYear": 3072,
+      "introductionYear": 3052,
       "special": []
     }
   },
@@ -10266,7 +10266,7 @@
     "file": "weapons/missile-other.json",
     "index": 47,
     "id": "thunderbolt-20",
-    "sha256": "b82ce1cac0fbafd04b7088dc66cf65f4deaba6b5b61b6eed25b98c14ff0b993f",
+    "sha256": "75e8e51a7c52bebae331b775e1cb323577f67499e87a8f8ed0c7a63d963aab18",
     "item": {
       "id": "thunderbolt-20",
       "name": "Thunderbolt 20",
@@ -10290,7 +10290,7 @@
       },
       "costCBills": 450000,
       "battleValue": 305,
-      "introductionYear": 3072,
+      "introductionYear": 3052,
       "special": []
     }
   },
@@ -10298,7 +10298,7 @@
     "file": "weapons/missile-other.json",
     "index": 48,
     "id": "thunderbolt-5",
-    "sha256": "585eddc9ea61d053ce145dab0b9667bb2d0d3cba802ffb7b3e91bd7f530ed1ce",
+    "sha256": "a1a40c450fb353241433b755893e4507dd924653153a5df87e2dd13c594521c5",
     "item": {
       "id": "thunderbolt-5",
       "name": "Thunderbolt 5",
@@ -10322,7 +10322,7 @@
       },
       "costCBills": 50000,
       "battleValue": 64,
-      "introductionYear": 3072,
+      "introductionYear": 3052,
       "special": []
     }
   },
@@ -10330,7 +10330,7 @@
     "file": "weapons/missile-other.json",
     "index": 49,
     "id": "thunderbolt-10-i-os",
-    "sha256": "85102ff516323d786c08c36f06481e9c73c556fc4f6b6cdebaf34a0233ea95a6",
+    "sha256": "4ae15017d27b27aeacd2ef65582a25dfbcaa2fdf8d30a67bbd44f0c4ab37b2c3",
     "item": {
       "id": "thunderbolt-10-i-os",
       "name": "Thunderbolt 10 (I-OS)",
@@ -10354,7 +10354,7 @@
       },
       "costCBills": 140000,
       "battleValue": 25,
-      "introductionYear": 3081,
+      "introductionYear": 3056,
       "special": []
     }
   },
@@ -10394,7 +10394,7 @@
     "file": "weapons/missile-other.json",
     "index": 51,
     "id": "thunderbolt-15-i-os",
-    "sha256": "6296ed19f297743859b461834450600bc8970f154ae3e3741be96c26233b42e0",
+    "sha256": "f5ca82e72bc69aa2f605d9e6aa8fe2f4c6e4b4b80b848dc8e71f5f8af82420d0",
     "item": {
       "id": "thunderbolt-15-i-os",
       "name": "Thunderbolt 15 (I-OS)",
@@ -10418,7 +10418,7 @@
       },
       "costCBills": 260000,
       "battleValue": 46,
-      "introductionYear": 3081,
+      "introductionYear": 3056,
       "special": []
     }
   },
@@ -10458,7 +10458,7 @@
     "file": "weapons/missile-other.json",
     "index": 53,
     "id": "thunderbolt-20-i-os",
-    "sha256": "95407ad928388a366b0b4e1f23462e76b72d4d07c408bbb42134ea49a80173bc",
+    "sha256": "54c2246c678a3afd86fcd0c134bc1e9eb569c99446e069b901228ca39923ecca",
     "item": {
       "id": "thunderbolt-20-i-os",
       "name": "Thunderbolt 20 (I-OS)",
@@ -10482,7 +10482,7 @@
       },
       "costCBills": 360000,
       "battleValue": 61,
-      "introductionYear": 3081,
+      "introductionYear": 3056,
       "special": []
     }
   },
@@ -10522,7 +10522,7 @@
     "file": "weapons/missile-other.json",
     "index": 55,
     "id": "thunderbolt-5-i-os",
-    "sha256": "7d537b2bcdf12a630fcf014e0cfcf9d54dc838fac47a3c399178abf507e18f50",
+    "sha256": "569732c2fe071322a4a3d5d1bb68187882ef638a143ca77a0e9a8b39f0c8bf14",
     "item": {
       "id": "thunderbolt-5-i-os",
       "name": "Thunderbolt 5 (I-OS)",
@@ -10546,7 +10546,7 @@
       },
       "costCBills": 40000,
       "battleValue": 13,
-      "introductionYear": 3081,
+      "introductionYear": 3056,
       "special": []
     }
   },
@@ -10876,7 +10876,7 @@
     "file": "weapons/missile-other.json",
     "index": 66,
     "id": "srt1",
-    "sha256": "97abe04396e1a537f025711592669700374b50478605093e00dadc5352a531e4",
+    "sha256": "529ea01f1fe6b8a64f1c79e975dba794c91e8df76a85fa1825de4cced26ac84f",
     "item": {
       "id": "srt1",
       "name": "SRT 1",
@@ -10900,7 +10900,7 @@
       },
       "costCBills": 10000,
       "battleValue": 15,
-      "introductionYear": 2824,
+      "introductionYear": 2815,
       "special": []
     }
   },
@@ -10908,7 +10908,7 @@
     "file": "weapons/missile-other.json",
     "index": 67,
     "id": "srt2",
-    "sha256": "d8993007b171024735240a8aa9e049241d7e1c18253cb2ad1d1ac8873241dac5",
+    "sha256": "728c8c2401c766dea703e5eaa6433610c53e4ea179fead297a7258872731fe14",
     "item": {
       "id": "srt2",
       "name": "SRT 2",
@@ -10932,7 +10932,7 @@
       },
       "costCBills": 10000,
       "battleValue": 21,
-      "introductionYear": 2824,
+      "introductionYear": 2815,
       "special": []
     }
   },
@@ -10940,7 +10940,7 @@
     "file": "weapons/missile-other.json",
     "index": 68,
     "id": "srt3",
-    "sha256": "ea58db7a77909652a5187159c23f57daec2752e14c1be8f39ef80b3b8ea90653",
+    "sha256": "1d772502f1f00df9605f9fa780eeb6660eba54c0b9f0309b843e576376403bc4",
     "item": {
       "id": "srt3",
       "name": "SRT 3",
@@ -10964,7 +10964,7 @@
       },
       "costCBills": 80000,
       "battleValue": 30,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -10972,7 +10972,7 @@
     "file": "weapons/missile-other.json",
     "index": 69,
     "id": "srt4",
-    "sha256": "a0e656f518d6a3b9e5ecc3aff95e0550cf01c83917a07b68313df3ef38c5cd36",
+    "sha256": "a3f08aaf6b874325a2e80a0751ee6f2b8170ec88cec481cfe996a1c04d7524a0",
     "item": {
       "id": "srt4",
       "name": "SRT 4",
@@ -10996,7 +10996,7 @@
       },
       "costCBills": 60000,
       "battleValue": 39,
-      "introductionYear": 2824,
+      "introductionYear": 2815,
       "special": []
     }
   },
@@ -11004,7 +11004,7 @@
     "file": "weapons/missile-other.json",
     "index": 70,
     "id": "srt5",
-    "sha256": "2bff7e40e90fad6d934f75f646dd1404023c9f72ded27753a3f493c9253df1a8",
+    "sha256": "8d1d119bc5cf00fb913181b8c0055f95b61c41c19ca7dc3b5dfa52ff36d3a343",
     "item": {
       "id": "srt5",
       "name": "SRT 5",
@@ -11028,7 +11028,7 @@
       },
       "costCBills": 80000,
       "battleValue": 47,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -11036,7 +11036,7 @@
     "file": "weapons/missile-other.json",
     "index": 71,
     "id": "srt6",
-    "sha256": "cecaecd8efd6514983e2d1ea70094174ca89866dfd08e938f36b83e1b83a2478",
+    "sha256": "368284101363e5629800b7107ba1b67da70b5bc3f63703d1a3f08538c0bbee34",
     "item": {
       "id": "srt6",
       "name": "SRT 6",
@@ -11060,7 +11060,7 @@
       },
       "costCBills": 80000,
       "battleValue": 59,
-      "introductionYear": 2824,
+      "introductionYear": 2815,
       "special": []
     }
   },
@@ -11096,7 +11096,7 @@
     "file": "weapons/missile-other.json",
     "index": 73,
     "id": "srt2-os",
-    "sha256": "191b66b5b78335fea13d1e9c3bbad55990b02537ecae9731cd86a53eb9745f9c",
+    "sha256": "e549a9a3fef26b1221cefe20342c334390e0519b3f117f674e61c080d3b088b1",
     "item": {
       "id": "srt2-os",
       "name": "SRT 2 (OS)",
@@ -11120,7 +11120,7 @@
       },
       "costCBills": 5000,
       "battleValue": 4,
-      "introductionYear": 2676,
+      "introductionYear": 2660,
       "special": [],
       "extinctionYear": 2800,
       "reintroductionYear": 3030
@@ -11130,7 +11130,7 @@
     "file": "weapons/missile-other.json",
     "index": 74,
     "id": "srt3os",
-    "sha256": "f36106a6bf671f2ee305c3a25993f9f2e79a6f1c9db22f3b5c82357d3757fb15",
+    "sha256": "9b708c6a297047decbec1af1d5091d0757c957f38e3a1a6254509e5b36ac8676",
     "item": {
       "id": "srt3os",
       "name": "SRT 3 OS",
@@ -11154,7 +11154,7 @@
       },
       "costCBills": 80000,
       "battleValue": 6,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -11190,7 +11190,7 @@
     "file": "weapons/missile-other.json",
     "index": 76,
     "id": "srt4-os",
-    "sha256": "50710c6efda74805e4dd6b0498ebf967fd0ffdf19ae5e0cace804d4c519c3187",
+    "sha256": "c3340ef55eae5bd76c41a66d9d9864294207d545f2a5d25e8bbe576495c43b86",
     "item": {
       "id": "srt4-os",
       "name": "SRT 4 (OS)",
@@ -11214,7 +11214,7 @@
       },
       "costCBills": 30000,
       "battleValue": 8,
-      "introductionYear": 2676,
+      "introductionYear": 2660,
       "special": [],
       "extinctionYear": 2800,
       "reintroductionYear": 3030
@@ -11224,7 +11224,7 @@
     "file": "weapons/missile-other.json",
     "index": 77,
     "id": "srt5os",
-    "sha256": "8396ee10e695637c4d98c92434a311b15b9c18f6d7fbddbb9c98b7f81c183681",
+    "sha256": "86635e8e3f6138ffc016576e4f12c0f982d6967be4fe655c1a9cf2ac3f28c9e6",
     "item": {
       "id": "srt5os",
       "name": "SRT 5 OS",
@@ -11248,7 +11248,7 @@
       },
       "costCBills": 80000,
       "battleValue": 9,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -11284,7 +11284,7 @@
     "file": "weapons/missile-other.json",
     "index": 79,
     "id": "srt6-os",
-    "sha256": "3aef935ef1d1f43064a5f5a81d5ab94e1817bb2af6c37d7160381a0101418e48",
+    "sha256": "7063bf4d1c4e2f8dfdb93c3d82639fcc8b60a055beed34c4e758f64b2a3e2eee",
     "item": {
       "id": "srt6-os",
       "name": "SRT 6 (OS)",
@@ -11308,7 +11308,7 @@
       },
       "costCBills": 40000,
       "battleValue": 12,
-      "introductionYear": 2676,
+      "introductionYear": 2660,
       "special": [],
       "extinctionYear": 2800,
       "reintroductionYear": 3030
@@ -11318,7 +11318,7 @@
     "file": "weapons/missile-srm.json",
     "index": 0,
     "id": "srm-2",
-    "sha256": "b79f071b1bd461eb35562a2e7d967fadd8b96486932df208157362f04ee6f22e",
+    "sha256": "9b12c996dc578ed92e2774295cf532aedb8f03ec3088dc3cba32ab56c70cd9ce",
     "item": {
       "id": "srm-2",
       "name": "SRM 2",
@@ -11343,14 +11343,14 @@
       "ammoPerTon": 50,
       "costCBills": 10000,
       "battleValue": 21,
-      "introductionYear": 2370
+      "introductionYear": 2365
     }
   },
   {
     "file": "weapons/missile-srm.json",
     "index": 1,
     "id": "srm-4",
-    "sha256": "e44022f95e67ee2457dbec730a45fb4c50370e186465521572a91bc6b7db6ce2",
+    "sha256": "9fb9c7138ddca74ac53b1ab304b8e855566ab9204a8fba53eac5d4231306f229",
     "item": {
       "id": "srm-4",
       "name": "SRM 4",
@@ -11375,14 +11375,14 @@
       "ammoPerTon": 25,
       "costCBills": 60000,
       "battleValue": 39,
-      "introductionYear": 2370
+      "introductionYear": 2365
     }
   },
   {
     "file": "weapons/missile-srm.json",
     "index": 2,
     "id": "srm-6",
-    "sha256": "cdaf7098e1d4fb1f14179a90d1d6aacddbdadc836f526cf5f2e99a31b367119c",
+    "sha256": "a640cd4378fa97224c6265d349bc64028ea718bd5a9fddf88874c335a191b1d9",
     "item": {
       "id": "srm-6",
       "name": "SRM 6",
@@ -11407,7 +11407,7 @@
       "ammoPerTon": 15,
       "costCBills": 80000,
       "battleValue": 59,
-      "introductionYear": 2370
+      "introductionYear": 2365
     }
   },
   {
@@ -11510,7 +11510,7 @@
     "file": "weapons/missile-srm.json",
     "index": 6,
     "id": "streak-srm-2",
-    "sha256": "383642565418a3e84a5d8f06ba4fb75a706d72d6a6add436a33ef1df230879ec",
+    "sha256": "9a77fbe0ab8e8000d25e14ee8f2e5404b5bde47cfd655b39f65d7e56ea86352c",
     "item": {
       "id": "streak-srm-2",
       "name": "Streak SRM 2",
@@ -11535,7 +11535,7 @@
       "ammoPerTon": 50,
       "costCBills": 15000,
       "battleValue": 30,
-      "introductionYear": 2647,
+      "introductionYear": 2645,
       "special": ["No ammo wasted on miss"],
       "extinctionYear": 2845,
       "reintroductionYear": 3035
@@ -11545,7 +11545,7 @@
     "file": "weapons/missile-srm.json",
     "index": 7,
     "id": "streak-srm-4",
-    "sha256": "daf3564a88de65f196309946e11f591b14134a30a29b71f3d84a4d1b80213210",
+    "sha256": "a12bd58d7c6fc0c8ee26f685bd38986d628f5531c63767728fcfd3d7acce7613",
     "item": {
       "id": "streak-srm-4",
       "name": "Streak SRM 4",
@@ -11570,7 +11570,7 @@
       "ammoPerTon": 25,
       "costCBills": 90000,
       "battleValue": 59,
-      "introductionYear": 3058,
+      "introductionYear": 3055,
       "special": ["No ammo wasted on miss"]
     }
   },
@@ -11578,7 +11578,7 @@
     "file": "weapons/missile-srm.json",
     "index": 8,
     "id": "streak-srm-6",
-    "sha256": "bdfcfc4974b36ae843e1da3ed14fa99e901ec3af5822450accc511d3f446e62d",
+    "sha256": "a7338aaef05d2679db67fd6c18c94c78ab3a19661c608864e0ecbae7fc5efb44",
     "item": {
       "id": "streak-srm-6",
       "name": "Streak SRM 6",
@@ -11603,7 +11603,7 @@
       "ammoPerTon": 15,
       "costCBills": 120000,
       "battleValue": 89,
-      "introductionYear": 3058,
+      "introductionYear": 3055,
       "special": ["No ammo wasted on miss"]
     }
   },
@@ -11710,7 +11710,7 @@
     "file": "weapons/missile-srm.json",
     "index": 12,
     "id": "advancedsrm1",
-    "sha256": "4ca70a8551b886bdcf879fc877f5f7ec9518ee8e2d859b36817ec8951f68e50e",
+    "sha256": "4ff566938be4d13a965ca19305af2f56eb18e8d4e686514d7529d2345dbcd362",
     "item": {
       "id": "advancedsrm1",
       "name": "Advanced SRM 1",
@@ -11736,7 +11736,7 @@
       "ammoPerTon": 1,
       "costCBills": 15000,
       "battleValue": 15,
-      "introductionYear": 3056,
+      "introductionYear": 3047,
       "special": []
     }
   },
@@ -11744,7 +11744,7 @@
     "file": "weapons/missile-srm.json",
     "index": 13,
     "id": "advancedsrm1os",
-    "sha256": "2e42cf8f83547445d3cea915c6785be184711ad554892da4685676383b038c8b",
+    "sha256": "bfa19a7da17a6317ec672657178a938243a44ccd28dbf97239370702a5a5c80d",
     "item": {
       "id": "advancedsrm1os",
       "name": "Advanced SRM 1 (OS)",
@@ -11769,7 +11769,7 @@
       },
       "costCBills": 7500,
       "battleValue": 3,
-      "introductionYear": 3056,
+      "introductionYear": 3047,
       "special": []
     }
   },
@@ -11777,7 +11777,7 @@
     "file": "weapons/missile-srm.json",
     "index": 14,
     "id": "advancedsrm2",
-    "sha256": "9c48457d2434da235e110d4d12a26938229c85ecdff0b2c2b061c5ea6a27c48f",
+    "sha256": "e4655d5d3e7e9f84c81e41dc646b0b315349aa2db46c46e3fb6394ec4f543eeb",
     "item": {
       "id": "advancedsrm2",
       "name": "Advanced SRM 2",
@@ -11803,7 +11803,7 @@
       "ammoPerTon": 1,
       "costCBills": 30000,
       "battleValue": 30,
-      "introductionYear": 3056,
+      "introductionYear": 3047,
       "special": []
     }
   },
@@ -11811,7 +11811,7 @@
     "file": "weapons/missile-srm.json",
     "index": 15,
     "id": "advancedsrm2os",
-    "sha256": "0583c66b64e2c0104a3ba60ff7087205f81cdbc6e14396f2ab22031fbe596761",
+    "sha256": "acd5d193a3f8a4eba811a1197a5bbf8645653adf93c7baec984c08729f05fa69",
     "item": {
       "id": "advancedsrm2os",
       "name": "Advanced SRM 2 (OS)",
@@ -11836,7 +11836,7 @@
       },
       "costCBills": 15000,
       "battleValue": 6,
-      "introductionYear": 3056,
+      "introductionYear": 3047,
       "special": []
     }
   },
@@ -11844,7 +11844,7 @@
     "file": "weapons/missile-srm.json",
     "index": 16,
     "id": "advancedsrm3",
-    "sha256": "7ada7b8da63a31a8f14e71d211a7708bb567008ddbae65646a9b705be4a58e3c",
+    "sha256": "76c8f3fcc931f11f9379482449da4371760901710e78e75f3bd575cce6997efa",
     "item": {
       "id": "advancedsrm3",
       "name": "Advanced SRM 3",
@@ -11870,7 +11870,7 @@
       "ammoPerTon": 1,
       "costCBills": 45000,
       "battleValue": 45,
-      "introductionYear": 3056,
+      "introductionYear": 3047,
       "special": []
     }
   },
@@ -11878,7 +11878,7 @@
     "file": "weapons/missile-srm.json",
     "index": 17,
     "id": "advancedsrm3os",
-    "sha256": "a7f7d5d7b2ebe2b358b0625715df20aee4f0c705e9d421c2760c956ca9959762",
+    "sha256": "1fdabc62429211386673a22def9b71003d2a0cb99569070bc80515e5639cd789",
     "item": {
       "id": "advancedsrm3os",
       "name": "Advanced SRM 3 (OS)",
@@ -11903,7 +11903,7 @@
       },
       "costCBills": 22500,
       "battleValue": 9,
-      "introductionYear": 3056,
+      "introductionYear": 3047,
       "special": []
     }
   },
@@ -11911,7 +11911,7 @@
     "file": "weapons/missile-srm.json",
     "index": 18,
     "id": "advancedsrm4",
-    "sha256": "373a30ad7a63ca09198352e8ffc14858bcf33b39645c445ac7a7af80c0def901",
+    "sha256": "bef72517f04dc9a2d24888362bcd14d7b8cc745d29af98263d17fade613b0748",
     "item": {
       "id": "advancedsrm4",
       "name": "Advanced SRM 4",
@@ -11937,7 +11937,7 @@
       "ammoPerTon": 1,
       "costCBills": 60000,
       "battleValue": 60,
-      "introductionYear": 3056,
+      "introductionYear": 3047,
       "special": []
     }
   },
@@ -11945,7 +11945,7 @@
     "file": "weapons/missile-srm.json",
     "index": 19,
     "id": "advancedsrm4os",
-    "sha256": "faa447668d50736f7fdf21e21d5c01bb8292cd1fee48963ef28bb5a4f2054438",
+    "sha256": "5b3cd4fbd431837bf0fc2775889edb8c87d9b2d393df1dc98ec2906042384c3d",
     "item": {
       "id": "advancedsrm4os",
       "name": "Advanced SRM 4 (OS)",
@@ -11970,7 +11970,7 @@
       },
       "costCBills": 30000,
       "battleValue": 12,
-      "introductionYear": 3056,
+      "introductionYear": 3047,
       "special": []
     }
   },
@@ -11978,7 +11978,7 @@
     "file": "weapons/missile-srm.json",
     "index": 20,
     "id": "advancedsrm5",
-    "sha256": "7701f22b11a0147997654e7651ab83715ce7b46a9f72000bf5a790caa46b621e",
+    "sha256": "044795871036c4b798ce72c185ee1ca0cc54984d09e767f67fa305e4d3f23370",
     "item": {
       "id": "advancedsrm5",
       "name": "Advanced SRM 5",
@@ -12004,7 +12004,7 @@
       "ammoPerTon": 1,
       "costCBills": 75000,
       "battleValue": 75,
-      "introductionYear": 3056,
+      "introductionYear": 3047,
       "special": []
     }
   },
@@ -12012,7 +12012,7 @@
     "file": "weapons/missile-srm.json",
     "index": 21,
     "id": "advancedsrm5os",
-    "sha256": "94d138706aa7ff3a53b65f422c9d4b5a2e5b4fd0d0af78f960039b4a07582e65",
+    "sha256": "4232babea0592b6411c78749ab0cdca06cf12f2157d50ae44549be82a948cb91",
     "item": {
       "id": "advancedsrm5os",
       "name": "Advanced SRM 5 (OS)",
@@ -12037,7 +12037,7 @@
       },
       "costCBills": 37500,
       "battleValue": 15,
-      "introductionYear": 3056,
+      "introductionYear": 3047,
       "special": []
     }
   },
@@ -12045,7 +12045,7 @@
     "file": "weapons/missile-srm.json",
     "index": 22,
     "id": "advancedsrm6",
-    "sha256": "5a29b3f3ba9083ca2479c8d9441401e8d5cb4cecc4b96c8b370f392e6c170477",
+    "sha256": "b7d5d4703ea6204407cb4d89cc7da158092957bb0e85ba8cbb0ecd788a98a7d3",
     "item": {
       "id": "advancedsrm6",
       "name": "Advanced SRM 6",
@@ -12071,7 +12071,7 @@
       "ammoPerTon": 1,
       "costCBills": 90000,
       "battleValue": 90,
-      "introductionYear": 3056,
+      "introductionYear": 3047,
       "special": []
     }
   },
@@ -12079,7 +12079,7 @@
     "file": "weapons/missile-srm.json",
     "index": 23,
     "id": "advancedsrm6os",
-    "sha256": "5d688bdc1777e5eb0f19a34d0034b12411c150a92af03f9f643d258060353837",
+    "sha256": "89338f5680dac69ab5c42a9234c752adc6e7a347b79771ecea2e176ad7d12163",
     "item": {
       "id": "advancedsrm6os",
       "name": "Advanced SRM 6 (OS)",
@@ -12104,7 +12104,7 @@
       },
       "costCBills": 45000,
       "battleValue": 18,
-      "introductionYear": 3056,
+      "introductionYear": 3047,
       "special": []
     }
   },
@@ -12112,7 +12112,7 @@
     "file": "weapons/missile-srm.json",
     "index": 24,
     "id": "basrm1",
-    "sha256": "048863356244a0e48c7d69145821f708557d1eade4749ffa5f4b6c400b3dac04",
+    "sha256": "0207ec694fcda9de1f029866c6102036d5be0480b349b6053bfe9e43455e4e6c",
     "item": {
       "id": "basrm1",
       "name": "SRM 1",
@@ -12138,7 +12138,7 @@
       "ammoPerTon": 1,
       "costCBills": 5000,
       "battleValue": 15,
-      "introductionYear": 2868,
+      "introductionYear": 2860,
       "special": []
     }
   },
@@ -12146,7 +12146,7 @@
     "file": "weapons/missile-srm.json",
     "index": 25,
     "id": "basrm1os",
-    "sha256": "332a78acafdea3a41aad9b10acdce96c65b81555294df4ebb9e7a1af38564ac3",
+    "sha256": "bcaef02149a0705e4999b2e480395997d137b84b5e8c27f554fd2f97cb744c5a",
     "item": {
       "id": "basrm1os",
       "name": "SRM 1 (OS)",
@@ -12171,7 +12171,7 @@
       },
       "costCBills": 2500,
       "battleValue": 3,
-      "introductionYear": 2868,
+      "introductionYear": 2860,
       "special": []
     }
   },
@@ -12212,7 +12212,7 @@
     "file": "weapons/missile-srm.json",
     "index": 27,
     "id": "basrm3",
-    "sha256": "30c79aaf478b8a656d7fb29bdb1373994ae17012e52b0aa15328b6670debdcb2",
+    "sha256": "0e53edd08112774f36147adaf7fa1ae1e4c7205a9afa9968ab8cb922e3951efc",
     "item": {
       "id": "basrm3",
       "name": "SRM 3",
@@ -12238,7 +12238,7 @@
       "ammoPerTon": 1,
       "costCBills": 15000,
       "battleValue": 30,
-      "introductionYear": 2868,
+      "introductionYear": 2860,
       "special": []
     }
   },
@@ -12308,7 +12308,7 @@
     "file": "weapons/missile-srm.json",
     "index": 30,
     "id": "basrm5",
-    "sha256": "ac599e123b3a11d581cbfbb65b06207fce8388777749ae68b102b4e1ce01d427",
+    "sha256": "1690fdd7a91a38a8826f783faf4b1a9b3824a3eaa19ac9d4dfba50af7c1faa76",
     "item": {
       "id": "basrm5",
       "name": "SRM 5",
@@ -12334,7 +12334,7 @@
       "ammoPerTon": 1,
       "costCBills": 25000,
       "battleValue": 47,
-      "introductionYear": 2868,
+      "introductionYear": 2860,
       "special": []
     }
   },
@@ -12342,7 +12342,7 @@
     "file": "weapons/missile-srm.json",
     "index": 31,
     "id": "basrm5os",
-    "sha256": "6e9ea29d9209c28d31e469fd63f5f276a302183215f8ad43320eb2fed84b94b7",
+    "sha256": "f88fcd0bb7b0ed17b7592dec4f0b880be9effeb945272a68cd5ccdebd0e211c7",
     "item": {
       "id": "basrm5os",
       "name": "SRM 5 (OS)",
@@ -12367,7 +12367,7 @@
       },
       "costCBills": 12500,
       "battleValue": 9,
-      "introductionYear": 2868,
+      "introductionYear": 2860,
       "special": []
     }
   },
@@ -12510,7 +12510,7 @@
     "file": "weapons/missile-srm.json",
     "index": 36,
     "id": "streaksrm4prototype",
-    "sha256": "14eba6447ba56e7e2e00affbc91de5e29c45e9b04d5f3c1481c757ea50f49e3d",
+    "sha256": "6efa3a8395eb4c861b0e5432a40ccff38fc4eb02d8ec8007772957761e8476e3",
     "item": {
       "id": "streaksrm4prototype",
       "name": "Prototype Streak SRM 4",
@@ -12536,7 +12536,7 @@
       "ammoPerTon": 25,
       "costCBills": 60000,
       "battleValue": 59,
-      "introductionYear": 2819,
+      "introductionYear": 2814,
       "special": [],
       "extinctionYear": 2826
     }
@@ -12545,7 +12545,7 @@
     "file": "weapons/missile-srm.json",
     "index": 37,
     "id": "streaksrm6prototype",
-    "sha256": "c28b6423339d81306604f69aa3ed3807b024c1b22b9dfd4e2e0066d7d517dd75",
+    "sha256": "b7a7924acd93a21eec1681faa369894c6ed708ff9a36c0514cee27cecb6a9674",
     "item": {
       "id": "streaksrm6prototype",
       "name": "Prototype Streak SRM 6",
@@ -12571,7 +12571,7 @@
       "ammoPerTon": 15,
       "costCBills": 120000,
       "battleValue": 89,
-      "introductionYear": 2819,
+      "introductionYear": 2814,
       "special": [],
       "extinctionYear": 2826
     }
@@ -12580,7 +12580,7 @@
     "file": "weapons/missile-srm.json",
     "index": 38,
     "id": "improved-srm-2",
-    "sha256": "c9506c6c75f598833a7a84c760cc3f7d04a69433427494d4840207f1d241dce2",
+    "sha256": "0505b83238288ce7451805966bd5b21077ff2a067c99301e40e52369184c79c2",
     "item": {
       "id": "improved-srm-2",
       "name": "Improved SRM 2",
@@ -12606,7 +12606,7 @@
       "ammoPerTon": 50,
       "costCBills": 10000,
       "battleValue": 28,
-      "introductionYear": 2817,
+      "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2828,
       "reintroductionYear": 3080
@@ -12616,7 +12616,7 @@
     "file": "weapons/missile-srm.json",
     "index": 39,
     "id": "improved-srm-4",
-    "sha256": "57b80bf493b3596c8154e8ece7c2af99d93c6277eb7f5929f2708e500e437d2a",
+    "sha256": "953bd043be70ac645915a6688962f4ba6e34991c12843b1caa4618ba88ce15a9",
     "item": {
       "id": "improved-srm-4",
       "name": "Improved SRM 4",
@@ -12642,7 +12642,7 @@
       "ammoPerTon": 25,
       "costCBills": 60000,
       "battleValue": 39,
-      "introductionYear": 2817,
+      "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2828,
       "reintroductionYear": 3080
@@ -12652,7 +12652,7 @@
     "file": "weapons/missile-srm.json",
     "index": 40,
     "id": "improved-srm-6",
-    "sha256": "cc56ba1ee9e88914f48664172b31b6c23a54748a978f2bf60f675b74fb2d2275",
+    "sha256": "7a6b406d4f7a310cd0945b36b180891ae28d0dc6e3665bd53143c349d3ffacde",
     "item": {
       "id": "improved-srm-6",
       "name": "Improved SRM 6",
@@ -12678,7 +12678,7 @@
       "ammoPerTon": 15,
       "costCBills": 80000,
       "battleValue": 79,
-      "introductionYear": 2817,
+      "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2828,
       "reintroductionYear": 3080
@@ -12775,7 +12775,7 @@
     "file": "weapons/missile-srm.json",
     "index": 44,
     "id": "streaksrm1",
-    "sha256": "ed6cc35d8873579cd3783da838276748efe7f7ff9b17770daec19ed49078f5de",
+    "sha256": "e464b22e99f4a778be632f085df94cf725675ccb107dca984900c8d7ef732823",
     "item": {
       "id": "streaksrm1",
       "name": "Streak SRM 1",
@@ -12801,7 +12801,7 @@
       "ammoPerTon": 100,
       "costCBills": 15000,
       "battleValue": 20,
-      "introductionYear": 3060,
+      "introductionYear": 3055,
       "special": []
     }
   },
@@ -12809,7 +12809,7 @@
     "file": "weapons/missile-srm.json",
     "index": 45,
     "id": "streaksrm3",
-    "sha256": "dd200bfc85bd6ad7a267c8646c058a4eceec45b26738133bcbcd5e89b2b38aad",
+    "sha256": "537e002300fabccef12b5e229020a75a54a30798a2058913c0f6eb94b8ce63ae",
     "item": {
       "id": "streaksrm3",
       "name": "Streak SRM 3",
@@ -12835,7 +12835,7 @@
       "ammoPerTon": 100,
       "costCBills": 45000,
       "battleValue": 59,
-      "introductionYear": 3060,
+      "introductionYear": 3055,
       "special": []
     }
   },
@@ -12843,7 +12843,7 @@
     "file": "weapons/missile-srm.json",
     "index": 46,
     "id": "streaksrm5",
-    "sha256": "e5abc5d9788a390eb3140f1224b883b4716d9b2d4cf9ea7117e674c125c061e2",
+    "sha256": "e7f179933f1a2894c388eed12ac9a64f6ca2b468ca36a37cef16d6a4045800cb",
     "item": {
       "id": "streaksrm5",
       "name": "Streak SRM 5",
@@ -12869,7 +12869,7 @@
       "ammoPerTon": 100,
       "costCBills": 75000,
       "battleValue": 99,
-      "introductionYear": 3060,
+      "introductionYear": 3055,
       "special": []
     }
   },
@@ -12906,7 +12906,7 @@
     "file": "weapons/missile-srm.json",
     "index": 48,
     "id": "streaksrm2-os",
-    "sha256": "664c22eb7fd6820558d56d7a84e8b44925ced856fcf829fe859c2b0bd1f80d1e",
+    "sha256": "8182f8798004f8c67a4f49aaf9fcd7390580ac8735fcc542d547e8c67316c731",
     "item": {
       "id": "streaksrm2-os",
       "name": "Streak SRM 2 (OS)",
@@ -12931,7 +12931,7 @@
       },
       "costCBills": 7500,
       "battleValue": 8,
-      "introductionYear": 2822,
+      "introductionYear": 2819,
       "special": []
     }
   },
@@ -12968,7 +12968,7 @@
     "file": "weapons/missile-srm.json",
     "index": 50,
     "id": "streaksrm4-os",
-    "sha256": "8703fd11f56e3afb1b399ee8dc3c50c35dc66ef92a8a0a7b869b55b0f2189349",
+    "sha256": "7b41143654e295777de3791f993146ee69c847cd51a5bee9cdfd9f476d464a05",
     "item": {
       "id": "streaksrm4-os",
       "name": "Streak SRM 4 (OS)",
@@ -12993,7 +12993,7 @@
       },
       "costCBills": 45000,
       "battleValue": 16,
-      "introductionYear": 2822,
+      "introductionYear": 2819,
       "special": []
     }
   },
@@ -13030,7 +13030,7 @@
     "file": "weapons/missile-srm.json",
     "index": 52,
     "id": "streaksrm6-os",
-    "sha256": "44d620007fda8e52c9e8bc81b2ea37fddc997fb275db9e9b91e8fd0425bd0d84",
+    "sha256": "c1e61c75df4be6f2e72623c2cc1ba9109cc4fff08b315ffdb1e1ae3a3afff049",
     "item": {
       "id": "streaksrm6-os",
       "name": "Streak SRM 6 (OS)",
@@ -13055,7 +13055,7 @@
       },
       "costCBills": 60000,
       "battleValue": 24,
-      "introductionYear": 2822,
+      "introductionYear": 2819,
       "special": []
     }
   },
@@ -13063,7 +13063,7 @@
     "file": "weapons/missile-srm.json",
     "index": 53,
     "id": "srmt1os",
-    "sha256": "b96264bb2eddf9c54a05dfab7c0033d7c4f055533ef62d95ee3abc512fa5234d",
+    "sha256": "f8d64a7b81bb97fb0b83e7b96852367b30deecb41b92d2acc9ae9122ec8e678f",
     "item": {
       "id": "srmt1os",
       "name": "SRT 1 (OS)",
@@ -13087,7 +13087,7 @@
       },
       "costCBills": 0,
       "battleValue": 3,
-      "introductionYear": 3060,
+      "introductionYear": 3050,
       "special": []
     }
   },
