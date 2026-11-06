@@ -19,6 +19,7 @@ import {
   StatGrid,
 } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
+import { UnitQuirkSummary } from '@/components/units/UnitQuirkSummary';
 import {
   getCompendiumDetailPresentation,
   type IDetailMovementStat,
@@ -227,27 +228,6 @@ function EquipmentCard({
   );
 }
 
-function QuirksCard({
-  quirks,
-}: {
-  readonly quirks?: readonly string[];
-}): React.ReactElement | null {
-  if (!quirks || quirks.length === 0) return null;
-
-  return (
-    <Card variant="dark">
-      <CardSection title="Quirks" />
-      <div className="flex flex-wrap gap-2">
-        {quirks.map((quirk, index) => (
-          <Badge key={index} variant="purple">
-            {quirk}
-          </Badge>
-        ))}
-      </div>
-    </Card>
-  );
-}
-
 export default function CanonicalUnitDetailPage(): React.ReactElement {
   const router = useRouter();
   const { id } = router.query;
@@ -343,7 +323,7 @@ export default function CanonicalUnitDetailPage(): React.ReactElement {
 
       <EquipmentCard unit={unit} />
 
-      <QuirksCard quirks={unit.quirks} />
+      <UnitQuirkSummary quirks={unit.quirks} />
     </CompendiumLayout>
   );
 }

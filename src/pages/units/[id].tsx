@@ -19,6 +19,7 @@ import {
   TechBaseBadge,
   WeightClassBadge,
 } from '@/components/ui';
+import { UnitQuirkSummary } from '@/components/units/UnitQuirkSummary';
 import { getUnitTypeDisplay } from '@/pages-modules/units/detail.constants';
 import {
   CubeIcon,
@@ -196,23 +197,6 @@ function EquipmentCard({
   );
 }
 
-function QuirksCard({ quirks }: { readonly quirks?: string[] }) {
-  if (!quirks || quirks.length === 0) return null;
-
-  return (
-    <Card variant="dark" className="mb-6">
-      <CardSection title="Quirks" />
-      <div className="flex flex-wrap gap-2">
-        {quirks.map((quirk, index) => (
-          <Badge key={index} variant="violet">
-            {quirk}
-          </Badge>
-        ))}
-      </div>
-    </Card>
-  );
-}
-
 function UnitInformationCard({ unit }: { readonly unit: UnitData }) {
   return (
     <Card variant="dark">
@@ -327,7 +311,11 @@ export default function CustomUnitDetailPage(): React.ReactElement {
       </StatGrid>
 
       <EquipmentCard equipment={equipment} />
-      <QuirksCard quirks={quirks} />
+      <UnitQuirkSummary
+        quirks={quirks}
+        badgeVariant="violet"
+        className="mb-6"
+      />
       <UnitInformationCard unit={unit} />
     </PageLayout>
   );
