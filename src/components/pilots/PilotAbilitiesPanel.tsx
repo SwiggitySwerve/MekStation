@@ -17,9 +17,8 @@
  *     less surprising than hiding it entirely (per spec task 6.3).
  *   - When a flaw is added, the panel surfaces the XP grant in a toast
  *     so the user understands why their XP pool went up.
- *   - Origin-only SPAs are filtered out of the modal entirely outside
- *     creation flow (the picker drops them via affordability + source
- *     gating); inside creation flow they show with a 0-XP badge.
+ *   - Creation uses the browse picker so origin-only implants with no
+ *     XP price remain selectable. The pilot service validates purchases.
  */
 
 import React, { useCallback, useMemo, useState } from 'react';
@@ -358,7 +357,7 @@ export function PilotAbilitiesPanel({
         onSelect={handleSelect}
         excludedIds={ownedIds}
         availableXP={availableXp}
-        mode="purchase"
+        mode={isCreationFlow ? 'browse' : 'purchase'}
       />
     </Card>
   );
