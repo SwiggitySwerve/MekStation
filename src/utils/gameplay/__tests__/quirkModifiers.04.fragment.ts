@@ -331,7 +331,8 @@ describe('Quirk Catalog', () => {
 
   it('can filter by category', () => {
     const targeting = getQuirksByCategory('targeting');
-    expect(targeting.length).toBe(6);
+    expect(targeting.length).toBe(7);
+    expect(targeting).toContainEqual(QUIRK_CATALOG.anti_air);
     targeting.forEach((q) => expect(q.category).toBe('targeting'));
   });
 

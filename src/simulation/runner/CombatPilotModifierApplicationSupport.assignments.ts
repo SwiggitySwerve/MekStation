@@ -18,6 +18,7 @@ const RANGED_TO_HIT_SPA_IDS = [
 ] as const;
 
 const RANGED_TO_HIT_QUIRK_IDS = [
+  'anti_air',
   'improved_targeting_short',
   'improved_targeting_medium',
   'improved_targeting_long',

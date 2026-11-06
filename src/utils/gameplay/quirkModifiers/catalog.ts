@@ -11,6 +11,7 @@ import { IQuirkCatalogEntry } from './types';
 /** Unit quirk identifiers — match the string values used in MTF/BLK quirk lines */
 export const UNIT_QUIRK_IDS = {
   // Targeting quirks
+  ANTI_AIR: 'anti_air',
   IMPROVED_TARGETING_SHORT: 'improved_targeting_short',
   IMPROVED_TARGETING_MEDIUM: 'improved_targeting_medium',
   IMPROVED_TARGETING_LONG: 'improved_targeting_long',
@@ -71,6 +72,14 @@ export const WEAPON_QUIRK_IDS = {
  */
 export const QUIRK_CATALOG: Record<string, IQuirkCatalogEntry> = {
   // Targeting quirks
+  [UNIT_QUIRK_IDS.ANTI_AIR]: {
+    id: UNIT_QUIRK_IDS.ANTI_AIR,
+    name: 'Anti-Air Targeting',
+    category: 'targeting',
+    pipelines: ['to-hit'],
+    combatEffect: '-2 to-hit against an airborne target',
+    isPositive: true,
+  },
   [UNIT_QUIRK_IDS.IMPROVED_TARGETING_SHORT]: {
     id: UNIT_QUIRK_IDS.IMPROVED_TARGETING_SHORT,
     name: 'Improved Targeting (Short)',

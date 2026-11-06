@@ -8,6 +8,27 @@ import { IToHitModifierDetail } from '@/types/gameplay';
 import { UNIT_QUIRK_IDS, hasQuirk } from './catalog';
 
 /**
+ * MegaMek 48fcb2f64 ComputeAbilityMods.java:64-68. The shared airborne
+ * owner supplies isAirborneVTOLorWIGE OR isAirborne; do not derive it here.
+ */
+export function calculateAntiAirQuirkModifier(
+  unitQuirks: readonly string[],
+  targetIsAirborne: boolean | undefined,
+): IToHitModifierDetail | null {
+  if (
+    targetIsAirborne !== true ||
+    !hasQuirk(unitQuirks, UNIT_QUIRK_IDS.ANTI_AIR)
+  )
+    return null;
+  return {
+    name: 'Anti-Air Targeting',
+    value: -2,
+    source: 'quirk',
+    description: 'Anti-Air Targeting against an airborne unit: -2',
+  };
+}
+
+/**
  * Improved Targeting: -1 at specified range bracket.
  * Poor Targeting: +1 at specified range bracket.
  */
