@@ -96,8 +96,9 @@ describe('native unit piloting quirk ids', () => {
     ).toBe(5);
   });
 
-  it('does not introduce a native Hard Pilot penalty with active VDNI', () => {
-    // Entity.java:8939-8946: active DNI suppresses Hard Pilot.
+  it('preserves represented VDNI arithmetic while native Hard Pilot is unported', () => {
+    // This flag preserves legacy jack-in/out arithmetic; native DNI also needs
+    // mode/hardware context (Entity.java:13365-13379), absent from this input.
     const result = resolvePSR({
       pilotingSkill: 5,
       psr: createDamagePSR('unit'),
