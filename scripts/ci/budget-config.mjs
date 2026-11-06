@@ -15,6 +15,10 @@ export const LIMIT_UNITS = Object.freeze({
   installerBytes: 'bytes',
   webZipBytes: 'bytes',
 });
+export const REPORTING_UNITS = Object.freeze({
+  jobMinutes: 'minutes',
+  criticalPathMs: 'ms',
+});
 
 export function exactKeys(value, keys, context) {
   if (
@@ -31,13 +35,31 @@ function integer(value, context, minimum = 0) {
     throw new Error(`${context}: expected integer >= ${minimum}`);
 }
 
+function positive(value, context) {
+  if (!Number.isFinite(value) || value <= 0)
+    throw new Error(`${context}: expected finite positive value`);
+}
+
 export function validateBudgets(config) {
   exactKeys(
     config,
-    ['schema', 'limits', 'targets', 'dependencies', 'profiles', 'timeouts'],
+    [
+      'schema',
+      'limits',
+      'targets',
+      'dependencies',
+      'profiles',
+      'timeouts',
+      ...(Object.hasOwn(config ?? {}, 'reporting') ? ['reporting'] : []),
+    ],
     'budget',
   );
   if (config.schema !== BUDGET_SCHEMA) throw new Error('Unknown budget schema');
+  if (Object.hasOwn(config, 'reporting')) {
+    exactKeys(config.reporting, Object.keys(REPORTING_UNITS), 'reporting');
+    for (const [id, value] of Object.entries(config.reporting))
+      positive(value, `reporting.${id}`);
+  }
   exactKeys(config.limits, Object.keys(LIMIT_UNITS), 'limits');
   for (const [id, value] of Object.entries(config.limits)) integer(value, id);
   exactKeys(
@@ -130,11 +152,19 @@ export function budgetDescriptors(config) {
     value,
     unit: id.startsWith('limits.')
       ? LIMIT_UNITS[id.slice(7)]
-      : id.startsWith('timeouts.')
-        ? 'minutes'
-        : 'entries',
-    ratchet: !id.startsWith('timeouts.'),
+      : id.startsWith('reporting.')
+        ? REPORTING_UNITS[id.slice(10)]
+        : id.startsWith('timeouts.')
+          ? 'minutes'
+          : 'entries',
+    ratchet: !id.startsWith('timeouts.') && !id.startsWith('reporting.'),
   }));
+}
+
+/** Optional advisory display caps; never a default or a hard runtime gate. */
+export function reportingLimits(config) {
+  validateBudgets(config);
+  return { ...(config.reporting ?? {}) };
 }
 
 /** Policy gaps remain visible even when observed telemetry is unavailable. */
@@ -180,6 +210,10 @@ export function budgetValues(config) {
       `timeouts.${id}.minutes`,
       value.minutes,
     ]),
+    ...Object.entries(config.reporting ?? {}).map(([id, value]) => [
+      `reporting.${id}`,
+      value,
+    ]),
   ]);
 }
 
@@ -193,6 +227,8 @@ export function budgetRaises(base, head) {
     after = budgetValues(head);
   const raises = [];
   for (const id of new Set([...Object.keys(before), ...Object.keys(after)])) {
+    // A first finite reporting cap constrains a previously unconstrained metric.
+    if (id.startsWith('reporting.') && !(id in before) && id in after) continue;
     if (!(id in after) || !(id in before) || after[id] > before[id])
       raises.push({ id, before: before[id] ?? null, after: after[id] ?? null });
   }
@@ -232,7 +268,9 @@ export function ratchetBudgets(config, proposals) {
       'ratchet',
     );
     const { id, value } = proposal;
-    integer(value, id);
+    if (id.startsWith('reporting.')) {
+      positive(value, id);
+    } else integer(value, id);
     if (!(id in values) || seen.has(id) || value > values[id])
       throw new Error(`Not a lowering: ${id}`);
     seen.add(id);
