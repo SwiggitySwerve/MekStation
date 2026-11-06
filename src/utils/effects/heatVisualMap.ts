@@ -75,9 +75,6 @@ export function getHeatVisualMap(heat: number): HeatVisualState {
   return NEUTRAL_HEAT;
 }
 
-export const mapHeatToVisualState = getHeatVisualMap;
-export const resolveHeatVisualState = getHeatVisualMap;
-
 export function getHeatVisualThreshold(heat: number): HeatVisualThreshold {
   return getHeatVisualMap(heat).threshold;
 }
