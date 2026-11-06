@@ -855,7 +855,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 26,
     "id": "improved-autocannon-10",
-    "sha256": "6b9ba9300af73b8f06801c499636ad13bd1cec1ce2d5a84a87c6628f81af61bb",
+    "sha256": "98b3cb9b382ae58e8fdb97dd68e3e9444be919af67af409744b0e8ec70c47874",
     "item": {
       "id": "improved-autocannon-10",
       "name": "Improved Autocannon/10",
@@ -880,7 +880,7 @@
       },
       "costCBills": 200000,
       "battleValue": 123,
-      "introductionYear": 2815,
+      "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2833,
       "reintroductionYear": 3080
@@ -890,7 +890,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 27,
     "id": "improved-autocannon-2",
-    "sha256": "12b5a0aca5eaae2d07c1cfbe380ae3f05e5628cdba3e7b3f46d17c7de4017283",
+    "sha256": "ad09a9085e62cc807675a4ef6e79737cf7fe9eba35f669df29bbce88a9e4335d",
     "item": {
       "id": "improved-autocannon-2",
       "name": "Improved Autocannon/2",
@@ -915,7 +915,7 @@
       },
       "costCBills": 75000,
       "battleValue": 37,
-      "introductionYear": 2815,
+      "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2833,
       "reintroductionYear": 3080
@@ -925,7 +925,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 28,
     "id": "improved-autocannon-20",
-    "sha256": "3c2bf19d2f21da555792dbec0a4fad127e810dd1bb833a974416ba435a477a13",
+    "sha256": "b16f7d8535cbcb30f31f077a9e33fb0833295d0dd6359d34fe3fa9f715ff6fde",
     "item": {
       "id": "improved-autocannon-20",
       "name": "Improved Autocannon/20",
@@ -950,7 +950,7 @@
       },
       "costCBills": 300000,
       "battleValue": 178,
-      "introductionYear": 2815,
+      "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2833,
       "reintroductionYear": 3080
@@ -960,7 +960,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 29,
     "id": "improved-autocannon-5",
-    "sha256": "f10ab9ef81f3e9efce4a6a67185e0eafc51363bc4a3cfdf617023dcc47fe479a",
+    "sha256": "d570c0418dbafc579d5caacec75a60adc59c7c83f7ab5ebc66bb9286ffe4179e",
     "item": {
       "id": "improved-autocannon-5",
       "name": "Improved Autocannon/5",
@@ -985,7 +985,7 @@
       },
       "costCBills": 125000,
       "battleValue": 70,
-      "introductionYear": 2815,
+      "introductionYear": 2810,
       "special": [],
       "extinctionYear": 2833,
       "reintroductionYear": 3080
@@ -2189,7 +2189,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 2,
     "id": "protomechac2",
-    "sha256": "814e1abd0157ab0a3893a52c8c07c67a996e4ff6dd7f899d76fcf75f43f867a1",
+    "sha256": "3b084ea83a5feb353f831c16956641bf66d438e8652e623275fc4628260102ee",
     "item": {
       "id": "protomechac2",
       "name": "ProtoMech AC/2",
@@ -2214,7 +2214,7 @@
       },
       "costCBills": 95000,
       "battleValue": 34,
-      "introductionYear": 3070,
+      "introductionYear": 3065,
       "special": []
     }
   },
@@ -2222,7 +2222,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 3,
     "id": "protomechac4",
-    "sha256": "d1fb1b0dee22aeb4ba8fba87aa7fc8161662017136de10ac564d83c93aab0893",
+    "sha256": "ba19f003cb3452c5a9d7bd5d229d60fd52f766198170cc4e3cac90e06099b997",
     "item": {
       "id": "protomechac4",
       "name": "ProtoMech AC/4",
@@ -2247,7 +2247,7 @@
       },
       "costCBills": 133000,
       "battleValue": 49,
-      "introductionYear": 3070,
+      "introductionYear": 3065,
       "special": []
     }
   },
@@ -2255,7 +2255,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 4,
     "id": "protomechac8",
-    "sha256": "22ed712e050bd28a22dc0789d930c8bc80401af6b13e8e5ff150a967acdca878",
+    "sha256": "72ccff406b634010145107da34d80e5a6fd81a1299d4d02025c88062f6196f84",
     "item": {
       "id": "protomechac8",
       "name": "ProtoMech AC/8",
@@ -2280,7 +2280,7 @@
       },
       "costCBills": 175000,
       "battleValue": 66,
-      "introductionYear": 3070,
+      "introductionYear": 3065,
       "special": []
     }
   },
@@ -2522,7 +2522,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 12,
     "id": "hag20",
-    "sha256": "b2772f6e6d60e09371e30bdbdbe4ae432dd2b6a43c293db9e281bc9344988dfb",
+    "sha256": "916b6bed16a9d0646cb2c23053cac6a23dda7e9c8fe7206143823f0c42c85f0a",
     "item": {
       "id": "hag20",
       "name": "HAG/20",
@@ -2547,7 +2547,7 @@
       },
       "costCBills": 400000,
       "battleValue": 267,
-      "introductionYear": 3062,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -2555,7 +2555,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 13,
     "id": "hag30",
-    "sha256": "1fb03d5d226dcbc23e6db73b312d7f04ccafa52e1b9cb40033d4c34f1088e337",
+    "sha256": "9d1c214d141cfbe0bec3ebc0b1b971f96d1e268cd4c0927a71e8a5e18ab2f3a7",
     "item": {
       "id": "hag30",
       "name": "HAG/30",
@@ -2580,7 +2580,7 @@
       },
       "costCBills": 500000,
       "battleValue": 401,
-      "introductionYear": 3062,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -2588,7 +2588,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 14,
     "id": "hag40",
-    "sha256": "156f6994750d2720dcc7e57ecd0d32e467b85ed2e09942b80974b5a3faa1ca0c",
+    "sha256": "dd6ead7fa24e7d50c20e5ce1c58dcf99e17ffa2471010e3ed2110f89743b1e9a",
     "item": {
       "id": "hag40",
       "name": "HAG/40",
@@ -2613,7 +2613,7 @@
       },
       "costCBills": 600000,
       "battleValue": 535,
-      "introductionYear": 3062,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -3774,7 +3774,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 51,
     "id": "sniper-rifle-thors-hammer",
-    "sha256": "178a31de8c81a7eb0c5089daf624b594bf2cf261764a3a8626035f92737ba158",
+    "sha256": "89ccf1e5d22bb7a358bdd38d1dea0a2ae2a66904429cc6574e096a8edee94049",
     "item": {
       "id": "sniper-rifle-thors-hammer",
       "name": "Sniper Rifle (Thors Hammer)",
@@ -3798,7 +3798,7 @@
       },
       "costCBills": 750,
       "battleValue": 0,
-      "introductionYear": 2800,
+      "introductionYear": 2795,
       "special": []
     }
   },
@@ -8760,7 +8760,7 @@
     "file": "weapons/missile-other.json",
     "index": 0,
     "id": "mml-3",
-    "sha256": "881025729944dd4179a7c99a0302d354089614797ce85188e3338c3c5fac561c",
+    "sha256": "5830cadee724bc80e7334a409720d1caed79e0ea55b9af19e478da02a964976d",
     "item": {
       "id": "mml-3",
       "name": "MML 3",
@@ -8785,7 +8785,7 @@
       "ammoPerTon": 40,
       "costCBills": 45000,
       "battleValue": 29,
-      "introductionYear": 3067,
+      "introductionYear": 3062,
       "special": ["Can fire LRM or SRM ammo"]
     }
   },
@@ -8793,7 +8793,7 @@
     "file": "weapons/missile-other.json",
     "index": 1,
     "id": "mml-5",
-    "sha256": "a8bef668483426cc091f32267f26dfcda25da2b1f53e929acadec0eb2362b0f7",
+    "sha256": "572711731216e80670017a9393dad13b5f1e70b8b0a1bcd14154fd32619f30f1",
     "item": {
       "id": "mml-5",
       "name": "MML 5",
@@ -8818,7 +8818,7 @@
       "ammoPerTon": 24,
       "costCBills": 75000,
       "battleValue": 45,
-      "introductionYear": 3067,
+      "introductionYear": 3062,
       "special": ["Can fire LRM or SRM ammo"]
     }
   },
@@ -8826,7 +8826,7 @@
     "file": "weapons/missile-other.json",
     "index": 2,
     "id": "mml-7",
-    "sha256": "79bb9ee8154e98b6c4f1f74889a86a0efe92b9e862faa402b5afd819f8dec14f",
+    "sha256": "bd6ffaf7886727f1e0293d3628162c9ee8c9ef5bae83949fc6ecaf672e81c544",
     "item": {
       "id": "mml-7",
       "name": "MML 7",
@@ -8851,7 +8851,7 @@
       "ammoPerTon": 17,
       "costCBills": 105000,
       "battleValue": 67,
-      "introductionYear": 3067,
+      "introductionYear": 3062,
       "special": ["Can fire LRM or SRM ammo"]
     }
   },
@@ -8859,7 +8859,7 @@
     "file": "weapons/missile-other.json",
     "index": 3,
     "id": "mml-9",
-    "sha256": "cd42281e79f857984fed5441935e87c151688ce863148cf1564f38beadab0afa",
+    "sha256": "58f97d907f07b2cb9028e1b02b85d5b73518ffd9ec88e1726024f672fb1892ff",
     "item": {
       "id": "mml-9",
       "name": "MML 9",
@@ -8884,7 +8884,7 @@
       "ammoPerTon": 13,
       "costCBills": 125000,
       "battleValue": 86,
-      "introductionYear": 3067,
+      "introductionYear": 3062,
       "special": ["Can fire LRM or SRM ammo"]
     }
   },
@@ -23881,7 +23881,7 @@
     "file": "miscellaneous/other.json",
     "index": 5,
     "id": "umu",
-    "sha256": "ada8e06b14e95e4b6e6b0eb31b2f2e5d1395a0cfbfab1a1237790fb4b7691b94",
+    "sha256": "ee99c2958419e7c85d5915d7cd05eec937b2e5635eac3b4e75d0cba37ada59e6",
     "item": {
       "id": "umu",
       "name": "UMU",
@@ -23896,7 +23896,7 @@
       },
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3066,
+      "introductionYear": 3061,
       "special": ["Variable weight"]
     }
   },

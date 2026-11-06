@@ -16,7 +16,7 @@
       "ammoPerTon": 40,
       "costCBills": 45000,
       "battleValue": 29,
-      "introductionYear": 3067,
+      "introductionYear": 3062,
       "special": ["Can fire LRM or SRM ammo"]
     },
     {
@@ -35,7 +35,7 @@
       "ammoPerTon": 24,
       "costCBills": 75000,
       "battleValue": 45,
-      "introductionYear": 3067,
+      "introductionYear": 3062,
       "special": ["Can fire LRM or SRM ammo"]
     },
     {
@@ -54,7 +54,7 @@
       "ammoPerTon": 17,
       "costCBills": 105000,
       "battleValue": 67,
-      "introductionYear": 3067,
+      "introductionYear": 3062,
       "special": ["Can fire LRM or SRM ammo"]
     },
     {
@@ -73,7 +73,7 @@
       "ammoPerTon": 13,
       "costCBills": 125000,
       "battleValue": 86,
-      "introductionYear": 3067,
+      "introductionYear": 3062,
       "special": ["Can fire LRM or SRM ammo"]
     },
     {
