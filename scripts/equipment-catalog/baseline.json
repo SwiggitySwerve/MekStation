@@ -25396,7 +25396,7 @@
     "file": "miscellaneous/other.json",
     "index": 69,
     "id": "claw",
-    "sha256": "99f8ed7a3893419262f99f910da9b79fc05a1c3f2078d297fbd64f1168a98e46",
+    "sha256": "76d227538d947ae899b72ba6b33b6b371abfcff7a26d01a89138ab4054071913",
     "item": {
       "id": "claw",
       "name": "Claw",
@@ -25411,7 +25411,7 @@
       },
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 3045,
       "special": ["Variable weight", "Variable critical slots"]
     }
   },
