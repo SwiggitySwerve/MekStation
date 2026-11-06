@@ -170,7 +170,8 @@ function buildVehicleAmmoEntries(
   return ammo.map((entry) => {
     const bin = getLargeAerospaceAmmoEntry(normalizeEquipmentId(entry.id));
     return {
-      id: entry.id,
+      // This identity is for cap matching; the explicit family takes precedence.
+      id: entry.weaponTypeOverride ?? entry.id,
       bv:
         entry.bvOverride ?? bin?.battleValue ?? resolveMountBattleValue(entry),
       weaponType: vehicleAmmoGroup(
@@ -298,7 +299,11 @@ export function calculateVehicleOffensiveBV(
   const perWeaponBVs = weaponEntries
     .filter((entry) => !isOneShotBVWeapon(entry.id))
     .map((entry) => ({
-      id: vehicleAmmoGroup(entry.id),
+      // The shared owner derives native pools from equipment identities.
+      // Re-parsing enum keys such as GAUSS_HEAVY:0 loses the weapon type.
+      id: getNativeAmmoBVGroup(entry.id)
+        ? entry.id
+        : vehicleAmmoGroup(entry.id),
       bv: entry.listedBV,
     }));
   const ammoEntries = buildVehicleAmmoEntries(input.ammo);
