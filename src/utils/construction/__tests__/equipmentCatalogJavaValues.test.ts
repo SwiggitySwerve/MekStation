@@ -153,6 +153,43 @@ const INTRO_YEARS = [
   ['sniper-cannon', 3012, 'weapons/artillery/SniperCannon.java:90-93'],
   // IS production 3050, approximate (TechAdvancement.java:720-734 less five).
   ['claw', 3045, 'equipment/MiscType.java:4002-4003'],
+  // Earliest advancement date marked approximate: five years earlier.
+  ['umu', 3061, 'equipment/MiscType.java:2355-2356'],
+  [
+    'improved-autocannon-2',
+    2810,
+    'weapons/autoCannons/clan/CLImprovedAC2.java:85-86',
+  ],
+  [
+    'improved-autocannon-5',
+    2810,
+    'weapons/autoCannons/clan/CLImprovedAC5.java:82-83',
+  ],
+  [
+    'improved-autocannon-10',
+    2810,
+    'weapons/autoCannons/clan/CLImprovedAC10.java:81-82',
+  ],
+  [
+    'improved-autocannon-20',
+    2810,
+    'weapons/autoCannons/clan/CLImprovedAC20.java:81-82',
+  ],
+  ['protomechac2', 3065, 'weapons/autoCannons/clan/CLProtoMekAC2.java:88-89'],
+  ['protomechac4', 3065, 'weapons/autoCannons/clan/CLProtoMekAC4.java:87-88'],
+  ['protomechac8', 3065, 'weapons/autoCannons/clan/CLProtoMekAC8.java:88-89'],
+  ['hag20', 3057, 'weapons/gaussRifles/clan/CLHAG20.java:87-88'],
+  ['hag30', 3057, 'weapons/gaussRifles/clan/CLHAG30.java:88-89'],
+  ['hag40', 3057, 'weapons/gaussRifles/clan/CLHAG40.java:88-89'],
+  [
+    'sniper-rifle-thors-hammer',
+    2795,
+    'weapons/infantry/sniperRifle/InfantrySniperRifleThorsHammer.java:74-75',
+  ],
+  ['mml-3', 3062, 'weapons/missiles/innerSphere/mml/ISMML3.java:88-89'],
+  ['mml-5', 3062, 'weapons/missiles/innerSphere/mml/ISMML5.java:91-92'],
+  ['mml-7', 3062, 'weapons/missiles/innerSphere/mml/ISMML7.java:91-92'],
+  ['mml-9', 3062, 'weapons/missiles/innerSphere/mml/ISMML9.java:91-92'],
 ] as const;
 const CATALOG = join(process.cwd(), 'public/data/equipment/official');
 const catalogCopies = (id: string) =>
@@ -161,6 +198,8 @@ const catalogCopies = (id: string) =>
     'weapons/physical.json',
     'weapons/ballistic-machinegun.json',
     'weapons/ballistic-other.json',
+    'weapons/ballistic-autocannon.json',
+    'weapons/missile-other.json',
   ].flatMap((file) =>
     (
       JSON.parse(readFileSync(join(CATALOG, file), 'utf8')) as {
