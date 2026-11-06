@@ -354,21 +354,22 @@ export function verifyCatalogUnit(
         MG: 'Main Gun',
       };
       for (const [code, label] of Object.entries(locations)) {
+        // Explicit topology decides applicability; missing expected bindings fail.
+        if (source.isQuad && (code === 'LA' || code === 'RA')) continue;
+        if (code === 'MG' && !state.hasMainGun) continue;
         const pip = counts[code as keyof typeof counts];
-        if (pip)
-          check(
-            `armor.${code}`,
-            pip.armor,
-            state.armorByLocation[label as keyof typeof state.armorByLocation],
-          );
-        if (pip)
-          check(
-            `structure.${code}`,
-            pip.structure,
-            state.structureByLocation[
-              label as keyof typeof state.structureByLocation
-            ],
-          );
+        check(
+          `armor.${code}`,
+          pip?.armor,
+          state.armorByLocation[label as keyof typeof state.armorByLocation],
+        );
+        check(
+          `structure.${code}`,
+          pip?.structure,
+          state.structureByLocation[
+            label as keyof typeof state.structureByLocation
+          ],
+        );
       }
       check('equipmentCount', data.equipment.length, state.equipment.length);
       row.template = selectProtoMechTemplate(data);
