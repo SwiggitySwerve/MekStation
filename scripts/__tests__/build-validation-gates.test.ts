@@ -198,6 +198,26 @@ describe('Lint and Test aggregator', () => {
     ).toEqual([]);
   });
 
+  itJq(
+    'fails when the shared E2E producer fails and its consumers skip',
+    () => {
+      expect(
+        blocking({
+          ...detect({ code: 'true', e2e: 'true' }),
+          'e2e-build': { result: 'failure' },
+          e2e: { result: 'skipped' },
+        }),
+      ).toEqual(['e2e-build=failure', 'e2e=skipped']);
+      expect(
+        blocking({
+          ...detect({ code: 'true', e2e: 'true' }),
+          'e2e-build': { result: 'success' },
+          e2e: { result: 'failure' },
+        }),
+      ).toEqual(['e2e=failure']);
+    },
+  );
+
   itJq('accepts a skip only when every gate the job names was off', () => {
     // docs-only PR: the code gate is off, so the simulation/Linux-pack job
     // may skip.

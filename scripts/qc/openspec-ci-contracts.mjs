@@ -27,6 +27,7 @@ export const requiredAggregatorNeeds = [
   'unit-test-shards',
   'simulation-checks',
   'build-test',
+  'e2e-build',
   'e2e',
 ];
 
@@ -101,10 +102,10 @@ export const requiredWorkflowTokens = [
  * contract pins the gate itself, not the workflow's vocabulary:
  *
  * - each shard fetches the record-sheet assets in ITS OWN checkout and
- *   validates them strictly before building, so a missing template fails
+ *   validates them strictly before running, so a missing template fails
  *   instead of degrading to the CDN fallback;
- * - each shard builds the E2E-mode production app and serves it from
- *   `.next/standalone/server.js`;
+ * - one producer validates assets and builds the harness-enabled production
+ *   artifact; every shard verifies and serves that same standalone build;
  * - the exact six-spec gate invocation through the repo runner wrapper, in
  *   every shard of the fixed matrix, so no pack and no shard can be dropped;
  *   `--retries=0`, so a flaky regression is never retried to green;
@@ -116,10 +117,38 @@ const E2E_CHANGE_GATE_IF =
 
 export const requiredWorkflowJobContracts = [
   {
+    id: 'e2e-production-build',
+    jobId: 'e2e-build',
+    jobName: 'E2E Build',
+    requiredNeeds: ['detect-changes'],
+    timeoutMinutes: 25,
+    skipIf:
+      "needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'",
+    changeGateIf: E2E_CHANGE_GATE_IF,
+    setupAction: {
+      uses: './.github/actions/setup-node-and-install',
+      with: { 'fetch-assets': 'true' },
+    },
+    requiredRuns: [
+      {
+        id: 'strict-record-sheet-assets',
+        run: 'npm run validate:assets:strict',
+      },
+      {
+        id: 'production-build',
+        run: 'npm run build',
+        env: {
+          NEXT_PUBLIC_E2E_MODE: 'true',
+          NEXT_PUBLIC_E2E_TEST: 'true',
+        },
+      },
+    ],
+  },
+  {
     id: 'customizer-regressions-gate',
     jobId: 'e2e',
     jobName: 'E2E (${{ matrix.shard }}/2)',
-    requiredNeeds: ['detect-changes'],
+    requiredNeeds: ['detect-changes', 'e2e-build'],
     timeoutMinutes: 25,
     matrixShards: [1, 2],
     skipIf:
@@ -148,14 +177,6 @@ export const requiredWorkflowJobContracts = [
       {
         id: 'strict-record-sheet-assets',
         run: 'npm run validate:assets:strict',
-      },
-      {
-        id: 'production-build',
-        run: 'npm run build',
-        env: {
-          NEXT_PUBLIC_E2E_MODE: 'true',
-          NEXT_PUBLIC_E2E_TEST: 'true',
-        },
       },
       {
         id: 'browser-gates-playwright',

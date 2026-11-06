@@ -13,12 +13,13 @@ const workflowPath = path.resolve(repoRoot, '.github/workflows/pr-checks.yml');
 
 /**
  * The per-PR browser gates live in the `e2e` shard matrix: each shard
- * validates the record-sheet assets, builds the E2E-mode production app and
- * runs the exact gate invocation below against it. The validator scopes the
- * contract to that job, so the mutations below move / weaken it and prove it
- * still fails.
+ * validates its record-sheet assets and runs the exact gate invocation below
+ * against the artifact from the separate E2E-mode production build job. The
+ * validator scopes each contract to its job, so mutations that move or weaken
+ * a prerequisite still fail.
  */
 const GATE_JOB = 'e2e';
+const BUILD_JOB = 'e2e-build';
 const CHANGE_GATE_IF =
   "needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'";
 const GATE_COMMAND =
@@ -252,6 +253,11 @@ describe('OpenSpec CI quality QC validator', () => {
       expect(jobErrors(manifest)).toEqual([]);
       expect(manifest.workflowJobContracts).toEqual([
         expect.objectContaining({
+          id: 'e2e-production-build',
+          jobId: BUILD_JOB,
+          present: true,
+        }),
+        expect.objectContaining({
           id: 'customizer-regressions-gate',
           jobId: GATE_JOB,
           present: true,
@@ -340,7 +346,7 @@ describe('OpenSpec CI quality QC validator', () => {
     it.each([
       [
         'NEXT_PUBLIC_E2E_TEST env',
-        GATE_JOB,
+        BUILD_JOB,
         (block: string) =>
           block.replace(
             "          NEXT_PUBLIC_E2E_TEST: 'true'",
@@ -369,7 +375,10 @@ describe('OpenSpec CI quality QC validator', () => {
         'required needs',
         GATE_JOB,
         (block: string) =>
-          block.replace('    needs: detect-changes', '    needs: []'),
+          block.replace(
+            '    needs: [detect-changes, e2e-build]',
+            '    needs: []',
+          ),
         'workflow-job-token-missing',
       ],
       [
@@ -442,7 +451,7 @@ describe('OpenSpec CI quality QC validator', () => {
       ],
       [
         'required in-job step order',
-        GATE_JOB,
+        BUILD_JOB,
         (block: string) =>
           block.replace(
             /(\n      - name: Validate record-sheet assets[\s\S]*?\n        run: npm run validate:assets:strict\n)(\n      - name: Build production app[\s\S]*?\n        run: npm run build\n)/,
@@ -520,7 +529,7 @@ describe('OpenSpec CI quality QC validator', () => {
       ],
       [
         'production hooks removed',
-        GATE_JOB,
+        BUILD_JOB,
         (block: string) =>
           block.replace(
             "NEXT_PUBLIC_E2E_MODE: 'true'",
@@ -687,7 +696,7 @@ describe('OpenSpec CI quality QC validator', () => {
       );
     });
 
-    it.each([GATE_JOB])('rejects a deleted %s job', (jobId) => {
+    it.each([BUILD_JOB, GATE_JOB])('rejects a deleted %s job', (jobId) => {
       const deleted = mutateJob(readWorkflow(), jobId, () => '\n');
 
       const manifest = runWithWorkflow(deleted);
@@ -697,7 +706,7 @@ describe('OpenSpec CI quality QC validator', () => {
       );
     });
 
-    it.each([GATE_JOB])(
+    it.each([BUILD_JOB, GATE_JOB])(
       'rejects an aggregator that stops requiring %s',
       (jobId) => {
         const unwired = readWorkflow().replace(`        ${jobId},\n`, '');

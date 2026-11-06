@@ -597,12 +597,67 @@ jobs:
         run: npm run validate:combat
 
   # ---------------------------------------------------------------
+  # e2e-build produces one harness-enabled production build for all shards.
+  # Keep it separate from simulation-checks/web-build: Electron and release
+  # artifacts must never contain the E2E harness. The tar preserves hidden
+  # Next files, runtime links and permissions; each consumer verifies it.
+  # Step gating keeps docs- and openspec-only PRs green.
+  # ---------------------------------------------------------------
+  e2e-build:
+    name: E2E Build
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Skip (no code or e2e changes)
+        if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'
+        run: echo "No code or e2e changes — skipping E2E build."
+
+      - name: Checkout code
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '22'
+          fetch-assets: 'true'
+
+      - name: Validate record-sheet assets
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        run: npm run validate:assets:strict
+
+      - name: Build production app
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        env:
+          NEXT_PUBLIC_E2E_MODE: 'true'
+          NEXT_PUBLIC_E2E_TEST: 'true'
+        run: npm run build
+
+      - name: Archive E2E production build
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        run: |
+          tar -cf e2e-build.tar .next/standalone
+          sha256sum e2e-build.tar > e2e-build.sha256
+
+      - name: Upload E2E production build
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-build
+          path: |
+            e2e-build.tar
+            e2e-build.sha256
+          compression-level: 1
+          if-no-files-found: error
+          retention-days: 1
+
+  # ---------------------------------------------------------------
   # e2e runs every per-PR Playwright gate in 2 shards. Each shard
   # fetches and strictly validates the record-sheet assets in its own
   # checkout (a missing template fails here instead of degrading to the
-  # CDN fallback) and builds the E2E-mode production app itself: a
-  # separate build job plus an artifact hop took one more runner than a
-  # second build costs (CI-SPEED slice 5, 12-job budget).
+  # CDN fallback), then downloads the same E2E-mode production app.
   # NEXT_PUBLIC_E2E_* are inlined at build time, and a non-E2E production
   # build swaps the tactical-map E2E harness for an empty stub
   # (next.config.ts), so it needs a separate build from the Linux pack job
@@ -628,7 +683,7 @@ jobs:
   # ---------------------------------------------------------------
   e2e:
     name: E2E (${{ matrix.shard }}/2)
-    needs: detect-changes
+    needs: [detect-changes, e2e-build]
     runs-on: ubuntu-latest
     timeout-minutes: 25
     strategy:
@@ -651,6 +706,7 @@ jobs:
         with:
           node-version: '22'
           fetch-assets: 'true'
+          build-caches: 'false'
 
       - name: Test E2E shard planning and coverage guards
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
@@ -660,12 +716,21 @@ jobs:
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
         run: npm run validate:assets:strict
 
-      - name: Build production app
+      - name: Download E2E production build
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
-        env:
-          NEXT_PUBLIC_E2E_MODE: 'true'
-          NEXT_PUBLIC_E2E_TEST: 'true'
-        run: npm run build
+        uses: actions/download-artifact@v8
+        with:
+          name: e2e-build
+
+      - name: Verify and extract E2E production build
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        run: |
+          sha256sum --check e2e-build.sha256
+          tar -xf e2e-build.tar
+          test -f .next/standalone/server.js
+          test -s .next/standalone/.next/BUILD_ID
+          test -d .next/standalone/.next/static
+          test -d .next/standalone/public/record-sheets
 
       - name: Resolve Playwright version for browser cache key
         if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
@@ -770,6 +835,7 @@ jobs:
         unit-test-shards,
         simulation-checks,
         build-test,
+        e2e-build,
         e2e,
       ]
     runs-on: ubuntu-latest
