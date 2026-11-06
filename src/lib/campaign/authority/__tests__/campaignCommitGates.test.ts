@@ -2,8 +2,8 @@
  * Campaign commit gates before the journal-authority flip (roadmap unit
  * U35a, under OD-mvp-hard-cutover).
  *
- * Four rows, each against real SQLite on a temp file with no
- * MEKSTATION_E2E_* key in the environment:
+ * Four rows, each against real SQLite on a temp file with campaign/combat
+ * E2E arms disarmed:
  *
  * - (b) F-1: a marker read or write that fails AFTER the journal took the
  *   batch is logged, and the command is still acknowledged as committed.
@@ -31,6 +31,7 @@ import type { ICampaignIntent } from '@/types/campaign/CampaignSync';
 import type { IContract } from '@/types/campaign/Mission';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
+import { useCampaignE2eEnvironment } from '@/__tests__/api/campaigns/campaignE2eEnvironment';
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
@@ -235,12 +236,10 @@ async function createJournalNativeCampaign(
 }
 
 describe('U35a campaign commit gates', () => {
+  useCampaignE2eEnvironment();
   let dir: string;
 
   beforeEach(async () => {
-    for (const key of Object.keys(process.env)) {
-      if (key.startsWith('MEKSTATION_E2E_')) delete process.env[key];
-    }
     dir = await mkdtemp(path.join(tmpdir(), 'u35a-gates-'));
     resetSQLiteService();
     getSQLiteService({ path: path.join(dir, 'u35a.db') }).initialize();
