@@ -103,6 +103,9 @@ scripts/**
 !scripts/megameklab-conversion/java_reference_exporter.py
 !scripts/megameklab-conversion/java_bv_terms.py
 !scripts/megameklab-conversion/java_construction_terms.py
+!scripts/megameklab-conversion/reference_policy.py
+!scripts/megameklab-conversion/reference_policy_sources.py
+!scripts/megameklab-conversion/reference_policy_units.py
 !scripts/megameklab-conversion/export_vehicle_aero_json.py
 !scripts/megameklab-conversion/strict_provenance.py
 !scripts/megameklab-conversion/strict-provenance-inputs.json
