@@ -62,3 +62,56 @@ it('preserves the existing aerospace entry point for older callers', () => {
   ]);
   expect(linked.bv).toBeCloseTo(13.4, 8);
 });
+
+it.each([undefined, gun('Rear'), { ...gun('Front'), ammoGroup: 'other' }])(
+  'stops a critical run at a nonqualifying slot: %j',
+  (blocker) => {
+    const guns = Array.from({ length: 6 }, () => gun('Front'));
+    const first = array('Front'),
+      second = array('Front');
+    const slots = [undefined, ...guns.slice(0, 3), blocker, ...guns.slice(3)];
+    linkMachineGunArrayBVWeapons(
+      [...guns, first, second],
+      new Map([['Front', slots]]),
+    );
+    expect([first.bv, second.bv]).toEqual([10.05, 10.05]);
+  },
+);
+
+it('treats an already used gun as a blocker after linking starts', () => {
+  const a = gun('Front'),
+    b = gun('Front'),
+    c = gun('Front'),
+    d = gun('Front');
+  const first = array('Front'),
+    second = array('Front'),
+    third = array('Front');
+  linkMachineGunArrayBVWeapons(
+    [a, b, c, d, first, second, third],
+    new Map([['Front', [a, undefined, b, a, c, d]]]),
+  );
+  expect([first.bv, second.bv, third.bv]).toEqual([3.35, 3.35, 6.7]);
+});
+
+it('limits a contiguous critical run to four without reusing mounts', () => {
+  const guns = Array.from({ length: 6 }, () => gun('Front'));
+  const first = array('Front'),
+    second = array('Front');
+  linkMachineGunArrayBVWeapons(
+    [...guns, first, second],
+    new Map([['Front', guns]]),
+  );
+  expect([first.bv, second.bv]).toEqual([13.4, 6.7]);
+});
+
+it('falls back only when no critical guns were linked, including a zero BV gun', () => {
+  const zero = { ...gun('Front'), baseBV: 0 };
+  const other = gun('Front'),
+    first = array('Front'),
+    second = array('Front');
+  linkMachineGunArrayBVWeapons(
+    [zero, other, first, second],
+    new Map([['Front', [zero, undefined]]]),
+  );
+  expect([first.bv, second.bv]).toEqual([0, 3.35]);
+});
