@@ -20,7 +20,13 @@ const planner = require('../../config/jest/shard-planner') as {
     files: string[],
     durations: Durations,
     shardCount: number,
+    preload?: number[],
   ) => { shardOf: Map<string, number>; loads: number[] };
+  preloadFor: (
+    displayName: unknown,
+    shardCount: number,
+  ) => number[] | undefined;
+  SHARD_PRELOAD_MS: Record<string, number[]>;
 };
 const DurationSequencer =
   require('../../config/jest/duration-sequencer') as new () => {
@@ -103,6 +109,53 @@ describe('planShards', () => {
       expect(planner.loadDurations(bad)).toEqual({});
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('shard preload (work a CI job does besides its Jest shard)', () => {
+  const durations = loadAll();
+  function loadAll(): Durations {
+    return planner.loadDurations();
+  }
+  const files = Object.keys(durations).filter((f) => /\.test\.tsx?$/.test(f));
+
+  it('looks the preload up by project name and shard count only', () => {
+    expect(planner.preloadFor({ name: 'unit', color: 'x' }, 3)).toEqual(
+      planner.SHARD_PRELOAD_MS['unit/3'],
+    );
+    expect(planner.preloadFor('unit', 3)).toEqual(
+      planner.SHARD_PRELOAD_MS['unit/3'],
+    );
+    expect(planner.preloadFor('unit', 4)).toBeUndefined();
+    expect(planner.preloadFor('corpus', 3)).toBeUndefined();
+    expect(planner.preloadFor(undefined, 3)).toBeUndefined();
+    for (const [key, preload] of Object.entries(planner.SHARD_PRELOAD_MS)) {
+      expect(preload).toHaveLength(Number(key.split('/')[1]));
+    }
+  });
+
+  it('gives the preloaded shard less Jest work and still runs every file exactly once', () => {
+    const preload = planner.SHARD_PRELOAD_MS['unit/3'];
+    const even = planner.planShards(files, durations, 3);
+    const loaded = planner.planShards(files, durations, 3, preload);
+    expect([...loaded.shardOf.keys()].sort()).toEqual([...files].sort());
+    const jest = (plan: typeof even) =>
+      plan.loads.map((load, i) => load - (plan === loaded ? preload[i] : 0));
+    // the shard that carries the Combat suite takes about 400,000 committed ms less
+    // (about 96 s of Jest wall time at 4,157 committed ms per second)
+    expect(jest(even)[2] - jest(loaded)[2]).toBeGreaterThan(350000);
+    // and the totals, preload included, end up level
+    const spread = Math.max(...loaded.loads) - Math.min(...loaded.loads);
+    expect(spread).toBeLessThan(0.02 * Math.max(...loaded.loads));
+  });
+
+  it('an unloaded plan is unchanged by an empty or wrong-length preload', () => {
+    const base = planner.planShards(files, durations, 3);
+    for (const preload of [undefined, [], [1, 2]]) {
+      const plan = planner.planShards(files, durations, 3, preload);
+      expect(plan.loads).toEqual(base.loads);
+      expect([...plan.shardOf]).toEqual([...base.shardOf]);
     }
   });
 });
