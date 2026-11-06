@@ -4,7 +4,7 @@
 
 import { PSRTrigger } from '@/types/gameplay/PSRTriggerCodes';
 
-import { UNIT_QUIRK_IDS } from './catalog';
+import { UNIT_QUIRK_IDS, hasQuirk } from './catalog';
 
 const SMALL_PILOT_ABILITY_ID = 'small_pilot';
 
@@ -44,18 +44,18 @@ export function calculatePilotingQuirkPSRModifier(
   let modifier = 0;
 
   // Stable: MegaMek applies -1 only to kick/push PSRs.
-  if (unitQuirks.includes(UNIT_QUIRK_IDS.STABLE) && isStablePSR(reasonCode)) {
+  if (hasQuirk(unitQuirks, UNIT_QUIRK_IDS.STABLE) && isStablePSR(reasonCode)) {
     modifier -= 1;
   }
 
   // Hard to Pilot: +1 to all PSRs
-  if (unitQuirks.includes(UNIT_QUIRK_IDS.HARD_TO_PILOT)) {
+  if (hasQuirk(unitQuirks, UNIT_QUIRK_IDS.HARD_TO_PILOT)) {
     modifier += 1;
   }
 
   // Cramped Cockpit: MegaMek suppresses this penalty for Small Pilot.
   if (
-    unitQuirks.includes(UNIT_QUIRK_IDS.CRAMPED_COCKPIT) &&
+    hasQuirk(unitQuirks, UNIT_QUIRK_IDS.CRAMPED_COCKPIT) &&
     !pilotAbilities.includes(SMALL_PILOT_ABILITY_ID)
   ) {
     modifier += 1;
@@ -63,7 +63,7 @@ export function calculatePilotingQuirkPSRModifier(
 
   // Easy to Pilot: MegaMek gates relief to pilots worse than 3.
   if (
-    unitQuirks.includes(UNIT_QUIRK_IDS.EASY_TO_PILOT) &&
+    hasQuirk(unitQuirks, UNIT_QUIRK_IDS.EASY_TO_PILOT) &&
     basePilotingSkill !== undefined &&
     basePilotingSkill > 3 &&
     isEasyToPilotPSR(isTerrainPSR, reasonCode)
@@ -73,14 +73,14 @@ export function calculatePilotingQuirkPSRModifier(
 
   // No/Minimal Arms: MegaMek applies +2 only to stand-up PSRs.
   if (
-    unitQuirks.includes(UNIT_QUIRK_IDS.NO_ARMS) &&
+    hasQuirk(unitQuirks, UNIT_QUIRK_IDS.NO_ARMS) &&
     isStandingUpPSR(reasonCode)
   ) {
     modifier += 2;
   }
 
   // Unbalanced: +1 to terrain PSRs only
-  if (isTerrainPSR && unitQuirks.includes(UNIT_QUIRK_IDS.UNBALANCED)) {
+  if (isTerrainPSR && hasQuirk(unitQuirks, UNIT_QUIRK_IDS.UNBALANCED)) {
     modifier += 1;
   }
 
