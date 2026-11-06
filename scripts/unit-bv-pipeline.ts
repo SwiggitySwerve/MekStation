@@ -11,12 +11,16 @@ import { runCommand } from './unit-bv-family-worker';
 import {
   validateSourceManifest,
   writeSourceManifest,
+  readTrustedReferences,
 } from './unit-bv-provenance';
+import {
+  ReferenceTrustMode,
+  type IReferenceTrustMode,
+} from './unit-bv-reference';
 import {
   buildDeltaReport,
   FAMILIES,
   JavaReference,
-  readJsonLines,
   writeDeltaReport,
   type IComputedRow,
 } from './vehicle-aero-bv-delta';
@@ -24,6 +28,8 @@ import {
 interface IPipelineOptions {
   mekfiles: string;
   reference: string;
+  referencePolicy?: string;
+  referenceTrust?: IReferenceTrustMode;
   out: string;
   python: string;
   workers: number;
@@ -83,7 +89,12 @@ export async function runPipeline(options: IPipelineOptions): Promise<boolean> {
     throw new Error('Family manifest differs from comparator');
   requireScratch(out);
   if (options.cacheDir) requireScratch(options.cacheDir);
-  const refs = readJsonLines(reference).map((row) => JavaReference.parse(row));
+  const refs = readTrustedReferences(
+    reference,
+    options.referencePolicy,
+    out,
+    options.referenceTrust,
+  ).map((row) => JavaReference.parse(row));
   const cacheEnabled =
     Boolean(options.cacheDir) &&
     !options.uncached &&
@@ -269,6 +280,8 @@ if (require.main === module) {
     options: {
       mekfiles: { type: 'string' },
       reference: { type: 'string' },
+      'reference-policy': { type: 'string' },
+      'reference-trust': { type: 'string' },
       out: { type: 'string' },
       python: { type: 'string', default: 'python' },
       workers: { type: 'string', default: '2' },
@@ -283,6 +296,10 @@ if (require.main === module) {
   runPipeline({
     mekfiles: path.resolve(values.mekfiles),
     reference: path.resolve(values.reference),
+    referencePolicy: values['reference-policy']
+      ? path.resolve(values['reference-policy'])
+      : undefined,
+    referenceTrust: ReferenceTrustMode.parse(values['reference-trust']),
     out: path.resolve(values.out),
     python: values.python,
     workers: Number(values.workers),

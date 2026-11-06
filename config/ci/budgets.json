@@ -13,6 +13,10 @@
     "unkeyableTests": 55,
     "repoWideKeys": 80
   },
+  "reporting": {
+    "jobMinutes": 53.16833333333333,
+    "criticalPathMs": 616400
+  },
   "dependencies": {
     "root": {
       "lockEntries": 1194,

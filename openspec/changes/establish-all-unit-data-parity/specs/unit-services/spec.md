@@ -362,3 +362,23 @@ Canonical and saved unit detail pages SHALL share read-only quirk presentation. 
 - **THEN** a missing or empty summary adds no card and a malformed map adds no weapon list
 - **AND** valid unit badges remain unchanged and the persisted payload is not modified
 - **AND** editor retention, mount editing, print output and gameplay effects remain separate obligations
+
+### Requirement: Direct MTF source import API
+
+The unit import API SHALL accept explicit MTF source text, use the existing MTF parser and shared family-aware definition admission, and persist accepted BattleMech definitions as custom units without changing native parser or construction rules. Existing JSON import behavior SHALL remain available.
+
+#### Scenario: Import and reload original source facts
+
+- **GIVEN** a representable MTF source submitted as `sourceFormat: mtf` and `sourceText`
+- **WHEN** the API imports the source
+- **THEN** it SHALL allocate a custom identity and persist the validated definition with its original source text, parsed identity, construction fields, mounts and diagnostics
+- **AND** the saved definition SHALL reload through the existing family-aware contract with an omitted family meaning BattleMech
+- **AND** a name conflict SHALL return 409 without overwriting an existing unit
+
+#### Scenario: Source failure and structural admission
+
+- **WHEN** source text is absent, malformed or contains a fact the existing definition contract cannot represent
+- **THEN** the API SHALL return client diagnostics, retain parser warnings and create no saved unit
+- **AND** successful structural admission SHALL NOT certify construction validity, equipment completeness or numerical parity
+- **AND** malformed request bodies and unsupported source formats SHALL return 400
+- **AND** BLK import, browser file selection and the legacy runtime-object importer SHALL remain separate obligations

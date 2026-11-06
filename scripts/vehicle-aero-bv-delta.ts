@@ -31,7 +31,12 @@ import {
   type IComputedRow,
   type IFigure,
 } from './unit-bv-parity';
-import { validateSourceManifest } from './unit-bv-provenance';
+import {
+  readJsonLines,
+  readTrustedReferences,
+  validateSourceManifest,
+} from './unit-bv-provenance';
+import { ReferenceTrustMode } from './unit-bv-reference';
 import { buildValidityReport } from './unit-construction-validity';
 import { calculateUnitBV as gateBV } from './validate-bv-calculator';
 
@@ -234,12 +239,6 @@ export function calculateRow(
     return { path: input.path, sha256: input.sha256, reason: String(error) };
   }
 }
-export const readJsonLines = (file: string): unknown[] =>
-  fs
-    .readFileSync(file, 'utf8')
-    .split(/\r?\n/)
-    .filter((line) => line.trim())
-    .map((line) => JSON.parse(line) as unknown);
 export function calculateSources(
   raws: readonly unknown[],
   mekfiles: string,
@@ -287,13 +286,20 @@ export function main(): void {
   };
   const convertedFile = arg('--converted');
   validateSourceManifest(convertedFile, fs.readFileSync(convertedFile));
+  const optionalArg = (name: string): string | undefined =>
+    process.argv.includes(name) ? arg(name) : undefined;
+  const references = readTrustedReferences(
+    arg('--reference'),
+    optionalArg('--reference-policy'),
+    arg('--out'),
+    ReferenceTrustMode.parse(optionalArg('--reference-trust')),
+  );
   const includeConstruction = process.argv.includes('--construction-validity');
   const converted = calculateSources(
     readJsonLines(arg('--converted')),
     path.resolve(arg('--mekfiles')),
     includeConstruction,
   );
-  const references = readJsonLines(arg('--reference'));
   const report = buildDeltaReport(
     converted,
     references.map((row) => JavaReference.parse(row)),
@@ -318,6 +324,7 @@ export function main(): void {
 }
 
 export * from './unit-bv-parity';
+export { readJsonLines } from './unit-bv-provenance';
 
 if (require.main === module) {
   try {

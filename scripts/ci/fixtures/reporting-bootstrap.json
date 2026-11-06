@@ -1,0 +1,187 @@
+{
+  "sourceMain": "dc5b2af008d885ece4022dbaf76fa3ea6a584886",
+  "assessmentCutoff": "2026-11-06T08:59:03.478Z",
+  "sourceEvidenceSha256": "604c37295a81c280325f1b6f1fe9672f5972bad9d3e81fc4ecd925132665472c",
+  "comparableKey": "08d9ca2b1f025adb92a69d2faffdaa9fdd91577c46cb269f243001df1a24a6bc",
+  "reportingCandidateWindow": 10,
+  "headroomMultiplier": 1.15,
+  "included": [
+    {
+      "identity": {
+        "repository": "SwiggitySwerve/MekStation",
+        "workflowId": 213495534,
+        "runId": 42183955227,
+        "attempt": 1,
+        "headSha": "0b8ea746c6f6494233f7cb94516d851948ee6e0c",
+        "event": "push",
+        "branch": "main",
+        "createdAt": "2026-11-06T07:54:30Z",
+        "startedAt": "2026-11-06T07:54:30Z",
+        "completedAt": "2026-11-06T08:05:02.000Z",
+        "conclusion": "success"
+      },
+      "metrics": {
+        "jobMinutes": 49.35,
+        "criticalPathMs": 625000
+      }
+    },
+    {
+      "identity": {
+        "repository": "SwiggitySwerve/MekStation",
+        "workflowId": 213495534,
+        "runId": 42181448077,
+        "attempt": 1,
+        "headSha": "d9beb1df1a5bb3f018fea9259f9f47c8e2bd01cf",
+        "event": "push",
+        "branch": "main",
+        "createdAt": "2026-11-06T07:31:38Z",
+        "startedAt": "2026-11-06T07:31:38Z",
+        "completedAt": "2026-11-06T07:40:40.000Z",
+        "conclusion": "success"
+      },
+      "metrics": {
+        "jobMinutes": 46.233333333333334,
+        "criticalPathMs": 536000
+      }
+    },
+    {
+      "identity": {
+        "repository": "SwiggitySwerve/MekStation",
+        "workflowId": 213495534,
+        "runId": 42174245994,
+        "attempt": 1,
+        "headSha": "fa570f804abafaace2ade2a7ce30daacd9343a00",
+        "event": "push",
+        "branch": "main",
+        "createdAt": "2026-11-06T06:24:38Z",
+        "startedAt": "2026-11-06T06:24:38Z",
+        "completedAt": "2026-11-06T06:33:07.000Z",
+        "conclusion": "success"
+      },
+      "metrics": {
+        "jobMinutes": 45.56666666666667,
+        "criticalPathMs": 502000
+      }
+    },
+    {
+      "identity": {
+        "repository": "SwiggitySwerve/MekStation",
+        "workflowId": 213495534,
+        "runId": 42172955898,
+        "attempt": 1,
+        "headSha": "392607068c04441b455bd6f32f52330c13473c3b",
+        "event": "push",
+        "branch": "main",
+        "createdAt": "2026-11-06T06:12:16Z",
+        "startedAt": "2026-11-06T06:12:16Z",
+        "completedAt": "2026-11-06T06:21:13.000Z",
+        "conclusion": "success"
+      },
+      "metrics": {
+        "jobMinutes": 41.71666666666667,
+        "criticalPathMs": 529000
+      }
+    },
+    {
+      "identity": {
+        "repository": "SwiggitySwerve/MekStation",
+        "workflowId": 213495534,
+        "runId": 42171496788,
+        "attempt": 1,
+        "headSha": "6d30a8af854751bc9bad6961e31f3ba117ffa3ce",
+        "event": "push",
+        "branch": "main",
+        "createdAt": "2026-11-06T05:57:59Z",
+        "startedAt": "2026-11-06T05:57:59Z",
+        "completedAt": "2026-11-06T06:12:11.000Z",
+        "conclusion": "success"
+      },
+      "metrics": {
+        "jobMinutes": 44.28333333333333,
+        "criticalPathMs": 478000
+      }
+    }
+  ],
+  "excluded": [
+    {
+      "identity": {
+        "repository": "SwiggitySwerve/MekStation",
+        "workflowId": 213495534,
+        "runId": 42191131196,
+        "attempt": 1,
+        "headSha": "dc5b2af008d885ece4022dbaf76fa3ea6a584886",
+        "event": "push",
+        "branch": "main",
+        "createdAt": "2026-11-06T08:55:11Z",
+        "startedAt": "2026-11-06T08:55:11Z",
+        "completedAt": null,
+        "conclusion": null
+      },
+      "reason": "incomplete"
+    },
+    {
+      "identity": {
+        "repository": "SwiggitySwerve/MekStation",
+        "workflowId": 213495534,
+        "runId": 42190386522,
+        "attempt": 1,
+        "headSha": "18a92e78e25c0d5d36185261871798d841ef3f6f",
+        "event": "push",
+        "branch": "main",
+        "createdAt": "2026-11-06T08:48:59Z",
+        "startedAt": "2026-11-06T08:48:59Z",
+        "completedAt": null,
+        "conclusion": "cancelled"
+      },
+      "reason": "incomplete"
+    },
+    {
+      "identity": {
+        "repository": "SwiggitySwerve/MekStation",
+        "workflowId": 213495534,
+        "runId": 42190170024,
+        "attempt": 1,
+        "headSha": "b59001523c67a2cf41c8adf14474def985ec481b",
+        "event": "push",
+        "branch": "main",
+        "createdAt": "2026-11-06T08:47:09Z",
+        "startedAt": "2026-11-06T08:47:09Z",
+        "completedAt": null,
+        "conclusion": "cancelled"
+      },
+      "reason": "incomplete"
+    },
+    {
+      "identity": {
+        "repository": "SwiggitySwerve/MekStation",
+        "workflowId": 213495534,
+        "runId": 42190140804,
+        "attempt": 1,
+        "headSha": "2672f1804147e6eacf241cc0223af7df950df09c",
+        "event": "push",
+        "branch": "main",
+        "createdAt": "2026-11-06T08:46:54Z",
+        "startedAt": "2026-11-06T08:46:54Z",
+        "completedAt": null,
+        "conclusion": "cancelled"
+      },
+      "reason": "incomplete"
+    },
+    {
+      "identity": {
+        "repository": "SwiggitySwerve/MekStation",
+        "workflowId": 213495534,
+        "runId": 42189885322,
+        "attempt": 1,
+        "headSha": "009bcd7465a8dac769b8e8d23571b9fd73d15d07",
+        "event": "push",
+        "branch": "main",
+        "createdAt": "2026-11-06T08:44:49Z",
+        "startedAt": "2026-11-06T08:44:49Z",
+        "completedAt": null,
+        "conclusion": null
+      },
+      "reason": "incomplete"
+    }
+  ]
+}

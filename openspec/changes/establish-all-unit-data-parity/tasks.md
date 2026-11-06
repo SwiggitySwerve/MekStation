@@ -173,6 +173,21 @@ accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
 - [x] 3.3 Prove semantic serialization/save/reload for each subtype, with multiplicity, topology and custom/source identities preserved. (`mtf-parity-validation`: All-family semantic round trips) Proof: #2546 (vehicles), #2550 (aerospace and small craft), #2561 (ProtoMechs and battle armor), #2567 (infantry), #2569 (family kept on force, roster and session references), #2518 and #2611 (capital ships: open, view, BV and print, read-only per owner ruling 3, `OWNER-RULINGS-20261030.md` "2026-11-03 (evening): tick-4 owner decisions" item 2); tests: `src/services/units/unitLoaderService/__tests__/vehicleMapping.test.ts`, `aerospaceSave.test.tsx`, `smallUnitSave.test.tsx`, `infantrySave.test.tsx`, `src/services/forces/__tests__/ForceRepository.helpers.test.ts`, `src/components/customizer/capital/__tests__/CapitalShipCustomizer.test.tsx`, `src/__tests__/service/printing/capitalRecordSheets.test.ts`, `capitalTemplated.test.ts`, `recordSheetFigures.test.ts` (all pass in the main-push unit run 41932845917 on main `ac64a3330`, `ledger/tick6/ci-pass-files.txt`; some cases are skipped, see Carried); evidence: `unit-loading/UL-25a/`, `UL-25b/` and `UL-25c/` (lane figures, not re-run: the production mapper, serializer, JSON and mapper compare equal for 1,444 of 1,444 vehicles and 620 of 620 aerospace and small craft, and 86 of 86 ProtoMechs, 1,188 of 1,188 battle armor and 1,820 of 1,820 infantry pass semantic, BV and validity round trips), `ledger/tick6/corpus-load/` and `library-open/` (all 394 capital ships open read-only; the catalog replays open every battle armor, infantry and ProtoMech design), `ledger/tick6/run-1/delta-rows.jsonl` (capital BV: 246 exact, 6 within 1%, 3 farther, 139 defensive-only and labelled so).
   - Carried: the family on force and roster references covers vehicles and aerospace (#2569 rejects unsupported combat families, so battle armor, infantry, ProtoMechs and capital cannot yet be in a force; follow-up 32), and saved non-mech combat snapshots are not in #2569. The vehicle and aerospace proofs are mapper-level and integration cases; the browser journeys for eight families ran on the SHA in the main-push run (`customizer-library-open.spec.ts`, 52 tests passed; rows 4.2 and 4.4). `infantrySave.test.tsx` skips 1 case, `capitalTemplated.test.ts` runs 3 and skips 7 (skip counts as at tick 5, not re-counted): its pinned-mm-data cases need `RECORD_SHEET_PINNED_ASSETS` and the pin under `_scratch/upstream-pins-20261028/mm-data` holds no record sheet images, so only the repository-asset cases ran. Capital BV is complete for 255 of 394 designs (246 exact, 6 within 1%, 3 farther) and defensive-only for 139 (row 3.4).
 - [ ] 3.4 Run complete per-family construction/BV comparisons against matched references. Record per-unit and component differences, upstream failures and justified inapplicable metrics. (`battle-value-system`: Strict all-family numerical parity)
+  - Accepted scoped refresh, recorded on main `4c5481001`: #2951 merged as
+    `e86866ba2de11bbcc032a6a1a06087863d2bc37b`; its numerical execution was
+    `45fc5728bd76b5e27526efa7a4b15c7f6df00a6c` on integrated base
+    `2bf3ae4106917cd9035d76893f7c9f1a9723a81d`, not a post-merge run. The
+    retained fresh guarded proof has 9,815 distinct exact joins/totals/aggregates,
+    4,224 detailed matches, 5,591 diagnostic rows and 110,027 missing-local
+    terms, with zero finite differences in every family. Thirteen ProtoMech
+    misc terms close across 11 units; no additional row completes. ProtoMechs
+    still have 0 matches / 86 diagnostic rows / 272 missing terms. The prior
+    #2946 census (4,224 / 5,591 / 110,040) and tick-6 figures below are historical.
+    Evidence: `normal-work/P4-ammo/proto-misc-projection/PROOF.json` and P6's
+    [independent retained-artifact census](E:/Projects/Personal/MekStation-wt/_reports/2026-10-30/claude-coordinator/normal-work/P6-comparison/post-2951-census/REPORT.md).
+    This closes no validity, weight, verifier-quantity/settings, infantry
+    instrumentation or live-policy adoption gap; Sprite 3 raw-index limitations
+    and all remaining term omissions stay explicit. No checkbox changes.
   - Reference prerequisites carried from row 1.3: P6 still needs expected/actual
     runtime provenance checks, named rejection of crew/network/BV mode and
     verifier-settings mismatches, and focused negative tests. Source-hash
@@ -203,6 +218,23 @@ accepted by this tick; row 1.3 and row 3.4 retain the exact missing work below.
   - Accepted unshowable exception [#2545](https://github.com/SwiggitySwerve/MekStation/pull/2545): only adds an explicit return type to `getVehicleBVMovement`, erased at runtime; no tests were added or changed, and no behavior regression is claimed. [Backfill evidence](E:/Projects/Personal/MekStation-wt/_reports/2026-10-30/claude-coordinator/ledger/L-REV2/backfill/2545.md).
   - Accepted unshowable exception [#2547](https://github.com/SwiggitySwerve/MekStation/pull/2547): the PR's `mountedWeight.test.ts` tests also pass on the integration first parent with the test-only overlay; parent and merge each pass all 5 tests and exit 0, so no distinguishing red/green pair was shown. [Backfill evidence](E:/Projects/Personal/MekStation-wt/_reports/2026-10-30/claude-coordinator/ledger/L-REV2/backfill/2547.md). Documentation and validation receipts: `ledger/row51-owner-exceptions/`.
 - [ ] 5.2 Re-run the full source accounting and acceptance on the merged tree, reconcile all gaps, synchronize accepted specs and archive only after verified completion.
+  - Accepted evidence intake at `4c5481001`: row 3.4 records #2951's scoped
+    numerical proof with execution/base/merge identities kept separate. It is
+    not the final merged-tree source/acceptance batch and does not narrow the
+    carried runtime/settings or complete-construction obligations.
+  - CI classification supplied by Root: #2951 merged at 12:39:44Z on the
+    standing BV no-wait path, before PR run 42219240827 finished. Its PR rollup
+    remains red: E2E (2/2) job 127897593926 failed at 12:47:20Z on the infantry
+    keyboard-fill stale-prefix recurrence G6-041; aggregate job 127901135317
+    reports that failure. Same-head run 42218681572 was a superseded cancellation.
+    Root classifies this as the existing keyboard race, not a #2951 regression;
+    the #2937 guard detects the wrong value but does not prevent the race.
+    Main at merge `e86866ba2` is green from push run 42219382602 and scheduled
+    run 42256355835 (both E2E shards and Lint and Test pass). No owner exception
+    or green PR rollup is recorded. Current-main run 42277185296 at `4c5481001`
+    is pending in this receipt; no pass is claimed. P7 owns keyboard remediation;
+    the G6 register is not changed by this ledger update. Classification and
+    receipt audit: `normal-work/P8-acceptance/landed-2951/`.
   - Open: depends on every other row, including every remaining clause of the
     9 other open rows listed above. Acceptance checks 1, 3 and 4 remain open;
     historical aggregate BV equality does not discharge missing detailed terms,

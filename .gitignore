@@ -54,6 +54,7 @@ scripts/**
 !scripts/unit-bv-parity.ts
 !scripts/unit-bv-parity.md
 !scripts/unit-bv-provenance.ts
+!scripts/unit-bv-reference.ts
 !scripts/unit-construction-validity.ts
 !scripts/campaign-authority-cutover.ts
 !scripts/maintenance/
