@@ -4,6 +4,7 @@ import fs from 'node:fs';
 export const BUDGET_SCHEMA = 'mekstation/ci-budgets/v1';
 export const METRICS_SCHEMA = 'mekstation/ci-budget-metrics/v1';
 export const PACKAGE_METRICS_SCHEMA = 'mekstation/ci-package-metrics/v1';
+export const WORKFLOW_INPUT_SCHEMA = 'mekstation/ci-producer-inputs/v1';
 export const LIMIT_UNITS = Object.freeze({
   typicalPrJobs: 'jobs',
   unkeyableTests: 'files',

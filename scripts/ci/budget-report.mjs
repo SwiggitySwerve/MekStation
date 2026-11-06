@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { mergeFileDurations } from '../jest/test-file-durations.mjs';
-import { validateBudgets } from './budget-config.mjs';
+import { validateBudgets, WORKFLOW_INPUT_SCHEMA } from './budget-config.mjs';
 import {
   validateRepositoryMetrics,
   observedBudgetValues,
@@ -101,7 +101,7 @@ export function producerEnvelope(observation, inputs, artifacts) {
   const id = observation.identity,
     source = inputs.source;
   if (
-    inputs.schema !== 'mekstation/ci-producer-inputs/v1' ||
+    inputs.schema !== WORKFLOW_INPUT_SCHEMA ||
     source.repository !== id.repository ||
     source.runId !== id.runId ||
     source.attempt !== id.attempt ||

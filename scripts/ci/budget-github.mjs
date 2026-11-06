@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { loadBudgets } from './budget-config.mjs';
+import { loadBudgets, WORKFLOW_INPUT_SCHEMA } from './budget-config.mjs';
 import {
   readWorkflow,
   workflowGraphFromSource,
@@ -62,7 +62,7 @@ export async function prepareWorkflowInputs(
     'utf8',
   );
   return {
-    schema: 'mekstation/ci-producer-inputs/v1',
+    schema: WORKFLOW_INPUT_SCHEMA,
     source: {
       repository,
       runId,
