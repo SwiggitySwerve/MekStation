@@ -6,9 +6,16 @@
  * overlay are mocked so the panel renders headlessly.
  *
  * @spec openspec/changes/add-pilot-spa-editor-integration/tasks.md
+ * @spec openspec/changes/establish-all-unit-data-parity/specs/spa-ui/spec.md
  */
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import React from 'react';
 import '@testing-library/jest-dom';
 import type { IPilot, IPilotAbilityRef } from '@/types/pilot';
@@ -107,6 +114,43 @@ beforeEach(() => {
 // =============================================================================
 
 describe('PilotAbilitiesPanel', () => {
+  it('offers an origin-only implant during creation and submits it through the pilot store', async () => {
+    render(<PilotAbilitiesPanel pilot={makePilot()} isCreationFlow />);
+    fireEvent.click(screen.getByTestId('add-ability-btn'));
+
+    const row = screen.getByTestId('spa-item-vdni');
+    fireEvent.click(within(row).getByRole('button', { name: 'Select' }));
+
+    await waitFor(() => {
+      expect(mockPurchaseSPA).toHaveBeenCalledWith('pilot-test', 'vdni', {
+        designation: undefined,
+        isCreationFlow: true,
+      });
+    });
+  });
+
+  it('keeps origin-only implants out of the purchase picker after creation', () => {
+    render(<PilotAbilitiesPanel pilot={makePilot({ xp: 1000 })} />);
+    fireEvent.click(screen.getByTestId('add-ability-btn'));
+
+    expect(screen.queryByTestId('spa-item-vdni')).not.toBeInTheDocument();
+  });
+
+  it('retains the XP guard for paid abilities in the creation picker', () => {
+    render(<PilotAbilitiesPanel pilot={makePilot()} isCreationFlow />);
+    fireEvent.click(screen.getByTestId('add-ability-btn'));
+    const row = screen.getByTestId('spa-item-atow_combat_sense');
+    fireEvent.click(within(row).getByRole('button', { name: 'Select' }));
+
+    expect(mockPurchaseSPA).not.toHaveBeenCalled();
+    expect(mockShowToast).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variant: 'error',
+        message: expect.stringContaining('Insufficient XP'),
+      }),
+    );
+  });
+
   it('opens the picker modal when the Add Ability button is clicked', () => {
     render(<PilotAbilitiesPanel pilot={makePilot({ xp: 1000 })} />);
 

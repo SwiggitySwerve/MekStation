@@ -352,9 +352,9 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
    * Resolves the file path from the raw index entry, reads + parses the JSON,
    * and caches the result in `unitCache` for subsequent calls.
    *
-   * Returns null when the unit id is not found in the index or the file
-   * cannot be read (missing / unreadable file, malformed JSON), so batch
-   * loops can skip gracefully on a true "not found" condition.
+   * Returns null when the unit id is not found in the index. File read and
+   * JSON errors return null for tolerant batch callers and propagate for
+   * strict callers, matching the browser service's source-read boundary.
    *
    * Boundary validation (`validation-patterns` — Zod Schema Validation at I/O
    * Boundaries): unit JSON is a bundled data file, so a *schema* violation is
@@ -394,13 +394,13 @@ export class NodeCanonicalUnitService implements ICanonicalUnitService {
     // pattern: scripts/validate-bv.ts:5173 `path.join(basePath, iu.path)`
     const unitFilePath = path.join(this.projectRoot, 'public', entry.filePath);
 
-    // A missing / unreadable file or malformed JSON is a "not found" — return
-    // null so batch loops skip it. A *schema* violation is handled separately
-    // below and deliberately throws loud.
+    // An indexed source failure must remain distinguishable from an absent ID
+    // for strict readers. Tolerant batch callers can still skip that source.
     let parsedJson: unknown;
     try {
       parsedJson = JSON.parse(fs.readFileSync(unitFilePath, 'utf-8'));
-    } catch {
+    } catch (error) {
+      if (options.strict) throw error;
       return null;
     }
 

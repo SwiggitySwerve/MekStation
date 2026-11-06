@@ -76,8 +76,8 @@ describe('ConventionalFighterUnitHandler', () => {
 
         expect(result.success).toBe(true);
         expect(result.data?.unit?.armorByArc.nose).toBe(20);
-        expect(result.data?.unit?.armorByArc.leftWing).toBe(15);
-        expect(result.data?.unit?.armorByArc.rightWing).toBe(0);
+        expect(result.data?.unit?.armorByArc.leftWing).toBe(0);
+        expect(result.data?.unit?.armorByArc.rightWing).toBe(15);
         expect(result.data?.unit?.armorByArc.aft).toBe(0);
       });
     });

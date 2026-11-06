@@ -10,6 +10,7 @@
 
 import { blkEngineCode } from '@/services/conversion/blkEngineIdentity';
 import { SmallCraftLocation } from '@/types/construction/UnitLocation';
+import armorOrder from '@/types/formats/blk-aerospace-armor.json';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   ISmallCraft,
@@ -174,10 +175,10 @@ export class SmallCraftUnitHandler extends AbstractUnitTypeHandler<ISmallCraft> 
     aft: number;
   } {
     return {
-      nose: armor[0] || 0,
-      leftSide: armor[1] || 0,
-      rightSide: armor[2] || 0,
-      aft: armor[3] || 0,
+      nose: armor[armorOrder.largeCraft.indexOf('NOSE')] || 0,
+      leftSide: armor[armorOrder.largeCraft.indexOf('LEFT_SIDE')] || 0,
+      rightSide: armor[armorOrder.largeCraft.indexOf('RIGHT_SIDE')] || 0,
+      aft: armor[armorOrder.largeCraft.indexOf('AFT')] || 0,
     };
   }
 
