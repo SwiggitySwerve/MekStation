@@ -13,6 +13,7 @@ type Keyed = {
   unkeyable?: string;
   repoWide?: boolean;
   why?: string[];
+  closure?: string[];
 };
 interface Store {
   get: (key: string) => unknown;
@@ -103,6 +104,107 @@ describe('test result cache key', () => {
     expect(keyOf(root, 'src/a.test.ts').key).toBe(
       keyOf(root, 'src/a.test.ts').key,
     );
+  });
+
+  it('reuses a shared cyclic closure without losing any import candidates', () => {
+    const root = makeRepo({
+      'src/a.test.ts': "import './shared';",
+      'src/b.test.ts': "import './shared';",
+      'src/shared.ts':
+        "import './leaf.js'; import '@/folder'; import 'scripts/helper';",
+      'src/leaf.ts': "import './shared';",
+      'src/leaf.js': 'export const value = 1;',
+      'src/folder/index.ts': 'export const value = 2;',
+      'scripts/helper.ts': 'export const value = 3;',
+    });
+    const keyer = lib.createKeyer({
+      root,
+      index: lib.buildFileIndex(root),
+      env: {},
+    });
+    for (const file of ['src/a.test.ts', 'src/b.test.ts']) {
+      const result = keyer.keyFor(file);
+      expect(result).toEqual(keyOf(root, file));
+      expect(result.repoWide).toBe(false);
+      expect(result.closure).toEqual(
+        [
+          'scripts/helper.ts',
+          file,
+          'src/folder/index.ts',
+          'src/leaf.js',
+          'src/leaf.ts',
+          'src/shared.ts',
+        ].sort(),
+      );
+    }
+  });
+
+  it('checks added and removed competing extensions after a shared import was visited', () => {
+    const root = makeRepo({
+      'src/a.test.ts': "import './shared';",
+      'src/b.test.ts': "import './shared';",
+      'src/shared.ts': "import './leaf';",
+      'src/leaf.ts': 'export const value = 1;',
+    });
+    const index = lib.buildFileIndex(root);
+    const keyer = lib.createKeyer({ root, index, env: {} });
+    keyer.keyFor('src/a.test.ts');
+    const before = keyer.keyFor('src/b.test.ts');
+    write(root, { 'src/leaf.js': 'export const value = 2;' });
+    const digest = lib.buildFileIndex(root).get('src/leaf.js');
+    if (!digest) throw new Error('fixture digest missing');
+    index.set('src/leaf.js', digest);
+    const added = keyer.keyFor('src/b.test.ts');
+    expect(added).toEqual(keyOf(root, 'src/b.test.ts'));
+    expect(added.key).not.toBe(before.key);
+    expect(added.closure).toContain('src/leaf.js');
+    fs.unlinkSync(path.join(root, 'src/leaf.js'));
+    index.delete('src/leaf.js');
+    expect(keyer.keyFor('src/b.test.ts')).toEqual(before);
+  });
+
+  it('rechecks an initially missing shared dependency instead of retaining its miss', () => {
+    const root = makeRepo({
+      'src/a.test.ts': "import './shared';",
+      'src/b.test.ts': "import './shared';",
+      'src/shared.ts': "import './leaf';",
+    });
+    const index = lib.buildFileIndex(root);
+    const keyer = lib.createKeyer({ root, index, env: {} });
+    expect(keyer.keyFor('src/a.test.ts').repoWide).toBe(true);
+    write(root, { 'src/leaf.ts': 'export const value = 1;' });
+    const digest = lib.buildFileIndex(root).get('src/leaf.ts');
+    if (!digest) throw new Error('fixture digest missing');
+    index.set('src/leaf.ts', digest);
+    const result = keyer.keyFor('src/b.test.ts');
+    expect(result).toEqual(keyOf(root, 'src/b.test.ts'));
+    expect(result.repoWide).toBe(false);
+    expect(result.closure).toContain('src/leaf.ts');
+  });
+
+  it('scopes identical relative specifiers to their importing directory and invocation', () => {
+    const root = makeRepo({
+      'src/a/a.test.ts': "import './leaf';",
+      'src/b/b.test.ts': "import './leaf';",
+      'src/a/leaf.ts': 'export const value = 1;',
+      'src/b/leaf.ts': 'export const value = 2;',
+    });
+    const keyer = lib.createKeyer({
+      root,
+      index: lib.buildFileIndex(root),
+      env: {},
+    });
+    for (const directory of ['a', 'b']) {
+      const file = `src/${directory}/${directory}.test.ts`;
+      expect(keyer.keyFor(file)).toEqual(keyOf(root, file));
+      expect(keyer.keyFor(file).closure).toEqual([
+        file,
+        `src/${directory}/leaf.ts`,
+      ]);
+    }
+    const before = keyer.keyFor('src/a/a.test.ts').key;
+    write(root, { 'src/a/leaf.ts': 'export const value = 99;' });
+    expect(keyOf(root, 'src/a/a.test.ts').key).not.toBe(before);
   });
 
   it('changes when the test, a direct import or a transitive import changes', () => {
