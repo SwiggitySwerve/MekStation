@@ -78,5 +78,13 @@
       "COMMUNICATIONS": "Communicator",
       "TARGETING": "FireScan"
     }
+  },
+  "weaponQuirks": {
+    "FR:0:ISArrowIV": [
+      "mod_weapons"
+    ],
+    "FR:1:ISArrowIV": [
+      "mod_weapons"
+    ]
   }
 }

@@ -96,5 +96,31 @@
       "COMMUNICATIONS": "Dalban",
       "TARGETING": "Garret"
     }
+  },
+  "weaponQuirks": {
+    "FR:0:Small Laser": [
+      "mod_weapons"
+    ],
+    "FR:1:Small Laser": [
+      "mod_weapons"
+    ],
+    "FR:2:Small Laser": [
+      "mod_weapons"
+    ],
+    "FR:3:Small Laser": [
+      "mod_weapons"
+    ],
+    "FR:4:Small Laser": [
+      "mod_weapons"
+    ],
+    "FR:5:Small Laser": [
+      "mod_weapons"
+    ],
+    "TU:0:Medium Laser": [
+      "mod_weapons"
+    ],
+    "TU:1:Medium Laser": [
+      "mod_weapons"
+    ]
   }
 }

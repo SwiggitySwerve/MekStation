@@ -98,5 +98,25 @@
       "COMMUNICATIONS": "Irian",
       "TARGETING": "IMB"
     }
+  },
+  "weaponQuirks": {
+    "FR:0:CLMediumChemicalLaser": [
+      "ammo_feed_problems"
+    ],
+    "FR:1:CLMediumChemicalLaser": [
+      "ammo_feed_problems"
+    ],
+    "TU:0:CLMediumChemicalLaser": [
+      "ammo_feed_problems"
+    ],
+    "TU:1:CLMediumChemicalLaser": [
+      "ammo_feed_problems"
+    ],
+    "TU:2:CLMediumChemicalLaser": [
+      "ammo_feed_problems"
+    ],
+    "TU:3:CLMediumChemicalLaser": [
+      "ammo_feed_problems"
+    ]
   }
 }
