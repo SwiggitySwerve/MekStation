@@ -189,7 +189,7 @@ export interface IRecordSheetMechCrew {
   readonly slots: readonly {
     readonly slotIndex: number;
     readonly role: MechCrewRole;
-    readonly pilot?: IRecordSheetPilot;
+    readonly pilot?: Omit<IRecordSheetPilot, 'edge'>;
   }[];
 }
 

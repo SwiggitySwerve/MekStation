@@ -141,6 +141,13 @@ it.each([
   { ...crew, specialAbilities: [] },
   {
     ...crew,
+    slots: [
+      { ...crew.slots[0], pilot: { ...crew.slots[0].pilot, edge: 1 } },
+      ...crew.slots.slice(1),
+    ],
+  },
+  {
+    ...crew,
     slots: [{ ...crew.slots[0], specialAbilities: [] }, ...crew.slots.slice(1)],
   },
   {

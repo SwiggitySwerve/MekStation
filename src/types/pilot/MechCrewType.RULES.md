@@ -13,7 +13,8 @@ TripodMek.java:115-117 and QuadVee.java:164-166 select the native crew type.
 This registry accepts explicit native identity; it does not guess from local
 configuration, cockpit spelling or tonnage, assign people, or resolve gameplay.
 
-Crew.java:174,1313-1318 has one crew-global PilotOptions object. MML
+Crew.java:174,1313-1318 has one crew-global PilotOptions object;1492/1496 reads
+Edge there. New print slots omit the legacy pilot shape's aerospace Edge field. MML
 62bf193 PrintEntity.java:495-550 prints indexed names/skills but selects the SPA
 region using total crew count minus one;574-593 reads global options. The print
 contract retains the existing crew-global SPA block and defines no per-slot SPA

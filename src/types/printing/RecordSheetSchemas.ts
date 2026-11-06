@@ -136,7 +136,9 @@ export const MechRecordSheetCrewSchema = z
         .object({
           slotIndex: z.number().int().nonnegative(),
           role: z.enum(MECH_CREW_ROLES),
-          pilot: RecordSheetPilotSchema.strict().optional(),
+          pilot: RecordSheetPilotSchema.omit({ edge: true })
+            .strict()
+            .optional(),
         })
         .strict(),
     ),

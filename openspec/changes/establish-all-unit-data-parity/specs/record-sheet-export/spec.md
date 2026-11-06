@@ -173,7 +173,7 @@ selection, float dimensions and unbounded space-delimiter wrapping.
 
 ### Requirement: Explicit native multi-crew print identity
 
-Mech print extraction SHALL retain an explicitly supplied complete native crew roster: TRIPOD has indexed Pilot/Gunner slots, SUPERHEAVY_TRIPOD adds Tech Officer, and QUADVEE has Pilot/Gunner slots. The runtime schema SHALL reject count, order, index or role mismatches. Unassigned pilots SHALL remain absent, and existing top-level SPAs SHALL remain crew-global rather than copied to slots.
+Mech print extraction SHALL retain an explicitly supplied complete native crew roster: TRIPOD has indexed Pilot/Gunner slots, SUPERHEAVY_TRIPOD adds Tech Officer, and QUADVEE has Pilot/Gunner slots. The runtime schema SHALL reject count, order, index or role mismatches. Unassigned pilots SHALL remain absent, and existing top-level SPAs SHALL remain crew-global rather than copied to slots. Individual slots SHALL NOT carry Edge or SPA option values.
 
 #### Scenario: Explicit native roster survives extraction
 
