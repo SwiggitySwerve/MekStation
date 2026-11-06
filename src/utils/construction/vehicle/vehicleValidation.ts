@@ -76,6 +76,8 @@ export interface VehicleValidationInput
   weightCalculationComplete?: boolean;
   /** Engine type */
   engineType: VehicleEngineType;
+  /** Support engine TechRating index A-F; omitted retains the owner default D. */
+  engineTechRating?: number;
   /** Cruise MP */
   cruiseMP: number;
   /** Turret configuration */
@@ -174,6 +176,7 @@ export function validateVehicleConstruction(
     input.cruiseMP,
     input.engineType,
     input.motionType,
+    { unitType: input.unitType, engineTechRating: input.engineTechRating },
   );
   for (const e of engineResult.errors) {
     errors.push(e);
