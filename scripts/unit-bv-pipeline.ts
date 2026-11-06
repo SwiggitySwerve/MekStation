@@ -84,7 +84,15 @@ export async function runPipeline(options: IPipelineOptions): Promise<boolean> {
     Boolean(options.cacheDir) &&
     !options.uncached &&
     !['push', 'schedule'].includes(process.env.GITHUB_EVENT_NAME ?? '');
-  const pythonIdentity = cacheEnabled ? runtimeKey(python) : null;
+  // Custom loaders/import roots can hide inputs outside the audited runtime.
+  const runtimeKnown =
+    !['NODE_OPTIONS', 'NODE_PATH', 'PYTHONPATH', 'PYTHONHOME'].some(
+      (key) => process.env[key],
+    ) &&
+    JSON.stringify(process.execArgv) ===
+      JSON.stringify(['--require', 'tsx/cjs']);
+  const pythonIdentity =
+    cacheEnabled && runtimeKnown ? runtimeKey(python) : null;
   const environment = Object.fromEntries(
     Object.entries(process.env)
       .filter(([key]) => !key.startsWith('HEAVY_'))
@@ -101,6 +109,7 @@ export async function runPipeline(options: IPipelineOptions): Promise<boolean> {
     'next.config.ts',
     reference,
     process.execPath,
+    ...Object.keys(require.cache),
     ...new Set(
       Object.keys(require.cache)
         .filter((file) => file.includes('node_modules'))
