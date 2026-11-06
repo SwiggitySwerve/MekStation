@@ -2,6 +2,7 @@ import { expect, test, type Page, type Locator } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
+import { activate, fill, tabTo } from './helpers/keyboardNavigation';
 import {
   installPrintHarness,
   printCaptures,
@@ -775,34 +776,6 @@ for (const viewport of VIEWPORTS) {
   });
 }
 
-/** Reach controls by browser Tab order; never programmatically focus them. */
-async function tabTo(page: Page, target: Locator) {
-  for (let i = 0; i < 160; i++) {
-    if (await target.evaluate((el) => el === document.activeElement)) return;
-    await page.keyboard.press('Tab');
-  }
-  await expect(target).toBeFocused();
-}
-
-async function activate(page: Page, target: Locator, keyboard: boolean) {
-  if (!keyboard) return target.click();
-  await tabTo(page, target);
-  await page.keyboard.press('Enter');
-}
-
-async function fill(
-  page: Page,
-  target: Locator,
-  value: string,
-  keyboard: boolean,
-) {
-  if (!keyboard) return target.fill(value);
-  await tabTo(page, target);
-  await page.keyboard.press('ControlOrMeta+A');
-  await page.keyboard.insertText(value);
-  await page.keyboard.press('Tab');
-}
-
 async function section(page: Page, name: string, keyboard = false) {
   const selector = page.getByRole('button', { name: /^Section:/ });
   const narrow = await selector.isVisible();
@@ -827,6 +800,57 @@ async function section(page: Page, name: string, keyboard = false) {
   await expect(target).toBeFocused();
   await page.keyboard.press('Enter');
 }
+
+test.describe('keyboard input helper', () => {
+  test.setTimeout(20_000);
+
+  test('replaces text and numeric values through keyboard navigation', async ({
+    page,
+  }) => {
+    await page.setContent(`
+      <label>Chassis Name<input value="Shilone"></label>
+      <label>Armor<input type="number" value="18"></label>
+      <button>Save</button>
+    `);
+    const chassis = page.getByRole('textbox', { name: 'Chassis Name' });
+    const armor = page.getByRole('spinbutton', { name: 'Armor' });
+    await fill(page, chassis, 'Flow Shilone', true);
+    await expect(chassis).toHaveValue('Flow Shilone');
+    await expect(armor).toBeFocused();
+    await fill(page, armor, '17', true);
+    await expect(armor).toHaveValue('17');
+    await expect(page.getByRole('button', { name: 'Save' })).toBeFocused();
+  });
+  test('rejects a retained old prefix before leaving the field', async ({
+    page,
+  }) => {
+    await page.setContent(`
+      <label>Chassis Name<input value="Shilone"></label>
+      <button>Save</button>
+      <script>
+        const input = document.querySelector('input');
+        input.addEventListener('keydown', (event) => {
+          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
+            // Inject a lost selection; the retained hosted context shows this
+            // prefix outcome, without proving the event that caused it there.
+            event.preventDefault();
+            input.setSelectionRange(input.value.length, input.value.length);
+          }
+        });
+      </script>
+    `);
+    const chassis = page.getByRole('textbox', { name: 'Chassis Name' });
+    const failure = await fill(page, chassis, 'Flow Shilone', true).then(
+      () => undefined,
+      (error: unknown) => error,
+    );
+    expect(failure instanceof Error).toBe(true);
+    if (failure instanceof Error)
+      expect(failure.message).toContain('toHaveValue');
+    await expect(chassis).toHaveValue('ShiloneFlow Shilone');
+    await expect(chassis).toBeFocused();
+  });
+});
 
 test.describe('library persistence and printing', () => {
   // Real catalog, SQLite save API and sheet renderer throughout. The print
