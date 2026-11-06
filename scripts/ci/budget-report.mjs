@@ -20,6 +20,18 @@ import { decodeObservationArtifact } from './garden-collect.mjs';
 
 /** Advisory timing inputs only; G3 applies its stronger weekly ratchet policy. */
 export async function collectReportBaselines(github, inputs) {
+  if (
+    !/^[\w.-]+\/[\w.-]+$/.test(inputs.source?.repository) ||
+    !Array.isArray(inputs.baselines) ||
+    inputs.baselines.length > 10 ||
+    inputs.baselines.some(
+      (row) =>
+        ![row.runId, row.attempt].every(
+          (n) => Number.isSafeInteger(n) && n > 0,
+        ),
+    )
+  )
+    throw new Error('Invalid bounded advisory baseline inputs');
   const [owner, repo] = inputs.source.repository.split('/');
   const envelopes = [],
     diagnostics = [];
