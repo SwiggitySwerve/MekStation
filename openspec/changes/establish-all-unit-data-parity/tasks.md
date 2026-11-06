@@ -180,8 +180,12 @@ inventory, dependency map and artifact-hash audit:
     omissions separate from total/aggregate results. Domain owners must
     coordinate accepted spec synchronization; archive only after every
     acceptance criterion passes. Batch contract: `normal-work/P8-acceptance/`.
-  - Spec validation remains open: OpenSpec 1.14.3 focused strict validation
-    reports 7 omitted-scenario errors; strict/all reports 153 passed and 85
-    failed items. The same diagnostics reproduce from this main revision's
-    unchanged specs. Preserve and reconcile live scenarios with the domain
-    owners before sync/archive; proof: `normal-work/P8-acceptance/spec-baseline-comparison.json`.
+  - Tooling versions: installed OpenSpec 1.5.0 passes focused strict validation
+    and all 238 items on both this main revision and the reconciliation.
+    A separate cached 1.14.3 audit reports 7 omitted-scenario errors and
+    153 passed/85 failed items, reproduced on unchanged main. The repository
+    CI quality validator passes; no CLI version is pinned in the npm lockfile.
+    Retain the newer-version diagnostics for coordinated sync/archive review,
+    not as a demonstrated failure of the current CI gate. Exact binaries,
+    commands and runtime: `normal-work/P8-acceptance/validator-identity.json`;
+    newer-version baseline: `normal-work/P8-acceptance/spec-baseline-comparison.json`.
