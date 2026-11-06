@@ -57,6 +57,12 @@ class QuirkRegenerationTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Unmatched'):
             plan_family(self.baseline, 'capital', [{**self.record, 'chassis': 'Unknown'}])
 
+    def test_missing_family_trees_fail_closed(self):
+        with self.assertRaises(ValueError):
+            verify_tree(self.root / 'missing-a', self.root / 'missing-b')
+        with self.assertRaises(ValueError):
+            plan_family(self.root / 'missing', 'capital', [])
+
     def test_output_cannot_overlap_baseline(self):
         for output in [self.family / 'recursive', self.baseline, self.family]:
             with self.subTest(output=output), self.assertRaises(ValueError):

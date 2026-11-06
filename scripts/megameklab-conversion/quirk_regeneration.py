@@ -60,6 +60,8 @@ def _counts(documents):
 
 def plan_family(baseline: Path, family: str, records: list[dict]):
     """Join exact design identities, disambiguating duplicates by source filename."""
+    if family not in FAMILIES or not (baseline / family).is_dir():
+        raise ValueError('Existing canonical family directory required')
     indexed = defaultdict(list)
     for record in records:
         indexed[(record['chassis'], record['model'])].append(record)
@@ -107,6 +109,8 @@ def plan_family(baseline: Path, family: str, records: list[dict]):
 
 def verify_tree(before: Path, after: Path, *, identical=False):
     """Gate every file, including manifests; only unit top-level quirks are exempt."""
+    if not before.is_dir() or not after.is_dir():
+        raise ValueError('Both family directories must exist')
     def files(root):
         return {p.relative_to(root) for p in root.rglob('*') if p.is_file()}
     paths = files(before)
