@@ -30,7 +30,7 @@ const GATE_COMMAND =
   'e2e/customizer-record-sheet-rendering.spec.ts ' +
   'e2e/customizer-edit-recovery.spec.ts ' +
   '--project=chromium --retries=0 --trace=retain-on-failure ' +
-  '--workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates';
+  '--workers=1 --shard=${{ matrix.shard }}/3 --output=test-results/gates';
 
 interface ValidatorManifest {
   status: string;
@@ -360,8 +360,8 @@ describe('OpenSpec CI quality QC validator', () => {
         GATE_JOB,
         (block: string) =>
           block.replace(
-            '    name: E2E (${{ matrix.shard }}/2)',
-            '    name: E2E Gate (${{ matrix.shard }}/2)',
+            '    name: E2E (${{ matrix.shard }}/3)',
+            '    name: E2E Gate (${{ matrix.shard }}/3)',
           ),
         'workflow-job-token-missing',
       ],
@@ -427,7 +427,7 @@ describe('OpenSpec CI quality QC validator', () => {
         'shard matrix',
         GATE_JOB,
         (block: string) =>
-          block.replace('        shard: [1, 2]', '        shard: [1]'),
+          block.replace('        shard: [1, 2, 3]', '        shard: [1, 2]'),
         'workflow-job-condition-invalid',
       ],
       [
@@ -435,8 +435,8 @@ describe('OpenSpec CI quality QC validator', () => {
         GATE_JOB,
         (block: string) =>
           block.replace(
-            '        shard: [1, 2]',
-            '        shard: [1, 2]\n        exclude:\n          - shard: 2',
+            '        shard: [1, 2, 3]',
+            '        shard: [1, 2, 3]\n        exclude:\n          - shard: 3',
           ),
         'workflow-job-condition-invalid',
       ],
@@ -466,8 +466,8 @@ describe('OpenSpec CI quality QC validator', () => {
         GATE_JOB,
         (block: string) =>
           block.replace(
-            '    name: E2E (${{ matrix.shard }}/2)',
-            '    if: false\n    name: E2E (${{ matrix.shard }}/2)',
+            '    name: E2E (${{ matrix.shard }}/3)',
+            '    if: false\n    name: E2E (${{ matrix.shard }}/3)',
           ),
       ],
       [
@@ -475,8 +475,8 @@ describe('OpenSpec CI quality QC validator', () => {
         GATE_JOB,
         (block: string) =>
           block.replace(
-            '    name: E2E (${{ matrix.shard }}/2)',
-            '    continue-on-error: ${{ true }}\n    name: E2E (${{ matrix.shard }}/2)',
+            '    name: E2E (${{ matrix.shard }}/3)',
+            '    continue-on-error: ${{ true }}\n    name: E2E (${{ matrix.shard }}/3)',
           ),
       ],
       [
@@ -630,7 +630,7 @@ describe('OpenSpec CI quality QC validator', () => {
       [
         'runs one shard for every matrix leg',
         (block: string) =>
-          block.replace(' --shard=${{ matrix.shard }}/2', ' --shard=1/2'),
+          block.replace(' --shard=${{ matrix.shard }}/3', ' --shard=1/3'),
       ],
     ] as const)('rejects a browser gate that %s', (_label, mutate) => {
       const manifest = runWithWorkflow(

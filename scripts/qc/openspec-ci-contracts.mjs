@@ -97,7 +97,7 @@ export const requiredWorkflowTokens = [
 /**
  * The per-PR browser gates (add-customizer-pr-regression-gate, and the seam
  * trust anchors of add-seam-trust-anchor-journeys) run in the `e2e` job, a
- * fixed two-shard matrix. Every token is scoped to that job block, so the
+ * fixed three-shard matrix. Every token is scoped to that job block, so the
  * contract pins the gate itself, not the workflow's vocabulary:
  *
  * - each shard fetches the record-sheet assets in ITS OWN checkout and
@@ -118,10 +118,10 @@ export const requiredWorkflowJobContracts = [
   {
     id: 'customizer-regressions-gate',
     jobId: 'e2e',
-    jobName: 'E2E (${{ matrix.shard }}/2)',
+    jobName: 'E2E (${{ matrix.shard }}/3)',
     requiredNeeds: ['detect-changes'],
     timeoutMinutes: 25,
-    matrixShards: [1, 2],
+    matrixShards: [1, 2, 3],
     skipIf:
       "needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'",
     changeGateIf: E2E_CHANGE_GATE_IF,
@@ -159,7 +159,7 @@ export const requiredWorkflowJobContracts = [
       },
       {
         id: 'browser-gates-playwright',
-        run: 'node scripts/playwright/run-ci-e2e.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/2 --output=test-results/gates',
+        run: 'node scripts/playwright/run-ci-e2e.mjs test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure --workers=1 --shard=${{ matrix.shard }}/3 --output=test-results/gates',
         env: {
           MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js',
           HOSTNAME: '127.0.0.1',

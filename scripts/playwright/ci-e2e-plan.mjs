@@ -2,6 +2,8 @@
 // A timing miss changes a weight only: selection always comes from live tests.
 import crypto from 'node:crypto';
 
+export const CI_SHARD_COUNT = 3;
+
 export const CI_SUITES = [
   {
     name: 'gates',
@@ -34,8 +36,16 @@ const compare = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 
 export function parseInvocation(argv) {
   const shard = argv.find((arg) => arg.startsWith('--shard='));
-  if (!/^--shard=[12]\/2$/.test(shard ?? ''))
-    throw new Error('Expected --shard=<1|2>/2');
+  const match = /^--shard=([1-9]\d*)\/([1-9]\d*)$/.exec(shard ?? '');
+  const shardIndex = Number(match?.[1]);
+  if (
+    !match ||
+    Number(match[2]) !== CI_SHARD_COUNT ||
+    shardIndex > CI_SHARD_COUNT
+  )
+    throw new Error(
+      `Expected --shard=<1..${CI_SHARD_COUNT}>/${CI_SHARD_COUNT}`,
+    );
   const suite = CI_SUITES.find(({ files }) =>
     files.every((file) => argv.includes(`e2e/${file}`)),
   );
@@ -53,7 +63,7 @@ export function parseInvocation(argv) {
     throw new Error(
       'PR E2E invocation changed its files, workers or retry policy',
     );
-  return { suite, shardIndex: Number(shard.at(8)) };
+  return { suite, shardIndex };
 }
 const median = (values) => {
   const sorted = [...values].sort((a, b) => a - b);
@@ -148,7 +158,7 @@ export function recordDurations(reports, sourceRunIds) {
   };
 }
 
-export function planShards(tests, timing, shardCount = 2) {
+export function planShards(tests, timing, shardCount = CI_SHARD_COUNT) {
   if (!Number.isInteger(shardCount) || shardCount < 1)
     throw new Error('Invalid E2E shard count');
   if (timing.version !== 1 || !timing.milliseconds)
