@@ -2,6 +2,8 @@
 // A timing miss changes a weight only: selection always comes from live tests.
 import crypto from 'node:crypto';
 
+import { median } from '../lib/statistics.mjs';
+
 export const CI_SUITES = [
   {
     name: 'gates',
@@ -55,14 +57,6 @@ export function parseInvocation(argv) {
     );
   return { suite, shardIndex: Number(shard.at(8)) };
 }
-const median = (values) => {
-  const sorted = [...values].sort((a, b) => a - b);
-  const middle = Math.floor(sorted.length / 2);
-  return sorted.length % 2
-    ? sorted[middle]
-    : (sorted[middle - 1] + sorted[middle]) / 2;
-};
-
 export function testDescription({ file, titles, project }) {
   // Playwright's native --test-list format uses this separator. Refuse an
   // ambiguous identity rather than silently selecting a different test.
