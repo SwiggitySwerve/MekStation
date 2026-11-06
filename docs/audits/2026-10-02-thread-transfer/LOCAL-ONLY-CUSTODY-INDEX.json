@@ -1,0 +1,445 @@
+{
+  "status": "LOCAL_ONLY_CUSTODY_METADATA_NOT_PRIVATE_OR_OVERSIZED_PAYLOAD_PUBLICATION",
+  "provenance": {
+    "path": "E:/Projects/.omo/evidence/mekstation-thread-transfer-history-20261002-gpt61/history-preparation-ready.json",
+    "bytes": 31699,
+    "sha256": "39a8ac0976f76881ceb062cecb710397c0bad2e3f5fa86de79bf80c2d30dc395"
+  },
+  "originalPreparationLocalOnlyAndParentHeldIndex": {
+    "localOnly": true,
+    "originalRowBindings": "For every original exclusion below, resolve its exact bytes, sha256, group and original disposition from the bound immutable preparation rows. No held original bytes are embedded in the materialized core.",
+    "originalExcludedRows": [
+      {
+        "path": "E:/Projects/.omo/evidence/p2cc-canonical-receipt-registration-20261002-gpt61/parent-relayed-native-author-cleanup-graph.json",
+        "reason": "Possible raw native session records; retain unchanged locally."
+      },
+      {
+        "path": "E:/Projects/.omo/evidence/p2cc-canonical-receipt-registration-20261002-gpt61/parent-relayed-native-proof-prefix.json",
+        "reason": "Possible raw native session records and embedded stderr exceeds the 2 MiB decoded inspection limit; retain unchanged locally."
+      },
+      {
+        "path": "E:/Projects/.omo/evidence/p2cc-receipt-registration-mainproof-20dc4859-20261002-gpt61/editing-capability-probe.json",
+        "reason": "Moving original; parent final snapshot input."
+      },
+      {
+        "path": "E:/Projects/.omo/evidence/p2cc-receipt-registration-mainproof-20dc4859-20261002-gpt61/native-evidence-selection-request.json",
+        "reason": "Moving original; parent final snapshot input."
+      },
+      {
+        "path": "E:/Projects/.omo/evidence/p2cc-receipt-registration-mainproof-20dc4859-20261002-gpt61/parent-custody.json",
+        "reason": "Moving original; parent final snapshot input."
+      },
+      {
+        "path": "E:/Projects/.omo/evidence/p2cc-source-contract-20261002-gpt61/build.result.json",
+        "reason": "Original exceeds conservative 2 MiB inspection limit; local-only pending any bounded parent disposition."
+      },
+      {
+        "path": "E:/Projects/.omo/evidence/p2cc-source-contract-20261002-gpt61/build.stderr.bin",
+        "reason": "Original exceeds conservative 2 MiB inspection limit; local-only pending any bounded parent disposition."
+      },
+      {
+        "path": "E:/Projects/MekStation-wt/p2cc-source-contract-20261002-gpt61/openspec/changes/harden-gm-two-player-campaign-sessions/design.md",
+        "reason": "Moving original source; already represented by qualified normative Draft PR2112, not copied or adopted by this curator."
+      },
+      {
+        "path": "E:/Projects/MekStation-wt/p2cc-source-contract-20261002-gpt61/openspec/changes/harden-gm-two-player-campaign-sessions/specs/coop-campaign-sync/spec.md",
+        "reason": "Moving original source; already represented by qualified normative Draft PR2112, not copied or adopted by this curator."
+      },
+      {
+        "path": "E:/Projects/MekStation/.omo/boulder.json",
+        "reason": "Moving control; exact final parent bytes held."
+      },
+      {
+        "path": "E:/Projects/MekStation/.omo/plans/mekstation-roadmap-loop-continuation.md",
+        "reason": "Moving control; exact final parent bytes and all criteria held."
+      },
+      {
+        "path": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-70-author-genuine-owned-cleanup-accepted.json",
+        "reason": "Moving original; parent final evidence input."
+      },
+      {
+        "path": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-70-exact20dc-independent-actual61-mainproof-dispatched.json",
+        "reason": "Moving original; parent final evidence input."
+      },
+      {
+        "path": "E:/Projects/MekStation/.omo/ulw-execute/evidence/task-70-exact20dc-mainproof-native-add-accepted.json",
+        "reason": "Moving original; parent final evidence input."
+      },
+      {
+        "path": "E:/Projects/MekStation/.omo/ulw-execute/handoffs/task-70-exact20dc-registration-mainproof-admitted.json",
+        "reason": "Moving original; parent final evidence input."
+      },
+      {
+        "path": "E:/Projects/MekStation/.omo/ulw-execute/ledger.jsonl",
+        "reason": "Moving complete ledger; final parent bytes after actual publication outcomes held."
+      }
+    ],
+    "explicitPrivateHashOnlyRows": [
+      {
+        "path": "E:/Projects/.omo/evidence/p2cc-receipt-registration-mainproof-20dc4859-20261002-gpt61/private-local-generated-proof-capture.json",
+        "bytes": 757297,
+        "sha256": "8e87b763e1c5d0a3a5d03c35a8d1787b86687498de90420f010a77b10a62db55",
+        "neverPublish": true,
+        "semanticContentNotInspectedOrCopied": true,
+        "originalRetained": true
+      },
+      {
+        "path": "E:/Projects/.omo/evidence/p2cc-receipt-registration-mainproof-20dc4859-20261002-gpt61/private-local-owned-temp-original-payloads.json",
+        "bytes": 29969946,
+        "sha256": "423d53556a142a6ab21ec084b48faaaba258f1bca61099cef100b23460abee70",
+        "neverPublish": true,
+        "semanticContentNotInspectedOrCopied": true,
+        "originalRetained": true
+      }
+    ],
+    "historicalOversizedAndRawEvidenceProvenance": {
+      "source": "E:/Projects/MekStation/.omo/ulw-execute/evidence/thread-transfer-owned-work-and-history-inventory-accepted.json",
+      "sourceBinding": "Its unchanged original row in the bound immutable preparation.",
+      "historicalReferencedExternalBytes": 7926723465,
+      "freshExternalCensusPerformed": false,
+      "knownHistoricalOversizedOriginals": [
+        {
+          "path": "E:/Projects/.omo/evidence/p2b-sealed-mainproof-final-review-standalone-20261001-gpt61/all-digest-reference-observations.ndjson",
+          "reportedBytes": 407366080
+        },
+        {
+          "path": "E:/Projects/.omo/evidence/native-sol61-linux-integration-gpt61/bootstrap/context/source.bundle",
+          "reportedBytes": 150446570
+        },
+        {
+          "path": "E:/Projects/.omo/evidence/u17e-1fbc-official-closure-review-20260930-gpt61/reference-graph-initial.json",
+          "reportedBytes": 79822495
+        }
+      ],
+      "freshHashesOfTheseLargeOriginalsNotClaimed": true,
+      "credentialsDatabasesDependenciesRuntimeCachesRawNativeSessionsAndOversizedPayloadsNotUploaded": true,
+      "allOriginalsRemainLocallyRetainedNoCleanupClaim": true
+    },
+    "relocation": {
+      "sidecar": "E:/Projects/MekStation/.omo/ulw-execute/handoffs/thread-transfer-obsolete-pointer-sidecar-20261002.json",
+      "bytes": 8935,
+      "sha256": "ea3b2a2f84e44f22c8ec3cf2019cca51fc04287e64310135cd904a4e027c4a1d",
+      "originalReferencesNeverRewritten": true,
+      "twelveSelectedArchivedLeafAndIndexHashesMatchedIncludedOriginalRows": true,
+      "noWholesaleRelocationOrCleanupClaim": true
+    }
+  },
+  "preservedResourceQualifications": {
+    "distinct1cbPartial": {
+      "worktree": "E:/Projects/MekStation-wt/p2-client-cutover-20260929",
+      "base": "1cb45c562b3a81cbdfb1a036b5ec024d42dc5a9d",
+      "historicalActor": "st_01a0ec94",
+      "currentOwnerSessionAuthenticated": false,
+      "sourceFiles": 6,
+      "controls": 3,
+      "existingArchivalManifest": "E:/Projects/.omo/evidence/p2-client-handoff-readonly-readiness-20261001-gpt61/partial-before.json",
+      "manifestSha256": "9d65793b2fc09984fd2489cb6e598f5ddcce38f02a4c14a64d9e2429d2e66e5a",
+      "existingHashBoundArchivalRecordsIncluded": true,
+      "noNewOwnedSourcePRAdoptionOrCleanup": true
+    },
+    "cleanAb143Lease": {
+      "worktree": "E:/Projects/MekStation-wt/p2-shared-mission-client-ab143-gpt61",
+      "head": "ab143b6cfa355fe7bfa755c3830b677328cd2899",
+      "cleanNoDistinctDeltaFromAcceptedHistoricalInventory": true,
+      "freshProductStatusOrQAReplayNotPerformed": true,
+      "noEmptyOrDuplicatePR": true,
+      "originalLockRetained": true,
+      "leaseReleaseUnresolved": true
+    },
+    "unknownTempCustodies": {
+      "directories": 39,
+      "files": 423,
+      "inventory": "E:/Projects/.omo/evidence/u17e-1fbc-official-closure-review-20260930-gpt61/cleanup-resolution/exact39-content-inventory.json",
+      "inventorySha256": "1c1ffcac05ca72c48486f2107fb7040682a7dd081fe0fd225d6ea22f5a340767",
+      "dispositions": "E:/Projects/.omo/evidence/u17e-1fbc-official-closure-review-20260930-gpt61/cleanup-resolution/preservation-after.json",
+      "dispositionsSha256": "a3bd148eba9358096b0313f4c53405ee1b5606794e1263fdcf1352a6af2ac445",
+      "reuseHistoricalBindingsNotFreshCensus": true,
+      "ownershipUnprovenRetentionNotCleanup": true
+    },
+    "nativeHoldsIdentifierAndOwnerUnresolved": true,
+    "sourceLeasesDependenciesOutputsDatabasesAndForeignResourcesRetained": true,
+    "allResourcesReleased": false
+  },
+  "originalProtectedCustodyObservations": {
+    "method": "Hash only ten explicitly named Git metadata paths before and after bounded read-only preparation. Both arrays matched exactly. No foreign Git status, index update, lock release, source edit, process action or cleanup was performed.",
+    "beforeAndAfterIdenticalBindings": [
+      {
+        "path": "E:/Projects/MekStation/.git/config",
+        "bytes": 11571,
+        "sha256": "f327764283e6b2256ccfaf5a69b98264da8cec3627c826577479edf0dd3f2cf1"
+      },
+      {
+        "path": "E:/Projects/MekStation/.git/index",
+        "bytes": 2513993,
+        "sha256": "3a991abe055d6dfa4cd891722f0cef223b2619b9209b94f4e04379988d4c8cc3"
+      },
+      {
+        "path": "E:/Projects/MekStation/.git/worktrees/p2-client-cutover-20260929/index",
+        "bytes": 2538065,
+        "sha256": "c915d5c238074fb3aae67e87a3d4cd87c7a6512de6a0e637b7cb672adee250b8"
+      },
+      {
+        "path": "E:/Projects/MekStation/.git/worktrees/p2-shared-mission-client-716d09b8-gpt61/index",
+        "bytes": 2548569,
+        "sha256": "02009c278f81595d55ef46b210bdfd648aa51eed901c1af2633edfb47b30de94"
+      },
+      {
+        "path": "E:/Projects/MekStation/.git/worktrees/p2-shared-mission-client-716d09b8-gpt61/locked",
+        "bytes": 138,
+        "sha256": "d8c94fb4923f4ba86dbba17cfde3aae1a117451f784ff2dbcbcf3660a77e60e3"
+      },
+      {
+        "path": "E:/Projects/MekStation/.git/worktrees/p2-shared-mission-client-ab143-gpt61/index",
+        "bytes": 2548569,
+        "sha256": "a91ae9496e7d39864f80e653e32e70d35fec4c29a2ead5bfff1a103965cda139"
+      },
+      {
+        "path": "E:/Projects/MekStation/.git/worktrees/p2-shared-mission-client-ab143-gpt61/HEAD",
+        "bytes": 62,
+        "sha256": "252bf5c5f450c5113316b20c648a0d143b8f6256cfbb482cf6be2d8f96a5c31b"
+      },
+      {
+        "path": "E:/Projects/MekStation/.git/worktrees/p2-shared-mission-client-ab143-gpt61/locked",
+        "bytes": 126,
+        "sha256": "c1c08e52df3eda5fc4fd3c898d84ac4f662af31a26c37e185975f4e8e522d304"
+      },
+      {
+        "path": "E:/Projects/MekStation/.git/worktrees/p2cc-source-contract-20261002-gpt61/index",
+        "bytes": 2548721,
+        "sha256": "76ad410c290ad50520aade6388f4e962b6d8075cfe9d0ac70469121b4f1c27a9"
+      },
+      {
+        "path": "E:/Projects/MekStation/.git/worktrees/p2cc-source-contract-20261002-gpt61/locked",
+        "bytes": 127,
+        "sha256": "dd929501ce83e935b935dc7e103bddc9875fdb18103338d56262a99c7d5ec1cf"
+      }
+    ],
+    "unchangedWithinPreparationChecks": true,
+    "noBlanketForeignResourceOrSourceCensusClaim": true
+  },
+  "originalPublicationQualifications": {
+    "Task70": {
+      "complete": true,
+      "PR": 2111,
+      "merge": "20dc4859da6542fc2c5f659e3bc5b68fb7d0fbf7",
+      "qualification": "Accepted final parent receipt, not a product QA rerun by this curator."
+    },
+    "normativeDraft": {
+      "PR": 2112,
+      "head": "20946dbf76ce3091363c162ae1fe39fd29a90c14",
+      "files": 2,
+      "additions": 97,
+      "SUCCESSChecks": 31,
+      "remoteVerificationAuthority": "Bound parent qualified preservation receipt.",
+      "Task67Delivered": false,
+      "sourceLifecycleOrRuntimePass": false
+    },
+    "sharedConfig": {
+      "qualifiedCurrentSha256": "f327764283e6b2256ccfaf5a69b98264da8cec3627c826577479edf0dd3f2cf1",
+      "normativePushAddedExactly120OwnedTrackingBytes": true,
+      "originalGuardExit": 1,
+      "noRepair": true,
+      "eventualHistoryPush": "git push origin HEAD:refs/heads/codex/thread-transfer-history-20261002",
+      "noSetUpstream": true
+    },
+    "P2": {
+      "exactElevenCopyAccepted": true,
+      "publicationFinalOutcomeHeld": true,
+      "literalInitialEnvironmentBlocker": "Own node_modules and .husky/_/pre-commit were absent; the expired parent editor callback returned tools_unavailable. No stage, commit, push or PR occurred in that blocked epoch.",
+      "samePublisherBoundedRecoveryAuthorized": true,
+      "curatorInstallOrHookAuthorization": false,
+      "parentEpochQualification": "Stale epoch1 completion arrived late. Parent confirmed epoch3 was install-started and resumed the same publisher as epoch4 to consume its existing monitor mon_6BNZ7ZTXYTP84DHF/bash_4 without duplicate installation.",
+      "monitorNamespaceQualification": "The parent's monitor namespace cannot access that child-owned handle. That limitation is not evidence of install failure or success.",
+      "installOrPublicationSuccessNotClaimed": true,
+      "realSourceFailure": "CAMPAIGN_NOT_CONVERGED",
+      "Task39Complete": false,
+      "P2OrU38Admission": false
+    }
+  },
+  "originalParentFinalSnapshotInputSlots": {
+    "final153TaskSnapshot": {
+      "status": "PARENT_INPUT_HELD",
+      "value": null,
+      "requireAllOriginalPhasesPositionsLabelsStatuses": true
+    },
+    "currentPlan": {
+      "status": "PARENT_INPUT_HELD",
+      "path": "E:/Projects/MekStation/.omo/plans/mekstation-roadmap-loop-continuation.md",
+      "bytes": null,
+      "sha256": null,
+      "allCriteriaAndF1F4IntactRequired": true
+    },
+    "currentBoulder": {
+      "status": "PARENT_INPUT_HELD",
+      "path": "E:/Projects/MekStation/.omo/boulder.json",
+      "bytes": null,
+      "sha256": null
+    },
+    "completeFinalLedger": {
+      "status": "PARENT_INPUT_HELD",
+      "path": "E:/Projects/MekStation/.omo/ulw-execute/ledger.jsonl",
+      "bytes": null,
+      "sha256": null,
+      "mustIncludeLatestOrchestrationAndActualOutcomeEvents": true
+    },
+    "currentGoalAndAuthorization": {
+      "status": "PARENT_INPUT_HELD",
+      "value": null
+    },
+    "P2FinalPRorLiteralPublicationBlocker": {
+      "status": "PARENT_INPUT_HELD",
+      "value": null
+    },
+    "historyPublicationAndExactHeadVerification": {
+      "status": "PARENT_INPUT_HELD",
+      "value": null
+    },
+    "finalPlanningHandoff": {
+      "status": "PARENT_INPUT_HELD",
+      "value": null,
+      "currentDraftNotFinal": true
+    },
+    "finalActorsMonitorsCustodyAndPausedStateReceipt": {
+      "status": "PARENT_INPUT_HELD",
+      "value": null
+    },
+    "latestParentValidation": {
+      "source": "Parent message, not a new curator control-file capture.",
+      "nativeExit": 0,
+      "BoulderParsed": true,
+      "ledgerRecordsParsed": 455,
+      "allFiveOverrideTargetsUnique": true,
+      "replayCountsMatchNativeTodo": true,
+      "parentLatestControlBytesNotPretendedFrozen": true
+    }
+  },
+  "currentSevenCompleteControlsCapturedAdditively": [
+    {
+      "path": "E:/Projects/MekStation/.omo/plans/mekstation-roadmap-loop-continuation.md",
+      "bytes": 164485,
+      "sha256": "198f2812faa348296dca02afde2fb5cb8b422dffd2a68a9b33a058915714c207"
+    },
+    {
+      "path": "E:/Projects/MekStation/.omo/boulder.json",
+      "bytes": 355400,
+      "sha256": "67e466cf0ed4aefc9c9f650cc8963006e346782795ceb0356b2e8b23c313a9bf"
+    },
+    {
+      "path": "E:/Projects/MekStation/.omo/ulw-execute/ledger.jsonl",
+      "bytes": 619657,
+      "sha256": "a8425625a11fdd4ce7bc2f5b145fca913d94ee3ebc9cabbeb643035e968b34de"
+    },
+    {
+      "path": "E:/Projects/MekStation/.omo/ulw-execute/goal-objective.md",
+      "bytes": 7054,
+      "sha256": "28db31bdac6a329a98fb7a7450be44cbf135669f2d795d1eceb81fec2e32066d"
+    },
+    {
+      "path": "E:/Projects/MekStation/.omo/ulw-execute/handoffs/thread-transfer-request-20261002.json",
+      "bytes": 2460,
+      "sha256": "52fafadb0a2c3095d5bb0380b0fd780e200ab7d02bb61eccc9bced86b08d3055"
+    },
+    {
+      "path": "E:/Projects/MekStation/.omo/ulw-execute/handoffs/thread-transfer-current-todo-status-overrides-20261002.json",
+      "bytes": 2228,
+      "sha256": "9a99c9730926bafa885e40096869d324d0a902420127695d355d11e7fa99ba24"
+    },
+    {
+      "path": "E:/Projects/MekStation/.omo/ulw-execute/handoffs/thread-transfer-next-thread-planning-handoff-20261002.md",
+      "bytes": 12310,
+      "sha256": "a267d43c815646afa054aa3fdf14adae013af691966c50464c660b5d9953ba67"
+    }
+  ],
+  "acceptedCurrentCaptureDoesNotReplaceFinalPauseSlots": true,
+  "privateNativeArchivesRawGraphReceiptsAndOver2MiBBuildMaterialRemainLocal": true,
+  "noExternalRecensusNoForeignCleanupNoLeaseAdoption": true,
+  "independentArchiveContentReview": {
+    "status": "APPROVE_EXACT_THREE_PAYLOADS_ONLY_FINAL_PORTAL_AND_FILE_SET_REVIEW_PENDING",
+    "portableVerdict": {
+      "path": "E:/Projects/MekStation-wt/thread-transfer-history-20261002-gpt61/docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/independent-assembled-archive-review-epoch1.json",
+      "bytes": 6414,
+      "sha256": "fe236f5f1d6cdc371e7982be38f02c683f039aa82b74003df3f639a63390f663"
+    },
+    "completeNativeVerdict": {
+      "bytes": 8045,
+      "sha256": "ab5255b946ffc2462e183b550bad38f6a4afb7c49bc2558bb71dc0c760085d41"
+    },
+    "originalNativeRecord": "E:/Projects/.omo/senpi-task/tasks/st_01a0fc29.json",
+    "failedMetadataRetentionLocalOnly": {
+      "path": "E:/Projects/MekStation/.omo/ulw-execute/evidence/thread-transfer-assembled-archive-content-review-accepted.json",
+      "bytes": 9408,
+      "sha256": "d4a65ca8b9a45eccf36d376e5c0283c4165cb8e6cc02986660c5bdb84a1ecee5",
+      "disposition": "LOCAL_ONLY_FAILED_PARENT_VERDICT_RETENTION_MALFORMED_GZIP_NOT_PORTABLE_SUCCESS"
+    },
+    "originalPayloadsUnaffected": true,
+    "reviewerNotRerun": true,
+    "repairOriginal": {
+      "bytes": 2558,
+      "sha256": "225f35c29f27a55936e5772b552860a3a794d8011fa117fea7a78ae9ff392169"
+    }
+  },
+  "failedEpochs": {
+    "failedParentReviewMetadataRetention": {
+      "path": "E:/Projects/MekStation/.omo/ulw-execute/evidence/thread-transfer-assembled-archive-content-review-accepted.json",
+      "bytes": 9408,
+      "sha256": "d4a65ca8b9a45eccf36d376e5c0283c4165cb8e6cc02986660c5bdb84a1ecee5",
+      "disposition": "LOCAL_ONLY_FAILED_PARENT_VERDICT_RETENTION_MALFORMED_GZIP_NOT_PORTABLE_SUCCESS"
+    },
+    "malformedParentGzipNeverPublishedAsSuccessfulVerdict": true,
+    "completeCorrectNativeVerdictPortableAndByteVerified": {
+      "path": "E:/Projects/MekStation-wt/thread-transfer-history-20261002-gpt61/docs/audits/2026-10-02-thread-transfer/additive-parent-evidence/independent-assembled-archive-review-epoch1.json",
+      "bytes": 6414,
+      "sha256": "fe236f5f1d6cdc371e7982be38f02c683f039aa82b74003df3f639a63390f663"
+    },
+    "originalPreparationAndNativeAPIFailureUnchanged": [
+      {
+        "path": "E:/Projects/.omo/evidence/mekstation-thread-transfer-history-20261002-gpt61/history-preparation-ready.json",
+        "bytes": 31699,
+        "sha256": "39a8ac0976f76881ceb062cecb710397c0bad2e3f5fa86de79bf80c2d30dc395"
+      },
+      {
+        "path": "E:/Projects/.omo/evidence/mekstation-thread-transfer-history-20261002-gpt61/history-materialization-after-native-api-ready.json",
+        "bytes": 13549,
+        "sha256": "35c68ffbdba904ae372172bbf301ce7a760c43f795c417204cb44b8b66040b01"
+      }
+    ],
+    "originalP2VerifyExit": 1,
+    "correctedP2VerifyExit": 0,
+    "parentMissingChunkFailurePreservedInCurrentArchive": "E:/Projects/MekStation/.omo/ulw-execute/evidence/thread-transfer-p2-archive-parent-verification-unfinished.json",
+    "P2SerializationCorrection": "Only one inserted space and eight omitted slash characters in owned JSON copies; original source and receipts unchanged.",
+    "firstHistoricalManualCopyFailedCompressedBytes": 3392,
+    "firstHistoricalManualCopyFailedCompressedSHA256": "1f540560ba164b779fe4eda896a5e3e664ff3aee52fe0e377f770d8340954f0a",
+    "firstHistoricalManualCopyDisposition": "Deleted/rebuilt before genuine-engine rebind; the original native tool-call history remains local. No assertion that the transient failed on-disk file was retained separately.",
+    "recoveredHistoricalPart0000Hash": "e78263415f203c74eda24eb824d5b19e4a30c264a7260c4c79e1c49841c43dcc",
+    "fragmentRouteAndReadOnlyEmitterHelpersRemainOwnedEvidence": true,
+    "initialMonitorPIEnvironmentAssertions": {
+      "exits": [1, 1],
+      "receipt": "E:/Projects/.omo/evidence/mekstation-thread-transfer-history-20261002-gpt61/bounded-assembly-preflight.json"
+    },
+    "originalSourceHook1RemainsFailure": true
+  },
+  "sourceQualification": {
+    "normalSourceHookExit": 1,
+    "literalFailure": "src/pages/gameplay/campaigns/[id]/missions/[missionId]/launch.tsx(187,54): TS2345: string | undefined is not assignable to SetStateAction<string | null>.",
+    "sourceCommit": null,
+    "sourcePush": false,
+    "sourcePR": null,
+    "P2SourceAcceptance": false,
+    "Task39Complete": false,
+    "CAMPAIGN_NOT_CONVERGED": true,
+    "archiveBytesAcceptedIsNotSourceDelivery": true,
+    "all43OriginalFutureObligationsPending": true,
+    "publicationHeld": true
+  },
+  "laterParentSlots": {
+    "finalExactFileSetIndependentReview": "Pending same independent reviewer st_01a0fc29, not an extra panel.",
+    "automaticUnweakenedNormalPublicationHooks": "Pending parent release; no commit or hook run here.",
+    "actualHistoryRemotePRHeadBlobsAndCI": "Later additive originals only after real publication.",
+    "finalTransferTaskStatusesLedgerPlanningHandoffAndPause": "Later additive parent evidence; no impossible prepublication self-reference.",
+    "allOwnedPublished": false,
+    "finalSnapshotComplete": false,
+    "transferComplete": false,
+    "overallGoalComplete": false
+  },
+  "independentInputReviewIsScopedNotBlanketSecretClearance": "E:/Projects/MekStation/.omo/ulw-execute/evidence/thread-transfer-independent-input-review-accepted.json"
+}
