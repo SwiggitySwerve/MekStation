@@ -44,6 +44,7 @@ import {
   getPrimaryVehicleTurretConfiguration,
   getVehicleMountFlags,
 } from '@/utils/construction/vehicle/equipmentMounts';
+import { vehicleEquipmentIntroYearErrors } from '@/utils/construction/vehicle/introYear';
 import { computeSupportVehicleWeight } from '@/utils/construction/vehicle/supportWeight';
 import { validateSupportVehicleEquipment } from '@/utils/construction/vehicle/vehicleValidation';
 
@@ -217,6 +218,7 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
 
     return {
       unitType: UnitType.SUPPORT_VEHICLE,
+      originalBuildYear: document.originalBuildYear,
       internalStructureType: document.internalType ?? 0,
       structureLocations: Object.keys(placed.byLocation),
       motionType,
@@ -432,6 +434,15 @@ export class SupportVehicleUnitHandler extends AbstractUnitTypeHandler<ISupportV
   ): UnitValidationMessages {
     const { errors, warnings, infos } = createValidationMessages();
     errors.push(...validateSupportVehicleEquipment(unit));
+    errors.push(
+      ...vehicleEquipmentIntroYearErrors({
+        equipment: unit.equipment,
+        year: unit.metadata.year,
+        originalBuildYear: unit.originalBuildYear,
+        clan: /clan/i.test(String(unit.techBase)),
+        mixed: /mixed/i.test(String(unit.techBase)),
+      }),
+    );
 
     // Tonnage validation by size class
     if (unit.sizeClass === SupportVehicleSizeClass.SMALL && unit.tonnage > 5) {
