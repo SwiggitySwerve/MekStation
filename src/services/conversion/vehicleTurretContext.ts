@@ -3,7 +3,9 @@ import type { IVehicleTurretSourceContext } from '@/types/unit/VehicleInterfaces
 
 type AllowanceTag = keyof Pick<
   IUnitContract,
-  'baseChassisTurretWeight' | 'baseChassisTurret2Weight'
+  | 'baseChassisTurretWeight'
+  | 'baseChassisTurret2Weight'
+  | 'baseChassisSponsonPintleWeight'
 >;
 export const SECONDARY_TURRET_ALLOWANCE_TAG: AllowanceTag =
   'baseChassisTurret2Weight';
@@ -16,6 +18,9 @@ export function mapVehicleTurretContext(
 ): IVehicleTurretSourceContext & { readonly isOmni: boolean } {
   return {
     isOmni: isOmni ?? false,
+    baseChassisSponsonPintleWeight: readAllowance(
+      'baseChassisSponsonPintleWeight',
+    ),
     baseChassisTurretWeight: readAllowance('baseChassisTurretWeight'),
     baseChassisSecondaryTurretWeight: isVTOL
       ? undefined
@@ -29,6 +34,7 @@ export function serializeVehicleTurretContext(
 ): Pick<IUnitContract, 'isOmni' | AllowanceTag> {
   return {
     isOmni: context.isOmni,
+    baseChassisSponsonPintleWeight: context.baseChassisSponsonPintleWeight,
     baseChassisTurretWeight: context.baseChassisTurretWeight,
     [SECONDARY_TURRET_ALLOWANCE_TAG]: context.baseChassisSecondaryTurretWeight,
   };

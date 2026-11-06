@@ -1764,7 +1764,7 @@
     "file": "weapons/ballistic-machinegun.json",
     "index": 2,
     "id": "heavy-machine-gun",
-    "sha256": "a2a612f427217a15051a4583399f81922f6325fd78010f01caaaeb8c00596086",
+    "sha256": "32f3960ca575dc4b699364c6983e10018ce308f546e7f25d24e8778446c743b9",
     "item": {
       "id": "heavy-machine-gun",
       "name": "Heavy Machine Gun",
@@ -1789,7 +1789,7 @@
       "ammoPerTon": 100,
       "costCBills": 7500,
       "battleValue": 6,
-      "introductionYear": 3068
+      "introductionYear": 3058
     }
   },
   {
@@ -4003,7 +4003,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 58,
     "id": "sniper-cannon",
-    "sha256": "d73d2b0568c66c4b6e767294093e4746c6ade74d138a24ba74c0340baa1aab5e",
+    "sha256": "ccf81623ab8ed184722401c8cbd036f4a838b55c1189967c9a76903accfc0723",
     "item": {
       "id": "sniper-cannon",
       "name": "Sniper Cannon",
@@ -4028,7 +4028,7 @@
       "ammoPerTon": 10,
       "costCBills": 475000,
       "battleValue": 77,
-      "introductionYear": 3079,
+      "introductionYear": 3012,
       "special": ["artillery"]
     }
   },
@@ -4284,7 +4284,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 67,
     "id": "clan-mech-mortar-8",
-    "sha256": "53daaa8d0cb898711fea3dd92a773eaeb3a1fe7a5564341d8838ab37c92af89e",
+    "sha256": "40fe608ec77955fbfc3ac36e76e9df9ba21f26f17c1ffbb7bf4e03b352a7582d",
     "item": {
       "id": "clan-mech-mortar-8",
       "name": "Mech Mortar 8 (Clan)",
@@ -4300,8 +4300,8 @@
         "medium": 14,
         "long": 21
       },
-      "weight": 10,
-      "criticalSlots": 5,
+      "weight": 5,
+      "criticalSlots": 3,
       "ammoPerTon": 4,
       "costCBills": 70000,
       "battleValue": 50,
@@ -13290,7 +13290,7 @@
     "file": "weapons/physical.json",
     "index": 4,
     "id": "lance",
-    "sha256": "66c07f3915be2c57875f6fdbeb8ffacce69255c59bb8ffb01d60008945da5f0b",
+    "sha256": "dc2476a3ec66ce6cf90a69ac26d6937922ba1df8c49235571b715ce227abad11",
     "item": {
       "id": "lance",
       "type": "Lance",
@@ -13309,7 +13309,7 @@
       "requiresLowerArm": true,
       "requiresHand": true,
       "validLocations": ["Left Arm", "Right Arm"],
-      "introductionYear": 3083,
+      "introductionYear": 3064,
       "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     }
   },
@@ -13317,7 +13317,7 @@
     "file": "weapons/physical.json",
     "index": 5,
     "id": "talons",
-    "sha256": "f9e08efa46f4f82c3d6d10fec32722101adc90a0e1a10f0373775ef6baf6d490",
+    "sha256": "890123fbce204cec13d067bd80ed7bfbd47d377d2a87652dc8f5c3bbc4fc4708",
     "item": {
       "id": "talons",
       "type": "Talons",
@@ -13337,7 +13337,7 @@
       "requiresLowerArm": false,
       "requiresHand": false,
       "validLocations": ["Left Leg", "Right Leg"],
-      "introductionYear": 3087,
+      "introductionYear": 3072,
       "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     }
   },
@@ -13372,7 +13372,7 @@
     "file": "weapons/physical.json",
     "index": 7,
     "id": "flail",
-    "sha256": "55e1ab3e97d526da19903d99b121ebbf58091f564e1fd243b72cc4c97972be7d",
+    "sha256": "071a5e09c7c49f1932b5f7c9d69e42e3dc656bdd7a4756c851b606ff7f29322a",
     "item": {
       "id": "flail",
       "type": "Flail",
@@ -13391,7 +13391,7 @@
       "requiresLowerArm": true,
       "requiresHand": true,
       "validLocations": ["Left Arm", "Right Arm"],
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     }
   },
@@ -25419,7 +25419,7 @@
     "file": "miscellaneous/other.json",
     "index": 70,
     "id": "flail",
-    "sha256": "70d4b533a1ee624feb912a8ee2697488e4f3988aff38c44ce14cb5d2d4506b36",
+    "sha256": "c39c2100fb4eebb13d4997c01d8967d22c672ddd64fe4cfff82e626103d2062e",
     "item": {
       "id": "flail",
       "name": "Flail",
@@ -25434,7 +25434,7 @@
       },
       "costCBills": 110000,
       "battleValue": 11,
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -25465,7 +25465,7 @@
     "file": "miscellaneous/other.json",
     "index": 72,
     "id": "lance",
-    "sha256": "48dff714386a705399f5f382aebcff675e14aeb315c9ed6dea29f30f53b923f9",
+    "sha256": "f03ea0dea339865e10c3d8bd3ea0664d768636aad8fc01c8f2168af52f987c54",
     "item": {
       "id": "lance",
       "name": "Lance",
@@ -25480,7 +25480,7 @@
       },
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3083,
+      "introductionYear": 3064,
       "special": ["Variable weight", "Variable critical slots"]
     }
   },
@@ -25649,7 +25649,7 @@
     "file": "miscellaneous/other.json",
     "index": 80,
     "id": "talons",
-    "sha256": "91a9d3286b0c4920eb2b694007d4d9044c4110d1f25749c2ef073dadcc117032",
+    "sha256": "a2343684ddda2f1a207c6cd12e13f024123efafa1dedaa2765c019adedf978d4",
     "item": {
       "id": "talons",
       "name": "Talons",
@@ -25664,7 +25664,7 @@
       },
       "costCBills": 0,
       "battleValue": 0,
-      "introductionYear": 3087,
+      "introductionYear": 3072,
       "special": ["Variable weight", "Variable critical slots"]
     }
   },

@@ -91,7 +91,7 @@
       "requiresLowerArm": true,
       "requiresHand": true,
       "validLocations": ["Left Arm", "Right Arm"],
-      "introductionYear": 3083,
+      "introductionYear": 3064,
       "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
     {
@@ -110,7 +110,7 @@
       "requiresLowerArm": false,
       "requiresHand": false,
       "validLocations": ["Left Leg", "Right Leg"],
-      "introductionYear": 3087,
+      "introductionYear": 3072,
       "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
     {
@@ -146,7 +146,7 @@
       "requiresLowerArm": true,
       "requiresHand": true,
       "validLocations": ["Left Arm", "Right Arm"],
-      "introductionYear": 3079,
+      "introductionYear": 3057,
       "allowedUnitTypes": ["BattleMech", "IndustrialMech"]
     },
     {

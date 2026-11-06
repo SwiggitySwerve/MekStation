@@ -3,6 +3,9 @@
  * equipment catalog values that differed from pinned MegaMek 48fcb2f6 are
  * corrected, each cited. These rows pin every corrected value to its Java line.
  */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { processCritAmmoSlot } from '../../../../scripts/validate-bv-crit-scan-ammo';
 import { createEmptyCritScan } from '../../../../scripts/validate-bv-crit-scan-types';
 import { AMMUNITION_CATALOG_FILES } from '../equipmentBVCatalogData';
@@ -131,9 +134,43 @@ const MORTAR_VALUES = [
   ['mech-mortar-4', 7, 3, 'innerSphere/ISMekMortar4.java:69-70'],
   ['clan-mech-mortar-2', 2.5, 1, 'clan/CLMekMortar2.java:69-70'],
   ['clan-mech-mortar-4', 3.5, 2, 'clan/CLMekMortar4.java:70-71'],
+  ['clan-mech-mortar-8', 5, 3, 'clan/CLMekMortar8.java:69-70'],
 ] as const;
 
 it.each(MORTAR_VALUES)('%s weighs %s t in %s slots (%s)', (id, tons, slots) => {
   const entry = getEquipmentEntry(id);
   expect([entry?.weight, entry?.criticalSlots]).toEqual([tons, slots]);
+});
+
+// Introduction dates (follow-up 102). Java's introduction date is the earliest
+// advancement date, less five when approximate (TechAdvancement.java:691-697,
+// 731-734 at 48fcb2f6). Every catalog copy of the item carries it.
+const INTRO_YEARS = [
+  ['flail', 3057, 'equipment/MiscType.java:4012-4034'],
+  ['lance', 3064, 'equipment/MiscType.java:4066-4091'],
+  ['talons', 3072, 'equipment/MiscType.java:4307-4331'],
+  ['heavy-machine-gun', 3058, 'weapons/mgs/innerSphere/ISHeavyMG.java:89-90'],
+  ['sniper-cannon', 3012, 'weapons/artillery/SniperCannon.java:90-93'],
+] as const;
+const CATALOG = join(process.cwd(), 'public/data/equipment/official');
+const catalogCopies = (id: string) =>
+  [
+    'miscellaneous/other.json',
+    'weapons/physical.json',
+    'weapons/ballistic-machinegun.json',
+    'weapons/ballistic-other.json',
+  ].flatMap((file) =>
+    (
+      JSON.parse(readFileSync(join(CATALOG, file), 'utf8')) as {
+        items: { id: string; introductionYear?: number }[];
+      }
+    ).items.filter((item) => item.id === id),
+  );
+
+it.each(INTRO_YEARS)('%s is introduced in %s (%s)', (id, year) => {
+  const copies = catalogCopies(id);
+  expect(copies.length).toBeGreaterThan(0);
+  expect(copies.map((item) => item.introductionYear)).toEqual(
+    copies.map(() => year),
+  );
 });

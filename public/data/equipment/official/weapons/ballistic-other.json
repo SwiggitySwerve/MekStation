@@ -1151,7 +1151,7 @@
       "ammoPerTon": 10,
       "costCBills": 475000,
       "battleValue": 77,
-      "introductionYear": 3079,
+      "introductionYear": 3012,
       "special": ["artillery"]
     },
     {
@@ -1318,8 +1318,8 @@
       "damage": 8,
       "heat": 10,
       "ranges": { "minimum": 6, "short": 7, "medium": 14, "long": 21 },
-      "weight": 10,
-      "criticalSlots": 5,
+      "weight": 5,
+      "criticalSlots": 3,
       "ammoPerTon": 4,
       "costCBills": 70000,
       "battleValue": 50,

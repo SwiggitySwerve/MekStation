@@ -18,6 +18,7 @@ const Sequencer = require('@jest/test-sequencer').default;
 const {
   loadDurations,
   planShards,
+  preloadFor,
   toRepoPath,
   weightOf,
 } = require('./shard-planner');
@@ -31,6 +32,10 @@ class DurationSequencer extends Sequencer {
       tests.map((test) => toRepoPath(rootDir, test.path)),
       durations,
       shardCount,
+      preloadFor(
+        tests.map((test) => test.context.config.displayName),
+        shardCount,
+      ),
     );
     return tests.filter(
       (test) => shardOf.get(toRepoPath(rootDir, test.path)) === shardIndex - 1,

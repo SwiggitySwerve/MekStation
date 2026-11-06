@@ -528,6 +528,17 @@ Legacy public TMM/effective-MP helpers and submarine override are preserved.
 Pin: Tank.java:387-418,1570-1575,2034-2042; Entity.java:4004-4016;
 CombatVehicleBVCalculator.java:147-163; MPCalculationSetting.java:123-136.
 
+## Native sponson mechanism mass
+
+At pin 48fcb2f64, MiscType.java:563-591 rounds 10% of all qualifying
+sponson-mounted equipment once, then divides it among installed mechanism
+records. Ammo, heat sinks and ArmorType records are excluded from the basis.
+The turret owner reuses its 10% mechanism formula; small support uses the
+shared component rounding owner. An Omni's explicit baseChassisSponsonPintleWeight
+is already an assigned total: divide it without re-rounding. Unknown inputs
+remain unavailable. Native mechanisms enter the equipment term (TestEntity.java:631-665).
+Legacy configured left/right turret figures retain their separate per-side contract.
+
 ## Explicit combat Omni mechanism mass
 
 `turret.ts:computeVehicleTurretMechanismWeight` owns assigned versus required

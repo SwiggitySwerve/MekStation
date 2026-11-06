@@ -227,6 +227,7 @@ function auditedSizing(
       PhysicalWeaponType.FLAIL,
       PhysicalWeaponType.WRECKING_BALL,
       PhysicalWeaponType.TALONS,
+      PhysicalWeaponType.CLAWS,
     ].includes(type)
   )
     return undefined;
