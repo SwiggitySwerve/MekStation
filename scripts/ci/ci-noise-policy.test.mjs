@@ -114,7 +114,9 @@ test('file growth is informational and cannot label an otherwise healthy report'
 });
 
 test('aggregate display-cap crossings do not label; strict p75 plus20percent does', () => {
-  const baselines = [observation(60, 1, true)];
+  const baselines = Array.from({ length: 5 }, (_, i) =>
+    observation(60, i + 1, true),
+  );
   for (const [seconds, label] of [
     [70, false],
     [72, false],
@@ -134,6 +136,120 @@ test('aggregate display-cap crossings do not label; strict p75 plus20percent doe
     }).breach,
     true,
   );
+});
+
+test('one comparable main sample makes slower aggregates informational, not review', () => {
+  const report = evaluateReport({
+    observation: observation(90),
+    baselines: [observation(60, 1, true)],
+    limits,
+  });
+  assert.equal(report.main.included.length, 1);
+  assert.equal(report.breach, false);
+  assert.equal(report.labelComplete, true);
+  for (const row of report.rows.filter((r) => r.aggregate)) {
+    assert.equal(row.informational, true);
+    assert.equal(row.baselineSamples, 1);
+    assert.equal(row.minimumBaselineSamples, 5);
+    assert.equal(row.mainP75, row.name === 'Job-minutes' ? 1 : 60000);
+  }
+  assert.match(
+    renderReport(report),
+    /Job-minutes \(informational; 1\/5 main samples\)/,
+  );
+});
+
+test('aggregate labels require five distinct valid samples; per-job budgets need no baseline', () => {
+  for (const count of [0, 1, 4, 5]) {
+    const baselines = Array.from({ length: count }, (_, i) =>
+      observation(60, i + 1, true),
+    );
+    const report = evaluateReport({
+      observation: observation(90),
+      baselines,
+      limits,
+    });
+    assert.equal(report.breach, count === 5, `sample count ${count}`);
+    assert.equal(report.labelComplete, count > 0);
+    if (!count) {
+      assert.equal(report.rows.find((r) => r.aggregate).mainP75, null);
+      assert.match(report.missing.join(), /main p75 unavailable/);
+    }
+    const jobBreach = evaluateReport({
+      observation: observation(90),
+      baselines,
+      limits: { ...limits, jobsMs: { tests: 89999 } },
+    });
+    assert.equal(jobBreach.breach, true);
+  }
+  const four = Array.from({ length: 4 }, (_, i) =>
+    observation(60, i + 1, true),
+  );
+  const failed = observation(60, 10, true);
+  failed.identity.conclusion = 'failure';
+  assert.equal(
+    evaluateReport({
+      observation: observation(90),
+      baselines: [...four, four[0], failed],
+      limits,
+    }).breach,
+    false,
+  );
+});
+
+test('report explains all retained baseline exclusions using selector-owned reasons', () => {
+  const good = observation(60, 1, true);
+  const excluded = [
+    'failure',
+    'cancelled',
+    'incomplete',
+    'future',
+    'incompatible',
+    'invalid',
+  ].map((kind, i) => {
+    const value = observation(60, i + 2, true);
+    if (['failure', 'cancelled'].includes(kind))
+      value.identity.conclusion = kind;
+    if (kind === 'incomplete') value.complete = false;
+    if (kind === 'future') value.identity.completedAt = '2026-11-03T00:00:00Z';
+    if (kind === 'incompatible') value.comparableKey = 'other';
+    if (kind === 'invalid') value.metrics.jobMinutes = NaN;
+    return value;
+  });
+  const report = evaluateReport({
+    observation: observation(90),
+    baselines: [good, good, ...excluded],
+    limits,
+  });
+  const markdown = renderReport(report);
+  assert.equal(report.main.excluded.length, 7);
+  assert.match(
+    markdown,
+    /1 complete comparable successful pushes; 7 samples retained but excluded/,
+  );
+  for (const entry of report.main.excluded) {
+    assert.ok(
+      markdown.includes(
+        `| ${entry.identity.runId} | ${entry.identity.attempt} | ${entry.identity.headSha} | ${entry.reason} |`,
+      ),
+    );
+  }
+});
+
+test('invalid identity stays an explicit exclusion and unavailable baseline', () => {
+  const report = evaluateReport({
+    observation: observation(90),
+    baselines: [null],
+    limits,
+  });
+  const markdown = renderReport(report);
+  assert.equal(report.breach, false);
+  assert.equal(report.labelComplete, false);
+  assert.match(
+    markdown,
+    /\| unknown \| unknown \| unknown \| invalid identity \|/,
+  );
+  assert.match(markdown, /main p75 unavailable/);
 });
 
 test('skipped matrix placeholder stays in census but not the presentation or missing budgets', () => {

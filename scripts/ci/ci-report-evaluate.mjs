@@ -1,6 +1,10 @@
 // Soft timing budgets have no authority over test/workflow conclusions.
 import { median } from '../lib/statistics.mjs';
-import { mainMedians, TIMING_GROWTH_RATIO } from './ci-metrics.mjs';
+import {
+  mainMedians,
+  TIMING_GROWTH_RATIO,
+  MIN_TIMING_MAIN_SAMPLES,
+} from './ci-metrics.mjs';
 import { compareTestFiles } from './ci-test-metrics.mjs';
 
 export const REPORT_MARKER = '<!-- mekstation-ci-budget-report:v1 -->';
@@ -30,6 +34,8 @@ export function evaluateReport({
     if (!known) missing.push(`${name}: measurement unavailable`);
     if (!validBudget) missing.push(`${name}: budget unavailable`);
     const validP75 = Number.isFinite(mainP75) && mainP75 >= 0;
+    const informational =
+      aggregate && main.included.length < MIN_TIMING_MAIN_SAMPLES;
     if (aggregate && !validP75) missing.push(`${name}: main p75 unavailable`);
     rows.push({
       name,
@@ -39,9 +45,19 @@ export function evaluateReport({
       mainP75: validP75 ? mainP75 : null,
       unit,
       aggregate,
+      ...(aggregate
+        ? {
+            informational,
+            baselineSamples: main.included.length,
+            minimumBaselineSamples: MIN_TIMING_MAIN_SAMPLES,
+          }
+        : {}),
       budgetBreach: known && validBudget && value > budget,
       breach: aggregate
-        ? known && validP75 && value > mainP75 * TIMING_GROWTH_RATIO
+        ? !informational &&
+          known &&
+          validP75 &&
+          value > mainP75 * TIMING_GROWTH_RATIO
         : known && validBudget && value > budget,
       investigate:
         !aggregate &&
@@ -134,19 +150,35 @@ export function renderReport(report) {
     '| --- | ---: | ---: | ---: | ---: |',
     ...report.rows.map(
       (row) =>
-        `| ${cell(row.name)}${row.breach ? ' (review)' : row.budgetBreach ? ' (over display cap)' : row.investigate ? (row.budget === null ? ' (investigate; budget unavailable)' : ' (investigate; within budget)') : ''} | ${measured(row.value, row.unit)} | ${measured(row.budget, row.unit)} | ${measured(row.mainMedian, row.unit)} | ${measured(row.mainP75, row.unit)} |`,
+        `| ${cell(row.name)}${row.informational ? ` (informational; ${row.baselineSamples}/${row.minimumBaselineSamples} main samples)` : row.breach ? ' (review)' : row.budgetBreach ? ' (over display cap)' : row.investigate ? (row.budget === null ? ' (investigate; budget unavailable)' : ' (investigate; within budget)') : ''} | ${measured(row.value, row.unit)} | ${measured(row.budget, row.unit)} | ${measured(row.mainMedian, row.unit)} | ${measured(row.mainP75, row.unit)} |`,
     ),
     '',
     `Elapsed since attempt start: ${measured(report.observation.metrics.elapsedMs, 'ms')}; total job queue wait: ${measured(report.observation.metrics.queueMs, 'ms')}.`,
     'Job-minutes sum acquired job execution; queue wait is excluded. Critical path is the longest dependency chain of execution durations, excluding queue wait.',
     '',
     `Main baseline: ${report.main.included.length} complete comparable successful pushes; ${report.main.excluded.length} samples retained but excluded.`,
-    'Review labels use per-job budget breaches or aggregate timings more than 20% over main p75. Aggregate display caps and test-file growth are informational. Investigations do not establish regression or cause.',
+    `Review labels use per-job budget breaches or aggregate timings more than 20% over main p75 with at least ${MIN_TIMING_MAIN_SAMPLES} comparable main samples. Below that count, aggregates are informational. Aggregate display caps and test-file growth are informational. Investigations do not establish regression or cause.`,
   ];
+  if (report.main.excluded.length)
+    lines.push(
+      '',
+      '<details>',
+      '<summary>Excluded main timing samples</summary>',
+      '',
+      '| Run | Attempt | Head | Exclusion reason |',
+      '| --- | ---: | --- | --- |',
+      ...report.main.excluded.map(
+        ({ identity, reason }) =>
+          `| ${cell(identity?.runId ?? 'unknown')} | ${cell(identity?.attempt ?? 'unknown')} | ${cell(identity?.headSha ?? 'unknown')} | ${cell(reason)} |`,
+      ),
+      '',
+      '`not comparable` means the repository/workflow identity or normalized DAG, runner labels, job census or skip pattern differs. Selection and timing arithmetic are unchanged.',
+      '</details>',
+    );
   if (report.tests.files.length)
     lines.push(
       '',
-      'Test-file growth requires >20% over main p75, at least 3 seconds increase and at least 5 main samples. Other valid comparisons are within noise; unavailable evidence stays missing.',
+      `Test-file growth requires >20% over main p75, at least 3 seconds increase and at least ${MIN_TIMING_MAIN_SAMPLES} main samples. Other valid comparisons are within noise; unavailable evidence stays missing.`,
       '| Test file | Duration | Main p75 | Main samples | Result (informational) |',
       '| --- | ---: | ---: | ---: | --- |',
       ...report.tests.files.map(

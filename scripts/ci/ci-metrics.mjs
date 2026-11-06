@@ -5,6 +5,7 @@ import { quantile } from '../lib/statistics.mjs';
 
 export { median, quantile } from '../lib/statistics.mjs';
 export const TIMING_GROWTH_RATIO = 1.2;
+export const MIN_TIMING_MAIN_SAMPLES = 5;
 
 const timestamp = (value) =>
   typeof value === 'string' && Number.isFinite(Date.parse(value))

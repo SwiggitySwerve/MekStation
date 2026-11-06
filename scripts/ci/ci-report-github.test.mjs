@@ -136,6 +136,58 @@ test('breach adds one sticky comment and label; repeated delivery performs no wr
   assert.equal(s.comments.length, 1);
 });
 
+test('aggregate sample floor prevents label addition and clears a prior low-sample label', async () => {
+  const s = setup();
+  const baselines = Array.from({ length: 5 }, (_, i) => {
+    const run = {
+      ...s.run,
+      id: i + 1,
+      event: 'push',
+      head_branch: 'main',
+      created_at: '2026-11-01T00:00:00Z',
+      run_started_at: '2026-11-01T00:00:00Z',
+    };
+    return normalizeRun({
+      repository: s.report.identity.repository,
+      run,
+      jobs: s.jobs.map((job) => ({
+        ...job,
+        id: i + 1,
+        run_id: run.id,
+        started_at: '2026-11-01T00:00:00Z',
+        completed_at: '2026-11-01T00:00:30Z',
+      })),
+      jobGraph: { tests: [] },
+    });
+  });
+  const reportWith = (values) =>
+    evaluateReport({
+      observation: s.report.observation,
+      baselines: values,
+      limits: {
+        jobsMs: { tests: 120000 },
+        jobMinutes: 1.15,
+        criticalPathMs: 69000,
+      },
+    });
+  const informational = reportWith(baselines.slice(0, 1));
+  assert.equal(informational.breach, false);
+  assert.equal(informational.labelComplete, true);
+  await s.publish({ report: informational });
+  assert.equal(s.labels.length, 0);
+  s.labels.push({ name: REVIEW_LABEL });
+  await s.publish({ report: informational });
+  assert.equal(s.labels.length, 0);
+  assert.ok(
+    s.calls.some(
+      ({ method, route }) =>
+        method === 'DELETE' && route.endsWith(`/labels/${REVIEW_LABEL}`),
+    ),
+  );
+  await s.publish({ report: reportWith(baselines) });
+  assert.equal(s.labels[0].name, REVIEW_LABEL);
+});
+
 test('duplicate owned comments collapse; human marker and other bot comments survive', async () => {
   const s = setup();
   const comment = {
