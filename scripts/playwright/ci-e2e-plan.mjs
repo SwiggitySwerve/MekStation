@@ -34,10 +34,16 @@ export const CI_SUITES = [
 
 const compare = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 
-export function parseInvocation(argv) {
+export function parseInvocation(argv, shardCount = 2) {
   const shard = argv.find((arg) => arg.startsWith('--shard='));
-  if (!/^--shard=[12]\/2$/.test(shard ?? ''))
-    throw new Error('Expected --shard=<1|2>/2');
+  const match = /^--shard=([1-9]\d*)\/([1-9]\d*)$/.exec(shard ?? '');
+  if (
+    ![2, 3].includes(shardCount) ||
+    !match ||
+    Number(match[2]) !== shardCount ||
+    Number(match[1]) > shardCount
+  )
+    throw new Error(`Expected --shard=<1..${shardCount}>/${shardCount}`);
   const suite = CI_SUITES.find(({ files }) =>
     files.every((file) => argv.includes(`e2e/${file}`)),
   );
@@ -55,7 +61,7 @@ export function parseInvocation(argv) {
     throw new Error(
       'PR E2E invocation changed its files, workers or retry policy',
     );
-  return { suite, shardIndex: Number(shard.at(8)) };
+  return { suite, shardIndex: Number(match[1]) };
 }
 export function testDescription({ file, titles, project }) {
   // Playwright's native --test-list format uses this separator. Refuse an

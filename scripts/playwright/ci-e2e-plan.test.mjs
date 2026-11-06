@@ -165,6 +165,24 @@ test('retry and trace contracts are unchanged', () => {
   assert.deepEqual(CI_SUITES.find(({ name }) => name === 'smoke').options, []);
 });
 
+test('an explicit diagnostic shard count preserves the same flags while default remains two', () => {
+  const suite = CI_SUITES[0];
+  const args = [
+    'test',
+    ...suite.files.map((f) => `e2e/${f}`),
+    '--project=chromium',
+    ...suite.options,
+    '--workers=1',
+    '--shard=3/3',
+    '--output=test-results/gates',
+  ];
+  assert.equal(parseInvocation(args, 3).shardIndex, 3);
+  assert.throws(() => parseInvocation(args));
+  assert.throws(() => parseInvocation(args, 2));
+  assert.throws(() => parseInvocation(args, 4));
+  assert.throws(() => parseInvocation([...args, '--retries=1'], 3));
+});
+
 test('the workflow command cannot drop a spec, shard, retry contract or worker limit', () => {
   for (const suite of CI_SUITES) {
     const args = [

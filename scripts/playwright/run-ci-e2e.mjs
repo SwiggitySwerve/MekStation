@@ -12,6 +12,10 @@ import {
   parseInvocation,
   planShards,
 } from './ci-e2e-plan.mjs';
+import {
+  diagnosticInvocation,
+  diagnosticSuiteEnvironment,
+} from './renderer-memory.mjs';
 
 const root = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -19,8 +23,10 @@ const root = path.resolve(
 );
 const cli = path.join(root, 'node_modules/@playwright/test/cli.js');
 const planOnly = process.argv.includes('--plan-only');
+const diagnostic = diagnosticInvocation(process.env, root);
 const { suite: requestedSuite, shardIndex } = parseInvocation(
   process.argv.slice(2).filter((arg) => arg !== '--plan-only'),
+  diagnostic.shards,
 );
 const output = path.join(root, 'e2e-timings');
 fs.mkdirSync(output, { recursive: true });
@@ -47,7 +53,15 @@ function listTests(args, phase) {
   const started = performance.now();
   const result = spawnSync(
     process.execPath,
-    [cli, 'test', ...args, '--project=chromium', '--list', '--reporter=json'],
+    [
+      cli,
+      'test',
+      ...diagnostic.configArgs,
+      ...args,
+      '--project=chromium',
+      '--list',
+      '--reporter=json',
+    ],
     {
       cwd: root,
       encoding: 'utf8',
@@ -88,7 +102,7 @@ const timing = JSON.parse(
     'utf8',
   ),
 );
-const plan = planShards(tests, timing);
+const plan = planShards(tests, timing, diagnostic.shards);
 fs.writeFileSync(
   path.join(output, `plan-${requestedSuite.name}.json`),
   JSON.stringify(plan, null, 2),
@@ -122,13 +136,19 @@ async function runTask(task) {
   if (planOnly) return;
   const child = spawn(
     process.execPath,
-    [path.join(root, 'scripts/playwright/run-playwright.mjs'), 'test', ...args],
+    [
+      path.join(root, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      ...diagnostic.configArgs,
+      ...args,
+    ],
     {
       cwd: root,
       env: {
         ...process.env,
         PLAYWRIGHT_HTML_OUTPUT_DIR: `playwright-report-${suite.name}`,
         PLAYWRIGHT_JSON_OUTPUT_FILE: report,
+        ...diagnosticSuiteEnvironment(process.env, suite.name, shardIndex),
       },
       detached: process.platform !== 'win32',
       stdio: ['ignore', 'inherit', 'inherit'],
