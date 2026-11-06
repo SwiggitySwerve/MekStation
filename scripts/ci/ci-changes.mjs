@@ -68,6 +68,16 @@ const DESKTOP = [
 
 const E2E = [/^e2e\//, /^playwright\.config\.[^/]+$/];
 
+// These paths have a known role in this repository. For Storybook, code is
+// mapped through its import closure and asset rules below. Unrecognized paths
+// may introduce build tooling or inputs, so they must not silently skip it.
+const STORYBOOK_MAPPED = [
+  ...CODE,
+  ...E2E,
+  /^(docs|openspec|playtest)\//,
+  /^[^/]+\.md$/,
+];
+
 const COMBAT_SCRIPT = 'scripts/validate-combat-suite.mjs';
 
 /**
@@ -140,10 +150,15 @@ export const CLOSURE_GATES = {
   // static files it bundles.
   storybook: {
     entries(root) {
-      return [
-        ...listFiles(root, '.storybook', /\.(ts|tsx|js|mjs)$/),
-        ...gitFiles(root, ['*.stories.ts', '*.stories.tsx', '*.mdx']),
-      ];
+      return gitFiles(root, [
+        '.storybook/**',
+        '*.stories.js',
+        '*.stories.jsx',
+        '*.stories.mjs',
+        '*.stories.ts',
+        '*.stories.tsx',
+        '*.mdx',
+      ]).filter((file) => /\.(ts|tsx|js|jsx|mjs|cjs|mdx)$/.test(file));
     },
     data: [
       /^\.storybook\//,
@@ -151,8 +166,11 @@ export const CLOSURE_GATES = {
       /\.mdx$/,
       /\.css$/,
       /^(tailwind|postcss)\.config\.[^/]+$/,
-      // staticDirs: ['../public']; public/data is copied, never compiled.
-      /^public\/(?!data\/)/,
+      // staticDirs: ['../public']; copying data is part of the build too.
+      /^public\//,
+      /^config\//,
+      // Non-code source assets can also be loaded through URLs or CSS.
+      /^src\/(?!.*\.(?:ts|tsx|js|jsx|mjs|cjs)$)/,
     ],
   },
 };
@@ -169,6 +187,7 @@ const RESOLVE_SUFFIXES = [
   '/index.ts',
   '/index.tsx',
   '/index.js',
+  '/index.jsx',
   '/index.mjs',
 ];
 
@@ -258,7 +277,7 @@ export function importClosure(root, entries) {
     const file = stack.pop();
     if (seen.has(file)) continue;
     seen.add(file);
-    if (!/\.(ts|tsx|js|jsx|mjs|cjs)$/.test(file)) continue;
+    if (!/\.(ts|tsx|js|jsx|mjs|cjs|mdx)$/.test(file)) continue;
     const text = fs.readFileSync(file, 'utf8');
     for (const m of text.matchAll(IMPORT_RE)) {
       const specifier = m[1] ?? m[2] ?? m[3] ?? m[4] ?? m[5];
@@ -345,6 +364,9 @@ export function decide(root, changed) {
       (file) => closure.has(file) || matchesAny(file, gate.data),
     );
   }
+  gates.storybook ||= changed.some(
+    (file) => !matchesAny(file, STORYBOOK_MAPPED),
+  );
   return { gates, reason: `${changed.length} changed file(s)` };
 }
 
