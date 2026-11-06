@@ -28,10 +28,7 @@ import {
   CampaignDurableStoreUnavailableError,
   selectCampaignEventStore,
 } from '../getCampaignEventStore';
-
-// `NODE_ENV` is typed read-only on `process.env`; cast through a mutable
-// view so each row can state the environment it is about.
-const env = process.env as Record<string, string | undefined>;
+import { setTestNodeEnv } from './storeNodeEnvironment';
 
 describe('selectCampaignEventStore', () => {
   const originalNodeEnv = process.env.NODE_ENV;
@@ -40,16 +37,16 @@ describe('selectCampaignEventStore', () => {
   beforeEach(() => {
     resetSQLiteService();
     _resetCampaignEventStoreAnnouncementForTests();
-    delete env.CAMPAIGN_EVENT_STORE;
+    delete process.env.CAMPAIGN_EVENT_STORE;
   });
 
   afterEach(() => {
     resetSQLiteService();
-    env.NODE_ENV = originalNodeEnv;
+    setTestNodeEnv(originalNodeEnv);
     if (originalOverride === undefined) {
-      delete env.CAMPAIGN_EVENT_STORE;
+      delete process.env.CAMPAIGN_EVENT_STORE;
     } else {
-      env.CAMPAIGN_EVENT_STORE = originalOverride;
+      process.env.CAMPAIGN_EVENT_STORE = originalOverride;
     }
   });
 
@@ -76,7 +73,7 @@ describe('selectCampaignEventStore', () => {
     it('still honours the memory rollback lever', () => {
       // The design's rollback step: force the durable path dormant
       // without redeploying a different build.
-      env.CAMPAIGN_EVENT_STORE = 'memory';
+      process.env.CAMPAIGN_EVENT_STORE = 'memory';
 
       expect(selectCampaignEventStore().durability).toBe('ephemeral');
     });
@@ -84,7 +81,7 @@ describe('selectCampaignEventStore', () => {
 
   describe('without an initialized database', () => {
     it('falls back to the ephemeral adapter in development', () => {
-      env.NODE_ENV = 'development';
+      setTestNodeEnv('development');
 
       const selection = selectCampaignEventStore();
 
@@ -93,7 +90,7 @@ describe('selectCampaignEventStore', () => {
     });
 
     it('says out loud that the campaign log is not durable', () => {
-      env.NODE_ENV = 'development';
+      setTestNodeEnv('development');
       const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
       selectCampaignEventStore();
@@ -107,7 +104,7 @@ describe('selectCampaignEventStore', () => {
       // Loud, not deafening: a server hosting fifty campaigns must not
       // bury its own startup log, and the announcement is about the
       // PROCESS, which does not change between two campaigns.
-      env.NODE_ENV = 'development';
+      setTestNodeEnv('development');
       const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
       selectCampaignEventStore();
@@ -118,7 +115,7 @@ describe('selectCampaignEventStore', () => {
     });
 
     it('refuses to substitute memory in production', () => {
-      env.NODE_ENV = 'production';
+      setTestNodeEnv('production');
 
       expect(() => selectCampaignEventStore()).toThrow(
         CampaignDurableStoreUnavailableError,
@@ -126,8 +123,8 @@ describe('selectCampaignEventStore', () => {
     });
 
     it('refuses to substitute memory when durability was demanded', () => {
-      env.NODE_ENV = 'development';
-      env.CAMPAIGN_EVENT_STORE = 'durable';
+      setTestNodeEnv('development');
+      process.env.CAMPAIGN_EVENT_STORE = 'durable';
 
       expect(() => selectCampaignEventStore()).toThrow(
         CampaignDurableStoreUnavailableError,
@@ -137,8 +134,8 @@ describe('selectCampaignEventStore', () => {
     it('lets the memory lever win in production', () => {
       // An operator who has explicitly chosen memory has accepted the
       // loss; the refusal above is for a process that did NOT choose.
-      env.NODE_ENV = 'production';
-      env.CAMPAIGN_EVENT_STORE = 'memory';
+      setTestNodeEnv('production');
+      process.env.CAMPAIGN_EVENT_STORE = 'memory';
 
       expect(selectCampaignEventStore().durability).toBe('ephemeral');
     });
