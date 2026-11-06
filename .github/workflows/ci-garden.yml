@@ -1,0 +1,85 @@
+name: CI Garden
+
+on:
+  schedule:
+    - cron: '0 11 * * 1'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ci-garden-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install only the trusted default-branch collection dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Collect complete seven-day evidence without write permissions
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { prepareWeekly } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-weekly.mjs`);
+            const result = await prepareWeekly(github, context.repo);
+            core.info(JSON.stringify({ observations: result.report.observations, diagnostics: result.report.rejected }));
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ci-garden-prepared
+          path: ${{ runner.temp }}/budget-output/weekly.json
+          if-no-files-found: error
+          retention-days: 21
+
+  publish:
+    needs: collect
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+          sparse-checkout: |
+            scripts/ci
+            scripts/lib
+            config/ci
+      - uses: actions/download-artifact@v8
+        with:
+          name: ci-garden-prepared
+          path: ${{ runner.temp }}/ci-garden
+      - name: Publish one garden issue and only a proven lowering proposal
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('node:fs');
+            const file = `${process.env.RUNNER_TEMP}/ci-garden/weekly.json`;
+            const stat = fs.lstatSync(file);
+            if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 8 * 1024 * 1024) throw new Error('Invalid prepared JSON');
+            const prepared = JSON.parse(fs.readFileSync(file, 'utf8'));
+            const { updateGardenIssue, proposeRatchet } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/garden-publish.mjs`);
+            const { loadBudgets, budgetRaises } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-config.mjs`);
+            const issue = await updateGardenIssue({ github, ...context.repo, body: prepared.body, dryRun: false });
+            core.info(JSON.stringify(issue));
+            if (prepared.ratchetContent !== null) {
+              if (budgetRaises(loadBudgets(), JSON.parse(prepared.ratchetContent)).length) throw new Error('Prepared ratchet relaxes a budget');
+              const result = await proposeRatchet({ github, ...context.repo, budgetPath: 'config/ci/budgets.json',
+                expectedBaseSha: prepared.expectedBaseSha, content: prepared.ratchetContent, body: prepared.ratchetBody, dryRun: false });
+              core.info(JSON.stringify(result));
+            }
