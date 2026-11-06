@@ -4,6 +4,7 @@ import path from 'node:path';
 import type { IFullUnit } from '@/services/units/CanonicalUnitService';
 import type { IGameUnit } from '@/types/gameplay';
 
+import { readCatalogFiles } from '@/__tests__/helpers/catalogFiles.test-helpers';
 import { getCanonicalUnitService } from '@/services/units/CanonicalUnitService';
 import { SeededRandom } from '@/simulation/core';
 import {
@@ -213,17 +214,18 @@ it('rejects a wrong-family definition and malformed vehicle facts', () => {
   expect(() => adaptUnitFromData({ ...full(vehicle), movement: {} })).toThrow();
 });
 
-it('adapts every committed vehicle and constructs its engine combat state', () => {
+it('adapts every committed vehicle and constructs its engine combat state', async () => {
   const root = path.join(process.cwd(), 'public/data/units/vehicles');
   const index: { units: { id: string; path: string }[] } = JSON.parse(
     fs.readFileSync(path.join(root, 'index.json'), 'utf8'),
   );
   const failures: string[] = [];
-  for (const row of index.units) {
+  for await (const { entry: row, read } of readCatalogFiles(
+    root,
+    index.units,
+  )) {
     try {
-      const data: IFullUnit = JSON.parse(
-        fs.readFileSync(path.join(root, row.path), 'utf8'),
-      );
+      const data: IFullUnit = JSON.parse(read());
       const adapted = adaptUnitFromData(data, { family: 'vehicles' });
       const [seeded] = gameUnitsWithAdaptedCombatSeeds(
         [metadata(data.id)],

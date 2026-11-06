@@ -497,6 +497,14 @@
       },
       "description": "Unit quirks"
     },
+    "weaponQuirks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "description": "Weapon quirks keyed by native LOCATION:SLOT:WEAPON_NAME; legacy name keys remain readable"
+    },
     "fluff": {
       "type": "object",
       "properties": {

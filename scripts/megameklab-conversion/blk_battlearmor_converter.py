@@ -31,7 +31,7 @@ from blk_battlearmor_fields import (
     parse_point_equipment as shared_parse_point_equipment,
 )
 from blk_conversion_runner import BlkConversionConfig, run_blk_conversion, run_manifest_range_parity
-from blk_unit_fields import parse_fluff, parse_mul_id, parse_quirks
+from blk_unit_fields import parse_fluff, parse_mul_id, parse_quirk_fields
 
 # Shared BLK helpers + enum_mappings re-exports — see blk_common.py for the
 # extraction rationale (2026-04-25 maintenance sweep).
@@ -88,7 +88,6 @@ def convert_battlearmor_blk(blk_path: Path, logger: logging.Logger) -> Optional[
     mul_id = parse_mul_id(tags)
     role = get_string(tags, "role")
     source = get_string(tags, "source")
-    quirks = parse_quirks(tags)
     fluff = parse_fluff(tags)
 
     unit_id = generate_id_from_name(name, model)
@@ -110,8 +109,7 @@ def convert_battlearmor_blk(blk_path: Path, logger: logging.Logger) -> Optional[
         output["role"] = role
     if source:
         output["source"] = source
-    if quirks:
-        output["quirks"] = quirks
+    output.update(parse_quirk_fields(tags))
     if fluff:
         output["fluff"] = fluff
 
