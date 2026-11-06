@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'megameklab-conversion'))
+import quirk_regeneration as regeneration
 from quirk_regeneration import apply_family, plan_family, verify_tree, write_family
 
 
@@ -45,6 +46,36 @@ class QuirkRegenerationTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             apply_family(self.family, self.root / 'first', self.root / 'second')
         self.assertEqual((self.family / 'Ship A.json').read_bytes(), self.raw)
+
+    def test_managed_generation_is_formatter_stable_and_keeps_nonquirk_bytes(self):
+        repo = Path(__file__).resolve().parents[2]
+        family = self.baseline / 'battlemechs'
+        family.mkdir()
+        raw = b'{\n  "id": "mech",\n  "chassis": "Mech",\n  "model": "A",\n  "unitType": "BattleMech",\n  "tonnage": 30\n}\n'
+        (family / 'Mech A.json').write_bytes(raw)
+        (family / 'index.json').write_bytes(b'{"unchanged":true}\n')
+        record = {'path': 'meks/Mech A.mtf', 'chassis': 'Mech', 'model': 'A',
+                  'fields': {'weaponQuirks': {'RA:4:Medium Laser': ['accurate', 'accurate']}}}
+        plan, _ = plan_family(self.baseline, 'battlemechs', [record])
+        for name in ['formatted-1', 'formatted-2']:
+            write_family(family, self.root / name, plan, formatter_repo=repo)
+        verify_tree(self.root / 'formatted-1', self.root / 'formatted-2', identical=True)
+        output = self.root / 'formatted-1'
+        before = {p.name: p.read_bytes() for p in output.iterdir()}
+        self.assertIn(b'["accurate", "accurate"]', before['Mech A.json'])
+        regeneration.format_family(output, plan, repo, 'battlemechs')
+        self.assertEqual(before, {p.name: p.read_bytes() for p in output.iterdir()})
+        verify_tree(family, output)
+        self.assertEqual((family / 'Mech A.json').read_bytes(), raw)
+
+    def test_formatter_uses_native_repository_family_ignore_policy(self):
+        plan, _ = plan_family(self.baseline, 'capital', [self.record])
+        raw_output = self.root / 'unformatted'
+        formatted_output = self.root / 'policy-output'
+        write_family(self.family, raw_output, plan)
+        write_family(self.family, formatted_output, plan,
+                     formatter_repo=Path(__file__).resolve().parents[2])
+        verify_tree(raw_output, formatted_output, identical=True)
 
     def test_ambiguous_conflicting_sources_and_missing_identity_fail_before_writing(self):
         other = {**self.record, 'path': 'dropships/another.blk', 'fields': {'quirks': ['bad_rep']}}

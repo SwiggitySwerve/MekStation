@@ -14,3 +14,13 @@ including valued strings such as `obsolete:3045`.
 Authority: MegaMek 48fcb2f64 MtfFile.java:639-649, BLKFile.java:218-230 and
 Entity.java:17256-17315. Regeneration may change only top-level `quirks` and
 `weaponQuirks`; index, equipment and numerical fields retain their existing bytes.
+
+The regeneration CLI finishes each generation with the repository-installed
+oxfmt version and exact config/ignore bytes. A temporary mirror retains native
+`public/data/units/<family>/...` paths, so formatter-exempt families stay exempt;
+arbitrary external output paths cannot establish repository family policy.
+Only changed unit files are offered to the formatter; manifests remain untouched.
+The raw non-quirk byte gate still runs after formatting. Both independent outputs
+must equal the committed candidate, and another formatting pass and normal hooks
+must leave those bytes unchanged. Formatter version, policy and lock hashes are
+recorded in the generation report. Parser grammar and mount keys are unchanged.
