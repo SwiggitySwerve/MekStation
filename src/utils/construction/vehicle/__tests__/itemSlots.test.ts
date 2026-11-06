@@ -148,9 +148,10 @@ describe('vehicle item slots (Tank.getFreeSlots, TestSupportVehicle)', () => {
   });
 
   it('reports the Brunel AC20 support-vehicle overrun and fire control location', () => {
-    // Java 14: the MG ammo record has no compatibleWeaponIds (lower bound 13).
+    // Java 14, now matched: the full MG ammo record lists the machine guns
+    // it feeds (AmmoType.isAmmoValid, AmmoType.java:17147-17155).
     expect(supportVehicleSlotErrors(brunel)).toEqual([
-      'Not enough item slots available! Using 13 slot(s) too many.',
+      'Not enough item slots available! Using 14 slot(s) too many.',
       'Basic Fire Control must be mounted in the body.',
     ]);
   });
@@ -199,11 +200,10 @@ describe('vehicle item slots (Tank.getFreeSlots, TestSupportVehicle)', () => {
         ...at('Rear', [flamer, flamer, mg]),
       ],
     };
-    // Java 10 (20 weapons + 3 ammo types, fire control 0). The SRM 2 and MG
-    // ammo records have no compatibleWeaponIds, so they are not counted
-    // (lower bound 8).
+    // Java 10 (20 weapons + 3 ammo types, fire control 0). The SRM 2 ammo
+    // record has no compatibleWeaponIds, so it is not counted (lower bound 9).
     expect(supportVehicleSlotErrors(debbie)).toEqual([
-      'Not enough item slots available! Using 8 slot(s) too many.',
+      'Not enough item slots available! Using 9 slot(s) too many.',
     ]);
   });
 });

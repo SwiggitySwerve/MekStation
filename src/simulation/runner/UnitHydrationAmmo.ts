@@ -73,8 +73,9 @@ function weaponTypeFromAmmoId(ammoId: string): string {
 }
 
 function weaponTypeFromAmmoStats(ammo: ICatalogAmmoStats): string | undefined {
-  // This explicit full-bin catalog row has no compatibleWeaponIds. Its
-  // packaging suffix is not part of the weapon family consumed in combat.
+  // This explicit full-bin catalog row feeds both machine guns (IS and Clan),
+  // so no single compatible id names its family. Its packaging suffix is not
+  // part of the weapon family consumed in combat.
   if (ammo.id === 'ammo-mg-full') return 'machine-gun';
   if (ammo.compatibleWeaponIds.length === 1) {
     return ammo.compatibleWeaponIds[0];

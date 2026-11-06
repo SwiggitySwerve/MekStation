@@ -19946,7 +19946,7 @@
     "file": "ammunition/machinegun.json",
     "index": 4,
     "id": "ammo-mg-full",
-    "sha256": "07b0278501b6d0480bfe16326f335c88aa03cd1a01ea81eb4c6a6a50d67aa40d",
+    "sha256": "dfa4c954eb1d1779550ba44adc5a327b544ad3449f59b33648f3fd6da7683ad9",
     "item": {
       "id": "ammo-mg-full",
       "name": "Machine Gun Ammo [Full]",
@@ -19954,7 +19954,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "compatibleWeaponIds": [],
+      "compatibleWeaponIds": ["machine-gun", "clan-machine-gun"],
       "shotsPerTon": 200,
       "weight": 1,
       "criticalSlots": 1,
