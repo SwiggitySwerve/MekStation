@@ -1,3 +1,5 @@
+import type { IProtoMechBVWeaponMount } from '@/types/unit/BVBreakdownTypes';
+
 import { IProtoMechUnit } from '@/types/unit/ProtoMechInterfaces';
 
 import { addBVToAmmoCapGroup, sumCappedAmmoBV } from '../battleValueAmmo';
@@ -27,6 +29,7 @@ export function calculateProtoSpeedFactor(
 
 interface OffensivePieces {
   readonly weaponBV: number;
+  readonly weaponMountBV?: readonly IProtoMechBVWeaponMount[];
   readonly ammoBV: number;
   readonly physicalWeaponBV: number;
   readonly offensiveEquipmentBV: number;
@@ -41,8 +44,9 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
   const weaponsForAmmo: Array<{ id: string; bv: number }> = [];
   const ammoForCap: Array<{ id: string; bv: number; weaponType: string }> = [];
   const ammoMounts: string[] = [];
+  const weaponMountBV: IProtoMechBVWeaponMount[] = [];
 
-  for (const mount of unit.equipment) {
+  for (const [equipmentIndex, mount] of unit.equipment.entries()) {
     const nativeBV = resolveProtoOffensiveEquipmentBV(
       mount.equipmentId,
       unit.tonnage,
@@ -63,6 +67,13 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
         weaponsForAmmo.push({
           id: mount.equipmentId,
           bv: resolved.battleValue,
+        });
+        // Retain the value already admitted above, without resolving it again.
+        weaponMountBV.push({
+          equipmentIndex,
+          equipmentId: mount.equipmentId,
+          location: mount.location,
+          battleValue: resolved.battleValue,
         });
       }
       continue;
@@ -134,6 +145,7 @@ function calculateProtoOffensive(unit: IProtoMechUnit): OffensivePieces {
 
   return {
     weaponBV,
+    ...(weaponMountBV.length > 0 ? { weaponMountBV } : {}),
     ammoBV,
     physicalWeaponBV,
     offensiveEquipmentBV,
