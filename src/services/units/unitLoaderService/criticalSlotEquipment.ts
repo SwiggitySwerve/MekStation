@@ -171,6 +171,11 @@ function claimedSlotsFor(
   return created;
 }
 
+/** Native and legacy Claw records join as one Java type; mounted IDs stay intact. */
+function criticalEquipmentId(equipmentId: string): string {
+  return equipmentId === 'claws' ? 'claw' : equipmentId;
+}
+
 function takeMatchingSlots(
   slots: readonly IResolvedCriticalSlot[],
   claimed: ReadonlySet<number>,
@@ -178,11 +183,12 @@ function takeMatchingSlots(
   count: number,
   isAmmo = false,
 ): readonly IResolvedCriticalSlot[] {
+  const identity = criticalEquipmentId(equipmentId);
   return slots
     .filter(
       (slot) =>
         !claimed.has(slot.index) &&
-        slot.equipmentId === equipmentId &&
+        criticalEquipmentId(slot.equipmentId ?? '') === identity &&
         (slot.equipmentDef?.category === EquipmentCategory.AMMUNITION) ===
           isAmmo,
     )
@@ -300,7 +306,21 @@ export function restoreCriticalSlotEquipment(
     getEquipmentCritEntries(count, superheavy);
   const normalizedMapped = mapped.map((item, index) => {
     const restored = restoreSerializedHeatSink(serialized[index], item);
-    return { ...restored, criticalSlots: entries(restored.criticalSlots) };
+    const sizing =
+      criticalEquipmentId(restored.equipmentId) === 'claw' &&
+      tonnage !== undefined
+        ? getEquipmentCalculatorService().calculateProperties(
+            restored.equipmentId,
+            {
+              tonnage,
+            },
+          )
+        : undefined;
+    return {
+      ...restored,
+      ...(sizing ? { weight: sizing.weight } : {}),
+      criticalSlots: entries(sizing?.criticalSlots ?? restored.criticalSlots),
+    };
   });
   if (!criticalSlots) return normalizedMapped;
 
@@ -404,6 +424,7 @@ export function restoreCriticalSlotEquipment(
     const handledPhysical = new Set<string>();
     for (const slot of slots) {
       if (claimedAtLocation.has(slot.index) || !slot.equipmentId) continue;
+      const physicalId = criticalEquipmentId(slot.equipmentId);
 
       // FU-101: only audited sizing classes; other prerequisites
       // remain with CAT-Q2. MtfFile.java:1133-1175 groups a physical mount.
@@ -418,20 +439,23 @@ export function restoreCriticalSlotEquipment(
           'retractable-blade',
           'flail',
           'wrecking-ball',
-        ].includes(slot.equipmentId)
+          'claw',
+        ].includes(physicalId)
       ) {
-        if (handledPhysical.has(slot.equipmentId)) continue;
-        handledPhysical.add(slot.equipmentId);
+        if (handledPhysical.has(physicalId)) continue;
+        handledPhysical.add(physicalId);
         const properties = getEquipmentCalculatorService().calculateProperties(
           slot.equipmentId,
           { tonnage },
         );
         const count = entries(properties.criticalSlots);
         if (count <= 0) continue;
-        const group = slots.filter((s) => s.equipmentId === slot.equipmentId);
+        const group = slots.filter(
+          (s) => criticalEquipmentId(s.equipmentId ?? '') === physicalId,
+        );
         const existing = placed.filter(
           (item) =>
-            item.equipmentId === slot.equipmentId &&
+            criticalEquipmentId(item.equipmentId) === physicalId &&
             (item.location === location ||
               item.splitSlots?.location === location),
         );
