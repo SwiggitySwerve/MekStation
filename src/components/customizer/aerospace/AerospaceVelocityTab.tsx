@@ -1,35 +1,27 @@
 /**
- * AerospaceVelocityTab — placeholder
- *
- * Will be wired by the `add-aerospace-construction` change to expose:
- *   - Safe Thrust (safeThrust)
- *   - Maximum Thrust (maxThrust, derived as ceil(safeThrust × 1.5))
- *   - Structural Integrity (SI)
- *   - Fuel Points (fuelPoints)
+ * Aerospace Velocity tab. Shares the working engine and movement form with
+ * Structure so both surfaces use the same store actions and domain results.
  *
  * @spec openspec/specs/multi-unit-tabs/spec.md
- * @wiredBy add-aerospace-construction
+ * @spec openspec/changes/establish-all-unit-data-parity/specs/customizer-tabs/spec.md
  */
 
 import React from 'react';
+
+import { EngineSection } from './AerospaceStructureTab.EngineSection';
 
 export interface AerospaceVelocityTabProps {
   readOnly?: boolean;
   className?: string;
 }
 
-/**
- * Placeholder for the Velocity/Thrust tab.
- * Construction proposal `add-aerospace-construction` will replace the body.
- */
 export function AerospaceVelocityTab({
+  readOnly = false,
   className = '',
 }: AerospaceVelocityTabProps): React.ReactElement {
   return (
     <div className={`p-4 ${className}`} data-testid="aerospace-velocity-tab">
-      <p className="text-text-theme-secondary text-sm">
-        Coming soon — this tab will be wired up by add-aerospace-construction
-      </p>
+      <EngineSection readOnly={readOnly} />
     </div>
   );
 }
