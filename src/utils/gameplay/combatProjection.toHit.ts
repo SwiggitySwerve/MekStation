@@ -5,6 +5,7 @@ import type {
   IUnitToken,
   IWeaponStatus,
 } from '@/types/gameplay';
+import type { ITerrainFeature } from '@/types/gameplay/TerrainTypes';
 import type { ILOSInterveningTerrainEffect } from '@/utils/gameplay/lineOfSight';
 
 import { DEFAULT_GUNNERY } from '@/constants/PilotConstants';
@@ -39,6 +40,7 @@ interface IToHitProjectionInput {
   readonly distance: number;
   readonly weapons: readonly IWeaponStatus[];
   readonly targetPartialCover: boolean;
+  readonly targetAirborneTerrainFeatures?: readonly ITerrainFeature[];
   readonly targetTerrainModifier?: IToHitModifierDetail | null;
   readonly interveningTerrainEffects?: readonly ILOSInterveningTerrainEffect[];
   readonly indirectFire?: IIndirectFireProjection;
@@ -209,6 +211,7 @@ function calculateProjectionToHit({
   targetUnit,
   targetUnitId,
   targetPartialCover,
+  targetAirborneTerrainFeatures = [],
   contextModifiers,
   indirectFire,
 }: IToHitProjectionInput & {
@@ -231,6 +234,8 @@ function calculateProjectionToHit({
   const targetState = buildWeaponAttackTargetToHitState(
     targetUnit,
     targetPartialCover,
+    undefined,
+    { terrainFeatures: targetAirborneTerrainFeatures },
   );
   const semiGuidedTagContext = buildProjectionSemiGuidedTagContext({
     attacker,

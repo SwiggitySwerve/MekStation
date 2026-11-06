@@ -24,15 +24,17 @@ export async function fill(
   target: Locator,
   value: string,
   keyboard: boolean,
-  initialValue?: string,
+  initialValue: string,
 ): Promise<void> {
-  if (!keyboard) return target.fill(value);
-  await tabTo(page, target);
-  // Focus can precede the dialog's controlled-value initialization.
-  if (initialValue !== undefined)
-    await expect(target).toHaveValue(initialValue);
-  await page.keyboard.press('ControlOrMeta+A');
-  await page.keyboard.insertText(value);
+  if (keyboard) await tabTo(page, target);
+  // Both modes can select before the dialog's controlled value initializes.
+  await expect(target).toHaveValue(initialValue);
+  if (keyboard) {
+    await page.keyboard.press('ControlOrMeta+A');
+    await page.keyboard.insertText(value);
+  } else {
+    await target.fill(value);
+  }
   await expect(target).toHaveValue(value);
-  await page.keyboard.press('Tab');
+  if (keyboard) await page.keyboard.press('Tab');
 }

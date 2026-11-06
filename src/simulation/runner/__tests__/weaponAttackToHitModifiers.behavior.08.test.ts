@@ -1,3 +1,5 @@
+import { createAerospaceCombatState } from '@/utils/gameplay/aerospace/state';
+
 import {
   ActuatorType,
   Facing,
@@ -60,12 +62,25 @@ import {
 
 describe('runAttackPhase to-hit modifier integration', () => {
   it('applies source-backed Shaky Stick only for ground-to-air attacks', () => {
+    const nativeAero = (altitude: number) => ({
+      kind: 'aero' as const,
+      state: createAerospaceCombatState({
+        maxSI: 8,
+        armorByArc: { nose: 20, aft: 10 },
+        heatSinks: 10,
+        fuelPoints: 400,
+        safeThrust: 5,
+        maxThrust: 8,
+        altitude,
+      }),
+    });
     const groundToAirPayload = attackDeclaredPayload(
       runModifierScenario({
         state: createWeaponAttackState({
           target: {
             abilities: ['shaky_stick'],
             isAirborne: true,
+            combatState: nativeAero(1),
           },
         }),
       }),
@@ -77,6 +92,7 @@ describe('runAttackPhase to-hit modifier integration', () => {
           target: {
             abilities: ['shaky_stick'],
             isAirborne: true,
+            combatState: nativeAero(1),
           },
         }),
       }),
@@ -87,6 +103,7 @@ describe('runAttackPhase to-hit modifier integration', () => {
           target: {
             abilities: ['shaky_stick'],
             isAirborne: false,
+            combatState: nativeAero(0),
           },
         }),
       }),

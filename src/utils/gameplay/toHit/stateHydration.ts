@@ -10,6 +10,7 @@ import type { ITerrainFeature } from '@/types/gameplay/TerrainTypes';
 
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
 
+import { deriveTargetIsAirborne } from '../combatAirborne';
 import { isRepresentedTargetImmobile } from '../combatImmobility';
 import { hasSPA } from '../spaModifiers/canonicalize';
 
@@ -125,11 +126,14 @@ export function buildWeaponAttackTargetToHitState(
   unit: IUnitGameState,
   partialCover: boolean,
   terrainFeatures: readonly ITerrainFeature[] = [],
+  airborneContext: { readonly terrainFeatures: readonly ITerrainFeature[] } = {
+    terrainFeatures,
+  },
 ): ITargetState {
   return {
     unitType: unit.unitType,
     movementType: unit.movementThisTurn,
-    isAirborne: unit.isAirborne,
+    isAirborne: deriveTargetIsAirborne(unit, airborneContext.terrainFeatures),
     hexesMoved: unit.hexesMovedThisTurn,
     prone: unit.prone ?? false,
     // Audit B-1 (W1.1): MegaMek's Targetable immobile contract covers

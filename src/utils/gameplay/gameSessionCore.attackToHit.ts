@@ -9,6 +9,7 @@ import type {
 } from './gameSessionCore.attack.types';
 
 import { hydrateC3NetworkStateFromGameState } from './c3Network';
+import { airborneTerrainFeaturesFromSession } from './combatAirborneTerrain';
 import { getECMProtectedFlag } from './electronicWarfare';
 import { isGroundToGroundGameAttack } from './groundToGround';
 import {
@@ -113,6 +114,13 @@ function buildBaseToHit(
   const targetToHitState = buildWeaponAttackTargetToHitState(
     participants.targetUnit,
     context.targetPartialCover,
+    undefined,
+    {
+      terrainFeatures: airborneTerrainFeaturesFromSession(
+        context.session,
+        participants.targetUnit.position,
+      ),
+    },
   );
   const volleyMinimumRange = strictestApplicableMinimumRange(
     context.weapons.map((weapon) => weapon.minRange),

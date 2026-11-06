@@ -144,8 +144,8 @@ test('runtime data inputs turn their checks on', () => {
   const units = decide(root, ['public/data/units/battlemechs/x.json']);
   assert.equal(units.gates.equipment, true);
   assert.equal(units.gates.combat, true);
-  // Storybook copies public/ but never compiles public/data.
-  assert.equal(units.gates.storybook, false);
+  // Storybook copies all of public/, including data; copying is a build input.
+  assert.equal(units.gates.storybook, true);
 
   const spec = decide(root, ['src/simulation/runner/__tests__/new.test.ts']);
   assert.equal(spec.gates.combat, true);

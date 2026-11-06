@@ -636,12 +636,8 @@ for (const viewport of VIEWPORTS) {
           const maximum = await velocity
             .getByTestId('aerospace-max-thrust')
             .innerText();
-          await fill(
-            page,
-            velocity.getByTestId('aerospace-fuel-tons-input'),
-            '2.5',
-            true,
-          );
+          const fuel = velocity.getByTestId('aerospace-fuel-tons-input');
+          await fill(page, fuel, '2.5', true, await fuel.inputValue());
           const fuelPoints = await velocity
             .getByText(/fuel points \(/)
             .innerText();
@@ -814,10 +810,10 @@ test.describe('keyboard input helper', () => {
     `);
     const chassis = page.getByRole('textbox', { name: 'Chassis Name' });
     const armor = page.getByRole('spinbutton', { name: 'Armor' });
-    await fill(page, chassis, 'Flow Shilone', true);
+    await fill(page, chassis, 'Flow Shilone', true, 'Shilone');
     await expect(chassis).toHaveValue('Flow Shilone');
     await expect(armor).toBeFocused();
-    await fill(page, armor, '17', true);
+    await fill(page, armor, '17', true, '18');
     await expect(armor).toHaveValue('17');
     await expect(page.getByRole('button', { name: 'Save' })).toBeFocused();
   });
@@ -840,7 +836,13 @@ test.describe('keyboard input helper', () => {
       </script>
     `);
     const chassis = page.getByRole('textbox', { name: 'Chassis Name' });
-    const failure = await fill(page, chassis, 'Flow Shilone', true).then(
+    const failure = await fill(
+      page,
+      chassis,
+      'Flow Shilone',
+      true,
+      'Shilone',
+    ).then(
       () => undefined,
       (error: unknown) => error,
     );
@@ -913,6 +915,75 @@ test.describe('keyboard input helper', () => {
         body: JSON.stringify(events, null, 2),
         contentType: 'application/json',
       });
+    }
+  });
+
+  test('waits for the initial value before pointer fill selects the field', async ({
+    page,
+  }, info) => {
+    await page.setContent(`
+      <label>Chassis Name<input value=""></label>
+      <button>Save</button>
+      <script>
+        const input = document.querySelector('input');
+        window.fillEvents = [];
+        let initialized = false;
+        const record = (event) => window.fillEvents.push({
+          event, value: input.value,
+          start: input.selectionStart, end: input.selectionEnd,
+        });
+        const initialize = () => {
+          if (initialized) return;
+          initialized = true;
+          input.value = 'Shilone';
+          record('initial value committed');
+        };
+        // A pending controlled-value commit is independent of input focus.
+        setTimeout(initialize, 1000);
+        input.addEventListener('beforeinput', () => {
+          record('pointer before input');
+          // Native selection has completed; commit before replacement inserts.
+          initialize();
+        });
+        input.addEventListener('input', () => record('input'));
+      </script>
+    `);
+    const chassis = page.getByRole('textbox', { name: 'Chassis Name' });
+    try {
+      await fill(page, chassis, 'Flow Shilone', false, 'Shilone');
+      await expect(chassis).toHaveValue('Flow Shilone');
+      const events = await page.evaluate(() =>
+        (
+          window as typeof window & { fillEvents: { event: string }[] }
+        ).fillEvents.map((entry) => entry.event),
+      );
+      expect(events.indexOf('initial value committed')).toBeLessThan(
+        events.indexOf('pointer before input'),
+      );
+    } finally {
+      const events = await page.evaluate(
+        () => (window as typeof window & { fillEvents: unknown[] }).fillEvents,
+      );
+      await info.attach('initial-value-event-order', {
+        body: JSON.stringify(events, null, 2),
+        contentType: 'application/json',
+      });
+    }
+  });
+
+  test('replaces an explicitly empty field in both input modes', async ({
+    page,
+  }) => {
+    for (const keyboard of [true, false]) {
+      await page.setContent(`
+        <label>Variant Designation<input value=""></label>
+        <button>Save</button>
+      `);
+      const variant = page.getByRole('textbox', {
+        name: 'Variant Designation',
+      });
+      await fill(page, variant, 'Saved 390', keyboard, '');
+      await expect(variant).toHaveValue('Saved 390');
     }
   });
 });
@@ -1025,6 +1096,7 @@ test.describe('library persistence and printing', () => {
       dialog.getByPlaceholder('Search by chassis or variant...'),
       `${chassis} ${model}`.trim(),
       keyboard,
+      '',
     );
     if (keyboard) {
       await tabTo(page, source);
