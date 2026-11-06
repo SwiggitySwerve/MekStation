@@ -29,7 +29,10 @@ import {
   hasBVActuatorEnhancement,
   isDirectFireBVWeapon,
 } from '../battleValueWeapons';
-import { isOneShotMissileBVWeapon } from '../equipmentBV/weaponHeat';
+import {
+  isOneShotBVWeapon,
+  isOneShotMissileBVWeapon,
+} from '../equipmentBV/weaponHeat';
 import { getEquipmentEntry } from '../equipmentBVResolver';
 
 /** Builds mounted weapon BV inputs without changing the source critical grid. */
@@ -187,7 +190,10 @@ export function buildMechBVWeapons(
   if (unresolvedWeapons.length > 0)
     issues.push(`Unresolved weapons (0 BV): ${unresolvedWeapons.join(', ')}`);
 
-  const ammoCapWeapons = weapons.map(({ id, bv }) => ({ id, bv }));
+  // BVCalculator.java:1230 (48fcb2f64): F_ONE_SHOT weapons supply no ammo cap.
+  const ammoCapWeapons = weapons
+    .filter(({ name }) => !isOneShotBVWeapon(name))
+    .map(({ id, bv }) => ({ id, bv }));
   applyWeaponPostScanModifiers(unit, cs, weapons, hasTC);
 
   return { weapons, hasTC, ammoCapWeapons };

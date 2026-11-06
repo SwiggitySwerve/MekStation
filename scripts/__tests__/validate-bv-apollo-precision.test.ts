@@ -1,5 +1,6 @@
 import type { UnitData } from '../validate-bv-types';
 
+import { mechBVTerms } from '../../src/utils/construction/mechBV/bvTrace';
 import { buildMechBVWeapons } from '../../src/utils/construction/mechBV/weaponInputs';
 import { calculateUnitBV } from '../validate-bv-calculator';
 import { scanCrits } from '../validate-bv-crit-scan';
@@ -106,4 +107,34 @@ it.each([
   expect(result?.ammoPools?.cap[example.group]).toBe(example.cap);
   expect(result?.ammoBV).toBe(example.cap);
   expect(result?.weaponBV).toBeCloseTo(example.weaponBV, 10);
+});
+
+// Pinned BVCalculator.java:1230 excludes F_ONE_SHOT in assembleAmmo.
+it.each(['srm-6-os', 'srm-6-i-os', 'CLSRM6 (IOS)'])(
+  'emits no ammunition cap for one-shot launcher %s',
+  (id) => {
+    const result = calculateUnitBV({
+      ...unit,
+      equipment: [{ id, location: 'HEAD' }],
+      criticalSlots: { HEAD: ['ISDroneOperatingSystem'] },
+    }).breakdown;
+    if (!result) throw new Error('Expected a Mech BV breakdown');
+    expect(result.ammoPools?.cap).not.toHaveProperty('SRM:6');
+    expect(mechBVTerms(result)).not.toHaveProperty(['ammo.cap.SRM:6']);
+    expect(result.ammoBV).toBe(0);
+    expect(result.weaponBV).toBeGreaterThan(0);
+  },
+);
+
+it('retains only the normal launcher cap in a mixed normal/OS/IOS group', () => {
+  const result = calculateUnitBV({
+    ...unit,
+    equipment: ['srm-6', 'srm-6-os', 'srm-6-i-os'].map((id) => ({
+      id,
+      location: 'RIGHT_TORSO',
+    })),
+  }).breakdown;
+  if (!result) throw new Error('Expected a Mech BV breakdown');
+  expect(result.ammoPools?.cap['SRM:6']).toBe(59);
+  expect(mechBVTerms(result)).toHaveProperty(['ammo.cap.SRM:6'], 59);
 });

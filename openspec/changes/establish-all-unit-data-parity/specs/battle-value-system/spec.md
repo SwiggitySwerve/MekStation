@@ -266,6 +266,8 @@ numeric output before native identity, quantity or grouping corrections.
 - **THEN** the cap SHALL use the listed mounted weapon BV captured before those modifiers
 - **AND** weapon-stage modifiers SHALL retain their existing values and operation order
 - **AND** binding ammunition SHALL be capped at that unmodified value
+- **AND** represented one-shot OS/IOS launchers SHALL supply no ammunition cap term
+- **AND** a normal launcher in the same group SHALL retain its own listed-BV cap
 - **AND** callers omitting separate cap inputs SHALL retain their existing policy
 - **AND** unchanged totals from nonbinding source ammunition SHALL NOT establish complete ammunition parity
 

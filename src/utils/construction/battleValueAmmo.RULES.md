@@ -7,9 +7,14 @@ its modifiers. Callers omitting the optional list retain their existing
 input policy. Pinned `BVCalculator.java:1189-1242` builds caps with
 `WeaponType.getBV(entity)`, independently of drone/Apollo in
 `processWeapon` (:845-847,869-875). Nonbinding source ammo can mask an
-incorrect cap without changing totals. Binding synthetic cases enforce this
-boundary; complete native quantities, one-shot eligibility and defensive
-caps do not acquire parity credit from this correction.
+incorrect cap without changing totals. The cap-input boundary excludes
+represented one-shot OS/IOS weapons using the existing source-name classifier,
+before normalization can erase the marker. Pinned
+[BVCalculator.java:1230](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/battleValue/BVCalculator.java#L1230)
+excludes `WeaponType.F_ONE_SHOT` in the ammo-cap weapon pass; the weapon stage
+still values those launchers. Binding synthetic cases and mixed normal/OS/IOS
+groups enforce the boundary. Complete native quantities, identities and
+defensive caps do not acquire parity credit from this correction.
 
 `battleValueAmmo.ts` owns grouped accumulation and the offensive ammunition cap.
 Callers resolve equipment and choose keys; `addBVToAmmoCapGroup` accumulates each
