@@ -224,6 +224,8 @@ export function useUnitValidation(
       gyroType: structureData.gyroType,
       cockpitType: structureData.cockpitType,
       internalStructureType: structureData.internalStructureType,
+      armorType: structureData.armorType,
+      techBaseMode: structureData.techBaseMode,
       heatSinkCount: structureData.heatSinkCount,
       heatSinkType: structureData.heatSinkType,
       totalArmorPoints: armorData.totalArmorPoints,

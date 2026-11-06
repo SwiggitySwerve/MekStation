@@ -10,6 +10,7 @@
 import { useMemo } from 'react';
 
 import { useUnitStore } from '@/stores/useUnitStore';
+import { TechBaseMode } from '@/types/construction/TechBaseConfiguration';
 
 /**
  * Structure validation data
@@ -23,6 +24,8 @@ export interface StructureValidationData {
   cockpitType: string;
   /** Internal structure type */
   internalStructureType: string;
+  armorType?: string;
+  techBaseMode?: TechBaseMode;
   /** Heat sink count */
   heatSinkCount: number;
   /** Heat sink type */
@@ -40,6 +43,8 @@ export function useStructureValidation(): StructureValidationData {
   const gyroType = useUnitStore((s) => s.gyroType);
   const cockpitType = useUnitStore((s) => s.cockpitType);
   const internalStructureType = useUnitStore((s) => s.internalStructureType);
+  const armorType = useUnitStore((s) => s.armorType);
+  const techBaseMode = useUnitStore((s) => s.techBaseMode);
   const heatSinkCount = useUnitStore((s) => s.heatSinkCount);
   const heatSinkType = useUnitStore((s) => s.heatSinkType);
 
@@ -49,6 +54,8 @@ export function useStructureValidation(): StructureValidationData {
       gyroType,
       cockpitType,
       internalStructureType,
+      armorType,
+      techBaseMode,
       heatSinkCount,
       heatSinkType,
     }),
@@ -57,6 +64,8 @@ export function useStructureValidation(): StructureValidationData {
       gyroType,
       cockpitType,
       internalStructureType,
+      armorType,
+      techBaseMode,
       heatSinkCount,
       heatSinkType,
     ],
