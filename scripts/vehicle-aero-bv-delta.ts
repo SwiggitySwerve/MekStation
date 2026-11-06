@@ -4,6 +4,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { z } from 'zod';
 
+import type { IUnitValidateResult } from '../src/types/unit/UnitTypeHandler';
+
 import { BlkParserService } from '../src/services/conversion/BlkParserService';
 import { BattleArmorUnitHandler } from '../src/services/units/handlers/BattleArmorUnitHandler';
 import { InfantryUnitHandler } from '../src/services/units/handlers/InfantryUnitHandler';
@@ -30,6 +32,7 @@ import {
   type IFigure,
 } from './unit-bv-parity';
 import { validateSourceManifest } from './unit-bv-provenance';
+import { buildValidityReport } from './unit-construction-validity';
 import { calculateUnitBV as gateBV } from './validate-bv-calculator';
 
 const Mech = UnitContract.options[0];
@@ -68,7 +71,19 @@ export function sourceHash(bytes: Buffer): string {
     )
     .digest('hex');
 }
-export function calculateRow(raw: unknown): IComputedRow {
+export function captureConstructionValidity(
+  validate: () => IUnitValidateResult,
+): NonNullable<IComputedRow['constructionValidity']> {
+  try {
+    return validate();
+  } catch (error) {
+    return { failure: String(error) };
+  }
+}
+export function calculateRow(
+  raw: unknown,
+  includeConstruction = false,
+): IComputedRow {
   const input = Input.parse(raw);
   try {
     if (input.sourceText !== undefined) {
@@ -85,6 +100,13 @@ export function calculateRow(raw: unknown): IComputedRow {
           path: input.path,
           sha256: input.sha256,
           handlerTotal: handler.calculateBV(parsed.data.unit),
+          ...(includeConstruction
+            ? {
+                constructionValidity: captureConstructionValidity(() =>
+                  handler.validate(parsed.data.unit),
+                ),
+              }
+            : {}),
         };
         if (result?.kind === 'battlearmor')
           return {
@@ -126,6 +148,13 @@ export function calculateRow(raw: unknown): IComputedRow {
       return {
         path: input.path,
         sha256: input.sha256,
+        ...(includeConstruction
+          ? {
+              constructionValidity: captureConstructionValidity(() =>
+                handler.validate(parsed.data.unit),
+              ),
+            }
+          : {}),
         figure: {
           total: b.final,
           defensive: b.defensiveBV,
@@ -214,6 +243,7 @@ export const readJsonLines = (file: string): unknown[] =>
 export function calculateSources(
   raws: readonly unknown[],
   mekfiles: string,
+  includeConstruction = false,
 ): IComputedRow[] {
   return raws.map((raw) => {
     const row = Input.parse(raw);
@@ -229,7 +259,7 @@ export function calculateSources(
       sourceHash(Buffer.from(row.sourceText)) !== hash
     )
       throw new Error(`Source text hash mismatch: ${row.path}`);
-    return calculateRow(row);
+    return calculateRow(row, includeConstruction);
   });
 }
 export function writeDeltaReport(
@@ -257,18 +287,34 @@ export function main(): void {
   };
   const convertedFile = arg('--converted');
   validateSourceManifest(convertedFile, fs.readFileSync(convertedFile));
+  const includeConstruction = process.argv.includes('--construction-validity');
   const converted = calculateSources(
     readJsonLines(arg('--converted')),
     path.resolve(arg('--mekfiles')),
+    includeConstruction,
   );
+  const references = readJsonLines(arg('--reference'));
   const report = buildDeltaReport(
     converted,
-    readJsonLines(arg('--reference')).map((row) => JavaReference.parse(row)),
+    references.map((row) => JavaReference.parse(row)),
     undefined,
     process.argv.includes('--per-term'),
   );
   writeDeltaReport(report, arg('--out'));
   process.exitCode = report.ok ? 0 : 1;
+  if (includeConstruction) {
+    const { rows, ...summary } = buildValidityReport(converted, references);
+    const out = arg('--out');
+    fs.writeFileSync(
+      path.join(out, 'construction-validity-report.json'),
+      JSON.stringify(summary, null, 2) + '\n',
+    );
+    fs.writeFileSync(
+      path.join(out, 'construction-validity-rows.jsonl'),
+      rows.map((row) => JSON.stringify(row)).join('\n') + '\n',
+    );
+    if (!summary.ok) process.exitCode = 1;
+  }
 }
 
 export * from './unit-bv-parity';

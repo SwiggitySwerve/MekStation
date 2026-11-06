@@ -2,6 +2,8 @@
 
 Construction and equipment owners decide numerical values. The customizer builders project their results into RecordSheetService; preview and export must use the same builder.
 
+- ProtoMech extraction forwards the supplied pilot-SPA block built by spaSection, including designated headlines, to the existing fallback SVG renderer; canonical template/PDF SPA rendering is a separate concern.
+
 - Vehicle BV uses computeVehicleBVFromState, including structure type and chassis protection. Its inferred structure layout reuses the shared support size owner for six-side large-support hulls; explicit installed location lists and VTOL layouts take precedence. Aerospace BV uses calculateBattleValueForUnit with the original subtype, support marker, thrust, heat sinks, armor total and mounts. Neither path reads a saved BV estimate. Aerospace source BAR ratings survive editor load, persistence and custom serialization, and both preview/export callers pass them to the dispatcher. The status bar uses that same dispatcher rather than rebuilding its own incomplete BV input.
 - Small-unit preview/export callers pass the full typed source snapshot. All three sheet BV paths call calculateBattleValueForUnit; typed editor snapshots reuse the existing pure state BV owners, retaining native source protection, mount facts and field-gun ammo guards. Missing source is only the legacy partial-input compatibility path.
 - BA header tonnage follows canonical default transport weight (squad size), not suit mass. Infantry transport tonnage uses calculateInfantryTransportWeight. ProtoMech topology comes from explicit chassis/main-gun facts.

@@ -10,6 +10,7 @@
  */
 
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
+import { UnitContract, type IUnitContract } from '@/types/contracts';
 import { getWeightClass, type WeightClass } from '@/types/enums/WeightClass';
 import { getEquipmentById } from '@/utils/equipment/equipmentAggregation';
 
@@ -20,7 +21,9 @@ export interface IDetailEquipmentRow {
   readonly location: string;
 }
 
-export interface IParsedUnitFields {
+export interface IParsedUnitFields extends Readonly<
+  Pick<IUnitContract, 'quirks' | 'weaponQuirks'>
+> {
   readonly engine?: { type?: string; rating?: number };
   readonly movement?: { walkMP?: number; runMP?: number; jumpMP?: number };
   readonly armor?: Record<string, number>;
@@ -28,7 +31,6 @@ export interface IParsedUnitFields {
   readonly equipment?: IDetailEquipmentRow[];
   readonly heatSinks?: { type?: string; total?: number };
   readonly structure?: { type?: string };
-  readonly quirks?: string[];
   readonly role?: string;
 }
 
@@ -133,6 +135,9 @@ function parseHeatSinks(raw: unknown): IParsedUnitFields['heatSinks'] {
 
 export function parseUnitFields(unit: UnitData): IParsedUnitFields {
   const parsed = unit.parsedData ?? {};
+  const weaponQuirks = UnitContract.options[0].shape.weaponQuirks.safeParse(
+    parsed.weaponQuirks,
+  );
   return {
     engine: asDict(parsed.engine) as IParsedUnitFields['engine'],
     structure: asDict(parsed.structure) as IParsedUnitFields['structure'],
@@ -143,6 +148,7 @@ export function parseUnitFields(unit: UnitData): IParsedUnitFields {
     quirks: Array.isArray(parsed.quirks)
       ? (parsed.quirks as string[])
       : undefined,
+    weaponQuirks: weaponQuirks.success ? weaponQuirks.data : undefined,
     role:
       typeof parsed.role === 'string'
         ? parsed.role
