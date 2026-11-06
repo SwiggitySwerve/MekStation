@@ -7,6 +7,7 @@ import test from 'node:test';
 
 import Reporter from './renderer-memory-reporter.mjs';
 import {
+  assertCleanKernelReceipts,
   processSnapshot,
   observationPhase,
   parseKernelReceipt,
@@ -223,6 +224,101 @@ test('kernel command-exit receipt retains RSS units and native nonzero failures'
     '{"schema":"mekstation-browser-rusage/v1","maxRssKiB":-3,"exitStatus":0}',
   ])
     assert.throws(() => parseKernelReceipt(text));
+});
+
+test('job127850608699 wrapper3051 raw signal11 is a crash despite GNU-time JSON exitStatus0', () => {
+  const raw =
+    'Command terminated by signal 11\n{"schema":"mekstation-browser-rusage/v1","maxRssKiB":143516,"exitStatus":0,"wallSeconds":"172.76"}\n';
+  const receipt = parseKernelReceipt(raw);
+  assert.equal(receipt.outcome, 'CRASH');
+  assert.equal(receipt.signal, 11);
+  assert.equal(receipt.exitStatus, 0);
+  assert.equal(receipt.rawText, raw);
+  assert.throws(
+    () => assertCleanKernelReceipts([{ file: 'gates-3051.jsonl', receipt }]),
+    (error) => {
+      assert.equal(error.code, 'BROWSER_CRASH');
+      assert.equal(error.evidence.failed[0].receipt.rawText, raw);
+      return true;
+    },
+  );
+});
+
+test('missing, malformed, unknown and contradictory termination evidence fails closed with raw bytes retained', () => {
+  const clean =
+    '{"schema":"mekstation-browser-rusage/v1","maxRssKiB":143516,"exitStatus":0,"wallSeconds":"172.76"}';
+  for (const raw of [
+    '',
+    '{}',
+    clean + '\n' + clean,
+    'unrecognized evidence\n' + clean,
+    'Command terminated by signal 0\n' + clean,
+    'Command terminated by signal 65\n' + clean,
+    'Command terminated by signal 11\nCommand terminated by signal 9\n' + clean,
+    'Command exited with non-zero status 139\n' + clean,
+    '{malformed}\nCommand terminated by signal 11\n',
+  ]) {
+    assert.throws(
+      () => parseKernelReceipt(raw),
+      (error) => {
+        assert.equal(error.code, 'INVALID_KERNEL_RECEIPT');
+        assert.equal(error.evidence.rawText, raw);
+        return true;
+      },
+    );
+  }
+  const receipt = parseKernelReceipt(clean);
+  assert.equal(receipt.outcome, 'CLEAN_EXIT');
+  assert.equal(receipt.signal, null);
+  assert.doesNotThrow(() =>
+    assertCleanKernelReceipts([{ file: 'clean', receipt }]),
+  );
+  assert.throws(() => assertCleanKernelReceipts([]));
+});
+
+test('real diagnostic verifier fails on a raw signal even when JSON says zero and retains crash evidence', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'signal-receipt-'));
+  const raw =
+    'Command terminated by signal 11\n{"schema":"mekstation-browser-rusage/v1","maxRssKiB":143516,"exitStatus":0,"wallSeconds":"172.76"}\n';
+  try {
+    fs.mkdirSync(path.join(root, 'e2e-timings'));
+    fs.mkdirSync(path.join(root, 'kernel'));
+    fs.writeFileSync(
+      path.join(root, 'e2e-timings/plan-gates.json'),
+      JSON.stringify({
+        count: 136,
+        censusHash:
+          'aa0826f716f4e6a3c92679edbfd6d83e256a85e3de89c9ed631bb81c0ee1eca0',
+        shards: [{ shard: 1, tasks: [] }],
+      }),
+    );
+    fs.writeFileSync(path.join(root, 'kernel/gates-3051.jsonl'), raw);
+    const child = spawnSync(
+      process.execPath,
+      [path.resolve('scripts/playwright/renderer-memory-verify.mjs')],
+      {
+        cwd: root,
+        env: {
+          ...process.env,
+          MEKSTATION_E2E_MEMORY_ROOT: root,
+          MEKSTATION_E2E_MEMORY_SHARD_INDEX: '1',
+        },
+        stdio: ['ignore', 'pipe', 'pipe'],
+        timeout: 10000,
+      },
+    );
+    assert.equal(child.status, 1);
+    const artifact = JSON.parse(
+      fs.readFileSync(path.join(root, 'observability.json'), 'utf8'),
+    );
+    assert.equal(artifact.runtime.status, 'CRASH_OBSERVED');
+    assert.equal(artifact.runtime.evidence.failed[0].receipt.rawText, raw);
+    assert.equal(artifact.runtime.evidence.failed[0].receipt.exitStatus, 0);
+    assert.equal(artifact.stabilityClearance, false);
+  } finally {
+    assert.ok(root.startsWith(path.resolve(os.tmpdir()) + path.sep));
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test('control descendant VmHWM is independent of the browser main process maxrss', () => {

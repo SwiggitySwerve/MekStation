@@ -5,6 +5,7 @@ import path from 'node:path';
 
 import { collectTests, assertSameTests } from './ci-e2e-plan.mjs';
 import {
+  assertCleanKernelReceipts,
   parseKernelReceipt,
   verifyRendererCoverage,
 } from './renderer-memory.mjs';
@@ -27,15 +28,23 @@ function audit() {
   const kernels = fs.readdirSync(kernelDirectory).map((file) => {
     const match = /^(gates|library|smoke)-(\d+)\.jsonl$/.exec(file);
     assert.ok(match, `Unexpected kernel receipt ${file}`);
+    let receipt;
+    try {
+      receipt = parseKernelReceipt(
+        fs.readFileSync(path.join(kernelDirectory, file), 'utf8'),
+      );
+    } catch (error) {
+      error.evidence = { ...error.evidence, file };
+      throw error;
+    }
     return {
       file,
       suite: match[1],
       wrapperPid: Number(match[2]),
-      receipt: parseKernelReceipt(
-        fs.readFileSync(path.join(kernelDirectory, file), 'utf8'),
-      ),
+      receipt,
     };
   });
+  assertCleanKernelReceipts(kernels);
   const rows = fs
     .readdirSync(root)
     .filter((f) => /^(gates|library|smoke)-\d+\.jsonl$/.test(f))
@@ -99,13 +108,28 @@ function audit() {
 try {
   audit();
 } catch (error) {
+  const crash =
+    error.code === 'BROWSER_CRASH' ||
+    error.evidence?.signals?.some((n) => n > 0 && n <= 64);
   fs.mkdirSync(root, { recursive: true });
   fs.writeFileSync(
     path.join(root, 'observability.json'),
     JSON.stringify(
       {
         schema: 'mekstation-renderer-observability/v1',
-        coverage: { status: 'NOT_OBSERVABLE', error: error.message },
+        coverage: {
+          status: crash ? 'NOT_EVALUATED' : 'NOT_OBSERVABLE',
+          error: error.message,
+        },
+        runtime: {
+          status: crash
+            ? 'CRASH_OBSERVED'
+            : error.code === 'BROWSER_EXIT_FAILURE'
+              ? 'NONZERO_EXIT'
+              : 'UNKNOWN',
+          code: error.code ?? null,
+          evidence: error.evidence ?? null,
+        },
         stabilityClearance: false,
       },
       null,

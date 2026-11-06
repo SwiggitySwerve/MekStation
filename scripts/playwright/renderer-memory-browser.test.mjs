@@ -6,7 +6,10 @@ import path from 'node:path';
 import test from 'node:test';
 
 import { writeBrowserWrapper } from './renderer-memory-browser.mjs';
-import { parseKernelReceipt } from './renderer-memory.mjs';
+import {
+  assertCleanKernelReceipts,
+  parseKernelReceipt,
+} from './renderer-memory.mjs';
 
 test('wrapper requires absolute owned output and executable paths', () => {
   assert.throws(() =>
@@ -50,10 +53,10 @@ test(
         args,
       );
       const file = path.join(root, 'kernel', `probe-${child.pid}.jsonl`);
-      assert.equal(
-        parseKernelReceipt(fs.readFileSync(file, 'utf8')).exitStatus,
-        11,
-      );
+      const receipt = parseKernelReceipt(fs.readFileSync(file, 'utf8'));
+      assert.equal(receipt.exitStatus, 11);
+      assert.equal(receipt.outcome, 'NONZERO_EXIT');
+      assert.throws(() => assertCleanKernelReceipts([{ file, receipt }]));
     } finally {
       assert.ok(root.startsWith(path.resolve(os.tmpdir()) + path.sep));
       fs.rmSync(root, { recursive: true, force: true });

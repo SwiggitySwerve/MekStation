@@ -178,25 +178,92 @@ export function observationPhase(test, step, edge) {
 }
 
 export function parseKernelReceipt(text) {
-  const rows = text
-    .split('\n')
-    .filter((line) => line.startsWith('{'))
-    .map((line) => JSON.parse(line));
-  const row = rows.find((x) => x.schema === 'mekstation-browser-rusage/v1');
+  const lines = text
+    .split(/\r?\n/)
+    .map((x) => x.trim())
+    .filter(Boolean)
+    .map((line) => ({
+      line,
+      signal: /^Command terminated by signal (\d+)(?: \(core dumped\))?$/.exec(
+        line,
+      ),
+      nonzero: /^Command exited with non-zero status (\d+)$/.exec(line),
+    }));
+  const evidence = {
+    rawText: text,
+    signals: lines.filter((x) => x.signal).map((x) => Number(x.signal[1])),
+    nonzeroStatuses: lines
+      .filter((x) => x.nonzero)
+      .map((x) => Number(x.nonzero[1])),
+    rows: [],
+  };
+  const invalid = (message) => {
+    throw Object.assign(new Error(message), {
+      code: 'INVALID_KERNEL_RECEIPT',
+      evidence,
+    });
+  };
+  for (const { line, signal, nonzero } of lines) {
+    if (signal || nonzero) continue;
+    if (line.startsWith('{')) {
+      try {
+        evidence.rows.push(JSON.parse(line));
+      } catch {
+        invalid('Malformed kernel receipt JSON');
+      }
+    } else invalid('Unknown kernel receipt evidence');
+  }
+  const row = evidence.rows[0];
   if (
-    !row ||
+    evidence.rows.length !== 1 ||
+    row?.schema !== 'mekstation-browser-rusage/v1' ||
     !Number.isSafeInteger(row.maxRssKiB) ||
     row.maxRssKiB <= 0 ||
+    !Number.isSafeInteger(row.maxRssKiB * 1024) ||
     !Number.isInteger(row.exitStatus) ||
-    row.exitStatus < 0
+    row.exitStatus < 0 ||
+    row.exitStatus > 255 ||
+    evidence.signals.length > 1 ||
+    evidence.signals.some((n) => !Number.isInteger(n) || n < 1 || n > 64) ||
+    evidence.nonzeroStatuses.length > 1 ||
+    evidence.nonzeroStatuses.some((n) => n < 1 || n !== row.exitStatus) ||
+    (evidence.signals.length > 0 && evidence.nonzeroStatuses.length > 0)
   )
-    throw new Error('Kernel browser exit RSS/exit status missing or invalid');
+    invalid('Kernel browser evidence missing, invalid or contradictory');
   return {
     ...row,
+    rawText: text,
+    signal: evidence.signals[0] ?? null,
+    outcome: evidence.signals.length
+      ? 'CRASH'
+      : row.exitStatus === 0
+        ? 'CLEAN_EXIT'
+        : 'NONZERO_EXIT',
     browserMainMaxRssBytes: row.maxRssKiB * 1024,
     scope: 'browser-main-process',
     meaning: BROWSER_MAIN_MAXRSS_MEANING,
   };
+}
+
+export function assertCleanKernelReceipts(kernels) {
+  if (!kernels.length)
+    throw Object.assign(new Error('Kernel termination evidence missing'), {
+      code: 'INVALID_KERNEL_RECEIPT',
+      evidence: { kernels },
+    });
+  const failed = kernels.filter((k) => k.receipt.outcome !== 'CLEAN_EXIT');
+  if (failed.length)
+    throw Object.assign(
+      new Error('Browser termination evidence is not clean'),
+      {
+        code: failed.some((k) => k.receipt.outcome === 'CRASH')
+          ? 'BROWSER_CRASH'
+          : failed.some((k) => k.receipt.outcome === 'NONZERO_EXIT')
+            ? 'BROWSER_EXIT_FAILURE'
+            : 'INVALID_KERNEL_RECEIPT',
+        evidence: { kernels, failed },
+      },
+    );
 }
 
 export function verifyRendererCoverage(rows, kernels) {
