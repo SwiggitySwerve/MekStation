@@ -4,6 +4,33 @@ This package owns ProtoMech construction calculations. Consumers use its public
 barrel. The engine-rating rule below is verified independently; other existing
 rules in this package do not acquire that verification by sharing an owner.
 
+## Weapon BV diagnostic projection
+
+`calculateProtoOffensive` retains optional `weaponMountBV` facts beside the
+existing weapon addition. Each fact snapshots the already-admitted resolved
+value, local equipment index/id and supplied public input location. The
+misc-first exclusion, classifier/resolver guards, mounted order, full main-gun
+value, exact-key ammo policy and every arithmetic operation remain unchanged.
+No second resolver call, quantity expansion, rounding or modifier is introduced.
+An unarmed input has no optional list; legacy breakdowns remain accepted.
+
+`protoMechBVTerms` formats those values at known native locations. Pinned
+MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`BVCalculator.java:702-727,803` owns the inherited weapon pass and per-mount
+valuation; `ProtoMekBVCalculator.java:40-63` has no weapon-pass override.
+`ProtoMek.java:87-89` supplies HD/T/RA/LA/L/MG abbreviations. Unknown and
+quad-only input locations remain unprojected with their original facts retained.
+Native Body is not represented by the public BV input; the trace never infers
+it from source syntax or changes the handler's existing location policy.
+
+`weapon.<localEquipmentIndex>.<locationAbbreviation>.<equipmentId>` keys do
+not assert native equipment indices or identities. The existing comparator
+compares each location's count and descending per-mount values. Source mounts
+and their order remain intact. Absent, unresolved, defensive, ammo, miscellaneous
+and zero-valued non-weapon equipment do not create weapon facts or synthetic
+zeros. Ammo and miscellaneous term omissions remain separate. This projection
+does not establish complete construction validity, weight or equipment parity.
+
 ## Offensive BV movement
 
 At MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,

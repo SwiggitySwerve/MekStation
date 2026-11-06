@@ -32,6 +32,14 @@ export interface IAerospaceBVBreakdown {
   readonly final: number;
 }
 
+/** Already-admitted weapon value; indices/ids belong to the local input. */
+export interface IProtoMechBVWeaponMount {
+  readonly equipmentIndex: number;
+  readonly equipmentId: string;
+  readonly location: string;
+  readonly battleValue: number;
+}
+
 export interface IProtoMechBVBreakdown {
   readonly defensiveBV: number;
   readonly offensiveBV: number;
@@ -49,6 +57,8 @@ export interface IProtoMechBVBreakdown {
   readonly defensiveFactor: number;
 
   readonly weaponBV: number;
+  /** Optional diagnostic snapshot; absent when no weapon was admitted. */
+  readonly weaponMountBV?: readonly IProtoMechBVWeaponMount[];
   readonly ammoBV: number;
   /** Always zero: ProtoMech offense has no weight-only contribution. */
   readonly physicalWeaponBV: number;
