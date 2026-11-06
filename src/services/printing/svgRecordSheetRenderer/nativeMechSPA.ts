@@ -3,7 +3,7 @@ import type { ISPASectionData } from '../recordsheet/spaSection';
 import { SVG_NS } from './constants';
 
 /**
- * Single-pilot biped/quad placement, not a new SPA resolver or crew-slot model.
+ * Single-pilot biped/quad/LAM placement, not a new SPA resolver or crew-slot model.
  * @spec openspec/changes/establish-all-unit-data-parity/specs/record-sheet-export/spec.md
  * MML 62bf193: PrintEntity.java:537-550; PrintRecordSheet.java:1084-1143.
  * Native overflow is deliberate parity: no clipping, cap or extra shrink.

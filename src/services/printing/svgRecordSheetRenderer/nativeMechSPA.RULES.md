@@ -1,7 +1,7 @@
-# Native single-pilot biped and quad SPA placement
+# Native single-pilot biped, quad and LAM SPA placement
 
-`nativeMechSPA` owns presentation fitting for the existing single-pilot biped
-and quad payloads only. `recordsheet/spaSection.buildSPASection` remains the sole ability
+`nativeMechSPA` owns presentation fitting for the existing single-pilot biped,
+quad and LAM payloads only. `recordsheet/spaSection.buildSPASection` remains the sole ability
 resolver, sorter and designation formatter. The native list uses those formatted
 headlines; it does not implement Java PilotOptions, strip local designations, or
 change assignment/persistence. Other Mech configurations retain their legacy
@@ -27,6 +27,12 @@ Pinned MegaMekLab `62bf19360382049e2e6a1e8f24e859e27bdc5878`:
   `writeTextFields` at line287 calls the common PrintEntity fitting path.
   Both paper formats reserve `spas0` in the transformed pilot panel. This
   single-pilot model does not select `spas1` or add native crew-slot support.
+- The same PrintMek selector chooses `mek_lam_default.svg` for LAM. Its native
+  `spas0` has y76 on Letter/A4, while biped/quad use y52; the fitter reads the
+  actual rectangle and parent transform rather than sharing coordinates. LAM
+  support here remains single-pilot only. Tripod/QuadVee stay required gaps under
+  rows4.1/4.3 until Q-PILOT supplies genuine native crew-slot identity; no slots
+  are inferred from the one-pilot payload.
 - [PrintRecordSheet.java:1411-1423](https://github.com/MegaMek/megameklab/blob/62bf19360382049e2e6a1e8f24e859e27bdc5878/megameklab/src/megameklab/printing/PrintRecordSheet.java#L1411):
   normal vs italic width measurement matters. Browser output uses actual canvas
   font metrics and the same typeface for its SVG text. Java/browser glyph metrics
@@ -37,7 +43,7 @@ new geometry is invented. Long native lists include all supported headlines;
 legacy descriptions, six-entry cap and `+N more` belong to the unchanged legacy
 layout. The data owner's entries remain unchanged.
 
-Enforcement: `mechPilotSPA.test.ts` checks biped/quad serialized SVG geometry, both paper
+Enforcement: `mechPilotSPA.test.ts` checks biped/quad/LAM serialized SVG geometry, both paper
 formats, designated headlines, unchanged sheet fields, native long-list/token
 overflow, missing/empty inputs and legacy configuration behavior. Full-template
 Chromium/PDF proof is recorded separately; DOM tests do not establish pixel or

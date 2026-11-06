@@ -11,6 +11,7 @@ const papers = [
     paper: PaperSize.LETTER,
     width: 576,
     height: 756,
+    regionY: 52,
     regionWidth: 142.60001,
     transform: 'translate(234.366,87.857)',
   },
@@ -18,6 +19,7 @@ const papers = [
     paper: PaperSize.A4,
     width: 559,
     height: 806,
+    regionY: 52,
     regionWidth: 138.067,
     transform: 'translate (226.600,86.359)',
   },
@@ -70,7 +72,11 @@ const data: IMechRecordSheetData = {
 };
 
 const nativeCases = papers.flatMap((paper) =>
-  (['biped', 'quad'] as const).map((mechType) => ({ ...paper, mechType })),
+  (['biped', 'quad', 'lam'] as const).map((mechType) => ({
+    ...paper,
+    mechType,
+    regionY: mechType === 'lam' ? 76 : paper.regionY,
+  })),
 );
 
 describe('single-pilot native Mech SPA output', () => {
@@ -97,7 +103,7 @@ describe('single-pilot native Mech SPA output', () => {
     paper = papers[0],
     withRegion = true,
   ): Promise<Document> {
-    const template = `<svg xmlns="http://www.w3.org/2000/svg" width="${paper.width}" height="${paper.height}"><text id="type"/><text id="bv"/><g id="pilot-panel" transform="${paper.transform}">${withRegion ? `<rect id="spas0" x="0" y="52" width="${paper.regionWidth}" height="13.5" fill="none"/>` : ''}</g></svg>`;
+    const template = `<svg xmlns="http://www.w3.org/2000/svg" width="${paper.width}" height="${paper.height}"><text id="type"/><text id="bv"/><g id="pilot-panel" transform="${paper.transform}">${withRegion ? `<rect id="spas0" x="0" y="${paper.regionY}" width="${paper.regionWidth}" height="13.5" fill="none"/>` : ''}</g></svg>`;
     jest.spyOn(global, 'fetch').mockResolvedValue({
       ok: true,
       text: async () => template,
@@ -126,7 +132,10 @@ describe('single-pilot native Mech SPA output', () => {
       expect(line.getAttribute('font-style')).toBe('italic');
       expect(Number(line.getAttribute('font-size'))).toBeCloseTo(6.084, 5);
       expect(Number(line.getAttribute('x'))).toBe(0);
-      expect(Number(line.getAttribute('y'))).toBeCloseTo(52 + 6.084 * 1.2, 5);
+      expect(Number(line.getAttribute('y'))).toBeCloseTo(
+        paper.regionY + 6.084 * 1.2,
+        5,
+      );
       const without = await render(
         { ...data, mechType: paper.mechType, specialAbilities: [] },
         paper,
@@ -160,13 +169,13 @@ describe('single-pilot native Mech SPA output', () => {
           5,
         );
         expect(Number(line.getAttribute('y'))).toBeCloseTo(
-          52 + (13.5 / 2.4) * 1.2 * (i + 1),
+          paper.regionY + (13.5 / 2.4) * 1.2 * (i + 1),
           5,
         );
         expect(line.hasAttribute('textLength')).toBe(false);
       }
       expect(Number(lines.at(-1)!.getAttribute('y'))).toBeGreaterThan(
-        52 + 13.5,
+        paper.regionY + 13.5,
       );
       expect(doc.querySelector('clipPath')).toBeNull();
     },
