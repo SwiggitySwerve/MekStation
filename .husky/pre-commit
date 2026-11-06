@@ -7,4 +7,6 @@
 # the root and scoped scripts projects. The hook runs no production build; the
 # pr-checks workflow runs `npm run build` for code changes.
 
-npx lint-staged
+npx lint-staged || exit $?
+# Reject ignored-parent restaging failures even if lint-staged returned zero.
+node scripts/lib/check-staged-parents.mjs
