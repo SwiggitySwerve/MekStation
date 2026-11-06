@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { getEquipmentLookupService } from '@/services/equipment/EquipmentLookupService';
 import { getEquipmentRegistry } from '@/services/equipment/EquipmentRegistry';
 import { MechLocation } from '@/types/construction/CriticalSlotAllocation';
+import { createAmmoWeaponMatcher } from '@/utils/equipment/ammunitionCompatibility';
 
 import { UnitLoaderService } from '../unitLoader';
 
@@ -52,3 +53,17 @@ it('mounts Prometheus machine guns as Clan on their CLMG crits', () => {
       ['clan-machine-gun', 0.25, [9]],
     ]);
 });
+
+// Minsk MNK-101 feeds its Clan machine guns from "Clan Machine Gun Ammo - Full",
+// which loads ammo-mg-full. Java matches ammo to a weapon by ammo type and rack
+// size (AmmoType.java:17147-17155): that bin is MG / rack 2 (AmmoType.java:
+// 6626-6627), as are CLMG (MGWeapon.java:62, CLMG.java:64) and ISMG
+// (ISMG.java:66). The full bin listed no weapons, so a Clan gun found no ammo.
+it.each(['machine-gun', 'clan-machine-gun'])(
+  'feeds %s from the full machine gun ammo bin',
+  (weaponId) => {
+    const catalog = getEquipmentLookupService().getAllEquipment();
+    const bin = getEquipmentLookupService().getById('ammo-mg-full');
+    expect(bin && createAmmoWeaponMatcher([weaponId], catalog)(bin)).toBe(true);
+  },
+);
