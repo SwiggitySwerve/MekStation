@@ -1,6 +1,8 @@
 /** One strict pinned-source BV comparator. See unit-bv-parity.md for the contract. */
 import { z } from 'zod';
 
+import type { IUnitValidateResult } from '../src/types/unit/UnitTypeHandler';
+
 import stages from './megameklab-conversion/java-reference/bv-stages.json';
 
 export const FAMILIES = [
@@ -37,6 +39,7 @@ export interface IFigure {
   calculationScope?: 'defensive-only';
 }
 export interface IComputedRow {
+  constructionValidity?: IUnitValidateResult | { failure: string };
   path: string;
   sha256: string;
   figure?: IFigure;
