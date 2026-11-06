@@ -201,6 +201,18 @@ Critical lookup also removes a trailing Mek turret marker `(T)` after the OmniPo
 Flail and Wrecking Ball use the shared formula owner for fixed mass and slots
 (MiscType.java:4017-4021,7869-7878, pin 48fcb2f64).
 
+Native `claw` keeps its catalog identity and is classified as physical at the
+equipment lookup boundary (MiscType.java:3982-3992). It shares one sizing formula
+with legacy `claws`: ceil(T/15) mass and nominal criticals, ceil(T\*200) cost
+(688-689,1000-1001,1259-1260; pin 48fcb2f64). Public physical sizing helpers use
+that owner. Crit-only Claws reuse ordinary physical recovery and the shared
+superheavy consumed-entry conversion; existing mounts are reserved first.
+The critical-slot join treats native `claw` and legacy `claws` as that same Java
+type, while retaining the already mounted ID and its exact-ID sizing override.
+The shared recovery branch passes the recovered item's actual ammo category to
+the slot join. LAM bomb bays are miscellaneous mounts (MiscType.java:12413-12420),
+so they must retain the non-ammo side of that join.
+
 Talons sizing is one ceil(T/15) mass with four biped or eight quad criticals
 (MiscType.java:688-689,1256-1258,4314; pin 48fcb2f64). Recovery must preserve one
 spreadable mount across every native leg location, without charging mass per leg.

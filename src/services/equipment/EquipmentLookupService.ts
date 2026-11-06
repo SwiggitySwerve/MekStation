@@ -255,10 +255,14 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         continue;
       }
 
+      const isNativeClaw = misc.id === 'claw';
       const item: IEquipmentItem = {
         id: misc.id,
         name: misc.name,
-        category: EquipmentCategory.MISC_EQUIPMENT,
+        // MiscType.java:3982-3992 gives the native Claw the physical-weapon flag.
+        category: isNativeClaw
+          ? EquipmentCategory.PHYSICAL_WEAPON
+          : EquipmentCategory.MISC_EQUIPMENT,
         techBase: misc.techBase,
         rulesLevel: misc.rulesLevel,
         weight: misc.weight,
@@ -268,7 +272,7 @@ export class EquipmentLookupService implements IEquipmentLookupService {
         introductionYear: misc.introductionYear,
         extinctionYear: misc.extinctionYear,
         reintroductionYear: misc.reintroductionYear,
-        variableEquipmentId: misc.variableEquipmentId,
+        variableEquipmentId: isNativeClaw ? misc.id : misc.variableEquipmentId,
       };
       items.push(item);
       // Retain these definitions for resolution without expanding the existing
