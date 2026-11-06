@@ -9,9 +9,20 @@ import type { IUnitValidateResult } from '../src/types/unit/UnitTypeHandler';
 import { BlkParserService } from '../src/services/conversion/BlkParserService';
 import { BattleArmorUnitHandler } from '../src/services/units/handlers/BattleArmorUnitHandler';
 import { InfantryUnitHandler } from '../src/services/units/handlers/InfantryUnitHandler';
+import {
+  areHandlersInitialized,
+  initializeUnitTypeHandlers,
+} from '../src/services/units/handlers/initializeHandlers';
 import { ProtoMechUnitHandler } from '../src/services/units/handlers/ProtoMechUnitHandler';
-import { UnitTypeRegistry } from '../src/services/units/UnitTypeRegistry';
+import {
+  getUnitTypeRegistry,
+  UnitTypeRegistry,
+} from '../src/services/units/UnitTypeRegistry';
 import { UnitContract } from '../src/types/contracts/generated/unit.zod';
+import {
+  getUnitCategory,
+  UnitCategory,
+} from '../src/types/unit/UnitTypeHandler';
 import { battleArmorBVTerms } from '../src/utils/construction/battlearmor/battleArmorBV';
 import { calculateBattleValueForUnit } from '../src/utils/construction/battleValueCalculations';
 import {
@@ -239,6 +250,33 @@ export function calculateRow(
     return { path: input.path, sha256: input.sha256, reason: String(error) };
   }
 }
+function captureVehicleValidity(
+  bytes: Buffer,
+): NonNullable<IComputedRow['constructionValidity']> {
+  return captureConstructionValidity(() => {
+    let stage = 'vehicle-source-parser';
+    try {
+      const document = new BlkParserService().parse(bytes.toString('utf8'));
+      if (!document.success) throw new Error(JSON.stringify(document.error));
+      stage = 'vehicle-handler-unavailable';
+      if (!areHandlersInitialized()) initializeUnitTypeHandlers();
+      const handler = getUnitTypeRegistry().getHandlerForDocument(
+        document.data.document,
+      );
+      if (!handler) throw new Error(document.data.document.unitType);
+      stage = 'vehicle-out-of-scope';
+      if (getUnitCategory(handler.unitType) !== UnitCategory.VEHICLE)
+        throw new Error(`Public handler category: ${handler.category}`);
+      stage = 'vehicle-handler-parser';
+      const parsed = handler.parse(document.data.document);
+      if (!parsed.success) throw new Error(JSON.stringify(parsed.error));
+      stage = 'vehicle-validator';
+      return handler.validate(parsed.data.unit);
+    } catch (error) {
+      throw new Error(`${stage}: ${String(error)}`);
+    }
+  });
+}
 export function calculateSources(
   raws: readonly unknown[],
   mekfiles: string,
@@ -250,7 +288,8 @@ export function calculateSources(
     const relative = path.relative(mekfiles, file);
     if (relative.startsWith('..') || path.isAbsolute(relative))
       throw new Error(`Source escapes pin: ${row.path}`);
-    const hash = sourceHash(fs.readFileSync(file));
+    const bytes = fs.readFileSync(file);
+    const hash = sourceHash(bytes);
     if (hash !== row.sha256)
       throw new Error(`Source hash mismatch: ${row.path}`);
     if (
@@ -258,7 +297,12 @@ export function calculateSources(
       sourceHash(Buffer.from(row.sourceText)) !== hash
     )
       throw new Error(`Source text hash mismatch: ${row.path}`);
-    return calculateRow(row, includeConstruction);
+    const computed = calculateRow(row, includeConstruction);
+    return includeConstruction &&
+      computed.constructionValidity === undefined &&
+      row.path.endsWith('.blk')
+      ? { ...computed, constructionValidity: captureVehicleValidity(bytes) }
+      : computed;
   });
 }
 export function writeDeltaReport(

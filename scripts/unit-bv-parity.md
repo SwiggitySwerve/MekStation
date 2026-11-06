@@ -253,8 +253,18 @@ their previous meaning. Missing quantities never become neutral values.
 Add `--construction-validity` to the guarded serial comparator with a P1
 `--construction-terms` reference. The same source calculation writes separate
 `construction-validity-report.json` and `construction-validity-rows.jsonl`.
-It compares actual BA, infantry and ProtoMech handler validation results,
-including invalid designs and diagnostics. Other local-family projections,
+It compares actual BA, infantry, ProtoMech and vehicle handler validation
+results, including invalid designs and diagnostics. Vehicle validity uses the
+same pinned Buffer already read and hash-checked by `calculateSources`, parsed
+through the public BLK parser, initialized registry, selected handler and its
+public category. It never reconstructs validation input from converted BV JSON.
+`FixedWingSupport` under `vehicles/` routes to aerospace and is explicitly
+out of vehicle scope; a folder name never supplies vehicle classification.
+Existing BA/infantry/ProtoMech facts remain intact. Other uncomputed BLK
+categories, parser/handler failures and validator exceptions remain explicit
+staged failure facts; uncomputed MTF validity remains missing. Successful parsing
+with `isValid:false` retains invalidity and all returned errors/warnings/infos.
+Registry/validation work runs only with the opt-in flag. Other local-family projections,
 weight terms/totals, verifier quantities and settings remain explicit gaps;
 reference weight maps marked unsupported retain their reasons; infantry's
 decomposition is applicable but not instrumented. `ok` is scoped to
@@ -264,3 +274,10 @@ existing BV report bytes and calculation paths retain their previous contract.
 Runtime/BV mode/settings mismatches use the independent policy/actual-evidence
 boundary and explicit enforcement mode above. This does not compare local
 construction weights or instrument previously absent crew/network facts.
+
+This vehicle slice does not fix domain mismatches. Its proof records the actual
+integrated validator/input head, including any landed source changes. If P3's
+`#2870` modernization remains draft at that proof, complete row 3.4 acceptance
+still needs a later comparison including its final merged validators. Historical
+failed proofs are not waived. Exact BV, successful loading and report presence
+do not establish validity, weight, quantities, settings or complete row 3.4.

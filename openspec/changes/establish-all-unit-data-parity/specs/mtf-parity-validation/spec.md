@@ -11,6 +11,15 @@ Parity reports SHALL account for every pinned source definition and archive memb
 - **THEN** family readiness SHALL fail
 - **AND** deferred/skipped checks SHALL NOT count as passing comparisons
 
+#### Scenario: Compare vehicle validity through the public source handler
+
+- **GIVEN** actual pinned source bytes and opt-in source validity comparison
+- **WHEN** the initialized public registry selects a handler
+- **THEN** its public category SHALL determine whether vehicle validation is in scope, including exclusion of aerospace-routed FixedWingSupport regardless of source folder
+- **AND** successful parsing with invalid construction SHALL retain the validator's invalid result and diagnostics separately from parser, handler and validator failures
+- **AND** unsupported or out-of-scope inputs SHALL remain explicit without a fabricated vehicle validity result
+- **AND** default and opt-in BV numerical reports SHALL remain byte-identical
+
 ### Requirement: Reproducible loaded-entity references
 
 References SHALL come from a demonstrably compatible pinned MegaMek/MegaMekLab runtime with recorded artifacts, source hashes, concrete entity identity, verifier/BV outputs and calculation settings. Parser failures, unresolved equipment, invalid construction and inapplicable metrics SHALL be separate.

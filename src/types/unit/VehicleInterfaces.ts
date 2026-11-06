@@ -92,7 +92,15 @@ export interface IVehicleMountedEquipment extends IUnitMountedEquipmentIdentity 
 /**
  * Interface for combat vehicles (tanks, APCs, etc.)
  */
-export interface IVehicle extends IGroundUnit, IVehicleTurretSourceContext {
+export interface IVehicleIntroductionSourceContext {
+  /** Native source build year may satisfy equipment introduction dates. */
+  readonly originalBuildYear?: number;
+}
+export interface IVehicle
+  extends
+    IGroundUnit,
+    IVehicleTurretSourceContext,
+    IVehicleIntroductionSourceContext {
   /** Installed non-placeholder layout locations from the source. */
   readonly structureLocations?: readonly string[];
   /** Loaded BLK engine construction flag, independent of chassis tech base. */
@@ -223,7 +231,8 @@ export enum SupportVehicleSizeClass {
 /**
  * Interface for support vehicles (civilian/non-combat vehicles)
  */
-export interface ISupportVehicle extends IGroundUnit {
+export interface ISupportVehicle
+  extends IGroundUnit, IVehicleIntroductionSourceContext {
   readonly structureLocations?: readonly string[];
   readonly internalStructureType?: number;
   readonly unitType: UnitType.SUPPORT_VEHICLE;
