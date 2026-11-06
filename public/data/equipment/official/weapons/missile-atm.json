@@ -16,7 +16,7 @@
       "ammoPerTon": 20,
       "costCBills": 50000,
       "battleValue": 53,
-      "introductionYear": 3053,
+      "introductionYear": 3047,
       "special": ["Multiple ammo types"]
     },
     {
@@ -35,7 +35,7 @@
       "ammoPerTon": 10,
       "costCBills": 125000,
       "battleValue": 105,
-      "introductionYear": 3053,
+      "introductionYear": 3047,
       "special": ["Multiple ammo types"]
     },
     {
@@ -54,7 +54,7 @@
       "ammoPerTon": 7,
       "costCBills": 225000,
       "battleValue": 147,
-      "introductionYear": 3053,
+      "introductionYear": 3047,
       "special": ["Multiple ammo types"]
     },
     {
@@ -73,7 +73,7 @@
       "ammoPerTon": 5,
       "costCBills": 350000,
       "battleValue": 212,
-      "introductionYear": 3053,
+      "introductionYear": 3047,
       "special": ["Multiple ammo types"]
     },
     {
@@ -191,7 +191,7 @@
       "ammoPerTon": 20,
       "costCBills": 50000,
       "battleValue": 83,
-      "introductionYear": 3070,
+      "introductionYear": 3049,
       "special": ["iatm"]
     },
     {
@@ -209,7 +209,7 @@
       "ammoPerTon": 10,
       "costCBills": 250000,
       "battleValue": 165,
-      "introductionYear": 3070,
+      "introductionYear": 3049,
       "special": ["iatm"]
     },
     {
@@ -227,7 +227,7 @@
       "ammoPerTon": 7,
       "costCBills": 450000,
       "battleValue": 231,
-      "introductionYear": 3070,
+      "introductionYear": 3049,
       "special": ["iatm"]
     },
     {
@@ -245,7 +245,7 @@
       "ammoPerTon": 5,
       "costCBills": 700000,
       "battleValue": 333,
-      "introductionYear": 3070,
+      "introductionYear": 3049,
       "special": ["iatm"]
     }
   ],
