@@ -61,7 +61,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
       "costCBills": 95000,
       "battleValue": 34,
-      "introductionYear": 3070,
+      "introductionYear": 3065,
       "special": []
     },
     {
@@ -85,7 +85,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 3 },
       "costCBills": 133000,
       "battleValue": 49,
-      "introductionYear": 3070,
+      "introductionYear": 3065,
       "special": []
     },
     {
@@ -109,7 +109,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 4 },
       "costCBills": 175000,
       "battleValue": 66,
-      "introductionYear": 3070,
+      "introductionYear": 3065,
       "special": []
     },
     {
@@ -299,7 +299,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 6 },
       "costCBills": 400000,
       "battleValue": 267,
-      "introductionYear": 3062,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -323,7 +323,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 8 },
       "costCBills": 500000,
       "battleValue": 401,
-      "introductionYear": 3062,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -347,7 +347,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 10 },
       "costCBills": 600000,
       "battleValue": 535,
-      "introductionYear": 3062,
+      "introductionYear": 3057,
       "special": []
     },
     {
@@ -1019,7 +1019,7 @@
       "vehicleSlots": { "tank": 0, "supportVehicle": 1 },
       "costCBills": 750,
       "battleValue": 0,
-      "introductionYear": 2800,
+      "introductionYear": 2795,
       "special": []
     },
     {
