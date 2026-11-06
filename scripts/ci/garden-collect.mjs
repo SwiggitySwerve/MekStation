@@ -1,6 +1,12 @@
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { isDeepStrictEqual } from 'node:util';
 
+import { verifyArtifactProducer } from './garden-producer-provenance.mjs';
+import {
+  collectSourceHeadRun,
+  SOURCE_WORKFLOW_PATH,
+} from './garden-run-provenance.mjs';
 import { DAY_MS } from './garden-week.mjs';
 
 export function decodeObservationArtifact(bytes, filename) {
@@ -29,6 +35,8 @@ export async function collectGardenObservations({
   repo,
   now,
   validateObservation,
+  collectRun,
+  workflowGraphFromSource,
   decode = decodeObservationArtifact,
 }) {
   const cutoff = Math.floor(Date.parse(now) / DAY_MS) * DAY_MS - 14 * DAY_MS;
@@ -41,11 +49,16 @@ export async function collectGardenObservations({
     github.rest.actions.listArtifactsForRepo,
     { owner, repo, per_page: 100 },
   );
-  const recent = artifacts.filter(
-    (artifact) =>
-      /^ci-observation-[1-9]\d*-[1-9]\d*\.json$/.test(artifact.name) &&
-      Date.parse(artifact.created_at) >= cutoff,
-  );
+  const recent = artifacts.filter((artifact) => {
+    if (!/^ci-observation-[1-9]\d*-[1-9]\d*\.json$/.test(artifact.name))
+      return false;
+    const created = Date.parse(artifact.created_at);
+    if (typeof artifact.created_at !== 'string' || !Number.isFinite(created)) {
+      diagnostics.push(`Artifact ${artifact.id}: invalid creation timestamp`);
+      return false;
+    }
+    return created >= cutoff;
+  });
   if (recent.length > 500)
     throw new Error(
       'Observation collection exceeds 500 artifacts; narrow producer retention',
@@ -57,8 +70,6 @@ export async function collectGardenObservations({
       const [, runId, attempt] = artifact.name
         .match(/^ci-observation-(\d+)-(\d+)\.json$/)
         .map(Number);
-      if (artifact.workflow_run?.id !== runId)
-        throw new Error('Artifact/run identity mismatch');
       const { data: run } = await github.rest.actions.getWorkflowRunAttempt({
         owner,
         repo,
@@ -70,7 +81,8 @@ export async function collectGardenObservations({
         run.event !== 'push' ||
         run.head_branch !== metadata.default_branch ||
         run.head_repository?.full_name !== metadata.full_name ||
-        run.path?.split('@')[0] !== '.github/workflows/pr-checks.yml'
+        run.status !== 'completed' ||
+        run.path?.split('@')[0] !== SOURCE_WORKFLOW_PATH
       )
         continue;
       const { data: archive } = await github.rest.actions.downloadArtifact({
@@ -93,10 +105,34 @@ export async function collectGardenObservations({
         id.branch !== run.head_branch ||
         id.conclusion !== run.conclusion ||
         run.id !== runId ||
-        run.run_attempt !== attempt ||
-        artifact.workflow_run.head_sha !== run.head_sha
+        run.run_attempt !== attempt
       )
         throw new Error('Observation provenance differs from live attempt');
+      const fresh = await collectSourceHeadRun({
+        github,
+        owner,
+        repo,
+        run,
+        workflowPath: SOURCE_WORKFLOW_PATH,
+        collectRun,
+        workflowGraphFromSource,
+      });
+      if (!isDeepStrictEqual(envelope.observation, fresh.observation))
+        throw new Error(
+          'Artifact observation differs from fresh source-head API normalization',
+        );
+      const producer = await verifyArtifactProducer({
+        github,
+        owner,
+        repo,
+        metadata,
+        artifact,
+        envelope,
+        sourceRun: run,
+        sourceObservation: fresh.observation,
+        collectRun,
+        workflowGraphFromSource,
+      });
       envelopes.push(envelope);
       sources.push({
         artifactId: artifact.id,
@@ -104,6 +140,9 @@ export async function collectGardenObservations({
         runId,
         attempt,
         headSha: id.headSha,
+        completedAt: id.completedAt,
+        workflowBlobSha: fresh.workflowBlobSha,
+        producer,
       });
     } catch (error) {
       diagnostics.push(`Artifact ${artifact.id}: ${error.message}`);
