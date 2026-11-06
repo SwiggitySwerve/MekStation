@@ -105,6 +105,10 @@ mismatched cache entries run fresh; unavailable cache writes preserve the
 fresh result. Source and computed artifacts have independent integrity hashes.
 Binary artifacts retain nonfinite numbers and undefined fields for the strict
 comparator's existing invalid-row diagnostics.
+Computed payloads use deterministic JSON with escaped tags for those values,
+negative zero and array holes; literal tag strings are escaped. V8's binary
+encoding is used only for the disposable cache envelope, since equal values
+can have different V8 encodings.
 
 `--verify-hits N` recalculates the first N actual hits and compares both
 artifacts byte for byte. A disagreement evicts that entry and fails the run.

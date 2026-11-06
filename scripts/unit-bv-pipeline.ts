@@ -3,9 +3,9 @@ import { execFileSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { parseArgs } from 'node:util';
-import { deserialize } from 'node:v8';
 
 import families from './megameklab-conversion/strict-families.json';
+import { decodeComputedRows } from './unit-bv-artifacts';
 import { boundedMap, fingerprint, runCachedFamily } from './unit-bv-execution';
 import { runCommand } from './unit-bv-family-worker';
 import {
@@ -184,7 +184,7 @@ export async function runPipeline(options: IPipelineOptions): Promise<boolean> {
     fs.writeFileSync(path.join(out, 'sources.ndjson'), sources);
     const computed: IComputedRow[] = results.flatMap((result) => {
       // Cache bytes are integrity-checked; source/computation correspondence is checked independently.
-      const rows: unknown = deserialize(result.artifacts.computed);
+      const rows: unknown = decodeComputedRows(result.artifacts.computed);
       const sourceRows: unknown[] = result.artifacts.sources
         .toString('utf8')
         .split(/\r?\n/)

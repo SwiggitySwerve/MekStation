@@ -2,8 +2,8 @@
 import { spawn } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { serialize } from 'node:v8';
 
+import { encodeComputedRows } from './unit-bv-artifacts';
 import { calculateSources, readJsonLines } from './vehicle-aero-bv-delta';
 
 export function runCommand(
@@ -74,8 +74,7 @@ export async function familyWorker(
     readJsonLines(path.join(out, 'sources.ndjson')),
     mekfiles,
   );
-  // V8 retains NaN, undefined and insertion order in failed as well as successful rows.
-  fs.writeFileSync(path.join(out, 'computed.bin'), serialize(rows));
+  fs.writeFileSync(path.join(out, 'computed.bin'), encodeComputedRows(rows));
 }
 
 if (require.main === module) {

@@ -1,9 +1,9 @@
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { serialize } from 'node:v8';
 
 import families from '../megameklab-conversion/strict-families.json';
+import { encodeComputedRows } from '../unit-bv-artifacts';
 import * as worker from '../unit-bv-family-worker';
 import {
   buildDeltaReport,
@@ -78,7 +78,7 @@ it.each(['push', 'schedule'])(
         );
         fs.writeFileSync(
           path.join(out, 'computed.bin'),
-          serialize([computed[index]]),
+          encodeComputedRows([computed[index]]),
         );
       });
     const out = path.join(root, 'report');
