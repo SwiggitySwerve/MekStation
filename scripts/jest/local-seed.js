@@ -23,12 +23,17 @@ const git = (root, args) =>
   }).trim();
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
+function assertMainCommit(root, sha) {
+  try {
+    git(root, ['merge-base', '--is-ancestor', sha, 'origin/main']);
+  } catch {
+    throw new Error('Seed source must be a known commit from origin/main.');
+  }
+}
+
 function cleanMain(source) {
   const sha = git(source, ['rev-parse', 'HEAD']);
-  if (sha !== git(source, ['rev-parse', 'origin/main']))
-    throw new Error(
-      'Seed source must be at origin/main; update only your own prepared checkout.',
-    );
+  assertMainCommit(source, sha);
   if (git(source, ['status', '--porcelain', '--untracked-files=all']))
     throw new Error('Seed source must be clean, including untracked files.');
   return sha;
@@ -98,7 +103,7 @@ function validateArtifact(root, artifact, execOptions) {
     throw new Error('Seed project/Jest options differ');
   if (!/^[0-9a-f]{40}$/.test(p.sourceSha))
     throw new Error('Invalid seed source SHA');
-  git(root, ['merge-base', '--is-ancestor', p.sourceSha, 'origin/main']);
+  assertMainCommit(root, p.sourceSha);
   if (
     !Array.isArray(p.files) ||
     new Set(p.files).size !== p.files.length ||

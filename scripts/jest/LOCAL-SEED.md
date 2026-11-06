@@ -4,7 +4,9 @@
 main with this machine's platform, architecture and **full Node version**.
 Linux/Node CI caches cannot seed a Windows or different-Node checkout.
 
-Use an existing clean checkout whose HEAD equals its `origin/main`. Update only
+Use an existing clean checkout pinned to a known commit from `origin/main`. A
+main reference that advances while a queued capture waits does not invalidate
+the pinned inputs: import still recomputes every destination key. Update only
 your own prepared checkout; the command never creates, switches, fetches or
 cleans a worktree, and never installs dependencies. Keep artifacts outside the
 source checkout. Ensure its dependencies match its lockfile.

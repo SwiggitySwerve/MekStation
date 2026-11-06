@@ -195,6 +195,45 @@ it('requires clean main and rejects source changes during execution', async () =
   ).rejects.toThrow(/clean|changed/i);
 });
 
+it('accepts a clean pinned main commit after the remote main reference advances', async () => {
+  const root = repo();
+  const git = (...args: string[]) =>
+    execFileSync('git', args, {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim();
+  const pinned = git('rev-parse', 'HEAD');
+  git(
+    '-c',
+    'user.name=Seed Test',
+    '-c',
+    'user.email=seed@example.test',
+    'commit',
+    '--allow-empty',
+    '-qm',
+    'main advances',
+  );
+  const advanced = git('rev-parse', 'HEAD');
+  // A feature-only commit is not trusted as a source until it belongs to main.
+  await expect(
+    seed.createSeed({ source: root, files, execOptions, execute: pass }),
+  ).rejects.toThrow(/main/i);
+  git('update-ref', 'refs/remotes/origin/main', advanced);
+  git('checkout', '--detach', pinned);
+  const artifact = await seed.createSeed({
+    source: root,
+    files,
+    execOptions,
+    execute: pass,
+  });
+  expect(artifact.payload.sourceSha).toBe(pinned);
+  expect(seed.importSeed(options(root, artifact))).toMatchObject({
+    imported: 2,
+    missed: 0,
+  });
+});
+
 it('fails open on corruption, foreign runtime/config/engine/provenance and changed source', async () => {
   const root = repo();
   const artifact = await seed.createSeed({
