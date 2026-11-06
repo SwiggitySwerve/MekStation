@@ -107,5 +107,13 @@
     "history": "<p>The Intrepid Assault Craft emerged from a period of doctrinal uncertainty within the Armed Forces of the Federated Suns. In the early Age of War, the AFFS had been slower than most Inner Sphere powers to integrate the aerospace fighter into its force structure, relying on a patchwork of older assault shuttles and escort craft to fulfill orbital and near-space duties. Avalon Aerospace Partners, based on New Avalon, responded with a design intended to consolidate those functions into a single, economical hull.</p><p>The prototype debuted in 2331 under the supervision of William Dargas. It entered service with the AFFS quickly, finding broad use in fleet escort, customs enforcement, orbital patrol, and marine assault operations. The AFFS navy employed the craft to deliver boarding parties to enemy vessels, exploiting its relatively heavy armor and troop compartment to operate in contested space where lighter craft could not survive. Militia forces and customs agencies found the design equally useful for interdiction, as it could credibly threaten most civilian and light military traffic it encountered.</p><p>The Intrepid's success prompted other Inner Sphere powers to develop comparable multipurpose craft of their own. Within the Federated Suns, however, the rising dominance of the aerospace fighter eroded the case for the design. Fighters were cheaper to produce and operate, required smaller crew complements, and matched or exceeded the Intrepid's combat performance in most engagements. By 2455 the design was formally declared obsolete. Avalon Aerospace Partners did not pursue a successor. A standard-technology version was fielded around 2478, updating the primitive systems that had complicated maintenance, but it entered service too late to reverse the design's declining fortunes within the AFFS inventory.</p>",
     "manufacturer": "Avalon Aerospace Partners",
     "primaryFactory": "New Avalon"
+  },
+  "weaponQuirks": {
+    "LS:0:Large Laser": [
+      "imp_cooling"
+    ],
+    "RS:0:Large Laser": [
+      "imp_cooling"
+    ]
   }
 }

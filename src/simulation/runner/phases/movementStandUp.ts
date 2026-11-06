@@ -54,6 +54,8 @@ export function resolveRunnerStandUpAttempt(options: {
       unitQuirks: unit.unitQuirks ?? [],
       pilotAbilities: unit.abilities ?? [],
       neuralInterfaceActive: unit.neuralInterfaceActive,
+      neuralInterfaceMode: unit.neuralInterfaceMode,
+      hasDNICockpitMod: unit.hasDNICockpitMod,
       isQuadMek: unit.isQuad ?? false,
       unitType: unit.unitType,
     },

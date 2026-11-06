@@ -1,7 +1,7 @@
 /**
- * Unit Import API - Import Unit from JSON
+ * Unit Import API - Import Unit from JSON or MTF source
  *
- * POST /api/units/import - Import a unit from JSON file
+ * POST /api/units/import - Import JSON or { sourceFormat: 'mtf', sourceText }
  *
  * @spec openspec/specs/unit-services/spec.md
  */
@@ -13,6 +13,7 @@ import {
   rejectUnexpectedMethod,
   type ApiErrorResponse,
 } from '@/pages-modules/api/routeHelpers';
+import { importMTFDefinition } from '@/services/units/importMTFDefinition';
 import { getUnitRepository } from '@/services/units/UnitRepository';
 import {
   ISerializedUnitEnvelope,
@@ -23,23 +24,6 @@ import {
  * Expected format version
  */
 const SUPPORTED_FORMAT_VERSIONS = ['1.0.0'];
-
-/**
- * Request body type - can be envelope or raw unit data
- */
-type ImportRequestBody =
-  | ISerializedUnitEnvelope
-  | {
-      chassis: string;
-      variant?: string;
-      model?: string;
-      tonnage?: number;
-      techBase?: string;
-      era?: string;
-      rulesLevel?: string;
-      unitType?: string;
-      [key: string]: unknown;
-    };
 
 /**
  * Response types
@@ -54,19 +38,41 @@ export default async function handler(
 
   if (rejectUnexpectedMethod(req, res, ['POST'])) return;
 
-  const body = req.body as ImportRequestBody;
+  const body: unknown = req.body;
 
   if (!body) {
     return res.status(400).json({
       error: 'Missing request body',
     });
   }
+  if (typeof body !== 'object' || Array.isArray(body)) {
+    return res.status(400).json({
+      success: false,
+      error: { message: 'Import request body must be an object' },
+    });
+  }
 
   try {
     // Determine if this is an envelope or raw unit data
     let unitData: Record<string, unknown>;
+    let sourceWarnings: readonly string[] = [];
+    let notes = 'Imported from JSON file';
 
-    if ('formatVersion' in body && 'unit' in body) {
+    if ('sourceFormat' in body) {
+      if (body.sourceFormat !== 'mtf') {
+        return res.status(400).json({
+          success: false,
+          error: { message: 'Unsupported source format; expected mtf' },
+        });
+      }
+      const imported = await importMTFDefinition(
+        'sourceText' in body ? body.sourceText : undefined,
+      );
+      if (!imported.success) return res.status(400).json(imported);
+      unitData = imported.data.definition;
+      sourceWarnings = imported.data.warnings;
+      notes = 'Imported from MTF file';
+    } else if ('formatVersion' in body && 'unit' in body) {
       // This is an envelope
       const envelope = body as ISerializedUnitEnvelope;
 
@@ -129,13 +135,16 @@ export default async function handler(
       chassis,
       variant: variant!,
       data: unitData,
-      notes: 'Imported from JSON file',
+      notes,
     });
 
     if (result.success) {
       return res.status(201).json({
         success: true,
-        data: { unitId: result.data.id },
+        data: {
+          unitId: result.data.id,
+          ...(sourceWarnings.length ? { warnings: sourceWarnings } : {}),
+        },
       });
     } else {
       return res.status(400).json({

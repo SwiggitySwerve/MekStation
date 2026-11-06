@@ -29,7 +29,7 @@ from blk_conversion_runner import (
     run_manifest_range_parity,
     strict_safe_unit_filename,
 )
-from blk_unit_fields import bar_armor_fields, parse_fluff, parse_location_equipment, parse_mul_id, parse_quirks, vehicle_patchwork_armor_fields
+from blk_unit_fields import bar_armor_fields, parse_fluff, parse_location_equipment, parse_mul_id, parse_quirk_fields, vehicle_patchwork_armor_fields
 from blk_vehicle_qualifiers import parse_vehicle_qualifiers
 from blk_vehicle_tables import (
     ARMOR_CODE_MAP,
@@ -219,7 +219,6 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
     mul_id = parse_mul_id(tags)
     role = get_string(tags, "role")
     source = get_string(tags, "source")
-    quirks = parse_quirks(tags)
 
     weight_class = get_weight_class(float(tonnage), motion_type)
 
@@ -264,8 +263,7 @@ def convert_vehicle_blk(blk_path: Path, logger: logging.Logger) -> Optional[Dict
         output["role"] = role
     if source:
         output["source"] = source
-    if quirks:
-        output["quirks"] = quirks
+    output.update(parse_quirk_fields(tags))
     if fluff:
         output["fluff"] = fluff
 

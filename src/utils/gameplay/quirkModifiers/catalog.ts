@@ -160,7 +160,7 @@ export const QUIRK_CATALOG: Record<string, IQuirkCatalogEntry> = {
     name: 'Hard to Pilot',
     category: 'piloting',
     pipelines: ['psr'],
-    combatEffect: '+1 to all PSRs',
+    combatEffect: '+1 to PSRs unless native DNI is active',
     isPositive: false,
   },
   [UNIT_QUIRK_IDS.UNBALANCED]: {
@@ -362,4 +362,28 @@ export function getQuirksByCategory(
   category: import('./types').QuirkCategory,
 ): IQuirkCatalogEntry[] {
   return Object.values(QUIRK_CATALOG).filter((q) => q.category === category);
+}
+
+// Native ids: MegaMek 48fcb2f64 OptionsConstants.java:62,72-74,123,135-137.
+// Legacy saved ids remain the public catalog keys; normalize only at lookup.
+const NATIVE_UNIT_QUIRK_IDS: Readonly<Record<string, string>> = {
+  easy_pilot: UNIT_QUIRK_IDS.EASY_TO_PILOT,
+  imp_target_short: UNIT_QUIRK_IDS.IMPROVED_TARGETING_SHORT,
+  imp_target_med: UNIT_QUIRK_IDS.IMPROVED_TARGETING_MEDIUM,
+  imp_target_long: UNIT_QUIRK_IDS.IMPROVED_TARGETING_LONG,
+  poor_target_short: UNIT_QUIRK_IDS.POOR_TARGETING_SHORT,
+  poor_target_med: UNIT_QUIRK_IDS.POOR_TARGETING_MEDIUM,
+  poor_target_long: UNIT_QUIRK_IDS.POOR_TARGETING_LONG,
+  hard_pilot: UNIT_QUIRK_IDS.HARD_TO_PILOT,
+};
+
+/** Check membership without counting native/legacy spellings twice. */
+export function hasQuirk(
+  unitQuirks: readonly string[],
+  quirkId: string,
+): boolean {
+  const canonicalId = NATIVE_UNIT_QUIRK_IDS[quirkId] ?? quirkId;
+  return unitQuirks.some(
+    (id) => (NATIVE_UNIT_QUIRK_IDS[id] ?? id) === canonicalId,
+  );
 }

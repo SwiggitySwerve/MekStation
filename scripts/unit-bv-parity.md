@@ -6,7 +6,7 @@ The oracle remains outside the repository. From the repository root:
 
 ```text
 python -B scripts/megameklab-conversion/export_vehicle_aero_json.py <mekfiles> <scratch> --strict
-node node_modules/tsx/dist/cli.mjs scripts/vehicle-aero-bv-delta.ts --converted <scratch>/sources.ndjson --mekfiles <mekfiles> --reference <oracle.jsonl> --out <report-dir>
+node node_modules/tsx/dist/cli.mjs scripts/vehicle-aero-bv-delta.ts --converted <scratch>/sources.ndjson --mekfiles <mekfiles> --reference <oracle.jsonl> --reference-policy <approved-policy.json> --out <report-dir>
 ```
 
 The exporter independently walks every in-scope MTF/BLK source. The runner
@@ -14,6 +14,112 @@ rechecks source hashes, then joins path plus SHA-256. Like the pinned Java
 exporter, hashing removes CR only when followed by LF. No other bytes change.
 Folders `ge`, `advancedbuildings`, `handheld`, `battlefieldsupport` and BFS files
 are outside this oracle's scope. There are no per-unit exclusions.
+
+Strict export also writes `sources.ndjson.manifest.json`. The external
+`--converted` CLI requires this receipt before calculating anything: exact
+payload SHA-256, source count, full scope, and hashes of the current converter
+and its data inputs must match. Native source hashes alone cannot detect an
+older converter's saved unit payload. Missing or stale receipts require a
+fresh export; there is no legacy bypass or command to bless old output.
+Converter inputs are conservatively inventoried by
+`megameklab-conversion/strict-provenance-inputs.json`; fingerprints normalize
+CRLF to LF for portable receipts. Changes to any inventoried helper invalidate
+old receipts even if that particular helper did not affect a row.
+The receipt establishes conversion provenance; the oracle still owns corpus
+completeness and parity. A passing native conversion is separate from proof
+of the committed catalog.
+
+Both external comparison entrypoints audit `--reference-policy` and a separate
+`<oracle.jsonl>.provenance.json` actual-evidence sidecar before numerical work.
+The expected policy must be approved independently of the supplied reference.
+Default trust mode is **report-only**: missing evidence and other trust
+violations are recorded and printed while BV proofs and CI retain their
+numerical result. The trust report still has `ok:false` when violations exist;
+a green BV result is not trust acceptance. There is no default policy,
+expectation discovery, or command to bless saved output. Conversion receipts
+do not establish oracle runtime/settings.
+
+The single enforcement toggle is `--reference-trust blocking` (pipeline API
+`referenceTrust: 'blocking'`). After the approved policy covers all 9,815 units
+and is on main, add that flag to proof/CI invocations to reject violations
+before numerical work. Enforcement never activates from policy presence.
+`--reference-trust report-only` explicitly names the default. These are the only
+modes; there is no other legacy bypass. Source hashes, conversion receipts and
+numerical failures remain enforced in both modes. Report-only can audit an
+all-family policy before activation, but its proof must independently assert
+zero trust violations rather than rely on a successful BV exit.
+
+Both version-1 JSON documents contain `runtime`, `crew`, `network` and
+`bvOverrides`. Runtime records `megamekCommit`, `megameklabCommit`, `mmDataCommit`
+(40-character Git hashes), `javaVersion`, and SHA-256 fields
+`dependencyManifestSha256`, `compiledRuntimeManifestSha256`, `exporterSha256`,
+`verifierConfigSha256`. Additional named runtime entries are retained and must
+also match. Crew, network and overrides are nonempty maps of explicitly recorded
+scalar settings; extra or absent fields are violations. For the accepted
+P1 invocation the documented declarations describe freshly loaded default crew,
+no attached game/network, and no campaign/editor/custom-option mutations. These
+are recorded evidence declarations, not new typed crew/network instrumentation.
+The native runtime/exporter manifests and consumed verifier-config receipt supply
+actual artifact identities; the expectation is the separately approved runtime
+and requested configuration, never a copy learned at comparison time.
+
+The actual sidecar additionally records `referenceSha256`, binding its evidence
+to the exact JSONL bytes. The expected policy additionally records
+`battleValueMode` and `verifierSettings`, a map from each source path to its exact
+expected scalar verifier-settings map. Every row must record matching
+`battleValue.mode` and `construction.settings`. Source-dependent settings such as
+`gameYear` and `ammoTechLevel` require their own approved expected values; there
+is no inferred global fallback. Missing/malformed evidence, extra settings,
+unlisted reference paths and absent expected paths are violations. Blocking
+mode fails closed on all of them.
+
+`reference-provenance-report.json` records the reference, actual-sidecar and
+expected-policy hashes, effective mode, and named expected/actual mismatches.
+Violations are also printed to stderr. Blocking rejection stops before source
+calculation, cache work, or numerical report publication. Accepted
+trust leaves the existing source-hash, completeness, numeric and construction
+checks intact; it is not a parity result. Existing native exports can be used
+with their retained provenance and an approved policy without Java re-execution.
+No independently approved full-corpus policy accompanied this implementation.
+Fixed independent tests prove both modes. P1 separately owns the all-9,815
+policy; live policy adoption remains unproved and belongs to the policy owner.
+Actual manifests and native output must not be promoted into expectations.
+Independently undocumented values may be recorded as explicit `null` in a
+proposed policy, with their explanation in the policy owner's companion
+evidence. Null is not an accepted setting value: even paired actual/expected
+nulls fail validation. Omitted required fields, empty evidence maps and missing
+per-source expectations are violations too; blocking mode rejects all of them.
+No unspecified value becomes
+a neutral default or passing comparison. Record non-consumed context such as
+MekHQ's pin separately; this loaded-reference runtime does not establish MekHQ
+compatibility.
+
+Artifact meanings are fixed: `dependencyManifestSha256` and
+`compiledRuntimeManifestSha256` hash the exact consumed runtime's
+`runtime-dependencies.json` and `compiled-runtime-files.json` bytes.
+`exporterSha256` hashes the exact consumed `VehicleAeroReferenceExporter.java`
+source bytes, not the Python entrypoint or a combined receipt. Record Python,
+construction-probe, stage-generator and other independently relevant identities
+as additional named runtime entries; they are compared without dropping extras.
+`verifierConfigSha256` hashes the exact consumed XML bytes; CRLF-normalized
+similarity never substitutes for that digest. `javaVersion` is the complete
+recorded `java --version` output with CRLF converted to LF and outer whitespace
+trimmed when evidence is captured, not the short toolchain label. Comparison
+does not normalize these runtime strings or hashes.
+
+Family exports carry their declared family and ordered source folders from
+`strict-families.json`. The pipeline stores each producer's receipt alongside
+its cached source/computed bytes, with a separate receipt integrity hash.
+Before counting a cache hit or sampling `--verify-hits`, it checks the receipt
+through the same verifier against the payload, current converter inputs and
+expected family/folders. Missing or invalid cached receipts run fresh; failed
+fresh production or validation still fails the run. Byte verification includes
+the receipt and retains the existing source/computed checks.
+The combined publication uses the same Python receipt writer as serial and
+family exports. Both writer and verifier use the selected pipeline `--python`.
+Receipts establish validity under unchanged inputs, not physical freshness;
+`execution.json` retains `hit`/`verified` and explicitly labels each family's
+`production` as `fresh` or `cached`.
 
 Mechs use `validate-bv-calculator.calculateUnitBV`; `bvAdapter` runtime totals
 and exact counts are separate fields. ProtoMechs use the handler's existing
@@ -74,6 +180,50 @@ values fail, even when totals match. Existing MekStation breakdowns expose only
 some terms; those omissions remain failures rather than inferred neutral values.
 Aggregate mode remains available without the flag.
 
+## Bounded full-corpus execution
+
+`unit-bv-pipeline.ts` runs the same conversion, source validation, calculations
+and strict report with 1–4 isolated family workers (default 2). Use one heavy
+queue ticket for the whole command when measuring locally:
+
+```text
+node --require tsx/cjs scripts/unit-bv-pipeline.ts --mekfiles <mekfiles> --reference <oracle.jsonl> --reference-policy <approved-policy.json> --out <scratch> --workers 2
+```
+
+The original two-command path above remains the fresh serial reference.
+`strict-families.json` owns source-folder order for both paths. Family outputs
+are concatenated in that order, independently of worker completion order.
+Missing, failed and extra sources still reach the single strict comparator;
+no family summary or worker exit can replace its full-corpus coverage gate.
+The runner bounds command execution to a shared 13-minute deadline, closes
+child stdin, propagates failures and waits for active family work to finish.
+
+Add `--cache-dir <external-scratch-cache>` to reuse unchanged families. Keys
+hash the complete source-file inventory and bytes for that family, all source
+and script files, equipment/schema data, config, package manifests, TypeScript
+config, the oracle, actual loaded Node dependency packages including binaries,
+the Node executable/version/platform, Python executable and loaded Python
+module/source-cache bytes, and the
+environment (except operational `HEAVY_*` queue metadata). Additions, deletions
+and renames change keys. Unreadable, linked or unknown filesystem inputs or
+unavailable Python runtime identity disable reuse. Corrupt, incompatible or
+mismatched cache entries run fresh; unavailable cache writes preserve the
+fresh result. Source and computed artifacts have independent integrity hashes.
+Binary artifacts retain nonfinite numbers and undefined fields for the strict
+comparator's existing invalid-row diagnostics.
+Computed payloads use deterministic JSON with escaped tags for those values,
+negative zero and array holes; literal tag strings are escaped. V8's binary
+encoding is used only for the disposable cache envelope, since equal values
+can have different V8 encodings.
+
+`--verify-hits N` recalculates the first N actual hits and compares both
+artifacts byte for byte. A disagreement evicts that entry and fails the run.
+`--uncached` disables reads and writes; main push and scheduled runs always
+disable them even if a cache directory is supplied. Cache use never skips the
+final strict report. `sources.ndjson`, `delta-report.json` and `delta-rows.jsonl`
+retain the serial formats and deterministic bytes; `execution.json` separately
+records worker and cache state.
+
 In term mode each family also reports `termMatched` (joined rows with every
 required stage and oracle detail matching) and `firstTermDifferences` (counts
 by first failing key). These counts do not replace the aggregate gates. Rows
@@ -84,3 +234,50 @@ The ProtoMech trace adapter maps `physicalWeaponBV` to `weightBV`, exposes
 the documented inherited empty type stages, carries the existing chassis
 summary factor and reports the final adjustment from the rounded base. It
 does not invent native weapon, misc-equipment or ammo-group detail keys.
+
+Term mode also retains the full ordered `termDifferences` array per row, with
+all missing/nonfinite reference/local causes and numeric differences, so the
+first error cannot hide later discrepancies. Per-family `termCoverage` counts
+each required stage and normalized oracle detail: compared, matched,
+missingReference, missingLocal, nonfiniteReference, nonfiniteLocal, different.
+Both-side failures increment both cause counters; `different` counts only
+finite numeric pairs outside tolerance. Only hash-joined rows are compared;
+unjoined coverage remains visible in the existing joined/rows counts. Missing
+figures are compared as missing local terms. Local-only breakdown aliases are
+not oracle requirements. Aggregate mode retains its existing report shape,
+and firstTermDifference, firstTermDifferences and all acceptance gates retain
+their previous meaning. Missing quantities never become neutral values.
+
+## Opt-in source-handler validity
+
+Add `--construction-validity` to the guarded serial comparator with a P1
+`--construction-terms` reference. The same source calculation writes separate
+`construction-validity-report.json` and `construction-validity-rows.jsonl`.
+It compares actual BA, infantry, ProtoMech and vehicle handler validation
+results, including invalid designs and diagnostics. Vehicle validity uses the
+same pinned Buffer already read and hash-checked by `calculateSources`, parsed
+through the public BLK parser, initialized registry, selected handler and its
+public category. It never reconstructs validation input from converted BV JSON.
+`FixedWingSupport` under `vehicles/` routes to aerospace and is explicitly
+out of vehicle scope; a folder name never supplies vehicle classification.
+Existing BA/infantry/ProtoMech facts remain intact. Other uncomputed BLK
+categories, parser/handler failures and validator exceptions remain explicit
+staged failure facts; uncomputed MTF validity remains missing. Successful parsing
+with `isValid:false` retains invalidity and all returned errors/warnings/infos.
+Registry/validation work runs only with the opt-in flag. Other local-family projections,
+weight terms/totals, verifier quantities and settings remain explicit gaps;
+reference weight maps marked unsupported retain their reasons; infantry's
+decomposition is applicable but not instrumented. `ok` is scoped to
+validity only; aggregate BV success does not fill missing comparisons. Either
+selected report failing keeps the CLI exit nonzero. Without the flag all
+existing BV report bytes and calculation paths retain their previous contract.
+Runtime/BV mode/settings mismatches use the independent policy/actual-evidence
+boundary and explicit enforcement mode above. This does not compare local
+construction weights or instrument previously absent crew/network facts.
+
+This vehicle slice does not fix domain mismatches. Its proof records the actual
+integrated validator/input head, including any landed source changes. If P3's
+`#2870` modernization remains draft at that proof, complete row 3.4 acceptance
+still needs a later comparison including its final merged validators. Historical
+failed proofs are not waived. Exact BV, successful loading and report presence
+do not establish validity, weight, quantities, settings or complete row 3.4.

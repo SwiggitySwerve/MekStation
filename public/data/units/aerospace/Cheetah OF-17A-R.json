@@ -73,5 +73,13 @@
     "history": "<p>The Cheetah entered service with the SLDF in 2630, produced primarily by Imstar Aerospace at facilities on Amity and Marik within the Free Worlds League. During the Star League era, additional production was established by Aerofighter Unlimited on Oliver in the Terran Hegemony and by Tengo Aerospace at plants on Sarna and St. Ives in the Capellan Confederation. The Cheetah saw widespread service across the SLDF as a fast interceptor and reconnaissance platform.</p><p>The collapse of the Star League and the onset of the Succession Wars disrupted the Cheetah's production network significantly. The Aerofighter Unlimited plants on Oliver were destroyed during the early Succession Wars as the planet was contested by multiple Great Houses, eliminating the only Hegemony-based production line. The Tengo Aerospace facilities on Sarna and St. Ives continued producing the F-10 for the Capellan Confederation, though output declined sharply under constant raiding. Meanwhile, Imstar Aerospace maintained continuous production at Amity, keeping the Cheetah available to the FWLM in substantial numbers.</p><p>The Fourth Succession War complicated the Tengo production lines when Sarna fell into the Federated Commonwealth's Sarna March while St. Ives became part of the newly independent St. Ives Compact. Both facilities eventually returned to Capellan control during the 3060s. Through all of these upheavals, Imstar remained the Cheetah's primary manufacturer, and the design became firmly associated with the Free Worlds League.</p><p>Imstar steadily modernized the Cheetah through the Clan Invasion and Civil War eras, introducing upgraded variants with pulse lasers, extended-range weapons, and improved armor. The Jihad era saw the development of specialized reconnaissance variants for Devlin Stone's Coalition, while the Atreus production line was eventually converted to produce Eagle fighters in the post-Jihad period. Production continued at Amity and Marik under the Marik-Stewart Commonwealth, with the most recent development being a Clan-tech Cheetah IIC produced at Amity under Wolf Empire control.</p>",
     "manufacturer": "Imstar AeroSpace",
     "primaryFactory": "Amity"
+  },
+  "weaponQuirks": {
+    "AFT:1:Small Laser": [
+      "mod_weapons"
+    ],
+    "AFT:2:Small Laser": [
+      "mod_weapons"
+    ]
   }
 }

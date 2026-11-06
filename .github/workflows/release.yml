@@ -173,6 +173,9 @@ jobs:
         working-directory: desktop
         run: npm run build
 
+      - name: Enforce complete web artifact byte budgets
+        run: node scripts/ci/budget-artifacts.mjs --kind web --report "$RUNNER_TEMP/budget-output/web.json"
+
       - name: Upload web build artifacts
         uses: actions/upload-artifact@v7
         with:
@@ -384,6 +387,19 @@ jobs:
             }
           }
           NODE
+
+      - name: Enforce installer byte budget on every complete output
+        shell: bash
+        run: node scripts/ci/budget-artifacts.mjs --kind installers --report "$RUNNER_TEMP/budget-output/installers.json"
+
+      - name: Upload installer byte census
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: ci-budget-installers-${{ matrix.platform }}
+          path: ${{ runner.temp }}/budget-output/installers.json
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v7

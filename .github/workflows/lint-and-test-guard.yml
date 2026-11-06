@@ -16,6 +16,13 @@ permissions:
   actions: read
   checks: write
   contents: read
+  statuses: write
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: ci-report-${{ github.repository }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
 
 jobs:
   guard:
@@ -26,7 +33,17 @@ jobs:
       - name: Checkout the guard script from the default branch
         uses: actions/checkout@v6
         with:
-          sparse-checkout: scripts/ci
+          # workflow_run's github.sha is the trusted default-branch producer
+          # snapshot. Pin it so execution and producer metadata cannot drift.
+          ref: ${{ github.sha }}
+          sparse-checkout: |
+            scripts/ci
+            scripts/lib
+            scripts/jest/test-file-durations.mjs
+            scripts/playwright/ci-e2e-plan.mjs
+            config/jest/shard-planner.js
+            config/ci
+          sparse-checkout-cone-mode: false
           persist-credentials: false
 
       - name: Report a failed Lint and Test when the run never created it
@@ -37,3 +54,62 @@ jobs:
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
           CONCLUSION: ${{ github.event.workflow_run.conclusion }}
         run: node scripts/ci/lint-and-test-guard.mjs --repo "$REPO" --run "$RUN_ID" --sha "$HEAD_SHA" --conclusion "$CONCLUSION"
+
+      - name: Publish trusted budget approval status for associated PRs
+        if: github.event.workflow_run.event == 'pull_request'
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { checkBudgetPolicy } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-approval.mjs`);
+            const source = context.payload.workflow_run;
+            const pulls = await github.paginate(github.rest.repos.listPullRequestsAssociatedWithCommit, {
+              ...context.repo, commit_sha: source.head_sha, per_page: 100,
+            });
+            for (const pull of pulls.filter(pr => pr.state === 'open' && pr.head.sha === source.head_sha && pr.base.repo.full_name === context.payload.repository.full_name)) {
+              const result = await checkBudgetPolicy({ github, ...context.repo, number: pull.number });
+              core.info(JSON.stringify(result));
+              if (!result.allowed) core.setFailed(result.message);
+            }
+
+      - name: Download JSON-only reporting inputs from the completed source run
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+          pattern: ci-budget-*
+          path: ${{ runner.temp }}/ci-budget-inputs/${{ github.event.workflow_run.id }}
+
+      - name: Read canonical main timing baselines as bounded JSON
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('node:fs');
+            const { collectReportBaselines } = await import(`${process.env.GITHUB_WORKSPACE}/scripts/ci/budget-report.mjs`);
+            const inputs = JSON.parse(fs.readFileSync(`${process.env.RUNNER_TEMP}/ci-budget-inputs/${context.payload.workflow_run.id}/ci-budget-inputs/inputs.json`, 'utf8'));
+            const result = await collectReportBaselines(github, inputs);
+            fs.writeFileSync(`${process.env.RUNNER_TEMP}/ci-baselines.json`, JSON.stringify(result));
+
+      - name: Publish final canonical observation and advisory PR report
+        if: ${{ !cancelled() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+          ARTIFACT_ROOT: ${{ runner.temp }}/ci-budget-inputs/${{ github.event.workflow_run.id }}
+          REPORT_OUTPUT: ${{ runner.temp }}/ci-report
+          BASELINE_OBSERVATIONS: ${{ runner.temp }}/ci-baselines.json
+        run: node scripts/ci/budget-report.mjs
+
+      - name: Upload canonical source observation with trusted producer provenance
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-observation-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}.json
+          path: ${{ runner.temp }}/ci-report/ci-observation-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}.json
+          if-no-files-found: warn
+          retention-days: 21

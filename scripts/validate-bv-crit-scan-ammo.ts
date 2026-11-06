@@ -1,6 +1,10 @@
 import type { MechLocation } from '../src/utils/construction/battleValueCalculations';
 import type { CritScan } from './validate-bv-crit-scan-types';
 
+import {
+  getNativeAmmoBVGroup,
+  resolveNativeAmmoBin,
+} from '../src/utils/construction/battleValueAmmo';
 import { isNonExplosiveAmmo } from '../src/utils/construction/battleValueExplosivePenalties';
 import {
   getAmmunitionEntry,
@@ -20,6 +24,20 @@ export function processCritAmmoSlot(args: {
   unitTechBase: string;
 }): void {
   const { r, clean, lo, loc, ml, unitTechBase } = args;
+  // Trace facts only: a real usable NARC/iNARC bin can have a resolved BV0.
+  // Keep the legacy arithmetic ammo admission and explosive handling unchanged.
+  if (['NARC:1', 'INARC:1'].includes(getNativeAmmoBVGroup(clean) ?? '')) {
+    const ammo = resolveAmmoBV(clean);
+    const bin = resolveNativeAmmoBin(clean);
+    if (ammo.resolved && ammo.battleValue === 0 && bin && bin.shots > 0) {
+      (r.ammoAvailableProjectionBins ??= []).push({
+        id: clean,
+        bv: ammo.battleValue,
+        weaponType: ammo.weaponType,
+        location: loc,
+      });
+    }
+  }
   // Ammo
   if (lo.includes('ammo') && !lo.includes('ammo feed')) {
     // Per MegaMek AmmoType.java: Gauss-type ammo (including HAG) is non-explosive.

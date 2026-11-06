@@ -483,6 +483,12 @@ export const UnitContract = z
           )
           .describe('Critical slot assignments per location'),
         quirks: z.array(z.string()).describe('Unit quirks').optional(),
+        weaponQuirks: z
+          .record(z.string(), z.array(z.string()))
+          .describe(
+            'Weapon quirks keyed by native LOCATION:SLOT:WEAPON_NAME; legacy name keys remain readable',
+          )
+          .optional(),
         fluff: z
           .object({
             overview: z.string().optional(),
@@ -989,6 +995,12 @@ export const UnitContract = z
           .describe('Critical slot assignments per location')
           .optional(),
         quirks: z.array(z.string()).describe('Unit quirks').optional(),
+        weaponQuirks: z
+          .record(z.string(), z.array(z.string()))
+          .describe(
+            'Weapon quirks keyed by native LOCATION:SLOT:WEAPON_NAME; legacy name keys remain readable',
+          )
+          .optional(),
         fluff: z
           .object({
             overview: z.string().optional(),

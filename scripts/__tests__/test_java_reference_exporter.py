@@ -47,11 +47,11 @@ class JavaReferenceExporterTest(unittest.TestCase):
             next(r for r in rows if r['path'] == reference)[field] = value
             self.assertEqual(len(selfcheck(rows)), 1, field)
 
-    def run_main(self, selfcheck_rows, full_rows, manifest=None):
+    def run_main(self, selfcheck_rows, full_rows, manifest=None, construction_terms=False):
         """Run main() with Java, the runtime guard and artifact hashing stubbed; record the run names."""
         self.calls = []
 
-        def fake_run_java(mekfiles, paths, out_dir, name, per_term=False):
+        def fake_run_java(mekfiles, paths, out_dir, name, per_term=False, construction_terms=False):
             self.calls.append(name)
             return selfcheck_rows if name == 'selfcheck' else full_rows
 
@@ -65,7 +65,8 @@ class JavaReferenceExporterTest(unittest.TestCase):
             mock.patch.object(exporter, 'digest', return_value='0' * 64),
             mock.patch.object(exporter, 'list_sources', return_value=sources),
             mock.patch.object(exporter, 'load_manifest_rows', return_value=manifest),
-            mock.patch.object(sys, 'argv', ['exporter', '--mekfiles', temp, '--out-dir', temp]),
+            mock.patch.object(sys, 'argv', ['exporter', '--mekfiles', temp, '--out-dir', temp]
+                              + (['--construction-terms'] if construction_terms else [])),
         ):
             summary = Path(temp) / 'summary.json'
             try:
@@ -83,6 +84,21 @@ class JavaReferenceExporterTest(unittest.TestCase):
             self.run_main(drifted, self.rows)
         self.assertEqual(self.calls, ['selfcheck'])
         self.assertIsNone(self.summary)
+
+    def test_construction_selfcheck_and_full_run_reject_invalid_captures(self):
+        rows = copy.deepcopy(self.rows)
+        for row in rows:
+            row['construction'].update(weightTerms={'engine': 1}, weightTotal=1, weightRemainder=0,
+                                       reconstruction={'ok': True, 'absoluteTolerance': 1e-9, 'relativeTolerance': 1e-12})
+        self.run_main(rows, rows, construction_terms=True)
+        broken = copy.deepcopy(rows)
+        broken[0]['construction']['weightTotal'] = 2
+        with self.assertRaises(SystemExit):
+            self.run_main(broken, rows, construction_terms=True)
+        self.assertEqual(self.calls, ['selfcheck'])
+        with self.assertRaises(SystemExit):
+            self.run_main(rows, broken, construction_terms=True)
+        self.assertEqual(self.calls, ['selfcheck', 'full'])
 
     def test_clean_selfcheck_runs_the_corpus(self):
         self.assertEqual(self.run_main(sorted(self.rows, key=lambda r: r['path']), self.rows), ['selfcheck', 'full'])

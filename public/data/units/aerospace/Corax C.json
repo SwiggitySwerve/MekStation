@@ -81,5 +81,16 @@
     "history": "<p>The Corax C grew out of Clan Snow Raven's desire to produce a dedicated garrison fighter leveraging the proven Corax airframe. Aggressive Draconis Combine pilots were among the first to encounter the new design, initially mistaking it for a modified OmniFighter configuration. Engineering experts scoffed at early pilot reports describing a Corax variant with large lasers and long-range missiles, only to discover that the Ravens had indeed been building their own version of the fighter all along.</p><p>The fighter quickly found its place in the Raven Alliance's second-line garrison forces, where it served alongside older conventional fighters in defensive roles. Border skirmishes with Combine aerospace assets provided the Corax C with its first real combat tests. These engagements proved inconclusive, with neither side managing to disable opposing fighters, leading both factions to treat the encounters as live-fire training exercises rather than serious military confrontations. Combine pilots demonstrated superior training and their more mobile Sholagars could get position on the Clan opponents, but their weapons proved mediocre against the Corax C's thicker armor protection, while the Raven fighters' weapons punched effectively through Combine craft despite recent armor upgrades.</p><p>Despite reports of designers considering modifications that would swap the missile armament for a Clan large pulse laser and additional equipment, the Snow Ravens expressed satisfaction with the existing configuration and showed no urgency to field alternative variants.</p>",
     "manufacturer": "United Outworlders Corporation",
     "primaryFactory": "Ramora"
+  },
+  "weaponQuirks": {
+    "NOS:0:CLStreakLRM15": [
+      "mod_weapons"
+    ],
+    "LWG:0:CLERMediumLaser": [
+      "mod_weapons"
+    ],
+    "RWG:0:CLERMediumLaser": [
+      "mod_weapons"
+    ]
   }
 }

@@ -1,4 +1,5 @@
 import { AerospaceLocation } from '@/types/construction/UnitLocation';
+import armorOrder from '@/types/formats/blk-aerospace-armor.json';
 import { IBlkDocument } from '@/types/formats/BlkFormat';
 import {
   AerospaceCockpitType,
@@ -69,7 +70,7 @@ export function parseAerospaceBasics(
     movement: { safeThrust, maxThrust: calculateMaxThrust(safeThrust) },
     fuel: document.fuel || 0,
     structuralIntegrity: resolveAerospaceStructuralIntegrity(document),
-    heatSinks: document.heatsinks || defaultHeatSinks,
+    heatSinks: document.heatsinks ?? defaultHeatSinks,
     heatSinkType: document.sinkType || 0,
     engineType: document.engineType || 0,
     armorType: document.armorType || 0,
@@ -82,7 +83,10 @@ export function parseAerospaceBasics(
 export function parseAerospaceArmorByArc(
   armor: readonly number[],
 ): AerospaceArmorByArc {
-  const [nose = 0, leftWing = 0, rightWing = 0, aft = 0] = armor;
+  const nose = armor[armorOrder.fighter.indexOf('NOSE')] ?? 0;
+  const leftWing = armor[armorOrder.fighter.indexOf('LEFT_WING')] ?? 0;
+  const rightWing = armor[armorOrder.fighter.indexOf('RIGHT_WING')] ?? 0;
+  const aft = armor[armorOrder.fighter.indexOf('AFT')] ?? 0;
   return { nose, leftWing, rightWing, aft };
 }
 

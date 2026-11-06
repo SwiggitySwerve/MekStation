@@ -4,6 +4,88 @@ This package owns ProtoMech construction calculations. Consumers use its public
 barrel. The engine-rating rule below is verified independently; other existing
 rules in this package do not acquire that verification by sharing an owner.
 
+## Weapon BV diagnostic projection
+
+`calculateProtoOffensive` retains optional `weaponMountBV` facts beside the
+existing weapon addition. Each fact snapshots the already-admitted resolved
+value, local equipment index/id and supplied public input location. The
+misc-first exclusion, classifier/resolver guards, mounted order, full main-gun
+value, exact-key ammo policy and every arithmetic operation remain unchanged.
+No second resolver call, quantity expansion, rounding or modifier is introduced.
+An unarmed input has no optional list; legacy breakdowns remain accepted.
+
+`protoMechBVTerms` formats those values at known native locations. Pinned
+MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`BVCalculator.java:702-727,803` owns the inherited weapon pass and per-mount
+valuation; `ProtoMekBVCalculator.java:40-63` has no weapon-pass override.
+`ProtoMek.java:87-89` supplies HD/T/RA/LA/L/MG abbreviations. Unknown and
+quad-only input locations remain unprojected with their original facts retained.
+Native Body is not represented by the public BV input; the trace never infers
+it from source syntax or changes the handler's existing location policy.
+
+`weapon.<localEquipmentIndex>.<locationAbbreviation>.<equipmentId>` keys do
+not assert native equipment indices or identities. The existing comparator
+compares each location's count and descending per-mount values. Source mounts
+and their order remain intact. Absent, unresolved, defensive, ammo, miscellaneous
+and zero-valued non-weapon equipment do not create weapon facts or synthetic
+zeros. Ammo and miscellaneous term omissions remain separate. This projection
+does not establish complete construction validity, weight or equipment parity.
+
+## Native offensive-misc diagnostic projection
+
+The existing `resolveProtoOffensiveEquipmentBV` owner supplies quad melee,
+magnetic-clamp and electric-discharge values. Its already-computed finite
+positive results are retained in optional `offensiveEquipmentMountBV` facts
+beside the original addition. Zero/fallback, nonfinite and negative values do
+not create diagnostic facts; their original arithmetic is unchanged. No second
+resolution, identity table, formula, quantity expansion or modifier is added.
+Other offensive-kind equipment and zero-valued movement/defensive miscellany
+remain outside this projection. Missing facts remain absent.
+
+The neutral `IProtoMechBVMountValue` owns the shared four-field snapshot shape;
+the existing public weapon type remains an identical alias. The trace uses
+its single location-format map for both weapon abbreviations and native
+location numbers (`ProtoMek.java:87-89,102-108`, pin `48fcb2f64`). Unknown,
+quad-only and unrepresented Body locations remain unprojected with facts
+retained. Neither equipment admission nor handler location policy changes.
+
+The existing native trace hook in `java_bv_terms.py` records
+`equipment.native.<locationNumber>.<internalName>` from
+`BVCalculator.offensiveEquipmentBV` (`BVCalculator.java:978-1042`). Its number
+is a location, never an equipment index. Local facts retain actual source ids
+and local indices independently; the thirteen represented native source keys
+use their actual ids at Torso2. Repeated location/id keys retain last-put
+semantics and original fact order, rather than inventing an arithmetic sum.
+Weapon projections, ammo policy, scalar values, modifiers and totals remain
+unchanged. Other miscellaneous/ammo omissions, native equipment order and
+complete construction validity/weight remain separate.
+
+## Positive native ammo availability diagnostics
+
+The existing native ammo resolver owns registry identity, kg-per-shot valuation
+and the equipment-id shot count (`ProtoMekBVCalculator.java:50-52` and
+`AmmoType.java:17103-17105`, pin `48fcb2f64`). Its positive finite result and
+existing publicly recognized weaponType group supply optional
+`ammoAvailableMountBV` facts. The indexed ammo worklist retains actual mount
+references/order without changing admission, resolution, quantities or caps.
+No extra resolver call, parser, formula or identity table is introduced.
+
+`protoMechBVTerms` uses the existing `addBVToAmmoCapGroup` owner to add actual
+bin values in order, then transports `ammo.available.<nativeGroup>` terms.
+The facts never feed arithmetic inputs or alter the Proto exact-key cap policy.
+All old weapon/misc facts, scalar values, modifiers and totals remain intact.
+Missing, nonpositive, nonfinite, unresolved, generic fallback or unsupported
+public-group facts remain absent; no zero or launcher-derived bin is invented.
+In particular, the resolver's unmatched enum-form fallback such as `SRM:2`
+is not recognized by the current shared equipment-identity lookup and remains
+unprojected. That separate identity gap is not repaired or counted as parity.
+
+The represented 79 positive bins on 61 pinned sources supply 71 availability
+terms through these public owners. This scope does not establish native caps,
+general effective-quantity/admission rules, defensive ammo or complete ammo,
+construction, validity, weight or settings parity. Native equipment indices and
+the separately deferred Sprite 3 order remain outside this projection.
+
 ## Offensive BV movement
 
 At MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,

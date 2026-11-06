@@ -50,6 +50,8 @@ export interface CritScan {
   ppcCapLocs: string[];
   armoredPPCCapLocs: string[];
   ammo: Array<{ id: string; bv: number; weaponType: string; location: string }>;
+  /** Source-backed usable NARC/iNARC bins omitted by legacy arithmetic admission. */
+  ammoAvailableProjectionBins?: CritScan['ammo'];
   explosive: ExplosiveEquipmentEntry[];
   defEquipIds: string[];
   detectedArmorType: string | null;

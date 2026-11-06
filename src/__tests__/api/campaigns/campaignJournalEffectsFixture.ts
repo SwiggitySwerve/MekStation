@@ -2,8 +2,8 @@
  * Shared fixture for the U35e suites (journal-only campaign effects survive
  * a whole-envelope save). Real SQLite on a temp file, the live item route
  * and the live command route through node-mocks-http, the co-op host over
- * the store the production selector builds, and no MEKSTATION_E2E_* key in
- * the environment.
+ * the store the production selector builds, with campaign/combat E2E arms
+ * disarmed for each row.
  *
  * A campaign is made journal-native by the route create: under journal
  * authority the create appends the genesis itself; otherwise the genesis
@@ -61,6 +61,8 @@ import {
 import { generateKeyPair } from '@/services/vault/IdentityService';
 import { encodeTokenForWire } from '@/types/multiplayer/Player';
 
+import { useCampaignE2eEnvironment } from './campaignE2eEnvironment';
+
 export const NOW = '3025-07-04T00:00:00.000Z';
 
 /** A route answer: the status and the JSON body. */
@@ -71,15 +73,13 @@ export interface IRouteAnswer {
 
 /**
  * Registers beforeEach/afterEach hooks that give every row a fresh SQLite
- * file under a temp directory (prefix `prefix`), with every MEKSTATION_E2E_*
- * key removed, and remove the directory afterwards.
+ * file under a temp directory (prefix `prefix`), with E2E arms disarmed,
+ * and remove the directory and restore the arms afterwards.
  */
 export function useTempCampaignDatabase(prefix: string): void {
+  useCampaignE2eEnvironment();
   let dir = '';
   beforeEach(async () => {
-    for (const key of Object.keys(process.env)) {
-      if (key.startsWith('MEKSTATION_E2E_')) delete process.env[key];
-    }
     dir = await mkdtemp(path.join(tmpdir(), prefix));
     resetSQLiteService();
     getSQLiteService({ path: path.join(dir, 'u35e.db') }).initialize();

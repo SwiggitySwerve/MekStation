@@ -32,11 +32,19 @@ describe('pre-commit hook (OD-precommit-drop-full-build)', () => {
 
   it('keeps `npx lint-staged`, whose *.{ts,tsx} list ends with npm run typecheck', () => {
     expect(
-      hookCommandLines().some((line) => /^\d+: npx lint-staged$/.test(line)),
+      hookCommandLines().some((line) =>
+        /^\d+: npx lint-staged \|\| exit \$\?$/.test(line),
+      ),
     ).toBe(true);
     const lintStaged = JSON.parse(fs.readFileSync(packagePath, 'utf8'))[
       'lint-staged'
     ];
     expect(lintStaged['*.{ts,tsx}'].at(-1)).toBe(TSC_ENTRY);
+  });
+
+  it('checks staged parents after lint-staged without restaging files', () => {
+    expect(hookCommandLines().at(-1)).toMatch(
+      /^\d+: node scripts\/lib\/check-staged-parents\.mjs$/,
+    );
   });
 });

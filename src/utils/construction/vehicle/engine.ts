@@ -350,28 +350,38 @@ export interface VehicleEngineValidationResult {
  * Validate vehicle engine configuration and return computed values
  *
  * Emits VAL-VEHICLE-ENGINE errors for:
- * - Rating exceeds 400
+ * - Combat rating exceeds 400
  */
 export function validateVehicleEngine(
   tonnage: number,
   cruiseMP: number,
   engineType: VehicleEngineType | null,
   motionType: GroundMotionType,
+  context: Pick<
+    VehicleInstalledEngineState,
+    'unitType' | 'engineTechRating'
+  > = {},
 ): VehicleEngineValidationResult {
   const errors: Array<{ ruleId: string; message: string }> = [];
   const warnings: string[] = [];
   const engineLess =
     engineType === null || engineType === VehicleOnlyEngineType.NONE;
 
-  const engineRating = computeEngineRating(
+  const support = context.unitType === UnitType.SUPPORT_VEHICLE;
+  const engineRating = computeStoredVehicleEngineRating(
     tonnage,
     cruiseMP,
     motionType,
+    support,
     engineLess,
   );
-  const engineWeight = computeVehicleEngineWeight(engineRating, engineType, {
+  const engineWeight = computeVehicleInstalledEngineWeight({
+    ...context,
     tonnage,
     motionType,
+    cruiseMP,
+    engineRating,
+    engineType: engineType ?? VehicleOnlyEngineType.NONE,
   });
   const flankMP = computeFlankMP(cruiseMP);
 
@@ -383,7 +393,7 @@ export function validateVehicleEngine(
   }
 
   // Rule: engine rating must not exceed 400 for combat vehicles
-  if (engineRating > VEHICLE_MAX_ENGINE_RATING) {
+  if (!support && engineRating > VEHICLE_MAX_ENGINE_RATING) {
     errors.push({
       ruleId: 'VAL-VEHICLE-ENGINE',
       message: `Engine rating ${engineRating} exceeds maximum ${VEHICLE_MAX_ENGINE_RATING}`,

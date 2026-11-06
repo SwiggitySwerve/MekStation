@@ -66,5 +66,13 @@
       "COMMUNICATIONS": "Dalban",
       "TARGETING": "Garret"
     }
+  },
+  "weaponQuirks": {
+    "FR:0:Medium Laser": [
+      "mod_weapons"
+    ],
+    "TU:0:Large Laser": [
+      "mod_weapons"
+    ]
   }
 }

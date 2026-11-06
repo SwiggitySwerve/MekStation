@@ -53,6 +53,7 @@ const replaySchemas = new ReplaySchemaRegistry({
 });
 const catalog = getNodeCanonicalUnitService();
 const refs = ['vehicles:schrek-ppc-carrier', 'aerospace:stuka-stu-k5'];
+
 let repository: UnitRepository;
 let denyCustomReads = false;
 
@@ -186,6 +187,22 @@ async function duelSession(ref: string, definition?: unknown) {
     .createInteractiveSession([adapted[0]], [adapted[1]], units)
     .getSession();
 }
+
+it.each(['vehicles', 'aerospace'] as const)(
+  'keeps portable weapon quirks out of the %s construction snapshot',
+  (family) => {
+    const definition = savedDefinition(family);
+    const recorded = parseCustomCombatDefinition(
+      {
+        ...definition,
+        weaponQuirks: { 'FR:0:PPC': ['accurate'] },
+      },
+      definition.id,
+    );
+    expect(recorded).not.toBeNull();
+    expect(recorded).not.toHaveProperty('weaponQuirks');
+  },
+);
 
 it.each(['vehicles', 'aerospace'] as const)(
   'admits a saved %s snapshot and strictly revalidates recorded construction',

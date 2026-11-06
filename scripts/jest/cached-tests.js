@@ -994,6 +994,14 @@ function createStore(dir) {
     // unwritable: put() fails open later, and the dir holds no entries
   }
   const entryPath = (key) => path.join(dir, key.slice(0, 2), `${key}.json`);
+  const writeEntry = (key, entry, flag = 'w') => {
+    fs.mkdirSync(path.dirname(entryPath(key)), { recursive: true });
+    fs.writeFileSync(
+      entryPath(key),
+      JSON.stringify({ ...entry, key, version: KEY_VERSION }),
+      { flag },
+    );
+  };
   return {
     get(key) {
       try {
@@ -1004,11 +1012,17 @@ function createStore(dir) {
       }
     },
     put(key, entry) {
-      fs.mkdirSync(path.dirname(entryPath(key)), { recursive: true });
-      fs.writeFileSync(
-        entryPath(key),
-        JSON.stringify({ ...entry, key, version: KEY_VERSION }),
-      );
+      writeEntry(key, entry);
+    },
+    /** Seed imports cannot overwrite local results, including rejections. */
+    putIfAbsent(key, entry) {
+      try {
+        writeEntry(key, entry, 'wx');
+        return true;
+      } catch (error) {
+        if (error.code === 'EEXIST') return false;
+        throw error;
+      }
     },
     touch(key) {
       const now = new Date();
@@ -1170,6 +1184,14 @@ function jestArgs({ projects, shard, passthrough }) {
   ];
 }
 
+/** The result-affecting options, shared by native runs and local seed import. */
+function cacheExecOptions({ projects, passthrough }) {
+  return [
+    ...projects.map((project) => `project=${project}`),
+    ...passthrough.filter((arg) => KEYED_JEST_OPTIONS.test(arg)),
+  ];
+}
+
 // Windows refuses a command line over 32,767 characters, and every file to run is
 // an argument: a run of more than ~450 files failed to spawn (ENAMETOOLONG) and
 // reported only exit 1, so the cache could not be used locally. There the files
@@ -1201,6 +1223,7 @@ function createJestExecutor({
   baseArgs,
   spawn = spawnSync,
   limit = ARGV_LIMIT,
+  onReport,
 }) {
   const jestBin = path.join(root, 'node_modules', 'jest', 'bin', 'jest.js');
   const withoutShard = baseArgs.filter((a) => !a.startsWith('--shard'));
@@ -1238,6 +1261,12 @@ function createJestExecutor({
               toPosix(path.relative(root, test.name)),
               test.status === 'passed' ? 'passed' : 'failed',
             );
+          }
+          // Advisory timing collection cannot change test/cache results.
+          try {
+            onReport?.(report);
+          } catch {
+            /* reporting stays soft */
           }
         } catch {
           // no readable report: nothing is recorded, exit code still decides
@@ -1317,6 +1346,19 @@ async function main(argv) {
   );
   const store = createStore(path.resolve(root, values['cache-dir']));
   const started = Date.now();
+  const timingFiles = {};
+  // This CommonJS CLI consumes G2's ESM extractor only at runtime; no cycle.
+  let onReport;
+  try {
+    const { measureJestFiles, mergeFileDurations } =
+      await import('./test-file-durations.mjs');
+    onReport = (raw) =>
+      mergeFileDurations(timingFiles, measureJestFiles(raw, root).durations);
+  } catch (error) {
+    console.error(
+      `[test:cached] advisory timing unavailable: ${error.message}`,
+    );
+  }
   let report;
   try {
     const cacheRel =
@@ -1325,16 +1367,13 @@ async function main(argv) {
     const keyer = createKeyer({
       root,
       index: buildFileIndex(root, cacheRel),
-      execOptions: [
-        ...values.project.map((project) => `project=${project}`),
-        ...passthrough.filter((arg) => KEYED_JEST_OPTIONS.test(arg)),
-      ],
+      execOptions: cacheExecOptions({ projects: values.project, passthrough }),
     });
     report = await runCached({
       files,
       keyer,
       store,
-      execute: createJestExecutor({ root, baseArgs }),
+      execute: createJestExecutor({ root, baseArgs, onReport }),
       mode,
       verifyHits,
       seed: `${process.env.GITHUB_RUN_ID || 'local'}:${process.env.GITHUB_RUN_ATTEMPT || '1'}`,
@@ -1350,6 +1389,8 @@ async function main(argv) {
   }
   store.prune(Number(values['prune-days']));
   report.elapsedMs = Date.now() - started;
+  report.testFiles = files;
+  report.timingFiles = timingFiles;
   console.log(
     `[test:cached] mode=${report.mode} files=${report.files} cache-hits=${report.hits} executed=${report.executed} ` +
       `verified=${report.verified.length} stale=${report.stale.length} exit=${report.exitCode}`,
@@ -1382,9 +1423,12 @@ module.exports = {
   analyzeSource,
   batchFiles,
   buildFileIndex,
+  cacheExecOptions,
   createJestExecutor,
   createKeyer,
   createStore,
+  jestArgs,
+  listTests,
   runCached,
   resolveMode,
   verifyOrder,

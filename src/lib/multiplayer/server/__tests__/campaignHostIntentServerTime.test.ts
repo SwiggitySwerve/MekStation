@@ -23,6 +23,8 @@
  * medians are written to <U35E_ROWS_DIR>/u89-server-time-<U89_RUN>.json.
  */
 
+import { performance } from 'node:perf_hooks';
+
 import {
   createJournalNative,
   flushMeasurements,
@@ -40,6 +42,7 @@ import {
   HOST,
   MATCH_ID,
   MEASURED,
+  PERF_ASSERTIONS,
   PUTS,
   ROOM,
   WARM_UP,
@@ -54,19 +57,32 @@ import {
 } from './campaignHostIntentServerTime.test-helpers';
 
 const SIZES = (process.env.U89_LOG_SIZES ?? '50,1000').split(',').map(Number);
+const perfIt = PERF_ASSERTIONS ? it : it.skip;
 
 const results: Record<string, unknown> = {
   sizes: SIZES,
   run: process.env.U89_RUN ?? null,
+  timingsEnabled: PERF_ASSERTIONS,
 };
 
 describe('U89 campaign host-intent server time by step and log size', () => {
   useTempCampaignDatabase('u89-server-time-');
 
+  beforeEach(() => {
+    if (!PERF_ASSERTIONS) {
+      jest.spyOn(performance, 'now').mockImplementation(() => {
+        throw new Error(
+          'U89 unit scenarios must not collect wall-clock timings',
+        );
+      });
+    }
+  });
+
   afterEach(() => {
     clearMeasurement();
     _resetCampaignHostRegistry();
     _resetActiveCoopHosts();
+    jest.restoreAllMocks();
   });
 
   afterAll(async () => {
@@ -77,7 +93,7 @@ describe('U89 campaign host-intent server time by step and log size', () => {
   });
 
   it.each(SIZES)(
-    'times each step of a GM command at a %i-event log',
+    'executes GM commands, guest delivery and host PUTs at a %i-event log',
     async (size) => {
       const id = `u89-log-${size}`;
       const { record } = await createJournalNative(id);
@@ -109,28 +125,45 @@ describe('U89 campaign host-intent server time by step and log size', () => {
       const puts: Steps[] = [];
       for (let put = 0; put < PUTS; put += 1) puts.push(await hostPut(id));
 
+      const eventsAtEnd = (await entry.host.getEventLog().getCampaignEvents(0))
+        .length;
       results[String(size)] = {
         eventsAtStart,
-        eventsAtEnd: (await entry.host.getEventLog().getCampaignEvents(0))
-          .length,
-        commandMedians: medians(samples),
-        spendFundsMedians: medians(
-          samples.filter((sample) => sample.advanceDay === 0),
-        ),
-        advanceDayMedians: medians(
-          samples.filter((sample) => sample.advanceDay === 1),
-        ),
-        putMedians: medians(puts),
+        eventsAtEnd,
+        ...(PERF_ASSERTIONS
+          ? {
+              commandMedians: medians(samples),
+              spendFundsMedians: medians(
+                samples.filter((sample) => sample.advanceDay === 0),
+              ),
+              advanceDayMedians: medians(
+                samples.filter((sample) => sample.advanceDay === 1),
+              ),
+              putMedians: medians(puts),
+            }
+          : {}),
         samples,
         puts,
       };
 
       expect(eventsAtStart).toBe(size);
+      expect(eventsAtEnd).toBeGreaterThan(eventsAtStart);
+      expect(samples).toHaveLength(MEASURED.length);
+      expect(puts).toHaveLength(PUTS);
       expect(samples.every((sample) => sample.refused === 0)).toBe(true);
-      expect(
-        samples.every((sample) => Number.isFinite(sample.deliverToGuest)),
-      ).toBe(true);
+      expect(samples.every((sample) => sample.deliveredEvents > 0)).toBe(true);
       expect(puts.every((put) => put.putStatus === 200)).toBe(true);
+      if (PERF_ASSERTIONS) {
+        expect(
+          samples.every((sample) => Number.isFinite(sample.deliverToGuest)),
+        ).toBe(true);
+      } else {
+        expect(performance.now).not.toHaveBeenCalled();
+        expect(samples.every((sample) => !('deliverToGuest' in sample))).toBe(
+          true,
+        );
+        expect(puts.every((put) => !('putRoute' in put))).toBe(true);
+      }
     },
     600_000,
   );
@@ -159,35 +192,41 @@ describe('U89 campaign host-intent server time by step and log size', () => {
     });
 
   // U89: the reads that fix owns.
-  it('the heal read and the highest-sequence reads do not grow with the log', () => {
-    const rows = growth([
-      ['commandMedians', 'healRead'],
-      ['commandMedians', 'gateHighestSequence'],
-      ['commandMedians', 'commitHighestSequence'],
-      ['putMedians', 'adoptHighestSequence'],
-    ]);
-    results.redRow = { short, long, rows };
-    expect(short).toBeLessThan(long);
-    expect(rows.filter((row) => row.grows)).toEqual([]);
-  });
+  perfIt(
+    'the heal read and the highest-sequence reads do not grow with the log',
+    () => {
+      const rows = growth([
+        ['commandMedians', 'healRead'],
+        ['commandMedians', 'gateHighestSequence'],
+        ['commandMedians', 'commitHighestSequence'],
+        ['putMedians', 'adoptHighestSequence'],
+      ]);
+      results.redRow = { short, long, rows };
+      expect(short).toBeLessThan(long);
+      expect(rows.filter((row) => row.grows)).toEqual([]);
+    },
+  );
 
   // U98: the grant wake after publish (the adapter's host-log reads, its
   // readStream, the epoch's sequence assignment), the replica ingest, and
   // the GM frame in to the last timed step net of the record rewrite.
-  it('the grant wake and the replica ingest do not grow with the log', () => {
-    const rows = growth([
-      ['commandMedians', 'grantHostLogRead'],
-      ['commandMedians', 'grantReadStream'],
-      ['commandMedians', 'grantAssignSequences'],
-      ['commandMedians', 'replicaIngest'],
-      ['commandMedians', 'serverTotalWithoutRecordRewrite'],
-    ]);
-    results.redRowU98 = { short, long, rows };
-    expect(short).toBeLessThan(long);
-    expect(rows.filter((row) => row.grows)).toEqual([]);
-  });
+  perfIt(
+    'the grant wake and the replica ingest do not grow with the log',
+    () => {
+      const rows = growth([
+        ['commandMedians', 'grantHostLogRead'],
+        ['commandMedians', 'grantReadStream'],
+        ['commandMedians', 'grantAssignSequences'],
+        ['commandMedians', 'replicaIngest'],
+        ['commandMedians', 'serverTotalWithoutRecordRewrite'],
+      ]);
+      results.redRowU98 = { short, long, rows };
+      expect(short).toBeLessThan(long);
+      expect(rows.filter((row) => row.grows)).toEqual([]);
+    },
+  );
 
-  it('the record rewrite stays under the absolute 50 ms ceiling', () => {
+  perfIt('the record rewrite stays under the absolute 50 ms ceiling', () => {
     const at = (size: number): number | null =>
       (
         results[String(size)] as

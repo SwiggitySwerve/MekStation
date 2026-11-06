@@ -8,6 +8,7 @@ import {
 } from '@/types/construction/UnitLocation';
 import { RulesLevel } from '@/types/enums/RulesLevel';
 import { TechBase } from '@/types/enums/TechBase';
+import armorOrder from '@/types/formats/blk-aerospace-armor.json';
 import {
   BLK_PROTOMECH_ARMOR_LOCATIONS,
   BLK_PROTOMECH_CHASSIS,
@@ -118,13 +119,15 @@ export function formatVehicleArmor(
 export function formatAerospaceArmor(
   allocation: Record<string, number>,
 ): string {
-  const values: number[] = [
-    allocation[AerospaceLocation.NOSE] || 0,
-    allocation[AerospaceLocation.LEFT_WING] || 0,
-    allocation[AerospaceLocation.RIGHT_WING] || 0,
-    allocation[AerospaceLocation.AFT] || 0,
-  ];
-  return values.join('\n');
+  const locations: Readonly<Record<string, AerospaceLocation>> = {
+    NOSE: AerospaceLocation.NOSE,
+    LEFT_WING: AerospaceLocation.LEFT_WING,
+    RIGHT_WING: AerospaceLocation.RIGHT_WING,
+    AFT: AerospaceLocation.AFT,
+  };
+  return armorOrder.fighter
+    .map((arc) => allocation[locations[arc]] || 0)
+    .join('\n');
 }
 
 export function formatProtoMechArmor(unit: ProtoMechState): string {

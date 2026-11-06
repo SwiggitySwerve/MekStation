@@ -158,6 +158,8 @@ export function resolvePSR(...args: ResolvePSRArgs): IPSRResult {
     unitQuirks: input.unitQuirks,
     pilotAbilities: input.pilotAbilities,
     neuralInterfaceActive: input.neuralInterfaceActive,
+    neuralInterfaceMode: input.neuralInterfaceMode,
+    hasDNICockpitMod: input.hasDNICockpitMod,
     isQuadMek: input.isQuadMek,
     unitType: input.unitType,
     pilotingSkill,
@@ -232,6 +234,8 @@ export function resolveAllPSRs(...args: ResolveAllPSRsArgs): IPSRBatchResult {
       unitQuirks: input.unitQuirks,
       pilotAbilities: input.pilotAbilities,
       neuralInterfaceActive: input.neuralInterfaceActive,
+      neuralInterfaceMode: input.neuralInterfaceMode,
+      hasDNICockpitMod: input.hasDNICockpitMod,
       isQuadMek: input.isQuadMek,
       unitType: input.unitType,
     });

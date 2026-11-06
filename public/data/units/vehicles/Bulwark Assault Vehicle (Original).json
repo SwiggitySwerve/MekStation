@@ -90,5 +90,11 @@
       "COMMUNICATIONS": "Maxell",
       "TARGETING": "Maxell"
     }
+  },
+  "weaponQuirks": {
+    "FR:0:ISHeavyGaussRifle": [
+      "exposed_linkage",
+      "accurate"
+    ]
   }
 }

@@ -1,0 +1,64 @@
+# Quirk identity and combat effects
+
+`catalog.ts` owns unit-quirk ids and membership through `hasQuirk`. Unit
+modifier helpers call that contract. Preserve unknown ids and legacy save
+keys; recognize native ids at lookup without rewriting saved data or adding
+a modifier twice when both spellings occur. Per-mount weapon quirks retain
+their distinct ids and membership scope.
+
+MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`
+`OptionsConstants.java:72-74,135-137` names native targeting ids.
+`Entity.java:12721-12781` applies -1 Improved / +1 Poor Targeting in the
+matching short, medium or long bracket; independent checks cancel when both
+are present. The native-id port changes lookup only, retaining existing
+range/SPA arithmetic and every legacy quirk id. Parsers and converters carry
+native data; they do not own runtime modifier rules.
+
+## Explicit Hard Pilot
+
+Native `hard_pilot` (`OptionsConstants.java:123` at the same pin) and saved
+`hard_to_pilot` share membership without double counting. The explicit quirk
+adds +1 only when native DNI is inactive, following
+[Entity.java:8939-8946](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/units/Entity.java#L8939).
+`pilotingQuirks.ts` consumes public `@/lib/spa/neuralInterface.hasActiveDNI`;
+the SPA owner alone interprets mode, implants and verified hardware
+(`Entity.java:13365-13379`, `NeuralInterfaceMode.java:102-119,151-158`).
+The PSR boundary forwards actual session mode/hardware retained by replay.
+Missing mode remains inactive; the represented jack-in flag does not replace
+native context. BVDNI qualifies even though its represented PSR bonus is zero.
+EI and BA NIU do not establish DNI activity or cockpit hardware.
+
+This correction covers explicit design/save quirks. DNI-induced Hard Pilot
+synthesis (`Entity.java:15675-15693`), higher-level mode authoring and AirMek
+landing PSRs remain separate. Easy Pilot's existing arithmetic and represented
+SPA modifiers are preserved.
+
+## Easy Pilot identity
+
+`OptionsConstants.java:62` names `easy_pilot`. Resolve it through the same
+membership owner, retaining the `easy_to_pilot` saved key. This is a unit
+design quirk, not a pilot SPA.
+`Entity.java:9989-9995` gates Easy Pilot terrain relief to base piloting >3;
+`TWGameManager.java:17878-17888` applies that same gate to damage PSRs.
+This identity correction preserves existing PSR arithmetic and eligibility.
+Both native Easy and Hard identities coexist; the explicit Hard exception
+continues to use the public native DNI owner and actual session inputs.
+
+## Weapon cooling
+
+`weaponQuirks.ts` owns `getWeaponCoolingHeatModifier`; interactive heat and
+autonomous heat phases both consume its delta through their existing calls.
+At the same MegaMek pin,
+[WeaponMounted.java:167-178](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/WeaponMounted.java#L167)
+first applies Improved Cooling as `max(1, heat - 1)`, then independently adds
+1 for Poor Cooling and 2 for No Cooling. The floor applies before additions;
+No Cooling is not a multiplier. `WeaponQuirks.java:81-83` and
+`OptionsConstants.java:106-108` register the native ids.
+
+Native `imp_cooling` and saved `improved_cooling` are one boolean flag here;
+duplicates and both spellings together do not multiply it. Unknown near ids
+do not match. Existing consumers retain their outer zero clamp and per-fired-
+weapon summation. This does not bind source critical slots to runtime mount
+ids, change heat sinks/firing modes, regenerate catalogs or establish complete
+weapon-quirk parity. Those source/runtime and other modifier paths remain
+separate from this bounded cooling correction.

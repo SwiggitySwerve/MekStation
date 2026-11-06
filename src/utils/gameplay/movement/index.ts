@@ -27,6 +27,7 @@ export {
   validateMovement,
   canStand,
   calculateGroundPathMpCost,
+  prepareGroundPathMpCost,
   getFacingChangeCost,
   getStandingCost,
   getValidDestinations,

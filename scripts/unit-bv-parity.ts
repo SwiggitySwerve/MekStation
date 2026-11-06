@@ -1,6 +1,8 @@
 /** One strict pinned-source BV comparator. See unit-bv-parity.md for the contract. */
 import { z } from 'zod';
 
+import type { IUnitValidateResult } from '../src/types/unit/UnitTypeHandler';
+
 import stages from './megameklab-conversion/java-reference/bv-stages.json';
 
 export const FAMILIES = [
@@ -37,6 +39,7 @@ export interface IFigure {
   calculationScope?: 'defensive-only';
 }
 export interface IComputedRow {
+  constructionValidity?: IUnitValidateResult | { failure: string };
   path: string;
   sha256: string;
   figure?: IFigure;
@@ -57,8 +60,30 @@ interface IFigureComparison {
   defensive: IAggregateDelta | null;
   offensive: IAggregateDelta | null;
 }
+type TermIssue =
+  | 'missingReference'
+  | 'missingLocal'
+  | 'nonfiniteReference'
+  | 'nonfiniteLocal'
+  | 'different';
+interface ITermComparison {
+  term: string;
+  java: number | null;
+  ours: number | null;
+  issues: TermIssue[];
+}
+interface ITermCoverage {
+  compared: number;
+  matched: number;
+  missingReference: number;
+  missingLocal: number;
+  nonfiniteReference: number;
+  nonfiniteLocal: number;
+  different: number;
+}
 interface IDeltaRow {
-  firstTermDifference: ReturnType<typeof firstTermDifference>;
+  firstTermDifference: Omit<ITermComparison, 'issues'> | null;
+  termDifferences?: ITermComparison[];
   path: string;
   sha256: string | undefined;
   sourceSha256: string | null;
@@ -74,6 +99,7 @@ interface IDeltaRow {
 }
 interface IGroupSummary {
   readonly termMatched?: number;
+  readonly termCoverage?: Record<string, ITermCoverage>;
   readonly firstTermDifferences?: Record<string, number>;
   readonly rows: number;
   readonly joined: number;
@@ -120,29 +146,29 @@ function foldWeaponTerms(terms?: IFigure['terms']): IFigure['terms'] {
   }
   return folded;
 }
-function firstTermDifference(
+function compareTerms(
   javaTerms?: IFigure['terms'],
   ourTerms?: IFigure['terms'],
-) {
+): ITermComparison[] {
   const java = foldWeaponTerms(javaTerms);
   const ours = foldWeaponTerms(ourTerms);
   const keys = [
     ...new Set([...Object.keys(stages), ...Object.keys(java ?? {}).sort()]),
   ];
-  for (const term of keys) {
+  return keys.map((term) => {
     const a = java?.[term],
       b = ours?.[term];
-    if (
-      a === undefined ||
-      b === undefined ||
-      !Number.isFinite(a) ||
-      !Number.isFinite(b) ||
-      !aggregateDelta(a, b).withinTolerance
-    )
-      return { term, java: a ?? null, ours: b ?? null };
-  }
-  return null;
+    const issues: TermIssue[] = [];
+    if (a === undefined) issues.push('missingReference');
+    else if (!Number.isFinite(a)) issues.push('nonfiniteReference');
+    if (b === undefined) issues.push('missingLocal');
+    else if (!Number.isFinite(b)) issues.push('nonfiniteLocal');
+    if (!issues.length && !aggregateDelta(a ?? NaN, b ?? NaN).withinTolerance)
+      issues.push('different');
+    return { term, java: a ?? null, ours: b ?? null, issues };
+  });
 }
+
 export function aggregateDelta(java: number, ours: number): IAggregateDelta {
   const delta = ours - java;
   return {
@@ -218,6 +244,7 @@ export function buildDeltaReport(
   perTerm = false,
 ): IDeltaReport {
   const errors: string[] = [];
+  const termCoverage: Record<string, Record<string, ITermCoverage>> = {};
   const index = <T extends { path: string }>(list: readonly T[]) => {
     const map = new Map<string, T>();
     for (const row of list) {
@@ -237,10 +264,32 @@ export function buildDeltaReport(
         ? familyOf(java)
         : familyOf({ path, concreteFamily: '' });
       const joined = !!input && !!java && input.sha256 === java.sha256;
-      const termDifference =
+      const termComparisons =
         perTerm && joined
-          ? firstTermDifference(java?.battleValue.terms, input?.figure?.terms)
-          : null;
+          ? compareTerms(java?.battleValue.terms, input?.figure?.terms)
+          : [];
+      const termDifferences = termComparisons.filter(
+        (entry) => entry.issues.length,
+      );
+      const first = termDifferences[0];
+      const termDifference = first
+        ? { term: first.term, java: first.java, ours: first.ours }
+        : null;
+      for (const entry of termComparisons) {
+        const coverage = (termCoverage[family] ??= {});
+        const counts = (coverage[entry.term] ??= {
+          compared: 0,
+          matched: 0,
+          missingReference: 0,
+          missingLocal: 0,
+          nonfiniteReference: 0,
+          nonfiniteLocal: 0,
+          different: 0,
+        });
+        counts.compared++;
+        if (!entry.issues.length) counts.matched++;
+        for (const issue of entry.issues) counts[issue]++;
+      }
       if (termDifference)
         errors.push(`term-mismatch: ${path}: ${termDifference.term}`);
       const comparison =
@@ -273,6 +322,7 @@ export function buildDeltaReport(
         );
       return {
         firstTermDifference: termDifference,
+        ...(perTerm ? { termDifferences } : {}),
         path,
         sha256: java?.sha256 ?? input?.sha256,
         sourceSha256: input?.sha256 ?? null,
@@ -319,6 +369,11 @@ export function buildDeltaReport(
           handlerExact: auxiliaryExact('handlerTotal'),
           ...(perTerm
             ? {
+                termCoverage: Object.fromEntries(
+                  Object.entries(termCoverage[family] ?? {}).sort(([a], [b]) =>
+                    a.localeCompare(b),
+                  ),
+                ),
                 termMatched: group.filter(
                   (row) => row.joined && row.ours && !row.firstTermDifference,
                 ).length,

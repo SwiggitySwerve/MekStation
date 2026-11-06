@@ -1,0 +1,2392 @@
+{
+  "schemaVersion": 1,
+  "asOfUtc": "2026-11-06T04:39:45.507328+00:00",
+  "scope": "Phase G G6 known-failure register; archived coordinator handbacks, CHECK5 nightly logs, selected committed diagnostics and bounded GitHub metadata. No claim to an exhaustive scan of all GitHub history.",
+  "owner": "G6 inventory; G5 alone owns acceptance status; Root alone merges",
+  "archiveRoot": "E:/Projects/Personal/MekStation-wt/_reports/2026-10-30/claude-coordinator",
+  "unknownConvention": "null is unrecorded evidence, never a zero/pass; prefix heads are explicitly shorter than40hex; PR context is not run mapping",
+  "environments": {
+    "historical-crash": "GitHub-hosted ubuntu-latest captured Ubuntu26.04, Node22.23.4, Playwright1.57.0, headless-shell1200; warm caches",
+    "nightly-chromium": "Full E2E Suite(chromium); per-run exact image/Node lives in source log; do not borrow scheduler environment",
+    "unit-ci": "GitHub-hosted unit/coverage jobs; exact image/Node unknown unless source says otherwise",
+    "windows-ci": "Windows runner; exact image/Node per cited archive only",
+    "local-windows": "Windows local archived runs; per-run Node/head only where recorded",
+    "ci-unspecified": "CI platform/Node not recovered from this receipt",
+    "source-described": "Exact environment is in source diagnostic; no cross-incident inference",
+    "u89-unit-ci": "GitHub-hosted ubuntu-latest; captured Ubuntu26.04.1 LTS image20261101.186.1, Node22.23.4, cached unit shard2/3, maxWorkers4. No contention telemetry collected.",
+    "2932-chromium": "GitHub-hosted ubuntu-latest; captured Ubuntu26.04 image, Node22.23.4, Playwright Chromium library shard2/2, actualWorkers1. Native failed result retry0; do not infer configured retry policy from that alone.",
+    "42205390500-control-chromium": "Two-shard diagnostic control/baseline, GitHub-hosted Linux x64, 4 CPUs, runner image20261101.186.1, Node22.23.4, cached Chromium headless-shell143.0.7499.4/revision1200. Browser binary SHA25620ffc88be1c6f7dc8351bebfaca965ff9a07617bddf696f0b67ef85e5868b29a. Exact environment is from the retained completed audit.",
+    "42219240827-chromium": "GitHub-hosted E2E2/2, ubuntu-26.04 image20261101.186.1, Node22.23.4 (raw job log lines17/18/190), Playwright1.57.0, actualWorkers1 (retained native library report). Failed result retry0; no cross-incident environment inference."
+  },
+  "latestNightly": {
+    "runId": 42072283514,
+    "workflowAttempt": 1,
+    "head": "73b1d16460ae075f6f6d5d7cc73fc5c616e77a22",
+    "createdAt": "2026-11-05T17:12:17Z",
+    "conclusion": "failure",
+    "jobId": 127403628676,
+    "expected": 1005,
+    "unexpected": 1,
+    "skipped": 28,
+    "flaky": 0,
+    "flakyBasis": "No flaky section in completed reporter summary; not a claim of zero recovered internal browser faults.",
+    "sources": ["latest-run", "latest-log"]
+  },
+  "historicalTick6": {
+    "runId": 41872559789,
+    "workflowAttempt": 1,
+    "head": "62d186d24e1db01c4ae8a871fe6215ad61165f11",
+    "expected": 943,
+    "unexpected": 58,
+    "flaky": 1,
+    "skipped": 28,
+    "source": "tick6-log",
+    "failedTests": [
+      {
+        "test": "e2e/authority-privacy-three-context.spec.ts:380:7",
+        "title": "› authority privacy three-context evidence › gm and two players prove live action, typed rejection, reconnect, and leak-free surfaces",
+        "sourceLine": 18170
+      },
+      {
+        "test": "e2e/campaign-economy-browser.spec.ts:382:7",
+        "title": "› Campaign economy browser proof › routes post-battle state through dashboard, repair, salvage, finances, and day advance @campaign @economy @strict",
+        "sourceLine": 18171
+      },
+      {
+        "test": "e2e/campaign-journal-two-process-privacy.spec.ts:127:7",
+        "title": "› campaign journal authority: revocation and redaction across two processes › a revoked seat is refused by the other process and a GM rationale never reaches a player",
+        "sourceLine": 18172
+      },
+      {
+        "test": "e2e/campaign-two-device-drive.spec.ts:291:7",
+        "title": "› live two-device campaign drive › shares a campaign from one server process and consumes it on another",
+        "sourceLine": 18173
+      },
+      {
+        "test": "e2e/coop-campaign-two-browser-journey.spec.ts:260:7",
+        "title": "› live co-op campaign two-browser journey › host and guest create, join, arbitrate, and reload through campaign-sync",
+        "sourceLine": 18174
+      },
+      {
+        "test": "e2e/coop-campaign-ui-audit.spec.ts:312:7",
+        "title": "› co-op campaign UI audit › captures evidence and asserts co-op screen fit, visibility, and actions",
+        "sourceLine": 18175
+      },
+      {
+        "test": "e2e/customizer-category-colors.spec.ts:79:5",
+        "title": "› equipment colors survive catalog, grouping, mounting and reload @customizer",
+        "sourceLine": 18176
+      },
+      {
+        "test": "e2e/customizer-equipment-workbench.spec.ts:17:5",
+        "title": "› catalog copies mount, move and persist independently @customizer",
+        "sourceLine": 18177
+      },
+      {
+        "test": "e2e/customizer-library-open.spec.ts:962:13",
+        "title": "› library persistence and printing › library flows 390 › small craft: edit, save, reload, reopen and print @customizer",
+        "sourceLine": 18178
+      },
+      {
+        "test": "e2e/gm-two-player-authority-order.pack.spec.ts:163:5",
+        "title": "› E2E-04 a multi-event combat batch is committed before any context renders it @authority-order @E2E-04",
+        "sourceLine": 18179
+      },
+      {
+        "test": "e2e/gm-two-player-authority-order.pack.spec.ts:225:5",
+        "title": "› E2E-07 concurrent owned commands serialize into two non-interleaved batches @authority-order @E2E-07",
+        "sourceLine": 18180
+      },
+      {
+        "test": "e2e/gm-two-player-authority-recovery.pack.spec.ts:45:5",
+        "title": "› E2E-01 durable campaign cold recovery @authority-recovery @E2E-01",
+        "sourceLine": 18181
+      },
+      {
+        "test": "e2e/gm-two-player-authority-recovery.pack.spec.ts:64:5",
+        "title": "› E2E-01 genesis branch recovers @authority-recovery @E2E-01",
+        "sourceLine": 18182
+      },
+      {
+        "test": "e2e/gm-two-player-authority-recovery.pack.spec.ts:83:5",
+        "title": "› E2E-02 participant ownership survives restart @authority-recovery @E2E-02",
+        "sourceLine": 18183
+      },
+      {
+        "test": "e2e/gm-two-player-authority-recovery.pack.spec.ts:121:5",
+        "title": "› E2E-02 effective branch remains authoritative @authority-recovery @E2E-02",
+        "sourceLine": 18184
+      },
+      {
+        "test": "e2e/gm-two-player-authority.pack1.spec.ts:78:5",
+        "title": "› E2E-18 quiet heartbeats keep three campaign clients connected @authority-e2e @E2E-18",
+        "sourceLine": 18185
+      },
+      {
+        "test": "e2e/gm-two-player-authority.pack1.spec.ts:115:5",
+        "title": "› E2E-03 a committed command is durable before every eligible player renders it @authority-e2e @E2E-03",
+        "sourceLine": 18186
+      },
+      {
+        "test": "e2e/gm-two-player-authority.pack1.spec.ts:153:5",
+        "title": "› E2E-08 a resent command identity commits once and renders once @authority-e2e @E2E-08",
+        "sourceLine": 18187
+      },
+      {
+        "test": "e2e/gm-two-player-backpressure.pack.spec.ts:90:5",
+        "title": "› E2E-74 a slowed Player 2 stays inside the declared queue and memory limits while GM and Player 1 hold their latency budgets @backpressure @E2E-74",
+        "sourceLine": 18188
+      },
+      {
+        "test": "e2e/gm-two-player-combat.pack1.spec.ts:298:5",
+        "title": "› E2E-31 a foreign-unit command is refused typed and an owned command commits @combat-pack1 @E2E-31",
+        "sourceLine": 18189
+      },
+      {
+        "test": "e2e/gm-two-player-combat.pack1.spec.ts:355:5",
+        "title": "› E2E-32 two back-to-back intents resolve in one server order on both taps @combat-pack1 @E2E-32",
+        "sourceLine": 18190
+      },
+      {
+        "test": "e2e/gm-two-player-combat.pack1.spec.ts:424:5",
+        "title": "› E2E-34 a client-supplied roll cannot influence the result and viewers see one server roll @combat-pack1 @E2E-34",
+        "sourceLine": 18191
+      },
+      {
+        "test": "e2e/gm-two-player-conflict.pack.spec.ts:80:5",
+        "title": "› E2E-77 reachable conflict messages are actionable and leak-safe @conflict-pack @E2E-77",
+        "sourceLine": 18192
+      },
+      {
+        "test": "e2e/gm-two-player-conflict.pack.spec.ts:341:5",
+        "title": "› E2E-77 seated non-host rewind commit is refused and leak-safe @conflict-pack @E2E-77",
+        "sourceLine": 18193
+      },
+      {
+        "test": "e2e/gm-two-player-evidence.pack.spec.ts:190:5",
+        "title": "› E2E-78 a strict three-context run emits every artifact kind for every role @evidence-smoke @E2E-78",
+        "sourceLine": 18194
+      },
+      {
+        "test": "e2e/gm-two-player-exactly-once.pack.spec.ts:57:7",
+        "title": "› tactical client exactly-once delivery › E2E-09 duplicate projected Event reduces once and acknowledges once @E2E-09",
+        "sourceLine": 18195
+      },
+      {
+        "test": "e2e/gm-two-player-exactly-once.pack.spec.ts:89:7",
+        "title": "› tactical client exactly-once delivery › E2E-10 reconnect replay overlaps live delivery and converges once @E2E-10",
+        "sourceLine": 18196
+      },
+      {
+        "test": "e2e/gm-two-player-exactly-once.pack.spec.ts:121:7",
+        "title": "› tactical client exactly-once delivery › E2E-11 delivery hole rejoins from before the hole and recovers its tail @E2E-11",
+        "sourceLine": 18197
+      },
+      {
+        "test": "e2e/gm-two-player-exactly-once.pack.spec.ts:154:7",
+        "title": "› tactical client exactly-once delivery › E2E-12 collision blocks the cursor before later delivery can advance it @E2E-12",
+        "sourceLine": 18198
+      },
+      {
+        "test": "e2e/gm-two-player-failure.pack.spec.ts:420:7",
+        "title": "› GM two-player failure pack › E2E-61 a malformed intent is refused and writes nothing @failure @E2E-61",
+        "sourceLine": 18199
+      },
+      {
+        "test": "e2e/gm-two-player-failure.pack.spec.ts:476:7",
+        "title": "› GM two-player failure pack › E2E-62 a replayed command cannot duplicate an effect @failure @E2E-62",
+        "sourceLine": 18200
+      },
+      {
+        "test": "e2e/gm-two-player-failure.pack.spec.ts:544:9",
+        "title": "› GM two-player failure pack › E2E-63 a scoped fault at append-event-insert leaves no partial batch @failure @E2E-63",
+        "sourceLine": 18201
+      },
+      {
+        "test": "e2e/gm-two-player-failure.pack.spec.ts:544:9",
+        "title": "› GM two-player failure pack › E2E-63 a scoped fault at append-outbox-insert leaves no partial batch @failure @E2E-63",
+        "sourceLine": 18202
+      },
+      {
+        "test": "e2e/gm-two-player-failure.pack.spec.ts:544:9",
+        "title": "› GM two-player failure pack › E2E-63 a scoped fault at append-head-update leaves no partial batch @failure @E2E-63",
+        "sourceLine": 18203
+      },
+      {
+        "test": "e2e/gm-two-player-failure.pack.spec.ts:603:7",
+        "title": "› GM two-player failure pack › R66a a partitioned player catches up in place, exactly once @failure @E2E-66",
+        "sourceLine": 18204
+      },
+      {
+        "test": "e2e/gm-two-player-failure.pack.spec.ts:668:7",
+        "title": "› GM two-player failure pack › R66b a reloaded player rebuilds from zero and still applies the missed event once @failure @E2E-66",
+        "sourceLine": 18205
+      },
+      {
+        "test": "e2e/gm-two-player-failure.pack.spec.ts:757:7",
+        "title": "› GM two-player failure pack › E2E-70 a post-commit send fault leaves authority intact and the victim resumes the missed delivery @failure @E2E-70",
+        "sourceLine": 18206
+      },
+      {
+        "test": "e2e/gm-two-player-fault.pack.spec.ts:45:5",
+        "title": "› E2E-13 a one-shot append failure is truthful end to end @E2E-13",
+        "sourceLine": 18207
+      },
+      {
+        "test": "e2e/gm-two-player-lifecycle.pack.spec.ts:179:5",
+        "title": "› E2E-75 lifecycle postures are distinct, announced and correctly gated @lifecycle-pack @E2E-75",
+        "sourceLine": 18208
+      },
+      {
+        "test": "e2e/gm-two-player-lifecycle.pack.spec.ts:305:5",
+        "title": "› E2E-75 lifecycle postures pending and blocked are distinct, announced and correctly gated @lifecycle-pack @E2E-75",
+        "sourceLine": 18209
+      },
+      {
+        "test": "e2e/gm-two-player-membership.smoke.spec.ts:65:5",
+        "title": "› binds GM and two tactical seats durably and refuses a fourth identity @membership-smoke",
+        "sourceLine": 18210
+      },
+      {
+        "test": "e2e/gm-two-player-performance.pack.spec.ts:113:5",
+        "title": "› E2E-71/72/73 controlled loopback latency, catch-up and memory stay inside budget @performance @E2E-71 @E2E-72 @E2E-73",
+        "sourceLine": 18211
+      },
+      {
+        "test": "e2e/gm-two-player-privacy.pack.spec.ts:393:7",
+        "title": "› tactical pre-serialization privacy › E2E-20 Player 1 sealed choice reaches neither Player 2 wire nor board @E2E-20 @E2E-23 @E2E-24",
+        "sourceLine": 18212
+      },
+      {
+        "test": "e2e/gm-two-player-privacy.pack.spec.ts:498:7",
+        "title": "› tactical pre-serialization privacy › E2E-21 Player 2 sealed choice reaches neither Player 1 wire nor board @E2E-21",
+        "sourceLine": 18213
+      },
+      {
+        "test": "e2e/gm-two-player-privacy.pack.spec.ts:566:7",
+        "title": "› tactical pre-serialization privacy › E2E-27 no player surface carries an authority identifier or an inferable gap @E2E-27",
+        "sourceLine": 18214
+      },
+      {
+        "test": "e2e/gm-two-player-privacy.pack.spec.ts:611:7",
+        "title": "› tactical pre-serialization privacy › E2E-22 finalization reveals the COMMITTED declaration on the opponent delivery stream @E2E-22",
+        "sourceLine": 18215
+      },
+      {
+        "test": "e2e/gm-two-player-privacy.pack.spec.ts:675:7",
+        "title": "› tactical pre-serialization privacy › E2E-26 a reconnecting player replays exactly what it was delivered live @E2E-26",
+        "sourceLine": 18216
+      },
+      {
+        "test": "e2e/gm-two-player-privacy.pack.spec.ts:754:7",
+        "title": "› tactical pre-serialization privacy › E2E-28 seated export and timeline agree; strangers fail before fan-out @E2E-28",
+        "sourceLine": 18217
+      },
+      {
+        "test": "e2e/gm-two-player-proposals.pack.spec.ts:52:5",
+        "title": "› E2E-30 concurrent proposals stay attributable and independently resolvable @proposal-pack @E2E-30",
+        "sourceLine": 18218
+      },
+      {
+        "test": "e2e/gm-two-player-proposals.pack.spec.ts:180:5",
+        "title": "› E2E-29 veto and timeout commit nothing and clear only own pending UI @proposal-pack @E2E-29",
+        "sourceLine": 18219
+      },
+      {
+        "test": "e2e/gm-two-player-resilience.pack.spec.ts:590:5",
+        "title": "› E2E-14 a viewer that stops acknowledging is bounded and recovers alone @E2E-14",
+        "sourceLine": 18220
+      },
+      {
+        "test": "e2e/gm-two-player-resilience.pack.spec.ts:769:5",
+        "title": "› E2E-15 a host restart recovers every authority clause before a new command is enabled @E2E-15",
+        "sourceLine": 18221
+      },
+      {
+        "test": "e2e/gm-two-player-restart.pack.spec.ts:306:5",
+        "title": "› E2E-05 a death before commit leaves no authoritative row after restart @E2E-05",
+        "sourceLine": 18222
+      },
+      {
+        "test": "e2e/gm-two-player-restart.pack.spec.ts:364:5",
+        "title": "› E2E-06 a death after commit replays the committed result once @E2E-06",
+        "sourceLine": 18223
+      },
+      {
+        "test": "e2e/gm-two-player-token.pack.spec.ts:153:5",
+        "title": "› E2E-16 expired participant reauthenticates without a URL bearer @E2E-16",
+        "sourceLine": 18224
+      },
+      {
+        "test": "e2e/gm-two-player-token.pack.spec.ts:348:5",
+        "title": "› E2E-17 active route uses durable identity after invite expiry @token-pack @E2E-17",
+        "sourceLine": 18225
+      },
+      {
+        "test": "e2e/layout-sweep/viewport-layout-sweep.spec.ts:222:9",
+        "title": "› Viewport layout sweep › settings [settings]",
+        "sourceLine": 18226
+      },
+      {
+        "test": "e2e/multiplayer-live-vault-auth.spec.ts:132:7",
+        "title": "› multiplayer live vault-auth flow › two browser contexts can host, join, launch, and advance a match with fog disabled",
+        "sourceLine": 18227
+      }
+    ],
+    "warning": "Use this exact58-case native summary. CHECK5 e2e58/failed-list.txt has60 failed rows plus1flaky; prose mechanism totals also overlap. Those are not a reconciled partition."
+  },
+  "diagnostics": {
+    "control": {
+      "runId": 42160013901,
+      "attempt": 1,
+      "head": "a0c7c97f3c78c624c7874609fe7a69b183e84740",
+      "status": "archived and integrity audited by A; interpreted by C"
+    },
+    "treatment": {
+      "runId": 42162082479,
+      "head": "16471e2548f6afbca0fe622cad712bb2426bd638",
+      "status": "active at cited C handoff; G6 did not query or archive; await A/C completion receipts"
+    },
+    "clearance": "NONE; pairgreen does not clear historical failure; historical renderer/RSS memory state unknown"
+  },
+  "sources": {
+    "check5": {
+      "path": "unit-loading/CHECK5/HANDBACK.md",
+      "location": "coordinator-archive",
+      "sha256": "ad3ea9a17200a546de8a9ef9b597b50171c7dae40caaa8f6292cd7511e435dfe",
+      "bytes": 16308
+    },
+    "tick6": {
+      "path": "ledger/tick6/HANDBACK.md",
+      "location": "coordinator-archive",
+      "sha256": "8aac1b45f6b785cde76f9d36d4c69d46cf0070aaad0f191bdb891fa4453db3d8",
+      "bytes": 9358
+    },
+    "tick6-log": {
+      "path": "ledger/tick6/nightly-41872559789-e2e.log",
+      "location": "coordinator-archive",
+      "sha256": "ecff204fd9d2526e271637bf9d1a00df56386bd28f887654f53c7bd2017c0327",
+      "bytes": 3547693
+    },
+    "tick5": {
+      "path": "ledger/tick5/HANDBACK.md",
+      "location": "coordinator-archive",
+      "sha256": "cbfb6d2dbf2bab3c94a770304292e152dd2fc8f46b3b5df888fd57661b889a9f",
+      "bytes": 8795
+    },
+    "crash": {
+      "path": "ci-speed/speed-first/e2e-scheduler/stability/STABILITY.md",
+      "location": "coordinator-archive",
+      "sha256": "e097b61e73620a0a9452f2d5b14a5b29fa9ed75fbfdd251427e4091857800e2e",
+      "bytes": 9096
+    },
+    "crash-c": {
+      "path": "ci-speed/speed-first/e2e-scheduler/diagnostics/interpretation/G6-EVIDENCE.md",
+      "location": "coordinator-archive",
+      "sha256": "0a722da71430f9bf84db0d1241e756aee343ff89fe6ea36d13c6690fa1c99abb",
+      "bytes": 5753
+    },
+    "historical-crash": {
+      "path": "ci-speed/lane-C/round2/crash-42125123791-attempt2/AUDIT.md",
+      "location": "coordinator-archive",
+      "sha256": "cbe821473fbd832be0a16154755e74d2d708d33ed05113e99bf11194d710bf63",
+      "bytes": 3410
+    },
+    "lane-b": {
+      "path": "ci-speed/lane-B/JOBS.md",
+      "location": "coordinator-archive",
+      "sha256": "cce534c350aa16aed843660588ed8ece1ace7a8acadd55ac6ee4f66e4b985e0b",
+      "bytes": 13826
+    },
+    "followups": {
+      "path": "followups.md",
+      "location": "coordinator-archive",
+      "sha256": "729586045513cc958b3e44a8321c5003e1aa8924fb3579e7aa8fc75b9277f819",
+      "bytes": 75936
+    },
+    "dice": {
+      "path": "ruling-pr2421.md",
+      "location": "coordinator-archive",
+      "sha256": "187cdafaa40baef304fc7fdace7baa87b6a9f5f51b77543a27839ae9712489f4",
+      "bytes": 2184
+    },
+    "camp": {
+      "path": "camp01-flake/BRIEF.md",
+      "location": "coordinator-archive",
+      "sha256": "c79397b4ba46f6d7e7fe271de548d04fcd6a851db6a3d43f8a838b34ee843e80",
+      "bytes": 4425
+    },
+    "camp-repair": {
+      "path": "camp01-flake/repair/HANDBACK.md",
+      "location": "coordinator-archive",
+      "sha256": "9366d5a2df4c7988389a1c0589595f76e9c8206115afdffdf5c7cb8862c574c9",
+      "bytes": 5780
+    },
+    "latest-run": {
+      "path": "phase-g/G6/latest-nightly-run.json",
+      "location": "coordinator-archive",
+      "sha256": "afa9de954c449bf763f4d0e61e11ec9c708899a08286057a9413e81c28100aed",
+      "bytes": 25904
+    },
+    "latest-log": {
+      "path": "phase-g/G6/latest-nightly-e2e.log",
+      "location": "coordinator-archive",
+      "sha256": "7ad049cdb57730dc061aabf740338759a6b7e8ff8f04ef004ec5d3a8769f51e8",
+      "bytes": 724361
+    },
+    "run-metadata": {
+      "path": "phase-g/G6/run-metadata.json",
+      "location": "coordinator-archive",
+      "sha256": "88ffdeeb78c536fd13b00ef87cbb5f757e321a5d6c7744dff6c5f44ab0554894",
+      "bytes": 5735
+    },
+    "selected-paper": {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/selected-paper-flake-diagnosis-20260915.json",
+      "location": "repository",
+      "sha256": "70d9713ad2df596e4c8dabd75498bcb6f27fbc197909352162ee1448f07e6c67",
+      "bytes": 29080
+    },
+    "paper-size": {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/paper-size-flake-diagnosis-20260915.json",
+      "location": "repository",
+      "sha256": "3413d555c087d962401cfebe6ea7a89982f77276681d61e026fbdb49f81e9958",
+      "bytes": 14856
+    },
+    "port": {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/port-binding-flake-diagnosis-20260915.json",
+      "location": "repository",
+      "sha256": "9a00c01d6d1d8f602be5ac054f71885c84210c0e593261fb4058a679512318ab",
+      "bytes": 14491
+    },
+    "privacy": {
+      "path": "docs/audits/2026-10-16-p2ce3-fable-review-r2.md",
+      "location": "repository",
+      "sha256": "87380eaac7b4d149500a516f255899de5003820831353a7a4e04686907f76502",
+      "bytes": 34888
+    },
+    "clock": {
+      "path": "docs/audits/2026-10-17-p2cg1d-review.md",
+      "location": "repository",
+      "sha256": "1749b9ba7987655fb99aed0b76e311b10c50148bd380ab1e90ba99228a9aef4e",
+      "bytes": 44141
+    },
+    "clock-fix": {
+      "path": "docs/audits/2026-10-18-p2cg1e-review.md",
+      "location": "repository",
+      "sha256": "1652e3db71ad1674623849e8a696cc80386b70f72378d943f8c859f155e505c4",
+      "bytes": 40396
+    },
+    "identity": {
+      "path": "docs/audits/2026-10-17-ts7-track-exit-review.md",
+      "location": "repository",
+      "sha256": "d86fc15335b6e2af59bfefecc02559faddcc980229db92af6ecd9aea6476a3ea",
+      "bytes": 21419
+    },
+    "seam": {
+      "path": "docs/audits/2026-10-18-council3b-C-contention.md",
+      "location": "repository",
+      "sha256": "cc2c840436728263a203615e728303c5f11cccf4493ac791cae2ad6c4237997d",
+      "bytes": 16807
+    },
+    "packs": {
+      "path": "docs/audits/2026-10-18-nightly-diag-scenario-packs.md",
+      "location": "repository",
+      "sha256": "bd4ec9b6bbfc5db2d2633c9b368d68f422bac4d4dc49cb2bb2813e821aa1cc07",
+      "bytes": 25150
+    },
+    "nightly-41323437829": {
+      "path": "unit-loading/CHECK5/e2e/run-41323437829.log",
+      "location": "coordinator-archive",
+      "sha256": "b3fc54e2161725439ee65511eab4165a1cf141da7c3d1266c01870c4a7b3d7c4",
+      "bytes": 1008914
+    },
+    "nightly-40198436142": {
+      "path": "unit-loading/CHECK5/e2e/run-40198436142.log",
+      "location": "coordinator-archive",
+      "sha256": "c16188c2fdf69fbd1f6f4c2ca1894a7b0a081f0a9abf6ecc51de2598c5310364",
+      "bytes": 1113843
+    },
+    "nightly-40528673649": {
+      "path": "unit-loading/CHECK5/e2e/run-40528673649.log",
+      "location": "coordinator-archive",
+      "sha256": "6acc6989dc015e2c326e65812692a5e4775c7a1bf0405b998bb2d4a24d2ddc98",
+      "bytes": 1315430
+    },
+    "nightly-39436917307": {
+      "path": "unit-loading/CHECK5/e2e/run-39436917307.log",
+      "location": "coordinator-archive",
+      "sha256": "822b2826ac6cfa24567fca254bd1a27fcdd3c67cc2cf77e0dfd0479eea42fd93",
+      "bytes": 976264
+    },
+    "nightly-39129982940": {
+      "path": "unit-loading/CHECK5/e2e/run-39129982940.log",
+      "location": "coordinator-archive",
+      "sha256": "2599d81149b8f2ad7ef5b992750117630b6e836423ebd6d049279b935fcbdd7d",
+      "bytes": 4847201
+    },
+    "nightly-41508628284": {
+      "path": "unit-loading/CHECK5/e2e/run-41508628284.log",
+      "location": "coordinator-archive",
+      "sha256": "0a0b0df46ba69ef3cce4c11a2ba9237dc56955d8c78564d8a2614e74a905cb11",
+      "bytes": 841706
+    },
+    "nightly-41678759305": {
+      "path": "unit-loading/CHECK5/e2e/run-41678759305.log",
+      "location": "coordinator-archive",
+      "sha256": "10076adec35d79658363a8596cc15942bdaa6de4aad558f609d2b5dc41d8fd3a",
+      "bytes": 838999
+    },
+    "nightly-39017508685": {
+      "path": "unit-loading/CHECK5/e2e/run-39017508685.log",
+      "location": "coordinator-archive",
+      "sha256": "09e9c798dd2fd33f95431892da84f9407d5b41ac3d3ec9f96a29fc3e9b135aa9",
+      "bytes": 4878313
+    },
+    "nightly-41213620122": {
+      "path": "unit-loading/CHECK5/e2e/run-41213620122.log",
+      "location": "coordinator-archive",
+      "sha256": "559505e501ff55cd960fb3aeb5272cb090fa446beeda1112db07457d7cfd73aa",
+      "bytes": 839431
+    },
+    "nightly-39008344531": {
+      "path": "unit-loading/CHECK5/e2e/run-39008344531.log",
+      "location": "coordinator-archive",
+      "sha256": "bc8d919f266c3b2e573b4047b79b77c30ee9abab3e1bd0ecd35c98c86f5ab9a6",
+      "bytes": 5794879
+    },
+    "u89-log": {
+      "path": "phase-g/G6/u89-followup/failed-job.log",
+      "location": "coordinator-archive",
+      "sha256": "45f32f1a38de3aa7e19dc9dd62c2efb06d8c9a9b83f3618a179b97dea26df87b",
+      "bytes": 839305
+    },
+    "u89-job": {
+      "path": "phase-g/G6/u89-followup/failed-job.json",
+      "location": "coordinator-archive",
+      "sha256": "5711e0ccebd00a84b558de978b269cbbb5d611ec47754b056914a365abd21d15",
+      "bytes": 3778
+    },
+    "u89-context": {
+      "path": "phase-g/G6/u89-followup/context.json",
+      "location": "coordinator-archive",
+      "sha256": "ba0cd01dd720a55268479df410bd16f2374c9da3d245f068b1c5699e13b5eef7",
+      "bytes": 1017
+    },
+    "u89-attempt2-jobs": {
+      "path": "phase-g/G6/u89-perf-fix/first-attempt2-jobs.json",
+      "location": "coordinator-archive",
+      "sha256": "625e29fb89e6595ea7f63dcc804f6319e8eee104660cfcf2bf3b0d61afc19cf1",
+      "bytes": 40573
+    },
+    "u89-attempt2-log": {
+      "path": "phase-g/G6/u89-perf-fix/first-attempt2-unit2.log",
+      "location": "coordinator-archive",
+      "sha256": "10acfcd3344dc5f31403667dd702bf3f2f1b17fce24f02554509fabcfd0597e0",
+      "bytes": 844984
+    },
+    "u89-second-job": {
+      "path": "phase-g/G6/u89-perf-fix/second-job.json",
+      "location": "coordinator-archive",
+      "sha256": "0a87ae22dc13834acead192e97fe59645505559b1953f699ea7ad44bc584e2c3",
+      "bytes": 3780
+    },
+    "u89-second-log": {
+      "path": "phase-g/G6/u89-perf-fix/second-job.log",
+      "location": "coordinator-archive",
+      "sha256": "d44abf22890cb36c52d20e0229d161b93fbfeecc1b5dc2b9f0fe55af2498d74b",
+      "bytes": 849356
+    },
+    "2932-job": {
+      "path": "normal-work/G6-flake-register/2932-library-tab-timeout/job.json",
+      "location": "coordinator-archive",
+      "sha256": "24556e72882a7f28fe9422536de059da3c46b896e4452b64cd7659e49e4d1e77",
+      "bytes": 4563
+    },
+    "2932-log": {
+      "path": "normal-work/G6-flake-register/2932-library-tab-timeout/job.log",
+      "location": "coordinator-archive",
+      "sha256": "ec6b0d9b14e7742005f126aa6464e39b2108e4f7ee8d657198d834767fef8720",
+      "bytes": 79464
+    },
+    "2932-library-native": {
+      "path": "normal-work/G6-flake-register/2932-library-tab-timeout/artifacts/e2e-timings-2/library.json",
+      "location": "coordinator-archive",
+      "sha256": "676ab2d3f7b179cbcf9ce6373442f60302bea2f10ffb3f0baaf0fa29faaa1505",
+      "bytes": 95672
+    },
+    "2932-artifact-custody": {
+      "path": "normal-work/G6-flake-register/2932-library-tab-timeout/artifact-capture.json",
+      "location": "coordinator-archive",
+      "sha256": "90d6c4145855745a6bd6f17fb720fb0cfc7ac2ede1ea9758a3d2f2a26fd37260",
+      "bytes": 80496
+    },
+    "2932-context": {
+      "path": "normal-work/G6-flake-register/2932-library-tab-timeout/context.json",
+      "location": "coordinator-archive",
+      "sha256": "a48e72cba14f507629fcba95fed6045777e08cac108b5ca8670102ec1646fb59",
+      "bytes": 1097
+    },
+    "2932-p7-findings": {
+      "path": "normal-work/G6-flake-register/2932-library-tab-timeout/P7-findings.json",
+      "location": "coordinator-archive",
+      "sha256": "3e29548c0e74637f912aba0516e3665a10f4aa779a7f21030765a26e3095797e",
+      "bytes": 1803
+    },
+    "2932-attempt2-jobs": {
+      "path": "normal-work/G6-flake-register/2932-library-tab-timeout/attempt2-jobs.json",
+      "location": "coordinator-archive",
+      "sha256": "305856431f071ab6fc99c3a4609c88de549e9ae90e61e41c283665dcea0379c9",
+      "bytes": 40048
+    },
+    "2932-root-rerun": {
+      "path": "normal-work/G6-flake-register/2932-library-tab-timeout/Root-rerun-confirmation.json",
+      "location": "coordinator-archive",
+      "sha256": "d86eb836962d772f23b9cedc5b33ae2078cf182b3c3c5d0af77de789c2ae6c4c",
+      "bytes": 867
+    },
+    "42205390500-run": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/run-after.json",
+      "location": "coordinator-archive",
+      "sha256": "581c3baf2b5957fef23e44a68ca54de4f3a05f3d86d4420e7d9bd4e24a28337c",
+      "bytes": 13424
+    },
+    "42205390500-jobs": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/jobs.json",
+      "location": "coordinator-archive",
+      "sha256": "ff43fd4b5c941723e0456878fcbdcfdef9468c6acbd686f36296790c701c0e4b",
+      "bytes": 11537
+    },
+    "42205390500-log": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/job-127850608699.log",
+      "location": "coordinator-archive",
+      "sha256": "83aa3028339c44835ef78f8bf5681b0a606ef705dfc5195f5fff3d0313b08710",
+      "bytes": 120603
+    },
+    "42205390500-kernel": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/artifacts/renderer-diagnostic-2-1/renderer-memory/kernel/gates-3051.jsonl",
+      "location": "coordinator-archive",
+      "sha256": "17b82ae52495ce5fb4ae5b5e13bc21cb06ce95feddf5d656480bd678a1597d5b",
+      "bytes": 131
+    },
+    "42205390500-capture": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/CAPTURE-COMPLETE.json",
+      "location": "coordinator-archive",
+      "sha256": "599d308e5da8342c6928a09aa88332168f5d58d521ba04211a8623ccc1970c1c",
+      "bytes": 52568
+    },
+    "42205390500-audit": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/AUDIT.json",
+      "location": "coordinator-archive",
+      "sha256": "7480b6973683071dd9c9313d5d1b259b0d7f9a3e51c528b2ac95bec3c2a0e587",
+      "bytes": 13515
+    },
+    "42205390500-audit-receipt": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/AUDIT-RECEIPT.json",
+      "location": "coordinator-archive",
+      "sha256": "0584a2a0d4e66854406b65f873e1835a33ae9237b3a9b490c55d43460c2a622e",
+      "bytes": 2550
+    },
+    "42205390500-crash-context": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/CRASH-CONTEXT.json",
+      "location": "coordinator-archive",
+      "sha256": "0da3b70b103361f4b9e978e123dc562ec125c864e5e15576fa695a4fd250eadb",
+      "bytes": 2525
+    },
+    "42205390500-root-view": {
+      "path": "normal-work/G6-flake-register/42205390500-green-job-segv/root-event.json",
+      "location": "coordinator-archive",
+      "sha256": "7557e539d3042aefe6f776b77bd0d76ddccdcdf2ee24c5c9fc2ad4983afbd168",
+      "bytes": 704
+    },
+    "42205390500-local-verification": {
+      "path": "normal-work/G6-flake-register/42205390500-green-job-segv/local-capture-verification.json",
+      "location": "coordinator-archive",
+      "sha256": "8a46d84df0522ea1369f2f96c1183e396abc997d1443f1c496eb26f56e97549a",
+      "bytes": 56796
+    },
+    "42205390500-process-mapping": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/process-context-addendum/MAPPING.json",
+      "location": "coordinator-archive",
+      "sha256": "f0230110d984b01d4a14d2dca96bf24394b3d8856205e3488c0b180566cc36cd",
+      "bytes": 11179
+    },
+    "42205390500-process-mapping-md": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/process-context-addendum/MAPPING.md",
+      "location": "coordinator-archive",
+      "sha256": "986d3576d05b783a297a0e7555a028b1263fbe869d147c6d05577fe51b875241",
+      "bytes": 2234
+    },
+    "42205390500-process-receipt": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/process-context-addendum/RECEIPT.json",
+      "location": "coordinator-archive",
+      "sha256": "64cd2a5df9d28b7285ea00342e8e39ba3931749bba91ad68cf184393fa30d7ff",
+      "bytes": 1357
+    },
+    "42205390500-root-refinement": {
+      "path": "normal-work/G6-flake-register/42205390500-green-job-segv/process-refinement/root-refinement.json",
+      "location": "coordinator-archive",
+      "sha256": "63362efe8cdcd008deccb0538e51c1412e3bc2339e6e6631f3979bb564d7a055",
+      "bytes": 1014
+    },
+    "42205390500-process-verification": {
+      "path": "normal-work/G6-flake-register/42205390500-green-job-segv/process-refinement/verification.json",
+      "location": "coordinator-archive",
+      "sha256": "b19e51c7a36b3b67094e6e44aa18a174212abc2af3dc365c840b67255cbde5c9",
+      "bytes": 539
+    },
+    "2937-root-merge-event": {
+      "path": "normal-work/G6-flake-register/2937-keyboard-guard-merge/root-merge-event.json",
+      "location": "coordinator-archive",
+      "sha256": "fd9ea3aaafbcc4b29eb85edf4e2794a9fb065a393cae0ddc8cc37f62355a4f79",
+      "bytes": 1275
+    },
+    "42219240827-job": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/job.json",
+      "location": "coordinator-archive",
+      "sha256": "a1181fb1c1e0f244c21e1c900c76ceafef0268e66d34cd39657c6248016532ee",
+      "bytes": 4563
+    },
+    "42219240827-run": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/run.json",
+      "location": "coordinator-archive",
+      "sha256": "10a9941f8f9be27604f608729dd20073d86c1bf0cea148f2c74b6376283c761a",
+      "bytes": 12859
+    },
+    "42219240827-log": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/job.log",
+      "location": "coordinator-archive",
+      "sha256": "c7df3523250d11b50692307178e71863f1d0b01225aeeba6532faacb8d796fdd",
+      "bytes": 80044
+    },
+    "42219240827-capture": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/capture.json",
+      "location": "coordinator-archive",
+      "sha256": "defb773547152d8015bd6de3211c1d22f1c9c89158e21e31dc9db532f2af4eb9",
+      "bytes": 992
+    },
+    "42219240827-artifact-receipt": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/artifact-receipt.json",
+      "location": "coordinator-archive",
+      "sha256": "6937e8661ab697ea829bc4a537878f28619bcec67a1c225747781f26ed082119",
+      "bytes": 401
+    },
+    "42219240827-inventory": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/artifact-inventory.json",
+      "location": "coordinator-archive",
+      "sha256": "6b6b7e0b8150c69309090b7bacf33b09279a17110bf56824a344f1295a475804",
+      "bytes": 18680
+    },
+    "42219240827-native": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/artifact-files/e2e-timings-2/library.json",
+      "location": "coordinator-archive",
+      "sha256": "f605b7ccfe36be8ac15b9ecadf2a0c9ca32318b7a5ff85f52db49a8daff38314",
+      "bytes": 118547
+    },
+    "42219240827-context": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/artifact-files/e2e-report-2/test-results/library/customizer-library-open-li-7d3fa-reopen-and-print-customizer-chromium/error-context.md",
+      "location": "coordinator-archive",
+      "sha256": "089f8600d60bb9369946446d36bf8fca1b8affdb2fc0eee1e25d555bfd29cebd",
+      "bytes": 11334
+    },
+    "42219240827-report-zip": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/e2e-report-2.zip",
+      "location": "coordinator-archive",
+      "sha256": "808ae28cfff3ff04cbe2d7db27ea4d79d1e887f7894b57b174324e82772c81f7",
+      "bytes": 7571183
+    },
+    "42219240827-timings-zip": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/e2e-timings-2.zip",
+      "location": "coordinator-archive",
+      "sha256": "6132b66e235dd331eb11e5a2490bfa2760de36d5148d93bad2c00f3dd7bbbbb0",
+      "bytes": 506597
+    },
+    "2962-p7-committed-proof": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/committed-proof.json",
+      "location": "coordinator-archive",
+      "sha256": "084bad6c9cfddde1309ad8841f8ab8f09b9759502735c72b7588ba88ae1cdc3c",
+      "bytes": 5088
+    },
+    "2962-p7-red": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/red-receipt.json",
+      "location": "coordinator-archive",
+      "sha256": "609e7993f182151598cacbde749a73cf54b8469946711cb2dcc9819eb8ec00e5",
+      "bytes": 1721
+    },
+    "2962-p7-green": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/green-receipt.json",
+      "location": "coordinator-archive",
+      "sha256": "20dd6d3dd5e1c43b600c9ae928c9f9cdcf7ba4fdeea3b86ecb66087ba234f70e",
+      "bytes": 1695
+    },
+    "2962-p7-committed": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/committed-receipt.json",
+      "location": "coordinator-archive",
+      "sha256": "259bc6afac9cb2522afd19b97e811de8706e3f63a209209b4f3b16f63b8e6f28",
+      "bytes": 1698
+    },
+    "2962-p7-preservation": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/source-preservation.json",
+      "location": "coordinator-archive",
+      "sha256": "161731b3f4ce938633522f5df88f90ee7f07c3494e71a11ee2ba02a84a693833",
+      "bytes": 583
+    },
+    "2962-root-merge": {
+      "path": "normal-work/G6-flake-register/2962-keyboard-initial-value-recurrence/root-merge-event.json",
+      "location": "coordinator-archive",
+      "sha256": "f069c0c934cc7589e2228e48ff73626c17d97d8c688dbedff6c53e29fa25179a",
+      "bytes": 1037
+    },
+    "2962-local-verification": {
+      "path": "normal-work/G6-flake-register/2962-keyboard-initial-value-recurrence/local-verification.json",
+      "location": "coordinator-archive",
+      "sha256": "6a938409522c6df99ba2c3897d8b8124d4b76207f166884af8b31f9ef0a53241",
+      "bytes": 3232
+    }
+  },
+  "entries": [
+    {
+      "id": "G6-001",
+      "classification": "unresolved-native-crash",
+      "state": "parked-blocking",
+      "test": "e2e/seam-roster-materialization-handoff.spec.ts:113",
+      "environment": "historical-crash",
+      "summary": "Chromium headless-shell 1200 signal 11 SEGV_MAPERR 0x1b0 during context teardown after 52 body assertions passed. Treatment regression signal; no independent-infrastructure or OOM cause established.",
+      "owner": "CI-SPEED C: interpretation/scheduler; A: evidence custody; Root: release",
+      "nextStep": "A finishes the already submitted matched pair archive/audit; C interprets it. Root retains the draft stability hold. No G6 rerun or browser/test fix.",
+      "observations": [
+        {
+          "runId": 42141557514,
+          "workflowAttempt": 5,
+          "head": "5b92a9e4069a2cb75f3176ec3ea491dc374efef4",
+          "result": "failed",
+          "source": "crash",
+          "jobId": 127681315400,
+          "testRetry": 0
+        },
+        {
+          "runId": 42141557514,
+          "workflowAttempt": 6,
+          "head": "5b92a9e4069a2cb75f3176ec3ea491dc374efef4",
+          "result": "passed",
+          "source": "crash"
+        },
+        {
+          "runId": 42125123791,
+          "workflowAttempt": 2,
+          "head": "7b3934759b71d86d32687af24839b2c42eac3384",
+          "result": "failed",
+          "source": "historical-crash"
+        }
+      ],
+      "sources": ["crash", "crash-c", "historical-crash"],
+      "missingEvidence": [
+        "T5 RSS, renderer peaks, cgroup and /dev/shm history were not captured.",
+        "#2856 attempt 2 trace was lost before archival; raw job log remains.",
+        "A later green pair cannot reconstruct T5 memory or establish stability equivalence."
+      ]
+    },
+    {
+      "id": "G6-002",
+      "classification": "observed-intermittent",
+      "state": "open",
+      "test": "e2e/armor-capacity.spec.ts:210:5",
+      "environment": "nightly-chromium",
+      "summary": "saved MegaMek appearance falls back safely and all configuration previews expose the retained styles @appearance; reporter explicitly classified this case as flaky.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 41323437829,
+          "workflowAttempt": 1,
+          "head": "2221a297c8c8efe32db5e045aa0768cdd13ca914",
+          "result": "failed first test attempt; passed on retry",
+          "source": "nightly-41323437829",
+          "sourceLine": 5429,
+          "testRetry": null
+        }
+      ],
+      "sources": ["nightly-41323437829"],
+      "missingEvidence": [
+        "Exact passing test retry index and current recurrence/fix status are not established by the summary."
+      ]
+    },
+    {
+      "id": "G6-003",
+      "classification": "observed-intermittent",
+      "state": "open",
+      "test": "e2e/campaign-flow.spec.ts:783:7",
+      "environment": "nightly-chromium",
+      "summary": "Campaign Flow - Damage Carry-Forward › persists damaged roster state, audit entry, repair queue, and salvage report after reload @campaign @smoke @strict; reporter explicitly classified this case as flaky.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 40198436142,
+          "workflowAttempt": 1,
+          "head": "c461273a50ccefc87545a26655a4eaef7838af6a",
+          "result": "failed first test attempt; passed on retry",
+          "source": "nightly-40198436142",
+          "sourceLine": 6052,
+          "testRetry": null
+        }
+      ],
+      "sources": ["nightly-40198436142"],
+      "missingEvidence": [
+        "Exact passing test retry index and current recurrence/fix status are not established by the summary."
+      ]
+    },
+    {
+      "id": "G6-004",
+      "classification": "observed-intermittent",
+      "state": "open",
+      "test": "e2e/customizer-data-flow.spec.ts:211:5",
+      "environment": "nightly-chromium",
+      "summary": "browser draft feedback reports actual write failure and recovery @customizer; reporter explicitly classified this case as flaky.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 40528673649,
+          "workflowAttempt": 1,
+          "head": "4f5398b68f88d799fdfb5e5f8372dd5caa576418",
+          "result": "failed first test attempt; passed on retry",
+          "source": "nightly-40528673649",
+          "sourceLine": 6395,
+          "testRetry": null
+        }
+      ],
+      "sources": ["nightly-40528673649"],
+      "missingEvidence": [
+        "Exact passing test retry index and current recurrence/fix status are not established by the summary."
+      ]
+    },
+    {
+      "id": "G6-005",
+      "classification": "observed-intermittent",
+      "state": "open",
+      "test": "e2e/encounter-flow.spec.ts:390:7",
+      "environment": "nightly-chromium",
+      "summary": "Encounter Flow - Auto-Resolve › should auto-resolve encounter when launched @encounter @smoke; reporter explicitly classified this case as flaky.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 39436917307,
+          "workflowAttempt": 1,
+          "head": "59004af9c186c1cc7326384623c43d9f060cfec5",
+          "result": "failed first test attempt; passed on retry",
+          "source": "nightly-39436917307",
+          "sourceLine": 5415,
+          "testRetry": null
+        }
+      ],
+      "sources": ["nightly-39436917307"],
+      "missingEvidence": [
+        "Exact passing test retry index and current recurrence/fix status are not established by the summary."
+      ]
+    },
+    {
+      "id": "G6-006",
+      "classification": "observed-intermittent",
+      "state": "open",
+      "test": "e2e/gm-two-player-authority.pack1.spec.ts:153:5",
+      "environment": "nightly-chromium",
+      "summary": "E2E-08 a resent command identity commits once and renders once @authority-e2e @E2E-08; reporter explicitly classified this case as flaky.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 39129982940,
+          "workflowAttempt": 1,
+          "head": "1b8558625e1e488e6ba62b916ec68bd2ed0d701f",
+          "result": "failed first test attempt; passed on retry",
+          "source": "nightly-39129982940",
+          "sourceLine": 16303,
+          "testRetry": null
+        }
+      ],
+      "sources": ["nightly-39129982940"],
+      "missingEvidence": [
+        "Exact passing test retry index and current recurrence/fix status are not established by the summary."
+      ]
+    },
+    {
+      "id": "G6-007",
+      "classification": "observed-intermittent",
+      "state": "open",
+      "test": "e2e/playtest-subsystem-loans.spec.ts:50:9",
+      "environment": "nightly-chromium",
+      "summary": "Wave 6.1.C — Loans subsystem › take-loan write flow credits the balance and records the loan @subsystem:economy; reporter explicitly classified this case as flaky.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 41508628284,
+          "workflowAttempt": 1,
+          "head": "a682e534835e1e020abd569693ad71de22e13633",
+          "result": "failed first test attempt; passed on retry",
+          "source": "nightly-41508628284",
+          "sourceLine": 4583,
+          "testRetry": null
+        },
+        {
+          "runId": 41678759305,
+          "workflowAttempt": 1,
+          "head": "7dc4bff1c46bd18b45353876c5c4eb90995f78b0",
+          "result": "failed first test attempt; passed on retry",
+          "source": "nightly-41678759305",
+          "sourceLine": 4578,
+          "testRetry": null
+        },
+        {
+          "runId": 41872559789,
+          "workflowAttempt": 1,
+          "head": "62d186d24e1db01c4ae8a871fe6215ad61165f11",
+          "result": "flaky; passed on retry",
+          "source": "tick6-log",
+          "testRetry": null
+        }
+      ],
+      "sources": ["nightly-41508628284", "nightly-41678759305", "tick6-log"],
+      "missingEvidence": [
+        "Exact passing test retry index and current recurrence/fix status are not established by the summary."
+      ]
+    },
+    {
+      "id": "G6-008",
+      "classification": "observed-intermittent",
+      "state": "open",
+      "test": "e2e/saved-custom-combat-launch.spec.ts:212:5",
+      "environment": "nightly-chromium",
+      "summary": "server-saved custom unit launches through production combat to a durable post-battle roster @customizer @campaign @encounter @combat; reporter explicitly classified this case as flaky.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 39017508685,
+          "workflowAttempt": 1,
+          "head": "31610a56daa6bf8f22e3c2abebb811fe09326e9f",
+          "result": "failed first test attempt; passed on retry",
+          "source": "nightly-39017508685",
+          "sourceLine": 16507,
+          "testRetry": null
+        }
+      ],
+      "sources": ["nightly-39017508685"],
+      "missingEvidence": [
+        "Exact passing test retry index and current recurrence/fix status are not established by the summary."
+      ]
+    },
+    {
+      "id": "G6-009",
+      "classification": "observed-intermittent",
+      "state": "open",
+      "test": "e2e/seed-reproducibility.spec.ts:258:9",
+      "environment": "nightly-chromium",
+      "summary": "live seed-reproducibility proof › same ?seed=N auto-resolved twice via independent page loads yields identical winner, turn count, and event count @game @determinism @smoke @game @determinism @smoke; reporter explicitly classified this case as flaky.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 39017508685,
+          "workflowAttempt": 1,
+          "head": "31610a56daa6bf8f22e3c2abebb811fe09326e9f",
+          "result": "failed first test attempt; passed on retry",
+          "source": "nightly-39017508685",
+          "sourceLine": 16508,
+          "testRetry": null
+        }
+      ],
+      "sources": ["nightly-39017508685"],
+      "missingEvidence": [
+        "Exact passing test retry index and current recurrence/fix status are not established by the summary."
+      ]
+    },
+    {
+      "id": "G6-010",
+      "classification": "observed-intermittent",
+      "state": "open",
+      "test": "e2e/tactical-command-journey.spec.ts:630:7",
+      "environment": "nightly-chromium",
+      "summary": "tactical command journey @game @command-screen › previews and commits a player movement command with state and log proof; reporter explicitly classified this case as flaky.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 41213620122,
+          "workflowAttempt": 1,
+          "head": "ecf533e3a8e2b6517beaff38952025901d6bce11",
+          "result": "failed first test attempt; passed on retry",
+          "source": "nightly-41213620122",
+          "sourceLine": 4520,
+          "testRetry": null
+        }
+      ],
+      "sources": ["nightly-41213620122"],
+      "missingEvidence": [
+        "Exact passing test retry index and current recurrence/fix status are not established by the summary."
+      ]
+    },
+    {
+      "id": "G6-011",
+      "classification": "observed-intermittent",
+      "state": "open",
+      "test": "e2e/ux-walkthrough-audit.spec.ts:235:7",
+      "environment": "nightly-chromium",
+      "summary": "ux walkthrough audit — desktop › journey: quick game to auto-resolve results; reporter explicitly classified this case as flaky.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 39008344531,
+          "workflowAttempt": 1,
+          "head": "817739ca66d4044f120946459eabb0a99c3068e2",
+          "result": "failed first test attempt; passed on retry",
+          "source": "nightly-39008344531",
+          "sourceLine": 20757,
+          "testRetry": null
+        }
+      ],
+      "sources": ["nightly-39008344531"],
+      "missingEvidence": [
+        "Exact passing test retry index and current recurrence/fix status are not established by the summary."
+      ]
+    },
+    {
+      "id": "G6-012",
+      "classification": "observed-intermittent",
+      "state": "open",
+      "test": "e2e/playtest-subsystem-contracts.spec.ts:66",
+      "environment": "nightly-chromium",
+      "summary": "Contract-market accept flow passed on retry; no diagnosis established.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 41765754901,
+          "workflowAttempt": 1,
+          "head": "998a5f3ff5576020f229d64d4405dc83ba779d9c",
+          "result": "flaky; passed on retry",
+          "source": "tick5"
+        }
+      ],
+      "sources": ["check5", "tick5"],
+      "missingEvidence": [
+        "Exact passing test retry index and current recurrence/fix status."
+      ]
+    },
+    {
+      "id": "G6-013",
+      "classification": "observed-intermittent",
+      "state": "open",
+      "test": "e2e/layout-sweep/viewport-layout-sweep.spec.ts:222 (settings, mobile-375)",
+      "environment": "nightly-chromium",
+      "summary": "Repeated visibility failures across nightlies, followed by passes. Load/timing explanation is an inference; the independently observed 422px button overflow is a product-layout issue.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 41508628284,
+          "workflowAttempt": 1,
+          "head": "a682e534835e1e020abd569693ad71de22e13633",
+          "result": "failed",
+          "source": "check5"
+        },
+        {
+          "runId": 41678759305,
+          "workflowAttempt": 1,
+          "head": "7dc4bff1c46bd18b45353876c5c4eb90995f78b0",
+          "result": "failed",
+          "source": "check5"
+        },
+        {
+          "runId": 41872559789,
+          "workflowAttempt": 1,
+          "head": "62d186d24e1db01c4ae8a871fe6215ad61165f11",
+          "result": "failed",
+          "source": "tick6-log"
+        },
+        {
+          "runId": 41945360582,
+          "workflowAttempt": 1,
+          "head": "e411fa38a0751792e8d53b4a1963db88f81913d9",
+          "result": "passed per CHECK5 receipt",
+          "source": "check5"
+        }
+      ],
+      "sources": ["check5", "tick6-log"],
+      "missingEvidence": [
+        "Failures/passes are across different heads; unchanged-head reproduction and passing retry indexes are absent."
+      ]
+    },
+    {
+      "id": "G6-014",
+      "classification": "reported-single-failure-later-pass",
+      "state": "open",
+      "test": "e2e/customizer-library-open.spec.ts:962 (small craft, 390px)",
+      "environment": "nightly-chromium",
+      "summary": "One observed tab-name concatenation (Aquarius EscortFlow) did not recur in a later dispatch. Cause remains unknown; a changed-head pass is not same-head flake proof.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 41872559789,
+          "workflowAttempt": 1,
+          "head": "62d186d24e1db01c4ae8a871fe6215ad61165f11",
+          "result": "failed",
+          "source": "tick6-log"
+        },
+        {
+          "runId": 41945360582,
+          "workflowAttempt": 1,
+          "head": "e411fa38a0751792e8d53b4a1963db88f81913d9",
+          "result": "passed per CHECK5 receipt",
+          "source": "check5"
+        }
+      ],
+      "sources": ["tick6-log", "check5"],
+      "missingEvidence": [
+        "Same-head repeat, actual failed retry index and root cause."
+      ]
+    },
+    {
+      "id": "G6-015",
+      "classification": "reported-intermittent",
+      "state": "open",
+      "test": "CryptoDiceRoller uniformity check",
+      "environment": "ci-unspecified",
+      "summary": "Archived #2421 ruling reports 524 against a bound of 500, then success on rerun.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": null,
+          "workflowAttempt": null,
+          "head": "a910ed0713a9ca4d5e7e2f8f66decfaf9af9ef17",
+          "result": "failed then passed on rerun",
+          "source": "dice",
+          "pr": 2421
+        }
+      ],
+      "sources": ["dice"],
+      "missingEvidence": [
+        "Run ID, workflow attempts, exact test name/path, runner and Node were not recorded in the ruling. PR head is context, not a proven failing-run mapping."
+      ]
+    },
+    {
+      "id": "G6-016",
+      "classification": "historical-intermittent",
+      "state": "open",
+      "test": "e2e/customizer-record-sheet-rendering.spec.ts (Print writes one current sheet into the reserved window at the selected paper)",
+      "environment": "source-described",
+      "summary": "Same-commit CI reruns pass after printCount/stale sheet failures; concurrent-render explanation remains a hypothesis. Local missing-assets failures are a separate deterministic environment problem.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 34966987074,
+          "workflowAttempt": 1,
+          "head": "3cf7fe943b8fe82fc7b39853b40e33282b43eefc",
+          "result": "failed; later code changed",
+          "source": "selected-paper",
+          "jobId": 104373984052
+        },
+        {
+          "runId": 34985637301,
+          "workflowAttempt": 1,
+          "head": "9be00ebecdd2210634fade6976cff672f936b905",
+          "result": "failed; success (same commit, re-run failed jobs)",
+          "source": "selected-paper",
+          "jobId": 104437095627
+        },
+        {
+          "runId": 34994385846,
+          "workflowAttempt": 1,
+          "head": "ee87fe5253b9061ce730f7b5786a4205b00711e0",
+          "result": "failed; success (same commit, re-run failed jobs)",
+          "source": "selected-paper",
+          "jobId": 104467005567
+        }
+      ],
+      "sources": ["selected-paper"],
+      "missingEvidence": [
+        "Current landed fix/recurrence status has not been revalidated; retain original diagnostic limitations."
+      ]
+    },
+    {
+      "id": "G6-017",
+      "classification": "historical-intermittent",
+      "state": "open",
+      "test": "e2e/customizer-record-sheet-rendering.spec.ts:322 (LETTER/A4 race)",
+      "environment": "source-described",
+      "summary": "Local selected-paper test reproduced LETTER/A4 remount race: failed repetitions 0/3, passed 1/2/4/5 in batch1; proposed settle experiment is not a landed fix.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": null,
+          "workflowAttempt": null,
+          "head": "b39b8291706c36b9ad0c876a5e1b11e5b3612b7d",
+          "result": "batch1: 2/6 target repetitions failed",
+          "source": "paper-size",
+          "localRunId": "batch1"
+        }
+      ],
+      "sources": ["paper-size"],
+      "missingEvidence": [
+        "Current landed fix/recurrence status has not been revalidated; retain original diagnostic limitations."
+      ]
+    },
+    {
+      "id": "G6-018",
+      "classification": "historical-intermittent",
+      "state": "open",
+      "test": "scripts/__tests__/gm-two-player-campaign-qc.test.ts:567 (refuses and preserves a ready foreign server)",
+      "environment": "source-described",
+      "summary": "Ready foreign-server fixture listen fails with EADDRINUSE on fixed port43692; same-head CI rerun passed. Ephemeral allocation is inferred, not observed.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": null,
+          "workflowAttempt": null,
+          "head": null,
+          "result": "failed; pass mapping absent",
+          "source": "port",
+          "pr": 1741
+        },
+        {
+          "runId": 34982536757,
+          "workflowAttempt": 1,
+          "head": "44ceed8cc80ed3a20d4098a233316870c1b5a99f",
+          "result": "failed; Merge manager reran the job (attempt 2) and it went green (all jobs success, including Unit Tests (6/6)).",
+          "source": "port",
+          "pr": 1720
+        }
+      ],
+      "sources": ["port"],
+      "missingEvidence": [
+        "Current landed fix/recurrence status has not been revalidated; retain original diagnostic limitations."
+      ]
+    },
+    {
+      "id": "G6-019",
+      "classification": "historical-intermittent",
+      "state": "open",
+      "test": "ThreeContextPrivacyEvidence.test.ts (raw revision substring scan)",
+      "environment": "ci-unspecified",
+      "summary": "Random 32-hex identifier can contain a forbidden decimal substring; forced-tail diagnosis is recorded.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 38874217230,
+          "workflowAttempt": null,
+          "head": null,
+          "result": "failed",
+          "source": "privacy",
+          "pr": 2155
+        }
+      ],
+      "sources": ["privacy"],
+      "missingEvidence": [
+        "Exact workflow attempt/head and current fix/recurrence status."
+      ]
+    },
+    {
+      "id": "G6-020",
+      "classification": "suspected-intermittent",
+      "state": "open",
+      "test": "e2e/seam-fresh-construction-no-instant-defeat.spec.ts:360 / historical same-seed marker inequality",
+      "environment": "ci-unspecified",
+      "summary": "#2281 reported unjustified completion while #2282 passed on the same main; historical notes also mention a same-seed marker inequality. These are not assumed to be one failure mechanism.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": null,
+          "workflowAttempt": null,
+          "head": null,
+          "result": "failed #2281; passed #2282 on same main according to audit",
+          "source": "seam"
+        }
+      ],
+      "sources": ["seam"],
+      "missingEvidence": [
+        "Exact runs/attempts/heads for the comparison and marker-inequality symptom; same-head recurrence and diagnosis."
+      ]
+    },
+    {
+      "id": "G6-021",
+      "classification": "historical-intermittent",
+      "state": "historical-repair-reported",
+      "test": "coopMissionCreate.test.ts:1158 (cross-process clock comparison)",
+      "environment": "local-windows",
+      "summary": "Review run1 failed by1ms, runs2/3 passed. Later E review records causal release-marker repair (CF-E2); no current reproduction was run.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": null,
+          "workflowAttempt": null,
+          "head": null,
+          "result": "local reviewer run1 failed; runs2/3 passed",
+          "source": "clock"
+        }
+      ],
+      "sources": ["clock", "clock-fix"],
+      "missingEvidence": [
+        "Exact local run head and current independent recurrence check."
+      ]
+    },
+    {
+      "id": "G6-022",
+      "classification": "historical-load-dependent",
+      "state": "historical-repair-reported",
+      "test": "roadmap-codex-identity-capture.test.ts",
+      "environment": "local-windows",
+      "summary": "Windows spawnSync node.exe ETIMEDOUT in producer readback; isolated split passed52/52. CHECK5 later reports child-timeout repair #2631; split mitigation alone was not a fix.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": null,
+          "workflowAttempt": null,
+          "head": null,
+          "result": "original stable run failed; isolated52/52 passed",
+          "source": "identity"
+        },
+        {
+          "runId": null,
+          "workflowAttempt": null,
+          "head": null,
+          "result": "CHECK5 red under16 burners; repaired full suites pass205/205 combined",
+          "source": "check5",
+          "pr": 2631
+        }
+      ],
+      "sources": ["identity", "check5"],
+      "missingEvidence": [
+        "Exact archived local command/head mapping and current unsplit representative Windows validation."
+      ]
+    },
+    {
+      "id": "G6-023",
+      "classification": "historical-load-dependent",
+      "state": "historical-repair-reported",
+      "test": "equipmentCatalogResolution.test.ts",
+      "environment": "local-windows",
+      "summary": "Guard child reached360s timeout under load; circular spawn error crashed Jest-worker serialization. #2628 removed duplicate wrappers; node:test owns the guard.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": null,
+          "workflowAttempt": null,
+          "head": null,
+          "result": "tick4 main4678ec34f failed; CHECK5 load red/green preserved",
+          "source": "check5",
+          "pr": 2628
+        }
+      ],
+      "sources": ["check5"],
+      "missingEvidence": [
+        "Exact per-run local head/command; no new recurrence check in G6."
+      ]
+    },
+    {
+      "id": "G6-024",
+      "classification": "historical-load-dependent",
+      "state": "historical-repair-reported",
+      "test": "src/simulation/__tests__/integration.test.ts",
+      "environment": "local-windows",
+      "summary": "Ordinary wall-clock budgets failed under contention; #2630 retains simulation cases and asserts budgets in perf lanes.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": null,
+          "workflowAttempt": null,
+          "head": null,
+          "result": "tick4 main4678ec34f failed; CHECK5 load red/green preserved",
+          "source": "check5",
+          "pr": 2630
+        }
+      ],
+      "sources": ["check5"],
+      "missingEvidence": [
+        "Exact per-run local head/command; no new recurrence check in G6."
+      ]
+    },
+    {
+      "id": "G6-025",
+      "classification": "historical-load-dependent",
+      "state": "historical-repair-reported",
+      "test": "roadmap-loop-closure-proof.test.ts",
+      "environment": "local-windows",
+      "summary": "30s child timeouts under contention; #2631 reports red/green under the same16-core burner load and retains full work.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": null,
+          "workflowAttempt": null,
+          "head": null,
+          "result": "tick4 main4678ec34f failed; CHECK5 load red/green preserved",
+          "source": "check5",
+          "pr": 2631
+        }
+      ],
+      "sources": ["check5"],
+      "missingEvidence": [
+        "Exact per-run local head/command; no new recurrence check in G6."
+      ]
+    },
+    {
+      "id": "G6-026",
+      "classification": "observed-load-dependent",
+      "state": "historical-repair-reported",
+      "test": "src/lib/multiplayer/server/__tests__/fogOfWar.test.ts (eight players,32units broadcast budget)",
+      "environment": "unit-ci",
+      "summary": "18.7ms against15ms budget under4workers. Lane B reports #2691 moved budget enforcement to perf lanes.",
+      "owner": "CI-SPEED B (historical repair); G6 inventory",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 41856478801,
+          "workflowAttempt": 1,
+          "head": "c7244c36fe346652054553d91437b93023599b17",
+          "result": "failed",
+          "source": "lane-b",
+          "jobId": 126667506674
+        }
+      ],
+      "sources": ["lane-b"],
+      "missingEvidence": [
+        "Current recurrence check; do not use the old failure to excuse a new failing assertion."
+      ]
+    },
+    {
+      "id": "G6-027",
+      "classification": "historical-intermittent-infrastructure-symptom",
+      "state": "open",
+      "test": "Scenario Pack Recapture: combat-midbattle / experience-pilot campaign-create PUT404",
+      "environment": "source-described",
+      "summary": "Combat capture passed in two sampled runs and failed in three. Route-discovery/cache cause is unproved; stale schema pins and unsupported co-op pack validators are separate deterministic failures.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 39013211365,
+          "workflowAttempt": null,
+          "head": "105eddcb9209",
+          "result": "combat route failed",
+          "source": "packs"
+        },
+        {
+          "runId": 39017508685,
+          "workflowAttempt": 1,
+          "head": "31610a56daa6bf8f22e3c2abebb811fe09326e9f",
+          "result": "combat passed",
+          "source": "packs"
+        },
+        {
+          "runId": 39022280834,
+          "workflowAttempt": null,
+          "head": "33d6476e9f74",
+          "result": "combat passed",
+          "source": "packs"
+        },
+        {
+          "runId": 39033900424,
+          "workflowAttempt": null,
+          "head": "0ba167f32edf",
+          "result": "combat route failed",
+          "source": "packs"
+        },
+        {
+          "runId": 39129982940,
+          "workflowAttempt": 1,
+          "head": "1b8558625e1e488e6ba62b916ec68bd2ed0d701f",
+          "result": "combat route failed",
+          "source": "packs"
+        }
+      ],
+      "sources": ["packs"],
+      "missingEvidence": [
+        "Unuploaded fresh recapture JSON/traces are unavailable; some heads are prefixes and workflow attempts unknown. Current recurrence/fix status."
+      ]
+    },
+    {
+      "id": "G6-028",
+      "classification": "environment-capability-and-race",
+      "state": "historical-repair-reported",
+      "test": "CAMP-01 proof6a2-envelope-anchor-production",
+      "environment": "windows-ci",
+      "summary": "Two separate mechanisms: Windows Git version outside allowlist and main advancing beyond shallow checkout anchor. #2429 repair reported; retain capability error separately from anchor race.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 41144678804,
+          "workflowAttempt": null,
+          "head": null,
+          "result": "Git2.56.0.windows.4 capability refusal",
+          "source": "camp"
+        },
+        {
+          "runId": 41161097316,
+          "workflowAttempt": null,
+          "head": null,
+          "result": "anchor commit unresolvable",
+          "source": "camp"
+        },
+        {
+          "runId": 41161169636,
+          "workflowAttempt": null,
+          "head": null,
+          "result": "anchor commit unresolvable",
+          "source": "camp"
+        }
+      ],
+      "sources": ["camp", "camp-repair"],
+      "missingEvidence": ["Exact attempts/heads and current recurrence status."]
+    },
+    {
+      "id": "G6-029",
+      "classification": "deterministic-product-failure",
+      "state": "open-blocking",
+      "test": "e2e/campaign-economy-browser.spec.ts:382",
+      "environment": "nightly-chromium",
+      "summary": "Salvage adds absent enemy-atlas to a force without a roster unit; authority checkpoint rejects later save. Latest nightly retries0/1/2 all fail in-context save.",
+      "owner": "Root (follow-up97 owner decision)",
+      "nextStep": "Root decides how salvaged Meks materialize as roster units and assigns campaign-economy implementation; G5 keeps acceptance blocked.",
+      "observations": [
+        {
+          "runId": 42072283514,
+          "workflowAttempt": 1,
+          "head": "73b1d16460ae075f6f6d5d7cc73fc5c616e77a22",
+          "result": "failed",
+          "source": "latest-log",
+          "jobId": 127403628676,
+          "testRetries": [0, 1, 2]
+        }
+      ],
+      "sources": ["check5", "latest-run", "latest-log"],
+      "missingEvidence": []
+    },
+    {
+      "id": "G6-030",
+      "classification": "deterministic-regression-repaired",
+      "state": "historical-repair-reported",
+      "test": "Nightly packaged multiplayer runtime: capital-bv.json missing import closure",
+      "environment": "nightly-chromium",
+      "summary": "Historical58-failure run includes packaged-server runtime-unavailable failures. #2739 repaired hydration; changed-head passes are repair evidence, not flakiness.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 41872559789,
+          "workflowAttempt": 1,
+          "head": "62d186d24e1db01c4ae8a871fe6215ad61165f11",
+          "result": "failed",
+          "source": "check5"
+        },
+        {
+          "runId": 41945360582,
+          "workflowAttempt": 1,
+          "head": "e411fa38a0751792e8d53b4a1963db88f81913d9",
+          "result": "packaged-runtime cases passed",
+          "source": "check5"
+        }
+      ],
+      "sources": ["check5", "tick6-log"],
+      "missingEvidence": []
+    },
+    {
+      "id": "G6-031",
+      "classification": "deterministic-test-expectation-repaired",
+      "state": "historical-repair-reported",
+      "test": "customizer-category-colors.spec.ts:79 and customizer-equipment-workbench.spec.ts:17",
+      "environment": "nightly-chromium",
+      "summary": "Small Laser substring began matching a new Primitive Prototype row; #2742 selects exact row. No intermittent classification.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 41872559789,
+          "workflowAttempt": 1,
+          "head": "62d186d24e1db01c4ae8a871fe6215ad61165f11",
+          "result": "failed",
+          "source": "check5"
+        }
+      ],
+      "sources": ["check5"],
+      "missingEvidence": []
+    },
+    {
+      "id": "G6-032",
+      "classification": "deterministic-lint-failure-repaired",
+      "state": "historical-repair-reported",
+      "test": "scripts/__tests__/lint-units.test.ts (e2e ceiling51>50)",
+      "environment": "unit-ci",
+      "summary": "Dispatched #2637 branch added an export without explicit return type. Different-head passes do not demonstrate a flake; c899aa398 repaired it.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 41765754901,
+          "workflowAttempt": 1,
+          "head": "998a5f3ff5576020f229d64d4405dc83ba779d9c",
+          "result": "failed",
+          "source": "check5"
+        }
+      ],
+      "sources": ["check5", "tick5"],
+      "missingEvidence": []
+    },
+    {
+      "id": "G6-033",
+      "classification": "cancellation",
+      "state": "open",
+      "test": "Coverage Thresholds / superseded main-push and stray dispatch runs",
+      "environment": "ci-unspecified",
+      "summary": "41678759305 coverage hit30min limit while E2E independently failed. #2632 later raised job timeout. Cancelled41902456406 missing-aggregator false red is follow-up110, distinct from flaky tests.",
+      "owner": "CI-SPEED A (workflow/guard history)",
+      "nextStep": "Retain terminal state and distinguish cancelled execution from test failure; verify follow-up110 repair through existing owner receipts.",
+      "observations": [
+        {
+          "runId": 41678759305,
+          "workflowAttempt": 1,
+          "head": "7dc4bff1c46bd18b45353876c5c4eb90995f78b0",
+          "result": "workflow cancelled; coverage timeout; E2E failure retained separately",
+          "source": "check5"
+        },
+        {
+          "runId": 41902456406,
+          "workflowAttempt": null,
+          "head": "dc5b85f",
+          "result": "cancelled; missing aggregator guard false red",
+          "source": "followups"
+        }
+      ],
+      "sources": ["check5", "followups"],
+      "missingEvidence": []
+    },
+    {
+      "id": "G6-034",
+      "classification": "evidence-or-telemetry-gap",
+      "state": "open",
+      "test": "Control42142812144 a2 artifacts / diagnostic process sampling",
+      "environment": "historical-crash",
+      "summary": "C2 workflow/job logs succeeded but artifacts are absent: no speed/native census proof. Control diagnostic42160013901 has282events but no renderer command samples; one transient/proc ENOENT is unknown, not zero.",
+      "owner": "CI-SPEED A: archive/integrity; C: interpretation",
+      "nextStep": "Consume A/C completed diagnostic receipts only; missing renderer peaks and historical RSS remain unknown.",
+      "observations": [
+        {
+          "runId": 42142812144,
+          "workflowAttempt": 2,
+          "head": "432d4aea4bc11db87e915398de66f41e0be439bb",
+          "result": "success; artifacts unavailable",
+          "source": "crash"
+        },
+        {
+          "runId": 42160013901,
+          "workflowAttempt": 1,
+          "head": "a0c7c97f3c78c624c7874609fe7a69b183e84740",
+          "result": "integrity audited; descriptive telemetry only",
+          "source": "crash-c"
+        }
+      ],
+      "sources": ["crash", "crash-c"],
+      "missingEvidence": []
+    },
+    {
+      "id": "G6-035",
+      "classification": "tool-bootstrap-or-environment-error",
+      "state": "open",
+      "test": "Local Node24 SQLite ABI / cross-drive Webpack / G6 wrong Husky entrypoint",
+      "environment": "local-windows",
+      "summary": "CHECK5 records2205ABI failures from an accidental Node24 full run and cross-drive Webpack startup failure. G6 first invoked nonexistent husky/bin.mjs, corrected to bin.js. These do not establish product-test intermittency.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Use recorded matching dependency installation and actual package entrypoints; retain bootstrap error receipts separately.",
+      "observations": [
+        {
+          "runId": null,
+          "workflowAttempt": null,
+          "head": null,
+          "result": "CHECK5 accidental wrong-Node invocation; no pushed change",
+          "source": "check5"
+        },
+        {
+          "runId": null,
+          "workflowAttempt": null,
+          "head": null,
+          "result": "G6 bin.mjs MODULE_NOT_FOUND; bin.js succeeded",
+          "source": null
+        }
+      ],
+      "sources": ["check5"],
+      "missingEvidence": [
+        "Wrong-Node2205 failures are not mapped individually and must not be imported as2205flakes."
+      ]
+    },
+    {
+      "id": "G6-036",
+      "classification": "risk-without-observed-failure",
+      "state": "historical-repair-reported",
+      "test": "MatchStoreStress.test.ts / src/__tests__/performance.test.tsx",
+      "environment": "unit-ci",
+      "summary": "Lane B first flagged remaining wall-time risks without observing failures; follow-up109 reports #2693 repair. Do not promote a risk to an observed flake.",
+      "owner": "CI-SPEED B",
+      "nextStep": "Keep #2693 historical repair evidence; record a new incident only with actual failing execution.",
+      "observations": [],
+      "sources": ["lane-b", "followups"],
+      "missingEvidence": []
+    },
+    {
+      "id": "G6-037",
+      "classification": "risk-without-observed-failure",
+      "state": "open",
+      "test": "e2e/customizer-record-sheet-rendering.spec.ts:289 (PDF export)",
+      "environment": "nightly-chromium",
+      "summary": "Serial PDF export17-26s of30s budget; proximity to budget is a risk, not a failed PDF test or cause of the teardown SEGV.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns follow-up114 if resumed; profile product/fixture before proposing any change. Preserve existing budget.",
+      "observations": [],
+      "sources": ["followups", "historical-crash"],
+      "missingEvidence": []
+    },
+    {
+      "id": "G6-038",
+      "classification": "deterministic-context-failure-repaired",
+      "state": "historical-repair-reported",
+      "test": "campaignCoopRecordAuthz.test.ts (LW23 persistence-failure assertion)",
+      "environment": "unit-ci",
+      "summary": "CHECK5 reports context-dependent failures10/30-11/01 fixed by3d962a0bc; no same-head retry-pass proof supplied.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": 41323437829,
+          "workflowAttempt": 1,
+          "head": "2221a297c8c8efe32db5e045aa0768cdd13ca914",
+          "result": "coverage failed",
+          "source": "check5"
+        }
+      ],
+      "sources": ["check5"],
+      "missingEvidence": []
+    },
+    {
+      "id": "G6-039",
+      "classification": "reported-single-failure-later-pass",
+      "state": "open",
+      "test": "scenarioGenerator suite (2026-10-30)",
+      "environment": "unit-ci",
+      "summary": "CHECK5 records a one-off failure and later isolated pass; missing exact test/run mapping prevents confirmed flake classification.",
+      "owner": "unassigned; needsowner",
+      "nextStep": "Root assigns a remediation owner; inspect the preserved failure and passing execution at the recorded heads before choosing a fix.",
+      "observations": [
+        {
+          "runId": null,
+          "workflowAttempt": null,
+          "head": null,
+          "result": "one-off failed; isolated pass per receipt",
+          "source": "check5"
+        }
+      ],
+      "sources": ["check5"],
+      "missingEvidence": [
+        "Exact test identity, run/attempt, failing and passing head/environment."
+      ]
+    },
+    {
+      "id": "G6-040",
+      "classification": "confirmed-intermittent-wall-clock-growth-failure",
+      "state": "fix implemented; exact-head hosted perf proof pending",
+      "test": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts:187 — U89: the grant wake and the replica ingest do not grow with the log",
+      "environment": "u89-unit-ci",
+      "summary": "The first failure42169915133/a1/job127735157809 on PR2908 passed in SAMEHEAD attempt2/job127738195614, confirming intermittency. A second failure on PR2907 run42170835899/a1/job127738125396 hit the same line187/replicaIngest growth assertion. Contention remains a hypothesis. Root superseded the earlier post-PhaseG deferral and assigned the bounded harness/perf-list fix to G6.",
+      "owner": "G6 U89 perf-lane fix owner (GPT-6.1 Sol/high), explicitly assigned by Root inside Phase G; Root alone merges",
+      "nextStep": "Root merges the new G6 fix PR on green before G1 integration. Unit scenarios/counters/output run without helper performance-clock calls or timing metrics; existing pinned SIMULATION_PERF_ASSERTIONS=true PR/nightly/local perf lanes retain growth and ceiling assertions. Preserve local clock-trap and meaningful O(n) regression red/green plus exact-head hosted perf-step proof. Normal work remains paused.",
+      "observations": [
+        {
+          "runId": 42169915133,
+          "workflowAttempt": 1,
+          "head": "ff0922cf87f27b36db58e0b18c14e6d80b5a5c5a",
+          "result": "failed",
+          "source": "u89-log",
+          "jobId": 127735157809,
+          "jobName": "Unit Tests (2/3)",
+          "testRetry": null,
+          "sourceLines": [3004, 3005, 3016, 3017, 3018, 3030, 6167, 6168],
+          "measuredStep": "replicaIngest",
+          "shortMs": 2.0907269999988785,
+          "longMs": 5.136500000000524,
+          "unitSuiteSummary": "1 failed,151 passed,152 total suites;1 failed,49 skipped,2604 passed tests"
+        },
+        {
+          "runId": 42169915133,
+          "workflowAttempt": 2,
+          "head": "ff0922cf87f27b36db58e0b18c14e6d80b5a5c5a",
+          "jobId": 127738195614,
+          "jobName": "Unit Tests (2/3)",
+          "result": "passed on same head; native U89 suite PASS at log line2990",
+          "source": "u89-attempt2-log"
+        },
+        {
+          "runId": 42170835899,
+          "workflowAttempt": 1,
+          "head": "d284b4ee0de0ee155f77945cec7696d5316d40c8",
+          "jobId": 127738125396,
+          "jobName": "Unit Tests (2/3)",
+          "result": "failed at line187; replicaIngest growth",
+          "source": "u89-second-log",
+          "shortMs": 2.1869470000019646,
+          "longMs": 5.045212499993795,
+          "testRetry": null
+        }
+      ],
+      "sources": [
+        "u89-log",
+        "u89-job",
+        "u89-context",
+        "u89-attempt2-jobs",
+        "u89-attempt2-log",
+        "u89-second-job",
+        "u89-second-log"
+      ],
+      "missingEvidence": [
+        "Exact-head hosted Simulation Checks wall-clock step execution/pass is pending publication/completion.",
+        "Contention is not directly measured; a same-head rerun pass confirms intermittency, not a causal resource diagnosis.",
+        "Root owns PR2907 rerun; G6 does not collect or submit duplicate reruns."
+      ]
+    },
+    {
+      "id": "G6-041",
+      "classification": "confirmed-intermittent",
+      "state": "recurrence observed after#2937;#2962 readiness fix merged; hosted cause UNCONFIRMED; Root observation pending",
+      "test": "e2e/customizer-library-open.spec.ts:1065 — library flows1440 > fighter: edit, save, reload, reopen and print",
+      "environment": "2932-chromium",
+      "summary": "Same PR head614822610b47c0ab2f8c3148345122f2ac050db6: run42201733032 attempt1/job127838633272 failed and attempt2/job127843972188 E2E2/2 passed, confirming intermittency. Root alone reran. Retained context shows ShiloneFlow Shilone... rather than expected Flow Shilone...; P7 attributes the timeout downstream of this name mismatch. Exact lost-selection/form-event cause and fix completeness remain unproved. Root25-run/date-only hypothesis is separate from confirmed same-head fail/pass. Root reports keyboard guard PR#2937 merged as2f0c45eeb93e99dcba53db75f08b1785efb5e9fd with hosted E2E1/2 and2/2 passing on a1dda6abeebec0b8baf3b64dc6832c4739ff8ecf. PROBABLE cause: stale input prefix accepted by keyboard fill; guarded. Original trace unavailable; causal mechanism remains unproved. Later recurrence on#2951 run42219240827/a1 job127897593926 head45fc5728bd76b5e27526efa7a4b15c7f6df00a6c: infantry Chassis Name retained AA Jump Infantry prefix;#2937 exact-value guard failed as intended. Root merged#2962 known-initial-value readiness fix as7a37f29e15bbd450ce9ad287a28e76baf61b6ff7. P7 controlled DOM race RED then GREEN proves helper readiness weakness, not this hosted event cause; hosted cause UNCONFIRMED and no stability clearance.",
+      "owner": "P7-editors — diagnosis and smallest justified robustness follow-up; Root alone owns rerun/merge; G6 owns capture/register",
+      "nextStep": "Root checks next otherwise-authorized hosted E2E runs for recurrence after#2962. This observation has not been performed or scheduled by G6. P7 retains helper diagnosis ownership; G6 records evidence only. No worker watcher/poll, capture/download, browser or hosted rerun, implementation or stability clearance.",
+      "observations": [
+        {
+          "runId": 42201733032,
+          "workflowAttempt": 1,
+          "head": "614822610b47c0ab2f8c3148345122f2ac050db6",
+          "checkedOutMerge": "3101eb573d6a84db8896352e76e2854bbf9e7212",
+          "proofBase": "5327172ee29420b2774d09a3c9d03968cdb8d197",
+          "jobId": 127838633272,
+          "jobName": "E2E (2/2)",
+          "pr": 2932,
+          "result": "failed",
+          "source": "2932-log",
+          "nativeSource": "2932-library-native",
+          "testRetry": 0,
+          "testStartTime": "2026-11-06T10:26:00.612Z",
+          "testDurationMs": 15739,
+          "failureLocation": "tabTo:781:22; activate:789:9; callsite:1144:19",
+          "sourceLines": [
+            871, 873, 875, 878, 879, 880, 885, 886, 887, 895, 897
+          ],
+          "exactLocatorName": "Close Flow Shilone Long Label Layout Check 1793960765585-0 Saved 1440"
+        },
+        {
+          "runId": 42201733032,
+          "workflowAttempt": 2,
+          "head": "614822610b47c0ab2f8c3148345122f2ac050db6",
+          "jobId": 127843972188,
+          "jobName": "E2E (2/2)",
+          "pr": 2932,
+          "result": "passed on same PR head; confirmed by exact attempt2 job metadata",
+          "source": "2932-attempt2-jobs",
+          "rerunOwner": "Root alone"
+        },
+        {
+          "pr": 2951,
+          "runId": 42219240827,
+          "workflowAttempt": 1,
+          "jobId": 127897593926,
+          "head": "45fc5728bd76b5e27526efa7a4b15c7f6df00a6c",
+          "checkedOutMerge": "dfab3dca42e6fc94873d87f315126befea84bc9f",
+          "proofBase": "2bf3ae4106917cd9035d76893f7c9f1a9723a81d",
+          "file": "e2e/customizer-library-open.spec.ts",
+          "line": 1089,
+          "testId": "3284667778560f08cb18-7574ac9dcb9903390c9e",
+          "testRetry": 0,
+          "startTime": "2026-11-06T12:45:34.910Z",
+          "durationMs": 14748,
+          "status": "failed",
+          "libraryStats": {
+            "startTime": "2026-11-06T12:42:45.756Z",
+            "duration": 187860.68,
+            "expected": 29,
+            "skipped": 0,
+            "unexpected": 1,
+            "flaky": 0
+          },
+          "failureLocation": "e2e/helpers/keyboardNavigation.ts:32",
+          "sourceLogLines": [858, 870, 871, 874, 883],
+          "expectedValue": "Flow AA Jump Infantry Long Label Layout Check 1793969139583-0",
+          "receivedValue": "AA Jump InfantryFlow AA Jump Infantry Long Label Layout Check 1793969139583-0",
+          "environment": "42219240827-chromium",
+          "jobName": "E2E (2/2)",
+          "source": "42219240827-log",
+          "nativeSource": "42219240827-native",
+          "relationshipTo2937": "Recurrence of stale prefix after the exact-value guard; that guard detected the mismatch at line32. This differs from the earlier downstream Close-locator timeout."
+        }
+      ],
+      "sources": [
+        "2932-job",
+        "2932-log",
+        "2932-library-native",
+        "2932-artifact-custody",
+        "2932-context",
+        "2932-p7-findings",
+        "2932-attempt2-jobs",
+        "2932-root-rerun",
+        "2937-root-merge-event",
+        "42219240827-job",
+        "42219240827-run",
+        "42219240827-log",
+        "42219240827-capture",
+        "42219240827-artifact-receipt",
+        "42219240827-inventory",
+        "42219240827-native",
+        "42219240827-context",
+        "42219240827-report-zip",
+        "42219240827-timings-zip",
+        "2962-p7-committed-proof",
+        "2962-p7-red",
+        "2962-p7-green",
+        "2962-p7-committed",
+        "2962-p7-preservation",
+        "2962-root-merge",
+        "2962-local-verification"
+      ],
+      "missingEvidence": [
+        "No trace was attached by the failed native result or found in the three retained artifacts.",
+        "Root last25PRruns/no-other-hit/date-only hypothesis was not independently re-audited by G6.",
+        "Why selection/form interaction retained the old Shilone prefix is unresolved; absent trace prevents exact event reconstruction.",
+        "Guard hosted E2E passes are Root-reported at exact proof head; run/job/attempt IDs were not supplied and were not fetched. Original trace remains unavailable, so probable cause is not proven.",
+        "Recurrence has no trace in either retained artifact inventory; screenshot/context and raw/native results show final values, not historical selection/focus event order. Controlled readiness race is proven locally; hosted cause UNCONFIRMED. Root future hosted recurrence observation is pending, not claimed performed."
+      ],
+      "diagnosticFinding": {
+        "recordedAtUtc": "2026-11-06T10:44:22.651721+00:00",
+        "reportedBy": "P7 via Root-routed instruction",
+        "source": "E:\\Projects\\Personal\\MekStation-wt\\_reports\\2026-10-30\\claude-coordinator\\normal-work\\G6-flake-register\\2932-library-tab-timeout\\artifacts\\e2e-report-2\\test-results\\library\\customizer-library-open-li-4e256-reopen-and-print-customizer-chromium\\error-context.md",
+        "sourceSha256": "bde70180871e0eea4904ebb2d11253367e7caf7f98fe6bb615d741ed8b3ae195",
+        "expectedCloseName": "Close Flow Shilone Long Label Layout Check 1793960765585-0 Saved 1440",
+        "observedCloseName": "Close ShiloneFlow Shilone Long Label Layout Check 1793960765585-0 Saved 1440",
+        "tabSnapshotRef": "e17",
+        "closeSnapshotRef": "e20",
+        "tabFileLine": 14,
+        "closeFileLine": 17,
+        "verifiedByG6": "Existing retained error-context directly contains the prefixed tab/button names; expected close name is absent. No new downloads.",
+        "screenshot": "P7 reports retained screenshot confirms old-prefix retention; G6 does not claim a separate image inspection.",
+        "interpretation": "P7 identifies the evaluate wait as downstream of mismatched saved name;160-Tab bound was not hit. Exact cause of lost selection/form event remains unknown without trace.",
+        "plannedP7Scope": [
+          "e2e/customizer-library-open.spec.ts",
+          "e2e/helpers/keyboardNavigation.ts"
+        ],
+        "plannedP7Sequence": "Behavior-preserving helper extraction, then exact-value guard after keyboard insertText before blur with bounded DOM fault regression reproducing appended prefix.",
+        "constraints": "No direct click/focus, timeout/bound increase,retry,suppression or product-semantics change; Root owns publication disposition.",
+        "intermittencyAtP7Report": "unconfirmed pending Root-routed same-head rerun evidence"
+      },
+      "rerunConfirmation": {
+        "status": "CONFIRMED intermittent",
+        "head": "614822610b47c0ab2f8c3148345122f2ac050db6",
+        "failedJob": 127838633272,
+        "passedJob": 127843972188,
+        "source": "2932-attempt2-jobs",
+        "reportedBy": "Root; independently checked one bounded exact attempt2 metadata response",
+        "cause": "not established",
+        "fixComplete": false
+      },
+      "probableCause": {
+        "classification": "PROBABLE",
+        "statement": "stale input prefix accepted by keyboard fill; guarded.",
+        "source": "2937-root-merge-event",
+        "attribution": "Root merge-event instruction after P7 guard merged",
+        "limitation": "Original trace unavailable; exact lost-selection/form-event mechanism is not proven."
+      },
+      "mergedGuard": {
+        "pr": 2937,
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/2937",
+        "mergeCommit": "2f0c45eeb93e99dcba53db75f08b1785efb5e9fd",
+        "proofHead": "a1dda6abeebec0b8baf3b64dc6832c4739ff8ecf",
+        "source": "2937-root-merge-event",
+        "hostedE2E": {
+          "reportedBy": "Root",
+          "E2E (1/2)": "passed",
+          "E2E (2/2)": "passed",
+          "runId": null,
+          "workflowAttempt": null,
+          "jobIds": null
+        },
+        "scope": "Merged keyboard-fill value guard; this records guard publication, not a proven causal diagnosis or general stability clearance.",
+        "historicalStatusScope": "Original rerunConfirmation.fixComplete=false and planned diagnostic fields above retain their pre-merge evidence scope; this mergedGuard object records the later merge event.",
+        "stabilityClearance": false
+      },
+      "probableCauseScope": "Earlier probableCause and mergedGuard fields describe the original fighter incident and#2937. Preserve that historical qualification; do not promote it to proven cause of the later infantry event.",
+      "recurrenceFollowup": {
+        "pr": 2951,
+        "runId": 42219240827,
+        "workflowAttempt": 1,
+        "jobId": 127897593926,
+        "head": "45fc5728bd76b5e27526efa7a4b15c7f6df00a6c",
+        "fixPr": 2962,
+        "mergeCommit": "7a37f29e15bbd450ce9ad287a28e76baf61b6ff7",
+        "source": "2962-root-merge",
+        "fix": "Keyboard fill waits for known INITIAL value before select-all; existing exact post-insert value guard remains.",
+        "proofLineage": {
+          "source": "2962-p7-committed-proof",
+          "head": "feba55fe17fbe8ee91199f2875b0ebf71a72bef8",
+          "tree": "e1ecef01e417bd338fa86556b7146be1b3d3087f",
+          "main": "df42b26095a27bcb67a1bb44b17d4db97d276c7f",
+          "sourceHashes": [
+            {
+              "file": "e2e/helpers/keyboardNavigation.ts",
+              "sha256": "96947132e7b871339d709aa59336f945bd9ce6a625dd5d5a3c2aff035abf4e1d"
+            },
+            {
+              "file": "e2e/customizer-library-open.spec.ts",
+              "sha256": "c4bcc1ddd67366612c62f3ffda3d8dbb463d6ffac85e32ac80872d143e57f8dc"
+            }
+          ],
+          "precommitRedGreenHead": "ae22527d80db8a349eff63971b7323fd80c959bb",
+          "precommitScope": "Red/green receipts record this checkout HEAD and explicit changed-source hashes; committed replay separately records exact committed head/tree/main."
+        },
+        "controlledRegression": {
+          "redSource": "2962-p7-red",
+          "redExit": 1,
+          "redSequence": "select-all on empty input -> initial AA Jump Infantry write/caret collapse -> prefixed insert",
+          "reproducedPrefix": "AA Jump InfantryFlow AA Jump Infantry",
+          "greenSource": "2962-p7-green",
+          "greenExit": 0,
+          "committedSource": "2962-p7-committed",
+          "committedExit": 0,
+          "cases": 3,
+          "retries": 0,
+          "workers": 1,
+          "preservedCases": [
+            "normal text/numeric replacement",
+            "intercepted-select-all retained-prefix failure guard"
+          ],
+          "newCase": "wait for known initial value before selecting/replacing text",
+          "proven": "Controlled DOM race reproduces and the readiness condition repairs the helper weakness."
+        },
+        "hostedCause": "UNCONFIRMED: no trace/event-order evidence; consistent local reproduction does not establish historical hosted causation.",
+        "trace": "No trace or nested ZIP members in either retained report/timings inventory.",
+        "nextHostedObservation": {
+          "owner": "Root",
+          "state": "pending; not performed or scheduled by G6",
+          "action": "Check next otherwise-authorized hosted E2E runs for recurrence."
+        },
+        "stabilityClearance": false
+      }
+    },
+    {
+      "id": "G6-042",
+      "classification": "confirmed-native-crash-with-successful-job",
+      "state": "open; confirmed teardown crash; C low-priority normal-work follow-up; treatment canceled by Root",
+      "test": "Chromium SIGSEGV during browser-context teardown, job stays green; seam-roster-materialization-handoff.spec.ts:113 passed/retry0 with SEGV in its own stderr",
+      "environment": "42205390500-control-chromium",
+      "summary": "Two-shard control run42205390500/a1 on PR#2924 head2a094a3c322662a1d146f8ba64c3d7711b2c8c5b: job127850608699 E2E(1/2) succeeded, but timed browser-main3052 terminated by signal11 during roster browser-context teardown. Log prefix3051 is GNU time wrapper, which later exits139; observed renderer3346 is not a proven victim. Native roster test113 passed/retry0/errors[] and includes SEGV in its own stderr after assertions completed. GNU-time raw signal11 contradicts JSON exitStatus0;136/136 census passed. Exact CDP context/faulting thread, cause and test impact remain unknown.",
+      "owner": "C: low-priority normal-work diagnosis/parser follow-up; A+C: sealed capture/timeline custody; Root: treatment cancellation and PR closure disposition; G6: register only. P7 keyboard remediation is separate.",
+      "nextStep": "C assesses context.close/browser flags or Playwright/Chromium version and whether teardown could overlap retry0 seam/gate assertions. Keep diagnostic parser fix on its branch. Root cancels treatment and closes #2868/#2924; no new run or source fix authorized here. Preserve uncertainty about cause, OOM, historical crash identity and three-shard risk.",
+      "observations": [
+        {
+          "runId": 42205390500,
+          "workflowAttempt": 1,
+          "head": "2a094a3c322662a1d146f8ba64c3d7711b2c8c5b",
+          "jobId": 127850608699,
+          "jobName": "E2E (1/2)",
+          "pr": 2924,
+          "arm": "control",
+          "shards": 2,
+          "hostedRunConclusion": "success",
+          "hostedJobConclusion": "success",
+          "runtimeResult": "confirmed native crash",
+          "source": "42205390500-log",
+          "sourceLines": [1128, 1163],
+          "signal": {
+            "number": 11,
+            "marker": "SEGV_MAPERR 0000000001b0",
+            "at": "2026-11-06T10:52:24.6016209Z"
+          },
+          "processExit": {
+            "exitCode": 139,
+            "signal": null,
+            "at": "2026-11-06T10:52:25.6211178Z",
+            "process": "GNU time wrapper3051; timed browser-main3052 signal11 established by raw kernel receipt and procfs ancestry"
+          },
+          "kernelReceipt": {
+            "source": "42205390500-kernel",
+            "rawSignalLine": 1,
+            "rawSignalText": "Command terminated by signal 11",
+            "jsonExitStatus": 0,
+            "interpretation": "Raw signal and browser exit confirm a crash despite JSON zero; parser discrepancy remains open."
+          },
+          "nativeCensus": {
+            "source": "42205390500-audit",
+            "passed": 136,
+            "total": 136,
+            "attempts": 136,
+            "retries": 0,
+            "skipped": 0,
+            "flaky": 0,
+            "censusSha256": "aa0826f716f4e6a3c92679edbfd6d83e256a85e3de89c9ed631bb81c0ee1eca0"
+          },
+          "timeline": {
+            "source": "42205390500-crash-context",
+            "contextCloseBegin": "2026-11-06T10:52:24.590Z",
+            "contextCloseEnd": "2026-11-06T10:52:24.613Z",
+            "testEnd": "2026-11-06T10:52:24.713Z",
+            "nativeTestStatus": "passed",
+            "interpretation": "Signal occurs during the roster test context-close bracket after its assertions; test-end reports passed. Exact CDP context identity, faulting thread, causal mechanism and impact unresolved."
+          },
+          "logPrefixPid": 3051,
+          "wrapperPid": 3051,
+          "timedBrowserMainPid": 3052,
+          "observedRendererPid": 3346,
+          "rendererIsProvenVictim": false,
+          "nativeTest": {
+            "source": "42205390500-process-mapping",
+            "testId": "5e6b5a20840941c319ec-6c2daf7b94d3dd370066",
+            "file": "e2e/seam-roster-materialization-handoff.spec.ts",
+            "line": 113,
+            "title": "full roster selection reaches pre-battle intact, verified at both the DOM and data layer",
+            "status": "passed",
+            "testRetry": 0,
+            "errors": [],
+            "ownStderrContainsSignal11": true,
+            "assertionsCompletedBeforeSignal": "Root reports assertions completed earlier; retained pre-teardown at10:52:23.926Z precedes close/signal.",
+            "exactCdpContext": null,
+            "faultingThread": null
+          }
+        }
+      ],
+      "sources": [
+        "42205390500-run",
+        "42205390500-jobs",
+        "42205390500-log",
+        "42205390500-kernel",
+        "42205390500-capture",
+        "42205390500-audit",
+        "42205390500-audit-receipt",
+        "42205390500-crash-context",
+        "42205390500-root-view",
+        "42205390500-local-verification",
+        "42205390500-process-mapping",
+        "42205390500-process-mapping-md",
+        "42205390500-process-receipt",
+        "42205390500-root-refinement",
+        "42205390500-process-verification"
+      ],
+      "missingEvidence": [
+        "Cause and test impact are unresolved; passing native census and hosted job do not establish runtime stability.",
+        "No renderer teardown-exit peak or simultaneous process-tree RSS; browser-main maxrss is not renderer peak. Shard2 renderer samples are absent and memory metrics remain null, not zero. No memory/OOM cause or memory equivalence established.",
+        "A single baseline crash does not establish recurrence frequency or baseline-versus-three-shard causation; historical attempts are not independent ordinary PRs.",
+        "Exact CDP context/page-to-renderer mapping and faulting thread are absent. Historical #2868/a5 crash identity and overlap with retry0 seam/gate assertions are unresolved; no three-shard-risk inference."
+      ],
+      "captureCustody": {
+        "owner": "A+C",
+        "status": "SEALED_CRASH_OBSERVED; completed local audit",
+        "source": "42205390500-audit-receipt",
+        "rawFilesVerifiedByG6": 204,
+        "method": "Read/hash existing completed local capture in place; no duplicate remote capture or download."
+      },
+      "rootWorkingView": {
+        "source": "42205390500-root-view",
+        "attribution": "Root via task instruction",
+        "statement": "Crash occurs in two-shard baseline, so historical treatment1/18 versus control0/12 does not establish three-shard causation.",
+        "status": "Attributed working interpretation; causal diagnosis unproved; historical G6-001 counts retained unchanged."
+      },
+      "relatedIncidents": ["G6-001"],
+      "treatmentAuthorized": false,
+      "stabilityClearance": false,
+      "processContextAddendum": {
+        "source": "42205390500-process-mapping",
+        "receipt": "42205390500-process-receipt",
+        "ancestry": "renderer3346 -> zygote3055 -> browser-main3052 -> GNU time3051 -> Playwright worker3038 -> reporter2998",
+        "diagnosticGap": "Frozen parser ignores non-JSON signal text and accepts nonnegative JSON exitStatus; outcome/census guard does not assert clean abnormal-browser exits. This explains missed diagnostic escalation, not the Chromium/Playwright close mechanism."
+      },
+      "historicalConnection": {
+        "incident": "G6-001",
+        "pr": 2868,
+        "runId": 42141557514,
+        "workflowAttempt": 5,
+        "assessment": "POSSIBLY the same seam-roster crash mid-test; identity NOT confirmed.",
+        "attribution": "Root working interpretation; retain historical evidence and denominators."
+      },
+      "rootDisposition": {
+        "source": "42205390500-root-refinement",
+        "treatmentStatus": "canceled",
+        "prClosure": "Root cancels treatment and closes #2868/#2924; no independent PR-state query by G6.",
+        "diagnosticParserFix": "remains on its branch; no merge/completion claim",
+        "followUpPriority": "low-priority normal work",
+        "keyboardRemediation": "P7 separate; G6-041 unchanged"
+      },
+      "treatmentStatus": "canceled by Root"
+    }
+  ],
+  "addenda": [
+    {
+      "addedAtUtc": "2026-11-06T05:52:22.972243+00:00",
+      "incident": "G6-040",
+      "scope": "One PR evidence snapshot, exact failed-job metadata/raw log and failing-head source. Root rerun outcome remains uncollected.",
+      "priorAsOfRetained": true,
+      "priorReceipts": "Original phase-g/G6 receipt, evidence-manifest and cleanup/G6.md/json are unchanged. This addendum and its validation/cleanup live in u89-followup."
+    },
+    {
+      "addedAtUtc": "2026-11-06T06:10:06.457533+00:00",
+      "incident": "G6-040",
+      "scope": "Superseding Root assignment: small U89 harness/perf-lane fix inside Phase G; historical source receipts preserved.",
+      "priorReceipts": "All previous phase-g/G6 and cleanup receipts remain sealed; new proof/status/cleanup lives under u89-perf-fix."
+    },
+    {
+      "addedAtUtc": "2026-11-06T10:39:27.018376+00:00",
+      "incident": "G6-041",
+      "scope": "Finite Root request after PhaseG completion; one fixed failed-job metadata/log capture and three relevant artifacts, no polling/rerun/cleanup. P7 owns diagnosis; Root owns rerun and merge.",
+      "priorReceipts": "All sealed/history/U89 receipts remain unchanged. New evidence is under normal-work/G6-flake-register/2932-library-tab-timeout/."
+    },
+    {
+      "addedAtUtc": "2026-11-06T10:44:22.651721+00:00",
+      "incident": "G6-041",
+      "scope": "P7 diagnosis: observed prefixed name in retained context; bounded helper/guard follow-up planned. Intermittency still unconfirmed; no G6 source changes."
+    },
+    {
+      "addedAtUtc": "2026-11-06T10:48:03.519003+00:00",
+      "incident": "G6-041",
+      "scope": "Root-routed exact same-head attempt2 E2E2/2 PASS independently metadata-checked; intermittency CONFIRMED. Original attempt1 evidence sealed; P7 remediation incomplete and causal hypothesis remains separate."
+    },
+    {
+      "addedAtUtc": "2026-11-06T11:13:42.445652+00:00",
+      "incident": "G6-042",
+      "scope": "Finite Root follow-up after PhaseG completion; reused completed local A+C two-shard control capture only. Confirmed native crash with green job; no remote incident reads, rerun, watch, source fix, treatment or cleanup.",
+      "priorReceipts": "All previous entries including G6-041, sources and sealed U89/history receipts retained unchanged. New verification/handback under normal-work/G6-flake-register/42205390500-green-job-segv/."
+    },
+    {
+      "addedAtUtc": "2026-11-06T11:18:26.875439+00:00",
+      "incident": "G6-042",
+      "scope": "Root process-context refinement: wrapper3051 versus timed browser-main3052; renderer3346 not proven victim; roster retry0 passed with own SEGV stderr. Historical #2868/a5 identity only POSSIBLE. Treatment canceled; C low-priority follow-up, P7 separate. Reused/hashed local sealed process-context addendum only.",
+      "priorReceipts": "Original capture/audit seals and G6 verification/history unchanged; additive refinement receipts under42205390500-green-job-segv/process-refinement/."
+    },
+    {
+      "addedAtUtc": "2026-11-06T11:36:11.263882+00:00",
+      "incident": "G6-041",
+      "scope": "Root releases bounded follow-up after#2937 merge: record PROBABLE stale-input-prefix cause and merged guard with Root-reported E2E1/2+2/2 PASS at exact proof head. Fresh current-main branch;#2939 frozen. No incident query/download, browser/hosted rerun, implementation or stability clearance.",
+      "priorReceipts": "All original same-head observations, diagnostic/rerun evidence, prior entries and sealed capture/history receipts preserved. New event/verification under normal-work/G6-flake-register/2937-keyboard-guard-merge/."
+    },
+    {
+      "addedAtUtc": "2026-11-06T20:16:44.822248+00:00",
+      "incident": "G6-041",
+      "scope": "Root-assigned docs/data recurrence addendum after#2962 merge. Reuse existing P7 raw/digest-verified report/timings and committed proof only. Controlled readiness race proven; current hosted cause UNCONFIRMED, earlier probable-prefix cause preserved separately. Root owns next hosted recurrence observation; no child watch/rerun/capture or stability clearance.",
+      "priorReceipts": "All previous entries/evidence preserved; new bounded verification under normal-work/G6-flake-register/2962-keyboard-initial-value-recurrence/."
+    }
+  ]
+}

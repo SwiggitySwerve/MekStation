@@ -2,6 +2,7 @@ import { expect, test, type Page, type Locator } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
+import { activate, fill, tabTo } from './helpers/keyboardNavigation';
 import {
   installPrintHarness,
   printCaptures,
@@ -621,6 +622,57 @@ for (const viewport of VIEWPORTS) {
           });
         }
 
+        if (unit.shell === 'aerospace-customizer') {
+          await section(page, 'Velocity');
+          const velocity = shell.getByTestId('aerospace-velocity-tab');
+          const thrust = velocity.getByTestId('aerospace-safe-thrust-input');
+          const editedThrust = String(Number(await thrust.inputValue()) + 1);
+          await activate(
+            page,
+            velocity.getByTestId('aerospace-thrust-increase'),
+            true,
+          );
+          await expect(thrust).toHaveValue(editedThrust);
+          const maximum = await velocity
+            .getByTestId('aerospace-max-thrust')
+            .innerText();
+          await fill(
+            page,
+            velocity.getByTestId('aerospace-fuel-tons-input'),
+            '2.5',
+            true,
+          );
+          const fuelPoints = await velocity
+            .getByText(/fuel points \(/)
+            .innerText();
+          await section(page, 'Structure');
+          await expect(
+            shell.getByTestId('aerospace-safe-thrust-input'),
+          ).toHaveValue(editedThrust);
+          await expect(shell.getByTestId('aerospace-max-thrust')).toHaveText(
+            maximum,
+          );
+          await expect(
+            shell.getByTestId('aerospace-fuel-tons-input'),
+          ).toHaveValue('2.5');
+          await expect(
+            shell.getByText(fuelPoints, { exact: true }),
+          ).toBeVisible();
+          await section(page, 'Velocity');
+          await expect(thrust).toHaveValue(editedThrust);
+          expect(
+            await velocity.evaluate(
+              (element) => element.scrollWidth <= element.clientWidth,
+            ),
+          ).toBe(true);
+          await velocity.screenshot({
+            path: testInfo.outputPath(
+              `velocity-${unit.label.replace(/ /g, '-')}-${viewport.name}.png`,
+            ),
+            animations: 'disabled',
+          });
+        }
+
         await page.screenshot({
           path: testInfo.outputPath(
             `${unit.label.replace(/ /g, '-')}-${viewport.name}.png`,
@@ -724,34 +776,6 @@ for (const viewport of VIEWPORTS) {
   });
 }
 
-/** Reach controls by browser Tab order; never programmatically focus them. */
-async function tabTo(page: Page, target: Locator) {
-  for (let i = 0; i < 160; i++) {
-    if (await target.evaluate((el) => el === document.activeElement)) return;
-    await page.keyboard.press('Tab');
-  }
-  await expect(target).toBeFocused();
-}
-
-async function activate(page: Page, target: Locator, keyboard: boolean) {
-  if (!keyboard) return target.click();
-  await tabTo(page, target);
-  await page.keyboard.press('Enter');
-}
-
-async function fill(
-  page: Page,
-  target: Locator,
-  value: string,
-  keyboard: boolean,
-) {
-  if (!keyboard) return target.fill(value);
-  await tabTo(page, target);
-  await page.keyboard.press('ControlOrMeta+A');
-  await page.keyboard.insertText(value);
-  await page.keyboard.press('Tab');
-}
-
 async function section(page: Page, name: string, keyboard = false) {
   const selector = page.getByRole('button', { name: /^Section:/ });
   const narrow = await selector.isVisible();
@@ -776,6 +800,122 @@ async function section(page: Page, name: string, keyboard = false) {
   await expect(target).toBeFocused();
   await page.keyboard.press('Enter');
 }
+
+test.describe('keyboard input helper', () => {
+  test.setTimeout(20_000);
+
+  test('replaces text and numeric values through keyboard navigation', async ({
+    page,
+  }) => {
+    await page.setContent(`
+      <label>Chassis Name<input value="Shilone"></label>
+      <label>Armor<input type="number" value="18"></label>
+      <button>Save</button>
+    `);
+    const chassis = page.getByRole('textbox', { name: 'Chassis Name' });
+    const armor = page.getByRole('spinbutton', { name: 'Armor' });
+    await fill(page, chassis, 'Flow Shilone', true);
+    await expect(chassis).toHaveValue('Flow Shilone');
+    await expect(armor).toBeFocused();
+    await fill(page, armor, '17', true);
+    await expect(armor).toHaveValue('17');
+    await expect(page.getByRole('button', { name: 'Save' })).toBeFocused();
+  });
+  test('rejects a retained old prefix before leaving the field', async ({
+    page,
+  }) => {
+    await page.setContent(`
+      <label>Chassis Name<input value="Shilone"></label>
+      <button>Save</button>
+      <script>
+        const input = document.querySelector('input');
+        input.addEventListener('keydown', (event) => {
+          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
+            // Inject a lost selection; the retained hosted context shows this
+            // prefix outcome, without proving the event that caused it there.
+            event.preventDefault();
+            input.setSelectionRange(input.value.length, input.value.length);
+          }
+        });
+      </script>
+    `);
+    const chassis = page.getByRole('textbox', { name: 'Chassis Name' });
+    const failure = await fill(page, chassis, 'Flow Shilone', true).then(
+      () => undefined,
+      (error: unknown) => error,
+    );
+    expect(failure instanceof Error).toBe(true);
+    if (failure instanceof Error)
+      expect(failure.message).toContain('toHaveValue');
+    await expect(chassis).toHaveValue('ShiloneFlow Shilone');
+    await expect(chassis).toBeFocused();
+  });
+
+  test('waits for the initial value before selecting and replacing text', async ({
+    page,
+  }, info) => {
+    await page.setContent(`
+      <label>Chassis Name<input value=""></label>
+      <button>Save</button>
+      <script>
+        const input = document.querySelector('input');
+        window.fillEvents = [];
+        let initialized = false;
+        const record = (event) => window.fillEvents.push({
+          event, value: input.value,
+          start: input.selectionStart, end: input.selectionEnd,
+        });
+        const initialize = () => {
+          if (initialized) return;
+          initialized = true;
+          input.value = 'AA Jump Infantry';
+          record('initial value committed');
+        };
+        input.addEventListener('focus', () => {
+          record('focused before initial value');
+          // Model the dialog's pending controlled-value initialization. It can
+          // commit after selection; no product behavior is changed by this fixture.
+          setTimeout(initialize, 1000);
+        }, { once: true });
+        input.addEventListener('keyup', (event) => {
+          if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
+            record('select all');
+            initialize();
+          }
+        });
+        input.addEventListener('input', () => record('input'));
+      </script>
+    `);
+    const chassis = page.getByRole('textbox', { name: 'Chassis Name' });
+    try {
+      await fill(
+        page,
+        chassis,
+        'Flow AA Jump Infantry',
+        true,
+        'AA Jump Infantry',
+      );
+      await expect(chassis).toHaveValue('Flow AA Jump Infantry');
+      await expect(page.getByRole('button', { name: 'Save' })).toBeFocused();
+      const events = await page.evaluate(() =>
+        (
+          window as typeof window & { fillEvents: { event: string }[] }
+        ).fillEvents.map((entry) => entry.event),
+      );
+      expect(events.indexOf('initial value committed')).toBeLessThan(
+        events.indexOf('select all'),
+      );
+    } finally {
+      const events = await page.evaluate(
+        () => (window as typeof window & { fillEvents: unknown[] }).fillEvents,
+      );
+      await info.attach('initial-value-event-order', {
+        body: JSON.stringify(events, null, 2),
+        contentType: 'application/json',
+      });
+    }
+  });
+});
 
 test.describe('library persistence and printing', () => {
   // Real catalog, SQLite save API and sheet renderer throughout. The print
@@ -1031,12 +1171,13 @@ test.describe('library persistence and printing', () => {
                 keyboard,
               );
             const input = editInput(page, unit);
-            const original = Number(await input.inputValue());
+            const initialValue = await input.inputValue();
+            const original = Number(initialValue);
             expect(original).toBeGreaterThan(0);
             // Aerospace source armor exceeds the current editor cap. Exercise a
             // concrete legal edit; the cap discrepancy is recorded in HANDBACK.
             const edited = 'edit' in unit ? unit.edit : original - 1;
-            await fill(page, input, String(edited), keyboard);
+            await fill(page, input, String(edited), keyboard, initialValue);
             await expect(input).toHaveValue(String(edited));
             const total =
               unit.family === 'infantry' ? 18 : unit.total - original + edited;
@@ -1063,12 +1204,14 @@ test.describe('library persistence and printing', () => {
               save.getByLabel('Chassis Name'),
               chassis,
               keyboard,
+              unit.chassis,
             );
             await fill(
               page,
               save.getByLabel('Variant Designation'),
               model,
               keyboard,
+              unit.model,
             );
             const button = save.getByRole('button', {
               name: 'Save',

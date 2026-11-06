@@ -25,7 +25,12 @@ export function applyGameCreated(
 
   payload.units.forEach((unit, index) => {
     const { position, facing } = placements[index];
-    units[unit.id] = createInitialUnitState(unit, position, facing);
+    units[unit.id] = createInitialUnitState(
+      unit,
+      position,
+      facing,
+      payload.config.neuralInterfaceMode,
+    );
   });
 
   const automaticC3Network = buildConservativeC3NetworkStateFromUnits(units);

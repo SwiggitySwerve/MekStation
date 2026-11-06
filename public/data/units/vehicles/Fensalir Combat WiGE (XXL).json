@@ -120,5 +120,10 @@
       "COMMUNICATIONS": "Nashan",
       "TARGETING": "Unknown"
     }
+  },
+  "weaponQuirks": {
+    "FR:0:ISImprovedHeavyGaussRifle": [
+      "accurate"
+    ]
   }
 }
