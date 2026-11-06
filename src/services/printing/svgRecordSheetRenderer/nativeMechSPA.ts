@@ -3,7 +3,7 @@ import type { ISPASectionData } from '../recordsheet/spaSection';
 import { SVG_NS } from './constants';
 
 /**
- * Single-pilot biped placement, not a new SPA resolver or crew-slot model.
+ * Single-pilot biped/quad placement, not a new SPA resolver or crew-slot model.
  * @spec openspec/changes/establish-all-unit-data-parity/specs/record-sheet-export/spec.md
  * MML 62bf193: PrintEntity.java:537-550; PrintRecordSheet.java:1084-1143.
  * Native overflow is deliberate parity: no clipping, cap or extra shrink.
@@ -22,7 +22,7 @@ export function renderNativeMechSPASection(
   const width = Math.fround(Number(region.getAttribute('width')));
   const height = Math.fround(Number(region.getAttribute('height')));
   const context = document.createElement('canvas').getContext('2d');
-  if (!context) throw new Error('Could not measure native biped SPA text');
+  if (!context) throw new Error('Could not measure native Mech SPA text');
 
   // PrintRecordSheet.java:108,112,245-251: default face and normal/italic metrics.
   const fontFamily = 'Eurostile';

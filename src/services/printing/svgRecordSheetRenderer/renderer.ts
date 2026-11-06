@@ -112,7 +112,7 @@ export class SVGRecordSheetRenderer {
     // Helper skips when there are no resolvable entries.
     if (data.specialAbilities && data.specialAbilities.length > 0) {
       const renderAbilities =
-        data.mechType === 'biped'
+        data.mechType === 'biped' || data.mechType === 'quad'
           ? renderNativeMechSPASection
           : renderSPASection;
       renderAbilities(svgDoc, {
