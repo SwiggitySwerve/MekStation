@@ -24,6 +24,24 @@ row, rewrote the `Open:` clauses and re-measured the figures once in
 its `Open:` clause says what is left. The last review fix, #2700, merged after the
 measured SHA (as `096cc20d7`); it is not measured here.
 
+Acceptance reconciliation on main `0b8ea746c6` (2026-11-06): 34 of 45
+top-level rows are ticked; the two completed subrows make 36 of 47 checkbox
+entries. The 11 open rows remain 1.3, 2.1, 2.2, 2.3, 2.22, 3.1, 3.2, 3.4,
+4.1, 4.3 and 5.2. Earlier numerical and failure counts in the row clauses
+are dated measurements, not assertions about this main revision. The accepted
+Phase G release (`phase-g/PHASE-G-COMPLETE.md`) supersedes the stale pause and
+7.2-minute release gate; it does not complete these rows.
+
+The later guarded G5 proof measured clean main `3502cf6c8`, not this revision:
+9,815 distinct sources loaded and joined, with exact total/aggregate BV across
+all seven families. Its detailed audit exited 1: 4,130 rows had no first-term
+difference, 5,667 had a missing-side first difference and 18 had a numeric
+first difference (5,685 diagnostics). These are historical results, not a new
+BV run or complete construction/editor/gameplay parity. Proof and retained
+artifacts: `phase-g/G5/current-main/PROOF.md`. Reconciliation, the 115-item
+inventory, dependency map and artifact-hash audit:
+`normal-work/P8-acceptance/`. No checkbox changes in this reconciliation.
+
 ## 1. Source and reference foundation
 
 - [x] 1.1 Implement deterministic pinned Git source inventory in `scripts/megameklab-conversion/`, including MTF/BLK/BFS, hashes, explicit other files and nonempty input errors. Test dirty-tree isolation and missing/invalid inputs. (`unit-services`: Immutable source inventory) Proof: #2373; tests: `scripts/__tests__/test_source_inventory.py` (9 pass); evidence: `2026-10-28/upstream-crosscheck/implementation/runtime-reference/corpus/source-verification.json` (10,994 sources: 4,263 MTF, 6,725 BLK, 6 BFS, plus 4 explicit non-source entries), `ledger/slice-tests/py-source-inventory.log`.
@@ -142,4 +160,28 @@ measured SHA (as `096cc20d7`); it is not measured here.
   - Accepted unshowable exception [#2545](https://github.com/SwiggitySwerve/MekStation/pull/2545): only adds an explicit return type to `getVehicleBVMovement`, erased at runtime; no tests were added or changed, and no behavior regression is claimed. [Backfill evidence](E:/Projects/Personal/MekStation-wt/_reports/2026-10-30/claude-coordinator/ledger/L-REV2/backfill/2545.md).
   - Accepted unshowable exception [#2547](https://github.com/SwiggitySwerve/MekStation/pull/2547): the PR's `mountedWeight.test.ts` tests also pass on the integration first parent with the test-only overlay; parent and merge each pass all 5 tests and exit 0, so no distinguishing red/green pair was shown. [Backfill evidence](E:/Projects/Personal/MekStation-wt/_reports/2026-10-30/claude-coordinator/ledger/L-REV2/backfill/2547.md). Documentation and validation receipts: `ledger/row51-owner-exceptions/`.
 - [ ] 5.2 Re-run the full source accounting and acceptance on the merged tree, reconcile all gaps, synchronize accepted specs and archive only after verified completion.
-  - Open: depends on every other row. The source accounting was re-run on main `970be23d1` (row 1.2) and the acceptance measurements were refreshed on main `ac64a3330` (`ledger/ACCEPTANCE-STATUS.md`, `ledger/tick6/`); acceptance checks 1, 3 and 4 are not met and check 5 is partly met (the latest nightly failed 58 E2E tests). Spec sync and archive remain.
+  - Open: depends on every other row, including every remaining clause of the
+    10 other open rows listed above. Acceptance checks 1, 3 and 4 remain open;
+    historical aggregate BV equality does not discharge missing detailed terms,
+    construction quantities, source semantics or connected workflow proof.
+  - Follow-ups: reconcile all 115 items in `followups.md` against merged proof
+    or an explicit owner deferral. Item 27 is owner-deferred; item 111 is only
+    coordinator-deferred, so it does not satisfy that acceptance condition.
+    G5 owns the central external status documents; P8 owns this task ledger.
+  - CI acceptance is the PR checks, CAMP-01 and nightly Coverage Thresholds on
+    main. The six pre-existing nightly Full E2E failures are owner-deferred
+    under the 2026-10-31 ruling; that is not a waiver for other failures. The
+    accepted deployed Guard proof on `0b8ea746c6` establishes Phase G release,
+    not fresh nightly or full parity acceptance (`phase-g/PHASE-G-COMPLETE.md`).
+  - Next: after relevant integrations settle, perform one batched source
+    accounting, fresh guarded conversion and all-family acceptance pass on the
+    exact committed integrated head. Retain pins, oracle/source hashes,
+    producer receipts, all 9,815 paths and seven-family counts, with detailed
+    omissions separate from total/aggregate results. Domain owners must
+    coordinate accepted spec synchronization; archive only after every
+    acceptance criterion passes. Batch contract: `normal-work/P8-acceptance/`.
+  - Spec validation remains open: OpenSpec 1.14.3 focused strict validation
+    reports 7 omitted-scenario errors; strict/all reports 153 passed and 85
+    failed items. The same diagnostics reproduce from this main revision's
+    unchanged specs. Preserve and reconcile live scenarios with the domain
+    owners before sync/archive; proof: `normal-work/P8-acceptance/spec-baseline-comparison.json`.
