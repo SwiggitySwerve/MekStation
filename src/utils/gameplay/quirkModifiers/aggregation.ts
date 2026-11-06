@@ -14,6 +14,7 @@ import {
   calculateMultiTracModifier,
 } from './defensiveQuirks';
 import {
+  calculateAntiAirQuirkModifier,
   calculateTargetingQuirkModifier,
   calculateDistractingModifier,
   calculateLowProfileModifier,
@@ -43,6 +44,12 @@ export function calculateAttackerQuirkModifiers(
   }
 
   const modifiers: IToHitModifierDetail[] = [];
+
+  const antiAirMod = calculateAntiAirQuirkModifier(
+    attackerQuirks,
+    target.isAirborne,
+  );
+  if (antiAirMod) modifiers.push(antiAirMod);
 
   // Targeting quirks (attacker)
   const targetingMod = calculateTargetingQuirkModifier(

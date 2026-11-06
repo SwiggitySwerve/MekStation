@@ -78,6 +78,35 @@ add the Anti-Air quirk modifier or infer flight for other families.
 - **AND** unrelated SPA terrain consumers SHALL retain their existing input contract
 - **AND** absent native state SHALL NOT be replaced with the represented flag
 
+### Requirement: Native Unit Anti-Air Targeting
+
+The shared unit-quirk to-hit owner SHALL apply -2 once when the attacker has
+native `anti_air` and the Entity target has an established native airborne
+fact. This SHALL follow pinned MegaMek `48fcb2f64` `Quirks.java:75` and
+`ComputeAbilityMods.java:64-68`, consuming the shared
+isAirborneVTOLorWIGE OR isAirborne result without duplicating its predicates.
+
+#### Scenario: Native source key reaches session and replay attacks
+
+- **GIVEN** converted unit metadata carrying native `anti_air`
+- **WHEN** public to-hit calculation or an event-sourced attack declaration targets airborne aerospace, VTOL or WiGE
+- **THEN** the attack SHALL receive one -2 Anti-Air modifier
+- **AND** serialized replay SHALL retain the quirk and declared modifier
+- **AND** a zero-altitude aerospace target in flight mode SHALL qualify
+
+#### Scenario: Grounded and unknown targets do not qualify
+
+- **WHEN** the target's native airborne result is false or unestablished
+- **THEN** Anti-Air SHALL add no modifier, including roof/bridge-supported VTOL/WiGE
+- **AND** a target-side Anti-Air quirk SHALL NOT benefit the attacker
+- **AND** duplicate ids SHALL NOT multiply the benefit or near-match ids create it
+
+#### Scenario: Other attack modifiers remain additive
+
+- **WHEN** an Anti-Air attack also has range, movement or other unit/weapon modifiers
+- **THEN** those modifiers and existing to-hit clamping SHALL retain their behavior
+- **AND** attacks without native Anti-Air SHALL retain their existing numerical outputs
+
 ## MODIFIED Requirements
 
 ### Requirement: Piloting Quirk — Hard to Pilot

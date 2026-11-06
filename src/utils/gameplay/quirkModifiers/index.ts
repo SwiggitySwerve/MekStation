@@ -8,6 +8,7 @@ export {
 } from './catalog';
 export type { QuirkCategory, QuirkPipeline, IQuirkCatalogEntry } from './types';
 export {
+  calculateAntiAirQuirkModifier,
   calculateTargetingQuirkModifier,
   calculateDistractingModifier,
   hasLowProfile,

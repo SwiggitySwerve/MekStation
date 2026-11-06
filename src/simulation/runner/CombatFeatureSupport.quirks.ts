@@ -7,6 +7,7 @@
  * known-limitation filter hide the missing rule.
  */
 
+import { megamekSourceRef } from './CombatFeatureSourceReference';
 import {
   integrated,
   outOfScope,
@@ -38,7 +39,25 @@ import {
   MEKSTATION_TARGETING_QUIRK_ALIAS_SOURCE_REFS,
 } from './CombatPilotModifierSourceRefs';
 
+const ANTI_AIR_MEGAMEK_PIN = '48fcb2f64a1b3f2d575707ce5653dad64927b587';
+
 export const QUIRK_COMBAT_SUPPORT = {
+  anti_air: integrated(
+    'anti_air',
+    'calculateAntiAirQuirkModifier consumes the shared native target airborne fact through calculateToHit, session declaration and serialized replay; adds -2 once for explicit native anti_air against represented airborne aerospace/VTOL/WiGE targets, preserving unknown flight state as unqualified',
+    [
+      megamekSourceRef(
+        'Native Anti-Air option registration.',
+        'megamek/src/megamek/common/options/Quirks.java#L75',
+        ANTI_AIR_MEGAMEK_PIN,
+      ),
+      megamekSourceRef(
+        'Anti-Air applies -2 against an Entity satisfying isAirborneVTOLorWIGE OR isAirborne.',
+        'megamek/src/megamek/common/actions/compute/ComputeAbilityMods.java#L64-L68',
+        ANTI_AIR_MEGAMEK_PIN,
+      ),
+    ],
+  ),
   improved_targeting_short: integrated(
     'improved_targeting_short',
     'calculateTargetingQuirkModifier plus calculateToHit apply MekStation local improved_targeting_short as the source-backed short-range Improved Targeting quirk family',
