@@ -185,10 +185,12 @@ export type ISerializedUnitEnvelope = ISerializedUnitEnvelopeGeneric<
 
 export interface IImportData {
   readonly unitId: string;
+  readonly warnings?: readonly string[];
 }
 
 export interface IImportError {
   readonly message: string;
+  readonly warnings?: readonly string[];
   readonly suggestedName?: string;
   readonly validationErrors?: readonly string[];
 }
