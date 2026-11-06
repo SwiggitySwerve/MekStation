@@ -28,6 +28,11 @@ const campJsonCollection = Boolean(
 // Each invocation owns its output file, including concurrent suite runners.
 const jsonCollection =
   campJsonCollection || Boolean(process.env.PLAYWRIGHT_JSON_OUTPUT_FILE);
+// Scratch diagnostics add a reporter without replacing any existing reporter.
+const diagnosticReporters: [string][] = process.env
+  .MEKSTATION_E2E_DIAGNOSTIC_DIR
+  ? [['./scripts/playwright/ci-diagnostic-reporter.mjs']]
+  : [];
 const playwrightResults =
   campRuntimeRouted && process.env.CAMP01_PLAYWRIGHT_OUTPUT_DIR
     ? process.env.CAMP01_PLAYWRIGHT_OUTPUT_DIR
@@ -129,11 +134,13 @@ export default defineConfig({
         ['github'],
         ['html', { open: 'never', outputFolder: playwrightHtml }],
         ...(jsonCollection ? ([['json']] as const) : []),
+        ...diagnosticReporters,
       ]
     : [
         ['list'],
         ['html', { open: 'on-failure', outputFolder: playwrightHtml }],
         ...(jsonCollection ? ([['json']] as const) : []),
+        ...diagnosticReporters,
       ],
 
   outputDir: playwrightResults,
