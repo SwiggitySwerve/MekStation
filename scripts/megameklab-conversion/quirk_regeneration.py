@@ -119,7 +119,7 @@ def verify_tree(before: Path, after: Path, *, identical=False):
 
 
 def write_family(baseline: Path, output: Path, plan: dict[str, bytes]):
-    if output.exists() or baseline.resolve().is_relative_to(output.resolve()):
+    if output.exists() or baseline.resolve().is_relative_to(output.resolve()) or output.resolve().is_relative_to(baseline.resolve()):
         raise ValueError('Output must be a new directory outside the baseline')
     if any(Path(key).is_absolute() or '..' in Path(key).parts or not (baseline / key).is_file() for key in plan):
         raise ValueError('Plan must contain only existing family files')

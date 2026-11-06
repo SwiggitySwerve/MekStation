@@ -46,6 +46,11 @@ class QuirkRegenerationTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Unmatched'):
             plan_family(self.baseline, 'capital', [{**self.record, 'chassis': 'Unknown'}])
 
+    def test_output_cannot_overlap_baseline(self):
+        for output in [self.family / 'recursive', self.baseline, self.family]:
+            with self.subTest(output=output), self.assertRaises(ValueError):
+                write_family(self.family, output, {})
+
     def test_gate_rejects_file_sets_and_nonunit_or_construction_changes(self):
         write_family(self.family, self.root / 'out', {})
         for relative, bad in [('Ship A.json', self.raw.replace(b'3.000', b'3.0')),
