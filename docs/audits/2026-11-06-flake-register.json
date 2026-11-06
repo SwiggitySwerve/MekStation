@@ -13,7 +13,8 @@
     "local-windows": "Windows local archived runs; per-run Node/head only where recorded",
     "ci-unspecified": "CI platform/Node not recovered from this receipt",
     "source-described": "Exact environment is in source diagnostic; no cross-incident inference",
-    "u89-unit-ci": "GitHub-hosted ubuntu-latest; captured Ubuntu26.04.1 LTS image20261101.186.1, Node22.23.4, cached unit shard2/3, maxWorkers4. No contention telemetry collected."
+    "u89-unit-ci": "GitHub-hosted ubuntu-latest; captured Ubuntu26.04.1 LTS image20261101.186.1, Node22.23.4, cached unit shard2/3, maxWorkers4. No contention telemetry collected.",
+    "2932-chromium": "GitHub-hosted ubuntu-latest; captured Ubuntu26.04 image, Node22.23.4, Playwright Chromium library shard2/2, actualWorkers1. Native failed result retry0; do not infer configured retry policy from that alone."
   },
   "latestNightly": {
     "runId": 42072283514,
@@ -592,6 +593,36 @@
       "location": "coordinator-archive",
       "sha256": "d44abf22890cb36c52d20e0229d161b93fbfeecc1b5dc2b9f0fe55af2498d74b",
       "bytes": 849356
+    },
+    "2932-job": {
+      "path": "normal-work/G6-flake-register/2932-library-tab-timeout/job.json",
+      "location": "coordinator-archive",
+      "sha256": "24556e72882a7f28fe9422536de059da3c46b896e4452b64cd7659e49e4d1e77",
+      "bytes": 4563
+    },
+    "2932-log": {
+      "path": "normal-work/G6-flake-register/2932-library-tab-timeout/job.log",
+      "location": "coordinator-archive",
+      "sha256": "ec6b0d9b14e7742005f126aa6464e39b2108e4f7ee8d657198d834767fef8720",
+      "bytes": 79464
+    },
+    "2932-library-native": {
+      "path": "normal-work/G6-flake-register/2932-library-tab-timeout/artifacts/e2e-timings-2/library.json",
+      "location": "coordinator-archive",
+      "sha256": "676ab2d3f7b179cbcf9ce6373442f60302bea2f10ffb3f0baaf0fa29faaa1505",
+      "bytes": 95672
+    },
+    "2932-artifact-custody": {
+      "path": "normal-work/G6-flake-register/2932-library-tab-timeout/artifact-capture.json",
+      "location": "coordinator-archive",
+      "sha256": "90d6c4145855745a6bd6f17fb720fb0cfc7ac2ede1ea9758a3d2f2a26fd37260",
+      "bytes": 80496
+    },
+    "2932-context": {
+      "path": "normal-work/G6-flake-register/2932-library-tab-timeout/context.json",
+      "location": "coordinator-archive",
+      "sha256": "a48e72cba14f507629fcba95fed6045777e08cac108b5ca8670102ec1646fb59",
+      "bytes": 1097
     }
   },
   "entries": [
@@ -1713,6 +1744,52 @@
         "Contention is not directly measured; a same-head rerun pass confirms intermittency, not a causal resource diagnosis.",
         "Root owns PR2907 rerun; G6 does not collect or submit duplicate reruns."
       ]
+    },
+    {
+      "id": "G6-041",
+      "classification": "suspected-intermittent; unconfirmed",
+      "state": "open; awaiting Root-routed same-head rerun evidence",
+      "test": "e2e/customizer-library-open.spec.ts:1065 — library flows1440 > fighter: edit, save, reload, reopen and print",
+      "environment": "2932-chromium",
+      "summary": "Native result fails in tabTo at line781: locator.evaluate waits10000ms for the exact Close Flow Shilone Long Label Layout Check1793960765585-0 Saved1440 button. Root suspects a flake; a single failure does not confirm intermittency or prove the date changes unrelated.",
+      "owner": "P7-editors — diagnosis and smallest justified robustness follow-up; Root alone owns rerun/merge; G6 owns capture/register",
+      "nextStep": "P7 reuses retained raw log/native JSON/error-context/screenshot and investigates the160-Tab loop: an absent target stalls target.evaluate for10s before another Tab press. Establish why the locator was absent after reload and select the smallest justified fix. Root routes same-head rerun evidence separately; G6 must not rerun/poll or claim intermittency before that receipt.",
+      "observations": [
+        {
+          "runId": 42201733032,
+          "workflowAttempt": 1,
+          "head": "614822610b47c0ab2f8c3148345122f2ac050db6",
+          "checkedOutMerge": "3101eb573d6a84db8896352e76e2854bbf9e7212",
+          "proofBase": "5327172ee29420b2774d09a3c9d03968cdb8d197",
+          "jobId": 127838633272,
+          "jobName": "E2E (2/2)",
+          "pr": 2932,
+          "result": "failed",
+          "source": "2932-log",
+          "nativeSource": "2932-library-native",
+          "testRetry": 0,
+          "testStartTime": "2026-11-06T10:26:00.612Z",
+          "testDurationMs": 15739,
+          "failureLocation": "tabTo:781:22; activate:789:9; callsite:1144:19",
+          "sourceLines": [
+            871, 873, 875, 878, 879, 880, 885, 886, 887, 895, 897
+          ],
+          "exactLocatorName": "Close Flow Shilone Long Label Layout Check 1793960765585-0 Saved 1440"
+        }
+      ],
+      "sources": [
+        "2932-job",
+        "2932-log",
+        "2932-library-native",
+        "2932-artifact-custody",
+        "2932-context"
+      ],
+      "missingEvidence": [
+        "Same-head rerun result/attempt/job to confirm or reject intermittency; Root owns routing.",
+        "Cause of absent locator is unknown; helper wait structure alone does not establish cause.",
+        "No trace was attached by the failed native result or found in the three retained artifacts.",
+        "Root last25PRruns/no-other-hit/date-only hypothesis was not independently re-audited by G6."
+      ]
     }
   ],
   "addenda": [
@@ -1728,6 +1805,12 @@
       "incident": "G6-040",
       "scope": "Superseding Root assignment: small U89 harness/perf-lane fix inside Phase G; historical source receipts preserved.",
       "priorReceipts": "All previous phase-g/G6 and cleanup receipts remain sealed; new proof/status/cleanup lives under u89-perf-fix."
+    },
+    {
+      "addedAtUtc": "2026-11-06T10:39:27.018376+00:00",
+      "incident": "G6-041",
+      "scope": "Finite Root request after PhaseG completion; one fixed failed-job metadata/log capture and three relevant artifacts, no polling/rerun/cleanup. P7 owns diagnosis; Root owns rerun and merge.",
+      "priorReceipts": "All sealed/history/U89 receipts remain unchanged. New evidence is under normal-work/G6-flake-register/2932-library-tab-timeout/."
     }
   ]
 }
