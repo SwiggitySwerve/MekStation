@@ -5,12 +5,16 @@ import {
 // Per-file execution observations. Cached passes are not timing samples.
 import { median, quantile } from '../lib/statistics.mjs';
 import { collectTests } from '../playwright/ci-e2e-plan.mjs';
-import { selectMainObservations, TIMING_GROWTH_RATIO } from './ci-metrics.mjs';
+import {
+  selectMainObservations,
+  TIMING_GROWTH_RATIO,
+  MIN_TIMING_MAIN_SAMPLES,
+} from './ci-metrics.mjs';
 import { validateTestFiles } from './ci-observation.mjs';
 
 export const TEST_GROWTH_RATIO = TIMING_GROWTH_RATIO;
 export const MIN_TEST_INCREASE_MS = 3000;
-export const MIN_TEST_MAIN_SAMPLES = 5;
+export const MIN_TEST_MAIN_SAMPLES = MIN_TIMING_MAIN_SAMPLES;
 
 export function compareTestFiles(current, baselines) {
   const missing = [];

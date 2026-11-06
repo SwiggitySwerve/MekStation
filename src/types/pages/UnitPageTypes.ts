@@ -46,9 +46,10 @@ export interface IUnitEntry {
 /**
  * Full unit details for detail pages
  */
-export interface IUnitDetails extends Partial<
-  ISquadMovement & Pick<IAerospaceUnit, 'structuralIntegrity'>
-> {
+export interface IUnitDetails
+  extends
+    Partial<ISquadMovement & Pick<IAerospaceUnit, 'structuralIntegrity'>>,
+    Pick<IUnitContract, 'quirks' | 'weaponQuirks'> {
   id: string;
   name?: string;
   chassis?: string;
@@ -69,7 +70,6 @@ export interface IUnitDetails extends Partial<
   heatSinks?: IHeatSinkConfig;
   movement?: IMovementConfig;
   equipment?: IMountedEquipmentEntry[];
-  quirks?: string[];
   metadata?: IPageUnitMetadata;
 }
 

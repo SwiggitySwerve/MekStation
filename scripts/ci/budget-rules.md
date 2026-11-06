@@ -18,7 +18,11 @@ Manual lowering may preserve positive fractions; automatic timing ratchets stay
 disabled until a canonical complete comparable timing projection exists.
 These display caps do not change runtime assertions, hard budgets or label
 criteria. G2's report labels use actual per-job breaches or aggregate values
-strictly over main p75 by 20%, never test-file growth or display-cap crossings.
+strictly over main p75 by 20% with at least five comparable main samples,
+never test-file growth or display-cap crossings. Below five, aggregates are
+informational with their sample count; missing data remains unavailable.
+The minimum does not apply to per-job budget breaches. Report comments retain
+the selector's exclusion reasons with run/attempt/head for each excluded sample.
 
 Deploy compatible trusted schema support before adding populated config fields.
 The first stage leaves the config unchanged. Only after a main push runs the

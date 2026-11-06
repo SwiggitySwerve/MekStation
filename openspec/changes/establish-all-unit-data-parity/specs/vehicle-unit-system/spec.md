@@ -488,6 +488,34 @@ The system SHALL provide a tabbed customizer interface for vehicles.
 
 ## ADDED Requirements
 
+### Requirement: Native vehicle equipment introduction diagnostics
+
+The Tank and ground-support vehicle source handlers SHALL use the shared equipment
+introduction owner and its catalog date facts. The owner SHALL retain the
+existing five-year margin, ammunition exclusion, technology-side guard and
+resolved-identity deduplication. A native construction-invalid design SHALL
+remain loadable and carry its validation diagnostics.
+
+#### Scenario: Early torpedoes remain loadable but invalid
+
+- **GIVEN** the pinned Moray Heavy Attack Submarine (Original) and Silverfin Coastal Cutter sources
+- **WHEN** parsed and validated through their native vehicle handlers
+- **THEN** parsing SHALL succeed and construction validity SHALL be false
+- **AND** validation SHALL report their torpedo introduction dates
+- **AND** a matching final BV SHALL NOT establish construction validity
+
+#### Scenario: Source years preserve the introduction margin
+
+- **GIVEN** a native vehicle mounting SRT 6 introduced in 2660
+- **WHEN** its source year or explicit original build year is 2655
+- **THEN** equipment introduction validation SHALL accept that year
+- **AND** when both applicable years are earlier than 2655 it SHALL report SRT 6 once
+- **AND** the parsed vehicle SHALL retain an explicit original build year
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`TestEntity.java:1487-1512,1611-1618`, `TestTank.java:426-428` and
+`TestSupportVehicle.java:1221-1223`.
+
 ### Requirement: Shared variable vehicle equipment mass
 
 The combat editor SHALL call the existing shared support variable-mass owner.

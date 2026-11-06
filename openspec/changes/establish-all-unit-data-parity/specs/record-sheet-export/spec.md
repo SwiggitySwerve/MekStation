@@ -77,3 +77,96 @@ ProtoMech record-sheet extraction SHALL forward the existing SPA owner's entries
 - **GIVEN** a ProtoMech caller supplying no pilot abilities or an empty list
 - **WHEN** its sheet is extracted and rendered through the fallback SVG renderer
 - **THEN** no SPA block is supplied and both calls produce identical SVG output
+
+### Requirement: Native single-pilot biped SPA placement and fitting
+
+Single-pilot biped Mech canonical output SHALL place its explicitly supplied,
+owner-formatted SPA headlines in the existing `spas0` rectangle's parent, using
+that rectangle's coordinates and the pinned MML 62bf193 fitting algorithm. This
+native list SHALL use `Abilities: ` plus comma-separated formatted headlines,
+preserving designations. It SHALL replace the fixed-coordinate legacy block
+only for this configuration, without changing the extracted SPA entries.
+
+#### Scenario: Designated abilities on Letter and A4
+
+- **GIVEN** a single-pilot biped and explicitly supplied Weapon Specialist (PPC)
+- **WHEN** its canonical Letter or A4 SVG and PDF are generated
+- **THEN** the list appears beside the native `spas0` rectangle in its transformed parent
+- **AND** fitting starts at medium font size 6.76 times 0.9, switches once to rectangle height divided by 2.4 when normal text width exceeds the rectangle width, and wraps with italic metrics and line height font size times 1.2
+- **AND** non-SPA sheet figures remain unchanged
+
+#### Scenario: Native long-list and unbroken-token overflow
+
+- **GIVEN** a long supported SPA list or an overwide unbroken designation
+- **WHEN** the native list is rendered
+- **THEN** the MML space-delimiter wrapping algorithm retains all formatted headlines and delimiter spaces, with no clipping, truncation, line cap or additional shrink
+- **AND** vertical or horizontal overflow SHALL remain visible as native behavior, without a containment claim
+
+#### Scenario: Empty abilities or missing native region
+
+- **GIVEN** no resolved abilities or no native `spas0` rectangle
+- **WHEN** the biped is rendered
+- **THEN** no native SPA list or fixed-coordinate substitute is emitted
+
+#### Scenario: Other configurations and families retain their routes
+
+- **GIVEN** another Mech configuration or a non-Mech sheet
+- **WHEN** it is rendered
+- **THEN** this biped-only correction does not change its SPA output, canonical omissions, fallback renderer or infantry notes route
+
+### Requirement: Native single-pilot quad SPA placement
+
+Single-pilot quad Mech canonical output SHALL use the same native SPA fitting
+owner as biped output, with its own template's existing `spas0` rectangle and
+parent transform. It SHALL preserve the existing resolver's formatted headlines
+and designations without changing the extracted entries or other sheet figures.
+
+#### Scenario: Quad designated ability on Letter and A4
+
+- **GIVEN** a single-pilot quad Mech and supplied Weapon Specialist (PPC)
+- **WHEN** its canonical Letter or A4 SVG and PDF are generated
+- **THEN** `Abilities: Weapon Specialist (PPC)` starts in the quad template's existing `spas0` region
+- **AND** the common pinned MML 62bf193 font selection, float dimensions and space-delimiter wrapping apply unchanged
+- **AND** all non-SPA output retains the same domain-provided figures
+
+#### Scenario: Native quad overflow and empty input
+
+- **GIVEN** a long supported SPA list, an overwide unbroken designation, or empty abilities
+- **WHEN** the quad sheet is rendered
+- **THEN** nonempty lists preserve native vertical or horizontal overflow without clipping, truncation, line caps or additional shrink
+- **AND** empty abilities or a missing `spas0` rectangle emit no substitute block
+
+#### Scenario: Existing configurations and native omissions
+
+- **GIVEN** a biped or another configuration/family
+- **WHEN** the record sheet is rendered
+- **THEN** existing biped output remains unchanged, while LAM, tripod, QuadVee, non-Mech canonical omissions, fallback output and infantry notes retain their previous routes
+
+### Requirement: Native single-pilot LAM SPA placement
+
+Single-pilot LAM canonical output SHALL use the existing native Mech SPA fitting
+owner in its own template's `spas0` rectangle and transformed parent. It SHALL
+retain the owner's formatted headlines/designations and pinned MML 62bf193 font
+selection, float dimensions and unbounded space-delimiter wrapping.
+
+#### Scenario: LAM native geometry on Letter and A4
+
+- **GIVEN** a single-pilot LAM and supplied Weapon Specialist (PPC)
+- **WHEN** canonical Letter or A4 SVG and PDF are generated
+- **THEN** the list starts at the LAM template's own `spas0` y76 region, rather than biped/quad y52 or the legacy fixed coordinates
+- **AND** first baseline and parent transform come from that actual rectangle
+- **AND** non-SPA sheet figures remain unchanged
+
+#### Scenario: Native LAM overflow and empty abilities
+
+- **GIVEN** a long supported SPA list, overwide unbroken designation or empty input
+- **WHEN** the LAM sheet is rendered
+- **THEN** native vertical/horizontal overflow remains visible without clipping, truncation, line caps or additional shrink
+- **AND** empty abilities or a missing native rectangle emit no substitute block
+
+#### Scenario: Required multi-crew gap remains carried
+
+- **GIVEN** biped/quad output, another family, or a tripod/QuadVee payload without genuine crew-slot identity
+- **WHEN** the sheet is rendered
+- **THEN** this LAM-only correction preserves existing biped/quad output and other routes
+- **AND** tripod/QuadVee support remains a required deferred gap until Q-PILOT supplies the pinned crew-slot contract; the one-pilot payload does not establish that identity

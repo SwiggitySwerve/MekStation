@@ -4,12 +4,25 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { z } from 'zod';
 
+import type { IUnitValidateResult } from '../src/types/unit/UnitTypeHandler';
+
 import { BlkParserService } from '../src/services/conversion/BlkParserService';
 import { BattleArmorUnitHandler } from '../src/services/units/handlers/BattleArmorUnitHandler';
 import { InfantryUnitHandler } from '../src/services/units/handlers/InfantryUnitHandler';
+import {
+  areHandlersInitialized,
+  initializeUnitTypeHandlers,
+} from '../src/services/units/handlers/initializeHandlers';
 import { ProtoMechUnitHandler } from '../src/services/units/handlers/ProtoMechUnitHandler';
-import { UnitTypeRegistry } from '../src/services/units/UnitTypeRegistry';
+import {
+  getUnitTypeRegistry,
+  UnitTypeRegistry,
+} from '../src/services/units/UnitTypeRegistry';
 import { UnitContract } from '../src/types/contracts/generated/unit.zod';
+import {
+  getUnitCategory,
+  UnitCategory,
+} from '../src/types/unit/UnitTypeHandler';
 import { battleArmorBVTerms } from '../src/utils/construction/battlearmor/battleArmorBV';
 import { calculateBattleValueForUnit } from '../src/utils/construction/battleValueCalculations';
 import {
@@ -29,7 +42,13 @@ import {
   type IComputedRow,
   type IFigure,
 } from './unit-bv-parity';
-import { validateSourceManifest } from './unit-bv-provenance';
+import {
+  readJsonLines,
+  readTrustedReferences,
+  validateSourceManifest,
+} from './unit-bv-provenance';
+import { ReferenceTrustMode } from './unit-bv-reference';
+import { buildValidityReport } from './unit-construction-validity';
 import { calculateUnitBV as gateBV } from './validate-bv-calculator';
 
 const Mech = UnitContract.options[0];
@@ -68,7 +87,19 @@ export function sourceHash(bytes: Buffer): string {
     )
     .digest('hex');
 }
-export function calculateRow(raw: unknown): IComputedRow {
+export function captureConstructionValidity(
+  validate: () => IUnitValidateResult,
+): NonNullable<IComputedRow['constructionValidity']> {
+  try {
+    return validate();
+  } catch (error) {
+    return { failure: String(error) };
+  }
+}
+export function calculateRow(
+  raw: unknown,
+  includeConstruction = false,
+): IComputedRow {
   const input = Input.parse(raw);
   try {
     if (input.sourceText !== undefined) {
@@ -85,6 +116,13 @@ export function calculateRow(raw: unknown): IComputedRow {
           path: input.path,
           sha256: input.sha256,
           handlerTotal: handler.calculateBV(parsed.data.unit),
+          ...(includeConstruction
+            ? {
+                constructionValidity: captureConstructionValidity(() =>
+                  handler.validate(parsed.data.unit),
+                ),
+              }
+            : {}),
         };
         if (result?.kind === 'battlearmor')
           return {
@@ -126,6 +164,13 @@ export function calculateRow(raw: unknown): IComputedRow {
       return {
         path: input.path,
         sha256: input.sha256,
+        ...(includeConstruction
+          ? {
+              constructionValidity: captureConstructionValidity(() =>
+                handler.validate(parsed.data.unit),
+              ),
+            }
+          : {}),
         figure: {
           total: b.final,
           defensive: b.defensiveBV,
@@ -205,15 +250,37 @@ export function calculateRow(raw: unknown): IComputedRow {
     return { path: input.path, sha256: input.sha256, reason: String(error) };
   }
 }
-export const readJsonLines = (file: string): unknown[] =>
-  fs
-    .readFileSync(file, 'utf8')
-    .split(/\r?\n/)
-    .filter((line) => line.trim())
-    .map((line) => JSON.parse(line) as unknown);
+function captureVehicleValidity(
+  bytes: Buffer,
+): NonNullable<IComputedRow['constructionValidity']> {
+  return captureConstructionValidity(() => {
+    let stage = 'vehicle-source-parser';
+    try {
+      const document = new BlkParserService().parse(bytes.toString('utf8'));
+      if (!document.success) throw new Error(JSON.stringify(document.error));
+      stage = 'vehicle-handler-unavailable';
+      if (!areHandlersInitialized()) initializeUnitTypeHandlers();
+      const handler = getUnitTypeRegistry().getHandlerForDocument(
+        document.data.document,
+      );
+      if (!handler) throw new Error(document.data.document.unitType);
+      stage = 'vehicle-out-of-scope';
+      if (getUnitCategory(handler.unitType) !== UnitCategory.VEHICLE)
+        throw new Error(`Public handler category: ${handler.category}`);
+      stage = 'vehicle-handler-parser';
+      const parsed = handler.parse(document.data.document);
+      if (!parsed.success) throw new Error(JSON.stringify(parsed.error));
+      stage = 'vehicle-validator';
+      return handler.validate(parsed.data.unit);
+    } catch (error) {
+      throw new Error(`${stage}: ${String(error)}`);
+    }
+  });
+}
 export function calculateSources(
   raws: readonly unknown[],
   mekfiles: string,
+  includeConstruction = false,
 ): IComputedRow[] {
   return raws.map((raw) => {
     const row = Input.parse(raw);
@@ -221,7 +288,8 @@ export function calculateSources(
     const relative = path.relative(mekfiles, file);
     if (relative.startsWith('..') || path.isAbsolute(relative))
       throw new Error(`Source escapes pin: ${row.path}`);
-    const hash = sourceHash(fs.readFileSync(file));
+    const bytes = fs.readFileSync(file);
+    const hash = sourceHash(bytes);
     if (hash !== row.sha256)
       throw new Error(`Source hash mismatch: ${row.path}`);
     if (
@@ -229,7 +297,12 @@ export function calculateSources(
       sourceHash(Buffer.from(row.sourceText)) !== hash
     )
       throw new Error(`Source text hash mismatch: ${row.path}`);
-    return calculateRow(row);
+    const computed = calculateRow(row, includeConstruction);
+    return includeConstruction &&
+      computed.constructionValidity === undefined &&
+      row.path.endsWith('.blk')
+      ? { ...computed, constructionValidity: captureVehicleValidity(bytes) }
+      : computed;
   });
 }
 export function writeDeltaReport(
@@ -257,21 +330,45 @@ export function main(): void {
   };
   const convertedFile = arg('--converted');
   validateSourceManifest(convertedFile, fs.readFileSync(convertedFile));
+  const optionalArg = (name: string): string | undefined =>
+    process.argv.includes(name) ? arg(name) : undefined;
+  const references = readTrustedReferences(
+    arg('--reference'),
+    optionalArg('--reference-policy'),
+    arg('--out'),
+    ReferenceTrustMode.parse(optionalArg('--reference-trust')),
+  );
+  const includeConstruction = process.argv.includes('--construction-validity');
   const converted = calculateSources(
     readJsonLines(arg('--converted')),
     path.resolve(arg('--mekfiles')),
+    includeConstruction,
   );
   const report = buildDeltaReport(
     converted,
-    readJsonLines(arg('--reference')).map((row) => JavaReference.parse(row)),
+    references.map((row) => JavaReference.parse(row)),
     undefined,
     process.argv.includes('--per-term'),
   );
   writeDeltaReport(report, arg('--out'));
   process.exitCode = report.ok ? 0 : 1;
+  if (includeConstruction) {
+    const { rows, ...summary } = buildValidityReport(converted, references);
+    const out = arg('--out');
+    fs.writeFileSync(
+      path.join(out, 'construction-validity-report.json'),
+      JSON.stringify(summary, null, 2) + '\n',
+    );
+    fs.writeFileSync(
+      path.join(out, 'construction-validity-rows.jsonl'),
+      rows.map((row) => JSON.stringify(row)).join('\n') + '\n',
+    );
+    if (!summary.ok) process.exitCode = 1;
+  }
 }
 
 export * from './unit-bv-parity';
+export { readJsonLines } from './unit-bv-provenance';
 
 if (require.main === module) {
   try {

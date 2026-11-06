@@ -28,7 +28,8 @@ expansion, package measurement and numeric budget projections belong to
 - `selectMainObservations` and `mainMedians` exclude duplicates, invalid or
   incomplete data, failures, cancellations, non-main pushes, different workflow
   graphs/runner labels/skip patterns, and samples completing after the current
-  run was created. All excluded sample identities and reasons remain visible.
+  run was created. The PR comment lists every retained excluded sample's
+  run/attempt/head and selector-owned reason, including comparability failures.
 - Test-file growth is informational: duration must exceed main p75 by strictly
   more than 20%, increase at least 3 seconds, and have at least five comparable
   main samples. Other valid comparisons are `within noise`; absent/invalid
@@ -112,7 +113,12 @@ G1 supplies their projection. Missing limits are reported explicitly.
 envelopes (an array for baselines). Source metadata must match fresh API data.
 
 `ci-budget-review` applies only for an actual per-job budget breach or aggregate
-job-minutes/critical path strictly more than 20% over comparable main p75.
+job-minutes/critical path strictly more than 20% over comparable main p75,
+with at least five distinct valid comparable earlier successful main samples.
+Below five, aggregate rows show an informational result and the sample count;
+per-job budget breaches still label regardless of baseline count. Missing
+measurements/baselines remain unavailable. The sample floor is shared with
+test-file comparisons through `MIN_TIMING_MAIN_SAMPLES` in `ci-metrics.mjs`.
 All p75 values use the shared R7 linear-interpolated quantile; p50 preserves the
 existing median. Aggregate configured caps are informational, and crossing a
 display cap alone cannot label. Per-file growth never labels. When all

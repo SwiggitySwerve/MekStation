@@ -1,10 +1,28 @@
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
+
 import { BlkParserService } from '../../src/services/conversion/BlkParserService';
 import protos from '../../src/services/units/handlers/__tests__/fixtures/native-protomek.json';
+import personnel from '../../src/services/units/handlers/__tests__/fixtures/personnel-validity.json';
+import vehicles from '../../src/services/units/handlers/__tests__/fixtures/vehicle-handler-locations.pinned-sources.json';
+import {
+  areHandlersInitialized,
+  initializeUnitTypeHandlers,
+  resetHandlerInitialization,
+} from '../../src/services/units/handlers/initializeHandlers';
 import { ProtoMechUnitHandler } from '../../src/services/units/handlers/ProtoMechUnitHandler';
+import {
+  getUnitTypeRegistry,
+  resetUnitTypeRegistry,
+} from '../../src/services/units/UnitTypeRegistry';
+import { UnitCategory } from '../../src/types/unit/UnitTypeHandler';
 import * as dispatcher from '../../src/utils/construction/battleValueCalculations';
 import {
   buildDeltaReport,
   calculateRow,
+  calculateSources,
+  captureConstructionValidity,
   compareFigures,
   FAMILIES,
   sourceHash,
@@ -421,4 +439,223 @@ it('exposes the real ProtoMech handler breakdown without changing its total', ()
     expect(breakdown.defensiveBV).toBeGreaterThan(0);
     expect(breakdown.offensiveBV).toBeGreaterThan(0);
   }
+});
+
+test.each(personnel.rows)(
+  'projects actual source validity for $path',
+  (source) => {
+    const input = { ...source, unit: null, sourceText: source.content };
+    const projected = calculateRow(input, true);
+    expect(projected.constructionValidity).toMatchObject({
+      isValid: source.valid,
+    });
+    const { constructionValidity, ...bv } = projected;
+    expect(constructionValidity).toBeDefined();
+    expect(bv).toEqual(calculateRow(input));
+    expect(calculateRow(input)).not.toHaveProperty('constructionValidity');
+  },
+);
+
+test('projects the existing ProtoMech handler without changing its BV result', () => {
+  const source = protos[0];
+  const input = {
+    path: source.path.replace('data/mekfiles/', ''),
+    sha256: source.sha256,
+    unit: null,
+    sourceText: source.content,
+  };
+  const { constructionValidity, ...bv } = calculateRow(input, true);
+  expect(constructionValidity).toMatchObject({
+    isValid: expect.any(Boolean),
+    errors: expect.any(Array),
+    warnings: expect.any(Array),
+    infos: expect.any(Array),
+  });
+  expect(bv).toEqual(calculateRow(input));
+});
+
+test('captures a thrown construction-validator failure separately from validity', () => {
+  expect(
+    captureConstructionValidity(() => {
+      throw new Error('Validation unavailable');
+    }),
+  ).toEqual({ failure: 'Error: Validation unavailable' });
+});
+
+describe('opt-in vehicle validity uses actual pinned bytes and public category', () => {
+  let root: string;
+  const source = (type = 'Tank', tonnage = 20) =>
+    `<UnitType>\n${type}\n</UnitType>\n<Name>\nValidity probe\n</Name>\n<tonnage>\n${tonnage}\n</tonnage>\n<type>\nIS Level 2\n</type>\n<year>\n3060\n</year>\n<motion_type>\nTracked\n</motion_type>\n<cruiseMP>\n0\n</cruiseMP>\n<armor>\n1\n1\n1\n1\n0\n</armor>\n`;
+  function write(content: string, relative = 'vehicles/probe.blk') {
+    const file = path.join(root, relative);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, content);
+    // The BV payload is intentionally independent: validity must use pinned
+    // source bytes, never reconstruct a source from converted BV JSON.
+    return {
+      path: relative,
+      sha256: sourceHash(Buffer.from(content)),
+      unit: fixture.units[0].unit,
+    };
+  }
+  beforeEach(() => {
+    root = fs.mkdtempSync(path.join(os.tmpdir(), 'vehicle-validity-'));
+    resetHandlerInitialization();
+    resetUnitTypeRegistry();
+  });
+  afterEach(() => {
+    jest.restoreAllMocks();
+    resetHandlerInitialization();
+    resetUnitTypeRegistry();
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+  test.each(vehicles.rows)(
+    'transports the actual public validation for $path',
+    (row) => {
+      const input = write(row.content, row.path.replace('data/mekfiles/', ''));
+      const plain = calculateSources([input], root)[0];
+      const projected = calculateSources([input], root, true)[0];
+      const document = new BlkParserService().parse(row.content);
+      if (!document.success) throw new Error('Pinned fixture did not parse');
+      const handler = getUnitTypeRegistry().getHandlerForDocument(
+        document.data.document,
+      );
+      if (!handler) throw new Error('Public vehicle handler absent');
+      expect(handler.category).toBe(UnitCategory.VEHICLE);
+      const parsed = handler.parse(document.data.document);
+      if (!parsed.success) throw new Error(JSON.stringify(parsed.error));
+      expect(projected.constructionValidity).toEqual(
+        handler.validate(parsed.data.unit),
+      );
+      const { constructionValidity, ...unchanged } = projected;
+      expect(constructionValidity).toBeDefined();
+      expect(unchanged).toEqual(plain);
+      expect(plain.figure?.total).toBeGreaterThan(0);
+    },
+  );
+  test('does no registry/parser work without opt-in', () => {
+    const parse = jest.spyOn(BlkParserService.prototype, 'parse');
+    expect(calculateSources([write(source())], root)[0]).not.toHaveProperty(
+      'constructionValidity',
+    );
+    expect(areHandlersInitialized()).toBe(false);
+    expect(parse).not.toHaveBeenCalled();
+  });
+  test.each([
+    ['Tank', 20],
+    ['SupportTank', 100000],
+    ['VTOL', 20],
+  ] as const)(
+    'records a successfully loaded invalid %s as invalid, not a parse failure',
+    (type, tonnage) => {
+      const fact = calculateSources(
+        [write(source(type, tonnage))],
+        root,
+        true,
+      )[0].constructionValidity;
+      expect(fact).toMatchObject({
+        isValid: false,
+        errors: expect.any(Array),
+        warnings: expect.any(Array),
+        infos: expect.any(Array),
+      });
+      expect(fact).not.toHaveProperty('failure');
+    },
+  );
+  test('preserves a valid stationary support design rather than inferring invalidity from zero MP', () => {
+    expect(
+      calculateSources([write(source('SupportTank'))], root, true)[0]
+        .constructionValidity,
+    ).toHaveProperty('isValid', true);
+  });
+  test('selects a vehicle by public category even outside the vehicles folder', () => {
+    expect(
+      calculateSources([write(source(), 'fighters/probe.blk')], root, true)[0]
+        .constructionValidity,
+    ).toHaveProperty('isValid', false);
+  });
+  test('rejects FixedWingSupport under vehicles without invoking aerospace validation', () => {
+    initializeUnitTypeHandlers();
+    const document = new BlkParserService().parse(source('FixedWingSupport'));
+    if (!document.success) throw new Error('Source did not parse');
+    const handler = getUnitTypeRegistry().getHandlerForDocument(
+      document.data.document,
+    );
+    if (!handler) throw new Error('Public subtype handler absent');
+    expect(handler.category).toBe(UnitCategory.AEROSPACE);
+    const validate = jest.spyOn(handler, 'validate');
+    expect(
+      calculateSources([write(source('FixedWingSupport'))], root, true)[0]
+        .constructionValidity,
+    ).toEqual({ failure: expect.stringContaining('vehicle-out-of-scope') });
+    expect(validate).not.toHaveBeenCalled();
+  });
+  test.each([
+    ['not a BLK source', 'vehicle-source-parser'],
+    [source('Tank', 0), 'vehicle-handler-parser'],
+  ])('retains %s as an explicit staged failure', (content, reason) => {
+    expect(
+      calculateSources([write(content)], root, true)[0].constructionValidity,
+    ).toEqual({ failure: expect.stringContaining(reason) });
+  });
+  test('keeps unavailable handlers as failures', () => {
+    initializeUnitTypeHandlers();
+    jest
+      .spyOn(getUnitTypeRegistry(), 'getHandlerForDocument')
+      .mockReturnValue(undefined);
+    expect(
+      calculateSources([write(source())], root, true)[0].constructionValidity,
+    ).toEqual({
+      failure: expect.stringContaining('vehicle-handler-unavailable'),
+    });
+  });
+  test('retains a thrown validator as a distinct failure, not invalidity', () => {
+    initializeUnitTypeHandlers();
+    const document = new BlkParserService().parse(source());
+    if (!document.success) throw new Error('Source did not parse');
+    const handler = getUnitTypeRegistry().getHandlerForDocument(
+      document.data.document,
+    );
+    if (!handler) throw new Error('Handler absent');
+    const parsed = handler.parse(document.data.document);
+    if (!parsed.success) throw new Error(JSON.stringify(parsed.error));
+    jest.spyOn(handler, 'parse').mockReturnValue(parsed);
+    jest.spyOn(handler, 'validate').mockImplementation(() => {
+      throw new Error('validator unavailable');
+    });
+    expect(
+      calculateSources([write(source())], root, true)[0].constructionValidity,
+    ).toEqual({
+      failure: expect.stringContaining(
+        'vehicle-validator: Error: validator unavailable',
+      ),
+    });
+  });
+  test('retains all invalidity diagnostic arrays from the selected validator', () => {
+    initializeUnitTypeHandlers();
+    const document = new BlkParserService().parse(source());
+    if (!document.success) throw new Error('Source did not parse');
+    const handler = getUnitTypeRegistry().getHandlerForDocument(
+      document.data.document,
+    );
+    if (!handler) throw new Error('Handler absent');
+    const invalid = {
+      isValid: false,
+      errors: ['invalid'],
+      warnings: ['warning'],
+      infos: ['info'],
+    };
+    jest.spyOn(handler, 'validate').mockReturnValue(invalid);
+    expect(
+      calculateSources([write(source())], root, true)[0].constructionValidity,
+    ).toEqual(invalid);
+  });
+  test('keeps hash rejection before any validation work', () => {
+    const input = write(source());
+    fs.appendFileSync(path.join(root, input.path), 'changed');
+    expect(() => calculateSources([input], root, true)).toThrow(
+      'Source hash mismatch',
+    );
+    expect(areHandlersInitialized()).toBe(false);
+  });
 });

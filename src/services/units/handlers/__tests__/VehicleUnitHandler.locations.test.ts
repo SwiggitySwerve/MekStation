@@ -77,6 +77,8 @@ const countBy = (locations: readonly string[]) =>
 
 const TANKS = fixtures.rows.filter((r) => r.family !== 'VTOL');
 const VTOLS = fixtures.rows.filter((r) => r.family === 'VTOL');
+// UL-16b/48fcb2f6 TestEntity.java:1487-1512 rejects Moray Original's early SRT6.
+const MORAY_INTRO_ERROR = 'SRT 6 has intro date of 2660';
 
 describe('combat vehicle handler matches pinned MegaMek per location', () => {
   describe.each(TANKS)('$path', (r) => {
@@ -109,7 +111,11 @@ describe('combat vehicle handler matches pinned MegaMek per location', () => {
       const { unit, validation } = loadTank(documentOf(r));
       expect(unit.isSuperheavy).toBe(r.javaSuperHeavy);
       expect(unit.maxArmorPoints).toBe(r.javaArmorLimit);
-      expect(validation.errors).toEqual([]);
+      expect(validation.errors).toEqual(
+        r.path.endsWith('/Moray Heavy Attack Submarine (Original).blk')
+          ? [MORAY_INTRO_ERROR]
+          : [],
+      );
     });
   });
 
@@ -186,13 +192,13 @@ describe('SuperHeavy predicate (BLKTankFile.java:94-123)', () => {
     expect(isSuperHeavyTank(undefined, 150)).toBe(false);
   });
 
-  it('a 140 t Moray submarine is an ordinary tank and loads without a complaint', () => {
+  it('a 140 t Moray keeps its ordinary layout and Java introduction error', () => {
     const { unit, validation } = loadTank(
       documentOf(row('Moray Heavy Attack Submarine (Original)')),
     );
     expect(unit.tonnage).toBe(140);
     expect(unit.isSuperheavy).toBe(false);
-    expect(validation.errors).toEqual([]);
+    expect(validation.errors).toEqual([MORAY_INTRO_ERROR]);
   });
 
   it('a 90 t Hexareme hovercraft is SuperHeavy and keeps its six sides', () => {
