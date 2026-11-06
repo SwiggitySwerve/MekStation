@@ -88,6 +88,7 @@ public class VehicleAeroReferenceExporter {
         StringBuffer errors = new StringBuffer();
         construction.put("valid", verifier.correctEntity(errors));
         construction.put("diagnostics", errors.toString());
+        if (Boolean.getBoolean("construction.terms")) construction.putAll(ConstructionReference.capture(verifier));
         return construction;
     }
 

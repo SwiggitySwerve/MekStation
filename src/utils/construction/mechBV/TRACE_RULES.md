@@ -28,5 +28,27 @@ Javelin's two SRT 6 mounts project `ammo.cap.SRM_TORPEDO:6 = 118`, while its
 existing arithmetic pool retains `SRM:6 = 118`. Equal numbers under a different
 key do not establish native term coverage.
 
-This slice covers only torpedo raw cap names. Defensive caps, other unsupported
-ammo identities/quantities and complete detailed parity remain separate work.
+## Source-backed NARC available values
+
+`processCritAmmoSlot` separately records diagnostic facts for physical NARC
+bins with positive shots from public `resolveNativeAmmoBin` and an actual
+resolved BV of zero from public `resolveAmmoBV`. The existing native group
+owner restricts this path to `NARC:1`. Original cleaned ids, physical locations
+and encounter order remain intact, including duplicate and pipe-separated bins.
+The side facts never enter arithmetic `ammo`, and the original explosivity
+handling stays unchanged. Missing, unresolved, empty or other-type bins do not
+produce facts. Launcher presence cannot supply an implicit source bin.
+
+The optional `ammoAvailableProjectionBins` list travels through the Mech
+builder's `ammoProjection` wrapper to the breakdown. The trace delegates its
+available grouping to `calculateAmmoBVPools([], bins).available` and combines
+the returned actual values with existing availability through public
+`addBVToAmmoCapGroup`. It does not replace a nonzero available value with zero,
+invent a zero for an absent bin, or change arithmetic pools and computed BV.
+
+Pinned MegaMek 48fcb2f64 `AmmoType.java:10711-10729` defines ordinary NARC
+pods with rack 1, six shots and BV 0. `BVCalculator.java:1147-1154,1189-1212`
+preserves a zero-valued available group for usable physical bins. This
+diagnostic support does not extend to iNARC or other omitted ammo identities.
+Defensive caps, effective quantity parity, arithmetic native grouping and
+complete detailed parity remain separate work.
