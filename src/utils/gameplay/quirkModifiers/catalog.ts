@@ -363,3 +363,13 @@ export function getQuirksByCategory(
 ): IQuirkCatalogEntry[] {
   return Object.values(QUIRK_CATALOG).filter((q) => q.category === category);
 }
+
+/**
+ * Check if a unit has a specific quirk.
+ */
+export function hasQuirk(
+  unitQuirks: readonly string[],
+  quirkId: string,
+): boolean {
+  return unitQuirks.includes(quirkId);
+}

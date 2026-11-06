@@ -2,7 +2,7 @@
  * Defensive and critical hit quirk modifiers.
  */
 
-import { UNIT_QUIRK_IDS } from './catalog';
+import { UNIT_QUIRK_IDS, hasQuirk } from './catalog';
 
 /**
  * Battle Fist: -1 punch to-hit for equipped arm.
@@ -14,10 +14,10 @@ export function getBattleFistPunchToHitModifier(
   unitQuirks: readonly string[],
   arm: 'left' | 'right',
 ): number {
-  if (arm === 'left' && unitQuirks.includes(UNIT_QUIRK_IDS.BATTLE_FISTS_LA)) {
+  if (arm === 'left' && hasQuirk(unitQuirks, UNIT_QUIRK_IDS.BATTLE_FISTS_LA)) {
     return -1;
   }
-  if (arm === 'right' && unitQuirks.includes(UNIT_QUIRK_IDS.BATTLE_FISTS_RA)) {
+  if (arm === 'right' && hasQuirk(unitQuirks, UNIT_QUIRK_IDS.BATTLE_FISTS_RA)) {
     return -1;
   }
   return 0;
@@ -27,7 +27,7 @@ export function getBattleFistPunchToHitModifier(
  * No Arms: prevents punch attacks.
  */
 export function hasNoArms(unitQuirks: readonly string[]): boolean {
-  return unitQuirks.includes(UNIT_QUIRK_IDS.NO_ARMS);
+  return hasQuirk(unitQuirks, UNIT_QUIRK_IDS.NO_ARMS);
 }
 
 /**
@@ -58,10 +58,10 @@ export function calculateInitiativeQuirkModifier(
   let hasCommandMech = false;
 
   for (const quirks of allUnitQuirks) {
-    if (quirks.includes(UNIT_QUIRK_IDS.BATTLE_COMPUTER)) {
+    if (hasQuirk(quirks, UNIT_QUIRK_IDS.BATTLE_COMPUTER)) {
       hasBattleComputer = true;
     }
-    if (quirks.includes(UNIT_QUIRK_IDS.COMMAND_MECH)) {
+    if (hasQuirk(quirks, UNIT_QUIRK_IDS.COMMAND_MECH)) {
       hasCommandMech = true;
     }
   }
@@ -78,7 +78,7 @@ export function calculateInitiativeQuirkModifier(
 export function calculateSensorGhostsModifier(
   attackerQuirks: readonly string[],
 ): import('@/types/gameplay').IToHitModifierDetail | null {
-  if (!attackerQuirks.includes(UNIT_QUIRK_IDS.SENSOR_GHOSTS)) return null;
+  if (!hasQuirk(attackerQuirks, UNIT_QUIRK_IDS.SENSOR_GHOSTS)) return null;
 
   return {
     name: 'Sensor Ghosts',
@@ -97,7 +97,7 @@ export function calculateMultiTracModifier(
   isSecondaryTarget: boolean,
   inFrontArc: boolean,
 ): import('@/types/gameplay').IToHitModifierDetail | null {
-  if (!attackerQuirks.includes(UNIT_QUIRK_IDS.MULTI_TRAC)) return null;
+  if (!hasQuirk(attackerQuirks, UNIT_QUIRK_IDS.MULTI_TRAC)) return null;
   if (!isSecondaryTarget) return null;
   if (!inFrontArc) return null;
 
@@ -115,8 +115,8 @@ export function calculateMultiTracModifier(
 export function getRuggedMaintenanceMultiplier(
   unitQuirks: readonly string[],
 ): number {
-  if (unitQuirks.includes(UNIT_QUIRK_IDS.RUGGED_2)) return 3;
-  if (unitQuirks.includes(UNIT_QUIRK_IDS.RUGGED_1)) return 2;
+  if (hasQuirk(unitQuirks, UNIT_QUIRK_IDS.RUGGED_2)) return 3;
+  if (hasQuirk(unitQuirks, UNIT_QUIRK_IDS.RUGGED_1)) return 2;
   return 1;
 }
 
@@ -127,7 +127,7 @@ export function getRuggedMaintenanceMultiplier(
 export function getAntiMekActuatorTargetModifier(
   unitQuirks: readonly string[],
 ): number {
-  if (unitQuirks.includes(UNIT_QUIRK_IDS.PROTECTED_ACTUATORS)) return 1;
-  if (unitQuirks.includes(UNIT_QUIRK_IDS.EXPOSED_ACTUATORS)) return -1;
+  if (hasQuirk(unitQuirks, UNIT_QUIRK_IDS.PROTECTED_ACTUATORS)) return 1;
+  if (hasQuirk(unitQuirks, UNIT_QUIRK_IDS.EXPOSED_ACTUATORS)) return -1;
   return 0;
 }
