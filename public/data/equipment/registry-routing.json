@@ -642,6 +642,14 @@
       "INNER_SPHERE": "tsemp-one-shot-registry",
       "CLAN": "tsemp-one-shot-registry"
     },
+    "clrocketlauncher10prototype": {
+      "INNER_SPHERE": "clrocketlauncher10prototype-registry",
+      "CLAN": "clrocketlauncher10prototype-registry"
+    },
+    "clrocketlauncher15prototype": {
+      "INNER_SPHERE": "clrocketlauncher15prototype-registry",
+      "CLAN": "clrocketlauncher15prototype-registry"
+    },
     "clarmoredmotivesystem": {
       "INNER_SPHERE": "clarmoredmotivesystem-registry",
       "CLAN": "clarmoredmotivesystem-registry"
