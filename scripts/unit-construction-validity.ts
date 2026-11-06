@@ -24,11 +24,43 @@ const Reference = JavaReference.extend({
     .optional(),
 });
 
+interface IValidityFamily {
+  rows: number;
+  joined: number;
+  matched: number;
+  different: number;
+  missingReference: number;
+  missingLocal: number;
+  failedLocal: number;
+  unjoined: number;
+  nativeWeightMaps: number;
+  nativeUnsupportedWeights: number;
+  weightCompared: number;
+  quantitiesCompared: number;
+  settingsCompared: number;
+}
+type IValidityRow = Pick<
+  ReturnType<typeof buildDeltaReport>['rows'][number],
+  'path' | 'sha256' | 'sourceSha256' | 'family' | 'joined' | 'reason'
+> & {
+  status: string;
+  reference: z.infer<typeof Reference>['construction'] | null;
+  local: IComputedRow['constructionValidity'] | null;
+};
+interface IValidityReport {
+  scope: 'source-handler-validity-only';
+  ok: boolean;
+  omittedComparisons: string[];
+  errors: string[];
+  byFamily: Record<string, IValidityFamily>;
+  rows: IValidityRow[];
+}
+
 export function buildValidityReport(
   computed: readonly IComputedRow[],
   rawReferences: readonly unknown[],
   families: readonly string[] = FAMILIES,
-) {
+): IValidityReport {
   const references = rawReferences.map((value) => Reference.parse(value));
   const coverage = buildDeltaReport(computed, references, families);
   const ours = new Map(computed.map((row) => [row.path, row]));
@@ -36,7 +68,7 @@ export function buildValidityReport(
   const errors = coverage.errors.filter((error) =>
     /^(duplicate|unexpected-family|missing-family|coverage):/.test(error),
   );
-  const rows = coverage.rows.map((row) => {
+  const rows: IValidityRow[] = coverage.rows.map((row) => {
     const reference = refs.get(row.path)?.construction;
     const local = ours.get(row.path)?.constructionValidity;
     const status = !row.joined
@@ -89,7 +121,7 @@ export function buildValidityReport(
           quantitiesCompared: 0,
           settingsCompared: 0,
         },
-      ];
+      ] as const;
     }),
   );
   return {

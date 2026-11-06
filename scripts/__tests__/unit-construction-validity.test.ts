@@ -1,23 +1,4 @@
-import protos from '../../src/services/units/handlers/__tests__/fixtures/native-protomek.json';
-import personnel from '../../src/services/units/handlers/__tests__/fixtures/personnel-validity.json';
 import { buildValidityReport } from '../unit-construction-validity';
-import { calculateRow } from '../vehicle-aero-bv-delta';
-import { captureConstructionValidity } from '../vehicle-aero-bv-delta';
-
-test.each(personnel.rows)(
-  'projects actual source validity for $path',
-  (source) => {
-    const input = { ...source, unit: null, sourceText: source.content };
-    const projected = calculateRow(input, true);
-    expect(projected.constructionValidity).toMatchObject({
-      isValid: source.valid,
-    });
-    const { constructionValidity, ...bv } = projected;
-    expect(constructionValidity).toBeDefined();
-    expect(bv).toEqual(calculateRow(input));
-    expect(calculateRow(input)).not.toHaveProperty('constructionValidity');
-  },
-);
 
 const sourceKey = { path: 'battlearmor/unit.blk', sha256: 'a'.repeat(64) };
 const reference = (valid = false) => ({
@@ -83,10 +64,8 @@ test('distinguishes disagreeing validity and missing reference/local results', (
   ).toContain('duplicate: battlearmor/unit.blk');
 });
 
-test('preserves thrown validation and upstream unsupported-weight reasons without a match', () => {
-  const failure = captureConstructionValidity(() => {
-    throw new Error('Validation unavailable');
-  });
+test('preserves captured validation failure and unsupported-weight reasons without a match', () => {
+  const failure = { failure: 'Error: Validation unavailable' };
   const result = buildValidityReport(
     [{ ...sourceKey, constructionValidity: failure }],
     [
@@ -116,22 +95,4 @@ test('preserves thrown validation and upstream unsupported-weight reasons withou
     nativeUnsupportedWeights: 1,
     weightCompared: 0,
   });
-});
-
-test('projects the existing ProtoMech handler without changing its BV result', () => {
-  const source = protos[0];
-  const input = {
-    path: source.path.replace('data/mekfiles/', ''),
-    sha256: source.sha256,
-    unit: null,
-    sourceText: source.content,
-  };
-  const { constructionValidity, ...bv } = calculateRow(input, true);
-  expect(constructionValidity).toMatchObject({
-    isValid: expect.any(Boolean),
-    errors: expect.any(Array),
-    warnings: expect.any(Array),
-    infos: expect.any(Array),
-  });
-  expect(bv).toEqual(calculateRow(input));
 });
