@@ -190,6 +190,22 @@ const INTRO_YEARS = [
   ['mml-5', 3062, 'weapons/missiles/innerSphere/mml/ISMML5.java:91-92'],
   ['mml-7', 3062, 'weapons/missiles/innerSphere/mml/ISMML7.java:91-92'],
   ['mml-9', 3062, 'weapons/missiles/innerSphere/mml/ISMML9.java:91-92'],
+  // Vehicle date prerequisites (VEH-VAL2): the earliest phase is the prototype.
+  ['mobilefieldbase', 2535, 'equipment/MiscType.java:9067-9070 (approximate)'],
+  ['cruisemissile50', 3065, 'weapons/artillery/ISCruiseMissile50.java:78-79'],
+  ['remotesensordispenser', 2586, 'equipment/MiscType.java:6355-6358'],
+  [
+    'enhanced-lrm-10',
+    3058,
+    'weapons/lrms/innerSphere/enhancedLRM/ISEnhancedLRM10.java:89',
+  ],
+  ['combatvehicleescapepod', 3038, 'equipment/MiscType.java:5506'],
+  ['c3boostedsystemslaveunit', 3073, 'equipment/MiscType.java:4592-4593'],
+  ['c3-boosted-slave', 3073, 'equipment/MiscType.java:4592-4593'],
+  ['bloodhound-active-probe', 3058, 'equipment/MiscType.java:5755-5756'],
+  ['armoredmotivesystem', 3071, 'equipment/MiscType.java:3925-3926'],
+  // DATE_PS = 1950 (interfaces/ITechnology.java:54).
+  ['vehicular-sponson-turret', 1950, 'equipment/MiscType.java:10910-10911'],
 ] as const;
 const CATALOG = join(process.cwd(), 'public/data/equipment/official');
 const catalogCopies = (id: string) =>
@@ -200,6 +216,9 @@ const catalogCopies = (id: string) =>
     'weapons/ballistic-other.json',
     'weapons/ballistic-autocannon.json',
     'weapons/missile-other.json',
+    'weapons/missile-lrm.json',
+    'electronics/active-probe.json',
+    'electronics/c3.json',
   ].flatMap((file) =>
     (
       JSON.parse(readFileSync(join(CATALOG, file), 'utf8')) as {
