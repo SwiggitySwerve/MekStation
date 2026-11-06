@@ -55,6 +55,11 @@ stored as links without following their referents; their encoded target-path
 bytes count as the link's own bytes, and their count/paths are reported separately.
 Escaping links fail. Standalone+static
 counts file bytes under the first two roots; ZIP counts its actual byte length.
+Link targets resolve from each link's own parent. Escape errors include the raw
+target, resolved target and artifact root. An internal missing target is reported
+as `dangling-in-root`, with a separate count/path census; it is not an escape.
+Successful web/installer censuses report zero escaping links only after every
+link passes that boundary. A real escaping build-machine path remains a failure.
 The release installer gate measures every installer in the existing validated
 release-upload inventory; the maximum must fit 170,000,000 bytes. No subset,
 exclusion or omission flag is accepted. The existing PR Linux pack job now

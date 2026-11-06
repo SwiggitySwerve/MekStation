@@ -11,7 +11,7 @@ import os
 from pathlib import Path
 import stat
 import zipfile
-from budget_files import digest, link_target, verify_public
+from budget_files import digest, link_metadata, summarize_links, verify_public
 
 ROOTS = ('.next/standalone', '.next/static', 'desktop/dist', 'public/record-sheets')
 
@@ -28,10 +28,10 @@ def census(root):
             for member in sorted(directories + names):
                 item = Path(current) / member
                 if item.is_symlink():
-                    target = link_target(item, directory)
-                    content = os.fsencode(target)
+                    metadata = link_metadata(item, directory)
+                    content = os.fsencode(metadata['target'])
                     files.append({'path': item.relative_to(root).as_posix(),
-                                  'kind': 'symlink', 'target': target,
+                                  'kind': 'symlink', **metadata,
                                   'bytes': len(content),
                                   'sha256': hashlib.sha256(content).hexdigest()})
                 elif item.is_file():
@@ -80,8 +80,7 @@ def measure(root, archive, verify_existing=False):
     return {'unit': 'bytes', 'roots': list(ROOTS),
             'standaloneStaticBytes': sum(e['bytes'] for e in files if e['path'].startswith(('.next/standalone/', '.next/static/'))),
             'webZipBytes': archive.stat().st_size, 'files': files,
-            'symlinks': {'count': sum(e.get('kind') == 'symlink' for e in files),
-                         'paths': [e['path'] for e in files if e.get('kind') == 'symlink'],
+            'symlinks': {**summarize_links(files),
                          'byteAccounting': 'encoded target path bytes; referents are not followed'},
             'archive': {'path': str(archive), 'sha256': hashlib.sha256(archive.read_bytes()).hexdigest()}}
 
@@ -96,4 +95,5 @@ if __name__ == '__main__':
     report = measure(Path(args.root).resolve(), Path(args.archive).resolve(), args.verify_existing)
     Path(args.report).parent.mkdir(parents=True, exist_ok=True)
     Path(args.report).write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
-    print(json.dumps({key: report[key] for key in ('standaloneStaticBytes', 'webZipBytes')}))
+    print(json.dumps({**{key: report[key] for key in ('standaloneStaticBytes', 'webZipBytes')},
+                      'symlinks': {key: report['symlinks'][key] for key in ('count', 'danglingCount', 'escapingCount')}}))

@@ -4,17 +4,20 @@ import json
 from pathlib import Path, PurePosixPath
 import sys
 import tarfile
-from budget_files import digest, link_target, verify_public
+from budget_files import digest, link_metadata, summarize_links, verify_public
 
 
 def verify(archive, unpacked, public):
     if not unpacked.is_dir():
         raise ValueError('Unpacked application missing')
     expected = {}
+    links = []
     for item in unpacked.rglob('*'):
         name = item.relative_to(unpacked).as_posix()
         if item.is_symlink():
-            expected[name] = ('link', link_target(item, unpacked))
+            metadata = link_metadata(item, unpacked)
+            expected[name] = ('link', metadata['target'])
+            links.append({'kind': 'symlink', 'path': name, **metadata})
         elif item.is_file():
             expected[name] = ('file', digest(item))
         elif not item.is_dir():
@@ -49,7 +52,8 @@ def verify(archive, unpacked, public):
     if actual != expected:
         raise ValueError('Installer inventory/bytes differ from complete unpacked application')
     public_count = verify_public(public, unpacked / 'resources/next-standalone/public')
-    return {'complete': True, 'members': len(actual), 'publicFiles': public_count}
+    return {'complete': True, 'members': len(actual), 'publicFiles': public_count,
+            'symlinks': summarize_links(links)}
 
 
 if __name__ == '__main__':

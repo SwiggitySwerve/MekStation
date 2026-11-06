@@ -163,16 +163,12 @@ test('existing ZIP omission/tampering cannot count as the same complete artifact
     assert.notEqual(verify.status, 0);
   }));
 
-test('web census records real in-root npm links without following referents and rejects escapes', (context) =>
+test('web census distinguishes present and dangling npm links and rejects real escapes', (context) =>
   fixture((root, write) => {
-    const relative =
-      '.next/standalone/node_modules/node-abi/node_modules/.bin/semver';
+    const relative = '.next/standalone/node_modules/.bin/x';
     const link = path.join(root, relative);
-    const target = '../semver/bin/semver.js';
-    write(
-      '.next/standalone/node_modules/node-abi/node_modules/semver/bin/semver.js',
-      'semver runtime',
-    );
+    const target = '../pkg/bin/x.js';
+    write('.next/standalone/node_modules/pkg/bin/x.js', 'semver runtime');
     fs.mkdirSync(path.dirname(link), { recursive: true });
     try {
       fs.symlinkSync(target, link, 'file');
@@ -188,6 +184,12 @@ test('web census records real in-root npm links without following referents and 
     const { metrics } = JSON.parse(fs.readFileSync(path.join(root, 'r.json')));
     assert.deepEqual(metrics.symlinks.paths, [relative]);
     assert.equal(metrics.symlinks.count, 1);
+    assert.equal(metrics.symlinks.danglingCount, 0);
+    assert.equal(metrics.symlinks.escapingCount, 0);
+    assert.equal(
+      metrics.files.find((entry) => entry.path === relative).targetStatus,
+      'present',
+    );
     assert.equal(
       metrics.files.find((entry) => entry.path === relative).bytes,
       Buffer.byteLength(target),
@@ -196,12 +198,36 @@ test('web census records real in-root npm links without following referents and 
       metrics.standaloneStaticBytes,
       22 + Buffer.byteLength('semver runtime') + Buffer.byteLength(target),
     );
+    fs.unlinkSync(
+      path.join(root, '.next/standalone/node_modules/pkg/bin/x.js'),
+    );
+    const missing = run(root, ['--kind', 'web', '--report', 'missing.json']);
+    assert.equal(missing.status, 0, missing.stderr);
+    const dangling = JSON.parse(
+      fs.readFileSync(path.join(root, 'missing.json')),
+    ).metrics;
+    assert.deepEqual(dangling.symlinks.danglingPaths, [relative]);
+    assert.equal(dangling.symlinks.danglingCount, 1);
+    assert.equal(dangling.symlinks.escapingCount, 0);
+    assert.equal(
+      dangling.files.find((entry) => entry.path === relative).target,
+      target,
+    );
+    assert.equal(
+      dangling.files.find((entry) => entry.path === relative).targetStatus,
+      'dangling-in-root',
+    );
     fs.unlinkSync(link);
     write('outside.js', 'outside artifact root');
     fs.symlinkSync(path.join(root, 'outside.js'), link, 'file');
     const escaping = run(root, ['--kind', 'web', '--report', 'r.json']);
     assert.equal(escaping.status, 1);
     assert.match(escaping.stderr, /Escaping artifact link/);
+    assert.match(escaping.stderr, /target=.*outside\.js/);
+    assert.match(escaping.stderr, /resolved=.*outside\.js/);
+    assert.match(escaping.stderr, /artifactRoot=/);
+    fs.unlinkSync(path.join(root, 'outside.js'));
+    assert.equal(run(root, ['--kind', 'web', '--report', 'r.json']).status, 1);
   }));
 
 test('web measurement keeps both its report and exact ZIP beside the requested external output', () =>
