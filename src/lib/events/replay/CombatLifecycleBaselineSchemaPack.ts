@@ -153,7 +153,7 @@ export const COMBAT_LIFECYCLE_BASELINE_SCHEMA_PACK: readonly IReplayEventSchemaR
             schemaVersion: 1,
             schemaId:
               eventType === GameEventType.GameCreated
-                ? 'combat.game_created.v1.custom-construction-1.quick-meta-1.native-snapshots-1'
+                ? 'combat.game_created.v1.custom-construction-1.quick-meta-1.native-snapshots-1.native-dni-transport-1'
                 : `combat.${eventType}.v1`,
             parse: (payload: unknown) => schema.parse(payload),
           },

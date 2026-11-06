@@ -6,6 +6,7 @@ import {
   IAmmoSlotState,
   IComponentDamageState,
   IGameState,
+  IGameConfig,
   IGameUnit,
   IHexCoordinate,
   IUnitGameState,
@@ -70,6 +71,7 @@ export function createInitialUnitState(
   unit: IGameUnit,
   startPosition: IHexCoordinate,
   startFacing: Facing = Facing.North,
+  neuralInterfaceMode?: IGameConfig['neuralInterfaceMode'],
 ): IUnitGameState {
   // Seed ammo bins from the unit's construction data (per
   // `wire-ammo-consumption`). One bin per ton; each starts full. When
@@ -147,6 +149,10 @@ export function createInitialUnitState(
       unit.superchargerFailureLevelIncreasedLastTurn,
     abilities: unit.abilities,
     neuralInterfaceActive: unit.neuralInterfaceActive,
+    ...(neuralInterfaceMode !== undefined ? { neuralInterfaceMode } : {}),
+    ...(unit.hasDNICockpitMod !== undefined
+      ? { hasDNICockpitMod: unit.hasDNICockpitMod }
+      : {}),
     edgePointsRemaining: unit.edgePointsRemaining,
     designatedWeaponType: unit.designatedWeaponType,
     designatedWeaponCategory: unit.designatedWeaponCategory,

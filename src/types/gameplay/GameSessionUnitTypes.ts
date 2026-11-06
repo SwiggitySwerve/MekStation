@@ -34,6 +34,8 @@ export interface IGameConfig {
   readonly victoryConditions: readonly string[];
   /** Optional rules enabled */
   readonly optionalRules: readonly string[];
+  /** Raw native game option; absence must not imply active DNI. */
+  readonly neuralInterfaceMode?: string | null;
   /** Double-blind tactical visibility mode for multiplayer/fog-aware UIs. */
   readonly fogOfWar?: boolean;
   /** Environmental conditions (default: standard daylight, 1.0g, etc.) */
@@ -229,6 +231,8 @@ export interface IGameUnit {
    * whose implant exists but is not jacked into the unit for this combat state.
    */
   readonly neuralInterfaceActive?: boolean;
+  /** Verified mounted F_DNI_COCKPIT_MOD hardware, independent of pilot implants. */
+  readonly hasDNICockpitMod?: boolean;
   /** Source-backed Edge points copied into combat state for SPA triggers. */
   readonly edgePointsRemaining?: number;
   /**

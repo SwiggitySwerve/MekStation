@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
+import { renderGarden } from './garden-render.mjs';
 import { buildGarden, DAY_MS } from './garden-week.mjs';
 
 const digest = 'd'.repeat(64);
@@ -185,6 +186,9 @@ test('top ten durations and growth use G2 comparison, associations remain separa
         file,
         durationMs,
         baselineMs: 50,
+        baselineP75Ms: 50,
+        baselineSamples: 5,
+        growthRatio: (durationMs - 50) / 50,
         status: 'growth',
       })),
       missing: [],
@@ -195,4 +199,42 @@ test('top ten durations and growth use G2 comparison, associations remain separa
   assert.equal(report.slowest[0].file, 'file-11.test.ts');
   assert.equal(report.growth[0].growth, 1.22);
   assert.equal(report.associations.length, 1);
+});
+
+test('fractional advisory caps stay visible without automatic timing ratchets', () => {
+  const args = input();
+  args.descriptors = [
+    { id: 'reporting.jobMinutes', value: 60.125, ratchet: false },
+  ];
+  const report = buildGarden(args);
+  assert.deepEqual(report.proposals, []);
+  assert.match(report.ratchet[0].reason, /Automatic timing ratchet disabled/);
+  assert.doesNotMatch(report.ratchet[0].reason, /timeout/);
+});
+
+test('upward main timing within budget is an investigation, not a causal regression claim', () => {
+  const args = input();
+  const prior = [1, 2, 3].map((run) => sample(0, run));
+  for (const envelope of args.envelopes)
+    envelope.observation.jobs = [
+      { name: 'Simulation Checks and Linux Pack', durationMs: 634000 },
+    ];
+  for (const envelope of prior)
+    envelope.observation.jobs = [
+      { name: 'Simulation Checks and Linux Pack', durationMs: 403000 },
+    ];
+  args.envelopes.push(...prior);
+  args.timingLimits = {
+    jobsMs: { 'Simulation Checks and Linux Pack': 840000 },
+  };
+  const report = buildGarden(args);
+  assert.equal(report.investigations.length, 1);
+  assert.equal(report.investigations[0].withinBudget, true);
+  assert.equal(report.investigations[0].status, 'investigate');
+  const markdown = renderGarden(report);
+  assert.match(markdown, /634 \| 403 \| 840 \| within budget/);
+  assert.match(markdown, /do not establish regression or cause/);
+  for (const envelope of args.envelopes)
+    envelope.observation.jobs[0].durationMs = 403000;
+  assert.deepEqual(buildGarden(args).investigations, []);
 });

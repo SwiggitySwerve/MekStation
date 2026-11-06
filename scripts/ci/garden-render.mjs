@@ -37,30 +37,56 @@ export function renderGarden(report, { contributors = null } = {}) {
       ]),
     ),
     '',
+    '## Main job investigations',
+    '',
+    'Only upward main trends are investigated. Within-budget increases are informational and do not establish regression or cause. PR outliers stay in their own budget comments.',
+    report.investigations?.length
+      ? table(
+          [
+            'Job',
+            'Main median seconds',
+            'Prior main median seconds',
+            'Budget seconds',
+            'Investigation',
+          ],
+          report.investigations.map((row) => [
+            row.name,
+            number(row.measuredMs / 1000),
+            number(row.baselineMs / 1000),
+            number(row.budgetMs === null ? null : row.budgetMs / 1000),
+            row.withinBudget === null
+              ? 'budget unavailable'
+              : row.withinBudget
+                ? 'within budget'
+                : 'over budget',
+          ]),
+        )
+      : 'No qualifying upward main trend; unavailable comparisons cannot establish a trend.',
+    '',
     '## Ten slowest test files',
     '',
     report.slowest.length
       ? table(
-          ['File', 'Median ms', 'Previous median ms', 'Growth', 'Samples'],
+          ['File', 'Median ms', 'Main baseline p75 ms', 'Result', 'Samples'],
           report.slowest.map((row) => [
             row.file,
             number(row.durationMs),
-            number(row.baselineMs),
-            percent(row.growth),
+            number(row.baselineP75Ms ?? null),
+            row.status,
             row.samples,
           ]),
         )
       : 'Unknown: executed test timing census unavailable.',
     '',
-    '## Ten largest measured test-file increases',
+    '## Ten largest informational test-file increases',
     '',
     report.growth.length
       ? table(
-          ['File', 'Median ms', 'Previous median ms', 'Growth'],
+          ['File', 'Median ms', 'Main baseline p75 ms', 'Growth over p75'],
           report.growth.map((row) => [
             row.file,
             number(row.durationMs),
-            number(row.baselineMs),
+            number(row.baselineP75Ms ?? null),
             percent(row.growth),
           ]),
         )

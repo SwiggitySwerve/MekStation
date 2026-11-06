@@ -6,6 +6,25 @@ lowering API. `config/ci/budgets.json` declares the caps. Decimal MB means
 observations. `budget-metrics.mjs` owns collection and observed projections;
 G2's `ci-metrics.mjs` owns timing statistics, run normalization and reporting.
 
+Optional `reporting:{jobMinutes,criticalPathMs}` supplies two finite positive
+fractional aggregate display caps. Absence stays valid for older configs;
+present objects require exactly both fields. Canonical IDs are
+`reporting.jobMinutes` (minutes) and `reporting.criticalPathMs` (ms).
+`reportingLimits` and `projectTimingLimits` expose configured values only.
+First additions constrain previously unconstrained metrics and are initial
+baselines, scoped solely to these IDs. Increases/removals require the existing
+owner label and exact-head approval; other simultaneous relaxations still count.
+Manual lowering may preserve positive fractions; automatic timing ratchets stay
+disabled until a canonical complete comparable timing projection exists.
+These display caps do not change runtime assertions, hard budgets or label
+criteria. G2's report labels use actual per-job breaches or aggregate values
+strictly over main p75 by 20%, never test-file growth or display-cap crossings.
+
+Deploy compatible trusted schema support before adding populated config fields.
+The first stage leaves the config unchanged. Only after a main push runs the
+new Guard may the second stage initialize exact measured main R7 p75 times1.15;
+retain raw cohort/run/head/attempt evidence and never reset a later cap upward.
+
 The first enforced count baseline is 10 induced jobs, 57 unkeyable files and
 93 repo-wide keys. Root authorized this bootstrap before any cap existed on
 main. `targets` retains 9/55/80 as tracked goals, displayed through
