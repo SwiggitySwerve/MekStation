@@ -702,6 +702,36 @@
       "location": "coordinator-archive",
       "sha256": "8a46d84df0522ea1369f2f96c1183e396abc997d1443f1c496eb26f56e97549a",
       "bytes": 56796
+    },
+    "42205390500-process-mapping": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/process-context-addendum/MAPPING.json",
+      "location": "coordinator-archive",
+      "sha256": "f0230110d984b01d4a14d2dca96bf24394b3d8856205e3488c0b180566cc36cd",
+      "bytes": 11179
+    },
+    "42205390500-process-mapping-md": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/process-context-addendum/MAPPING.md",
+      "location": "coordinator-archive",
+      "sha256": "986d3576d05b783a297a0e7555a028b1263fbe869d147c6d05577fe51b875241",
+      "bytes": 2234
+    },
+    "42205390500-process-receipt": {
+      "path": "normal-work/S-sharedbuild/c-diagnostic-captures/control/42205390500-a1/process-context-addendum/RECEIPT.json",
+      "location": "coordinator-archive",
+      "sha256": "64cd2a5df9d28b7285ea00342e8e39ba3931749bba91ad68cf184393fa30d7ff",
+      "bytes": 1357
+    },
+    "42205390500-root-refinement": {
+      "path": "normal-work/G6-flake-register/42205390500-green-job-segv/process-refinement/root-refinement.json",
+      "location": "coordinator-archive",
+      "sha256": "63362efe8cdcd008deccb0538e51c1412e3bc2339e6e6631f3979bb564d7a055",
+      "bytes": 1014
+    },
+    "42205390500-process-verification": {
+      "path": "normal-work/G6-flake-register/42205390500-green-job-segv/process-refinement/verification.json",
+      "location": "coordinator-archive",
+      "sha256": "b19e51c7a36b3b67094e6e44aa18a174212abc2af3dc365c840b67255cbde5c9",
+      "bytes": 539
     }
   },
   "entries": [
@@ -1918,12 +1948,12 @@
     {
       "id": "G6-042",
       "classification": "confirmed-native-crash-with-successful-job",
-      "state": "open; crash confirmed; diagnostic parser/timeline follow-up; treatment unauthorized",
-      "test": "Chromium SIGSEGV during E2E without failing the job; roster context-close temporal association, no failing native test identified",
+      "state": "open; confirmed teardown crash; C low-priority normal-work follow-up; treatment canceled by Root",
+      "test": "Chromium SIGSEGV during browser-context teardown, job stays green; seam-roster-materialization-handoff.spec.ts:113 passed/retry0 with SEGV in its own stderr",
       "environment": "42205390500-control-chromium",
-      "summary": "Two-shard control run42205390500/a1 on PR#2924 head2a094a3c322662a1d146f8ba64c3d7711b2c8c5b: job127850608699 E2E(1/2) succeeded, but PID3051 logged signal11 SEGV_MAPERR and exit139. GNU time raw signal11 text contradicts its JSON exitStatus0. Completed A+C audit records136/136 first-attempt tests passed with no retries/skips/flaky native outcomes. Real crash confirmed; cause, test impact and three-shard causation not established.",
-      "owner": "C: diagnostic parser; A+C: capture and timeline; Root: next steps and treatment authorization; G6: register only",
-      "nextStep": "C owns reconciling raw signal termination/browser exit with JSON exitStatus0; A+C retain the sealed capture and temporal evidence. Root alone decides any further diagnostics or treatment. No source fix, additional run, treatment or stability clearance authorized by this entry.",
+      "summary": "Two-shard control run42205390500/a1 on PR#2924 head2a094a3c322662a1d146f8ba64c3d7711b2c8c5b: job127850608699 E2E(1/2) succeeded, but timed browser-main3052 terminated by signal11 during roster browser-context teardown. Log prefix3051 is GNU time wrapper, which later exits139; observed renderer3346 is not a proven victim. Native roster test113 passed/retry0/errors[] and includes SEGV in its own stderr after assertions completed. GNU-time raw signal11 contradicts JSON exitStatus0;136/136 census passed. Exact CDP context/faulting thread, cause and test impact remain unknown.",
+      "owner": "C: low-priority normal-work diagnosis/parser follow-up; A+C: sealed capture/timeline custody; Root: treatment cancellation and PR closure disposition; G6: register only. P7 keyboard remediation is separate.",
+      "nextStep": "C assesses context.close/browser flags or Playwright/Chromium version and whether teardown could overlap retry0 seam/gate assertions. Keep diagnostic parser fix on its branch. Root cancels treatment and closes #2868/#2924; no new run or source fix authorized here. Preserve uncertainty about cause, OOM, historical crash identity and three-shard risk.",
       "observations": [
         {
           "runId": 42205390500,
@@ -1939,7 +1969,6 @@
           "runtimeResult": "confirmed native crash",
           "source": "42205390500-log",
           "sourceLines": [1128, 1163],
-          "pid": 3051,
           "signal": {
             "number": 11,
             "marker": "SEGV_MAPERR 0000000001b0",
@@ -1948,7 +1977,8 @@
           "processExit": {
             "exitCode": 139,
             "signal": null,
-            "at": "2026-11-06T10:52:25.6211178Z"
+            "at": "2026-11-06T10:52:25.6211178Z",
+            "process": "GNU time wrapper3051; timed browser-main3052 signal11 established by raw kernel receipt and procfs ancestry"
           },
           "kernelReceipt": {
             "source": "42205390500-kernel",
@@ -1973,7 +2003,26 @@
             "contextCloseEnd": "2026-11-06T10:52:24.613Z",
             "testEnd": "2026-11-06T10:52:24.713Z",
             "nativeTestStatus": "passed",
-            "interpretation": "Temporal association only; not proof of cause or test impact."
+            "interpretation": "Signal occurs during the roster test context-close bracket after its assertions; test-end reports passed. Exact CDP context identity, faulting thread, causal mechanism and impact unresolved."
+          },
+          "logPrefixPid": 3051,
+          "wrapperPid": 3051,
+          "timedBrowserMainPid": 3052,
+          "observedRendererPid": 3346,
+          "rendererIsProvenVictim": false,
+          "nativeTest": {
+            "source": "42205390500-process-mapping",
+            "testId": "5e6b5a20840941c319ec-6c2daf7b94d3dd370066",
+            "file": "e2e/seam-roster-materialization-handoff.spec.ts",
+            "line": 113,
+            "title": "full roster selection reaches pre-battle intact, verified at both the DOM and data layer",
+            "status": "passed",
+            "testRetry": 0,
+            "errors": [],
+            "ownStderrContainsSignal11": true,
+            "assertionsCompletedBeforeSignal": "Root reports assertions completed earlier; retained pre-teardown at10:52:23.926Z precedes close/signal.",
+            "exactCdpContext": null,
+            "faultingThread": null
           }
         }
       ],
@@ -1987,12 +2036,18 @@
         "42205390500-audit-receipt",
         "42205390500-crash-context",
         "42205390500-root-view",
-        "42205390500-local-verification"
+        "42205390500-local-verification",
+        "42205390500-process-mapping",
+        "42205390500-process-mapping-md",
+        "42205390500-process-receipt",
+        "42205390500-root-refinement",
+        "42205390500-process-verification"
       ],
       "missingEvidence": [
         "Cause and test impact are unresolved; passing native census and hosted job do not establish runtime stability.",
         "No renderer teardown-exit peak or simultaneous process-tree RSS; browser-main maxrss is not renderer peak. Shard2 renderer samples are absent and memory metrics remain null, not zero. No memory/OOM cause or memory equivalence established.",
-        "A single baseline crash does not establish recurrence frequency or baseline-versus-three-shard causation; historical attempts are not independent ordinary PRs."
+        "A single baseline crash does not establish recurrence frequency or baseline-versus-three-shard causation; historical attempts are not independent ordinary PRs.",
+        "Exact CDP context/page-to-renderer mapping and faulting thread are absent. Historical #2868/a5 crash identity and overlap with retry0 seam/gate assertions are unresolved; no three-shard-risk inference."
       ],
       "captureCustody": {
         "owner": "A+C",
@@ -2009,7 +2064,30 @@
       },
       "relatedIncidents": ["G6-001"],
       "treatmentAuthorized": false,
-      "stabilityClearance": false
+      "stabilityClearance": false,
+      "processContextAddendum": {
+        "source": "42205390500-process-mapping",
+        "receipt": "42205390500-process-receipt",
+        "ancestry": "renderer3346 -> zygote3055 -> browser-main3052 -> GNU time3051 -> Playwright worker3038 -> reporter2998",
+        "diagnosticGap": "Frozen parser ignores non-JSON signal text and accepts nonnegative JSON exitStatus; outcome/census guard does not assert clean abnormal-browser exits. This explains missed diagnostic escalation, not the Chromium/Playwright close mechanism."
+      },
+      "historicalConnection": {
+        "incident": "G6-001",
+        "pr": 2868,
+        "runId": 42141557514,
+        "workflowAttempt": 5,
+        "assessment": "POSSIBLY the same seam-roster crash mid-test; identity NOT confirmed.",
+        "attribution": "Root working interpretation; retain historical evidence and denominators."
+      },
+      "rootDisposition": {
+        "source": "42205390500-root-refinement",
+        "treatmentStatus": "canceled",
+        "prClosure": "Root cancels treatment and closes #2868/#2924; no independent PR-state query by G6.",
+        "diagnosticParserFix": "remains on its branch; no merge/completion claim",
+        "followUpPriority": "low-priority normal work",
+        "keyboardRemediation": "P7 separate; G6-041 unchanged"
+      },
+      "treatmentStatus": "canceled by Root"
     }
   ],
   "addenda": [
@@ -2047,6 +2125,12 @@
       "incident": "G6-042",
       "scope": "Finite Root follow-up after PhaseG completion; reused completed local A+C two-shard control capture only. Confirmed native crash with green job; no remote incident reads, rerun, watch, source fix, treatment or cleanup.",
       "priorReceipts": "All previous entries including G6-041, sources and sealed U89/history receipts retained unchanged. New verification/handback under normal-work/G6-flake-register/42205390500-green-job-segv/."
+    },
+    {
+      "addedAtUtc": "2026-11-06T11:18:26.875439+00:00",
+      "incident": "G6-042",
+      "scope": "Root process-context refinement: wrapper3051 versus timed browser-main3052; renderer3346 not proven victim; roster retry0 passed with own SEGV stderr. Historical #2868/a5 identity only POSSIBLE. Treatment canceled; C low-priority follow-up, P7 separate. Reused/hashed local sealed process-context addendum only.",
+      "priorReceipts": "Original capture/audit seals and G6 verification/history unchanged; additive refinement receipts under42205390500-green-job-segv/process-refinement/."
     }
   ]
 }
