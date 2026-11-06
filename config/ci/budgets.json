@@ -84,217 +84,172 @@
       "minutes": 1,
       "samples": [
         {
-          "runId": 42162294789,
-          "job": "Detect Changes",
-          "seconds": 14
-        },
-        {
-          "runId": 42162154280,
-          "job": "Detect Changes",
-          "seconds": 15
-        },
-        {
-          "runId": 42161240246,
-          "job": "Detect Changes",
-          "seconds": 17
-        },
-        {
-          "runId": 42157791564,
+          "runId": 42171496788,
           "job": "Detect Changes",
           "seconds": 16
+        },
+        {
+          "runId": 42171314907,
+          "job": "Detect Changes",
+          "seconds": 16
+        },
+        {
+          "runId": 42168139279,
+          "job": "Detect Changes",
+          "seconds": 15
         }
       ],
-      "medianSeconds": 15.5
+      "medianSeconds": 16
     },
     "static-checks": {
-      "minutes": 6,
+      "minutes": 13,
       "samples": [
         {
-          "runId": 42162294789,
+          "runId": 42171496788,
           "job": "Static Checks",
-          "seconds": 140
+          "seconds": 367
         },
         {
-          "runId": 42162154280,
+          "runId": 42171314907,
           "job": "Static Checks",
-          "seconds": 198
+          "seconds": 246
         },
         {
-          "runId": 42161240246,
+          "runId": 42168139279,
           "job": "Static Checks",
-          "seconds": 103
-        },
-        {
-          "runId": 42157791564,
-          "job": "Static Checks",
-          "seconds": 347
+          "seconds": 401
         }
       ],
-      "medianSeconds": 169
+      "medianSeconds": 367
     },
     "simulation-checks": {
-      "minutes": 10,
+      "minutes": 14,
       "samples": [
         {
-          "runId": 42162294789,
+          "runId": 42171496788,
           "job": "Simulation Checks and Linux Pack",
-          "seconds": 224
+          "seconds": 434
         },
         {
-          "runId": 42162154280,
+          "runId": 42171314907,
           "job": "Simulation Checks and Linux Pack",
-          "seconds": 284
+          "seconds": 264
         },
         {
-          "runId": 42161240246,
+          "runId": 42168139279,
           "job": "Simulation Checks and Linux Pack",
-          "seconds": 297
-        },
-        {
-          "runId": 42157791564,
-          "job": "Simulation Checks and Linux Pack",
-          "seconds": 288
+          "seconds": 419
         }
       ],
-      "medianSeconds": 286
+      "medianSeconds": 419
     },
     "unit-test-shards": {
-      "minutes": 5,
+      "minutes": 12,
       "samples": [
         {
-          "runId": 42162294789,
+          "runId": 42171496788,
+          "job": "Unit Tests (2/3)",
+          "seconds": 264
+        },
+        {
+          "runId": 42171496788,
           "job": "Unit Tests (3/3)",
-          "seconds": 49
+          "seconds": 373
         },
         {
-          "runId": 42162294789,
+          "runId": 42171496788,
           "job": "Unit Tests (1/3)",
-          "seconds": 90
-        },
-        {
-          "runId": 42162294789,
-          "job": "Unit Tests (2/3)",
-          "seconds": 88
-        },
-        {
-          "runId": 42162154280,
-          "job": "Unit Tests (2/3)",
-          "seconds": 135
-        },
-        {
-          "runId": 42162154280,
-          "job": "Unit Tests (1/3)",
-          "seconds": 126
-        },
-        {
-          "runId": 42162154280,
-          "job": "Unit Tests (3/3)",
-          "seconds": 149
-        },
-        {
-          "runId": 42161240246,
-          "job": "Unit Tests (3/3)",
-          "seconds": 83
-        },
-        {
-          "runId": 42161240246,
-          "job": "Unit Tests (2/3)",
-          "seconds": 142
-        },
-        {
-          "runId": 42161240246,
-          "job": "Unit Tests (1/3)",
-          "seconds": 125
-        },
-        {
-          "runId": 42157791564,
-          "job": "Unit Tests (1/3)",
-          "seconds": 230
-        },
-        {
-          "runId": 42157791564,
-          "job": "Unit Tests (2/3)",
           "seconds": 305
         },
         {
-          "runId": 42157791564,
+          "runId": 42171314907,
+          "job": "Unit Tests (1/3)",
+          "seconds": 403
+        },
+        {
+          "runId": 42171314907,
           "job": "Unit Tests (3/3)",
-          "seconds": 213
+          "seconds": 359
+        },
+        {
+          "runId": 42171314907,
+          "job": "Unit Tests (2/3)",
+          "seconds": 345
+        },
+        {
+          "runId": 42168139279,
+          "job": "Unit Tests (3/3)",
+          "seconds": 215
+        },
+        {
+          "runId": 42168139279,
+          "job": "Unit Tests (2/3)",
+          "seconds": 419
+        },
+        {
+          "runId": 42168139279,
+          "job": "Unit Tests (1/3)",
+          "seconds": 413
         }
       ],
-      "medianSeconds": 130.5
+      "medianSeconds": 359
     },
     "e2e": {
-      "minutes": 16,
+      "minutes": 15,
       "samples": [
         {
-          "runId": 42162294789,
+          "runId": 42171496788,
           "job": "E2E (2/2)",
-          "seconds": 508
+          "seconds": 460
         },
         {
-          "runId": 42162294789,
+          "runId": 42171496788,
           "job": "E2E (1/2)",
-          "seconds": 406
+          "seconds": 436
         },
         {
-          "runId": 42162154280,
+          "runId": 42171314907,
+          "job": "E2E (1/2)",
+          "seconds": 426
+        },
+        {
+          "runId": 42171314907,
           "job": "E2E (2/2)",
-          "seconds": 494
+          "seconds": 436
         },
         {
-          "runId": 42162154280,
-          "job": "E2E (1/2)",
-          "seconds": 413
-        },
-        {
-          "runId": 42161240246,
-          "job": "E2E (1/2)",
-          "seconds": 472
-        },
-        {
-          "runId": 42161240246,
+          "runId": 42168139279,
           "job": "E2E (2/2)",
-          "seconds": 598
+          "seconds": 498
         },
         {
-          "runId": 42157791564,
+          "runId": 42168139279,
           "job": "E2E (1/2)",
-          "seconds": 443
-        },
-        {
-          "runId": 42157791564,
-          "job": "E2E (2/2)",
-          "seconds": 345
+          "seconds": 485
         }
       ],
-      "medianSeconds": 457.5
+      "medianSeconds": 448
     },
     "lint-and-test": {
       "minutes": 1,
       "samples": [
         {
-          "runId": 42162294789,
+          "runId": 42171496788,
           "job": "Lint and Test",
           "seconds": 2
         },
         {
-          "runId": 42162154280,
+          "runId": 42171314907,
           "job": "Lint and Test",
           "seconds": 4
         },
         {
-          "runId": 42161240246,
+          "runId": 42168139279,
           "job": "Lint and Test",
-          "seconds": 3
-        },
-        {
-          "runId": 42157791564,
-          "job": "Lint and Test",
-          "seconds": 2
+          "seconds": 4
         }
       ],
-      "medianSeconds": 2.5
+      "medianSeconds": 4
     },
     "build-test": {
       "minutes": 5,

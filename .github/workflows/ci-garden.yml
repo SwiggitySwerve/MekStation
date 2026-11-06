@@ -58,6 +58,7 @@ jobs:
           persist-credentials: false
           sparse-checkout: |
             scripts/ci
+            scripts/lib
             config/ci
       - uses: actions/download-artifact@v8
         with:

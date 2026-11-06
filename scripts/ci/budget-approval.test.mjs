@@ -56,6 +56,41 @@ function fixture() {
         get: async () => ({ data: structuredClone(pull) }),
         listReviews: () => {},
       },
+      actions: {
+        listWorkflowRuns: async () => ({
+          data: {
+            workflow_runs: [
+              {
+                id: 7,
+                head_sha: 'a'.repeat(40),
+                event: 'pull_request',
+                run_attempt: 1,
+                check_suite_id: 8,
+                status: 'completed',
+                conclusion: 'success',
+                run_started_at: '2026-11-01T00:00:00Z',
+              },
+            ],
+          },
+        }),
+      },
+      checks: {
+        listForRef: async () => ({
+          data: {
+            check_runs: [
+              {
+                id: 1,
+                check_suite: { id: 8 },
+                started_at: '2026-11-01T00:00:01Z',
+                name: 'Lint and Test',
+                app: { slug: 'github-actions' },
+                status: 'completed',
+                conclusion: 'success',
+              },
+            ],
+          },
+        }),
+      },
     },
     paginate: async () => [],
   };
@@ -87,4 +122,119 @@ test('primary policy gate reads live rules without a write token; unknown JSON i
       : original(args_);
   assert.equal((await checkBudgetPolicy(args)).allowed, false);
   assert.equal(statuses.length, 0);
+});
+
+test('approval alone cannot bless missing, pending or later failed primary checks', async () => {
+  const f = fixture(),
+    args = { github: f.github, owner: 'o', repo: 'r', number: 1 };
+  for (const checks of [
+    [],
+    [
+      {
+        id: 2,
+        check_suite: { id: 8 },
+        started_at: '2026-11-01T00:00:01Z',
+        name: 'Lint and Test',
+        app: { slug: 'github-actions' },
+        status: 'in_progress',
+        conclusion: null,
+      },
+    ],
+  ]) {
+    f.github.rest.checks.listForRef = async () => ({
+      data: { check_runs: checks },
+    });
+    await checkBudgetPolicy(args);
+    assert.equal(f.statuses.at(-1).context, 'Lint and Test');
+    assert.equal(f.statuses.at(-1).state, 'pending');
+  }
+  f.github.rest.checks.listForRef = async () => ({
+    data: {
+      check_runs: [
+        {
+          id: 1,
+          check_suite: { id: 8 },
+          started_at: '2026-11-01T00:00:01Z',
+          name: 'Lint and Test',
+          app: { slug: 'github-actions' },
+          status: 'completed',
+          conclusion: 'success',
+        },
+        {
+          id: 2,
+          check_suite: { id: 8 },
+          started_at: '2026-11-01T00:00:01Z',
+          name: 'Lint and Test',
+          app: { slug: 'github-actions' },
+          status: 'completed',
+          conclusion: 'failure',
+        },
+      ],
+    },
+  });
+  await checkBudgetPolicy(args);
+  assert.equal(f.statuses.at(-1).state, 'failure');
+  f.github.rest.actions.listWorkflowRuns = async () => ({
+    data: {
+      workflow_runs: [
+        {
+          id: 7,
+          head_sha: 'a'.repeat(40),
+          event: 'pull_request',
+          run_attempt: 2,
+          check_suite_id: 8,
+          status: 'in_progress',
+          conclusion: null,
+          run_started_at: '2026-11-01T00:00:02Z',
+        },
+      ],
+    },
+  });
+  await checkBudgetPolicy(args);
+  assert.equal(f.statuses.at(-1).state, 'pending');
+});
+
+test('primary approval status rejects stale attempts, unrelated suites and unknown run identities', async () => {
+  for (const mutate of [
+    (run, check) => {
+      check.check_suite.id++;
+    },
+    (run, check) => {
+      check.app.slug = 'other-app';
+    },
+    (run, check) => {
+      check.id = null;
+    },
+    (run, check) => {
+      check.started_at = 'invalid';
+    },
+    (run) => {
+      run.run_attempt++;
+      run.run_started_at = '2026-11-01T00:00:02Z';
+    },
+    (run) => {
+      run.id = null;
+    },
+    (run) => {
+      run.head_sha = 'b'.repeat(40);
+    },
+    (run) => {
+      run.event = 'workflow_dispatch';
+    },
+  ]) {
+    const f = fixture();
+    const { data: runs } = await f.github.rest.actions.listWorkflowRuns();
+    const { data: checks } = await f.github.rest.checks.listForRef();
+    mutate(runs.workflow_runs[0], checks.check_runs[0]);
+    f.github.rest.actions.listWorkflowRuns = async () => ({ data: runs });
+    f.github.rest.checks.listForRef = async () => ({ data: checks });
+    await checkBudgetPolicy({
+      github: f.github,
+      owner: 'o',
+      repo: 'r',
+      number: 1,
+    });
+    assert.equal(f.statuses.at(-1).context, 'Lint and Test');
+    assert.equal(f.statuses.at(-1).state, 'pending');
+  }
 });

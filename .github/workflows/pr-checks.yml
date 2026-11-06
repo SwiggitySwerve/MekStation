@@ -96,7 +96,7 @@ jobs:
     name: Static Checks
     needs: detect-changes
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 13
     # Read-only token, not persisted: the advisory tsrs step installs and
     # runs a pinned third-party compiler.
     permissions:
@@ -370,7 +370,7 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 14
 
     steps:
       - name: Checkout code
@@ -546,7 +546,7 @@ jobs:
     name: Unit Tests (${{ matrix.shard }}/3)
     needs: detect-changes
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 12
     strategy:
       fail-fast: false
       matrix:
@@ -720,7 +720,7 @@ jobs:
     name: E2E (${{ matrix.shard }}/2)
     needs: detect-changes
     runs-on: ubuntu-latest
-    timeout-minutes: 16
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:

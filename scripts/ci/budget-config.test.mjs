@@ -36,6 +36,9 @@ test('schema rejects missing/unknown inputs, nonintegers and timeout bypasses', 
       c.timeouts.e2e.samples = [];
     },
     (c) => {
+      c.timeouts.e2e.medianSeconds += 1;
+    },
+    (c) => {
       c.profiles = [];
     },
   ]) {
@@ -65,6 +68,9 @@ test('canonical raises cover every cap/dependency/timeout and profile removal', 
   const next = structuredClone(config);
   next.timeouts.e2e.minutes++;
   next.timeouts.e2e.medianSeconds = next.timeouts.e2e.minutes * 30;
+  next.timeouts.e2e.samples = [
+    { runId: 1, job: 'E2E (1/2)', seconds: next.timeouts.e2e.medianSeconds },
+  ];
   assert.equal(budgetRaises(config, next)[0].id, 'timeouts.e2e.minutes');
   const dropped = structuredClone(config);
   dropped.profiles[0].typical = false;

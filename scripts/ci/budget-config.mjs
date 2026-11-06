@@ -1,6 +1,8 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 
+import { median } from '../lib/statistics.mjs';
+
 export const BUDGET_SCHEMA = 'mekstation/ci-budgets/v1';
 export const METRICS_SCHEMA = 'mekstation/ci-budget-metrics/v1';
 export const PACKAGE_METRICS_SCHEMA = 'mekstation/ci-package-metrics/v1';
@@ -96,6 +98,11 @@ export function validateBudgets(config) {
       if (typeof sample.job !== 'string' || !sample.job)
         throw new Error('Sample job missing');
     }
+    if (
+      timeout.medianSeconds !==
+      median(timeout.samples.map((sample) => sample.seconds))
+    )
+      throw new Error(`${id}: declared median differs from measured samples`);
     if (
       timeout.minutes !==
       Math.max(1, Math.ceil((2 * timeout.medianSeconds) / 60))

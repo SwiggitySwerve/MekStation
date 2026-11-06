@@ -20,7 +20,7 @@ reporting and automatically induced trusted workflow jobs. Gated jobs remain
 visible in the expanded census. Desktop/global-CI/budget-change profiles are
 explicitly exceptional. Unknown secondary job conditions count as active.
 `workflow_run` cycles and unsupported matrices/conditions fail closed. The
-post-run guard has a separate trust boundary and still counts toward nine.
+post-run guard has a separate trust boundary and counts toward the enforced ten.
 The primary fan-out must exactly match the aggregator's `needs`; its runtime
 boundary rejects empty/missing results and every unproved skip.
 
@@ -41,8 +41,10 @@ head, label or review changes are reread before publishing a status.
 Timeouts are static configured minutes, ceil(twice the recorded median seconds
 divided by 60), minimum one minute. Config retains actual GitHub run/job samples
 and the measured median. No new elapsed-time assertion runs in tests. These are
-initial hosted samples, mostly warm-cache PRs; fresh execution may expose a
-need for new evidence and an owner-approved change, never an automatic increase.
+initial hosted samples: three complete successful main runs for the ordinary
+jobs and prior PR samples for Windows/macOS packaging. The schema recomputes
+the declared median from these samples. Fresh execution may expose a need for
+new evidence and an owner-approved change, never an automatic increase.
 
 The complete web artifact has exactly four unfiltered input roots:
 `.next/standalone`, `.next/static`, `desktop/dist`, `public/record-sheets`.
@@ -67,8 +69,11 @@ G2 owns canonical producer validation; G3 verifies live artifact/producer/source
 provenance before a weekly observation can qualify. Weekly collection has read
 permissions; a separate trusted job publishes the issue or a proven lowering.
 
-The primary aggregator enforces live budget approval read-only. The Guard and
-approval events also publish `CI Budget Raise Approval` for repository policy
-and Root's all-green merge gate; making that status a required branch context
-is a separate repository setting and must follow bootstrap default-code landing.
-No claim of that settings enforcement is made by these files alone.
+The primary aggregator enforces live budget approval read-only. Trusted events
+publish `CI Budget Raise Approval` and a policy status under the existing
+`Lint and Test` required name. Approval first holds that status pending and
+upgrades it only after the actual latest GitHub Actions aggregator check passed.
+Missing/running checks cannot become green through approval alone. Label/review
+revocation fails the existing required context without needing a new required
+context setting. Default-branch trusted publishing begins after bootstrap lands;
+the bootstrap PR itself runs the required primary policy check read-only.

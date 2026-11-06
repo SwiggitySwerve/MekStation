@@ -260,3 +260,37 @@ test('trusted reporter imports from its sparse contract with no node_modules', (
     fs.rmSync(fixture, { recursive: true, force: true });
   }
 });
+
+test('weekly publisher imports from its sparse contract with no node_modules', () => {
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'budget-weekly-'));
+  try {
+    const workflow = parse(
+      fs.readFileSync('.github/workflows/ci-garden.yml', 'utf8'),
+    );
+    const checkout = workflow.jobs.publish.steps.find(
+      (step) => step.uses === 'actions/checkout@v6',
+    );
+    for (const directory of checkout.with['sparse-checkout']
+      .trim()
+      .split(/\s+/)) {
+      fs.cpSync(directory, path.join(fixture, directory), { recursive: true });
+    }
+    const result = spawnSync(
+      process.execPath,
+      [
+        '--input-type=module',
+        '-e',
+        "await import('./scripts/ci/garden-publish.mjs'); await import('./scripts/ci/budget-config.mjs')",
+      ],
+      {
+        cwd: fixture,
+        encoding: 'utf8',
+        timeout: 30000,
+        stdio: ['ignore', 'pipe', 'pipe'],
+      },
+    );
+    assert.equal(result.status, 0, result.stderr);
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
