@@ -69,6 +69,7 @@ def export_strict(mekfiles: Path, out_dir: Path, family: str | None = None) -> N
     import hashlib
     import blk_capital_converter as capital
     from mtf_converter import MTFParser, dataclass_to_dict
+    from strict_provenance import write_source_manifest
 
     families = json.loads((Path(__file__).parent / "strict-families.json").read_text(encoding="utf-8"))
     if family is not None and family not in families:
@@ -102,6 +103,7 @@ def export_strict(mekfiles: Path, out_dir: Path, family: str | None = None) -> N
                 except Exception as error:
                     row["reason"] = str(error)
                 handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+    write_source_manifest(out_dir, list(folders), family)
 
 if __name__ == "__main__":
     if len(sys.argv) > 3 and sys.argv[3] == "--strict":

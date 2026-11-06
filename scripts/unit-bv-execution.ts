@@ -64,11 +64,13 @@ export async function boundedMap<T, R>(
 export interface IFamilyArtifacts {
   sources: Buffer;
   computed: Buffer;
+  manifest?: Buffer;
 }
 interface ICacheEntry extends IFamilyArtifacts {
   key: string;
   sourcesHash: string;
   computedHash: string;
+  manifestHash?: string;
 }
 const isEntry = (value: unknown): value is ICacheEntry => {
   if (typeof value !== 'object' || value === null) return false;
@@ -78,7 +80,10 @@ const isEntry = (value: unknown): value is ICacheEntry => {
     Buffer.isBuffer(row.sources) &&
     Buffer.isBuffer(row.computed) &&
     row.sourcesHash === digest(row.sources) &&
-    row.computedHash === digest(row.computed)
+    row.computedHash === digest(row.computed) &&
+    (row.manifest === undefined ||
+      (Buffer.isBuffer(row.manifest) &&
+        row.manifestHash === digest(row.manifest)))
   );
 };
 
@@ -88,6 +93,7 @@ export async function runCachedFamily(options: {
   key: string | null;
   verify: boolean | (() => boolean);
   produce: () => Promise<IFamilyArtifacts>;
+  validate?: (artifacts: IFamilyArtifacts) => void;
 }): Promise<{ artifacts: IFamilyArtifacts; hit: boolean; verified: boolean }> {
   const { cacheDir, family, key, verify, produce } = options;
   if (!/^[a-z]+$/.test(family)) throw new Error('Invalid family');
@@ -99,7 +105,10 @@ export async function runCachedFamily(options: {
   if (file) {
     try {
       const value: unknown = deserialize(fs.readFileSync(file));
-      if (isEntry(value) && value.key === key) cached = value;
+      if (isEntry(value) && value.key === key) {
+        options.validate?.(value);
+        cached = value;
+      }
     } catch {
       /* Disposable cache: missing, corrupt and incompatible entries run fresh. */
     }
@@ -109,15 +118,22 @@ export async function runCachedFamily(options: {
   );
   if (cached && !shouldVerify)
     return {
-      artifacts: { sources: cached.sources, computed: cached.computed },
+      artifacts: {
+        sources: cached.sources,
+        computed: cached.computed,
+        ...(cached.manifest === undefined ? {} : { manifest: cached.manifest }),
+      },
       hit: true,
       verified: false,
     };
   const artifacts = await produce();
+  options.validate?.(artifacts);
   if (
     cached &&
     (!cached.sources.equals(artifacts.sources) ||
-      !cached.computed.equals(artifacts.computed))
+      !cached.computed.equals(artifacts.computed) ||
+      ((cached.manifest !== undefined || artifacts.manifest !== undefined) &&
+        !cached.manifest?.equals(artifacts.manifest ?? Buffer.alloc(0))))
   ) {
     if (file) {
       try {
@@ -139,6 +155,9 @@ export async function runCachedFamily(options: {
           ...artifacts,
           sourcesHash: digest(artifacts.sources),
           computedHash: digest(artifacts.computed),
+          ...(artifacts.manifest === undefined
+            ? {}
+            : { manifestHash: digest(artifacts.manifest) }),
         }),
       );
       fs.renameSync(temporary, file);
