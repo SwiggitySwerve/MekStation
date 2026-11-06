@@ -44,7 +44,7 @@ from blk_conversion_runner import (
     run_blk_conversion,
     run_manifest_range_parity,
 )
-from blk_unit_fields import parse_fluff, parse_location_equipment, parse_mul_id, parse_quirks
+from blk_unit_fields import parse_fluff, parse_location_equipment, parse_mul_id, parse_quirk_fields
 
 # Shared BLK helpers + enum_mappings re-exports — see blk_common.py for the
 # extraction rationale (2026-04-25 maintenance sweep).
@@ -266,7 +266,6 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
     mul_id = parse_mul_id(tags)
     role = get_string(tags, "role")
     source = get_string(tags, "source")
-    quirks = parse_quirks(tags)
 
     weight_class = get_weight_class(float(tonnage))
 
@@ -330,8 +329,7 @@ def convert_aerospace_blk(blk_path: Path, logger: logging.Logger) -> Optional[Di
         output["role"] = role
     if source:
         output["source"] = source
-    if quirks:
-        output["quirks"] = quirks
+    output.update(parse_quirk_fields(tags))
     if fluff:
         output["fluff"] = fluff
 

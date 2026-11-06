@@ -9,7 +9,7 @@ import { Facing, MovementType } from '@/types/gameplay';
 import { isInBounds, isOccupied } from '@/utils/gameplay/hexGrid';
 import { hexDistance } from '@/utils/gameplay/hexMath';
 import {
-  calculateGroundPathMpCost,
+  prepareGroundPathMpCost,
   calculateMovementHeat,
   findPath,
   getFacingChangeCost,
@@ -64,17 +64,26 @@ export function getValidMoveCandidates(
       continue;
     }
 
+    const groundPathPrice = path
+      ? prepareGroundPathMpCost(
+          grid,
+          path,
+          toGroundUnitMovementType(movementType),
+          position.facing,
+          movementContext,
+        )
+      : undefined;
+
     for (let facing = 0; facing < 6; facing++) {
       const typedFacing = facing as Facing;
-      const mpCost = calculateMoveCandidateMpCost({
-        grid,
-        path,
-        position,
-        destination,
-        facing: typedFacing,
-        movementType,
-        movementContext,
-      });
+      const mpCost =
+        distance === 0
+          ? getFacingChangeCost(position.facing, typedFacing)
+          : movementType === MovementType.Jump
+            ? distance
+            : groundPathPrice
+              ? groundPathPrice(typedFacing)
+              : Infinity;
 
       if (mpCost > maxMP) continue;
 
@@ -134,48 +143,6 @@ export function enrichScoreContext(
     tierAdvanced,
     pathByDestination,
   };
-}
-
-function calculateMoveCandidateMpCost(params: {
-  readonly grid: IHexGrid;
-  readonly path: readonly IHexCoordinate[] | null;
-  readonly position: IUnitPosition;
-  readonly destination: IHexCoordinate;
-  readonly facing: Facing;
-  readonly movementType: MovementType;
-  readonly movementContext?: IMovementCostContext;
-}): number {
-  const {
-    grid,
-    path,
-    position,
-    destination,
-    facing,
-    movementType,
-    movementContext,
-  } = params;
-  const distance = hexDistance(position.coord, destination);
-
-  if (distance === 0) {
-    return getFacingChangeCost(position.facing, facing);
-  }
-
-  if (movementType === MovementType.Jump) {
-    return distance;
-  }
-
-  if (!path) {
-    return Infinity;
-  }
-
-  return calculateGroundPathMpCost(
-    grid,
-    path,
-    toGroundUnitMovementType(movementType),
-    position.facing,
-    facing,
-    movementContext,
-  );
 }
 
 function deriveCapability(

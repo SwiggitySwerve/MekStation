@@ -994,6 +994,14 @@ function createStore(dir) {
     // unwritable: put() fails open later, and the dir holds no entries
   }
   const entryPath = (key) => path.join(dir, key.slice(0, 2), `${key}.json`);
+  const writeEntry = (key, entry, flag = 'w') => {
+    fs.mkdirSync(path.dirname(entryPath(key)), { recursive: true });
+    fs.writeFileSync(
+      entryPath(key),
+      JSON.stringify({ ...entry, key, version: KEY_VERSION }),
+      { flag },
+    );
+  };
   return {
     get(key) {
       try {
@@ -1004,11 +1012,17 @@ function createStore(dir) {
       }
     },
     put(key, entry) {
-      fs.mkdirSync(path.dirname(entryPath(key)), { recursive: true });
-      fs.writeFileSync(
-        entryPath(key),
-        JSON.stringify({ ...entry, key, version: KEY_VERSION }),
-      );
+      writeEntry(key, entry);
+    },
+    /** Seed imports cannot overwrite local results, including rejections. */
+    putIfAbsent(key, entry) {
+      try {
+        writeEntry(key, entry, 'wx');
+        return true;
+      } catch (error) {
+        if (error.code === 'EEXIST') return false;
+        throw error;
+      }
     },
     touch(key) {
       const now = new Date();
@@ -1170,6 +1184,14 @@ function jestArgs({ projects, shard, passthrough }) {
   ];
 }
 
+/** The result-affecting options, shared by native runs and local seed import. */
+function cacheExecOptions({ projects, passthrough }) {
+  return [
+    ...projects.map((project) => `project=${project}`),
+    ...passthrough.filter((arg) => KEYED_JEST_OPTIONS.test(arg)),
+  ];
+}
+
 // Windows refuses a command line over 32,767 characters, and every file to run is
 // an argument: a run of more than ~450 files failed to spawn (ENAMETOOLONG) and
 // reported only exit 1, so the cache could not be used locally. There the files
@@ -1325,10 +1347,7 @@ async function main(argv) {
     const keyer = createKeyer({
       root,
       index: buildFileIndex(root, cacheRel),
-      execOptions: [
-        ...values.project.map((project) => `project=${project}`),
-        ...passthrough.filter((arg) => KEYED_JEST_OPTIONS.test(arg)),
-      ],
+      execOptions: cacheExecOptions({ projects: values.project, passthrough }),
     });
     report = await runCached({
       files,
@@ -1382,9 +1401,12 @@ module.exports = {
   analyzeSource,
   batchFiles,
   buildFileIndex,
+  cacheExecOptions,
   createJestExecutor,
   createKeyer,
   createStore,
+  jestArgs,
+  listTests,
   runCached,
   resolveMode,
   verifyOrder,

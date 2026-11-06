@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from typing import Any, Dict, List, Optional
 from blk_common import BLK_ARMOR_CODE_MAP
+from weapon_quirks import append_weapon_quirk
 
 from enum_mappings import (
     generate_id_from_name,
@@ -89,6 +90,7 @@ class MTFParser:
         """Parse MTF content lines."""
         data: Dict[str, Any] = {
             'quirks': [],
+            'weapon_quirks': {},
             'weapons': [],
             'criticals': {},
             'armor_allocation': {},
@@ -268,6 +270,8 @@ class MTFParser:
                 pass
         elif key == 'quirk':
             data['quirks'].append(value)
+        elif key == 'weaponquirk':
+            append_weapon_quirk(data['weapon_quirks'], value)
         elif key == 'cockpit':
             data['cockpit'] = value
         elif key == 'gyro':
@@ -407,6 +411,7 @@ class MTFParser:
             equipment=equipment,
             criticalSlots=critical_slots,
             quirks=data.get('quirks') if data.get('quirks') else None,
+            weaponQuirks=data.get('weapon_quirks') or None,
             fluff=fluff,
             mulId=data.get('mul_id'),
             role=data.get('role'),

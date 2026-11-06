@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional
 
 from blk_common import get_string, normalize_equipment_id, parse_number, map_armor_code, BLK_ARMOR_CODE_MAP
 from blk_vehicle_tables import BAR_ARMOR_CODES
+from weapon_quirks import append_weapon_quirk
 
 STANDARD_FLUFF_FIELDS = (
     "overview",
@@ -27,6 +28,22 @@ def parse_mul_id(tags: Dict[str, Any]) -> Optional[int]:
 def parse_quirks(tags: Dict[str, Any]) -> List[str]:
     raw = get_string(tags, "quirks")
     return [q.strip() for q in raw.splitlines() if q.strip()] if raw else []
+
+
+def parse_quirk_fields(tags: Dict[str, Any]) -> Dict[str, Any]:
+    """BLKFile.java:218-230: retain both unit and mounted weapon metadata."""
+    fields: Dict[str, Any] = {}
+    quirks = parse_quirks(tags)
+    if quirks:
+        fields['quirks'] = quirks
+    weapon_quirks: Dict[str, List[str]] = {}
+    raw = get_string(tags, 'weaponQuirks')
+    for entry in raw.splitlines() if raw else []:
+        if entry.strip():
+            append_weapon_quirk(weapon_quirks, entry)
+    if weapon_quirks:
+        fields['weaponQuirks'] = weapon_quirks
+    return fields
 
 
 def parse_fluff(tags: Dict[str, Any], *, include_system_manufacturers: bool = False) -> Dict[str, Any]:

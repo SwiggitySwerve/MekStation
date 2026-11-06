@@ -89,6 +89,8 @@ scripts/**
 !scripts/megameklab-conversion/quirk_json.py
 !scripts/megameklab-conversion/quirk_regeneration.py
 !scripts/megameklab-conversion/QUIRK_REGENERATION.md
+!scripts/megameklab-conversion/weapon_quirks.py
+!scripts/megameklab-conversion/weapon_quirks.RULES.md
 !scripts/megameklab-conversion/blk_vehicle_tables.py
 !scripts/megameklab-conversion/data_converter_blk.py
 !scripts/megameklab-conversion/data_converter_mtf.py
