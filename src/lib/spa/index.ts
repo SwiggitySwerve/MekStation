@@ -100,6 +100,16 @@ export function canonicalizeSPAIds(
   return out;
 }
 
+/** Membership query for a canonical target; preserves exact legacy ids. */
+export function hasSPA(
+  abilities: readonly string[],
+  canonicalId: string,
+): boolean {
+  if (abilities.includes(canonicalId)) return true;
+  const canonicalized = canonicalizeSPAIds(abilities);
+  return canonicalized.includes(canonicalId);
+}
+
 // Re-export the raw data structures for consumers that need them.
 export {
   CANONICAL_SPA_CATALOG,
