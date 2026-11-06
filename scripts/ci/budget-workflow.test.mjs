@@ -282,6 +282,12 @@ test('observation projections never turn absent package evidence into zero/cap v
     projection = observedBudgetValues(config, metrics);
   assert.equal(projection.complete, false);
   assert.equal(projection.missing.length, 3);
+  const reporting = observedBudgetValues(
+    { ...config, reporting: { jobMinutes: 60.125, criticalPathMs: 650000.5 } },
+    metrics,
+  );
+  assert.deepEqual(reporting.missing, projection.missing);
+  assert.deepEqual(reporting.values, projection.values);
   assert.equal(projection.values['limits.installerBytes'], undefined);
   assert.equal(packageContributors(null).availability, 'unavailable');
   assert.throws(() => packageContributors({ schema: 'unknown', files: [] }));

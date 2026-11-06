@@ -176,8 +176,12 @@ export async function publishReport({
       await write('POST', `${root}/issues/${pullNumber}/labels`, {
         labels: [REVIEW_LABEL],
       });
-    // Incomplete reports cannot clear a previous warning.
-    else if (!report.breach && report.complete && hasLabel)
+    // Unavailable label-defining timings retain a warning; informational files do not.
+    else if (
+      !report.breach &&
+      (report.labelComplete ?? report.complete) &&
+      hasLabel
+    )
       await write(
         'DELETE',
         `${root}/issues/${pullNumber}/labels/${REVIEW_LABEL}`,
