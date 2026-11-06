@@ -34,6 +34,16 @@ const seed = (tests) => ({
 const selected = (plan) =>
   plan.shards.flatMap(({ tasks }) => tasks.flatMap(({ tests }) => tests));
 
+test('the default three-shard plan assigns work to all three shards', () => {
+  const tests = census();
+  const plan = planShards(tests, seed(tests));
+  assert.deepEqual(
+    plan.shards.map(({ shard }) => shard),
+    [1, 2, 3],
+  );
+  assert.ok(plan.shards.every(({ tasks }) => tasks.length > 0));
+});
+
 test('every live test appears exactly once, including a test absent from timings', () => {
   const tests = census();
   const timing = seed(tests);
@@ -167,26 +177,37 @@ test('retry and trace contracts are unchanged', () => {
 
 test('the workflow command cannot drop a spec, shard, retry contract or worker limit', () => {
   for (const suite of CI_SUITES) {
-    const args = [
-      'test',
-      ...suite.files.map((f) => `e2e/${f}`),
-      '--project=chromium',
-      ...suite.options,
-      `--workers=${suite.workers}`,
-      '--shard=2/2',
-      `--output=test-results/${suite.name}`,
-    ];
-    assert.equal(parseInvocation(args).shardIndex, 2);
-    assert.equal(parseInvocation(args).suite.name, suite.name);
-    assert.throws(() =>
-      parseInvocation(args.filter((arg) => !arg.startsWith('e2e/'))),
-    );
-    assert.throws(() =>
-      parseInvocation(
-        args.map((arg) => (arg === '--shard=2/2' ? '--shard=1/1' : arg)),
-      ),
-    );
-    assert.throws(() => parseInvocation([...args, '--retries=10']));
-    assert.throws(() => parseInvocation([...args, '--grep=one-test']));
+    for (const shard of [1, 2, 3]) {
+      const shardArg = `--shard=${shard}/3`;
+      const args = [
+        'test',
+        ...suite.files.map((f) => `e2e/${f}`),
+        '--project=chromium',
+        ...suite.options,
+        `--workers=${suite.workers}`,
+        shardArg,
+        `--output=test-results/${suite.name}`,
+      ];
+      assert.equal(parseInvocation(args).shardIndex, shard);
+      assert.equal(parseInvocation(args).suite.name, suite.name);
+      assert.throws(() =>
+        parseInvocation(args.filter((arg) => !arg.startsWith('e2e/'))),
+      );
+      for (const invalid of [
+        '--shard=2/2',
+        '--shard=0/3',
+        '--shard=4/3',
+        '--shard=1/1',
+        '--shard=1/4',
+      ])
+        assert.throws(() =>
+          parseInvocation(
+            args.map((arg) => (arg === shardArg ? invalid : arg)),
+          ),
+        );
+      assert.throws(() => parseInvocation([...args, '--retries=10']));
+      assert.throws(() => parseInvocation([...args, '--grep=one-test']));
+      assert.throws(() => parseInvocation([...args, '--concurrency=2']));
+    }
   }
 });

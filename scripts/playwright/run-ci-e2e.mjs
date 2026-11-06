@@ -129,6 +129,7 @@ async function runTask(task) {
         ...process.env,
         PLAYWRIGHT_HTML_OUTPUT_DIR: `playwright-report-${suite.name}`,
         PLAYWRIGHT_JSON_OUTPUT_FILE: report,
+        MEKSTATION_E2E_DIAGNOSTIC_SUITE: suite.name,
       },
       detached: process.platform !== 'win32',
       stdio: ['ignore', 'inherit', 'inherit'],
