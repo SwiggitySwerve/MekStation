@@ -18,9 +18,15 @@ interface IntroductionDate {
 
 const fixtures = join(__dirname, 'fixtures', 'java-introduction-dates');
 const catalog = join(process.cwd(), 'public/data/equipment/official');
+// One JSON row per line, one file per batch.
 const rows: IntroductionDate[] = readdirSync(fixtures)
-  .filter((file) => file.endsWith('.json'))
-  .flatMap((file) => JSON.parse(readFileSync(join(fixtures, file), 'utf8')));
+  .filter((file) => file.endsWith('.jsonl'))
+  .flatMap((file) =>
+    readFileSync(join(fixtures, file), 'utf8')
+      .split('\n')
+      .filter((line) => line.trim())
+      .map((line) => JSON.parse(line)),
+  );
 
 const items = new Map<string, { id: string; introductionYear?: number }[]>();
 const itemsOf = (file: string) => {
