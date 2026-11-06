@@ -70,7 +70,7 @@ export function parseAerospaceBasics(
     movement: { safeThrust, maxThrust: calculateMaxThrust(safeThrust) },
     fuel: document.fuel || 0,
     structuralIntegrity: resolveAerospaceStructuralIntegrity(document),
-    heatSinks: document.heatsinks || defaultHeatSinks,
+    heatSinks: document.heatsinks ?? defaultHeatSinks,
     heatSinkType: document.sinkType || 0,
     engineType: document.engineType || 0,
     armorType: document.armorType || 0,

@@ -69,7 +69,11 @@ const data: IMechRecordSheetData = {
   specialAbilities: specialist,
 };
 
-describe('single-pilot biped canonical SPA output', () => {
+const nativeCases = papers.flatMap((paper) =>
+  (['biped', 'quad'] as const).map((mechType) => ({ ...paper, mechType })),
+);
+
+describe('single-pilot native Mech SPA output', () => {
   beforeEach(() => {
     resetMmDataAssetService();
     // Deterministic font boundary for DOM tests; real Chromium metrics are proved separately.
@@ -108,10 +112,10 @@ describe('single-pilot biped canonical SPA output', () => {
     );
   }
 
-  it.each(papers)(
-    'parents the designated list beside native spas0 on $paper',
+  it.each(nativeCases)(
+    'parents the designated list beside native spas0 on $mechType/$paper',
     async (paper) => {
-      const doc = await render(data, paper);
+      const doc = await render({ ...data, mechType: paper.mechType }, paper);
       const block = doc.getElementById('specialAbilitiesBlock')!;
       expect(block.parentNode).toBe(doc.getElementById('spas0')!.parentNode);
       expect(block.parentElement!.getAttribute('transform')).toBe(
@@ -123,7 +127,10 @@ describe('single-pilot biped canonical SPA output', () => {
       expect(Number(line.getAttribute('font-size'))).toBeCloseTo(6.084, 5);
       expect(Number(line.getAttribute('x'))).toBe(0);
       expect(Number(line.getAttribute('y'))).toBeCloseTo(52 + 6.084 * 1.2, 5);
-      const without = await render({ ...data, specialAbilities: [] }, paper);
+      const without = await render(
+        { ...data, mechType: paper.mechType, specialAbilities: [] },
+        paper,
+      );
       block.remove();
       expect(new XMLSerializer().serializeToString(doc)).toBe(
         new XMLSerializer().serializeToString(without),
@@ -131,14 +138,17 @@ describe('single-pilot biped canonical SPA output', () => {
     },
   );
 
-  it.each(papers)(
-    'retains native unbounded long-list overflow on $paper',
+  it.each(nativeCases)(
+    'retains native unbounded long-list overflow on $mechType/$paper',
     async (paper) => {
       const entries = Array.from({ length: 8 }, (_, i) => ({
         ...specialist[0],
         headline: `Weapon Specialist (PPC ${i})`,
       }));
-      const doc = await render({ ...data, specialAbilities: entries }, paper);
+      const doc = await render(
+        { ...data, mechType: paper.mechType, specialAbilities: entries },
+        paper,
+      );
       const lines = [...doc.querySelectorAll('#specialAbilitiesBlock text')];
       expect(lines.length).toBeGreaterThan(2);
       expect(lines.map((line) => line.textContent).join('')).toBe(
@@ -230,7 +240,7 @@ describe('single-pilot biped canonical SPA output', () => {
   });
 
   it('leaves other Mech configurations on their existing renderer', async () => {
-    const doc = await render({ ...data, mechType: 'quad' });
+    const doc = await render({ ...data, mechType: 'quadvee' });
     const block = doc.getElementById('specialAbilitiesBlock')!;
     expect(block.parentNode).toBe(doc.documentElement);
     expect(block.querySelector('text')!.textContent).toBe('SPECIAL ABILITIES');

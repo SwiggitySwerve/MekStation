@@ -2,6 +2,8 @@ import type { IProtoMechBVBreakdown } from '@/types/unit/BVBreakdownTypes';
 
 import { ProtoLocation } from '@/types/unit/ProtoMechInterfaces';
 
+import { addBVToAmmoCapGroup } from '../battleValueAmmo';
+
 // Pinned ProtoMek.java:87-89,102-108. No Body/quad-only identity is inferred.
 const nativeLocations = new Map<
   string,
@@ -30,7 +32,8 @@ export function protoMechBVTerms(
   weightBV: number;
   adjustment: number;
 } & Record<`weapon.${number}.${string}.${string}`, number> &
-  Record<`equipment.native.${number}.${string}`, number> {
+  Record<`equipment.native.${number}.${string}`, number> &
+  Record<`ammo.available.${string}`, number> {
   const weaponTerms: Record<`weapon.${number}.${string}.${string}`, number> =
     {};
   for (const fact of b.weaponMountBV ?? []) {
@@ -50,10 +53,19 @@ export function protoMechBVTerms(
     equipmentTerms[`equipment.native.${location.index}.${fact.equipmentId}`] =
       fact.battleValue;
   }
+  const available: Record<string, number> = {};
+  for (const fact of b.ammoAvailableMountBV ?? []) {
+    addBVToAmmoCapGroup(available, fact.nativeGroup, fact.battleValue);
+  }
+  const ammoTerms: Record<`ammo.available.${string}`, number> = {};
+  for (const [group, value] of Object.entries(available)) {
+    ammoTerms[`ammo.available.${group}`] = value;
+  }
   return {
     ...b,
     ...weaponTerms,
     ...equipmentTerms,
+    ...ammoTerms,
     typeModifier: 1,
     offensiveTypeModifier: 1,
     summaryModifier: b.chassisMultiplier,
