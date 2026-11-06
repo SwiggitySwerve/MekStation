@@ -18,15 +18,32 @@ interface IntroductionDate {
 
 const fixtures = join(__dirname, 'fixtures', 'java-introduction-dates');
 const catalog = join(process.cwd(), 'public/data/equipment/official');
-// One JSON row per line, one file per batch.
-const rows: IntroductionDate[] = readdirSync(fixtures)
-  .filter((file) => file.endsWith('.jsonl'))
-  .flatMap((file) =>
-    readFileSync(join(fixtures, file), 'utf8')
-      .split('\n')
-      .filter((line) => line.trim())
-      .map((line) => JSON.parse(line)),
-  );
+// One JSON row per line, one file per batch (probe-regenerated data).
+const batches = new Map<string, IntroductionDate[]>(
+  readdirSync(fixtures)
+    .filter((file) => file.endsWith('.jsonl'))
+    .map((file) => [
+      file,
+      readFileSync(join(fixtures, file), 'utf8')
+        .split('\n')
+        .filter((line) => line.trim())
+        .map((line) => JSON.parse(line)),
+    ]),
+);
+const rows = [...batches.values()].flat();
+
+// Each batch corrects exactly the records it lists, once each.
+const EXPECTED_BATCH_SIZES: Record<string, number> = { 'missiles.jsonl': 156 };
+it.each(Object.entries(EXPECTED_BATCH_SIZES))(
+  '%s lists exactly %s distinct records',
+  (file, size) => {
+    const batch = batches.get(file) ?? [];
+    expect(new Set(batch.map((row) => `${row.file}:${row.id}`)).size).toBe(
+      size,
+    );
+    expect(batch).toHaveLength(size);
+  },
+);
 
 const items = new Map<string, { id: string; introductionYear?: number }[]>();
 const itemsOf = (file: string) => {
