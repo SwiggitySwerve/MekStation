@@ -5,8 +5,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 
+import { observationEnvelope } from './ci-observation.mjs';
 import { buildReport, main } from './ci-report.mjs';
-import { extractTestObservation } from './ci-test-metrics.mjs';
+import { extractTestObservation, testObservation } from './ci-test-metrics.mjs';
 
 function apiFixture() {
   const run = (id, attempt = 1) => ({
@@ -82,6 +83,60 @@ test('baseline API failure remains diagnostic; current timings are preserved', a
   assert.equal(result.report.observation.complete, true);
   assert.equal(result.report.complete, false);
   assert.match(result.diagnostics.join(), /503/);
+});
+
+test('test timing artifacts require fresh API provenance for source and baselines', async () => {
+  const args = {
+    api: apiFixture(),
+    repository: 'owner/repo',
+    runId: 100,
+    attempt: 2,
+    jobGraph: { tests: [] },
+  };
+  const initial = await buildReport(args);
+  const source = initial.envelope;
+  source.tests = testObservation({
+    observation: source.observation,
+    framework: 'jest',
+    complete: true,
+    files: { file: 100 },
+  });
+  const observed = initial.baselines[1].observation;
+  const base = observationEnvelope(observed, {
+    tests: testObservation({
+      observation: observed,
+      framework: 'jest',
+      complete: true,
+      files: { file: 100 },
+    }),
+  });
+  assert.equal(
+    (
+      await buildReport({
+        ...args,
+        producer: source,
+        baselineProducers: [base],
+      })
+    ).report.tests.complete,
+    true,
+  );
+  const stale = structuredClone(base);
+  stale.observation.identity.headSha = 'b'.repeat(40);
+  stale.tests.identity.headSha = 'b'.repeat(40);
+  const rejected = await buildReport({
+    ...args,
+    producer: source,
+    baselineProducers: [stale],
+  });
+  assert.equal(rejected.report.tests.complete, false);
+  assert.match(rejected.diagnostics.join(), /fresh API run\/head\/attempt/);
+  const wrongSource = structuredClone(source);
+  wrongSource.observation.identity.headSha = 'b'.repeat(40);
+  wrongSource.tests.identity.headSha = 'b'.repeat(40);
+  await assert.rejects(
+    buildReport({ ...args, producer: wrongSource }),
+    /fresh API run\/head\/attempt/,
+  );
 });
 
 test('Jest producer extracts real timing and requires planned file census for complete', async () => {

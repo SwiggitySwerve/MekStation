@@ -36,8 +36,11 @@ export async function buildReport({
   if (producer) {
     validateObservation(producer);
     if (
-      JSON.stringify(producer.observation.identity) !==
-        JSON.stringify(envelope.observation.identity) ||
+      Object.keys(envelope.observation.identity).some(
+        (key) =>
+          producer.observation.identity[key] !==
+          envelope.observation.identity[key],
+      ) ||
       producer.observation.comparableKey !== envelope.observation.comparableKey
     )
       throw new Error(
@@ -113,7 +116,25 @@ export async function buildReport({
   const validProducers = [];
   for (const value of baselineProducers) {
     try {
-      validProducers.push(validateObservation(value));
+      validateObservation(value);
+      const identity = value.observation.identity;
+      const authoritative = baselines.find(
+        (entry) =>
+          entry.observation &&
+          entry.observation.identity.runId === identity.runId &&
+          entry.observation.identity.attempt === identity.attempt,
+      )?.observation;
+      if (
+        !authoritative ||
+        Object.keys(authoritative.identity).some(
+          (key) => authoritative.identity[key] !== identity[key],
+        ) ||
+        authoritative.comparableKey !== value.observation.comparableKey
+      )
+        throw new Error(
+          'Baseline artifact does not match fresh API run/head/attempt',
+        );
+      validProducers.push(value);
     } catch (error) {
       diagnostics.push(`Invalid baseline artifact: ${error.message}`);
     }

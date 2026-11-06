@@ -257,6 +257,11 @@ export function selectMainObservations(
     else if (sample.comparableKey !== current.comparableKey)
       reason = 'not comparable';
     else if (
+      id.repository !== current.identity.repository ||
+      id.workflowId !== current.identity.workflowId
+    )
+      reason = 'not comparable';
+    else if (
       timestamp(id.createdAt) === null ||
       timestamp(id.completedAt) === null ||
       timestamp(current.identity.createdAt) === null ||
@@ -264,7 +269,7 @@ export function selectMainObservations(
       timestamp(id.completedAt) >= timestamp(current.identity.createdAt)
     )
       reason = 'not an earlier baseline';
-    seen.add(key);
+    if (!reason) seen.add(key);
     if (reason) excluded.push({ identity: id, reason });
     else included.push(sample);
   }

@@ -199,6 +199,17 @@ test('baselines still executing when the PR was created are excluded', () => {
   assert.equal(mainMedians([before, concurrent], o).included.length, 1);
 });
 
+test('an invalid baseline does not suppress a later valid copy of the same attempt', () => {
+  const o = sample();
+  const good = baseline(o);
+  const invalid = structuredClone(good);
+  invalid.metrics.jobMinutes = null;
+  assert.equal(mainMedians([invalid, good], o).included.length, 1);
+  const wrongRepository = structuredClone(good);
+  wrongRepository.identity.repository = 'other/repo';
+  assert.equal(mainMedians([wrongRepository], o).included.length, 0);
+});
+
 test('test comparison uses strict 20%/20s thresholds and needs full baseline for new files', () => {
   const o = sample();
   const current = testObservation({

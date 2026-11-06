@@ -26,6 +26,7 @@ export function compareTestFiles(current, baselines) {
     (sample) =>
       sample.availability === 'available' &&
       sample.files &&
+      Object.keys(sample.files).length > 0 &&
       Object.values(sample.files).every(
         (value) => Number.isFinite(value) && value > 0,
       ),
