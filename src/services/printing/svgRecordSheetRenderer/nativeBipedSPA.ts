@@ -16,10 +16,11 @@ export function renderNativeBipedSPASection(
   const region = svgDoc.getElementById('spas0');
   if (region?.localName !== 'rect' || !region.parentNode) return;
 
-  const x = Number(region.getAttribute('x'));
-  const y = Number(region.getAttribute('y'));
-  const width = Number(region.getAttribute('width'));
-  const height = Number(region.getAttribute('height'));
+  // SVGRect.baseVal and getRectBBox's Rectangle2D.Float use float coordinates.
+  const x = Math.fround(Number(region.getAttribute('x')));
+  const y = Math.fround(Number(region.getAttribute('y')));
+  const width = Math.fround(Number(region.getAttribute('width')));
+  const height = Math.fround(Number(region.getAttribute('height')));
   const context = document.createElement('canvas').getContext('2d');
   if (!context) throw new Error('Could not measure native biped SPA text');
 

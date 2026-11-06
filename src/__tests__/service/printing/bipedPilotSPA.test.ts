@@ -208,6 +208,27 @@ describe('single-pilot biped canonical SPA output', () => {
     ).toBeNull();
   });
 
+  it('uses native SVG float width at the font-switch boundary', async () => {
+    const context = {
+      font: '',
+      measureText() {
+        // Between the US attribute's decimal width and its SVG float value.
+        return { width: this.font.startsWith('italic ') ? 10 : 142.600008 };
+      },
+    };
+    jest
+      .mocked(HTMLCanvasElement.prototype.getContext)
+      .mockReturnValue(context as unknown as CanvasRenderingContext2D);
+    const doc = await render();
+    expect(
+      Number(
+        doc
+          .querySelector('#specialAbilitiesBlock text')!
+          .getAttribute('font-size'),
+      ),
+    ).toBeCloseTo(13.5 / 2.4, 5);
+  });
+
   it('leaves other Mech configurations on their existing renderer', async () => {
     const doc = await render({ ...data, mechType: 'quad' });
     const block = doc.getElementById('specialAbilitiesBlock')!;
