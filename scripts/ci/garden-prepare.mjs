@@ -86,6 +86,10 @@ export async function prepareGarden({
     now,
     api,
     diagnostics: collected.diagnostics,
+    timingLimits:
+      api.projectTimingLimits && api.readWorkflow
+        ? api.projectTimingLimits(config, api.readWorkflow(process.cwd()))
+        : {},
   });
   report.targetGaps = api.budgetTargetGaps(config, report.budgetMedians);
   const includedRuns = new Set(

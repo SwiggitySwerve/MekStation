@@ -29,9 +29,10 @@ expansion, package measurement and numeric budget projections belong to
   incomplete data, failures, cancellations, non-main pushes, different workflow
   graphs/runner labels/skip patterns, and samples completing after the current
   run was created. All excluded sample identities and reasons remain visible.
-- Test files breach at strictly greater than 20% growth or, for a new file,
-  strictly greater than 20 seconds. A new-file claim needs a complete comparable
-  main census. Cached passes carry no new timing sample. Jest extraction reuses
+- Test-file growth is informational: duration must exceed main p75 by strictly
+  more than 20%, increase at least 3 seconds, and have at least five comparable
+  main samples. Other valid comparisons are `within noise`; absent/invalid
+  evidence remains missing. Cached passes carry no new timing sample. Jest extraction reuses
   the scheduling updater's extractor. Playwright uses its existing JSON parser
   and sums test execution including retries per file; framework keys differ.
 
@@ -110,7 +111,14 @@ G1 supplies their projection. Missing limits are reported explicitly.
 `--observation` and `--baseline-observations` accept validated producer JSON
 envelopes (an array for baselines). Source metadata must match fresh API data.
 
-A breach applies `ci-budget-review`. A complete no-breach report removes it;
-missing data retains an existing label. API/reporting errors emit diagnostics
+`ci-budget-review` applies only for an actual per-job budget breach or aggregate
+job-minutes/critical path strictly more than 20% over comparable main p75.
+All p75 values use the shared R7 linear-interpolated quantile; p50 preserves the
+existing median. Aggregate configured caps are informational, and crossing a
+display cap alone cannot label. Per-file growth never labels. When all
+label-defining metrics are known and healthy an old label can clear even if
+informational file telemetry is missing; unknown label-defining metrics retain it.
+Weekly job investigations compare main-only cohorts and make no causal claim.
+API/reporting errors emit diagnostics
 and the CLI exits successfully, preserving the producer's test conclusion.
 `--dry-run` performs API reads and records intended writes without mutation.

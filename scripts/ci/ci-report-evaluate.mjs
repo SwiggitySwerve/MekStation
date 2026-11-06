@@ -1,5 +1,6 @@
 // Soft timing budgets have no authority over test/workflow conclusions.
-import { mainMedians } from './ci-metrics.mjs';
+import { median } from '../lib/statistics.mjs';
+import { mainMedians, TIMING_GROWTH_RATIO } from './ci-metrics.mjs';
 import { compareTestFiles } from './ci-test-metrics.mjs';
 
 export const REPORT_MARKER = '<!-- mekstation-ci-budget-report:v1 -->';
@@ -15,48 +16,83 @@ export function evaluateReport({
   const main = mainMedians(baselines, observation);
   const missing = [...observation.missing];
   const rows = [];
-  function row(name, value, budget, baseline, unit) {
+  function row(
+    name,
+    value,
+    budget,
+    baseline,
+    mainP75,
+    unit,
+    aggregate = false,
+  ) {
     const known = Number.isFinite(value) && value >= 0;
     const validBudget = Number.isFinite(budget) && budget > 0;
     if (!known) missing.push(`${name}: measurement unavailable`);
     if (!validBudget) missing.push(`${name}: budget unavailable`);
+    const validP75 = Number.isFinite(mainP75) && mainP75 >= 0;
+    if (aggregate && !validP75) missing.push(`${name}: main p75 unavailable`);
     rows.push({
       name,
       value: known ? value : null,
       budget: validBudget ? budget : null,
       mainMedian: baseline ?? null,
+      mainP75: validP75 ? mainP75 : null,
       unit,
-      breach: known && validBudget && value > budget,
+      aggregate,
+      budgetBreach: known && validBudget && value > budget,
+      breach: aggregate
+        ? known && validP75 && value > mainP75 * TIMING_GROWTH_RATIO
+        : known && validBudget && value > budget,
+      investigate:
+        !aggregate &&
+        known &&
+        Number.isFinite(baseline) &&
+        baseline > 0 &&
+        value > baseline * TIMING_GROWTH_RATIO,
     });
   }
-  for (const job of observation.jobs)
+  for (const job of observation.jobs) {
+    if (job.conclusion === 'skipped' && job.name.includes('${{')) continue;
     row(
       job.name,
       job.durationMs,
       limits.jobsMs?.[job.name],
       main.jobs[job.name],
+      main.p75.jobs[job.name],
       'ms',
     );
+  }
   row(
     'Job-minutes',
     observation.metrics.jobMinutes,
     limits.jobMinutes,
     main.metrics.jobMinutes,
+    main.p75.metrics.jobMinutes,
     'minutes',
+    true,
   );
   row(
     'Critical path (execution)',
     observation.metrics.criticalPathMs,
     limits.criticalPathMs,
     main.metrics.criticalPathMs,
+    main.p75.metrics.criticalPathMs,
     'ms',
+    true,
   );
   const testComparison = compareTestFiles(tests, testBaselines);
   missing.push(...testComparison.missing);
   if (!main.included.length)
     missing.push('Comparable successful main timing baseline unavailable');
   const breaches = rows.filter((item) => item.breach);
-  const breach = breaches.length > 0 || testComparison.breaches.length > 0;
+  const breach = breaches.length > 0;
+  const labelComplete =
+    observation.complete &&
+    rows.every(
+      (item) =>
+        item.value !== null &&
+        (item.aggregate ? item.mainP75 !== null : item.budget !== null),
+    );
   return {
     schemaVersion: 1,
     identity: observation.identity,
@@ -65,6 +101,7 @@ export function evaluateReport({
     rows,
     tests: testComparison,
     breach,
+    labelComplete,
     complete: missing.length === 0,
     status: breach ? 'review' : missing.length ? 'missing' : 'within',
     missing,
@@ -93,26 +130,28 @@ export function renderReport(report) {
     '',
     `Run [${id.runId}, attempt ${id.attempt}](https://github.com/${id.repository}/actions/runs/${id.runId}/attempts/${id.attempt}), head \`${id.headSha}\`.`,
     '',
-    '| Job / metric | Measured | Budget | Main median |',
-    '| --- | ---: | ---: | ---: |',
+    '| Job / metric | Measured | Budget | Main median | Main p75 |',
+    '| --- | ---: | ---: | ---: | ---: |',
     ...report.rows.map(
       (row) =>
-        `| ${cell(row.name)}${row.breach ? ' (review)' : ''} | ${measured(row.value, row.unit)} | ${measured(row.budget, row.unit)} | ${measured(row.mainMedian, row.unit)} |`,
+        `| ${cell(row.name)}${row.breach ? ' (review)' : row.budgetBreach ? ' (over display cap)' : row.investigate ? (row.budget === null ? ' (investigate; budget unavailable)' : ' (investigate; within budget)') : ''} | ${measured(row.value, row.unit)} | ${measured(row.budget, row.unit)} | ${measured(row.mainMedian, row.unit)} | ${measured(row.mainP75, row.unit)} |`,
     ),
     '',
     `Elapsed since attempt start: ${measured(report.observation.metrics.elapsedMs, 'ms')}; total job queue wait: ${measured(report.observation.metrics.queueMs, 'ms')}.`,
     'Job-minutes sum acquired job execution; queue wait is excluded. Critical path is the longest dependency chain of execution durations, excluding queue wait.',
     '',
     `Main baseline: ${report.main.included.length} complete comparable successful pushes; ${report.main.excluded.length} samples retained but excluded.`,
+    'Review labels use per-job budget breaches or aggregate timings more than 20% over main p75. Aggregate display caps and test-file growth are informational. Investigations do not establish regression or cause.',
   ];
   if (report.tests.files.length)
     lines.push(
       '',
-      '| Test file | Duration | Main median | Result |',
-      '| --- | ---: | ---: | --- |',
+      'Test-file growth requires >20% over main p75, at least 3 seconds increase and at least 5 main samples. Other valid comparisons are within noise; unavailable evidence stays missing.',
+      '| Test file | Duration | Main p75 | Main samples | Result (informational) |',
+      '| --- | ---: | ---: | ---: | --- |',
       ...report.tests.files.map(
         (row) =>
-          `| ${cell(row.file)} | ${measured(row.durationMs, 'ms')} | ${measured(row.baselineMs, 'ms')} | ${row.status} |`,
+          `| ${cell(row.file)} | ${measured(row.durationMs, 'ms')} | ${measured(row.baselineP75Ms ?? null, 'ms')} | ${row.baselineSamples ?? 0} | ${row.status} |`,
       ),
     );
   if (report.missing.length)
@@ -122,4 +161,40 @@ export function renderReport(report) {
       ...[...new Set(report.missing)].map((item) => `- ${cell(item)}`),
     );
   return `${lines.join('\n')}\n`;
+}
+
+/** Main-only garden investigations; policy selection remains with its caller. */
+export function jobInvestigations(current, baselines, limits = {}) {
+  const names = [
+    ...new Set(current.flatMap((o) => o.jobs?.map((j) => j.name) ?? [])),
+  ];
+  const values = (samples, name) =>
+    samples
+      .map((o) => o.jobs?.find((j) => j.name === name)?.durationMs)
+      .filter((value) => Number.isFinite(value) && value >= 0);
+  return names.flatMap((name) => {
+    const observed = values(current, name),
+      before = values(baselines, name);
+    if (!observed.length || !before.length) return [];
+    const measuredMs = median(observed),
+      baselineMs = median(before);
+    if (baselineMs <= 0 || measuredMs <= baselineMs * TIMING_GROWTH_RATIO)
+      return [];
+    const budgetMs =
+      Number.isFinite(limits.jobsMs?.[name]) && limits.jobsMs[name] > 0
+        ? limits.jobsMs[name]
+        : null;
+    return [
+      {
+        name,
+        measuredMs,
+        baselineMs,
+        budgetMs,
+        samples: observed.length,
+        withinBudget: budgetMs === null ? null : measuredMs <= budgetMs,
+        status: 'investigate',
+        sourceRuns: current.map((o) => o.identity),
+      },
+    ];
+  });
 }

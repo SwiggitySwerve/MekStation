@@ -22737,7 +22737,7 @@
     "file": "electronics/c3.json",
     "index": 0,
     "id": "c3-master",
-    "sha256": "e4148f052c7fe56b56c484494edc08b300baa5ee5b493715b89bc91ada790897",
+    "sha256": "24011775847ac3d78d1b5425bb10f292a5ded782e067c278c72b88c4eb68c783",
     "item": {
       "id": "c3-master",
       "name": "C3 Master Computer",
@@ -22752,7 +22752,7 @@
       },
       "costCBills": 1500000,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 3034,
       "special": ["Coordinates up to 3 C3 slaves", "Shares targeting data"]
     }
   },
@@ -22760,7 +22760,7 @@
     "file": "electronics/c3.json",
     "index": 1,
     "id": "c3-slave",
-    "sha256": "14d8695feca54785279be01e20010c3f68a20d5dc8230dc711bd5e1990bdf7f1",
+    "sha256": "9c6365185ffbd5139a7048d74535f586caa5bfe07669b9a3c35c215a36d57b53",
     "item": {
       "id": "c3-slave",
       "name": "C3 Slave Unit",
@@ -22775,7 +22775,7 @@
       },
       "costCBills": 250000,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 3034,
       "special": ["Links to C3 Master", "Shares targeting data"]
     }
   },
@@ -22783,7 +22783,7 @@
     "file": "electronics/c3.json",
     "index": 2,
     "id": "c3i",
-    "sha256": "5d560b7e163193bb60c4ba2686373ca35b5748cf67d218dc2ab3329b203eb30b",
+    "sha256": "44cf5c61e553355035fa02c75dbd4ec5d15ed8509f807389932946a392c3ba12",
     "item": {
       "id": "c3i",
       "name": "Improved C3 Computer",
@@ -22798,7 +22798,7 @@
       },
       "costCBills": 750000,
       "battleValue": 0,
-      "introductionYear": 3058,
+      "introductionYear": 3047,
       "special": ["No master required", "Links up to 6 units"],
       "extinctionYear": 3085
     }
@@ -22849,7 +22849,7 @@
     "file": "electronics/c3.json",
     "index": 5,
     "id": "c3slaveunit",
-    "sha256": "985620d71d46d300cde65bcfb7af8fc39f9393f0916b63c5e9cbe3caae8e666a",
+    "sha256": "fd0f8b86053d9aca3d59a5380e68fdc0496d1b2c0035eb208c9096f8896b7c12",
     "item": {
       "id": "c3slaveunit",
       "name": "C3 Computer (Slave)",
@@ -22864,7 +22864,7 @@
       },
       "costCBills": 250000,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 3034,
       "special": []
     }
   },
@@ -22872,7 +22872,7 @@
     "file": "electronics/c3.json",
     "index": 6,
     "id": "c3iunit",
-    "sha256": "70bd05bef82e36f4834b8f6e4ae3fc909ccf5269bed8374572b22ccf6b64d030",
+    "sha256": "cfcd8bb77670661d1443f25369a960d48c51f69b3ff6a803111a91f7a0af6f00",
     "item": {
       "id": "c3iunit",
       "name": "Improved C3 Computer (C3I)",
@@ -22887,7 +22887,7 @@
       },
       "costCBills": 750000,
       "battleValue": 0,
-      "introductionYear": 3058,
+      "introductionYear": 3047,
       "special": [],
       "extinctionYear": 3085
     }
@@ -22919,7 +22919,7 @@
     "file": "electronics/c3.json",
     "index": 8,
     "id": "c3emergencymaster",
-    "sha256": "e184825e6122d8dae3f4a517ab4ec2590004aec98f2390425576e46891513baf",
+    "sha256": "1d8ff162b8c8af5282572bf411f9258a42adabe90027dba607e10a02e1de086e",
     "item": {
       "id": "c3emergencymaster",
       "name": "C3 Emergency Master",
@@ -22934,7 +22934,7 @@
       },
       "costCBills": 2800000,
       "battleValue": 0,
-      "introductionYear": 3099,
+      "introductionYear": 3071,
       "special": []
     }
   },
@@ -22942,7 +22942,7 @@
     "file": "electronics/c3.json",
     "index": 9,
     "id": "battlearmorc3",
-    "sha256": "9c8eeeec63e44485a32270e36a80113ec6803df25ac6443e842fcb11192b4b75",
+    "sha256": "8d1801ff865e90274f1c030120766ceb454bed4c1f8d38d4dd0c9677bcd8247e",
     "item": {
       "id": "battlearmorc3",
       "name": "Battle Armor C3",
@@ -22957,7 +22957,7 @@
       },
       "costCBills": 62500,
       "battleValue": 0,
-      "introductionYear": 3095,
+      "introductionYear": 3073,
       "special": []
     }
   },
@@ -22965,7 +22965,7 @@
     "file": "electronics/c3.json",
     "index": 10,
     "id": "bc3i",
-    "sha256": "0a7b64cfe764e37e3e398b5871c01926e091e8d1594caee8fe89c380b325f496",
+    "sha256": "806a073d16171dd3577e3491edf7cde713c82eee5688aae3e37549f8e14149ae",
     "item": {
       "id": "bc3i",
       "name": "Battle Armor Improved C3",
@@ -22980,7 +22980,7 @@
       },
       "costCBills": 125000,
       "battleValue": 0,
-      "introductionYear": 3095,
+      "introductionYear": 3063,
       "special": []
     }
   },
