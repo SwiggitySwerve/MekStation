@@ -348,7 +348,7 @@ it('combined adoption matches separate native verification with one discovery an
     execute: pass,
     mode: 'use',
     verifyHits: 2,
-    seed: 'local:1',
+    seed: `${process.env.GITHUB_RUN_ID || 'local'}:${process.env.GITHUB_RUN_ATTEMPT || '1'}`,
   });
   const artifactPath = path.join(os.tmpdir(), `${path.basename(root)}.json`);
   roots.push(artifactPath);
