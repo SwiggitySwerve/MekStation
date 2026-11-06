@@ -1,5 +1,8 @@
 import type { CritScan } from '../../../../scripts/validate-bv-crit-scan';
-import type { UnitData } from '../../../../scripts/validate-bv-types';
+import type {
+  UnitData,
+  ValidationResult,
+} from '../../../../scripts/validate-bv-types';
 import type { OffensiveBVConfig } from '../battleValueOffensiveTypes';
 
 import {
@@ -224,19 +227,23 @@ export function buildMechBVOffensiveInputs(
   OffensiveBVConfig,
   'weapons' | 'ammoCapWeapons' | 'hasTargetingComputer'
 > & {
-  ammoCapProjection?: Pick<
-    ReturnType<typeof buildMechBVWeapons>,
-    'ammoCapProjectionWeapons'
+  ammoProjection?: Pick<
+    NonNullable<ValidationResult['breakdown']>,
+    'ammoCapProjectionWeapons' | 'ammoAvailableProjectionBins'
   >;
 } {
   const { weapons, hasTC, ammoCapWeapons, ammoCapProjectionWeapons } =
     buildMechBVWeapons(unit, cs, issues);
+  const ammoProjection = {
+    ...(ammoCapProjectionWeapons && { ammoCapProjectionWeapons }),
+    ...(cs.ammoAvailableProjectionBins && {
+      ammoAvailableProjectionBins: cs.ammoAvailableProjectionBins,
+    }),
+  };
   return {
     weapons,
     ammoCapWeapons,
     hasTargetingComputer: hasTC,
-    ...(ammoCapProjectionWeapons && {
-      ammoCapProjection: { ammoCapProjectionWeapons },
-    }),
+    ...(Object.keys(ammoProjection).length > 0 && { ammoProjection }),
   };
 }

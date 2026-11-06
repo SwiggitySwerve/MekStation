@@ -477,7 +477,7 @@ export function calculateUnitBV(
       halvedWeaponCount: offResult.halvedWeaponCount ?? 0,
       weaponMountBV: offResult.weaponMountBV,
       ammoPools: offResult.ammoPools,
-      ...weaponInputs.ammoCapProjection,
+      ...weaponInputs.ammoProjection,
       // Legacy alias
       defensiveEquipBV: totalDefEquipBV,
     },

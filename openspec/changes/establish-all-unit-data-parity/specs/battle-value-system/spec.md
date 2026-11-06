@@ -1,5 +1,31 @@
 ## ADDED Requirements
 
+### Requirement: Mech physical NARC availability diagnostics
+
+The Mech trace SHALL expose `ammo.available.NARC:1` from actual physical source
+bins recognized by existing public native-bin and ammo-resolution owners.
+Only supported NARC bins with positive shots and a genuinely resolved BV of
+zero SHALL supply optional diagnostic facts. The trace SHALL reuse existing
+public grouping and addition owners, preserving original arithmetic ammo lists,
+pools, quantities, explosivity, modifiers, computed values and existing nonzero
+available entries. Missing facts SHALL remain absent; runtime projection SHALL
+NOT obtain values from references or launcher presence. iNARC and other ammo
+groups SHALL retain their existing behavior.
+
+#### Scenario: Genuine zero differs from an absent bin
+
+- **GIVEN** an installed physical ISNarc Pods bin whose public owners resolve six shots and BV 0
+- **WHEN** Mech diagnostic availability is projected
+- **THEN** `ammo.available.NARC:1` SHALL be present with the actual resolved value 0
+- **AND** the original arithmetic ammo inputs, pools and calculated BV SHALL remain unchanged
+
+#### Scenario: Unavailable or excluded source facts
+
+- **GIVEN** no physical bin, an unresolved token, an empty bin, intrinsic one-shot ammo without a physical source bin, or an iNARC bin
+- **WHEN** NARC diagnostic source facts are collected
+- **THEN** none SHALL invent a NARC available value or an optional source fact
+- **AND** an existing nonzero available value SHALL NOT be overwritten by an added genuine zero-valued bin
+
 ### Requirement: Mech torpedo cap diagnostic identity
 
 The Mech trace SHALL project raw torpedo launcher caps from actual admitted,

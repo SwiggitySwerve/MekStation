@@ -1,0 +1,2476 @@
+{
+  "pins": {
+    "megamek": "48fcb2f64a1b3f2d575707ce5653dad64927b587",
+    "mmData": "50f7efef0c9f775b0258f8283525ed4f906e1985"
+  },
+  "rows": [
+    {
+      "path": "vehicles/3075/Tamerlane Strike Sled (Flamer).blk",
+      "sha256": "5ceb9843137d2eadd33866de3484c8f9f9f4570da60e134a2a088c8d4b7f83d3",
+      "status": "loaded",
+      "concreteFamily": "Tank",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 1,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.0,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestTank",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 48.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 150.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 20.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 20.0
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 20.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 20.0,
+          "calculateWeightExact": 20.0,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightLifting": 2.0,
+          "getTankWeightTurret": 0.5,
+          "getWeight": 20.0,
+          "getWeightAllocatedArmor": 3.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 3.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 1.0,
+          "getWeightEngine": 8.5,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 2.5,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 2.0,
+          "getWeightWeapon": 3.0
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "getArmoredComponentWeight": 0.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 3.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 1.0,
+          "getWeightEngine": 8.5,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 2.5,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 2.0,
+          "getWeightWeapon": 3.0
+        },
+        "weightTotal": 20.0
+      }
+    },
+    {
+      "path": "vehicles/AToW Companion/Hover/Boreas Cavalry Hovercraft Prime.blk",
+      "sha256": "9c7a6cce4ed989563faadd8ce15febbaf7c9d15e30f9e14fec6556f8b8f47d33",
+      "status": "loaded",
+      "concreteFamily": "SupportTank",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 10,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.0,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSupportVehicle",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 4.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 125.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 0.75
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 0.6430000000000001
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 0.643
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 0.643,
+          "calculateWeightExact": 0.6430000000000001,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightTurret": 0.0,
+          "getWeight": 0.75,
+          "getWeightAllocatedArmor": 0.5,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 0.168,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.075,
+          "getWeightEngine": 0.262,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.01,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.075,
+          "getWeightWeapon": 0.024
+        },
+        "weightRemainder": 1.1102230246251565e-16,
+        "weightTerms": {
+          "getArmoredComponentWeight": 0.0,
+          "getFuelTonnage": 0.029,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 0.168,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.075,
+          "getWeightEngine": 0.262,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.01,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.075,
+          "getWeightWeapon": 0.024
+        },
+        "weightTotal": 0.6430000000000001
+      }
+    },
+    {
+      "path": "vehicles/3039u/Ferret Light Scout VTOL.blk",
+      "sha256": "a5d156aca89df05ada21a87392e87a6e0615802644d7b373272a48f7984e01ee",
+      "status": "loaded",
+      "concreteFamily": "VTOL",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 0,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.0,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestTank",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 8.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 150.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 5.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 5.0
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 5.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 5.0,
+          "calculateWeightExact": 5.0,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightLifting": 0.5,
+          "getTankWeightTurret": 0.0,
+          "getWeight": 5.0,
+          "getWeightAllocatedArmor": 0.5,
+          "getWeightAmmo": 0.5,
+          "getWeightArmor": 0.5,
+          "getWeightCarryingSpace": 1.0,
+          "getWeightControls": 0.5,
+          "getWeightEngine": 1.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.5,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.5,
+          "getWeightWeapon": 0.5
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "getArmoredComponentWeight": 0.0,
+          "getWeightAmmo": 0.5,
+          "getWeightArmor": 0.5,
+          "getWeightCarryingSpace": 1.0,
+          "getWeightControls": 0.5,
+          "getWeightEngine": 1.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.5,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.5,
+          "getWeightWeapon": 0.5
+        },
+        "weightTotal": 5.0
+      }
+    },
+    {
+      "path": "vehicles/3025 IS Land/Air Car.blk",
+      "sha256": "78d7878ea0bc0ed301e6506c057c5944d269cbfa1ddde59c0fc81d06653b1bea",
+      "status": "loaded",
+      "concreteFamily": "SupportTank",
+      "construction": {
+        "diagnostics": "Weight: 42.0 is greater than 40.0\nSupport vehicles with  ICE [SV] engine must allocate some weight for fuel.\nMore armor allocated than is available according to armor tonnage.\nAdvanced armor requires the Armored Chassis Mod.\n",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 0,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.0,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": false,
+        "verifierClass": "megamek.common.verifier.TestSupportVehicle",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 32.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 125.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 40.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 42.0
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 42.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 42.0,
+          "calculateWeightExact": 42.0,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightTurret": 0.0,
+          "getWeight": 40.0,
+          "getWeightAllocatedArmor": 2.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 2.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 30.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 10.0,
+          "getWeightWeapon": 0.0
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "getArmoredComponentWeight": 0.0,
+          "getFuelTonnage": 0.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 2.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 30.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 10.0,
+          "getWeightWeapon": 0.0
+        },
+        "weightTotal": 42.0
+      }
+    },
+    {
+      "path": "fighters/Golden Century/Sabre SB-27b-EC.blk",
+      "sha256": "8ff41dfab47cd35fa670f5d4e260bcba81e4d0ba34ee82b413bd84f3324e2f6e",
+      "status": "loaded",
+      "concreteFamily": "AeroSpaceFighter",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 7,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.25,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestAero",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 107.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 600.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 25.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 25.0
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 25.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 25.0,
+          "calculateWeightExact": 25.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 25.0,
+          "getWeightAllocatedArmor": 6.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 6.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 3.0,
+          "getWeightEngine": 5.0,
+          "getWeightFuel": 5.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 0.0,
+          "getWeightStructure": 0.0,
+          "getWeightWeapon": 6.0
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 6.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 3.0,
+          "getWeightEngine": 5.0,
+          "getWeightFuel": 5.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightWeapon": 6.0
+        },
+        "weightTotal": 25.0
+      }
+    },
+    {
+      "path": "vehicles/XTRs/Primitives II/Mosquito Light Fighter.blk",
+      "sha256": "5230da1ee307839748f07f2621056378ac5a5599cd71c98c1573865b1f8f208c",
+      "status": "loaded",
+      "concreteFamily": "FixedWingSupport",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 1,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.0,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSupportVehicle",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 24.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 600.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 20.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 19.9
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 20.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 20.0,
+          "calculateWeightExact": 19.9,
+          "getArmoredComponentWeight": 0.0,
+          "getTankWeightDualTurret": 0.0,
+          "getTankWeightTurret": 0.0,
+          "getWeight": 20.0,
+          "getWeightAllocatedArmor": 1.5,
+          "getWeightAmmo": 2.0,
+          "getWeightArmor": 1.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 8.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.8999999999999999,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 2.0,
+          "getWeightWeapon": 3.0
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "getArmoredComponentWeight": 0.0,
+          "getFuelTonnage": 3.0,
+          "getWeightAmmo": 2.0,
+          "getWeightArmor": 1.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 8.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.8999999999999999,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 2.0,
+          "getWeightWeapon": 3.0
+        },
+        "weightTotal": 19.9
+      }
+    },
+    {
+      "path": "smallcraft/HBHK/Dragonstar Assault Transport (3060).blk",
+      "sha256": "56a4a02297d3275e7a820634d64f320d1eade089a88d3f35f5bfe95ee1118a90",
+      "status": "loaded",
+      "concreteFamily": "SmallCraft",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 1,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.25,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSmallCraft",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 288.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 500.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 150.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 150.0
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 150.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 150.0,
+          "calculateWeightExact": 150.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 150.0,
+          "getWeightAllocatedArmor": 18.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 16.5,
+          "getWeightCarryingSpace": 28.5,
+          "getWeightControls": 1.5,
+          "getWeightEngine": 49.0,
+          "getWeightFuel": 6.5,
+          "getWeightHeatSinks": 12.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 20.0,
+          "getWeightStructure": 2.0,
+          "getWeightWeapon": 14.0
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 16.5,
+          "getWeightCarryingSpace": 28.5,
+          "getWeightControls": 1.5,
+          "getWeightEngine": 49.0,
+          "getWeightFuel": 6.5,
+          "getWeightHeatSinks": 12.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightQuarters": 20.0,
+          "getWeightStructure": 2.0,
+          "getWeightWeapon": 14.0
+        },
+        "weightTotal": 150.0
+      }
+    },
+    {
+      "path": "convfighter/3039u/Boeing Jump Bomber.blk",
+      "sha256": "9b7a098389b7da73c5c9151de8ec4de330debd9ddf6a103c119ae6c35f4823a6",
+      "status": "loaded",
+      "concreteFamily": "ConvFighter",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 0,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.25,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestAero",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 16.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 600.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 20.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 20.0
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 20.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 20.0,
+          "calculateWeightExact": 20.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 20.0,
+          "getWeightAllocatedArmor": 1.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 1.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 2.0,
+          "getWeightEngine": 14.0,
+          "getWeightFuel": 2.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 1.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 0.0,
+          "getWeightStructure": 0.0,
+          "getWeightWeapon": 0.0
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 1.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 2.0,
+          "getWeightEngine": 14.0,
+          "getWeightFuel": 2.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 1.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightWeapon": 0.0
+        },
+        "weightTotal": 20.0
+      }
+    },
+    {
+      "path": "dropships/TRO3057R/IS/Union (2708).blk",
+      "sha256": "4f0f0208ab3353ec2ab00ac822d6831056c86fa9749b9b666ee26203bc93ac81",
+      "status": "loaded",
+      "concreteFamily": "Dropship",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 1,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.25,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestSmallCraft",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 644.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 500.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 3600.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 3600.0
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 3600.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 3600.0,
+          "calculateWeightExact": 3600.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 3600.0,
+          "getWeightAllocatedArmor": 40.5,
+          "getWeightAmmo": 17.0,
+          "getWeightArmor": 37.5,
+          "getWeightCarryingSpace": 2174.5,
+          "getWeightControls": 27.0,
+          "getWeightEngine": 702.0,
+          "getWeightFuel": 219.5,
+          "getWeightHeatSinks": 21.0,
+          "getWeightMisc": 49.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 107.0,
+          "getWeightStructure": 79.5,
+          "getWeightWeapon": 166.0
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "getWeightAmmo": 17.0,
+          "getWeightArmor": 37.5,
+          "getWeightCarryingSpace": 2174.5,
+          "getWeightControls": 27.0,
+          "getWeightEngine": 702.0,
+          "getWeightFuel": 219.5,
+          "getWeightHeatSinks": 21.0,
+          "getWeightMisc": 49.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightQuarters": 107.0,
+          "getWeightStructure": 79.5,
+          "getWeightWeapon": 166.0
+        },
+        "weightTotal": 3600.0
+      }
+    },
+    {
+      "path": "jumpships/3057R/Clan/Comitatus JumpShip (2995).blk",
+      "sha256": "31130a53ba44e855e55726732bd2cdf9d90a7fefa992c25f4d2d0ded437d9597",
+      "status": "loaded",
+      "concreteFamily": "Jumpship",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 2,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.25,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestAdvancedAerospace",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 84.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 700.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 250000.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 249999.5
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 249999.5
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 249999.5,
+          "calculateWeightExact": 249999.5,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 250000.0,
+          "getWeightAllocatedArmor": 5.5,
+          "getWeightAmmo": 64.0,
+          "getWeightArmor": 120.0,
+          "getWeightCarryingSpace": 1787.0,
+          "getWeightControls": 625.0,
+          "getWeightEngine": 3000.0,
+          "getWeightFireControl": 5.5,
+          "getWeightFuel": 470.0,
+          "getWeightGravDecks": 50.0,
+          "getWeightHardpoints": 4000.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightKFDrive": 237500.0,
+          "getWeightLFBattery": 0.0,
+          "getWeightLifeBoats": 28.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 62.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 339.0,
+          "getWeightSail": 64.0,
+          "getWeightStructure": 1667.0,
+          "getWeightWeapon": 218.0
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "getWeightAmmo": 64.0,
+          "getWeightArmor": 120.0,
+          "getWeightCarryingSpace": 1787.0,
+          "getWeightControls": 625.0,
+          "getWeightEngine": 3000.0,
+          "getWeightFireControl": 5.5,
+          "getWeightFuel": 470.0,
+          "getWeightGravDecks": 50.0,
+          "getWeightHardpoints": 4000.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightKFDrive": 237500.0,
+          "getWeightLFBattery": 0.0,
+          "getWeightLifeBoats": 28.0,
+          "getWeightMiscEquip": 62.0,
+          "getWeightQuarters": 339.0,
+          "getWeightSail": 64.0,
+          "getWeightStructure": 1667.0,
+          "getWeightWeapon": 218.0
+        },
+        "weightTotal": 249999.5
+      }
+    },
+    {
+      "path": "spacestation/HB HL/Crucible Station.blk",
+      "sha256": "4bc6f8884bdcf149eb6998a27afc3b277ce62da6fced54e16fc3270a8ae11b09",
+      "status": "loaded",
+      "concreteFamily": "SpaceStation",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 5,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.25,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestAdvancedAerospace",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 60.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 700.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 6000.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 6000.0
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 6000.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 6000.0,
+          "calculateWeightExact": 6000.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 6000.0,
+          "getWeightAllocatedArmor": 4.0,
+          "getWeightAmmo": 12.0,
+          "getWeightArmor": 75.0,
+          "getWeightCarryingSpace": 1799.0,
+          "getWeightControls": 6.0,
+          "getWeightEngine": 72.0,
+          "getWeightFireControl": 0.0,
+          "getWeightFuel": 102.0,
+          "getWeightGravDecks": 1000.0,
+          "getWeightHardpoints": 0.0,
+          "getWeightHeatSinks": 93.0,
+          "getWeightKFDrive": 0.0,
+          "getWeightLFBattery": 0.0,
+          "getWeightLifeBoats": 322.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 2315.0,
+          "getWeightSail": 0.0,
+          "getWeightStructure": 60.0,
+          "getWeightWeapon": 144.0
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "getWeightAmmo": 12.0,
+          "getWeightArmor": 75.0,
+          "getWeightCarryingSpace": 1799.0,
+          "getWeightControls": 6.0,
+          "getWeightEngine": 72.0,
+          "getWeightFireControl": 0.0,
+          "getWeightFuel": 102.0,
+          "getWeightGravDecks": 1000.0,
+          "getWeightHardpoints": 0.0,
+          "getWeightHeatSinks": 93.0,
+          "getWeightKFDrive": 0.0,
+          "getWeightLFBattery": 0.0,
+          "getWeightLifeBoats": 322.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightQuarters": 2315.0,
+          "getWeightSail": 0.0,
+          "getWeightStructure": 60.0,
+          "getWeightWeapon": 144.0
+        },
+        "weightTotal": 6000.0
+      }
+    },
+    {
+      "path": "warship/3057/Clan/Aegis Heavy Cruiser (2843).blk",
+      "sha256": "4aa9c3916a2df9ad7025d1b5fd16e580e578f241cbed55e793f337966f0d2a25",
+      "status": "loaded",
+      "concreteFamily": "Warship",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 6,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.25,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestAdvancedAerospace",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 586.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 700.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 750000.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 750000.0
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 750000.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 750000.0,
+          "calculateWeightExact": 750000.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 750000.0,
+          "getWeightAllocatedArmor": 37.0,
+          "getWeightAmmo": 4676.0,
+          "getWeightArmor": 598.0,
+          "getWeightCarryingSpace": 90559.0,
+          "getWeightControls": 1875.0,
+          "getWeightEngine": 90000.0,
+          "getWeightFireControl": 0.0,
+          "getWeightFuel": 1020.0,
+          "getWeightGravDecks": 100.0,
+          "getWeightHardpoints": 4000.0,
+          "getWeightHeatSinks": 1577.0,
+          "getWeightKFDrive": 339375.0,
+          "getWeightLFBattery": 7500.0,
+          "getWeightLifeBoats": 140.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightQuarters": 2142.0,
+          "getWeightSail": 68.0,
+          "getWeightStructure": 56250.0,
+          "getWeightWeapon": 150120.0
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "getWeightAmmo": 4676.0,
+          "getWeightArmor": 598.0,
+          "getWeightCarryingSpace": 90559.0,
+          "getWeightControls": 1875.0,
+          "getWeightEngine": 90000.0,
+          "getWeightFireControl": 0.0,
+          "getWeightFuel": 1020.0,
+          "getWeightGravDecks": 100.0,
+          "getWeightHardpoints": 4000.0,
+          "getWeightHeatSinks": 1577.0,
+          "getWeightKFDrive": 339375.0,
+          "getWeightLFBattery": 7500.0,
+          "getWeightLifeBoats": 140.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightQuarters": 2142.0,
+          "getWeightSail": 68.0,
+          "getWeightStructure": 56250.0,
+          "getWeightWeapon": 150120.0
+        },
+        "weightTotal": 750000.0
+      }
+    },
+    {
+      "path": "meks/3039u/Atlas AS7-D.mtf",
+      "sha256": "afed270108038d93c33b2537ac1efc6c95c532ab6012eab25e6c3a266c1474cb",
+      "status": "loaded",
+      "concreteFamily": "BipedMek",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 0,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.0,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestMek",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 304.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 78.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 100.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 100.0
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 100.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 100.0,
+          "calculateWeightExact": 100.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 100.0,
+          "getWeightAllocatedArmor": 19.0,
+          "getWeightAmmo": 5.0,
+          "getWeightArmor": 19.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightCockpit": 3.0,
+          "getWeightControls": 6.0,
+          "getWeightEngine": 19.0,
+          "getWeightGyro": 3.0,
+          "getWeightHeatSinks": 10.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 10.0,
+          "getWeightWeapon": 31.0
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "getArmoredComponentWeight": 0.0,
+          "getWeightAmmo": 5.0,
+          "getWeightArmor": 19.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 6.0,
+          "getWeightEngine": 19.0,
+          "getWeightHeatSinks": 10.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 10.0,
+          "getWeightWeapon": 31.0
+        },
+        "weightTotal": 100.0
+      }
+    },
+    {
+      "path": "meks/3039u/Scorpion SCP-1N.mtf",
+      "sha256": "53780b2d4fa31e7f44c23be6476e2d92823f234d6afc68ef7d4600e10314988c",
+      "status": "loaded",
+      "concreteFamily": "QuadMek",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 0,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.0,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestMek",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 112.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 66.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 55.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 55.0
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 55.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 55.0,
+          "calculateWeightExact": 55.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 55.0,
+          "getWeightAllocatedArmor": 7.0,
+          "getWeightAmmo": 1.0,
+          "getWeightArmor": 7.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightCockpit": 3.0,
+          "getWeightControls": 7.0,
+          "getWeightEngine": 24.5,
+          "getWeightGyro": 4.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 5.5,
+          "getWeightWeapon": 10.0
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "getArmoredComponentWeight": 0.0,
+          "getWeightAmmo": 1.0,
+          "getWeightArmor": 7.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 7.0,
+          "getWeightEngine": 24.5,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 5.5,
+          "getWeightWeapon": 10.0
+        },
+        "weightTotal": 55.0
+      }
+    },
+    {
+      "path": "meks/3145/Republic/Ares ARS-V1 Zeus.mtf",
+      "sha256": "9efe9ccd8726c04344ed162badbe7d9fb4e53c1d5e8237aec0c38af66db5a0c3",
+      "status": "loaded",
+      "concreteFamily": "TripodMek",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 5,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.0,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestMek",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 456.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 84.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 135.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 135.0
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 135.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 135.0,
+          "calculateWeightExact": 135.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 135.0,
+          "getWeightAllocatedArmor": 28.5,
+          "getWeightAmmo": 6.0,
+          "getWeightArmor": 28.5,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightCockpit": 5.0,
+          "getWeightControls": 11.0,
+          "getWeightEngine": 14.5,
+          "getWeightGyro": 6.0,
+          "getWeightHeatSinks": 11.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 10.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 22.5,
+          "getWeightWeapon": 31.5
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "getArmoredComponentWeight": 0.0,
+          "getWeightAmmo": 6.0,
+          "getWeightArmor": 28.5,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 11.0,
+          "getWeightEngine": 14.5,
+          "getWeightHeatSinks": 11.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 10.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 22.5,
+          "getWeightWeapon": 31.5
+        },
+        "weightTotal": 135.0
+      }
+    },
+    {
+      "path": "battlearmor/3058Uu/Achileus BA (Sqd 4) [David].blk",
+      "sha256": "15c04915ccd68cf444a4b01a9b46b3889be1743a64aacd8226ade7d91b09c85f",
+      "status": "loaded",
+      "concreteFamily": "BattleArmor",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 1,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.25,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestBattleArmor",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 24.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 28.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 3.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 2.56
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 2.56
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 2.56,
+          "calculateWeightExact": 2.56,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 3.0,
+          "getWeightAllocatedArmor": 1.5,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 0.36,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightChassis": 0.1,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 0.0,
+          "getWeightGroundMP": 0.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.005,
+          "getWeightPowerAmp": 0.0,
+          "getWeightSecondaryMotiveSystem": 0.07500000000000001,
+          "getWeightStructure": 0.17500000000000002,
+          "getWeightTurret": 0.0,
+          "getWeightWeapon": 0.10400000000000001
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "trooper.0.getWeightAmmo": 0.0,
+          "trooper.0.getWeightArmor": 0.36,
+          "trooper.0.getWeightMisc": 0.0,
+          "trooper.0.getWeightMiscEquip": 0.005,
+          "trooper.0.getWeightStructure": 0.17500000000000002,
+          "trooper.0.getWeightWeapon": 0.1,
+          "trooper.0.rounding": 0.0,
+          "trooper.1.getWeightAmmo": 0.0,
+          "trooper.1.getWeightArmor": 0.36,
+          "trooper.1.getWeightMisc": 0.0,
+          "trooper.1.getWeightMiscEquip": 0.005,
+          "trooper.1.getWeightStructure": 0.17500000000000002,
+          "trooper.1.getWeightWeapon": 0.1,
+          "trooper.1.rounding": 0.0,
+          "trooper.2.getWeightAmmo": 0.0,
+          "trooper.2.getWeightArmor": 0.36,
+          "trooper.2.getWeightMisc": 0.0,
+          "trooper.2.getWeightMiscEquip": 0.005,
+          "trooper.2.getWeightStructure": 0.17500000000000002,
+          "trooper.2.getWeightWeapon": 0.1,
+          "trooper.2.rounding": 0.0,
+          "trooper.3.getWeightAmmo": 0.0,
+          "trooper.3.getWeightArmor": 0.36,
+          "trooper.3.getWeightMisc": 0.0,
+          "trooper.3.getWeightMiscEquip": 0.005,
+          "trooper.3.getWeightStructure": 0.17500000000000002,
+          "trooper.3.getWeightWeapon": 0.1,
+          "trooper.3.rounding": 0.0
+        },
+        "weightTotal": 2.56
+      }
+    },
+    {
+      "path": "battlearmor/3145/Clans/Black Wolf BA (ER Pulse) (Sqd4).blk",
+      "sha256": "bdfb38dbfe6133d1eed740c9264805a102c09933a8051fa9634e37a3f321b716",
+      "status": "loaded",
+      "concreteFamily": "BattleArmor",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 6,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.25,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestBattleArmor",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 44.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 28.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 6.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 5.92
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 5.92
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 5.92,
+          "calculateWeightExact": 5.92,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 6.0,
+          "getWeightAllocatedArmor": 3.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 0.385,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightChassis": 0.4,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 0.0,
+          "getWeightGroundMP": 0.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.02,
+          "getWeightPowerAmp": 0.0,
+          "getWeightSecondaryMotiveSystem": 0.125,
+          "getWeightStructure": 0.525,
+          "getWeightTurret": 0.0,
+          "getWeightWeapon": 0.55
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "trooper.0.getWeightAmmo": 0.0,
+          "trooper.0.getWeightArmor": 0.385,
+          "trooper.0.getWeightMisc": 0.0,
+          "trooper.0.getWeightMiscEquip": 0.02,
+          "trooper.0.getWeightStructure": 0.525,
+          "trooper.0.getWeightWeapon": 0.55,
+          "trooper.0.rounding": 0.0,
+          "trooper.1.getWeightAmmo": 0.0,
+          "trooper.1.getWeightArmor": 0.385,
+          "trooper.1.getWeightMisc": 0.0,
+          "trooper.1.getWeightMiscEquip": 0.02,
+          "trooper.1.getWeightStructure": 0.525,
+          "trooper.1.getWeightWeapon": 0.55,
+          "trooper.1.rounding": 0.0,
+          "trooper.2.getWeightAmmo": 0.0,
+          "trooper.2.getWeightArmor": 0.385,
+          "trooper.2.getWeightMisc": 0.0,
+          "trooper.2.getWeightMiscEquip": 0.02,
+          "trooper.2.getWeightStructure": 0.525,
+          "trooper.2.getWeightWeapon": 0.55,
+          "trooper.2.rounding": 0.0,
+          "trooper.3.getWeightAmmo": 0.0,
+          "trooper.3.getWeightArmor": 0.385,
+          "trooper.3.getWeightMisc": 0.0,
+          "trooper.3.getWeightMiscEquip": 0.02,
+          "trooper.3.getWeightStructure": 0.525,
+          "trooper.3.getWeightWeapon": 0.55,
+          "trooper.3.rounding": 0.0
+        },
+        "weightTotal": 5.92
+      }
+    },
+    {
+      "path": "battlearmor/XTRs/Steiner/Gray Death SA Prototype (Sqd6).blk",
+      "sha256": "7b80e77953a3f479517402090eef49b43373e3cdde830e05666959a6829903fd",
+      "status": "loaded",
+      "concreteFamily": "BattleArmor",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 5,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.25,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestBattleArmor",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 54.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 32.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 6.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 5.91
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 5.91
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 5.91,
+          "calculateWeightExact": 5.91,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 6.0,
+          "getWeightAllocatedArmor": 3.5,
+          "getWeightAmmo": 1.0,
+          "getWeightArmor": 0.45,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightChassis": 0.175,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 0.0,
+          "getWeightGroundMP": 0.08,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.034999999999999996,
+          "getWeightPowerAmp": 0.0,
+          "getWeightSecondaryMotiveSystem": 0.0,
+          "getWeightStructure": 0.255,
+          "getWeightTurret": 0.0,
+          "getWeightWeapon": 0.159
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "trooper.0.getWeightAmmo": 0.09,
+          "trooper.0.getWeightArmor": 0.45,
+          "trooper.0.getWeightMisc": 0.0,
+          "trooper.0.getWeightMiscEquip": 0.034999999999999996,
+          "trooper.0.getWeightStructure": 0.255,
+          "trooper.0.getWeightWeapon": 0.155,
+          "trooper.0.rounding": 0.0,
+          "trooper.1.getWeightAmmo": 0.09,
+          "trooper.1.getWeightArmor": 0.45,
+          "trooper.1.getWeightMisc": 0.0,
+          "trooper.1.getWeightMiscEquip": 0.034999999999999996,
+          "trooper.1.getWeightStructure": 0.255,
+          "trooper.1.getWeightWeapon": 0.155,
+          "trooper.1.rounding": 0.0,
+          "trooper.2.getWeightAmmo": 0.09,
+          "trooper.2.getWeightArmor": 0.45,
+          "trooper.2.getWeightMisc": 0.0,
+          "trooper.2.getWeightMiscEquip": 0.034999999999999996,
+          "trooper.2.getWeightStructure": 0.255,
+          "trooper.2.getWeightWeapon": 0.155,
+          "trooper.2.rounding": 0.0,
+          "trooper.3.getWeightAmmo": 0.09,
+          "trooper.3.getWeightArmor": 0.45,
+          "trooper.3.getWeightMisc": 0.0,
+          "trooper.3.getWeightMiscEquip": 0.034999999999999996,
+          "trooper.3.getWeightStructure": 0.255,
+          "trooper.3.getWeightWeapon": 0.155,
+          "trooper.3.rounding": 0.0,
+          "trooper.4.getWeightAmmo": 0.09,
+          "trooper.4.getWeightArmor": 0.45,
+          "trooper.4.getWeightMisc": 0.0,
+          "trooper.4.getWeightMiscEquip": 0.034999999999999996,
+          "trooper.4.getWeightStructure": 0.255,
+          "trooper.4.getWeightWeapon": 0.155,
+          "trooper.4.rounding": 0.0,
+          "trooper.5.getWeightAmmo": 0.09,
+          "trooper.5.getWeightArmor": 0.45,
+          "trooper.5.getWeightMisc": 0.0,
+          "trooper.5.getWeightMiscEquip": 0.034999999999999996,
+          "trooper.5.getWeightStructure": 0.255,
+          "trooper.5.getWeightWeapon": 0.155,
+          "trooper.5.rounding": 0.0
+        },
+        "weightTotal": 5.91
+      }
+    },
+    {
+      "path": "infantry/3085/Clan/Clan Anti-Infantry Clan Jade Falcon Police.blk",
+      "sha256": "abf0436a98f9e81a2f9db2004bfcc4cfbe0a4b6f447b5ab1fd76ca19831573f5",
+      "status": "loaded",
+      "concreteFamily": "ConvInfantry",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": false,
+          "relativeTolerance": 1e-12,
+          "status": "unsupported"
+        },
+        "settings": {
+          "ammoTechLevel": 6,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.25,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestInfantry",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 0.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 40.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 20.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 20.0
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 20.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 20.0,
+          "calculateWeightExact": 20.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 20.0,
+          "getWeightAllocatedArmor": 0.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 0.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 0.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.0,
+          "getWeightWeapon": 0.0015
+        },
+        "weightTermsStatus": {
+          "reason": "java.lang.UnsupportedOperationException: Native static TestInfantry.getWeightExact has no additive getter seam; detailed probe pending",
+          "status": "unsupported"
+        },
+        "weightTotal": 20.0
+      }
+    },
+    {
+      "path": "infantry/Clan/Clan Mechanized Hover Point (Laser Basic).blk",
+      "sha256": "cef67d6421841bcba57d4ee056a0537e16fd076505d3a054c8b99798deb62233",
+      "status": "loaded",
+      "concreteFamily": "ConvInfantry",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": false,
+          "relativeTolerance": 1e-12,
+          "status": "unsupported"
+        },
+        "settings": {
+          "ammoTechLevel": 1,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.25,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestInfantry",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 0.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 40.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 20.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 20.0
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 20.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 20.0,
+          "calculateWeightExact": 20.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 20.0,
+          "getWeightAllocatedArmor": 0.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 0.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 0.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.0,
+          "getWeightWeapon": 0.005
+        },
+        "weightTermsStatus": {
+          "reason": "java.lang.UnsupportedOperationException: Native static TestInfantry.getWeightExact has no additive getter seam; detailed probe pending",
+          "status": "unsupported"
+        },
+        "weightTotal": 20.0
+      }
+    },
+    {
+      "path": "infantry/Taurian Infantry/Motorized Platoon TC 3047+ (SRM).blk",
+      "sha256": "ef785f60125914798c4e737a129aa5cc64c4bf76d1dd5cb1ff96acbebb09d244",
+      "status": "loaded",
+      "concreteFamily": "ConvInfantry",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": false,
+          "relativeTolerance": 1e-12,
+          "status": "unsupported"
+        },
+        "settings": {
+          "ammoTechLevel": 5,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.25,
+          "getMinUnderweight": 1.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "HALF_TON",
+          "getWeightCeilingControls": "HALF_TON",
+          "getWeightCeilingEngine": "HALF_TON",
+          "getWeightCeilingGyro": "HALF_TON",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "HALF_TON",
+          "getWeightCeilingTargComp": "TON",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "TON",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestInfantry",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 0.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 40.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 6.5
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 6.300000000000001
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 6.5
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 6.5,
+          "calculateWeightExact": 6.300000000000001,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 6.5,
+          "getWeightAllocatedArmor": 0.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 0.0,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.0,
+          "getWeightEngine": 0.0,
+          "getWeightHeatSinks": 0.0,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.015,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.0,
+          "getWeightWeapon": 0.02
+        },
+        "weightTermsStatus": {
+          "reason": "java.lang.UnsupportedOperationException: Native static TestInfantry.getWeightExact has no additive getter seam; detailed probe pending",
+          "status": "unsupported"
+        },
+        "weightTotal": 6.300000000000001
+      }
+    },
+    {
+      "path": "protomeks/3060/Centaur 2.blk",
+      "sha256": "2084acd9f401295367487f2b3c55521ac793081132beb833fc4ad28ca0acc1f1",
+      "status": "loaded",
+      "concreteFamily": "ProtoMek",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 2,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.0,
+          "getMinUnderweight": 0.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "KILO",
+          "getWeightCeilingControls": "KILO",
+          "getWeightCeilingEngine": "KILO",
+          "getWeightCeilingGyro": "KILO",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "KILO",
+          "getWeightCeilingTargComp": "KILO",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "KILO",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestProtoMek",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 21.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 13.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 5.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 5.0
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 5.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 5.0,
+          "calculateWeightExact": 5.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 5.0,
+          "getWeightAllocatedArmor": 1.05,
+          "getWeightAmmo": 0.2,
+          "getWeightArmor": 1.05,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.5,
+          "getWeightEngine": 1.0,
+          "getWeightHeatSinks": 0.75,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.5,
+          "getWeightWeapon": 1.0
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "getArmoredComponentWeight": 0.0,
+          "getWeightAmmo": 0.2,
+          "getWeightArmor": 1.05,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.5,
+          "getWeightEngine": 1.0,
+          "getWeightHeatSinks": 0.75,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.5,
+          "getWeightWeapon": 1.0
+        },
+        "weightTotal": 5.0
+      }
+    },
+    {
+      "path": "protomeks/3075/Delphyne 3.blk",
+      "sha256": "039dcf6184b0fe0333d07d471f3b7821820fb516cfc0dae02400ecbeb4c94f8b",
+      "status": "loaded",
+      "concreteFamily": "ProtoMek",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 2,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.0,
+          "getMinUnderweight": 0.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "KILO",
+          "getWeightCeilingControls": "KILO",
+          "getWeightCeilingEngine": "KILO",
+          "getWeightCeilingGyro": "KILO",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "KILO",
+          "getWeightCeilingTargComp": "KILO",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "KILO",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestProtoMek",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 42.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 13.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 9.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 9.0
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 9.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 9.0,
+          "calculateWeightExact": 9.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 9.0,
+          "getWeightAllocatedArmor": 2.1,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 2.1,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.5,
+          "getWeightEngine": 2.0,
+          "getWeightHeatSinks": 1.5,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.5,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.9,
+          "getWeightWeapon": 1.5
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "getArmoredComponentWeight": 0.0,
+          "getWeightAmmo": 0.0,
+          "getWeightArmor": 2.1,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.5,
+          "getWeightEngine": 2.0,
+          "getWeightHeatSinks": 1.5,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.5,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.9,
+          "getWeightWeapon": 1.5
+        },
+        "weightTotal": 9.0
+      }
+    },
+    {
+      "path": "protomeks/XTR Clans/Minotaur-XP.blk",
+      "sha256": "25e1229a9802ea0e551044e7b6b233a2acb89212575ac0f6b34725e9390e3f6c",
+      "status": "loaded",
+      "concreteFamily": "ProtoMek",
+      "construction": {
+        "diagnostics": "",
+        "reconstruction": {
+          "absoluteTolerance": 1e-9,
+          "ok": true,
+          "relativeTolerance": 1e-12
+        },
+        "settings": {
+          "ammoTechLevel": 8,
+          "gameYear": -1,
+          "getIntroYearMargin": 5,
+          "getMaxOverweight": 0.0,
+          "getMinUnderweight": 0.0,
+          "getPrintSize": 70,
+          "getTargetingComputerCrits": 0,
+          "getWeightCeilingArmor": "KILO",
+          "getWeightCeilingControls": "KILO",
+          "getWeightCeilingEngine": "KILO",
+          "getWeightCeilingGyro": "KILO",
+          "getWeightCeilingLifting": "HALF_TON",
+          "getWeightCeilingPowerAmp": "HALF_TON",
+          "getWeightCeilingStructure": "KILO",
+          "getWeightCeilingTargComp": "KILO",
+          "getWeightCeilingTurret": "HALF_TON",
+          "getWeightCeilingWeapons": "KILO",
+          "showCorrectArmor": true,
+          "showCorrectCritical": true,
+          "showFailedEquip": true,
+          "showIncorrectIntroYear": true,
+          "showOverweightedEntity": true,
+          "showUnderweightEntity": false,
+          "skip": false
+        },
+        "valid": true,
+        "verifierClass": "megamek.common.verifier.TestProtoMek",
+        "verifierQuantities": {
+          "armorPoints": {
+            "unit": "points",
+            "value": 45.0
+          },
+          "criticalSlots": {
+            "unit": "slots",
+            "value": 13.0
+          },
+          "weightDesign": {
+            "unit": "t",
+            "value": 9.0
+          },
+          "weightExact": {
+            "unit": "t",
+            "value": 9.0
+          },
+          "weightRounded": {
+            "unit": "t",
+            "value": 9.0
+          }
+        },
+        "weightMethods": {
+          "calculateWeight": 9.0,
+          "calculateWeightExact": 9.0,
+          "getArmoredComponentWeight": 0.0,
+          "getWeight": 9.0,
+          "getWeightAllocatedArmor": 2.25,
+          "getWeightAmmo": 0.6,
+          "getWeightArmor": 2.25,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.5,
+          "getWeightEngine": 1.0,
+          "getWeightHeatSinks": 1.5,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.9,
+          "getWeightWeapon": 2.25
+        },
+        "weightRemainder": 0.0,
+        "weightTerms": {
+          "getArmoredComponentWeight": 0.0,
+          "getWeightAmmo": 0.6,
+          "getWeightArmor": 2.25,
+          "getWeightCarryingSpace": 0.0,
+          "getWeightControls": 0.5,
+          "getWeightEngine": 1.0,
+          "getWeightHeatSinks": 1.5,
+          "getWeightMisc": 0.0,
+          "getWeightMiscEquip": 0.0,
+          "getWeightPowerAmp": 0.0,
+          "getWeightStructure": 0.9,
+          "getWeightWeapon": 2.25
+        },
+        "weightTotal": 9.0
+      }
+    }
+  ]
+}

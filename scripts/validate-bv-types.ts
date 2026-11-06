@@ -1,5 +1,6 @@
 import type { ISerializedUnit } from '../src/types/unit/UnitSerialization';
 import type { AmmoBVPools } from '../src/utils/construction/battleValueOffensiveTypes';
+import type { CritScan } from './validate-bv-crit-scan-types';
 
 interface ArmorAllocation {
   [location: string]: number | { front: number; rear: number };
@@ -87,6 +88,8 @@ export interface ValidationResult {
     ammoPools?: AmmoBVPools;
     /** Optional source-identity facts for torpedo diagnostics, never cap arithmetic. */
     ammoCapProjectionWeapons?: { id: string; bv: number }[];
+    /** Optional physical-bin trace facts; never supplied to ammo arithmetic. */
+    ammoAvailableProjectionBins?: CritScan['ammoAvailableProjectionBins'];
     // Legacy aliases
     defensiveEquipBV: number;
   };
