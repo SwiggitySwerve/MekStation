@@ -50,6 +50,7 @@ import {
 import {
   vehicleArmorIntroYearErrors,
   vehicleEngineIntroYearErrors,
+  vehicleEquipmentIntroYearErrors,
 } from '@/utils/construction/vehicle/introYear';
 import { validateCombatVehicleEquipment } from '@/utils/construction/vehicle/vehicleValidation';
 
@@ -257,6 +258,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
 
     return {
       unitType: UnitType.VEHICLE,
+      originalBuildYear: document.originalBuildYear,
       ...turretSource.facts,
       motionType: motionType || GroundMotionType.TRACKED,
       movement,
@@ -441,6 +443,7 @@ export class VehicleUnitHandler extends AbstractUnitTypeHandler<IVehicle> {
     }
 
     errors.push(
+      ...vehicleEquipmentIntroYearErrors(unit),
       ...vehicleArmorIntroYearErrors({
         year: unit.metadata.year,
         armorCode: unit.armorType,
