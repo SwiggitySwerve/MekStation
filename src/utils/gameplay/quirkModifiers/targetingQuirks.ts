@@ -121,7 +121,7 @@ export function isLowProfileGlancingBlow(
   attackRoll: number,
   toHitNumber: number,
 ): boolean {
-  if (!targetQuirks?.includes(UNIT_QUIRK_IDS.LOW_PROFILE)) return false;
+  if (!hasQuirk(targetQuirks ?? [], UNIT_QUIRK_IDS.LOW_PROFILE)) return false;
   if (!Number.isFinite(attackRoll) || !Number.isFinite(toHitNumber)) {
     return false;
   }
