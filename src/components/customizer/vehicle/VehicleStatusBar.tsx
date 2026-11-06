@@ -223,6 +223,7 @@ function validateStatusBarState(
     | 'tonnage'
     | 'motionType'
     | 'engineType'
+    | 'engineTechRating'
     | 'cruiseMP'
     | 'turret'
     | 'secondaryTurret'
@@ -243,6 +244,7 @@ function validateStatusBarState(
     tonnage: state.tonnage,
     motionType: state.motionType,
     engineType: state.engineType,
+    engineTechRating: state.engineTechRating,
     cruiseMP: state.cruiseMP,
     turretType: state.turret?.type ?? TurretType.NONE,
     secondaryTurretType: state.secondaryTurret?.type ?? TurretType.NONE,
@@ -446,6 +448,7 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
           tonnage,
           motionType,
           engineType,
+          engineTechRating,
           cruiseMP,
           turret,
           secondaryTurret,
@@ -476,6 +479,7 @@ function useVehicleStatusViewState(storeState: VehicleStatusStoreState) {
       crewSize,
       structureType,
       weightBreakdown,
+      engineTechRating,
     ],
   );
 

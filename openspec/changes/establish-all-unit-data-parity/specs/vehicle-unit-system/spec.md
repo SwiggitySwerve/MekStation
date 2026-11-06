@@ -44,6 +44,20 @@ The system SHALL manage engine configuration and derive movement points.
 Multiplier source: MegaMek revision `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
 [`Engine.java:409-438`](https://github.com/MegaMek/megamek/blob/48fcb2f64a1b3f2d575707ce5653dad64927b587/megamek/src/megamek/common/equipment/Engine.java#L409).
 
+#### Scenario: Support engine validation uses support construction
+
+- **GIVEN** a support vehicle with its current tonnage, motion, cruise MP, engine type and engine technology rating
+- **WHEN** construction validation computes its engine quantities, including through the status bar
+- **THEN** it SHALL use the existing support effective-rating and installed-mass owners
+- **AND** its effective rating SHALL retain fractional tonnage and the support cap of 500 without a combat suspension deduction
+- **AND** the combat 400-rating validation error SHALL NOT apply to a support engine
+- **AND** a 20-ton tracked fusion support vehicle at cruise MP 1 SHALL report 5 tons at technology C and 1.5 tons at technology D
+- **AND** combat engine validation and the separate support structure, controls, heat and complete-weight contracts SHALL retain their existing behavior
+
+Source: MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,
+`Engine.java:396-404,453-474,601-603`. These are engine quantities, not a
+claim of complete support construction validity.
+
 ### Requirement: BLK Format Parsing — Combat Vehicles
 
 The `VehicleUnitHandler` SHALL parse combat vehicle BLK documents.
