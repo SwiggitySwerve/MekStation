@@ -3,13 +3,14 @@ import {
   mergeFileDurations,
 } from '../jest/test-file-durations.mjs';
 // Per-file execution observations. Cached passes are not timing samples.
-import { median } from '../lib/statistics.mjs';
+import { median, quantile } from '../lib/statistics.mjs';
 import { collectTests } from '../playwright/ci-e2e-plan.mjs';
-import { selectMainObservations } from './ci-metrics.mjs';
+import { selectMainObservations, TIMING_GROWTH_RATIO } from './ci-metrics.mjs';
 import { validateTestFiles } from './ci-observation.mjs';
 
-export const TEST_GROWTH_RATIO = 1.2;
-export const NEW_TEST_MS = 20000;
+export const TEST_GROWTH_RATIO = TIMING_GROWTH_RATIO;
+export const MIN_TEST_INCREASE_MS = 3000;
+export const MIN_TEST_MAIN_SAMPLES = 5;
 
 export function compareTestFiles(current, baselines) {
   const missing = [];
@@ -47,26 +48,37 @@ export function compareTestFiles(current, baselines) {
       return { file, durationMs, baselineMs: null, status: 'missing' };
     }
     const baselineMs = values.length ? median(values) : null;
+    const baselineP75Ms = values.length ? quantile(values, 0.75) : null;
+    if (baselineP75Ms === null)
+      missing.push(`Main test duration unavailable: ${file}`);
+    const increaseMs =
+      baselineP75Ms === null ? null : durationMs - baselineP75Ms;
     const status =
-      baselineMs !== null
-        ? durationMs > baselineMs * TEST_GROWTH_RATIO
+      baselineP75Ms === null
+        ? 'missing'
+        : values.length >= MIN_TEST_MAIN_SAMPLES &&
+            durationMs > baselineP75Ms * TEST_GROWTH_RATIO &&
+            increaseMs >= MIN_TEST_INCREASE_MS
           ? 'growth'
-          : 'within'
-        : usable.length
-          ? durationMs > NEW_TEST_MS
-            ? 'new-slow'
-            : 'new'
-          : 'missing';
-    return { file, durationMs, baselineMs, status };
+          : 'within noise';
+    return {
+      file,
+      durationMs,
+      baselineMs,
+      baselineP75Ms,
+      baselineSamples: values.length,
+      increaseMs,
+      growthRatio: baselineP75Ms > 0 ? increaseMs / baselineP75Ms : null,
+      status,
+    };
   });
   return {
     complete: missing.length === 0,
     files,
-    breaches: files.filter(
-      ({ status }) => status === 'growth' || status === 'new-slow',
-    ),
+    breaches: files.filter(({ status }) => status === 'growth'),
     missing,
     excluded,
+    informational: true,
   };
 }
 

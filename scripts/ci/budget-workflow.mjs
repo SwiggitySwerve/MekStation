@@ -3,6 +3,7 @@ import path from 'node:path';
 import picomatch from 'picomatch';
 import { parseDocument } from 'yaml';
 
+import { reportingLimits } from './budget-config.mjs';
 import { decide } from './ci-changes.mjs';
 
 function parseWorkflowSource(text) {
@@ -187,7 +188,7 @@ export function projectTimingLimits(config, workflow) {
     for (const name of expandedJobNames(id, job))
       jobsMs[name] = minutes * 60000;
   }
-  return { jobsMs };
+  return { jobsMs, ...reportingLimits(config) };
 }
 
 export function jobGate(job) {
