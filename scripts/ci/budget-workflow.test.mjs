@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { test } from 'node:test';
 
 import { assertJobResults } from './budget-aggregate.mjs';
@@ -15,6 +18,8 @@ import {
   inducedWorkflowCensus,
   readWorkflow,
   workflowMetrics,
+  workflowGraphContract,
+  projectTimingLimits,
 } from './budget-workflow.mjs';
 
 const root = process.cwd(),
@@ -26,6 +31,35 @@ const repository = () => ({
   workflow: workflowMetrics(root, config),
   dependencies: structuredClone(config.dependencies),
   cache: { files: ['one.test.ts'], unkeyable: [], repoWide: [] },
+});
+
+test('short-form unknown triggers cannot hide additional workflow jobs', () => {
+  const fixture = fs.mkdtempSync(path.join(os.tmpdir(), 'budget-workflow-'));
+  try {
+    fs.mkdirSync(path.join(fixture, '.github/workflows'), { recursive: true });
+    fs.writeFileSync(
+      path.join(fixture, '.github/workflows/hidden.yml'),
+      'name: Hidden\non: [pull_request]\njobs:\n  hidden:\n    runs-on: ubuntu-latest\n    steps: [{run: true}]\n',
+    );
+    assert.throws(
+      () => inducedWorkflowCensus(fixture, ['src/a.ts']),
+      /Unknown workflow shape/,
+    );
+  } finally {
+    fs.rmSync(fixture, { recursive: true, force: true });
+  }
+});
+
+test('matrix template metadata and soft timing projection share expanded names', () => {
+  const graph = workflowGraphContract(workflow);
+  assert.deepEqual(graph.matrixGroups['Build Test / ${{ matrix.platform }}'], [
+    'Build Test / win',
+    'Build Test / mac',
+  ]);
+  assert.equal(
+    projectTimingLimits(config, workflow).jobsMs['E2E (1/2)'],
+    config.timeouts.e2e.minutes * 60000,
+  );
 });
 
 test('expanded count includes matrix legs, detector, aggregator and induced trusted guard', () => {

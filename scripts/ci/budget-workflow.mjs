@@ -29,7 +29,13 @@ function readAllWorkflows(root) {
       );
       if (document.errors.length) throw document.errors[0];
       const value = document.toJS();
-      if (typeof value.name !== 'string' || !value.on || !value.jobs)
+      if (
+        typeof value.name !== 'string' ||
+        !value.on ||
+        typeof value.on !== 'object' ||
+        Array.isArray(value.on) ||
+        !value.jobs
+      )
         throw new Error(`Unknown workflow shape: ${file}`);
       return { file, ...value };
     });
@@ -112,22 +118,26 @@ export function inducedWorkflowCensus(root, paths) {
   };
 }
 
+function expandedJobNames(id, job) {
+  return expandJob(id, job).map((entry) => {
+    const name = (job.name ?? id).replace(
+      /\$\{\{\s*matrix\.(\w+)\s*\}\}/g,
+      (_, key) => {
+        if (!(key in entry.matrix))
+          throw new Error(`Missing matrix name ${key}`);
+        return String(entry.matrix[key]);
+      },
+    );
+    if (name.includes('${{')) throw new Error(`Dynamic job name: ${name}`);
+    return name;
+  });
+}
+
 export function expandedJobGraph(workflow) {
   const names = Object.fromEntries(
     Object.entries(workflow.jobs).map(([id, job]) => [
       id,
-      expandJob(id, job).map((entry) => {
-        const name = (job.name ?? id).replace(
-          /\$\{\{\s*matrix\.(\w+)\s*\}\}/g,
-          (_, key) => {
-            if (!(key in entry.matrix))
-              throw new Error(`Missing matrix name ${key}`);
-            return String(entry.matrix[key]);
-          },
-        );
-        if (name.includes('${{')) throw new Error(`Dynamic job name: ${name}`);
-        return name;
-      }),
+      expandedJobNames(id, job),
     ]),
   );
   const graph = {};
@@ -155,13 +165,22 @@ export function workflowGraphContract(workflow) {
   for (const [id, job] of Object.entries(workflow.jobs)) {
     if (!job.strategy) continue;
     const template = job.name ?? id;
-    matrixGroups[template] = expandJob(id, job).map((entry) =>
-      template.replace(/\$\{\{\s*matrix\.(\w+)\s*\}\}/g, (_, key) =>
-        String(entry.matrix[key]),
-      ),
-    );
+    matrixGroups[template] = expandedJobNames(id, job);
   }
   return { schema: 'mekstation/ci-workflow-graph/v1', jobGraph, matrixGroups };
+}
+
+/** G2 consumes this optional soft projection; unknown aggregate limits stay absent. */
+export function projectTimingLimits(config, workflow) {
+  const jobsMs = {};
+  for (const [id, job] of Object.entries(workflow.jobs)) {
+    const minutes = config.timeouts[id]?.minutes;
+    if (!Number.isSafeInteger(minutes) || minutes <= 0)
+      throw new Error(`Missing timing budget: ${id}`);
+    for (const name of expandedJobNames(id, job))
+      jobsMs[name] = minutes * 60000;
+  }
+  return { jobsMs };
 }
 
 export function jobGate(job) {
