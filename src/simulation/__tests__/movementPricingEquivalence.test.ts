@@ -3,10 +3,22 @@ import type { IMovementCostContext } from '@/utils/gameplay/movement';
 
 import { Facing, MovementType } from '@/types/gameplay';
 import { createEnvironmentalConditions } from '@/utils/gameplay/environmentalModifiers';
+import * as movementPricing from '@/utils/gameplay/movement';
 
 import { getValidMoveCandidates } from '../ai/MoveAI.movement';
 import { createMinimalGrid } from '../runner/SimulationRunnerSupport';
 import { referenceMoveCandidates } from './movementPricingReference.test-helpers';
+
+jest.mock('@/utils/gameplay/movement', () => {
+  const actual = jest.requireActual<typeof import('@/utils/gameplay/movement')>(
+    '@/utils/gameplay/movement',
+  );
+  return {
+    ...actual,
+    calculateGroundPathMpCost: jest.fn(actual.calculateGroundPathMpCost),
+    prepareGroundPathMpCost: jest.fn(actual.prepareGroundPathMpCost),
+  };
+});
 
 const FACINGS = [0, 1, 2, 3, 4, 5] as const satisfies readonly Facing[];
 const MODES = [MovementType.Walk, MovementType.Run, MovementType.Jump];
@@ -137,4 +149,37 @@ describe('ordered movement candidates equal the pre-optimization implementation'
       }
     },
   );
+
+  it('prices each adjacent ground destination once while retaining all facing candidates', () => {
+    const prepared = jest
+      .mocked(movementPricing.prepareGroundPathMpCost)
+      .mockClear();
+    const single = jest
+      .mocked(movementPricing.calculateGroundPathMpCost)
+      .mockClear();
+    const grid = createMinimalGrid(1);
+    const position = {
+      unitId: 'moving-unit',
+      coord: { q: 0, r: 0 },
+      facing: Facing.North,
+      prone: false,
+    };
+    const capability = { walkMP: 4, runMP: 6, jumpMP: 4 };
+    expect(
+      getValidMoveCandidates(grid, position, MovementType.Walk, capability),
+    ).toStrictEqual(
+      referenceMoveCandidates(grid, position, MovementType.Walk, capability),
+    );
+    expect(prepared).toHaveBeenCalledTimes(6);
+    expect(single).not.toHaveBeenCalled();
+
+    prepared.mockClear();
+    getValidMoveCandidates(grid, position, MovementType.Jump, capability);
+    getValidMoveCandidates(grid, position, MovementType.Walk, {
+      walkMP: 0,
+      runMP: 0,
+      jumpMP: 0,
+    });
+    expect(prepared).not.toHaveBeenCalled();
+  });
 });
