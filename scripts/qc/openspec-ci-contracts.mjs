@@ -189,3 +189,4 @@ export const requiredPackageScripts = [
     ],
   },
 ];
+// CI-SPEED 2-shard control probe: comment only, never merge.

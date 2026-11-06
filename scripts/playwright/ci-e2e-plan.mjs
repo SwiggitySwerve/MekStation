@@ -228,3 +228,4 @@ export function assertSameTests(expected, observed) {
   if (JSON.stringify(wanted) !== JSON.stringify(actual))
     throw new Error('Executed E2E census differs from the planned test set');
 }
+// CI-SPEED 2-shard control probe: comment only, never merge.

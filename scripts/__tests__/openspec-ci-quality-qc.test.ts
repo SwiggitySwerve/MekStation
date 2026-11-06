@@ -715,3 +715,4 @@ describe('OpenSpec CI quality QC validator', () => {
     );
   });
 });
+// CI-SPEED 2-shard control probe: comment only, never merge.

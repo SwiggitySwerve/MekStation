@@ -878,3 +878,4 @@ jobs:
             mac_apps="$(compgen -G "release/mac*/MekStation.app")"
             [ -n "$mac_apps" ] || exit 1
           fi
+# CI-SPEED 2-shard control probe: comment only, never merge.

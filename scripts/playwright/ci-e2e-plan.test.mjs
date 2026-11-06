@@ -190,3 +190,4 @@ test('the workflow command cannot drop a spec, shard, retry contract or worker l
     assert.throws(() => parseInvocation([...args, '--grep=one-test']));
   }
 });
+// CI-SPEED 2-shard control probe: comment only, never merge.
