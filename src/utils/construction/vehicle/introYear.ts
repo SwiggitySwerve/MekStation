@@ -1,7 +1,30 @@
 import { blkEngineName } from '@/services/conversion/blkEngineIdentity';
 import { javaArmorIntroduction } from '@/types/construction/ArmorType';
 import { javaEngineIntroduction } from '@/types/construction/EngineType';
+import { techRouteId } from '@/utils/construction/equipmentBVCatalogData';
+import { getEquipmentEntry } from '@/utils/construction/equipmentBVResolver';
 import { INTRO_YEAR_MARGIN } from '@/utils/construction/equipmentIntroduction';
+import { equipmentIntroductionErrors } from '@/utils/construction/equipmentIntroduction';
+
+/** TestEntity.java:1487-1512,1611-1618; both vehicle verifiers call this loop. */
+export function vehicleEquipmentIntroYearErrors(source: {
+  readonly year: number;
+  readonly originalBuildYear?: number;
+  readonly equipment: readonly { readonly equipmentId: string }[];
+  readonly clan: boolean;
+  readonly mixed: boolean;
+}): string[] {
+  return equipmentIntroductionErrors({
+    equipment: source.equipment.map((mount) => mount.equipmentId),
+    years: [source.year, source.originalBuildYear].filter(
+      (year): year is number => typeof year === 'number',
+    ),
+    clan: source.clan,
+    mixed: source.mixed,
+    resolve: (name) =>
+      getEquipmentEntry(techRouteId(name, source.clan) ?? name),
+  });
+}
 
 /**
  * Vehicle intro-year checks: MegaMek 48fcb2f6 TestEntity.hasIncorrectIntroYear

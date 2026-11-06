@@ -9,6 +9,7 @@ export function equipmentIntroductionErrors(source: {
   readonly years: readonly number[];
   readonly clan: boolean;
   readonly mixed: boolean;
+  readonly resolve?: typeof getEquipmentEntry;
 }): string[] {
   const errors: string[] = [];
   const seen = new Set<string>();
@@ -18,7 +19,7 @@ export function equipmentIntroductionErrors(source: {
       .replace(/^(?:r-|b-)+/i, '')
       .split(':')[0];
     if (isAmmunitionEquipmentId(name) || /ammo/i.test(name)) continue;
-    const entry = getEquipmentEntry(name);
+    const entry = (source.resolve ?? getEquipmentEntry)(name);
     if (!entry || entry.introductionYear === undefined || seen.has(entry.id))
       continue;
     seen.add(entry.id);
