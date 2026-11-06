@@ -12,6 +12,7 @@ import {
   shouldUseDurableStore,
 } from '../getDefaultMatchStore';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
+import { setTestNodeEnv } from './storeNodeEnvironment';
 
 type IsolatedDefaultMatchStoreModule = Pick<
   typeof import('../getDefaultMatchStore'),
@@ -44,20 +45,9 @@ describe('getDefaultMatchStore', () => {
     process.env.MULTIPLAYER_DB_PATH = ':memory:';
   });
 
-  // `NODE_ENV` is typed read-only on `process.env`; cast through a
-  // mutable view so the test can flip it per-case.
-  const env = process.env as Record<string, string | undefined>;
-  const setNodeEnv = (value: string | undefined): void => {
-    if (value === undefined) {
-      delete env.NODE_ENV;
-    } else {
-      env.NODE_ENV = value;
-    }
-  };
-
   afterEach(() => {
     _resetDefaultMatchStore();
-    setNodeEnv(originalNodeEnv);
+    setTestNodeEnv(originalNodeEnv);
     if (originalStoreEnv === undefined) {
       delete process.env.MULTIPLAYER_STORE;
     } else {
@@ -71,14 +61,14 @@ describe('getDefaultMatchStore', () => {
   });
 
   it('returns the in-memory store in development / test', () => {
-    setNodeEnv('test');
+    setTestNodeEnv('test');
     delete process.env.MULTIPLAYER_STORE;
     expect(shouldUseDurableStore()).toBe(false);
     expect(getDefaultMatchStore()).toBeInstanceOf(InMemoryMatchStore);
   });
 
   it('returns the durable store in production', () => {
-    setNodeEnv('production');
+    setTestNodeEnv('production');
     delete process.env.MULTIPLAYER_STORE;
     expect(shouldUseDurableStore()).toBe(true);
     const store = getDefaultMatchStore();
@@ -87,14 +77,14 @@ describe('getDefaultMatchStore', () => {
   });
 
   it('honors an explicit MULTIPLAYER_STORE=memory override even in production', () => {
-    setNodeEnv('production');
+    setTestNodeEnv('production');
     process.env.MULTIPLAYER_STORE = 'memory';
     expect(shouldUseDurableStore()).toBe(false);
     expect(getDefaultMatchStore()).toBeInstanceOf(InMemoryMatchStore);
   });
 
   it('honors an explicit MULTIPLAYER_STORE=durable override in test', () => {
-    setNodeEnv('test');
+    setTestNodeEnv('test');
     process.env.MULTIPLAYER_STORE = 'durable';
     expect(shouldUseDurableStore()).toBe(true);
     const store = getDefaultMatchStore();
@@ -103,14 +93,14 @@ describe('getDefaultMatchStore', () => {
   });
 
   it('returns a stable singleton within a process', () => {
-    setNodeEnv('test');
+    setTestNodeEnv('test');
     delete process.env.MULTIPLAYER_STORE;
     expect(getDefaultMatchStore()).toBe(getDefaultMatchStore());
   });
 
   describe('global singleton boundary', () => {
     beforeEach(() => {
-      setNodeEnv('test');
+      setTestNodeEnv('test');
       delete process.env.MULTIPLAYER_STORE;
     });
 
