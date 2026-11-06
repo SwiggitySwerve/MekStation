@@ -13,6 +13,7 @@ import subprocess
 from java_reference_exporter import SOURCE_EXTENSIONS
 from reference_policy_sources import option_profiles, tech_level, tech_tables
 from reference_policy_units import PinnedTree, VerifierDispatch
+from source_inventory import build_inventory
 
 REPO = Path(__file__).resolve().parents[2]
 
@@ -53,10 +54,12 @@ def generate(runtime_root, config_receipt):
             raise ValueError('Runtime build inputs differ from goal pin: ' + name)
     native = PinnedTree(repos['megamek']['path'], pins['megamek'])
     data = PinnedTree(repos['mm-data']['path'], pins['mm-data'])
+    inventory = build_inventory(data.repo, data.pin, repository='https://github.com/MegaMek/mm-data')
+    source_records = {entry['path'].removeprefix('data/mekfiles/'): entry for entry in inventory['entries']}
     dispatch = VerifierDispatch(native)
     sources = {key: native.source(Path(key).stem) for key in (
         'verifier/TestEntityOption.java', 'verifier/TestXMLOption.java', 'loaders/MtfFile.java',
-        'loaders/BLKFile.java', 'TechConstants.java')}
+        'loaders/BLKFile.java', 'TechConstants.java', 'verifier/Ceil.java')}
     receipt_bytes = Path(config_receipt).read_bytes()
     receipt = json.loads(receipt_bytes)
     xml_bytes = Path(receipt['path']).read_bytes()
@@ -93,6 +96,9 @@ def generate(runtime_root, config_receipt):
     for path, content in sorted(data.unit_blobs()):
         if Path(path).suffix != SOURCE_EXTENSIONS.get(path.split('/')[0]):
             continue
+        origin = source_records[path]
+        if digest(content) != origin['sha256']:
+            raise ValueError('Archive bytes differ from immutable inventory blob: ' + path)
         text = content.decode('utf-8-sig')
         profile = dispatch.profile(path, text)
         expected = dict(profiles.get(profile, {}))
@@ -103,7 +109,7 @@ def generate(runtime_root, config_receipt):
             if value is None:
                 unspecified.append({'path': path, 'setting': key, 'reason': 'No independently recognized source rule'})
         policy['verifierSettings'][path] = expected
-        units[path] = {'sha256': digest(content), 'profile': profile,
+        units[path] = {'sha256': origin['sha256'], 'blob': origin['blob'], 'profile': profile,
                        'technologySource': 'loaders/MtfFile.java:setTechLevel' if path.endswith('.mtf') else 'loaders/BLKFile.java:setTechLevel'}
     evidence = {
         'status': 'proposal-not-approved', 'goalPins': pins, 'nonConsumedGoalContext': ['mekhq'],
@@ -114,7 +120,17 @@ def generate(runtime_root, config_receipt):
         'consumedXmlSha256': digest(xml_bytes), 'configReceiptSha256': digest(receipt_bytes),
         'invocationCitations': {'crew/network/mutations': 'runtime-reference/README.md: Executed source-load scenarios',
                                'battleValueMode': 'VehicleAeroReferenceExporter.java:battleValue'},
-        'runtimeCitations': {key: str(path) for key, path in runtime_sources.items()},
+        'runtimeCitations': {
+            **{key: str(path) for key, path in runtime_sources.items()},
+            'megamekCommit': 'design.md D1; runtime-reference/build-inputs/checkout-manifest.json:megamek',
+            'megameklabCommit': 'design.md D1; runtime-reference/build-inputs/checkout-manifest.json:megameklab',
+            'mmDataCommit': 'design.md D1; runtime-reference/build-inputs/checkout-manifest.json:mm-data',
+            'javaVersion': 'toolchain-downloads.json[0].extractedRoot/bin/java.exe --version; LF/outer-trim capture',
+            'dependencyManifestSha256': 'runtime-reference/pinned-results/runtime-dependencies.json exact bytes',
+            'compiledRuntimeManifestSha256': 'runtime-reference/pinned-results/compiled-runtime-files.json exact bytes',
+            'exporterSha256': 'scripts/megameklab-conversion/java-reference/VehicleAeroReferenceExporter.java exact bytes',
+            'verifierConfigSha256': 'independent accepted verifier-config.json receipt; exact consumed XML bytes; pinned text checked',
+        },
         'generatorInputsSha256': {str(path.relative_to(REPO)): digest(path.read_bytes()) for path in (
             Path(__file__), Path(__file__).with_name('reference_policy_sources.py'),
             Path(__file__).with_name('reference_policy_units.py'), exporter_path,

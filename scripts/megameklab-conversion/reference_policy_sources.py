@@ -23,6 +23,7 @@ def option_profiles(sources, xml):
     """Resolve zero-argument interface getters through JAXB fields/defaults/XML."""
     interface = sources['verifier/TestEntityOption.java']
     owner = sources['verifier/TestXMLOption.java']
+    ceilings = set(re.findall(r'\b([A-Z_]+)\([\d.]+\)', sources.get('verifier/Ceil.java', '')))
     getters = re.findall(r'\w+\s+(\w+)\(\);', interface)
     returns = dict(re.findall(r'public \w+ (\w+)\(\)\s*\{\s*return ([\w.]+);\s*}', owner))
     fields = {}
@@ -42,9 +43,14 @@ def option_profiles(sources, xml):
                 xml_path = ('ceilWeight/' if len(target) == 2 else '') + tag
                 element = section.find(xml_path)
                 value = scalar(element.text or '') if element is not None else default
-                if element is not None and value is None:
+                if element is not None and value is None and isinstance(default, str):
                     candidate = (element.text or '').strip()
-                    value = candidate if re.fullmatch(r'[A-Z_]+', candidate) else None
+                    value = candidate if candidate in ceilings else None
+                if isinstance(default, bool) and not isinstance(value, bool):
+                    value = None
+                if isinstance(default, (int, float)) and not isinstance(default, bool):
+                    if not isinstance(value, (int, float)) or isinstance(value, bool):
+                        value = None
                 citation = f'verifier/TestXMLOption.java#L{line}; XML /{section.tag}/{xml_path}'
                 if value is None:
                     citation = 'unspecified: unrecognized scalar; ' + citation

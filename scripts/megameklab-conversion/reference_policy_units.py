@@ -19,7 +19,8 @@ class PinnedTree:
         self.java = {Path(path).stem: path for path in paths if path.endswith('.java') and '/src/megamek/common/' in path}
 
     def git(self, *args):
-        return subprocess.check_output(['git', '--no-replace-objects', '-C', str(self.repo), *args])
+        # Per-command conversion control writes no shared/local Git configuration.
+        return subprocess.check_output(['git', '--no-replace-objects', '-c', 'core.autocrlf=false', '-C', str(self.repo), *args])
 
     def read(self, path):
         if path in self.contents:
@@ -33,11 +34,17 @@ class PinnedTree:
         return self.read(self.java[name])
 
     def unit_blobs(self):
-        """Git archive batches immutable bytes; no dirty worktree or oracle input."""
+        """Decode archive text; caller verifies bytes against owning blob inventory.
+
+        Git archive honors upstream eol attributes even with autocrlf disabled.
+        Universal newline decoding is safe only with that independent hash check.
+        """
         with tarfile.open(fileobj=io.BytesIO(self.git('archive', self.pin, 'data/mekfiles'))) as archive:
             for entry in archive:
                 if entry.isfile() and entry.name.lower().endswith(('.mtf', '.blk')):
-                    yield entry.name.removeprefix('data/mekfiles/'), archive.extractfile(entry).read()
+                    with io.TextIOWrapper(archive.extractfile(entry), encoding='utf-8', newline=None) as reader:
+                        content = reader.read().encode('utf-8')
+                    yield entry.name.removeprefix('data/mekfiles/'), content
 
 
 class VerifierDispatch:

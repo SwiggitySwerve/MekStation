@@ -17,6 +17,8 @@ and compare both generated files byte for byte before publishing them here.
 `derivation.json` cites the pinned source bytes and the rule for each unit and
 setting. Unrecognized source expressions produce explicit null expectations and
 an enumerated unspecified reason. They never become a neutral value or a pass.
+Source identities come from the existing immutable Git inventory owner. Archive
+text must reproduce each inventoried blob hash before it can supply a setting.
 
 Verifier options resolve native interface getters through JAXB field names,
 native default initializers and the independently recorded consumed XML.

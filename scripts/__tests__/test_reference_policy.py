@@ -52,9 +52,12 @@ class ReferencePolicyTest(unittest.TestCase):
             invocation_settings('unknown invocation', 'unknown source')
 
     def test_unknown_xml_scalar_is_unspecified_not_a_string_that_can_match(self):
-        profiles, citations = rules.option_profiles(self.sources, '<entityverifier><mek><maxOverweight>undocumented</maxOverweight></mek></entityverifier>')
-        self.assertIsNone(profiles['mek']['getMaxOverweight'])
-        self.assertIn('unspecified', citations['mek']['getMaxOverweight'])
+        for unknown in ('undocumented', 'UNDOCUMENTED', 'true'):
+            profiles, citations = rules.option_profiles(self.sources, f'<entityverifier><mek><maxOverweight>{unknown}</maxOverweight></mek></entityverifier>')
+            self.assertIsNone(profiles['mek']['getMaxOverweight'])
+            self.assertIn('unspecified', citations['mek']['getMaxOverweight'])
+        profiles, _ = rules.option_profiles(self.sources, '<entityverifier><mek><ceilWeight><engine>UNDOCUMENTED</engine></ceilWeight></mek></entityverifier>')
+        self.assertIsNone(profiles['mek']['getWeightCeilingEngine'])
 
     def test_immutable_git_blobs_ignore_dirty_worktree_and_are_repeatable(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -67,13 +70,15 @@ class ReferencePolicyTest(unittest.TestCase):
             path = root / 'data/mekfiles/meks/Test.mtf'
             path.parent.mkdir(parents=True)
             path.write_text('TechBase:Inner Sphere\nRules Level:1\n', encoding='utf-8')
-            git('add', '--', 'data/mekfiles/meks/Test.mtf')
+            (root / '.gitattributes').write_text('*.mtf text eol=crlf\n', encoding='utf-8')
+            git('add', '--', '.gitattributes', 'data/mekfiles/meks/Test.mtf')
             git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'fixture')
             pin = git('rev-parse', 'HEAD')
             path.write_text('TechBase:Unknown\n', encoding='utf-8')
             tree = PinnedTree(root, pin)
             first = list(tree.unit_blobs())
             self.assertEqual(first, list(tree.unit_blobs()))
+            self.assertEqual(first[0][1], tree.read('data/mekfiles/meks/Test.mtf').encode())
             self.assertIn(b'Rules Level:1', first[0][1])
             with self.assertRaises(ValueError):
                 PinnedTree(root, 'HEAD')
