@@ -1,5 +1,33 @@
 ## ADDED Requirements
 
+### Requirement: ProtoMech native offensive-misc diagnostic projection
+
+The ProtoMech offensive owner SHALL retain optional diagnostic facts only for
+finite positive values already computed by its existing native offensive-misc
+owner. Each fact SHALL retain its actual local source id, index and supplied
+location in mounted order without additional resolution, formulas, quantity
+expansion or modifiers. The trace SHALL render known native location numbers
+and actual ids, preserving native last-put semantics for duplicate keys.
+Absent, zero/fallback or unsupported facts SHALL NOT become invented values or
+locations. Existing admission, arithmetic, weapon facts, source data and totals
+SHALL remain unchanged.
+
+#### Scenario: Actual native miscellaneous values at Torso
+
+- **GIVEN** a represented magnetic clamp valued at 1, electric-discharge equipment valued at 32 or a quad melee system valued at 5 by the existing owner
+- **WHEN** its public ProtoMech breakdown and trace are calculated
+- **THEN** the actual value SHALL appear at its supplied Torso native location 2 and source id
+- **AND** the numeric key component SHALL NOT claim an equipment index
+- **AND** all existing arithmetic and weapon projections SHALL remain unchanged
+
+#### Scenario: Missing facts and repeated native keys
+
+- **GIVEN** a legacy breakdown, excluded zero/fallback fact, unrepresented location or repeated native location/id key
+- **WHEN** its optional diagnostic facts are projected
+- **THEN** absence SHALL remain absent and unrepresented locations SHALL NOT be inferred
+- **AND** repeated keys SHALL retain the final actual fact value in mounted order rather than a new arithmetic sum
+- **AND** original numerical outputs and all individual source facts SHALL remain unchanged
+
 ### Requirement: ProtoMech weapon-mount diagnostic projection
 
 The ProtoMech offensive owner SHALL retain optional diagnostic snapshots of

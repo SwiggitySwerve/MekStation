@@ -31,6 +31,35 @@ and zero-valued non-weapon equipment do not create weapon facts or synthetic
 zeros. Ammo and miscellaneous term omissions remain separate. This projection
 does not establish complete construction validity, weight or equipment parity.
 
+## Native offensive-misc diagnostic projection
+
+The existing `resolveProtoOffensiveEquipmentBV` owner supplies quad melee,
+magnetic-clamp and electric-discharge values. Its already-computed finite
+positive results are retained in optional `offensiveEquipmentMountBV` facts
+beside the original addition. Zero/fallback, nonfinite and negative values do
+not create diagnostic facts; their original arithmetic is unchanged. No second
+resolution, identity table, formula, quantity expansion or modifier is added.
+Other offensive-kind equipment and zero-valued movement/defensive miscellany
+remain outside this projection. Missing facts remain absent.
+
+The neutral `IProtoMechBVMountValue` owns the shared four-field snapshot shape;
+the existing public weapon type remains an identical alias. The trace uses
+its single location-format map for both weapon abbreviations and native
+location numbers (`ProtoMek.java:87-89,102-108`, pin `48fcb2f64`). Unknown,
+quad-only and unrepresented Body locations remain unprojected with facts
+retained. Neither equipment admission nor handler location policy changes.
+
+The existing native trace hook in `java_bv_terms.py` records
+`equipment.native.<locationNumber>.<internalName>` from
+`BVCalculator.offensiveEquipmentBV` (`BVCalculator.java:978-1042`). Its number
+is a location, never an equipment index. Local facts retain actual source ids
+and local indices independently; the thirteen represented native source keys
+use their actual ids at Torso2. Repeated location/id keys retain last-put
+semantics and original fact order, rather than inventing an arithmetic sum.
+Weapon projections, ammo policy, scalar values, modifiers and totals remain
+unchanged. Other miscellaneous/ammo omissions, native equipment order and
+complete construction validity/weight remain separate.
+
 ## Offensive BV movement
 
 At MegaMek `48fcb2f64a1b3f2d575707ce5653dad64927b587`,

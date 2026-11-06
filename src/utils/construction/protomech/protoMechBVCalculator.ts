@@ -106,6 +106,9 @@ export function calculateProtoMechBV(
     ammoBV: offensive.ammoBV,
     physicalWeaponBV: offensive.physicalWeaponBV,
     offensiveEquipmentBV: offensive.offensiveEquipmentBV,
+    ...(offensive.offensiveEquipmentMountBV === undefined
+      ? {}
+      : { offensiveEquipmentMountBV: offensive.offensiveEquipmentMountBV }),
     speedFactor: offensive.speedFactor,
   };
 }

@@ -66,6 +66,8 @@ export interface IProtoMechBVBreakdown {
   /** Always zero: ProtoMech offense has no weight-only contribution. */
   readonly physicalWeaponBV: number;
   readonly offensiveEquipmentBV: number;
+  /** Positive values already admitted by the native offensive-misc owner. */
+  readonly offensiveEquipmentMountBV?: readonly IProtoMechBVMountValue[];
   readonly speedFactor: number;
 }
 

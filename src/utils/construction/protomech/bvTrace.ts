@@ -29,7 +29,8 @@ export function protoMechBVTerms(
   summaryModifier: number;
   weightBV: number;
   adjustment: number;
-} & Record<`weapon.${number}.${string}.${string}`, number> {
+} & Record<`weapon.${number}.${string}.${string}`, number> &
+  Record<`equipment.native.${number}.${string}`, number> {
   const weaponTerms: Record<`weapon.${number}.${string}.${string}`, number> =
     {};
   for (const fact of b.weaponMountBV ?? []) {
@@ -39,9 +40,20 @@ export function protoMechBVTerms(
       `weapon.${fact.equipmentIndex}.${location.abbreviation}.${fact.equipmentId}`
     ] = fact.battleValue;
   }
+  const equipmentTerms: Record<`equipment.native.${number}.${string}`, number> =
+    {};
+  for (const fact of b.offensiveEquipmentMountBV ?? []) {
+    const location = nativeLocations.get(fact.location);
+    if (location === undefined) continue;
+    // Native equipment terms use location number, not equipment index.
+    // Assignment preserves the native trace's last-put duplicate semantics.
+    equipmentTerms[`equipment.native.${location.index}.${fact.equipmentId}`] =
+      fact.battleValue;
+  }
   return {
     ...b,
     ...weaponTerms,
+    ...equipmentTerms,
     typeModifier: 1,
     offensiveTypeModifier: 1,
     summaryModifier: b.chassisMultiplier,
