@@ -80,5 +80,11 @@
       "COMMUNICATIONS": "Maxell",
       "TARGETING": "Maxell"
     }
+  },
+  "weaponQuirks": {
+    "FR:0:ISImprovedHeavyGaussRifle": [
+      "exposed_linkage",
+      "accurate"
+    ]
   }
 }

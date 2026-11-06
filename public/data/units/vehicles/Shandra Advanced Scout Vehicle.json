@@ -87,5 +87,13 @@
       "COMMUNICATIONS": "Exeter",
       "TARGETING": "Unknown"
     }
+  },
+  "weaponQuirks": {
+    "RR:0:Machine Gun": [
+      "exposed_linkage"
+    ],
+    "RR:1:Machine Gun": [
+      "exposed_linkage"
+    ]
   }
 }

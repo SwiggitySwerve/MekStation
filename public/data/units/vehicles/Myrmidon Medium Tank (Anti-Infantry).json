@@ -98,5 +98,10 @@
       "COMMUNICATIONS": "Unknown",
       "TARGETING": "Unknown"
     }
+  },
+  "weaponQuirks": {
+    "TU:0:ISERLargeLaser": [
+      "accurate"
+    ]
   }
 }
