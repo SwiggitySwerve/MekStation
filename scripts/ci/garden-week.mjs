@@ -1,4 +1,5 @@
 // Seven-day evidence policy. G1 owns budgets; G2 owns telemetry and statistics.
+import { jobInvestigations } from './ci-report-evaluate.mjs';
 export const DAY_MS = 86400000;
 export const MIN_DAILY_RUNS = 3;
 export const HEADROOM_RATIO = 0.15;
@@ -13,6 +14,7 @@ export function buildGarden({
   now,
   api,
   diagnostics = [],
+  timingLimits = {},
 }) {
   const end = Math.floor(Date.parse(now) / DAY_MS) * DAY_MS;
   if (!Number.isFinite(end) || !Array.isArray(envelopes))
@@ -97,7 +99,7 @@ export function buildGarden({
     ratchet = [];
   const budgetMedians = {};
   for (const { id, value: limit, ratchet: canRatchet } of descriptors) {
-    if (!Number.isSafeInteger(limit) || limit < 0)
+    if (!Number.isFinite(limit) || limit < 0)
       throw new Error(`Invalid G1 limit ${id}`);
     const observations = current.filter(
       (e) =>
@@ -112,7 +114,9 @@ export function buildGarden({
     if (!canRatchet) {
       ratchet.push({
         id,
-        reason: 'Measured replacement timeout samples unavailable',
+        reason: id.startsWith('reporting.')
+          ? 'Automatic timing ratchet disabled until canonical comparable timing projection exists'
+          : 'Measured replacement timeout samples unavailable',
         eligible: false,
       });
       continue;
@@ -209,10 +213,7 @@ export function buildGarden({
   const testRows = comparison.files.map((row) => ({
     ...row,
     samples: fileValues.get(row.file).length,
-    growth:
-      row.baselineMs > 0
-        ? (row.durationMs - row.baselineMs) / row.baselineMs
-        : null,
+    growth: row.growthRatio ?? null,
   }));
   const cacheSamples = current.filter((e) => e.cache !== null);
   const cacheAttempts = cacheSamples.reduce(
@@ -239,6 +240,11 @@ export function buildGarden({
     baselineIncluded: baseline.map((e) => e.observation.identity),
     rejected,
     metrics,
+    investigations: jobInvestigations(
+      current.map((e) => e.observation),
+      baseline.map((e) => e.observation),
+      timingLimits,
+    ),
     budgetMedians,
     proposals,
     ratchet,
@@ -246,7 +252,7 @@ export function buildGarden({
       .toSorted((a, b) => b.durationMs - a.durationMs)
       .slice(0, 10),
     growth: testRows
-      .filter((row) => row.growth !== null && row.growth > 0)
+      .filter((row) => row.status === 'growth')
       .toSorted((a, b) => b.growth - a.growth)
       .slice(0, 10),
     testMissing: comparison.missing,

@@ -36,7 +36,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 3 },
       "costCBills": 300000,
       "battleValue": 229,
-      "introductionYear": 2751,
+      "introductionYear": 2735,
       "extinctionYear": 2860,
       "reintroductionYear": 3037
     },
@@ -108,7 +108,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 2 },
       "costCBills": 300000,
       "battleValue": 412,
-      "introductionYear": 2826
+      "introductionYear": 2818
     },
     {
       "id": "enhanced-er-ppc",
@@ -125,7 +125,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 3 },
       "costCBills": 300000,
       "battleValue": 329,
-      "introductionYear": 2823,
+      "introductionYear": 2817,
       "extinctionYear": 2831,
       "reintroductionYear": 3080
     }

@@ -5,6 +5,7 @@
  * Each fixture under fixtures/java-introduction-dates lists one batch: the catalog record, the
  * date the pinned-Java EquipmentDateProbe reports for its side, the Java type and its source lines.
  */
+import { hash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -33,7 +34,12 @@ const batches = new Map<string, IntroductionDate[]>(
 const rows = [...batches.values()].flat();
 
 // Each batch corrects exactly the records it lists, once each.
-const EXPECTED_BATCH_SIZES: Record<string, number> = { 'missiles.jsonl': 156 };
+const EXPECTED_BATCH_SIZES: Record<string, number> = {
+  'missiles.jsonl': 156,
+  'ballistic.jsonl': 89,
+  'energy.jsonl': 29,
+  'c3.jsonl': 8,
+};
 it.each(Object.entries(EXPECTED_BATCH_SIZES))(
   '%s lists exactly %s distinct records',
   (file, size) => {
@@ -42,6 +48,33 @@ it.each(Object.entries(EXPECTED_BATCH_SIZES))(
       size,
     );
     expect(batch).toHaveLength(size);
+  },
+);
+
+const EXPECTED_BATCH_IDENTITIES: Record<
+  string,
+  { ids: number; sha256: string }
+> = {
+  'ballistic.jsonl': {
+    ids: 87,
+    sha256: '3c7789a07b62693a179818bcbffdb6baf7be79f7284ea2a819c06165a11934ce',
+  },
+  'energy.jsonl': {
+    ids: 29,
+    sha256: '3576a4eadcb994ee9ffee5927eb752dd3ce1cefb8486f822b1cf0b16a8e8c34c',
+  },
+  'c3.jsonl': {
+    ids: 8,
+    sha256: 'f409f658048f0d53ce58c0f01e1ec7642f2c9e4357f997a8b6e4b9329c2d4e14',
+  },
+};
+it.each(Object.entries(EXPECTED_BATCH_IDENTITIES))(
+  '%s pins exactly its audited equipment identities',
+  (file, expected) => {
+    const batch = batches.get(file) ?? [];
+    expect(new Set(batch.map((row) => row.id)).size).toBe(expected.ids);
+    const keys = batch.map((row) => `${row.file}:${row.id}`).sort();
+    expect(hash('sha256', JSON.stringify(keys))).toBe(expected.sha256);
   },
 );
 

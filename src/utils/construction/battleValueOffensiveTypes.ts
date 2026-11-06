@@ -12,6 +12,8 @@ export interface OffensiveBVConfig {
     isDirectFire?: boolean;
     location?: string;
   }>;
+  /** Listed mounted weapon BV, before weapon-stage modifiers, for ammo caps. */
+  ammoCapWeapons?: Pick<OffensiveBVConfig['weapons'][number], 'id' | 'bv'>[];
   ammo?: Array<{ id: string; bv: number; weaponType: string }>;
   tonnage: number;
   walkMP: number;

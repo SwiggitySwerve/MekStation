@@ -3,7 +3,11 @@
  */
 
 import { ActuatorType } from '@/types/construction/MechConfigurationSystem';
-import { IComponentDamageState, IPendingPSR } from '@/types/gameplay';
+import {
+  IComponentDamageState,
+  IPendingPSR,
+  type IUnitGameState,
+} from '@/types/gameplay';
 
 import {
   type RepresentedGyroType,
@@ -23,7 +27,10 @@ import {
 } from '../spaModifiers';
 import { IPSRModifier, PSRTrigger } from './types';
 
-export interface IPSRResolutionOptions {
+export interface IPSRResolutionOptions extends Pick<
+  IUnitGameState,
+  'neuralInterfaceMode' | 'hasDNICockpitMod'
+> {
   readonly gyroType?: RepresentedGyroType;
   readonly optionalRules?: readonly string[];
   readonly unitQuirks?: readonly string[];
@@ -40,7 +47,10 @@ export interface IPSRModifierCalculationInput extends IPSRResolutionOptions {
   readonly pilotWounds: number;
 }
 
-export interface INormalizedPSRResolutionOptions {
+export interface INormalizedPSRResolutionOptions extends Pick<
+  IUnitGameState,
+  'neuralInterfaceMode' | 'hasDNICockpitMod'
+> {
   readonly gyroType?: RepresentedGyroType;
   readonly optionalRules?: readonly string[];
   readonly unitQuirks: readonly string[];
@@ -122,6 +132,8 @@ export function normalizeResolutionOptions(
     unitQuirks: options.unitQuirks ?? [],
     pilotAbilities: options.pilotAbilities ?? fallbackPilotAbilities,
     neuralInterfaceActive: options.neuralInterfaceActive,
+    neuralInterfaceMode: options.neuralInterfaceMode,
+    hasDNICockpitMod: options.hasDNICockpitMod,
     isQuadMek: options.isQuadMek ?? fallbackIsQuadMek,
     unitType: options.unitType ?? fallbackUnitType,
     pilotingSkill: options.pilotingSkill ?? fallbackPilotingSkill,
@@ -149,6 +161,8 @@ function normalizeModifierInput(
       unitQuirks: input.unitQuirks ?? [],
       pilotAbilities: input.pilotAbilities ?? [],
       neuralInterfaceActive: input.neuralInterfaceActive,
+      neuralInterfaceMode: input.neuralInterfaceMode,
+      hasDNICockpitMod: input.hasDNICockpitMod,
       isQuadMek: input.isQuadMek ?? false,
       unitType: input.unitType,
       pilotingSkill: input.pilotingSkill,

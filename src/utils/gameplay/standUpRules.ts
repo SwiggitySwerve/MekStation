@@ -80,6 +80,8 @@ export function projectStandUpPsr({
       unitQuirks: unitState.unitQuirks,
       pilotAbilities: unitState.abilities,
       neuralInterfaceActive: unitState.neuralInterfaceActive,
+      neuralInterfaceMode: unitState.neuralInterfaceMode,
+      hasDNICockpitMod: unitState.hasDNICockpitMod,
       isQuadMek: unitState.isQuad,
       unitType: unitState.unitType ?? unitType,
       pilotingSkill: unitPiloting,
