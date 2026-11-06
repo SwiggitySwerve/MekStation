@@ -69,7 +69,8 @@ Regression coverage: `test_blk_capital_extended.py` and pinned BLK fixtures.
 ## Vehicle and aerospace type and armor fidelity
 
 `src/types/formats/blk-aerospace-armor.json` owns serialized fighter and
-small-craft/DropShip armor order. `blk_aerospace_tables.py` reads these facts;
+small-craft/DropShip armor order. `blk_aerospace_tables.py`, TypeScript fighter
+and small-craft handlers, and the aerospace exporter read these facts;
 index 1 is right and index 2 is left. Authority: MegaMek 48fcb2f6
 `BLKAeroSpaceFighterFile.java:63-66,186-189`, `BLKConvFighterFile.java:146-149`,
 `BLKSmallCraftFile.java:180-183`, `BLKDropshipFile.java:196-199`.
