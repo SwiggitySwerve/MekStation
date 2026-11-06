@@ -34,24 +34,26 @@ beforeAll(async () => {
   await getEquipmentRegistry().initialize();
 });
 
-interface BallisticDate {
+interface ProbeDate {
   readonly file: string;
   readonly id: string;
   readonly year: number;
 }
-const ballisticDates = readFileSync(
-  join(
-    process.cwd(),
-    'src/utils/construction/__tests__/fixtures/java-introduction-dates/ballistic.jsonl',
-  ),
-  'utf8',
-)
-  .trim()
-  .split('\n')
-  .map((line) => JSON.parse(line) as BallisticDate);
-const ballisticIntroduction = (id: string): number => {
-  const row = ballisticDates.find((row) => row.id === id);
-  if (!row) throw new Error(`Missing ballistic probe date: ${id}`);
+const probeDates = ['ballistic', 'energy'].flatMap((batch) =>
+  readFileSync(
+    join(
+      process.cwd(),
+      `src/utils/construction/__tests__/fixtures/java-introduction-dates/${batch}.jsonl`,
+    ),
+    'utf8',
+  )
+    .trim()
+    .split('\n')
+    .map((line) => JSON.parse(line) as ProbeDate),
+);
+const probeIntroduction = (id: string): number => {
+  const row = probeDates.find((row) => row.id === id);
+  if (!row) throw new Error(`Missing introduction probe date: ${id}`);
   return row.year;
 };
 
@@ -59,13 +61,13 @@ const ballisticIntroduction = (id: string): number => {
 it.each([
   ['beagle-active-probe', 2576, 2835, 3045],
   ['active-probe-beagle', 2576, 2835, 3045],
-  ['er-large-laser', 2620, 2950, 3037],
-  ['gauss-rifle', ballisticIntroduction('gauss-rifle'), 2865, 3040],
-  ['uac-5', ballisticIntroduction('uac-5'), 2915, 3035],
+  ['er-large-laser', probeIntroduction('er-large-laser'), 2950, 3037],
+  ['gauss-rifle', probeIntroduction('gauss-rifle'), 2865, 3040],
+  ['uac-5', probeIntroduction('uac-5'), 2915, 3035],
   ['artemisiv', 2598, 2855, 3035],
   ['case', 2476, 2840, 3036],
   ['double-heat-sink', 2567, 2865, 3040],
-  ['er-ppc', 2751, 2860, 3037],
+  ['er-ppc', probeIntroduction('er-ppc'), 2860, 3037],
 ] as const)(
   '%s preserves pinned introduction/extinction/reintroduction at the loader and filter boundaries',
   (id, introductionYear, extinctionYear, reintroductionYear) => {
@@ -134,10 +136,11 @@ it.each([
 );
 
 it.each(['er-small-laser', 'er-medium-laser'])(
-  '%s starts in 3058 and has no invented extinction dates',
+  '%s starts at its probe introduction and has no invented extinction dates',
   (id) => {
+    const introductionYear = probeIntroduction(id);
     const equipment = getEquipmentLookupService().getById(id);
-    expect(equipment).toMatchObject({ introductionYear: 3058 });
+    expect(equipment).toMatchObject({ introductionYear });
     expect(equipment?.extinctionYear).toBeUndefined();
     expect(equipment?.reintroductionYear).toBeUndefined();
     expect(
@@ -147,7 +150,12 @@ it.each(['er-small-laser', 'er-medium-laser'])(
     ).not.toContain(id);
     expect(
       getEquipmentLookupService()
-        .query({ year: 3058 })
+        .query({ year: introductionYear - 1 })
+        .map((item) => item.id),
+    ).not.toContain(id);
+    expect(
+      getEquipmentLookupService()
+        .query({ year: introductionYear })
         .map((item) => item.id),
     ).toContain(id);
   },
@@ -213,13 +221,13 @@ it.each([2755, 3028])(
 it('preserves source dates and excludes extinct PPCs in all live catalog filters', () => {
   const lookup = getEquipmentLookupService();
   expect(lookup.getById('er-ppc')).toMatchObject({
-    introductionYear: 2751,
+    introductionYear: probeIntroduction('er-ppc'),
     extinctionYear: 2860,
     reintroductionYear: 3037,
   });
   expect(lookup.getById('enhanced-er-ppc')).toMatchObject({
     techBase: TechBase.CLAN,
-    introductionYear: 2823,
+    introductionYear: probeIntroduction('enhanced-er-ppc'),
     extinctionYear: 2831,
     reintroductionYear: 3080,
   });
