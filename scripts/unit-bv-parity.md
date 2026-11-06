@@ -29,6 +29,20 @@ The receipt establishes conversion provenance; the oracle still owns corpus
 completeness and parity. A passing native conversion is separate from proof
 of the committed catalog.
 
+Family exports carry their declared family and ordered source folders from
+`strict-families.json`. The pipeline stores each producer's receipt alongside
+its cached source/computed bytes, with a separate receipt integrity hash.
+Before counting a cache hit or sampling `--verify-hits`, it checks the receipt
+through the same verifier against the payload, current converter inputs and
+expected family/folders. Missing or invalid cached receipts run fresh; failed
+fresh production or validation still fails the run. Byte verification includes
+the receipt and retains the existing source/computed checks.
+The combined publication uses the same Python receipt writer as serial and
+family exports. Both writer and verifier use the selected pipeline `--python`.
+Receipts establish validity under unchanged inputs, not physical freshness;
+`execution.json` retains `hit`/`verified` and explicitly labels each family's
+`production` as `fresh` or `cached`.
+
 Mechs use `validate-bv-calculator.calculateUnitBV`; `bvAdapter` runtime totals
 and exact counts are separate fields. ProtoMechs use the handler's existing
 BV breakdown. Vehicle, aerospace and capital contracts use the real dispatcher.

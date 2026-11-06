@@ -28,7 +28,7 @@ function callOwner(
     [
       '-B',
       '-c',
-      "import sys,json;from pathlib import Path;sys.path.insert(0,'scripts/megameklab-conversion');from strict_provenance import converter_inputs,write_source_manifest;" +
+      "import sys,json;from pathlib import Path;sys.path.insert(0,'scripts/megameklab-conversion');from strict_provenance import converter_inputs,write_source_manifest,source_folders;" +
         code,
       ...args,
     ],
@@ -71,14 +71,26 @@ export function validateSourceManifest(
       (receipt ?? fs.readFileSync(file + '.manifest.json')).toString('utf8'),
     );
     const manifest = Manifest.parse(raw);
-    const rawInputs: unknown = JSON.parse(
-      callOwner('print(json.dumps(converter_inputs()))', [], undefined, python),
-    );
-    const current = z.record(z.string(), digest).parse(rawInputs);
     if (manifest.scope !== scope)
       throw new Error(
         `Expected ${scope} conversion scope; full-corpus export is required for the external CLI`,
       );
+    const rawInputs: unknown = JSON.parse(
+      callOwner(
+        'print(json.dumps({"inputs":converter_inputs(),"folders":source_folders(sys.argv[1])}))',
+        [scope],
+        undefined,
+        python,
+      ),
+    );
+    const current = z
+      .object({
+        inputs: z.record(z.string(), digest),
+        folders: z.array(z.string()),
+      })
+      .parse(rawInputs);
+    if (JSON.stringify(manifest.folders) !== JSON.stringify(current.folders))
+      throw new Error('Conversion folders differ from the declared scope');
     if (manifest.sourcesSha256 !== hash(sources))
       throw new Error('Converted payload hash mismatch');
     const count = sources
@@ -87,10 +99,10 @@ export function validateSourceManifest(
       .filter((line) => line.trim()).length;
     if (manifest.sourceCount !== count)
       throw new Error('Converted source count mismatch');
-    const keys = Object.keys(current);
+    const keys = Object.keys(current.inputs);
     if (
       keys.length !== Object.keys(manifest.converterInputs).length ||
-      keys.some((key) => current[key] !== manifest.converterInputs[key])
+      keys.some((key) => current.inputs[key] !== manifest.converterInputs[key])
     ) {
       throw new Error('Converter implementation or data inputs changed');
     }

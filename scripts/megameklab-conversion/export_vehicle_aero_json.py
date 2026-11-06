@@ -103,7 +103,7 @@ def export_strict(mekfiles: Path, out_dir: Path, family: str | None = None) -> N
                 except Exception as error:
                     row["reason"] = str(error)
                 handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
-    write_source_manifest(out_dir, list(folders))
+    write_source_manifest(out_dir, list(folders), family)
 
 if __name__ == "__main__":
     if len(sys.argv) > 3 and sys.argv[3] == "--strict":

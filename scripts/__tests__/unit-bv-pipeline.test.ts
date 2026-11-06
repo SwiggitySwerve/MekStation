@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -12,8 +13,17 @@ import {
   type IJavaReferenceRow,
 } from '../unit-bv-parity';
 import { runPipeline } from '../unit-bv-pipeline';
+import * as provenance from '../unit-bv-provenance';
 
 jest.mock('../unit-bv-family-worker', () => ({ runCommand: jest.fn() }));
+jest.mock('../unit-bv-provenance', () => {
+  const actual = jest.requireActual('../unit-bv-provenance');
+  return {
+    ...actual,
+    validateSourceManifest: jest.fn(actual.validateSourceManifest),
+    writeSourceManifest: jest.fn(actual.writeSourceManifest),
+  };
+});
 
 let root: string;
 const originalEvent = process.env.GITHUB_EVENT_NAME;
@@ -32,6 +42,13 @@ it.each(['push', 'schedule'])(
   'keeps every family and exact report bytes on %s, bypassing caches',
   async (event) => {
     process.env.GITHUB_EVENT_NAME = event;
+    const python = execFileSync(
+      'python',
+      ['-c', 'import sys;print(sys.executable)'],
+      { encoding: 'utf8' },
+    ).trim();
+    const validate = jest.mocked(provenance.validateSourceManifest);
+    const publish = jest.mocked(provenance.writeSourceManifest);
     const reference = path.join(root, 'oracle.jsonl');
     const sources: Record<
       string,
@@ -80,6 +97,13 @@ it.each(['push', 'schedule'])(
           path.join(out, 'computed.bin'),
           encodeComputedRows([computed[index]]),
         );
+        provenance.writeSourceManifest(
+          path.join(out, 'sources.ndjson'),
+          fs.readFileSync(path.join(out, 'sources.ndjson')),
+          families[family as keyof typeof families],
+          family,
+          args[6],
+        );
       });
     const out = path.join(root, 'report');
     expect(
@@ -87,7 +111,7 @@ it.each(['push', 'schedule'])(
         mekfiles: root,
         reference,
         out,
-        python: 'unused',
+        python,
         workers: 2,
         cacheDir: path.join(root, 'cache'),
         verifyHits: 7,
@@ -96,6 +120,30 @@ it.each(['push', 'schedule'])(
       }),
     ).toBe(false);
     expect(run).toHaveBeenCalledTimes(FAMILIES.length);
+    for (const family of Object.keys(families)) {
+      expect(validate).toHaveBeenCalledWith(
+        'cached-family',
+        expect.any(Buffer),
+        family,
+        python,
+        expect.any(Buffer),
+      );
+    }
+    expect(publish).toHaveBeenCalledWith(
+      path.join(out, 'sources.ndjson'),
+      expect.any(Buffer),
+      Object.values(families).flat(),
+      'full',
+      python,
+    );
+    expect(() =>
+      provenance.validateSourceManifest(
+        path.join(out, 'sources.ndjson'),
+        fs.readFileSync(path.join(out, 'sources.ndjson')),
+        'full',
+        python,
+      ),
+    ).not.toThrow();
     expect(fs.readFileSync(path.join(out, 'sources.ndjson'), 'utf8')).toBe(
       Object.values(sources)
         .map((row) => JSON.stringify(row))
@@ -117,6 +165,17 @@ it.each(['push', 'schedule'])(
       JSON.parse(fs.readFileSync(path.join(out, 'execution.json'), 'utf8'))
         .cacheEnabled,
     ).toBe(false);
+    expect(
+      JSON.parse(fs.readFileSync(path.join(out, 'execution.json'), 'utf8'))
+        .families,
+    ).toEqual(
+      Object.keys(families).map((family) => ({
+        family,
+        hit: false,
+        verified: false,
+        production: 'fresh',
+      })),
+    );
   },
 );
 
