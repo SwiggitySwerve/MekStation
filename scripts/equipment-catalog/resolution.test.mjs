@@ -2751,6 +2751,20 @@ export const APPROVED_JAVA_REROUTES = [
     reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
     loaderOnly: true,
   })),
+  // VEH-WEIGHT identity: decorated IS machine gun array list ids (the BLK (ST) suffix islmgast / ismgast and the islmga:omni pod marker) are MegaMek 48fcb2f6 ISLMGA / ISMGA at 0.5 t (ISLightMGA.java:69,82; ISMGA.java:70,83), not the 0.25 t Clan arrays. Loader-only techRoutes send them to the existing IS registry records.
+  ...[
+    ['ISLMGA:OMNI', 'lmga', 'islmga-registry'],
+    ['islmga:omni', 'lmga', 'islmga-registry'],
+    ['islmgast', 'lmga', 'islmga-registry'],
+    ['ismgast', 'mga', 'ismga-registry'],
+  ].map(([name, oldTarget, newTarget, api]) => ({
+    name,
+    oldTarget,
+    newTarget,
+    ...(api ? { api } : {}),
+    reason: 'Follow-up 93; registry-routing.json techRoutes, unit loader only',
+    loaderOnly: true,
+  })),
 ];
 async function capture(root, inputs) {
   process.chdir(root);

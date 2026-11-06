@@ -566,6 +566,10 @@
       "INNER_SPHERE": "ismga-registry",
       "CLAN": "ismga-registry"
     },
+    "ismgast": {
+      "INNER_SPHERE": "ismga-registry",
+      "CLAN": "ismga-registry"
+    },
     "light-machine-gun-array": {
       "INNER_SPHERE": "islmga-registry",
       "CLAN": "lmga"
@@ -575,6 +579,14 @@
       "CLAN": "lmga"
     },
     "ISLMGA": {
+      "INNER_SPHERE": "islmga-registry",
+      "CLAN": "islmga-registry"
+    },
+    "islmgast": {
+      "INNER_SPHERE": "islmga-registry",
+      "CLAN": "islmga-registry"
+    },
+    "islmga:omni": {
       "INNER_SPHERE": "islmga-registry",
       "CLAN": "islmga-registry"
     },
