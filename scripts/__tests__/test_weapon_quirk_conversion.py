@@ -86,6 +86,16 @@ class WeaponQuirkConversionTest(unittest.TestCase):
             with self.subTest(entry=entry), self.assertRaisesRegex(ValueError, 'weapon quirk'):
                 append_weapon_quirk({}, entry)
 
+    def test_python_matches_the_ts_pinned_source_cases(self):
+        fixture = json.loads((ROOT / 'src/services/conversion/__tests__/fixtures/weaponQuirks.pinned.json').read_text())
+        self.assertEqual(fixture['mmDataPin'], '50f7efef0c9f775b0258f8283525ed4f906e1985')
+        for format in ['mtf', 'blk']:
+            for text, mount, quirk, path, line in fixture[format]['lines']:
+                with self.subTest(path=path, line=line):
+                    result = {}
+                    append_weapon_quirk(result, text.split(':', 1)[1] if format == 'mtf' else text)
+                    self.assertEqual(result, {mount: [quirk]})
+
 
 if __name__ == '__main__':
     unittest.main()
