@@ -840,6 +840,7 @@ function createKeyer({
     nameMatchers.map(([, prefix]) => prefix.replace(/\/$/, '')),
   );
   const analysisCache = new Map();
+  const candidatePlans = new Map();
   const isFile = (rel) => index.has(rel);
   const digestOf = (rel) => index.get(rel) ?? hashFile(root, rel);
 
@@ -858,7 +859,7 @@ function createKeyer({
     return analysisCache.get(rel);
   }
 
-  function resolveSpec(spec, fromRel) {
+  function planCandidates(spec, fromRel) {
     let base;
     if (spec.startsWith('.'))
       base = path.posix.join(path.posix.dirname(fromRel), spec);
@@ -869,14 +870,29 @@ function createKeyer({
     const stem = base.replace(/\.(?:[cm]?js|jsx)$/, '');
     // Every existing candidate joins the closure, whichever extension Jest's
     // moduleFileExtensions order would pick first (a .js and a .ts can coexist).
-    const hits = [
+    return [
       ...new Set([
         base,
         ...RESOLVE_EXTENSIONS.map((ext) => base + ext),
         ...RESOLVE_EXTENSIONS.map((ext) => `${stem}${ext}`),
         ...RESOLVE_EXTENSIONS.map((ext) => `${base}/index${ext}`),
       ]),
-    ].filter(isFile);
+    ];
+  }
+
+  function resolveSpec(spec, fromRel) {
+    let plans = candidatePlans.get(fromRel);
+    if (!plans) candidatePlans.set(fromRel, (plans = new Map()));
+    let candidates = plans.get(spec);
+    if (!candidates) {
+      candidates = planCandidates(spec, fromRel);
+      plans.set(spec, candidates);
+    }
+    if (candidates === 'external') return 'external';
+    // Reuse only path arithmetic across test closures. Membership is checked
+    // each time so an added/removed competing extension or missing import is
+    // never hidden by a cached hit or miss. Plans live only in this keyer.
+    const hits = candidates.filter(isFile);
     if (hits.length > 0) return hits;
     // bare spec that is not an in-repo path (e.g. 'scripts' package-like name)
     return spec.startsWith('.') || spec.startsWith('@/') ? null : 'external';
