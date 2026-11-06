@@ -554,6 +554,10 @@
       "INNER_SPHERE": "heavy-machine-gun",
       "CLAN": "clheavymg-registry"
     },
+    "CLMG": {
+      "INNER_SPHERE": "clan-machine-gun",
+      "CLAN": "clan-machine-gun"
+    },
     "machine-gun-array": {
       "INNER_SPHERE": "ismga-registry",
       "CLAN": "mga"
@@ -566,6 +570,10 @@
       "INNER_SPHERE": "ismga-registry",
       "CLAN": "ismga-registry"
     },
+    "ismgast": {
+      "INNER_SPHERE": "ismga-registry",
+      "CLAN": "ismga-registry"
+    },
     "light-machine-gun-array": {
       "INNER_SPHERE": "islmga-registry",
       "CLAN": "lmga"
@@ -575,6 +583,14 @@
       "CLAN": "lmga"
     },
     "ISLMGA": {
+      "INNER_SPHERE": "islmga-registry",
+      "CLAN": "islmga-registry"
+    },
+    "islmgast": {
+      "INNER_SPHERE": "islmga-registry",
+      "CLAN": "islmga-registry"
+    },
+    "islmga:omni": {
       "INNER_SPHERE": "islmga-registry",
       "CLAN": "islmga-registry"
     },

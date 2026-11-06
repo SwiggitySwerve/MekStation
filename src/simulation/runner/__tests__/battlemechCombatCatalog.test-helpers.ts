@@ -392,7 +392,6 @@ const EXPECTED_UNOFFICIAL_EMPTY_COMPATIBLE_AMMO_IDS = [
   'ammo-lrm-5',
   'ammo-lrm-5-primitive',
   'ammo-medium-n-gauss',
-  'ammo-mg-full',
   'ammo-srm-2',
   'ammo-srm-2-primitive',
   'ammo-srm-4',
@@ -476,6 +475,8 @@ const EXPECTED_BATTLEMECH_COMPATIBLE_AMMO_IDS = [
   'ac-20-ammo',
   'ac-5-ammo',
   'ac-5-ap-ammo',
+  // AmmoType.isAmmoValid (48fcb2f6, AmmoType.java:17147-17155): MG / rack 2.
+  'ammo-mg-full',
   'ams-ammo',
   'ap-gauss-ammo',
   'atm-er-ammo',

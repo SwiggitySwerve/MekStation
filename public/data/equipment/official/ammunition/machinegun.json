@@ -71,7 +71,7 @@
       "variant": "Standard",
       "techBase": "INNER_SPHERE",
       "rulesLevel": "UNOFFICIAL",
-      "compatibleWeaponIds": [],
+      "compatibleWeaponIds": ["machine-gun", "clan-machine-gun"],
       "shotsPerTon": 200,
       "weight": 1,
       "criticalSlots": 1,
