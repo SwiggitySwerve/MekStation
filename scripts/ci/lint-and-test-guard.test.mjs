@@ -1,11 +1,77 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import { test } from 'node:test';
+import { fileURLToPath } from 'node:url';
+import { parse } from 'yaml';
 
+import { readWorkflow } from './budget-workflow.mjs';
 import {
   AGGREGATOR,
   aggregatorMissing,
   shouldReportMissing,
 } from './lint-and-test-guard.mjs';
+
+const root = fileURLToPath(new URL('../../', import.meta.url));
+
+test('draft and ready PR pushes run the same checks without a duplicate ready transition', () => {
+  const workflow = readWorkflow(root);
+  assert.deepEqual(workflow.on.pull_request.types, [
+    'opened',
+    'synchronize',
+    'reopened',
+  ]);
+  assert.deepEqual(workflow.on.pull_request.branches, ['main']);
+  for (const [id, job] of Object.entries(workflow.jobs)) {
+    assert.doesNotMatch(job.if ?? '', /draft|ready_for_review/, id);
+    for (const step of job.steps ?? [])
+      assert.doesNotMatch(
+        step.if ?? '',
+        /draft|ready_for_review/,
+        `${id}/${step.name}`,
+      );
+  }
+  assert.equal(workflow.jobs['lint-and-test'].name, AGGREGATOR);
+  assert.equal(workflow.jobs['lint-and-test'].if, 'always()');
+});
+
+test('completed source runs still drive head-bound Guard, approval and budget publishing', () => {
+  const guard = parse(
+    fs.readFileSync(
+      path.join(root, '.github/workflows/lint-and-test-guard.yml'),
+      'utf8',
+    ),
+  );
+  assert.deepEqual(guard.on, {
+    workflow_run: { workflows: ['PR Checks'], types: ['completed'] },
+  });
+  const steps = guard.jobs.guard.steps;
+  assert.equal(
+    steps.find((step) => step.run?.includes('lint-and-test-guard.mjs')).env
+      .HEAD_SHA,
+    '${{ github.event.workflow_run.head_sha }}',
+  );
+  assert.ok(
+    steps.some((step) => step.with?.script?.includes('checkBudgetPolicy')),
+  );
+  assert.ok(
+    steps.some((step) => step.run === 'node scripts/ci/budget-report.mjs'),
+  );
+  for (const step of steps)
+    assert.doesNotMatch(step.if ?? '', /draft|ready_for_review/);
+});
+
+test('only the separate budget approval safety reevaluation retains the ready listener', () => {
+  const listeners = fs
+    .readdirSync(path.join(root, '.github/workflows'))
+    .filter((file) => /\.ya?ml$/.test(file))
+    .filter((file) =>
+      fs
+        .readFileSync(path.join(root, '.github/workflows', file), 'utf8')
+        .includes('ready_for_review'),
+    );
+  assert.deepEqual(listeners, ['ci-budget-approval.yml']);
+});
 
 test('a run whose aggregator ran, in any conclusion, needs no guard', () => {
   assert.equal(

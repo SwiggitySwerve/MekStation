@@ -97,6 +97,43 @@ function fixture() {
   return { github, pull, statuses };
 }
 
+test('draft to ready retains successful required statuses on the same exact head and primary suite', async () => {
+  const f = fixture();
+  const source = f.github.rest.actions.listWorkflowRuns;
+  const checks = f.github.rest.checks.listForRef;
+  f.github.rest.actions.listWorkflowRuns = async (args) => {
+    assert.equal(args.head_sha, f.pull.head.sha);
+    assert.equal(args.event, 'pull_request');
+    return source();
+  };
+  f.github.rest.checks.listForRef = async (args) => {
+    assert.equal(args.ref, f.pull.head.sha);
+    assert.equal(args.check_name, 'Lint and Test');
+    return checks();
+  };
+  const outcomes = [];
+  for (const draft of [true, false]) {
+    f.pull.draft = draft;
+    f.statuses.length = 0;
+    assert.equal(
+      (
+        await checkBudgetPolicy({
+          github: f.github,
+          owner: 'o',
+          repo: 'r',
+          number: 1,
+        })
+      ).allowed,
+      true,
+    );
+    outcomes.push(structuredClone(f.statuses));
+    assert.equal(f.statuses.at(-1).context, 'Lint and Test');
+    assert.equal(f.statuses.at(-1).state, 'success');
+    assert.ok(f.statuses.every((status) => status.sha === f.pull.head.sha));
+  }
+  assert.deepEqual(outcomes[0], outcomes[1]);
+});
+
 test('live policy rejects dependency-label removal and publishes a failed current-head status', async () => {
   const fixture_ = fixture(),
     args = { github: fixture_.github, owner: 'o', repo: 'r', number: 1 };

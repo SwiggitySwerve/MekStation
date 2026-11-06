@@ -4,7 +4,9 @@ on:
   pull_request:
     branches:
       - main
-    types: [opened, synchronize, reopened, ready_for_review]
+    # Drafts run on open and every push. Ready keeps the same head's checks;
+    # repeating this full graph at that transition only consumes runner time.
+    types: [opened, synchronize, reopened]
   # Pushes to main, the nightly schedule and manual runs check everything,
   # including the checks pull requests path-gate or leave to main
   # (scripts/ci/ci-changes.mjs turns every gate on outside pull requests).
