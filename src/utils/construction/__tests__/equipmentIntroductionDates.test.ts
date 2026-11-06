@@ -38,6 +38,7 @@ const EXPECTED_BATCH_SIZES: Record<string, number> = {
   'missiles.jsonl': 156,
   'ballistic.jsonl': 89,
   'energy.jsonl': 29,
+  'c3.jsonl': 8,
 };
 it.each(Object.entries(EXPECTED_BATCH_SIZES))(
   '%s lists exactly %s distinct records',
@@ -61,6 +62,10 @@ const EXPECTED_BATCH_IDENTITIES: Record<
   'energy.jsonl': {
     ids: 29,
     sha256: '3576a4eadcb994ee9ffee5927eb752dd3ce1cefb8486f822b1cf0b16a8e8c34c',
+  },
+  'c3.jsonl': {
+    ids: 8,
+    sha256: 'f409f658048f0d53ce58c0f01e1ec7642f2c9e4357f997a8b6e4b9329c2d4e14',
   },
 };
 it.each(Object.entries(EXPECTED_BATCH_IDENTITIES))(
