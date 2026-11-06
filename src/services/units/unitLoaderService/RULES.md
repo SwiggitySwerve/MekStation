@@ -38,6 +38,10 @@ registry owns their accepted contract discriminators and available store mapper.
   references include family; BattleMech references retain their existing shape.
 - Unknown family, absent catalog, absent unit, source failure, invalid contract,
   and unavailable editor mapper remain distinguishable through stable codes.
+- Browser and Node strict canonical reads propagate indexed-file read and JSON
+  errors, allowing definition readers to report `read-failed`. Unknown IDs
+  remain absent; tolerant reads return null on source failures. Failed reads
+  never populate the unit cache, so corrected files can be retried.
 - Family/type disagreement fails validation. Loading a definition does not
   initialize equipment or create store state. Only registered store mappers may
   create an editor session; other families return `unsupported-store-family`.

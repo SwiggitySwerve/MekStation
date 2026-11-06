@@ -334,17 +334,17 @@ describe('BlkExportServiceCore.formatters', () => {
   });
 
   // ============================================================================
-  // formatAerospaceArmor() — newline-joined Nose/LeftWing/RightWing/Aft
+  // formatAerospaceArmor() — newline-joined Nose/RightWing/LeftWing/Aft
   // ============================================================================
   describe('formatAerospaceArmor()', () => {
-    it('emits Nose/LeftWing/RightWing/Aft in that order', () => {
+    it('emits Nose/RightWing/LeftWing/Aft in that order', () => {
       const allocation = {
         [AerospaceLocation.NOSE]: 60,
         [AerospaceLocation.LEFT_WING]: 50,
-        [AerospaceLocation.RIGHT_WING]: 50,
+        [AerospaceLocation.RIGHT_WING]: 51,
         [AerospaceLocation.AFT]: 40,
       };
-      expect(formatAerospaceArmor(allocation)).toBe('60\n50\n50\n40');
+      expect(formatAerospaceArmor(allocation)).toBe('60\n51\n50\n40');
     });
 
     it('emits zeros for missing arcs', () => {
