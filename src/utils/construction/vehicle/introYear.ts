@@ -1,6 +1,7 @@
 import { blkEngineName } from '@/services/conversion/blkEngineIdentity';
 import { javaArmorIntroduction } from '@/types/construction/ArmorType';
 import { javaEngineIntroduction } from '@/types/construction/EngineType';
+import { INTRO_YEAR_MARGIN } from '@/utils/construction/equipmentIntroduction';
 
 /**
  * Vehicle intro-year checks: MegaMek 48fcb2f6 TestEntity.hasIncorrectIntroYear
@@ -10,7 +11,6 @@ import { javaEngineIntroduction } from '@/types/construction/EngineType';
  * armor loop (:1512-1552) and the engine part (:1594-1607). Patchwork armor
  * (code 7) is not: no pinned vehicle needs it.
  */
-const INTRO_YEAR_MARGIN = 5;
 /** TechConstants.isClan:394-398 (T_CLAN_TW, ADVANCED, EXPERIMENTAL, UNOFFICIAL, ALL_CLAN). */
 const CLAN_TECH_LEVELS = new Set([2, 6, 8, 10, 12]);
 const PATCHWORK = 7;
