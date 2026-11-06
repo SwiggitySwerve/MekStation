@@ -45,7 +45,8 @@ test('bounded ZIP decoder reads one exact JSON member without extraction', () =>
     assert.throws(() => decodeObservationArtifact(archive(members), filename));
 });
 
-function fixture() {
+function fixture({ guard = false } = {}) {
+  const metadata = { id: 1, full_name: 'owner/repo', default_branch: 'main' };
   const run = {
     id: 123,
     run_attempt: 1,
@@ -53,17 +54,25 @@ function fixture() {
     event: 'push',
     head_branch: 'main',
     head_sha: 'a'.repeat(40),
-    head_repository: { full_name: 'owner/repo' },
+    repository: { id: 1, full_name: 'owner/repo' },
+    head_repository: { id: 1, full_name: 'owner/repo' },
     path: '.github/workflows/pr-checks.yml',
     conclusion: 'success',
+    status: 'completed',
     created_at: '2026-11-02T00:00:00Z',
     run_started_at: '2026-11-02T00:00:01Z',
   };
   const artifact = {
     id: 7,
     name: filename,
-    workflow_run: { id: 123, head_sha: run.head_sha },
-    created_at: run.created_at,
+    workflow_run: {
+      id: 123,
+      head_sha: run.head_sha,
+      head_branch: 'main',
+      repository_id: 1,
+      head_repository_id: 1,
+    },
+    created_at: '2026-11-02T00:00:05Z',
     size_in_bytes: 100,
     expired: false,
   };
@@ -84,26 +93,89 @@ function fixture() {
       },
     },
   };
+  const producer = {
+    ...run,
+    id: 456,
+    run_attempt: 2,
+    workflow_id: 88,
+    event: 'workflow_run',
+    head_sha: 'c'.repeat(40),
+    path: '.github/workflows/lint-and-test-guard.yml',
+    created_at: '2026-11-02T00:01:00Z',
+    run_started_at: '2026-11-02T00:01:01Z',
+  };
+  const producerObservation = {
+    complete: true,
+    identity: {
+      ...envelope.observation.identity,
+      runId: producer.id,
+      attempt: producer.run_attempt,
+      workflowId: producer.workflow_id,
+      headSha: producer.head_sha,
+      event: producer.event,
+      createdAt: producer.created_at,
+      startedAt: producer.run_started_at,
+      completedAt: '2026-11-02T00:01:10.000Z',
+    },
+  };
+  const branch = { commit: { sha: 'd'.repeat(40) } };
+  const comparison = {
+    status: 'ahead',
+    base_commit: { sha: producer.head_sha },
+    merge_base_commit: { sha: producer.head_sha },
+  };
+  if (guard) {
+    envelope.producer = {
+      schema: 'mekstation/ci-observation-producer/v1',
+      repository: 'owner/repo',
+      runId: producer.id,
+      attempt: producer.run_attempt,
+      headSha: producer.head_sha,
+      sourceRunId: run.id,
+      sourceAttempt: run.run_attempt,
+    };
+    artifact.workflow_run = {
+      ...artifact.workflow_run,
+      id: producer.id,
+      head_sha: producer.head_sha,
+    };
+    artifact.created_at = '2026-11-02T00:01:05Z';
+  }
   const github = {
     rest: {
       repos: {
         getContent: async (args) => {
-          assert.equal(args.ref, run.head_sha);
+          const source = args.path === '.github/workflows/pr-checks.yml';
+          assert.equal(args.ref, source ? run.head_sha : producer.head_sha);
           return {
             data: {
               encoding: 'base64',
-              content: Buffer.from('source workflow').toString('base64'),
-              sha: 'source-blob',
+              content: Buffer.from(
+                source ? 'source workflow' : 'guard workflow',
+              ).toString('base64'),
+              sha: source ? 'source-blob' : 'guard-blob',
             },
           };
         },
         get: async () => ({
-          data: { full_name: 'owner/repo', default_branch: 'main' },
+          data: metadata,
         }),
+        getBranch: async () => ({ data: branch }),
+        compareCommitsWithBasehead: async (args) => {
+          assert.equal(
+            args.basehead,
+            `${producer.head_sha}...${branch.commit.sha}`,
+          );
+          return { data: comparison };
+        },
       },
       actions: {
         listArtifactsForRepo: 'artifacts',
-        getWorkflowRunAttempt: async () => ({ data: run }),
+        getWorkflowRunAttempt: async ({ run_id }) => {
+          if (![run.id, producer.id].includes(run_id))
+            throw new Error('Unknown live run');
+          return { data: run_id === run.id ? run : producer };
+        },
         downloadArtifact: async () => ({ data: Buffer.from('archive') }),
       },
     },
@@ -117,18 +189,31 @@ function fixture() {
       now: '2026-11-05T12:00:00Z',
       validateObservation: (e) => e,
       workflowGraphFromSource: (source) => {
-        assert.equal(source, 'source workflow');
+        assert.ok(['source workflow', 'guard workflow'].includes(source));
         return { jobGraph: { test: [] }, matrixGroups: {} };
       },
       collectRun: async (_transport, target) => {
-        assert.deepEqual(Object.keys(target.graphs.graphs), [run.head_sha]);
-        return { observation: structuredClone(envelope.observation) };
+        assert.deepEqual(Object.keys(target.graphs.graphs), [
+          target.runId === run.id ? run.head_sha : producer.head_sha,
+        ]);
+        return {
+          observation: structuredClone(
+            target.runId === run.id
+              ? envelope.observation
+              : producerObservation,
+          ),
+        };
       },
       decode: () => envelope,
     },
     run,
     artifact,
     envelope,
+    metadata,
+    producer,
+    producerObservation,
+    branch,
+    comparison,
   };
 }
 
@@ -222,4 +307,217 @@ test('G2 receives the immutable-head graph and a read-only fresh API transport',
     f.envelope.observation.identity.completedAt,
   );
   assert.equal(result.sources[0].workflowBlobSha, 'source-blob');
+});
+
+test('a verified Guard producer may upload a distinct completed PR Checks observation', async () => {
+  const f = fixture({ guard: true });
+  const result = await collectGardenObservations(f.input);
+  assert.equal(result.envelopes.length, 1);
+  assert.equal(result.diagnostics.length, 0);
+  assert.equal(result.sources[0].runId, f.run.id);
+  assert.equal(result.sources[0].producer.runId, f.producer.id);
+  assert.equal(result.sources[0].producer.kind, 'trusted-guard');
+  assert.equal(result.sources[0].producer.workflowBlobSha, 'guard-blob');
+  assert.equal(result.sources[0].producer.defaultHeadSha, f.branch.commit.sha);
+});
+
+test('wrong producer stamps or live metadata cannot authorize a source observation', async () => {
+  const mutations = {
+    'unstamped distinct producer': (f) => {
+      delete f.envelope.producer;
+    },
+    'stamp run': (f) => {
+      f.envelope.producer.runId = 999;
+    },
+    'stamp attempt': (f) => {
+      f.envelope.producer.attempt = 3;
+    },
+    'stamp head': (f) => {
+      f.envelope.producer.headSha = 'b'.repeat(40);
+    },
+    'stamp repository': (f) => {
+      f.envelope.producer.repository = 'other/repo';
+    },
+    'stamp source run': (f) => {
+      f.envelope.producer.sourceRunId = 999;
+    },
+    'stamp source attempt': (f) => {
+      f.envelope.producer.sourceAttempt = 2;
+    },
+    'artifact run': (f) => {
+      f.artifact.workflow_run.id = 999;
+    },
+    'artifact head': (f) => {
+      f.artifact.workflow_run.head_sha = 'b'.repeat(40);
+    },
+    'artifact repository': (f) => {
+      f.artifact.workflow_run.repository_id = 9;
+    },
+    'artifact head repository': (f) => {
+      f.artifact.workflow_run.head_repository_id = 9;
+    },
+    'artifact branch': (f) => {
+      f.artifact.workflow_run.head_branch = 'feature';
+    },
+    'live producer id': (f) => {
+      f.producer.id = 999;
+    },
+    'live producer attempt': (f) => {
+      f.producer.run_attempt = 3;
+    },
+    'live producer head': (f) => {
+      f.producer.head_sha = 'b'.repeat(40);
+    },
+    'live producer repository': (f) => {
+      f.producer.repository = { id: 9, full_name: 'owner/repo' };
+    },
+    'live producer fork': (f) => {
+      f.producer.head_repository = { id: 9, full_name: 'owner/repo' };
+    },
+  };
+  for (const [name, mutate] of Object.entries(mutations)) {
+    const f = fixture({ guard: true });
+    mutate(f);
+    const result = await collectGardenObservations(f.input);
+    assert.equal(result.envelopes.length, 0, name);
+    assert.equal(result.diagnostics.length, 1, name);
+  }
+});
+
+test('a main branch string is insufficient: verify Guard path, event, status and default-head ancestry', async () => {
+  const mutations = {
+    'wrong event': (f) => {
+      f.producer.event = 'workflow_dispatch';
+    },
+    'wrong path': (f) => {
+      f.producer.path = '.github/workflows/untrusted.yml';
+    },
+    'wrong branch': (f) => {
+      f.producer.head_branch = 'feature';
+      f.artifact.workflow_run.head_branch = 'feature';
+    },
+    'running producer': (f) => {
+      f.producer.status = 'in_progress';
+    },
+    'failed producer': (f) => {
+      f.producer.conclusion = 'failure';
+    },
+    'diverged commit': (f) => {
+      f.comparison.status = 'diverged';
+    },
+    'wrong comparison base': (f) => {
+      f.comparison.base_commit.sha = 'b'.repeat(40);
+    },
+    'wrong merge base': (f) => {
+      f.comparison.merge_base_commit.sha = 'b'.repeat(40);
+    },
+    'unavailable default history': (f) => {
+      f.input.github.rest.repos.compareCommitsWithBasehead = async () => {
+        throw new Error('API unavailable');
+      };
+    },
+    'unavailable immutable Guard source': (f) => {
+      f.input.github.rest.repos.getContent = async (args) => {
+        if (args.path.includes('guard')) throw new Error('Guard blob missing');
+        return {
+          data: {
+            encoding: 'base64',
+            content: Buffer.from('source workflow').toString('base64'),
+          },
+        };
+      };
+    },
+  };
+  for (const [name, mutate] of Object.entries(mutations)) {
+    const f = fixture({ guard: true });
+    mutate(f);
+    const result = await collectGardenObservations(f.input);
+    assert.equal(result.envelopes.length, 0, name);
+    assert.equal(result.diagnostics.length, 1, name);
+  }
+});
+
+test('artifact creation and fresh completion bind producer attempts rather than trusting a claimed attempt', async () => {
+  for (const created of [
+    '2026-11-02T00:00:05Z',
+    '2026-11-02T00:01:11Z',
+    'invalid',
+  ]) {
+    const f = fixture({ guard: true });
+    f.artifact.created_at = created;
+    const result = await collectGardenObservations(f.input);
+    assert.equal(result.envelopes.length, 0, created);
+    assert.equal(result.diagnostics.length, 1, created);
+  }
+  const f = fixture({ guard: true });
+  f.producerObservation.identity.attempt = 3;
+  assert.equal((await collectGardenObservations(f.input)).envelopes.length, 0);
+});
+
+test('Guard publication never relaxes source tuple, main-push policy, or fresh source timing equality', async () => {
+  const mutations = {
+    'source id': (f) => {
+      f.envelope.observation.identity.runId = 999;
+    },
+    'source attempt': (f) => {
+      f.envelope.observation.identity.attempt = 2;
+    },
+    'source head': (f) => {
+      f.envelope.observation.identity.headSha = 'b'.repeat(40);
+    },
+    'source repository': (f) => {
+      f.run.repository = { id: 9, full_name: 'owner/repo' };
+    },
+    'source fork': (f) => {
+      f.run.head_repository = { id: 9, full_name: 'owner/repo' };
+    },
+    'source PR event': (f) => {
+      f.run.event = 'pull_request';
+    },
+    'source feature branch': (f) => {
+      f.run.head_branch = 'feature';
+    },
+    'source running': (f) => {
+      f.run.status = 'in_progress';
+    },
+    'source graph/timing mismatch': (f) => {
+      f.input.collectRun = async () => ({ observation: {} });
+    },
+    'source completed after producer started': (f) => {
+      f.envelope.observation.identity.completedAt = '2026-11-02T00:02:00Z';
+    },
+  };
+  for (const [name, mutate] of Object.entries(mutations)) {
+    const f = fixture({ guard: true });
+    mutate(f);
+    assert.equal(
+      (await collectGardenObservations(f.input)).envelopes.length,
+      0,
+      name,
+    );
+  }
+});
+
+test('legacy direct-source acceptance still requires actual artifact metadata, repository and attempt time', async () => {
+  const valid = fixture();
+  const accepted = await collectGardenObservations(valid.input);
+  assert.equal(accepted.sources[0].producer.kind, 'direct-source');
+  for (const mode of [
+    'repository',
+    'head',
+    'before-attempt',
+    'after-attempt',
+  ]) {
+    const f = fixture();
+    if (mode === 'repository') f.artifact.workflow_run.repository_id = 9;
+    if (mode === 'head') f.artifact.workflow_run.head_sha = 'b'.repeat(40);
+    if (mode === 'before-attempt') f.artifact.created_at = f.run.created_at;
+    if (mode === 'after-attempt')
+      f.artifact.created_at = '2026-11-02T00:00:11Z';
+    assert.equal(
+      (await collectGardenObservations(f.input)).envelopes.length,
+      0,
+      mode,
+    );
+  }
 });
