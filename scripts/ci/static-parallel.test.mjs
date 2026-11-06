@@ -4,17 +4,59 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { parse } from 'yaml';
 
 import { start, wait } from './background-step.mjs';
 
-const workflow = parse(
-  fs.readFileSync(
+// Detect Changes runs these contracts before dependencies are installed.
+// Read the named blocks directly, as the existing toolchain contracts do.
+const workflow = fs
+  .readFileSync(
     new URL('../../.github/workflows/pr-checks.yml', import.meta.url),
     'utf8',
-  ),
-);
-const steps = workflow.jobs['static-checks'].steps;
+  )
+  .replaceAll('\r\n', '\n');
+const job = (source, name) => {
+  const tail = source.split(`\n  ${name}:\n`)[1];
+  assert.ok(tail, `Missing job: ${name}`);
+  return tail.split(/\n  [\w-]+:\n/)[0];
+};
+const staticSteps = (source) => {
+  const block = job(source, 'static-checks');
+  const headers = [...block.matchAll(/^      - name: (.+)$/gm)];
+  return headers.map((header, index) => {
+    const body = block.slice(header.index, headers[index + 1]?.index);
+    const field = (name) =>
+      body.match(new RegExp(`^        ${name}: (.+)$`, 'm'))?.[1];
+    return {
+      body,
+      name: header[1],
+      run: field('run'),
+      if: field('if'),
+      'continue-on-error': field('continue-on-error'),
+    };
+  });
+};
+const requiredJobs = (source) => {
+  const names = job(source, 'lint-and-test').match(
+    /    needs:\s*\[([^\]]+)\]/,
+  )?.[1];
+  assert.ok(names, 'Missing aggregator dependencies');
+  return names
+    .split(',')
+    .map((name) => name.trim())
+    .filter(Boolean);
+};
+const aggregator = job(workflow, 'lint-and-test');
+const dependencies = requiredJobs(workflow);
+const gates = aggregator
+  .match(/          GATES: >-\n((?:            .+\n)+)/)?.[1]
+  .trim();
+assert.ok(gates, 'Missing aggregator gates');
+JSON.parse(gates);
+const aggregatorRun = aggregator
+  .match(/^        run: \|\n((?:          .*\n?)*)/m)?.[1]
+  .replace(/^          /gm, '');
+assert.ok(aggregatorRun, 'Missing aggregator assertion');
 const hasBash =
   spawnSync('bash', ['-c', 'true'], { timeout: 5000 }).status === 0;
 const bashTest = hasBash ? test : test.skip;
@@ -24,19 +66,17 @@ const sink = () => {
 };
 
 const assertAggregator = (failed) => {
-  const aggregator = workflow.jobs['lint-and-test'];
   const needs = Object.fromEntries(
-    aggregator.needs.map((name) => [name, { result: 'success' }]),
+    dependencies.map((name) => [name, { result: 'success' }]),
   );
   needs['static-checks'].result = failed ? 'failure' : 'success';
-  const step = aggregator.steps[0];
-  const result = spawnSync('bash', ['-e', '-c', step.run], {
+  const result = spawnSync('bash', ['-e', '-c', aggregatorRun], {
     encoding: 'utf8',
     timeout: 5000,
     env: {
       ...process.env,
       NEEDS_JSON: JSON.stringify(needs),
-      GATES: step.env.GATES,
+      GATES: gates,
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
@@ -47,7 +87,8 @@ const assertAggregator = (failed) => {
   );
 };
 
-test('format overlaps typecheck, after route generation, with independent failure gates', () => {
+const assertSchedule = (source) => {
+  const steps = staticSteps(source);
   const index = (name) => steps.findIndex((step) => step.name === name);
   const generate = index('Generate Next.js route types');
   const launch = index('Start Format Check in the background');
@@ -71,8 +112,72 @@ test('format overlaps typecheck, after route generation, with independent failur
     assert.equal(steps[index]['continue-on-error'], undefined);
   }
   assert.ok(format < index('Check generated work list after formatting'));
-  assert.ok(workflow.jobs['lint-and-test'].needs.includes('static-checks'));
-});
+  assert.ok(requiredJobs(source).includes('static-checks'));
+};
+
+test('format overlaps typecheck, after route generation, with independent failure gates', () =>
+  assertSchedule(workflow));
+
+const stepBody = (name) => {
+  const step = staticSteps(workflow).find((step) => step.name === name);
+  assert.ok(step, `Missing fixture step: ${name}`);
+  return step.body;
+};
+const launchBody = stepBody('Start Format Check in the background');
+const typeBody = stepBody('Type Check');
+const waitBody = stepBody('Format Check');
+const swap = (a, b) =>
+  workflow.replace(a, 'FIXTURE_STEP').replace(b, a).replace('FIXTURE_STEP', b);
+const fixtures = {
+  'missing launch': workflow.replace(launchBody, ''),
+  'missing wait': workflow.replace(waitBody, ''),
+  'launch after typecheck': swap(launchBody, typeBody),
+  'wait before typecheck': swap(typeBody, waitBody),
+  'launch only in an unrelated job': workflow
+    .replace(launchBody, '')
+    .replace(
+      '\n  simulation-checks:\n',
+      `\n  simulation-checks:\n${launchBody}`,
+    ),
+  'launch only in a comment': workflow.replace(
+    launchBody,
+    launchBody
+      .split('\n')
+      .map((line) => `# ${line}`)
+      .join('\n'),
+  ),
+  'wait only in an unrelated job': workflow
+    .replace(waitBody, '')
+    .replace('\n  simulation-checks:\n', `\n  simulation-checks:\n${waitBody}`),
+  'wait only in a comment': workflow.replace(
+    waitBody,
+    waitBody
+      .split('\n')
+      .map((line) => `# ${line}`)
+      .join('\n'),
+  ),
+  'lost format failure propagation': workflow.replace(
+    waitBody,
+    waitBody.replace('if: ${{ !cancelled() }}', 'if: ${{ success() }}'),
+  ),
+  'lost typecheck failure propagation': workflow.replace(
+    typeBody,
+    typeBody.replace(
+      '        run:',
+      '        continue-on-error: true\n        run:',
+    ),
+  ),
+  'static checks missing from aggregator': workflow.replace(
+    '        static-checks,\n',
+    '',
+  ),
+};
+for (const [name, source] of Object.entries(fixtures)) {
+  test(`rejects ${name}`, () => {
+    assert.notEqual(source, workflow, 'Fixture did not mutate the workflow');
+    assert.throws(() => assertSchedule(source));
+  });
+}
 
 for (const [formatCode, typeCode] of [
   [0, 0],
