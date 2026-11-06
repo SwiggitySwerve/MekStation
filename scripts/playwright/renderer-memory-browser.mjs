@@ -6,6 +6,8 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { BROWSER_MAIN_MAXRSS_MEANING } from './renderer-memory.mjs';
+
 const quote = (text) => "'" + text.replaceAll("'", "'\\''") + "'";
 
 export function writeBrowserWrapper({
@@ -79,8 +81,7 @@ export function prepareInstalledBrowser(root) {
           .createHash('sha256')
           .update(fs.readFileSync(binary))
           .digest('hex'),
-        kernelPeakMeaning:
-          'Largest accounted process RSS through command exit, including reaped descendants. Not simultaneous tree RSS; orphaned or unwaited descendants may not be included.',
+        kernelPeakMeaning: BROWSER_MAIN_MAXRSS_MEANING,
       },
       null,
       2,

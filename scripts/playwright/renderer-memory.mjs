@@ -2,6 +2,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+export const BROWSER_MAIN_MAXRSS_MEANING =
+  'Browser main process maxrss; it does not bound descendant renderer VmHWM or simultaneous process-tree RSS.';
+
 const bytes = (text, key) => {
   const value = new RegExp(`^${key}:\\s+(\\d+) kB$`, 'm').exec(text)?.[1];
   return value === undefined ? null : Number(value) * 1024;
@@ -190,9 +193,9 @@ export function parseKernelReceipt(text) {
     throw new Error('Kernel browser exit RSS/exit status missing or invalid');
   return {
     ...row,
-    maxAccountedProcessRssBytes: row.maxRssKiB * 1024,
-    meaning:
-      'Kernel wait/rusage maximum for the largest accounted process, including reaped descendants; not simultaneous tree RSS or a guarantee for orphaned/unwaited children.',
+    browserMainMaxRssBytes: row.maxRssKiB * 1024,
+    scope: 'browser-main-process',
+    meaning: BROWSER_MAIN_MAXRSS_MEANING,
   };
 }
 
@@ -226,7 +229,7 @@ export function verifyRendererCoverage(rows, kernels) {
     !rows.some((r) => r.phase === 'context-close-end')
   )
     throw new Error('Context-close event bracket missing');
-  const covered = [];
+  const rendererObservations = [];
   for (const { row, renderer } of observations) {
     const byPid = new Map(row.observation.processes.map((p) => [p.pid, p]));
     const visited = new Set();
@@ -240,30 +243,33 @@ export function verifyRendererCoverage(rows, kernels) {
         const kernel = kernels.find(
           (k) =>
             k.wrapperPid === parent.ppid &&
-            k.receipt.maxAccountedProcessRssBytes >= renderer.highWaterRssBytes,
+            Number.isSafeInteger(k.receipt.browserMainMaxRssBytes) &&
+            k.receipt.browserMainMaxRssBytes > 0,
         );
         if (kernel)
-          covered.push({
+          rendererObservations.push({
             rendererPid: renderer.pid,
             browserPid: parent.pid,
             wrapperPid: parent.ppid,
+            observedRendererRssBytes: renderer.rssBytes,
             observedRendererVmHwmBytes: renderer.highWaterRssBytes,
-            kernel: kernel.receipt,
+            browserMainProcess: kernel.receipt,
           });
         break;
       }
       parent = byPid.get(parent.ppid);
     }
   }
-  if (!covered.length)
-    throw new Error(
-      'Correlated kernel command-exit RSS does not account for observed renderer high water',
-    );
+  if (!rendererObservations.length)
+    throw new Error('Correlated browser main process maxrss receipt missing');
   return {
     status: 'OBSERVABLE',
+    primaryRendererEvidence: 'procfs-per-renderer-vmrss-vmhwm',
     bodyRendererPids: [...bodyPids],
-    covered,
+    rendererObservations,
+    rendererTeardownPeakBytes: null,
+    stabilityClearance: false,
     limitation:
-      'Kernel receipt covers largest accounted process, not summed tree RSS or guaranteed orphan accounting. Observability is not stability clearance.',
+      'Procfs renderer VmRSS/VmHWM samples are primary. Browser main process maxrss is separate; renderer peaks after the last sample remain unknown. Observability is not stability clearance.',
   };
 }

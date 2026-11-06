@@ -211,7 +211,10 @@ test('kernel command-exit receipt retains RSS units and native nonzero failures'
   const receipt = parseKernelReceipt(
     'Command exited with non-zero status 11\n{"schema":"mekstation-browser-rusage/v1","maxRssKiB":32768,"exitStatus":11,"wallSeconds":"2.4"}\n',
   );
-  assert.equal(receipt.maxAccountedProcessRssBytes, 32768 * 1024);
+  assert.equal(receipt.browserMainMaxRssBytes, 32768 * 1024);
+  assert.equal(receipt.scope, 'browser-main-process');
+  assert.match(receipt.meaning, /Browser main process maxrss/);
+  assert.ok(!Object.hasOwn(receipt, 'maxAccountedProcessRssBytes'));
   assert.equal(receipt.exitStatus, 11);
   for (const text of [
     '',
@@ -222,7 +225,62 @@ test('kernel command-exit receipt retains RSS units and native nonzero failures'
     assert.throws(() => parseKernelReceipt(text));
 });
 
-test('observability fails closed for old zero-renderer data, missing pre-close and missing/under-accounted exit RSS', () => {
+test('control descendant VmHWM is independent of the browser main process maxrss', () => {
+  const processes = [
+    {
+      pid: 3366,
+      ppid: 3109,
+      role: 'renderer',
+      rssBytes: 451133440,
+      highWaterRssBytes: 459505664,
+    },
+    {
+      pid: 3109,
+      ppid: 3105,
+      role: 'browser',
+      command: 'chrome-headless-shell --type=zygote',
+    },
+    {
+      pid: 3105,
+      ppid: 3104,
+      role: 'browser',
+      command: 'chrome-headless-shell --remote-debugging-pipe',
+      highWaterRssBytes: 146178048,
+    },
+    { pid: 3104, ppid: 3091, role: 'runner', command: '/usr/bin/time' },
+  ];
+  const rows = [
+    'body-api-end',
+    'pre-teardown',
+    'context-close-begin',
+    'context-close-end',
+  ].map((phase) => ({ phase, observation: { processes } }));
+  const receipt = parseKernelReceipt(
+    '{"schema":"mekstation-browser-rusage/v1","maxRssKiB":142752,"exitStatus":0,"wallSeconds":"171.27"}\n',
+  );
+  const result = verifyRendererCoverage(rows, [{ wrapperPid: 3104, receipt }]);
+  assert.equal(result.status, 'OBSERVABLE');
+  assert.equal(
+    result.primaryRendererEvidence,
+    'procfs-per-renderer-vmrss-vmhwm',
+  );
+  assert.equal(
+    result.rendererObservations[0].observedRendererVmHwmBytes,
+    459505664,
+  );
+  assert.equal(
+    result.rendererObservations[0].observedRendererRssBytes,
+    451133440,
+  );
+  assert.equal(
+    result.rendererObservations[0].browserMainProcess.browserMainMaxRssBytes,
+    146178048,
+  );
+  assert.equal(result.rendererTeardownPeakBytes, null);
+  assert.equal(result.stabilityClearance, false);
+});
+
+test('observability fails closed for missing renderer, pre-close, close bracket or browser receipt', () => {
   const processes = [
     {
       pid: 130,
@@ -248,7 +306,7 @@ test('observability fails closed for old zero-renderer data, missing pre-close a
   const kernels = [
     {
       wrapperPid: 119,
-      receipt: { maxAccountedProcessRssBytes: 4096, exitStatus: 0 },
+      receipt: { browserMainMaxRssBytes: 4096, exitStatus: 0 },
     },
   ];
   assert.equal(verifyRendererCoverage(rows, kernels).status, 'OBSERVABLE');
@@ -267,10 +325,31 @@ test('observability fails closed for old zero-renderer data, missing pre-close a
     ),
   );
   assert.throws(() => verifyRendererCoverage(rows, []));
+  for (const phase of ['context-close-begin', 'context-close-end'])
+    assert.throws(() =>
+      verifyRendererCoverage(
+        rows.filter((r) => r.phase !== phase),
+        kernels,
+      ),
+    );
+  assert.throws(() =>
+    verifyRendererCoverage(
+      rows.map((r) => ({
+        ...r,
+        observation: {
+          processes: processes.map((p) => ({ ...p, highWaterRssBytes: null })),
+        },
+      })),
+      kernels,
+    ),
+  );
   assert.throws(() =>
     verifyRendererCoverage(rows, [
-      { wrapperPid: 119, receipt: { maxAccountedProcessRssBytes: 512 } },
+      { wrapperPid: 999, receipt: { browserMainMaxRssBytes: 512 } },
     ]),
+  );
+  assert.throws(() =>
+    verifyRendererCoverage(rows, [{ wrapperPid: 119, receipt: {} }]),
   );
 });
 
