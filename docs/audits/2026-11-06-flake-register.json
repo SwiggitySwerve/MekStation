@@ -15,7 +15,8 @@
     "source-described": "Exact environment is in source diagnostic; no cross-incident inference",
     "u89-unit-ci": "GitHub-hosted ubuntu-latest; captured Ubuntu26.04.1 LTS image20261101.186.1, Node22.23.4, cached unit shard2/3, maxWorkers4. No contention telemetry collected.",
     "2932-chromium": "GitHub-hosted ubuntu-latest; captured Ubuntu26.04 image, Node22.23.4, Playwright Chromium library shard2/2, actualWorkers1. Native failed result retry0; do not infer configured retry policy from that alone.",
-    "42205390500-control-chromium": "Two-shard diagnostic control/baseline, GitHub-hosted Linux x64, 4 CPUs, runner image20261101.186.1, Node22.23.4, cached Chromium headless-shell143.0.7499.4/revision1200. Browser binary SHA25620ffc88be1c6f7dc8351bebfaca965ff9a07617bddf696f0b67ef85e5868b29a. Exact environment is from the retained completed audit."
+    "42205390500-control-chromium": "Two-shard diagnostic control/baseline, GitHub-hosted Linux x64, 4 CPUs, runner image20261101.186.1, Node22.23.4, cached Chromium headless-shell143.0.7499.4/revision1200. Browser binary SHA25620ffc88be1c6f7dc8351bebfaca965ff9a07617bddf696f0b67ef85e5868b29a. Exact environment is from the retained completed audit.",
+    "42219240827-chromium": "GitHub-hosted E2E2/2, ubuntu-26.04 image20261101.186.1, Node22.23.4 (raw job log lines17/18/190), Playwright1.57.0, actualWorkers1 (retained native library report). Failed result retry0; no cross-incident environment inference."
   },
   "latestNightly": {
     "runId": 42072283514,
@@ -738,6 +739,108 @@
       "location": "coordinator-archive",
       "sha256": "fd9ea3aaafbcc4b29eb85edf4e2794a9fb065a393cae0ddc8cc37f62355a4f79",
       "bytes": 1275
+    },
+    "42219240827-job": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/job.json",
+      "location": "coordinator-archive",
+      "sha256": "a1181fb1c1e0f244c21e1c900c76ceafef0268e66d34cd39657c6248016532ee",
+      "bytes": 4563
+    },
+    "42219240827-run": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/run.json",
+      "location": "coordinator-archive",
+      "sha256": "10a9941f8f9be27604f608729dd20073d86c1bf0cea148f2c74b6376283c761a",
+      "bytes": 12859
+    },
+    "42219240827-log": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/job.log",
+      "location": "coordinator-archive",
+      "sha256": "c7df3523250d11b50692307178e71863f1d0b01225aeeba6532faacb8d796fdd",
+      "bytes": 80044
+    },
+    "42219240827-capture": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/capture.json",
+      "location": "coordinator-archive",
+      "sha256": "defb773547152d8015bd6de3211c1d22f1c9c89158e21e31dc9db532f2af4eb9",
+      "bytes": 992
+    },
+    "42219240827-artifact-receipt": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/artifact-receipt.json",
+      "location": "coordinator-archive",
+      "sha256": "6937e8661ab697ea829bc4a537878f28619bcec67a1c225747781f26ed082119",
+      "bytes": 401
+    },
+    "42219240827-inventory": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/artifact-inventory.json",
+      "location": "coordinator-archive",
+      "sha256": "6b6b7e0b8150c69309090b7bacf33b09279a17110bf56824a344f1295a475804",
+      "bytes": 18680
+    },
+    "42219240827-native": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/artifact-files/e2e-timings-2/library.json",
+      "location": "coordinator-archive",
+      "sha256": "f605b7ccfe36be8ac15b9ecadf2a0c9ca32318b7a5ff85f52db49a8daff38314",
+      "bytes": 118547
+    },
+    "42219240827-context": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/artifact-files/e2e-report-2/test-results/library/customizer-library-open-li-7d3fa-reopen-and-print-customizer-chromium/error-context.md",
+      "location": "coordinator-archive",
+      "sha256": "089f8600d60bb9369946446d36bf8fca1b8affdb2fc0eee1e25d555bfd29cebd",
+      "bytes": 11334
+    },
+    "42219240827-report-zip": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/e2e-report-2.zip",
+      "location": "coordinator-archive",
+      "sha256": "808ae28cfff3ff04cbe2d7db27ea4d79d1e887f7894b57b174324e82772c81f7",
+      "bytes": 7571183
+    },
+    "42219240827-timings-zip": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/e2e-timings-2.zip",
+      "location": "coordinator-archive",
+      "sha256": "6132b66e235dd331eb11e5a2490bfa2760de36d5148d93bad2c00f3dd7bbbbb0",
+      "bytes": 506597
+    },
+    "2962-p7-committed-proof": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/committed-proof.json",
+      "location": "coordinator-archive",
+      "sha256": "084bad6c9cfddde1309ad8841f8ab8f09b9759502735c72b7588ba88ae1cdc3c",
+      "bytes": 5088
+    },
+    "2962-p7-red": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/red-receipt.json",
+      "location": "coordinator-archive",
+      "sha256": "609e7993f182151598cacbde749a73cf54b8469946711cb2dcc9819eb8ec00e5",
+      "bytes": 1721
+    },
+    "2962-p7-green": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/green-receipt.json",
+      "location": "coordinator-archive",
+      "sha256": "20dd6d3dd5e1c43b600c9ae928c9f9cdcf7ba4fdeea3b86ecb66087ba234f70e",
+      "bytes": 1695
+    },
+    "2962-p7-committed": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/committed-receipt.json",
+      "location": "coordinator-archive",
+      "sha256": "259bc6afac9cb2522afd19b97e811de8706e3f63a209209b4f3b16f63b8e6f28",
+      "bytes": 1698
+    },
+    "2962-p7-preservation": {
+      "path": "normal-work/P7-editors/keyboard-fill-recurrence-42219240827/source-preservation.json",
+      "location": "coordinator-archive",
+      "sha256": "161731b3f4ce938633522f5df88f90ee7f07c3494e71a11ee2ba02a84a693833",
+      "bytes": 583
+    },
+    "2962-root-merge": {
+      "path": "normal-work/G6-flake-register/2962-keyboard-initial-value-recurrence/root-merge-event.json",
+      "location": "coordinator-archive",
+      "sha256": "f069c0c934cc7589e2228e48ff73626c17d97d8c688dbedff6c53e29fa25179a",
+      "bytes": 1037
+    },
+    "2962-local-verification": {
+      "path": "normal-work/G6-flake-register/2962-keyboard-initial-value-recurrence/local-verification.json",
+      "location": "coordinator-archive",
+      "sha256": "6a938409522c6df99ba2c3897d8b8124d4b76207f166884af8b31f9ef0a53241",
+      "bytes": 3232
     }
   },
   "entries": [
@@ -1863,12 +1966,12 @@
     {
       "id": "G6-041",
       "classification": "confirmed-intermittent",
-      "state": "guard merged; confirmed intermittent; probable cause, not proven; no stability clearance",
+      "state": "recurrence observed after#2937;#2962 readiness fix merged; hosted cause UNCONFIRMED; Root observation pending",
       "test": "e2e/customizer-library-open.spec.ts:1065 — library flows1440 > fighter: edit, save, reload, reopen and print",
       "environment": "2932-chromium",
-      "summary": "Same PR head614822610b47c0ab2f8c3148345122f2ac050db6: run42201733032 attempt1/job127838633272 failed and attempt2/job127843972188 E2E2/2 passed, confirming intermittency. Root alone reran. Retained context shows ShiloneFlow Shilone... rather than expected Flow Shilone...; P7 attributes the timeout downstream of this name mismatch. Exact lost-selection/form-event cause and fix completeness remain unproved. Root25-run/date-only hypothesis is separate from confirmed same-head fail/pass. Root reports keyboard guard PR#2937 merged as2f0c45eeb93e99dcba53db75f08b1785efb5e9fd with hosted E2E1/2 and2/2 passing on a1dda6abeebec0b8baf3b64dc6832c4739ff8ecf. PROBABLE cause: stale input prefix accepted by keyboard fill; guarded. Original trace unavailable; causal mechanism remains unproved.",
+      "summary": "Same PR head614822610b47c0ab2f8c3148345122f2ac050db6: run42201733032 attempt1/job127838633272 failed and attempt2/job127843972188 E2E2/2 passed, confirming intermittency. Root alone reran. Retained context shows ShiloneFlow Shilone... rather than expected Flow Shilone...; P7 attributes the timeout downstream of this name mismatch. Exact lost-selection/form-event cause and fix completeness remain unproved. Root25-run/date-only hypothesis is separate from confirmed same-head fail/pass. Root reports keyboard guard PR#2937 merged as2f0c45eeb93e99dcba53db75f08b1785efb5e9fd with hosted E2E1/2 and2/2 passing on a1dda6abeebec0b8baf3b64dc6832c4739ff8ecf. PROBABLE cause: stale input prefix accepted by keyboard fill; guarded. Original trace unavailable; causal mechanism remains unproved. Later recurrence on#2951 run42219240827/a1 job127897593926 head45fc5728bd76b5e27526efa7a4b15c7f6df00a6c: infantry Chassis Name retained AA Jump Infantry prefix;#2937 exact-value guard failed as intended. Root merged#2962 known-initial-value readiness fix as7a37f29e15bbd450ce9ad287a28e76baf61b6ff7. P7 controlled DOM race RED then GREEN proves helper readiness weakness, not this hosted event cause; hosted cause UNCONFIRMED and no stability clearance.",
       "owner": "P7-editors — diagnosis and smallest justified robustness follow-up; Root alone owns rerun/merge; G6 owns capture/register",
-      "nextStep": "Retain merged keyboard-guard proof and PROBABLE qualification. P7 owns any further diagnosis only if separately routed by Root. Preserve original capture and exact same-head failure/pass observations. No incident downloads, new browser/hosted run, implementation or stability clearance authorized by this update.",
+      "nextStep": "Root checks next otherwise-authorized hosted E2E runs for recurrence after#2962. This observation has not been performed or scheduled by G6. P7 retains helper diagnosis ownership; G6 records evidence only. No worker watcher/poll, capture/download, browser or hosted rerun, implementation or stability clearance.",
       "observations": [
         {
           "runId": 42201733032,
@@ -1901,6 +2004,39 @@
           "result": "passed on same PR head; confirmed by exact attempt2 job metadata",
           "source": "2932-attempt2-jobs",
           "rerunOwner": "Root alone"
+        },
+        {
+          "pr": 2951,
+          "runId": 42219240827,
+          "workflowAttempt": 1,
+          "jobId": 127897593926,
+          "head": "45fc5728bd76b5e27526efa7a4b15c7f6df00a6c",
+          "checkedOutMerge": "dfab3dca42e6fc94873d87f315126befea84bc9f",
+          "proofBase": "2bf3ae4106917cd9035d76893f7c9f1a9723a81d",
+          "file": "e2e/customizer-library-open.spec.ts",
+          "line": 1089,
+          "testId": "3284667778560f08cb18-7574ac9dcb9903390c9e",
+          "testRetry": 0,
+          "startTime": "2026-11-06T12:45:34.910Z",
+          "durationMs": 14748,
+          "status": "failed",
+          "libraryStats": {
+            "startTime": "2026-11-06T12:42:45.756Z",
+            "duration": 187860.68,
+            "expected": 29,
+            "skipped": 0,
+            "unexpected": 1,
+            "flaky": 0
+          },
+          "failureLocation": "e2e/helpers/keyboardNavigation.ts:32",
+          "sourceLogLines": [858, 870, 871, 874, 883],
+          "expectedValue": "Flow AA Jump Infantry Long Label Layout Check 1793969139583-0",
+          "receivedValue": "AA Jump InfantryFlow AA Jump Infantry Long Label Layout Check 1793969139583-0",
+          "environment": "42219240827-chromium",
+          "jobName": "E2E (2/2)",
+          "source": "42219240827-log",
+          "nativeSource": "42219240827-native",
+          "relationshipTo2937": "Recurrence of stale prefix after the exact-value guard; that guard detected the mismatch at line32. This differs from the earlier downstream Close-locator timeout."
         }
       ],
       "sources": [
@@ -1912,13 +2048,31 @@
         "2932-p7-findings",
         "2932-attempt2-jobs",
         "2932-root-rerun",
-        "2937-root-merge-event"
+        "2937-root-merge-event",
+        "42219240827-job",
+        "42219240827-run",
+        "42219240827-log",
+        "42219240827-capture",
+        "42219240827-artifact-receipt",
+        "42219240827-inventory",
+        "42219240827-native",
+        "42219240827-context",
+        "42219240827-report-zip",
+        "42219240827-timings-zip",
+        "2962-p7-committed-proof",
+        "2962-p7-red",
+        "2962-p7-green",
+        "2962-p7-committed",
+        "2962-p7-preservation",
+        "2962-root-merge",
+        "2962-local-verification"
       ],
       "missingEvidence": [
         "No trace was attached by the failed native result or found in the three retained artifacts.",
         "Root last25PRruns/no-other-hit/date-only hypothesis was not independently re-audited by G6.",
         "Why selection/form interaction retained the old Shilone prefix is unresolved; absent trace prevents exact event reconstruction.",
-        "Guard hosted E2E passes are Root-reported at exact proof head; run/job/attempt IDs were not supplied and were not fetched. Original trace remains unavailable, so probable cause is not proven."
+        "Guard hosted E2E passes are Root-reported at exact proof head; run/job/attempt IDs were not supplied and were not fetched. Original trace remains unavailable, so probable cause is not proven.",
+        "Recurrence has no trace in either retained artifact inventory; screenshot/context and raw/native results show final values, not historical selection/focus event order. Controlled readiness race is proven locally; hosted cause UNCONFIRMED. Root future hosted recurrence observation is pending, not claimed performed."
       ],
       "diagnosticFinding": {
         "recordedAtUtc": "2026-11-06T10:44:22.651721+00:00",
@@ -1975,6 +2129,63 @@
         },
         "scope": "Merged keyboard-fill value guard; this records guard publication, not a proven causal diagnosis or general stability clearance.",
         "historicalStatusScope": "Original rerunConfirmation.fixComplete=false and planned diagnostic fields above retain their pre-merge evidence scope; this mergedGuard object records the later merge event.",
+        "stabilityClearance": false
+      },
+      "probableCauseScope": "Earlier probableCause and mergedGuard fields describe the original fighter incident and#2937. Preserve that historical qualification; do not promote it to proven cause of the later infantry event.",
+      "recurrenceFollowup": {
+        "pr": 2951,
+        "runId": 42219240827,
+        "workflowAttempt": 1,
+        "jobId": 127897593926,
+        "head": "45fc5728bd76b5e27526efa7a4b15c7f6df00a6c",
+        "fixPr": 2962,
+        "mergeCommit": "7a37f29e15bbd450ce9ad287a28e76baf61b6ff7",
+        "source": "2962-root-merge",
+        "fix": "Keyboard fill waits for known INITIAL value before select-all; existing exact post-insert value guard remains.",
+        "proofLineage": {
+          "source": "2962-p7-committed-proof",
+          "head": "feba55fe17fbe8ee91199f2875b0ebf71a72bef8",
+          "tree": "e1ecef01e417bd338fa86556b7146be1b3d3087f",
+          "main": "df42b26095a27bcb67a1bb44b17d4db97d276c7f",
+          "sourceHashes": [
+            {
+              "file": "e2e/helpers/keyboardNavigation.ts",
+              "sha256": "96947132e7b871339d709aa59336f945bd9ce6a625dd5d5a3c2aff035abf4e1d"
+            },
+            {
+              "file": "e2e/customizer-library-open.spec.ts",
+              "sha256": "c4bcc1ddd67366612c62f3ffda3d8dbb463d6ffac85e32ac80872d143e57f8dc"
+            }
+          ],
+          "precommitRedGreenHead": "ae22527d80db8a349eff63971b7323fd80c959bb",
+          "precommitScope": "Red/green receipts record this checkout HEAD and explicit changed-source hashes; committed replay separately records exact committed head/tree/main."
+        },
+        "controlledRegression": {
+          "redSource": "2962-p7-red",
+          "redExit": 1,
+          "redSequence": "select-all on empty input -> initial AA Jump Infantry write/caret collapse -> prefixed insert",
+          "reproducedPrefix": "AA Jump InfantryFlow AA Jump Infantry",
+          "greenSource": "2962-p7-green",
+          "greenExit": 0,
+          "committedSource": "2962-p7-committed",
+          "committedExit": 0,
+          "cases": 3,
+          "retries": 0,
+          "workers": 1,
+          "preservedCases": [
+            "normal text/numeric replacement",
+            "intercepted-select-all retained-prefix failure guard"
+          ],
+          "newCase": "wait for known initial value before selecting/replacing text",
+          "proven": "Controlled DOM race reproduces and the readiness condition repairs the helper weakness."
+        },
+        "hostedCause": "UNCONFIRMED: no trace/event-order evidence; consistent local reproduction does not establish historical hosted causation.",
+        "trace": "No trace or nested ZIP members in either retained report/timings inventory.",
+        "nextHostedObservation": {
+          "owner": "Root",
+          "state": "pending; not performed or scheduled by G6",
+          "action": "Check next otherwise-authorized hosted E2E runs for recurrence."
+        },
         "stabilityClearance": false
       }
     },
@@ -2170,6 +2381,12 @@
       "incident": "G6-041",
       "scope": "Root releases bounded follow-up after#2937 merge: record PROBABLE stale-input-prefix cause and merged guard with Root-reported E2E1/2+2/2 PASS at exact proof head. Fresh current-main branch;#2939 frozen. No incident query/download, browser/hosted rerun, implementation or stability clearance.",
       "priorReceipts": "All original same-head observations, diagnostic/rerun evidence, prior entries and sealed capture/history receipts preserved. New event/verification under normal-work/G6-flake-register/2937-keyboard-guard-merge/."
+    },
+    {
+      "addedAtUtc": "2026-11-06T20:16:44.822248+00:00",
+      "incident": "G6-041",
+      "scope": "Root-assigned docs/data recurrence addendum after#2962 merge. Reuse existing P7 raw/digest-verified report/timings and committed proof only. Controlled readiness race proven; current hosted cause UNCONFIRMED, earlier probable-prefix cause preserved separately. Root owns next hosted recurrence observation; no child watch/rerun/capture or stability clearance.",
+      "priorReceipts": "All previous entries/evidence preserved; new bounded verification under normal-work/G6-flake-register/2962-keyboard-initial-value-recurrence/."
     }
   ]
 }
