@@ -1,3 +1,4 @@
+import { hash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -34,19 +35,50 @@ beforeAll(async () => {
   await getEquipmentRegistry().initialize();
 });
 
+interface BallisticDate {
+  readonly file: string;
+  readonly id: string;
+  readonly year: number;
+}
+const ballisticDates = readFileSync(
+  join(
+    process.cwd(),
+    'src/utils/construction/__tests__/fixtures/java-introduction-dates/ballistic.jsonl',
+  ),
+  'utf8',
+)
+  .trim()
+  .split('\n')
+  .map((line) => JSON.parse(line) as BallisticDate);
+const ballisticIntroduction = (id: string): number => {
+  const row = ballisticDates.find((row) => row.id === id);
+  if (!row) throw new Error(`Missing ballistic probe date: ${id}`);
+  return row.year;
+};
+
+it('pins exactly 89 ballistic catalog copies for 87 equipment identities', () => {
+  expect(ballisticDates).toHaveLength(89);
+  expect(new Set(ballisticDates.map((row) => row.id)).size).toBe(87);
+  const keys = ballisticDates.map((row) => `${row.file}:${row.id}`).sort();
+  expect(new Set(keys).size).toBe(89);
+  expect(hash('sha256', JSON.stringify(keys))).toBe(
+    '3c7789a07b62693a179818bcbffdb6baf7be79f7284ea2a819c06165a11934ce',
+  );
+});
+
 /** @spec equipment-database source-backed catalog availability */
 it.each([
   ['beagle-active-probe', 2576, 2835, 3045],
   ['active-probe-beagle', 2576, 2835, 3045],
   ['er-large-laser', 2620, 2950, 3037],
-  ['gauss-rifle', 2590, 2865, 3040],
-  ['uac-5', 2640, 2915, 3035],
+  ['gauss-rifle', ballisticIntroduction('gauss-rifle'), 2865, 3040],
+  ['uac-5', ballisticIntroduction('uac-5'), 2915, 3035],
   ['artemisiv', 2598, 2855, 3035],
   ['case', 2476, 2840, 3036],
   ['double-heat-sink', 2567, 2865, 3040],
   ['er-ppc', 2751, 2860, 3037],
 ] as const)(
-  '%s preserves pinned production/extinction/reintroduction at the loader and filter boundaries',
+  '%s preserves pinned introduction/extinction/reintroduction at the loader and filter boundaries',
   (id, introductionYear, extinctionYear, reintroductionYear) => {
     const loaded = getEquipmentLoader().getById(id);
     expect(loaded).toMatchObject({
