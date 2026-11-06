@@ -246,7 +246,7 @@ export class RecordSheetService {
       case 'infantry':
         return extractInfantryData(target.unit, specialAbilities);
       case 'protomech':
-        return extractProtoMechData(target.unit);
+        return extractProtoMechData(target.unit, specialAbilities);
       default: {
         return this.assertUnsupportedTarget(target);
       }

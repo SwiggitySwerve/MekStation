@@ -8,6 +8,7 @@ import {
   IProtoMechRecordSheetData,
   IProtoMechUnit,
   IRecordSheetPilot,
+  IRecordSheetSPAEntry,
 } from '@/types/printing';
 
 import type { IBaseRecordSheetUnitConfig } from './types';
@@ -91,6 +92,7 @@ function buildArmorMap(
  */
 export function extractProtoMechData(
   unit: IProtoMechUnitConfig,
+  specialAbilities?: readonly IRecordSheetSPAEntry[],
 ): IProtoMechRecordSheetData {
   const pointSize = Math.min(Math.max(unit.pointSize ?? 1, 1), 5);
 
@@ -119,5 +121,6 @@ export function extractProtoMechData(
     jumpMP: unit.jumpMP ?? 0,
     equipment: mapSimpleRecordSheetEquipment(unit.equipment),
     pilot: unit.pilot,
+    specialAbilities,
   };
 }
