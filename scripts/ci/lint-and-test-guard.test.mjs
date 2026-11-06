@@ -65,11 +65,14 @@ test('only the separate budget approval safety reevaluation retains the ready li
   const listeners = fs
     .readdirSync(path.join(root, '.github/workflows'))
     .filter((file) => /\.ya?ml$/.test(file))
-    .filter((file) =>
-      fs
-        .readFileSync(path.join(root, '.github/workflows', file), 'utf8')
-        .includes('ready_for_review'),
-    );
+    .filter((file) => {
+      const workflow = parse(
+        fs.readFileSync(path.join(root, '.github/workflows', file), 'utf8'),
+      );
+      return Object.values(workflow.on ?? {}).some((trigger) =>
+        trigger?.types?.includes('ready_for_review'),
+      );
+    });
   assert.deepEqual(listeners, ['ci-budget-approval.yml']);
 });
 
