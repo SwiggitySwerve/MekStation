@@ -11,12 +11,17 @@ import { AerospaceVelocityTab } from '../AerospaceVelocityTab';
 
 afterEach(cleanup);
 
-function renderTab(isSmallCraft = false, readOnly = false) {
+function renderTab(
+  isSmallCraft = false,
+  readOnly = false,
+  isConventional = false,
+) {
   const store = createNewAerospaceStore({
     name: 'Velocity test',
     tonnage: isSmallCraft ? 100 : 50,
     techBase: TechBase.INNER_SPHERE,
     isSmallCraft,
+    isConventional,
   });
   render(
     <AerospaceStoreContext.Provider value={store}>
@@ -27,10 +32,14 @@ function renderTab(isSmallCraft = false, readOnly = false) {
 }
 
 describe('Aerospace Velocity form', () => {
-  it.each([false, true])(
-    'edits thrust and fuel through the store (small craft: %s)',
-    (smallCraft) => {
-      const store = renderTab(smallCraft);
+  it.each([
+    ['fighter', false, false],
+    ['small craft', true, false],
+    ['conventional fighter', false, true],
+  ] as const)(
+    'edits thrust and fuel through the store for a %s',
+    (_family, smallCraft, conventional) => {
+      const store = renderTab(smallCraft, false, conventional);
       const before = store.getState().safeThrust;
       fireEvent.click(screen.getByTestId('aerospace-thrust-increase'));
       expect(store.getState().safeThrust).toBe(before + 1);
