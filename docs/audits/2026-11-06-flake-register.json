@@ -568,6 +568,30 @@
       "location": "coordinator-archive",
       "sha256": "ba0cd01dd720a55268479df410bd16f2374c9da3d245f068b1c5699e13b5eef7",
       "bytes": 1017
+    },
+    "u89-attempt2-jobs": {
+      "path": "phase-g/G6/u89-perf-fix/first-attempt2-jobs.json",
+      "location": "coordinator-archive",
+      "sha256": "625e29fb89e6595ea7f63dcc804f6319e8eee104660cfcf2bf3b0d61afc19cf1",
+      "bytes": 40573
+    },
+    "u89-attempt2-log": {
+      "path": "phase-g/G6/u89-perf-fix/first-attempt2-unit2.log",
+      "location": "coordinator-archive",
+      "sha256": "10acfcd3344dc5f31403667dd702bf3f2f1b17fce24f02554509fabcfd0597e0",
+      "bytes": 844984
+    },
+    "u89-second-job": {
+      "path": "phase-g/G6/u89-perf-fix/second-job.json",
+      "location": "coordinator-archive",
+      "sha256": "0a87ae22dc13834acead192e97fe59645505559b1953f699ea7ad44bc584e2c3",
+      "bytes": 3780
+    },
+    "u89-second-log": {
+      "path": "phase-g/G6/u89-perf-fix/second-job.log",
+      "location": "coordinator-archive",
+      "sha256": "d44abf22890cb36c52d20e0229d161b93fbfeecc1b5dc2b9f0fe55af2498d74b",
+      "bytes": 849356
     }
   },
   "entries": [
@@ -1630,13 +1654,13 @@
     },
     {
       "id": "G6-040",
-      "classification": "observed-wall-clock-growth-failure; intermittency-unconfirmed",
-      "state": "open; remediation deferred until after Phase G",
+      "classification": "confirmed-intermittent-wall-clock-growth-failure",
+      "state": "fix implemented; exact-head hosted perf proof pending",
       "test": "src/lib/multiplayer/server/__tests__/campaignHostIntentServerTime.test.ts:187 — U89: the grant wake and the replica ingest do not grow with the log",
       "environment": "u89-unit-ci",
-      "summary": "Raw job log confirms replicaIngest short2.0907269999988785ms versus long5.136500000000524ms triggered the existing growth assertion. Root reports it unrelated to PR2908's three scripts/ci files and reran the failed job. CI contention is a hypothesis, not demonstrated by the timing row; no passing rerun result has been collected.",
-      "owner": "unassigned; needsowner — Root schedules multiplayer/performance remediation after Phase G; G6 owns inventory only",
-      "nextStep": "After Phase G, use the #2630/#2691 pattern: retain correctness assertions in ordinary unit shards and assert timing growth only where SIMULATION_PERF_ASSERTIONS pins a perf lane. Root assigns an implementation owner and supplies existing rerun completion evidence. No assertion, timeout, retry, test-selection or workflow fix during Phase G.",
+      "summary": "The first failure42169915133/a1/job127735157809 on PR2908 passed in SAMEHEAD attempt2/job127738195614, confirming intermittency. A second failure on PR2907 run42170835899/a1/job127738125396 hit the same line187/replicaIngest growth assertion. Contention remains a hypothesis. Root superseded the earlier post-PhaseG deferral and assigned the bounded harness/perf-list fix to G6.",
+      "owner": "G6 U89 perf-lane fix owner (GPT-6.1 Sol/high), explicitly assigned by Root inside Phase G; Root alone merges",
+      "nextStep": "Root merges the new G6 fix PR on green before G1 integration. Unit scenarios/counters/output run without helper performance-clock calls or timing metrics; existing pinned SIMULATION_PERF_ASSERTIONS=true PR/nightly/local perf lanes retain growth and ceiling assertions. Preserve local clock-trap and meaningful O(n) regression red/green plus exact-head hosted perf-step proof. Normal work remains paused.",
       "observations": [
         {
           "runId": 42169915133,
@@ -1655,18 +1679,39 @@
         },
         {
           "runId": 42169915133,
-          "workflowAttempt": null,
+          "workflowAttempt": 2,
           "head": "ff0922cf87f27b36db58e0b18c14e6d80b5a5c5a",
-          "result": "Root reports failed-job rerun submitted; outcome uncollected",
-          "source": "u89-context",
-          "jobId": null
+          "jobId": 127738195614,
+          "jobName": "Unit Tests (2/3)",
+          "result": "passed on same head; native U89 suite PASS at log line2990",
+          "source": "u89-attempt2-log"
+        },
+        {
+          "runId": 42170835899,
+          "workflowAttempt": 1,
+          "head": "d284b4ee0de0ee155f77945cec7696d5316d40c8",
+          "jobId": 127738125396,
+          "jobName": "Unit Tests (2/3)",
+          "result": "failed at line187; replicaIngest growth",
+          "source": "u89-second-log",
+          "shortMs": 2.1869470000019646,
+          "longMs": 5.045212499993795,
+          "testRetry": null
         }
       ],
-      "sources": ["u89-log", "u89-job", "u89-context"],
+      "sources": [
+        "u89-log",
+        "u89-job",
+        "u89-context",
+        "u89-attempt2-jobs",
+        "u89-attempt2-log",
+        "u89-second-job",
+        "u89-second-log"
+      ],
       "missingEvidence": [
-        "Exact rerun attempt/job ID and completion result; no G6 watcher or status polling.",
-        "Direct contention/resource evidence and same-head failure/pass comparison; one failure alone does not prove an intermittent cause.",
-        "Remediation owner assignment after Phase G."
+        "Exact-head hosted Simulation Checks wall-clock step execution/pass is pending publication/completion.",
+        "Contention is not directly measured; a same-head rerun pass confirms intermittency, not a causal resource diagnosis.",
+        "Root owns PR2907 rerun; G6 does not collect or submit duplicate reruns."
       ]
     }
   ],
@@ -1677,6 +1722,12 @@
       "scope": "One PR evidence snapshot, exact failed-job metadata/raw log and failing-head source. Root rerun outcome remains uncollected.",
       "priorAsOfRetained": true,
       "priorReceipts": "Original phase-g/G6 receipt, evidence-manifest and cleanup/G6.md/json are unchanged. This addendum and its validation/cleanup live in u89-followup."
+    },
+    {
+      "addedAtUtc": "2026-11-06T06:10:06.457533+00:00",
+      "incident": "G6-040",
+      "scope": "Superseding Root assignment: small U89 harness/perf-lane fix inside Phase G; historical source receipts preserved.",
+      "priorReceipts": "All previous phase-g/G6 and cleanup receipts remain sealed; new proof/status/cleanup lives under u89-perf-fix."
     }
   ]
 }
