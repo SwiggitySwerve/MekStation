@@ -27,6 +27,7 @@ export function withPerWeaponToHitProjections({
   distance,
   weapons,
   targetPartialCover,
+  targetAirborneTerrainFeatures,
   targetTerrainModifier,
   interveningTerrainEffects,
   indirectFire,
@@ -39,6 +40,7 @@ export function withPerWeaponToHitProjections({
   readonly distance: number;
   readonly weapons: readonly IWeaponStatus[];
   readonly targetPartialCover: boolean;
+  readonly targetAirborneTerrainFeatures?: ToHitProjectionInput['targetAirborneTerrainFeatures'];
   readonly targetTerrainModifier: ToHitProjectionInput['targetTerrainModifier'];
   readonly interveningTerrainEffects: readonly ILOSInterveningTerrainEffect[];
   readonly indirectFire?: ToHitProjectionInput['indirectFire'];
@@ -55,6 +57,7 @@ export function withPerWeaponToHitProjections({
       distance,
       weapons: [weapon],
       targetPartialCover,
+      targetAirborneTerrainFeatures,
       targetTerrainModifier,
       interveningTerrainEffects,
       indirectFire,
