@@ -79,6 +79,35 @@ describe('SPAPicker', () => {
     expect(ownedBtn).toBeDisabled();
   });
 
+  it.each(['iron-man', 'iron-will', 'iron_will'])(
+    'excludes canonical ownership for saved %s without blocking unrelated SPAs',
+    (alias) => {
+      const onSelect = jest.fn();
+      const excludedIds = Object.freeze([alias, 'unknown-saved-option']);
+      render(<SPAPicker onSelect={onSelect} excludedIds={excludedIds} />);
+
+      const ownedRow = screen.getByTestId('spa-item-iron_man');
+      const ownedButton = within(ownedRow).getByRole('button', {
+        name: 'Already owned',
+      });
+      expect(ownedButton).toBeDisabled();
+      fireEvent.click(ownedButton);
+      expect(onSelect).not.toHaveBeenCalled();
+
+      fireEvent.click(
+        within(screen.getByTestId('spa-item-dodge_maneuver')).getByRole(
+          'button',
+          { name: 'Select' },
+        ),
+      );
+      expect(onSelect).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'dodge_maneuver' }),
+        undefined,
+      );
+      expect(excludedIds).toEqual([alias, 'unknown-saved-option']);
+    },
+  );
+
   it('hides unaffordable SPAs in purchase mode when availableXP is set', () => {
     // Pick the most expensive purchasable SPA, then set availableXP just below it.
     const purchasable = allSpas.filter((s) => s.xpCost !== null && !s.isFlaw);
