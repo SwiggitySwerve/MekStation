@@ -85,3 +85,5 @@
 {"file":"weapons/ballistic-other.json","id":"sniper-rifle-yuan-ling","year":2795,"java":"Sniper Rifle (Yuan Ling)","citation":"weapons/infantry/sniperRifle/InfantrySniperRifleYuanLing.java:57,76-77"}
 {"file":"weapons/ballistic-other.json","id":"arrow-iv-launcher","year":2593,"java":"ISArrowIV","citation":"weapons/artillery/ISArrowIV.java:52,66-67"}
 {"file":"weapons/ballistic-other.json","id":"clan-mech-mortar-4","year":2830,"java":"Clan Mech Mortar-4","citation":"weapons/mortars/clan/CLMekMortar4.java:58,77-78"}
+{"file":"miscellaneous/defensive.json","id":"ams","year":2608,"java":"ISAntiMissileSystem","citation":"weapons/other/innerSphere/ISAMS.java:59,92-93"}
+{"file":"miscellaneous/defensive.json","id":"clan-ams","year":2819,"java":"CLAntiMissileSystem","citation":"weapons/other/clan/CLAMS.java:60,93-94"}

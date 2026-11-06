@@ -15,7 +15,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 100000,
       "battleValue": 32,
-      "introductionYear": 2617,
+      "introductionYear": 2608,
       "special": ["Intercepts incoming missiles", "Requires ammo"],
       "extinctionYear": 2835,
       "reintroductionYear": 3045
@@ -31,7 +31,7 @@
       "vehicleSlots": { "tank": 1, "supportVehicle": 1 },
       "costCBills": 100000,
       "battleValue": 32,
-      "introductionYear": 2831,
+      "introductionYear": 2819,
       "special": ["Intercepts incoming missiles", "Requires ammo"]
     },
     {

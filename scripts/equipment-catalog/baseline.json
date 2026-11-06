@@ -23523,7 +23523,7 @@
     "file": "miscellaneous/defensive.json",
     "index": 0,
     "id": "ams",
-    "sha256": "052beb1764cae2181cb889ab05258f6284c6dbcd0461823eece96f94d9a47fbc",
+    "sha256": "e6aa46405989402f442b3cee100bf4d39a6423de7dec42df11e8d5225f79aee2",
     "item": {
       "id": "ams",
       "name": "Anti-Missile System",
@@ -23538,7 +23538,7 @@
       },
       "costCBills": 100000,
       "battleValue": 32,
-      "introductionYear": 2617,
+      "introductionYear": 2608,
       "special": ["Intercepts incoming missiles", "Requires ammo"],
       "extinctionYear": 2835,
       "reintroductionYear": 3045
@@ -23548,7 +23548,7 @@
     "file": "miscellaneous/defensive.json",
     "index": 1,
     "id": "clan-ams",
-    "sha256": "6a919c822ef4447108f09c6341b2e86576257b04aae7e0e5617a68529311fc41",
+    "sha256": "cef56da545bb72498a99ffbdd2784252cf393dec746fb1f28c0b3c766677244b",
     "item": {
       "id": "clan-ams",
       "name": "Anti-Missile System (Clan)",
@@ -23563,7 +23563,7 @@
       },
       "costCBills": 100000,
       "battleValue": 32,
-      "introductionYear": 2831,
+      "introductionYear": 2819,
       "special": ["Intercepts incoming missiles", "Requires ammo"]
     }
   },
