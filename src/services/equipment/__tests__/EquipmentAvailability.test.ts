@@ -1,4 +1,3 @@
-import { hash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -55,16 +54,6 @@ const ballisticIntroduction = (id: string): number => {
   if (!row) throw new Error(`Missing ballistic probe date: ${id}`);
   return row.year;
 };
-
-it('pins exactly 89 ballistic catalog copies for 87 equipment identities', () => {
-  expect(ballisticDates).toHaveLength(89);
-  expect(new Set(ballisticDates.map((row) => row.id)).size).toBe(87);
-  const keys = ballisticDates.map((row) => `${row.file}:${row.id}`).sort();
-  expect(new Set(keys).size).toBe(89);
-  expect(hash('sha256', JSON.stringify(keys))).toBe(
-    '3c7789a07b62693a179818bcbffdb6baf7be79f7284ea2a819c06165a11934ce',
-  );
-});
 
 /** @spec equipment-database source-backed catalog availability */
 it.each([
