@@ -85,6 +85,8 @@ export interface ValidationResult {
     halvedWeaponCount: number;
     weaponMountBV?: { name: string; location?: string; bv: number }[];
     ammoPools?: AmmoBVPools;
+    /** Optional source-identity facts for torpedo diagnostics, never cap arithmetic. */
+    ammoCapProjectionWeapons?: { id: string; bv: number }[];
     // Legacy aliases
     defensiveEquipBV: number;
   };

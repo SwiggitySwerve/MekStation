@@ -7,6 +7,7 @@ import {
 } from '@/types/gameplay';
 
 import { createGameSession, startGame } from '../gameSession';
+import { hydrateGameSessionFromEvents } from '../gameSessionCore';
 import { resolvePendingPSRs } from '../gameSessionPSR';
 import {
   createDamagePSR,
@@ -96,7 +97,7 @@ describe('native unit piloting quirk ids', () => {
     ).toBe(5);
   });
 
-  it('preserves represented VDNI arithmetic while native Hard Pilot is unported', () => {
+  it('keeps missing native mode inactive independently of represented VDNI arithmetic', () => {
     // This flag preserves legacy jack-in/out arithmetic; native DNI also needs
     // mode/hardware context (Entity.java:13365-13379), absent from this input.
     const result = resolvePSR({
@@ -110,12 +111,47 @@ describe('native unit piloting quirk ids', () => {
       unitType: 'BattleMech',
       neuralInterfaceActive: true,
     });
-    expect(result.targetNumber).toBe(4);
+    // Entity.java:8939-8946: +1 explicit Hard, with the existing -1 SPA bonus.
+    expect(result.targetNumber).toBe(5);
   });
 
-  it.each([['easy_pilot', 4, -1]] as const)(
-    '%s reaches the interactive PSR event',
-    (quirk, targetNumber, modifiers) => {
+  // Actual merged Hard implementation: Entity.java:8939-8946,13365-13379;
+  // NeuralInterfaceMode.java:102-119,151-156 at the same pinned revision.
+  it.each([
+    [['easy_pilot'], undefined, undefined, [], 4, -1],
+    [['easy_pilot', 'hard_pilot'], undefined, true, ['vdni'], 5, 0],
+    [['easy_pilot', 'hard_pilot'], 'Off', true, ['bvdni'], 5, 0],
+    [
+      ['easy_pilot', 'hard_pilot'],
+      'Pilot Abilities Only',
+      undefined,
+      ['bvdni'],
+      4,
+      -1,
+    ],
+    [['easy_pilot', 'hard_pilot'], 'Full Tracking', true, ['bvdni'], 4, -1],
+    [['easy_pilot', 'hard_pilot'], 'Full Tracking', false, ['bvdni'], 5, 0],
+    [['easy_pilot', 'hard_pilot'], 'Full Tracking', undefined, ['bvdni'], 5, 0],
+    [['easy_pilot', 'hard_pilot'], 'Full Tracking', true, ['ei_implant'], 5, 0],
+    [
+      ['easy_pilot', 'easy_to_pilot', 'hard_pilot', 'hard_to_pilot'],
+      'Pilot Abilities Only',
+      false,
+      ['proto_dni'],
+      4,
+      -1,
+    ],
+    [['easy_pilot', 'hard_pilot'], 'unknown', true, ['bvdni'], 5, 0],
+  ] as const)(
+    '%j with native mode %s and hardware %s reaches the replayed PSR event',
+    (
+      quirks,
+      neuralInterfaceMode,
+      hasDNICockpitMod,
+      abilities,
+      targetNumber,
+      modifiers,
+    ) => {
       const session = startGame(
         createGameSession(
           {
@@ -123,6 +159,7 @@ describe('native unit piloting quirk ids', () => {
             turnLimit: 0,
             victoryConditions: ['elimination'],
             optionalRules: [],
+            neuralInterfaceMode,
           },
           [
             {
@@ -133,22 +170,26 @@ describe('native unit piloting quirk ids', () => {
               pilotRef: 'pilot',
               gunnery: 4,
               piloting: 5,
-              unitQuirks: [quirk],
+              unitQuirks: quirks,
+              abilities,
+              hasDNICockpitMod,
+              neuralInterfaceActive: false,
             },
           ],
         ),
         GameSide.Player,
       );
+      const replay = hydrateGameSessionFromEvents(session.id, session.events);
       const next = resolvePendingPSRs(
         {
-          ...session,
+          ...replay,
           currentState: {
-            ...session.currentState,
+            ...replay.currentState,
             phase: GamePhase.PhysicalAttack,
             units: {
-              ...session.currentState.units,
+              ...replay.currentState.units,
               unit: {
-                ...session.currentState.units.unit,
+                ...replay.currentState.units.unit,
                 pendingPSRs: [createDamagePSR('unit')],
               },
             },
