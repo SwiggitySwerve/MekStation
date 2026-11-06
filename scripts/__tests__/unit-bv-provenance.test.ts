@@ -4,7 +4,10 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
-import { validateSourceManifest } from '../unit-bv-provenance';
+import {
+  validateSourceManifest,
+  writeSourceManifest,
+} from '../unit-bv-provenance';
 import { main } from '../vehicle-aero-bv-delta';
 
 it('refuses an unversioned converted payload even when its source hash still matches', () => {
@@ -68,12 +71,19 @@ it('accepts a real Python receipt and rejects stale converter bytes, payload cha
     const file = path.join(out, 'sources.ndjson');
     const bytes = fs.readFileSync(file);
     const manifestFile = file + '.manifest.json';
+    const originalReceipt = fs.readFileSync(manifestFile);
     const receipt: {
       converterInputs: Record<string, string>;
       scope: string;
       sourceCount: number;
     } = JSON.parse(fs.readFileSync(manifestFile, 'utf8'));
     expect(() => validateSourceManifest(file, bytes)).not.toThrow();
+    // The trusted pipeline wrapper calls the same writer as the Python exporter.
+    const fullReceipt: { folders: string[] } = JSON.parse(
+      originalReceipt.toString('utf8'),
+    );
+    writeSourceManifest(file, bytes, fullReceipt.folders);
+    expect(fs.readFileSync(manifestFile)).toEqual(originalReceipt);
     expect(() =>
       validateSourceManifest(file, Buffer.concat([bytes, Buffer.from('\n')])),
     ).toThrow(/payload hash mismatch/);

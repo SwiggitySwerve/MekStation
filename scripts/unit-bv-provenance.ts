@@ -59,18 +59,26 @@ export function writeSourceManifest(
   );
 }
 
-export function validateSourceManifest(file: string, sources: Buffer): void {
+export function validateSourceManifest(
+  file: string,
+  sources: Buffer,
+  scope = 'full',
+  python = 'python',
+  receipt?: Buffer,
+): void {
   try {
     const raw: unknown = JSON.parse(
-      fs.readFileSync(file + '.manifest.json', 'utf8'),
+      (receipt ?? fs.readFileSync(file + '.manifest.json')).toString('utf8'),
     );
     const manifest = Manifest.parse(raw);
     const rawInputs: unknown = JSON.parse(
-      callOwner('print(json.dumps(converter_inputs()))'),
+      callOwner('print(json.dumps(converter_inputs()))', [], undefined, python),
     );
     const current = z.record(z.string(), digest).parse(rawInputs);
-    if (manifest.scope !== 'full')
-      throw new Error('A full-corpus export is required');
+    if (manifest.scope !== scope)
+      throw new Error(
+        `Expected ${scope} conversion scope; full-corpus export is required for the external CLI`,
+      );
     if (manifest.sourcesSha256 !== hash(sources))
       throw new Error('Converted payload hash mismatch');
     const count = sources
