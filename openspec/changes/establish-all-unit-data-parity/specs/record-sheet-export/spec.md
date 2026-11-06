@@ -141,3 +141,32 @@ and designations without changing the extracted entries or other sheet figures.
 - **GIVEN** a biped or another configuration/family
 - **WHEN** the record sheet is rendered
 - **THEN** existing biped output remains unchanged, while LAM, tripod, QuadVee, non-Mech canonical omissions, fallback output and infantry notes retain their previous routes
+
+### Requirement: Native single-pilot LAM SPA placement
+
+Single-pilot LAM canonical output SHALL use the existing native Mech SPA fitting
+owner in its own template's `spas0` rectangle and transformed parent. It SHALL
+retain the owner's formatted headlines/designations and pinned MML 62bf193 font
+selection, float dimensions and unbounded space-delimiter wrapping.
+
+#### Scenario: LAM native geometry on Letter and A4
+
+- **GIVEN** a single-pilot LAM and supplied Weapon Specialist (PPC)
+- **WHEN** canonical Letter or A4 SVG and PDF are generated
+- **THEN** the list starts at the LAM template's own `spas0` y76 region, rather than biped/quad y52 or the legacy fixed coordinates
+- **AND** first baseline and parent transform come from that actual rectangle
+- **AND** non-SPA sheet figures remain unchanged
+
+#### Scenario: Native LAM overflow and empty abilities
+
+- **GIVEN** a long supported SPA list, overwide unbroken designation or empty input
+- **WHEN** the LAM sheet is rendered
+- **THEN** native vertical/horizontal overflow remains visible without clipping, truncation, line caps or additional shrink
+- **AND** empty abilities or a missing native rectangle emit no substitute block
+
+#### Scenario: Required multi-crew gap remains carried
+
+- **GIVEN** biped/quad output, another family, or a tripod/QuadVee payload without genuine crew-slot identity
+- **WHEN** the sheet is rendered
+- **THEN** this LAM-only correction preserves existing biped/quad output and other routes
+- **AND** tripod/QuadVee support remains a required deferred gap until Q-PILOT supplies the pinned crew-slot contract; the one-pilot payload does not establish that identity
