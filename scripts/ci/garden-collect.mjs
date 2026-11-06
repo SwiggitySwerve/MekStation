@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 
 import { DAY_MS } from './garden-week.mjs';
+import { collectSourceHeadRun } from './garden-run-provenance.mjs';
 
 export function decodeObservationArtifact(bytes, filename) {
   const output = execFileSync(
@@ -100,37 +101,8 @@ export async function collectGardenObservations({
         artifact.workflow_run.head_sha !== run.head_sha
       )
         throw new Error('Observation provenance differs from live attempt');
-      const { data: workflow } = await github.rest.repos.getContent({
-        owner,
-        repo,
-        path: '.github/workflows/pr-checks.yml',
-        ref: run.head_sha,
-      });
-      if (
-        workflow.encoding !== 'base64' ||
-        typeof workflow.content !== 'string'
-      )
-        throw new Error('Source-head workflow must be an ordinary base64 blob');
-      const graph = workflowGraphFromSource(
-        Buffer.from(workflow.content, 'base64').toString('utf8'),
-      );
-      const fresh = await collectRun(
-        async (method, route) => {
-          if (method !== 'GET')
-            throw new Error('Observation verification is read-only');
-          const { data } = await github.request(`GET /${route}`);
-          return data;
-        },
-        {
-          repository: metadata.full_name,
-          runId,
-          attempt,
-          graphs: {
-            repository: metadata.full_name,
-            graphs: { [run.head_sha]: graph },
-          },
-        },
-      );
+      const fresh = await collectSourceHeadRun({ github, owner, repo, run,
+        workflowPath: '.github/workflows/pr-checks.yml', collectRun, workflowGraphFromSource });
       if (!isDeepStrictEqual(envelope.observation, fresh.observation))
         throw new Error(
           'Artifact observation differs from fresh source-head API normalization',
@@ -143,7 +115,7 @@ export async function collectGardenObservations({
         attempt,
         headSha: id.headSha,
         completedAt: id.completedAt,
-        workflowBlobSha: workflow.sha,
+        workflowBlobSha: fresh.workflowBlobSha,
       });
     } catch (error) {
       diagnostics.push(`Artifact ${artifact.id}: ${error.message}`);
