@@ -32,13 +32,16 @@ export interface IAerospaceBVBreakdown {
   readonly final: number;
 }
 
-/** Already-admitted weapon value; indices/ids belong to the local input. */
-export interface IProtoMechBVWeaponMount {
+/** Already-admitted mount value; indices/ids belong to the local input. */
+export interface IProtoMechBVMountValue {
   readonly equipmentIndex: number;
   readonly equipmentId: string;
   readonly location: string;
   readonly battleValue: number;
 }
+
+/** Retained public weapon snapshot contract. */
+export type IProtoMechBVWeaponMount = IProtoMechBVMountValue;
 
 export interface IProtoMechBVBreakdown {
   readonly defensiveBV: number;
@@ -63,6 +66,8 @@ export interface IProtoMechBVBreakdown {
   /** Always zero: ProtoMech offense has no weight-only contribution. */
   readonly physicalWeaponBV: number;
   readonly offensiveEquipmentBV: number;
+  /** Positive values already admitted by the native offensive-misc owner. */
+  readonly offensiveEquipmentMountBV?: readonly IProtoMechBVMountValue[];
   readonly speedFactor: number;
 }
 

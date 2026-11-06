@@ -2,14 +2,17 @@ import type { IProtoMechBVBreakdown } from '@/types/unit/BVBreakdownTypes';
 
 import { ProtoLocation } from '@/types/unit/ProtoMechInterfaces';
 
-// Pinned ProtoMek.java:87-89. No Body/quad-only identity is inferred.
-const nativeLocationAbbreviations = new Map<string, string>([
-  [ProtoLocation.HEAD, 'HD'],
-  [ProtoLocation.TORSO, 'T'],
-  [ProtoLocation.RIGHT_ARM, 'RA'],
-  [ProtoLocation.LEFT_ARM, 'LA'],
-  [ProtoLocation.LEGS, 'L'],
-  [ProtoLocation.MAIN_GUN, 'MG'],
+// Pinned ProtoMek.java:87-89,102-108. No Body/quad-only identity is inferred.
+const nativeLocations = new Map<
+  string,
+  { readonly abbreviation: string; readonly index: number }
+>([
+  [ProtoLocation.HEAD, { abbreviation: 'HD', index: 1 }],
+  [ProtoLocation.TORSO, { abbreviation: 'T', index: 2 }],
+  [ProtoLocation.RIGHT_ARM, { abbreviation: 'RA', index: 3 }],
+  [ProtoLocation.LEFT_ARM, { abbreviation: 'LA', index: 4 }],
+  [ProtoLocation.LEGS, { abbreviation: 'L', index: 5 }],
+  [ProtoLocation.MAIN_GUN, { abbreviation: 'MG', index: 6 }],
 ]);
 
 /**
@@ -26,19 +29,31 @@ export function protoMechBVTerms(
   summaryModifier: number;
   weightBV: number;
   adjustment: number;
-} & Record<`weapon.${number}.${string}.${string}`, number> {
+} & Record<`weapon.${number}.${string}.${string}`, number> &
+  Record<`equipment.native.${number}.${string}`, number> {
   const weaponTerms: Record<`weapon.${number}.${string}.${string}`, number> =
     {};
   for (const fact of b.weaponMountBV ?? []) {
-    const location = nativeLocationAbbreviations.get(fact.location);
+    const location = nativeLocations.get(fact.location);
     if (location === undefined) continue;
     weaponTerms[
-      `weapon.${fact.equipmentIndex}.${location}.${fact.equipmentId}`
+      `weapon.${fact.equipmentIndex}.${location.abbreviation}.${fact.equipmentId}`
     ] = fact.battleValue;
+  }
+  const equipmentTerms: Record<`equipment.native.${number}.${string}`, number> =
+    {};
+  for (const fact of b.offensiveEquipmentMountBV ?? []) {
+    const location = nativeLocations.get(fact.location);
+    if (location === undefined) continue;
+    // Native equipment terms use location number, not equipment index.
+    // Assignment preserves the native trace's last-put duplicate semantics.
+    equipmentTerms[`equipment.native.${location.index}.${fact.equipmentId}`] =
+      fact.battleValue;
   }
   return {
     ...b,
     ...weaponTerms,
+    ...equipmentTerms,
     typeModifier: 1,
     offensiveTypeModifier: 1,
     summaryModifier: b.chassisMultiplier,
