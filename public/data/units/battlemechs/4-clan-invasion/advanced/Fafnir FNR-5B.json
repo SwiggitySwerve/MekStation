@@ -194,5 +194,9 @@
   },
   "mulId": 4153,
   "role": "Juggernaut",
-  "source": "TR:3067,TR:J"
+  "source": "TR:3067,TR:J",
+  "weaponQuirks": {
+    "LT:3:ISGaussRifle": ["stable_weapon"],
+    "RT:3:ISGaussRifle": ["stable_weapon"]
+  }
 }

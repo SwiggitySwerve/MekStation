@@ -174,5 +174,8 @@
   },
   "mulId": 1655,
   "role": "Striker",
-  "source": "TR:3055U"
+  "source": "TR:3055U",
+  "weaponQuirks": {
+    "RT:6:ISERPPC": ["imp_cooling"]
+  }
 }

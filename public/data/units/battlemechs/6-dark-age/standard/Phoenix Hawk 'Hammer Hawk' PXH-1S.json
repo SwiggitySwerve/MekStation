@@ -166,5 +166,8 @@
     "capabilities": "An ambush fighter built for dense terrain where jump jets allow rapid closing to melee range. Ranged firepower keeps opponents honest during the approach, but the real threat comes at arm's length. Pilots who overcommit in open ground will find the reduced top speed leaves them exposed during withdrawal. Works best operating in pairs with a conventional fire-support lance mate."
   },
   "role": "Skirmisher",
-  "source": "ShrapGothic"
+  "source": "ShrapGothic",
+  "weaponQuirks": {
+    "RA:5:Large Laser": ["jettison_capable"]
+  }
 }

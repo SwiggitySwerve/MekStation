@@ -191,5 +191,8 @@
   },
   "mulId": 5807,
   "role": "Striker",
-  "source": "BD:BH"
+  "source": "BD:BH",
+  "weaponQuirks": {
+    "RA:4:CLERLargeLaser": ["jettison_capable"]
+  }
 }

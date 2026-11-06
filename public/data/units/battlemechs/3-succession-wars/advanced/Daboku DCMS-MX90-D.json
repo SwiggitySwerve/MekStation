@@ -198,5 +198,11 @@
   },
   "mulId": 788,
   "role": "Sniper",
-  "source": "TR:3039"
+  "source": "TR:3039",
+  "weaponQuirks": {
+    "LT:3:Autocannon/2": ["stable_weapon"],
+    "LT:4:Autocannon/2": ["stable_weapon"],
+    "RT:3:Autocannon/2": ["stable_weapon"],
+    "RT:4:Autocannon/2": ["stable_weapon"]
+  }
 }

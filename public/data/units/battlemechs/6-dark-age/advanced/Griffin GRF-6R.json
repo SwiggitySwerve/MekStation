@@ -185,5 +185,8 @@
   },
   "mulId": 9403,
   "role": "Sniper",
-  "source": "RG01,RGv1"
+  "source": "RG01,RGv1",
+  "weaponQuirks": {
+    "RA:4:ISRotaryAC2": ["jettison_capable"]
+  }
 }

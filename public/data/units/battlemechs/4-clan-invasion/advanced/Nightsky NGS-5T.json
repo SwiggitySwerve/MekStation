@@ -182,5 +182,8 @@
   },
   "mulId": 2282,
   "role": "Striker",
-  "source": "TR:3055U,TR:CI"
+  "source": "TR:3055U,TR:CI",
+  "weaponQuirks": {
+    "RA:4:Hatchet": ["mod_weapons"]
+  }
 }

@@ -191,5 +191,8 @@
   },
   "mulId": 2043,
   "role": "Sniper",
-  "source": "RG06,RGv1"
+  "source": "RG06,RGv1",
+  "weaponQuirks": {
+    "RT:3:ISGaussRifle": ["exposed_linkage"]
+  }
 }

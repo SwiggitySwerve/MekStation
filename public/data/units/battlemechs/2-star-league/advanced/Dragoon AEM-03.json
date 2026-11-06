@@ -199,5 +199,15 @@
   },
   "mulId": 6782,
   "role": "None",
-  "source": "His:LoT2"
+  "source": "His:LoT2",
+  "weaponQuirks": {
+    "LA:2:ISMediumPulseLaser": ["mod_weapons"],
+    "LA:3:LRM 15": ["mod_weapons"],
+    "RA:2:ISMediumPulseLaser": ["mod_weapons"],
+    "RA:3:LRM 15": ["mod_weapons"],
+    "RT:3:LRM 15": ["mod_weapons"],
+    "CT:10:Medium Laser": ["mod_weapons"],
+    "CT:11:ISSmallPulseLaser": ["mod_weapons"],
+    "HD:3:ISSmallPulseLaser": ["mod_weapons"]
+  }
 }

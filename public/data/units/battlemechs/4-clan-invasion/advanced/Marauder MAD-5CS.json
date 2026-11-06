@@ -191,5 +191,8 @@
   },
   "mulId": 7600,
   "role": "Sniper",
-  "source": "BoT"
+  "source": "BoT",
+  "weaponQuirks": {
+    "RT:6:ISLBXAC10": ["exposed_linkage"]
+  }
 }

@@ -199,5 +199,8 @@
   },
   "mulId": 2047,
   "role": "Brawler",
-  "source": "TR:3085,TR:CI"
+  "source": "TR:3085,TR:CI",
+  "weaponQuirks": {
+    "RT:6:ISStreakSRM6": ["exposed_linkage"]
+  }
 }

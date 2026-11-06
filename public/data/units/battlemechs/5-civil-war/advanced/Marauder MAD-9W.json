@@ -192,5 +192,8 @@
   },
   "mulId": 2050,
   "role": "Skirmisher",
-  "source": "TR:3085,TR:CI"
+  "source": "TR:3085,TR:CI",
+  "weaponQuirks": {
+    "RT:7:ISSNPPC": ["exposed_linkage"]
+  }
 }

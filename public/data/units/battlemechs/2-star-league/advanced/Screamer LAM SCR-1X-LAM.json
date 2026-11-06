@@ -172,5 +172,8 @@
   "mulId": 7320,
   "role": "Striker",
   "source": "XTR:Gunslingers",
-  "lamType": "Standard"
+  "lamType": "Standard",
+  "weaponQuirks": {
+    "RA:4:ISERPPC": ["jettison_capable"]
+  }
 }

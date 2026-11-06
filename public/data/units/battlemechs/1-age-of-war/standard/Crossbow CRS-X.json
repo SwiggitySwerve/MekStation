@@ -194,5 +194,8 @@
   },
   "mulId": 5583,
   "role": "Missile Boat",
-  "source": "XTR:Primitives II"
+  "source": "XTR:Primitives II",
+  "weaponQuirks": {
+    "RT:0:Large Laser": ["poor_cooling"]
+  }
 }

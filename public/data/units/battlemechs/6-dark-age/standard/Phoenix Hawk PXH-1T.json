@@ -174,5 +174,8 @@
     "capabilities": "<p>Retains the full speed and agility of the original Phoenix Hawk, making it effective in running engagements and flanking maneuvers. The medium lasers and SRM rack favor close-range brawling over the original's stand-off style. Pilots should use mobility to close distance quickly, deliver a sword strike, and disengage before the enemy can respond. The endo steel frame keeps weight in check despite the added melee weapon.</p>"
   },
   "role": "Skirmisher",
-  "source": "Gothic"
+  "source": "Gothic",
+  "weaponQuirks": {
+    "RA:6:Sword": ["jettison_capable"]
+  }
 }

@@ -185,5 +185,12 @@
   },
   "mulId": 7756,
   "role": "Sniper",
-  "source": "RG11"
+  "source": "RG11",
+  "weaponQuirks": {
+    "LA:2:CLImprovedHeavyLargeLaser": ["stable_weapon"],
+    "LA:5:CLImprovedHeavyLargeLaser": ["stable_weapon"],
+    "RA:2:CLERLargeLaser": ["stable_weapon"],
+    "RA:3:CLERLargeLaser": ["stable_weapon"],
+    "RA:4:CLERLargeLaser": ["stable_weapon"]
+  }
 }

@@ -178,5 +178,8 @@
   },
   "mulId": 4491,
   "role": "Striker",
-  "source": "TR:Proto"
+  "source": "TR:Proto",
+  "weaponQuirks": {
+    "RT:4:ISRotaryAC5": ["exposed_linkage"]
+  }
 }

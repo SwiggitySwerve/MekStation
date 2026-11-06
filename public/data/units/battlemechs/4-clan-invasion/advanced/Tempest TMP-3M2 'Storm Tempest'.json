@@ -194,5 +194,8 @@
   },
   "mulId": 3170,
   "role": "Brawler",
-  "source": "TR:3055U,TR:J"
+  "source": "TR:3055U,TR:J",
+  "weaponQuirks": {
+    "HD:3:ISERMediumLaser": ["direct_torso_mount"]
+  }
 }

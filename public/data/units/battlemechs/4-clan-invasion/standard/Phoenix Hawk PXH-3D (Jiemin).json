@@ -175,5 +175,8 @@
   },
   "mulId": 7699,
   "role": "Striker",
-  "source": "OTP:FR"
+  "source": "OTP:FR",
+  "weaponQuirks": {
+    "RA:4:ISLargeXPulseLaser": ["jettison_capable"]
+  }
 }

@@ -186,5 +186,9 @@
   },
   "mulId": 733,
   "role": "Missile Boat",
-  "source": "TR:3075,TR:J"
+  "source": "TR:3075,TR:J",
+  "weaponQuirks": {
+    "LA:3:LRM 10": ["mod_weapons"],
+    "RA:3:LRM 10": ["mod_weapons"]
+  }
 }

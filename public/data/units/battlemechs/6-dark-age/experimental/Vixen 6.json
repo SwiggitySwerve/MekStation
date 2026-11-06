@@ -197,5 +197,8 @@
   },
   "mulId": 8008,
   "role": "Brawler",
-  "source": "TR:3150"
+  "source": "TR:3150",
+  "weaponQuirks": {
+    "RA:3:CLERPPC": ["jettison_capable"]
+  }
 }

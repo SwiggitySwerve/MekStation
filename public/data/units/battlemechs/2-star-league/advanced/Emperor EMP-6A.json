@@ -195,5 +195,9 @@
   },
   "mulId": 964,
   "role": "Juggernaut",
-  "source": "TR:3058U,TR:SW"
+  "source": "TR:3058U,TR:SW",
+  "weaponQuirks": {
+    "LA:9:Large Laser": ["imp_cooling"],
+    "RA:9:Large Laser": ["imp_cooling"]
+  }
 }

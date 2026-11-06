@@ -187,5 +187,8 @@
   },
   "mulId": 7602,
   "role": "Skirmisher",
-  "source": "BoT"
+  "source": "BoT",
+  "weaponQuirks": {
+    "RA:7:ISERLargeLaser": ["jettison_capable"]
+  }
 }

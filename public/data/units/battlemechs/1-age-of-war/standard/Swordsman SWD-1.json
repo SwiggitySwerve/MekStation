@@ -182,5 +182,8 @@
   },
   "mulId": 7181,
   "role": "Sniper",
-  "source": "XTR:Primitives IV"
+  "source": "XTR:Primitives IV",
+  "weaponQuirks": {
+    "LT:1:Autocannon/5": ["ammo_feed_problems", "accurate"]
+  }
 }

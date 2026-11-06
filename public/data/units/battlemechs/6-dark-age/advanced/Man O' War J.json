@@ -209,5 +209,18 @@
   },
   "mulId": 7757,
   "role": "Skirmisher",
-  "source": "RG11"
+  "source": "RG11",
+  "weaponQuirks": {
+    "LA:2:CLERSmallLaser": ["stable_weapon"],
+    "LA:3:CLERSmallLaser": ["stable_weapon"],
+    "LA:4:CLERSmallLaser": ["stable_weapon"],
+    "LA:5:CLERSmallLaser": ["stable_weapon"],
+    "LA:6:CLERSmallLaser": ["stable_weapon"],
+    "LA:7:CLERSmallLaser": ["stable_weapon"],
+    "LA:8:CLERSmallLaser": ["stable_weapon"],
+    "RA:2:CLImprovedMediumHeavyLaser": ["stable_weapon"],
+    "RA:4:CLImprovedMediumHeavyLaser": ["stable_weapon"],
+    "RA:6:CLImprovedMediumHeavyLaser": ["stable_weapon"],
+    "RA:8:CLImprovedMediumHeavyLaser": ["stable_weapon"]
+  }
 }

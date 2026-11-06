@@ -191,5 +191,8 @@
   },
   "mulId": 2033,
   "role": "Sniper",
-  "source": "TR:3075"
+  "source": "TR:3075",
+  "weaponQuirks": {
+    "RT:0:Autocannon/5": ["exposed_linkage"]
+  }
 }

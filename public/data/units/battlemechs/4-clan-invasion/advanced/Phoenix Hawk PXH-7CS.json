@@ -183,5 +183,8 @@
   },
   "mulId": 2507,
   "role": "Skirmisher",
-  "source": "TR:PP,TR:CI"
+  "source": "TR:PP,TR:CI",
+  "weaponQuirks": {
+    "RA:4:ISERLargeLaser": ["jettison_capable"]
+  }
 }

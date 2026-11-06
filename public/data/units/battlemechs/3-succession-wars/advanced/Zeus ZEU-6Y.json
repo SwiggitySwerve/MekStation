@@ -178,5 +178,8 @@
   },
   "mulId": 5772,
   "role": "Sniper",
-  "source": "XTR:SW"
+  "source": "XTR:SW",
+  "weaponQuirks": {
+    "RT:0:Binary Laser (Blazer) Cannon": ["imp_cooling"]
+  }
 }

@@ -191,5 +191,8 @@
   },
   "mulId": 3583,
   "role": "Striker",
-  "source": "TR:3085"
+  "source": "TR:3085",
+  "weaponQuirks": {
+    "RA:7:Light PPC": ["jettison_capable"]
+  }
 }

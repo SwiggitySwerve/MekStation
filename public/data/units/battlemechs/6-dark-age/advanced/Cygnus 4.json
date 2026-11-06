@@ -205,5 +205,9 @@
   },
   "mulId": 6843,
   "role": "Juggernaut",
-  "source": "TR:3145"
+  "source": "TR:3145",
+  "weaponQuirks": {
+    "LA:3:CLLBXAC20": ["exposed_linkage", "static_feed"],
+    "RA:3:CLLBXAC20": ["exposed_linkage", "static_feed"]
+  }
 }

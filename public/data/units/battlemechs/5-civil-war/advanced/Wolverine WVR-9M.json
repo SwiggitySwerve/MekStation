@@ -187,5 +187,8 @@
   },
   "mulId": 3582,
   "role": "Skirmisher",
-  "source": "TR:3085,BattleCorps"
+  "source": "TR:3085,BattleCorps",
+  "weaponQuirks": {
+    "RA:7:Heavy PPC": ["jettison_capable"]
+  }
 }

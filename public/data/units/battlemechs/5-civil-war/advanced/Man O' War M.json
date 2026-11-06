@@ -185,5 +185,9 @@
   },
   "mulId": 2009,
   "role": "Sniper",
-  "source": "TR:CI"
+  "source": "TR:CI",
+  "weaponQuirks": {
+    "LA:2:CLERPPC": ["stable_weapon"],
+    "RA:2:CLHAG20": ["stable_weapon"]
+  }
 }

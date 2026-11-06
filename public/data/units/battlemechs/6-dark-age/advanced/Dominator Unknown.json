@@ -183,5 +183,8 @@
   },
   "mulId": 7434,
   "role": "Skirmisher",
-  "source": "RG01"
+  "source": "RG01",
+  "weaponQuirks": {
+    "RT:6:CLERLargeLaser": ["exposed_linkage"]
+  }
 }

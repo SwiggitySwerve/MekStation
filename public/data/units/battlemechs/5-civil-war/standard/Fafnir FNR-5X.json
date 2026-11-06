@@ -182,5 +182,9 @@
   },
   "mulId": 1021,
   "role": "Sniper",
-  "source": "TR:3085"
+  "source": "TR:3085",
+  "weaponQuirks": {
+    "LT:0:ISImprovedHeavyGaussRifle": ["stable_weapon"],
+    "RT:0:ISImprovedHeavyGaussRifle": ["stable_weapon"]
+  }
 }

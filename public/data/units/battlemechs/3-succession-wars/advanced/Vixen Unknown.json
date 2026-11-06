@@ -193,5 +193,14 @@
   },
   "mulId": 3441,
   "role": "Striker",
-  "source": "TR:3055U,RGv1"
+  "source": "TR:3055U,RGv1",
+  "weaponQuirks": {
+    "RA:4:CLLargePulseLaser": ["jettison_capable", "mod_weapons"],
+    "LT:2:CLERMediumLaser": ["mod_weapons"],
+    "LT:3:CLMG": ["mod_weapons"],
+    "LT:4:CLMG": ["mod_weapons"],
+    "RT:2:CLERMediumLaser": ["mod_weapons"],
+    "RT:3:CLMG": ["mod_weapons"],
+    "RT:4:CLMG": ["mod_weapons"]
+  }
 }

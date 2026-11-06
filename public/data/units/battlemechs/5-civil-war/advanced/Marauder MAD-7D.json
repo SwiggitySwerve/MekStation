@@ -191,5 +191,8 @@
   },
   "mulId": 2046,
   "role": "Brawler",
-  "source": "TR:3085,TR:CI"
+  "source": "TR:3085,TR:CI",
+  "weaponQuirks": {
+    "RT:3:ISRotaryAC5": ["exposed_linkage"]
+  }
 }

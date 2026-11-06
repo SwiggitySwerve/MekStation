@@ -182,5 +182,8 @@
   },
   "mulId": 7749,
   "role": "Striker",
-  "source": "RG11,RGv1"
+  "source": "RG11,RGv1",
+  "weaponQuirks": {
+    "CT:11:CLERLargeLaser": ["stable_weapon"]
+  }
 }

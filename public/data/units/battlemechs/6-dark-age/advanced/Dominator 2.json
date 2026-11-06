@@ -187,5 +187,9 @@
   },
   "mulId": 7435,
   "role": "Sniper",
-  "source": "RG01"
+  "source": "RG01",
+  "weaponQuirks": {
+    "RA:5:CLERLargeLaser": ["exposed_linkage"],
+    "RT:6:CLERLargeLaser": ["exposed_linkage"]
+  }
 }

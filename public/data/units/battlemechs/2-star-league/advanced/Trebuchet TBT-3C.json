@@ -190,5 +190,8 @@
   },
   "mulId": 3295,
   "role": "Missile Boat",
-  "source": "TR:3050,TR:3050U"
+  "source": "TR:3050,TR:3050U",
+  "weaponQuirks": {
+    "RT:3:LRM 15": ["fast_reload"]
+  }
 }

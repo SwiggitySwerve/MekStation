@@ -190,5 +190,13 @@
   },
   "mulId": 5239,
   "role": "Brawler",
-  "source": "TR:Proto"
+  "source": "TR:Proto",
+  "weaponQuirks": {
+    "LA:4:CLImprovedHeavyLargeLaser": ["mod_weapons"],
+    "RA:4:CLImprovedHeavyLargeLaser": ["mod_weapons"],
+    "LT:4:CLERMediumLaser": ["mod_weapons"],
+    "LT:5:CLERMediumLaser": ["mod_weapons"],
+    "LT:6:CLERMediumLaser": ["mod_weapons"],
+    "RT:4:CLStreakLRM15": ["mod_weapons"]
+  }
 }

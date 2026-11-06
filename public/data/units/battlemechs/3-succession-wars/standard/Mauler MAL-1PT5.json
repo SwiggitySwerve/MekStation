@@ -197,5 +197,11 @@
   },
   "mulId": 9542,
   "role": "Sniper",
-  "source": "Shrap15"
+  "source": "Shrap15",
+  "weaponQuirks": {
+    "LT:4:Autocannon/2": ["stable_weapon"],
+    "LT:5:Autocannon/2": ["stable_weapon"],
+    "RT:4:Autocannon/2": ["stable_weapon"],
+    "RT:5:Autocannon/2": ["stable_weapon"]
+  }
 }

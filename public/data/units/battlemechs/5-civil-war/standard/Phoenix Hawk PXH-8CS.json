@@ -174,5 +174,8 @@
   },
   "mulId": 2510,
   "role": "Striker",
-  "source": "TR:3085"
+  "source": "TR:3085",
+  "weaponQuirks": {
+    "RA:7:ISSNPPC": ["jettison_capable"]
+  }
 }

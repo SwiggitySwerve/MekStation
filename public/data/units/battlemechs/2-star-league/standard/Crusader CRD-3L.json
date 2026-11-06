@@ -199,5 +199,9 @@
   },
   "mulId": 751,
   "role": "Missile Boat",
-  "source": "TR:3039"
+  "source": "TR:3039",
+  "weaponQuirks": {
+    "LL:5:SRM 4": ["stable_weapon"],
+    "RL:5:SRM 4": ["stable_weapon"]
+  }
 }

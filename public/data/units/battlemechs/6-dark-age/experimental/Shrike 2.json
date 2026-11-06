@@ -187,5 +187,9 @@
   },
   "mulId": 6293,
   "role": "Skirmisher",
-  "source": "TR:3145:C,TR:DA"
+  "source": "TR:3145:C,TR:DA",
+  "weaponQuirks": {
+    "LA:3:CLUltraAC10": ["exposed_linkage"],
+    "LA:7:CLUltraAC10": ["exposed_linkage"]
+  }
 }
