@@ -24,6 +24,10 @@ Verifier options resolve native interface getters through JAXB field names,
 native default initializers and the independently recorded consumed XML.
 Profile selection follows pinned loader/entity flags and verifier dispatch,
 including support-vehicle precedence and inherited aerospace flags. Technology
+For an absent XML section, native EntityVerifier profile initializers supply a
+TestXMLOption whose getter defaults are derived and cited by source line. The
+declared getter set also drives omission accounting, including missing profiles.
+Technology
 settings follow native MTF/BLK switches and TechConstants; BLK's IS/year exception
 is retained. The game year comes from the native verifier initializer.
 

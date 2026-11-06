@@ -30,6 +30,30 @@ class ReferencePolicyTest(unittest.TestCase):
         second, _ = rules.option_profiles(self.sources, '<entityverifier><mek><maxOverweight>0.2</maxOverweight></mek></entityverifier>')
         self.assertEqual((first['mek']['getMaxOverweight'], second['mek']['getMaxOverweight']), (0.1, 0.2))
 
+    def test_absent_xml_sections_materialize_every_native_default_and_citation(self):
+        profiles, citations = rules.option_profiles(self.sources, '<entityverifier><mek><maxOverweight>0</maxOverweight></mek></entityverifier>')
+        declared = set(profiles['mek'])
+        self.assertEqual(len(declared), 22)
+        for family in ('aero', 'ba', 'infantry'):
+            self.assertEqual(set(profiles.get(family, {})), declared)
+            self.assertTrue(all(value is not None for value in profiles[family].values()))
+            self.assertEqual(profiles[family]['getMaxOverweight'], 0.25)
+            self.assertEqual(profiles[family]['getWeightCeilingEngine'], 'HALF_TON')
+            for citation in citations[family].values():
+                self.assertIn('TestXMLOption.java#L', citation)
+                self.assertIn('EntityVerifier.java#L', citation)
+                self.assertIn('native default', citation)
+
+    def test_missing_profile_or_getter_is_retained_as_unspecified(self):
+        profiles, _ = rules.option_profiles(self.sources, '<entityverifier/>')
+        absent = rules.complete_profile(self.sources, profiles, 'undocumented')
+        self.assertEqual(len(absent), 22)
+        self.assertTrue(all(value is None for value in absent.values()))
+        profiles['aero'].pop('getMaxOverweight')
+        missing = rules.complete_profile(self.sources, profiles, 'aero')
+        self.assertIsNone(missing['getMaxOverweight'])
+        self.assertEqual(sum(value is None for value in missing.values()), 1)
+
     def test_native_mtf_rules_and_blk_year_exception_not_converter_labels(self):
         tables = rules.tech_tables(self.sources)
         self.assertEqual(rules.tech_level('a.mtf', 'TechBase:Inner Sphere\nRules Level:1', tables), 0)

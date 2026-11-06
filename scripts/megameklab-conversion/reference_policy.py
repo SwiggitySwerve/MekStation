@@ -11,7 +11,7 @@ import re
 import subprocess
 
 from java_reference_exporter import SOURCE_EXTENSIONS
-from reference_policy_sources import option_profiles, tech_level, tech_tables
+from reference_policy_sources import complete_profile, option_profiles, tech_level, tech_tables
 from reference_policy_units import PinnedTree, VerifierDispatch
 from source_inventory import build_inventory
 
@@ -59,7 +59,7 @@ def generate(runtime_root, config_receipt):
     dispatch = VerifierDispatch(native)
     sources = {key: native.source(Path(key).stem) for key in (
         'verifier/TestEntityOption.java', 'verifier/TestXMLOption.java', 'loaders/MtfFile.java',
-        'loaders/BLKFile.java', 'TechConstants.java', 'verifier/Ceil.java')}
+        'loaders/BLKFile.java', 'TechConstants.java', 'verifier/Ceil.java', 'verifier/EntityVerifier.java')}
     receipt_bytes = Path(config_receipt).read_bytes()
     receipt = json.loads(receipt_bytes)
     xml_bytes = Path(receipt['path']).read_bytes()
@@ -101,9 +101,9 @@ def generate(runtime_root, config_receipt):
             raise ValueError('Archive bytes differ from immutable inventory blob: ' + path)
         text = content.decode('utf-8-sig')
         profile = dispatch.profile(path, text)
-        expected = dict(profiles.get(profile, {}))
+        expected = complete_profile(sources, profiles, profile)
         expected.update(gameYear=dispatch.game_year, ammoTechLevel=tech_level(path, text, tables))
-        if profile is None:
+        if profile not in profiles:
             unspecified.append({'path': path, 'setting': 'profile', 'reason': 'Unrecognized native verifier dispatch'})
         for key, value in expected.items():
             if value is None:
