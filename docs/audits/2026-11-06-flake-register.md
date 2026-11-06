@@ -57,6 +57,15 @@ Historical repair means a cited owner reported a repair; G6 has not independentl
 | G6-037 | risk-without-observed-failure / open                                 | `e2e/customizer-record-sheet-rendering.spec.ts:289 (PDF export)`                                                                | unassigned; needsowner                                                   |
 | G6-038 | deterministic-context-failure-repaired / historical-repair-reported  | `campaignCoopRecordAuthz.test.ts (LW23 persistence-failure assertion)`                                                          | unassigned; needsowner                                                   |
 | G6-039 | reported-single-failure-later-pass / open                            | `scenarioGenerator suite (2026-10-30)`                                                                                          | unassigned; needsowner                                                   |
+| G6-040 | observed timing growth failure / intermittency unconfirmed           | `campaignHostIntentServerTime.test.ts:187` (U89 grant wake and replica ingest)                                                  | unassigned; needsowner — Root schedules after Phase G                    |
+
+## Addendum: PR #2908 timing failure
+
+The raw [Unit Tests (2/3) job 127735157809](https://github.com/SwiggitySwerve/MekStation/actions/runs/42169915133/job/127735157809) confirms run **42169915133, attempt 1**, head `ff0922cf87f27b36db58e0b18c14e6d80b5a5c5a`. U89's “the grant wake and the replica ingest do not grow with the log” failed at `campaignHostIntentServerTime.test.ts:187`: `replicaIngest` short **2.0907269999988785 ms**, long **5.136500000000524 ms**. Environment: Ubuntu 26.04.1 LTS, image 20261101.186.1, Node 22.23.4, four unit workers. The native summary reports one failing suite/test; duplicated failure text in the log is the same execution.
+
+Root reports the failure unrelated to #2908's three `scripts/ci` files and submitted a failed-job rerun. G6 has not collected that rerun's attempt/job or result. Contention remains a hypothesis; this single timing failure is not confirmed intermittent evidence or grounds to dismiss a regression. The exact log, job metadata, source hash and uncertainty are in G6-040 and `phase-g/G6/u89-followup/`.
+
+**After Phase G:** Root assigns a multiplayer/performance owner to apply the #2630/#2691 pattern: correctness assertions remain in ordinary unit shards; timing growth assertions run only where `SIMULATION_PERF_ASSERTIONS` pins the perf lane. No assertion or workflow fix is part of this register update. Original sealed receipts and their status snapshots remain unchanged; this is an additive record. Earlier nightly and diagnostic statements above retain their original snapshot dates.
 
 ## Evidence and maintenance
 
