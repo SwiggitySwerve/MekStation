@@ -106,6 +106,7 @@ class SerializedUnit:
     criticalSlots: Dict[str, List[Optional[str]]]
     variant: Optional[str] = None
     quirks: Optional[List[str]] = None
+    weaponQuirks: Optional[Dict[str, List[str]]] = None
     fluff: Optional[SerializedFluff] = None
     mulId: Optional[int] = None
     role: Optional[str] = None
