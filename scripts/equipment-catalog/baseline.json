@@ -10362,7 +10362,7 @@
     "file": "weapons/missile-other.json",
     "index": 50,
     "id": "thunderbolt-10-os",
-    "sha256": "d036d3dac03724d6df91449941606291db2a18d7119e32d65b4133e39c875129",
+    "sha256": "f64b71d3cd8a154faddc3a425b8c0209cd89887eceb440311116a5bd2b028139",
     "item": {
       "id": "thunderbolt-10-os",
       "name": "Thunderbolt 10 (OS)",
@@ -10386,7 +10386,7 @@
       },
       "costCBills": 87500,
       "battleValue": 25,
-      "introductionYear": 3072,
+      "introductionYear": 3052,
       "special": []
     }
   },
@@ -10426,7 +10426,7 @@
     "file": "weapons/missile-other.json",
     "index": 52,
     "id": "thunderbolt-15-os",
-    "sha256": "f1139d27f4d5026c8a4ab99df61fa6457a85d96c2f58d0581e938470b78acaa8",
+    "sha256": "b3c7c858674b00510d4ca55dfd11c9221e351ebd11dd3913ce3f92f5f9373332",
     "item": {
       "id": "thunderbolt-15-os",
       "name": "Thunderbolt 15 (OS)",
@@ -10450,7 +10450,7 @@
       },
       "costCBills": 162500,
       "battleValue": 46,
-      "introductionYear": 3072,
+      "introductionYear": 3052,
       "special": []
     }
   },
@@ -10490,7 +10490,7 @@
     "file": "weapons/missile-other.json",
     "index": 54,
     "id": "thunderbolt-20-os",
-    "sha256": "265d03e2a635ebf80bea5c20fe8276f993025db6d40ec7d169ba8a7bdc5d5ab4",
+    "sha256": "63e47174496ac561cd782f74b14211baac02293ebd38a0624f8002b8a81ead99",
     "item": {
       "id": "thunderbolt-20-os",
       "name": "Thunderbolt 20 (OS)",
@@ -10514,7 +10514,7 @@
       },
       "costCBills": 225000,
       "battleValue": 61,
-      "introductionYear": 3072,
+      "introductionYear": 3052,
       "special": []
     }
   },
@@ -10554,7 +10554,7 @@
     "file": "weapons/missile-other.json",
     "index": 56,
     "id": "thunderbolt-5-os",
-    "sha256": "c5ce54b8f6de49c63f018a01d4ab0fdec7fbf448c1d99d92038f1e00d7ff42a3",
+    "sha256": "ec2f043b3fbba2e63d5269b739201111633c511df5650a2ffd460c3b674a7c47",
     "item": {
       "id": "thunderbolt-5-os",
       "name": "Thunderbolt 5 (OS)",
@@ -10578,7 +10578,7 @@
       },
       "costCBills": 25000,
       "battleValue": 13,
-      "introductionYear": 3072,
+      "introductionYear": 3052,
       "special": []
     }
   },
