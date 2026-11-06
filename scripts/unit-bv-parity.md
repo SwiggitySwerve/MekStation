@@ -15,6 +15,20 @@ exporter, hashing removes CR only when followed by LF. No other bytes change.
 Folders `ge`, `advancedbuildings`, `handheld`, `battlefieldsupport` and BFS files
 are outside this oracle's scope. There are no per-unit exclusions.
 
+Strict export also writes `sources.ndjson.manifest.json`. The external
+`--converted` CLI requires this receipt before calculating anything: exact
+payload SHA-256, source count, full scope, and hashes of the current converter
+and its data inputs must match. Native source hashes alone cannot detect an
+older converter's saved unit payload. Missing or stale receipts require a
+fresh export; there is no legacy bypass or command to bless old output.
+Converter inputs are conservatively inventoried by
+`megameklab-conversion/strict-provenance-inputs.json`; fingerprints normalize
+CRLF to LF for portable receipts. Changes to any inventoried helper invalidate
+old receipts even if that particular helper did not affect a row.
+The receipt establishes conversion provenance; the oracle still owns corpus
+completeness and parity. A passing native conversion is separate from proof
+of the committed catalog.
+
 Mechs use `validate-bv-calculator.calculateUnitBV`; `bvAdapter` runtime totals
 and exact counts are separate fields. ProtoMechs use the handler's existing
 BV breakdown. Vehicle, aerospace and capital contracts use the real dispatcher.

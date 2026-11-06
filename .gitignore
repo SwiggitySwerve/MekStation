@@ -53,6 +53,7 @@ scripts/**
 !scripts/vehicle-aero-bv-delta.ts
 !scripts/unit-bv-parity.ts
 !scripts/unit-bv-parity.md
+!scripts/unit-bv-provenance.ts
 !scripts/campaign-authority-cutover.ts
 !scripts/maintenance/
 !scripts/maintenance/scan-maintenance.mjs
@@ -97,6 +98,8 @@ scripts/**
 !scripts/megameklab-conversion/java_reference_exporter.py
 !scripts/megameklab-conversion/java_bv_terms.py
 !scripts/megameklab-conversion/export_vehicle_aero_json.py
+!scripts/megameklab-conversion/strict_provenance.py
+!scripts/megameklab-conversion/strict-provenance-inputs.json
 !scripts/megameklab-conversion/java-reference/
 !scripts/megameklab-conversion/java-reference/*.java
 !scripts/megameklab-conversion/java-reference/bv-stages.json

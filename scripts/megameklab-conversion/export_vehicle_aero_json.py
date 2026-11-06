@@ -69,6 +69,7 @@ def export_strict(mekfiles: Path, out_dir: Path) -> None:
     import hashlib
     import blk_capital_converter as capital
     from mtf_converter import MTFParser, dataclass_to_dict
+    from strict_provenance import write_source_manifest
 
     _require_scratch(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -101,6 +102,7 @@ def export_strict(mekfiles: Path, out_dir: Path) -> None:
                 except Exception as error:
                     row["reason"] = str(error)
                 handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+    write_source_manifest(out_dir, list(folders))
 
 if __name__ == "__main__":
     if len(sys.argv) > 3 and sys.argv[3] == "--strict":

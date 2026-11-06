@@ -1,0 +1,9 @@
+{
+  "directory": "scripts/megameklab-conversion",
+  "extensions": [".py", ".json"],
+  "files": [
+    "src/utils/construction/vehicle/suspension.json",
+    "src/utils/construction/vehicle/supportEngine.json",
+    "public/data/equipment/official/miscellaneous/java-registry.json"
+  ]
+}
