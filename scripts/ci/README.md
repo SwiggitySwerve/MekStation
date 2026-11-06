@@ -62,6 +62,22 @@ including small files; `extractTestObservation` proves completeness against a
 planned file census. G1's `observedBudgetValues` determines whether a complete
 budget projection exists. Missing telemetry forbids a weekly ratchet.
 
+The canonical `producer` field is null or
+`{schema:'mekstation/ci-observation-producer/v1',repository,runId,attempt,headSha,sourceRunId,sourceAttempt}`.
+New envelopes default it to null. Older v1 envelopes without the field remain
+unstamped. `validateObservationProducer(producer, sourceIdentity)` is the sole
+producer schema validator; G1 imports/reexports it rather than defining another
+validator. `OBSERVATION_PRODUCER_SCHEMA` supplies the schema identifier.
+The producer's repository and source run/attempt must match the observation;
+its own run, attempt and head identify the uploader and may differ from the
+source. The source identity and `ci-observation-SOURCE-RUN-SOURCE-ATTEMPT.json`
+filename stay unchanged when Guard uploads the artifact.
+
+Schema validation does not establish trust in an uploader. G3 separately checks
+the stamp against live producer-run and artifact metadata, trusted Guard workflow,
+default-head ancestry and the source tuple. A missing/null stamp cannot grant
+the trusted Guard path. G1 owns stamping and workflow wiring; G3 owns acceptance.
+
 ## Trusted integration
 
 The final reporter needs completed jobs. A report collected inside a running
