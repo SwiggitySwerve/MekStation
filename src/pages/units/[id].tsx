@@ -275,6 +275,7 @@ export default function CustomUnitDetailPage(): React.ReactElement {
     heatSinks,
     structure,
     quirks,
+    weaponQuirks,
     role,
   } = parseUnitFields(unit);
 
@@ -313,6 +314,7 @@ export default function CustomUnitDetailPage(): React.ReactElement {
       <EquipmentCard equipment={equipment} />
       <UnitQuirkSummary
         quirks={quirks}
+        weaponQuirks={weaponQuirks}
         badgeVariant="violet"
         className="mb-6"
       />

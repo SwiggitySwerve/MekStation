@@ -323,7 +323,7 @@ export default function CanonicalUnitDetailPage(): React.ReactElement {
 
       <EquipmentCard unit={unit} />
 
-      <UnitQuirkSummary quirks={unit.quirks} />
+      <UnitQuirkSummary quirks={unit.quirks} weaponQuirks={unit.weaponQuirks} />
     </CompendiumLayout>
   );
 }
