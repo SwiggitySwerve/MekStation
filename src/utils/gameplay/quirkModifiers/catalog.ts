@@ -366,7 +366,7 @@ export function getQuirksByCategory(
 
 // Native ids: MegaMek 48fcb2f64 OptionsConstants.java:72-74,135-137.
 // Legacy saved ids remain the public catalog keys; normalize only at lookup.
-const NATIVE_TARGETING_IDS: Readonly<Record<string, string>> = {
+const NATIVE_UNIT_QUIRK_IDS: Readonly<Record<string, string>> = {
   imp_target_short: UNIT_QUIRK_IDS.IMPROVED_TARGETING_SHORT,
   imp_target_med: UNIT_QUIRK_IDS.IMPROVED_TARGETING_MEDIUM,
   imp_target_long: UNIT_QUIRK_IDS.IMPROVED_TARGETING_LONG,
@@ -380,8 +380,8 @@ export function hasQuirk(
   unitQuirks: readonly string[],
   quirkId: string,
 ): boolean {
-  const canonicalId = NATIVE_TARGETING_IDS[quirkId] ?? quirkId;
+  const canonicalId = NATIVE_UNIT_QUIRK_IDS[quirkId] ?? quirkId;
   return unitQuirks.some(
-    (id) => (NATIVE_TARGETING_IDS[id] ?? id) === canonicalId,
+    (id) => (NATIVE_UNIT_QUIRK_IDS[id] ?? id) === canonicalId,
   );
 }
