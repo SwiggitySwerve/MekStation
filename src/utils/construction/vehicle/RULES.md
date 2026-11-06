@@ -492,6 +492,18 @@ shared size-class thresholds (EntityWeightClass.java:80-97). BAR weight reuses
 
 ## Offensive ammunition groups
 
+Native launcher identities reach the shared cap owner unchanged. Its native
+type/rack keys are grouping results, not equipment IDs to parse again:
+`GAUSS_LIGHT:0` and `GAUSS_HEAVY:0` must not become `GAUSS:0`. The existing
+vehicle group fallback remains for launchers without represented native keys.
+Regular Gauss bins therefore cannot borrow a light/heavy launcher's cap.
+Pinned MegaMek 48fcb2f64 `BVCalculator.java:1189-1242` supplies separate pools;
+`ISGaussRifle.java:75,83`, `ISLGaussRifle.java:73,81` and
+`ISHGaussRifle.java:76,87` supply types and listed BV 320/159/346.
+`vehicleBV.gaussAmmoPools.test.ts` enforces mixed-caliber separation, duplicate
+launcher accumulation and standalone caliber caps. Synthetic Java component
+references do not establish source quantities, defensive caps or full parity.
+
 `vehicleBVOffensive.ts` selects matching catalog-derived weapon and bin groups
 before calling the shared `calculateAmmoBVWithExcessiveCap` owner. Its common
 LB-X/Gauss/missile rules are shared with large craft in `battleValueAmmo.ts`;

@@ -3,7 +3,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 0,
     "id": "ac-2",
-    "sha256": "0a5c452f7675f15a715eba9fcb1c024e0b58b26be789d6d105756007843ed311",
+    "sha256": "fb85e002cf325c678fe9ec889f2aaafaa077a36ae85649f6eafd28f6ed353995",
     "item": {
       "id": "ac-2",
       "name": "AC/2",
@@ -28,7 +28,7 @@
       "ammoPerTon": 45,
       "costCBills": 75000,
       "battleValue": 37,
-      "introductionYear": 2300
+      "introductionYear": 2290
     }
   },
   {
@@ -131,7 +131,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 4,
     "id": "uac-2",
-    "sha256": "7bb5c464ce88a288d852ef0da43b7ee78d91f4ee0942e31615cd57effb715c86",
+    "sha256": "81e3b45f3af512a62d948b12c39eb1a5baa237d560698112323c01676911eae4",
     "item": {
       "id": "uac-2",
       "name": "Ultra AC/2",
@@ -156,7 +156,7 @@
       "ammoPerTon": 45,
       "costCBills": 120000,
       "battleValue": 56,
-      "introductionYear": 3057,
+      "introductionYear": 3050,
       "special": ["Can fire twice"]
     }
   },
@@ -164,7 +164,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 5,
     "id": "uac-5",
-    "sha256": "9fbd95fa25d4daf5d22a2878095d9f6f92c9c63b74f58c62a226eb644e441c75",
+    "sha256": "315af1e73246979ac74361695b86fcf2ebbe0fae62e363f3148f36a8f1a15f7d",
     "item": {
       "id": "uac-5",
       "name": "Ultra AC/5",
@@ -189,7 +189,7 @@
       "ammoPerTon": 20,
       "costCBills": 200000,
       "battleValue": 112,
-      "introductionYear": 2640,
+      "introductionYear": 2630,
       "special": ["Can fire twice"],
       "extinctionYear": 2915,
       "reintroductionYear": 3035
@@ -199,7 +199,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 6,
     "id": "uac-10",
-    "sha256": "b1779362a699b40f3ef83dc9137e2393d00773485a2ef14ec6510f0b20ed0d36",
+    "sha256": "c25e59259dfb2278655016a7174ecf94f7dd4742f8c093f401ea54d34d2813a7",
     "item": {
       "id": "uac-10",
       "name": "Ultra AC/10",
@@ -224,7 +224,7 @@
       "ammoPerTon": 10,
       "costCBills": 320000,
       "battleValue": 210,
-      "introductionYear": 3057,
+      "introductionYear": 3050,
       "special": ["Can fire twice"]
     }
   },
@@ -232,7 +232,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 7,
     "id": "uac-20",
-    "sha256": "591aba7b77c7c88b6f71153f6b6d15fe6da523255a28805652aa23a4714805d3",
+    "sha256": "5ce91a350be5612e7e9a851c5e43e6ee96f56af29283e869d43dfcd708d99c17",
     "item": {
       "id": "uac-20",
       "name": "Ultra AC/20",
@@ -257,7 +257,7 @@
       "ammoPerTon": 5,
       "costCBills": 480000,
       "battleValue": 281,
-      "introductionYear": 3060,
+      "introductionYear": 3052,
       "special": ["Can fire twice"]
     }
   },
@@ -265,7 +265,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 8,
     "id": "clan-uac-2",
-    "sha256": "e3f07d145ac1a682533b6366d56e6f93054ea2d23a8aae2462937caa5f9042b9",
+    "sha256": "fe956a71b87d79c3d17eb4b7d7235539895978323bc865014817c552fd799394",
     "item": {
       "id": "clan-uac-2",
       "name": "Ultra AC/2 (Clan)",
@@ -290,7 +290,7 @@
       "ammoPerTon": 45,
       "costCBills": 120000,
       "battleValue": 62,
-      "introductionYear": 2827,
+      "introductionYear": 2820,
       "special": ["Can fire twice"]
     }
   },
@@ -298,7 +298,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 9,
     "id": "clan-uac-5",
-    "sha256": "db10786b56758ae098f3eb6f70821d39df68fc95890a8a0b089f1cc83ba1fce8",
+    "sha256": "806ecf2b22121329fe9fe4d2a08bb887b62aef38a2dfa5cbb6d83233f8c310e7",
     "item": {
       "id": "clan-uac-5",
       "name": "Ultra AC/5 (Clan)",
@@ -323,7 +323,7 @@
       "ammoPerTon": 20,
       "costCBills": 200000,
       "battleValue": 122,
-      "introductionYear": 2827,
+      "introductionYear": 2820,
       "special": ["Can fire twice"]
     }
   },
@@ -331,7 +331,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 10,
     "id": "clan-uac-10",
-    "sha256": "61989dee8a4468f87239b83a3a4894e956c02030813307b8923b9a614e8a3d93",
+    "sha256": "8154754b8a9f678326774d68e79f806666dd86267f0324aab1f48af3d2e3e3af",
     "item": {
       "id": "clan-uac-10",
       "name": "Ultra AC/10 (Clan)",
@@ -356,7 +356,7 @@
       "ammoPerTon": 10,
       "costCBills": 320000,
       "battleValue": 210,
-      "introductionYear": 2827,
+      "introductionYear": 2820,
       "special": ["Can fire twice"]
     }
   },
@@ -364,7 +364,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 11,
     "id": "clan-uac-20",
-    "sha256": "254ff35347963a03ce31284d11d91f7608836f2d5ad644f05d1519e0b582fbe9",
+    "sha256": "7c1a705713df71f60d0f3b8960d5dba9c1d72c099a64b010e2865746591ea572",
     "item": {
       "id": "clan-uac-20",
       "name": "Ultra AC/20 (Clan)",
@@ -389,7 +389,7 @@
       "ammoPerTon": 5,
       "costCBills": 480000,
       "battleValue": 335,
-      "introductionYear": 2827,
+      "introductionYear": 2820,
       "special": ["Can fire twice"]
     }
   },
@@ -397,7 +397,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 12,
     "id": "lb-2-x-ac",
-    "sha256": "3198d6e3d58ed029dd2ef3577d81970eebe4f54ff6d59227e332f35530cf6aca",
+    "sha256": "032e11abc0ded0574b0ceaa037e836dd28642261520a222508740451d088793f",
     "item": {
       "id": "lb-2-x-ac",
       "name": "LB 2-X AC",
@@ -422,7 +422,7 @@
       "ammoPerTon": 45,
       "costCBills": 150000,
       "battleValue": 42,
-      "introductionYear": 3058,
+      "introductionYear": 3050,
       "special": ["Cluster ammo available"]
     }
   },
@@ -430,7 +430,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 13,
     "id": "lb-5-x-ac",
-    "sha256": "6b67d519e9ca35ba1957b5d567ad9452db9ec84333a8d1ca447bcc4590393c3f",
+    "sha256": "f13871c3592c0d426653781040cab44cb06f6e504cacd9063cd9aa435c5211a4",
     "item": {
       "id": "lb-5-x-ac",
       "name": "LB 5-X AC",
@@ -455,7 +455,7 @@
       "ammoPerTon": 20,
       "costCBills": 250000,
       "battleValue": 83,
-      "introductionYear": 3058,
+      "introductionYear": 3050,
       "special": ["Cluster ammo available"]
     }
   },
@@ -463,7 +463,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 14,
     "id": "lb-10-x-ac",
-    "sha256": "2b86f6bedc1d51a4be945ab3707081ddad080ca42007a839e8eac702ca039968",
+    "sha256": "a29e227dd27bb3ae0cf134dd6016c67359f093c2581226df440799a5da220b21",
     "item": {
       "id": "lb-10-x-ac",
       "name": "LB 10-X AC",
@@ -484,7 +484,7 @@
       "ammoPerTon": 10,
       "costCBills": 400000,
       "battleValue": 148,
-      "introductionYear": 2595,
+      "introductionYear": 2590,
       "special": ["Cluster ammo available"],
       "extinctionYear": 2840,
       "reintroductionYear": 3035
@@ -494,7 +494,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 15,
     "id": "lb-20-x-ac",
-    "sha256": "2ae76bf8ca3874f6e43d8a9b5b843d062be585e45b87968138dec01d1eff988d",
+    "sha256": "e7abd51afba68dccfb5c05876c331d7affd643fd3ae56880e0a0a959e82d3ff4",
     "item": {
       "id": "lb-20-x-ac",
       "name": "LB 20-X AC",
@@ -519,7 +519,7 @@
       "ammoPerTon": 5,
       "costCBills": 600000,
       "battleValue": 237,
-      "introductionYear": 3058,
+      "introductionYear": 3050,
       "special": ["Cluster ammo available"]
     }
   },
@@ -527,7 +527,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 16,
     "id": "clan-lb-2-x-ac",
-    "sha256": "7ffa0c38e4f6d5f472546843e8891cbb96d11ed56bcb3e62fabd52ba3aa38974",
+    "sha256": "4a424e83cfab6f82ae48d04ed27ed6602a830828cba8480c7b7342ee54b11fbd",
     "item": {
       "id": "clan-lb-2-x-ac",
       "name": "LB 2-X AC (Clan)",
@@ -552,7 +552,7 @@
       "ammoPerTon": 45,
       "costCBills": 150000,
       "battleValue": 47,
-      "introductionYear": 2826,
+      "introductionYear": 2819,
       "special": ["Cluster ammo available"]
     }
   },
@@ -560,7 +560,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 17,
     "id": "clan-lb-5-x-ac",
-    "sha256": "2d825d369109d2eb8961f914d1ece4dd4cbd007f9e8c01594634ceabdc5a4648",
+    "sha256": "5b33f74ae2229029b2493f022283777ff181b67de00c25c28a95663bd989a6eb",
     "item": {
       "id": "clan-lb-5-x-ac",
       "name": "LB 5-X AC (Clan)",
@@ -585,7 +585,7 @@
       "ammoPerTon": 20,
       "costCBills": 250000,
       "battleValue": 93,
-      "introductionYear": 2826,
+      "introductionYear": 2819,
       "special": ["Cluster ammo available"]
     }
   },
@@ -593,7 +593,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 18,
     "id": "clan-lb-10-x-ac",
-    "sha256": "fb185251ccf2a845c223b85b5992f1c2afcd879e0b942610fd3b8887db15c5b5",
+    "sha256": "d5eb73fd222df197e3cf451e6029a62ff118781126497dce1743aed003854f76",
     "item": {
       "id": "clan-lb-10-x-ac",
       "name": "LB 10-X AC (Clan)",
@@ -618,7 +618,7 @@
       "ammoPerTon": 10,
       "costCBills": 400000,
       "battleValue": 148,
-      "introductionYear": 2826,
+      "introductionYear": 2819,
       "special": ["Cluster ammo available"]
     }
   },
@@ -626,7 +626,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 19,
     "id": "clan-lb-20-x-ac",
-    "sha256": "f4f0ef841b5d6e3ffcdfd77171b19d8593df745566152877d234a284ac9d2d08",
+    "sha256": "10e7ea347954b39f6adf354d86dbaa62ca76c0b84c6437975f4b79aa875bd699",
     "item": {
       "id": "clan-lb-20-x-ac",
       "name": "LB 20-X AC (Clan)",
@@ -651,7 +651,7 @@
       "ammoPerTon": 5,
       "costCBills": 600000,
       "battleValue": 237,
-      "introductionYear": 2826,
+      "introductionYear": 2819,
       "special": ["Cluster ammo available"]
     }
   },
@@ -659,7 +659,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 20,
     "id": "rac-2",
-    "sha256": "23d503f82d5edfc97ac2dcca531f01f3b4854e336ccd49b52c6eb8ad9cd749a8",
+    "sha256": "f4e32abfa379ef807c260520b505d3a7a924f8fe3d020dcd644be27e7316554e",
     "item": {
       "id": "rac-2",
       "name": "Rotary AC/2",
@@ -684,7 +684,7 @@
       "ammoPerTon": 45,
       "costCBills": 175000,
       "battleValue": 118,
-      "introductionYear": 3062,
+      "introductionYear": 3055,
       "special": ["Can fire 1-6 shots"]
     }
   },
@@ -692,7 +692,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 21,
     "id": "rac-5",
-    "sha256": "84f59390cbdb86488f08ca888e47dae098b885115fca14a7fcb21f65a9559639",
+    "sha256": "a5ac1947545176d1b0e70277443b236a86d1c592607e85781932cc8caccd6ddc",
     "item": {
       "id": "rac-5",
       "name": "Rotary AC/5",
@@ -717,7 +717,7 @@
       "ammoPerTon": 20,
       "costCBills": 275000,
       "battleValue": 247,
-      "introductionYear": 3062,
+      "introductionYear": 3055,
       "special": ["Can fire 1-6 shots"]
     }
   },
@@ -791,7 +791,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 24,
     "id": "lac-2",
-    "sha256": "3de5dbaf2e0212498670671efcf9ab48089dc9c195333ecb5d78382ec7d6c786",
+    "sha256": "6bed60d2ecc2b86bdbff2e2281f7eddaba584f17c1ae95a88f14248eae9d9439",
     "item": {
       "id": "lac-2",
       "name": "Light AC/2",
@@ -816,7 +816,7 @@
       "ammoPerTon": 45,
       "costCBills": 100000,
       "battleValue": 30,
-      "introductionYear": 3068
+      "introductionYear": 3057
     }
   },
   {
@@ -1028,7 +1028,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 31,
     "id": "hyper-velocity-auto-cannon-2",
-    "sha256": "c70498abf665cc60d763fe2d1d7005b2ab68259c05aee54c14a548ea0be76396",
+    "sha256": "f0027ac867fcca3fa5872a7ab298a17dc2d2c0442a84d4203be5cf9728b86457",
     "item": {
       "id": "hyper-velocity-auto-cannon-2",
       "name": "HVAC/2",
@@ -1053,7 +1053,7 @@
       },
       "costCBills": 100000,
       "battleValue": 53,
-      "introductionYear": 3079,
+      "introductionYear": 3059,
       "special": []
     }
   },
@@ -1061,7 +1061,7 @@
     "file": "weapons/ballistic-autocannon.json",
     "index": 32,
     "id": "hyper-velocity-auto-cannon-5",
-    "sha256": "c112e2683457e05f53604d2f67121c301051526b5556efc7f60abf2ea3d0f824",
+    "sha256": "7b3d7d355be5ed19a7a6fc9da99490a277396055f89257046a6eca5f19cb8ba6",
     "item": {
       "id": "hyper-velocity-auto-cannon-5",
       "name": "HVAC/5",
@@ -1086,7 +1086,7 @@
       },
       "costCBills": 160000,
       "battleValue": 109,
-      "introductionYear": 3079,
+      "introductionYear": 3059,
       "special": []
     }
   },
@@ -1094,7 +1094,7 @@
     "file": "weapons/ballistic-gauss.json",
     "index": 0,
     "id": "gauss-rifle",
-    "sha256": "8cb2db538dc84a4d843b8ab83fb2b91a12c34a534c5d66d09ef0eba0a49593f2",
+    "sha256": "e25b65a4d273260f771b56ed70f94a92bc173cb5db872b803b999c7d97ea3dd4",
     "item": {
       "id": "gauss-rifle",
       "name": "Gauss Rifle",
@@ -1119,7 +1119,7 @@
       "ammoPerTon": 8,
       "costCBills": 300000,
       "battleValue": 320,
-      "introductionYear": 2590,
+      "introductionYear": 2587,
       "isExplosive": true,
       "extinctionYear": 2865,
       "reintroductionYear": 3040
@@ -1129,7 +1129,7 @@
     "file": "weapons/ballistic-gauss.json",
     "index": 1,
     "id": "light-gauss-rifle",
-    "sha256": "7a04325c815f681e4e3b43e4cd6a5e92274ffd5741572a31a221d3a619df6964",
+    "sha256": "8d63adb774ebce5cad9d7ce9c0a94b02f007741733d658597a62c1d50b18b6ad",
     "item": {
       "id": "light-gauss-rifle",
       "name": "Light Gauss Rifle",
@@ -1154,7 +1154,7 @@
       "ammoPerTon": 16,
       "costCBills": 275000,
       "battleValue": 159,
-      "introductionYear": 3056,
+      "introductionYear": 3044,
       "isExplosive": true
     }
   },
@@ -1162,7 +1162,7 @@
     "file": "weapons/ballistic-gauss.json",
     "index": 2,
     "id": "heavy-gauss-rifle",
-    "sha256": "812e48d0fd27eb62210f76869d4a5ab0985a5b2bea8f0d9c96349232d8212fab",
+    "sha256": "632d6e05caf6048125cf006147ce9ec903fc63d9cc963060967f2bb032884eab",
     "item": {
       "id": "heavy-gauss-rifle",
       "name": "Heavy Gauss Rifle",
@@ -1187,7 +1187,7 @@
       "ammoPerTon": 4,
       "costCBills": 500000,
       "battleValue": 346,
-      "introductionYear": 3061,
+      "introductionYear": 3046,
       "isExplosive": true
     }
   },
@@ -1195,7 +1195,7 @@
     "file": "weapons/ballistic-gauss.json",
     "index": 3,
     "id": "ap-gauss-rifle",
-    "sha256": "924ca30ed8030d2a8da13764f5334ac9a39eaf4900ff36af62ee8796910b922e",
+    "sha256": "77951169a25ca1d12801c47895d9d4a4a392150c2e01966154ae8db8e4fb0f74",
     "item": {
       "id": "ap-gauss-rifle",
       "name": "AP Gauss Rifle",
@@ -1220,7 +1220,7 @@
       "ammoPerTon": 40,
       "costCBills": 8500,
       "battleValue": 21,
-      "introductionYear": 3069,
+      "introductionYear": 3060,
       "isExplosive": true
     }
   },
@@ -1228,7 +1228,7 @@
     "file": "weapons/ballistic-gauss.json",
     "index": 4,
     "id": "clan-gauss-rifle",
-    "sha256": "c3dcd3e329171366e1c0920a679385cd28d36b5b728593bbd9c049f2564c3184",
+    "sha256": "d1bcf0df70331b9e59f8d262ba3cc5fd5073bb0ab5e378f35ad0b9104427cd2e",
     "item": {
       "id": "clan-gauss-rifle",
       "name": "Gauss Rifle (Clan)",
@@ -1253,7 +1253,7 @@
       "ammoPerTon": 8,
       "costCBills": 300000,
       "battleValue": 320,
-      "introductionYear": 2828,
+      "introductionYear": 2817,
       "isExplosive": true
     }
   },
@@ -1261,7 +1261,7 @@
     "file": "weapons/ballistic-gauss.json",
     "index": 5,
     "id": "baapgaussrifle",
-    "sha256": "f7aad22b9cef3a3b56148f6c60349b42b19cda4171eb67dc238f59fde8836d5e",
+    "sha256": "ed2fb579f8b466d40774facfd915075161aee3207797168f52d2c218534f9558",
     "item": {
       "id": "baapgaussrifle",
       "name": "Gauss Rifle [Anti-personnel Gauss Rifle]",
@@ -1286,7 +1286,7 @@
       },
       "costCBills": 10000,
       "battleValue": 21,
-      "introductionYear": 3069,
+      "introductionYear": 3061,
       "special": []
     }
   },
@@ -1294,7 +1294,7 @@
     "file": "weapons/ballistic-gauss.json",
     "index": 6,
     "id": "badavidlightgaussrifle",
-    "sha256": "e416303e14793cf60ce945a771270deda399e2188a5125925b6808e1fd80396e",
+    "sha256": "317ae3f5e195116f06467a84712086d0fa9ecd878aecbeb33e455a31cb0f9636",
     "item": {
       "id": "badavidlightgaussrifle",
       "name": "Gauss Rifle [David]",
@@ -1319,7 +1319,7 @@
       },
       "costCBills": 22500,
       "battleValue": 7,
-      "introductionYear": 3063,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -1327,7 +1327,7 @@
     "file": "weapons/ballistic-gauss.json",
     "index": 7,
     "id": "bagrandmaulergausscannon",
-    "sha256": "aafc09e16f79a15a332e185ca6e8f15911d2432df7ace57029364f146f55dba1",
+    "sha256": "a6abd2adc9bb3819dfe25ff46e7b591bf7dd5f107dfc0013f30daca221b1f607",
     "item": {
       "id": "bagrandmaulergausscannon",
       "name": "Gauss Rifle [Grand Mauler]",
@@ -1352,7 +1352,7 @@
       },
       "costCBills": 8000,
       "battleValue": 6,
-      "introductionYear": 3059,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -1360,7 +1360,7 @@
     "file": "weapons/ballistic-gauss.json",
     "index": 8,
     "id": "bakingdavidlightgaussrifle",
-    "sha256": "52f9b6ea5f30496380ba2de433d4f82802e06451514d658aef78e11663c361e2",
+    "sha256": "024594fbf96821c38349d88b30c18b4e3b22c12d3e5f47478ff18d2be6e0f5a3",
     "item": {
       "id": "bakingdavidlightgaussrifle",
       "name": "Gauss Rifle [King David]",
@@ -1385,7 +1385,7 @@
       },
       "costCBills": 30000,
       "battleValue": 7,
-      "introductionYear": 3063,
+      "introductionYear": 3053,
       "special": []
     }
   },
@@ -1426,7 +1426,7 @@
     "file": "weapons/ballistic-gauss.json",
     "index": 10,
     "id": "batsunamiheavygaussrifle",
-    "sha256": "c2010732a6a37efb662cb5977d3b7384f59080d1d333f54dfb06d070a39660aa",
+    "sha256": "e369a486812d33997d71e1c8448f0791b1a44c01d5173132bf86518504dcf1c5",
     "item": {
       "id": "batsunamiheavygaussrifle",
       "name": "Gauss Rifle [Tsunami]",
@@ -1451,7 +1451,7 @@
       },
       "costCBills": 9500,
       "battleValue": 6,
-      "introductionYear": 3056,
+      "introductionYear": 3049,
       "special": []
     }
   },
@@ -1459,7 +1459,7 @@
     "file": "weapons/ballistic-gauss.json",
     "index": 11,
     "id": "naval-gauss-heavy",
-    "sha256": "a48bfb9bac27c7a6e92feffe90056c50c08c47ad686a0b0113c72f152f4bf224",
+    "sha256": "a673bfe94dfd98df6829669967160b4a9ba8b120c48b01e5468e8eeee0ff5e58",
     "item": {
       "id": "naval-gauss-heavy",
       "name": "Naval Gauss (Heavy)",
@@ -1484,7 +1484,7 @@
       },
       "costCBills": 50050000,
       "battleValue": 6048,
-      "introductionYear": 2448,
+      "introductionYear": 2435,
       "special": [],
       "extinctionYear": 2950,
       "reintroductionYear": 3052
@@ -1494,7 +1494,7 @@
     "file": "weapons/ballistic-gauss.json",
     "index": 12,
     "id": "naval-gauss-light",
-    "sha256": "d546760d945a6840a0f155d42681049d45ab52dd51c6efaec575012846f3d955",
+    "sha256": "23d44aef7c69b987e5878844fce648cc92cf79d5dd7745af400699fc3a2c4a6f",
     "item": {
       "id": "naval-gauss-light",
       "name": "Naval Gauss (Light)",
@@ -1519,7 +1519,7 @@
       },
       "costCBills": 20300000,
       "battleValue": 3024,
-      "introductionYear": 2448,
+      "introductionYear": 2435,
       "special": [],
       "extinctionYear": 2950,
       "reintroductionYear": 3052
@@ -1529,7 +1529,7 @@
     "file": "weapons/ballistic-gauss.json",
     "index": 13,
     "id": "naval-gauss-medium",
-    "sha256": "2a622c55826223cef7392a8bfdd05b9a21ce5d4288dde19070e783485a3dd2df",
+    "sha256": "2453e3c3c3564694a10fa975b7127573bc781dfbf9ffbe1a4dec52f98a2a1e90",
     "item": {
       "id": "naval-gauss-medium",
       "name": "Naval Gauss (Medium)",
@@ -1554,7 +1554,7 @@
       },
       "costCBills": 30350000,
       "battleValue": 5040,
-      "introductionYear": 2448,
+      "introductionYear": 2435,
       "special": [],
       "extinctionYear": 2950,
       "reintroductionYear": 3052
@@ -1564,7 +1564,7 @@
     "file": "weapons/ballistic-gauss.json",
     "index": 14,
     "id": "improved-gauss-rifle",
-    "sha256": "0adfdc6e62c74dd9012bf4156399cdeb2b2ea3db8f2c75664178799bf33433d8",
+    "sha256": "8acb84067f9bef520a74b454957ab2f70ca2be31877df1e1b0b459cf3630d253",
     "item": {
       "id": "improved-gauss-rifle",
       "name": "Improved Gauss Rifle",
@@ -1589,7 +1589,7 @@
       },
       "costCBills": 300000,
       "battleValue": 320,
-      "introductionYear": 2821,
+      "introductionYear": 2813,
       "special": [],
       "extinctionYear": 2837,
       "reintroductionYear": 3080
@@ -1632,7 +1632,7 @@
     "file": "weapons/ballistic-gauss.json",
     "index": 16,
     "id": "sbgr",
-    "sha256": "92abe0da847fc6590a7ad2b5ac03543834c4587dae240e4cca5604b3609daa12",
+    "sha256": "9a6cfd3060d607f8461c157de8412a6f398f2fad269ce550a69bba27fe2df361",
     "item": {
       "id": "sbgr",
       "name": "Silver Bullet Gauss Rifle",
@@ -1657,7 +1657,7 @@
       },
       "costCBills": 350000,
       "battleValue": 198,
-      "introductionYear": 3080,
+      "introductionYear": 3051,
       "special": []
     }
   },
@@ -1732,7 +1732,7 @@
     "file": "weapons/ballistic-machinegun.json",
     "index": 1,
     "id": "light-machine-gun",
-    "sha256": "be7a442ba71b205fb595e76f71fc391830983eecbdd08042b6edabc0db5e4be2",
+    "sha256": "66cbfe41ab7be805811dd41cd078bbc8be06dce59a2b13858f183f9e49e2afa4",
     "item": {
       "id": "light-machine-gun",
       "name": "Light Machine Gun",
@@ -1757,7 +1757,7 @@
       "ammoPerTon": 200,
       "costCBills": 5000,
       "battleValue": 5,
-      "introductionYear": 3068
+      "introductionYear": 3059
     }
   },
   {
@@ -1828,7 +1828,7 @@
     "file": "weapons/ballistic-machinegun.json",
     "index": 4,
     "id": "bamg",
-    "sha256": "847f4801ec9cd2fe20b0490e9aef5d3708f5f32dfc64d055757ed331c40ac35b",
+    "sha256": "dd3510a8e2afbe6ae74078e88d9be8109c2f2002380d1f77c365efabd21addf4",
     "item": {
       "id": "bamg",
       "name": "Machine Gun (Medium)",
@@ -1853,7 +1853,7 @@
       },
       "costCBills": 5000,
       "battleValue": 5,
-      "introductionYear": 2868,
+      "introductionYear": 1950,
       "special": []
     }
   },
@@ -1861,7 +1861,7 @@
     "file": "weapons/ballistic-machinegun.json",
     "index": 5,
     "id": "machine-gun-bearhunter-ac",
-    "sha256": "e83df3b03e1b1fdc6ce4c9c1ede3b519dfdba1ad5ea274b9484a335ae20b58c9",
+    "sha256": "5784e0b1c6ffb13b432d34c2132d2721f7fb513be430e3c8a8be0a6661619d93",
     "item": {
       "id": "machine-gun-bearhunter-ac",
       "name": "Machine Gun (Bearhunter AC)",
@@ -1886,7 +1886,7 @@
       },
       "costCBills": 0,
       "battleValue": 4,
-      "introductionYear": 3062,
+      "introductionYear": 3055,
       "special": []
     }
   },
@@ -1894,7 +1894,7 @@
     "file": "weapons/ballistic-machinegun.json",
     "index": 6,
     "id": "machine-gun-bearhunter-aci",
-    "sha256": "63fb2953720d389e9f34a2f9bd3ba1d1d2f9b6e6f290192bf0f52b5f396924f8",
+    "sha256": "304ae156e7e665e983f5ddb12535348e19218d1e5ad13583f0472521fde2da9f",
     "item": {
       "id": "machine-gun-bearhunter-aci",
       "name": "Machine Gun (Bearhunter ACi)",
@@ -1919,7 +1919,7 @@
       },
       "costCBills": 0,
       "battleValue": 9,
-      "introductionYear": 3062,
+      "introductionYear": 3055,
       "special": []
     }
   },
@@ -1927,7 +1927,7 @@
     "file": "weapons/ballistic-machinegun.json",
     "index": 7,
     "id": "baheavymg",
-    "sha256": "b5834738d89cb1111c199b86ab68094d4c1f178af88f3f349fe3579215b3c0a4",
+    "sha256": "f4190fbbbd47ffc83b66325c388b3ccf10adfbfd341dd35b4f329dbd3442a05d",
     "item": {
       "id": "baheavymg",
       "name": "Machine Gun (Heavy)",
@@ -1952,7 +1952,7 @@
       },
       "costCBills": 7500,
       "battleValue": 6,
-      "introductionYear": 3059,
+      "introductionYear": 3050,
       "special": []
     }
   },
@@ -2121,7 +2121,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 0,
     "id": "ams",
-    "sha256": "896804d071eef88cbe334b310506427930023a2ebf8b85d7b87ae99060270a1f",
+    "sha256": "e3ca5feced48997dd5d51aad8efa77d79c48497dce5d3f502aa521c3c3fbd9c9",
     "item": {
       "id": "ams",
       "name": "Anti-Missile System",
@@ -2146,7 +2146,7 @@
       "ammoPerTon": 12,
       "costCBills": 100000,
       "battleValue": 32,
-      "introductionYear": 2617,
+      "introductionYear": 2608,
       "special": ["Defensive"],
       "extinctionYear": 2835,
       "reintroductionYear": 3045
@@ -2156,7 +2156,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 1,
     "id": "clan-ams",
-    "sha256": "ba149084682389924565567635c47ee1385f2f13bd30e589badf3159ddaf15c8",
+    "sha256": "758e3d97afbaa2723e090f5c2fdff571e5c3dbf2679a6414dfa15600f0ded624",
     "item": {
       "id": "clan-ams",
       "name": "Anti-Missile System (Clan)",
@@ -2181,7 +2181,7 @@
       "ammoPerTon": 24,
       "costCBills": 100000,
       "battleValue": 32,
-      "introductionYear": 2831,
+      "introductionYear": 2819,
       "special": ["Defensive"]
     }
   },
@@ -2288,7 +2288,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 5,
     "id": "nail-rivet-gun",
-    "sha256": "8a2e965f44d17f62c66b320210b05365d092a228c8331eb91352b6fae976e01d",
+    "sha256": "a07e9367da85b8cd68e137e0b010365495033002cd2606c1a87a731649ae55c5",
     "item": {
       "id": "nail-rivet-gun",
       "name": "Nail/Rivet Gun",
@@ -2316,7 +2316,7 @@
       },
       "costCBills": 7000,
       "battleValue": 1,
-      "introductionYear": 2310,
+      "introductionYear": 2304,
       "special": []
     }
   },
@@ -2423,7 +2423,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 9,
     "id": "baheavy-recoilless-rifle",
-    "sha256": "494234ded8f43a74a19fd46d642abdbf56d9107f5130262ea4f66a49f494b70c",
+    "sha256": "8fa22a39c698bd95f64315b8028c5fcd947a611cf166a508126e589744dee354",
     "item": {
       "id": "baheavy-recoilless-rifle",
       "name": "BA Recoilless Rifle (Heavy)",
@@ -2448,7 +2448,7 @@
       },
       "costCBills": 5000,
       "battleValue": 22,
-      "introductionYear": 3062,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -2456,7 +2456,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 10,
     "id": "balight-recoilless-rifle",
-    "sha256": "89429249b047570f83d645a0ec91d945fb181573e92c7ebd4f024bc53433232e",
+    "sha256": "ab25670689e20aba32bc6bc1d22684a18c22c53cb57880d21a85032a1fa46fd3",
     "item": {
       "id": "balight-recoilless-rifle",
       "name": "BA Recoilless Rifle (Light)",
@@ -2481,7 +2481,7 @@
       },
       "costCBills": 1000,
       "battleValue": 12,
-      "introductionYear": 3062,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -2489,7 +2489,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 11,
     "id": "bamedium-recoilless-rifle",
-    "sha256": "c447c1ff2d0462d85f291f9ea713084fabd40075894c0c40c984412b67da1d0c",
+    "sha256": "aeaa00054e7d14311abc4bb5a67721c46f5d501a52f6b35f1696a33dc0505d22",
     "item": {
       "id": "bamedium-recoilless-rifle",
       "name": "BA Recoilless Rifle (Medium)",
@@ -2514,7 +2514,7 @@
       },
       "costCBills": 3000,
       "battleValue": 19,
-      "introductionYear": 3062,
+      "introductionYear": 3057,
       "special": []
     }
   },
@@ -2654,7 +2654,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 16,
     "id": "smg-awa-starling-mk7",
-    "sha256": "c1dc53b222d092c3248f003dd5a9ade31ed9e9d7dfb7630f5c73d16ca55da9cf",
+    "sha256": "8d44084d2ec93127f5d6a60c29cefe0e89c51fe796fa78ab7c300a3f55eaf38a",
     "item": {
       "id": "smg-awa-starling-mk7",
       "name": "SMG (AWA Starling Mk7)",
@@ -2678,7 +2678,7 @@
       },
       "costCBills": 300,
       "battleValue": 0,
-      "introductionYear": 2800,
+      "introductionYear": 2795,
       "special": []
     }
   },
@@ -2686,7 +2686,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 17,
     "id": "smg-awa-starling-mk7-lb",
-    "sha256": "fe01d1f806b5875d5ea7056b787f1dd485a64ec1959f8cb790ceada65ce7ba6a",
+    "sha256": "e0fa279966374d77bd395344b6bba62e49bdd5fbce5b0026ef9b97cfae57b9b8",
     "item": {
       "id": "smg-awa-starling-mk7-lb",
       "name": "SMG (AWA Starling Mk7-LB)",
@@ -2710,7 +2710,7 @@
       },
       "costCBills": 400,
       "battleValue": 0,
-      "introductionYear": 2800,
+      "introductionYear": 2795,
       "special": []
     }
   },
@@ -2718,7 +2718,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 18,
     "id": "smg-awa-starling-mk7-sf",
-    "sha256": "cb31323aae87c8ef26d714cd95a31f7020f62ef89751dceffe3fdd44bc7c5be6",
+    "sha256": "6c035f5c708b47ad5197af6d89c4c0655dda29f4e28d3763f57ab9410180186f",
     "item": {
       "id": "smg-awa-starling-mk7-sf",
       "name": "SMG (AWA Starling Mk7-SF)",
@@ -2742,7 +2742,7 @@
       },
       "costCBills": 600,
       "battleValue": 0,
-      "introductionYear": 2800,
+      "introductionYear": 2795,
       "special": []
     }
   },
@@ -2750,7 +2750,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 19,
     "id": "smg-blackfield-scorpion-mk-65",
-    "sha256": "d9c605f7b21837b747368efb1925b5703c1a2927562196a6ed34109a400ec60e",
+    "sha256": "d5c9a24240dca5dba83b23f4f999caa4cb04ffe8193e9963ca8f2c6d4205c2a6",
     "item": {
       "id": "smg-blackfield-scorpion-mk-65",
       "name": "SMG (Blackfield Scorpion Mk 65)",
@@ -2774,7 +2774,7 @@
       },
       "costCBills": 420,
       "battleValue": 0,
-      "introductionYear": 2800,
+      "introductionYear": 2795,
       "special": []
     }
   },
@@ -2782,7 +2782,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 20,
     "id": "smg-boudicca-4",
-    "sha256": "03fb9ff9230bc5f5eb7166fbb60f86d909f138f8562aa3ecfc21cd02842b0f74",
+    "sha256": "0adcff25da0b8dab76425c12b0aed1cb45fd5922e2ea22f8049d3f589952d40c",
     "item": {
       "id": "smg-boudicca-4",
       "name": "SMG (Boudicca-4)",
@@ -2806,7 +2806,7 @@
       },
       "costCBills": 300,
       "battleValue": 0,
-      "introductionYear": 2530,
+      "introductionYear": 2525,
       "special": []
     }
   },
@@ -2814,7 +2814,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 21,
     "id": "smg-boudicca-5",
-    "sha256": "59f624ca37be565db28dc34d8510fa791a27335f7f6c9537f37d623a3f111a29",
+    "sha256": "91d11e1c94d1d61d2d36a75daf9773d607eaf0cdcdfe7885317f49376436e819",
     "item": {
       "id": "smg-boudicca-5",
       "name": "SMG (Boudicca-5)",
@@ -2838,7 +2838,7 @@
       },
       "costCBills": 500,
       "battleValue": 0,
-      "introductionYear": 2800,
+      "introductionYear": 2795,
       "special": []
     }
   },
@@ -2846,7 +2846,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 22,
     "id": "smg-boudicca-7",
-    "sha256": "89362a6ce44c4dc7251c217307b8beb4771f45aba48f8d2b4b11840f97028c30",
+    "sha256": "b6331e10c7b391d51681314dd6d74a5c1fa4122629b5d6dcb4203fd468a36b8a",
     "item": {
       "id": "smg-boudicca-7",
       "name": "SMG (Boudicca-7)",
@@ -2870,7 +2870,7 @@
       },
       "costCBills": 700,
       "battleValue": 1,
-      "introductionYear": 3050,
+      "introductionYear": 3045,
       "special": []
     }
   },
@@ -2878,7 +2878,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 23,
     "id": "smg-dsk-largo-sga",
-    "sha256": "31e80bda1a43f3cf5f282b83c821ee62784a0213f426dde190b72b6843efbbc9",
+    "sha256": "ba670a8310165b4772e475b093f6a2ba817a6c97dec2020b494f32b8d34818de",
     "item": {
       "id": "smg-dsk-largo-sga",
       "name": "SMG (DSK Largo SGA)",
@@ -2902,7 +2902,7 @@
       },
       "costCBills": 600,
       "battleValue": 0,
-      "introductionYear": 2800,
+      "introductionYear": 2795,
       "special": []
     }
   },
@@ -2910,7 +2910,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 24,
     "id": "smg-dsk-largo-sgb",
-    "sha256": "4c4c7b90cab94ab5f6e47b2a349c5fcd655b91b8e981c868b2daaebe186e5582",
+    "sha256": "7a67d6809b9eb8fe04ae9c9e992fd0573a73b941d840556a83026bdda64d2223",
     "item": {
       "id": "smg-dsk-largo-sgb",
       "name": "SMG (DSK Largo SGB)",
@@ -2934,7 +2934,7 @@
       },
       "costCBills": 700,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 3045,
       "special": []
     }
   },
@@ -2942,7 +2942,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 25,
     "id": "smg-houwei",
-    "sha256": "5b8aa7ade9789ec407224429e1ffdf4e374dab158f0ebe86d223304e4aee3c85",
+    "sha256": "9ec5ce079b772fa8e152d8a03e0974a6cd33973bb9b14053de50139bfedd0559",
     "item": {
       "id": "smg-houwei",
       "name": "SMG (Houwei)",
@@ -2966,7 +2966,7 @@
       },
       "costCBills": 250,
       "battleValue": 0,
-      "introductionYear": 2100,
+      "introductionYear": 2095,
       "special": []
     }
   },
@@ -2974,7 +2974,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 26,
     "id": "smg-hunkle-v",
-    "sha256": "3b02e67fae184ced98d4a5cfa6c248e6842e59b844c345383f1cde26c6fa9113",
+    "sha256": "9bc93d327241f4f51bc7d64205150a02a19636070e77ee11872bd3208fda21ae",
     "item": {
       "id": "smg-hunkle-v",
       "name": "SMG (Hunkle V)",
@@ -2998,7 +2998,7 @@
       },
       "costCBills": 600,
       "battleValue": 1,
-      "introductionYear": 2335,
+      "introductionYear": 2330,
       "special": []
     }
   },
@@ -3006,7 +3006,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 27,
     "id": "smg-j-15-hagel",
-    "sha256": "99318b662421c3023c9252ca278cbeea9d7b5a809ecb98fea946dc998c101512",
+    "sha256": "70470884fb13997eba45d4b4d5caedc6ab86292a0042d8691006ada46b110c4c",
     "item": {
       "id": "smg-j-15-hagel",
       "name": "SMG (J-15 Hagel)",
@@ -3030,7 +3030,7 @@
       },
       "costCBills": 400,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 3045,
       "special": []
     }
   },
@@ -3038,7 +3038,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 28,
     "id": "smg-j-17-hagel",
-    "sha256": "8f2cdc44ce487ca89a04be4c51cd71ab65cbab63c3a62097c42470205b0c4f5d",
+    "sha256": "b9a5f93586a06e90ab55e4360e10e4a3aa16baa62f0d444ce4c6fe32d3fb9faf",
     "item": {
       "id": "smg-j-17-hagel",
       "name": "SMG (J-17 Hagel)",
@@ -3062,7 +3062,7 @@
       },
       "costCBills": 700,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 3045,
       "special": []
     }
   },
@@ -3070,7 +3070,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 29,
     "id": "smg-jinse-yanjingshe-ap-rounds",
-    "sha256": "5b6df427fe9d6aa0aa173bf990871a4bc8351b6ff43b79f2fc862eecc21f07ec",
+    "sha256": "b7f138494b6108d8434b40ce2a78ad5d799858bea404d0f9c0bc1177b993383a",
     "item": {
       "id": "smg-jinse-yanjingshe-ap-rounds",
       "name": "SMG (Jinse Yanjingshe (AP Rounds))",
@@ -3094,7 +3094,7 @@
       },
       "costCBills": 675,
       "battleValue": 1,
-      "introductionYear": 3050,
+      "introductionYear": 3045,
       "special": []
     }
   },
@@ -3102,7 +3102,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 30,
     "id": "smg-jinse-yanjingshe-standard",
-    "sha256": "0f0b4ad802967d752e883d345e5062576e1389bafbc8710541fe08eb5df56bdb",
+    "sha256": "e84ca820032e6c8147f265252a4605bb14a6f420ac9fbec1b59601ed77748408",
     "item": {
       "id": "smg-jinse-yanjingshe-standard",
       "name": "SMG (Jinse Yanjingshe (Standard))",
@@ -3126,7 +3126,7 @@
       },
       "costCBills": 675,
       "battleValue": 1,
-      "introductionYear": 3050,
+      "introductionYear": 3045,
       "special": []
     }
   },
@@ -3134,7 +3134,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 31,
     "id": "smg-nambu-type-s-124",
-    "sha256": "b4e8ee34cb04e1a844c8356ea688d3894ca35ac289c7630a0a6df60059c93331",
+    "sha256": "bc9ca1da4026901edfce002ca3f4350f83db80aba90e2c2bb610f56bff1d5377",
     "item": {
       "id": "smg-nambu-type-s-124",
       "name": "SMG (Nambu Type S-124)",
@@ -3158,7 +3158,7 @@
       },
       "costCBills": 450,
       "battleValue": 0,
-      "introductionYear": 2800,
+      "introductionYear": 2795,
       "special": []
     }
   },
@@ -3166,7 +3166,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 32,
     "id": "smg-rfw-bedivere",
-    "sha256": "8684d0ae924eec6ad2e14c6fe3e41883559501891ec2f3d4fd2ad347e35a0d2d",
+    "sha256": "566165bd10b1a398fcb7b7ea7a200699f03910743bbc3698bfb027fc64a2b6c1",
     "item": {
       "id": "smg-rfw-bedivere",
       "name": "SMG (RFW Bedivere)",
@@ -3190,7 +3190,7 @@
       },
       "costCBills": 560,
       "battleValue": 0,
-      "introductionYear": 2317,
+      "introductionYear": 2312,
       "special": []
     }
   },
@@ -3198,7 +3198,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 33,
     "id": "smg-spartacus",
-    "sha256": "26762901fead1393260fcbb1a89898fc8fa276bb4fed5211e5bd669dfa413e3d",
+    "sha256": "61485c11e1fba6e9394f5b9b8c4442914508ee06ecdb8f93ce72f0c4c4ec6387",
     "item": {
       "id": "smg-spartacus",
       "name": "SMG (Spartacus)",
@@ -3222,7 +3222,7 @@
       },
       "costCBills": 750,
       "battleValue": 0,
-      "introductionYear": 2920,
+      "introductionYear": 2915,
       "special": []
     }
   },
@@ -3230,7 +3230,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 34,
     "id": "smg-sturm-hornet-mk-iii",
-    "sha256": "ef5693f4afe0c29ee39e75f2d653734cdd9ad8674299fb0aaaab6e700c5e96b3",
+    "sha256": "ea55dd6dd74e6588632299b298c26d54f6174824ac784b7c03562c957034ba53",
     "item": {
       "id": "smg-sturm-hornet-mk-iii",
       "name": "SMG (Sturm Hornet Mk III)",
@@ -3254,7 +3254,7 @@
       },
       "costCBills": 750,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 3045,
       "special": []
     }
   },
@@ -3262,7 +3262,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 35,
     "id": "smg-supekuta",
-    "sha256": "cd42738dbe0ee40cc6fad2a90ac10fa9e480feb0b2b77da4bdfaf726fadff55f",
+    "sha256": "e6ec1c1ab4f590ffcdde3aaf77015904b9dbbbbd043db74cb2a1cc6f40f570b6",
     "item": {
       "id": "smg-supekuta",
       "name": "SMG (Supekuta)",
@@ -3286,7 +3286,7 @@
       },
       "costCBills": 200,
       "battleValue": 0,
-      "introductionYear": 2319,
+      "introductionYear": 2314,
       "special": []
     }
   },
@@ -3294,7 +3294,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 36,
     "id": "smg-tiberius",
-    "sha256": "11155166c42d5619d5514f5f012517cc62a1fa3eef0e78071c5a9ec9d8bf9e1b",
+    "sha256": "4c7dc903cb9dca8900eab943c8880ec9d8f2c1f2ed9f5f2626e3a66396745989",
     "item": {
       "id": "smg-tiberius",
       "name": "SMG (Tiberius)",
@@ -3318,7 +3318,7 @@
       },
       "costCBills": 600,
       "battleValue": 1,
-      "introductionYear": 2920,
+      "introductionYear": 2915,
       "special": []
     }
   },
@@ -3326,7 +3326,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 37,
     "id": "smg-wc-2",
-    "sha256": "03d1625f929e62cbec032476436960a673ef3897bbf59561b027b96340c45b08",
+    "sha256": "03c214d656ae3f3671daefd8aca418ba264e45ec6fe08731fd545248ecb4f0a4",
     "item": {
       "id": "smg-wc-2",
       "name": "SMG (WC-2)",
@@ -3350,7 +3350,7 @@
       },
       "costCBills": 700,
       "battleValue": 0,
-      "introductionYear": 2100,
+      "introductionYear": 2095,
       "special": []
     }
   },
@@ -3358,7 +3358,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 38,
     "id": "smg-wc-6",
-    "sha256": "b88d8a3ffb9d2267f15f028b2db57f9a9c0445fcc9fe4842e7f7d7a4ef74857c",
+    "sha256": "b0f9f615b140b55f8d6eedb7f4efcb59430dc82991073a692818f89293dad251",
     "item": {
       "id": "smg-wc-6",
       "name": "SMG (WC-6)",
@@ -3382,7 +3382,7 @@
       },
       "costCBills": 800,
       "battleValue": 0,
-      "introductionYear": 2830,
+      "introductionYear": 2825,
       "special": []
     }
   },
@@ -3390,7 +3390,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 39,
     "id": "smg-wolf-barron-a7",
-    "sha256": "26a9915b60cd6ebd6be6605ec6ffdb1a8425519ef16daf8bd3782f6629ab2ff1",
+    "sha256": "59270c7e76acdac0fe495482d921c4626836ac1d5f4cdc3a3c660393467f302e",
     "item": {
       "id": "smg-wolf-barron-a7",
       "name": "SMG (Wolf-Barron A7)",
@@ -3414,7 +3414,7 @@
       },
       "costCBills": 450,
       "battleValue": 0,
-      "introductionYear": 3050,
+      "introductionYear": 3045,
       "special": []
     }
   },
@@ -3422,7 +3422,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 40,
     "id": "sniper-rifle-barton-amr-anti-armor",
-    "sha256": "78583c3fe43960750fefc975325a2340cd377ab04ab66506f86a691c6aa69f7e",
+    "sha256": "ce45ae9e7bd337a832281ee93076b6383581ab80f6d4d1a224593529f1d4d5ae",
     "item": {
       "id": "sniper-rifle-barton-amr-anti-armor",
       "name": "Sniper Rifle (Barton AMR (Anti-Armor))",
@@ -3446,7 +3446,7 @@
       },
       "costCBills": 700,
       "battleValue": 1,
-      "introductionYear": 2800,
+      "introductionYear": 2795,
       "special": []
     }
   },
@@ -3454,7 +3454,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 41,
     "id": "sniper-rifle-barton-amr-standard",
-    "sha256": "f7049070463af85d3d98da120081086a48fbf26afd518fd64b607bc331201fc1",
+    "sha256": "689839d3afecc148d4fc49f34806b67b418c579e49e77319ddb89e63f50bace2",
     "item": {
       "id": "sniper-rifle-barton-amr-standard",
       "name": "Sniper Rifle (Barton AMR (Standard))",
@@ -3478,7 +3478,7 @@
       },
       "costCBills": 700,
       "battleValue": 0,
-      "introductionYear": 2800,
+      "introductionYear": 2795,
       "special": []
     }
   },
@@ -3486,7 +3486,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 42,
     "id": "sniper-rifle-fnf-j12-dark-caste",
-    "sha256": "9b78703c7db06b78d5820b12a2d10221ac1d20c96d5d17158f328e22907fec6a",
+    "sha256": "8e915a3031a152d96a206fb6294ba7f10ee6f3af72a5f4eab7d10159851ff040",
     "item": {
       "id": "sniper-rifle-fnf-j12-dark-caste",
       "name": "Sniper Rifle (FNF-J12 (Dark Caste))",
@@ -3510,7 +3510,7 @@
       },
       "costCBills": 3500,
       "battleValue": 0,
-      "introductionYear": 2835,
+      "introductionYear": 2830,
       "special": []
     }
   },
@@ -3518,7 +3518,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 43,
     "id": "sniper-rifle-fnf-j12-sldf",
-    "sha256": "eb9eda897176d62842c8d1219a33b06bfc877b4357253941e181c63018dc1092",
+    "sha256": "8b14ee70f21ebc155b43578d4c76e747e7ea5418fbfd5f43b0a254ffd97f0073",
     "item": {
       "id": "sniper-rifle-fnf-j12-sldf",
       "name": "Sniper Rifle (FNF-J12 (SLDF))",
@@ -3542,7 +3542,7 @@
       },
       "costCBills": 3500,
       "battleValue": 0,
-      "introductionYear": 2765,
+      "introductionYear": 2760,
       "special": []
     }
   },
@@ -3550,7 +3550,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 44,
     "id": "sniper-rifle-hammel-marksman",
-    "sha256": "5bdc7e4517596681966fd278b4854547f53b43bffb6ccd6efe5d404ef3617523",
+    "sha256": "dfdd79f8ac9f089f6578562df9458943ea809ef74e43a60639e06ea4ca79ac0d",
     "item": {
       "id": "sniper-rifle-hammel-marksman",
       "name": "Sniper Rifle (Hammel Marksman)",
@@ -3574,7 +3574,7 @@
       },
       "costCBills": 500,
       "battleValue": 0.28,
-      "introductionYear": 2100,
+      "introductionYear": 2095,
       "special": []
     }
   },
@@ -3582,7 +3582,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 45,
     "id": "sniper-rifle-lancelot-mk-v",
-    "sha256": "13426b2968073e55265d5e6e1ef974f1ce093bc61cca3854963c10ecef307880",
+    "sha256": "5cafa36edbcfa38fa7a75674e5cc7b9e58a9b5b60ae49e926da1f6b980abd2c3",
     "item": {
       "id": "sniper-rifle-lancelot-mk-v",
       "name": "Sniper Rifle (Lancelot Mk V)",
@@ -3606,7 +3606,7 @@
       },
       "costCBills": 400,
       "battleValue": 0,
-      "introductionYear": 2100,
+      "introductionYear": 2095,
       "special": []
     }
   },
@@ -3614,7 +3614,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 46,
     "id": "sniper-rifle-lrs-53-sniper-rifle",
-    "sha256": "3d6dde3de103fb485cb89c73320deda668c172079f2a41246faab4a245da7c35",
+    "sha256": "bd207ba8ddc7b0d1b76354dd5900127883d4cc71bcf41db1dd49cfc4956ad0a8",
     "item": {
       "id": "sniper-rifle-lrs-53-sniper-rifle",
       "name": "Sniper Rifle (LRS-53 Sniper Rifle)",
@@ -3638,7 +3638,7 @@
       },
       "costCBills": 1000,
       "battleValue": 0,
-      "introductionYear": 2800,
+      "introductionYear": 2795,
       "special": []
     }
   },
@@ -3646,7 +3646,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 47,
     "id": "sniper-rifle-praetorian-s-3",
-    "sha256": "ac30bb5bdd035731858cb939e00d9f7e9b6b6f3717d65e634a2efc51ff904736",
+    "sha256": "a08e938b1c521857302f8a560427e3b47de75d6504078d8dec276ae51f6b02a2",
     "item": {
       "id": "sniper-rifle-praetorian-s-3",
       "name": "Sniper Rifle (Praetorian S-3)",
@@ -3670,7 +3670,7 @@
       },
       "costCBills": 400,
       "battleValue": 0,
-      "introductionYear": 2920,
+      "introductionYear": 2915,
       "special": []
     }
   },
@@ -3678,7 +3678,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 48,
     "id": "sniper-rifle-praetorian-s-5",
-    "sha256": "33368b29cd6f3c483983cda83977011425231347079380fa2b25eed9dca9c58c",
+    "sha256": "e8ae7f3a8f944e7b346dd0d24a4b6c61522616ea46aca3dd737f9487f2b5f2b9",
     "item": {
       "id": "sniper-rifle-praetorian-s-5",
       "name": "Sniper Rifle (Praetorian S-5)",
@@ -3702,7 +3702,7 @@
       },
       "costCBills": 600,
       "battleValue": 1,
-      "introductionYear": 2920,
+      "introductionYear": 2915,
       "special": []
     }
   },
@@ -3710,7 +3710,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 49,
     "id": "sniper-rifle-sairentosutomu",
-    "sha256": "50108d31982d89ca495abf2e72873bc13bdf3a74fc0ed7a41f9f38dd512f9281",
+    "sha256": "342ef7b3c796508802d4620d09e60353bffa7e371abd6b48d64f20c9d1736e37",
     "item": {
       "id": "sniper-rifle-sairentosutomu",
       "name": "Sniper Rifle (Sairentosutomu)",
@@ -3734,7 +3734,7 @@
       },
       "costCBills": 900,
       "battleValue": 0,
-      "introductionYear": 2800,
+      "introductionYear": 2795,
       "special": []
     }
   },
@@ -3806,7 +3806,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 52,
     "id": "sniper-rifle-wilimton-rs-14",
-    "sha256": "c027027845a7ef9841aa34b88325a7d721fbf7cc4c61366221bbe525a4d8b3aa",
+    "sha256": "e335d8fc7142f9d7cbd42646378201e4d30163866c8a9f987005c0b821d3285a",
     "item": {
       "id": "sniper-rifle-wilimton-rs-14",
       "name": "Sniper Rifle (Wilimton RS-14)",
@@ -3830,7 +3830,7 @@
       },
       "costCBills": 1500,
       "battleValue": 0,
-      "introductionYear": 2795,
+      "introductionYear": 2790,
       "special": []
     }
   },
@@ -3838,7 +3838,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 53,
     "id": "sniper-rifle-wilimton-rs-17-stripped",
-    "sha256": "914d2344cab1e08f907e6b8bb3e0437615a38403a7954a63f69d3cb6201e8ac5",
+    "sha256": "cb66d4f8df1d435975b1db4fc5ffc6eae010611e2392140f35f08efc98e2e311",
     "item": {
       "id": "sniper-rifle-wilimton-rs-17-stripped",
       "name": "Sniper Rifle (Wilimton RS-17 (Stripped))",
@@ -3862,7 +3862,7 @@
       },
       "costCBills": 2000,
       "battleValue": 1,
-      "introductionYear": 3080,
+      "introductionYear": 3075,
       "special": []
     }
   },
@@ -3870,7 +3870,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 54,
     "id": "sniper-rifle-yuan-ling",
-    "sha256": "c5540fe1c2d6d980f63cd5b34fcba988a4ae54382cdfa7da0f5ee6bdbcf92a14",
+    "sha256": "0a1fc2317e78a0efe162eb9e4463a4c5a461bd22355b9719fc4d7eeb96a86d29",
     "item": {
       "id": "sniper-rifle-yuan-ling",
       "name": "Sniper Rifle (Yuan Ling)",
@@ -3894,7 +3894,7 @@
       },
       "costCBills": 1000,
       "battleValue": 0,
-      "introductionYear": 2800,
+      "introductionYear": 2795,
       "special": []
     }
   },
@@ -3902,7 +3902,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 55,
     "id": "arrow-iv-launcher",
-    "sha256": "6a52d5c18c067e8c1ad3c2c1ec7e00dc3af7db729cfdd988b01405cbd8f242bf",
+    "sha256": "320507859dc01004bf6e43dae2153a129e6a4a4bc7261d07580c511c5412960d",
     "item": {
       "id": "arrow-iv-launcher",
       "name": "Arrow IV Launcher",
@@ -3927,7 +3927,7 @@
       "ammoPerTon": 5,
       "costCBills": 450000,
       "battleValue": 240,
-      "introductionYear": 2600,
+      "introductionYear": 2593,
       "special": ["artillery"],
       "extinctionYear": 2830,
       "reintroductionYear": 3044
@@ -4251,7 +4251,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 66,
     "id": "clan-mech-mortar-4",
-    "sha256": "ced1e1559e1df29881f51971b735ce1bf57a0a9c795a5e2868670d70bdf3ea27",
+    "sha256": "4ae2d53547022330d0501feecb9d3c6ab4feb57e52cd855cbbcf0b11d3cb4d32",
     "item": {
       "id": "clan-mech-mortar-4",
       "name": "Mech Mortar 4 (Clan)",
@@ -4276,7 +4276,7 @@
       "ammoPerTon": 6,
       "costCBills": 32000,
       "battleValue": 26,
-      "introductionYear": 2840,
+      "introductionYear": 2830,
       "special": ["artillery"]
     }
   },
@@ -23523,7 +23523,7 @@
     "file": "miscellaneous/defensive.json",
     "index": 0,
     "id": "ams",
-    "sha256": "052beb1764cae2181cb889ab05258f6284c6dbcd0461823eece96f94d9a47fbc",
+    "sha256": "e6aa46405989402f442b3cee100bf4d39a6423de7dec42df11e8d5225f79aee2",
     "item": {
       "id": "ams",
       "name": "Anti-Missile System",
@@ -23538,7 +23538,7 @@
       },
       "costCBills": 100000,
       "battleValue": 32,
-      "introductionYear": 2617,
+      "introductionYear": 2608,
       "special": ["Intercepts incoming missiles", "Requires ammo"],
       "extinctionYear": 2835,
       "reintroductionYear": 3045
@@ -23548,7 +23548,7 @@
     "file": "miscellaneous/defensive.json",
     "index": 1,
     "id": "clan-ams",
-    "sha256": "6a919c822ef4447108f09c6341b2e86576257b04aae7e0e5617a68529311fc41",
+    "sha256": "cef56da545bb72498a99ffbdd2784252cf393dec746fb1f28c0b3c766677244b",
     "item": {
       "id": "clan-ams",
       "name": "Anti-Missile System (Clan)",
@@ -23563,7 +23563,7 @@
       },
       "costCBills": 100000,
       "battleValue": 32,
-      "introductionYear": 2831,
+      "introductionYear": 2819,
       "special": ["Intercepts incoming missiles", "Requires ammo"]
     }
   },
