@@ -12,26 +12,43 @@ export function runCommand(
   timeoutMs = 600000,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
+    const processGroup =
+      process.platform !== 'win32' && executable === process.execPath;
     const child = spawn(executable, args, {
       stdio: ['ignore', 'inherit', 'inherit'],
       windowsHide: true,
+      detached: processGroup,
     });
+    let timedOut = false;
     const timer = setTimeout(() => {
+      timedOut = true;
       // Only this command's process tree belongs to us.
       if (process.platform === 'win32' && child.pid) {
-        spawn('taskkill', ['/pid', String(child.pid), '/t', '/f'], {
-          windowsHide: true,
-        });
+        const killer = spawn(
+          'taskkill',
+          ['/pid', String(child.pid), '/t', '/f'],
+          {
+            windowsHide: true,
+            stdio: 'ignore',
+          },
+        );
+        killer.once('error', () => child.kill());
+      } else if (processGroup && child.pid) {
+        try {
+          process.kill(-child.pid, 'SIGKILL');
+        } catch {
+          child.kill('SIGKILL');
+        }
       } else child.kill('SIGTERM');
-      reject(new Error(`Command timed out: ${executable}`));
     }, timeoutMs);
     child.once('error', (error) => {
       clearTimeout(timer);
       reject(error);
     });
-    child.once('exit', (code, signal) => {
+    child.once('close', (code, signal) => {
       clearTimeout(timer);
-      if (code === 0) resolve();
+      if (timedOut) reject(new Error(`Command timed out: ${executable}`));
+      else if (code === 0) resolve();
       else
         reject(new Error(`Command failed (${code ?? signal}): ${executable}`));
     });
