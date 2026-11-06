@@ -95,9 +95,19 @@ export function buildGarden({
 
   const proposals = [],
     ratchet = [];
+  const budgetMedians = {};
   for (const { id, value: limit, ratchet: canRatchet } of descriptors) {
     if (!Number.isSafeInteger(limit) || limit < 0)
       throw new Error(`Invalid G1 limit ${id}`);
+    const observations = current.filter(
+      (e) =>
+        e.budgetConfigHash === budgetConfigHash &&
+        Number.isFinite(e.budgetValues?.[id]),
+    );
+    budgetMedians[id] =
+      observations.length > 0 && observations.length === current.length
+        ? median(observations.map((e) => e.budgetValues[id]))
+        : null;
     // Timeout lowering additionally needs the G1 measured-sample contract.
     if (!canRatchet) {
       ratchet.push({
@@ -229,6 +239,7 @@ export function buildGarden({
     baselineIncluded: baseline.map((e) => e.observation.identity),
     rejected,
     metrics,
+    budgetMedians,
     proposals,
     ratchet,
     slowest: testRows

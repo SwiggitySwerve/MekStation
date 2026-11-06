@@ -73,6 +73,7 @@ test('seven complete UTC days with three distinct runs each authorize a lowering
   assert.equal(report.ratchet[0].days.length, 7);
   assert.equal(report.metrics.jobMinutes.median, 2);
   assert.equal(report.cache.hitRate, 0.5);
+  assert.equal(report.budgetMedians['limits.example'], 50);
 });
 
 test('six days, two runs per day, missing values/hash, malformed telemetry and duplicate attempts cannot lower', () => {
@@ -155,6 +156,7 @@ test('absent telemetry remains unknown and timeout changes require measured repl
   const report = buildGarden(args);
   assert.deepEqual(report.proposals, []);
   assert.equal(report.cache.hitRate, null);
+  assert.equal(report.budgetMedians['limits.example'], null);
   assert.deepEqual(report.slowest, []);
   assert.match(report.ratchet.at(-1).reason, /replacement timeout samples/);
 });

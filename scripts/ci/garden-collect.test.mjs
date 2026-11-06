@@ -193,3 +193,33 @@ test('fresh canonical API mismatch or unavailable source graph blocks stale arti
     assert.equal(report.diagnostics.length, 1, mode);
   }
 });
+
+test('G2 receives the immutable-head graph and a read-only fresh API transport', async () => {
+  const f = fixture();
+  const routes = [];
+  f.input.github.request = async (route) => {
+    routes.push(route);
+    return { data: f.run };
+  };
+  f.input.collectRun = async (transport, target) => {
+    assert.deepEqual(
+      await transport(
+        'GET',
+        `repos/owner/repo/actions/runs/${target.runId}/attempts/${target.attempt}`,
+      ),
+      f.run,
+    );
+    await assert.rejects(transport('POST', 'anything'), /read-only/);
+    return { observation: structuredClone(f.envelope.observation) };
+  };
+  const result = await collectGardenObservations(f.input);
+  assert.equal(result.envelopes.length, 1);
+  assert.deepEqual(routes, [
+    'GET /repos/owner/repo/actions/runs/123/attempts/1',
+  ]);
+  assert.equal(
+    result.sources[0].completedAt,
+    f.envelope.observation.identity.completedAt,
+  );
+  assert.equal(result.sources[0].workflowBlobSha, 'source-blob');
+});

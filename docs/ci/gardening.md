@@ -12,7 +12,7 @@ branch only. G1 supplies the combined public APIs to `prepareGarden`:
 
 ```js
 const api = {
-  ...budgetConfig, // budgetDescriptors, ratchetBudgets, serializeBudgets
+  ...budgetConfig, // budgetDescriptors, budgetTargetGaps, ratchetBudgets, serializeBudgets
   ...budgetMetrics, // validateRepositoryMetrics, observedBudgetValues, packageContributors
   ...budgetWorkflow, // workflowGraphFromSource
   ...ciMetrics, // median, selectMainObservations
@@ -47,6 +47,11 @@ available to G2's comparator, which excludes them from the successful baseline.
 `packages` and `budgetConfigHash` default to null in G2's envelope.
 G1 validates repository/package evidence and recomputes observed budget values;
 configured caps never substitute for observations.
+G1's `budgetTargetGaps(config, observedMedians)` supplies policy targets and
+observed gaps. The issue displays enforced caps and configured gaps separately
+from observed medians/gaps. Null observations stay unknown. Bootstrap baselines
+are defined by G1; G3 does not classify that initialization as a cap increase.
+Ratchets use descriptor values for enforced caps, rather than tracked targets.
 
 Use separate permission scopes: collection needs `contents: read` and
 `actions: read`; `updateGardenIssue` needs `issues: write` and `contents: read`;
