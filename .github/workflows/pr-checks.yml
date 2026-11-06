@@ -4,7 +4,7 @@ on:
   pull_request:
     branches:
       - main
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
   # Pushes to main, the nightly schedule and manual runs check everything,
   # including the checks pull requests path-gate or leave to main
   # (scripts/ci/ci-changes.mjs turns every gate on outside pull requests).
@@ -50,7 +50,7 @@ jobs:
   detect-changes:
     name: Detect Changes
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 1
     outputs:
       code: ${{ steps.filter.outputs.code }}
       combat: ${{ steps.filter.outputs.combat }}
@@ -79,7 +79,7 @@ jobs:
         run: node scripts/ci/ci-changes.mjs
 
       - name: Test change detection and the Lint and Test guard
-        run: node --test scripts/ci/*.test.mjs
+        run: node --test scripts/ci/ci-changes.test.mjs scripts/ci/lint-and-test-guard.test.mjs
 
   # ---------------------------------------------------------------
   # static-checks runs the short checks that used to take a runner
@@ -96,7 +96,7 @@ jobs:
     name: Static Checks
     needs: detect-changes
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 6
     # Read-only token, not persisted: the advisory tsrs step installs and
     # runs a pinned third-party compiler.
     permissions:
@@ -125,6 +125,30 @@ jobs:
           key: ${{ runner.os }}-storybook-${{ hashFiles('package-lock.json', '.storybook/**') }}-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-storybook-${{ hashFiles('package-lock.json', '.storybook/**') }}-
+
+      - name: Enforce deterministic CI budgets and their red paths
+        if: ${{ !cancelled() }}
+        env:
+          PR_LABELS_JSON: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          node --test scripts/ci/*.test.mjs
+          node scripts/ci/budget-check.mjs --report budget-output/repository.json
+
+      - name: Test BV converted-input provenance gate
+        if: ${{ !cancelled() }}
+        run: >-
+          npx jest --selectProjects unit --ci --maxWorkers=2 --runTestsByPath
+          scripts/__tests__/unit-bv-provenance.test.ts
+          scripts/__tests__/unit-bv-cache-provenance.test.ts
+
+      - name: Upload deterministic budget census
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-budget-repository
+          path: budget-output/repository.json
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Setup Python for Schema Bridge
         if: ${{ !cancelled() && needs.detect-changes.outputs.code == 'true' }}
@@ -319,7 +343,7 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -414,6 +438,19 @@ jobs:
         working-directory: desktop
         run: npm run build
 
+      - name: Enforce complete web artifact byte budgets
+        if: ${{ !cancelled() }}
+        run: node scripts/ci/budget-artifacts.mjs --kind web --report budget-output/web.json
+
+      - name: Upload complete package census
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-budget-web
+          path: budget-output/web.json
+          if-no-files-found: error
+          retention-days: 7
+
       - name: Upload web build artifacts
         if: ${{ !cancelled() && needs.detect-changes.outputs.pr-desktop == 'true' }}
         uses: actions/upload-artifact@v7
@@ -465,7 +502,7 @@ jobs:
     name: Unit Tests (${{ matrix.shard }}/3)
     needs: detect-changes
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 5
     strategy:
       fail-fast: false
       matrix:
@@ -630,7 +667,7 @@ jobs:
     name: E2E (${{ matrix.shard }}/2)
     needs: detect-changes
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 16
     strategy:
       fail-fast: false
       matrix:
@@ -775,32 +812,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 1
     steps:
+      - name: Checkout aggregator contract
+        uses: actions/checkout@v6
       - name: Assert every fan-out check succeeded or was gated off
         env:
           NEEDS_JSON: ${{ toJSON(needs) }}
           # Job id -> the detect-changes gates whose all-'false' allows a skip.
-          GATES: >-
-            {"simulation-checks": ["code"],
-             "build-test": ["pr-desktop"]}
-        shell: bash
-        run: |
-          echo "$NEEDS_JSON" | jq -r 'to_entries[] | "\(.key)=\(.value.result)"'
-          failed=$(echo "$NEEDS_JSON" | jq -r --argjson gates "$GATES" '
-            .["detect-changes"].outputs as $out
-            | to_entries[]
-            | select(
-                .value.result != "success"
-                and (.value.result != "skipped"
-                  or ($gates[.key] == null)
-                  or ($out == null)
-                  or ($gates[.key] | any(.[]; $out[.] != "false"))))
-            | "\(.key)=\(.value.result)"')
-          if [ -n "$failed" ]; then
-            echo "Needed jobs that neither passed nor were gated off:"
-            echo "$failed"
-            exit 1
-          fi
-          echo "All fan-out checks passed or were gated off"
+          GATES_JSON: '{"simulation-checks":"code","build-test":"pr-desktop"}'
+        run: node scripts/ci/budget-aggregate.mjs
 
   # build-test packs Windows and macOS (native module rebuild, the slowest
   # legs) on a pull request whose changes reach desktop packaging inputs;
@@ -825,7 +844,7 @@ jobs:
           # attempts"), which cancelled the leg and failed Lint and Test.
           - os: macos-15
             platform: mac
-    timeout-minutes: 30
+    timeout-minutes: 5
 
     steps:
       - name: Checkout code
