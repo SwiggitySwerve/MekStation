@@ -321,3 +321,200 @@ it('preserves a rejected local entry and still detects a planted wrong pass with
   });
   expect(store.get(artifact.payload.entries[1].key)).toBeNull();
 });
+
+const cli = require('../jest/seed-tests.js') as {
+  main: (argv: string[]) => Promise<number>;
+};
+afterEach(() => jest.restoreAllMocks());
+
+it('combined adoption matches separate native verification with one discovery and destination index', async () => {
+  const root = repo();
+  const artifact = await seed.createSeed({
+    source: root,
+    files,
+    execOptions,
+    execute: pass,
+  });
+  const separate = path.join(root, '.separate');
+  seed.importSeed({ ...options(root, artifact), cacheDir: separate });
+  const expected = await cache.runCached({
+    files,
+    keyer: cache.createKeyer({
+      root,
+      index: cache.buildFileIndex(root),
+      execOptions,
+    }),
+    store: cache.createStore(separate),
+    execute: pass,
+    mode: 'use',
+    verifyHits: 2,
+    seed: 'local:1',
+  });
+  const artifactPath = path.join(os.tmpdir(), `${path.basename(root)}.json`);
+  roots.push(artifactPath);
+  fs.writeFileSync(artifactPath, JSON.stringify(artifact));
+  const reportPath = path.join(root, 'adoption-report.json');
+  jest.spyOn(process, 'cwd').mockReturnValue(root);
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+  const discovery = jest.spyOn(cache, 'listTests').mockReturnValue(files);
+  const index = jest.spyOn(cache, 'buildFileIndex');
+  const execute = jest.fn(pass);
+  jest.spyOn(cache, 'createJestExecutor').mockReturnValue(execute);
+  expect(
+    await cli.main([
+      '--import',
+      artifactPath,
+      '--run',
+      '--verify-hits',
+      '2',
+      '--project',
+      'unit',
+      '--cache-dir',
+      path.join(root, '.combined'),
+      '--report',
+      reportPath,
+      '--',
+      '--ci',
+      '--maxWorkers=2',
+    ]),
+  ).toBe(0);
+  expect(discovery).toHaveBeenCalledTimes(1);
+  expect(index).toHaveBeenCalledTimes(1);
+  expect(JSON.parse(fs.readFileSync(reportPath, 'utf8')).run).toEqual(expected);
+  expect(execute).toHaveBeenCalledWith(expected.verified);
+});
+
+it('reuses the source census only in the same clean checkout, retaining both input snapshots', async () => {
+  const root = repo();
+  const artifactPath = path.join(os.tmpdir(), `${path.basename(root)}.json`);
+  roots.push(artifactPath);
+  jest.spyOn(process, 'cwd').mockReturnValue(root);
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+  const discovery = jest.spyOn(cache, 'listTests').mockReturnValue(files);
+  const index = jest.spyOn(cache, 'buildFileIndex');
+  jest.spyOn(cache, 'createJestExecutor').mockReturnValue(pass);
+  expect(
+    await cli.main([
+      '--source',
+      root,
+      '--artifact',
+      artifactPath,
+      '--project',
+      'unit',
+      '--',
+      '--ci',
+    ]),
+  ).toBe(0);
+  expect(discovery).toHaveBeenCalledTimes(1);
+  expect(index).toHaveBeenCalledTimes(3); // source before/after plus destination
+  expect(
+    JSON.parse(fs.readFileSync(artifactPath, 'utf8')).payload.files,
+  ).toEqual(files);
+});
+
+it('combined adoption keeps unknown inputs, tombstones, verification failures and forced full runs', async () => {
+  const root = repo("test('env', () => Object.keys(process.env));\n");
+  const artifact = await seed.createSeed({
+    source: root,
+    files,
+    execOptions,
+    execute: pass,
+  });
+  const artifactPath = path.join(os.tmpdir(), `${path.basename(root)}.json`);
+  roots.push(artifactPath);
+  fs.writeFileSync(artifactPath, JSON.stringify(artifact));
+  jest.spyOn(process, 'cwd').mockReturnValue(root);
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+  jest.spyOn(cache, 'listTests').mockReturnValue(files);
+  const execute = jest.fn(pass);
+  jest.spyOn(cache, 'createJestExecutor').mockReturnValue(execute);
+  const reportPath = path.join(root, 'report.json');
+  const args = [
+    '--import',
+    artifactPath,
+    '--run',
+    '--verify-hits',
+    '2',
+    '--project',
+    'unit',
+    '--cache-dir',
+    options(root, artifact).cacheDir,
+    '--report',
+    reportPath,
+    '--',
+    '--ci',
+  ];
+  cache
+    .createStore(options(root, artifact).cacheDir)
+    .remove(artifact.payload.entries[0].key);
+  expect(await cli.main(args)).toBe(0);
+  expect(execute).toHaveBeenLastCalledWith(files); // unknown plus tombstone
+  execute.mockImplementation(async (given) => ({
+    exitCode: given.includes(files[1]) ? 1 : 0,
+    results: new Map(
+      given.map((file) => [
+        file,
+        file === files[1] ? ('failed' as const) : ('passed' as const),
+      ]),
+    ),
+  }));
+  expect(await cli.main(args)).toBe(1);
+  expect(JSON.parse(fs.readFileSync(reportPath, 'utf8')).run.stale).toEqual([
+    files[1],
+  ]);
+  expect(
+    cache
+      .createStore(options(root, artifact).cacheDir)
+      .get(artifact.payload.entries[0].key),
+  ).toBeNull();
+  execute.mockImplementation(pass);
+  const previousEvent = process.env.GITHUB_EVENT_NAME;
+  try {
+    process.env.GITHUB_EVENT_NAME = 'schedule';
+    expect(await cli.main(args)).toBe(0);
+    expect(execute).toHaveBeenLastCalledWith(files);
+    expect(JSON.parse(fs.readFileSync(reportPath, 'utf8')).run.mode).toBe(
+      'record',
+    );
+  } finally {
+    if (previousEvent === undefined) delete process.env.GITHUB_EVENT_NAME;
+    else process.env.GITHUB_EVENT_NAME = previousEvent;
+  }
+  fs.writeFileSync(artifactPath, '{corrupt');
+  fs.rmSync(options(root, artifact).cacheDir, { recursive: true, force: true });
+  expect(await cli.main(args)).toBe(0);
+  expect(execute).toHaveBeenLastCalledWith(files);
+});
+
+it('combined adoption runs every file when destination key infrastructure fails', async () => {
+  const root = repo();
+  const artifact = await seed.createSeed({
+    source: root,
+    files,
+    execOptions,
+    execute: pass,
+  });
+  const artifactPath = path.join(os.tmpdir(), `${path.basename(root)}.json`);
+  roots.push(artifactPath);
+  fs.writeFileSync(artifactPath, JSON.stringify(artifact));
+  jest.spyOn(process, 'cwd').mockReturnValue(root);
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+  jest.spyOn(cache, 'listTests').mockReturnValue(files);
+  jest.spyOn(cache, 'createKeyer').mockImplementation(() => {
+    throw new Error('index unavailable');
+  });
+  const execute = jest.fn(pass);
+  jest.spyOn(cache, 'createJestExecutor').mockReturnValue(execute);
+  expect(
+    await cli.main([
+      '--import',
+      artifactPath,
+      '--run',
+      '--project',
+      'unit',
+      '--',
+      '--ci',
+    ]),
+  ).toBe(0);
+  expect(execute).toHaveBeenCalledWith(files);
+});

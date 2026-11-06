@@ -27,9 +27,19 @@ choose enough shards to keep a whole queue ticket below fifteen minutes.
 To adopt a previously captured **local** artifact without rerunning clean main:
 
 ```powershell
-npm run test:seed -- --import E:/cache/unit-seed.json --project unit -- --ci --maxWorkers=2
-npm run test:cached -- --project unit --verify-hits 3 -- --ci --maxWorkers=2
+npm run test:seed -- --import E:/cache/unit-seed.json --run --verify-hits 3 --project unit -- --ci --maxWorkers=2
 ```
+
+`--run` imports and executes through the native cache runner in one invocation,
+reusing destination discovery, index and keyer. It verifies three hits by default;
+`--verify-hits N` selects the sample size. Every miss executes, and a failed
+verification returns a failing exit code and retains the native rejection
+tombstone. Missing or rejected artifacts still execute destination misses. The
+report's `run` field contains the native execution report; `elapsedMs` includes
+import and verification. Without `--run`, import remains a separate operation
+and needs a subsequent `test:cached` run. When capture runs in the same clean
+checkout as adoption, its unchanged source census is reused; distinct checkouts
+still discover their tests independently.
 
 Shard/filter selections limit the census; the ordered project selection and
 result-affecting Jest options must match. Result-neutral options such as worker
@@ -45,7 +55,8 @@ An unsuccessful run or a source change during capture publishes no artifact.
 Missing, corrupt, foreign or mismatched imports leave misses to execute through
 `test:cached`. Existing local cache files, including rejected-hit tombstones,
 take precedence. Only a fresh test pass can replace a tombstone. Import itself
-does not prove destination tests pass; use `--verify-hits` on the subsequent run.
+does not prove destination tests pass; use `--run --verify-hits 3` or verification
+on the subsequent native run.
 Checksums detect damaged files, not maliciously forged test proof: use artifacts
 you produced or obtained from a trusted local source.
 

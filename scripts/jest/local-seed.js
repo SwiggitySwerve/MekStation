@@ -131,12 +131,20 @@ function validateArtifact(root, artifact, execOptions) {
   return p;
 }
 
-function importSeed({ root, artifact, files, execOptions, cacheDir }) {
+function importSeed({
+  root,
+  artifact,
+  files,
+  execOptions,
+  cacheDir,
+  keyer,
+  store,
+}) {
   const result = { imported: 0, missed: files.length, retained: 0 };
   try {
     const payload = validateArtifact(root, artifact, execOptions);
-    const store = cache.createStore(cacheDir);
-    const keyer = cache.createKeyer({
+    store ??= cache.createStore(cacheDir);
+    keyer ??= cache.createKeyer({
       root,
       index: cache.buildFileIndex(root),
       execOptions,
