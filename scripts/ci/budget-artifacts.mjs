@@ -124,6 +124,20 @@ export function run(argv, root = process.cwd()) {
   const result = checkPackageMetrics(config, metrics);
   fs.mkdirSync(path.dirname(report), { recursive: true });
   fs.writeFileSync(report, `${JSON.stringify(result, null, 2)}\n`);
+  if (metrics.kind === 'installers')
+    console.log(
+      JSON.stringify({
+        unit: metrics.unit,
+        installerBytes: metrics.installerBytes,
+        installers: metrics.files
+          .filter((file) => file.installer)
+          .map((file) => ({
+            path: file.path,
+            bytes: file.bytes,
+            symlinks: file.verification?.symlinks ?? null,
+          })),
+      }),
+    );
   for (const violation of result.violations)
     console.error(`${violation.code}: ${violation.message}`);
   return result.violations.length ? 1 : 0;

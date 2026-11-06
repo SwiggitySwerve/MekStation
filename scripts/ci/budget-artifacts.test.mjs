@@ -77,8 +77,10 @@ test('Linux installer must include every unpacked member and identical public by
       assert.equal(result.status, 0);
     };
     create();
+    const complete = run(root, ['--kind', 'installers', '--report', 'r.json']);
+    assert.equal(complete.status, 0, complete.stderr);
     assert.equal(
-      run(root, ['--kind', 'installers', '--report', 'r.json']).status,
+      JSON.parse(complete.stdout).installers[0].symlinks.escapingCount,
       0,
     );
     write(
