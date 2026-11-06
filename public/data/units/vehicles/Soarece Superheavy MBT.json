@@ -142,5 +142,10 @@
       "COMMUNICATIONS": "Unknown",
       "TARGETING": "Unknown"
     }
+  },
+  "weaponQuirks": {
+    "TU:1:Autocannon/2": [
+      "accurate"
+    ]
   }
 }

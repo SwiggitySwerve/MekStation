@@ -77,5 +77,13 @@
       "COMMUNICATIONS": "Endicott",
       "TARGETING": "Dwyerson"
     }
+  },
+  "weaponQuirks": {
+    "TU:0:ISPlasmaRifle": [
+      "mod_weapons"
+    ],
+    "TU:1:SRM 6": [
+      "mod_weapons"
+    ]
   }
 }

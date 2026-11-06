@@ -78,5 +78,13 @@
       "COMMUNICATIONS": "TharHes",
       "TARGETING": "TharHes"
     }
+  },
+  "weaponQuirks": {
+    "FR:0:Enhanced LRM 10": [
+      "accurate"
+    ],
+    "FR:1:LRT 10": [
+      "accurate"
+    ]
   }
 }
