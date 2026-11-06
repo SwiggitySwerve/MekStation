@@ -629,6 +629,18 @@
       "location": "coordinator-archive",
       "sha256": "3e29548c0e74637f912aba0516e3665a10f4aa779a7f21030765a26e3095797e",
       "bytes": 1803
+    },
+    "2932-attempt2-jobs": {
+      "path": "normal-work/G6-flake-register/2932-library-tab-timeout/attempt2-jobs.json",
+      "location": "coordinator-archive",
+      "sha256": "305856431f071ab6fc99c3a4609c88de549e9ae90e61e41c283665dcea0379c9",
+      "bytes": 40048
+    },
+    "2932-root-rerun": {
+      "path": "normal-work/G6-flake-register/2932-library-tab-timeout/Root-rerun-confirmation.json",
+      "location": "coordinator-archive",
+      "sha256": "d86eb836962d772f23b9cedc5b33ae2078cf182b3c3c5d0af77de789c2ae6c4c",
+      "bytes": 867
     }
   },
   "entries": [
@@ -1753,13 +1765,13 @@
     },
     {
       "id": "G6-041",
-      "classification": "suspected-intermittent; unconfirmed",
-      "state": "open; awaiting Root-routed same-head rerun evidence",
+      "classification": "confirmed-intermittent",
+      "state": "open; confirmed same-head failure/pass; P7 robustness follow-up pending",
       "test": "e2e/customizer-library-open.spec.ts:1065 — library flows1440 > fighter: edit, save, reload, reopen and print",
       "environment": "2932-chromium",
-      "summary": "The locator timeout is downstream of a name mismatch: the retained error-context has tab/button ShiloneFlow Shilone Long Label Layout Check1793960765585-0 Saved1440 (snapshot refs e17/e20), while the test waits for Close Flow Shilone... . P7 reports old-prefix retention and says the160-Tab bound was not hit. Exact lost-selection/form-event cause remains unknown without trace; intermittency remains unconfirmed.",
+      "summary": "Same PR head614822610b47c0ab2f8c3148345122f2ac050db6: run42201733032 attempt1/job127838633272 failed and attempt2/job127843972188 E2E2/2 passed, confirming intermittency. Root alone reran. Retained context shows ShiloneFlow Shilone... rather than expected Flow Shilone...; P7 attributes the timeout downstream of this name mismatch. Exact lost-selection/form-event cause and fix completeness remain unproved. Root25-run/date-only hypothesis is separate from confirmed same-head fail/pass.",
       "owner": "P7-editors — diagnosis and smallest justified robustness follow-up; Root alone owns rerun/merge; G6 owns capture/register",
-      "nextStep": "P7 owns behavior-preserving keyboard helper extraction, then an exact-value guard after keyboard insertText before blur with a bounded DOM fault regression reproducing appended prefix. Scope only library spec and e2e/helpers/keyboardNavigation.ts; no direct click/focus, timeout/bound increases,retry,suppression or product-semantics change. Root retains rerun and publication disposition; G6 records evidence only.",
+      "nextStep": "P7 owns behavior-preserving keyboard helper extraction, then an exact-value guard after keyboard insertText before blur with a bounded DOM fault regression reproducing appended prefix. Scope only library spec and e2e/helpers/keyboardNavigation.ts; no direct click/focus, timeout/bound increase,retry,suppression or product-semantics change. Root performed the confirming rerun and retains publication/merge disposition; G6 records evidence only. Same-head pass confirms intermittency, not a completed fix.",
       "observations": [
         {
           "runId": 42201733032,
@@ -1781,6 +1793,17 @@
             871, 873, 875, 878, 879, 880, 885, 886, 887, 895, 897
           ],
           "exactLocatorName": "Close Flow Shilone Long Label Layout Check 1793960765585-0 Saved 1440"
+        },
+        {
+          "runId": 42201733032,
+          "workflowAttempt": 2,
+          "head": "614822610b47c0ab2f8c3148345122f2ac050db6",
+          "jobId": 127843972188,
+          "jobName": "E2E (2/2)",
+          "pr": 2932,
+          "result": "passed on same PR head; confirmed by exact attempt2 job metadata",
+          "source": "2932-attempt2-jobs",
+          "rerunOwner": "Root alone"
         }
       ],
       "sources": [
@@ -1789,10 +1812,11 @@
         "2932-library-native",
         "2932-artifact-custody",
         "2932-context",
-        "2932-p7-findings"
+        "2932-p7-findings",
+        "2932-attempt2-jobs",
+        "2932-root-rerun"
       ],
       "missingEvidence": [
-        "Same-head rerun result/attempt/job to confirm or reject intermittency; Root owns routing.",
         "No trace was attached by the failed native result or found in the three retained artifacts.",
         "Root last25PRruns/no-other-hit/date-only hypothesis was not independently re-audited by G6.",
         "Why selection/form interaction retained the old Shilone prefix is unresolved; absent trace prevents exact event reconstruction."
@@ -1817,7 +1841,17 @@
         ],
         "plannedP7Sequence": "Behavior-preserving helper extraction, then exact-value guard after keyboard insertText before blur with bounded DOM fault regression reproducing appended prefix.",
         "constraints": "No direct click/focus, timeout/bound increase,retry,suppression or product-semantics change; Root owns publication disposition.",
-        "intermittency": "unconfirmed pending Root-routed same-head rerun evidence"
+        "intermittencyAtP7Report": "unconfirmed pending Root-routed same-head rerun evidence"
+      },
+      "rerunConfirmation": {
+        "status": "CONFIRMED intermittent",
+        "head": "614822610b47c0ab2f8c3148345122f2ac050db6",
+        "failedJob": 127838633272,
+        "passedJob": 127843972188,
+        "source": "2932-attempt2-jobs",
+        "reportedBy": "Root; independently checked one bounded exact attempt2 metadata response",
+        "cause": "not established",
+        "fixComplete": false
       }
     }
   ],
@@ -1845,6 +1879,11 @@
       "addedAtUtc": "2026-11-06T10:44:22.651721+00:00",
       "incident": "G6-041",
       "scope": "P7 diagnosis: observed prefixed name in retained context; bounded helper/guard follow-up planned. Intermittency still unconfirmed; no G6 source changes."
+    },
+    {
+      "addedAtUtc": "2026-11-06T10:48:03.519003+00:00",
+      "incident": "G6-041",
+      "scope": "Root-routed exact same-head attempt2 E2E2/2 PASS independently metadata-checked; intermittency CONFIRMED. Original attempt1 evidence sealed; P7 remediation incomplete and causal hypothesis remains separate."
     }
   ]
 }
