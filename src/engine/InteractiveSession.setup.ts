@@ -124,6 +124,12 @@ function adaptedCombatSeedPatch(
   adapted: IAdaptedUnit,
 ): MutableGameUnitPatch | null {
   const patch: MutableGameUnitPatch = {};
+  if (
+    unit.hasDNICockpitMod === undefined &&
+    adapted.hasDNICockpitMod !== undefined
+  ) {
+    patch.hasDNICockpitMod = adapted.hasDNICockpitMod;
+  }
 
   if (adapted.vehicleInit !== undefined) {
     patch.unitType =
