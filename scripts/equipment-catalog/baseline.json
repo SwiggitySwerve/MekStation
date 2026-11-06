@@ -4284,7 +4284,7 @@
     "file": "weapons/ballistic-other.json",
     "index": 67,
     "id": "clan-mech-mortar-8",
-    "sha256": "53daaa8d0cb898711fea3dd92a773eaeb3a1fe7a5564341d8838ab37c92af89e",
+    "sha256": "40fe608ec77955fbfc3ac36e76e9df9ba21f26f17c1ffbb7bf4e03b352a7582d",
     "item": {
       "id": "clan-mech-mortar-8",
       "name": "Mech Mortar 8 (Clan)",
@@ -4300,8 +4300,8 @@
         "medium": 14,
         "long": 21
       },
-      "weight": 10,
-      "criticalSlots": 5,
+      "weight": 5,
+      "criticalSlots": 3,
       "ammoPerTon": 4,
       "costCBills": 70000,
       "battleValue": 50,

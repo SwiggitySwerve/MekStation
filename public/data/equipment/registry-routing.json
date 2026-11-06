@@ -645,6 +645,10 @@
     "clarmoredmotivesystem": {
       "INNER_SPHERE": "clarmoredmotivesystem-registry",
       "CLAN": "clarmoredmotivesystem-registry"
+    },
+    "islongtom": {
+      "INNER_SPHERE": "islongtom-registry",
+      "CLAN": "islongtom-registry"
     }
   }
 }

@@ -131,6 +131,7 @@ const MORTAR_VALUES = [
   ['mech-mortar-4', 7, 3, 'innerSphere/ISMekMortar4.java:69-70'],
   ['clan-mech-mortar-2', 2.5, 1, 'clan/CLMekMortar2.java:69-70'],
   ['clan-mech-mortar-4', 3.5, 2, 'clan/CLMekMortar4.java:70-71'],
+  ['clan-mech-mortar-8', 5, 3, 'clan/CLMekMortar8.java:69-70'],
 ] as const;
 
 it.each(MORTAR_VALUES)('%s weighs %s t in %s slots (%s)', (id, tons, slots) => {
