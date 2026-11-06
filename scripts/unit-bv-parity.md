@@ -156,3 +156,16 @@ The ProtoMech trace adapter maps `physicalWeaponBV` to `weightBV`, exposes
 the documented inherited empty type stages, carries the existing chassis
 summary factor and reports the final adjustment from the rounded base. It
 does not invent native weapon, misc-equipment or ammo-group detail keys.
+
+Term mode also retains the full ordered `termDifferences` array per row, with
+all missing/nonfinite reference/local causes and numeric differences, so the
+first error cannot hide later discrepancies. Per-family `termCoverage` counts
+each required stage and normalized oracle detail: compared, matched,
+missingReference, missingLocal, nonfiniteReference, nonfiniteLocal, different.
+Both-side failures increment both cause counters; `different` counts only
+finite numeric pairs outside tolerance. Only hash-joined rows are compared;
+unjoined coverage remains visible in the existing joined/rows counts. Missing
+figures are compared as missing local terms. Local-only breakdown aliases are
+not oracle requirements. Aggregate mode retains its existing report shape,
+and firstTermDifference, firstTermDifferences and all acceptance gates retain
+their previous meaning. Missing quantities never become neutral values.

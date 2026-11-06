@@ -1,0 +1,4 @@
+{
+  "fighter": ["NOSE", "RIGHT_WING", "LEFT_WING", "AFT"],
+  "largeCraft": ["NOSE", "RIGHT_SIDE", "LEFT_SIDE", "AFT"]
+}
