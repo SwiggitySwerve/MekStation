@@ -17,7 +17,7 @@ import {
 } from '../pilotingSkillRolls';
 import { hasQuirk } from '../quirkModifiers';
 
-// MegaMek 48fcb2f64 OptionsConstants.java:62,123; Entity.java:8942-8946,9989-9995;
+// MegaMek 48fcb2f64 OptionsConstants.java:62; Entity.java:9989-9995;
 // TWGameManager.java:17878-17888. These are unit design quirks, not pilot SPAs.
 const damage: IComponentDamageState = {
   engineHits: 0,
@@ -55,9 +55,6 @@ describe('native unit piloting quirk ids', () => {
     ['easy_pilot', 'easy_to_pilot', createDamagePSR('unit'), 3, 3],
     ['easy_pilot', 'easy_to_pilot', createLegDamagePSR('unit'), 5, 5],
     ['easy_pilot', 'easy_to_pilot', createStandingUpPSR('unit'), 5, 5],
-    ['hard_pilot', 'hard_to_pilot', createDamagePSR('unit'), 5, 6],
-    ['hard_pilot', 'hard_to_pilot', createRubblePSR('unit'), 3, 4],
-    ['hard_pilot', 'hard_to_pilot', createStandingUpPSR('unit'), 5, 6],
   ] as const)(
     '%s/%s resolves %j with piloting %s to TN %s',
     (native, legacy, psr, skill, targetNumber) => {
@@ -70,21 +67,21 @@ describe('native unit piloting quirk ids', () => {
     },
   );
 
-  it.each([
-    ['easy_pilot', 'easy_to_pilot'],
-    ['hard_pilot', 'hard_to_pilot'],
-  ])('recognizes %s and %s symmetrically', (native, legacy) => {
-    expect(hasQuirk([native], legacy)).toBe(true);
-    expect(hasQuirk([legacy], native)).toBe(true);
-  });
+  it.each([['easy_pilot', 'easy_to_pilot']])(
+    'recognizes %s and %s symmetrically',
+    (native, legacy) => {
+      expect(hasQuirk([native], legacy)).toBe(true);
+      expect(hasQuirk([legacy], native)).toBe(true);
+    },
+  );
 
   it('cancels opposing quirks only when Easy Pilot is eligible', () => {
     expect(
-      resolve(['easy_pilot', 'hard_pilot'], createDamagePSR('unit'))
+      resolve(['easy_pilot', 'hard_to_pilot'], createDamagePSR('unit'))
         .targetNumber,
     ).toBe(5);
     expect(
-      resolve(['easy_pilot', 'hard_pilot'], createDamagePSR('unit'), 3)
+      resolve(['easy_pilot', 'hard_to_pilot'], createDamagePSR('unit'), 3)
         .targetNumber,
     ).toBe(4);
   });
@@ -99,10 +96,23 @@ describe('native unit piloting quirk ids', () => {
     ).toBe(5);
   });
 
-  it.each([
-    ['easy_pilot', 4, -1],
-    ['hard_pilot', 6, 1],
-  ] as const)(
+  it('does not introduce a native Hard Pilot penalty with active VDNI', () => {
+    // Entity.java:8939-8946: active DNI suppresses Hard Pilot.
+    const result = resolvePSR({
+      pilotingSkill: 5,
+      psr: createDamagePSR('unit'),
+      componentDamage: damage,
+      pilotWounds: 0,
+      diceRoller: () => 3,
+      unitQuirks: ['hard_pilot'],
+      pilotAbilities: ['vdni'],
+      unitType: 'BattleMech',
+      neuralInterfaceActive: true,
+    });
+    expect(result.targetNumber).toBe(4);
+  });
+
+  it.each([['easy_pilot', 4, -1]] as const)(
     '%s reaches the interactive PSR event',
     (quirk, targetNumber, modifiers) => {
       const session = startGame(

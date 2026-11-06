@@ -364,11 +364,10 @@ export function getQuirksByCategory(
   return Object.values(QUIRK_CATALOG).filter((q) => q.category === category);
 }
 
-// Native ids: MegaMek 48fcb2f64 OptionsConstants.java:62,72-74,123,135-137.
+// Native ids: MegaMek 48fcb2f64 OptionsConstants.java:62,72-74,135-137.
 // Legacy saved ids remain the public catalog keys; normalize only at lookup.
 const NATIVE_UNIT_QUIRK_IDS: Readonly<Record<string, string>> = {
   easy_pilot: UNIT_QUIRK_IDS.EASY_TO_PILOT,
-  hard_pilot: UNIT_QUIRK_IDS.HARD_TO_PILOT,
   imp_target_short: UNIT_QUIRK_IDS.IMPROVED_TARGETING_SHORT,
   imp_target_med: UNIT_QUIRK_IDS.IMPROVED_TARGETING_MEDIUM,
   imp_target_long: UNIT_QUIRK_IDS.IMPROVED_TARGETING_LONG,
