@@ -44,3 +44,38 @@ designated category via `getPilotDesignation(pilot,
 - **AND** the volley-level number SHALL retain the first weapon's result for legacy consumers
 - **AND** single-category declarations SHALL retain their existing payload shape and older events without overrides SHALL retain the shared-number fallback
 - **AND** ID/name-dependent effects and human grid projection category propagation SHALL remain separate required work
+
+## ADDED Requirements
+
+### Requirement: Canonical DNI activation queries
+
+The SPA domain SHALL own DNI implant membership and native activation queries.
+Native activation SHALL require a compatible implant and the declared native
+mode/hardware inputs. Existing combat-flag compatibility SHALL remain explicitly
+separate and SHALL NOT be claimed as native mode/hardware resolution.
+
+#### Scenario: Native mode and hardware determine activity
+
+- **GIVEN** VDNI, Buffered VDNI or Prototype DNI is present
+- **WHEN** native activation is queried
+- **THEN** Off, absent, blank or unknown mode SHALL yield inactive
+- **AND** Pilot Abilities Only SHALL yield active regardless of hardware
+- **AND** Full Tracking SHALL yield active only with DNI cockpit hardware
+- **AND** exact stored mode strings SHALL be trimmed before matching
+
+#### Scenario: EI or a represented flag alone does not establish DNI
+
+- **GIVEN** no compatible DNI implant is present, including EI-only or TCP-only
+- **WHEN** either activity query is called
+- **THEN** it SHALL yield inactive even with hardware or an active represented flag
+
+#### Scenario: Represented compatibility preserves existing modifier output
+
+- **GIVEN** an existing ranged or piloting SPA consumer uses neuralInterfaceActive
+- **WHEN** it delegates to the represented activity adapter
+- **THEN** explicit false SHALL remain inactive and absent SHALL retain the legacy
+  implicit-active convention
+- **AND** existing modifier values, unit-type gates and implant precedence SHALL
+  remain unchanged, including Buffered VDNI having no piloting relief
+- **AND** callers SHALL NOT infer native activation or Hard Pilot suppression from
+  the numeric piloting modifier

@@ -49,7 +49,7 @@ import {
 } from '../battleValueDefensive';
 import { calculateOffensiveSpeedFactor } from '../battleValueMovement';
 import { deriveMechArmorSections } from './armorInputs';
-import { buildMechBVWeapons } from './weaponInputs';
+import { buildMechBVOffensiveInputs } from './weaponInputs';
 
 // === MAIN BV CALCULATION ===
 export function calculateUnitBV(
@@ -98,7 +98,7 @@ export function calculateUnitBV(
       ? Math.ceil(jumpMP * 3 * 1.5)
       : undefined;
 
-  const { weapons, hasTC } = buildMechBVWeapons(unit, cs, issues);
+  const weaponInputs = buildMechBVOffensiveInputs(unit, cs, issues);
   const defEquipIds: string[] = [...cs.defEquipIds];
 
   const ammoForCalc = cs.ammo.map((a) => ({
@@ -364,7 +364,7 @@ export function calculateUnitBV(
     cockpitUpper === 'SUPERHEAVY_TRIPOD_INDUSTRIAL';
   const offResult = calculateOffensiveBVWithHeatTracking(
     {
-      weapons,
+      ...weaponInputs,
       ammo: ammoForCalc,
       tonnage: unit.tonnage,
       walkMP: bvWalk,
@@ -373,7 +373,6 @@ export function calculateUnitBV(
       umuMP: cs.umuMP,
       // Pinned MekBVCalculator.heatEfficiency grants standard LAMs +3 BV heat efficiency.
       heatDissipation: heatDiss + (airMekFlankMP === undefined ? 0 : 3),
-      hasTargetingComputer: hasTC,
       hasTSM: cs.hasTSM,
       hasIndustrialTSM: cs.hasIndustrialTSM,
       hasStealthArmor: hasStealth,
@@ -474,7 +473,7 @@ export function calculateUnitBV(
       walkMP: bvWalk,
       runMP,
       jumpMP,
-      weaponCount: offResult.weaponCount ?? weapons.length,
+      weaponCount: offResult.weaponCount ?? weaponInputs.weapons.length,
       halvedWeaponCount: offResult.halvedWeaponCount ?? 0,
       weaponMountBV: offResult.weaponMountBV,
       ammoPools: offResult.ammoPools,
