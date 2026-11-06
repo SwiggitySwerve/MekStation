@@ -1,5 +1,16 @@
 # Offensive ammunition BV
 
+The Mech weapon-input boundary captures listed mounted weapon BV before
+post-scan Apollo and drone modifiers. The heat-tracking owner passes that
+plain `ammoCapWeapons` list to the existing cap owner; weapon-stage BV keeps
+its modifiers. Callers omitting the optional list retain their existing
+input policy. Pinned `BVCalculator.java:1189-1242` builds caps with
+`WeaponType.getBV(entity)`, independently of drone/Apollo in
+`processWeapon` (:845-847,869-875). Nonbinding source ammo can mask an
+incorrect cap without changing totals. Binding synthetic cases enforce this
+boundary; complete native quantities, one-shot eligibility and defensive
+caps do not acquire parity credit from this correction.
+
 `battleValueAmmo.ts` owns grouped accumulation and the offensive ammunition cap.
 Callers resolve equipment and choose keys; `addBVToAmmoCapGroup` accumulates each
 value in encounter order. `sumCappedAmmoBV` iterates ordinary object keys, skips

@@ -259,6 +259,16 @@ numeric output before native identity, quantity or grouping corrections.
 - **AND** an explicit ammunition family override SHALL take precedence over the bin's native identity
 - **AND** synthetic component agreement SHALL NOT establish native quantities, defensive caps or complete source parity
 
+#### Scenario: Mech ammunition caps use listed mounted weapon BV
+
+- **GIVEN** a Mech weapon whose offensive BV receives an Apollo or drone modifier
+- **WHEN** the offensive ammunition cap is assembled
+- **THEN** the cap SHALL use the listed mounted weapon BV captured before those modifiers
+- **AND** weapon-stage modifiers SHALL retain their existing values and operation order
+- **AND** binding ammunition SHALL be capped at that unmodified value
+- **AND** callers omitting separate cap inputs SHALL retain their existing policy
+- **AND** unchanged totals from nonbinding source ammunition SHALL NOT establish complete ammunition parity
+
 ## MODIFIED Requirements
 
 ### Requirement: Infantry Per-Trooper BV

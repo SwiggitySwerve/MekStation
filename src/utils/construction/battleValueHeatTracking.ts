@@ -206,7 +206,10 @@ export function calculateOffensiveBVWithHeatTracking(
     heatEfficiency,
   );
 
-  const ammoPools = calculateAmmoBVPools(config.weapons, config.ammo ?? []);
+  const ammoPools = calculateAmmoBVPools(
+    config.ammoCapWeapons ?? config.weapons,
+    config.ammo ?? [],
+  );
   const ammoBV = ammoPools.total;
   const weightBonus = calculateWeightBonus(config);
 

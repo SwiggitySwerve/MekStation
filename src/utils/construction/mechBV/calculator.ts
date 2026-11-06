@@ -98,7 +98,11 @@ export function calculateUnitBV(
       ? Math.ceil(jumpMP * 3 * 1.5)
       : undefined;
 
-  const { weapons, hasTC } = buildMechBVWeapons(unit, cs, issues);
+  const { weapons, hasTC, ammoCapWeapons } = buildMechBVWeapons(
+    unit,
+    cs,
+    issues,
+  );
   const defEquipIds: string[] = [...cs.defEquipIds];
 
   const ammoForCalc = cs.ammo.map((a) => ({
@@ -365,6 +369,7 @@ export function calculateUnitBV(
   const offResult = calculateOffensiveBVWithHeatTracking(
     {
       weapons,
+      ammoCapWeapons,
       ammo: ammoForCalc,
       tonnage: unit.tonnage,
       walkMP: bvWalk,

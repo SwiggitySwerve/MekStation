@@ -67,3 +67,43 @@ it('captures raw cap inputs before Apollo changes the weapon-stage BV', () => {
   expect(built.ammoCapWeapons).toEqual([{ id: 'mrm-20', bv: 112 }]);
   expect(built.weapons[0].bv).toBeCloseTo(128.8, 10);
 });
+
+// BVCalculator.java:1189-1242 uses listed BV for caps; :845-847 and
+// :869-875 apply drone/Apollo only in processWeapon (pin 48fcb2f64).
+// Binding-ammo synthetic component cases; not valid construction designs.
+it.each([
+  {
+    name: 'Apollo',
+    id: 'mrm-20',
+    slots: ['ISMRM20', 'ISApollo'],
+    ammo: 'IS MRM 20 Ammo',
+    bins: 9,
+    group: 'MRM:20',
+    cap: 112,
+    weaponBV: 128.8,
+  },
+  {
+    name: 'drone',
+    id: 'lrm-5',
+    slots: ['ISLRM5', 'ISDroneOperatingSystem'],
+    ammo: 'IS Ammo LRM-5',
+    bins: 8,
+    group: 'LRM:5',
+    cap: 45,
+    weaponBV: 36,
+  },
+])('uses raw weapon BV for a binding $name ammunition cap', (example) => {
+  const result = calculateUnitBV({
+    ...unit,
+    equipment: [{ id: example.id, location: 'RIGHT_TORSO' }],
+    criticalSlots: {
+      RIGHT_TORSO: [
+        ...example.slots,
+        ...Array<string>(example.bins).fill(example.ammo),
+      ],
+    },
+  }).breakdown;
+  expect(result?.ammoPools?.cap[example.group]).toBe(example.cap);
+  expect(result?.ammoBV).toBe(example.cap);
+  expect(result?.weaponBV).toBeCloseTo(example.weaponBV, 10);
+});
