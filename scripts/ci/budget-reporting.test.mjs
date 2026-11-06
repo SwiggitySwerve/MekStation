@@ -1,14 +1,48 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { test } from 'node:test';
 
+import { quantile } from '../lib/statistics.mjs';
 import * as budgets from './budget-config.mjs';
 import { projectTimingLimits, readWorkflow } from './budget-workflow.mjs';
 import { evaluateBudgetRaiseApproval } from './garden-approval.mjs';
 
 const original = budgets.loadBudgets();
+// Keep legacy-schema coverage independent of the deployed reporting caps.
+delete original.reporting;
 const configured = () => ({
   ...structuredClone(original),
   reporting: { jobMinutes: 60.25, criticalPathMs: 650000.5 },
+});
+
+test('deployed reporting caps stay within the measured bootstrap ceiling', () => {
+  const evidence = JSON.parse(
+    fs.readFileSync(
+      new URL('./fixtures/reporting-bootstrap.json', import.meta.url),
+      'utf8',
+    ),
+  );
+  const deployed = budgets.reportingLimits(budgets.loadBudgets());
+  assert.equal(evidence.included.length, 5);
+  assert.equal(new Set(evidence.included.map((s) => s.identity.runId)).size, 5);
+  for (const sample of evidence.included) {
+    assert.equal(sample.identity.event, 'push');
+    assert.equal(sample.identity.branch, 'main');
+    assert.equal(sample.identity.conclusion, 'success');
+  }
+  for (const id of Object.keys(budgets.REPORTING_UNITS)) {
+    const ceiling =
+      quantile(
+        evidence.included.map((sample) => sample.metrics[id]),
+        0.75,
+      ) * evidence.headroomMultiplier;
+    // Later explicit lowering is permitted; an upward reset is not.
+    assert.ok(
+      deployed[id] > 0 && deployed[id] <= ceiling,
+      `${id}: missing or above measured ceiling`,
+    );
+  }
+  assert.deepEqual(budgets.budgetRaises(original, budgets.loadBudgets()), []);
 });
 
 test('optional reporting caps support old configs and finite positive fractions only', () => {
